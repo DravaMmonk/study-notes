@@ -113,11 +113,10 @@ export const ERAS = [
   {
     id: 'qrules', machine: 'prover', keeps: 'all',
     foundation: [
-      // For any first: declaring “there is” takes a thing on the declaration board, as the for-any box does.
-      series('any', '任取', 'For any', ['q-allI']),
-      // Then taking one and “there is” need nothing from each other.
+      // For any and “there is” need nothing from each other: the for-any box, then taking one from what holds for
+      // all; declaring “there is” (its own thing card), then using it.
       branches(
-        ['forall', '取一个', 'Take one', ['q-allE', 'q-rename', 'q-allAnd', 'q-capture']],
+        ['forall', '任取', 'For any', ['q-allI', 'q-allE', 'q-rename', 'q-allAnd', 'q-capture']],
         ['exists', '存在', 'There is', ['decl-ex', 'q-exI', 'q-exE', 'q-witness']],
       ),
       // With both in hand, equality, its own mechanism (quantifiers swapped and moved are proof puzzles, topic P).

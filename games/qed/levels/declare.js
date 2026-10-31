@@ -656,7 +656,7 @@ export const thingDeclarations = [
       { given: ['∃y. Human(y)', '∀x. Human(x) → Mortal(x)'], goal: 'Mortal(soc)', make: false },
     ],
     intro: [
-      { t: T('「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，证明核本来就会。「存在」不同：「∃y. y是人」要有某一样东西，再有它是人的证明，比如「苏格拉底是人」。', '“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can already do that. “There is” is different: “∃y. y is human” needs some thing and a proof that it is human, such as “Socrates is human”.') },
+      { t: T('「对所有」不用声明：证明核自带任取框，任取一样东西证出来，就是对所有东西证出来。「存在」不同：「∃y. y是人」要有某一样东西，再有它是人的证明，比如「苏格拉底是人」。', '“For all” needs no declaration: the kernel has the for-any box of its own, and what is proved for any thing taken is proved for all. “There is” is different: “∃y. y is human” needs some thing and a proof that it is human, such as “Socrates is human”.') },
     ],
     tasks: [
       {
