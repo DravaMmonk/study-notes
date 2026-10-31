@@ -56,7 +56,7 @@ export default function CaseTable({ cases, words, level, edit = null, rowClass =
     ...(edit ? [{ key: 'make', label: T('预期', 'Expected'), edit: level.caseMake !== undefined ? null : (c, set) => (locked(c, 'make') ? derivable(c.make) : <InlineChoice value={c.make} options={makes} unset={unsure} onChange={(make) => set({ ...c, make })} />), cell: makeCell }] : []),
     { key: 'result', label: T('结果', 'Result'), className: 'lg-result', cell: (_, k) => (result(k) ? <span className={result(k).wrong ? 'lg-wrong' : 'lg-right'}>{derivable(result(k).derived)}</span> : '') },
   ]
-  const premises = (c, set, k) => <SentenceList value={c.given.filter((s) => !c.keep?.includes(s))} kept={[]} onChange={setGiven(c, set)} build={build} title={T(`第 ${k + 1} 条条例的前提`, `A premise of test case ${k + 1}`)} addLabel={T('添加前提', 'Add a premise')} scope={`${level.id}:case${k}`} />
+  const premises = (c, set, k) => <SentenceList value={c.given} kept={c.keep ?? []} onChange={setGiven(c, set)} build={build} title={T(`第 ${k + 1} 条条例的前提`, `A premise of test case ${k + 1}`)} addLabel={T('添加前提', 'Add a premise')} scope={`${level.id}:case${k}`} />
   const goal = (c, set, k) => <SentenceButton value={c.goal === '' ? '' : goalOf(c)} onChange={setGoal(c, set)} build={build} title={T(`第 ${k + 1} 条条例的目标`, `The goal of test case ${k + 1}`)} placeholder={unset} scope={`${level.id}:goal${k}`} />
   const form = (c, set, k) => (
     <>
