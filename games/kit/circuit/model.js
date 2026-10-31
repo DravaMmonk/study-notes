@@ -169,39 +169,56 @@ export function layout(graph, parts) {
   }
 }
 
-// Phone slots: each part sits in a numbered cell of a two-column grid and stays there. A part keeps its saved
-// `slot` when it is free; parts without one take the first free cells in data-flow order. The grid always ends
-// with at least one empty row, so there is room to drop a new part.
+// Phone slots: each grid is two columns of rows of one height, a part sitting in a numbered cell (row × 2 + column)
+// and staying there. A part keeps its saved `slot` when it fits there; parts without one take the first free cells in
+// data-flow order. The grid always ends with an empty row, so there is room to drop a new part.
 //
 // A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
-// slot counts in the grid of the region it sits in, which also ends with an empty row; the value it opens is a dot
-// over its grid, not a cell. A frame takes a whole row of the grid it sits in.
-export function placement(graph, parts, region = null) {
+// slot counts in the grid of the region it sits in. The frame spans the rows its regions take, each region a row for
+// its head (the value it opens), its own rows, and a row for its foot (the dot its result goes into), so its cells line
+// up with the cells beside it. A frame is two columns wide, or one (`node.narrow`, picked from its sheet); inside a
+// one-column frame everything is one column.
+//
+//   { cell: id → slot, span: id → [columns, rows], cols, rows, size, free: [slot] }      (fixed: no empty row at the end)
+export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
-  const here = steps.filter((n) => (n.in ?? null) === region)
-  // A frame takes a whole row, unless it is set narrow (`node.narrow`, on a phone: one column, its region one column
-  // too); inside a narrow frame's region, everything is one column.
-  const single = region !== null && Boolean(graph.nodes.find((n) => n.id === region.split('/')[0])?.narrow)
-  const wide = (n) => !single && !n.narrow && (parts.frames?.(n) ?? []).length > 0
-  // Cells taken: each part's (a frame's whole row).
-  const used = new Set()
-  const cell = new Map()
-  const fits = (n, at) => !used.has(at) && (!wide(n) || (at % 2 === 0 && !used.has(at + 1)))
-  const take = (n, at) => {
-    cell.set(n.id, at)
-    used.add(at)
-    if (wide(n)) used.add(at + 1)
+  const frameOf = (r) => byId(graph, r.split('/')[0])
+  const regions = (n) => parts.frames?.(n) ?? []
+  const single = (r) => r !== null && narrow(frameOf(r))
+  const narrow = (n) => Boolean(n?.narrow) || single(n?.in ?? null)
+  const place = (r) => {
+    const cols = single(r) ? 1 : 2
+    const used = new Set()
+    const cell = new Map()
+    const span = new Map()
+    const sizeOf = (n) => (regions(n).length
+      ? [narrow(n) ? 1 : cols, regions(n).reduce((sum, g) => sum + 2 + place(`${n.id}/${g.name}`).rows, 0)]
+      : [1, 1])
+    const cellsOf = (at, [w, h]) => {
+      const [row, col] = [Math.floor(at / cols), at % cols]
+      if (col + w > cols) return null
+      return Array.from({ length: w * h }, (_, k) => (row + Math.floor(k / w)) * cols + col + (k % w))
+    }
+    const fits = (n, at) => cellsOf(at, sizeOf(n))?.every((c) => !used.has(c))
+    const take = (n, at) => {
+      cell.set(n.id, at)
+      span.set(n.id, sizeOf(n))
+      for (const c of cellsOf(at, sizeOf(n))) used.add(c)
+    }
+    const here = steps.filter((n) => (n.in ?? null) === r)
+    for (const node of here) if (Number.isInteger(node.slot) && node.slot >= 0 && fits(node, node.slot)) take(node, node.slot)
+    for (const node of here) {
+      if (cell.has(node.id)) continue
+      let at = 0
+      while (!fits(node, at)) at += 1
+      take(node, at)
+    }
+    const last = used.size ? Math.floor(Math.max(...used) / cols) + 1 : 0
+    const rows = fixed ? Math.max(1, last) : last + 1
+    const size = rows * cols
+    return { cell, span, cols, rows, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
   }
-  for (const node of here) if (Number.isInteger(node.slot) && node.slot >= 0 && fits(node, node.slot)) take(node, node.slot)
-  for (const node of here) {
-    if (cell.has(node.id)) continue
-    let at = 0
-    while (!fits(node, at)) at += 1
-    take(node, at)
-  }
-  const even = (n) => (single ? n : n + (n % 2))
-  const size = even(Math.max(-1, ...used) + 1) + (single ? 1 : 2)
-  return { cell, size, wide: new Set(here.filter(wide).map((n) => n.id)), free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
+  return place(region)
 }
 
 /**
