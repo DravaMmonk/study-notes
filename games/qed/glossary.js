@@ -334,7 +334,7 @@ export const GLOSSARY = [
   },
   {
     id: 'query', group: 'fol', title: T('查询', 'query'), at: 'q-children',
-    body: [T(`留着一个${W('free')}的句子是一个<b>查询</b>：世界里哪些东西放进去能让它成立，就是答案。数据库的 SQL、Datalog 的核心就是这样的一阶逻辑：表是谓词，行是让它成立的东西。`, `A sentence with a ${W('free')} left in is a <b>query</b>: the things of the world that make it true when put in are the answer. The core of SQL and Datalog is first-order logic like this: a table is a predicate, its rows the things it holds of.`)],
+    body: [T(`留着一个自由变量的句子是一个<b>查询</b>：世界里哪些东西放进去能让它成立，就是答案。数据库的 SQL、Datalog 的核心就是这样的一阶逻辑：表是谓词，行是让它成立的东西。`, `A sentence with a free variable left in is a <b>query</b>: the things of the world that make it true when put in are the answer. The core of SQL and Datalog is first-order logic like this: a table is a predicate, its rows the things it holds of.`)],
     see: ['free', 'world'],
   },
   {

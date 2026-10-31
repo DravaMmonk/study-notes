@@ -111,7 +111,11 @@ export const ERAS = [
       series('nested', '量词套量词', 'One inside another', ['fo-nested', 'm-order']),
     ],
     practice: [series('splitting', '量词怎么拆', 'Taking quantifiers apart', ['p-only', 'p-split', 'p-exAnd'])],
-    topics: [{ id: 'family', code: 'F', after: ['fo-nested', 'm-order'], levels: ['q-children', 'q-grand', 'q-none', 'q-school'], title: T('查族谱', 'Asking a family tree') }],
+    topics: [
+      // A query of one predicate needs only a world and a variable; the ones with quantifiers wait for both kinds.
+      { id: 'family', code: 'F', after: 'm-world', levels: ['q-children'], title: T('查族谱', 'Asking a family tree') },
+      { id: 'family-more', code: 'F', after: ['q-children', 'fo-nested'], levels: ['q-grand', 'q-none', 'q-school'], title: T('查族谱：带量词的查询', 'Asking a family tree: queries with quantifiers') },
+    ],
     chapter: { title: T('量词的语言与反例', 'Quantifiers and counterexamples'), question: T('「每一个」「有一个」怎么说，证不出时怎样找反例？', 'How do you say “every” and “some”, and find a counterexample when no proof comes?') },
   },
   {
