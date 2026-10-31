@@ -358,7 +358,12 @@ export default {
   { version: 67, ops: [{ data: (value, id) => {
     const wrap = (w) => (w && typeof w === 'object' && 'size' in w ? { work: w } : w)
     return WORLD_LEVELS.includes(id) ? (Array.isArray(value) ? value.map(wrap) : wrap(value)) : value
-  } }] }],
+  } }] },
+  // Version 68 made 声明「真」 one table to fill in, as 声明 ⊥ is: its old tasks' boards are dropped.
+  { version: 68, ops: [
+    { data: (value, id) => (id === 'decl-true' ? undefined : value) },
+    { tasks: (passed, id) => (id === 'decl-true' ? 0 : passed) },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '相等', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],

@@ -411,6 +411,13 @@ const ONE_OF_THREE = {
   solution: isoBoard(['Sat>1', 'Sun>2', 'Holiday>3']),
 }
 const IFF = { f: 'Rain → Wet', g: 'Wet → Rain' }
+const TRUE_TESTS = [
+  { given: [], make: true },
+  { given: ['Rain'], make: true },
+  { given: ['Truth'], goal: 'Moon', make: false },
+  { given: ['Truth'], goal: 'Rain', make: false },
+  { given: ['Truth', 'Rain', 'Rain → Wet'], goal: 'Wet', make: true },
+]
 
 export const moreDeclarations = [
   {
@@ -578,58 +585,24 @@ export const moreDeclarations = [
     after: T('「恰好一人同意」却写不成声明：引入规则只能说有了什么就造得出，说不了有了什么就造不出。', '“Exactly one agrees” cannot be declared, though: an introduction rule can say what makes a sentence, never what stops it.'),
   }),
   declare({
-    // A declaration of True that asks for a premise, found out from both directions; then the player's own, with the
-    // card that needs nothing.
+    // A table to fill in, as for ⊥: the declaration of True is given (one intro rule needing nothing), and the player
+    // says, case by case, what it derives: True from anything, even nothing, and nothing new from True.
     id: 'decl-true',
     title: T('声明「真」', 'Declaring True'),
     declare: T('真', 'True'),
     target: 'Truth',
     sentences: ['Rain'],
-    tray: ['hyp', 'none'],
-    tests: [
-      { given: [], make: true },
-      { given: ['Rain'], make: true },
-      { given: ['Truth'], goal: 'Moon', make: false },
-      { given: ['Truth'], goal: 'Rain', make: false },
-      { given: ['Truth', 'Rain', 'Rain → Wet'], goal: 'Wet', make: true },
-    ],
-    intro: [{ t: T('与 ⊥ 相反，「真」永远成立。', 'The opposite of ⊥: True always holds.') }],
-    tasks: [
-      {
-        kind: 'iso',
-        step: T('找出错误', 'Find the fault'),
-        play: 'audit',
-        want: 'expose',
-        boards: [{ board: isoBoard(['Rain>1']) }],
-        slots: [
-          { make: true, fixed: ['goal', 'make'] },
-          { given: ['Truth'], keep: ['Truth'], make: false, fixed: ['make'] },
-        ],
-        answer: [
-          { given: [], make: true },
-          { given: ['Truth'], goal: 'Rain', make: false },
-        ],
-        naive: [
-          { given: ['Rain'], make: true },
-          { given: ['Truth'], goal: 'Moon', make: false },
-        ],
-        intro: [{ t: T('板上这份「真」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', 'The declaration of True on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault.') }],
-        brief: T('需求：「真」什么都不要：不管手里有什么，甚至什么都没有，都能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Requirement: True needs nothing: it may be introduced whatever is at hand, even with nothing at all. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
-        hint: [
-          T('按需求，什么都没有时，能引入「真」吗？', 'By the requirement, can True be introduced with nothing at hand?'),
-          T('这份声明的消去规则交还什么？按需求，单凭「真」能推出它吗？', 'What does this declaration’s elimination rule hand back? By the requirement, does it follow from True alone?'),
-        ],
-      },
-      {
-        kind: 'iso',
-        step: T('编写声明', 'Write the declaration'),
-        intro: [{ t: T('托盘里新添了「无前提」。', 'The tray now has “no premise”.') }],
-        brief: T('需求：「真」什么都不要：不管手里有什么，甚至什么都没有，都能引入。写出「真」的声明。', 'Requirement: True needs nothing: it may be introduced whatever is at hand, even with nothing at all. Write the declaration of True.'),
-        hint: [T('它需要几条引入规则，每条要几样？', 'How many introduction rules does it need, and how much does each need?')],
-      },
-    ],
+    tests: TRUE_TESTS,
     solution: isoBoard(['∅>1']),
-    naive: isoBoard(['Rain>1']),
+    play: 'audit',
+    want: 'agree',
+    boards: [{ board: isoBoard(['∅>1']) }],
+    slots: TRUE_TESTS.map(({ given, goal }) => ({ given, ...(goal ? { goal } : {}), fixed: ['given', 'goal'] })),
+    answer: TRUE_TESTS,
+    naive: TRUE_TESTS.map((c, k) => (k === 3 ? { ...c, make: !c.make } : c)),
+    intro: [{ t: T('与 ⊥ 相反，「真」永远成立。板上是它的声明：一条引入规则，接的是「无前提」，什么都不要。', 'The opposite of ⊥: True always holds. The board holds its declaration: one intro rule, wired from “no premise”, needing nothing.') }],
+    brief: T('需求：「真」什么都不要：不管手里有什么，甚至什么都没有，都能引入。按照这份声明，在表中填出每条条例的目标是否可推导。', 'Requirement: True needs nothing: it may be introduced whatever is at hand, even with nothing at all. Following this declaration, fill in whether each case’s goal is derivable.'),
+    hint: [T('这份声明的消去规则只有一种情况，它什么都不交还。', 'This declaration’s elimination rule has one case, which hands back nothing.')],
     after: T('「真」常写作 ⊤，和 ⊥ 正好相对：知道它成立，并没有多知道什么。', 'True is often written ⊤, the very opposite of ⊥: knowing it holds tells you nothing more.'),
   }),
   declare({
@@ -680,7 +653,7 @@ export const moreDeclarations = [
       {
         kind: 'iso',
         step: T('编写声明', 'Write the declaration'),
-        intro: [{ t: T('前提不必是一个字母，也可以是含 → 的句子。', 'A premise need not be a single letter; it can be a sentence with → in it.') }],
+        intro: [{ t: T('前提不必是一个字母，也可以是含 → 的句子。托盘里新添了<level-ref to="decl-true"></level-ref>声明里的「无前提」。', 'A premise need not be a single letter; it can be a sentence with → in it. The tray now has the “no premise” of the declaration in <level-ref to="decl-true"></level-ref>.') }],
         brief: T('需求：「下雨当且仅当地湿」：两个方向的「若…则…」都已证出，才能引入。写出「当且仅当」的声明。', 'Requirement: “it rains if and only if the ground is wet” may be introduced only when the “if … then” both ways are proved. Write the declaration of “if and only if”.'),
         hint: [T('需求要的两样，是同时都要，还是有一样就够？', 'Does the requirement need both at once, or is either enough?')],
       },
