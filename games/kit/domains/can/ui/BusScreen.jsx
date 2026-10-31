@@ -251,7 +251,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="cn-sheet">
             <p className="cn-desc">{L(descOf(node))}</p>
             {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} width={editing.widthOf(node.id)} />}
           </div>
         </Sheet>
       )}

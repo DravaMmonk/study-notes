@@ -179,7 +179,10 @@ export function layout(graph, parts) {
 export function placement(graph, parts, region = null) {
   const { steps } = layout(graph, parts)
   const here = steps.filter((n) => (n.in ?? null) === region)
-  const wide = (n) => (parts.frames?.(n) ?? []).length > 0
+  // A frame takes a whole row, unless it is set narrow (`node.narrow`, on a phone: one column, its region one column
+  // too); inside a narrow frame's region, everything is one column.
+  const single = region !== null && Boolean(graph.nodes.find((n) => n.id === region.split('/')[0])?.narrow)
+  const wide = (n) => !single && !n.narrow && (parts.frames?.(n) ?? []).length > 0
   // Cells taken: each part's (a frame's whole row).
   const used = new Set()
   const cell = new Map()
@@ -196,8 +199,8 @@ export function placement(graph, parts, region = null) {
     while (!fits(node, at)) at += 1
     take(node, at)
   }
-  const even = (n) => n + (n % 2)
-  const size = even(Math.max(-1, ...used) + 1) + 2
+  const even = (n) => (single ? n : n + (n % 2))
+  const size = even(Math.max(-1, ...used) + 1) + (single ? 1 : 2)
   return { cell, size, wide: new Set(here.filter(wide).map((n) => n.id)), free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
 }
 
