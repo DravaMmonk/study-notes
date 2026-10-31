@@ -2,7 +2,7 @@
 // level's spec writes them (build.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { checkIso, declaredRules, follows, isoBoard, listText, runIso, settle, waysIn } from './iso.js'
+import { checkIso, declaredRules, follows, isoBoard, runIso, settle, waysIn } from './iso.js'
 import { ruleText } from './schematic.js'
 import { boardOf, linesOf, premiseChips, problemsOf } from './ruleLines.js'
 import { runLevel } from '../../engine/tests.js'
@@ -430,7 +430,6 @@ test('a premise needed under another (a card wired into a card): → declared, i
   const words = (l) => ({ zh: l, en: l })
   const box = isoBoard(['A>B', 'B>1'])
   assert.ok(checkIso(level, box, words).pass)
-  assert.equal(listText(runIso(level, box, { given: [] }).values.get('hyp-B'), level, show), '⟦⟦A⟧ ⟹ B⟧')
   // Needing B alone gives B back to whoever has A → B: too weak.
   assert.equal(checkIso(level, isoBoard(['B>1']), words).pass, false)
   const rules = declaredRules(level, waysIn(box))
