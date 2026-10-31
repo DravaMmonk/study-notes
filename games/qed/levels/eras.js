@@ -101,11 +101,10 @@ export const ERAS = [
   {
     id: 'quantifiers', machine: 'prover', keeps: 'all',
     foundation: [
-      // Saying first-order sentences and building worlds for them need nothing from each other.
-      branches(
-        ['translate', '翻译', 'Translating', ['fo-atoms', 'fo-all', 'fo-some', 'fo-nested']],
-        ['worlds', '造世界', 'Building worlds', ['m-world', 'm-make', 'm-counter', 'm-order']],
-      ),
+      // Each quantifier is said first, then a wrong declaration about it is found out by a world.
+      series('every', '对所有', 'Every', ['fo-atoms', 'fo-all', 'm-world', 'm-counter']),
+      series('some', '存在', 'Some', ['fo-some', 'm-make']),
+      series('nested', '量词套量词', 'One inside another', ['fo-nested', 'm-order']),
     ],
     practice: [series('splitting', '量词怎么拆', 'Taking quantifiers apart', ['p-only', 'p-split', 'p-exAnd'])],
     topics: [{ id: 'family', code: 'F', after: ['fo-nested', 'm-order'], levels: ['q-children', 'q-grand', 'q-none', 'q-school'], title: T('查族谱', 'Asking a family tree') }],

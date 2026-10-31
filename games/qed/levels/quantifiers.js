@@ -1,7 +1,7 @@
 // Chapter 5 · The language of quantifiers and counterexamples: what first-order sentences say and when they are true,
-// before any proof. Two lines: translating (names and predicates, every, some, one inside another) and worlds, each
-// level someone's wrong declaration of a sentence, its requirement what the sentence says, found out by a world where
-// the two differ (what nitpick looks for): true in one world, false in another; which quantifier comes first. The family topic asks a world questions.
+// before any proof. Each quantifier is said first (names and predicates, every, some, one inside another), then a
+// world level after it: someone's wrong declaration of a sentence, its requirement what the sentence says, found out by
+// a world where the two differ (what nitpick looks for). The family topic asks a world questions.
 
 import { isoBoard, startIso } from '../../kit/domains/logic/iso.js'
 
@@ -101,7 +101,6 @@ export const quantifiers = [
   {
     id: 'm-world',
     consts,
-    symbols: ['∀'],
     title: T('真假看世界', 'True in one world'),
     tasks: [
       {
@@ -134,7 +133,6 @@ export const quantifiers = [
     id: 'm-make',
     kind: 'model',
     consts,
-    symbols: ['∃'],
     title: T('同时都对', 'All at once'),
     target: '∀x. Bird(x) → Flies(x)',
     board: isoBoard(['p1>1'], { p1: '∃x. Bird(x) ∧ Flies(x)' }),

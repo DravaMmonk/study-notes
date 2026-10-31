@@ -363,6 +363,15 @@ export default {
   { version: 68, ops: [
     { data: (value, id) => (id === 'decl-true' ? undefined : value) },
     { tasks: (passed, id) => (id === 'decl-true' ? 0 : passed) },
+  ] },
+  // Version 69 put each world level after the translation level of its quantifier: whoever passed a level has passed
+  // the ones now before it.
+  { version: 69, ops: [
+    { solve: ['m-order', ['fo-nested']] },
+    { solve: ['fo-nested', ['m-make']] },
+    { solve: ['m-make', ['fo-some']] },
+    { solve: ['fo-some', ['m-world', 'm-counter']] },
+    { solve: ['m-world', ['fo-atoms', 'fo-all']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
