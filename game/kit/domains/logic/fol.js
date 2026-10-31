@@ -5,6 +5,7 @@
 //   world  { things: [name], preds: { P: [name] | [[name, name]] }, consts?: { c: name } }   a level's own world
 import { countermodelSearch, holds } from './models.js'
 import { parse, signature } from './formula.js'
+import { DECL, isoBoard, needSentence, waysIn } from './iso.js'
 
 /**
  * Do two formulas agree in every world of 1 to 3 things? null when they do, or a world where they differ:
@@ -51,44 +52,32 @@ export function builtWorld(w, vocab) {
   return { domain, preds, fns }
 }
 
-// A counterexample level (kind 'model', ui/WorldScreens.jsx) is someone's inference that does not hold: its premises
-// (given) joined into its conclusion (goal), ⟦A; B⟧ ⟹ C, wired as a declaration's way is (iso.js cards: a premise card
-// each, Join between them, a card assuming nothing when there is none). The player builds a world where every premise
-// holds and the conclusion fails.
-export const CLAIM = 'claim'
+// A counterexample level (kind 'model', ui/WorldScreens.jsx) is someone's wrong declaration: a declaration board
+// (iso.js) whose one intro rule takes the level's premises (given), joined, and makes its conclusion (goal), ⟦A; B⟧ ⟹
+// C. The rule is read off the board, as a declaration's is; the player builds a world where every premise of it holds
+// and its conclusion fails.
 
-/** The inference's board: premise cards down the left, joined in turn, into the conclusion card; every card locked. */
-export function claimBoard(given) {
-  const at = (x, k) => ({ x, y: 40 + k * 150, locked: true })
-  const cards = given.length
-    ? given.map((f, k) => ({ id: `p${k + 1}`, type: 'hyp', params: { name: f }, ...at(20, k) }))
-    : [{ id: 'none', type: 'none', params: {}, ...at(20, 0) }]
-  const nodes = [...cards]
-  const wires = []
-  let last = cards[0].id
-  cards.slice(1).forEach((card, k) => {
-    const id = `j${k + 1}`
-    nodes.push({ id, type: 'join', params: {}, ...at(280, k) })
-    wires.push({ from: last, to: id, port: 'a' }, { from: card.id, to: id, port: 'b' })
-    last = id
-  })
-  nodes.push({ id: CLAIM, type: CLAIM, params: { name: '' }, ...at(cards.length > 1 ? 540 : 280, 0) })
-  wires.push({ from: last, to: CLAIM, port: 'p' })
-  return { nodes, wires }
-}
+/** The board: a premise card for each sentence given (a card assuming nothing when there is none), joined into the
+ * declared card's first way. */
+export const claimBoard = (given) => (given.length
+  ? isoBoard([`${given.map((_, k) => `p${k + 1}`).join('+')}>1`], Object.fromEntries(given.map((f, k) => [`p${k + 1}`, f])))
+  : isoBoard(['∅>1']))
 
 /**
- * The cards a run goes through, in order, each with its sentence and whether it is true in the world: the premises,
- * then the conclusion. A card is `right` when it is as a counterexample needs it (a premise true, the conclusion false).
+ * The cards a run goes through, in order, each with its sentence and whether it is true in the world: the premises of
+ * the rule the board declares, then its conclusion. A card is `right` when it is as a counterexample needs it (a
+ * premise true, the conclusion false).
  */
-export function claimCards(level, world) {
+export function claimCards(level, world, board = claimBoard(level.given)) {
   const model = builtWorld(world, level.vocab)
   const read = (f) => parse(f, { consts: level.vocab.names })
-  return [...level.given.map((f, k) => ({ id: `p${k + 1}`, f, premise: true })), { id: CLAIM, f: level.goal, premise: false }].map((card) => {
-    const value = holds(read(card.f), model)
-    return { ...card, value, right: card.premise === value }
+  const needs = waysIn(board)[0]?.needs.map(needSentence) ?? []
+  const card = (f) => board.nodes.find((n) => n.type === 'hyp' && n.params.name === f).id
+  return [...needs.map((f) => ({ id: card(f), f, premise: true })), { id: DECL, f: level.goal, premise: false }].map((c) => {
+    const value = holds(read(c.f), model)
+    return { ...c, value, right: c.premise === value }
   })
 }
 
-/** Whether a world is a counterexample to the level's inference. */
+/** Whether a world is a counterexample to the level's wrong rule. */
 export const counters = (level, world) => world.size <= (level.maxSize ?? 3) && claimCards(level, world).every((c) => c.right)
