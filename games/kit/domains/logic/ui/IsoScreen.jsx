@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench, usePlayback } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
 import Entries from '../../../shell/Entries.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
@@ -9,14 +9,13 @@ import { atom, fn, tvar } from '../formula.js'
 import { ruleText } from '../schematic.js'
 import { blankRule, boardOf, linesOf, problemsOf } from '../ruleLines.js'
 import FaultScreen from './IsoFaultScreen.jsx'
-import CaseTable from './IsoCases.jsx'
 import RuleTable from './RuleTable.jsx'
 
 // A declaration on the rule table (RuleTable.jsx, ../ruleLines.js): its intro rules filled in, each premise a sentence
-// built on the strip, then the rules as the kernel writes them (DeclRules) over the test cases (检验条例,
-// ui/IsoCases.jsx): what is given, the goal, and whether it is derivable. Running goes down the rows
-// (../../../shell/usePlayback.jsx) and stops on the first one that is wrong; rules that are not a declaration yet (a
-// premise unfinished, one about a thing its rule does not take) stop it before the first.
+// built on the strip, then the rules as the kernel writes them (DeclRules). Checked as a translation is (FormulaScreen):
+// the level's test cases (检验条例) stay out of sight, and a failure says the first one the declaration gets wrong; rules
+// that are not a declaration yet (a premise unfinished, one about a thing its rule does not take) say so first. The
+// test cases are the player's to write on the levels that check someone's declarations (IsoFaultScreen.jsx).
 
 // Ways are numbered 1 2 3.
 export const WAY = ['1', '2', '3']
@@ -50,46 +49,38 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const change = (next) => {
     setRules(next)
     save({ rules: next })
+    setVerdict(null)
   }
   const problems = useMemo(() => problemsOf(level, rules), [level, rules])
   // The board the kernel's checks read: the rules once they are a declaration.
   const board = useMemo(() => (problems.length ? startIso() : boardOf(linesOf(rules))), [problems, rules])
-  const [testIndex, setTestIndex] = useState(0)
-  const checked = useMemo(() => checkIso(level, board, words), [level, board])
-  const why = (p) => (p.why === 'empty'
-    ? tr(`引入规则 ${p.rule + 1} 的第 ${p.need + 1} 个前提还没写完。`, `Premise ${p.need + 1} of intro rule ${p.rule + 1} is not finished.`)
-    : tr(`引入规则 ${p.rule + 1} 的第 ${p.need + 1} 个前提提到了没有任取的东西。`, `Premise ${p.need + 1} of intro rule ${p.rule + 1} mentions a thing its rule does not take.`))
-  const playback = usePlayback({
-    count: level.tests.length,
-    stepsOf: (k) => (k === 0 && problems.length ? [{ failed: why(problems[0]) }] : []),
-    check: (k) => (checked.results[k].pass ? '' : L(checked.results[k].reason)),
-    final: () => (checked.ways ? L(checked.ways) : ''),
-    onSolve: () => solve({ steps: rules.length }),
-    onTest: setTestIndex,
-    board: rules,
-    kept: lastRun,
-    onKeep: keepRun,
-  })
-  const run = playback.run
-  const verdict = run?.over ? { pass: playback.passed } : null
-  const failed = run?.over && !playback.passed ? run.results.at(-1) : null
-  const verdictText = !verdict ? null : verdict.pass
-    ? tr('所有检验条例都正确：应当可推导的目标，这份声明都推导得出；不应当可推导的，都推导不出。', 'Every test case is right: each goal that should be derivable is derived by this declaration, and none that should not be is.')
-    : run.final || failed?.reason
-
-  // Each case shows its result only once the run has stepped to it.
-  const shown = (k) => (run ? k < run.results.length && !problems.length : false)
-  const rowClass = (k) => `${k === testIndex ? 'is-on' : ''} ${playback.states[k] ? `is-${playback.states[k]}` : ''}`
-  const result = (k) => (shown(k) ? { derived: checked.results[k].derived, wrong: !checked.results[k].pass } : null)
+  // Checked as a translation is: against the level's cases, out of sight; a failure says the first case it gets wrong.
+  const judge = () => {
+    const p = problems[0]
+    if (p) {
+      return { pass: false, text: p.why === 'empty'
+        ? tr(`引入规则 ${p.rule + 1} 的第 ${p.need + 1} 个前提还没写完。`, `Premise ${p.need + 1} of intro rule ${p.rule + 1} is not finished.`)
+        : tr(`引入规则 ${p.rule + 1} 的第 ${p.need + 1} 个前提提到了没有任取的东西。`, `Premise ${p.need + 1} of intro rule ${p.rule + 1} mentions a thing its rule does not take.`) }
+    }
+    const checked = checkIso(level, board, words)
+    if (checked.pass) return { pass: true }
+    const wrong = checked.results.find((r) => !r.pass)
+    return { pass: false, text: L(wrong ? wrong.reason : checked.ways) }
+  }
+  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
+  const check = () => {
+    const v = judge()
+    setVerdict(v)
+    if (v.pass) solve({ steps: rules.length })
+  }
   const stage = (
     <div className="fo-stage">
       <RuleTable level={level} rules={rules} onChange={change} scope={`${entry.id}:${level.task ?? 0}`} />
-      <div className="lg-strip is-tables">
-        <DeclRules level={level} ways={waysIn(board)} />
-        <CaseTable cases={level.tests} words={words} level={level} rowClass={rowClass} onPick={setTestIndex} result={result} phone={phone} />
-        {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
-      </div>
-      <footer className="run-foot"><RunDock {...playback.dock({ go: tr('运行检验条例', 'Run the test cases'), done: tr('所有条例均正确', 'All cases correct') })} /></footer>
+      <DeclRules level={level} ways={waysIn(board)} />
+      {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('这份声明符合需求。', 'This declaration meets the requirement.') : verdict.text}</p>}
+      <footer className="run-foot">
+        <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
+      </footer>
     </div>
   )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
