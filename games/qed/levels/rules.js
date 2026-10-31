@@ -76,7 +76,7 @@ export const rules = [
     given: ['∀x. ∃y. Likes(x, y)'],
     goal: '∃y. Likes(y, y)',
     answer: { size: 2, preds: { Likes: ['0,1', '1,0'] } },
-    brief: T('这块电路把「每样东西都喜欢某样东西」里的 x 换成 y，推出「有一样东西喜欢自己」。造一个反例。', 'This board puts y in for x in “everything likes something” and infers “something likes itself”. Build a counterexample.'),
+    brief: T('这份声明把「每样东西都喜欢某样东西」里的 x 换成 y，推出「有一样东西喜欢自己」。造一个反例。', 'This declaration puts y in for x in “everything likes something” and infers “something likes itself”. Build a counterexample.'),
     hint: [T('两样东西，互相喜欢，都不喜欢自己。', 'Two things that like each other and not themselves.')],
     intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走（<wiki-ref to="capture"></wiki-ref>），意思全变了：在「每样东西都喜欢某样东西」里把 x 换成 y，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is caught by the quantifier (<wiki-ref to="capture"></wiki-ref>), and the meaning changes completely: putting y in for x in “everything likes something” seems to give “something likes itself”.') }],
     after: T('所以代入前要先给量词的变量改名；证明器的<part-ref to="part:allE"></part-ref>会自动这样做。', 'So the quantifier’s variable is renamed before substituting; the prover’s <part-ref to="part:allE"></part-ref> does this by itself.'),

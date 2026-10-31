@@ -23,7 +23,7 @@ const query = (level) => ({ kind: 'query', consts, worlds: families, ...level })
 const STEPS = [T('第一句', 'Sentence 1'), T('第二句', 'Sentence 2'), T('第三句', 'Sentence 3')]
 const sentences = (list, decoys = []) => list.map((task, k) => ({ kind: 'translate', step: STEPS[k], decoys: [...list.filter((_, j) => j !== k).map((t) => t.target), ...decoys], ...task }))
 const BRIEF = T('用下面的元件，把这句话拼成公式。', 'Build this sentence as a formula from the parts below.')
-const COUNTER = T('造一个世界，作为板上这块推理电路的反例。', 'Build a world that is a counterexample to the inference on the board.')
+const COUNTER = T('造一个世界，作为板上这条引入规则的反例。', 'Build a world that is a counterexample to the intro rule on the board.')
 
 export const quantifiers = [
   {
@@ -109,7 +109,7 @@ export const quantifiers = [
         given: ['∃x. Human(x)'],
         goal: '¬∀x. Human(x) → Mortal(x)',
         answer: { size: 2, preds: { Human: ['0'], Mortal: ['0'] } },
-        brief: T('这块电路从「有人」推出「并非人都会死」。造一个反例：里面有人，而且人都会死。', 'This board infers “not every human is mortal” from “there is a human”. Build a counterexample: a world with a human in it, where every human is mortal.'),
+        brief: T('这份声明从「有人」推出「并非人都会死」。造一个反例：里面有人，而且人都会死。', 'This declaration infers “not every human is mortal” from “there is a human”. Build a counterexample: a world with a human in it, where every human is mortal.'),
         hint: [T('点一样东西，它就「是人」；再点一下，就不是。', 'Tap a thing to make it human; tap again to undo.')],
       },
       {
@@ -118,13 +118,13 @@ export const quantifiers = [
         given: [],
         goal: '∀x. Human(x) → Mortal(x)',
         answer: { size: 1, preds: { Human: ['0'] } },
-        brief: T('这块电路不要任何前提，就推出「人都会死」。造一个反例。', 'This board infers “every human is mortal” from nothing at all. Build a counterexample.'),
+        brief: T('这份声明不要任何前提，就推出「人都会死」。造一个反例。', 'This declaration infers “every human is mortal” from nothing at all. Build a counterexample.'),
         hint: [T('一样反例就够：一个不会死的人。', 'One counterexample is enough: a human who is not mortal.')],
       },
     ],
     intro: [
       { t: T('命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是<wiki-ref to="world"></wiki-ref>：世界里有几样东西，每样东西是什么、和别的东西是什么关系。', 'In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the <wiki-ref to="world"></wiki-ref>: how many things there are, what each is and how they relate.') },
-      { t: T('板上是别人接的一块推理电路，和声明的引入规则一样，前提卡拼起来接进结论：前提都成立时，它说结论也成立。它推错了。', 'The board holds an inference someone wired, the way an intro rule of a declaration is wired: premise cards joined into the conclusion. It says that when the premises hold, so does the conclusion. It is wrong.') },
+      { t: T('板上是别人写的一份声明：前提卡拼起来接进声明元件，引入规则说前提都成立时，声明的那句话也成立。这条规则推错了。', 'The board holds a declaration someone wrote: premise cards joined into the declared card, so its intro rule says that when the premises hold, the declared sentence holds too. That rule is wrong.') },
       { t: T('在下面造一个世界：选好有几样东西，再点出每样东西有哪些性质，让前提都成立、结论不成立。运行时，每张卡上显示它在这个世界里的真假。', 'Build a world below: choose how many things there are, then tap what holds of each, so that the premises hold and the conclusion fails. A run shows on each card whether it is true in this world.') },
     ],
     after: T('一句话永远成立，是说它在所有世界里都真；世界有无穷多个，大小不限。', 'A sentence that always holds is true in every world, and there are infinitely many worlds, of any size.'),
@@ -187,7 +187,7 @@ export const quantifiers = [
     given: ['(∀x. Bird(x)) → (∀x. Flies(x))'],
     goal: '∀x. Bird(x) → Flies(x)',
     answer: { size: 2, preds: { Bird: ['0'] } },
-    brief: T('两句话看着像：「要是什么都是鸟，那什么都会飞」和「鸟都会飞」。这块电路由前一句推出后一句，造一个反例。', 'Two sentences that look alike: “if everything is a bird, then everything flies” and “every bird flies”. This board infers the second from the first; build a counterexample.'),
+    brief: T('两句话看着像：「要是什么都是鸟，那什么都会飞」和「鸟都会飞」。这份声明由前一句推出后一句，造一个反例。', 'Two sentences that look alike: “if everything is a bird, then everything flies” and “every bird flies”. This declaration infers the second from the first; build a counterexample.'),
     hint: [T('第二句的条件「什么都是鸟」，只要有一样东西不是鸟，就不成立。', 'The second sentence’s condition, “everything is a bird”, fails as soon as one thing is not a bird.')],
   },
   {
