@@ -11,7 +11,7 @@ const T = (zh, en) => ({ zh, en })
 const GROUPS = [['name', T('名字', 'Names')], ['form', T('写法', 'Forms')]]
 const pathOf = (key) => key.split('.').slice(1).map(Number)
 
-export default function TermEditor({ tree, onChange, scope, forms, history: scopeKey, children = null }) {
+export default function TermEditor({ tree, onChange, scope, forms, history: scopeKey }) {
   const chips = useMemo(() => chipsOf(scope, tree, forms), [scope, tree, forms])
   const history = useHistory(tree, onChange, scopeKey, 0)
   const strip = useStrip({
@@ -41,7 +41,6 @@ export default function TermEditor({ tree, onChange, scope, forms, history: scop
       <StripTools history={history} onClear={() => onChange(null)} empty={!tree} />
       <Strip line={[segmentOf(tree)]} label={T('证明项', 'proof term')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {strip.note ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p> : <p className="ks-note">{tr('点击文字可以删除。', 'Tap words to delete them.')}</p>}
-      {children}
       <Chips groups={groups} onChip={(key) => { strip.onChip(key) }} />
     </>
   )

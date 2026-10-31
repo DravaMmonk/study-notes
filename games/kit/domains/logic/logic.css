@@ -66,13 +66,6 @@
 .lg-score .stat span { color: var(--muted); font-size: 11px; }
 
 /* ---- phone ---- */
-.lg-phone { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; }
-/* Each part keeps its row whether or not the level has test tabs above (a truth circuit has none): the scroller takes
-   what is left, the tray and the run bar their own height. */
-.lg-phone > .lg-scroll { grid-row: 2; }
-.lg-phone > .pb-tray { grid-row: 3; }
-.lg-phone > .run-foot { grid-row: 4; }
-.lg-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
 .lg-chips { display: grid; gap: 2px; }
 .lg-mark { color: var(--faint); font-style: normal; font-size: 11px; }
 .lg-sink { display: grid; gap: 2px; }
@@ -113,12 +106,10 @@
 .lg-mark-pick { display: flex; gap: 6px; }
 .lg-mark-pick button { height: 32px; padding: 0 12px; border: 0; border-radius: 16px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
 .lg-mark-pick button[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
-.lg-truth .run-foot { position: sticky; bottom: 0; }
 
 /* ---- map art ---- */
 
 @media (max-width: 760px) {
-  .lg-truth { padding: 4px 12px 24px; }
   .lg-table { width: 100%; }
   .lg-table th, .lg-table td { min-width: 0; padding: 0 6px; }
 }
@@ -149,6 +140,8 @@
 /* A long sentence wraps, and a choice of long sentences narrows to the page: nothing makes the page wider. */
 .fo-stage select { max-width: 100%; text-overflow: ellipsis; }
 .fo-stage b, .fo-stage code { overflow-wrap: anywhere; }
+/* On a phone the page already has its margins. */
+.level-phone .fo-stage, .level-phone .lg-truth, .level-phone .lg-define { width: 100%; margin: 0; padding: 0; }
 .fo-item { display: grid; gap: 8px; padding: 14px 16px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .fo-item.is-pass { box-shadow: inset 0 0 0 1.5px var(--status); }
 .fo-item.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
@@ -287,9 +280,7 @@
 
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
 .lg-define { max-width: 720px; margin: 0 auto; padding: 28px 24px 40px; display: grid; gap: 18px; }
-.lg-define .run-foot { position: sticky; bottom: 0; }
 .lg-define .lg-rows { width: 100%; }
-@media (max-width: 720px) { .lg-define { padding: 4px 12px 24px; } }
 .lg-defs { display: grid; gap: 10px; }
 .lg-def-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 15px; }
 .lg-def-when { color: var(--muted); }

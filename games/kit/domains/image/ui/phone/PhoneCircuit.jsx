@@ -3,7 +3,7 @@ import { ArrowDownToLine, Check, X } from 'lucide-react'
 import { NODE_TYPES, inputsOf, settingsOf } from '../../engine/nodes.js'
 import { L, tr } from '../../../../shell/i18n.js'
 import { Notice, PartActions, SlotBoard, Tray, feeding, useSlotEditing } from '../../../../circuit/index.js'
-import { RunDock, TaskCard, TestTabs } from '../../../../shell/index.js'
+import { PhonePage, RunDock, TestTabs } from '../../../../shell/index.js'
 import { describe, familyOf, iconOf } from '../catalog.js'
 import { partsFor } from '../parts.js'
 import ImageView from '../ImageView.jsx'
@@ -24,7 +24,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // An output and its expected value can only be compared cell by cell when they are the same size.
 const fits = (img, expected) => img.w === expected.w && img.h === expected.h
 
-export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
@@ -113,57 +113,43 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
   }
 
   return (
-    <div className="pb" ref={root}>
-      <TestTabs phone tests={level.tests} states={level.tests.map((_, index) => { const ok = run?.results[index]?.pass; return ok === true ? 'pass' : ok === false ? 'fail' : null })} index={testIndex} onSelect={onTestIndex} />
-
-      <div className="pb-scroll" ref={scroller}>
-        <TaskCard>{brief}</TaskCard>
-        <SlotBoard
-          graph={graph}
-          parts={parts}
-          nameOf={nameOf}
-          thumb={boardThumb}
-          tileExtra={tileExtra}
-          sinkBody={sinkBody}
-          sinkClass={(node) => {
-            const check = sinkCheck(node)
-            return check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''
-          }}
-          picking={editing.picking}
-          moving={editing.moving}
-          canLand={editing.canLand}
-          onPort={editing.onPort}
-          onNode={editing.onNode}
-          onSlot={editing.onSlot}
-          history={editing.history}
-          onClear={onClear}
-          onChange={onChange}
-          types={level.palette}
-        />
-        {/* Under the board: what the hidden tests say, training, this test's details, and the score last. */}
-        <div className="pb-below">
-          {hiddenMiss ? (
-            <p className="hidden-note is-fail">{tr(`这些测试全部通过，但 ${hiddenMiss.total} 组隐藏测试中有 ${hiddenMiss.failed} 组未通过：电路可能只是恰好适用于这几张图。`, `These tests all pass, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
-          ) : hiddenCount > 0 ? (
-            <p className="hidden-note">{tr(`另有 ${hiddenCount} 组隐藏测试，运行测试时一并检查，通关后公开。`, `${hiddenCount} more hidden ${hiddenCount === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)}</p>
-          ) : null}
-          {training}
-          <details className="pb-details">
-            <summary>{tr('这组测试的详情', 'Details of this test')}</summary>
-            {testDetails}
-          </details>
-          {footer}
-        </div>
+    <PhonePage
+      rootRef={root}
+      scrollRef={scroller}
+      className="level-graph"
+      brief={brief}
+      tests={<TestTabs phone tests={level.tests} states={level.tests.map((_, index) => { const ok = run?.results[index]?.pass; return ok === true ? 'pass' : ok === false ? 'fail' : null })} index={testIndex} onSelect={onTestIndex} />}
+      tray={<Tray items={level.palette.filter((type) => !level.folded?.includes(type)).map(trayItem)} folded={(level.folded ?? []).map(trayItem)} onPick={editing.placeFirstFree} />}
+      results={testDetails}
+      dock={<RunDock go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }} />}
+    >
+      <SlotBoard
+        graph={graph}
+        parts={parts}
+        nameOf={nameOf}
+        thumb={boardThumb}
+        tileExtra={tileExtra}
+        sinkBody={sinkBody}
+        sinkClass={(node) => {
+          const check = sinkCheck(node)
+          return check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''
+        }}
+        picking={editing.picking}
+        moving={editing.moving}
+        canLand={editing.canLand}
+        onPort={editing.onPort}
+        onNode={editing.onNode}
+        onSlot={editing.onSlot}
+        history={editing.history}
+        onClear={onClear}
+        onChange={onChange}
+        types={level.palette}
+      />
+      {/* Under the board: training, and the score last. */}
+      <div className="pb-below">
+        {training}
+        {footer}
       </div>
-
-      <Tray items={level.palette.filter((type) => !level.folded?.includes(type)).map(trayItem)} folded={(level.folded ?? []).map(trayItem)} onPick={editing.placeFirstFree} />
-
-      {/* The kit's run bar (RunDock), as in every level: Run. */}
-      <footer className="run-foot">
-        <RunDock
-          go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }}
-        />
-      </footer>
 
       <Notice editing={editing} />
 
@@ -207,7 +193,7 @@ export default function PhoneCircuit({ level, hiddenCount = 0, hiddenMiss, graph
           </Sheet>
         )
       })()}
-    </div>
+    </PhonePage>
   )
 }
 

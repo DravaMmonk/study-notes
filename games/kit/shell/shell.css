@@ -147,11 +147,12 @@
 .drawer-chevron { color: var(--faint); transition: transform 180ms ease; }
 .drawer-chapter-head[aria-expanded='false'] .drawer-chevron { transform: rotate(-90deg); }
 .drawer-toggle.is-on { color: var(--ink); background: var(--hover); }
-/* Workbench: brief | stage | side (side optional). */
-.level { min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
-.level.has-side { grid-template-columns: 280px minmax(0, 1fr) 400px; }
-.stage-pane { position: relative; min-width: 0; min-height: 0; }
-.stage-pane.is-scroll { overflow-y: auto; background: var(--canvas); }
+/* A level on a desktop (Workbench.jsx): the brief on the left; the stage over the results strip on the right. */
+.level { min-height: 0; display: grid; grid-template-columns: 280px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+.level > .brief { grid-row: 1 / -1; }
+.stage-pane { position: relative; grid-column: 2; grid-row: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--canvas); }
+.stage-pane.is-scroll { overflow-y: auto; }
+.stage-pane.is-board { overflow: hidden; }
 .brief { min-height: 0; padding: 22px 20px 24px; display: flex; flex-direction: column; gap: 22px; overflow-y: auto; border-right: 1px solid var(--hairline); background: var(--paper); scrollbar-width: thin; }
 .brief-head { display: grid; gap: 4px; }
 .brief-id { color: var(--accent-ink); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; }
@@ -227,7 +228,7 @@
 
 /* ---- tablet ---- */
 @media (max-width: 1180px) {
-  .level.has-side { grid-template-columns: 250px minmax(0, 1fr) 340px; }
+  .level { grid-template-columns: 250px minmax(0, 1fr); }
   .map-hero { grid-template-columns: 1fr; }
   .map-hero-art { max-width: 640px; }
 }
@@ -263,8 +264,18 @@
 }
 
 /* ---- Phone: one scrolling page per level (task, pinned tests, the circuit as a list of steps) ---- */
-.level-phone { min-height: 0; overflow-y: auto; overscroll-behavior: contain; background: var(--canvas); padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
-.pl-brief { padding: 12px 12px 0; }
+/* A level on a phone (Layout.jsx PhonePage): the tests pinned at the top, the page scrolling between, and the tray,
+   the results drawer and the run bar pinned at the bottom. */
+.level-phone { min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--canvas); }
+.pl-scroll { --pb-sticky-top: -12px; flex: 1; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
+.pl-scroll > * { min-width: 0; }
+/* The results drawer: folded to nothing, it opens upward over the run bar to at most a little under half the screen. */
+.pl-drawer { flex: none; display: grid; grid-template-rows: 0fr; border-top: 1px solid transparent; background: var(--paper); transition: grid-template-rows 220ms cubic-bezier(.2, .8, .2, 1), border-color 220ms ease; }
+.pl-drawer.is-open { grid-template-rows: 1fr; border-top-color: var(--hairline); box-shadow: 0 -16px 28px -22px rgba(30, 26, 18, .5); }
+.pl-drawer-body { min-height: 0; max-height: 46dvh; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px; display: grid; align-content: start; gap: 10px; }
+.pl-drawer.is-open .pl-drawer-body { padding: 12px; }
+.pl-drawer-body > * { min-width: 0; margin: 0; }
+.run-drawer[aria-expanded='true'] { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
 /* The task card (Layout.jsx TaskCard), the same in every game on a phone: 任务, folding away to the level. */
 .task-card { border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .task-toggle { width: 100%; min-height: 40px; padding: 0 12px 0 14px; display: flex; align-items: center; justify-content: space-between; border: 0; color: var(--muted); background: transparent; font: 400 11px var(--mono); letter-spacing: .14em; cursor: pointer; }
@@ -404,91 +415,78 @@
 .run-go.is-pulse { animation: run-pulse 1.2s ease-out 3; }
 @keyframes run-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
 @media (prefers-reduced-motion: reduce) { .run-go { transition: none; } .run-go.is-pulse { animation: none; } }
-/* Where it sits: the bottom of a level's side column on a desktop, the bottom of the page on a phone. */
+/* Where it sits: the bottom right of a level on a desktop (Workbench.jsx), the bottom of the page on a phone. */
 .run-foot { flex: none; padding: 12px 16px; border-top: 1px solid var(--hairline); background: var(--paper); }
 @media (max-width: 760px) {
   .run-foot { padding: 10px max(12px, env(safe-area-inset-left, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)); }
+  .run-foot .run-meta:empty { display: none; }
   .run-go { flex: 1 1 auto; }
   /* With step controls, one row: Step, Pause and Clear as bare icons at the left (their names stay for screen readers),
      Run taking the rest. */
   .run-foot .run-dock:has(.run-ctl) { gap: 8px; }
-  .run-foot .run-dock:has(.run-ctl) .run-meta:empty { display: none; }
   .run-foot .run-dock:has(.run-ctl) .run-ctl, .run-foot .run-dock:has(.run-ctl) .run-sec { position: relative; flex: 0 0 46px; min-height: 46px; padding: 0; justify-content: center; }
   .run-foot .run-dock:has(.run-ctl) .run-ctl > span, .run-foot .run-dock:has(.run-ctl) .run-sec > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .run-foot .run-dock:has(.run-ctl) .run-go { flex: 1 1 auto; min-width: 0; padding: 0 12px; }
 }
-/* In a desktop level's side column the count gets its own line and the buttons share the next. */
-@media (min-width: 761px) {
-  .run-foot .run-dock { flex-wrap: wrap; }
-  .run-foot .run-meta { flex: 1 0 100%; }
-  .run-foot .run-meta:empty { display: none; }
-  .run-ctl { padding: 0 10px; }
-  .run-foot .run-dock:has(.run-ctl) .run-go { min-width: 0; padding: 0 14px; }
-  .run-foot .run-go { flex: 1 1 auto; }
-}
 
-/* ---------- a circuit level on a desktop (CircuitLayout.jsx), the same in every game: the task on the left; the parts
-   row over the board; under it the strip, a header of tests, then the inputs and outputs panes and the run column. ---------- */
+/* ---------- the strip under a desktop level's stage (Workbench.jsx), the same in every game: a header of tests, then
+   the results pane and the run column at the bottom right; over a board, the parts row. ---------- */
 @media (min-width: 761px) {
-  .level.kit-circuit {
-    /* The strip is as tall as what it holds (up to 60% of the screen), until the player drags its edge (--world-h);
-       a drag never folds it under what keeps its header, a few rows of the outputs and the whole run column in view. */
-    --world-min: 270px;
-    grid-template-columns: 280px minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) auto;
-  }
-  .kit-circuit > .brief { grid-row: 1 / -1; }
+  /* The strip is as tall as what it holds (up to 60% of the screen), until the player drags its edge (--world-h);
+     a drag never folds it under what keeps its header, a few rows of the results and the whole run column in view. */
+  .level { --world-min: 270px; }
   /* The strip's pane: a quiet card with a small head. */
-  .kc-pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; border-radius: 12px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
-  .kc-pane-head { flex: none; min-height: 30px; padding: 8px 12px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font: 500 12px/1.4 var(--sans); }
-  .kc-pane-head > :last-child:not(:first-child) { min-width: 0; overflow: hidden; color: var(--faint); font-family: var(--mono); font-size: 11px; white-space: nowrap; text-overflow: ellipsis; }
-  .kc-pane-body { flex: 1; min-height: 0; padding: 8px 12px 12px; overflow: auto; scrollbar-width: thin; }
-  .kit-circuit > .kc-stage { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--canvas); }
-  /* The board keeps its own layers (cards, floating windows) to itself, so nothing on it covers the parts row's tooltips. */
-  .kc-canvas { position: relative; z-index: 0; isolation: isolate; flex: 1; min-height: 0; }
-  .kc-canvas > * { position: absolute; inset: 0; }
-  .kc-canvas .kit-board { height: 100%; margin: 0; }
+  .wb-pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; border-radius: 12px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+  .wb-pane-head { flex: none; min-height: 30px; padding: 8px 12px 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font: 500 12px/1.4 var(--sans); }
+  .wb-pane-head > :last-child:not(:first-child) { min-width: 0; overflow: hidden; color: var(--faint); font-family: var(--mono); font-size: 11px; white-space: nowrap; text-overflow: ellipsis; }
+  .wb-pane-body { flex: 1; min-height: 0; padding: 8px 12px 12px; overflow: auto; scrollbar-width: thin; }
+  /* Before there is anything to show, the results pane keeps its place unseen. */
+  .wb-pane:has(> .wb-pane-body:empty:only-child) { background: none; box-shadow: none; }
+  /* A board keeps its own layers (cards, floating windows) to itself, so nothing on it covers the parts row's tooltips. */
+  .is-board > .wb-stage { position: relative; z-index: 0; isolation: isolate; flex: 1; min-height: 0; }
+  .is-board > .wb-stage > * { position: absolute; inset: 0; }
+  .wb-stage .kit-board { height: 100%; margin: 0; }
   /* The parts: one row of icons and names; what each does is its tooltip, under it. */
-  .kc-toolbar { flex: none; position: relative; z-index: 6; padding: 8px 12px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
-  .kc-toolbar .palette { display: flex; flex-wrap: wrap; gap: 4px; }
-  .kit-circuit .kc-toolbar .palette .palette-item { width: auto; min-height: 34px; padding: 3px 12px 3px 5px; grid-template-columns: 22px auto; gap: 7px; border-radius: 9px; background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
-  .kit-circuit .kc-toolbar .palette .palette-item:hover { background: var(--hover); box-shadow: inset 0 0 0 1px var(--rule); transform: none; }
-  .kit-circuit .kc-toolbar .palette .family-chip { width: 20px; height: 20px; }
-  .kit-circuit .kc-toolbar .palette .palette-text { display: flex; }
-  .kit-circuit .kc-toolbar .palette .palette-text span { font-size: 13px; white-space: nowrap; }
-  .kc-toolbar .palette-text small, .kc-toolbar .palette-add { display: none; }
-  .kc-toolbar .palette-tip { left: 0; right: auto; top: calc(100% + 6px); }
-  .kc-toolbar .palette-item[data-tip='left'] .palette-tip { left: auto; right: 0; }
-  .kc-toolbar .palette-item:hover .palette-tip, .kc-toolbar .palette-item:focus-visible .palette-tip { display: block; }
+  .wb-toolbar { flex: none; position: relative; z-index: 6; padding: 8px 12px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
+  .wb-toolbar .palette { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wb-toolbar .palette .palette-item { width: auto; min-height: 34px; padding: 3px 12px 3px 5px; grid-template-columns: 22px auto; gap: 7px; border-radius: 9px; background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
+  .wb-toolbar .palette .palette-item:hover { background: var(--hover); box-shadow: inset 0 0 0 1px var(--rule); transform: none; }
+  .wb-toolbar .palette .family-chip { width: 20px; height: 20px; }
+  .wb-toolbar .palette .palette-text { display: flex; }
+  .wb-toolbar .palette .palette-text span { font-size: 13px; white-space: nowrap; }
+  .wb-toolbar .palette-text small, .wb-toolbar .palette-add { display: none; }
+  .wb-toolbar .palette-tip { left: 0; right: auto; top: calc(100% + 6px); }
+  .wb-toolbar .palette-item[data-tip='left'] .palette-tip { left: auto; right: 0; }
+  .wb-toolbar .palette-item:hover .palette-tip, .wb-toolbar .palette-item:focus-visible .palette-tip { display: block; }
   /* The strip: header, then the outputs pane and the run column. */
-  .kit-circuit > .kc-world { position: relative; grid-column: 2; grid-row: 2; height: var(--world-h, auto); max-height: var(--world-max, 60dvh); min-height: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--paper); }
-  .kc-resize { position: absolute; z-index: 5; left: 0; right: 0; top: -5px; height: 10px; cursor: row-resize; touch-action: none; }
-  .kc-resize::after { content: ''; position: absolute; left: 50%; top: 3px; width: 44px; height: 4px; margin-left: -22px; border-radius: 2px; background: var(--rule); transition: background 160ms ease; }
-  .kc-resize:hover::after, .kc-resize:focus-visible::after { background: var(--accent); }
-  .kc-resize:focus-visible { outline: none; }
-  .kc-strip-head { flex: none; margin: 0 16px; padding: 8px 0; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--hairline); }
-  .kc-tests { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
-  .kc-strip-body { flex: 1; min-height: 0; padding: 10px 16px 12px; display: flex; gap: 14px; }
-  .kc-strip-body > .kc-outputs { flex: 1; }
-  .kc-actions { flex: none; width: 236px; display: flex; flex-direction: column; justify-content: flex-end; }
-  .kc-actions > .run-foot { padding: 0; border: 0; background: none; }
-  .kc-actions .run-dock { flex-wrap: wrap; gap: 8px; }
-  .kc-actions .run-meta:empty { display: none; }
-  .kc-actions .run-meta:not(:empty) { flex: 1 0 100%; }
-  .kc-actions .run-ctl, .kc-actions .run-sec { position: relative; flex: 1 1 0; justify-content: center; }
-  .kc-actions .run-dock:has(.run-ctl) .run-sec { flex: 0 0 52px; padding: 0; }
-  .kc-actions .run-dock:has(.run-ctl) .run-sec > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .kc-actions .run-go { flex: 1 0 100%; min-width: 0; min-height: 56px; }
+  .level > .wb-strip { position: relative; grid-column: 2; grid-row: 2; height: var(--world-h, auto); max-height: var(--world-max, 60dvh); min-height: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--paper); }
+  .wb-resize { position: absolute; z-index: 5; left: 0; right: 0; top: -5px; height: 10px; cursor: row-resize; touch-action: none; }
+  .wb-resize::after { content: ''; position: absolute; left: 50%; top: 3px; width: 44px; height: 4px; margin-left: -22px; border-radius: 2px; background: var(--rule); transition: background 160ms ease; }
+  .wb-resize:hover::after, .wb-resize:focus-visible::after { background: var(--accent); }
+  .wb-resize:focus-visible { outline: none; }
+  .wb-strip-head { flex: none; margin: 0 16px; padding: 8px 0; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--hairline); }
+  .wb-tests { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .wb-strip-body { flex: 1; min-height: 0; padding: 10px 16px 12px; display: flex; gap: 14px; }
+  .wb-strip-body > .wb-results { flex: 1; }
+  .wb-actions { flex: none; width: 236px; margin-left: auto; display: flex; flex-direction: column; justify-content: flex-end; }
+  .wb-actions > .run-foot { padding: 0; border: 0; background: none; }
+  .wb-actions .run-dock { flex-wrap: wrap; gap: 8px; }
+  .wb-actions .run-meta:empty { display: none; }
+  .wb-actions .run-meta:not(:empty) { flex: 1 0 100%; }
+  .wb-actions .run-ctl, .wb-actions .run-sec { position: relative; flex: 1 1 0; justify-content: center; }
+  .wb-actions .run-dock:has(.run-ctl) .run-sec { flex: 0 0 52px; padding: 0; }
+  .wb-actions .run-dock:has(.run-ctl) .run-sec > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .wb-actions .run-go { flex: 1 0 100%; min-width: 0; min-height: 56px; }
   /* How the tests stand. */
-  .kc-status { flex: none; display: flex; align-items: center; gap: 8px; color: var(--muted); font: 500 12px var(--mono); }
-  .kc-dots { display: flex; gap: 4px; }
-  .kc-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--rule); transition: background 200ms ease; }
-  .kc-dots i.is-pass { background: var(--status); }
-  .kc-dots i.is-fail { background: var(--fail); }
-  .kc-dots i.is-run { background: var(--accent); }
-  .kc-status.is-pass b { color: var(--status); }
-  .kc-hidden { display: inline-flex; align-items: center; gap: 4px; color: var(--faint); }
-  .kc-hidden.is-fail { color: var(--fail); }
+  .wb-status { flex: none; display: flex; align-items: center; gap: 8px; color: var(--muted); font: 500 12px var(--mono); }
+  .wb-dots { display: flex; gap: 4px; }
+  .wb-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--rule); transition: background 200ms ease; }
+  .wb-dots i.is-pass { background: var(--status); }
+  .wb-dots i.is-fail { background: var(--fail); }
+  .wb-dots i.is-run { background: var(--accent); }
+  .wb-status.is-pass b { color: var(--status); }
+  .wb-hidden { display: inline-flex; align-items: center; gap: 4px; color: var(--faint); }
+  .wb-hidden.is-fail { color: var(--fail); }
 }
 
 /* A level's tests (TestTabs): chips in a circuit level's strip on a desktop, tabs across the top of the phone page. */
@@ -499,8 +497,8 @@
 .test-row.is-fail svg { color: var(--fail); }
 .test-row.is-active { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
 @media (min-width: 761px) {
-  .kc-tests .test-list { margin: 0; flex-wrap: nowrap; }
-  .kc-tests .test-list li { flex: none; }
+  .wb-tests .test-list { margin: 0; flex-wrap: nowrap; }
+  .wb-tests .test-list li { flex: none; }
 }
 .pb-tests { padding: 8px 12px; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--hairline); background: var(--paper); }
 .pb-tests::-webkit-scrollbar { display: none; }

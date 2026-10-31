@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, TestTabs, Workbench, useBoardCases } from '../../../shell/index.js'
+import { Brief, Level, RunDock, TestTabs, useBoardCases } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
 import { judgeCases, sentenceOf, waysIn } from '../iso.js'
@@ -85,25 +85,17 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     if (!(k < reached || whole(cases[k])) || !r || r.derived[boardCases.at] === null) return null
     return { derived: r.derived[boardCases.at], wrong: r.right && r.derived[boardCases.at] !== r.wants }
   }
-  const table = (
-    <div className="lg-strip is-tables">
-      <DeclRules level={level} ways={ways} />
-      <CaseTable phone={phone} cases={cases} words={words} level={level} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
-      {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
-    </div>
-  )
   const dock = <RunDock {...playback.dock({ go: tr('运行检验条例', 'Run the test cases'), done: level.want === 'agree' ? tr('结果全部相符', 'All results agree') : tr('已找出错误', 'Fault found') })} />
   // The declarations are the test cases: their tabs put one on the table.
   const named = boardCases.tests.map((t, k) => ({ ...t, label: level.boards[k].label ?? { zh: `声明 ${k + 1}`, en: `Declaration ${k + 1}` } }))
-  const tabs = (onPhone) => <TestTabs tests={named} states={states} index={boardCases.at} onSelect={boardCases.select} phone={onPhone} />
+  const tests = <TestTabs tests={named} states={states} index={boardCases.at} onSelect={boardCases.select} phone={phone} />
   const stage = (
     <div className="fo-stage">
-      {tabs(phone)}
       <RuleTable level={level} rules={rulesOf(level, ways)} />
-      {table}
-      <footer className="run-foot">{dock}</footer>
+      <DeclRules level={level} ways={ways} />
+      <CaseTable phone={phone} cases={cases} words={words} level={level} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
     </div>
   )
-  if (phone) return <PhonePage brief={brief} className="fo-level lg-level">{stage}</PhonePage>
-  return <Workbench className="fo-level lg-level" brief={brief} stage={stage} scroll />
+  const results = verdictText ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdictText}</p> : null
+  return <Level phone={phone} className="fo-level lg-level" brief={brief} tests={tests} stage={stage} results={results} dock={dock} />
 }

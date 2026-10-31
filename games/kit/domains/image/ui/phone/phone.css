@@ -83,12 +83,8 @@
 }
 
 /* ---- The board screen: tests on top, the board in the middle, the tray and the bar below ---- */
-.level-phone.is-split { overflow: hidden; padding-bottom: 0; }
-.pb { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; background: var(--canvas); }
-.pb.dragging { user-select: none; -webkit-user-select: none; }
 
 
-.pb-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 12px 12px 72px; display: grid; align-content: start; gap: 12px; overflow-x: clip; }
 
 .pb-compare { max-width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; }
 .pb-compare figure { margin: 0; display: grid; justify-items: center; gap: 2px; line-height: 0; }
@@ -106,9 +102,8 @@
 .pc-compare { display: flex; gap: 14px; }
 .pc-compare figure { margin: 0; display: grid; justify-items: center; gap: 4px; }
 .pc-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
-.pb-below { margin-top: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.pb-below { margin-top: 4px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
 .pb-below .train-buttons button { min-height: 44px; flex: 1; }
-.pb-details summary { min-height: 40px; display: flex; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
 }

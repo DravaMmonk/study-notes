@@ -65,13 +65,11 @@
 .sx-result.is-pass { border-color: var(--sx-ok); color: var(--sx-ok); }
 .sx-result p { margin: 0; }
 .sx-result ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-.sx-stage > .run-foot { padding: 12px 0 0; border-top: 1px solid var(--hairline); background: none; }
 
 /* ---- the passed dialog's skeleton ---- */
 .sx-skeleton { margin: 0; font-family: var(--serif); font-size: 17px; color: var(--heading); }
 .sx-skeleton small { display: block; font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); color: var(--muted); }
 
 /* ---- the phone ---- */
-.level-phone.sx-level .sx-stage { padding: 12px 12px 0; }
+.level-phone.sx-level .sx-stage { padding: 0; }
 .level-phone.sx-level .sx-sentence { padding: 14px 12px 18px; font-size: 19px; }
-.level-phone.sx-level .sx-stage > .run-foot { position: sticky; bottom: 0; z-index: 4; margin: 0 -12px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--hairline); background: var(--paper); }

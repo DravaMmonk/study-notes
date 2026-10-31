@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
+import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
@@ -49,17 +49,11 @@ export default function TermScreen({ game, level: entry, saved, save, solve, las
         {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(([name, f]) => <span key={name} className="tm-premise"><code>{name}</code>：{text(f)}</span>)}</p>}
         <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
       </section>
-      <TermEditor tree={tree} onChange={change} scope={[...Object.keys(level.premises ?? {}), ...(level.uses ?? []), ...consts]} forms={level.forms} history={`${entry.id}:${level.task ?? 0}`}>
-        {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型相符：这个证明项证明的正是这句话。', 'The type checks: this proof term proves exactly this sentence.') : L(verdict.reason)}</p>}
-      </TermEditor>
-      <footer className="run-foot">
-        <RunDock
-          go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
-        />
-      </footer>
+      <TermEditor tree={tree} onChange={change} scope={[...Object.keys(level.premises ?? {}), ...(level.uses ?? []), ...consts]} forms={level.forms} history={`${entry.id}:${level.task ?? 0}`} />
     </div>
   )
+  const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型相符：这个证明项证明的正是这句话。', 'The type checks: this proof term proves exactly this sentence.') : L(verdict.reason)}</p> : null
+  const dock = <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="fo-level tm-level">{stage}</PhonePage>
-  return <Workbench className="fo-level tm-level" brief={brief} stage={stage} scroll />
+  return <Level phone={phone} className="fo-level tm-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

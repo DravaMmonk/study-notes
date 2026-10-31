@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FlaskConical, FolderTree, Play, RotateCcw, X } from 'lucide-react'
-import { Brief, PhonePage, Text, Workbench } from '../../../shell/index.js'
+import { Brief, Level, Text } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { playHand } from '../hand.js'
 import { cut } from '../model.js'
@@ -73,8 +73,7 @@ export default function HandScreen({ game, level: entry, saved, save, solve, pho
       </section>
     </div>
   )
-  if (phone) return <PhonePage brief={brief} className="ag-hand-phone">{stage}</PhonePage>
-  return <Workbench brief={brief} stage={stage} scroll className="ag-level" />
+  return <Level phone={phone} className={phone ? 'ag-hand-phone' : 'ag-level'} brief={brief} stage={stage} />
 }
 
 function Log({ log }) {

@@ -3,43 +3,50 @@ import { useLayoutEffect, useRef } from 'react'
 import { L, tr } from './i18n.js'
 
 /**
- * A circuit level on a desktop, the same in every game, laid out the way the signal flows.
+ * A level on a desktop, the same in every game and every kind of level.
  *
- *   left bar   the task and the level's own choices
- *   middle     the parts as one row of icons (what each does in a tooltip) over the circuit board, full width; a game
- *              may float a window over the board (the robot's view) through its canvas
- *   strip      a header with the tests and how they stand; then one pane with the test's inputs and what the circuit
- *              gives against what was expected, and the actions in a narrow column at the end (单步 and 清空 over Run)
+ *   left       the task and the level's own choices (brief)
+ *   middle     what the level is played on (stage): a board that fills it (a circuit), or one that scrolls (`scroll`: a
+ *              table, a sentence, rows to fill in); over a board, the parts as one row of icons (parts)
+ *   strip      a header with the tests and how they stand (tests, status), when the level has them; then the results
+ *              (what a run or check gives: outputs, the test board, the verdict; `resultsTitle`, `resultsAside` head
+ *              it) and, in a narrow column at the bottom right, the run bar (dock)
  *
- * The line along the strip's top drags it taller or shorter, and the height is remembered for every game.
- *
- * brief, parts, canvas, tests (the chips), status (TestStatus), outputs (+ outputsTitle, outputsAside: a note at
- * the pane head's end), actions (the run bar: a footer.run-foot)
+ * `results` left out: the level has no results pane (the run bar alone, at the right); null: the pane is there, empty
+ * until there is something to show. The line along the strip's top drags it taller or shorter, and the height is
+ * remembered for every game.
  */
-export default function CircuitLayout({ rootRef: given, className = '', brief, parts, canvas, tests, status, outputs, outputsTitle, outputsAside, actions }) {
+export default function Workbench({ rootRef: given, className = '', brief, parts, stage, scroll = false, tests, status, results, resultsTitle, resultsAside, dock }) {
   const own = useRef(null)
   const rootRef = given ?? own
+  const pane = results !== undefined
   return (
-    <div ref={rootRef} className={`level kit-circuit ${className}`}>
+    <div ref={rootRef} className={`level ${className}`}>
       <aside className="brief">{brief}</aside>
-      <div className="stage-pane kc-stage">
-        {parts && <div className="kc-toolbar" aria-label={tr('元件', 'Parts')}>{parts}</div>}
-        <div className="kc-canvas">{canvas}</div>
+      <div className={`stage-pane ${scroll ? 'is-scroll' : 'is-board'}`}>
+        {parts && <div className="wb-toolbar" aria-label={tr('元件', 'Parts')}>{parts}</div>}
+        <div className="wb-stage">{stage}</div>
       </div>
-      <section className="kc-world" aria-label={tr('测试', 'Tests')}>
-        <WorldHandle rootRef={rootRef} />
-        <header className="kc-strip-head">
-          <div className="kc-tests">{tests}</div>
-          {status}
-        </header>
-        <div className="kc-strip-body">
-          <section className="kc-pane kc-outputs" aria-label={tr('输入和输出', 'Inputs and outputs')}>
-            <header className="kc-pane-head"><span>{outputsTitle ?? tr('输出', 'Outputs')}</span>{outputsAside}</header>
-            <div className="kc-pane-body">{outputs}</div>
-          </section>
-          <div className="kc-actions">{actions}</div>
-        </div>
-      </section>
+      {(pane || dock || tests || status) && (
+        <section className="wb-strip">
+          {pane && <WorldHandle rootRef={rootRef} />}
+          {(tests || status) && (
+            <header className="wb-strip-head">
+              <div className="wb-tests">{tests}</div>
+              {status}
+            </header>
+          )}
+          <div className="wb-strip-body">
+            {pane && (
+              <section className="wb-pane wb-results">
+                {(resultsTitle || resultsAside) && <header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>}
+                <div className="wb-pane-body">{results}</div>
+              </section>
+            )}
+            {dock && <div className="wb-actions"><footer className="run-foot">{dock}</footer></div>}
+          </div>
+        </section>
+      )}
     </div>
   )
 }
@@ -53,11 +60,11 @@ export function TestStatus({ states, hidden }) {
   const passed = states.filter((s) => s === 'pass').length
   const ran = states.some((s) => s === 'pass' || s === 'fail')
   return (
-    <div className={`kc-status ${ran && passed === states.length ? 'is-pass' : ''}`} aria-label={tr(`${passed} / ${states.length} 通过`, `${passed} / ${states.length} passed`)}>
-      <span className="kc-dots" aria-hidden="true">{states.map((s, k) => <i key={k} className={s ? `is-${s}` : ''} />)}</span>
+    <div className={`wb-status ${ran && passed === states.length ? 'is-pass' : ''}`} aria-label={tr(`${passed} / ${states.length} 通过`, `${passed} / ${states.length} passed`)}>
+      <span className="wb-dots" aria-hidden="true">{states.map((s, k) => <i key={k} className={s ? `is-${s}` : ''} />)}</span>
       <b>{ran ? passed : '–'}/{states.length}</b>
       {hidden?.count > 0 && (
-        <span className={`kc-hidden ${hidden.failed ? 'is-fail' : ''}`} title={L(hidden.note)}>
+        <span className={`wb-hidden ${hidden.failed ? 'is-fail' : ''}`} title={L(hidden.note)}>
           <EyeOff size={13} aria-hidden="true" />
           {hidden.failed ? tr(`${hidden.failed} 个未通过`, `${hidden.failed} failed`) : `+${hidden.count}`}
         </span>
@@ -83,7 +90,7 @@ function WorldHandle({ rootRef }) {
   }, [rootRef])
   // The strip's height when it just fits what it holds (read with the dragged height taken off for a moment).
   const natural = (el) => {
-    const world = el.querySelector('.kc-world')
+    const world = el.querySelector('.wb-strip')
     const h = el.style.getPropertyValue('--world-h')
     const max = el.style.getPropertyValue('--world-max')
     el.style.removeProperty('--world-h')
@@ -129,7 +136,7 @@ function WorldHandle({ rootRef }) {
     const step = event.key === 'ArrowUp' ? 40 : event.key === 'ArrowDown' ? -40 : 0
     if (!step) return
     event.preventDefault()
-    keep(size(rootRef.current.querySelector('.kc-world').getBoundingClientRect().height + step))
+    keep(size(rootRef.current.querySelector('.wb-strip').getBoundingClientRect().height + step))
   }
-  return <div className="kc-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整测试区高度，双击恢复自动高度', 'Drag to resize the test area; double-click to fit it again')} title={tr('拖动调整高度 · 双击恢复自动高度', 'Drag to resize · double-click to fit')} tabIndex={0} onPointerDown={down} onDoubleClick={fit} onKeyDown={key} />
+  return <div className="wb-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整结果区高度，双击恢复自动高度', 'Drag to resize the results area; double-click to fit it again')} title={tr('拖动调整高度 · 双击恢复自动高度', 'Drag to resize · double-click to fit')} tabIndex={0} onPointerDown={down} onDoubleClick={fit} onKeyDown={key} />
 }

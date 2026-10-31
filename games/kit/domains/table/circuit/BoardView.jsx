@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { CanvasEditor, Choice, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { PhonePage } from '../../../shell/index.js'
 import { signal } from '../util.js'
 import { def, hasValue, valueDefault, isInput } from './components.js'
 import { CARD_W } from './board.js'
@@ -107,8 +108,8 @@ export function SgParts({ board }) {
   return <Palette items={board.palette().map(item)} folded={board.folded().map(item)} onAdd={add} compact />
 }
 
-/** Phone: the board as a grid of slots, with the parts tray and the level's dock pinned under it. */
-export function SgPhone({ board, rootRef, dock }) {
+/** Phone: the level's page (the shell's PhonePage), the board as a grid of slots, the parts tray and the dock pinned under it; `children` (the mode's cards) above the board. */
+export function SgPhone({ board, rootRef, brief, tests, results, dock, children }) {
   const scroller = useRef(null)
   // The input cards' contents are the mode's markup: paint them after every render (a card may be new).
   useLayoutEffect(() => board.paintView?.())
@@ -138,17 +139,15 @@ export function SgPhone({ board, rootRef, dock }) {
   }
   // A tile says what it holds: a constant its number, any other part its model. (An input card names each output over its dot.)
   const tileExtra = (node) => (hasValue(node.type) ? `= ${node.value ?? valueDefault(node.type)}` : isInput(node.type) ? null : L(def(node.type).tag))
+  // On a phone a part goes by its name alone; what it does is in its sheet.
+  const tray = <Tray items={board.palette().map((p) => ({ ...p, label: p.name, family: 'sg' }))} folded={board.folded().map((p) => ({ ...p, label: p.name, family: 'sg' }))} onPick={editing.placeFirstFree} />
   return (
-    <>
-      <div className="sg-slots" ref={scroller}>
+    <PhonePage rootRef={rootRef} scrollRef={scroller} className="sg-level is-circuit" brief={brief} tests={tests} tray={tray} results={results} dock={dock}>
+      {children}
+      <div className="sg-slots">
         <SlotBoard graph={graph} parts={parts} nameOf={editing.nameOf} thumb={thumb} tileExtra={tileExtra} outNote={(node, key) => (isInput(node.type) ? <b className="sg-oval">{board.outValue(node, key) || '—'}</b> : null)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={board.clearable() ? board.reset : null} onChange={board.change} types={board.types()} />
       </div>
-      <div className="sg-foot">
-        {/* On a phone a part goes by its name alone; what it does is in its sheet. */}
-        <Tray items={board.palette().map((p) => ({ ...p, label: p.name, family: 'sg' }))} folded={board.folded().map((p) => ({ ...p, label: p.name, family: 'sg' }))} onPick={editing.placeFirstFree} />
-        {dock}
-      </div>
       <Notice editing={editing} />
-    </>
+    </PhonePage>
   )
 }

@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { CircuitBoard } from 'lucide-react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, Timeline, usePlayback } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, TestStatus, TestTabs, Timeline, Workbench, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
@@ -179,11 +179,11 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
   if (phone) return <PhoneBoard {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, strip, tests, body, valueOf, errorOf, types, game, level, bus }} scope={level.id} />
 
   return (
-    <CircuitLayout
+    <Workbench
       className="cn-level"
       brief={brief}
       parts={items.length + foldedItems.length > 0 && <Palette compact items={items} folded={foldedItems} onAdd={add} />}
-      canvas={
+      stage={
         <div className="cn-stage">
           <div className="cn-board">
             <CanvasEditor
@@ -206,9 +206,9 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
       }
       tests={tests}
       status={<TestStatus states={states} />}
-      outputsTitle={tr(`总线 ${testIndex + 1}`, `Bus ${testIndex + 1}`)}
-      outputs={strip}
-      actions={<footer className="run-foot">{dock}</footer>}
+      resultsTitle={tr(`总线 ${testIndex + 1}`, `Bus ${testIndex + 1}`)}
+      results={strip}
+      dock={dock}
     />
   )
 }
@@ -236,15 +236,8 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   const descOf = (n) => (bus.BUILT[n.type] ? bus.LEVELS.find((L) => L.builds?.type === n.type).builds.desc : game.textAt(CARDS[n.type], level.id).desc)
   return (
-    <div className="level-phone is-split cn-phone" ref={root}>
-      {tests}
-      <div className="cn-scroll" ref={scroller}>
-        <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => (parts.outputs(n) ? null : <Value value={valueOf(n)} error={errorOf(n)} />)} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
-        {strip}
-      </div>
-      <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
-      <footer className="run-foot">{dock}</footer>
+    <PhonePage rootRef={root} scrollRef={scroller} className="cn-phone" brief={brief} tests={tests} tray={<Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />} results={strip} dock={dock}>
+      <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => (parts.outputs(n) ? null : <Value value={valueOf(n)} error={errorOf(n)} />)} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
       <Notice editing={editing} />
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
@@ -267,7 +260,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
           </div>
         </Sheet>
       )}
-    </div>
+    </PhonePage>
   )
 }
 

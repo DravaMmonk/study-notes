@@ -112,13 +112,8 @@
 .ag-log li .ag-report { grid-column: 2; }
 
 /* ---- phone ---- */
-.ag-phone { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; }
-.ag-phone > .ag-scroll { grid-row: 2; }
-.ag-phone > .pb-tray { grid-row: 3; }
-.ag-phone > .run-foot { grid-row: 4; }
-.ag-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
 .ag-phone .ag-strip, .ag-hand-phone .ag-hand { grid-template-columns: minmax(0, 1fr); }
-.ag-hand-phone .ag-hand { padding: 12px; }
+.ag-hand-phone .ag-hand { padding: 0; }
 .ag-sheet { display: grid; gap: 14px; }
 .ag-sheet .ag-card { padding: 0; }
 .ag-sheet .ag-field select { height: 40px; font-size: 16px; }

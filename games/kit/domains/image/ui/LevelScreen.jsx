@@ -1,5 +1,5 @@
 import { Suspense, createElement, useMemo, useState } from 'react'
-import { Brief, CircuitLayout, PhonePage, PinnedPlay, RunDock, TestStatus, Workbench } from '../../../shell/index.js'
+import { Brief, Level, PinnedPlay, RunDock, TestStatus, Workbench } from '../../../shell/index.js'
 import { Palette, freeSpot } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { checkingTests, hasLearnable, lossOn, runLevel, trainStep } from '../engine/graph.js'
@@ -185,26 +185,14 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     <ProbeLevel level={level} onSolve={() => solve(null)} theme={theme} />
   )
   const testPanel = graphLevel && <TestPanel level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} run={shown} testIndex={testIndex} onSelect={setTestIndex} sensors={sensors} theme={theme} scan={scan} onScan={setScan} inView={roleView('input')} outView={roleView('output')} onView={showRole} />
-  // On a phone everything is one scrolling page: the task, the tests pinned under it, then the
-  // circuit as a list of steps (or the board level itself).
-  if (phone) {
-    // Circuit levels: the circuit map above, a dock with the task, the selected block and the
-    // tests below. Board levels: the task, then the board, whose main visual stays pinned.
-    if (level.kind === 'graph') {
-      return (
-        <div className="level-phone level-graph is-split">
-          <PhoneCircuit level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onClear={clearCircuit} brief={brief} training={training} footer={score} testDetails={testPanel} />
-        </div>
-      )
-    }
+  // A circuit level on a phone: the phone board, the tests pinned over it (PhoneCircuit.jsx).
+  if (phone && graphLevel) {
     return (
-      <PhonePage brief={brief} className={`level-${level.kind}`}>
-        <PinnedPlay>{play}</PinnedPlay>
-      </PhonePage>
+      <PhoneCircuit level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onClear={clearCircuit} brief={brief} training={training} footer={score} testDetails={testPanel} />
     )
   }
-
-  if (!graphLevel) return <Workbench className={`level-${level.kind}`} brief={brief} stage={play} scroll />
+  // A bench or probe level runs itself: its stage is all it has, on a phone with its main visual pinned.
+  if (!graphLevel) return <Level phone={phone} className={`level-${level.kind}`} brief={brief} stage={phone ? <PinnedPlay>{play}</PinnedPlay> : play} />
 
   // A circuit level on a desktop: the kit's circuit layout, as in every game. The parts are a row over the board; the
   // strip under it has the tests, one row with the test's inputs and what came out against what was expected, and the
@@ -213,7 +201,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const states = playLevel.tests.map((t, k) => (shown?.untested || !shown ? null : shown.results[k]?.pass ? 'pass' : 'fail'))
   const hidden = { count: hiddenCount, failed: hiddenMiss?.failed, note: hiddenMiss ? { zh: `以下测试全部通过，但 ${hiddenMiss.total} 组隐藏测试中有 ${hiddenMiss.failed} 组未通过：电路可能只是恰好适用于这几张图。`, en: `Every test passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.` } : { zh: `另有 ${hiddenCount} 组隐藏测试，运行测试时一并检查，通关后公开。`, en: `${hiddenCount} more hidden tests are checked with every run and shown once you pass.` } }
   return (
-    <CircuitLayout
+    <Workbench
       className="level-graph"
       brief={
         <>
@@ -223,24 +211,18 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
         </>
       }
       parts={palette.length > 0 && compactParts}
-      canvas={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} types={palette} onClear={clearCircuit} />}
+      stage={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} types={palette} onClear={clearCircuit} />}
       tests={<TestPanel {...half} part="tests" />}
       status={<TestStatus states={states} hidden={hidden} />}
-      outputs={<TestPanel {...half} part="row" />}
-      outputsTitle={<TestPanel {...half} part="readout" />}
-      outputsAside={
+      results={<TestPanel {...half} part="row" />}
+      resultsTitle={<TestPanel {...half} part="readout" />}
+      resultsAside={
         <div className="strip-aside">
           <TestPanel {...half} part="verdict" />
           <TestPanel {...half} part="views" />
         </div>
       }
-      actions={
-        <footer className="run-foot">
-          <RunDock
-            go={{ label: shown?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(shown?.pass && !hiddenMiss), onClick: runTests }}
-          />
-        </footer>
-      }
+      dock={<RunDock go={{ label: shown?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(shown?.pass && !hiddenMiss), onClick: runTests }} />}
     />
   )
 }
