@@ -592,3 +592,13 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ff-choice { display: flex; gap: 8px; }
 .ff-choice button { flex: 1; min-height: 42px; border: 1px solid var(--rule); border-radius: 10px; background: transparent; color: var(--body); font: inherit; font-size: 15px; cursor: pointer; }
 .ff-choice button.is-on { border-color: var(--ink); background: var(--ink); color: var(--paper); font-weight: 600; }
+
+/* A box pointing at the button it belongs to (Popover.jsx), on a desktop: an editor in a tooltip. */
+.kit-pop { position: fixed; z-index: 60; width: min(600px, calc(100vw - 24px)); display: flex; flex-direction: column; border-radius: 14px; background: var(--paper); box-shadow: 0 0 0 1px var(--line), 0 22px 48px -18px rgba(30, 26, 18, .45); animation: pop-in 140ms cubic-bezier(.2, .8, .2, 1); }
+.kit-pop::before { content: ''; position: absolute; left: calc(var(--arrow) - 7px); top: -7px; width: 14px; height: 14px; border-radius: 3px 0 0 0; background: var(--paper); box-shadow: -1px -1px 0 var(--line); transform: rotate(45deg); }
+.kit-pop.is-above::before { top: auto; bottom: -7px; border-radius: 0 0 3px 0; box-shadow: 1px 1px 0 var(--line); }
+.kit-pop-body { position: relative; min-height: 0; padding: 14px 16px 16px; display: grid; gap: 10px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+@keyframes pop-in { from { opacity: 0; transform: translateY(-4px) scale(.985); } }
+.kit-pop.is-above { animation-name: pop-in-above; }
+@keyframes pop-in-above { from { opacity: 0; transform: translateY(4px) scale(.985); } }
+@media (prefers-reduced-motion: reduce) { .kit-pop { animation: none; } }

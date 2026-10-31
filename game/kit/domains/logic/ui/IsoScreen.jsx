@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
-import Entries from '../../../shell/Entries.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
 import { checkIso, declaredRules, sentenceOf, startIso, typeOf, wayRule, wayText, waysIn } from '../iso.js'
@@ -22,7 +21,7 @@ export const WAY = ['1', '2', '3']
 
 /**
  * The declaration's rules as they stand, over its test cases: each intro rule (引入 1, 2, 3), written with one layer of
- * ⟹ as the player wrote it, and the elimination rule made from them (消去 1) as the kernel writes it, in the level's
+ * ⟹ as the player wrote it, and the elimination rule made from them (消去) as the kernel writes it, in the level's
  * own sentences. `ways`: [{ binds, needs }] (iso.js waysIn).
  */
 export function DeclRules({ level, ways }) {
@@ -30,10 +29,18 @@ export function DeclRules({ level, ways }) {
   const text = (f) => L(say(f, level.notation))
   const elim = declaredRules(level, ways, (f) => f).take
   return (
-    <Entries className="lg-clauses">
-      {ways.map((way, k) => <code key={k}>{tr(`引入${k + 1}：`, `Intro ${k + 1}: `)}{wayText(wayRule(way, level), text)}</code>)}
-      <code>{tr('消去1：', 'Elim 1: ')}{wayText(elim, text)}</code>
-    </Entries>
+    <dl className="lg-decl-rules">
+      {ways.map((way, k) => (
+        <div key={k}>
+          <dt>{tr('引入', 'Intro')}<i>{k + 1}</i></dt>
+          <dd>{wayText(wayRule(way, level), text)}</dd>
+        </div>
+      ))}
+      <div>
+        <dt>{tr('消去', 'Elim')}</dt>
+        <dd>{wayText(elim, text)}</dd>
+      </div>
+    </dl>
   )
 }
 
