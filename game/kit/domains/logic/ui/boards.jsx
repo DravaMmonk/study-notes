@@ -85,6 +85,8 @@ export const PROOF = {
         formula: offer.formula.map(sentence),
         exists: offer.exists.map(sentence),
         term: offer.term.map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
+        // What choosing an instance puts in: a thing, or a sentence when the level has a ∀ over sentences.
+        instance: offer.instance.map((t) => (offer.term.includes(t) ? { value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) } : sentence(parse(t, { consts })))),
         name: offer.name.map((v) => ({ value: v, label: v })),
       },
     }

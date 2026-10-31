@@ -21,8 +21,6 @@ export const RULE_TEXT = {
   botE: { name: T('爆炸', 'Explosion'), desc: T('由矛盾 ⊥ 得到元件上选定的任意一句。', 'From the contradiction ⊥, gives whatever sentence is chosen on the part.'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
   raa: { name: T('反证法', 'By contradiction'), desc: T('由 ¬¬A 得到 A（双重否定消去）。', 'From ¬¬A, gives A (double-negation elimination).'), ports: { nna: '¬¬A' } },
   allI: { name: T('任取框', 'For-any box'), desc: T('在元件上为任意对象取名 a，在框内证明 P(a) 并接到「结论」，框外得到 ∀x. P(x)。a 不能出现在未解除的假设中。', 'Name an arbitrary object a on the part. Prove P(a) inside the box and connect it to “Conclusion” to obtain ∀x. P(x) outside. a must not occur in any open assumption.'), params: { x: T('名字', 'Name') }, frames: { body: T('框内', 'Inside') } },
-  allIs: { name: T('任取一句话', 'For any sentence'), desc: T('一个框：框里的 R 是任意一句话，关于它什么也不假设。框里证出关于 R 的结论并接到「结论」，框外得到 ∀R. …：对任何一句话都成立。R 不能出现在未解除的假设中。', 'A box: inside it, R is any sentence at all, with nothing assumed about it. Prove something about R inside and connect it to “Conclusion” to obtain ∀R. … outside: it holds for every sentence. R must not occur in any open assumption.'), frames: { body: T('框内', 'Inside') } },
-  allEs: { name: T('取一句话', 'Choose a sentence'), desc: T('接入 ∀R. …，在元件上选一句话，把 R 换成它。', 'Connect ∀R. … and choose a sentence on the part to put in for R.'), ports: { all: '∀R. …' }, params: { A: T('哪一句', 'Which sentence') } },
   allE: { name: T('选定一例', 'Choose an instance'), desc: T('接入 ∀x. P(x)，选定对象 t，得到 P(t)。', 'Connect ∀x. P(x) and choose an object t to obtain P(t).'), ports: { all: '∀x. P(x)' }, params: { t: T('哪一样', 'Which thing') } },
   exI: { name: T('概括', 'Generalise'), desc: T('接入 P(t)，以 t 为例得到 ∃x. P(x)。只有一个相符的存在命题时自动输出；有多个时，在元件上选择要得出的命题。', 'Connect P(t) to obtain ∃x. P(x), with t as a witness. If exactly one existential statement fits, it is selected automatically; if several fit, choose the conclusion on the part.'), ports: { a: 'P(t)' }, params: { target: T('要得出', 'Conclude') } },
   exE: { name: T('实例框', 'Instance box'), desc: T('接入 ∃x. P(x)，在元件上为存在的对象取名 a。框内可以假设 P(a)；证出 C 并接到「结论」后，框外得到 C。C 中不能出现 a，a 也不能出现在未解除的假设中。', 'Connect ∃x. P(x) and name the existing object a on the part. Inside the box, P(a) may be assumed. Prove C and connect it to “Conclusion” to obtain C outside. a must not appear in C or in any open assumption.'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证', 'Witness') }, frames: { body: T('框内', 'Inside') } },
@@ -82,7 +80,8 @@ const GIVES = T('得出', 'Result')
 
 /**
  * The card's settings: [{ key, label, kind }] (orI's side is a switch of its own); a lemma may name its own (`params`).
- * kind: 'formula' (a sentence), 'exists' (a sentence that starts with ∃), 'term', 'name' (a particular thing: a, b,
+ * kind: 'formula' (a sentence), 'exists' (a sentence that starts with ∃), 'term', 'instance' (a term, or a sentence
+ * where the level has a ∀ over sentences), 'name' (a particular thing: a, b,
  * c) or 'form' (which shape a part with several forms is in, engine/forms.js).
  */
 export const settingsOf = (parts, node, lemmas = {}) => [...(parts[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []), ...paramsOf(parts[node.type], node).map((key) => ({ key, label: lemmas[node.type]?.params?.[key] ?? RULE_TEXT[node.type]?.params?.[key] ?? key, kind: SETTING_KINDS[node.type]?.[key] ?? 'formula', blank: SETTING_KINDS[node.type]?.[key] === 'exists' ? T('自动', 'Automatic') : null }))]
