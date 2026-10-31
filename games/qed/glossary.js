@@ -299,7 +299,7 @@ export const GLOSSARY = [
   },
   {
     id: 'predicate', group: 'fol', title: T('谓词', 'predicate'), at: 'fo-atoms',
-    body: [T('<b>谓词</b>说一样或几样东西的性质或关系：「…是人」Human(x) 管一样，「…是…的父母」Parent(x, y) 管两样。谓词填上东西才成一句话：Human(soc) 是真是假，看世界里苏格拉底是不是人。', 'A <b>predicate</b> says what one or more things are or how they relate: “… is human”, Human(x), takes one; “… is a parent of …”, Parent(x, y), takes two. A predicate filled with things makes a sentence: whether Human(soc) is true depends on whether, in the world, Socrates is human.')],
+    body: [T('<b>谓词</b>说一样或几样东西的性质或关系：「…是人」Human(x) 管一样，「…是…的父母」Parent(x, y) 管两样。谓词填上东西才成一句话：Human(h) 是真是假，看世界里的 h 是不是人。', 'A <b>predicate</b> says what one or more things are or how they relate: “… is human”, Human(x), takes one; “… is a parent of …”, Parent(x, y), takes two. A predicate filled with things makes a sentence: whether Human(h) is true depends on whether h is human in the world.')],
     see: ['fol', 'world'],
   },
   {

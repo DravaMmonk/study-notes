@@ -116,7 +116,7 @@ export const automation = [
     tests: [
       { goal: '⊥', hyps: ['∀x. Bird(x) → Flies(x)', '¬∀x. Bird(x) → Flies(x)'], becomes: [['⋀a. ∀x. ¬Bird(x) ∨ Flies(x); Bird(a) ∧ ¬Flies(a) ⊢ ⊥']] },
       { goal: '⊥', hyps: ['∀x. ∃y. Parent(y, x)'], becomes: [['∀x. Parent(sk1(x), x) ⊢ ⊥']] },
-      { goal: '⊥', hyps: ['Human(soc)', '¬∀x. ∃y. Likes(y, x)'], becomes: [['⋀a. Human(soc); ∀y. ¬Likes(y, a) ⊢ ⊥']] },
+      { goal: '⊥', hyps: ["Human(h)", '¬∀x. ∃y. Likes(y, x)'], becomes: [["⋀a. Human(h); ∀y. ¬Likes(y, a) ⊢ ⊥"]] },
     ],
     brief: T('设计一个证明助手，把每个目标的已知化成合取范式，再去掉 ∃。', 'Design a proof assistant that brings each goal’s hypotheses to conjunctive normal form, then takes the ∃s out.'),
     hint: [
@@ -136,7 +136,7 @@ export const automation = [
     tests: [
       { goal: 'Wet', hyps: ['Rain → Wet', 'Rain'], clauses: ['¬Rain ∨ Wet', 'Rain', '¬Wet'] },
       { goal: 'OnTime', hyps: ['Bus ∨ Bike', 'Bus → OnTime', 'Bike → OnTime'], clauses: ['Bus ∨ Bike', '¬Bus ∨ OnTime', '¬Bike ∨ OnTime', '¬OnTime'] },
-      { goal: 'Mortal(soc)', hyps: ['∀x. Human(x) → Mortal(x)', 'Human(soc)'], clauses: ['¬Human(x) ∨ Mortal(x)', 'Human(soc)', '¬Mortal(soc)'] },
+      { goal: "Mortal(h)", hyps: ['∀x. Human(x) → Mortal(x)', "Human(h)"], clauses: ['¬Human(x) ∨ Mortal(x)', "Human(h)", "¬Mortal(h)"] },
       { goal: '∀x. Baby(x) → ¬Tamer(x)', hyps: ['∀x. Baby(x) → ¬Logical(x)'], clauses: ['¬Baby(x) ∨ ¬Logical(x)', 'Baby(a)', 'Tamer(a)'] },
     ],
     brief: T('设计一个证明助手，把每个目标拆成子句：要证的那句的否定和已知一起。', 'Design a proof assistant that splits each goal into clauses: the negation of what is to be proved, with the hypotheses.'),
@@ -219,7 +219,7 @@ export const automation = [
       { clauses: ['Bus ∨ Bike', '¬Bus ∨ OnTime', '¬Bike ∨ OnTime', '¬OnTime'] },
       { clauses: ['Alarm', '¬Alarm ∨ Up', '¬Up ∨ Coffee', '¬Coffee ∨ Awake', '¬Awake'] },
       { clauses: ['Bus ∨ Bike', '¬Bus ∨ OnTime', '¬OnTime'] },
-      { clauses: ['¬Human(x) ∨ Mortal(x)', 'Human(soc)', '¬Mortal(soc)'] },
+      { clauses: ['¬Human(x) ∨ Mortal(x)', "Human(h)", "¬Mortal(h)"] },
     ],
     brief: T('设计一个证明助手：推得出 ⊥ 的，推出来；推不出的，一直归结到再也没有新子句。', 'Design a proof assistant that reaches ⊥ where it follows, and where it does not, resolves until no new clause appears.'),
     hint: [
@@ -227,7 +227,7 @@ export const automation = [
       T('<part-ref to="part:repeat"></part-ref>。', '<part-ref to="part:repeat"></part-ref>.'),
     ],
     intro: [
-      { t: T('在<level-ref to="au-refute"></level-ref>里，每一步消哪一对由你挑。证明助手不挑：新元件「一轮归结」把能消的每一对都消一次，新子句加进来，并记下它由哪两条得出。子句里有变量时，一对文字先合一再消：「¬x是人 ∨ x会死」和「苏格拉底是人」，x 合一为苏格拉底。', 'In <level-ref to="au-refute"></level-ref> you chose which pair to cancel at each step. A proof assistant does not choose: the new card “a round of resolution” cancels every pair that can be cancelled, once, adding each new clause along with the two it came from. When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “Socrates is human”, with x unified to Socrates.') },
+      { t: T("在<level-ref to=\"au-refute\"></level-ref>里，每一步消哪一对由你挑。证明助手不挑：新元件「一轮归结」把能消的每一对都消一次，新子句加进来，并记下它由哪两条得出。子句里有变量时，一对文字先合一再消：「¬x是人 ∨ x会死」和「h是人」，x 合一为h。", "In <level-ref to=\"au-refute\"></level-ref> you chose which pair to cancel at each step. A proof assistant does not choose: the new card “a round of resolution” cancels every pair that can be cancelled, once, adding each new clause along with the two it came from. When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “h is human”, with x unified to h.") },
     ],
     solution: flow({ frame: 'repeat', body: ['resolve'] }),
     naive: flow('resolve'),
@@ -243,7 +243,7 @@ export const automation = [
         tests: [
           { goal: 'Wet', hyps: ['Rain → Wet', 'Rain'] },
           { goal: 'Rain', hyps: ['Rain → Wet', 'Wet'] },
-          { goal: 'Mortal(soc)', hyps: ['∀x. Human(x) → Mortal(x)', 'Human(soc)'] },
+          { goal: "Mortal(h)", hyps: ['∀x. Human(x) → Mortal(x)', "Human(h)"] },
           { goal: 'OnTime', hyps: ['Bus → OnTime', 'Bike ∨ Bus'] },
         ],
         brief: T('设计一个证明助手，直接从目标出发：推得出的推出 ⊥，推不出的一直归结到再没有新子句。', 'Design a proof assistant that starts from the goal itself: where the goal follows, reach ⊥; where it does not, resolve until no new clause appears.'),
@@ -299,7 +299,7 @@ export const automation = [
     tests: [
       { goal: 'Coffee', hyps: ['Alarm → Up', 'Up → Coffee', 'Alarm'] },
       { goal: 'OnTime', hyps: ['Bus ∨ Bike', 'Bus → OnTime', 'Bike → OnTime'] },
-      { goal: 'Mortal(soc)', hyps: ['∀x. Human(x) → Mortal(x)', 'Human(soc)'] },
+      { goal: "Mortal(h)", hyps: ['∀x. Human(x) → Mortal(x)', "Human(h)"] },
       { goal: '¬Rain', hyps: ['Rain → Wet', '¬Wet'] },
     ],
     brief: T('设计一个证明助手，证完每一个目标：证明助手找证书，核来重放。', 'Design a proof assistant that proves every goal: the proof assistant finds a certificate, the kernel replays it.'),
@@ -362,9 +362,9 @@ export const automation = [
     id: 'au-machine',
     title: T('证明助手来证', 'Let the proof assistant prove it'),
     tests: [
-      { goal: 'Anc(ann, cy)', hyps: ['∀x. ∀y. ∀z. Anc(x, y) ∧ Anc(y, z) → Anc(x, z)', 'Anc(ann, bo)', 'Anc(bo, cy)'] },
+      { goal: "Anc(i, k)", hyps: ['∀x. ∀y. ∀z. Anc(x, y) ∧ Anc(y, z) → Anc(x, z)', "Anc(i, j)", "Anc(j, k)"] },
       { goal: '∀x. Baby(x) → ¬Tamer(x)', hyps: ['∀x. Baby(x) → ¬Logical(x)', '∀x. Tamer(x) → Respected(x)', '∀x. ¬Logical(x) → ¬Respected(x)'] },
-      { goal: 'Flies(ann)', hyps: ['∀x. Bird(x) → Flies(x)', 'Bird(bo)'], want: 'fails' },
+      { goal: "Flies(i)", hyps: ['∀x. Bird(x) → Flies(x)', "Bird(j)"], want: 'fails' },
     ],
     brief: PROVE,
     hint: [T('<part-ref to="lemma:metis"></part-ref>。', '<part-ref to="lemma:metis"></part-ref>.')],

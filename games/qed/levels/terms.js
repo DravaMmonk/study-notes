@@ -147,15 +147,15 @@ export const terms = [
   },
   {
     id: 't-wquant',
-    consts: ['ann'],
+    consts: ["i"],
     title: T('写量词', 'Write quantifiers'),
     tasks: write([
-      { premises: { p: '∀x. Human(x) → Mortal(x)', q: 'Human(ann)' }, goal: 'Mortal(ann)', answer: 'p ann q', hint: [T('<part-ref to="part:allE"></part-ref>写成应用，参数是那样东西：p 用在安上，再用在 q 上。', '<part-ref to="part:allE"></part-ref> is an application whose argument is a thing: p used on Ann, then on q.')] },
+      { premises: { p: '∀x. Human(x) → Mortal(x)', q: "Human(i)" }, goal: "Mortal(i)", answer: "p i q", hint: [T("<part-ref to=\"part:allE\"></part-ref>写成应用，参数是那样东西：p 用在i上，再用在 q 上。", "<part-ref to=\"part:allE\"></part-ref> is an application whose argument is a thing: p used on i, then on q.")] },
       { premises: {}, goal: '∀x. Human(x) → Human(x)', answer: 'fun a b => b', hint: [T('<part-ref to="part:allI"></part-ref>也是 fun，拿到的 a 是一样东西。', '<part-ref to="part:allI"></part-ref> is a fun too, and the a it gets is a thing.')] },
-      { premises: { p: 'Human(ann)' }, goal: '∃x. Human(x)', answer: '⟨ann, p⟩', hint: [T('<part-ref to="part:exI"></part-ref>写成一对：左边是例子，右边是它满足的证明。', '<part-ref to="part:exI"></part-ref> is a pair: the example on the left, the proof that it fits on the right.')] },
+      { premises: { p: "Human(i)" }, goal: '∃x. Human(x)', answer: "⟨i, p⟩", hint: [T('<part-ref to="part:exI"></part-ref>写成一对：左边是例子，右边是它满足的证明。', '<part-ref to="part:exI"></part-ref> is a pair: the example on the left, the proof that it fits on the right.')] },
       { premises: { p: '∃x. Human(x) ∧ Mortal(x)' }, goal: '∃x. Mortal(x)', answer: 'p.elim (fun a b => ⟨a, b.2⟩)', hint: [T('<part-ref to="part:exE"></part-ref>写成「□.elim (fun _ _ => □)」：a 是那样东西，b 是它满足的那句。', '<part-ref to="part:exE"></part-ref> is “□.elim (fun _ _ => □)”: a is the thing, b the sentence it fits.')] },
     ]),
-    intro: [{ t: T('安这样表示东西的名字，也在下面的块里。', 'Names of things, such as Ann, are among the pieces below.') }],
+    intro: [{ t: T("i这样表示东西的名字，也在下面的块里。", "Names of things, such as i, are among the pieces below.") }],
   },
   {
     id: 't-kernel',
@@ -244,16 +244,16 @@ export const terms = [
   // ---------- quantifiers ----------
   {
     id: 't-all',
-    consts: ['ann'],
+    consts: ["i"],
     title: T('量词的证明项', 'Quantifiers’ proof terms'),
     tasks: [
       prove({
         step: T('∀ 是函数', '∀ is a function'),
-        tests: [{ premises: { p: '∀x. P(x) → Q(x)', q: 'P(ann)' }, goal: 'Q(ann)', term: 'p ann q' }],
+        tests: [{ premises: { p: '∀x. P(x) → Q(x)', q: "P(i)" }, goal: "Q(i)", term: "p i q" }],
         cases: PERSON,
-        briefNote: T('证明项须为 p ann q。', 'Its proof term must be p ann q.'),
-        hint: [T('p ann：把安交给 p，得到的是关于安的那句话。', 'p ann: hand Ann to p, and out comes the sentence about Ann.')],
-        solution: proof({ e: ['allE', { t: 'ann' }], m: ['mp'] }, ['p>e.all', 'e>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
+        briefNote: T('证明项须为 p i q。', 'Its proof term must be p i q.'),
+        hint: [T("p i：把i交给 p，得到的是关于i的那句话。", "p i: hand i to p, and out comes the sentence about i.")],
+        solution: proof({ e: ['allE', { t: "i" }], m: ['mp'] }, ['p>e.all', 'e>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
       }),
       prove({
         step: T('任取框是 fun', 'The for-any box is fun'),
@@ -265,9 +265,9 @@ export const terms = [
       }),
       prove({
         step: T('∃ 是一对', '∃ is a pair'),
-        tests: [{ premises: { p: 'P(ann)' }, goal: '∃x. P(x)', term: '⟨ann, p⟩' }],
+        tests: [{ premises: { p: "P(i)" }, goal: '∃x. P(x)', term: "⟨i, p⟩" }],
         cases: PERSON,
-        briefNote: T('证明项须为 ⟨ann, p⟩。', 'Its proof term must be ⟨ann, p⟩.'),
+        briefNote: T('证明项须为 ⟨i, p⟩。', 'Its proof term must be ⟨i, p⟩.'),
         hint: [T('一对的左边是例子，右边是例子满足它的证明。', 'The pair’s left is the example, its right the proof that the example fits.')],
         solution: proof({ i: ['exI'] }, ['p>i.a', 'i>goal'], { premises: ['p'] }),
       }),
@@ -280,7 +280,7 @@ export const terms = [
         solution: proof({ f: ['exE', { x: 'a' }], s: ['andE', {}, 'f'], i: ['exI', {}, 'f'] }, ['p>f.ex', 'f#body>s.ab', 's#left>i.a', 'i>f.body', 'f>goal'], { premises: ['p'] }),
       }),
     ],
-    intro: [{ t: T('「∀x. …」的证明也是函数，只是参数不是证明，而是一样东西：给它 t，它还你关于 t 的那句话的证明。这叫<wiki-ref to="dep-function"></wiki-ref>，<part-ref to="part:allE"></part-ref>写作 p ann。「∃x. …」的证明是一<b>对</b>：一样东西（见证）和它满足那句话的证明；用它时写 p.elim (fun a h => …)。', 'A proof of “∀x. …” is a function too, but its argument is a thing, not a proof: given t, it gives back a proof of the sentence about t. This is a <wiki-ref to="dep-function"></wiki-ref>, and <part-ref to="part:allE"></part-ref> is written p ann. A proof of “∃x. …” is a <b>pair</b>: a thing (the witness) and a proof that it fits; using one is written p.elim (fun a h => …).') }],
+    intro: [{ t: T('「∀x. …」的证明也是函数，只是参数不是证明，而是一样东西：给它 t，它还你关于 t 的那句话的证明。这叫<wiki-ref to="dep-function"></wiki-ref>，<part-ref to="part:allE"></part-ref>写作 p i。「∃x. …」的证明是一<b>对</b>：一样东西（见证）和它满足那句话的证明；用它时写 p.elim (fun a h => …)。', 'A proof of “∀x. …” is a function too, but its argument is a thing, not a proof: given t, it gives back a proof of the sentence about t. This is a <wiki-ref to="dep-function"></wiki-ref>, and <part-ref to="part:allE"></part-ref> is written p i. A proof of “∃x. …” is a <b>pair</b>: a thing (the witness) and a proof that it fits; using one is written p.elim (fun a h => …).') }],
     after: T('→ 就是不依赖参数的 ∀。', '→ is just a ∀ that does not depend on its argument.'),
   },
 

@@ -25,7 +25,7 @@ const searchOf = (steps, { depth, region = [] } = {}) => flow({
   body: [{ ways: [['assumption'], ...steps.map((step, k) => [step, ...(k === steps.length - 1 ? region : [])])] }],
 })
 
-const FAMILY = ['Parent(ann, bo)', 'Parent(bo, cy)', 'Parent(bo, dee)', 'Parent(dee, en)', 'Parent(fay, en)']
+const FAMILY = ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"]
 
 export const strategies = [
   // ---------- combinators ----------
@@ -88,11 +88,11 @@ export const strategies = [
     id: 's-defer',
     title: T('先证哪一个', 'Which goal first'),
     adds: ['defer'],
-    tests: [{ goal: '∃x. Human(x) ∧ Likes(x, ann)', hyps: ['Human(cy)', 'Human(bo)', 'Likes(bo, ann)'] }, { goal: '∃x. Bird(x) ∧ Flies(x)', hyps: ['Bird(ann)', 'Bird(dee)', 'Flies(dee)'] }],
+    tests: [{ goal: "∃x. Human(x) ∧ Likes(x, i)", hyps: ["Human(k)", "Human(j)", "Likes(j, i)"] }, { goal: '∃x. Bird(x) ∧ Flies(x)', hyps: ["Bird(i)", "Bird(l)", "Flies(l)"] }],
     brief: BRIEF,
     hint: [T('哪个目标对得上的已知少？', 'Which goal fits fewer givens?')],
     intro: [
-      { t: T('一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它。逆用<part-ref to="part:exI"></part-ref>、再拼成以后，两个目标是 ?t是人、?t喜欢安。<part-ref to="part:assumption"></part-ref>取第一条对得上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标便证不下去。', 'When a ?-letter sits in two goals, whichever is proved first settles it. After <part-ref to="part:exI"></part-ref> and Join backwards the goals are ?t is human, ?t likes Ann. <part-ref to="part:assumption"></part-ref> takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved.') },
+      { t: T("一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它。逆用<part-ref to=\"part:exI\"></part-ref>、再拼成以后，两个目标是 ?t是人、?t喜欢i。<part-ref to=\"part:assumption\"></part-ref>取第一条对得上的已知：先证「?t是人」，?t 就成了k，可k不喜欢i，第二个目标便证不下去。", "When a ?-letter sits in two goals, whichever is proved first settles it. After <part-ref to=\"part:exI\"></part-ref> and Join backwards the goals are ?t is human, ?t likes i. <part-ref to=\"part:assumption\"></part-ref> takes the first given that fits: prove “?t is human” first, and ?t becomes k, who does not like i, so the second goal cannot be proved.") },
       { t: T('新元件「目标后移」：把第一个目标移到最后。', 'A new part, “Defer”: it moves the first goal to the end.') },
     ],
     solution: script(['rule', 'exI'], ['rule', 'conjI'], 'defer', 'assumption', 'assumption'),
@@ -101,7 +101,7 @@ export const strategies = [
     id: 's-results',
     title: T('一串结果', 'A run of results'),
     showcase: T('一个元件现在给出所有对得上的结果，按顺序排成一串；后面的元件对每一种都做一遍，走不通的那几种自己消失：这就是回溯，光看说明想不到后面的元件会替前面的元件收拾残局', 'a part now gives every result that fits, in order; each later part works on each of them, and those that lead nowhere drop out: this is backtracking, and from the description alone one does not guess that later parts clear up after earlier ones'),
-    tests: [{ goal: '∃x. Human(x) ∧ Likes(x, ann)', hyps: ['Human(cy)', 'Human(bo)', 'Likes(bo, ann)'] }, { goal: '∃x. Likes(x, ann) ∧ Likes(x, bo)', hyps: ['Likes(cy, ann)', 'Likes(en, bo)', 'Likes(dee, bo)', 'Likes(dee, ann)'] }],
+    tests: [{ goal: "∃x. Human(x) ∧ Likes(x, i)", hyps: ["Human(k)", "Human(j)", "Likes(j, i)"] }, { goal: "∃x. Likes(x, i) ∧ Likes(x, j)", hyps: ["Likes(k, i)", "Likes(m, j)", "Likes(l, j)", "Likes(l, i)"] }],
     brief: BRIEF,
     hint: [T('不必再用目标后移。', 'There is no need to defer.')],
     intro: [
@@ -181,7 +181,7 @@ export const strategies = [
     adds: ['introRules', 'elimRules'],
     title: T('自建 auto', 'Your own auto'),
     builds: 'auto',
-    tests: [{ goal: 'Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)' }, { goal: '(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))' }, { goal: '(∃x. Human(x) ∧ Likes(x, ann)) → ∃x. Likes(x, ann)' }, { goal: '(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)' }],
+    tests: [{ goal: 'Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)' }, { goal: '(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))' }, { goal: "(∃x. Human(x) ∧ Likes(x, i)) → ∃x. Likes(x, i)" }, { goal: '(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)' }],
     brief: T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.'),
     hint: [T('一步里能做的事有哪几样？', 'What can one step do?'), T('要走几步，事先不知道。', 'How many steps it takes is not known beforehand.')],
     intro: [{ t: T('这四句都在证明板上逐个接过。这一次，要一个证明助手把它们全部证完。设计出的证明助手会成为新元件<part-ref to="lemma:auto"></part-ref>。', 'These four sentences were all wired one by one on the proof board. This time one proof assistant must prove them all. The proof assistant you design becomes a new part, <part-ref to="lemma:auto"></part-ref>.') }],
@@ -193,12 +193,12 @@ export const strategies = [
     id: 'pl-grand',
     title: T('谁是祖父母', 'Who is a grandparent'),
     rules: { grand: { name: T('祖父母', 'Grandparent'), premises: ['Parent(?x, ?y)', 'Parent(?y, ?z)'], conclusion: 'Grand(?x, ?z)' } },
-    tests: [{ goal: 'Grand(?w, cy)', hyps: FAMILY, answers: ['ann'] }, { goal: 'Grand(bo, ?w)', hyps: FAMILY, answers: ['en'] }, { goal: 'Grand(ann, ?w)', hyps: FAMILY, answers: ['cy', 'dee'] }],
+    tests: [{ goal: "Grand(?w, k)", hyps: FAMILY, answers: ["i"] }, { goal: "Grand(j, ?w)", hyps: FAMILY, answers: ["m"] }, { goal: "Grand(i, ?w)", hyps: FAMILY, answers: ["k", "l"] }],
     brief: T('设计一个证明助手，找出每个问题的所有答案。', 'Design a proof assistant that finds every answer to each question.'),
     hint: [T('倒着用规则「祖父母」。', 'Use the rule Grandparent backwards.'), T('每一种对法都是一个答案。', 'Every way of fitting is an answer.')],
     intro: [
       { t: T('<level-ref to="q-grand"></level-ref>里，「祖父母」写成了一句查询。这一次它是一条规则：⟦?x是?y的父母; ?y是?z的父母⟧ ⟹ ?x是?z的祖父母。族谱上的事实是目标的已知。', 'In <level-ref to="q-grand"></level-ref>, “grandparent” was written as a query. This time it is a rule: ⟦?x is a parent of ?y; ?y is a parent of ?z⟧ ⟹ ?x is a grandparent of ?z. The family tree’s facts are the goal’s givens.') },
-      { t: T('问题本身带着 ?：「?w是茜的祖父母」。每一种证法里 ?w 是谁，就是一个答案。', 'The question itself holds a ?-letter: “?w is a grandparent of Cy”. Who ?w is in each way of proving it is an answer.') },
+      { t: T("问题本身带着 ?：「?w是k的祖父母」。每一种证法里 ?w 是谁，就是一个答案。", "The question itself holds a ?-letter: “?w is a grandparent of k”. Who ?w is in each way of proving it is an answer.") },
     ],
     solution: script(['rule', 'grand'], 'assumption', 'assumption'),
     after: T('这就是 Prolog：程序是一组规则，提问是证明一个带 ? 的目标。', 'This is Prolog: a program is a set of rules, and a question is a goal with ?-letters to prove.'),
@@ -210,7 +210,7 @@ export const strategies = [
       anc1: { name: T('祖先·一代', 'Ancestor: one generation'), premises: ['Parent(?x, ?y)'], conclusion: 'Anc(?x, ?y)' },
       anc2: { name: T('祖先·多代', 'Ancestor: more'), premises: ['Parent(?x, ?y)', 'Anc(?y, ?z)'], conclusion: 'Anc(?x, ?z)' },
     },
-    tests: [{ goal: 'Anc(ann, ?w)', hyps: FAMILY, answers: ['bo', 'cy', 'dee', 'en'] }, { goal: 'Anc(?w, en)', hyps: FAMILY, answers: ['ann', 'bo', 'dee', 'fay'] }],
+    tests: [{ goal: "Anc(i, ?w)", hyps: FAMILY, answers: ["j", "k", "l", "m"] }, { goal: "Anc(?w, m)", hyps: FAMILY, answers: ["i", "j", "l", "n"] }],
     brief: T('设计一个证明助手，找出每个问题的所有答案。', 'Design a proof assistant that finds every answer to each question.'),
     hint: [T('隔几代，证明就有多长。', 'As many generations, so long is the proof.')],
     intro: [{ t: T('祖先是父母，或者父母的祖先：规则用到了它自己。', 'An ancestor is a parent, or a parent’s ancestor: the rule uses itself.') }],
@@ -224,7 +224,7 @@ export const strategies = [
       anc1: { name: T('祖先·一代', 'Ancestor: one generation'), premises: ['Parent(?x, ?y)'], conclusion: 'Anc(?x, ?y)' },
       anc3: { name: T('祖先·往上数', 'Ancestor: counting up'), premises: ['Anc(?x, ?y)', 'Parent(?y, ?z)'], conclusion: 'Anc(?x, ?z)' },
     },
-    tests: [{ goal: 'Anc(ann, ?w)', hyps: FAMILY, answers: ['bo', 'cy', 'dee', 'en'] }, { goal: 'Anc(bo, ?w)', hyps: FAMILY, answers: ['cy', 'dee', 'en'] }],
+    tests: [{ goal: "Anc(i, ?w)", hyps: FAMILY, answers: ["j", "k", "l", "m"] }, { goal: "Anc(j, ?w)", hyps: FAMILY, answers: ["k", "l", "m"] }],
     brief: T('设计一个证明助手，找出每个问题的所有答案。', 'Design a proof assistant that finds every answer to each question.'),
     hint: [T('倒着用「往上数」以后，第一个目标又是一个「祖先」。', 'After “counting up” backwards, the first goal is an “ancestor” again.'), T('先证哪个子目标，?y 就能先定下来？', 'Which subgoal, proved first, settles ?y?')],
     intro: [{ t: T('这一回，「多代」那条规则倒过来写：先找 ?x 的祖先 ?y，再看 ?y 是不是 ?z 的父母。意思不变。', 'This time the rule for more generations is written the other way round: first an ancestor ?y of ?x, then whether ?y is a parent of ?z. The meaning is the same.') }],
@@ -238,10 +238,10 @@ export const strategies = [
     id: 's-loop',
     title: T('停不下来的搜索', 'A search that never stops'),
     rules: { trans: { name: T('年纪大可以传下去', 'Older passes on'), premises: ['Older(?x, ?y)', 'Older(?y, ?z)'], conclusion: 'Older(?x, ?z)' } },
-    tests: [{ goal: 'Older(ann, cy)', hyps: ['Older(ann, bo)', 'Older(bo, cy)'] }, { goal: 'Older(bo, dee)', hyps: ['Older(bo, cy)', 'Older(cy, dee)'] }, { goal: 'Older(cy, ann)', hyps: ['Older(ann, bo)', 'Older(bo, cy)'], want: 'fails' }],
+    tests: [{ goal: "Older(i, k)", hyps: ["Older(i, j)", "Older(j, k)"] }, { goal: "Older(j, l)", hyps: ["Older(j, k)", "Older(k, l)"] }, { goal: "Older(k, i)", hyps: ["Older(i, j)", "Older(j, k)"], want: 'fails' }],
     brief: T('设计一个证明助手：证得出的目标证完，证不出的报告失败。', 'Design a proof assistant that proves the goals that can be proved, and reports failure on the one that cannot.'),
     hint: [T('证不出的那一句，搜索在哪里停不下来？', 'On the sentence that cannot be proved, where does the search fail to stop?'), T('每一步都出现新的 ?，搜索看不出自己在绕圈。', 'Each step brings a new ?-letter, so the search cannot tell it is going round.')],
-    intro: [{ t: T('安比博年长，博比茜年长，所以安比茜年长；茜比安年长，却无论如何推不出来。证不出时，证明助手也必须停下，报告失败。', 'Ann is older than Bo and Bo older than Cy, so Ann is older than Cy; that Cy is older than Ann follows from nothing. When there is no proof, the proof assistant must still stop and report failure.') }],
+    intro: [{ t: T("i比j年长，j比k年长，所以i比k年长；k比i年长，却无论如何推不出来。证不出时，证明助手也必须停下，报告失败。", "i is older than j and j older than k, so i is older than k; that k is older than i follows from nothing. When there is no proof, the proof assistant must still stop and report failure.") }],
     solution: searchOf([['rule', 'trans']], { depth: 3 }),
     naive: searchOf([['rule', 'trans']]),
   }),

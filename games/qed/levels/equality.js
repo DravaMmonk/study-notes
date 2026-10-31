@@ -38,7 +38,7 @@ const COMPLETE = '∀x. taut(x) = ff → ¬Taut(x)'
 const reflect = (list) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[k], brief: WRITE, forms: [...BASIC, 'rfl'], words: DATA, consts: ['p', 'q', 'tt', 'ff'], stated: TAUT, ...task }))
 const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: [{ name: 'in', label: T('目标', 'Goal') }], backtrack: true, ...level })
 const PROVE = T('设计一个证明助手：每个目标都证出来。', 'Design a proof assistant that proves every goal.')
-const STARS = ['phos', 'hesp', 'venus']
+const STARS = ['i', 'j', 'k']
 const ADD_ZERO = '∀x. plus(x, zero) = x'
 const ADD_SUCC = '∀x. ∀y. plus(x, s(y)) = s(plus(x, y))'
 const VNIL = 'Vec(zero)'
@@ -50,11 +50,11 @@ export const equality = [
   {
     id: 'eq-rfl',
     title: T('两边一样', 'Both sides alike'),
-    consts: ['ann', ...STARS],
+    consts: STARS,
     tasks: write([
-      { premises: {}, goal: 'ann = ann', answer: 'rfl', hint: [T('新块 rfl 证的是两边一样的等式。', 'The new piece rfl proves an equation whose two sides are alike.')] },
+      { premises: {}, goal: "i = i", answer: 'rfl', hint: [T('新块 rfl 证的是两边一样的等式。', 'The new piece rfl proves an equation whose two sides are alike.')] },
       { premises: {}, goal: '∀x. x = x', answer: 'fun a => rfl', hint: [T('<part-ref to="part:allI"></part-ref>是 fun：拿到 a，要证的是 a = a。', '<part-ref to="part:allI"></part-ref> is a fun: given a, what is left is a = a.')] },
-      { premises: { p: 'phos = hesp' }, goal: 'Bright(phos) → phos = phos', answer: 'fun h => rfl', naive: 'p', hint: [T('要证的等式两边都是晨星，用不着已知。', 'Both sides of the equation are the Morning Star; the given is not needed.')] },
+      { premises: { p: 'i = j' }, goal: 'Bright(i) → i = i', answer: 'fun h => rfl', naive: 'p', hint: [T('要证的等式两边都是i，用不着已知。', 'Both sides of the equation are i; the given is not needed.')] },
     ]),
     intro: [
       { t: T('化简器拿等式当改写规则，数与列表一章也证过不少等式。在 Lean 里，<b>a = b 也是一个类型</b>，它的证明项同样由核检查。', 'The simplifier used equations as rewrite rules, and the chapter on numbers and lists proved many. In Lean, <b>a = b is a type too</b>, and its proof terms are checked by the kernel like any other.') },
@@ -71,16 +71,16 @@ export const equality = [
         terms: true,
         step: T('接线', 'Wire'),
         consts: STARS,
-        tests: [{ premises: { p: 'phos = hesp', q: 'Bright(phos)' }, goal: 'Bright(hesp)', term: 'p ▸ q' }],
+        tests: [{ premises: { p: 'i = j', q: 'Bright(i)' }, goal: 'Bright(j)', term: 'p ▸ q' }],
         cases: [],
-        brief: T('已知 p：「晨星 = 昏星」、q：「晨星很亮」，证出「昏星很亮」，再看它的证明项。', 'Given p: “the Morning Star = the Evening Star” and q: “the Morning Star is bright”, prove “the Evening Star is bright”, then look at its term.'),
+        brief: T('已知 p：「i = j」、q：「i很亮」，证出「j很亮」，再看它的证明项。', 'Given p: “i = j” and q: “i is bright”, prove “j is bright”, then look at its term.'),
         hint: [T('用<part-ref to="part:rewrite"></part-ref>。', 'Use <part-ref to="part:rewrite"></part-ref>.')],
         solution: proof({ w: ['rewrite', { at: [0] }] }, ['p>w.eq', 'q>w.p', 'w>goal'], { premises: ['p', 'q'] }),
       },
       ...write([
-        { premises: { p: 'phos = hesp', q: 'Bright(phos)' }, goal: 'Bright(hesp)', answer: 'p ▸ q', hint: [T('「□ ▸ □」：前一个框放等式，后一个框放关于晨星的那句。', '“□ ▸ □”: the equation in the first box, the sentence about the Morning Star in the second.')] },
-        { premises: { p: 'phos = hesp', q: 'Seen(hesp)' }, goal: 'Seen(phos)', answer: 'p ▸ q', hint: [T('这回 q 说的是昏星，要证的是晨星：核两个方向都会试。', 'This time q is about the Evening Star and the goal about the Morning Star: the kernel tries both ways.')] },
-        { premises: { p: 'phos = hesp', q: 'Bright(phos)', r: '∀x. Bright(x) → Seen(x)' }, goal: 'Seen(hesp)', answer: 'r hesp (p ▸ q)', hint: [T('先由 q 换出「昏星很亮」，再交给 r。', 'First turn q into “the Evening Star is bright”, then give it to r.')] },
+        { premises: { p: 'i = j', q: 'Bright(i)' }, goal: 'Bright(j)', answer: 'p ▸ q', hint: [T('「□ ▸ □」：前一个框放等式，后一个框放关于i的那句。', '“□ ▸ □”: the equation in the first box, the sentence about i in the second.')] },
+        { premises: { p: 'i = j', q: 'Seen(j)' }, goal: 'Seen(i)', answer: 'p ▸ q', hint: [T('这回 q 说的是j，要证的是i：核两个方向都会试。', 'This time q is about j and the goal about i: the kernel tries both ways.')] },
+        { premises: { p: 'i = j', q: 'Bright(i)', r: '∀x. Bright(x) → Seen(x)' }, goal: 'Seen(j)', answer: 'r j (p ▸ q)', hint: [T('先由 q 换出「j很亮」，再交给 r。', 'First turn q into “j is bright”, then give it to r.')] },
       ], 1),
     ],
     showcase: T('证明板上点的框，就是证明项里没写出来的那部分：要证的那句里，哪几处是从等式一边换过来的，叫动机；核从要证的那句和后一个框的类型里把它读出来', 'the boxes ticked on the proof board are the part a term does not write out: which places of the sentence to prove came from one side of the equation, the motive; the kernel reads it off the sentence to prove and the type of the second box'),
@@ -94,9 +94,9 @@ export const equality = [
     title: T('倒过来的证明项', 'The term of turning round'),
     consts: STARS,
     tasks: write([
-      { premises: { p: 'phos = hesp' }, goal: 'hesp = phos', answer: 'p ▸ rfl', naive: 'p', hint: [T('<level-ref to="q-sym"></level-ref>里用了<part-ref to="part:refl"></part-ref>和<part-ref to="part:rewrite"></part-ref>，各写成什么？', '<level-ref to="q-sym"></level-ref> used <part-ref to="part:refl"></part-ref> and <part-ref to="part:rewrite"></part-ref>; how is each written?')] },
+      { premises: { p: 'i = j' }, goal: 'j = i', answer: 'p ▸ rfl', naive: 'p', hint: [T('<level-ref to="q-sym"></level-ref>里用了<part-ref to="part:refl"></part-ref>和<part-ref to="part:rewrite"></part-ref>，各写成什么？', '<level-ref to="q-sym"></level-ref> used <part-ref to="part:refl"></part-ref> and <part-ref to="part:rewrite"></part-ref>; how is each written?')] },
       { premises: {}, goal: '∀x. ∀y. x = y → y = x', answer: 'fun a b h => h ▸ rfl', hint: [T('三层 fun：两样东西 a、b，和一个 a = b 的证明 h。', 'Three funs: two things a and b, and a proof h of a = b.')] },
-      { premises: { p: 'phos = hesp', q: 'Bright(hesp) → Seen(hesp)' }, goal: 'Bright(phos) → Seen(phos)', answer: 'p ▸ q', hint: [T('要证的那句里，晨星出现了两处。', 'The Morning Star appears twice in the sentence to prove.')] },
+      { premises: { p: 'i = j', q: 'Bright(j) → Seen(j)' }, goal: 'Bright(i) → Seen(i)', answer: 'p ▸ q', hint: [T('要证的那句里，i出现了两处。', 'i appears twice in the sentence to prove.')] },
     ]),
     intro: [{ t: T('<level-ref to="q-sym"></level-ref>在证明板上把等式倒了过来。写成证明项。', '<level-ref to="q-sym"></level-ref> turned an equation round on the proof board. Write it as a term.') }],
   },
@@ -105,8 +105,8 @@ export const equality = [
     title: T('一路相等的证明项', 'The term of equal all along'),
     consts: STARS,
     tasks: write([
-      { premises: { p: 'phos = venus', q: 'venus = hesp' }, goal: 'phos = hesp', answer: 'q ▸ p', naive: 'p', hint: [T('用一个等式把要证的那句换一换，换出来的应当正是另一个已知。', 'Use one equation to change the sentence to prove; what comes out should be the other given.')] },
-      { premises: { p: 'phos = venus', q: 'hesp = venus' }, goal: 'phos = hesp', answer: 'q ▸ p', hint: [T('q 倒着也一样用：核两边都试。', 'q works the other way round too: the kernel tries both sides.')] },
+      { premises: { p: 'i = k', q: 'k = j' }, goal: 'i = j', answer: 'q ▸ p', naive: 'p', hint: [T('用一个等式把要证的那句换一换，换出来的应当正是另一个已知。', 'Use one equation to change the sentence to prove; what comes out should be the other given.')] },
+      { premises: { p: 'i = k', q: 'j = k' }, goal: 'i = j', answer: 'q ▸ p', hint: [T('q 倒着也一样用：核两边都试。', 'q works the other way round too: the kernel tries both sides.')] },
       { premises: {}, goal: '∀x. ∀y. ∀z. x = y → y = z → x = z', answer: 'fun a b c h k => k ▸ h', hint: [T('五层 fun：三样东西，两个等式。', 'Five funs: three things and two equations.')] },
     ]),
     intro: [{ t: T('<level-ref to="q-trans"></level-ref>把两个等式连成了一个。写成证明项。', '<level-ref to="q-trans"></level-ref> joined two equations into one. Write it as a term.') }],
@@ -120,9 +120,9 @@ export const equality = [
       {
         kind: 'proof',
         step: T('只换一处', 'Only one place'),
-        tests: [{ premises: { p: 'phos = hesp', q: 'Bright(phos) ∧ Seen(phos)' }, goal: 'Bright(hesp) ∧ Seen(phos)' }],
+        tests: [{ premises: { p: 'i = j', q: 'Bright(i) ∧ Seen(i)' }, goal: 'Bright(j) ∧ Seen(i)' }],
         cases: [],
-        brief: T('已知 p：「晨星 = 昏星」、q：「晨星很亮 ∧ 晨星看得见」，证出「昏星很亮 ∧ 晨星看得见」。', 'Given p: “the Morning Star = the Evening Star” and q: “the Morning Star is bright ∧ the Morning Star can be seen”, prove “the Evening Star is bright ∧ the Morning Star can be seen”.'),
+        brief: T('已知 p：「i = j」、q：「i很亮 ∧ i看得见」，证出「j很亮 ∧ i看得见」。', 'Given p: “i = j” and q: “i is bright ∧ i can be seen”, prove “j is bright ∧ i can be seen”.'),
         hint: [T('每个框都点上，证出的是哪一句？', 'With every box ticked, which sentence is proved?')],
         solution: proof({ w: ['rewrite', { at: [0] }] }, ['p>w.eq', 'q>w.p', 'w>goal'], { premises: ['p', 'q'] }),
         naive: proof({ w: ['rewrite', { at: [0, 1] }] }, ['p>w.eq', 'q>w.p', 'w>goal'], { premises: ['p', 'q'] }),
@@ -130,15 +130,15 @@ export const equality = [
       {
         kind: 'proof',
         step: T('两个方向', 'Both ways'),
-        tests: [{ premises: { p: 'phos = hesp', q: 'Bright(phos) ∧ Seen(hesp)' }, goal: 'Bright(hesp) ∧ Seen(phos)' }],
+        tests: [{ premises: { p: 'i = j', q: 'Bright(i) ∧ Seen(j)' }, goal: 'Bright(j) ∧ Seen(i)' }],
         cases: [],
-        brief: T('从已知 p：「晨星 = 昏星」、q：「晨星很亮 ∧ 昏星看得见」证出「昏星很亮 ∧ 晨星看得见」。', 'From p: “the Morning Star = the Evening Star” and q: “the Morning Star is bright ∧ the Evening Star can be seen”, prove “the Evening Star is bright ∧ the Morning Star can be seen”.'),
+        brief: T('从已知 p：「i = j」、q：「i很亮 ∧ j看得见」证出「j很亮 ∧ i看得见」。', 'From p: “i = j” and q: “i is bright ∧ j can be seen”, prove “j is bright ∧ i can be seen”.'),
         hint: [
-          T('一处要把晨星换成昏星，另一处要把昏星换成晨星。', 'One place wants the Morning Star turned into the Evening Star, the other the Evening Star into the Morning Star.'),
+          T('一处要把i换成j，另一处要把j换成i。', 'One place wants i turned into j, the other j into i.'),
           T('第二种换法要一个倒过来的等式。', 'The second wants the equation turned round.'),
         ],
         solution: proof(
-          { r: ['refl', { t: 'phos' }], s: ['rewrite', { at: [0] }], w1: ['rewrite', { at: [0] }], w2: ['rewrite', { at: [0] }] },
+          { r: ['refl', { t: 'i' }], s: ['rewrite', { at: [0] }], w1: ['rewrite', { at: [0] }], w2: ['rewrite', { at: [0] }] },
           ['p>s.eq', 'r>s.p', 's>w1.eq', 'q>w1.p', 'p>w2.eq', 'w1>w2.p', 'w2>goal'],
           { premises: ['p', 'q'] },
         ),

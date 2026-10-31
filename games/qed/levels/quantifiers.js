@@ -4,18 +4,18 @@
 // way. Puzzles that split a quantifier where it may not are optional; the family topic asks a world questions.
 
 const T = (zh, en) => ({ zh, en })
-const consts = ['soc', 'ann', 'bo', 'cy', 'dee', 'en', 'fay']
+const consts = ["h", "i", "j", "k", "l", "m", "n"]
 
 // Two families, for the queries: who is whose parent, and who goes to school.
 const FAMILY_ONE = {
   title: T('第一家', 'The first family'),
-  things: ['ann', 'bo', 'cy', 'dee', 'en'],
-  preds: { Parent: [['ann', 'bo'], ['ann', 'cy'], ['bo', 'dee'], ['cy', 'en']], School: ['dee'] },
+  things: ["i", "j", "k", "l", "m"],
+  preds: { Parent: [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], School: ["l"] },
 }
 const FAMILY_TWO = {
   title: T('第二家', 'The second family'),
-  things: ['ann', 'bo', 'cy', 'dee', 'en', 'fay'],
-  preds: { Parent: [['bo', 'ann'], ['ann', 'cy'], ['ann', 'dee'], ['cy', 'en'], ['dee', 'fay']], School: ['cy', 'dee', 'en', 'fay'] },
+  things: ["i", "j", "k", "l", "m", "n"],
+  preds: { Parent: [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]], School: ["k", "l", "m", "n"] },
 }
 export const families = [FAMILY_ONE, FAMILY_TWO]
 const query = (level) => ({ kind: 'query', consts, worlds: families, ...level })
@@ -58,28 +58,28 @@ export const quantifiers = [
     title: T('翻译句子', 'Translating a sentence'),
     tasks: sentences([
       {
-        say: T('安是博的父母，博却不喜欢安。', 'Ann is a parent of Bo, yet Bo does not like Ann.'),
-        target: 'Parent(ann, bo) ∧ ¬Likes(bo, ann)',
+        say: T("i是j的父母，j却不喜欢i。", "i is a parent of j, yet j does not like i."),
+        target: "Parent(i, j) ∧ ¬Likes(j, i)",
         hint: [
           T('「却」「但是」「而且」在逻辑里都是「并且」∧：两半句都成立。', '“Yet”, “but” and “and” are all ∧ in logic: both halves hold.'),
           T('「①是②的父母」里，谁是 ①、谁是 ②？¬ 只管后半句。', 'In “① is a parent of ②”, who is ①, who is ②? The ¬ covers only the second half.'),
         ],
       },
       {
-        say: T('苏格拉底不是鸟就是人。', 'Socrates is either a bird or human.'),
-        target: 'Bird(soc) ∨ Human(soc)',
+        say: T("h不是鸟就是人。", "h is either a bird or human."),
+        target: "Bird(h) ∨ Human(h)",
         hint: [T('「不是……就是……」里没有「并非」：它说的是两样里至少有一样，用「或者」∨。', '“Either … or …” has no “not” in it: at least one of the two holds, so it is ∨.')],
       },
       {
-        say: T('只有博是人，安才喜欢博。', 'Ann likes Bo only if Bo is human.'),
-        target: 'Likes(ann, bo) → Human(bo)',
+        say: T("只有j是人，i才喜欢j。", "i likes j only if j is human."),
+        target: "Likes(i, j) → Human(j)",
         hint: [T('「只有 A，才 B」说的是：B 成立，A 就一定成立。条件是后半句。', '“Only if A, B” says: if B holds, A must hold. The condition is the second half.')],
       },
-    ], ['Mortal(soc)']),
+    ], ["Mortal(h)"]),
     brief: BRIEF,
     intro: [
       { t: T('命题逻辑里，一个字母代表一整句话：要说每个人会不会死，每人就得用一个字母；「每个人」「有一个人」根本说不出来。', 'In propositional logic a letter stands for a whole sentence: saying whether each person is mortal takes a letter per person, and “everyone” or “someone” cannot be said at all.') },
-      { t: T('<wiki-ref to="fol"></wiki-ref>把句子拆开：<b>名字</b>指一样东西，<wiki-ref to="predicate"></wiki-ref>说一样东西是什么，或几样东西之间是什么关系。「苏格拉底是人」写作 Human(soc)，「安喜欢博」写作 Likes(ann, bo)，位置的顺序有意义。', '<wiki-ref to="fol"></wiki-ref> takes sentences apart: a <b>name</b> stands for a thing, and a <wiki-ref to="predicate"></wiki-ref> says what a thing is or how things relate. “Socrates is human” is written Human(soc), “Ann likes Bo” Likes(ann, bo): the order of the places matters.') },
+      { t: T("<wiki-ref to=\"fol\"></wiki-ref>把句子拆开：<b>名字</b>指一样东西，<wiki-ref to=\"predicate\"></wiki-ref>说一样东西是什么，或几样东西之间是什么关系。「h是人」写作 Human(h)，「i喜欢j」写作 Likes(i, j)，位置的顺序有意义。", "<wiki-ref to=\"fol\"></wiki-ref> takes sentences apart: a <b>name</b> stands for a thing, and a <wiki-ref to=\"predicate\"></wiki-ref> says what a thing is or how things relate. “h is human” is written Human(h), “i likes j” Likes(i, j): the order of the places matters.") },
       { t: T('翻译一句话，先找出它的骨架：连接词常常藏在说法里，「却」是「并且」，「不是……就是……」是「或者」，「只有……才……」是「若……则……」，但条件在后面。这一章先不证明，只学怎样说一句话，怎样判断它在一个世界里的真假。', 'To translate a sentence, find its frame first: the connectives often hide in the wording, “yet” is “and”, “either … or …” is “or”, “only if” is “if … then …” with the condition at the end. No proofs in this chapter yet: first how to say a sentence, and how to tell whether it is true in a world.') },
     ],
   },
@@ -120,18 +120,18 @@ export const quantifiers = [
     id: 'm-counter',
     title: T('推不出', 'Does not follow'),
     translate: [{
-      say: T('要是人都会死，苏格拉底又会死，那苏格拉底就是人。', 'If every human is mortal and Socrates is mortal, then Socrates is human.'),
-      target: '(∀x. Human(x) → Mortal(x)) ∧ Mortal(soc) → Human(soc)',
+      say: T("要是人都会死，h又会死，那h就是人。", "If every human is mortal and h is mortal, then h is human."),
+      target: "(∀x. Human(x) → Mortal(x)) ∧ Mortal(h) → Human(h)",
       hint: [T('最外面是「如果……那么……」；条件是两句用「并且」连起来，第一句是一整句 ∀。', 'The outermost piece is “if … then …”; the condition is two sentences joined by “and”, the first a whole ∀ sentence.')],
     }],
     counters: [{
-      given: ['∀x. Human(x) → Mortal(x)', 'Mortal(soc)'],
-      goal: 'Human(soc)',
-      answer: { size: 1, preds: { Mortal: ['0'] }, consts: { soc: 0 } },
-      hint: [T('苏格拉底也可以是一条会死的狗。', 'Socrates could be a mortal dog.')],
+      given: ['∀x. Human(x) → Mortal(x)', "Mortal(h)"],
+      goal: "Human(h)",
+      answer: { size: 1, preds: { Mortal: ['0'] }, consts: { h: 0 } },
+      hint: [T("h也可以是一条会死的狗。", "h could be a mortal dog.")],
       intro: [
         { t: T('上方是这段推理写成的引理：横线上是前提，横线下是结论，它说前提都成立时，结论也成立。造一个前提都成立、结论不成立的世界，就说明它推错了。', 'Above is the reasoning written as a lemma: the premises over the line, the goal under it; it says the goal holds whenever the premises do. A world where the premises hold and the goal fails shows it is wrong.') },
-        { t: T('名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。', 'A name must stand for a thing in the world too: choose which thing is Socrates.') },
+        { t: T("名字也要在世界里指一样东西：选好「h」是哪一样。", "A name must stand for a thing in the world too: choose which thing is h.") },
       ],
     }],
     intro: [{ t: T('一段推理也能写成一句话：前提用「并且」连起来，作为「如果……那么……」的条件。', 'A piece of reasoning can be written as one sentence too: the premises joined by “and”, as the condition of an “if … then …”.') }],
@@ -186,7 +186,7 @@ export const quantifiers = [
     tasks: sentences([
       { say: T('只有鸟会飞。', 'Only birds fly.'), target: '∀x. Flies(x) → Bird(x)', hint: [T('「只有鸟会飞」：会飞的，一定是鸟。哪边是条件？', '“Only birds fly”: whatever flies is a bird. Which side is the condition?')] },
       { say: T('不是所有鸟都会飞。', 'Not every bird flies.'), target: '¬∀x. Bird(x) → Flies(x)', hint: [T('最外面是 ¬，管着一整句「鸟都会飞」。', 'The outermost piece is ¬, over the whole of “every bird flies”.')] },
-      { say: T('没有人喜欢博。', 'Nobody likes Bo.'), target: '¬∃x. Human(x) ∧ Likes(x, bo)', hint: [T('「没有人」就是「并非有一个人」：最外面先放 ¬。', '“Nobody” is “not someone”: put ¬ outermost first.')] },
+      { say: T("没有人喜欢j。", "Nobody likes j."), target: "¬∃x. Human(x) ∧ Likes(x, j)", hint: [T('「没有人」就是「并非有一个人」：最外面先放 ¬。', '“Nobody” is “not someone”: put ¬ outermost first.')] },
     ]),
     brief: BRIEF,
   },
@@ -216,11 +216,11 @@ export const quantifiers = [
   // Topic: asking a family tree questions. One sentence with a free x is a query; the world answers with what it picks.
   query({
     id: 'q-children',
-    title: T('谁是安的孩子', 'Who are Ann’s children'),
-    say: T('x 是安的孩子。', 'x is a child of Ann.'), target: 'Parent(ann, x)',
+    title: T("谁是i的孩子", "Who are i’s children"),
+    say: T("x 是i的孩子。", "x is a child of i."), target: "Parent(i, x)",
     decoys: ['School(x)'],
-    brief: T('拼一句带着 x 的话，在每一家里，让它正好选中安的孩子。', 'Build a sentence with x in it that picks out exactly Ann’s children in each family.'),
-    hint: [T('「安是 x 的父母」。', '“Ann is a parent of x”.')],
+    brief: T("拼一句带着 x 的话，在每一家里，让它正好选中i的孩子。", "Build a sentence with x in it that picks out exactly i’s children in each family."),
+    hint: [T("「i是 x 的父母」。", "“i is a parent of x”.")],
     intro: [
       { t: T('一句话里留一个自由的 x，就成了<wiki-ref to="query"></wiki-ref>：世界里哪些东西代入 x 能让这句话成立，哪些就是答案。数据库的查询语言 SQL，核心就是这样的一阶逻辑。', 'A sentence with one x left free is a <wiki-ref to="query"></wiki-ref>: the things of a world that make it true when put in for x are the answer. At its core, SQL, the language of databases, is first-order logic like this.') },
       { t: T('这里有两家人。同一句查询要在两家里都选对，靠记名字不行。', 'There are two families here. One query must be right in both, so remembering names will not do.') },

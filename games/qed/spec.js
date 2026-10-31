@@ -4,6 +4,7 @@ import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { ERAS } from './levels/eras.js'
 import { LEMMAS, LOGIC } from './levels/index.js'
 import { boardOf } from '../kit/domains/logic/ruleLines.js'
+import { renameSavedObjects } from './saveObjects.js'
 
 // The declarations that had a second task, their elimination rule by hand (save versions 48 to 49).
 // The levels that gained definition tasks before their machine (version 52), and how many.
@@ -426,7 +427,8 @@ export default {
   { version: 77, ops: [
     { data: (value, id) => (id === 'fo-atoms' ? undefined : value) },
     { tasks: (passed, id) => (id === 'fo-atoms' ? 0 : passed) },
-  ] }],
+  ] },
+  { version: 78, ops: [{ data: renameSavedObjects }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '相等', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],
