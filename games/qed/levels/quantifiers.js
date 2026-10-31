@@ -154,6 +154,7 @@ export const quantifiers = [
     counters: [{
       wrong: '∃x. Bird(x) → Flies(x)',
       answer: { size: 1, preds: {} },
+      intro: [{ t: T('上方是你的译文，和别人的译文。要说明别人的错了，就造一个世界，让两份译文一真一假：在下面选好有几样东西，再点出每样东西有哪些性质。运行时，上方标出两份译文在这个世界里的真假。', 'Above are your translation and someone else’s. To show theirs is wrong, build a world where the two differ: choose below how many things there are, then tap what holds of each. A run marks above whether each translation is true in this world.') }],
       hint: [T('世界里要是一只鸟也没有呢？', 'What if the world holds no bird at all?')],
     }],
   }),
