@@ -415,6 +415,12 @@ export default {
       const board = (v) => (v?.nodes?.some((n) => n.id === 'decl') ? undefined : v)
       return Array.isArray(value) ? value.map((v) => board(v) ?? null) : board(value)
     } },
+  ] },
+  // Version 76 split 声明「并且」: writing it (3-1), checking a declaration (3-2, new) and 过强与过弱 (3-3, the two
+  // declarations to find the fault in, the too strong one first).
+  { version: 76, ops: [
+    { split: ['decl-and', ['and-weak', 'and-strong', 'decl-and']] },
+    { merge: ['decl-strength', ['and-strong', 'and-weak']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

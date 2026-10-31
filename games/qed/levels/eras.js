@@ -71,7 +71,7 @@ export const ERAS = [
     // rules made from them; an optional topic declares more (D).
     keeps: 'all',
     foundation: [
-      'decl-and', 'decl-or', 'decl-bot',
+      'decl-and', 'decl-check', 'decl-strength', 'decl-or', 'decl-bot',
     ],
     topics: [
       { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-true', 'decl-iff', 'decl-three', 'decl-order', 'decl-two'], title: T('更多声明', 'More declarations') },

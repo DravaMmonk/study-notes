@@ -6,17 +6,21 @@ import { judgeCases, propositionsOf, sentenceOf, waysIn } from '../iso.js'
 import { DeclRules } from './IsoScreen.jsx'
 import CaseTable, { setOut } from './IsoCases.jsx'
 import RuleTable, { rulesOf } from './RuleTable.jsx'
+import { boardOf, linesOf, problemsOf } from '../ruleLines.js'
 
 // Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
 // case is one of their declarations, its rules on the rule table (RuleTable.jsx, read only), picked by its tab; the
 // player writes the test cases (检验条例) in the table under it (iso.js judgeCases, ui/IsoCases.jsx), each what is given, a goal and whether it should be derivable. A
 // run goes through the boards: one passes when every expectation is what the requirement means and the board answers
 // one of the cases otherwise (or, by the level's `want`, every one as expected, or every one otherwise). Fewer cases is
-// the better score.
+// the better score. The declaration may be the one the player wrote on an earlier level (`carry`).
 
 
-export default function FaultScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
-  const level = entry.source
+export default function FaultScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, progress }) {
+  // The declaration the player wrote on an earlier level (`carry`), once it is one; else the level's own.
+  const kept = entry.source.carry && progress?.solved?.includes(entry.source.carry) ? progress.data?.[entry.source.carry]?.rules : null
+  const carried = kept && !problemsOf(entry.source, kept).length ? boardOf(linesOf(kept)) : null
+  const level = useMemo(() => (carried ? { ...entry.source, boards: [{ board: carried }] } : entry.source), [entry.source, carried])
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
   const [row, setRow] = useState(0) // the case the board shows its answer to
   const judged = (cases) => judgeCases(level, cases, words)
