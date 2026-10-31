@@ -128,7 +128,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   if (clash.length) throw new Error(`built parts share a type: ${clash.join(', ')}`)
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
-  // The types and functions the player declares (chapter 12): a declaration board with `datatype` declares a type, a
+  // The types and functions the player declares (chapter 12): a declaration on the rule board with `datatype` declares a type, a
   // definition board (`define`) a function; a later level names them (`types`, `defs`) and gets their text.
   const declared = { types: new Map(), defs: new Map() }
   for (const l of levels) {

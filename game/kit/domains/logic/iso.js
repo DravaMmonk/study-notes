@@ -1,4 +1,5 @@
-// Declaring something new (《证明完毕》's declaration boards: the connectives in chapter 3, "there is" and = with the
+// The rule board (《证明完毕》): rules built from premise cards, Join and thing cards, ⟦A; B⟧ ⟹ C. Its main use is
+// declaring something new (the connectives in chapter 3, "there is" and = with the
 // quantifiers, the numbers before induction): by its ways to make it, each a rule of its own, written as the game
 // writes every rule, ⟦A; B⟧ ⟹ A ∧ B. Three operations, the three marks of that notation, each card showing what it has
 // made so far: a premise card is ⟦⟧ (it picks its sentence: ⟦A⟧); Join is ; (two lists into one: ⟦A; B⟧); a wire is ⟹
@@ -208,7 +209,7 @@ export function follows(level, circuit, test) {
 }
 
 /**
- * A type a declaration board declares (chapter 12, `datatype: { type, ctors, args }`): the k-th way is the constructor
+ * A type a declaration on the rule board declares (chapter 12, `datatype: { type, ctors, args }`): the k-th way is the constructor
  * ctors[k], its thing cards elements and each assumption the type args[sentence] names: 'zero | s(nat)'.
  */
 export function typeOf(level) {

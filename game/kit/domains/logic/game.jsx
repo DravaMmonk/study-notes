@@ -23,7 +23,7 @@ import { PRIMITIVE_GATES } from './gates.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
 
-// A level's declaration task, if it has one: a declaration board (iso.js).
+// A level's declaration task, if it has one: a declaration on the rule board (iso.js).
 const isoOf = (level) => (level.kind === 'iso' ? level : level.tasks?.find((t) => t.kind === 'iso') ?? null)
 // A level that gives proof-board rules by passing it (a declaration, a generator), rather than by playing on the proof
 // board.
@@ -90,7 +90,7 @@ export function defineLogicGame(spec) {
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
-      iso: { Screen: IsoScreen, icon: FileSignature, label: { zh: '声明', en: 'Declaration' } },
+      iso: { Screen: IsoScreen, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
       define: { Screen: DefineScreen, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
