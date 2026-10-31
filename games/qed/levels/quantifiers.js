@@ -157,7 +157,7 @@ export const quantifiers = [
     brief: T('这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。', 'Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails.'),
     hint: [T('苏格拉底也可以是一条会死的狗。', 'Socrates could be a mortal dog.')],
     intro: [
-      { t: T('上方换成了别人写的一条引理，照全书的写法 ⟦前提⟧ ⟹ 结论：它说前提都成立时，结论也成立。造一个前提都成立、结论不成立的世界，就说明它推错了。', 'Above is now a lemma someone wrote, in the book’s notation ⟦premises⟧ ⟹ goal: it says the goal holds whenever the premises do. A world where the premises hold and the goal fails shows it is wrong.') },
+      { t: T('上方换成了别人写的一条引理：横线上是前提，横线下是结论，它说前提都成立时，结论也成立。造一个前提都成立、结论不成立的世界，就说明它推错了。', 'Above is now a lemma someone wrote: the premises over the line, the goal under it; it says the goal holds whenever the premises do. A world where the premises hold and the goal fails shows it is wrong.') },
       { t: T('名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。', 'A name must stand for a thing in the world too: choose which thing is Socrates.') },
     ],
     after: T('前提都真、结论为假的世界，叫<wiki-ref to="countermodel"></wiki-ref>。', 'A world where the premises hold and the conclusion fails is a <wiki-ref to="countermodel"></wiki-ref>.'),

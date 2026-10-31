@@ -7,7 +7,8 @@ import { L, tr } from '../shell/i18n.js'
 //
 //   line     [segment]   the whole thing in reading order
 //   segment  a string (text that belongs to no piece: a full stop, a fixed word)
-//          | { hole: key, label: { zh, en } }                    an empty place, its label written faintly inside
+//          | { hole: key, label: { zh, en }, soft? }             an empty place, its label written faintly inside;
+//            `soft`: a place that may stay empty (where one more goes into a list), drawn lighter
 //          | { piece: key, family?, fixed?, dim?, bad?, parts: [segment] }  a piece put in: its strings are its words
 //            (`bad`: marked red, it does not belong where it stands yet)
 //   next      where the next chip goes, always marked: a hole's key, or 'end' (a caret after the line, where a piece
@@ -37,7 +38,7 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
     if (part.hole) {
       const name = L(part.label)
       return (
-        <button key={part.hole} type="button" className={`ks-hole ${selected === part.hole ? 'is-selected' : ''} ${next === part.hole ? 'is-next' : ''} ${flash.includes(part.hole) ? 'is-refused' : ''}`} data-slot={part.hole} aria-pressed={selected === part.hole} onClick={() => onSlot(part.hole)} aria-label={tr(`${name}：空位，点击选中`, `${name}: empty; tap to select`)}>
+        <button key={part.hole} type="button" className={`ks-hole ${part.soft ? 'is-soft' : ''} ${selected === part.hole ? 'is-selected' : ''} ${next === part.hole ? 'is-next' : ''} ${flash.includes(part.hole) ? 'is-refused' : ''}`} data-slot={part.hole} aria-pressed={selected === part.hole} onClick={() => onSlot(part.hole)} aria-label={tr(`${name}：空位，点击选中`, `${name}: empty; tap to select`)}>
           {name}
         </button>
       )

@@ -4,11 +4,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import { Strip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { builtWorld, claimIn, lemmaBoard, lemmaCard } from '../fol.js'
-import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
-import { DECL, listText, runIso } from '../iso.js'
-import { isoPartsFor } from './IsoScreen.jsx'
-import { ruleText } from '../schematic.js'
+import { builtWorld, claimIn } from '../fol.js'
 import { fixedLine } from './FormulaScreen.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
@@ -107,40 +103,25 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
     const text = level.meant ? tr(`译文为${truth(row.value)}，原意为${truth(found.meant)}`, `Translated: ${truth(row.value)}; meant: ${truth(found.meant)}`) : truth(row.value)
     return <span className={row.right ? 'lg-right' : 'lg-wrong'}>{text}</span>
   }
-  // A translation, on a strip that cannot be changed.
-  const strip = () => (
+  // The sentence shown, on strips that cannot be changed, each marked as the run reaches it: a translation alone; a
+  // lemma as an inference, its premises over a line and its goal under it.
+  const row = (r, k) => (
+    <div key={k} className={`fo-claim-row ${shown.at === k ? 'is-step' : ''}`}>
+      <Strip line={fixedLine(read(r.f), notation, `s${k}`)} label={T('句子', 'sentence')} onSlot={() => {}} />
+      {mark(k)}
+    </div>
+  )
+  const claim = (
     <section className="fo-claim">
-      {found.rows.map((row, k) => (
-        <div key={k} className={`fo-claim-row ${shown.at === k ? 'is-step' : ''}`}>
-          <Strip line={fixedLine(read(row.f), notation, `s${k}`)} label={T('句子', 'sentence')} onSlot={() => {}} />
-          {mark(k)}
-        </div>
-      ))}
+      {level.meant ? found.rows.map(row) : (
+        <>
+          {found.rows.slice(0, -1).map(row)}
+          <hr className="fo-claim-line" />
+          {row(found.rows.at(-1), found.rows.length - 1)}
+        </>
+      )}
     </section>
   )
-  // A lemma, on the rule board (the cards a declaration is written with: they show a rule's shape): premise cards joined into
-  // the lemma's card, which writes the rule out; locked.
-  const board = useMemo(() => (level.meant ? null : lemmaBoard(level.given)), [level])
-  const lemma = useMemo(() => ({ ...level, target: level.goal, things: level.vocab.names, declare: T('引理', 'Lemma') }), [level])
-  const parts = useMemo(() => {
-    if (!board) return null
-    const iso = isoPartsFor(lemma, (f) => say(read(f), notation))
-    return { ...iso, inputs: (node) => (node.id === DECL ? ['c1'] : node.type === 'hyp' ? [] : iso.inputs(node)), label: (node) => (node.id === DECL ? T('引理', 'Lemma') : iso.label(node)), portLabel: (node) => (node.id === DECL ? T('前提', 'Premises') : '') }
-  }, [board])
-  const values = useMemo(() => (board ? runIso(lemma, board, { given: [] }).values : null), [board])
-  const rowOf = (id) => found.rows.findIndex((row, k) => lemmaCard(row, k) === id)
-  const text = (f) => L(say(f, notation))
-  const body = (node) => {
-    if (node.type === 'join') return <div className="lg-card"><code className="lg-made">{listText(values.get(node.id), lemma, text)}</code></div>
-    if (node.type !== 'hyp' && node.id !== DECL) return null
-    const k = rowOf(node.id)
-    const rule = { premises: level.given.map((f) => ({ fixes: [], hyps: [], show: read(f) })), conclusion: read(level.goal) }
-    return <div className="lg-card">{node.id === DECL ? <code className="lg-made">{ruleText(rule, text)}</code> : <span className="lg-pick">{words(node.params.name)}</span>}{mark(k)}</div>
-  }
-  const stepClass = (node) => (shown.at >= 0 && rowOf(node.id) === shown.at ? 'is-step' : '')
-  const claim = level.meant ? strip() : phone
-    ? <SlotBoard fixed dense graph={board} parts={parts} nameOf={(n) => L(parts.label(n))} thumb={body} sinkBody={body} nodeClass={stepClass} onNode={() => {}} onSlot={() => {}} onPort={() => {}} />
-    : <div className="fo-rule-board"><CanvasEditor readOnly scope={level.id} graph={board} onChange={() => {}} parts={parts} width={220} height={120} body={body} cardClass={(n) => `lg-node ${stepClass(n)}`} /></div>
 
   const builder = (
     <section className="fo-build">

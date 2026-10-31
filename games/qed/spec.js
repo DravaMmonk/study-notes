@@ -3,6 +3,7 @@
 import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { ERAS } from './levels/eras.js'
 import { LEMMAS, LOGIC } from './levels/index.js'
+import { linesOf } from '../kit/domains/logic/ruleLines.js'
 
 // The declarations that had a second task, their elimination rule by hand (save versions 48 to 49).
 // The levels that gained definition tasks before their machine (version 52), and how many.
@@ -379,7 +380,12 @@ export default {
     { data: (value, id) => (!Array.isArray(value) ? value : id === 'decl-three' ? [value[0] ?? null, value[2] ?? null] : ['decl-order', 'decl-two'].includes(id) ? value[0] ?? undefined : value) },
     { tasks: (passed, id) => (id === 'decl-three' ? Math.min(passed, 1) : ['decl-order', 'decl-two'].includes(id) ? 0 : passed) },
     { solve: ['decl-three', ['decl-true', 'decl-iff']] },
-  ] }],
+  ] },
+  // Version 71 wrote declarations as lines of blocks instead of wiring cards: a declaration board kept becomes its lines.
+  { version: 71, ops: [{ data: (value) => {
+    const lines = (v) => (v?.nodes?.some((n) => n.id === 'decl') ? { lines: linesOf(v) } : v)
+    return Array.isArray(value) ? value.map(lines) : lines(value)
+  } }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '相等', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],
