@@ -1,4 +1,5 @@
-// The rule board (《证明完毕》): rules built from premise cards, Join and thing cards, ⟦A; B⟧ ⟹ C. Its main use is
+// The rule board (《证明完毕》) as the kernel's checks read it: premise cards, Join and thing cards wired into the
+// declared card, ⟦A; B⟧ ⟹ C (the player writes the rules as lines, ruleLines.js, which make this board). Its use is
 // declaring something new (the connectives in chapter 3, "there is" and = with the
 // quantifiers, the numbers before induction): by its ways to make it, each a rule of its own, written as the game
 // writes every rule, ⟦A; B⟧ ⟹ A ∧ B. Three operations, the three marks of that notation, each card showing what it has
@@ -38,8 +39,9 @@
 // play: 'audit' | 'repair' with boards:
 // [{ label?, board }] someone's declarations to find the fault in or to correct, answer: [test] the reference cases
 // for an audit, slots: how many cases are set out to fill in, caseGoal, caseMake: the
-// goal and the expectation every case of an audit has (the player cannot change them), tray: the cards it
-// offers (['hyp'] unless it says: 'hyp', 'thing', 'none'), ways: the rules the declaration must have, when the
+// goal and the expectation every case of an audit has (the player cannot change them), tray: the blocks
+// a declaration to write offers (ruleLines.js; ['hyp'] unless it says: 'hyp' its sentences, 'under' a premise with
+// premises of its own, 'thing' any thing), ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
 // (schematic.js), datatype: the type it declares (chapter 12, typeOf), whose rules the kernel makes (datatype.js) }.

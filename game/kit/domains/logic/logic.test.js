@@ -3,6 +3,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { checkIso, declaredRules, follows, isoBoard, listText, runIso, settle, waysIn } from './iso.js'
+import { boardOf, linesOf } from './ruleLines.js'
 import { ruleText } from './schematic.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
@@ -510,4 +511,20 @@ test('a ∀ over properties: P(t) takes a sentence about x with t in its place, 
   assert.equal(show(substSentence(ind.body, 'P', parse('x = zero ∨ (∃m. x = s(m))', { consts: ['zero'] }))).includes('∀n. n = zero ∨ (∃m. n = s(m))'), true)
   const level = { consts, tests: [{ premises: { e: '∀P. P(phos) → P(hesp)' }, goal: '∀Q. Q(hesp) → Q(phos)' }] }
   assert.ok(choicesOf(level).instance.includes('Q(x) → Q(phos)'))
+})
+
+test('a declaration is the same as lines and as a board (ruleLines.js)', () => {
+  const boards = [
+    isoBoard(['Rain>Wet', 'Wet>1']),
+    isoBoard(['Rain+Wind>1']),
+    isoBoard(['Sat>1', 'Sun>2']),
+    isoBoard(['⋀x+h>1'], { h: 'Human(x)' }),
+    isoBoard(['∅1>1', '∅2>2']),
+    isoBoard(['∅>1', 'Nat>2']),
+  ]
+  for (const board of boards) {
+    const lines = linesOf(board)
+    assert.deepEqual(linesOf(boardOf(lines)), lines)
+  }
+  assert.deepEqual(linesOf(isoBoard(['Rain>Wet', 'Wet>1'])), [{ binds: [], needs: [{ need: 'Wet', under: ['Rain'] }] }])
 })

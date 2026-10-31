@@ -13,6 +13,7 @@
 .ks-word:focus-visible, .ks-hole:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .ks-hole { display: inline-block; min-width: 2.4em; margin: 0 2px; padding: 0 6px; border: 1.5px dashed var(--rule); border-radius: 6px; color: var(--faint); background: transparent; font: 13px/1.9 var(--sans); vertical-align: 0.15em; cursor: pointer; transition: border-color 120ms ease, box-shadow 120ms ease; }
 .ks-hole:hover { border-color: var(--muted); }
+.ks-hole.is-soft { min-width: 1.6em; padding: 0 4px; border-width: 1px; opacity: .7; }
 .ks-hole.is-next { border-style: solid; border-color: var(--accent); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .ks-hole.is-selected { border: 1.5px solid var(--accent); color: var(--accent-ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 .ks-hole.is-refused, .ks-piece.is-refused { animation: ks-shake 420ms ease; }
