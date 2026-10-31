@@ -15,14 +15,6 @@ import { equations } from './define.js'
 /** The ids of the cards a level presets on its board. */
 export const presetIds = (level) => (level.preset ?? []).map((item) => item.id ?? item)
 const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
-// How hard a level is, for its number: the steps (or gates) of its reference answer; a truth table counts as a short
-// proof.
-const ease = (level) => {
-  const main = level.tasks?.at(-1) ?? level
-  // A definition counts its rows.
-  if (main.kind === 'define') return main.rows.length
-  return main.solution ? main.solution.nodes.filter((n) => !['premise', 'goal', 'letter', 'out'].includes(n.type)).length : 2
-}
 
 /**
  * spec: {
@@ -184,11 +176,11 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
   for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
-  // A level's number: on an era's main path the era and its place by difficulty ('1-4', numbered), in a topic its
+  // A level's number: on an era's main path the era and its place, a parallel set row by row ('1-4', numbered), in a topic its
   // code and place ('D2'), C1 …
   // for the era's challenges.
   const LABELS = new Map(eras.flatMap((era, e) => [
-    ...numbered([...era.foundation, ...(era.practice ?? [])], plan.requires, (id) => ease(given.get(id))).map((id, k) => [id, `${e}-${k + 1}`]),
+    ...numbered([...era.foundation, ...(era.practice ?? [])], plan.requires).map((id, k) => [id, `${e}-${k + 1}`]),
     // Topics sharing a code number on from each other, across chapters too (a topic split into branches: X1, X2, then
     // X3 … on both; the elimination rule generator's levels in whatever chapter: E1 … E4).
     ...(era.topics ?? []).flatMap((t, i, all) => {

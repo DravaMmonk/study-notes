@@ -95,17 +95,19 @@ export const ROLES = ['foundation', 'practice', 'intro', 'step', 'finale', 'chal
 export const pathLevels = (items) => items.flatMap((item) => (typeof item === 'string' ? [item] : item.parallel.flatMap((b) => b.levels)))
 /**
  * A main path's levels in the order they are numbered: every level after the levels it requires (`requires`, from
- * layout), and among the levels open at each point the easiest first (`ease(id)`, smaller is easier), ties in the
- * order written. Branches of a parallel set interleave by difficulty, and no level is numbered before one it needs.
+ * layout), and among the levels open at each point the one highest in its parallel branch first, ties in the order
+ * written. So a parallel set is numbered row by row, branch after branch, and the map (which lays its branches out by
+ * their first numbers) reads left to right on every row; no level is numbered before one it needs.
  */
-export function numbered(items, requires, ease) {
+export function numbered(items, requires) {
   const ids = pathLevels(items)
+  const depth = new Map(items.flatMap((item) => (typeof item === 'string' ? [[item, 0]] : item.parallel.flatMap((b) => b.levels.map((id, k) => [id, k])))))
   const on = new Set(ids)
   const done = new Set()
   const out = []
   while (out.length < ids.length) {
     const open = ids.filter((id) => !done.has(id) && (requires.get(id) ?? []).every((r) => !on.has(r) || done.has(r)))
-    const next = open.reduce((best, id) => (ease(id) < ease(best) ? id : best))
+    const next = open.reduce((best, id) => (depth.get(id) < depth.get(best) ? id : best))
     done.add(next)
     out.push(next)
   }
