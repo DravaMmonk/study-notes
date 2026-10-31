@@ -405,7 +405,7 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
             <CardBody node={node} board={board} parts={parts} level={level} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} />
             {built.is(node) && <InsidePhone path={[node.id]} built={built} board={board} />}
-            {parts.role(node) === 'part' && <PartActions onEdit={built.is(node) ? () => { setSheet(null); built.edit(node.type) } : null} onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
+            {parts.role(node) === 'part' && <PartActions onEdit={built.is(node) ? () => { setSheet(null); built.edit(node.type) } : null} onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} width={editing.widthOf(node.id)} />}
           </div>
         </Sheet>
       )}

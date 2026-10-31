@@ -228,8 +228,12 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     for (let at = 0; at < cells; at++) {
       const node = bySlot.get(at)
       if (node && wide.has(node.id)) {
-        out.push(frameBlock(node, at, region))
+        out.push(frameBlock(node, at, region, true))
         at += 1
+        continue
+      }
+      if (node && (parts.frames?.(node) ?? []).length) {
+        out.push(frameBlock(node, at, region, false))
         continue
       }
       if (!node && fixed) { out.push(<div key={`slot-${at}`} className="pb-cell is-blank" />); continue }
@@ -254,14 +258,15 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
         </div>,
       )
     }
-    return <div className={`pb-grid ${region ? 'is-region' : ''}`}>{out}</div>
+    const narrow = region && graph.nodes.find((n) => n.id === region.split('/')[0])?.narrow
+    return <div className={`pb-grid ${region ? 'is-region' : ''} ${narrow ? 'is-narrow' : ''}`}>{out}</div>
   }
 
   // A frame: its head (held to drag it), each region's grid with the dot its result goes into, then its output.
-  function frameBlock(node, at, region) {
+  function frameBlock(node, at, region, whole) {
     const ports = inputs(node)
     return (
-      <div key={node.id} className="pb-cell is-wide" data-slot={at} data-region={region ?? ''}>
+      <div key={node.id} className={`pb-cell ${whole ? 'is-wide' : 'is-narrow'}`} data-slot={at} data-region={region ?? ''}>
         <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
