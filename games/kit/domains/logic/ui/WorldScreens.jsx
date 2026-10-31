@@ -8,9 +8,9 @@ import { builtWorld, claimIn } from '../fol.js'
 import { fixedLine } from './FormulaScreen.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
-// FormulaScreen.jsx), and the counterexample level (ModelScreen): above, the wrong sentence someone wrote (fol.js
-// claimIn: a lemma that does not follow, or a translation unlike what the brief's requirement means), on a strip that
-// cannot be changed; below, the world the player builds against it (how many things, which thing each name stands
+// FormulaScreen.jsx), and the counterexample level (ModelScreen): on top, as a translation level has it, the
+// sentence or reasoning in words (`say`); under it, what someone wrote for it, wrong (fol.js claimIn: a lemma that does
+// not follow, or a translation unlike what the words mean), on a strip that cannot be changed; below, the world the player builds against it (how many things, which thing each name stands
 // for, what holds of each; a relation of two as a grid). A run goes through the sentences, marking each one's truth in
 // the world, and passes when the world is a counterexample.
 
@@ -157,6 +157,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
     : failed
   const stage = (
     <div className="fo-stage">
+      {level.say && <p className="fo-say fo-prompt" dangerouslySetInnerHTML={{ __html: String(L(level.say)) }} />}
       {claim}
       {builder}
       {verdict && <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{verdict}</p>}
