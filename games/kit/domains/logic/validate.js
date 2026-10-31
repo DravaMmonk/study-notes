@@ -14,7 +14,6 @@ import { freeVars, parse, same, show } from './formula.js'
 import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
 import { counters, extent, structureOf } from './fol.js'
-import { linesOf } from './ruleLines.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { checkScript, methodsOf, sentencesOf } from './script.js'
 import { proof } from './build.js'
@@ -110,18 +109,6 @@ export function validate({ levels: given, course }) {
     const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
     const good = checkIso(level, level.solution, words)
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.ways ?? good.results.find((r) => !r.pass).reason)}`} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
-    // A declaration to write: its reference answer can be written as lines with the blocks the level offers.
-    if (level.play !== 'audit') {
-      const tray = level.tray ?? ['hyp']
-      const lines = linesOf(level.solution)
-      const needs = (items) => items.flatMap((n) => (typeof n === 'string' ? [n] : [n.need, ...needs(n.under)]))
-      const missing = [
-        ...(lines.some((l) => l.binds.length) && !tray.includes('thing') ? ['any thing'] : []),
-        ...(lines.some((l) => l.needs.some((n) => typeof n !== 'string')) && !tray.includes('under') ? ['a premise with premises'] : []),
-        ...lines.flatMap((l) => needs(l.needs)).filter((n) => !tray.includes('hyp') || !level.sentences.includes(n)),
-      ]
-      if (missing.length) out.push({ fail: true, text: `  the reference declaration needs blocks not on offer: ${[...new Set(missing)].join(', ')}` })
-    }
     // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
     if (level.play === 'audit') {
       const cases = judgeCases(level, level.answer, words)

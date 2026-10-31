@@ -3,7 +3,7 @@
 import { GLOSSARY, GLOSSARY_GROUPS } from './glossary.js'
 import { ERAS } from './levels/eras.js'
 import { LEMMAS, LOGIC } from './levels/index.js'
-import { linesOf } from '../kit/domains/logic/ruleLines.js'
+import { boardOf } from '../kit/domains/logic/ruleLines.js'
 
 // The declarations that had a second task, their elimination rule by hand (save versions 48 to 49).
 // The levels that gained definition tasks before their machine (version 52), and how many.
@@ -382,11 +382,8 @@ export default {
     { tasks: (passed, id) => (id === 'decl-three' ? Math.min(passed, 1) : ['decl-order', 'decl-two'].includes(id) ? 0 : passed) },
     { solve: ['decl-three', ['decl-true', 'decl-iff']] },
   ] },
-  // Version 71 wrote declarations as lines of blocks instead of wiring cards: a declaration board kept becomes its lines.
-  { version: 71, ops: [{ data: (value) => {
-    const lines = (v) => (v?.nodes?.some((n) => n.id === 'decl') ? { lines: linesOf(v) } : v)
-    return Array.isArray(value) ? value.map(lines) : lines(value)
-  } }] },
+  // Version 71 wrote declarations as lines of blocks (undone by version 74, which brings any such save back).
+  { version: 71, ops: [] },
   // Version 72 opened each world level with a task to build its sentence as a formula: a world kept is the next task's.
   { version: 72, ops: [
     { data: (value, id) => (!WORLD_STAGES.includes(id) || value === undefined ? value : [null, ...(Array.isArray(value) ? value : [value])]) },
@@ -404,7 +401,12 @@ export default {
       return id === 'fo-nested' ? [null, null, ...(worlds.length ? worlds : [null])] : [null, ...(worlds.length ? worlds : id === 'fo-all' ? [null, null] : [null])]
     } },
     { data: (value, id) => (['m-counter', 'p-split', 'p-exAnd'].includes(id) && Array.isArray(value) ? [null, ...value.slice(1)] : value) },
-  ] }],
+  ] },
+  // Version 74 wired declarations as cards again: a declaration kept as lines (versions 71 to 73) becomes its board.
+  { version: 74, ops: [{ data: (value) => {
+    const board = (v) => (Array.isArray(v?.lines) ? boardOf(v.lines) : v)
+    return Array.isArray(value) ? value.map(board) : board(value)
+  } }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '相等', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],
