@@ -217,16 +217,17 @@ export const GLOSSARY = [
     see: ['axiom'],
   },
   {
-    id: 'declaration', group: 'proof', title: T('声明', 'declaration'), at: 'decl-imp',
+    id: 'declaration', group: 'proof', title: T('声明', 'declaration'), at: 'decl-and',
     body: [T(`本游戏中的<b>声明</b>指定新连接词的引入规则，证明器据此生成相应的消去规则。它与可展开的${W('definition')}、直接采用的${W('axiom')}承担不同角色。生成规则与其声明的引入方式相对应；声明是否保持一致性还依赖具体规则和系统条件。Lean 的归纳类型及 Isabelle/HOL 的连接词有各自的机制，本游戏是一个简化模型。`, `In this game, a <b>declaration</b> specifies introduction rules for a new connective, from which the prover generates a corresponding elimination rule. This differs from an unfoldable ${W('definition')} and an assumed ${W('axiom')}. The generated rule corresponds to the declared introductions; consistency also depends on the specific rules and system assumptions. Lean’s inductive types and Isabelle/HOL’s connectives have their own mechanisms; the game is a simplified model.`)],
     see: ['definition', 'axiom'],
   },
   {
-    id: 'rule-arrow', group: 'proof', title: T('规则箭头 ⟹', 'the rule arrow ⟹'), at: 'decl-imp',
+    id: 'rule-arrow', group: 'proof', title: T('规则箭头 ⟹', 'the rule arrow ⟹'), at: 'decl-and',
     body: [
       T('游戏里的规则都写成 ⟦前提⟧ ⟹ 结论，这是 Isabelle 的写法：⟦下雨; 刮风⟧ ⟹ 下雨 ∧ 刮风 说的是「有了下雨和刮风的证明，就得到下雨 ∧ 刮风的证明」。规则里的 ?A、?B 代表任何一句话，?R 代表任何结论。', 'Every rule in the game is written ⟦premises⟧ ⟹ conclusion, the way Isabelle writes it: ⟦it rains; it is windy⟧ ⟹ it rains ∧ it is windy says “with proofs of it rains and it is windy, you have a proof of it rains ∧ it is windy”. In a rule, ?A and ?B stand for any sentence and ?R for any conclusion.'),
       T('双箭头 ⟹ 和单箭头 → 不在一层。→ 在句子里面：A → B 本身是一句话，可以被证明、被假设、接进别的元件。⟹ 在句子外面，说的是证明之间的关系：有了这些，就有那个。两者靠证明核连在一起：假设框把「假设 A 证出 B」变成一句 A → B，套用反过来，用 A → B 和 A 得到 B。Isabelle 把这两层分开：⟹ 属于它的元逻辑 Pure，→ 属于 HOL 这门逻辑。', 'The double arrow ⟹ and the single arrow → are not on one level. → is inside a sentence: A → B is itself a sentence, which can be proved, assumed and wired into other parts. ⟹ is outside sentences and relates proofs: with these, you have that. The kernel joins them: the assumption box turns “assume A, prove B” into a sentence A → B, and Apply goes back, from A → B and A to B. Isabelle keeps the two levels apart: ⟹ belongs to its meta-logic Pure, → to the logic HOL.'),
       T('Lean 只有一个箭头。引入规则写成 <code>And.intro : a → b → a ∧ b</code>：规则就是一句蕴含，引入规则就是它的证明（Curry–Howard 对应），所以规则能直接像一句 → 那样套用。两种写法说的是同一件事：⟦A; B⟧ ⟹ C 就是 A → B → C。', 'Lean has one arrow. A way to make is written <code>And.intro : a → b → a ∧ b</code>: a rule is an implication, and the way to make is its proof (the Curry–Howard correspondence), so a rule is applied just as a sentence with → is. The two notations say one thing: ⟦A; B⟧ ⟹ C is A → B → C.'),
+      T('游戏里写声明时，只写最外面一层 ⟹：一条引入规则是「⟦前提; 前提⟧ ⟹ 结论」，每个前提都是一句完整的话；前提要是自己还需要别的前提，就用 → 和 ∀ 写进句子里，比如 ⟦∀y. y比x小 → y可达⟧ ⟹ x可达。这样一来，写声明和写引理是同一种格式：一个结论，几条引入规则，每条一串并列的前提，复杂的部分都留在命题内部。Isabelle 真实的写法会把这一层也写成规则，⟦⋀y. ⟦y比x小⟧ ⟹ y可达⟧ ⟹ x可达，好处是用规则时证明核直接把它拆成子目标，不必先用任取框和假设框证出一句 → 。两种写法可以互相转换，表达能力一样；游戏选前一种，是为了让玩家亲手写的规则格式统一、读起来简单。生成的消去规则仍照 Isabelle 的写法，前提可以带自己的前提和任取：那是证明核写的，不是玩家写的。Lean 只有一种箭头，引入规则写成构造子的参数，和游戏的写法更接近。', 'When writing a declaration in the game, only the outermost layer of ⟹ is written: an intro rule is “⟦premise; premise⟧ ⟹ conclusion”, each premise a whole sentence; a premise that needs premises of its own says so inside its sentence, with → and ∀, as in ⟦∀y. y below x → y reachable⟧ ⟹ x reachable. So writing a declaration and writing a lemma take one format: one conclusion, a few intro rules, each a row of premises side by side, with whatever is complex kept inside the statements. Isabelle’s own way writes that inner layer as a rule too, ⟦⋀y. ⟦y below x⟧ ⟹ y reachable⟧ ⟹ x reachable, so that the kernel splits it into subgoals when the rule is used, with no for-any box and assumption box needed first to prove a sentence with →. The two can be turned into each other and say the same; the game takes the first so the rules a player writes have one format and read simply. The elimination rule made from them still follows Isabelle, its premises with premises and things of their own: the kernel writes it, not the player. Lean has one arrow and writes intro rules as a constructor’s arguments, nearer the game’s way.'),
     ],
     see: ['declaration', 'rule'],
   },
@@ -254,12 +255,12 @@ export const GLOSSARY = [
     see: ['intro-rule', 'elim-rule', 'hilbert'],
   },
   {
-    id: 'intro-rule', group: 'proof', title: T('引入规则', 'introduction rule'), at: 'decl-imp',
+    id: 'intro-rule', group: 'proof', title: T('引入规则', 'introduction rule'), at: 'decl-and',
     body: [T(`<b>引入规则</b>的结论里多出一个${W('connective')}：拼起来由 A、B 得 A ∧ B，二选一由 A 得 A ∨ B，假设框得 A → B。要证一句话，看它最外面的连接词，就知道用哪条引入规则。`, `An <b>introduction rule</b> has a new ${W('connective')} in its conclusion: Join gets A ∧ B from A and B, Choose gets A ∨ B from A, the assumption box gets A → B. To prove a sentence, its outermost connective says which introduction rule to use.`)],
     see: ['elim-rule', 'natural'],
   },
   {
-    id: 'elim-rule', group: 'proof', title: T('消去规则', 'elimination rule'), at: 'decl-imp',
+    id: 'elim-rule', group: 'proof', title: T('消去规则', 'elimination rule'), at: 'decl-and',
     body: [T(`<b>消去规则</b>说明如何使用带有某个${W('connective')}的命题：由 A ∧ B 可得 A，由 A → B 和 A 可得 B；对 A ∨ B 则可以分类讨论。证明中使用一个命题并不会消耗它。引入与消去规则之间的<b>和谐</b>要求消去规则与该连接词的引入方式相协调。`, `An <b>elimination rule</b> explains how to use a proposition with a ${W('connective')}: A follows from A ∧ B; B follows from A → B and A; and A ∨ B supports reasoning by cases. Using a proposition in a proof does not consume it. <b>Harmony</b> requires elimination rules to correspond appropriately to the ways that connective is introduced.`)],
     see: ['intro-rule', 'normal-form'],
   },

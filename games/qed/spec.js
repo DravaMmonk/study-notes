@@ -406,7 +406,16 @@ export default {
   { version: 74, ops: [{ data: (value) => {
     const board = (v) => (Array.isArray(v?.lines) ? boardOf(v.lines) : v)
     return Array.isArray(value) ? value.map(board) : board(value)
-  } }] }],
+  } }] },
+  // Version 75 filled declarations in as a table again, each premise a sentence, and began with "and": a declaration
+  // kept as a board starts over; 声明「若…则…」 and 检验声明 are gone.
+  { version: 75, ops: [
+    { rename: { 'decl-imp': null, 'decl-check': null } },
+    { data: (value) => {
+      const board = (v) => (v?.nodes?.some((n) => n.id === 'decl') ? undefined : v)
+      return Array.isArray(value) ? value.map((v) => board(v) ?? null) : board(value)
+    } },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '相等', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],

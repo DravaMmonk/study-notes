@@ -1,10 +1,11 @@
 // Chapter 3, second half · Declarations: the kernel has Apply and the box, and no "and", "or" or "contradiction";
 // definitions only name what those two prove, so a connective has to come in another way. It comes in by a
-// declaration: its ways to make it, each a rule written with premise cards (⟦⟧), Join (;) and wires (⟹) from the tray
-// (iso.js). Joined cards are one way that needs both; cards each into a way of their own are separate ways; a card wired
-// into another's port is a premise that needs it first; no card wired is no way at all. It starts with the one the
-// kernel knows already, → (the box and Apply). Each situation tests the declaration against what the connective
-// means. `sentences` are what a premise card may pick.
+// declaration: its ways to make it, each an intro rule filled in on the rule table (ruleLines.js, ui/RuleTable.jsx):
+// a row of premises, each a sentence built on the strip; one row is one way that needs all of them, rows are separate
+// ways, no row at all is no way. A rule is written with one layer of ⟹: a premise that needs more says it inside its
+// sentence, with → (the kernel's own, the box and Apply). It starts with "and". Each situation tests the declaration
+// against what the connective means. `sentences` give the pieces a premise is built from; `thing`: a rule may take any
+// thing (chapter 6 on).
 //
 // What takes it apart is not written: the ways in are all the ways there are, so its elimination rule is made from
 // them (iso.js declaredRules), as Lean and Isabelle make it, and the pass text says so. Passing a declaration brings in
@@ -44,122 +45,9 @@ const generator = (level) => ({
 const GENERATOR_ANY = machine({ r: ['anyR'], e: ['eachOf'], a: ['keepBound', {}, 'e'], s: ['swapConcl', {}, 'a'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>a.in', 'a#body>s.rule', 'r>s.to', 's>a.body', 'a>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
 const GENERATOR = machine({ r: ['anyR'], e: ['eachOf'], s: ['swapConcl', {}, 'e'], c: ['consFront'], m: ['mkRule'] }, ['ways>e.in', 'e#body>s.rule', 'r>s.to', 's>e.body', 'it>c.first', 'e>c.rest', 'c>m.premises', 'r>m.conclusion', 'm>out'], { inputs: ['it', 'ways'] })
 
-// "If … then …": its sentence, and the cases its declaration is checked on.
-const IMP = {
-  declare: T('若…则…', 'if … then …'),
-  target: 'Rain → Wet',
-  sentences: ['Rain', 'Wet'],
-  tests: [
-    { given: ['Wet'], make: true },
-    { given: ['Rain', 'Wet'], make: true },
-    { given: ['Rain'], make: false },
-    { given: [], make: false },
-    { given: ['Rain → Wet'], goal: 'Rain', make: false },
-    { given: ['Rain → Wet'], goal: 'Wet', make: false },
-    { given: ['Rain → Wet', 'Rain'], goal: 'Wet', make: true },
-  ],
-}
 const ALL = ['given', 'goal', 'make']
 
 export const declarations = [
-  declare({
-    // The connective the kernel has known since chapter 2: its one way in is the box, the elimination rule made from it
-    // gives back the premise as a rule, and with what it needs, that is Apply. Nothing new for the proof board.
-    id: 'decl-imp',
-    title: T('声明「若…则…」', 'Declaring “if … then …”'),
-    ...IMP,
-    tray: ['hyp'],
-    intro: [
-      { t: T('此前我们用「若…则…」（→）推理时，一直假定证明核已经认识它。证明核不会自动认识新符号及相关规则：在依赖类型论中，可以通过<wiki-ref to="declaration"></wiki-ref>来拟定新符号的构建和使用规则。', 'When reasoning with “if … then …” (→), we have assumed that the proof kernel already knows it. A kernel does not automatically know new symbols or their rules: in dependent type theory, a <wiki-ref to="declaration"></wiki-ref> can specify how a new symbol is constructed and used.') },
-      { t: T('一条规则写作「⟦前提⟧ ⟹ 结论」：满足前提，就可以得到结论。<wiki-ref to="rule-arrow"></wiki-ref>连接的是规则的前提和结论；→ 则是命题里的「若…则…」。', 'A rule is written “⟦premises⟧ ⟹ conclusion”: if its premises hold, the conclusion follows. The <wiki-ref to="rule-arrow"></wiki-ref> connects the premises and conclusion of a rule; → means “if … then …” within a statement.') },
-      { t: T('<wiki-ref to="intro-rule"></wiki-ref>说明怎样证明带有某个连接词的命题。例如，在假设 A 的条件下证出 B，就能通过<part-ref to="part:impI"></part-ref>得到 A → B。假设框就是「若…则…」的引入规则。', 'An <wiki-ref to="intro-rule"></wiki-ref> says how to prove a statement with a connective. For example, a proof of B under the assumption A gives A → B through the <part-ref to="part:impI"></part-ref>. The assumption box is the introduction rule for “if … then …”.') },
-      { t: T('<wiki-ref to="elim-rule"></wiki-ref>说明怎样使用带有某个连接词的命题。例如，由 A → B 和 A，可以通过<part-ref to="part:mp"></part-ref>得到 B。套用就是「若…则…」的消去规则。', 'An <wiki-ref to="elim-rule"></wiki-ref> says how to use a statement with a connective. For example, A → B and A give B through <part-ref to="part:mp"></part-ref>. Apply is the elimination rule for “if … then …”.') },
-      { t: T('先从熟悉的「若…则…」开始，写出假设框对应的引入规则。', 'Start with the familiar “if … then …” and write the introduction rule corresponding to the assumption box.') },
-    ],
-    brief: T('需求：假设「下雨」后能推出「地湿」，就可以引入「下雨 → 地湿」。写出它的声明。', 'Requirement: “it rains → the ground is wet” may be introduced once “the ground is wet” is proved assuming “it rains”. Write its declaration.'),
-    hint: [
-      T('这条引入规则要求在假设「下雨」的条件下推出「地湿」。', 'The introduction rule requires “the ground is wet” to be proved under the assumption “it rains”.'),
-      T('将「下雨」接到「地湿」的「它的前提」输入口，再将「地湿」接到「引入规则 1」。', 'Connect “it rains” to the “Its premises” input of “the ground is wet”, then connect “the ground is wet” to “Intro rule 1”.'),
-    ],
-    solution: isoBoard(['Rain>Wet', 'Wet>1']),
-    naive: isoBoard(['Wet>1']),
-    after: T('你可能已经注意到，规则板会根据声明的引入规则生成<wiki-ref to="elim-rule"></wiki-ref>。这是因为声明列出了构建该命题的全部方式：要使用它，就可以逐一考虑这些方式。Lean 走的就是声明这条路：「并且」「或者」「存在」「相等」都用一条声明（inductive）引入证明核，规则由声明生成；只有「若…则…」在 Lean 里是证明核自带的。', 'You may have noticed that the rule board generates an <wiki-ref to="elim-rule"></wiki-ref> from a declaration’s introduction rules. This is possible because the declaration lists all the ways to construct the statement: using it means considering each of those ways. Lean takes this road of declaring: “and”, “or”, “there is” and equality each come into its kernel by a declaration (inductive), and their rules are generated from it; only “if … then …” is built into Lean’s kernel.'),
-  }),
-  declare({
-    // Writing test cases, before writing more declarations: a free case agreeing with the player's own right
-    // declaration, then one disagreeing with someone's wrong one; last, the two directions on one declaration, the
-    // declared sentence as the goal (how it is made) and as a premise (what follows from it): 3-1's naive declaration,
-    // which no case of the first direction can tell from the right one.
-    id: 'decl-check',
-    title: T('检验声明', 'Checking a declaration'),
-    ...IMP,
-    solution: isoBoard(['Rain>Wet', 'Wet>1']),
-    intro: [
-      { t: T('<b>检验条例</b>用来检查声明是否符合我们想表达的意思。每条条例描述一种情况：有哪些<b>前提</b>、要推导什么<b>目标</b>，以及在这些前提下，目标<b>预期</b>能否推导出来。', 'A <b>test case</b> checks whether a declaration captures the intended meaning. Each case describes a situation: the available <b>premises</b>, the <b>goal</b>, and whether the goal is <b>expected</b> to follow from those premises.') },
-      { t: T('声明规定了哪些推导可以成立。运行检验时，证明器会按声明给出<b>结果</b>，再与条例中的预期比较。结果不符，就说明声明在这种情况下没有表达出我们想要的意思。', 'A declaration specifies which derivations are allowed. When a test runs, the prover gives a <b>result</b> according to the declaration and compares it with the expectation. A mismatch shows that the declaration does not capture the intended meaning in that situation.') },
-      { t: T('本关先为自己写的声明编写一条结果相符的条例，再为另一份声明找一条结果不符的条例，最后从两个方向检验同一份声明。', 'In this level, first write a case that agrees with your own declaration, then find a case that disagrees with another declaration, and last check one declaration in two directions.') },
-    ],
-    tasks: [
-      {
-        kind: 'iso',
-        step: T('正确的声明', 'A right declaration'),
-        play: 'audit',
-        want: 'agree',
-        carry: 'decl-imp',
-        boards: [{ board: isoBoard(['Rain>Wet', 'Wet>1']) }],
-        slots: 1,
-        answer: [{ given: ['Wet'], make: true }],
-        naive: [{ given: ['Rain'], make: true }],
-        intro: [{ t: T('板上是你在<level-ref to="decl-imp"></level-ref>写的声明。找出一种情况，使这份声明的结果与预期相符，并将这个情况填入表内。', 'The board holds your declaration from <level-ref to="decl-imp"></level-ref>. Find a situation in which its result agrees with your expectation, and enter it in the table.') }],
-        brief: T('需求：假设「下雨」后能推出「地湿」，就可以引入「下雨 → 地湿」。找出一种情况：预期符合需求，声明的结果与预期相符。', 'Requirement: “it rains → the ground is wet” may be introduced once “the ground is wet” is proved assuming “it rains”. Find a situation where the expectation meets the requirement and the declaration’s result agrees with it.'),
-        hint: [T('先定下前提和目标，再按需求想：这时目标该不该推得出？', 'Choose the premises and the goal first, then ask what the requirement says: should the goal be derivable?')],
-      },
-      {
-        // Someone's declaration that makes it from rain alone: wrong both ways.
-        kind: 'iso',
-        step: T('错误的声明', 'A wrong declaration'),
-        play: 'audit',
-        boards: [{ board: isoBoard(['Rain>1']) }],
-        slots: 1,
-        answer: [{ given: ['Rain'], make: false }],
-        naive: [{ given: ['Rain', 'Wet'], make: true }],
-        intro: [{ t: T('板上换成了别人写的声明。找出一种情况，使这份声明的结果与预期不符，并将这个情况填入表内。', 'The board now holds someone else’s declaration. Find a situation in which its result disagrees with your expectation, and enter it in the table.') }],
-        brief: T('需求：假设「下雨」后能推出「地湿」，就可以引入「下雨 → 地湿」。找出一种情况：预期符合需求，声明的结果却与预期不符。', 'Requirement: “it rains → the ground is wet” may be introduced once “the ground is wet” is proved assuming “it rains”. Find a situation where the expectation meets the requirement but the declaration’s result disagrees with it.'),
-        hint: [T('这份声明要的前提和需求一样吗？', 'Does this declaration ask for the same premise as the requirement?')],
-      },
-      {
-        // 3-1's naive declaration, ⟦Wet⟧ ⟹ Rain → Wet: as a goal it is made exactly when the requirement makes it, so
-        // only a case using it as a premise reveals that its elimination rule gives back Wet outright.
-        kind: 'iso',
-        step: T('两个方向', 'Two directions'),
-        play: 'audit',
-        boards: [{ board: isoBoard(['Wet>1']) }],
-        slots: [
-          { given: ['Wet'], make: true, fixed: ['given', 'goal', 'make'] },
-          { given: ['Rain → Wet'], keep: ['Rain → Wet'], fixed: [] },
-        ],
-        answer: [
-          { given: ['Wet'], make: true },
-          { given: ['Rain → Wet'], goal: 'Wet', make: false },
-        ],
-        naive: [
-          { given: ['Wet'], make: true },
-          { given: ['Rain → Wet'], goal: 'Rain', make: false },
-        ],
-        intro: [
-          { t: T('检验一份声明，要从两个方向入手。<b>引入方向</b>以声明的命题为目标，检验在什么前提下可以得到它；<b>使用方向</b>把它放进前提，检验有了它之后能推出什么。引入规则决定前一个方向，由引入规则生成的消去规则决定后一个方向。', 'A declaration is checked from two directions. The <b>introduction direction</b> takes the declared statement as the goal and checks under which premises it can be obtained; the <b>use direction</b> puts it among the premises and checks what follows from it. The intro rules decide the first direction; the elimination rule generated from them decides the second.') },
-          { t: T('板上的声明只要求「地湿」，就引入「下雨 → 地湿」。第 1 条条例已经写好，它从引入方向检验：结果与预期相符。事实上，从这个方向写出的任何条例，这份声明都能通过。', 'The declaration on the board introduces “it rains → the ground is wet” from “the ground is wet” alone. Case 1 is already written and checks the introduction direction: the result agrees with the expectation. In fact this declaration passes every case written from this direction.') },
-        ],
-        brief: T('需求：假设「下雨」后能推出「地湿」，就可以引入「下雨 → 地湿」。补全第 2 条条例，从使用方向找出这份声明的错误。', 'Requirement: “it rains → the ground is wet” may be introduced once “the ground is wet” is proved assuming “it rains”. Complete case 2 to reveal this declaration’s fault from the use direction.'),
-        hint: [
-          T('这份声明的消去规则是怎样的？它从「下雨 → 地湿」交还什么？', 'What is this declaration’s elimination rule? What does it give back from “it rains → the ground is wet”?'),
-          T('按需求，单凭「下雨 → 地湿」，能推出什么，推不出什么？', 'According to the requirement, what follows from “it rains → the ground is wet” alone, and what does not?'),
-        ],
-        after: T('只从引入方向检验，这份声明找不出错误：只要已经有「地湿」，「下雨 → 地湿」确实成立。但它的消去规则直接交还「地湿」，于是单凭「下雨 → 地湿」也能推出「地湿」，不必先有「下雨」。引入规则写得不准确，问题可能只在使用时暴露，所以两个方向都要检验。', 'From the introduction direction alone this declaration shows no fault: once “the ground is wet” holds, “it rains → the ground is wet” does hold. But its elimination rule gives back “the ground is wet” outright, so “it rains → the ground is wet” alone yields “the ground is wet”, without “it rains” first. An inexact intro rule may show its fault only in use, so both directions must be checked.'),
-      },
-    ],
-    after: T('检验条例只能找出声明的错误，证明不了声明正确。', 'Test cases can show a declaration wrong; they cannot show it right.'),
-  }),
   declare({
     id: 'decl-and',
     // What declaring it gives: its way to make it and the elimination rule made from it, parts of the proof board from
@@ -180,7 +68,9 @@ export const declarations = [
       { given: ['Rain ∧ Wind', 'Rain → (Wind → Wet)'], goal: 'Wet', make: true },
     ],
     intro: [
-      { t: T('在<level-ref to="decl-imp"></level-ref>中，我们为证明核已经认识的「若…则…」写了声明。现在要让证明核认识新的连接词「并且」：它表示两句话都成立。', 'In <level-ref to="decl-imp"></level-ref>, we declared “if … then …”, which the kernel already knew. Now we want to introduce a new connective, “and”: both statements must hold.') },
+      { t: T('证明核到现在只认识「若…则…」（→）：<part-ref to="part:impI"></part-ref>证出它，<part-ref to="part:mp"></part-ref>用它，这两样是证明核自带的。证明核不会自动认识新符号：在依赖类型论中，可以通过<wiki-ref to="declaration"></wiki-ref>来拟定新符号的构建和使用规则。现在要让证明核认识新的连接词「并且」：它表示两句话都成立。', 'So far the kernel knows only “if … then …” (→): the <part-ref to="part:impI"></part-ref> proves it and <part-ref to="part:mp"></part-ref> uses it, both built into the kernel. A kernel does not automatically know new symbols: in dependent type theory, a <wiki-ref to="declaration"></wiki-ref> can specify how a new symbol is constructed and used. Now the kernel is to know a new connective, “and”: both statements hold.') },
+      { t: T('一条规则写作「⟦前提⟧ ⟹ 结论」：满足前提，就可以得到结论。<wiki-ref to="rule-arrow"></wiki-ref>连接的是规则的前提和结论；→ 则是命题里的「若…则…」。', 'A rule is written “⟦premises⟧ ⟹ conclusion”: if its premises hold, the conclusion follows. The <wiki-ref to="rule-arrow"></wiki-ref> connects the premises and conclusion of a rule; → means “if … then …” within a statement.') },
+      { t: T('<wiki-ref to="intro-rule"></wiki-ref>说明怎样证明带有某个连接词的命题，<wiki-ref to="elim-rule"></wiki-ref>说明怎样使用它。假设框就是「若…则…」的引入规则，套用就是它的消去规则。声明写出引入规则，消去规则由证明核生成。', 'An <wiki-ref to="intro-rule"></wiki-ref> says how to prove a statement with a connective, an <wiki-ref to="elim-rule"></wiki-ref> how to use it. The assumption box is the introduction rule of “if … then …”, Apply its elimination rule. A declaration writes the introduction rules; the kernel makes the elimination rule.') },
       { t: T('声明要符合这个意思。先检验两份有错误的声明，再自己写一份。', 'A declaration must capture that meaning. First, examine two faulty declarations; then write one yourself.') },
     ],
     tasks: [
@@ -204,6 +94,8 @@ export const declarations = [
           { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
         ],
         intro: [
+          { t: T('<b>检验条例</b>用来检查声明是否符合我们想表达的意思。每条条例描述一种情况：有哪些<b>前提</b>、要推导什么<b>目标</b>，以及在这些前提下，目标<b>预期</b>能否推导出来。运行检验时，证明器按声明给出<b>结果</b>，再与预期比较；结果不符，就说明声明在这种情况下没有表达出想要的意思。', 'A <b>test case</b> checks whether a declaration captures the intended meaning. Each case describes a situation: the available <b>premises</b>, the <b>goal</b>, and whether the goal is <b>expected</b> to follow from them. When a test runs, the prover gives a <b>result</b> by the declaration and compares it with the expectation; a mismatch shows the declaration does not say what was meant in that situation.') },
+          { t: T('检验一份声明，要从两个方向入手。<b>引入方向</b>以声明的命题为目标，检验在什么前提下可以得到它；<b>使用方向</b>把它放进前提，检验有了它之后能推出什么。引入规则决定前一个方向，由引入规则生成的消去规则决定后一个方向。', 'A declaration is checked from two directions. The <b>introduction direction</b> takes the declared statement as the goal and checks under which premises it can be obtained; the <b>use direction</b> puts it among the premises and checks what follows from it. The intro rules decide the first direction; the elimination rule generated from them decides the second.') },
           { t: T('板上是一份别人写的「并且」声明。它的引入条件<b>过弱</b>：有些本不够证明「并且」的前提，也被它接受了。', 'The board holds someone else’s declaration of “and”. Its introduction conditions are <b>too weak</b>: it accepts premises that should not be enough to prove an “and” statement.') },
           { t: T('声明既决定何时能引入「下雨 ∧ 刮风」，也决定有了它能推出什么。请从这两个方向各写一条检验条例，找出声明的错误。', 'A declaration determines both when “it rains ∧ it is windy” can be introduced and what follows from it. Write a test case for each direction to expose the error.') },
         ],
@@ -236,17 +128,17 @@ export const declarations = [
       {
         kind: 'iso',
         step: T('编写声明', 'Write the declaration'),
-        intro: [{ t: T('现在请按「并且」的意思写出自己的声明。托盘里的<b>拼接</b>可以把几组前提合成一组；规则中的分号表示这些前提一起需要。', 'Now write your own declaration to capture the meaning of “and”. The tray has <b>Join</b>, which combines groups of premises into one; the semicolon in a rule means those premises are required together.') }],
+        intro: [{ t: T('现在请按「并且」的意思写出自己的声明。点「添加前提」，在弹出的窗口里拼出这个前提的句子；同一条引入规则的几个前提用分号隔开，表示它们一起需要。再加一行，就是另一条引入规则。', 'Now write your own declaration to capture the meaning of “and”. Tap “Add a premise” and build its sentence in the window that opens; the premises of one intro rule are separated by semicolons, meaning they are needed together. Another row is another intro rule.') }],
         brief: T('需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。写出它的声明。', 'Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write its declaration.'),
         hint: [
           T('只有一条引入规则，它同时要两样。', 'There is one introduction rule, and it needs both at once.'),
-          T('两张前提分别选「下雨」和「刮风」，都接进拼接，再把拼接接进引入规则 1。', 'Take two premises, “it rains” and “it is windy”, wire both into a Join, and the Join into intro rule 1.'),
+          T('在引入规则 1 这一行添加两个前提：「下雨」和「刮风」。', 'Give intro rule 1 two premises: “it rains” and “it is windy”.'),
         ],
       },
     ],
     solution: isoBoard(['Rain+Wind>1']),
     naive: isoBoard(['Rain>1', 'Wind>2']),
-    after: T('「并且」原本不在证明核里，声明让证明核从此认得它。', '“And” was not in the kernel before; the declaration is what makes the kernel know it.'),
+    after: T('「并且」原本不在证明核里，声明让证明核从此认得它。你可能已经注意到，检验条例上方写出了由引入规则生成的<wiki-ref to="elim-rule"></wiki-ref>：声明列出了构建该命题的全部方式，要使用它，就可以逐一考虑这些方式。Lean 走的就是声明这条路：「并且」「或者」「存在」「相等」都用一条声明（inductive）引入证明核，规则由声明生成；只有「若…则…」在 Lean 里是证明核自带的。', '“And” was not in the kernel before; the declaration is what makes the kernel know it. You may have noticed the <wiki-ref to="elim-rule"></wiki-ref> written over the test cases, generated from the introduction rules: the declaration lists all the ways to construct the statement, so using it means considering each of those ways. Lean takes this road of declaring: “and”, “or”, “there is” and equality each come into its kernel by a declaration (inductive), and their rules are generated from it; only “if … then …” is built into Lean’s kernel.'),
   }),
   declare({
     id: 'decl-or',
@@ -484,7 +376,7 @@ export const moreDeclarations = [
     ],
     intro: [
       { t: T('<level-ref to="decl-and"></level-ref>里的「并且」先要「下雨」、再要「刮风」。反过来写行不行？检验条例分得出来吗？', 'The “and” of <level-ref to="decl-and"></level-ref> takes “it rains” first, then “it is windy”. Would the other order do? Can test cases tell?') },
-      { t: T('电路 1 先要「下雨」，电路 2 先要「刮风」。请从引入和使用两个方向各写一条预期为可推导的条例，检验两份声明。', 'Board 1 takes “it rains” first, board 2 “it is windy” first. Write a case for each direction, introduction and use, expected derivable, and check both declarations.') },
+      { t: T('声明 1 先要「下雨」，声明 2 先要「刮风」。请从引入和使用两个方向各写一条预期为可推导的条例，检验两份声明。', 'Declaration 1 takes “it rains” first, declaration 2 “it is windy” first. Write a case for each direction, introduction and use, expected derivable, and check both declarations.') },
     ],
     play: 'audit',
     want: 'agree',
@@ -568,7 +460,7 @@ export const moreDeclarations = [
     slots: TRUE_TESTS.map(({ given, goal }) => ({ given, ...(goal ? { goal } : {}), fixed: ['given', 'goal'] })),
     answer: TRUE_TESTS,
     naive: TRUE_TESTS.map((c, k) => (k === 3 ? { ...c, make: !c.make } : c)),
-    intro: [{ t: T('与 ⊥ 相反，「真」永远成立。板上是它的声明：一条引入规则，接的是「无前提」，什么都不要。', 'The opposite of ⊥: True always holds. The board holds its declaration: one intro rule, wired from “no premise”, needing nothing.') }],
+    intro: [{ t: T('与 ⊥ 相反，「真」永远成立。表上是它的声明：一条引入规则，没有前提，什么都不要。', 'The opposite of ⊥: True always holds. The table holds its declaration: one intro rule with no premises, needing nothing.') }],
     brief: T('需求：「真」什么都不要：不管手里有什么，甚至什么都没有，都能引入。按照这份声明，在表中填出每条条例的目标是否可推导。', 'Requirement: True needs nothing: it may be introduced whatever is at hand, even with nothing at all. Following this declaration, fill in whether each case’s goal is derivable.'),
     hint: [T('这份声明的消去规则只有一种情况，它什么都不交还。', 'This declaration’s elimination rule has one case, which hands back nothing.')],
     after: T('「真」常写作 ⊤，和 ⊥ 正好相对：知道它成立，并没有多知道什么。', 'True is often written ⊤, the very opposite of ⊥: knowing it holds tells you nothing more.'),
@@ -581,7 +473,6 @@ export const moreDeclarations = [
     declare: T('当且仅当', 'if and only if'),
     target: 'Rain ↔ Wet',
     sentences: ['Rain → Wet', 'Wet → Rain'],
-    tray: ['hyp', 'none'],
     tests: [
       { given: ['Rain → Wet', 'Wet → Rain'], make: true },
       { given: ['Rain → Wet'], make: false },
@@ -621,7 +512,7 @@ export const moreDeclarations = [
       {
         kind: 'iso',
         step: T('编写声明', 'Write the declaration'),
-        intro: [{ t: T('前提不必是一个字母，也可以是含 → 的句子。托盘里新添了<level-ref to="decl-true"></level-ref>声明里的「无前提」。', 'A premise need not be a single letter; it can be a sentence with → in it. The tray now has the “no premise” of the declaration in <level-ref to="decl-true"></level-ref>.') }],
+        intro: [{ t: T('前提不必是一个字母，也可以是含 → 的句子：在前提的窗口里用连接词拼出来。规则只写一层 ⟹，前提里再要什么，就写进句子里。', 'A premise need not be a single letter; it can be a sentence with → in it, built with the connective in the premise window. A rule is written with one layer of ⟹; whatever a premise needs in turn goes inside its sentence.') }],
         brief: T('需求：「下雨当且仅当地湿」：两个方向的「若…则…」都已证出，才能引入。写出「当且仅当」的声明。', 'Requirement: “it rains if and only if the ground is wet” may be introduced only when the “if … then” both ways are proved. Write the declaration of “if and only if”.'),
         hint: [T('需求要的两样，是同时都要，还是有一样就够？', 'Does the requirement need both at once, or is either enough?')],
       },
@@ -645,7 +536,7 @@ export const thingDeclarations = [
     target: '∃y. Human(y)',
     sentences: ['Human(x)', 'Mortal(x)'],
     things: ['soc', 'ann'],
-    tray: ['thing', 'hyp'],
+    thing: true,
     tests: [
       { given: ['Human(soc)'], make: true },
       { given: ['Human(ann)'], make: true },
@@ -688,9 +579,9 @@ export const thingDeclarations = [
       {
         kind: 'iso',
         step: T('编写声明', 'Write the declaration'),
-        intro: [{ t: T('托盘里新添了「任取一样东西」：它取一样东西，叫它 x；拼在它后面的前提可以提到 x。', 'The tray now has “any thing”: it takes a thing and calls it x; premises joined after it may mention x.') }],
+        intro: [{ t: T('每条引入规则多了一个开关「任取 x」：打开它，这条规则就对任取的一样东西 x 成立，它的前提可以提到 x。', 'Each intro rule now has a switch, “for any x”: turned on, the rule holds for any thing x taken, and its premises may mention x.') }],
         brief: T('需求：「存在一个人」：手里有某一样东西是人的证明，就能引入。写出「存在一个人」的声明。', 'Requirement: “there is a human” may be introduced once some thing is proved to be human. Write the declaration of “there is a human”.'),
-        hint: [T('引入规则要两样：一样东西，和关于它的一句话。', 'The introduction rule needs two things: a thing, and a sentence about it.'), T('先取一样东西，再拼上一张前提「x是人」。', 'Take a thing first, then join a premise “x is human”.')],
+        hint: [T('引入规则要两样：一样东西，和关于它的一句话。', 'The introduction rule needs two things: a thing, and a sentence about it.'), T('打开引入规则 1 的「任取 x」，再添加前提「x是人」。', 'Turn on “for any x” on intro rule 1, then add the premise “x is human”.')],
       },
     ],
     solution: isoBoard(['⋀x+h>1'], { h: 'Human(x)' }),
@@ -705,7 +596,7 @@ export const thingDeclarations = [
     binder: 'a',
     sentences: [],
     things: ['phos', 'hesp'],
-    tray: ['thing'],
+    thing: true,
     tests: [
       { given: [], goal: 'phos = phos', make: true },
       { given: [], goal: 'hesp = hesp', make: true },
@@ -791,7 +682,6 @@ export const typeDeclarations = [
     declare: T('自然数', 'a number'),
     target: 'Nat',
     sentences: ['Nat'],
-    tray: ['hyp', 'none'],
     datatype: { type: 'nat', ctors: ['zero', 's'], args: { Nat: 'nat' } },
     tests: [
       { given: [], make: true },
@@ -814,7 +704,7 @@ export const typeDeclarations = [
     target: 'List',
     sentences: ['List'],
     things: ['ann', 'bo'],
-    tray: ['thing', 'hyp', 'none'],
+    thing: true,
     datatype: { type: 'list', ctors: ['nil', 'cons'], args: { List: 'list' } },
     ways: [[], ['⋀x', 'List']],
     tests: [
@@ -833,7 +723,6 @@ export const typeDeclarations = [
     declare: T('真假值', 'a truth value'),
     target: 'Bool',
     sentences: ['Bool'],
-    tray: ['none'],
     datatype: { type: 'bool', ctors: ['tt', 'ff'], args: {} },
     ways: [[], []],
     tests: [{ given: [], make: true }],

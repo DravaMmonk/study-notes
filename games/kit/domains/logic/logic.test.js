@@ -4,6 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { checkIso, declaredRules, follows, isoBoard, listText, runIso, settle, waysIn } from './iso.js'
 import { ruleText } from './schematic.js'
+import { boardOf, linesOf, premiseChips, problemsOf } from './ruleLines.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
@@ -510,4 +511,15 @@ test('a ∀ over properties: P(t) takes a sentence about x with t in its place, 
   assert.equal(show(substSentence(ind.body, 'P', parse('x = zero ∨ (∃m. x = s(m))', { consts: ['zero'] }))).includes('∀n. n = zero ∨ (∃m. n = s(m))'), true)
   const level = { consts, tests: [{ premises: { e: '∀P. P(phos) → P(hesp)' }, goal: '∀Q. Q(hesp) → Q(phos)' }] }
   assert.ok(choicesOf(level).instance.includes('Q(x) → Q(phos)'))
+})
+
+test('a declaration filled in on the rule table: whole premises, things taken, the board the checks read', () => {
+  const level = { sentences: ['Human(x)', 'Rain → Wet'], target: '∃y. Human(y)', notation: { words: {} } }
+  assert.deepEqual(premiseChips(level).map((c) => c.key).sort(), ['P:Human', 'P:Rain', 'P:Wet', 'v:x', '→'].sort())
+  const human = parse('Human(x)')
+  assert.deepEqual(problemsOf(level, [{ binds: [], needs: [null] }]), [{ rule: 0, need: 0, why: 'empty' }])
+  assert.deepEqual(problemsOf(level, [{ binds: [], needs: [human] }]), [{ rule: 0, need: 0, why: 'stray' }])
+  const rules = [{ binds: ['x'], needs: [human] }]
+  assert.deepEqual(problemsOf(level, rules), [])
+  assert.deepEqual(waysIn(boardOf(linesOf(rules))), [{ binds: ['x'], needs: ['Human(x)'] }])
 })

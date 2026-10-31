@@ -67,11 +67,11 @@ export const ERAS = [
   {
     id: 'packing', machine: 'prover',
     // The kernel's parts and the definitions built with them carry on. Declarations: "and", "or" and the contradiction
-    // come into the kernel by their intro rules, each written as a rule with assumption cards, their elimination rules
-    // made from them (declare.js); an optional topic declares more (D).
+    // come into the kernel by their intro rules, each filled in as a row of premises (declare.js), their elimination
+    // rules made from them; an optional topic declares more (D).
     keeps: 'all',
     foundation: [
-      'decl-imp', 'decl-check', 'decl-and', 'decl-or', 'decl-bot',
+      'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [
       { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-true', 'decl-iff', 'decl-three', 'decl-order', 'decl-two'], title: T('更多声明', 'More declarations') },
