@@ -5,6 +5,7 @@
 //   world  { things: [name], preds: { P: [name] | [[name, name]] }, consts?: { c: name } }   a level's own world
 import { countermodelSearch, holds } from './models.js'
 import { parse, signature } from './formula.js'
+import { isoBoard } from './iso.js'
 
 /**
  * Do two formulas agree in every world of 1 to 3 things? null when they do, or a world where they differ:
@@ -81,6 +82,16 @@ export function claimIn(level, world) {
   })
   return { rows, counter: rows.every((r) => r.right) }
 }
+
+/**
+ * A lemma on the rule board (iso.js cards, the board a declaration is written on: it shows a rule's shape): a premise
+ * card for each sentence given (`hyp-p1` …, a card assuming nothing when there is none), joined into the lemma's card.
+ */
+export const lemmaBoard = (given) => (given.length
+  ? isoBoard([`${given.map((_, k) => `p${k + 1}`).join('+')}>1`], Object.fromEntries(given.map((f, k) => [`p${k + 1}`, f])))
+  : isoBoard(['∅>1']))
+/** The card a lemma's row is on: a premise's card, or the lemma's own for its goal. */
+export const lemmaCard = (row, k) => (row.premise ? `hyp-p${k + 1}` : 'decl')
 
 /** Whether a world is a counterexample to the level's sentence. */
 export const counters = (level, world) => world.size <= (level.maxSize ?? 3) && claimIn(level, world).counter
