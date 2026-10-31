@@ -5,7 +5,6 @@
 //   world  { things: [name], preds: { P: [name] | [[name, name]] }, consts?: { c: name } }   a level's own world
 import { countermodelSearch, holds } from './models.js'
 import { parse, signature } from './formula.js'
-import { needSentence, needUnder, waysIn } from './iso.js'
 
 /**
  * Do two formulas agree in every world of 1 to 3 things? null when they do, or a world where they differ:
@@ -52,31 +51,36 @@ export function builtWorld(w, vocab) {
   return { domain, preds, fns }
 }
 
-// A counterexample level (kind 'model', ui/WorldScreens.jsx) is someone's wrong declaration of a first-order sentence
-// (the level's `target`), on the declaration board (iso.js, `board`): its intro rules are all the ways the sentence
-// comes about, so in a world it holds just when every premise of one of them does (a rule taking a thing, ⋀x, for some
-// thing; a premise needed under premises of its own, ⟦⟦A⟧ ⟹ B⟧, when they give it). The requirement is what the
-// sentence itself says there. The player builds a world where the two differ: a rule that makes it where it is false
-// (too strong), or none that makes it where it is true (too weak).
+// A counterexample level (kind 'model', ui/WorldScreens.jsx) shows a sentence someone wrote that is wrong, for the
+// player to find out with a world (as nitpick does), one of two kinds:
+//   a lemma      { given: [sentence], goal: sentence }  ⟦given⟧ ⟹ goal, which does not follow: a world where every
+//                premise holds and the goal fails
+//   a translation { wrong: sentence, meant: sentence }  someone's translation of the requirement (said in the brief) and
+//                the right one, not shown: a world where the two differ
 
 const read = (level) => (f) => parse(f, { consts: level.vocab.names })
 
-/** In a world: whether each intro rule of the board makes the sentence, whether the declaration does, and whether the
- * sentence itself holds. */
-export function declaredIn(level, world, board = level.board) {
+/** The sentences a counterexample level shows and reads (for its vocabulary). */
+export const claimSentences = (level) => (level.meant ? [level.wrong, level.meant] : [...level.given, level.goal])
+
+/**
+ * The level's sentences shown, in a world: each with its truth and whether it is as a counterexample needs it (a
+ * premise true, the goal false; a translation unlike what was meant), and whether the world is one.
+ */
+export function claimIn(level, world) {
   const model = builtWorld(world, level.vocab)
-  const f = read(level)
-  const need = (n, env) => !needUnder(n).every((u) => need(u, env)) || holds(f(needSentence(n)), model, env)
-  const envs = (binds) => binds.reduce((all, v) => all.flatMap((env) => model.domain.map((d) => ({ ...env, [v]: d }))), [{}])
-  const ways = waysIn(board).map((way) => envs(way.binds).some((env) => way.needs.every((n) => need(n, env))))
-  return { ways, declared: ways.some(Boolean), meant: holds(f(level.target), model) }
+  const value = (f) => holds(read(level)(f), model)
+  if (level.meant) {
+    const meant = value(level.meant)
+    const row = { f: level.wrong, value: value(level.wrong) }
+    return { rows: [{ ...row, right: row.value !== meant }], meant, counter: row.value !== meant }
+  }
+  const rows = [...level.given.map((f) => ({ f, premise: true })), { f: level.goal, premise: false }].map((r) => {
+    const v = value(r.f)
+    return { ...r, value: v, right: r.premise === v }
+  })
+  return { rows, counter: rows.every((r) => r.right) }
 }
 
-/** Whether a world is a counterexample to the level's declaration. */
-export function counters(level, world) {
-  const { declared, meant } = declaredIn(level, world)
-  return world.size <= (level.maxSize ?? 3) && declared !== meant
-}
-
-/** The sentences on the board's premise cards (for the level's vocabulary). */
-export const boardSentences = (board) => board.nodes.filter((n) => n.type === 'hyp').map((n) => n.params.name)
+/** Whether a world is a counterexample to the level's sentence. */
+export const counters = (level, world) => world.size <= (level.maxSize ?? 3) && claimIn(level, world).counter
