@@ -6,7 +6,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, freeSpot, useSlotEditing } from '../../../circuit/index.js'
 import FormulaField from './FormulaField.jsx'
 import { say } from '../notation.js'
-import { DECL, ISO_PARTS, checkIso, derives, declInputs, declaredRules, hypCard, listText, runIso, sentenceOf, settle, startIso, thingCard, typeOf, wayOf, wayRule, wayText, waysIn } from '../iso.js'
+import { DECL, ISO_PARTS, checkIso, declInputs, declaredRules, hypCard, listText, runIso, sentenceOf, settle, startIso, thingCard, typeOf, wayOf, wayRule, wayText, waysIn } from '../iso.js'
 import { constructorsOf, datatypeRules } from '../datatype.js'
 import { atom, fn, tvar } from '../formula.js'
 import { ruleText } from '../schematic.js'
@@ -40,8 +40,9 @@ export function isoPartsFor(level, words) {
 }
 
 /**
- * The declared card's rules as they stand: each intro rule wired (引入 1, 2, 3), and the elimination rule made from
- * them (消去 1), in the level's own sentences. `rules` are the values wired into its ways, in order.
+ * The declaration's rules as they stand, over its test cases: each intro rule wired into the declared card (引入 1, 2,
+ * 3), and the elimination rule made from them (消去 1), in the level's own sentences. `rules` are the values wired
+ * into its ways, in order.
  */
 export function DeclRules({ level, rules, text }) {
   const ways = rules.filter(Boolean).map(wayOf)
@@ -54,6 +55,9 @@ export function DeclRules({ level, rules, text }) {
     </Entries>
   )
 }
+
+/** The declared card: the sentence its intro rules introduce. */
+export const DeclGoal = ({ level, text }) => <div className="lg-card"><span className="lg-pick">{text(sentenceOf(level, level.target))}</span></div>
 
 const fits = (circuit) => circuit.nodes.some((n) => n.id === DECL) && !circuit.nodes.some((n) => (n.type === 'hyp' && n.locked) || n.type === 'case') && !circuit.wires.some((w) => w.port === 'before')
 const HYP = { type: 'hyp', label: T('前提', 'Premise'), desc: T('引入规则的一个前提 ⟦A⟧，在卡上选择是哪一句。把一组前提接进它的「它的前提」口，它就成了要先有那组前提才推得出的前提，⟦⟦…⟧ ⟹ A⟧。', 'A premise of an intro rule, ⟦A⟧, its sentence chosen on the card. Wire a group of premises into its port “Its premises”, and it becomes a premise derived from those first, ⟦⟦…⟧ ⟹ A⟧.'), icon: SquareDashedText, family: 'box' }
@@ -81,8 +85,8 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const circuit = own
   const [testIndex, setTestIndex] = useState(0)
   const test = level.tests[Math.min(testIndex, level.tests.length - 1)]
-  // The case picked, on the board: the values of its cards, and whether its goal is derived (and by which intro rule).
-  const view = useMemo(() => ({ ...runIso(level, circuit, test), ...derives(level, circuit, test) }), [level, circuit, test])
+  // The case picked, on the board: the values of its cards.
+  const view = useMemo(() => runIso(level, circuit, test), [level, circuit, test])
 
   // Every change goes through the kernel's bookkeeping: ways renumbered (iso.js settle).
   const change = (next) => {
@@ -130,10 +134,9 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     const wire = circuit.wires.find((w) => w.to === DECL && w.port === `c${k}`)
     return wire && view.values.get(wire.from)
   }
-  // What a card shows, as the other boards show sentences and rules, saying each thing once: an assumption card its
-  // sentence (picked on the card, or in its sheet), the connective its ways as rules (written as every rule is,
-  // ⟦A; B⟧ ⟹ A ∧ B), numbered as its inputs, and whether it is proved. `at` is where: 'card' (the desktop's), 'tile'
-  // (a phone's) or 'sheet'.
+  // What a card shows, saying each thing once: an assumption card its sentence (picked on the card, or in its sheet),
+  // the connective the sentence it introduces (its rules stand over the test cases, DeclRules). `at` is where: 'card'
+  // (the desktop's), 'tile' (a phone's) or 'sheet'.
   const text = (f) => L(say(f, level.notation))
   const made = (node) => view.values.get(node.id) && <code className="lg-made">{listText(view.values.get(node.id), level, text)}</code>
   const body = (node, at = 'card') => {
@@ -144,12 +147,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
       if (at === 'tile') return <div className="lg-card"><span className="lg-pick">{text(sentenceOf(level, node.params.name))}</span>{made(node)}</div>
       return <div className="lg-card"><FormulaField label={HYP.label} value={node.params.name} onChange={(name) => pick(node, name)} choices={choices} required />{made(node)}</div>
     }
-    return (
-      <div className="lg-card">
-        <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
-        {view.made ? <span className="lg-tv is-true">{tr(`由引入${view.made.way}推导出`, `Derived by intro ${view.made.way}`)}</span> : view.derived ? <span className="lg-tv is-true">{tr('可推导', 'Derivable')}</span> : <i className="lg-mark">{tr('不可推导', 'Not derivable')}</i>}
-      </div>
-    )
+    return <DeclGoal level={level} text={text} />
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
@@ -159,6 +157,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const result = (k) => (shown(k) ? { derived: checked.results[k].derived, wrong: !checked.results[k].pass } : null)
   const table = (
     <div className="lg-strip is-tables">
+      <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
       <CaseTable cases={level.tests} words={words} level={level} rowClass={rowClass} onPick={setTestIndex} result={result} />
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
