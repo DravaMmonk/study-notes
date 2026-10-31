@@ -83,7 +83,7 @@ export const declarations = [
     ],
     solution: isoBoard(['Rain>Wet', 'Wet>1']),
     naive: isoBoard(['Wet>1']),
-    after: T('你可能已经注意到，声明板会根据引入规则生成<wiki-ref to="elim-rule"></wiki-ref>。这是因为声明列出了构建该命题的全部方式：要使用它，就可以逐一考虑这些方式。', 'You may have noticed that the declaration board generates an <wiki-ref to="elim-rule"></wiki-ref> from the introduction rules. This is possible because the declaration lists all the ways to construct the statement: using it means considering each of those ways.'),
+    after: T('你可能已经注意到，声明板会根据引入规则生成<wiki-ref to="elim-rule"></wiki-ref>。这是因为声明列出了构建该命题的全部方式：要使用它，就可以逐一考虑这些方式。Lean 走的就是声明这条路：「并且」「或者」「存在」「相等」都用一条声明（inductive）引入证明核，规则由声明生成；只有「若…则…」在 Lean 里是证明核自带的。', 'You may have noticed that the declaration board generates an <wiki-ref to="elim-rule"></wiki-ref> from the introduction rules. This is possible because the declaration lists all the ways to construct the statement: using it means considering each of those ways. Lean takes this road of declaring: “and”, “or”, “there is” and equality each come into its kernel by a declaration (inductive), and their rules are generated from it; only “if … then …” is built into Lean’s kernel.'),
   }),
   declare({
     // Writing test cases, before writing more declarations: a free case agreeing with the player's own right

@@ -17,6 +17,8 @@ import { flow, script } from './machines.js'
 import { TERM_WORDS } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
+// Induction as a sentence: for every property P, P(0) and P(n) → P(S n) for every n give P of every number.
+const IND = '∀P. P(zero) → (∀n. P(n) → P(s(n))) → (∀n. P(n))'
 const GOAL = [{ name: 'in', label: T('目标', 'Goal') }]
 const proves = (level) => ({ kind: 'machine', want: 'proved', inputs: GOAL, backtrack: true, words: TERM_WORDS, ...level })
 const PROVE = T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.')
@@ -298,6 +300,52 @@ export const inductive = [
     intro: [{ t: T('声明给出的按情况分写成规则是 ⟦?t = 0 ⟹ ?C; ⋀x. ?t = S x ⟹ ?C⟧ ⟹ ?C：要证 ?C，两种情况各证一遍。', 'The declaration’s cases rule reads ⟦?t = 0 ⟹ ?C; ⋀x. ?t = S x ⟹ ?C⟧ ⟹ ?C: to prove ?C, prove it in each case.') }],
     solution: script(['rule', 'allI'], ['rule', 'nat.exhaust'], ['rule', 'disjI1'], 'assumption', ['rule', 'disjI2'], ['rule', 'exI'], 'assumption'),
   }),
+  {
+    // Induction as one sentence about every property (∀P. …): the elimination rule of the declaration, used with
+    // Choose an instance and Apply; the second task picks the property itself.
+    id: 'in-induct',
+    title: T('归纳法是一句话', 'Induction is one sentence'),
+    consts: ['zero'],
+    words: TERM_WORDS,
+    tasks: [
+      {
+        kind: 'proof',
+        step: T('用它', 'Using it'),
+        cases: [],
+        tests: [{ premises: { ind: IND, z: 'plus(zero, zero) = zero', st: '∀n. plus(n, zero) = n → plus(s(n), zero) = s(n)' }, goal: '∀n. plus(n, zero) = n' }],
+        brief: T('已知归纳法、0 + 0 = 0，以及对每个 n，n + 0 = n 推出 S n + 0 = S n。证明对每个 n，n + 0 = n。', 'Given induction, 0 + 0 = 0, and for every n that n + 0 = n gives S n + 0 = S n, prove n + 0 = n for every n.'),
+        hint: [
+          T('<part-ref to="part:allE"></part-ref>里选性质「x + 0 = x」换掉 P。', 'In <part-ref to="part:allE"></part-ref> choose the property “x + 0 = x” to put in for P.'),
+          T('得到的话要两样东西才给出结论：依次套用两条已知。', 'What it gives needs two things before its conclusion: Apply the two givens in turn.'),
+        ],
+        solution: proof({ i: ['allE', { t: 'plus(x, zero) = x' }], m1: ['mp'], m2: ['mp'] }, ['ind>i.all', 'i>m1.imp', 'z>m1.a', 'm1>m2.imp', 'st>m2.a', 'm2>goal'], { premises: ['ind', 'z', 'st'] }),
+      },
+      {
+        kind: 'proof',
+        step: T('挑对性质', 'Picking the property'),
+        cases: [],
+        tests: [{ premises: { ind: IND }, goal: '∀n. n = zero ∨ (∃m. n = s(m))' }],
+        sentences: ['∃m. zero = s(m)', 's(n) = zero ∨ (∃m. s(n) = s(m))'],
+        brief: T('只用归纳法，证明每个数要么是 0，要么是某个数的 S。', 'With induction alone, prove every number is 0 or S of some number.'),
+        hint: [
+          T('性质就是目标里对 n 说的那句：「x = 0 ∨ (∃m. x = S m)」。', 'The property is what the goal says of n: “x = 0 ∨ (∃m. x = S m)”.'),
+          T('0 的情况：自反律给 0 = 0，再引入 ∨。从 a 到 S a：S a = S a 已经是一个例子，用不着对 a 的假设。', 'The case 0: reflexivity gives 0 = 0, then introduce ∨. From a to S a: S a = S a is already an example, and the assumption about a is not needed.'),
+        ],
+        solution: proof({
+          i: ['allE', { t: 'x = zero ∨ (∃m. x = s(m))' }],
+          r: ['refl', { t: 'zero' }], o: ['orI', { other: '∃m. zero = s(m)' }],
+          a: ['allI', { x: 'a' }], h: ['impI', { A: 'a = zero ∨ (∃m. a = s(m))' }, 'a'],
+          r2: ['refl', { t: 's(a)' }, 'h'], x: ['exI', { target: '∃m. s(a) = s(m)' }, 'h'], o2: ['orI', { other: 's(a) = zero', side: 'left' }, 'h'],
+          m1: ['mp'], m2: ['mp'],
+        }, ['ind>i.all', 'r>o.a', 'i>m1.imp', 'o>m1.a', 'r2>x.a', 'x>o2.a', 'o2>h.body', 'h>a.body', 'm1>m2.imp', 'a>m2.a', 'm2>goal'], { premises: ['ind'] }),
+      },
+    ],
+    intro: [
+      { t: T('<level-ref to="decl-nat"></level-ref>的声明还给出一条规则：对任何性质 P，0 有 P，并且每个 n 有 P 就推出 S n 有 P，那么每个数都有 P。写成一句话就是 ∀P. P(0) → (∀n. P(n) → P(S n)) → (∀n. P(n))。', 'The declaration in <level-ref to="decl-nat"></level-ref> gives one more rule: for every property P, if 0 has P and each n having P gives S n having P, then every number has P. As one sentence: ∀P. P(0) → (∀n. P(n) → P(S n)) → (∀n. P(n)).') },
+      { t: T('它是一句已知，用的还是<part-ref to="part:allE"></part-ref>和<part-ref to="part:mp"></part-ref>：选定一例时选一种性质换掉 P。', 'It is a given, used with <part-ref to="part:allE"></part-ref> and <part-ref to="part:mp"></part-ref>: choosing an instance, choose a property to put in for P.') },
+    ],
+    after: T('这句话是自然数这个声明的消去规则。<level-ref to="in-zero"></level-ref>里两个框的归纳元件做的就是这件事：选定 P，再把两个框的结论交给它套用两次。', 'This sentence is the elimination rule of the declaration of the numbers. The two-box induction part of <level-ref to="in-zero"></level-ref> does just this: choose P, then hand it the two boxes’ conclusions to Apply twice.'),
+  },
   {
     id: 'in-zero',
     title: T('0 加在右边', 'Zero on the right'),

@@ -130,6 +130,8 @@ export const ERAS = [
       // “And” and “or” defined with → and a ∀ over sentences instead of declared, once For any and Take one are in
       // hand: optional proofs (the taking apart uses K).
       { id: 'hol', code: 'X', after: ['k', 'q-allE'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') },
+      // Equality defined instead of declared (a = b is ∀P. P(a) → P(b)), as “and” was: its rules proved, one level each.
+      { id: 'leibniz', code: 'X', after: ['decl-eq', 'h-and-make'], levels: ['h-eq-refl', 'h-eq-subst', 'h-eq-sym'], title: T('不声明的相等', 'Equality without declaring') },
       { id: 'carroll', code: 'S', after: 'q-trans', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') },
       { id: 'puzzle-quantifiers', code: 'P', after: ['dsyll', 'q-trans'], levels: ['q-swap', 'q-move', 'q-ancestor', 'q-bigger'], title: T('证明谜题：量词', 'Proof puzzles: quantifiers') },
     ],
@@ -263,6 +265,9 @@ export const ERAS = [
     topics: [
       // What the generator (optional, as chapter 6 left it) makes of the numbers.
       { id: 'gen-nat', code: 'E', after: ['decl-nat', 'gen-ex'], levels: ['gen-nat'], title: T('生成器遇上自然数', 'The generator meets the numbers') },
+      // Induction as one sentence about every property (a ∀ over properties, as equality defined), used and with the
+      // property picked: optional proofs.
+      { id: 'induct', code: 'X', after: ['decl-nat', 'h-eq-subst'], levels: ['in-induct'], title: T('归纳法是一句话', 'Induction is one sentence') },
       { id: 'sort', code: 'I', after: ['in-appnil', 'sp-cond'], levels: ['sort-ins', 'sort-run', 'sort-if', 'sort-insLen', 'sort-len'], title: T('插入排序', 'Insertion sort') },
       { id: 'puzzle-lists', code: 'P', after: ['c-either', 'in-assoc', 'in-appnil', 'in-loop'], levels: ['in-appassoc', 'in-revapp', 'in-revrev', 'in-len', 'in-itsum'], title: T('证明谜题：数与列表', 'Proof puzzles: numbers and lists') },
       { id: 'goedel', code: 'R', after: ['in-assoc', 'in-appnil', 'in-loop', 'u-halt'], levels: ['gd-code', 'gd-check', 'gd-diag', 'gd-true', 'gd-con', 'gd-second'], title: T('真的，却证不出', 'True, yet unprovable') },

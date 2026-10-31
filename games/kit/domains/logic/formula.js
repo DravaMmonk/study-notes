@@ -162,22 +162,43 @@ export function replaceAtoms(f, map) {
   return f
 }
 
-/** f with the sentence letter R replaced by the sentence `by` where it is free (not under another ∀R). */
+/**
+ * f with the sentence letter R replaced by `by` where it is free (not under another ∀R). R may take things too (∀P. P(a)
+ * → …, a property): then `by` is a sentence about x, and each R(t) becomes it with t in x's place.
+ */
 export function substSentence(f, R, by) {
-  if (f.op === 'atom') return f.pred === R && !f.args.length ? by : f
+  if (f.op === 'atom') return f.pred !== R ? f : f.args.length ? subst(by, 'x', f.args[0]) : by
   if (f.op === '¬') return not(substSentence(f.a, R, by))
   if (f.op === '∀' || f.op === '∃') return f.prop && f.v === R ? f : { ...f, body: substSentence(f.body, R, by) }
   if (f.a) return bin(f.op, substSentence(f.a, R, by), substSentence(f.b, R, by))
   return f
 }
 
-/** Whether the sentence letter R occurs free in f. */
+/** f with the free sentence or property letter R renamed S. */
+const renameSentence = (f, R, S) => {
+  if (f.op === 'atom') return f.pred === R ? atom(S, f.args) : f
+  if (f.op === '¬') return not(renameSentence(f.a, R, S))
+  if (f.op === '∀' || f.op === '∃') return f.prop && f.v === R ? f : { ...f, body: renameSentence(f.body, R, S) }
+  if (f.a) return bin(f.op, renameSentence(f.a, R, S), renameSentence(f.b, R, S))
+  return f
+}
+
+/** Whether the sentence or property letter R occurs free in f. */
 export const mentionsSentence = (f, R) => {
-  if (f.op === 'atom') return f.pred === R && !f.args.length
+  if (f.op === 'atom') return f.pred === R
   if (f.op === '¬') return mentionsSentence(f.a, R)
   if (f.op === '∀' || f.op === '∃') return !(f.prop && f.v === R) && mentionsSentence(f.body, R)
   if (f.a) return mentionsSentence(f.a, R) || mentionsSentence(f.b, R)
   return false
+}
+
+/** How many things the letter R a ∀ binds takes in its body (0: a sentence; 1: a property). */
+export const arityIn = (f, R) => {
+  if (f.op === 'atom') return f.pred === R ? f.args.length : -1
+  if (f.op === '¬') return arityIn(f.a, R)
+  if (f.body) return f.prop && f.v === R ? -1 : arityIn(f.body, R)
+  if (f.a) return Math.max(arityIn(f.a, R), arityIn(f.b, R))
+  return -1
 }
 
 const termVars = (t, out) => {
@@ -254,7 +275,7 @@ export function same(f0, g0, env = new Map()) {
     case '∀': case '∃':
       if (Boolean(f.prop) !== Boolean(g.prop)) return false
       // Two sentence letters bound alike: compare with g's renamed to f's.
-      if (f.prop) return same(f.body, f.v === g.v ? g.body : substSentence(g.body, g.v, atom(f.v)), env)
+      if (f.prop) return same(f.body, f.v === g.v ? g.body : renameSentence(g.body, g.v, f.v), env)
       return same(f.body, g.body, new Map([...env, [f.v, g.v]]))
     default: return same(f.a, g.a, env) && same(f.b, g.b, env)
   }
@@ -265,9 +286,9 @@ export function signature(formulas) {
   const preds = new Map()
   const fns = new Map()
   const term = (t) => { if (t.t === 'fn') { fns.set(t.f, t.args.length); t.args.forEach(term) } }
-  // A sentence letter a ∀ binds (∀R. …) is no letter of the signature.
+  // A sentence or property letter a ∀ binds (∀R. …, ∀P. …) is no letter of the signature.
   const walk = (f, bound = new Set()) => {
-    if (f.op === 'atom') { if (f.pred !== '=' && !(bound.has(f.pred) && !f.args.length)) preds.set(f.pred, f.args.length); f.args.forEach(term) }
+    if (f.op === 'atom') { if (f.pred !== '=' && !bound.has(f.pred)) preds.set(f.pred, f.args.length); f.args.forEach(term) }
     else if (f.op === '¬') walk(f.a, bound)
     else if (f.op === '∀' || f.op === '∃') walk(f.body, f.prop ? new Set([...bound, f.v]) : bound)
     else if (f.a) { walk(f.a, bound); walk(f.b, bound) }

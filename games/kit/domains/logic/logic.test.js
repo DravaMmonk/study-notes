@@ -493,3 +493,21 @@ test('a ∀ over sentences: R is bound, a test case leaves it, a sentence goes i
   assert.equal(holds(def, { domain: [0], preds: { A: true, B: true }, fns: {} }), true)
   assert.equal(holds(def, { domain: [0], preds: { A: true, B: false }, fns: {} }), false)
 })
+
+test('a ∀ over properties: P(t) takes a sentence about x with t in its place, and it holds when its body does for every set', async () => {
+  const { parse, same, show, signature, substSentence } = await import('./formula.js')
+  const { holds } = await import('./models.js')
+  const { choicesOf } = await import('./choices.js')
+  const consts = ['phos', 'hesp']
+  const leib = parse('∀P. P(phos) → P(hesp)', { consts })
+  assert.equal(show(substSentence(leib.body, 'P', parse('Q(x) → Q(phos)', { consts }))), '(Q(phos) → Q(phos)) → Q(hesp) → Q(phos)')
+  assert.ok(same(leib, parse('∀Q. Q(phos) → Q(hesp)', { consts })))
+  assert.deepEqual([...signature([leib]).preds.keys()], [])
+  const m = (h) => ({ domain: [0, 1], preds: {}, fns: { phos: new Map([['', 0]]), hesp: new Map([['', h]]) } })
+  assert.equal(holds(leib, m(0)), true)
+  assert.equal(holds(leib, m(1)), false)
+  const ind = parse('∀P. P(zero) → (∀n. P(n) → P(s(n))) → (∀n. P(n))', { consts: ['zero'] })
+  assert.equal(show(substSentence(ind.body, 'P', parse('x = zero ∨ (∃m. x = s(m))', { consts: ['zero'] }))).includes('∀n. n = zero ∨ (∃m. n = s(m))'), true)
+  const level = { consts, tests: [{ premises: { e: '∀P. P(phos) → P(hesp)' }, goal: '∀Q. Q(hesp) → Q(phos)' }] }
+  assert.ok(choicesOf(level).instance.includes('Q(x) → Q(phos)'))
+})

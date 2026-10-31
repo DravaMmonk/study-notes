@@ -7,7 +7,7 @@ import { circuits, GATES } from './circuits.js'
 import { era1 } from './era1.js'
 import { era2 } from './era2.js'
 import { declarations, generators, moreDeclarations, thingDeclarations, typeDeclarations } from './declare.js'
-import { hol } from './hol.js'
+import { hol, leibniz } from './hol.js'
 import { quantifiers } from './quantifiers.js'
 import { rules } from './rules.js'
 import { metavars } from './metavars.js'
@@ -160,7 +160,7 @@ const REVISIONS = {
 
 const COURSE = {
   eras: ERAS,
-  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...generators, ...thingDeclarations, ...typeDeclarations, ...era2, ...hol, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...inductive, ...terms, ...equality, ...structured],
+  levels: [...era0, ...circuits, ...era1, ...declarations, ...moreDeclarations, ...generators, ...thingDeclarations, ...typeDeclarations, ...era2, ...hol, ...leibniz, ...quantifiers, ...rules, ...metavars, ...strategies, ...classical, ...simplifier, ...automation, ...inductive, ...terms, ...equality, ...structured],
   words: WORDS,
   lemmas: LEMMAS,
   facts: FACTS,
