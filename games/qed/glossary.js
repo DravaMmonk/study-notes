@@ -320,7 +320,7 @@ export const GLOSSARY = [
     see: ['bound', 'query'],
   },
   {
-    id: 'world', group: 'fol', title: T('世界', 'world'), at: 'm-world',
+    id: 'world', group: 'fol', title: T('世界', 'world'), at: 'fo-all',
     body: [
       T('一阶逻辑的一句话是真是假，要看<b>世界</b>（也叫结构或模型）：有哪些东西，名字指哪一样，每个谓词对哪些东西成立。命题逻辑里的一行，到这里成了一个世界。', 'Whether a first-order sentence is true depends on the <b>world</b> (also called a structure or model): what things there are, which thing each name stands for, which things each predicate holds of. A row of propositional logic becomes a world here.'),
       T('一句话在所有世界里都真，才叫永远成立。世界有无穷多个，挨个检查不完，所以要靠证明。', 'A sentence always holds only if it is true in every world; there are infinitely many, too many to check, so it takes a proof.'),

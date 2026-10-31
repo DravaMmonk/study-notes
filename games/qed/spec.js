@@ -391,6 +391,19 @@ export default {
   { version: 72, ops: [
     { data: (value, id) => (!WORLD_STAGES.includes(id) || value === undefined ? value : [null, ...(Array.isArray(value) ? value : [value])]) },
     { tasks: (passed, id) => (WORLD_STAGES.includes(id) ? 0 : passed) },
+  ] },
+  // Version 73 made each quantifier one level, its sentence built then someone's formula for it found out by a world:
+  // 对所有 takes 真假看世界's worlds, 存在 一个也没有's, 量词套量词 先说谁's (their own sentences are gone).
+  { version: 73, ops: [
+    { merge: ['fo-all', ['fo-all', 'm-world']] },
+    { merge: ['fo-some', ['fo-some', 'm-make']] },
+    { merge: ['fo-nested', ['fo-nested', 'm-order']] },
+    { data: (value, id) => {
+      if (!['fo-all', 'fo-some', 'fo-nested'].includes(id) || !Array.isArray(value) || value.length !== 2) return value
+      const worlds = value[1]?.slice?.(1) ?? []
+      return id === 'fo-nested' ? [null, null, ...(worlds.length ? worlds : [null])] : [null, ...(worlds.length ? worlds : id === 'fo-all' ? [null, null] : [null])]
+    } },
+    { data: (value, id) => (['m-counter', 'p-split', 'p-exAnd'].includes(id) && Array.isArray(value) ? [null, ...value.slice(1)] : value) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

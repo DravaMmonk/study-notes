@@ -1,7 +1,7 @@
 // Chapter 5 · The language of quantifiers and counterexamples: what first-order sentences say and when they are true,
-// before any proof. Each quantifier is said first (names and predicates, every, some, one inside another), then found
-// out wrong by a world (what nitpick looks for): someone's translation of a requirement, or a lemma that does not
-// follow. The family topic asks a world questions.
+// before any proof. Each quantifier is one level: a sentence built as a formula, then someone's formula for it found
+// out wrong by a world (what nitpick looks for); a piece of reasoning written as one sentence, then refuted the same
+// way. Puzzles that split a quantifier where it may not are optional; the family topic asks a world questions.
 
 const T = (zh, en) => ({ zh, en })
 const consts = ['soc', 'ann', 'bo', 'cy', 'dee', 'en', 'fay']
@@ -23,24 +23,33 @@ const query = (level) => ({ kind: 'query', consts, worlds: families, ...level })
 const STEPS = [T('第一句', 'Sentence 1'), T('第二句', 'Sentence 2'), T('第三句', 'Sentence 3')]
 const sentences = (list, decoys = []) => list.map((task, k) => ({ kind: 'translate', step: STEPS[k], decoys: [...list.filter((_, j) => j !== k).map((t) => t.target), ...decoys], ...task }))
 const BRIEF = T('用下面的元件，把这句话拼成公式。', 'Build this sentence as a formula from the parts below.')
-// A world level, in two stages of one level: first build the sentence (`say`, its formula `target`; or, for a piece of
-// reasoning, one sentence of it, `translate`) as a formula, then show with a world (what nitpick looks for) that
-// someone's translation of it is wrong (`wrong`, against `target` meant), or that the reasoning does not follow
-// (`given`, `goal`): each of `counters` a task.
+// A quantifier said, then found out: first build sentences as formulas (`translate`: { say, target, hint, step? }
+// each), then show with a world (what nitpick looks for) that someone's formula for the first is wrong (`wrong`,
+// against the one built) or that a piece of reasoning does not follow (`given`, `goal`): each of `counters` a task,
+// with the first sentence over it (or its own `say`). Every sentence and wrong formula of the level is among the
+// chips of each translation.
 const COUNTER = T('造反例', 'Counterexample')
 const COUNTER_BRIEF = {
   translation: T('上一段你把这句话拼成了公式；这是别人拼的。造一个世界，让两份译文真假不同。', 'You built this sentence as a formula; this is someone else’s. Build a world where the two differ in truth.'),
   lemma: T('这段推理写成了引理。造一个反例：前提都成立，结论不成立。', 'The reasoning is written as a lemma. Build a counterexample: every premise holds and the goal fails.'),
 }
-const world = ({ say, target, hint, translate, counters, ...level }) => ({
-  consts,
-  ...level,
-  say,
-  tasks: [
-    { kind: 'translate', step: T('翻译', 'Translate'), brief: BRIEF, ...(translate ?? { say, target, hint }), decoys: [...(translate?.decoys ?? []), ...counters.flatMap((c) => (c.wrong ? [c.wrong] : []))] },
-    ...counters.map((c) => ({ kind: 'model', step: COUNTER, say, ...(c.wrong ? { meant: target, brief: COUNTER_BRIEF.translation } : { brief: COUNTER_BRIEF.lemma }), ...c })),
-  ],
-})
+const TRANSLATE = T('翻译', 'Translate')
+const world = ({ translate, counters, ...level }) => {
+  const formulas = [...translate.map((t) => t.target), ...counters.flatMap((c) => (c.wrong ? [c.wrong] : []))]
+  return {
+    consts,
+    ...level,
+    tasks: [
+      ...translate.map((t, k) => ({ kind: 'translate', step: translate.length > 1 ? STEPS[k] : TRANSLATE, brief: BRIEF, ...t, decoys: [...formulas.filter((f) => f !== t.target), ...(t.decoys ?? [])] })),
+      ...counters.map((c) => ({ kind: 'model', step: COUNTER, say: translate[0].say, ...(c.wrong ? { meant: translate[0].target, brief: COUNTER_BRIEF.translation } : { brief: COUNTER_BRIEF.lemma }), ...c })),
+    ],
+  }
+}
+// The first counterexample on either line says what a world is (the entry links only where it opens, at 对所有).
+const worldIntro = (linked) => [
+  { t: T(`命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是${linked ? '<wiki-ref to="world"></wiki-ref>' : '世界'}：世界里有几样东西，每样东西是什么、和别的东西是什么关系。`, `In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the ${linked ? '<wiki-ref to="world"></wiki-ref>' : 'world'}: how many things there are, what each is and how they relate.`) },
+  { t: T('上方是你的译文，和别人的译文。要说明别人的错了，就造一个世界，让两份译文一真一假：在下面选好有几样东西，再点出每样东西有哪些性质。运行时，上方标出两份译文在这个世界里的真假。', 'Above are your translation and someone else’s. To show theirs is wrong, build a world where the two differ: choose below how many things there are, then tap what holds of each. A run marks above whether each translation is true in this world.') },
+]
 
 export const quantifiers = [
   {
@@ -59,82 +68,25 @@ export const quantifiers = [
       { t: T('这一章先不证明，只学怎样说一句话，怎样判断它在一个世界里的真假。公式用下面的元件拼，元件上空着的位置可以再放进别的元件。', 'No proofs in this chapter yet: first how to say a sentence, and how to tell whether it is true in a world. Formulas are built from the parts below; an empty place in a part takes another part.') },
     ],
   },
-  {
+  world({
     id: 'fo-all',
-    consts,
     symbols: ['∀'],
     title: T('对所有 ∀', 'For all ∀'),
-    tasks: sentences([
-      {
-        say: T('人都会死。', 'Every human is mortal.'),
-        target: '∀x. Human(x) → Mortal(x)',
-        hint: [
-          T('「人都会死」：对每一样东西 x，如果 x 是人，那么 x 会死。', '“Every human is mortal”: for every thing x, if x is human then x is mortal.'),
-          T('写成「x 是人 ∧ x 会死」，说的是世上每一样东西都是人。', 'Writing “x is human ∧ x is mortal” says every thing in the world is human.'),
-        ],
-      },
-      { say: T('每个人都喜欢安。', 'Everyone likes Ann.'), target: '∀x. Human(x) → Likes(x, ann)', hint: [T('和「人都会死」一个形状：对所有 x，若 x 是人，则……', 'The same shape as “every human is mortal”: for every x, if x is human, then …')] },
-      { say: T('安喜欢每一个人。', 'Ann likes everyone.'), target: '∀x. Human(x) → Likes(ann, x)', hint: [T('这回 x 是被喜欢的那一个：在「①喜欢②」里，它在哪个位置？', 'This time x is the one liked: in “① likes ②”, which place is it?')] },
-    ]),
-    brief: BRIEF,
-    intro: [
-      { t: T('全称<wiki-ref to="quantifier"></wiki-ref> <b>∀</b> 读作「对所有」：∀x. P(x) 说的是，世上每一样东西 x 都满足 P。', 'The universal <wiki-ref to="quantifier"></wiki-ref> <b>∀</b> reads “for all”: ∀x. P(x) says every thing x in the world satisfies P.') },
-      { t: T('拼错时，检查器可能给出一个小世界：在那里，你拼的公式和目标真假不同。', 'When a formula is wrong, the checker may show a small world where it and the target differ.') },
-    ],
-  },
-  {
-    id: 'fo-some',
-    consts,
-    symbols: ['∃'],
-    title: T('存在 ∃', 'There exists ∃'),
-    tasks: sentences([
-      {
-        say: T('有的鸟不会飞。', 'Some bird does not fly.'),
-        target: '∃x. Bird(x) ∧ ¬Flies(x)',
-        hint: [
-          T('「有的鸟不会飞」：有一样东西 x，x 是鸟，并且 x 不会飞。', '“Some bird does not fly”: there is a thing x that is a bird and does not fly.'),
-          T('写成「x 是鸟 → x 不会飞」，只要世上有一样不是鸟的东西，这句就成立了。', 'Writing “x is a bird → x does not fly” is made true by anything at all that is not a bird.'),
-        ],
-      },
-      { say: T('有人喜欢安。', 'Someone likes Ann.'), target: '∃x. Human(x) ∧ Likes(x, ann)', hint: [T('有一样东西 x，x 是人，并且……', 'There is a thing x that is human, and …')] },
-      { say: T('没有人喜欢博。', 'Nobody likes Bo.'), target: '¬∃x. Human(x) ∧ Likes(x, bo)', hint: [T('「没有人」就是「并非有一个人」：最外面先放 ¬。', '“Nobody” is “not someone”: put ¬ outermost first.')] },
-    ]),
-    brief: BRIEF,
-    intro: [
-      { t: T('新符号 <b>∃</b> 读作「存在」：∃x. P(x) 说的是，世上至少有一样东西 x 满足 P。', 'A new symbol, <b>∃</b>, reads “there exists”: ∃x. P(x) says at least one thing x in the world satisfies P.') },
-      { t: T('拼错时，检查器可能给出一个小世界：在那里，你拼的公式和目标真假不同。', 'When a formula is wrong, the checker may show a small world where it and the target differ.') },
-    ],
-  },
-  {
-    id: 'fo-nested',
-    consts,
-    title: T('量词套量词', 'One inside another'),
-    tasks: sentences([
-      { say: T('每个人都有父母。', 'Everyone has a parent.'), target: '∀x. Human(x) → ∃y. Parent(y, x)', hint: [T('里面那个量词用另一个变量 y：x 的父母是谁？有一个就行。', 'The inner quantifier takes another variable, y: who is x’s parent? Some y, that is all.')] },
-      { say: T('有个人喜欢任何人。', 'Someone likes everyone.'), target: '∃x. Human(x) ∧ ∀y. Human(y) → Likes(x, y)', hint: [T('外面是有一个 x，里面是对所有 y。', 'Outside, some x; inside, every y.')] },
-      { say: T('每个人都喜欢某个人。', 'Everyone likes someone.'), target: '∀x. Human(x) → ∃y. Human(y) ∧ Likes(x, y)', hint: [T('外面是对所有 x，里面是有一个 y；y 也得是人。', 'Outside, every x; inside, some y, and y must be human too.')] },
-    ]),
-    brief: BRIEF,
-    intro: [{ t: T('量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。量词管着的变量是<wiki-ref to="bound"></wiki-ref>；没有量词管着的是<wiki-ref to="free"></wiki-ref>，句子就说不清在讲谁。', 'A quantifier may hold another. Each has its own variable and reaches over everything after it: in ∀x. … ∃y. …, x and y each stand for their own thing. A variable some quantifier covers is a <wiki-ref to="bound"></wiki-ref>; one no quantifier covers is a <wiki-ref to="free"></wiki-ref>, and then the sentence does not say whom it means.') }],
-  },
-  world({
-    id: 'm-world',
-    title: T('真假看世界', 'True in one world'),
-    say: T('人都会死。', 'Every human is mortal.'),
-    target: '∀x. Human(x) → Mortal(x)',
-    hint: [T('对每一样东西 x，如果 x 是人，那么 x 会死。', 'For every thing x, if x is human then x is mortal.')],
-    intro: [{ t: T('先把上面这句话拼成公式；下一段，别人也译了这句话，要用一个世界说明他译错了。', 'First build the sentence above as a formula; next, someone else has translated it too, and a world is to show their translation wrong.') }],
+    translate: [{
+      say: T('人都会死。', 'Every human is mortal.'),
+      target: '∀x. Human(x) → Mortal(x)',
+      hint: [
+        T('「人都会死」：对每一样东西 x，如果 x 是人，那么 x 会死。', '“Every human is mortal”: for every thing x, if x is human then x is mortal.'),
+        T('写成「x 是人 ∧ x 会死」，说的是世上每一样东西都是人。', 'Writing “x is human ∧ x is mortal” says every thing in the world is human.'),
+      ],
+    }],
     counters: [
       {
         step: T('用了「并且」', 'With “and”'),
         wrong: '∀x. Human(x) ∧ Mortal(x)',
         answer: { size: 1, preds: {} },
         hint: [T('点一样东西，它就「是人」；再点一下，就不是。', 'Tap a thing to make it human; tap again to undo.'), T('这份译文说每样东西都怎样？世界里有一样不是人的东西呢？', 'What does this translation say of every thing? What if the world holds a thing that is not human?')],
-        intro: [
-          { t: T('命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是<wiki-ref to="world"></wiki-ref>：世界里有几样东西，每样东西是什么、和别的东西是什么关系。', 'In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the <wiki-ref to="world"></wiki-ref>: how many things there are, what each is and how they relate.') },
-          { t: T('上方是你的译文，和别人的译文。要说明别人的错了，就造一个世界，让两份译文一真一假。', 'Above are your translation and someone else’s. To show theirs is wrong, build a world where the two differ: one true, the other false.') },
-          { t: T('在下面造一个世界：选好有几样东西，再点出每样东西有哪些性质。运行时，上方标出两份译文在这个世界里的真假。', 'Build a world below: choose how many things there are, then tap what holds of each. A run marks above whether each translation is true in this world.') },
-        ],
+        intro: worldIntro(true),
       },
       {
         step: T('条件写反了', 'The condition reversed'),
@@ -143,27 +95,20 @@ export const quantifiers = [
         hint: [T('一个不会死的人。', 'A human who is not mortal.')],
       },
     ],
+    intro: [
+      { t: T('全称<wiki-ref to="quantifier"></wiki-ref> <b>∀</b> 读作「对所有」：∀x. P(x) 说的是，世上每一样东西 x 都满足 P。', 'The universal <wiki-ref to="quantifier"></wiki-ref> <b>∀</b> reads “for all”: ∀x. P(x) says every thing x in the world satisfies P.') },
+      { t: T('先把一句话拼成公式；拼错时，检查器可能给出一个小世界：在那里，你拼的公式和目标真假不同。之后，别人也译了这句话，轮到你用一个世界说明他译错了。', 'First build a sentence as a formula; when it is wrong, the checker may show a small world where it and the target differ. Then someone else has translated the sentence too, and it is your turn to show with a world that they got it wrong.') },
+    ],
     after: T('一句话永远成立，是说它在所有世界里都真；世界有无穷多个，大小不限。', 'A sentence that always holds is true in every world, and there are infinitely many worlds, of any size.'),
-  }),
-  world({
-    id: 'm-make',
-    title: T('一个也没有', 'Not a single one'),
-    say: T('有会飞的鸟。', 'Some bird flies.'),
-    target: '∃x. Bird(x) ∧ Flies(x)',
-    hint: [T('有一样东西 x，x 是鸟，并且 x 会飞。', 'There is a thing x that is a bird and flies.')],
-    counters: [{
-      wrong: '∃x. Bird(x) → Flies(x)',
-      answer: { size: 1, preds: {} },
-      intro: [{ t: T('上方是你的译文，和别人的译文。要说明别人的错了，就造一个世界，让两份译文一真一假：在下面选好有几样东西，再点出每样东西有哪些性质。运行时，上方标出两份译文在这个世界里的真假。', 'Above are your translation and someone else’s. To show theirs is wrong, build a world where the two differ: choose below how many things there are, then tap what holds of each. A run marks above whether each translation is true in this world.') }],
-      hint: [T('世界里要是一只鸟也没有呢？', 'What if the world holds no bird at all?')],
-    }],
   }),
   world({
     id: 'm-counter',
     title: T('推不出', 'Does not follow'),
-    say: T('人都会死，苏格拉底会死，所以苏格拉底是人。', 'Every human is mortal, Socrates is mortal, so Socrates is human.'),
-    translate: { say: T('人都会死。', 'Every human is mortal.'), target: '∀x. Human(x) → Mortal(x)', decoys: ['Mortal(soc)', 'Human(soc)'], hint: [T('「人都会死」：对每一样东西 x，如果 x 是人，那么 x 会死。', '“Every human is mortal”: for every thing x, if x is human then x is mortal.')] },
-    intro: [{ t: T('先把这段推理的第一句拼成公式；下一段，看这段推理推不推得出。', 'First build the first sentence of the reasoning as a formula; next, see whether the reasoning follows.') }],
+    translate: [{
+      say: T('要是人都会死，苏格拉底又会死，那苏格拉底就是人。', 'If every human is mortal and Socrates is mortal, then Socrates is human.'),
+      target: '(∀x. Human(x) → Mortal(x)) ∧ Mortal(soc) → Human(soc)',
+      hint: [T('最外面是「如果……那么……」；条件是两句用「并且」连起来，第一句是一整句 ∀。', 'The outermost piece is “if … then …”; the condition is two sentences joined by “and”, the first a whole ∀ sentence.')],
+    }],
     counters: [{
       given: ['∀x. Human(x) → Mortal(x)', 'Mortal(soc)'],
       goal: 'Human(soc)',
@@ -174,15 +119,42 @@ export const quantifiers = [
         { t: T('名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。', 'A name must stand for a thing in the world too: choose which thing is Socrates.') },
       ],
     }],
+    intro: [{ t: T('一段推理也能写成一句话：前提用「并且」连起来，作为「如果……那么……」的条件。', 'A piece of reasoning can be written as one sentence too: the premises joined by “and”, as the condition of an “if … then …”.') }],
     after: T('前提都真、结论为假的世界，叫<wiki-ref to="countermodel"></wiki-ref>。', 'A world where the premises hold and the conclusion fails is a <wiki-ref to="countermodel"></wiki-ref>.'),
   }),
   world({
-    id: 'm-order',
-    title: T('先说谁', 'Which comes first'),
-    say: T('每样东西都喜欢某样东西。', 'Everything likes something.'),
-    target: '∀x. ∃y. Likes(x, y)',
-    hint: [T('外面是对所有 x，里面是有一个 y。', 'Outside, every x; inside, some y.')],
+    id: 'fo-some',
+    symbols: ['∃'],
+    title: T('存在 ∃', 'There exists ∃'),
+    translate: [{
+      say: T('有会飞的鸟。', 'Some bird flies.'),
+      target: '∃x. Bird(x) ∧ Flies(x)',
+      hint: [
+        T('「有会飞的鸟」：有一样东西 x，x 是鸟，并且 x 会飞。', '“Some bird flies”: there is a thing x that is a bird and flies.'),
+        T('写成「x 是鸟 → x 会飞」，只要世上有一样不是鸟的东西，这句就成立了。', 'Writing “x is a bird → x flies” is made true by anything at all that is not a bird.'),
+      ],
+    }],
     counters: [{
+      step: T('一个也没有', 'Not a single one'),
+      wrong: '∃x. Bird(x) → Flies(x)',
+      answer: { size: 1, preds: {} },
+      hint: [T('世界里要是一只鸟也没有呢？', 'What if the world holds no bird at all?')],
+      intro: worldIntro(false),
+    }],
+    intro: [
+      { t: T('新符号 <b>∃</b> 读作「存在」：∃x. P(x) 说的是，世上至少有一样东西 x 满足 P。', 'A new symbol, <b>∃</b>, reads “there exists”: ∃x. P(x) says at least one thing x in the world satisfies P.') },
+      { t: T('先把一句话拼成公式；拼错时，检查器可能给出一个小世界：在那里，你拼的公式和目标真假不同。之后，别人也译了这句话，轮到你用一个世界说明他译错了。', 'First build a sentence as a formula; when it is wrong, the checker may show a small world where it and the target differ. Then someone else has translated the sentence too, and it is your turn to show with a world that they got it wrong.') },
+    ],
+  }),
+  world({
+    id: 'fo-nested',
+    title: T('量词套量词', 'One inside another'),
+    translate: [
+      { say: T('每样东西都喜欢某样东西。', 'Everything likes something.'), target: '∀x. ∃y. Likes(x, y)', hint: [T('外面是对所有 x，里面是有一个 y：x 喜欢的那样东西，另用一个变量。', 'Outside, every x; inside, some y: the thing x likes takes another variable.')] },
+      { say: T('每个人都有父母。', 'Everyone has a parent.'), target: '∀x. Human(x) → ∃y. Parent(y, x)', hint: [T('对所有 x，若 x 是人，则有一个 y 是 x 的父母。', 'For every x, if x is human, then some y is a parent of x.')] },
+    ],
+    counters: [{
+      step: T('先说谁', 'Which comes first'),
       wrong: '∃y. ∀x. Likes(x, y)',
       answer: { size: 2, preds: { Likes: ['0,0', '1,1'] } },
       hint: [
@@ -190,37 +162,37 @@ export const quantifiers = [
         T('每样东西各喜欢自己就行。', 'Let each thing like itself.'),
       ],
     }],
+    intro: [{ t: T('量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。量词管着的变量是<wiki-ref to="bound"></wiki-ref>；没有量词管着的是<wiki-ref to="free"></wiki-ref>，句子就说不清在讲谁。', 'A quantifier may hold another. Each has its own variable and reaches over everything after it: in ∀x. … ∃y. …, x and y each stand for their own thing. A variable some quantifier covers is a <wiki-ref to="bound"></wiki-ref>; one no quantifier covers is a <wiki-ref to="free"></wiki-ref>, and then the sentence does not say whom it means.') }],
   }),
   {
     id: 'p-only',
     consts,
-    title: T('只有', 'Only'),
+    title: T('「只有」和「没有」', '“Only” and “none”'),
     tasks: sentences([
       { say: T('只有鸟会飞。', 'Only birds fly.'), target: '∀x. Flies(x) → Bird(x)', hint: [T('「只有鸟会飞」：会飞的，一定是鸟。哪边是条件？', '“Only birds fly”: whatever flies is a bird. Which side is the condition?')] },
       { say: T('不是所有鸟都会飞。', 'Not every bird flies.'), target: '¬∀x. Bird(x) → Flies(x)', hint: [T('最外面是 ¬，管着一整句「鸟都会飞」。', 'The outermost piece is ¬, over the whole of “every bird flies”.')] },
-      { say: T('会飞的都不是人。', 'Nothing that flies is human.'), target: '∀x. Flies(x) → ¬Human(x)', hint: [T('对所有 x，若 x 会飞，则……', 'For every x, if x flies, then …')] },
+      { say: T('没有人喜欢博。', 'Nobody likes Bo.'), target: '¬∃x. Human(x) ∧ Likes(x, bo)', hint: [T('「没有人」就是「并非有一个人」：最外面先放 ¬。', '“Nobody” is “not someone”: put ¬ outermost first.')] },
     ]),
     brief: BRIEF,
   },
+  // Optional: reasoning that splits a quantifier where it may not, each a sentence to build and a world to refute it.
   world({
     id: 'p-split',
     title: T('∀ 不能随便拆', 'Splitting ∀'),
-    say: T('要是什么都是鸟，那什么都会飞；所以鸟都会飞。', 'If everything is a bird, then everything flies; so every bird flies.'),
-    translate: { say: T('要是什么都是鸟，那什么都会飞。', 'If everything is a bird, then everything flies.'), target: '(∀x. Bird(x)) → (∀x. Flies(x))', decoys: ['∀x. Bird(x) → Flies(x)'], hint: [T('最外面是「如果……那么……」，两边各是一句 ∀。', 'The outermost piece is “if … then …”, with a ∀ sentence on each side.')] },
+    translate: [{ say: T('要是什么都是鸟，那什么都会飞；所以鸟都会飞。', 'If everything is a bird, then everything flies; so every bird flies.'), target: '((∀x. Bird(x)) → (∀x. Flies(x))) → (∀x. Bird(x) → Flies(x))', hint: [T('前提是一句「如果……那么……」，两边各是一句 ∀；整段推理又是一句「如果……那么……」。', 'The premise is an “if … then …” with a ∀ sentence on each side; the whole reasoning is another “if … then …”.')] }],
     counters: [{
       given: ['(∀x. Bird(x)) → (∀x. Flies(x))'],
       goal: '∀x. Bird(x) → Flies(x)',
       answer: { size: 2, preds: { Bird: ['0'] } },
-      hint: [T('第二句的条件「什么都是鸟」，只要有一样东西不是鸟，就不成立。', 'The second sentence’s condition, “everything is a bird”, fails as soon as one thing is not a bird.')],
+      hint: [T('前提的条件「什么都是鸟」，只要有一样东西不是鸟，就不成立。', 'The premise’s condition, “everything is a bird”, fails as soon as one thing is not a bird.')],
     }],
   }),
   world({
     id: 'p-exAnd',
     title: T('∃ 也不能随便拆', 'Splitting ∃'),
-    say: T('有鸟，也有会飞的东西，所以有会飞的鸟。', 'There is a bird, and something flies, so some bird flies.'),
-    translate: { say: T('有鸟，也有会飞的东西。', 'There is a bird, and something flies.'), target: '(∃x. Bird(x)) ∧ (∃x. Flies(x))', decoys: ['∃x. Bird(x) ∧ Flies(x)'], hint: [T('两句各有自己的 ∃，用「并且」连起来。', 'Two sentences, each with its own ∃, joined by “and”.')] },
+    translate: [{ say: T('有鸟，也有会飞的东西，所以有会飞的鸟。', 'There is a bird, and something flies, so some bird flies.'), target: '(∃x. Bird(x)) ∧ (∃x. Flies(x)) → (∃x. Bird(x) ∧ Flies(x))', hint: [T('条件是两句各带自己的 ∃，用「并且」连起来。', 'The condition is two sentences, each with its own ∃, joined by “and”.')] }],
     counters: [{
-      given: ['(∃x. Bird(x)) ∧ (∃x. Flies(x))'],
+      given: ['∃x. Bird(x)', '∃x. Flies(x)'],
       goal: '∃x. Bird(x) ∧ Flies(x)',
       answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
       hint: [T('两个 ∃ 可以指两样不同的东西。', 'The two ∃s may point at two different things.')],
