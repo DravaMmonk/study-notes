@@ -71,7 +71,10 @@ function expand(level, notation) {
   }
   // Last of the tests: the schema in its own letters (A := A …), the pattern bare.
   const letters = Object.fromEntries(Object.keys(level.cases[0] ?? {}).map((l) => [l, l]))
-  return { schema, tests: [...level.cases.map(test), test(letters)] }
+  const concrete = level.cases.length ? level.cases.map(test) : [test({})]
+  const tests = [...concrete, { ...test(letters), symbolic: true, label: { zh: '字母', en: 'Letters' } }]
+    .map((item) => ({ ...item, caseBrief: proofBrief(item, level, item.symbolic ? { ...notation, words: null } : notation) }))
+  return { schema, tests, caseBriefs: !level.brief }
 }
 
 // A first-order level's vocabulary (fol.js): the predicates and names its sentences use, and any it adds as decoys.
@@ -161,7 +164,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
       const notation = { words: l.words ?? level.words ?? words, symbols: known }
       const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return { ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: proofBrief(expanded.schema, l, notation) } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
+      return { ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests[0].caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
     }
     if (!level.tasks) return read(level)
     // What the level builds or proves comes of its last task, the level itself.
