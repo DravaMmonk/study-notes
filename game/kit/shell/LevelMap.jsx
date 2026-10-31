@@ -100,7 +100,8 @@ function plot(track, label) {
       lane = pick()
     }
     tilt += Math.sign(lane)
-    lay(branch.levels, lane, start, from, 'optional')
+    // A dashed wire only from a level it stands right under; one it hangs on from further up gets none.
+    lay(branch.levels, lane, start, from.filter((id) => at.get(id).row === start - 1), 'optional')
     optional.push({ t: tracks.at(-1), levels: branch.levels })
   }
   // Side-by-side optional branches in numbering order.
