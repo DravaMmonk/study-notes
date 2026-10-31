@@ -251,23 +251,17 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     return <div className={`pb-grid ${region ? 'is-region' : ''}`} data-cols={cols} data-size={size} style={style}>{out}</div>
   }
 
-  // A frame: rows of the grid it sits in, for each region a row for its head (the frame's own name over the first),
-  // the region's rows, and a row for its foot, the dot its result goes into; its inputs over it, its output under it.
+  // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
+  // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
   function frameBlock(node, slot, region, style) {
     const ports = inputs(node)
     let row = 1
-    const sections = regionsOf(node).map((r, k) => {
+    const sections = regionsOf(node).map((r) => {
       const rows = placement(graph, parts, `${node.id}/${r.name}`, { fixed }).rows
       const section = (
         <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${rows + 2}` }}>
           {/* Its head row: its name, and the value it opens with the dot that gives it. */}
           <header className="pb-region-head">
-            {k === 0 && (
-              <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
-                <span className="pb-name">{icon(node)}{nameOf(node)}</span>
-                {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
-              </div>
-            )}
             {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
             {r.opens && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
             {regionNote?.(node, r.name)}
@@ -288,19 +282,19 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       return section
     })
     return (
-      <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={{ ...style, '--nest': nesting(node) }}>
+      <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={style}>
         <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
+          <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+            <span className="pb-name">{icon(node)}{nameOf(node)}</span>
+            {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
+          </div>
           {sections}
           {outDots(node)}
         </div>
       </div>
     )
   }
-  // How many frames deep a frame goes (1: none inside it): its edges stand that far out into the gaps around it, so
-  // a frame inside it stays within its region's.
-  const nesting = (node) => 1 + Math.max(0, ...graph.nodes.filter((n) => regionsOf(node).some((r) => n.in === `${node.id}/${r.name}`) && (parts.frames?.(n) ?? []).length).map(nesting))
-
   return (
     <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires}>
       <div className="pb-tools">
