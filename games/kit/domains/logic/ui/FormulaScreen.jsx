@@ -51,6 +51,12 @@ function segmentOf(node, path, kind, notation, bracket = false) {
   }
 }
 
+/** A whole sentence on a strip that cannot be changed (a sentence a level shows), its pieces keyed under `key`. */
+export function fixedLine(f, notation, key) {
+  const fix = (part) => (typeof part === 'string' || part.hole ? part : { ...part, fixed: true, parts: part.parts.map(fix) })
+  return [fix(segmentOf(f, [key], 'formula', notation))]
+}
+
 export default function FormulaScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
   const { notation } = level

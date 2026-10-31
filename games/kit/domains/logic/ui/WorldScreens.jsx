@@ -1,21 +1,18 @@
-import { useMemo } from 'react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoardCases } from '../../../shell/index.js'
+import { useMemo, useState } from 'react'
+import { Brief, PhonePage, RunDock, Workbench, usePlayback } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
-import { freeVars, parse } from '../formula.js'
+import { Strip } from '../../../strip/index.js'
+import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { builtWorld, declaredIn } from '../fol.js'
-import { holds } from '../models.js'
-import { DECL, listText, runIso, waysIn, wayRule, wayText } from '../iso.js'
-import { isoPartsFor } from './IsoScreen.jsx'
+import { builtWorld, claimIn } from '../fol.js'
+import { fixedLine } from './FormulaScreen.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
-// FormulaScreen.jsx), and the counterexample level (ModelScreen). That one is the shared play of finding the fault in a
-// board (../../../shell/useBoardCases.js 'audit'), as a declaration's is: above, someone's wrong declaration of a
-// first-order sentence on the declaration board (fol.js declaredIn), locked; below, the world the player builds against it (how many things, which thing each name
-// stands for, what holds of each; a relation of two as a grid). A run goes through the intro rules, showing whether
-// each makes the sentence in the world, then sets the declaration against what the sentence says: the world is a
-// counterexample when they differ.
+// FormulaScreen.jsx), and the counterexample level (ModelScreen): above, the wrong sentence someone wrote (fol.js
+// claimIn: a lemma that does not follow, or a translation unlike what the brief's requirement means), on a strip that
+// cannot be changed; below, the world the player builds against it (how many things, which thing each name stands
+// for, what holds of each; a relation of two as a grid). A run goes through the sentences, marking each one's truth in
+// the world, and passes when the world is a counterexample.
 
 const T = (zh, en) => ({ zh, en })
 const MARKS = ['①', '②', '③', '④']
@@ -50,39 +47,46 @@ export function WorldText({ model, notation, preds, world = null, spell = false 
 }
 
 export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
-  const level = useMemo(() => ({ ...entry.source, play: 'audit', boards: [{ board: entry.source.board }] }), [entry.source])
-  const words = (sentence) => say(parse(sentence, { consts: level.vocab.names }), level.notation)
-  // The level as a declaration (iso.js): its things are the level's names.
-  const declared = useMemo(() => ({ ...level, things: level.vocab.names, declare: words(level.target) }), [level])
-  const parts = useMemo(() => isoPartsFor(declared, words), [declared])
-  const ways = useMemo(() => waysIn(level.board), [level])
+  const level = entry.source
+  const { notation } = level
+  const read = (f) => parse(f, { consts: level.vocab.names })
   const preds = level.vocab.preds
   const max = level.maxSize ?? 3
-  const truth = (v) => (v ? tr('真', 'true') : tr('假', 'false'))
-  const cases = useBoardCases({
-    level,
-    saved,
-    save,
-    empty: { size: Math.min(2, max), preds: {}, consts: {} },
-    judge: () => '',
-    // A step for each intro rule, whether it makes the sentence in the world; then the declaration against what the
-    // sentence says, the run failing where they agree.
-    stepsOf: (_, world) => {
-      const d = declaredIn(level, world)
-      const same = d.declared === d.meant
-      return [...ways.map(() => ({})), same ? { failed: tr(`在这个世界里，按声明「${L(words(level.target))}」为${truth(d.declared)}，它本来也为${truth(d.meant)}：声明和需求一致。`, `In this world the declaration makes “${L(words(level.target))}” ${truth(d.declared)}, and it is ${truth(d.meant)} indeed: the declaration meets the requirement here.`) } : {}]
-    },
-    onSolve: () => solve(null),
-    lastRun,
-    keepRun,
-  })
-  const world = cases.work
-  const update = cases.setWork
+  const [world, setWorld] = useState(() => saved?.work ?? { size: Math.min(2, max), preds: {}, consts: {} })
+  const update = (next) => {
+    setWorld(next)
+    save({ work: next })
+  }
   const model = useMemo(() => builtWorld(world, level.vocab), [world, level])
-  const found = useMemo(() => declaredIn(level, world), [level, world])
-  const { playback } = cases
+  const found = useMemo(() => claimIn(level, world), [level, world])
+  const truth = (v) => (v ? tr('真', 'true') : tr('假', 'false'))
+  const words = (f) => L(say(read(f), notation))
+  // A step a sentence: a lemma's premises then its goal, stopping at the first that is not as a counterexample needs
+  // it; a translation, then whether it differs from what was meant.
+  const why = (row) => (level.meant
+    ? tr(`在这个世界里，译文为${truth(row.value)}，原意也为${truth(found.meant)}：两者一致。`, `In this world the translation is ${truth(row.value)}, and so is what was meant: they agree.`)
+    : row.premise
+      ? tr(`前提「${words(row.f)}」在这个世界里不成立。`, `The premise “${words(row.f)}” does not hold in this world.`)
+      : tr(`结论「${words(row.f)}」在这个世界里也成立，这个世界不是反例。`, `The goal “${words(row.f)}” holds in this world too: it is no counterexample.`))
+  const playback = usePlayback({
+    count: 1,
+    stepsOf: () => {
+      const steps = []
+      for (const row of found.rows) {
+        steps.push(row.right ? {} : { failed: why(row) })
+        if (!row.right) break
+      }
+      return steps
+    },
+    check: () => '',
+    onSolve: () => solve(null),
+    board: world,
+    kept: lastRun,
+    onKeep: keepRun,
+  })
   const run = playback.run
-  const reached = playback.shown(0).list.length
+  const shown = playback.shown(0)
+  const reached = shown.list.length
   const failed = run?.over && !playback.passed ? run.results.at(-1)?.reason : null
 
   const toggle = (p, key) => {
@@ -92,29 +96,25 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   const name = (k) => MARKS[k]
   const wordOf = (p, args) => (level.notation.words?.[p] ? L(level.notation.words[p]).replace(/\{(\d)\}/g, (_, k) => args[Number(k)]) : `${p}(${args.join(', ')})`)
 
-  // A premise card its sentence (its truth too, once a run starts, when it names no thing a rule takes), Join what it
-  // has made, the declared card its intro rules, each marked as the run reaches it, and at the end the declaration
-  // against what the sentence says.
-  const text = (f) => L(say(f, level.notation))
-  const values = useMemo(() => runIso(declared, level.board, { given: [] }).values, [declared])
-  const mark = (v) => <span className="lg-mark">{v ? tr('成立', 'holds') : tr('不成立', 'fails')}</span>
-  const body = (node) => {
-    if (node.type === 'hyp') {
-      const f = parse(node.params.name, { consts: level.vocab.names })
-      return <div className="lg-card"><span className="lg-pick">{text(f)}</span>{reached > 0 && !freeVars(f).size && mark(holds(f, model))}</div>
-    }
-    if (node.type === 'join' || node.type === 'thing') return <div className="lg-card">{node.type === 'thing' ? <span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span> : <code className="lg-made">{listText(values.get(node.id), declared, text)}</code>}</div>
-    if (node.id !== DECL) return null
-    const end = reached > ways.length
-    return (
-      <div className="lg-card">
-        {ways.map((way, k) => <code key={k} className="lg-made">{tr(`引入${k + 1}：`, `Intro ${k + 1}: `)}{wayText(wayRule(way, declared), text)} {k < reached && mark(found.ways[k])}</code>)}
-        {!ways.length && <span className="lg-mark">{tr('没有引入规则', 'No intro rule')}</span>}
-        {end && <span className={found.declared !== found.meant ? 'lg-right' : 'lg-wrong'}>{tr(`按声明为${truth(found.declared)}，本意为${truth(found.meant)}`, `Declared ${truth(found.declared)}, meant ${truth(found.meant)}`)}</span>}
-      </div>
-    )
+  // The sentence shown, on a strip that cannot be changed: a lemma ⟦premises⟧ ⟹ goal, a sentence a row; each marked
+  // with its truth as the run reaches it (a translation, against what was meant).
+  const mark = (k) => {
+    if (k >= reached) return null
+    const row = found.rows[k]
+    const text = level.meant ? tr(`译文为${truth(row.value)}，原意为${truth(found.meant)}`, `Translated: ${truth(row.value)}; meant: ${truth(found.meant)}`) : truth(row.value)
+    return <span className={row.right ? 'lg-right' : 'lg-wrong'}>{text}</span>
   }
-  const stepClass = (node) => (run && !run.over && node.id === DECL ? 'is-step' : '')
+  const claim = (
+    <section className={`fo-claim ${level.meant ? 'is-translation' : ''}`}>
+      {found.rows.map((row, k) => (
+        <div key={k} className={`fo-claim-row ${shown.at === k ? 'is-step' : ''}`}>
+          {!level.meant && <span className="fo-claim-mark">{row.premise ? (k === 0 ? '⟦' : ';') : (level.given.length ? '⟧ ⟹' : '⟹')}</span>}
+          <Strip line={fixedLine(read(row.f), notation, `s${k}`)} label={T('句子', 'sentence')} onSlot={() => {}} />
+          {mark(k)}
+        </div>
+      ))}
+    </section>
+  )
 
   const builder = (
     <section className="fo-build">
@@ -152,46 +152,18 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
       ))}
     </section>
   )
-  const verdict = playback.passed ? tr(`按声明「${L(words(level.target))}」为${truth(found.declared)}，它本来却为${truth(found.meant)}：这个世界是反例。`, `The declaration makes “${L(words(level.target))}” ${truth(found.declared)}, yet it is ${truth(found.meant)}: this world is a counterexample.`) : failed
-  const panel = (
-    <div className="lg-strip is-tables">
+  const verdict = playback.passed
+    ? (level.meant ? tr('在这个世界里，译文和原意真假不同：这个世界是反例。', 'In this world the translation and what was meant differ: this world is a counterexample.') : tr('前提都成立，结论不成立：这个世界是反例。', 'Every premise holds and the goal fails: this world is a counterexample.'))
+    : failed
+  const stage = (
+    <div className="fo-stage">
+      {claim}
       {builder}
       {verdict && <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{verdict}</p>}
+      <footer className="run-foot"><RunDock {...playback.dock({ go: tr('运行', 'Run'), done: tr('找到反例', 'Counterexample found') })} /></footer>
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('运行', 'Run'), done: tr('找到反例', 'Counterexample found') })} />
-  const tabs = (onPhone) => <TestTabs tests={cases.tests} states={playback.states} index={cases.at} onSelect={cases.select} phone={onPhone} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-
-  if (phone) {
-    return (
-      <div className="level-phone is-split lg-phone fo-level">
-        {tabs(true)}
-        <div className="lg-scroll">
-          <TaskCard>{brief}</TaskCard>
-          <SlotBoard fixed dense graph={cases.board} parts={parts} nameOf={(n) => L(parts.label(n))} thumb={body} sinkBody={body} nodeClass={stepClass} onNode={() => {}} onSlot={() => {}} onPort={() => {}} />
-          {panel}
-        </div>
-        <footer className="run-foot">{dock}</footer>
-      </div>
-    )
-  }
-  return (
-    <CircuitLayout
-      className="lg-level fo-level"
-      brief={brief}
-      canvas={
-        <div className="lg-stage">
-          <div className="lg-board">
-            <CanvasEditor readOnly key={level.id} scope={level.id} graph={cases.board} onChange={() => {}} parts={parts} width={220} height={120} body={body} cardClass={(n) => `lg-node ${stepClass(n)}`} />
-          </div>
-        </div>
-      }
-      tests={tabs(false)}
-      status={<TestStatus states={playback.states} />}
-      outputsTitle={tr('世界', 'World')}
-      outputs={panel}
-      actions={<footer className="run-foot">{dock}</footer>}
-    />
-  )
+  if (phone) return <PhonePage brief={brief} className="fo-level">{stage}</PhonePage>
+  return <Workbench className="fo-level" brief={brief} stage={stage} scroll />
 }

@@ -4,7 +4,6 @@
 // quantifiers, and equality, its own mechanism: equals replace equals, both ways round and along a chain. Lewis
 // Carroll's syllogism puzzles are the topic.
 import { proof } from '../../kit/domains/logic/build.js'
-import { isoBoard } from '../../kit/domains/logic/iso.js'
 
 const T = (zh, en) => ({ zh, en })
 const prove = (task) => ({ kind: 'proof', ...task })
@@ -74,10 +73,10 @@ export const rules = [
     id: 'q-capture',
     kind: 'model',
     title: T('代进去别撞名', 'No clashing names'),
-    target: '∃y. Likes(y, y)',
-    board: isoBoard(['p1>1'], { p1: '∀x. ∃y. Likes(x, y)' }),
+    given: ['∀x. ∃y. Likes(x, y)'],
+    goal: '∃y. Likes(y, y)',
     answer: { size: 2, preds: { Likes: ['0,1', '1,0'] } },
-    brief: T('需求：声明「有一样东西喜欢自己」，有这样一样东西时它成立，没有时不成立。板上的声明把「每样东西都喜欢某样东西」里的 x 换成 y，由它引入。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “something likes itself”, true when there is such a thing and false when there is none. The declaration on the board puts y in for x in “everything likes something” and introduces it from that. Build a world showing the declaration on the board does not meet it.'),
+    brief: T('这是别人写的一条引理：把「每样东西都喜欢某样东西」里的 x 换成 y，得出「有一样东西喜欢自己」。造一个反例：前提都成立，结论不成立。', 'Here is a lemma someone wrote: putting y in for x in “everything likes something”, “something likes itself”. Build a counterexample: every premise holds and the goal fails.'),
     hint: [T('两样东西，互相喜欢，都不喜欢自己。', 'Two things that like each other and not themselves.')],
     intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走（<wiki-ref to="capture"></wiki-ref>），意思全变了：在「每样东西都喜欢某样东西」里把 x 换成 y，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is caught by the quantifier (<wiki-ref to="capture"></wiki-ref>), and the meaning changes completely: putting y in for x in “everything likes something” seems to give “something likes itself”.') }],
     after: T('所以代入前要先给量词的变量改名；证明器的<part-ref to="part:allE"></part-ref>会自动这样做。', 'So the quantifier’s variable is renamed before substituting; the prover’s <part-ref to="part:allE"></part-ref> does this by itself.'),
@@ -110,10 +109,10 @@ export const rules = [
     kind: 'model',
     consts: ['soc'],
     title: T('借来的名字不能带走', 'A borrowed name stays'),
-    target: 'Bird(soc)',
-    board: isoBoard(['⋀x+p1>1'], { p1: 'Bird(x)' }),
+    given: ['∃x. Bird(x)'],
+    goal: 'Bird(soc)',
     answer: { size: 2, preds: { Bird: ['1'] }, consts: { soc: 0 } },
-    brief: T('需求：声明「苏格拉底是鸟」，苏格拉底是鸟时它成立，不是时不成立。板上的声明任取一样东西 x，只要 x 是鸟，就引入它。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “Socrates is a bird”, true when Socrates is a bird and false when he is not. The declaration on the board takes any thing x and introduces it whenever x is a bird. Build a world showing the declaration on the board does not meet it.'),
+    brief: T('这是别人写的一条引理：由「有一只鸟」推出「苏格拉底是鸟」。造一个反例：前提都成立，结论不成立。', 'Here is a lemma someone wrote: from “there is a bird”, “Socrates is a bird”. Build a counterexample: every premise holds and the goal fails.'),
     hint: [T('两样东西：一样是苏格拉底，另一样是鸟。', 'Two things: one is Socrates, the other a bird.')],
   },
   {
@@ -162,10 +161,10 @@ export const rules = [
       {
         kind: 'model',
         step: T('找反例', 'Counterexample'),
-        target: '∃x. ∀y. Likes(x, y)',
-        board: isoBoard(['p1>1'], { p1: '∀y. ∃x. Likes(x, y)' }),
+        given: ['∀y. ∃x. Likes(x, y)'],
+        goal: '∃x. ∀y. Likes(x, y)',
         answer: { size: 2, preds: { Likes: ['0,0', '1,1'] } },
-        brief: T('需求：声明「有一样东西喜欢所有东西」，有这样一样东西时它成立，没有时不成立。板上的声明由「每样东西都有喜欢它的」引入它。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “something likes everything”, true when there is such a thing and false when there is none. The declaration on the board introduces it from “everything is liked by something”. Build a world showing the declaration on the board does not meet it.'),
+        brief: T('这是别人写的一条引理：由「每样东西都有喜欢它的」推出「有一样东西喜欢所有东西」。造一个反例：前提都成立，结论不成立。', 'Here is a lemma someone wrote: from “everything is liked by something”, “something likes everything”. Build a counterexample: every premise holds and the goal fails.'),
         hint: [T('每样东西只喜欢自己。', 'Each thing likes only itself.')],
       },
       {
