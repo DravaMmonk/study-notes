@@ -321,13 +321,6 @@
 .lg-rule-line.is-elim .lg-rule-body { background: transparent; }
 .lg-rule-line.is-elim .lg-rule-no { font-size: 11px; }
 /* An inference: premises over a line, the conclusion under it; a premise with premises is a smaller one inside. */
-.lg-inf { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; max-width: 100%; }
-.lg-inf.is-nested { padding: 6px 10px; border-radius: 10px; background: color-mix(in srgb, var(--ink) 4%, transparent); box-shadow: inset 0 0 0 1px var(--hairline); }
-.lg-inf.is-bad { box-shadow: inset 0 0 0 1.5px var(--fail); }
-.lg-inf-top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: 6px 10px; min-height: 1.6em; }
-.lg-inf-bar { align-self: stretch; display: flex; align-items: center; gap: 6px; }
-.lg-inf-line { flex: 1; border-top: 1.5px solid var(--ink); }
-.lg-inf-bottom { display: flex; justify-content: center; }
 .lg-tok { padding: 0 2px 1px; border: 0; border-bottom: 2px solid var(--fam, var(--line)); border-radius: 0; color: var(--ink); background: transparent; font: 17px/1.5 var(--serif); cursor: pointer; }
 .lg-tok:disabled { cursor: default; border-bottom-color: transparent; }
 .lg-tok.is-end:disabled { font-weight: 500; }
@@ -338,6 +331,21 @@
 .lg-slot.is-next, .lg-tok.is-next { border-color: var(--accent); color: var(--accent-ink); opacity: 1; }
 .lg-slot.is-selected { border-style: solid; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 .lg-slot.is-refused, .lg-tok.is-refused { animation: ks-shake 420ms ease; }
-.lg-inf-drop { position: absolute; top: -8px; right: -8px; display: grid; place-items: center; width: 20px; height: 20px; border: 0; border-radius: 50%; color: var(--muted); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); cursor: pointer; }
-.lg-inf.is-pickable { cursor: pointer; }
-.lg-inf.is-nested.is-target { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
+/* A rule card: the rule in words, a premise with premises of its own a box in the sentence, the book's form under it. */
+.lg-card { display: grid; gap: 4px; font: 15px/1.6 var(--sans); color: var(--muted); }
+.lg-card.is-pickable { cursor: pointer; }
+.lg-card.is-target { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
+.lg-card-say { margin: 0; }
+.lg-card-items { margin: 0; padding: 0 0 0 1.2em; display: grid; gap: 6px; list-style: none; }
+.lg-card-items > li { position: relative; }
+.lg-card-items > li::before { content: '·'; position: absolute; left: -.9em; color: var(--faint, var(--muted)); }
+.lg-card-concl { margin: 0; padding-left: 1.2em; }
+.lg-card-concl .lg-tok:disabled { font-weight: 500; }
+.lg-card-formal { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--hairline); color: var(--muted); font: 12px/1.5 var(--mono); overflow-wrap: anywhere; }
+.lg-card-nest { position: relative; display: inline; padding: 3px 8px; border-radius: 8px; line-height: 2.1; background: color-mix(in srgb, var(--ink) 4%, transparent); box-shadow: inset 0 0 0 1px var(--hairline); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.lg-card-nest.is-block { display: block; padding: 6px 10px; line-height: 1.8; }
+.lg-card-nest.is-bad { box-shadow: inset 0 0 0 1.5px var(--fail); }
+.lg-card-nest.is-pickable { cursor: pointer; }
+.lg-card-nest.is-target { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--accent) 55%, transparent); }
+.lg-card .lg-tok { font-size: 16px; }
+.lg-card-drop { position: absolute; top: -9px; right: -9px; display: inline-grid; place-items: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; color: var(--muted); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); cursor: pointer; }
