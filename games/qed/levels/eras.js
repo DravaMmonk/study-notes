@@ -74,7 +74,7 @@ export const ERAS = [
       'decl-imp', 'decl-check', 'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [
-      { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') },
+      { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-true', 'decl-iff', 'decl-three', 'decl-order', 'decl-two'], title: T('更多声明', 'More declarations') },
       // The step that makes every elimination rule, built by hand, for whoever wants to see how.
       { id: 'generator', code: 'E', after: 'decl-bot', levels: ['gen-one', 'gen-each'], title: T('消去规则生成器', 'The elimination rule generator') },
     ],

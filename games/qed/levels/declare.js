@@ -421,8 +421,8 @@ const TRUE_TESTS = [
 
 export const moreDeclarations = [
   {
-    // A declaration of "all three" with the three split over two ways, found out from both directions; then the
-    // player's own; then "one of three" given, its table filled in.
+    // A declaration of "all three" with the three split over two ways, found out from both directions; then "one of
+    // three" given, its table filled in.
     id: 'decl-three',
     title: T('三样', 'Three of them'),
     tasks: [
@@ -452,13 +452,6 @@ export const moreDeclarations = [
         ],
       }),
       declare({
-        ...THREE,
-        step: T('三样都要', 'All three'),
-        brief: T('需求：「下雨、刮风、地湿，三样都要」：三句都已证出才能引入。写出「三样都要」的声明。', 'Requirement: “it rains, it is windy, the ground is wet: all three” may be introduced only when all three are proved. Write the declaration of “all three”.'),
-        hint: [T('一条引入规则能要几样？', 'How many things can one introduction rule need?')],
-        after: T('平常写的「A ∧ B ∧ C」读作「A ∧ (B ∧ C)」，是两层「并且」，不必另外声明。', 'The usual “A ∧ B ∧ C” reads “A ∧ (B ∧ C)”, two “and”s, and needs no declaration of its own.'),
-      }),
-      declare({
         ...ONE_OF_THREE,
         step: T('三选一', 'One of three'),
         play: 'audit',
@@ -476,8 +469,7 @@ export const moreDeclarations = [
     intro: [{ t: T('「并且」「或者」都只连接两句话。这一关换成三句。', '“And” and “or” each join two sentences. Here there are three.') }],
   },
   declare({
-    // Two declarations of "and", the premises in either order: no test case tells them apart; then the player writes
-    // the other order, which only the rule written shows (`ways`).
+    // Two declarations of "and", the premises in either order: no test case tells them apart.
     id: 'decl-order',
     title: T('换个顺序', 'The other order'),
     declare: T('并且', 'and'),
@@ -490,45 +482,32 @@ export const moreDeclarations = [
       { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
       { given: ['Rain ∧ Wind'], goal: 'Wet', make: false },
     ],
-    intro: [{ t: T('<level-ref to="decl-and"></level-ref>里的「并且」先要「下雨」、再要「刮风」。反过来写行不行？检验条例分得出来吗？', 'The “and” of <level-ref to="decl-and"></level-ref> takes “it rains” first, then “it is windy”. Would the other order do? Can test cases tell?') }],
-    tasks: [
-      {
-        kind: 'iso',
-        step: T('两种顺序', 'Both orders'),
-        play: 'audit',
-        want: 'agree',
-        boards: [{ board: isoBoard(['Rain+Wind>1']) }, { board: isoBoard(['Wind+Rain>1']) }],
-        slots: [
-          { make: true, fixed: ['goal', 'make'] },
-          { given: ['Rain ∧ Wind'], keep: ['Rain ∧ Wind'], make: true, fixed: ['make'] },
-        ],
-        answer: [
-          { given: ['Rain', 'Wind'], make: true },
-          { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
-        ],
-        naive: [
-          { given: ['Rain'], make: true },
-          { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
-        ],
-        intro: [{ t: T('电路 1 先要「下雨」，电路 2 先要「刮风」。请从引入和使用两个方向各写一条预期为可推导的条例，检验两份声明。', 'Board 1 takes “it rains” first, board 2 “it is windy” first. Write a case for each direction, introduction and use, expected derivable, and check both declarations.') }],
-        brief: T('需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，两份声明的结果都和预期相符。', 'Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write two test cases whose expectations meet the requirement and with which both declarations’ results agree.'),
-        hint: [T('引入「并且」要哪几样？有了「并且」，能拆出哪几句？', 'What does introducing “and” need? What can be taken out of an “and”?')],
-      },
-      {
-        kind: 'iso',
-        step: T('先要「刮风」', '“It is windy” first'),
-        ways: [['Wind', 'Rain']],
-        brief: T('需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。写一个先要「刮风」、再要「下雨」的「并且」。', 'Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write an “and” that takes “it is windy” first, then “it rains”.'),
-        hint: [T('拼接的前提有先后。', 'The premises of a Join come in order.')],
-      },
+    intro: [
+      { t: T('<level-ref to="decl-and"></level-ref>里的「并且」先要「下雨」、再要「刮风」。反过来写行不行？检验条例分得出来吗？', 'The “and” of <level-ref to="decl-and"></level-ref> takes “it rains” first, then “it is windy”. Would the other order do? Can test cases tell?') },
+      { t: T('电路 1 先要「下雨」，电路 2 先要「刮风」。请从引入和使用两个方向各写一条预期为可推导的条例，检验两份声明。', 'Board 1 takes “it rains” first, board 2 “it is windy” first. Write a case for each direction, introduction and use, expected derivable, and check both declarations.') },
     ],
-    solution: isoBoard(['Wind+Rain>1']),
-    naive: isoBoard(['Rain+Wind>1']),
+    play: 'audit',
+    want: 'agree',
+    boards: [{ board: isoBoard(['Rain+Wind>1']) }, { board: isoBoard(['Wind+Rain>1']) }],
+    slots: [
+      { make: true, fixed: ['goal', 'make'] },
+      { given: ['Rain ∧ Wind'], keep: ['Rain ∧ Wind'], make: true, fixed: ['make'] },
+    ],
+    answer: [
+      { given: ['Rain', 'Wind'], make: true },
+      { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
+    ],
+    naive: [
+      { given: ['Rain'], make: true },
+      { given: ['Rain ∧ Wind'], goal: 'Rain', make: true },
+    ],
+    brief: T('需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，两份声明的结果都和预期相符。', 'Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write two test cases whose expectations meet the requirement and with which both declarations’ results agree.'),
+    hint: [T('引入「并且」要哪几样？有了「并且」，能拆出哪几句？', 'What does introducing “and” need? What can be taken out of an “and”?')],
+    solution: isoBoard(['Rain+Wind>1']),
     after: T('检验条例只看推得出什么，看不出规则的写法；证明核却只认写下来的那一条。', 'Test cases see only what can be derived, not how a rule is written; the kernel keeps to the rule written down.'),
   }),
   declare({
-    // A declaration missing one of the three pairs, found out from both directions (only Bo is in every pair it has);
-    // then the player's own.
+    // A declaration missing one of the three pairs, found out from both directions (only Bo is in every pair it has).
     id: 'decl-two',
     title: T('至少两样', 'At least two'),
     declare: T('提案通过', 'the motion passes'),
@@ -546,42 +525,31 @@ export const moreDeclarations = [
       { given: ['Motion', 'AnnYes → Happy'], goal: 'Happy', make: false },
       { given: ['Motion', 'BoYes → Happy'], goal: 'Happy', make: false },
     ],
-    intro: [{ t: T('声明的不一定是连接词：一件事有哪几种成立的方式，说得清楚，就能声明。', 'What is declared need not be a connective: whatever holds in ways that can be spelled out can be declared.') }],
-    tasks: [
-      {
-        kind: 'iso',
-        step: T('找出错误', 'Find the fault'),
-        play: 'audit',
-        want: 'expose',
-        boards: [{ board: isoBoard(['a1+b1>1', 'b2+c2>2'], VOTE) }],
-        slots: [
-          { make: true, fixed: ['goal', 'make'] },
-          { given: ['Motion'], keep: ['Motion'], make: false, fixed: ['make'] },
-        ],
-        answer: [
-          { given: ['AnnYes', 'CyYes'], make: true },
-          { given: ['Motion', 'BoYes → Happy'], goal: 'Happy', make: false },
-        ],
-        naive: [
-          { given: ['AnnYes', 'BoYes'], make: true },
-          { given: ['Motion', 'AnnYes → Happy'], goal: 'Happy', make: false },
-        ],
-        intro: [{ t: T('板上这份「提案通过」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', 'The declaration of “the motion passes” on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault.') }],
-        brief: T('需求：安、博、赛三人投票，至少两人同意，「提案通过」才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Requirement: Ann, Bo and Cy vote; “the motion passes” may be introduced only when at least two of them agree. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
-        hint: [
-          T('两人同意共有几种组合？这份声明写出了哪几种？', 'How many pairs can agree? Which does this declaration write out?'),
-          T('这份声明的每一条引入规则里，都有谁？', 'Who is in every one of this declaration’s introduction rules?'),
-        ],
-      },
-      {
-        kind: 'iso',
-        step: T('编写声明', 'Write the declaration'),
-        brief: T('需求：安、博、赛三人投票，至少两人同意，「提案通过」才能引入。写出「提案通过」的声明。', 'Requirement: Ann, Bo and Cy vote; “the motion passes” may be introduced only when at least two of them agree. Write the declaration of “the motion passes”.'),
-        hint: [T('两人同意有几种组合？', 'How many pairs can agree?'), T('同一句话可以出现在几张前提上。', 'One sentence may be on several premise cards.')],
-      },
+    intro: [
+      { t: T('声明的不一定是连接词：一件事有哪几种成立的方式，说得清楚，就能声明。', 'What is declared need not be a connective: whatever holds in ways that can be spelled out can be declared.') },
+      { t: T('板上这份「提案通过」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。', 'The declaration of “the motion passes” on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault.') },
+    ],
+    play: 'audit',
+    want: 'expose',
+    boards: [{ board: isoBoard(['a1+b1>1', 'b2+c2>2'], VOTE) }],
+    slots: [
+      { make: true, fixed: ['goal', 'make'] },
+      { given: ['Motion'], keep: ['Motion'], make: false, fixed: ['make'] },
+    ],
+    answer: [
+      { given: ['AnnYes', 'CyYes'], make: true },
+      { given: ['Motion', 'BoYes → Happy'], goal: 'Happy', make: false },
+    ],
+    naive: [
+      { given: ['AnnYes', 'BoYes'], make: true },
+      { given: ['Motion', 'AnnYes → Happy'], goal: 'Happy', make: false },
+    ],
+    brief: T('需求：安、博、赛三人投票，至少两人同意，「提案通过」才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Requirement: Ann, Bo and Cy vote; “the motion passes” may be introduced only when at least two of them agree. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
+    hint: [
+      T('两人同意共有几种组合？这份声明写出了哪几种？', 'How many pairs can agree? Which does this declaration write out?'),
+      T('这份声明的每一条引入规则里，都有谁？', 'Who is in every one of this declaration’s introduction rules?'),
     ],
     solution: isoBoard(['a1+b1>1', 'b2+c2>2', 'a3+c3>3'], VOTE),
-    naive: isoBoard(['a1+b1>1', 'b2+c2>2'], VOTE),
     after: T('「恰好一人同意」却写不成声明：引入规则只能说有了什么就造得出，说不了有了什么就造不出。', '“Exactly one agrees” cannot be declared, though: an introduction rule can say what makes a sentence, never what stops it.'),
   }),
   declare({

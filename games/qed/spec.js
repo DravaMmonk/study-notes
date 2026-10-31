@@ -372,6 +372,13 @@ export default {
     { solve: ['m-make', ['fo-some']] },
     { solve: ['fo-some', ['m-world', 'm-counter']] },
     { solve: ['m-world', ['fo-atoms', 'fo-all']] },
+  ] },
+  // Version 70 took the declarations to write out of 三样, 换个顺序 and 至少两样, and put 声明「真」 and 声明「当且仅当」
+  // before them: 三样 keeps its two tables, the other two are their table alone.
+  { version: 70, ops: [
+    { data: (value, id) => (!Array.isArray(value) ? value : id === 'decl-three' ? [value[0] ?? null, value[2] ?? null] : ['decl-order', 'decl-two'].includes(id) ? value[0] ?? undefined : value) },
+    { tasks: (passed, id) => (id === 'decl-three' ? Math.min(passed, 1) : ['decl-order', 'decl-two'].includes(id) ? 0 : passed) },
+    { solve: ['decl-three', ['decl-true', 'decl-iff']] },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
