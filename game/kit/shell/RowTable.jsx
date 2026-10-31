@@ -12,10 +12,10 @@ import { L, tr } from './i18n.js'
 // (FormFields.jsx has the shared ones).
 //
 //   rows            [row]                          onChange(rows)   the rows saved (absent: the table is read only)
-//   columns         [{ key, label, cell(row, k), edit?(row, set) the in-place editor on a desktop, align?: 'start'
+//   columns         [{ key, label, cell(row, k), edit?(row, set, k) the in-place editor on a desktop, align?: 'start'
 //                    (default centred), className? }]
 //   phone           edit through the form rather than in place
-//   form(row, set) → the fields editing a row (set(next) replaces it)      blank() → a new row
+//   form(row, set, k) → the fields editing row k (set(next) replaces it)      blank() → a new row
 //   max?            how many rows at most          addLabel, formTitle(k)   { zh, en } pairs or a function
 //   rowClass?(k), onPick?(k) (a row picked, also when it is opened), empty? what the table says with no rows
 //   fixed           the rows are set out beforehand: none added, none deleted, each only filled in
@@ -57,7 +57,7 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
                 tabIndex={editable && !inPlace ? 0 : undefined}
                 onKeyDown={(e) => editable && !inPlace && (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onPick(k), setOpen(k))}
               >
-                {columns.map((c) => <td key={c.key} className={cellClass(c)}><div className="rt-cell">{inPlace && c.edit ? c.edit(row, (next) => setRow(k, next)) : c.cell(row, k)}</div></td>)}
+                {columns.map((c) => <td key={c.key} className={cellClass(c)}><div className="rt-cell">{inPlace && c.edit ? c.edit(row, (next) => setRow(k, next), k) : c.cell(row, k)}</div></td>)}
                 {inPlace && !fixed && (
                   <td>
                     <button type="button" className="rt-drop" aria-label={tr('删除这一行', 'Delete this row')} onClick={(e) => { e.stopPropagation(); remove(k) }}><X size={14} /></button>
@@ -78,7 +78,7 @@ export default function RowTable({ rows, columns, onChange = null, form, blank, 
       {open !== null && rows[open] && (
         <Sheet title={text(formTitle)} onClose={() => setOpen(null)}>
           <div className="rt-form">
-            {form(rows[open], (row) => setRow(open, row))}
+            {form(rows[open], (row) => setRow(open, row), open)}
             {!fixed && <div className="sheet-actions"><button type="button" className="sheet-remove" onClick={() => remove(open)}><Trash2 size={15} />{tr('删除', 'Delete')}</button></div>}
           </div>
         </Sheet>

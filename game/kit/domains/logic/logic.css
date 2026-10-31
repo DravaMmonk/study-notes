@@ -328,3 +328,15 @@
 .lg-rt-sheet { display: grid; gap: 10px; }
 .level-phone .lg-rt-row { grid-template-columns: 5.5em minmax(0, 1fr) auto; }
 .level-phone .lg-rt-row.is-goal { grid-template-columns: 5.5em minmax(0, 1fr); }
+
+/* A sentence filled in by building it in a sheet (ui/SentencePick.jsx): a test case's premises and goal, a card's setting. */
+.lg-pick-sentence { max-width: 100%; min-height: 28px; padding: 2px 8px; border: 1px solid var(--hairline); border-radius: 7px; color: var(--ink); background: var(--paper); font: inherit; text-align: left; cursor: pointer; }
+.lg-pick-sentence.is-empty { color: var(--muted); border-style: dashed; }
+.lg-pick-sentence:disabled { border-color: transparent; background: transparent; cursor: default; }
+.lg-pick-list { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.lg-pick-item { display: inline-flex; align-items: center; gap: 2px; }
+.lg-pick-drop { display: inline-flex; padding: 2px; border: 0; color: var(--muted); background: transparent; cursor: pointer; }
+.lg-pick-drop:hover { color: var(--fail); }
+.lg-pick-add { min-height: 26px; padding: 0 8px; display: inline-flex; align-items: center; gap: 3px; border: 1px dashed var(--rule); border-radius: 7px; color: var(--muted); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
+.level-phone .lg-pick-sentence { min-height: 38px; padding: 4px 10px; }
+.level-phone .lg-pick-add { min-height: 38px; }

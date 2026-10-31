@@ -11,6 +11,8 @@ import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
 import { startProof } from '../build.js'
 import { FORMULA_TEXT, fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
 import { choicesOf } from '../choices.js'
+import { chipsFrom } from '../formulaTree.js'
+import { vocabulary } from '../fol.js'
 import { LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf } from '../machine.js'
 import { parseS, ruleText } from '../schematic.js'
@@ -62,6 +64,18 @@ const fitsBoard = (circuit, parts) => {
     && circuit.wires.every((w) => byId.has(w.to) && parts.inputs(byId.get(w.to)).includes(w.port))
 }
 
+// Building a card's sentence (ui/SentencePick.jsx): the chips of the level's sentences, in the schema's letters, each
+// letter's chip saying this test's sentence for it.
+function sentenceBuild(level, test, offer, text) {
+  const consts = level.consts ?? []
+  const arity = new Map(vocabulary(offer.formula).preds)
+  const lettered = Object.entries(test.subst ?? {}).map(([letter, to]) => [letter, arity.get(letter) > 0 && to.op === 'atom' && level.notation.words?.[to.pred]
+    ? level.notation.words[to.pred]
+    : { zh: text(to), en: text(to) }])
+  const notation = { ...level.notation, words: { ...level.notation.words, ...Object.fromEntries(lettered) } }
+  return { read: (t) => parse(t, { consts }), say: (f) => text(replaceAtoms(f, test.subst)), notation, chips: chipsFrom(offer.formula, { consts, notation }) }
+}
+
 export const PROOF = {
   tests: LOGIC_TESTS,
   parts: (level) => partsFor(level.lemmas, Object.keys(level.schema.premises ?? {})),
@@ -81,9 +95,9 @@ export const PROOF = {
       sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{Object.entries(test.premises).map(([name, t]) => `${level.terms ? `${name}: ` : ''}${text(parse(t, { consts }))}`).join(tr('；', '; '))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b>{test.term && <> · {tr('证明项应为', 'with the proof term')} <code className="lg-term">{test.term}</code></>}</>,
       premiseNames: Object.keys(test.premises ?? {}),
       want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b>{test.term && <><br />{tr('证明项应为', 'Proof term')} <code className="lg-term">{test.term}</code></>}</span>,
+      // A sentence on a card is built from the pieces of the level's sentences, each letter shown as this test's.
+      build: sentenceBuild(level, test, offer, text),
       choices: {
-        formula: offer.formula.map(sentence),
-        exists: offer.exists.map(sentence),
         term: offer.term.map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
         // What choosing an instance puts in: a thing, or a sentence when the level has a ∀ over sentences.
         instance: offer.instance.map((t) => (offer.term.includes(t) ? { value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) } : sentence(parse(t, { consts })))),
