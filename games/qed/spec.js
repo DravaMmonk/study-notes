@@ -8,6 +8,7 @@ import { linesOf } from '../kit/domains/logic/ruleLines.js'
 // The declarations that had a second task, their elimination rule by hand (save versions 48 to 49).
 // The levels that gained definition tasks before their machine (version 52), and how many.
 // The levels that build a world (chapters 5 and 6), for version 67's migration.
+const WORLD_STAGES = ['m-world', 'm-make', 'm-counter', 'm-order', 'p-split', 'p-exAnd']
 const WORLD_LEVELS = ['m-world', 'm-make', 'm-counter', 'm-order', 'p-split', 'p-exAnd', 'q-capture', 'q-witness', 'q-swap']
 const DEFINED = { 'in-revapp': 1, 'in-itsum': 2, 'sort-ins': 3 }
 const DECLARED = ['decl-and', 'decl-or', 'decl-bot', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex']
@@ -385,7 +386,12 @@ export default {
   { version: 71, ops: [{ data: (value) => {
     const lines = (v) => (v?.nodes?.some((n) => n.id === 'decl') ? { lines: linesOf(v) } : v)
     return Array.isArray(value) ? value.map(lines) : lines(value)
-  } }] }],
+  } }] },
+  // Version 72 opened each world level with a task to build its sentence as a formula: a world kept is the next task's.
+  { version: 72, ops: [
+    { data: (value, id) => (!WORLD_STAGES.includes(id) || value === undefined ? value : [null, ...(Array.isArray(value) ? value : [value])]) },
+    { tasks: (passed, id) => (WORLD_STAGES.includes(id) ? 0 : passed) },
+  ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '相等', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],

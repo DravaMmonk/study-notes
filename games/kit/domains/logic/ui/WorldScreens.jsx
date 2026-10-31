@@ -64,7 +64,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   // A step a sentence: a lemma's premises then its goal, stopping at the first that is not as a counterexample needs
   // it; a translation, then whether it differs from what was meant.
   const why = (row) => (level.meant
-    ? tr(`在这个世界里，译文为${truth(row.value)}，原意也为${truth(found.meant)}：两者一致。`, `In this world the translation is ${truth(row.value)}, and so is what was meant: they agree.`)
+    ? tr(`在这个世界里，两份译文都为${truth(row.value)}：真假一致。`, `In this world both translations are ${truth(row.value)}: they agree.`)
     : row.premise
       ? tr(`前提「${words(row.f)}」在这个世界里不成立。`, `The premise “${words(row.f)}” does not hold in this world.`)
       : tr(`结论「${words(row.f)}」在这个世界里也成立，这个世界不是反例。`, `The goal “${words(row.f)}” holds in this world too: it is no counterexample.`))
@@ -100,11 +100,11 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   const mark = (k) => {
     if (k >= reached) return null
     const row = found.rows[k]
-    const text = level.meant ? tr(`译文为${truth(row.value)}，原意为${truth(found.meant)}`, `Translated: ${truth(row.value)}; meant: ${truth(found.meant)}`) : truth(row.value)
-    return <span className={row.right ? 'lg-right' : 'lg-wrong'}>{text}</span>
+    return <span className={row.right ? 'lg-right' : 'lg-wrong'}>{truth(row.value)}</span>
   }
-  // The sentence shown, on strips that cannot be changed, each marked as the run reaches it: a translation alone; a
-  // lemma as an inference, its premises over a line and its goal under it.
+  // The sentences shown, on strips that cannot be changed, each marked as the run reaches it: a translation under the
+  // player's own (what was meant, built in the task before); a lemma as an inference, its premises over a line and its
+  // goal under it.
   const row = (r, k) => (
     <div key={k} className={`fo-claim-row ${shown.at === k ? 'is-step' : ''}`}>
       <Strip line={fixedLine(read(r.f), notation, `s${k}`)} label={T('句子', 'sentence')} onSlot={() => {}} />
@@ -113,7 +113,15 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   )
   const claim = (
     <section className="fo-claim">
-      {level.meant ? found.rows.map(row) : (
+      {level.meant ? (
+        <>
+          <div className={`fo-claim-row ${shown.at === 0 ? 'is-step' : ''}`}>
+            <Strip line={fixedLine(read(level.meant), notation, 'meant')} label={T('句子', 'sentence')} onSlot={() => {}} />
+            {reached > 0 && <span className="lg-right">{truth(found.meant)}</span>}
+          </div>
+          {found.rows.map(row)}
+        </>
+      ) : (
         <>
           {found.rows.slice(0, -1).map(row)}
           <hr className="fo-claim-line" />
