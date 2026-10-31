@@ -74,9 +74,6 @@ export const ERAS = [
       'decl-imp', 'decl-check', 'decl-and', 'decl-or', 'decl-bot',
     ],
     topics: [
-      // “And” and “or” defined with → alone instead of declared, right after the declarations: optional proofs (the
-      // taking apart uses K).
-      { id: 'hol', code: 'X', after: ['k', 'decl-bot'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') },
       { id: 'declare-more', code: 'D', after: 'decl-bot', levels: ['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff'], title: T('更多声明', 'More declarations') },
       // The step that makes every elimination rule, built by hand, for whoever wants to see how.
       { id: 'generator', code: 'E', after: 'decl-bot', levels: ['gen-one', 'gen-each'], title: T('消去规则生成器', 'The elimination rule generator') },
@@ -130,6 +127,9 @@ export const ERAS = [
     topics: [
       // The generator (chapter 3, optional) upgraded for ways that take things first: it builds on the one before it.
       { id: 'gen-any', code: 'E', after: ['decl-ex', 'gen-each'], levels: ['gen-ex'], title: T('生成器遇上任取', 'The generator meets “any”') },
+      // “And” and “or” defined with → and a ∀ over sentences instead of declared, once For any and Take one are in
+      // hand: optional proofs (the taking apart uses K).
+      { id: 'hol', code: 'X', after: ['k', 'q-allE'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') },
       { id: 'carroll', code: 'S', after: 'q-trans', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') },
       { id: 'puzzle-quantifiers', code: 'P', after: ['dsyll', 'q-trans'], levels: ['q-swap', 'q-move', 'q-ancestor', 'q-bigger'], title: T('证明谜题：量词', 'Proof puzzles: quantifiers') },
     ],
