@@ -87,7 +87,7 @@ const WORLD_KINDS = ['translate', 'query', 'model']
 // `names` are every name the level reads (level.consts), so a name typed that the level does not use still parses.
 function vocabOf(level) {
   const names = level.consts ?? []
-  const texts = level.kind === 'model' ? level.want.map((w) => w.f) : [level.target, ...(level.decoys ?? [])]
+  const texts = level.kind === 'model' ? [...level.given, level.goal] : [level.target, ...(level.decoys ?? [])]
   const v = vocabulary(texts.map((t) => parse(t, { consts: names })))
   return { preds: v.preds, consts: v.consts, names: [...new Set([...names, ...v.consts])] }
 }

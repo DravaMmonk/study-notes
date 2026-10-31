@@ -6,6 +6,8 @@ import { LEMMAS, LOGIC } from './levels/index.js'
 
 // The declarations that had a second task, their elimination rule by hand (save versions 48 to 49).
 // The levels that gained definition tasks before their machine (version 52), and how many.
+// The levels that build a world (chapters 5 and 6), for version 67's migration.
+const WORLD_LEVELS = ['m-world', 'm-make', 'm-counter', 'm-order', 'p-split', 'p-exAnd', 'q-capture', 'q-witness', 'q-swap']
 const DEFINED = { 'in-revapp': 1, 'in-itsum': 2, 'sort-ins': 3 }
 const DECLARED = ['decl-and', 'decl-or', 'decl-bot', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex']
 
@@ -351,7 +353,12 @@ export default {
     { data: (value, id) => (id === 'decl-three' && Array.isArray(value) ? [null, value[0] ?? null, null]
       : ['decl-order', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex'].includes(id) && value && !Array.isArray(value) ? [null, value] : value) },
     { tasks: (passed, id) => (['decl-three', 'decl-order', 'decl-two', 'decl-true', 'decl-iff', 'decl-ex'].includes(id) ? 0 : passed) },
-  ] }],
+  ] },
+  // Version 67 put a wrong inference on the board of every world level: the world built is the work against it.
+  { version: 67, ops: [{ data: (value, id) => {
+    const wrap = (w) => (w && typeof w === 'object' && 'size' in w ? { work: w } : w)
+    return WORLD_LEVELS.includes(id) ? (Array.isArray(value) ? value.map(wrap) : wrap(value)) : value
+  } }] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).
   quotes: ['任取', '等价', '假设', '我证不出', '交换', '归纳', '归结', '饱和器', '数理规则书', '定义'],

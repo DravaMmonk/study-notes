@@ -73,12 +73,10 @@ export const rules = [
     id: 'q-capture',
     kind: 'model',
     title: T('代进去别撞名', 'No clashing names'),
-    want: [
-      { f: '∀x. ∃y. Likes(x, y)', value: true },
-      { f: '∃y. Likes(y, y)', value: false },
-    ],
+    given: ['∀x. ∃y. Likes(x, y)'],
+    goal: '∃y. Likes(y, y)',
     answer: { size: 2, preds: { Likes: ['0,1', '1,0'] } },
-    brief: T('造一个世界：每样东西都喜欢某样东西，却没有一样东西喜欢自己。', 'Build a world where everything likes something and nothing likes itself.'),
+    brief: T('这块电路把「每样东西都喜欢某样东西」里的 x 换成 y，推出「有一样东西喜欢自己」。造一个反例。', 'This board puts y in for x in “everything likes something” and infers “something likes itself”. Build a counterexample.'),
     hint: [T('两样东西，互相喜欢，都不喜欢自己。', 'Two things that like each other and not themselves.')],
     intro: [{ t: T('<part-ref to="part:allE"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走（<wiki-ref to="capture"></wiki-ref>），意思全变了：在「每样东西都喜欢某样东西」里把 x 换成 y，好像得到「有一样东西喜欢自己」。', '<part-ref to="part:allE"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is caught by the quantifier (<wiki-ref to="capture"></wiki-ref>), and the meaning changes completely: putting y in for x in “everything likes something” seems to give “something likes itself”.') }],
     after: T('所以代入前要先给量词的变量改名；证明器的<part-ref to="part:allE"></part-ref>会自动这样做。', 'So the quantifier’s variable is renamed before substituting; the prover’s <part-ref to="part:allE"></part-ref> does this by itself.'),
@@ -111,12 +109,10 @@ export const rules = [
     kind: 'model',
     consts: ['soc'],
     title: T('借来的名字不能带走', 'A borrowed name stays'),
-    want: [
-      { f: '∃x. Bird(x)', value: true },
-      { f: 'Bird(soc)', value: false },
-    ],
+    given: ['∃x. Bird(x)'],
+    goal: 'Bird(soc)',
     answer: { size: 2, preds: { Bird: ['1'] }, consts: { soc: 0 } },
-    brief: T('「有一只鸟」推得出「苏格拉底是鸟」吗？造一个世界说明推不出：有鸟，苏格拉底却不是。', 'Does “there is a bird” give “Socrates is a bird”? Build a world showing it does not: there is a bird, yet Socrates is not one.'),
+    brief: T('「有一只鸟」推得出「苏格拉底是鸟」吗？造一个反例。', 'Does “there is a bird” give “Socrates is a bird”? Build a counterexample.'),
     hint: [T('两样东西：一样是苏格拉底，另一样是鸟。', 'Two things: one is Socrates, the other a bird.')],
   },
   {
@@ -165,12 +161,10 @@ export const rules = [
       {
         kind: 'model',
         step: T('找反例', 'Counterexample'),
-        want: [
-          { f: '∀y. ∃x. Likes(x, y)', value: true },
-          { f: '∃x. ∀y. Likes(x, y)', value: false },
-        ],
+        given: ['∀y. ∃x. Likes(x, y)'],
+        goal: '∃x. ∀y. Likes(x, y)',
         answer: { size: 2, preds: { Likes: ['0,0', '1,1'] } },
-        brief: T('「每样东西都有喜欢它的」推得出「有一样东西喜欢所有东西」吗？造一个世界说明推不出。', 'Does “everything is liked by something” give “something likes everything”? Build a world showing it does not.'),
+        brief: T('「每样东西都有喜欢它的」推得出「有一样东西喜欢所有东西」吗？造一个反例。', 'Does “everything is liked by something” give “something likes everything”? Build a counterexample.'),
         hint: [T('每样东西只喜欢自己。', 'Each thing likes only itself.')],
       },
       {

@@ -23,6 +23,7 @@ const query = (level) => ({ kind: 'query', consts, worlds: families, ...level })
 const STEPS = [T('第一句', 'Sentence 1'), T('第二句', 'Sentence 2'), T('第三句', 'Sentence 3')]
 const sentences = (list, decoys = []) => list.map((task, k) => ({ kind: 'translate', step: STEPS[k], decoys: [...list.filter((_, j) => j !== k).map((t) => t.target), ...decoys], ...task }))
 const BRIEF = T('用下面的元件，把这句话拼成公式。', 'Build this sentence as a formula from the parts below.')
+const COUNTER = T('造一个世界，作为板上这块推理电路的反例。', 'Build a world that is a counterexample to the inference on the board.')
 
 export const quantifiers = [
   {
@@ -105,23 +106,26 @@ export const quantifiers = [
       {
         kind: 'model',
         step: T('让它为真', 'Make it true'),
-        want: [{ f: '∀x. Human(x) → Mortal(x)', value: true }, { f: '∃x. Human(x)', value: true }],
+        given: ['∃x. Human(x)'],
+        goal: '¬∀x. Human(x) → Mortal(x)',
         answer: { size: 2, preds: { Human: ['0'], Mortal: ['0'] } },
-        brief: T('造一个世界：里面有人，而且人都会死。', 'Build a world with some human in it, where every human is mortal.'),
+        brief: T('这块电路从「有人」推出「并非人都会死」。造一个反例：里面有人，而且人都会死。', 'This board infers “not every human is mortal” from “there is a human”. Build a counterexample: a world with a human in it, where every human is mortal.'),
         hint: [T('点一样东西，它就「是人」；再点一下，就不是。', 'Tap a thing to make it human; tap again to undo.')],
       },
       {
         kind: 'model',
         step: T('让它为假', 'Make it false'),
-        want: [{ f: '∀x. Human(x) → Mortal(x)', value: false }],
+        given: [],
+        goal: '∀x. Human(x) → Mortal(x)',
         answer: { size: 1, preds: { Human: ['0'] } },
-        brief: T('再造一个世界，让「人都会死」为假。', 'Now build a world where “every human is mortal” is false.'),
+        brief: T('这块电路不要任何前提，就推出「人都会死」。造一个反例。', 'This board infers “every human is mortal” from nothing at all. Build a counterexample.'),
         hint: [T('一样反例就够：一个不会死的人。', 'One counterexample is enough: a human who is not mortal.')],
       },
     ],
     intro: [
       { t: T('命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是<wiki-ref to="world"></wiki-ref>：世界里有几样东西，每样东西是什么、和别的东西是什么关系。', 'In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the <wiki-ref to="world"></wiki-ref>: how many things there are, what each is and how they relate.') },
-      { t: T('在这里自己造世界：选好有几样东西，再点出每样东西有哪些性质。下面列出要求的句子，旁边是它在这个世界里的真假。', 'Here you build worlds: choose how many things there are, then tap what holds of each. The sentences asked for are listed below, each with whether it is true in this world.') },
+      { t: T('板上是别人接的一块推理电路，和声明的引入规则一样，前提卡拼起来接进结论：前提都成立时，它说结论也成立。它推错了。', 'The board holds an inference someone wired, the way an intro rule of a declaration is wired: premise cards joined into the conclusion. It says that when the premises hold, so does the conclusion. It is wrong.') },
+      { t: T('在下面造一个世界：选好有几样东西，再点出每样东西有哪些性质，让前提都成立、结论不成立。运行时，每张卡上显示它在这个世界里的真假。', 'Build a world below: choose how many things there are, then tap what holds of each, so that the premises hold and the conclusion fails. A run shows on each card whether it is true in this world.') },
     ],
     after: T('一句话永远成立，是说它在所有世界里都真；世界有无穷多个，大小不限。', 'A sentence that always holds is true in every world, and there are infinitely many worlds, of any size.'),
   },
@@ -131,13 +135,10 @@ export const quantifiers = [
     consts,
     symbols: ['∃'],
     title: T('同时都对', 'All at once'),
-    want: [
-      { f: '∃x. Bird(x)', value: true },
-      { f: '∀x. Bird(x) → Flies(x)', value: false },
-      { f: '∃x. Flies(x) ∧ ¬Bird(x)', value: true },
-    ],
+    given: ['∃x. Bird(x)', '∃x. Flies(x) ∧ ¬Bird(x)'],
+    goal: '∀x. Bird(x) → Flies(x)',
     answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
-    brief: T('造一个世界，让三句话的真假都正合要求。', 'Build a world where all three sentences come out as asked.'),
+    brief: COUNTER,
     hint: [T('要有一只不会飞的鸟，还要有一样会飞、却不是鸟的东西。', 'You need a bird that does not fly, and something that flies but is not a bird.')],
   },
   {
@@ -145,13 +146,10 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('推不出', 'Does not follow'),
-    want: [
-      { f: '∀x. Human(x) → Mortal(x)', value: true },
-      { f: 'Mortal(soc)', value: true },
-      { f: 'Human(soc)', value: false },
-    ],
+    given: ['∀x. Human(x) → Mortal(x)', 'Mortal(soc)'],
+    goal: 'Human(soc)',
     answer: { size: 1, preds: { Mortal: ['0'] }, consts: { soc: 0 } },
-    brief: T('「人都会死」「苏格拉底会死」，推得出「苏格拉底是人」吗？造一个世界：前两句真，第三句假。', 'From “every human is mortal” and “Socrates is mortal”, does “Socrates is human” follow? Build a world where the first two are true and the third false.'),
+    brief: T('「人都会死」「苏格拉底会死」，推得出「苏格拉底是人」吗？造一个反例。', 'From “every human is mortal” and “Socrates is mortal”, does “Socrates is human” follow? Build a counterexample.'),
     hint: [T('苏格拉底也可以是一条会死的狗。', 'Socrates could be a mortal dog.')],
     intro: [{ t: T('名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。', 'A name must stand for a thing in the world too: choose which thing is Socrates.') }],
     after: T('前提都真、结论为假的世界，叫<wiki-ref to="countermodel"></wiki-ref>。', 'A world where the premises hold and the conclusion fails is a <wiki-ref to="countermodel"></wiki-ref>.'),
@@ -161,12 +159,10 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('先说谁', 'Which comes first'),
-    want: [
-      { f: '∀x. ∃y. Likes(x, y)', value: true },
-      { f: '∃y. ∀x. Likes(x, y)', value: false },
-    ],
+    given: ['∀x. ∃y. Likes(x, y)'],
+    goal: '∃y. ∀x. Likes(x, y)',
     answer: { size: 2, preds: { Likes: ['0,0', '1,1'] } },
-    brief: T('造一个世界：每样东西都喜欢某样东西，却没有一样东西被所有东西喜欢。', 'Build a world where everything likes something, yet nothing is liked by everything.'),
+    brief: COUNTER,
     hint: [
       T('把它想成一个游戏：∀ 由对手挑，∃ 由你挑。第一句是对手先挑 x，你再挑 y；第二句是你先挑 y，对手再挑 x。', 'Think of it as a game: the opponent picks for ∀, you pick for ∃. In the first, the opponent picks x first, then you pick y; in the second you pick y first, then the opponent picks x.'),
       T('每样东西各喜欢自己就行。', 'Let each thing like itself.'),
@@ -188,12 +184,10 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('∀ 不能随便拆', 'Splitting ∀'),
-    want: [
-      { f: '∀x. Bird(x) → Flies(x)', value: false },
-      { f: '(∀x. Bird(x)) → (∀x. Flies(x))', value: true },
-    ],
+    given: ['(∀x. Bird(x)) → (∀x. Flies(x))'],
+    goal: '∀x. Bird(x) → Flies(x)',
     answer: { size: 2, preds: { Bird: ['0'] } },
-    brief: T('两句话看着像：「鸟都会飞」和「要是什么都是鸟，那什么都会飞」。造一个世界，让第一句假、第二句真。', 'Two sentences that look alike: “every bird flies” and “if everything is a bird, then everything flies”. Build a world where the first is false and the second true.'),
+    brief: T('两句话看着像：「要是什么都是鸟，那什么都会飞」和「鸟都会飞」。这块电路由前一句推出后一句，造一个反例。', 'Two sentences that look alike: “if everything is a bird, then everything flies” and “every bird flies”. This board infers the second from the first; build a counterexample.'),
     hint: [T('第二句的条件「什么都是鸟」，只要有一样东西不是鸟，就不成立。', 'The second sentence’s condition, “everything is a bird”, fails as soon as one thing is not a bird.')],
   },
   {
@@ -201,12 +195,10 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('∃ 也不能随便拆', 'Splitting ∃'),
-    want: [
-      { f: '(∃x. Bird(x)) ∧ (∃x. Flies(x))', value: true },
-      { f: '∃x. Bird(x) ∧ Flies(x)', value: false },
-    ],
+    given: ['(∃x. Bird(x)) ∧ (∃x. Flies(x))'],
+    goal: '∃x. Bird(x) ∧ Flies(x)',
     answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
-    brief: T('造一个世界：有鸟，也有会飞的东西，可是没有会飞的鸟。', 'Build a world with a bird and with something that flies, yet no bird that flies.'),
+    brief: COUNTER,
     hint: [T('两个 ∃ 可以指两样不同的东西。', 'The two ∃s may point at two different things.')],
   },
   // Topic: asking a family tree questions. One sentence with a free x is a query; the world answers with what it picks.
