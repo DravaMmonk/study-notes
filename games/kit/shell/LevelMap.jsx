@@ -22,17 +22,26 @@ const CLEAR = 6 // how far a wire's turn keeps from a level it passes
 // one column. The tree is never more than three columns wide, so no row holds more than three levels: an optional
 // branch starts one row below its anchor, or lower, at the first rows where it fits beside what is there without
 // widening the tree past three; it need not stick out as a column of its own. It goes on the free lane nearest its
-// anchor on the side with fewer levels in those rows (on a tie, the nearer side, then the anchor's side, then the side
-// with fewer optional branches so far), or the other side when that one is too wide. Lanes only order things left to
-// right; center() sets the columns.
+// anchor on the side its number puts it (right of the levels of its series it stands beside when numbered after them),
+// else on the side with fewer levels in those rows (on a tie, the nearer side, then the anchor's side, then the side
+// with fewer optional branches so far), or the other side when that one is too wide. Optional branches that end up
+// side by side then read in their numbering order, left to right (two that stand the wrong way round swap lanes when
+// that fits); so do the branches of a parallel set. Lanes only order things left to right; center() sets the columns.
 const MAX_ROW = 3
-function plot(track) {
+
+// Two levels' order by their numbers ('4-2' after '4-1', 'X10' after 'X9'): < 0, > 0, or 0 when the numbers are of
+// different series (letters) and say nothing about which goes first.
+const seriesOf = (label) => /^\D*/.exec(label)[0]
+const byNumber = (a, b) => (seriesOf(a) === seriesOf(b) ? a.localeCompare(b, undefined, { numeric: true }) : 0)
+
+function plot(track, label) {
+  const before = (a, b) => byNumber(label(a.levels[0]), label(b.levels[0]))
   const at = new Map(), edges = [], tracks = []
   const overlaps = (t, rows) => t.rows.some((r) => rows.includes(r))
   const free = (lane, rows) => !tracks.some((t) => Math.abs(t.lane - lane) < 1 && overlaps(t, rows))
   const room = (rows) => rows.every((r) => tracks.filter((t) => t.rows.includes(r)).length < MAX_ROW)
   const lay = (levels, lane, row, from, kind, depth = levels.length) => {
-    const t = { lane, rows: Array.from({ length: depth }, (_, k) => row + k), band: kind === 'optional' || kind === 'parallel' }
+    const t = { lane, ids: levels, rows: Array.from({ length: depth }, (_, k) => row + k), band: kind === 'optional' || kind === 'parallel' }
     tracks.push(t)
     levels.forEach((id, k) => {
       at.set(id, { t, row: row + k })
@@ -50,12 +59,19 @@ function plot(track) {
     }
     const { parallel } = entry
     const depth = Math.max(...parallel.map((b) => b.levels.length))
-    parallel.forEach((branch, k) => lay(branch.levels, k - (parallel.length - 1) / 2, row, prev, 'parallel', depth))
+    ;[...parallel].sort(before).forEach((branch, k) => lay(branch.levels, k - (parallel.length - 1) / 2, row, prev, 'parallel', depth))
     prev = parallel.map((b) => b.levels.at(-1))
     row += depth
   }
   let tilt = 0 // optional branches placed right minus left, to balance the tree
-  for (const branch of track.flatMap((entry) => entry.branches)) {
+  const optional = []
+  // Optional branches go down in their numbering order, each once what it hangs on is placed.
+  const waiting = track.flatMap((entry) => entry.branches)
+  const inTrack = new Set([...at.keys(), ...waiting.flatMap((b) => b.levels)])
+  while (waiting.length) {
+    const ready = waiting.filter((b) => b.after.every((id) => at.has(id) || !inTrack.has(id)))
+    const branch = (ready.length ? ready : waiting).reduce((a, b) => (before(b, a) < 0 ? b : a))
+    waiting.splice(waiting.indexOf(branch), 1)
     const from = branch.after.filter((id) => at.has(id))
     const anchor = from.map((id) => at.get(id)).reduce((a, b) => (b.row > a.row ? b : a))
     let start = anchor.row + 1
@@ -72,7 +88,10 @@ function plot(track) {
       const beside = tracks.filter((t) => overlaps(t, rows()))
       const weight = beside.filter((t) => t.lane > 0).length - beside.filter((t) => t.lane < 0).length
       const dr = right - anchor.t.lane, dl = anchor.t.lane - left
-      const lean = Math.sign(weight) || Math.sign(dr - dl) || -Math.sign(anchor.t.lane) || Math.sign(tilt)
+      // Numbered after (or before) every level beside it of the same series: right (or left) of them, whatever else.
+      const order = beside.flatMap((t) => t.ids.filter((_, k) => rows().includes(t.rows[k]))).map((id) => byNumber(label(branch.levels[0]), label(id))).filter(Boolean)
+      const numbered = order.length && (order.every((o) => o > 0) ? -1 : order.every((o) => o < 0) ? 1 : 0)
+      const lean = numbered || Math.sign(weight) || Math.sign(dr - dl) || -Math.sign(anchor.t.lane) || Math.sign(tilt)
       return (lean > 0 ? [left, right] : [right, left]).find((lane) => columns([...tracks, { lane, rows: rows(), band: true }]) <= MAX_ROW) ?? null
     }
     let lane = pick()
@@ -82,6 +101,19 @@ function plot(track) {
     }
     tilt += Math.sign(lane)
     lay(branch.levels, lane, start, from, 'optional')
+    optional.push({ t: tracks.at(-1), levels: branch.levels })
+  }
+  // Side-by-side optional branches in numbering order.
+  const clash = () => tracks.some((a, i) => tracks.slice(i + 1).some((b) => Math.abs(a.lane - b.lane) < 1 && overlaps(a, b.rows)))
+  for (let swapped = true, pass = 0; swapped && pass < optional.length; pass++) {
+    swapped = false
+    optional.forEach((x, i) => optional.slice(i + 1).forEach((y) => {
+      const [a, b] = before(x, y) > 0 ? [y.t, x.t] : before(x, y) < 0 ? [x.t, y.t] : []
+      if (!a || a.lane < b.lane || !overlaps(a, b.rows)) return
+      ;[a.lane, b.lane] = [b.lane, a.lane]
+      if (clash() || columns(tracks) > MAX_ROW) [a.lane, b.lane] = [b.lane, a.lane]
+      else swapped = true
+    }))
   }
   return { at, edges, tracks }
 }
@@ -187,7 +219,7 @@ function stack({ at, edges, box, below, x, w, join }) {
  */
 export function LevelTree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen, needed = null }) {
   const { w, h, col, gap, plain, minor } = compact ? SIZE.compact : SIZE.full
-  const { at, edges } = useMemo(() => center(plot(track)), [track])
+  const { at, edges } = useMemo(() => center(plot(track, (id) => (byId.has(id) ? game.levelLabel(byId.get(id)) : id))), [track])
   const scroll = useRef(null)
   const spots = [...at.values()]
   const half = Math.max(...spots.map((p) => Math.abs(p.col)))
