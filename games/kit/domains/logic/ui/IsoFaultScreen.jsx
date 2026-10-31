@@ -5,12 +5,12 @@ import { say } from '../notation.js'
 import { judgeCases, propositionsOf, sentenceOf } from '../iso.js'
 import { boardOf, linesOf } from '../ruleLines.js'
 import CaseTable, { setOut } from './IsoCases.jsx'
-import RuleLines from './RuleLines.jsx'
+import RuleBoard from './RuleBoard.jsx'
 
 const T = (zh, en) => ({ zh, en })
 
 // Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
-// case is one of their declarations, read only, its intro rules as lines (RuleLines.jsx), picked by its tab; the player writes the test cases (检验条例) in the
+// case is one of their declarations, read only, its intro rules on the rule board, read only (RuleBoard.jsx), picked by its tab; the player writes the test cases (检验条例) in the
 // table under it (iso.js judgeCases, ui/IsoCases.jsx), each what is given, a goal and whether it should be derivable. A
 // run goes through the boards: one passes when every expectation is what the requirement means and the board answers
 // one of the cases otherwise (or, by the level's `want`, every one as expected, or every one otherwise). Fewer cases is
@@ -102,7 +102,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const stage = (
     <div className="fo-stage">
       {tabs(phone)}
-      <RuleLines level={level} lines={linesOf(board)} />
+      <RuleBoard level={level} lines={linesOf(board)} />
       {table}
       <footer className="run-foot">{dock}</footer>
     </div>
