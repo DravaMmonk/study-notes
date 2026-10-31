@@ -2,7 +2,15 @@
 // Propositional formulas are checked over every row of their truth table; first-order ones over every structure on a
 // domain of 1, 2 or 3 elements, as long as there are not too many of them to try. A countermodel proves the goal
 // unprovable (the rules are sound); finding none on small domains proves nothing, and `searched` says how far it went.
-import { signature } from './formula.js'
+import { arityIn, signature } from './formula.js'
+
+const tuples = (domain, n) => (n === 0 ? [[]] : tuples(domain, n - 1).flatMap((t) => domain.map((d) => [...t, d])))
+// Every value a letter a ∀ binds may take: a sentence true or false; a property, every set of things (or of pairs).
+function valuesOf(domain, arity) {
+  if (arity <= 0) return [true, false]
+  const keys = tuples(domain, arity).map((t) => t.join(','))
+  return Array.from({ length: 2 ** keys.length }, (_, n) => new Set(keys.filter((_, k) => (n >> k) & 1)))
+}
 
 /** The value of a formula in a structure { domain: [k], preds: { P: Set('a,b') | boolean }, fns: { f: Map('a' → k) } }. */
 export function holds(f, m, env = {}) {
@@ -17,14 +25,13 @@ export function holds(f, m, env = {}) {
     case '∨': return holds(f.a, m, env) || holds(f.b, m, env)
     case '→': return !holds(f.a, m, env) || holds(f.b, m, env)
     case '↔': return holds(f.a, m, env) === holds(f.b, m, env)
-    // For every sentence R: R true and R false (a sentence's value is all a structure sees of it).
-    case '∀': return f.prop ? [true, false].every((b) => holds(f.body, { ...m, preds: { ...m.preds, [f.v]: b } }, env)) : m.domain.every((d) => holds(f.body, m, { ...env, [f.v]: d }))
+    // For every sentence R: R true and R false; for every property P: every set of things.
+    case '∀': return f.prop ? valuesOf(m.domain, arityIn(f.body, f.v)).every((v) => holds(f.body, { ...m, preds: { ...m.preds, [f.v]: v } }, env)) : m.domain.every((d) => holds(f.body, m, { ...env, [f.v]: d }))
     case '∃': return m.domain.some((d) => holds(f.body, m, { ...env, [f.v]: d }))
     default: throw new Error(`no value for ${f.op}`)
   }
 }
 
-const tuples = (domain, n) => (n === 0 ? [[]] : tuples(domain, n - 1).flatMap((t) => domain.map((d) => [...t, d])))
 
 // Every structure on `domain` for the signature, lazily; stops after `limit`.
 function* structures(domain, { preds, fns }, limit) {

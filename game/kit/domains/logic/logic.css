@@ -178,11 +178,6 @@
 .fo-build button[aria-pressed='true'] { color: var(--paper); background: var(--accent); box-shadow: none; }
 .fo-grid { border-collapse: separate; border-spacing: 4px; }
 .fo-grid td { padding: 0; }
-.fo-wants { display: grid; gap: 8px; }
-.fo-want { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; padding: 10px 14px; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font-size: 14px; }
-.fo-want span { margin-left: auto; color: var(--muted); font-size: 12px; }
-.fo-want.is-pass svg { color: var(--status); }
-.fo-want.is-fail svg { color: var(--fail); }
 
 /* A rewrite card's choice: the sentence with each s in a box; a ticked box becomes t. */
 .lg-occ { display: grid; gap: 4px; }

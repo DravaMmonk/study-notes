@@ -12,8 +12,8 @@ import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
 import { freeVars, parse, same, show } from './formula.js'
 import { parseS } from './schematic.js'
-import { countermodel, holds } from './models.js'
-import { builtWorld, extent, structureOf } from './fol.js'
+import { countermodel } from './models.js'
+import { counters, extent, structureOf } from './fol.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { checkScript, methodsOf, sentencesOf } from './script.js'
 import { proof } from './build.js'
@@ -73,7 +73,7 @@ export function validate({ levels: given, course }) {
       else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ fail: true, text: `${level.id}: ${level.target} picks out nothing in any world` })
     }
     if (level.kind === 'model') {
-      const fits = (w) => w.size <= (level.maxSize ?? 3) && level.want.every((x) => holds(parse(x.f, { consts }), builtWorld(w, level.vocab)) === x.value)
+      const fits = (w) => counters(level, w)
       out.push({ fail: !fits(level.answer), text: `${level.id} ${keyOf(level.title)}: world ${fits(level.answer) ? 'PASS' : 'FAIL'}` })
       if (level.wrong) out.push({ fail: fits(level.wrong), text: `  naive ${fits(level.wrong) ? 'PASSES (bad)' : 'fails'}` })
     }

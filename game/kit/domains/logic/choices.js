@@ -7,8 +7,9 @@
 // (`sentences`: an assumption a proof needs, such as ¬A for a proof by contradiction), in its schema's letters. The
 // board shows them (ui/boards.jsx) and validate.js checks that the reference proof picks only from them. A level with
 // a ∀ over sentences (∀R. …) also offers R as the name the for-any box takes, and sentences as what choosing an
-// instance puts in.
-import { freeVars, parse, show, showTerm, subst, tvar } from './formula.js'
+// instance puts in; one over properties (∀P. P(a) → …) offers properties, sentences about x: a part of a sentence
+// with its one free variable, or one particular thing in it, made x.
+import { arityIn, freeVars, parse, replaceTerm, show, showTerm, subst, termsOf, tvar } from './formula.js'
 import { compoundTerms, subformulas } from './notation.js'
 
 /** The names of particular things a card may give or take. */
@@ -30,6 +31,19 @@ function namesOf(level) {
   return NAMES.filter((n) => texts.some((t) => new RegExp(`(^|[^A-Za-z])${n}($|[^A-Za-z])`).test(t)))
 }
 
+// Each part of the sentences as a property of x: its one free variable made x, or, with none free, one of the
+// particular things it names (every place that thing is) made x.
+function propertiesOf(parts) {
+  const out = parts.filter((f) => !(f.op === '∀' && f.prop)).flatMap((f) => {
+    const free = [...freeVars(f)]
+    if (free.length === 1) return [subst(f, free[0], tvar('x'))]
+    if (free.length) return []
+    const things = [...new Map(termsOf(f).filter((t) => t.t === 'fn' && !t.args.length).map((t) => [t.f, t])).values()]
+    return things.map((t) => replaceTerm(f, t, tvar('x'), () => true))
+  })
+  return [...new Set(out.map((f) => show(f)))]
+}
+
 /** { formula: [formula], exists: [formula], term: [text], name: [text] } for a proof level. */
 export function choicesOf(level) {
   const names = namesOf(level)
@@ -42,16 +56,22 @@ export function choicesOf(level) {
   // A compound term (s(x)) is offered with names in its places too.
   const terms = schema.flatMap(compoundTerms).flatMap((t) => named(parse(`T(${t})`, { consts }), names).map((g) => showTerm(g.args[0])))
   // A ∀ over sentences (∀R. …): the for-any box may take R, and choosing an instance may put in a sentence.
-  const overSentences = [...new Set(subformulas([...schema, ...extra]).filter((f) => f.op === '∀' && f.prop).map((f) => f.v))]
+  const over = subformulas([...schema, ...extra]).filter((f) => f.op === '∀' && f.prop)
+  const overSentences = [...new Set(over.map((f) => f.v))]
   const term = [...new Set([...consts, ...names, ...terms])]
+  const plain = sentences.filter((f) => !(f.op === '∀' && f.prop))
   return {
     formula: sentences,
     exists: sentences.filter((f) => f.op === '∃'),
     term,
-    instance: [...term, ...(overSentences.length ? sentences.filter((f) => f.op !== '∀').map((f) => show(f)) : [])],
+    instance: [
+      ...term,
+      ...(over.some((f) => arityIn(f.body, f.v) === 0) ? plain.map((f) => show(f)) : []),
+      ...(over.some((f) => arityIn(f.body, f.v) > 0) ? propertiesOf(subformulas([...schema, ...extra])) : []),
+    ],
     name: [...names, ...overSentences],
   }
 }
 
 /** The choice a setting holds, written the way choicesOf's are, to compare. */
-export const choiceKey = (kind, text, level) => (kind === 'formula' || kind === 'exists' || (kind === 'instance' && /^[A-Z¬(⊥∀∃]/.test(text)) ? show(parse(text, { consts: level.consts ?? [] })) : text)
+export const choiceKey = (kind, text, level) => (kind === 'formula' || kind === 'exists' || (kind === 'instance' && /^[A-Z¬(⊥∀∃]|[=→∧∨↔]/.test(text)) ? show(parse(text, { consts: level.consts ?? [] })) : text)
