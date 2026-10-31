@@ -41,6 +41,7 @@ function segmentOf(node, path, kind, notation, bracket = false) {
       const words = notation.words?.[node.pred] ? L(notation.words[node.pred]) : `${node.pred}(${node.args.map((_, k) => `{${k}}`).join(', ')})`
       return piece('pred', words.split(/(\{\d\})/).filter(Boolean).map((w) => (/^\{\d\}$/.test(w) ? kid(Number(w[1])) : w)))
     }
+    case '⊥': return piece('conn', ['⊥'])
     case '¬': return piece('conn', ['¬', kid(0, true)])
     case '∀': case '∃': return piece('quant', [`${node.op}${node.v}. `, kid(0)])
     default: return piece('conn', [kid(0, true), ` ${node.op} `, kid(1, true)])

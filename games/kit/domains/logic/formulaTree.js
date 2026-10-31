@@ -1,20 +1,21 @@
 // A formula built from chips (《证明完毕》 chapter 5's translations and queries), shown on the shared strip
 // (games/kit/strip): the formula is the usual tree (formula.js) with holes left as null; a chip is one piece of it, a
 // predicate with a hole per place, a name, a variable, a quantifier with its variable, or a connective with a hole
-// per side. Putting a chip in a hole fills it; taking a piece out empties its hole, with everything inside it. A thing may
+// per side, or ⊥, a whole sentence of its own. Putting a chip in a hole fills it; taking a piece out empties its hole, with everything inside it. A thing may
 // be put where a sentence goes (it is marked as not yet a sentence): a predicate put next takes it as its first place.
 //
 //   chip   { key, kind: 'formula' | 'term', group, text, make() }
 //   path   the child indices from the root to a node: [] is the root, [1, 0] the first child of its second child
-import { all, atom, bin, ex, fn, not, tvar } from './formula.js'
+import { BOT, all, atom, bin, ex, fn, not, tvar } from './formula.js'
 import { holeTree } from '../../strip/tree.js'
 
+// The connectives a level offers unless it says (`connectives`): ↔ and ⊥ are the declared ones' (chapter 3).
 const CONNECTIVES = ['¬', '∧', '∨', '→']
 const QUANTIFIERS = ['∀', '∃']
 
 /** The children of a node, each with the kind of thing its hole takes. */
 export function kidsOf(node) {
-  if (!node || node.t) return []
+  if (!node || node.t || node.op === '⊥') return []
   switch (node.op) {
     case 'atom': return node.args.map((a) => ({ kind: 'term', value: a }))
     case '¬': return [{ kind: 'formula', value: node.a }]
@@ -75,7 +76,7 @@ export function chipsOf(level) {
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
     ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
     // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
-    ...CONNECTIVES.map((c) => ({ key: c, kind: 'formula', group: 'conn', text: c, leads: c !== '¬', make: () => (c === '¬' ? not(null) : bin(c, null, null)) })),
+    ...(level.connectives ?? CONNECTIVES).map((c) => ({ key: c, kind: 'formula', group: 'conn', text: c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
   ]
 }
 
