@@ -55,8 +55,8 @@ export function builtWorld(w, vocab) {
 // player to find out with a world (as nitpick does), one of two kinds:
 //   a lemma      { given: [sentence], goal: sentence }  ⟦given⟧ ⟹ goal, which does not follow: a world where every
 //                premise holds and the goal fails
-//   a translation { wrong: sentence, meant: sentence }  someone's translation of the requirement (said in the brief) and
-//                the right one, not shown: a world where the two differ
+//   a translation { wrong: sentence, meant: sentence }  someone's translation of the level's words (`say`) and the
+//                right one, not shown: a world where the two differ
 
 const read = (level) => (f) => parse(f, { consts: level.vocab.names })
 
