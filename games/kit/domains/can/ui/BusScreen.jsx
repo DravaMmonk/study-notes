@@ -240,7 +240,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
       {tests}
       <div className="cn-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => (parts.outputs(n) ? null : <Value value={valueOf(n)} error={errorOf(n)} />)} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={types} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => (parts.outputs(n) ? null : <Value value={valueOf(n)} error={errorOf(n)} />)} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
         {strip}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
@@ -251,7 +251,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="cn-sheet">
             <p className="cn-desc">{L(descOf(node))}</p>
             {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} width={editing.widthOf(node.id)} />}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}

@@ -176,7 +176,7 @@ export function layout(graph, parts) {
 // A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
 // slot counts in the grid of the region it sits in. The frame spans the rows its regions take, each region a row for
 // its head (the value it opens), its own rows, and a row for its foot (the dot its result goes into), so its cells line
-// up with the cells beside it. A frame is two columns wide, or one (`node.narrow`, picked from its sheet); inside a
+// up with the cells beside it. A frame is two columns wide, or one (`node.narrow`, switched by the button in its corner); inside a
 // one-column frame everything is one column.
 //
 //   { cell: id → slot, span: id → [columns, rows], cols, rows, size, free: [slot] }      (fixed: no empty row at the end)

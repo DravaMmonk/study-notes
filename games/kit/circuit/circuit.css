@@ -277,9 +277,6 @@
 .sheet-actions { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
 .sheet-remove, .sheet-move, .sheet-edit { height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; color: var(--fail); background: var(--canvas); font: inherit; }
 .sheet-move, .sheet-edit { color: var(--ink); }
-.sheet-width { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 8px; border-radius: 12px; background: var(--canvas); }
-.sheet-width button { height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 9px; color: var(--muted); background: transparent; font: inherit; }
-.sheet-width button[aria-pressed='true'] { color: var(--ink); background: var(--paper); box-shadow: 0 1px 2px rgb(0 0 0 / 0.12); }
 /* A part on the move: it and the slots it can go to are marked until a slot is tapped. */
 .pb-board[data-moving] .pb-slot { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 10%, transparent); outline-color: var(--accent); }
 .pb-tile.is-moving, .pb-frame.is-moving { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
@@ -425,7 +422,10 @@
 .pb-closes { grid-row: -2; padding: 12px 8px 4px; border-top: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 25%, var(--hairline)); }
 .pb-region-head b { color: var(--ink); font-weight: 600; }
 .pb-region-head em, .pb-closes em { font-style: normal; }
-.pb-frame-head { position: absolute; top: 4px; left: 6px; right: 6px; min-height: 24px; padding: 2px 6px 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; color: var(--ink); cursor: grab; touch-action: none; user-select: none; }
+.pb-frame-head { position: absolute; top: 4px; left: 34px; right: 34px; min-height: 24px; padding: 2px 6px 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; color: var(--ink); cursor: grab; touch-action: none; user-select: none; }
+/* A frame's width switch, in its top right corner: one tap goes from two columns to one and back. */
+.pb-frame-width { position: absolute; top: 4px; right: 4px; z-index: 2; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--paper) 92%, transparent); box-shadow: 0 0 0 1px var(--rule); }
+.pb-frame-width:active { transform: scale(.94); }
 
 /* A board of text (a proof's formulas, a sentence's words): the same two columns of slots, but thin blocks with each
    block's name over what it holds, so long values wrap below it instead of piling up at the top of a tall tile. */

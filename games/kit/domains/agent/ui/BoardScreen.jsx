@@ -254,7 +254,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
       {tests}
       <div className="ag-scroll" ref={scroller}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <Value value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={onClear} onChange={change} types={types} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <Value value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
         {strip}
       </div>
       <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
@@ -265,7 +265,7 @@ function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="ag-sheet">
             <p className="ag-desc">{L(game.textAt(CARDS[node.type], level.id).desc)}</p>
             {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} width={editing.widthOf(node.id)} />}
+            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}
