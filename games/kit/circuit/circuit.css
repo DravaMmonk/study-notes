@@ -461,6 +461,8 @@
 .kit-board.is-readonly .board-layer > *:not(svg), .kit-board.is-readonly .board-wires { pointer-events: none; }
 .kit-board.is-readonly .node-delete { display: none; }
 .kit-board.is-readonly .node-tool { pointer-events: auto; }
+/* A long list on a card (shell/Entries.jsx) still scrolls on a read-only board. */
+.kit-board.is-readonly .entries-list { pointer-events: auto; }
 /* A tool in a card's header beside its title (edit a built part, unfold it), the size of the delete button. */
 .node-tool { width: 22px; height: 22px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 6px; color: var(--muted); background: none; cursor: pointer; }
 .node-tool:hover { color: var(--ink); background: var(--hover); }
