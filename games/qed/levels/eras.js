@@ -101,9 +101,13 @@ export const ERAS = [
   {
     id: 'quantifiers', machine: 'prover', keeps: 'all',
     foundation: [
-      // Each quantifier is said first, then a wrong declaration about it is found out by a world.
-      series('every', '对所有', 'Every', ['fo-atoms', 'fo-all', 'm-world', 'm-counter']),
-      series('some', '存在', 'Some', ['fo-some', 'm-make']),
+      // Names and predicates first; then every and some need nothing from each other: each quantifier is said, then
+      // something written wrong with it is found out by a world.
+      'fo-atoms',
+      branches(
+        ['every', '对所有', 'Every', ['fo-all', 'm-world', 'm-counter']],
+        ['some', '存在', 'Some', ['fo-some', 'm-make']],
+      ),
       series('nested', '量词套量词', 'One inside another', ['fo-nested', 'm-order']),
     ],
     practice: [series('splitting', '量词怎么拆', 'Taking quantifiers apart', ['p-only', 'p-split', 'p-exAnd'])],
@@ -113,10 +117,11 @@ export const ERAS = [
   {
     id: 'qrules', machine: 'prover', keeps: 'all',
     foundation: [
-      // For any and “there is” need nothing from each other: the for-any box, then taking one from what holds for
-      // all; declaring “there is” (its own thing card), then using it.
+      // For any first: declaring “there is” takes a thing on the declaration board, as the for-any box does.
+      series('any', '任取', 'For any', ['q-allI']),
+      // Then taking one and “there is” need nothing from each other.
       branches(
-        ['forall', '任取', 'For any', ['q-allI', 'q-allE', 'q-rename', 'q-allAnd', 'q-capture']],
+        ['forall', '取一个', 'Take one', ['q-allE', 'q-rename', 'q-allAnd', 'q-capture']],
         ['exists', '存在', 'There is', ['decl-ex', 'q-exI', 'q-exE', 'q-witness']],
       ),
       // With both in hand, equality, its own mechanism (quantifiers swapped and moved are proof puzzles, topic P).

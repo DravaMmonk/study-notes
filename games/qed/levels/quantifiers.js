@@ -82,7 +82,10 @@ export const quantifiers = [
       { say: T('没有人喜欢博。', 'Nobody likes Bo.'), target: '¬∃x. Human(x) ∧ Likes(x, bo)', hint: [T('「没有人」就是「并非有一个人」：最外面先放 ¬。', '“Nobody” is “not someone”: put ¬ outermost first.')] },
     ]),
     brief: BRIEF,
-    intro: [{ t: T('新符号 <b>∃</b> 读作「存在」：∃x. P(x) 说的是，世上至少有一样东西 x 满足 P。', 'A new symbol, <b>∃</b>, reads “there exists”: ∃x. P(x) says at least one thing x in the world satisfies P.') }],
+    intro: [
+      { t: T('新符号 <b>∃</b> 读作「存在」：∃x. P(x) 说的是，世上至少有一样东西 x 满足 P。', 'A new symbol, <b>∃</b>, reads “there exists”: ∃x. P(x) says at least one thing x in the world satisfies P.') },
+      { t: T('拼错时，检查器可能给出一个小世界：在那里，你拼的公式和目标真假不同。', 'When a formula is wrong, the checker may show a small world where it and the target differ.') },
+    ],
   },
   {
     id: 'fo-nested',
@@ -134,6 +137,7 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('一个也没有', 'Not a single one'),
+    intro: [{ t: T('上方是别人把一句话写成的公式，写错了。要说明它错，就造一个世界，让它和原话一真一假：在下面选好有几样东西，再点出每样东西有哪些性质。运行时，上方标出译文和原意在这个世界里的真假。', 'Above is a formula someone wrote for a sentence, and it is wrong. To show it, build a world where it and the sentence differ: choose below how many things there are, then tap what holds of each. A run marks above whether the translation and what was meant are true in this world.') }],
     say: T('有会飞的鸟。', 'Some bird flies.'),
     wrong: '∃x. Bird(x) → Flies(x)',
     meant: '∃x. Bird(x) ∧ Flies(x)',
