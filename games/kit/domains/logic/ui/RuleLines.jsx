@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
-import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
+import { Chips, StripTools, useStrip } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
 import { say } from '../notation.js'
-import { declaredRules, sentenceOf, wayText } from '../iso.js'
+import { declaredRules, sentenceOf } from '../iso.js'
 import { blankLine, problemsOf } from '../ruleLines.js'
 
-// A declaration's intro rules as lines on the shared strip (../ruleLines.js), one line a rule, numbered; or read only,
-// for someone's declaration. Written, a rule's brackets end with a place for one more premise (drawn lighter: it may
-// stay empty), a premise with premises of its own has a place for its conclusion, and the blocks are the level's
+// A declaration's intro rules (../ruleLines.js), one a row, numbered, each drawn as an inference (Inference below:
+// premises over a line, the conclusion under it), edited as the shared strip is (useStrip); or read only, for someone's
+// declaration. Written, a rule's brackets end with a place for one more premise (drawn lighter: it may
+// stay empty, and is shown only where the next block goes; tapping an inference picks it), a premise with premises of
+// its own has a place for its conclusion, and the blocks are the level's
 // sentences, a premise with premises (tray 'under') and taking any thing (tray 'thing'). A block goes where it is put,
 // or, none picked, on in reading order from the last one put (nextSlot). Under the lines, the elimination rule made
 // from them.
@@ -93,25 +95,37 @@ export default function RuleLines({ level, lines, onChange = null, scope = null 
   })
   const next = editable ? nextSlot() : null
 
-  // A line as it reads: [⋀x.] ⟦ premises; … ⟧ ⟹ the declared sentence (read only, a rule that needs nothing is its
-  // conclusion alone).
-  const list = (items, path) => {
-    const parts = items.flatMap((item, k) => [...(k ? ['; '] : []), piece(item, [...path, k])])
-    return editable ? [...parts, ...(items.length ? [' '] : []), { hole: `L:${keyOf(path)}`, label: T('＋', '+'), soft: true }] : parts
-  }
-  const piece = (item, path) => {
+  // A rule drawn as an inference: its premises side by side over a line, its conclusion under it, taking any thing
+  // written at the line's left; a premise with premises of its own is a smaller inference inside. Each sentence is a
+  // block of its own, so a long rule grows down and across rather than into one long line.
+  const nodeOf = (item, path) => {
     const key = keyOf(path)
-    if (typeof item === 'string') return { piece: `I:${key}`, family: 'pred', bad: strays.has(key), fixed: !editable, parts: [words(item)] }
-    const end = item.need ? { piece: `N:${key}`, family: 'pred', fixed: !editable, parts: [words(item.need)] } : { hole: `C:${key}`, label: T('结论', 'conclusion') }
-    return { piece: `I:${key}`, family: 'conn', bad: strays.has(key), fixed: !editable, parts: ['⟦', ...list(item.under, path), '⟧ ⟹ ', end] }
+    if (typeof item === 'string') return { text: words(item), key: `I:${key}`, bad: strays.has(key) }
+    return {
+      key: `I:${key}`,
+      bad: strays.has(key),
+      premises: item.under.map((u, k) => nodeOf(u, [...path, k])),
+      list: `L:${key}`,
+      concl: item.need ? { text: words(item.need), key: `N:${key}` } : { hole: `C:${key}` },
+    }
   }
-  const lineOf = (line, k) => [
-    ...(line.binds.length ? [{ piece: `B:${k}`, family: 'quant', fixed: !editable, parts: [`⋀${line.binds.join(' ')}. `] }] : []),
-    ...(editable || line.needs.length ? ['⟦', ...list(line.needs, [k]), '⟧ ⟹ '] : []),
-    { piece: `F:${k}`, family: 'name', fixed: true, parts: [conclusion] },
-  ]
-  // The elimination rule made from them, once they are a declaration.
-  const elim = !problems.length && lines.length ? wayText(declaredRules(level, lines, (f) => f).take, (f) => L(say(f, level.notation))) : null
+  const ruleOf = (line, k) => ({
+    rule: true,
+    binds: line.binds,
+    bindKey: `B:${k}`,
+    premises: line.needs.map((item, j) => nodeOf(item, [k, j])),
+    list: `L:${k}`,
+    concl: { text: conclusion },
+  })
+  // The elimination rule made from them, once they are a declaration, drawn the same way.
+  const take = !problems.length && lines.length ? declaredRules(level, lines, (f) => f).take : null
+  const text = (f) => L(say(f, level.notation))
+  // A premise of a rule (schematic.js): a sentence, or one under premises (and things) of its own.
+  const premiseNode = (p) => (!p.show ? { text: text(p) }
+    : p.hyps.length || p.fixes.length ? { binds: p.fixes, premises: p.hyps.map(premiseNode), concl: { text: text(p.show) } }
+    : { text: text(p.show) })
+  const elim = take && { rule: true, premises: take.premises.map(premiseNode), concl: { text: text(take.conclusion) } }
+  const view = { editable, next, selected: strip.selected, flash: strip.flash, onSlot: strip.onSlot }
 
   const chips = [
     { key: 'sentences', label: T('句子', 'Sentences'), chips: (tray.includes('hyp') ? level.sentences : []).map((s) => ({ key: `s:${s}`, family: 'pred', text: words(s) })) },
@@ -127,7 +141,7 @@ export default function RuleLines({ level, lines, onChange = null, scope = null 
       {lines.map((line, k) => (
         <div key={k} className="lg-rule-line">
           <span className="lg-rule-no">{k + 1}</span>
-          <Strip line={lineOf(line, k)} label={T(`引入规则 ${k + 1}`, `Intro rule ${k + 1}`)} next={next} selected={strip.selected} flash={strip.flash} onSlot={editable ? strip.onSlot : () => {}} />
+          <div className="lg-rule-body"><Inference node={ruleOf(line, k)} view={view} /></div>
           {editable && lines.length > 1 && (
             <button type="button" className="lg-rule-drop" onClick={() => onChange(lines.filter((_, j) => j !== k))} aria-label={tr(`删除引入规则 ${k + 1}`, `Delete intro rule ${k + 1}`)}><X size={14} /></button>
           )}
@@ -135,9 +149,47 @@ export default function RuleLines({ level, lines, onChange = null, scope = null 
       ))}
       {!lines.length && <p className="lg-mark">{tr('没有引入规则。', 'No intro rule.')}</p>}
       {editable && <button type="button" className="lg-rule-add" onClick={() => { onChange([...lines, blankLine()]); setLast(String(lines.length)) }}>{tr('添加引入规则', 'Add an intro rule')}</button>}
-      {elim && <p className="lg-rule-elim"><span>{tr('消去规则', 'Elim rule')}</span><code>{elim}</code></p>}
+      {elim && (
+        <div className="lg-rule-line is-elim">
+          <span className="lg-rule-no">{tr('消去', 'Elim')}</span>
+          <div className="lg-rule-body"><Inference node={elim} view={{ editable: false }} /></div>
+        </div>
+      )}
       {editable && strip.note && <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>}
       {editable && <Chips groups={chips} onChip={strip.onChip} />}
+    </div>
+  )
+}
+
+// An inference: premises over a line, the conclusion under it. A node is a sentence { text, key?, bad? } or an
+// inference { premises, concl: { text, key? } | { hole }, binds?, bindKey?, list?, key?, rule? }; keys are the
+// strip's slots (useStrip), so a tap takes a block out or picks a place, as on the strip.
+function Inference({ node, view }) {
+  const { editable } = view
+  const state = (key) => !key ? '' : `${view.next === key ? 'is-next' : ''} ${view.selected === key ? 'is-selected' : ''} ${view.flash?.includes(key) ? 'is-refused' : ''}`
+  const block = (n, k) => (n.premises
+    ? <Inference key={k} node={n} view={view} />
+    : <button key={k} type="button" className={`lg-tok ${n.bad ? 'is-bad' : ''} ${state(n.key)}`} data-family="pred" disabled={!editable || !n.key} onClick={() => view.onSlot(n.key)}>{n.text}</button>)
+  const concl = node.concl.hole
+    ? <button type="button" className={`lg-slot ${state(node.concl.hole)}`} onClick={() => view.onSlot(node.concl.hole)}>{tr('结论', 'conclusion')}</button>
+    : <button type="button" className="lg-tok is-end" data-family={node.rule ? 'name' : 'pred'} disabled={!editable || !node.concl.key} onClick={() => view.onSlot(node.concl.key)}>{node.concl.text}</button>
+  return (
+    // Tapping an inference where there is no block picks it: the next premise goes over its line.
+    <div className={`lg-inf ${node.rule ? 'is-rule' : 'is-nested'} ${node.bad ? 'is-bad' : ''} ${editable && node.list ? 'is-pickable' : ''} ${node.list && (view.next === node.list || view.selected === node.list) ? 'is-target' : ''} ${state(node.key)}`} onClick={(event) => {
+      if (!editable || !node.list || event.target.closest('button')) return
+      event.stopPropagation()
+      if (view.selected !== node.list) view.onSlot(node.list)
+    }}>
+      <div className="lg-inf-top">
+        {node.premises.map(block)}
+        {editable && node.list && (view.next === node.list || view.selected === node.list) && <button type="button" className={`lg-slot is-soft ${state(node.list)}`} onClick={() => view.onSlot(node.list)} aria-label={tr('在这里再放一个前提', 'Put one more premise here')}>＋</button>}
+      </div>
+      <div className="lg-inf-bar">
+        {node.binds?.length > 0 && <button type="button" className="lg-tok is-bind" data-family="quant" disabled={!editable || !node.bindKey} onClick={() => view.onSlot(node.bindKey)}>{`⋀${node.binds.join(' ')}`}</button>}
+        <span className="lg-inf-line" />
+      </div>
+      <div className="lg-inf-bottom">{concl}</div>
+      {editable && node.key && <button type="button" className="lg-inf-drop" onClick={() => view.onSlot(node.key)} aria-label={tr('拿掉这个前提', 'Take this premise out')}><X size={12} /></button>}
     </div>
   )
 }
