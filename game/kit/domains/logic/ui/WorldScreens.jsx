@@ -2,18 +2,20 @@ import { useMemo } from 'react'
 import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoardCases } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
-import { parse } from '../formula.js'
+import { freeVars, parse } from '../formula.js'
 import { say } from '../notation.js'
-import { builtWorld, claimBoard, claimCards } from '../fol.js'
+import { builtWorld, declaredIn } from '../fol.js'
+import { holds } from '../models.js'
 import { DECL, listText, runIso, waysIn, wayRule, wayText } from '../iso.js'
 import { isoPartsFor } from './IsoScreen.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
 // FormulaScreen.jsx), and the counterexample level (ModelScreen). That one is the shared play of finding the fault in a
-// board (../../../shell/useBoardCases.js 'audit'), as a declaration's is: above, someone's wrong declaration on the
-// declaration board's own cards (fol.js claimBoard), locked, its intro rule the inference; below, the world the player builds against it (how many things, which thing each name
-// stands for, what holds of each; a relation of two as a grid). A run goes through the cards, premises first, showing
-// each card's truth in the world, and stops at the first that is not as a counterexample needs it.
+// board (../../../shell/useBoardCases.js 'audit'), as a declaration's is: above, someone's wrong declaration of a
+// first-order sentence on the declaration board (fol.js declaredIn), locked; below, the world the player builds against it (how many things, which thing each name
+// stands for, what holds of each; a relation of two as a grid). A run goes through the intro rules, showing whether
+// each makes the sentence in the world, then sets the declaration against what the sentence says: the world is a
+// counterexample when they differ.
 
 const T = (zh, en) => ({ zh, en })
 const MARKS = ['①', '②', '③', '④']
@@ -48,30 +50,27 @@ export function WorldText({ model, notation, preds, world = null, spell = false 
 }
 
 export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
-  const level = useMemo(() => ({ ...entry.source, play: 'audit', boards: [{ board: claimBoard(entry.source.given) }] }), [entry.source])
-  // The level as a declaration (iso.js): it declares its conclusion, its things the level's names.
-  const declared = useMemo(() => ({ ...level, target: level.goal, things: level.vocab.names, declare: say(parse(level.goal, { consts: level.vocab.names }), level.notation) }), [level])
+  const level = useMemo(() => ({ ...entry.source, play: 'audit', boards: [{ board: entry.source.board }] }), [entry.source])
   const words = (sentence) => say(parse(sentence, { consts: level.vocab.names }), level.notation)
+  // The level as a declaration (iso.js): its things are the level's names.
+  const declared = useMemo(() => ({ ...level, things: level.vocab.names, declare: words(level.target) }), [level])
   const parts = useMemo(() => isoPartsFor(declared, words), [declared])
+  const ways = useMemo(() => waysIn(level.board), [level])
   const preds = level.vocab.preds
   const max = level.maxSize ?? 3
-  const why = (card) => (card.premise
-    ? T(`前提「${L(words(card.f))}」在这个世界里不成立。`, `The premise “${L(words(card.f))}” does not hold in this world.`)
-    : T(`结论「${L(words(card.f))}」在这个世界里也成立，这个世界不是反例。`, `The conclusion “${L(words(card.f))}” holds in this world too: it is no counterexample.`))
+  const truth = (v) => (v ? tr('真', 'true') : tr('假', 'false'))
   const cases = useBoardCases({
     level,
     saved,
     save,
     empty: { size: Math.min(2, max), preds: {}, consts: {} },
     judge: () => '',
-    // One step a card, stopping at the first that is not as a counterexample needs it.
+    // A step for each intro rule, whether it makes the sentence in the world; then the declaration against what the
+    // sentence says, the run failing where they agree.
     stepsOf: (_, world) => {
-      const steps = []
-      for (const card of claimCards(level, world)) {
-        steps.push(card.right ? {} : { failed: L(why(card)) })
-        if (!card.right) break
-      }
-      return steps
+      const d = declaredIn(level, world)
+      const same = d.declared === d.meant
+      return [...ways.map(() => ({})), same ? { failed: tr(`在这个世界里，按声明「${L(words(level.target))}」为${truth(d.declared)}，它本来也为${truth(d.meant)}：声明和需求一致。`, `In this world the declaration makes “${L(words(level.target))}” ${truth(d.declared)}, and it is ${truth(d.meant)} indeed: the declaration meets the requirement here.`) } : {}]
     },
     onSolve: () => solve(null),
     lastRun,
@@ -80,12 +79,10 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   const world = cases.work
   const update = cases.setWork
   const model = useMemo(() => builtWorld(world, level.vocab), [world, level])
-  const cards = useMemo(() => claimCards(level, world), [level, world])
+  const found = useMemo(() => declaredIn(level, world), [level, world])
   const { playback } = cases
   const run = playback.run
-  const shown = playback.shown(0)
-  const reached = shown.list.length
-  const step = shown.at >= 0 ? cards[shown.at]?.id : null
+  const reached = playback.shown(0).list.length
   const failed = run?.over && !playback.passed ? run.results.at(-1)?.reason : null
 
   const toggle = (p, key) => {
@@ -95,24 +92,29 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   const name = (k) => MARKS[k]
   const wordOf = (p, args) => (level.notation.words?.[p] ? L(level.notation.words[p]).replace(/\{(\d)\}/g, (_, k) => args[Number(k)]) : `${p}(${args.join(', ')})`)
 
-  // A card shows its sentence, and its truth once the run reaches it.
-  const truth = (id) => {
-    const k = cards.findIndex((c) => c.id === id)
-    if (k < 0 || k >= reached) return null
-    return <span className={cards[k].right ? 'lg-right' : 'lg-wrong'}>{cards[k].value ? tr('真', 'True') : tr('假', 'False')}</span>
-  }
-  // A premise card its sentence, Join what it has made, the declared card its intro rule; a premise or the declared
-  // sentence its truth too, once the run reaches it.
+  // A premise card its sentence (its truth too, once a run starts, when it names no thing a rule takes), Join what it
+  // has made, the declared card its intro rules, each marked as the run reaches it, and at the end the declaration
+  // against what the sentence says.
   const text = (f) => L(say(f, level.notation))
-  const values = useMemo(() => runIso(declared, cases.board, { given: [] }).values, [declared, cases.board])
+  const values = useMemo(() => runIso(declared, level.board, { given: [] }).values, [declared])
+  const mark = (v) => <span className="lg-mark">{v ? tr('成立', 'holds') : tr('不成立', 'fails')}</span>
   const body = (node) => {
-    if (node.type === 'hyp') return <div className="lg-card"><span className="lg-pick">{L(words(node.params.name))}</span>{truth(node.id)}</div>
-    if (node.type === 'join') return <div className="lg-card"><code className="lg-made">{listText(values.get(node.id), declared, text)}</code></div>
+    if (node.type === 'hyp') {
+      const f = parse(node.params.name, { consts: level.vocab.names })
+      return <div className="lg-card"><span className="lg-pick">{text(f)}</span>{reached > 0 && !freeVars(f).size && mark(holds(f, model))}</div>
+    }
+    if (node.type === 'join' || node.type === 'thing') return <div className="lg-card">{node.type === 'thing' ? <span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span> : <code className="lg-made">{listText(values.get(node.id), declared, text)}</code>}</div>
     if (node.id !== DECL) return null
-    const way = waysIn(cases.board)[0]
-    return <div className="lg-card"><code className="lg-made">{tr('引入1：', 'Intro 1: ')}{wayText(wayRule(way, declared), text)}</code>{truth(DECL)}</div>
+    const end = reached > ways.length
+    return (
+      <div className="lg-card">
+        {ways.map((way, k) => <code key={k} className="lg-made">{tr(`引入${k + 1}：`, `Intro ${k + 1}: `)}{wayText(wayRule(way, declared), text)} {k < reached && mark(found.ways[k])}</code>)}
+        {!ways.length && <span className="lg-mark">{tr('没有引入规则', 'No intro rule')}</span>}
+        {end && <span className={found.declared !== found.meant ? 'lg-right' : 'lg-wrong'}>{tr(`按声明为${truth(found.declared)}，本意为${truth(found.meant)}`, `Declared ${truth(found.declared)}, meant ${truth(found.meant)}`)}</span>}
+      </div>
+    )
   }
-  const stepClass = (node) => (node.id === step ? (cards.find((c) => c.id === step)?.right ? 'is-step' : 'is-step is-step-fail') : '')
+  const stepClass = (node) => (run && !run.over && node.id === DECL ? 'is-step' : '')
 
   const builder = (
     <section className="fo-build">
@@ -150,7 +152,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
       ))}
     </section>
   )
-  const verdict = playback.passed ? tr('前提都成立，结论不成立：这个世界是反例。', 'Every premise holds and the conclusion fails: this world is a counterexample.') : failed
+  const verdict = playback.passed ? tr(`按声明「${L(words(level.target))}」为${truth(found.declared)}，它本来却为${truth(found.meant)}：这个世界是反例。`, `The declaration makes “${L(words(level.target))}” ${truth(found.declared)}, yet it is ${truth(found.meant)}: this world is a counterexample.`) : failed
   const panel = (
     <div className="lg-strip is-tables">
       {builder}
