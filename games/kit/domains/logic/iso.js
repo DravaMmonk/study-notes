@@ -445,11 +445,12 @@ export function isoBoard(wires, cards = {}) {
   // A join of several cards: one Join each step, left to right; its id, the last one's.
   const source = (from) => from.split('+').map(id).reduce((a, b) => {
     const j = `join-${joins.length + 1}`
-    joins.push({ id: j, type: 'join', params: {}, x: 260, y: 40 + joins.length * 200 })
+    joins.push({ id: j, type: 'join', params: {}, x: 280, y: 40 + joins.length * 200 })
     out.push({ from: a, to: j, port: 'a' }, { from: b, to: j, port: 'b' })
     return j
   })
   for (const [from, to] of pairs) out.push(/^\d$/.test(to) ? { from: source(from), to: DECL, port: wayPort(Number(to)) } : { from: source(from), to: id(to), port: 'under' })
-  const start = startIso()
-  return settle({ nodes: [...start.nodes, ...tokens.map(card), ...joins], wires: out })
+  // The declared card goes right of the joins (or of the cards, with none), so no card covers another.
+  const [decl] = startIso().nodes
+  return settle({ nodes: [{ ...decl, x: joins.length ? 540 : 280 }, ...tokens.map(card), ...joins], wires: out })
 }
