@@ -59,8 +59,8 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     const p = problems[0]
     if (p) {
       return { pass: false, text: p.why === 'empty'
-        ? tr(`引入规则 ${p.rule + 1} 的第 ${p.need + 1} 个前提还没写完。`, `Premise ${p.need + 1} of intro rule ${p.rule + 1} is not finished.`)
-        : tr(`引入规则 ${p.rule + 1} 的第 ${p.need + 1} 个前提提到了没有任取的东西。`, `Premise ${p.need + 1} of intro rule ${p.rule + 1} mentions a thing its rule does not take.`) }
+        ? tr(`成立条件 ${p.rule + 1} 的第 ${p.need + 1} 个前提还没写完。`, `Premise ${p.need + 1} of condition ${p.rule + 1} is not finished.`)
+        : tr(`成立条件 ${p.rule + 1} 的第 ${p.need + 1} 个前提提到了没有任取的东西。`, `Premise ${p.need + 1} of condition ${p.rule + 1} mentions a thing it does not take.`) }
     }
     const checked = checkIso(level, board, words)
     if (checked.pass) return { pass: true }

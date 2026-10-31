@@ -9,8 +9,8 @@ import { blankRule, premiseChips, problemsOf } from '../ruleLines.js'
 import SentenceEditor from './SentenceEditor.jsx'
 
 // A declaration's intro rules as a table to fill in (《证明完毕》's rule table, ../ruleLines.js): the sentence it
-// introduces, then a row for each intro rule, its premises one after another, the button that adds one more at the end
-// of the last; a level that takes things (`thing`) has a for-any switch on each row. A premise is a sentence, built or
+// introduces (结论), then a row for each intro rule (成立条件), its premises one after another, ended by 「均为真。」
+// and the button that adds one more; a level that takes things (`thing`) has a for-any switch before the first. A premise is a sentence, built or
 // changed in a sheet with the translate tasks' strip and chips (SentenceEditor.jsx); as in the other sheets, a change
 // holds at once, and a premise left empty when the sheet closes is gone. Read only (no onChange), for someone's
 // declaration.
@@ -43,35 +43,36 @@ export default function RuleTable({ level, rules, onChange = null, scope = '' })
   return (
     <div className="lg-rule-table">
       <div className="lg-rt-row is-goal">
-        <span className="lg-rt-name">{tr('目标', 'Goal')}</span>
+        <span className="lg-rt-name">{tr('结论', 'Conclusion')}</span>
         <span className="lg-rt-needs"><b>{words(sentenceOf(level, level.target))}</b></span>
       </div>
       {rules.map((rule, k) => (
         <div key={k} className="lg-rt-row">
-          <span className="lg-rt-name">{tr(`引入规则 ${k + 1}`, `Intro rule ${k + 1}`)}</span>
-          {level.thing && (
-            <button type="button" className="lg-rt-any" aria-pressed={rule.binds.length > 0} disabled={!editable} onClick={() => onChange(withRule(k, (r) => ({ ...r, binds: r.binds.length ? [] : [binder] })))}>
-              {tr(`任取 ${binder}`, `For any ${binder}`)}
-            </button>
-          )}
+          <span className="lg-rt-name">{tr(`成立条件 ${k + 1}`, `Condition ${k + 1}`)}</span>
           <span className="lg-rt-needs">
+            {level.thing && (
+              <button type="button" className="lg-rt-any" aria-pressed={rule.binds.length > 0} disabled={!editable} onClick={() => onChange(withRule(k, (r) => ({ ...r, binds: r.binds.length ? [] : [binder] })))}>
+                {tr(`任取 ${binder}`, `For any ${binder}`)}
+              </button>
+            )}
             {!rule.needs.length && !editable && <i className="lg-mark">{tr('无前提', 'No premise')}</i>}
             {rule.needs.map((need, j) => (
               <span key={j} className="lg-rt-need">
-                {j > 0 && <span className="lg-rt-sep">；</span>}
                 <button type="button" className={`lg-rt-premise ${bad(k, j) ? 'is-bad' : ''}`} disabled={!editable} onClick={() => setSheet({ rule: k, need: j })}>
                   {whole(need) ? words(need) : tr('未写完', 'Unfinished')}
                 </button>
+                {/* The separator stays with the premise before it, so a wrapped row never starts with it. */}
+                {j < rule.needs.length - 1 ? <span className="lg-rt-sep">；</span> : <span className="lg-rt-true">{tr('均为真。', 'all hold.')}</span>}
               </span>
             ))}
-            {editable && <button type="button" className="lg-rt-add" onClick={() => add(k)} aria-label={tr(`给引入规则 ${k + 1} 添加前提`, `Add a premise to intro rule ${k + 1}`)}><Plus size={14} />{!rule.needs.length && tr('添加前提', 'Add a premise')}</button>}
+            {editable && <button type="button" className="lg-rt-add" onClick={() => add(k)} aria-label={tr(`给成立条件 ${k + 1} 添加前提`, `Add a premise to condition ${k + 1}`)}><Plus size={14} />{!rule.needs.length && tr('添加前提', 'Add a premise')}</button>}
           </span>
-          {editable && rules.length > 1 && <button type="button" className="lg-rt-drop" onClick={() => onChange(rules.filter((_, j) => j !== k))} aria-label={tr(`删除引入规则 ${k + 1}`, `Delete intro rule ${k + 1}`)}><X size={14} /></button>}
+          {editable && rules.length > 1 && <button type="button" className="lg-rt-drop" onClick={() => onChange(rules.filter((_, j) => j !== k))} aria-label={tr(`删除成立条件 ${k + 1}`, `Delete condition ${k + 1}`)}><X size={14} /></button>}
         </div>
       ))}
-      {editable && <button type="button" className="lg-rt-more" onClick={() => onChange([...rules, blankRule()])}>{tr('添加引入规则', 'Add an intro rule')}</button>}
+      {editable && <button type="button" className="lg-rt-more" onClick={() => onChange([...rules, blankRule()])}>{tr('添加成立条件', 'Add a condition')}</button>}
       {editable && editing && (
-        <Sheet title={tr(`引入规则 ${sheet.rule + 1} 的前提`, `A premise of intro rule ${sheet.rule + 1}`)} onClose={close}>
+        <Sheet title={tr(`成立条件 ${sheet.rule + 1} 的前提`, `A premise of condition ${sheet.rule + 1}`)} onClose={close}>
           <div className="lg-rt-sheet">
             <SentenceEditor tree={rules[sheet.rule].needs[sheet.need]} onChange={(tree) => setNeed(sheet.rule, sheet.need, tree)} chips={chips} notation={level.notation} scope={`${scope}:${sheet.rule}.${sheet.need}`} />
           </div>
