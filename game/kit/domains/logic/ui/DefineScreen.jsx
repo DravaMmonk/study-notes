@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench, usePlayback } from '../../../shell/index.js'
+import { Brief, Level, RunDock, usePlayback } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parseS, parseSide } from '../schematic.js'
 import { say, sayTerm } from '../notation.js'
@@ -79,16 +79,8 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
     </div>
   )
   const dock = <RunDock {...playback.dock({ go: tr('运行测试', 'Run the tests'), done: tr('定义已接受', 'Definition accepted') })} />
-  const stage = (
-    <div className="lg-define">
-      {rows}
-      {table}
-      <footer className="run-foot">{dock}</footer>
-    </div>
-  )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="lg-define-level">{stage}</PhonePage>
-  return <Workbench className="lg-define-level" brief={brief} stage={stage} scroll />
+  return <Level phone={phone} className="lg-define-level" brief={brief} stage={<div className="lg-define">{rows}</div>} results={table} dock={dock} />
 }
 
 const T_PICK = { zh: '每一行都须选择右边', en: 'Every row needs a right side' }

@@ -2,9 +2,9 @@
 import { createProgress } from './progress.js'
 
 export { default as GameShell } from './GameShell.jsx'
-export { Brief, PhonePage, PinnedPlay, TaskCard, Text, Workbench } from './Layout.jsx'
+export { Brief, Level, PhonePage, PinnedPlay, TaskCard, Text } from './Layout.jsx'
 export { Dialog, useEscape } from './Dialogs.jsx'
-export { default as CircuitLayout, TestStatus } from './CircuitLayout.jsx'
+export { default as Workbench, TestStatus } from './Workbench.jsx'
 export { default as RunDock } from './RunDock.jsx'
 export { default as StepLog } from './StepLog.jsx'
 export { default as Timeline } from './Timeline.jsx'

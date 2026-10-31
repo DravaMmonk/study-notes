@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench, usePlayback } from '../../../shell/index.js'
+import { Brief, Level, RunDock, usePlayback } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { Strip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
@@ -175,11 +175,10 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
       {level.say && <p className="fo-say fo-prompt" dangerouslySetInnerHTML={{ __html: String(L(level.say)) }} />}
       {claim}
       {builder}
-      {verdict && <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{verdict}</p>}
-      <footer className="run-foot"><RunDock {...playback.dock({ go: tr('运行', 'Run'), done: tr('找到反例', 'Counterexample found') })} /></footer>
     </div>
   )
+  const results = verdict ? <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p> : null
+  const dock = <RunDock {...playback.dock({ go: tr('运行', 'Run'), done: tr('找到反例', 'Counterexample found') })} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="fo-level">{stage}</PhonePage>
-  return <Workbench className="fo-level" brief={brief} stage={stage} scroll />
+  return <Level phone={phone} className="fo-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react'
-import { Check, EyeOff, Play, X } from 'lucide-react'
-import { L, keyOf, tr } from '../../../shell/i18n.js'
+import { Check, EyeOff, X } from 'lucide-react'
+import { L, tr } from '../../../shell/i18n.js'
 import TestTabs from '../../../shell/TestTabs.jsx'
 import ImageView from './ImageView.jsx'
 import { rangeOf } from './display.js'
@@ -14,36 +14,21 @@ import { kindOf, rowOf } from './views/views.js'
 // Numbers are compared on a scale, waveforms as one plot with the allowed band, 2-D values side by
 // side in the same view as their cards on the board (switching here switches the cards too), with
 // a pixel map of the misses. In the profile view the two rows are laid over each other.
-// `part` splits it for a desktop circuit (games/kit/shell/CircuitLayout.jsx): 'tests' is the chips in the strip's
+// `part` splits it for a desktop circuit (games/kit/shell/Workbench.jsx): 'tests' is the chips in the strip's
 // header, 'verdict' (once run) and 'views' the strip pane's head, and 'row' the inputs, then expected / yours / error for each
-// output, side by side; 'readout' reads the spot under the pointer (probe / onProbe, shared by all the parts).
-export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenMiss, testIndex, onSelect, sensors, inView, outView, onView, scan, onScan, theme, part, probe: sharedProbe, onProbe }) {
+// output, side by side; 'readout' reads the spot under the pointer (probe / onProbe, shared by all the parts). With no
+// `part`, the hidden tests' note and the chosen test laid out for a phone's results drawer.
+export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, testIndex, onSelect, sensors, inView, outView, onView, scan, onScan, theme, part, probe: sharedProbe, onProbe }) {
   const [ownProbe, setOwnProbe] = useState(null)
   const probe = onProbe ? sharedProbe : ownProbe
   const setProbe = onProbe ?? setOwnProbe
   const test = level.tests[testIndex]
   const result = run?.results[testIndex]
-  const passed = run?.results.filter((r) => r.pass).length ?? 0
-  const all = level.tests.length
   const inputsAreImages = Object.values(test.inputs).some((img) => kindOf(img) === 'image')
   const outputsAreImages = Object.values(test.expected).some((img) => kindOf(img) === 'image')
   const tolerance = (test.check ?? level.check)?.tolerance ?? 0.02
   const many = Object.keys(test.expected).length > 1
 
-  const head = (
-    <header className="panel-head">
-      <span>{tr('测试', 'Tests')}</span>
-      {run?.untested ? (
-        <span className="tests-meter is-untested">{tr('尚未测试', 'Not tested yet')}</span>
-      ) : (
-        <span className={`tests-meter ${run?.pass ? 'is-pass' : ''}`} aria-label={tr(`${passed} / ${all} 通过`, `${passed} / ${all} passed`)}>
-          {level.tests.map((t, index) => <i key={keyOf(t.label)} className={run?.results[index]?.pass ? 'is-on' : ''} />)}
-          <b>{passed}/{all}</b>
-        </span>
-      )}
-    </header>
-  )
-  const runButton = onTest && <button className={`run-tests ${run?.pass && !hiddenMiss ? 'is-pass' : ''}`} onClick={onTest}>{run?.pass && !hiddenMiss ? <Check size={15} /> : <Play size={14} />}{run?.pass && !hiddenMiss ? tr('全部通过 · 重新测试', 'All passed · Run again') : tr('运行测试', 'Run tests')}</button>
   const hiddenNote = hiddenMiss ? (
     <p className="hidden-note is-fail"><X size={13} />{tr(`以下测试全部通过，但 ${hiddenMiss.total} 组隐藏测试中有 ${hiddenMiss.failed} 组未通过：电路可能只是恰好适用于这几张图。`, `Every test below passes, but ${hiddenMiss.failed} of ${hiddenMiss.total} hidden tests fail: the circuit may only happen to work on these pictures.`)}</p>
   ) : hiddenCount > 0 ? (
@@ -158,18 +143,14 @@ export default function TestPanel({ level, run, onTest, hiddenCount = 0, hiddenM
       </div>
     )
   }
+  // The whole of it, for a phone's results drawer (the tests themselves are pinned at the top of the page).
   return (
-    <aside className="tests" data-pane="tests">
-      {head}
-      {runButton}
+    <section className="test-detail" key={testIndex}>
       {hiddenNote}
-      {list}
-      <section className="test-detail" key={testIndex}>
-        {inputs}
-        {outputs}
-        {probeLine}
-      </section>
-    </aside>
+      {inputs}
+      {outputs}
+      {probeLine}
+    </section>
   )
 }
 

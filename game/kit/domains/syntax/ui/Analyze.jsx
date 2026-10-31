@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench } from '../../../shell/index.js'
+import { Brief, Level, RunDock } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { StripTools } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
@@ -153,18 +153,15 @@ export default function Analyze({ game, level, saved, save, solve, phone }) {
       <p className={`sx-sentence ${pending ? 'is-picking' : ''}`} lang="en">{line}</p>
       {status}
       {tray}
-      {result && (
-        <div className={`sx-result ${result.pass ? 'is-pass' : 'is-fail'}`} role="status">
-          {result.pass
-            ? <p>{tr('分析正确。', 'Correct analysis.')}</p>
-            : <ul>{result.findings.map((f, k) => <li key={k} dangerouslySetInnerHTML={{ __html: L(f) }} />)}</ul>}
-        </div>
-      )}
-      <footer className="run-foot">
-        <RunDock go={{ label: result?.pass ? tr('分析正确', 'Correct') : tr('对照', 'Check'), pass: Boolean(result?.pass), onClick: go }} />
-      </footer>
     </div>
   )
-  if (phone) return <PhonePage brief={brief} className="sx-level">{stage}</PhonePage>
-  return <Workbench className="sx-level" brief={brief} stage={stage} scroll />
+  const results = result ? (
+    <div className={`sx-result ${result.pass ? 'is-pass' : 'is-fail'}`} role="status">
+      {result.pass
+        ? <p>{tr('分析正确。', 'Correct analysis.')}</p>
+        : <ul>{result.findings.map((f, k) => <li key={k} dangerouslySetInnerHTML={{ __html: L(f) }} />)}</ul>}
+    </div>
+  ) : null
+  const dock = <RunDock go={{ label: result?.pass ? tr('分析正确', 'Correct') : tr('对照', 'Check'), pass: Boolean(result?.pass), onClick: go }} />
+  return <Level phone={phone} className="sx-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

@@ -6,8 +6,8 @@ import { complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf }
 
 // A sentence built from chips on the shared strip (games/kit/strip, as 《句法之图》 builds a clause), which writes it
 // out as it reads, a box for each empty place: the translate and query tasks' (FormulaScreen.jsx), and a premise's on
-// the rule table (RuleTable.jsx). Tools over it (clear, undo, redo), the chips under it, by kind; `children` go
-// between the strip and the chips (a verdict). Its ref clears the place picked.
+// the rule table (RuleTable.jsx). Tools over it (clear, undo, redo), the chips under it, by kind. Its ref
+// clears the place picked.
 //
 //   tree  the sentence (formulaTree.js; null: nothing yet)      onChange(tree)      chips  formulaTree.js chipsOf
 //   notation  the level's words      scope  the history's
@@ -58,7 +58,7 @@ export function fixedLine(f, notation, key) {
   return [fix(segmentOf(f, [key], 'formula', notation))]
 }
 
-const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chips, notation, scope, children }, ref) {
+const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chips, notation, scope }, ref) {
   const byKey = useMemo(() => new Map(chips.map((c) => [c.key, c])), [chips])
   const change = onChange
   const history = useHistory(tree, change, scope, 0)
@@ -102,7 +102,6 @@ const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chip
       <StripTools history={history} onClear={() => change(null)} empty={!tree} />
       <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
-      {children}
       <Chips groups={groups} onChip={strip.onChip} />
     </>
   )

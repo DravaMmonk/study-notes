@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Pause, Play, StepForward, Trash2 } from 'lucide-react'
-import { Brief, CircuitLayout, PhonePage, RunDock, Sheet, TestStatus, Workbench, tr } from '../../shell/index.js'
+import { Brief, PhonePage, RunDock, Sheet, TestStatus, Workbench, tr } from '../../shell/index.js'
 import { enableDrag } from '../../drag.js'
 import { buzz, reduced } from './util.js'
 import { sceneSVG } from './svg.js'
@@ -53,7 +53,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
     const renderBoard = () => {
       // The board gets the width it has (the strip's pane on a desktop circuit level, the page on a phone), so a board
       // of several layers lays them side by side before it wraps.
-      const pane = !phone && ctl.panelStage ? q('.kc-outputs > .kc-pane-body') : q('.sg-board')
+      const pane = !phone && ctl.panelStage ? q('.wb-results > .wb-pane-body') : q('.sg-board')
       const pad = pane ? getComputedStyle(pane) : null
       rt.boardWidth = pane ? pane.clientWidth - parseFloat(pad.paddingLeft) - parseFloat(pad.paddingRight) : 0
       if (ctl.custom) q('.sg-board').innerHTML = ctl.custom()
@@ -122,11 +122,12 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
         cur.current.running = true
         Anim.begin(paused)
         renderDock()
-        // On a phone the run jumps straight to the test board, wherever the player was on the page (the page itself
-        // is the scroller, so set it rather than ask for a smooth scroll that a redraw can cut short).
-        if (phone) {
-          const card = q('.bcard')
-          el.scrollTop += card.getBoundingClientRect().top - el.getBoundingClientRect().top - 8
+        // On a phone the run jumps straight to the test board, wherever the player was on the page (set the page's
+        // scroll rather than ask for a smooth scroll that a redraw can cut short). A circuit level's test board is in
+        // the results drawer, which the run opens.
+        if (phone && !ctl.board) {
+          const page = q('.pl-scroll')
+          page.scrollTop += q('.bcard').getBoundingClientRect().top - page.getBoundingClientRect().top - 8
         }
       },
       endRun() {
@@ -209,7 +210,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
     const resize = new ResizeObserver(() => ctl.mounted?.())
     resize.observe(panel)
     // On a desktop circuit level the test board follows the strip it sits in as that is dragged taller or shorter.
-    const strip = !phone && ctl.panelStage ? el.querySelector('.kc-outputs > .kc-pane-body') : null
+    const strip = !phone && ctl.panelStage ? el.querySelector('.wb-results > .wb-pane-body') : null
     const refit = new ResizeObserver(() => rt.renderBoard())
     if (strip) refit.observe(strip)
     return () => {
@@ -245,7 +246,13 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
       tip={tip?.text}
       hint={ctl.hints ? ctl.hints() : L.hints ?? (L.hint ? [L.hint()] : null)}
     >
-      {!phone && !ctl.board && <section className="parts" id="parts" data-trash />}
+      {/* A level of another kind on a desktop: its parts, then its cards (ctl.panel: the rules, the tests…). */}
+      {!phone && !ctl.board && (
+        <>
+          <section className="parts" id="parts" data-trash />
+          <div className="panel" id="panel" />
+        </>
+      )}
       {/* A circuit level on a desktop: under the task, the robot this level gives you (ctl.panel). The parts are a row
           over the board. */}
       {!phone && ctl.board && (
@@ -259,9 +266,11 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
   // The mode's regions. Each is painted by the mode (innerHTML), never by React, so they have no React children.
   // On a desktop circuit level the cell's facts are not in the card: they are the strip's inputs pane (below).
   const viewApart = !phone && Boolean(ctl.panelStage)
+  // The tests: over the board, but pinned at the top of the page on a phone circuit level, whose board is in the drawer.
+  const testTabs = <div className="tests" id="tests" role="tablist" aria-label={tr('测试', 'Tests')} />
   const bcard = (
     <section className="bcard" aria-label={tr('棋盘', 'Board')}>
-      <div className="tests" id="tests" role="tablist" aria-label={tr('测试', 'Tests')} />
+      {!(phone && ctl.board) && testTabs}
       <div className="board sg-board" />
       <p className="bnote" />
       {!viewApart && <div id="view" />}
@@ -272,7 +281,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
   const d = ctl.dock()
   const html = (markup) => <span dangerouslySetInnerHTML={{ __html: markup || '' }} />
   const dock = (
-    <footer className="dock run-foot" id="dock">
+    <div className="dock" id="dock">
       {d.pad ? (
         <div dangerouslySetInnerHTML={{ __html: padHTML(ctl) }} />
       ) : (
@@ -283,18 +292,18 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
           go={d.go ? { label: d.go, busy: Boolean(d.busy), pulse: Boolean(L.coach && L.coach(ctl.st).run), icon: !d.busy && d.goIcon ? <i className="run-icon" dangerouslySetInnerHTML={{ __html: d.goIcon }} /> : undefined, attrs: { 'data-act': d.act } } : null}
         />
       )}
-    </footer>
+    </div>
   )
   // Circuit levels play on the shared circuit editor (./circuit/BoardView.jsx). On a phone the mode's cards (memory,
   // scan order) sit above it and its direction switches under it; on a desktop they are in the brief.
-  const panel = ctl.board ? (
-    phone ? (
+  const panel = phone && (
+    ctl.board ? (
       <div className="panel sg-boardpanel">
         <div id="panel" />
         <div id="panelAfter" />
       </div>
-    ) : null
-  ) : <div className="panel" id="panel" />
+    ) : <div className="panel" id="panel" />
+  )
   const modeSheet = sheet && (
     <Sheet onClose={() => setSheet(null)}>
       <div
@@ -312,76 +321,61 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
     </Sheet>
   )
 
+  const toast = <div className="toast" id="toast" role="status" />
+  // A circuit level on a phone: the test board is its results.
   if (phone && ctl.board) {
     return (
-      <PhonePage rootRef={root} brief={brief} className="sg-level is-circuit">
-        {bcard}
+      <SgPhone board={ctl.board} rootRef={root} brief={brief} tests={testTabs} results={bcard} dock={dock}>
         {panel}
-        <SgPhone board={ctl.board} rootRef={root} dock={dock} />
-        <div className="toast" id="toast" role="status" />
+        {toast}
         {modeSheet}
-      </PhonePage>
+      </SgPhone>
     )
   }
   if (phone) {
     return (
-      <PhonePage rootRef={root} brief={brief} className="sg-level">
+      <PhonePage rootRef={root} brief={brief} className="sg-level" tray={<section className="parts" id="parts" data-trash />} dock={dock}>
         {bcard}
         {panel}
-        <div className="sg-foot">
-          <section className="parts" id="parts" data-trash />
-          {dock}
-        </div>
-        <div className="toast" id="toast" role="status" />
+        {toast}
         {modeSheet}
       </PhonePage>
     )
   }
-  // A circuit level on a desktop: the kit's circuit layout, as in every game. What the robot reads is on its input
-  // cards on the board (a click adds or removes that output); the strip under it holds the tests and the test board.
+  // A circuit level on a desktop: what the robot reads is on its input cards on the board (a click adds or removes that
+  // output); the strip under it holds the tests and the test board.
   if (ctl.panelStage) {
     const states = (ctl.tests ? ctl.tests() : []).map((t) => (['pass', 'fail', 'run'].includes(t.status) ? t.status : null))
     return (
       <>
-        <CircuitLayout
+        <Workbench
           rootRef={root}
           className="sg-level panel-stage"
           brief={brief}
           parts={<SgParts board={ctl.board} />}
-          canvas={<SgCanvas board={ctl.board} />}
-          tests={<div className="tests" id="tests" role="tablist" aria-label={tr('测试', 'Tests')} />}
+          stage={<SgCanvas board={ctl.board} />}
+          tests={testTabs}
           status={<TestStatus states={states} />}
-          outputs={
+          results={
             <section className="bcard" aria-label={tr('棋盘', 'Board')}>
               {ctl.boardHint && ctl.boardHint() && <p className="bhint">{ctl.boardHint()}</p>}
               <div className="board sg-board" />
               <div id="after" />
             </section>
           }
-          outputsTitle={tr('测试棋盘', 'Test board')}
-          outputsAside={<p className="bnote" />}
-          actions={dock}
+          resultsTitle={tr('测试棋盘', 'Test board')}
+          resultsAside={<p className="bnote" />}
+          dock={dock}
         />
-        <div className="toast" id="toast" role="status" />
+        {toast}
         {modeSheet}
       </>
     )
   }
   return (
     <>
-      <Workbench
-        rootRef={root}
-        className="sg-level"
-        brief={brief}
-        stage={bcard}
-        side={
-          <aside className="sg-side">
-            {panel}
-            {dock}
-          </aside>
-        }
-      />
-      <div className="toast" id="toast" role="status" />
+      <Workbench rootRef={root} className="sg-level" brief={brief} stage={bcard} scroll dock={dock} />
+      {toast}
       {modeSheet}
     </>
   )
@@ -396,7 +390,7 @@ export default function ModeScreen({ game, level, saved, save, solve, fail, last
 const READABLE = 26
 const LARGEST = 34
 function fitBoard(root) {
-  const body = root.querySelector('.kc-outputs > .kc-pane-body')
+  const body = root.querySelector('.wb-results > .wb-pane-body')
   const card = body?.querySelector('.bcard')
   const svg = card?.querySelector('.sg-board > .board-svg')
   if (!svg || !body.clientWidth) return

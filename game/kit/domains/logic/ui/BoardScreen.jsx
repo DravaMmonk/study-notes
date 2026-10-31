@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Brief, CircuitLayout, RunDock, StepLog, TaskCard, TestStatus, TestTabs, useKeptVerdict, usePlayback } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, StepLog, TestStatus, TestTabs, Workbench, useKeptVerdict, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, isFixed, outputsOf, spotIn, srcOf, useSlotEditing, within } from '../../../circuit/index.js'
@@ -207,11 +207,11 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   if (phone) return <PhoneBoard {...shared} stepLog={stepLog} stepClass={stepClass} stepped={stepped} logged={shown.list.length > 0} began={Boolean(run && (run.step >= 0 || run.results.length > 0 || run.test > 0))} waiting={Boolean(onThis)} stepKey={run ? `${run.test}:${run.step}:${run.results.length}` : ''} onClear={onClear} result={result} verdictText={verdictText} regionNote={regionNote} resultNote={resultNote} testTabs={<TestTabs phone tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />} brief={brief} items={items} foldedItems={foldedItems} dock={dock} change={change} addNode={addNode} types={types} descOf={descOf} scope={level.id} />
 
   return (
-    <CircuitLayout
+    <Workbench
       className="lg-level"
       brief={brief}
       parts={items.length + foldedItems.length > 0 && <Palette compact items={items} folded={foldedItems} onAdd={add} />}
-      canvas={
+      stage={
         <div className="lg-stage">
           <div className="lg-board">
             <CanvasEditor
@@ -238,15 +238,15 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
       }
       tests={<TestTabs tests={tests} states={states} index={tests.indexOf(test)} onSelect={setTestIndex} />}
       status={<TestStatus states={states} />}
-      outputsTitle={tr('这组测试', 'This test')}
-      outputs={
+      resultsTitle={tr('这组测试', 'This test')}
+      results={
         <div className="lg-strip">
           <p className="lg-sequent">{scene.sequent}</p>
           {stepLog}
           <p className={`lg-verdict ${result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}>{verdictText ?? L(board.words.idle)}</p>
         </div>
       }
-      actions={<footer className="run-foot">{dock}</footer>}
+      dock={dock}
     />
   )
 }
@@ -391,21 +391,15 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   const { thumb, sinkBody } = phoneFaces({ board, parts, view, text, scene })
   return (
-    <div className="level-phone is-split lg-phone" ref={root}>
-      {testTabs}
-      <div className="lg-scroll" ref={scroller} onScroll={onScroll}>
-        <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onChange={change} types={types} />
-        {stepped ? began && (
-          <section className="lg-preview" ref={preview}>
-            <h3>{tr('运行过程', 'The run')}</h3>
-            {logged ? stepLog : <p className="lg-mark lg-preview-empty">{waiting ? tr('这组测试开始运行……', 'Running this test…') : tr('这组测试尚未运行。', 'This test has not run yet.')}</p>}
-            {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
-          </section>
-        ) : verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
-      </div>
-      <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
-      <footer className="run-foot">{dock}</footer>
+    <PhonePage rootRef={root} scrollRef={scroller} onScroll={onScroll} className="lg-phone" brief={brief} tests={testTabs} tray={<Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />} dock={dock}>
+      <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onChange={change} types={types} />
+      {stepped ? began && (
+        <section className="lg-preview" ref={preview}>
+          <h3>{tr('运行过程', 'The run')}</h3>
+          {logged ? stepLog : <p className="lg-mark lg-preview-empty">{waiting ? tr('这组测试开始运行……', 'Running this test…') : tr('这组测试尚未运行。', 'This test has not run yet.')}</p>}
+          {verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
+        </section>
+      ) : verdictText && <p className={`lg-verdict ${result.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
       <Notice editing={editing} />
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
@@ -429,7 +423,7 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
           </div>
         </Sheet>
       )}
-    </div>
+    </PhonePage>
   )
 }
 

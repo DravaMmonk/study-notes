@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
+import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { freeVars, parse } from '../formula.js'
 import { difference, extent, structureOf } from '../fol.js'
@@ -79,17 +79,11 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
           ))}
         </div>
       )}
-      <SentenceEditor tree={tree} onChange={change} chips={chips} notation={notation} scope={`${entry.id}:${level.task ?? 0}`} ref={editor}>
-        {verdict && (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界中，真假都与原句一致。', 'In every small world it has the same truth value as the original.')}</p> : verdict.body)}
-      </SentenceEditor>
-      <footer className="run-foot">
-        <RunDock
-          go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }}
-        />
-      </footer>
+      <SentenceEditor tree={tree} onChange={change} chips={chips} notation={notation} scope={`${entry.id}:${level.task ?? 0}`} ref={editor} />
     </div>
   )
+  const results = verdict ? (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界中，真假都与原句一致。', 'In every small world it has the same truth value as the original.')}</p> : verdict.body) : null
+  const dock = <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="fo-level">{stage}</PhonePage>
-  return <Workbench className="fo-level" brief={brief} stage={stage} scroll />
+  return <Level phone={phone} className="fo-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

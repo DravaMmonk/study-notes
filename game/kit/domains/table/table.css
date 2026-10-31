@@ -420,13 +420,11 @@ img{max-width:100%}
   .vfact:hover{border-color:var(--cyan)}
 }
 
-/* ---------- desktop workbench (above 760px): the shell's brief | stage | side (games/kit/shell), the same frame as
-   Vision Complete. js/screen.jsx puts the board card on the stage and the panel in the side column, with the dock
-   under it; circuit levels use the kit's circuit layout instead (below). ---------- */
+/* ---------- desktop (above 760px): the kit's workbench (games/kit/shell/Workbench.jsx), as in every game. js/screen.jsx
+   puts the board card on the stage, the panel in the brief and the dock at the bottom right; a circuit level puts its
+   board on the stage and the test board in the strip (below). ---------- */
 @media (min-width:761px){
-  .sg-level .stage-pane{overflow-y:auto;scrollbar-width:thin}
-  .sg-side{min-height:0;display:flex;flex-direction:column;border-left:1px solid var(--line);background:var(--panel)}
-  .sg-side>.bcard,.sg-side>.panel{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
+  .sg-level .stage-pane{scrollbar-width:thin}
   .bcard>*,.panel>*{flex-shrink:0}
   .dmeta{font-size:11.5px}
   .pad{max-width:none}
@@ -442,23 +440,20 @@ img{max-width:100%}
   .cview{--vc:42px;max-width:none;padding:12px 10px}
   .vwin.n5{--vc:32px}
 
-  /* the side: tests or the rules */
-  .sg-level:not(.panel-stage) .sg-side .panel{padding:18px 16px;gap:12px}
+  /* the brief's cards: the rules, the tests */
+  .sg-level:not(.panel-stage) .brief .panel{padding:0;gap:12px}
   .sg-level:not(.panel-stage) .panel .pcard{background:var(--board)}
 }
 
-/* ---------- phone: the shell's one-page level; board, panel, then the parts tray and the dock pinned at the bottom ---------- */
+/* ---------- phone: the shell's one-page level (PhonePage); board, panel, then the parts tray and the dock pinned at the bottom ---------- */
 @media (max-width:760px){
-  .sg-level{display:flex;flex-direction:column;gap:12px;padding-bottom:0}
-  .sg-level>.bcard,.sg-level>.panel{margin:0 12px}
   /* No boxes on a phone page: the test board, the level's cards and the robot's view sit straight on the page,
      one after another, a hairline between them. */
   .sg-level .bcard{padding:12px 0 0;border:0;border-radius:0;background:none}
   .sg-level .pcard{padding:0;border:0;border-radius:0;background:none}
-  .sg-level .panel:has(.pcard),.sg-level.is-circuit>.cview{border-top:1px solid var(--hairline)}
-  .sg-level.is-circuit>.sg-slots{margin:0 12px;padding-inline:0;border-top:1px solid var(--hairline)}
-  .sg-level .panel:has(.pcard){padding-top:16px}
-  .sg-foot{position:sticky;bottom:0;z-index:20;margin-top:auto;display:grid;gap:0;background:var(--panel);box-shadow:0 -1px 0 var(--line),0 -14px 26px -20px rgba(0,0,0,.4)}
+  .sg-level .pl-scroll>.panel:has(.pcard){padding-top:16px;border-top:1px solid var(--hairline)}
+  .sg-level.is-circuit .pl-scroll>.sg-slots{padding-inline:0}
+  .sg-level .pl-drawer .bcard{padding:0}
 }
 /* Language button (js/i18n.js); English pages hide the Chinese markup until it has been swapped. */
 html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
@@ -602,27 +597,27 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-extras .chips.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .sg-extras .memk { min-height: 38px; justify-content: flex-start; }
 .sg-extras .dialopts { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-/* Circuit levels on a desktop sit on the kit's circuit layout (games/kit/shell/CircuitLayout.jsx): what the robot reads
+/* Circuit levels on a desktop sit on the kit's circuit layout (games/kit/shell/Workbench.jsx): what the robot reads
    on its input cards on the board, the test board in the strip under it, centred and sized to its pane by js/screen.jsx
    (fitBoard). */
 @media (min-width: 761px) {
-  .kc-outputs > .kc-pane-body { display: flex; flex-direction: column; }
-  .kc-outputs .bcard { margin: auto 0; padding: 0; gap: 8px; justify-items: center; align-content: center; border: 0; border-radius: 0; background: none; box-shadow: none; }
-  .kc-outputs .bcard > #after:empty { display: none; }
-  .kc-outputs .board { margin: 0; padding: 0; overflow: visible; background: none; box-shadow: none; }
-  .kc-outputs .board-svg { display: block; margin: 0 auto !important; }
-  .kc-outputs .bhint { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
-  .kc-outputs .kc-pane-head .bnote { margin: 0; }
+  .wb-results > .wb-pane-body { display: flex; flex-direction: column; }
+  .wb-results .bcard { margin: auto 0; padding: 0; gap: 8px; justify-items: center; align-content: center; border: 0; border-radius: 0; background: none; box-shadow: none; }
+  .wb-results .bcard > #after:empty { display: none; }
+  .wb-results .board { margin: 0; padding: 0; overflow: visible; background: none; box-shadow: none; }
+  .wb-results .board-svg { display: block; margin: 0 auto !important; }
+  .wb-results .bhint { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+  .wb-results .wb-pane-head .bnote { margin: 0; }
   /* The tests, as Vision Complete's: quiet pills, the one shown outlined; a ring that fills when it passes or fails. */
-  .kc-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; gap: 6px; }
-  .kc-tests .tchip { flex: none; min-height: 30px; padding: 0 10px 0 8px; gap: 6px; border: 0; border-radius: 15px; color: var(--ink); background: var(--canvas); font: 400 12px var(--sans); cursor: pointer; }
-  .kc-tests .tchip[aria-selected="true"] { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
-  .kc-tests .tchip .sd { width: 9px; height: 9px; background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
-  .kc-tests .tchip .sd.pass { background: var(--status); box-shadow: none; }
-  .kc-tests .tchip .sd.fail { background: var(--fail); box-shadow: none; }
-  .kc-tests .tchip .sd.run { background: var(--signal); box-shadow: none; }
-  .kc-canvas .sg-canvas { position: absolute; inset: 0; min-height: 0; }
-  .sg-level.kit-circuit .stage-pane { overflow: hidden; }
+  .wb-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; gap: 6px; }
+  .wb-tests .tchip { flex: none; min-height: 30px; padding: 0 10px 0 8px; gap: 6px; border: 0; border-radius: 15px; color: var(--ink); background: var(--canvas); font: 400 12px var(--sans); cursor: pointer; }
+  .wb-tests .tchip[aria-selected="true"] { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .wb-tests .tchip .sd { width: 9px; height: 9px; background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
+  .wb-tests .tchip .sd.pass { background: var(--status); box-shadow: none; }
+  .wb-tests .tchip .sd.fail { background: var(--fail); box-shadow: none; }
+  .wb-tests .tchip .sd.run { background: var(--signal); box-shadow: none; }
+  .wb-stage .sg-canvas { position: absolute; inset: 0; min-height: 0; }
+  .sg-level .stage-pane.is-board { overflow: hidden; }
 }
 /* A part's bench in the parts box (js/circuit/PartDemo.jsx): the test board and the robot's view side by side, the
    circuit under them, as in a level. */

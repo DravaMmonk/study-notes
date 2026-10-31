@@ -1,11 +1,12 @@
-import { Fragment, createElement, useEffect, useRef, useState } from 'react'
+import { Fragment, createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { Check, ChevronDown, Lightbulb, Lock } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { refParts } from './refs.js'
+import { RunDrawer } from './RunDock.jsx'
+import Workbench from './Workbench.jsx'
 
-// The level screen's frame, the same in every game. On a desktop it is a workbench: the brief on the left, the
-// stage (the board, a bench, a circuit) in the middle and, when the level has one, a side column (tests, a panel,
-// a dock). On a phone it is one scrolling page: the brief, then the play area.
+// The level screen's frame on a phone (PhonePage; on a desktop, Workbench.jsx), and what goes in it in every game:
+// the brief, the text it is written in.
 
 /** A level's text: plain, or the game's own markup when the game says its text is HTML (defineGame `html`). */
 export function Text({ game, as: Tag = 'p', className, text, onClick }) {
@@ -18,24 +19,38 @@ export function Plain({ text }) {
   return refParts(text).map((part, i) => (typeof part === 'string' ? <Fragment key={i}>{part}</Fragment> : createElement(`${part.kind}-ref`, { key: i, to: part.ref })))
 }
 
-/** Desktop workbench: brief | stage | side. The side (optional) is the level's own column element; `scroll` makes
- * the stage scroll on its own (a bench taller than the screen). */
-export function Workbench({ brief, stage, side, scroll, className = '', rootRef }) {
-  return (
-    <div ref={rootRef} className={`level ${side ? 'has-side' : ''} ${className}`}>
-      <aside className="brief">{brief}</aside>
-      <div className={`stage-pane ${scroll ? 'is-scroll' : ''}`}>{stage}</div>
-      {side}
-    </div>
-  )
+/** A level whose stage is the same on both: the phone page or the desktop workbench (a stage that scrolls), each given
+ * the rest of the props it takes. */
+export function Level({ phone, stage, ...props }) {
+  return phone ? <PhonePage {...props}>{stage}</PhonePage> : <Workbench {...props} stage={stage} scroll />
 }
 
-/** Phone page: the brief, in its foldable 任务 card, then the play area. */
-export function PhonePage({ brief, children, className = '', rootRef }) {
+/**
+ * A level on a phone, the same in every game: one page. The tests (their tabs) pinned at the top; in between, what
+ * scrolls: the task in its foldable 任务 card, then the play area; at the bottom the tray (parts to place), the results
+ * drawer and the run bar, pinned. The drawer holds what a run or check gives (`results`): folded away until the run
+ * bar's first button opens it, or a run or check does (RunDock); with nothing in it (null), there is no such button.
+ * `results` left out: the level has no drawer.
+ */
+export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief, tests, children, tray, results, dock }) {
+  const [open, setOpen] = useState(false)
+  const has = Boolean(results)
+  const drawer = useMemo(() => ({ has, open: has && open, toggle: () => setOpen((o) => !o), show: () => setOpen(true) }), [has, open])
   return (
     <div ref={rootRef} className={`level-phone ${className}`}>
-      <section className="pl-brief"><TaskCard>{brief}</TaskCard></section>
-      {children}
+      {tests}
+      <div ref={scrollRef} className="pl-scroll" onScroll={onScroll}>
+        <TaskCard>{brief}</TaskCard>
+        {children}
+      </div>
+      {tray}
+      {/* Kept in the page while folded, so what a game paints into it stays painted. */}
+      {results !== undefined && (
+        <section className={`pl-drawer ${drawer.open ? 'is-open' : ''}`} inert={!drawer.open} aria-label={tr('结果', 'Results')}>
+          <div className="pl-drawer-body">{results}</div>
+        </section>
+      )}
+      {dock && <footer className="run-foot"><RunDrawer.Provider value={drawer}>{dock}</RunDrawer.Provider></footer>}
     </div>
   )
 }

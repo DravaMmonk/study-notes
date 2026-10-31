@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft } from 'lucide-react'
-import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, usePlayback } from '../../../shell/index.js'
+import { Brief, PhonePage, RunDock, TestStatus, Workbench, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
@@ -140,11 +140,11 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
   if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types }} scope={level.id} />
 
   return (
-    <CircuitLayout
+    <Workbench
       className="lg-level"
       brief={brief}
       parts={items.length + foldedItems.length > 0 && <Palette compact items={items} folded={foldedItems} onAdd={add} />}
-      canvas={
+      stage={
         <div className="lg-stage">
           <div className="lg-board">
             <CanvasEditor
@@ -166,9 +166,8 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
         </div>
       }
       status={<TestStatus states={states} />}
-      outputsTitle={tr('真值表', 'Truth table')}
-      outputs={table}
-      actions={<footer className="run-foot">{dock}</footer>}
+      results={table}
+      dock={dock}
     />
   )
 }
@@ -201,14 +200,8 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
   })
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   return (
-    <div className="level-phone is-split lg-phone" ref={root}>
-      <div className="lg-scroll" ref={scroller}>
-        <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
-        {table}
-      </div>
-      <Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />
-      <footer className="run-foot">{dock}</footer>
+    <PhonePage rootRef={root} scrollRef={scroller} className="lg-phone" brief={brief} tray={<Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />} results={table} dock={dock}>
+      <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
       <Notice editing={editing} />
       {node && (
         <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
@@ -231,6 +224,6 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
           </div>
         </Sheet>
       )}
-    </div>
+    </PhonePage>
   )
 }

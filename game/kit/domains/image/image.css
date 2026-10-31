@@ -100,13 +100,13 @@
 .image-empty { display: grid; place-items: center; color: var(--faint); border-radius: 4px; font-size: 11px; box-shadow: inset 0 0 0 1px var(--line); background: repeating-linear-gradient(135deg, transparent 0 6px, var(--hairline) 6px 7px); }
 
 /* ---- tests ---- */
-/* A circuit level on a desktop (the kit's CircuitLayout): in the strip, the test chips in its header, then one pane
+/* A circuit level on a desktop (the kit's Workbench): in the strip, the test chips in its header, then one pane
    whose head has the verdict, the readout and the view switch, and whose body is one row: the inputs, then expected /
    yours / error for each output. */
 @media (min-width: 761px) {
-  .kc-outputs .kc-pane-head .test-verdict { margin: 0; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
-  .kc-outputs .kc-pane-head > .strip-aside { flex: none; display: flex; align-items: center; gap: 12px; overflow: visible; }
-  .kc-outputs .kc-pane-head > span:first-child { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .wb-results .wb-pane-head .test-verdict { margin: 0; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; }
+  .wb-results .wb-pane-head > .strip-aside { flex: none; display: flex; align-items: center; gap: 12px; overflow: visible; }
+  .wb-results .wb-pane-head > span:first-child { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .test-strip { display: grid; grid-auto-flow: column; grid-auto-columns: max-content; justify-content: start; align-items: start; gap: 12px; }
   .test-strip > * { width: 116px; }
   .test-strip > .is-wide, .test-strip > .test-curve { width: 260px; }
@@ -118,19 +118,6 @@
 .test-strip .curve-wrap, .test-strip .terrain-view, .test-strip .number-view { width: 100% !important; height: auto !important; }
 .test-strip figcaption { margin-top: 5px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
 .test-images > .test-curve { grid-column: 1 / -1; }
-.tests { min-height: 0; padding: 18px 18px 24px; overflow-y: auto; border-left: 1px solid var(--hairline); background: var(--paper); scrollbar-width: thin; }
-.panel-head { display: flex; align-items: center; justify-content: space-between; }
-.panel-head > span:first-child { margin: 0; }
-.tests-meter { display: flex; align-items: center; gap: 4px; }
-.tests-meter i { width: 7px; height: 7px; border-radius: 50%; background: color-mix(in srgb, var(--fail) 55%, var(--line)); transition: background 220ms ease, transform 220ms ease; }
-.tests-meter i.is-on { background: var(--status); transform: scale(1.1); }
-.tests-meter b { margin-left: 6px; font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--fail); }
-.tests-meter.is-pass b { color: var(--status); }
-.tests-meter.is-untested { color: var(--muted); font-family: var(--mono); font-size: 11.5px; }
-.run-tests { width: 100%; margin: 12px 0 4px; min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 12px; color: var(--paper); background: var(--ink); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 10px 20px -14px rgba(0, 0, 0, .6); }
-.run-tests:hover { filter: brightness(1.08); }
-.run-tests:active { transform: scale(.98); }
-.run-tests.is-pass { background: var(--status); }
 .hidden-note { margin: 2px 0 10px; display: flex; align-items: flex-start; gap: 6px; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
 .hidden-note svg { flex: none; margin-top: 3px; }
 .hidden-note.is-fail { color: var(--fail); }
@@ -194,5 +181,4 @@
 
 .pl-play .bk { padding-top: 12px; }
 .ph-footer .train-buttons button { min-height: 44px; flex: 1; }
-.ph-sheet-body .tests { padding: 0; border: 0; background: none; }
 

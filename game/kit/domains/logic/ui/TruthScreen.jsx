@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
+import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { atom, parse } from '../formula.js'
 import { say } from '../notation.js'
@@ -98,12 +98,13 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
           <details><summary>{tr('展开真值表', 'Open the truth table')}</summary>{table(k)}</details>
         </section>
       ))}
-      {checked && <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`}>{checked.pass ? (level.ask === 'counter' ? tr('已找到反例：命题在这一行为假。', 'Counterexample found: the proposition is false on this row.') : level.ask === 'sat' ? tr('已找到满足赋值：命题在这一行为真。', 'Satisfying assignment found: the proposition is true on this row.') : tr('全部正确。', 'All answers are correct.')) : tr(`还有 ${checked.wrong.size} 处错误，已用红色标出。`, `${checked.wrong.size} still wrong, marked in red.`)}</p>}
-      {level.ask !== 'counter' && level.ask !== 'sat' && <footer className="run-foot"><RunDock go={{ label: checked?.pass ? tr('全部正确', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} /></footer>}
     </div>
   )
+  // Trying rows needs no check: each row tried shows its value, and the one asked for passes the level.
+  const tried = level.ask === 'counter' || level.ask === 'sat'
+  const results = checked ? <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`} role="status">{checked.pass ? (level.ask === 'counter' ? tr('已找到反例：命题在这一行为假。', 'Counterexample found: the proposition is false on this row.') : level.ask === 'sat' ? tr('已找到满足赋值：命题在这一行为真。', 'Satisfying assignment found: the proposition is true on this row.') : tr('全部正确。', 'All answers are correct.')) : tr(`还有 ${checked.wrong.size} 处错误，已用红色标出。`, `${checked.wrong.size} still wrong, marked in red.`)}</p> : null
+  const dock = !tried && <RunDock go={{ label: checked?.pass ? tr('全部正确', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="lg-truth-level">{stage}</PhonePage>
-  return <Workbench className="lg-truth-level" brief={brief} stage={stage} scroll />
+  return <Level phone={phone} className="lg-truth-level" brief={brief} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={dock} />
 }
 

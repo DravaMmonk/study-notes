@@ -29,11 +29,6 @@
 .cn-verdict.is-fail { color: var(--fail); }
 
 /* ---- phone ---- */
-.cn-phone { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto auto; }
-.cn-phone > .cn-scroll { grid-row: 2; }
-.cn-phone > .pb-tray { grid-row: 3; }
-.cn-phone > .run-foot { grid-row: 4; }
-.cn-scroll { --pb-sticky-top: -12px; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 12px 12px 24px; display: grid; align-content: start; gap: 12px; }
 .cn-sheet { display: grid; gap: 14px; }
 .cn-sheet .cn-card { padding: 0; }
 .cn-sheet .cn-field select { height: 40px; font-size: 16px; }

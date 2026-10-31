@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
+import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import Entries from '../../../shell/Entries.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
@@ -77,15 +77,12 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     <div className="fo-stage">
       <RuleTable level={level} rules={rules} onChange={change} scope={`${entry.id}:${level.task ?? 0}`} />
       <DeclRules level={level} ways={waysIn(board)} />
-      {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('这份声明符合需求。', 'This declaration meets the requirement.') : verdict.text}</p>}
-      <footer className="run-foot">
-        <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
-      </footer>
     </div>
   )
+  const results = verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('这份声明符合需求。', 'This declaration meets the requirement.') : verdict.text}</p>
+  const dock = <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="fo-level lg-level">{stage}</PhonePage>
-  return <Workbench className="fo-level lg-level" brief={brief} stage={stage} scroll />
+  return <Level phone={phone} className="fo-level lg-level" brief={brief} stage={stage} results={results || null} dock={dock} />
 }
 
 /**

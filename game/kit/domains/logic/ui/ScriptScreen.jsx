@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { Brief, PhonePage, RunDock, Workbench, useKeptVerdict } from '../../../shell/index.js'
+import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parse, show } from '../formula.js'
 import { say } from '../notation.js'
@@ -148,13 +148,10 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
           {KINDS.map((k) => <button key={k} type="button" onClick={() => add(k)}><Plus size={13} />{k}</button>)}
         </div>
       )}
-      {verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('核已检查每一行。证明完毕。', 'The kernel has checked every row. Q.E.D.') : L(verdict.reason)}</p>}
-      <footer className="run-foot">
-        <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
-      </footer>
     </div>
   )
+  const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('核已检查每一行。证明完毕。', 'The kernel has checked every row. Q.E.D.') : L(verdict.reason)}</p> : null
+  const dock = <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  if (phone) return <PhonePage brief={brief} className="fo-level sc-level">{stage}</PhonePage>
-  return <Workbench className="fo-level sc-level" brief={brief} stage={stage} scroll />
+  return <Level phone={phone} className="fo-level sc-level" brief={brief} stage={stage} results={results} dock={dock} />
 }
