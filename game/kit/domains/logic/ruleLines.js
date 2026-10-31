@@ -19,7 +19,7 @@ export function premiseChips(level) {
   const formulas = level.sentences.map((s) => sentenceOf(level, s))
   const needed = new Set(formulas.flatMap(chipKeysOf))
   const v = vocabulary(formulas)
-  const pieces = { kind: 'translate', consts: level.things ?? [], vocab: v, notation: { ...level.notation, symbols: ['∀', '∃'] } }
+  const pieces = { kind: 'translate', consts: level.things ?? [], vocab: v, notation: { ...level.notation, symbols: ['∀', '∃'] }, connectives: ['¬', '∧', '∨', '→', '↔', '⊥'] }
   return chipsOf(pieces).filter((c) => needed.has(c.key))
 }
 
