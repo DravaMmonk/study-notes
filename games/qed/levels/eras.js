@@ -138,7 +138,7 @@ export const ERAS = [
       // hand: optional proofs (the taking apart uses K).
       { id: 'hol', code: 'X', after: ['k', 'q-allE'], levels: ['h-and-make', 'h-or-make'], title: T('不声明的连接词', 'Connectives without declaring') },
       // Equality defined instead of declared (a = b is ∀P. P(a) → P(b)), as “and” was: its rules proved, one level each.
-      { id: 'leibniz', code: 'X', after: ['decl-eq', 'h-and-make'], levels: ['h-eq-refl', 'h-eq-subst', 'h-eq-sym'], title: T('不声明的相等', 'Equality without declaring') },
+      { id: 'leibniz', code: 'X', after: ['decl-eq', 'h-or-make'], levels: ['h-eq-refl', 'h-eq-subst', 'h-eq-sym'], title: T('不声明的相等', 'Equality without declaring') },
       { id: 'carroll', code: 'S', after: 'q-trans', levels: ['s-barbara', 's-darii', 's-carroll'], title: T('卡罗尔的推理题', 'Carroll’s puzzles') },
       { id: 'puzzle-quantifiers', code: 'P', after: ['dsyll', 'q-trans'], levels: ['q-swap', 'q-move', 'q-ancestor', 'q-bigger'], title: T('证明谜题：量词', 'Proof puzzles: quantifiers') },
     ],
