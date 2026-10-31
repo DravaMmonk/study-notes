@@ -413,12 +413,10 @@
 
 /* A frame on the phone board (SlotBoard frameBlock): a block one or two columns wide, held by its name to drag it.
    It spans rows of the grid it sits in (a subgrid), for each region a head row, the region's rows and a foot row, so
-   the cells beside it line up with its rows, each the size of a cell: its name above and its output dot below stand
-   out into the gaps (negative margins), which are wider in a grid with a frame in it. */
+   the cells beside it line up with its rows. Its edges are a cell's, as a part's are: its name and padding sit inside
+   them, making its first and last rows a little taller. */
 .pb-cell.is-frame, .pb-frame, .pb-region, .pb-grid.is-region { display: grid; grid-template-rows: subgrid; grid-template-columns: subgrid; grid-column: 1 / -1; min-height: 0; gap: normal; }
-.pb-grid:not(.is-region):has(.is-frame) { row-gap: 78px; margin: 24px 0 18px; }
-.is-dense .pb-grid:not(.is-region):has(.is-frame) { row-gap: 68px; }
-.pb-frame { grid-row: 1 / -1; position: relative; margin: -30px 0 -18px; padding: 30px 6px 18px; border-radius: 14px; background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), inset 0 0 0 1px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent), var(--card); -webkit-touch-callout: none; }
+.pb-frame { grid-row: 1 / -1; position: relative; padding: 34px 6px 18px; border-radius: 14px; background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), inset 0 0 0 1px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent), var(--card); -webkit-touch-callout: none; }
 .pb-frame.lift { z-index: 20; pointer-events: none; }
 .pb-region { padding: 0 4px; border-radius: 10px; outline: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 35%, var(--rule)); outline-offset: -1px; }
 /* A region's head row: its name, then the value it opens, its dot on the row's foot. */
