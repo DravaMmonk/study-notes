@@ -14,6 +14,7 @@ import { freeVars, parse, same, show } from './formula.js'
 import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
 import { counters, extent, structureOf } from './fol.js'
+import { premiseChips } from './ruleLines.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { checkScript, methodsOf, sentencesOf } from './script.js'
 import { proof } from './build.js'
@@ -26,7 +27,7 @@ import { freeIn, parseTerm } from './pterm.js'
 import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, gatesOf, rowsFor } from './gates.js'
-import { checkIso, judgeCases, sentenceOf } from './iso.js'
+import { checkIso, judgeCases, sentenceOf, waysIn } from './iso.js'
 import { checkDefine } from './define.js'
 import { say } from './notation.js'
 import { presetIds } from './course.js'
@@ -109,6 +110,16 @@ export function validate({ levels: given, course }) {
     const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
     const good = checkIso(level, level.solution, words)
     out.push({ fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.ways ?? good.results.find((r) => !r.pass).reason)}`} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
+    // A declaration to write: its reference can be filled in on the rule table (one layer of ⟹, each premise built
+    // from the pieces of the level's sentences, things taken only where the level allows it).
+    if (level.play !== 'audit') {
+      const chips = premiseChips(level)
+      const missing = waysIn(level.solution).flatMap((way) => [
+        ...(way.binds.length && !level.thing ? ['any thing'] : []),
+        ...way.needs.flatMap((need) => (typeof need !== 'string' ? ['a premise with premises'] : missingChips(sentenceOf(level, need), chips))),
+      ])
+      if (missing.length) out.push({ fail: true, text: `  the reference declaration cannot be filled in: ${[...new Set(missing)].join(', ')}` })
+    }
     // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
     if (level.play === 'audit') {
       const cases = judgeCases(level, level.answer, words)

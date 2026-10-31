@@ -5,7 +5,7 @@ import { Strip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { builtWorld, claimIn } from '../fol.js'
-import { fixedLine } from './FormulaScreen.jsx'
+import { fixedLine } from './SentenceEditor.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
 // FormulaScreen.jsx), and the counterexample level (ModelScreen): on top, as a translation level has it, the

@@ -88,9 +88,11 @@ export function chipKeyOf(node) {
   return node.op
 }
 
+/** The chips a whole formula is built from. */
+export const chipKeysOf = (node) => [...new Set([chipKeyOf(node), ...kidsOf(node).flatMap((k) => chipKeysOf(k.value))])]
+
 /** The chips a whole formula needs that are not on offer (none: it can be built). */
 export function missingChips(formula, chips) {
   const offered = new Set(chips.map((c) => c.key))
-  const walk = (node) => [chipKeyOf(node), ...kidsOf(node).flatMap((k) => walk(k.value))]
-  return [...new Set(walk(formula))].filter((k) => !offered.has(k))
+  return chipKeysOf(formula).filter((k) => !offered.has(k))
 }

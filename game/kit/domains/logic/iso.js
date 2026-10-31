@@ -1,14 +1,11 @@
-// The rule board (《证明完毕》): rules built from premise cards, Join and thing cards, ⟦A; B⟧ ⟹ C. Its main use is
-// declaring something new (the connectives in chapter 3, "there is" and = with the
-// quantifiers, the numbers before induction): by its ways to make it, each a rule of its own, written as the game
-// writes every rule, ⟦A; B⟧ ⟹ A ∧ B. Three operations, the three marks of that notation, each card showing what it has
-// made so far: a premise card is ⟦⟧ (it picks its sentence: ⟦A⟧); Join is ; (two lists into one: ⟦A; B⟧); a wire is ⟹
-// (a list wired into a premise card makes a premise that carries premises of its own, ⟦⟦A⟧ ⟹ B⟧; wired into the
-// declared card, the board's output, it is one way to make it, ⟦A; B⟧ ⟹ A ∧ B, and each input that card is given
-// brings one more). A thing card takes any thing, named on the level (x), which the sentences joined after it may
-// mention (a way that takes a thing is a rule for any thing: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human); a card assuming
-// nothing makes a way that needs nothing. A declared rule has no proof inside, so it is drawn as cards, not as the
-// proof board's boxes.
+// A declaration as the kernel's checks read it (《证明完毕》): its ways to make it, each a rule, ⟦A; B⟧ ⟹ A ∧ B, held
+// as a board of premise cards, Join and thing cards wired into the declared card (the player fills the rules in on the
+// rule table, ruleLines.js boardOf makes this board; a level's reference declaration is written as one, isoBoard).
+// A premise card is ⟦A⟧; Join is ; (two lists into one: ⟦A; B⟧); a list wired into a premise card makes a premise that
+// carries premises of its own, ⟦⟦A⟧ ⟹ B⟧ (the kernel's elimination rules have them; a rule the player writes says it
+// inside the sentence, with →); wired into the declared card, a list is one way to make it. A thing card takes any
+// thing, named on the level (x), which the sentences joined after it may mention (⋀x. ⟦x is human⟧ ⟹ ∃y. y is human);
+// a card assuming nothing makes a way that needs nothing.
 //
 // The way to take it apart is not written: the ways in are all the ways there are, so it is made from them
 // (declaredRules), a case for every way, numbered as the ways are, which gets back just what that way took. Chapter 12
@@ -37,8 +34,8 @@
 // play: 'audit' with boards:
 // [{ label?, board }] someone's declarations to find the fault in, answer: [test] the reference cases
 // for an audit, slots: how many cases are set out to fill in, caseGoal, caseMake: the
-// goal and the expectation every case of an audit has (the player cannot change them), tray: the cards it
-// offers (['hyp'] unless it says: 'hyp', 'thing', 'none'), ways: the rules the declaration must have, when the
+// goal and the expectation every case of an audit has (the player cannot change them), thing: whether a rule the
+// player writes may take any thing, ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
 // (schematic.js), datatype: the type it declares (chapter 12, typeOf), whose rules the kernel makes (datatype.js) }.
@@ -419,7 +416,7 @@ export function declaredRules(level, ways, g = general(level)) {
 /** The board a level starts from: the declared card, with no way yet. */
 export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways: 0 }, locked: true, x: 320, y: 40 }], wires: [] })
 
-/** A card from the tray: an assumption of `sentence`, or a thing card naming its thing `name`. */
+/** A premise card of `sentence`, or a thing card naming its thing `name`. */
 export const hypCard = (id, sentence, at) => ({ id, type: 'hyp', params: { name: sentence }, ...at })
 export const thingCard = (id, name, at) => ({ id, type: 'thing', params: { name }, ...at })
 
