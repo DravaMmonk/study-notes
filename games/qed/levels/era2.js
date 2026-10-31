@@ -33,7 +33,7 @@ export const era2 = [
         step: T('搬进框里', 'Into a box'),
         tests: [{ goal: 'A ∧ B → B ∧ A' }],
         cases: [{ A: 'Rain', B: 'Wind' }, { A: 'Hungry', B: 'Late' }],
-        hint: [T('刚才的证明可以整个搬进一个框里：框的假设选「下雨 ∧ 刮风」。', 'The proof you just made can move into a box whole: assume “it rains ∧ it is windy”.')],
+        hint: [T('刚才的证明可以整个搬进一个框里：框的假设拼成「下雨 ∧ 刮风」。', 'The proof you just made can move into a box whole: assume “it rains ∧ it is windy”.')],
         intro: [
           { t: T('这一次没有已知：「下雨 ∧ 刮风 → 刮风 ∧ 下雨」是一句永远成立的话。', 'This time nothing is given: “it rains ∧ it is windy → it is windy ∧ it rains” always holds.') },
         ],
@@ -173,7 +173,7 @@ export const era2 = [
         cases: [{ A: 'Locked', B: 'Moon' }, { A: 'Rain', B: 'Pigs' }],
         hint: [
           T('「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。', '“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥.'),
-          T('得到 ⊥ 以后，用<part-ref to="part:botE"></part-ref>，元件上选「月亮是奶酪做的」。', 'Once you have ⊥, use <part-ref to="part:botE"></part-ref> and choose “the moon is made of cheese” on its part.'),
+          T('得到 ⊥ 以后，用<part-ref to="part:botE"></part-ref>，元件上拼出「月亮是奶酪做的」。', 'Once you have ⊥, use <part-ref to="part:botE"></part-ref> and choose “the moon is made of cheese” on its part.'),
         ],
         solution: proof({ m: ['mp'], b: ['botE', { C: 'B' }] }, ['q>m.imp', 'p>m.a', 'm>b.bot', 'b>goal'], { premises: ['p', 'q'] }),
       },

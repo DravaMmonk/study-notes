@@ -20,7 +20,10 @@ const keyOf = (path) => ['r', ...path].join('.')
 const pathOf = (key) => key.split('.').slice(1).map(Number)
 
 /** A predicate's words with its places numbered: ①是②的父母 (on its chip). */
-const placesOf = (notation, pred) => (notation.words?.[pred] ? L(notation.words[pred]).replace(/\{(\d)\}/g, (_, k) => PLACES[Number(k)]) : pred)
+const placesOf = (notation, pred, places = 0) => (notation.words?.[pred] ? L(notation.words[pred]) : pred === '=' ? '{0} = {1}' : places ? `${pred}(${Array.from({ length: places }, (_, k) => `{${k}}`).join(', ')})` : pred).replace(/\{(\d)\}/g, (_, k) => PLACES[Number(k)])
+
+// Words with numbered places ({0}), each place the segment `at(k)`.
+const template = (words, at) => words.split(/(\{\d\})/).filter(Boolean).map((w) => (/^\{\d\}$/.test(w) ? at(Number(w[1])) : w))
 
 /**
  * The formula as it reads, for the strip: each piece its own words, with a box for every empty place, so the line
@@ -30,7 +33,8 @@ function segmentOf(node, path, kind, notation, bracket = false) {
   const key = keyOf(path)
   if (!node) return { hole: key, label: kind === 'term' ? T('东西', 'thing') : T('句子', 'sentence') }
   const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
-  // A thing where a sentence goes is marked: it is not a sentence yet.
+  // A thing where a sentence goes is marked: it is not a sentence yet. A function (s, plus) has a box for each thing.
+  if (node.t === 'fn' && node.args.length) return { ...piece('name', template(L(notation.words?.[node.f] ?? T('', '')) || `${node.f}(${node.args.map((_, k) => `{${k}}`).join(', ')})`, (k) => kid(k))), bad: kind === 'formula' }
   if (node.t) return { ...piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))]), bad: kind === 'formula' }
   const kid = (k, inner) => {
     const { value, kind: takes } = kidsOf(node)[k]
@@ -38,8 +42,8 @@ function segmentOf(node, path, kind, notation, bracket = false) {
   }
   switch (node.op) {
     case 'atom': {
-      const words = notation.words?.[node.pred] ? L(notation.words[node.pred]) : `${node.pred}(${node.args.map((_, k) => `{${k}}`).join(', ')})`
-      return piece('pred', words.split(/(\{\d\})/).filter(Boolean).map((w) => (/^\{\d\}$/.test(w) ? kid(Number(w[1])) : w)))
+      const words = notation.words?.[node.pred] ? L(notation.words[node.pred]) : node.pred === '=' ? '{0} = {1}' : `${node.pred}(${node.args.map((_, k) => `{${k}}`).join(', ')})`
+      return piece('pred', template(words, (k) => kid(k)))
     }
     case '⊥': return piece('conn', ['⊥'])
     case '¬': return piece('conn', ['¬', kid(0, true)])
@@ -87,7 +91,7 @@ const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chip
   const first = holesOf(tree)[0]
   const next = strip.selected ?? (first ? keyOf(first.path) : complete(tree) ? 'end' : null)
   const groups = GROUPS
-    .map(([group, label]) => ({ key: group, label, chips: chips.filter((c) => c.group === group).map((c) => ({ key: c.key, family: group, text: c.group === 'pred' ? placesOf(notation, c.pred) : c.group === 'name' ? L(notation.words?.[c.name] ?? T(c.name, c.name)) : c.text })) }))
+    .map(([group, label]) => ({ key: group, label, chips: chips.filter((c) => c.group === group).map((c) => ({ key: c.key, family: group, text: c.group === 'pred' ? placesOf(notation, c.pred, c.places) : c.places ? placesOf(notation, c.name, c.places) : c.group === 'name' ? L(notation.words?.[c.name] ?? T(c.name, c.name)) : c.text })) }))
     .filter((g) => g.chips.length)
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>

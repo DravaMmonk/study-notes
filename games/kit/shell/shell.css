@@ -574,13 +574,6 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .rt-add:hover { color: var(--ink); }
 .rt-drop { display: inline-flex; padding: 2px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
 .rt-drop:hover { color: var(--fail); }
-.ff-inline-list { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-.ff-inline-list > span { display: inline-flex; align-items: center; gap: 2px; }
-.ff-inline-list button { display: inline-flex; padding: 1px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
-.ff-inline-select { max-width: 16em; padding: 2px 4px; border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: inherit; font: inherit; font-size: 12px; }
-.ff-inline-add { position: relative; display: inline-block; margin-left: 6px; padding: 0 8px; border: 1px dashed var(--rule); border-radius: 6px; color: var(--muted); font-size: 11.5px; line-height: 1.7; cursor: pointer; }
-.ff-inline-add select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-.ff-inline-add:hover { color: var(--ink); border-color: var(--ink); }
 .ff-inline-choice { min-width: 4em; padding: 2px 8px; border: 1px solid var(--rule); border-radius: 6px; background: transparent; color: var(--ink); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .ff-inline-choice.is-unset { color: var(--muted); border-style: dashed; }
 .rt-add svg { width: 14px; height: 14px; }
@@ -597,11 +590,6 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .rt-form { display: flex; flex-direction: column; gap: 18px; padding: 6px 0 4px; }
 .ff-field { display: flex; flex-direction: column; gap: 8px; }
 .ff-label { color: var(--muted); font-size: 12px; letter-spacing: .04em; }
-.ff-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
-.ff-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; padding: 0 6px 0 12px; border: 1px solid var(--hairline); border-radius: 10px; font-size: 15px; }
-.ff-list li button { display: inline-flex; padding: 8px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
-.ff-list li.ff-none { color: var(--muted); border-style: dashed; }
-.ff-select { min-height: 42px; padding: 0 10px; border: 1px solid var(--rule); border-radius: 10px; background: var(--paper); color: var(--body); font: inherit; font-size: 15px; }
 .ff-fixed { min-height: 42px; display: flex; align-items: center; padding: 0 12px; border: 1px dashed var(--hairline); border-radius: 10px; color: var(--body); font-size: 15px; }
 .ff-choice { display: flex; gap: 8px; }
 .ff-choice button { flex: 1; min-height: 42px; border: 1px solid var(--rule); border-radius: 10px; background: transparent; color: var(--body); font: inherit; font-size: 15px; cursor: pointer; }

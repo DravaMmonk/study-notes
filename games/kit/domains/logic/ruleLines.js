@@ -8,20 +8,13 @@
 //                                                   premises of its own: a reference declaration, or an old save's)
 import { DECL, hypCard, sentenceOf, settle, startIso, thingCard } from './iso.js'
 import { freeVars, show } from './formula.js'
-import { vocabulary } from './fol.js'
-import { chipKeysOf, chipsOf, complete, straysOf } from './formulaTree.js'
+import { chipsFrom, complete, straysOf } from './formulaTree.js'
 
 /** A new rule: one that needs nothing yet. */
 export const blankRule = () => ({ binds: [], needs: [] })
 
 /** The chips a premise is built from: the pieces of the level's sentences (its predicates, names, ∀ ∃ x, connectives). */
-export function premiseChips(level) {
-  const formulas = level.sentences.map((s) => sentenceOf(level, s))
-  const needed = new Set(formulas.flatMap(chipKeysOf))
-  const v = vocabulary(formulas)
-  const pieces = { kind: 'translate', consts: level.things ?? [], vocab: v, notation: { ...level.notation, symbols: ['∀', '∃'] }, connectives: ['¬', '∧', '∨', '→', '↔', '⊥'] }
-  return chipsOf(pieces).filter((c) => needed.has(c.key))
-}
+export const premiseChips = (level) => chipsFrom(level.sentences.map((s) => sentenceOf(level, s)), { consts: level.things ?? [], notation: level.notation })
 
 /**
  * What keeps the rules from being a declaration: a premise not yet a whole sentence ('empty'), or one that mentions a

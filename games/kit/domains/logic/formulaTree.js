@@ -6,7 +6,7 @@
 //
 //   chip   { key, kind: 'formula' | 'term', group, text, make() }
 //   path   the child indices from the root to a node: [] is the root, [1, 0] the first child of its second child
-import { BOT, all, atom, bin, ex, fn, not, tvar } from './formula.js'
+import { BOT, all, atom, bin, ex, fn, not, signature, tvar } from './formula.js'
 import { holeTree } from '../../strip/tree.js'
 
 // The connectives a level offers unless it says (`connectives`): ↔ and ⊥ are the declared ones' (chapter 3).
@@ -15,7 +15,8 @@ const QUANTIFIERS = ['∀', '∃']
 
 /** The children of a node, each with the kind of thing its hole takes. */
 export function kidsOf(node) {
-  if (!node || node.t || node.op === '⊥') return []
+  if (!node || node.op === '⊥') return []
+  if (node.t) return node.t === 'fn' ? node.args.map((a) => ({ kind: 'term', value: a })) : []
   switch (node.op) {
     case 'atom': return node.args.map((a) => ({ kind: 'term', value: a }))
     case '¬': return [{ kind: 'formula', value: node.a }]
@@ -25,6 +26,7 @@ export function kidsOf(node) {
 }
 // The node with its child k replaced.
 function withKid(node, k, value) {
+  if (node.t === 'fn') return { ...node, args: node.args.map((a, i) => (i === k ? value : a)) }
   switch (node.op) {
     case 'atom': return { ...node, args: node.args.map((a, i) => (i === k ? value : a)) }
     case '¬': return { ...node, a: value }
@@ -68,11 +70,14 @@ export function chipsOf(level) {
   const order = level.consts ?? []
   const consts = [...level.vocab.consts].sort((a, b) => order.indexOf(a) - order.indexOf(b))
   const quantifiers = QUANTIFIERS.filter((q) => level.notation.symbols.includes(q))
-  const vars = level.kind === 'query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : []
+  const vars = level.vars ?? (level.kind === 'query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : [])
+  const fns = level.vocab.fns ?? []
   return [
     // A predicate (`leads`) can take a thing the line ends with as its first place.
     ...preds.map(([p, n]) => ({ key: `P:${p}`, kind: 'formula', group: 'pred', pred: p, places: n, leads: n > 0, make: () => atom(p, Array(n).fill(null)) })),
     ...consts.map((c) => ({ key: `c:${c}`, kind: 'term', group: 'name', name: c, make: () => fn(c) })),
+    // A function (s, plus) is a thing with a box for each of its things.
+    ...fns.map(([f, n]) => ({ key: `f:${f}`, kind: 'term', group: 'name', name: f, places: n, make: () => fn(f, Array(n).fill(null)) })),
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
     ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
     // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
@@ -83,7 +88,7 @@ export function chipsOf(level) {
 /** The chip a node was made from. */
 export function chipKeyOf(node) {
   if (node.t === 'var') return `v:${node.name}`
-  if (node.t === 'fn') return `c:${node.f}`
+  if (node.t === 'fn') return node.args.length ? `f:${node.f}` : `c:${node.f}`
   if (node.op === 'atom') return `P:${node.pred}`
   if (node.op === '∀' || node.op === '∃') return `${node.op}${node.v}`
   return node.op
@@ -96,4 +101,20 @@ export const chipKeysOf = (node) => [...new Set([chipKeyOf(node), ...kidsOf(node
 export function missingChips(formula, chips) {
   const offered = new Set(chips.map((c) => c.key))
   return chipKeysOf(formula).filter((k) => !offered.has(k))
+}
+
+/**
+ * The chips some sentences are built from, and nothing more: their predicates, names, variables, quantifiers and
+ * connectives (a premise on the rule table, a test case's sentences, a proof card's setting). `consts`: the names the
+ * level reads; `notation`: its words.
+ */
+export function chipsFrom(formulas, { consts = [], notation = {} } = {}) {
+  const needed = new Set(formulas.flatMap(chipKeysOf))
+  const { preds, fns } = signature(formulas)
+  // Equality is no predicate of the signature; a sentence with = offers it as one of two places.
+  const equal = needed.has('P:=') ? [['=', 2]] : []
+  const vocab = { preds: [...preds, ...equal], consts: [...fns].filter(([, n]) => n === 0).map(([c]) => c), fns: [...fns].filter(([, n]) => n > 0) }
+  const vars = [...needed].filter((k) => k.startsWith('v:')).map((k) => k.slice(2))
+  const pieces = { kind: 'translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] }, connectives: ['¬', '∧', '∨', '→', '↔', '⊥'] }
+  return chipsOf(pieces).filter((c) => needed.has(c.key))
 }

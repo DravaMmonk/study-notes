@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Brief, PhonePage, RunDock, TestTabs, Workbench, useBoardCases } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
-import { judgeCases, propositionsOf, sentenceOf, waysIn } from '../iso.js'
+import { judgeCases, sentenceOf, waysIn } from '../iso.js'
 import { DeclRules } from './IsoScreen.jsx'
 import CaseTable, { setOut } from './IsoCases.jsx'
 import RuleTable, { rulesOf } from './RuleTable.jsx'
@@ -55,7 +55,6 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const cases = boardCases.work
   const board = boardCases.board
   const change = boardCases.setWork
-  const choices = useMemo(() => propositionsOf(level), [level])
   const checked = useMemo(() => judged(cases), [level, cases])
 
   const { playback } = boardCases
@@ -89,7 +88,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const table = (
     <div className="lg-strip is-tables">
       <DeclRules level={level} ways={ways} />
-      <CaseTable phone={phone} cases={cases} words={words} level={level} choices={choices} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
+      <CaseTable phone={phone} cases={cases} words={words} level={level} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )

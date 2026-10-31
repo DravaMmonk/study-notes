@@ -11,6 +11,7 @@ import { inductionCases } from '../proof.js'
 import { say } from '../notation.js'
 import { ScriptView } from './ScriptScreen.jsx'
 import FormulaField from './FormulaField.jsx'
+import { SentenceButton } from './SentencePick.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt, openedAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
@@ -304,7 +305,14 @@ function Setting({ s, node, board, parts, level, circuit, scene, setParam, forms
     case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} disabled={disabled} />
     case 'at': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'hyps', label: tr('已知', 'Hypotheses') }]} blank={T('目标', 'Goal')} disabled={disabled} />
     case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句', 'One-literal clauses only') }]} blank={T('任意两条', 'Any two')} disabled={disabled} />
-    default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind ?? 'formula']} blank={s.blank} disabled={disabled} />
+    // A sentence is built on the strip (SentencePick.jsx) from the pieces of the level's sentences; a thing is picked.
+    case undefined: case 'formula': case 'exists': return (
+      <div className="lg-field" onPointerDown={(e) => e.stopPropagation()}>
+        <span>{L(s.label)}</span>
+        <SentenceButton value={value} onChange={set} build={scene.build} title={s.label} placeholder={s.blank ?? T('拼一句', 'Build a sentence')} scope={`${node.id}:${s.key}`} disabled={disabled} clearable={Boolean(s.blank)} />
+      </div>
+    )
+    default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind]} blank={s.blank} disabled={disabled} />
   }
 }
 
