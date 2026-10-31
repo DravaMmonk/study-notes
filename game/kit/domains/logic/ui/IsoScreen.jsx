@@ -9,9 +9,9 @@ import { ruleText } from '../schematic.js'
 import { blankLine, boardOf, problemsOf } from '../ruleLines.js'
 import FaultScreen from './IsoFaultScreen.jsx'
 import CaseTable from './IsoCases.jsx'
-import RuleLines from './RuleLines.jsx'
+import RuleBoard from './RuleBoard.jsx'
 
-// A declaration on the rule board: its intro rules written as lines of blocks (RuleLines.jsx, ../ruleLines.js), the
+// A declaration on the rule board: its intro rules a circuit wired by itself (RuleBoard.jsx, ../ruleBoard.js), the
 // test cases (检验条例) under them (ui/IsoCases.jsx): what is given, the goal, and whether it is derivable. Running
 // goes down the rows (../../../shell/usePlayback.jsx) and stops on the first one that is wrong; lines that are not a
 // declaration yet (a conclusion left empty, a sentence about a thing no rule takes) stop it before the first.
@@ -66,7 +66,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   const result = (k) => (shown(k) ? { derived: checked.results[k].derived, wrong: !checked.results[k].pass } : null)
   const stage = (
     <div className="fo-stage">
-      <RuleLines level={level} lines={lines} onChange={change} scope={`${entry.id}:${level.task ?? 0}`} />
+      <RuleBoard level={level} lines={lines} onChange={change} scope={`${entry.id}:${level.task ?? 0}`} />
       <div className="lg-strip is-tables">
         <CaseTable cases={level.tests} words={words} level={level} rowClass={rowClass} onPick={setTestIndex} result={result} phone={phone} />
         {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
