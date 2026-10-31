@@ -150,12 +150,12 @@ export const terms = [
     consts: ["i"],
     title: T('写量词', 'Write quantifiers'),
     tasks: write([
-      { premises: { p: '∀x. Human(x) → Mortal(x)', q: "Human(i)" }, goal: "Mortal(i)", answer: "p i q", hint: [T("<part-ref to=\"part:allE\"></part-ref>写成应用，参数是那样东西：p 用在i上，再用在 q 上。", "<part-ref to=\"part:allE\"></part-ref> is an application whose argument is a thing: p used on i, then on q.")] },
+      { premises: { p: '∀x. Human(x) → Mortal(x)', q: "Human(i)" }, goal: "Mortal(i)", answer: "p i q", hint: [T('<part-ref to="part:allE"></part-ref>写成应用，参数是那样东西：p 用在安上，再用在 q 上。', '<part-ref to="part:allE"></part-ref> is an application whose argument is a thing: p used on Ann, then on q.')] },
       { premises: {}, goal: '∀x. Human(x) → Human(x)', answer: 'fun a b => b', hint: [T('<part-ref to="part:allI"></part-ref>也是 fun，拿到的 a 是一样东西。', '<part-ref to="part:allI"></part-ref> is a fun too, and the a it gets is a thing.')] },
       { premises: { p: "Human(i)" }, goal: '∃x. Human(x)', answer: "⟨i, p⟩", hint: [T('<part-ref to="part:exI"></part-ref>写成一对：左边是例子，右边是它满足的证明。', '<part-ref to="part:exI"></part-ref> is a pair: the example on the left, the proof that it fits on the right.')] },
       { premises: { p: '∃x. Human(x) ∧ Mortal(x)' }, goal: '∃x. Mortal(x)', answer: 'p.elim (fun a b => ⟨a, b.2⟩)', hint: [T('<part-ref to="part:exE"></part-ref>写成「□.elim (fun _ _ => □)」：a 是那样东西，b 是它满足的那句。', '<part-ref to="part:exE"></part-ref> is “□.elim (fun _ _ => □)”: a is the thing, b the sentence it fits.')] },
     ]),
-    intro: [{ t: T("i这样表示东西的名字，也在下面的块里。", "Names of things, such as i, are among the pieces below.") }],
+    intro: [{ t: T('安这样表示东西的名字，也在下面的块里。', 'Names of things, such as Ann, are among the pieces below.') }],
   },
   {
     id: 't-kernel',
@@ -252,7 +252,7 @@ export const terms = [
         tests: [{ premises: { p: '∀x. P(x) → Q(x)', q: "P(i)" }, goal: "Q(i)", term: "p i q" }],
         cases: PERSON,
         briefNote: T('证明项须为 p i q。', 'Its proof term must be p i q.'),
-        hint: [T("p i：把i交给 p，得到的是关于i的那句话。", "p i: hand i to p, and out comes the sentence about i.")],
+        hint: [T('p i：把安交给 p，得到的是关于安的那句话。', 'p i: hand Ann to p, and out comes the sentence about Ann.')],
         solution: proof({ e: ['allE', { t: "i" }], m: ['mp'] }, ['p>e.all', 'e>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] }),
       }),
       prove({

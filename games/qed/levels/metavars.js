@@ -305,7 +305,7 @@ export const metavars = [
     brief: T('设计一个证明助手：从「对所有」那条已知取一个，加进已知，把每个目标变成要的样子。', 'Design a proof assistant that takes one from the “for all” given and adds it to the givens, turning each goal into the one wanted.'),
     hint: [T('先证一句倒着用，第一个目标是一个光秃秃的 ?A。', 'Have used backwards leaves a bare ?A as the first goal.'), T('?A 由「对所有」那条已知来定：<part-ref to="lemma:erule"></part-ref>接上<part-ref to="part:allE"></part-ref>。', '?A is settled from the “for all” given: <part-ref to="lemma:erule"></part-ref> with <part-ref to="part:allE"></part-ref>.')],
     intro: [
-      { t: T("<part-ref to=\"part:allE\"></part-ref>写成规则是 ⟦∀x. ?P(x)⟧ ⟹ ?P(?t)。倒着用，结论 ?P(?t) 要对上「h会死」，而 ?P 后面跟的是 ?t，不是约束变量。?P 是「x会死」、?t 是h？还是 ?P 就是「h会死」、?t 任意？解不止一个，合一器不猜，元件对不上。", "<part-ref to=\"part:allE\"></part-ref> as a rule is ⟦∀x. ?P(x)⟧ ⟹ ?P(?t). Backwards, its conclusion ?P(?t) must fit “h is mortal”, but ?P is followed by ?t, not by a bound variable. Is ?P “x is mortal” with ?t h, or is ?P just “h is mortal” with ?t anything? There is more than one solution, the unifier does not guess, and the part does not fit.") },
+      { t: T('<part-ref to="part:allE"></part-ref>写成规则是 ⟦∀x. ?P(x)⟧ ⟹ ?P(?t)。倒着用，结论 ?P(?t) 要对上「苏格拉底会死」，而 ?P 后面跟的是 ?t，不是约束变量。?P 是「x会死」、?t 是苏格拉底？还是 ?P 就是「苏格拉底会死」、?t 任意？解不止一个，合一器不猜，元件对不上。', '<part-ref to="part:allE"></part-ref> as a rule is ⟦∀x. ?P(x)⟧ ⟹ ?P(?t). Backwards, its conclusion ?P(?t) must fit “Socrates is mortal”, but ?P is followed by ?t, not by a bound variable. Is ?P “x is mortal” with ?t Socrates, or is ?P just “Socrates is mortal” with ?t anything? There is more than one solution, the unifier does not guess, and the part does not fit.') },
       { t: T('证明板上不必倒着走：<part-ref to="part:allE"></part-ref>接在「对所有」那条已知后面，得出的一句再接给别的元件。中途得出一句、再拿来用，写成规则是<b>先证一句</b> ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C：倒着用它，多出一个目标 ?A，证出的 ?A 进入下一个目标的已知。<part-ref to="part:allE"></part-ref>从板上的「规则」输入接入；设计出的证明助手会成为新元件「前向推理」，这个输入就是它的「规则」口。', 'On the proof board there was no going backwards: <part-ref to="part:allE"></part-ref> was wired after the “for all” given, and what it gave wired on. Getting a sentence on the way and then using it is, as a rule, <b>Have</b>: ⟦?A; ⟦?A⟧ ⟹ ?C⟧ ⟹ ?C. Used backwards it adds a goal ?A, and the ?A proved joins the next goal’s givens. <part-ref to="part:allE"></part-ref> comes in at the board’s input Rules; the proof assistant you design becomes a new part, “Forward”, and that input is its port Rules.') },
     ],
     solution: machine({ c0: ['rule', { rule: 'cut' }], c1: ['erule'] }, ['in>c0', 'c0>c1', 'rules>c1.rules', 'c1>out'], { inputs: ['in', 'rules'] }),
@@ -338,7 +338,7 @@ export const metavars = [
     tests: [{ goal: "∃x. Likes(x, i) ∧ Human(x)", hyps: ["∃x. Human(x) ∧ Likes(x, i)"] }, { goal: '∃y. Flies(y) ∧ Bird(y)', hyps: ['∃x. Bird(x) ∧ Flies(x)'] }],
     brief: T('设计一个证明助手，证完每一个目标。', 'Design a proof assistant that proves every goal.'),
     hint: [T('?t 能变成什么，取决于它是什么时候留下的。', 'What ?t may become depends on when it was left.')],
-    intro: [{ t: T("有一个又是人、又喜欢i的人，所以有一个喜欢i、又是人的人。", "Someone is human and likes i, so someone likes i and is human.") }],
+    intro: [{ t: T('有一个又是人、又喜欢安的人，所以有一个喜欢安、又是人的人。', 'Someone is human and likes Ann, so someone likes Ann and is human.') }],
     solution: script(['erule', 'exE'], ['erule', 'conjE'], ['rule', 'exI'], ['rule', 'conjI'], 'assumption', 'assumption'),
     naive: script(['rule', 'exI'], ['erule', 'exE'], ['erule', 'conjE'], ['rule', 'conjI'], 'assumption', 'assumption'),
   }),

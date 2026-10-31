@@ -136,15 +136,16 @@ function BoardScreen({ board, game, level: entry, saved, save, solve, lastRun, k
   const setParam = (id, key, value) => !circuit.nodes.some((n) => n.id === id && isFixed(n, key)) && change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
 
   // Formulas in the level's notation (everyday sentences, symbols once introduced: notation.js).
-  const text = (f) => L(say(f, level.notation))
-  const scene = board.scene(level, test, text)
+  const notation = test.symbolic ? { ...level.notation, words: null } : level.notation
+  const text = (f) => L(say(f, notation))
+  const scene = board.scene({ ...level, notation }, test, text)
   // From chapter 7 on (`terms`) every card shows its proof term too.
   const Value = (props) => <board.Value {...props} terms={Boolean(level.terms)} />
   const result = stepped ? run?.results[shownIndex] : verdict?.results[shownIndex]
   const states = stepped ? playback.states : tests.map((_, k) => (verdict ? (verdict.results[k].pass ? 'pass' : 'fail') : null))
   const best = progress.best?.[level.id]
   const brief = (
-    <Brief game={game} level={entry} hint={level.hint} phone={phone}>
+    <Brief game={game} level={entry} text={test.symbolic || level.caseBriefs ? test.caseBrief : undefined} hint={level.hint} phone={phone}>
       {level.script && <ScriptView rows={level.script} text={(t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] }))} />}
       <section className="lg-score">
         <div className="stat-row">

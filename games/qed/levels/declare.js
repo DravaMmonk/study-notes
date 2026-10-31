@@ -12,7 +12,7 @@
 // its ways in and its elimination rule as proof-board parts (`adds`), which chapter 4 puts to work. Chapter 12 has the
 // player build the machine that makes it (the elimination rule generator).
 import { isoBoard } from '../../kit/domains/logic/iso.js'
-import { TERM_WORDS } from './words.js'
+import { TERM_WORDS, STAR_NAMES } from './words.js'
 import { machine } from '../../kit/domains/logic/build.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -515,7 +515,7 @@ export const moreDeclarations = [
       { given: ['AnnYes', 'BoYes'], make: true },
       { given: ['Motion', 'AnnYes → Happy'], goal: 'Happy', make: false },
     ],
-    brief: T("需求：i、j、k 三人投票，至少两人同意，「提案通过」才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。", "Requirement: i, j and k vote; “the motion passes” may be introduced only when at least two of them agree. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree."),
+    brief: T('需求：安、博、赛三人投票，至少两人同意，「提案通过」才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。', 'Requirement: Ann, Bo and Cy vote; “the motion passes” may be introduced only when at least two of them agree. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.'),
     hint: [
       T('两人同意共有几种组合？这份声明写出了哪几种？', 'How many pairs can agree? Which does this declaration write out?'),
       T('这份声明的每一条引入规则里，都有谁？', 'Who is in every one of this declaration’s introduction rules?'),
@@ -626,7 +626,7 @@ export const thingDeclarations = [
       { given: ['∃y. Human(y)', '∀x. Human(x) → Mortal(x)'], goal: "Mortal(h)", make: false },
     ],
     intro: [
-      { t: T("「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，证明核本来就会。「存在」不同：「∃y. y是人」要有某一样东西，再有它是人的证明，比如「h是人」。", "“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can already do that. “There is” is different: “∃y. y is human” needs some thing and a proof that it is human, such as “h is human”.") },
+      { t: T('「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，证明核本来就会。「存在」不同：「∃y. y是人」要有某一样东西，再有它是人的证明，比如「苏格拉底是人」。', '“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can already do that. “There is” is different: “∃y. y is human” needs some thing and a proof that it is human, such as “Socrates is human”.') },
     ],
     tasks: [
       {
@@ -668,6 +668,7 @@ export const thingDeclarations = [
   }),
   declare({
     id: 'decl-eq',
+    words: { ...TERM_WORDS, ...STAR_NAMES },
     adds: ['rewrite', 'refl'],
     title: T('声明相等', 'Declaring equality'),
     declare: T('相等', 'equal'),
@@ -682,7 +683,7 @@ export const thingDeclarations = [
       { given: [], goal: 'i = j', make: false },
     ],
     take: { premises: ['?a = ?b', '?P(?a)'], conclusion: '?P(?b)' },
-    intro: [{ t: T('i 和 j 是不是同一对象？要说两样东西相等，先要声明相等。', 'Do i and j denote the same object? To say two things are equal, equality has to be declared first.') }],
+    intro: [{ t: T('晨星和昏星是不是同一颗星？要说两样东西相等，先要声明相等。', 'Are the Morning Star and the Evening Star one star? To say two things are equal, equality has to be declared first.') }],
     brief: T('需求：任何东西都等于它自己；凭空证不出两个不同名字相等。写出「相等」的声明。', 'Requirement: everything equals itself; two different names cannot be proved equal from nothing. Write the declaration of equality.'),
     hint: [T('凭空证得出的「s = t」，两边有什么共同之处？', 'What do the two sides of an “s = t” proved from nothing have in common?')],
     solution: isoBoard(['⋀a>1']),

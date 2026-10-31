@@ -92,7 +92,7 @@ export const strategies = [
     brief: BRIEF,
     hint: [T('哪个目标对得上的已知少？', 'Which goal fits fewer givens?')],
     intro: [
-      { t: T("一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它。逆用<part-ref to=\"part:exI\"></part-ref>、再拼成以后，两个目标是 ?t是人、?t喜欢i。<part-ref to=\"part:assumption\"></part-ref>取第一条对得上的已知：先证「?t是人」，?t 就成了k，可k不喜欢i，第二个目标便证不下去。", "When a ?-letter sits in two goals, whichever is proved first settles it. After <part-ref to=\"part:exI\"></part-ref> and Join backwards the goals are ?t is human, ?t likes i. <part-ref to=\"part:assumption\"></part-ref> takes the first given that fits: prove “?t is human” first, and ?t becomes k, who does not like i, so the second goal cannot be proved.") },
+      { t: T('一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它。逆用<part-ref to="part:exI"></part-ref>、再拼成以后，两个目标是 ?t是人、?t喜欢安。<part-ref to="part:assumption"></part-ref>取第一条对得上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标便证不下去。', 'When a ?-letter sits in two goals, whichever is proved first settles it. After <part-ref to="part:exI"></part-ref> and Join backwards the goals are ?t is human, ?t likes Ann. <part-ref to="part:assumption"></part-ref> takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved.') },
       { t: T('新元件「目标后移」：把第一个目标移到最后。', 'A new part, “Defer”: it moves the first goal to the end.') },
     ],
     solution: script(['rule', 'exI'], ['rule', 'conjI'], 'defer', 'assumption', 'assumption'),
@@ -198,7 +198,7 @@ export const strategies = [
     hint: [T('倒着用规则「祖父母」。', 'Use the rule Grandparent backwards.'), T('每一种对法都是一个答案。', 'Every way of fitting is an answer.')],
     intro: [
       { t: T('<level-ref to="q-grand"></level-ref>里，「祖父母」写成了一句查询。这一次它是一条规则：⟦?x是?y的父母; ?y是?z的父母⟧ ⟹ ?x是?z的祖父母。族谱上的事实是目标的已知。', 'In <level-ref to="q-grand"></level-ref>, “grandparent” was written as a query. This time it is a rule: ⟦?x is a parent of ?y; ?y is a parent of ?z⟧ ⟹ ?x is a grandparent of ?z. The family tree’s facts are the goal’s givens.') },
-      { t: T("问题本身带着 ?：「?w是k的祖父母」。每一种证法里 ?w 是谁，就是一个答案。", "The question itself holds a ?-letter: “?w is a grandparent of k”. Who ?w is in each way of proving it is an answer.") },
+      { t: T('问题本身带着 ?：「?w是茜的祖父母」。每一种证法里 ?w 是谁，就是一个答案。', 'The question itself holds a ?-letter: “?w is a grandparent of Cy”. Who ?w is in each way of proving it is an answer.') },
     ],
     solution: script(['rule', 'grand'], 'assumption', 'assumption'),
     after: T('这就是 Prolog：程序是一组规则，提问是证明一个带 ? 的目标。', 'This is Prolog: a program is a set of rules, and a question is a goal with ?-letters to prove.'),
@@ -241,7 +241,7 @@ export const strategies = [
     tests: [{ goal: "Older(i, k)", hyps: ["Older(i, j)", "Older(j, k)"] }, { goal: "Older(j, l)", hyps: ["Older(j, k)", "Older(k, l)"] }, { goal: "Older(k, i)", hyps: ["Older(i, j)", "Older(j, k)"], want: 'fails' }],
     brief: T('设计一个证明助手：证得出的目标证完，证不出的报告失败。', 'Design a proof assistant that proves the goals that can be proved, and reports failure on the one that cannot.'),
     hint: [T('证不出的那一句，搜索在哪里停不下来？', 'On the sentence that cannot be proved, where does the search fail to stop?'), T('每一步都出现新的 ?，搜索看不出自己在绕圈。', 'Each step brings a new ?-letter, so the search cannot tell it is going round.')],
-    intro: [{ t: T("i比j年长，j比k年长，所以i比k年长；k比i年长，却无论如何推不出来。证不出时，证明助手也必须停下，报告失败。", "i is older than j and j older than k, so i is older than k; that k is older than i follows from nothing. When there is no proof, the proof assistant must still stop and report failure.") }],
+    intro: [{ t: T('安比博年长，博比茜年长，所以安比茜年长；茜比安年长，却无论如何推不出来。证不出时，证明助手也必须停下，报告失败。', 'Ann is older than Bo and Bo older than Cy, so Ann is older than Cy; that Cy is older than Ann follows from nothing. When there is no proof, the proof assistant must still stop and report failure.') }],
     solution: searchOf([['rule', 'trans']], { depth: 3 }),
     naive: searchOf([['rule', 'trans']]),
   }),

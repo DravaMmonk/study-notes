@@ -227,7 +227,7 @@ export const automation = [
       T('<part-ref to="part:repeat"></part-ref>。', '<part-ref to="part:repeat"></part-ref>.'),
     ],
     intro: [
-      { t: T("在<level-ref to=\"au-refute\"></level-ref>里，每一步消哪一对由你挑。证明助手不挑：新元件「一轮归结」把能消的每一对都消一次，新子句加进来，并记下它由哪两条得出。子句里有变量时，一对文字先合一再消：「¬x是人 ∨ x会死」和「h是人」，x 合一为h。", "In <level-ref to=\"au-refute\"></level-ref> you chose which pair to cancel at each step. A proof assistant does not choose: the new card “a round of resolution” cancels every pair that can be cancelled, once, adding each new clause along with the two it came from. When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “h is human”, with x unified to h.") },
+      { t: T('在<level-ref to="au-refute"></level-ref>里，每一步消哪一对由你挑。证明助手不挑：新元件「一轮归结」把能消的每一对都消一次，新子句加进来，并记下它由哪两条得出。子句里有变量时，一对文字先合一再消：「¬x是人 ∨ x会死」和「苏格拉底是人」，x 合一为苏格拉底。', 'In <level-ref to="au-refute"></level-ref> you chose which pair to cancel at each step. A proof assistant does not choose: the new card “a round of resolution” cancels every pair that can be cancelled, once, adding each new clause along with the two it came from. When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “Socrates is human”, with x unified to Socrates.') },
     ],
     solution: flow({ frame: 'repeat', body: ['resolve'] }),
     naive: flow('resolve'),

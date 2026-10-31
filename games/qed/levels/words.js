@@ -12,9 +12,9 @@ export const WORDS = {
   Sat: T('今天是周六', 'today is Saturday'),
   Sun: T('今天是周日', 'today is Sunday'),
   Holiday: T('今天放假', 'today is a holiday'),
-  AnnYes: T('i 同意', 'i agrees'),
-  BoYes: T('j 同意', 'j agrees'),
-  CyYes: T('k 同意', 'k agrees'),
+  AnnYes: T('安同意', 'Ann agrees'),
+  BoYes: T('博同意', 'Bo agrees'),
+  CyYes: T('赛同意', 'Cy agrees'),
   Motion: T('提案通过', 'the motion passes'),
   Truth: T('真', 'True'),
   Nat: T('自然数', 'a number'),
@@ -104,8 +104,8 @@ export const WORDS = {
   c: T('⟨{0}⟩', '⟨{0}⟩'),
   Angry: T('老师生气了', 'the teacher is cross'),
   Woken: T('我被吵醒了', 'I am woken up'),
-  h: T('h', 'h'), i: T('i', 'i'), j: T('j', 'j'), k: T('k', 'k'),
-  l: T('l', 'l'), m: T('m', 'm'), n: T('n', 'n'),
+  h: T('苏格拉底', 'Socrates'), i: T('安', 'Ann'), j: T('博', 'Bo'), k: T('茜', 'Cy'),
+  l: T('迪', 'Dee'), m: T('恩', 'En'), n: T('菲', 'Fay'),
 }
 
 // Numbers and lists built by functions (chapter 10 on), read the way Isabelle prints them: S n the number after n,
@@ -132,3 +132,6 @@ export const TERM_WORDS = {
   sort: T('sort {0}', 'sort {0}'),
   f: T('f {0}', 'f {0}'),
 }
+
+// Different names for the same star are used in the equality examples.
+export const STAR_NAMES = { a: T('晨星', 'the Morning Star'), b: T('昏星', 'the Evening Star'), i: T('晨星', 'the Morning Star'), j: T('昏星', 'the Evening Star'), k: T('金星', 'Venus') }

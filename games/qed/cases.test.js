@@ -1,0 +1,25 @@
+import { test } from 'node:test'
+import { strict as assert } from 'node:assert'
+import spec from './spec.js'
+import { parse } from '../kit/domains/logic/formula.js'
+import { render } from '../kit/domains/logic/notation.js'
+
+test('proof tasks offer a concrete default and a symbolic final case', () => {
+  for (const entry of spec.levels) for (const level of entry.tasks ?? [entry]) {
+    if (level.kind !== 'proof') continue
+    assert.ok(level.tests.length >= 2, entry.id)
+    assert.notEqual(level.tests[0].symbolic, true, entry.id)
+    assert.equal(level.tests.at(-1).symbolic, true, entry.id)
+    assert.equal(level.tests.at(-1).label.zh, '字母', entry.id)
+  }
+})
+
+test('equality cases use object names by default and letters in the symbolic case', () => {
+  const level = spec.levels.find((item) => item.id === 'h-eq-sym')
+  const [concrete, symbolic] = level.tests
+  const formula = (item) => parse(item.goal, { consts: level.consts })
+  assert.match(render(formula(concrete), level.notation, 'zh'), /昏星.*晨星/)
+  assert.match(render(formula(symbolic), { ...level.notation, words: null }, 'zh'), /Q\(j\).*Q\(i\)/)
+  assert.match(concrete.caseBrief.zh, /昏星.*晨星/)
+  assert.match(symbolic.caseBrief.zh, /Q\(j\).*Q\(i\)/)
+})

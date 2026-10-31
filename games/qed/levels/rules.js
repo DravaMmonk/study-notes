@@ -4,6 +4,7 @@
 // quantifiers, and equality, its own mechanism: equals replace equals, both ways round and along a chain. Lewis
 // Carroll's syllogism puzzles are the topic.
 import { proof } from '../../kit/domains/logic/build.js'
+import { WORDS, STAR_NAMES } from './words.js'
 
 const T = (zh, en) => ({ zh, en })
 const prove = (task) => ({ kind: 'proof', ...task })
@@ -18,7 +19,7 @@ export const rules = [
     adds: ['allE'],
     tests: [{ premises: { p: '∀x. P(x) → Q(x)', q: "P(i)" }, goal: "Q(i)" }],
     cases: PERSON,
-    hint: [T("「对所有 x」说的话，对i也成立：在元件上把 x 换成i。", "What holds for every x holds for i: on the part, put i in for x.")],
+    hint: [T('「对所有 x」说的话，对安也成立：在元件上把 x 换成安。', 'What holds for every x holds for Ann: on the part, put Ann in for x.')],
     intro: [
       { t: T('新元件<part-ref to="part:allE"></part-ref>：接进「∀x. …」，在元件上选一样东西，输出就是把 x 换成它的那句话。', 'A new part, <part-ref to="part:allE"></part-ref>: wire in a “∀x. …”, choose a thing on the part, and out comes the sentence with x replaced by it.') },
     ],
@@ -89,7 +90,7 @@ export const rules = [
     consts: ["i"],
     tests: [{ premises: { p: "P(i) ∧ Q(i)" }, goal: '∃x. Q(x)' }],
     cases: PERSON,
-    hint: [T("拆出「i会死」，接进<part-ref to=\"part:exI\"></part-ref>。", "Split out “i is mortal” and wire it into <part-ref to=\"part:exI\"></part-ref>.")],
+    hint: [T('拆出「安会死」，接进<part-ref to="part:exI"></part-ref>。', 'Split out “Ann is mortal” and wire it into <part-ref to="part:exI"></part-ref>.')],
     intro: [{ t: T('<part-ref to="part:exI"></part-ref>使用<level-ref to="decl-ex"></level-ref>写下的引入规则：有对象满足某个条件，就可以说存在满足这个条件的对象。接入关于该对象的命题；若能得出多个存在命题，在元件上选择所需的结论。', '<part-ref to="part:exI"></part-ref> uses the introduction rule written in <level-ref to="decl-ex"></level-ref>: an object satisfying a condition shows that such an object exists. Connect a statement about the object; if several existential statements follow, choose the conclusion on the part.') }],
     solution: proof({ s: ['andE'], i: ['exI'] }, ['p>s.ab', 's#right>i.a', 'i>goal'], { premises: ['p'] }),
   },
@@ -110,21 +111,22 @@ export const rules = [
     kind: 'model',
     consts: ["h"],
     title: T('借来的名字不能带走', 'A borrowed name stays'),
-    say: T("有一只鸟，所以h是鸟。", "There is a bird, so h is a bird."),
+    say: T('有一只鸟，所以苏格拉底是鸟。', 'There is a bird, so Socrates is a bird.'),
     given: ['∃x. Bird(x)'],
     goal: "Bird(h)",
     answer: { size: 2, preds: { Bird: ['1'] }, consts: { h: 0 } },
     brief: T('这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。', 'Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails.'),
-    hint: [T("两样东西：一样是h，另一样是鸟。", "Two things: one is h, the other a bird.")],
+    hint: [T('两样东西：一样是苏格拉底，另一样是鸟。', 'Two things: one is Socrates, the other a bird.')],
   },
   {
     id: 'q-eq',
+    words: { ...WORDS, ...STAR_NAMES },
     kind: 'proof',
-    title: T('a 与 b 相等', 'a is b'),
+    title: T('晨星就是昏星', 'The Morning Star is the Evening Star'),
     consts: ['a', 'b'],
     tests: [{ premises: { p: 'a = b', q: 'P(a)', t: '∀x. P(x) → Q(x)' }, goal: 'Q(b)' }],
     cases: [{ P: 'Bright', Q: 'Seen' }, { P: 'Seen', Q: 'Bright' }],
-    hint: [T('接好两根线，元件上会把每个「a」框出来：点一下框，那一处就换成「b」。', 'Once both wires are in, the part boxes each “a”: tick a box and that one becomes “b”.')],
+    hint: [T('接好两根线，元件上会把每个「晨星」框出来：点一下框，那一处就换成「昏星」。', 'Once both wires are in, the part boxes each “the Morning Star”: tick a box and that one becomes “the Evening Star”.')],
     intro: [
       { t: T('古人以为清晨和黄昏天边的亮星是两颗，后来才知道都是金星。两个名字指同一样东西，写作 <b>=</b>：<wiki-ref to="equality"></wiki-ref>。', 'The ancients took the bright star of dawn and the one of dusk for two; later they learned both are Venus. Two names for one thing are written <b>=</b>: <wiki-ref to="equality"></wiki-ref>.') },
       { t: T('<level-ref to="decl-eq"></level-ref>声明的相等带来两块元件：<part-ref to="part:rewrite"></part-ref>接进 s = t 和一句提到 s 的话，在元件上把每个 s 框出来，点选的几处换成 t；<part-ref to="part:refl"></part-ref>直接给出 t = t。', 'The equality declared in <level-ref to="decl-eq"></level-ref> brought two parts: <part-ref to="part:rewrite"></part-ref> takes s = t and a sentence about s, boxes each s on the part, and replaces the ticked ones by t; <part-ref to="part:refl"></part-ref> gives t = t at once.') },
@@ -133,27 +135,29 @@ export const rules = [
   },
   {
     id: 'q-sym',
+    words: { ...WORDS, ...STAR_NAMES },
     kind: 'proof',
     title: T('倒过来也相等', 'Equal both ways'),
     consts: ['i', 'j'],
     tests: [{ premises: { p: 'i = j' }, goal: 'j = i' }],
     cases: [],
-    brief: T('已知「i = j」，证明「j = i」。', 'Given “i = j”, prove “j = i”.'),
+    brief: T('已知「晨星 = 昏星」，证明「昏星 = 晨星」。', 'Given “the Morning Star = the Evening Star”, prove “the Evening Star = the Morning Star”.'),
     hint: [
-      T('自反律给出「i = i」。', 'Reflexivity gives “i = i”.'),
-      T('只换掉它左边那个i。', 'Replace only the i on the left.'),
+      T('自反律给出「晨星 = 晨星」。', 'Reflexivity gives “the Morning Star = the Morning Star”.'),
+      T('只换掉它左边那个晨星。', 'Replace only its left Morning Star.'),
     ],
     solution: proof({ r: ['refl', { t: 'i' }], w: ['rewrite', { at: [0] }] }, ['p>w.eq', 'r>w.p', 'w>goal'], { premises: ['p'] }),
   },
   {
     id: 'q-trans',
+    words: { ...WORDS, ...STAR_NAMES },
     kind: 'proof',
     title: T('一路相等', 'Equal all along'),
     consts: ['i', 'k', 'j'],
     tests: [{ premises: { p: 'i = k', q: 'k = j' }, goal: 'i = j' }],
     cases: [],
-    brief: T('已知「i = k」和「k = j」，证明「i = j」。', 'Given “i = k” and “k = j”, prove “i = j”.'),
-    hint: [T('把第一句里的 k 换掉。', 'Replace k in the first.')],
+    brief: T('已知「晨星 = 金星」和「金星 = 昏星」，证明「晨星 = 昏星」。', 'Given “the Morning Star = Venus” and “Venus = the Evening Star”, prove “the Morning Star = the Evening Star”.'),
+    hint: [T('把第一句里的金星换掉。', 'Replace Venus in the first.')],
     solution: proof({ w: ['rewrite', { at: [0] }] }, ['q>w.eq', 'p>w.p', 'w>goal'], { premises: ['p', 'q'] }),
   },
   {
@@ -214,7 +218,7 @@ export const rules = [
     consts: ["i", "j", "k"],
     tests: [{ premises: { t: '∀x. ∀y. ∀z. R(x, y) ∧ R(y, z) → R(x, z)', a: "R(i, j)", b: "R(j, k)" }, goal: "R(i, k)" }],
     cases: [{ R: 'Anc' }, { R: 'Older' }],
-    hint: [T("三个 ∀，一个一个取：x 是i，y 是j，z 是k。", "Three ∀s, taken one at a time: x is i, y is j, z is k.")],
+    hint: [T('三个 ∀，一个一个取：x 是安，y 是博，z 是茜。', 'Three ∀s, taken one at a time: x is Ann, y is Bo, z is Cy.')],
     solution: proof({ e1: ['allE', { t: "i" }], e2: ['allE', { t: "j" }], e3: ['allE', { t: "k" }], c: ['andI'], m: ['mp'] }, ['t>e1.all', 'e1>e2.all', 'e2>e3.all', 'a>c.a', 'b>c.b', 'e3>m.imp', 'c>m.a', 'm>goal'], { premises: ['t', 'a', 'b'] }),
   },
   {
