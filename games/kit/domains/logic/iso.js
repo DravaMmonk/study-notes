@@ -41,7 +41,7 @@
 // (schematic.js), datatype: the type it declares (chapter 12, typeOf), whose rules the kernel makes (datatype.js) }.
 import { runBoard } from '../../engine/boards.js'
 import { meta, parse, show, subst as substF } from './formula.js'
-import { premisesText, ruleOf, ruleText } from './schematic.js'
+import { ruleOf, ruleText } from './schematic.js'
 
 const T = (zh, en) => ({ zh, en })
 export const DECL = 'decl'
@@ -356,13 +356,6 @@ export const wayRule = (way, level, g = (f) => f) => ({ fixes: way.binds, premis
 
 /** A rule written out, with the things a way takes in front: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human. */
 export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${ruleText(rule, say)}`
-/** What a card has made so far, as it is written before ⟹ in a rule: ⋀x. ⟦x is human⟧, ⟦⟦A⟧ ⟹ B⟧ ('' for none). */
-export const listText = (value, level, say) => {
-  const rule = wayRule(wayOf(value), level)
-  return `${rule.fixes.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${premisesText(rule.premises, say)}`
-}
-/** A rule's value on the board as a way: { needs, binds }. */
-export const wayOf = (rule) => ({ needs: needsOf(rule), binds: bindsOf(rule) })
 
 // The declared sentence's own letters and predicates, each a metavariable in turn (?A, ?B … for a sentence, ?P, ?Q …
 // for one about things): the rules for any sentences, not just the level's. A new proposition (one whose sentence
