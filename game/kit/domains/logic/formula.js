@@ -5,6 +5,7 @@
 //            { op: '¬', a }                        ¬A, shown as itself but meaning A → ⊥ to the rules
 //            { op: '∧' | '∨' | '→' | '↔', a, b }
 //            { op: '∀' | '∃', v, body }            v: a variable's name
+//            { op: '∀', v, prop: true, body }      ∀R. …: for every sentence R (v upper-case), R an atom in the body
 //            { op: 'meta', name, args? }           a schematic letter in a lemma (A, B, C…), bound by matching; or a
 //                                                  rule's metavariable ?A, ?P(x) (schematic.js), with the things it
 //                                                  is about
@@ -78,7 +79,8 @@ export function parse(text, { metas = [], consts = [] } = {}) {
       i++
       const v = tokens[i++]
       if (peek() === '.') i++
-      return { op: t, v, body: formula(0) }
+      // An upper-case name is a sentence: ∀R. … is for every sentence R.
+      return /^[A-Z]/.test(v) && t === '∀' ? { op: t, v, prop: true, body: formula(0) } : { op: t, v, body: formula(0) }
     }
     if (t === '(') { i++; const f = formula(0); eat(')'); return f }
     if (t && /^\??[A-Z]/.test(t)) {
@@ -148,9 +150,34 @@ export function replaceAtoms(f, map) {
     return to.op === 'atom' && !to.args.length ? atom(to.pred, f.args) : f
   }
   if (f.op === '¬') return not(replaceAtoms(f.a, map))
-  if (f.op === '∀' || f.op === '∃') return { ...f, body: replaceAtoms(f.body, map) }
+  if (f.op === '∀' || f.op === '∃') {
+    // A sentence the quantifier binds is its own, not the case's letter.
+    if (f.prop && f.v in map) {
+      const { [f.v]: _, ...rest } = map
+      return { ...f, body: replaceAtoms(f.body, rest) }
+    }
+    return { ...f, body: replaceAtoms(f.body, map) }
+  }
   if (f.a) return bin(f.op, replaceAtoms(f.a, map), replaceAtoms(f.b, map))
   return f
+}
+
+/** f with the sentence letter R replaced by the sentence `by` where it is free (not under another ∀R). */
+export function substSentence(f, R, by) {
+  if (f.op === 'atom') return f.pred === R && !f.args.length ? by : f
+  if (f.op === '¬') return not(substSentence(f.a, R, by))
+  if (f.op === '∀' || f.op === '∃') return f.prop && f.v === R ? f : { ...f, body: substSentence(f.body, R, by) }
+  if (f.a) return bin(f.op, substSentence(f.a, R, by), substSentence(f.b, R, by))
+  return f
+}
+
+/** Whether the sentence letter R occurs free in f. */
+export const mentionsSentence = (f, R) => {
+  if (f.op === 'atom') return f.pred === R && !f.args.length
+  if (f.op === '¬') return mentionsSentence(f.a, R)
+  if (f.op === '∀' || f.op === '∃') return !(f.prop && f.v === R) && mentionsSentence(f.body, R)
+  if (f.a) return mentionsSentence(f.a, R) || mentionsSentence(f.b, R)
+  return false
 }
 
 const termVars = (t, out) => {
@@ -199,7 +226,7 @@ export function subst(f, v, by) {
         const w = fresh(f.v, new Set([...inBy, ...freeVars(f.body)]))
         return { op: f.op, v: w, body: subst(subst(f.body, f.v, tvar(w)), v, by) }
       }
-      return { op: f.op, v: f.v, body: subst(f.body, v, by) }
+      return { ...f, body: subst(f.body, v, by) }
     }
     case '∧': case '∨': case '→': case '↔': return bin(f.op, subst(f.a, v, by), subst(f.b, v, by))
     default: return f
@@ -224,7 +251,11 @@ export function same(f0, g0, env = new Map()) {
     case 'atom': return f.pred === g.pred && f.args.length === g.args.length && f.args.every((t, k) => sameTerm(t, g.args[k], env))
     case 'meta': return f.name === g.name && (f.args ?? []).length === (g.args ?? []).length && (f.args ?? []).every((t, k) => sameTerm(t, g.args[k], env))
     case '⊥': return true
-    case '∀': case '∃': return same(f.body, g.body, new Map([...env, [f.v, g.v]]))
+    case '∀': case '∃':
+      if (Boolean(f.prop) !== Boolean(g.prop)) return false
+      // Two sentence letters bound alike: compare with g's renamed to f's.
+      if (f.prop) return same(f.body, f.v === g.v ? g.body : substSentence(g.body, g.v, atom(f.v)), env)
+      return same(f.body, g.body, new Map([...env, [f.v, g.v]]))
     default: return same(f.a, g.a, env) && same(f.b, g.b, env)
   }
 }
@@ -234,13 +265,14 @@ export function signature(formulas) {
   const preds = new Map()
   const fns = new Map()
   const term = (t) => { if (t.t === 'fn') { fns.set(t.f, t.args.length); t.args.forEach(term) } }
-  const walk = (f) => {
-    if (f.op === 'atom') { if (f.pred !== '=') preds.set(f.pred, f.args.length); f.args.forEach(term) }
-    else if (f.op === '¬') walk(f.a)
-    else if (f.op === '∀' || f.op === '∃') walk(f.body)
-    else if (f.a) { walk(f.a); walk(f.b) }
+  // A sentence letter a ∀ binds (∀R. …) is no letter of the signature.
+  const walk = (f, bound = new Set()) => {
+    if (f.op === 'atom') { if (f.pred !== '=' && !(bound.has(f.pred) && !f.args.length)) preds.set(f.pred, f.args.length); f.args.forEach(term) }
+    else if (f.op === '¬') walk(f.a, bound)
+    else if (f.op === '∀' || f.op === '∃') walk(f.body, f.prop ? new Set([...bound, f.v]) : bound)
+    else if (f.a) { walk(f.a, bound); walk(f.b, bound) }
   }
-  formulas.forEach(walk)
+  formulas.forEach((f) => walk(f))
   return { preds, fns }
 }
 

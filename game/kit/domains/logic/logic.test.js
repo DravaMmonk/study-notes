@@ -479,3 +479,17 @@ test('the elimination rule generator: one case for each way in, its conclusion a
   assert.equal(genRuleText(out.rule), '⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?R; ⟦?B⟧ ⟹ ?R⟧ ⟹ ?R')
 })
 
+
+test('a ∀ over sentences: R is bound, a test case leaves it, a sentence goes in for it, and it is true when its body is for R true and false', async () => {
+  const { parse, replaceAtoms, same, show, substSentence } = await import('./formula.js')
+  const { holds } = await import('./models.js')
+  const { lettersOf } = await import('./truth.js')
+  const def = parse('∀R. (A → (B → R)) → R')
+  assert.equal(def.prop, true)
+  assert.deepEqual(lettersOf([def]), ['A', 'B'])
+  assert.equal(show(replaceAtoms(def, { A: parse('Rain'), R: parse('Wet') })), '∀R. (Rain → B → R) → R')
+  assert.equal(show(substSentence(def.body, 'R', parse('A'))), '(A → B → A) → A')
+  assert.ok(same(def, parse('∀S. (A → (B → S)) → S')))
+  assert.equal(holds(def, { domain: [0], preds: { A: true, B: true }, fns: {} }), true)
+  assert.equal(holds(def, { domain: [0], preds: { A: true, B: false }, fns: {} }), false)
+})

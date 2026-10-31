@@ -17,7 +17,8 @@ export function holds(f, m, env = {}) {
     case '∨': return holds(f.a, m, env) || holds(f.b, m, env)
     case '→': return !holds(f.a, m, env) || holds(f.b, m, env)
     case '↔': return holds(f.a, m, env) === holds(f.b, m, env)
-    case '∀': return m.domain.every((d) => holds(f.body, m, { ...env, [f.v]: d }))
+    // For every sentence R: R true and R false (a sentence's value is all a structure sees of it).
+    case '∀': return f.prop ? [true, false].every((b) => holds(f.body, { ...m, preds: { ...m.preds, [f.v]: b } }, env)) : m.domain.every((d) => holds(f.body, m, { ...env, [f.v]: d }))
     case '∃': return m.domain.some((d) => holds(f.body, m, { ...env, [f.v]: d }))
     default: throw new Error(`no value for ${f.op}`)
   }
