@@ -9,7 +9,8 @@ import { blankRule, premiseChips, problemsOf } from '../ruleLines.js'
 import SentenceEditor from './SentenceEditor.jsx'
 
 // A declaration's intro rules as a table to fill in (《证明完毕》's rule table, ../ruleLines.js): the sentence it
-// introduces (结论), then a row for each intro rule (成立条件), its premises one after another, ended by 「均为真。」
+// introduces (结论), then a row for each intro rule (成立条件), its premises one after another, ended by 「均为真。」 (「为真。」 for
+// one premise)
 // and the button that adds one more; a level that takes things (`thing`) has a for-any switch before the first. A
 // premise is a sentence, built or changed with the translate tasks' strip and chips (SentenceEditor.jsx), beside it on
 // a desktop and in a sheet on a phone (Popover.jsx); a change holds at once, and a premise left empty when the editor
@@ -49,7 +50,7 @@ export default function RuleTable({ level, rules, onChange = null, scope = '' })
     <div className="lg-rule-table">
       <div className="lg-rt-row is-goal">
         <span className="lg-rt-name">{tr('结论', 'Conclusion')}</span>
-        <span className="lg-rt-needs"><b className="lg-rt-goal">{words(sentenceOf(level, level.target))}</b></span>
+        <span className="lg-rt-needs"><b className="lg-rt-goal">{words(sentenceOf(level, level.target))}</b><span className="lg-rt-true">{tr('为真。', 'holds.')}</span></span>
       </div>
       {rules.map((rule, k) => (
         <div key={k} className="lg-rt-row">
@@ -74,7 +75,7 @@ export default function RuleTable({ level, rules, onChange = null, scope = '' })
                   {whole(need) ? words(need) : tr('未写完', 'Unfinished')}
                 </button>
                 {/* The separator stays with the premise before it, so a wrapped row never starts with it. */}
-                {j < rule.needs.length - 1 ? <span className="lg-rt-sep">；</span> : <span className="lg-rt-true">{tr('均为真。', 'all hold.')}</span>}
+                {j < rule.needs.length - 1 ? <span className="lg-rt-sep">；</span> : <span className="lg-rt-true">{rule.needs.length > 1 ? tr('均为真。', 'all hold.') : tr('为真。', 'holds.')}</span>}
               </span>
             ))}
             {editable && <button type="button" className="lg-rt-add" onClick={() => add(k)} aria-label={tr(`给成立条件 ${k + 1} 添加前提`, `Add a premise to condition ${k + 1}`)}><Plus size={14} />{!rule.needs.length && tr('添加前提', 'Add a premise')}</button>}
