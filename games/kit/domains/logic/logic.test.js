@@ -517,6 +517,8 @@ test('a declaration filled in on the rule table: whole premises, things taken, t
   assert.deepEqual(premiseChips(level).map((c) => c.key).sort(), ['P:Human', 'P:Rain', 'P:Wet', 'v:x', '→'].sort())
   const human = parse('Human(x)')
   assert.deepEqual(problemsOf(level, [{ binds: [], needs: [null] }]), [{ rule: 0, need: 0, why: 'empty' }])
+  // A thing alone where a sentence goes is not a sentence yet.
+  assert.deepEqual(problemsOf(level, [{ binds: ['x'], needs: [tvar('x')] }]), [{ rule: 0, need: 0, why: 'empty' }])
   assert.deepEqual(problemsOf(level, [{ binds: [], needs: [human] }]), [{ rule: 0, need: 0, why: 'stray' }])
   const rules = [{ binds: ['x'], needs: [human] }]
   assert.deepEqual(problemsOf(level, rules), [])

@@ -4,7 +4,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { say } from '../notation.js'
 import { sentenceOf } from '../iso.js'
-import { complete } from '../formulaTree.js'
+import { complete, straysOf } from '../formulaTree.js'
 import { blankRule, premiseChips, problemsOf } from '../ruleLines.js'
 import SentenceEditor from './SentenceEditor.jsx'
 
@@ -35,6 +35,8 @@ export default function RuleTable({ level, rules, onChange = null, scope = '' })
     if (need === null) onChange(withRule(sheet.rule, (r) => ({ ...r, needs: r.needs.filter((_, i) => i !== sheet.need) })))
     setSheet(null)
   }
+  // A premise written out once it is a whole sentence (a thing alone, where a sentence goes, is not one yet).
+  const whole = (need) => Boolean(need) && complete(need) && !straysOf(need).length
   const bad = (k, j) => problems.some((p) => p.rule === k && p.need === j)
   const editing = sheet && rules[sheet.rule]?.needs[sheet.need] !== undefined
 
@@ -58,7 +60,7 @@ export default function RuleTable({ level, rules, onChange = null, scope = '' })
               <span key={j} className="lg-rt-need">
                 {j > 0 && <span className="lg-rt-sep">；</span>}
                 <button type="button" className={`lg-rt-premise ${bad(k, j) ? 'is-bad' : ''}`} disabled={!editable} onClick={() => setSheet({ rule: k, need: j })}>
-                  {need && complete(need) ? words(need) : tr('未写完', 'Unfinished')}
+                  {whole(need) ? words(need) : tr('未写完', 'Unfinished')}
                 </button>
               </span>
             ))}
