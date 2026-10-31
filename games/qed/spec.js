@@ -421,6 +421,11 @@ export default {
   { version: 76, ops: [
     { split: ['decl-and', ['and-weak', 'and-strong', 'decl-and']] },
     { merge: ['decl-strength', ['and-strong', 'and-weak']] },
+  ] },
+  // Version 77 gave 5-1 three new sentences to translate: what was built for the old ones starts over.
+  { version: 77, ops: [
+    { data: (value, id) => (id === 'fo-atoms' ? undefined : value) },
+    { tasks: (passed, id) => (id === 'fo-atoms' ? 0 : passed) },
   ] }],
   // Names a text may quote rather than link: a level, part or entry name used for something else (a phrase, a button,
   // a part that stays where it is brought, which has no box entry to link).

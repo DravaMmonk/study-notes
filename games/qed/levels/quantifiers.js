@@ -55,17 +55,32 @@ export const quantifiers = [
   {
     id: 'fo-atoms',
     consts,
-    title: T('谁是什么', 'Who is what'),
+    title: T('翻译句子', 'Translating a sentence'),
     tasks: sentences([
-      { say: T('苏格拉底是人。', 'Socrates is human.'), target: 'Human(soc)', hint: [T('放上谓词「①是人」，再把苏格拉底放进 ①。', 'Put down the predicate “① is human”, then put Socrates in ①.')] },
-      { say: T('安是博的父母。', 'Ann is a parent of Bo.'), target: 'Parent(ann, bo)', hint: [T('「①是②的父母」：谁是 ①，谁是 ②？', '“① is a parent of ②”: who is ①, and who is ②?')] },
-      { say: T('博不喜欢安。', 'Bo does not like Ann.'), target: '¬Likes(bo, ann)', hint: [T('最外面是「并非」：先放 ¬，再在它里面放「喜欢」。', 'The outermost piece is “not”: put ¬ first, then “likes” inside it.')] },
+      {
+        say: T('安是博的父母，博却不喜欢安。', 'Ann is a parent of Bo, yet Bo does not like Ann.'),
+        target: 'Parent(ann, bo) ∧ ¬Likes(bo, ann)',
+        hint: [
+          T('「却」「但是」「而且」在逻辑里都是「并且」∧：两半句都成立。', '“Yet”, “but” and “and” are all ∧ in logic: both halves hold.'),
+          T('「①是②的父母」里，谁是 ①、谁是 ②？¬ 只管后半句。', 'In “① is a parent of ②”, who is ①, who is ②? The ¬ covers only the second half.'),
+        ],
+      },
+      {
+        say: T('苏格拉底不是鸟就是人。', 'Socrates is either a bird or human.'),
+        target: 'Bird(soc) ∨ Human(soc)',
+        hint: [T('「不是……就是……」里没有「并非」：它说的是两样里至少有一样，用「或者」∨。', '“Either … or …” has no “not” in it: at least one of the two holds, so it is ∨.')],
+      },
+      {
+        say: T('只有博是人，安才喜欢博。', 'Ann likes Bo only if Bo is human.'),
+        target: 'Likes(ann, bo) → Human(bo)',
+        hint: [T('「只有 A，才 B」说的是：B 成立，A 就一定成立。条件是后半句。', '“Only if A, B” says: if B holds, A must hold. The condition is the second half.')],
+      },
     ], ['Mortal(soc)']),
     brief: BRIEF,
     intro: [
       { t: T('命题逻辑里，一个字母代表一整句话：要说每个人会不会死，每人就得用一个字母；「每个人」「有一个人」根本说不出来。', 'In propositional logic a letter stands for a whole sentence: saying whether each person is mortal takes a letter per person, and “everyone” or “someone” cannot be said at all.') },
-      { t: T('<wiki-ref to="fol"></wiki-ref>把句子拆开：<b>名字</b>指一样东西，<wiki-ref to="predicate"></wiki-ref>说一样东西是什么，或几样东西之间是什么关系。「苏格拉底是人」写作 Human(soc)。', '<wiki-ref to="fol"></wiki-ref> takes sentences apart: a <b>name</b> stands for a thing, and a <wiki-ref to="predicate"></wiki-ref> says what a thing is or how things relate. “Socrates is human” is written Human(soc).') },
-      { t: T('这一章先不证明，只学怎样说一句话，怎样判断它在一个世界里的真假。公式用下面的元件拼，元件上空着的位置可以再放进别的元件。', 'No proofs in this chapter yet: first how to say a sentence, and how to tell whether it is true in a world. Formulas are built from the parts below; an empty place in a part takes another part.') },
+      { t: T('<wiki-ref to="fol"></wiki-ref>把句子拆开：<b>名字</b>指一样东西，<wiki-ref to="predicate"></wiki-ref>说一样东西是什么，或几样东西之间是什么关系。「苏格拉底是人」写作 Human(soc)，「安喜欢博」写作 Likes(ann, bo)，位置的顺序有意义。', '<wiki-ref to="fol"></wiki-ref> takes sentences apart: a <b>name</b> stands for a thing, and a <wiki-ref to="predicate"></wiki-ref> says what a thing is or how things relate. “Socrates is human” is written Human(soc), “Ann likes Bo” Likes(ann, bo): the order of the places matters.') },
+      { t: T('翻译一句话，先找出它的骨架：连接词常常藏在说法里，「却」是「并且」，「不是……就是……」是「或者」，「只有……才……」是「若……则……」，但条件在后面。这一章先不证明，只学怎样说一句话，怎样判断它在一个世界里的真假。', 'To translate a sentence, find its frame first: the connectives often hide in the wording, “yet” is “and”, “either … or …” is “or”, “only if” is “if … then …” with the condition at the end. No proofs in this chapter yet: first how to say a sentence, and how to tell whether it is true in a world.') },
     ],
   },
   world({
