@@ -5,7 +5,7 @@
 //   world  { things: [name], preds: { P: [name] | [[name, name]] }, consts?: { c: name } }   a level's own world
 import { countermodelSearch, holds } from './models.js'
 import { parse, signature } from './formula.js'
-import { DECL, isoBoard, needSentence, waysIn } from './iso.js'
+import { needSentence, needUnder, waysIn } from './iso.js'
 
 /**
  * Do two formulas agree in every world of 1 to 3 things? null when they do, or a world where they differ:
@@ -52,32 +52,31 @@ export function builtWorld(w, vocab) {
   return { domain, preds, fns }
 }
 
-// A counterexample level (kind 'model', ui/WorldScreens.jsx) is someone's wrong declaration: a declaration board
-// (iso.js) whose one intro rule takes the level's premises (given), joined, and makes its conclusion (goal), ⟦A; B⟧ ⟹
-// C. The rule is read off the board, as a declaration's is; the player builds a world where every premise of it holds
-// and its conclusion fails.
+// A counterexample level (kind 'model', ui/WorldScreens.jsx) is someone's wrong declaration of a first-order sentence
+// (the level's `target`), on the declaration board (iso.js, `board`): its intro rules are all the ways the sentence
+// comes about, so in a world it holds just when every premise of one of them does (a rule taking a thing, ⋀x, for some
+// thing; a premise needed under premises of its own, ⟦⟦A⟧ ⟹ B⟧, when they give it). The requirement is what the
+// sentence itself says there. The player builds a world where the two differ: a rule that makes it where it is false
+// (too strong), or none that makes it where it is true (too weak).
 
-/** The board: a premise card for each sentence given (a card assuming nothing when there is none), joined into the
- * declared card's first way. */
-export const claimBoard = (given) => (given.length
-  ? isoBoard([`${given.map((_, k) => `p${k + 1}`).join('+')}>1`], Object.fromEntries(given.map((f, k) => [`p${k + 1}`, f])))
-  : isoBoard(['∅>1']))
+const read = (level) => (f) => parse(f, { consts: level.vocab.names })
 
-/**
- * The cards a run goes through, in order, each with its sentence and whether it is true in the world: the premises of
- * the rule the board declares, then its conclusion. A card is `right` when it is as a counterexample needs it (a
- * premise true, the conclusion false).
- */
-export function claimCards(level, world, board = claimBoard(level.given)) {
+/** In a world: whether each intro rule of the board makes the sentence, whether the declaration does, and whether the
+ * sentence itself holds. */
+export function declaredIn(level, world, board = level.board) {
   const model = builtWorld(world, level.vocab)
-  const read = (f) => parse(f, { consts: level.vocab.names })
-  const needs = waysIn(board)[0]?.needs.map(needSentence) ?? []
-  const card = (f) => board.nodes.find((n) => n.type === 'hyp' && n.params.name === f).id
-  return [...needs.map((f) => ({ id: card(f), f, premise: true })), { id: DECL, f: level.goal, premise: false }].map((c) => {
-    const value = holds(read(c.f), model)
-    return { ...c, value, right: c.premise === value }
-  })
+  const f = read(level)
+  const need = (n, env) => !needUnder(n).every((u) => need(u, env)) || holds(f(needSentence(n)), model, env)
+  const envs = (binds) => binds.reduce((all, v) => all.flatMap((env) => model.domain.map((d) => ({ ...env, [v]: d }))), [{}])
+  const ways = waysIn(board).map((way) => envs(way.binds).some((env) => way.needs.every((n) => need(n, env))))
+  return { ways, declared: ways.some(Boolean), meant: holds(f(level.target), model) }
 }
 
-/** Whether a world is a counterexample to the level's wrong rule. */
-export const counters = (level, world) => world.size <= (level.maxSize ?? 3) && claimCards(level, world).every((c) => c.right)
+/** Whether a world is a counterexample to the level's declaration. */
+export function counters(level, world) {
+  const { declared, meant } = declaredIn(level, world)
+  return world.size <= (level.maxSize ?? 3) && declared !== meant
+}
+
+/** The sentences on the board's premise cards (for the level's vocabulary). */
+export const boardSentences = (board) => board.nodes.filter((n) => n.type === 'hyp').map((n) => n.params.name)

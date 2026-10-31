@@ -3,7 +3,7 @@
 // (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
 import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
-import { vocabulary } from './fol.js'
+import { boardSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { axiomPartsOf, builtParts, rulePartsOf, wireRules } from './machine.js'
 import { render, say, sayTerm } from './notation.js'
@@ -87,7 +87,7 @@ const WORLD_KINDS = ['translate', 'query', 'model']
 // `names` are every name the level reads (level.consts), so a name typed that the level does not use still parses.
 function vocabOf(level) {
   const names = level.consts ?? []
-  const texts = level.kind === 'model' ? [...level.given, level.goal] : [level.target, ...(level.decoys ?? [])]
+  const texts = level.kind === 'model' ? [level.target, ...boardSentences(level.board)] : [level.target, ...(level.decoys ?? [])]
   const v = vocabulary(texts.map((t) => parse(t, { consts: names })))
   return { preds: v.preds, consts: v.consts, names: [...new Set([...names, ...v.consts])] }
 }

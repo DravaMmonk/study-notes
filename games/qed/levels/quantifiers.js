@@ -1,7 +1,9 @@
 // Chapter 5 · The language of quantifiers and counterexamples: what first-order sentences say and when they are true,
-// before any proof. Two lines: translating (names and predicates, every, some, one inside another) and worlds (true in
-// one, false in another; a world where the given holds and the claim fails, which is what nitpick looks for; which
-// quantifier comes first). The family topic asks a world questions.
+// before any proof. Two lines: translating (names and predicates, every, some, one inside another) and worlds, each
+// level someone's wrong declaration of a sentence, its requirement what the sentence says, found out by a world where
+// the two differ (what nitpick looks for): true in one world, false in another; which quantifier comes first. The family topic asks a world questions.
+
+import { isoBoard, startIso } from '../../kit/domains/logic/iso.js'
 
 const T = (zh, en) => ({ zh, en })
 const consts = ['soc', 'ann', 'bo', 'cy', 'dee', 'en', 'fay']
@@ -23,7 +25,6 @@ const query = (level) => ({ kind: 'query', consts, worlds: families, ...level })
 const STEPS = [T('第一句', 'Sentence 1'), T('第二句', 'Sentence 2'), T('第三句', 'Sentence 3')]
 const sentences = (list, decoys = []) => list.map((task, k) => ({ kind: 'translate', step: STEPS[k], decoys: [...list.filter((_, j) => j !== k).map((t) => t.target), ...decoys], ...task }))
 const BRIEF = T('用下面的元件，把这句话拼成公式。', 'Build this sentence as a formula from the parts below.')
-const COUNTER = T('造一个世界，作为板上这条引入规则的反例。', 'Build a world that is a counterexample to the intro rule on the board.')
 
 export const quantifiers = [
   {
@@ -106,26 +107,26 @@ export const quantifiers = [
       {
         kind: 'model',
         step: T('让它为真', 'Make it true'),
-        given: ['∃x. Human(x)'],
-        goal: '¬∀x. Human(x) → Mortal(x)',
+        target: '∀x. Human(x) → Mortal(x)',
+        board: startIso(),
         answer: { size: 2, preds: { Human: ['0'], Mortal: ['0'] } },
-        brief: T('这份声明从「有人」推出「并非人都会死」。造一个反例：里面有人，而且人都会死。', 'This declaration infers “not every human is mortal” from “there is a human”. Build a counterexample: a world with a human in it, where every human is mortal.'),
-        hint: [T('点一样东西，它就「是人」；再点一下，就不是。', 'Tap a thing to make it human; tap again to undo.')],
+        brief: T('需求：声明「人都会死」，每个人都会死时它成立，有人不会死时它不成立。板上的声明一条引入规则也没有。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “every human is mortal”, true when every human is mortal and false when some human is not. The declaration on the board has no intro rule. Build a world showing the declaration on the board does not meet it.'),
+        hint: [T('点一样东西，它就「是人」；再点一下，就不是。', 'Tap a thing to make it human; tap again to undo.'), T('没有引入规则的声明，在哪个世界里都不成立。', 'A declaration with no intro rule holds in no world.')],
       },
       {
         kind: 'model',
         step: T('让它为假', 'Make it false'),
-        given: [],
-        goal: '∀x. Human(x) → Mortal(x)',
+        target: '∀x. Human(x) → Mortal(x)',
+        board: isoBoard(['∅>1']),
         answer: { size: 1, preds: { Human: ['0'] } },
-        brief: T('这份声明不要任何前提，就推出「人都会死」。造一个反例。', 'This declaration infers “every human is mortal” from nothing at all. Build a counterexample.'),
+        brief: T('需求同上：声明「人都会死」。板上的声明有一条不要任何前提的引入规则。造一个世界，说明板上的声明不符合需求。', 'The same requirement: declare “every human is mortal”. The declaration on the board has an intro rule that needs nothing. Build a world showing the declaration on the board does not meet it.'),
         hint: [T('一样反例就够：一个不会死的人。', 'One counterexample is enough: a human who is not mortal.')],
       },
     ],
     intro: [
       { t: T('命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是<wiki-ref to="world"></wiki-ref>：世界里有几样东西，每样东西是什么、和别的东西是什么关系。', 'In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the <wiki-ref to="world"></wiki-ref>: how many things there are, what each is and how they relate.') },
-      { t: T('板上是别人写的一份声明：前提卡拼起来接进声明元件，引入规则说前提都成立时，声明的那句话也成立。这条规则推错了。', 'The board holds a declaration someone wrote: premise cards joined into the declared card, so its intro rule says that when the premises hold, the declared sentence holds too. That rule is wrong.') },
-      { t: T('在下面造一个世界：选好有几样东西，再点出每样东西有哪些性质，让前提都成立、结论不成立。运行时，每张卡上显示它在这个世界里的真假。', 'Build a world below: choose how many things there are, then tap what holds of each, so that the premises hold and the conclusion fails. A run shows on each card whether it is true in this world.') },
+      { t: T('板上是别人写的一份声明。引入规则是一句话成立的全部方式，所以在一个世界里，声明的句子成立，当且仅当某一条引入规则的前提全都成立。需求说的是这句话本来的意思；两者在某个世界里不一致，声明就写错了。', 'The board holds a declaration someone wrote. Its intro rules are all the ways the sentence comes about, so in a world the declared sentence holds just when every premise of some intro rule does. The requirement is what the sentence means; a world where the two disagree shows the declaration is wrong.') },
+      { t: T('在下面造一个世界：选好有几样东西，再点出每样东西有哪些性质。运行时，声明元件上逐条标出每条引入规则在这个世界里是否成立，最后比较声明和需求。', 'Build a world below: choose how many things there are, then tap what holds of each. A run marks on the declared card whether each intro rule holds in this world, then sets the declaration against the requirement.') },
     ],
     after: T('一句话永远成立，是说它在所有世界里都真；世界有无穷多个，大小不限。', 'A sentence that always holds is true in every world, and there are infinitely many worlds, of any size.'),
   },
@@ -135,21 +136,21 @@ export const quantifiers = [
     consts,
     symbols: ['∃'],
     title: T('同时都对', 'All at once'),
-    given: ['∃x. Bird(x)', '∃x. Flies(x) ∧ ¬Bird(x)'],
-    goal: '∀x. Bird(x) → Flies(x)',
-    answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
-    brief: COUNTER,
-    hint: [T('要有一只不会飞的鸟，还要有一样会飞、却不是鸟的东西。', 'You need a bird that does not fly, and something that flies but is not a bird.')],
+    target: '∀x. Bird(x) → Flies(x)',
+    board: isoBoard(['p1>1'], { p1: '∃x. Bird(x) ∧ Flies(x)' }),
+    answer: { size: 2, preds: { Bird: ['0', '1'], Flies: ['0'] } },
+    brief: T('需求：声明「鸟都会飞」，每只鸟都会飞时它成立，有一只鸟不会飞时它不成立。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “every bird flies”, true when every bird flies and false when some bird does not. Build a world showing the declaration on the board does not meet it.'),
+    hint: [T('这条引入规则见到一只会飞的鸟就引入「鸟都会飞」。世界里还可以有一只怎样的鸟？', 'This intro rule brings in “every bird flies” on seeing one bird that flies. What other bird could the world hold?')],
   },
   {
     id: 'm-counter',
     kind: 'model',
     consts,
     title: T('推不出', 'Does not follow'),
-    given: ['∀x. Human(x) → Mortal(x)', 'Mortal(soc)'],
-    goal: 'Human(soc)',
+    target: 'Human(soc)',
+    board: isoBoard(['p1+p2>1'], { p1: '∀x. Human(x) → Mortal(x)', p2: 'Mortal(soc)' }),
     answer: { size: 1, preds: { Mortal: ['0'] }, consts: { soc: 0 } },
-    brief: T('「人都会死」「苏格拉底会死」，推得出「苏格拉底是人」吗？造一个反例。', 'From “every human is mortal” and “Socrates is mortal”, does “Socrates is human” follow? Build a counterexample.'),
+    brief: T('需求：声明「苏格拉底是人」，苏格拉底是人时它成立，不是人时它不成立。板上的声明由「人都会死」「苏格拉底会死」引入它。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “Socrates is human”, true when Socrates is human and false when he is not. The declaration on the board introduces it from “every human is mortal” and “Socrates is mortal”. Build a world showing the declaration on the board does not meet it.'),
     hint: [T('苏格拉底也可以是一条会死的狗。', 'Socrates could be a mortal dog.')],
     intro: [{ t: T('名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。', 'A name must stand for a thing in the world too: choose which thing is Socrates.') }],
     after: T('前提都真、结论为假的世界，叫<wiki-ref to="countermodel"></wiki-ref>。', 'A world where the premises hold and the conclusion fails is a <wiki-ref to="countermodel"></wiki-ref>.'),
@@ -159,10 +160,10 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('先说谁', 'Which comes first'),
-    given: ['∀x. ∃y. Likes(x, y)'],
-    goal: '∃y. ∀x. Likes(x, y)',
+    target: '∃y. ∀x. Likes(x, y)',
+    board: isoBoard(['p1>1'], { p1: '∀x. ∃y. Likes(x, y)' }),
     answer: { size: 2, preds: { Likes: ['0,0', '1,1'] } },
-    brief: COUNTER,
+    brief: T('需求：声明「有一样东西被所有东西喜欢」，有这样一样东西时它成立，没有时不成立。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “something is liked by everything”, true when there is such a thing and false when there is none. Build a world showing the declaration on the board does not meet it.'),
     hint: [
       T('把它想成一个游戏：∀ 由对手挑，∃ 由你挑。第一句是对手先挑 x，你再挑 y；第二句是你先挑 y，对手再挑 x。', 'Think of it as a game: the opponent picks for ∀, you pick for ∃. In the first, the opponent picks x first, then you pick y; in the second you pick y first, then the opponent picks x.'),
       T('每样东西各喜欢自己就行。', 'Let each thing like itself.'),
@@ -184,10 +185,10 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('∀ 不能随便拆', 'Splitting ∀'),
-    given: ['(∀x. Bird(x)) → (∀x. Flies(x))'],
-    goal: '∀x. Bird(x) → Flies(x)',
+    target: '∀x. Bird(x) → Flies(x)',
+    board: isoBoard(['p1>1'], { p1: '(∀x. Bird(x)) → (∀x. Flies(x))' }),
     answer: { size: 2, preds: { Bird: ['0'] } },
-    brief: T('两句话看着像：「要是什么都是鸟，那什么都会飞」和「鸟都会飞」。这份声明由前一句推出后一句，造一个反例。', 'Two sentences that look alike: “if everything is a bird, then everything flies” and “every bird flies”. This declaration infers the second from the first; build a counterexample.'),
+    brief: T('需求：声明「鸟都会飞」，每只鸟都会飞时它成立，有一只鸟不会飞时它不成立。板上的声明由一句看着很像的话「要是什么都是鸟，那什么都会飞」引入它。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “every bird flies”, true when every bird flies and false when some bird does not. The declaration on the board introduces it from a sentence that looks alike, “if everything is a bird, then everything flies”. Build a world showing the declaration on the board does not meet it.'),
     hint: [T('第二句的条件「什么都是鸟」，只要有一样东西不是鸟，就不成立。', 'The second sentence’s condition, “everything is a bird”, fails as soon as one thing is not a bird.')],
   },
   {
@@ -195,10 +196,10 @@ export const quantifiers = [
     kind: 'model',
     consts,
     title: T('∃ 也不能随便拆', 'Splitting ∃'),
-    given: ['(∃x. Bird(x)) ∧ (∃x. Flies(x))'],
-    goal: '∃x. Bird(x) ∧ Flies(x)',
+    target: '∃x. Bird(x) ∧ Flies(x)',
+    board: isoBoard(['p1+p2>1'], { p1: '∃x. Bird(x)', p2: '∃x. Flies(x)' }),
     answer: { size: 2, preds: { Bird: ['0'], Flies: ['1'] } },
-    brief: COUNTER,
+    brief: T('需求：声明「有会飞的鸟」，有一只会飞的鸟时它成立，没有时不成立。造一个世界，说明板上的声明不符合需求。', 'The requirement: declare “some bird flies”, true when there is a bird that flies and false when there is none. Build a world showing the declaration on the board does not meet it.'),
     hint: [T('两个 ∃ 可以指两样不同的东西。', 'The two ∃s may point at two different things.')],
   },
   // Topic: asking a family tree questions. One sentence with a free x is a query; the world answers with what it picks.
