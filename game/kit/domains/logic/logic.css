@@ -306,10 +306,3 @@
 .rt-row.is-pass td.lg-result { color: var(--status); }
 .rt-row.is-fail td.lg-result { color: var(--fail); }
 
-
-/* A declaration's intro rules on the rule board (ui/RuleBoard.jsx): the declared sentence, the rules as the book writes them. */
-.lg-rule-board { display: grid; gap: 12px; min-width: 0; }
-.lg-decl-goal { font: 17px/1.5 var(--serif); color: var(--ink); }
-.lg-rule-book code { overflow-wrap: anywhere; }
-.lg-rule-board .pb-tile[data-family='hyp'] .pb-name { display: none; }
-.lg-rule-board .pb-tile.is-bad, .lg-rule-board .pb-frame.is-bad { box-shadow: inset 0 0 0 1.5px var(--fail); }

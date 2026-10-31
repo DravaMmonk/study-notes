@@ -3,8 +3,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { checkIso, declaredRules, follows, isoBoard, listText, runIso, settle, waysIn } from './iso.js'
-import { blankLine, boardOf, linesOf } from './ruleLines.js'
-import { FIX, UNDER, graphOf, propType, put, takeOut } from './ruleBoard.js'
 import { ruleText } from './schematic.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
@@ -512,35 +510,4 @@ test('a ∀ over properties: P(t) takes a sentence about x with t in its place, 
   assert.equal(show(substSentence(ind.body, 'P', parse('x = zero ∨ (∃m. x = s(m))', { consts: ['zero'] }))).includes('∀n. n = zero ∨ (∃m. n = s(m))'), true)
   const level = { consts, tests: [{ premises: { e: '∀P. P(phos) → P(hesp)' }, goal: '∀Q. Q(hesp) → Q(phos)' }] }
   assert.ok(choicesOf(level).instance.includes('Q(x) → Q(phos)'))
-})
-
-test('a declaration is the same as lines and as a board (ruleLines.js)', () => {
-  const boards = [
-    isoBoard(['Rain>Wet', 'Wet>1']),
-    isoBoard(['Rain+Wind>1']),
-    isoBoard(['Sat>1', 'Sun>2']),
-    isoBoard(['⋀x+h>1'], { h: 'Human(x)' }),
-    isoBoard(['∅1>1', '∅2>2']),
-    isoBoard(['∅>1', 'Nat>2']),
-  ]
-  for (const board of boards) {
-    const lines = linesOf(board)
-    assert.deepEqual(linesOf(boardOf(lines)), lines)
-  }
-  assert.deepEqual(linesOf(isoBoard(['Rain>Wet', 'Wet>1'])), [{ binds: [], needs: [{ need: 'Wet', under: ['Rain'] }] }])
-})
-
-test('the rule board puts blocks where they are dropped and wires them itself', () => {
-  let lines = [blankLine()]
-  lines = put(lines, UNDER, 'r0/needs')
-  lines = put(lines, propType('Rain'), 'u0.0/hyps')
-  lines = put(lines, propType('Wet'), 'u0.0/shows')
-  assert.deepEqual(lines, [{ binds: [], needs: [{ need: 'Wet', under: ['Rain'] }] }])
-  assert.ok(!Array.isArray(put(lines, UNDER, 'u0.0/hyps')))
-  const level = { sentences: ['Rain', 'Wet'], target: 'Rain → Wet' }
-  const wires = graphOf(level, lines).wires.map((w) => `${w.from}>${w.to}.${w.port}`).sort()
-  assert.deepEqual(wires, ['a0.0.0>u0.0.hyps', 'r0>decl.c1', 's0.0>u0.0.shows', 'u0.0>r0.needs'])
-  assert.deepEqual(takeOut(lines, 'a0.0.0'), [{ binds: [], needs: [{ need: 'Wet', under: [] }] }])
-  assert.deepEqual(put(lines, FIX, 'r0/needs')[0].binds, ['x'])
-  assert.deepEqual(takeOut(lines, 'r0'), [blankLine()])
 })

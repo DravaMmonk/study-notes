@@ -1,16 +1,14 @@
 import { useMemo, useState } from 'react'
-import { Brief, PhonePage, RunDock, TestTabs, Workbench, useBoardCases } from '../../../shell/index.js'
+import { Brief, CircuitLayout, RunDock, TaskCard, TestStatus, TestTabs, useBoardCases } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
 import { say } from '../notation.js'
-import { judgeCases, propositionsOf, sentenceOf } from '../iso.js'
-import { boardOf, linesOf } from '../ruleLines.js'
+import { DECL, judgeCases, listText, propositionsOf, runIso, sentenceOf } from '../iso.js'
+import { DeclRules, isoPartsFor } from './IsoScreen.jsx'
 import CaseTable, { setOut } from './IsoCases.jsx'
-import RuleBoard from './RuleBoard.jsx'
-
-const T = (zh, en) => ({ zh, en })
 
 // Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
-// case is one of their declarations, read only, its intro rules on the rule board, read only (RuleBoard.jsx), picked by its tab; the player writes the test cases (检验条例) in the
+// case is one of their boards, locked, put on the canvas by its tab; the player writes the test cases (检验条例) in the
 // table under it (iso.js judgeCases, ui/IsoCases.jsx), each what is given, a goal and whether it should be derivable. A
 // run goes through the boards: one passes when every expectation is what the requirement means and the board answers
 // one of the cases otherwise (or, by the level's `want`, every one as expected, or every one otherwise). Fewer cases is
@@ -20,13 +18,10 @@ const T = (zh, en) => ({ zh, en })
 
 export default function FaultScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, progress }) {
   const kept = entry.source.carry && progress?.solved?.includes(entry.source.carry) && progress.data?.[entry.source.carry]
-  const carried = kept?.lines ? boardOf(kept.lines) : null
-  // Each test case is a declaration, named so on its tab.
-  const level = useMemo(() => {
-    const source = carried ? { ...entry.source, boards: [{ board: carried }] } : entry.source
-    return { ...source, boards: source.boards.map((b, k) => ({ label: T(`声明 ${k + 1}`, `Declaration ${k + 1}`), ...b })) }
-  }, [entry.source, carried])
+  const carried = kept?.nodes?.some((n) => n.id === DECL) ? kept : null
+  const level = useMemo(() => (carried ? { ...entry.source, boards: [{ board: carried }] } : entry.source), [entry.source, carried])
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
+  const parts = useMemo(() => isoPartsFor(level, words), [level])
   const [row, setRow] = useState(0) // the case the board shows its answer to
   const judged = (cases) => judgeCases(level, cases, words)
   const boardCases = useBoardCases({
@@ -62,6 +57,8 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const change = boardCases.setWork
   const choices = useMemo(() => propositionsOf(level), [level])
   const checked = useMemo(() => judged(cases), [level, cases])
+  const current = cases[Math.min(row, cases.length - 1)]
+  const view = useMemo(() => (current ? runIso(level, board, current) : { values: new Map() }), [level, board, current])
 
   const { playback } = boardCases
   const run = playback.run
@@ -73,9 +70,31 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     ? (level.want === 'agree' ? tr('每一条条例的预期都符合需求，这份声明的结果也都和预期相符。', 'Every expectation meets the requirement, and this declaration’s results all agree with them.')
       : level.want === 'expose' ? tr('每一条条例的预期都符合需求，这份声明的结果都和预期不符。', 'Every expectation meets the requirement, and this declaration’s results all disagree with them.')
       : many
-      ? tr(`已找出错误：${checked.caught.map((k, b) => `声明 ${b + 1} 在第 ${k + 1} 条条例上得出错误结论`).join('；')}。`, `Faults found: ${checked.caught.map((k, b) => `declaration ${b + 1} reaches a wrong conclusion on case ${k + 1}`).join('; ')}.`)
+      ? tr(`已找出错误：${checked.caught.map((k, b) => `电路 ${b + 1} 在第 ${k + 1} 条条例上得出错误结论`).join('；')}。`, `Faults found: ${checked.caught.map((k, b) => `board ${b + 1} reaches a wrong conclusion on case ${k + 1}`).join('; ')}.`)
       : tr(`已找出错误：这份声明在第 ${checked.caught[0] + 1} 条条例上得出错误结论。`, `Fault found: this declaration reaches a wrong conclusion on case ${checked.caught[0] + 1}.`))
     : failed?.reason
+
+  // What a card says: a premise its sentence, the declared card its ways. Never whether the case picked is derived: the
+  // table is the player's to fill in, and the result shows only as a run reaches it.
+  const text = (f) => L(say(f, level.notation))
+  const ways = board.nodes.find((n) => n.id === DECL)?.params.ways ?? 0
+  const ruleInto = (k) => {
+    const wire = board.wires.find((w) => w.to === DECL && w.port === `c${k}`)
+    return wire && runIso(level, board, { given: [] }).values.get(wire.from)
+  }
+  const body = (node) => {
+    if (node.type === 'none') return null
+    if (node.type === 'thing') return <div className="lg-card"><span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.name}</b></span></div>
+    if (node.type === 'hyp' || node.type === 'join') {
+      const value = runIso(level, board, { given: [] }).values.get(node.id)
+      return <div className="lg-card">{node.type === 'hyp' && <span className="lg-pick">{text(sentenceOf(level, node.params.name))}</span>}{value && <code className="lg-made">{listText(value, level, text)}</code>}</div>
+    }
+    return (
+      <div className="lg-card">
+        <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
+      </div>
+    )
+  }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   // The cases the run has reached on the board on view.
@@ -99,14 +118,47 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   // The boards are the test cases: their tabs put one on the canvas.
   const tabs = (onPhone) => <TestTabs tests={boardCases.tests} states={states} index={boardCases.at} onSelect={boardCases.select} phone={onPhone} />
 
-  const stage = (
-    <div className="fo-stage">
-      {tabs(phone)}
-      <RuleBoard level={level} lines={linesOf(board)} />
-      {table}
-      <footer className="run-foot">{dock}</footer>
-    </div>
+  if (phone) {
+    return (
+      <div className="level-phone is-split lg-phone">
+        {tabs(true)}
+        <div className="lg-scroll">
+          <TaskCard>{brief}</TaskCard>
+          <SlotBoard fixed dense key={boardCases.at} graph={board} parts={parts} nameOf={(n) => L(parts.label(n))} thumb={body} sinkBody={body} onNode={() => {}} onSlot={() => {}} onPort={() => {}} />
+          {table}
+        </div>
+        <footer className="run-foot">{dock}</footer>
+      </div>
+    )
+  }
+  return (
+    <CircuitLayout
+      className="lg-level"
+      brief={brief}
+      canvas={
+        <div className="lg-stage">
+          <div className="lg-board">
+            <CanvasEditor
+              readOnly
+              key={`${level.id}-${boardCases.at}`}
+              scope={level.id}
+              graph={board}
+              onChange={() => {}}
+              parts={parts}
+              width={220}
+              height={120}
+              body={body}
+              cardClass={() => 'lg-node'}
+              wireState={(wire) => (view.values.get(wire.from) ? 'live' : 'dead')}
+            />
+          </div>
+        </div>
+      }
+      tests={tabs(false)}
+      status={<TestStatus states={states} />}
+      outputsTitle={tr('检验条例', 'Test cases')}
+      outputs={table}
+      actions={<footer className="run-foot">{dock}</footer>}
+    />
   )
-  if (phone) return <PhonePage brief={brief} className="fo-level lg-level">{stage}</PhonePage>
-  return <Workbench className="fo-level lg-level" brief={brief} stage={stage} scroll />
 }
