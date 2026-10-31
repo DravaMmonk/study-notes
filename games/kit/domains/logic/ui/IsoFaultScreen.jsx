@@ -4,7 +4,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, SlotBoard } from '../../../circuit/index.js'
 import { say } from '../notation.js'
 import { DECL, judgeCases, listText, propositionsOf, runIso, sentenceOf } from '../iso.js'
-import { DeclRules, isoPartsFor } from './IsoScreen.jsx'
+import { DeclGoal, DeclRules, isoPartsFor } from './IsoScreen.jsx'
 import CaseTable, { setOut } from './IsoCases.jsx'
 
 // Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
@@ -89,11 +89,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
       const value = runIso(level, board, { given: [] }).values.get(node.id)
       return <div className="lg-card">{node.type === 'hyp' && <span className="lg-pick">{text(sentenceOf(level, node.params.name))}</span>}{value && <code className="lg-made">{listText(value, level, text)}</code>}</div>
     }
-    return (
-      <div className="lg-card">
-        <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
-      </div>
-    )
+    return <DeclGoal level={level} text={text} />
   }
 
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
@@ -110,6 +106,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   }
   const table = (
     <div className="lg-strip is-tables">
+      <DeclRules level={level} rules={Array.from({ length: ways }, (_, k) => ruleInto(k + 1))} text={text} />
       <CaseTable phone={phone} cases={cases} words={words} level={level} choices={choices} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
       {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
