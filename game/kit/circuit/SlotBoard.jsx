@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
+import { Columns2, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { L, tr } from '../shell/i18n.js'
@@ -100,6 +100,9 @@ const readMode = () => {
  * @param nodeClass(node)                  extra classes for a block (the selected one, the one a bench is about)
  * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
  *                                         it carries
+ * @param widthOf(id)                      a frame's width on the board, { narrow, set(narrow) }, or null when it
+ *                                         has no choice (useSlotEditing widthOf): a button in its top right corner
+ *                                         switches two columns and one with each tap
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
  * @param onClear                          clears the board: a button just left of undo and redo, which asks first;
  *                                          without it the button stays, greyed out
@@ -121,7 +124,7 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote }) {
+export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
   const board = useRef(null)
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
@@ -281,6 +284,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       row += rows + 2
       return section
     })
+    const width = fixed ? null : widthOf(node.id)
     return (
       <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={style}>
         <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
@@ -289,6 +293,11 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
             {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
+          {width && (
+            <button type="button" className="pb-frame-width" onClick={() => width.set(!width.narrow)} aria-label={width.narrow ? tr('单列，点击切换为双列', 'One column; tap for two') : tr('双列，点击切换为单列', 'Two columns; tap for one')} title={width.narrow ? tr('单列', 'One column') : tr('双列', 'Two columns')}>
+              {width.narrow ? <Square size={14} aria-hidden="true" /> : <Columns2 size={14} aria-hidden="true" />}
+            </button>
+          )}
           {sections}
           {outDots(node)}
         </div>

@@ -387,7 +387,7 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
       {testTabs}
       <div className="lg-scroll" ref={scroller} onScroll={onScroll}>
         <TaskCard>{brief}</TaskCard>
-        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onChange={change} types={types} />
+        <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={thumb} sinkBody={sinkBody} sinkClass={() => (result ? (result.pass ? 'is-pass' : 'is-fail') : '')} regionNote={regionNote} resultNote={resultNote} nodeClass={stepClass} onClear={onClear} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onChange={change} types={types} />
         {stepped ? began && (
           <section className="lg-preview" ref={preview}>
             <h3>{tr('运行过程', 'The run')}</h3>
@@ -405,7 +405,7 @@ function PhoneBoard({ board, parts, level, circuit, view, scene, result, verdict
             {parts.role(node) === 'part' && <p className="lg-desc">{L(descOf(node.type))}</p>}
             <CardBody node={node} board={board} parts={parts} level={level} circuit={circuit} view={view} scene={scene} text={text} setParam={setParam} formsOf={formsOf} />
             {built.is(node) && <InsidePhone path={[node.id]} built={built} board={board} />}
-            {parts.role(node) === 'part' && <PartActions onEdit={built.is(node) ? () => { setSheet(null); built.edit(node.type) } : null} onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} width={editing.widthOf(node.id)} />}
+            {parts.role(node) === 'part' && <PartActions onEdit={built.is(node) ? () => { setSheet(null); built.edit(node.type) } : null} onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}
