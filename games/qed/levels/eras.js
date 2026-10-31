@@ -115,8 +115,8 @@ export const ERAS = [
       // Reasoning that splits a quantifier where it may not: puzzles, each a sentence to build and a world to refute it.
       { id: 'splitting', code: 'C', after: ['m-counter', 'fo-some'], levels: ['p-split', 'p-exAnd'], title: T('量词怎么拆', 'Taking quantifiers apart') },
       // A query of one predicate needs only a world and a variable; the ones with quantifiers wait for both kinds.
-      { id: 'family', code: 'F', after: 'fo-all', levels: ['q-children'], title: T('查族谱', 'Asking a family tree') },
-      { id: 'family-more', code: 'F', after: ['q-children', 'fo-nested'], levels: ['q-grand', 'q-none', 'q-school'], title: T('查族谱：带量词的查询', 'Asking a family tree: queries with quantifiers') },
+      { id: 'family', code: 'F', after: 'fo-nested', levels: ['q-children'], title: T('查族谱', 'Asking a family tree') },
+      { id: 'family-more', code: 'F', after: 'q-children', levels: ['q-grand', 'q-none', 'q-school'], title: T('查族谱：带量词的查询', 'Asking a family tree: queries with quantifiers') },
     ],
     chapter: { title: T('量词的语言与反例', 'Quantifiers and counterexamples'), question: T('「每一个」「有一个」怎么说，证不出时怎样找反例？', 'How do you say “every” and “some”, and find a counterexample when no proof comes?') },
   },

@@ -22,7 +22,7 @@ const CLEAR = 6 // how far a wire's turn keeps from a level it passes
 // one column. The tree is never more than three columns wide, so no row holds more than three levels: an optional
 // branch starts one row below its anchor, or lower, at the first rows where it fits beside what is there without
 // widening the tree past three; it need not stick out as a column of its own. It goes on the free lane nearest its
-// anchor on the side its number puts it (right of the levels of its series it stands beside when numbered after them),
+// anchor (under the branch it goes on from, in that branch's column, when it starts right below it) on the side its number puts it (right of the levels of its series it stands beside when numbered after them),
 // else on the side with fewer levels in those rows (on a tie, the nearer side, then the anchor's side, then the side
 // with fewer optional branches so far), or the other side when that one is too wide. Optional branches that end up
 // side by side then read in their numbering order, left to right (two that stand the wrong way round swap lanes when
@@ -67,6 +67,7 @@ function plot(track, label) {
   const optional = []
   // Optional branches go down in their numbering order, each once what it hangs on is placed.
   const waiting = track.flatMap((entry) => entry.branches)
+  const all = [...waiting]
   const inTrack = new Set([...at.keys(), ...waiting.flatMap((b) => b.levels)])
   while (waiting.length) {
     const ready = waiting.filter((b) => b.after.every((id) => at.has(id) || !inTrack.has(id)))
@@ -84,6 +85,13 @@ function plot(track, label) {
     // The lane it would take at `start`, preferred side first, then the other; null when neither keeps three columns.
     const pick = () => {
       if (!room(rows())) return null
+      // A branch going on from one right above it, the only one going on from there, stays in that branch's column.
+      const above = optional.find(({ t, levels }) => branch.after.includes(levels.at(-1)) && t.rows.at(-1) === start - 1 && all.filter((b) => b.after.includes(levels.at(-1))).length === 1)
+      if (above && free(above.t.lane, rows()) && columns([...tracks, { lane: above.t.lane, rows: rows(), band: true }]) <= MAX_ROW) {
+        under = above.t
+        return above.t.lane
+      }
+      under = null
       const right = nearest(1), left = nearest(-1)
       const beside = tracks.filter((t) => overlaps(t, rows()))
       const weight = beside.filter((t) => t.lane > 0).length - beside.filter((t) => t.lane < 0).length
@@ -94,6 +102,7 @@ function plot(track, label) {
       const lean = numbered || Math.sign(weight) || Math.sign(dr - dl) || -Math.sign(anchor.t.lane) || Math.sign(tilt)
       return (lean > 0 ? [left, right] : [right, left]).find((lane) => columns([...tracks, { lane, rows: rows(), band: true }]) <= MAX_ROW) ?? null
     }
+    let under = null
     let lane = pick()
     while (lane === null) {
       start += 1
@@ -102,6 +111,7 @@ function plot(track, label) {
     tilt += Math.sign(lane)
     // A dashed wire only from a level it stands right under; one it hangs on from further up gets none.
     lay(branch.levels, lane, start, from.filter((id) => at.get(id).row === start - 1), 'optional')
+    tracks.at(-1).under = under
     optional.push({ t: tracks.at(-1), levels: branch.levels })
   }
   // Side-by-side optional branches in numbering order.
@@ -121,7 +131,7 @@ function plot(track, label) {
 
 // How many columns the tracks take once centered (on copies, the tracks untouched).
 const columns = (tracks) => {
-  const placed = center({ at: new Map(), edges: [], tracks: tracks.map((t) => ({ ...t })) }).tracks
+  const placed = center({ at: new Map(), edges: [], tracks: tracks.map((t) => ({ ...t, under: null })) }).tracks
   return Math.max(...placed.map((t) => t.x)) - Math.min(...placed.map((t) => t.x)) + 1
 }
 
@@ -158,6 +168,8 @@ function center({ at, edges, tracks }) {
       }
     }
   }
+  // A branch going on from the one right above it keeps that one's column, where nothing beside it stands there.
+  for (const t of tracks) if (t.under && !tracks.some((u) => u !== t && u.x === t.under.x && meets(t, u))) t.x = t.under.x
   return { at: new Map([...at].map(([id, p]) => [id, { col: p.t.x, row: p.row }])), edges, tracks }
 }
 
