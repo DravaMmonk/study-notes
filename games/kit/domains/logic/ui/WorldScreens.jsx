@@ -118,7 +118,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
       ))}
     </section>
   )
-  // A lemma, on the rule board (the declaration board's cards, which show a rule's shape): premise cards joined into
+  // A lemma, on the rule board (the cards a declaration is written with: they show a rule's shape): premise cards joined into
   // the lemma's card, which writes the rule out; locked.
   const board = useMemo(() => (level.meant ? null : lemmaBoard(level.given)), [level])
   const lemma = useMemo(() => ({ ...level, target: level.goal, things: level.vocab.names, declare: T('引理', 'Lemma') }), [level])

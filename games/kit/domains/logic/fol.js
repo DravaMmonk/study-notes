@@ -84,7 +84,7 @@ export function claimIn(level, world) {
 }
 
 /**
- * A lemma on the rule board (iso.js cards, the board a declaration is written on: it shows a rule's shape): a premise
+ * A lemma on the rule board (iso.js cards: it shows a rule's shape): a premise
  * card for each sentence given (`hyp-p1` …, a card assuming nothing when there is none), joined into the lemma's card.
  */
 export const lemmaBoard = (given) => (given.length

@@ -1,7 +1,7 @@
 import { ChoiceField, Field, InlineChoice, InlineList, InlineSelect, ListField, RowTable, SelectField } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 
-// The test cases (检验条例) of a declaration board, on the shared table the player fills in (../../../shell/RowTable.jsx):
+// The test cases (检验条例) of a declaration on the rule board, on the shared table the player fills in (../../../shell/RowTable.jsx):
 // four columns, the premises (numbered), the goal, what is expected of it (预期), and whether the declaration derives
 // it (结果: the result, filled in only as a run steps to the case). The level's cases are read only; an audit's are
 // the player's to write (`edit`): on a desktop in the table itself, on a phone a case opens in a form where the premises are added from a drop-down of the level's
@@ -10,7 +10,7 @@ import { L, tr } from '../../../shell/i18n.js'
 // sets out that many empty cases beforehand, none added or deleted; or, as a list, each case set out with some cells
 // filled in (`fixed`: those the player cannot change; `keep`: premises that stay, the player adding others; a goal not
 // filled in yet is ''). The level's own cases do not show what is
-// expected: a declaration board shows only each result, green when it agrees with the expectation and red when not,
+// expected: a declaration on the rule board shows only each result, green when it agrees with the expectation and red when not,
 // as a run steps to it. `result(k)` is case k's result on the board on view, { derived, wrong } or null before a run
 // reaches it.
 
