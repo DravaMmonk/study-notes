@@ -33,8 +33,6 @@ const need = (ctx, what, got) => {
   return new PartError({ zh: `这里要 ${w.zh}，接进来的是 ${g.zh}`, en: `This needs ${w.en}; it got ${g.en}` })
 }
 const T = (zh, en) => ({ zh, en })
-// The letter a For-every-sentence box takes: R, any sentence at all.
-const SENTENCE = 'R'
 const SHAPE = {
   imp: T('一句「若…则…」', 'an “if … then …”'),
   and: T('一句「…并且…」', 'an “… and …”'),
@@ -42,7 +40,6 @@ const SHAPE = {
   bot: T('矛盾 ⊥', 'a contradiction ⊥'),
   nn: T('一句「并非并非…」', 'a “not not …”'),
   all: T('一句「对所有 x…」', 'a “for all x …”'),
-  allSentences: T('一句「对任何一句话 R…」', 'a “for every sentence R …”'),
   ex: T('一句「存在 x…」', 'a “there is an x …”'),
   eq: T('一个等式', 'an equation'),
   fits: T('一句这块元件接得上的话', 'a sentence this part accepts'),
@@ -189,6 +186,12 @@ export const RULES = {
     eval: ({ body }, node, ctx) => {
       const x = node.params?.x
       if (!x) throw fail('先选好任取的那一样叫什么', 'Name the thing taken first')
+      // An upper-case name takes any sentence at all, about which nothing is assumed: outside, ∀R. … holds for every
+      // sentence (Lean's ∀ (R : Prop), HOL's ∀R::bool), R left as it is.
+      if (/^[A-Z]/.test(x)) {
+        for (const h of body.hyps.values()) if (mentionsSentence(h, x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里：这样的 ${x} 不是任意一句话`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not any sentence at all`)
+        return proved({ op: '∀', v: x, prop: true, body: body.formula }, body.hyps, lam(x, body.term))
+      }
       for (const h of body.hyps.values()) if (freeVars(h).has(x)) throw fail(`${x} 出现在还开着的假设 ${sayIn(ctx, h).zh} 里，不能对它使用任取框`, `${x} occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not arbitrary`)
       // The name (a, b, c) is a particular thing inside the box; outside, a bound variable (x, y, z) takes its place.
       const v = BOUND.find((u) => !allVars(body.formula).has(u))
@@ -200,26 +203,10 @@ export const RULES = {
     params: ['t'],
     eval: ({ all: a }, node, ctx) => {
       if (a.formula.op !== '∀') throw need(ctx, SHAPE.all, a.formula)
+      // A ∀ over sentences takes a sentence chosen on the part in place of R.
+      if (a.formula.prop) return proved(substSentence(a.formula.body, a.formula.v, param(node, 't', ctx)), a.hyps, papp(a.term, pconst('sentence')))
       const t = termOf(node, ctx)
       return proved(subst(a.formula.body, a.formula.v, t), a.hyps, papp(a.term, obj(t)))
-    },
-  },
-  // For every sentence: a box in which R is any sentence at all (the letter R, about which nothing is assumed); what
-  // it proves about R, outside it holds for every sentence, ∀R. … (Lean's ∀ (R : Prop), HOL's ∀R::bool). And its use:
-  // R replaced by a sentence chosen on the part.
-  allIs: {
-    ...framePart([], [{ name: 'body', opens: false }]),
-    eval: ({ body }, _node, ctx) => {
-      for (const h of body.hyps.values()) if (mentionsSentence(h, SENTENCE)) throw fail(`R 出现在还开着的假设 ${sayIn(ctx, h).zh} 里：这样的 R 不是任意一句话`, `R occurs in the open hypothesis ${sayIn(ctx, h).en}, so it is not any sentence at all`)
-      return proved({ op: '∀', v: SENTENCE, prop: true, body: body.formula }, body.hyps, lam(SENTENCE, body.term))
-    },
-  },
-  allEs: {
-    inputs: ['all'],
-    params: ['A'],
-    eval: ({ all: a }, node, ctx) => {
-      if (a.formula.op !== '∀' || !a.formula.prop) throw need(ctx, SHAPE.allSentences, a.formula)
-      return proved(substSentence(a.formula.body, a.formula.v, param(node, 'A', ctx)), a.hyps, papp(a.term, pconst('sentence')))
     },
   },
   // The example is read off: what stands where the target's variable does. The target is the one chosen on the card,

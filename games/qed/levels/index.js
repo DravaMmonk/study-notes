@@ -169,12 +169,12 @@ const COURSE = {
   // The machine-board parts the player builds: the elimination rule generator, the unifier, the tactics made of Rule and Assumption, auto, simp made
   // of rewrites, and the clause machines (into clauses, the saturator, the reconstructor).
   machines: ['elimGen', 'unifier', 'erule', 'frule', 'introRules', 'elimRules', 'auto', 'simp', 'clausify', 'saturate', 'metis'],
-  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'keepBound', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd', 'allIs', 'allEs',
+  primitives: ['gNot', 'gAnd', 'mp', 'impI', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'keepBound', 'andI', 'andE', 'orI', 'orE', 'botE', 'raa', 'allE', 'allI', 'exI', 'exE', 'rewrite', 'refl', 'natInd',
     'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'repeat', 'uPattern', 'rule', 'assumption',
     'append', 'each', 'defer', 'search', 'rw', 'hyp', 'skolem', 'toClauses', 'resolve', 'replay', 'oracle'],
   // The parts that take rules apart and put them together are one idea (rules as data); joining ∧ and its elimination
   // rule are one, as are rewrite and reflexivity.
-  concept: { anyR: 'rulecraft', swapConcl: 'rulecraft', consFront: 'rulecraft', mkRule: 'rulecraft', andI: 'and', andE: 'and', orI: 'or', orE: 'or', exI: 'ex', exE: 'ex', rewrite: 'eq', refl: 'eq', allIs: 'allSentences', allEs: 'allSentences' },
+  concept: { anyR: 'rulecraft', swapConcl: 'rulecraft', consFront: 'rulecraft', mkRule: 'rulecraft', andI: 'and', andE: 'and', orI: 'or', orE: 'or', exI: 'ex', exE: 'ex', rewrite: 'eq', refl: 'eq' },
   // Parts that stay where a level brings them, so the components box keeps only what goes on being used: the steps of
   // a part built from them soon after (the generator's parts, the unifier's moves, Skolemise and Into clauses, one round of resolution, Replay,
   // the intro and elim rule sets inside auto, the saturator and Into clauses all the way inside the reconstructor), the
@@ -182,7 +182,7 @@ const COURSE = {
   // lemmas; not ⟷ unfolded, which the built-in clausifier reads from the rule book), a part one stretch of levels needs (the unifier, Defer, the
   // proof board's induction box) and someone else's prover, on the board of the one level that catches it out. A level
   // that needs one brings it again.
-  local: ['allIs', 'allEs', 'anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'keepBound', 'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
+  local: ['anyR', 'swapConcl', 'consFront', 'mkRule', 'eachOf', 'keepBound', 'uDecompose', 'uDelete', 'uConflict', 'uEliminate', 'uSwap', 'uCheck', 'uPattern', 'unifier', 'defer', 'introRules', 'elimRules', 'frule',
     'natInd',
     'skolem', 'toClauses', 'res', 'resolve', 'saturate', 'clausify', 'replay', 'oracle'],
 }
