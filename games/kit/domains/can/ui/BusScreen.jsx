@@ -3,9 +3,9 @@ import { CircuitBoard } from 'lucide-react'
 import { CircuitLevel, Timeline, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
-import { MISSING, portsOf } from '../../../engine/circuit.js'
-import { fits, startBoard } from '../board.js'
-import { FIXED, PARTS, REGISTERS } from '../parts.js'
+import { MISSING } from '../../../engine/circuit.js'
+import { fits, startBoard, wiring } from '../board.js'
+import { FIXED, REGISTERS } from '../parts.js'
 import { runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 
@@ -18,16 +18,12 @@ import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 
 const T = (zh, en) => ({ zh, en })
 
-/** The editor's description of this level's cards (../../../circuit/model.js). */
+/** The editor's description of this level's cards (../../../circuit/model.js): the wiring (../board.js), drawn. */
 function partsFor(level, bus) {
   const builderOf = (type) => bus.LEVELS.find((L) => L.builds?.type === type)
   const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
   return {
-    inputs: (node) => {
-      if (bus.BUILT[node.type]) return builderOf(node.type).inputs?.map((i) => i.name) ?? []
-      return PARTS[node.type] ? portsOf(PARTS[node.type], node) : []
-    },
-    role: (node) => (node.type === 'line' || node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
+    ...wiring(level, bus),
     label: (node) => {
       if (node.type === 'in') return labelOf(level.inputs, node.params?.name)
       if (node.type === 'out') return labelOf(level.outputs, node.params?.name)
@@ -36,11 +32,6 @@ function partsFor(level, bus) {
     portLabel: (node, port) => (bus.BUILT[node.type] ? labelOf(builderOf(node.type).inputs, port) : PORT_LABELS[node.type]?.[port] ?? ''),
     family: (node) => (bus.BUILT[node.type] ? 'built' : CARDS[node.type]?.family),
     icon: (node) => (bus.BUILT[node.type] ? CircuitBoard : CARDS[node.type]?.icon),
-    packed: (node) => Boolean(bus.BUILT[node.type]),
-    outputs: (node) => {
-      const outs = bus.BUILT[node.type] && builderOf(node.type).outputs
-      return outs && outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
-    },
     cardWidth: (node) => (FIXED.includes(node.type) ? 140 : 156),
   }
 }

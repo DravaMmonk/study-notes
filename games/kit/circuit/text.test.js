@@ -89,6 +89,15 @@ test('what reading refuses, by line', () => {
   assert.equal(errs('f = box(body: m) {\n  body {\n    m = and(f.body, Rain)\n  }\n}\nout <- m')[0][0], 6)
 })
 
+test('a setting called value is a setting like any other', () => {
+  const { graph, errors } = read('k = const[value=10]()\nout <- k', { nodes: given, wires: [] }, parts, TYPES)
+  assert.equal(errors, undefined)
+  const k = graph.nodes.find((n) => n.id === 'k')
+  assert.deepEqual(k.params, { value: 10 })
+  assert.equal(k.value, undefined)
+  assert.match(print(graph, parts), /k = const\[value=10\]\(\)/)
+})
+
 test('parse keeps what it reads apart from the board', () => {
   assert.deepEqual(parse('x = and(_, y.k)'), { statements: [{ id: 'x', type: 'and', settings: {}, in: null, line: 1 }], wires: [{ from: 'y#k', to: 'x', port: 1, line: 1, by: 0 }] })
 })

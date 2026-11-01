@@ -1,34 +1,11 @@
-// What the agent domain shows besides its boards: an action and an entry in words, a context as a bar of its entries
-// against the window, the repository with what has been done to it, and the issue.
+// What the agent domain shows besides its boards: a context as a bar of its entries against the window, the repository
+// with what has been done to it, and a test report.
 import { L, tr } from '../../../shell/i18n.js'
 import Entries from '../../../shell/Entries.jsx'
-import { segOf, fileOf, tokensOf } from '../world.js'
+import { fileOf, segOf, tokensOf } from '../world.js'
+import { entryText, whyText } from '../words.js'
 
 const T = (zh, en) => ({ zh, en })
-
-/** An action in words. */
-export function actionText(action) {
-  if (!action) return T('—', '—')
-  if (action.type === 'read') return T(`读 ${action.file}`, `Read ${action.file}`)
-  if (action.type === 'list') return T('请求目录', 'Request the file list')
-  if (action.type === 'test') return T('请求运行测试', 'Request a test run')
-  if (action.type === 'done') return action.why === 'no-issue' ? T('做完了（上下文中没有任务）', 'Done (no task in context)') : T('做完了', 'Done')
-  const madeup = action.edits.filter((e) => e.how === 'madeup').length
-  const names = action.edits.map((e) => segOf(e.at)).join(', ')
-  return madeup ? T(`写 ${names}（编了 ${madeup} 处）`, `Write ${names} (${madeup} made up)`) : T(`写 ${names}`, `Write ${names}`)
-}
-
-/** An entry of a context in a few words. */
-export function entryText(entry) {
-  if (entry.kind === 'issue') return T(`issue：${L(entry.issue.title)}`, `issue: ${L(entry.issue.title)}`)
-  if (entry.kind === 'file') return entry.missing ? T(`${entry.file}（不存在）`, `${entry.file} (no such file)`) : T(entry.file, entry.file)
-  if (entry.kind === 'list') return T(`目录（${entry.files.length} 个文件）`, `File list (${entry.files.length} files)`)
-  if (entry.kind === 'report') return entry.green ? T('测试：全部通过', 'Tests: all pass') : T(`测试：${entry.fails.length} 处失败`, `Tests: ${entry.fails.length} failing`)
-  return actionText(entry.action)
-}
-
-const WHY = { missing: T('未修改', 'not changed'), wrong: T('改错了', 'wrong'), madeup: T('调用了不存在的函数', 'calls a nonexistent function') }
-export const whyText = (why) => WHY[why]
 
 /** A context's value on a card: its entries in order (the kit's Entries), then how many and how many tokens. */
 export function ContextValue({ value }) {

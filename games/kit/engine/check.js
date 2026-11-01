@@ -2,7 +2,8 @@
 // npm run check [-- <game id>…] — every game against the rules every game follows: a data game's content against its
 // domain's vocabulary (./vocabulary.js), the course audit (../course.js), the level count on the hub (../../games.js),
 // unique level ids that require only real levels, every text a { zh, en } pair with a real English side, and then its
-// domain's own checks (reference answers pass, naive ones fail, …).
+// domain's own checks (reference answers pass, naive ones fail, …), and the audit panel's blind-play numbers
+// (./play/stats.js: pass rate and attempts level by level from games/<id>/playtests/, the rule difficulty-spike).
 //
 // A game is checked through its spec, which runs under node:
 //   { id, domain, title, course, levels, texts?, quotes?, audit?() → [{ rule, level, part, text? }] }
@@ -18,8 +19,10 @@ import { GAMES } from '../../games.js'
 import { RULE_TEXT, againstOpen, audit } from '../course.js'
 import { REF, refProblems, untranslated } from './text.js'
 import { closeGames, loadGame } from './games.mjs'
-import { isDataGame, readContent } from './content-node.js'
+import { isDataGame, readContent, readPlaytests } from './content-node.js'
 import { checkContent } from './vocabulary.js'
+import { checkPlaytest } from './play/session.js'
+import { panel, spikes } from './play/stats.js'
 
 /** A game's spec and its domain's checks, and whatever is wrong with its content as data. */
 async function specOf(id) {
@@ -52,7 +55,13 @@ for (const id of ids) {
     continue
   }
 
-  for (const { rule, fresh, left, gone } of againstOpen([...audit(spec.course), ...(spec.audit?.() ?? [])], open)) {
+  // Blind play (./play/): every record fits its schema; the audit panel's numbers, and the spikes with enough sessions.
+  const records = readPlaytests(id)
+  for (const r of records) for (const w of checkPlaytest(r)) fail(`playtests/${r.session}.json: ${w.at}: ${w.says}`)
+  const played = spikes(spec.course, records).filter((f) => f.enough)
+  lines.push(...panel(spec.levels.map((l) => l.id), spec.course, records))
+
+  for (const { rule, fresh, left, gone } of againstOpen([...audit(spec.course), ...(spec.audit?.() ?? []), ...played], open)) {
     const text = RULE_TEXT[rule]
     if (!text) { fail(`game.json.open: ${rule} is no rule of the audit`); continue }
     if (fresh.length) fail(`course: ${text} (${fresh.length}): ${fresh.join('  ')}`)

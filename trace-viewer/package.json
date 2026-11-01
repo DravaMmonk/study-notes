@@ -12,8 +12,10 @@
     "check": "node ../games/kit/engine/check.js",
     "deps": "node ../games/kit/engine/deps.js",
     "build:games": "node ../games/kit/app/build.mjs",
-    "test": "node --test ../games/kit/engine/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/domains/*/*.test.js",
-    "conform": "python3 ../games/kit/domains/unix/conformance/real.py"
+    "test": "node --test ../games/kit/engine/*.test.js ../games/kit/engine/play/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/domains/*/*.test.js",
+    "conform": "python3 ../games/kit/domains/unix/conformance/real.py",
+    "play": "node ../games/kit/engine/play/cli.mjs",
+    "playtests": "node ../games/kit/engine/play/stats-cli.mjs"
   },
   "dependencies": {
     "dompurify": "^3.4.14",

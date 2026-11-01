@@ -4,7 +4,8 @@ import { Brief, Level, Text } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { playHand, stepHand } from '../hand.js'
 import { cut } from '../model.js'
-import { ContextBar, Report, RepoView, actionText, entryText } from './views.jsx'
+import { ContextBar, Report, RepoView } from './views.jsx'
+import { actionText, entryText } from '../words.js'
 
 // A hand level of 《软件工厂》 (chapter 0, ../hand.js): no machine yet, the player is the loop. The context the model
 // will read sits on top, as the bar it reads it by; the repository beside it, a file put into the context with a click;

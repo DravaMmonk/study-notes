@@ -1,10 +1,11 @@
 // The table domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the course,
-// its levels in play order, the texts a player reads and the table's own audit) and the domain's checks. Nothing here
-// draws: the page's side is game.jsx.
+// its levels in play order, the texts a player reads and the table's own audit), the domain's checks, and its play
+// hook for blind sessions (play.js). Nothing here draws: the page's side is game.jsx.
 
 import { vocabulary } from './vocabulary.js';
 import { tableCourse } from './course.js';
 import { validate } from './validate.js';
+import { play } from './play.js';
 
 /** A table game's spec, as npm run check reads one (../../engine/check.js). */
 function spec(content) {
@@ -21,4 +22,4 @@ function spec(content) {
   };
 }
 
-export default { vocabulary, spec, validate };
+export default { vocabulary, spec, validate, play };

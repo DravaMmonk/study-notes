@@ -1,4 +1,5 @@
-// A data game's content read from disk under node (npm run check, the tests): content.js assemble over games/<id>/.
+// A data game's content read from disk under node (npm run check, the tests): content.js assemble over games/<id>/, and
+// the records of the blind sessions played on it.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { assemble } from './content.js'
@@ -20,6 +21,12 @@ export const isDataGame = (id, dir = GAMES_DIR) => existsSync(resolve(dir, id, '
 export const levelFiles = (id, dir = GAMES_DIR) => {
   const folder = resolve(dir, id, 'levels')
   return readdirSync(folder).filter((f) => f.endsWith('.json')).map((f) => [f.slice(0, -'.json'.length), resolve(folder, f)])
+}
+
+/** The records of every blind session a game has played (games/<id>/playtests/*.json, ./play/session.js). */
+export function readPlaytests(id, dir = GAMES_DIR) {
+  const folder = resolve(dir, id, 'playtests')
+  return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => json(resolve(folder, f))) : []
 }
 
 /** games/<id>/ assembled into one content. */

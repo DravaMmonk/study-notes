@@ -12,6 +12,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
+import { firstTask as openTask, flagsIn, passed, saved as savedAt, tasksDone as passedTasks } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 
@@ -51,8 +52,8 @@ export default function GameShell({ game }) {
   const [progress, setProgress] = useState(() => game.store.load())
   const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
   // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
-  const tasksDone = (id, p = progress) => (p.solved.includes(id) ? game.byId[id]?.tasks?.length ?? 1 : p.tasks?.[id] ?? 0)
-  const firstTask = (id) => Math.min(tasksDone(id), (game.byId[id]?.tasks?.length ?? 1) - 1)
+  const tasksDone = (id) => passedTasks(game, progress, id)
+  const firstTask = (id) => openTask(game, progress, id)
   const [taskAt, setTaskAt] = useState(() => (levelId && game.byId[levelId] ? firstTask(levelId) : 0))
   const [taskWon, setTaskWon] = useState(null) // the task just passed, on a level with several
   // A level's introduction opens by itself the first time the level is entered (after the game's first-run dialog), a task's
@@ -141,35 +142,13 @@ export default function GameShell({ game }) {
   }
 
   // What a level screen can do to the shell.
-  const save = (data) => setProgress((p) => ({ ...p, data: { ...p.data, [level.id]: tasks ? Object.assign(Array.from({ length: tasks.length }, (_, k) => (Array.isArray(p.data[level.id]) ? p.data[level.id][k] ?? null : null)), { [taskAt]: data }) : data } }))
-  // The board that passed a level whose board a part runs (`keeps`, by default a level that builds a part): the part
-  // runs it from now on. A level of tasks keeps one a task, as it saves them.
-  const keep = (p) => {
-    const board = tasks ? p.data[level.id]?.[taskAt] : p.data[level.id]
-    if (!(level.keeps ?? level.unlocks?.length) || !board) return p.built
-    if (!tasks) return { ...p.built, [level.id]: board }
-    const kept = Array.isArray(p.built[level.id]) ? p.built[level.id] : []
-    return { ...p.built, [level.id]: Object.assign(Array.from({ length: tasks.length }, (_, k) => kept[k] ?? null), { [taskAt]: board }) }
-  }
+  const save = (data) => setProgress((p) => savedAt(p, level, taskAt, data))
+  // Passing keeps the board a part runs from now on (progress.js passed); a task before the last only counts as passed.
   const solve = (score) => {
-    if (tasks && taskAt < tasks.length - 1) {
-      setProgress((p) => ({ ...p, built: keep(p), tasks: { ...p.tasks, [level.id]: Math.max(tasksDone(level.id, p), taskAt + 1) } }))
-      setTaskWon(taskAt)
-      setFailure(null)
-      return
-    }
-    setProgress((p) => {
-      const best = p.best[level.id]
-      return {
-        ...p,
-        built: keep(p),
-        solved: [...new Set([...p.solved, level.id])],
-        flags: [...new Set([...p.flags, ...(level.unlocks ?? [])])],
-        best: score && game.better(score, best) ? { ...p.best, [level.id]: score } : p.best,
-      }
-    })
-    setWon(level.id)
+    setProgress((p) => passed(game, p, level, taskAt, score))
     setFailure(null)
+    if (tasks && taskAt < tasks.length - 1) setTaskWon(taskAt)
+    else setWon(level.id)
   }
   const fail = (info) => {
     const count = fails + 1
@@ -178,13 +157,7 @@ export default function GameShell({ game }) {
   }
   // A level (or the task played) may withhold a flag the player already has, when its puzzle is to build that very
   // thing by hand. A task holds what the tasks before it in the level opened (`opens`).
-  const flags = useMemo(() => {
-    if (!level) return new Set()
-    const opened = tasks ? tasks.slice(0, taskAt).flatMap((t) => t.opens ?? []) : []
-    const set = new Set([...game.flagsOf(progress), ...(level.grants ?? []), ...opened, ...(progress.all ? game.unlocksBefore(level) : [])])
-    for (const flag of (tasks?.[taskAt] ?? level).withhold ?? []) set.delete(flag)
-    return set
-  }, [game, progress, level, tasks, taskAt])
+  const flags = useMemo(() => (level ? flagsIn(game, progress, level, taskAt) : new Set()), [game, progress, level, taskAt])
   // A reference in any text (refs.js): a level shows its number and title and asks before going there; a part or an
   // encyclopedia entry opens the box or the encyclopedia at it, or says where it opens while it is still locked.
   const [goTo, setGoTo] = useState(null)

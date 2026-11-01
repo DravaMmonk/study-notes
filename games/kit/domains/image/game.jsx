@@ -17,7 +17,8 @@ import LevelScreen from './ui/LevelScreen.jsx'
 import PartDemo from './ui/PartDemo.jsx'
 import Hero from './ui/Hero.jsx'
 import IntroFigure from './ui/IntroFigure.jsx'
-import { descriptionOf, familyOf, iconOf } from './ui/catalog.js'
+import { familyOf, iconOf } from './ui/catalog.js'
+import { descriptionOf } from './words.js'
 
 // Unlock flags → the part (or option) they give, for the passed dialog and the parts box.
 const partOfFlag = () => {

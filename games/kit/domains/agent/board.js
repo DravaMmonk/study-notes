@@ -15,7 +15,34 @@
 //   r = read[file="src/cart.js"]()
 //   repo <- m
 import { parse } from '../../circuit/text.js'
-import { FIXED, PARTS } from './parts.js'
+import { srcKey, srcNode } from '../../circuit/model.js'
+import { L } from '../../shell/i18n.js'
+import { FIXED, KIND, PARTS, kindOf, wantsOf } from './parts.js'
+import { OUT_LABELS } from './words.js'
+
+const T = (zh, en) => ({ zh, en })
+const KIND_NAME = { [KIND.context]: T('上下文', 'a context'), [KIND.action]: T('动作', 'an action'), [KIND.flag]: T('是否通过', 'a pass flag') }
+
+/**
+ * How the editor wires a level's cards (../../circuit/model.js parts, without the drawing: ui/BoardScreen.jsx adds
+ * names and icons). With one call there is no action to read by, so a read card has no input there. A wire carries one
+ * kind of value, and a port takes the kinds it reads.
+ */
+export function wiring(mode) {
+  return {
+    inputs: (node) => (mode === 'once' && node.type === 'read' ? [] : PARTS[node.type]?.inputs ?? []),
+    role: (node) => (PARTS[node.type]?.source ? 'source' : PARTS[node.type]?.sink ? 'sink' : 'part'),
+    outputs: (node) => (PARTS[node.type]?.outputs ? PARTS[node.type].outputs().map((key) => ({ key, label: OUT_LABELS[node.type][key] })) : null),
+    refuse: (graph, from, to, port) => {
+      const source = graph.nodes.find((n) => n.id === srcNode(from))
+      const target = graph.nodes.find((n) => n.id === to)
+      const kind = kindOf(source, srcKey(from))
+      const wants = wantsOf(target, port)
+      if (!kind || wants.includes(kind)) return null
+      return T(`这个接口接收${L(KIND_NAME[wants[0]])}，这根线传来的是${L(KIND_NAME[kind])}。`, `This port takes ${L(KIND_NAME[wants[0]])}; this wire carries ${L(KIND_NAME[kind])}.`)
+    },
+  }
+}
 
 const SOURCES = ['issue', 'history', 'code']
 

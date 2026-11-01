@@ -1,6 +1,6 @@
 import { ArrowRightFromLine, ArrowRightToLine } from 'lucide-react'
-import { NODE_TYPES, inputsOf } from '../engine/nodes.js'
-import { BOARD_TEXT } from '../engine/board.js'
+import { NODE_TYPES } from '../engine/nodes.js'
+import { BOARD_PARTS } from '../engine/board.js'
 import { tr } from '../../../shell/i18n.js'
 import { familyOf, iconOf } from './catalog.js'
 
@@ -12,16 +12,13 @@ export const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'lef
 /** The parts of one level: its input cards are its sensors (ui/sensors.js), its output cards named by the level (or Output). */
 export function partsFor({ sensors, outputLabels } = {}) {
   return {
-    role: (node) => (node.type === 'input' ? 'source' : node.type === 'output' ? 'sink' : 'part'),
-    inputs: (node) => (node.type ? inputsOf(node.type) : []),
+    ...BOARD_PARTS,
     label: (node) => {
       if (node.type === 'input') return sensors?.[node.params.name]?.label ?? tr('输入', 'Input')
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')
       return NODE_TYPES[node.type].label
     },
     portLabel: (node, port) => PORT_LABELS[port] ?? port,
-    // As blueprint text, as content writes boards (../engine/board.js).
-    text: BOARD_TEXT,
     family: (node) => familyOf(node.type ?? 'input'),
     icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type)),
   }
