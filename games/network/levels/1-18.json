@@ -26,10 +26,6 @@
       "en": "<part-ref to=\"crchold\"></part-ref> must take in the bits of the content bytes, not the wire's bits with flags and stuffing."
     }
   ],
-  "after": {
-    "zh": "从这里起，用线的节点只和网卡打交道：每一层只管自己的事。",
-    "en": "From here on a node that uses a wire deals only with its adapter: each layer minds its own business."
-  },
   "wires": {
     "in": [{ "name": "rx", "label": { "zh": "进线", "en": "Wire in" } }],
     "out": [{ "name": "tx", "label": { "zh": "出线", "en": "Wire out" } }]

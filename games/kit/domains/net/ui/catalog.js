@@ -15,7 +15,7 @@ export const CARDS = {
   },
   keep: { name: T('存寄存卡', 'Keep'), icon: ArrowDownToLine, family: 'memory', desc: T('把接入的值存进同名寄存卡，从下一拍起可以读出。', 'Stores its input in the register of the same name; it can be read from the next tick on.') },
   const: { name: T('常数', 'Constant'), icon: Hash, family: 'value', desc: T('始终给出设定的数。', 'Always gives the number it is set to.') },
-  select: { name: T('选择', 'Select'), icon: Split, family: 'logic', desc: T('「条件」为「是」或 1 时给出「是」输入，为「否」或 0 时给出「否」输入；未接线的输入读作「—」。', 'Gives its Yes input when Condition is yes or 1, and its No input when Condition is no or 0; an unconnected input reads 「—」.') },
+  select: { name: T('选择', 'Select'), icon: Split, family: 'logic', desc: T('「条件」为「是」或 1 时给出「是」输入，为「否」或 0 时给出「否」输入，为「—」时给出「—」；未接线的输入读作「—」。', 'Gives its Yes input when Condition is yes or 1, its No input when Condition is no or 0, and 「—」 when Condition is 「—」; an unconnected input reads 「—」.') },
   add: { name: T('相加', 'Add'), icon: Plus, family: 'value', desc: T('给出两个数之和。只要有一个输入为「—」，就给出「—」。', 'Gives the sum of its two numbers. Gives 「—」 if either input is 「—」.') },
   equal: { name: T('相等', 'Equal'), icon: Equal, family: 'logic', desc: T('两个数相同时给出「是」，否则给出「否」（「是」算作 1，「否」算作 0）。只要有一个输入为「—」，就给出「—」。', 'Gives yes when its two numbers are the same, no otherwise (yes counts as 1, no as 0). Gives 「—」 if either input is 「—」.') },
   bit: { name: T('取位', 'Bit of'), icon: Binary, family: 'value', desc: T('给出 8 位数「数」从最高位数起的第「位」位（第 0 位是最高位）；「位」不在 0 到 7 之间时给出「—」。', 'Gives bit “Index” of the 8-bit number “Number”, counting from the top (bit 0 is the highest); gives 「—」 when the index is not 0 to 7.') },

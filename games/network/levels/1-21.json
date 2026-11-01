@@ -13,6 +13,10 @@
     }
   ],
   "hint": [
+    {
+      "zh": "<part-ref to=\"counter\"></part-ref>的「重来」也可以由板自己说了算。",
+      "en": "The board itself can decide when <part-ref to=\"counter\"></part-ref> restarts."
+    },
     { "zh": "数到 7 以后，计数要从 0 重新开始。", "en": "After 7, the count must start again from 0." },
     {
       "zh": "数到 7 的那一拍发生的事，要到下一拍才能让计数重来。",

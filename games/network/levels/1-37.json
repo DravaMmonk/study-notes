@@ -7,8 +7,8 @@
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"nic\"></part-ref>收得到帧，也查得出它好不好，发帧的一方却还不知道。线那头要听到回话。",
-        "en": "<part-ref to=\"nic\"></part-ref> receives frames and can tell whether they are intact, but the sender does not know it yet. The far end needs an answer."
+        "zh": "<part-ref to=\"nic\"></part-ref>收得到帧，也查得出它好不好，发帧的一方却还不知道。线那头要听到回话，这叫<wiki-ref to=\"ack\"></wiki-ref>。",
+        "en": "<part-ref to=\"nic\"></part-ref> receives frames and can tell whether they are intact, but the sender does not know it yet. The far end needs an answer: an <wiki-ref to=\"ack\"></wiki-ref>."
       }
     }
   ],

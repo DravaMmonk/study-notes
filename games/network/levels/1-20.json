@@ -16,11 +16,15 @@
     {
       "zh": "先在纸上算：没有翻位时余数是多少？只翻第 1 位时呢？",
       "en": "Work it out on paper first: what is the remainder when nothing flipped? When only bit 1 flipped?"
+    },
+    {
+      "zh": "7 个位置各翻一位，各留下什么余数？",
+      "en": "Flip each of the 7 positions in turn: what remainder does each leave?"
     }
   ],
   "after": {
-    "zh": "余数不只说出有没有错，还说得出错在哪里：校验码从此也能用来<wiki-ref to=\"error-correction\"></wiki-ref>。",
-    "en": "A remainder says not only whether something went wrong but where: from here a check can also serve for <wiki-ref to=\"error-correction\"></wiki-ref>."
+    "zh": "找得出哪一位错了，就改得回来，不必请对方重发：这叫<wiki-ref to=\"error-correction\"></wiki-ref>。",
+    "en": "Knowing which bit is wrong is enough to put it right without asking for it again: this is <wiki-ref to=\"error-correction\"></wiki-ref>."
   },
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
   "outputs": [{ "name": "pos", "label": { "zh": "翻了的位", "en": "Flipped bit" } }],

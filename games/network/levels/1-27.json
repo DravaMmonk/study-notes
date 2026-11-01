@@ -1,14 +1,14 @@
 {
   "title": { "zh": "停一拍", "en": "Stand still" },
   "brief": {
-    "zh": "像数拍一样输出自「重来」起过了几拍，只是「暂停」为 1 的拍不算：那一拍的数和上一拍相同。",
-    "en": "Count the ticks since restart as before, except that ticks on which hold is 1 do not count: on them the number stays as it was."
+    "zh": "输出自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，那一拍的数和上一拍相同。",
+    "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, counted from the first tick before restart is ever 1; ticks on which hold is 1 do not count, and on them the number stays as it was."
   },
   "intro": [
     {
       "t": {
-        "zh": "内容里有 01111110 时，帧会被从中间切断；要在内容里多塞一位把它拆开，别的都得等一拍。可<part-ref to=\"counter\"></part-ref>每拍都往前走。",
-        "en": "When the content holds 01111110 the frame is cut in two, and slipping in an extra bit to break it up means everything else must wait a tick. But <part-ref to=\"counter\"></part-ref> moves on every tick."
+        "zh": "帧的内容里要是本身就有 01111110，<level-ref to=\"1-13\"></level-ref>里收的一方会把它当成旗标，一帧从中间被切断。要把它拆开，就得在内容里多塞一位；多塞的那一拍，别的都得停下等一拍，可<part-ref to=\"counter\"></part-ref>每拍都往前走。这一关先让计数器能停。",
+        "en": "If a frame's content itself holds 01111110, the receiver of <level-ref to=\"1-13\"></level-ref> takes it for a flag and cuts the frame in two. Breaking it up means slipping an extra bit into the content, and on that tick everything else must wait; but <part-ref to=\"counter\"></part-ref> moves on every tick. This level first makes the counter able to stand still."
       }
     }
   ],
@@ -63,10 +63,10 @@
   ],
   "builds": {
     "type": "counterhold",
-    "name": { "zh": "能停的计数器", "en": "Pausable counter" },
+    "name": { "zh": "带暂停的计数器", "en": "Pausable counter" },
     "desc": {
-      "zh": "自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，数停在原处。",
-      "en": "How many ticks since restart was last 1: 0 on that tick, counted from the first tick before restart is ever 1; ticks on which hold is 1 do not count, and the number stands still."
+      "zh": "比计数器多一个「暂停」：给出自「重来」上一次为 1 起过了几拍，那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，数停在原处，「重来」同时为 1 时仍为 0。",
+      "en": "A counter with a hold input: how many ticks since restart was last 1, 0 on that tick and counted from the first tick before restart is ever 1; ticks on which hold is 1 do not count and the number stands still, though it is 0 if restart is 1 as well."
     },
     "replaces": ["counter"]
   }

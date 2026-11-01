@@ -14,8 +14,8 @@
   ],
   "hint": [
     {
-      "zh": "1 的个数是奇是偶，可以一位一位地跟着记。",
-      "en": "Whether the count of 1s is odd or even can be tracked bit by bit."
+      "zh": "<level-ref to=\"1-32\"></level-ref>里跟着记奇偶的办法，收的一方也用得上。",
+      "en": "The way <level-ref to=\"1-32\"></level-ref> keeps track of parity works at the receiving end too."
     },
     {
       "zh": "<part-ref to=\"xor\"></part-ref>把记下的奇偶和新来的一位合成新的奇偶。",

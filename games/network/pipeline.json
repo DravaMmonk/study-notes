@@ -578,11 +578,51 @@
           ],
           "report": "I've rewritten the copy for all 20 levels of era 1, the game texts and the encyclopedia, and `./gate` is now clean. There were three changesets: `copy-glossary.json`, `copy-levels.json` and `copy-fix.json`.\n\n## What I rewrote\n- **Game texts:** the title is now 《从一根线开始》 / *From One Wire*. The kicker is 计算机网络 / Computer networks. The lede is shorter and no longer promises \"reliably\", since this era only detects errors. The era question now asks how the two ends send a frame and know it arrived intact. The checks require the blueprint to match, so I updated the blueprint's copy of the question too.\n- **Intros:** each now says what the machine can't do yet, then what this level adds. Practice levels say which dimension changed (1-3, 1-5, 1-8, 1-10, 1-13, 1-16). Every field term is linked to its entry where it first appears.\n  - I also fixed a route bug in 1-11. Its intro relied on start bits, but those are taught in a parallel branch, so a player who took the flags branch first would read something untrue. It now stands on frames alone.\n- **Hints:** none existed. Every level now has two or three, going from direction to detail. The challenge 1-20 gets only one.\n- **Pass texts:** only two. 1-18 gets one sentence on layering; 1-20 gets one naming the leap at a high level (a remainder can say where the error is), with no method.\n- **Briefs:** 1-8, 1-12, 1-13, 1-14, 1-15, 1-17, 1-18 and 1-20 were too long. I cut them while keeping every exact tick the tests check. To fit, two briefs lean on something else:\n  - **1-18** says its upward outputs are \"timed as in\" the receiver part, linked, rather than repeating that whole timing.\n  - **1-17** describes the check-byte format in the intro, as background.\n- **Built parts:** the network card is now \"Network adapter\" in English, because the lint bans \"card\". The 1-18 title and the lede follow it.\n\n## Encyclopedia (22 entries, each opening at the level that introduces it)\n- 1-1: tick (rewritten), bit, delay, protocol\n- 1-7: byte, binary number, serial transmission\n- 1-9: start bit, stop bit\n- 1-11: frame, flag\n- 1-12: bit stuffing\n- 1-14: error detection, parity bit\n- 1-15: carry-less division, generator, cyclic redundancy check\n- 1-18: layering\n- 1-19: cut-through forwarding\n- 1-20: codeword, error correction\n\nWhere the game simplifies, the entry says so: a real serial line idles at 1 and sends the lowest bit first, Ethernet's generator has 33 bits, and so on. I also renamed the encyclopedia's one group from 线 to 一根线 / One wire.\n\n## Lint and check findings I hit\n- **Length:** 8 briefs over the limit, all fixed.\n- **Banned words:** \"card\" in 1-18, 1-19 and the lede; \"block\"/\"Blocks\" in 1-20, now \"codeword\" (码字).\n- **Name collisions:** 「字节」 quoted in briefs, and 「位」 in the bit-of part's catalog description, both clashed with entry titles. This domain has no `quotes` field to exempt them, so I took the quotes out of the briefs and titled the bit entry 比特. I can't edit the catalog.\n- **Blueprint mismatch:** the era question differed from the blueprint's (fixed as above).\n- **Ordering:** `./op` reads only one `--file`, so the byte entry goes in with the level changes, so that each changeset passes alone.\n\n## Possible problems in the levels themselves\n1. **1-19 teaches two things.** It needs a small buffer of a few bytes, because the two adapters run at different paces. It also needs a way to spoil a bad frame's outgoing check, because that frame has mostly left by the time its error shows. The reference answer is about 50 parts. It might be better split into two levels.\n2. **The byte queue is only introduced on one branch.** The queue (next byte in front, \"next\" to take it) is first explained in 1-10, on the start-bits branch. A player who goes down the flags branch first meets it cold in 1-12. Its brief now carries the rule, but nothing on that branch introduces it.\n3. **1-20's tests don't match its brief.** They expect 「—」 between codewords, but the brief never says so. If 「—」 is required on those ticks, the brief needs a clause.\n4. **Two hints may say too much.** 1-15's last hint comes close to describing the method, and 1-1's second hint gives the whole answer (it's the first, mechanical level). Please check whether either goes too far.\n5. **The blueprint still says \"network card\"/\"card\" in English** in several places. It's outside this run's scope.",
           "transcript": "/tmp/pipeline-network-copy-FHhAKp/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-01T16:18:12.577Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 3731406,
+            "seconds": 405,
+            "cost": 2.9323582,
+            "turns": 59
+          },
+          "calls": {
+            "op": {
+              "runs": 5,
+              "failed": 0
+            },
+            "check": {
+              "runs": 0,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 3,
+              "failed": 1
+            },
+            "lint": {
+              "runs": 0,
+              "failed": 0
+            }
+          },
+          "changes": [
+            18,
+            19
+          ],
+          "report": "The gate is clean (`./gate`: \"gate clean\") after two changesets: `copy2.json` with the main rewrite and `copy3.json` with one length fix. I fixed four of the five review findings; the fifth needed no change.\n\n## Review findings\n- **[11] glossary:crc** — Fixed. The second paragraph now states the limits plainly. Generator 1011 catches any single flip. It catches two flips only when they are less than 7 bits apart. Two flips exactly 7 bits apart, or any multiple of 7, leave a remainder of 0, so such a pair can get through in a frame dozens of bits long. It ends by saying Ethernet's 32-bit CRC catches any two flips in a normal-length frame.\n- **[13] 1-18** — Fixed: I deleted the pass text.\n- **[14]** — Fixed. The sentence was actually in 1-31, the level that used to be 1-3, not in 1-14. It now reads 「这根线会翻位」 / \"This wire flips bits\". 1-14's own 「线照样会翻位」 is true on every path, because 1-31 always comes before it.\n- **[15] 1-15** — Fixed. The English now reads \"divides it, using <carry-less division>, by an agreed divisor, the <generator>\".\n- **[16] Select** — No change needed. Select's description lives in the domain's catalog (code), which I can't change, but the catalog in this tree (`kit/domains/net/ui/catalog.js:18`) already says it gives 「—」 when Condition is 「—」, and that an unconnected input reads 「—」.\n\n## What I rewrote\n- **Built parts that replace older ones:** counterhold, serializerhold, deserializerhold and crchold are now named 带暂停的计数器 / 移位发送 / 按字节收 / CRC (English: Pausable counter / shift out / shift in / CRC). Each description opens by saying what it adds (\"比计数器多一个「暂停」…\" / \"A counter with a hold input…\") and then gives the full behaviour. The counter's description now covers restart and hold being 1 together, and shift out's covers 「—」 after the eighth bit and restarting.\n- **Briefs of 1-27, 1-28, 1-29, 1-40 and 1-36:** these named earlier levels by their titles (「像数拍一样」 and similar), which counts as a reference without a link. Each now states its task on its own.\n- **Intros:**\n  - 1-27 now carries the stall problem once: a 01111110 inside the content cuts the frame, and the counter can't wait.\n  - 1-40 no longer repeats that point; it links the two pausable parts and states the stuffing rule.\n  - 1-29 says what changed from the shift-in level.\n  - 1-35 no longer repeats 1-15's parity sentence word for word.\n  - 1-6 had a forward reference to bytes; I removed it.\n  - 1-17 had a sentence that duplicated its first hint; I dropped it and the intro now says the level combines unwrapping and checking.\n- **Hints:**\n  - 1-31's hints were nearly copies of the new 1-3's; the first one now points to 1-2 and 1-3.\n  - 1-14's first hint now points to 1-32 instead of repeating its hint.\n  - 1-30's hints were reordered so they go from direction to detail; the last now targets what the wrong answer gets wrong (which tick to skip).\n  - 1-21 gets a pointing first hint.\n  - The 1-20 challenge gets a second hint.\n  - 1-1's first hint: 「这一关不必放任何元件。」\n- **1-20 pass text:** it gave away the key idea (that the remainder tells you where the flip is). It now gives only the bigger picture and links error correction.\n\n## New entries\n- **成帧 / framing**, opens at 1-12 and is linked from its intro.\n- **确认 / acknowledgement** (ACK and NAK), opens at 1-37 and is linked from its intro.\n\n## Lint finding\n- copy-length on 1-28's brief: 99 Chinese characters against a limit of 90. Shortened, and the gate is clean.\n\n## Possible problems in the levels themselves\n- **1-27's intro vs 1-13's tests:** the intro (following the blueprint's reason for this level) says 1-13's receiver cuts a frame whose content holds 01111110, but no 1-13 test sends byte 126, so the player never sees it happen there. A test with that content in 1-13, or in 1-12 for the sending side, would show the problem before 1-27 claims it.\n- **1-35:** one hidden test flips bits 0 and 7. They are exactly 7 apart, so the check misses them and the frame is expected to count as intact. The level is consistent with its pass text, but it tests the limit of the generator rather than the level's stated task (catching two flips).\n- **1-18's English title** is \"A network adapter\" while the blueprint says \"network card\". This is only naming, but the two should match.",
+          "transcript": "/tmp/pipeline-network-copy-ILghhT/transcript.jsonl"
         }
       ],
       "gates": [
         {
           "at": "2026-11-01T15:18:25.327Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-01T16:18:24.833Z",
           "ok": true,
           "failures": [],
           "reports": []
@@ -623,21 +663,33 @@
               "owner": "blueprint",
               "rule": "§1 A mechanism goes where it is first needed; Lead-in",
               "fix": true,
-              "says": "XOR is built in 1-3, but no reference answer uses it until 1-14, eleven levels later on one branch. 1-3's intro gives no reason on the wire for wanting 'differ'. Build XOR where parity first needs it (the errors branch, or a builder for equal; see 1-7), and leave 1-3 as plain practice with select or drop it."
+              "says": "XOR is built in 1-3, but no reference answer uses it until 1-14, eleven levels later on one branch. 1-3's intro gives no reason on the wire for wanting 'differ'. Build XOR where parity first needs it (the errors branch, or a builder for equal; see 1-7), and leave 1-3 as plain practice with select or drop it.",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:28.846Z"
+              }
             },
             {
               "at": "1-7",
               "owner": "blueprint",
               "rule": "§1 Primitives stay minimal; §8 one new idea a level",
               "fix": true,
-              "says": "1-7 brings two primitives, bit and equal, and game.json `concept` maps equal→bit, which hides this from many-new. The blueprint says equal cannot be wired because nothing can take bits apart yet, but bit arrives in this same level, so equal can be built from bit, xor and select. Make equal a built part, which would also give XOR its first real use, or say honestly why it must stay a primitive."
+              "says": "1-7 brings two primitives, bit and equal, and game.json `concept` maps equal→bit, which hides this from many-new. The blueprint says equal cannot be wired because nothing can take bits apart yet, but bit arrives in this same level, so equal can be built from bit, xor and select. Make equal a built part, which would also give XOR its first real use, or say honestly why it must stay a primitive.",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:27.374Z"
+              }
             },
             {
               "at": "1-6",
               "owner": "blueprint",
               "rule": "§2.2 Hard mechanisms split; §1 A mechanism goes where it is first needed",
               "fix": true,
-              "says": "One level carries counting, restart and hold, plus an odd timing rule: the restart tick reads 0 and a hold tick repeats the last value. The reference needs two registers for it, and nothing practises counting afterwards. Hold only matters once stuffed 0s or CRC bits must be skipped (1-13, 1-15), while 1-8 feeds it as an arbitrary test input. Build a counter with restart here, and add hold as an upgrade (`builds` counter again) where skipping first matters."
+              "says": "One level carries counting, restart and hold, plus an odd timing rule: the restart tick reads 0 and a hold tick repeats the last value. The reference needs two registers for it, and nothing practises counting afterwards. Hold only matters once stuffed 0s or CRC bits must be skipped (1-13, 1-15), while 1-8 feeds it as an arbitrary test input. Build a counter with restart here, and add hold as an upgrade (`builds` counter again) where skipping first matters.",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:27.495Z"
+              }
             },
             {
               "at": "1-8",
@@ -651,21 +703,33 @@
               "owner": "blueprint",
               "rule": "Curriculum checklist: Practice density (§2.3)",
               "fix": true,
-              "says": "No mechanism gets more than two levels. Counting, flag spotting and parity get one each, and no level of the true-or-false kind exists, so the era reads as one idea per level. After the counter, the flag, and parity, give each a real practice cluster that varies one dimension per level (surface, scaffolding, combination, or a target that cannot be met, e.g. 'is this CRC enough for two flips 7 bits apart')."
+              "says": "No mechanism gets more than two levels. Counting, flag spotting and parity get one each, and no level of the true-or-false kind exists, so the era reads as one idea per level. After the counter, the flag, and parity, give each a real practice cluster that varies one dimension per level (surface, scaffolding, combination, or a target that cannot be met, e.g. 'is this CRC enough for two flips 7 bits apart').",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:27.621Z"
+              }
             },
             {
               "at": "1-11",
               "owner": "blueprint",
               "rule": "§1 every mechanical step becomes a built part; Abstraction keeps rising",
               "fix": true,
-              "says": "1-11 builds no part, so the 1-13 reference rewires the same ten-element flag detector from 1-11 by hand (1-13 solution lines 529–538). 1-11 should build a flag-spotter part that 1-13 then uses."
+              "says": "1-11 builds no part, so the 1-13 reference rewires the same ten-element flag detector from 1-11 by hand (1-13 solution lines 529–538). 1-11 should build a flag-spotter part that 1-13 then uses.",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:27.746Z"
+              }
             },
             {
               "at": "1-12",
               "owner": "blueprint",
               "rule": "§2.2 难点挤在一关 (hard points crammed into one level); A mechanism goes where it is first needed",
               "fix": true,
-              "says": "One level brings four things: sending a flag-delimited frame (never done before; 1-11 only spots flags), bit stuffing, the `last` frame boundary and the `send` gate. The reference has about 55 elements and 6 registers. Stuffing's wall (a 126 in the content cuts a frame in two) also strikes the receiver, which the player has not built yet. Split it: first send a frame between flags with no stuffing, then let a receiving level hit the cut frame, then add stuffing as an upgrade of the framer."
+              "says": "One level brings four things: sending a flag-delimited frame (never done before; 1-11 only spots flags), bit stuffing, the `last` frame boundary and the `send` gate. The reference has about 55 elements and 6 registers. Stuffing's wall (a 126 in the content cuts a frame in two) also strikes the receiver, which the player has not built yet. Split it: first send a frame between flags with no stuffing, then let a receiving level hit the cut frame, then add stuffing as an upgrade of the framer.",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:27.875Z"
+              }
             },
             {
               "at": "1-12",
@@ -679,14 +743,22 @@
               "owner": "blueprint",
               "rule": "§1 Branch whatever does not depend; §8 orphan levels; Lead-in",
               "fix": true,
-              "says": "The start-bit branch (1-9, 1-10) builds nothing, and no later reference uses it. Yet the blueprint gives the flag's wall as 'start bits separate bytes but not frames', and the flags branch runs in parallel with it, so a player on the flags path never meets that wall. Either put start bits before flags so the wall is real, and let 1-11's intro build on them, or rewrite the flag's wall without start bits and admit the branch ends there."
+              "says": "The start-bit branch (1-9, 1-10) builds nothing, and no later reference uses it. Yet the blueprint gives the flag's wall as 'start bits separate bytes but not frames', and the flags branch runs in parallel with it, so a player on the flags path never meets that wall. Either put start bits before flags so the wall is real, and let 1-11's intro build on them, or rewrite the flag's wall without start bits and admit the branch ends there.",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:27.995Z"
+              }
             },
             {
               "at": "1-19",
               "owner": "blueprint",
               "rule": "§2.3 one dimension per practice level; §2.5/§8 tedium",
               "fix": true,
-              "says": "Marked as a practice/combine level, but it brings three new things: cut-through forwarding, a three-byte buffer built from registers between two different paces, and spoiling the outgoing check on a bad frame. The reference has about 50 elements. This goes against the blueprint's own card-ports note that holding bytes between two cards belongs to era 2. Split the buffer from the 'must not leave intact' idea, or treat it as a foundation level with its own idea and practice."
+              "says": "Marked as a practice/combine level, but it brings three new things: cut-through forwarding, a three-byte buffer built from registers between two different paces, and spoiling the outgoing check on a bad frame. The reference has about 50 elements. This goes against the blueprint's own card-ports note that holding bytes between two cards belongs to era 2. Split the buffer from the 'must not leave intact' idea, or treat it as a foundation level with its own idea and practice.",
+              "resolved": {
+                "why": "the blueprint's fourth run and the level designer's third",
+                "at": "2026-11-01T16:18:28.117Z"
+              }
             },
             {
               "at": "1-17",
@@ -700,7 +772,11 @@
               "owner": "copy",
               "rule": "The domain's honesty",
               "fix": true,
-              "says": "1-15's intro offers CRC as the remedy for parity missing two flips. With generator 1011 (period 7), two flips exactly 7 bits apart leave remainder 0, and the frames in 1-17–1-19 are dozens of bits long. 'Catches far less than a real CRC' is too vague: say that 1011 catches every one- or two-bit flip only within 7 bits."
+              "says": "1-15's intro offers CRC as the remedy for parity missing two flips. With generator 1011 (period 7), two flips exactly 7 bits apart leave remainder 0, and the frames in 1-17–1-19 are dozens of bits long. 'Catches far less than a real CRC' is too vague: say that 1011 catches every one- or two-bit flip only within 7 bits.",
+              "resolved": {
+                "why": "the copy writer's second run",
+                "at": "2026-11-01T16:18:28.239Z"
+              }
             },
             {
               "at": "1-17",
@@ -714,28 +790,44 @@
               "owner": "copy",
               "rule": "Copy: pass texts only sum up this level, no forward references; a point made once",
               "fix": true,
-              "says": "The pass text 'From here on a node that uses a wire deals only with its adapter: each layer minds its own business' talks about later levels and repeats the intro's layering point. Delete it."
+              "says": "The pass text 'From here on a node that uses a wire deals only with its adapter: each layer minds its own business' talks about later levels and repeats the intro's layering point. Delete it.",
+              "resolved": {
+                "why": "the copy writer's second run",
+                "at": "2026-11-01T16:18:28.362Z"
+              }
             },
             {
               "at": "1-14",
               "owner": "copy",
               "rule": "§4 statements must hold on every prerequisite path",
               "fix": true,
-              "says": "'从这里起，线会把个别的位翻过来' / 'From here on, the wire flips the odd bit' is false for a player who plays the flags branch (1-11–1-13, no flips) after this one. Write 'this wire flips bits' instead."
+              "says": "'从这里起，线会把个别的位翻过来' / 'From here on, the wire flips the odd bit' is false for a player who plays the flags branch (1-11–1-13, no flips) after this one. Write 'this wire flips bits' instead.",
+              "resolved": {
+                "why": "the copy writer's second run",
+                "at": "2026-11-01T16:18:28.484Z"
+              }
             },
             {
               "at": "1-15",
               "owner": "copy",
               "rule": "Copy: both languages idiomatic",
               "fix": true,
-              "says": "With the link title read in place, the English says 'divides it by carry-less division by an agreed divisor'. Rephrase it, e.g. 'divides it, using <carry-less division>, by an agreed divisor, the <generator>'."
+              "says": "With the link title read in place, the English says 'divides it by carry-less division by an agreed divisor'. Rephrase it, e.g. 'divides it, using <carry-less division>, by an agreed divisor, the <generator>'.",
+              "resolved": {
+                "why": "the copy writer's second run",
+                "at": "2026-11-01T16:18:28.603Z"
+              }
             },
             {
               "at": "game",
               "owner": "copy",
               "rule": "Part descriptions say exactly what the part does",
               "fix": true,
-              "says": "Select's description does not say what it gives when Condition is 「—」. The references of 1-8, 1-9, 1-12 and 1-14 depend on this (select(has, f.line), select(e8, rb)), so a player cannot learn it from the description. State it in the select description."
+              "says": "Select's description does not say what it gives when Condition is 「—」. The references of 1-8, 1-9, 1-12 and 1-14 depend on this (select(has, f.line), select(e8, rb)), so a player cannot learn it from the description. State it in the select description.",
+              "resolved": {
+                "why": "the domain: Select's description in kit/domains/net/ui/catalog.js now says a 「—」 condition gives 「—」",
+                "at": "2026-11-01T16:18:28.726Z"
+              }
             },
             {
               "at": "1-16",
@@ -832,6 +924,48 @@
               "says": "copy: Select's description does not say what it gives when Condition is 「—」. The references of 1-8, 1-9, 1-12 and 1-14 depend on this (select(has, f.line), select(e8, rb)), so a player cannot learn it from the description. State it in the select description."
             }
           ],
+          "reports": [
+            {
+              "rule": "review-note",
+              "at": "1-8",
+              "says": "The 'from the first tick before start ever is' clause, and hidden tests where start and hold fall on the same tick, force the reference to carry a correction register (t = 7 + f). That work comes from the counter's conventions, not from putting bits back into a number. Consider dropping those edge cases once the counter is simplified."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-12",
+              "says": "The framer's `send` input is held at 1 in almost every 1-12 test and only matters in 1-18/1-19. It could be added as an upgrade where it is needed."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-17",
+              "says": "Marked as a practice level, but it brings a new protocol point: one check over a whole frame, sent as a padded check byte, so each byte must be held back until the next arrives. It also builds `receiver`. Consider making it a foundation level with its own idea."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-17",
+              "says": "The output 完好/Intact (also on receiver and nic) reports that the check agrees, not that the frame is intact; 1-14 rightly says 校验是否相符. Consider 校验相符 / Check OK, so the label claims no more than the check knows."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-16",
+              "says": "1-16 builds nothing, and its format (three raw check bits after one byte) never comes back. 1-18 rebuilds the sending-side check by hand with a second serializer feeding crc. Consider having 1-16 build the 'append check byte' step that the card then uses."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-18",
+              "says": "The first hint ('a part in hand already does the upward half') gives away half the board at once. Move it later, or make it vaguer."
+            },
+            {
+              "rule": "review-note",
+              "at": "glossary:start-bit",
+              "says": "异步传输 (asynchronous transmission, in start-bit) and 存储转发 (store-and-forward, in cut-through) are defined inside other entries and have none of their own. Give them entries, or drop the terms."
+            }
+          ]
+        },
+        {
+          "at": "2026-11-01T16:18:28.972Z",
+          "ok": true,
+          "failures": [],
           "reports": [
             {
               "rule": "review-note",

@@ -7,8 +7,8 @@
   "intro": [
     {
       "t": {
-        "zh": "到这里为止，校验码护着的只是一个字节，线照样会翻位。一帧有几个字节事先不知道，校验码于是放在整帧内容的后面：前面补 5 个 0 凑成一个校验字节，和内容一起做位填充。收的一方要等这一帧结束，才知道最后收到的是校验字节。",
-        "en": "So far a check has guarded a single byte, and the wire still flips bits. A frame's length is not known in advance, so its check goes after the whole content: five 0s in front make it a check byte, stuffed along with the content. Only when the frame ends does the receiver know the last byte was the check."
+        "zh": "到这里为止，校验码护着的只是一个字节。一帧有几个字节事先不知道，校验码于是放在整帧内容的后面：前面补 5 个 0 凑成一个校验字节，和内容一起做位填充。这一关把拆帧和查错合在一起。",
+        "en": "So far a check has guarded a single byte. A frame's length is not known in advance, so its check goes after the whole content: five 0s in front make it a check byte, stuffed along with the content. This level puts unwrapping and checking together."
       }
     }
   ],

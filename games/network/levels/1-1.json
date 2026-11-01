@@ -16,7 +16,7 @@
     }
   ],
   "hint": [
-    { "zh": "这一关不必再放元件。", "en": "No more parts are needed here." },
+    { "zh": "这一关不必放任何元件。", "en": "No parts are needed here." },
     { "zh": "从左线的输出口拉一根连线，接到右线上。", "en": "Draw a connection from the left wire's output to the right wire." }
   ],
   "wires": {

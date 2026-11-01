@@ -1,14 +1,14 @@
 {
   "title": { "zh": "塞一个 0", "en": "Slip in a 0" },
   "brief": {
-    "zh": "像夹在旗标之间那样一帧一帧送出交来的字节，只是内容里每连着 5 个 1 就多说一个 0。",
-    "en": "Send the frames handed to you between flags as before, except that after every five 1s in a row in the content you add a 0."
+    "zh": "把交来的每一帧送出，前后各加一个旗标 01111110，只在「发送」为 1 时开始新的一帧；内容里每连着 5 个 1，就多说一个 0。「下一个」取走队首，「末字节」标出帧尾。",
+    "en": "Send each frame handed to you with a flag 01111110 before and after it, starting a new frame only while send is 1, and add a 0 after every five 1s in a row in the content. Next takes the byte in front; last marks a frame's final byte."
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-13\"></level-ref>里，内容本身含有 01111110 时，收的一方会把它当成旗标，一帧被从中间切断。两头于是再约好：内容里每连着 5 个 1，发送方就多说一个 0，收的一方再把它去掉。这叫<wiki-ref to=\"stuffing\"></wiki-ref>。",
-        "en": "In <level-ref to=\"1-13\"></level-ref>, content that itself holds 01111110 is taken for a flag and the frame is cut in two. So the ends agree on one more rule: after every five 1s in a row in the content the sender says an extra 0, and the receiver takes it out again. This is <wiki-ref to=\"stuffing\"></wiki-ref>."
+        "zh": "<part-ref to=\"counterhold\"></part-ref>和<part-ref to=\"serializerhold\"></part-ref>都能停一拍了。两头再约好塞哪一位、塞在哪里：内容里每连着 5 个 1，发送方就多说一个 0，收的一方再把它去掉，内容里就不会出现旗标。这叫<wiki-ref to=\"stuffing\"></wiki-ref>。",
+        "en": "<part-ref to=\"counterhold\"></part-ref> and <part-ref to=\"serializerhold\"></part-ref> can both stand still for a tick. Now the ends agree on what to slip in and where: after every five 1s in a row in the content the sender says an extra 0, and the receiver takes it out again, so the content never looks like a flag. This is <wiki-ref to=\"stuffing\"></wiki-ref>."
       }
     }
   ],

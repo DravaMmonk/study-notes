@@ -7,8 +7,8 @@
   "intro": [
     {
       "t": {
-        "zh": "要知道一个字节该发到第几位、已经收了几位，板得知道过了几拍。寄存卡只记得住一个值，手上的元件又都不能让一个数变大。新元件<part-ref to=\"part:add\"></part-ref>给出两个数之和。",
-        "en": "To know which bit of a byte is due, or how many have come in, a board must know how many ticks have passed. A register holds a single value, and nothing in hand can make a number grow. The new part <part-ref to=\"part:add\"></part-ref> gives the sum of two numbers."
+        "zh": "寄存卡能把一个值留到下一拍，板却还不知道已经过了几拍：手上的元件只能选、只能存，没有一样能让一个数变大。新元件<part-ref to=\"part:add\"></part-ref>给出两个数之和。",
+        "en": "A register keeps a value for the next tick, but the board still cannot tell how many ticks have passed: the parts in hand can only pick and store, and none makes a number grow. The new part <part-ref to=\"part:add\"></part-ref> gives the sum of two numbers."
       }
     }
   ],

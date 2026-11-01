@@ -7,8 +7,8 @@
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-14\"></level-ref>的校验位只查得出奇数个错位：恰好翻两位时，校验照样相符。<level-ref to=\"1-16\"></level-ref>送出的校验码查不查得出？",
-        "en": "The parity bit of <level-ref to=\"1-14\"></level-ref> catches only an odd number of flips: with two flipped it still checks out. Does the check sent in <level-ref to=\"1-16\"></level-ref> catch them?"
+        "zh": "这一次线在一个字节里可能翻两位，正是<level-ref to=\"1-14\"></level-ref>的校验位漏掉的情形。<level-ref to=\"1-16\"></level-ref>送出的校验码查不查得出？",
+        "en": "This time the wire may flip two bits in one byte, just what the parity bit of <level-ref to=\"1-14\"></level-ref> misses. Does the check sent in <level-ref to=\"1-16\"></level-ref> catch it?"
       }
     }
   ],

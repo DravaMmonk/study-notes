@@ -14,16 +14,16 @@
   ],
   "hint": [
     {
-      "zh": "连着五个 1 之后来的 0 是塞进去的，不算内容。",
-      "en": "A 0 that comes after five 1s in a row was stuffed in and is not content."
-    },
-    {
       "zh": "<part-ref to=\"deserializerhold\"></part-ref>在「暂停」的拍不收线上的位。",
       "en": "<part-ref to=\"deserializerhold\"></part-ref> leaves out the wire's bit on hold ticks."
     },
     {
       "zh": "一个 0 是不是塞进去的，要看它前面连着几个 1。",
       "en": "Whether a 0 was stuffed in depends on how many 1s came just before it."
+    },
+    {
+      "zh": "该停的是第五个 1 后面的那一拍，不是第五个 1 到达的那一拍。",
+      "en": "The tick to leave out is the one after the fifth 1, not the tick the fifth 1 arrives."
     }
   ],
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },

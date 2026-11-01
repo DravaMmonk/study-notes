@@ -7,8 +7,8 @@
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"flagspot\"></part-ref>在位流里认得出旗标。这一次换到发送的一方：一帧有几个字节，看队首的「末字节」就知道。",
-        "en": "<part-ref to=\"flagspot\"></part-ref> spots flags in the bit stream. Now the board is the sender: how many bytes a frame holds shows in the last-byte mark at the head of the queue."
+        "zh": "<part-ref to=\"flagspot\"></part-ref>在位流里认得出旗标。这一次换到发送的一方：给每一帧前后加上旗标再送出去，这叫<wiki-ref to=\"framing\"></wiki-ref>。一帧有几个字节，看队首的「末字节」就知道。",
+        "en": "<part-ref to=\"flagspot\"></part-ref> spots flags in the bit stream. Now the board is the sender, putting a flag at each end of every frame it sends: this is <wiki-ref to=\"framing\"></wiki-ref>. How many bytes a frame holds shows in the last-byte mark at the head of the queue."
       }
     }
   ],

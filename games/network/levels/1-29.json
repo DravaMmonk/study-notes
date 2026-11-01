@@ -1,14 +1,14 @@
 {
   "title": { "zh": "跳过一位", "en": "Skip a bit" },
   "brief": {
-    "zh": "像一位一位地收一样收一个字节，只是「暂停」为 1 的拍线上那一位不收；收满 8 位的那一拍输出字节，「收完」为 1。",
-    "en": "Gather a byte as before, except that the bit on a tick hold is 1 is not taken in; on the tick the eighth is taken, output the byte and make done 1."
+    "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前，「暂停」为 1 的拍那一位不收；收满 8 位的那一拍输出这个字节，「收完」为 1，其余各拍为 0。",
+    "en": "From the tick start is 1, take in 8 bits off the wire, top bit first, leaving out the bit of any tick hold is 1; on the tick the eighth is taken in, output the byte and make done 1, and 0 on every other tick."
   },
   "intro": [
     {
       "t": {
-        "zh": "发送方多塞了一个 0，内容停了一拍。收的一方也要能停：那一拍线上的位不是内容，不收进来。",
-        "en": "The sender slipped in an extra 0 and the content stood still a tick. The receiver must be able to stand still too: that tick's bit on the wire is not content and is not taken in."
+        "zh": "<level-ref to=\"1-40\"></level-ref>多塞的 0 不是内容。收的一方也要能停：<part-ref to=\"deserializer\"></part-ref>在那一拍不能收线上的位。",
+        "en": "The 0 slipped in by <level-ref to=\"1-40\"></level-ref> is not content. The receiver must be able to stand still too: on that tick <part-ref to=\"deserializer\"></part-ref> must not take in the wire's bit."
       }
     }
   ],
@@ -168,10 +168,10 @@
   ],
   "builds": {
     "type": "deserializerhold",
-    "name": { "zh": "能停的按字节收", "en": "Pausable shift in" },
+    "name": { "zh": "带暂停的按字节收", "en": "Pausable shift in" },
     "desc": {
-      "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前，「暂停」为 1 的拍那一位不收；收满的那一拍给出这个字节，「收完」为 1；其余各拍字节是「—」，「收完」为 0。",
-      "en": "From the tick start is 1, takes in 8 bits off its wire in, top bit first, leaving out the bit of every tick hold is 1; on the tick the eighth comes in gives the byte with done 1; on every other tick the byte is 「—」 and done 0."
+      "zh": "比按字节收多一个「暂停」：从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前，「暂停」为 1 的拍那一位不收；收满的那一拍给出这个字节，「收完」为 1；其余各拍字节是「—」，「收完」为 0。",
+      "en": "Shift in with a hold input: from the tick start is 1, takes in 8 bits off its wire in, top bit first, leaving out the bit of every tick hold is 1; on the tick the eighth comes in it gives the byte with done 1; on every other tick the byte is 「—」 and done 0."
     },
     "replaces": ["deserializer"]
   }

@@ -174,6 +174,19 @@
       "see": ["frame"]
     },
     {
+      "id": "framing",
+      "group": "wire",
+      "title": { "zh": "成帧", "en": "framing" },
+      "at": "1-12",
+      "body": [
+        {
+          "zh": "把要送的数据分成一帧一帧，并标出每一帧的边界，让收的一方能从位流里把它们分出来。这里用旗标标出边界；也有协议在帧头写明帧有多长。",
+          "en": "Dividing the data to be sent into frames and marking where each begins and ends, so the receiver can pick them out of the stream of bits. Here flags mark the edges; other protocols state a frame's length in its header."
+        }
+      ],
+      "see": ["frame", "flag"]
+    },
+    {
       "id": "stuffing",
       "group": "wire",
       "title": { "zh": "位填充", "en": "bit stuffing" },
@@ -256,8 +269,8 @@
           "en": "A kind of error detection: the data is read as one big number, as many 0s as the check has bits are appended, and it is divided without carries by the generator; the remainder is the check, sent after the data. It is known as CRC."
         },
         {
-          "zh": "它查得出奇偶校验漏掉的许多错误，硬件上又便宜，所以几乎每一种链路都用它。这里的生成式只有 4 位，查错能力远不如真实的 CRC。",
-          "en": "It catches many errors that parity misses and is cheap in hardware, so nearly every kind of link uses it. The generator here has only 4 bits and catches far less than a real CRC."
+          "zh": "它查得出奇偶校验漏掉的许多错误，硬件上又便宜，所以几乎每一种链路都用它。这里的生成式 1011 只有 4 位：任何一处翻位都查得出，两处翻位却只在相距不到 7 位时才一定查得出；正好相距 7 位或 7 的倍数时，余数仍是 0。一帧有几十位长，这样的两处翻位就可能漏掉。以太网的 32 位 CRC 在正常长度的帧里查得出任何两处翻位。",
+          "en": "It catches many errors that parity misses and is cheap in hardware, so nearly every kind of link uses it. The generator here, 1011, has only 4 bits: it catches any single flip, but two flips only when they are less than 7 bits apart; two flips exactly 7 bits apart, or any multiple of 7, leave a remainder of 0. In a frame dozens of bits long such a pair can slip through. Ethernet's 32-bit CRC catches any two flips in a frame of normal length."
         }
       ],
       "see": ["generator", "carryless", "error-detection"]
@@ -278,6 +291,19 @@
         }
       ],
       "see": ["frame", "protocol"]
+    },
+    {
+      "id": "ack",
+      "group": "wire",
+      "title": { "zh": "确认", "en": "acknowledgement" },
+      "at": "1-37",
+      "body": [
+        {
+          "zh": "收的一方回给发送方的一句话，说一帧到了，好不好。说「好」叫确认（ACK），说「坏」叫否认（NAK）。发送方靠它才知道对方收到了什么。",
+          "en": "A message the receiver sends back to say that a frame arrived, and whether it was intact. A positive answer is an ACK, a negative one a NAK. Only through it does the sender learn what the other end received."
+        }
+      ],
+      "see": ["frame", "error-detection"]
     },
     {
       "id": "codeword",

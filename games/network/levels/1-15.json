@@ -14,7 +14,7 @@
     {
       "t": {
         "zh": "更强的校验把一串位当作一个大数，后面补上几个 0，用<wiki-ref to=\"carryless\"></wiki-ref>除以约好的除数，这个除数叫<wiki-ref to=\"generator\"></wiki-ref>；余数就是跟在数据后面的校验码。这种校验叫<wiki-ref to=\"crc\"></wiki-ref>。",
-        "en": "A stronger check reads a run of bits as one big number, appends a few 0s and divides it by <wiki-ref to=\"carryless\"></wiki-ref> by an agreed divisor, the <wiki-ref to=\"generator\"></wiki-ref>; the remainder is the check sent after the data. This check is a <wiki-ref to=\"crc\"></wiki-ref>."
+        "en": "A stronger check reads a run of bits as one big number, appends a few 0s and divides it, using <wiki-ref to=\"carryless\"></wiki-ref>, by an agreed divisor, the <wiki-ref to=\"generator\"></wiki-ref>; the remainder is the check sent after the data. This check is a <wiki-ref to=\"crc\"></wiki-ref>."
       }
     }
   ],
