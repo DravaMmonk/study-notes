@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "games": {
+      "command": "node",
+      "args": ["games/kit/engine/ops/mcp.js"]
+    }
+  }
+}

@@ -16,7 +16,7 @@ const ids = S.list(S.str())
 const TEXTS = S.list(S.text())
 const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** Blueprint text (board.js), one line a string: a reference board. */
-const BOARD = S.list(S.str(), { about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
+const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 /** A number written as a number or in hexadecimal ('0x123'), as CAN identifiers and bytes are. */
 const hex = (max, digits) => S.either(S.int({ min: 0, max }), S.str({ pattern: `^0x[0-9a-fA-F]{1,${digits}}$` }))
 
@@ -77,8 +77,9 @@ const LEVEL = S.obj({
 
 /* ---------- game.json ---------- */
 
-const ITEM = S.either(S.str(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels: ids })) }))
-const AFTER = S.either(S.str(), ids)
+const levels = S.list(S.level())
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels })) }))
+const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int(),
   keeps: S.opt(S.either(S.oneOf(['all']), ids)),
@@ -86,8 +87,8 @@ const ERA = S.obj({
   question: S.text(),
   foundation: S.list(ITEM),
   practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels: ids, title: S.opt(S.text()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.str(), after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
+  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
 })
 const SAVE_OP = S.either(
   S.obj({ rename: S.map(S.either(S.str(), S.oneOf([null]))) }),

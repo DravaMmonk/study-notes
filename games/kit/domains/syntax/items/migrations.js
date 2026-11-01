@@ -7,6 +7,8 @@ import { callOf } from '../../../engine/schema.js'
 const MIGRATIONS = {
   /** Nothing carries over: every level id, or every level's kept state, becomes nothing. */
   none: () => () => null,
+  /** These levels' kept state is dropped: they start afresh. */
+  drop: (ids) => (value, id) => (ids.includes(id) ? undefined : value),
 }
 
 /** A migration item as the function the shared migrations run. */

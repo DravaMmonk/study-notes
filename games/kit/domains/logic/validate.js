@@ -1,4 +1,4 @@
-// The logic domain's checks for `npm run check` (../../engine/check.js), over a game's spec (domain.js): what reading
+// The logic domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): what reading
 // its content found wrong (course.js), then every proof level's reference proof closes its goal and its naive one does
 // not; every goal the reference proves has no countermodel on small domains (a level whose goal is false would be
 // caught). A truth-table level's formulas parse and its task can be done: a `counter` formula has a false row, a

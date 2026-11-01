@@ -19,9 +19,8 @@ The design rules live in the repository, not in this skill. Before designing or 
    especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), author workflow (§7), pitfalls (§8)
    and case studies (§9–11).
 2. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
-3. The game's content: a data game (`games/DIRECTION.md`, `games/DESIGN.md` §6.1; 《状态之图》, 《视觉完备》) is
-   `games/<game>/game.json` (eras, parts, saves), `levels/<id>.json` and `glossary.json`, written in its domain's
-   vocabulary (`games/kit/domains/<domain>/vocabulary.js`); a game not yet moved is still `spec.js` and `levels/`.
+3. The game's content (`games/DESIGN.md` §6.1): `games/<game>/game.json` (eras, parts, saves), `levels/<id>.json`
+   and `glossary.json`, written in its domain's vocabulary (`games/kit/domains/<domain>/vocabulary.js`).
 
 **Docs first, and only the current design.** Every change to a course (a new chapter, a reordering, parts split
 or merged, a mechanism moved) is made in the design docs before the code: `games/DESIGN.md` for what holds for every
@@ -40,6 +39,9 @@ copying the last wording forward.
   evaluation, a world, a check, a panel) goes into the domain's vocabulary and implementation.
 - A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
+- Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …` or the MCP
+  server's `modify`, never JSON edited by hand. A changeset is checked as a whole and written only when it passes,
+  with its save migration generated; read the game's `vocabulary` (MCP) or `npm run op -- list` first.
 - `npm run check` (in `trace-viewer/`) must be clean before committing curriculum changes; `npm test` for kit
   changes.
 - Part types, port names and setting values are ASCII, so every board prints as a blueprint (`kit/circuit/text.js`,
@@ -112,8 +114,9 @@ shows them at work in 《证明完毕》):
   inside the saturator) or a part made for one level's scene (someone else's wrong prover) is `local`: never unlocked,
   never carried; a later level that needs it brings it again. A level whose puzzle turns around something ready-made
   presets it on the board (`preset`): locked, movable, never deleted or rewired.
-- **Renumbering needs a save migration** (§2): renamed ids, flags now set by another level, new intro levels
-  marked passed when a later one is.
+- **Renumbering needs a save migration** (§2), and the operations generate it: renamed or removed ids, a level
+  put where it is now a prerequisite counted solved for whoever passed what follows it, new builds, and (where the
+  domain says so) dropped boards of a puzzle that changed. Read the generated step in the dry run.
 - **Topic codes.** One letter per series: topics hanging on each other's levels (`after`) share a letter, across
   chapters too, numbered on; unrelated series take different letters (audit `topic-code`).
 - **Level tree shape.** The map tree is at most three columns wide, at most three levels per row. A parallel set

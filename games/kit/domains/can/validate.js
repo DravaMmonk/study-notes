@@ -1,4 +1,4 @@
-// The can domain's checks for `npm run check` (../../engine/check.js): what reading the content found wrong
+// The can domain's checks for `npm run check` (../../engine/checks.js): what reading the content found wrong
 // (course.js), then level by level: the reference board passes every test and hidden test, says nothing from what it
 // hears in the same tick, and uses only the parts the level holds and its fixed cards; the empty board fails; the
 // naive board, where the level has one, is one the level could hold and fails (a challenge must have one: the course

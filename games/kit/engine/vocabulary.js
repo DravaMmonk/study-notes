@@ -15,7 +15,7 @@ import { S, validate } from './schema.js'
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
   groups: S.list(S.obj({ id: S.str(), title: S.text() })),
-  entries: S.list(S.obj({ id: S.str(), group: S.str(), title: S.text(), body: S.list(S.text()), at: S.opt(S.str()), see: S.opt(S.list(S.str())) })),
+  entries: S.list(S.obj({ id: S.str(), group: S.str(), title: S.text(), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.str())) })),
 })
 
 /**
@@ -42,11 +42,12 @@ export function checkContent(vocabulary, content) {
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open.
   const { id, levels, glossary, domain, vocabulary: version, open, ...game } = content
+  const ids = new Set(levels.map((l) => l.id))
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })
-  add(validate(vocabulary.game, game, { vocabulary }), 'game.json')
+  add(validate(vocabulary.game, game, { vocabulary, levels: ids }), 'game.json')
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
-  for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary }), `levels/${levelId}.json`)
-  add(validate(GLOSSARY, glossary, { vocabulary }), 'glossary.json')
+  for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids }), `levels/${levelId}.json`)
+  add(validate(GLOSSARY, glossary, { vocabulary, levels: ids }), 'glossary.json')
   return out
 }

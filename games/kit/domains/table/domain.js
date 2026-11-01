@@ -5,8 +5,9 @@
 import { vocabulary } from './vocabulary.js';
 import { tableCourse } from './course.js';
 import { validate } from './validate.js';
+import { savesOf } from './items/migrations.js';
 
-/** A table game's spec, as npm run check reads one (../../engine/check.js). */
+/** A table game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
   const table = tableCourse(content);
   return {
@@ -21,4 +22,4 @@ function spec(content) {
   };
 }
 
-export default { vocabulary, spec, validate };
+export default { vocabulary, spec, validate, saves: savesOf };

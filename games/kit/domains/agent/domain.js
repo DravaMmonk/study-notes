@@ -6,7 +6,7 @@ import { vocabulary } from './vocabulary.js'
 import { agentCourse } from './course.js'
 import { validate } from './validate.js'
 
-/** An agent game's spec, as npm run check reads one (../../engine/check.js). */
+/** An agent game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
   const agent = agentCourse(content)
   return {
@@ -20,4 +20,7 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate }
+// Its saves name no migration items: the shell's ops as written.
+const saves = (steps) => steps
+
+export default { vocabulary, spec, validate, saves }

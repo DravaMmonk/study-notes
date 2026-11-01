@@ -47,7 +47,7 @@ const VIEWS = {
 const TEXT = S.text()
 const ids = S.list(S.str())
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one. */
-const BOARD = S.list(S.str(), { about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
+const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 const VIEW = S.ref('view')
 const VIEWS_OF = S.obj({ in: S.opt(VIEW), out: S.opt(VIEW), mid: S.opt(VIEW) }, { about: t('输入、输出、中间元件默认的画法', 'how the inputs, the outputs and the parts between are drawn at first') })
 const CHECK = S.obj({ tolerance: S.opt(S.num()), mismatches: S.opt(S.int({ min: 0 })) }, { about: t('一格差多少算对（tolerance），最多几格不对（mismatches）', 'how far a cell may be off (tolerance), how many cells may be wrong (mismatches)') })
@@ -124,14 +124,15 @@ const BENCH = S.obj({ ...COMMON, kind: S.oneOf(['board']), bench: benchSchema(BE
 
 /* ---------- game.json ---------- */
 
-const ITEM = S.either(S.str(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: TEXT, levels: ids })) }))
-const AFTER = S.either(S.str(), ids)
+const levels = S.list(S.level())
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: TEXT, levels })) }))
+const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int({ min: 0 }),
   keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   foundation: S.list(ITEM),
-  topics: S.opt(S.list(S.obj({ id: S.str(), levels: ids, after: S.opt(AFTER) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.str(), after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({ id: S.str(), levels, after: S.opt(AFTER) }))),
+  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: TEXT, lecture: TEXT, question: TEXT }),
 })
 const NONE = S.oneOf([null])
@@ -151,12 +152,12 @@ const GAME = S.obj({
   primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件', 'the parts no circuit builds') }),
   concept: S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') }),
   replaces: S.map(S.list(S.ref('part')), { about: t('一个元件出现后取代的元件', 'the parts a part supersedes once met') }),
-  views: S.map(S.str(), { about: t('每种画法在哪一关引入（像素一开始就有）', 'the level each way of drawing a picture comes with (pixels from the start)') }),
+  views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）', 'the level each way of drawing a picture comes with (pixels from the start)') }),
   eras: S.list(ERA, { min: 1 }),
   saves: S.list(S.obj({ version: S.int({ min: 2 }), ops: S.list(SAVE_OP) })),
   box: S.obj({
-    sample: S.str({ about: t('没有测试的关解锁的元件，在这一关的测试图上试', 'the level whose pictures a part from a level without tests is tried on') }),
-    inLevel: S.map(S.str(), { about: t('在这一关的参考电路里试的元件', 'parts tried inside a level’s own reference circuit') }),
+    sample: S.level({ about: t('没有测试的关解锁的元件，在这一关的测试图上试', 'the level whose pictures a part from a level without tests is tried on') }),
+    inLevel: S.map(S.level(), { about: t('在这一关的参考电路里试的元件', 'parts tried inside a level’s own reference circuit') }),
     boards: S.opt(S.map(BOARD, { about: t('试这个元件用的电路（参考电路里把它拆成了小元件时）', 'the board a part is tried on (where the reference spells it out in smaller parts)') })),
   }, { about: t('元件箱怎么试一个元件', 'how the parts box tries a part') }),
   quotes: S.opt(S.list(S.str(), { about: t('文案里可以照字面引用的名字（说的是别的东西）', 'names a text may quote rather than link (they mean something else there)') })),

@@ -68,7 +68,7 @@
 // a milestone the map draws full size; audit(course) lists every broken rule.
 import { rebuilt } from './engine/match.js'
 
-/** What each rule of the audit means, for reports (../engine/check.js). */
+/** What each rule of the audit means, for reports (./engine/checks.js). */
 export const RULE_TEXT = {
   'not-built': 'offered, but no level builds it and it is not a primitive',
   'own-level': 'offered in the very level that builds it',

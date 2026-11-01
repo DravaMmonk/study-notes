@@ -1,4 +1,4 @@
-// The syntax domain's checks for `npm run check` (../../engine/check.js), sentence by sentence:
+// The syntax domain's checks for `npm run check` (../../engine/checks.js), sentence by sentence:
 //
 //   · every span and word the answer names is in the sentence, once (or picked out with #n)
 //   · the folds never cross, none hangs on a word inside itself, a fold lies inside any fold that holds its word, and

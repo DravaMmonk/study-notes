@@ -1,4 +1,4 @@
-// The image domain's checks for `npm run check` (../../engine/check.js), over a game's spec (domain.js): every level
+// The image domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): every level
 // has an intro whose figures exist, every bench proves its lesson (its item's verify, items/benches.js), and every
 // circuit level keeps hidden tests, cannot be met by a constant, passes with its reference circuit and fails with its
 // naive ones (every task of a level, too); a level that packs its circuit is passed by that part alone, wired to the

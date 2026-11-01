@@ -21,7 +21,7 @@ const NONE = S.oneOf([null])
 const SENTENCE = S.str({ about: t('一句话，按 formula.js 的写法：Rain → Wet、∀x. Human(x)、?A ∧ ?B', 'a sentence as formula.js reads it: Rain → Wet, ∀x. Human(x), ?A ∧ ?B') })
 const SENTENCES = S.list(SENTENCE)
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one. */
-const BOARD = S.list(S.str(), { about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
+const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 const PART = S.str({ about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式', 'a part: one of the vocabulary’s, or a lemma, gate or equation of game.json') })
 const PARTS = S.list(PART)
 const WORDS = S.list(S.either(S.str(), S.map(S.text())), { about: t('用哪几套词（game.json wordSets 的名字，或直接写出），按顺序合并', 'the word sets read in (names of game.json wordSets, or written out), merged in order') })
@@ -153,7 +153,7 @@ const ISO = {
   play: S.opt(S.oneOf(['audit'], { about: t('用条例检验别人的声明', 'checking someone’s declarations by test cases') })), want: S.opt(S.oneOf(['agree', 'expose'])),
   boards: S.opt(S.list(S.obj({ label: S.opt(S.text()), rules: RULE_ROWS }))), answer: S.opt(S.list(CASE)), slots: S.opt(S.either(S.int({ min: 1 }), S.list(SLOT))),
   caseGoal: S.opt(SENTENCE), binder: S.opt(S.str()), take: S.opt(S.obj({ premises: S.list(S.str()), conclusion: S.str() })),
-  datatype: S.opt(S.obj({ type: S.str(), ctors: ids, args: S.map(S.str()) })), ways: S.opt(S.list(S.list(S.str()))), carry: S.opt(S.str()),
+  datatype: S.opt(S.obj({ type: S.str(), ctors: ids, args: S.map(S.str()) })), ways: S.opt(S.list(S.list(S.str()))), carry: S.opt(S.level()),
 }
 const BY_KIND = {
   proof: {
@@ -198,16 +198,17 @@ const LEVEL = S.either(
 
 /* ---------- game.json ---------- */
 
-const ITEM = S.either(S.str(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels: ids })) }))
-const AFTER = S.either(S.str(), ids)
+const levels = S.list(S.level())
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels })) }))
+const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.str(),
   machine: S.either(S.oneOf(['prover'], { about: t('证明器：从这一代起，每一章给它加一个模块', 'the prover: from this era on, each chapter adds a module to it') }), NONE),
   keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   foundation: S.list(ITEM),
   practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels: ids, title: S.text(), desc: S.opt(S.text()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.str(), after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.text(), desc: S.opt(S.text()) }))),
+  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: S.text(), question: S.text() }),
 })
 const LEMMA = S.obj({
@@ -218,7 +219,7 @@ const LEMMA = S.obj({
 }, { about: t('玩家证出的引理：一个模式，之后当元件用', 'a lemma the player proves: a pattern, a part from then on') })
 const FACT = S.obj({ name: S.text(), statement: SENTENCE, desc: S.text(), rule: S.opt(S.obj({ premises: S.list(S.str()), conclusion: S.str() })) })
 const GATE = S.obj({ name: S.text(), desc: S.text(), ports: S.list(S.str(), { about: t('门的口，依次接搭出它那一关的字母', 'the gate’s ports, the letters of the level that builds it in order') }) })
-const REVISION = S.obj({ at: S.opt(S.str()), by: S.opt(S.str()), desc: S.opt(S.text()), forms: S.opt(ids) })
+const REVISION = S.obj({ at: S.opt(S.level()), by: S.opt(S.level()), desc: S.opt(S.text()), forms: S.opt(ids) })
 const SAVE_OP = S.either(
   S.obj({ rename: S.map(S.either(S.str(), NONE)) }),
   S.obj({ grant: S.list(S.str()) }),

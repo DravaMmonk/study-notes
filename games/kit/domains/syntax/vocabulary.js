@@ -28,6 +28,7 @@ const MACHINES = {
 }
 const MIGRATIONS = {
   none: item(t('什么都不带过来：改名时每一关都去掉，改写时每一关留下的状态都清空', 'nothing carries over: renaming drops every level, rewriting empties every level’s kept state')),
+  drop: item(t('这几关存下的状态去掉：重新开始', 'these levels’ kept state dropped: they start afresh'), ids),
 }
 
 /* ---------- a level ---------- */
@@ -70,7 +71,7 @@ const LEVEL = S.either(
 
 /* ---------- game.json ---------- */
 
-const ITEM = S.either(S.str(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels: ids })) }))
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels: S.list(S.level()) })) }))
 const ERA = S.obj({
   id: S.int(),
   machine: S.ref('machine'),
@@ -100,7 +101,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'syntax',
-  version: 1,
+  version: 2,
   kinds: { part: PART_ITEMS, machine: MACHINES, migration: MIGRATIONS },
   game: GAME,
   level: LEVEL,
