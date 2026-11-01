@@ -57,15 +57,27 @@ function register(root, id, content) {
   writeFileSync(file, `${text.slice(0, end)}${entry}${text.slice(end)}`)
 }
 
+// A game's folder may hold its design docs before it holds a game (a topic sketched first, games/network): anything
+// else in it is a game there already.
+const isDocs = (name) => name.endsWith('.md')
+
+/** Why game `id` cannot be made under `root`, or nothing. */
+function gameRefused(root, id) {
+  if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) return `a game id is lowercase letters, digits and dashes: ${id}`
+  const dir = resolve(root, id)
+  if (existsSync(dir) && readdirSync(dir).some((name) => !isDocs(name))) return `games/${id} is there already`
+  if (readFileSync(resolve(root, 'games.js'), 'utf8').includes(`id: '${id}'`)) return `games.js lists ${id} already`
+  return null
+}
+
 /** games/<id>/ from the starter game of `domain`, registered on the hub. Returns the folder. */
 export function newGame({ root = GAMES_ROOT, id, domain, title = id }) {
-  if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) fail(`a game id is lowercase letters, digits and dashes: ${id}`)
   const starter = resolve(root, 'kit/domains', domain ?? '', 'starter')
   if (!domain || !existsSync(resolve(root, 'kit/domains', domain, 'domain.js'))) fail(`no domain ${domain} in kit/domains`)
   if (!existsSync(starter)) fail(`the domain ${domain} has no starter game (kit/domains/${domain}/starter/) to copy`)
+  const refused = gameRefused(root, id)
+  if (refused) fail(refused)
   const dir = resolve(root, id)
-  if (existsSync(dir)) fail(`games/${id} is there already`)
-  if (readFileSync(resolve(root, 'games.js'), 'utf8').includes(`id: '${id}'`)) fail(`games.js lists ${id} already`)
   fill(starter, dir, { __title__: title })
   const game = JSON.parse(readFileSync(resolve(dir, 'game.json'), 'utf8'))
   register(root, id, { title: game.title, lede: game.lede, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
@@ -79,6 +91,9 @@ export function newDomain({ root = GAMES_ROOT, name, mechanism, game = name }) {
   if (!known.includes(mechanism)) fail(`no template for the mechanism ${mechanism}; the scaffold has ${known.join(', ')} (games/DESIGN.md 6.5 says what the others lack)`)
   const dir = resolve(root, 'kit/domains', name)
   if (existsSync(dir)) fail(`kit/domains/${name} is there already`)
+  // Nothing is written unless both the domain and its game can be.
+  const refused = gameRefused(root, game)
+  if (refused) fail(refused)
   fill(resolve(TEMPLATES(root), mechanism), dir, { __name__: name })
   return { domain: dir, game: newGame({ root, id: game, domain: name }) }
 }

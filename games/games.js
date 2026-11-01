@@ -81,4 +81,11 @@ export const GAMES = [
     page: { icon: 'M10 30h44M18 30v12M32 30v12M46 30v12M14 20h8v-6h8v6h8v-6h8', description: '车在说话 The Car Talks：车载 CAN 总线与诊断的解谜关卡。The in-vehicle CAN bus and diagnostics as puzzle levels.' },
     progress: () => (read('bus.v1')?.solved || []).length,
   },
+  {
+    id: 'network', href: 'network/index.html', title: 'network', en: 'network', topic: { zh: 'network', en: 'network' },
+    desc: { zh: '一根线，每一拍上面有一位。先听它，再自己往上说。', en: 'One line, one bit on it each tick. Listen to it first, then talk on it yourself.' },
+    levels: 2, dev: true, hidden: true,
+    page: { icon: 'M16 32h32M32 16v32', description: 'network network' },
+    progress: () => (read('network.v1')?.solved || []).length,
+  },
 ];

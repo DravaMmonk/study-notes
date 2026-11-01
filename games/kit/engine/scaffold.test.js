@@ -4,7 +4,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -26,6 +26,13 @@ for (const mechanism of mechanisms()) {
       assert.throws(() => newDomain({ root, name, mechanism }), /there already/)
       assert.throws(() => newGame({ root, id: `${name}-two`, domain: name }), /there already/)
       assert.throws(() => newDomain({ root, name: 'other', mechanism: 'nothing' }), /no template/)
+      // A game folder holding only its design docs takes the game; one holding a game refuses, and writes no domain.
+      mkdirSync(join(root, `${name}-docs`))
+      writeFileSync(join(root, `${name}-docs/DESIGN.md`), '# sketch\n')
+      newGame({ root, id: `${name}-docs`, domain: name })
+      assert.ok(existsSync(join(root, `${name}-docs/game.json`)) && existsSync(join(root, `${name}-docs/DESIGN.md`)))
+      assert.throws(() => newDomain({ root, name: 'other', mechanism, game: `${name}-two` }), /there already/)
+      assert.ok(!existsSync(join(root, 'kit/domains/other')))
       assert.match(readFileSync(join(root, 'games.js'), 'utf8'), new RegExp(`id: '${name}-two', href: '${name}-two/index.html', title: 'Two'.*hidden: true`, 's'))
 
       const kit = (file) => import(pathToFileURL(join(root, 'kit', file)).href)
@@ -35,7 +42,7 @@ for (const mechanism of mechanisms()) {
       const contract = await kit('engine/contract.js')
       const domain = (await kit(`domains/${name}/domain.js`)).default
       assert.deepEqual(contract.domainProblems(name, domain), [])
-      for (const id of [name, `${name}-two`]) {
+      for (const id of [name, `${name}-two`, `${name}-docs`]) {
         const content = readContent(id, root)
         assert.deepEqual(checkContent(domain.vocabulary, content), [])
         const spec = domain.spec(content)
@@ -46,7 +53,9 @@ for (const mechanism of mechanisms()) {
         assert.deepEqual(runsOwn, builders)
         assert.deepEqual((await domain.validate(spec)).filter((l) => l.fail), [])
       }
-      execFileSync(process.execPath, ['--test', join(root, `kit/domains/${name}/${name}.test.js`)], { stdio: 'pipe' })
+      // Run as a test run of its own: under this one (NODE_TEST_CONTEXT set) it would report here and always exit 0.
+      const { NODE_TEST_CONTEXT: _, ...env } = process.env
+      execFileSync(process.execPath, ['--test', join(root, `kit/domains/${name}/${name}.test.js`)], { stdio: 'pipe', env })
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
