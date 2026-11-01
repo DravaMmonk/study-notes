@@ -17,7 +17,7 @@ const BYTE = S.int({ min: 0, max: 255 })
 const ids = S.list(S.str())
 const TEXTS = S.list(S.text())
 const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
-const BITS = S.str({ pattern: '^[01]+$' })
+const BITS = S.str({ pattern: '^[01]+$', view: 'ticks' })
 const POLY = S.opt(S.str({ pattern: '^1[01]*1$', about: t('生成式，最高位在前（默认 1011）', 'the generator, its top bit first (1011 by default)') }))
 const FORMAT = S.oneOf(FORMATS, { about: t('线那头约好的格式（wire.js）：bytes、startstop、parity、check、blocks、flag、flagcheck、flagbyte', 'the format the far end agreed on (wire.js): bytes, startstop, parity, check, blocks, flag, flagcheck, flagbyte') })
 const WIRE_NAME = S.str({ about: t('这一关的一根进线的名字', 'the name of one of the level’s wires in') })
@@ -75,9 +75,9 @@ const TEST = S.obj({
     send: S.list(SEGMENT, { about: t('线那头依次说的：安静几拍、几位、按格式的字节或帧', 'what the far end says, in turn: quiet ticks, bits, bytes or frames in a format') }),
     flips: S.opt(S.list(nat, { about: t('这些拍到达的位被线翻转（从 0 数）', 'the ticks whose arriving bit the wire flips (from 0)') })),
   }), { about: t('每根进线上，线那头说什么', 'on each wire in, what its far end says') })),
-  inputs: S.opt(S.map(S.list(S.either(S.int(), S.oneOf([null]))), { about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
+  inputs: S.opt(S.map(S.list(S.either(S.int(), S.oneOf([null]))), { view: 'ticks', about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
   queue: S.opt(S.list(S.list(BYTE), { about: t('板取用的队列：一列帧，每帧一列字节', 'the queue the board pulls from: frames, each a list of bytes') })),
-  expect: S.opt(S.map(S.list(S.any()), { about: t('given 要的值：每个输出每一拍的值，null 是「—」', 'what `given` wants: each output’s value tick by tick, null for 「—」') })),
+  expect: S.opt(S.map(S.list(S.any()), { view: 'ticks', about: t('given 要的值：每个输出每一拍的值，null 是「—」', 'what `given` wants: each output’s value tick by tick, null for 「—」') })),
   ticks: S.opt(S.int({ min: 1, about: t('跑多少拍（默认：给的东西都到达以后再过两拍）', 'how many ticks it runs (by default two after everything it gives has arrived)') })),
 })
 const LEVEL = S.obj({
@@ -87,19 +87,19 @@ const LEVEL = S.obj({
   hint: S.opt(TEXTS),
   after: S.opt(S.text()),
   note: S.opt(S.text()),
-  adds: S.opt(S.list(S.ref('part'))),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   wires: S.opt(S.obj({ in: S.opt(S.list(WIRE)), out: S.opt(S.list(WIRE)) }, { about: t('板听的进线、板说的出线；它们和输入输出一样是板的口', 'the wires the board hears and the wires it says on; like inputs and outputs, they are the board’s ports') })),
   inputs: S.opt(S.list(PORT)),
   outputs: S.opt(S.list(PORT)),
   pulls: S.opt(S.obj({ input: NAME, next: NAME, last: S.opt(NAME) }, { about: t('板从测试的队列里取字节：input 给出队首的字节（取完了是「—」），last 在它是一帧的最后一个字节时为是，输出 next 为 1 或是的那一拍取走它，下一拍出现下一个', 'the board pulls bytes from the test’s queue: `input` shows the byte at its head (「—」 once used up), `last` is yes when it is a frame’s last byte, and the tick the output `next` is 1 or yes takes it, the next showing the tick after') })),
-  tests: S.list(TEST, { min: 1 }),
-  hidden: S.opt(S.list(TEST, { about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
+  tests: S.list(TEST, { min: 1, section: 'tests' }),
+  hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
   want: S.map(S.call('want'), { about: t('每个输出和出线应当是什么', 'what each output and wire out must be') }),
   solution: BOARD,
   naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些', 'the built parts it supersedes: from this level on the tray offers it instead of them') })) }, { about: t('通过后这块板成为元件 type：它的口就是关卡的进线、输入、出线和输出', 'once passed the board is the part `type`: its ports are the level’s wires in, inputs, wires out and outputs') })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些', 'the built parts it supersedes: from this level on the tray offers it instead of them') })) }, { section: 'course', about: t('通过后这块板成为元件 type：它的口就是关卡的进线、输入、出线和输出', 'once passed the board is the part `type`: its ports are the level’s wires in, inputs, wires out and outputs') })),
   carry: S.opt(S.level({ about: t('从玩家在这一关通过时的板开始（没通过就用它的参考解），换上这一关的进线、输入、出线和输出；必须是先修', 'start from the board the player passed this level with (its reference when not passed), its wires, inputs and outputs swapped for this level’s; it must be a prerequisite') })),
-  showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 })
 
 /* ---------- game.json ---------- */

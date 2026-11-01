@@ -15,7 +15,7 @@ const item = (about, params) => ({ about, ...(params ? { params } : {}) });
 const int = (extra) => S.int(extra);
 const nat = S.int({ min: 0 });
 const pt = S.list(S.int(), { min: 2 });
-const matrix = S.list(S.list(S.num()));
+const matrix = S.list(S.list(S.num()), { view: 'grid' });
 const ids = S.list(S.str());
 const NONE = S.oneOf([null]);
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one, a preset. */
@@ -174,7 +174,7 @@ const COMMON = {
   intro: S.list(S.obj({ t: S.text(), fig: S.opt(S.call('figure')) })),
   mission: S.obj({ goal: S.text(), how: S.text() }),
   debrief: S.obj({ title: S.text(), body: TEXTS, note: S.opt(S.text()) }),
-  unlock: S.opt(S.str({ about: t('通过它解锁的元件或想法（game.json 的 parts）', 'the part or idea solving it unlocks (game.json parts)') })),
+  unlock: S.opt(S.str({ section: 'course', about: t('通过它解锁的元件或想法（game.json 的 parts）', 'the part or idea solving it unlocks (game.json parts)') })),
   hints: S.opt(TEXTS),
 };
 const PLACE = S.obj({ id: S.str(), x: S.num(), y: S.num(), label: S.text(), fixed: S.opt(S.num()), goal: S.opt(S.num()) });
@@ -182,8 +182,8 @@ const LINKS = S.list(S.list(S.str(), { min: 2 }));
 const HAND = {
   fill: S.either(S.obj({ ...COMMON, grid: S.obj(GRID) }), S.obj({ ...COMMON, cells: S.list(PLACE), edges: LINKS, start: S.str(), end: S.str() })),
   trace: S.obj({ ...COMMON, cells: S.list(PLACE), edges: LINKS, start: S.str(), end: S.str() }),
-  link: S.obj({ ...COMMON, tests: S.list(S.obj({ a: S.str(), b: S.str() })) }),
-  pack: S.obj({ ...COMMON, tests: S.list(S.obj({ W: nat, items: S.list(KNAP_ITEM) })) }),
+  link: S.obj({ ...COMMON, tests: S.list(S.obj({ a: S.str(), b: S.str() }), { section: 'tests' }) }),
+  pack: S.obj({ ...COMMON, tests: S.list(S.obj({ W: nat, items: S.list(KNAP_ITEM) }), { section: 'tests' }) }),
   breach: S.obj({ ...COMMON, maze: S.obj({ ...GRID, key: pt, doors: S.list(pt) }), hintText: S.text() }),
   policy: S.obj({ ...COMMON, map: S.obj({ ...GRID, gold: pt, traps: S.opt(S.list(pt)), walls: S.opt(S.list(pt)) }), starts: S.list(pt) }),
   seam: S.obj({ ...COMMON, img: matrix, cuts: int({ min: 1 }) }),
@@ -193,10 +193,10 @@ const HAND = {
 const CIRCUIT = {
   ...COMMON,
   robot: S.ref('robot'),
-  adds: S.opt(S.list(S.ref('part'))),
-  fold: S.opt(S.list(S.str())),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  fold: S.opt(S.list(S.str(), { section: 'course' })),
   carry: S.opt(S.level({ about: t('从这一关玩家留下的电路板开始（必须是先修）', 'start from the board left on this level (a prerequisite)') })),
-  builds: S.opt(S.obj({ ports: S.list(S.call('port')), setting: S.opt(S.num()) }, { about: t('通过后电路板成为元件 unlock：它的口，和它带的一个数', 'once solved the board is the part `unlock`: its ports, and a number it carries') })),
+  builds: S.opt(S.obj({ ports: S.list(S.call('port')), setting: S.opt(S.num()) }, { section: 'course', about: t('通过后电路板成为元件 unlock：它的口，和它带的一个数', 'once solved the board is the part `unlock`: its ports, and a number it carries') })),
   naive: S.opt(BOARD),
   guide: S.opt(S.list(S.obj({ until: S.opt(S.call('condition')), say: S.text() }), { about: t('一步步的引导：显示第一条 until 还不成立的', 'step-by-step guidance: the first whose until does not hold yet') })),
   diagnose: S.opt(S.list(S.obj({ when: S.call('condition'), say: S.text() }), { about: t('失败时：第一条 when 成立的说法', 'on a failure: the first whose when holds') })),
@@ -208,13 +208,13 @@ const CIRCUIT = {
   checkAll: S.opt(S.bool({ about: t('逐格判对错，不只看答案', 'grade every cell, not just the answer') })),
   noTrace: S.opt(S.bool({ about: t('失败时不指出第一处算错的格子', 'on a failure, do not point at the first cell gone wrong') })),
   consts: S.opt(S.list(S.num(), { about: t('常数能选的值', 'the values a constant offers') })),
-  showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
 };
 /** What one stage is (a level of one stage writes it among its own fields): its world and that world's parameters. */
 const stageOf = (name, w, shared = false) => ({
   world: S.oneOf([name]),
   facts: S.opt(ids),
-  tests: shared ? S.opt(S.list(w.test, { min: 1 })) : S.list(w.test, { min: 1 }),
+  tests: shared ? S.opt(S.list(w.test, { min: 1, section: 'tests' })) : S.list(w.test, { min: 1, section: 'tests' }),
   solution: S.opt(BOARD),
   ...Object.fromEntries(Object.entries(w.params.fields)),
 });
@@ -227,14 +227,14 @@ const STAGE_ONLY = {
   unlockToast: S.opt(S.text()),
   noArm: S.opt(S.bool()),
   checkAll: S.opt(S.bool()),
-  adds: S.opt(S.list(S.ref('part'))),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   onFail: S.opt(S.obj({ head: S.text(), body: S.text({ about: t('{test}、{want}、{got} 换成失败的测试', '{test}, {want}, {got} filled in from the failed test') }), show: S.call('panel'), next: S.text() }, { about: t('这一阶段的失败是要讲的道理：说完进下一阶段', 'failing this stage is its lesson: then on to the next') })),
 };
 // A stage of several may leave its tests to the level's own (tests every stage shares).
 const byWorld = (fields, shared) => S.by('world', Object.fromEntries(Object.entries(WORLDS).map(([name, w]) => [name, S.obj({ ...fields, ...stageOf(name, w, shared) })])));
 const CIRCUIT_LEVEL = S.either(
   byWorld(CIRCUIT, false),
-  S.obj({ ...CIRCUIT, tests: S.opt(S.list(S.any())), stages: S.list(byWorld(STAGE_ONLY, true), { min: 2 }) }),
+  S.obj({ ...CIRCUIT, tests: S.opt(S.list(S.any(), { section: 'tests' })), stages: S.list(byWorld(STAGE_ONLY, true), { min: 2 }) }),
 );
 
 /* ---------- game.json ---------- */

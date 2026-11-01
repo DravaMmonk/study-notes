@@ -10,6 +10,8 @@ import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
 import { GAMES_DIR, domainOf, readContent, readPlaytests } from '../content-node.js'
 import { perLevel } from '../play/stats.js'
+import { gameOf } from '../games.mjs'
+import { flagsIn, fresh } from '../../shell/progress.js'
 import { drawDeps } from '../deps.js'
 import { boardSvg } from '../../circuit/svg.js'
 import { getAt, parsePath, showPath } from './edit.js'
@@ -113,7 +115,7 @@ export const TOOLS = {
     },
   },
   render: {
-    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), and its scene where its domain draws one headlessly; changeset: as a changeset would leave it. PNG is not drawn.',
+    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), and its scene where its domain draws one headlessly (draws: whether it does); changeset: as a changeset would leave it. PNG is not drawn.',
     params: { game: 'string', level: 'string', path: 'string?', format: 'string?', changeset: 'object?' },
     async run({ game, level, path, format = 'text', changeset = null }) {
       if (format !== 'text' && format !== 'svg') return { rendered: false, note: `${format}: only text and svg are drawn headlessly; for a picture of the level as played, build the game (npm run build:games) and open it.` }
@@ -126,7 +128,8 @@ export const TOOLS = {
           return board ? { svg: boardSvg(board.text, { title: `${level} ${board.path}` }) } : { note: `${level} has no board at ${path}`, boards: boards.map((b) => b.path) }
         }
         const domain = await domainOf(content)
-        return { scene: domain.scene?.(domain.spec(content), level) ?? null, boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
+        if (!domain.scene) return { scene: null, draws: false, boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
+        return { scene: domain.scene(domain.spec(content), level) ?? null, draws: true, boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
       }
       if (path !== undefined) {
         const board = boards.find((b) => b.path === showPath(parsePath(path)))
@@ -161,17 +164,65 @@ export const TOOLS = {
     },
   },
   preview: {
-    about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, the save step, each file changed (its text before and after), the operation that failed if one did, and the change log. The studio shows a game through it.',
-    params: { game: 'string', changeset: 'object?' },
-    async run({ game, changeset = { ops: [] } }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false })
+    about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, the save step, each file changed (its text before and after), the operation that failed if one did, and the change log (check false: the content checked against its vocabulary only, which is quick; the whole check runs the domain’s). The studio shows a game through it.',
+    params: { game: 'string', changeset: 'object?', check: 'boolean?' },
+    async run({ game, changeset = { ops: [] }, check = true }) {
+      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check })
       const { content } = r
-      // Copy problems count levels in play order, which only a content that fits its vocabulary has.
-      const ids = !content ? [] : r.lines.some((l) => l.text.startsWith('content: ')) ? content.levels.map((l) => l.id) : (await domainOf(content)).spec(content).levels.map((l) => l.id)
+      // Copy problems count levels in play order, which only a content that fits its vocabulary has (and only the whole
+      // check reports them: a quick preview does without the order).
+      const ids = !content ? [] : !check || r.lines.some((l) => l.text.startsWith('content: ')) ? content.levels.map((l) => l.id) : (await domainOf(content)).spec(content).levels.map((l) => l.id)
       return {
         ok: r.ok, says: r.says, problems: r.problems, failed: r.failed, content, order: ids,
         lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
         migration: r.step, changes: r.changes, notes: r.notes, ...logOf(game),
+      }
+    },
+  },
+  names: {
+    about: 'What a game’s links show, as a changeset would leave it: each level’s label (its number on the map) and title, each part’s name in the components box, each encyclopedia entry’s title; and the names copy may quote rather than link.',
+    params: { game: 'string', changeset: 'object?' },
+    async run({ game, changeset = null }) {
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+      const shown = await gameOf(content)
+      const domain = await domainOf(content)
+      return {
+        levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
+        parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name })),
+        entries: (shown.glossary?.entries ?? []).map((e) => ({ id: e.id, title: e.title })),
+        quotes: domain.spec(content).quotes ?? [],
+      }
+    },
+  },
+  run_tests: {
+    about: 'Run one of a level’s boards (path, default its reference) on its visible and hidden tests as the level’s screen runs them, through its domain’s play hook (as a changeset would leave it): each test as the screen shows it (what it gives and expects), whether it passes and what the screen says. A level whose play the hook does not cover says why.',
+    params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
+    async run({ game, level, path = 'solution', changeset = null }) {
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+      const lines = getAt(levelIn(content, level), path)
+      const domain = await domainOf(content)
+      if (!domain.play) return { covered: false, why: `the ${content.domain} domain gives no play hook` }
+      if (!Array.isArray(lines)) return { covered: false, why: `${level} has no board at ${path}` }
+      const shown = await gameOf(content)
+      const at = shown.byId[level]
+      const keys = parsePath(path)
+      const task = keys[0] === 'tasks' && at.tasks ? keys[1] : 0
+      // Every part met before the level is in the tray, as the studio's game plays it (unlock all).
+      const progress = { ...fresh(), all: true }
+      const ctx = { game: shown, level: at.tasks ? { ...at, ...at.tasks[task] } : at, flags: flagsIn(shown, progress, at, task), progress, solved: false, task, fails: 0 }
+      // A hook that cannot open the level without the boards a played session would have built says so.
+      let opened
+      let r
+      try {
+        opened = domain.play.open(ctx)
+        if (opened.covered === false) return { covered: false, why: opened.why }
+        r = domain.play.attempt(ctx, lines.join('\n'))
+      } catch (error) {
+        return { covered: false, why: `the play hook fails on this level outside a session: ${error.message}` }
+      }
+      return {
+        covered: true, task, pass: Boolean(r.pass), refused: r.refused ?? null, says: r.says ?? [], hidden: r.hidden ?? null,
+        tests: (opened.tests ?? []).map((t, k) => ({ label: t.label, shows: t.text, pass: r.tests?.[k]?.pass ?? null, says: r.tests?.[k]?.says ?? null })),
       }
     },
   },

@@ -14,7 +14,7 @@
 //
 // Each returns what is wrong as [string], empty when the contract holds (validateProblems: { problems, … }).
 import { RULE_TEXT, audit } from '../course.js'
-import { S, validate as fits } from './schema.js'
+import { HINTS, S, validate as fits } from './schema.js'
 import { describe } from './vocabulary.js'
 
 /** What domain.js exports: the three entries, and the extension points tools add (each optional). */
@@ -83,6 +83,7 @@ export function vocabularyProblems(name, v) {
     for (const [s, at] of schemasIn(schema, where)) {
       if (!TYPES.includes(s.type)) say(`${at}: ${JSON.stringify(s.type)} is no schema type`)
       if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind]) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
+      for (const [hint, values] of Object.entries(HINTS)) if (s[hint] !== undefined && !values.includes(s[hint])) say(`${at}: ${hint} ${JSON.stringify(s[hint])} is none of ${values.join(', ')}`)
     }
   }
   // Code anywhere in it would be lost on printing (describe): it must be data all through.

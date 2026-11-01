@@ -53,7 +53,7 @@ const PORT = S.obj({ name: NAME, label: S.text() })
 const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat) })
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍', 'the bus: idle quiet bits, then each frame (gap more quiet bits before it), then tail quiet bits') }),
-  inputs: S.opt(S.map(S.list(S.int()), { about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
+  inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
 })
 const LEVEL = S.obj({
   title: S.text(),
@@ -62,17 +62,17 @@ const LEVEL = S.obj({
   hint: S.opt(TEXTS),
   after: S.opt(S.text()),
   note: S.opt(S.text()),
-  adds: S.opt(S.list(S.ref('part'))),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   listens: S.opt(S.bool({ about: t('板上有总线元件', 'the board has the bus card') })),
   inputs: S.opt(S.list(PORT)),
   outputs: S.list(PORT, { min: 1 }),
-  tests: S.list(TEST, { min: 1 }),
-  hidden: S.opt(S.list(TEST, { about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
+  tests: S.list(TEST, { min: 1, section: 'tests' }),
+  hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
   want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么', 'what each output must be, tick by tick') }),
   solution: BOARD,
   naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { about: t('通过后这块板成为元件 type：它的输入口和结果口就是关卡的输入和输出', 'once passed the board is the part `type`: its ports are the level’s inputs and outputs') })),
-  showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { section: 'course', about: t('通过后这块板成为元件 type：它的输入口和结果口就是关卡的输入和输出', 'once passed the board is the part `type`: its ports are the level’s inputs and outputs') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 })
 
 /* ---------- game.json ---------- */

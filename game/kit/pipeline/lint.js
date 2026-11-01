@@ -35,10 +35,30 @@ const LIMITS = { brief: 90, intro: 170, hint: 110, after: 70 }
 const plain = (s) => String(s ?? '').replace(REF, (_, kind, id) => `[${id}]`).replace(/<[^>]+>/g, '')
 const sides = (v) => (typeof v === 'string' ? { zh: v, en: v } : v ?? {})
 
+/**
+ * The findings on one text, by the field it is (brief, intro, hint, after, title; any other field is held to the word
+ * rules only): [{ rule, says }]. lintCopy runs it over a game; the studio beside a text as it is written.
+ */
+export function lintText(field, text) {
+  const out = []
+  const say = (rule, says) => out.push({ rule, says })
+  const { zh = '', en = '' } = sides(text)
+  // One finding a text for each rule: the first banned word it has.
+  const banned = BANNED.map(([re, why]) => [plain(zh).match(re) ?? plain(en).match(re), why]).find(([m]) => m)
+  if (banned) say('copy-banned', `「${banned[0][0]}」: ${banned[1]}`)
+  const ahead = plain(zh).match(AHEAD[0]) ?? plain(en).match(AHEAD[1])
+  if (ahead) say('copy-ahead', `「${ahead[0]}」`)
+  const limit = LIMITS[field]
+  if (limit && (plain(zh).length > limit || plain(en).length > limit * 3)) say('copy-length', `${plain(zh).length} characters (zh), ${plain(en).length} (en); at most ${limit} and ${limit * 3}`)
+  if (field === 'after' && /<part-ref /.test(`${zh} ${en}`)) say('copy-after-part', 'the pass text links a part')
+  if (field === 'brief' && (WHY[0].test(plain(zh)) || WHY[1].test(plain(en)))) say('copy-brief-why', 'the brief gives a reason; reasons go in the intro')
+  return out
+}
+
 /** The copy findings over a game's levels, game.json texts and glossary. */
 export function lintCopy(content) {
   const out = []
-  const say = (rule, at, says) => out.push({ rule, at, says })
+  const add = (at, field, text) => out.push(...lintText(field, text).map((f) => ({ ...f, at })))
   const texts = (level) => [
     ['brief', level.brief],
     ...(level.intro ?? []).map((p, k) => [`intro[${k}]`, p.t]),
@@ -46,32 +66,12 @@ export function lintCopy(content) {
     ['after', level.after],
     ['title', level.title],
   ].filter(([, v]) => v)
-  const words = (at, text) => {
-    const { zh, en } = sides(text)
-    // One finding a text for each rule: the first banned word it has.
-    const banned = BANNED.map(([re, why]) => [plain(zh).match(re) ?? plain(en).match(re), why]).find(([m]) => m)
-    if (banned) say('copy-banned', at, `「${banned[0][0]}」: ${banned[1]}`)
-    const ahead = plain(zh).match(AHEAD[0]) ?? plain(en).match(AHEAD[1])
-    if (ahead) say('copy-ahead', at, `「${ahead[0]}」`)
-  }
   for (const level of content.levels) {
-    for (const [field, text] of texts(level)) {
-      const at = `${level.id}.${field}`
-      words(at, text)
-      const { zh = '', en = '' } = sides(text)
-      const kind = field.replace(/\[\d+\]$/, '')
-      const limit = LIMITS[kind]
-      if (limit && (plain(zh).length > limit || plain(en).length > limit * 3)) say('copy-length', at, `${plain(zh).length} characters (zh), ${plain(en).length} (en); at most ${limit} and ${limit * 3}`)
-    }
+    for (const [field, text] of texts(level)) add(`${level.id}.${field}`, field.replace(/\[\d+\]$/, ''), text)
     const first = level.intro?.[0]?.t
-    if (first && (/^\s*新元件/.test(plain(sides(first).zh)) || /^\s*A new part/i.test(plain(sides(first).en)))) say('copy-intro-part', `${level.id}.intro[0]`, 'the intro opens on the new part')
-    if (level.after && /<part-ref /.test(`${sides(level.after).zh} ${sides(level.after).en}`)) say('copy-after-part', `${level.id}.after`, 'the pass text links a part')
-    if (level.brief) {
-      const { zh = '', en = '' } = sides(level.brief)
-      if (WHY[0].test(plain(zh)) || WHY[1].test(plain(en))) say('copy-brief-why', `${level.id}.brief`, 'the brief gives a reason; reasons go in the intro')
-    }
+    if (first && (/^\s*新元件/.test(plain(sides(first).zh)) || /^\s*A new part/i.test(plain(sides(first).en)))) out.push({ rule: 'copy-intro-part', at: `${level.id}.intro[0]`, says: 'the intro opens on the new part' })
   }
-  for (const [k, entry] of (content.glossary?.entries ?? []).entries()) for (const [j, p] of (entry.body ?? []).entries()) words(`glossary.${entry.id ?? k}.body[${j}]`, p)
-  for (const field of ['lede', 'kicker']) if (content[field]) words(`game.${field}`, content[field])
+  for (const [k, entry] of (content.glossary?.entries ?? []).entries()) for (const [j, p] of (entry.body ?? []).entries()) add(`glossary.${entry.id ?? k}.body[${j}]`, 'body', p)
+  for (const field of ['lede', 'kicker']) if (content[field]) add(`game.${field}`, field, content[field])
   return out
 }

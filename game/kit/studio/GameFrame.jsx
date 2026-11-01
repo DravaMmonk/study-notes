@@ -1,10 +1,12 @@
 // The game played inside the studio: an iframe of studio.html?play (play.jsx), handed the content as the pending
-// changeset leaves it each time it changes while it is in view, so an edit plays at once.
+// changeset leaves it each time it changes while it is in view, so an edit plays at once. As a sheet over the form it
+// is the game's circuit editor on one board of the level being edited; taking the board back (the game's 「用作 …」)
+// closes it.
 import { useEffect, useRef, useState } from 'react'
-import { Play } from 'lucide-react'
+import { Play, X } from 'lucide-react'
 import { getLang, tr } from '../shell/i18n.js'
 
-export default function GameFrame({ visible, content, play, onTake, reference, onReference }) {
+export default function GameFrame({ visible, sheet, onClose, content, play, onTake, reference, onReference }) {
   const frame = useRef(null)
   const [ready, setReady] = useState(false)
   useEffect(() => {
@@ -31,15 +33,17 @@ export default function GameFrame({ visible, content, play, onTake, reference, o
     }, window.location.origin)
   }, [ready, visible, content, play, theme, lang])
   return (
-    <section className={`studio-play ${visible ? '' : 'is-hidden'}`}>
+    <section className={`studio-play ${visible ? '' : 'is-hidden'} ${sheet ? 'is-sheet' : ''}`}>
       {play?.level && (
         <div className="studio-play-bar">
           <b>{play.level}</b>
-          {reference && (
+          {sheet && play.take && <code>{play.take.path}</code>}
+          {!sheet && reference && (
             <button type="button" className="kit-btn is-label" onClick={() => onReference(play.level)}>
               <Play size={14} aria-hidden="true" />{tr('载入参考解', 'Load the reference')}
             </button>
           )}
+          {sheet && <><span className="kit-spacer" /><button type="button" className="kit-btn is-label" onClick={onClose}><X size={14} aria-hidden="true" />{tr('关闭', 'Close')}</button></>}
         </div>
       )}
       <iframe ref={frame} title={tr('试玩', 'Play')} src="/studio.html?play" />

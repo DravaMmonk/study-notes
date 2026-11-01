@@ -17,7 +17,7 @@ const cross = (a, b) => vec(a.data[1] * b.data[2] - a.data[2] * b.data[1], a.dat
 // Every cell's distance from the centre of a spectrum the size of `img` (frequency (0, 0)).
 const radiusOf = (img) => fromFn(img.w, img.h, (x, y) => Math.hypot(x - img.w / 2, y - img.h / 2))
 const BORDER = S.opt(S.oneOf(['zero', 'edge', 'wrap']))
-const KERNEL = S.list(S.num(), { min: 1, about: t('(2r+1)² 个权重，按行写出', '(2r+1)² weights, row by row') })
+const KERNEL = S.list(S.num(), { min: 1, view: 'grid', about: t('(2r+1)² 个权重，按行写出', '(2r+1)² weights, row by row') })
 
 export const TARGETS = {
   same: {

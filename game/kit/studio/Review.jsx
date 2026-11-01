@@ -10,8 +10,7 @@ import { showPath } from '../engine/ops/edit.js'
 import { lineDiff } from '../engine/ops/diff.js'
 import { fieldDiff, parsed } from './diff.js'
 
-export default function Review({ ops, last, shown, why, setWhy, said, onRemove, onDiscard, onApply, onUndo, onSelect, onOpen }) {
-  const result = last ?? shown
+export default function Review({ ops, result, shown, why, setWhy, said, onRemove, onDiscard, onApply, onUndo, onSelect, onOpen }) {
   const failed = result.failed
   const ok = result.ok && ops.length > 0
   const [wrong, setWrong] = useState(null)
@@ -55,7 +54,7 @@ export default function Review({ ops, last, shown, why, setWhy, said, onRemove, 
           <input className="field-input review-why" value={why} onChange={(e) => setWhy(e.target.value)} placeholder={tr('为什么改', 'Why')} />
           {result.problems?.length > 0 && <ul className="audit-lines">{result.problems.map((p) => <li key={p} className="audit-line is-fail">{p}</li>)}</ul>}
           <div className="review-actions">
-            <button type="button" className="kit-btn is-label is-solid review-apply" disabled={!ok} onClick={onApply}><Check size={14} aria-hidden="true" />{tr('应用', 'Apply')}</button>
+            <button type="button" className="kit-btn is-label is-solid review-apply" disabled={!ok} onClick={onApply}><Check size={14} aria-hidden="true" />{result.fresh || failed !== null ? tr('应用', 'Apply') : tr('检查中……', 'Checking…')}</button>
             <button type="button" className="kit-btn is-label" onClick={onDiscard}><X size={14} aria-hidden="true" />{tr('全部放弃', 'Discard all')}</button>
           </div>
           {shown.migration && (

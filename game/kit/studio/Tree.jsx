@@ -1,13 +1,15 @@
 // The course tree in the studio: each era as the map lays it out (tree.js), its levels to select, and to move by
 // dragging one onto a slot between two others (or, without a mouse, by picking Move on the level and tapping a slot).
-// A move is a level.move operation; its save migration shows in the changes before it is applied.
+// A move is a level.move operation; its save migration shows in the changes before it is applied. ↑ and ↓ go from
+// level to level; each shows its id, its title, and (on hover) its number on the map.
 import { useEffect, useMemo, useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
 import { courseTree, stays } from './tree.js'
 
-export default function Tree({ content, lines, at, onSelect, moving, setMoving, onMove }) {
+export default function Tree({ content, lines, at, onSelect, moving, setMoving, onMove, labels = null }) {
   const tree = useMemo(() => courseTree(content.eras ?? []), [content])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
+  const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
   const failing = useMemo(() => new Set(lines.filter((l) => l.fail).flatMap((l) => l.levels)), [lines])
   const [over, setOver] = useState(null)
   useEffect(() => {
@@ -23,7 +25,15 @@ export default function Tree({ content, lines, at, onSelect, moving, setMoving, 
       type="button"
       draggable
       className={`tree-level ${at?.level === id ? 'is-on' : ''} ${failing.has(id) ? 'is-fail' : ''} ${moving === id ? 'is-moving' : ''}`}
+      title={labelOf.get(id)}
       onClick={() => onSelect({ level: id })}
+      onKeyDown={(event) => {
+        if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
+        event.preventDefault()
+        const all = [...event.currentTarget.closest('.tree').querySelectorAll('.tree-level')]
+        const next = all[all.indexOf(event.currentTarget) + (event.key === 'ArrowDown' ? 1 : -1)]
+        if (next) { next.focus(); next.click() }
+      }}
       onDragStart={(event) => {
         event.dataTransfer.setData('text/plain', id)
         event.dataTransfer.effectAllowed = 'move'

@@ -79,19 +79,19 @@ const LEVEL = S.by('kind', {
   hand: S.obj({
     ...COMMON,
     mode: S.oneOf(['once', 'loop'], { about: t('模型一次写完所有它知道的（once），还是会回头要东西（loop）', 'whether the model writes all it knows at once (once) or asks back (loop)') }),
-    test: TEST,
+    test: S.obj(TEST.fields, { section: 'tests' }),
     solution: S.list(S.call('move'), { min: 1, about: t('参考解：一串操作，最后一次测试通过', 'the reference: moves ending in a green test run') }),
   }),
   board: S.obj({
     ...COMMON,
     turns: S.opt(S.int({ min: 1 })),
-    adds: S.opt(S.list(S.ref('part'))),
-    tests: S.list(TEST, { min: 1 }),
-    hidden: S.opt(S.list(TEST)),
+    adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+    tests: S.list(TEST, { min: 1, section: 'tests' }),
+    hidden: S.opt(S.list(TEST, { section: 'tests' })),
     solution: BOARD,
     naive: S.opt(BOARD),
     budget: S.opt(S.obj({ tokens: S.opt(S.int({ min: 1 })), turns: S.opt(S.int({ min: 1 })) })),
-    showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+    showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
   }),
 })
 

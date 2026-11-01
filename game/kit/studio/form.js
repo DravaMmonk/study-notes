@@ -1,27 +1,51 @@
 // The studio's forms (games/DESIGN.md 6.7), from the schemas alone: a value and its schema (../engine/schema.js) read
 // as a tree of fields, each the kind of control that edits it; and an edit of a field as the operation that makes it
 // (../engine/ops/operations.js). Nothing here knows a domain: what a field is, what it may hold and what it means
-// (`about`) all come from the vocabulary.
+// (`about`) all come from the vocabulary; where the shape alone does not say how a value reads, the schema's hints do
+// (`view`, `step`, `section`).
 //
 // A field: { path, kind, value, about?, optional?, … } by kind:
 //   text      { zh, en } (a string reads as both sides)
-//   num       min?, max?, int
+//   num       min?, max?, step, int                       a slider too when both ends are known
 //   bool, str (pattern?), any (JSON), board (blueprint lines)
-//   choice    options: [{ value, about? }]          oneOf; ref (the items of a vocabulary kind); level (the game's levels)
+//   choice    options: [{ value, about? }], of?       oneOf; ref (the items of a vocabulary kind); level (the game's levels)
 //   call      item, options (the kind's items), params: field | null       { item: params } or 'item'
-//   list      items: [field], of (the items' schema)
+//   list      items: [field], of (the items' schema), tests (the list is a level's tests: section 'tests')
 //   map       entries: [{ key, field }], of
 //   obj       fields: [{ key, field | null (an optional field not there), optional, about?, schema }]
-// A field of a by (one shape a field names: a level by its kind) has `tag`: { key, value, options, cases }; a field of
-// an either (several shapes) has `shapes` (their schemas) and `shape` (the one it has now).
-import { callOf, find, validate } from '../engine/schema.js'
-import { parsePath } from '../engine/ops/edit.js'
+//   grid      cell (the numbers' schema), cols: null (rows of numbers), or a flat list's width ('square': √length)
+//   ticks     cell (one tick's schema), bits (a string of 0s and 1s)              view: 'ticks', or a list of 0 / 1
+//   wave      cell: a map of tick lists, one row each                              a map with view: 'ticks'
+//   numbers   cell: a list of numbers, in one row
+//   chips     options, of: a list of choices (several items of a kind, several levels)
+//   table     columns: [{ key, schema, optional }] | null (a map's keys, from the rows), keyed (a map of scalars: a key
+//             column and a value column)
+// A field of a by (one shape a field names: a level by its kind) has `tags`: [{ key, value, options, cases }], the outer
+// by first when bys nest (a level by its mode, then by its world); a field of an either (several shapes) has `shapes`
+// (their schemas) and `shape` (the one it has now).
+import { SECTIONS, callOf, find, validate } from '../engine/schema.js'
+import { parsePath, showPath } from '../engine/ops/edit.js'
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const fits = (schema, value, vocabulary) => validate(schema, value, { vocabulary }).length === 0
+const NUM = ['num', 'int']
+const SCALAR = ['num', 'int', 'str', 'bool', 'oneOf', 'ref', 'level']
+const isBit = (s) => s.type === 'oneOf' && s.values.length === 2 && s.values.includes(0) && s.values.includes(1)
+/** A value a cell holds: a scalar, or one of an either of scalars (a number, or null for 「—」). */
+const isCell = (s) => SCALAR.includes(s.type) || s.type === 'any' || (s.type === 'either' && s.of.every((x) => SCALAR.includes(x.type)))
+/** A row of a table: an object of scalar fields, or a map of scalars. */
+const isRecord = (s) => (s.type === 'obj' && Object.values(s.fields).every((f) => SCALAR.includes(f.type))) || (s.type === 'map' && SCALAR.includes(s.of.type))
 
 /** The items of a vocabulary kind as choices. */
-const itemsOf = (vocabulary, kind) => Object.entries(vocabulary?.kinds[kind] ?? {}).map(([value, it]) => ({ value, about: it.about }))
+const itemsOf = (vocabulary, kind) => Object.entries(vocabulary?.kinds[kind] ?? {}).map(([value, it]) => ({ value, about: it.about, ...(it.params && { params: it.params }) }))
+
+/** The choices a schema offers (oneOf, ref, level), or null. */
+function choicesOf(schema, ctx) {
+  if (schema.type === 'oneOf') return { options: schema.values.map((v) => ({ value: v })) }
+  if (schema.type === 'ref') return { options: itemsOf(ctx.vocabulary, schema.kind), of: schema.kind }
+  if (schema.type === 'level') return { options: (ctx.levels ?? []).map((id) => ({ value: id })), of: 'level' }
+  return null
+}
 
 /**
  * The shape of `value` where `schema` allows several (either): the one it fits, else the first of its kind (an object
@@ -36,37 +60,59 @@ export function shapeOf(schema, value, vocabulary) {
   return { schema: schema.of[k], at: k }
 }
 
+/** The control a list (or a map, a string) takes, from its shape and hints: { kind, …what it needs } or null. */
+function listControl(schema, ctx) {
+  const of = schema.of
+  if (schema.type === 'str') return schema.view === 'ticks' ? { kind: 'ticks', cell: { type: 'oneOf', values: [0, 1] }, bits: true } : null
+  if (schema.type === 'map') {
+    if (schema.view === 'ticks' && of.type === 'list') return { kind: 'wave', cell: of.of }
+    if (SCALAR.includes(of.type)) return { kind: 'table', keyed: true, columns: [{ key: 'value', schema: of }] }
+    return null
+  }
+  if (schema.view === 'grid' && of.type === 'list' && NUM.includes(of.of.type)) return { kind: 'grid', cell: of.of, cols: null }
+  if (schema.view === 'grid' && NUM.includes(of.type)) return { kind: 'grid', cell: of, cols: schema.cols ?? 'square' }
+  if ((schema.view === 'ticks' && isCell(of)) || isBit(of)) return { kind: 'ticks', cell: of, bits: false }
+  if (NUM.includes(of.type)) return { kind: 'numbers', cell: of }
+  if (['oneOf', 'ref', 'level'].includes(of.type)) return { kind: 'chips', ...choicesOf(of, ctx) }
+  if (isRecord(of)) return { kind: 'table', keyed: false, columns: of.type === 'obj' ? Object.entries(of.fields).map(([key, s]) => ({ key, schema: s, optional: Boolean(s.optional) })) : null, cell: of.type === 'map' ? of.of : null }
+  return null
+}
+
 /** The field tree of `value` under `schema`. ctx: { vocabulary, levels (the game's level ids) }; path: where it is. */
 export function formOf(schema, value, ctx, path = []) {
-  const { vocabulary, levels = [] } = ctx
+  const { vocabulary } = ctx
   const base = { path, value, ...(schema.about && { about: schema.about }), ...(schema.optional && { optional: true }) }
   switch (schema.type) {
     case 'text':
       return { ...base, kind: 'text' }
     case 'num':
     case 'int':
-      return { ...base, kind: 'num', int: schema.type === 'int', ...(schema.min !== undefined && { min: schema.min }), ...(schema.max !== undefined && { max: schema.max }) }
+      return { ...base, kind: 'num', int: schema.type === 'int', step: schema.step ?? 1, ...(schema.min !== undefined && { min: schema.min }), ...(schema.max !== undefined && { max: schema.max }) }
     case 'bool':
     case 'any':
     case 'board':
       return { ...base, kind: schema.type }
     case 'str':
-      return { ...base, kind: 'str', ...(schema.pattern && { pattern: schema.pattern }) }
+      return listControl(schema, ctx) ? { ...base, ...listControl(schema, ctx) } : { ...base, kind: 'str', ...(schema.pattern && { pattern: schema.pattern }) }
     case 'oneOf':
-      return { ...base, kind: 'choice', options: schema.values.map((v) => ({ value: v })) }
     case 'ref':
-      return { ...base, kind: 'choice', options: itemsOf(vocabulary, schema.kind), of: schema.kind }
     case 'level':
-      return { ...base, kind: 'choice', options: levels.map((id) => ({ value: id })), of: 'level' }
+      return { ...base, kind: 'choice', ...choicesOf(schema, ctx) }
     case 'call': {
       const [item, params] = value === undefined ? [null, {}] : callOf(value)
       const spec = vocabulary?.kinds[schema.kind]?.[item]?.params
       return { ...base, kind: 'call', of: schema.kind, item, options: itemsOf(vocabulary, schema.kind), params: spec ? formOf(spec, params, ctx, [...path, item]) : null }
     }
-    case 'list':
-      return { ...base, kind: 'list', of: schema.of, items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
-    case 'map':
+    case 'list': {
+      const control = listControl(schema, ctx)
+      if (control) return { ...base, ...control }
+      return { ...base, kind: 'list', of: schema.of, ...(schema.section === 'tests' && { tests: true }), items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
+    }
+    case 'map': {
+      const control = listControl(schema, ctx)
+      if (control) return { ...base, ...control }
       return { ...base, kind: 'map', of: schema.of, entries: Object.entries(isObj(value) ? value : {}).map(([key, x]) => ({ key, field: formOf(schema.of, x, ctx, [...path, key]) })) }
+    }
     case 'obj':
       return {
         ...base,
@@ -80,7 +126,7 @@ export function formOf(schema, value, ctx, path = []) {
       const tag = isObj(value) ? value[schema.field] : undefined
       const shape = schema.cases[tag]
       const field = shape ? formOf(shape, value, ctx, path) : { ...base, kind: 'obj', fields: [] }
-      return { ...field, ...base, tag: { key: schema.field, value: tag, options: Object.keys(schema.cases).map((v) => ({ value: v })), cases: schema.cases } }
+      return { ...field, ...base, tags: [{ key: schema.field, value: tag, options: Object.keys(schema.cases).map((v) => ({ value: v })), cases: schema.cases }, ...(field.tags ?? [])] }
     }
     case 'either': {
       const { schema: shape, at } = shapeOf(schema, value, vocabulary)
@@ -120,12 +166,227 @@ export function blank(schema, ctx) {
   }
 }
 
+/** What tells one of an either's shapes from the others: a by's field, an object's first field the others lack. */
+export function shapeName(shape, shapes) {
+  if (shape.type === 'by') return shape.field
+  if (shape.type === 'obj') {
+    const keys = (s) => (s.type === 'obj' ? Object.keys(s.fields) : s.type === 'by' ? Object.values(s.cases).flatMap(keys) : [])
+    const others = shapes.filter((s) => s !== shape).flatMap(keys)
+    const own = Object.entries(shape.fields).find(([k, s]) => !others.includes(k) && !s.optional) ?? Object.keys(shape.fields).filter((k) => !others.includes(k)).map((k) => [k])[0]
+    if (own) return own[0]
+  }
+  return shape.type
+}
+
 /** A by's value (`tag` of its field) recast as its shape `to`: the fields the two shapes share kept, the rest blank. */
 export function recast(tag, value, to, ctx) {
   const shape = tag.cases[to]
   const kept = Object.fromEntries(Object.entries(value ?? {}).filter(([k]) => k in shape.fields && validate(shape.fields[k], value[k], { vocabulary: ctx.vocabulary, levels: null }).length === 0))
   return { ...blank(shape, ctx), ...kept, [tag.key]: to }
 }
+
+/* ---------- cells: what a grid, a table or a tick strip holds, typed and read back ---------- */
+
+/** Whether a cell of `schema` may be empty (null, shown 「—」). */
+export const nullable = (schema) => schema.type === 'any' || (schema.type === 'either' && schema.of.some((s) => s.type === 'oneOf' && s.values.includes(null)))
+
+/**
+ * What a cell of `schema` holds when `text` is typed into it, or undefined when the text is no value of it. Empty (or
+ * 「—」) is null where the cell may be empty.
+ */
+export function cellValue(schema, text) {
+  const t = String(text).trim()
+  if ((t === '' || t === '—' || t === '-') && nullable(schema)) return null
+  switch (schema.type) {
+    case 'num':
+    case 'int': {
+      const n = Number(t)
+      return t !== '' && Number.isFinite(n) && (schema.type === 'num' || Number.isInteger(n)) ? n : undefined
+    }
+    case 'bool': return t === 'true' ? true : t === 'false' ? false : undefined
+    case 'oneOf': return schema.values.find((v) => String(v) === t)
+    case 'str':
+    case 'ref':
+    case 'level': return t === '' ? undefined : t
+    case 'either': {
+      for (const s of schema.of) {
+        const v = cellValue(s, t)
+        if (v !== undefined && validate(s, v).length === 0) return v
+      }
+      return undefined
+    }
+    default:
+      try {
+        return JSON.parse(t)
+      } catch {
+        return t
+      }
+  }
+}
+
+/** A cell's value as typed. */
+export const cellText = (v) => (v === null || v === undefined ? '' : typeof v === 'object' ? JSON.stringify(v) : String(v))
+
+/** A pasted block of cells (a spreadsheet's tab-separated rows, or numbers by spaces or commas): rows of texts. */
+export function pastedCells(text) {
+  const rows = String(text).replace(/\r/g, '').replace(/\n+$/, '').split('\n')
+  const tabbed = rows.some((r) => r.includes('\t'))
+  return rows.map((r) => (tabbed ? r.split('\t') : r.trim().split(/\s*,\s*|\s+/)))
+}
+
+/** A tick clicked: 1 becomes 0, anything else 1. */
+export const toggled = (v) => (v === 1 ? 0 : 1)
+
+// What a cell control shows of its field's value, and the value its rows make: rows(field) → the cells, and
+// valueOf(field, rows) → the value, so that valueOf(field, rows(field)) is the value itself.
+
+/** A grid's rows: a matrix as it is; a flat list cut `cols` to a row (a square: √length). */
+export function gridRows(field) {
+  const value = Array.isArray(field.value) ? field.value : []
+  if (field.cols === null || field.cols === undefined) return value.map((r) => (Array.isArray(r) ? r : []))
+  const cols = field.cols === 'square' ? Math.max(1, Math.round(Math.sqrt(value.length))) : field.cols
+  return Array.from({ length: Math.ceil(value.length / cols) }, (_, r) => value.slice(r * cols, (r + 1) * cols))
+}
+export const gridValue = (field, rows) => (field.cols === null || field.cols === undefined ? rows : rows.flat())
+
+/** A tick strip's values: a list as it is, a string of bits as numbers. */
+export const tickValues = (field) => (field.bits ? [...String(field.value ?? '')].map(Number) : Array.isArray(field.value) ? field.value : [])
+export const tickValue = (field, values) => (field.bits ? values.map((v) => (v ? 1 : 0)).join('') : values)
+
+/**
+ * A table's columns ([{ key, schema, optional }]), the head of each row (a map's keys) and its rows of cells; and the
+ * value rows make. A list of maps has a column for every key its rows use.
+ */
+export function tableOf(field) {
+  if (field.keyed) {
+    const entries = Object.entries(isObj(field.value) ? field.value : {})
+    return { columns: field.columns, heads: entries.map(([k]) => k), rows: entries.map(([, v]) => [v]) }
+  }
+  const items = Array.isArray(field.value) ? field.value : []
+  const columns = field.columns ?? [...new Set(items.flatMap((x) => Object.keys(x ?? {})))].map((key) => ({ key, schema: field.cell, optional: true }))
+  return { columns, heads: null, rows: items.map((x) => columns.map((c) => x?.[c.key])) }
+}
+export function tableValue(field, { columns, heads }, rows) {
+  if (field.keyed) return Object.fromEntries(heads.map((k, i) => [k, rows[i]?.[0]]))
+  return rows.map((row) => Object.fromEntries(columns.map((c, j) => [c.key, row[j]]).filter(([, v]) => v !== undefined)))
+}
+
+/** `list` with the item at `from` moved to `to`. */
+export function moved(list, from, to) {
+  const out = [...list]
+  const [x] = out.splice(from, 1)
+  out.splice(to, 0, x)
+  return out
+}
+
+/** One line saying what a value holds: its first text, else its first few scalars, for a folded item of a list. */
+export function summaryOf(value, width = 90) {
+  const plain = (s) => String(s).replace(/<(level|part|wiki)-ref to="([^"]+)"><\/\1-ref>/g, '$2').replace(/<[^>]+>/g, '')
+  const words = []
+  const walk = (v, key) => {
+    if (words.join(' ').length > width) return
+    if (v === null || v === undefined) return
+    if (isObj(v) && typeof v.zh === 'string' && typeof v.en === 'string') return words.push(plain(v.zh))
+    if (typeof v !== 'object') return words.push(key ? `${key} ${plain(v)}` : plain(v))
+    if (Array.isArray(v)) {
+      if (v.every((x) => typeof x !== 'object' || x === null)) return words.push(`${key ? `${key} ` : ''}[${v.slice(0, 12).map((x) => (x === null ? '—' : x)).join(' ')}${v.length > 12 ? ' …' : ''}]`)
+      return v.forEach((x) => walk(x, key))
+    }
+    const entries = Object.entries(v)
+    if (entries.length === 1 && !isObj(entries[0][1])) return walk(entries[0][1], entries[0][0])
+    for (const [k, x] of entries) walk(x, k)
+  }
+  walk(value, '')
+  const line = words.join(' · ')
+  return line.length > width ? `${line.slice(0, width - 1)}…` : line
+}
+
+/* ---------- a level's sections ---------- */
+
+const leaves = (s, out = new Set()) => {
+  if (!s || typeof s !== 'object') return out
+  if (['list', 'map'].includes(s.type)) return leaves(s.of, out)
+  if (s.type === 'either') { s.of.forEach((x) => leaves(x, out)); return out }
+  if (s.type === 'obj') { Object.values(s.fields).forEach((x) => leaves(x, out)); return out }
+  if (s.type === 'by') { Object.values(s.cases).forEach((x) => leaves(x, out)); return out }
+  out.add(s.type)
+  return out
+}
+
+/**
+ * Where a field of a level goes in its form (SECTIONS): its schema's `section`, else read off its shape — a board is an
+ * answer; a field naming a level is the course's; words alone (and the figures beside them) are what the player
+ * reads; anything else is the puzzle.
+ */
+export function sectionOf(schema) {
+  if (schema.section) return schema.section
+  const types = leaves(schema)
+  if (types.has('board')) return 'answers'
+  if (holdsLevels(schema)) return 'course'
+  if (types.has('text') && [...types].every((t) => t === 'text' || t === 'call')) return 'read'
+  return 'puzzle'
+}
+
+/** A level's fields (the obj form of its top) in sections, in SECTIONS order: [{ section, fields }]. */
+export function sectionsOf(form) {
+  const by = new Map(SECTIONS.map((s) => [s, []]))
+  const tags = new Set((form.tags ?? []).map((t) => t.key))
+  for (const f of form.fields ?? []) if (!tags.has(f.key)) by.get(sectionOf(f.schema)).push(f)
+  return [...by].filter(([, fields]) => fields.length).map(([section, fields]) => ({ section, fields }))
+}
+
+/* ---------- the check's findings, on the fields they are about ---------- */
+
+const keysOf = (dotted) => dotted.split('.').filter(Boolean).flatMap((k) => k.split(/[[\]]/).filter(Boolean)).map((k) => (/^\d+$/.test(k) ? Number(k) : k))
+
+/**
+ * The failing lines of a check that point into a level's file, read as { level, path, says }: a content problem
+ * (`content: levels/<id>.json.<path>: …`) and a copy problem (`text levels.<n>.<path> …`, n counting `order`, the levels in
+ * play order). Lines about a level that say no place in it are { level, path: null }.
+ */
+export function placesOf(lines, order) {
+  const out = []
+  for (const line of lines) {
+    if (!line.fail) continue
+    const content = /^content: levels\/(.+?)\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
+    if (content) { out.push({ level: content[1], path: keysOf(content[2]), says: content[3] }); continue }
+    const copy = /^text levels\.(\d+)((?:\.[^\s.]+)*) (.*)$/.exec(line.text)
+    if (copy && order[Number(copy[1])]) { out.push({ level: order[Number(copy[1])], path: keysOf(copy[2]), says: copy[3] }); continue }
+    for (const level of line.levels ?? []) out.push({ level, path: null, says: line.text })
+  }
+  return out
+}
+
+/** Every path a form shows a field at, as showPath keys. */
+function pathsIn(field, out = new Set()) {
+  out.add(showPath(field.path))
+  for (const x of field.items ?? []) pathsIn(x, out)
+  for (const e of field.entries ?? []) pathsIn(e.field, out)
+  for (const x of field.fields ?? []) if (x.field) pathsIn(x.field, out)
+  if (field.params) pathsIn(field.params, out)
+  return out
+}
+
+/**
+ * Findings ({ path, says }) on the fields of `form` that show them: each at the deepest field its path reaches. Returns
+ * { at: Map(showPath → [says]), rest: [says] } (rest: findings on no field of it).
+ */
+export function placeFindings(form, findings) {
+  const shown = pathsIn(form)
+  const at = new Map()
+  const rest = []
+  for (const { path, says } of findings) {
+    if (!path) { rest.push(says); continue }
+    let keys = path
+    while (keys.length && !shown.has(showPath(keys))) keys = keys.slice(0, -1)
+    if (!keys.length) { rest.push(says); continue }
+    const key = showPath(keys)
+    at.set(key, [...(at.get(key) ?? []), says])
+  }
+  return { at, rest }
+}
+
+/* ---------- edits as operations ---------- */
 
 /**
  * The operation that makes an edit, on a file of the game: `file` { level } | { game: true }. edit: { set: value } |
@@ -160,12 +421,26 @@ export function pushOp(ops, op) {
 }
 
 /**
+ * The edit that puts a field back as it was before the pending changes (`before`: its value then, undefined when it
+ * was not there): { set } or { unset }.
+ */
+export const revertOf = (before) => (before === undefined ? { unset: true } : { set: before })
+
+/**
  * The boards a level holds (paths of its board fields) and its reference answer: the last board in a solution or an
  * answer field (the fields the contract reads as references, ../engine/contract.js), else its first board.
  */
 export function boardsOf(vocabulary, { id: _, ...level }) {
   const paths = find(vocabulary.level, level, 'board', { vocabulary }).map((b) => b.path)
   return { paths, reference: paths.filter((p) => ['solution', 'answer'].includes(p.at(-1))).at(-1) ?? paths[0] ?? null }
+}
+
+/** The reference board a list of tests at `path` is run with: the one beside it (a task's own), else the level's. */
+export function referenceFor(vocabulary, level, path) {
+  const { paths, reference } = boardsOf(vocabulary, level)
+  const home = path.slice(0, -1)
+  const near = paths.filter((p) => home.every((k, i) => p[i] === k) && p.length === home.length + 1 && ['solution', 'answer'].includes(p.at(-1)))
+  return near.at(-1) ?? reference
 }
 
 /** Whether a schema holds a level anywhere inside it (a place in the course, which the tree edits). */
