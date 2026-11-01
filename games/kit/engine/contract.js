@@ -14,17 +14,26 @@
 //
 // Each returns what is wrong as [string], empty when the contract holds (validateProblems: { problems, … }).
 import { RULE_TEXT, audit } from '../course.js'
-import { validate as fits } from './schema.js'
+import { S, validate as fits } from './schema.js'
 import { describe } from './vocabulary.js'
 
-/** What domain.js exports: the three entries, and the extension points tools add (each optional, each a function). */
+/** What domain.js exports: the three entries, and the extension points tools add (each optional). */
 export const ENTRIES = ['vocabulary', 'spec', 'validate']
-// play: the blind-play harness's hook (games/DIRECTION.md stage 3). A tool that needs more of every domain adds its
-// hook here, with what it must give checked below.
-export const EXTENSIONS = ['play']
+const isFn = (f) => typeof f === 'function'
+// Each extension point and the shape it must have. A tool that needs more of every domain adds its hook here.
+//   saves(steps)        the save steps of game.json as the shell runs them (ops/migrate.js, the shell)
+//   changes             { stale(before, after), drop(ids) }: when a changed level's kept state no longer applies, and
+//                       the save step that drops it (ops/migrate.js)
+//   tasks               { merge(levels), split(level) }: what a level of tasks is (ops level.merge / level.split)
+//   play                the blind-play harness's hook (games/DIRECTION.md stage 3)
+export const EXTENSIONS = {
+  saves: isFn,
+  changes: (c) => Boolean(c) && isFn(c.stale) && isFn(c.drop),
+  tasks: (t) => Boolean(t) && isFn(t.merge) && isFn(t.split),
+  play: isFn,
+}
 
 const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string' && typeof v.en === 'string')
-const isFn = (f) => typeof f === 'function'
 const strings = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string')
 const isBoard = (b) => Boolean(b) && Array.isArray(b.nodes) && Array.isArray(b.wires)
 
@@ -34,8 +43,8 @@ export function domainProblems(name, domain) {
   for (const key of ENTRIES) if (!domain[key]) out.push(`${name}: domain.js gives no ${key}`)
   if (domain.spec && !isFn(domain.spec)) out.push(`${name}: spec is not a function`)
   if (domain.validate && !isFn(domain.validate)) out.push(`${name}: validate is not a function`)
-  for (const key of Object.keys(domain)) if (!ENTRIES.includes(key) && !EXTENSIONS.includes(key)) out.push(`${name}: domain.js gives ${key}, which is no entry of the contract`)
-  for (const key of EXTENSIONS) if (key in domain && !isFn(domain[key])) out.push(`${name}: ${key} is not a function`)
+  for (const key of Object.keys(domain)) if (!ENTRIES.includes(key) && !(key in EXTENSIONS)) out.push(`${name}: domain.js gives ${key}, which is no entry of the contract`)
+  for (const [key, fits] of Object.entries(EXTENSIONS)) if (key in domain && !fits(domain[key])) out.push(`${name}: ${key} has not the shape its extension point asks for`)
   if (domain.vocabulary) out.push(...vocabularyProblems(name, domain.vocabulary))
   return out
 }
@@ -49,7 +58,8 @@ function* schemasIn(s, at) {
   if (s.cases) for (const [k, x] of Object.entries(s.cases)) yield* schemasIn(x, `${at}<${k}>`)
 }
 
-const TYPES = ['any', 'bool', 'num', 'int', 'str', 'text', 'oneOf', 'list', 'map', 'obj', 'either', 'by', 'ref', 'call']
+// The schema types are what schema.js makes (opt is a flag on another type, not a type of its own).
+const TYPES = Object.keys(S).filter((k) => k !== 'opt')
 
 export function vocabularyProblems(name, v) {
   const out = []

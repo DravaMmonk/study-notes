@@ -22,5 +22,5 @@ function spec(content) {
   }
 }
 
-// A tool's hook on every domain (kit/engine/contract.js EXTENSIONS: the blind-play harness's `play`) goes here too.
+// The tools' hooks on a domain (kit/engine/contract.js EXTENSIONS: saves, changes, tasks, play) go here too.
 export default { vocabulary, spec, validate }

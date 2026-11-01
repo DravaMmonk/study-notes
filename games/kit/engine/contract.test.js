@@ -10,7 +10,7 @@ import { isDataGame, readContent } from './content-node.js'
 import { audit } from '../course.js'
 import { checkContent } from './vocabulary.js'
 import { domainProblems, gameProblems, specProblems, validateProblems } from './contract.js'
-import { closeGames, loadGame } from './games.mjs'
+import { closeGames, gameOf } from './games.mjs'
 
 const DOMAINS = resolve(import.meta.dirname, '../domains')
 const names = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'domain.js')))
@@ -58,6 +58,6 @@ for (const id of games) {
     const { problems, builders, runsOwn } = await validateProblems(domain, content, spec)
     assert.deepEqual(problems, [])
     assert.deepEqual(builders.filter((l) => !runsOwn.includes(l)), BUILT_IN[id] ?? [], 'levels whose part does not run the board syncOwn gives it')
-    assert.deepEqual(gameProblems(content, spec, await loadGame(id)), [])
+    assert.deepEqual(gameProblems(content, spec, await gameOf(content)), [])
   })
 }

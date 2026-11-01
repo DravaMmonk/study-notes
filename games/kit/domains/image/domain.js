@@ -4,8 +4,9 @@
 import { vocabulary } from './vocabulary.js'
 import { imageCourse } from './course.js'
 import { validate } from './validate.js'
+import { savesOf } from './items/migrations.js'
 
-/** An image game's spec, as npm run check reads one (../../engine/check.js). */
+/** An image game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
   const image = imageCourse(content)
   return {
@@ -23,4 +24,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate }
+export default { vocabulary, spec, validate, saves: savesOf }

@@ -15,7 +15,7 @@ const nat = S.int({ min: 0 })
 const ids = S.list(S.str())
 const TEXTS = S.list(S.text())
 /** Blueprint text (board.js), one line a string: a reference board, a naive one. */
-const BOARD = S.list(S.str(), { about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
+const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 
 /* ---------- the machines and parts ---------- */
 
@@ -97,8 +97,9 @@ const LEVEL = S.by('kind', {
 
 /* ---------- game.json ---------- */
 
-const ITEM = S.either(S.str(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels: ids })) }))
-const AFTER = S.either(S.str(), ids)
+const levels = S.list(S.level())
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels })) }))
+const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int(),
   machine: S.ref('machine'),
@@ -107,8 +108,8 @@ const ERA = S.obj({
   question: S.text(),
   foundation: S.list(ITEM),
   practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels: ids, title: S.opt(S.text()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.str(), after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
+  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
 })
 const SAVE_OP = S.either(
   S.obj({ rename: S.map(S.either(S.str(), S.oneOf([null]))) }),

@@ -1,4 +1,4 @@
-// The agent domain's checks for `npm run check` (../../engine/check.js): what reading the content found wrong
+// The agent domain's checks for `npm run check` (../../engine/checks.js): what reading the content found wrong
 // (course.js), then level by level:
 //
 //   · a hand level's reference ops end in a green test run

@@ -31,3 +31,6 @@ export function readContent(id, dir = GAMES_DIR) {
     glossary: json(resolve(dir, id, 'glossary.json')),
   })
 }
+
+/** The domain module (../domains/<domain>/domain.js) of a content. */
+export const domainOf = async (content) => (await import(`../domains/${content.domain}/domain.js`)).default

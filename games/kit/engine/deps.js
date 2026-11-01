@@ -6,7 +6,8 @@
 // --dot; --levels draws the levels as well, each wired from the parts its reference uses and to the parts it brings.
 import { pathToFileURL } from 'node:url'
 import { introductions } from '../course.js'
-import { readContent } from './content-node.js'
+import { domainOf, readContent } from './content-node.js'
+import { knownGames } from './cli-args.js'
 
 const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
@@ -94,16 +95,14 @@ export function dot(graph, { levels = false } = {}) {
   return out.join('\n')
 }
 
+/** A game's dependency graph from its content, as Mermaid or (`dot`) DOT text. */
+export async function drawDeps(content, { dot: asDot = false, levels = false } = {}) {
+  const graph = dependencies((await domainOf(content)).spec(content).course)
+  return asDot ? dot(graph, { levels }) : mermaid(graph, { levels })
+}
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2)
-  const game = args.find((a) => !a.startsWith('--'))
-  if (!game) {
-    console.error('usage: npm run deps -- <game id> [--dot] [--levels]')
-    process.exit(1)
-  }
-  const content = readContent(game)
-  const domain = (await import(`../domains/${content.domain}/domain.js`)).default
-  const graph = dependencies(domain.spec(content).course)
-  const levels = args.includes('--levels')
-  console.log(args.includes('--dot') ? dot(graph, { levels }) : mermaid(graph, { levels }))
+  const [game] = knownGames(args.filter((a) => !a.startsWith('--')).slice(0, 1), 'npm run deps -- <game> [--dot] [--levels]')
+  console.log(await drawDeps(readContent(game), { dot: args.includes('--dot'), levels: args.includes('--levels') }))
 }

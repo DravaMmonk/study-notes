@@ -12,6 +12,8 @@
 //   ref(kind)                       the name of an item of that kind in the vocabulary (a world, a part)
 //   call(kind)                      an item of that kind with its parameters: { item: params }, or just 'item' for an
 //                                   item whose parameters may all be left out
+//   level                           the id of a level of this game (renaming or removing a level follows these)
+//   board                           a board as blueprint text (../circuit/text.js), one string a line
 //
 // A schema may carry `about` ({ zh, en } or a string): what the field means, for whoever writes it.
 
@@ -33,6 +35,8 @@ export const S = {
   by: (field, cases, extra = {}) => ({ type: 'by', field, cases, ...extra }),
   ref: (kind, extra = {}) => ({ type: 'ref', kind, ...extra }),
   call: (kind, extra = {}) => ({ type: 'call', kind, ...extra }),
+  level: make('level'),
+  board: make('board'),
 }
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
@@ -43,9 +47,9 @@ const bare = (params) => !params || (params.type === 'obj' && Object.values(para
 
 /**
  * Every place `value` does not fit `schema`, as [{ at, says }]. `vocabulary` (vocabulary.js) resolves ref and call;
- * `at` is the path of `value`.
+ * `levels` (a Set of the game's level ids) the levels a level names; `at` is the path of `value`.
  */
-export function validate(schema, value, { vocabulary = null, at = '' } = {}) {
+export function validate(schema, value, { vocabulary = null, levels = null, at = '' } = {}) {
   const out = []
   // `shape`: the value is not the shape asked for at all (a by's field names no case), not just wrong inside.
   const say = (where, says, shape = false) => out.push({ at: where || '(root)', says, ...(shape ? { shape } : {}) })
@@ -96,7 +100,7 @@ export function validate(schema, value, { vocabulary = null, at = '' } = {}) {
         return
       }
       case 'either': {
-        const tries = s.of.map((x) => validate(x, v, { vocabulary, at: where }))
+        const tries = s.of.map((x) => validate(x, v, { vocabulary, levels, at: where }))
         if (tries.every((t) => t.length)) {
           // The closest fit says what is wrong: a shape the value has (no problem with the value itself, only inside it),
           // then the fewest problems.
@@ -115,6 +119,13 @@ export function validate(schema, value, { vocabulary = null, at = '' } = {}) {
       }
       case 'ref':
         if (typeof v !== 'string' || !item(s.kind, v)) say(where, `${show(v)} is no ${s.kind} of the vocabulary`)
+        return
+      case 'level':
+        if (typeof v !== 'string') say(where, `expected a level id, found ${show(v)}`)
+        else if (levels && !levels.has(v)) say(where, `${show(v)} is no level of this game`)
+        return
+      case 'board':
+        if (!Array.isArray(v) || v.some((line) => typeof line !== 'string')) say(where, `expected a board as blueprint text, a list of lines, found ${show(v)}`)
         return
       case 'call': {
         if (typeof v === 'string') {
@@ -137,6 +148,80 @@ export function validate(schema, value, { vocabulary = null, at = '' } = {}) {
   }
   walk(schema, value, at)
   return out
+}
+
+/**
+ * Every place in `value` that `schema` gives the type `type` (a 'level', a 'board', a 'text'…), as [{ path, value }]:
+ * `path` the keys from `value` down to it. Where the schema allows several shapes (either), the value is read as the
+ * one it fits; a value fitting none is not looked into.
+ */
+export function find(schema, value, type, { vocabulary = null } = {}) {
+  const out = []
+  const fits = (s, v) => validate(s, v, { vocabulary }).length === 0
+  const walk = (s, v, path) => {
+    if (v === undefined) return
+    if (s.type === type) out.push({ path, value: v })
+    switch (s.type) {
+      case 'list':
+        if (Array.isArray(v)) v.forEach((x, k) => walk(s.of, x, [...path, k]))
+        return
+      case 'map':
+        if (isObj(v)) for (const [k, x] of Object.entries(v)) walk(s.of, x, [...path, k])
+        return
+      case 'obj':
+        if (isObj(v)) for (const [k, f] of Object.entries(s.fields)) walk(f, v[k], [...path, k])
+        return
+      case 'either': {
+        const shape = s.of.find((x) => fits(x, v))
+        if (shape) walk(shape, v, path)
+        return
+      }
+      case 'by':
+        if (isObj(v) && s.cases[v[s.field]]) walk(s.cases[v[s.field]], v, path)
+        return
+      case 'call': {
+        if (!isObj(v)) return
+        const [name, params] = Object.entries(v)[0] ?? []
+        const it = vocabulary?.kinds[s.kind]?.[name]
+        if (it?.params) walk(it.params, params, [...path, name])
+        return
+      }
+      default:
+    }
+  }
+  walk(schema, value, [])
+  return out
+}
+
+/**
+ * The schema of what is at `path` (a list of keys) in `value`, read as find reads it, or null where the schema says
+ * nothing. A value that fits none of an either's shapes is read as the first shape of its kind that has all its fields.
+ */
+export function shapeAt(schema, value, path, { vocabulary = null } = {}) {
+  let s = schema
+  let v = value
+  const resolve = () => {
+    for (;;) {
+      if (s?.type === 'either') {
+        const fit = s.of.find((x) => validate(x, v, { vocabulary }).length === 0)
+        const kin = s.of.find((x) => (isObj(v) ? (x.type === 'obj' && Object.keys(v).every((k) => k in x.fields)) || x.type === 'by' || x.type === 'map' : Array.isArray(v) ? x.type === 'list' : false))
+        s = fit ?? kin ?? null
+      } else if (s?.type === 'by') s = isObj(v) ? s.cases[v[s.field]] ?? null : null
+      else return
+    }
+  }
+  resolve()
+  for (const key of path) {
+    if (!s) return null
+    if (s.type === 'list') s = s.of
+    else if (s.type === 'map') s = s.of
+    else if (s.type === 'obj') s = s.fields[key] ?? null
+    else if (s.type === 'call') s = vocabulary?.kinds[s.kind]?.[key]?.params ?? null
+    else return null
+    v = v?.[key]
+    resolve()
+  }
+  return s
 }
 
 /** A call's item and parameters: 'item' → ['item', {}], { item: params } → ['item', params] (true reads as {}). */

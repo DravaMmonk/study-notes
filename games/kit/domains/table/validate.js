@@ -1,4 +1,4 @@
-// The table domain's checks for `npm run check` (../../engine/check.js), over a game's spec (domain.js): what building
+// The table domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): what building
 // its course found wrong with the content, every reference board runs its tests, every challenge's naive board fails
 // one, and every part a level builds is that level's board: it reads exactly the part's ports, and the part alone,
 // wired to the level's sensors, passes the level's tests and fills the same table, cell by cell.

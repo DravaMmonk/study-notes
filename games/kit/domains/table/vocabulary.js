@@ -19,7 +19,7 @@ const matrix = S.list(S.list(S.num()));
 const ids = S.list(S.str());
 const NONE = S.oneOf([null]);
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one, a preset. */
-const BOARD = S.list(S.str(), { about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') });
+const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') });
 const scanOf = (...orders) => S.oneOf(orders);
 
 /* ---------- the worlds a board runs in: their parameters and the shape of their tests ---------- */
@@ -195,7 +195,7 @@ const CIRCUIT = {
   robot: S.ref('robot'),
   adds: S.opt(S.list(S.ref('part'))),
   fold: S.opt(S.list(S.str())),
-  carry: S.opt(S.str({ about: t('从这一关玩家留下的电路板开始（必须是先修）', 'start from the board left on this level (a prerequisite)') })),
+  carry: S.opt(S.level({ about: t('从这一关玩家留下的电路板开始（必须是先修）', 'start from the board left on this level (a prerequisite)') })),
   builds: S.opt(S.obj({ ports: S.list(S.call('port')), setting: S.opt(S.num()) }, { about: t('通过后电路板成为元件 unlock：它的口，和它带的一个数', 'once solved the board is the part `unlock`: its ports, and a number it carries') })),
   naive: S.opt(BOARD),
   guide: S.opt(S.list(S.obj({ until: S.opt(S.call('condition')), say: S.text() }), { about: t('一步步的引导：显示第一条 until 还不成立的', 'step-by-step guidance: the first whose until does not hold yet') })),
@@ -239,16 +239,17 @@ const CIRCUIT_LEVEL = S.either(
 
 /* ---------- game.json ---------- */
 
-const ITEM = S.either(S.str(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels: ids })) }));
-const AFTER = S.either(S.str(), ids);
+const levels = S.list(S.level());
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels })) }));
+const AFTER = S.either(S.level(), levels);
 const ERA = S.obj({
   id: S.str(),
   machine: S.either(S.ref('robot'), NONE),
   keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   foundation: S.list(ITEM),
   practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels: ids, title: S.text(), desc: S.text() }))),
-  challenges: S.opt(S.list(S.obj({ level: S.str(), after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.text(), desc: S.text() }))),
+  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: S.text(), desc: S.text() }),
 });
 const SAVE_OP = S.either(
@@ -271,7 +272,7 @@ const GAME = S.obj({
   eras: S.list(ERA, { min: 1 }),
   saves: S.list(S.obj({ version: int({ min: 2 }), ops: S.list(SAVE_OP) })),
   legacyKey: S.opt(S.str()),
-  borrow: S.opt(S.map(S.str(), { about: t('一个想法在元件箱里借用哪一关的电路板', 'the level whose board an idea borrows in the components box') })),
+  borrow: S.opt(S.map(S.level(), { about: t('一个想法在元件箱里借用哪一关的电路板', 'the level whose board an idea borrows in the components box') })),
 });
 
 export const vocabulary = defineVocabulary({

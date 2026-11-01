@@ -1,0 +1,310 @@
+// The operation set (games/DIRECTION.md decision 4): every change to a data game's content is one of these. The CLI
+// (cli.js), the MCP server (mcp.js) and later the studio only ever run them, through a changeset (changeset.js).
+//
+// An operation is { about, params (schema.js: its arguments as data), apply(ws, args, ctx) }. apply edits the
+// workspace (workspace.js) and returns { says, inverse, saves?, placed?, own? }: what it did, in words; the operations
+// that undo it; the save migration ops (../../shell/saves.js) it alone knows it needs (a level renamed, removed,
+// merged, split); the levels it put somewhere in the course (added or moved there); and the levels whose kept state
+// its own save ops carry (merged, split), which no other migration touches. ctx: { vocabulary, domain }; merging and
+// splitting levels of tasks is the domain's (domain.js `tasks`: { merge(levels, title) → level, split(level) →
+// [level] }), as only it knows what a task is. What a change
+// means for the saves beyond that (a new prerequisite, a puzzle whose kept boards no longer apply) is read off the
+// content before and after the whole changeset (migrate.js).
+import { S, shapeAt } from '../schema.js'
+import { parse } from '../../circuit/text.js'
+import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
+import { PATHS, describe, locate, putIn, takeOut } from './place.js'
+import { levelRefs, renameRefs } from './refs.js'
+
+const t = (zh, en) => ({ zh, en })
+const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal', 'a field’s path: tests[0].goal') })
+const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）', 'a new level id (its file name too)') })
+const PLACE = S.obj({
+  before: S.opt(S.level()), after: S.opt(S.level()), on: S.opt(S.oneOf(['path'])),
+  era: S.opt(S.either(S.str(), S.int())), path: S.opt(S.oneOf(PATHS)), branch: S.opt(S.str()), topic: S.opt(S.str()),
+  challenge: S.opt(S.bool()), hang: S.opt(S.either(S.level(), S.list(S.level()))), at: S.opt(S.int({ min: 0 })),
+}, { about: t('课程里的一个位置（place.js）', 'a place in the course (place.js)') })
+
+const fail = (message) => { throw new Error(message) }
+const levelOf = (ws, id) => ws.levels.get(id) ?? fail(`no level ${id}`)
+const orderOf = (schema, value, vocabulary) => (path) => {
+  const s = shapeAt(schema, value, path, { vocabulary })
+  return s?.type === 'obj' ? Object.keys(s.fields) : null
+}
+const setLevel = (ws, id, path, value, vocabulary) => ws.levels.set(id, setAt(levelOf(ws, id), path, value, orderOf(vocabulary.level, levelOf(ws, id), vocabulary)))
+/** The operation that puts back what is at `path` now (a value set over, or nothing there). */
+const restore = (op, base, path, args) => {
+  const keys = parsePath(path)
+  const old = getAt(base, keys)
+  if (old !== undefined) return { op: `${op}.set`, ...args, path: keys, value: old }
+  return { op: `${op}.unset`, ...args, path: keys }
+}
+// game.json's saves are history: written by the migration generator (migrate.js), never edited.
+const notSaves = (path) => (parsePath(path)[0] === 'saves' ? fail('game.json saves are written by the migration generator, not edited') : path)
+const blueprintLines = (text) => {
+  const lines = text.replace(/\n$/, '').split('\n')
+  return /^#\s*blueprint\b/.test(lines[0]) ? lines.slice(1) : lines
+}
+
+export const OPERATIONS = {
+  'level.set': {
+    about: t('设一关的一个字段（路径可以深入）', 'set a field of a level (the path may go deep)'),
+    params: S.obj({ level: S.level(), path: PATH, value: S.any() }),
+    apply(ws, { level, path, value }, { vocabulary }) {
+      if (!parsePath(path).length) fail('the path is empty: use level.replace for the whole level')
+      const inverse = [restore('level', levelOf(ws, level), path, { level })]
+      setLevel(ws, level, path, value, vocabulary)
+      return { says: `${level}: set ${showPath(path)}`, inverse }
+    },
+  },
+  'level.unset': {
+    about: t('去掉一关的一个字段，或列表里的一项', 'remove a field of a level, or an item from a list'),
+    params: S.obj({ level: S.level(), path: PATH }),
+    apply(ws, { level, path }) {
+      const keys = parsePath(path)
+      const base = levelOf(ws, level)
+      // Taking an item out of a list shifts the rest: putting the whole list back undoes it.
+      const back = typeof keys.at(-1) === 'number' ? { op: 'level.set', level, path: keys.slice(0, -1), value: getAt(base, keys.slice(0, -1)) } : { op: 'level.set', level, path: keys, value: getAt(base, keys) }
+      ws.levels.set(level, unsetAt(base, keys))
+      return { says: `${level}: removed ${showPath(keys)}`, inverse: [back] }
+    },
+  },
+  'level.patch': {
+    about: t('按 JSON merge patch 改一关的几个字段（null 去掉一个字段）', 'change several fields of a level by a JSON merge patch (null removes a field)'),
+    params: S.obj({ level: S.level(), fields: S.map(S.any()) }),
+    apply(ws, { level, fields }, { vocabulary }) {
+      const base = levelOf(ws, level)
+      ws.levels.set(level, mergePatch(base, fields, orderOf(vocabulary.level, base, vocabulary)))
+      return { says: `${level}: patched ${Object.keys(fields).join(', ')}`, inverse: [{ op: 'level.replace', level, data: base }] }
+    },
+  },
+  'level.replace': {
+    about: t('把一关整个换成新的内容（id 和位置不变）', 'replace a level’s whole content (its id and place stay)'),
+    params: S.obj({ level: S.level(), data: S.map(S.any()) }),
+    apply(ws, { level, data }) {
+      const base = levelOf(ws, level)
+      ws.levels.set(level, data)
+      return { says: `${level}: replaced`, inverse: [{ op: 'level.replace', level, data: base }] }
+    },
+  },
+  'level.blueprint': {
+    about: t('把一关的一块板（参考解、naive 解……）写成蓝图文本', 'write one of a level’s boards (its reference answer, its naive one…) as blueprint text'),
+    params: S.obj({ level: S.level(), path: S.opt(PATH), text: S.str({ about: t('蓝图文本（可以带 # blueprint 那一行）', 'the blueprint text (its # blueprint line may stay)') }) }),
+    apply(ws, { level, path = 'solution', text }, { vocabulary }) {
+      const base = levelOf(ws, level)
+      if (shapeAt(vocabulary.level, base, parsePath(path), { vocabulary })?.type !== 'board') fail(`${level}: ${showPath(path)} is not a board`)
+      const lines = blueprintLines(text)
+      try {
+        parse(lines.join('\n'))
+      } catch (error) {
+        fail(`${level}: line ${error.line}: ${error.en ?? error.message}`)
+      }
+      const inverse = [restore('level', base, path, { level })]
+      setLevel(ws, level, path, lines, vocabulary)
+      return { says: `${level}: ${showPath(path)} is a board of ${lines.length} line(s)`, inverse }
+    },
+  },
+  'level.adds': {
+    about: t('一关新带来的元件（adds）里加上或拿掉几样', 'add parts to or take them from what a level brings in (adds)'),
+    params: S.obj({ level: S.level(), add: S.opt(S.list(S.ref('part'))), remove: S.opt(S.list(S.ref('part'))) }),
+    apply(ws, { level, add = [], remove = [] }, { vocabulary }) {
+      const base = levelOf(ws, level)
+      const had = base.adds ?? []
+      for (const p of remove) if (!had.includes(p)) fail(`${level} does not bring in ${p}`)
+      for (const p of add) if (had.includes(p)) fail(`${level} brings in ${p} already`)
+      const adds = [...had.filter((p) => !remove.includes(p)), ...add]
+      const inverse = [restore('level', base, ['adds'], { level })]
+      if (adds.length) setLevel(ws, level, ['adds'], adds, vocabulary)
+      else ws.levels.set(level, unsetAt(base, ['adds']))
+      return { says: `${level}: adds ${[...add.map((p) => `+${p}`), ...remove.map((p) => `-${p}`)].join(' ')}`, inverse }
+    },
+  },
+  'level.add': {
+    about: t('加一关：它的内容，和它在课程里的位置', 'add a level: its content, and its place in the course'),
+    params: S.obj({ level: NEW_ID, data: S.map(S.any()), to: S.opt(PLACE) }),
+    apply(ws, { level, data, to }) {
+      if (ws.levels.has(level)) fail(`there is a level ${level} already`)
+      ws.levels.set(level, data)
+      if (to) ws.game = { ...ws.game, eras: putIn(ws.game.eras, level, to) }
+      return { says: `${level}: added${to ? ` at ${describe(ws.game.eras, locate(ws.game.eras, level))}` : ''}`, inverse: [{ op: 'level.remove', level }], placed: to ? [level] : [] }
+    },
+  },
+  'level.remove': {
+    about: t('删掉一关：它的文件和它在课程里的位置；别处还提到它时拒绝', 'remove a level: its file and its place in the course; refused while anything else names it'),
+    params: S.obj({ level: S.level() }),
+    apply(ws, { level }, { vocabulary }) {
+      const data = levelOf(ws, level)
+      const others = levelRefs(ws, vocabulary, level).filter((r) => r.file !== `levels/${level}.json` && !(r.file === 'game.json' && isOwnPlace(ws.game.eras, r.path, level)))
+      if (others.length) fail(`${level} is still named at ${others.map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}`)
+      const eras = ws.game.eras
+      const { eras: left, was, pruned } = takeOut(eras, level)
+      ws.game = { ...ws.game, eras: left }
+      ws.levels.delete(level)
+      return {
+        says: `${level}: removed from ${describe(eras, was)}${pruned.length ? ` (with the ${pruned.join(', ')} it emptied)` : ''}`,
+        inverse: [{ op: 'level.add', level, data }, { op: 'game.set', path: ['eras'], value: eras }],
+        saves: [{ rename: { [level]: null } }],
+      }
+    },
+  },
+  'level.rename': {
+    about: t('给一关换 id：文件名和所有提到它的地方一起改', 'give a level a new id: its file and every place naming it'),
+    params: S.obj({ level: S.level(), to: NEW_ID }),
+    apply(ws, { level, to }, { vocabulary }) {
+      if (ws.levels.has(to)) fail(`there is a level ${to} already`)
+      const data = levelOf(ws, level)
+      ws.levels = new Map([...ws.levels].map(([id, l]) => (id === level ? [to, data] : [id, l])))
+      ws.basis.set(`levels/${to}.json`, ws.original.get(`levels/${level}.json`) ?? ws.basis.get(`levels/${level}.json`))
+      const n = renameRefs(ws, vocabulary, level, to)
+      return { says: `${level} → ${to} (${n} reference(s))`, inverse: [{ op: 'level.rename', level: to, to: level }], saves: [{ rename: { [level]: to } }] }
+    },
+  },
+  'level.move': {
+    about: t('把一关挪到课程里的另一个位置（同一章里、跨章、进出分支和专题）', 'move a level to another place in the course (within an era or across, into or out of branches and topics)'),
+    params: S.obj({ level: S.level(), to: PLACE }),
+    apply(ws, { level, to }) {
+      const eras = ws.game.eras
+      const { eras: left, was, pruned } = takeOut(eras, level)
+      if (!was) fail(`${level} is in no era`)
+      ws.game = { ...ws.game, eras: putIn(left, level, to) }
+      return {
+        says: `${level}: ${describe(eras, was)} → ${describe(ws.game.eras, locate(ws.game.eras, level))}${pruned.length ? ` (the ${pruned.join(', ')} it emptied went with it)` : ''}`,
+        inverse: [{ op: 'game.set', path: ['eras'], value: eras }],
+        placed: [level],
+      }
+    },
+  },
+  'level.merge': {
+    about: t('几关合成一关的几个任务（按给的顺序），留下 into 的 id 和位置', 'merge levels into the tasks of one (in the order given), keeping the id and place of `into`'),
+    params: S.obj({ levels: S.list(S.level(), { min: 2 }), into: S.level() }),
+    apply(ws, { levels, into }, { vocabulary, domain }) {
+      if (!domain?.tasks) fail(`the ${domain?.vocabulary.domain ?? ''} domain gives no way to merge levels into tasks`)
+      if (!levels.includes(into)) fail(`${into} is not among the levels merged`)
+      if (new Set(levels).size !== levels.length) fail('a level is named twice')
+      const merged = domain.tasks.merge(levels.map((id) => levelOf(ws, id)), levelOf(ws, into).title)
+      for (const id of levels.filter((x) => x !== into)) {
+        ws.game = { ...ws.game, eras: takeOut(ws.game.eras, id).eras }
+        ws.levels.delete(id)
+        renameRefs(ws, vocabulary, id, into)
+      }
+      ws.levels.set(into, merged)
+      return { says: `${levels.join(' + ')} → ${into} (${levels.length} tasks)`, inverse: [{ op: 'level.split', level: into, into: levels }], saves: [{ merge: [into, levels] }], own: [into, ...levels] }
+    },
+  },
+  'level.split': {
+    about: t('一关的几个任务拆成几关（按任务的顺序），排在它原来的位置', 'split a level’s tasks into levels of their own (in task order), where it was'),
+    params: S.obj({ level: S.level(), into: S.list(NEW_ID, { min: 2 }) }),
+    apply(ws, { level, into }, { vocabulary, domain }) {
+      if (!domain?.tasks) fail(`the ${domain?.vocabulary.domain ?? ''} domain gives no way to split a level into levels`)
+      if (!Array.isArray(levelOf(ws, level).tasks)) fail(`${level} is no level of tasks`)
+      const parts = domain.tasks.split(levelOf(ws, level))
+      if (parts.length !== into.length) fail(`${level} has ${parts.length} tasks, and ${into.length} ids are given`)
+      for (const id of into) if (id !== level && ws.levels.has(id)) fail(`there is a level ${id} already`)
+      const keep = into.includes(level)
+      let eras = ws.game.eras
+      let last = level
+      // In the place of the level, in order: its own id stays where it is, the others before and after it.
+      for (const id of into.slice(0, keep ? into.indexOf(level) : 0)) eras = putIn(eras, id, { before: level })
+      for (const id of into.slice(keep ? into.indexOf(level) + 1 : 0)) { eras = putIn(eras, id, { after: last }); last = id }
+      if (!keep) eras = takeOut(eras, level).eras
+      ws.game = { ...ws.game, eras }
+      ws.levels.delete(level)
+      into.forEach((id, k) => ws.levels.set(id, parts[k]))
+      if (!keep) renameRefs(ws, vocabulary, level, into.at(-1))
+      const inverse = keep ? [{ op: 'level.merge', levels: into, into: level }] : [{ op: 'level.merge', levels: into, into: into.at(-1) }, { op: 'level.rename', level: into.at(-1), to: level }]
+      return { says: `${level} → ${into.join(' + ')}`, inverse, saves: [{ split: [level, into] }], own: [level, ...into] }
+    },
+  },
+  'game.set': {
+    about: t('设 game.json 的一个字段（课程、元件、标题……；存档迁移除外）', 'set a field of game.json (the course, parts, titles…; not the save migrations)'),
+    params: S.obj({ path: PATH, value: S.any() }),
+    apply(ws, { path, value }, { vocabulary }) {
+      notSaves(path)
+      const inverse = [restore('game', ws.game, path, {})]
+      ws.game = setAt(ws.game, path, value, orderOf(vocabulary.game, ws.game, vocabulary))
+      return { says: `game.json: set ${showPath(path)}`, inverse }
+    },
+  },
+  'game.unset': {
+    about: t('去掉 game.json 的一个字段，或列表里的一项', 'remove a field of game.json, or an item from a list'),
+    params: S.obj({ path: PATH }),
+    apply(ws, { path }) {
+      const keys = parsePath(notSaves(path))
+      const back = typeof keys.at(-1) === 'number' ? { op: 'game.set', path: keys.slice(0, -1), value: getAt(ws.game, keys.slice(0, -1)) } : { op: 'game.set', path: keys, value: getAt(ws.game, keys) }
+      ws.game = unsetAt(ws.game, keys)
+      return { says: `game.json: removed ${showPath(keys)}`, inverse: [back] }
+    },
+  },
+  'text.set': {
+    about: t('改一段文字的一面或两面（一关、game.json 或百科里的）', 'change one side or both of a text (in a level, game.json or the encyclopedia)'),
+    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary'])), path: PATH, zh: S.opt(S.str()), en: S.opt(S.str()) }),
+    apply(ws, { level, in: where, path, zh, en }, { vocabulary }) {
+      if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game or glossary')
+      if (zh === undefined && en === undefined) fail('give zh, en or both')
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : [ws.glossary, null]
+      const keys = parsePath(path)
+      const shape = schema && shapeAt(schema, value, keys, { vocabulary })
+      if (schema && shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
+      const old = getAt(value, keys)
+      if (old === undefined && where === 'glossary') fail(`glossary.json has no text at ${showPath(keys)}`)
+      const pair = typeof old === 'string' ? { zh: old, en: old } : { ...old }
+      const next = { zh: zh ?? pair.zh, en: en ?? pair.en }
+      const file = level ?? where
+      // The glossary has no field operations: its text goes back as a pair (a string reads the same as a pair of it).
+      const inverse = [where === 'glossary' ? { op: 'text.set', in: where, path: keys, ...(typeof old === 'string' ? { zh: old, en: old } : old) } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      if (level !== undefined) setLevel(ws, level, keys, next, vocabulary)
+      else if (where === 'game') ws.game = setAt(ws.game, notSaves(keys), next)
+      else ws.glossary = setAt(ws.glossary, keys, next)
+      return { says: `${file}: ${showPath(keys)} reads ${[zh !== undefined && 'zh', en !== undefined && 'en'].filter(Boolean).join(' and ')} anew`, inverse }
+    },
+  },
+  'glossary.put': {
+    about: t('写一条百科（没有就加上，at 是在列表里的位置）', 'write an encyclopedia entry (added when it is new, at its index in the list)'),
+    params: S.obj({ entry: S.str(), data: S.map(S.any()), at: S.opt(S.int({ min: 0 })) }),
+    apply(ws, { entry, data, at }) {
+      const entries = ws.glossary.entries
+      const k = entries.findIndex((e) => e.id === entry)
+      const next = { id: entry, ...data }
+      const list = k >= 0 ? entries.map((e, i) => (i === k ? next : e)) : [...entries.slice(0, at ?? entries.length), next, ...entries.slice(at ?? entries.length)]
+      ws.glossary = { ...ws.glossary, entries: list }
+      const { id: _, ...old } = entries[k] ?? {}
+      return { says: `glossary: ${k >= 0 ? 'rewrote' : 'added'} ${entry}`, inverse: [k >= 0 ? { op: 'glossary.put', entry, data: old } : { op: 'glossary.remove', entry }] }
+    },
+  },
+  'glossary.set': {
+    about: t('按 JSON merge patch 改一条百科的几个字段', 'change fields of an encyclopedia entry by a JSON merge patch'),
+    params: S.obj({ entry: S.str(), fields: S.map(S.any()) }),
+    apply(ws, { entry, fields }) {
+      const entries = ws.glossary.entries
+      const k = entries.findIndex((e) => e.id === entry)
+      if (k < 0) fail(`no entry ${entry}: glossary.put adds one`)
+      const { id: _, ...old } = entries[k]
+      ws.glossary = { ...ws.glossary, entries: entries.map((e, i) => (i === k ? mergePatch(e, fields) : e)) }
+      return { says: `glossary: ${entry}: patched ${Object.keys(fields).join(', ')}`, inverse: [{ op: 'glossary.put', entry, data: old }] }
+    },
+  },
+  'glossary.remove': {
+    about: t('删掉一条百科', 'remove an encyclopedia entry'),
+    params: S.obj({ entry: S.str() }),
+    apply(ws, { entry }) {
+      const entries = ws.glossary.entries
+      const k = entries.findIndex((e) => e.id === entry)
+      if (k < 0) fail(`no entry ${entry}`)
+      const { id: _, ...old } = entries[k]
+      ws.glossary = { ...ws.glossary, entries: entries.filter((_, i) => i !== k) }
+      return { says: `glossary: removed ${entry}`, inverse: [{ op: 'glossary.put', entry, data: old, at: k }] }
+    },
+  },
+}
+
+/** Whether `path` in game.json is the place in the eras that holds `level` (an item, a branch's or topic's entry, a challenge). */
+function isOwnPlace(eras, path, level) {
+  if (path[0] !== 'eras') return false
+  const tail = path.slice(2)
+  const at = locate(eras, level)
+  if (!at || at.era !== path[1]) return false
+  if (at.kind === 'path') return tail.length === 2 && tail[0] === at.path && tail[1] === at.item
+  if (at.kind === 'branch') return tail.join('.') === [at.path, at.item, 'parallel', at.branch, 'levels', at.k].join('.')
+  if (at.kind === 'topic') return tail.join('.') === ['topics', at.topic, 'levels', at.k].join('.')
+  return tail.join('.') === ['challenges', at.k, 'level'].join('.')
+}
