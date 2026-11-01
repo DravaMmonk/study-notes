@@ -1,10 +1,14 @@
 /* global process */
-// npm run check [-- <game id>…] — every game against the rules every game follows: the course audit (../course.js),
-// the level count on the hub (../../games.js), unique level ids that require only real levels, every text a { zh, en } pair with a real English side, and then
-// its domain's own checks (../domains/<domain>/validate.js: reference answers pass, naive ones fail, …).
+// npm run check [-- <game id>…] — every game against the rules every game follows: a data game's content against its
+// domain's vocabulary (./vocabulary.js), the course audit (../course.js), the level count on the hub (../../games.js),
+// unique level ids that require only real levels, every text a { zh, en } pair with a real English side, and then its
+// domain's own checks (reference answers pass, naive ones fail, …).
 //
-// A game is checked through its spec, games/<id>/spec.js, which runs under node:
-//   export default { id, domain, title, course, levels, texts?, quotes?, audit?() → [{ rule, level, part, text? }] }
+// A game is checked through its spec, which runs under node:
+//   { id, domain, title, course, levels, texts?, quotes?, audit?() → [{ rule, level, part, text? }] }
+// A data game's spec comes from its domain (../domains/<domain>/domain.js: { vocabulary, spec(content),
+// validate(spec) }), over its content read from disk (./content-node.js); a game not yet moved to data exports it from
+// games/<id>/spec.js, and its domain's checks from ../domains/<domain>/validate.js.
 // `texts` are the objects whose strings a player reads (levels are always included); `quotes` the level titles that
 // are also names of parts or ideas, which a text may quote (any other reference to a level, part or encyclopedia
 // entry is a link, ../shell/refs.js);
@@ -13,18 +17,38 @@ import { GAMES } from '../../games.js'
 import { RULE_TEXT, audit } from '../course.js'
 import { REF, refProblems, untranslated } from './text.js'
 import { closeGames, loadGame } from './games.mjs'
+import { isDataGame, readContent } from './content-node.js'
+import { checkContent } from './vocabulary.js'
+
+/** A game's spec and its domain's checks, and whatever is wrong with its content as data. */
+async function specOf(id) {
+  if (!isDataGame(id)) {
+    const spec = (await import(`../../${id}/spec.js`)).default
+    return { spec, validate: (await import(`../domains/${spec.domain}/validate.js`)).validate, content: [] }
+  }
+  const content = readContent(id)
+  const domain = (await import(`../domains/${content.domain}/domain.js`)).default
+  const wrong = checkContent(domain.vocabulary, content)
+  // Content that does not fit the vocabulary is not built into a course: what is wrong with it is all there is to say.
+  return { spec: wrong.length ? null : domain.spec(content), validate: domain.validate, content: wrong, title: content.title }
+}
 
 const asked = process.argv.slice(2)
 const ids = asked.length ? asked : GAMES.map((game) => game.id)
 let problems = 0
 
 for (const id of ids) {
-  const spec = (await import(`../../${id}/spec.js`)).default
-  const { validate } = await import(`../domains/${spec.domain}/validate.js`)
+  const { spec, validate, content, title } = await specOf(id)
   const lines = []
   const fail = (text) => {
     problems++
     lines.push(`FAIL ${text}`)
+  }
+  for (const p of content) fail(`content: ${p.at}: ${p.says}`)
+  if (!spec) {
+    console.log(`\n${title.zh} ${title.en}`)
+    for (const line of lines) console.log(`  ${line}`)
+    continue
   }
 
   const found = [...audit(spec.course), ...(spec.audit?.() ?? [])]

@@ -1,10 +1,11 @@
-// A game's whole definition (its game.js: the shell's levels, parts box and encyclopedia), loaded under node for the
-// checks: through vite, as the build loads it, with the few browser globals the games touch at import time stubbed.
+// A game's whole definition (the shell's levels, parts box and encyclopedia), loaded under node for the checks: through
+// vite and the page's own plugin (../app/vite.js virtual:game/<id>), as the build loads it, with the few browser globals
+// the games touch at import time stubbed.
 // Run from trace-viewer (npm run check), whose node_modules hold vite and the games' packages.
 import { createRequire } from 'node:module'
-import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { gameApp } from '../app/vite.js'
 
 const noop = () => {}
 const memory = new Map()
@@ -17,7 +18,6 @@ const stubs = {
 }
 for (const [k, v] of Object.entries(stubs)) if (!(k in globalThis)) globalThis[k] = v
 
-const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const from = createRequire(resolve(process.cwd(), 'package.json'))
 let server = null
 
@@ -27,13 +27,12 @@ export async function loadGame(id) {
     const { createServer } = await import(pathToFileURL(from.resolve('vite')).href)
     const react = (await import(pathToFileURL(from.resolve('@vitejs/plugin-react')).href)).default
     server = await createServer({
-      root: process.cwd(), configFile: false, plugins: [react()], appType: 'custom', logLevel: 'error',
+      root: process.cwd(), configFile: false, plugins: [react(), gameApp()], appType: 'custom', logLevel: 'error',
       server: { middlewareMode: true, fs: { allow: ['..'] } },
       resolve: { dedupe: ['react', 'react-dom', 'lucide-react'] }, ssr: { noExternal: ['lucide-react'] }, optimizeDeps: { noDiscovery: true, include: [] },
     })
   }
-  const file = ['game.jsx', 'game.js'].map((f) => resolve(GAMES_DIR, id, f)).find(existsSync)
-  return (await server.ssrLoadModule(file)).default
+  return (await server.ssrLoadModule(`virtual:game/${id}`)).default
 }
 
 export const closeGames = () => server?.close()
