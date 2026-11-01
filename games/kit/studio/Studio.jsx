@@ -1,4 +1,4 @@
-// The studio (games/DESIGN.md 6.6, DIRECTION decision 5): one page to review, edit and play a game without code. It
+// The studio (games/DESIGN.md 6.7, DIRECTION decision 5): one page to review, edit and play a game without code. It
 // is a thin skin over the operation set: every edit is an operation added to a pending changeset; the server runs
 // the changeset without writing (the preview tool) and answers with the content it leaves, every line of the check,
 // the save migration it would add and each file it changes. The tree, the forms, the game played, the audit and the
@@ -40,7 +40,7 @@ export default function Studio() {
   const [last, setLast] = useState(null) // the last preview (an operation may have failed)
   const [busy, setBusy] = useState(false)
   const [rev, setRev] = useState(0) // bumped when the files change (apply, undo)
-  const [records, setRecords] = useState([])
+  const [playtests, setPlaytests] = useState({ records: [], levels: {} })
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : null))
   const [tab, setTab] = useState(QUERY.get('tab') ?? 'edit')
   const [play, setPlay] = useState(null) // { level, seed, take }
@@ -66,7 +66,7 @@ export default function Studio() {
     setShown(null)
     setOps([])
     call('vocabulary', { game }).then(setVocab)
-    call('playtests', { game }).then((r) => setRecords(r.records))
+    call('playtests', { game }).then(setPlaytests)
   }, [game])
 
   // Every change of the pending changeset is previewed, a moment after the last edit.
@@ -78,11 +78,19 @@ export default function Studio() {
       const r = await call('preview', { game, changeset: { ...(why && { why }), ops } }).catch((error) => ({ ok: false, problems: [error.message], content: null, failed: null }))
       if (no !== seq.current) return
       setLast(r)
-      if (r.content) setShown(r)
+      if (r.content) setShown({ ...r, ops })
       setBusy(false)
     }, ops.length ? 350 : 0)
     return () => window.clearTimeout(timer)
   }, [game, ops, why, rev])
+
+  // The selected level drawn by its domain, where the domain draws one (render's scene), as the changeset leaves it.
+  const [scene, setScene] = useState(null)
+  const sceneOf = at?.level && shown?.content.levels.some((l) => l.id === at.level) ? at.level : null
+  useEffect(() => {
+    if (!sceneOf) return setScene(null)
+    call('render', { game, level: sceneOf, format: 'svg', changeset: { ops: shown.ops ?? [] } }).then((r) => setScene(r.scene)).catch(() => setScene(null))
+  }, [game, sceneOf, shown])
 
   const content = shown?.content ?? null
   const edit = (op) => setOps((list) => pushOp(list, op))
@@ -152,18 +160,18 @@ export default function Studio() {
             <Tree content={content} lines={shown.lines} at={at} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} />
           </aside>
           <main className="studio-main">
-            {tab === 'edit' && <Editor content={content} vocab={vocab} at={at} lines={shown.lines} onEdit={edit} onSelect={select} onPlay={playLevel} onMove={setMoving} />}
+            {tab === 'edit' && <Editor content={content} vocab={vocab} at={at} scene={scene} lines={shown.lines} onEdit={edit} onSelect={select} onPlay={playLevel} onMove={setMoving} />}
             <GameFrame visible={tab === 'play'} content={content} play={play} onTake={onTake} reference={play && referenceOf(play.level)} onReference={(level) => playLevel(level, referenceOf(level))} />
             {tab === 'review' && (
               <Review
                 game={game} ops={ops} last={last} shown={shown} why={why} setWhy={setWhy} said={said}
                 onRemove={(k) => setOps((list) => list.filter((_, i) => i !== k))}
-                onDiscard={() => setOps([])} onApply={apply} onUndo={undo} onSelect={(level) => { select({ level }); setTab('edit') }}
+                onDiscard={() => setOps([])} onOpen={(changeset) => { setOps(changeset.ops); setWhy(changeset.why ?? '') }} onApply={apply} onUndo={undo} onSelect={(level) => { select({ level }); setTab('edit') }}
               />
             )}
           </main>
           <aside className="studio-audit">
-            <Audit shown={shown} last={last} at={at} records={records} busy={busy} ops={ops} onSelect={select} onReview={() => setTab('review')} />
+            <Audit shown={shown} last={last} at={at} playtests={playtests} busy={busy} ops={ops} onSelect={select} onReview={() => setTab('review')} />
           </aside>
         </div>
       )}

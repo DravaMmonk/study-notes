@@ -7,7 +7,7 @@ import { ArrowRightLeft, Copy, Play, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
 import { eraLevels } from '../course.js'
-import { formOf, opFor, textsOf } from './form.js'
+import { formOf, holdsLevels, opFor, textsOf } from './form.js'
 import { Field, TextPair } from './Fields.jsx'
 
 const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
@@ -15,10 +15,10 @@ const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
 // the save migrations (written by the operation set).
 const NOT_FORM = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'eras', 'saves']
 
-export default function Editor({ content, vocab, at, lines, onEdit, onSelect, onPlay, onMove }) {
+export default function Editor({ content, vocab, at, scene, lines, onEdit, onSelect, onPlay, onMove }) {
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
-  if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...{ content, vocabulary, id: at.level, lines, onEdit, onSelect, onPlay, onMove, order }} />
+  if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...{ content, vocabulary, id: at.level, scene, lines, onEdit, onSelect, onPlay, onMove, order }} />
   if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...{ content, vocabulary, e: at.era, onEdit, onSelect, order }} />
   return <GameEditor {...{ content, vocabulary, onEdit, order }} />
 }
@@ -27,7 +27,7 @@ const ctxOf = (vocabulary, order, extra = {}) => ({ vocabulary, levels: order, .
 /** The edit of a field in `file` as its operation. */
 const editIn = (file, onEdit) => (path, edit, type) => onEdit(opFor(file, path, edit, type))
 
-function LevelEditor({ content, vocabulary, id, onEdit, onSelect, onPlay, onMove, order }) {
+function LevelEditor({ content, vocabulary, id, scene, onEdit, onSelect, onPlay, onMove, order }) {
   const { id: _, ...value } = content.levels.find((l) => l.id === id)
   const ctx = ctxOf(vocabulary, order, { onBoard: (path) => onPlay(id, showPath(path), true) })
   const form = formOf(vocabulary.level, value, ctx)
@@ -54,6 +54,7 @@ function LevelEditor({ content, vocabulary, id, onEdit, onSelect, onPlay, onMove
         <button type="button" className="kit-btn is-label" onClick={copy}><Copy size={14} aria-hidden="true" />{tr('复制', 'Copy')}</button>
         <button type="button" className="kit-btn is-label" onClick={() => { onEdit({ op: 'level.remove', level: id }); onSelect(null) }}><Trash2 size={14} aria-hidden="true" />{tr('删除', 'Remove')}</button>
       </header>
+      {scene && <div className="board-svg editor-scene" dangerouslySetInnerHTML={{ __html: scene }} />}
       <Field field={form} label={null} onEdit={editIn({ level: id }, onEdit)} ctx={ctx} />
     </article>
   )
@@ -63,7 +64,8 @@ function EraEditor({ content, vocabulary, e, onEdit, onSelect, order }) {
   const era = content.eras[e]
   const ctx = ctxOf(vocabulary, order)
   const eraSchema = vocabulary.game.fields.eras.of
-  const form = formOf(eraSchema, era, ctx, ['eras', e])
+  // The era's own fields; where its levels go (the tree edits that) folded away below them.
+  const part = (course) => formOf({ ...eraSchema, fields: Object.fromEntries(Object.entries(eraSchema.fields).filter(([, s]) => holdsLevels(s) === course)) }, era, ctx, ['eras', e])
   const ids = new Set(eraLevels(era))
   return (
     <article className="editor">
@@ -71,7 +73,11 @@ function EraEditor({ content, vocabulary, e, onEdit, onSelect, order }) {
         <span className="editor-id is-static">{era.id}</span>
         <h1>{L(era.title ?? era.chapter?.title) ?? ''}</h1>
       </header>
-      <Field field={form} label={null} onEdit={editIn({ game: true }, onEdit)} ctx={ctx} />
+      <Field field={part(false)} label={null} onEdit={editIn({ game: true }, onEdit)} ctx={ctx} />
+      <details className="editor-course">
+        <summary>{tr('关卡的位置', 'Where the levels go')}</summary>
+        <Field field={part(true)} label={null} onEdit={editIn({ game: true }, onEdit)} ctx={ctx} />
+      </details>
       <section className="copy">
         {order.filter((id) => ids.has(id)).map((id) => {
           const { id: _, ...value } = content.levels.find((l) => l.id === id)

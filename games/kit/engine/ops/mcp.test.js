@@ -46,7 +46,7 @@ test('the server speaks MCP over stdio', async () => {
   assert.equal((await ask('nothing/here')).error.code, -32601)
 
   const { tools } = (await ask('tools/list')).result
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['audit', 'blueprint', 'deps', 'migrate_diff', 'modify', 'render', 'run_reference', 'vocabulary'])
+  assert.deepEqual(tools.map((t) => t.name).sort(), ['audit', 'blueprint', 'deps', 'log', 'migrate_diff', 'modify', 'playtests', 'preview', 'render', 'run_reference', 'seed', 'undo', 'vocabulary'])
   assert.deepEqual(tools.find((t) => t.name === 'modify').inputSchema.required, ['game', 'changeset'])
   assert.equal((await call('modify', { game: 'qed-lab' })).isError, true)
 })
@@ -68,7 +68,10 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
   assert.match(boards[0].text, /^f = impI\[A="A & B"\]\(body: m2\) \{/)
 
   assert.match((await call('render', { game: 'qed-lab', level: 'box' })).data.text, /^box · Suppose\nkind: "proof"[\s\S]*solution:\n {2}f = impI/)
-  assert.equal((await call('render', { game: 'qed-lab', level: 'box', format: 'svg' })).data.rendered, false)
+  const svg = (await call('render', { game: 'qed-lab', level: 'box', format: 'svg' })).data
+  assert.deepEqual(svg.boards.map((b) => b.path), ['solution'])
+  assert.match(svg.boards[0].svg, /^<svg [^>]*viewBox[\s\S]*impI[\s\S]*<\/svg>$/)
+  assert.equal((await call('render', { game: 'qed-lab', level: 'box', format: 'png' })).data.rendered, false)
   assert.match((await call('deps', { game: 'qed-lab' })).data.text, /^flowchart LR/)
   assert.match((await call('audit', { game: 'nope' })).content[0].text, /no game nope/)
 })

@@ -1,4 +1,4 @@
-// The game as the studio plays it (games/DESIGN.md 6.6): the page studio.html?play inside the studio's iframe. The
+// The game as the studio plays it (games/DESIGN.md 6.7): the page studio.html?play inside the studio's iframe. The
 // studio posts it the content it edits — as the pending changeset leaves it, not as the files hold it — and the level
 // to open; this page hands that content to its domain's game.jsx and plays it in the shell, as the game's own page
 // does. Its saves are its own (`studio.<game>.v1`), every level open. It may open a level on one of its boards (the

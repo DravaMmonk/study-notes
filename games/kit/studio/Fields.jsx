@@ -39,10 +39,10 @@ function Area({ value, onChange, bind, className = '', ...rest }) {
 export function TextPair({ value, onSet, label }) {
   const pair = typeof value === 'string' ? { zh: value, en: value } : value ?? { zh: '', en: '' }
   const [draft, setDraft, bind] = useDraft(pair)
+  // Only the side typed into: the operation says which side changed.
   const set = (side) => (v) => {
-    const next = { ...draft, [side]: v }
-    setDraft(next)
-    onSet(next)
+    setDraft({ ...draft, [side]: v })
+    onSet({ [side]: v })
   }
   return (
     <div className="field-text">
@@ -131,7 +131,7 @@ function BoardField({ field, onSet, ctx }) {
 /** A field's control, its label and its help; nested fields inside it. */
 export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   const set = (value) => onEdit(field.path, { set: value }, field.kind)
-  const head = (label !== null || onRemove) && (
+  const head = (label !== null || onRemove || field.tag || field.shapes?.length > 1) && (
     <div className="field-head">
       {label !== null && <span className="field-key">{label}</span>}
       {field.tag && <TagChoice field={field} onEdit={onEdit} ctx={ctx} />}

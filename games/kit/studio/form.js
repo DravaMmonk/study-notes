@@ -1,4 +1,4 @@
-// The studio's forms (games/DESIGN.md 6.6), from the schemas alone: a value and its schema (../engine/schema.js) read
+// The studio's forms (games/DESIGN.md 6.7), from the schemas alone: a value and its schema (../engine/schema.js) read
 // as a tree of fields, each the kind of control that edits it; and an edit of a field as the operation that makes it
 // (../engine/ops/operations.js). Nothing here knows a domain: what a field is, what it may hold and what it means
 // (`about`) all come from the vocabulary.
@@ -137,7 +137,10 @@ export function opFor(file, path, edit, type = null) {
   const op = (name) => (file.level !== undefined ? `level.${name}` : `game.${name}`)
   if (edit.unset) return { op: op('unset'), ...where, path: keys }
   if (!keys.length && file.level !== undefined) return { op: 'level.replace', level: file.level, data: edit.set }
-  if (type === 'text' && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', ...(file.level !== undefined ? where : { in: 'game' }), path: keys, zh: edit.set.zh, en: edit.set.en }
+  if (type === 'text' && edit.set !== null && typeof edit.set === 'object') {
+    const sides = Object.fromEntries(['zh', 'en'].filter((k) => edit.set[k] !== undefined).map((k) => [k, edit.set[k]]))
+    return { op: 'text.set', ...(file.level !== undefined ? where : { in: 'game' }), path: keys, ...sides }
+  }
   if (type === 'board' && file.level !== undefined) return { op: 'level.blueprint', level: file.level, path: keys, text: edit.set.join('\n') }
   return { op: op('set'), ...where, path: keys, value: edit.set }
 }
@@ -146,10 +149,14 @@ export function opFor(file, path, edit, type = null) {
 // stands for both.
 const target = (op) => JSON.stringify([op.op, op.level ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'level.move' || op.op === 'level.rename' ? op.level : null])
 
-/** A pending changeset's operations with `op` added: replacing the last one when that edits the same thing. */
+/**
+ * A pending changeset's operations with `op` added: standing for the last one when that edits the same thing (a text
+ * keeps the side the last one changed and this one does not).
+ */
 export function pushOp(ops, op) {
   const last = ops.at(-1)
-  return last && target(last) === target(op) && !['level.add', 'level.remove', 'level.rename'].includes(op.op) ? [...ops.slice(0, -1), op] : [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op)) return [...ops, op]
+  return [...ops.slice(0, -1), op.op === 'text.set' ? { ...last, ...op } : op]
 }
 
 /**
@@ -159,6 +166,14 @@ export function pushOp(ops, op) {
 export function boardsOf(vocabulary, { id: _, ...level }) {
   const paths = find(vocabulary.level, level, 'board', { vocabulary }).map((b) => b.path)
   return { paths, reference: paths.filter((p) => ['solution', 'answer'].includes(p.at(-1))).at(-1) ?? paths[0] ?? null }
+}
+
+/** Whether a schema holds a level anywhere inside it (a place in the course, which the tree edits). */
+export function holdsLevels(schema) {
+  if (!schema || typeof schema !== 'object') return false
+  if (schema.type === 'level') return true
+  const inner = [...(Array.isArray(schema.of) ? schema.of : [schema.of]), ...Object.values(schema.fields ?? {}), ...Object.values(schema.cases ?? {})]
+  return inner.some(holdsLevels)
 }
 
 /** Every text a value holds under its schema: [{ path, value }], in the schema's order. */

@@ -1,5 +1,6 @@
 // node --test games/kit/domains/can — the bus: frames, stuffing and CRC as ISO 11898-1 has them; what a level's
-// outputs must be (wants.js); boards as blueprint text (board.js); what the hidden tests of 《车在说话》 catch.
+// outputs must be (wants.js); boards as blueprint text (board.js); what the hidden tests of 《车在说话》 catch; a
+// level drawn headlessly (scene.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { bitsOf, busOf, crc15, frameBits, stuff, wiredAnd } from './bus.js'
@@ -9,6 +10,7 @@ import { wantOf } from './wants.js'
 import { busCourse } from './course.js'
 import { runLevel } from './run.js'
 import { readContent } from '../../engine/content-node.js'
+import domain from './domain.js'
 
 // The longest run of equal bits in a stretch.
 const longestRun = (bits) => bits.reduce((acc, b, k) => {
@@ -106,4 +108,13 @@ test('a hidden test catches a board that only fits the visible ones', () => {
   // Starting again from the bit that came with Go on 0 (the naive board) is right only while that bit is 0.
   assert.deepEqual(fits(level('1-8'), level('1-8').naive), [true, false])
   assert.deepEqual(fits(level('1-8'), level('1-8').solution), [true, true])
+})
+
+test('a level drawn headlessly: each test’s bus as a waveform, every frame marked by its identifier', () => {
+  const spec = domain.spec(readContent('bus'))
+  const svg = domain.scene(spec, '1-2')
+  assert.match(svg, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg"/)
+  assert.equal(svg.match(/class="bus-line"/g).length, spec.levels.find((l) => l.id === '1-2').tests.length)
+  assert.ok(svg.includes('>0x123<') && svg.includes('>0x2a5<'))
+  assert.equal(domain.scene(spec, 'nope'), null)
 })

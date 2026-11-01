@@ -1,4 +1,4 @@
-// The course tree as the studio edits it (games/DESIGN.md 6.6): a game's eras (game.json, ../course.js) read as the map
+// The course tree as the studio edits it (games/DESIGN.md 6.7): a game's eras (game.json, ../course.js) read as the map
 // lays them out — each era's main path (foundation, then practice) with its sets of parallel branches, its topics and
 // its challenges — with a drop slot between every two levels, each slot the place (../engine/ops/place.js) a level
 // dropped there moves to by level.move.

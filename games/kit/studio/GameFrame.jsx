@@ -16,13 +16,20 @@ export default function GameFrame({ visible, content, play, onTake, reference, o
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
   }, [onTake])
+  // The studio's theme and language go to the game too.
+  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme)
+  useEffect(() => {
+    const onTheme = () => setTheme(document.documentElement.dataset.theme)
+    window.addEventListener('themechange', onTheme)
+    return () => window.removeEventListener('themechange', onTheme)
+  }, [])
+  const lang = getLang()
   useEffect(() => {
     if (!ready || !visible) return
     frame.current.contentWindow.postMessage({
-      type: 'load', content, level: play?.level ?? null, seed: play?.seed ?? null, take: play?.take ?? null,
-      theme: document.documentElement.dataset.theme, lang: getLang(),
+      type: 'load', content, level: play?.level ?? null, seed: play?.seed ?? null, take: play?.take ?? null, theme, lang,
     }, window.location.origin)
-  }, [ready, visible, content, play])
+  }, [ready, visible, content, play, theme, lang])
   return (
     <section className={`studio-play ${visible ? '' : 'is-hidden'}`}>
       {play?.level && (

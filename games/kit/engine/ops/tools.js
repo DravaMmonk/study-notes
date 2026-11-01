@@ -2,13 +2,14 @@
 // What an agent can do to a game, as functions of plain data: the tools the MCP server (mcp.js) offers, each a thin
 // layer over the kernel (the checks, the operation set, the dependency graph, the vocabulary). None has logic of its
 // own: a change is always a changeset (changeset.js). params: each argument's JSON type, '?' when it may be left out.
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { GAMES } from '../../../games.js'
 import { find } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
-import { GAMES_DIR, domainOf, readContent } from '../content-node.js'
+import { GAMES_DIR, domainOf, readContent, readPlaytests } from '../content-node.js'
+import { perLevel } from '../play/stats.js'
 import { drawDeps } from '../deps.js'
 import { boardSvg } from '../../circuit/svg.js'
 import { getAt, parsePath, showPath } from './edit.js'
@@ -33,8 +34,8 @@ const about = (lines, level) => lines.filter((l) => new RegExp(`^${escape(level)
 
 /**
  * The levels a line of the check is about (`ids`: the levels in play order, as the check's paths count them): the
- * level a domain names, the level file a content problem is in, the level a copy problem's path counts to, the levels
- * a course finding lists (`part@level`), or the level the line starts with.
+ * level a domain names, the level file a content problem is in, the level a copy problem's path counts to, the level
+ * a blind-play report is on, the levels a course finding lists (`part@level`), or the level the line starts with.
  */
 export function levelsOfLine(line, ids) {
   if (line.level) return [line.level]
@@ -43,6 +44,8 @@ export function levelsOfLine(line, ids) {
   if (file) return [file[1]]
   const copy = /^text levels\.(\d+)\b/.exec(text)
   if (copy) return ids[Number(copy[1])] ? [ids[Number(copy[1])]] : []
+  const report = /^REPORT [\w-]+: (\S+) /.exec(text)
+  if (report) return ids.includes(report[1]) ? [report[1]] : []
   if (/^(OPEN )?course: /.test(text)) return [...new Set([...text.matchAll(/@([^\s,)]+)/g)].map((m) => m[1]).filter((id) => ids.includes(id)))]
   const head = [...ids].sort((a, b) => b.length - a.length).find((id) => new RegExp(`^${escape(id)}[ :/]`).test(text))
   return head ? [head] : []
@@ -52,6 +55,13 @@ export function levelsOfLine(line, ids) {
 const logOf = (game) => {
   const ws = openGame(known(game), ROOT)
   return { log: readLog(ws), undoable: lastUndoable(ws)?.seq ?? null }
+}
+
+/** A game's content as a changeset would leave it (nothing written; an operation that fails throws its problem). */
+async function contentAfter(game, changeset) {
+  const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check: false })
+  if (!r.content) throw new Error(r.problems.join('; '))
+  return r.content
 }
 
 /** Every board (blueprint text) a level holds: [{ path, text }]. */
@@ -67,7 +77,7 @@ export const TOOLS = {
     params: { game: 'string' },
     async run({ game }) {
       const content = readContent(known(game), ROOT)
-      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game) })
+      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), playtests: readPlaytests(game, ROOT) })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
   },
@@ -103,11 +113,11 @@ export const TOOLS = {
     },
   },
   render: {
-    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), and its scene where its domain draws one headlessly. PNG is not drawn.',
-    params: { game: 'string', level: 'string', path: 'string?', format: 'string?' },
-    async run({ game, level, path, format = 'text' }) {
+    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), and its scene where its domain draws one headlessly; changeset: as a changeset would leave it. PNG is not drawn.',
+    params: { game: 'string', level: 'string', path: 'string?', format: 'string?', changeset: 'object?' },
+    async run({ game, level, path, format = 'text', changeset = null }) {
       if (format !== 'text' && format !== 'svg') return { rendered: false, note: `${format}: only text and svg are drawn headlessly; for a picture of the level as played, build the game (npm run build:games) and open it.` }
-      const content = readContent(known(game), ROOT)
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
       const value = levelIn(content, level)
       const boards = await boardsOf(content, level)
       if (format === 'svg') {
@@ -169,12 +179,11 @@ export const TOOLS = {
     about: 'What a level’s screen keeps of one of its boards (path, default solution), as a changeset would leave it: put data in a save’s progress.data[level] (a level of tasks: at index task) and the level opens on that board.',
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
     async run({ game, level, path = 'solution', changeset = { ops: [] } }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check: false })
-      if (!r.content) return { problems: r.problems }
+      const content = await contentAfter(game, changeset)
       const keys = parsePath(path)
-      const lines = getAt(levelIn(r.content, level), keys)
-      const domain = await domainOf(r.content)
-      const read = (domain.spec(r.content).blueprints ?? []).filter((b) => b.level === level)
+      const lines = getAt(levelIn(content, level), keys)
+      const domain = await domainOf(content)
+      const read = (domain.spec(content).blueprints ?? []).filter((b) => b.level === level)
       // The board the domain read from these very lines, else these lines read as the level reads its reference.
       const bp = read.find((b) => JSON.stringify(b.write(b.board)) === JSON.stringify(lines))
       const reference = read.filter((b) => !b.naive).at(-1)
@@ -199,12 +208,11 @@ export const TOOLS = {
     },
   },
   playtests: {
-    about: 'A game’s blind-play records (games/<game>/playtests/*.json), as written.',
+    about: 'A game’s blind-play records (games/<game>/playtests/*.json, as the harness wrote them) and the audit panel’s numbers level by level (../play/stats.js perLevel): sessions, solved, gave up, attempts, hints, cost.',
     params: { game: 'string' },
     async run({ game }) {
-      const dir = resolve(ROOT, known(game), 'playtests')
-      const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).sort() : []
-      return { records: files.map((file) => ({ file, ...JSON.parse(readFileSync(resolve(dir, file), 'utf8')) })) }
+      const records = readPlaytests(known(game), ROOT)
+      return { records, levels: Object.fromEntries(perLevel(records)) }
     },
   },
   vocabulary: {

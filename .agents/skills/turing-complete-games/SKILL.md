@@ -42,9 +42,12 @@ copying the last wording forward.
   <m>`; a new game on an existing domain from `npm run new-game -- <id> --domain <d>`.
 - A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
-- Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …` or the MCP
-  server's `modify`, never JSON edited by hand. A changeset is checked as a whole and written only when it passes,
-  with its save migration generated; read the game's `vocabulary` (MCP) or `npm run op -- list` first.
+- Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …`, the MCP
+  server's `modify`, or the studio (`npm run studio`, §6.7: the same tools over HTTP, forms from the schemas, the
+  game played from the pending changeset), never JSON edited by hand. A changeset is checked as a whole and written
+  only when it passes, with its save migration generated; read the game's `vocabulary` (MCP) or `npm run op -- list`
+  first. The studio knows no domain: a value that needs a control of its own gets a generic kernel control, and a
+  domain may only add a headless display (`scene` in domain.js), never an editor.
 - `npm run check` (in `trace-viewer/`) must be clean before committing curriculum changes; `npm test` for kit
   changes.
 - Part types, port names and setting values are ASCII, so every board prints as a blueprint (`kit/circuit/text.js`,

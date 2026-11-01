@@ -1,4 +1,4 @@
-// A changed file read field by field, for the studio's changeset review (games/DESIGN.md 6.6): what a JSON file held
+// A changed file read field by field, for the studio's changeset review (games/DESIGN.md 6.7): what a JSON file held
 // before and after, as the values that differ, each at its path. A text pair, a board (a list of lines) and a list
 // that changed length are compared whole; objects and lists of the same length are looked into.
 

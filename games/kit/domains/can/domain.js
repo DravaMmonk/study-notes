@@ -6,6 +6,7 @@ import { vocabulary } from './vocabulary.js'
 import { busCourse } from './course.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
+import { scene } from './scene.js'
 
 /** A bus game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
@@ -26,4 +27,4 @@ function spec(content) {
 // Its saves name no migration items: the shell's ops as written.
 const saves = (steps) => steps
 
-export default { vocabulary, spec, validate, play, saves }
+export default { vocabulary, spec, validate, play, saves, scene }

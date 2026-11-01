@@ -1,13 +1,14 @@
 // The audit panel (DIRECTION decision 6): npm run check's lines for the game as the pending changeset leaves it,
 // recomputed on every edit — the selected level's first, then every other level that fails, then the game's own —
-// and what blind play says of the level (the records in games/<game>/playtests/, written by the blind-play harness).
+// and what blind play says of the level (the records in games/<game>/playtests/, written by the blind-play harness:
+// npm run blind).
 // A failing line is the check's own words; a level's line selects it.
 import { useMemo } from 'react'
 import { tr } from '../shell/i18n.js'
 
 const Line = ({ line }) => <li className={`audit-line ${line.fail ? 'is-fail' : line.text.startsWith('OPEN ') ? 'is-open' : ''}`}>{line.text}</li>
 
-export default function Audit({ shown, last, at, records, busy, ops, onSelect, onReview }) {
+export default function Audit({ shown, last, at, playtests, busy, ops, onSelect, onReview }) {
   const lines = shown.lines
   const byLevel = useMemo(() => {
     const map = new Map()
@@ -30,7 +31,7 @@ export default function Audit({ shown, last, at, records, busy, ops, onSelect, o
         <section>
           <h2>{at.level}</h2>
           {mine.length ? <ul className="audit-lines">{[...mine].sort((a, b) => Number(Boolean(b.fail)) - Number(Boolean(a.fail))).map((l, k) => <Line key={k} line={l} />)}</ul> : <p className="audit-none">{tr('检查没有提到这一关。', 'The check says nothing of this level.')}</p>}
-          <Playtests records={records} level={at.level} />
+          <Playtests playtests={playtests} level={at.level} />
         </section>
       )}
       {others.length > 0 && (
@@ -54,20 +55,34 @@ export default function Audit({ shown, last, at, records, busy, ops, onSelect, o
 }
 
 /**
- * Blind play on a level: each session's outcome there (a blind-play record: { session?, limits?, levels: [{ level,
- * outcome, attempts, hints?, … }] }), and the pass rate over the sessions that played it.
+ * Blind play on a level (the harness's records, ../engine/play/session.js; the numbers its stats give level by level,
+ * ../engine/play/stats.js): how many sessions solved it and at what cost, and each session's attempts there, what
+ * the player sent and what the game said back.
  */
-function Playtests({ records, level }) {
-  const plays = records.flatMap((r) => (r.levels ?? []).filter((e) => e.level === level).map((e) => ({ ...e, session: r.session ?? r.file })))
+function Playtests({ playtests, level }) {
+  const { records, levels } = playtests
   if (!records.length) return <p className="audit-none">{tr('还没有盲玩记录。', 'No blind play yet.')}</p>
-  if (!plays.length) return <p className="audit-none">{tr(`${records.length} 次盲玩都没有玩到这一关。`, `None of ${records.length} blind-play sessions reached this level.`)}</p>
-  const solved = plays.filter((p) => p.outcome === 'solved').length
+  const stats = levels[level]
+  if (!stats) return <p className="audit-none">{tr(`${records.length} 次盲玩都没有玩到这一关。`, `None of ${records.length} blind-play session(s) played this level.`)}</p>
   return (
     <div className="audit-plays">
-      <b>{tr(`盲玩 ${solved}/${plays.length} 通过`, `Blind play: ${solved}/${plays.length} solved`)}</b>
-      <ul className="audit-lines">
-        {plays.map((p, k) => <li key={k} className={`audit-line ${p.outcome === 'solved' ? '' : 'is-open'}`}>{p.session}: {p.outcome}{p.attempts !== undefined ? ` · ${tr(`${p.attempts} 次尝试`, `${p.attempts} attempt(s)`)}` : ''}{p.hints ? ` · ${tr(`${p.hints} 次提示`, `${p.hints} hint(s)`)}` : ''}</li>)}
-      </ul>
+      <b>{tr(`盲玩 ${stats.solved}/${stats.sessions} 通过 · 代价 ${stats.cost.toFixed(1)}`, `Blind play ${stats.solved}/${stats.sessions} solved · cost ${stats.cost.toFixed(1)}`)}</b>
+      {records.map((r) => {
+        const tries = (r.attempts ?? []).filter((a) => a.level === level)
+        const outcome = r.levels.find((e) => e.level === level)
+        if (!outcome) return null
+        return (
+          <details key={r.session} className="audit-session">
+            <summary>{r.session} · {outcome.outcome} · {tr(`${outcome.attempts} 次`, `${outcome.attempts} attempt(s)`)}{outcome.hints ? ` · ${tr(`${outcome.hints} 次提示`, `${outcome.hints} hint(s)`)}` : ''}</summary>
+            {tries.map((a, k) => (
+              <div key={k} className={`audit-try ${a.pass ? 'is-pass' : ''}`}>
+                <pre>{a.text}</pre>
+                <pre className="is-says">{a.says}</pre>
+              </div>
+            ))}
+          </details>
+        )
+      })}
     </div>
   )
 }

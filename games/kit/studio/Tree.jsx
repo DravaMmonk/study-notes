@@ -27,7 +27,8 @@ export default function Tree({ content, lines, at, onSelect, moving, setMoving, 
       onDragStart={(event) => {
         event.dataTransfer.setData('text/plain', id)
         event.dataTransfer.effectAllowed = 'move'
-        setMoving(id)
+        // After the drag has started: changing the page inside dragstart makes the browser drop the drag.
+        window.setTimeout(() => setMoving(id))
       }}
       onDragEnd={() => setMoving(null)}
     >

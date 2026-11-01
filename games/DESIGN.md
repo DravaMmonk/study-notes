@@ -318,7 +318,7 @@
 **规则：三层，内容层只有数据**（方向和理由见 `games/DIRECTION.md`）。
 
 ```
-内核层   games/kit/（engine、circuit、shell、strip、course.js、app）   机制与界面，所有游戏共用
+内核层   games/kit/（engine、circuit、shell、strip、studio、course.js、app）   机制与界面，所有游戏共用
 领域层   games/kit/domains/<领域>/                                      值、原始元件、世界、求值、判定、画法、关卡界面；一个专题一份代码
 内容层   games/<游戏>/                                                  课程、关卡、文案、百科；全部是数据，不含代码
 ```
@@ -327,7 +327,7 @@
 
 ```
 games/kit/
-├── circuit/   电路编辑器（桌面画布、手机格位）、托盘、浮窗、线的种类、框（元件里还能摆元件）、蓝图文本
+├── circuit/   电路编辑器（桌面画布、手机格位）、托盘、浮窗、线的种类、框（元件里还能摆元件）、蓝图文本、无头的 SVG 画法（svg.js）
 ├── strip/     词序条：按顺序排好的类型化位置，括号标出成分，点词填入；给"搭一个序列或一棵小树"而不是"搭数据流"的关卡（《证明完毕》拼公式和证明项：自然书写，块填进去就写成字，空位画成框；上方一行工具和电路板一致：左边清空（二次确认），右边撤销、重做，每点一次块是一步）
 ├── shell/     游戏外壳：顶栏、地图、关卡抽屉、引言、通关窗口、元件箱、百科、存档和存档迁移；参数台（bench/，第 6.4 节）
 ├── course.js  课程规则：代际、关卡树、解锁、审计
@@ -341,7 +341,8 @@ games/kit/
 │   ├── unix/    模拟内核与字节流（《一切皆文件》，只有引擎部分）
 │   ├── agent/   模拟模型、抽象仓库与逐轮跑板的机器（《软件工厂》）
 │   └── can/     线性与的总线、CAN 帧（填充、CRC-15）、逐拍跑板和逐拍检查（《车在说话》）
-└── app/       每款游戏的页面入口和构建
+├── studio/    studio：审、改、玩内容的页面，schema 驱动，操作集上的一层皮（第 6.7 节）
+└── app/       每款游戏的页面入口和构建；studio 在开发服务器上的桥（studio.js）
 games/<游戏>/   内容：game.json、levels/<关卡 id>.json、glossary.json，操作集的修改日志 changes.jsonl
 games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loop、wave 是简单的线描）：用 anatomy 技能的等距套件画的一台机器，build.mjs 生成一个模块，
                 同时挂在游戏列表的卡片和关卡地图上；配色取自 kit/tokens.css（kit/anatomy.css）
@@ -384,7 +385,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 | 给出 | 形状 | 契约测试查什么 |
 |---|---|---|
-| `domain.js` 默认导出 | `{ vocabulary, spec, validate }`，node 下能跑，不碰界面；工具加的钩子也挂在这里，登记在 `contract.js` 的 `EXTENSIONS`（连同每个钩子要的形状）：存档的 `saves(steps)`（`game.json` 的存档迁移换成外壳要的函数）、操作集的 `changes`（`stale(旧关, 新关)`：这次改动让玩家存下的东西不再适用，`drop(ids)`：去掉它们的存档操作）和 `tasks`（`merge(关卡, 标题)`、`split(关卡)`：几关合成一关的任务、拆回来）、盲玩的 `play` | 三个入口都在，没有不认识的键 |
+| `domain.js` 默认导出 | `{ vocabulary, spec, validate }`，node 下能跑，不碰界面；工具加的钩子也挂在这里，登记在 `contract.js` 的 `EXTENSIONS`（连同每个钩子要的形状）：存档的 `saves(steps)`（`game.json` 的存档迁移换成外壳要的函数）、操作集的 `changes`（`stale(旧关, 新关)`：这次改动让玩家存下的东西不再适用，`drop(ids)`：去掉它们的存档操作）和 `tasks`（`merge(关卡, 标题)`、`split(关卡)`：几关合成一关的任务、拆回来）、盲玩的 `play`、无头画一关的 `scene(spec, 关卡)`（返回 SVG 文本或 `null`，MCP 的 `render` 和 studio 用，第 6.7 节） | 三个入口都在，没有不认识的键 |
 | `vocabulary` | `defineVocabulary`（第 6.2 节）：种类 → 项（`about` 说明它是什么，`params` 参数的 schema），加 `game`、`level` 两个 schema | `domain` 就是文件夹名，版本从 1 起；每一项有说明；schema 只用 `schema.js` 的类型，`ref`、`call` 指向存在的种类；整份是数据（没有函数），`describe` 打印出来就是它自己；游戏的内容合它（`checkContent`） |
 | `spec(content)` | `{ id, domain, title, course, levels, texts?, quotes?, audit?(), blueprints?, syncOwn? }`：`course` 是 `defineCourse` 的结果，`levels` 按游玩顺序，每关有 `id`、`title`、`requires` | id、标题、关卡集合和内容一致，课程的关卡就是 `levels` 的顺序；`audit()` 报 `{ rule, level, part }` |
 | 课程钩子（`kit/course.js` 的 `defineCourse`） | `adds`、`builds`、`granted`、`uses`、`folds`、`declares` 给名字的列表；`needed` 给列表或 `null`；`boards` 给板的列表；`machine`、`world`、`concept`、`needs` 给名字或 `null`；`can` 给列表或 `null`；`naive`、`local` 给真假；`showcase` 给理由或 `null`；`replaces` 给列表 | 每一关、每个元件上都按形状调用一遍，审计只报认识的规则 |
@@ -418,14 +419,14 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `deps.js` | `npm run deps -- <游戏>`：从课程数据画出元件依赖图（第 7 节第 5 步） |
 | `contract.js` | 领域的契约（第 6.3 节），`contract.test.js` 对每个领域和每款数据游戏跑它 |
 | `scaffold.js` | `npm run new-domain`、`npm run new-game`：从 `kit/scaffold/<机制>/` 生成领域，从领域的 `starter/` 开新游戏（第 6.3 节） |
-| `ops/` | 操作集（第 7 节）：`operations.js` 每种修改一个操作，`changeset.js` 把几个操作当一次修改跑完、生成存档迁移（`migrate.js`）、整款游戏检查、写盘和记日志；`workspace.js` 打开一款游戏的文件，`place.js` 在课程里取出、放进一关，`refs.js` 找出提到一关的每一处，`json.js` 按统一格式写文件；`cli.js` 是 `npm run op`，`mcp.js` 是 MCP 服务器，`tools.js` 是它的工具 |
+| `ops/` | 操作集（第 7 节）：`operations.js` 每种修改一个操作，`changeset.js` 把几个操作当一次修改跑完、生成存档迁移（`migrate.js`）、整款游戏检查、写盘和记日志；`workspace.js` 打开一款游戏的文件，`place.js` 在课程里取出、放进一关，`refs.js` 找出提到一关的每一处，`json.js` 按统一格式写文件；`cli.js` 是 `npm run op`，`mcp.js` 是 MCP 服务器，`tools.js` 是它和 studio 共用的工具 |
 | `play/` | 盲玩 harness（第 6.6 节）：一局的存档与记录（`session.js`）、玩家看到的一关和对一次尝试的反馈（`play.js`，电路关的公共部分在 `circuit.js`）、审计面板的统计和 `difficulty-spike`（`stats.js`）、CLI（`cli.mjs`）、stdio JSON 工具（`tool.mjs`）、表（`stats-cli.mjs`）、一个盲玩 agent（`blind.mjs`） |
 
 **框（`kit/circuit/frames.js`），所有游戏共用。** 《证明完毕》的假设框是它的第一个用法：一个元件里有几个区域，元件可以摆进区域里，区域在左边给出一个值（比如假设），或者几个值（区域写 `gives: [键…]`，每个值一个圆点：《证明完毕》的消去 ∧ 一个区域同时假设左右两边）；区域也可以不收结果（`closes: false`，没有结果口：《证明完毕》消去板上的一种情况，结论由用规则的人推出），区域里得出的东西接回框右边的口，框再给出自己的结果。领域只需要用 `framePart(自己的输入, [{ name, opens }])` 造出这种元件，在求值时按 `key` 区分「区域给出的值」和「框的结果」，并在元件描述里给区域起名（`parts.frames(node)` 返回带 `label` 的区域）；其余都由 kit 负责：两个编辑器画出区域、拖进拖出、折叠，`model.js` 保证线只往里走（框里得出的东西只能在框里用），`engine/circuit.js` 按 `reads` 让区域的值只读框自己的输入，`regionsFit` 检查存档里的元件还在存在的区域里。桌面画布上拖着元件悬到一个能放进去的区域上时，那个区域的底色和虚线框会亮起来。手机格位上，框占它所在格子网格的若干行：每个区域一行头（区域名和它给出的假设，框名在第一个区域的头上）、区域自己的几行、一行尾（结果接进来的点），用子网格和外面的格子按行对齐；框的边就是格子的边，和普通元件一样，框名和内边距在框里，所以框的第一行和最后一行稍高一些。框默认两列宽，右上角一个按钮点一下在两列和一列之间切换（像接线显示的按钮一样只有一个，图标显示现在的宽度；存在元件的 `narrow` 上），它的区域和里面的框也随之一列。以后需要"局部作用域"的游戏（比如程序里的函数体、循环体）都用它。
 
 **内容可以：** 在词汇表里选项、填参数；写测试数据、参考解和 naive 解（蓝图文本）、文案和百科。**不可以：** 写任何函数；定义新元件的求值、新世界、新的参数台模型或显示项、新界面。需要新东西时，加到领域的词汇表和实现里。
 
-**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款）；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run play -- <游戏> [关卡]` 盲玩（第 6.6 节），`npm run playtests` 列出盲玩的表，`npm run blind -- <游戏> <局>` 让一个新的 agent 盲玩一局；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
+**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款）；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run play -- <游戏> [关卡]` 盲玩（第 6.6 节），`npm run playtests` 列出盲玩的表，`npm run blind -- <游戏> <局>` 让一个新的 agent 盲玩一局；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
 
 **界面约定（所有游戏共用，改动时保持）：**
 
@@ -537,6 +538,31 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **LLM 盲玩和真人的差距**：见 `games/DIRECTION.md` 第 7 节。它测得出「这一关缺了什么、错在哪」，测不出「这一关对新手难不难」。
 
+### 6.7 studio
+
+**studio 是人审、改、玩内容的地方，是操作集上的一层皮**（方向见 `games/DIRECTION.md` 决策五）。`npm run studio` 在开发服务器上打开它（`trace-viewer/studio.html`，代码在 `kit/studio/`）。它不认识任何领域，没有自己关于内容的逻辑：
+
+- **一切修改都是操作。** 每改一处，studio 往一个待定的变更集里加一个操作（同一处连着改只留最后一个：一段文字打字时始终是一个 `text.set`，只带改了的那一面）；服务器不写盘地跑这个变更集（工具 `preview`），答回它留下的内容、`npm run check` 的每一行（标明说的是哪几关）、要加的那一版存档迁移和改到的每个文件改前改后的文本。树、表单、试玩、审计、变更集评审显示的都是这一份答复。应用就是 `modify`，撤销就是修改日志的 `undo`。
+- **服务器只是桥。** `kit/app/studio.js` 是开发服务器的插件，把 MCP 的同一组工具（`kit/engine/ops/tools.js`）开成 HTTP：`POST /studio/api/<工具>`，参数是 JSON；调用排成一队依次执行，和 MCP 一样。`GAMES_ROOT` 让它改一份副本。
+
+**五块：**
+
+| 块 | 做什么 | 背后的操作和工具 |
+|---|---|---|
+| 树 | 每一章照地图的排法列出：主线（地基、练习）、并行组的分支、专题、挑战；关和关之间有槽位（`kit/studio/tree.js`）。把一关拖到一个槽位（没有鼠标时点关卡的「移动」再点槽位）就是挪过去；点一章看这一章，点游戏名看 `game.json` 的其余字段 | `level.move`（槽位就是 `ops/place.js` 的位置），迁移在审计栏和评审里先看到 |
+| 表单 | 一关、一章（`game.json` 的那一项）、`game.json`，字段全部按 schema 生成（`kit/studio/form.js`）：文字是中英并排的两栏，数、开关、字符串；枚举、`S.ref` 列出词汇表的项、`S.level` 列出这款游戏的关；`S.call` 先选项再给参数的字段；列表和映射能加能删，可选字段缺着时是一排「+ 字段名」；`S.by` 在头上切换形状（保留两种形状共有的字段），`S.either` 切换写法；schema 只说 `any` 的才是 JSON。每个字段和每个被选中的项都显示词汇表的 `about`。一关的头上能改 id（`level.rename`）、复制一份放在它后面（`level.add`）、删掉（`level.remove`）。选中一章时，这一章自己的字段在上（关卡放在哪里的那几个字段收起来，那是树的事），下面依次列出这一章每一关的全部文字（`find` 出的 `S.text()`），中英两栏，直接改，用来从头到尾读一章的文案。删除、换写法这样的小工具只在指针或焦点所在的字段上出现（触屏上一直在） | `text.set`；`level.set`、`level.unset`；改形状时 `level.replace`；`game.set`、`game.unset` |
+| 试玩 | 一个 iframe（`studio.html?play`，`kit/studio/play.jsx`）：把变更集留下的内容交给领域的 `game.jsx`，在外壳里玩，和游戏自己的页面一样；改了就重新载入，所以改完就能玩到。存档单独存（`studio.<游戏>.v1`），所有关都打开。点树上的关直接打开那一关；「载入参考解」把这一关的参考板写进存档再打开（工具 `seed`：领域的 `spec.blueprints` 读出的那块板，按关卡界面存板的方式 `save` 存好） | `seed` |
+| 审计 | 常驻右栏：`check` 的每一行，选中的关在前（失败的在最前），其余不过的关一关一组（点一下选中它），然后是整款游戏的行；每次改动后重算。下面是这一关的盲玩：几局通过、代价（`kit/engine/play/stats.js` 的 `perLevel`），每一局在这一关的每次尝试——玩家交了什么、游戏怎么回答 | `preview` 的 `lines`；`playtests` |
+| 评审 | 待定的操作一条一行，用操作集自己的话说（`says`），可以单独去掉；一句「为什么改」；要加的那一版存档迁移；每个改到的文件按字段读（`kit/studio/diff.js`）：文字两面各一栏、改了的词标出来，板和列表一行一行，其余的值改前改后，也能切成逐行 diff；然后「应用」（全部清零才能点）或「全部放弃」。下面是修改日志，最后一次没撤销的修改旁边有「撤销」 | `modify`、`log`、`undo` |
+
+**通用控件是内核的，领域不写编辑器。** 值类型要专门的控件时，控件在 `kit/studio/Fields.jsx`，由内核维护：现在只有板（`S.board()`）。板在表单里画成 SVG（`kit/circuit/svg.js`：只读蓝图文本，不认识领域：每个元件一个框，写上类型、名字和设置，按读谁排成列；框的区域画在框里；关卡给的节点在两边），可以直接改蓝图文本，或者「在电路编辑器里改」：试玩打开这一关、板换成这块，板的存档切换旁边多一个「用作 <字段>」，点它就把编辑器上这块板的蓝图文本写回那个字段（`level.blueprint`）。编辑器就是游戏里的那一个（`kit/circuit`，经外壳的 `SlotsContext.take`），所以元件、托盘、接线规则和玩家看到的完全一样。领域可以给一个**显示**：`domain.js` 的 `scene(spec, 关卡)` 把一关无头地画成 SVG（《车在说话》画每个测试总线上的波形和帧），表单头上显示它，MCP 的 `render` 也给它；领域不给编辑器。图像、世界这样的值以后要编辑时，同样加成内核的通用控件。
+
+**界面**：左树、中间（编辑 / 试玩 / 变更 三个页签）、右审计，各自滚动；平板上审计栏落到中间栏下面，窄屏上三块依次排下来。样式取 `kit/tokens.css`、`ui.css`，顶栏和游戏、笔记站一样（语言、主题菜单）。
+
+**已在浏览器里走通**（Playwright，在《软件工厂》的副本上，`GAMES_ROOT`）：读完第 1 章每一关的文案、在章视图里改一处文案、改 1-5 的一个测试（审计立刻报 1-5 参考解不过）、把 1-6 拖到 1-5 前面（审计栏和评审里出现 `solve` 的那一版迁移）、在电路编辑器里给 1-5 的参考板加一块「读文件」并接上（审计清零）、在 iframe 里跑通改过的 1-5、在评审里看四个操作和每个文件的字段级 diff、应用（写盘、记日志）、撤销（内容回到原样）。
+
+**还没有的**：百科（`glossary.json`）没有表单，只能经命令行和 MCP 的操作改；评审里写给 agent 的意见还没有去处（决策五的「驳回并写意见」要等阶段 5 的流水线来读它）；拖动和槽位只覆盖 `level.move` 能放的位置（不能新建并行组或专题，那要先改 `game.json` 的那一章）；`level.merge`、`level.split` 没有按钮。
+
 ---
 
 ## 7. 作者流程
@@ -552,14 +578,14 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 7. **定专题（如果有）**：这一章有没有值得做成专题的业务问题或长线拓展？有的话，先写终极谜题，再倒推出引入关和递进关；没有就不设。
 8. **写规格**：先写参考解（挑战关再写 naive 解），再写测试。都用下面的操作写进内容。
 9. **跑检查**：每个变更集写盘前已经整款游戏检查过；改完再跑一遍 `npm run check`，清零。
-10. **核对文案**：按第 4 节的文字纪律逐条看引言、提示、过关点题和元件说明；改过顺序的，按先修关系重核引述的关卡和"又是一个"之类的说法。
-11. **在浏览器里看**：桌面和手机各看几种典型的关（多层、扫描臂、区间、大表）。要看运行过程时，把参考解写进存档再运行，单步和连续运行都看一遍。
+10. **核对文案**：按第 4 节的文字纪律逐条看引言、提示、过关点题和元件说明（studio 里点章名，这一章每一关的文字依次排开，就地改）；改过顺序的，按先修关系重核引述的关卡和"又是一个"之类的说法。
+11. **在浏览器里看**：桌面和手机各看几种典型的关（多层、扫描臂、区间、大表）。要看运行过程时，把参考解写进存档再运行（studio 的试玩里「载入参考解」），单步和连续运行都看一遍。
 12. **盲玩**：`npm run blind -- <游戏> <局>` 让新的 agent 从第一关玩起（第 6.6 节），`npm run playtests` 看每关的通过率和难度。读每个 `REPORT`（`difficulty-spike`）那几局的尝试和玩家最后的话：突起多半是一关同时要两件事，或者文案、托盘、反馈少交代了一样东西，也可能是引擎的毛病。找到的原因写进游戏的设计文档；能检查的写成规则。
 13. **最后写挑战关**：从每一代能力的边界上找题。
 
 ### 7.1 内容只经操作修改
 
-内容层的每一处修改都是操作集（`kit/engine/ops/operations.js`）里的一个**操作**，不手改 JSON：人在命令行里、agent 经 MCP、以后的 studio 的每个按钮，跑的都是同一套操作，走同一道门。几个操作合成一个**变更集**，当一次修改：
+内容层的每一处修改都是操作集（`kit/engine/ops/operations.js`）里的一个**操作**，不手改 JSON：人在命令行里或 studio 里（第 6.7 节）、agent 经 MCP，跑的都是同一套操作，走同一道门。几个操作合成一个**变更集**，当一次修改：
 
 ```json
 { "why": "为什么改", "ops": [{ "op": "level.move", "level": "s-each", "to": { "before": "in-zero", "on": "path" } }] }
@@ -602,10 +628,16 @@ npm run op -- <游戏> log                                    看修改日志
 | `migrate_diff` | 一个变更集会加的那一版存档迁移（不写盘，不跑整款游戏的检查） |
 | `run_reference` | 一关的参考解和 naive 解经领域检查跑测试，给出提到这一关的那几行（《状态之图》的领域只在失败时提到一关） |
 | `blueprint` | 读一关的每块板的蓝图文本；给了 `text` 就经 `level.blueprint` 写进去 |
-| `render` | 一关或它的一块板写成文字（给了什么、要做什么、各块板的蓝图）；SVG、PNG 现在画不了（板和关卡由浏览器画），直说 |
+| `render` | 一关或它的一块板写成文字（给了什么、要做什么、各块板的蓝图）；`format: svg` 把各块板画成 SVG（`kit/circuit/svg.js`），领域给 `scene` 的再画这一关（第 6.7 节）；给 `changeset` 就画变更集留下的样子。PNG 画不了，直说 |
 | `deps` | 元件依赖图（Mermaid 或 DOT） |
+| `preview` | 一个变更集留下的整款游戏，不写盘：内容、`check` 的每一行和它说的是哪几关、存档迁移、每个文件改前改后、失败的是第几个操作、修改日志。studio 靠它显示一切 |
+| `seed` | 一关的一块板（默认参考解）在存档里的样子：放进 `progress.data`，打开这一关就是这块板 |
+| `log`、`undo` | 修改日志；撤销最后一次还没撤销的修改（和 `npm run op -- <游戏> undo` 一样） |
+| `playtests` | 盲玩记录和每关的统计（`kit/engine/play/stats.js`） |
 
 环境变量 `GAMES_ROOT` 让服务器改一份游戏文件夹的副本，试改动用。
+
+**studio**（`npm run studio`，第 6.7 节）：同一组工具开在开发服务器上，人在一个页面上走完上面的流程。读一章（点章名，每一关的文字依次排开）、改文字和字段（表单）、挪关（拖到树上的槽位）、改板（表单里的蓝图，或者在游戏的电路编辑器里改完点「用作 …」）；每改一处就是待定变更集里的一个操作，审计栏随即重算，试玩页签玩的就是改过的内容；最后在「变更」页签里逐个看操作、存档迁移和每个文件的字段级 diff，写一句为什么，应用；修改日志里的最后一次可以撤销。agent 交来的变更集（`{ why, ops }` 的 JSON 文件，MCP 的 `modify` 收的那种）在「变更」页签里打开，就成了待定的变更集：一样能读、能改、能玩，再应用或放弃；agent 已经写进去的修改在修改日志里，同样能撤销。
 
 ---
 
