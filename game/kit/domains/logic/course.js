@@ -161,7 +161,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     known = [...known, ...(level.symbols ?? [])]
     // A task may have words of its own (numbers written as S n …).
     const read = (l) => {
-      const notation = { words: l.words ?? level.words ?? words, symbols: known }
+      const notation = { words: l.words ?? level.words ?? words, symbols: known, propertyWords: l.propertyWords ?? level.propertyWords ?? l.kind === 'proof' }
       const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
       return { ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests[0].caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
