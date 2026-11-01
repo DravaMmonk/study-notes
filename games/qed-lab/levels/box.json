@@ -1,0 +1,51 @@
+{
+  "kind": "proof",
+  "title": { "zh": "假设一下", "en": "Suppose" },
+  "tests": [{ "premises": { "p": "A → (B → C)", "q": "B" }, "goal": "A → C" }],
+  "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
+  "adds": ["impI"],
+  "brief": {
+    "zh": "已知「今天是周六 → (下雨 → 我休息)」和「下雨」，证出「今天是周六 → 我休息」。",
+    "en": "Given “today is Saturday → (it rains → I rest)” and “it rains”, prove “today is Saturday → I rest”."
+  },
+  "hint": [
+    { "zh": "框元件上的「假设」选「今天是周六」。", "en": "On the box, set “Assume” to “today is Saturday”." },
+    {
+      "zh": "在框里放两块套用：先把第一张已知套用到假设上，再套用到「下雨」上，结果接到框的「结论」。",
+      "en": "Put two Applies in the box: apply the first given to the assumption, then the result to “it rains”, and wire that to the box’s “Conclusion”."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "地基的第二块元件是<b>假设框</b>。人会这样想：「假设今天是周六。那下雨我就休息；现在确实下雨，所以我休息。所以，如果今天是周六，那么我休息。」",
+        "en": "The foundation’s second part is the <b>assumption box</b>. A person thinks: “Suppose today is Saturday. Then if it rains I rest; it is raining, so I rest. So if today is Saturday, then I rest.”"
+      }
+    },
+    {
+      "t": {
+        "zh": "框元件上选要假设的话，框左上角给出它；在框里证出的东西接到框右上角的「结论」，框外就得到「如果 假设，那么 结论」。点一下框里，新放的元件就落在框里。",
+        "en": "Choose on the box what to assume, and its top left gives it; wire what you prove inside to “Conclusion” at its top right, and outside you get “if the assumption, then the conclusion”. Click inside the box and new parts land there."
+      }
+    },
+    {
+      "t": {
+        "zh": "套用用掉一句「如果…那么…」，框造出一句「如果…那么…」：地基就是这一对。",
+        "en": "Apply uses an “if … then …” up, the box makes one: the foundation is this pair."
+      }
+    }
+  ],
+  "solution": [
+    "f = impI[A=A](body: m2) {",
+    "  body {",
+    "    m1 = mp(p, f.body)",
+    "    m2 = mp(m1, q)",
+    "  }",
+    "}",
+    "goal <- f"
+  ],
+  "after": {
+    "zh": "一个框、两次套用。真实的证明器 Lean 的内核也是从这一对开始的：框是 λ，套用是函数应用。",
+    "en": "One box and two Applies. The kernel of Lean, a real prover, starts from this pair too: the box is λ, Apply is function application."
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "title": { "zh": "累加器求和", "en": "Summing with an accumulator" },
+  "intro": [
+    {
+      "t": {
+        "zh": "两种求和：一种从后往前加，一种带着累加器往后走。两者是否相同？",
+        "en": "Two sums: one adding from the back, one walking along with an accumulator. Are they the same?"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "求和", "en": "Sum" },
+      "fn": "sum",
+      "on": 0,
+      "defs": ["plus"],
+      "rows": [
+        { "lhs": "sum(nil)", "choices": ["zero", "s(zero)"] },
+        { "lhs": "sum(cons(x, xs))", "choices": ["plus(x, sum(xs))", "sum(xs)", "plus(x, sum(cons(x, xs)))"] }
+      ],
+      "tests": [
+        { "term": "sum(cons(s(zero), cons(s(s(zero)), nil)))", "value": "s(s(s(zero)))" },
+        { "term": "sum(nil)", "value": "zero" }
+      ],
+      "solution": ["zero", "plus(x, sum(xs))"],
+      "naive": ["zero", "sum(xs)"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "x :: xs 的和里有 x。", "en": "The sum of x :: xs includes x." }],
+      "intro": [{ "t": { "zh": "sum 从后往前加。", "en": "sum adds from the back." } }]
+    },
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "累加器", "en": "The accumulator" },
+      "fn": "itsum",
+      "on": 0,
+      "defs": ["plus"],
+      "rows": [
+        { "lhs": "itsum(nil, y)", "choices": ["y", "zero"] },
+        {
+          "lhs": "itsum(cons(x, xs), y)",
+          "choices": ["itsum(xs, plus(y, x))", "itsum(xs, y)", "itsum(cons(x, xs), plus(y, x))"]
+        }
+      ],
+      "tests": [
+        { "term": "itsum(cons(s(zero), cons(s(s(zero)), nil)), zero)", "value": "s(s(s(zero)))" },
+        { "term": "itsum(nil, s(zero))", "value": "s(zero)" }
+      ],
+      "solution": ["y", "itsum(xs, plus(y, x))"],
+      "naive": ["zero", "itsum(xs, plus(y, x))"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "走到头时，y 里已经是加好的和。", "en": "At the end, y already holds the sum." }],
+      "intro": [
+        {
+          "t": {
+            "zh": "itsum 一边往后走，一边把元素加到 y 上，走到头 y 就是和。程序员把这种写法叫作尾递归。",
+            "en": "itsum walks along adding each element onto y, and at the end y is the sum. Programmers call this tail recursion."
+          }
+        }
+      ]
+    },
+    {
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "step": { "zh": "一样吗", "en": "The same?" },
+      "types": ["list"],
+      "defs": ["plus", "sum", "itsum"],
+      "tests": [{ "goal": "∀xs. ∀y. itsum(xs, y) = plus(y, sum(xs))" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "每往后走一步，y 都在变。", "en": "y changes at each step along." },
+        {
+          "zh": "[] 的情况要 y + 0 = y；另一种情况，两个 + 要换一种结合方式。",
+          "en": "The [] case needs y + 0 = y; the other needs two + grouped the other way."
+        }
+      ],
+      "solution": [
+        "c0r0 = math[use=[\"list.induct\"]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = each(c0, body: c4) {",
+        "  body {",
+        "    c2r0 = allI()",
+        "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", addZero, addAssoc]]()",
+        "    c4r0 = refl()",
+        "    c3r8 = hyp(c3r0)",
+        "    c2 = rule(c1.body, c2r0)",
+        "    c3 = simp(c2, c3r8)",
+        "    c4 = rule(c3, c4r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ],
+      "naive": [
+        "c0r0 = math[use=[\"list.induct\"]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = each(c0, body: c4) {",
+        "  body {",
+        "    c2r0 = allI()",
+        "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\"]]()",
+        "    c4r0 = refl()",
+        "    c3r6 = hyp(c3r0)",
+        "    c2 = rule(c1.body, c2r0)",
+        "    c3 = simp(c2, c3r6)",
+        "    c4 = rule(c3, c4r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ]
+    }
+  ]
+}

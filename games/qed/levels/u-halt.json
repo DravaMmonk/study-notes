@@ -1,0 +1,38 @@
+{
+  "kind": "proof",
+  "title": { "zh": "停机问题", "en": "The halting problem" },
+  "tests": [
+    {
+      "premises": { "con": "(∃x. H(x)) → ∃x. ∀y. T(x, c(y)) ↔ ¬T(y, c(y))", "red": "(∃x. G(x)) → ∃x. H(x)" },
+      "goal": "¬∃x. G(x)"
+    }
+  ],
+  "cases": [{ "H": "DecH", "G": "DecA", "T": "Halts" }],
+  "brief": {
+    "zh": "已知：要是有判定停机的机器，就能造出一台 x，它在 ⟨y⟩ 上停机恰好当 y 在 ⟨y⟩ 上不停机；要是有判定 A_TM 的机器，就能造出判定停机的机器。证明没有机器判定 A_TM。",
+    "en": "Given: if some machine decides halting, a machine x can be built that halts on ⟨y⟩ exactly when y does not halt on ⟨y⟩; and if some machine decides A_TM, one deciding halting can be built. Prove no machine decides A_TM."
+  },
+  "hint": [
+    { "zh": "假设有判定 A_TM 的机器。", "en": "Assume a machine that decides A_TM." },
+    { "zh": "最后还是让一台机器读它自己的编码。", "en": "In the end, a machine still reads its own code." }
+  ],
+  "solution": [
+    "h = impI[A=\"exists x. G(x)\"](body: e) {",
+    "  body {",
+    "    m1 = mp(red, h.body)",
+    "    m2 = mp(con, m1)",
+    "    e = exE[x=a](m2, body: l) {",
+    "      body {",
+    "        a = allE[t=a](e.body)",
+    "        l = liar(a)",
+    "      }",
+    "    }",
+    "  }",
+    "}",
+    "goal <- h"
+  ],
+  "after": {
+    "zh": "从一个问题到另一个，这一步叫<wiki-ref to=\"reduction\"></wiki-ref>。一阶逻辑的可证性同样<wiki-ref to=\"undecidable\"></wiki-ref>：没有程序能对每个目标都答出推得出还是推不出。",
+    "en": "Passing from one problem to another is a <wiki-ref to=\"reduction\"></wiki-ref>. Provability in first-order logic shows the same <wiki-ref to=\"undecidable\"></wiki-ref>: no program can say, for every goal, whether it follows."
+  }
+}

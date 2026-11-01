@@ -1,0 +1,19 @@
+{
+  "kind": "proof",
+  "title": { "zh": "有的宠物毛茸茸", "en": "Some pets are fluffy" },
+  "tests": [{ "premises": { "p": "∀x. B(x) → C(x)", "q": "∃x. A(x) ∧ B(x)" }, "goal": "∃x. A(x) ∧ C(x)" }],
+  "cases": [{ "A": "Pet", "B": "Cat", "C": "Fluffy" }, { "A": "Student", "B": "Baby", "C": "Mortal" }],
+  "hint": [{ "zh": "拿出那只是猫的宠物，它就是例子。", "en": "Take out the pet that is a cat; it is the example." }],
+  "solution": [
+    "f = exE[x=a](q, body: i) {",
+    "  body {",
+    "    e = allE[t=a](p)",
+    "    s = andE(f.body)",
+    "    m = mp(e, s.right)",
+    "    c = andI(s.left, m)",
+    "    i = exI(c)",
+    "  }",
+    "}",
+    "goal <- f"
+  ]
+}

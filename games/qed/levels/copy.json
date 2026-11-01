@@ -1,0 +1,28 @@
+{
+  "kind": "proof",
+  "title": { "zh": "照抄", "en": "Copy" },
+  "tests": [{ "premises": { "p": "A" }, "goal": "A" }],
+  "cases": [{ "A": "Rain" }, { "A": "Bus" }],
+  "solution": ["goal <- p"],
+  "hint": [{ "zh": "已知的圆点在右边，目标的圆点在左边。", "en": "A given’s dot is on its right; the goal’s dot is on its left." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "基本命题每多一个，真值表的行数就翻一倍。证明器的新模块<wiki-ref to=\"kernel\"></wiki-ref>换一种办法：从前提出发，按<wiki-ref to=\"rule\"></wiki-ref>一步步推出结论。",
+        "en": "Each extra atom doubles the rows of a truth table. The prover’s new module, the <wiki-ref to=\"kernel\"></wiki-ref>, works another way: from premises to a conclusion, one <wiki-ref to=\"rule\"></wiki-ref> at a time."
+      }
+    },
+    {
+      "t": {
+        "zh": "板左边的<b>已知</b>是前提，右边的<b>目标</b>是要证的命题。一根线传的是一句已经证出的话。",
+        "en": "The <b>givens</b> on the left are the premises; the <b>goal</b> on the right is the proposition to prove. A wire carries a sentence already proved."
+      }
+    },
+    {
+      "t": {
+        "zh": "下方的<b>测试</b>把同一个命题模式里的字母换成不同的句子，最后一个就是字母本身。同一块电路要通过每一个测试。",
+        "en": "The <b>tests</b> below put different sentences in place of the letters of one pattern, the last being the letters themselves. One board must pass them all."
+      }
+    }
+  ]
+}

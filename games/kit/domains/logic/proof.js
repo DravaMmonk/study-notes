@@ -400,6 +400,12 @@ export function closes(judgment, goal, premiseIds, notation = null) {
   return ''
 }
 
+/** The board a proof level starts from: a card for each of its premises (by the names its tests give them), and the goal. */
+export const startProof = (level) => ({
+  nodes: [...Object.keys(level.tests[0].premises ?? {}).map((name, k) => ({ id: name, type: 'premise', params: { name }, x: 20, y: 40 + k * 130 })), { id: 'goal', type: 'goal', params: { name: 'goal' }, x: 900, y: 40 }],
+  wires: [],
+})
+
 /** The rules a level can use: every rule, and its lemmas ({ type: { statement, premises, metas } }). */
 // A lemma whose card is one of the kit's (`card`) runs as that card, which may do more than the shape it was proved in.
 export const rulesOf = (lemmas = {}) => ({ ...RULES, ...Object.fromEntries(Object.entries(lemmas).map(([type, l]) => [type, l.card ? RULES[l.card] : lemma(l)])) })

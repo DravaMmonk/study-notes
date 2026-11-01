@@ -1,0 +1,38 @@
+{
+  "kind": "proof",
+  "title": { "zh": "逆否，反过来", "en": "The contrapositive, backwards" },
+  "tests": [{ "premises": { "p": "¬B → ¬A" }, "goal": "A → B" }],
+  "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
+  "hint": [
+    {
+      "zh": "先假设「下雨」，要证的就是「地湿」，一句没有 ¬ 的话。",
+      "en": "Assume “it rains” first; what remains is “the ground is wet”, with no ¬ in it."
+    },
+    {
+      "zh": "「地湿」怎么来，和<level-ref to=\"byContra\"></level-ref>一样。",
+      "en": "“The ground is wet” comes the way it did in <level-ref to=\"byContra\"></level-ref>."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"mt\"></level-ref>从原句推出了它的<wiki-ref to=\"contrapositive\"></wiki-ref>。这一回反过来，从逆否推回原句。",
+        "en": "<level-ref to=\"mt\"></level-ref> derived a sentence’s <wiki-ref to=\"contrapositive\"></wiki-ref> from it. This time the other way: from the contrapositive back to the sentence."
+      }
+    }
+  ],
+  "solution": [
+    "f = impI[A=A](body: r) {",
+    "  body {",
+    "    g = impI[A=\"~B\"](body: m2) {",
+    "      body {",
+    "        m1 = mp(p, g.body)",
+    "        m2 = mp(m1, f.body)",
+    "      }",
+    "    }",
+    "    r = raa(g)",
+    "  }",
+    "}",
+    "goal <- f"
+  ]
+}

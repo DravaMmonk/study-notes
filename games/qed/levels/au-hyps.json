@@ -1,0 +1,56 @@
+{
+  "kind": "machine",
+  "want": "becomes",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "改已知", "en": "Rewriting the hypotheses" },
+  "tests": [
+    { "goal": "⊥", "hyps": ["Rain → Wet", "Rain", "¬Wet"], "becomes": [["¬Rain ∨ Wet; Rain; ¬Wet ⊢ ⊥"]] },
+    {
+      "goal": "⊥",
+      "hyps": ["Bus ∨ (Bike ∧ Rain)", "¬(Bus → OnTime)"],
+      "becomes": [["(Bus ∨ Bike) ∧ (Bus ∨ Rain); Bus ∧ ¬OnTime ⊢ ⊥"]]
+    },
+    { "goal": "⊥", "hyps": ["KA ↔ ¬KB", "¬¬KA"], "becomes": [["(¬KA ∨ ¬KB) ∧ (KB ∨ KA); KA ⊢ ⊥"]] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手，把每个目标的已知都化成合取范式。",
+    "en": "Design a proof assistant that brings every hypothesis of each goal to conjunctive normal form."
+  },
+  "hint": [
+    {
+      "zh": "<level-ref to=\"sp-cnf\"></level-ref>的那串规则对付不了 ↔。",
+      "en": "The rules of <level-ref to=\"sp-cnf\"></level-ref> cannot deal with ↔."
+    },
+    {
+      "zh": "在那串规则最前面加上<part-ref to=\"lemma:iff\"></part-ref>。",
+      "en": "Put <part-ref to=\"lemma:iff\"></part-ref> at the front of those rules."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "要找矛盾的句子都在已知里，化简器却只改过目标。「改哪里」设成「已知」，改写和化简就从上往下查第一个目标的已知，改第一处对得上的。",
+        "en": "The sentences to search now sit among the hypotheses, but the simplifier has only ever rewritten goals. With Where set to Hypotheses, Rewrite and Simp look through the first goal’s hypotheses from the top and change the first place that fits."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = iff[use=[\"iff.elim\"]]()",
+    "c0r1 = arrow[use=[\"arrow.elim\"]](c0r0)",
+    "c0r2 = dneg[use=[\"dneg.elim\"]](c0r1)",
+    "c0r3 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r2)",
+    "c0r7 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c0r3)",
+    "c0 = simp[at=hyps](in, c0r7)",
+    "out <- c0"
+  ],
+  "naive": [
+    "c0r0 = iff[use=[\"iff.elim\"]]()",
+    "c0r1 = arrow[use=[\"arrow.elim\"]](c0r0)",
+    "c0r2 = dneg[use=[\"dneg.elim\"]](c0r1)",
+    "c0r3 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r2)",
+    "c0r7 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c0r3)",
+    "c0 = simp(in, c0r7)",
+    "out <- c0"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "symbolicWords": {
+    "Rain": { "zh": "A", "en": "A" },
+    "Wet": { "zh": "B", "en": "B" },
+    "Slip": { "zh": "C", "en": "C" }
+  },
+  "title": { "zh": "一句一个元件", "en": "A row is a part" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<wiki-ref to=\"provers\"></wiki-ref>里的证明也可以写给人读，这叫<wiki-ref to=\"scripts\"></wiki-ref>。这一章的脚本照 Isabelle 的 Isar 写法：have 证出路上的一句，show 证出要证的那句，by 后面写这一句用的规则或证明助手，using 后面写它用到的事实；proof … qed 是一个块。",
+        "en": "Proofs in a <wiki-ref to=\"provers\"></wiki-ref> can also be written for people to read: a <wiki-ref to=\"scripts\"></wiki-ref>. This chapter’s scripts follow Isabelle’s Isar: have proves a sentence on the way, show the one wanted, by names the rule or proof assistant a row uses and using the facts it uses; proof … qed is a block."
+      }
+    }
+  ],
+  "after": { "zh": "脚本和证明电路是同一个证明的两种写法。", "en": "A script and a proof circuit are two ways of writing one proof." },
+  "tasks": [
+    {
+      "kind": "script",
+      "step": { "zh": "读", "en": "Read" },
+      "locked": true,
+      "brief": {
+        "zh": "这段脚本每一句后面的 by 还空着。选出每一句用的规则。",
+        "en": "Each row’s by is still empty in this script. Choose the rule each row uses."
+      },
+      "premises": { "p": "Rain → Wet", "q": "Wet → Slip" },
+      "goal": "Rain → Wet ∧ Slip",
+      "given": [
+        { "k": "show", "stmt": "Rain → Wet ∧ Slip", "by": "proof" },
+        { "k": "assume", "stmt": "Rain" },
+        { "k": "have", "stmt": "Wet", "using": ["p", "a1"], "by": "" },
+        { "k": "have", "stmt": "Slip", "using": ["q", "h1"], "by": "" },
+        { "k": "show", "stmt": "Wet ∧ Slip", "using": ["h1", "h2"], "by": "" }
+      ],
+      "answer": [
+        { "k": "show", "stmt": "Rain → Wet ∧ Slip", "by": "proof" },
+        { "k": "assume", "stmt": "Rain" },
+        { "k": "have", "stmt": "Wet", "using": ["p", "a1"], "by": "rule:mp" },
+        { "k": "have", "stmt": "Slip", "using": ["q", "h1"], "by": "rule:mp" },
+        { "k": "show", "stmt": "Wet ∧ Slip", "using": ["h1", "h2"], "by": "rule:conjI" }
+      ],
+      "naive": [
+        { "k": "show", "stmt": "Rain → Wet ∧ Slip", "by": "proof" },
+        { "k": "assume", "stmt": "Rain" },
+        { "k": "have", "stmt": "Wet", "using": ["p", "a1"], "by": "rule:conjI" },
+        { "k": "have", "stmt": "Slip", "using": ["q", "h1"], "by": "rule:mp" },
+        { "k": "show", "stmt": "Wet ∧ Slip", "using": ["h1", "h2"], "by": "rule:conjI" }
+      ],
+      "hint": [
+        {
+          "zh": "由「下雨」和「下雨 → 地湿」得出「地湿」，用的是哪一条规则？",
+          "en": "From “it rains” and “it rains → the ground is wet” to “the ground is wet”: which rule is that?"
+        }
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "接线", "en": "Wire" },
+      "cases": [],
+      "brief": { "zh": "在证明板上接出这段脚本写的证明。", "en": "Wire on the proof board the proof this script writes." },
+      "tests": [{ "premises": { "p": "Rain → Wet", "q": "Wet → Slip" }, "goal": "Rain → Wet ∧ Slip" }],
+      "script": [
+        { "k": "show", "stmt": "Rain → Wet ∧ Slip", "by": "proof" },
+        { "k": "assume", "stmt": "Rain" },
+        { "k": "have", "stmt": "Wet", "using": ["p", "a1"], "by": "rule:mp" },
+        { "k": "have", "stmt": "Slip", "using": ["q", "h1"], "by": "rule:mp" },
+        { "k": "show", "stmt": "Wet ∧ Slip", "using": ["h1", "h2"], "by": "rule:conjI" }
+      ],
+      "hint": [
+        {
+          "zh": "proof 到 qed 是一个假设框，assume 是框里的假设。",
+          "en": "proof to qed is an assumption box, and assume is what it assumes."
+        }
+      ],
+      "solution": [
+        "f = impI[A=Rain](body: c) {",
+        "  body {",
+        "    m1 = mp(p, f.body)",
+        "    m2 = mp(q, m1)",
+        "    c = andI(m1, m2)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
+}

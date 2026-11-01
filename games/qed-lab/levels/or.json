@@ -1,0 +1,37 @@
+{
+  "kind": "proof",
+  "title": { "zh": "有一个就够", "en": "One is enough" },
+  "symbols": ["∨"],
+  "tests": [{ "premises": { "p": "A", "q": "A → B" }, "goal": "C ∨ B" }],
+  "cases": [{ "A": "Bike", "B": "OnTime", "C": "Late" }, { "A": "Coffee", "B": "Awake", "C": "Tea" }],
+  "adds": ["orI"],
+  "brief": {
+    "zh": "已知「我骑车」和「我骑车 → 我准时到」，证出「我迟到了 ∨ 我准时到」。",
+    "en": "Given “I cycle” and “I cycle → I arrive on time”, prove “I am late ∨ I arrive on time”."
+  },
+  "hint": [
+    {
+      "zh": "套用得到「我准时到」，再用补充把它放到右边，左边选「我迟到了」。",
+      "en": "Apply to get “I arrive on time”, then use Add alternative to put it on the right, with “I am late” on the left."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "「或」门：两边至少一个真，就输出真。「…或…」写成 <b>∨</b>。",
+        "en": "The “or” gate: true when at least one side is. “… or …” is written <b>∨</b>."
+      }
+    },
+    {
+      "t": {
+        "zh": "<b>补充</b>：证出其中一边，便可补上另一句，得到「或者」命题。在元件上选另一句和它的位置。",
+        "en": "<b>Add alternative</b>: once one side is proved, add another statement to form an “or”. Choose the other statement and its position on the part."
+      }
+    }
+  ],
+  "solution": ["m = mp(q, p)", "o = orI[other=C, side=left](m)", "goal <- o"],
+  "after": {
+    "zh": "知道一边，就知道「这边 ∨ 随便哪边」。反过来不行：光有一句 ∨，不知道是哪一边成立，要用掉它，得等到有了框。",
+    "en": "Knowing one side, you know “this ∨ anything”. Not the other way round: an ∨ alone does not say which side holds, and using one up waits until there are boxes."
+  }
+}

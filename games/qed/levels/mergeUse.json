@@ -1,0 +1,13 @@
+{
+  "kind": "proof",
+  "title": { "zh": "接起来，再合并", "en": "Chain, then merge" },
+  "tests": [{ "premises": { "p": "A → B", "q": "B → (A → C)" }, "goal": "A → C" }],
+  "cases": [{ "A": "Alarm", "B": "Up", "C": "OnTime" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+  "hint": [
+    {
+      "zh": "用<part-ref to=\"lemma:chain\"></part-ref>以后，「闹钟响了」说了两遍。",
+      "en": "After <part-ref to=\"lemma:chain\"></part-ref>, “the alarm rings” is said twice."
+    }
+  ],
+  "solution": ["c = chain(p, q)", "g = merge(c)", "goal <- g"]
+}

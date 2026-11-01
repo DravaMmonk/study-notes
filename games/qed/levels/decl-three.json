@@ -1,0 +1,151 @@
+{
+  "title": { "zh": "三样", "en": "Three of them" },
+  "intro": [
+    { "t": { "zh": "「并且」「或者」都只连接两句话。这一关换成三句。", "en": "“And” and “or” each join two sentences. Here there are three." } }
+  ],
+  "tasks": [
+    {
+      "kind": "iso",
+      "declare": { "zh": "三样都要", "en": "all three" },
+      "target": "Rain ∧ (Wind ∧ Wet)",
+      "sentences": ["Rain", "Wind", "Wet"],
+      "tests": [
+        { "given": ["Rain", "Wind", "Wet"], "make": true },
+        { "given": ["Rain", "Wind"], "make": false },
+        { "given": ["Rain", "Wet"], "make": false },
+        { "given": ["Wind", "Wet"], "make": false },
+        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Wind", "make": true },
+        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Slip", "make": false },
+        { "given": ["Rain ∧ (Wind ∧ Wet)", "Wet → Slip"], "goal": "Slip", "make": true }
+      ],
+      "solution": [{ "binds": [], "needs": ["Rain", "Wind", "Wet"] }],
+      "naive": [
+        { "given": ["Rain", "Wind", "Wet"], "make": false },
+        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Rain", "make": true }
+      ],
+      "step": { "zh": "过弱的声明", "en": "A declaration too weak" },
+      "play": "audit",
+      "want": "expose",
+      "boards": [{ "rules": [{ "binds": [], "needs": ["Rain", "Wind"] }, { "binds": [], "needs": ["Wet"] }] }],
+      "slots": [
+        { "make": false, "fixed": ["goal", "make"] },
+        { "given": ["Rain ∧ (Wind ∧ Wet)"], "keep": ["Rain ∧ (Wind ∧ Wet)"], "make": true, "fixed": ["make"] }
+      ],
+      "answer": [
+        { "given": ["Wet"], "make": false },
+        { "given": ["Rain ∧ (Wind ∧ Wet)"], "goal": "Wind", "make": true }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "板上这份声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。",
+            "en": "The declaration on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "需求：「下雨、刮风、地湿，三样都要」：三句都已证出才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。",
+        "en": "Requirement: “it rains, it is windy, the ground is wet: all three” may be introduced only when all three are proved. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree."
+      },
+      "hint": [
+        {
+          "zh": "这份声明有几条引入规则？每条各要哪几样？",
+          "en": "How many introduction rules does this declaration have, and what does each need?"
+        },
+        {
+          "zh": "由它生成的消去规则分成几种情况？每种情况交还哪几句？",
+          "en": "Into how many cases does the elimination rule made from it split, and what does each case hand back?"
+        }
+      ]
+    },
+    {
+      "kind": "iso",
+      "declare": { "zh": "三选一", "en": "one of three" },
+      "target": "Sat ∨ (Sun ∨ Holiday)",
+      "sentences": ["Sat", "Sun", "Holiday"],
+      "tests": [
+        { "given": ["Holiday"], "make": true },
+        { "given": [], "make": false },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "make": false },
+        {
+          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
+          "goal": "Rest",
+          "make": true
+        },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": false }
+      ],
+      "solution": [
+        { "binds": [], "needs": ["Sat"] },
+        { "binds": [], "needs": ["Sun"] },
+        { "binds": [], "needs": ["Holiday"] }
+      ],
+      "step": { "zh": "三选一", "en": "One of three" },
+      "play": "audit",
+      "want": "agree",
+      "boards": [
+        {
+          "rules": [
+            { "binds": [], "needs": ["Sat"] },
+            { "binds": [], "needs": ["Sun"] },
+            { "binds": [], "needs": ["Holiday"] }
+          ]
+        }
+      ],
+      "slots": [
+        { "given": ["Holiday"], "fixed": ["given", "goal"] },
+        { "given": [], "fixed": ["given", "goal"] },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "fixed": ["given", "goal"] },
+        {
+          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
+          "goal": "Rest",
+          "fixed": ["given", "goal"]
+        },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "fixed": ["given", "goal"] }
+      ],
+      "answer": [
+        { "given": ["Holiday"], "make": true },
+        { "given": [], "make": false },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "make": false },
+        {
+          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
+          "goal": "Rest",
+          "make": true
+        },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": false }
+      ],
+      "naive": [
+        { "given": ["Holiday"], "make": true },
+        { "given": [], "make": false },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)"], "goal": "Sat", "make": false },
+        {
+          "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest", "Holiday → Rest"],
+          "goal": "Rest",
+          "make": true
+        },
+        { "given": ["Sat ∨ (Sun ∨ Holiday)", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": true }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "板上是「三选一」的声明，三条引入规则各要一样。",
+            "en": "The board holds the declaration of “one of three”: three introduction rules, each needing one thing."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "需求：「今天是周六、周日，或者放假」：三句中证出任何一句就能引入。按照这份声明，在表中填出每条条例的目标是否可推导。",
+        "en": "Requirement: “today is Saturday, Sunday, or a holiday” may be introduced once any one of the three is proved. Following this declaration, fill in whether each case’s goal is derivable."
+      },
+      "hint": [
+        {
+          "zh": "要用「三选一」推出一句话，三种情况各自都要推得出它。",
+          "en": "To derive a sentence from “one of three”, each of the three cases must derive it on its own."
+        }
+      ],
+      "after": {
+        "zh": "引入规则越多，引入越容易，使用越难：每多一条引入规则，消去时就多一种情况要处理。",
+        "en": "The more introduction rules, the easier to introduce and the harder to use: each one more is one more case to handle when taking it apart."
+      }
+    }
+  ]
+}

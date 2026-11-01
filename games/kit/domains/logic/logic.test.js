@@ -1,20 +1,71 @@
-// node --test games/kit/domains/logic — formulas, rules as parts, boxes, and countermodels. Proofs are written as a
-// level's spec writes them (build.js).
+// node --test games/kit/domains/logic — formulas, rules as parts, boxes, and countermodels. Boards are written short,
+// by the helpers below.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { checkIso, declaredRules, follows, isoBoard, runIso, settle, waysIn } from './iso.js'
+import { checkIso, declaredRules, follows, runIso, settle, waysIn } from './iso.js'
 import { ruleText } from './schematic.js'
 import { boardOf, linesOf, premiseChips, problemsOf } from './ruleLines.js'
 import { runLevel } from '../../engine/tests.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
-import { machine, proof } from './build.js'
-import { MACHINE_TESTS } from './machine.js'
+import { MACHINE_PARTS, MACHINE_TESTS, rulePartOf } from './machine.js'
 import { genRuleText } from './elimgen.js'
-import { LOGIC_TESTS, lemmaGives } from './proof.js'
+import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { validate } from './validate.js'
 
 const run = (level, circuit) => runLevel(LOGIC_TESTS, level, circuit)
+
+/* ---------- boards written short ---------- */
+
+// A card is { id: [type, settings?, where?] }: `where` is the box region it sits in ('f' for a box's only region,
+// 'e/left' for one of several), the board itself when left out. A wire is 'from>to.port' ('from>goal' into the goal);
+// a box's assumption is the source '<box>#<region>', and what a region proves goes into the box's port of that name.
+const wiresOf = (wires) => wires.map((w) => {
+  const [from, to] = w.split('>')
+  const [id, port = 'in'] = to.split('.')
+  return { from, to: id, port }
+})
+const cardsOf = (nodes, registry) => Object.entries(nodes).map(([id, [type, params = {}, where]]) => ({
+  id, type, params, ...(where ? { in: where.includes('/') ? where : `${where}/${registry[nodes[where][0]].frames()[0].name}` } : {}),
+}))
+/** A proof of a level's goal from its premises. */
+const proof = (nodes, wires, { premises = [] } = {}) => ({
+  nodes: [...premises.map((name) => ({ id: name, type: 'premise', params: { name } })), ...cardsOf(nodes, RULES), { id: 'goal', type: 'goal', params: { name: 'goal' } }],
+  wires: wiresOf(wires),
+})
+/** A machine board: its inputs (named), the cards, and the result `out`. */
+const machine = (nodes, wires, { inputs = ['in'] } = {}) => ({
+  nodes: [...inputs.map((name) => ({ id: name, type: 'in', params: { name } })), ...cardsOf(nodes, MACHINE_PARTS), { id: 'out', type: 'out', params: { name: 'out' } }],
+  wires: wiresOf(wires),
+})
+/** A machine board whose cards name their rules (`rule`, `rewrite`: keys of the level's books, comma-separated), as
+ *  the player wires them: a chain of rule parts into the card's port `rules`, keys one part gives in a row one part. */
+function wireRules(circuit, level) {
+  const nodes = []
+  const wires = [...circuit.wires]
+  for (const n of circuit.nodes) {
+    const keys = ['rule', 'rewrite'].flatMap((k) => String(n.params?.[k] ?? '').split(',').filter(Boolean))
+    if (!keys.length) { nodes.push(n); continue }
+    nodes.push({ ...n, params: {} })
+    let prev = null
+    keys.forEach((key, i) => {
+      const at = rulePartOf(level, key)
+      const last = nodes.at(-1)
+      if (at.use && last.id === prev && last.type === at.type) {
+        last.params.use = [...last.params.use, key]
+        return
+      }
+      const id = `${n.id}r${i}`
+      nodes.push({ id, type: at.type, params: at.use ? { use: at.use } : {}, ...(n.in ? { in: n.in } : {}) })
+      if (prev) wires.push({ from: prev, to: id, port: 'before' })
+      prev = id
+    })
+    wires.push({ from: prev, to: n.id, port: 'rules' })
+  }
+  return { ...circuit, nodes, wires }
+}
+/** A declaration of ways each needing these sentences (a sentence needed under others: [sentence, …those]). */
+const declaration = (...ways) => boardOf(ways.map((needs) => ({ binds: [], needs: needs.map((n) => (Array.isArray(n) ? { need: n[0], under: n.slice(1) } : n)) })))
 // K and S as a course proves them (lemmas of the kernel, no longer axioms).
 const KS = { axK: { statement: 'A → (B → A)', metas: ['A', 'B'] }, axS: { statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'] } }
 
@@ -111,11 +162,10 @@ test('countermodels: Peirce has none classically, (A → B) → A has one, the q
 
 test('the domain check runs reference and naive proofs', () => {
   const s = proof({ m: ['mp'] }, ['p>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] })
-  const lines = validate({ levels: [
-    { id: 'mp', kind: 'proof', title: 'mp', tests: [{ premises: { p: 'A → B', q: 'A' }, goal: 'B' }], solution: s, naive: proof({}, ['q>goal'], { premises: ['p', 'q'] }) },
-    { id: 'no', kind: 'proof', title: 'no', unprovable: true, tests: [{ goal: '(A → B) → A' }] },
-  ] })
-  assert.deepEqual(lines.filter((l) => l.fail), [])
+  const level = { id: 'mp', kind: 'proof', title: 'mp', tests: [{ premises: { p: 'A → B', q: 'A' }, goal: 'B' }], solution: s }
+  const lines = (naive) => validate({ levels: [{ ...level, naive }], logic: { wrong: [] } })
+  assert.deepEqual(lines(proof({}, ['q>goal'], { premises: ['p', 'q'] })).filter((l) => l.fail), [])
+  assert.equal(lines(s).filter((l) => l.fail).length, 1)
 })
 
 test('a lemma gives a goal in one step only when the givens fit its premises', () => {
@@ -269,8 +319,6 @@ test('a search does not follow a step that gives nothing new, so using givens ag
 })
 
 test('a machine backtracks once its level says so, and a search finds every answer to a question', async () => {
-  const { MACHINE_TESTS, wireRules } = await import('./machine.js')
-  const { machine } = await import('./build.js')
   const script = machine({ a: ['rule', { rule: 'exI' }], b: ['rule', { rule: 'conjI' }], c: ['assumption'], d: ['assumption'] }, ['in>a.in', 'a>b.in', 'b>c.in', 'c>d.in', 'd>out'])
   const test1 = { goal: '∃x. Human(x) ∧ Likes(x, ann)', hyps: ['Human(cy)', 'Human(bo)', 'Likes(bo, ann)'] }
   const level = { kind: 'machine', want: 'proved', tests: [test1] }
@@ -329,8 +377,6 @@ test('a rewrite changes the first place its left side fits, under quantifiers to
 test('a declaration gives its rules, and induction read off a goal proves an equation for every number', async () => {
   const { datatypeRules } = await import('./datatype.js')
 
-  const { MACHINE_TESTS, wireRules } = await import('./machine.js')
-  const { machine } = await import('./build.js')
   const rules = Object.fromEntries(datatypeRules('nat', 'zero | s(nat)').map((r) => [r.key, ruleText(r)]))
   assert.deepEqual(Object.keys(rules), ['nat.distinct1', 'nat.distinct2', 'nat.exhaust', 'nat.induct'])
   assert.equal(rules['nat.induct'], '⟦?P(zero); (⋀x. ⟦?P(x)⟧ ⟹ ?P(s(x)))⟧ ⟹ ∀x. ?P(x)')
@@ -405,21 +451,22 @@ test('a declaration by premise cards: joined they are one way needing both, apar
   const level = (target, sentences, tests) => ({ target, sentences, tests, declare: { zh: 'x', en: 'x' } })
   const words = (l) => ({ zh: l, en: l })
   const and = level('A ∧ B', ['A', 'B'], [{ given: ['A', 'B'], make: true }, { given: ['A'], make: false }, { given: ['B'], make: false }])
-  const nested = isoBoard(['A+B>1'])
+  const nested = declaration(['A', 'B'])
   assert.ok(checkIso(and, nested, words).pass)
   assert.deepEqual(checkIso(and, nested, words).results[0].made.items.map((x) => x.n), [1, 2])
-  assert.equal(checkIso(and, isoBoard(['A>1', 'B>2']), words).pass, false)
+  assert.equal(checkIso(and, declaration(['A'], ['B']), words).pass, false)
   const or = level('A ∨ B', ['A', 'B'], [{ given: ['A'], make: true }, { given: ['B'], make: true }, { given: [], make: false }])
-  const apart = isoBoard(['A>1', 'B>2'])
+  const apart = declaration(['A'], ['B'])
   const run = checkIso(or, apart, words)
   assert.ok(run.pass)
   assert.equal(run.results[1].made.way, 2)
   // The ways close up when one is taken off: the second becomes the first.
   const settled = settle({ ...apart, wires: apart.wires.filter((w) => !(w.to === 'decl' && w.port === 'c1')) })
-  assert.deepEqual(settled.wires.filter((w) => w.to === 'decl').map((w) => [w.from, w.port]), [['hyp-B', 'c1']])
+  const b = apart.nodes.find((n) => n.params?.name === 'B').id
+  assert.deepEqual(settled.wires.filter((w) => w.to === 'decl').map((w) => [w.from, w.port]), [[b, 'c1']])
   assert.equal(settled.nodes.find((n) => n.id === 'decl').params.ways, 1)
   const bot = level('⊥', ['A'], [{ given: ['A'], make: false }, { given: [], make: false }])
-  assert.ok(checkIso(bot, isoBoard([]), words).pass)
+  assert.ok(checkIso(bot, declaration(), words).pass)
 })
 
 test('a premise needed under another (a card wired into a card): → declared, its way the box, its use Apply', () => {
@@ -428,10 +475,10 @@ test('a premise needed under another (a card wired into a card): → declared, i
     { given: ['A → B'], goal: 'B', make: false }, { given: ['A → B'], goal: 'A', make: false }, { given: ['A → B', 'A'], goal: 'B', make: true },
   ] }
   const words = (l) => ({ zh: l, en: l })
-  const box = isoBoard(['A>B', 'B>1'])
+  const box = declaration([['B', 'A']])
   assert.ok(checkIso(level, box, words).pass)
   // Needing B alone gives B back to whoever has A → B: too weak.
-  assert.equal(checkIso(level, isoBoard(['B>1']), words).pass, false)
+  assert.equal(checkIso(level, declaration(['B']), words).pass, false)
   const rules = declaredRules(level, waysIn(box))
   assert.equal(ruleText(rules.make[0]), '⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?A → ?B')
   assert.equal(ruleText(rules.take), '⟦?A → ?B; ⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?R⟧ ⟹ ?R')
@@ -439,8 +486,8 @@ test('a premise needed under another (a card wired into a card): → declared, i
 
 test('using a declaration: what follows is what every way in gives, a sentence nothing mentions standing for any', () => {
   const level = (target) => ({ target, sentences: ['A', 'B'], declare: { zh: 'x', en: 'x' } })
-  const and = isoBoard(['A+B>1'])
-  const or = isoBoard(['A>1', 'B>2'])
+  const and = declaration(['A', 'B'])
+  const or = declaration(['A'], ['B'])
   assert.ok(follows(level('A ∧ B'), and, { given: ['A ∧ B'], goal: 'A' }))
   assert.equal(follows(level('A ∧ B'), and, { given: ['A ∧ B'], goal: 'C' }), false)
   assert.ok(follows(level('A ∧ B'), and, { given: ['A ∧ B', 'A → (B → C)'], goal: 'C' }))
@@ -448,7 +495,7 @@ test('using a declaration: what follows is what every way in gives, a sentence n
   assert.equal(follows(level('A ∧ B'), or, { given: ['A ∧ B'], goal: 'A' }), false)
   assert.ok(follows(level('A ∨ B'), or, { given: ['A ∨ B', 'A → C', 'B → C'], goal: 'C' }))
   assert.equal(follows(level('A ∨ B'), or, { given: ['A ∨ B', 'A → C'], goal: 'C' }), false)
-  assert.ok(follows(level('⊥'), isoBoard([]), { given: ['⊥'], goal: 'C' }))
+  assert.ok(follows(level('⊥'), declaration(), { given: ['⊥'], goal: 'C' }))
 })
 
 test('the elimination rule generator: one case for each way in, its conclusion any ?R; none for ⊥; things taken kept', () => {

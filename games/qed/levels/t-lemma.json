@@ -1,0 +1,55 @@
+{
+  "title": { "zh": "引理也是证明项", "en": "A lemma is a term too" },
+  "intro": [
+    {
+      "t": {
+        "zh": "证过的引理在证明项里写成它的名字：用了<part-ref to=\"lemma:chain\"></part-ref>，证明项里就是 chain p q。名字背后是证出它的那个证明项。",
+        "en": "A lemma you proved appears in a term by its name: use <part-ref to=\"lemma:chain\"></part-ref>, and the term says chain p q. Behind the name is the term that proved it."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "用串联", "en": "With Chain" },
+      "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C", "term": "chain p q" }],
+      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+      "briefNote": { "zh": "证明项须为 chain p q。", "en": "Its proof term must be chain p q." },
+      "hint": [
+        {
+          "zh": "一张<part-ref to=\"lemma:chain\"></part-ref>就够。",
+          "en": "One <part-ref to=\"lemma:chain\"></part-ref> is enough."
+        }
+      ],
+      "solution": ["c = chain(p, q)", "goal <- c"]
+    },
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "不用串联", "en": "Without Chain" },
+      "without": ["chain"],
+      "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C", "term": "fun h => q (p h)" }],
+      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+      "briefNote": {
+        "zh": "不用<part-ref to=\"lemma:chain\"></part-ref>，证明项须为 fun h => q (p h)。",
+        "en": "Do not use <part-ref to=\"lemma:chain\"></part-ref>; the proof term must be fun h => q (p h)."
+      },
+      "hint": [
+        {
+          "zh": "当初证<part-ref to=\"lemma:chain\"></part-ref>时接的是什么？",
+          "en": "What did you wire when you proved <part-ref to=\"lemma:chain\"></part-ref>?"
+        }
+      ],
+      "solution": [
+        "f = impI[A=A](body: m2) {",
+        "  body {",
+        "    m1 = mp(p, f.body)",
+        "    m2 = mp(q, m1)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
+}

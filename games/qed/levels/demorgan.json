@@ -1,0 +1,126 @@
+{
+  "title": { "zh": "德摩根律", "en": "De Morgan" },
+  "builds": "dm",
+  "intro": [
+    {
+      "t": {
+        "zh": "「既不是周六也不是周日」和「并非（周六或者周日）」是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。这是<wiki-ref to=\"demorgan\"></wiki-ref>。",
+        "en": "“Neither Saturday nor Sunday” and “not (Saturday or Sunday)” say the same; so do “not (Saturday and Sunday)” and “not Saturday, or not Sunday”. These are <wiki-ref to=\"demorgan\"></wiki-ref>."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "并非或者", "en": "Not either" },
+      "tests": [{ "premises": { "p": "¬(A ∨ B)" }, "goal": "¬A ∧ ¬B" }],
+      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "hint": [
+        { "zh": "要证的两半各是一个否定。", "en": "Each half of the goal is a negation." },
+        { "zh": "假设「今天是周六」，看它怎样和已知矛盾。", "en": "Assume “today is Saturday” and see how it contradicts the given." }
+      ],
+      "solution": [
+        "na = impI[A=A](body: m) {",
+        "  body {",
+        "    i = orI[other=B, side=right](na.body)",
+        "    m = mp(p, i)",
+        "  }",
+        "}",
+        "nb = impI[A=B](body: m2) {",
+        "  body {",
+        "    i2 = orI[other=A, side=left](nb.body)",
+        "    m2 = mp(p, i2)",
+        "  }",
+        "}",
+        "c = andI(na, nb)",
+        "goal <- c"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "两个都不", "en": "Neither" },
+      "tests": [{ "premises": { "p": "¬A ∧ ¬B" }, "goal": "¬(A ∨ B)" }],
+      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "hint": [
+        { "zh": "要证的是一个否定。", "en": "The goal is a negation." },
+        {
+          "zh": "假设「今天是周六 ∨ 今天是周日」，两种情况各推出矛盾。",
+          "en": "Assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case."
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"A | B\"](body: o) {",
+        "  body {",
+        "    o = orE(f.body, left: m1, right: m2) {",
+        "      left {",
+        "        m1 = mp(e.left, o.left)",
+        "      }",
+        "      right {",
+        "        m2 = mp(e.right, o.right)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "e = andE(p)",
+        "goal <- f"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "有一个不", "en": "One fails" },
+      "tests": [{ "premises": { "p": "¬A ∨ ¬B" }, "goal": "¬(A ∧ B)" }],
+      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "hint": [
+        { "zh": "要证的又是一个否定。", "en": "The goal is again a negation." },
+        {
+          "zh": "假设「今天是周六 ∧ 今天是周日」，再对已知分情况。",
+          "en": "Assume “today is Saturday ∧ today is Sunday”, then take cases on the given."
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"A & B\"](body: o) {",
+        "  body {",
+        "    e = andE(f.body)",
+        "    o = orE(p, left: m1, right: m2) {",
+        "      left {",
+        "        m1 = mp(o.left, e.left)",
+        "      }",
+        "      right {",
+        "        m2 = mp(o.right, e.right)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "并非两个都", "en": "Not both" },
+      "tests": [{ "premises": { "p": "¬(A ∧ B)" }, "goal": "¬A ∨ ¬B" }],
+      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
+      "hint": [
+        { "zh": "已知没说哪一个不成立。", "en": "The given does not say which one fails." },
+        { "zh": "今天是周六，或者不是：两边都讨论。", "en": "Today is Saturday, or it is not: take both sides." }
+      ],
+      "solution": [
+        "l = lem[A=A]()",
+        "e = orE(l, left: i1, right: i2) {",
+        "  left {",
+        "    g = impI[A=B](body: m) {",
+        "      body {",
+        "        c = andI(e.left, g.body)",
+        "        m = mp(p, c)",
+        "      }",
+        "    }",
+        "    i1 = orI[other=\"~A\", side=left](g)",
+        "  }",
+        "  right {",
+        "    i2 = orI[other=\"~B\", side=right](e.right)",
+        "  }",
+        "}",
+        "goal <- e"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms"],
+  "title": { "zh": "插一个，长一格", "en": "One in, one longer" },
+  "fact": "insLen",
+  "types": ["list", "bool"],
+  "defs": ["le", "if", "ins", "sort", "len"],
+  "tests": [{ "goal": "∀xs. ∀x. len(ins(x, xs)) = s(len(xs))" }],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [
+    {
+      "zh": "化简以后，第二个目标卡在「若 c ≤ a 则…否则…」上：化简不知道谁大。",
+      "en": "After Simp, the second goal is stuck on an “if c ≤ a then … else …”: Simp does not know which is bigger."
+    },
+    {
+      "zh": "<level-ref to=\"decl-bool\"></level-ref>声明的 bool 有按情况分的规则；<level-ref to=\"sort-if\"></level-ref>证出的规则各管一种情况。",
+      "en": "The bool declared in <level-ref to=\"decl-bool\"></level-ref> has a cases rule; the rules proved in <level-ref to=\"sort-if\"></level-ref> each cover one case."
+    },
+    {
+      "zh": "带条件的规则改写以后，条件排在后面，?t 还没定。",
+      "en": "After a rewrite with a condition, the condition waits behind, with ?t not yet settled."
+    }
+  ],
+  "intro": [{ "t": { "zh": "插进一个元素，列表就长一格。", "en": "Insert an element and the list is one longer." } }],
+  "solution": [
+    "c0r0 = math[use=[\"list.induct\"]]()",
+    "c1r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+    "c2r0 = allI()",
+    "c3r0 = refl()",
+    "c4r0 = allI()",
+    "c5r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+    "c6r0 = math[use=[\"bool.exhaust\"]]()",
+    "c7r0 = math[use=[ifTrue]]()",
+    "c8r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+    "c9r0 = refl()",
+    "c11r0 = math[use=[ifFalse]]()",
+    "c12r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+    "c13r0 = refl()",
+    "c0 = rule(in, c0r0)",
+    "c12r11 = hyp(c12r0)",
+    "c1 = simp(c0, c1r0)",
+    "c2 = rule(c1, c2r0)",
+    "c3 = rule(c2, c3r0)",
+    "c4 = rule(c3, c4r0)",
+    "c5 = simp(c4, c5r0)",
+    "c6 = rule(c5, c6r0)",
+    "c7 = rw(c6, c7r0)",
+    "c8 = simp(c7, c8r0)",
+    "c9 = rule(c8, c9r0)",
+    "c10 = assumption(c9)",
+    "c11 = rw(c10, c11r0)",
+    "c12 = simp(c11, c12r11)",
+    "c13 = rule(c12, c13r0)",
+    "c14 = assumption(c13)",
+    "out <- c14"
+  ]
+}

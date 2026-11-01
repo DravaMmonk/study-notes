@@ -1,0 +1,86 @@
+{
+  "kind": "iso",
+  "title": { "zh": "声明 ⊥", "en": "Declaring ⊥" },
+  "adds": ["botE"],
+  "declare": { "zh": "矛盾", "en": "contradiction" },
+  "symbols": ["⊥"],
+  "target": "⊥",
+  "sentences": ["Rain", "Wet", "Rain → ⊥"],
+  "tests": [
+    { "given": ["Rain"], "make": false },
+    { "given": [], "make": false },
+    { "given": ["⊥"], "goal": "Wet", "make": true },
+    { "given": ["⊥"], "goal": "Rain", "make": true },
+    { "given": ["⊥"], "goal": "Moon ∧ Pigs", "make": true },
+    { "given": ["⊥"], "make": true },
+    { "given": ["Wet"], "goal": "Rain", "make": false },
+    { "given": ["Rain → ⊥"], "goal": "Wet", "make": false },
+    { "given": ["Rain", "Rain → ⊥"], "goal": "Wet", "make": true }
+  ],
+  "solution": [],
+  "play": "audit",
+  "want": "agree",
+  "boards": [{ "rules": [] }],
+  "slots": [
+    { "given": ["Rain"], "fixed": ["given", "goal"] },
+    { "given": [], "fixed": ["given", "goal"] },
+    { "given": ["⊥"], "goal": "Wet", "fixed": ["given", "goal"] },
+    { "given": ["⊥"], "goal": "Rain", "fixed": ["given", "goal"] },
+    { "given": ["⊥"], "goal": "Moon ∧ Pigs", "fixed": ["given", "goal"] },
+    { "given": ["⊥"], "fixed": ["given", "goal"] },
+    { "given": ["Wet"], "goal": "Rain", "fixed": ["given", "goal"] },
+    { "given": ["Rain → ⊥"], "goal": "Wet", "fixed": ["given", "goal"] },
+    { "given": ["Rain", "Rain → ⊥"], "goal": "Wet", "fixed": ["given", "goal"] }
+  ],
+  "answer": [
+    { "given": ["Rain"], "make": false },
+    { "given": [], "make": false },
+    { "given": ["⊥"], "goal": "Wet", "make": true },
+    { "given": ["⊥"], "goal": "Rain", "make": true },
+    { "given": ["⊥"], "goal": "Moon ∧ Pigs", "make": true },
+    { "given": ["⊥"], "make": true },
+    { "given": ["Wet"], "goal": "Rain", "make": false },
+    { "given": ["Rain → ⊥"], "goal": "Wet", "make": false },
+    { "given": ["Rain", "Rain → ⊥"], "goal": "Wet", "make": true }
+  ],
+  "naive": [
+    { "given": ["Rain"], "make": false },
+    { "given": [], "make": false },
+    { "given": ["⊥"], "goal": "Wet", "make": true },
+    { "given": ["⊥"], "goal": "Rain", "make": true },
+    { "given": ["⊥"], "goal": "Moon ∧ Pigs", "make": true },
+    { "given": ["⊥"], "make": true },
+    { "given": ["Wet"], "goal": "Rain", "make": false },
+    { "given": ["Rain → ⊥"], "goal": "Wet", "make": false },
+    { "given": ["Rain", "Rain → ⊥"], "goal": "Wet", "make": false }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "<b>矛盾</b>是不可能同时成立的情况，例如「下雨」和「不下雨」同时成立。推理中一旦得出矛盾，就说明所依据的前提不可能都成立。",
+        "en": "A <b>contradiction</b> is a situation that cannot hold, such as “it rains” and “it does not rain” holding together. Once reasoning reaches a contradiction, the premises it rests on cannot all hold."
+      }
+    },
+    {
+      "t": {
+        "zh": "证明核用命题 ⊥ 表示矛盾。⊥ 永远不成立，因此它的声明没有任何引入规则：任何前提都不足以证出 ⊥。板上就是这份声明。",
+        "en": "The kernel writes a contradiction as the statement ⊥. ⊥ never holds, so its declaration has no introduction rule at all: no premises are enough to prove it. The board holds that declaration."
+      }
+    }
+  ],
+  "brief": {
+    "zh": "需求：⊥ 永远不成立，任何前提都不足以证出它。按照 ⊥ 的声明，在表中填出每条条例的目标是否可推导。",
+    "en": "Requirement: ⊥ never holds: no premises are enough to prove it. Following the declaration of ⊥, fill in whether each case’s goal is derivable."
+  },
+  "hint": [
+    { "zh": "⊥ 没有引入规则。在什么前提下能引入它？", "en": "⊥ has no introduction rule. Under which premises can it be introduced?" },
+    {
+      "zh": "消去规则要求逐一考虑每一条引入规则。没有引入规则时，还剩什么需要考虑？",
+      "en": "The elimination rule asks for each introduction rule to be considered in turn. With none, what is left to consider?"
+    }
+  ],
+  "after": {
+    "zh": "⊥ 的消去规则没有任何情况需要处理，所以一旦有了 ⊥，任何目标都可推导，这就是<b>爆炸原理</b>。「非」也由矛盾而来：¬A 定义为 A → ⊥，即「如果 A 成立，就会导致矛盾」。因此 A 与 ¬A 同时作为前提时，套用即得 ⊥，进而可以推出任何命题。",
+    "en": "The elimination rule of ⊥ has no case to handle, so once ⊥ is held, every goal is derivable: the <b>principle of explosion</b>. “Not” comes from contradiction too: ¬A is defined as A → ⊥, “if A held, it would lead to a contradiction”. So with A and ¬A both as premises, Apply gives ⊥, and from it any statement follows."
+  }
+}

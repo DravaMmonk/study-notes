@@ -1,0 +1,76 @@
+{
+  "title": { "zh": "比大小，取大的", "en": "Comparing, and the larger" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"decl-bool\"></level-ref>带来了真和假。先定义比大小，再用它定义取大的。",
+        "en": "<level-ref to=\"decl-bool\"></level-ref> brought true and false. Define comparison first, then the larger of two with it."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "比大小", "en": "Comparing" },
+      "fn": "le",
+      "on": 0,
+      "rows": [
+        { "lhs": "le(zero, y)", "choices": ["tt", "ff"] },
+        { "lhs": "le(s(x), zero)", "choices": ["ff", "tt"] },
+        { "lhs": "le(s(x), s(y))", "choices": ["le(x, y)", "tt", "le(s(x), s(y))"] }
+      ],
+      "tests": [
+        { "term": "le(s(zero), s(s(zero)))", "value": "tt" },
+        { "term": "le(s(s(zero)), s(zero))", "value": "ff" },
+        { "term": "le(zero, zero)", "value": "tt" }
+      ],
+      "solution": ["tt", "ff", "le(x, y)"],
+      "naive": ["tt", "ff", "tt"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "两边各去掉一个 S，大小关系不变。", "en": "Taking one S off each side leaves the comparison as it was." }],
+      "intro": [
+        {
+          "t": {
+            "zh": "x ≤ y 的值是真或假。两个数都要拆开，所以有三行：0 和任何数比，S x 和 0 比，S x 和 S y 比。",
+            "en": "x ≤ y is true or false. Both numbers are taken apart, so there are three rows: 0 against any number, S x against 0, S x against S y."
+          }
+        }
+      ]
+    },
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "取大的", "en": "The larger" },
+      "fn": "max",
+      "on": null,
+      "defs": ["le"],
+      "rows": [
+        { "lhs": "max(x, y)", "when": "le(x, y) = tt", "choices": ["y", "x"] },
+        { "lhs": "max(x, y)", "when": "le(x, y) = ff", "choices": ["x", "y"] }
+      ],
+      "tests": [
+        { "term": "max(s(zero), s(s(zero)))", "value": "s(s(zero))" },
+        { "term": "max(s(s(zero)), zero)", "value": "s(s(zero))" }
+      ],
+      "solution": ["y", "x"],
+      "naive": ["x", "y"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "看哪一行的条件说 x 不比 y 大。", "en": "Look for the row whose condition says x is no bigger than y." }],
+      "intro": [
+        {
+          "t": {
+            "zh": "max 不拆数，而看 x ≤ y 的真假：真假各一行，每行带一个<b>条件</b>。",
+            "en": "max takes no number apart; it looks at whether x ≤ y is true: one row for true, one for false, each with a <b>condition</b>."
+          }
+        }
+      ]
+    }
+  ]
+}

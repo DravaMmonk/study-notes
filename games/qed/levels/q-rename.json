@@ -1,0 +1,8 @@
+{
+  "kind": "proof",
+  "title": { "zh": "换个名字", "en": "Another name" },
+  "tests": [{ "premises": { "p": "∀x. P(x)" }, "goal": "∀y. P(y)" }],
+  "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+  "hint": [{ "zh": "任取一个 a，再从已知里取 a。", "en": "Take any a, then take a out of the given." }],
+  "solution": ["g = allI[x=a](body: e) {", "  body {", "    e = allE[t=a](p)", "  }", "}", "goal <- g"]
+}

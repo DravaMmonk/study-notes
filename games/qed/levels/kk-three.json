@@ -1,0 +1,47 @@
+{
+  "title": { "zh": "骑士与无赖", "en": "Knights and knaves" },
+  "tasks": [
+    {
+      "kind": "gates",
+      "step": { "zh": "翻译", "en": "Translate" },
+      "blind": true,
+      "parts": ["gNot", "gAnd", "gOr", "gImp", "gIff"],
+      "target": "KA ↔ ¬KA ∨ KB",
+      "brief": {
+        "zh": "岛上有 a、b 两人，a 说：「我是无赖，或者 b 是骑士。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。",
+        "en": "Two islanders, a and b; a says: “I am a knave, or b is a knight.” Wire it as a circuit: it outputs true on the rows where what a says fits what a is."
+      },
+      "hint": [{ "zh": "a 的话是「¬a 是骑士 ∨ b 是骑士」。", "en": "What a says is “¬a is a knight ∨ b is a knight”." }],
+      "solution": ["na = gNot(KA)", "o = gOr(na, KB)", "e = gIff(KA, o)", "out <- e"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "证明", "en": "Prove" },
+      "tests": [{ "premises": { "p": "A ↔ ¬A ∨ B" }, "goal": "A ∧ B" }],
+      "cases": [{ "A": "KA", "B": "KB" }, { "A": "KC", "B": "KD" }],
+      "hint": [
+        { "zh": "先证「a 是骑士」：他是不是骑士，两边都讨论。", "en": "First prove “a is a knight”: take both sides of whether he is." },
+        { "zh": "a 是骑士，他的话就是真的；再对他的话分情况。", "en": "If a is a knight, his statement is true; then take cases on it." }
+      ],
+      "solution": [
+        "l = lem[A=A]()",
+        "e = andE(p)",
+        "o = orE(l, left: o.left, right: m) {",
+        "  right {",
+        "    i = orI[other=B, side=right](o.right)",
+        "    m = mp(e.right, i)",
+        "  }",
+        "}",
+        "says = mp(e.left, o)",
+        "c = orE(says, left: no, right: c.right) {",
+        "  left {",
+        "    m2 = mp(c.left, o)",
+        "    no = botE[C=B](m2)",
+        "  }",
+        "}",
+        "both = andI(o, c)",
+        "goal <- both"
+      ]
+    }
+  ]
+}

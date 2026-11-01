@@ -1,0 +1,44 @@
+{
+  "kind": "proof",
+  "title": { "zh": "只要不矛盾", "en": "Consistency is enough" },
+  "consts": ["g", "gn", "gp"],
+  "words": ["goedel"],
+  "cases": [],
+  "tests": [
+    {
+      "premises": { "d": "Prov(g) → Prov(gn)", "r": "Prov(g) → Prov(gp)", "con": "¬(Prov(gn) ∧ Prov(gp))" },
+      "goal": "¬Prov(g)"
+    }
+  ],
+  "brief": { "zh": "从这三句已知证出：G 证不出。", "en": "From these three givens, prove: G cannot be proved." },
+  "hint": [{ "zh": "假设 G 证得出。", "en": "Assume G can be proved." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "第五步。<level-ref to=\"gd-true\"></level-ref>用了可靠，这个条件太强：证明器说不出「我证得出的都是真的」。只要<wiki-ref to=\"consistency\"></wiki-ref>就够：没有哪句话和它的否定都证得出。",
+        "en": "The fifth step. <level-ref to=\"gd-true\"></level-ref> used soundness, which is too strong: a prover cannot say of itself that what it proves is true. <wiki-ref to=\"consistency\"></wiki-ref> is enough: no sentence is provable together with its negation."
+      }
+    },
+    {
+      "t": {
+        "zh": "头两句已知讲证明器自己能做的事。第一句：对角线（<level-ref to=\"gd-diag\"></level-ref>）只是一次计算，证明器自己也算得出 G ↔ G 证不出，所以 G 证得出，「G 证不出」也证得出。第二句：检查证明只是一次计算（<level-ref to=\"gd-check\"></level-ref>），G 若有证明，证明器检查那个数，就证得出「⌜G⌝ 证得出」。第三句是不矛盾：「G 证不出」和「⌜G⌝ 证得出」互为否定，不能都证得出。",
+        "en": "The first two givens are about what the prover itself can do. The first: the diagonal (<level-ref to=\"gd-diag\"></level-ref>) is only a computation, so the prover too works out that G ↔ G cannot be proved; if G can be proved, so can “G cannot be proved”. The second: checking a proof is only a computation (<level-ref to=\"gd-check\"></level-ref>), so if G has a proof, the prover checks that number and proves “⌜G⌝ is provable”. The third is consistency: “G cannot be proved” and “⌜G⌝ is provable” negate each other, and cannot both be provable."
+      }
+    }
+  ],
+  "solution": [
+    "f = impI[A=\"Prov(g)\"](body: m3) {",
+    "  body {",
+    "    m1 = mp(d, f.body)",
+    "    m2 = mp(r, f.body)",
+    "    j = andI(m1, m2)",
+    "    m3 = mp(con, j)",
+    "  }",
+    "}",
+    "goal <- f"
+  ],
+  "after": {
+    "zh": "这就是第一不完备性定理：一个不矛盾、规则能逐条列出、又能做加法和乘法的证明器，总有一句真话证不出。要连 ¬G 也证不出，哥德尔还需要更强的条件；罗瑟在 1936 年换了一句话，只用不矛盾就够了。",
+    "en": "That is the first incompleteness theorem: a consistent prover whose rules can be listed one by one and which can do addition and multiplication has a true sentence it cannot prove. To show ¬G cannot be proved either, Gödel needed a stronger condition; Rosser, in 1936, changed the sentence so that consistency alone is enough."
+  }
+}

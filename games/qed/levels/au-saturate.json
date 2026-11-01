@@ -1,0 +1,37 @@
+{
+  "kind": "machine",
+  "want": "decide",
+  "inputs": [{ "name": "in", "label": { "zh": "子句", "en": "Clauses" } }],
+  "backtrack": true,
+  "title": { "zh": "饱和器", "en": "The saturator" },
+  "builds": "saturate",
+  "adds": ["resolve"],
+  "tests": [
+    { "clauses": ["Bus ∨ Bike", "¬Bus ∨ OnTime", "¬Bike ∨ OnTime", "¬OnTime"] },
+    { "clauses": ["Alarm", "¬Alarm ∨ Up", "¬Up ∨ Coffee", "¬Coffee ∨ Awake", "¬Awake"] },
+    { "clauses": ["Bus ∨ Bike", "¬Bus ∨ OnTime", "¬OnTime"] },
+    { "clauses": ["¬Human(x) ∨ Mortal(x)", "Human(h)", "¬Mortal(h)"] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：推得出 ⊥ 的，推出来；推不出的，一直归结到再也没有新子句。",
+    "en": "Design a proof assistant that reaches ⊥ where it follows, and where it does not, resolves until no new clause appears."
+  },
+  "hint": [
+    { "zh": "一轮之后，新子句之间可能还有能消的。", "en": "After one round, the new clauses may still have pairs to cancel." },
+    { "zh": "<part-ref to=\"part:repeat\"></part-ref>。", "en": "<part-ref to=\"part:repeat\"></part-ref>." }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "在<level-ref to=\"au-refute\"></level-ref>里，每一步消哪一对由你挑。证明助手不挑：新元件「一轮归结」把能消的每一对都消一次，新子句加进来，并记下它由哪两条得出。子句里有变量时，一对文字先合一再消：「¬x是人 ∨ x会死」和「苏格拉底是人」，x 合一为苏格拉底。",
+        "en": "In <level-ref to=\"au-refute\"></level-ref> you chose which pair to cancel at each step. A proof assistant does not choose: the new card “a round of resolution” cancels every pair that can be cancelled, once, adding each new clause along with the two it came from. When clauses have variables, a pair of literals is unified first, then cancelled: “¬x is human ∨ x is mortal” and “Socrates is human”, with x unified to Socrates."
+      }
+    }
+  ],
+  "solution": ["c0 = repeat(in, body: c1) {", "  body {", "    c1 = resolve(c0.body)", "  }", "}", "out <- c0"],
+  "naive": ["c0 = resolve(in)", "out <- c0"],
+  "after": {
+    "zh": "归结具有<wiki-ref to=\"refutation\"></wiki-ref>。",
+    "en": "Resolution has <wiki-ref to=\"refutation\"></wiki-ref>."
+  }
+}

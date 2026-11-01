@@ -1,5 +1,6 @@
-// A logic game on the shared shell (../../shell): its spec becomes the shell's game description, with the logic
-// domain's screens (a proof on the circuit editor, a truth table), its parts box of proved lemmas and its map art.
+// A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
+// becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
+// a machine board …), its parts box of proved lemmas and built parts, its map art and its save migrations.
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
@@ -15,13 +16,16 @@ import { MACHINE, PROOF } from './ui/boards.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
 import { ModelScreen } from './ui/WorldScreens.jsx'
 import FormulaScreen from './ui/FormulaScreen.jsx'
-import { MACHINE_TEXT, RULE_TEXT, iconOf, nameOf, textOf } from './ui/catalog.js'
+import { iconOf, nameOf, textOf } from './ui/catalog.js'
+import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
 import TermScreen from './ui/TermScreen.jsx'
 import ScriptScreen from './ui/ScriptScreen.jsx'
 import '../../strip/strip.css'
 import { PRIMITIVE_GATES } from './gates.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
+import { logicCourse } from './course.js'
+import { savesOf } from './items/migrations.js'
 
 // A level's declaration task, if it has one: a declaration on the rule board (iso.js).
 const isoOf = (level) => (level.kind === 'iso' ? level : level.tasks?.find((t) => t.kind === 'iso') ?? null)
@@ -30,26 +34,28 @@ const isoOf = (level) => (level.kind === 'iso' ? level : level.tasks?.find((t) =
 const givesRules = (level) => !(level.source.tasks ?? [level.source]).some((t) => t.kind === 'proof')
 
 /**
- * spec: { id, title, kicker, lede: { zh, en } (what the game teaches and what the player ends up building, not how many levels), logic (logicCourse's result), glossary, saves: migration steps
- * (../../shell/saves.js) }
+ * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), saves:
+ * migration steps (../../shell/saves.js, a { data } or { tasks } step naming a migration item, items/migrations.js),
+ * levels, glossary }.
  */
-export function defineLogicGame(spec) {
-  const { LEVELS, CHAPTERS, LABELS } = spec.logic
+export default function logicGame(content) {
+  const logic = logicCourse(content)
+  const { LEVELS, CHAPTERS, LABELS } = logic
   const lemmas = LEVELS[0]?.lemmas ?? {}
   const gates = LEVELS[0]?.gates ?? {}
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
-  const revisions = spec.logic.revisions ?? {}
+  const revisions = logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…).
-  const machines = Object.fromEntries(spec.logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
+  const machines = Object.fromEntries(logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
   const built = { ...gates, ...lemmas, ...machines }
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
-  const kept = ([type]) => !spec.logic.course.local(type)
+  const kept = ([type]) => !logic.course.local(type)
   // The rules and gates the course starts from, each from the levels that bring it in.
   // The rules a proof-board part gives as a rule part on the machine board (the kernel's rules it is), and those a
   // lemma gives, one for each of its shapes: a shape after the first only once the player has earned it (`form`).
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
-  const primitives = [...introductions(spec.logic.course)].map(([type, at]) => {
+  const primitives = [...introductions(logic.course)].map(([type, at]) => {
     const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
     const text = textOf(lemmas, type, revisions)
     const rules = kernelRules(type)
@@ -61,7 +67,7 @@ export function defineLogicGame(spec) {
     index,
     source: L,
     // Marked 新 where its idea is met first: not a part brought in again (a part that stays where it is brought).
-    fresh: L.adds.filter((p) => fresh(spec.logic.course, { id: L.id }).has(spec.logic.course.concept(p))),
+    fresh: L.adds.filter((p) => fresh(logic.course, { id: L.id }).has(logic.course.concept(p))),
     chapter: L.chapter,
     requires: L.requires,
     title: L.title,
@@ -73,16 +79,16 @@ export function defineLogicGame(spec) {
     tasks: L.tasks?.map((t) => ({ kind: t.kind, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
   }))
   const game = defineGame({
-    id: spec.id,
-    glossary: spec.glossary,
-    title: spec.title,
-    kicker: spec.kicker,
-    lede: spec.lede,
+    id: content.id,
+    glossary: content.glossary,
+    title: content.title,
+    kicker: content.kicker,
+    lede: content.lede,
     Hero,
     html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, title: chapter.title, question: chapter.question, track: chapter.track })),
     levels,
-    progress: migrations(spec.saves ?? []),
+    progress: migrations(savesOf(content.saves)),
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
     kinds: {
@@ -101,18 +107,18 @@ export function defineLogicGame(spec) {
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).
     unlocked: (level) => [
-      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !spec.logic.course.local(type)).map((type) => ({ label: built[type].name })),
+      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !logic.course.local(type)).map((type) => ({ label: built[type].name })),
       ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.key === `part:${type}`)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon, family: 'rule' })),
     ],
     passed: (level) => {
       const declared = isoOf(level.source)
       return declared ? <DeclaredRules level={declared} /> : null
     },
-    core: (level) => isCore(spec.logic.course, level),
+    core: (level) => isCore(logic.course, level),
     parts: {
       all: [
         ...primitives,
-        ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: Cpu })),
+        ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: CircuitBoard })),
         ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type), rules: lemmaRows(type) })),
         ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
@@ -121,6 +127,6 @@ export function defineLogicGame(spec) {
     better: (score, best) => Boolean(score) && (!best || score.steps < best.steps),
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })
-  game.logic = spec.logic
+  game.logic = logic
   return game
 }

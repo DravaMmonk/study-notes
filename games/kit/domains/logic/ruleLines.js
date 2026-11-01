@@ -39,7 +39,7 @@ export function boardOf(lines) {
   const wires = []
   let n = 0
   const id = (kind) => `${kind}-${(n += 1)}`
-  // Cards stand left of the declared card on the desktop board, one under another (iso.js isoBoard does the same).
+  // Cards stand left of the declared card on the desktop board, one under another.
   const at = (x) => ({ x, y: 40 + nodes.filter((m) => m.x === x).length * 170 })
   // The cards of a list of premises joined in order, or null for none; returns the id that carries them.
   const list = (items, binds = []) => {

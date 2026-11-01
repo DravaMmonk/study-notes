@@ -1,0 +1,35 @@
+{
+  "kind": "proof",
+  "title": { "zh": "理发师", "en": "The barber" },
+  "tests": [{ "premises": { "p": "∃x. ∀y. R(x, y) ↔ ¬R(y, y)" }, "goal": "⊥" }],
+  "cases": [{ "R": "Shaves" }, { "R": "Teaches" }],
+  "brief": {
+    "zh": "村里的理发师说：「我给且只给不给自己刮胡子的人刮胡子。」已知「有这么一个人 x：对所有 y，x 给 y 刮胡子 ↔ y 不给自己刮」，证明出矛盾 ⊥。",
+    "en": "The village barber says: “I shave exactly those who do not shave themselves.” Given “there is an x such that for every y, x shaves y ↔ y does not shave himself”, prove the contradiction ⊥."
+  },
+  "hint": [
+    { "zh": "先取出那个理发师。", "en": "Take the barber out first." },
+    { "zh": "他给不给自己刮？", "en": "Does he shave himself?" }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "目标推得出时，饱和器迟早推出 ⊥；推不出时，它未必停得下来。有没有一台机器，对每个目标都答得出推得出还是推不出？这个专题从<level-ref to=\"kk-one\"></level-ref>的<part-ref to=\"lemma:liar\"></part-ref>说起。",
+        "en": "When a goal follows, the saturator reaches ⊥ sooner or later; when it does not, the saturator may never stop. Is there a machine that can say, for every goal, whether it follows? This topic starts from <part-ref to=\"lemma:liar\"></part-ref> in <level-ref to=\"kk-one\"></level-ref>."
+      }
+    }
+  ],
+  "solution": [
+    "f = exE[x=a](p, body: l) {",
+    "  body {",
+    "    a = allE[t=a](f.body)",
+    "    l = liar(a)",
+    "  }",
+    "}",
+    "goal <- f"
+  ],
+  "after": {
+    "zh": "这种论证叫<wiki-ref to=\"diagonal\"></wiki-ref>。",
+    "en": "This kind of argument is the <wiki-ref to=\"diagonal\"></wiki-ref>."
+  }
+}

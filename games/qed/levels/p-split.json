@@ -1,0 +1,44 @@
+{
+  "consts": ["h", "i", "j", "k", "l", "m", "n"],
+  "title": { "zh": "∀ 不能随便拆", "en": "Splitting ∀" },
+  "tasks": [
+    {
+      "kind": "translate",
+      "step": { "zh": "翻译", "en": "Translate" },
+      "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
+      "say": {
+        "zh": "要是什么都是鸟，那什么都会飞；所以鸟都会飞。",
+        "en": "If everything is a bird, then everything flies; so every bird flies."
+      },
+      "target": "((∀x. Bird(x)) → (∀x. Flies(x))) → (∀x. Bird(x) → Flies(x))",
+      "hint": [
+        {
+          "zh": "前提是一句「如果……那么……」，两边各是一句 ∀；整段推理又是一句「如果……那么……」。",
+          "en": "The premise is an “if … then …” with a ∀ sentence on each side; the whole reasoning is another “if … then …”."
+        }
+      ],
+      "decoys": []
+    },
+    {
+      "kind": "model",
+      "step": { "zh": "造反例", "en": "Counterexample" },
+      "say": {
+        "zh": "要是什么都是鸟，那什么都会飞；所以鸟都会飞。",
+        "en": "If everything is a bird, then everything flies; so every bird flies."
+      },
+      "brief": {
+        "zh": "这段推理写成了引理。造一个反例：前提都成立，结论不成立。",
+        "en": "The reasoning is written as a lemma. Build a counterexample: every premise holds and the goal fails."
+      },
+      "given": ["(∀x. Bird(x)) → (∀x. Flies(x))"],
+      "goal": "∀x. Bird(x) → Flies(x)",
+      "answer": { "size": 2, "preds": { "Bird": ["0"] } },
+      "hint": [
+        {
+          "zh": "前提的条件「什么都是鸟」，只要有一样东西不是鸟，就不成立。",
+          "en": "The premise’s condition, “everything is a bird”, fails as soon as one thing is not a bird."
+        }
+      ]
+    }
+  ]
+}

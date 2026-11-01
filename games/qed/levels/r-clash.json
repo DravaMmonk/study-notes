@@ -1,0 +1,35 @@
+{
+  "kind": "machine",
+  "want": "unify",
+  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+  "title": { "zh": "对不上", "en": "They do not fit" },
+  "adds": ["uConflict", "uDecompose"],
+  "tests": [
+    { "eqs": ["?A ∧ ?B ≐ Rain ∨ Wind"] },
+    { "eqs": ["?A → ⊥ ≐ Rain → Wet"] },
+    { "eqs": ["?A ∨ ?B ≐ Rain ∨ (Wind ∧ Wet)"] },
+    { "eqs": ["(?A ∧ ?B) → ?C ≐ (Rain ∨ Wind) → Wet"] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：能对上的解到底；对不上的，说「失败」。",
+    "en": "Design a proof assistant that solves what can be fitted to the end, and says “failed” of what cannot."
+  },
+  "hint": [{ "zh": "先拆开，再找两边结构不同的等式。", "en": "Split first, then look for an equation whose sides differ in shape." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "规则不一定对得上目标。拼接的结论是「并且」，目标是「或者」时，?A、?B 怎样填都对不上。新元件「冲突」：找到两边都不是 ?-字母、结构却不同的等式，宣布失败。用规则时，失败说明该换一条规则。",
+        "en": "A rule need not fit a goal. Join concludes an “and”; against an “or”, nothing put in for ?A and ?B makes them fit. A new part, “Conflict”, finds an equation with no ?-letter on either side and sides of different shapes, and declares failure. When using rules, failure means trying another rule."
+      }
+    }
+  ],
+  "solution": [
+    "r = repeat(in, body: c1) {",
+    "  body {",
+    "    c0 = uDecompose(r.body)",
+    "    c1 = uConflict(c0)",
+    "  }",
+    "}",
+    "out <- r"
+  ]
+}

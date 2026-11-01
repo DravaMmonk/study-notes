@@ -1,0 +1,37 @@
+{
+  "kind": "proof",
+  "title": { "zh": "接起来", "en": "Join them" },
+  "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
+  "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+  "brief": {
+    "zh": "已知「下雨 → 地湿」和「地湿 → 路滑」，证出「下雨 → 路滑」。",
+    "en": "Given “it rains → the ground is wet” and “the ground is wet → the road is slippery”, prove “it rains → the road is slippery”."
+  },
+  "hint": [
+    {
+      "zh": "目标是一句「如果下雨，那么…」：假设「下雨」，看能套用出什么。",
+      "en": "The goal is “if it rains, then …”: assume “it rains” and see what Apply gets you."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "两段「如果…那么…」首尾相接。要证一句「如果…那么…」，先假设它的前一半。",
+        "en": "Two “if … then …”s meet end to end. To prove an “if … then …”, assume its first half."
+      }
+    }
+  ],
+  "solution": [
+    "f = impI[A=A](body: m2) {",
+    "  body {",
+    "    m1 = mp(p, f.body)",
+    "    m2 = mp(q, m1)",
+    "  }",
+    "}",
+    "goal <- f"
+  ],
+  "after": {
+    "zh": "要证「如果…那么…」，就假设它的前一半。下一个专题会拿掉框，看同一件事要费多少力气。",
+    "en": "To prove an “if … then …”, assume its first half. The topic that follows takes the box away to see what the same thing costs."
+  }
+}

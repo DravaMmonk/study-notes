@@ -1,0 +1,77 @@
+{
+  "title": { "zh": "矛盾", "en": "Contradiction" },
+  "fold": ["axK", "axS"],
+  "symbols": ["⊥"],
+  "intro": [
+    {
+      "t": {
+        "zh": "一个证人先说「门锁着」，又说「门没锁」。两句不可能都对。",
+        "en": "A witness says “the door is locked”, then “the door is not locked”. Both cannot be true."
+      }
+    },
+    {
+      "t": {
+        "zh": "<level-ref to=\"g-always\"></level-ref>里见过<wiki-ref to=\"contradiction\"></wiki-ref>：每一行都假的句子，写作 <b>⊥</b>。",
+        "en": "You met the <wiki-ref to=\"contradiction\"></wiki-ref> in <level-ref to=\"g-always\"></level-ref>: a sentence false on every row, written <b>⊥</b>."
+      }
+    },
+    {
+      "t": {
+        "zh": "<part-ref to=\"part:botE\"></part-ref>是 ⊥ 的消去规则：有了 ⊥，元件上选哪句，就证出哪句。这是<wiki-ref to=\"explosion\"></wiki-ref>。",
+        "en": "<part-ref to=\"part:botE\"></part-ref> is the elimination rule of ⊥: from ⊥ it proves whichever sentence is chosen on the part. This is <wiki-ref to=\"explosion\"></wiki-ref>."
+      }
+    }
+  ],
+  "after": {
+    "zh": "一组已知一旦自相矛盾，就什么都证得出，也就分不清真假了。",
+    "en": "Once the givens contradict each other, everything can be proved, and true can no longer be told from false."
+  },
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "矛盾", "en": "Contradiction" },
+      "tests": [{ "premises": { "p": "A", "q": "¬A" }, "goal": "B" }],
+      "cases": [{ "A": "Locked", "B": "Moon" }, { "A": "Rain", "B": "Pigs" }],
+      "hint": [
+        {
+          "zh": "「¬门锁着」就是「门锁着 → ⊥」：把它接进套用的「A → B」口，「门锁着」接进「A」口，得到 ⊥。",
+          "en": "“¬the door is locked” is “the door is locked → ⊥”: wire it into Apply’s “A → B” input and “the door is locked” into its “A” input, and you get ⊥."
+        },
+        {
+          "zh": "得到 ⊥ 以后，用<part-ref to=\"part:botE\"></part-ref>，元件上拼出「月亮是奶酪做的」。",
+          "en": "Once you have ⊥, use <part-ref to=\"part:botE\"></part-ref> and choose “the moon is made of cheese” on its part."
+        }
+      ],
+      "solution": ["m = mp(q, p)", "b = botE[C=B](m)", "goal <- b"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "假前提推出一切", "en": "A false premise gives anything" },
+      "tests": [{ "premises": { "p": "¬A" }, "goal": "A → B" }],
+      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Locked", "B": "Moon" }],
+      "hint": [
+        {
+          "zh": "目标是「若…则…」：假设「下雨」。框里它和已知撞出 ⊥。",
+          "en": "The goal is an “if … then …”: assume “it rains”. Inside the box it clashes with the given and gives ⊥."
+        }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "真值表里，「若…则…」的前件为假，整句就为真。这一回用规则证出它的一个例子。",
+            "en": "In a truth table, an “if … then …” is true whenever its “if” part is false. Here the rules prove one instance of it."
+          }
+        }
+      ],
+      "solution": [
+        "f = impI[A=A](body: b) {",
+        "  body {",
+        "    m = mp(p, f.body)",
+        "    b = botE[C=B](m)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
+}

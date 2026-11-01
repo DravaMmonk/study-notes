@@ -1,0 +1,43 @@
+{
+  "kind": "machine",
+  "want": "becomes",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "只从左往右", "en": "Left to right only" },
+  "tests": [
+    { "goal": "¬Rain ∧ ¬Wind → Wet", "becomes": [["¬(Rain ∨ Wind) → Wet"]] },
+    { "goal": "¬Wet ∨ ¬Slip", "becomes": [["¬(Wet ∧ Slip)"]] },
+    { "goal": "Happy ∧ (¬Sat ∧ ¬Sun)", "becomes": [["Happy ∧ ¬(Sat ∨ Sun)"]] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手，把每个目标里的两个否定合成一个，提到括号外面。",
+    "en": "Design a proof assistant that makes the two negations in each goal one, outside the brackets."
+  },
+  "hint": [
+    {
+      "zh": "<part-ref to=\"lemma:dm\"></part-ref>里还有没用过的形状。",
+      "en": "<part-ref to=\"lemma:dm\"></part-ref> still has shapes you have not used."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "改写规则只从左往右换：¬(A ∨ B) ⟼ ¬A ∧ ¬B 能把否定推进去，却提不出来。",
+        "en": "A rewrite rule works only left to right: ¬(A ∨ B) ⟼ ¬A ∧ ¬B pushes a negation in, but cannot bring it out."
+      }
+    }
+  ],
+  "solution": [
+    "c0 = append(in, first: c1, second: c2) {",
+    "  first {",
+    "    c1r0 = dm[use=[\"dm.andNot\"]]()",
+    "    c1 = rw(c0.first, c1r0)",
+    "  }",
+    "  second {",
+    "    c2r0 = dm[use=[\"dm.orNot\"]]()",
+    "    c2 = rw(c0.second, c2r0)",
+    "  }",
+    "}",
+    "out <- c0"
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "kind": "machine",
+  "want": "clauses",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "子句化", "en": "Into clauses" },
+  "builds": "clausify",
+  "adds": ["toClauses", "skolem"],
+  "tests": [
+    { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"], "clauses": ["¬Rain ∨ Wet", "Rain", "¬Wet"] },
+    {
+      "goal": "OnTime",
+      "hyps": ["Bus ∨ Bike", "Bus → OnTime", "Bike → OnTime"],
+      "clauses": ["Bus ∨ Bike", "¬Bus ∨ OnTime", "¬Bike ∨ OnTime", "¬OnTime"]
+    },
+    {
+      "goal": "Mortal(h)",
+      "hyps": ["∀x. Human(x) → Mortal(x)", "Human(h)"],
+      "clauses": ["¬Human(x) ∨ Mortal(x)", "Human(h)", "¬Mortal(h)"]
+    },
+    {
+      "goal": "∀x. Baby(x) → ¬Tamer(x)",
+      "hyps": ["∀x. Baby(x) → ¬Logical(x)"],
+      "clauses": ["¬Baby(x) ∨ ¬Logical(x)", "Baby(a)", "Tamer(a)"]
+    }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手，把每个目标拆成子句：要证的那句的否定和已知一起。",
+    "en": "Design a proof assistant that splits each goal into clauses: the negation of what is to be proved, with the hypotheses."
+  },
+  "hint": [
+    { "zh": "本章前面几关的步骤，依次接上。", "en": "The steps of this chapter so far, one after another." },
+    {
+      "zh": "<level-ref to=\"au-negate\"></level-ref>、<level-ref to=\"au-hyps\"></level-ref>、<level-ref to=\"au-skolem\"></level-ref>，最后「析出子句」。",
+      "en": "<level-ref to=\"au-negate\"></level-ref>, <level-ref to=\"au-hyps\"></level-ref>, <level-ref to=\"au-skolem\"></level-ref>, and last “Into clauses”."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "新元件「析出子句」把目标是 ⊥ 的证明状态拆开，每一串「或者」一条<wiki-ref to=\"clause\"></wiki-ref>：从这里起，线上传的是子句，不再是证明状态。",
+        "en": "The new card “Into clauses” takes a proof state whose goal is ⊥ apart, one <wiki-ref to=\"clause\"></wiki-ref> for each string of “or”: from here on, the wire carries clauses, no longer proof states."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = raa()",
+    "c1r0 = impI()",
+    "c2r0 = iff[use=[\"iff.elim\"]]()",
+    "c0 = rule(in, c0r0)",
+    "c2r1 = arrow[use=[\"arrow.elim\"]](c2r0)",
+    "c1 = rule(c0, c1r0)",
+    "c2r2 = dneg[use=[\"dneg.elim\"]](c2r1)",
+    "c2r3 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c2r2)",
+    "c2r7 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c2r3)",
+    "c2 = simp[at=hyps](c1, c2r7)",
+    "c3 = skolem(c2)",
+    "c4 = toClauses(c3)",
+    "out <- c4"
+  ],
+  "naive": [
+    "c0r0 = iff[use=[\"iff.elim\"]]()",
+    "c0r1 = arrow[use=[\"arrow.elim\"]](c0r0)",
+    "c0r2 = dneg[use=[\"dneg.elim\"]](c0r1)",
+    "c0r3 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r2)",
+    "c0r7 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c0r3)",
+    "c0 = simp[at=hyps](in, c0r7)",
+    "c1 = skolem(c0)",
+    "c2 = toClauses(c1)",
+    "out <- c2"
+  ]
+}

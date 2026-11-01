@@ -1,0 +1,45 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "判定程序", "en": "A decision procedure" },
+  "words": ["everyday", "terms", "reflection"],
+  "stated": [
+    "ev(p, x, y) = x",
+    "ev(q, x, y) = y",
+    "ev(neg(z), x, y) = bnot(ev(z, x, y))",
+    "ev(conj(z, w), x, y) = band(ev(z, x, y), ev(w, x, y))",
+    "ev(disj(z, w), x, y) = bor(ev(z, x, y), ev(w, x, y))",
+    "bnot(tt) = ff",
+    "bnot(ff) = tt",
+    "band(tt, y) = y",
+    "band(ff, y) = ff",
+    "bor(tt, y) = tt",
+    "bor(ff, y) = y",
+    "taut(z) = band(ev(z, tt, tt), band(ev(z, tt, ff), band(ev(z, ff, tt), ev(z, ff, ff))))"
+  ],
+  "tests": [
+    { "goal": "taut(disj(p, neg(p))) = tt" },
+    { "goal": "taut(conj(p, q)) = ff" },
+    { "goal": "taut(disj(neg(conj(p, q)), disj(p, q))) = tt" }
+  ],
+  "brief": { "zh": "设计一个证明助手：每个目标都证出来。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "这一关的定义都给化简用上。", "en": "Give Simp every definition of this level." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"au-cert\"></level-ref>里，外面的证明器交来证书，核照着重放。另一条路不要证书，靠核按定义去算。公式也能写成数据：Or p (Not p) 是一样东西；eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假；taut f 把四行都算一遍。这样的程序叫<wiki-ref to=\"decision\"></wiki-ref>，它判定一句话是不是永远成立。",
+        "en": "In <level-ref to=\"au-cert\"></level-ref> an outside prover handed over a certificate and the kernel replayed it. The other way needs no certificate and relies on the kernel computing by the definitions. A formula can be data too: Or p (Not p) is a thing; eval f a b works out by the definitions whether it is true on the row where p is a and q is b; taut f works out all four rows. Such a program is a <wiki-ref to=\"decision\"></wiki-ref>: it decides whether a sentence always holds."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\", \"def.11\"]]()",
+    "c1r0 = refl()",
+    "c0 = simp(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "out <- c1"
+  ],
+  "naive": ["c0r0 = refl()", "c0 = rule(in, c0r0)", "out <- c0"]
+}

@@ -1,0 +1,46 @@
+{
+  "kind": "proof",
+  "title": { "zh": "定义相等：自反", "en": "Defining equality: reflexivity" },
+  "consts": ["i", "j"],
+  "propertyWords": true,
+  "words": ["everyday", "stars", "properties"],
+  "tests": [{ "premises": {}, "goal": "∀P. P(i) → P(i)" }],
+  "cases": [],
+  "brief": {
+    "zh": "不用任何已知，证明：对于任意性质，如果晨星具有该性质，那么晨星具有该性质。",
+    "en": "From nothing, prove: for every property, if the Morning Star has that property, then the Morning Star has it."
+  },
+  "hint": [
+    { "zh": "任取框取的名字选 P：框里 P 是任意一种性质。", "en": "Take the name P in the for-any box: inside, P is any property at all." },
+    {
+      "zh": "框里是一个假设框：它的假设就是它要的结论。",
+      "en": "Inside goes an assumption box whose assumption is just the conclusion it wants."
+    }
+  ],
+  "solution": [
+    "s = allI[x=P](body: f) {",
+    "  body {",
+    "    f = impI[A=\"P(i)\"](body: f.body)",
+    "  }",
+    "}",
+    "goal <- s"
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"decl-eq\"></level-ref>把相等声明进了证明核。也可以不声明，用量词定义它：「a = b」就是「a 有的性质，b 都有」，写成 ∀P. P(a) → P(b)。",
+        "en": "<level-ref to=\"decl-eq\"></level-ref> declared equality into the kernel. It can also be defined with a quantifier instead: “a = b” is “every property a has, b has”, written ∀P. P(a) → P(b)."
+      }
+    },
+    {
+      "t": {
+        "zh": "这里的 ∀ 管的是性质：P(x) 是一句说 x 的话。<part-ref to=\"part:allI\"></part-ref>取大写的 P。按这个定义，晨星 = 晨星 写出来就是这一关的目标。",
+        "en": "This ∀ ranges over properties: P(x) is a sentence about x. The <part-ref to=\"part:allI\"></part-ref> takes the upper-case P. By this definition, the Morning Star = the Morning Star is this level’s goal."
+      }
+    }
+  ],
+  "after": {
+    "zh": "声明给出的自反律，在定义下是一条证出来的结论。",
+    "en": "The reflexivity a declaration gives is, under the definition, a conclusion proved."
+  }
+}

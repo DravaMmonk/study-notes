@@ -1,0 +1,138 @@
+{
+  "title": { "zh": "插进去", "en": "Inserting" },
+  "intro": [
+    {
+      "t": {
+        "zh": "排序是程序，程序也能用等式定义。插入排序把元素一个个插进排好的列表。",
+        "en": "Sorting is a program, and a program can be defined by equations. Insertion sort puts the elements one by one into a sorted list."
+      }
+    }
+  ],
+  "after": { "zh": "定义函数就是写程序，化简就是运行程序。", "en": "Defining a function is writing a program; Simp runs it." },
+  "tasks": [
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "如果", "en": "If" },
+      "fn": "if",
+      "on": 0,
+      "rows": [{ "lhs": "if(tt, v, w)", "choices": ["v", "w"] }, { "lhs": "if(ff, v, w)", "choices": ["w", "v"] }],
+      "tests": [
+        { "term": "if(tt, zero, s(zero))", "value": "zero" },
+        { "term": "if(ff, zero, s(zero))", "value": "s(zero)" }
+      ],
+      "solution": ["v", "w"],
+      "naive": ["v", "v"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [
+        { "zh": "if c then v else w：c 为真取 v，为假取 w。", "en": "if c then v else w: v when c is true, w when it is false." }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "程序里的「如果」也是函数：按条件的真假，各写一行。",
+            "en": "A program’s “if” is a function too: one row for each truth value of its condition."
+          }
+        }
+      ]
+    },
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "插进去", "en": "Insert" },
+      "fn": "ins",
+      "on": 1,
+      "defs": ["le", "if"],
+      "rows": [
+        { "lhs": "ins(x, nil)", "choices": ["cons(x, nil)", "nil"] },
+        {
+          "lhs": "ins(x, cons(y, ys))",
+          "choices": [
+            "if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))",
+            "if(le(x, y), cons(y, ins(x, ys)), cons(x, cons(y, ys)))",
+            "cons(x, cons(y, ys))"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "term": "ins(s(zero), cons(zero, cons(s(s(zero)), nil)))",
+          "value": "cons(zero, cons(s(zero), cons(s(s(zero)), nil)))"
+        },
+        { "term": "ins(zero, cons(s(zero), nil))", "value": "cons(zero, cons(s(zero), nil))" },
+        { "term": "ins(s(s(zero)), cons(zero, nil))", "value": "cons(zero, cons(s(s(zero)), nil))" }
+      ],
+      "solution": ["cons(x, nil)", "if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))"],
+      "naive": ["cons(x, nil)", "cons(x, cons(y, ys))"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "拿 x 和列表的第一个 y 比。", "en": "Compare x with the first of the list, y." }],
+      "intro": [
+        {
+          "t": {
+            "zh": "ins 把一个数插进排好的列表，拆开的是第二个参数。",
+            "en": "ins puts a number into a sorted list; it takes apart its second argument."
+          }
+        }
+      ]
+    },
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "排序", "en": "Sort" },
+      "fn": "sort",
+      "on": 0,
+      "defs": ["le", "if", "ins"],
+      "rows": [
+        { "lhs": "sort(nil)", "choices": ["nil"] },
+        { "lhs": "sort(cons(x, xs))", "choices": ["ins(x, sort(xs))", "cons(x, sort(xs))", "ins(x, xs)"] }
+      ],
+      "tests": [
+        {
+          "term": "sort(cons(s(s(zero)), cons(zero, cons(s(zero), nil))))",
+          "value": "cons(zero, cons(s(zero), cons(s(s(zero)), nil)))"
+        },
+        {
+          "term": "sort(cons(s(zero), cons(s(zero), cons(zero, nil))))",
+          "value": "cons(zero, cons(s(zero), cons(s(zero), nil)))"
+        }
+      ],
+      "solution": ["nil", "ins(x, sort(xs))"],
+      "naive": ["nil", "ins(x, xs)"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "ins 要的是一个排好的列表。", "en": "ins wants a sorted list." }]
+    },
+    {
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "step": { "zh": "算几个例子", "en": "A few examples" },
+      "types": ["list"],
+      "defs": ["le", "if", "ins", "sort", "len"],
+      "tests": [
+        { "goal": "ins(s(zero), cons(zero, cons(s(s(zero)), nil))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))" },
+        { "goal": "ins(zero, cons(s(zero), nil)) = cons(zero, cons(s(zero), nil))" },
+        { "goal": "ins(s(s(zero)), cons(zero, nil)) = cons(zero, cons(s(s(zero)), nil))" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "比大小、「如果」和插入的定义都要用。", "en": "The definitions of comparison, if and insert are all needed." }],
+      "solution": [
+        "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\"]]()",
+        "c1r0 = refl()",
+        "c0 = simp(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "out <- c1"
+      ]
+    }
+  ]
+}

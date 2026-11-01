@@ -1,0 +1,64 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms"],
+  "title": { "zh": "会绕圈的化简", "en": "Simp going round in circles" },
+  "types": ["nat"],
+  "defs": ["plus"],
+  "tests": [
+    { "goal": "∀x. ∀y. plus(x, s(y)) = s(plus(y, x))" },
+    { "goal": "∀x. ∀y. plus(s(x), y) = plus(y, s(x))" },
+    { "goal": "∀x. plus(x, s(zero)) = s(x)" }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [
+    { "zh": "交换律交给化简，会把 x + y 改成 y + x，再改回来……", "en": "Commutativity in Simp turns x + y into y + x and back again …" },
+    {
+      "zh": "化简以后，有的目标两边已经一样，有的只差一处交换。",
+      "en": "After Simp, some goals have both sides the same already, others differ by one swap."
+    }
+  ],
+  "intro": [{ "t": { "zh": "这几句都要用到交换律。", "en": "Each of these needs commutativity." } }],
+  "solution": [
+    "c2r0 = math[use=[\"def.0\", \"def.1\", addZero, addSucc]]()",
+    "c0 = repeat(in, body: c1) {",
+    "  body {",
+    "    c1r0 = allI()",
+    "    c1 = rule(c0.body, c1r0)",
+    "  }",
+    "}",
+    "c2 = simp(c0, c2r0)",
+    "c3 = append(c2, first: c4, second: c6) {",
+    "  first {",
+    "    c4r0 = refl()",
+    "    c4 = rule(c3.first, c4r0)",
+    "  }",
+    "  second {",
+    "    c5r0 = math[use=[addComm]]()",
+    "    c6r0 = refl()",
+    "    c5 = rw(c3.second, c5r0)",
+    "    c6 = rule(c5, c6r0)",
+    "  }",
+    "}",
+    "out <- c3"
+  ],
+  "naive": [
+    "c2r0 = math[use=[\"def.0\", \"def.1\", addZero, addSucc, addComm]]()",
+    "c3r0 = refl()",
+    "c0 = repeat(in, body: c1) {",
+    "  body {",
+    "    c1r0 = allI()",
+    "    c1 = rule(c0.body, c1r0)",
+    "  }",
+    "}",
+    "c2 = simp(c0, c2r0)",
+    "c3 = rule(c2, c3r0)",
+    "out <- c3"
+  ],
+  "after": {
+    "zh": "Isabelle 给式子定一个固定的次序，只往「更小」的方向改写，这叫<wiki-ref to=\"ordered\"></wiki-ref>。",
+    "en": "Isabelle fixes an order on expressions and rewrites only towards the smaller, which is called <wiki-ref to=\"ordered\"></wiki-ref>."
+  }
+}

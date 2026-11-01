@@ -45,6 +45,7 @@ import { KERNEL, answerOf, asValue, assumption, defer, depthFirst, resultsOf, ru
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
 import { rewrite, rewriteBookOf, simplify } from './rewrite.js'
 import { datatypesRules } from './datatype.js'
+import { ownBoard } from './built.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
 import { GEN_PARTS, anyValue, elimInputs, judgeElim, listValue, ruleValue, sentenceValue } from './elimgen.js'
 
@@ -121,40 +122,6 @@ export function rulePartOf(level, key) {
 }
 /** The keys a rule part offers to choose from (a law is one choice, rule and rewrite rule alike). */
 export const choicesOfPart = (entries) => [...new Set(entries.map((e) => e.key))]
-const SHORTHAND = ['rule', 'rewrite', 'rewrites']
-/**
- * A reference answer as the levels write it, short: a card's rules named on it (`rule`, `rewrite`, `rewrites`: keys
- * of the level's books, comma-separated, in order), put on the board as they are played: a chain of rule parts in
- * the card's region, wired into its port `rules`. Keys in a row that one part gives are one part, with them all added
- * in that order.
- */
-export function wireRules(circuit, level) {
-  if (!circuit?.nodes) return circuit
-  const nodes = []
-  const wires = [...circuit.wires]
-  for (const n of circuit.nodes) {
-    const keys = SHORTHAND.flatMap((k) => String(n.params?.[k] ?? '').split(',').filter(Boolean))
-    if (!keys.length) { nodes.push(n); continue }
-    nodes.push({ ...n, params: Object.fromEntries(Object.entries(n.params).filter(([k]) => !SHORTHAND.includes(k))) })
-    let prev = null
-    keys.forEach((key, i) => {
-      const at = rulePartOf(level, key)
-      if (!at) throw new Error(`${level.id}: no rule part of the level gives ${key}`)
-      const last = nodes.at(-1)
-      if (at.use && last.id === prev && last.type === at.type && !last.params.use.includes(key)) {
-        last.params.use = [...last.params.use, key]
-        return
-      }
-      const id = `${n.id}r${i}`
-      nodes.push({ id, type: at.type, params: at.use ? { use: at.use } : {}, x: (n.x ?? 0) + i * 30, y: (n.y ?? 0) + 160 + i * 40, ...(n.in ? { in: n.in } : {}) })
-      if (prev) wires.push({ from: prev, to: id, port: 'before' })
-      prev = id
-    })
-    wires.push({ from: prev, to: n.id, port: 'rules' })
-  }
-  return { ...circuit, nodes, wires }
-}
-
 /** The keys a rule part gives of its own: those added on it (`use`), in that order; its first until any is. */
 export const ownRules = (entries, use) => {
   const keys = choicesOfPart(entries)
@@ -593,6 +560,12 @@ const clauseSetOf = (texts) => [...new Map(texts.map((c) => parseClause(c, parse
 /** The names and labels of a level's inputs. */
 export const inputsOfLevel = (level) => level.inputs ?? [{ name: 'in', label: { zh: '输入', en: 'Input' } }]
 
+/** The board a machine level starts from: an `in` card for each of its inputs, and the result `out`. */
+export const startMachine = (level) => ({
+  nodes: [...inputsOfLevel(level).map((i, k) => ({ id: i.name, type: 'in', params: { name: i.name }, x: 20, y: 40 + k * 130 })), { id: 'out', type: 'out', params: { name: 'out' }, x: 900, y: 40 }],
+  wires: [],
+})
+
 /** A question's answers in a list of results: what its ?-letters become in each that has no goal left. */
 export const answersIn = (out) => [...new Set(resultsOf(out).filter((s) => !s.error && !s.goals.length).map((s) => answerOf(s).map(sideText).join(', ')))].sort()
 
@@ -677,16 +650,6 @@ export function judge(want, test, out, level = {}) {
   return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
 }
 
-/**
- * The circuits the player's built parts run, by the id of the level that built each: the board that last passed it
- * (the shell's progress.built, put here by syncOwn). A part not built by the player (every level open) runs its
- * level's reference board.
- */
-const OWN = new Map()
-export const syncOwn = (built = {}) => {
-  OWN.clear()
-  for (const [id, board] of Object.entries(built)) if (board?.nodes) OWN.set(id, board)
-}
 const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
 /**
  * The machine parts a course's levels build, each running the board that built it (a packed part, ../../engine/
@@ -698,8 +661,8 @@ const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
  */
 export function builtParts(chains) {
   return Object.fromEntries(chains.map((chain) => {
-    const builder = () => chain.findLast((b) => OWN.has(b.id)) ?? chain.at(-1)
-    const circuit = () => OWN.get(builder().id) ?? builder().solution
+    const builder = () => chain.findLast((b) => ownBoard(b.id)) ?? chain.at(-1)
+    const circuit = () => ownBoard(builder().id) ?? builder().solution
     const last = chain.at(-1)
     const part = packed({
       circuit,

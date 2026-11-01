@@ -1,0 +1,100 @@
+{
+  "title": { "zh": "归纳法是一句话", "en": "Induction is one sentence" },
+  "consts": ["zero"],
+  "words": ["everyday", "terms"],
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"decl-nat\"></level-ref>的声明还给出一条规则：对任何性质 P，0 有 P，并且每个 n 有 P 就推出 S n 有 P，那么每个数都有 P。写成一句话就是 ∀P. P(0) → (∀n. P(n) → P(S n)) → (∀n. P(n))。",
+        "en": "The declaration in <level-ref to=\"decl-nat\"></level-ref> gives one more rule: for every property P, if 0 has P and each n having P gives S n having P, then every number has P. As one sentence: ∀P. P(0) → (∀n. P(n) → P(S n)) → (∀n. P(n))."
+      }
+    },
+    {
+      "t": {
+        "zh": "它是一句已知，用的还是<part-ref to=\"part:allE\"></part-ref>和<part-ref to=\"part:mp\"></part-ref>：选定一例时选一种性质换掉 P。",
+        "en": "It is a given, used with <part-ref to=\"part:allE\"></part-ref> and <part-ref to=\"part:mp\"></part-ref>: choosing an instance, choose a property to put in for P."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这句话是自然数这个声明的消去规则。<level-ref to=\"in-zero\"></level-ref>里两个框的归纳元件做的就是这件事：选定 P，再把两个框的结论交给它套用两次。",
+    "en": "This sentence is the elimination rule of the declaration of the numbers. The two-box induction part of <level-ref to=\"in-zero\"></level-ref> does just this: choose P, then hand it the two boxes’ conclusions to Apply twice."
+  },
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "用它", "en": "Using it" },
+      "cases": [],
+      "tests": [
+        {
+          "premises": {
+            "ind": "∀P. P(zero) → (∀n. P(n) → P(s(n))) → (∀n. P(n))",
+            "z": "plus(zero, zero) = zero",
+            "st": "∀n. plus(n, zero) = n → plus(s(n), zero) = s(n)"
+          },
+          "goal": "∀n. plus(n, zero) = n"
+        }
+      ],
+      "brief": {
+        "zh": "已知归纳法、0 + 0 = 0，以及对每个 n，n + 0 = n 推出 S n + 0 = S n。证明对每个 n，n + 0 = n。",
+        "en": "Given induction, 0 + 0 = 0, and for every n that n + 0 = n gives S n + 0 = S n, prove n + 0 = n for every n."
+      },
+      "hint": [
+        {
+          "zh": "<part-ref to=\"part:allE\"></part-ref>里选性质「x + 0 = x」换掉 P。",
+          "en": "In <part-ref to=\"part:allE\"></part-ref> choose the property “x + 0 = x” to put in for P."
+        },
+        {
+          "zh": "得到的话要两样东西才给出结论：依次套用两条已知。",
+          "en": "What it gives needs two things before its conclusion: Apply the two givens in turn."
+        }
+      ],
+      "solution": ["i = allE[t=\"plus(x, zero) = x\"](ind)", "m1 = mp(i, z)", "m2 = mp(m1, st)", "goal <- m2"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "挑对性质", "en": "Picking the property" },
+      "cases": [],
+      "tests": [
+        {
+          "premises": { "ind": "∀P. P(zero) → (∀n. P(n) → P(s(n))) → (∀n. P(n))" },
+          "goal": "∀n. n = zero ∨ (∃m. n = s(m))"
+        }
+      ],
+      "sentences": ["∃m. zero = s(m)", "s(n) = zero ∨ (∃m. s(n) = s(m))"],
+      "brief": {
+        "zh": "只用归纳法，证明每个数要么是 0，要么是某个数的 S。",
+        "en": "With induction alone, prove every number is 0 or S of some number."
+      },
+      "hint": [
+        {
+          "zh": "性质就是目标里对 n 说的那句：「x = 0 ∨ (∃m. x = S m)」。",
+          "en": "The property is what the goal says of n: “x = 0 ∨ (∃m. x = S m)”."
+        },
+        {
+          "zh": "0 的情况：自反律给 0 = 0，再引入 ∨。从 a 到 S a：S a = S a 已经是一个例子，用不着对 a 的假设。",
+          "en": "The case 0: reflexivity gives 0 = 0, then introduce ∨. From a to S a: S a = S a is already an example, and the assumption about a is not needed."
+        }
+      ],
+      "solution": [
+        "r = refl[t=zero]()",
+        "a = allI[x=a](body: h) {",
+        "  body {",
+        "    h = impI[A=\"a = zero | (exists m. a = s(m))\"](body: o2) {",
+        "      body {",
+        "        r2 = refl[t=\"s(a)\"]()",
+        "        x = exI[target=\"exists m. s(a) = s(m)\"](r2)",
+        "        o2 = orI[other=\"s(a) = zero\", side=left](x)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "i = allE[t=\"x = zero | (exists m. x = s(m))\"](ind)",
+        "o = orI[other=\"exists m. zero = s(m)\"](r)",
+        "m1 = mp(i, o)",
+        "m2 = mp(m1, a)",
+        "goal <- m2"
+      ]
+    }
+  ]
+}

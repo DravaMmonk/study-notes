@@ -1,0 +1,38 @@
+{
+  "kind": "iso",
+  "words": ["everyday", "terms"],
+  "title": { "zh": "声明自然数", "en": "Declaring the numbers" },
+  "declare": { "zh": "自然数", "en": "a number" },
+  "target": "Nat",
+  "sentences": ["Nat"],
+  "datatype": { "type": "nat", "ctors": ["zero", "s"], "args": { "Nat": "nat" } },
+  "tests": [{ "given": [], "make": true }, { "given": ["Nat"], "make": true, "uses": ["Nat"] }],
+  "intro": [
+    {
+      "t": {
+        "zh": "自动证明器在一堆句子里找矛盾，却多半不会归纳；化简器能改写，可「1 + 1 = 2」怎么证？数从哪里来？这一章从头构造数和列表，规则书里的每一条都由你声明。",
+        "en": "An automatic prover hunts for a contradiction among sentences, yet mostly cannot do induction; Simp rewrites, but how is “1 + 1 = 2” proved? Where do numbers come from? This chapter builds numbers and lists from the start, and you declare every rule in the book."
+      }
+    },
+    {
+      "t": {
+        "zh": "数也靠声明。这一次声明的是一种东西，它的引入规则叫<wiki-ref to=\"constructor\"></wiki-ref>：每条造出一个数。",
+        "en": "Numbers too come from a declaration. This time what is declared is a kind of thing, and its introduction rules are called <wiki-ref to=\"constructor\"></wiki-ref>s: each makes a number."
+      }
+    }
+  ],
+  "brief": {
+    "zh": "需求：什么都没有，也造得出一个自然数（0）；有了一个数，就造得出它的下一个。写出自然数的声明。",
+    "en": "Requirement: a number can be made from nothing (0); given a number, the next one can be made. Write the declaration of the numbers."
+  },
+  "hint": [
+    { "zh": "需求说了两种造法。", "en": "The requirement names two ways to make one." },
+    { "zh": "第二种造法要的前提，正是一个数。", "en": "The premise of the second way is a number itself." }
+  ],
+  "solution": [{ "binds": [], "needs": [] }, { "binds": [], "needs": ["Nat"] }],
+  "naive": [{ "binds": [], "needs": [] }],
+  "after": {
+    "zh": "这样声明出来的类型叫<wiki-ref to=\"inductive\"></wiki-ref>。证明核由它生成三样规则：按情况分、归纳、构造子互不相同。",
+    "en": "A type declared this way is an <wiki-ref to=\"inductive\"></wiki-ref>. The kernel makes three kinds of rule from it: cases, induction, and the constructors all being different."
+  }
+}

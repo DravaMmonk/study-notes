@@ -4,6 +4,7 @@ import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parse, show } from '../formula.js'
 import { say } from '../notation.js'
+import { syncOwn } from '../built.js'
 import { checkScript, depthsOf, methodText, methodsOf, namesOf, sentencesOf } from '../script.js'
 
 // Script tasks (《证明完毕》 chapter 15): a structured proof written as rows, each a sentence and how it is proved, as
@@ -46,8 +47,10 @@ function scriptLines(rows, text) {
   return out
 }
 
-export default function ScriptScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
+export default function ScriptScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, progress, phone }) {
   const level = entry.source
+  // A tactic after by that the player built runs the board that last passed its level.
+  syncOwn(progress.built)
   const consts = [...(level.consts ?? []), ...(level.things ?? [])]
   const read = (f) => parse(f, { consts })
   const text = (f) => L(say(typeof f === 'string' ? read(f) : f, level.notation))

@@ -1,0 +1,2208 @@
+{
+  "domain": "logic",
+  "vocabulary": 1,
+  "title": { "zh": "证明完毕", "en": "Q.E.D." },
+  "kicker": { "zh": "开发中 · 用电路构建证明与证明助手", "en": "In development · Build proofs and proof assistants as circuits" },
+  "lede": {
+    "zh": "无需逻辑学基础。从真值表出发，将推理规则连接成证明，逐步学习假设、分类讨论、量词与归纳，并搭建能够处理证明目标的证明助手。",
+    "en": "No logic background is required. Start with truth tables, connect inference rules into proofs, and learn assumptions, case analysis, quantifiers and induction as you build a proof assistant."
+  },
+  "words": ["everyday"],
+  "wordSets": {
+    "everyday": {
+      "Rain": { "zh": "下雨", "en": "it rains" },
+      "Wet": { "zh": "地湿", "en": "the ground is wet" },
+      "Wind": { "zh": "刮风", "en": "it is windy" },
+      "Slip": { "zh": "路滑", "en": "the road is slippery" },
+      "Fall": { "zh": "有人摔跤", "en": "someone falls" },
+      "Sat": { "zh": "今天是周六", "en": "today is Saturday" },
+      "Sun": { "zh": "今天是周日", "en": "today is Sunday" },
+      "Holiday": { "zh": "今天放假", "en": "today is a holiday" },
+      "AnnYes": { "zh": "安同意", "en": "Ann agrees" },
+      "BoYes": { "zh": "博同意", "en": "Bo agrees" },
+      "CyYes": { "zh": "赛同意", "en": "Cy agrees" },
+      "Motion": { "zh": "提案通过", "en": "the motion passes" },
+      "Truth": { "zh": "真", "en": "True" },
+      "Nat": { "zh": "自然数", "en": "a number" },
+      "List": { "zh": "列表", "en": "a list" },
+      "Bool": { "zh": "真假值", "en": "a truth value" },
+      "Rest": { "zh": "我休息", "en": "I rest" },
+      "Bus": { "zh": "我坐公交", "en": "I take the bus" },
+      "Bike": { "zh": "我骑车", "en": "I cycle" },
+      "OnTime": { "zh": "我准时到", "en": "I arrive on time" },
+      "Alarm": { "zh": "闹钟响了", "en": "the alarm rings" },
+      "Up": { "zh": "我起床了", "en": "I get up" },
+      "Coffee": { "zh": "我喝了咖啡", "en": "I drink coffee" },
+      "Tea": { "zh": "我喝了茶", "en": "I drink tea" },
+      "Awake": { "zh": "我很清醒", "en": "I am wide awake" },
+      "Late": { "zh": "我迟到了", "en": "I am late" },
+      "Exam": { "zh": "明天考试", "en": "there is an exam tomorrow" },
+      "Study": { "zh": "我在复习", "en": "I am revising" },
+      "Pass": { "zh": "我考过了", "en": "I pass" },
+      "Happy": { "zh": "我很开心", "en": "I am happy" },
+      "Hungry": { "zh": "我饿了", "en": "I am hungry" },
+      "Eat": { "zh": "我去吃饭", "en": "I go and eat" },
+      "Full": { "zh": "我吃饱了", "en": "I am full" },
+      "Locked": { "zh": "门锁着", "en": "the door is locked" },
+      "Moon": { "zh": "月亮是奶酪做的", "en": "the moon is made of cheese" },
+      "Pigs": { "zh": "猪会飞", "en": "pigs fly" },
+      "KA": { "zh": "a 是骑士", "en": "a is a knight" },
+      "KB": { "zh": "b 是骑士", "en": "b is a knight" },
+      "KC": { "zh": "c 是骑士", "en": "c is a knight" },
+      "KD": { "zh": "d 是骑士", "en": "d is a knight" },
+      "KE": { "zh": "e 是骑士", "en": "e is a knight" },
+      "KF": { "zh": "f 是骑士", "en": "f is a knight" },
+      "KG": { "zh": "g 是骑士", "en": "g is a knight" },
+      "KH": { "zh": "h 是骑士", "en": "h is a knight" },
+      "KI": { "zh": "i 是骑士", "en": "i is a knight" },
+      "KJ": { "zh": "j 是骑士", "en": "j is a knight" },
+      "HA": { "zh": "a 是人", "en": "a is human" },
+      "HB": { "zh": "b 是人", "en": "b is human" },
+      "MA": { "zh": "a 会死", "en": "a is mortal" },
+      "MB": { "zh": "b 会死", "en": "b is mortal" },
+      "InA": { "zh": "输入 a 是 1", "en": "input a is 1" },
+      "InB": { "zh": "输入 b 是 1", "en": "input b is 1" },
+      "Sum": { "zh": "和位是 1", "en": "the sum bit is 1" },
+      "Carry": { "zh": "进位是 1", "en": "the carry bit is 1" },
+      "Human": { "zh": "{0}是人", "en": "{0} is human" },
+      "Mortal": { "zh": "{0}会死", "en": "{0} is mortal" },
+      "Bird": { "zh": "{0}是鸟", "en": "{0} is a bird" },
+      "Flies": { "zh": "{0}会飞", "en": "{0} flies" },
+      "Parent": { "zh": "{0}是{1}的父母", "en": "{0} is a parent of {1}" },
+      "Likes": { "zh": "{0}喜欢{1}", "en": "{0} likes {1}" },
+      "Knows": { "zh": "{0}认识{1}", "en": "{0} knows {1}" },
+      "School": { "zh": "{0}在上学", "en": "{0} goes to school" },
+      "Student": { "zh": "{0}是学生", "en": "{0} is a student" },
+      "Anc": { "zh": "{0}是{1}的祖先", "en": "{0} is an ancestor of {1}" },
+      "Grand": { "zh": "{0}是{1}的祖父母", "en": "{0} is a grandparent of {1}" },
+      "Older": { "zh": "{0}比{1}年纪大", "en": "{0} is older than {1}" },
+      "Less": { "zh": "{0}比{1}小", "en": "{0} is less than {1}" },
+      "Bigger": { "zh": "{0}比{1}大", "en": "{0} is bigger than {1}" },
+      "IsLate": { "zh": "{0}迟到了", "en": "{0} is late" },
+      "Cries": { "zh": "{0}哭了", "en": "{0} cries" },
+      "Drinks": { "zh": "{0}在喝酒", "en": "{0} is drinking" },
+      "Sings": { "zh": "{0}在唱歌", "en": "{0} is singing" },
+      "Bright": { "zh": "{0}很亮", "en": "{0} is bright" },
+      "Seen": { "zh": "{0}看得见", "en": "{0} can be seen" },
+      "Baby": { "zh": "{0}是婴儿", "en": "{0} is a baby" },
+      "Logical": { "zh": "{0}讲道理", "en": "{0} is logical" },
+      "Tamer": { "zh": "{0}驯得了鳄鱼", "en": "{0} can tame a crocodile" },
+      "Respected": { "zh": "{0}受人尊重", "en": "{0} is respected" },
+      "Cat": { "zh": "{0}是猫", "en": "{0} is a cat" },
+      "Pet": { "zh": "{0}是宠物", "en": "{0} is a pet" },
+      "Fluffy": { "zh": "{0}毛茸茸", "en": "{0} is fluffy" },
+      "s": { "zh": "{0}+1", "en": "{0}+1" },
+      "zero": { "zh": "0", "en": "0" },
+      "Even": { "zh": "{0}是偶数", "en": "{0} is even" },
+      "Odd": { "zh": "{0}是奇数", "en": "{0} is odd" },
+      "Shaves": { "zh": "{0}给{1}刮胡子", "en": "{0} shaves {1}" },
+      "Teaches": { "zh": "{0}教{1}", "en": "{0} teaches {1}" },
+      "In": { "zh": "{0}属于{1}", "en": "{0} is in {1}" },
+      "Accepts": { "zh": "{0}接受{1}", "en": "{0} accepts {1}" },
+      "Ls": { "zh": "{0}在 L_s 里", "en": "{0} is in L_s" },
+      "Halts": { "zh": "{0}在{1}上停机", "en": "{0} halts on {1}" },
+      "DecH": { "zh": "{0}判定停机问题", "en": "{0} decides halting" },
+      "DecA": { "zh": "{0}判定 A_TM", "en": "{0} decides A_TM" },
+      "c": { "zh": "⟨{0}⟩", "en": "⟨{0}⟩" },
+      "Angry": { "zh": "老师生气了", "en": "the teacher is cross" },
+      "Woken": { "zh": "我被吵醒了", "en": "I am woken up" },
+      "h": { "zh": "苏格拉底", "en": "Socrates" },
+      "i": { "zh": "安", "en": "Ann" },
+      "j": { "zh": "博", "en": "Bo" },
+      "k": { "zh": "茜", "en": "Cy" },
+      "l": { "zh": "迪", "en": "Dee" },
+      "m": { "zh": "恩", "en": "En" },
+      "n": { "zh": "菲", "en": "Fay" }
+    },
+    "terms": {
+      "s": { "zh": "S {0}", "en": "S {0}" },
+      "plus": { "zh": "{0} + {1}", "en": "{0} + {1}" },
+      "nil": { "zh": "[]", "en": "[]" },
+      "cons": { "zh": "{0} :: {1}", "en": "{0} :: {1}" },
+      "app": { "zh": "{0} ++ {1}", "en": "{0} ++ {1}" },
+      "len": { "zh": "len {0}", "en": "len {0}" },
+      "pred": { "zh": "pred {0}", "en": "pred {0}" },
+      "le": { "zh": "{0} ≤ {1}", "en": "{0} ≤ {1}" },
+      "max": { "zh": "max {0} {1}", "en": "max {0} {1}" },
+      "tt": { "zh": "真", "en": "true" },
+      "ff": { "zh": "假", "en": "false" },
+      "if": { "zh": "若 {0} 则 {1} 否则 {2}", "en": "if {0} then {1} else {2}" },
+      "rev": { "zh": "rev {0}", "en": "rev {0}" },
+      "sum": { "zh": "sum {0}", "en": "sum {0}" },
+      "itsum": { "zh": "itsum {0} {1}", "en": "itsum {0} {1}" },
+      "ins": { "zh": "ins {0} {1}", "en": "ins {0} {1}" },
+      "sort": { "zh": "sort {0}", "en": "sort {0}" },
+      "f": { "zh": "f {0}", "en": "f {0}" }
+    },
+    "stars": {
+      "a": { "zh": "晨星", "en": "the Morning Star" },
+      "b": { "zh": "昏星", "en": "the Evening Star" },
+      "i": { "zh": "晨星", "en": "the Morning Star" },
+      "j": { "zh": "昏星", "en": "the Evening Star" },
+      "k": { "zh": "金星", "en": "Venus" }
+    },
+    "properties": {
+      "P": { "zh": "{0}具有该性质", "en": "{0} has that property" },
+      "Q": { "zh": "{0}具有该性质", "en": "{0} has that property" }
+    },
+    "vectors": { "Vec": { "zh": "Vec {0}", "en": "Vec {0}" }, "Elem": { "zh": "Elem", "en": "Elem" } },
+    "reflection": {
+      "p": { "zh": "p", "en": "p" },
+      "q": { "zh": "q", "en": "q" },
+      "neg": { "zh": "Not {0}", "en": "Not {0}" },
+      "conj": { "zh": "And {0} {1}", "en": "And {0} {1}" },
+      "disj": { "zh": "Or {0} {1}", "en": "Or {0} {1}" },
+      "ev": { "zh": "eval {0} {1} {2}", "en": "eval {0} {1} {2}" },
+      "taut": { "zh": "taut {0}", "en": "taut {0}" },
+      "bnot": { "zh": "! {0}", "en": "! {0}" },
+      "band": { "zh": "{0} && {1}", "en": "{0} && {1}" },
+      "bor": { "zh": "{0} || {1}", "en": "{0} || {1}" },
+      "Taut": { "zh": "{0} 永远成立", "en": "{0} always holds" }
+    },
+    "codes": {
+      "rain": { "zh": "下雨", "en": "it rains" },
+      "wet": { "zh": "地湿", "en": "the ground is wet" },
+      "slip": { "zh": "路滑", "en": "the road is slippery" },
+      "neg": { "zh": "¬{0}", "en": "¬{0}" },
+      "imp": { "zh": "({0} → {1})", "en": "({0} → {1})" },
+      "code": { "zh": "⌜{0}⌝", "en": "⌜{0}⌝" },
+      "one": { "zh": "1", "en": "1" },
+      "two": { "zh": "2", "en": "2" },
+      "three": { "zh": "3", "en": "3" },
+      "four": { "zh": "4", "en": "4" },
+      "ax": { "zh": "公理 {0}", "en": "axiom {0}" },
+      "use": { "zh": "套用 [{0}] [{1}]", "en": "apply [{0}] [{1}]" },
+      "concl": { "zh": "结论 {0}", "en": "conclusion {0}" },
+      "then": { "zh": "{0} 接上 {1}", "en": "{0} meets {1}" },
+      "ok": { "zh": "查 {0}", "en": "check {0}" },
+      "isax": { "zh": "{0} 是公理", "en": "{0} is an axiom" },
+      "fits": { "zh": "{0} 对得上 {1}", "en": "{0} fits {1}" },
+      "both": { "zh": "{0} 且 {1}", "en": "{0} and {1}" },
+      "nprov": { "zh": "「{0} 证不出」", "en": "“{0} cannot be proved”" },
+      "dg": { "zh": "对角 {0}", "en": "the diagonal of {0}" },
+      "vx": { "zh": "□", "en": "□" },
+      "qt": { "zh": "⌜{0}⌝", "en": "⌜{0}⌝" },
+      "diag": { "zh": "对角 {0}", "en": "the diagonal of {0}" },
+      "sub": { "zh": "{0}[□ := {1}]", "en": "{0}[□ := {1}]" },
+      "subt": { "zh": "{0}[□ := {1}]", "en": "{0}[□ := {1}]" },
+      "val": { "zh": "值 {0}", "en": "value {0}" }
+    },
+    "goedel": {
+      "G": { "zh": "G", "en": "G" },
+      "Prov": { "zh": "{0} 证得出", "en": "{0} is provable" },
+      "diag": { "zh": "对角 {0}", "en": "the diagonal of {0}" },
+      "d": { "zh": "⌜D⌝", "en": "⌜D⌝" },
+      "g": { "zh": "⌜G⌝", "en": "⌜G⌝" },
+      "gn": { "zh": "⌜G 证不出⌝", "en": "⌜G is not provable⌝" },
+      "gp": { "zh": "⌜⌜G⌝ 证得出⌝", "en": "⌜⌜G⌝ is provable⌝" },
+      "cs": { "zh": "⌜不矛盾⌝", "en": "⌜consistent⌝" }
+    }
+  },
+  "primitives": [
+    "gNot",
+    "gAnd",
+    "mp",
+    "impI",
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule",
+    "eachOf",
+    "keepBound",
+    "andI",
+    "andE",
+    "orI",
+    "orE",
+    "botE",
+    "raa",
+    "allE",
+    "allI",
+    "exI",
+    "exE",
+    "rewrite",
+    "refl",
+    "natInd",
+    "uDecompose",
+    "uDelete",
+    "uConflict",
+    "uEliminate",
+    "uSwap",
+    "uCheck",
+    "repeat",
+    "uPattern",
+    "rule",
+    "assumption",
+    "append",
+    "each",
+    "defer",
+    "search",
+    "rw",
+    "hyp",
+    "skolem",
+    "toClauses",
+    "resolve",
+    "replay",
+    "oracle"
+  ],
+  "concept": {
+    "anyR": "rulecraft",
+    "swapConcl": "rulecraft",
+    "consFront": "rulecraft",
+    "mkRule": "rulecraft",
+    "andI": "and",
+    "andE": "and",
+    "orI": "or",
+    "orE": "or",
+    "exI": "ex",
+    "exE": "ex",
+    "rewrite": "eq",
+    "refl": "eq"
+  },
+  "local": [
+    "anyR",
+    "swapConcl",
+    "consFront",
+    "mkRule",
+    "eachOf",
+    "keepBound",
+    "uDecompose",
+    "uDelete",
+    "uConflict",
+    "uEliminate",
+    "uSwap",
+    "uCheck",
+    "uPattern",
+    "unifier",
+    "defer",
+    "introRules",
+    "elimRules",
+    "frule",
+    "natInd",
+    "skolem",
+    "toClauses",
+    "res",
+    "resolve",
+    "saturate",
+    "clausify",
+    "replay",
+    "oracle"
+  ],
+  "machines": [
+    "elimGen",
+    "unifier",
+    "erule",
+    "frule",
+    "introRules",
+    "elimRules",
+    "auto",
+    "simp",
+    "clausify",
+    "saturate",
+    "metis"
+  ],
+  "lemmas": {
+    "axK": {
+      "name": { "zh": "K", "en": "K" },
+      "desc": {
+        "zh": "在元件上选定两句 A、B，输出 A → (B → A)。",
+        "en": "Choose two sentences A and B on the part; gives A → (B → A)."
+      },
+      "statement": "A → (B → A)",
+      "metas": ["A", "B"],
+      "ports": [],
+      "params": { "A": { "zh": "第一句", "en": "First" }, "B": { "zh": "第二句", "en": "Second" } }
+    },
+    "axS": {
+      "name": { "zh": "S", "en": "S" },
+      "desc": {
+        "zh": "在元件上选定三句 A、B、C，输出 (A → (B → C)) → ((A → B) → (A → C))。",
+        "en": "Choose three sentences A, B and C on the part; gives (A → (B → C)) → ((A → B) → (A → C))."
+      },
+      "statement": "(A → (B → C)) → ((A → B) → (A → C))",
+      "metas": ["A", "B", "C"],
+      "ports": [],
+      "params": {
+        "A": { "zh": "第一句", "en": "First" },
+        "B": { "zh": "第二句", "en": "Second" },
+        "C": { "zh": "第三句", "en": "Third" }
+      }
+    },
+    "chain": {
+      "name": { "zh": "串联", "en": "Chain" },
+      "desc": { "zh": "由 A → B 和 B → C 得到 A → C。", "en": "From A → B and B → C, gives A → C." },
+      "statement": "A → C",
+      "premises": ["A → B", "B → C"],
+      "metas": ["A", "B", "C"],
+      "ports": ["A → B", "B → C"]
+    },
+    "swap": {
+      "name": { "zh": "交换", "en": "Swap" },
+      "desc": { "zh": "由 A → (B → C) 得到 B → (A → C)。", "en": "From A → (B → C), gives B → (A → C)." },
+      "statement": "B → (A → C)",
+      "premises": ["A → (B → C)"],
+      "metas": ["A", "B", "C"],
+      "ports": ["A → (B → C)"]
+    },
+    "merge": {
+      "name": { "zh": "合并", "en": "Merge" },
+      "desc": { "zh": "由 A → (A → B) 得到 A → B。", "en": "From A → (A → B), gives A → B." },
+      "statement": "A → B",
+      "premises": ["A → (A → B)"],
+      "metas": ["A", "B"],
+      "ports": ["A → (A → B)"]
+    },
+    "dm": {
+      "name": { "zh": "德摩根律", "en": "De Morgan" },
+      "desc": {
+        "zh": "否定与「或者」「并且」互换，四种形状在元件上切换：¬(A ∨ B) 与 ¬A ∧ ¬B 互推，¬(A ∧ B) 与 ¬A ∨ ¬B 互推。",
+        "en": "A negation trades “or” for “and” and back, four shapes switched on the part: ¬(A ∨ B) and ¬A ∧ ¬B give each other, and so do ¬(A ∧ B) and ¬A ∨ ¬B."
+      },
+      "metas": ["A", "B", "P"],
+      "forms": [
+        { "key": "notOr", "label": "¬(A ∨ B) → ¬A ∧ ¬B", "statement": "¬A ∧ ¬B", "premises": ["¬(A ∨ B)"] },
+        { "key": "andNot", "label": "¬A ∧ ¬B → ¬(A ∨ B)", "statement": "¬(A ∨ B)", "premises": ["¬A ∧ ¬B"] },
+        { "key": "orNot", "label": "¬A ∨ ¬B → ¬(A ∧ B)", "statement": "¬(A ∧ B)", "premises": ["¬A ∨ ¬B"] },
+        { "key": "notAnd", "label": "¬(A ∧ B) → ¬A ∨ ¬B", "statement": "¬A ∨ ¬B", "premises": ["¬(A ∧ B)"] },
+        { "key": "notEx", "label": "¬∃x. P → ∀x. ¬P", "statement": "∀x. ¬P", "premises": ["¬∃x. P"] },
+        { "key": "allNot", "label": "∀x. ¬P → ¬∃x. P", "statement": "¬∃x. P", "premises": ["∀x. ¬P"] },
+        { "key": "exNot", "label": "∃x. ¬P → ¬∀x. P", "statement": "¬∀x. P", "premises": ["∃x. ¬P"] },
+        { "key": "notAll", "label": "¬∀x. P → ∃x. ¬P", "statement": "∃x. ¬P", "premises": ["¬∀x. P"] }
+      ],
+      "ports": ["¬(A ∨ B)"]
+    },
+    "dneg": {
+      "name": { "zh": "双重否定律", "en": "Double negation" },
+      "desc": {
+        "zh": "两种形状在元件上切换：由 ¬¬A 得到 A；由 A 得到 ¬¬A。",
+        "en": "Two shapes switched on the part: from ¬¬A, gives A; from A, gives ¬¬A."
+      },
+      "metas": ["A"],
+      "forms": [
+        { "key": "elim", "label": "¬¬A → A", "statement": "A", "premises": ["¬¬A"] },
+        { "key": "intro", "label": "A → ¬¬A", "statement": "¬¬A", "premises": ["A"] }
+      ],
+      "ports": ["¬¬A"]
+    },
+    "arrow": {
+      "name": { "zh": "蕴涵析取互化", "en": "Arrow away" },
+      "desc": {
+        "zh": "两种形状在元件上切换：由 A → B 得到 ¬A ∨ B；由 ¬A ∨ B 得到 A → B。",
+        "en": "Two shapes switched on the part: from A → B, gives ¬A ∨ B; from ¬A ∨ B, gives A → B."
+      },
+      "metas": ["A", "B"],
+      "forms": [
+        { "key": "elim", "label": "A → B ⟹ ¬A ∨ B", "statement": "¬A ∨ B", "premises": ["A → B"] },
+        { "key": "intro", "label": "¬A ∨ B ⟹ A → B", "statement": "A → B", "premises": ["¬A ∨ B"] }
+      ],
+      "ports": ["A → B"]
+    },
+    "dist": {
+      "name": { "zh": "分配律", "en": "Distribute" },
+      "desc": {
+        "zh": "「或者」对「并且」分配，四种形状在元件上切换：A ∨ (B ∧ C) 与 (A ∨ B) ∧ (A ∨ C) 互推，(A ∧ B) ∨ C 与 (A ∨ C) ∧ (B ∨ C) 互推。",
+        "en": "“Or” distributed over “and”, four shapes switched on the part: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C)."
+      },
+      "metas": ["A", "B", "C"],
+      "forms": [
+        {
+          "key": "orAndR",
+          "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)",
+          "statement": "(A ∨ B) ∧ (A ∨ C)",
+          "premises": ["A ∨ (B ∧ C)"]
+        },
+        {
+          "key": "andOrR",
+          "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)",
+          "statement": "A ∨ (B ∧ C)",
+          "premises": ["(A ∨ B) ∧ (A ∨ C)"]
+        },
+        {
+          "key": "orAndL",
+          "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)",
+          "statement": "(A ∨ C) ∧ (B ∨ C)",
+          "premises": ["(A ∧ B) ∨ C"]
+        },
+        {
+          "key": "andOrL",
+          "label": "(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C",
+          "statement": "(A ∧ B) ∨ C",
+          "premises": ["(A ∨ C) ∧ (B ∨ C)"]
+        }
+      ],
+      "ports": ["A ∨ (B ∧ C)"]
+    },
+    "iff": {
+      "name": { "zh": "等价展开", "en": "Equivalence away" },
+      "desc": {
+        "zh": "两种形状在元件上切换：由 A ↔ B 得到 (¬A ∨ B) ∧ (¬B ∨ A)，反过来也可以。每种形状也是一条改写规则。",
+        "en": "Two shapes switched on the part: from A ↔ B, gives (¬A ∨ B) ∧ (¬B ∨ A), and the other way round. Each shape is also a rewrite rule."
+      },
+      "metas": ["A", "B"],
+      "forms": [
+        {
+          "key": "elim",
+          "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)",
+          "statement": "(¬A ∨ B) ∧ (¬B ∨ A)",
+          "premises": ["A ↔ B"]
+        },
+        {
+          "key": "intro",
+          "label": "(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B",
+          "statement": "A ↔ B",
+          "premises": ["(¬A ∨ B) ∧ (¬B ∨ A)"]
+        }
+      ],
+      "ports": ["A ↔ B"]
+    },
+    "res": {
+      "name": { "zh": "归结", "en": "Resolve" },
+      "card": "res",
+      "desc": {
+        "zh": "接入两条子句，一条含 A，另一条含 ¬A，位置不限：消去这一对，其余部分用「或者」连起来；什么都不剩时得到矛盾 ⊥。一次只消一对。",
+        "en": "Wire in two clauses, one holding A and the other ¬A, in any position: that pair is cancelled and what is left is joined with “or”; when nothing is left, gives the contradiction ⊥. One pair at a time."
+      },
+      "statement": "B ∨ C",
+      "premises": ["A ∨ B", "¬A ∨ C"],
+      "metas": ["A", "B", "C"],
+      "ports": ["A ∨ B", "¬A ∨ C"]
+    },
+    "liar": {
+      "name": { "zh": "说谎者悖论", "en": "The liar" },
+      "desc": { "zh": "由 A ↔ ¬A 得到矛盾 ⊥。", "en": "From A ↔ ¬A, gives the contradiction ⊥." },
+      "statement": "⊥",
+      "premises": ["A ↔ ¬A"],
+      "metas": ["A"],
+      "ports": ["A ↔ ¬A"]
+    },
+    "lem": {
+      "name": { "zh": "排中律", "en": "Excluded middle" },
+      "desc": { "zh": "在元件上选定一句 A，输出 A ∨ ¬A。", "en": "Choose a sentence A on the part; gives A ∨ ¬A." },
+      "statement": "A ∨ ¬A",
+      "metas": ["A"],
+      "ports": []
+    }
+  },
+  "facts": {
+    "addZero": {
+      "name": { "zh": "加零", "en": "Add zero" },
+      "statement": "∀x. plus(x, zero) = x",
+      "desc": {
+        "zh": "x + 0 = x：一条规则，也是化简的一条改写规则（从左往右）。",
+        "en": "x + 0 = x: a rule, and a left-to-right rewrite rule for Simp."
+      }
+    },
+    "addSucc": {
+      "name": { "zh": "加后继", "en": "Add successor" },
+      "statement": "∀x. ∀y. plus(x, s(y)) = s(plus(x, y))",
+      "desc": {
+        "zh": "x + S y = S (x + y)：一条规则，也是化简的一条改写规则（从左往右）。",
+        "en": "x + S y = S (x + y): a rule, and a left-to-right rewrite rule for Simp."
+      }
+    },
+    "addComm": {
+      "name": { "zh": "加法交换", "en": "Addition commutes" },
+      "statement": "∀x. ∀y. plus(x, y) = plus(y, x)",
+      "desc": {
+        "zh": "x + y = y + x：一条规则，也是一条改写规则；放进化简会来回改写，停不下来。",
+        "en": "x + y = y + x: a rule, and a rewrite rule; in Simp it rewrites back and forth without end."
+      }
+    },
+    "addAssoc": {
+      "name": { "zh": "加法结合", "en": "Addition associates" },
+      "statement": "∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))",
+      "desc": {
+        "zh": "(x + y) + z = x + (y + z)：一条规则，也是化简的一条改写规则（从左往右）。",
+        "en": "(x + y) + z = x + (y + z): a rule, and a left-to-right rewrite rule for Simp."
+      }
+    },
+    "appNil": {
+      "name": { "zh": "接空列表", "en": "Append nil" },
+      "statement": "∀xs. app(xs, nil) = xs",
+      "desc": {
+        "zh": "xs ++ [] = xs：一条规则，也是化简的一条改写规则（从左往右）。",
+        "en": "xs ++ [] = xs: a rule, and a left-to-right rewrite rule for Simp."
+      }
+    },
+    "appAssoc": {
+      "name": { "zh": "拼接结合", "en": "Append associates" },
+      "statement": "∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))",
+      "desc": {
+        "zh": "(xs ++ ys) ++ zs = xs ++ (ys ++ zs)：一条规则，也是化简的一条改写规则（从左往右）。",
+        "en": "(xs ++ ys) ++ zs = xs ++ (ys ++ zs): a rule, and a left-to-right rewrite rule for Simp."
+      }
+    },
+    "revApp": {
+      "name": { "zh": "倒过拼接", "en": "Reverse of an append" },
+      "statement": "∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))",
+      "desc": {
+        "zh": "rev (xs ++ ys) = rev ys ++ rev xs：一条规则，也是化简的一条改写规则（从左往右）。",
+        "en": "rev (xs ++ ys) = rev ys ++ rev xs: a rule, and a left-to-right rewrite rule for Simp."
+      }
+    },
+    "inject": {
+      "name": { "zh": "一对一", "en": "One-to-one" },
+      "statement": "∀x. ∀y. s(x) = s(y) → x = y",
+      "desc": {
+        "zh": "S x = S y → x = y，用作拆分规则：已知中有 S ?x = S ?y 时，换成由 ?x = ?y 继续证。",
+        "en": "S x = S y → x = y, as a rule that takes apart: when S ?x = S ?y is given, the proof goes on from ?x = ?y instead."
+      },
+      "rule": { "premises": ["s(?x) = s(?y)", "⟦?x = ?y⟧ ⟹ ?C"], "conclusion": "?C" }
+    },
+    "ifTrue": {
+      "name": { "zh": "如果为真", "en": "If true" },
+      "statement": "∀u. ∀v. ∀w. u = tt → if(u, v, w) = v",
+      "desc": {
+        "zh": "u = 真 → (若 u 则 v 否则 w) = v：一条规则，也是一条带条件的改写规则。",
+        "en": "u = true → (if u then v else w) = v: a rule, and a rewrite rule with a condition."
+      }
+    },
+    "ifFalse": {
+      "name": { "zh": "如果为假", "en": "If false" },
+      "statement": "∀u. ∀v. ∀w. u = ff → if(u, v, w) = w",
+      "desc": {
+        "zh": "u = 假 → (若 u 则 v 否则 w) = w：一条规则，也是一条带条件的改写规则。",
+        "en": "u = false → (if u then v else w) = w: a rule, and a rewrite rule with a condition."
+      }
+    },
+    "succNeq": {
+      "name": { "zh": "不等于后继", "en": "Never its successor" },
+      "statement": "∀x. ¬(x = s(x))",
+      "desc": { "zh": "x ≠ S x：一条规则。", "en": "x ≠ S x: a rule." }
+    },
+    "insLen": {
+      "name": { "zh": "插入长一格", "en": "Insert adds one" },
+      "statement": "∀xs. ∀x. len(ins(x, xs)) = s(len(xs))",
+      "desc": {
+        "zh": "len (ins x xs) = S (len xs)：一条规则，也是化简的一条改写规则（从左往右）。",
+        "en": "len (ins x xs) = S (len xs): a rule, and a left-to-right rewrite rule for Simp."
+      }
+    }
+  },
+  "gates": {
+    "gOr": {
+      "name": { "zh": "或 ∨", "en": "Or ∨" },
+      "desc": {
+        "zh": "a ∨ b：两个输入里至少有一个是真，就输出真；都是假，输出假。",
+        "en": "Outputs true when at least one input is true; false when both are false."
+      },
+      "ports": ["a", "b"]
+    },
+    "gImp": {
+      "name": { "zh": "若…则… →", "en": "If…then… →" },
+      "desc": {
+        "zh": "a → b：只在 a 是真、b 是假时输出假；其余都输出真。",
+        "en": "Outputs false only when a is true and b is false; true otherwise."
+      },
+      "ports": ["a", "b"]
+    },
+    "gIff": {
+      "name": { "zh": "等价 ↔", "en": "Equivalent ↔" },
+      "desc": {
+        "zh": "a ↔ b：a 和 b 同真或同假时输出真；一真一假时输出假。",
+        "en": "a ↔ b: outputs true when a and b are both true or both false; false when one is true and the other false."
+      },
+      "ports": ["a", "b"]
+    }
+  },
+  "revisions": {
+    "dm": [
+      { "by": "demorgan", "forms": ["andNot", "orNot", "notAnd"] },
+      {
+        "by": "q-dm",
+        "forms": ["notEx", "allNot", "exNot", "notAll"],
+        "desc": {
+          "zh": "否定与「或者」「并且」「存在」「对所有」互换，八种形状在元件上切换。",
+          "en": "A negation trades “or” for “and”, “there is” for “for all”, and back: eight shapes switched on the part."
+        }
+      }
+    ],
+    "mp": [
+      {
+        "at": "bot",
+        "desc": {
+          "zh": "由 A → B 和 A 得到 B。¬A 即 A → ⊥，所以由 ¬A 和 A 得到矛盾 ⊥。",
+          "en": "From A → B and A, gives B. ¬A is A → ⊥, so from ¬A and A, gives the contradiction ⊥."
+        }
+      }
+    ],
+    "dneg": [
+      { "by": "c-dneg", "forms": ["intro"] },
+      {
+        "at": "sp-rw",
+        "desc": {
+          "zh": "两种形状在元件上切换：由 ¬¬A 得到 A；由 A 得到 ¬¬A。每种形状也是一条改写规则。",
+          "en": "Two shapes switched on the part: from ¬¬A, gives A; from A, gives ¬¬A. Each shape is also a rewrite rule."
+        }
+      }
+    ],
+    "arrow": [
+      { "by": "c-arrow", "forms": ["intro"] },
+      {
+        "at": "sp-rw",
+        "desc": {
+          "zh": "两种形状在元件上切换：由 A → B 得到 ¬A ∨ B；由 ¬A ∨ B 得到 A → B。每种形状也是一条改写规则。",
+          "en": "Two shapes switched on the part: from A → B, gives ¬A ∨ B; from ¬A ∨ B, gives A → B. Each shape is also a rewrite rule."
+        }
+      }
+    ],
+    "dist": [
+      { "by": "c-dist", "forms": ["andOrR", "orAndL", "andOrL"] },
+      {
+        "at": "sp-rw",
+        "desc": {
+          "zh": "「或者」对「并且」分配，四种形状在元件上切换：A ∨ (B ∧ C) 与 (A ∨ B) ∧ (A ∨ C) 互推，(A ∧ B) ∨ C 与 (A ∨ C) ∧ (B ∨ C) 互推。每种形状也是一条改写规则。",
+          "en": "“Or” distributed over “and”, four shapes switched on the part: A ∨ (B ∧ C) and (A ∨ B) ∧ (A ∨ C) give each other, and so do (A ∧ B) ∨ C and (A ∨ C) ∧ (B ∨ C). Each shape is also a rewrite rule."
+        }
+      }
+    ],
+    "iff": [{ "by": "au-iff", "forms": ["intro"] }],
+    "andE": [
+      {
+        "at": "iffUse",
+        "desc": {
+          "zh": "接入 A ∧ B，两个输出口分别得到 A 和 B。A ↔ B 表示 (A → B) ∧ (B → A)，也可以这样拆解。",
+          "en": "Connect A ∧ B to get A and B at separate outputs. A ↔ B means (A → B) ∧ (B → A) and can be split in the same way."
+        }
+      }
+    ],
+    "uDecompose": [
+      {
+        "at": "r-pattern",
+        "desc": {
+          "zh": "找到两边结构相同的等式，分解为对应部分之间的等式。两边都是「对所有」（或都是「存在」）时，取出两边的主体，用同一个变量 x，并在等式前记上 ⋀x，表示 x 受量词约束。",
+          "en": "Finds an equation whose sides have the same structure and splits it into equations between corresponding parts. When both sides are “for all” (or both “there is”), it takes out the two bodies with one variable x for both, and marks the equation ⋀x: x is bound by a quantifier."
+        }
+      }
+    ],
+    "uCheck": [
+      {
+        "at": "r-pattern",
+        "desc": {
+          "zh": "找到等式 ?A ≐ t，?A 不能取 t 时报告失败：t 含有 ?A 而不是 ?A 本身，或者 t 含有前面 ⋀ 约束的变量。",
+          "en": "Finds ?A ≐ t where ?A cannot be t and reports failure: t contains ?A and is not ?A itself, or t contains a variable bound by the ⋀ in front."
+        }
+      }
+    ],
+    "unifier": [
+      {
+        "at": "r-pattern",
+        "desc": {
+          "zh": "把一组等式解到底：每个等式左边是一个 ?-字母，右边不含这些 ?-字母（最一般合一子）；无法合一时报告失败。?P(x) 这类等式不求解，原样保留。",
+          "en": "Solves a set of equations to the end: each with a ?-letter on the left and none of those letters on any right side (the most general unifier); reports failure if there is none. An equation like ?P(x) is not solved but left as it is."
+        }
+      }
+    ],
+    "append": [
+      {
+        "at": "s-results",
+        "desc": {
+          "zh": "每个框收到相同的状态；依次输出第一个框的每一种结果、下一个框的每一种结果……失败的框没有结果。在元件上选定框的数目。",
+          "en": "Every region receives the same state; gives every result of the first region, then every result of the next, and so on; a region that fails gives none. The number of regions is chosen on the part."
+        }
+      }
+    ],
+    "repeat": [
+      {
+        "at": "s-results",
+        "desc": {
+          "zh": "框收到输入，框内的输出接到「结果」后再送回框内，逐轮重复，直到结果不再变化，输出最后一轮的结果；某一轮失败时，停在失败前的一轮。有几种结果时，只沿第一种继续。",
+          "en": "The frame receives the input; its inner output goes to “Result” and back into the frame, round after round, until it stops changing, and the last round’s result is given. If a round fails, it stops at the round before. With several results, it goes on from the first only."
+        }
+      }
+    ],
+    "assumption": [
+      {
+        "at": "s-results",
+        "desc": {
+          "zh": "第一个目标与它的一条已知合一：成功时这个目标证完。每一条合得上的已知给出一种结果，按从上往下的顺序。",
+          "en": "Unifies the first goal with one of its hypotheses: on success that goal is closed. Each hypothesis that fits gives one result, in order from the top."
+        }
+      }
+    ],
+    "rw": [
+      {
+        "at": "au-hyps",
+        "desc": {
+          "zh": "接入改写规则：在第一个目标中，由外向内、从左到右找到第一处与规则左边相合的位置，换成规则右边，只换这一处。规则带条件时，每个条件成为新目标，排在这个目标之后。接入多条时用第一条相合的；没有一处相合，元件失败。「改哪里」选「已知」时，改写第一个目标中从上往下第一条相合的已知。",
+          "en": "Takes rewrite rules: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions adds each as a new goal after this one. Given several, it uses the first that fits; if nothing fits, it fails. With “Where” set to the hypotheses, it rewrites the first goal’s first hypothesis from the top that fits."
+        }
+      }
+    ],
+    "simp": [
+      {
+        "at": "au-hyps",
+        "desc": {
+          "zh": "接入改写规则列表：每一轮用第一条相合的规则改写一处，逐轮重复，直到没有规则相合。「改哪里」选「已知」时，改写第一个目标的已知。",
+          "en": "Takes a list of rewrite rules: each round, the first that fits rewrites one place, round after round, until none fits. With “Where” set to the hypotheses, it rewrites the first goal’s hypotheses."
+        }
+      }
+    ],
+    "erule": [
+      {
+        "at": "s-results",
+        "desc": {
+          "zh": "接入规则：规则的结论与第一个目标合一，第一条前提与它的一条已知合一，这个目标换成其余的前提，每条一个目标。每一条规则、每一条合得上的已知都给出一种结果。",
+          "en": "Takes rules: the rule’s conclusion is unified with the first goal and its first premise with one of that goal’s hypotheses; the goal is replaced by the remaining premises, one goal each. Each rule wired in, and each hypothesis that fits, gives one result."
+        }
+      }
+    ]
+  },
+  "eras": [
+    {
+      "id": "paper",
+      "machine": null,
+      "foundation": ["table", "always", "onerow"],
+      "chapter": {
+        "title": { "zh": "纸笔", "en": "Pen and paper" },
+        "question": { "zh": "一句话什么时候永远成立？", "en": "When does a statement always hold?" }
+      }
+    },
+    {
+      "id": "circuits",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [{ "id": "gates", "title": { "zh": "门", "en": "Gates" }, "levels": ["g-not", "g-and", "g-tree"] }]
+        },
+        {
+          "parallel": [{ "id": "build", "title": { "zh": "造门", "en": "Building gates" }, "levels": ["g-or", "g-imp"] }]
+        }
+      ],
+      "practice": [
+        {
+          "parallel": [
+            {
+              "id": "kinds",
+              "title": { "zh": "三种句子", "en": "Three kinds of sentence" },
+              "levels": ["g-always", "g-iff"]
+            }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "islanders",
+          "code": "R",
+          "after": "g-iff",
+          "levels": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count"],
+          "title": { "zh": "把谜题接成电路", "en": "A puzzle as a circuit" }
+        }
+      ],
+      "challenges": [{ "level": "g-xor", "after": "g-or" }],
+      "chapter": {
+        "title": { "zh": "真值电路", "en": "Truth circuits" },
+        "question": {
+          "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？",
+          "en": "Can a circuit work out whether a sentence is true in every case?"
+        }
+      }
+    },
+    {
+      "id": "kernel",
+      "machine": "prover",
+      "keeps": [],
+      "foundation": [
+        "copy",
+        {
+          "parallel": [
+            { "id": "apply", "title": { "zh": "套用", "en": "Apply" }, "levels": ["mp", "nested"] },
+            { "id": "assume", "title": { "zh": "假设框", "en": "Assumption box" }, "levels": ["assume"] }
+          ]
+        },
+        "box",
+        {
+          "parallel": [
+            { "id": "chain", "title": { "zh": "串联", "en": "Chain" }, "levels": ["chain", "swap"] },
+            { "id": "merge", "title": { "zh": "合并", "en": "Merge" }, "levels": ["twice"] }
+          ]
+        },
+        "mergeUse"
+      ],
+      "topics": [
+        { "id": "k", "code": "X", "after": "mergeUse", "levels": ["k"], "title": { "zh": "K", "en": "K" } },
+        { "id": "s", "code": "X", "after": "mergeUse", "levels": ["s"], "title": { "zh": "S", "en": "S" } },
+        {
+          "id": "nobox",
+          "code": "X",
+          "after": ["k", "s"],
+          "levels": ["x-k"],
+          "title": { "zh": "拆掉框", "en": "Without the box" }
+        },
+        {
+          "id": "nobox-chain",
+          "code": "X",
+          "after": "x-k",
+          "levels": ["x-chain", "x-swap"],
+          "title": { "zh": "拆掉框：接起来与换顺序", "en": "Without the box: joining and reordering" }
+        },
+        {
+          "id": "nobox-merge",
+          "code": "X",
+          "after": "x-k",
+          "levels": ["x-self", "x-merge"],
+          "title": { "zh": "拆掉框：恒等与合并", "en": "Without the box: identity and merging" }
+        },
+        {
+          "id": "puzzle-kernel",
+          "code": "P",
+          "after": "mergeUse",
+          "levels": ["mergeLong", "mergeBoth"],
+          "title": { "zh": "证明谜题", "en": "Proof puzzles" }
+        }
+      ],
+      "chapter": {
+        "title": { "zh": "证明核", "en": "The kernel" },
+        "question": { "zh": "只靠套用和假设框，能证出什么？", "en": "What can Apply and the assumption box prove?" }
+      }
+    },
+    {
+      "id": "packing",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": ["decl-and", "decl-check", "decl-strength", "decl-or", "decl-bot"],
+      "topics": [
+        {
+          "id": "declare-more",
+          "code": "D",
+          "after": "decl-bot",
+          "levels": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two"],
+          "title": { "zh": "更多声明", "en": "More declarations" }
+        },
+        {
+          "id": "generator",
+          "code": "E",
+          "after": "decl-bot",
+          "levels": ["gen-one", "gen-each"],
+          "title": { "zh": "消去规则生成器", "en": "The elimination rule generator" }
+        }
+      ],
+      "chapter": {
+        "title": { "zh": "声明", "en": "Declarations" },
+        "question": { "zh": "怎样把「与」「或」「非」引入证明核？", "en": "How do “and”, “or” and “not” come into the kernel?" }
+      }
+    },
+    {
+      "id": "boxes",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "and", "title": { "zh": "并且", "en": "And" }, "levels": ["and", "curry"] },
+            { "id": "or", "title": { "zh": "或者", "en": "Or" }, "levels": ["or", "cases", "orSwap"] },
+            { "id": "not", "title": { "zh": "矛盾与否定", "en": "Contradiction and not" }, "levels": ["bot", "notI", "mt"] }
+          ]
+        },
+        { "parallel": [{ "id": "mix", "title": { "zh": "组合", "en": "Together" }, "levels": ["iffUse"] }] }
+      ],
+      "topics": [
+        {
+          "id": "puzzle-connectives",
+          "code": "P",
+          "after": ["mergeBoth", "iffUse"],
+          "levels": ["orImp", "contra", "dist", "dsyll"],
+          "title": { "zh": "证明谜题：连接词", "en": "Proof puzzles: connectives" }
+        }
+      ],
+      "chapter": {
+        "title": { "zh": "连接词的运用", "en": "Using the connectives" },
+        "question": {
+          "zh": "有了声明出来的「与」「或」「非」，能证出些什么？",
+          "en": "With “and”, “or” and “not” declared, what can be proved?"
+        }
+      }
+    },
+    {
+      "id": "quantifiers",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        "fo-atoms",
+        {
+          "parallel": [
+            { "id": "every", "title": { "zh": "对所有", "en": "Every" }, "levels": ["fo-all", "m-counter"] },
+            { "id": "some", "title": { "zh": "存在", "en": "Some" }, "levels": ["fo-some"] }
+          ]
+        },
+        "fo-nested"
+      ],
+      "practice": [
+        { "parallel": [{ "id": "negation", "title": { "zh": "只有与没有", "en": "Only and none" }, "levels": ["p-only"] }] }
+      ],
+      "topics": [
+        {
+          "id": "splitting",
+          "code": "C",
+          "after": ["m-counter", "fo-some"],
+          "levels": ["p-split", "p-exAnd"],
+          "title": { "zh": "量词怎么拆", "en": "Taking quantifiers apart" }
+        },
+        {
+          "id": "family",
+          "code": "F",
+          "after": "fo-nested",
+          "levels": ["q-children"],
+          "title": { "zh": "查族谱", "en": "Asking a family tree" }
+        },
+        {
+          "id": "family-more",
+          "code": "F",
+          "after": "q-children",
+          "levels": ["q-grand", "q-none", "q-school"],
+          "title": { "zh": "查族谱：带量词的查询", "en": "Asking a family tree: queries with quantifiers" }
+        }
+      ],
+      "chapter": {
+        "title": { "zh": "量词的语言与反例", "en": "Quantifiers and counterexamples" },
+        "question": {
+          "zh": "「每一个」「有一个」怎么说，证不出时怎样找反例？",
+          "en": "How do you say “every” and “some”, and find a counterexample when no proof comes?"
+        }
+      }
+    },
+    {
+      "id": "qrules",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        { "parallel": [{ "id": "any", "title": { "zh": "任取", "en": "For any" }, "levels": ["q-allI"] }] },
+        {
+          "parallel": [
+            {
+              "id": "forall",
+              "title": { "zh": "取一个", "en": "Take one" },
+              "levels": ["q-allE", "q-rename", "q-allAnd", "q-capture"]
+            },
+            {
+              "id": "exists",
+              "title": { "zh": "存在", "en": "There is" },
+              "levels": ["decl-ex", "q-exI", "q-exE", "q-witness"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            {
+              "id": "equality",
+              "title": { "zh": "相等", "en": "Equality" },
+              "levels": ["decl-eq", "q-eq", "q-sym", "q-trans"]
+            }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "gen-any",
+          "code": "E",
+          "after": ["decl-ex", "gen-each"],
+          "levels": ["gen-ex"],
+          "title": { "zh": "生成器遇上任取", "en": "The generator meets “any”" }
+        },
+        {
+          "id": "hol",
+          "code": "X",
+          "after": ["k", "q-allE"],
+          "levels": ["h-and-make", "h-or-make"],
+          "title": { "zh": "不声明的连接词", "en": "Connectives without declaring" }
+        },
+        {
+          "id": "leibniz",
+          "code": "X",
+          "after": ["decl-eq", "h-or-make"],
+          "levels": ["h-eq-refl", "h-eq-subst", "h-eq-sym"],
+          "title": { "zh": "不声明的相等", "en": "Equality without declaring" }
+        },
+        {
+          "id": "carroll",
+          "code": "S",
+          "after": "q-trans",
+          "levels": ["s-barbara", "s-darii", "s-carroll"],
+          "title": { "zh": "卡罗尔的推理题", "en": "Carroll’s puzzles" }
+        },
+        {
+          "id": "puzzle-quantifiers",
+          "code": "P",
+          "after": ["dsyll", "q-trans"],
+          "levels": ["q-swap", "q-move", "q-ancestor", "q-bigger"],
+          "title": { "zh": "证明谜题：量词", "en": "Proof puzzles: quantifiers" }
+        }
+      ],
+      "chapter": {
+        "title": { "zh": "量词规则", "en": "Quantifier rules" },
+        "question": { "zh": "怎样证明一句话在所有世界里都成立？", "en": "How do you prove a sentence holds in every world?" }
+      }
+    },
+    {
+      "id": "metavars",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            {
+              "id": "unify",
+              "title": { "zh": "合一", "en": "Unification" },
+              "levels": ["r-match", "r-deep", "r-delete", "r-clash", "r-twice", "r-both", "r-occurs", "r-unifier"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            {
+              "id": "backward",
+              "title": { "zh": "逆用规则", "en": "Rules backwards" },
+              "levels": ["r-rule", "r-assumption", "r-subgoals", "r-meta", "r-lemma", "r-elim", "r-cases", "r-false"]
+            },
+            { "id": "pattern", "title": { "zh": "模式", "en": "Patterns" }, "levels": ["r-pattern", "r-patterns"] }
+          ]
+        },
+        {
+          "parallel": [
+            {
+              "id": "quant",
+              "title": { "zh": "量词的规则", "en": "Quantifier rules" },
+              "levels": ["r-allI", "r-exI", "r-drule", "r-frule", "r-exE"]
+            }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "puzzle-rules",
+          "code": "P",
+          "after": ["q-bigger", "r-exE"],
+          "levels": ["r-dist"],
+          "title": { "zh": "证明谜题：一长串规则", "en": "Proof puzzles: a long run of rules" }
+        }
+      ],
+      "challenges": [{ "level": "r-order", "after": "r-exE" }],
+      "chapter": {
+        "title": { "zh": "规则与元变量", "en": "Rules and metavariables" },
+        "question": { "zh": "元件能不能自己从目标里读出该填的句子？", "en": "Can a part read off the goal what to fill in?" }
+      }
+    },
+    {
+      "id": "tactics",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            {
+              "id": "combine",
+              "title": { "zh": "组合", "en": "Combining" },
+              "levels": ["s-repeat", "s-orelse", "s-mix", "s-try", "s-each"]
+            },
+            { "id": "backtrack", "title": { "zh": "回溯", "en": "Backtracking" }, "levels": ["s-defer", "s-results"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "search", "title": { "zh": "搜索", "en": "Search" }, "levels": ["s-append", "s-search"] },
+            { "id": "shapes", "title": { "zh": "按形状", "en": "By shape" }, "levels": ["s-intro", "s-elim"] }
+          ]
+        },
+        "s-auto"
+      ],
+      "topics": [
+        {
+          "id": "prolog",
+          "code": "F",
+          "after": ["s-search", "q-grand"],
+          "levels": ["pl-grand", "pl-anc", "pl-order"],
+          "title": { "zh": "用规则推族谱", "en": "A family tree by rules" }
+        }
+      ],
+      "challenges": [{ "level": "s-loop", "after": "s-search" }],
+      "chapter": {
+        "title": { "zh": "策略", "en": "Tactics" },
+        "question": { "zh": "能不能让证明助手自己去试该用哪条规则？", "en": "Can the proof assistant try for itself which rule to use?" }
+      }
+    },
+    {
+      "id": "classical",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        "c-wall",
+        "raa",
+        {
+          "parallel": [
+            { "id": "contra", "title": { "zh": "反证法", "en": "By contradiction" }, "levels": ["byContra"] },
+            { "id": "lem", "title": { "zh": "排中律", "en": "Excluded middle" }, "levels": ["lemCases"] },
+            {
+              "id": "machine",
+              "title": { "zh": "证明助手上的反证法", "en": "By contradiction on the proof assistant" },
+              "levels": ["s-lem"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "laws", "title": { "zh": "等价律", "en": "Equivalences" }, "levels": ["c-dneg", "c-arrow", "c-dist"] },
+            { "id": "demorgan", "title": { "zh": "德摩根律", "en": "De Morgan" }, "levels": ["demorgan", "q-dm"] }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "knights",
+          "code": "R",
+          "after": ["e-three", "lemCases"],
+          "levels": ["kk-one", "kk-two", "kk-three"],
+          "title": { "zh": "骑士与无赖", "en": "Knights and knaves" }
+        },
+        {
+          "id": "puzzle-classical",
+          "code": "P",
+          "after": ["r-dist", "q-dm"],
+          "levels": ["c-contra", "c-either"],
+          "title": { "zh": "证明谜题：经典逻辑", "en": "Proof puzzles: classical logic" }
+        }
+      ],
+      "challenges": [{ "level": "peirce", "after": "lemCases" }, { "level": "drinker", "after": "q-dm" }],
+      "chapter": {
+        "title": { "zh": "经典逻辑", "en": "Classical logic" },
+        "question": { "zh": "真值表上每一行都真的话，证明器都证得出吗？", "en": "Does the prover prove everything true on every row?" }
+      }
+    },
+    {
+      "id": "simplifier",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        "sp-rw",
+        {
+          "parallel": [
+            { "id": "laws", "title": { "zh": "更多改写规则", "en": "More rewrite rules" }, "levels": ["sp-laws"] },
+            { "id": "demorgan", "title": { "zh": "推进否定", "en": "Negation pushed in" }, "levels": ["sp-dm", "sp-back"] },
+            { "id": "rewrite", "title": { "zh": "改写一处", "en": "One place" }, "levels": ["sp-where", "sp-repeat"] }
+          ]
+        },
+        "sp-simp",
+        {
+          "parallel": [
+            { "id": "forms", "title": { "zh": "范式", "en": "Normal forms" }, "levels": ["sp-nnf", "sp-cnf", "sp-order"] }
+          ]
+        }
+      ],
+      "chapter": {
+        "title": { "zh": "化简器", "en": "The simplifier" },
+        "question": {
+          "zh": "「把否定推进去」这样的目标，能交给证明助手一路改下去吗？",
+          "en": "Can a goal like “push the negation in” be left to a proof assistant that rewrites all the way?"
+        }
+      }
+    },
+    {
+      "id": "automation",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            {
+              "id": "clause",
+              "title": { "zh": "子句形式", "en": "Clause form" },
+              "levels": ["au-negate", "au-iff", "au-hyps", "au-skolem", "au-clauses"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            {
+              "id": "resolve",
+              "title": { "zh": "归结", "en": "Resolution" },
+              "levels": ["au-resolve", "au-refute", "au-onepair", "au-saturate"]
+            }
+          ]
+        },
+        "au-sledge",
+        {
+          "parallel": [
+            {
+              "id": "cert",
+              "title": { "zh": "证书", "en": "Certificates" },
+              "levels": ["au-cert", "au-replay", "au-wrong"]
+            }
+          ]
+        }
+      ],
+      "practice": [
+        {
+          "parallel": [
+            {
+              "id": "use",
+              "title": { "zh": "交给证明助手", "en": "Handed to the proof assistant" },
+              "levels": ["au-adder", "au-machine"]
+            }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "islanders-more",
+          "code": "R",
+          "after": ["au-replay", "kk-three"],
+          "levels": ["is-three", "is-silent", "is-ten"],
+          "title": { "zh": "岛民变多", "en": "More islanders" }
+        },
+        {
+          "id": "bounds",
+          "code": "R",
+          "after": ["au-machine", "kk-one"],
+          "levels": ["u-barber", "u-cantor", "u-ls", "u-halt"],
+          "title": { "zh": "机器做不到的事", "en": "What no machine can do" }
+        }
+      ],
+      "challenges": [{ "level": "au-horn", "after": "au-saturate" }],
+      "chapter": {
+        "title": { "zh": "自动化与证书", "en": "Automation and certificates" },
+        "question": {
+          "zh": "证明能交给证明助手去找吗？证明助手找到的，凭什么信？",
+          "en": "Can a proof assistant be left to find proofs, and why believe what it finds?"
+        }
+      }
+    },
+    {
+      "id": "inductive",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            {
+              "id": "from",
+              "title": { "zh": "数从哪里来", "en": "Where numbers come from" },
+              "levels": ["decl-nat", "def-plus", "nl-plus", "sp-compute", "sp-under"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            {
+              "id": "decl",
+              "title": { "zh": "声明给出的规则", "en": "What a declaration gives" },
+              "levels": ["in-distinct", "in-inject", "in-cases", "in-zero"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            {
+              "id": "list",
+              "title": { "zh": "列表", "en": "Lists" },
+              "levels": ["decl-list", "def-list", "sp-lists", "sp-hyp"]
+            },
+            {
+              "id": "cond",
+              "title": { "zh": "带条件的定义", "en": "Definitions with a condition" },
+              "levels": ["decl-bool", "def-max", "sp-cond"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "nat", "title": { "zh": "数", "en": "Numbers" }, "levels": ["in-succ", "in-comm", "in-assoc"] },
+            { "id": "lists", "title": { "zh": "列表的等式", "en": "Equations of lists" }, "levels": ["in-appnil"] },
+            { "id": "stop", "title": { "zh": "为什么要停", "en": "Why it must stop" }, "levels": ["in-noteq", "in-loop"] }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "gen-nat",
+          "code": "E",
+          "after": ["decl-nat", "gen-ex"],
+          "levels": ["gen-nat"],
+          "title": { "zh": "生成器遇上自然数", "en": "The generator meets the numbers" }
+        },
+        {
+          "id": "induct",
+          "code": "X",
+          "after": ["decl-nat", "h-eq-subst"],
+          "levels": ["in-induct"],
+          "title": { "zh": "归纳法是一句话", "en": "Induction is one sentence" }
+        },
+        {
+          "id": "sort",
+          "code": "I",
+          "after": ["in-appnil", "sp-cond"],
+          "levels": ["sort-ins", "sort-run", "sort-if", "sort-insLen", "sort-len"],
+          "title": { "zh": "插入排序", "en": "Insertion sort" }
+        },
+        {
+          "id": "puzzle-lists",
+          "code": "P",
+          "after": ["c-either", "in-assoc", "in-appnil", "in-loop"],
+          "levels": ["in-appassoc", "in-revapp", "in-revrev", "in-len", "in-itsum"],
+          "title": { "zh": "证明谜题：数与列表", "en": "Proof puzzles: numbers and lists" }
+        },
+        {
+          "id": "goedel",
+          "code": "R",
+          "after": ["in-assoc", "in-appnil", "in-loop", "u-halt"],
+          "levels": ["gd-code", "gd-check", "gd-diag", "gd-true", "gd-con", "gd-second"],
+          "title": { "zh": "真的，却证不出", "en": "True, yet unprovable" }
+        }
+      ],
+      "challenges": [{ "level": "in-circle", "after": "in-comm" }],
+      "chapter": {
+        "title": { "zh": "数与列表", "en": "Numbers and lists" },
+        "question": {
+          "zh": "数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？",
+          "en": "How are numbers and lists worked out, and where do they come from? How is something proved for every number?"
+        }
+      }
+    },
+    {
+      "id": "terms",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            {
+              "id": "read",
+              "title": { "zh": "读证明项", "en": "Reading proof terms" },
+              "levels": ["t-app", "t-lam", "t-pair"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "detour", "title": { "zh": "弯路", "en": "Detours" }, "levels": ["t-beta", "t-lemma"] },
+            { "id": "quant", "title": { "zh": "量词的证明项", "en": "Quantifiers’ proof terms" }, "levels": ["t-all"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "write", "title": { "zh": "写证明项", "en": "Writing proof terms" }, "levels": ["t-wapp", "t-kernel"] }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "puzzle-terms",
+          "code": "P",
+          "after": ["in-itsum", "t-kernel"],
+          "levels": ["t-wpair", "t-wquant"],
+          "title": { "zh": "证明谜题：写证明项", "en": "Proof puzzles: writing proof terms" }
+        }
+      ],
+      "challenges": [{ "level": "t-dneg", "after": "t-wapp" }],
+      "chapter": {
+        "title": { "zh": "证明即程序", "en": "Proofs are programs" },
+        "question": { "zh": "接出来的证明本身是什么？", "en": "What is a wired proof, itself?" }
+      }
+    },
+    {
+      "id": "equality",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            {
+              "id": "eqtype",
+              "title": { "zh": "相等是类型", "en": "An equation is a type" },
+              "levels": ["eq-rfl", "eq-rec", "eq-motive"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            {
+              "id": "kinds",
+              "title": { "zh": "两种相等", "en": "Two kinds of equality" },
+              "levels": ["eq-defeq", "rf-eval", "rf-decide", "rf-false", "eq-propeq"]
+            },
+            { "id": "dep", "title": { "zh": "依赖类型", "en": "Dependent types" }, "levels": ["dt-vec", "dt-head"] }
+          ]
+        }
+      ],
+      "practice": [
+        { "parallel": [{ "id": "both", "title": { "zh": "两样一起", "en": "Both together" }, "levels": ["dt-transport"] }] }
+      ],
+      "topics": [
+        {
+          "id": "puzzle-equality",
+          "code": "P",
+          "after": ["t-wquant", "dt-transport"],
+          "levels": ["eq-symm", "eq-trans", "dt-app"],
+          "title": { "zh": "证明谜题：相等", "en": "Proof puzzles: equality" }
+        }
+      ],
+      "challenges": [{ "level": "dt-snoc", "after": "dt-transport" }],
+      "chapter": {
+        "title": { "zh": "依赖类型与相等", "en": "Dependent types and equality" },
+        "question": {
+          "zh": "等式本身是什么？类型能依赖一个值吗？",
+          "en": "What is an equation itself, and can a type depend on a value?"
+        }
+      }
+    },
+    {
+      "id": "structured",
+      "machine": "prover",
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            {
+              "id": "read",
+              "title": { "zh": "读脚本", "en": "Reading scripts" },
+              "levels": ["sc-rows", "sc-block", "sc-tactic"]
+            }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "write", "title": { "zh": "写脚本", "en": "Writing scripts" }, "levels": ["sc-have", "sc-show"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "fix", "title": { "zh": "fix", "en": "fix" }, "levels": ["sc-fix"] },
+            { "id": "obtain", "title": { "zh": "obtain", "en": "obtain" }, "levels": ["sc-obtain"] }
+          ]
+        }
+      ],
+      "practice": [
+        {
+          "parallel": [
+            { "id": "whole", "title": { "zh": "整段脚本", "en": "Whole scripts" }, "levels": ["sc-knights", "sc-barber"] }
+          ]
+        }
+      ],
+      "topics": [
+        {
+          "id": "puzzle-script",
+          "code": "P",
+          "after": ["dt-app", "sc-barber"],
+          "levels": ["sc-revrev"],
+          "title": { "zh": "证明谜题：整段脚本", "en": "Proof puzzles: a whole script" }
+        }
+      ],
+      "chapter": {
+        "title": { "zh": "结构化证明", "en": "Structured proofs" },
+        "question": {
+          "zh": "证明写成什么样，人读得懂，核也查得了？",
+          "en": "How is a proof written so people can read it and the kernel can check it?"
+        }
+      }
+    }
+  ],
+  "quotes": ["任取", "等价", "相等", "假设", "我证不出", "交换", "归纳", "归结", "饱和器", "数理规则书", "定义"],
+  "saves": [
+    {
+      "version": 2,
+      "why": "Version 2 dropped the levels that rebuilt the kernel's lemmas with boxes (the lemmas now stay in the prover), and put the truth circuits before the kernel: whoever had reached the kernel has the circuits' main path, and its gates.",
+      "ops": [
+        { "rename": { "chain2": null, "swap2": null, "merge2": null } },
+        { "solve": ["copy", ["g-not", "g-and", "g-tree", "g-or", "g-imp", "g-always", "g-never", "g-iff"]] },
+        { "grant": ["copy", "lemma:gOr"] },
+        { "grant": ["copy", "lemma:gImp"] }
+      ]
+    },
+    {
+      "version": 3,
+      "why": "Version 3 put a translation level before the islanders' first puzzle.",
+      "ops": [{ "solve": ["e-one", ["e-words"]] }]
+    },
+    {
+      "version": 4,
+      "why": "Version 4 put a level on translating “a says X” before it.",
+      "ops": [{ "solve": ["e-one", ["e-says"]] }]
+    },
+    {
+      "version": 5,
+      "why": "Version 5 made “Both ways round” build the Same truth gate.",
+      "ops": [{ "grant": ["g-iff", "lemma:gIff"] }]
+    },
+    {
+      "version": 6,
+      "why": "Version 6 added practice with Merge and with Chain and Merge before the levels that now follow them.",
+      "ops": [{ "solve": ["mergeUse", ["thrice"]] }, { "solve": ["wrongChain", ["mergeLong", "mergeBoth"]] }]
+    },
+    {
+      "version": 7,
+      "why": "Version 7 dropped the deduction-theorem topic: the assumption box introduces assumptions instead.",
+      "ops": [{ "rename": { "dt-mp": null, "dt-whole": null } }]
+    },
+    {
+      "version": 8,
+      "why": "Version 8 moved the assumption box into the kernel, beside Apply: K and S are proved with boxes and become parts, and the levels that proved them in the boxes chapter are gone. Whoever had passed K has passed the box's first levels and holds the parts K and S stood for.",
+      "ops": [
+        { "solve": ["k", ["assume", "box"]] },
+        { "grant": ["k", "lemma:axK"] },
+        { "grant": ["s", "lemma:axS"] },
+        { "rename": { "nest": null, "sbox": null, "chainUse": null } }
+      ]
+    },
+    {
+      "version": 9,
+      "why": "Version 9 dropped the Identity levels, which the box now does in one step.",
+      "ops": [{ "rename": { "short": null, "self": null } }]
+    },
+    { "version": 10, "why": "Version 10 dropped 先推出来，再加条件.", "ops": [{ "rename": { "kmp": null } }] },
+    {
+      "version": 11,
+      "why": "Version 11 gathered the levels a box or K and S both solve into the topic without the box (第三句也可以长 is now its second level), and dropped 啰嗦的规定 and 串联本身, which the box makes too easy.",
+      "ops": [{ "rename": { "s2": "x-s", "thrice": null, "hs": null } }]
+    },
+    {
+      "version": 12,
+      "why": "Version 12 dropped 一长串 and 先换，再套用.",
+      "ops": [{ "rename": { "long": null, "swapUse": null } }]
+    },
+    { "version": 13, "why": "Version 13 dropped 接反了.", "ops": [{ "rename": { "wrongChain": null } }] },
+    {
+      "version": 14,
+      "why": "Version 14 added the Identity level: whoever had passed Merge has passed it.",
+      "ops": [{ "solve": ["twice", ["ident"]] }]
+    },
+    {
+      "version": 15,
+      "why": "Version 15 put a level that reads ¬ as “→ ⊥” before 矛盾: whoever had passed that has passed it.",
+      "ops": [{ "solve": ["bot", ["notE"]] }]
+    },
+    {
+      "version": 16,
+      "why": "Version 16 added practice with “from contradiction, anything”: whoever had passed the levels after has them.",
+      "ops": [{ "solve": ["notI", ["exFalso"]] }, { "solve": ["demorgan", ["dsyll"]] }]
+    },
+    {
+      "version": 17,
+      "why": "Version 17 dropped the level that read ¬ as “→ ⊥” on its own; 矛盾 says it in its task.",
+      "ops": [{ "rename": { "notE": null } }]
+    },
+    {
+      "version": 18,
+      "why": "Version 18: K1 builds the liar, and the De Morgan's laws card got a type of its own.",
+      "ops": [{ "grant": ["kk-one", "lemma:liar"] }, { "grant": ["law-dm", "lemma:dmLaw"] }]
+    },
+    {
+      "version": 19,
+      "why": "Version 19 folded 没有 ⊥，也是答案 into 一圈又一圈 as its second and third tasks.",
+      "ops": [{ "rename": { "satisfiable": null } }]
+    },
+    {
+      "version": 20,
+      "why": "Version 20 built translations and queries from chips, one sentence per task: what was typed before is dropped.",
+      "ops": [
+        {
+          "data": {
+            "drop": [
+              "fo-atoms",
+              "fo-all",
+              "fo-some",
+              "fo-nested",
+              "p-only",
+              "q-children",
+              "q-grand",
+              "q-none",
+              "q-school"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "version": 21,
+      "why": "Version 21 put 两个方向 (↔ split into its directions) at the end of the And line: whoever had passed the mixed problems after it has passed it.",
+      "ops": [{ "solve": ["dist", ["iffUse"]] }]
+    },
+    {
+      "version": 22,
+      "why": "Version 22 built proof terms from chips, one problem per task: what was typed before is dropped.",
+      "ops": [{ "data": { "drop": ["t-wapp", "t-wlam", "t-wpair", "t-wcases", "t-dneg"] } }]
+    },
+    {
+      "version": 23,
+      "why": "Version 23 put the negated quantifiers (ending with the part Quantifier De Morgan) before the drinker paradox, which now uses the part: whoever had passed the paradox has passed them and holds the part.",
+      "ops": [{ "solve": ["drinker", ["q-notEx", "q-exNot", "q-notAll"]] }, { "grant": ["drinker", "lemma:qdm"] }]
+    },
+    {
+      "version": 24,
+      "why": "Version 24 folded Quantifier De Morgan into De Morgan, one card of several shapes, and added the De Morgan levels 德摩根，反过来, 不是这个就是那个不 and 并非两个都: whoever had passed what follows each has passed it.",
+      "ops": [
+        { "solve": ["dmUse", ["dmBack"]] },
+        { "solve": ["notnotlem", ["dmOr"]] },
+        { "solve": ["fo-atoms", ["dmAnd"]] }
+      ]
+    },
+    {
+      "version": 25,
+      "why": "Version 25 put 核来把关 and 证明项放回板上 at the end of the proof-term writing line: whoever had passed what follows has passed them.",
+      "ops": [{ "solve": ["t-detour", ["t-kernel", "t-exact"]] }, { "solve": ["t-all", ["t-kernel", "t-exact"]] }]
+    },
+    {
+      "version": 26,
+      "why": "Version 26 brought the repeat frame in right after the first unification level (拆到底): whoever had passed what follows has passed it.",
+      "ops": [{ "solve": ["r-delete", ["r-deep"]] }]
+    },
+    {
+      "version": 27,
+      "why": "Version 27 made 排中律不可否定 and 反证法 the two tasks of one level (反证法's id), so the part 排中不可否定 is gone.",
+      "ops": [{ "merge": ["raa", ["notnotlem", "raa"]] }]
+    },
+    {
+      "version": 28,
+      "why": "Version 28 kept the primitive tactics to Rule and Assumption: Or else became Alternatives, the Forward card (Use up kept or replaced) became the built Forward, and the rule sets the built Goal apart and Use a given. 几个变量 came in before the quantifier rules: whoever had passed them has passed it.",
+      "ops": [
+        {
+          "data": {
+            "retype": [
+              { "type": "orElse", "to": "append" },
+              { "type": "drule", "to": "frule", "keep": ["rule"] },
+              { "type": "rule", "params": { "rule": "intro" }, "to": "introRules", "keep": [] },
+              { "type": "erule", "params": { "rule": "elim" }, "to": "elimRules", "keep": [] }
+            ]
+          }
+        },
+        { "solve": ["r-allI", ["r-patterns"]] }
+      ]
+    },
+    {
+      "version": 29,
+      "why": "Version 29 dropped 证明项放回板上 and its part: every task of it could be wired without the part.",
+      "ops": [{ "rename": { "t-exact": null } }]
+    },
+    {
+      "version": 30,
+      "why": "Version 30 gathered chapter 6's small tasks into fewer levels: the levels that took in others start their boards afresh, and the others are gone.",
+      "ops": [
+        { "data": { "drop": ["t-lam", "t-pair", "t-wapp", "t-wpair", "t-beta", "t-all"] } },
+        {
+          "rename": {
+            "t-chain": null,
+            "t-two": null,
+            "t-curry": null,
+            "t-or": null,
+            "t-mt": null,
+            "t-absurd": null,
+            "t-wlam": null,
+            "t-wcases": null,
+            "t-detour": null,
+            "t-casedetour": null,
+            "t-ex": null
+          }
+        }
+      ]
+    },
+    {
+      "version": 31,
+      "why": "Version 31 put the term writing after the wiring of chapter 6, writing every part wired (a lemma, the quantifiers' parts in a level of their own): whoever had passed 核来把关 has passed it.",
+      "ops": [{ "data": { "drop": ["t-wapp", "t-wpair"] } }, { "solve": ["t-kernel", ["t-wquant"]] }]
+    },
+    {
+      "version": 32,
+      "why": "Version 32 put each mechanism where it is first needed. Excluded middle went to classical logic, after a level where auto runs into it, with two new practice levels; De Morgan went to the simplifier, its four propositional laws one level of four tasks (一路否定回去 gone), its quantifier laws another (量词的德摩根, a new id). Whoever had passed what follows each new level has passed it. Two levels of rules and metavariables lost their excluded middle and De Morgan: their boards start afresh.",
+      "ops": [
+        { "solve": ["raa", ["c-wall"]] },
+        { "solve": ["byContra", ["c-contra"]] },
+        { "solve": ["lemCases", ["c-either"]] },
+        { "rename": { "dmUse": null } },
+        { "merge": ["demorgan", ["demorgan", "dmBack", "dmOr", "dmAnd"]] },
+        { "merge": ["q-dm", ["q-notEx", "q-notEx", "q-exNot", "q-notAll"]] },
+        {
+          "data": {
+            "reshape": {
+              "q-dm": { "list": [[0, 0], [1, 1], { "at": 2 }, { "at": 3 }] },
+              "r-subgoals": { "always": "drop" },
+              "r-lemma": { "list": [{ "at": 0 }, { "at": 1 }, null] }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "version": 33,
+      "why": "Version 33 built the simplifier around the laws: double negation and its rewrite card come before De Morgan, whose levels gained a rewriting task. Whoever had passed De Morgan has passed double negation and holds its card.",
+      "ops": [{ "solve": ["demorgan", ["sp-dneg"]] }, { "grant": ["demorgan", "lemma:dneg"] }]
+    },
+    {
+      "version": 34,
+      "why": "Version 34 made 化简弯路 build Normalize with Simp and the computation rules, on the machine board: its tasks that used the part on the proof board are gone.",
+      "ops": [{ "data": { "reshape": { "t-beta": { "list": [{ "at": 0 }, 2, null] } } } }]
+    },
+    {
+      "version": 35,
+      "why": "The machine task of t-beta is gone, two proof-board tasks in its place.",
+      "ops": [{ "data": { "reshape": { "t-beta": { "list": [{ "at": 0 }, 1, null, null] } } } }]
+    },
+    {
+      "version": 36,
+      "why": "Numbers and lists became a chapter: 手算 1 + 1 comes before 算一算, and 0 加在右边 gained a proof-board task second.",
+      "ops": [
+        { "solve": ["sp-compute", ["nl-plus"]] },
+        { "data": { "reshape": { "in-zero": { "list": [0, null, 1] } } } }
+      ]
+    },
+    {
+      "version": 37,
+      "why": "Version 37 made rules parts on the machine board, wired into the cards that use them: a board that chose a rule on a card starts afresh.",
+      "ops": [{ "data": { "dropBoards": { "match": "ruleOnCard", "alone": "null" } } }]
+    },
+    {
+      "version": 38,
+      "why": "Version 38 proved the equivalences in classical logic (双重否定, 去掉箭头 and 分配 under new ids, 德摩根 and 量词的 德摩根) and left their rewriting to the simplifier, in levels of its own: each law's last task is gone, and whoever had passed a law has passed the rewriting that came with it.",
+      "ops": [
+        { "rename": { "sp-dneg": "c-dneg", "sp-arrow": "c-arrow", "sp-dist": "c-dist" } },
+        {
+          "data": {
+            "reshape": {
+              "c-dneg": { "list": [{ "slice": [0, -1] }] },
+              "c-arrow": { "list": [{ "slice": [0, -1] }] },
+              "c-dist": { "list": [{ "slice": [0, -1] }] },
+              "demorgan": { "list": [{ "slice": [0, -1] }] },
+              "q-dm": { "list": [{ "slice": [0, -1] }] }
+            }
+          }
+        },
+        { "solve": ["c-dneg", ["sp-rw"]] },
+        { "solve": ["c-dist", ["sp-laws"]] },
+        { "solve": ["q-dm", ["sp-dm"]] }
+      ]
+    },
+    {
+      "version": 39,
+      "why": "Version 39 let a rule part give several of its rules: the one it chose is now the one it ticks.",
+      "ops": [{ "data": { "listParam": { "key": "use" } } }]
+    },
+    {
+      "version": 40,
+      "why": "Version 40 gathered the rules of numbers and lists (a declaration's, a definition's, an equation proved) into one part, the rule book of numbers: a board that used one of the parts it replaces starts afresh.",
+      "ops": [{ "data": { "dropBoards": { "match": "numberParts", "alone": "null" } } }]
+    },
+    {
+      "version": 41,
+      "why": "Version 41 ran the parts the player built as the boards that built them: whoever solved a level has its board as the part's. Rule on a given, Forward and Simp now take their rules at an input of their board, so a board saved for those levels before does not fit and they are played again.",
+      "ops": [{ "built": ["r-unifier", "s-intro", "s-elim", "s-auto", "au-clauses", "au-saturate", "au-replay"] }]
+    },
+    {
+      "version": 42,
+      "why": "Version 42 made 两个都要, 二选一 and 矛盾 declare their connective first (a declaration board), then prove with the parts it makes: their proof boards move to the second task.",
+      "ops": [
+        {
+          "data": {
+            "reshape": { "and": { "one": [null, "it"] }, "or": { "one": [null, "it"] }, "bot": { "one": [null, "it"] } }
+          }
+        }
+      ]
+    },
+    {
+      "version": 43,
+      "why": "Version 43 moved the declarations into chapter 3 as levels of their own (声明「并且」, 「或者」, 「矛盾」, by assumption boxes): 两个都要, 二选一 and 矛盾 are one proof again, and whoever had passed one has passed its declaration.",
+      "ops": [
+        { "data": { "reshape": { "and": { "list": 1 }, "or": { "list": 1 }, "bot": { "list": 1 } } } },
+        { "solve": ["and", ["decl-and"]] },
+        { "solve": ["or", ["decl-or"]] },
+        { "solve": ["bot", ["decl-bot"]] }
+      ]
+    },
+    {
+      "version": 44,
+      "why": "Chapters 1 to 4 tightened: short levels on one idea became the tasks of one level, and one level that only repeated another (a condition, two results) went.",
+      "ops": [
+        { "merge": ["g-always", ["g-always", "g-never"]] },
+        { "merge": ["mp", ["mp", "pick"]] },
+        { "merge": ["nested", ["nested", "cond"]] },
+        { "merge": ["assume", ["assume", "k2"]] },
+        { "merge": ["k", ["ident", "k"]] },
+        { "merge": ["x-k", ["x-k", "x-s"]] },
+        { "merge": ["x-merge", ["x-self", "x-merge"]] },
+        { "merge": ["mergeLong", ["mergeUse", "mergeLong", "mergeBoth"]] },
+        { "merge": ["decl-three", ["decl-three", "decl-or3"]] },
+        { "rename": { "andImp": null } },
+        { "merge": ["and", ["and", "andSwap"]] },
+        { "merge": ["curry", ["curry", "uncurry"]] },
+        { "merge": ["orSwap", ["orSwap", "orImp"]] },
+        { "merge": ["bot", ["bot", "exFalso"]] },
+        { "merge": ["notI", ["notI", "dni"]] },
+        { "merge": ["mt", ["mt", "contra", "denyAnte"]] },
+        { "merge": ["h-and-make", ["h-and-make", "h-and-use"]] },
+        { "merge": ["h-or-make", ["h-or-make", "h-or-use"]] }
+      ]
+    },
+    {
+      "version": 45,
+      "why": "\"There is\", equality and the numbers are declared before their parts are used: whoever has passed those levels has passed the declarations.",
+      "ops": [
+        { "solve": ["q-exI", ["decl-ex"]] },
+        { "solve": ["q-eq", ["decl-eq"]] },
+        { "solve": ["in-distinct", ["decl-nat"]] }
+      ]
+    },
+    {
+      "version": 46,
+      "why": "Version 46 split 不用框：恒等与说一遍 back into two levels, 不用框恒等 and 不用框合并.",
+      "ops": [{ "split": ["x-merge", ["x-self", "x-merge"]] }]
+    },
+    {
+      "version": 47,
+      "why": "Version 47 had the player build the elimination rule generator in chapter 3 (拆开它, 每一条, and a second task of 声明 ⊥ that runs it), and prove 拆开 ∧ from the new ∧ elim in two tasks before 两个都要: whoever is past them has passed them, and has the parts they build.",
+      "ops": [
+        { "solve": ["decl-or", ["gen-one"]] },
+        { "solve": ["decl-bot", ["gen-each"]] },
+        { "grant": ["gen-each", "lemma:elimGen"] },
+        { "grant": ["and", "lemma:andE"] },
+        {
+          "data": {
+            "reshape": { "decl-bot": { "one": ["it", null] }, "and": { "list": [null, null, { "slice": [0] }] } }
+          }
+        }
+      ]
+    },
+    {
+      "version": 48,
+      "why": "Version 48 had elimination rules written by hand after each declaration (a second task), and moved the generator to chapter 12: a declaration's board is its first task's, and 声明 ⊥'s generator task is gone.",
+      "ops": [
+        {
+          "data": {
+            "reshape": {
+              "decl-and": { "one": ["it", null] },
+              "decl-or": { "one": ["it", null] },
+              "decl-two": { "one": ["it", null] },
+              "decl-true": { "one": ["it", null] },
+              "decl-iff": { "one": ["it", null] },
+              "decl-ex": { "one": ["it", null] },
+              "decl-nat": { "one": ["it", null] },
+              "decl-bot": { "list": [0, null] }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "version": 49,
+      "why": "Version 49 makes the elimination rule from the ways in again: those declarations are one task, their board the declaration board.",
+      "ops": [
+        {
+          "data": {
+            "reshape": {
+              "decl-and": { "list": 0 },
+              "decl-or": { "list": 0 },
+              "decl-bot": { "list": 0 },
+              "decl-two": { "list": 0 },
+              "decl-true": { "list": 0 },
+              "decl-iff": { "list": 0 },
+              "decl-ex": { "list": 0 }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "version": 50,
+      "why": "Version 50: ∧ elim is the two-output card again, given by 声明「并且」; 两个都要 loses the two tasks that built it (the left side, the right side).",
+      "ops": [
+        { "data": { "reshape": { "and": { "list": [{ "slice": [2] }] } } } },
+        { "tasks": { "passed": { "and": { "less": 2 } } } }
+      ]
+    },
+    {
+      "version": 51,
+      "why": "Version 51: 声明自然数 is one task again (its generator task is the optional 生成器遇上自然数).",
+      "ops": [{ "data": { "reshape": { "decl-nat": { "list": 0 } } } }, { "tasks": { "passed": { "decl-nat": 0 } } }]
+    },
+    {
+      "version": 52,
+      "why": "Version 52: chapter 12 declares its types and defines its functions. A level now opened by a type or definition counts solved for whoever got past it; 一对一 is two new tasks (pred defined, then proved on the proof board), and 倒过来拼, 累加器求和, 插进去 gained definition tasks before their machine.",
+      "ops": [
+        { "solve": ["sp-compute", ["def-plus"]] },
+        { "solve": ["sp-lists", ["decl-list", "def-list"]] },
+        { "solve": ["sp-cond", ["decl-bool", "def-max"]] },
+        { "solve": ["sort-insLen", ["sort-if"]] },
+        {
+          "data": {
+            "reshape": {
+              "in-inject": { "always": null },
+              "in-revapp": { "one": [null, "it"] },
+              "in-itsum": { "one": [null, null, "it"] },
+              "sort-ins": { "one": [null, null, null, "it"] }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "version": 53,
+      "why": "Version 53: 拆开它 builds the elimination rule generator, which 每一条 then upgrades: whoever solved it holds the part, running the board kept there until a later upgrade is passed.",
+      "ops": [{ "grant": ["gen-one", "lemma:elimGen"] }, { "built": ["gen-one"] }]
+    },
+    {
+      "version": 54,
+      "why": "Version 54 gave 声明「并且」 a second task (finding the fault in someone's declaration by writing cases) and made 声明「或者」 find the faults in two before putting one right: the kept board goes to the task that writes one.",
+      "ops": [{ "data": { "reshape": { "decl-and": { "one": ["it", null] }, "decl-or": { "one": [null, "it"] } } } }]
+    },
+    {
+      "version": 55,
+      "why": "Version 55 made those boards the test cases of the shared play of checking or correcting by the diagram: the cases written are its work, and the board corrected is the first of its boards.",
+      "ops": [{ "data": { "auditWork": { "decl-and": [1], "decl-or": [0, 1] } } }]
+    },
+    {
+      "version": 56,
+      "why": "Version 56 wrote a test case as what is given, a goal and whether it is derivable: the cases written keep what they held as given, the declared sentence their goal.",
+      "ops": [{ "data": { "caseGiven": { "decl-and": [1], "decl-or": [0] } } }]
+    },
+    {
+      "version": 57,
+      "why": "Version 57 put a task between 声明「或者」's two (test cases with the goal fixed to 我休息): the board corrected moves to the third, and whoever had passed the first has the second still to do.",
+      "ops": [
+        { "data": { "reshape": { "decl-or": { "length": 2, "list": [{ "at": 0 }, null, { "at": 1 }] } } } },
+        { "tasks": { "passed": { "decl-or": { "most": 1 } } } }
+      ]
+    },
+    {
+      "version": 58,
+      "why": "Version 58 set out a fixed number of cases in each audit, and gave 声明「并且」 a third task (a declaration too strong) and 声明「或者」 one wrong declaration instead of two: the cases written and the board corrected start afresh.",
+      "ops": [
+        {
+          "data": { "reshape": { "decl-and": { "list": [0, null, null] }, "decl-or": { "list": [null, null, null] } } }
+        },
+        { "tasks": { "passed": { "decl-and": { "most": 1 }, "decl-or": 0 } } }
+      ]
+    },
+    {
+      "version": 59,
+      "why": "Version 59 split 绕一大圈's three tasks back into three levels (接起来，再合并, 绕一大圈, 对不上的两句).",
+      "ops": [{ "split": ["mergeLong", ["mergeUse", "mergeLong", "mergeBoth"]] }]
+    },
+    {
+      "version": 60,
+      "why": "Version 60 took K off the rules chapter (K and S became optional): its first three levels have new tasks, and the boards kept for them start afresh.",
+      "ops": [{ "data": { "drop": ["r-rule", "r-assumption", "r-subgoals"] } }]
+    },
+    {
+      "version": 61,
+      "why": "Version 61 wrote a declaration with premise cards, Join and wires (a card into another's port is a premise needed under it) instead of cards chained by \"premise before\": the boards written the old way start afresh, and the new first level, 声明「若…则…」, counts as passed for whoever passed 声明「并且」.",
+      "ops": [
+        { "data": { "dropBoards": { "match": "declChain", "alone": "drop" } } },
+        { "solve": ["decl-and", ["decl-imp"]] }
+      ]
+    },
+    {
+      "version": 62,
+      "why": "Version 62 gave 声明「若…则…」 a second task, correcting a wrong declaration: the board written is the first's.",
+      "ops": [{ "data": { "reshape": { "decl-imp": { "one": ["it", null] } } } }]
+    },
+    {
+      "version": 63,
+      "why": "Version 63 took that second task out into a level of its own, 检验声明, after it: 声明「若…则…」 keeps the board written, and whoever passed 声明「并且」 has passed the new level too.",
+      "ops": [
+        { "data": { "reshape": { "decl-imp": { "list": { "at": 0, "or": "drop" } } } } },
+        { "tasks": { "passed": { "decl-imp": 0 } } },
+        { "solve": ["decl-and", ["decl-check"]] }
+      ]
+    },
+    {
+      "version": 64,
+      "why": "Version 64 put 声明「并且」's two audits first and its declaration last, gave 声明「或者」's first audit a fixed goal and made its last task a declaration from scratch: the declaration written moves to the end, the rest start afresh.",
+      "ops": [
+        { "data": { "reshape": { "decl-and": { "list": [null, null, 0] }, "decl-or": { "list": [null, 1, null] } } } },
+        { "tasks": { "passed": { "decl-and": 0, "decl-or": 0 } } }
+      ]
+    },
+    {
+      "version": 65,
+      "why": "Version 65 took the longer proofs off the main path into the proof puzzles (topic P): 不管哪一种 and 逆否 are levels of their own again, out of 或者，换个顺序 and 没有结果，就没有起因.",
+      "ops": [
+        { "split": ["orSwap", ["orSwap", "orImp"]] },
+        { "split": ["mt", ["mt", "contra", "denyAnte"]] },
+        { "merge": ["mt", ["mt", "denyAnte"]] }
+      ]
+    },
+    {
+      "version": 66,
+      "why": "Version 66 began the later declarations with finding the fault in a wrong one: 三样's two declarations move to the second task (三选一 became a table to fill in), and the declaration written of 换个顺序, 至少两样, 声明「真」, 声明「当且仅当」 and 声明「存在」 to their second; their tasks start afresh.",
+      "ops": [
+        {
+          "data": {
+            "reshape": {
+              "decl-three": { "list": [null, 0, null] },
+              "decl-order": { "one": [null, "it"] },
+              "decl-two": { "one": [null, "it"] },
+              "decl-true": { "one": [null, "it"] },
+              "decl-iff": { "one": [null, "it"] },
+              "decl-ex": { "one": [null, "it"] }
+            }
+          }
+        },
+        {
+          "tasks": {
+            "passed": { "decl-three": 0, "decl-order": 0, "decl-two": 0, "decl-true": 0, "decl-iff": 0, "decl-ex": 0 }
+          }
+        }
+      ]
+    },
+    {
+      "version": 67,
+      "why": "Version 67 put a wrong inference on the board of every world level: the world built is the work against it.",
+      "ops": [
+        {
+          "data": {
+            "worldWork": [
+              "m-world",
+              "m-make",
+              "m-counter",
+              "m-order",
+              "p-split",
+              "p-exAnd",
+              "q-capture",
+              "q-witness",
+              "q-swap"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "version": 68,
+      "why": "Version 68 made 声明「真」 one table to fill in, as 声明 ⊥ is: its old tasks' boards are dropped.",
+      "ops": [
+        { "data": { "reshape": { "decl-true": { "always": "drop" } } } },
+        { "tasks": { "passed": { "decl-true": 0 } } }
+      ]
+    },
+    {
+      "version": 69,
+      "why": "Version 69 put each world level after the translation level of its quantifier: whoever passed a level has passed the ones now before it.",
+      "ops": [
+        { "solve": ["m-order", ["fo-nested"]] },
+        { "solve": ["fo-nested", ["m-make"]] },
+        { "solve": ["m-make", ["fo-some"]] },
+        { "solve": ["fo-some", ["m-world", "m-counter"]] },
+        { "solve": ["m-world", ["fo-atoms", "fo-all"]] }
+      ]
+    },
+    {
+      "version": 70,
+      "why": "Version 70 took the declarations to write out of 三样, 换个顺序 and 至少两样, and put 声明「真」 and 声明「当且仅当」 before them: 三样 keeps its two tables, the other two are their table alone.",
+      "ops": [
+        {
+          "data": {
+            "reshape": {
+              "decl-three": { "list": [0, 2] },
+              "decl-order": { "list": { "at": 0, "or": "drop" } },
+              "decl-two": { "list": { "at": 0, "or": "drop" } }
+            }
+          }
+        },
+        { "tasks": { "passed": { "decl-three": { "most": 1 }, "decl-order": 0, "decl-two": 0 } } },
+        { "solve": ["decl-three", ["decl-true", "decl-iff"]] }
+      ]
+    },
+    {
+      "version": 71,
+      "why": "Version 71 wrote declarations as lines of blocks (undone by version 74, which brings any such save back).",
+      "ops": []
+    },
+    {
+      "version": 72,
+      "why": "Version 72 opened each world level with a task to build its sentence as a formula: a world kept is the next task's.",
+      "ops": [
+        {
+          "data": {
+            "reshape": {
+              "m-world": { "list": [null, { "slice": [0] }], "one": [null, "it"], "null": [null, null] },
+              "m-make": { "list": [null, { "slice": [0] }], "one": [null, "it"], "null": [null, null] },
+              "m-counter": { "list": [null, { "slice": [0] }], "one": [null, "it"], "null": [null, null] },
+              "m-order": { "list": [null, { "slice": [0] }], "one": [null, "it"], "null": [null, null] },
+              "p-split": { "list": [null, { "slice": [0] }], "one": [null, "it"], "null": [null, null] },
+              "p-exAnd": { "list": [null, { "slice": [0] }], "one": [null, "it"], "null": [null, null] }
+            }
+          }
+        },
+        {
+          "tasks": { "passed": { "m-world": 0, "m-make": 0, "m-counter": 0, "m-order": 0, "p-split": 0, "p-exAnd": 0 } }
+        }
+      ]
+    },
+    {
+      "version": 73,
+      "why": "Version 73 made each quantifier one level, its sentence built then someone's formula for it found out by a world: 对所有 takes 真假看世界's worlds, 存在 一个也没有's, 量词套量词 先说谁's (their own sentences are gone).",
+      "ops": [
+        { "merge": ["fo-all", ["fo-all", "m-world"]] },
+        { "merge": ["fo-some", ["fo-some", "m-make"]] },
+        { "merge": ["fo-nested", ["fo-nested", "m-order"]] },
+        {
+          "data": {
+            "reshape": {
+              "fo-all": { "length": 2, "list": [null, { "slice": [1], "of": 1, "empty": [null, null] }] },
+              "fo-some": { "length": 2, "list": [null, { "slice": [1], "of": 1, "empty": [null] }] },
+              "fo-nested": { "length": 2, "list": [null, null, { "slice": [1], "of": 1, "empty": [null] }] }
+            }
+          }
+        },
+        {
+          "data": {
+            "reshape": {
+              "m-counter": { "list": [null, { "slice": [1] }] },
+              "p-split": { "list": [null, { "slice": [1] }] },
+              "p-exAnd": { "list": [null, { "slice": [1] }] }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "version": 74,
+      "why": "Version 74 wired declarations as cards again: a declaration kept as lines (versions 71 to 73) becomes its board.",
+      "ops": [{ "data": "declLines" }]
+    },
+    {
+      "version": 75,
+      "why": "Version 75 filled declarations in as a table again, each premise a sentence, and began with \"and\": a declaration kept as a board starts over; 声明「若…则…」 and 检验声明 are gone.",
+      "ops": [
+        { "rename": { "decl-imp": null, "decl-check": null } },
+        { "data": { "dropBoards": { "match": "declBoard", "alone": "drop" } } }
+      ]
+    },
+    {
+      "version": 76,
+      "why": "Version 76 split 声明「并且」: writing it (3-1), checking a declaration (3-2, new) and 过强与过弱 (3-3, the two declarations to find the fault in, the too strong one first).",
+      "ops": [
+        { "split": ["decl-and", ["and-weak", "and-strong", "decl-and"]] },
+        { "merge": ["decl-strength", ["and-strong", "and-weak"]] }
+      ]
+    },
+    {
+      "version": 77,
+      "why": "Version 77 gave 5-1 three new sentences to translate: what was built for the old ones starts over.",
+      "ops": [{ "data": { "drop": ["fo-atoms"] } }, { "tasks": { "passed": { "fo-atoms": 0 } } }]
+    },
+    {
+      "version": 78,
+      "why": "Version 78 renamed the things in saved formulas, terms and worlds to letters (Socrates h, Ann i …), the proofs unchanged.",
+      "ops": [
+        {
+          "data": {
+            "objectNames": {
+              "names": {
+                "soc": "h",
+                "ann": "i",
+                "bo": "j",
+                "cy": "k",
+                "dee": "l",
+                "en": "m",
+                "fay": "n",
+                "phos": "i",
+                "hesp": "j",
+                "venus": "k"
+              },
+              "at": { "q-eq": { "phos": "a", "hesp": "b" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "version": 79,
+      "why": "Version 79 ran the gates the player built as the boards that built them: whoever solved a level has its board as the gate’s.",
+      "ops": [{ "built": ["g-or", "g-imp", "g-iff"] }]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "kind": "proof",
+  "title": { "zh": "定义相等：对称", "en": "Defining equality: symmetry" },
+  "consts": ["i", "j"],
+  "propertyWords": true,
+  "words": ["everyday", "stars", "properties"],
+  "tests": [{ "premises": { "e": "∀P. P(i) → P(j)" }, "goal": "∀Q. Q(j) → Q(i)" }],
+  "cases": [],
+  "brief": {
+    "zh": "已知晨星 = 昏星（按定义写出），证明昏星 = 晨星（也按定义写出）。",
+    "en": "Given the Morning Star = the Evening Star (by the definition), prove the Evening Star = the Morning Star (by the definition too)."
+  },
+  "hint": [
+    {
+      "zh": "任取框取 Q。框里，从已知选定一例，性质选「Q(x) → Q(晨星)」。",
+      "en": "A for-any box takes Q. Inside, choose an instance of the given with the property “Q(x) → Q(the Morning Star)”."
+    },
+    {
+      "zh": "得到「(Q(晨星) → Q(晨星)) → (Q(昏星) → Q(晨星))」：前一半正是<level-ref to=\"h-eq-refl\"></level-ref>证过的样子，用一个假设框给出，再套用。",
+      "en": "That gives “(Q(the Morning Star) → Q(the Morning Star)) → (Q(the Evening Star) → Q(the Morning Star))”: the first half is what <level-ref to=\"h-eq-refl\"></level-ref> proved; give it with an assumption box, then Apply."
+    }
+  ],
+  "solution": [
+    "s = allI[x=Q](body: m) {",
+    "  body {",
+    "    f = impI[A=\"Q(i)\"](body: f.body)",
+    "    i = allE[t=\"Q(x) -> Q(i)\"](e)",
+    "    m = mp(i, f)",
+    "  }",
+    "}",
+    "goal <- s"
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "定义只说了一个方向：晨星有的，昏星都有。反过来也成立，要选一个巧妙的性质。",
+        "en": "The definition says one direction only: what the Morning Star has, the Evening Star has. The other way holds too, with a well-chosen property."
+      }
+    }
+  ],
+  "after": {
+    "zh": "声明相等时，对称要用自反律和等量代换证出来；定义相等时，自反和代换由定义得来，对称也就跟着有了。两种做法给出同样的规则。",
+    "en": "With equality declared, symmetry is proved from reflexivity and substitution; with it defined, reflexivity and substitution come from the definition, and symmetry with them. Both ways give the same rules."
+  }
+}

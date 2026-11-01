@@ -1,0 +1,56 @@
+{
+  "title": { "zh": "拼接", "en": "Appending" },
+  "consts": ["zero", "m", "n"],
+  "intro": [
+    {
+      "t": {
+        "zh": "append 把两个向量拼起来，长度相加：∀x y. Vec x → Vec y → Vec (x + y)。这一关有加法的定义，类型里的加法核也会算。",
+        "en": "append puts two vectors together, and the lengths add: ∀x y. Vec x → Vec y → Vec (x + y). This level has the definition of addition, and the kernel works out the addition in a type too."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "term",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "v": "Vec(m)", "w": "Vec(n)", "append": "∀x. ∀y. Vec(x) → Vec(y) → Vec(plus(x, y))" },
+      "goal": "Vec(plus(m, n))",
+      "defs": ["plus"],
+      "answer": "append v w",
+      "naive": "append w v",
+      "hint": [{ "zh": "append 的两个长度都由向量读出来。", "en": "Both lengths of append are read off the vectors." }]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "v": "Vec(s(zero))", "w": "Vec(s(zero))", "append": "∀x. ∀y. Vec(x) → Vec(y) → Vec(plus(x, y))" },
+      "goal": "Vec(s(s(zero)))",
+      "defs": ["plus"],
+      "answer": "append v w",
+      "hint": [
+        { "zh": "append v w 的类型是 Vec (1 + 1)，核会算。", "en": "append v w has type Vec (1 + 1), and the kernel computes." }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第三题", "en": "Problem 3" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "v": "Vec(m)", "one": "Vec(s(zero))", "append": "∀x. ∀y. Vec(x) → Vec(y) → Vec(plus(x, y))" },
+      "goal": "Vec(s(m))",
+      "defs": ["plus"],
+      "answer": "append one v",
+      "naive": "append v one",
+      "hint": [
+        { "zh": "1 + m 和 m + 1，哪一个按定义算得出 S m？", "en": "Which of 1 + m and m + 1 works out to S m by the definition?" }
+      ]
+    }
+  ]
+}

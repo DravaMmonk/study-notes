@@ -1,0 +1,31 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "半加器", "en": "A half adder" },
+  "tests": [
+    { "goal": "¬(Sum ∧ Carry)", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] },
+    { "goal": "Carry → InA", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] },
+    { "goal": "Sum → InA", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"], "want": "fails" },
+    { "goal": "InA ∧ InB → Carry ∧ ¬Sum", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：推得出的目标证出来，推不出的报告失败。",
+    "en": "Design a proof assistant that proves the goals that follow and reports failure on those that do not."
+  },
+  "hint": [{ "zh": "<part-ref to=\"lemma:metis\"></part-ref>。", "en": "<part-ref to=\"lemma:metis\"></part-ref>." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "一块电路可以写成几句等价，每根输出线对应它的输入：和位是「两个输入恰好一个是 1」，进位是「两个输入都是 1」。电路的性质，就是由这几句推得出的话。",
+        "en": "A circuit can be written as equivalences, one per output wire against its inputs: the sum bit is “exactly one input is 1”, the carry bit “both inputs are 1”. A property of the circuit is whatever follows from them."
+      }
+    }
+  ],
+  "solution": ["c0 = metis(in)", "out <- c0"],
+  "after": {
+    "zh": "芯片设计里的<b>形式验证</b>，检查电路也是这个思路。",
+    "en": "<b>Formal verification</b> in chip design checks circuits in this spirit."
+  }
+}

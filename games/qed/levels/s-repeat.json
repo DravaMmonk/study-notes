@@ -1,0 +1,33 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "title": { "zh": "做到做不动", "en": "Until it cannot" },
+  "tests": [{ "goal": "Rain → (Wind → (Wet → Rain))" }, { "goal": "Rain → Rain" }, { "goal": "Slip → (Rain → Slip)" }],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "「若…则…」有几层，事先不知道。", "en": "How many levels of “if … then …” there are is not known beforehand." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里，证明助手的元件按固定顺序连接，只对一种结构的目标有效；嵌套层数一变，就得重新连线。本章要做的是<wiki-ref to=\"tactic\"></wiki-ref>：按证明状态选择、组合步骤的程序。Isabelle 的 auto、Lean 的 simp 都是策略。",
+        "en": "So far a proof assistant’s parts have run in a fixed order, fit for goals of one structure; change the nesting and it must be rewired. This chapter builds <wiki-ref to=\"tactic\"></wiki-ref>s: programs that choose and combine steps by the proof state. Isabelle’s auto and Lean’s simp are tactics."
+      }
+    },
+    {
+      "t": {
+        "zh": "<part-ref to=\"part:repeat\"></part-ref>也能用在证明状态上：它反复运行框里的步骤，直到步骤失败，送出失败前的结果。",
+        "en": "The <part-ref to=\"part:repeat\"></part-ref> works on proof states too: it runs the steps inside again and again until they fail, and gives the result before the failure."
+      }
+    }
+  ],
+  "solution": [
+    "c0 = repeat(in, body: c1) {",
+    "  body {",
+    "    c1r0 = impI()",
+    "    c1 = rule(c0.body, c1r0)",
+    "  }",
+    "}",
+    "c2 = assumption(c0)",
+    "out <- c2"
+  ]
+}

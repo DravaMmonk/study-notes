@@ -1,0 +1,87 @@
+{
+  "adds": ["orI", "orE"],
+  "title": { "zh": "声明「或者」", "en": "Declaring “or”" },
+  "declare": { "zh": "或者", "en": "or" },
+  "target": "Sat ∨ Sun",
+  "sentences": ["Sat", "Sun"],
+  "tests": [
+    { "given": ["Sat"], "make": true },
+    { "given": ["Sun"], "make": true },
+    { "given": ["Sat", "Sun"], "make": true },
+    { "given": [], "make": false },
+    { "given": ["Sat ∨ Sun"], "goal": "Sat", "make": false },
+    { "given": ["Sat ∨ Sun", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": true },
+    { "given": ["Sat ∨ Sun", "Sat → Rest"], "goal": "Rest", "make": false }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "两句都证出时，也能引入。板上这份「或者」的声明不符合需求：先写检验条例找出它的错误，再自己写一份。",
+        "en": "It may be introduced when both are proved, too. The declaration of “or” on the board does not meet the requirement: first write test cases that find its fault, then write one yourself."
+      }
+    }
+  ],
+  "solution": [{ "binds": [], "needs": ["Sat"] }, { "binds": [], "needs": ["Sun"] }],
+  "naive": [{ "binds": [], "needs": ["Sat"] }],
+  "after": {
+    "zh": "由「或者」的引入规则生成的消去规则，就是常说的<b>分情况推理</b>。",
+    "en": "The elimination rule made from the intro rules of “or” is what is usually called <b>reasoning by cases</b>."
+  },
+  "tasks": [
+    {
+      "kind": "iso",
+      "step": { "zh": "找出错误", "en": "Find the fault" },
+      "play": "audit",
+      "boards": [{ "rules": [{ "binds": [], "needs": ["Sat"] }] }],
+      "slots": 1,
+      "caseGoal": "Sat",
+      "answer": [{ "given": ["Sat ∨ Sun"], "goal": "Sat", "make": false }],
+      "naive": [{ "given": ["Sat"], "goal": "Sat", "make": true }],
+      "brief": {
+        "zh": "需求：「今天是周六，或者今天是周日」：两句中证出任何一句就能引入。目标固定为「今天是周六」。编写一条检验条例，使预期符合需求，这份声明的结果却和预期不符。",
+        "en": "Requirement: “today is Saturday or today is Sunday” may be introduced once either of the two is proved. The goal is fixed to “today is Saturday”. Write a test case whose expectation meets the requirement but with which this declaration’s result disagrees."
+      },
+      "hint": [
+        {
+          "zh": "手里有「周六 ∨ 周日」时，按需求能确定今天是周六吗？",
+          "en": "With “Saturday ∨ Sunday” at hand, does the requirement let you conclude it is Saturday?"
+        }
+      ]
+    },
+    {
+      "kind": "iso",
+      "step": { "zh": "以「我休息」为目标", "en": "With “I rest” as the goal" },
+      "play": "audit",
+      "boards": [{ "rules": [{ "binds": [], "needs": ["Sat"] }] }],
+      "slots": 1,
+      "caseGoal": "Rest",
+      "answer": [{ "given": ["Sat ∨ Sun", "Sat → Rest"], "goal": "Rest", "make": false }],
+      "naive": [{ "given": ["Sat ∨ Sun", "Sat → Rest", "Sun → Rest"], "goal": "Rest", "make": true }],
+      "brief": {
+        "zh": "需求：「今天是周六，或者今天是周日」：两句中证出任何一句就能引入。目标固定为「我休息」。编写一条检验条例，使这份声明的结果与预期不符。",
+        "en": "Requirement: “today is Saturday or today is Sunday” may be introduced once either of the two is proved. The goal is fixed to “I rest”. Write a test case on which this declaration’s result disagrees with the expectation."
+      },
+      "hint": [
+        {
+          "zh": "目标不是「或者」本身，前提里就要有「周六 ∨ 周日」：这条条例检验的是它的消去规则。按需求，什么时候推不出「我休息」？",
+          "en": "The goal is not “or” itself, so “Saturday ∨ Sunday” must be among the premises: the case tests its elimination rule. By the requirement, when does “I rest” not follow?"
+        }
+      ],
+      "after": {
+        "zh": "消去规则由引入规则生成，所以检验消去规则的条例，也能找出引入规则的错误。",
+        "en": "The elimination rule is made from the intro rules, so a case that tests the elimination rule can also find a fault in the intro rules."
+      }
+    },
+    {
+      "kind": "iso",
+      "step": { "zh": "编写声明", "en": "Write the declaration" },
+      "brief": {
+        "zh": "需求：「今天是周六，或者今天是周日」：两句中证出任何一句就能引入。从空板写出「或者」的声明，使它符合需求。",
+        "en": "Requirement: “today is Saturday or today is Sunday” may be introduced once either of the two is proved. Write the declaration of “or” from an empty board, so that it meets the requirement."
+      },
+      "hint": [
+        { "zh": "需求包含两种互不相干的情形，每种只要一样。", "en": "The requirement has two separate situations, each needing one thing." }
+      ]
+    }
+  ]
+}

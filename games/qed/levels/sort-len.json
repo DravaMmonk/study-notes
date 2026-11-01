@@ -1,0 +1,46 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms"],
+  "title": { "zh": "一个都不少", "en": "None lost" },
+  "types": ["list"],
+  "defs": ["le", "if", "ins", "sort", "len"],
+  "tests": [{ "goal": "∀xs. len(sort(xs)) = len(xs)" }],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "化简卡在 len (ins x …) 上。", "en": "Simp gets stuck on len (ins x …)." }],
+  "intro": [{ "t": { "zh": "排序前后，列表一样长。", "en": "A list is as long after sorting as before." } }],
+  "solution": [
+    "c0r0 = math[use=[\"list.induct\"]]()",
+    "c0 = rule(in, c0r0)",
+    "c1 = each(c0, body: c3) {",
+    "  body {",
+    "    c2r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\", insLen]]()",
+    "    c3r0 = refl()",
+    "    c2r12 = hyp(c2r0)",
+    "    c2 = simp(c1.body, c2r12)",
+    "    c3 = rule(c2, c3r0)",
+    "  }",
+    "}",
+    "out <- c1"
+  ],
+  "naive": [
+    "c0r0 = math[use=[\"list.induct\"]]()",
+    "c0 = rule(in, c0r0)",
+    "c1 = each(c0, body: c3) {",
+    "  body {",
+    "    c2r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+    "    c3r0 = refl()",
+    "    c2r11 = hyp(c2r0)",
+    "    c2 = simp(c1.body, c2r11)",
+    "    c3 = rule(c2, c3r0)",
+    "  }",
+    "}",
+    "out <- c1"
+  ],
+  "after": {
+    "zh": "程序和它的性质写在同一个系统里，一并证明：这叫<b>程序验证</b>。",
+    "en": "A program and its properties, written and proved in one system: this is <b>program verification</b>."
+  }
+}

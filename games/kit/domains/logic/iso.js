@@ -1,6 +1,6 @@
 // A declaration as the kernel's checks read it (《证明完毕》): its ways to make it, each a rule, ⟦A; B⟧ ⟹ A ∧ B, held
 // as a board of premise cards, Join and thing cards wired into the declared card (the player fills the rules in on the
-// rule table, ruleLines.js boardOf makes this board; a level's reference declaration is written as one, isoBoard).
+// rule table, ruleLines.js boardOf makes this board, and a level's reference declaration is written as those rules).
 // A premise card is ⟦A⟧; Join is ; (two lists into one: ⟦A; B⟧); a list wired into a premise card makes a premise that
 // carries premises of its own, ⟦⟦A⟧ ⟹ B⟧ (the kernel's elimination rules have them; a rule the player writes says it
 // inside the sentence, with →); wired into the declared card, a list is one way to make it. A thing card takes any
@@ -47,7 +47,6 @@ const T = (zh, en) => ({ zh, en })
 export const DECL = 'decl'
 const MOST = 3
 const wayPort = (k) => `c${k}`
-const cardId = (token) => `hyp-${token}`
 
 /** How many ways the declared card has wired (its inputs are one more, up to three). */
 export const waysOf = (node) => node.params?.ways ?? 0
@@ -412,35 +411,3 @@ export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways:
 /** A premise card of `sentence`, or a thing card naming its thing `name`. */
 export const hypCard = (id, sentence, at) => ({ id, type: 'hyp', params: { name: sentence }, ...at })
 export const thingCard = (id, name, at) => ({ id, type: 'thing', params: { name }, ...at })
-
-/**
- * A reference board written compactly: isoBoard(['Rain+Wind>1']): premise cards of Rain and Wind joined, ⟦Rain; Wind⟧,
- * into the declared card's first way; 'Rain>Wet' wires Rain into the Wet card's port, ⟦⟦Rain⟧ ⟹ Wet⟧. A card is named
- * by its sentence, or by a key of `cards` ({ key: sentence }) when it is not a letter or two cards assume one sentence;
- * '∅' (or '∅1', '∅2' … for several) assumes nothing, and '⋀x' takes the thing x. Joins go left to right: 'A+B+C' is
- * (A; B); C.
- */
-export function isoBoard(wires, cards = {}) {
-  const pairs = wires.map((s) => s.split('>'))
-  const tokens = [...new Set(pairs.flatMap(([from, to]) => [...from.split('+'), ...(/^\d$/.test(to) ? [] : [to])]))]
-  const id = (token) => cardId(token.startsWith('∅') ? `none${token.slice(1)}` : token.startsWith('⋀') ? `thing-${token.slice(1)}` : token)
-  const card = (token, k) => {
-    const at = { x: 20, y: 40 + k * 200 }
-    if (token.startsWith('∅')) return { id: id(token), type: 'none', params: {}, ...at }
-    if (token.startsWith('⋀')) return thingCard(id(token), token.slice(1), at)
-    return hypCard(id(token), cards[token] ?? token, at)
-  }
-  const joins = []
-  const out = []
-  // A join of several cards: one Join each step, left to right; its id, the last one's.
-  const source = (from) => from.split('+').map(id).reduce((a, b) => {
-    const j = `join-${joins.length + 1}`
-    joins.push({ id: j, type: 'join', params: {}, x: 280, y: 40 + joins.length * 200 })
-    out.push({ from: a, to: j, port: 'a' }, { from: b, to: j, port: 'b' })
-    return j
-  })
-  for (const [from, to] of pairs) out.push(/^\d$/.test(to) ? { from: source(from), to: DECL, port: wayPort(Number(to)) } : { from: source(from), to: id(to), port: 'under' })
-  // The declared card goes right of the joins (or of the cards, with none), so no card covers another.
-  const [decl] = startIso().nodes
-  return settle({ nodes: [{ ...decl, x: joins.length ? 540 : 280 }, ...tokens.map(card), ...joins], wires: out })
-}

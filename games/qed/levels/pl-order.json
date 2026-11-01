@@ -1,0 +1,87 @@
+{
+  "kind": "machine",
+  "want": "answers",
+  "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
+  "backtrack": true,
+  "adds": ["defer"],
+  "title": { "zh": "先问谁", "en": "Ask which first" },
+  "rules": {
+    "anc1": {
+      "name": { "zh": "祖先·一代", "en": "Ancestor: one generation" },
+      "premises": ["Parent(?x, ?y)"],
+      "conclusion": "Anc(?x, ?y)"
+    },
+    "anc3": {
+      "name": { "zh": "祖先·往上数", "en": "Ancestor: counting up" },
+      "premises": ["Anc(?x, ?y)", "Parent(?y, ?z)"],
+      "conclusion": "Anc(?x, ?z)"
+    }
+  },
+  "tests": [
+    {
+      "goal": "Anc(i, ?w)",
+      "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
+      "answers": ["j", "k", "l", "m"]
+    },
+    {
+      "goal": "Anc(j, ?w)",
+      "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
+      "answers": ["k", "l", "m"]
+    }
+  ],
+  "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
+  "hint": [
+    { "zh": "倒着用「往上数」以后，第一个目标又是一个「祖先」。", "en": "After “counting up” backwards, the first goal is an “ancestor” again." },
+    { "zh": "先证哪个子目标，?y 就能先定下来？", "en": "Which subgoal, proved first, settles ?y?" }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "这一回，「多代」那条规则倒过来写：先找 ?x 的祖先 ?y，再看 ?y 是不是 ?z 的父母。意思不变。",
+        "en": "This time the rule for more generations is written the other way round: first an ancestor ?y of ?x, then whether ?y is a parent of ?z. The meaning is the same."
+      }
+    }
+  ],
+  "solution": [
+    "c0 = search(in, body: c1) {",
+    "  body {",
+    "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c5) {",
+    "      first {",
+    "        c2 = assumption(c1.first)",
+    "      }",
+    "      second {",
+    "        c3r0 = anc1()",
+    "        c3 = rule(c1.second, c3r0)",
+    "      }",
+    "      third {",
+    "        c4r0 = anc3()",
+    "        c4 = rule(c1.third, c4r0)",
+    "        c5 = defer(c4)",
+    "      }",
+    "    }",
+    "  }",
+    "}",
+    "out <- c0"
+  ],
+  "naive": [
+    "c0 = search(in, body: c1) {",
+    "  body {",
+    "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
+    "      first {",
+    "        c2 = assumption(c1.first)",
+    "      }",
+    "      second {",
+    "        c3r0 = anc1()",
+    "        c3 = rule(c1.second, c3r0)",
+    "      }",
+    "      third {",
+    "        c4r0 = anc3()",
+    "        c4 = rule(c1.third, c4r0)",
+    "      }",
+    "    }",
+    "  }",
+    "}",
+    "out <- c0"
+  ],
+  "after": { "zh": "这类问题叫左递归。", "en": "This is known as left recursion." }
+}

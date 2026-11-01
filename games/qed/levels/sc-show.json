@@ -1,0 +1,54 @@
+{
+  "title": { "zh": "一行就够", "en": "One row is enough" },
+  "intro": [
+    {
+      "t": {
+        "zh": "一句话若由你造的证明助手一步证完，脚本里就只写一行：show … by auto。",
+        "en": "When a proof assistant you built proves a sentence outright, the script is a single row: show … by auto."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "script",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
+      "premises": { "p": "Rain → Wet", "q": "Wet → Slip" },
+      "goal": "Rain → Slip",
+      "answer": [{ "k": "show", "stmt": "Rain → Slip", "using": ["p", "q"], "by": "auto" }],
+      "naive": [{ "k": "show", "stmt": "Rain → Slip", "using": ["p", "q"], "by": "rule:mp" }],
+      "hint": [
+        { "zh": "用到的事实都写在 using 里，剩下的交给 auto。", "en": "Put the facts used after using, and leave the rest to auto." }
+      ]
+    },
+    {
+      "kind": "script",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
+      "premises": {},
+      "goal": "((Rain → Wet) → Rain) → Rain",
+      "answer": [{ "k": "show", "stmt": "((Rain → Wet) → Rain) → Rain", "by": "metis" }],
+      "naive": [{ "k": "show", "stmt": "((Rain → Wet) → Rain) → Rain", "by": "auto" }],
+      "hint": [
+        {
+          "zh": "<level-ref to=\"peirce\"></level-ref>：auto 证不出来的。",
+          "en": "<level-ref to=\"peirce\"></level-ref>: auto cannot prove it."
+        }
+      ]
+    },
+    {
+      "kind": "script",
+      "step": { "zh": "第三题", "en": "Problem 3" },
+      "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
+      "premises": {},
+      "goal": "plus(s(zero), s(zero)) = s(s(zero))",
+      "consts": ["zero"],
+      "words": ["everyday", "terms"],
+      "defs": ["plus"],
+      "simp": ["def.0", "def.1"],
+      "answer": [{ "k": "show", "stmt": "plus(s(zero), s(zero)) = s(s(zero))", "by": "simp" }],
+      "naive": [{ "k": "show", "stmt": "plus(s(zero), s(zero)) = s(s(zero))", "by": "rule:refl" }],
+      "hint": [{ "zh": "这一关的化简会按加法的定义算。", "en": "This level’s Simp works by the definition of addition." }]
+    }
+  ]
+}

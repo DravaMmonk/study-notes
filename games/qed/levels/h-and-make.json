@@ -1,0 +1,77 @@
+{
+  "title": { "zh": "定义「并且」", "en": "Defining “and”" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"decl-and\"></level-ref>用声明把「并且」引入证明核。另一种办法不声明，只用已有的 → 和量词：「A 并且 B」就是「对任何一句话 R，只要从 A 和 B 推得出 R，就有 R」，写成 ∀R. (A → (B → R)) → R。",
+        "en": "<level-ref to=\"decl-and\"></level-ref> brought “and” into the kernel by a declaration. Another way declares nothing and uses the → and quantifier already there: “A and B” is “for every sentence R, if R follows from A and B, then R”, written ∀R. (A → (B → R)) → R."
+      }
+    },
+    {
+      "t": {
+        "zh": "这里的 ∀ 管的不是一样东西，而是一句话。还是那两块元件：<part-ref to=\"part:allI\"></part-ref>取的名字选大写的 R，框里的 R 就是任意一句话；<part-ref to=\"part:allE\"></part-ref>选的不是一样东西，而是一句话，换掉 R。",
+        "en": "This ∀ ranges not over things but over sentences. The same two parts handle it: take the upper-case name R in the <part-ref to=\"part:allI\"></part-ref>, and inside it R is any sentence at all; in <part-ref to=\"part:allE\"></part-ref> choose not a thing but a sentence, to put in for R."
+      }
+    }
+  ],
+  "after": {
+    "zh": "R 能换成任何一句话，连「A 并且 B」这句正在定义的话本身也行。允许这样做，这种定义才写得出来。Isabelle/HOL 走的就是这条路：「并且」「或者」不声明，而是这样用 → 和 ∀ 定义出来，规则再从定义证出。",
+    "en": "R may be any sentence, even the very “A and B” being defined. Only because that is allowed can the definition be written at all. Isabelle/HOL takes this road: “and” and “or” are not declared but defined this way, with → and ∀, and their rules proved from the definitions."
+  },
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "造", "en": "Making it" },
+      "tests": [{ "premises": { "p": "A", "q": "B" }, "goal": "∀R. (A → (B → R)) → R" }],
+      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Sat", "B": "Sun" }],
+      "hint": [
+        {
+          "zh": "目标对任何一句话 R 都要成立：先放一个任取框，取的名字选 R。",
+          "en": "The goal must hold for every sentence R: start with a for-any box, taking the name R."
+        },
+        {
+          "zh": "框里的目标是一句「若…则…」：假设「A → (B → R)」，套用两次。",
+          "en": "Inside, the goal is an “if … then …”: assume “A → (B → R)” and Apply twice."
+        }
+      ],
+      "solution": [
+        "s = allI[x=R](body: f) {",
+        "  body {",
+        "    f = impI[A=\"A -> B -> R\"](body: m2) {",
+        "      body {",
+        "        m1 = mp(f.body, p)",
+        "        m2 = mp(m1, q)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- s"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "拆", "en": "Taking it apart" },
+      "tests": [{ "premises": { "p": "∀R. (A → (B → R)) → R" }, "goal": "A" }],
+      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Sat", "B": "Sun" }],
+      "intro": [
+        {
+          "t": {
+            "zh": "定义对任何一句话 R 都成立，那就挑一句合用的：R 可以是 A 本身。",
+            "en": "The definition holds for every sentence R, so pick one that serves: R may be A itself."
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "用选定一例把 R 换成「A」，得到「(A → (B → A)) → A」。",
+          "en": "Choose an instance: put “A” in for R, to get “(A → (B → A)) → A”."
+        },
+        {
+          "zh": "要套用它，还缺「A → (B → A)」：<part-ref to=\"lemma:axK\"></part-ref>给得出。",
+          "en": "To apply it, “A → (B → A)” is missing: <part-ref to=\"lemma:axK\"></part-ref> gives it."
+        }
+      ],
+      "solution": ["k = axK[A=A, B=B]()", "e = allE[t=A](p)", "m = mp(e, k)", "goal <- m"]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "十个人", "en": "Ten islanders" },
+  "tests": [
+    {
+      "goal": "KA",
+      "hyps": [
+        "KA ↔ ¬KB",
+        "KB ↔ ¬KC",
+        "KC ↔ ¬KD",
+        "KD ↔ ¬KE",
+        "KE ↔ ¬KF",
+        "KF ↔ ¬KG",
+        "KG ↔ ¬KH",
+        "KH ↔ ¬KI",
+        "KI ↔ ¬KJ",
+        "KJ ↔ ¬KA ∧ ¬KB"
+      ]
+    },
+    {
+      "goal": "¬KB",
+      "hyps": [
+        "KA ↔ ¬KB",
+        "KB ↔ ¬KC",
+        "KC ↔ ¬KD",
+        "KD ↔ ¬KE",
+        "KE ↔ ¬KF",
+        "KF ↔ ¬KG",
+        "KG ↔ ¬KH",
+        "KH ↔ ¬KI",
+        "KI ↔ ¬KJ",
+        "KJ ↔ ¬KA ∧ ¬KB"
+      ]
+    },
+    {
+      "goal": "¬KJ",
+      "hyps": [
+        "KA ↔ ¬KB",
+        "KB ↔ ¬KC",
+        "KC ↔ ¬KD",
+        "KD ↔ ¬KE",
+        "KE ↔ ¬KF",
+        "KF ↔ ¬KG",
+        "KG ↔ ¬KH",
+        "KH ↔ ¬KI",
+        "KI ↔ ¬KJ",
+        "KJ ↔ ¬KA ∧ ¬KB"
+      ]
+    }
+  ],
+  "brief": {
+    "zh": "十个人排成一圈：a 说「b 是无赖」，b 说「c 是无赖」，……，i 说「j 是无赖」，j 说「a 和 b 都是无赖」。设计一个证明助手，证出几个人的身份。",
+    "en": "Ten people in a ring: a says “b is a knave”, b says “c is a knave”, …, i says “j is a knave”, and j says “a and b are both knaves”. Design a proof assistant that proves what some of them are."
+  },
+  "hint": [{ "zh": "证明助手不必改。", "en": "The proof assistant need not change." }],
+  "solution": ["c0 = metis(in)", "out <- c0"],
+  "after": {
+    "zh": "十个人的真值表有 1024 行。判定这类问题的程序叫 <b>SAT 求解器</b>，能处理的变量数以百万计。",
+    "en": "The truth table for ten people has 1024 rows. Programs that decide problems like this are called <b>SAT solvers</b>, and they handle millions of variables."
+  }
+}

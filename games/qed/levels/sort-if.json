@@ -1,0 +1,92 @@
+{
+  "title": { "zh": "如果就分情况", "en": "An if is a case split" },
+  "intro": [
+    {
+      "t": {
+        "zh": "if 的定义只认写明的真、假。条件是 c ≤ a 这样的式子时，化简不知道它的真假，就会卡住。从定义证出两条带条件的规则：条件等于真，取「则」那一边；等于假，取「否则」那一边。",
+        "en": "if’s definition knows only a true or false written out. When the condition is something like c ≤ a, Simp cannot tell which it is, and gets stuck. From the definition, prove two rules with a condition: when the condition equals true, take the “then” side; when false, the “else” side."
+      }
+    }
+  ],
+  "after": { "zh": "两条规则进了「数理规则书」。", "en": "The two rules go into the “Rule book of numbers”." },
+  "tasks": [
+    {
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "step": { "zh": "条件为真", "en": "A true condition" },
+      "fact": "ifTrue",
+      "types": ["bool"],
+      "defs": ["if"],
+      "tests": [{ "goal": "∀u. ∀v. ∀w. u = tt → if(u, v, w) = v" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "u = 真 要先进已知。", "en": "u = true has to be among the givens first." },
+        { "zh": "已知里的等式能把 u 换掉。", "en": "The equation given can replace u." }
+      ],
+      "solution": [
+        "c2r0 = impI()",
+        "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
+        "c4r0 = refl()",
+        "c0 = repeat(in, body: c1) {",
+        "  body {",
+        "    c1r0 = allI()",
+        "    c1 = rule(c0.body, c1r0)",
+        "  }",
+        "}",
+        "c3r2 = hyp(c3r0)",
+        "c2 = rule(c0, c2r0)",
+        "c3 = simp(c2, c3r2)",
+        "c4 = rule(c3, c4r0)",
+        "out <- c4"
+      ],
+      "naive": [
+        "c2r0 = impI()",
+        "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
+        "c4r0 = refl()",
+        "c0 = repeat(in, body: c1) {",
+        "  body {",
+        "    c1r0 = allI()",
+        "    c1 = rule(c0.body, c1r0)",
+        "  }",
+        "}",
+        "c2 = rule(c0, c2r0)",
+        "c3 = simp(c2, c3r0)",
+        "c4 = rule(c3, c4r0)",
+        "out <- c4"
+      ]
+    },
+    {
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "step": { "zh": "条件为假", "en": "A false condition" },
+      "fact": "ifFalse",
+      "types": ["bool"],
+      "defs": ["if"],
+      "tests": [{ "goal": "∀u. ∀v. ∀w. u = ff → if(u, v, w) = w" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "与条件为真时相同。", "en": "As with a true condition." }],
+      "solution": [
+        "c2r0 = impI()",
+        "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
+        "c4r0 = refl()",
+        "c0 = repeat(in, body: c1) {",
+        "  body {",
+        "    c1r0 = allI()",
+        "    c1 = rule(c0.body, c1r0)",
+        "  }",
+        "}",
+        "c3r2 = hyp(c3r0)",
+        "c2 = rule(c0, c2r0)",
+        "c3 = simp(c2, c3r2)",
+        "c4 = rule(c3, c4r0)",
+        "out <- c4"
+      ]
+    }
+  ]
+}

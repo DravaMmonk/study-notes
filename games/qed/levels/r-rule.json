@@ -1,0 +1,41 @@
+{
+  "kind": "machine",
+  "want": "becomes",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "title": { "zh": "逆用规则", "en": "A rule backwards" },
+  "adds": ["rule"],
+  "showcase": {
+    "zh": "逆用规则不是从已知往下推，而是对着目标往回推：目标和规则的结论合一，换成规则的前提",
+    "en": "the rule part does not reason down from what is known but back from the goal: the goal is unified with the rule’s conclusion and replaced by its premises"
+  },
+  "tests": [
+    { "goal": "Rain → (Wind → Rain)", "becomes": [["Rain ⊢ Wind → Rain"]] },
+    { "goal": "Wet → Slip", "becomes": [["Wet ⊢ Slip"]] },
+    { "goal": "Rain ∧ Wet → Slip", "becomes": [["Rain ∧ Wet ⊢ Slip"]] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手，把每一个目标变成要的样子。",
+    "en": "Design a proof assistant that turns each goal into the one wanted."
+  },
+  "hint": [
+    {
+      "zh": "三个目标都是「若…则…」。证明核里，哪条规则造出「若…则…」？",
+      "en": "The three goals are all “if … then …”. Which of the kernel’s rules makes an “if … then …”?"
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "有了合一器，规则就能倒着用，这叫<wiki-ref to=\"backward\"></wiki-ref>。新元件<part-ref to=\"part:rule\"></part-ref>：从「规则」口接入一条规则，它把第一个目标和规则的结论合一，再把这个目标换成规则的前提，每条前提一个新目标。证明板上的每个元件，在这块板上都是给出它那条规则的元件；几个规则元件可以串起来接入。",
+        "en": "With the unifier, rules can be used backwards: <wiki-ref to=\"backward\"></wiki-ref>. A new part, <part-ref to=\"part:rule\"></part-ref>: wire a rule into its port “Rules”; it unifies the first goal with the rule’s conclusion and replaces that goal with the rule’s premises, one new goal for each. Every proof-board part is, on this board, a part that gives its rule, and several rule parts can be chained into one list."
+      }
+    },
+    {
+      "t": {
+        "zh": "证明核的规则都写成 ⟦前提⟧ ⟹ 结论。从这里起，线上传的是<wiki-ref to=\"proof-state\"></wiki-ref>：尚未证完的目标。",
+        "en": "The kernel’s rules are all written ⟦premises⟧ ⟹ conclusion. From here on a wire carries a <wiki-ref to=\"proof-state\"></wiki-ref>: the goals still open."
+      }
+    }
+  ],
+  "solution": ["c0r0 = impI()", "c0 = rule(in, c0r0)", "out <- c0"]
+}

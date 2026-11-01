@@ -1,0 +1,61 @@
+{
+  "title": { "zh": "两个条件，一个条件", "en": "Two conditions, one condition" },
+  "intro": [
+    {
+      "t": {
+        "zh": "「下雨并且刮风，地就湿」和「下雨的话，只要再刮风，地就湿」说的是一回事。",
+        "en": "“If it rains and it is windy, the ground is wet” and “if it rains, then if it is also windy, the ground is wet” say the same."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "拆成两个条件", "en": "Two conditions from one" },
+      "tests": [{ "premises": { "p": "A ∧ B → C" }, "goal": "A → (B → C)" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+      "hint": [
+        { "zh": "目标里有两层「若…则…」。", "en": "The goal has two “if … then …”s, one inside the other." },
+        {
+          "zh": "两个框依次假设「下雨」和「刮风」；在里面把两句假设拼成一句 ∧，交给已知。",
+          "en": "Two boxes assume “it rains” and “it is windy” in turn; inside, join the two assumptions into one ∧ and hand it to the given."
+        }
+      ],
+      "solution": [
+        "f = impI[A=A](body: g) {",
+        "  body {",
+        "    g = impI[A=B](body: m) {",
+        "      body {",
+        "        c = andI(f.body, g.body)",
+        "        m = mp(p, c)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "合成一个条件", "en": "One condition from two" },
+      "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "A ∧ B → C" }],
+      "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
+      "hint": [
+        {
+          "zh": "一个框就够：假设「今天是周六 ∧ 下雨」，拆开以后套用两次。",
+          "en": "One box will do: assume “today is Saturday ∧ it rains”, split it, then Apply twice."
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"A & B\"](body: m2) {",
+        "  body {",
+        "    e = andE(f.body)",
+        "    m1 = mp(p, e.left)",
+        "    m2 = mp(m1, e.right)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
+}

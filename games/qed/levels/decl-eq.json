@@ -1,0 +1,42 @@
+{
+  "kind": "iso",
+  "words": ["everyday", "terms", "stars"],
+  "adds": ["rewrite", "refl"],
+  "title": { "zh": "声明相等", "en": "Declaring equality" },
+  "declare": { "zh": "相等", "en": "equal" },
+  "target": "a = a",
+  "binder": "a",
+  "sentences": [],
+  "things": ["i", "j"],
+  "thing": true,
+  "tests": [
+    { "given": [], "goal": "i = i", "make": true },
+    { "given": [], "goal": "j = j", "make": true },
+    { "given": [], "goal": "i = j", "make": false }
+  ],
+  "take": { "premises": ["?a = ?b", "?P(?a)"], "conclusion": "?P(?b)" },
+  "intro": [
+    {
+      "t": {
+        "zh": "晨星和昏星是不是同一颗星？要说两样东西相等，先要声明相等。",
+        "en": "Are the Morning Star and the Evening Star one star? To say two things are equal, equality has to be declared first."
+      }
+    }
+  ],
+  "brief": {
+    "zh": "需求：任何东西都等于它自己；凭空证不出两个不同名字相等。写出「相等」的声明。",
+    "en": "Requirement: everything equals itself; two different names cannot be proved equal from nothing. Write the declaration of equality."
+  },
+  "hint": [
+    {
+      "zh": "凭空证得出的「s = t」，两边有什么共同之处？",
+      "en": "What do the two sides of an “s = t” proved from nothing have in common?"
+    }
+  ],
+  "solution": [{ "binds": ["a"], "needs": [] }],
+  "naive": [{ "binds": [], "needs": [] }],
+  "after": {
+    "zh": "这条引入规则就是<b>自反律</b>；相等的消去规则是<b>等量代换</b>。",
+    "en": "This introduction rule is <b>reflexivity</b>; the elimination rule of equality is <b>substitution</b>."
+  }
+}

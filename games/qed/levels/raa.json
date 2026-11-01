@@ -1,0 +1,91 @@
+{
+  "title": { "zh": "要么成立，要么不成立", "en": "It holds or it does not" },
+  "builds": "lem",
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"c-wall\"></level-ref>里，auto 证不出「下雨 ∨ ¬下雨」，<wiki-ref to=\"lem\"></wiki-ref>的一例。先证一句弱一些的：「¬¬(下雨 ∨ ¬下雨)」，否认它就会矛盾。",
+        "en": "In <level-ref to=\"c-wall\"></level-ref>, auto could not prove “it rains ∨ ¬it rains”, an instance of <wiki-ref to=\"lem\"></wiki-ref>. First a weaker sentence: “¬¬(it rains ∨ ¬it rains)”, that denying it is a contradiction."
+      }
+    }
+  ],
+  "after": {
+    "zh": "没有双重否定消去的规则，是<wiki-ref to=\"intuitionistic\"></wiki-ref>；加上它，就是<wiki-ref to=\"classical\"></wiki-ref>。经典命题逻辑里，真值表上每一行都真的句子都证得出。",
+    "en": "The rules without double-negation elimination are <wiki-ref to=\"intuitionistic\"></wiki-ref>; with it, <wiki-ref to=\"classical\"></wiki-ref>. In classical propositional logic, every sentence true on every row has a proof."
+  },
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "不可否定", "en": "Undeniable" },
+      "tests": [{ "goal": "¬¬(A ∨ ¬A)" }],
+      "cases": [{ "A": "Rain" }, { "A": "Exam" }],
+      "hint": [
+        { "zh": "要证的是一个否定，不必证出「或者」的哪一边。", "en": "The goal is a negation; neither side of the “or” has to be proved." },
+        { "zh": "假设「¬(下雨 ∨ ¬下雨)」，这个假设要用两次。", "en": "Assume “¬(it rains ∨ ¬it rains)”; that assumption is used twice." }
+      ],
+      "solution": [
+        "f = impI[A=\"~(A | ~A)\"](body: m2) {",
+        "  body {",
+        "    na = impI[A=A](body: m) {",
+        "      body {",
+        "        i = orI[other=\"~A\", side=right](na.body)",
+        "        m = mp(f.body, i)",
+        "      }",
+        "    }",
+        "    i2 = orI[other=A, side=left](na)",
+        "    m2 = mp(f.body, i2)",
+        "  }",
+        "}",
+        "goal <- f"
+      ],
+      "naive": [
+        "f = impI[A=\"~(A | ~A)\"](body: i) {",
+        "  body {",
+        "    i = orI[other=\"~A\", side=right](f.body)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "双重否定消去", "en": "Double-negation elimination" },
+      "carries": true,
+      "adds": ["raa"],
+      "tests": [{ "goal": "A ∨ ¬A" }],
+      "sentences": ["¬(A ∨ ¬A)"],
+      "cases": [{ "A": "Rain" }, { "A": "Exam" }],
+      "intro": [
+        {
+          "t": {
+            "zh": "由 ¬¬A 推出 A，叫<b>双重否定消去</b>。现有的规则推不出它，只能作为一条<wiki-ref to=\"axiom\"></wiki-ref>加进证明核：<part-ref to=\"part:raa\"></part-ref>。",
+            "en": "From ¬¬A, infer A: this is <b>double-negation elimination</b>. The rules so far cannot derive it; it can only come into the kernel as an <wiki-ref to=\"axiom\"></wiki-ref>, <part-ref to=\"part:raa\"></part-ref>."
+          }
+        }
+      ],
+      "hint": [
+        { "zh": "刚才的证明已经给出「¬¬(下雨 ∨ ¬下雨)」。", "en": "The proof you just made already gives “¬¬(it rains ∨ ¬it rains)”." },
+        {
+          "zh": "把<part-ref to=\"part:raa\"></part-ref>接在最外层假设框的输出后面。",
+          "en": "Wire <part-ref to=\"part:raa\"></part-ref> after the outermost assumption box."
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"~(A | ~A)\"](body: m2) {",
+        "  body {",
+        "    na = impI[A=A](body: m) {",
+        "      body {",
+        "        i = orI[other=\"~A\", side=right](na.body)",
+        "        m = mp(f.body, i)",
+        "      }",
+        "    }",
+        "    i2 = orI[other=A, side=left](na)",
+        "    m2 = mp(f.body, i2)",
+        "  }",
+        "}",
+        "r = raa(f)",
+        "goal <- r"
+      ]
+    }
+  ]
+}

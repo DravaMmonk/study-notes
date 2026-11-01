@@ -1,0 +1,22 @@
+{
+  "kind": "proof",
+  "title": { "zh": "举个例子", "en": "An example" },
+  "consts": ["i"],
+  "tests": [{ "premises": { "p": "P(i) ∧ Q(i)" }, "goal": "∃x. Q(x)" }],
+  "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+  "hint": [
+    {
+      "zh": "拆出「安会死」，接进<part-ref to=\"part:exI\"></part-ref>。",
+      "en": "Split out “Ann is mortal” and wire it into <part-ref to=\"part:exI\"></part-ref>."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "<part-ref to=\"part:exI\"></part-ref>使用<level-ref to=\"decl-ex\"></level-ref>写下的引入规则：有对象满足某个条件，就可以说存在满足这个条件的对象。接入关于该对象的命题；若能得出多个存在命题，在元件上选择所需的结论。",
+        "en": "<part-ref to=\"part:exI\"></part-ref> uses the introduction rule written in <level-ref to=\"decl-ex\"></level-ref>: an object satisfying a condition shows that such an object exists. Connect a statement about the object; if several existential statements follow, choose the conclusion on the part."
+      }
+    }
+  ],
+  "solution": ["s = andE(p)", "i = exI(s.right)", "goal <- i"]
+}

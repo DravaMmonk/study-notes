@@ -1,0 +1,32 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "title": { "zh": "一个目标变几个", "en": "One goal becomes several" },
+  "tests": [
+    { "goal": "Rain → (Wind → Rain ∧ Wind)" },
+    { "goal": "Wet → (Slip → Wet ∧ Slip)" },
+    { "goal": "¬Rain → (Wind → ¬Rain ∧ Wind)" }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "「并且」的两半，各自在已知里吗？", "en": "Are the two halves of the “and” each among the givens?" }],
+  "intro": [
+    {
+      "t": {
+        "zh": "拼接有两条前提，倒着用它，一个目标变成两个，排成一列。元件总是处理第一个目标；证完一个，下一个顶上来。",
+        "en": "Join has two premises: used backwards, it turns one goal into two, in a row. A part always works on the first goal; when it is proved, the next moves up."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = impI()",
+    "c1r0 = impI()",
+    "c2r0 = andI()",
+    "c0 = rule(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "c2 = rule(c1, c2r0)",
+    "c3 = assumption(c2)",
+    "c4 = assumption(c3)",
+    "out <- c4"
+  ]
+}

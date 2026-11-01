@@ -1,0 +1,37 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms"],
+  "title": { "zh": "拿已知改写", "en": "Rewriting with a given" },
+  "adds": ["hyp"],
+  "defs": ["plus", "app", "len"],
+  "tests": [
+    { "goal": "plus(a, zero) = a → plus(s(a), zero) = s(a)" },
+    { "goal": "len(app(l, nil)) = len(l) → len(app(cons(i, l), nil)) = s(len(l))" }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [
+    { "zh": "「若」的那一半要先进已知。", "en": "The “if” half has to be among the givens first." },
+    { "zh": "化简的规则里有一条是「已知里的等式」。", "en": "One of Simp’s rules is “an equation given”." }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "已知里的等式也能当改写规则，把左边换成右边。",
+        "en": "An equation among the givens can be a rewrite rule too, its left side replaced by its right."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = impI()",
+    "c1r0 = math[use=[\"def.1\", \"def.3\", \"def.5\"]]()",
+    "c2r0 = refl()",
+    "c0 = rule(in, c0r0)",
+    "c1r3 = hyp(c1r0)",
+    "c1 = simp(c0, c1r3)",
+    "c2 = rule(c1, c2r0)",
+    "out <- c2"
+  ]
+}

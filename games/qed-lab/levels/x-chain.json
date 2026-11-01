@@ -1,0 +1,41 @@
+{
+  "kind": "proof",
+  "title": { "zh": "把框编译掉", "en": "Compile the box away" },
+  "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
+  "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+  "without": ["impI"],
+  "brief": {
+    "zh": "不用假设框，证出<level-ref to=\"chain\"></level-ref>的「下雨 → 路滑」。",
+    "en": "Without the assumption box, prove the “it rains → the road is slippery” of <level-ref to=\"chain\"></level-ref>."
+  },
+  "hint": [
+    {
+      "zh": "框里的第二次套用是在条件「下雨」下做的：这正是 S 的事。S 的三句选「下雨」「地湿」「路滑」。",
+      "en": "The box’s second Apply happens under the condition “it rains”: that is S’s job. Choose “it rains”, “the ground is wet”, “the road is slippery” on S."
+    },
+    {
+      "zh": "S 要「下雨 → (地湿 → 路滑)」：用 K 给「地湿 → 路滑」加上条件「下雨」。",
+      "en": "S wants “it rains → (the ground is wet → the road is slippery)”: let K put the condition “it rains” on “the ground is wet → the road is slippery”."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"chain\"></level-ref>里，框假设「下雨」，框里做了两次套用。把框拿掉，每一步都要改写：框里用到的已知，用 K 带上条件「下雨」；框里的套用，在条件下做，用 S。",
+        "en": "In <level-ref to=\"chain\"></level-ref> the box assumed “it rains” and did two Applies inside. Take the box away and each step is rewritten: a given used inside gets the condition “it rains” from K; an Apply inside happens under the condition, with S."
+      }
+    }
+  ],
+  "solution": [
+    "k = K[A=\"B -> C\", B=A]()",
+    "s = S[A=A, B=B, C=C]()",
+    "m1 = mp(k, q)",
+    "m2 = mp(s, m1)",
+    "m3 = mp(m2, p)",
+    "goal <- m3"
+  ],
+  "after": {
+    "zh": "这个改写有固定的做法，任何一个框都能这样换成 K、S 和套用（演绎定理）。所以框不增加能证的东西，只是让证明好写得多：这就是证明器把框放进地基、把 K 和 S 降成元件的原因。",
+    "en": "The rewrite follows a fixed recipe, and any box can be traded for K, S and Apply this way (the deduction theorem). So the box adds nothing provable; it only makes proofs far easier to write. That is why the prover puts the box in its foundation and K and S among its parts."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "proof",
+  "title": { "zh": "多一个条件也无妨", "en": "An extra condition" },
+  "tests": [{ "goal": "A → (B → A)" }],
+  "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Coffee", "B": "Late" }],
+  "builds": "K",
+  "brief": {
+    "zh": "没有任何已知，证出「下雨 → (刮风 → 下雨)」。",
+    "en": "With nothing given, prove “it rains → (it is windy → it rains)”."
+  },
+  "hint": [
+    {
+      "zh": "两个 →，两个框：外面的框假设「下雨」，里面的框假设「刮风」。里面要的结论，外面已经假设了。",
+      "en": "Two →s, two boxes: the outer one assumes “it rains”, the inner one “it is windy”. What the inner box must conclude, the outer one has assumed."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "已经成立的事，加上什么条件都还成立。这句话叫 <b>K</b>；只有公理、没有框的证明器，只能把它当作不用证的出发点。",
+        "en": "What holds still holds under any extra condition. This sentence is called <b>K</b>; a prover with axioms and no box can only take it as a starting point that needs no proof."
+      }
+    },
+    {
+      "t": {
+        "zh": "有了框，它可以证出来。框里可以再放框，里面的框看得见外面框的假设。",
+        "en": "With boxes it can be proved. A box can sit inside a box, and the inner one sees the outer one’s assumption."
+      }
+    }
+  ],
+  "solution": ["f = impI[A=A](body: g) {", "  body {", "    g = impI[A=B](body: f.body)", "  }", "}", "goal <- f"],
+  "after": {
+    "zh": "一次套用都没用。证出来以后，这块电路是元件 <b>K</b>：元件上选两句话，它直接给出「如果 第一句，那么（如果 第二句，那么 第一句）」。",
+    "en": "Not one Apply. Proved, this circuit becomes the part <b>K</b>: choose two sentences on its part and it gives “if the first, then (if the second, then the first)” at once."
+  }
+}
