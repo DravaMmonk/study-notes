@@ -1,7 +1,6 @@
 {
   "domain": "logic",
   "vocabulary": 1,
-  "open": { "idle-idea": ["and@decl-and", "each@s-each"] },
   "title": { "zh": "证明完毕", "en": "Q.E.D." },
   "kicker": { "zh": "开发中 · 用电路构建证明与证明助手", "en": "In development · Build proofs and proof assistants as circuits" },
   "lede": {
@@ -1093,7 +1092,7 @@
             {
               "id": "combine",
               "title": { "zh": "组合", "en": "Combining" },
-              "levels": ["s-repeat", "s-orelse", "s-mix", "s-try", "s-each"]
+              "levels": ["s-repeat", "s-orelse", "s-mix", "s-try"]
             },
             { "id": "backtrack", "title": { "zh": "回溯", "en": "Backtracking" }, "levels": ["s-defer", "s-results"] }
           ]
@@ -1280,6 +1279,7 @@
             }
           ]
         },
+        "s-each",
         {
           "parallel": [
             {

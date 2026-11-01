@@ -1,25 +1,25 @@
 {
   "kind": "proof",
   "title": { "zh": "假设一下", "en": "Suppose" },
-  "tests": [{ "premises": { "p": "A → (B → C)", "q": "B" }, "goal": "A → C" }],
+  "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "A ∧ B → C" }],
   "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
   "adds": ["impI"],
   "brief": {
-    "zh": "已知「今天是周六 → (下雨 → 我休息)」和「下雨」，证出「今天是周六 → 我休息」。",
-    "en": "Given “today is Saturday → (it rains → I rest)” and “it rains”, prove “today is Saturday → I rest”."
+    "zh": "已知「今天是周六 → (下雨 → 我休息)」，证出「今天是周六 ∧ 下雨 → 我休息」。",
+    "en": "Given “today is Saturday → (it rains → I rest)”, prove “today is Saturday ∧ it rains → I rest”."
   },
   "hint": [
-    { "zh": "框元件上的「假设」选「今天是周六」。", "en": "On the box, set “Assume” to “today is Saturday”." },
+    { "zh": "框元件上的「假设」选「今天是周六 ∧ 下雨」。", "en": "On the box, set “Assume” to “today is Saturday ∧ it rains”." },
     {
-      "zh": "在框里放两块套用：先把第一张已知套用到假设上，再套用到「下雨」上，结果接到框的「结论」。",
-      "en": "Put two Applies in the box: apply the first given to the assumption, then the result to “it rains”, and wire that to the box’s “Conclusion”."
+      "zh": "在框里先把假设拆开，再放两块套用：第一张已知先套用到「今天是周六」，结果再套用到「下雨」，接到框的「结论」。",
+      "en": "In the box, split the assumption first, then put two Applies: apply the given to “today is Saturday”, then the result to “it rains”, and wire that to the box’s “Conclusion”."
     }
   ],
   "intro": [
     {
       "t": {
-        "zh": "地基的第二块元件是<b>假设框</b>。人会这样想：「假设今天是周六。那下雨我就休息；现在确实下雨，所以我休息。所以，如果今天是周六，那么我休息。」",
-        "en": "The foundation’s second part is the <b>assumption box</b>. A person thinks: “Suppose today is Saturday. Then if it rains I rest; it is raining, so I rest. So if today is Saturday, then I rest.”"
+        "zh": "地基的第二块元件是<b>假设框</b>。人会这样想：「假设今天是周六，而且下雨。今天是周六，那下雨我就休息；现在确实下雨，所以我休息。所以，如果今天是周六而且下雨，那么我休息。」",
+        "en": "The foundation’s second part is the <b>assumption box</b>. A person thinks: “Suppose today is Saturday and it rains. It is Saturday, so if it rains I rest; it is raining, so I rest. So if today is Saturday and it rains, then I rest.”"
       }
     },
     {
@@ -36,10 +36,11 @@
     }
   ],
   "solution": [
-    "f = impI[A=A](body: m2) {",
+    "f = impI[A=\"A & B\"](body: m2) {",
     "  body {",
-    "    m1 = mp(p, f.body)",
-    "    m2 = mp(m1, q)",
+    "    e = andE(f.body)",
+    "    m1 = mp(p, e.left)",
+    "    m2 = mp(m1, e.right)",
     "  }",
     "}",
     "goal <- f"

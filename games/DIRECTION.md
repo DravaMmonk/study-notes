@@ -145,13 +145,7 @@ MCP 的 `modify`、studio 的每个编辑按钮、CLI 三者只是这套操作�
 每个阶段写明完成标准；做完就从这里删掉。
 
 **阶段 0+1 · 收口 kit、规格化与词汇表 v1（其余游戏）**
-所有游戏（《状态之图》《视觉完备》《句法之图》《证明完毕》《证明完毕 · 试做》《软件工厂》《车在说话》）的内容都已是数据：`game.json`、每关一个 JSON、`glossary.json`；领域给出词汇表（`kit/domains/<领域>/vocabulary.js`），`npm run check` 先按 schema 查内容再跑审计；封装件跑学习者的电路（《证明完毕》的真值电路的门、证明板上的引理也是；《句法之图》《软件工厂》没有封装件），`unused`、`bare-intro`、`idle-idea`、`bypass` 在所有游戏打开；课程的形状都是数据（`eras`、`primitives`、`concept`、`replaces`、`local`），`npm run deps -- <游戏>` 从它画出元件依赖图。还要做的：电路关界面合成一份，同时给《视觉完备》的电路关接上最后一次运行（其余玩法都已接上或不需要接，见 `games/DESIGN.md` 第 6 节的界面约定）；把审计报出的编排问题改掉（下面的工作单）。
-
-**工作单：想法放早了（`idle-idea`）。** 审计是为了提高设计和编排关卡的质量，不是为了多出几关：每一处都是把想法挪到需要它的地方、或者让后面的关真的用上它。改课程之前先改游戏的设计文档；各游戏 `game.json` 的 `open` 列着同一批（`npm run check` 列成 `OPEN`），改完一处就从两边删掉。共 4 处，都记在 `qed/DESIGN.md`：
-
-- 《证明完毕》`and@decl-and`：第 3 章把 ∧、∨、⊥ 的声明一口气写完，第 4 章才用；∧ 第一次用在 `and`，中间进来了 ∨、⊥E。
-- 《证明完毕》`each@s-each`：「每个目标」第一次用在 `in-zero`，中间进来了搜索、反证、改写。
-- 《证明完毕 · 试做》`and@and`、`orI@or`：试做的 12 关一关一条规则，∧ 的规则和引入 ∨ 之后没有关再用。
+所有游戏（《状态之图》《视觉完备》《句法之图》《证明完毕》《证明完毕 · 试做》《软件工厂》《车在说话》）的内容都已是数据：`game.json`、每关一个 JSON、`glossary.json`；领域给出词汇表（`kit/domains/<领域>/vocabulary.js`），`npm run check` 先按 schema 查内容再跑审计；封装件跑学习者的电路（《证明完毕》的真值电路的门、证明板上的引理也是；《句法之图》《软件工厂》没有封装件），`unused`、`bare-intro`、`idle-idea`、`bypass` 在所有游戏打开；课程的形状都是数据（`eras`、`primitives`、`concept`、`replaces`、`local`），`npm run deps -- <游戏>` 从它画出元件依赖图。还要做的：电路关界面合成一份，同时给《视觉完备》的电路关接上最后一次运行（其余玩法都已接上或不需要接，见 `games/DESIGN.md` 第 6 节的界面约定）。审计报出的编排问题都已改掉，各游戏的 `game.json` 都没有 `open`。
 
 完成标准：所有游戏的文件夹里没有一行可执行代码；`npm run check`、`npm test` 清零，各游戏 `game.json` 的 `open` 删空。
 

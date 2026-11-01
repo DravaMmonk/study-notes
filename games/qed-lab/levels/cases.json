@@ -1,17 +1,20 @@
 {
   "kind": "proof",
   "title": { "zh": "分情况", "en": "Case by case" },
-  "tests": [{ "premises": { "p": "A ∨ B", "q": "A → C", "r": "B → C" }, "goal": "C" }],
-  "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
+  "tests": [{ "premises": { "p": "A ∨ B", "q": "A → C", "r": "B → D" }, "goal": "C ∨ D" }],
+  "cases": [
+    { "A": "Bus", "B": "Bike", "C": "Late", "D": "OnTime" },
+    { "A": "Sat", "B": "Sun", "C": "Rest", "D": "Study" }
+  ],
   "adds": ["orE"],
   "brief": {
-    "zh": "已知「我坐公交 ∨ 我骑车」「我坐公交 → 我准时到」「我骑车 → 我准时到」，证出「我准时到」。",
-    "en": "Given “I take the bus ∨ I cycle”, “I take the bus → I arrive on time” and “I cycle → I arrive on time”, prove “I arrive on time”."
+    "zh": "已知「我坐公交 ∨ 我骑车」「我坐公交 → 我迟到了」「我骑车 → 我准时到」，证出「我迟到了 ∨ 我准时到」。",
+    "en": "Given “I take the bus ∨ I cycle”, “I take the bus → I am late” and “I cycle → I arrive on time”, prove “I am late ∨ I arrive on time”."
   },
   "hint": [
     {
-      "zh": "「情况一」假设「我坐公交」，「情况二」假设「我骑车」；两个框都要证出「我准时到」。",
-      "en": "Case one assumes “I take the bus”, case two “I cycle”; both boxes must prove “I arrive on time”."
+      "zh": "「情况一」假设「我坐公交」，「情况二」假设「我骑车」；两个框都要证出「我迟到了 ∨ 我准时到」：先套用，再用补充补上另一边。",
+      "en": "Case one assumes “I take the bus”, case two “I cycle”; both boxes must prove “I am late ∨ I arrive on time”: apply first, then Add alternative for the other side."
     }
   ],
   "intro": [
@@ -29,12 +32,14 @@
     }
   ],
   "solution": [
-    "e = orE(p, left: m, right: m2) {",
+    "e = orE(p, left: o1, right: o2) {",
     "  left {",
     "    m = mp(q, e.left)",
+    "    o1 = orI[other=D, side=right](m)",
     "  }",
     "  right {",
     "    m2 = mp(r, e.right)",
+    "    o2 = orI[other=C, side=left](m2)",
     "  }",
     "}",
     "goal <- e"

@@ -57,8 +57,8 @@
 //                                          a part whose use is abstract enough to get wrong from its description
 //                                          (an assumption box), never for one a sentence explains (a block gate). The
 //                                          bare-intro rule lets a level with a reason be
-//   declares(level) → [part]               parts whose definition is the level's answer (a declaration): writing
-//                                          them puts them to work in that level (idle-idea)
+//   declares(level) → [part]               parts whose definition the level's answer works on (a declaration,
+//                                          checking one): that puts them to work (idle-idea)
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
 // })
@@ -456,13 +456,13 @@ function idle(course, say) {
   const placed = course.levels.filter((l) => !course.plan || course.plan.place.has(l.id))
   const required = (l) => !OPTIONAL.includes(course.plan?.place.get(l.id)?.role)
   const abilities = (l) => course.uses(l) ?? []
-  // The concepts a level's reference answer puts to work: its parts', and those inside each built part it uses (the
-  // reference of the level that builds it, all the way down).
+  // The concepts a level's reference answer puts to work: its parts', the parts it declares, and those inside each
+  // built part it uses (the reference of the level that builds it, all the way down).
   const inside = new Map()
   const concepts = (l, seen = new Set()) => {
     if (inside.has(l.id)) return inside.get(l.id)
     seen.add(l.id)
-    const out = new Set()
+    const out = new Set(course.declares(l).map((p) => course.concept(p) ?? p))
     for (const p of course.needed(l) ?? []) {
       out.add(course.concept(p) ?? p)
       const by = course.builder(p)
@@ -483,7 +483,7 @@ function idle(course, say) {
   for (const level of placed.filter(required)) {
     const after = placed.filter((l) => course.before(level.id, l.id))
     for (const idea of news.get(level.id)) {
-      if (course.needed(level) && !idea.uses(level) && !course.declares(level).some((p) => (course.concept(p) ?? p) === idea.key)) {
+      if (course.needed(level) && !idea.uses(level)) {
         say('idle-idea', level.id, idea.key, 'its own level does not use it')
         continue
       }
