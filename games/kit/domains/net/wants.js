@@ -42,14 +42,24 @@ const WANTS = {
     }) }
   },
   pattern: ({ wire: w, bits }) => (test) => ({ ticks: each(test, (t) => (t + 1 >= bits.length && wire(test, w).slice(t + 1 - bits.length, t + 1).join('') === bits ? 1 : 0)) }),
-  remainder: ({ wire: w, poly, reset }) => (test) => {
+  // divided: the bits so far divided by the generator; check: the bits so far with room made for the check bits (the
+  // bits followed by as many 0s as the generator has bits after its top), which is the check bits to send after them.
+  remainder: ({ wire: w, poly, reset, form = 'divided' }) => (test) => {
     let r = 0
-    const top = 1 << (poly.length - 1)
+    const k = poly.length - 1
     const g = parseInt(poly, 2)
+    const mask = (1 << k) - 1
     return { ticks: each(test, (t) => {
       if (reset && test.inputs[reset][t] === 1) r = 0
-      r = (r << 1) | (wire(test, w)[t] ?? 0)
-      if (r & top) r ^= g
+      const bit = wire(test, w)[t] ?? 0
+      if (form === 'check') {
+        const carry = ((r >> (k - 1)) & 1) ^ bit
+        r = (r << 1) & mask
+        if (carry) r ^= g & mask
+      } else {
+        r = (r << 1) | bit
+        if (r & (1 << k)) r ^= g
+      }
       return r
     }) }
   },

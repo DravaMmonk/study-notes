@@ -208,6 +208,98 @@
           "ok": true,
           "failures": [],
           "reports": []
+        },
+        {
+          "at": "2026-11-01T13:57:02.914Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        }
+      ]
+    },
+    "levels": {
+      "runs": [
+        {
+          "at": "2026-11-01T14:18:18.613Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 6497631,
+            "seconds": 1276,
+            "cost": 5.455220900000001,
+            "turns": 51
+          },
+          "calls": {
+            "op": {
+              "runs": 7,
+              "failed": 2
+            },
+            "check": {
+              "runs": 2,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 2,
+              "failed": 2
+            },
+            "deps": {
+              "runs": 0,
+              "failed": 0
+            },
+            "eras": {
+              "runs": 1,
+              "failed": 0
+            }
+          },
+          "changes": [
+            4,
+            5
+          ],
+          "report": "I stopped before finishing: 15 of the 20 slots are written, and the gate is not clean. The other five slots can't be built honestly with the parts this era has, so I left them out rather than fake them. The 6 gate failures are those five missing slots (`bp-levels` for 1-12, 1-13, 1-17, 1-18, 1-19) plus `bp-eras`, which fails because game.json's eras leave them out. There are no adds, builds, uses or naive failures. `./check` passes: every reference answer passes its tests and hidden tests, every built part passes alone on its own level, and every naive answer fails.\n\n**Levels written:** 1-1 to 1-11, 1-14, 1-15, 1-16, and 1-20 as a challenge after 1-16. Each has its slot's adds, builds and uses, hidden tests, and a naive answer that fails. Primitives and `concept` (`const→select`, `keep→reg`, `equal→bit`) are set. I replaced the starter's two levels and its one glossary entry (tick).\n\n**Effort:** 2 changesets applied. One dry-run was refused: a link to a built part (`part:crc`), which I changed to a level link.\n\n**Ports I added beyond the slot wording:**\n- **1-8 deserializer has a `start` input**, like the serializer's. As the slot is worded (\"from the first tick\") the counter never restarts, so the part gives one byte and stops. 1-9 and 1-14 can't use it. With no start, it still counts from the first tick, so the slot's task still holds. Because tests now restart at odd ticks, its output is checked with written-out expected values (`given`). That check can't require 「—」 on the ticks in between.\n- **1-7 serializer** keeps the byte from its start tick and starts over on each new start. 1-10 relies on both.\n\n**Hard to express:**\n- **1-10** needs to know when the queue is empty. The only way is `equal(byte, byte)`, which gives 「—」 for 「—」. A hidden test catches a board that keeps sending start bits after the queue runs out.\n- **1-16:** the CRC from 1-15 gives the remainder of the bits so far, but the check bits are the remainder with three zeros added. Those are only known 3 ticks too late. The reference instead feeds the CRC what it sends and, during the check ticks, sends the top bit XOR the middle bit of the remainder from the tick before. It's correct, but it's an algebra trick the slot doesn't hint at.\n- **1-20** needs about 40 parts. Blocks are 7 bits and the deserializer takes 8, so it takes two deserializers taking turns, a stored syndrome, and the 4-bit value rebuilt by hand. The flipped bit's position comes straight from the syndrome, but the rest is busywork, which the handbook says challenges should avoid.\n\n**Slots I couldn't express, and why:**\n- **1-18 (network card):** the flagcheck format needs 3 check bits stuffed in before the closing flag (8n+3 bits between flags). A framer that only takes whole bytes can never produce that. A framer input for check bits would never be tested in 1-12, which uses plain flags. This is the blocker.\n- **1-19 (relay):** needs the network card from 1-18.\n- **1-12 (framer):** it can be built (the serializer sends the flags; the content goes out bit by bit with its own position count). But only 1-18 uses it, so the `unused` audit refuses it on its own.\n- **1-13 (deframer):** removing stuffed 0s means a tick that doesn't count. The deserializer is built on a counter of ticks and can't pause, so it can't gather stuffed content. It would need a \"hold\" input.\n- **1-17 (drop bad frames):** for the same reason, the CRC would have to skip stuffed bits and flag bits. It can't hold either.\n\n**What the blueprint or domain would need to change:**\n- Give the deserializer and the CRC a hold input, or make a tick-counter that can pause a primitive.\n- Make the check fit whole bytes (an 8-bit generator, so the network card can pass the check through the framer as one more byte), or let the framer take trailing bits.\n- Either reword 1-16's task, or give the CRC the zeros-appended form so the check bits can be read straight off it.\n- Rethink 1-20's 7-bit blocks against the 8-bit deserializer.\n\nFiles are in /tmp/pipeline-network-levels-2YiykC:\n- cs1.json\n- cs2.json",
+          "transcript": "/tmp/pipeline-network-levels-2YiykC/transcript.jsonl"
+        }
+      ],
+      "gates": [
+        {
+          "at": "2026-11-01T14:18:22.677Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "check",
+              "at": "network",
+              "says": "hub: games.js lists 2 levels, the game has 15"
+            },
+            {
+              "rule": "bp-levels",
+              "at": "1-12",
+              "says": "the slot has no level"
+            },
+            {
+              "rule": "bp-levels",
+              "at": "1-13",
+              "says": "the slot has no level"
+            },
+            {
+              "rule": "bp-levels",
+              "at": "1-17",
+              "says": "the slot has no level"
+            },
+            {
+              "rule": "bp-levels",
+              "at": "1-18",
+              "says": "the slot has no level"
+            },
+            {
+              "rule": "bp-levels",
+              "at": "1-19",
+              "says": "the slot has no level"
+            },
+            {
+              "rule": "bp-eras",
+              "at": "game.json",
+              "says": "its eras differ from the blueprint’s"
+            }
+          ],
+          "reports": []
         }
       ]
     }

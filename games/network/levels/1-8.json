@@ -1,0 +1,115 @@
+{
+  "title": { "zh": "一位一位地收", "en": "Gather a byte" },
+  "brief": {
+    "zh": "从「开始」为 1 的那一拍起（还没为 1 过时从第一拍起），线上连续送来 8 位，最高位在前；收满 8 位的那一拍输出这个字节。",
+    "en": "From the tick start is 1 (from the first tick, before it ever is), eight bits come down the wire, top bit first; output the byte on the tick the eighth arrives."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-7\"></level-ref>把一个字节拆成位送出去；线的另一头要把位拼回一个数。",
+        "en": "<level-ref to=\"1-7\"></level-ref> takes a byte apart into bits; the other end of the wire has to put the bits back into a number."
+      }
+    }
+  ],
+  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+  "inputs": [{ "name": "start", "label": { "zh": "开始", "en": "Start" } }],
+  "outputs": [{ "name": "byte", "label": { "zh": "字节", "en": "Byte" } }],
+  "tests": [
+    {
+      "ticks": 10,
+      "wires": { "line": { "send": [{ "bits": "10110010" }] } },
+      "inputs": { "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      "expect": { "byte": [null, null, null, null, null, null, null, 178, null, null] }
+    },
+    {
+      "ticks": 13,
+      "wires": { "line": { "send": [{ "idle": 3 }, { "bits": "00000001" }] } },
+      "inputs": { "start": [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      "expect": { "byte": [null, null, null, null, null, null, null, null, null, null, 1, null, null] }
+    },
+    {
+      "ticks": 18,
+      "wires": { "line": { "send": [{ "bits": "1111111100000011" }] } },
+      "inputs": { "start": [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      "expect": {
+        "byte": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          255,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          3,
+          null,
+          null
+        ]
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "ticks": 12,
+      "wires": { "line": { "send": [{ "bits": "1101000001" }] } },
+      "inputs": { "start": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      "expect": { "byte": [null, null, null, null, null, null, null, null, null, 65, null, null] }
+    },
+    {
+      "ticks": 10,
+      "wires": { "line": { "send": [{ "bits": "00001111" }] } },
+      "inputs": { "start": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      "expect": { "byte": [null, null, null, null, null, null, null, 15, null, null] }
+    },
+    {
+      "ticks": 15,
+      "wires": { "line": { "send": [{ "bits": "1010111001100" }] } },
+      "inputs": { "start": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      "expect": {
+        "byte": [null, null, null, null, null, null, null, null, null, null, null, null, 204, null, null]
+      }
+    }
+  ],
+  "want": { "byte": "given" },
+  "solution": [
+    "z = const[value=0]()",
+    "sv = const[value=7]()",
+    "c = counter(start)",
+    "f = equal(c, z)",
+    "a = reg[reg=A, start=0]()",
+    "dbl = add(a, a)",
+    "nx = add(dbl, line)",
+    "acc = select(f, line, nx)",
+    "ka = keep[reg=A](acc)",
+    "e = equal(c, sv)",
+    "o = select(e, acc)",
+    "byte <- o"
+  ],
+  "naive": [
+    "sv = const[value=7]()",
+    "c = counter(start)",
+    "a = reg[reg=A, start=0]()",
+    "dbl = add(a, a)",
+    "nx = add(dbl, line)",
+    "ka = keep[reg=A](nx)",
+    "e = equal(c, sv)",
+    "o = select(e, nx)",
+    "byte <- o"
+  ],
+  "builds": {
+    "type": "deserializer",
+    "name": { "zh": "按字节收", "en": "Shift in" },
+    "desc": {
+      "zh": "从「开始」为 1 的那一拍起（还没为 1 过时从第一拍起）逐拍收进位，最高位在前；收满 8 位的那一拍给出这个字节，其余各拍给「—」。",
+      "en": "From the tick start is 1 (from the first tick, before it ever is) takes in a bit a tick, top bit first; gives the byte on the tick the eighth arrives and 「—」 on every other."
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "title": { "zh": "改回来", "en": "Put it right" },
+  "brief": {
+    "zh": "线上从第一拍起接连送来数据块：每块 4 位数据，后面跟 3 位校验码（生成式 1011）；线在每块里最多翻一位。依次输出每块改正后的 4 位数据（写成一个数），早一拍晚一拍不论。",
+    "en": "Blocks come down the wire back to back from the first tick: 4 data bits each, followed by 3 check bits (generator 1011); the wire flips at most one bit in a block. Output each block's corrected 4 data bits as a number, in order; the tick does not matter."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "到目前为止，校验码只用来判断一帧是好是坏。这一次每块只有 4 位数据，却带着 3 位校验码。",
+        "en": "So far the check bits have only judged whether something arrived intact. This time each block carries just 4 data bits, and 3 check bits."
+      }
+    }
+  ],
+  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+  "outputs": [{ "name": "data", "label": { "zh": "数据", "en": "Data" } }],
+  "tests": [
+    { "wires": { "line": { "send": [{ "bytes": [5, 12], "format": "blocks" }] } } },
+    { "wires": { "line": { "send": [{ "bytes": [9], "format": "blocks" }], "flips": [0] } } },
+    { "wires": { "line": { "send": [{ "bytes": [3, 10, 6], "format": "blocks" }], "flips": [5, 9] } } }
+  ],
+  "hidden": [
+    {
+      "wires": { "line": { "send": [{ "bytes": [15, 0, 7, 8], "format": "blocks" }], "flips": [3, 8, 20, 21] } }
+    },
+    { "wires": { "line": { "send": [{ "bytes": [0], "format": "blocks" }], "flips": [6] } } },
+    { "wires": { "line": { "send": [{ "bytes": [1, 2], "format": "blocks" }], "flips": [1, 10] } } }
+  ],
+  "want": { "data": { "bytes": { "wire": "line", "format": "blocks" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "one = const[value=1]()",
+    "two = const[value=2]()",
+    "three = const[value=3]()",
+    "five = const[value=5]()",
+    "six = const[value=6]()",
+    "seven = const[value=7]()",
+    "thirteen = const[value=13]()",
+    "g = reg[reg=A, start=0]()",
+    "c = counter(g)",
+    "e13 = equal(c, thirteen)",
+    "kg = keep[reg=A](e13)",
+    "e0 = equal(c, z)",
+    "e7 = equal(c, seven)",
+    "d1 = deserializer(line, e0)",
+    "d2 = deserializer(line, e7)",
+    "by = select(e7, d1, d2)",
+    "rs = select(e0, e0, e7)",
+    "k = crc(line, rs)",
+    "sr = reg[reg=B, start=0]()",
+    "ks = keep[reg=B](k)",
+    "f3 = equal(sr, five)",
+    "f2 = equal(sr, seven)",
+    "f1 = equal(sr, six)",
+    "f0 = equal(sr, three)",
+    "b3 = bit(by, z)",
+    "b2 = bit(by, one)",
+    "b1 = bit(by, two)",
+    "b0 = bit(by, three)",
+    "x3 = xor(b3, f3)",
+    "x2 = xor(b2, f2)",
+    "x1 = xor(b1, f1)",
+    "x0 = xor(b0, f0)",
+    "a1 = add(x3, x3)",
+    "a2 = add(a1, x2)",
+    "a3 = add(a2, a2)",
+    "a4 = add(a3, x1)",
+    "a5 = add(a4, a4)",
+    "a6 = add(a5, x0)",
+    "data <- a6"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "one = const[value=1]()",
+    "two = const[value=2]()",
+    "three = const[value=3]()",
+    "seven = const[value=7]()",
+    "thirteen = const[value=13]()",
+    "g = reg[reg=A, start=0]()",
+    "c = counter(g)",
+    "e13 = equal(c, thirteen)",
+    "kg = keep[reg=A](e13)",
+    "e0 = equal(c, z)",
+    "e7 = equal(c, seven)",
+    "d1 = deserializer(line, e0)",
+    "d2 = deserializer(line, e7)",
+    "by = select(e7, d1, d2)",
+    "rs = select(e0, e0, e7)",
+    "k = crc(line, rs)",
+    "ok = equal(k, z)",
+    "b3 = bit(by, z)",
+    "b2 = bit(by, one)",
+    "b1 = bit(by, two)",
+    "b0 = bit(by, three)",
+    "a1 = add(b3, b3)",
+    "a2 = add(a1, b2)",
+    "a3 = add(a2, a2)",
+    "a4 = add(a3, b1)",
+    "a5 = add(a4, a4)",
+    "a6 = add(a5, b0)",
+    "data <- a6"
+  ]
+}

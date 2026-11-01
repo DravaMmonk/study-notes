@@ -1,0 +1,57 @@
+{
+  "title": { "zh": "一个接一个", "en": "One after another" },
+  "brief": {
+    "zh": "把交来的字节依次送出，每个字节前加起始位 1，后加停止位 0；字节送完以后线上一直是 0。说「下一个」为 1 的那一拍取走眼前的字节，下一拍换上后一个。",
+    "en": "Send the bytes handed to you one after another, each with a start bit 1 before it and a stop bit 0 after; once they are all sent the wire stays 0. Saying next takes the byte in front of you that tick, and the following one shows the tick after."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-9\"></level-ref>收的是这样的字节，现在轮到发送一方。要送的字节排成一队，一次只看得见排在最前面的那一个；队伍空了，看到的是「—」。",
+        "en": "<level-ref to=\"1-9\"></level-ref> received bytes like these; now it is the sender's turn. The bytes to send wait in a queue, and only the one in front can be seen; once the queue is empty, it shows 「—」."
+      }
+    }
+  ],
+  "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
+  "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+  "pulls": { "input": "byte", "next": "next" },
+  "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+  "tests": [
+    { "ticks": 22, "queue": [[65]] },
+    { "ticks": 32, "queue": [[0, 255]] },
+    { "ticks": 12, "queue": [] }
+  ],
+  "hidden": [{ "ticks": 42, "queue": [[128, 1, 170]] }, { "ticks": 32, "queue": [[7], [9]] }],
+  "want": { "line": { "sent": { "format": "startstop" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "nine = const[value=9]()",
+    "g = reg[reg=A, start=1]()",
+    "c = counter(g)",
+    "e0 = equal(c, z)",
+    "e1 = equal(c, o)",
+    "e9 = equal(c, nine)",
+    "ka = keep[reg=A](e9)",
+    "s = serializer(byte, e1)",
+    "has = equal(byte, byte)",
+    "l = select(e0, has, s.line)",
+    "line <- l",
+    "next <- e1"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "nine = const[value=9]()",
+    "g = reg[reg=A, start=1]()",
+    "c = counter(g)",
+    "e0 = equal(c, z)",
+    "e1 = equal(c, o)",
+    "e9 = equal(c, nine)",
+    "ka = keep[reg=A](e9)",
+    "s = serializer(byte, e1)",
+    "l = select(e0, o, s.line)",
+    "line <- l",
+    "next <- e1"
+  ]
+}

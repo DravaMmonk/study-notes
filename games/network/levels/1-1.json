@@ -4,14 +4,14 @@
     "en": "Pass it on"
   },
   "brief": {
-    "zh": "每一拍把左线上到达的位说到右线上。",
-    "en": "Every tick, say on the right-hand wire the bit arriving on the left-hand wire."
+    "zh": "每一拍把左线上听到的位说到右线上。",
+    "en": "Every tick, say on the right-hand wire the bit heard on the left-hand wire."
   },
   "intro": [
     {
       "t": {
-        "zh": "一根线每一拍送一位：0 或 1。",
-        "en": "A wire carries one bit a tick: 0 or 1."
+        "zh": "两头之间只有一根线，约好的只有两种状态：0 和 1。线每<wiki-ref to=\"tick\"></wiki-ref>送一位，从一头说出，过一会儿才到另一头。这块板夹在两根线中间。",
+        "en": "Between the two ends there is only a wire, and all they agree on is two states, 0 and 1. The wire carries one bit a <wiki-ref to=\"tick\"></wiki-ref>, said at one end and arriving at the other a little later. This board sits between two wires."
       }
     }
   ],
@@ -22,7 +22,8 @@
         "label": {
           "zh": "左线",
           "en": "Left wire"
-        }
+        },
+        "delay": 2
       }
     ],
     "out": [
@@ -41,7 +42,7 @@
         "left": {
           "send": [
             {
-              "bits": "0110100"
+              "bits": "1011001"
             }
           ]
         }
@@ -52,12 +53,16 @@
         "left": {
           "send": [
             {
-              "bits": "1001011"
+              "bits": "0100111"
             }
           ]
         }
       }
     }
+  ],
+  "hidden": [
+    { "wires": { "left": { "send": [{ "bits": "1" }] } } },
+    { "wires": { "left": { "send": [{ "bits": "0000001" }] } } }
   ],
   "want": {
     "right": {

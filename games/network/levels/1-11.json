@@ -1,0 +1,57 @@
+{
+  "title": { "zh": "认出旗标", "en": "Spot the flag" },
+  "brief": {
+    "zh": "线上连续送来位；每当到这一拍为止最近 8 位是 01111110，就在那一拍输出 1，其余各拍输出 0。",
+    "en": "Bits keep coming down the wire; output 1 on every tick at which the last 8 bits read 01111110, and 0 on every other."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "起始位分得出一个个字节，却分不出哪几个字节是一帧：一帧有几个字节，事先并不知道。于是两头约好一个记号 01111110，叫旗标，用它标出一帧的开头和结尾。收的一方要在不停到来的位里随时认出它。",
+        "en": "Start bits separate single bytes but not frames: how many bytes a frame holds is not known in advance. So the ends agree on a mark, 01111110, the flag, to show where a frame begins and ends. The receiver must spot it at any point in the stream of bits."
+      }
+    }
+  ],
+  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+  "outputs": [{ "name": "flag", "label": { "zh": "旗标", "en": "Flag" } }],
+  "tests": [
+    { "wires": { "line": { "send": [{ "bits": "01111110" }] } } },
+    { "wires": { "line": { "send": [{ "bits": "011111101111110" }] } } },
+    { "wires": { "line": { "send": [{ "bits": "0111111100111110" }] } } }
+  ],
+  "hidden": [
+    { "wires": { "line": { "send": [{ "bits": "11111110" }] } } },
+    { "wires": { "line": { "send": [{ "bits": "1001111110110" }] } } },
+    { "wires": { "line": { "send": [{ "bits": "0000000" }] } } }
+  ],
+  "want": { "flag": { "pattern": { "wire": "line", "bits": "01111110" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "six = const[value=6]()",
+    "zr = equal(line, z)",
+    "c = counter(zr)",
+    "p = reg[reg=A, start=0]()",
+    "kp = keep[reg=A](c)",
+    "sr = reg[reg=B, start=0]()",
+    "s = select(zr, o, sr)",
+    "ks = keep[reg=B](s)",
+    "e6 = equal(p, six)",
+    "h = select(e6, sr, z)",
+    "f = select(line, z, h)",
+    "flag <- f"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "six = const[value=6]()",
+    "zr = equal(line, z)",
+    "c = counter(zr)",
+    "p = reg[reg=A, start=0]()",
+    "kp = keep[reg=A](c)",
+    "e6 = equal(p, six)",
+    "h = select(e6, o, z)",
+    "f = select(line, z, h)",
+    "flag <- f"
+  ]
+}

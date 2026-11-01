@@ -1,0 +1,95 @@
+{
+  "title": { "zh": "边收边除", "en": "Divide as it comes" },
+  "brief": {
+    "zh": "每一拍输出到这一拍为止收到的位串不进位地除以 1011 的余数（写成一个数）；「重来」为 1 的那一拍从这一位重新算起。",
+    "en": "Every tick, output the carry-less remainder of the bits received so far divided by 1011 (as a number); on a tick restart is 1, start over from that bit."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "奇偶校验位只查得出奇数个错位：恰好翻两位时，校验照样相符。更强的校验把一串位当作一个大数，用不进位的除法除以约好的除数（生成式），余数就是校验码。不进位的除法里，每一步减法都是逐位的异或。",
+        "en": "A parity bit catches only an odd number of flips: with exactly two flipped, it still checks out. A stronger check reads a run of bits as one big number and divides it, without carries, by an agreed divisor (the generator); the remainder is the check. In carry-less division, every subtraction is a bitwise XOR."
+      }
+    }
+  ],
+  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+  "inputs": [{ "name": "restart", "label": { "zh": "重来", "en": "Restart" } }],
+  "outputs": [{ "name": "rem", "label": { "zh": "余数", "en": "Remainder" } }],
+  "tests": [
+    {
+      "ticks": 7,
+      "wires": { "line": { "send": [{ "bits": "1011000" }] } },
+      "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0] }
+    },
+    {
+      "ticks": 8,
+      "wires": { "line": { "send": [{ "bits": "11010110" }] } },
+      "inputs": { "restart": [0, 0, 0, 0, 1, 0, 0, 0] }
+    },
+    {
+      "ticks": 7,
+      "wires": { "line": { "send": [{ "bits": "1111111" }] } },
+      "inputs": { "restart": [1, 0, 0, 0, 0, 0, 0] }
+    }
+  ],
+  "hidden": [
+    {
+      "ticks": 9,
+      "wires": { "line": { "send": [{ "bits": "100000001" }] } },
+      "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    },
+    {
+      "ticks": 4,
+      "wires": { "line": { "send": [{ "bits": "0110" }] } },
+      "inputs": { "restart": [1, 1, 1, 1] }
+    },
+    {
+      "ticks": 12,
+      "wires": { "line": { "send": [{ "bits": "111011110110" }] } },
+      "inputs": { "restart": [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0] }
+    }
+  ],
+  "want": { "rem": { "remainder": { "wire": "line", "poly": "1011", "reset": "restart" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "a2 = reg[reg=A, start=0]()",
+    "a1 = reg[reg=B, start=0]()",
+    "a0 = reg[reg=C, start=0]()",
+    "b2 = select(restart, z, a2)",
+    "b1 = select(restart, z, a1)",
+    "b0 = select(restart, z, a0)",
+    "n1 = xor(b0, b2)",
+    "n0 = xor(line, b2)",
+    "ka = keep[reg=A](b1)",
+    "kb = keep[reg=B](n1)",
+    "kc = keep[reg=C](n0)",
+    "t1 = add(b1, b1)",
+    "t2 = add(t1, n1)",
+    "t3 = add(t2, t2)",
+    "r = add(t3, n0)",
+    "rem <- r"
+  ],
+  "naive": [
+    "a2 = reg[reg=A, start=0]()",
+    "a1 = reg[reg=B, start=0]()",
+    "a0 = reg[reg=C, start=0]()",
+    "n1 = xor(a0, a2)",
+    "n0 = xor(line, a2)",
+    "ka = keep[reg=A](a1)",
+    "kb = keep[reg=B](n1)",
+    "kc = keep[reg=C](n0)",
+    "t1 = add(a1, a1)",
+    "t2 = add(t1, n1)",
+    "t3 = add(t2, t2)",
+    "r = add(t3, n0)",
+    "rem <- r"
+  ],
+  "builds": {
+    "type": "crc",
+    "name": { "zh": "CRC", "en": "CRC" },
+    "desc": {
+      "zh": "到这一拍为止收进的位串不进位地除以 1011 的余数（0 到 7 的数）；「重来」为 1 的那一拍从这一位重新算起。",
+      "en": "The carry-less remainder, by 1011, of the bits taken in so far (a number from 0 to 7); on a tick restart is 1 it starts over from that bit."
+    }
+  }
+}

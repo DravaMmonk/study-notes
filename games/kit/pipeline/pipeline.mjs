@@ -4,9 +4,10 @@
 //
 //   status                         every step: its last gate, its runs
 //   brief <step>                   the brief an agent of that step gets, with its inputs
-//   run <step> [--model m] [--scope "…"] [--turns n]
+//   run <step> [--model m] [--scope "…"] [--turns n] [--from <step>]
 //                                  a fresh agent does the step (claude -p in an empty directory: Read anywhere, Write
-//                                  only there, Bash only the step's commands), then the step's gate runs
+//                                  only there, Bash only the step's commands), then the step's gate runs; --from hands
+//                                  it the last report of a later step that stopped on this one's product
 //   gate <step>                    run the step's gate and record it; exit 1 when it fails
 //   eras                           game.json's eras as the blueprint lays them out (for the level designer)
 //   lint                           the copy lint
@@ -27,7 +28,7 @@ import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { GAMES_DIR, STEPS, briefOf, stepOf } from './steps.js'
 
-const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> | gate <step> | eras | lint | vocab | explain <level> --why … | resolve <k> --why … | queue)'
+const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | vocab | explain <level> --why … | resolve <k> --why … | queue)'
 const argv = process.argv.slice(2)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
 const words = argv.filter((a, k) => !a.startsWith('--') && !argv[k - 1]?.startsWith('--'))
@@ -83,6 +84,10 @@ function inputs(step, state, scope) {
   ]
   const out = [`## Inputs\n\n${lines.join('\n')}`]
   if (last && !last.ok) out.push(`## The step's last gate failed\n\n${last.failures.map((f) => `- ${f.rule} ${f.at}: ${f.says}`).join('\n')}`)
+  // A later step that hit a wall in this one's product: its report is this run's input (--from <step>).
+  const from = option('--from')
+  const back = from && state.steps[from]?.runs?.at(-1)
+  if (back) out.push(`## What the ${from} step reported\n\nThe ${stepOf(from).role} stopped on what this step decided. Its report:\n\n${back.report}`)
   if (review.length) out.push(`## Review findings for you to fix\n\n${review.map((f) => `- [${state.steps.review.runs.at(-1).findings.indexOf(f)}] ${f.at} (${f.rule}): ${f.says}`).join('\n')}\n\nFix each through the operation set; your report says which you fixed and how.`)
   out.push(`## Your commands\n\nYou may Read any file, Write only in your directory, and run only these (nothing else is allowed):\n\n${step.commands.map((c) => `    ${COMMANDS[c].about}`).join('\n')}`)
   return out.join('\n\n')

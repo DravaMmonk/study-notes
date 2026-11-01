@@ -1,23 +1,23 @@
 {
   "title": {
-    "zh": "晚一拍",
-    "en": "A tick late"
+    "zh": "反着说",
+    "en": "Say the opposite"
   },
   "brief": {
-    "zh": "每一拍在右线上说出左线上一拍的位；第一拍说 0。",
-    "en": "Every tick, say on the right-hand wire the bit the left-hand wire had the tick before; say 0 on the first tick."
+    "zh": "每一拍把听到的位反过来说出去：听到 1 说 0，听到 0 说 1。",
+    "en": "Every tick, say the opposite of the bit you hear: 0 for 1, 1 for 0."
   },
   "intro": [
     {
       "t": {
-        "zh": "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。",
-        "en": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick."
+        "zh": "传话的板只能原样照搬：线上来什么，就说什么。要让说出的位和听到的不一样，板得能按条件改变一个值。新元件<part-ref to=\"part:select\"></part-ref>按条件在两路之间取一路，<part-ref to=\"part:const\"></part-ref>给出一个固定的数。",
+        "en": "A relay can only copy: what comes down the wire is what it says. To say something other than what it hears, a board must change a value by a condition. The new part <part-ref to=\"part:select\"></part-ref> picks one of two values by a condition, and <part-ref to=\"part:const\"></part-ref> gives a fixed number."
       }
     }
   ],
   "adds": [
-    "reg",
-    "keep"
+    "select",
+    "const"
   ],
   "wires": {
     "in": [
@@ -45,7 +45,7 @@
         "left": {
           "send": [
             {
-              "bits": "101100"
+              "bits": "0110"
             }
           ]
         }
@@ -56,28 +56,27 @@
         "left": {
           "send": [
             {
-              "bits": "01101"
+              "bits": "1100101"
             }
           ]
         }
       }
     }
   ],
+  "hidden": [
+    { "wires": { "left": { "send": [{ "bits": "1111" }] } } },
+    { "wires": { "left": { "send": [{ "bits": "0000" }] } } }
+  ],
   "want": {
     "right": {
-      "late": {
-        "wire": "left",
-        "first": 0
-      }
+      "opposite": { "wire": "left" }
     }
   },
   "solution": [
-    "r = reg[reg=A, start=0]()",
-    "k = keep[reg=A](left)",
-    "right <- r"
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "s = select(left, z, o)",
+    "right <- s"
   ],
-  "after": {
-    "zh": "寄存卡让电路记得上一拍。",
-    "en": "A register lets a circuit remember the tick before."
-  }
+  "naive": ["z = const[value=0]()", "o = const[value=1]()", "s = select(left, o, z)", "right <- s"]
 }

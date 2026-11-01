@@ -1,0 +1,72 @@
+{
+  "title": { "zh": "线会出错", "en": "The wire errs" },
+  "brief": {
+    "zh": "线上从第一拍起接连送来字节，每个字节后面跟一个奇偶校验位（让这 9 位里 1 的个数为偶数），线会翻位。在每个校验位到达的那一拍，「字节」输出收到的字节，「完好」说出校验是否相符；其余各拍两者都是「—」。",
+    "en": "Bytes come down the wire back to back from the first tick, each followed by a parity bit (making the count of 1s in the nine even), and the wire flips bits. On the tick each parity bit arrives, output the byte received and say whether its parity checks out; 「—」 on both at every other tick."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "从这里起，线会把个别的位翻过来。收到的字节错了，收的一方却毫不知情，照样把它交出去。两头于是约好一条规则：发送方在数据后面附一位，收的一方按同一规则核对，就知道数据在线上有没有被改。",
+        "en": "From here on, the wire flips the odd bit. A byte arrives wrong and the receiver hands it on without knowing. So the ends agree on a rule: the sender appends a bit after the data, and the receiver checks it by the same rule to tell whether the data changed on the way."
+      }
+    }
+  ],
+  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+  "outputs": [
+    { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
+    { "name": "ok", "label": { "zh": "完好", "en": "Intact" } }
+  ],
+  "tests": [
+    { "wires": { "line": { "send": [{ "bytes": [65], "format": "parity" }] } } },
+    { "wires": { "line": { "send": [{ "bytes": [0, 255], "format": "parity" }], "flips": [3] } } },
+    { "wires": { "line": { "send": [{ "bytes": [170, 85], "format": "parity" }], "flips": [10, 12] } } }
+  ],
+  "hidden": [
+    { "wires": { "line": { "send": [{ "bytes": [7, 7, 7], "format": "parity" }], "flips": [17] } } },
+    { "wires": { "line": { "send": [{ "bytes": [128, 64], "format": "parity" }], "flips": [0] } } }
+  ],
+  "want": {
+    "byte": { "decoded": { "wire": "line", "format": "parity" } },
+    "ok": { "intact": { "wire": "line", "format": "parity" } }
+  },
+  "solution": [
+    "z = const[value=0]()",
+    "eight = const[value=8]()",
+    "g = reg[reg=A, start=0]()",
+    "c = counter(g)",
+    "e8 = equal(c, eight)",
+    "ka = keep[reg=A](e8)",
+    "d = deserializer(line, g)",
+    "rb = reg[reg=B, start=0]()",
+    "kb = keep[reg=B](d)",
+    "y = select(e8, rb)",
+    "byte <- y",
+    "pr = reg[reg=C, start=0]()",
+    "base = select(g, z, pr)",
+    "x = xor(base, line)",
+    "kc = keep[reg=C](x)",
+    "ok0 = equal(x, z)",
+    "okv = select(e8, ok0)",
+    "ok <- okv"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "eight = const[value=8]()",
+    "g = reg[reg=A, start=0]()",
+    "c = counter(g)",
+    "e8 = equal(c, eight)",
+    "ka = keep[reg=A](e8)",
+    "d = deserializer(line, g)",
+    "rb = reg[reg=B, start=0]()",
+    "kb = keep[reg=B](d)",
+    "y = select(e8, rb)",
+    "byte <- y",
+    "pr = reg[reg=C, start=0]()",
+    "x = xor(pr, line)",
+    "kc = keep[reg=C](x)",
+    "ok0 = equal(x, z)",
+    "okv = select(e8, ok0)",
+    "ok <- okv"
+  ]
+}

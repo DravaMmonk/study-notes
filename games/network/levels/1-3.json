@@ -1,0 +1,47 @@
+{
+  "title": { "zh": "不一样就说 1", "en": "Say 1 when they differ" },
+  "brief": {
+    "zh": "听两根线：两根线上的位不同时说 1，相同时说 0。",
+    "en": "Listen to two wires: say 1 when their bits differ and 0 when they agree."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-2\"></level-ref>里，条件和被选的值来自同一根线。这一次条件来自一根线，要说什么还取决于另一根线。",
+        "en": "In <level-ref to=\"1-2\"></level-ref> the condition and the value came from the same wire. Now the condition comes from one wire, and what to say depends on the other as well."
+      }
+    }
+  ],
+  "wires": {
+    "in": [
+      { "name": "a", "label": { "zh": "线 A", "en": "Wire A" } },
+      { "name": "b", "label": { "zh": "线 B", "en": "Wire B" } }
+    ],
+    "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
+  },
+  "tests": [
+    { "wires": { "a": { "send": [{ "bits": "0101" }] }, "b": { "send": [{ "bits": "0011" }] } } },
+    { "wires": { "a": { "send": [{ "bits": "110100" }] }, "b": { "send": [{ "bits": "011101" }] } } }
+  ],
+  "hidden": [
+    { "wires": { "a": { "send": [{ "bits": "1111" }] }, "b": { "send": [{ "bits": "0000" }] } } },
+    { "wires": { "a": { "send": [{ "bits": "1010" }] }, "b": { "send": [{ "bits": "1010" }] } } }
+  ],
+  "want": { "x": { "differ": { "a": "a", "b": "b" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "nb = select(b, z, o)",
+    "d = select(a, nb, b)",
+    "x <- d"
+  ],
+  "naive": ["o = const[value=1]()", "d = select(a, o, b)", "x <- d"],
+  "builds": {
+    "type": "xor",
+    "name": { "zh": "异或", "en": "XOR" },
+    "desc": {
+      "zh": "两位不同为 1，相同为 0；碰到「—」给「—」。",
+      "en": "1 when two bits differ, 0 when they agree; 「—」 for 「—」."
+    }
+  }
+}

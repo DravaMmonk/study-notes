@@ -1,0 +1,75 @@
+{
+  "title": { "zh": "从哪开始", "en": "Where it starts" },
+  "brief": {
+    "zh": "对方随时可能先说一个 1，再送 8 位，最后说一个 0；每收到一个字节，就在它最后一位到达的那一拍输出它，其余各拍输出「—」。",
+    "en": "At any tick the far end may say a 1, then 8 bits, then a 0; output each byte on the tick its last bit arrives, and 「—」 on every other tick."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "发送方随时可能开口，而空着的线读出来是 0：一个以 0 开头的字节和安静的线分不出来，收的一方不知道从哪一拍数起。于是两头约好：字节之前先说一个 1，叫起始位；字节之后说一个 0，叫停止位。",
+        "en": "The sender may begin at any tick, and an idle wire reads 0: a byte that begins with 0s looks just like a quiet wire, and the receiver cannot tell where to start counting. So the ends agree: before a byte comes a 1, the start bit, and after it a 0, the stop bit."
+      }
+    }
+  ],
+  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+  "outputs": [{ "name": "byte", "label": { "zh": "字节", "en": "Byte" } }],
+  "tests": [
+    { "wires": { "line": { "send": [{ "bytes": [65], "format": "startstop" }] } } },
+    { "wires": { "line": { "send": [{ "idle": 4 }, { "bytes": [0], "format": "startstop" }] } } },
+    { "wires": { "line": { "send": [{ "bytes": [200, 7], "format": "startstop" }] } } }
+  ],
+  "hidden": [
+    {
+      "wires": {
+        "line": {
+          "send": [
+            { "idle": 3 },
+            { "bytes": [255], "format": "startstop" },
+            { "idle": 5 },
+            { "bytes": [129, 254], "format": "startstop" }
+          ]
+        }
+      }
+    },
+    {
+      "wires": {
+        "line": {
+          "send": [
+            { "bytes": [128], "format": "startstop" },
+            { "idle": 1 },
+            { "bytes": [1], "format": "startstop" }
+          ]
+        }
+      }
+    }
+  ],
+  "want": { "byte": { "decoded": { "wire": "line", "format": "startstop" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "eight = const[value=8]()",
+    "b = reg[reg=A, start=0]()",
+    "sn = select(b, z, line)",
+    "c = counter(sn)",
+    "e8 = equal(c, eight)",
+    "e1 = equal(c, o)",
+    "d = deserializer(line, e1)",
+    "cl = select(e8, z, b)",
+    "nb = select(sn, o, cl)",
+    "kb = keep[reg=A](nb)",
+    "y = select(e8, d)",
+    "out = select(b, y)",
+    "byte <- out"
+  ],
+  "naive": [
+    "o = const[value=1]()",
+    "eight = const[value=8]()",
+    "c = counter(line)",
+    "e8 = equal(c, eight)",
+    "e1 = equal(c, o)",
+    "d = deserializer(line, e1)",
+    "y = select(e8, d)",
+    "byte <- y"
+  ]
+}

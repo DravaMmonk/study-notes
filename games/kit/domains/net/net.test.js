@@ -65,6 +65,9 @@ test('what a level wants, tick by tick and in order', () => {
   assert.deepEqual(got.s.ticks, [1, 0, 1, 0, 0, 0])
   assert.deepEqual(got.p.ticks, [0, 0, 0, 0, 1, 0])
   assert.deepEqual(got.m.ticks.map((r) => r.toString(2)), ['0', '1', '11', '110', '110', '111'])
+  // In the check form it is the check bits of the bits so far.
+  const check = wantOf({ m: { remainder: { wire: 'a', poly: '1011', form: 'check' } } })(t).m.ticks
+  check.forEach((r, k) => assert.equal(r, parseInt(checkOf(t.wires.a.slice(0, k + 1)).join(''), 2)))
   // The remainder streamed tick by tick is the remainder of the bits so far.
   assert.equal(parseInt(remainder([0, 1, 1, 0, 1, 0]).join(''), 2), got.m.ticks[5])
   assert.deepEqual(wantOf({ x: { sent: { format: 'flag' } } })(t).x.order, [1, 2, 'end'])

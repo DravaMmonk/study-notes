@@ -1,0 +1,69 @@
+{
+  "title": { "zh": "带上校验码", "en": "Append the check" },
+  "brief": {
+    "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码：让这 11 位不进位地除以 1011 余 0 的那 3 位。",
+    "en": "Send the byte handed to you bit by bit from the first tick, top bit first, followed at once by its 3 check bits: the three that make the eleven divide by 1011, without carries, leaving 0."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-15\"></level-ref>在收的一方算出余数。发送方要在数据后面附上校验码，让整串位的余数为 0，收的一方一除便知是否完好。",
+        "en": "<level-ref to=\"1-15\"></level-ref> works out a remainder at the receiving end. The sender must append check bits that make the remainder of the whole run 0, so that one division tells the receiver whether it is intact."
+      }
+    }
+  ],
+  "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
+  "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+  "pulls": { "input": "byte", "next": "next" },
+  "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+  "tests": [
+    { "ticks": 13, "queue": [[1]] },
+    { "ticks": 13, "queue": [[178]] },
+    { "ticks": 13, "queue": [[0]] }
+  ],
+  "hidden": [
+    { "ticks": 13, "queue": [[255]] },
+    { "ticks": 13, "queue": [[128]] },
+    { "ticks": 13, "queue": [[105]] }
+  ],
+  "want": { "line": { "sent": { "format": "check" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "five = const[value=5]()",
+    "six = const[value=6]()",
+    "c = counter(z)",
+    "e0 = equal(c, z)",
+    "s = serializer(byte, e0)",
+    "p = reg[reg=A, start=0]()",
+    "np = select(s.done, o, p)",
+    "kp = keep[reg=A](np)",
+    "rr = reg[reg=B, start=0]()",
+    "t = bit(rr, five)",
+    "m = bit(rr, six)",
+    "cb = xor(t, m)",
+    "l = select(p, cb, s.line)",
+    "k = crc(l, z)",
+    "kb = keep[reg=B](k)",
+    "line <- l",
+    "next <- e0"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "five = const[value=5]()",
+    "c = counter(z)",
+    "e0 = equal(c, z)",
+    "s = serializer(byte, e0)",
+    "p = reg[reg=A, start=0]()",
+    "np = select(s.done, o, p)",
+    "kp = keep[reg=A](np)",
+    "rr = reg[reg=B, start=0]()",
+    "t = bit(rr, five)",
+    "l = select(p, t, s.line)",
+    "k = crc(l, z)",
+    "kb = keep[reg=B](k)",
+    "line <- l",
+    "next <- e0"
+  ]
+}

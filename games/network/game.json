@@ -14,11 +14,18 @@
     "en": "One wire, one bit a tick. Start by passing a bit on, and build up, layer by layer, a network card that sends and receives a frame reliably."
   },
   "primitives": [
+    "select",
+    "const",
     "reg",
-    "keep"
+    "keep",
+    "add",
+    "equal",
+    "bit"
   ],
   "concept": {
-    "keep": "reg"
+    "const": "select",
+    "keep": "reg",
+    "equal": "bit"
   },
   "eras": [
     {
@@ -28,13 +35,29 @@
         "en": "One wire"
       },
       "question": {
-        "zh": "线上每一拍送一位：怎样说，怎样听？",
-        "en": "A bit on the wire each tick: how to speak, how to hear?"
+        "zh": "一根一拍送一位、还会出错的线，怎样让两头可靠地交换一帧？",
+        "en": "How do two ends exchange a frame over a wire that carries a bit a tick and gets some wrong?"
       },
       "foundation": [
         "1-1",
-        "1-2"
-      ]
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5",
+        "1-6",
+        "1-7",
+        "1-8",
+        {
+          "parallel": [
+            { "id": "async", "title": { "zh": "起始位", "en": "Start bits" }, "levels": ["1-9", "1-10"] },
+            { "id": "flags", "title": { "zh": "旗标", "en": "Flags" }, "levels": ["1-11"] }
+          ]
+        },
+        "1-14",
+        "1-15",
+        "1-16"
+      ],
+      "challenges": [{ "level": "1-20", "after": "1-16" }]
     }
   ],
   "saves": []
