@@ -17,7 +17,7 @@
 import { Activity, CircuitBoard } from 'lucide-react'
 import './ui/net.css'
 import { defineGame } from '../../shell/index.js'
-import { introductions, isCore } from '../../course.js'
+import { introductions, isCore, levelLabels } from '../../course.js'
 import { migrations } from '../../shell/saves.js'
 import Screen from './ui/Screen.jsx'
 import { CARDS } from './ui/catalog.js'
@@ -30,6 +30,7 @@ export default function netGame(content) {
   const { LEVELS, CHAPTERS, course } = net
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at }))
   const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
+  const labels = levelLabels(content.eras)
   const game = defineGame({
     id: content.id,
     title: content.title,
@@ -39,6 +40,7 @@ export default function netGame(content) {
     glossary: content.glossary,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
+    levelLabel: (level) => labels.get(level.id) ?? level.id,
     levels: LEVELS.map((L, index) => ({
       id: L.id,
       index,

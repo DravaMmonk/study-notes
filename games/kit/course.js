@@ -123,6 +123,21 @@ export function numbered(items, requires) {
   return out
 }
 
+/**
+ * The number the map and the links show for each level, by its place rather than its id (ids stay put when levels
+ * move): an era's main path numbered as `numbered` orders it ('1-4'), a topic's levels by its code (or its id's first
+ * letter) and place ('N2'), an era's challenges 'C1.1' …. A domain with its own numbering (the logic domain's topic
+ * codes running across chapters) gives its own.
+ */
+export function levelLabels(eras) {
+  const { requires } = layout(eras)
+  return new Map(eras.flatMap((era) => [
+    ...numbered([...era.foundation, ...(era.practice ?? [])], requires).map((id, k) => [id, `${era.id}-${k + 1}`]),
+    ...(era.topics ?? []).flatMap((t) => t.levels.map((id, k) => [id, `${t.code ?? t.id[0].toUpperCase()}${k + 1}`])),
+    ...(era.challenges ?? []).map((c, k) => [c.level, `C${era.id}.${k + 1}`]),
+  ]))
+}
+
 /** Every level of an era: its main path, then its topics and challenges. */
 export const eraLevels = (era) => [...pathLevels([...era.foundation, ...(era.practice ?? [])]), ...(era.topics ?? []).flatMap((t) => t.levels), ...(era.challenges ?? []).map((c) => c.level)]
 
