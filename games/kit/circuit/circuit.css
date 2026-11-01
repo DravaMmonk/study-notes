@@ -474,3 +474,36 @@
 :is(.node, .pb-tile, .pb-frame, .palette-item, .pb-part).is-packed .family-chip { color: var(--paper); background: var(--fam, var(--muted)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--fam, var(--muted)) 22%, transparent); }
 .pb-glyph.family-chip { width: 18px; height: 18px; margin-right: 5px; border-radius: 5px; vertical-align: -4px; }
 .pb-name .pb-glyph.family-chip svg { margin: 0; color: inherit; }
+
+/* ---- a circuit level (shell/CircuitLevel.jsx), the same in every game ---- */
+.cl-stage { display: flex; flex-direction: column; }
+.cl-board { position: relative; flex: 1; min-height: 0; }
+.cl-board > .kit-board { position: absolute; inset: 0; height: auto; margin: 0; }
+/* A card's sheet on a phone, and the sheet for an empty slot: the level's parts, each with what it does. */
+.cl-sheet { display: grid; gap: 14px; }
+.cl-desc { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.cl-add { display: grid; gap: 8px; }
+.cl-add button { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-left: 4px solid var(--fam, var(--rule)); border-radius: var(--r-md); text-align: left; color: var(--ink); background: var(--paper); font: inherit; }
+.cl-add b { display: flex; align-items: center; gap: 6px; }
+.cl-add .family-chip { width: 20px; height: 20px; border-radius: 5px; }
+.cl-add small { color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+/* ---- the board inside a packed part (circuit/Inside.jsx), opened read only ---- */
+.cl-inside { margin-top: 8px; }
+.cl-inside .kit-board { position: relative; height: 300px; border-radius: 10px; }
+.cl-inside .board-zoom { transform: scale(.9); transform-origin: bottom right; }
+/* On a phone, in the part's sheet: a window of a fixed height that scrolls; a block on it opens its own sheet, whose
+   settings only show. */
+.cl-inside-phone { margin-top: 8px; }
+.cl-inside-scroll { height: 360px; overflow-y: auto; overscroll-behavior: contain; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hairline); }
+.cl-readonly :is(select, input) { pointer-events: none; }
+/* Its inputs and its result are the part's own ports: on a desktop, small terminals at the board's left and right edges
+   (their name and dot, no card); on a phone, the slot board's top and bottom rows, as thin. */
+.cl-inside .node.cl-edge { padding-bottom: 0; background: none; box-shadow: none; animation: none; }
+.cl-inside .node.cl-edge::before, .cl-inside .node.cl-edge::after { display: none; }
+.cl-inside .node.cl-edge .node-head { min-height: 0; padding: 0 6px; border: 0; color: var(--muted); font-size: 11.5px; }
+.cl-inside .node.cl-edge .family-chip { display: none; }
+.cl-inside .node.cl-edge .node-ports { min-height: 0 !important; }
+.cl-inside-scroll .pb-term { min-height: 0; padding: 6px 8px; background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
+.cl-inside-scroll .pb-term::after, .cl-inside-scroll .pb-term .pb-thumb { display: none; }
+.cl-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }

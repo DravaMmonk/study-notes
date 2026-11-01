@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { Halt, MISSING, PartError, evaluate } from './circuit.js'
 import { packed, runBoard, sink, source } from './boards.js'
 import { walk } from './machine.js'
-import { paceOf, viewAt } from './trace.js'
+import { insideAt, paceOf, viewAt } from './trace.js'
 import { runLevel, withHidden } from './tests.js'
 
 const PARTS = {
@@ -87,6 +87,24 @@ test('a packed part traces each card inside with its path', () => {
   runBoard(c, { parts, bind: { in: 2 }, ctx: { trace } })
   assert.ok(trace.some((s) => s.id === 'a' && s.path?.[0] === 'd' && s.value === 4))
   assert.ok(trace.some((s) => s.id === 'd' && !s.path && s.value === 4))
+})
+
+test('the board inside a packed part shows its latest run up to a step, and the card that step is in', () => {
+  const inner = io([{ id: 'a', type: 'add' }, { id: 'n', type: 'neg' }], w('in>a.a in>a.b a>n n>out'))
+  const parts = { ...PARTS, dbl: packed({ circuit: inner, inputs: ['in'], outputs: ['out'] }) }
+  const c = io([{ id: 'd', type: 'dbl' }, { id: 'e', type: 'dbl' }], w('in>d d>e e>out'))
+  const trace = []
+  runBoard(c, { parts, bind: { in: 2 }, ctx: { trace } })
+  const whole = insideAt(trace, ['e'])
+  assert.equal(whole.values.get('a'), -8)
+  assert.equal(whole.values.get('n'), 8)
+  const at = trace.findIndex((s) => s.id === 'a' && s.path?.[0] === 'e')
+  const part = insideAt(trace, ['e'], { upTo: at, step: trace[at] })
+  assert.equal(part.values.get('a'), -8)
+  assert.equal(part.values.has('n'), false)
+  assert.equal(part.lit, 'a')
+  assert.equal(insideAt(trace, ['d'], { upTo: 0 }).values.size, 0)
+  assert.equal(insideAt(trace, [], { step: trace[at] }).lit, 'e')
 })
 
 test('a walk fills a table and stops at a key not written yet', () => {
