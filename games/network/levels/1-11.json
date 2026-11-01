@@ -41,7 +41,7 @@
     "o = const[value=1]()",
     "six = const[value=6]()",
     "zr = equal(line, z)",
-    "c = counter(zr, z)",
+    "c = counter(zr)",
     "p = reg[reg=A, start=0]()",
     "kp = keep[reg=A](c)",
     "sr = reg[reg=B, start=0]()",
@@ -57,12 +57,20 @@
     "o = const[value=1]()",
     "six = const[value=6]()",
     "zr = equal(line, z)",
-    "c = counter(zr, z)",
+    "c = counter(zr)",
     "p = reg[reg=A, start=0]()",
     "kp = keep[reg=A](c)",
     "e6 = equal(p, six)",
     "h = select(e6, o, z)",
     "f = select(line, z, h)",
     "flag <- f"
-  ]
+  ],
+  "builds": {
+    "type": "flagspot",
+    "name": { "zh": "认旗标", "en": "Flag spotter" },
+    "desc": {
+      "zh": "进线上最近收到的 8 位正好是 01111110 的那一拍为 1，其余各拍为 0。",
+      "en": "1 on each tick at which the last 8 bits on its wire in read 01111110, 0 on every other."
+    }
+  }
 }

@@ -1,0 +1,67 @@
+{
+  "title": { "zh": "回一声", "en": "Answer back" },
+  "brief": {
+    "zh": "进线上每到一帧，就从出线回一个只有一个字节的帧：完好回 1，坏了回 0。",
+    "en": "For every frame that arrives on the wire in, send back a one-byte frame on the wire out: 1 if it arrived intact, 0 if broken."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<part-ref to=\"nic\"></part-ref>收得到帧，也查得出它好不好，发帧的一方却还不知道。线那头要听到回话。",
+        "en": "<part-ref to=\"nic\"></part-ref> receives frames and can tell whether they are intact, but the sender does not know it yet. The far end needs an answer."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "一帧结束、知道它好坏以后，才有回话可说。",
+      "en": "There is an answer to give only once a frame has ended and its state is known."
+    },
+    { "zh": "回话要先留住，等网卡取走。", "en": "Hold the answer until the adapter takes it." }
+  ],
+  "wires": {
+    "in": [{ "name": "rx", "label": { "zh": "进线", "en": "Wire in" } }],
+    "out": [{ "name": "tx", "label": { "zh": "出线", "en": "Wire out" } }]
+  },
+  "tests": [
+    { "ticks": 72, "wires": { "rx": { "send": [{ "frames": [[65]], "format": "flagbyte" }] } } },
+    { "ticks": 72, "wires": { "rx": { "send": [{ "frames": [[65]], "format": "flagbyte" }], "flips": [9] } } },
+    { "ticks": 115, "wires": { "rx": { "send": [{ "frames": [[255, 0], [126]], "format": "flagbyte" }] } } }
+  ],
+  "hidden": [
+    {
+      "ticks": 112,
+      "wires": { "rx": { "send": [{ "frames": [[170, 85], [15]], "format": "flagbyte" }], "flips": [9, 12] } }
+    },
+    { "ticks": 40 },
+    {
+      "ticks": 140,
+      "wires": { "rx": { "send": [{ "frames": [[1], [2], [3]], "format": "flagbyte" }], "flips": [40] } }
+    }
+  ],
+  "want": { "tx": { "answers": { "wire": "rx", "format": "flagbyte" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "pd = reg[reg=A, start=0]()",
+    "pv = reg[reg=B, start=0]()",
+    "n = nic(rx, pv, o, pd)",
+    "ov = select(n.ok, o, z)",
+    "nv = select(n.end, ov, pv)",
+    "kv = keep[reg=B](nv)",
+    "np0 = select(n.next, z, pd)",
+    "np = select(n.end, o, np0)",
+    "kp = keep[reg=A](np)",
+    "tx <- n.tx"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "pd = reg[reg=A, start=0]()",
+    "n = nic(rx, o, o, pd)",
+    "np0 = select(n.next, z, pd)",
+    "np = select(n.end, o, np0)",
+    "kp = keep[reg=A](np)",
+    "tx <- n.tx"
+  ]
+}

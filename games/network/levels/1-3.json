@@ -1,25 +1,25 @@
 {
-  "title": { "zh": "不一样就说 1", "en": "Say 1 when they differ" },
+  "title": { "zh": "两边都是 1", "en": "Both are 1" },
   "brief": {
-    "zh": "听两根线：两根线上的位不同时说 1，相同时说 0。",
-    "en": "Listen to two wires: say 1 when their bits differ and 0 when they agree."
+    "zh": "听两根线：两根线上都是 1 时说 1，否则说 0。",
+    "en": "Listen to two wires: say 1 when both carry a 1, and 0 otherwise."
   },
   "intro": [
     {
       "t": {
-        "zh": "到这里为止，说什么只取决于一根线。这一次板要同时听两根线，说出的位由两根线一起决定。",
+        "zh": "到这里为止，说什么只取决于一根线。这一次板同时听两根线，说出的位由两根线一起决定。",
         "en": "So far what the board says has depended on one wire. Now it listens to two, and what it says depends on both."
       }
     }
   ],
   "hint": [
     {
-      "zh": "先固定一根线的值，看另一根线该怎样决定输出。",
-      "en": "Hold one wire still and see how the other should decide the output."
+      "zh": "先固定线 A 的值，看线 B 该怎样决定输出。",
+      "en": "Hold wire A still and see how wire B should decide the output."
     },
     {
-      "zh": "线 A 为 0 时，输出和线 B 是什么关系？线 A 为 1 时呢？",
-      "en": "When wire A is 0, how does the output relate to wire B? And when A is 1?"
+      "zh": "线 A 为 0 时，输出是什么？线 A 为 1 时呢？",
+      "en": "When wire A is 0, what is the output? And when A is 1?"
     }
   ],
   "wires": {
@@ -30,28 +30,34 @@
     "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
   },
   "tests": [
-    { "wires": { "a": { "send": [{ "bits": "0101" }] }, "b": { "send": [{ "bits": "0011" }] } } },
-    { "wires": { "a": { "send": [{ "bits": "110100" }] }, "b": { "send": [{ "bits": "011101" }] } } }
+    {
+      "wires": { "a": { "send": [{ "bits": "0101" }] }, "b": { "send": [{ "bits": "0011" }] } },
+      "expect": { "x": [0, 0, 0, 1, 0, 0] }
+    },
+    {
+      "wires": { "a": { "send": [{ "bits": "110100" }] }, "b": { "send": [{ "bits": "011101" }] } },
+      "expect": { "x": [0, 1, 0, 1, 0, 0, 0, 0] }
+    }
   ],
   "hidden": [
-    { "wires": { "a": { "send": [{ "bits": "1111" }] }, "b": { "send": [{ "bits": "0000" }] } } },
-    { "wires": { "a": { "send": [{ "bits": "1010" }] }, "b": { "send": [{ "bits": "1010" }] } } }
+    {
+      "wires": { "a": { "send": [{ "bits": "1111" }] }, "b": { "send": [{ "bits": "0000" }] } },
+      "expect": { "x": [0, 0, 0, 0, 0, 0] }
+    },
+    {
+      "wires": { "a": { "send": [{ "bits": "1010" }] }, "b": { "send": [{ "bits": "1010" }] } },
+      "expect": { "x": [1, 0, 1, 0, 0, 0] }
+    },
+    {
+      "wires": { "a": { "send": [{ "bits": "0000" }] }, "b": { "send": [{ "bits": "1111" }] } },
+      "expect": { "x": [0, 0, 0, 0, 0, 0] }
+    }
   ],
-  "want": { "x": { "differ": { "a": "a", "b": "b" } } },
+  "want": { "x": "given" },
   "solution": [
     "z = const[value=0]()",
-    "o = const[value=1]()",
-    "nb = select(b, z, o)",
-    "d = select(a, nb, b)",
+    "d = select(a, b, z)",
     "x <- d"
   ],
-  "naive": ["o = const[value=1]()", "d = select(a, o, b)", "x <- d"],
-  "builds": {
-    "type": "xor",
-    "name": { "zh": "异或", "en": "XOR" },
-    "desc": {
-      "zh": "两位不同为 1，相同为 0；碰到「—」给「—」。",
-      "en": "1 when two bits differ, 0 when they agree; 「—」 for 「—」."
-    }
-  }
+  "naive": ["o = const[value=1]()", "d = select(a, o, b)", "x <- d"]
 }

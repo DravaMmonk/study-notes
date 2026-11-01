@@ -91,7 +91,7 @@ export const BLUEPRINT_RULES = {
   'bp-unique': 'an id is used twice',
   'bp-refs': 'names something the blueprint does not define',
   'bp-adds-idea': 'a slot adds a primitive without naming the idea it brings',
-  'bp-placed': 'a primitive or built part has not exactly one slot that brings or builds it',
+  'bp-placed': 'a primitive has not exactly one slot that brings it, or a built part is built nowhere or by slots that are no chain of upgrades',
   'bp-order': 'a slot (or a built part) stands on something not there yet on every path to it',
   'bp-first-use': 'an idea is not used where it comes in, or not used again before two more ideas arrive',
   'bp-unused': 'a built part no later slot stands on',
@@ -202,7 +202,9 @@ export function auditBlueprint(bp) {
   for (const [i, era] of bp.eras.entries()) if (i > 0 && era.keeps === undefined) say('bp-keeps', `era ${era.id}`, 'it does not say what it keeps')
   if (out.some((f) => f.rule === 'bp-refs' || f.rule === 'bp-unique')) return out
 
-  // Where each thing comes in: the slot that brings an idea or a primitive, the slot that builds a part.
+  // Where each thing comes in: the slot that brings an idea or a primitive, the slot that first builds a part. A part
+  // may be built again by later slots, each requiring the one before (an upgrade chain, DESIGN 1).
+  const { plan, ancestors } = prerequisites(bp)
   const where = new Map()
   for (const [kind, of] of [['primitive', (s) => s.adds ?? []], ['built part', (s) => (s.builds ? [s.builds] : [])], ['idea', (s) => (s.idea ? [s.idea] : [])]]) {
     const at = new Map()
@@ -210,12 +212,12 @@ export function auditBlueprint(bp) {
     const names = kind === 'primitive' ? prims.keys() : kind === 'built part' ? built.keys() : ideas.keys()
     for (const x of names) {
       const list = at.get(x) ?? []
-      if (list.length !== 1) say('bp-placed', x, list.length ? `the ${kind} ${x} comes in at ${list.join(', ')}` : `no slot brings the ${kind} ${x}`)
+      const chain = kind === 'built part' && list.length > 1 && list.every((id, k) => !k || ancestors(id).has(list[k - 1]))
+      if (list.length !== 1 && !chain) say('bp-placed', x, list.length ? `the ${kind} ${x} comes in at ${list.join(', ')}${kind === 'built part' ? ', not a chain of upgrades' : ''}` : `no slot brings the ${kind} ${x}`)
       else where.set(x, list[0])
     }
   }
 
-  const { plan, ancestors } = prerequisites(bp)
   const role = (id) => plan.place.get(id)?.role
   const optional = (id) => ['intro', 'step', 'finale', 'challenge'].includes(role(id))
   const byId = new Map(slots.map((s) => [s.id, s]))
@@ -313,8 +315,12 @@ export function auditBlueprint(bp) {
   return out
 }
 
-/** The blueprint with slot `from` renamed `to`, wherever it names it (a level renamed: ops level.rename). */
+/**
+ * The blueprint with slot `from` renamed `to`, wherever it names it (a level renamed: ops level.rename). When the
+ * blueprint has a slot `to` already, the level is moving to a slot the blueprint planned, and the blueprint stays.
+ */
 export function renameSlot(bp, from, to) {
+  if (slotsOf(bp).some((s) => s.id === to)) return bp
   const one = (id) => (id === from ? to : id)
   const many = (v) => (Array.isArray(v) ? v.map(one) : v === undefined ? v : one(v))
   return {

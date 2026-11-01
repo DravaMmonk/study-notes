@@ -84,7 +84,7 @@ export const GAMES = [
   {
     id: 'network', href: 'network/index.html', title: 'network', en: 'network', topic: { zh: 'network', en: 'network' },
     desc: { zh: '一根线，每一拍上面有一位。先听它，再自己往上说。', en: 'One line, one bit on it each tick. Listen to it first, then talk on it yourself.' },
-    levels: 20, dev: true, hidden: true,
+    levels: 33, dev: true, hidden: true,
     page: { icon: 'M16 32h32M32 16v32', description: 'network network' },
     progress: () => (read('network.v1')?.solved || []).length,
   },

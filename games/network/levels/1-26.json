@@ -1,0 +1,57 @@
+{
+  "title": { "zh": "离旗标几位", "en": "Bits since the flag" },
+  "brief": {
+    "zh": "每一拍输出上一个旗标结束以后线上又来了几位：旗标结束的那一拍为 0；还没来过旗标时也输出 0。",
+    "en": "Every tick, output how many bits have come since the last flag ended: 0 on the tick it ends, and 0 before any flag has come."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<part-ref to=\"flagspot\"></part-ref>在旗标结束的那一拍说 1。旗标标出的是位流里的一个位置，从那里数起，就知道一帧的位走到了哪里。",
+        "en": "<part-ref to=\"flagspot\"></part-ref> says 1 on the tick a flag ends. A flag marks a place in the bit stream, and counting from there tells how far a frame's bits have got."
+      }
+    }
+  ],
+  "hint": [{ "zh": "旗标还没来过的时候，输出要停在 0。", "en": "Until a flag has come, the output must stay at 0." }],
+  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+  "outputs": [{ "name": "n", "label": { "zh": "位数", "en": "Bits" } }],
+  "tests": [
+    {
+      "wires": { "line": { "send": [{ "bits": "0111111010110" }] } },
+      "expect": { "n": [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7] }
+    },
+    {
+      "wires": { "line": { "send": [{ "bits": "011111100111111011" }] } },
+      "expect": { "n": [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4] }
+    },
+    {
+      "wires": { "line": { "send": [{ "bits": "0111110111110" }] } },
+      "expect": { "n": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    }
+  ],
+  "hidden": [
+    {
+      "wires": { "line": { "send": [{ "bits": "01111110000000000001111110" }] } },
+      "expect": {
+        "n": [0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0, 1, 2]
+      }
+    },
+    {
+      "wires": { "line": { "send": [{ "bits": "111111101" }] } },
+      "expect": { "n": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    }
+  ],
+  "want": { "n": "given" },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "f = flagspot(line)",
+    "c = counter(f)",
+    "sr = reg[reg=A, start=0]()",
+    "s = select(f, o, sr)",
+    "ks = keep[reg=A](s)",
+    "y = select(s, c, z)",
+    "n <- y"
+  ],
+  "naive": ["f = flagspot(line)", "c = counter(f)", "n <- c"]
+}

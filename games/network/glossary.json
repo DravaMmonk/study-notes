@@ -177,7 +177,7 @@
       "id": "stuffing",
       "group": "wire",
       "title": { "zh": "位填充", "en": "bit stuffing" },
-      "at": "1-12",
+      "at": "1-40",
       "body": [
         {
           "zh": "发送方在帧的内容里每连着 5 个 1 之后多说一个 0，收的一方再把它去掉。这样内容里永远不会连着出现 6 个 1，也就不会被误认成旗标。代价是帧变长了一点，长多少取决于内容。",
@@ -190,7 +190,7 @@
       "id": "error-detection",
       "group": "wire",
       "title": { "zh": "差错检测", "en": "error detection" },
-      "at": "1-14",
+      "at": "1-31",
       "body": [
         {
           "zh": "发送方按约好的规则在数据后面附上几位校验位，收的一方按同一规则核对，以此判断数据在路上有没有被改。查出错只说明数据坏了，并不能把它改回来。",
@@ -200,14 +200,13 @@
           "zh": "没有一种校验查得出所有错误：线恰好把数据改成另一份校验也相符的数据时，就查不出来。校验位越多、规则越好，这种情况越少。",
           "en": "No check catches every error: if the wire happens to turn the data into other data whose check also matches, nothing shows. More check bits and a better rule make this rarer."
         }
-      ],
-      "see": ["parity"]
+      ]
     },
     {
       "id": "parity",
       "group": "wire",
       "title": { "zh": "奇偶校验位", "en": "parity bit" },
-      "at": "1-14",
+      "at": "1-32",
       "body": [
         {
           "zh": "附在数据后面的一位，使连它在内的 1 的个数为偶数（偶校验）或奇数（奇校验）。这里用偶校验。",
@@ -279,18 +278,6 @@
         }
       ],
       "see": ["frame", "protocol"]
-    },
-    {
-      "id": "cut-through",
-      "group": "wire",
-      "title": { "zh": "直通转发", "en": "cut-through forwarding" },
-      "at": "1-19",
-      "body": [
-        {
-          "zh": "转发的节点不等一帧全部收完，收到开头就往下一根线上送。帧走得更快，代价是帧尾的校验到达之前，它已经送出去了大半。与它相对的是先把整帧存下、核对完再转发的存储转发。",
-          "en": "A forwarding node sends a frame on to the next wire as soon as its start is in, without waiting for the whole of it. Frames move faster, at the price that most of a frame has gone on before its check arrives. The alternative is store-and-forward: hold the whole frame, check it, then send it on."
-        }
-      ]
     },
     {
       "id": "codeword",

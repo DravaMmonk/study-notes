@@ -1,0 +1,80 @@
+{
+  "title": { "zh": "送两份", "en": "Send it twice" },
+  "brief": {
+    "zh": "对方把每一位同时说在两根线上，线会翻位：两根线上的位不同时说 1，相同时说 0。",
+    "en": "The far end says every bit on two wires at once and the wires flip bits: say 1 when the two disagree and 0 when they agree."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "从这里起，线会把个别的位翻过来，收到的位错了，收的一方却毫不知情。最笨的办法是同一份话送两遍：两份不一样，就知道出了错。这叫<wiki-ref to=\"error-detection\"></wiki-ref>。",
+        "en": "From here on the wire flips the odd bit, and a bit that arrives wrong gives no sign of it. The crudest remedy is to say everything twice: when the two copies disagree, something went wrong. This is <wiki-ref to=\"error-detection\"></wiki-ref>."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "先固定一根线的值，看另一根线该怎样决定输出。",
+      "en": "Hold one wire still and see how the other should decide the output."
+    },
+    {
+      "zh": "线 A 为 0 时，输出和线 B 是什么关系？线 A 为 1 时呢？",
+      "en": "When wire A is 0, how does the output relate to wire B? And when A is 1?"
+    }
+  ],
+  "wires": {
+    "in": [
+      { "name": "a", "label": { "zh": "线 A", "en": "Wire A" } },
+      { "name": "b", "label": { "zh": "线 B", "en": "Wire B" } }
+    ],
+    "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
+  },
+  "tests": [
+    {
+      "wires": {
+        "a": { "send": [{ "bits": "11001010" }] },
+        "b": { "send": [{ "bits": "11001010" }], "flips": [1, 2] }
+      }
+    },
+    {
+      "wires": {
+        "a": { "send": [{ "bits": "11001010" }], "flips": [4] },
+        "b": { "send": [{ "bits": "11001010" }], "flips": [6] }
+      }
+    }
+  ],
+  "hidden": [
+    {
+      "wires": {
+        "a": { "send": [{ "bits": "10110" }], "flips": [3] },
+        "b": { "send": [{ "bits": "10110" }], "flips": [3] }
+      }
+    },
+    {
+      "wires": {
+        "a": { "send": [{ "bits": "1111" }] },
+        "b": { "send": [{ "bits": "1111" }], "flips": [0, 1, 2, 3] }
+      }
+    },
+    {
+      "wires": { "a": { "send": [{ "bits": "0000" }], "flips": [0, 2] }, "b": { "send": [{ "bits": "0000" }] } }
+    }
+  ],
+  "want": { "x": { "differ": { "a": "a", "b": "b" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "nb = select(b, z, o)",
+    "d = select(a, nb, b)",
+    "x <- d"
+  ],
+  "naive": ["o = const[value=1]()", "d = select(a, o, b)", "x <- d"],
+  "builds": {
+    "type": "xor",
+    "name": { "zh": "异或", "en": "XOR" },
+    "desc": {
+      "zh": "两位不同为 1，相同为 0；碰到「—」给「—」。",
+      "en": "1 when two bits differ, 0 when they agree; 「—」 for 「—」."
+    }
+  }
+}

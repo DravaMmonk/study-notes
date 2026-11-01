@@ -22,8 +22,8 @@
       "en": "Hold each byte back until the next one is complete, then pass it on."
     },
     {
-      "zh": "帧尾那一拍，<part-ref to=\"crc\"></part-ref>收进的应当只有内容字节的位。",
-      "en": "By the frame's end, <part-ref to=\"crc\"></part-ref> should have taken in the bits of the content bytes and nothing else."
+      "zh": "帧尾那一拍，<part-ref to=\"crchold\"></part-ref>收进的应当只有内容字节的位。",
+      "en": "By the frame's end, <part-ref to=\"crchold\"></part-ref> should have taken in the bits of the content bytes and nothing else."
     }
   ],
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
@@ -691,7 +691,7 @@
     "nv0 = select(df.got, o, vr)",
     "nv = select(df.end, z, nv0)",
     "kv = keep[reg=B](nv)",
-    "s = serializer(hr, rl)",
+    "s = serializerhold(hr, rl, z)",
     "ar = reg[reg=C, start=0]()",
     "act = select(rl, o, ar)",
     "na = select(s.done, z, act)",
@@ -699,7 +699,7 @@
     "nvr = select(vr, z, o)",
     "fst = select(df.got, nvr, z)",
     "hl = select(act, z, o)",
-    "k = crc(s.line, fst, hl)",
+    "k = crchold(s.line, fst, hl)",
     "eq = equal(hr, k)",
     "okv = select(df.end, eq)",
     "y = select(rl, hr)",
@@ -720,7 +720,7 @@
     "nv0 = select(df.got, o, vr)",
     "nv = select(df.end, z, nv0)",
     "kv = keep[reg=B](nv)",
-    "s = serializer(hr, rl)",
+    "s = serializerhold(hr, rl, z)",
     "ar = reg[reg=C, start=0]()",
     "act = select(rl, o, ar)",
     "na = select(s.done, z, act)",
@@ -728,7 +728,7 @@
     "nvr = select(vr, z, o)",
     "fst = select(df.got, nvr, z)",
     "hl = select(act, z, o)",
-    "k = crc(s.line, fst, hl)",
+    "k = crchold(s.line, fst, hl)",
     "eq = equal(hr, k)",
     "okv = select(df.end, eq)",
     "y = select(df.got, df.byte)",

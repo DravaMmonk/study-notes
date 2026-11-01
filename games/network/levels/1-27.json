@@ -1,0 +1,73 @@
+{
+  "title": { "zh": "停一拍", "en": "Stand still" },
+  "brief": {
+    "zh": "像数拍一样输出自「重来」起过了几拍，只是「暂停」为 1 的拍不算：那一拍的数和上一拍相同。",
+    "en": "Count the ticks since restart as before, except that ticks on which hold is 1 do not count: on them the number stays as it was."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "内容里有 01111110 时，帧会被从中间切断；要在内容里多塞一位把它拆开，别的都得等一拍。可<part-ref to=\"counter\"></part-ref>每拍都往前走。",
+        "en": "When the content holds 01111110 the frame is cut in two, and slipping in an extra bit to break it up means everything else must wait a tick. But <part-ref to=\"counter\"></part-ref> moves on every tick."
+      }
+    }
+  ],
+  "hint": [
+    { "zh": "「重来」和「暂停」同时为 1 时，「重来」优先。", "en": "When restart and hold are both 1, restart wins." },
+    {
+      "zh": "要留到下一拍的值不止一个时，就用几个名字不同的寄存卡。",
+      "en": "When more than one value has to last until the next tick, use registers with different names."
+    }
+  ],
+  "carry": "1-6",
+  "inputs": [
+    { "name": "reset", "label": { "zh": "重来", "en": "Restart" } },
+    { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
+  ],
+  "outputs": [{ "name": "count", "label": { "zh": "拍数", "en": "Ticks" } }],
+  "tests": [
+    { "ticks": 6, "inputs": { "reset": [0, 0, 0, 0, 0, 0], "hold": [0, 0, 0, 0, 0, 0] } },
+    { "ticks": 9, "inputs": { "reset": [0, 0, 0, 1, 0, 0, 0, 1, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0] } },
+    { "ticks": 8, "inputs": { "reset": [0, 0, 0, 0, 0, 0, 0, 0], "hold": [0, 0, 1, 1, 0, 1, 0, 0] } }
+  ],
+  "hidden": [
+    {
+      "ticks": 12,
+      "inputs": { "reset": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    },
+    { "ticks": 6, "inputs": { "reset": [0, 0, 1, 0, 0, 0], "hold": [1, 0, 1, 1, 0, 0] } },
+    { "ticks": 4, "inputs": { "reset": [1, 1, 1, 0], "hold": [0, 0, 0, 1] } }
+  ],
+  "want": { "count": { "count": { "reset": "reset", "hold": "hold" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "r = reg[reg=A, start=0]()",
+    "s = reg[reg=B, start=0]()",
+    "h = select(hold, s, r)",
+    "c = select(reset, z, h)",
+    "n = add(c, o)",
+    "ka = keep[reg=A](n)",
+    "kb = keep[reg=B](c)",
+    "count <- c"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "r = reg[reg=A, start=0]()",
+    "c = select(reset, z, r)",
+    "n = add(c, o)",
+    "m = select(hold, c, n)",
+    "ka = keep[reg=A](m)",
+    "count <- c"
+  ],
+  "builds": {
+    "type": "counterhold",
+    "name": { "zh": "能停的计数器", "en": "Pausable counter" },
+    "desc": {
+      "zh": "自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，数停在原处。",
+      "en": "How many ticks since restart was last 1: 0 on that tick, counted from the first tick before restart is ever 1; ticks on which hold is 1 do not count, and the number stands still."
+    },
+    "replaces": ["counter"]
+  }
+}

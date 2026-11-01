@@ -1,26 +1,26 @@
 {
-  "title": { "zh": "塞一个 0", "en": "Slip in a 0" },
+  "title": { "zh": "夹在旗标之间", "en": "Between flags" },
   "brief": {
-    "zh": "一帧一帧送出交来的字节：前后加旗标 01111110，内容里每连着 5 个 1 多说一个 0。帧只在「发送」为 1 时开始，帧间线上为 0；「下一个」取走队首，「末字节」标出帧尾。",
-    "en": "Send the bytes handed to you frame by frame: the flag 01111110 at each end, and a 0 added after every five 1s in the content. A frame starts only on a tick send is 1, and the wire is 0 between frames. Next takes the byte in front; last marks a frame's final byte."
+    "zh": "把交来的每一帧送出，前后各加一个旗标 01111110，只在「发送」为 1 时开始新的一帧。「下一个」取走队首，「末字节」标出帧尾。",
+    "en": "Send each frame handed to you with a flag 01111110 before and after it, starting a new frame only while send is 1. Next takes the byte in front; last marks a frame's final byte."
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-11\"></level-ref>里，旗标标出一帧的开头和结尾。可帧的内容本身也可能含有 01111110：收的一方会把它当成旗标，一帧被从中间切断。两头于是再约好一条：内容里每连着 5 个 1，发送方就多说一个 0，收的一方再把它去掉。这叫<wiki-ref to=\"stuffing\"></wiki-ref>。",
-        "en": "In <level-ref to=\"1-11\"></level-ref> flags mark where a frame begins and ends. But the content itself may hold 01111110: the receiver takes it for a flag and the frame is cut in two. So the ends agree on one more rule: after every five 1s in a row in the content the sender says an extra 0, and the receiver takes it out again. This is <wiki-ref to=\"stuffing\"></wiki-ref>."
+        "zh": "<part-ref to=\"flagspot\"></part-ref>在位流里认得出旗标。这一次换到发送的一方：一帧有几个字节，看队首的「末字节」就知道。",
+        "en": "<part-ref to=\"flagspot\"></part-ref> spots flags in the bit stream. Now the board is the sender: how many bytes a frame holds shows in the last-byte mark at the head of the queue."
       }
     }
   ],
   "hint": [
-    { "zh": "旗标原样说出，不做填充；填充只管内容。", "en": "Flags go out as they are, unstuffed; only the content is stuffed." },
+    { "zh": "旗标就是字节 126。", "en": "A flag is the byte 126." },
     {
-      "zh": "多说 0 的那一拍，内容停一拍不走：正在说的那一位留到下一拍。",
-      "en": "On the tick of the extra 0 the content stands still: the bit that was due waits a tick."
+      "zh": "一帧的结尾旗标不能兼作下一帧的开头。",
+      "en": "A frame's closing flag cannot double as the next frame's opening one."
     },
     {
-      "zh": "该不该多说一个 0，要看刚说出去的内容里连着几个 1。",
-      "en": "Whether an extra 0 is due depends on how many 1s in a row the content has just put on the wire."
+      "zh": "没有帧要送的时候，线上可以一直说旗标。",
+      "en": "While there is no frame to send, the wire may keep saying flags."
     }
   ],
   "inputs": [
@@ -33,21 +33,17 @@
   "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
   "tests": [
     {
-      "ticks": 30,
+      "ticks": 28,
       "queue": [[65]],
       "inputs": {
-        "send": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        "send": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
       }
     },
     {
-      "ticks": 40,
-      "queue": [[126, 255]],
+      "ticks": 36,
+      "queue": [[2, 3]],
       "inputs": {
         "send": [
-          1,
-          1,
-          1,
-          1,
           1,
           1,
           1,
@@ -88,13 +84,11 @@
       }
     },
     {
-      "ticks": 62,
-      "queue": [[1], [2, 3]],
+      "ticks": 60,
+      "queue": [[1], [170, 85]],
       "inputs": {
         "send": [
-          0,
-          0,
-          0,
+          1,
           1,
           1,
           1,
@@ -161,14 +155,10 @@
   ],
   "hidden": [
     {
-      "ticks": 40,
-      "queue": [[31, 240]],
+      "ticks": 36,
+      "queue": [[15, 2]],
       "inputs": {
         "send": [
-          1,
-          1,
-          1,
-          1,
           1,
           1,
           1,
@@ -209,31 +199,10 @@
       }
     },
     {
-      "ticks": 30,
-      "queue": [[31]],
-      "inputs": {
-        "send": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-      }
-    },
-    {
-      "ticks": 90,
-      "queue": [[63, 252], [255, 255, 255]],
+      "ticks": 76,
+      "queue": [[0], [30], [85]],
       "inputs": {
         "send": [
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
-          1,
           1,
           1,
           1,
@@ -396,111 +365,60 @@
   "solution": [
     "z = const[value=0]()",
     "o = const[value=1]()",
-    "five = const[value=5]()",
-    "seven = const[value=7]()",
+    "sv = const[value=7]()",
     "fv = const[value=126]()",
-    "ir = reg[reg=A, start=1]()",
-    "kr = reg[reg=B, start=0]()",
-    "fr = reg[reg=C, start=0]()",
-    "pr = reg[reg=D, start=0]()",
-    "orr = reg[reg=E, start=0]()",
-    "wr = reg[reg=F, start=0]()",
-    "os = select(ir, send, z)",
-    "busy = select(os, o, fr)",
-    "sr = equal(orr, five)",
-    "st = select(busy, z, sr)",
-    "cs = select(st, z, kr)",
-    "fs0 = select(os, o, cs)",
-    "inf = select(fs0, o, fr)",
-    "f = serializer(fv, fs0)",
-    "w = select(fs0, cs, wr)",
-    "kw = keep[reg=F](w)",
-    "nf = select(f.done, z, inf)",
-    "kf = keep[reg=C](nf)",
-    "ni0 = select(f.done, w, ir)",
-    "ni = select(os, z, ni0)",
-    "ki = keep[reg=A](ni)",
-    "nw = select(w, z, o)",
-    "od = select(f.done, nw, z)",
-    "cst = select(st, z, pr)",
-    "cc = counter(cst, st)",
-    "bv = bit(byte, cc)",
-    "e7 = equal(cc, seven)",
-    "d1 = select(ir, z, e7)",
-    "d2 = select(st, z, d1)",
-    "bd = select(inf, z, d2)",
-    "ld = select(bd, last, z)",
+    "g = reg[reg=A, start=1]()",
+    "c = counter(g)",
+    "e7 = equal(c, sv)",
+    "ka = keep[reg=A](e7)",
+    "e0 = equal(c, z)",
+    "ro = reg[reg=B, start=0]()",
+    "rm = reg[reg=C, start=0]()",
+    "rk = reg[reg=D, start=0]()",
+    "co = select(ro, send, z)",
+    "ct = select(rm, o, co)",
+    "cn = select(e0, ct, z)",
+    "b = select(ct, byte, fv)",
+    "s = serializer(b, e0)",
+    "nk = select(rk, z, o)",
+    "no = select(ct, z, nk)",
     "nl = select(last, z, o)",
-    "nk0 = select(cs, z, kr)",
-    "nk = select(ld, o, nk0)",
-    "kk = keep[reg=B](nk)",
-    "np0 = select(cst, z, pr)",
-    "np1 = select(bd, nl, np0)",
-    "np = select(od, o, np1)",
-    "kp = keep[reg=D](np)",
-    "has = equal(byte, byte)",
-    "gf = select(has, f.line)",
-    "fo = select(w, f.line, gf)",
-    "cb = select(st, z, bv)",
-    "bo = select(inf, fo, cb)",
-    "idl = select(os, z, ir)",
-    "lv = select(idl, z, bo)",
-    "zr = equal(lv, z)",
-    "oc = counter(zr, z)",
-    "ko = keep[reg=E](oc)",
-    "line <- lv",
-    "next <- bd"
+    "nm = select(ct, nl, z)",
+    "nkk = select(ct, last, z)",
+    "o2 = select(e0, no, ro)",
+    "m2 = select(e0, nm, rm)",
+    "k2 = select(e0, nkk, rk)",
+    "kb = keep[reg=B](o2)",
+    "kc = keep[reg=C](m2)",
+    "kd = keep[reg=D](k2)",
+    "line <- s.line",
+    "next <- cn"
   ],
   "naive": [
     "z = const[value=0]()",
     "o = const[value=1]()",
-    "seven = const[value=7]()",
+    "sv = const[value=7]()",
     "fv = const[value=126]()",
-    "ir = reg[reg=A, start=1]()",
-    "kr = reg[reg=B, start=0]()",
-    "fr = reg[reg=C, start=0]()",
-    "pr = reg[reg=D, start=0]()",
-    "wr = reg[reg=F, start=0]()",
-    "os = select(ir, send, z)",
-    "fs0 = select(os, o, kr)",
-    "inf = select(fs0, o, fr)",
-    "f = serializer(fv, fs0)",
-    "w = select(fs0, kr, wr)",
-    "kw = keep[reg=F](w)",
-    "nf = select(f.done, z, inf)",
-    "kf = keep[reg=C](nf)",
-    "ni0 = select(f.done, w, ir)",
-    "ni = select(os, z, ni0)",
-    "ki = keep[reg=A](ni)",
-    "nw = select(w, z, o)",
-    "od = select(f.done, nw, z)",
-    "cc = counter(pr, z)",
-    "bv = bit(byte, cc)",
-    "e7 = equal(cc, seven)",
-    "d1 = select(ir, z, e7)",
-    "bd = select(inf, z, d1)",
-    "ld = select(bd, last, z)",
+    "g = reg[reg=A, start=1]()",
+    "c = counter(g)",
+    "e7 = equal(c, sv)",
+    "ka = keep[reg=A](e7)",
+    "e0 = equal(c, z)",
+    "ro = reg[reg=B, start=0]()",
+    "rm = reg[reg=C, start=0]()",
+    "co = select(ro, send, z)",
+    "ct = select(rm, o, co)",
+    "cn = select(e0, ct, z)",
+    "b = select(ct, byte, fv)",
+    "s = serializer(b, e0)",
+    "no = select(ct, z, o)",
     "nl = select(last, z, o)",
-    "nk = select(ld, o, z)",
-    "kk = keep[reg=B](nk)",
-    "np1 = select(bd, nl, z)",
-    "np = select(od, o, np1)",
-    "kp = keep[reg=D](np)",
-    "has = equal(byte, byte)",
-    "gf = select(has, f.line)",
-    "fo = select(w, f.line, gf)",
-    "bo = select(inf, fo, bv)",
-    "idl = select(os, z, ir)",
-    "lv = select(idl, z, bo)",
-    "line <- lv",
-    "next <- bd"
-  ],
-  "builds": {
-    "type": "framer",
-    "name": { "zh": "成帧器", "en": "Framer" },
-    "desc": {
-      "zh": "把交来的字节一帧一帧地送出：「发送」为 1 的拍开始一帧，前后各加旗标 01111110，内容里每连着 5 个 1 多说一个 0；两帧之间线上是 0。「下一个」为 1 的那一拍取走眼前的字节。",
-      "en": "Sends the bytes handed to it frame by frame: a frame begins on a tick send is 1, with the flag 01111110 at each end and a 0 added after every five 1s in its content; the wire is 0 between frames. Next is 1 on the tick it takes the byte in front of it."
-    }
-  }
+    "nm = select(ct, nl, z)",
+    "o2 = select(e0, no, ro)",
+    "m2 = select(e0, nm, rm)",
+    "kb = keep[reg=B](o2)",
+    "kc = keep[reg=C](m2)",
+    "line <- s.line",
+    "next <- cn"
+  ]
 }

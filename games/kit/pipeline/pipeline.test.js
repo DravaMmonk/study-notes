@@ -39,6 +39,12 @@ test('a sound blueprint passes the audit', () => {
   assert.deepEqual(rules(base()), [])
 })
 
+test('a part built again further down the path is an upgrade, not a second part', () => {
+  const bp = base()
+  bp.eras[0].series[1].slots.push(slot('1-6', { role: 'practice', dimension: 'combine', builds: 'counter', uses: ['counter', 'reg'] }))
+  assert.deepEqual(rules(bp), [])
+})
+
 test('each rule catches the blueprint that breaks it', () => {
   const broken = (edit) => {
     const bp = base()
@@ -81,6 +87,8 @@ test('a slot renamed with its level, wherever the blueprint names it', () => {
   assert.equal(renamed.eras[0].series[1].slots[1].id, '1-6')
   assert.equal(renamed.eras[0].series[2].after, '1-6')
   assert.deepEqual(renamed.requests[0].for, ['1-6'])
+  // A level moving onto a slot the blueprint already plans leaves the blueprint as it is.
+  assert.equal(renameSlot(bp, '1-5', '1-4'), bp)
 })
 
 test('the copy lint names the rule each text breaks', () => {

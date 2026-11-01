@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "线会出错", "en": "The wire errs" },
+  "title": { "zh": "核对奇偶", "en": "Check the parity" },
   "brief": {
     "zh": "从第一拍起，线上接连送来字节，每个后跟一个校验位，使这 9 位里 1 的个数为偶数；线会翻位。每个校验位到达的那一拍，输出收到的字节和校验是否相符，其余各拍为「—」。",
     "en": "From the first tick, bytes come down the wire back to back, each followed by a bit that makes the count of 1s in the nine even; the wire flips bits. On the tick each such bit arrives, output the byte received and whether it checks out; 「—」 on every other tick."
@@ -7,8 +7,8 @@
   "intro": [
     {
       "t": {
-        "zh": "从这里起，线会把个别的位翻过来。收到的字节错了，收的一方却毫不知情，照样把它交出去。两头于是约好一条规则：发送方在数据后面附几位，收的一方按同一规则核对，就知道数据在线上有没有被改。这叫<wiki-ref to=\"error-detection\"></wiki-ref>。最简单的规则只附一位，让 1 的个数凑成偶数，叫<wiki-ref to=\"parity\"></wiki-ref>。",
-        "en": "From here on, the wire flips the odd bit. A byte arrives wrong and the receiver hands it on without knowing. So the ends agree on a rule: the sender appends a few bits to the data, and the receiver checks them by the same rule to tell whether the data changed on the way. This is <wiki-ref to=\"error-detection\"></wiki-ref>. The simplest rule appends one bit that makes the count of 1s even: a <wiki-ref to=\"parity\"></wiki-ref>."
+        "zh": "<level-ref to=\"1-32\"></level-ref>在发送的一方附上校验位。这一次换到收的一方：线照样会翻位，每个字节都要核对。",
+        "en": "<level-ref to=\"1-32\"></level-ref> appends the parity bit at the sending end. Now the board is the receiver: the wire still flips bits, and every byte must be checked."
       }
     }
   ],
@@ -47,11 +47,11 @@
   "solution": [
     "z = const[value=0]()",
     "eight = const[value=8]()",
-    "g = reg[reg=A, start=0]()",
-    "c = counter(g, z)",
+    "g = reg[reg=A, start=1]()",
+    "c = counter(g)",
     "e8 = equal(c, eight)",
     "ka = keep[reg=A](e8)",
-    "d = deserializer(line, g, z)",
+    "d = deserializer(line, g)",
     "rb = reg[reg=B, start=0]()",
     "kb = keep[reg=B](d.byte)",
     "y = select(e8, rb)",
@@ -67,11 +67,11 @@
   "naive": [
     "z = const[value=0]()",
     "eight = const[value=8]()",
-    "g = reg[reg=A, start=0]()",
-    "c = counter(g, z)",
+    "g = reg[reg=A, start=1]()",
+    "c = counter(g)",
     "e8 = equal(c, eight)",
     "ka = keep[reg=A](e8)",
-    "d = deserializer(line, g, z)",
+    "d = deserializer(line, g)",
     "rb = reg[reg=B, start=0]()",
     "kb = keep[reg=B](d.byte)",
     "y = select(e8, rb)",

@@ -1,0 +1,61 @@
+{
+  "title": { "zh": "第 5 个 1", "en": "The fifth 1" },
+  "brief": {
+    "zh": "线上连着来到第 5 个 1 的那一拍说 1，其余各拍说 0。",
+    "en": "Say 1 on the tick that brings the fifth 1 in a row, and 0 on every other tick."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-22\"></level-ref>数出了连着来的 1，<part-ref to=\"part:equal\"></part-ref>能把一个数变成是或否。这一次两件事合在一起。",
+        "en": "<level-ref to=\"1-22\"></level-ref> counts the 1s in a row, and <part-ref to=\"part:equal\"></part-ref> turns a number into a yes or no. This time the two go together."
+      }
+    }
+  ],
+  "hint": [
+    { "zh": "第 6 个、第 10 个 1 都不是第 5 个。", "en": "The sixth 1 is not the fifth, and neither is the tenth." }
+  ],
+  "wires": {
+    "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" }, "delay": 1 }],
+    "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
+  },
+  "tests": [
+    {
+      "wires": { "line": { "send": [{ "bits": "0111110" }] } },
+      "expect": { "x": [0, 0, 0, 0, 0, 0, 1, 0, 0, 0] }
+    },
+    {
+      "wires": { "line": { "send": [{ "bits": "11111111" }] } },
+      "expect": { "x": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0] }
+    },
+    {
+      "wires": { "line": { "send": [{ "bits": "1111011111" }] } },
+      "expect": { "x": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0] }
+    }
+  ],
+  "hidden": [
+    {
+      "wires": { "line": { "send": [{ "bits": "11111011111111111" }] } },
+      "expect": { "x": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0] }
+    },
+    { "wires": { "line": { "send": [{ "bits": "1111" }] } }, "expect": { "x": [0, 0, 0, 0, 0, 0, 0] } }
+  ],
+  "want": { "x": "given" },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "five = const[value=5]()",
+    "nl = select(line, z, o)",
+    "c = counter(nl)",
+    "e = equal(c, five)",
+    "x <- e"
+  ],
+  "naive": [
+    "five = const[value=5]()",
+    "r = reg[reg=A, start=0]()",
+    "n = add(r, line)",
+    "k = keep[reg=A](n)",
+    "e = equal(n, five)",
+    "x <- e"
+  ]
+}
