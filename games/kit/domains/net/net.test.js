@@ -71,6 +71,10 @@ test('what a level wants, tick by tick and in order', () => {
   // The remainder streamed tick by tick is the remainder of the bits so far.
   assert.equal(parseInt(remainder([0, 1, 1, 0, 1, 0]).join(''), 2), got.m.ticks[5])
   assert.deepEqual(wantOf({ x: { sent: { format: 'flag' } } })(t).x.order, [1, 2, 'end'])
+  // Held ticks do not count, and their bits are not taken.
+  const held = { ...t, inputs: { ...t.inputs, h: [0, 1, 1, 0, 0, 0] } }
+  assert.deepEqual(wantOf({ c: { count: { reset: 'r', hold: 'h' } } })(held).c.ticks, [0, 0, 0, 1, 2, 3])
+  assert.deepEqual(wantOf({ m: { remainder: { wire: 'a', poly: '1011', hold: 'h' } } })(held).m.ticks.map((r) => r.toString(2)), ['0', '0', '0', '0', '1', '10'])
 })
 
 test('a board on its wires: registers carry, the queue is pulled, the far end decodes what it says', () => {

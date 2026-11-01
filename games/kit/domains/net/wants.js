@@ -29,9 +29,9 @@ const WANTS = {
   differ: ({ a, b }) => (test) => ({ ticks: each(test, (t) => ((wire(test, a)[t] ?? 0) === (wire(test, b)[t] ?? 0) ? 0 : 1)) }),
   late: ({ wire: w, first }) => (test) => ({ ticks: each(test, (t) => (t ? wire(test, w)[t - 1] ?? 0 : first)) }),
   heard: ({ wire: w }) => (test) => ({ ticks: each(test, (t) => (wire(test, w).slice(0, t + 1).includes(1) ? 1 : 0)) }),
-  count: ({ reset }) => (test) => {
+  count: ({ reset, hold }) => (test) => {
     let n = -1
-    return { ticks: each(test, (t) => (n = test.inputs[reset][t] === 1 ? 0 : n + 1)) }
+    return { ticks: each(test, (t) => (n = test.inputs[reset][t] === 1 ? 0 : hold && test.inputs[hold][t] === 1 ? Math.max(n, 0) : n + 1)) }
   },
   serial: ({ byte, start }) => (test) => {
     let from = null
@@ -44,13 +44,14 @@ const WANTS = {
   pattern: ({ wire: w, bits }) => (test) => ({ ticks: each(test, (t) => (t + 1 >= bits.length && wire(test, w).slice(t + 1 - bits.length, t + 1).join('') === bits ? 1 : 0)) }),
   // divided: the bits so far divided by the generator; check: the bits so far with room made for the check bits (the
   // bits followed by as many 0s as the generator has bits after its top), which is the check bits to send after them.
-  remainder: ({ wire: w, poly, reset, form = 'divided' }) => (test) => {
+  remainder: ({ wire: w, poly, reset, hold, form = 'divided' }) => (test) => {
     let r = 0
     const k = poly.length - 1
     const g = parseInt(poly, 2)
     const mask = (1 << k) - 1
     return { ticks: each(test, (t) => {
       if (reset && test.inputs[reset][t] === 1) r = 0
+      if (hold && test.inputs[hold][t] === 1) return r
       const bit = wire(test, w)[t] ?? 0
       if (form === 'check') {
         const carry = ((r >> (k - 1)) & 1) ^ bit
@@ -91,12 +92,13 @@ function framesOf(events) {
 }
 
 /** What a far end decoding `format` must make of the queue's frames: their bytes (and each frame's end, for frames). */
-const decodedOrder = (format, frames) => (format === 'flag' || format === 'flagcheck' ? frames.flatMap((f) => [...f, 'end']) : frames.flat())
+const FRAMED = ['flag', 'flagcheck', 'flagbyte']
+const decodedOrder = (format, frames) => (FRAMED.includes(format) ? frames.flatMap((f) => [...f, 'end']) : frames.flat())
 
 /** What a far end decoding `format` makes of the bits a board said, as `sent` and `relayed` compare it. */
 export function farEnd({ format, poly }, bits) {
   const events = decode(format, bits, poly)
-  return format === 'flag' || format === 'flagcheck' ? framesOf(events).filter((f) => f.intact).flatMap((f) => [...f.bytes, 'end']) : events.filter((e) => e.byte !== undefined && e.intact !== false).map((e) => e.byte)
+  return FRAMED.includes(format) ? framesOf(events).filter((f) => f.intact).flatMap((f) => [...f.bytes, 'end']) : events.filter((e) => e.byte !== undefined && e.intact !== false).map((e) => e.byte)
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { name: { ticks } | { order, words, far? } }. */

@@ -13,11 +13,13 @@
 //   blocks     each 4-bit block followed by its check bits (with 1011: a Hamming code that can correct one flip)
 //   flag       a frame: the flag 01111110, its bytes with a 0 put in after every five 1s in a row, the flag again
 //   flagcheck  a frame as flag does, its bytes followed by their check bits before the closing flag
+//   flagbyte   a frame as flag does, its bytes followed by one more byte: their check bits, with 0s before them to
+//              make 8 (so the frame stays whole bytes)
 //
 // encode(format, frames, poly) → bits; decode(format, bits, poly) → events [{ at (the tick of the last bit), byte } |
 // { at, end: true, intact }]: what a far end makes of a run of bits.
 
-export const FORMATS = ['bytes', 'startstop', 'parity', 'check', 'blocks', 'flag', 'flagcheck']
+export const FORMATS = ['bytes', 'startstop', 'parity', 'check', 'blocks', 'flag', 'flagcheck', 'flagbyte']
 export const FLAG = [0, 1, 1, 1, 1, 1, 1, 0]
 const POLY = '1011'
 
@@ -65,6 +67,10 @@ export function encode(format, frames, poly = POLY) {
       const body = f.flatMap((b) => bitsOf(b))
       return [...FLAG, ...stuff([...body, ...checkOf(body, poly)]), ...FLAG]
     })
+    case 'flagbyte': return frames.flatMap((f) => {
+      const body = f.flatMap((b) => bitsOf(b))
+      return [...FLAG, ...stuff([...body, ...Array(8 - width).fill(0), ...checkOf(body, poly)]), ...FLAG]
+    })
     default: throw new Error(`no format ${format} (width ${width})`)
   }
 }
@@ -96,14 +102,19 @@ export function decode(format, bits, poly = POLY) {
       break
     }
     case 'flag':
-    case 'flagcheck': {
+    case 'flagcheck':
+    case 'flagbyte': {
       let open = null
       for (let k = 7; k < b.length; k++) {
         if (FLAG.every((x, j) => b[k - 7 + j] === x)) {
           if (open !== null && k - 7 > open) {
             const body = unstuff(b.slice(open, k - 7))
-            const content = format === 'flagcheck' ? body.slice(0, Math.max(0, body.length - width)) : body
-            const intact = content.length % 8 === 0 && (format === 'flag' || remainder(body, poly).every((y) => !y))
+            const tail = { flag: 0, flagcheck: width, flagbyte: 8 }[format]
+            const content = body.slice(0, Math.max(0, body.length - tail))
+            const check = body.slice(content.length)
+            const intact = content.length % 8 === 0 && body.length >= tail && (format === 'flag'
+              || (format === 'flagcheck' && remainder(body, poly).every((y) => !y))
+              || (format === 'flagbyte' && check.join('') === [...Array(8 - width).fill(0), ...checkOf(content, poly)].join('')))
             for (let j = 0; j + 8 <= content.length; j += 8) out.push({ at: k, byte: numberOf(content.slice(j, j + 8)) })
             out.push({ at: k, end: true, intact })
             open = null

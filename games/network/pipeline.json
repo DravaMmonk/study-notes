@@ -60,6 +60,35 @@
           ],
           "report": "I've revised slots 1-18 and 1-19 so they ask only what the domain can do. The gate is clean apart from four REPORT findings that were already there. I didn't run `./check`.\n\n**What changed**\n- **1-18 \"A network card\":** the card no longer runs at both ends of a wire. One card is tested in both directions at once: frames from the queue go out on the outgoing wire, and intact frames from the incoming wire go up. This is the replacement the domain's note suggests. The idea (`layer`) and the part it builds (`nic`) are unchanged.\n- **1-19 \"Relay\":** this was a store-and-forward relay that dropped bad frames, which means holding a whole frame. It is now a relay that passes each frame from the left card to the right card one byte at a time, without waiting for the whole frame. It is still a combine practice slot, and it still uses `nic`, so the card built at 1-18 is used later. Its `uses` adds `reg`, `keep` and `select`: the relay holds one byte until it knows whether the next byte is coming or the frame has ended, because the right card has to be told which byte is a frame's last when it takes it.\n\nNothing else changed, and the request entries are as they were.\n\n**Course shape:** one era (\"One wire\"), 10 series (one of them a challenge after 1-16, and two parallel series for start bits and flags), 20 slots from 1-1 to 1-20.\n\n**REPORT findings left as they are** (tick at 1-1, counting at 1-6, flag at 1-11, error-detection at 1-14): each of these ideas is practised in the very next slot, but that slot brings the next idea itself, so the audit doesn't count it. The revision was told to change nothing else, and adding filler practice would go against \"never pad\".\n\n**What I'm unsure of**\n- **Errors on the relay's left wire.** If the left wire flips bits, the right card adds a fresh check over the damaged bytes, so the far end would see a bad frame as intact. The left wire in 1-19 therefore needs no flips; with none, \"only intact frames\" is the same as \"all frames\". The level designer needs to know this.\n- **Timing in 1-19.** By my estimate, the opening flag gives about one byte of slack before the right card needs its next byte. The relay should need only one byte held, which is well short of a frame, but the reference answer has to confirm this.\n- **The card's queue ports.** I'm assuming the built `nic` exposes its queue inputs and its take-next output as ports, so the relay board can feed the right card from the left one. The domain note only mentions wires becoming ports. If the queue ports aren't exposed, 1-19 can't be built, and the domain step would need a request for that.",
           "transcript": "/tmp/pipeline-network-blueprint-9VNg2y/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-01T14:34:16.138Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 1853310,
+            "seconds": 881,
+            "cost": 3.4602078999999994,
+            "turns": 20
+          },
+          "calls": {
+            "op": {
+              "runs": 2,
+              "failed": 0
+            },
+            "check": {
+              "runs": 0,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 1,
+              "failed": 0
+            }
+          },
+          "changes": [
+            6
+          ],
+          "report": "The revised blueprint is written and `./gate` passes with no failures. Two new domain requests are open and need to be resolved before the level designer goes back in. I didn't run `./check`.\n\n## Shape of the course\nEra 1 is still 20 slots in 10 series, with the same slot ids.\n- **Main line:** pass → choose → remember → count → byte.\n- **Three parallel branches:** start bits (1‑9, 1‑10), flags (1‑11 to 1‑13) and checks (1‑14 to 1‑16). Checks used to come after flags in a line. They only need the byte series, so the audit's branching rule puts them in parallel.\n- **Card series:** 1‑17 to 1‑19, which needs both the flags and checks branches.\n- **Challenge 1‑20:** now hangs after 1‑15, the slot that gives it everything it needs.\n\n**The register limit.** I checked whether an 8‑bit generator could work. It can't: an 8‑bit CRC needs eight one‑bit registers and a board has six (`parts.js`). Faking it with whole‑byte arithmetic would stop teaching division. So the generator stays 1011, and the 3 check bits go out padded to one whole byte after the content. That lets the framer and deframer stay byte‑level, tested on plain flags, while the check lives in its own parts. This is recorded in `deferred`.\n\n## Changes the level designer must make\n**Ports and tasks of written slots:**\n- **1‑6 (counter):** adds a `hold` input; ticks where hold is 1 aren't counted. Every reference answer that places a counter must wire hold to 0: 1‑7, 1‑8, 1‑9, 1‑10, 1‑11, 1‑14, 1‑16 and 1‑20.\n- **1‑7:** wording only (\"the byte input then\"). Its ports stay start, byte, done, as written.\n- **1‑8 (deserializer):** gets the `start` input already written, plus `hold`: a bit is taken only on ticks hold is 0. 1‑9 and 1‑14 must wire hold.\n- **1‑15 (CRC):** now outputs the check form (the 3 check bits due next, read straight off the shift register) and adds `hold`. Its `uses` gains `select`.\n- **1‑16:** same task, but the algebra trick goes away: read the CRC's output and send its bits 5, 6 and 7. `uses` gains `bit`.\n\n**Rewritten slots:**\n- **1‑20:** now \"which bit flipped\". On each 7‑bit block's last tick, output the flipped position (1–7) or 0. The leap is that the seven positions leave seven different remainders. The naive answer reads the remainder as the position number (flipping bit 1 leaves 4). Use the `given` want and hang it after 1‑15.\n\n**Slots not yet written (the new plan for them):**\n- **1‑12 (framer):** byte‑level pull ports. Content goes out through `bit` with a counter that pauses on stuffed ticks. `uses` gains `bit`.\n- **1‑13 (deframer):** unstuffs by pausing the deserializer. With whole‑byte frames, the closing flag's first 7 bits never complete a stray byte.\n- **1‑17 \"Catch bad frames\":** now builds a new part, `receiver` (deframer + CRC + serializer). It holds each byte back by one, feeds it through a serializer into the CRC, and at the frame's end compares the held check byte with the CRC.\n- **1‑18 (network card):** built from framer, receiver, CRC and serializer. To be safe whichever tick the framer takes a byte on, serialize each byte into the CRC when it first appears at the head of the queue.\n- **1‑19 (relay):** a frame that arrived broken must not leave intact. It's done by flipping one bit on the relay's own outgoing wire once the incoming frame is known to be bad (`uses` gains `xor`).\n\n## Requests (open)\n- **`hold`:** the `count` and `remainder` wants each take an optional `hold` input, for 1‑6 and 1‑15. The fallback is the `given` want.\n- **`check-byte`:** a frame format like `flagcheck`, but with the check sent as one zero‑padded byte. It's for 1‑17 to 1‑19, and the course can't do the card without it.\n\n## REPORT findings left\n- **`bp-lonely` for 1‑1, 1‑6, 1‑11, 1‑14:** these were already there before this revision. Tick is trivial. The counter's practice comes straight away in 1‑7 and 1‑8, but those bring their own new idea. The flag and parity ideas are practised right away by the stuffing and CRC slots that follow them. Extra slots would be padding.\n- **`bp-open` for the two requests above.**\n\n## What I'm unsure of\n- **Tests with flips (1‑17, 1‑19):** a flip that adds or removes a stuffed 0 changes the frame's length. The receiver's byte output then won't match the decoder's for that broken frame. Hidden tests should flip content bits that don't touch stuffing.\n- **1‑13 and 1‑19 size:** the deframer and the relay are the largest boards in the era. The relay's two‑byte buffer and its trick of flipping one bit on a bad frame may be too hard for a practice slot.",
+          "transcript": "/tmp/pipeline-network-blueprint-0Xkedr/transcript.jsonl"
         }
       ],
       "gates": [
@@ -160,6 +189,49 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-01T14:34:16.146Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-lonely",
+              "at": "1-1",
+              "says": "tick has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1-6",
+              "says": "counting has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1-11",
+              "says": "flag has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1-14",
+              "says": "error-detection has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-open",
+              "at": "hold",
+              "says": "domain request open: The wants count and remainder each take an optional input `hold`: a tick on which it is 1 does not count — the count stands still, and that tick's bit is not taken into the remainder.",
+              "report": true
+            },
+            {
+              "rule": "bp-open",
+              "at": "check-byte",
+              "says": "domain request open: A frame format like flagcheck, except that the check bits go as one whole byte after the content (0s before them to make 8), stuffed with it; a frame is intact when its content is whole bytes and its last byte equals the content's check. bytes, ends, sent and relayed decode it.",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -211,6 +283,12 @@
         },
         {
           "at": "2026-11-01T13:57:02.914Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-01T14:35:23.901Z",
           "ok": true,
           "failures": [],
           "reports": []

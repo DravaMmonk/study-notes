@@ -19,7 +19,7 @@ const TEXTS = S.list(S.text())
 const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 const BITS = S.str({ pattern: '^[01]+$' })
 const POLY = S.opt(S.str({ pattern: '^1[01]*1$', about: t('生成式，最高位在前（默认 1011）', 'the generator, its top bit first (1011 by default)') }))
-const FORMAT = S.oneOf(FORMATS, { about: t('线那头约好的格式（wire.js）：bytes、startstop、parity、check、blocks、flag、flagcheck', 'the format the far end agreed on (wire.js): bytes, startstop, parity, check, blocks, flag, flagcheck') })
+const FORMAT = S.oneOf(FORMATS, { about: t('线那头约好的格式（wire.js）：bytes、startstop、parity、check、blocks、flag、flagcheck、flagbyte', 'the format the far end agreed on (wire.js): bytes, startstop, parity, check, blocks, flag, flagcheck, flagbyte') })
 const WIRE_NAME = S.str({ about: t('这一关的一根进线的名字', 'the name of one of the level’s wires in') })
 const INPUT = S.str({ about: t('这一关的一个输入的名字', 'the name of one of the level’s inputs') })
 /** Blueprint text (board.js), one line a string: a reference board. */
@@ -46,10 +46,10 @@ const WANTS = {
   differ: item(t('每一拍：两根进线这一拍的位不同时为 1，相同为 0', 'tick by tick: 1 when the two wires’ bits differ this tick, 0 when they agree'), S.obj({ a: WIRE_NAME, b: WIRE_NAME })),
   late: item(t('每一拍：这根进线上一拍的位；第一拍给 first', 'tick by tick: the bit the wire had the tick before; first on the first tick'), ON({ first: S.oneOf([0, 1]) })),
   heard: item(t('每一拍：这根进线上到过 1 了没有（这一拍算在内），到过为 1，否则为 0', 'tick by tick: 1 once a 1 has arrived on the wire (this tick included), 0 before'), ON()),
-  count: item(t('每一拍：自从输入 reset 上一次为 1 过了几拍（那一拍为 0；没有过时从第 0 拍数起）', 'tick by tick: how many ticks since the input `reset` was last 1 (0 on that tick; counted from tick 0 before it ever is)'), S.obj({ reset: INPUT })),
+  count: item(t('每一拍：自从输入 reset 上一次为 1 过了几拍（那一拍为 0；没有过时从第 0 拍数起；输入 hold 为 1 的拍不算）', 'tick by tick: how many ticks since the input `reset` was last 1 (0 on that tick; counted from tick 0 before it ever is; ticks the input `hold` is 1 do not count)'), S.obj({ reset: INPUT, hold: S.opt(INPUT) })),
   serial: item(t('每一拍：输入 start 第一次为 1 的那一拍起，接连 8 拍说出那一拍输入 byte 的各位（最高位先），其余各拍为 0', 'tick by tick: from the first tick the input `start` is 1, the bits of the input `byte` at that tick over 8 ticks (top bit first), 0 on every other tick'), S.obj({ byte: INPUT, start: INPUT })),
   pattern: item(t('每一拍：到这一拍为止最后几位正好是 bits 时为 1，否则为 0', 'tick by tick: 1 when the last bits up to this tick are exactly `bits`, else 0'), ON({ bits: BITS })),
-  remainder: item(t('每一拍：到这一拍为止收到的位（输入 reset 为 1 的那一拍从头算起）除以生成式的余数，写成一个数；form 为 check 时是这些位后面补上校验位那么多个 0 再除的余数，也就是该跟在它们后面发出的校验位', 'tick by tick: the remainder of the bits received so far (from the last tick the input `reset` is 1) divided by the generator, as a number; with form check, the remainder of those bits followed by as many 0s as there are check bits, which is the check bits to send after them'), ON({ poly: S.str({ pattern: '^1[01]*1$' }), reset: S.opt(INPUT), form: S.opt(S.oneOf(['divided', 'check'])) })),
+  remainder: item(t('每一拍：到这一拍为止收到的位（输入 reset 为 1 的那一拍从头算起，输入 hold 为 1 的拍不算）除以生成式的余数，写成一个数；form 为 check 时是这些位后面补上校验位那么多个 0 再除的余数，也就是该跟在它们后面发出的校验位', 'tick by tick: the remainder of the bits received so far (from the last tick the input `reset` is 1, leaving out the ticks the input `hold` is 1) divided by the generator, as a number; with form check, the remainder of those bits followed by as many 0s as there are check bits, which is the check bits to send after them'), ON({ poly: S.str({ pattern: '^1[01]*1$' }), reset: S.opt(INPUT), hold: S.opt(INPUT), form: S.opt(S.oneOf(['divided', 'check'])) })),
   decoded: item(t('每一拍：按格式收到的字节，在它最后一位到达的那一拍（flag 格式在帧尾的旗标结束的那一拍）；其余各拍「—」', 'tick by tick: the bytes received in the format, each on the tick its last bit arrives (in the flag formats, on the tick the closing flag ends); 「—」 on every other tick'), ON({ format: FORMAT, poly: POLY })),
   intact: item(t('每一拍：按格式收到的每个字节（parity、check）或每一帧（flagcheck）是否完好，在它结束的那一拍；其余各拍「—」', 'tick by tick: whether each byte (parity, check) or frame (flagcheck) received in the format is intact, on the tick it ends; 「—」 on every other tick'), ON({ format: FORMAT, poly: POLY })),
   given: item(t('每一拍：测试的 expect 里写给这个输出的值（不写的拍不查）', 'tick by tick: the values the test’s `expect` gives this output (ticks left out are not checked)')),
