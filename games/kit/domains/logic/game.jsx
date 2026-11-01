@@ -7,7 +7,8 @@ import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
-import GatesScreen from './ui/GatesScreen.jsx'
+import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
+import { syncOwn } from './built.js'
 import IsoScreen, { DeclaredRules } from './ui/IsoScreen.jsx'
 import DefineScreen from './ui/DefineScreen.jsx'
 import Hero from './ui/Hero.jsx'
@@ -73,6 +74,8 @@ export default function logicGame(content) {
     title: L.title,
     kind: L.kind,
     unlocks: L.unlocks,
+    // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaProofs).
+    keeps: L.unlocks.length > 0 || logic.provers.has(L.id),
     brief: L.brief,
     after: L.after,
     // A level of several tasks (../../shell/GameShell.jsx): what each changes of the level.
@@ -122,6 +125,13 @@ export default function logicGame(content) {
         ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type), rules: lemmaRows(type) })),
         ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
+      // A gate the player built shows the board it runs: the one the player passed its level with.
+      demo: (part, { phone, progress }) => {
+        const type = part.key.slice('lemma:'.length)
+        if (!gates[type]?.built) return null
+        syncOwn(progress.built)
+        return <GateInside key={part.key} type={type} gates={gates} phone={phone} />
+      },
     },
     // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).
     better: (score, best) => Boolean(score) && (!best || score.steps < best.steps),

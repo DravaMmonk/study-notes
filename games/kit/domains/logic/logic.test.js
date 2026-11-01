@@ -11,6 +11,7 @@ import { countermodel, countermodelSearch, holds } from './models.js'
 import { MACHINE_PARTS, MACHINE_TESTS, rulePartOf } from './machine.js'
 import { genRuleText } from './elimgen.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
+import { printTerm } from './pterm.js'
 import { validate } from './validate.js'
 
 const run = (level, circuit) => runLevel(LOGIC_TESTS, level, circuit)
@@ -66,8 +67,17 @@ function wireRules(circuit, level) {
 }
 /** A declaration of ways each needing these sentences (a sentence needed under others: [sentence, …those]). */
 const declaration = (...ways) => boardOf(ways.map((needs) => ({ binds: [], needs: needs.map((n) => (Array.isArray(n) ? { need: n[0], under: n.slice(1) } : n)) })))
-// K and S as a course proves them (lemmas of the kernel, no longer axioms).
+/** A lemma's shape as a course proves it (course.js lemmaProofs): the proof task (`schema` in letters, its title, its
+ *  words) and the board it was passed with. */
+const provenBy = (schema, board, extra = {}) => ({ level: { id: 'builder', title: { zh: '证明', en: 'Proof' }, schema, tests: [schema], ...extra }, board: () => board })
+// K and S as a course proves them (lemmas of the kernel, no longer axioms), each running its proof.
 const KS = { axK: { statement: 'A → (B → A)', metas: ['A', 'B'] }, axS: { statement: '(A → (B → C)) → ((A → B) → (A → C))', metas: ['A', 'B', 'C'] } }
+const KS_PROOFS = {
+  axK: { '': provenBy({ goal: 'A → (B → A)' }, proof({ f: ['impI', { A: 'A' }], g: ['impI', { A: 'B' }, 'f'] }, ['f#body>g.body', 'g>f.body', 'f>goal'])) },
+  axS: { '': provenBy({ goal: '(A → (B → C)) → ((A → B) → (A → C))' }, proof({
+    f: ['impI', { A: 'A → (B → C)' }], g: ['impI', { A: 'A → B' }, 'f'], h: ['impI', { A: 'A' }, 'g'], m1: ['mp', {}, 'h'], m2: ['mp', {}, 'h'], m3: ['mp', {}, 'h'],
+  }, ['f#body>m1.imp', 'h#body>m1.a', 'g#body>m2.imp', 'h#body>m2.a', 'm1>m3.imp', 'm2>m3.a', 'm3>h.body', 'h>g.body', 'g>f.body', 'f>goal'])) },
+}
 
 test('parse and show round-trip with the usual precedence', () => {
   for (const text of ['A → B → C', '(A → B) → C', 'A ∧ B ∨ C', 'A ∧ (B ∨ C)', '¬¬A', '∀x. P(x) → ∃y. Q(x, y)', 'f(a) = b']) {
@@ -84,7 +94,7 @@ test('substitution does not capture', () => {
 })
 
 test('Hilbert: A → A from K and S in five steps', () => {
-  const level = { tests: [{ goal: 'A → A' }], lemmas: KS }
+  const level = { tests: [{ goal: 'A → A' }], lemmas: KS, proofs: KS_PROOFS }
   const c = proof({
     s: ['axS', { A: 'A', B: 'A → A', C: 'A' }],
     k1: ['axK', { A: 'A', B: 'A → A' }],
@@ -106,7 +116,7 @@ test('a wrong premise is named with what it needed', () => {
 })
 
 test('→ introduction closes its assumption; an open one fails', () => {
-  const level = { tests: [{ goal: 'A → B → A' }], lemmas: KS }
+  const level = { tests: [{ goal: 'A → B → A' }], lemmas: KS, proofs: KS_PROOFS }
   // The outer box assumes A; inside it, K and Apply give B → A from it.
   const good = proof({ i: ['impI', { A: 'A' }], k: ['axK', { A: 'A', B: 'B' }, 'i'], m: ['mp', {}, 'i'] }, ['k>m.imp', 'i#body>m.a', 'm>i.body', 'i>goal'])
   assert.equal(run(level, good).pass, true)
@@ -141,14 +151,51 @@ test('∀ introduction refuses a variable an open hypothesis mentions', () => {
   assert.match(r.results[0].errors.get('g').en, /not arbitrary/)
 })
 
+// Chain as chapter 2 proves it: A → C from A → B and B → C, and the proof of A → A.
+const CHAIN = { chain: { name: { zh: '串联', en: 'Chain' }, statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'] }, id: { statement: 'A → A', metas: ['A'] } }
+const chainProof = proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] })
+const chainBy = (board) => ({ chain: { '': provenBy({ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }, board) }, id: { '': provenBy({ goal: 'A → A' }, proof({ f: ['impI', { A: 'A' }] }, ['f#body>f.body', 'f>goal'])) } })
+const useChain = proof({ c: ['chain'] }, ['p>c.p0', 'q>c.p1', 'c>goal'], { premises: ['p', 'q'] })
+
 test('a lemma with premises: what is wired in fixes its letters, the card the rest', () => {
-  const lemmas = { chain: { statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'] }, id: { statement: 'A → A', metas: ['A'] } }
-  const level = { lemmas, tests: [{ premises: { p: 'P → Q', q: 'Q → R' }, goal: 'P → R' }] }
-  assert.equal(run(level, proof({ c: ['chain'] }, ['p>c.p0', 'q>c.p1', 'c>goal'], { premises: ['p', 'q'] })).pass, true)
+  const level = { lemmas: CHAIN, proofs: chainBy(chainProof), tests: [{ premises: { p: 'P → Q', q: 'Q → R' }, goal: 'P → R' }] }
+  assert.equal(run(level, useChain).pass, true)
   const wrong = run(level, proof({ c: ['chain'] }, ['q>c.p0', 'p>c.p1', 'c>goal'], { premises: ['p', 'q'] }))
   assert.equal(wrong.pass, false)
-  const one = { lemmas, tests: [{ goal: 'P ∧ Q → P ∧ Q' }] }
+  const one = { lemmas: CHAIN, proofs: level.proofs, tests: [{ goal: 'P ∧ Q → P ∧ Q' }] }
   assert.equal(run(one, proof({ i: ['id', { A: 'P ∧ Q' }] }, ['i>goal'])).pass, true)
+})
+
+test('a lemma runs the proof that proved it, with its letters filled in, and its term is still its name', () => {
+  const level = { lemmas: CHAIN, tests: [{ premises: { p: 'Rain ∨ Wind → Wet', q: 'Wet → Slip' }, goal: 'Rain ∨ Wind → Slip' }] }
+  // The player's own proof, another way round (a detour through ∧), is what the card runs: it proves the same.
+  const detour = proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], both: ['andI', {}, 'f'], e: ['andE', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>both.a', 'm1>both.b', 'both>e.ab', 'q>m2.imp', 'e#left>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] })
+  for (const board of [chainProof, detour]) {
+    const r = run({ ...level, proofs: chainBy(board) }, useChain)
+    assert.equal(r.pass, true, JSON.stringify(r.results[0].checks))
+    assert.equal(printTerm(r.results[0].outputs.goal.term), 'chain p q')
+  }
+  // A kept proof that proves something else (A → B, from the first premise alone) gives nothing, and says whose proof.
+  const other = proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>f.body', 'f>goal'], { premises: ['p', 'q'] })
+  const r = run({ ...level, proofs: chainBy(other) }, useChain)
+  assert.equal(r.pass, false)
+  assert.match(r.results[0].errors.get('c').zh, /^「串联」照「证明」一关的证明来证，在这里证不出：证出的是「Rain ∨ Wind → Wet」/)
+  // So does a lemma with no proof.
+  assert.match(run({ ...level, proofs: {} }, useChain).results[0].errors.get('c').en, /has no proof/)
+})
+
+test('a proof that does not hold for an instance of its letters gives nothing there', () => {
+  // ¬∃x. P ⟹ ∀x. ¬P, proved with the thing taken named a: where the property speaks of some a (a variable, as inside
+  // a for-any box), that a is not arbitrary.
+  const lemmas = { qdm: { name: { zh: '量词德摩根', en: 'Quantifier De Morgan' }, statement: '∀x. ¬P', premises: ['¬∃x. P'], metas: ['P'] } }
+  const board = proof({ g: ['allI', { x: 'a' }], f: ['impI', { A: 'P(a)' }, 'g'], i: ['exI', {}, 'g/body'], m: ['mp', {}, 'g/body'] }, ['f#body>i.a', 'p>m.imp', 'i>m.a', 'm>f.body', 'f>g.body', 'g>goal'], { premises: ['p'] })
+  const proofs = { qdm: { '': provenBy({ premises: { p: '¬∃x. P(x)' }, goal: '∀x. ¬P(x)' }, board) } }
+  const use = proof({ c: ['qdm'] }, ['p>c.p0', 'c>goal'], { premises: ['p'] })
+  const at = (premise, goal) => run({ lemmas, proofs, tests: [{ premises: { p: premise }, goal }] }, use)
+  assert.equal(at('¬∃y. Loves(y, b)', '∀y. ¬Loves(y, b)').pass, true)
+  const clash = at('¬∃y. Loves(y, a)', '∀y. ¬Loves(y, a)')
+  assert.equal(clash.pass, false)
+  assert.match(clash.results[0].errors.get('c').en, /runs the proof from “Proof”, which does not prove it here: a occurs in the open hypothesis/)
 })
 
 test('countermodels: Peirce has none classically, (A → B) → A has one, the quantifier swap has one', () => {
@@ -231,10 +278,16 @@ test('a thing put where a sentence goes waits for a predicate to take it', async
   assert.ok(same(tree, parse('Parent(ann, bo)', { consts: ['ann', 'bo'] })))
 })
 
+// ¬∀x. P(x) ⟹ ∃x. ¬P(x), classically (q-dm's last task): suppose there is no x with ¬P(x); then every x has P(x).
+const NOT_ALL = proof({
+  k: ['impI', { A: '¬∃x. ¬P(x)' }], g: ['allI', { x: 'a' }, 'k'], j: ['impI', { A: '¬P(a)' }, 'g'], i: ['exI', { target: '∃x. ¬P(x)' }, 'j'], mj: ['mp', {}, 'j'], r1: ['raa', {}, 'g'], m2: ['mp', {}, 'k'], r2: ['raa'],
+}, ['j#body>i.a', 'k#body>mj.imp', 'i>mj.a', 'mj>j.body', 'j>r1.nna', 'r1>g.body', 'p>m2.imp', 'g>m2.a', 'm2>k.body', 'k>r2.nna', 'r2>goal'], { premises: ['p'] })
+
 test('a lemma over a quantified letter fits any variable and keeps it', async () => {
   const { lemma } = await import('./proof.js')
   const qdm = lemma({ statement: '∃x. ¬P', premises: ['¬∀x. P'], metas: ['P'] })
-  const got = qdm.eval({ p0: { formula: parse('¬∀y. D(y)'), hyps: new Map(), term: null } }, { type: 'qdm', params: {} }, {})
+  const proofs = { qdm: { '': provenBy({ premises: { p: '¬∀x. P(x)' }, goal: '∃x. ¬P(x)' }, NOT_ALL) } }
+  const got = qdm.eval({ p0: { formula: parse('¬∀y. D(y)'), hyps: new Map(), term: null } }, { type: 'qdm', params: {} }, { proofs })
   assert.ok(same(got.formula, parse('∃y. ¬D(y)')))
   assert.ok(lemmaGives({ statement: '∃x. ¬P', premises: ['¬∀x. P'], metas: ['P'] }, [parse('¬∀z. R(z, z)')], parse('∃z. ¬R(z, z)')))
 })
@@ -255,9 +308,12 @@ test('a lemma of several shapes computes as the shape its card is switched to', 
     { key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] },
   ] })
   const j = (f) => ({ p0: { formula: parse(f), hyps: new Map(), term: null } })
+  // Each shape runs the proof of its own task.
+  const notOr = proof({ na: ['impI', { A: 'A' }], i: ['orI', { other: 'B', side: 'right' }, 'na'], m: ['mp', {}, 'na'], nb: ['impI', { A: 'B' }], i2: ['orI', { other: 'A', side: 'left' }, 'nb'], m2: ['mp', {}, 'nb'], c: ['andI'] }, ['na#body>i.a', 'p>m.imp', 'i>m.a', 'm>na.body', 'nb#body>i2.a', 'p>m2.imp', 'i2>m2.a', 'm2>nb.body', 'na>c.a', 'nb>c.b', 'c>goal'], { premises: ['p'] })
+  const proofs = { dm: { notOr: provenBy({ premises: { p: '¬(A ∨ B)' }, goal: '¬A ∧ ¬B' }, notOr), notAll: provenBy({ premises: { p: '¬∀x. P(x)' }, goal: '∃x. ¬P(x)' }, NOT_ALL) } }
   assert.deepEqual(dm.forms, ['notOr', 'notAll'])
-  assert.ok(same(dm.eval(j('¬(Rain ∨ Wind)'), { type: 'dm', params: {} }, {}).formula, parse('¬Rain ∧ ¬Wind')))
-  assert.ok(same(dm.eval(j('¬∀y. D(y)'), { type: 'dm', params: { form: 'notAll' } }, {}).formula, parse('∃y. ¬D(y)')))
+  assert.ok(same(dm.eval(j('¬(Rain ∨ Wind)'), { type: 'dm', params: {} }, { proofs }).formula, parse('¬Rain ∧ ¬Wind')))
+  assert.ok(same(dm.eval(j('¬∀y. D(y)'), { type: 'dm', params: { form: 'notAll' } }, { proofs }).formula, parse('∃y. ¬D(y)')))
   assert.ok(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), ['notAll']))
   assert.equal(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), []), false)
 })

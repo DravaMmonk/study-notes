@@ -2203,6 +2203,11 @@
       "version": 79,
       "why": "Version 79 ran the gates the player built as the boards that built them: whoever solved a level has its board as the gate’s.",
       "ops": [{ "built": ["g-or", "g-imp", "g-iff"] }]
+    },
+    {
+      "version": 80,
+      "why": "Version 80 ran each lemma as the proof that proved it, a level of tasks keeping each task’s board: whoever solved a level that proves a lemma has its boards as the lemma’s.",
+      "ops": [{ "built": ["k", "s", "chain", "swap", "twice", "demorgan", "q-dm", "c-dneg", "c-arrow", "c-dist", "au-iff", "au-resolve", "kk-one", "raa"] }]
     }
   ]
 }

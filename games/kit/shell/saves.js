@@ -10,8 +10,11 @@
 //                                            a part was built from (built)
 //   { tasks: (passed, level id) → passed }  how many tasks of a level count passed, rewritten (tasks taken out of a
 //                                            level; 0 drops the count)
-//   { built: [level id…] }                   for each of these levels solved, the board it keeps (its last task's)
-//                                            becomes the board its part runs (built), as solving it now records
+//   { built: [level id…] }                   for each of these levels solved, the board it keeps becomes the board
+//                                            its part runs (built), as solving it now records: a level of tasks
+//                                            keeps the list of its tasks' boards; a board built kept already stays
+//                                            (a level of tasks' one board, kept before tasks kept their own, is
+//                                            its last task's)
 //   { merge: [level id, [level id…]] }       levels that became the tasks of one level, in order: their boards make
 //                                            its list of task boards, the run of them solved from the first its tasks
 //                                            passed (all of them: the level solved); their other slots are dropped
@@ -52,7 +55,13 @@ const OPS = {
     ...(save.slots && { slots: Object.fromEntries(Object.entries(save.slots).map(([id, s]) => [id, { ...s, list: s.list.map((slot) => ('data' in slot ? { ...slot, data: f(slot.data, id) } : slot)) }])) }),
   }),
   built: (save, ids) => {
-    const boards = ids.filter((id) => (save.solved ?? []).includes(id) && save.data?.[id] != null).map((id) => [id, Array.isArray(save.data[id]) ? save.data[id].at(-1) : save.data[id]]).filter(([, b]) => b)
+    const kept = (id) => {
+      const [data, had] = [save.data?.[id], save.built?.[id]]
+      if (!Array.isArray(data)) return had ?? data
+      if (Array.isArray(had)) return had
+      return data.map((board, k) => (k === data.length - 1 && had ? had : board ?? null))
+    }
+    const boards = ids.filter((id) => (save.solved ?? []).includes(id)).map((id) => [id, kept(id)]).filter(([, b]) => b)
     return boards.length ? { ...save, built: { ...save.built, ...Object.fromEntries(boards) } } : save
   },
   merge: (save, [into, ids]) => {

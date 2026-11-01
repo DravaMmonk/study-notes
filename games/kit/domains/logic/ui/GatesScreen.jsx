@@ -7,9 +7,12 @@ import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, us
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
+import { runBoard } from '../../../engine/boards.js'
+import { openRef } from '../../../shell/refs.js'
+import { PRIMITIVE_GATES, checkGates, countGates, gateParts, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
 import { gateShape } from '../blueprint.js'
 import { syncOwn } from '../built.js'
+import { BuiltTools, edgeParts, edged } from './inside.jsx'
 
 // A truth-circuit level (《证明完毕》, gates.js) on the shared circuit editor: a card for each letter on the left, the
 // sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table, picked in the table itself (no row tabs, whose labels would
@@ -18,7 +21,8 @@ import { syncOwn } from '../built.js'
 // filling it in (../../../shell/usePlayback.jsx, each row a test of no steps): each row's card values and result show
 // in turn, and the run stops on the first row it gets wrong. A `hideTarget`
 // level does not show the target value column; a `blind` one does not show its sentence either: it is a puzzle said in
-// words.
+// words. A gate the player built opens to show the board it runs (read only, each card's value on the row picked): on
+// a desktop its card unfolds, on a phone its sheet shows it, and the components box shows it too (GateInside).
 
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
 const T = (zh, en) => ({ zh, en })
@@ -35,10 +39,14 @@ function gatePartsFor(built, wordOf) {
     // A gate the player built runs the board that built it: a packed part.
     packed: (node) => Boolean(all[node.type]?.built),
     icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : CircuitBoard),
-    cardWidth: (node) => (node.type === 'letter' || node.type === 'out' ? 170 : 140),
+    cardWidth: (node) => (node.type === 'letter' || node.type === 'out' ? 170 : node.open && all[node.type]?.built ? 440 : 140),
     rules: all,
   }
 }
+// What a built gate's card can do: go to the level that builds it, and open the board it runs.
+const builtOf = (gates) => ({ is: (node) => Boolean(gates[node.type]?.built), edit: (type) => openRef('level', gates[type].opens().level.id) })
+// What reaches each of a card's ports on the row picked, by port.
+const insOf = (circuit, node, values) => Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, values.get(w.from)]))
 
 // A saved board still fits: its letters are the level's, and every card is a gate it knows.
 const fits = (circuit, level, parts) => {
@@ -140,9 +148,12 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
       {...playback.dock({ go: tr('逐行运行', 'Run row by row'), done: tr('真值表全部正确', 'Truth table correct') })}
     />
   )
-  const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} /></div>
+  const built = builtOf(level.gates)
+  const toggle = (node) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, open: !n.open } : n)) })
+  const inside = (node) => <GateInside type={node.type} gates={level.gates} ins={insOf(circuit, node, view.values)} phone={phone} />
+  const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} />{!phone && node.open && built.is(node) && inside(node)}</div>
 
-  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types }} scope={level.id} />
+  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types, built, inside }} scope={level.id} />
 
   return (
     <Workbench
@@ -163,6 +174,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
               width={140}
               height={110}
               body={body}
+              head={(node) => <BuiltTools node={node} built={built} onToggle={() => toggle(node)} />}
               cardClass={(node) => `lg-node ${node.type === 'out' && verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}
               wireState={(wire) => (view.values.get(wire.from) !== undefined ? 'live' : 'dead')}
               emptyNote={{ zh: '从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。', en: 'Place a gate from the bar above, then connect a dot on the right of one part to a dot on the left of another.' }}
@@ -184,7 +196,7 @@ function CardValue({ value, error }) {
 }
 
 // The board on a phone: the shared slot board, the truth table under it, and the run bar.
-function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types, scope }) {
+function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types, built, inside, scope }) {
   const [sheet, setSheet] = useState(null) // { node } or { slot }
   const root = useRef(null)
   const scroller = useRef(null)
@@ -213,7 +225,8 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
           <div className="lg-sheet">
             {parts.role(node) === 'part' && <p className="lg-desc">{L(parts.rules[node.type].desc)}</p>}
             {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
+            {built.is(node) && inside(node)}
+            {parts.role(node) === 'part' && <PartActions onEdit={built.is(node) ? () => { setSheet(null); built.edit(node.type) } : null} onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
           </div>
         </Sheet>
       )}
@@ -230,5 +243,57 @@ function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, a
         </Sheet>
       )}
     </PhonePage>
+  )
+}
+
+// The board inside a built gate: its letters are the gate's ports, its output the gate's.
+const insideParts = (gates) => ({ ...gatePartsFor(gates, (name) => ({ zh: name, en: name })), label: (node) => (node.type === 'letter' ? { zh: node.params.name, en: node.params.name } : node.type === 'out' ? T('输出', 'Out') : gatesOf(gates)[node.type]?.name ?? node.type) })
+
+/**
+ * The board a gate the player built runs (gates.js builtGates opens), read only: on a desktop the circuit editor with
+ * the gate's ports on its edges, on a phone the slot board. Fed `ins` (what reaches the gate's ports, by port), each
+ * card shows what it gives; without them (the components box) the board shows how it is wired. A gate on it the player
+ * built opens the same way, here only.
+ */
+export function GateInside({ type, gates, ins = null, phone }) {
+  const [opened, setOpened] = useState(() => new Set())
+  const { circuit, level } = gates[type].opens()
+  const parts = useMemo(() => insideParts(level.gates), [level])
+  const view = useMemo(() => ins && runBoard(circuit, { parts: gateParts(level.gates), bind: ins }), [circuit, level, JSON.stringify(ins)])
+  const built = builtOf(level.gates)
+  const graph = { ...circuit, nodes: circuit.nodes.map((n) => (opened.has(n.id) ? { ...n, open: true } : n)) }
+  const toggle = (node) => setOpened((was) => {
+    const next = new Set(was)
+    if (!next.delete(node.id)) next.add(node.id)
+    return next
+  })
+  const value = (node) => (view ? <CardValue value={node.type === 'out' ? view.outputs.out : view.values.get(node.id)} error={view.errors.get(node.id)} /> : null)
+  const nested = (node) => built.is(node) && <GateInside type={node.type} gates={level.gates} ins={view && insOf(circuit, node, view.values)} phone={phone} />
+  if (phone) {
+    return (
+      <div className="lg-inside-phone" onPointerDown={(e) => e.stopPropagation()}>
+        <div className="lg-inside-scroll">
+          <SlotBoard fixed dense graph={graph} parts={parts} nameOf={(n) => L(parts.label(n))} thumb={value} sinkBody={() => null} onPort={() => {}} onSlot={() => {}} onNode={(id) => built.is(graph.nodes.find((n) => n.id === id)) && toggle({ id })} />
+        </div>
+        {graph.nodes.filter((n) => n.open && built.is(n)).map((n) => <div key={n.id}>{nested(n)}</div>)}
+      </div>
+    )
+  }
+  const shown = edgeParts(parts)
+  return (
+    <div className="lg-inside" onPointerDown={(e) => e.stopPropagation()}>
+      <CanvasEditor
+        readOnly
+        key={type}
+        graph={edged(graph, shown)}
+        parts={shown}
+        width={140}
+        height={110}
+        head={(node) => <BuiltTools node={node} built={built} onToggle={() => toggle(node)} />}
+        body={(node) => (parts.role(node) === 'part' ? <div className="lg-card">{value(node)}{node.open && nested(node)}</div> : null)}
+        cardClass={(node) => (parts.role(node) === 'part' ? 'lg-node' : 'lg-edge')}
+        wireState={(wire) => (view?.values.get(wire.from) !== undefined ? 'live' : 'dead')}
+      />
+    </div>
   )
 }

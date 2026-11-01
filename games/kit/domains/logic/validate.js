@@ -5,8 +5,9 @@
 // `valid` level mixes both. Every letter a level shows has its everyday sentence, and every proof level comes as test
 // cases (course.js). No proof level is one use of a lemma it carries away from done. A truth circuit's reference board
 // gives its sentence on every row, its naive one does not (or breaks its gate budget), and a gate it builds, alone,
-// gives that sentence on every row. A proof that holds parts back (`without`) does not use them, and no reference
-// answer uses a part its level cannot have (but for what its board starts with: a preset names cards of the answer).
+// gives that sentence on every row; so does a lemma, alone, give its statement on the task that proves each of its
+// shapes. A proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level
+// cannot have (but for what its board starts with: a preset names cards of the answer).
 import { formsAt, reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
@@ -15,7 +16,8 @@ import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
 import { counters, extent, structureOf } from './fol.js'
 import { premiseChips } from './ruleLines.js'
-import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
+import { LOGIC_TESTS, RULES, lemmaGives, rulesOf, startProof } from './proof.js'
+import { paramsOf } from '../../engine/forms.js'
 import { checkScript, methodsOf, sentencesOf } from './script.js'
 import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOfLevel, rulePartsOf } from './machine.js'
@@ -196,6 +198,20 @@ export function validate({ levels: given, course, logic }) {
     const alone = { nodes: [...names.map((name) => ({ id: name, type: 'in', params: { name } })), { id: 'x', type: level.builds, params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [...names.map((name) => ({ from: name, to: 'x', port: name })), { from: 'x', to: 'out', port: 'in' }] }
     const run = runLevel(MACHINE_TESTS, level, alone)
     if (!run.pass) out.push({ fail: true, text: `${level.id}: the part ${level.builds}, alone, does not pass the level that builds it` })
+  }
+  // A lemma runs the proof of each of its shapes (course.js lemmaProofs): its card alone, in that shape, fed the
+  // premises of the task that proves it in order and set to the task's own letters, gives the statement on every test.
+  for (const [type, shapes] of Object.entries(logic.proofs ?? {})) {
+    for (const [key, { level }] of Object.entries(shapes)) {
+      const part = rulesOf(level.lemmas)[type]
+      const form = key ? { form: key } : {}
+      const card = { id: 'x', type, params: { ...form, ...Object.fromEntries(paramsOf(part, { params: form }).map((m) => [m, m])) } }
+      const names = Object.keys(level.schema.premises ?? {})
+      const alone = { nodes: [...startProof(level).nodes, card], wires: [...names.map((name, k) => ({ from: name, to: 'x', port: `p${k}` })), { from: 'x', to: 'goal', port: 'in' }] }
+      const run = runLevel(LOGIC_TESTS, level, alone)
+      const failed = run.results.find((r) => !r.pass)
+      if (failed) out.push({ fail: true, text: `${level.id}: the lemma ${type}${key ? ` (${key})` : ''}, alone, does not give its statement: ${keyOf(failed.errors.get('x') ?? failed.checks[0].reason)}` })
+    }
   }
   // An equation a machine level proves is what its every test proves.
   for (const level of levels.filter((l) => l.kind === 'machine' && l.fact)) {

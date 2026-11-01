@@ -24,8 +24,10 @@ export { PHONE, useMedia } from './useMedia.js'
 /**
  * Describe a game for GameShell. Required: id, title, kicker, lede ({ zh, en } pairs), chapters
  * ([{ id, title, track, label?, question?, number?, kicker? }], track: the chapter's level tree from kit/course.js
- * layout), levels ([{ id, chapter, title, kind, requires?, unlocks?, brief?, hint?, after?, note? … }], in play order)
- * and kinds ({ [kind]: { Screen, icon?, label? } }). Optional:
+ * layout), levels ([{ id, chapter, title, kind, requires?, unlocks?, keeps?, brief?, hint?, after?, note? … }], in play
+ * order; `keeps`: whether passing it keeps the board it passed with in progress.built, one a task in a level of tasks,
+ * for a part that runs it, by default when it unlocks something) and kinds ({ [kind]: { Screen, icon?, label? } }).
+ * Optional:
  *
  *   Hero          the map's illustration ({ theme })
  *   power         a first-run dialog { title, lines }

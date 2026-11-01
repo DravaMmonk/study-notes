@@ -10,7 +10,8 @@ import { logicCourse } from './course.js'
 import { parse } from './formula.js'
 import { render } from './notation.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
-import { startProof } from './proof.js'
+import { LOGIC_TESTS, startProof } from './proof.js'
+import { runLevel } from '../../engine/tests.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { migration, savesOf } from './items/migrations.js'
 import { syncOwn } from './built.js'
@@ -136,5 +137,51 @@ test('a gate the player built runs the board it passed with; one that no longer 
   const broken = fromLines(['c = gAnd(Rain, Wind)', 'out <- c'], startGates(builder), gateShape(gates), ['gNot', 'gAnd'])
   assert.deepEqual(or(broken), truth)
   assert.ok(gates.gOr.opens().circuit.nodes.some((n) => n.id === 'n3'))
+  syncOwn({})
+})
+
+test('a lemma runs the proof the player passed its level with, a level of tasks one shape a task', () => {
+  const run = (id, task) => {
+    const one = task === undefined ? level(id) : level(id).tasks[task]
+    return runLevel(LOGIC_TESTS, one, one.solution)
+  }
+  const chain = level('chain')
+  const shape = proofShape(chain.lemmas)
+  const read = (lines, one) => fromLines(lines, startProof(one), shape, Object.keys(shape.rules))
+  // The player's own proof of chain, a detour through ∧: the lemma runs it, and the level built on chain still passes.
+  const own = read(['f = impI[A=A](body: m2) {', '  body {', '    m1 = mp(p, f.body)', '    b = andI(m1, m1)', '    e = andE(b)', '    m2 = mp(q, e.left)', '  }', '}', 'goal <- f'], chain)
+  assert.equal(runLevel(LOGIC_TESTS, chain, own).pass, true)
+  syncOwn({ chain: own })
+  assert.equal(course.proofs.chain[''].board(), own)
+  assert.equal(run('mergeUse').pass, true)
+  // A kept proof that does not prove chain's statement: the level built on it cannot pass, and says why.
+  syncOwn({ chain: read(['f = impI[A=A](body: m1) {', '  body {', '    m1 = mp(p, f.body)', '  }', '}', 'goal <- f'], chain) })
+  const broken = run('mergeUse')
+  assert.equal(broken.pass, false)
+  assert.match(broken.results[0].errors.get('c').zh, /^「串联」照「接起来」一关的证明来证，在这里证不出/)
+  // Arrow's two shapes are the two tasks of c-arrow: au-iff's first task runs the first one's board alone.
+  const empty = (one) => ({ nodes: startProof(one).nodes, wires: [] })
+  const [elim, intro] = level('c-arrow').tasks
+  syncOwn({ 'c-arrow': [null, empty(intro)] })
+  assert.equal(course.proofs.arrow.elim.board(), elim.solution)
+  assert.equal(run('au-iff', 0).pass, true)
+  syncOwn({ 'c-arrow': [empty(elim), null] })
+  assert.equal(run('au-iff', 0).pass, false)
+  assert.equal(run('au-iff', 1).pass, true)
+  syncOwn({})
+})
+
+test('an old save keeps the boards of the levels that proved its lemmas', () => {
+  const { migrate } = migrations(savesOf(QED.saves))
+  const board = (n) => ({ nodes: [{ id: `n${n}` }], wires: [] })
+  // Version 79 kept one board for a level of tasks (its last task's), and data for every task.
+  const saved = migrate({ version: 79, solved: ['demorgan', 'chain'], data: { demorgan: [board(1), board(2), board(3), board(4)], chain: board(5) }, built: { demorgan: board(6), chain: board(7) } })
+  assert.deepEqual(saved.built.demorgan, [board(1), board(2), board(3), board(6)])
+  assert.deepEqual(saved.built.chain, board(7))
+  syncOwn(saved.built)
+  assert.deepEqual(course.proofs.dm.andNot.board(), board(2))
+  assert.deepEqual(course.proofs.dm.notAnd.board(), board(6))
+  // A lemma level solved with no board kept runs the reference proof.
+  assert.equal(course.proofs.lem[''].board(), level('raa').tasks[1].solution)
   syncOwn({})
 })

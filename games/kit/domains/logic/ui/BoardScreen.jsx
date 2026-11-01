@@ -15,9 +15,10 @@ import { SentenceButton } from './SentencePick.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt, openedAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
-import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { MACHINE_PARTS } from '../machine.js'
 import { syncOwn } from '../built.js'
+import { BuiltTools, edgeParts, edged } from './inside.jsx'
 
 // A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
 // judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says how each runs, is judged and
@@ -450,26 +451,6 @@ function phoneFaces({ board, parts, view, text, scene }) {
   return { thumb, sinkBody }
 }
 
-// The board a built part runs, as it shows inside the part on a desktop: its inputs and its result are not cards but
-// the part's own ports, drawn small (lg-edge) on the board's left and right edges, beside the parts they feed or come
-// from, so a wire from an input or to the result still shows how the part is wired and in what order.
-function edged(circuit, parts) {
-  const isEnd = (n) => parts.role(n) !== 'part'
-  const placed = circuit.nodes.filter((n) => !isEnd(n) && !n.in)
-  if (!placed.length) return circuit
-  const x0 = Math.min(...placed.map((n) => n.x))
-  const x1 = Math.max(...placed.map((n) => n.x + (parts.cardWidth?.(n) ?? 160)))
-  const y0 = Math.min(...placed.map((n) => n.y))
-  let [ins, outs] = [0, 0]
-  const nodes = circuit.nodes.map((n) => {
-    if (!isEnd(n)) return n
-    return parts.role(n) === 'source' ? { ...n, x: x0 - 150, y: y0 + 60 * ins++ } : { ...n, x: x1 + 60, y: y0 + 60 * outs++ }
-  })
-  return { ...circuit, nodes }
-}
-// The parts of such a board: its inputs and result are narrow.
-const edgeParts = (parts) => ({ ...parts, cardWidth: (n) => (parts.role(n) === 'part' ? parts.cardWidth?.(n) : 90) })
-
 // On a phone, the board a built part runs, in the part's sheet: the phone's slot board, read only, in a window of a
 // fixed height that scrolls, each block showing what it gives in the part's latest run so far and the block the
 // current step is in lit (and scrolled to). Tapping a block opens its own sheet over this one (its description and
@@ -526,18 +507,6 @@ function InsidePhone({ path, built, board }) {
         box.current?.closest('.ph-scrim')?.parentElement ?? document.body,
       )}
     </div>
-  )
-}
-
-// A built part's tools in its card's header: edit (go to the level that builds it) and unfold the card to show the board
-// it runs (on a phone, the part's sheet shows it).
-function BuiltTools({ node, built, onToggle }) {
-  if (!built.is(node)) return null
-  return (
-    <>
-      <button type="button" className="node-tool" aria-label={tr('编辑', 'Edit')} title={tr('在搭出它的关卡中编辑', 'Edit in the level that builds it')} onPointerDown={(e) => e.stopPropagation()} onClick={() => built.edit(node.type)}><Pencil size={12} /></button>
-      <button type="button" className="node-tool" aria-pressed={Boolean(node.open)} aria-label={node.open ? tr('折叠', 'Collapse') : tr('展开', 'Expand')} onPointerDown={(e) => e.stopPropagation()} onClick={onToggle}>{node.open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}</button>
-    </>
   )
 }
 

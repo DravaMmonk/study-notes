@@ -142,20 +142,27 @@ export default function GameShell({ game }) {
 
   // What a level screen can do to the shell.
   const save = (data) => setProgress((p) => ({ ...p, data: { ...p.data, [level.id]: tasks ? Object.assign(Array.from({ length: tasks.length }, (_, k) => (Array.isArray(p.data[level.id]) ? p.data[level.id][k] ?? null : null)), { [taskAt]: data }) : data } }))
+  // The board that passed a level whose board a part runs (`keeps`, by default a level that builds a part): the part
+  // runs it from now on. A level of tasks keeps one a task, as it saves them.
+  const keep = (p) => {
+    const board = tasks ? p.data[level.id]?.[taskAt] : p.data[level.id]
+    if (!(level.keeps ?? level.unlocks?.length) || !board) return p.built
+    if (!tasks) return { ...p.built, [level.id]: board }
+    const kept = Array.isArray(p.built[level.id]) ? p.built[level.id] : []
+    return { ...p.built, [level.id]: Object.assign(Array.from({ length: tasks.length }, (_, k) => kept[k] ?? null), { [taskAt]: board }) }
+  }
   const solve = (score) => {
     if (tasks && taskAt < tasks.length - 1) {
-      setProgress((p) => ({ ...p, tasks: { ...p.tasks, [level.id]: Math.max(tasksDone(level.id, p), taskAt + 1) } }))
+      setProgress((p) => ({ ...p, built: keep(p), tasks: { ...p.tasks, [level.id]: Math.max(tasksDone(level.id, p), taskAt + 1) } }))
       setTaskWon(taskAt)
       setFailure(null)
       return
     }
     setProgress((p) => {
       const best = p.best[level.id]
-      // The board that passed a level that builds a part: the part runs it from now on.
-      const board = tasks ? p.data[level.id]?.[tasks.length - 1] : p.data[level.id]
       return {
         ...p,
-        ...(level.unlocks?.length && board ? { built: { ...p.built, [level.id]: board } } : {}),
+        built: keep(p),
         solved: [...new Set([...p.solved, level.id])],
         flags: [...new Set([...p.flags, ...(level.unlocks ?? [])])],
         best: score && game.better(score, best) ? { ...p.best, [level.id]: score } : p.best,

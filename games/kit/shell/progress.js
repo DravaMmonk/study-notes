@@ -2,7 +2,8 @@
 //
 //   { version, solved: [levelId], flags: [flag], data: { [levelId]: anything the level keeps },
 //     slots: { [levelId]: the level's other saved boards (slots.js) }, best: { [levelId]: score }, tasks: { [levelId]: tasks passed },
-//     built: { [levelId]: the board that last passed a level that builds a part (the part runs it) },
+//     built: { [levelId]: the board that last passed a level whose board a part runs (a level of tasks: a list, one
+//              board a task) },
 //     seenPower, introSeen: { [levelId]: true }, all }
 //
 // A game's own `progress.migrate(saved)` brings an older save (its own version numbers, or an older key it read

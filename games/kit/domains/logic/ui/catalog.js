@@ -54,6 +54,8 @@ export function partsFor(lemmas = {}, premises = []) {
       return RULE_TEXT[node.type]?.ports?.[port] ?? ''
     },
     family: (node) => (node.type === 'goal' ? 'end' : node.type === 'premise' ? 'given' : familyOf(lemmas, node.type)),
+    // A lemma runs the proof that proved it (../proof.js lemma): a packed part, unless it runs as a kit card (`card`).
+    packed: (node) => Boolean(lemmas[node.type] && !lemmas[node.type].card),
     icon: (node) => (node.type === 'goal' ? Flag : node.type === 'premise' ? ArrowRightFromLine : iconOf(lemmas, node.type)),
     // A box gives its conclusion, and inside each region the assumption it makes.
     outputs: (node) => {
