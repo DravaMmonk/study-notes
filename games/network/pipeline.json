@@ -31,6 +31,35 @@
           ],
           "report": "I wrote the era-1 blueprint to `network/blueprint.json` through the operation set, and `./gate` is clean: no failures. What's left are 4 `bp-lonely` and 6 `bp-open` findings, which the audit only reports for a person to judge.\n\n## Shape of the course\nThere is one era, era 1 \"一根线 / One wire\". Its machine is `one-wire`, with a single ability, `wire`: point-to-point, a bit a tick, some delay, and 0 when nobody speaks. It has 9 main-path series and 19 main-path levels, plus one optional challenge, so 20 levels in all.\n\n| Series | Levels | New idea → part built |\n|---|---|---|\n| 传话 | 1-1 | tick |\n| 选一路 | 1-2, 1-3 | choice (adds select, const) → **xor** |\n| 记住 | 1-4, 1-5 | memory (adds reg, keep) |\n| 数拍 | 1-6 | counting (adds add) → **counter** |\n| 一个字节 | 1-7, 1-8 | binary (adds bit, equal) → **serializer**, **deserializer** |\n| ∥ 起始位 | 1-9, 1-10 | start-bit |\n| ∥ 旗标 | 1-11 to 1-13 | flag, stuffing → **framer**, **deframer** |\n| 线会出错 | 1-14 to 1-17 | error-detection (parity), poly-division → **crc** |\n| 一块网卡 | 1-18, 1-19 | layer → **nic**; 1-19 is a relay built from two cards |\n| Challenge 改回来 (after 1-16) | 1-20 | Use the CRC remainder to correct a flipped bit, not just detect it. A 1011 generator over 7 bits is a Hamming code. Naive answer: pass the data bits through unchanged. |\n\nChanges from the course's design doc, each with its reason written into the blueprint:\n- **Fewer primitives.** XOR is built from select. Concat is dropped: a byte is gathered by doubling and adding with `add`, which also teaches binary place values.\n- **Era 0 is deferred.** Neither the domain nor the blind-play harness can run manual levels. Its two-states lesson goes into 1-1 and binary numbers into 1-7 and 1-8. The character table moves to era 9 and the length prefix to era 5, the first places each is indispensable.\n- **The 晚到 bench is deferred to era 2.** At one bit a tick, transmission time doesn't matter yet.\n- **The 数据里正好有旗标 challenge is dropped.** That situation is exactly the wall of the bit-stuffing level (1-12). As a challenge it would need a new idea.\n- **The doc's N1–N3 levels are cut.** They would redo 1-7 to 1-17 with nothing new to vary.\n\n## Requests (all `domain`, all open)\n1. **wires:** point-to-point wires with delay, and a topology that says which ends the board hears and says on. The relay levels need separate wires in and out.\n2. **parts:** the primitives select, add, equal and bit-of.\n3. **wants:** outputs checked tick by tick, checked by order of values only, and a decoder at the far end that judges a sender by what arrives rather than by exact timing.\n4. **pull:** an input queue the board pulls bytes and frames from. A sender that spends 8 or more ticks per byte has to ask for the next one.\n5. **noise:** the wire flips bits, either at scripted ticks (for hidden tests) or at random by a seed.\n6. **card-ports:** a built part exposes its line and say cards as ports, and one board can run at both ends of a wire. The network card (1-18) and the relay (1-19) need this.\n\n## REPORT findings left as they are\n- **`bp-lonely` on 1-1 (tick):** passing a bit on is the bare tick, with nothing to vary. 1-2 practises it straight away.\n- **`bp-lonely` on 1-6 (counting):** every level from 1-7 on stands on the counter. A separate practice level would be padding.\n- **`bp-lonely` on 1-11 (flag):** spotting a flag gets its follow-up in 1-12 and 1-13, inside the same series.\n- **`bp-lonely` on 1-14 (parity):** parity is a one-off lesson. Its failure, two flipped bits slipping through, is the reason for the CRC level that follows.\n- **`bp-open` ×6:** these are the six requests above, waiting for the domain step to resolve them.\n\n## What I'm unsure of\n- **The challenge (1-20).** Finding which bit flipped may turn out to be tedious wiring (seven comparisons, or shifting the CRC on) rather than one \"aha\". The level designer should check that.\n- **Several ports for one part.** Packed parts whose ports are line and say cards (a node holding several cards) is the riskiest request. If it's declined, 1-19 falls back to a single card.\n- **Bit order.** I chose most-significant bit first, so receiving can double and add. Real UARTs send the least significant bit first.\n- **Parallel set.** Nothing later uses the start-bit branch. It stands as the era's first answer to \"where does it start\", but it could also become an optional branch if the domain or play-testing suggests that.",
           "transcript": "/tmp/pipeline-network-blueprint-ajHKp6/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-01T13:56:33.769Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 513678,
+            "seconds": 114,
+            "cost": 0.5032459,
+            "turns": 14
+          },
+          "calls": {
+            "op": {
+              "runs": 3,
+              "failed": 1
+            },
+            "check": {
+              "runs": 0,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 2,
+              "failed": 0
+            }
+          },
+          "changes": [
+            3
+          ],
+          "report": "I've revised slots 1-18 and 1-19 so they ask only what the domain can do. The gate is clean apart from four REPORT findings that were already there. I didn't run `./check`.\n\n**What changed**\n- **1-18 \"A network card\":** the card no longer runs at both ends of a wire. One card is tested in both directions at once: frames from the queue go out on the outgoing wire, and intact frames from the incoming wire go up. This is the replacement the domain's note suggests. The idea (`layer`) and the part it builds (`nic`) are unchanged.\n- **1-19 \"Relay\":** this was a store-and-forward relay that dropped bad frames, which means holding a whole frame. It is now a relay that passes each frame from the left card to the right card one byte at a time, without waiting for the whole frame. It is still a combine practice slot, and it still uses `nic`, so the card built at 1-18 is used later. Its `uses` adds `reg`, `keep` and `select`: the relay holds one byte until it knows whether the next byte is coming or the frame has ended, because the right card has to be told which byte is a frame's last when it takes it.\n\nNothing else changed, and the request entries are as they were.\n\n**Course shape:** one era (\"One wire\"), 10 series (one of them a challenge after 1-16, and two parallel series for start bits and flags), 20 slots from 1-1 to 1-20.\n\n**REPORT findings left as they are** (tick at 1-1, counting at 1-6, flag at 1-11, error-detection at 1-14): each of these ideas is practised in the very next slot, but that slot brings the next idea itself, so the audit doesn't count it. The revision was told to change nothing else, and adding filler practice would go against \"never pad\".\n\n**What I'm unsure of**\n- **Errors on the relay's left wire.** If the left wire flips bits, the right card adds a fresh check over the damaged bytes, so the far end would see a bad frame as intact. The left wire in 1-19 therefore needs no flips; with none, \"only intact frames\" is the same as \"all frames\". The level designer needs to know this.\n- **Timing in 1-19.** By my estimate, the opening flag gives about one byte of slack before the right card needs its next byte. The relay should need only one byte held, which is well short of a frame, but the reference answer has to confirm this.\n- **The card's queue ports.** I'm assuming the built `nic` exposes its queue inputs and its take-next output as ports, so the relay board can feed the right card from the left one. The domain note only mentions wires becoming ports. If the queue ports aren't exposed, 1-19 can't be built, and the domain step would need a request for that.",
+          "transcript": "/tmp/pipeline-network-blueprint-9VNg2y/transcript.jsonl"
         }
       ],
       "gates": [
@@ -100,6 +129,37 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-01T13:56:33.776Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-lonely",
+              "at": "1-1",
+              "says": "tick has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1-6",
+              "says": "counting has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1-11",
+              "says": "flag has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1-14",
+              "says": "error-detection has no practice slot before the next idea",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -141,6 +201,12 @@
               "says": "A board that builds a part exposes its line and say cards as the part's ports, so one node can hold several (two cards in a relay); a level may run the player's board at both ends of a wire, each copy with its own registers."
             }
           ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-01T13:54:23.021Z",
+          "ok": true,
+          "failures": [],
           "reports": []
         }
       ]

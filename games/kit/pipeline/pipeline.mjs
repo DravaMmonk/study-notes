@@ -97,7 +97,7 @@ async function run(step, state) {
   const model = option('--model') ?? 'claude-opus-5-5'
   const work = mkdtempSync(resolve(tmpdir(), `pipeline-${game}-${step.id}-`))
   for (const c of step.commands) {
-    writeFileSync(resolve(work, c), `#!/bin/sh\ncd ${JSON.stringify(VIEWER)} && ${COMMANDS[c].run(step.id)}\ns=$?\necho "${c} $s $*" >> ${JSON.stringify(resolve(work, 'calls.log'))}\nexit $s\n`)
+    writeFileSync(resolve(work, c), `#!/bin/sh\nexport INIT_CWD="$(pwd)"\ncd ${JSON.stringify(VIEWER)} && ${COMMANDS[c].run(step.id)}\ns=$?\necho "${c} $s $*" >> ${JSON.stringify(resolve(work, 'calls.log'))}\nexit $s\n`)
     chmodSync(resolve(work, c), 0o755)
   }
   const content = readContent(game)

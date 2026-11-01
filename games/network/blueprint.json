@@ -575,8 +575,8 @@
               "id": "1-18",
               "title": { "zh": "一块网卡", "en": "A network card" },
               "task": {
-                "zh": "搭一块网卡：上面交来的帧带上校验码送到线上，线上收到的完好的帧交给上面；线的两头装着同一块网卡。",
-                "en": "Build a network card: frames handed down go on the wire with their check, and intact frames off the wire go up; the same card sits at both ends of the wire."
+                "zh": "搭一块网卡：上面交来的帧带上校验码送到出去的线上，进来的线上收到的完好的帧交给上面；两个方向同时在走。",
+                "en": "Build a network card: frames handed down go out on the outgoing wire with their check, and intact frames off the incoming wire go up; both directions run at once."
               },
               "role": "foundation",
               "idea": "layer",
@@ -585,14 +585,14 @@
             },
             {
               "id": "1-19",
-              "title": { "zh": "中继", "en": "Relay" },
+              "title": { "zh": "接力", "en": "Relay" },
               "task": {
-                "zh": "两根线之间装两块网卡，把左边收到的完好的帧从右边转发出去。",
-                "en": "Put two network cards between two wires and forward every intact frame from the left wire onto the right."
+                "zh": "两根线之间装两块网卡：左边线上来的帧，一个字节一个字节地交给右边的网卡送出去，不等整帧收完。",
+                "en": "Put two network cards between two wires and pass each frame from the left wire on to the right one byte at a time, without waiting for the whole frame."
               },
               "role": "practice",
               "dimension": "combine",
-              "uses": ["wire", "nic", "layer"]
+              "uses": ["wire", "nic", "layer", "reg", "keep", "select"]
             }
           ]
         },
@@ -639,7 +639,11 @@
         "en": "Point-to-point wires: each carries the bits one end says to the other end d ticks later, 0 when nobody speaks; a level names its wires and which end the board hears or says on, world nodes at the far ends say or hear the test's bits, and the board has a line card per incoming wire and a say card per outgoing one."
       },
       "for": ["1-1", "1-3", "1-19"],
-      "status": "open"
+      "status": "done",
+      "note": {
+        "zh": "做成了：关卡写 wires.in 和 wires.out，每根线一张进线、出线元件，带 delay；进线上到达的位由测试定（线那头不回听），所以板这一拍可以说它这一拍听到的。",
+        "en": "Done: a level writes wires.in and wires.out, a wire-in or wire-out card each, with a delay; what arrives on a wire in is fixed by the test (the far end does not listen back), so a board may say this tick what it hears this tick."
+      }
     },
     {
       "id": "parts",
@@ -649,7 +653,11 @@
         "en": "The primitives select, add, equal and bit-of (bit i of an 8-bit number from the top), giving 「—」 for 「—」."
       },
       "for": ["1-2", "1-6", "1-7"],
-      "status": "open"
+      "status": "done",
+      "note": {
+        "zh": "做成了：select、add、equal、bit（取位），加上 reg、keep、const。",
+        "en": "Done: select, add, equal and bit (bit of), with reg, keep and const."
+      }
     },
     {
       "id": "wants",
@@ -659,7 +667,11 @@
         "en": "What outputs must be: values fixed tick by tick (「—」 included); the order of the non-「—」 values, timing aside; and what a world node at the far end decodes by an agreed format (raw bits, start/stop, flags, flags with CRC), which must equal what was to be sent."
       },
       "for": ["1-6", "1-7", "1-8", "1-9", "1-10", "1-12", "1-13", "1-16", "1-17", "1-19"],
-      "status": "open"
+      "status": "done",
+      "note": {
+        "zh": "做成了：每一拍的项（echo、opposite、differ、late、heard、count、serial、pattern、remainder、decoded、intact，以及测试里写定的 given）、不论时机的项（bytes、ends）和线那头的项（sent、relayed）；格式有 bytes、startstop、parity、check、blocks、flag、flagcheck。",
+        "en": "Done: items checked tick by tick (echo, opposite, differ, late, heard, count, serial, pattern, remainder, decoded, intact, and given for values a test writes out), items checked in order timing aside (bytes, ends), and the far end's (sent, relayed); the formats are bytes, startstop, parity, check, blocks, flag and flagcheck."
+      }
     },
     {
       "id": "pull",
@@ -669,7 +681,11 @@
         "en": "An input the board pulls from: the level gives a list of bytes (possibly in frames); when the board asks for the next one, it appears on the input the following tick, 「—」 once used up, with frame boundaries marked."
       },
       "for": ["1-10", "1-12", "1-16", "1-18"],
-      "status": "open"
+      "status": "done",
+      "note": {
+        "zh": "做成了：关卡的 pulls 说哪个输入是队首、哪个输入标出一帧的最后一个字节、哪个输出取走它；测试的 queue 是一列帧。",
+        "en": "Done: a level's pulls names the input showing the head of the queue, the input marking a frame's last byte, and the output that takes it; a test's queue is a list of frames."
+      }
     },
     {
       "id": "noise",
@@ -679,7 +695,11 @@
         "en": "A wire that flips bits: a test may name the ticks at which it flips (for hidden tests) or flip at random by an error rate with a seed, run over several seeds."
       },
       "for": ["1-14", "1-15", "1-17", "1-18", "1-19", "1-20"],
-      "status": "open"
+      "status": "done",
+      "note": {
+        "zh": "按写定的拍做成了（测试的 flips）；随机的错误率和种子不做：隐藏测试里写定的翻转已经能抓住 naive 解，种子只会让一关的结果不可复现。",
+        "en": "Done for scripted ticks (a test's flips); a random error rate with seeds is declined: flips written into the hidden tests already catch the naive answers, and seeds would only make a level's result harder to reproduce."
+      }
     },
     {
       "id": "card-ports",
@@ -689,7 +709,11 @@
         "en": "A board that builds a part exposes its line and say cards as the part's ports, so one node can hold several (two cards in a relay); a level may run the player's board at both ends of a wire, each copy with its own registers."
       },
       "for": ["1-18", "1-19"],
-      "status": "open"
+      "status": "done",
+      "note": {
+        "zh": "线就是板的口：搭出的元件把它那一关的进线、出线当作自己的输入、输出，一块板上放几个，各有各的寄存卡。两项不做：在线的两头各跑一份玩家的板（一关同时测两个方向——队列里的帧从出线发出，进线上的帧交到输出——已经测到它，不另跑一份）；把一帧整个存下再转发（第一代没有能存下一帧的元件，队列是第二代的事）：一关不能要求两块网卡之间存下一整帧再转发。",
+        "en": "Wires are the board's ports: a built part takes the wires of its level as inputs and outputs of its own, and several on one board each keep their own registers. Two things are declined: running a copy of the player's board at the far end (a level that tests both directions at once — frames from the queue out on the wire out, frames on the wire in up to the outputs — already covers it); and holding a whole frame between two cards to forward it (no part in era 1 holds a frame; the queue belongs to era 2): no level may need two cards to store a whole frame and forward it."
+      }
     }
   ],
   "deferred": [

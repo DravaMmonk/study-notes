@@ -641,6 +641,32 @@ npm run op -- <游戏> log                                    看修改日志
 
 **studio**（`npm run studio`，第 6.7 节）：同一组工具开在开发服务器上，人在一个页面上走完上面的流程。读一章（点章名，每一关的文字依次排开）、改文字和字段（表单）、挪关（拖到树上的槽位）、改板（表单里的蓝图，或者在游戏的电路编辑器里改完点「用作 …」）；每改一处就是待定变更集里的一个操作，审计栏随即重算，试玩页签玩的就是改过的内容；最后在「变更」页签里逐个看操作、存档迁移和每个文件的字段级 diff，写一句为什么，应用；修改日志里的最后一次可以撤销。agent 交来的变更集（`{ why, ops }` 的 JSON 文件，MCP 的 `modify` 收的那种）在「变更」页签里打开，就成了待定的变更集：一样能读、能改、能玩，再应用或放弃；agent 已经写进去的修改在修改日志里，同样能撤销。
 
+### 7.2 agent 流水线
+
+**一个新专题由 agent 一步步做出来，每一步一份 brief、一道闸门**（方向见 `games/DIRECTION.md` 第 4 节）。流水线对所有专题都一样，放在 `kit/pipeline/`：每一步的 brief（`steps/<步>.md`，给做这一步的 agent 读的全部要求）、每一步读什么写什么和它的闸门（`steps.js`）、课程蓝图的 schema 和审计（`blueprint.js`）、文案 lint（`lint.js`）、命令 `npm run pipeline`（`pipeline.mjs`）。每一步的产物都是内容层的数据，经操作集写进去（第 7.1 节）；闸门的每一条失败都叫得出一条规则。
+
+| 步 | 谁做 | 读 | 写 | 闸门 |
+|---|---|---|---|---|
+| `blueprint` | 课程设计 agent | 课程资料（游戏文件夹里的设计文档）、手册第 1、2、6.5、8 节、领域的词汇表 | `blueprint.json`（`blueprint.put`、`blueprint.set`） | 蓝图审计（`bp-…`，下面） |
+| `domain` | 工程师（代码，决策三的内核权限） | 蓝图的 `requests`、`mechanisms` | 领域代码；每条需求的状态（`done`，或 `declined` 带 `note`） | 没有还开着的需求；领域契约（第 6.3 节）；`check`；领域的单元测试 |
+| `levels` | 关卡设计 agent | 蓝图、词汇表、手册第 2、4、5 节 | 关卡、`eras`、`primitives`（`level.add`、`game.set`……） | `check` 清零（参考解通过、naive 解失败、审计全开）；关卡合蓝图（下面） |
+| `copy` | 文案 agent | 蓝图（每个想法撞上的墙）、关卡、手册第 1、4 节 | 全部文字和百科（`text.set`、`glossary.put`……） | `check`；合蓝图；文案 lint（`copy-…`，下面） |
+| `review` | 评审 agent | 手册和 skill 的两张核对单、整款游戏 | 只写发现（它最后交出的 JSON：在哪、归哪一步、违反哪一条、`fix` 要不要改） | 最后一次评审没有还没解决的 `fix` |
+| `blind` | 盲玩 agent（第 6.6 节） | 只有玩家看得到的 | `playtests/` | 每关都有人玩过；每个放弃和每个突起都写了原因（`npm run pipeline -- <游戏> explain`） |
+| `queue` | — | — | 评审队列里的一项（`pipeline.json` 的 `review`：这款游戏修改日志里的变更集） | 上面每一道闸门此刻都还清零 |
+
+**一个 agent 只拿到它这一步的东西。** `npm run pipeline -- <游戏> run <步>` 起一个新的 `claude -p`，在一个空的临时目录里：brief 加上这一步的输入（文件的路径、上一次没过的闸门、评审留给这一步要改的发现、这一次的范围 `--scope`），能读任何文件，只能在自己的目录里写，只能运行这一步的几个命令（`./op` 跑变更集，`./check`，`./gate` 这一步的闸门，`./deps`，`./eras` 蓝图排出的 `eras`，`./lint`；评审没有 `./op`）。跑完记下用量、每个命令跑了几次和失败了几次、写进去的变更集（修改日志的序号）和它的报告，再跑一遍闸门；全部记进 `pipeline.json`。没过就再跑一次：上一次的闸门失败和评审的发现成了下一次的输入。`domain` 这一步是代码，不由内容 agent 做；`blind` 用 `npm run blind`；评审的发现修好以后，用 `npm run pipeline -- <游戏> resolve <k> --why "…"` 记下是哪个变更集修的，或者再评审一次。`status` 列出每一步的闸门和跑过几次，`brief <步>` 打出一个 agent 会拿到的全部文字。
+
+**课程蓝图**（`blueprint.json`，schema 是 `kit/pipeline/blueprint.js` 的 `BLUEPRINT`）：专题、学习者、终点和这一次做到哪（`scope`，往后的写进 `deferred`）；从机制目录里选的机制；机体阶梯（每台机体会什么、缺什么）；每个想法和没有它时撞上的墙；原始元件（每个写明为什么接不出来）和搭出的元件（由什么搭成）；每一章是一串系列（地基、练习、专题、挑战；同一个 `parallel` 的几个系列是一个并行组），每个系列是一串 slot：一个 slot 就是将来的一关，写它的 id、做什么、带来的那一个想法、加的原始元件、搭出的元件、参考解站在哪些元件和想法上（`uses`）、练习变化的是哪个维度（第 2.3 节），挑战写 naive 解；最后是向领域和内核提的需求（决策三的需求通道）。`erasOf` 把它排成 `game.json` 的 `eras`。
+
+**蓝图审计**（`auditBlueprint`）在一关都还没有的时候就按第 1、2 节查编排：`bp-refs`、`bp-unique` 名字都有定义、不重复；`bp-adds-idea` 加原始元件的 slot 写明它带来哪个想法；`bp-placed` 每个原始元件、搭出的元件恰好有一处带来；`bp-order` 一个 slot（和一个搭出的元件）站在的东西，在通向它的每条路上都已经有了（按先修关系，并行组的另一路不算）；`bp-first-use` 想法在带来它的那一关用上，在再来两个想法之前又用上一次；`bp-unused` 搭出的元件后面有人站在它上面；`bp-practice` 一组练习不重复维度、以组合或辨真伪收尾；`bp-branch` 主线上前后两个系列，后一个用不着前一个的任何东西时，该是并行组；`bp-parallel` 并行组两到三路、互不依赖；`bp-abstraction` 一章最后一个系列站在这一章搭出的元件上；`bp-machine` 用到的能力机体会；`bp-challenge` 挑战不带新东西、有 naive 解；`bp-keeps`。只报告、由人判断的：`bp-bare`（只放它带来的东西）、`bp-lonely`（一个想法后面没有练习：要不要，看第 2.3 节）、`bp-open`（还开着的需求）。
+
+**关卡合蓝图**（`conformance`）：每个 slot 恰好一关、`eras` 和 `primitives` 就是蓝图排出的、每关的 `adds`、`builds` 是它的 slot 的、参考解用到 slot 的 `uses` 里的每一个元件、slot 有 naive 解的关也有。
+
+**文案 lint**（`lintCopy`，`check` 已经查两面、链接和按位置指关卡，这里补手册第 4 节能机械看出的）：`copy-banned` 口语、翻译腔和「卡片」「方块」；`copy-ahead` 往后透露；`copy-length` 目标、引言一段、提示、点题的长度上限；`copy-intro-part` 引言一开口就是新元件；`copy-after-part` 点题链接了元件（多半在复述接法）；`copy-brief-why` 目标里讲理由。
+
+**评审队列**：`npm run pipeline -- <游戏> queue` 把每一道闸门再跑一遍，全部清零时在 `pipeline.json` 记下 `review: { status: 'pending', changes: [修改日志的序号…] }`。人在 studio 里评审（第 6.7 节）：修改日志里是 agent 写下的每一个变更集，各带它的「为什么」，能逐个撤销；要改的就地改，成为人自己的变更集。
+
 ---
 
 ## 8. 常见的坑

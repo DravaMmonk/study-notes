@@ -11,6 +11,7 @@
 // the game's schema has room for it); --json prints the result as JSON. A changeset that fails any check is never
 // written, and the command exits 1. GAMES_ROOT points it at a copy of the games folder.
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { OPERATIONS } from './operations.js'
 import { openGame } from './workspace.js'
 import { readLog, runChangeset, undo } from './changeset.js'
@@ -43,7 +44,8 @@ if (what === 'log') {
   for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.ops.map((o) => o.op).join(', ')}  →  ${e.files.join(', ')}${e.step ? `  ·  save version ${e.step.version}` : ''}`)
   process.exit(0)
 }
-const changeset = option('--file') ? JSON.parse(readFileSync(option('--file'), 'utf8')) : what && what !== 'undo' ? { ops: [{ op: what, ...Object.fromEntries(rest.map((kv) => [kv.slice(0, kv.indexOf('=')), value(kv.slice(kv.indexOf('=') + 1))])) }] } : null
+// A changeset file is read from where the command was started (npm sets INIT_CWD there), not from trace-viewer.
+const changeset = option('--file') ? JSON.parse(readFileSync(resolve(process.env.INIT_CWD ?? '.', option('--file')), 'utf8')) : what && what !== 'undo' ? { ops: [{ op: what, ...Object.fromEntries(rest.map((kv) => [kv.slice(0, kv.indexOf('=')), value(kv.slice(kv.indexOf('=') + 1))])) }] } : null
 if (!changeset && what !== 'undo') {
   console.error(`usage: ${USAGE}`)
   process.exit(1)
