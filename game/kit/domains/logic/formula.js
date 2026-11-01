@@ -139,13 +139,16 @@ export function show(f, outer = -1) {
 /* ---------- variables and substitution ---------- */
 
 /**
- * f with each proposition letter in `map` replaced by its formula (a level's test case: A := it rains), and each
- * predicate letter mapped to a bare name renamed (P := Human makes P(x) into Human(x)).
+ * f with each proposition letter in `map` replaced by its formula (a level's test case: A := it rains), each
+ * predicate letter mapped to a bare name renamed (P := Human makes P(x) into Human(x)), and each one mapped to a
+ * property ({ op: 'λ', v, body }, a lemma's letter under a quantifier: proof.js) filled in (P := λy. Loves(y, a) makes
+ * P(b) into Loves(b, a)).
  */
 export function replaceAtoms(f, map) {
   if (f.op === 'atom') {
     const to = map[f.pred]
     if (!to) return f
+    if (to.op === 'λ') return f.args.length === 1 ? subst(to.body, to.v, f.args[0]) : f
     if (!f.args.length) return to
     return to.op === 'atom' && !to.args.length ? atom(to.pred, f.args) : f
   }

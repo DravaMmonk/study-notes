@@ -47,11 +47,6 @@
 .frame-region-head .lg-formula b, .pb-region-head .lg-formula b, .pb-closes .lg-formula b { color: var(--ink); font-weight: 600; }
 .frame-region-result .lg-formula { font-family: var(--sans, inherit); font-size: 11.5px; }
 
-/* ---- the board ---- */
-.lg-stage { display: flex; flex-direction: column; }
-.lg-board { position: relative; flex: 1; min-height: 0; }
-.lg-board > .kit-board { position: absolute; inset: 0; height: auto; margin: 0; }
-
 /* ---- the strip and the brief ---- */
 .lg-strip { display: grid; gap: 6px; }
 .lg-strip.is-tables { gap: 14px; }
@@ -74,15 +69,10 @@
    only ever scrolls one way. */
 .lg-io { min-width: 0; max-width: 100%; font-size: 13px; line-height: 1.4; }
 .lg-io b, .lg-io code { white-space: normal; overflow-wrap: anywhere; }
-.lg-phone .pb-thumb .lg-formula b { font-size: 14px; font-weight: 600; }
-.lg-phone .pb-thumb .lg-chips { gap: 4px; }
-.lg-sheet { display: grid; gap: 14px; }
-.lg-sheet .lg-card { padding: 0; gap: 12px; }
-.lg-sheet .lg-field select { height: 40px; font-size: 16px; }
-.lg-desc { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
-.lg-add { display: grid; gap: 8px; }
-.lg-add button { padding: 10px 12px; display: grid; gap: 2px; text-align: left; border: 0; border-radius: 12px; color: var(--ink); background: var(--canvas); box-shadow: inset 3px 0 0 var(--fam); font: inherit; }
-.lg-add small { color: var(--muted); font-size: 12.5px; }
+.cl-phone.lg-level .pb-thumb .lg-formula b { font-size: 14px; font-weight: 600; }
+.cl-phone.lg-level .pb-thumb .lg-chips { gap: 4px; }
+.cl-sheet .lg-card { padding: 0; gap: 12px; }
+.cl-sheet .lg-field select { height: 40px; font-size: 16px; }
 
 /* ---- truth tables ---- */
 .lg-truth { max-width: 720px; margin: 0 auto; padding: 28px 24px 40px; display: grid; gap: 18px; }
@@ -254,28 +244,10 @@
 .sc-add button:hover { background: var(--hover); }
 .sc-view { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font: 12px/1.6 var(--mono); white-space: pre; overflow-x: auto; color: var(--ink); }
 
-/* The board a built part runs, read only: in its card unfolded, or in its sheet on a phone. */
-.lg-inside { margin-top: 8px; }
-.lg-inside .kit-board { position: relative; height: 300px; border-radius: 10px; }
-.lg-inside .board-zoom { transform: scale(.9); transform-origin: bottom right; }
-
-/* On a phone, a built part's board in its sheet: a window of a fixed height that scrolls; a block on it opens its own
-   sheet, whose settings only show. */
-.lg-inside-phone { margin-top: 8px; }
-.lg-inside-scroll { height: 360px; overflow-y: auto; overscroll-behavior: contain; border-radius: 12px; box-shadow: inset 0 0 0 1px var(--hairline); }
-.lg-readonly :is(select, .lg-rules, .lg-occ button) { pointer-events: none; }
-.lg-readonly .lg-rules :is(select, button) { display: none; }
-
-/* Inside a built part, its inputs and its result are its own ports: on a desktop, small terminals at the board's
-   left and right edges (their name and dot, no card); on a phone, the slot board's top and bottom rows, as thin. */
-.lg-inside .node.lg-edge { padding-bottom: 0; background: none; box-shadow: none; animation: none; }
-.lg-inside .node.lg-edge::before, .lg-inside .node.lg-edge::after { display: none; }
-.lg-inside .node.lg-edge .node-head { min-height: 0; padding: 0 6px; border: 0; color: var(--muted); font-size: 11.5px; }
-.lg-inside .node.lg-edge .family-chip { display: none; }
-.lg-inside .node.lg-edge .node-ports { min-height: 0 !important; }
-.lg-inside-scroll .pb-term { min-height: 0; padding: 6px 8px; background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
-.lg-inside-scroll .pb-term::after, .lg-inside-scroll .pb-term .pb-thumb, .lg-inside-scroll .pb-term .lg-sink { display: none; }
-.lg-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }
+/* The board a built part runs, read only (circuit/Inside.jsx): a sheet over it shows its settings without changing them. */
+.cl-readonly :is(.lg-rules, .lg-occ button) { pointer-events: none; }
+.cl-readonly .lg-rules :is(select, button) { display: none; }
+.cl-inside-scroll .pb-term .lg-sink { display: none; }
 .kit-board.is-readonly .lg-rules :is(select, button) { display: none; }
 
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */

@@ -11,11 +11,11 @@
 // hypotheses open but the premises: which region a card sits in is how the editor keeps it tidy, while the hypotheses
 // on every judgment are what make a proof sound. A rule that does not fit throws a PartError saying what it needed
 // and what reached it.
-import { PartError } from '../../engine/circuit.js'
+import { MISSING, PartError } from '../../engine/circuit.js'
 import { framePart } from '../../circuit/frames.js'
 import { formed } from '../../engine/forms.js'
 import { runBoard, sink, source } from '../../engine/boards.js'
-import { BOT, all, allVars, and, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, subst, substSentence, termsOf, tvar } from './formula.js'
+import { BOT, all, allVars, and, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
 import { cancelOne, disjunction, literalsIn } from './resolution.js'
@@ -341,35 +341,90 @@ export const lemmaUse = (lemmas = {}) => (name, sentences) => {
 }
 
 /**
- * A lemma the player proved, as a rule: from `premises` (schemas, one input each) to `statement`, with schematic
+ * A lemma the player proved, as a part: from `premises` (schemas, one input each) to `statement`, with schematic
  * letters `metas`. A lemma with `forms` ([{ key, label, statement, premises, metas? }]) is one card of several shapes,
- * switched on the card (engine/forms.js); the course says which it offers where. The letters the premises fix come from what is wired in; the others are set on the card. It is
- * sound because the level that built it checked the proof.
+ * switched on the card (engine/forms.js); the course says which it offers where. The letters the premises fix come
+ * from what is wired in; the others are set on the card. Each shape runs the proof that proved it (ctx.proofs, from
+ * course.js): what it gives is what that proof derives for these letters, and a proof that does not derive the
+ * statement for them gives nothing, saying what went wrong. Its proof term is its name applied to its premises'
+ * terms, whatever the proof inside: a named theorem is used by its name.
  */
 export function lemma(l) {
-  if (l.forms) return formed(l.forms.map((f, k) => ({ key: f.key, ...lemmaForm({ metas: l.metas, ...f }, k ? `.${f.key}` : '') })))
-  return lemmaForm(l)
+  if (l.forms) return formed(l.forms.map((f, k) => ({ key: f.key, ...lemmaForm({ name: l.name, metas: l.metas, ...f }, f.key, k ? `.${f.key}` : '') })))
+  return lemmaForm(l, '')
 }
-// One shape of a lemma; its proof term names the card (and the form, for any but the first).
-function lemmaForm({ statement, premises = [], metas }, suffix = '') {
+// The quantifier variable each letter of a schema stands under, if any (in ¬∃x. P, P stands under x).
+function bindersIn(f, out = {}, v = null) {
+  if (f.op === 'meta') { if (v && !out[f.name]) out[f.name] = v }
+  else if (f.op === '¬') bindersIn(f.a, out, v)
+  else if (f.op === '∀' || f.op === '∃') bindersIn(f.body, out, f.v)
+  else if (f.a) { bindersIn(f.a, out, v); bindersIn(f.b, out, v) }
+  return out
+}
+// One shape of a lemma (`key`: its form, '' for a lemma of one shape); its proof term names the card (and the form,
+// for any but the first).
+function lemmaForm({ name, statement, premises = [], metas }, key, suffix = '') {
   const conclusion = parse(statement, { metas })
   const schemas = premises.map((p) => parse(p, { metas }))
   const fixed = new Set(schemas.flatMap((s) => [...metasIn(s)]))
   const open = [...metasIn(conclusion)].filter((m) => !fixed.has(m))
+  const binders = [...schemas, conclusion].reduce((out, f) => bindersIn(f, out), {})
   return {
     inputs: schemas.map((_, k) => `p${k}`),
     params: open,
     lemma: { statement, premises },
     eval: (ins, node, ctx) => {
       const bind = {}
-      schemas.forEach((s, k) => {
+      const given = schemas.map((s, k) => {
         const j = ins[`p${k}`]
         if (!match(s, j.formula, bind)) throw need(ctx, SHAPE.fits, j.formula)
+        return j
       })
       for (const m of open) bind[m] = param(node, m, ctx)
-      return proved(instantiate(conclusion, bind), union(...schemas.map((_, k) => ins[`p${k}`])), schemas.reduce((t, _, k) => papp(t, ins[`p${k}`].term), pconst(`${node.type}${suffix}`)))
+      const use = { type: node.type, key, name: name ?? T(node.type, node.type), bind, binders }
+      const derived = byProof(use, given.map((j) => j.formula), instantiate(conclusion, bind), ctx)
+      return proved(derived, union(...given), given.reduce((t, j) => papp(t, j.term), pconst(`${node.type}${suffix}`)))
     },
   }
+}
+
+/**
+ * What a lemma's shape derives from these sentences by its proof (ctx.proofs[type][key]: { level, board() }, the proof
+ * task that proved the shape and the board to run, course.js), its letters `bind` filled in: the formula, or a
+ * PartError saying why the proof does not derive `want` here. The proof runs as its task runs a test: its premises (by
+ * the task's names, in order) are the sentences wired in, each its own hypothesis, and the task's letters on its cards
+ * are this use's sentences (a letter under a quantifier is the property of the thing there).
+ */
+function byProof({ type, key, name, bind, binders }, givens, want, ctx) {
+  const proof = ctx.proofs?.[type]?.[key]
+  if (!proof) throw fail(`「${name.zh}」还没有证明`, `“${name.en}” has no proof`)
+  if ((ctx.proving ?? []).includes(type)) throw fail(`「${name.zh}」的证明用到了它自己`, `The proof of “${name.en}” uses “${name.en}” itself`)
+  const { level } = proof
+  const circuit = proof.board()
+  const consts = level.consts ?? []
+  const names = Object.keys(level.schema.premises ?? {})
+  const arity = signature([...Object.values(level.schema.premises ?? {}), level.schema.goal].map((t) => parse(t, { consts }))).preds
+  const property = (m, f) => ({ op: 'λ', v: bind[`$${binders[m]}`] ?? binders[m], body: f })
+  const subst = Object.fromEntries(Object.entries(bind).filter(([m]) => !m.startsWith('$')).map(([m, f]) => [m, arity.get(m) && binders[m] ? property(m, f) : f]))
+  const premises = Object.fromEntries(names.map((n, k) => [n, proved(givens[k], new Map([[n, givens[k]]]), pvar(n))]))
+  const goals = circuit.nodes.filter((n) => n.type === 'goal').map((n) => n.id)
+  const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premises, targets: goals, ctx: { consts, notation: ctx.notation, subst, graph: circuit, exists: choicesOf(level).exists, proofs: ctx.proofs, proving: [...(ctx.proving ?? []), type] } })
+  const got = run.outputs.goal
+  const problem = (!got && [...run.errors.values()].find((e) => e !== MISSING)) || closes(got, want, names, ctx.notation)
+  if (!problem) return got.formula
+  // A level of tasks names the task too, unless it is named as the level.
+  const from = level.step && level.step.zh !== level.title.zh ? { zh: `${level.title.zh} · ${level.step.zh}`, en: `${level.title.en} · ${level.step.en}` } : level.title
+  throw fail(`「${name.zh}」照「${from.zh}」一关的证明来证，在这里证不出：${problem.zh}`, `“${name.en}” runs the proof from “${from.en}”, which does not prove it here: ${problem.en}`)
+}
+
+/** Does a proof task's schema ({ premises, goal }, in letters) prove this shape of a lemma: its goal the statement and
+ *  its premises the lemma's, in order, each letter the same letter (P under ∀x the property P(x))? */
+export function provesShape({ statement, premises = [], metas }, schema, consts = []) {
+  const givens = Object.values(schema.premises ?? {}).map((t) => parse(t, { consts }))
+  const bind = {}
+  if (givens.length !== premises.length || !match(parse(statement, { metas }), parse(schema.goal, { consts }), bind)) return false
+  if (!premises.every((p, k) => match(parse(p, { metas }), givens[k], bind))) return false
+  return Object.entries(bind).every(([m, f]) => (m.startsWith('$') ? f === m.slice(1) : f.op === 'atom' && f.pred === m))
 }
 
 /**
@@ -400,9 +455,20 @@ export function closes(judgment, goal, premiseIds, notation = null) {
   return ''
 }
 
+/** The board a proof level starts from: a card for each of its premises (by the names its tests give them), and the goal. */
+export const startProof = (level) => ({
+  nodes: [...Object.keys(level.tests[0].premises ?? {}).map((name, k) => ({ id: name, type: 'premise', params: { name }, x: 20, y: 40 + k * 130 })), { id: 'goal', type: 'goal', params: { name: 'goal' }, x: 900, y: 40 }],
+  wires: [],
+})
+
 /** The rules a level can use: every rule, and its lemmas ({ type: { statement, premises, metas } }). */
-// A lemma whose card is one of the kit's (`card`) runs as that card, which may do more than the shape it was proved in.
-export const rulesOf = (lemmas = {}) => ({ ...RULES, ...Object.fromEntries(Object.entries(lemmas).map(([type, l]) => [type, l.card ? RULES[l.card] : lemma(l)])) })
+// A lemma whose card is one of the kit's (`card`) runs as that card: resolution cancels one pair of literals wherever
+// they stand in clauses of any length, which no one instance of the proof of A ∨ B, ¬A ∨ C ⟹ B ∨ C covers.
+const ruleSets = new WeakMap()
+export const rulesOf = (lemmas = {}) => {
+  if (!ruleSets.has(lemmas)) ruleSets.set(lemmas, { ...RULES, ...Object.fromEntries(Object.entries(lemmas).map(([type, l]) => [type, l.card ? RULES[l.card] : lemma(l)])) })
+  return ruleSets.get(lemmas)
+}
 
 /** A test's premises as judgments, each its own hypothesis (named by the premise). */
 export function premisesOf(test, consts = []) {
@@ -419,7 +485,7 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, premises: premisesOf(test, consts), graph: circuit, exists: choicesOf(level).exists } })
+    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, graph: circuit, exists: choicesOf(level).exists, proofs: level.proofs } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   // A test may ask for the proof's term too (chapter 7): the same up to the names it binds.

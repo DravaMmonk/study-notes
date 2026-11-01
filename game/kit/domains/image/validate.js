@@ -1,12 +1,15 @@
-// The image domain's checks for `npm run check` (../../engine/check.js): every level has an intro whose figures
-// exist, every bench proves its lesson (verify()), and every circuit level keeps hidden tests, cannot be met by a
-// constant, passes with its reference circuit and fails with its naive ones (every task of a level, too). The parts'
-// own text has English too.
+// The image domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): every level
+// has an intro whose figures exist, every bench proves its lesson (its item's verify, items/benches.js), and every
+// circuit level keeps hidden tests, cannot be met by a constant, passes with its reference circuit and fails with its
+// naive ones (every task of a level, too); a level that packs its circuit is passed by that part alone, wired to the
+// level's inputs. The parts' own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
 import { keyOf } from '../../shell/i18n.js'
 import { untranslated } from '../../engine/text.js'
+import { withHidden } from '../../engine/tests.js'
 import { runLevel } from './engine/graph.js'
 import { NODE_TYPES } from './engine/nodes.js'
+import { startBoard } from './engine/board.js'
 import { introProblems } from './intros.js'
 
 // The figures an intro may show: every folder of the notes' figures with a figure.js, under the id its registry
@@ -15,20 +18,22 @@ const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: '
 const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.url)
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
-/** spec: { levels, intros }. Returns [{ text, fail? }]. */
+/** spec: { levels, intros }. Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ levels, intros }) {
   const out = []
-  const fail = (text) => out.push({ text, fail: true })
-  const say = (text) => out.push({ text })
+  const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
+  const sayAt = (text, level) => out.push({ text, ...(level ? { level } : {}) })
 
   const parts = Object.fromEntries(Object.entries(NODE_TYPES).map(([type, spec]) => [type, { label: spec.label, description: spec.description, params: spec.params }]))
-  for (const problem of untranslated(parts, 'parts')) fail(`text ${problem}`)
+  for (const problem of untranslated(parts, 'parts')) failAt(`text ${problem}`)
 
-  for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) fail(`${level.id}: 引言：${problem}`)
+  for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) failAt(`${level.id}: 引言：${problem}`, level.id)
 
   // A level of several tasks is checked task by task, each as a level of its own (`1-11/1`).
-  const played = levels.flatMap((level) => (level.tasks ? level.tasks.map((task, k) => ({ ...task, id: `${level.id}/${k + 1}` })) : [level]))
+  const played = levels.flatMap((level) => (level.tasks ? level.tasks.map((task, k) => ({ ...task, id: `${level.id}/${k + 1}`, home: level.id })) : [level]))
   for (const level of played) {
+    const fail = (text) => failAt(text, level.home ?? level.id)
+    const say = (text) => sayAt(text, level.home ?? level.id)
     if (level.kind !== 'graph') {
       // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.
       const problem = level.verify ? level.verify() : ''
@@ -67,6 +72,15 @@ export function validate({ levels, intros }) {
       const text = `  ${name} ${bad.run.pass ? 'PASSES (bad)' : 'fails'}${bad.run.constraint ? ` (${keyOf(bad.run.constraint)})` : ''}  ${bad.detail}`
       if (bad.run.pass) fail(text)
       else say(text)
+    }
+    // The part a level packs, alone between the level's inputs and its output, passes the level's tests.
+    if (level.packs) {
+      const board = startBoard(level)
+      board.nodes.push({ id: 'part', type: `own-${level.id}`, x: 300, y: 60, params: {} })
+      board.wires.push(...level.inputs.map((name) => ({ from: name, to: 'part', port: name })), { from: 'part', to: level.outputs[0], port: 'in' })
+      const run = runLevel({ ...withHidden(level), constraint: undefined }, board)
+      if (run.pass) say(`  its part alone passes`)
+      else fail(`${level.id}: its packed part, wired to the level's inputs, fails ${run.results.filter((r) => !r.pass).length} test(s)`)
     }
   }
   return out

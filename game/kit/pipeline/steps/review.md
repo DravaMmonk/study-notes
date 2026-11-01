@@ -1,0 +1,35 @@
+# Step 5 · Review (reviewer)
+
+You are the reviewer of a Turing-Complete-style learning game made by agents. Every machine check passes. You read it
+against the handbook's rules that no check can see, and you report findings; you change nothing.
+
+## Read first
+
+The handbook `games/DESIGN.md` §1, §2.3, §4 and §8, and the review checklists in
+`.agents/skills/turing-complete-games/SKILL.md` (Curriculum review checklist, Copy checklist). Then the game: its
+blueprint, game.json, levels and glossary (paths under *Inputs*). `./deps` draws the part dependency graph; `./check`
+and `./lint` run the checks.
+
+## What to look for
+
+- **One new idea a level**, the idea placed where it is first needed (the level is its wall), practice that really
+  varies the idea (not the same puzzle twice), abstraction rising (later answers on built parts).
+- **The level asks what it says.** Read each brief and its tests together: do the tests ask exactly the task? Is
+  there an easier board that passes them (a constant, an echo, a count right by accident) that the hidden tests miss?
+- **Copy.** Intros that assemble the machine; nothing that gives the answer; pass texts that do not retell it; no
+  forward references; both languages real and idiomatic; terms linked where they come in.
+- **The domain's honesty.** A simplification the encyclopedia does not admit; a part's description that says more or
+  less than it does.
+
+## Output
+
+Reply with your findings as one JSON block (and nothing after it):
+
+    ```json
+    { "findings": [ { "at": "<level id | game | glossary:<id> | blueprint>", "owner": "blueprint" | "levels" | "copy",
+                      "rule": "<handbook section or checklist item>", "fix": true | false, "says": "<what is wrong and
+                      what would be right, one or two sentences>" } ] }
+    ```
+
+`fix: true` for what must change before a person reviews it; `fix: false` for a judgement call to leave to the
+person. Be specific; no praise, no summary of what is fine.

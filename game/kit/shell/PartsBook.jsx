@@ -5,7 +5,7 @@ import Library, { store, useSeen } from './Library.jsx'
 
 // The components box (元件箱), laid out like the encyclopedia: every part the game has, in the order it is earned,
 // each with what it does and a bench to try it on. A game's `parts` brings
-// { all: [{ key, name, desc?, icon?, family?, rules? }], demo?(part, { phone }) → React node,
+// { all: [{ key, name, desc?, icon?, family?, rules? }], demo?(part, { phone, progress }) → React node,
 //   filters?(progress) → [{ key, name, icon?, lock?, keys }] }: the demo is a small circuit with the part at its
 // centre that the player can change and run (games/kit/circuit DemoBench), on the desktop board or, on a phone, the
 // phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
@@ -22,7 +22,7 @@ export function useParts(game, progress) {
   const all = (game.parts?.all ?? []).map((part) => game.textFor(part, progress))
   const unread = all.filter((part) => earned.has(part.key) && !seen.has(part.key))
   const filters = game.parts?.filters?.(progress) ?? []
-  return { all, earned, seen, markSeen, unread, filters }
+  return { all, earned, seen, markSeen, unread, filters, progress }
 }
 
 /** The level that earns a part: the one that unlocks it, or for a primitive the first that brings it in. */
@@ -81,7 +81,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
   const article = (key, back) => {
     const part = all.find((p) => p.key === key)
     const level = levelOf(game, part)
-    const demo = game.parts.demo?.(part, { phone })
+    const demo = game.parts.demo?.(part, { phone, progress: box.progress })
     // A rule a shape gives shows once the part has that shape.
     const rules = (part.rules ?? []).filter((r) => !r.form || part.forms?.includes(r.form))
     return (

@@ -1,5 +1,6 @@
 import { ArrowRightFromLine, ArrowRightToLine } from 'lucide-react'
-import { NODE_TYPES, inputsOf } from '../engine/nodes.js'
+import { NODE_TYPES } from '../engine/nodes.js'
+import { BOARD_PARTS } from '../engine/board.js'
 import { tr } from '../../../shell/i18n.js'
 import { familyOf, iconOf } from './catalog.js'
 
@@ -11,8 +12,7 @@ export const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'lef
 /** The parts of one level: its input cards are its sensors (ui/sensors.js), its output cards named by the level (or Output). */
 export function partsFor({ sensors, outputLabels } = {}) {
   return {
-    role: (node) => (node.type === 'input' ? 'source' : node.type === 'output' ? 'sink' : 'part'),
-    inputs: (node) => (node.type ? inputsOf(node.type) : []),
+    ...BOARD_PARTS,
     label: (node) => {
       if (node.type === 'input') return sensors?.[node.params.name]?.label ?? tr('输入', 'Input')
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')

@@ -1,13 +1,16 @@
-// A bus game on the shared shell (../../shell): its spec becomes the shell's game description, with the can domain's
-// board screen, its parts box and its map art.
+// A bus game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js) becomes
+// the shell's game description, with the can domain's board screen, its parts box and its map art.
 //
+//   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   bus.js      the bus: wired-AND, CAN frames (stuffing, CRC-15), the world's nodes
 //   parts.js    the cards of a board and what each computes
+//   board.js    a board, and a board read from blueprint text
+//   wants.js    what a level's outputs must be, tick by tick
 //   run.js      a board on the bus tick by tick (../../engine/ticks.js), checked tick by tick
-//   course.js   a spec read into levels, play order, the parts the levels build and the course the audit checks
-//   build.js    boards written compactly in a spec
+//   course.js   content read into levels, play order, the parts the levels build and the course the audit checks
 //   ui/         the board screen and the card catalog
-//   validate.js every level's reference board (npm run check); can.test.js the bus (npm test)
+//   validate.js every level's reference board and built part (npm run check); can.test.js the bus, the wants and
+//               boards as text (npm test)
 import { Activity, CircuitBoard } from 'lucide-react'
 import './ui/can.css'
 import { defineGame } from '../../shell/index.js'
@@ -16,20 +19,23 @@ import { migrations } from '../../shell/saves.js'
 import BusScreen from './ui/BusScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
+import { busCourse } from './course.js'
 
-/** spec: { id, title, kicker, lede, bus (busCourse's result), glossary, saves: migration steps (../../shell/saves.js) } */
-export function defineBusGame(spec) {
-  const { LEVELS, CHAPTERS, course } = spec.bus
+/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
+ *  (../../shell/saves.js), levels, glossary }. */
+export default function busGame(content) {
+  const bus = busCourse(content)
+  const { LEVELS, CHAPTERS, course } = bus
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at }))
   const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
   const game = defineGame({
-    id: spec.id,
-    title: spec.title,
-    kicker: spec.kicker,
-    lede: spec.lede,
+    id: content.id,
+    title: content.title,
+    kicker: content.kicker,
+    lede: content.lede,
     Hero,
     html: true,
-    glossary: spec.glossary,
+    glossary: content.glossary,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
     levels: LEVELS.map((L, index) => ({
@@ -47,12 +53,12 @@ export function defineBusGame(spec) {
       after: L.after,
       note: L.note,
     })),
-    progress: migrations(spec.saves ?? []),
+    progress: migrations(content.saves),
     intro: (level) => level.source.intro,
     kinds: { bus: { Screen: BusScreen, icon: Activity, label: { zh: '总线', en: 'Bus' } } },
     parts: { all: [...primitives, ...built] },
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
   })
-  game.bus = spec.bus
+  game.bus = bus
   return game
 }

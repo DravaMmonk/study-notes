@@ -51,8 +51,14 @@ test('migrations move and rewrite the waiting boards too', () => {
   assert.deepEqual(out.slots.b.list.map((s) => s.data), [undefined, 20])
 })
 
-test('a solved level’s kept board becomes the board its part runs', () => {
-  const { migrate } = migrations([{ version: 2, ops: [{ built: ['a', 'b', 'c'] }] }])
-  const out = migrate({ version: 1, solved: ['a', 'b'], data: { a: { nodes: [1] }, b: [{ nodes: [2] }, { nodes: [3] }], c: { nodes: [4] } } })
-  assert.deepEqual(out.built, { a: { nodes: [1] }, b: { nodes: [3] } })
+test('a solved level’s kept board becomes the board its part runs; a level of tasks keeps one a task', () => {
+  const { migrate } = migrations([{ version: 2, ops: [{ built: ['a', 'b', 'c', 'd', 'e'] }] }])
+  const out = migrate({
+    version: 1,
+    solved: ['a', 'b', 'd', 'e'],
+    data: { a: { nodes: [1] }, b: [{ nodes: [2] }, { nodes: [3] }], c: { nodes: [4] }, d: { nodes: [5] }, e: [{ nodes: [6] }, { nodes: [7] }] },
+    // What a save kept already stays: a level's board, and a level of tasks' one board, its last task's.
+    built: { d: { nodes: [8] }, e: { nodes: [9] } },
+  })
+  assert.deepEqual(out.built, { a: { nodes: [1] }, b: [{ nodes: [2] }, { nodes: [3] }], d: { nodes: [8] }, e: [{ nodes: [6] }, { nodes: [9] }] })
 })

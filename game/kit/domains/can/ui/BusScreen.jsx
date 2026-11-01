@@ -1,32 +1,29 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { CircuitBoard } from 'lucide-react'
-import { Brief, PhonePage, RunDock, TestStatus, TestTabs, Timeline, Workbench, usePlayback } from '../../../shell/index.js'
-import Sheet from '../../../shell/Sheet.jsx'
+import { CircuitLevel, Timeline, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
-import { MISSING, portsOf } from '../../../engine/circuit.js'
-import { startBoard } from '../build.js'
-import { FIXED, PARTS, REGISTERS } from '../parts.js'
+import { openRef } from '../../../shell/refs.js'
+import { MISSING } from '../../../engine/circuit.js'
+import { fits, startBoard, wiring } from '../board.js'
+import { FIXED, REGISTERS } from '../parts.js'
 import { runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 
-// A level of 《车在说话》 on the shared circuit editor: the bus and the level's inputs down the left, its outputs down the
-// right, the parts it holds between. A run goes tick by tick (../../../shell/usePlayback.jsx, a tick a step): every
+// A level of 《车在说话》 on the kit's circuit level (../../../shell/CircuitLevel.jsx): the bus and the level's inputs
+// down the left, its outputs down the right, the parts it holds between. A run goes tick by tick (a tick a step): every
 // card shows its value at the tick shown, and the waveform under the board follows along, the outputs against what
-// they should be; a run stops on the first tick an output is wrong.
+// they should be; a run stops on the first tick an output is wrong. A level's hidden tests run with every run but show
+// only how many fail; once the level is solved they join the list when it opens again. A part the player built opens
+// to show the board it runs, each card on it at the tick shown.
 
 const T = (zh, en) => ({ zh, en })
 
-/** The editor's description of this level's cards (../../../circuit/model.js). */
+/** The editor's description of this level's cards (../../../circuit/model.js): the wiring (../board.js), drawn. */
 function partsFor(level, bus) {
   const builderOf = (type) => bus.LEVELS.find((L) => L.builds?.type === type)
   const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
   return {
-    inputs: (node) => {
-      if (bus.BUILT[node.type]) return builderOf(node.type).inputs?.map((i) => i.name) ?? []
-      return PARTS[node.type] ? portsOf(PARTS[node.type], node) : []
-    },
-    role: (node) => (node.type === 'line' || node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
+    ...wiring(level, bus),
     label: (node) => {
       if (node.type === 'in') return labelOf(level.inputs, node.params?.name)
       if (node.type === 'out') return labelOf(level.outputs, node.params?.name)
@@ -35,19 +32,8 @@ function partsFor(level, bus) {
     portLabel: (node, port) => (bus.BUILT[node.type] ? labelOf(builderOf(node.type).inputs, port) : PORT_LABELS[node.type]?.[port] ?? ''),
     family: (node) => (bus.BUILT[node.type] ? 'built' : CARDS[node.type]?.family),
     icon: (node) => (bus.BUILT[node.type] ? CircuitBoard : CARDS[node.type]?.icon),
-    packed: (node) => Boolean(bus.BUILT[node.type]),
-    outputs: (node) => {
-      const outs = bus.BUILT[node.type] && builderOf(node.type).outputs
-      return outs && outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
-    },
     cardWidth: (node) => (FIXED.includes(node.type) ? 140 : 156),
   }
-}
-
-// A saved board still fits: the level's fixed cards, and every card one the domain knows.
-const fits = (circuit, level, partOf) => {
-  const fixed = (c) => c.nodes.filter((n) => FIXED.includes(n.type)).map((n) => n.id).sort().join()
-  return fixed(circuit) === fixed(startBoard(level)) && circuit.nodes.every((n) => partOf(n.type))
 }
 
 /** What a card shows of a value: a bit, a number, yes or no, or 「—」. */
@@ -71,91 +57,70 @@ function Field({ label, value, options, onChange }) {
 const NAMES = REGISTERS.map((r) => [r, r])
 const STARTS = [['', '—'], ['0', '0'], ['1', '1']]
 const NUMBERS = Array.from({ length: 33 }, (_, k) => [String(k), String(k)])
+// Registers start named A; a new card's settings are its defaults written in, so the card shows them.
+const defaults = (type) => (type === 'reg' || type === 'keep' ? { reg: 'A' } : type === 'const' ? { value: '0' } : FORMS[type] ? { form: Object.keys(FORMS[type])[0] } : {})
+const valueOf = (node, key, view) => view.values.get(key ? `${node.id}#${key}` : node.id)
 
-export default function BusScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, progress, phone }) {
+export default function BusScreen(screen) {
+  const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const bus = game.bus
   bus.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, bus), [level, bus])
-  const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved, level, bus.partOf) ? saved : startBoard(level)))
-  const [testIndex, setTestIndex] = useState(0)
-  const checked = useMemo(() => runLevel(level, circuit, bus.partOf), [level, circuit, bus])
-  const { shown: palette, folded } = useMemo(() => bus.offerIn(level, flags), [bus, level, flags])
-
-  const change = (next) => {
-    setCircuit(next)
-    save(next)
-  }
-  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? () => change(startBoard(level)) : null
-  const playback = usePlayback({
-    count: level.tests.length,
-    stepsOf: (k) => checked.runs[k].ticks,
-    check: (k) => checked.runs[k].error ?? '',
-    onSolve: () => solve(),
-    onTest: setTestIndex,
-    board: circuit,
-    kept: lastRun,
-    onKeep: keepRun,
+  const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, bus.partOf) ? saved : startBoard(level)), fresh: () => startBoard(level) })
+  const { circuit, change } = board
+  const [revealed] = useState(solved)
+  const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
+  const checked = useMemo(() => runLevel({ ...level, tests }, circuit, bus.partOf), [level, tests, board.version, bus])
+  const hidden = revealed ? [] : level.hidden
+  const hiddenFailed = useMemo(() => (hidden.length ? runLevel({ ...level, tests: hidden }, circuit, bus.partOf).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, board.version, bus])
+  const run = useLevelRun(screen, board, {
+    tests: tests.map((t, k) => ({ label: tr(`总线 ${k + 1}`, `Bus ${k + 1}`), hidden: t.hidden })),
+    steps: { of: (k) => checked.runs[k].ticks, check: (k) => checked.runs[k].error ?? '' },
+    hidden: {
+      count: hidden.length,
+      fails: () => hiddenFailed,
+      words: {
+        note: tr(`另有 ${hidden.length} 条隐藏的总线，每次运行一并检查，通关后公开。`, `${hidden.length} more hidden ${hidden.length === 1 ? 'bus is' : 'buses are'} checked with every run and shown once you pass.`),
+        failed: (n) => tr(`可见的总线全部通过，但 ${hidden.length} 条隐藏的总线中有 ${n} 条没有通过：这块板可能只是恰好合上了这几条总线。`, `Every bus shown passes, but ${n} of ${hidden.length} hidden ${hidden.length === 1 ? 'bus fails' : 'buses fail'}: the board may only happen to fit these.`),
+      },
+    },
   })
-  const { run, states } = playback
+  const { shown: palette, folded } = useMemo(() => bus.offerIn(level, flags), [bus, level, flags])
+  const builderOf = (type) => bus.LEVELS.find((L) => L.builds?.type === type)
 
   // The tick shown: the one a run is on (or its last, once past it); before a run, the first, as a preview.
-  const runOf = checked.runs[testIndex]
-  const shown = playback.shown(testIndex)
-  const at = !run ? 0 : shown.list.length ? (shown.at >= 0 ? shown.at : shown.list.length - 1) : -1
+  const runOf = checked.runs[run.at]
+  const shown = run.playback.shown(run.at)
+  const at = !run.run ? 0 : shown.list.length ? (shown.at >= 0 ? shown.at : shown.list.length - 1) : -1
   const tick = at >= 0 ? runOf.ticks[at] : null
 
-  const valueOf = (node, key = null) => tick?.values.get(key ? `${node.id}#${key}` : node.id)
-  const errorOf = (node) => tick?.errors.get(node.id)
   const setParam = (node, key, value) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
-
-  const settings = (node) => {
+  const settings = (node, ctx) => {
     const p = node.params ?? {}
-    const set = (key) => (v) => setParam(node, key, v)
+    const set = (key) => (v) => !ctx.readOnly && setParam(node, key, v)
     if (node.type === 'reg') return <><Field label={T('名字', 'Name')} value={p.reg ?? 'A'} options={NAMES} onChange={set('reg')} /><Field label={T('初值', 'Start')} value={p.start ?? ''} options={STARTS} onChange={set('start')} /></>
     if (node.type === 'keep') return <Field label={T('名字', 'Name')} value={p.reg ?? 'A'} options={NAMES} onChange={set('reg')} />
     if (node.type === 'const') return <Field label={T('数值', 'Value')} value={p.value ?? '0'} options={NUMBERS} onChange={set('value')} />
     if (FORMS[node.type]) return <Field label={T('形状', 'Form')} value={p.form ?? Object.keys(FORMS[node.type])[0]} options={Object.entries(FORMS[node.type])} onChange={set('form')} />
     return null
   }
-  const body = (node) => {
-    const many = parts.outputs(node)
-    return (
-      <div className="cn-card">
-        {settings(node)}
-        {!many && <Value value={valueOf(node)} error={errorOf(node)} />}
-      </div>
-    )
-  }
-  const outNote = (node, key) => {
-    const v = valueOf(node, key)
-    return v === undefined ? null : L(show(v))
-  }
+  const value = (node, ctx) => <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} />
+  const body = (node, ctx) => (
+    <div className="cn-card">
+      {settings(node, ctx)}
+      {!ctx.board.parts.outputs(node) && value(node, ctx)}
+    </div>
+  )
 
   const builtItem = (type) => {
-    const b = bus.LEVELS.find((L) => L.builds?.type === type).builds
+    const b = builderOf(type).builds
     return { type, label: b.name, desc: b.desc, icon: CircuitBoard, family: 'built', packed: true }
   }
   const itemOf = (type) => (bus.BUILT[type] ? builtItem(type) : { type, label: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, family: CARDS[type].family, fresh: entry.fresh?.includes(type) })
-  const items = palette.map(itemOf)
-  const foldedItems = folded.map(itemOf)
-  const types = [...palette, ...folded]
-  // Registers start named A; a new card's settings are its defaults written in, so the card shows them.
-  const defaults = (type) => (type === 'reg' || type === 'keep' ? { reg: 'A' } : type === 'const' ? { value: '0' } : FORMS[type] ? { form: Object.keys(FORMS[type])[0] } : {})
-  const addNode = (type, extra = {}) => {
-    const taken = new Set(circuit.nodes.map((n) => n.id))
-    let k = 1
-    while (taken.has(`${type}${k}`)) k += 1
-    const id = `${type}${k}`
-    return { id, graph: { ...circuit, nodes: [...circuit.nodes, { id, type, params: defaults(type), ...extra }] } }
-  }
-  const add = (type) => {
-    const [x, y] = spotIn(circuit, null)
-    change(addNode(type, { x, y }).graph)
-  }
 
-  const test = level.tests[testIndex]
-  const upTo = (list) => list.map((v, t) => (run && t <= at ? v : undefined))
+  const test = tests[run.at]
+  const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
   const lanes = [
     ...(level.listens ? [{ key: 'line', label: CARDS.line.name, kind: 'wave', ticks: test.bus.bits }] : []),
     ...(level.inputs ?? []).map((i) => ({ key: `in:${i.name}`, label: i.label, kind: 'wave', ticks: test.inputs[i.name] })),
@@ -165,102 +130,47 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
     ]),
   ]
   const failed = shown.list.findIndex((t) => t.failed)
-  const ended = Boolean(run && (run.test > testIndex || run.over))
+  const ended = Boolean(run.run && (run.run.test > run.at || run.run.over))
   const strip = (
     <div className="cn-strip">
-      <Timeline lanes={lanes} count={test.bus.bits.length} at={run ? at : -1} marks={ended && runOf.fail ? [runOf.fail.tick] : []} />
+      <Timeline lanes={lanes} count={test.bus.bits.length} at={run.run ? at : -1} marks={ended && runOf.fail ? [runOf.fail.tick] : []} />
       {ended && (runOf.error || (failed >= 0 && shown.list[failed].failed)) && <p className="cn-verdict is-fail">{L(runOf.error ?? shown.list[failed].failed)}</p>}
+      {run.run?.over && run.run.final && <p className="cn-verdict is-fail">{run.run.final}</p>}
     </div>
   )
-  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  const tests = <TestTabs tests={level.tests.map((_, k) => ({ label: tr(`总线 ${k + 1}`, `Bus ${k + 1}`) }))} states={states} index={testIndex} onSelect={setTestIndex} phone={phone} />
-  const dock = <RunDock {...playback.dock({ go: tr('运行', 'Run'), done: tr('全部通过', 'All passed') })} />
-
-  if (phone) return <PhoneBoard {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, strip, tests, body, valueOf, errorOf, types, game, level, bus }} scope={level.id} />
 
   return (
-    <Workbench
+    <CircuitLevel
+      screen={screen}
+      board={board}
+      run={run}
       className="cn-level"
-      brief={brief}
-      parts={items.length + foldedItems.length > 0 && <Palette compact items={items} folded={foldedItems} onAdd={add} />}
-      stage={
-        <div className="cn-stage">
-          <div className="cn-board">
-            <CanvasEditor
-              onClear={onClear}
-              types={types}
-              key={level.id}
-              scope={level.id}
-              graph={circuit}
-              onChange={change}
-              parts={parts}
-              width={156}
-              height={120}
-              body={body}
-              outNote={outNote}
-              wireState={(wire) => (tick && tick.values.get(wire.from) !== undefined ? 'live' : 'dead')}
-              emptyNote={T('从上方元件栏选择元件放到板上，再从元件右侧的圆点连线到另一元件左侧的圆点。', 'Add a part from the row above, then drag from a dot on its right side to a dot on another part’s left side.')}
-            />
-          </div>
-        </div>
-      }
-      tests={tests}
-      status={<TestStatus states={states} />}
-      resultsTitle={tr(`总线 ${testIndex + 1}`, `Bus ${testIndex + 1}`)}
+      parts={parts}
+      items={palette.map(itemOf)}
+      folded={folded.map(itemOf)}
+      defaults={defaults}
+      view={tick ?? undefined}
+      card={{
+        body,
+        outNote: (node, key, ctx) => {
+          const v = valueOf(node, key, ctx.view)
+          return v === undefined ? null : L(show(v))
+        },
+        thumb: (n, ctx) => (ctx.board.parts.outputs(n) ? null : value(n, ctx)),
+      }}
+      canvas={{ width: 156, height: 120 }}
+      brief={{ hint: level.hint }}
+      describe={(n) => (bus.BUILT[n.type] ? builderOf(n.type).builds.desc : game.textAt(CARDS[n.type], level.id)?.desc)}
       results={strip}
-      dock={dock}
+      resultsTitle={tr(`总线 ${run.at + 1}`, `Bus ${run.at + 1}`)}
+      packed={{
+        open: (node) => {
+          const inside = bus.BUILT[node.type]?.opens?.()
+          return inside && { ...inside, parts: partsFor(inside.level, bus) }
+        },
+        edit: (node) => openRef('level', builderOf(node.type).id),
+        trace: () => (tick?.trace ? { trace: tick.trace } : null),
+      }}
     />
   )
 }
-
-// The board on a phone: the shared slot board, the tests and the waveform under it, and the run bar.
-function PhoneBoard({ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, strip, tests, body, valueOf, errorOf, types, scope, game, level, bus }) {
-  const [sheet, setSheet] = useState(null) // { node } or { slot }
-  const root = useRef(null)
-  const scroller = useRef(null)
-  const editing = useSlotEditing({
-    graph: circuit,
-    onChange: change,
-    parts,
-    create: (_, type, at) => {
-      const [x, y] = spotIn(circuit, null)
-      return addNode(type, { slot: at, x, y })
-    },
-    label: parts.label,
-    openNode: (id) => setSheet({ node: id }),
-    openSlot: (at) => items.length + foldedItems.length > 0 && setSheet({ slot: at }),
-    root,
-    scroller,
-    scope,
-  })
-  const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
-  const descOf = (n) => (bus.BUILT[n.type] ? bus.LEVELS.find((L) => L.builds?.type === n.type).builds.desc : game.textAt(CARDS[n.type], level.id).desc)
-  return (
-    <PhonePage rootRef={root} scrollRef={scroller} className="cn-phone" brief={brief} tests={tests} tray={<Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />} results={strip} dock={dock}>
-      <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => (parts.outputs(n) ? null : <Value value={valueOf(n)} error={errorOf(n)} />)} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
-      <Notice editing={editing} />
-      {node && (
-        <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
-          <div className="cn-sheet">
-            <p className="cn-desc">{L(descOf(node))}</p>
-            {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
-          </div>
-        </Sheet>
-      )}
-      {sheet?.slot !== undefined && (
-        <Sheet title={tr('放入这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
-          <div className="cn-add">
-            {[...items, ...foldedItems].map((item) => (
-              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>
-                <b>{L(item.label)}</b>
-                <small>{L(item.desc)}</small>
-              </button>
-            ))}
-          </div>
-        </Sheet>
-      )}
-    </PhonePage>
-  )
-}
-

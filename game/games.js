@@ -81,4 +81,11 @@ export const GAMES = [
     page: { icon: 'M10 30h44M18 30v12M32 30v12M46 30v12M14 20h8v-6h8v6h8v-6h8', description: '车在说话 The Car Talks：车载 CAN 总线与诊断的解谜关卡。The in-vehicle CAN bus and diagnostics as puzzle levels.' },
     progress: () => (read('bus.v1')?.solved || []).length,
   },
+  {
+    id: 'network', href: 'network/index.html', title: '从一根线开始', en: 'From One Wire', topic: { zh: '计算机网络', en: 'Computer Networks' },
+    desc: { zh: '一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。', en: 'One wire, one bit a tick, and some bits go wrong. Start by passing a bit on, and build a network adapter of your own, layer by layer.' },
+    levels: 34, art: 'wave', dev: true,
+    page: { icon: 'M10 32h14l4-10 8 20 4-10h14', description: '从一根线开始 From One Wire：从一根会出错的线搭起计算机网络。Computer networking built up from one wire that gets bits wrong.' },
+    progress: () => (read('network.v1')?.solved || []).length,
+  },
 ];

@@ -49,11 +49,16 @@
 //                                          level's puzzle needs, as someone else's wrong prover). It is in no components
 //                                          box and on no map label; text names it plainly, not as a link.
 //   needed(level) → [part] | null          the parts its reference answer uses (null: no reference to go by)
+//   boards(level) → [board]                the reference boards themselves, every task's or stage's in order, in the
+//                                          shared circuit model (circuit/model.js), what it starts with left out; a
+//                                          built part runs its level's last one
 //   folds(level) → [part]                  parts the level's spec folds away anyway
 //   showcase(level) → reason | null        why a level shows a new part alone, wired to the goal by itself: only for
 //                                          a part whose use is abstract enough to get wrong from its description
 //                                          (an assumption box), never for one a sentence explains (a block gate). The
 //                                          bare-intro rule lets a level with a reason be
+//   declares(level) → [part]               parts whose definition the level's answer works on (a declaration,
+//                                          checking one): that puts them to work (idle-idea)
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
 // })
@@ -61,8 +66,9 @@
 // offer(course, level, flags) splits that into what the level shows and what it folds away; fresh(course, level) the
 // ideas new in a level; introductions(course) where each primitive comes in; isCore(course, level) whether a level is
 // a milestone the map draws full size; audit(course) lists every broken rule.
+import { rebuilt } from './engine/match.js'
 
-/** What each rule of the audit means, for reports (../engine/check.js). */
+/** What each rule of the audit means, for reports (./engine/checks.js). */
 export const RULE_TEXT = {
   'not-built': 'offered, but no level builds it and it is not a primitive',
   'own-level': 'offered in the very level that builds it',
@@ -86,6 +92,9 @@ export const RULE_TEXT = {
   unused: 'a built part that no later reference answer (nor a later task of its own level) uses',
   'optional-built': 'a part built on an optional level (a topic or a challenge) used by a level that does not require that level',
   'upgrade-order': 'a level upgrading a part that does not require the level that built it before',
+  'idle-idea': 'a new idea no later level puts to work before two more new ideas come in (brought in before it is needed)',
+  bypass: 'a reference answer of no built part that wires up, from three parts or more, the board of a part it holds',
+  'difficulty-spike': 'a required level whose blind-play attempts stand out against its neighbours on the tree (engine/play/stats.js)',
 }
 
 /** Roles of a level within its era. A topic of one level is just its finale. */
@@ -112,6 +121,21 @@ export function numbered(items, requires) {
     out.push(next)
   }
   return out
+}
+
+/**
+ * The number the map and the links show for each level, by its place rather than its id (ids stay put when levels
+ * move): an era's main path numbered as `numbered` orders it ('1-4'), a topic's levels by its code (or its id's first
+ * letter) and place ('N2'), an era's challenges 'C1.1' …. A domain with its own numbering (the logic domain's topic
+ * codes running across chapters) gives its own.
+ */
+export function levelLabels(eras) {
+  const { requires } = layout(eras)
+  return new Map(eras.flatMap((era) => [
+    ...numbered([...era.foundation, ...(era.practice ?? [])], requires).map((id, k) => [id, `${era.id}-${k + 1}`]),
+    ...(era.topics ?? []).flatMap((t) => t.levels.map((id, k) => [id, `${t.code ?? t.id[0].toUpperCase()}${k + 1}`])),
+    ...(era.challenges ?? []).map((c, k) => [c.level, `C${era.id}.${k + 1}`]),
+  ]))
 }
 
 /** Every level of an era: its main path, then its topics and challenges. */
@@ -188,7 +212,7 @@ export function layout(eras) {
 // A showcase's reason, written plainly or in each language.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, folds = () => [], showcase = () => null, abstraction = false }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], folds = () => [], showcase = () => null, declares = () => [], abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -210,7 +234,7 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, folds, showcase, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, folds, showcase, declares, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -364,6 +388,8 @@ export function audit(course) {
     if (role === 'challenge' && ideas.size) say('challenge-new', level.id, [...ideas].join(' '), 'a challenge brings nothing new')
     else if (ideas.size > 1) say('many-new', level.id, [...ideas].join(' '), `${ideas.size} new parts in one level (one new idea per level)`)
   }
+  idle(course, say)
+  bypass(course, say)
   if (!plan) return out
 
   // The era rules.
@@ -413,6 +439,105 @@ export function audit(course) {
     }
   }
   return out
+}
+
+/**
+ * The audit's findings (audit, or a game's own) against the ones a game leaves open (game.json `open`, the work list in
+ * its design doc: { rule: ['part@level'] }): for every rule with any, { rule, fresh: found and not listed, left: found
+ * and listed, gone: listed and met since }. npm run check fails on fresh and gone, and lists left.
+ */
+export function againstOpen(found, open = {}) {
+  const rules = [...new Set([...found.map((f) => f.rule), ...Object.keys(open)])]
+  return rules.map((rule) => {
+    const hits = [...new Set(found.filter((f) => f.rule === rule).map((f) => `${f.part}@${f.level}`))]
+    const listed = open[rule] ?? []
+    return { rule, fresh: hits.filter((h) => !listed.includes(h)), left: hits.filter((h) => listed.includes(h)), gone: listed.filter((h) => !hits.includes(h)) }
+  })
+}
+
+/**
+ * idle-idea: a new idea goes where it is first needed (games/DESIGN.md 1 and 5). After a level meets a new idea, a
+ * level after it on the tree puts the idea to work before two more new ideas have come in: the next new idea may come
+ * first (it may build on this one, or this one returns right after it), a second may not. A new idea is a primitive's
+ * concept met first (fresh, but no part that stays where it is brought: a puzzle's given), or an ability of the
+ * machine (uses) that no level before it on the tree relied on. Any later level that uses it counts, optional or not,
+ * and so does one using a built part made with it (the idea keeps working inside the part);
+ * the new ideas counted between the two are those of required levels on the way. The level that brings an idea in
+ * uses it itself (a level with a reference answer). An idea met on an optional level is
+ * not checked: a topic adds one idea a level and its finale uses them all (topic-finale).
+ * The rule finds an idea brought in early, or several stacked before any is used. It asks for no number of levels:
+ * the fix is to move an idea to where it is needed, never to pad the course.
+ */
+function idle(course, say) {
+  const placed = course.levels.filter((l) => !course.plan || course.plan.place.has(l.id))
+  const required = (l) => !OPTIONAL.includes(course.plan?.place.get(l.id)?.role)
+  const abilities = (l) => course.uses(l) ?? []
+  // The concepts a level's reference answer puts to work: its parts', the parts it declares, and those inside each
+  // built part it uses (the reference of the level that builds it, all the way down).
+  const inside = new Map()
+  const concepts = (l, seen = new Set()) => {
+    if (inside.has(l.id)) return inside.get(l.id)
+    seen.add(l.id)
+    const out = new Set(course.declares(l).map((p) => course.concept(p) ?? p))
+    for (const p of course.needed(l) ?? []) {
+      out.add(course.concept(p) ?? p)
+      const by = course.builder(p)
+      const at = by && placed.find((m) => m.id === by)
+      if (at && !seen.has(at.id)) for (const c of concepts(at, seen)) out.add(c)
+    }
+    inside.set(l.id, out)
+    return out
+  }
+  const news = new Map(placed.map((l) => {
+    const seen = new Set(placed.filter((m) => course.before(m.id, l.id)).flatMap(abilities))
+    const kept = new Set(course.adds(l).filter((p) => !course.local(p)).map(course.concept))
+    return [l.id, [
+      ...[...fresh(course, l)].filter((c) => kept.has(c)).map((key) => ({ key, uses: (m) => concepts(m).has(key) })),
+      ...[...new Set(abilities(l))].filter((a) => !seen.has(a)).map((key) => ({ key, uses: (m) => abilities(m).includes(key) })),
+    ]]
+  }))
+  for (const level of placed.filter(required)) {
+    const after = placed.filter((l) => course.before(level.id, l.id))
+    for (const idea of news.get(level.id)) {
+      if (course.needed(level) && !idea.uses(level)) {
+        say('idle-idea', level.id, idea.key, 'its own level does not use it')
+        continue
+      }
+      const users = after.filter(idea.uses)
+      const first = users.filter((u) => !users.some((x) => x !== u && course.before(x.id, u.id)))
+      if (!first.length) {
+        if (after.length) say('idle-idea', level.id, idea.key, 'no level after it uses it')
+        continue
+      }
+      const between = (u) => [...new Set(after.filter((m) => m !== u && required(m) && course.before(m.id, u.id)).flatMap((m) => news.get(m.id).map((i) => i.key)))]
+      const [at, ideas] = first.map((u) => [u.id, between(u)]).reduce((a, b) => (b[1].length < a[1].length ? b : a))
+      if (ideas.length >= 2) say('idle-idea', level.id, idea.key, `first put to work at ${at}, after ${ideas.length} other new ideas (${ideas.join(', ')})`)
+    }
+  }
+}
+
+/**
+ * bypass: a level whose reference answer uses no built part, while a built part it holds would make it clearly
+ * shorter (games/DESIGN.md 5). Shorter: one of its reference boards has, among its parts, the very board that part runs
+ * (the last board of the latest level before it that builds the part, engine/match.js rebuilt: same parts, settings
+ * and wiring, inputs read alike, nothing else reading inside), which one card of the part could replace. Clearly: that
+ * board is at least three parts, so the part saves two or more; a part of two saves one card, and that is no climb.
+ */
+function bypass(course, say) {
+  const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.adds(l).includes(p))
+  const built = (p) => Boolean(course.builder(p))
+  const flags = new Set(course.levels.flatMap((l) => l.unlocks ?? []))
+  for (const level of course.levels) {
+    const used = course.needed(level)
+    if (!used?.length || used.some(built)) continue
+    for (const part of usable(course, level, flags)) {
+      if (!built(part) || !course.before(course.builder(part), level.id)) continue
+      const by = course.levels.filter((l) => course.builds(l).includes(part) && course.before(l.id, level.id)).at(-1)
+      const own = course.boards(by).at(-1)
+      const hit = own && course.boards(level).map((b) => rebuilt(own, b, isPart)).find((phi) => phi?.size >= 3)
+      if (hit) say('bypass', level.id, part, `${hit.size} of its parts are the board of ${by}, which one ${part} would replace`)
+    }
+  }
 }
 
 /**

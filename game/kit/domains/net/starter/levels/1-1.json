@@ -1,0 +1,72 @@
+{
+  "title": {
+    "zh": "传话",
+    "en": "Pass it on"
+  },
+  "brief": {
+    "zh": "每一拍把左线上到达的位说到右线上。",
+    "en": "Every tick, say on the right-hand wire the bit arriving on the left-hand wire."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一根线每一拍送一位：0 或 1。",
+        "en": "A wire carries one bit a tick: 0 or 1."
+      }
+    }
+  ],
+  "wires": {
+    "in": [
+      {
+        "name": "left",
+        "label": {
+          "zh": "左线",
+          "en": "Left wire"
+        }
+      }
+    ],
+    "out": [
+      {
+        "name": "right",
+        "label": {
+          "zh": "右线",
+          "en": "Right wire"
+        }
+      }
+    ]
+  },
+  "tests": [
+    {
+      "wires": {
+        "left": {
+          "send": [
+            {
+              "bits": "0110100"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "wires": {
+        "left": {
+          "send": [
+            {
+              "bits": "1001011"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "want": {
+    "right": {
+      "echo": {
+        "wire": "left"
+      }
+    }
+  },
+  "solution": [
+    "right <- left"
+  ]
+}

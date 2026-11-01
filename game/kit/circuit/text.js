@@ -42,8 +42,8 @@ function value(v) {
 }
 const source = (from) => (srcKey(from) === null ? name(srcNode(from)) : `${name(srcNode(from))}.${name(srcKey(from))}`)
 
-/** What a node is set to: its params, and the `value` some games keep beside them. */
-const settingsOf = (node) => ({ ...(node.params ?? {}), ...(node.value !== undefined && node.value !== '' ? { value: node.value } : {}) })
+/** What a node is set to: its params. */
+const settingsOf = (node) => node.params ?? {}
 const placed = (parts, node) => (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
 const regionsOf = (parts, node) => (parts.frames?.(node) ?? []).map((r) => r.name)
 
@@ -331,10 +331,7 @@ export function read(text, graph, parts, types) {
         continue
       }
       if (st.type !== undefined) given.type = st.type
-      for (const [key, v] of Object.entries(st.settings)) {
-        if (key === 'value') given.value = unread(given, key, v)
-        else given.params = { ...given.params, [key]: unread(given, key, v) }
-      }
+      for (const [key, v] of Object.entries(st.settings)) given.params = { ...given.params, [key]: unread(given, key, v) }
       continue
     }
     if (st.type === undefined) {
@@ -346,9 +343,7 @@ export function read(text, graph, parts, types) {
       continue
     }
     const node = { id: st.id, type: st.type }
-    const { value: v, ...params } = st.settings
-    node.params = Object.fromEntries(Object.entries(params).map(([key, x]) => [key, unread(node, key, x)]))
-    if (v !== undefined) node.value = unread(node, 'value', v)
+    node.params = Object.fromEntries(Object.entries(st.settings).map(([key, x]) => [key, unread(node, key, x)]))
     if (st.in) node.in = st.in
     const before = graph.nodes.find((n) => n.id === st.id && n.type === st.type && placed(parts, n) && (n.in ?? null) === (st.in ?? null))
     if (before) Object.assign(node, Object.fromEntries(['x', 'y', 'slot', 'fold'].filter((f) => f in before).map((f) => [f, before[f]])))

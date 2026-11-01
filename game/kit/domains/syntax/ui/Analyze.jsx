@@ -1,19 +1,20 @@
 import { useMemo, useState } from 'react'
-import { Brief, Level, RunDock } from '../../../shell/index.js'
+import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { StripTools } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
-import { check, fold, foldRefusal, mark, say, targetRefusal, unfold, units } from '../engine/sentence.js'
-import { ROLES, TYPES, roleKey } from '../engine/types.js'
+import { check, fold, foldRefusal, mark, say, targetRefusal, unfold, units } from '../model/sentence.js'
+import { ROLES, TYPES, roleKey } from '../model/parts.js'
 
-// A sentence-analysis level (engine/sentence.js), the same on every screen: the sentence as it stands, each folded
+// A sentence-analysis level (model/sentence.js), the same on every screen: the sentence as it stands, each folded
 // modifier one piece hung on its word; a tray to mark what is selected as a role of the skeleton or to fold it; the
 // check against the answer. Tap a word (or a folded piece) to start a stretch, another to end it; a third tap starts
-// again. Folding asks for the word the piece hangs on: the next tap.
+// again. Folding asks for the word the piece hangs on: the next tap. The last check stays while the level is open
+// (the shell's lastRun), until the analysis changes.
 
 const EMPTY = { folds: [], roles: {} }
 
-export default function Analyze({ game, level, saved, save, solve, phone }) {
+export default function Analyze({ game, level, saved, save, solve, lastRun, keepRun, phone }) {
   const spec = level.source
   const { gold } = spec
   const { tokens } = gold
@@ -23,9 +24,9 @@ export default function Analyze({ game, level, saved, save, solve, phone }) {
   const [selection, setSelection] = useState(null) // { a, b }
   const [pending, setPending] = useState(null) // { a, b, type }: waiting for the word it hangs on
   const [note, setNote] = useState(null) // { text, bad }
-  const [result, setResult] = useState(saved?.passed ? check(gold, { ...(saved.analysis ?? EMPTY), folds: [...given, ...(saved.analysis?.folds ?? [])] }) : null)
-
   const all = useMemo(() => ({ ...analysis, folds: [...given, ...analysis.folds] }), [analysis, given])
+  const [result, setResult] = useKeptVerdict({ lastRun, keepRun }, () => check(gold, all))
+
   const change = (next) => {
     setAnalysis(next)
     save({ analysis: next, tries })
@@ -77,7 +78,7 @@ export default function Analyze({ game, level, saved, save, solve, phone }) {
     const n = tries + 1
     setTries(n)
     setResult(r)
-    save({ analysis, tries: n, passed: r.pass })
+    save({ analysis, tries: n })
     if (r.pass) solve({ tries: n, star: n === 1 })
   }
 

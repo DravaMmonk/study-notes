@@ -1,22 +1,24 @@
-import { useMemo, useRef, useState } from 'react'
-import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft } from 'lucide-react'
-import { Brief, PhonePage, RunDock, TestStatus, Workbench, usePlayback } from '../../../shell/index.js'
-import Sheet from '../../../shell/Sheet.jsx'
+import { useMemo } from 'react'
+import { ArrowRightFromLine, CircleDot, CircuitBoard, ToggleLeft } from 'lucide-react'
+import { CircuitLevel, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
+import { PackedBoard } from '../../../circuit/Inside.jsx'
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
+import { openRef } from '../../../shell/refs.js'
 import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
+import { gateShape } from '../blueprint.js'
+import { syncOwn } from '../built.js'
 
-// A truth-circuit level (《证明完毕》, gates.js) on the shared circuit editor: a card for each letter on the left, the
-// sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table, picked in the table itself (no row tabs, whose labels would
-// spell the row out twice): picking one
-// shows on every card what the board computes on that row. Running goes down the table one row at a time, as a machine
-// filling it in (../../../shell/usePlayback.jsx, each row a test of no steps): each row's card values and result show
-// in turn, and the run stops on the first row it gets wrong. A `hideTarget`
-// level does not show the target value column; a `blind` one does not show its sentence either: it is a puzzle said in
-// words.
+// A truth-circuit level (《证明完毕》, gates.js) on the kit's circuit level (../../../shell/CircuitLevel.jsx): a card for
+// each letter on the left, the sentence's output on the right, gates as parts. The tests are the rows of the sentence's
+// truth table, picked in the table itself (no row tabs, whose labels would spell the row out twice): picking one shows
+// on every card what the board computes on that row. Running goes down the table one row at a time, as a machine
+// filling it in (each row a test of no steps): each row's card values and result show in turn, and the run stops on the
+// first row it gets wrong. A `hideTarget` level does not show the target value column; a `blind` one does not show its
+// sentence either: it is a puzzle said in words. A gate the player built opens to show the board it runs (read only,
+// each card's value on the row picked), and the components box shows it too (GateInside).
 
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
 const T = (zh, en) => ({ zh, en })
@@ -26,15 +28,35 @@ const SOURCE = T('输入', 'Input')
 function gatePartsFor(built, wordOf) {
   const all = gatesOf(built)
   return {
-    inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'letter' ? [] : all[node.type]?.ports ?? []),
-    role: (node) => (node.type === 'letter' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
+    ...gateShape(built),
     label: (node) => (node.type === 'letter' ? wordOf(node.params.name) ?? SOURCE : node.type === 'out' ? T('这句话', 'The sentence') : all[node.type]?.name ?? node.type),
     portLabel: (node, port) => (all[node.type] && all[node.type].ports.length > 1 ? port : ''),
     family: (node) => (node.type === 'letter' ? 'given' : node.type === 'out' ? 'end' : PRIMITIVE_GATES[node.type] ? 'gate' : 'built'),
-    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : Cpu),
+    // A gate the player built runs the board that built it: a packed part.
+    packed: (node) => Boolean(all[node.type]?.built),
+    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : CircuitBoard),
     cardWidth: (node) => (node.type === 'letter' || node.type === 'out' ? 170 : 140),
     rules: all,
   }
+}
+// The board inside a built gate: its letters are the gate's ports, its output the gate's.
+const insideParts = (gates) => ({ ...gatePartsFor(gates, (name) => ({ zh: name, en: name })), label: (node) => (node.type === 'letter' ? { zh: node.params.name, en: node.params.name } : node.type === 'out' ? T('输出', 'Out') : gatesOf(gates)[node.type]?.name ?? node.type) })
+
+// What a built gate on a board (of `gates`) runs, and where it is edited.
+const packedOf = (gates) => ({
+  open: (node, at) => {
+    const gate = gatesOf(at.level?.gates ?? gates)[node.type]
+    if (!gate?.built) return null
+    const { circuit, level } = gate.opens()
+    return { circuit, level, parts: insideParts(level.gates) }
+  },
+  edit: (node, at) => openRef('level', gatesOf(at.level?.gates ?? gates)[node.type].opens().level.id),
+})
+// What a card shows: its value on the row picked, or why it gives nothing yet.
+const card = {
+  body: (node, ctx) => <div className="lg-card"><CardValue value={ctx.view.values.get(node.id)} error={ctx.view.errors.get(node.id)} /></div>,
+  thumb: (node, ctx) => <CardValue value={ctx.view.values.get(node.id)} error={ctx.view.errors.get(node.id)} />,
+  cardClass: () => 'lg-node',
 }
 
 // A saved board still fits: its letters are the level's, and every card is a gate it knows.
@@ -43,72 +65,50 @@ const fits = (circuit, level, parts) => {
   return letters === [...rowsFor(level).letters].sort().join() && circuit.nodes.every((n) => n.type === 'letter' || n.type === 'out' || parts.rules[n.type])
 }
 
-export default function GatesScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, phone }) {
+export default function GatesScreen(screen) {
+  const { game, level: entry, flags, progress } = screen
   const level = entry.source
+  // The gates the player built run the boards that last passed their levels.
+  syncOwn(progress.built)
   const word = (letter) => say(parse(letter), level.notation)
   const parts = useMemo(() => gatePartsFor(level.gates, word), [level])
-  const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved, level, parts) ? saved : startGates(level)))
-  const [rowIndex, setRowIndex] = useState(0)
+  const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, parts) ? saved : startGates(level)), fresh: () => startGates(level) })
+  const { circuit } = board
   const { letters, rows } = useMemo(() => rowsFor(level), [level])
-  const row = rows[Math.min(rowIndex, rows.length - 1)]
-  const view = useMemo(() => runRow(level, circuit, row.row), [level, circuit, row])
+  // A run down the table: every row checked at once, shown one at a time; over budget fails it once every row is right.
+  const checked = useMemo(() => checkGates(level, circuit), [level, board.version])
+  const run = useLevelRun(screen, board, {
+    tests: rows.map((_, k) => ({ label: String(k + 1) })),
+    steps: {
+      of: () => [],
+      check: (k) => (checked.results[k].pass ? '' : WRONG_ROW),
+      final: () => (checked.overBudget ? tr(`每一行都正确，但用了 ${checked.gates} 个门，这一关最多允许 ${level.budget} 个。`, `Every row is correct, but it uses ${checked.gates} gates; this level allows ${level.budget}.`) : ''),
+    },
+    score: () => ({ steps: checked.gates }),
+  })
+  const row = rows[run.at]
+  // The row picked, traced: what every card gives on it, the cards inside the gates the player built too.
+  const view = useMemo(() => {
+    const trace = []
+    return { ...runRow(level, circuit, row.row, trace), trace }
+  }, [level, circuit, row])
   const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const sentence = L(say(parse(level.target), level.notation))
   const hideTarget = level.blind || level.hideTarget
+  const states = run.states
+  const over = run.run?.over
+  const verdictText = !over ? null
+    : run.passed ? tr('每一行都正确：这块电路算出了这句话的完整真值表。', 'Every row is correct: this circuit computes the sentence’s full truth table.')
+    : run.run.final || tr('这一行的结果错误，运行停在这里。板上每个元件显示它在这一行算出的值。', 'This row is wrong; the run stopped here. Each part on the board shows its value on this row.')
 
-  const change = (next) => {
-    setCircuit(next)
-    save(next)
-  }
-  // Clearing is the board's own (a button among its tools, which asks first).
-  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? () => change(startGates(level)) : null
-  // A run down the table: every row checked at once, shown one at a time; over budget fails it once every row is right.
-  const checked = useMemo(() => checkGates(level, circuit), [level, circuit])
-  const playback = usePlayback({
-    count: rows.length,
-    stepsOf: () => [],
-    check: (k) => (checked.results[k].pass ? '' : WRONG_ROW),
-    final: () => (checked.overBudget ? tr(`每一行都正确，但用了 ${checked.gates} 个门，这一关最多允许 ${level.budget} 个。`, `Every row is correct, but it uses ${checked.gates} gates; this level allows ${level.budget}.`) : ''),
-    onSolve: () => solve({ steps: checked.gates }),
-    onTest: setRowIndex,
-    board: circuit,
-    kept: lastRun,
-    onKeep: keepRun,
-  })
-  const run = playback.run
-  const addNode = (type, extra = {}) => {
-    const taken = new Set(circuit.nodes.map((n) => n.id))
-    let k = circuit.nodes.length
-    while (taken.has(`${type}-${k}`)) k += 1
-    const id = `${type}-${k}`
-    return { id, graph: { ...circuit, nodes: [...circuit.nodes, { id, type, params: {}, ...extra }] } }
-  }
-  const add = (type) => {
-    const [x, y] = spotIn(circuit, null)
-    change(addNode(type, { x, y }).graph)
-  }
-
-  const states = playback.states
-  const verdict = run?.over ? { pass: playback.passed } : null
-  const verdictText = !verdict ? null
-    : verdict.pass ? tr('每一行都正确：这块电路算出了这句话的完整真值表。', 'Every row is correct: this circuit computes the sentence’s full truth table.')
-    : run.final || tr('这一行的结果错误，运行停在这里。板上每个元件显示它在这一行算出的值。', 'This row is wrong; the run stopped here. Each part on the board shows its value on this row.')
-  const valueOf = (node) => (node.type === 'out' ? view.value : view.values.get(node.id))
-  const errorOf = (node) => view.errors.get(node.id)
-
-  const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), fresh: entry.fresh?.includes(type) })
-  const items = palette.filter((t) => parts.rules[t]).map(itemOf)
-  const foldedItems = folded.filter((t) => parts.rules[t]).map(itemOf)
-  const types = [...palette, ...folded].filter((t) => parts.rules[t])
-  const brief = (
-    <Brief game={game} level={entry} hint={level.hint} phone={phone}>
-      <section className="lg-score">
-        <div className="stat-row">
-          <div className="stat"><b>{countGates(level, circuit)}</b><span>{tr('门', 'Gates')}</span></div>
-          {level.budget !== undefined && <div className="stat"><b>{level.budget}</b><span>{tr('最多', 'At most')}</span></div>}
-        </div>
-      </section>
-    </Brief>
+  const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), packed: Boolean(parts.rules[type].built), fresh: entry.fresh?.includes(type) })
+  const score = (
+    <section className="lg-score">
+      <div className="stat-row">
+        <div className="stat"><b>{countGates(level, circuit)}</b><span>{tr('门', 'Gates')}</span></div>
+        {level.budget !== undefined && <div className="stat"><b>{level.budget}</b><span>{tr('最多', 'At most')}</span></div>}
+      </div>
+    </section>
   )
   const table = (
     <div className="lg-strip">
@@ -119,55 +119,41 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
         </thead>
         <tbody>
           {rows.map((r, k) => (
-            <tr key={k} className={`${k === rows.indexOf(row) ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => setRowIndex(k)}>
+            <tr key={k} className={`${k === run.at ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => run.select(k)}>
               {letters.map((l) => <td key={l}>{L(TF(r.row[l]))}</td>)}
               {!hideTarget && <td>{L(TF(r.want))}</td>}
-              <td>{run && k < run.results.length ? L(TF(checked.results[k].got)) : !run && k === rows.indexOf(row) ? L(TF(view.value)) : ''}</td>
+              <td>{run.run && k < run.run.results.length ? L(TF(checked.results[k].got)) : !run.run && k === run.at ? L(TF(view.value)) : ''}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      {verdictText && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
+      {verdictText && <p className={`lg-verdict ${run.passed ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
-  const dock = (
-    <RunDock
-      {...playback.dock({ go: tr('逐行运行', 'Run row by row'), done: tr('真值表全部正确', 'Truth table correct') })}
-    />
-  )
-  const body = (node) => <div className="lg-card"><CardValue value={valueOf(node)} error={errorOf(node)} /></div>
-
-  if (phone) return <PhoneGates {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types }} scope={level.id} />
 
   return (
-    <Workbench
+    <CircuitLevel
+      screen={screen}
+      board={board}
+      run={run}
       className="lg-level"
-      brief={brief}
-      parts={items.length + foldedItems.length > 0 && <Palette compact items={items} folded={foldedItems} onAdd={add} />}
-      stage={
-        <div className="lg-stage">
-          <div className="lg-board">
-            <CanvasEditor
-              onClear={onClear}
-              types={types}
-              key={level.id}
-              scope={level.id}
-              graph={circuit}
-              onChange={change}
-              parts={parts}
-              width={140}
-              height={110}
-              body={body}
-              cardClass={(node) => `lg-node ${node.type === 'out' && verdict ? (verdict.pass ? 'is-pass' : 'is-fail') : ''}`}
-              wireState={(wire) => (view.values.get(wire.from) !== undefined ? 'live' : 'dead')}
-              emptyNote={{ zh: '从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。', en: 'Place a gate from the bar above, then connect a dot on the right of one part to a dot on the left of another.' }}
-            />
-          </div>
-        </div>
-      }
-      status={<TestStatus states={states} />}
+      parts={parts}
+      items={palette.filter((t) => parts.rules[t]).map(itemOf)}
+      folded={folded.filter((t) => parts.rules[t]).map(itemOf)}
+      view={view}
+      card={{
+        ...card,
+        sinkBody: card.body,
+        // The sentence's card says whether the run got the table right.
+        cardClass: (node) => `lg-node ${node.type === 'out' && over ? (run.passed ? 'is-pass' : 'is-fail') : ''}`,
+      }}
+      canvas={{ width: 140, height: 110, emptyNote: T('从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。', 'Place a gate from the bar above, then connect a dot on the right of one part to a dot on the left of another.') }}
+      brief={{ hint: level.hint, children: score }}
+      describe={(node) => (parts.role(node) === 'part' ? parts.rules[node.type].desc : null)}
       results={table}
-      dock={dock}
+      tabs={false}
+      words={{ go: tr('逐行运行', 'Run row by row'), done: tr('真值表全部正确', 'Truth table correct') }}
+      packed={{ ...packedOf(level.gates), trace: () => ({ trace: view.trace }) }}
     />
   )
 }
@@ -178,52 +164,12 @@ function CardValue({ value, error }) {
   return <span className={`lg-error ${error === MISSING || !error ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('等待接线', 'Not wired yet') : L(error)}</span>
 }
 
-// The board on a phone: the shared slot board, the truth table under it, and the run bar.
-function PhoneGates({ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, table, body, valueOf, errorOf, types, scope }) {
-  const [sheet, setSheet] = useState(null) // { node } or { slot }
-  const root = useRef(null)
-  const scroller = useRef(null)
-  const editing = useSlotEditing({
-    graph: circuit,
-    onChange: change,
-    parts,
-    create: (_, type, at) => {
-      const [x, y] = spotIn(circuit, null)
-      return addNode(type, { slot: at, x, y })
-    },
-    label: parts.label,
-    openNode: (id) => setSheet({ node: id }),
-    openSlot: (at) => items.length + foldedItems.length > 0 && setSheet({ slot: at }),
-    root,
-    scroller,
-    scope,
-  })
-  const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
-  return (
-    <PhonePage rootRef={root} scrollRef={scroller} className="lg-phone" brief={brief} tray={<Tray items={items} folded={foldedItems} onPick={editing.placeFirstFree} />} results={table} dock={dock}>
-      <SlotBoard dense graph={circuit} parts={parts} nameOf={editing.nameOf} thumb={(n) => <CardValue value={valueOf(n)} error={errorOf(n)} />} sinkBody={(n) => body(n)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} widthOf={editing.widthOf} history={editing.history} onClear={onClear} onChange={change} types={types} />
-      <Notice editing={editing} />
-      {node && (
-        <Sheet title={editing.nameOf(node)} onClose={() => setSheet(null)}>
-          <div className="lg-sheet">
-            {parts.role(node) === 'part' && <p className="lg-desc">{L(parts.rules[node.type].desc)}</p>}
-            {body(node)}
-            {parts.role(node) === 'part' && <PartActions onMove={() => { editing.startMove(node.id); setSheet(null) }} onRemove={node.locked ? null : () => { editing.remove(node.id); setSheet(null) }} />}
-          </div>
-        </Sheet>
-      )}
-      {sheet?.slot !== undefined && (
-        <Sheet title={tr('放在这一格', 'Place in this slot')} onClose={() => setSheet(null)}>
-          <div className="lg-add">
-            {[...items, ...foldedItems].map((item) => (
-              <button key={item.type} type="button" data-family={item.family} onClick={() => { editing.place(item.type, sheet.slot); setSheet(null) }}>
-                <b>{L(item.label)}</b>
-                <small>{L(item.desc)}</small>
-              </button>
-            ))}
-          </div>
-        </Sheet>
-      )}
-    </PhonePage>
-  )
+/**
+ * The board a gate the player built runs (gates.js builtGates opens), read only, in the components box: on a desktop
+ * the circuit editor with the gate's ports on its edges, on a phone the slot board; it shows how the board is wired.
+ */
+export function GateInside({ type, gates, phone }) {
+  const { circuit, level } = gates[type].opens()
+  const top = { circuit, level, parts: insideParts(level.gates) }
+  return <PackedBoard phone={phone} top={top} {...packedOf(level.gates)} card={card} width={140} height={110} describe={(node) => (top.parts.role(node) === 'part' ? gatesOf(level.gates)[node.type]?.desc : null)} sheet={card.body} />
 }

@@ -1,7 +1,11 @@
-// The when-to-stop bench (EarlyStop.jsx): a few noisy samples of a smooth curve, fitted by a polynomial. Trained by
-// gradient descent the fit first follows the curve, then starts bending through the noise: the error on the training
-// samples keeps falling while the error on new samples (validation) turns and rises. A penalty λ·Σw² (all but the
-// constant) is the other way to stop it.
+// The when-to-stop bench: a few noisy samples of a smooth curve, fitted by a polynomial. Trained by gradient descent
+// the fit first follows the curve, then starts bending through the noise: the error on the training samples keeps
+// falling while the error on new samples (validation) turns and rises. A penalty λ·Σw² (all but the constant) is the
+// other way to stop it.
+import { S } from '../../../engine/schema.js'
+import { goalOf, judge } from '../../../engine/bench.js'
+
+const t = (zh, en) => ({ zh, en })
 
 // Solve A·x = b by Gauss–Jordan elimination with partial pivoting.
 const solve = (A, b) => {
@@ -21,12 +25,11 @@ const solve = (A, b) => {
 }
 
 /**
- * The bench's model. degree: how many weights (powers 0 … degree − 1); seed: the samples' noise; truth(x) on [−1, 1];
- * train: how many noisy samples, noise their spread; valid: how many new samples; checkpoints: the training steps the
- * bench shows; rate: the descent's step; lambdas: the penalties to choose from; slack: how close to the best
- * validation error counts as stopping at the bottom; stages: [{ control: 'step' | 'lambda', … }].
+ * The fit. degree: how many weights (powers 0 … degree − 1); seed: the samples' noise; truth(x) on [−1, 1]; train: how
+ * many noisy samples, noise their spread; valid: how many new samples; checkpoints: the training steps the bench
+ * shows; rate: the descent's step.
  */
-export function stopBench({ degree, seed, truth, train, noise, valid, checkpoints, rate, lambdas, slack, stages }) {
+export function stopBench({ degree, seed, truth, train, noise, valid, checkpoints, rate }) {
   const data = (() => {
     let s = seed
     const next = () => {
@@ -71,14 +74,72 @@ export function stopBench({ degree, seed, truth, train, noise, valid, checkpoint
     const w = solve(A, b)
     return { w, train: mse(w, data.tx, data.ty), valid: mse(w, data.vx, data.vy) }
   }
-  const passes = (stage, s) => {
-    if (stage.control === 'step') {
-      const r = training()
-      const best = Math.min(...r.map((c) => c.valid))
-      return r[s.step].valid <= best * slack
+  return { data, predict, training, regularised }
+}
+
+// Losses span 0.005 … 2, so they are plotted as log10.
+const logLoss = (v) => Math.log10(Math.max(1e-6, v))
+
+/** The bench model: knobs `step` (an index into the checkpoints) and `lambda` (an index into the penalties). */
+export const stop = {
+  about: t('什么时候停：多项式拟合几个带噪声的样本；旋钮 step（训练到第几个检查点）、lambda（第几个惩罚）；ratio 是新样本误差和它的最低值之比', 'when to stop: a polynomial fitted to a few noisy samples; knobs step (the checkpoint trained to) and lambda (which penalty); ratio is the new-sample error over its lowest'),
+  setup: S.obj({
+    degree: S.int({ min: 1 }), seed: S.int(), wave: S.num({ about: t('真实的曲线是 sin(wave·x)', 'the true curve is sin(wave·x)') }),
+    train: S.int({ min: 1 }), noise: S.num(), valid: S.int({ min: 2 }), rate: S.num(),
+  }),
+  make({ wave, ...p }, bench) {
+    const lambdas = bench.knobs.lambda.values
+    const fit = stopBench({ ...p, checkpoints: bench.knobs.step.values, truth: (x) => Math.sin(wave * x) })
+    const run = () => fit.training()
+    const ridge = lambdas.map((l) => fit.regularised(l))
+    const x = (u) => -1 + 2 * u
+    return {
+      fit,
+      view(v, { open }) {
+        const byStep = open.includes('step')
+        const current = byStep ? run()[v.step] : ridge[v.lambda]
+        const history = byStep ? run() : ridge
+        const best = Math.min(...history.map((r) => r.valid))
+        const upTo = byStep ? v.step : history.length - 1
+        const at = byStep ? v.step : v.lambda
+        return {
+          train: current.train,
+          valid: current.valid,
+          ratio: current.valid / best,
+          curve: {
+            lines: [{ curve: (u) => fit.predict(current.w, x(u)), kind: 'yours', label: t('模型', 'model') }, { curve: (u) => fit.data.truth(x(u)), kind: 'faint', label: t('真实规律', 'true rule') }],
+            dots: [
+              ...fit.data.tx.map((tx, i) => ({ u: (tx + 1) / 2, v: fit.data.ty[i], kind: 'point', label: t('训练样本', 'training sample') })),
+              ...fit.data.vx.filter((_, i) => i % 3 === 0).map((vx, i) => ({ u: (vx + 1) / 2, v: fit.data.vy[i * 3], kind: 'ring', label: t('新样本', 'new sample') })),
+            ],
+            legend: [{ kind: 'yours', label: t('模型', 'Model') }, { kind: 'faint', label: t('真实规律（模型不可见）', 'True rule (hidden from the model)') }, { kind: 'ring', label: t('新样本', 'New samples') }, { kind: 'point', label: t('训练样本', 'Training samples') }],
+          },
+          errors: {
+            lines: [
+              { curve: history.map((h, i) => (i <= upTo ? logLoss(h.train) : NaN)), kind: 'yours', label: t('训练误差', 'training error') },
+              { curve: history.map((h, i) => (i <= upTo ? logLoss(h.valid) : NaN)), kind: 'error', label: t('新样本误差', 'new-sample error') },
+            ],
+            legend: [{ kind: 'yours', label: t('训练误差', 'Training error') }, { kind: 'error', label: t('新样本误差', 'New-sample error') }],
+          },
+          errorsTitle: byStep ? t('误差随训练步数（对数刻度）', 'Error by training step (log scale)') : t('误差随 λ（对数刻度）', 'Error by λ (log scale)'),
+          now: (at + 0.5) / history.length,
+        }
+      },
     }
-    const best = Math.min(...lambdas.map((l) => regularised(l).valid))
-    return regularised(lambdas[s.lambda]).valid <= best * slack
-  }
-  return { data, predict, training, checkpoints, regularised, lambdas, stages, passes, start: { step: 0, lambda: 0 } }
+  },
+  verify(model, bench) {
+    const { fit } = model
+    const run = fit.training()
+    const valid = run.map((r) => r.valid)
+    const bottom = valid.indexOf(Math.min(...valid))
+    if (bottom === 0 || bottom === run.length - 1) return '验证误差没有先降后升'
+    if (run.at(-1).train >= run[bottom].train) return '训练误差没有一直下降'
+    const [byStep, byLambda] = bench.stages
+    const passes = (stage, v) => judge(goalOf(bench, stage), model.view({ step: 0, lambda: 0, ...v }, { open: stage.opens })).pass
+    if (passes(byStep, { step: 0 }) || passes(byStep, { step: run.length - 1 })) return '一开始或训练到底也能过'
+    const lambdas = bench.knobs.lambda.values
+    const good = lambdas.map((_, i) => i).filter((i) => passes(byLambda, { lambda: i }))
+    if (!good.length || good.includes(0) || good.includes(lambdas.length - 1)) return 'λ 的两端也能过，或者都不能过'
+    return ''
+  },
 }

@@ -1,0 +1,44 @@
+/* The camera obscura's pictures (Obscura.jsx). Every colour is a token. SVG text sizes come from --fs (viewBox units
+   chosen per layout so labels stay ≥ 11 px on screen). */
+
+.optics-figure { margin: 0; }
+.optics-figure svg { display: block; width: 100%; height: auto; }
+.optics-figure svg text { font-family: var(--mono); font-size: var(--fs, 11px); }
+.optics-drag { touch-action: none; user-select: none; -webkit-user-select: none; }
+
+.optics-axis { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
+.optics-ray { stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.optics-ray.is-base { stroke: var(--muted); }
+.optics-tag { fill: var(--muted); text-anchor: middle; font-variant-numeric: tabular-nums; }
+.optics-tag.is-left { text-anchor: end; }
+.optics-dim line { stroke: var(--muted); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-table { fill: var(--rail); stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.optics-post { fill: var(--rule); }
+.optics-arrow { fill: var(--ink); }
+.optics-cone { fill: var(--accent); transition: opacity 260ms ease; }
+.optics-cone.is-base { fill: var(--muted); }
+.optics-plate { fill: var(--ink); }
+.optics-screen { fill: var(--paper); stroke: var(--ink); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.optics-image { stroke: var(--accent); stroke-linecap: butt; }
+.optics-handle { cursor: grab; outline: none; }
+.optics-handle.is-dragging { cursor: grabbing; }
+.optics-grip { fill: transparent; stroke: none; transition: fill 160ms ease; }
+.optics-handle:hover .optics-grip, .optics-handle:focus-visible .optics-grip, .optics-handle.is-dragging .optics-grip { fill: color-mix(in srgb, var(--accent) 9%, transparent); stroke: color-mix(in srgb, var(--accent) 70%, transparent); stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.optics-foot rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.2; vector-effect: non-scaling-stroke; transition: fill 160ms ease; }
+.optics-foot path { fill: var(--accent); }
+.optics-handle.is-dragging .optics-foot rect, .optics-handle:focus-visible .optics-foot rect { fill: color-mix(in srgb, var(--accent) 28%, var(--paper)); }
+
+.optics-inset { margin: 0; padding: 10px; }
+.optics-inset svg { width: 100%; height: auto; display: block; border-radius: 8px; }
+.optics-inset-bg { fill: var(--pre-bg); }
+.optics-inset-axis { stroke: var(--pre-line); stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
+.optics-tick { stroke: var(--pre-ink); stroke-width: .3; opacity: .7; }
+.optics-tick-label { fill: var(--pre-ink); font-family: var(--mono); font-size: 3.9px; opacity: .75; font-variant-numeric: tabular-nums; }
+.optics-inset-image { fill: color-mix(in srgb, var(--accent) 22%, var(--pre-ink)); transition: opacity 260ms ease; }
+.optics-goal-line { stroke: var(--accent); stroke-width: .5; stroke-dasharray: 1.5 1; }
+
+@media (max-width: 760px) {
+  .optics-inset { padding: 6px; }
+  .optics-inset .bk-caption { margin-top: 4px; font-size: 10px; }
+  .optics-tick-label { font-size: 5.4px; }
+}

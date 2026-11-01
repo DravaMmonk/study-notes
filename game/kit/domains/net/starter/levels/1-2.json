@@ -1,0 +1,83 @@
+{
+  "title": {
+    "zh": "晚一拍",
+    "en": "A tick late"
+  },
+  "brief": {
+    "zh": "每一拍在右线上说出左线上一拍的位；第一拍说 0。",
+    "en": "Every tick, say on the right-hand wire the bit the left-hand wire had the tick before; say 0 on the first tick."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。",
+        "en": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick."
+      }
+    }
+  ],
+  "adds": [
+    "reg",
+    "keep"
+  ],
+  "wires": {
+    "in": [
+      {
+        "name": "left",
+        "label": {
+          "zh": "左线",
+          "en": "Left wire"
+        }
+      }
+    ],
+    "out": [
+      {
+        "name": "right",
+        "label": {
+          "zh": "右线",
+          "en": "Right wire"
+        }
+      }
+    ]
+  },
+  "tests": [
+    {
+      "wires": {
+        "left": {
+          "send": [
+            {
+              "bits": "101100"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "wires": {
+        "left": {
+          "send": [
+            {
+              "bits": "01101"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "want": {
+    "right": {
+      "late": {
+        "wire": "left",
+        "first": 0
+      }
+    }
+  },
+  "solution": [
+    "r = reg[reg=A, start=0]()",
+    "k = keep[reg=A](left)",
+    "right <- r"
+  ],
+  "after": {
+    "zh": "寄存卡让电路记得上一拍。",
+    "en": "A register lets a circuit remember the tick before."
+  }
+}

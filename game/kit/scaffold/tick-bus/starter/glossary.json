@@ -1,0 +1,12 @@
+{
+  "groups": [{ "id": "line", "title": { "zh": "线", "en": "The line" } }],
+  "entries": [
+    {
+      "id": "tick",
+      "group": "line",
+      "title": { "zh": "拍", "en": "tick" },
+      "at": "1-1",
+      "body": [{ "zh": "世界前进的一步：每一拍，线上有一位，板上的电路算一遍。", "en": "One step of the world: each tick the line carries one bit and the board computes once." }]
+    }
+  ]
+}

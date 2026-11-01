@@ -5,6 +5,7 @@ export { default as GameShell } from './GameShell.jsx'
 export { Brief, Level, PhonePage, PinnedPlay, TaskCard, Text } from './Layout.jsx'
 export { Dialog, useEscape } from './Dialogs.jsx'
 export { default as Workbench, TestStatus } from './Workbench.jsx'
+export { default as CircuitLevel, useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 export { default as RunDock } from './RunDock.jsx'
 export { default as StepLog } from './StepLog.jsx'
 export { default as Timeline } from './Timeline.jsx'
@@ -24,8 +25,10 @@ export { PHONE, useMedia } from './useMedia.js'
 /**
  * Describe a game for GameShell. Required: id, title, kicker, lede ({ zh, en } pairs), chapters
  * ([{ id, title, track, label?, question?, number?, kicker? }], track: the chapter's level tree from kit/course.js
- * layout), levels ([{ id, chapter, title, kind, requires?, unlocks?, brief?, hint?, after?, note? … }], in play order)
- * and kinds ({ [kind]: { Screen, icon?, label? } }). Optional:
+ * layout), levels ([{ id, chapter, title, kind, requires?, unlocks?, keeps?, brief?, hint?, after?, note? … }], in play
+ * order; `keeps`: whether passing it keeps the board it passed with in progress.built, one a task in a level of tasks,
+ * for a part that runs it, by default when it unlocks something) and kinds ({ [kind]: { Screen, icon?, label? } }).
+ * Optional:
  *
  *   Hero          the map's illustration ({ theme })
  *   power         a first-run dialog { title, lines }
@@ -33,7 +36,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   progress      { version, migrate(saved), legacy() } for saves from older versions or keys
  *   parts         the components box (元件箱) { all: [{ key, name, desc?, icon?, family?, at? }] (a built part's key is
  *                 the flag earning it; a primitive has `at`, the levels that bring it in, and is earned once one is open),
- *                 demo?(part, { phone }) → the part on a bench to try (React; games/kit/circuit DemoBench),
+ *                 demo?(part, { phone, progress }) → the part on a bench to try (React; games/kit/circuit DemoBench),
  *                 filters?(progress) → [{ key, name, icon?, lock?, keys }] to narrow the box, such as by robot }
  *   unlocked(level)  what passing a level unlocks [{ label, icon?, family? }] for the passed dialog
  *   passed(level)    more for the passed dialog, after the level's key idea (React), such as what the level built

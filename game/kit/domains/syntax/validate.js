@@ -1,4 +1,4 @@
-// The syntax domain's checks for `npm run check` (../../engine/check.js), sentence by sentence:
+// The syntax domain's checks for `npm run check` (../../engine/checks.js), sentence by sentence:
 //
 //   · every span and word the answer names is in the sentence, once (or picked out with #n)
 //   · the folds never cross, none hangs on a word inside itself, a fold lies inside any fold that holds its word, and
@@ -8,8 +8,8 @@
 //   · every misreading names a word the fold could really be hung on
 //   · the answer passes its own check
 
-import { keyOf, check, order, standing } from './engine/sentence.js'
-import { roleKey } from './engine/types.js'
+import { keyOf, check, order, standing } from './model/sentence.js'
+import { roleKey } from './model/parts.js'
 import { keyOf as textKey } from '../../shell/i18n.js'
 
 const crossing = (f, g) => (f.a < g.a && g.a <= f.b && f.b < g.b) || (g.a < f.a && f.a <= g.b && g.b < f.b)
@@ -45,12 +45,12 @@ export function sentenceProblems(gold, palette) {
   return problems
 }
 
-/** spec: { syntax } (engine/course.js syntaxCourse). Returns [{ text, fail? }]. */
+/** spec: domain.js spec(content), its `syntax` the course (course.js syntaxCourse). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ syntax }) {
   return syntax.LEVELS.map((level) => {
     const sentences = level.tasks ?? [level]
     const problems = sentences.flatMap((s, k) => sentenceProblems(s.gold, level.palette).map((p) => (level.tasks ? `task ${k + 1}: ${p}` : p)))
     const folds = sentences.reduce((n, s) => n + s.gold.folds.length, 0)
-    return { fail: problems.length > 0, text: `${level.id} ${textKey(level.title)}: ${problems.length ? problems.join('; ') : `${sentences.length} sentence${sentences.length === 1 ? '' : 's'}, ${folds} fold${folds === 1 ? '' : 's'} sound`}` }
+    return { level: level.id, fail: problems.length > 0, text: `${level.id} ${textKey(level.title)}: ${problems.length ? problems.join('; ') : `${sentences.length} sentence${sentences.length === 1 ? '' : 's'}, ${folds} fold${folds === 1 ? '' : 's'} sound`}` }
   })
 }

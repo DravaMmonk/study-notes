@@ -9,9 +9,10 @@
 // the code an issue comes with (1-2), and where the turn's results go: the repository (a write lands there), the
 // output (what is kept for the next turn) and stop (a done action, or a true flag, ends the run).
 //
-// Primitives: model (a context in, an action out), concat (up to three contexts in order), read (a file: the one its
-// setting names, or the one an action asks for), list (the repository's files, when an action asks), test (the tests,
-// when an action asks or says done: a report, and whether they pass).
+// The parts a course may start from (game.json primitives, vocabulary.js part): model (a context in, an action out),
+// concat (up to three contexts in order), read (a file: the one its setting names, or the one an action asks for), list
+// (the repository's files, when an action asks), test (the tests, when an action asks or says done: a report, and
+// whether they pass).
 import { source, sink } from '../../engine/boards.js'
 import { PartError } from '../../engine/circuit.js'
 import { call } from './model.js'
@@ -101,4 +102,3 @@ export function wantsOf(node, port) {
 }
 
 export const FIXED = ['issue', 'history', 'code', 'repo', 'out', 'stop']
-export const PRIMITIVES = ['model', 'concat', 'read', 'list', 'test']

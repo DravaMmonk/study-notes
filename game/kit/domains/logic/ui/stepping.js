@@ -12,7 +12,6 @@ const T = (zh, en) => ({ zh, en })
 const join = (a, b, mark = '·') => T(`${a.zh} ${mark} ${b.zh}`, `${a.en} ${mark} ${b.en}`)
 const ROUND = { repeat: (k) => T(`第 ${k} 轮`, `round ${k}`), search: (k) => T(`第 ${k} 步`, `step ${k}`) }
 const samePath = (a = [], b = []) => a.length === b.length && a.every((id, k) => id === b[k])
-const within = (path = [], prefix) => path.length >= prefix.length && prefix.every((id, k) => id === path[k])
 
 /**
  * The boards a run goes through: the level's, and inside each built part the board that built it. `opens(type)` is
@@ -110,22 +109,4 @@ export function machineViewAt(traced, steps, k) {
   if (k >= steps.length) return traced.run
   const upTo = k < 0 ? (steps[0]?.at ?? traced.trace.length) - 1 : steps[k].at
   return viewOn(traced.trace, [], 0, upTo)
-}
-
-/**
- * A built part opened on a board (its card unfolded, or its sheet on a phone), at `path` (the ids of the parts it is
- * in, outermost first, and its own): { circuit, level } it runs (the board that built it, and that level), `view` its
- * cards' values in its latest run up to trace entry `upTo` (empty before it has run), and `lit` the card on it that
- * the current step (`step`) is in or computing, if any.
- */
-export function openedAt(traced, upTo, path, circuit, level, opens, step) {
-  const board = boards(circuit, level, opens)(path)
-  if (!board) return null
-  const { trace } = traced
-  let end = Math.min(upTo, trace.length - 1)
-  while (end >= 0 && !within(trace[end].path, path)) end -= 1
-  let from = end
-  while (from > 0 && within(trace[from - 1].path, path)) from -= 1
-  const lit = step && within(step.path, path) ? step.path[path.length] ?? step.id : null
-  return { circuit: board.circuit, level: board.level, view: end < 0 ? { values: new Map(), errors: new Map() } : viewOn(trace, path, from, end), lit }
 }

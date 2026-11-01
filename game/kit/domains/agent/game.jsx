@@ -1,15 +1,18 @@
-// An agent game on the shared shell (../../shell): its spec becomes the shell's game description, with the agent
-// domain's screens (a hand session for chapter 0, a board run turn by turn after it), its parts box and its map art.
+// An agent game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
+// becomes the shell's game description, with the agent domain's screens (a hand session for chapter 0, a board run
+// turn by turn after it), its parts box and its map art.
 //
+//   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   world.js    the repository, the issues and what files, listings and test reports put in a context
 //   model.js    the stand-in model: the rules it follows
 //   parts.js    the cards of a board and what each computes
+//   board.js    a board, and a board read from blueprint text
 //   run.js      the machine: the board once a turn, until it stops
 //   hand.js     chapter 0's sessions, where the player is the loop
-//   course.js   a spec read into levels, play order and the course the audit checks
-//   build.js    boards written compactly in a spec
+//   course.js   content read into levels, play order and the course the audit checks
 //   ui/         the screens, the views of a context and a repository, the card catalog
-//   validate.js every level's reference and naive answers (npm run check); agent.test.js the rules (npm test)
+//   validate.js every level's reference and naive answers (npm run check); agent.test.js the rules and boards as
+//               text (npm test)
 import { Cog, Hand } from 'lucide-react'
 import './ui/agent.css'
 import { defineGame } from '../../shell/index.js'
@@ -20,19 +23,22 @@ import BoardScreen from './ui/BoardScreen.jsx'
 import HandScreen from './ui/HandScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
+import { agentCourse } from './course.js'
 
-/** spec: { id, title, kicker, lede, agent (agentCourse's result), glossary, saves: migration steps (../../shell/saves.js) } */
-export function defineAgentGame(spec) {
-  const { LEVELS, CHAPTERS, course } = spec.agent
+/** content (../../engine/content.js): { id, title, kicker, lede, primitives, machines, eras, repos, issues, saves:
+ *  migration steps (../../shell/saves.js), levels, glossary }. */
+export default function agentGame(content) {
+  const agent = agentCourse(content)
+  const { LEVELS, CHAPTERS, course } = agent
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, revisions: CARDS[type].revisions, icon: CARDS[type].icon, at }))
   const game = defineGame({
-    id: spec.id,
-    title: spec.title,
-    kicker: spec.kicker,
-    lede: spec.lede,
+    id: content.id,
+    title: content.title,
+    kicker: content.kicker,
+    lede: content.lede,
     Hero,
     html: true,
-    glossary: spec.glossary,
+    glossary: content.glossary,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
     levels: LEVELS.map((L, index) => ({
@@ -49,7 +55,7 @@ export function defineAgentGame(spec) {
       after: L.after,
       note: L.note,
     })),
-    progress: migrations(spec.saves ?? []),
+    progress: migrations(content.saves),
     intro: (level) => level.source.intro,
     kinds: {
       hand: { Screen: HandScreen, icon: Hand, label: { zh: '手动', en: 'By hand' } },
@@ -60,6 +66,6 @@ export function defineAgentGame(spec) {
     better: (score, best) => Boolean(score) && (!best || score.tokens < best.tokens),
     bestLabel: (best) => tr(`${best.tokens} token`, `${best.tokens} tokens`),
   })
-  game.agent = spec.agent
+  game.agent = agent
   return game
 }

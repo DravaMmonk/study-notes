@@ -1,0 +1,19 @@
+{
+  "title": { "zh": "再来两个数", "en": "Two numbers more" },
+  "brief": { "zh": "交出 a + b − c + d − e。", "en": "Give a + b − c + d − e." },
+  "intro": [{ "t": { "zh": "这一关给的数多了两个。", "en": "This level gives two more numbers." } }],
+  "inputs": [
+    { "name": "a", "label": "a" },
+    { "name": "b", "label": "b" },
+    { "name": "c", "label": "c" },
+    { "name": "d", "label": "d" },
+    { "name": "e", "label": "e" }
+  ],
+  "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+  "tests": [
+    { "inputs": { "a": 1, "b": 2, "c": 3, "d": 4, "e": 5 }, "expect": { "out": -1 } },
+    { "inputs": { "a": 0, "b": 0, "c": 0, "d": 2, "e": -1 }, "expect": { "out": 3 } }
+  ],
+  "solution": ["p = addSub(a, b, c)", "q = addSub(p, d, e)", "out <- q"],
+  "naive": ["p = addSub(a, b, c)", "q = add(p, d)", "out <- q"]
+}
