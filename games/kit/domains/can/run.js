@@ -4,8 +4,9 @@
 // test   { bus: { bits, frames }, inputs?: { name: [value per tick] } }   (course.js builds the bus from the spec)
 // level  { outputs: [{ name }], want(test) → { name: [value per tick] } }  undefined in `want`: any value will do
 //
-// runTest(level, circuit, test, parts) → { ticks: [{ tick, line, values, errors, outputs, failed? }], error?, fail? }
-//   a tick's `failed` is why its outputs are wrong; `error` a board that says what it hears in the same tick
+// runTest(level, circuit, test, parts) → { ticks: [{ tick, line, values, errors, outputs, trace, failed? }], error?, fail? }
+//   a tick's `failed` is why its outputs are wrong, its `trace` what every card computed (inside packed parts too);
+//   `error` a board that says what it hears in the same tick
 import { boardNode, runTicks } from '../../engine/ticks.js'
 import { sayer, wiredAnd } from './bus.js'
 
@@ -22,14 +23,14 @@ const wrong = (tick, label, want, got) => T(
 export function runTest(level, circuit, test, parts) {
   const ticks = test.bus.bits.length
   const bind = (tick) => Object.fromEntries(Object.entries(test.inputs ?? {}).map(([name, values]) => [name, values[tick] ?? null]))
-  const you = boardNode({ id: 'you', circuit, parts, bind })
+  const you = boardNode({ id: 'you', circuit, parts, bind, traced: true })
   const run = runTicks({ nodes: [sayer('world', test.bus.bits), you], ticks, line: wiredAnd })
   const want = level.want(test)
   const out = []
   let fail = null
   for (const step of run.steps) {
-    const { values, errors, outputs } = step.heard.you
-    const tick = { tick: step.tick, line: step.line, values, errors, outputs }
+    const { values, errors, outputs, trace } = step.heard.you
+    const tick = { tick: step.tick, line: step.line, values, errors, outputs, trace }
     if (!fail) {
       for (const o of level.outputs) {
         const w = want[o.name]?.[step.tick]
