@@ -508,6 +508,44 @@
           ],
           "report": "The gate is clean. All 33 slots now have levels. In every level the reference answer passes, the empty board fails and the naive answer fails, and every built part passes when run alone.\n\n## Levels written\n- **New (13):** 1-3 \"Both are 1\", 1-22, 1-21 (brings equal), 1-23, 1-26, 1-12 \"Between flags\", 1-13 \"Unwrap the frame\", 1-27 (builds counterhold), 1-28 (serializerhold), 1-29 (deserializerhold), 1-32, 1-35, 1-36 (crchold), 1-37. 1-27, 1-28, 1-29 and 1-36 each open on the earlier board (`carry`) and replace the old part.\n- **Renamed, because their meaning moved to another slot:**\n  - old 1-3 (the XOR level) → 1-31, now with flipped bits on two wires\n  - old 1-12 (the stuffing framer) → 1-40, now opening on 1-12's board\n  - old 1-13 (the deframer) → 1-30, now opening on 1-13's board\n\n  Saves migrate automatically.\n- **Changed:** 1-6, 1-8 and 1-15 lose hold. 1-7 brings only bit. 1-11 builds flagspot. 1-14 is now a practice level. 1-9, 1-10, 1-16, 1-17, 1-18 and 1-20 are rewired to the new parts.\n- **Removed:** 1-19 and its encyclopedia entry. The concept link from equal to bit is gone. The error-detection, parity and stuffing entries now open at 1-31, 1-32 and 1-40.\n\nNew levels got first-draft copy. Changed levels got only the copy their task change required.\n\n## Changesets\nThree changesets were written:\n- the main restructure;\n- a blueprint repair;\n- a copy fix: 1-30's title, and the 1-17/1-18 hints that still named the CRC.\n\nRefused attempts:\n- Removing 1-19 on its own was refused twice. The first time the glossary entry still named it; the second time nothing would have used the network card. So the removal went into the main changeset.\n- The main changeset failed two dry runs. A JSON merge patch had kept the old `hold` inside `want` for 1-6 and 1-15. Then a trailing idle 0 in one of 1-26's tests completed a flag by accident.\n\n**The blueprint repair:** `level.rename` follows every reference, and that included `blueprint.json`. It renamed slots 1-3, 1-12 and 1-13 and three entries in the requests' `for` lists. I set those six strings back with `blueprint.set` and checked the result; nothing else in the blueprint changed. The rename op probably shouldn't touch the blueprint at all.\n\n## What was hard to express\n- **No part can tell that the queue is empty.** Every part turns 「—」 into 「—」, and select's condition does the same. A framer that checks the queue's head therefore gets stuck for good once the queue runs dry. So 1-12, 1-40, the framer and the card keep a `send` input, which the blueprint's tasks don't mention. 1-37 depends on it: the card waits until a reply is ready. If you'd rather drop `send`, the domain would need a way to signal that the queue is empty.\n- **`given` can't check 「—」.** A `null` in `expect` means \"not checked\", so no level can require 「—」 on a given tick. 1-26 therefore asks for 0 before the first flag.\n- **`serial` has no hold parameter.** 1-28 checks its wire output with `given` instead.\n- **The counter's first tick.** The counter counts from tick 0, so a run of 1s at the very start would be off by one. 1-22 and 1-23 give their wire a delay of 1, so the first tick is always idle.\n- **Hold on the start tick.** The pausable serializer and deserializer both handle hold arriving on the start tick: the start waits for the next tick. The deframer needs this when a stuffed 0 falls right after a byte, and a hidden test covers it in 1-28, 1-29 and 1-30.\n\n## Slots the blueprint may have wrong\n- **1-12's task** should mention `send`, for the reason above.\n- **1-29** is labelled as a \"direction\" practice level, but it is really the step that adds a hold port. I agree with the curriculum designer's doubt.\n- **1-36** is a foundation level that brings no idea, only a port the receiver needs.\n- **1-35:** I made the case the curriculum designer flagged a hidden test (two flips exactly 7 bits apart get through 1011), and the level's pass text says so.\n- **1-21's timing is fine:** feeding the restart back through a register gives 1 on tick 7 and 0 again on tick 8.\n\nThe old blind-play records for 1-3, 1-12 and 1-13 now sit under ids that hold different puzzles. They only feed a REPORT, but they should be re-run.\n\nFiles are in /tmp/pipeline-network-levels-8hLUp5:\n- cs1.json\n- cs2.json\n- cs3.json\n- cs4.json",
           "transcript": "/tmp/pipeline-network-levels-8hLUp5/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-01T16:44:20.279Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 2395637,
+            "seconds": 523,
+            "cost": 1.99496,
+            "turns": 35
+          },
+          "calls": {
+            "op": {
+              "runs": 5,
+              "failed": 0
+            },
+            "check": {
+              "runs": 2,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 2,
+              "failed": 1
+            },
+            "deps": {
+              "runs": 0,
+              "failed": 0
+            },
+            "eras": {
+              "runs": 1,
+              "failed": 0
+            }
+          },
+          "changes": [
+            22,
+            23
+          ],
+          "report": "The gate is clean and `./check` passes. The first two changesets went through with no refused attempts (I dry-ran each first).\n\n**Levels written**\n- **1-41 \"带上校验字节 / Send the check byte\" (new, builds `sender`).** The reference answer is the old sending half of 1-18, with an `equal` added so it uses everything the slot lists. The naive answer never resets the check between frames; it fails test 3, which sends two frames.\n  - Visible tests: one frame, a stuffing-heavy frame, two frames that start only after 20 ticks with `send` at 0, and an empty queue with `send` at 0.\n  - Hidden tests: a run of 1s that crosses a byte boundary, a long frame full of 1s, and a 46-tick pause with `send` at 0 between two frames.\n  - I wrote first-draft copy for 1-41 and moved 1-18's two hints about building the sending half here.\n- **1-18:** the answer is now `receiver` plus `sender`. The naive answer ties the sender's `send` to 1; it fails visible test 2. I left one hint.\n- **Eras:** set to exactly what `./eras` prints, so 1-41 sits after 1-36 and the challenge 1-20 hangs after 1-35.\n\n**Finding [0] (the send input is never tested): fixed.** The far-end check (`sent`) only compares the order of what arrives, so it can't see `send`. The test format can, though: a tick left empty in `expect` means \"anything goes\". So 1-12, 1-40, 1-41 and 1-18 now also check `next`. It must be 0 on ticks where `send` is 0 and no frame is under way: at the start of a run, and between frames during a long `send` = 0 pause. A board that ignores `send` takes a byte at tick 8, which these tests catch. The empty-queue tests now hold `send` at 0 instead of 1. I also added a sentence to the 1-12 intro saying the layer above sets `send` to 1 only once it has handed down a whole frame, so the wire says only flags until then.\n\n**1-37 (the blind player who gave up):** all six attempts tied the adapter's `send` to 1 and fed it `—` while no reply was waiting. The adapter then takes the `—` byte at tick 8. A `—` spreads through every later value, so the adapter is stuck, its wire goes quiet for good, and the far end receives nothing. The cause sat upstream: 1-12, 1-40 and 1-18 all kept `send` at 1 with an empty queue, and that passed only because a stuck adapter sends nothing, which matches an empty queue. The fixes above remove that habit. I left 1-37's own tests unchanged: its answer only works if the adapter starts frames only while `send` is 1, and 1-18 now tests exactly that.\n\n**For the copy writer:**\n- The 1-37 brief should say that `send` must stay 0 until a reply is waiting, and that the adapter takes whatever is at its input when `send` is 1.\n- The 1-18 intro still says the check is worked out apart from sending and receiving; the sender now does it.\n- The 1-17 intro brings in the check byte as new, but 1-41 now comes first.\n\n**Hard to express:** there is no far-end check for \"no frame begins while `send` is 0\", so the `next` expectations stand in for it. A domain-level option on `sent` would say this more directly.\n\n**Blueprint concern:** none for 1-41. I agree with the curriculum designer that `serializerhold` in 1-17's part list is odd, but its answer does use it, to feed the held byte back into the check.",
+          "transcript": "/tmp/pipeline-network-levels-S03KkD/transcript.jsonl"
         }
       ],
       "gates": [
@@ -579,6 +617,12 @@
         },
         {
           "at": "2026-11-01T16:11:18.074Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-01T16:44:33.384Z",
           "ok": true,
           "failures": [],
           "reports": []
@@ -927,7 +971,11 @@
               "owner": "levels",
               "rule": "The level asks what it says (§4 tests; §8 新元件不是必需的)",
               "fix": true,
-              "says": "The briefs of 1-12, 1-40 and 1-18 say a new frame starts only while 「发送」 is 1, but `sent` compares only the order of what the far end decodes, so a board that ignores 发送 passes every test; yet 1-37 drives nic's send with a pending answer, so a player whose own framer (1-40) ignores it is stuck at 1-37 with a part that cannot be fixed there. Add a want or test that fails when a frame starts while 发送 is 0 (for example a far-end decode that also checks that no frame begins on a tick 发送 is 0), and have the 1-12 intro say why a sender waits for 发送."
+              "says": "The briefs of 1-12, 1-40 and 1-18 say a new frame starts only while 「发送」 is 1, but `sent` compares only the order of what the far end decodes, so a board that ignores 发送 passes every test; yet 1-37 drives nic's send with a pending answer, so a player whose own framer (1-40) ignores it is stuck at 1-37 with a part that cannot be fixed there. Add a want or test that fails when a frame starts while 发送 is 0 (for example a far-end decode that also checks that no frame begins on a tick 发送 is 0), and have the 1-12 intro say why a sender waits for 发送.",
+              "resolved": {
+                "why": "the level designer's fourth run: next is checked on the ticks send holds a frame back",
+                "at": "2026-11-01T16:44:58.727Z"
+              }
             },
             {
               "at": "1-35",

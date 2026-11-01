@@ -157,7 +157,12 @@
         ]
       }
     },
-    { "ticks": 12, "queue": [], "inputs": { "send": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] } }
+    {
+      "ticks": 20,
+      "queue": [],
+      "inputs": { "send": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+      "expect": { "next": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+    }
   ],
   "hidden": [
     {
@@ -314,6 +319,50 @@
       }
     },
     {
+      "expect": {
+        "next": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
       "ticks": 70,
       "queue": [[7], [9]],
       "inputs": {
@@ -392,7 +441,7 @@
       }
     }
   ],
-  "want": { "line": { "sent": { "format": "flag" } } },
+  "want": { "line": { "sent": { "format": "flag" } }, "next": "given" },
   "solution": [
     "z = const[value=0]()",
     "o = const[value=1]()",
