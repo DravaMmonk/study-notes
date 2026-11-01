@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { CanvasEditor, Choice, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { PhonePage } from '../../../shell/index.js'
@@ -7,9 +7,9 @@ import { def, hasValue, valueDefault, isCard } from '../model/parts.js'
 import { CARD_W } from './board.js'
 
 // A table board on the shared circuit editor (../../../circuit), the one Vision Complete uses: the same cards, dots,
-// wires, keys and gestures. `board` is the circuit mode's bridge (modes/circuit.js `ctl.board`); what a
-// card shows here is the value its output carries at the robot's cell, an input card what it reads (as on a phone),
-// and a constant's or a merger's setting, chosen with buttons (the kit's Choice) as on the phone's sheet.
+// wires, keys and gestures. `board` is the circuit level's bridge to it (modes/Circuit.jsx); what a card shows here is
+// the value its output carries at the robot's cell, an input card what it reads (board.cardView), and a constant's or
+// a merger's setting, chosen with buttons (the kit's Choice) as on the phone's sheet.
 
 const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
 // What a part's card shows: what it computed, or 未算到 when a stopped run never got to it. (A reader shows what it
@@ -37,10 +37,9 @@ export function SgCanvas({ board, overlay }) {
             <Choice options={board.consts().map((v) => [v, String(v)])} value={node.params?.value ?? valueDefault(node.type)} onChange={(v) => board.setValue(node.id, v)} label={tr('数值', 'Value')} />
           </div>
         )}
-        {/* An input card holds what it reads, as on a phone: the robot's window and arm, or the cell's facts, painted by
-            the mode ([data-cardview]); click one to add or remove its output, which runs down the card's right edge
-            with what it carries. */}
-        {isCard(node.type) && <div className="sg-cardview" data-cardview={node.type} onPointerDown={stop} />}
+        {/* An input card holds what it reads, as on a phone: the robot's window and arm, or the cell's facts; click one
+            to add or remove its output, which runs down the card's right edge with what it carries. */}
+        {isCard(node.type) && <div className="sg-cardview" data-cardview={node.type} onPointerDown={stop}>{board.cardView(node.type)}</div>}
         {swaps.length > 1 && (
           <div className="param is-choice">
             <span>{tr('操作', 'Operation')}</span>
@@ -90,11 +89,10 @@ export function SgParts({ board }) {
   return <Palette items={board.palette().map(item)} folded={board.folded().map(item)} onAdd={add} compact />
 }
 
-/** Phone: the level's page (the shell's PhonePage), the board as a grid of slots, the parts tray and the dock pinned under it; `children` (the mode's cards) above the board. */
+/** Phone: the level's page (the shell's PhonePage), the board as a grid of slots, the parts tray and the dock pinned
+ *  under it; `children` float over the page (a toast, a sheet). */
 export function SgPhone({ board, rootRef, brief, tests, results, dock, children }) {
   const scroller = useRef(null)
-  // The input cards' contents are the mode's markup: paint them after every render (a card may be new).
-  useLayoutEffect(() => board.paintView?.())
   const graph = board.graph()
   const parts = board.parts()
   const probe = board.probe()
@@ -112,10 +110,9 @@ export function SgPhone({ board, rootRef, brief, tests, results, dock, children 
   })
   const reading = board.reading?.()
   const thumb = (node) => {
-    // An input card holds what it reads (the robot's window, the cell's facts), painted by the mode: tap one to add or
-    // remove its output, which then sits over its own dot with what it carries (outNote). A tap anywhere else on the
-    // card opens its sheet.
-    if (isCard(node.type)) return <div className="sg-cardview" data-cardview={node.type} onClick={(event) => event.target.closest('[data-act]') && event.stopPropagation()} />
+    // An input card holds what it reads (the robot's window, the cell's facts): tap one to add or remove its output,
+    // which then sits over its own dot with what it carries (outNote). A tap anywhere else on the card opens its sheet.
+    if (isCard(node.type)) return <div className="sg-cardview" data-cardview={node.type}>{board.cardView(node.type)}</div>
     const { text, cls } = shownOf(node, probe, reading)
     return <i className={`sg-thumb ${text && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{text || '—'}</i>
   }

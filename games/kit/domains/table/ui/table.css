@@ -1,6 +1,6 @@
 /* 状态之图's content: boards, panels, the dock and keypad, the circuit editor. The map, the rail, the level frame,
-   dialogs and sheets are the shared game shell's (../kit/shell/shell.css), as in Vision Complete; colours, themes
-   and wire styles come from ../kit. */
+   dialogs and sheets are the shared game shell's (../../../shell/shell.css), as in Vision Complete; colours, themes
+   and wire styles come from ../../.. (the kit). */
 :root{
   /* Semantic names for this game, mapped onto the shared palette (../kit/tokens.css), so all three themes apply. */
   --bg:var(--canvas); --panel:var(--paper); --panel-2:color-mix(in srgb,var(--canvas) 65%,var(--rail)); --board:color-mix(in srgb,var(--paper) 50%,var(--canvas));
@@ -20,7 +20,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--f-body)
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;touch-action:manipulation}
 button:disabled{cursor:not-allowed}
 :focus-visible{outline:2.5px solid var(--cyan);outline-offset:2px}
-.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .eyebrow{font:600 11.5px/1.3 var(--f-mono);letter-spacing:.08em;color:var(--ink-3)}
 
 /* ---------- board (svg) ---------- */
@@ -119,14 +118,12 @@ button:disabled{cursor:not-allowed}
 .pcard p{margin:0;font-size:14px;color:var(--ink-2);text-wrap:pretty}
 .pcard p b{color:var(--ink)}
 .rule{font:600 14px/1.6 var(--f-mono);color:var(--ink);background:var(--panel-2);border-radius:10px;padding:10px 12px}
-.rule em{font-style:normal;color:var(--signal)}
 .tag{justify-self:start;display:inline-flex;align-items:center;gap:6px;font:600 11.5px var(--f-mono);padding:5px 8px;border-radius:7px;background:var(--signal-soft);color:var(--signal)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 .chip{min-height:44px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel-2);font-weight:600;font-size:14px;line-height:1.35;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:transform .12s,background .15s,border-color .15s}
 .chip:active:not(:disabled){transform:scale(.96)}
 .chip[aria-checked="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink)}
-.chip.ghost{background:transparent}
 .optlabel{font-weight:700;font-size:14px}
 .opthint{font-size:13px;color:var(--ink-3)}
 
@@ -138,17 +135,7 @@ button:disabled{cursor:not-allowed}
 .msg.good{background:var(--good-soft);color:var(--ink)}
 .msg.bad{background:var(--bad-soft);color:var(--ink)}
 .msg b{color:var(--ink);font-family:var(--f-mono)}
-.range{width:100%;accent-color:var(--signal);height:32px}
-.bignum{font:700 clamp(30px,9vw,42px)/1 var(--f-mono);font-variant-numeric:tabular-nums}
-.duo{display:grid;gap:12px}
-@media (min-width:640px){.duo{grid-template-columns:1fr 1fr}}
-.duo section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;gap:8px;align-content:start;min-width:0}
-.duo h4{margin:0;font:600 15px var(--f-display)}
-.duo .k{font:600 11.5px var(--f-mono);color:var(--ink-3)}
-.duo .slow .bignum{color:var(--bad)} .duo .fast .bignum{color:var(--good)}
-.toolarge{padding:18px 12px;border-radius:12px;border:1px dashed var(--line);color:var(--ink-3);font-size:13.5px;text-align:center}
 
-@keyframes pulse{0%{box-shadow:0 0 0 0 var(--signal)}70%,100%{box-shadow:0 0 0 12px transparent}}
 .sec-btn{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);font-weight:600;font-size:14px}
 .pad{max-width:520px;margin:0 auto;width:100%;display:grid;gap:8px}
 .pad-top{display:flex;align-items:center;gap:10px}
@@ -162,7 +149,7 @@ button:disabled{cursor:not-allowed}
 .key.full{grid-column:1/-1;font:700 15px var(--f-body);background:var(--signal-soft);border-color:var(--signal);color:var(--signal)}
 .key.ok{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink);font:800 15px var(--f-body)}
 
-/* ---------- inside a sheet a mode opens (js/screen.jsx renders it in the shell's bottom sheet) ---------- */
+/* ---------- inside a sheet a level opens (modes/Circuit.jsx, in the shell's bottom sheet) ---------- */
 .sg-sheet{display:flex;flex-direction:column;gap:16px;padding-bottom:6px}
 .kicker{font:700 12px var(--f-mono);letter-spacing:.08em;color:var(--ink-3)}
 .kicker.good{color:var(--good)} .kicker.bad{color:var(--bad)} .kicker.sig{color:var(--signal)}
@@ -173,49 +160,18 @@ button:disabled{cursor:not-allowed}
 .prose p strong{color:var(--signal);font-weight:700}
 .fig{border-radius:16px;background:var(--board);border:1px solid var(--line);padding:10px;}
 .fig svg{max-height:240px;margin:0 auto}
-.dots{display:flex;gap:6px;justify-content:center}
-.dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s,width .2s}
-.dots i.on{width:20px;border-radius:4px;background:var(--signal)}
 .acts{display:flex;gap:10px;flex-wrap:wrap}
 .btn{flex:1 1 140px;min-height:50px;border-radius:14px;font-weight:700;padding:0 18px}
 .btn.pri{background:var(--signal);color:var(--signal-ink)}
 .btn.sec{border:1px solid var(--line)}
 .btn:disabled{opacity:.35}
-.sg-sheet .note{border-left:3px solid var(--signal);padding:10px 14px;background:var(--panel-2);border-radius:0 12px 12px 0;display:grid;gap:2px}
-.sg-sheet .note span{font:700 11.5px var(--f-mono);letter-spacing:.06em;color:var(--signal)}
-.sg-sheet .note p{margin:0;font-weight:600}
-.sg-sheet .hint{border-left:3px solid var(--cyan);padding:10px 14px;background:var(--panel-2);border-radius:0 12px 12px 0;margin:0;font-size:14.5px}
-.sg-sheet .hint b{font:700 11.5px var(--f-mono);letter-spacing:.06em;color:var(--cyan);display:block;margin-bottom:2px}
-.part{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;align-items:center;padding:14px;border-radius:14px;background:var(--signal-soft);animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
-.part .ic{grid-row:span 3;width:46px;height:46px;border-radius:13px;background:var(--signal);color:var(--signal-ink);display:grid;place-items:center}
-.part small{font:700 11px var(--f-mono);color:var(--signal);letter-spacing:.06em}
-.part b{font:600 17px var(--f-display)}
-.part span{font-size:13.5px;color:var(--ink-2)}
-.part.off{background:var(--panel-2);animation:none;opacity:.55}
-.part.off .ic{background:var(--chip);color:var(--ink-3)}
-@keyframes pop{from{transform:scale(.88);opacity:0}}
-@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
-.shake{animation:shake .4s}
-.qopt{text-align:left;min-height:48px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel-2);font-size:14.5px;line-height:1.45;transition:border-color .15s,background .15s}
-.qopt.right{border-color:var(--good);background:var(--good-soft)}
-.qopt.wrong{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
 .list{display:grid;gap:10px}
-.nrow{display:grid;gap:4px;padding:12px 14px;border-radius:14px;border:1px solid var(--line)}
-.nrow p{margin:0;font-weight:600}
-.sg-sheet .empty{padding:20px;border-radius:14px;border:1px dashed var(--line);color:var(--ink-2);text-align:center;font-size:14px}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,calc(-100% - 24px));padding:11px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:transform .3s cubic-bezier(.2,.85,.25,1);text-align:center}
 .toast.show{transform:translate(-50%,0)}
 /* ---------- chapter 7–10 ---------- */
-#after:empty,#view:empty{display:none}
+.sg-after:empty{display:none}
 .chip[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink)}
 .chip:disabled{opacity:.55;border-style:dashed}
-.chips.col{flex-direction:column;align-items:stretch}
-.chips.col .chip{justify-content:flex-start;text-align:left}
-.chip .box{width:16px;height:16px;border-radius:5px;border:1.5px solid currentColor;flex:none;display:grid;place-items:center;opacity:.6}
-.chip[aria-pressed="true"] .box{opacity:1;background:var(--cyan-ink);border-color:var(--cyan-ink)}
-.chip[aria-pressed="true"] .box::after{content:"";width:8px;height:4px;border-left:2px solid var(--cyan);border-bottom:2px solid var(--cyan);transform:rotate(-45deg) translate(1px,-1px)}
-.chip .lk{font:500 11.5px var(--f-body);display:inline-flex;align-items:center;gap:4px;margin-left:auto;color:var(--ink-3)}
-.chip .lk svg{width:12px;height:12px}
 .chip.route-A[aria-checked="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink)}
 .chip.route-B[aria-checked="true"]{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
 .route.ra-line{background:var(--cyan-soft);color:var(--cyan)}
@@ -265,42 +221,15 @@ button:disabled{cursor:not-allowed}
 .kg{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
 .kg i{width:11px;height:11px;border-radius:3px;background:var(--c)}
 .kg em{font:600 12px var(--f-mono);color:var(--ink-3);font-style:normal;margin-left:4px}
-.stories{display:grid;gap:10px;padding-block:4px}
-.story{padding:14px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel);display:grid;gap:10px}
-.story p{margin:0;text-wrap:pretty}
-.story.ok{border-color:var(--good)} .story.no{border-color:var(--bad)}
-.story .why{font-size:13.5px;color:var(--ink-2);border-left:3px solid var(--good);padding-left:10px}
-.story .why.no{border-left-color:var(--bad)}
-.mchips{display:flex;flex-wrap:wrap;gap:6px}
-.mchip{min-height:40px;padding:6px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--panel-2);font-size:13.5px;font-weight:600;transition:background .15s,border-color .15s}
-.mchip[aria-checked="true"]{background:var(--cyan);color:var(--cyan-ink);border-color:var(--cyan)}
-.ref{display:grid;gap:2px;padding:10px 12px;border-radius:12px;background:var(--panel-2)}
-.ref b{font:600 14.5px var(--f-display)}
-.ref span{font-size:13px;color:var(--ink-2)}
 /* ---------- the robot's window (the circuit board itself is the shared editor, ../kit/circuit) ---------- */
 .vwins{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 16px}
 .tag{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;border-radius:5px;background:var(--c);color:var(--tag-ink);font:700 10px/1 var(--f-body);white-space:nowrap}
-.cl{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 4px}
 .cview{--vc:32px;display:grid;gap:7px;justify-items:center;align-content:start;padding:8px 6px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);max-width:150px}
 .vpart{width:100%;display:grid;gap:7px;justify-items:center;align-content:start}
 @media (min-width:420px){.cview{--vc:38px;max-width:200px}}
 .vblock{display:grid;gap:3px;justify-items:center}
 .vsub{font:600 10px var(--f-body);color:var(--ink-3);text-align:center}
 .vwin{display:grid;gap:3px;grid-template-columns:repeat(3,var(--vc));grid-auto-rows:var(--vc)}
-/* 千层's view of the other layers: a small 3×3 for each, in a row that wraps. */
-/* The table's layer count, for a level whose layers the player stacks. */
-.layerset{display:flex;align-items:center;gap:10px}
-/* A layer heading on the test board that is a tick box: the ticked layer's end cell is the answer. */
-.tx-tick{cursor:pointer}
-.tx-tick .tick-hit{fill:transparent}
-.tx-tick:hover .tick-hit,.tx-tick:focus-visible .tick-hit{fill:var(--hover)}
-.tx-tick:focus-visible{outline:none}
-.tx-tick .tick-box{fill:none;stroke:var(--ink-3);stroke-width:1.6}
-.tx-tick.on .tick-box{fill:var(--accent);stroke:var(--accent)}
-.tx-tick .tick-mark{fill:none;stroke:var(--paper);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.tx-tick.on .tx{fill:var(--ink)}
-.layerset .chip{min-width:40px;min-height:36px;padding:0;font-size:18px}
-.layerset b{min-width:4em;text-align:center;font:700 15px var(--f-mono)}
 .vwin.n5{--vc:22px;gap:2px;grid-template-columns:repeat(5,var(--vc))}
 @media (min-width:420px){.vwin.n5{--vc:27px}}
 .vcell{position:relative;width:var(--vc);height:var(--vc);border-radius:6px;background:var(--chip);border:1.5px solid var(--chip-line);display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--ink);opacity:.55}
@@ -349,10 +278,6 @@ button:disabled{cursor:not-allowed}
 .vtop.has-facts .vwins{flex-direction:column;align-items:center}
 .vtop .vfact{min-height:30px;padding:3px 10px;gap:6px;font-size:12.5px;line-height:1.3}
 .vtop .vfact .vv{font-size:12px}
-.vfacts-only{width:100%;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-.vfacts-only .vfact{min-height:30px;padding:3px 10px;gap:6px;font-size:12.5px;line-height:1.3;color:inherit;background:none;cursor:pointer}
-.vfacts-only .vfact .vv{font-size:12px}
-.vfacts-only .vfact:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .cview:empty{display:none}
 .vfact .glyph{width:20px;height:14px}
 .vfact .vv{font:700 10.5px var(--f-mono);color:var(--signal)}
@@ -374,10 +299,9 @@ button:disabled{cursor:not-allowed}
 .bot-visor{fill:var(--bot-line)}
 .bot-eye-l{fill:var(--cyan)}
 .bot-tread{stroke:var(--bot-line);stroke-width:1.4;stroke-dasharray:2 2}
-.bot-lamp2{fill:var(--cyan)}
 .bot-arm{fill:none;stroke:var(--bot-ant);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .bot-claw{fill:none;stroke:var(--signal);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-/* The parts' looks (js/circuit/looks.js), drawn from the robots' pieces plus a sign and a barrier. */
+/* The parts' looks (looks.js), drawn from the robots' pieces plus a sign and a barrier. */
 .bot-mark{fill:none;stroke:var(--bot-line);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .bot-bar{fill:none;stroke:var(--bot-ant);stroke-width:3.2;stroke-linecap:round}
 .bot-bar.is-stop{stroke:var(--bad);stroke-dasharray:3.4 2.4;stroke-linecap:butt}
@@ -391,14 +315,11 @@ svg.plook{display:block;flex:none;overflow:visible}
 .cell.typed .val{fill:var(--signal)}
 .backbench{justify-self:start}
 .cell.on rect{stroke:var(--cyan);stroke-width:3;fill:var(--cyan-soft)}
-.dirrow{display:grid;gap:8px}
 .pal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2)}
 .pal:active{transform:scale(.98)}
 .pal-ic{width:42px;height:42px;border-radius:12px;background:var(--chip);border:1px solid var(--chip-line);display:grid;place-items:center;font:600 16px var(--f-display);color:var(--ink)}
-.pal-ic.bp{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
 .pal-tx{display:grid;gap:2px}
 .pal-tx b{font:600 15px var(--f-display)}
-.pal-tx b em{font:700 10.5px var(--f-mono);font-style:normal;margin-left:8px;padding:2px 6px;border-radius:5px;background:var(--signal);color:var(--signal-ink);vertical-align:2px}
 .pal-tx small{font-size:13px;color:var(--ink-2);line-height:1.5}
 .cell.ctap rect{fill:var(--panel-2);stroke:var(--line)}
 .cell.ctap .val,.cell.coutf .val{font:600 13px var(--f-body)}
@@ -412,21 +333,19 @@ svg.plook{display:block;flex:none;overflow:visible}
 img{max-width:100%}
 /* ---------- pointer devices: hover feedback ---------- */
 @media (hover:hover) and (pointer:fine){
-  .lcard:hover{border-color:var(--ink-3)}
-  .iconbtn:hover,.introbtn:hover,.pill:hover,.sec-btn:hover,.btn.sec:hover{background:var(--panel-2)}
-  .chip:hover:not(:disabled):not([aria-checked="true"]):not([aria-pressed="true"]),.mchip:hover,.qopt:hover,.itm:hover{border-color:var(--ink-3)}
+  .sec-btn:hover,.btn.sec:hover{background:var(--panel-2)}
+  .chip:hover:not(:disabled):not([aria-checked="true"]):not([aria-pressed="true"]),.itm:hover{border-color:var(--ink-3)}
   .cell.tap:hover rect{stroke:var(--ink-3)}
   .vcell.can:hover{border-color:var(--cyan);opacity:1}
   .vfact:hover{border-color:var(--cyan)}
 }
 
-/* ---------- desktop (above 760px): the kit's workbench (games/kit/shell/Workbench.jsx), as in every game. js/screen.jsx
-   puts the board card on the stage, the panel in the brief and the dock at the bottom right; a circuit level puts its
-   board on the stage and the test board in the strip (below). ---------- */
+/* ---------- desktop (above 760px): the kit's workbench (games/kit/shell/Workbench.jsx), as in every game. A level
+   played by hand (HandLevel.jsx) puts the board card on the stage, its cards in the brief and the dock at the bottom
+   right; a circuit level puts its board on the stage and the test board in the strip (below). ---------- */
 @media (min-width:761px){
   .sg-level .stage-pane{scrollbar-width:thin}
   .bcard>*,.panel>*{flex-shrink:0}
-  .dmeta{font-size:11.5px}
   .pad{max-width:none}
 
 
@@ -436,7 +355,6 @@ img{max-width:100%}
   .sg-level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
   .sg-level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 220px)}
   /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
-  #view .cview{max-width:none;background:var(--board);border:0;box-shadow:inset 0 0 0 1px var(--line)}
   .cview{--vc:42px;max-width:none;padding:12px 10px}
   .vwin.n5{--vc:32px}
 
@@ -455,8 +373,6 @@ img{max-width:100%}
   .sg-level.is-circuit .pl-scroll>.sg-slots{padding-inline:0}
   .sg-level .pl-drawer .bcard{padding:0}
 }
-/* Language button (js/i18n.js); English pages hide the Chinese markup until it has been swapped. */
-html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 
 /* ---------- chapters 12–20: yes/no tables, segments, scan orders, rounds ---------- */
 .cell.yes rect{fill:var(--good-soft);stroke:var(--good)}
@@ -467,15 +383,6 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .cell.void .val{fill:var(--ink-3);font-size:14px}
 .cell.coin .cn{fill:var(--signal);font-size:12px}
 .cell .bar{fill:var(--cyan);opacity:.8}
-.dialopts{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
-.dialopt{display:grid;gap:7px;justify-items:center;align-content:start;padding:10px 8px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel-2);font-size:12.5px;line-height:1.35;text-align:center}
-.dialopt[aria-checked="true"]{border-color:var(--cyan);background:var(--cyan-soft);box-shadow:inset 0 0 0 1px var(--cyan)}
-.ofig{display:grid;grid-template-columns:repeat(var(--oc),18px);gap:2px}
-.ofig i{width:18px;height:18px;border-radius:4px;background:var(--chip);border:1px solid var(--chip-line);font:700 9px/16px var(--f-mono);font-style:normal;text-align:center;color:var(--ink-2)}
-.ofig i.no{visibility:hidden}
-.dialopt[aria-checked="true"] .ofig i{border-color:var(--cyan)}
-.dial.flash{animation:dialflash .45s ease-in-out 4}
-@keyframes dialflash{50%{box-shadow:0 0 0 3px var(--bad);border-color:var(--bad)}}
 .varm.sweeps{width:100%;justify-items:stretch;gap:6px;padding-bottom:4px}
 .vsweep{position:relative;display:grid;gap:4px;padding:6px 8px;border-radius:10px;border:1.5px dashed var(--wire);text-align:left;background:var(--panel)}
 .vsweep.on{border:2px solid var(--cyan);background:var(--cyan-soft)}
@@ -486,34 +393,13 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .vcell.sm .vc{max-width:calc(100% - 2px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:7.5px}
 .vcell.v-out{opacity:.28}
 .vnone{font-size:11px;color:var(--ink-3);font-style:normal}
-.vfilts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.vfilt{min-height:30px;padding:0 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);font:600 12px var(--f-body)}
-.vfilt[aria-checked="true"]{background:var(--cyan);color:var(--cyan-ink);border-color:var(--cyan)}
-/* A setting the level fixes (what the state remembers, the scan order, the arm's filter, the rewrite direction):
-   shown like the chosen option of a control, but it is not one. */
-.chip.is-fixed{min-height:36px;cursor:default;font-weight:600}
-.chip.is-fixed.is-on{background:var(--cyan-soft);border-color:var(--cyan);color:var(--ink)}
-.chip.is-fixed:not(.is-on){opacity:.6;border-style:dashed}
-.chip.is-fixed.is-on .box{opacity:1;background:var(--cyan);border-color:var(--cyan)}
-.dialopts.is-fixed{grid-template-columns:minmax(0,180px)}
-.vfilt.is-fixed{display:inline-flex;align-items:center;cursor:default}
 .cell.kred rect{stroke:var(--w1)} .cell.kred .lb{fill:var(--w1)}
 .cell.kblue rect{stroke:var(--w0)} .cell.kblue .lb{fill:var(--w0)}
 .cell.kgreen rect{stroke:var(--w3)} .cell.kgreen .lb{fill:var(--w3)}
 .vcell.v-kred{border-color:var(--w1)} .vcell.v-kblue{border-color:var(--w0)} .vcell.v-kgreen{border-color:var(--w3)}
-.chip[role="switch"][aria-checked="true"] .box{opacity:1;background:var(--cyan-ink);border-color:var(--cyan-ink)}
-.chip[role="switch"][aria-checked="true"] .box::after{content:"";width:8px;height:4px;border-left:2px solid var(--cyan);border-bottom:2px solid var(--cyan);transform:rotate(-45deg) translate(1px,-1px)}
-.memk.k-red:not([aria-checked="true"]){border-color:color-mix(in srgb,var(--w1) 50%,var(--line))}
-.memk.k-blue:not([aria-checked="true"]){border-color:color-mix(in srgb,var(--w0) 50%,var(--line))}
-.memk.k-green:not([aria-checked="true"]){border-color:color-mix(in srgb,var(--w3) 50%,var(--line))}
-.askn{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
-.askn span:not(.bignum){font-size:14px;color:var(--ink-2)}
-.bignum.over{color:var(--bad)}
 .orders{display:flex;gap:22px;flex-wrap:wrap}
 .orders figure{margin:0;display:grid;gap:6px;justify-items:center}
 .orders figcaption{font-size:12.5px;color:var(--ink-2)}
-.ofig.big{grid-template-columns:repeat(var(--oc),28px);gap:3px}
-.ofig.big i{width:28px;height:28px;font-size:12px;line-height:26px}
 .chip svg{flex:none}
 .cell.gold rect{fill:var(--signal-soft);stroke:var(--signal);stroke-width:2.4}
 .cell.gold .lb,.cell.gold .val{fill:var(--signal)}
@@ -528,25 +414,21 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .cell.cut rect{stroke:var(--bad);stroke-width:2.6}
 .thumbs figure{min-width:0}
 .thumbs .board-svg{max-width:100%}
+.sg-figure{display:contents}
 
-/* ---------- circuit levels on the shared circuit editor (../kit/circuit, js/circuit/BoardView.jsx) ---------- */
+/* ---------- circuit levels on the shared circuit editor (../../../circuit, BoardView.jsx) ---------- */
 [data-family='sg'] { --fam: var(--accent); }
-.sg-boardpanel { display: flex; flex-direction: column; gap: 16px; }
-.sg-boardpanel > #panel, .sg-boardpanel > #panelAfter { display: flex; flex-direction: column; gap: 16px; }
-.sg-boardpanel > #panel:empty, .sg-boardpanel > #panelAfter:empty { display: none; }
 .sg-canvas { position: relative; flex: 1; min-height: 420px; overflow: hidden; }
 /* The editor's root is also a `.board`: keep this game's test-board rules (a sideways scroll, a bleed) off it. Clipped, not
    hidden, so focusing a part in a floating window can never scroll the board under it. */
 .sg-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
-/* The whole middle column is the board: no frame around it. A level's own choices (memory, scan order, the direction
-   switches) are in the brief (js/screen.jsx). */
+/* The whole middle column is the board: no frame around it. */
 .sg-body { margin: 6px 10px 0; display: grid; gap: 4px; }
 .sg-body .param { margin: 0; }
 .sg-tag { color: var(--muted); font: 600 11px var(--f-mono); }
 .sg-val, .sg-thumb { min-width: 44px; min-height: 30px; padding: 2px 8px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: var(--panel-2); font: 700 15px var(--f-mono); font-style: normal; font-variant-numeric: tabular-nums; }
 .sg-val.is-on, .sg-thumb.is-on { color: var(--ink); background: color-mix(in srgb, var(--fam, var(--accent)) 14%, var(--paper)); }
 .sg-thumb { min-width: 60px; min-height: 40px; font-size: 18px; }
-.sg-thumb.is-hint { min-height: 28px; padding: 4px 10px; color: var(--ink-3); font: 600 11.5px var(--f-body); }
 .pb-thumb:empty { display: none; }
 .pb-o .sg-oval { min-width: 26px; font-size: 12px; }
 /* A run that stopped on a cell not computed yet: that input reads 未算, and the cards it never got to 未算到. */
@@ -561,7 +443,7 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-level.is-circuit .cview .vwin.n5 { --vc: clamp(34px, calc((100vw - 90px) / 5.6), 52px); gap: 4px; }
 .sg-level.is-circuit .cview .n5 .vcell { font-size: 12px; }
 .sg-slots { min-width: 0; padding: 8px 12px 16px; overflow-x: clip; }
-/* An input card on a phone holds what it reads (js/circuit/BoardView.jsx): the robot's window or the cell's facts, each
+/* An input card on a phone holds what it reads (BoardView.jsx): the robot's window or the cell's facts, each
    tapped to add or remove its output. The two cards share a row, each as wide as half of it. */
 .sg-slots .pb-terms.is-sources > .pb-term { max-width: none; }
 .sg-cardview { --vc: 34px; width: 100%; display: grid; justify-items: center; gap: 6px; line-height: 1.25; }
@@ -587,26 +469,14 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-cardview .vfact .tag { display: none; }
 .sg-cardview .vsub { font-size: 10px; }
 .sg-level.is-circuit .pb-banner, .sg-level.is-circuit .pb-toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
-/* A circuit level's choices in the brief: plain sections under the task, no card around them. */
-.sg-extras, .sg-extras > div { display: grid; gap: 22px; }
-.sg-extras > div:empty, .sg-extras:has(> div:empty + div:empty) { display: none; }
-.sg-extras .pcard { padding: 16px 0 0; gap: 10px; border: 0; border-top: 1px solid var(--hairline); border-radius: 0; background: none; }
-.sg-extras .pcard h3 { flex-direction: column; align-items: flex-start; gap: 2px; font-size: 15px; }
-.sg-extras .pcard p { font-size: 13px; line-height: 1.6; }
-.sg-extras .chips { display: grid; gap: 6px; }
-.sg-extras .chips.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.sg-extras .memk { min-height: 38px; justify-content: flex-start; }
-.sg-extras .dialopts { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
 /* Circuit levels on a desktop sit on the kit's circuit layout (games/kit/shell/Workbench.jsx): what the robot reads
-   on its input cards on the board, the test board in the strip under it, centred and sized to its pane by js/screen.jsx
+   on its input cards on the board, the test board in the strip under it, centred and sized to its pane by modes/Circuit.jsx
    (fitBoard). */
 @media (min-width: 761px) {
   .wb-results > .wb-pane-body { display: flex; flex-direction: column; }
   .wb-results .bcard { margin: auto 0; padding: 0; gap: 8px; justify-items: center; align-content: center; border: 0; border-radius: 0; background: none; box-shadow: none; }
-  .wb-results .bcard > #after:empty { display: none; }
   .wb-results .board { margin: 0; padding: 0; overflow: visible; background: none; box-shadow: none; }
   .wb-results .board-svg { display: block; margin: 0 auto !important; }
-  .wb-results .bhint { margin: 0; color: var(--ink-3); font-size: 12px; line-height: 1.5; }
   .wb-results .wb-pane-head .bnote { margin: 0; }
   /* The tests, as Vision Complete's: quiet pills, the one shown outlined; a ring that fills when it passes or fails. */
   .wb-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; gap: 6px; }
@@ -619,7 +489,7 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
   .wb-stage .sg-canvas { position: absolute; inset: 0; min-height: 0; }
   .sg-level .stage-pane.is-board { overflow: hidden; }
 }
-/* A part's bench in the parts box (js/circuit/PartDemo.jsx): the test board and the robot's view side by side, the
+/* A part's bench in the parts box (PartDemo.jsx): the test board and the robot's view side by side, the
    circuit under them, as in a level. */
 .sg-bench-scene { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: start; margin-bottom: 12px; }
 .sg-bench-board { min-width: 0; padding: 10px; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
@@ -627,9 +497,14 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .sg-bench-board [data-cell] { cursor: pointer; }
 .sg-bench-view .cview { --vc: 30px; max-width: none; margin: 0; padding: 10px 8px; border: 0; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .sg-bench-view .cview .vwin.n5 { --vc: 24px; }
-.sg-bench-view .cview button { pointer-events: none; }
 .sg-bench-canvas { position: relative; overflow: clip; border-radius: 12px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
 .sg-bench-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
+/* A built part opened on its bench: the board it runs, and the way back out, named after the part. */
+.sg-inside-back { position: absolute; z-index: 5; top: 10px; left: 10px; min-height: 30px; padding: 0 12px 0 9px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 9px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font: 600 13px var(--sans); cursor: pointer; }
+.sg-inside-back:hover { background: var(--hover); }
+.sg-inside { position: relative; }
+.sg-inside:not(.sg-bench-canvas) > .sg-inside-back { position: static; margin-bottom: 10px; }
+.sg-open { justify-self: start; min-height: 36px; padding: 0 14px 0 11px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 9px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: 600 13px var(--sans); cursor: pointer; }
 @media (max-width: 760px) {
   .sg-bench-scene { grid-template-columns: minmax(0, 1fr); }
   .sg-bench-view .cview { --vc: 38px; }
@@ -641,7 +516,7 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
   .sg-level.is-circuit .cview .vtop.has-facts .vwin.n5 { --vc: clamp(28px, calc((100vw - 250px) / 5.4), 44px); }
 }
 
-/* 视野's box (js/circuit/BoardView.jsx, the phone's part sheet): blank squares for the cells the robot sees; the ones
+/* 视野's box (modes/Circuit.jsx, the phone's part sheet): blank squares for the cells the robot sees; the ones
    being read are lit, the robot's own square is framed red, and one the card cannot read is dashed. */
 .rgrid{--rs:18px;display:grid;grid-template-columns:repeat(var(--rn),var(--rs));grid-auto-rows:var(--rs);gap:4px;justify-content:center;padding:4px 0}
 .rgrid[style*="--rn: 5"],.rgrid[style*="--rn:5"]{--rs:14px;gap:3px}
@@ -652,7 +527,7 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 .rcell:disabled{cursor:default;border-style:dashed;background:transparent;opacity:.55}
 .rcell.self:disabled{border-style:solid;opacity:.8}
 .sg-sheet .rgrid{--rs:34px;justify-content:start}
-/* An input card on the desktop board holds what it reads, as on a phone (js/circuit/BoardView.jsx): the robot's window
+/* An input card on the desktop board holds what it reads, as on a phone (BoardView.jsx): the robot's window
    and arm, or the cell's facts, each clicked to add or remove its output; the outputs run down the card's right edge. */
 .sg-body.is-reader{align-items:stretch}
 .sg-body.is-reader .sg-cardview{width:auto;margin-right:74px;justify-items:start;container-type:normal}
@@ -666,10 +541,6 @@ html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
 /* What each of a reader's outputs carries, beside its dot. */
 .sg-oval{min-width:22px;padding:1px 5px;border-radius:5px;background:var(--panel-2);color:var(--ink);font:700 10.5px var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
 
-/* The level's robot, under the task: its look, name and abilities, what it does, and its settings. */
-.robotcard{display:grid;gap:10px}
-.robotcard .rc-set{display:grid;gap:6px}
-.robotcard .rc-set small{color:var(--ink-3);font-size:11.5px;line-height:1.5}
 
 /* What the robot reads, as buttons in the inputs window: a click adds or removes that output on 视野 or 本格信息. */
 button.vcell, button.vfact, button.vsweep { font: inherit; color: inherit; cursor: pointer; }

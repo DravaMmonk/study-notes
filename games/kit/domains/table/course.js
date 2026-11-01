@@ -183,6 +183,7 @@ export function tableCourse(content) {
       name: PARTS[L.unlock]?.name ?? L.unlock, desc: PARTS[L.unlock]?.desc ?? '', level: L.id,
       ins: ports.map(p => p.type), labels: ports.map(p => p.short), portLabels: ports.map(p => p.label), sensors: ports.map(p => p.sensor), inputs: ports.map(p => p.input),
       out: out[0], outType: out[3], setting: L.builds.setting,
+      board: () => ownBoard(L.id, s),
       part: {
         ...packed({ circuit: () => asPacked(ownBoard(L.id, s)), inputs: ports.map((_, k) => String(k)), outputs: [out[0]], inside: ctx => ({ ...ctx, ports: index }) }),
         params: L.builds.setting !== undefined ? ['value'] : [],

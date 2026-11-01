@@ -1,6 +1,6 @@
 // SVG board drawing: scenes (../model/scene.js) are { cells, edges, texts?, paths?, robot? } in board units, scaled to
 // fit. `robot` is the id (or ids) of the cell the robot stands on, drawn perched on its top edge; `look` picks the
-// robot's picture.
+// robot's picture. A cell the player can tap (`tap`) carries its id as data-cell (Scene.jsx hands the tap on).
 
 import { fmt } from '../model/format.js';
 import { W } from '../model/scene.js';
@@ -37,7 +37,7 @@ function edgeSVG(A, B, e, twin, uid) {
  * The marks a board cell can carry, each an icon drawn small in its top-left corner, so a cell's value stays centred
  * and lines up with its neighbours'. Drawn on a 12 × 12 grid in the cell's colour (a key or door takes its key's).
  */
-const MARKS = {
+export const MARKS = {
   start: '<path d="M3 11.5V1.5"/><path d="M3 2h6.5L8 4.5 9.5 7H3"/>',
   end: '<circle cx="6" cy="6" r="4.6"/><circle cx="6" cy="6" r="1.6" class="mk-fill"/>',
   key: '<circle cx="3.6" cy="6" r="2.4"/><path d="M6 6h5.2M9.4 6v2.2M11.2 6v1.6"/>',
@@ -47,11 +47,8 @@ const MARKS = {
   cliff: '<path d="M1 3.2h5.2v8.3"/><path d="M6.2 11.5H11"/><path d="M8.6 3v4.2M7.4 6l1.2 1.4L9.8 6"/>',
 };
 /** Older figures still say 起 / 终 in a cell's corner: those become the start and end marks. */
-const markOf = c => c.mark || (c.corner !== undefined && c.corner !== null && c.corner !== '' ? (String(c.corner) === String(W.start) ? 'start' : String(c.corner) === String(W.end) ? 'end' : null) : null);
-/** A mark as a small inline icon for HTML (the robot's view): `<svg class="mk-ico">` on the same 12 × 12 grid. */
-export const markIcon = kind => (MARKS[kind] ? `<svg class="mk mk-${kind} mk-ico" viewBox="0 0 12 12" aria-hidden="true">${MARKS[kind]}</svg>` : '');
-export { markOf };
-export const markSVG = (kind, x, y, size = 11) => (MARKS[kind] ? `<g class="mk mk-${kind}" transform="translate(${f1(x)} ${f1(y)}) scale(${f1(size / 12)})" aria-hidden="true">${MARKS[kind]}</g>` : '');
+export const markOf = c => c.mark || (c.corner !== undefined && c.corner !== null && c.corner !== '' ? (String(c.corner) === String(W.start) ? 'start' : String(c.corner) === String(W.end) ? 'end' : null) : null);
+const markSVG = (kind, x, y, size = 11) => (MARKS[kind] ? `<g class="mk mk-${kind}" transform="translate(${f1(x)} ${f1(y)}) scale(${f1(size / 12)})" aria-hidden="true">${MARKS[kind]}</g>` : '');
 
 function cellSVG(c, uid) {
   const hw = c.w / 2, hh = c.h / 2, cls = c.cls || '', rock = cls.includes('rock');
@@ -72,6 +69,7 @@ function cellSVG(c, uid) {
   </g>`;
 }
 
+/** A scene as SVG markup, its own ids new each time. opt: { pad, minScale, maxScale, label }. */
 export function sceneSVG(scene, opt = {}) {
   const uid = `b${++svgSeq}`, pad = opt.pad ?? 14, cells = scene.cells, edges = scene.edges || [];
   const by = Object.fromEntries(cells.map(c => [c.id, c]));
@@ -79,7 +77,7 @@ export function sceneSVG(scene, opt = {}) {
   for (const c of cells) { x0 = Math.min(x0, c.x - c.w / 2); x1 = Math.max(x1, c.x + c.w / 2); y0 = Math.min(y0, c.y - c.h / 2); y1 = Math.max(y1, c.y + c.h / 2); }
   for (const e of edges) if (e.bend) { const my = (by[e.a].y + by[e.b].y) / 2 + e.bend * 0.55; y0 = Math.min(y0, my - 4); y1 = Math.max(y1, my + 4); }
   for (const t of scene.texts || []) {
-    const w = t.tick ? 13 : textW(t.t), a = t.tick ? 'start' : t.anchor || 'middle', lx = a === 'end' ? t.x - w : a === 'start' ? t.x : t.x - w / 2;
+    const w = textW(t.t), a = t.anchor || 'middle', lx = a === 'end' ? t.x - w : a === 'start' ? t.x : t.x - w / 2;
     x0 = Math.min(x0, lx); x1 = Math.max(x1, lx + w); y0 = Math.min(y0, t.y - 14); y1 = Math.max(y1, t.y + 5);
   }
   for (const p of scene.paths || []) if (p.box) { x0 = Math.min(x0, p.box[0]); y0 = Math.min(y0, p.box[1]); x1 = Math.max(x1, p.box[2]); y1 = Math.max(y1, p.box[3]); }
@@ -89,10 +87,7 @@ export function sceneSVG(scene, opt = {}) {
   // labels), so the board does not rescale, and seem to flash, when the robot reaches the top row or right column.
   if ('robot' in scene) for (const c of cells) if (!/\baxis\b/.test(c.cls || '')) { y0 = Math.min(y0, c.y - c.h / 2 - 20); x1 = Math.max(x1, c.x + c.w / 2 + 8); }
   const pathSVG = (scene.paths || []).map(p => `<path class="edge ${p.cls}" d="${p.d}"${MARKED.has(p.cls) ? ` marker-end="url(#${uid}-${p.cls})"` : ''}/>`).join('');
-  // A tick box the player sets (t.tick, t.act / t.v, ticked when t.on), drawn on a heading's line: which layers count.
-  const textSVG = (scene.texts || []).map(t => (t.tick
-    ? `<g class="tx-tick${t.on ? ' on' : ''}" data-act="${t.act}" data-v="${t.v}" role="checkbox" aria-checked="${!!t.on}" tabindex="0" aria-label="${t.aria || ''}"><rect class="tick-hit" x="${f1(t.x - 6)}" y="${f1(t.y - 17)}" width="25" height="25" rx="6"/><rect class="tick-box" x="${t.x}" y="${f1(t.y - 11)}" width="13" height="13" rx="3.5"/>${t.on ? `<path class="tick-mark" d="M${f1(t.x + 3)} ${f1(t.y - 4.5)}l2.6 2.6 4.6-5.4"/>` : ''}</g>`
-    : `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${t.t}</text>`)).join('');
+  const textSVG = (scene.texts || []).map(t => `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${t.t}</text>`).join('');
   const pairs = new Set(edges.map(e => `${e.a}>${e.b}`));
   const vw = x1 - x0 + 2 * pad, vh = y1 - y0 + 2 * pad;
   const mk = (n, col) => `<marker id="${uid}-${n}" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0 0.5L10 5L0 9.5z" style="fill:${col}"/></marker>`;

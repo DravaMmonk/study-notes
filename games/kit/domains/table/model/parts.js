@@ -63,7 +63,8 @@ export const isGiven = type => isCard(type) || type === 'port' || type === 'tap'
 /**
  * The parts the player builds, by part key ('counter'), registered by course.js from the levels that build them:
  * { name, desc, ins: [port type], labels: [short], sensors: [sensor | null], inputs: [port input id | null], out,
- * outType, setting?: default number, part } — `part` the engine part that runs the board it was built from.
+ * outType, setting?: default number, board(), part } — board() the board it runs (the player's, or its level's
+ * reference board), `part` the engine part that runs it.
  */
 export const BUILT = {};
 export function def(type) {

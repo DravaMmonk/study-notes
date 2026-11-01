@@ -6,7 +6,7 @@ import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
 import { migrations } from '../../shell/saves.js'
 import { eraLevels, introductions, isCore, pathLevels } from '../../course.js'
-import ModeScreen from './ui/screen.jsx'
+import LevelScreen from './ui/LevelScreen.jsx'
 import Hero from './ui/hero.jsx'
 import { sceneSVG } from './ui/svg.js'
 import PartDemo from './ui/PartDemo.jsx'
@@ -14,7 +14,7 @@ import { lookIcon } from './ui/looks.js'
 import { PRIMITIVES, modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
 import { T, lazy, tr } from './lang.js'
-import { tableCourse } from './course.js'
+import { syncOwn, tableCourse } from './course.js'
 import { savesOf } from './items/migrations.js'
 
 function IntroFigure({ fig }) {
@@ -98,8 +98,8 @@ export default function tableGame(content) {
     intro: (level) => level.source.intro,
     IntroFigure,
     kinds: {
-      circuit: { Screen: ModeScreen, icon: Cable, label: { zh: '电路板', en: 'Circuit board' } },
-      board: { Screen: ModeScreen, icon: Grid3x3, label: { zh: '棋盘', en: 'Board' } },
+      circuit: { Screen: LevelScreen, icon: Cable, label: { zh: '电路板', en: 'Circuit board' } },
+      board: { Screen: LevelScreen, icon: Grid3x3, label: { zh: '棋盘', en: 'Board' } },
     },
     unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
     core: (level) => isCore(course, level),
@@ -107,8 +107,9 @@ export default function tableGame(content) {
       // The primitives, and the parts a level that is played unlocks (a retired level's card would never be earned).
       all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
       // The part on a bench: its level's board (a primitive's, the level that brings it in), with inputs, constants and
-      // models to change and a Run button.
-      demo: (part, { phone }) => {
+      // models to change and a Run button. A built part runs, and opens to show, the board the player passed its level with.
+      demo: (part, { phone, progress }) => {
+        syncOwn(progress.built)
         const key = part.key.replace(/^part:/, '')
         return <PartDemo key={part.key} partKey={key} phone={phone} levels={LEVELS} borrow={part.at ? { [key]: part.at[0] } : borrow} />
       },

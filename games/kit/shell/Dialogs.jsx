@@ -1,4 +1,4 @@
-import { createElement, useEffect } from 'react'
+import { createElement, isValidElement, useEffect } from 'react'
 import { L, keyOf, tr } from './i18n.js'
 
 // Escape closes the dialog or sheet on top. Every overlay of the shell uses it, so the key does the same thing in
@@ -94,7 +94,8 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
   )
 }
 
-/** A run that did not pass: what went wrong, and from the second miss on, the level's hint. */
+/** A run that did not pass: what went wrong (`extra`, more to show under it, is markup or a React element), and from
+ *  the second miss on, the level's hint. */
 export function FailDialog({ fail, fails, onClose }) {
   useEscape(onClose)
   const hint = fail.hint
@@ -104,7 +105,7 @@ export function FailDialog({ fail, fails, onClose }) {
         <h2>{tr('未通过', 'Not passed')}</h2>
         {fail.head && <h3 className="dialog-title" dangerouslySetInnerHTML={{ __html: String(L(fail.head)) }} />}
         <Paragraphs text={fail.body} />
-        {fail.extra && <div className="dialog-extra" dangerouslySetInnerHTML={{ __html: String(L(fail.extra)) }} />}
+        {fail.extra && (isValidElement(fail.extra) ? <div className="dialog-extra">{fail.extra}</div> : <div className="dialog-extra" dangerouslySetInnerHTML={{ __html: String(L(fail.extra)) }} />)}
         {hint && (fails >= 2
           ? <p className="dialog-note"><span className="panel-label">{tr('提示', 'Hint')}</span><span dangerouslySetInnerHTML={{ __html: String(L(hint)) }} /></p>
           : <p className="dialog-quiet">{tr('再失败一次后，这里将给出提示。', 'One more failed attempt and a hint will appear here.')}</p>)}
