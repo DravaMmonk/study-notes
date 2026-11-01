@@ -171,7 +171,7 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
   }
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
   const top = { circuit, parts: given, top: true }
-  const inside = packed && insideOf({ top, ...packed, card, width: canvas.width ?? 140, height: canvas.height, dense, describe: describeOf, sheet: sheet ?? card.body })
+  const inside = packed ? insideOf({ top, ...packed, card, width: canvas.width ?? 140, height: canvas.height, dense, describe: describeOf, sheet: sheet ?? card.body }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const parts = inside ? inside.widen(given, top) : given
   const ctx = { view, board: top, path: [], readOnly: false }
@@ -291,7 +291,7 @@ function PhoneLevel({ screen, board, parts, ctx, card, inside, all, items, folde
   const body = node && (sheetBody ?? card.body)?.(node, ctx)
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
-    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow && onScroll} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
+    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
         dense={dense}
         graph={circuit}
