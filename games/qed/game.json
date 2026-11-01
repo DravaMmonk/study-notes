@@ -1,6 +1,7 @@
 {
   "domain": "logic",
   "vocabulary": 1,
+  "open": { "thin-practice": ["gNot@g-not", "and@decl-and", "or@decl-or", "botE@decl-bot", "allI@q-allI", "allE@q-allE", "ex@decl-ex", "rule@r-rule", "append@s-orelse", "each@s-each", "search@s-search"] },
   "title": { "zh": "证明完毕", "en": "Q.E.D." },
   "kicker": { "zh": "开发中 · 用电路构建证明与证明助手", "en": "In development · Build proofs and proof assistants as circuits" },
   "lede": {

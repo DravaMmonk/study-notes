@@ -12,9 +12,10 @@
 // `texts` are the objects whose strings a player reads (levels are always included); `quotes` the level titles that
 // are also names of parts or ideas, which a text may quote (any other reference to a level, part or encyclopedia
 // entry is a link, ../shell/refs.js);
-// `audit` adds the game's own course problems to the shared audit's.
+// `audit` adds the game's own course problems to the shared audit's. A data game's game.json may leave findings open
+// (`open`, the work list in its design doc): they are listed, not failed, and one met since fails until it is dropped.
 import { GAMES } from '../../games.js'
-import { RULE_TEXT, audit } from '../course.js'
+import { RULE_TEXT, againstOpen, audit } from '../course.js'
 import { REF, refProblems, untranslated } from './text.js'
 import { closeGames, loadGame } from './games.mjs'
 import { isDataGame, readContent } from './content-node.js'
@@ -30,7 +31,7 @@ async function specOf(id) {
   const domain = (await import(`../domains/${content.domain}/domain.js`)).default
   const wrong = checkContent(domain.vocabulary, content)
   // Content that does not fit the vocabulary is not built into a course: what is wrong with it is all there is to say.
-  return { spec: wrong.length ? null : domain.spec(content), validate: domain.validate, content: wrong, title: content.title }
+  return { spec: wrong.length ? null : domain.spec(content), validate: domain.validate, content: wrong, title: content.title, open: content.open ?? {} }
 }
 
 const asked = process.argv.slice(2)
@@ -38,7 +39,7 @@ const ids = asked.length ? asked : GAMES.map((game) => game.id)
 let problems = 0
 
 for (const id of ids) {
-  const { spec, validate, content, title } = await specOf(id)
+  const { spec, validate, content, title, open } = await specOf(id)
   const lines = []
   const fail = (text) => {
     problems++
@@ -51,10 +52,12 @@ for (const id of ids) {
     continue
   }
 
-  const found = [...audit(spec.course), ...(spec.audit?.() ?? [])]
-  for (const [rule, text] of Object.entries(RULE_TEXT)) {
-    const hits = found.filter((f) => f.rule === rule)
-    if (hits.length) fail(`course: ${text} (${hits.length}): ${hits.map((f) => `${f.part}@${f.level}`).join('  ')}`)
+  for (const { rule, fresh, left, gone } of againstOpen([...audit(spec.course), ...(spec.audit?.() ?? [])], open)) {
+    const text = RULE_TEXT[rule]
+    if (!text) { fail(`game.json.open: ${rule} is no rule of the audit`); continue }
+    if (fresh.length) fail(`course: ${text} (${fresh.length}): ${fresh.join('  ')}`)
+    if (gone.length) fail(`course: left open in game.json, but met now (${rule}): drop ${gone.join('  ')}`)
+    if (left.length) lines.push(`OPEN course: ${text} (${left.length}, on the game's work list): ${left.join('  ')}`)
   }
 
   const listed = GAMES.find((game) => game.id === id).levels

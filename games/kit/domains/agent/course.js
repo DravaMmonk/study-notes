@@ -72,6 +72,7 @@ export function agentCourse(content) {
       const L = byId.get(level.id)
       return L?.kind === 'board' ? [...new Set(L.solution.nodes.map((n) => n.type).filter((t) => primitives.includes(t)))] : null
     },
+    boards: (level) => (byId.get(level.id)?.kind === 'board' ? [byId.get(level.id).solution] : []),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     abstraction: true,
   })

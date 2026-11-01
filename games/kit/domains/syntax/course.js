@@ -3,13 +3,14 @@
 // read into indices (model/sentence.js resolve), its era and what it requires, what it can mark (the roles and
 // constructions it has reached), and the course the shared audit checks (npm run check).
 //
-// syntaxCourse({ eras, levels })
+// syntaxCourse({ eras, levels, concept })
 //   eras     game.json's eras: [{ id, machine, title, kicker, question, keeps?, foundation }]
 //   levels   [{ id, title, brief, hint?, intro?, adds?, showcase?, debrief, …sentence }] in any order, where …sentence
 //            is one sentence and its answer (model/sentence.js says how they are written), or
 //            `tasks: [{ step, brief, hint?, intro?, after?, …sentence }]`, several sentences done in turn
 //   adds     the parts the level brings in: roles ('role:subj') and constructions ('pp'); every part, once brought in,
 //            stays for every level after it
+//   concept  { part: idea } parts that are one new idea together (the roles of the skeleton, met as they are needed)
 // Returns { LEVELS, CHAPTERS, course }.
 
 import { defineCourse, eraLevels, layout, reach } from '../../course.js'
@@ -18,7 +19,7 @@ import { PARTS, roleKey } from './model/parts.js'
 
 const sentencesOf = (level) => level.tasks ?? [level]
 
-export function syntaxCourse({ eras, levels }) {
+export function syntaxCourse({ eras, levels, concept = {} }) {
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
@@ -35,8 +36,7 @@ export function syntaxCourse({ eras, levels }) {
     adds: (level) => given.get(level.id)?.adds ?? [],
     needs: () => null,
     builds: () => [],
-    // The roles of the skeleton are one idea, met as they are needed; each construction is one of its own.
-    concept: (part) => (part.startsWith('role:') ? 'skeleton' : part),
+    concept: (part) => concept[part] ?? part,
     machine: (level) => eraOf.get(level.id)?.machine ?? null,
     // What a level's answer uses: the roles it marks and the constructions it folds, every sentence.
     needed: (level) => sentencesOf(given.get(level.id)).flatMap((s) => [...Object.keys(s.roles).map(roleKey), ...(s.folds ?? []).map((f) => f.type)]),

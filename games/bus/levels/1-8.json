@@ -33,6 +33,9 @@
       "inputs": { "bit": [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], "go": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] }
     }
   ],
+  "hidden": [
+    {"bus": {"idle": 10, "frames": [], "tail": 0}, "inputs": {"bit": [1, 1, 0, 1, 1, 1, 0, 1, 0, 1], "go": [1, 1, 0, 0, 1, 1, 1, 0, 1, 1]}}
+  ],
   "want": { "n": { "gathered": { "bit": "bit", "go": "go" } } },
   "solution": [
     "r = reg[reg=A, start=0]()",
@@ -40,6 +43,14 @@
     "a = arith[form=add](d, bit)",
     "z = const[value=0]()",
     "s = select(go, a, z)",
+    "k = keep[reg=A](s)",
+    "n <- s"
+  ],
+  "naive": [
+    "r = reg[reg=A, start=0]()",
+    "d = arith[form=add](r, r)",
+    "a = arith[form=add](d, bit)",
+    "s = select(go, a, bit)",
     "k = keep[reg=A](s)",
     "n <- s"
   ],

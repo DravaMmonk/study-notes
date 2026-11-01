@@ -214,9 +214,8 @@ export function tableCourse(content) {
     adds: l => [...new Set([...(byId.get(l.id).adds ?? []), ...stagesFlat(byId.get(l.id)).flatMap(s => s.adds ?? [])])],
     needs: p => (BUILT[p] ? p : null),
     builds: l => (byId.get(l.id).builds ? [byId.get(l.id).unlock] : []),
-    // A merger's models are one part with a setting, 「任一是」 too (the merger for yes / no); a constant comes with the
-    // pass gate it feeds.
-    concept: p => (p === 'const' ? 'pass' : p === 'many' ? 'msum' : (modelsOf(p) || [p])[0]),
+    // A merger's models are one part with a setting.
+    concept: p => content.concept?.[p] ?? (modelsOf(p) || [p])[0],
     // A circuit level is played by its robot, in the world of its last stage (a topic keeps to one family of worlds).
     machine: l => byId.get(l.id).robot ?? null,
     uses: l => usesOf(byId.get(l.id)),
@@ -225,6 +224,7 @@ export function tableCourse(content) {
     naive: l => Boolean(byId.get(l.id).naive),
     // What a level's reference boards use (the parts placed, not what the level gives), and what it folds anyway.
     needed: l => { const sols = stagesFlat(byId.get(l.id)).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(b => b.nodes.filter(n => !isGiven(n.type)).map(n => n.type)) : null; },
+    boards: l => stagesFlat(byId.get(l.id)).map(s => s.solution).filter(Boolean),
     folds: l => byId.get(l.id).fold || [],
     showcase: l => byId.get(l.id).showcase ?? null,
     abstraction: true,

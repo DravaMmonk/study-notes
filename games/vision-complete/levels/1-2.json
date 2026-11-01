@@ -45,9 +45,8 @@
     "kN = const[c=0.33]()",
     "u = shift[dir=up](in)",
     "d = shift[dir=down](in)",
-    "a = arith[op=add](u, d)",
-    "b = arith[op=add](a, in)",
-    "k = arith[op=mul](b, kN)",
+    "m = merge(u, in, d)",
+    "k = arith[op=mul](m, kN)",
     "out <- k"
   ],
   "naive": ["h = blur3h(in)", "out <- h"]

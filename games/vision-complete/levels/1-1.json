@@ -70,9 +70,8 @@
     "kN = const[c=0.33]()",
     "l = shift[dir=left](in)",
     "r = shift[dir=right](in)",
-    "a = arith[op=add](l, r)",
-    "b = arith[op=add](a, in)",
-    "k = arith[op=mul](b, kN)",
+    "m = merge(l, in, r)",
+    "k = arith[op=mul](m, kN)",
     "out <- k"
   ]
 }

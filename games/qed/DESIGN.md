@@ -632,6 +632,28 @@
 
 暂不加新题型，只调整现有关卡。已做：按知识点的重要程度，把每个机制之外更长更巧的证明移进跨章的可选专题证明谜题（P，一个系列，每章一段挂在本章主线末尾和上一段谜题之后，难度高的都留下，没有删关）。
 
+**工作单：练习不够。** 审计 `thin-practice`（手册第 5 节）：一个新想法之后、下一个新想法之前，用到它的必修关不到 3 关。下面每一处都要补一组练习（手册第 2.3 节的维度表），或者把下一个新想法往后挪；改课程之前先改本文档，补完就从这里和 `game.json` 的 `open` 一起删掉。《证明完毕 · 试做》（`games/qed-lab`）的 4 处也记在这里。
+
+| 想法 · 引入它的关 | 之后用到它的关 | 下一个新想法 |
+|---|---|---|
+| 非门 · g-not | 0 | g-and（与门） |
+| ∧ 的声明 · decl-and | 0 | decl-or |
+| ∨ 的声明 · decl-or | 0 | decl-bot |
+| ⊥ 的声明 · decl-bot | 1 | q-allI（任取） |
+| 全称概括 · q-allI | 0 | q-allE、decl-ex |
+| 全称实例化 · q-allE | 2 | decl-eq（相等） |
+| ∃ 的声明 · decl-ex | 2 | decl-eq |
+| 逆用规则 · r-rule | 0 | r-assumption |
+| 接上后备（append）· s-orelse | 2 | s-each |
+| 每个目标（each）· s-each | 0 | s-search |
+| 搜索 · s-search | 1 | raa（反证） |
+| 试做：套用 · apply | 0 | and |
+| 试做：∧ 的规则 · and | 0 | or |
+| 试做：引入 ∨ · or | 0 | box（假设框） |
+| 试做：消去 ∨ · cases | 0 | 试做到此为止 |
+
+第 3 章「声明」先把 ∧、∨、⊥ 一口气声明完，第 4 章才用：这正是手册第 2.3 节说的「先把机制全摆完再练」。要么把每个声明挪到第 4 章它那一路的开头，要么在声明之后各接几关只用它的证明。
+
 **补题的候选**（优先级高的知识点，只用现有题型，还没动手）：第 6 章声明「相等」只有写声明，没有找错的段（判定器把没取东西的 a = a 当成固定的名字，和真实的证明器不一致，先不出这类题）；第 12 章的类型声明没有找错和填表；第 12 章定义（加法、拼接、插入排序）没有「定义写错了」的找错关，`sort-len` 没有「陈述太弱」的检验。
 
 Proof task briefs state the schema in letters throughout. Proof cases use concrete object names and everyday predicates by default. Each proof also offers a final symbolic case, showing the same schema with letter names without changing the proof or its saved board. In the concrete presentation, quantified propositions and properties are described in words; variables and mathematical operators remain symbolic when needed to express the statement.

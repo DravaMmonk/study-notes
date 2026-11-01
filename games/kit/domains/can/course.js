@@ -1,7 +1,8 @@
 // A bus game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be in
 // it): the play order and level tree from its eras (../../course.js layout), each level's tests on a bus built from its
-// frames and what its outputs must be (wants.js), its reference board, the parts the levels build (each running the
-// board the player passed it with: a packed part that keeps its own registers), and the course the shared audit checks.
+// frames and what its outputs must be (wants.js), its hidden tests likewise, its reference board and naive board, the
+// parts the levels build (each running the board the player passed it with: a packed part that keeps its own
+// registers), and the course the shared audit checks.
 //
 // A level's tests run as long as their bus; its inputs give one value a tick.
 // Returns { LEVELS, CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built), wrong }: `wrong`, what
@@ -21,7 +22,7 @@ const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
 const busFrom = ({ frames, ...rest }) => busOf({ ...rest, frames: frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
 
 export function busCourse(content) {
-  const { eras, primitives, levels } = content
+  const { eras, primitives, levels, concept = {} } = content
   const wrong = []
   const say = (level, text) => wrong.push(`${level}: ${text}`)
   const plan = layout(eras)
@@ -40,7 +41,7 @@ export function busCourse(content) {
     const names = level.outputs.map((o) => o.name)
     for (const name of names) if (!level.want[name]) say(id, `nothing is wanted of the output ${name}`)
     for (const name of Object.keys(level.want)) if (!names.includes(name)) say(id, `wants ${name}, which is no output`)
-    for (const t of level.tests) {
+    for (const t of [...level.tests, ...(level.hidden ?? [])]) {
       for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say(id, 'a frame carries at most 8 bytes')
       for (const i of level.inputs ?? []) if (!t.inputs?.[i.name]) say(id, `a test gives nothing on the input ${i.name}`)
     }
@@ -50,14 +51,19 @@ export function busCourse(content) {
       requires: plan.requires.get(id) ?? [],
       adds: level.adds ?? [],
       tests: level.tests.map((t) => ({ ...t, bus: busFrom(t.bus) })),
+      hidden: (level.hidden ?? []).map((t) => ({ ...t, bus: busFrom(t.bus) })),
       want: wantOf(level.want),
     }
-    try {
-      out.solution = fromText(level.solution, out, partOf)
-    } catch (e) {
-      say(id, e.en ?? String(e))
-      out.solution = { nodes: [], wires: [] }
+    const read = (lines, what) => {
+      try {
+        return fromText(lines, out, partOf)
+      } catch (e) {
+        say(id, `${what}: ${e.en ?? String(e)}`)
+        return { nodes: [], wires: [] }
+      }
     }
+    out.solution = read(level.solution, 'the answer')
+    if (level.naive) out.naive = read(level.naive, 'the naive answer')
     if (level.builds) {
       const fitting = new WeakMap()
       const own = () => {
@@ -86,9 +92,10 @@ export function busCourse(content) {
     adds: (level) => byId.get(level.id)?.adds ?? [],
     needs: (part) => (builderOf.has(part) ? part : null),
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
-    // A register is read and kept by two cards: one idea.
-    concept: (part) => (part === 'keep' ? 'reg' : part),
+    concept: (part) => concept[part] ?? part,
+    naive: (level) => Boolean(byId.get(level.id)?.naive),
     needed: (level) => [...new Set(byId.get(level.id).solution.nodes.map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
+    boards: (level) => [byId.get(level.id).solution],
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     abstraction: true,
   })

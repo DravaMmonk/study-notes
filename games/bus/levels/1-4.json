@@ -20,6 +20,12 @@
   "tests": [{ "bus": { "idle": 12, "frames": [], "tail": 0 } }, { "bus": { "idle": 20, "frames": [], "tail": 0 } }],
   "want": { "n": "tick" },
   "solution": ["r = reg[reg=A, start=0]()", "i = arith[form=inc](r)", "k = keep[reg=A](i)", "n <- r"],
+  "naive": [
+    "r = reg[reg=A, start=0]()",
+    "i = arith[form=inc](r)",
+    "k = keep[reg=A](i)",
+    "n <- i"
+  ],
   "after": {
     "zh": "读出、加一、存回去：一个绕过寄存卡的小圈，每拍转一次，就是计数。",
     "en": "Read, add one, keep it: a small loop through a register, once round each tick, is a count."
