@@ -31,11 +31,13 @@ export function readPlaytests(id, dir = GAMES_DIR) {
 
 /** games/<id>/ assembled into one content. */
 export function readContent(id, dir = GAMES_DIR) {
+  const blueprint = resolve(dir, id, 'blueprint.json')
   return assemble({
     id,
     game: json(resolve(dir, id, 'game.json')),
     levels: levelFiles(id, dir).map(([levelId, file]) => [levelId, json(file)]),
     glossary: json(resolve(dir, id, 'glossary.json')),
+    blueprint: existsSync(blueprint) ? json(blueprint) : undefined,
   })
 }
 

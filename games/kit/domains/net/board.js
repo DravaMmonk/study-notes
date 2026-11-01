@@ -1,46 +1,44 @@
-// A net board, the same object everywhere: saved in progress, drawn by the shared circuit editor (../../circuit),
-// run tick by tick (run.js), written as blueprint text in content (../../circuit/text.js):
+// A board of 《从一根线开始》, the same object everywhere: saved in progress, drawn by the shared circuit editor
+// (../../circuit), run tick by tick (run.js), written as blueprint text in content (../../circuit/text.js):
 //
 //   { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }
 //
-// The level gives the board its fixed cards, named by what they stand for: 'line' (when the level listens) and each of
-// its inputs by name down the left, 'say' (when it talks) and each of its outputs by name down the right. Every other
-// node is a part the player placed (parts.js PARTS, or a part a level builds), its settings in params as strings
-// ({ reg: 'A', start: '1' }).
+// The level gives the board its fixed cards, each named by what it stands for: its wires in and its inputs down the
+// left, its wires out and its outputs down the right. Every other node is a part the player placed (parts.js PARTS, or
+// a part a level builds), its settings in params as strings ({ reg: 'A', start: '1' }).
 //
-// As text, a part is `id = type[settings](its inputs in order)` and a wire into an output `bit <- r`:
+// As text, a part is `id = type[settings](its inputs in order)` and a wire into an output or a wire out `right <- r`:
 //
-//   r = reg[reg=A, start=1]()
-//   k = keep[reg=A](line)
-//   bit <- r
-//   say <- r
+//   r = reg[reg=A, start=0]()
+//   k = keep[reg=A](left)
+//   right <- r
 import { parse, print } from '../../circuit/text.js'
 import { portsOf } from '../../engine/circuit.js'
 import { FIXED, PARTS } from './parts.js'
 
-/** The fixed cards of a level: the line if it listens and its inputs down the left; `say` if it talks and its outputs
- *  down the right. */
+/** A level's ports: its wires in and inputs (the left), its wires out and outputs (the right), as { name, label }. */
+export const portsIn = (level) => [...(level.wires?.in ?? []), ...(level.inputs ?? [])]
+export const portsOut = (level) => [...(level.wires?.out ?? []), ...(level.outputs ?? [])]
+
+/** The fixed cards of a level: its wires in and inputs down the left, its wires out and outputs down the right. */
 export function fixedOf(level) {
-  const left = [...(level.listens ? [{ id: 'line', type: 'line', params: {} }] : []), ...(level.inputs ?? []).map((i) => ({ id: i.name, type: 'in', params: { name: i.name } }))]
-  const right = [...(level.talks ? [{ id: 'say', type: 'say', params: { name: 'say' } }] : []), ...(level.outputs ?? []).map((o) => ({ id: o.name, type: 'out', params: { name: o.name } }))]
+  const left = [...(level.wires?.in ?? []).map((w) => ({ id: w.name, type: 'rx', params: { name: w.name } })), ...(level.inputs ?? []).map((i) => ({ id: i.name, type: 'in', params: { name: i.name } }))]
+  const right = [...(level.wires?.out ?? []).map((w) => ({ id: w.name, type: 'tx', params: { name: w.name } })), ...(level.outputs ?? []).map((o) => ({ id: o.name, type: 'out', params: { name: o.name } }))]
   return [...left.map((n, k) => ({ ...n, x: 20, y: 40 + k * 140 })), ...right.map((n, k) => ({ ...n, x: 980, y: 40 + k * 140 }))]
 }
 
-/** A level's outputs as a built part gives them: `say` first when the level talks, then its outputs. */
-export const portsOut = (level) => [...(level.talks ? [{ name: 'say', label: { zh: '说', en: 'Say' } }] : []), ...(level.outputs ?? [])]
-
 /**
- * How the editor wires a level's cards (../../circuit/model.js parts, without the drawing: ui/BusScreen.jsx adds names
+ * How the editor wires a level's cards (../../circuit/model.js parts, without the drawing: ui/Screen.jsx adds names
  * and icons): the ports of each card, which are given, and a built part's outputs by name when it has several.
  */
 export function wiring(level, net) {
   const builderOf = (type) => net.LEVELS.find((L) => L.builds?.type === type)
   return {
     inputs: (node) => {
-      if (net.BUILT[node.type]) return builderOf(node.type).inputs?.map((i) => i.name) ?? []
+      if (net.BUILT[node.type]) return portsIn(builderOf(node.type)).map((i) => i.name)
       return PARTS[node.type] ? portsOf(PARTS[node.type], node) : []
     },
-    role: (node) => (node.type === 'line' || node.type === 'in' ? 'source' : node.type === 'out' || node.type === 'say' ? 'sink' : 'part'),
+    role: (node) => (node.type === 'rx' || node.type === 'in' ? 'source' : node.type === 'out' || node.type === 'tx' ? 'sink' : 'part'),
     packed: (node) => Boolean(net.BUILT[node.type]),
     outputs: (node) => {
       const outs = net.BUILT[node.type] && portsOut(builderOf(node.type))
@@ -91,8 +89,8 @@ export function fromText(lines, level, partOf) {
 /** A board as blueprint lines, as content writes it (no header): what fromText reads back on the level. */
 export function toText(board, partOf) {
   const shape = {
-    inputs: (n) => (n.type === 'out' || n.type === 'say' ? ['in'] : FIXED.includes(n.type) ? [] : portsOf(partOf(n.type), n)),
-    role: (n) => (n.type === 'out' || n.type === 'say' ? 'sink' : FIXED.includes(n.type) ? 'source' : 'part'),
+    inputs: (n) => (n.type === 'out' || n.type === 'tx' ? ['in'] : FIXED.includes(n.type) ? [] : portsOf(partOf(n.type), n)),
+    role: (n) => (n.type === 'out' || n.type === 'tx' ? 'sink' : FIXED.includes(n.type) ? 'source' : 'part'),
   }
   return print(board, shape).split('\n').filter((line) => line && !line.startsWith('#'))
 }

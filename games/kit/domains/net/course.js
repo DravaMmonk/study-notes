@@ -1,24 +1,32 @@
-// A net game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be
-// in it): the play order and level tree from its eras (../../course.js layout), each level's tests on the line its
-// world says and what its outputs must be (wants.js), its hidden tests likewise, its reference board and naive board,
+// A game's course on the net domain, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says
+// what may be in it): the play order and level tree from its eras (../../course.js layout), each level's tests — what
+// arrives on each wire in (wire.js: the sender's segments, the wire's delay, the flips), the inputs, the queue — and
+// what its outputs and wires out must be (wants.js), its hidden tests likewise, its reference board and naive board,
 // the parts the levels build (each running the board the player passed it with: a packed part that keeps its own
-// registers), and the course the shared audit checks.
+// registers, its ports the level's wires, inputs and outputs), and the course the shared audit checks.
 //
-// A level's tests run as long as their line; its inputs give one value a tick.
+// A test runs for `ticks` ticks, by default until two ticks after the last thing it gives arrives.
 // Returns { LEVELS, CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built), blueprints, wrong }: `wrong`, what
 // reading the content found that its schema cannot say (a board that does not read, an output with nothing wanted).
 import { packed } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
-import { bitsOf } from './line.js'
-import { fits, fromText, portsOut, toText } from './board.js'
+import { arrived, said } from './wire.js'
+import { fits, fromText, portsIn, portsOut, toText } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
 
-/** A test as content writes it, its line read into values. */
-const testOf = (t) => ({ ...t, line: bitsOf(t.line) })
+/** A test as content writes it, run out: what arrives on each wire in, tick by tick, and how many ticks it runs. */
+function testOf(level, t) {
+  const sent = Object.fromEntries((level.wires?.in ?? []).map((w) => [w.name, said(t.wires?.[w.name]?.send ?? [])]))
+  const delay = (name) => level.wires.in.find((w) => w.name === name).delay ?? 0
+  const longest = Math.max(0, ...Object.entries(sent).map(([name, bits]) => bits.length + delay(name)), ...Object.values(t.inputs ?? {}).map((v) => v.length))
+  const ticks = t.ticks ?? longest + 2
+  const wires = Object.fromEntries(Object.entries(sent).map(([name, bits]) => [name, arrived(bits, { delay: delay(name), flips: t.wires?.[name]?.flips ?? [] }, ticks)]))
+  return { ...t, ticks, wires, inputs: t.inputs ?? {}, queue: t.queue ?? [] }
+}
 
 export function netCourse(content) {
   const { eras, primitives, levels, concept = {} } = content
@@ -40,19 +48,28 @@ export function netCourse(content) {
   }).map((id) => {
     const level = given.get(id)
     const names = portsOut(level).map((o) => o.name)
-    if (!names.length) say(id, 'the level neither talks nor has an output: nothing is checked')
-    for (const name of names) if (!level.want[name]) say(id, `nothing is wanted of ${name}`)
-    for (const name of Object.keys(level.want)) if (!names.includes(name)) say(id, `wants ${name}, which is no output`)
+    const pulled = level.pulls ? [level.pulls.input, level.pulls.last].filter(Boolean) : []
+    const all = [...portsIn(level).map((p) => p.name), ...names]
+    for (const name of all) if (all.indexOf(name) !== all.lastIndexOf(name)) say(id, `two of its wires, inputs and outputs are called ${name}`)
+    if (level.pulls) {
+      for (const name of pulled) if (!(level.inputs ?? []).some((i) => i.name === name)) say(id, `it pulls into ${name}, which is no input`)
+      if (!(level.outputs ?? []).some((o) => o.name === level.pulls.next)) say(id, `it asks for the next byte on ${level.pulls.next}, which is no output`)
+    }
+    if (!names.length) say(id, 'the level has no wire out and no output: nothing is checked')
+    for (const name of names) if (!level.want[name] && name !== level.pulls?.next) say(id, `nothing is wanted of ${name}`)
+    for (const name of Object.keys(level.want)) if (!names.includes(name)) say(id, `wants ${name}, which is no output and no wire out`)
     for (const t of [...level.tests, ...(level.hidden ?? [])]) {
-      for (const i of level.inputs ?? []) if (!t.inputs?.[i.name]) say(id, `a test gives nothing on the input ${i.name}`)
+      for (const i of level.inputs ?? []) if (!pulled.includes(i.name) && !t.inputs?.[i.name]) say(id, `a test gives nothing on the input ${i.name}`)
+      for (const name of Object.keys(t.wires ?? {})) if (!(level.wires?.in ?? []).some((w) => w.name === name)) say(id, `a test sends on ${name}, which is no wire in`)
+      if (level.pulls && !t.queue) say(id, 'a test gives the board no queue to pull from')
     }
     const out = {
       ...level,
       era: eraOf.get(id).id,
       requires: plan.requires.get(id) ?? [],
       adds: level.adds ?? [],
-      tests: level.tests.map(testOf),
-      hidden: (level.hidden ?? []).map(testOf),
+      tests: level.tests.map((t) => testOf(level, t)),
+      hidden: (level.hidden ?? []).map((t) => testOf(level, t)),
       want: wantOf(level.want),
     }
     const read = (lines, what, naive = false) => {
@@ -77,7 +94,7 @@ export function netCourse(content) {
       }
       BUILT[level.builds.type] = packed({
         circuit: own,
-        inputs: (level.inputs ?? []).map((i) => i.name),
+        inputs: portsIn(level).map((i) => i.name),
         outputs: names,
         holds: true,
         built: level.builds,

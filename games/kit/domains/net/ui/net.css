@@ -1,4 +1,4 @@
-/* The net domain's screen: cards on the shared circuit editor, and the waveform under the board.
+/* The net domain's screen (《从一根线开始》): cards on the shared circuit editor, and the waveform under the board.
    Colours come from the kit's tokens. */
 [data-family='given'] { --fam: var(--w0); }
 [data-family='memory'] { --fam: var(--n2); }
@@ -23,6 +23,8 @@
 /* ---- the strip under the board ---- */
 .net-strip { display: grid; gap: 10px; min-width: 0; }
 .net-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
+.net-order { margin: 0; font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.net-order b { color: var(--ink); font-weight: 500; font-family: var(--sans, inherit); }
 .net-verdict.is-fail { color: var(--fail); }
 
 /* ---- a card's sheet on a phone ---- */

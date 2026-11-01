@@ -1,6 +1,12 @@
 {
-  "title": { "zh": "晚一拍", "en": "A tick late" },
-  "brief": { "zh": "每一拍把输入上一拍的值说到线上；第一拍说 0。", "en": "Every tick, say on the line what the input was the tick before; say 0 on the first tick." },
+  "title": {
+    "zh": "晚一拍",
+    "en": "A tick late"
+  },
+  "brief": {
+    "zh": "每一拍在右线上说出左线上一拍的位；第一拍说 0。",
+    "en": "Every tick, say on the right-hand wire the bit the left-hand wire had the tick before; say 0 on the first tick."
+  },
   "intro": [
     {
       "t": {
@@ -9,14 +15,69 @@
       }
     }
   ],
-  "adds": ["reg", "keep"],
-  "talks": true,
-  "inputs": [{ "name": "b", "label": { "zh": "位", "en": "Bit" } }],
-  "tests": [
-    { "line": "......", "inputs": { "b": [1, 0, 1, 1, 0, 0] } },
-    { "line": ".....", "inputs": { "b": [0, 1, 1, 0, 1] } }
+  "adds": [
+    "reg",
+    "keep"
   ],
-  "want": { "say": { "delayed": { "input": "b", "first": 0 } } },
-  "solution": ["r = reg[reg=A, start=0]()", "k = keep[reg=A](b)", "say <- r"],
-  "after": { "zh": "寄存卡让电路记得上一拍。", "en": "A register lets a circuit remember the tick before." }
+  "wires": {
+    "in": [
+      {
+        "name": "left",
+        "label": {
+          "zh": "左线",
+          "en": "Left wire"
+        }
+      }
+    ],
+    "out": [
+      {
+        "name": "right",
+        "label": {
+          "zh": "右线",
+          "en": "Right wire"
+        }
+      }
+    ]
+  },
+  "tests": [
+    {
+      "wires": {
+        "left": {
+          "send": [
+            {
+              "bits": "101100"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "wires": {
+        "left": {
+          "send": [
+            {
+              "bits": "01101"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "want": {
+    "right": {
+      "late": {
+        "wire": "left",
+        "first": 0
+      }
+    }
+  },
+  "solution": [
+    "r = reg[reg=A, start=0]()",
+    "k = keep[reg=A](left)",
+    "right <- r"
+  ],
+  "after": {
+    "zh": "寄存卡让电路记得上一拍。",
+    "en": "A register lets a circuit remember the tick before."
+  }
 }

@@ -15,6 +15,7 @@ import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
 import { PATHS, describe, locate, putIn, takeOut } from './place.js'
 import { levelRefs, renameRefs } from './refs.js'
+import { renameSlot } from '../../pipeline/blueprint.js'
 
 const t = (zh, en) => ({ zh, en })
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal', 'a field’s path: tests[0].goal') })
@@ -156,6 +157,7 @@ export const OPERATIONS = {
       ws.levels = new Map([...ws.levels].map(([id, l]) => (id === level ? [to, data] : [id, l])))
       ws.basis.set(`levels/${to}.json`, ws.original.get(`levels/${level}.json`) ?? ws.basis.get(`levels/${level}.json`))
       const n = renameRefs(ws, vocabulary, level, to)
+      if (ws.blueprint !== undefined) ws.blueprint = renameSlot(ws.blueprint, level, to)
       return { says: `${level} → ${to} (${n} reference(s))`, inverse: [{ op: 'level.rename', level: to, to: level }], saves: [{ rename: { [level]: to } }] }
     },
   },
@@ -293,6 +295,47 @@ export const OPERATIONS = {
       const { id: _, ...old } = entries[k]
       ws.glossary = { ...ws.glossary, entries: entries.filter((_, i) => i !== k) }
       return { says: `glossary: removed ${entry}`, inverse: [{ op: 'glossary.put', entry, data: old, at: k }] }
+    },
+  },
+  'blueprint.put': {
+    about: t('写下整份课程蓝图（blueprint.json，第 7.2 节）', 'write the whole course blueprint (blueprint.json, DESIGN 7.2)'),
+    params: S.obj({ data: S.map(S.any()) }),
+    apply(ws, { data }) {
+      const old = ws.blueprint
+      ws.blueprint = data
+      return { says: `blueprint: ${old === undefined ? 'written' : 'rewritten'}`, inverse: [old === undefined ? { op: 'blueprint.remove' } : { op: 'blueprint.put', data: old }] }
+    },
+  },
+  'blueprint.set': {
+    about: t('设课程蓝图的一个字段（路径可以深入：eras[0].series[2].slots[1].uses）', 'set a field of the course blueprint (the path may go deep: eras[0].series[2].slots[1].uses)'),
+    params: S.obj({ path: PATH, value: S.any() }),
+    apply(ws, { path, value }) {
+      if (ws.blueprint === undefined) fail('the game has no blueprint yet: blueprint.put writes one')
+      if (!parsePath(path).length) fail('the path is empty: use blueprint.put for the whole blueprint')
+      const inverse = [restore('blueprint', ws.blueprint, path, {})]
+      ws.blueprint = setAt(ws.blueprint, path, value)
+      return { says: `blueprint: set ${showPath(path)}`, inverse }
+    },
+  },
+  'blueprint.unset': {
+    about: t('去掉课程蓝图的一个字段，或列表里的一项', 'remove a field of the course blueprint, or an item from a list'),
+    params: S.obj({ path: PATH }),
+    apply(ws, { path }) {
+      if (ws.blueprint === undefined) fail('the game has no blueprint')
+      const keys = parsePath(path)
+      const back = typeof keys.at(-1) === 'number' ? { op: 'blueprint.set', path: keys.slice(0, -1), value: getAt(ws.blueprint, keys.slice(0, -1)) } : { op: 'blueprint.set', path: keys, value: getAt(ws.blueprint, keys) }
+      ws.blueprint = unsetAt(ws.blueprint, keys)
+      return { says: `blueprint: removed ${showPath(keys)}`, inverse: [back] }
+    },
+  },
+  'blueprint.remove': {
+    about: t('删掉课程蓝图', 'remove the course blueprint'),
+    params: S.obj({}),
+    apply(ws) {
+      if (ws.blueprint === undefined) fail('the game has no blueprint')
+      const old = ws.blueprint
+      ws.blueprint = undefined
+      return { says: 'blueprint: removed', inverse: [{ op: 'blueprint.put', data: old }] }
     },
   },
 }

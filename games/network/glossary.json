@@ -1,12 +1,28 @@
 {
-  "groups": [{ "id": "line", "title": { "zh": "线", "en": "The line" } }],
+  "groups": [
+    {
+      "id": "wire",
+      "title": {
+        "zh": "线",
+        "en": "The wire"
+      }
+    }
+  ],
   "entries": [
     {
       "id": "tick",
-      "group": "line",
-      "title": { "zh": "拍", "en": "tick" },
+      "group": "wire",
+      "title": {
+        "zh": "拍",
+        "en": "tick"
+      },
       "at": "1-1",
-      "body": [{ "zh": "世界前进的一步：每一拍，线上有一位，板上的电路算一遍。", "en": "One step of the world: each tick the line carries one bit and the board computes once." }]
+      "body": [
+        {
+          "zh": "世界前进的一步：每一拍，每根线送一位，板上的电路算一遍。",
+          "en": "One step of the world: each tick every wire carries one bit and the board computes once."
+        }
+      ]
     }
   ]
 }

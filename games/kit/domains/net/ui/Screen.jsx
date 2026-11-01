@@ -4,13 +4,13 @@ import { CircuitLevel, Timeline, useLevelBoard, useLevelRun } from '../../../she
 import { L, tr } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { fits, startBoard, wiring } from '../board.js'
+import { fits, portsIn, startBoard, wiring } from '../board.js'
 import { FIXED, REGISTERS } from '../parts.js'
 import { checked as checkedOf, runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 
-// A net level on the kit's circuit level (../../../shell/CircuitLevel.jsx): the line and the level's inputs down
-// the left, what it says and its outputs down the right, the parts it holds between. A run goes tick by tick (a tick a step): every
+// A level of 《从一根线开始》 on the kit's circuit level (../../../shell/CircuitLevel.jsx): its wires in and inputs down
+// the left, its wires out and outputs down the right, the parts it holds between. A run goes tick by tick (a tick a step): every
 // card shows its value at the tick shown, and the waveform under the board follows along, the outputs against what
 // they should be; a run stops on the first tick an output is wrong. A level's hidden tests run with every run but show
 // only how many fail; once the level is solved they join the list when it opens again. A part the player built opens
@@ -18,19 +18,22 @@ import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 
 const T = (zh, en) => ({ zh, en })
 
+/** The label of the port called `name` in a list of ports. */
+const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
+
 /** The editor's description of this level's cards (../../../circuit/model.js): the wiring (../board.js), drawn. */
 function partsFor(level, own) {
   const builderOf = (type) => own.LEVELS.find((L) => L.builds?.type === type)
-  const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
   return {
     ...wiring(level, own),
     label: (node) => {
       if (node.type === 'in') return labelOf(level.inputs, node.params?.name)
       if (node.type === 'out') return labelOf(level.outputs, node.params?.name)
-      if (node.type === 'say') return CARDS.say.name
+      if (node.type === 'rx') return labelOf(level.wires?.in, node.params?.name)
+      if (node.type === 'tx') return labelOf(level.wires?.out, node.params?.name)
       return own.BUILT[node.type] ? builderOf(node.type).builds.name : CARDS[node.type]?.name ?? node.type
     },
-    portLabel: (node, port) => (own.BUILT[node.type] ? labelOf(builderOf(node.type).inputs, port) : PORT_LABELS[node.type]?.[port] ?? ''),
+    portLabel: (node, port) => (own.BUILT[node.type] ? labelOf(portsIn(builderOf(node.type)), port) : PORT_LABELS[node.type]?.[port] ?? ''),
     family: (node) => (own.BUILT[node.type] ? 'built' : CARDS[node.type]?.family),
     icon: (node) => (own.BUILT[node.type] ? CircuitBoard : CARDS[node.type]?.icon),
     cardWidth: (node) => (FIXED.includes(node.type) ? 140 : 156),
@@ -57,7 +60,7 @@ function Field({ label, value, options, onChange }) {
 
 const NAMES = REGISTERS.map((r) => [r, r])
 const STARTS = [['', '—'], ['0', '0'], ['1', '1']]
-const NUMBERS = Array.from({ length: 33 }, (_, k) => [String(k), String(k)])
+const NUMBERS = Array.from({ length: 256 }, (_, k) => [String(k), String(k)])
 // Registers start named A; a new card's settings are its defaults written in, so the card shows them.
 const defaults = (type) => (type === 'reg' || type === 'keep' ? { reg: 'A' } : type === 'const' ? { value: '0' } : FORMS[type] ? { form: Object.keys(FORMS[type])[0] } : {})
 const valueOf = (node, key, view) => view.values.get(key ? `${node.id}#${key}` : node.id)
@@ -74,10 +77,10 @@ export default function Screen(screen) {
   const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
   const checked = useMemo(() => runLevel({ ...level, tests }, circuit, own.partOf), [level, tests, board.version, own])
   const hidden = revealed ? [] : level.hidden
-  const hiddenFailed = useMemo(() => (hidden.length ? runLevel({ ...level, tests: hidden }, circuit, own.partOf).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, board.version, own])
+  const hiddenFailed = useMemo(() => (hidden.length ? runLevel({ ...level, tests: hidden }, circuit, own.partOf).runs.filter((r) => r.fail).length : 0), [level, hidden, board.version, own])
   const run = useLevelRun(screen, board, {
     tests: tests.map((t, k) => ({ label: tr(`测试 ${k + 1}`, `Test ${k + 1}`), hidden: t.hidden })),
-    steps: { of: (k) => checked.runs[k].ticks, check: (k) => checked.runs[k].error ?? '' },
+    steps: { of: (k) => checked.runs[k].ticks, check: (k) => checked.runs[k].final ?? '' },
     hidden: {
       count: hidden.length,
       fails: () => hiddenFailed,
@@ -123,19 +126,27 @@ export default function Screen(screen) {
   const test = tests[run.at]
   const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
   const lanes = [
-    ...(level.listens ? [{ key: 'line', label: CARDS.line.name, kind: 'wave', ticks: test.line }] : []),
-    ...(level.inputs ?? []).map((i) => ({ key: `in:${i.name}`, label: i.label, kind: 'wave', ticks: test.inputs[i.name] })),
-    ...checkedOf(level).flatMap((o) => [
-      { key: `got:${o.name}`, label: o.label, kind: 'value', ticks: upTo(runOf.ticks.map((t) => (o.name === 'say' && level.talks ? t.said : t.outputs[o.name] ?? null))), text: (v) => L(show(v)) },
-      { key: `want:${o.name}`, label: T('应当', 'Wanted'), kind: 'value', ticks: runOf.want[o.name].map((v) => (v === undefined ? null : v)), text: (v) => L(show(v)) },
-    ]),
+    ...(level.wires?.in ?? []).map((w) => ({ key: `rx:${w.name}`, label: w.label, kind: 'wave', ticks: test.wires[w.name] })),
+    ...(level.inputs ?? []).filter((i) => i.name !== level.pulls?.input && i.name !== level.pulls?.last).map((i) => ({ key: `in:${i.name}`, label: i.label, kind: 'value', ticks: test.inputs[i.name] ?? [], text: (v) => L(show(v)) })),
+    ...(level.pulls ? [{ key: 'queue', label: labelOf(level.inputs, level.pulls.input), kind: 'value', ticks: upTo(runOf.ticks.map((t) => t.bind[level.pulls.input])), text: (v) => L(show(v)) }] : []),
+    ...checkedOf(level).flatMap((o) => {
+      const want = runOf.want[o.name]
+      const wave = (level.wires?.out ?? []).some((w) => w.name === o.name)
+      return [
+        { key: `got:${o.name}`, label: o.label, kind: wave ? 'wave' : 'value', ticks: upTo(runOf.ticks.map((t) => t.outputs[o.name] ?? null)), text: (v) => L(show(v)) },
+        ...(want?.ticks ? [{ key: `want:${o.name}`, label: T('应当', 'Wanted'), kind: wave ? 'wave' : 'value', ticks: want.ticks.map((v) => (v === undefined ? null : v)), text: (v) => L(show(v)) }] : []),
+      ]
+    }),
   ]
+  // What the level wants in order, timing aside, said under the waveform.
+  const orders = checkedOf(level).filter((o) => runOf.want[o.name]?.order).map((o) => ({ label: o.label, ...runOf.want[o.name] }))
   const failed = shown.list.findIndex((t) => t.failed)
   const ended = Boolean(run.run && (run.run.test > run.at || run.run.over))
   const strip = (
     <div className="net-strip">
-      <Timeline lanes={lanes} count={test.line.length} at={run.run ? at : -1} marks={ended && runOf.fail ? [runOf.fail.tick] : []} />
-      {ended && (runOf.error || (failed >= 0 && shown.list[failed].failed)) && <p className="net-verdict is-fail">{L(runOf.error ?? shown.list[failed].failed)}</p>}
+      <Timeline lanes={lanes} count={test.ticks} at={run.run ? at : -1} marks={ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
+      {orders.map((o) => <p key={o.words.en} className="net-order"><b>{L(o.label)}</b> · {L(o.words)}: {o.order.map((v) => L(show(v))).join(' ') || '—'}</p>)}
+      {ended && (runOf.final || (failed >= 0 && shown.list[failed].failed)) && <p className="net-verdict is-fail">{L(runOf.final ?? shown.list[failed].failed)}</p>}
       {run.run?.over && run.run.final && <p className="net-verdict is-fail">{run.run.final}</p>}
     </div>
   )

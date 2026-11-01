@@ -1,16 +1,17 @@
-// A net game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
-// becomes the shell's game description, with the domain's tick-by-tick board screen (ui/Screen.jsx) and its parts box.
+// A game on the net domain (《从一根线开始》) on the shared shell (../../shell), from its content (games/DESIGN.md 6.3):
+// the course (course.js) becomes the shell's game description, with the domain's tick-by-tick board screen
+// (ui/Screen.jsx) and its parts box.
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
-//   line.js       the world: the line's rule and the world's node
+//   wire.js       the world: point-to-point wires, their delay and flips, the formats the far ends speak
 //   parts.js      the cards of a board and what each computes
 //   board.js      a board, and a board read from and written as blueprint text
-//   wants.js      what a level's outputs (and what it says) must be, tick by tick
-//   run.js        a board on the line tick by tick (../../engine/ticks.js), checked tick by tick
+//   wants.js      what a level's outputs and wires out must be, tick by tick or in order
+//   run.js        a board on its wires tick by tick (../../engine/ticks.js registers), checked as it goes and at the end
 //   course.js     content read into levels, play order, the parts the levels build and the course the audit checks
 //   play.js       a level and an attempt as a blind player meets them (../../engine/play/)
 //   ui/           the board screen and the card catalog
-//   validate.js   every level's reference board and built part (npm run check); net.test.js the line, the wants
+//   validate.js   every level's reference board and built part (npm run check); net.test.js the formats, the wants
 //                 and boards as text (npm test)
 //   starter/      the smallest game on the domain (npm run new-game copies it)
 import { Activity, CircuitBoard } from 'lucide-react'

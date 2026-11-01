@@ -1,12 +1,11 @@
 // The net domain's checks for `npm run check` (../../engine/checks.js): what reading the content found wrong
-// (course.js), then level by level: the reference board passes every test and hidden test, says nothing from what it
-// hears in the same tick, and uses only the parts the level holds and its fixed cards; the empty board fails; the
-// naive board, where the level has one, is one the level could hold and fails (a challenge must have one: the course
-// audit); and a part a level builds, placed alone on that level's board and wired to its inputs and outputs, passes the
-// level's tests and hidden tests.
+// (course.js), then level by level: the reference board passes every test and hidden test and uses only the parts the
+// level holds and its fixed cards; the empty board fails; the naive board, where the level has one, is one the level
+// could hold and fails (a challenge must have one: the course audit); and a part a level builds, placed alone on that
+// level's board and wired to its wires, inputs and outputs, passes the level's tests and hidden tests.
 import { keyOf } from '../../shell/i18n.js'
 import { usable } from '../../course.js'
-import { fromText, portsOut, startBoard } from './board.js'
+import { fromText, portsIn, portsOut, startBoard } from './board.js'
 import { FIXED } from './parts.js'
 import { runLevel } from './run.js'
 
@@ -27,8 +26,7 @@ export function validate({ net }) {
     const where = (k) => (k < level.tests.length ? `test ${k + 1}` : `hidden test ${k - level.tests.length + 1}`)
     const ref = runLevel(all(level), level.solution, partOf)
     ref.runs.forEach((r, k) => {
-      if (r.error) problems.push(`the answer has a loop on ${where(k)}`)
-      if (r.fail) problems.push(`the answer fails ${where(k)} at tick ${r.fail.tick} (${r.fail.name}: want ${r.fail.want}, got ${r.fail.got})`)
+      if (r.fail) problems.push(`the answer fails ${where(k)}${r.fail.tick !== undefined ? ` at tick ${r.fail.tick}` : ''} (${r.fail.name}: want ${JSON.stringify(r.fail.want)}, got ${JSON.stringify(r.fail.got)})`)
     })
     // The empty board must fail, or the tests ask nothing.
     if (runLevel(level, startBoard(level), partOf).pass) problems.push('the empty board passes')
@@ -36,15 +34,15 @@ export function validate({ net }) {
     if (level.naive) {
       strays(level.naive, 'the naive answer')
       const runs = runLevel(all(level), level.naive, partOf).runs
-      const first = runs.findIndex((r) => r.fail || r.error)
+      const first = runs.findIndex((r) => r.fail)
       if (first < 0) problems.push('the naive answer passes')
       else naive = `, naive fails ${where(first)}`
     }
     if (level.builds) {
       const outs = portsOut(level).map((o) => o.name)
-      const box = fromText([`p = ${level.builds.type}(${(level.inputs ?? []).map((i) => i.name).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], level, partOf)
+      const box = fromText([`p = ${level.builds.type}(${portsIn(level).map((i) => i.name).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], level, partOf)
       runLevel(all(level), box, partOf).runs.forEach((r, k) => {
-        if (r.error || r.fail) problems.push(`its part ${level.builds.type} alone fails ${where(k)}${r.fail ? ` at tick ${r.fail.tick}` : ''}`)
+        if (r.fail) problems.push(`its part ${level.builds.type} alone fails ${where(k)}`)
       })
     }
     const ticks = ref.runs.reduce((n, r) => n + r.ticks.length, 0)

@@ -1,20 +1,40 @@
 {
   "domain": "net",
   "vocabulary": 1,
-  "title": { "zh": "__title__", "en": "__title__" },
-  "kicker": { "zh": "开发中", "en": "In development" },
-  "lede": {
-    "zh": "一根线，每一拍上面有一位。先听它，再自己往上说。",
-    "en": "One line, one bit on it each tick. Listen to it first, then talk on it yourself."
+  "title": {
+    "zh": "__title__",
+    "en": "__title__"
   },
-  "primitives": ["reg", "keep"],
-  "concept": { "keep": "reg" },
+  "kicker": {
+    "zh": "开发中",
+    "en": "In development"
+  },
+  "lede": {
+    "zh": "一根线，每一拍送一位。从传一位话开始，一层层搭出能可靠地收发一帧的网卡。",
+    "en": "One wire, one bit a tick. Start by passing a bit on, and build up, layer by layer, a network card that sends and receives a frame reliably."
+  },
+  "primitives": [
+    "reg",
+    "keep"
+  ],
+  "concept": {
+    "keep": "reg"
+  },
   "eras": [
     {
       "id": 1,
-      "title": { "zh": "一根线", "en": "One line" },
-      "question": { "zh": "线上每一拍有一位：怎样听它，怎样说？", "en": "A bit on the line each tick: how to hear it, how to speak?" },
-      "foundation": ["1-1", "1-2"]
+      "title": {
+        "zh": "一根线",
+        "en": "One wire"
+      },
+      "question": {
+        "zh": "线上每一拍送一位：怎样说，怎样听？",
+        "en": "A bit on the wire each tick: how to speak, how to hear?"
+      },
+      "foundation": [
+        "1-1",
+        "1-2"
+      ]
     }
   ],
   "saves": []

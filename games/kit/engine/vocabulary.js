@@ -11,6 +11,7 @@
 //   level     the schema of one level (levels/<id>.json; its id is the file's name)
 // })
 import { S, validate } from './schema.js'
+import { BLUEPRINT } from '../pipeline/blueprint.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
@@ -34,14 +35,14 @@ export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
 
 /**
  * Every place a game's content (content.js assemble) does not fit its domain's vocabulary, as [{ at, says }]: the
- * file and the path in it.
+ * file and the path in it. A course blueprint (blueprint.json) is the kernel's, the same in every domain.
  */
 export function checkContent(vocabulary, content) {
   const out = []
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open.
-  const { id, levels, glossary, domain, vocabulary: version, open, ...game } = content
+  const { id, levels, glossary, domain, vocabulary: version, open, blueprint, ...game } = content
   const ids = new Set(levels.map((l) => l.id))
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })
@@ -49,5 +50,6 @@ export function checkContent(vocabulary, content) {
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
   for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids }), `levels/${levelId}.json`)
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids }), 'glossary.json')
+  if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   return out
 }

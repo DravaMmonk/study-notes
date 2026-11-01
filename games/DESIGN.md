@@ -358,6 +358,8 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `glossary.json` | 百科：`{ groups, entries }` |
 | `changes.jsonl` | 修改日志（操作集写，只追加）：每次修改一行，记下它跑了哪些操作、为什么、加的那一版存档迁移、改了哪些文件、撤销它的变更集（第 7 节） |
 | `playtests/<局>.json` | 盲玩记录（第 6.6 节）：一局一个文件，形状是内核的 `PLAYTEST` schema（`kit/engine/play/session.js`），由 harness 写入，不手改 |
+| `blueprint.json` | 课程蓝图（第 7.2 节，流水线做出的游戏才有）：机体阶梯、想法和它们撞上的墙、原始元件和搭出的元件、每章的系列和每关的位置（slot），向领域提的需求；schema 是内核的 `BLUEPRINT`（`kit/pipeline/blueprint.js`），经操作集写（`blueprint.put`、`blueprint.set`）；`check` 按 schema 查它，页面不读它 |
+| `pipeline.json` | 流水线的记录（第 7.2 节）：每一步跑过的 agent（模型、用量、调用了几次命令、写下的变更集）、每次闸门的结果、盲玩的解释、评审队列里的那一项；只由 `npm run pipeline` 写 |
 
 - 文字一律写成 `{ "zh": …, "en": … }` 两面；与语言无关的符号（`a + b`）可以写成一个字符串。
 - 引用词汇表的地方写成单键对象 `{ "项名": 参数 }`，没有参数的项也可以只写项名。例如诊断：`{ "when": { "uses": "right" }, "say": {…} }`；条件可以用 `all`、`any`、`not` 组合。

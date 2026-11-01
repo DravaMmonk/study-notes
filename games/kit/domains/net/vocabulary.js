@@ -1,20 +1,27 @@
-// The net domain's vocabulary (games/DESIGN.md 6.2): every thing a net game's content may name, each with what
-// it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
-// their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
+// The net domain's vocabulary (games/DESIGN.md 6.2): every thing a game on it may name, each with what it is and the
+// schema of its parameters, and the schemas of game.json and of one level. Content is these items and their
+// parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The items are implemented next to them: parts in parts.js, the signals a level wants in wants.js, the line a test
-// plays on in line.js.
+// The items are implemented next to them: parts in parts.js, what a level wants in wants.js, the wires and the formats
+// their far ends speak in wire.js.
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
+import { FORMATS } from './wire.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 
+const nat = S.int({ min: 0 })
+const BYTE = S.int({ min: 0, max: 255 })
 const ids = S.list(S.str())
 const TEXTS = S.list(S.text())
 const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
-const BITS = S.str({ pattern: '^[01.]*$', about: t('一拍一个字符：0、1，或 . 表示什么也不说', 'one character a tick: 0, 1, or . for nothing said') })
+const BITS = S.str({ pattern: '^[01]+$' })
+const POLY = S.opt(S.str({ pattern: '^1[01]*1$', about: t('生成式，最高位在前（默认 1011）', 'the generator, its top bit first (1011 by default)') }))
+const FORMAT = S.oneOf(FORMATS, { about: t('线那头约好的格式（wire.js）：bytes、startstop、parity、check、blocks、flag、flagcheck', 'the format the far end agreed on (wire.js): bytes, startstop, parity, check, blocks, flag, flagcheck') })
+const WIRE_NAME = S.str({ about: t('这一关的一根进线的名字', 'the name of one of the level’s wires in') })
+const INPUT = S.str({ about: t('这一关的一个输入的名字', 'the name of one of the level’s inputs') })
 /** Blueprint text (board.js), one line a string: a reference board. */
 const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 
@@ -24,21 +31,53 @@ const PARTS = {
   reg: item(t('读寄存卡：同名寄存卡里存的值，存入之前给初值', 'Register: what the register of the same name holds, its start value before')),
   keep: item(t('存寄存卡：接入的值存进同名寄存卡，下一拍读得出', 'Keep: its input stored in the register of the same name, read from the next tick')),
   const: item(t('常数：设定的数', 'Constant: the number it is set to')),
+  select: item(t('选择：条件为是或 1 给出「是」一路，否则「否」一路', 'Select: its Yes input when the condition is yes or 1, else its No input')),
+  add: item(t('相加：两个数之和', 'Add: the sum of two numbers')),
+  equal: item(t('相等：两个数相同时为是', 'Equal: yes when two numbers are the same')),
+  bit: item(t('取位：8 位数 n 从最高位数起的第 i 位（i 从 0 起）', 'Bit of: bit i of the 8-bit number n, counted from the top (from 0)')),
 }
 
-/* ---------- what an output must be ---------- */
+/* ---------- what an output or a wire out must be ---------- */
 
+const ON = (extra = {}) => S.obj({ wire: WIRE_NAME, ...extra })
 const WANTS = {
-  line: item(t('这一拍线上的位', 'the bit on the line this tick')),
-  delayed: item(t('输入 input 上一拍的值；第一拍给 first', 'what the input `input` was the tick before; first on the first tick'), S.obj({ input: S.str(), first: S.int() })),
+  echo: item(t('每一拍：这根进线这一拍到达的位', 'tick by tick: the bit arriving on the wire this tick'), ON()),
+  opposite: item(t('每一拍：这根进线这一拍到达的位的反面', 'tick by tick: the opposite of the bit arriving on the wire this tick'), ON()),
+  differ: item(t('每一拍：两根进线这一拍的位不同时为 1，相同为 0', 'tick by tick: 1 when the two wires’ bits differ this tick, 0 when they agree'), S.obj({ a: WIRE_NAME, b: WIRE_NAME })),
+  late: item(t('每一拍：这根进线上一拍的位；第一拍给 first', 'tick by tick: the bit the wire had the tick before; first on the first tick'), ON({ first: S.oneOf([0, 1]) })),
+  heard: item(t('每一拍：这根进线上到过 1 了没有（这一拍算在内），到过为 1，否则为 0', 'tick by tick: 1 once a 1 has arrived on the wire (this tick included), 0 before'), ON()),
+  count: item(t('每一拍：自从输入 reset 上一次为 1 过了几拍（那一拍为 0；没有过时从第 0 拍数起）', 'tick by tick: how many ticks since the input `reset` was last 1 (0 on that tick; counted from tick 0 before it ever is)'), S.obj({ reset: INPUT })),
+  serial: item(t('每一拍：输入 start 第一次为 1 的那一拍起，接连 8 拍说出那一拍输入 byte 的各位（最高位先），其余各拍为 0', 'tick by tick: from the first tick the input `start` is 1, the bits of the input `byte` at that tick over 8 ticks (top bit first), 0 on every other tick'), S.obj({ byte: INPUT, start: INPUT })),
+  pattern: item(t('每一拍：到这一拍为止最后几位正好是 bits 时为 1，否则为 0', 'tick by tick: 1 when the last bits up to this tick are exactly `bits`, else 0'), ON({ bits: BITS })),
+  remainder: item(t('每一拍：到这一拍为止收到的位（输入 reset 为 1 的那一拍从头算起）除以生成式的余数，写成一个数', 'tick by tick: the remainder of the bits received so far (from the last tick the input `reset` is 1) divided by the generator, as a number'), ON({ poly: S.str({ pattern: '^1[01]*1$' }), reset: S.opt(INPUT) })),
+  decoded: item(t('每一拍：按格式收到的字节，在它最后一位到达的那一拍（flag 格式在帧尾的旗标结束的那一拍）；其余各拍「—」', 'tick by tick: the bytes received in the format, each on the tick its last bit arrives (in the flag formats, on the tick the closing flag ends); 「—」 on every other tick'), ON({ format: FORMAT, poly: POLY })),
+  intact: item(t('每一拍：按格式收到的每个字节（parity、check）或每一帧（flagcheck）是否完好，在它结束的那一拍；其余各拍「—」', 'tick by tick: whether each byte (parity, check) or frame (flagcheck) received in the format is intact, on the tick it ends; 「—」 on every other tick'), ON({ format: FORMAT, poly: POLY })),
+  given: item(t('每一拍：测试的 expect 里写给这个输出的值（不写的拍不查）', 'tick by tick: the values the test’s `expect` gives this output (ticks left out are not checked)')),
+  bytes: item(t('不论时机：这个输出给出的不是「—」的值，依次应当是按格式收到的字节（intactOnly：只算完好的帧里的）', 'timing aside: the values this output gives that are not 「—」 must be, in order, the bytes received in the format (intactOnly: only those of intact frames)'), ON({ format: FORMAT, poly: POLY, intactOnly: S.opt(S.bool()) })),
+  ends: item(t('不论时机：这个输出给出的不是「—」的值，依次应当是每一帧结束时它是否完好', 'timing aside: the values this output gives that are not 「—」 must be, in order, whether each frame was intact at its end'), ON({ format: FORMAT, poly: POLY })),
+  sent: item(t('线那头：按格式解出这根出线上说的话，应当正好是测试的队列（帧的格式每帧后面记一个帧尾；坏的不算）', 'the far end: what it decodes in the format from this wire out must be exactly the test’s queue (in the frame formats an end after each frame; nothing broken counts)'), S.obj({ format: FORMAT, poly: POLY })),
+  relayed: item(t('线那头：按格式解出这根出线上说的话，应当正好是这根进线上到达的完好的帧', 'the far end: what it decodes in the format from this wire out must be exactly the intact frames that arrived on the wire in'), ON({ format: FORMAT, poly: POLY })),
 }
 
 /* ---------- a level ---------- */
 
 const PORT = S.obj({ name: NAME, label: S.text() })
+const WIRE = S.obj({ name: NAME, label: S.text(), delay: S.opt(nat) })
+const SEGMENT = S.either(
+  S.obj({ idle: nat }),
+  S.obj({ bits: BITS }),
+  S.obj({ bytes: S.list(BYTE), format: FORMAT, poly: POLY }),
+  S.obj({ frames: S.list(S.list(BYTE)), format: FORMAT, poly: POLY }),
+)
 const TEST = S.obj({
-  line: BITS,
-  inputs: S.opt(S.map(S.list(S.int()), { about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
+  wires: S.opt(S.map(S.obj({
+    send: S.list(SEGMENT, { about: t('线那头依次说的：安静几拍、几位、按格式的字节或帧', 'what the far end says, in turn: quiet ticks, bits, bytes or frames in a format') }),
+    flips: S.opt(S.list(nat, { about: t('这些拍到达的位被线翻转（从 0 数）', 'the ticks whose arriving bit the wire flips (from 0)') })),
+  }), { about: t('每根进线上，线那头说什么', 'on each wire in, what its far end says') })),
+  inputs: S.opt(S.map(S.list(S.either(S.int(), S.oneOf([null]))), { about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
+  queue: S.opt(S.list(S.list(BYTE), { about: t('板取用的队列：一列帧，每帧一列字节', 'the queue the board pulls from: frames, each a list of bytes') })),
+  expect: S.opt(S.map(S.list(S.any()), { about: t('given 要的值：每个输出每一拍的值，null 是「—」', 'what `given` wants: each output’s value tick by tick, null for 「—」') })),
+  ticks: S.opt(S.int({ min: 1, about: t('跑多少拍（默认：给的东西都到达以后再过两拍）', 'how many ticks it runs (by default two after everything it gives has arrived)') })),
 })
 const LEVEL = S.obj({
   title: S.text(),
@@ -48,16 +87,16 @@ const LEVEL = S.obj({
   after: S.opt(S.text()),
   note: S.opt(S.text()),
   adds: S.opt(S.list(S.ref('part'))),
-  listens: S.opt(S.bool({ about: t('板上有线元件', 'the board has the line card') })),
-  talks: S.opt(S.bool({ about: t('板上有「说」元件：接到它的位每一拍说到线上', 'the board has the say card: the bit wired to it goes on the line every tick') })),
+  wires: S.opt(S.obj({ in: S.opt(S.list(WIRE)), out: S.opt(S.list(WIRE)) }, { about: t('板听的进线、板说的出线；它们和输入输出一样是板的口', 'the wires the board hears and the wires it says on; like inputs and outputs, they are the board’s ports') })),
   inputs: S.opt(S.list(PORT)),
   outputs: S.opt(S.list(PORT)),
+  pulls: S.opt(S.obj({ input: NAME, next: NAME, last: S.opt(NAME) }, { about: t('板从测试的队列里取字节：input 给出队首的字节（取完了是「—」），last 在它是一帧的最后一个字节时为是，输出 next 为 1 或是的那一拍取走它，下一拍出现下一个', 'the board pulls bytes from the test’s queue: `input` shows the byte at its head (「—」 once used up), `last` is yes when it is a frame’s last byte, and the tick the output `next` is 1 or yes takes it, the next showing the tick after') })),
   tests: S.list(TEST, { min: 1 }),
-  hidden: S.opt(S.list(TEST, { about: t('隐藏测试：每次运行一并检查，通关后公开', 'hidden tests: checked with every run and shown once passed') })),
-  want: S.map(S.call('want'), { about: t('每个输出（和 say）每一拍应当是什么', 'what each output (and say) must be, tick by tick') }),
+  hidden: S.opt(S.list(TEST, { about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
+  want: S.map(S.call('want'), { about: t('每个输出和出线应当是什么', 'what each output and wire out must be') }),
   solution: BOARD,
   naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { about: t('通过后这块板成为元件 type：它的输入口和结果口就是关卡的输入和输出', 'once passed the board is the part `type`: its ports are the level’s inputs and outputs') })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { about: t('通过后这块板成为元件 type：它的口就是关卡的进线、输入、出线和输出', 'once passed the board is the part `type`: its ports are the level’s wires in, inputs, wires out and outputs') })),
   showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 })
 

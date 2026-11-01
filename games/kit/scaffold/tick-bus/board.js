@@ -30,7 +30,7 @@ export function fixedOf(level) {
 export const portsOut = (level) => [...(level.talks ? [{ name: 'say', label: { zh: '说', en: 'Say' } }] : []), ...(level.outputs ?? [])]
 
 /**
- * How the editor wires a level's cards (../../circuit/model.js parts, without the drawing: ui/BusScreen.jsx adds names
+ * How the editor wires a level's cards (../../circuit/model.js parts, without the drawing: ui/Screen.jsx adds names
  * and icons): the ports of each card, which are given, and a built part's outputs by name when it has several.
  */
 export function wiring(level, __name__) {
