@@ -1,8 +1,12 @@
-// The model's rules (model.js), the repository (world.js), the turn machine (run.js) and the hand sessions (hand.js).
+// The model's rules (model.js), the repository (world.js), the turn machine (run.js), the hand sessions (hand.js) and
+// boards as blueprint text (board.js).
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { print } from '../../circuit/text.js'
+import { fixedOf, fromText } from './board.js'
 import { call, cut } from './model.js'
-import { playHand } from './hand.js'
+import { opOf, playHand } from './hand.js'
+import { PARTS } from './parts.js'
 import { runEpisode, verdict } from './run.js'
 import { actEntry, applyWrite, fileEntry, issueEntry, listEntry, runTests } from './world.js'
 
@@ -106,4 +110,27 @@ test('a hand session: the player adds the file, calls, tests and calls again', (
   const s = playHand(level, [['call'], ['add', 'src/parse.js'], ['call'], ['test'], ['call'], ['test']])
   assert.equal(s.log[0].action.type, 'read')
   assert.equal(s.green, true)
+})
+
+test('a hand level writes its moves as the ops a session keeps', () => {
+  assert.deepEqual([{ add: 'src/parse.js' }, 'call', { drop: 1 }, 'list', 'test'].map(opOf), [['add', 'src/parse.js'], ['call'], ['drop', 1], ['list'], ['test']])
+})
+
+const loopLevel = { fixed: fixedOf('loop', []) }
+const LOOP_TEXT = ['ctx = concat(issue, history)', 'm = model(ctx)', 'r = read(m)', 'l = list(m)', 't = test(m)', 'keep = concat(r, l, t.out)', 'repo <- m', 'out <- keep', 'stop <- t.green']
+
+test('blueprint text reads into the board a player would wire, and what the editor prints reads back the same', () => {
+  const b = fromText(LOOP_TEXT, loopLevel)
+  const plain = (g) => ({ nodes: g.nodes.map(({ id, type, params }) => ({ id, type, params: params ?? {} })), wires: [...g.wires].sort((x, y) => (`${x.to}.${x.port}` < `${y.to}.${y.port}` ? -1 : 1)) })
+  assert.deepEqual(plain(b), plain(loopBoard))
+  const parts = { inputs: (n) => PARTS[n.type].inputs, role: (n) => (PARTS[n.type].source ? 'source' : PARTS[n.type].sink ? 'sink' : 'part') }
+  assert.deepEqual(plain(fromText(print(b, parts).split('\n'), loopLevel)), plain(b))
+  const once = fromText(['r = read[file="src/parse.js"]()', 'k = concat(issue, r)', 'm = model(k)', 'repo <- m'], { fixed: fixedOf('once', [{}]) })
+  assert.deepEqual(once.nodes.find((n) => n.id === 'r').params, { file: 'src/parse.js' })
+})
+
+test('blueprint text names the line of a part the domain lacks or a card the machine does not give', () => {
+  assert.throws(() => fromText(['m = oracle(issue)'], loopLevel), (e) => e.line === 1)
+  assert.throws(() => fromText(['m = model(code)', 'repo <- m'], loopLevel), (e) => e.line === 1 && /code/.test(e.en))
+  assert.throws(() => fromText(['m = model(issue)', 'stop <- m'], { fixed: fixedOf('once', []) }), (e) => e.line === 2)
 })

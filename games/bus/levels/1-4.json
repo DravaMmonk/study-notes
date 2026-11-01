@@ -1,0 +1,27 @@
+{
+  "title": { "zh": "数拍", "en": "Count the ticks" },
+  "brief": { "zh": "每一拍交出这是第几拍：第一拍是 0。", "en": "Every tick, give out which tick this is: the first is 0." },
+  "intro": [
+    {
+      "t": {
+        "zh": "要知道一位落在一帧的哪里，得会数。寄存卡记得住一个数，还缺一样把它往上加的东西。",
+        "en": "To know where a bit falls in a frame, the board has to count. A register can hold a number; what is missing is something to add to it."
+      }
+    },
+    {
+      "t": {
+        "zh": "新元件<part-ref to=\"part:arith\"></part-ref>：形状「加一」给出输入加 1，「相加」给出两个输入的和。",
+        "en": "A new part, <part-ref to=\"part:arith\"></part-ref>: its form Add one gives its input plus 1, and Add gives the sum of its two inputs."
+      }
+    }
+  ],
+  "adds": ["arith"],
+  "outputs": [{ "name": "n", "label": { "zh": "拍数", "en": "Ticks" } }],
+  "tests": [{ "bus": { "idle": 12, "frames": [], "tail": 0 } }, { "bus": { "idle": 20, "frames": [], "tail": 0 } }],
+  "want": { "n": "tick" },
+  "solution": ["r = reg[reg=A, start=0]()", "i = arith[form=inc](r)", "k = keep[reg=A](i)", "n <- r"],
+  "after": {
+    "zh": "读出、加一、存回去：一个绕过寄存卡的小圈，每拍转一次，就是计数。",
+    "en": "Read, add one, keep it: a small loop through a register, once round each tick, is a count."
+  }
+}

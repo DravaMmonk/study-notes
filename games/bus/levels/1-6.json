@@ -1,0 +1,49 @@
+{
+  "title": { "zh": "断了重数", "en": "Start again when it breaks" },
+  "brief": {
+    "zh": "每一拍交出「接着数」在这一拍之前连着是 1 的拍数；它一是 0，就从 0 重数。",
+    "en": "Every tick, give out how many ticks in a row Go on was 1 before this one; once it is 0, start again from 0."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "数拍只会一直往上数。要数\"连着多少拍\"，得在断的那一拍把数清零：板要能在两个值里挑一个。",
+        "en": "Counting ticks only goes up. To count “how many in a row”, the count has to go back to zero on the tick the run breaks: the board has to pick one of two values."
+      }
+    },
+    {
+      "t": {
+        "zh": "新元件<part-ref to=\"part:select\"></part-ref>：条件是「是」或 1 时给出「是」那一路，「否」或 0 时给出「否」那一路；没接的一路读作「—」。",
+        "en": "A new part, <part-ref to=\"part:select\"></part-ref>: when its condition is yes or 1 it gives its Yes input, when it is no or 0 its No input; an input left open reads 「—」."
+      }
+    }
+  ],
+  "adds": ["select"],
+  "inputs": [{ "name": "go", "label": { "zh": "接着数", "en": "Go on" } }],
+  "outputs": [{ "name": "n", "label": { "zh": "数", "en": "Count" } }],
+  "tests": [
+    { "bus": { "idle": 14, "frames": [], "tail": 0 }, "inputs": { "go": [1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0] } },
+    { "bus": { "idle": 12, "frames": [], "tail": 0 }, "inputs": { "go": [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0] } }
+  ],
+  "want": { "n": { "streak": { "input": "go" } } },
+  "solution": [
+    "r = reg[reg=A, start=0]()",
+    "i = arith[form=inc](r)",
+    "z = const[value=0]()",
+    "s = select(go, i, z)",
+    "k = keep[reg=A](s)",
+    "n <- r"
+  ],
+  "builds": {
+    "type": "counter",
+    "name": { "zh": "计数器", "en": "Counter" },
+    "desc": {
+      "zh": "交出「接着数」在这一拍之前连着是 1 的拍数；「接着数」为 0 的那一拍过后从 0 重数。每一块计数器有自己的寄存卡。",
+      "en": "Gives how many ticks in a row Go on was 1 before this tick; after a tick where Go on is 0 it counts from 0 again. Each counter has registers of its own."
+    }
+  },
+  "after": {
+    "zh": "这块板现在是一个元件了，板上放几块，就各数各的。",
+    "en": "This board is now a part, and several of them on one board each keep their own count."
+  }
+}

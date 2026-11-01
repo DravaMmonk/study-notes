@@ -1,0 +1,38 @@
+{
+  "kind": "board",
+  "title": { "zh": "让它自己读", "en": "Let it read" },
+  "brief": {
+    "zh": "这次机器一轮一轮地跑这块板。让模型自己要文件、自己读，改完就停。",
+    "en": "Now the machine runs this board turn after turn. Let the model ask for files and read them itself, and stop when it is done."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "上一章的机器只调用一次模型，读哪个文件得你事先选好。这一章的机器每一轮都跑一遍这块板：模型这一轮给的动作，可以接到读文件元件上，读出来的东西接到「留到下一轮」，下一轮就出现在左边的「历史」里。",
+        "en": "Last chapter’s machine called the model once, and you picked the file beforehand. This chapter’s machine runs the board every turn: the action the model gives this turn can go into the read part, what it reads goes into Keep for next turn, and next turn it shows up in History on the left."
+      }
+    },
+    {
+      "t": {
+        "zh": "机器会自己把模型每一轮的动作记进历史。模型的修改落进仓库；什么时候停，看接到「停」的是什么。",
+        "en": "The machine records the model’s action each turn in the history itself. Its writes land in the repository; when to stop depends on what you wire into Stop."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "读文件元件的输入口接上模型的动作，它就读模型要的那个文件。",
+      "en": "With the model’s action wired into the read part’s input, it reads the file the model asks for."
+    },
+    {
+      "zh": "模型下一轮要看到的东西：issue，还有之前每一轮发生的事。",
+      "en": "What the model needs to see next turn: the issue, and what happened in every turn before."
+    }
+  ],
+  "tests": [{ "issue": "qty-zero" }, { "issue": "tax-round" }],
+  "solution": ["k = concat(issue, history)", "m = model(k)", "r = read(m)", "repo <- m", "out <- r", "stop <- m"],
+  "after": {
+    "zh": "读哪个文件，由模型这一轮的动作决定，不再是板上写死的设置。issue、历史、模型、工具、留到下一轮：这就是 agent 循环的骨架，转起来的是机器。",
+    "en": "Which file to read is now up to the model’s action this turn, not a setting fixed on the board. Issue, history, model, tools, keep for next turn: that is the skeleton of an agent loop, and the machine turns it."
+  }
+}

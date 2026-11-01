@@ -1,0 +1,36 @@
+{
+  "kind": "board",
+  "title": { "zh": "大仓库", "en": "A big repository" },
+  "brief": {
+    "zh": "三十多个包的仓库，光目录就很长。修好这个 issue，总共不超过 2000 个 token。",
+    "en": "A repository of over thirty packages, whose file list alone is long. Fix this issue in 2000 tokens all told."
+  },
+  "hint": [{ "zh": "模型的每次调用都要读一遍整个上下文。", "en": "Every call of the model reads its whole context again." }],
+  "tests": [{ "issue": "webhook-retry" }],
+  "budget": { "tokens": 2000 },
+  "solution": [
+    "k = concat(issue, history)",
+    "m = model(k)",
+    "r = read(m)",
+    "t = test(m)",
+    "keep = concat(r, t.out)",
+    "repo <- m",
+    "out <- keep",
+    "stop <- t.green"
+  ],
+  "naive": [
+    "k = concat(issue, history)",
+    "m = model(k)",
+    "r = read(m)",
+    "l = list(m)",
+    "t = test(m)",
+    "keep = concat(r, l, t.out)",
+    "repo <- m",
+    "out <- keep",
+    "stop <- t.green"
+  ],
+  "after": {
+    "zh": "目录一旦进了历史，之后每一轮都要再读一遍。没有元件回应它的要目录，模型就换一条路：跑测试，从失败报告里找到文件。给模型的工具少一个，有时反而更省。",
+    "en": "Once the list is in the history, every later turn reads it again. With nothing to answer its ask for the list, the model takes another way: it runs the tests and finds the file in the failing report. One tool fewer is sometimes cheaper."
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "board",
+  "title": { "zh": "三处修改", "en": "Three changes" },
+  "brief": { "zh": "一个 issue，三处修改，两个文件。", "en": "One issue, three changes, two files." },
+  "intro": [
+    {
+      "t": {
+        "zh": "一次调用要写完三处：每一处的代码都要在它眼前。",
+        "en": "One call has to write all three: each one’s code must be in front of it."
+      }
+    }
+  ],
+  "tests": [{ "issue": "checkout" }],
+  "solution": [
+    "a = read[file=\"src/cart.js\"]()",
+    "b = read[file=\"src/price.js\"]()",
+    "k = concat(issue, a, b)",
+    "m = model(k)",
+    "repo <- m"
+  ],
+  "after": {
+    "zh": "一次调用能写好几处，前提是要看的都在上下文里。到这里，挑文件、拼上下文的都是你：模型自己不能要东西。",
+    "en": "One call can write several changes, as long as all it needs is in its context. So far, picking the files and building the context is all yours: the model cannot ask for anything itself."
+  }
+}

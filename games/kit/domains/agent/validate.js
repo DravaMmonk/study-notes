@@ -1,4 +1,5 @@
-// The agent domain's checks for `npm run check` (../../engine/check.js), level by level:
+// The agent domain's checks for `npm run check` (../../engine/check.js): what reading the content found wrong
+// (course.js), then level by level:
 //
 //   · a hand level's reference ops end in a green test run
 //   · a board level's reference answer passes every test and hidden test, using only cards the level holds and the
@@ -13,10 +14,10 @@ import { usable } from '../../course.js'
 
 const all = (level) => ({ ...level, tests: [...level.tests, ...level.hidden] })
 
-/** spec: { agent } (course.js agentCourse). Returns [{ text, fail? }]. */
+/** spec: domain.js spec(content). Returns [{ text, fail? }]. */
 export function validate({ agent }) {
   const { LEVELS, course, filesIn } = agent
-  const out = []
+  const out = agent.wrong.map((text) => ({ text, fail: true }))
   for (const level of LEVELS) {
     const name = `${level.id} ${keyOf(level.title)}`
     if (level.kind === 'hand') {
@@ -27,7 +28,8 @@ export function validate({ agent }) {
     const problems = []
     const held = new Set(usable(course, { id: level.id }, new Set()))
     for (const n of level.solution.nodes) {
-      if (FIXED.includes(n.type)) { if (!level.fixed.includes(n.type)) problems.push(`the answer uses the card ${n.type}, which this machine does not give`); continue }
+      // A fixed card is on the board only when the level's machine gives it (board.js fromText).
+      if (FIXED.includes(n.type)) continue
       if (!held.has(n.type)) problems.push(`the answer uses ${n.type}, which the level does not hold`)
       if (n.type === 'read' && n.params?.file && !filesIn(level).includes(n.params.file)) problems.push(`a read card names ${n.params.file}, which is in no repository of the level`)
     }
@@ -38,7 +40,7 @@ export function validate({ agent }) {
       if (naive.pass) problems.push('the naive answer passes')
     }
     const tokens = ref.runs.reduce((n, r) => n + r.tokens, 0)
-    out.push({ fail: problems.length > 0, text: `${name}: ${problems.length ? problems.join('; ') : `answer PASS (${ref.runs.length} tests, ${tokens} tokens)${level.naive ? ', naive FAIL' : ''}`}` })
+    out.push({ fail: problems.length > 0, text: `${name}: ${problems.length ? problems.join('; ') : `answer PASS (${ref.runs.length} tests, ${tokens} tokens)${level.naive ? ', the naive answer fails' : ''}`}` })
   }
   return out
 }

@@ -1,0 +1,50 @@
+{
+  "kind": "board",
+  "title": { "zh": "测完再停", "en": "Stop when it passes" },
+  "brief": {
+    "zh": "这两个 issue 的改法容易写错。让机器改到测试通过才停。",
+    "en": "These two issues are easy to get wrong. Have the machine go on until the tests pass."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "模型写完自己以为该写的，就说「做完了」，不管测试。新元件<part-ref to=\"part:test\"></part-ref>在模型说做完或要求测试时跑一遍测试：给出一份报告，和测试是否通过。",
+        "en": "Once the model has written what it thinks it should, it says it is done, tests or not. The new part <part-ref to=\"part:test\"></part-ref> runs the tests when the model says it is done or asks for them: it gives a report, and whether the tests pass."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "先用之前的停法跑一次，看最后一轮测试是什么样。",
+      "en": "Run it once with the old way of stopping, and look at the tests after the last turn."
+    },
+    { "zh": "「停」也接受「是否通过」。", "en": "Stop also takes a pass flag." }
+  ],
+  "adds": ["test"],
+  "tests": [{ "issue": "discount-cap" }, { "issue": "empty-cart" }],
+  "solution": [
+    "k = concat(issue, history)",
+    "m = model(k)",
+    "r = read(m)",
+    "l = list(m)",
+    "t = test(m)",
+    "keep = concat(r, l, t.out)",
+    "repo <- m",
+    "out <- keep",
+    "stop <- t.green"
+  ],
+  "naive": [
+    "k = concat(issue, history)",
+    "m = model(k)",
+    "r = read(m)",
+    "l = list(m)",
+    "keep = concat(r, l)",
+    "repo <- m",
+    "out <- keep",
+    "stop <- m"
+  ],
+  "after": {
+    "zh": "模型说做完了，不等于做完了。把「停」交给测试，模型的话就要被检查；失败的报告接回上下文，它下一轮就照着改。",
+    "en": "The model saying it is done does not make it done. Hand Stop to the tests and its word gets checked; a failing report fed back into its context is what it fixes by next turn."
+  }
+}
