@@ -89,8 +89,8 @@ html, body { margin: 0; background: var(--canvas); color: var(--body); font: var
 .editor-open { padding: 10px; border-radius: 8px; background: var(--code-bg); color: var(--code-ink); font: 11px/1.5 var(--mono); }
 .editor-scene { margin: 4px 0 10px; max-height: 240px; }
 
-.field { display: grid; gap: 4px; min-width: 0; }
-.field-obj, .field-list { display: grid; gap: 10px; }
+.field { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; min-width: 0; }
+.field-obj, .field-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .field.is-nested > .field-obj, .field.is-nested > .field-list:not(.is-inline) { padding: 6px 0 2px 12px; border-left: 2px solid var(--line); }
 .field.is-nested > .field-list.is-inline { gap: 4px; }
 .editor-section > .field-obj, .editor > .field > .field-obj { padding: 0; border: 0; }
