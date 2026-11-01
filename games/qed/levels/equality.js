@@ -15,6 +15,7 @@ const PROBLEMS = [T('第一题', 'Problem 1'), T('第二题', 'Problem 2'), T('�
 const WRITE = T('用下面的块，拼出这句话的证明项。', 'Build the proof term of this sentence from the pieces below.')
 const FORMS = [...BASIC, 'rfl', 'subst']
 const WORDS = { ...TERM_WORDS, ...STAR_NAMES, Vec: T('Vec {0}', 'Vec {0}'), Elem: T('Elem', 'Elem') }
+const SYMBOLIC = { Bright: T('P({0})', 'P({0})'), Seen: T('Q({0})', 'Q({0})') }
 // A level's term tasks, numbered from `from` (after its proof-board tasks).
 const write = (list, from = 0) => list.map((task, k) => ({ kind: 'term', step: PROBLEMS[from + k], brief: WRITE, forms: FORMS, words: WORDS, ...task }))
 // Reflection: formulas in two letters p and q as data, their value on a row, and the truth table as a program.
@@ -64,6 +65,7 @@ export const equality = [
   {
     id: 'eq-rec',
     words: WORDS,
+    symbolicWords: SYMBOLIC,
     title: T('等量代换的证明项', 'The term of rewriting'),
     consts: STARS,
     tasks: [
@@ -116,6 +118,7 @@ export const equality = [
   {
     id: 'eq-motive',
     words: WORDS,
+    symbolicWords: SYMBOLIC,
     title: T('换哪几处', 'Which places'),
     consts: STARS,
     tasks: [

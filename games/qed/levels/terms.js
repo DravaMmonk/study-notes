@@ -233,7 +233,7 @@ export const terms = [
         without: ['chain'],
         tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C', term: 'fun h => q (p h)' }],
         cases: CHAIN,
-        brief: T('不用<part-ref to="lemma:chain"></part-ref>再证一次，证明项须为 fun h => q (p h)。', 'Prove it again without <part-ref to="lemma:chain"></part-ref>, with the term fun h => q (p h).'),
+        briefNote: T('不用<part-ref to="lemma:chain"></part-ref>，证明项须为 fun h => q (p h)。', 'Do not use <part-ref to="lemma:chain"></part-ref>; the proof term must be fun h => q (p h).'),
         hint: [T('当初证<part-ref to="lemma:chain"></part-ref>时接的是什么？', 'What did you wire when you proved <part-ref to="lemma:chain"></part-ref>?')],
         solution: proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'q>m2.imp', 'm1>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] }),
       }),

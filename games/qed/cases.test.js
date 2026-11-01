@@ -22,7 +22,6 @@ test('equality cases use object names by default and letters in the symbolic cas
   assert.doesNotMatch(render(formula(concrete), level.notation, 'zh'), /[PQ]/)
   assert.match(render(formula(concrete), level.notation, 'en'), /every property.*Evening Star.*Morning Star/)
   assert.match(render(formula(symbolic), { ...level.notation, words: null }, 'zh'), /Q\(j\).*Q\(i\)/)
-  assert.match(concrete.caseBrief.zh, /昏星.*晨星/)
   assert.match(symbolic.caseBrief.zh, /Q\(j\).*Q\(i\)/)
 })
 
@@ -33,4 +32,15 @@ test('higher-order propositions use words only in the concrete case', () => {
   const symbolic = level.tests.at(-1)
   assert.match(render(parse(concrete.goal), level.notation, 'zh'), /任意命题.*该命题/)
   assert.match(render(parse(symbolic.goal), { ...level.notation, words: null }, 'zh'), /∀R/)
+})
+
+test('the task brief is symbolic while concrete cases remain concrete', () => {
+  const level = spec.levels.find((item) => item.id === 'q-eq')
+  assert.match(level.tests.at(-1).caseBrief.zh, /a = b.*P\(a\).*Q\(b\)/)
+  assert.doesNotMatch(level.tests.at(-1).caseBrief.zh, /晨星|昏星/)
+  assert.match(render(parse(level.tests[0].goal, { consts: level.consts }), level.notation, 'zh'), /昏星/)
+  const equality = spec.levels.find((item) => item.id === 'eq-rec').tasks[0]
+  assert.match(equality.tests.at(-1).caseBrief.zh, /P\(i\).*P\(j\)/)
+  const script = spec.levels.find((item) => item.id === 'sc-rows').tasks[1]
+  assert.match(script.tests.at(-1).caseBrief.zh, /A → B.*B → C/)
 })

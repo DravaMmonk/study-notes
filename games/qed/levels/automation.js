@@ -283,7 +283,7 @@ export const automation = [
         parts: ['res'],
         tests: [{ premises: { p: '¬A ∨ B', q: '¬B ∨ C', r: 'A', s: '¬C' }, goal: '⊥' }],
         cases: [{ A: 'Alarm', B: 'Up', C: 'Coffee' }],
-        brief: T('照证明助手的证书，在证明板上用「归结」从这四条子句推出 ⊥。', 'Following the proof assistant’s certificate, use “Resolve” on the proof board to get ⊥ from these four clauses.'),
+        briefNote: T('按照证明助手的证书，在证明板上重放。', 'Replay the proof assistant’s certificate on the proof board.'),
         hint: [T('证书里每一条推出的子句都写着它的两条来源。', 'Each clause in the certificate names the two it came from.')],
         solution: proof({ r1: ['res'], r2: ['res'], r3: ['res'] }, ['p>r1.p0', 'r>r1.p1', 'q>r2.p0', 's>r2.p1', 'r1>r3.p0', 'r2>r3.p1', 'r3>goal'], { premises: ['p', 'q', 'r', 's'] }),
       },

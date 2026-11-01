@@ -36,6 +36,7 @@ export const structured = [
   // ---------- reading scripts ----------
   {
     id: 'sc-rows',
+    symbolicWords: { Rain: T('A', 'A'), Wet: T('B', 'B'), Slip: T('C', 'C') },
     title: T('一句一个元件', 'A row is a part'),
     tasks: [
       read({
@@ -60,6 +61,7 @@ export const structured = [
   },
   {
     id: 'sc-block',
+    symbolicWords: { Rain: T('A', 'A'), Wind: T('B', 'B'), Wet: T('C', 'C') },
     title: T('块套着块', 'Blocks in blocks'),
     tasks: [
       read({
