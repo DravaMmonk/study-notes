@@ -1,12 +1,13 @@
 // The logic domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the course,
-// its levels in play order, the texts a player reads and the names copy may quote) and the domain's checks. Nothing
-// here draws: the page's side is game.jsx.
+// its levels in play order, the texts a player reads and the names copy may quote), the domain's checks, and its play
+// hook for blind sessions (play.js). Nothing here draws: the page's side is game.jsx.
 
 import { vocabulary } from './vocabulary.js'
 import { logicCourse } from './course.js'
 import { validate } from './validate.js'
 import { syncOwn } from './built.js'
 import { savesOf } from './items/migrations.js'
+import { play } from './play.js'
 
 // What players keep on a level answers its puzzle (../../engine/ops/migrate.js): a proof proves its goal from its
 // givens, a table fills its formulas, a world satisfies its sentences. A level whose puzzle changed keeps state that
@@ -83,4 +84,4 @@ const tasks = {
   },
 }
 
-export default { vocabulary, spec, validate, saves: savesOf, changes, tasks }
+export default { vocabulary, spec, validate, play, saves: savesOf, changes, tasks }

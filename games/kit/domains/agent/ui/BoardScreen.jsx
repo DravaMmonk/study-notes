@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
 import { CircuitLevel, StepLog, Text, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { srcKey, srcNode } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { startBoard } from '../board.js'
-import { FIXED, KIND, PARTS, kindOf, wantsOf } from '../parts.js'
+import { startBoard, wiring } from '../board.js'
+import { FIXED, PARTS } from '../parts.js'
 import { runLevel } from '../run.js'
-import { CARDS, OUT_LABELS, PORT_LABELS } from './catalog.js'
-import { ContextBar, ContextValue, Report, RepoView, actionText, entryText } from './views.jsx'
+import { CARDS } from './catalog.js'
+import { PORT_LABELS, actionText, entryText } from '../words.js'
+import { ContextBar, ContextValue, Report, RepoView } from './views.jsx'
 
 // A board level of 《软件工厂》 on the kit's circuit level (../../../shell/CircuitLevel.jsx): the level's fixed cards
 // (the issue, the history, the repository, keep, stop) and the parts it holds. The tests are issues: picking one shows,
@@ -16,31 +16,16 @@ import { ContextBar, ContextValue, Report, RepoView, actionText, entryText } fro
 // ends with the tests failing, without stopping, or over the level's budget.
 
 const T = (zh, en) => ({ zh, en })
-const KIND_NAME = { [KIND.context]: T('上下文', 'a context'), [KIND.action]: T('动作', 'an action'), [KIND.flag]: T('是否通过', 'a pass flag') }
 
-/**
- * The editor's description of this level's cards (../../../circuit/model.js). With one call there is no action to read
- * by, so a read card shows no input there.
- */
+/** The editor's description of this level's cards (../../../circuit/model.js): the wiring (../board.js), drawn. */
 function partsFor(mode) {
   return {
-    inputs: (node) => (mode === 'once' && node.type === 'read' ? [] : PARTS[node.type]?.inputs ?? []),
-    role: (node) => (PARTS[node.type]?.source ? 'source' : PARTS[node.type]?.sink ? 'sink' : 'part'),
+    ...wiring(mode),
     label: (node) => CARDS[node.type]?.name ?? node.type,
     portLabel: (node, port) => PORT_LABELS[node.type]?.[port] ?? '',
     family: (node) => CARDS[node.type]?.family,
     icon: (node) => CARDS[node.type]?.icon,
-    outputs: (node) => (PARTS[node.type]?.outputs ? PARTS[node.type].outputs().map((key) => ({ key, label: OUT_LABELS[node.type][key] })) : null),
     cardWidth: (node) => (node.type === 'model' || node.type === 'test' ? 200 : PARTS[node.type]?.source || PARTS[node.type]?.sink ? 170 : 160),
-    // A wire carries one kind of value, and a port takes the kinds it reads.
-    refuse: (graph, from, to, port) => {
-      const source = graph.nodes.find((n) => n.id === srcNode(from))
-      const target = graph.nodes.find((n) => n.id === to)
-      const kind = kindOf(source, srcKey(from))
-      const wants = wantsOf(target, port)
-      if (!kind || wants.includes(kind)) return null
-      return T(`这个接口接收${L(KIND_NAME[wants[0]])}，这根线传来的是${L(KIND_NAME[kind])}。`, `This port takes ${L(KIND_NAME[wants[0]])}; this wire carries ${L(KIND_NAME[kind])}.`)
-    },
   }
 }
 

@@ -5,7 +5,8 @@
 
 import { CARDS, def, hasValue, isCard, isGiven, valueDefault } from '../model/parts.js';
 import { picksOf, placement, splitSrc } from '../model/board.js';
-import { refusal, srcType } from '../model/run.js';
+import { srcType } from '../model/run.js';
+import { wiring } from '../model/wiring.js';
 import { lookIcon } from './looks.js';
 import { ICONS } from './glyphs.js';
 
@@ -43,12 +44,6 @@ export function toGraph(b) {
     }),
   };
 }
-
-/** The editor's graph back as the board: what a board keeps of each node. */
-export const fromGraph = graph => ({
-  nodes: graph.nodes.map(n => ({ id: n.id, type: n.type, ...(n.params ? { params: n.params } : {}), ...(n.x !== undefined ? { x: Math.round(n.x), y: Math.round(n.y) } : {}), ...(Number.isInteger(n.slot) && !isGiven(n.type) ? { slot: n.slot } : {}) })),
-  wires: graph.wires.map(w => ({ from: w.from, to: w.to, port: w.port })),
-});
 
 /** A new part of `type` in phone slot `at` (and the first free spot on the desktop board). */
 export function create(graph, type, at) {
@@ -91,15 +86,11 @@ export function partsFor(b, u) {
   };
   const byId = (graph, id) => graph.nodes.find(n => n.id === id);
   return {
-    // What the level gives is a source (on top on a phone) or a sink; the rest are parts.
-    role: node => (node.type === 'out' ? 'sink' : isGiven(node.type) ? 'source' : 'part'),
-    // What the level gives stays on the board: only a card's outputs change.
-    removable: node => !isGiven(node.type),
-    inputs: node => (node.type === 'out' ? ['in'] : !node.type || isGiven(node.type) ? [] : def(node.type).ins.map((_, k) => String(k))),
+    ...wiring(u),
     label,
     portLabel: (node, port) => (isGiven(node.type) ? '' : def(node.type).labels?.[+port] ?? ''),
     family: () => 'sg',
-    // Each sensor a card reads is an output of its own.
+    // Each sensor a card reads is an output of its own, shown by the sensor's name or glyph.
     outputs: node => outputsOf(node, u.sensors),
     // A port input and a sensor go by their short name; an output by an arrow; a part shows its look (looks.js).
     icon: node => (node.type === 'tap' ? String(u.sensors[node.params.sensor].short) : node.type === 'port' ? String(u.ports?.[node.id]?.short ?? '') : node.type === 'out' ? '→' : lookIcon(node.type)),
@@ -108,11 +99,5 @@ export function partsFor(b, u) {
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, splitSrc(wire.from)[0])) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
     packed: node => Boolean(def(node.type)?.built),
-    // As text (../../../circuit/text.js): a card is written out with what it reads.
-    text: { sets: node => (isCard(node.type) ? ['picks'] : []) },
-    refuse: (graph, from, to, port) => {
-      const why = refusal(fromGraph(graph), io, from, to, port);
-      return why ? { zh: why, en: why } : null;
-    },
   };
 }

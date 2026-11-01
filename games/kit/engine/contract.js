@@ -25,12 +25,12 @@ const isFn = (f) => typeof f === 'function'
 //   changes             { stale(before, after), drop(ids) }: when a changed level's kept state no longer applies, and
 //                       the save step that drops it (ops/migrate.js)
 //   tasks               { merge(levels), split(level) }: what a level of tasks is (ops level.merge / level.split)
-//   play                the blind-play harness's hook (games/DIRECTION.md stage 3)
+//   play                { open(ctx), attempt(ctx, text) }: the blind-play harness's hook (games/DESIGN.md 6.6)
 export const EXTENSIONS = {
   saves: isFn,
   changes: (c) => Boolean(c) && isFn(c.stale) && isFn(c.drop),
   tasks: (t) => Boolean(t) && isFn(t.merge) && isFn(t.split),
-  play: isFn,
+  play: (p) => Boolean(p) && isFn(p.open) && isFn(p.attempt),
 }
 
 const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string' && typeof v.en === 'string')

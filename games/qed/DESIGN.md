@@ -639,3 +639,7 @@
 **补题的候选**（优先级高的知识点，只用现有题型，还没动手）：第 6 章声明「相等」只有写声明，没有找错的段（判定器把没取东西的 a = a 当成固定的名字，和真实的证明器不一致，先不出这类题）；第 12 章的类型声明没有找错和填表；第 12 章定义（加法、拼接、插入排序）没有「定义写错了」的找错关，`sort-len` 没有「陈述太弱」的检验。
 
 Proof task briefs state the schema in letters throughout. Proof cases use concrete object names and everyday predicates by default. Each proof also offers a final symbolic case, showing the same schema with letter names without changing the proof or its saved board. In the concrete presentation, quantified propositions and properties are described in words; variables and mathematical operators remain symbolic when needed to express the statement.
+
+## 8. 盲玩基线（按专题重做时参考，原型不改）
+
+一局 LLM 盲玩（`playtests/blind-1.json`，claude-sonnet-5-5）：第 0 章三张真值表 harness 还不支持，跳过；真值电路从「非非下雨」到骑士与无赖的前几关共 12 关全过，只有「永远为真」用了 2 次；`difficulty-spike` 没有报告。这一段对一个熟悉德摩根律的玩家是平的，不说明新手也平。玩家的话：隐藏目标列的关只有「说的话和他是什么相符」一句线索；「只用与门和非门」那一关之后，托盘里出现或、蕴含、等价，却没说什么时候用。

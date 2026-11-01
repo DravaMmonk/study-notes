@@ -22,19 +22,29 @@ for (const [k, v] of Object.entries(stubs)) if (!(k in globalThis)) globalThis[k
 const from = createRequire(resolve(ROOT, 'package.json'))
 let server = null
 
+/** A module through the same server, so it shares the game's module instances (a domain's play hook, say). */
+export async function loadModule(file) {
+  await serve()
+  return server.ssrLoadModule(file)
+}
+
 /** The game made from `content` as the shell gets it (its domain's game.jsx over it). */
 export async function gameOf(content) {
+  await serve()
+  const defineGame = (await server.ssrLoadModule(resolve(DOMAINS, content.domain, 'game.jsx'))).default
+  return defineGame(content)
+}
+
+async function serve() {
   if (!server) {
     const { createServer } = await import(pathToFileURL(from.resolve('vite')).href)
     const react = (await import(pathToFileURL(from.resolve('@vitejs/plugin-react')).href)).default
     server = await createServer({
       root: ROOT, configFile: false, plugins: [react()], appType: 'custom', logLevel: 'error',
-      server: { middlewareMode: true, fs: { allow: ['..'] } },
+      server: { middlewareMode: true, hmr: false, ws: false, fs: { allow: ['..'] } },
       resolve: { dedupe: ['react', 'react-dom', 'lucide-react'] }, ssr: { noExternal: ['lucide-react'] }, optimizeDeps: { noDiscovery: true, include: [] },
     })
   }
-  const defineGame = (await server.ssrLoadModule(resolve(DOMAINS, content.domain, 'game.jsx'))).default
-  return defineGame(content)
 }
 
 export async function closeGames() {
