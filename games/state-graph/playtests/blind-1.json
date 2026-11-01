@@ -1,0 +1,1435 @@
+{
+ "game": "state-graph",
+ "session": "blind-1",
+ "player": {
+  "kind": "llm",
+  "model": "claude-sonnet-5-5"
+ },
+ "lang": "en",
+ "started": "2026-11-01T12:48:17.680Z",
+ "limits": {
+  "attempts": 6,
+  "levels": 12
+ },
+ "progress": {
+  "version": 3,
+  "solved": [
+   "trace",
+   "lastStep",
+   "city",
+   "copy",
+   "confluence",
+   "stamp",
+   "rocks",
+   "reach",
+   "cheapest",
+   "slantcost",
+   "seamline",
+   "seamslant",
+   "seam",
+   "carve",
+   "slant",
+   "pascal"
+  ],
+  "flags": [
+   "counter",
+   "min",
+   "seam"
+  ],
+  "data": {
+   "copy": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#left",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "confluence": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "up",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "m",
+        "type": "msum",
+        "params": {},
+        "x": 240,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#up",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#left",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "m",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "stamp": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "up",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "one",
+        "type": "const",
+        "params": {
+         "value": 1
+        },
+        "x": 440,
+        "y": 40
+       },
+       {
+        "id": "p",
+        "type": "pass",
+        "params": {},
+        "x": 640,
+        "y": 40
+       },
+       {
+        "id": "m",
+        "type": "msum",
+        "params": {},
+        "x": 240,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "facts#start",
+        "to": "p",
+        "port": "0"
+       },
+       {
+        "from": "one",
+        "to": "p",
+        "port": "1"
+       },
+       {
+        "from": "view#up",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#left",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "p",
+        "to": "m",
+        "port": "2"
+       },
+       {
+        "from": "m",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "rocks": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "up",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start",
+          "rock"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "c",
+        "type": "counter",
+        "params": {},
+        "x": 240,
+        "y": 40
+       },
+       {
+        "id": "b",
+        "type": "block",
+        "params": {},
+        "x": 440,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#up",
+        "to": "c",
+        "port": "0"
+       },
+       {
+        "from": "view#left",
+        "to": "c",
+        "port": "1"
+       },
+       {
+        "from": "facts#start",
+        "to": "c",
+        "port": "2"
+       },
+       {
+        "from": "facts#rock",
+        "to": "b",
+        "port": "0"
+       },
+       {
+        "from": "c",
+        "to": "b",
+        "port": "1"
+       },
+       {
+        "from": "b",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "reach": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "up",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start",
+          "rock"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "m",
+        "type": "many",
+        "params": {},
+        "x": 240,
+        "y": 40
+       },
+       {
+        "id": "b",
+        "type": "block",
+        "params": {},
+        "x": 440,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#up",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#left",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "facts#start",
+        "to": "m",
+        "port": "2"
+       },
+       {
+        "from": "facts#rock",
+        "to": "b",
+        "port": "0"
+       },
+       {
+        "from": "m",
+        "to": "b",
+        "port": "1"
+       },
+       {
+        "from": "b",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "cheapest": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "up",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "cost"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "m",
+        "type": "mmin",
+        "params": {},
+        "x": 240,
+        "y": 40
+       },
+       {
+        "id": "s",
+        "type": "msum",
+        "params": {},
+        "x": 440,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#up",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#left",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "m",
+        "to": "s",
+        "port": "0"
+       },
+       {
+        "from": "facts#cost",
+        "to": "s",
+        "port": "1"
+       },
+       {
+        "from": "s",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "slantcost": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "ul",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start",
+          "cost"
+         ]
+        }
+       },
+       {
+        "id": "way3",
+        "type": "port"
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "z",
+        "type": "const",
+        "params": {
+         "value": 0
+        },
+        "x": 240,
+        "y": 40
+       },
+       {
+        "id": "p",
+        "type": "pass",
+        "params": {},
+        "x": 440,
+        "y": 40
+       },
+       {
+        "id": "m",
+        "type": "mmin",
+        "params": {},
+        "x": 640,
+        "y": 40
+       },
+       {
+        "id": "m2",
+        "type": "mmin",
+        "params": {},
+        "x": 240,
+        "y": 230
+       },
+       {
+        "id": "a",
+        "type": "add",
+        "params": {},
+        "x": 440,
+        "y": 230
+       }
+      ],
+      "wires": [
+       {
+        "from": "facts#start",
+        "to": "p",
+        "port": "0"
+       },
+       {
+        "from": "z",
+        "to": "p",
+        "port": "1"
+       },
+       {
+        "from": "view#left",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#ul",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "way3",
+        "to": "m",
+        "port": "2"
+       },
+       {
+        "from": "m",
+        "to": "m2",
+        "port": "0"
+       },
+       {
+        "from": "p",
+        "to": "m2",
+        "port": "1"
+       },
+       {
+        "from": "m2",
+        "to": "a",
+        "port": "0"
+       },
+       {
+        "from": "facts#cost",
+        "to": "a",
+        "port": "1"
+       },
+       {
+        "from": "a",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "seamline": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "up"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "energy"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "s",
+        "type": "msum",
+        "params": {},
+        "x": 240,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#up",
+        "to": "s",
+        "port": "0"
+       },
+       {
+        "from": "facts#energy",
+        "to": "s",
+        "port": "1"
+       },
+       {
+        "from": "s",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "seamslant": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "ul",
+          "up",
+          "ur"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "energy"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "m",
+        "type": "mmin",
+        "params": {},
+        "x": 240,
+        "y": 40
+       },
+       {
+        "id": "s",
+        "type": "msum",
+        "params": {},
+        "x": 440,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#ul",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#up",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "view#ur",
+        "to": "m",
+        "port": "2"
+       },
+       {
+        "from": "m",
+        "to": "s",
+        "port": "0"
+       },
+       {
+        "from": "facts#energy",
+        "to": "s",
+        "port": "1"
+       },
+       {
+        "from": "s",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "seam": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "ul",
+          "up",
+          "ur"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "energy"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "m",
+        "type": "mmin",
+        "params": {},
+        "x": 240,
+        "y": 40
+       },
+       {
+        "id": "s",
+        "type": "msum",
+        "params": {},
+        "x": 440,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#ul",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#up",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "view#ur",
+        "to": "m",
+        "port": "2"
+       },
+       {
+        "from": "m",
+        "to": "s",
+        "port": "0"
+       },
+       {
+        "from": "facts#energy",
+        "to": "s",
+        "port": "1"
+       },
+       {
+        "from": "s",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "slant": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "ul",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "c",
+        "type": "counter",
+        "params": {},
+        "x": 240,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#ul",
+        "to": "c",
+        "port": "0"
+       },
+       {
+        "from": "view#left",
+        "to": "c",
+        "port": "1"
+       },
+       {
+        "from": "facts#start",
+        "to": "c",
+        "port": "2"
+       },
+       {
+        "from": "c",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "pascal": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "ul",
+          "up"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "c",
+        "type": "counter",
+        "params": {},
+        "x": 240,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "view#ul",
+        "to": "c",
+        "port": "0"
+       },
+       {
+        "from": "view#up",
+        "to": "c",
+        "port": "1"
+       },
+       {
+        "from": "facts#start",
+        "to": "c",
+        "port": "2"
+       },
+       {
+        "from": "c",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "slots": {},
+  "built": {
+   "stamp": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "up",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start"
+         ]
+        }
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "one",
+        "type": "const",
+        "params": {
+         "value": 1
+        },
+        "x": 440,
+        "y": 40
+       },
+       {
+        "id": "p",
+        "type": "pass",
+        "params": {},
+        "x": 640,
+        "y": 40
+       },
+       {
+        "id": "m",
+        "type": "msum",
+        "params": {},
+        "x": 240,
+        "y": 40
+       }
+      ],
+      "wires": [
+       {
+        "from": "facts#start",
+        "to": "p",
+        "port": "0"
+       },
+       {
+        "from": "one",
+        "to": "p",
+        "port": "1"
+       },
+       {
+        "from": "view#up",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#left",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "p",
+        "to": "m",
+        "port": "2"
+       },
+       {
+        "from": "m",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   },
+   "slantcost": {
+    "stage": 0,
+    "boards": [
+     {
+      "nodes": [
+       {
+        "id": "view",
+        "type": "view",
+        "params": {
+         "picks": [
+          "ul",
+          "left"
+         ]
+        }
+       },
+       {
+        "id": "facts",
+        "type": "facts",
+        "params": {
+         "picks": [
+          "start",
+          "cost"
+         ]
+        }
+       },
+       {
+        "id": "way3",
+        "type": "port"
+       },
+       {
+        "id": "cell",
+        "type": "out"
+       },
+       {
+        "id": "z",
+        "type": "const",
+        "params": {
+         "value": 0
+        },
+        "x": 240,
+        "y": 40
+       },
+       {
+        "id": "p",
+        "type": "pass",
+        "params": {},
+        "x": 440,
+        "y": 40
+       },
+       {
+        "id": "m",
+        "type": "mmin",
+        "params": {},
+        "x": 640,
+        "y": 40
+       },
+       {
+        "id": "m2",
+        "type": "mmin",
+        "params": {},
+        "x": 240,
+        "y": 230
+       },
+       {
+        "id": "a",
+        "type": "add",
+        "params": {},
+        "x": 440,
+        "y": 230
+       }
+      ],
+      "wires": [
+       {
+        "from": "facts#start",
+        "to": "p",
+        "port": "0"
+       },
+       {
+        "from": "z",
+        "to": "p",
+        "port": "1"
+       },
+       {
+        "from": "view#left",
+        "to": "m",
+        "port": "0"
+       },
+       {
+        "from": "view#ul",
+        "to": "m",
+        "port": "1"
+       },
+       {
+        "from": "way3",
+        "to": "m",
+        "port": "2"
+       },
+       {
+        "from": "m",
+        "to": "m2",
+        "port": "0"
+       },
+       {
+        "from": "p",
+        "to": "m2",
+        "port": "1"
+       },
+       {
+        "from": "m2",
+        "to": "a",
+        "port": "0"
+       },
+       {
+        "from": "facts#cost",
+        "to": "a",
+        "port": "1"
+       },
+       {
+        "from": "a",
+        "to": "cell",
+        "port": "in"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "best": {},
+  "tasks": {},
+  "seenPower": true,
+  "introSeen": {},
+  "all": false
+ },
+ "levels": [
+  {
+   "level": "trace",
+   "task": 0,
+   "outcome": "skipped",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
+   "seconds": 0
+  },
+  {
+   "level": "lastStep",
+   "task": 0,
+   "outcome": "skipped",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
+   "seconds": 0
+  },
+  {
+   "level": "city",
+   "task": 0,
+   "outcome": "skipped",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
+   "seconds": 0
+  },
+  {
+   "level": "copy",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 16
+  },
+  {
+   "level": "confluence",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "msum"
+   ],
+   "seconds": 18
+  },
+  {
+   "level": "stamp",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "const",
+    "msum",
+    "pass"
+   ],
+   "seconds": 16
+  },
+  {
+   "level": "rocks",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "block",
+    "counter"
+   ],
+   "seconds": 20
+  },
+  {
+   "level": "reach",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "block",
+    "many"
+   ],
+   "seconds": 16
+  },
+  {
+   "level": "cheapest",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "mmin",
+    "msum"
+   ],
+   "seconds": 14
+  },
+  {
+   "level": "slantcost",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 3,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "mmin",
+    "pass"
+   ],
+   "seconds": 45
+  },
+  {
+   "level": "seamline",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "msum"
+   ],
+   "seconds": 11
+  },
+  {
+   "level": "seamslant",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "mmin",
+    "msum"
+   ],
+   "seconds": 12
+  },
+  {
+   "level": "seam",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "mmin",
+    "msum"
+   ],
+   "seconds": 11
+  },
+  {
+   "level": "carve",
+   "task": 0,
+   "outcome": "skipped",
+   "required": false,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "why": "a hand play (tapping cells on the table); the harness covers circuit levels",
+   "seconds": 0
+  },
+  {
+   "level": "slant",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "counter"
+   ],
+   "seconds": 13
+  },
+  {
+   "level": "pascal",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "counter"
+   ],
+   "seconds": 10
+  }
+ ],
+ "attempts": [
+  {
+   "level": "copy",
+   "task": 0,
+   "at": "2026-11-01T12:48:34.136Z",
+   "text": "view[picks=[left]]()\ncell <- view.left\n",
+   "pass": true,
+   "says": "- Test 1 · 1×5: pass\n- Test 2 · 1×7: pass"
+  },
+  {
+   "level": "confluence",
+   "task": 0,
+   "at": "2026-11-01T12:49:05.488Z",
+   "text": "view[picks=[up,left]]()\nm = msum(view.up, view.left)\ncell <- m\n",
+   "pass": true,
+   "says": "- Test 1 · 3×4: pass\n- Test 2 · 4×5: pass"
+  },
+  {
+   "level": "stamp",
+   "task": 0,
+   "at": "2026-11-01T12:49:36.512Z",
+   "text": "view[picks=[up,left]]()\nfacts[picks=[start]]()\none = const[value=1]()\np = pass(facts.start, one)\nm = msum(view.up, view.left, p)\ncell <- m\n",
+   "pass": true,
+   "says": "- Test 1 · 3×4: pass\n- Test 2 · 4×4: pass\n- Test 3 · 5×6: pass"
+  },
+  {
+   "level": "rocks",
+   "task": 0,
+   "at": "2026-11-01T12:50:13.498Z",
+   "text": "view[picks=[up,left]]()\nfacts[picks=[start,rock]]()\nc = counter(view.up, view.left, facts.start)\nb = block(facts.rock, c)\ncell <- b\n",
+   "pass": true,
+   "says": "- Test 1 · 4×4 · 1 rock: pass\n- Test 2 · 4×5 · 2 rocks: pass\n- Test 3 · 5×5 · 3 rocks: pass"
+  },
+  {
+   "level": "reach",
+   "task": 0,
+   "at": "2026-11-01T12:50:45.829Z",
+   "text": "view[picks=[up,left]]()\nfacts[picks=[start,rock]]()\nm = many(view.up, view.left, facts.start)\nb = block(facts.rock, m)\ncell <- b\n",
+   "pass": true,
+   "says": "- Test 1 · 4×5 · 3 rocks: pass\n- Test 2 · 4×4 · 3 rocks: pass\n- Test 3 · 5×5 · 4 rocks: pass"
+  },
+  {
+   "level": "cheapest",
+   "task": 0,
+   "at": "2026-11-01T12:51:14.415Z",
+   "text": "view[picks=[up,left]]()\nfacts[picks=[cost]]()\nm = mmin(view.up, view.left)\ns = msum(m, facts.cost)\ncell <- s\n",
+   "pass": true,
+   "says": "- Test 1 · 3×3: pass\n- Test 2 · 2×3: pass\n- Test 3 · 4×4: pass"
+  },
+  {
+   "level": "slantcost",
+   "task": 0,
+   "at": "2026-11-01T12:51:45.462Z",
+   "text": "view[picks=[ul,left]]()\nfacts[picks=[start,cost]]()\nz = const[value=0]()\np = pass(facts.start, z)\nm = mmin(view.left, view.ul, way3, p)\na = add(m, facts.cost)\ncell <- a\n",
+   "pass": false,
+   "says": "The text was not imported:\n- Line 5: “m” has no input number 4."
+  },
+  {
+   "level": "slantcost",
+   "task": 0,
+   "at": "2026-11-01T12:51:58.327Z",
+   "text": "view[picks=[ul,left]]()\nfacts[picks=[start,cost]]()\nz = const[value=0]()\np = pass(facts.start, z)\nm = mmin(view.left, view.ul, p)\na = add(m, facts.cost)\ncell <- a\n",
+   "pass": false,
+   "says": "- Test 1 · 3×3: pass\n- Test 2 · 3×4: pass\n- Test 3 · 4×6: pass\nNot a part yet: This board becomes a part, so every port of the part must be wired in; not yet: way in 3."
+  },
+  {
+   "level": "slantcost",
+   "task": 0,
+   "at": "2026-11-01T12:52:13.883Z",
+   "text": "view[picks=[ul,left]]()\nfacts[picks=[start,cost]]()\nz = const[value=0]()\np = pass(facts.start, z)\nm = mmin(view.left, view.ul, way3)\nm2 = mmin(m, p)\na = add(m2, facts.cost)\ncell <- a\n",
+   "pass": true,
+   "says": "- Test 1 · 3×3: pass\n- Test 2 · 3×4: pass\n- Test 3 · 4×6: pass"
+  },
+  {
+   "level": "seamline",
+   "task": 0,
+   "at": "2026-11-01T12:52:41.076Z",
+   "text": "view[picks=[up]]()\nfacts[picks=[energy]]()\ns = msum(view.up, facts.energy)\ncell <- s\n",
+   "pass": true,
+   "says": "- Test 1 · 1×5 pixels: pass\n- Test 2 · 1×4 pixels: pass\n- Test 3 · 1×6 pixels: pass"
+  },
+  {
+   "level": "seamslant",
+   "task": 0,
+   "at": "2026-11-01T12:53:07.707Z",
+   "text": "view[picks=[ul,up,ur]]()\nfacts[picks=[energy]]()\nm = mmin(view.ul, view.up, view.ur)\ns = msum(m, facts.energy)\ncell <- s\n",
+   "pass": true,
+   "says": "- Test 1 · 3×4 pixels: pass\n- Test 2 · 4×4 pixels: pass\n- Test 3 · 5×4 pixels: pass"
+  },
+  {
+   "level": "seam",
+   "task": 0,
+   "at": "2026-11-01T12:53:30.178Z",
+   "text": "view[picks=[ul,up,ur]]()\nfacts[picks=[energy]]()\nm = mmin(view.ul, view.up, view.ur)\ns = msum(m, facts.energy)\ncell <- s\n",
+   "pass": true,
+   "says": "- Test 1 · 9×6 pixels: pass\n- Test 2 · 10×7 pixels: pass"
+  },
+  {
+   "level": "slant",
+   "task": 0,
+   "at": "2026-11-01T12:53:54.906Z",
+   "text": "view[picks=[ul,left]]()\nfacts[picks=[start]]()\nc = counter(view.ul, view.left, facts.start)\ncell <- c\n",
+   "pass": true,
+   "says": "- Test 1 · 3×5: pass\n- Test 2 · 4×6: pass"
+  },
+  {
+   "level": "pascal",
+   "task": 0,
+   "at": "2026-11-01T12:54:14.876Z",
+   "text": "view[picks=[ul,up]]()\nfacts[picks=[start]]()\nc = counter(view.ul, view.up, facts.start)\ncell <- c\n",
+   "pass": true,
+   "says": "- Test 1 · 5 rows · brick 3: pass\n- Test 2 · 7 rows · brick 4: pass\n- Test 3 · 6 rows · brick 2: pass"
+  }
+ ],
+ "usage": {
+  "tokens": 520233,
+  "seconds": 389,
+  "cost": 0.18140349999999994
+ }
+}

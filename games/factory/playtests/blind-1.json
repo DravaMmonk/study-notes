@@ -1,0 +1,1204 @@
+{
+ "game": "factory",
+ "session": "blind-1",
+ "player": {
+  "kind": "llm",
+  "model": "claude-sonnet-5-5"
+ },
+ "lang": "en",
+ "started": "2026-11-01T12:09:42.588Z",
+ "limits": {
+  "attempts": 6,
+  "levels": 12
+ },
+ "progress": {
+  "version": 1,
+  "solved": [
+   "0-1",
+   "0-2",
+   "0-3",
+   "1-1",
+   "1-2",
+   "1-3",
+   "1-4",
+   "1-5",
+   "1-6",
+   "2-1",
+   "2-2",
+   "2-3"
+  ],
+  "flags": [],
+  "data": {
+   "0-1": [
+    [
+     "add",
+     "src/cart.js"
+    ],
+    [
+     "call"
+    ],
+    [
+     "test"
+    ]
+   ],
+   "0-2": [
+    [
+     "call"
+    ],
+    [
+     "list"
+    ],
+    [
+     "call"
+    ],
+    [
+     "add",
+     "src/price.js"
+    ],
+    [
+     "call"
+    ],
+    [
+     "test"
+    ],
+    [
+     "call"
+    ],
+    [
+     "test"
+    ]
+   ],
+   "0-3": [
+    [
+     "add",
+     "src/text.js"
+    ],
+    [
+     "call"
+    ],
+    [
+     "test"
+    ],
+    [
+     "call"
+    ],
+    [
+     "test"
+    ]
+   ],
+   "1-1": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 240,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     }
+    ]
+   },
+   "1-2": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "code",
+      "type": "code",
+      "params": {
+       "name": "code"
+      },
+      "x": 20,
+      "y": 190
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "code",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     }
+    ]
+   },
+   "1-3": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "read",
+      "params": {
+       "file": "src/cart.js"
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 640,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "r",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     }
+    ]
+   },
+   "1-4": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r1",
+      "type": "read",
+      "params": {
+       "file": "src/cart.js"
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "r2",
+      "type": "read",
+      "params": {
+       "file": "src/price.js"
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 240,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "r2",
+      "to": "c",
+      "port": "c"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     }
+    ]
+   },
+   "1-5": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "read",
+      "params": {
+       "file": "src/posts.js"
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 640,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "r",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     }
+    ]
+   },
+   "1-6": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r1",
+      "type": "read",
+      "params": {
+       "file": "src/cart.js"
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "r2",
+      "type": "read",
+      "params": {
+       "file": "src/price.js"
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 240,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "r2",
+      "to": "c",
+      "port": "c"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     }
+    ]
+   },
+   "2-1": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "history",
+      "type": "history",
+      "params": {
+       "name": "history"
+      },
+      "x": 20,
+      "y": 190
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 980,
+      "y": 190
+     },
+     {
+      "id": "stop",
+      "type": "stop",
+      "params": {
+       "name": "stop"
+      },
+      "x": 980,
+      "y": 340
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "read",
+      "params": {},
+      "x": 640,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "history",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "r",
+      "port": "ask"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "out",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "stop",
+      "port": "in"
+     }
+    ]
+   },
+   "2-2": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "history",
+      "type": "history",
+      "params": {
+       "name": "history"
+      },
+      "x": 20,
+      "y": 190
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 980,
+      "y": 190
+     },
+     {
+      "id": "stop",
+      "type": "stop",
+      "params": {
+       "name": "stop"
+      },
+      "x": 980,
+      "y": 340
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "read",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "l",
+      "type": "list",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "concat",
+      "params": {},
+      "x": 440,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "history",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "r",
+      "port": "ask"
+     },
+     {
+      "from": "m",
+      "to": "l",
+      "port": "ask"
+     },
+     {
+      "from": "r",
+      "to": "k",
+      "port": "a"
+     },
+     {
+      "from": "l",
+      "to": "k",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     },
+     {
+      "from": "k",
+      "to": "out",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "stop",
+      "port": "in"
+     }
+    ]
+   },
+   "2-3": {
+    "nodes": [
+     {
+      "id": "issue",
+      "type": "issue",
+      "params": {
+       "name": "issue"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "history",
+      "type": "history",
+      "params": {
+       "name": "history"
+      },
+      "x": 20,
+      "y": 190
+     },
+     {
+      "id": "repo",
+      "type": "repo",
+      "params": {
+       "name": "repo"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 980,
+      "y": 190
+     },
+     {
+      "id": "stop",
+      "type": "stop",
+      "params": {
+       "name": "stop"
+      },
+      "x": 980,
+      "y": 340
+     },
+     {
+      "id": "c",
+      "type": "concat",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "m",
+      "type": "model",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "read",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "l",
+      "type": "list",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "t",
+      "type": "test",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "concat",
+      "params": {},
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "issue",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "history",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "m",
+      "port": "in"
+     },
+     {
+      "from": "m",
+      "to": "r",
+      "port": "ask"
+     },
+     {
+      "from": "m",
+      "to": "l",
+      "port": "ask"
+     },
+     {
+      "from": "m",
+      "to": "t",
+      "port": "when"
+     },
+     {
+      "from": "r",
+      "to": "k",
+      "port": "a"
+     },
+     {
+      "from": "l",
+      "to": "k",
+      "port": "b"
+     },
+     {
+      "from": "t#out",
+      "to": "k",
+      "port": "c"
+     },
+     {
+      "from": "m",
+      "to": "repo",
+      "port": "in"
+     },
+     {
+      "from": "k",
+      "to": "out",
+      "port": "in"
+     },
+     {
+      "from": "t#green",
+      "to": "stop",
+      "port": "in"
+     }
+    ]
+   }
+  },
+  "slots": {},
+  "built": {},
+  "best": {
+   "0-1": {
+    "tokens": 380
+   },
+   "0-2": {
+    "tokens": 1066
+   },
+   "0-3": {
+    "tokens": 500
+   },
+   "1-1": {
+    "tokens": 700
+   },
+   "1-2": {
+    "tokens": 700
+   },
+   "1-3": {
+    "tokens": 760
+   },
+   "1-4": {
+    "tokens": 1280
+   },
+   "1-5": {
+    "tokens": 1120
+   },
+   "1-6": {
+    "tokens": 670
+   },
+   "2-1": {
+    "tokens": 1616
+   },
+   "2-2": {
+    "tokens": 2172
+   },
+   "2-3": {
+    "tokens": 4252
+   }
+  },
+  "tasks": {},
+  "seenPower": true,
+  "introSeen": {},
+  "all": false
+ },
+ "levels": [
+  {
+   "level": "0-1",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 6
+  },
+  {
+   "level": "0-2",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 2,
+   "hints": 0,
+   "parts": [],
+   "seconds": 13
+  },
+  {
+   "level": "0-3",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 6
+  },
+  {
+   "level": "1-1",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "model"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-2",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "model"
+   ],
+   "seconds": 5
+  },
+  {
+   "level": "1-3",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "model",
+    "read"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-4",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "model",
+    "read"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-5",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "model",
+    "read"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-6",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "model",
+    "read"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "2-1",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "model",
+    "read"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "2-2",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "list",
+    "model",
+    "read"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "2-3",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "concat",
+    "list",
+    "model",
+    "read",
+    "test"
+   ],
+   "seconds": 6
+  }
+ ],
+ "attempts": [
+  {
+   "level": "0-1",
+   "task": 0,
+   "at": "2026-11-01T12:09:48.734Z",
+   "text": "add src/cart.js\ncall\ntest\n",
+   "pass": true,
+   "says": "- You: added src/cart.js\n- Model: Write addItem (saw 380 tok)\n- Tests: All tests pass.\nContext now: [0] issue: Items of quantity 0, [1] src/cart.js, [2] Tests: all pass\nRepository:\n- src/cart.js (320 tok): addItem [right], removeItem, total\n- src/price.js (260 tok): discount, tax\n- src/user.js (300 tok): login, logout\n- README.md (180 tok): intro\nTokens: 380"
+  },
+  {
+   "level": "0-2",
+   "task": 0,
+   "at": "2026-11-01T12:10:02.185Z",
+   "text": "call\nlist\ncall\nadd src/price.js\ncall\ntest\n",
+   "pass": false,
+   "says": "- Model: Request the file list (saw 60 tok)\n- You: added the file list\n- Model: Read src/price.js (saw 126 tok)\n- You: added src/price.js\n- Model: Write discount (saw 398 tok)\n- Tests: src/price.js · discount: wrong\nContext now: [0] issue: No more than half off, [1] Request the file list, [2] File list (4 files), [3] Read src/price.js, [4] src/price.js, [5] Write discount, [6] Tests: 1 failing\nRepository:\n- src/cart.js (320 tok): addItem, removeItem, total\n- src/price.js (260 tok): discount [wrong], tax\n- src/user.js (300 tok): login, logout\n- README.md (180 tok): intro\nTokens: 584"
+  },
+  {
+   "level": "0-2",
+   "task": 0,
+   "at": "2026-11-01T12:10:08.489Z",
+   "text": "call\nlist\ncall\nadd src/price.js\ncall\ntest\ncall\ntest\n",
+   "pass": true,
+   "says": "- Model: Request the file list (saw 60 tok)\n- You: added the file list\n- Model: Read src/price.js (saw 126 tok)\n- You: added src/price.js\n- Model: Write discount (saw 398 tok)\n- Tests: src/price.js · discount: wrong\n- Model: Write discount (saw 482 tok)\n- Tests: All tests pass.\nContext now: [0] issue: No more than half off, [1] Request the file list, [2] File list (4 files), [3] Read src/price.js, [4] src/price.js, [5] Write discount, [6] Tests: 1 failing, [7] Write discount, [8] Tests: all pass\nRepository:\n- src/cart.js (320 tok): addItem, removeItem, total\n- src/price.js (260 tok): discount [right], tax\n- src/user.js (300 tok): login, logout\n- README.md (180 tok): intro\nTokens: 1066"
+  },
+  {
+   "level": "0-3",
+   "task": 0,
+   "at": "2026-11-01T12:10:21.678Z",
+   "text": "add src/text.js\ncall\ntest\ncall\ntest\n",
+   "pass": true,
+   "says": "- You: added src/text.js\n- Model: Write slugify (saw 500 tok)\n- Tests: All tests pass.\n- Model: Write slugify (saw 520 tok)\n- Tests: All tests pass.\nContext now: [0] issue: Spaces in titles, [1] src/text.js, [2] Tests: all pass, [3] Tests: all pass\nRepository:\n- src/posts.js (480 tok): listPosts, formatDate\n- src/text.js (420 tok): slugify [right], excerpt\n- src/feed.js (450 tok): rss, atom\n- src/theme.css (380 tok): colors, layout\nTokens: 1020"
+  },
+  {
+   "level": "1-1",
+   "task": 0,
+   "at": "2026-11-01T12:10:35.604Z",
+   "text": "m = model(issue)\nrepo <- m\n",
+   "pass": true,
+   "says": "- The total leaves out shipping: pass\n- A hard-coded tax rate: pass\n700 tokens across all tests"
+  },
+  {
+   "level": "1-2",
+   "task": 0,
+   "at": "2026-11-01T12:10:48.057Z",
+   "text": "c = concat(issue, code)\nm = model(c)\nrepo <- m\n",
+   "pass": true,
+   "says": "- Items of quantity 0: pass\n- Rounding the tax: pass\n700 tokens across all tests"
+  },
+  {
+   "level": "1-3",
+   "task": 0,
+   "at": "2026-11-01T12:10:59.833Z",
+   "text": "r = read[file=\"src/cart.js\"]()\nc = concat(issue, r)\nm = model(c)\nrepo <- m\n",
+   "pass": true,
+   "says": "- Items of quantity 0: pass\n- Removing an item that is not there: pass\n760 tokens across all tests"
+  },
+  {
+   "level": "1-4",
+   "task": 0,
+   "at": "2026-11-01T12:11:11.592Z",
+   "text": "r1 = read[file=\"src/cart.js\"]()\nr2 = read[file=\"src/price.js\"]()\nc = concat(issue, r1, r2)\nm = model(c)\nrepo <- m\n",
+   "pass": true,
+   "says": "- Ten percent off for members: pass\n- Coupons: pass\n1280 tokens across all tests"
+  },
+  {
+   "level": "1-5",
+   "task": 0,
+   "at": "2026-11-01T12:11:22.648Z",
+   "text": "r = read[file=\"src/posts.js\"]()\nc = concat(issue, r)\nm = model(c)\nrepo <- m\n",
+   "pass": true,
+   "says": "- Date format: pass\n- Post order: pass\n1120 tokens across all tests"
+  },
+  {
+   "level": "1-6",
+   "task": 0,
+   "at": "2026-11-01T12:11:34.203Z",
+   "text": "r1 = read[file=\"src/cart.js\"]()\nr2 = read[file=\"src/price.js\"]()\nc = concat(issue, r1, r2)\nm = model(c)\nrepo <- m\n",
+   "pass": true,
+   "says": "- Three changes at checkout: pass\n670 tokens across all tests"
+  },
+  {
+   "level": "2-1",
+   "task": 0,
+   "at": "2026-11-01T12:11:45.537Z",
+   "text": "c = concat(issue, history)\nm = model(c)\nr = read(m)\nrepo <- m\nout <- r\nstop <- m\n",
+   "pass": true,
+   "says": "- Items of quantity 0: pass\n- Rounding the tax: pass\n1616 tokens across all tests"
+  },
+  {
+   "level": "2-2",
+   "task": 0,
+   "at": "2026-11-01T12:11:57.421Z",
+   "text": "c = concat(issue, history)\nm = model(c)\nr = read(m)\nl = list(m)\nk = concat(r, l)\nrepo <- m\nout <- k\nstop <- m\n",
+   "pass": true,
+   "says": "- Still signed in after signing out: pass\n- Upper and lower case in emails: pass\n2172 tokens across all tests"
+  },
+  {
+   "level": "2-3",
+   "task": 0,
+   "at": "2026-11-01T12:12:08.573Z",
+   "text": "c = concat(issue, history)\nm = model(c)\nr = read(m)\nl = list(m)\nt = test(m)\nk = concat(r, l, t.out)\nrepo <- m\nout <- k\nstop <- t.green\n",
+   "pass": true,
+   "says": "- No more than half off: pass\n- The total of an empty cart: pass\n4252 tokens across all tests"
+  }
+ ],
+ "usage": {
+  "tokens": 382719,
+  "seconds": 164,
+  "cost": 0.1496192
+ }
+}

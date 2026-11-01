@@ -1,0 +1,1715 @@
+{
+ "game": "qed",
+ "session": "blind-1",
+ "player": {
+  "kind": "llm",
+  "model": "claude-sonnet-5-5"
+ },
+ "lang": "en",
+ "started": "2026-11-01T12:48:17.949Z",
+ "limits": {
+  "attempts": 6,
+  "levels": 12
+ },
+ "progress": {
+  "version": 80,
+  "solved": [
+   "table",
+   "always",
+   "onerow",
+   "g-not",
+   "g-and",
+   "g-tree",
+   "g-or",
+   "g-imp",
+   "g-xor",
+   "g-always",
+   "g-iff",
+   "e-words",
+   "e-says",
+   "e-one",
+   "e-two"
+  ],
+  "flags": [
+   "lemma:gOr",
+   "lemma:gImp",
+   "lemma:gIff"
+  ],
+  "data": {
+   "g-not": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "b",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-and": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wind",
+      "type": "letter",
+      "params": {
+       "name": "Wind"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "gAnd",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "Wind",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "Rain",
+      "to": "o",
+      "port": "a"
+     },
+     {
+      "from": "n",
+      "to": "o",
+      "port": "b"
+     },
+     {
+      "from": "o",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-tree": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wind",
+      "type": "letter",
+      "params": {
+       "name": "Wind"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gAnd",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "Wind",
+      "to": "a",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "n",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-or": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wind",
+      "type": "letter",
+      "params": {
+       "name": "Wind"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "gAnd",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "d",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "Wind",
+      "to": "b",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "d",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-imp": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wet",
+      "type": "letter",
+      "params": {
+       "name": "Wet"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "gOr",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "o",
+      "port": "a"
+     },
+     {
+      "from": "Wet",
+      "to": "o",
+      "port": "b"
+     },
+     {
+      "from": "o",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-xor": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wind",
+      "type": "letter",
+      "params": {
+       "name": "Wind"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "gOr",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gAnd",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "x",
+      "type": "gAnd",
+      "params": {},
+      "x": 440,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "o",
+      "port": "a"
+     },
+     {
+      "from": "Wind",
+      "to": "o",
+      "port": "b"
+     },
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "Wind",
+      "to": "a",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "x",
+      "port": "a"
+     },
+     {
+      "from": "n",
+      "to": "x",
+      "port": "b"
+     },
+     {
+      "from": "x",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-always": [
+    {
+     "nodes": [
+      {
+       "id": "Rain",
+       "type": "letter",
+       "params": {
+        "name": "Rain"
+       },
+       "x": 20,
+       "y": 40
+      },
+      {
+       "id": "Wet",
+       "type": "letter",
+       "params": {
+        "name": "Wet"
+       },
+       "x": 20,
+       "y": 160
+      },
+      {
+       "id": "out",
+       "type": "out",
+       "params": {
+        "name": "out"
+       },
+       "x": 760,
+       "y": 40
+      },
+      {
+       "id": "a",
+       "type": "gImp",
+       "params": {},
+       "x": 240,
+       "y": 40
+      },
+      {
+       "id": "b",
+       "type": "gImp",
+       "params": {},
+       "x": 440,
+       "y": 40
+      },
+      {
+       "id": "o",
+       "type": "gOr",
+       "params": {},
+       "x": 240,
+       "y": 230
+      }
+     ],
+     "wires": [
+      {
+       "from": "Rain",
+       "to": "a",
+       "port": "a"
+      },
+      {
+       "from": "Wet",
+       "to": "a",
+       "port": "b"
+      },
+      {
+       "from": "Wet",
+       "to": "b",
+       "port": "a"
+      },
+      {
+       "from": "Rain",
+       "to": "b",
+       "port": "b"
+      },
+      {
+       "from": "a",
+       "to": "o",
+       "port": "a"
+      },
+      {
+       "from": "b",
+       "to": "o",
+       "port": "b"
+      },
+      {
+       "from": "o",
+       "to": "out",
+       "port": "in"
+      }
+     ]
+    },
+    {
+     "nodes": [
+      {
+       "id": "Rain",
+       "type": "letter",
+       "params": {
+        "name": "Rain"
+       },
+       "x": 20,
+       "y": 40
+      },
+      {
+       "id": "Wet",
+       "type": "letter",
+       "params": {
+        "name": "Wet"
+       },
+       "x": 20,
+       "y": 160
+      },
+      {
+       "id": "out",
+       "type": "out",
+       "params": {
+        "name": "out"
+       },
+       "x": 760,
+       "y": 40
+      },
+      {
+       "id": "a",
+       "type": "gImp",
+       "params": {},
+       "x": 240,
+       "y": 40
+      },
+      {
+       "id": "n",
+       "type": "gNot",
+       "params": {},
+       "x": 440,
+       "y": 40
+      },
+      {
+       "id": "b",
+       "type": "gAnd",
+       "params": {},
+       "x": 240,
+       "y": 230
+      },
+      {
+       "id": "o",
+       "type": "gAnd",
+       "params": {},
+       "x": 440,
+       "y": 230
+      }
+     ],
+     "wires": [
+      {
+       "from": "Rain",
+       "to": "a",
+       "port": "a"
+      },
+      {
+       "from": "Wet",
+       "to": "a",
+       "port": "b"
+      },
+      {
+       "from": "Wet",
+       "to": "n",
+       "port": "a"
+      },
+      {
+       "from": "Rain",
+       "to": "b",
+       "port": "a"
+      },
+      {
+       "from": "n",
+       "to": "b",
+       "port": "b"
+      },
+      {
+       "from": "a",
+       "to": "o",
+       "port": "a"
+      },
+      {
+       "from": "b",
+       "to": "o",
+       "port": "b"
+      },
+      {
+       "from": "o",
+       "to": "out",
+       "port": "in"
+      }
+     ]
+    }
+   ],
+   "g-iff": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wet",
+      "type": "letter",
+      "params": {
+       "name": "Wet"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gImp",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "gImp",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "gAnd",
+      "params": {},
+      "x": 240,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "Wet",
+      "to": "a",
+      "port": "b"
+     },
+     {
+      "from": "Wet",
+      "to": "b",
+      "port": "a"
+     },
+     {
+      "from": "Rain",
+      "to": "b",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "o",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "o",
+      "port": "b"
+     },
+     {
+      "from": "o",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "e-words": {
+    "nodes": [
+     {
+      "id": "KA",
+      "type": "letter",
+      "params": {
+       "name": "KA"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "KB",
+      "type": "letter",
+      "params": {
+       "name": "KB"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gAnd",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "KA",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "KB",
+      "to": "a",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "n",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "e-says": {
+    "nodes": [
+     {
+      "id": "KA",
+      "type": "letter",
+      "params": {
+       "name": "KA"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "KB",
+      "type": "letter",
+      "params": {
+       "name": "KB"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "i",
+      "type": "gIff",
+      "params": {},
+      "x": 240,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "KA",
+      "to": "i",
+      "port": "a"
+     },
+     {
+      "from": "KB",
+      "to": "i",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "e-one": {
+    "nodes": [
+     {
+      "id": "KA",
+      "type": "letter",
+      "params": {
+       "name": "KA"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "KB",
+      "type": "letter",
+      "params": {
+       "name": "KB"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "gOr",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "i",
+      "type": "gIff",
+      "params": {},
+      "x": 440,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "KA",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "KB",
+      "to": "b",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "s",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "s",
+      "port": "b"
+     },
+     {
+      "from": "KA",
+      "to": "i",
+      "port": "a"
+     },
+     {
+      "from": "s",
+      "to": "i",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "e-two": {
+    "nodes": [
+     {
+      "id": "KA",
+      "type": "letter",
+      "params": {
+       "name": "KA"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "KB",
+      "type": "letter",
+      "params": {
+       "name": "KB"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "nb",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "i1",
+      "type": "gIff",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "gAnd",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "i2",
+      "type": "gIff",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "o",
+      "type": "gAnd",
+      "params": {},
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "KB",
+      "to": "nb",
+      "port": "a"
+     },
+     {
+      "from": "KA",
+      "to": "i1",
+      "port": "a"
+     },
+     {
+      "from": "nb",
+      "to": "i1",
+      "port": "b"
+     },
+     {
+      "from": "KA",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "KB",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "KB",
+      "to": "i2",
+      "port": "a"
+     },
+     {
+      "from": "c",
+      "to": "i2",
+      "port": "b"
+     },
+     {
+      "from": "i1",
+      "to": "o",
+      "port": "a"
+     },
+     {
+      "from": "i2",
+      "to": "o",
+      "port": "b"
+     },
+     {
+      "from": "o",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   }
+  },
+  "slots": {},
+  "built": {
+   "g-or": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wind",
+      "type": "letter",
+      "params": {
+       "name": "Wind"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "gAnd",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "d",
+      "type": "gNot",
+      "params": {},
+      "x": 440,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "Wind",
+      "to": "b",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "d",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-imp": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wet",
+      "type": "letter",
+      "params": {
+       "name": "Wet"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gNot",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "gOr",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "o",
+      "port": "a"
+     },
+     {
+      "from": "Wet",
+      "to": "o",
+      "port": "b"
+     },
+     {
+      "from": "o",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   },
+   "g-iff": {
+    "nodes": [
+     {
+      "id": "Rain",
+      "type": "letter",
+      "params": {
+       "name": "Rain"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "Wet",
+      "type": "letter",
+      "params": {
+       "name": "Wet"
+      },
+      "x": 20,
+      "y": 160
+     },
+     {
+      "id": "out",
+      "type": "out",
+      "params": {
+       "name": "out"
+      },
+      "x": 760,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "gImp",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "gImp",
+      "params": {},
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "gAnd",
+      "params": {},
+      "x": 240,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "Rain",
+      "to": "a",
+      "port": "a"
+     },
+     {
+      "from": "Wet",
+      "to": "a",
+      "port": "b"
+     },
+     {
+      "from": "Wet",
+      "to": "b",
+      "port": "a"
+     },
+     {
+      "from": "Rain",
+      "to": "b",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "o",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "o",
+      "port": "b"
+     },
+     {
+      "from": "o",
+      "to": "out",
+      "port": "in"
+     }
+    ]
+   }
+  },
+  "best": {
+   "g-not": {
+    "steps": 2
+   },
+   "g-and": {
+    "steps": 2
+   },
+   "g-tree": {
+    "steps": 2
+   },
+   "g-or": {
+    "steps": 4
+   },
+   "g-imp": {
+    "steps": 2
+   },
+   "g-xor": {
+    "steps": 4
+   },
+   "g-always": {
+    "steps": 4
+   },
+   "g-iff": {
+    "steps": 3
+   },
+   "e-words": {
+    "steps": 2
+   },
+   "e-says": {
+    "steps": 1
+   },
+   "e-one": {
+    "steps": 4
+   },
+   "e-two": {
+    "steps": 5
+   }
+  },
+  "tasks": {
+   "g-always": 1
+  },
+  "seenPower": true,
+  "introSeen": {},
+  "all": false
+ },
+ "levels": [
+  {
+   "level": "table",
+   "task": 0,
+   "outcome": "skipped",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "why": "a truth table (rows ticked by hand); the harness does not cover it yet",
+   "seconds": 0
+  },
+  {
+   "level": "always",
+   "task": 0,
+   "outcome": "skipped",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "why": "a truth table (rows ticked by hand); the harness does not cover it yet",
+   "seconds": 0
+  },
+  {
+   "level": "onerow",
+   "task": 0,
+   "outcome": "skipped",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "why": "a truth table (rows ticked by hand); the harness does not cover it yet",
+   "seconds": 0
+  },
+  {
+   "level": "g-not",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gNot"
+   ],
+   "seconds": 16
+  },
+  {
+   "level": "g-and",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gNot"
+   ],
+   "seconds": 15
+  },
+  {
+   "level": "g-tree",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gNot"
+   ],
+   "seconds": 15
+  },
+  {
+   "level": "g-or",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gNot"
+   ],
+   "seconds": 19
+  },
+  {
+   "level": "g-imp",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gNot",
+    "gOr"
+   ],
+   "seconds": 18
+  },
+  {
+   "level": "g-xor",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gNot",
+    "gOr"
+   ],
+   "seconds": 18
+  },
+  {
+   "level": "g-always",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gImp",
+    "gOr"
+   ],
+   "seconds": 14
+  },
+  {
+   "level": "g-always",
+   "task": 1,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gImp",
+    "gNot"
+   ],
+   "seconds": 18
+  },
+  {
+   "level": "g-iff",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gImp"
+   ],
+   "seconds": 14
+  },
+  {
+   "level": "e-words",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gNot"
+   ],
+   "seconds": 10
+  },
+  {
+   "level": "e-says",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gIff"
+   ],
+   "seconds": 11
+  },
+  {
+   "level": "e-one",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gIff",
+    "gNot",
+    "gOr"
+   ],
+   "seconds": 11
+  },
+  {
+   "level": "e-two",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "gAnd",
+    "gIff",
+    "gNot"
+   ],
+   "seconds": 10
+  }
+ ],
+ "attempts": [
+  {
+   "level": "g-not",
+   "task": 0,
+   "at": "2026-11-01T12:48:33.768Z",
+   "text": "a = gNot(Rain)\nb = gNot(a)\nout <- b\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T): pass\n- Row 2 (Rain=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-and",
+   "task": 0,
+   "at": "2026-11-01T12:49:04.225Z",
+   "text": "n = gNot(Wind)\no = gAnd(Rain, n)\nout <- o\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wind=T): pass\n- Row 2 (Rain=T, Wind=F): pass\n- Row 3 (Rain=F, Wind=T): pass\n- Row 4 (Rain=F, Wind=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-tree",
+   "task": 0,
+   "at": "2026-11-01T12:49:34.871Z",
+   "text": "a = gAnd(Rain, Wind)\nn = gNot(a)\nout <- n\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wind=T): pass\n- Row 2 (Rain=T, Wind=F): pass\n- Row 3 (Rain=F, Wind=T): pass\n- Row 4 (Rain=F, Wind=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-or",
+   "task": 0,
+   "at": "2026-11-01T12:50:12.597Z",
+   "text": "a = gNot(Rain)\nb = gNot(Wind)\nc = gAnd(a, b)\nd = gNot(c)\nout <- d\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wind=T): pass\n- Row 2 (Rain=T, Wind=F): pass\n- Row 3 (Rain=F, Wind=T): pass\n- Row 4 (Rain=F, Wind=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-imp",
+   "task": 0,
+   "at": "2026-11-01T12:50:47.005Z",
+   "text": "a = gNot(Rain)\no = gOr(a, Wet)\nout <- o\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wet=T): pass\n- Row 2 (Rain=T, Wet=F): pass\n- Row 3 (Rain=F, Wet=T): pass\n- Row 4 (Rain=F, Wet=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-xor",
+   "task": 0,
+   "at": "2026-11-01T12:51:21.310Z",
+   "text": "o = gOr(Rain, Wind)\na = gAnd(Rain, Wind)\nn = gNot(a)\nx = gAnd(o, n)\nout <- x\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wind=T): pass\n- Row 2 (Rain=T, Wind=F): pass\n- Row 3 (Rain=F, Wind=T): pass\n- Row 4 (Rain=F, Wind=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-always",
+   "task": 0,
+   "at": "2026-11-01T12:51:51.488Z",
+   "text": "a = gImp(Rain, Wet)\nb = gImp(Wet, Rain)\no = gOr(a, b)\nout <- o\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wet=T): pass\n- Row 2 (Rain=T, Wet=F): pass\n- Row 3 (Rain=F, Wet=T): pass\n- Row 4 (Rain=F, Wet=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-always",
+   "task": 1,
+   "at": "2026-11-01T12:52:20.388Z",
+   "text": "a = gImp(Rain, Wet)\nn = gNot(Wet)\nb = gAnd(Rain, n)\no = gAnd(a, b)\nout <- o\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wet=T): pass\n- Row 2 (Rain=T, Wet=F): pass\n- Row 3 (Rain=F, Wet=T): pass\n- Row 4 (Rain=F, Wet=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "g-iff",
+   "task": 0,
+   "at": "2026-11-01T12:52:49.616Z",
+   "text": "a = gImp(Rain, Wet)\nb = gImp(Wet, Rain)\no = gAnd(a, b)\nout <- o\n",
+   "pass": true,
+   "says": "- Row 1 (Rain=T, Wet=T): pass\n- Row 2 (Rain=T, Wet=F): pass\n- Row 3 (Rain=F, Wet=T): pass\n- Row 4 (Rain=F, Wet=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "e-words",
+   "task": 0,
+   "at": "2026-11-01T12:53:09.237Z",
+   "text": "a = gAnd(KA, KB)\nn = gNot(a)\nout <- n\n",
+   "pass": true,
+   "says": "- Row 1 (KA=T, KB=T): pass\n- Row 2 (KA=T, KB=F): pass\n- Row 3 (KA=F, KB=T): pass\n- Row 4 (KA=F, KB=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "e-says",
+   "task": 0,
+   "at": "2026-11-01T12:53:31.816Z",
+   "text": "i = gIff(KA, KB)\nout <- i\n",
+   "pass": true,
+   "says": "- Row 1 (KA=T, KB=T): pass\n- Row 2 (KA=T, KB=F): pass\n- Row 3 (KA=F, KB=T): pass\n- Row 4 (KA=F, KB=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "e-one",
+   "task": 0,
+   "at": "2026-11-01T12:53:53.510Z",
+   "text": "a = gNot(KA)\nb = gNot(KB)\ns = gOr(a, b)\ni = gIff(KA, s)\nout <- i\n",
+   "pass": true,
+   "says": "- Row 1 (KA=T, KB=T): pass\n- Row 2 (KA=T, KB=F): pass\n- Row 3 (KA=F, KB=T): pass\n- Row 4 (KA=F, KB=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  },
+  {
+   "level": "e-two",
+   "task": 0,
+   "at": "2026-11-01T12:54:12.754Z",
+   "text": "nb = gNot(KB)\ni1 = gIff(KA, nb)\nc = gAnd(KA, KB)\ni2 = gIff(KB, c)\no = gAnd(i1, i2)\nout <- o\n",
+   "pass": true,
+   "says": "- Row 1 (KA=T, KB=T): pass\n- Row 2 (KA=T, KB=F): pass\n- Row 3 (KA=F, KB=T): pass\n- Row 4 (KA=F, KB=F): pass\nEvery row is correct: this circuit computes the sentence’s full truth table."
+  }
+ ],
+ "usage": {
+  "tokens": 208556,
+  "seconds": 385,
+  "cost": 0.0929982
+ }
+}
