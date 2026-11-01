@@ -15,13 +15,33 @@
 //   bit <- r
 import { parse, print } from '../../circuit/text.js'
 import { portsOf } from '../../engine/circuit.js'
-import { FIXED } from './parts.js'
+import { FIXED, PARTS } from './parts.js'
 
 /** The fixed cards of a level: the bus if it listens, its inputs down the left, its outputs down the right. */
 export function fixedOf(level) {
   const left = [...(level.listens ? [{ id: 'line', type: 'line', params: {} }] : []), ...(level.inputs ?? []).map((i) => ({ id: i.name, type: 'in', params: { name: i.name } }))]
   const right = level.outputs.map((o) => ({ id: o.name, type: 'out', params: { name: o.name } }))
   return [...left.map((n, k) => ({ ...n, x: 20, y: 40 + k * 140 })), ...right.map((n, k) => ({ ...n, x: 980, y: 40 + k * 140 }))]
+}
+
+/**
+ * How the editor wires a level's cards (../../circuit/model.js parts, without the drawing: ui/BusScreen.jsx adds names
+ * and icons): the ports of each card, which are given, and a built part's outputs by name when it has several.
+ */
+export function wiring(level, bus) {
+  const builderOf = (type) => bus.LEVELS.find((L) => L.builds?.type === type)
+  return {
+    inputs: (node) => {
+      if (bus.BUILT[node.type]) return builderOf(node.type).inputs?.map((i) => i.name) ?? []
+      return PARTS[node.type] ? portsOf(PARTS[node.type], node) : []
+    },
+    role: (node) => (node.type === 'line' || node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
+    packed: (node) => Boolean(bus.BUILT[node.type]),
+    outputs: (node) => {
+      const outs = bus.BUILT[node.type] && builderOf(node.type).outputs
+      return outs && outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
+    },
+  }
 }
 
 /** The board a level opens on: its fixed cards. */

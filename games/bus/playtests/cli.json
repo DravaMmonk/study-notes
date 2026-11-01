@@ -1,0 +1,38 @@
+{
+ "game": "bus",
+ "session": "cli",
+ "player": {
+  "kind": "llm"
+ },
+ "lang": "en",
+ "started": "2026-11-01T13:13:18.612Z",
+ "limits": {
+  "attempts": 8
+ },
+ "progress": {
+  "version": 1,
+  "solved": [],
+  "flags": [],
+  "data": {},
+  "slots": {},
+  "built": {},
+  "best": {},
+  "tasks": {},
+  "seenPower": true,
+  "introSeen": {},
+  "all": false
+ },
+ "levels": [
+  {
+   "level": "1-1",
+   "task": 0,
+   "outcome": "open",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "seen": 1793538798614
+  }
+ ],
+ "attempts": []
+}

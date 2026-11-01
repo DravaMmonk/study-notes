@@ -172,7 +172,12 @@ Before calling a change done (`games/DESIGN.md` §7, steps 9–11):
 2. `npm run check` and `npm test` in `trace-viewer/` are clean; build the touched games.
 3. Look in a browser on desktop and phone at a few typical levels per game (layers, sweeps, intervals, big tables),
    not only the one you changed. To watch a run, write the reference solution into the save, then step and run.
-4. Report what was checked and what was not.
+4. For a curriculum change, play it blind (`games/DESIGN.md` §6.6): `npm run blind -- <game> <session>` starts a fresh
+   agent whose only tool is `./play`; `npm run playtests` shows pass rate and difficulty level by level. Read every
+   `REPORT difficulty-spike` against the attempts and the player's closing note, and write the cause into the game's
+   design doc. A new domain gives its `play` hook in `domain.js` (a circuit domain through
+   `kit/engine/play/circuit.js`); its play tests run in `npm test`.
+5. Report what was checked and what was not.
 
 ## Interaction
 

@@ -1,0 +1,1610 @@
+{
+ "game": "bus",
+ "session": "blind-2",
+ "player": {
+  "kind": "llm",
+  "model": "claude-sonnet-5-5"
+ },
+ "lang": "en",
+ "started": "2026-11-01T12:48:16.605Z",
+ "limits": {
+  "attempts": 6,
+  "levels": 9
+ },
+ "progress": {
+  "version": 1,
+  "solved": [
+   "1-1",
+   "1-2",
+   "1-3",
+   "1-4",
+   "1-5",
+   "1-6",
+   "1-7",
+   "1-8",
+   "1-9"
+  ],
+  "flags": [
+   "counter",
+   "shift"
+  ],
+  "data": {
+   "1-1": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "line",
+      "params": {},
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "bit",
+      "type": "out",
+      "params": {
+       "name": "bit"
+      },
+      "x": 980,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "bit",
+      "port": "in"
+     }
+    ]
+   },
+   "1-2": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "line",
+      "params": {},
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "bit",
+      "type": "out",
+      "params": {
+       "name": "bit"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 1
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "bit",
+      "port": "in"
+     }
+    ]
+   },
+   "1-3": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "line",
+      "params": {},
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "same",
+      "type": "out",
+      "params": {
+       "name": "same"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 1
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "compare",
+      "params": {
+       "form": "eq"
+      },
+      "x": 640,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "line",
+      "to": "c",
+      "port": "a"
+     },
+     {
+      "from": "r",
+      "to": "c",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "same",
+      "port": "in"
+     }
+    ]
+   },
+   "1-4": {
+    "nodes": [
+     {
+      "id": "n",
+      "type": "out",
+      "params": {
+       "name": "n"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "i",
+      "type": "arith",
+      "params": {
+       "form": "inc"
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "r",
+      "to": "i",
+      "port": "in"
+     },
+     {
+      "from": "i",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "n",
+      "port": "in"
+     }
+    ]
+   },
+   "1-5": {
+    "nodes": [
+     {
+      "id": "ready",
+      "type": "out",
+      "params": {
+       "name": "ready"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "i",
+      "type": "arith",
+      "params": {
+       "form": "inc"
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "const",
+      "params": {
+       "value": 10
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "l",
+      "type": "compare",
+      "params": {
+       "form": "lt"
+      },
+      "x": 440,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "r",
+      "to": "i",
+      "port": "in"
+     },
+     {
+      "from": "i",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "l",
+      "port": "a"
+     },
+     {
+      "from": "r",
+      "to": "l",
+      "port": "b"
+     },
+     {
+      "from": "l",
+      "to": "ready",
+      "port": "in"
+     }
+    ]
+   },
+   "1-6": {
+    "nodes": [
+     {
+      "id": "go",
+      "type": "in",
+      "params": {
+       "name": "go"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "out",
+      "params": {
+       "name": "n"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "p",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "i",
+      "type": "arith",
+      "params": {
+       "form": "inc"
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "k2",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 240,
+      "y": 420
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "i",
+      "port": "in"
+     },
+     {
+      "from": "p",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "i",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "n0",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "go",
+      "to": "k2",
+      "port": "in"
+     },
+     {
+      "from": "n0",
+      "to": "n",
+      "port": "in"
+     }
+    ]
+   },
+   "1-7": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "line",
+      "params": {},
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "sof",
+      "type": "out",
+      "params": {
+       "name": "sof"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "counter",
+      "params": {},
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "t",
+      "type": "const",
+      "params": {
+       "value": 10
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "big",
+      "type": "compare",
+      "params": {
+       "form": "lt"
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "no",
+      "type": "compare",
+      "params": {
+       "form": "eq"
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "s",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "c",
+      "port": "go"
+     },
+     {
+      "from": "t",
+      "to": "big",
+      "port": "a"
+     },
+     {
+      "from": "c",
+      "to": "big",
+      "port": "b"
+     },
+     {
+      "from": "z",
+      "to": "no",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "no",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "s",
+      "port": "if"
+     },
+     {
+      "from": "no",
+      "to": "s",
+      "port": "yes"
+     },
+     {
+      "from": "big",
+      "to": "s",
+      "port": "no"
+     },
+     {
+      "from": "s",
+      "to": "sof",
+      "port": "in"
+     }
+    ]
+   },
+   "1-8": {
+    "nodes": [
+     {
+      "id": "bit",
+      "type": "in",
+      "params": {
+       "name": "bit"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "go",
+      "type": "in",
+      "params": {
+       "name": "go"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "n",
+      "type": "out",
+      "params": {
+       "name": "n"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "d",
+      "type": "arith",
+      "params": {
+       "form": "add"
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "arith",
+      "params": {
+       "form": "add"
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "s",
+      "port": "a"
+     },
+     {
+      "from": "bit",
+      "to": "s",
+      "port": "b"
+     },
+     {
+      "from": "go",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "s",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "n0",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "n0",
+      "to": "n",
+      "port": "in"
+     }
+    ]
+   },
+   "1-9": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "line",
+      "params": {},
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "id",
+      "type": "out",
+      "params": {
+       "name": "id"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "no",
+      "type": "compare",
+      "params": {
+       "form": "eq"
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "yes",
+      "type": "compare",
+      "params": {
+       "form": "eq"
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "counter",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "t",
+      "type": "const",
+      "params": {
+       "value": 10
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "big",
+      "type": "compare",
+      "params": {
+       "form": "lt"
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "sof",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "p",
+      "type": "reg",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "pi",
+      "type": "arith",
+      "params": {
+       "form": "inc"
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "kp",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "f",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "fn",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "kf",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "fb",
+      "type": "compare",
+      "params": {
+       "form": "eq"
+      },
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "tw",
+      "type": "const",
+      "params": {
+       "value": 12
+      },
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "eleven",
+      "type": "const",
+      "params": {
+       "value": 11
+      },
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "pos",
+      "type": "compare",
+      "params": {
+       "form": "lt"
+      },
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "lo",
+      "type": "compare",
+      "params": {
+       "form": "lt"
+      },
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "go",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "g",
+      "type": "shift",
+      "params": {},
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "is11",
+      "type": "compare",
+      "params": {
+       "form": "eq"
+      },
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "cond",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 150
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "z",
+      "to": "no",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "no",
+      "port": "b"
+     },
+     {
+      "from": "z",
+      "to": "yes",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "yes",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "c",
+      "port": "go"
+     },
+     {
+      "from": "t",
+      "to": "big",
+      "port": "a"
+     },
+     {
+      "from": "c",
+      "to": "big",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "sof",
+      "port": "if"
+     },
+     {
+      "from": "no",
+      "to": "sof",
+      "port": "yes"
+     },
+     {
+      "from": "big",
+      "to": "sof",
+      "port": "no"
+     },
+     {
+      "from": "p",
+      "to": "pi",
+      "port": "in"
+     },
+     {
+      "from": "sof",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "pi",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "cur",
+      "to": "kp",
+      "port": "in"
+     },
+     {
+      "from": "sof",
+      "to": "fn",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "fn",
+      "port": "yes"
+     },
+     {
+      "from": "f",
+      "to": "fn",
+      "port": "no"
+     },
+     {
+      "from": "fn",
+      "to": "kf",
+      "port": "in"
+     },
+     {
+      "from": "fn",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "z",
+      "to": "pos",
+      "port": "a"
+     },
+     {
+      "from": "cur",
+      "to": "pos",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "lo",
+      "port": "a"
+     },
+     {
+      "from": "tw",
+      "to": "lo",
+      "port": "b"
+     },
+     {
+      "from": "pos",
+      "to": "go",
+      "port": "if"
+     },
+     {
+      "from": "lo",
+      "to": "go",
+      "port": "yes"
+     },
+     {
+      "from": "no",
+      "to": "go",
+      "port": "no"
+     },
+     {
+      "from": "line",
+      "to": "g",
+      "port": "bit"
+     },
+     {
+      "from": "go",
+      "to": "g",
+      "port": "go"
+     },
+     {
+      "from": "cur",
+      "to": "is11",
+      "port": "a"
+     },
+     {
+      "from": "eleven",
+      "to": "is11",
+      "port": "b"
+     },
+     {
+      "from": "fb",
+      "to": "cond",
+      "port": "if"
+     },
+     {
+      "from": "is11",
+      "to": "cond",
+      "port": "yes"
+     },
+     {
+      "from": "no",
+      "to": "cond",
+      "port": "no"
+     },
+     {
+      "from": "cond",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "g",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "out",
+      "to": "id",
+      "port": "in"
+     }
+    ]
+   }
+  },
+  "slots": {},
+  "built": {
+   "1-6": {
+    "nodes": [
+     {
+      "id": "go",
+      "type": "in",
+      "params": {
+       "name": "go"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "out",
+      "params": {
+       "name": "n"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "p",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "i",
+      "type": "arith",
+      "params": {
+       "form": "inc"
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "k2",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 240,
+      "y": 420
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "i",
+      "port": "in"
+     },
+     {
+      "from": "p",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "i",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "n0",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "go",
+      "to": "k2",
+      "port": "in"
+     },
+     {
+      "from": "n0",
+      "to": "n",
+      "port": "in"
+     }
+    ]
+   },
+   "1-8": {
+    "nodes": [
+     {
+      "id": "bit",
+      "type": "in",
+      "params": {
+       "name": "bit"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "go",
+      "type": "in",
+      "params": {
+       "name": "go"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "n",
+      "type": "out",
+      "params": {
+       "name": "n"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "d",
+      "type": "arith",
+      "params": {
+       "form": "add"
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "arith",
+      "params": {
+       "form": "add"
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "a",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "s",
+      "port": "a"
+     },
+     {
+      "from": "bit",
+      "to": "s",
+      "port": "b"
+     },
+     {
+      "from": "go",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "s",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "n0",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "n0",
+      "to": "n",
+      "port": "in"
+     }
+    ]
+   }
+  },
+  "best": {},
+  "tasks": {},
+  "seenPower": true,
+  "introSeen": {},
+  "all": false
+ },
+ "levels": [
+  {
+   "level": "1-1",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 8
+  },
+  {
+   "level": "1-2",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "keep",
+    "reg"
+   ],
+   "seconds": 13
+  },
+  {
+   "level": "1-3",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "compare",
+    "keep",
+    "reg"
+   ],
+   "seconds": 16
+  },
+  {
+   "level": "1-4",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "arith",
+    "keep",
+    "reg"
+   ],
+   "seconds": 11
+  },
+  {
+   "level": "1-5",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "arith",
+    "compare",
+    "const",
+    "keep",
+    "reg"
+   ],
+   "seconds": 14
+  },
+  {
+   "level": "1-6",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "arith",
+    "const",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 21
+  },
+  {
+   "level": "1-7",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 2,
+   "hints": 0,
+   "parts": [
+    "compare",
+    "const",
+    "counter",
+    "select"
+   ],
+   "seconds": 28
+  },
+  {
+   "level": "1-8",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "arith",
+    "const",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 11
+  },
+  {
+   "level": "1-9",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "arith",
+    "compare",
+    "const",
+    "counter",
+    "keep",
+    "reg",
+    "select",
+    "shift"
+   ],
+   "seconds": 24
+  }
+ ],
+ "attempts": [
+  {
+   "level": "1-1",
+   "task": 0,
+   "at": "2026-11-01T12:48:24.648Z",
+   "text": "bit <- line\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass"
+  },
+  {
+   "level": "1-2",
+   "task": 0,
+   "at": "2026-11-01T12:48:47.642Z",
+   "text": "r = reg[reg=A, start=1]()\nk = keep[reg=A](line)\nbit <- r\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass"
+  },
+  {
+   "level": "1-3",
+   "task": 0,
+   "at": "2026-11-01T12:49:17.571Z",
+   "text": "r = reg[reg=A, start=1]()\nk = keep[reg=A](line)\nc = compare[form=eq](line, r)\nsame <- c\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass"
+  },
+  {
+   "level": "1-4",
+   "task": 0,
+   "at": "2026-11-01T12:49:36.539Z",
+   "text": "r = reg[reg=A, start=0]()\ni = arith[form=inc](r)\nk = keep[reg=A](i)\nn <- r\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass"
+  },
+  {
+   "level": "1-5",
+   "task": 0,
+   "at": "2026-11-01T12:50:05.232Z",
+   "text": "r = reg[reg=A, start=0]()\ni = arith[form=inc](r)\nk = keep[reg=A](i)\nc = const[value=10]()\nl = compare[form=lt](c, r)\nready <- l\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass"
+  },
+  {
+   "level": "1-6",
+   "task": 0,
+   "at": "2026-11-01T12:50:37.853Z",
+   "text": "a = reg[reg=A, start=0]()\np = reg[reg=B, start=0]()\ni = arith[form=inc](a)\nz = const[value=0]()\nn0 = select(p, i, z)\nk = keep[reg=A](n0)\nk2 = keep[reg=B](go)\nn <- n0\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass"
+  },
+  {
+   "level": "1-7",
+   "task": 0,
+   "at": "2026-11-01T12:51:04.585Z",
+   "text": "c = counter(line)\nt = const[value=10]()\nbig = compare[form=lt](t, c)\nz = const[value=0]()\ns = select(line, z, big)\nsof <- s\n",
+   "pass": false,
+   "says": "- Bus 1: FAIL — At tick 0, “Start of frame” should be no; the board gives 0.\n- Bus 2: not run"
+  },
+  {
+   "level": "1-7",
+   "task": 0,
+   "at": "2026-11-01T12:51:18.862Z",
+   "text": "c = counter(line)\nt = const[value=10]()\nbig = compare[form=lt](t, c)\nz = const[value=0]()\no = const[value=1]()\nno = compare[form=eq](z, o)\ns = select(line, no, big)\nsof <- s\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass\n- 1 hidden test(s): pass"
+  },
+  {
+   "level": "1-8",
+   "task": 0,
+   "at": "2026-11-01T12:51:44.446Z",
+   "text": "a = reg[reg=A, start=0]()\nd = arith[form=add](a, a)\ns = arith[form=add](d, bit)\nz = const[value=0]()\nn0 = select(go, s, z)\nk = keep[reg=A](n0)\nn <- n0\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass\n- 1 hidden test(s): pass"
+  },
+  {
+   "level": "1-9",
+   "task": 0,
+   "at": "2026-11-01T12:52:19.329Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nno = compare[form=eq](z, o)\nyes = compare[form=eq](z, z)\nc = counter(line)\nt = const[value=10]()\nbig = compare[form=lt](t, c)\nsof = select(line, no, big)\np = reg[reg=A]()\npi = arith[form=inc](p)\ncur = select(sof, z, pi)\nkp = keep[reg=A](cur)\nf = reg[reg=B, start=0]()\nfn = select(sof, o, f)\nkf = keep[reg=B](fn)\nfb = compare[form=eq](fn, o)\ntw = const[value=12]()\neleven = const[value=11]()\npos = compare[form=lt](z, cur)\nlo = compare[form=lt](cur, tw)\ngo = select(pos, lo, no)\ng = shift(line, go)\nis11 = compare[form=eq](cur, eleven)\ncond = select(fb, is11, no)\nout = select(cond, g, _)\nid <- out\n",
+   "pass": true,
+   "says": "- Bus 1: pass\n- Bus 2: pass"
+  }
+ ],
+ "usage": {
+  "tokens": 329191,
+  "seconds": 277,
+  "cost": 0.1444647
+ }
+}

@@ -94,6 +94,7 @@ export const RULE_TEXT = {
   'upgrade-order': 'a level upgrading a part that does not require the level that built it before',
   'idle-idea': 'a new idea no later level puts to work before two more new ideas come in (brought in before it is needed)',
   bypass: 'a reference answer of no built part that wires up, from three parts or more, the board of a part it holds',
+  'difficulty-spike': 'a required level whose blind-play attempts stand out against its neighbours on the tree (engine/play/stats.js)',
 }
 
 /** Roles of a level within its era. A topic of one level is just its finale. */
