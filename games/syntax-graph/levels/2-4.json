@@ -1,0 +1,112 @@
+{
+  "title": {
+    "zh": "看意思挂",
+    "en": "Hang it by the meaning"
+  },
+  "brief": {
+    "zh": "两句话，同一个 <i>with</i>。每句标出主干，把修饰成分挂到它修饰的词上。",
+    "en": "Two sentences, the same <i>with</i>. In each, mark the skeleton and hang the modifier on the word it modifies."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "两句话长得几乎一样，<i>with</i> 短语却挂在不同的词上。",
+        "en": "Two sentences that look almost the same, with the <i>with</i> phrase hanging on different words."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "step": {
+        "zh": "不同深度",
+        "en": "Different depths"
+      },
+      "brief": {
+        "zh": "标出主干，把 <i>with</i> 短语挂到它修饰的词上。",
+        "en": "Mark the skeleton and hang the <i>with</i> phrase on the word it modifies."
+      },
+      "hint": [
+        {
+          "zh": "“深度不同”说的是谁？",
+          "en": "What is it that has different depths?"
+        }
+      ],
+      "sentence": "We compare models with different depths.",
+      "folds": [
+        {
+          "span": "with different depths",
+          "type": "pp",
+          "to": "models",
+          "misread": {
+            "compare": {
+              "zh": "挂在 <i>compare</i> 上，就成了“拿不同的深度去和模型比较”。这里比较的是几个深度不同的模型。",
+              "en": "Hung on <i>compare</i>, it means comparing models against different depths. What is compared here is models that differ in depth."
+            }
+          }
+        }
+      ],
+      "roles": {
+        "subj": "We",
+        "verb": "compare",
+        "obj": "models"
+      },
+      "after": [
+        {
+          "zh": "<i>with different depths</i> 挂在 <i>models</i> 上：比较的是深度不同的几个模型。",
+          "en": "<i>with different depths</i> hangs on <i>models</i>: the models compared differ in depth."
+        }
+      ]
+    },
+    {
+      "step": {
+        "zh": "和基线比",
+        "en": "Against the baseline"
+      },
+      "brief": {
+        "zh": "标出主干，把 <i>with</i> 短语挂到它修饰的词上。",
+        "en": "Mark the skeleton and hang the <i>with</i> phrase on the word it modifies."
+      },
+      "hint": [
+        {
+          "zh": "<i>compare A with B</i> 里，B 是什么？",
+          "en": "In <i>compare A with B</i>, what is B?"
+        }
+      ],
+      "sentence": "We compare our model with the baseline.",
+      "folds": [
+        {
+          "span": "with the baseline",
+          "type": "pp",
+          "to": "compare",
+          "misread": {
+            "model": {
+              "zh": "挂在 <i>model</i> 上，就成了“带着基线的那个模型”。<i>compare A with B</i> 是拿 A 和 B 比。",
+              "en": "Hung on <i>model</i>, it means our model that has a baseline with it. <i>compare A with B</i> sets A against B."
+            }
+          }
+        }
+      ],
+      "roles": {
+        "subj": "We",
+        "verb": "compare",
+        "obj": "our model"
+      }
+    }
+  ],
+  "debrief": {
+    "title": {
+      "zh": "We compare our model with the baseline.",
+      "en": "We compare our model with the baseline."
+    },
+    "body": [
+      {
+        "zh": "同一个 <i>with</i>：<i>models with different depths</i> 是“深度不同的模型”，挂名词；<i>compare our model with the baseline</i> 是“拿我们的模型和基线比”，挂动词。动词自己要什么（<i>compare … with …</i>），常常决定了介词短语挂在哪。",
+        "en": "The same <i>with</i>: <i>models with different depths</i> are models that differ in depth, on the noun; <i>compare our model with the baseline</i> sets the model against the baseline, on the verb. What a verb asks for (<i>compare … with …</i>) often decides where a phrase hangs."
+      }
+    ],
+    "note": {
+      "zh": "形状一样，挂法不一样：看动词要什么，再看意思。",
+      "en": "Same shape, different hanging: see what the verb asks for, then the meaning."
+    }
+  }
+}

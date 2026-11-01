@@ -1,0 +1,75 @@
+{
+  "title": {
+    "zh": "挂哪都有",
+    "en": "Hanging everywhere"
+  },
+  "brief": {
+    "zh": "标出主干，把所有修饰成分折起来，挂到它们修饰的词上。",
+    "en": "Mark the skeleton and fold every modifier onto the word it modifies."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "句首、主语后面、谓语后面，都有介词短语。",
+        "en": "Prepositional phrases up front, after the subject and after the verb."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "谓语是 <i>has grown</i>。从 2019 年起、增长了多少倍，说的都是什么？",
+      "en": "The verb is <i>has grown</i>. Since 2019, by how much: what do they tell about?"
+    }
+  ],
+  "sentence": "Since 2019, the size of language models has grown by a factor of a thousand.",
+  "folds": [
+    {
+      "span": "Since 2019",
+      "type": "pp",
+      "to": "grown"
+    },
+    {
+      "span": "of language models",
+      "type": "pp",
+      "to": "size"
+    },
+    {
+      "span": "of a thousand",
+      "type": "pp",
+      "to": "factor"
+    },
+    {
+      "span": "by a factor of a thousand",
+      "type": "pp",
+      "to": "grown"
+    }
+  ],
+  "roles": {
+    "subj": "the size",
+    "verb": "has grown"
+  },
+  "misrole": {
+    "subj": {
+      "language models": {
+        "zh": "主语若是 <i>language models</i>，谓语该是 <i>have grown</i>。<i>has</i> 是单数：增长的是规模。",
+        "en": "With <i>language models</i> as the subject, the verb would be <i>have grown</i>. <i>has</i> is singular: what has grown is the size."
+      }
+    }
+  },
+  "debrief": {
+    "title": {
+      "zh": "Since 2019, the size of language models has grown by a factor of a thousand.",
+      "en": "Since 2019, the size of language models has grown by a factor of a thousand."
+    },
+    "body": [
+      {
+        "zh": "主干 <i>the size has grown</i>；<i>Since 2019</i> 和 <i>by a factor of a thousand</i> 都挂在 <i>grown</i> 上（什么时候起、长了多少），<i>of language models</i> 挂在 <i>size</i> 上。自 2019 年以来，语言模型的规模增长了一千倍。",
+        "en": "The skeleton is <i>the size has grown</i>; <i>Since 2019</i> and <i>by a factor of a thousand</i> hang on <i>grown</i> (since when, by how much), and <i>of language models</i> on <i>size</i>. Language models have grown a thousandfold since 2019."
+      }
+    ],
+    "note": {
+      "zh": "一个动词可以挂好几个状语，一个名词也可以挂好几个定语。",
+      "en": "A verb can take several adverbials, and a noun several attributives."
+    }
+  }
+}

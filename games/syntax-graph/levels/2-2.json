@@ -1,0 +1,59 @@
+{
+  "title": {
+    "zh": "句首的介词短语",
+    "en": "A phrase up front"
+  },
+  "brief": {
+    "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
+    "en": "Mark the skeleton and fold the modifier onto the word it modifies."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "介词短语也会放在句首，用逗号和主干隔开。",
+        "en": "A prepositional phrase can also open the sentence, set off from the skeleton by a comma."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "“在这篇论文里”说明的是哪件事？",
+      "en": "What is it that happens “in this paper”?"
+    }
+  ],
+  "sentence": "In this paper, we propose a new attention mechanism.",
+  "folds": [
+    {
+      "span": "In this paper",
+      "type": "pp",
+      "to": "propose",
+      "misread": {
+        "mechanism": {
+          "zh": "句首带逗号的介词短语说的是整件事在哪里发生：“在这篇论文里，我们提出……”。它和 <i>mechanism</i> 之间隔着整个主干。",
+          "en": "A phrase up front with a comma says where the whole thing happens: in this paper, we propose. The whole skeleton stands between it and <i>mechanism</i>."
+        }
+      }
+    }
+  ],
+  "roles": {
+    "subj": "we",
+    "verb": "propose",
+    "obj": "a new attention mechanism"
+  },
+  "debrief": {
+    "title": {
+      "zh": "In this paper, we propose a new attention mechanism.",
+      "en": "In this paper, we propose a new attention mechanism."
+    },
+    "body": [
+      {
+        "zh": "句首的 <i>In this paper</i> 挂在谓语 <i>propose</i> 上，管的是整件事。论文里大量句子都这样开头：<i>In this section</i>、<i>In contrast</i>、<i>In practice</i>。",
+        "en": "The opening <i>In this paper</i> hangs on the verb <i>propose</i>, covering the whole event. Countless sentences in papers open like this: <i>In this section</i>, <i>In contrast</i>, <i>In practice</i>."
+      }
+    ],
+    "note": {
+      "zh": "句首、带逗号的介词短语，通常挂在谓语上。",
+      "en": "A phrase up front with a comma usually hangs on the verb."
+    }
+  }
+}

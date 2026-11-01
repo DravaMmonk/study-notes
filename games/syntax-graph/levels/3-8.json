@@ -1,0 +1,79 @@
+{
+  "title": {
+    "zh": "一句数据集说明",
+    "en": "A dataset statement"
+  },
+  "brief": {
+    "zh": "标出主干，把所有修饰成分折起来。",
+    "en": "Mark the skeleton, folding every modifier away."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "论文里描述数据集的一句：主语和宾语各带一个从句，从句里又有介词短语。",
+        "en": "A line describing a dataset: the subject and the object each carry a clause, and the clauses carry prepositional phrases."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "<i>from public sources</i> 和 <i>in 2023</i> 说明的都是从句里的哪个动作？",
+      "en": "Which action inside a clause do <i>from public sources</i> and <i>in 2023</i> tell about?"
+    }
+  ],
+  "sentence": "The dataset that we release with this paper contains images that were collected from public sources in 2023.",
+  "folds": [
+    {
+      "span": "with this paper",
+      "type": "pp",
+      "to": "release"
+    },
+    {
+      "span": "that we release with this paper",
+      "type": "rel",
+      "to": "dataset"
+    },
+    {
+      "span": "from public sources",
+      "type": "pp",
+      "to": "collected"
+    },
+    {
+      "span": "in 2023",
+      "type": "pp",
+      "to": "collected",
+      "misread": {
+        "sources": {
+          "zh": "“2023 年里的公开来源”说不通：2023 年说的是收集的时间。",
+          "en": "“Public sources in 2023” is not the point: 2023 is when the images were collected."
+        }
+      }
+    },
+    {
+      "span": "that were collected from public sources in 2023",
+      "type": "rel",
+      "to": "images"
+    }
+  ],
+  "roles": {
+    "subj": "The dataset",
+    "verb": "contains",
+    "obj": "images"
+  },
+  "debrief": {
+    "title": {
+      "zh": "The dataset that we release with this paper contains images that were collected from public sources in 2023.",
+      "en": "The dataset that we release with this paper contains images that were collected from public sources in 2023."
+    },
+    "body": [
+      {
+        "zh": "主干只有 <i>The dataset contains images</i>。我们随本文发布的数据集，收录了 2023 年从公开来源收集的图像。",
+        "en": "The skeleton is just <i>The dataset contains images</i>. The dataset we release with this paper holds images gathered from public sources in 2023."
+      }
+    ],
+    "note": {
+      "zh": "每个从句都有自己的小主干；折起来，大句的主干就清楚了。",
+      "en": "Every clause has a little skeleton of its own; fold them, and the sentence’s shows."
+    }
+  }
+}

@@ -3,10 +3,10 @@ import { Brief, Level, RunDock } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { StripTools } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
-import { check, fold, foldRefusal, mark, say, targetRefusal, unfold, units } from '../engine/sentence.js'
-import { ROLES, TYPES, roleKey } from '../engine/types.js'
+import { check, fold, foldRefusal, mark, say, targetRefusal, unfold, units } from '../model/sentence.js'
+import { ROLES, TYPES, roleKey } from '../model/parts.js'
 
-// A sentence-analysis level (engine/sentence.js), the same on every screen: the sentence as it stands, each folded
+// A sentence-analysis level (model/sentence.js), the same on every screen: the sentence as it stands, each folded
 // modifier one piece hung on its word; a tray to mark what is selected as a role of the skeleton or to fold it; the
 // check against the answer. Tap a word (or a folded piece) to start a stretch, another to end it; a third tap starts
 // again. Folding asks for the word the piece hangs on: the next tap.

@@ -1,0 +1,68 @@
+{
+  "title": {
+    "zh": "不是最近的那个",
+    "en": "Not the nearest"
+  },
+  "brief": {
+    "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
+    "en": "Mark the skeleton and fold each modifier onto the word it modifies."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一个介词短语前面有好几个名词时，它不一定挂在最近的那个上。",
+        "en": "With several nouns before a prepositional phrase, it does not always hang on the nearest."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "<i>over</i>：比谁快？什么东西“比参考代码”？",
+      "en": "<i>over</i>: faster than what? What is it that is “over the reference code”?"
+    }
+  ],
+  "sentence": "We report the speedup of our implementation over the reference code.",
+  "folds": [
+    {
+      "span": "of our implementation",
+      "type": "pp",
+      "to": "speedup"
+    },
+    {
+      "span": "over the reference code",
+      "type": "pp",
+      "to": "speedup",
+      "misread": {
+        "implementation": {
+          "zh": "“比参考代码更……的实现”说不通。<i>over</i> 跟着 <i>speedup</i>：比参考代码快了多少。",
+          "en": "“Our implementation over the reference code” makes no sense. <i>over</i> goes with <i>speedup</i>: how much faster than the reference code."
+        },
+        "report": {
+          "zh": "“越过参考代码去报告”说不通。<i>over</i> 说的是加速比相对于谁。",
+          "en": "“Reporting over the reference code” makes no sense. <i>over</i> says what the speedup is measured against."
+        }
+      }
+    }
+  ],
+  "roles": {
+    "subj": "We",
+    "verb": "report",
+    "obj": "the speedup"
+  },
+  "debrief": {
+    "title": {
+      "zh": "We report the speedup of our implementation over the reference code.",
+      "en": "We report the speedup of our implementation over the reference code."
+    },
+    "body": [
+      {
+        "zh": "两个介词短语都挂在 <i>speedup</i> 上：谁的加速（<i>of our implementation</i>），相对谁（<i>over the reference code</i>）。我们报告自己的实现相对参考代码的加速比。",
+        "en": "Both phrases hang on <i>speedup</i>: whose (<i>of our implementation</i>) and over what (<i>over the reference code</i>). We report how much faster our implementation is than the reference code."
+      }
+    ],
+    "note": {
+      "zh": "有的名词自己带着固定的介词（<i>speedup over</i>、<i>improvement on</i>）。",
+      "en": "Some nouns come with their own preposition (<i>speedup over</i>, <i>improvement on</i>)."
+    }
+  }
+}

@@ -14,7 +14,7 @@
 
 这三件事都能写成确定的答案，由机器判对错，所以适合做成谜题。
 
-**改版记录**：之前的几版教的是“母语者造句的思维”：先定时间和视角（搭句子、三个问题、按场合快练、肉鸽式投稿）。试玩的结论是，懂时态含义的人在那里练的仍是理解，习惯要靠大量阅读和写作，游戏帮不上多少；而长难句的结构分析是游戏能确定判分、又真正卡住读者的地方。所以整体硬切换到拆句，旧关卡、快练和投稿模式连同引擎代码都已删除（存档第 6 版清空进度）。
+**改版记录**：之前的几版教的是“母语者造句的思维”：先定时间和视角（搭句子、三个问题、按场合快练、肉鸽式投稿）。试玩的结论是，懂时态含义的人在那里练的仍是理解，习惯要靠大量阅读和写作，游戏帮不上多少；而长难句的结构分析是游戏能确定判分、又真正卡住读者的地方。所以整体硬切换到拆句，旧关卡、快练和投稿模式连同引擎代码都已删除（存档第 6 版用迁移项 `none` 清空进度）。
 
 **场景**：句子仿照计算机论文和审稿的写法自写，不摘抄真实论文：引言、方法、实验设置、结果、局限、数据集说明。
 
@@ -45,48 +45,55 @@
 
 **界面**：句子用衬线体排成一行行可点的词和折好的块；主干的成分用各自颜色的下划线和小字标出。点一个词开始、再点一个词结束，选中的一段下面出现托盘：主干的几个成分、「折成 X」的几种结构、选中一块折好的成分时还有「拆开」。选了结构以后，句子里可点的词带虚线，点一个就挂上。桌面和手机是同一套交互。
 
-## 3. 分层：引擎与内容
+## 3. 分层：领域与内容
 
-这个游戏的目录里只有规格：
+这个游戏的目录里只有数据（`games/DESIGN.md` 6.1），写法由领域的词汇表（`kit/domains/syntax/vocabulary.js`）给出 schema：
 
 ```
 games/syntax-graph/
-  spec.js               课程：章、关卡、百科、存档迁移，交给 syntaxCourse
-  game.js               交给领域（defineSyntaxGame）
-  levels/skeleton.js    第一章：主干
-  levels/attach.js      第二章：挂在哪
-  levels/relative.js    第三章：定语从句
-  glossary.js           百科：玩法、句子成分、结构
+  game.json             标题、简介、章（eras）、存档迁移
+  levels/<id>.json      一关一个文件：句子、答案、文案
+  glossary.json         百科：玩法、句子成分、结构
 ```
 
-引擎在 `games/kit/domains/syntax`：
+领域在 `games/kit/domains/syntax`：
 
 ```
-engine/sentence.js   分词；关卡答案从词变成下标（resolve）；折、拆开、标；放的时候的拒绝；对照（check）；主干；折的先后（order）
-engine/types.js      主干的成分（ROLES）和可以折成的结构（TYPES）：名称和说明
-engine/course.js     规格 → 关卡、游玩顺序、每关能用的成分和结构（reach）、课程审计
+vocabulary.js        词汇表：元件（主干的成分 role:subj…、结构 pp、rel）、机体（reader）、存档迁移（none），game.json 和一关的 schema
+model/sentence.js    分词；关卡答案从词变成下标（resolve）；折、拆开、标；放的时候的拒绝；对照（check）；主干；折的先后（order）
+model/parts.js       主干的成分（ROLES）和可以折成的结构（TYPES）：名称和说明
+course.js            内容 → 关卡、游玩顺序、每关能用的成分和结构（reach）、课程审计（开着抽象链：每关答案用到的成分和结构是 needed）
+items/migrations.js  存档迁移项
+domain.js            npm run check 的入口：词汇表、spec(content)、validate
+game.jsx             (content) → 外壳的游戏：元件箱（成分和结构）、通关窗口里的主干
 ui/Analyze.jsx       关卡页
-game.jsx             defineSyntaxGame：元件箱（成分和结构）、通关窗口里的主干
-validate.js          npm run check：每句的答案自洽、能按某个顺序折出来、只用到这一关已有的东西、对照自己能通过
-syntax.test.js       npm test
+validate.js          每句的答案自洽、能按某个顺序折出来、只用到这一关已有的东西、对照自己能通过
+syntax.test.js       npm test：折、拒绝、对照，词汇表的 schema 和存档迁移
 ```
+
+这个领域没有封装件：每个成分和结构都是原始元件，由引入它的那一关带来，折起来的一块不当元件再用。所以抽象链的审计里 `unused` 无事可查；`bare-intro` 也不会报：每句答案都至少标出主语和谓语，新结构第一次出现时总在一句要拆主干的句子里。
 
 ## 4. 一关怎么写
 
-```js
+`levels/<id>.json`（文件名就是关卡 id）：
+
+```json
 {
-  id, title, brief, intro?, hint?,
-  adds?: ['rel'],                        // 这一关带来的成分或结构（'role:subj'、'pp'、'rel'）
-  sentence: 'The method that we propose requires no labeled data.',
-  folds: [{ span: 'that we propose', type: 'rel', to: 'method', misread?: { 词: { zh, en } } }],
-  roles: { subj: 'The method', verb: 'requires', obj: 'no labeled data' },
-  misrole?: { verb: { propose: { zh, en } }, obj: { '*': { zh, en } } },
-  given?: ['…'],                         // 已经折好、拆不开的块（给后面的长句做支架）
-  debrief: { title, body, note },
+  "title": { "zh": "两个动词", "en": "Two verbs" },
+  "brief": { "zh": "…", "en": "…" },
+  "intro": [{ "t": { "zh": "…", "en": "…" } }],
+  "hint": [{ "zh": "…", "en": "…" }],
+  "adds": ["rel"],
+  "sentence": "The method that we propose requires no labeled data.",
+  "folds": [{ "span": "that we propose", "type": "rel", "to": "method", "misread": { "词": { "zh": "…", "en": "…" } } }],
+  "roles": { "subj": "The method", "verb": "requires", "obj": "no labeled data" },
+  "misrole": { "verb": { "propose": { "zh": "…", "en": "…" } }, "obj": { "*": { "zh": "…", "en": "…" } } },
+  "given": ["…"],
+  "debrief": { "title": { "zh": "…", "en": "…" }, "body": [{ "zh": "…", "en": "…" }], "note": { "zh": "…", "en": "…" } }
 }
 ```
 
-答案用词写，不用下标：`span` 和 `to` 在句子里出现不止一次时，写 `change#2`。`misread` 的键是另一个可挂的词，`misrole` 的键是玩家标出的、还立着的那几个词（小写），`'*'` 表示这句话根本没有这个成分时说什么。几句话一起练的一关写成 `tasks: [{ step, brief, hint?, after?, …同上 }]`。
+`intro`、`hint`、`adds`、`misread`、`misrole`、`given`、`showcase` 可以不写。`adds` 是这一关带来的元件（`role:subj` 这样的成分，或 `pp`、`rel` 这样的结构）；`given` 是已经折好、拆不开的块（给后面的长句做支架）。答案用词写，不用下标：`span` 和 `to` 在句子里出现不止一次时，写 `change#2`。`misread` 的键是另一个可挂的词，`misrole` 的键是玩家标出的、还立着的那几个词（小写），`*` 表示这句话根本没有这个成分时说什么。几句话一起练的一关写成 `tasks: [{ step, brief, hint?, intro?, after?, …句子和答案 }]`，最后一句就是这一关本身。文案里的链接直接写 `<wiki-ref to="…"></wiki-ref>`。
 
 **写句子的纪律：**
 
@@ -123,7 +130,7 @@ syntax.test.js       npm test
 | 3-7 藏起来的从句 | 辨真伪：省略关系词 + 介词留在句尾 | The data the model was trained on came from three hospitals. |
 | 3-8 一句数据集说明 | 组合 | The dataset that we release with this paper contains images that were collected from public sources in 2023. |
 
-三章都是同一台“读者”，后一章延续前一章（`keeps: 'all'`）：学过的结构一直能用。
+三章都是同一台“读者”，后一章延续前一章（`game.json` 里 `"keeps": "all"`）：学过的结构一直能用。
 
 ## 6. 以后的章节（未做）
 

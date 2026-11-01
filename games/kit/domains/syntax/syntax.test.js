@@ -1,9 +1,14 @@
 // node --test games/kit/domains/syntax — sentence analysis: tokens and spans, folding and its refusals, the check of an
-// analysis against the answer, the order folds can be made in, and the level checks.
+// analysis against the answer, the order folds can be made in, the level checks, and the content contract (the
+// vocabulary's schemas, the save migrations content names).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { check, fold, foldRefusal, mark, order, resolve, say, skeleton, standing, targetRefusal, tokenize, units, unfold } from './engine/sentence.js'
+import { check, fold, foldRefusal, mark, order, resolve, say, skeleton, standing, targetRefusal, tokenize, units, unfold } from './model/sentence.js'
 import { sentenceProblems } from './validate.js'
+import { validate as fits } from '../../engine/schema.js'
+import { vocabulary } from './vocabulary.js'
+import { savesOf } from './items/migrations.js'
+import { migrations } from '../../shell/saves.js'
 
 const T = (zh, en) => ({ zh, en })
 const spec = {
@@ -107,4 +112,26 @@ test('the level checks catch a bad answer', () => {
   assert.ok(sentenceProblems(self, ok).some((p) => /inside itself/.test(p)))
   const crossed = resolve({ ...spec, folds: [{ span: 'the weights of', type: 'pp', to: 'causes' }, { span: 'of the first layer', type: 'pp', to: 'weights' }] })
   assert.ok(sentenceProblems(crossed, ok).some((p) => /cross/.test(p)))
+})
+
+test('a level as content: the vocabulary’s schema takes a sentence or tasks, and names what does not fit', () => {
+  const level = { title: T('题', 'Title'), brief: T('做', 'Do'), adds: ['pp'], debrief: { title: T('句', 'Sentence'), body: [T('体', 'Body')] }, ...spec }
+  const says = (v) => fits(vocabulary.level, v, { vocabulary }).map((p) => `${p.at}: ${p.says}`)
+  assert.deepEqual(says(level), [])
+  const { sentence, folds, roles, misrole, ...common } = level
+  assert.deepEqual(says({ ...common, tasks: [{ step: T('一', 'One'), brief: T('做', 'Do'), sentence, folds, roles }, { step: T('二', 'Two'), brief: T('做', 'Do'), sentence, roles }] }), [])
+  assert.ok(says({ ...level, adds: ['role:who'] }).some((p) => /role:who.*no part/.test(p)))
+  assert.ok(says({ ...level, folds: [{ ...folds[0], type: 'np' }] }).some((p) => /folds\[0\]\.type/.test(p)))
+  assert.ok(says({ ...level, roles: { subj: 'A small change' } }).some((p) => /roles\.verb: is missing/.test(p)))
+})
+
+test('saves: the migration none drops every level from before its version, as the old function did', () => {
+  const { version, migrate } = migrations(savesOf([{ version: 6, ops: [{ rename: 'none' }, { data: 'none' }] }]))
+  assert.equal(version, 6)
+  const old = { version: 5, solved: ['quick', 'build'], data: { quick: { words: [1] } }, best: { quick: { tries: 1 } }, introSeen: { quick: true }, all: true }
+  assert.deepEqual(migrate(old), { version: 5, solved: [], data: {}, best: {}, introSeen: {}, all: true })
+  const now = { version: 6, solved: ['1-1'], data: { '1-1': { analysis: { folds: [], roles: {} }, tries: 1, passed: true } } }
+  assert.deepEqual(migrate(now), now)
+  assert.ok(fits(vocabulary.game.fields.saves, [{ version: 6, ops: [{ rename: 'none' }, { data: 'none' }] }], { vocabulary }).length === 0)
+  assert.ok(fits(vocabulary.game.fields.saves, [{ version: 6, ops: [{ rename: 'gone' }] }], { vocabulary }).length > 0)
 })

@@ -1,0 +1,76 @@
+{
+  "title": {
+    "zh": "两个动词",
+    "en": "Two verbs"
+  },
+  "brief": {
+    "zh": "标出主干，把修饰成分折起来。",
+    "en": "Mark the skeleton, folding the modifier away."
+  },
+  "adds": [
+    "rel"
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "这句话里有两个动词，可主干只有一个谓语。另一个动词有它自己的主语，它们合起来说明前面的一个名词。",
+        "en": "This sentence has two verbs, but a skeleton has only one. The other verb comes with its own subject, and together they tell about a noun before them."
+      }
+    },
+    {
+      "t": {
+        "zh": "这样一个跟在名词后面、自带主语和谓语的小句，叫<wiki-ref to=\"relative-clause\"></wiki-ref>，通常由 <i>that</i>、<i>which</i>、<i>who</i> 这类<wiki-ref to=\"relative-word\"></wiki-ref>开头。它和介词短语一样整块折起来，挂到它修饰的名词上。",
+        "en": "Such a clause after a noun, with a subject and verb of its own, is a <wiki-ref to=\"relative-clause\"></wiki-ref>, usually opened by a <wiki-ref to=\"relative-word\"></wiki-ref> such as <i>that</i>, <i>which</i> or <i>who</i>. Like a prepositional phrase, it is folded whole and hung on the noun it modifies."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "<i>that</i> 后面的 <i>we propose</i> 说的是哪个名词？",
+      "en": "Which noun is <i>we propose</i>, after <i>that</i>, about?"
+    }
+  ],
+  "sentence": "The method that we propose requires no labeled data.",
+  "folds": [
+    {
+      "span": "that we propose",
+      "type": "rel",
+      "to": "method"
+    }
+  ],
+  "roles": {
+    "subj": "The method",
+    "verb": "requires",
+    "obj": "no labeled data"
+  },
+  "misrole": {
+    "verb": {
+      "propose": {
+        "zh": "<i>propose</i> 是从句里的动词：<i>that we propose</i> 只说明是哪种方法。主干的谓语在从句后面。",
+        "en": "<i>propose</i> is the clause’s verb: <i>that we propose</i> only says which method. The skeleton’s verb comes after the clause."
+      }
+    },
+    "subj": {
+      "we": {
+        "zh": "<i>we</i> 是从句的主语。主干说的是方法。",
+        "en": "<i>we</i> is the clause’s subject. The skeleton is about the method."
+      }
+    }
+  },
+  "debrief": {
+    "title": {
+      "zh": "The method that we propose requires no labeled data.",
+      "en": "The method that we propose requires no labeled data."
+    },
+    "body": [
+      {
+        "zh": "<i>that we propose</i> 折起来，主干是 <i>The method requires no labeled data</i>：我们提出的方法不需要标注数据。",
+        "en": "With <i>that we propose</i> folded, the skeleton is <i>The method requires no labeled data</i>: the method we propose needs no labeled data."
+      }
+    ],
+    "note": {
+      "zh": "两个动词时，一个在定语从句里；折掉它，剩下的才是谓语。",
+      "en": "With two verbs, one is in a relative clause; fold it, and the other is the verb."
+    }
+  }
+}

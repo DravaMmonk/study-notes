@@ -1,0 +1,74 @@
+{
+  "title": {
+    "zh": "一串套一串",
+    "en": "One inside another"
+  },
+  "brief": {
+    "zh": "标出主干，把修饰成分一层层折起来。",
+    "en": "Mark the skeleton, folding the modifiers layer by layer."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一个修饰成分里面还可以有修饰成分：<i>of the A of the B</i>，后一个说明前一个里的名词。从最里面那一块折起，一层层往外。",
+        "en": "A modifier can hold modifiers of its own: in <i>of the A of the B</i>, the second tells about the noun in the first. Fold from the innermost piece outwards."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "最后一个介词短语，说明的是紧挨在它前面的那个名词吗？",
+      "en": "Does the last prepositional phrase tell about the noun just before it?"
+    },
+    {
+      "zh": "谓语 <i>are initialized</i> 是复数：被初始化的是什么？",
+      "en": "The verb <i>are initialized</i> is plural: what is initialized?"
+    }
+  ],
+  "sentence": "The weights of the last layer of the decoder in our model are initialized randomly.",
+  "folds": [
+    {
+      "span": "in our model",
+      "type": "pp",
+      "to": "decoder"
+    },
+    {
+      "span": "of the decoder in our model",
+      "type": "pp",
+      "to": "layer"
+    },
+    {
+      "span": "of the last layer of the decoder in our model",
+      "type": "pp",
+      "to": "weights"
+    }
+  ],
+  "roles": {
+    "subj": "The weights",
+    "verb": "are initialized"
+  },
+  "misrole": {
+    "subj": {
+      "the last layer": {
+        "zh": "<i>layer</i> 是单数，谓语却是 <i>are</i>。被初始化的是权重：<i>of the last layer</i> 说明是哪一层的权重。",
+        "en": "<i>layer</i> is singular, but the verb is <i>are</i>. What is initialized is the weights: <i>of the last layer</i> says which layer’s."
+      }
+    }
+  },
+  "debrief": {
+    "title": {
+      "zh": "The weights of the last layer of the decoder in our model are initialized randomly.",
+      "en": "The weights of the last layer of the decoder in our model are initialized randomly."
+    },
+    "body": [
+      {
+        "zh": "三层折完，主干是 <i>The weights are initialized randomly</i>：我们模型里解码器最后一层的权重是随机初始化的。一串介词短语里，每一个通常说明紧挨在它前面的名词。",
+        "en": "Three layers folded, the skeleton is <i>The weights are initialized randomly</i>: the weights of the last layer of the decoder in our model start at random. In a chain of prepositional phrases, each usually tells about the noun just before it."
+      }
+    ],
+    "note": {
+      "zh": "从里往外折：每一块挂在它前面最近、说得通的那个名词上。",
+      "en": "Fold from the inside out: each piece on the nearest noun before it that makes sense."
+    }
+  }
+}

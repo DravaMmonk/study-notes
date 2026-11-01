@@ -6,7 +6,7 @@
 //
 //   { folds: [{ a, b, type, to }], roles: { subj?: [a, b], verb?: [a, b], obj?: [a, b], comp?: [a, b] } }
 //
-// A fold covers the tokens a..b (inclusive), is a construction of `type` (types.js), and hangs on the word at `to`,
+// A fold covers the tokens a..b (inclusive), is a construction of `type` (parts.js), and hangs on the word at `to`,
 // outside it. Folds nest (a fold may hold folds made before it) and never cross, and a fold goes with the word it hangs
 // on: when that word is folded into a bigger piece, the fold is inside that piece too (a phrase's modifiers belong to
 // the phrase). A role is a stretch of the sentence;
@@ -22,7 +22,7 @@
 // (keyed by its standing words, lower case; '*' when the sentence has no such role at all); `given` lists folds already
 // made and fixed in place.
 
-import { ROLES, TYPES } from './types.js'
+import { ROLES, TYPES } from './parts.js'
 
 const pair = (zh, en) => ({ zh, en })
 const WORD = /[A-Za-z0-9]/

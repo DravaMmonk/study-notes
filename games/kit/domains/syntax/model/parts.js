@@ -1,6 +1,6 @@
-// What a reader marks in a sentence, the same in every game on the syntax domain: the roles of the skeleton, and the
-// constructions a modifier can be folded as. A game's levels bring them in (`adds`: 'role:subj', 'pp', …); their names
-// and descriptions are the components box's.
+// The syntax domain's parts (vocabulary.js part): what a reader marks in a sentence, the same in every game on the
+// domain. The roles of the skeleton, and the constructions a modifier can be folded as. A game's levels bring them in
+// (`adds`: 'role:subj', 'pp', …); their names and descriptions are the components box's.
 
 const T = (zh, en) => ({ zh, en })
 
@@ -38,3 +38,6 @@ export const TYPES = {
 
 /** A part's key as a course and a level's `adds` name it: a role is 'role:<role>', a construction its own key. */
 export const roleKey = (role) => `role:${role}`
+
+/** Every part a level can bring in. */
+export const PARTS = [...Object.keys(ROLES).map(roleKey), ...Object.keys(TYPES)]

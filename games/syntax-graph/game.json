@@ -1,0 +1,108 @@
+{
+  "domain": "syntax",
+  "vocabulary": 1,
+  "title": {
+    "zh": "句法之图",
+    "en": "Syntax Graph"
+  },
+  "kicker": {
+    "zh": "开发中 · 拆开计算机论文里的长难句",
+    "en": "In development · Taking apart the long sentences of computer science papers"
+  },
+  "lede": {
+    "zh": "计算机论文里的长句一读就晕，多半是因为找不到主干。把句子里的修饰成分一块块折起来，挂到它修饰的那个词上，主干就露出来了。从三个词的主干起步，一路拆到母语读者也要读两遍的句子。",
+    "en": "The long sentences of computer science papers are hard going mostly because their skeleton is hard to find. Fold each modifier into one piece and hang it on the word it modifies, and the skeleton shows. Start from a three-word skeleton and work up to sentences native readers have to read twice."
+  },
+  "eras": [
+    {
+      "id": 1,
+      "machine": "reader",
+      "title": {
+        "zh": "主干",
+        "en": "The skeleton"
+      },
+      "kicker": {
+        "zh": "第一章",
+        "en": "Era 1"
+      },
+      "question": {
+        "zh": "一句话再长，主干也只有几块：它们藏在哪？",
+        "en": "However long a sentence, its skeleton is a few pieces: where are they hiding?"
+      },
+      "foundation": [
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5",
+        "1-6",
+        "1-7"
+      ]
+    },
+    {
+      "id": 2,
+      "machine": "reader",
+      "keeps": "all",
+      "title": {
+        "zh": "挂在哪",
+        "en": "Where it hangs"
+      },
+      "kicker": {
+        "zh": "第二章",
+        "en": "Era 2"
+      },
+      "question": {
+        "zh": "一个修饰成分说明的是名词，还是动作？",
+        "en": "Does a modifier tell about a noun, or about the action?"
+      },
+      "foundation": [
+        "2-1",
+        "2-2",
+        "2-3",
+        "2-4",
+        "2-5",
+        "2-6"
+      ]
+    },
+    {
+      "id": 3,
+      "machine": "reader",
+      "keeps": "all",
+      "title": {
+        "zh": "定语从句",
+        "en": "Relative clauses"
+      },
+      "kicker": {
+        "zh": "第三章",
+        "en": "Era 3"
+      },
+      "question": {
+        "zh": "名词后面跟着一整句话时，怎么把它折成一块？",
+        "en": "When a whole clause follows a noun, how is it folded into one piece?"
+      },
+      "foundation": [
+        "3-1",
+        "3-2",
+        "3-3",
+        "3-4",
+        "3-5",
+        "3-6",
+        "3-7",
+        "3-8"
+      ]
+    }
+  ],
+  "saves": [
+    {
+      "version": 6,
+      "ops": [
+        {
+          "rename": "none"
+        },
+        {
+          "data": "none"
+        }
+      ]
+    }
+  ]
+}

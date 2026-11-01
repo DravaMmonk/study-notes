@@ -1,0 +1,75 @@
+{
+  "title": {
+    "zh": "藏起来的从句",
+    "en": "A hidden clause"
+  },
+  "brief": {
+    "zh": "标出主干，把修饰成分折起来。",
+    "en": "Mark the skeleton, folding the modifiers away."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "关系词省掉了，介词又被留在了从句的末尾。",
+        "en": "The relative word is left out, and a preposition is left behind at the clause’s end."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "<i>data</i> 后面直接跟着 <i>the model was trained on</i>：模型是在什么上训练的？",
+      "en": "<i>data</i> is followed straight away by <i>the model was trained on</i>: trained on what?"
+    },
+    {
+      "zh": "这句话里有两个谓语样子的动词，主干的是哪一个？",
+      "en": "Two verbs look like the main one: which belongs to the skeleton?"
+    }
+  ],
+  "sentence": "The data the model was trained on came from three hospitals.",
+  "folds": [
+    {
+      "span": "the model was trained on",
+      "type": "rel",
+      "to": "data"
+    },
+    {
+      "span": "from three hospitals",
+      "type": "pp",
+      "to": "came"
+    }
+  ],
+  "roles": {
+    "subj": "The data",
+    "verb": "came"
+  },
+  "misrole": {
+    "verb": {
+      "was trained": {
+        "zh": "<i>was trained</i> 在从句里：<i>(that) the model was trained on</i> 说明是哪些数据，即模型训练所用的数据。主干的谓语是后面的动词。",
+        "en": "<i>was trained</i> is inside the clause: <i>(that) the model was trained on</i> says which data, the data the model was trained on. The skeleton’s verb comes later."
+      }
+    },
+    "subj": {
+      "the model": {
+        "zh": "<i>the model</i> 是从句的主语。从三家医院来的不是模型，是数据。",
+        "en": "<i>the model</i> is the clause’s subject. What came from three hospitals is not the model but the data."
+      }
+    }
+  },
+  "debrief": {
+    "title": {
+      "zh": "The data the model was trained on came from three hospitals.",
+      "en": "The data the model was trained on came from three hospitals."
+    },
+    "body": [
+      {
+        "zh": "<i>The data (that) the model was trained on</i>：省掉了 <i>that</i>，<i>on</i> 留在末尾，等于 <i>the data on which the model was trained</i>。主干 <i>The data came</i>：模型的训练数据来自三家医院。",
+        "en": "<i>The data (that) the model was trained on</i>: <i>that</i> is left out and <i>on</i> stays at the end, as in <i>the data on which the model was trained</i>. The skeleton is <i>The data came</i>: the training data came from three hospitals."
+      }
+    ],
+    "note": {
+      "zh": "名词后面紧跟一整句、末尾还挂着介词：多半是省了关系词的定语从句。",
+      "en": "A noun followed by a whole clause ending in a preposition: mostly a relative clause without its relative word."
+    }
+  }
+}

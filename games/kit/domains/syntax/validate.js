@@ -8,8 +8,8 @@
 //   · every misreading names a word the fold could really be hung on
 //   · the answer passes its own check
 
-import { keyOf, check, order, standing } from './engine/sentence.js'
-import { roleKey } from './engine/types.js'
+import { keyOf, check, order, standing } from './model/sentence.js'
+import { roleKey } from './model/parts.js'
 import { keyOf as textKey } from '../../shell/i18n.js'
 
 const crossing = (f, g) => (f.a < g.a && g.a <= f.b && f.b < g.b) || (g.a < f.a && f.a <= g.b && g.b < f.b)
@@ -45,7 +45,7 @@ export function sentenceProblems(gold, palette) {
   return problems
 }
 
-/** spec: { syntax } (engine/course.js syntaxCourse). Returns [{ text, fail? }]. */
+/** spec: domain.js spec(content), its `syntax` the course (course.js syntaxCourse). Returns [{ text, fail? }]. */
 export function validate({ syntax }) {
   return syntax.LEVELS.map((level) => {
     const sentences = level.tasks ?? [level]

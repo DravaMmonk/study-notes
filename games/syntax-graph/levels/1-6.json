@@ -1,0 +1,66 @@
+{
+  "title": {
+    "zh": "最近的不是主语",
+    "en": "The nearest is not the subject"
+  },
+  "brief": {
+    "zh": "标出主干，把修饰成分折起来。",
+    "en": "Mark the skeleton, folding the modifiers away."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "动词前面紧挨着的那个名词，常常只是修饰成分里的一个词。谓语的单复数能帮你认出真正的主语：英语的谓语和主语在单复数上要对得上，这叫<wiki-ref to=\"agreement\"></wiki-ref>。",
+        "en": "The noun just before the verb is often only a word inside a modifier. The verb’s number helps pick out the real subject: in English the verb matches its subject in number, which is called <wiki-ref to=\"agreement\"></wiki-ref>."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "<i>is</i> 是单数。它前面哪个名词是单数？",
+      "en": "<i>is</i> is singular. Which noun before it is?"
+    }
+  ],
+  "sentence": "The output of the attention layers is a weighted sum of the values.",
+  "folds": [
+    {
+      "span": "of the attention layers",
+      "type": "pp",
+      "to": "output"
+    },
+    {
+      "span": "of the values",
+      "type": "pp",
+      "to": "sum"
+    }
+  ],
+  "roles": {
+    "subj": "The output",
+    "verb": "is",
+    "comp": "a weighted sum"
+  },
+  "misrole": {
+    "subj": {
+      "the attention layers": {
+        "zh": "主语若是 <i>the attention layers</i>（复数），谓语就该是 <i>are</i>。<i>is</i> 是单数，和它一致的是 <i>output</i>。",
+        "en": "With <i>the attention layers</i> (plural) as the subject, the verb would be <i>are</i>. <i>is</i> is singular, and agrees with <i>output</i>."
+      }
+    }
+  },
+  "debrief": {
+    "title": {
+      "zh": "The output of the attention layers is a weighted sum of the values.",
+      "en": "The output of the attention layers is a weighted sum of the values."
+    },
+    "body": [
+      {
+        "zh": "主干 <i>The output is a weighted sum</i>：注意力层的输出是值的加权和。<i>layers</i> 离 <i>is</i> 最近，却在修饰成分里；<i>is</i> 的单数指向了真正的主语。",
+        "en": "The skeleton is <i>The output is a weighted sum</i>. <i>layers</i> sits nearest to <i>is</i> but inside a modifier; the singular <i>is</i> points to the real subject."
+      }
+    ],
+    "note": {
+      "zh": "拿不准主语时，看谓语的单复数。",
+      "en": "Unsure of the subject? Look at the verb’s number."
+    }
+  }
+}

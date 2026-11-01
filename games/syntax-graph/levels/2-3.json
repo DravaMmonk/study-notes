@@ -1,0 +1,74 @@
+{
+  "title": {
+    "zh": "一句里两个方向",
+    "en": "Both ways in one sentence"
+  },
+  "brief": {
+    "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
+    "en": "Mark the skeleton and fold each modifier onto the word it modifies."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "这一句里有两个介词短语，一个说明名词，一个说明动作，而且一个套在另一个里面。",
+        "en": "This sentence has two prepositional phrases, one telling about a noun and one about the action, one inside the other."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "“用于图像分类”说的是什么样的东西？",
+      "en": "“For image classification” tells what kind of thing?"
+    },
+    {
+      "zh": "在三个基准上做的是什么？",
+      "en": "What is done on three benchmarks?"
+    }
+  ],
+  "sentence": "We evaluate the method on three benchmarks for image classification.",
+  "folds": [
+    {
+      "span": "for image classification",
+      "type": "pp",
+      "to": "benchmarks",
+      "misread": {
+        "evaluate": {
+          "zh": "挂在 <i>evaluate</i> 上，就成了“为了图像分类去评估”。这里 <i>for</i> 说明的是哪一类基准。",
+          "en": "Hung on <i>evaluate</i>, it means evaluating for the sake of image classification. Here <i>for</i> says which kind of benchmarks."
+        }
+      }
+    },
+    {
+      "span": "on three benchmarks for image classification",
+      "type": "pp",
+      "to": "evaluate",
+      "misread": {
+        "method": {
+          "zh": "“在三个基准上的方法”说不通：在基准上进行的是评估。",
+          "en": "“The method on three benchmarks” makes no sense: what happens on the benchmarks is the evaluation."
+        }
+      }
+    }
+  ],
+  "roles": {
+    "subj": "We",
+    "verb": "evaluate",
+    "obj": "the method"
+  },
+  "debrief": {
+    "title": {
+      "zh": "We evaluate the method on three benchmarks for image classification.",
+      "en": "We evaluate the method on three benchmarks for image classification."
+    },
+    "body": [
+      {
+        "zh": "<i>for image classification</i> 挂在 <i>benchmarks</i> 上（图像分类的基准），整块 <i>on three benchmarks …</i> 挂在 <i>evaluate</i> 上（在这些基准上评估）。我们在三个图像分类基准上评估这个方法。",
+        "en": "<i>for image classification</i> hangs on <i>benchmarks</i> (image-classification benchmarks), and the whole <i>on three benchmarks …</i> on <i>evaluate</i> (evaluating on them). We evaluate the method on three image-classification benchmarks."
+      }
+    ],
+    "note": {
+      "zh": "里面那块挂名词，外面那块挂动词：一层层看意思。",
+      "en": "The inner piece on a noun, the outer on the verb: read the meaning layer by layer."
+    }
+  }
+}
