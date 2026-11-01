@@ -266,6 +266,7 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   primitives: S.list(S.ref('part')),
+  concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   parts: S.map(S.obj({ name: S.text(), desc: S.text() }), { about: t('关卡解锁的元件和想法：元件箱里的名字和说明', 'what levels unlock: their names and descriptions in the components box') }),
   eras: S.list(ERA, { min: 1 }),
   saves: S.list(S.obj({ version: int({ min: 2 }), ops: S.list(SAVE_OP) })),

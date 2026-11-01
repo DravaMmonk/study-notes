@@ -52,6 +52,21 @@
     "o = select(hit, g)",
     "id <- o"
   ],
+  "naive": [
+    "c = counter(line)",
+    "ten = const[value=10]()",
+    "lt = compare[form=lt](ten, c)",
+    "z = const[value=0]()",
+    "e = compare[form=eq](line, z)",
+    "sof = select(lt, e, lt)",
+    "f = reg[reg=B, start=0]()",
+    "one = const[value=1]()",
+    "sf = select(sof, one, f)",
+    "kf = keep[reg=B](sf)",
+    "k = counter(f)",
+    "g = shift(line, f)",
+    "id <- g"
+  ],
   "after": {
     "zh": "两块计数器各数各的：一块数总线安静了多久，一块数进帧以后过了几拍。",
     "en": "The two counters count on their own: one how long the bus was quiet, one how many ticks since the frame began."

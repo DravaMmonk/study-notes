@@ -1,6 +1,7 @@
 {
   "domain": "table",
   "vocabulary": 1,
+  "open": { "thin-practice": ["view@copy", "msum@confluence", "pass@stamp", "facts@stamp", "block@rocks", "not@reach", "add@slantcost", "far@stairs", "order@order", "heads@lcs", "arm@frog", "mul@safefrog", "mul@forward", "cells@robber", "probe@keydoor", "layers@keydoor", "rounds@loop"] },
   "title": { "zh": "状态之图", "en": "State Graph" },
   "kicker": { "zh": "从零开始的动态规划解谜", "en": "Dynamic programming puzzles, from scratch" },
   "lede": {
@@ -8,6 +9,7 @@
     "en": "No programming or algorithms background needed. Starting from counting routes by hand, you learn to break a big problem into a table and fill it in cell by cell; in the end you wire up the circuit boards that count routes, compare words and pack a backpack, and see why they are so fast."
   },
   "primitives": ["msum", "mmin", "mmax", "many", "const", "pass", "block", "add", "not", "mul"],
+  "concept": { "const": "pass", "many": "msum" },
   "parts": {
     "counter": {
       "name": { "zh": "路线计数器", "en": "Route Counter" },

@@ -18,6 +18,13 @@ export const GLOSSARY = S.obj({
   entries: S.list(S.obj({ id: S.str(), group: S.str(), title: S.text(), body: S.list(S.text()), at: S.opt(S.str()), see: S.opt(S.list(S.str())) })),
 })
 
+/**
+ * The audit findings a game.json leaves open (`open`): { rule: ['part@level'] }, the findings of the course audit
+ * (../course.js) its curriculum has not met yet, each on the work list in the game's design doc. npm run check lists them
+ * without failing, and fails on any other finding and on one listed that is gone.
+ */
+export const OPEN = S.map(S.list(S.str({ pattern: '^[^@]*@[^@]+$' })))
+
 export function defineVocabulary({ domain, version, kinds, game, level }) {
   return { domain, version, kinds, game, level }
 }
@@ -32,11 +39,13 @@ export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
 export function checkContent(vocabulary, content) {
   const out = []
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
-  // The two fields every game.json has: which domain plays it, and the version of its vocabulary it was written for.
-  const { id, levels, glossary, domain, vocabulary: version, ...game } = content
+  // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
+  // the one it may have: the audit findings it leaves open.
+  const { id, levels, glossary, domain, vocabulary: version, open, ...game } = content
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })
   add(validate(vocabulary.game, game, { vocabulary }), 'game.json')
+  if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
   for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary }), `levels/${levelId}.json`)
   add(validate(GLOSSARY, glossary, { vocabulary }), 'glossary.json')
   return out

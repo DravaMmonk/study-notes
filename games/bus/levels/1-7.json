@@ -28,6 +28,9 @@
     { "bus": { "frames": [{ "id": "0x123", "data": ["0x01"] }] } },
     { "bus": { "idle": 11, "frames": [{ "id": "0x0f3", "data": ["0x55", "0xaa"] }, { "id": "0x2a5", "data": [] }] } }
   ],
+  "hidden": [
+    {"bus": {"idle": 10, "frames": [{"id": "0x123", "data": ["0x01"]}, {"id": "0x0f3", "data": []}]}}
+  ],
   "want": { "sof": "startOfFrame" },
   "solution": [
     "c = counter(line)",
@@ -37,6 +40,11 @@
     "e = compare[form=eq](line, z)",
     "s = select(lt, e, lt)",
     "sof <- s"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "e = compare[form=eq](line, z)",
+    "sof <- e"
   ],
   "after": {
     "zh": "一帧的最后是 11 位隐性：应答界定位、7 位帧结束、3 位帧间间隔。所以两帧紧挨着时，这条规则照样认得出下一帧。",

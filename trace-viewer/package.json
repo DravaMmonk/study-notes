@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "check": "node ../games/kit/engine/check.js",
+    "deps": "node ../games/kit/engine/deps.js",
     "build:games": "node ../games/kit/app/build.mjs",
     "test": "node --test ../games/kit/engine/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/domains/*/*.test.js",
     "conform": "python3 ../games/kit/domains/unix/conformance/real.py"

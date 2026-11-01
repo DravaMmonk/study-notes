@@ -13,7 +13,8 @@ import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 // A level of 《车在说话》 on the shared circuit editor: the bus and the level's inputs down the left, its outputs down the
 // right, the parts it holds between. A run goes tick by tick (../../../shell/usePlayback.jsx, a tick a step): every
 // card shows its value at the tick shown, and the waveform under the board follows along, the outputs against what
-// they should be; a run stops on the first tick an output is wrong.
+// they should be; a run stops on the first tick an output is wrong. A level's hidden tests run with every run but show
+// only how many fail; once the level is solved they join the list when it opens again.
 
 const T = (zh, en) => ({ zh, en })
 
@@ -66,14 +67,18 @@ const NAMES = REGISTERS.map((r) => [r, r])
 const STARTS = [['', '—'], ['0', '0'], ['1', '1']]
 const NUMBERS = Array.from({ length: 33 }, (_, k) => [String(k), String(k)])
 
-export default function BusScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, progress, phone }) {
+export default function BusScreen({ game, level: entry, saved, save, solved, solve, lastRun, keepRun, flags, progress, phone }) {
   const level = entry.source
   const bus = game.bus
   bus.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, bus), [level, bus])
   const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved, level, bus.partOf) ? saved : startBoard(level)))
   const [testIndex, setTestIndex] = useState(0)
-  const checked = useMemo(() => runLevel(level, circuit, bus.partOf), [level, circuit, bus])
+  const [revealed] = useState(solved)
+  const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
+  const checked = useMemo(() => runLevel({ ...level, tests }, circuit, bus.partOf), [level, tests, circuit, bus])
+  const hidden = revealed ? [] : level.hidden
+  const hiddenFailed = useMemo(() => (hidden.length ? runLevel({ ...level, tests: hidden }, circuit, bus.partOf).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, circuit, bus])
   const { shown: palette, folded } = useMemo(() => bus.offerIn(level, flags), [bus, level, flags])
 
   const change = (next) => {
@@ -82,9 +87,10 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
   }
   const onClear = circuit.nodes.some((n) => parts.role(n) === 'part') ? () => change(startBoard(level)) : null
   const playback = usePlayback({
-    count: level.tests.length,
+    count: tests.length,
     stepsOf: (k) => checked.runs[k].ticks,
     check: (k) => checked.runs[k].error ?? '',
+    final: () => (hiddenFailed ? tr(`可见的总线全部通过，但 ${hidden.length} 条隐藏的总线中有 ${hiddenFailed} 条没有通过：这块板可能只是恰好合上了这几条总线。`, `Every bus shown passes, but ${hiddenFailed} of ${hidden.length} hidden ${hidden.length === 1 ? 'bus fails' : 'buses fail'}: the board may only happen to fit these.`) : ''),
     onSolve: () => solve(),
     onTest: setTestIndex,
     board: circuit,
@@ -148,7 +154,7 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
     change(addNode(type, { x, y }).graph)
   }
 
-  const test = level.tests[testIndex]
+  const test = tests[testIndex]
   const upTo = (list) => list.map((v, t) => (run && t <= at ? v : undefined))
   const lanes = [
     ...(level.listens ? [{ key: 'line', label: CARDS.line.name, kind: 'wave', ticks: test.bus.bits }] : []),
@@ -164,13 +170,15 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
     <div className="cn-strip">
       <Timeline lanes={lanes} count={test.bus.bits.length} at={run ? at : -1} marks={ended && runOf.fail ? [runOf.fail.tick] : []} />
       {ended && (runOf.error || (failed >= 0 && shown.list[failed].failed)) && <p className="cn-verdict is-fail">{L(runOf.error ?? shown.list[failed].failed)}</p>}
+      {run?.over && run.final && <p className="cn-verdict is-fail">{run.final}</p>}
     </div>
   )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  const tests = <TestTabs tests={level.tests.map((_, k) => ({ label: tr(`总线 ${k + 1}`, `Bus ${k + 1}`) }))} states={states} index={testIndex} onSelect={setTestIndex} phone={phone} />
+  const tabs = <TestTabs tests={tests.map((t, k) => ({ label: tr(`总线 ${k + 1}`, `Bus ${k + 1}`), hidden: t.hidden }))} states={states} index={testIndex} onSelect={setTestIndex} phone={phone} />
+  const hiddenStatus = { count: hidden.length, failed: run?.final ? hiddenFailed : 0, note: tr(`另有 ${hidden.length} 条隐藏的总线，每次运行一并检查，通关后公开。`, `${hidden.length} more hidden ${hidden.length === 1 ? 'bus is' : 'buses are'} checked with every run and shown once you pass.`) }
   const dock = <RunDock {...playback.dock({ go: tr('运行', 'Run'), done: tr('全部通过', 'All passed') })} />
 
-  if (phone) return <PhoneBoard {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, strip, tests, body, valueOf, errorOf, types, game, level, bus }} scope={level.id} />
+  if (phone) return <PhoneBoard {...{ circuit, parts, items, foldedItems, brief, dock, change, addNode, onClear, strip, body, valueOf, errorOf, types, game, level, bus }} tests={tabs} scope={level.id} />
 
   return (
     <Workbench
@@ -198,8 +206,8 @@ export default function BusScreen({ game, level: entry, saved, save, solve, last
           </div>
         </div>
       }
-      tests={tests}
-      status={<TestStatus states={states} />}
+      tests={tabs}
+      status={<TestStatus states={states} hidden={hiddenStatus} />}
       resultsTitle={tr(`总线 ${testIndex + 1}`, `Bus ${testIndex + 1}`)}
       results={strip}
       dock={dock}

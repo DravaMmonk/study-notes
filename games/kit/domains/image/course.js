@@ -130,13 +130,12 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
     builds: (l) => partsFor(l.unlocks),
     granted: (l) => partsFor(levelById[l.id].grants ?? []),
     replaces: (p) => replaces[p] ?? [],
-    // The probe level's black boxes stay in their level.
-    carries: (p) => !p.startsWith('mystery'),
     // Every task's answer counts: a part only the first task of a level uses is used.
     needed: (l) => {
       const answers = (levelById[l.id].tasks ?? [levelById[l.id]]).map((t) => t.solution).filter((s) => s?.nodes)
       return answers.length ? answers.flatMap((s) => s.nodes.map((n) => n.type)) : null
     },
+    boards: (l) => (levelById[l.id].tasks ?? [levelById[l.id]]).map((t) => t.solution).filter((s) => s?.nodes),
     folds: (l) => levelById[l.id].fold ?? [],
     showcase: (l) => levelById[l.id].showcase ?? null,
     abstraction: true,

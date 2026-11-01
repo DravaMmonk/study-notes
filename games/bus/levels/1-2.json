@@ -28,6 +28,11 @@
   ],
   "want": { "bit": { "previous": { "first": 1 } } },
   "solution": ["r = reg[reg=A, start=1]()", "k = keep[reg=A](line)", "bit <- r"],
+  "naive": [
+    "r = reg[reg=A]()",
+    "k = keep[reg=A](line)",
+    "bit <- r"
+  ],
   "after": {
     "zh": "寄存卡把一拍和下一拍连了起来：从现在起，板能记事了。",
     "en": "A register ties one tick to the next: from now on the board can remember."

@@ -1,11 +1,14 @@
 // node --test games/kit/domains/can — the bus: frames, stuffing and CRC as ISO 11898-1 has them; what a level's
-// outputs must be (wants.js); boards as blueprint text (board.js).
+// outputs must be (wants.js); boards as blueprint text (board.js); what the hidden tests of 《车在说话》 catch.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { bitsOf, busOf, crc15, frameBits, stuff, wiredAnd } from './bus.js'
 import { fromText } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
+import { busCourse } from './course.js'
+import { runLevel } from './run.js'
+import { readContent } from '../../engine/content-node.js'
 
 // The longest run of equal bits in a stretch.
 const longestRun = (bits) => bits.reduce((acc, b, k) => {
@@ -89,4 +92,18 @@ test('blueprint text reads into a board: settings as the cards keep them, ports 
   assert.deepEqual(b.nodes.find((n) => n.id === 'r').params, { reg: 'A', start: '1' })
   assert.deepEqual(b.wires, [{ from: 'r', to: 'c', port: 'a' }, { from: 'go', to: 'c', port: 'b' }, { from: 'line', to: 'k', port: 'in' }, { from: 'c', to: 'n', port: 'in' }])
   assert.throws(() => fromText(['x = counter(go)'], level, (t) => PARTS[t]), (e) => e.line === 1)
+})
+
+test('a hidden test catches a board that only fits the visible ones', () => {
+  const { LEVELS, partOf } = busCourse(readContent('bus'))
+  const level = (id) => LEVELS.find((L) => L.id === id)
+  const fits = (L, board) => [runLevel(L, board, partOf).pass, runLevel({ ...L, tests: L.hidden }, board, partOf).pass]
+  // A start of frame after seven quiet bits: inside a frame no run is that long, so only the bus plugged in mid-wait
+  // tells it from eleven.
+  const sof = (quiet) => ['c = counter(line)', `q = const[value=${quiet - 1}]()`, 'lt = compare[form=lt](q, c)', 'z = const[value=0]()', 'e = compare[form=eq](line, z)', 's = select(lt, e, lt)', 'sof <- s']
+  assert.deepEqual(fits(level('1-7'), fromText(sof(7), level('1-7'), partOf)), [true, false])
+  assert.deepEqual(fits(level('1-7'), fromText(sof(11), level('1-7'), partOf)), [true, true])
+  // Starting again from the bit that came with Go on 0 (the naive board) is right only while that bit is 0.
+  assert.deepEqual(fits(level('1-8'), level('1-8').naive), [true, false])
+  assert.deepEqual(fits(level('1-8'), level('1-8').solution), [true, true])
 })

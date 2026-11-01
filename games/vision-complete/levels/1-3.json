@@ -60,9 +60,8 @@
     "h = blur3h(in)",
     "u = shift[dir=up](h)",
     "d = shift[dir=down](h)",
-    "a = arith[op=add](u, d)",
-    "b = arith[op=add](a, h)",
-    "k = arith[op=mul](b, kN)",
+    "m = merge(u, h, d)",
+    "k = arith[op=mul](m, kN)",
     "out <- k"
   ],
   "naive": [

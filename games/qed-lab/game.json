@@ -1,6 +1,7 @@
 {
   "domain": "logic",
   "vocabulary": 1,
+  "open": { "thin-practice": ["mp@apply", "and@and", "orI@or", "orE@cases"] },
   "title": { "zh": "证明完毕 · 试做", "en": "Q.E.D. · Trial" },
   "kicker": { "zh": "试做 · 从两块元件搭起证明器", "en": "Trial · A prover from two parts" },
   "lede": {

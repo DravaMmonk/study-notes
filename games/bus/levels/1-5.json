@@ -30,5 +30,13 @@
     "lt = compare[form=lt](ten, r)",
     "ready <- lt"
   ],
+  "naive": [
+    "r = reg[reg=A, start=0]()",
+    "i = arith[form=inc](r)",
+    "k = keep[reg=A](i)",
+    "e = const[value=11]()",
+    "q = compare[form=eq](r, e)",
+    "ready <- q"
+  ],
   "after": { "zh": "计数加上一个比较，就是\"等到第几拍\"。", "en": "A count and a comparison make “wait until tick so-and-so”." }
 }

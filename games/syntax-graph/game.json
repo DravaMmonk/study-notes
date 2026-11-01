@@ -1,6 +1,7 @@
 {
   "domain": "syntax",
   "vocabulary": 1,
+  "open": { "thin-practice": ["skeleton@1-1"] },
   "title": {
     "zh": "句法之图",
     "en": "Syntax Graph"
@@ -13,6 +14,7 @@
     "zh": "计算机论文里的长句一读就晕，多半是因为找不到主干。把句子里的修饰成分一块块折起来，挂到它修饰的那个词上，主干就露出来了。从三个词的主干起步，一路拆到母语读者也要读两遍的句子。",
     "en": "The long sentences of computer science papers are hard going mostly because their skeleton is hard to find. Fold each modifier into one piece and hang it on the word it modifies, and the skeleton shows. Start from a three-word skeleton and work up to sentences native readers have to read twice."
   },
+  "concept": { "role:subj": "skeleton", "role:verb": "skeleton", "role:obj": "skeleton", "role:comp": "skeleton" },
   "eras": [
     {
       "id": 1,

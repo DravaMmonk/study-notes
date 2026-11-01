@@ -21,7 +21,7 @@ import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
 import { busCourse } from './course.js'
 
-/** content (../../engine/content.js): { id, title, kicker, lede, primitives, eras, saves: migration steps
+/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
  *  (../../shell/saves.js), levels, glossary }. */
 export default function busGame(content) {
   const bus = busCourse(content)

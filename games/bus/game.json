@@ -1,6 +1,7 @@
 {
   "domain": "can",
-  "vocabulary": 1,
+  "vocabulary": 2,
+  "open": { "thin-practice": ["reg@1-2", "compare@1-3", "arith@1-4", "const@1-5"] },
   "title": { "zh": "车在说话", "en": "The Car Talks" },
   "kicker": { "zh": "开发中 · 车载总线与诊断", "en": "In development · In-vehicle bus and diagnostics" },
   "lede": {
@@ -8,6 +9,7 @@
     "en": "The dozens of controllers in a car talk over one shared line. Starting from “one bit on the line each tick”, build a probe that understands them, and grow it step by step into a tester that reads fault codes and reflashes software."
   },
   "primitives": ["reg", "keep", "compare", "arith", "select", "const"],
+  "concept": { "keep": "reg" },
   "eras": [
     {
       "id": 1,

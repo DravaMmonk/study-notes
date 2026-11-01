@@ -251,6 +251,8 @@ export function logicCourse(content) {
   const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id) }))
   // Every axiom part stays in the levels that state it, and is no new idea: it is the level's own given.
   const axioms = [...new Set(LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine').flatMap(axiomPartsOf))]
+  // A level's reference boards, every task's, without what each board starts with.
+  const answersOf = (l) => (byId.get(l.id).tasks ?? [byId.get(l.id)]).filter((t) => t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !presetIds(t).includes(n.id)) }))
   const course = defineCourse({
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
@@ -264,9 +266,10 @@ export function logicCourse(content) {
     naive: (l) => Boolean(byId.get(l.id).naive || byId.get(l.id).tasks?.some((task) => task.naive)),
     // Every task's answer counts: a part the level's first task uses is used; what its board starts with does not.
     needed: (l) => {
-      const answers = (byId.get(l.id).tasks ?? [byId.get(l.id)]).filter((t) => t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !presetIds(t).includes(n.id)) }))
+      const answers = answersOf(l)
       return answers.length ? answers.flatMap(rulesIn) : null
     },
+    boards: answersOf,
     folds: (l) => byId.get(l.id).fold ?? [],
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
