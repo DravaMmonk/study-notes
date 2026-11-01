@@ -7,7 +7,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { FLAG, FORMATS, arrived, bitsOf, checkOf, decode, encode, remainder, said, stuff, unstuff } from './wire.js'
 import { PARTS } from './parts.js'
-import { fromText, toText } from './board.js'
+import { carriedOnto, fromText, toText } from './board.js'
 import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import { netCourse } from './course.js'
@@ -110,6 +110,23 @@ test('a built part takes its level’s wires as ports', () => {
   // Two of them on one board keep their own registers: a delay of two ticks.
   const two = { ...L, want: wantOf({ y: 'given' }), tests: [{ ticks: 4, wires: { x: [1, 1, 0, 1] }, inputs: {}, queue: [], expect: { y: [0, 0, 1, 1] } }] }
   assert.equal(runLevel(two, fromText(['d = delay(x)', 'e = delay(d)', 'y <- e'], two, net.partOf), net.partOf).pass, true)
+})
+
+test('a board carried onto another level keeps its parts and the wires its new fixed cards still take', () => {
+  const from = { wires: W(['a'], ['b']), inputs: [{ name: 'r', label: 'r' }] }
+  const onto = { wires: W(['a'], ['b']), inputs: [{ name: 'h', label: 'h' }] }
+  const board = fromText(['s = select(r, a, a)', 'b <- s'], from, partOf)
+  const carried = carriedOnto(onto, board)
+  assert.deepEqual(carried.nodes.map((n) => n.id).sort(), ['a', 'b', 'h', 's'])
+  assert.deepEqual(carried.wires.map((w) => `${w.from}>${w.to}.${w.port}`).sort(), ['a>s.no', 'a>s.yes', 's>b.in'])
+})
+
+test('a reply a frame, and yes standing for 1', () => {
+  const t = { ticks: 1, wires: { a: arrived([...encode('flagbyte', [[1], [2]]), ...arrived(encode('flagbyte', [[3]]), { flips: [12] })]) }, inputs: {}, queue: [] }
+  assert.deepEqual(wantOf({ x: { answers: { wire: 'a', format: 'flagbyte' } } })(t).x.order, [1, 'end', 1, 'end', 0, 'end'])
+  const level = { outputs: [{ name: 'o', label: 'o' }], want: wantOf({ o: 'given' }), tests: [{ ticks: 2, wires: {}, inputs: {}, queue: [], expect: { o: [1, 0] } }] }
+  const eq = fromText(['z = const[value=0]()', 'e = equal(z, z)', 'o <- e'], level, partOf)
+  assert.equal(runLevel(level, eq, partOf).runs[0].fail.tick, 1)
 })
 
 test('the starter game passes its checks', async () => {

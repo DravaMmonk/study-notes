@@ -4,7 +4,7 @@ import { CircuitLevel, Timeline, useLevelBoard, useLevelRun } from '../../../she
 import { L, tr } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { fits, portsIn, startBoard, wiring } from '../board.js'
+import { fits, portsIn, wiring } from '../board.js'
 import { FIXED, REGISTERS } from '../parts.js'
 import { checked as checkedOf, runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
@@ -71,7 +71,7 @@ export default function Screen(screen) {
   const own = game.net
   own.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, own), [level, own])
-  const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, own.partOf) ? saved : startBoard(level)), fresh: () => startBoard(level) })
+  const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, own.partOf) ? saved : own.opening(level, progress.built)), fresh: () => own.opening(level, progress.built) })
   const { circuit, change } = board
   const [revealed] = useState(solved)
   const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])

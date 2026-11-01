@@ -74,6 +74,7 @@ const WANTS = {
   },
   ends: ({ wire: w, format, poly }) => (test) => ({ order: decode(format, wire(test, w), poly).filter((e) => e.end).map((e) => e.intact), words: T('每一帧结束时它是否完好', 'at each frame’s end, whether it is intact') }),
   sent: ({ format, poly }) => (test) => ({ far: { format, poly }, order: decodedOrder(format, queued(test), poly), words: T('线那头收到的', 'what the far end receives') }),
+  answers: ({ wire: w, format, poly }) => (test) => ({ far: { format, poly }, order: framesOf(decode(format, wire(test, w), poly)).flatMap((f) => [f.intact ? 1 : 0, 'end']), words: T('线那头收到的回帧', 'the replies the far end receives') }),
   relayed: ({ wire: w, format, poly }) => (test) => ({ far: { format, poly }, order: framesOf(decode(format, wire(test, w), poly)).filter((f) => f.intact).flatMap((f) => [...f.bytes, 'end']), words: T('线那头收到的完好的帧', 'the intact frames the far end receives') }),
 }
 

@@ -56,6 +56,7 @@ const WANTS = {
   bytes: item(t('不论时机：这个输出给出的不是「—」的值，依次应当是按格式收到的字节（intactOnly：只算完好的帧里的）', 'timing aside: the values this output gives that are not 「—」 must be, in order, the bytes received in the format (intactOnly: only those of intact frames)'), ON({ format: FORMAT, poly: POLY, intactOnly: S.opt(S.bool()) })),
   ends: item(t('不论时机：这个输出给出的不是「—」的值，依次应当是每一帧结束时它是否完好', 'timing aside: the values this output gives that are not 「—」 must be, in order, whether each frame was intact at its end'), ON({ format: FORMAT, poly: POLY })),
   sent: item(t('线那头：按格式解出这根出线上说的话，应当正好是测试的队列（帧的格式每帧后面记一个帧尾；坏的不算）', 'the far end: what it decodes in the format from this wire out must be exactly the test’s queue (in the frame formats an end after each frame; nothing broken counts)'), S.obj({ format: FORMAT, poly: POLY })),
+  answers: item(t('线那头：按格式解出这根出线上说的话，应当是这根进线上到达的每一帧各一个回帧，只装一个字节：完好为 1，坏了为 0', 'the far end: what it decodes in the format from this wire out must be one reply a frame that arrived on the wire in, each holding one byte: 1 when that frame was intact, 0 when broken'), ON({ format: FORMAT, poly: POLY })),
   relayed: item(t('线那头：按格式解出这根出线上说的话，应当正好是这根进线上到达的完好的帧', 'the far end: what it decodes in the format from this wire out must be exactly the intact frames that arrived on the wire in'), ON({ format: FORMAT, poly: POLY })),
 }
 
@@ -96,7 +97,8 @@ const LEVEL = S.obj({
   want: S.map(S.call('want'), { about: t('每个输出和出线应当是什么', 'what each output and wire out must be') }),
   solution: BOARD,
   naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { about: t('通过后这块板成为元件 type：它的口就是关卡的进线、输入、出线和输出', 'once passed the board is the part `type`: its ports are the level’s wires in, inputs, wires out and outputs') })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些', 'the built parts it supersedes: from this level on the tray offers it instead of them') })) }, { about: t('通过后这块板成为元件 type：它的口就是关卡的进线、输入、出线和输出', 'once passed the board is the part `type`: its ports are the level’s wires in, inputs, wires out and outputs') })),
+  carry: S.opt(S.level({ about: t('从玩家在这一关通过时的板开始（没通过就用它的参考解），换上这一关的进线、输入、出线和输出；必须是先修', 'start from the board the player passed this level with (its reference when not passed), its wires, inputs and outputs swapped for this level’s; it must be a prerequisite') })),
   showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 })
 

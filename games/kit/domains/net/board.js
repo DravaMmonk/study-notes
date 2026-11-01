@@ -50,6 +50,20 @@ export function wiring(level, net) {
 /** The board a level opens on: its fixed cards. */
 export const startBoard = (level) => ({ nodes: fixedOf(level), wires: [] })
 
+/**
+ * A board from another level brought onto `level` (a level that carries on from it): its placed parts and the wires
+ * between them kept, its fixed cards swapped for this level's, and every wire to or from a fixed card this level has
+ * too (by name, onto a port it has) kept.
+ */
+export function carriedOnto(level, board) {
+  const fixed = fixedOf(level)
+  const placed = board.nodes.filter((n) => !FIXED.includes(n.type))
+  const ids = new Set([...fixed, ...placed].map((n) => n.id))
+  const own = new Map(fixed.map((n) => [n.id, n]))
+  const fits = (w) => ids.has(w.from.split('#')[0]) && ids.has(w.to) && (!own.has(w.to) || w.port === 'in') && (!own.has(w.from.split('#')[0]) || board.nodes.find((n) => n.id === w.from.split('#')[0])?.type === own.get(w.from.split('#')[0]).type)
+  return { nodes: [...fixed, ...placed], wires: board.wires.filter(fits) }
+}
+
 /** Whether a saved board still fits its level: the level's fixed cards, and every card one the domain knows. */
 export function fits(circuit, level, partOf) {
   const fixed = (c) => c.nodes.filter((n) => FIXED.includes(n.type)).map((n) => n.id).sort().join()

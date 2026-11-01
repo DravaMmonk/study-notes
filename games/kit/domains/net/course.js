@@ -11,7 +11,7 @@
 import { packed } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { arrived, said } from './wire.js'
-import { fits, fromText, portsIn, portsOut, toText } from './board.js'
+import { carriedOnto, fits, fromText, portsIn, portsOut, startBoard, toText } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
@@ -119,6 +119,7 @@ export function netCourse(content) {
     needed: (level) => [...new Set(byId.get(level.id).solution.nodes.map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
     boards: (level) => [byId.get(level.id).solution],
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
+    replaces: (part) => builderOf.get(part)?.builds.replaces ?? [],
     abstraction: true,
   })
   return {
@@ -130,6 +131,18 @@ export function netCourse(content) {
     wrong,
     blueprints,
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
+    // The levels another level carries on from: passing them keeps the board (progress.built).
+    carried: new Set(LEVELS.map((L) => L.carry).filter(Boolean)),
+    // The board a level opens on: the board of the level it carries on from (the player's, else its reference), or
+    // its fixed cards alone.
+    opening: (level, built = {}) => {
+      if (!level.carry) return startBoard(level)
+      const from = byId.get(level.carry)
+      const board = built[level.carry]?.nodes ? built[level.carry] : from?.solution
+      return board ? carriedOnto(level, board) : startBoard(level)
+    },
+    // The table's rule in this domain: a level that carries on from a board requires the level it comes from.
+    audit: () => LEVELS.filter((L) => L.carry && !course.before(L.carry, L.id)).map((L) => ({ rule: 'carry-unseen', level: L.id, part: L.carry })),
     syncOwn: (built = {}) => {
       OWN.clear()
       for (const [id, circuit] of Object.entries(built)) if (circuit?.nodes) OWN.set(id, circuit)

@@ -21,6 +21,7 @@ function spec(content) {
     net,
     blueprints: net.blueprints,
     syncOwn: net.syncOwn,
+    audit: net.audit,
     texts: { chapters: net.CHAPTERS, glossary: content.glossary.entries },
   }
 }

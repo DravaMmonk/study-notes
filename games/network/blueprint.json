@@ -41,8 +41,8 @@
       "title": { "zh": "一根线", "en": "One wire" },
       "can": ["wire"],
       "lacks": {
-        "zh": "线只有两头，一拍只送一位：第三个人没有地方接，整帧也只能一位一位地走。第 2 代把线换成大家都挂在上面的总线，线两头装上网卡，一拍送一段。",
-        "en": "A wire has two ends and carries a bit a tick: a third station has nowhere to plug in, and a frame crawls along bit by bit. Era 2 turns it into a bus everyone hangs on, with a network card at each end and a chunk sent per tick."
+        "zh": "线只有两头，一拍只送一位：第三个人没有地方接，整帧也只能一位一位地走，两块网卡之间也存不下一整帧来转发。第 2 代把线换成大家都挂在上面的总线，线两头装上网卡，一拍送一段。",
+        "en": "A wire has two ends and carries a bit a tick: a third station has nowhere to plug in, a frame crawls along bit by bit, and nothing between two cards can hold a frame to pass it on. Era 2 turns it into a bus everyone hangs on, with a network card at each end and a chunk sent per tick."
       }
     }
   ],
@@ -77,12 +77,23 @@
     {
       "id": "counting",
       "about": {
-        "zh": "寄存卡加上加法就是数拍的计数器：能清零重来，也能在不该算的拍停住不数。",
-        "en": "A register and an adder make a counter of ticks: it can restart, and it can stand still on ticks that should not count."
+        "zh": "寄存卡加上加法就是数拍的计数器，能清零重来。",
+        "en": "A register and an adder make a counter of ticks, which can restart."
       },
       "wall": {
         "zh": "要知道这一拍该发一个字节的第几位、已经收了几位，就得知道过了几拍；只记一拍的寄存卡不够。",
         "en": "To know which bit of a byte is due, or how many bits have come in, the board must know how many ticks have passed; one remembered tick is not enough."
+      }
+    },
+    {
+      "id": "compare",
+      "about": {
+        "zh": "相等把一个数变成是或否：计数器数到几，选择就能据此行事。",
+        "en": "Equal turns a number into a yes or no: once the counter reaches a value, select can act on it."
+      },
+      "wall": {
+        "zh": "计数器给出的是数，选择要的是是或否：「每到第 8 拍说一次 1」无从判断。",
+        "en": "The counter gives a number and select wants a yes or no: “say 1 every eighth tick” cannot be decided."
       }
     },
     {
@@ -114,8 +125,19 @@
         "en": "The flag 01111110 marks where a frame begins and ends, and the receiver can spot it in the bit stream at any point."
       },
       "wall": {
-        "zh": "一帧有几个字节事先不知道：只靠起始位，收的一方分得出字节，分不出哪几个字节是一帧。",
+        "zh": "一帧有几个字节事先不知道：起始位分得出一个个字节，分不出哪几个字节是一帧。",
         "en": "How many bytes a frame holds is not known in advance: start bits separate bytes but not frames."
+      }
+    },
+    {
+      "id": "stall",
+      "about": {
+        "zh": "停一拍：「暂停」为 1 的拍，计数和手上的字节都停在原处，下一拍接着走。",
+        "en": "Standing still: on a tick hold is 1, the count and the byte in hand stay where they are, and go on the tick after."
+      },
+      "wall": {
+        "zh": "内容里有 01111110 时帧被从中间切断；要在内容里多塞一位把它拆开，别的都得等一拍，可计数器每拍都往前走，正在发的字节也跟着走了一位。",
+        "en": "A frame whose content holds 01111110 is cut in two; slipping an extra bit in to break it up means everything else must wait a tick, but the counter moves on every tick and the byte being sent moves on with it."
       }
     },
     {
@@ -132,12 +154,12 @@
     {
       "id": "error-detection",
       "about": {
-        "zh": "发送方按约好的规则在数据后面附几位校验位，收的一方按同一规则核对，就知道数据在线上有没有被改。",
-        "en": "The sender appends a few check bits by an agreed rule and the receiver checks them by the same rule, so it can tell whether the data changed on the way."
+        "zh": "发送方按约好的规则多送几位（最笨的办法是整份再送一遍），收的一方按同一规则核对，就知道数据在线上有没有被改。",
+        "en": "The sender adds a few bits by an agreed rule (at its crudest, a second copy) and the receiver checks them by the same rule, so it can tell whether the data changed on the way."
       },
       "wall": {
-        "zh": "线开始翻位以后，收到的字节错了，收的一方却毫不知情，照样交出去。",
-        "en": "Once the wire flips bits, a byte arrives wrong and the receiver hands it on without knowing."
+        "zh": "线开始翻位以后，收到的位错了，收的一方却毫不知情，照样交出去。",
+        "en": "Once the wire flips bits, what arrives is wrong and the receiver hands it on without knowing."
       }
     },
     {
@@ -220,8 +242,8 @@
       "part": "equal",
       "about": { "zh": "相等：两个数相等为是，否则为否。", "en": "Equal: yes when two numbers are the same, no otherwise." },
       "why": {
-        "zh": "计数器给出的是数，选择要的是是或否；用手上的元件比较两个多位的数，要把每一位拆出来逐位比，拆位的元件这时还没有。",
-        "en": "A counter gives a number and select wants yes or no; comparing two multi-bit numbers from the parts in hand would need taking them apart bit by bit, which nothing in hand can do."
+        "zh": "它来的那一关手上只有选择、常数、寄存卡和相加，没有一样能把一个数拆开，两个数是否相同无从比较。取位到 1-7 才来；那以后虽然能用 16 张取位、8 个异或和 7 个或接出 8 位的相等，可在那之前的每一次比较都已经离不开它，那样重搭一遍只是拼装，没有新想法。",
+        "en": "Where it arrives the parts in hand are select, const, the registers and add, and none can take a number apart, so two numbers cannot be compared. Bit-of comes only at 1-7; an 8-bit equal could be wired after that from 16 bit-of cards, 8 XORs and 7 ORs, but every comparison before then already needs it, and rebuilding it that way would be assembly with no new idea."
       }
     },
     {
@@ -238,15 +260,10 @@
   ],
   "built": [
     {
-      "part": "xor",
-      "about": { "zh": "异或：两位不同为 1，相同为 0。", "en": "XOR: 1 when two bits differ, 0 when they agree." },
-      "from": ["select", "const", "choice"]
-    },
-    {
       "part": "counter",
       "about": {
-        "zh": "计数器：自「重来」上一次为 1 起过了几拍，「暂停」为 1 的拍不算。",
-        "en": "Counter: how many ticks since restart was last 1, the ticks hold is 1 left out."
+        "zh": "计数器：自「重来」上一次为 1 起过了几拍（那一拍为 0）。",
+        "en": "Counter: how many ticks since restart was last 1 (0 on that tick)."
       },
       "from": ["reg", "keep", "add", "const", "select", "counting"]
     },
@@ -261,10 +278,34 @@
     {
       "part": "deserializer",
       "about": {
-        "zh": "按字节收：从「开始」那一拍起，每逢「暂停」为 0 收进一位，收满 8 位的那一拍给出这个字节。",
-        "en": "Shift in: from the start tick, takes in a bit on every tick hold is 0 and gives the byte on the tick the eighth is taken."
+        "zh": "按字节收：从「开始」那一拍起收进线上的 8 位，收满的那一拍给出这个字节。",
+        "en": "Shift in: from the start tick, takes in 8 bits off the wire and gives the byte on the tick the eighth comes in."
       },
       "from": ["counter", "add", "equal", "select", "reg", "keep", "binary"]
+    },
+    {
+      "part": "flagspot",
+      "about": {
+        "zh": "认旗标：最近收到的 8 位正好是 01111110 的那一拍为 1。",
+        "en": "Flag spotter: 1 on each tick at which the last 8 bits read 01111110."
+      },
+      "from": ["counter", "equal", "select", "reg", "keep", "flag"]
+    },
+    {
+      "part": "counterhold",
+      "about": {
+        "zh": "能停的计数器：同计数器，只是「暂停」为 1 的拍不算，计数停在原处；它取代计数器。",
+        "en": "Pausable counter: a counter whose count stands still on ticks hold is 1; it replaces the counter."
+      },
+      "from": ["reg", "keep", "add", "const", "select", "counting", "stall"]
+    },
+    {
+      "part": "serializerhold",
+      "about": {
+        "zh": "能停的移位发送：同移位发送，只是「暂停」为 1 的拍字节停住，该说的那一位留到下一拍；它取代移位发送。",
+        "en": "Pausable shift out: shift out whose byte stands still on ticks hold is 1, the bit due waiting a tick; it replaces shift out."
+      },
+      "from": ["counterhold", "bit", "equal", "select", "binary", "stall"]
     },
     {
       "part": "framer",
@@ -272,7 +313,15 @@
         "zh": "成帧器：从交来的字节里取出一帧送出，前后加旗标，内容里做位填充。",
         "en": "Framer: takes a frame from the bytes handed down and sends it with a flag at each end and its content bit-stuffed."
       },
-      "from": ["serializer", "counter", "bit", "equal", "select", "flag", "stuffing"]
+      "from": ["serializerhold", "counterhold", "equal", "select", "flag", "stuffing"]
+    },
+    {
+      "part": "deserializerhold",
+      "about": {
+        "zh": "能停的按字节收：同按字节收，只是「暂停」为 1 的拍那一位不收；它取代按字节收。",
+        "en": "Pausable shift in: shift in that leaves out the bit of every tick hold is 1; it replaces shift in."
+      },
+      "from": ["counterhold", "add", "equal", "select", "reg", "keep", "binary", "stall"]
     },
     {
       "part": "deframer",
@@ -280,15 +329,28 @@
         "zh": "拆帧器：在位流里认出旗标之间的帧，去掉填充的 0，逐个给出内容字节，帧结束时报一声。",
         "en": "Deframer: finds the frame between flags in the bit stream, takes out the stuffed 0s, gives the content bytes one by one and signals the frame's end."
       },
-      "from": ["deserializer", "counter", "equal", "select", "flag", "stuffing"]
+      "from": ["deserializerhold", "flagspot", "counterhold", "equal", "select", "flag", "stuffing"]
+    },
+    {
+      "part": "xor",
+      "about": { "zh": "异或：两位不同为 1，相同为 0。", "en": "XOR: 1 when two bits differ, 0 when they agree." },
+      "from": ["select", "const", "choice", "error-detection"]
     },
     {
       "part": "crc",
       "about": {
-        "zh": "CRC：到这一拍为止收进的位该跟的校验码（补上 0 后不进位地除以 1011 的余数）；能清零重来，「暂停」的拍不收。",
-        "en": "CRC: the check due after the bits taken in so far (their carry-less remainder by 1011 with 0s appended); it can restart, and skips the ticks on hold."
+        "zh": "CRC：到这一拍为止收进的位该跟的校验码（补上 0 后不进位地除以 1011 的余数）；能清零重来。",
+        "en": "CRC: the check due after the bits taken in so far (their carry-less remainder by 1011 with 0s appended); it can restart."
       },
       "from": ["xor", "reg", "keep", "select", "poly-division"]
+    },
+    {
+      "part": "crchold",
+      "about": {
+        "zh": "能停的 CRC：同 CRC，只是「暂停」为 1 的拍那一位不收进去；它取代 CRC。",
+        "en": "Pausable CRC: a CRC that leaves out the bit of every tick hold is 1; it replaces the CRC."
+      },
+      "from": ["xor", "reg", "keep", "select", "poly-division", "stall"]
     },
     {
       "part": "receiver",
@@ -296,7 +358,7 @@
         "zh": "收帧器：从线上拆出每一帧，交出内容字节，扣下最后的校验字节和它核对，帧尾说出是否完好。",
         "en": "Receiver: unwraps each frame off the wire, gives up its content bytes, holds back the closing check byte to check it, and says at the frame's end whether it is intact."
       },
-      "from": ["deframer", "crc", "serializer", "reg", "keep", "equal", "select", "error-detection"]
+      "from": ["deframer", "crchold", "serializerhold", "reg", "keep", "equal", "select", "error-detection"]
     },
     {
       "part": "nic",
@@ -304,7 +366,7 @@
         "zh": "网卡：上面交来的帧带上校验字节成帧送到线上；线上收到的帧拆开、核对，逐个字节交给上面，帧尾报好坏。",
         "en": "Network card: frames handed down go on the wire framed with their check byte; frames off the wire are unwrapped and checked, going up byte by byte with word at each end of whether they are intact."
       },
-      "from": ["framer", "receiver", "crc", "serializer", "layer"]
+      "from": ["framer", "receiver", "crchold", "serializerhold", "layer"]
     }
   ],
   "eras": [
@@ -358,14 +420,13 @@
             },
             {
               "id": "1-3",
-              "title": { "zh": "不一样就说 1", "en": "Say 1 when they differ" },
+              "title": { "zh": "两边都是 1", "en": "Both are 1" },
               "task": {
-                "zh": "听两根线：两根线上的位不同时说 1，相同时说 0。",
-                "en": "Listen to two wires: say 1 when their bits differ and 0 when they agree."
+                "zh": "听两根线：两根线上都是 1 时说 1，否则说 0。",
+                "en": "Listen to two wires: say 1 when both carry a 1, and 0 otherwise."
               },
               "role": "practice",
               "dimension": "depth",
-              "builds": "xor",
               "uses": ["wire", "choice", "select", "const"]
             }
           ]
@@ -409,14 +470,48 @@
               "id": "1-6",
               "title": { "zh": "数拍", "en": "Count the ticks" },
               "task": {
-                "zh": "输出自「重来」上一次为 1 起已经过了几拍，「暂停」为 1 的拍不算。",
-                "en": "Output how many ticks have passed since restart was last 1, leaving out the ticks on which hold is 1."
+                "zh": "输出自「重来」上一次为 1 起已经过了几拍。",
+                "en": "Output how many ticks have passed since restart was last 1."
               },
               "role": "foundation",
               "idea": "counting",
               "adds": ["add"],
               "builds": "counter",
               "uses": ["reg", "keep", "add", "const", "select", "counting"]
+            },
+            {
+              "id": "1-22",
+              "title": { "zh": "连着几个 1", "en": "Ones in a row" },
+              "task": {
+                "zh": "每一拍输出线上已经连着来了几个 1；来的是 0 时输出 0。",
+                "en": "Every tick, output how many 1s in a row have come down the wire; output 0 on a tick a 0 arrives."
+              },
+              "role": "practice",
+              "dimension": "surface",
+              "uses": ["wire", "counter", "select", "const"]
+            },
+            {
+              "id": "1-21",
+              "title": { "zh": "每 8 拍一次", "en": "Every eighth tick" },
+              "task": {
+                "zh": "在第 7、15、23……拍说 1，其余各拍说 0。",
+                "en": "Say 1 on ticks 7, 15, 23 and so on, and 0 on every other tick."
+              },
+              "role": "foundation",
+              "idea": "compare",
+              "adds": ["equal"],
+              "uses": ["wire", "counter", "equal", "compare", "reg", "keep"]
+            },
+            {
+              "id": "1-23",
+              "title": { "zh": "第 5 个 1", "en": "The fifth 1" },
+              "task": {
+                "zh": "线上连着来到第 5 个 1 的那一拍说 1，其余各拍说 0。",
+                "en": "Say 1 on the tick that brings the fifth 1 in a row, and 0 on every other tick."
+              },
+              "role": "practice",
+              "dimension": "combine",
+              "uses": ["wire", "counter", "equal", "select", "const", "compare"]
             }
           ]
         },
@@ -434,7 +529,7 @@
               },
               "role": "foundation",
               "idea": "binary",
-              "adds": ["bit", "equal"],
+              "adds": ["bit"],
               "builds": "serializer",
               "uses": ["wire", "counter", "bit", "equal", "select", "binary"]
             },
@@ -442,8 +537,8 @@
               "id": "1-8",
               "title": { "zh": "一位一位地收", "en": "Gather a byte" },
               "task": {
-                "zh": "从「开始」为 1 的那一拍起，每逢「暂停」为 0 就收进线上的一位（最高位在前），收满 8 位的那一拍输出这个字节。",
-                "en": "From the tick start is 1, take in the bit on the wire on every tick hold is 0, top bit first, and output the byte on the tick the eighth is taken."
+                "zh": "从「开始」为 1 的那一拍起，收进线上的 8 位（最高位在前），收满 8 位的那一拍输出这个字节。",
+                "en": "From the tick start is 1, take in 8 bits off the wire, top bit first, and output the byte on the tick the eighth comes in."
               },
               "role": "practice",
               "dimension": "direction",
@@ -453,8 +548,8 @@
           ]
         },
         {
-          "id": "async",
-          "title": { "zh": "起始位", "en": "Start bits" },
+          "id": "frames",
+          "title": { "zh": "从哪开始", "en": "Where it starts" },
           "kind": "foundation",
           "parallel": "start",
           "slots": [
@@ -479,15 +574,7 @@
               "role": "practice",
               "dimension": "combine",
               "uses": ["wire", "serializer", "counter", "equal", "select", "start-bit"]
-            }
-          ]
-        },
-        {
-          "id": "flags",
-          "title": { "zh": "旗标", "en": "Flags" },
-          "kind": "foundation",
-          "parallel": "start",
-          "slots": [
+            },
             {
               "id": "1-11",
               "title": { "zh": "认出旗标", "en": "Spot the flag" },
@@ -497,31 +584,101 @@
               },
               "role": "foundation",
               "idea": "flag",
-              "uses": ["wire", "counter", "equal", "select", "flag"]
+              "builds": "flagspot",
+              "uses": ["wire", "counter", "equal", "select", "reg", "keep", "flag"]
+            },
+            {
+              "id": "1-26",
+              "title": { "zh": "离旗标几位", "en": "Bits since the flag" },
+              "task": {
+                "zh": "每一拍输出上一个旗标结束以后线上又来了几位。",
+                "en": "Every tick, output how many bits have come down the wire since the last flag ended."
+              },
+              "role": "practice",
+              "dimension": "depth",
+              "uses": ["wire", "flagspot", "counter"]
             },
             {
               "id": "1-12",
-              "title": { "zh": "塞一个 0", "en": "Slip in a 0" },
+              "title": { "zh": "夹在旗标之间", "en": "Between flags" },
               "task": {
-                "zh": "把交来的每一帧字节送出：前后各加旗标 01111110，内容里每连着 5 个 1 就多说一个 0。",
-                "en": "Send each frame of bytes handed to you with a flag 01111110 at each end, adding a 0 after every five 1s in the content."
+                "zh": "把交来的每一帧字节送出，前后各加一个旗标 01111110。",
+                "en": "Send each frame of bytes handed to you with a flag 01111110 before and after it."
               },
-              "role": "foundation",
-              "idea": "stuffing",
-              "builds": "framer",
-              "uses": ["wire", "serializer", "counter", "bit", "equal", "select", "flag", "stuffing"]
+              "role": "practice",
+              "dimension": "direction",
+              "uses": ["wire", "serializer", "counter", "equal", "select", "flag"]
             },
             {
               "id": "1-13",
               "title": { "zh": "拆帧", "en": "Unwrap the frame" },
               "task": {
-                "zh": "从线上认出旗标之间的每一帧，去掉塞进的 0，逐个输出内容字节，帧结束的那一拍报一声。",
-                "en": "Find each frame between flags on the wire, take out the stuffed 0s, output the content bytes one by one and signal on the tick the frame ends."
+                "zh": "从线上认出旗标之间的每一帧，逐个输出内容字节，帧结束的那一拍报一声。",
+                "en": "Find each frame between flags on the wire, output its content bytes one by one, and signal on the tick it ends."
+              },
+              "role": "practice",
+              "dimension": "combine",
+              "uses": ["wire", "flagspot", "deserializer", "counter", "equal", "select", "flag"]
+            },
+            {
+              "id": "1-27",
+              "title": { "zh": "停一拍", "en": "Stand still" },
+              "task": {
+                "zh": "像数拍一样输出自「重来」起过了几拍，只是「暂停」为 1 的拍不算。",
+                "en": "Count the ticks since restart as before, except that ticks on which hold is 1 do not count."
+              },
+              "role": "foundation",
+              "idea": "stall",
+              "builds": "counterhold",
+              "uses": ["reg", "keep", "add", "const", "select", "counting", "stall"]
+            },
+            {
+              "id": "1-28",
+              "title": { "zh": "字节停一拍", "en": "The byte waits" },
+              "task": {
+                "zh": "像一位一位地发一样送出字节，只是「暂停」为 1 的拍字节停住，该说的那一位留到下一拍。",
+                "en": "Send a byte bit by bit as before, except that on a tick hold is 1 the byte stands still and the bit due waits for the next tick."
+              },
+              "role": "practice",
+              "dimension": "depth",
+              "builds": "serializerhold",
+              "uses": ["wire", "counterhold", "bit", "equal", "select", "stall"]
+            },
+            {
+              "id": "1-40",
+              "title": { "zh": "塞一个 0", "en": "Slip in a 0" },
+              "task": {
+                "zh": "像夹在旗标之间那样送出每一帧，只是内容里每连着 5 个 1 就多说一个 0。",
+                "en": "Send each frame between flags as before, except that after every five 1s in a row in the content you add a 0."
+              },
+              "role": "foundation",
+              "idea": "stuffing",
+              "builds": "framer",
+              "uses": ["wire", "serializerhold", "counterhold", "equal", "select", "flag", "stuffing"]
+            },
+            {
+              "id": "1-29",
+              "title": { "zh": "跳过一位", "en": "Skip a bit" },
+              "task": {
+                "zh": "像一位一位地收一样收一个字节，只是「暂停」为 1 的拍线上那一位不收。",
+                "en": "Gather a byte as before, except that the bit on a tick hold is 1 is not taken in."
               },
               "role": "practice",
               "dimension": "direction",
+              "builds": "deserializerhold",
+              "uses": ["wire", "counterhold", "add", "equal", "select", "reg", "keep", "stall"]
+            },
+            {
+              "id": "1-30",
+              "title": { "zh": "去掉塞进的 0", "en": "Take the 0 out" },
+              "task": {
+                "zh": "像拆帧一样逐个输出每帧的内容字节，只是内容里每连着 5 个 1 后面塞进的那个 0 要去掉。",
+                "en": "Unwrap each frame as before, except that the 0 slipped in after every five 1s in a row must be taken out."
+              },
+              "role": "practice",
+              "dimension": "combine",
               "builds": "deframer",
-              "uses": ["wire", "deserializer", "counter", "equal", "select", "flag", "stuffing"]
+              "uses": ["wire", "flagspot", "deserializerhold", "counterhold", "equal", "select", "stuffing"]
             }
           ]
         },
@@ -532,22 +689,45 @@
           "parallel": "start",
           "slots": [
             {
-              "id": "1-14",
-              "title": { "zh": "线会出错", "en": "The wire errs" },
+              "id": "1-31",
+              "title": { "zh": "送两份", "en": "Send it twice" },
               "task": {
-                "zh": "每个字节后面跟一个奇偶校验位，线会翻位；输出收到的每个字节，并说出它的校验是否相符。",
-                "en": "Each byte is followed by a parity bit and the wire flips bits; output each byte received and say whether its parity checks out."
+                "zh": "对方把每一位同时说在两根线上，线会翻位；两根线上的位不同时说 1，相同时说 0。",
+                "en": "The far end says every bit on two wires at once and the wires flip bits; say 1 when the two disagree and 0 when they agree."
               },
               "role": "foundation",
               "idea": "error-detection",
-              "uses": ["wire", "deserializer", "counter", "xor", "reg", "keep", "error-detection"]
+              "builds": "xor",
+              "uses": ["wire", "select", "const", "choice", "error-detection"]
+            },
+            {
+              "id": "1-32",
+              "title": { "zh": "奇偶校验位", "en": "A parity bit" },
+              "task": {
+                "zh": "把交来的字节逐个送出，每个字节后面跟一个奇偶校验位：字节里有奇数个 1 时为 1。",
+                "en": "Send the bytes handed to you one by one, each followed by a parity bit that is 1 when the byte holds an odd number of 1s."
+              },
+              "role": "practice",
+              "dimension": "direction",
+              "uses": ["wire", "serializer", "xor", "reg", "keep", "counter", "equal", "select"]
+            },
+            {
+              "id": "1-14",
+              "title": { "zh": "核对奇偶", "en": "Check the parity" },
+              "task": {
+                "zh": "每个字节后面跟一个奇偶校验位，线会翻位：输出收到的每个字节，并说出它的校验是否相符。",
+                "en": "Each byte is followed by a parity bit and the wire flips bits; output each byte received and say whether its parity checks out."
+              },
+              "role": "practice",
+              "dimension": "combine",
+              "uses": ["wire", "deserializer", "counter", "xor", "reg", "keep", "equal", "select"]
             },
             {
               "id": "1-15",
               "title": { "zh": "边收边除", "en": "Divide as it comes" },
               "task": {
-                "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码（这些位后面补上三个 0、不进位地除以 1011 的余数）；「重来」为 1 时从头算起，「暂停」为 1 的拍不收。",
-                "en": "Every tick, output the 3 check bits due after the bits received so far (their carry-less remainder by 1011 with three 0s appended); start over when restart is 1, and skip the bit on ticks hold is 1."
+                "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码（这些位后面补上三个 0、不进位地除以 1011 的余数）；「重来」为 1 时从头算起。",
+                "en": "Every tick, output the 3 check bits due after the bits received so far (their carry-less remainder by 1011 with three 0s appended); start over when restart is 1."
               },
               "role": "foundation",
               "idea": "poly-division",
@@ -564,6 +744,17 @@
               "role": "practice",
               "dimension": "direction",
               "uses": ["wire", "crc", "serializer", "counter", "bit", "select"]
+            },
+            {
+              "id": "1-35",
+              "title": { "zh": "翻了两位", "en": "Two bits flipped" },
+              "task": {
+                "zh": "每个字节后面跟它的 3 位校验码，线在一个字节里可能翻两位：输出收到的每个字节，并说出它是否完好。",
+                "en": "Each byte is followed by its 3 check bits and the wire may flip two bits in one: output each byte received and say whether it arrived intact."
+              },
+              "role": "practice",
+              "dimension": "surface",
+              "uses": ["wire", "crc", "deserializer", "counter", "equal", "select"]
             }
           ]
         },
@@ -572,6 +763,17 @@
           "title": { "zh": "一块网卡", "en": "A network card" },
           "kind": "foundation",
           "slots": [
+            {
+              "id": "1-36",
+              "title": { "zh": "校验停一拍", "en": "The check waits" },
+              "task": {
+                "zh": "像边收边除一样输出该跟的校验码，只是「暂停」为 1 的拍线上那一位不收进去。",
+                "en": "Give the check due as in dividing as it comes, except that the bit on a tick hold is 1 is not taken in."
+              },
+              "role": "foundation",
+              "builds": "crchold",
+              "uses": ["wire", "xor", "reg", "keep", "select", "poly-division", "stall"]
+            },
             {
               "id": "1-17",
               "title": { "zh": "查出坏帧", "en": "Catch bad frames" },
@@ -585,8 +787,8 @@
               "uses": [
                 "wire",
                 "deframer",
-                "crc",
-                "serializer",
+                "crchold",
+                "serializerhold",
                 "reg",
                 "keep",
                 "equal",
@@ -604,18 +806,18 @@
               "role": "foundation",
               "idea": "layer",
               "builds": "nic",
-              "uses": ["wire", "framer", "receiver", "crc", "serializer", "layer"]
+              "uses": ["wire", "framer", "receiver", "crchold", "serializerhold", "layer"]
             },
             {
-              "id": "1-19",
-              "title": { "zh": "接力", "en": "Relay" },
+              "id": "1-37",
+              "title": { "zh": "回一声", "en": "Answer back" },
               "task": {
-                "zh": "两根线之间装两块网卡：左边线上来的帧，一个字节一个字节地交给右边的网卡送出去，不等整帧收完；到时是坏的帧，送出去也不能是好的。",
-                "en": "Put two network cards between two wires and pass each frame from the left wire on to the right one byte at a time, without waiting for the whole frame; a frame that arrived broken must not leave intact."
+                "zh": "装上网卡：进来的线上每到一帧，就在出去的线上回一个只有一个字节的帧，完好回 1，坏了回 0。",
+                "en": "Fit a network card and, for every frame that arrives on the incoming wire, send back a one-byte frame on the outgoing wire: 1 if it arrived intact, 0 if broken."
               },
               "role": "practice",
               "dimension": "combine",
-              "uses": ["wire", "nic", "layer", "reg", "keep", "select", "xor"]
+              "uses": ["wire", "nic", "reg", "keep", "select", "layer"]
             }
           ]
         },
@@ -648,8 +850,8 @@
     {
       "id": "start",
       "why": {
-        "zh": "起始位、旗标和校验都只建在字节上，互不依赖：起始位分出单个字节，旗标分出整帧，校验查出线上改了什么。网卡建在旗标和校验两路上；起始位是这一代对「从哪开始」的第一个回答。",
-        "en": "Start bits, flags and checks each stand only on the byte and not on each other: start bits mark single bytes, flags whole frames, and checks catch what the wire changed. The card stands on flags and checks together; start bits are the era's first answer to where a byte starts."
+        "zh": "分帧和查错都只建在字节上，互不依赖：一路从起始位走到旗标和位填充，分出一个个字节和一整帧；一路从送两份走到 CRC，查出线上改了什么。网卡建在两路上。",
+        "en": "Framing and checking each stand only on the byte and not on each other: one branch goes from start bits to flags and stuffing, marking single bytes and then whole frames; the other goes from sending twice to the CRC, catching what the wire changed. The card stands on both."
       }
     }
   ],
@@ -661,7 +863,7 @@
         "zh": "点对点的线：每根线把一头说的位过 d 拍送到另一头，没人说时为 0；关卡写出拓扑（几根线、板在哪一头听或说），世界的节点在线的另一头按测试说位或听位，板上每根进来的线一个线元件、每根出去的线一个说元件。",
         "en": "Point-to-point wires: each carries the bits one end says to the other end d ticks later, 0 when nobody speaks; a level names its wires and which end the board hears or says on, world nodes at the far ends say or hear the test's bits, and the board has a line card per incoming wire and a say card per outgoing one."
       },
-      "for": ["1-1", "1-3", "1-19"],
+      "for": ["1-1", "1-31", "1-37"],
       "status": "done",
       "note": {
         "zh": "做成了：关卡写 wires.in 和 wires.out，每根线一张进线、出线元件，带 delay；进线上到达的位由测试定（线那头不回听），所以板这一拍可以说它这一拍听到的。",
@@ -675,7 +877,7 @@
         "zh": "原始元件选择、相加、相等、取位（8 位数从最高位起的第 i 位），碰到「—」给「—」。",
         "en": "The primitives select, add, equal and bit-of (bit i of an 8-bit number from the top), giving 「—」 for 「—」."
       },
-      "for": ["1-2", "1-6", "1-7"],
+      "for": ["1-2", "1-6", "1-21", "1-7"],
       "status": "done",
       "note": {
         "zh": "做成了：select、add、equal、bit（取位），加上 reg、keep、const。",
@@ -689,7 +891,21 @@
         "zh": "输出的要求：逐拍写定的值（含「—」）；只比非「—」值的先后、不比时刻的值序列；以及线另一头的世界节点按约定的格式（裸位、起止位、旗标、旗标加 CRC）解出收到的字节，必须等于要送的内容。",
         "en": "What outputs must be: values fixed tick by tick (「—」 included); the order of the non-「—」 values, timing aside; and what a world node at the far end decodes by an agreed format (raw bits, start/stop, flags, flags with CRC), which must equal what was to be sent."
       },
-      "for": ["1-6", "1-7", "1-8", "1-9", "1-10", "1-12", "1-13", "1-16", "1-17", "1-19"],
+      "for": [
+        "1-6",
+        "1-7",
+        "1-8",
+        "1-9",
+        "1-10",
+        "1-12",
+        "1-13",
+        "1-16",
+        "1-17",
+        "1-30",
+        "1-32",
+        "1-35",
+        "1-40"
+      ],
       "status": "done",
       "note": {
         "zh": "做成了：每一拍的项（echo、opposite、differ、late、heard、count、serial、pattern、remainder、decoded、intact，以及测试里写定的 given）、不论时机的项（bytes、ends）和线那头的项（sent、relayed）；格式有 bytes、startstop、parity、check、blocks、flag、flagcheck。",
@@ -703,7 +919,7 @@
         "zh": "可以拉取的输入：关卡给一列字节（可分成几帧），板在一拍里说「下一个」，下一拍这一项出现在输入上，取完给「—」，帧与帧之间给出帧界。",
         "en": "An input the board pulls from: the level gives a list of bytes (possibly in frames); when the board asks for the next one, it appears on the input the following tick, 「—」 once used up, with frame boundaries marked."
       },
-      "for": ["1-10", "1-12", "1-16", "1-18"],
+      "for": ["1-10", "1-12", "1-16", "1-18", "1-32", "1-40"],
       "status": "done",
       "note": {
         "zh": "做成了：关卡的 pulls 说哪个输入是队首、哪个输入标出一帧的最后一个字节、哪个输出取走它；测试的 queue 是一列帧。",
@@ -717,7 +933,7 @@
         "zh": "会翻位的线：测试可以写定在哪几拍翻位（给隐藏测试用），也可以按出错率带种子随机翻位，在几个种子下各跑一遍。",
         "en": "A wire that flips bits: a test may name the ticks at which it flips (for hidden tests) or flip at random by an error rate with a seed, run over several seeds."
       },
-      "for": ["1-14", "1-15", "1-17", "1-18", "1-19", "1-20"],
+      "for": ["1-14", "1-15", "1-17", "1-18", "1-20", "1-31", "1-35"],
       "status": "done",
       "note": {
         "zh": "按写定的拍做成了（测试的 flips）；随机的错误率和种子不做：隐藏测试里写定的翻转已经能抓住 naive 解，种子只会让一关的结果不可复现。",
@@ -728,10 +944,10 @@
       "id": "card-ports",
       "kind": "domain",
       "about": {
-        "zh": "搭出元件的板把它的线元件和说元件也作为元件的口，一个节点可以放几块（中继里的两块网卡）；关卡可以让玩家的同一块板跑在一根线的两头，各有各的寄存卡。",
-        "en": "A board that builds a part exposes its line and say cards as the part's ports, so one node can hold several (two cards in a relay); a level may run the player's board at both ends of a wire, each copy with its own registers."
+        "zh": "搭出元件的板把它的线元件和说元件也作为元件的口，一个节点可以放几块；关卡可以让玩家的同一块板跑在一根线的两头，各有各的寄存卡。",
+        "en": "A board that builds a part exposes its line and say cards as the part's ports, so one node can hold several; a level may run the player's board at both ends of a wire, each copy with its own registers."
       },
-      "for": ["1-18", "1-19"],
+      "for": ["1-18", "1-37"],
       "status": "done",
       "note": {
         "zh": "线就是板的口：搭出的元件把它那一关的进线、出线当作自己的输入、输出，一块板上放几个，各有各的寄存卡。两项不做：在线的两头各跑一份玩家的板（一关同时测两个方向——队列里的帧从出线发出，进线上的帧交到输出——已经测到它，不另跑一份）；把一帧整个存下再转发（第一代没有能存下一帧的元件，队列是第二代的事）：一关不能要求两块网卡之间存下一整帧再转发。",
@@ -745,7 +961,7 @@
         "zh": "want「count」和「remainder」各加一个可选的输入 hold：hold 为 1 的拍不算——计数停在原处，这一拍的位不收进余数。",
         "en": "The wants count and remainder each take an optional input `hold`: a tick on which it is 1 does not count — the count stands still, and that tick's bit is not taken into the remainder."
       },
-      "for": ["1-6", "1-15"],
+      "for": ["1-27", "1-36"],
       "status": "done",
       "note": {
         "zh": "做成了：count 和 remainder 都可以带输入 hold，为 1 的拍不算。",
@@ -759,11 +975,39 @@
         "zh": "一种帧格式，像 flagcheck，只是校验码作为内容后面的一个整字节送出（前面补 0 凑满 8 位），一起做位填充；帧完好要求内容是整字节、最后一个字节等于内容的校验码。bytes、ends、sent、relayed 都按它解。",
         "en": "A frame format like flagcheck, except that the check bits go as one whole byte after the content (0s before them to make 8), stuffed with it; a frame is intact when its content is whole bytes and its last byte equals the content's check. bytes, ends, sent and relayed decode it."
       },
-      "for": ["1-17", "1-18", "1-19"],
+      "for": ["1-17", "1-18", "1-37"],
       "status": "done",
       "note": {
         "zh": "做成了：格式 flagbyte，校验位前面补 0 凑成一个字节，和内容一起填充；bytes、ends、sent、relayed 都按它解。",
         "en": "Done: the format flagbyte, its check bits padded with 0s in front to a whole byte and stuffed with the content; bytes, ends, sent and relayed decode it."
+      }
+    },
+    {
+      "id": "carry-replaces",
+      "kind": "domain",
+      "about": {
+        "zh": "接着上一关的板做，新元件取代旧元件：关卡可以写 carry（打开时板上是玩家在那个先修关留下的电路，没通过就用它的参考解），搭出的元件可以声明 replaces（它取代的元件：从此先修关系往下的关，托盘给新的、不再给旧的），交给内核 defineCourse 已有的 replaces 和 carry-unseen 审计。",
+        "en": "Going on from an earlier board, a new part taking an old one's place: a level may name `carry` (it opens on the board the player left at that prerequisite, or its reference if not passed), and a built part may declare `replaces` (the part it supersedes: from there on down the prerequisites the tray offers the new one, not the old), wired to the kernel's existing defineCourse `replaces` and the carry-unseen audit."
+      },
+      "for": ["1-27", "1-28", "1-29", "1-30", "1-36", "1-40"],
+      "status": "done",
+      "note": {
+        "zh": "做成了：关卡可以写 carry（从那一关的板开始：玩家通过时的板，没通过就用参考解，换上这一关的进线、输入、出线和输出；审计 carry-unseen 查它是先修），builds 可以写 replaces（往后托盘里给新的、不给旧的）。",
+        "en": "Done: a level may write carry (it opens on that level’s board: the one the player passed it with, else its reference, with this level’s wires, inputs and outputs swapped in; the carry-unseen audit checks it is a prerequisite), and builds may write replaces (from there on the tray offers the new part instead of the old)."
+      }
+    },
+    {
+      "id": "answers",
+      "kind": "domain",
+      "about": {
+        "zh": "线那头的一种要求：按格式解出这根出线上说的帧，应当是那根进线上每到一帧就回一帧，帧里只有一个字节，到的帧完好为 1，坏了为 0。",
+        "en": "A far-end want: the frames it decodes in the format from this wire out must be one reply per frame that arrived on the given wire in, each holding a single byte, 1 if that frame was intact and 0 if broken."
+      },
+      "for": ["1-37"],
+      "status": "done",
+      "note": {
+        "zh": "做成了：answers，线那头按格式解出的回帧，每到一帧回一帧，只装一个字节，完好为 1、坏了为 0。",
+        "en": "Done: answers, the replies the far end decodes in the format, one a frame that arrived, each holding one byte, 1 when intact and 0 when broken."
       }
     }
   ],
@@ -791,8 +1035,8 @@
         "en": "The sketch's challenge “The data holds a flag” and the card series' first three levels"
       },
       "why": {
-        "zh": "内容里出现旗标正是位填充那一关撞上的墙，做成挑战就成了新机制；送一句话、送几句话、线会出错只是重做 1-7 到 1-17，没有新维度，网卡一关直接站在已搭出的元件上。",
-        "en": "A flag inside the content is the very wall of the stuffing level, so as a challenge it would bring a new mechanism; sending one message, several, and over a noisy wire only redo 1-7 to 1-17 with no new dimension, so the card level stands directly on the parts already built."
+        "zh": "内容里出现旗标正是位填充撞上的墙，做成挑战就成了新机制；送一句话、送几句话、线会出错只是重做前面的关，没有新维度，网卡一关直接站在已搭出的元件上。",
+        "en": "A flag inside the content is the very wall stuffing meets, so as a challenge it would bring a new mechanism; sending one message, several, and over a noisy wire only redo earlier levels with no new dimension, so the card level stands directly on the parts already built."
       }
     },
     {
@@ -806,10 +1050,20 @@
       }
     },
     {
+      "about": {
+        "zh": "上一版的「接力」：两块网卡之间逐字节转发，坏帧送出去也不能是好的",
+        "en": "The previous draft's “Relay”: two cards passing a frame on byte by byte, a broken frame never leaving intact"
+      },
+      "why": {
+        "zh": "一关里有三件新事：不等整帧收完就转发、在两种步调之间存下几个字节、把坏帧的校验弄坏再送出。在两块网卡之间存字节正是请求 card-ports 推给第 2 代的事，转发帧也正是第 2 代交换机的事，在那里和队列一起讲。第 1 代改由「回一声」用上网卡。",
+        "en": "It brought three new things in one level: forwarding before the whole frame is in, holding bytes between two paces, and spoiling the check of a broken frame on the way out. Holding bytes between two cards is what the card-ports request left to era 2, and forwarding frames is era 2's switch, taught there with the queue. In era 1 “Answer back” puts the card to use instead."
+      }
+    },
+    {
       "about": { "zh": "第 2 代 · 局域网", "en": "Era 2 · LAN" },
       "why": {
-        "zh": "总线、地址、撞车与退避、交换机、生成树；要整帧的线和网卡收进线里，等第 1 代上线后再写。",
-        "en": "Bus, addresses, collisions and backoff, switches, spanning tree; needs whole-frame wires with the card folded into them, written once era 1 is live."
+        "zh": "总线、地址、撞车与退避、交换机（转发帧在这里）、生成树；要整帧的线和网卡收进线里，等第 1 代上线后再写。",
+        "en": "Bus, addresses, collisions and backoff, switches (forwarding frames lives here), spanning tree; needs whole-frame wires with the card folded into them, written once era 1 is live."
       }
     },
     {
@@ -829,8 +1083,8 @@
     {
       "about": { "zh": "第 5 代 · 端到端", "en": "Era 5 · End to end" },
       "why": {
-        "zh": "端口、停等、滑动窗口、RTT 估计、握手、字节流分帧（长度前缀在这里）；兑现第 1 代「只查不补」。",
-        "en": "Ports, stop-and-wait, sliding window, RTT estimation, handshake, framing a byte stream (the length prefix lives here); it cashes in era 1's detect-but-do-not-resend."
+        "zh": "端口、停等、滑动窗口、RTT 估计、握手、字节流分帧（长度前缀在这里）；兑现第 1 代「只查不补」和「回一声」。",
+        "en": "Ports, stop-and-wait, sliding window, RTT estimation, handshake, framing a byte stream (the length prefix lives here); it cashes in era 1's detect-but-do-not-resend and its “Answer back”."
       }
     },
     {

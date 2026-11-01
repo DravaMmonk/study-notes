@@ -33,6 +33,8 @@ const misordered = (label, words, want, got) => T(
 export const checked = (level) => [...(level.wires?.out ?? []), ...(level.outputs ?? [])]
 
 const yes = (v) => v === 1 || v === true
+// Yes counts as 1 and no as 0 wherever a bit is wanted, as the parts' descriptions say.
+const same = (want, got) => want === got || (typeof got === 'boolean' && want === Number(got)) || (typeof want === 'boolean' && got === Number(want))
 
 export function runTest(level, circuit, test, parts) {
   const pulls = level.pulls
@@ -58,7 +60,7 @@ export function runTest(level, circuit, test, parts) {
       for (const o of checked(level)) {
         const w = want[o.name]?.ticks?.[t]
         const got = outputs[o.name] ?? null
-        if (w !== undefined && w !== got) {
+        if (w !== undefined && !same(w, got)) {
           fail = { tick: t, name: o.name, want: w, got }
           tick.failed = wrong(t, o.label, w, got)
           break
@@ -73,7 +75,7 @@ export function runTest(level, circuit, test, parts) {
     if (fail || !w?.order) continue
     const values = out.map((t) => t.outputs[o.name] ?? null)
     const got = w.far ? farEnd(w.far, values) : values.filter((v) => v !== null && v !== undefined)
-    if (JSON.stringify(got) !== JSON.stringify(w.order)) {
+    if (got.length !== w.order.length || got.some((v, k) => !same(w.order[k], v))) {
       fail = { name: o.name, want: w.order, got }
       final = misordered(o.label, w.words, w.order, got)
       break

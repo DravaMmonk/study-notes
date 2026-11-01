@@ -28,8 +28,18 @@ export function validate({ net }) {
     ref.runs.forEach((r, k) => {
       if (r.fail) problems.push(`the answer fails ${where(k)}${r.fail.tick !== undefined ? ` at tick ${r.fail.tick}` : ''} (${r.fail.name}: want ${JSON.stringify(r.fail.want)}, got ${JSON.stringify(r.fail.got)})`)
     })
-    // The empty board must fail, or the tests ask nothing.
-    if (runLevel(level, startBoard(level), partOf).pass) problems.push('the empty board passes')
+    // The empty board must fail, or the tests ask nothing; so must the board a level carries on from, or it asks
+    // nothing new; and so must every board that only wires one wire in or input straight to every output and wire
+    // out, unless that is the answer itself.
+    if (runLevel(all(level), startBoard(level), partOf).pass) problems.push('the empty board passes')
+    if (level.carry && runLevel(all(level), net.opening(level), partOf).pass) problems.push(`the board it carries on from (${level.carry}) passes as it is`)
+    if (level.solution.nodes.some((n) => !FIXED.includes(n.type))) {
+      const outs = portsOut(level).map((o) => o.name)
+      for (const from of portsIn(level).map((i) => i.name)) {
+        const through = { nodes: startBoard(level).nodes, wires: outs.map((to) => ({ from, to, port: 'in' })) }
+        if (runLevel(all(level), through, partOf).pass) problems.push(`the board that only wires ${from} straight through passes`)
+      }
+    }
     let naive = ''
     if (level.naive) {
       strays(level.naive, 'the naive answer')

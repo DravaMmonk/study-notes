@@ -4,7 +4,7 @@
 // head, and what each output and wire out should be, tick by tick, or in order) — and an attempt judged as a run
 // judges it: tick by tick, stopping at the first test it fails, the hidden tests run with it.
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
-import { startBoard, wiring } from './board.js'
+import { wiring } from './board.js'
 import { REGISTERS } from './parts.js'
 import { checked, runLevel, show } from './run.js'
 
@@ -46,7 +46,7 @@ export const play = circuitPlay({
     const net = game.net
     net.syncOwn(progress.built)
     const { shown, folded } = net.offerIn(level.source, flags)
-    return { start: startBoard(level.source), parts: wiring(level.source, net), types: [...shown, ...folded] }
+    return { start: net.opening(level.source, progress.built), parts: wiring(level.source, net), types: [...shown, ...folded] }
   },
   key: ({ game }, type) => (game.net.BUILT[type] ? type : `part:${type}`),
   settings: ({ game }, type) => (game.net.BUILT[type] ? [] : SETTINGS[type] ?? []),

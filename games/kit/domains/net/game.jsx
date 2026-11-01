@@ -49,6 +49,7 @@ export default function netGame(content) {
       title: L.title,
       kind: 'tick',
       unlocks: L.builds ? [L.builds.type] : [],
+      keeps: Boolean(L.builds) || net.carried.has(L.id),
       brief: L.brief,
       hint: L.hint,
       after: L.after,
