@@ -104,8 +104,8 @@ function Fields({ rows }) {
             </div>
           ) : r.as === 'lines' ? <Lines before={(r.before ?? []).join('\n')} after={(r.after ?? []).join('\n')} /> : (
             <div className="diff-value">
-              <del>{show(r.before)}</del>
-              <ins>{show(r.after)}</ins>
+              {r.before !== undefined && <del>{show(r.before)}</del>}
+              {r.after !== undefined && <ins>{show(r.after)}</ins>}
             </div>
           )}
         </div>
@@ -115,7 +115,11 @@ function Fields({ rows }) {
 }
 
 const pick = (v, side) => (v === undefined ? undefined : typeof v === 'string' ? v : v[side])
-const show = (v) => (v === undefined ? '—' : JSON.stringify(v))
+/** A value as JSON: on one line when it is short, indented when it is a long object or list. */
+const show = (v) => {
+  const line = JSON.stringify(v)
+  return line.length <= 100 || v === null || typeof v !== 'object' ? line : JSON.stringify(v, null, 2)
+}
 
 /** A text as a line a token (a word, a run of spaces, a Chinese character), for a diff word by word. */
 const tokens = (s) => (s ?? '').match(/[　-鿿＀-￯]|[^\S\n]+|\n|[^\s　-鿿＀-￯]+/g)?.map((t) => (t === '\n' ? '↵' : t)).join('\n') ?? ''
