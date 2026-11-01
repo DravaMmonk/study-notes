@@ -84,6 +84,12 @@ test('a built part runs the board its level was passed with, when that board rea
   try {
     syncOwn({ stamp: { stage: 0, boards: [offByOne] } });
     assert.notDeepEqual(answers(), rocks.expected);
+    // As an older save keeps it: no output node, every sensor on the view card.
+    const unfitted = { nodes: stamp.solution.nodes.filter(n => n.type !== 'out').map(n => (n.type === 'facts' ? null : n.type === 'view' ? { ...n, params: { picks: ['up', 'left', 'start'] } } : n)).filter(Boolean), wires: stamp.solution.wires.map(w => (w.from === 'facts#start' ? { ...w, from: 'view#start' } : w)) };
+    syncOwn({ stamp: { stage: 0, boards: [{ ...unfitted, nodes: unfitted.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) }] } });
+    assert.notDeepEqual(answers(), rocks.expected);
+    syncOwn({ stamp: { stage: 0, boards: [unfitted] } });
+    assert.deepEqual(answers(), rocks.expected);
     syncOwn({ stamp: { stage: 0, boards: [noStart] } });
     assert.deepEqual(answers(), rocks.expected);
   } finally {

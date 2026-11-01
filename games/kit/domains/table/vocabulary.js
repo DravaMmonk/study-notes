@@ -3,7 +3,8 @@
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
 // The items are implemented next to them: parts in model/parts.js, worlds in model/worlds/, robots in model/robots.js,
-// modes in ui/modes/, and the items content calls (figures, conditions, traces, panels, lessons, migrations) in items/.
+// modes in ui/modes/ (one screen each, ui/LevelScreen.jsx), and the items content calls (figures, conditions, traces,
+// panels, explains, migrations) in items/.
 
 import { S } from '../../engine/schema.js';
 import { defineVocabulary } from '../../engine/vocabulary.js';

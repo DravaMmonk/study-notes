@@ -74,14 +74,15 @@ export function syncOwn(built = {}) {
   OWN.clear();
   for (const [id, kept] of Object.entries(built)) { const b = kept?.boards?.at(-1); if (b?.nodes) OWN.set(id, b); }
 }
-// A kept board that does not read exactly the part's ports (one kept from before the part had them, an older save)
-// cannot be the part: the part runs the level's reference board until the level is passed again.
+// A kept board is fitted to its stage first (a board kept by an older save may lack what the stage gives, its output
+// among them). One that does not read exactly the part's ports then (kept from before the part had them) cannot be
+// the part: the part runs the level's reference board until the level is passed again.
 const fits = new WeakMap();
 const ownBoard = (id, s) => {
   const b = OWN.get(id);
   if (!b) return s.solution;
-  if (!fits.has(b)) fits.set(b, !portsProblem(b, s.ports));
-  return fits.get(b) ? b : s.solution;
+  if (!fits.has(b)) { const f = fitted(b, s.given); fits.set(b, portsProblem(f, s.ports) ? null : f); }
+  return fits.get(b) ?? s.solution;
 };
 // The engine finds a packed board's output by its name (params.name): an output node's is its id.
 const named = new WeakMap();
@@ -183,6 +184,7 @@ export function tableCourse(content) {
       name: PARTS[L.unlock]?.name ?? L.unlock, desc: PARTS[L.unlock]?.desc ?? '', level: L.id,
       ins: ports.map(p => p.type), labels: ports.map(p => p.short), portLabels: ports.map(p => p.label), sensors: ports.map(p => p.sensor), inputs: ports.map(p => p.input),
       out: out[0], outType: out[3], setting: L.builds.setting,
+      board: () => ownBoard(L.id, s),
       part: {
         ...packed({ circuit: () => asPacked(ownBoard(L.id, s)), inputs: ports.map((_, k) => String(k)), outputs: [out[0]], inside: ctx => ({ ...ctx, ports: index }) }),
         params: L.builds.setting !== undefined ? ['value'] : [],

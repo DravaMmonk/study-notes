@@ -81,8 +81,6 @@ export const PART_LOOKS = {
 const lookKey = kind => (PART_LOOKS[kind] ? kind : 'part');
 const markup = kind => PART_LOOKS[lookKey(kind)];
 
-/** A part's look as SVG markup, for the mode's own HTML (sheets). */
-export const lookSVG = (kind, cls = 'plook') => `<svg class="${cls}" viewBox="0 0 32 32" aria-hidden="true">${markup(kind)}</svg>`;
 
 // A part's look as an icon component for the circuit kit (its Glyph draws a component at the size it asks for), one
 // per part so React keeps it from render to render.

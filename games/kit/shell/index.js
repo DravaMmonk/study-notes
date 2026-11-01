@@ -33,7 +33,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   progress      { version, migrate(saved), legacy() } for saves from older versions or keys
  *   parts         the components box (元件箱) { all: [{ key, name, desc?, icon?, family?, at? }] (a built part's key is
  *                 the flag earning it; a primitive has `at`, the levels that bring it in, and is earned once one is open),
- *                 demo?(part, { phone }) → the part on a bench to try (React; games/kit/circuit DemoBench),
+ *                 demo?(part, { phone, progress }) → the part on a bench to try (React; games/kit/circuit DemoBench),
  *                 filters?(progress) → [{ key, name, icon?, lock?, keys }] to narrow the box, such as by robot }
  *   unlocked(level)  what passing a level unlocks [{ label, icon?, family? }] for the passed dialog
  *   passed(level)    more for the passed dialog, after the level's key idea (React), such as what the level built
