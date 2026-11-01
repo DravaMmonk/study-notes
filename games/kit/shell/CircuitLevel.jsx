@@ -1,8 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
-import { InsideBoard, InsidePhone, PackedTools } from '../circuit/Inside.jsx'
-import { insideAt } from '../engine/trace.js'
+import { InsideBoard, InsidePhone, PackedTools, insideOf } from '../circuit/Inside.jsx'
 import { L, tr } from './i18n.js'
 import { Brief, PhonePage, Text } from './Layout.jsx'
 import RunDock from './RunDock.jsx'
@@ -130,9 +129,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
 
 const T = (zh, en) => ({ zh, en })
 const EMPTY = T('从上方元件栏选择元件放到板上，再从元件右侧的圆点连线到另一元件左侧的圆点。', 'Add a part from the row above, then drag from a dot on its right side to a dot on another part’s left side.')
-const nothing = { values: new Map(), errors: new Map(), lit: null }
-// An unfolded packed part is at least this wide on a desktop, to show the board inside it.
-const OPEN_W = 440
+const nothing = { values: new Map(), errors: new Map() }
 
 /**
  * The level on the screen: a desktop's workbench or a phone's page (Workbench.jsx, Layout.jsx PhonePage).
@@ -173,39 +170,10 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
     return text ? <Text game={game} className="cl-desc" text={text} /> : null
   }
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
-  const isPacked = (node, at) => Boolean(packed && given.packed?.(node) !== false && packed.open(node, at))
-  const widen = (parts, at) => (packed ? { ...parts, cardWidth: (n) => { const w = parts.cardWidth?.(n); return n.open && isPacked(n, at) ? Math.max(w ?? 0, OPEN_W) : w } } : parts)
   const top = { circuit, parts: given, top: true }
-  const parts = widen(given, top)
-  // The traced evaluation the board shows, asked for only once a packed part is open.
-  let traced
-  const traceOf = () => (traced === undefined ? (traced = packed.trace?.() ?? null) : traced)
-  const boards = new Map([['', top]])
-  const boardAt = (path) => {
-    const key = path.join('/')
-    if (!boards.has(key)) {
-      const outer = boardAt(path.slice(0, -1))
-      const node = outer?.circuit.nodes.find((n) => n.id === path.at(-1))
-      boards.set(key, node ? packed.open(node, outer) : null)
-    }
-    return boards.get(key)
-  }
-  const inside = packed && {
-    at: (path) => {
-      const at = boardAt(path)
-      const t = at && traceOf()
-      return at && { ...at, view: t ? insideAt(t.trace, path, t) : nothing }
-    },
-    is: isPacked,
-    edit: (node, at) => packed.edit(node, at),
-    widen,
-    card,
-    width: canvas.width ?? 140,
-    height: canvas.height,
-    dense,
-    describe: (node, ctx) => describeOf(node, ctx),
-    sheet: (node, ctx) => (sheet ?? card.body)?.(node, ctx) ?? null,
-  }
+  const inside = packed && insideOf({ top, ...packed, card, width: canvas.width ?? 140, height: canvas.height, dense, describe: describeOf, sheet: sheet ?? card.body })
+  const isPacked = (node, at) => Boolean(inside?.is(node, at))
+  const parts = inside ? inside.widen(given, top) : given
   const ctx = { view, board: top, path: [], readOnly: false }
 
   const all = [...items, ...folded]

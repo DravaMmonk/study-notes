@@ -6,6 +6,7 @@ import Sheet from '../shell/Sheet.jsx'
 import CanvasEditor from './CanvasEditor.jsx'
 import PartActions from './PartActions.jsx'
 import SlotBoard from './SlotBoard.jsx'
+import { insideAt } from '../engine/trace.js'
 
 // The board a packed part runs (a part the player built: engine/boards.js packed), opened on the board it sits on, the
 // same in every game (games/DESIGN.md 6.3, 封装件能打开看里面). It is read only: on a desktop the part's card unfolds
@@ -13,13 +14,64 @@ import SlotBoard from './SlotBoard.jsx'
 // the part's latest run so far (engine/trace.js insideAt), the card the current step is in or computing lit; a packed
 // part on it opens the same way, here only (not saved).
 //
-// `inside` is what the circuit level screen gives them (shell/CircuitLevel.jsx):
-//   at(path)            the board at `path` (the ids of the parts it is in, outermost first, and its own):
-//                       { circuit, parts, view: { values, errors, lit }, …the domain's own } or null
-//   is(node, board), edit(node, board)   whether a card is a packed part that opens; go to the level that builds it
-//   card                the domain's card faces, each (node, ctx), ctx = { view, board, path, readOnly }
-//   describe, sheet     a part's description and its sheet's body on a phone, (node, ctx)
-//   width, height, dense, game
+// `inside` (insideOf) says what each packed part runs and how a card on it is drawn.
+
+const nothing = { values: new Map(), errors: new Map(), lit: null }
+// An unfolded packed part is at least this wide on a desktop, to show the board inside it.
+const OPEN_W = 440
+
+/**
+ * What the boards inside packed parts show, from the board they sit on (`top`: { circuit, parts, … }):
+ *
+ *   open(node, board) → { circuit, parts, … } the board a packed part on `board` runs (null: not a packed part)
+ *   edit(node, board)  go to the level that builds it
+ *   trace?() → { trace, upTo?, step? } the traced evaluation the top board shows now (engine/circuit.js ctx.trace),
+ *              asked for once a part is open; without it the boards inside show how they are wired, without values
+ *   card       a card's faces, each (node, ctx), ctx = { view, board, path, readOnly } (shell/CircuitLevel.jsx)
+ *   describe, sheet (node, ctx)   a part's description and its sheet's body, on a phone
+ *   width, height, dense          the cards' width, the board's height for fitting; a phone board of text
+ *
+ * Returns { at(path) → the board at `path` (the ids of the parts it is in, outermost first, and its own) with its
+ * `view` ({ values, errors, lit }) or null, is(node, board), edit, widen(parts, board) (an unfolded part made wide
+ * enough to show its board), … }.
+ */
+export function insideOf({ top, open, edit, trace, card, describe = () => null, sheet = () => null, width = 140, height, dense = true }) {
+  const boards = new Map([['', top]])
+  const boardAt = (path) => {
+    const key = path.join('/')
+    if (!boards.has(key)) {
+      const outer = boardAt(path.slice(0, -1))
+      const node = outer?.circuit.nodes.find((n) => n.id === path.at(-1))
+      boards.set(key, node ? open(node, outer) : null)
+    }
+    return boards.get(key)
+  }
+  let traced
+  const traceOf = () => (traced === undefined ? (traced = trace?.() ?? null) : traced)
+  const is = (node, at) => Boolean(open(node, at))
+  return {
+    at: (path) => {
+      const at = boardAt(path)
+      const t = at && traceOf()
+      return at && { ...at, view: t ? insideAt(t.trace, path, t) : nothing }
+    },
+    is,
+    edit,
+    widen: (parts, at) => ({ ...parts, cardWidth: (n) => { const w = parts.cardWidth?.(n); return n.open && is(n, at) ? Math.max(w ?? 0, OPEN_W) : w } }),
+    card: { wireState: (wire, ctx) => (ctx.view.values.get(wire.from) !== undefined ? 'live' : 'dead'), ...card },
+    describe: (node, ctx) => describe(node, ctx) ?? null,
+    sheet: (node, ctx) => sheet?.(node, ctx) ?? null,
+    width,
+    height,
+    dense,
+  }
+}
+
+/** A packed part's board on its own, read only (the components box): the board inside it, opened at its root. */
+export function PackedBoard({ phone, ...opts }) {
+  const inside = insideOf(opts)
+  return phone ? <InsidePhone inside={inside} path={[]} /> : <InsideBoard inside={inside} path={[]} />
+}
 
 const stop = (event) => event.stopPropagation()
 const ctxOf = (at, path) => ({ view: at.view, board: at, path, readOnly: true })
