@@ -207,6 +207,7 @@ const CIRCUIT = {
   checkAll: S.opt(S.bool({ about: t('逐格判对错，不只看答案', 'grade every cell, not just the answer') })),
   noTrace: S.opt(S.bool({ about: t('失败时不指出第一处算错的格子', 'on a failure, do not point at the first cell gone wrong') })),
   consts: S.opt(S.list(S.num(), { about: t('常数能选的值', 'the values a constant offers') })),
+  showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
 };
 /** What one stage is (a level of one stage writes it among its own fields): its world and that world's parameters. */
 const stageOf = (name, w, shared = false) => ({

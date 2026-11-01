@@ -7,7 +7,7 @@ import { packed } from '../../engine/boards.js';
 import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } from '../../course.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { BUILT, isGiven, modelsOf } from './model/parts.js';
-import { fitted, fromText, splitSrc } from './model/board.js';
+import { fitted, fromText, portsProblem, splitSrc } from './model/board.js';
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { runCircuit } from './model/run.js';
@@ -74,6 +74,15 @@ export function syncOwn(built = {}) {
   OWN.clear();
   for (const [id, kept] of Object.entries(built)) { const b = kept?.boards?.at(-1); if (b?.nodes) OWN.set(id, b); }
 }
+// A kept board that does not read exactly the part's ports (one kept from before the part had them, an older save)
+// cannot be the part: the part runs the level's reference board until the level is passed again.
+const fits = new WeakMap();
+const ownBoard = (id, s) => {
+  const b = OWN.get(id);
+  if (!b) return s.solution;
+  if (!fits.has(b)) fits.set(b, !portsProblem(b, s.ports));
+  return fits.get(b) ? b : s.solution;
+};
 // The engine finds a packed board's output by its name (params.name): an output node's is its id.
 const named = new WeakMap();
 const asPacked = b => {
@@ -175,7 +184,7 @@ export function tableCourse(content) {
       ins: ports.map(p => p.type), labels: ports.map(p => p.short), portLabels: ports.map(p => p.label), sensors: ports.map(p => p.sensor), inputs: ports.map(p => p.input),
       out: out[0], outType: out[3], setting: L.builds.setting,
       part: {
-        ...packed({ circuit: () => asPacked(OWN.get(L.id) ?? s.solution), inputs: ports.map((_, k) => String(k)), outputs: [out[0]], inside: ctx => ({ ...ctx, ports: index }) }),
+        ...packed({ circuit: () => asPacked(ownBoard(L.id, s)), inputs: ports.map((_, k) => String(k)), outputs: [out[0]], inside: ctx => ({ ...ctx, ports: index }) }),
         params: L.builds.setting !== undefined ? ['value'] : [],
         idle: port => idle(ports[+port].type),
       },
@@ -215,6 +224,8 @@ export function tableCourse(content) {
     // What a level's reference boards use (the parts placed, not what the level gives), and what it folds anyway.
     needed: l => { const sols = stagesFlat(byId.get(l.id)).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(b => b.nodes.filter(n => !isGiven(n.type)).map(n => n.type)) : null; },
     folds: l => byId.get(l.id).fold || [],
+    showcase: l => byId.get(l.id).showcase ?? null,
+    abstraction: true,
   });
 
   // A stage's palette is everything it can hold (../../course.js reach): the parts its level brings in up to this stage,

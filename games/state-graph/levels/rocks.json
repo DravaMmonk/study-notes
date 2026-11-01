@@ -72,7 +72,6 @@
   },
   "robot": "scout",
   "adds": ["block"],
-  "unlock": "rock",
   "hints": [
     {
       "zh": "路线不能经过石头。从起点走到石头格，有几条走得通的路线？",

@@ -69,6 +69,10 @@
     }
   },
   "robot": "scout",
+  "showcase": {
+    "zh": "第一次往板上放元件：元件放在输入和输出之间，一根线接进它的一个口，它的输出口再接出去；汇合器把几条来路收成一个数",
+    "en": "the first part ever placed on a board: a part sits between the inputs and the output, wires go into its ports and out of its output; a Merger gathers several ways in into one number"
+  },
   "adds": ["msum"],
   "guide": [
     {

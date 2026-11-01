@@ -16,13 +16,6 @@
         "en": "Adds up the numbers on its two ways in, plus 1 when its “start” port is “yes”. A “—” is left out; with nothing to add, it outputs “—”."
       }
     },
-    "rock": {
-      "name": { "zh": "拦截闸", "en": "Block Gate" },
-      "desc": {
-        "zh": "条件是「是」时输出「—」；否则把另一个口收到的信号原样放过去。",
-        "en": "Outputs “—” when its condition is “yes”; otherwise lets whatever reaches its other port through unchanged."
-      }
-    },
     "order": {
       "name": { "zh": "填表顺序", "en": "Fill Order" },
       "desc": {
@@ -380,7 +373,8 @@
               }
             }
           }
-        }
+        },
+        { "built": ["stamp", "slantcost", "edit", "knaptable", "stones", "value"] }
       ]
     }
   ],

@@ -71,3 +71,22 @@ test('migration items are the functions the shared save steps run', () => {
   assert.deepEqual(step.ops[0], { rename: { a: 'b' } });
   assert.equal(typeof step.ops[1].data, 'function');
 });
+
+test('a built part runs the board its level was passed with, when that board reads exactly the part’s ports', async () => {
+  const { readContent } = await import('../../engine/content-node.js');
+  const { tableCourse, syncOwn, run } = await import('./course.js');
+  const { WORLDS } = await import('./model/worlds.js');
+  const { LEVELS } = tableCourse(readContent('state-graph'));
+  const stamp = LEVELS.find(L => L.id === 'stamp').stages.at(-1), rocks = LEVELS.find(L => L.id === 'rocks').stages.at(-1);
+  const V = WORLDS[rocks.world], answers = () => rocks.tests.map(t => run(V, t, rocks.solution, rocks).value);
+  const offByOne = { ...stamp.solution, nodes: stamp.solution.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) };
+  const noStart = { ...stamp.solution, wires: stamp.solution.wires.filter(w => w.from !== 'facts#start') };
+  try {
+    syncOwn({ stamp: { stage: 0, boards: [offByOne] } });
+    assert.notDeepEqual(answers(), rocks.expected);
+    syncOwn({ stamp: { stage: 0, boards: [noStart] } });
+    assert.deepEqual(answers(), rocks.expected);
+  } finally {
+    syncOwn({});
+  }
+});
