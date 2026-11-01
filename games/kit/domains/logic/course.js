@@ -1,27 +1,32 @@
-// A course of logic levels, from a game's spec (《证明完毕》): the play order and the tree from its eras
-// (../../course.js layout), each level's number and the parts it can really offer, and the lemmas its levels build
-// (proof.js lemma): a level with `builds: '<type>'` makes the lemma spec.lemmas[type] a part once solved.
+// A logic game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be in
+// it): the play order and the tree from its eras (../../course.js layout), each level's number and the parts it can
+// really offer, its reference and naive answers as the boards they write (blueprint.js), and the parts its levels build:
+// a proof level with `builds` makes the lemma game.json lemmas[type] a part, a truth circuit a gate (gates.js
+// builtGates), a machine level a machine part (machine.js builtParts); gates and machine parts run the player's board.
 import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usable } from '../../course.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
-import { axiomPartsOf, builtParts, rulePartsOf, wireRules } from './machine.js'
+import { MACHINE_PARTS, axiomPartsOf, builtParts, rulePartsOf, startMachine } from './machine.js'
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
+import { startProof } from './proof.js'
+import { PRIMITIVE_GATES, builtGates, startGates } from './gates.js'
+import { boardOf } from './ruleLines.js'
+import { fromLines, gateShape, machineShape, proofShape } from './blueprint.js'
 
-// Every rule a proof uses, in the boxes too; a machine card that names rules (a rule, a rewrite, simp's list) uses the
-// lemmas they are shapes of.
 /** The ids of the cards a level presets on its board. */
-export const presetIds = (level) => (level.preset ?? []).map((item) => item.id ?? item)
+export const presetIds = (level) => level.preset ?? []
 const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 
 /**
- * spec: {
+ * content (../../engine/content.js assemble; the fields are vocabulary.js GAME): {
  *   eras        the course's eras, one proof machine each (games/DESIGN.md 2), each with its map chapter
- *               { title, desc }; a topic has a `code` for its numbers
- *   levels      every level, in any order; a level may introduce connective symbols (`symbols`), see notation.js
- *   words       { letter: { zh, en } } the everyday sentence each letter reads as, in every level
+ *               { title, question }; a topic has a `code` for its numbers
+ *   levels      every level; a level may introduce connective symbols (`symbols`), see notation.js
+ *   words       the word sets (wordSets, by name, merged in order) every level reads its letters, predicates and
+ *               names in, unless it names its own (`words`): { letter: { zh, en } } the everyday sentence each reads as
  *
  * A proof level is a schema: its test (`tests: [{ premises, goal }]`) is written in letters, and each test case
  * (`cases`) fills the letters in with sentences ({ A: 'Rain', B: 'Wet' }, a
@@ -32,12 +37,11 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  *   facts       { type: { name, desc, statement } } the equations the player proves on the machine board (chapter 12
  *               on): a machine level with `fact` one of them proves it, and from then on it is a rule and a rewrite rule
  *               of the rule book of numbers (machine.js MATH), in every level after that one (`proven`)
- *   gates       { type: { name, desc, ports, f } } the gates the player builds on a truth circuit (gates.js)
+ *   gates       { type: { name, desc, ports } } the gates the player builds on a truth circuit (gates.js)
  *   revisions   { type: [{ at | by: level id, desc?, forms? }] } a part's description as it grows along the course,
  *               and the shapes (forms) an upgrade earned at `by` adds to its card
  *   machines    [type] the machine-board parts the player builds (machine.js, named in ui/catalog.js MACHINE_TEXT): a
- *               level with `builds` one of them unlocks it, its built-in implementation checked by that level's tests
- *   replaces    { part: [part] } a part that takes the place of others: from its level on, those leave the tray
+ *               level with `builds` one of them unlocks it, and the part runs that level's board
  *   local       [part] parts that stay in the levels that bring them, never unlocked or carried on (../../course.js)
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
@@ -46,16 +50,19 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  * level with what the task changes, read like a level of its own, and the last is the level itself (its reference
  * answer is the level's). A task in another kind than the level's parts names the parts it holds (`parts: [part]`, the
  * ones the player has), as a truth circuit that translates a puzzle before the proof does.
- * A level may start its board with part of its reference answer in place (`preset: [id | { id, fixed }]`, the
- * answer's ids): those cards, and the answer's wires between them and the board's own inputs and outputs, are locked
- * (../../circuit/model.js): moved, never deleted or rewired; `fixed` fixes a card's settings too (true, or [key]).
- * presetIds(level) lists the ids.
+ * A reference or naive answer on a circuit board (a proof, a machine, a truth circuit) is blueprint text; a
+ * declaration's is its rules as the rule table writes them (ruleLines.js lines), and its someone-else's declarations
+ * (`boards`) too.
+ * A level may start its board with part of its reference answer in place (`preset: [id]`, the answer's ids): those
+ * cards, and the answer's wires between them and the board's own inputs and outputs, are locked
+ * (../../circuit/model.js): moved, never deleted or rewired. presetIds(level) lists the ids.
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
  * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
  * A level names only the parts it brings in (`adds`): every part met or built before it in its era carries into it,
  * and across eras what each era keeps (../../course.js); and what it
  * folds away (`fold`); see ../../course.js reach and offer.
- * Returns { LEVELS, CHAPTERS, LABELS, course, usableIn(level, flags), offerIn(level, flags) }.
+ * Returns { LEVELS, CHAPTERS, LABELS, course, usableIn(level, flags), offerIn(level, flags), machines, revisions,
+ * wrong: what reading the content found wrong }.
  */
 // A proof level's tests from its schema and cases (see logicCourse), and the schema kept for the cards' choices.
 function expand(level, notation) {
@@ -124,7 +131,25 @@ function proofBrief(schema, level, notation) {
   }
 }
 
-export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, replaces = {}, local = [], revisions = {} }) {
+/** Words: the word sets named (by name, or written out), merged in order. */
+const wordsOf = (list, sets) => Object.assign({}, ...list.map((w) => (typeof w === 'string' ? sets[w] : w)))
+
+/** A declaration's answers as boards (ruleLines.js boardOf): its reference and naive rules (an audit's naive answer
+ *  is cases instead), and the declarations someone else wrote (`boards`). */
+function declaredBoards(one) {
+  const declared = (field) => (one[field]?.every((r) => r.needs) ? { [field]: boardOf(one[field]) } : {})
+  return { ...one, ...declared('solution'), ...declared('naive'), ...(one.boards ? { boards: one.boards.map(({ rules, ...rest }) => ({ ...rest, board: boardOf(rules) })) } : {}) }
+}
+
+export function logicCourse(content) {
+  const { eras, wordSets = {}, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, local = [], revisions = {} } = content
+  const words = wordsOf(content.words, wordSets)
+  // A level as the course reads it: its words, and a declaration's answers as boards (a level of several tasks says
+  // the declaration its tasks share).
+  const reading = (l, iso) => ({ ...(iso ? declaredBoards(l) : l), ...(l.words ? { words: wordsOf(l.words, wordSets) } : {}) })
+  const levels = content.levels.map((l) => (l.tasks ? { ...reading(l, l.tasks.some((t) => t.kind === 'iso')), tasks: l.tasks.map((t) => reading(t, t.kind === 'iso')) } : reading(l, l.kind === 'iso')))
+  // What reading the content finds wrong with it beyond its schema (validate.js reports it).
+  const wrong = []
   const built = (p) => Boolean(lemmas[p] || gates[p] || machines.includes(p))
   // One name, one part: a lemma, a gate and a machine part sharing a type would unlock and show as each other.
   const clash = machines.filter((p) => lemmas[p] || gates[p]).concat(Object.keys(lemmas).filter((p) => gates[p]))
@@ -152,6 +177,33 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     ...(l.defs || l.stated ? { defs: [...(l.defs ?? []).flatMap((n) => lookUp(declared.defs, n, 'the function', id).eqs), ...(l.stated ?? [])] } : {}),
   })
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
+  // The gates the levels build, filled in once the levels that build them are read (builtGates); a board of gates is
+  // read by their ports alone.
+  const builtG = {}
+  const gatePorts = Object.fromEntries(Object.entries(gates).map(([type, g]) => [type, { inputs: g.ports }]))
+  /** A board some blueprint lines write, on what the level gives (an empty one, its fault said, when they cannot be read). */
+  const board = (one, field, start, shape, types) => {
+    try {
+      return fromLines(one[field], start, shape, types)
+    } catch (e) {
+      wrong.push(`${one.id}: its ${field}: ${e.message}`)
+      return start
+    }
+  }
+  // A task's answers as boards: a proof's and a truth circuit's here, a machine's once its rule book is known (below).
+  const answers = (one) => {
+    const read = (field, start, shape, types) => (one[field] ? { [field]: board(one, field, start, shape, types) } : {})
+    if (one.kind === 'proof') {
+      const shape = proofShape(lemmas)
+      return { ...one, ...read('solution', startProof(one), shape, Object.keys(shape.rules)), ...read('naive', startProof(one), shape, Object.keys(shape.rules)) }
+    }
+    if (one.kind === 'gates') {
+      const shape = gateShape(gatePorts)
+      const types = [...Object.keys(PRIMITIVE_GATES), ...Object.keys(gates)]
+      return { ...one, ...read('solution', startGates(one), shape, types), ...read('naive', startGates(one), shape, types) }
+    }
+    return one
+  }
   // A level writes formulas in its own words (notation.js) and with every symbol introduced by then: the symbols of
   // the levels before it in play order, and its own.
   let known = []
@@ -164,7 +216,7 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
       const notation = { words: l.words ?? level.words ?? words, symbols: known, propertyWords: l.propertyWords ?? level.propertyWords ?? l.kind === 'proof' }
       const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return { ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates, revisions, notation }
+      return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, facts, gates: builtG, revisions, notation })
     }
     if (!level.tasks) return read(level)
     // What the level builds or proves comes of its last task, the level itself.
@@ -202,7 +254,6 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     concept: (p) => concept[p] ?? (axioms.includes(p) ? null : p),
     adds: (l) => byId.get(l.id).adds,
     needs: (p) => (built(p) ? `lemma:${p}` : null),
-    replaces: (p) => replaces[p] ?? [],
     local: (p) => local.includes(p) || axioms.includes(p),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
@@ -244,19 +295,23 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
       ]]))
     }
   }
-  // Reference answers name each card's rules on it, short (machine.js wireRules): put on the board as rule parts, now
-  // that each level's rule book is known.
+  // A machine's answers are read now that its rule book, and so its rule parts, are known.
   for (const one of LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine')) {
-    one.solution = wireRules(one.solution, one)
-    one.naive = wireRules(one.naive, one)
+    const shape = machineShape(one)
+    const types = [...Object.keys(MACHINE_PARTS), ...shape.ruleParts.keys()]
+    for (const field of ['solution', 'naive']) if (one[field]) one[field] = board(one, field, startMachine(one), shape, types)
   }
+  // The gates the levels build run their boards (gates.js builtGates).
+  Object.assign(builtG, builtGates(gates, Object.fromEntries(LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'gates' && gates[t.builds]).map((t) => [t.builds, t]))))
   // The machine parts the player builds run the boards that built them (machine.js builtParts), on every machine
   // board and in every script.
   // A part built by several levels is a chain of upgrades (games/DESIGN.md): a level holds it as the levels of the chain
   // up to it built it, and an upgrade starts from it as the levels before it left it (`upgrades`, the part's state).
   const builders = LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'machine' && machines.includes(t.builds))
     .sort((a, b) => (course.before(a.id, b.id) ? -1 : course.before(b.id, a.id) ? 1 : 0))
-  const chains = Map.groupBy(builders, (b) => b.builds)
+  // (No Map.groupBy: older iOS Safari has none.)
+  const chains = new Map()
+  for (const b of builders) chains.set(b.builds, [...(chains.get(b.builds) ?? []), b])
   const upTo = (id, strict) => [...chains.values()].map((chain) => {
     const some = chain.filter((b) => (b.id === id ? !strict : course.before(b.id, id)))
     return strict ? some : some.length ? some : chain
@@ -289,5 +344,5 @@ export function logicCourse({ eras, levels, words = null, lemmas = {}, facts = {
     const { shown, folded, ...rest } = offer(course, { id: level.id }, flags, proved(level))
     return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
   }
-  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions }
+  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions, wrong }
 }

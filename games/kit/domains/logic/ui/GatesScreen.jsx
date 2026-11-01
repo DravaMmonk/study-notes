@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { ArrowRightFromLine, CircleDot, Cpu, ToggleLeft } from 'lucide-react'
+import { ArrowRightFromLine, CircleDot, CircuitBoard, ToggleLeft } from 'lucide-react'
 import { Brief, PhonePage, RunDock, TestStatus, Workbench, usePlayback } from '../../../shell/index.js'
 import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
@@ -8,6 +8,8 @@ import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
+import { gateShape } from '../blueprint.js'
+import { syncOwn } from '../built.js'
 
 // A truth-circuit level (《证明完毕》, gates.js) on the shared circuit editor: a card for each letter on the left, the
 // sentence's output on the right, gates as parts. The tests are the rows of the sentence's truth table, picked in the table itself (no row tabs, whose labels would
@@ -26,12 +28,13 @@ const SOURCE = T('输入', 'Input')
 function gatePartsFor(built, wordOf) {
   const all = gatesOf(built)
   return {
-    inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'letter' ? [] : all[node.type]?.ports ?? []),
-    role: (node) => (node.type === 'letter' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
+    ...gateShape(built),
     label: (node) => (node.type === 'letter' ? wordOf(node.params.name) ?? SOURCE : node.type === 'out' ? T('这句话', 'The sentence') : all[node.type]?.name ?? node.type),
     portLabel: (node, port) => (all[node.type] && all[node.type].ports.length > 1 ? port : ''),
     family: (node) => (node.type === 'letter' ? 'given' : node.type === 'out' ? 'end' : PRIMITIVE_GATES[node.type] ? 'gate' : 'built'),
-    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : Cpu),
+    // A gate the player built runs the board that built it: a packed part.
+    packed: (node) => Boolean(all[node.type]?.built),
+    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : CircuitBoard),
     cardWidth: (node) => (node.type === 'letter' || node.type === 'out' ? 170 : 140),
     rules: all,
   }
@@ -43,8 +46,10 @@ const fits = (circuit, level, parts) => {
   return letters === [...rowsFor(level).letters].sort().join() && circuit.nodes.every((n) => n.type === 'letter' || n.type === 'out' || parts.rules[n.type])
 }
 
-export default function GatesScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, phone }) {
+export default function GatesScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, flags, progress, phone }) {
   const level = entry.source
+  // The gates the player built run the boards that last passed their levels.
+  syncOwn(progress.built)
   const word = (letter) => say(parse(letter), level.notation)
   const parts = useMemo(() => gatePartsFor(level.gates, word), [level])
   const [circuit, setCircuit] = useState(() => (saved?.nodes && fits(saved, level, parts) ? saved : startGates(level)))
@@ -96,7 +101,7 @@ export default function GatesScreen({ game, level: entry, saved, save, solve, la
   const valueOf = (node) => (node.type === 'out' ? view.value : view.values.get(node.id))
   const errorOf = (node) => view.errors.get(node.id)
 
-  const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), fresh: entry.fresh?.includes(type) })
+  const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), packed: Boolean(parts.rules[type].built), fresh: entry.fresh?.includes(type) })
   const items = palette.filter((t) => parts.rules[t]).map(itemOf)
   const foldedItems = folded.filter((t) => parts.rules[t]).map(itemOf)
   const types = [...palette, ...folded].filter((t) => parts.rules[t])

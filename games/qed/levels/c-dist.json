@@ -1,0 +1,120 @@
+{
+  "title": { "zh": "分配律", "en": "Distribution" },
+  "builds": "dist",
+  "intro": [
+    {
+      "t": {
+        "zh": "「下雨，或者又刮风又地湿」和「下雨或刮风，并且下雨或地湿」是一回事：「或者」分配到「并且」上，就像乘法分配到加法上。「并且」在右边、在左边各一对，共四个方向。",
+        "en": "“It rains, or it is windy and wet” and “it rains or is windy, and it rains or is wet” say the same: “or” distributes over “and”, as multiplication does over addition. With the “and” on the right and on the left, that makes two pairs, four directions."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "分到右边", "en": "Out over the right" },
+      "tests": [{ "premises": { "p": "A ∨ (B ∧ C)" }, "goal": "(A ∨ B) ∧ (A ∨ C)" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
+      "hint": [{ "zh": "已知是一句「或者」。", "en": "The given is an “or”." }],
+      "solution": [
+        "e = orE(p, left: c1, right: c2) {",
+        "  left {",
+        "    i1 = orI[other=B, side=right](e.left)",
+        "    i2 = orI[other=C, side=right](e.left)",
+        "    c1 = andI(i1, i2)",
+        "  }",
+        "  right {",
+        "    s = andE(e.right)",
+        "    j1 = orI[other=A, side=left](s.left)",
+        "    j2 = orI[other=A, side=left](s.right)",
+        "    c2 = andI(j1, j2)",
+        "  }",
+        "}",
+        "goal <- e"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "合回来", "en": "Back together" },
+      "tests": [{ "premises": { "p": "(A ∨ B) ∧ (A ∨ C)" }, "goal": "A ∨ (B ∧ C)" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
+      "hint": [
+        { "zh": "拆开「并且」，得到两句「或者」。", "en": "Split the “and” into its two “or”s." },
+        {
+          "zh": "两句「或者」先后分情况。只有两句都不给出「下雨」时，才要「刮风 ∧ 地湿」。",
+          "en": "Take cases on the two “or”s in turn. Only when neither gives “it rains” is “it is windy ∧ the ground is wet” needed."
+        }
+      ],
+      "solution": [
+        "s = andE(p)",
+        "o1 = orE(s.left, left: i1, right: o2) {",
+        "  left {",
+        "    i1 = orI[other=\"B & C\", side=right](o1.left)",
+        "  }",
+        "  right {",
+        "    o2 = orE(s.right, left: i2, right: i3) {",
+        "      left {",
+        "        i2 = orI[other=\"B & C\", side=right](o2.left)",
+        "      }",
+        "      right {",
+        "        c = andI(o1.right, o2.right)",
+        "        i3 = orI[other=A, side=left](c)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- o1"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "分到左边", "en": "Out over the left" },
+      "tests": [{ "premises": { "p": "(A ∧ B) ∨ C" }, "goal": "(A ∨ C) ∧ (B ∨ C)" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
+      "hint": [{ "zh": "和第一段一样，只是左右换了。", "en": "As in the first task, left and right swapped." }],
+      "solution": [
+        "e = orE(p, left: c1, right: c2) {",
+        "  left {",
+        "    s = andE(e.left)",
+        "    i1 = orI[other=C, side=right](s.left)",
+        "    i2 = orI[other=C, side=right](s.right)",
+        "    c1 = andI(i1, i2)",
+        "  }",
+        "  right {",
+        "    j1 = orI[other=A, side=left](e.right)",
+        "    j2 = orI[other=B, side=left](e.right)",
+        "    c2 = andI(j1, j2)",
+        "  }",
+        "}",
+        "goal <- e"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "合回来（左边）", "en": "Back together, on the left" },
+      "tests": [{ "premises": { "p": "(A ∨ C) ∧ (B ∨ C)" }, "goal": "(A ∧ B) ∨ C" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
+      "hint": [{ "zh": "和第二段一样，只是左右换了。", "en": "As in the second task, left and right swapped." }],
+      "solution": [
+        "s = andE(p)",
+        "o1 = orE(s.left, left: o2, right: i3) {",
+        "  left {",
+        "    o2 = orE(s.right, left: i1, right: i2) {",
+        "      left {",
+        "        c = andI(o1.left, o2.left)",
+        "        i1 = orI[other=C, side=right](c)",
+        "      }",
+        "      right {",
+        "        i2 = orI[other=\"A & B\", side=left](o2.right)",
+        "      }",
+        "    }",
+        "  }",
+        "  right {",
+        "    i3 = orI[other=\"A & B\", side=left](o1.right)",
+        "  }",
+        "}",
+        "goal <- o1"
+      ]
+    }
+  ]
+}

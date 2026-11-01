@@ -1,0 +1,60 @@
+{
+  "title": { "zh": "长度写在类型里", "en": "Length in the type" },
+  "consts": ["zero", "m"],
+  "intro": [
+    {
+      "t": {
+        "zh": "类型还能依赖一个值。<b>Vec n</b> 是长 n 的向量的类型，长度写在类型里。这里只记长度，所以一个 Vec n 的证明项就是一个长 n 的向量。",
+        "en": "A type can depend on a value. <b>Vec n</b> is the type of vectors n long: the length is in the type. Only the length is kept here, so a proof term of Vec n is a vector n long."
+      }
+    },
+    {
+      "t": {
+        "zh": "已知 vnil 是空向量；vcons 在长 x 的向量前面接上一个，得到长 S x 的向量。vcons 是「对所有 x」，但 x 不用写：核看它拿到的向量多长，就知道 x 是几。",
+        "en": "The given vnil is the empty vector; vcons puts one in front of a vector x long to give one S x long. vcons is “for all x”, yet x is not written: the kernel sees how long the vector it gets is, and so knows x."
+      }
+    }
+  ],
+  "after": {
+    "zh": "结果的类型依赖参数的值，这样的类型叫<wiki-ref to=\"dependent\"></wiki-ref>；由别处读出、不必写的参数叫<wiki-ref to=\"implicit\"></wiki-ref>。",
+    "en": "A type that depends on the value of an argument is a <wiki-ref to=\"dependent\"></wiki-ref>; an argument read off elsewhere and not written is an <wiki-ref to=\"implicit\"></wiki-ref>."
+  },
+  "tasks": [
+    {
+      "kind": "term",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "vnil": "Vec(zero)", "vcons": "∀x. Vec(x) → Vec(s(x))" },
+      "goal": "Vec(s(s(zero)))",
+      "answer": "vcons (vcons vnil)",
+      "naive": "vcons vnil",
+      "hint": [{ "zh": "vnil 长 0，每用一次 vcons 长一格。", "en": "vnil is 0 long, and each vcons makes it one longer." }]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "v": "Vec(m)", "vcons": "∀x. Vec(x) → Vec(s(x))" },
+      "goal": "Vec(s(s(m)))",
+      "answer": "vcons (vcons v)",
+      "hint": [
+        { "zh": "vcons 的 x 由它拿到的向量读出来，不用写。", "en": "The x of vcons is read off the vector it gets; it is not written." }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第三题", "en": "Problem 3" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "vcons": "∀x. Vec(x) → Vec(s(x))" },
+      "goal": "∀x. Vec(x) → Vec(s(s(x)))",
+      "answer": "fun a v => vcons (vcons v)",
+      "hint": [{ "zh": "两层 fun：一个长度 a，一个长 a 的向量 v。", "en": "Two funs: a length a and a vector v of that length." }]
+    }
+  ]
+}

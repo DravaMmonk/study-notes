@@ -16,7 +16,8 @@ import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt, openedAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
 import { ChevronDown, ChevronUp, Pencil, X } from 'lucide-react'
-import { MACHINE_PARTS, syncOwn } from '../machine.js'
+import { MACHINE_PARTS } from '../machine.js'
+import { syncOwn } from '../built.js'
 
 // A level of the logic domain played on the shared circuit editor (《证明完毕》): a proof, whose wires carry proved
 // judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says how each runs, is judged and

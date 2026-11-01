@@ -1,0 +1,51 @@
+{
+  "title": { "zh": "没有结果，就没有起因", "en": "No effect, no cause" },
+  "intro": [
+    {
+      "t": {
+        "zh": "下雨地就湿，地湿路就滑；可路不滑，所以没下雨。",
+        "en": "Rain wets the ground, a wet ground is slippery; the road is not slippery, so it did not rain."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "没有结果，就没有起因", "en": "No effect, no cause" },
+      "tests": [{ "premises": { "p": "A → B", "q": "B → C", "r": "¬C" }, "goal": "¬A" }],
+      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+      "hint": [
+        {
+          "zh": "「¬路滑」就是「路滑 → ⊥」，「¬下雨」就是「下雨 → ⊥」。三段首尾相接。",
+          "en": "“¬the road is slippery” is “slippery → ⊥”, and “¬it rains” is “it rains → ⊥”. Three pieces meet end to end."
+        }
+      ],
+      "solution": ["c1 = chain(p, q)", "c2 = chain(c1, r)", "goal <- c2"]
+    },
+    {
+      "kind": "truth",
+      "step": { "zh": "否定前件", "en": "Denying the antecedent" },
+      "ask": "counter",
+      "formulas": ["(Rain → Wet) → (¬Rain → ¬Wet)"],
+      "brief": {
+        "zh": "找出让「(下雨 → 地湿) → (¬下雨 → ¬地湿)」为假的一行。",
+        "en": "Find a row that makes “(it rains → the ground is wet) → (¬it rains → ¬the ground is wet)” false."
+      },
+      "hint": [
+        {
+          "zh": "整句为假，前件就得为真、后件为假。",
+          "en": "For the whole to be false, its “if” part must be true and its “then” part false."
+        },
+        { "zh": "没下雨，地却湿了，可能吗？", "en": "Could it not rain, and the ground still be wet?" }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "「下雨地就湿，所以没下雨，地就不湿。」它也把两边都否定了，只是没有调换位置。证得出吗？先找反例。",
+            "en": "“Rain makes the ground wet, so no rain, no wet ground.” This too negates both sides, only without swapping them. Does it follow? Look for a counterexample first."
+          }
+        }
+      ]
+    }
+  ]
+}

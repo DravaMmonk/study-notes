@@ -1,0 +1,32 @@
+{
+  "kind": "proof",
+  "title": { "zh": "不是这样就是那样", "en": "One way or the other" },
+  "tests": [{ "premises": { "p": "A → B", "q": "¬A → C" }, "goal": "B ∨ C" }],
+  "cases": [{ "A": "Rain", "B": "Bus", "C": "Bike" }, { "A": "Exam", "B": "Study", "C": "Rest" }],
+  "hint": [
+    { "zh": "下不下雨，两边都讨论。", "en": "Rain or no rain: take both sides." },
+    { "zh": "分情况时，两边要证出同一句话。", "en": "When taking cases, both sides must prove the same sentence." }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "下雨就坐公交，不下雨就骑车。不知道下不下雨，可总有一样。",
+        "en": "If it rains I take the bus; if not, I cycle. I do not know whether it will rain, but it will be one or the other."
+      }
+    }
+  ],
+  "solution": [
+    "l = lem[A=A]()",
+    "e = orE(l, left: i1, right: i2) {",
+    "  left {",
+    "    m1 = mp(p, e.left)",
+    "    i1 = orI[other=C, side=right](m1)",
+    "  }",
+    "  right {",
+    "    m2 = mp(q, e.right)",
+    "    i2 = orI[other=B, side=left](m2)",
+    "  }",
+    "}",
+    "goal <- e"
+  ]
+}

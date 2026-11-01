@@ -1,0 +1,35 @@
+{
+  "kind": "proof",
+  "title": { "zh": "接起来", "en": "Join them" },
+  "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
+  "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+  "builds": "chain",
+  "hint": [{ "zh": "目标是一句「若下雨，则…」。", "en": "The goal is “if it rains, then …”." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "证出的证明可以存成元件，以后直接用，不必再开框。几种常用的推理，先各造一个。",
+        "en": "A proof, once wired, can be kept as a part and used from then on without opening a box. First, a part for each of a few moves that come up all the time."
+      }
+    },
+    {
+      "t": {
+        "zh": "下雨，就地湿；地湿，就路滑。所以下雨，就路滑。凭直觉一步就到，证明核却没有这条规则。",
+        "en": "If it rains, the ground is wet; if the ground is wet, the road is slippery. So if it rains, the road is slippery. One step by instinct, but the kernel has no such rule."
+      }
+    }
+  ],
+  "solution": [
+    "f = impI[A=A](body: m2) {",
+    "  body {",
+    "    m1 = mp(p, f.body)",
+    "    m2 = mp(q, m1)",
+    "  }",
+    "}",
+    "goal <- f"
+  ],
+  "after": {
+    "zh": "证出来、留着再用的结论叫<wiki-ref to=\"lemma\"></wiki-ref>。这样的元件只是给一段证明起的名字，即<wiki-ref to=\"definition\"></wiki-ref>，不增加能证的东西。",
+    "en": "A proved result kept for reuse is a <wiki-ref to=\"lemma\"></wiki-ref>. Such a part is only a name for a proof, a <wiki-ref to=\"definition\"></wiki-ref>, and adds nothing to what can be proved."
+  }
+}

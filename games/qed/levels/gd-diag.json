@@ -1,0 +1,48 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms", "codes"],
+  "title": { "zh": "对角线是一次计算", "en": "The diagonal is a computation" },
+  "stated": [
+    "diag(x) = sub(x, qt(x))",
+    "sub(nprov(x), y) = nprov(subt(x, y))",
+    "subt(vx, y) = y",
+    "subt(dg(x), y) = dg(subt(x, y))",
+    "subt(qt(x), y) = qt(x)",
+    "val(qt(x)) = x",
+    "val(dg(x)) = diag(val(x))"
+  ],
+  "tests": [
+    { "goal": "diag(nprov(dg(vx))) = nprov(dg(qt(nprov(dg(vx)))))" },
+    { "goal": "val(dg(qt(nprov(dg(vx))))) = nprov(dg(qt(nprov(dg(vx)))))" }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "七条定义都要用。", "en": "All seven definitions are needed." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "第三步要造一句说「我证不出」的话。难处在于一句话写不进自己的编码：编码比句子长。哥德尔的办法是<wiki-ref to=\"diagonal\"></wiki-ref>：先写一句带空位 □ 的话 D：「对角 □ 证不出」。取对角是一次计算：把一句带空位的话自己的编码 ⌜…⌝ 填进它的空位。",
+        "en": "The third step makes a sentence that says “I cannot be proved”. The trouble is that a sentence cannot hold its own code: the code is longer than the sentence. Gödel’s way is the <wiki-ref to=\"diagonal\"></wiki-ref>: first write a sentence D with a gap □, “the diagonal of □ cannot be proved”. Taking the diagonal is a computation: put a sentence’s own code ⌜…⌝ into its gap."
+      }
+    },
+    {
+      "t": {
+        "zh": "G 是 D 的对角。第一个目标算出 G；第二个目标算出 G 说到的那句话（对角 ⌜D⌝ 的值）。",
+        "en": "G is the diagonal of D. The first goal works out G; the second works out the sentence G speaks of (the value of the diagonal of ⌜D⌝)."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\"]]()",
+    "c1r0 = refl()",
+    "c0 = simp(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "out <- c1"
+  ],
+  "after": {
+    "zh": "这就是<b>对角线引理</b>：对任何说法 P(□)，都有一句 G 和 P(⌜G⌝) 等价。",
+    "en": "This is the <b>diagonal lemma</b>: for any property P(□) there is a sentence G equivalent to P(⌜G⌝)."
+  }
+}

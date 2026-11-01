@@ -1,0 +1,66 @@
+{
+  "consts": ["h", "i", "j", "k", "l", "m", "n"],
+  "symbols": ["∃"],
+  "title": { "zh": "存在 ∃", "en": "There exists ∃" },
+  "intro": [
+    {
+      "t": {
+        "zh": "新符号 <b>∃</b> 读作「存在」：∃x. P(x) 说的是，世上至少有一样东西 x 满足 P。",
+        "en": "A new symbol, <b>∃</b>, reads “there exists”: ∃x. P(x) says at least one thing x in the world satisfies P."
+      }
+    },
+    {
+      "t": {
+        "zh": "先把一句话拼成公式；拼错时，检查器可能给出一个小世界：在那里，你拼的公式和目标真假不同。之后，别人也译了这句话，轮到你用一个世界说明他译错了。",
+        "en": "First build a sentence as a formula; when it is wrong, the checker may show a small world where it and the target differ. Then someone else has translated the sentence too, and it is your turn to show with a world that they got it wrong."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "translate",
+      "step": { "zh": "翻译", "en": "Translate" },
+      "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
+      "say": { "zh": "有会飞的鸟。", "en": "Some bird flies." },
+      "target": "∃x. Bird(x) ∧ Flies(x)",
+      "hint": [
+        {
+          "zh": "「有会飞的鸟」：有一样东西 x，x 是鸟，并且 x 会飞。",
+          "en": "“Some bird flies”: there is a thing x that is a bird and flies."
+        },
+        {
+          "zh": "写成「x 是鸟 → x 会飞」，只要世上有一样不是鸟的东西，这句就成立了。",
+          "en": "Writing “x is a bird → x flies” is made true by anything at all that is not a bird."
+        }
+      ],
+      "decoys": ["∃x. Bird(x) → Flies(x)"]
+    },
+    {
+      "kind": "model",
+      "step": { "zh": "一个也没有", "en": "Not a single one" },
+      "say": { "zh": "有会飞的鸟。", "en": "Some bird flies." },
+      "meant": "∃x. Bird(x) ∧ Flies(x)",
+      "brief": {
+        "zh": "上一段你把这句话拼成了公式；这是别人拼的。造一个世界，让两份译文真假不同。",
+        "en": "You built this sentence as a formula; this is someone else’s. Build a world where the two differ in truth."
+      },
+      "wrong": "∃x. Bird(x) → Flies(x)",
+      "answer": { "size": 1, "preds": {} },
+      "hint": [{ "zh": "世界里要是一只鸟也没有呢？", "en": "What if the world holds no bird at all?" }],
+      "intro": [
+        {
+          "t": {
+            "zh": "命题逻辑里，一句话的真假看真值表的哪一行。一阶逻辑里，看的是世界：世界里有几样东西，每样东西是什么、和别的东西是什么关系。",
+            "en": "In propositional logic, whether a sentence is true depends on the row of the truth table. In first-order logic it depends on the world: how many things there are, what each is and how they relate."
+          }
+        },
+        {
+          "t": {
+            "zh": "上方是你的译文，和别人的译文。要说明别人的错了，就造一个世界，让两份译文一真一假：在下面选好有几样东西，再点出每样东西有哪些性质。运行时，上方标出两份译文在这个世界里的真假。",
+            "en": "Above are your translation and someone else’s. To show theirs is wrong, build a world where the two differ: choose below how many things there are, then tap what holds of each. A run marks above whether each translation is true in this world."
+          }
+        }
+      ]
+    }
+  ]
+}

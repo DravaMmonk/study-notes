@@ -1,0 +1,25 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "三个人", "en": "Three islanders" },
+  "tests": [
+    { "goal": "¬KA", "hyps": ["KA ↔ ¬KB", "KB ↔ ¬KC", "KC ↔ ¬KA ∧ ¬KB"] },
+    { "goal": "KB", "hyps": ["KA ↔ ¬KB", "KB ↔ ¬KC", "KC ↔ ¬KA ∧ ¬KB"] },
+    { "goal": "¬KC", "hyps": ["KA ↔ ¬KB", "KB ↔ ¬KC", "KC ↔ ¬KA ∧ ¬KB"] }
+  ],
+  "brief": {
+    "zh": "a 说：「b 是无赖。」b 说：「c 是无赖。」c 说：「a 和 b 都是无赖。」设计一个证明助手，证出每个人的身份。",
+    "en": "a says: “b is a knave.” b says: “c is a knave.” c says: “a and b are both knaves.” Design a proof assistant that proves what each of them is."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "这三个人，<level-ref to=\"e-three\"></level-ref>里接成电路跑遍了八行，<level-ref to=\"kk-three\"></level-ref>里亲手证过。这一次交给证明助手。",
+        "en": "These three were wired as a circuit and run on all eight rows in <level-ref to=\"e-three\"></level-ref>, and proved by hand in <level-ref to=\"kk-three\"></level-ref>. This time, hand them to the proof assistant."
+      }
+    }
+  ],
+  "solution": ["c0 = metis(in)", "out <- c0"]
+}

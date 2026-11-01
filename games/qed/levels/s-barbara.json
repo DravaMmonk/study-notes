@@ -1,0 +1,37 @@
+{
+  "kind": "proof",
+  "title": { "zh": "猫都是宠物", "en": "All cats are pets" },
+  "tests": [{ "premises": { "p": "∀x. A(x) → B(x)", "q": "∀x. B(x) → C(x)" }, "goal": "∀x. A(x) → C(x)" }],
+  "cases": [{ "A": "Cat", "B": "Pet", "C": "Fluffy" }, { "A": "Baby", "B": "Human", "C": "Mortal" }],
+  "hint": [{ "zh": "任取一个 a，假设它是猫，一路套用下去。", "en": "Take any a, assume it is a cat, and apply all the way." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "写《爱丽丝漫游奇境》的刘易斯·卡罗尔是一位逻辑学家。他编过许多推理题：几句「都是」「都不是」「有的」，要推出一句结论。",
+        "en": "Lewis Carroll, author of Alice in Wonderland, was a logician. He made many reasoning puzzles: a few sentences of “all”, “no” and “some”, from which a conclusion must be drawn."
+      }
+    },
+    {
+      "t": {
+        "zh": "最简单的一种是亚里士多德的三段论：「A 都是 B，B 都是 C，所以 A 都是 C」。",
+        "en": "The simplest kind is Aristotle’s syllogism: “all A are B, all B are C, so all A are C”."
+      }
+    }
+  ],
+  "solution": [
+    "g = allI[x=a](body: h) {",
+    "  body {",
+    "    h = impI[A=\"A(a)\"](body: m2) {",
+    "      body {",
+    "        e1 = allE[t=a](p)",
+    "        e2 = allE[t=a](q)",
+    "        m1 = mp(e1, h.body)",
+    "        m2 = mp(e2, m1)",
+    "      }",
+    "    }",
+    "  }",
+    "}",
+    "goal <- g"
+  ],
+  "after": { "zh": "两千多年里，三段论几乎就是逻辑的全部。", "en": "For over two thousand years the syllogism was nearly all of logic." }
+}

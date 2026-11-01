@@ -1,0 +1,56 @@
+{
+  "title": { "zh": "一个岛民", "en": "One islander" },
+  "builds": "liar",
+  "intro": [
+    {
+      "t": {
+        "zh": "岛上的人要么是<b>骑士</b>，永远说真话；要么是<b>无赖</b>，永远说假话。",
+        "en": "Everyone on the island is a <b>knight</b>, who always tells the truth, or a <b>knave</b>, who always lies."
+      }
+    },
+    {
+      "t": {
+        "zh": "岛民说一句话，「他是骑士」就和他的话<wiki-ref to=\"equivalence\"></wiki-ref>，写成 ↔。翻译见<level-ref to=\"e-says\"></level-ref>，证明器上拆开 ↔ 见<level-ref to=\"iffUse\"></level-ref>。",
+        "en": "When an islander says something, “he is a knight” is in <wiki-ref to=\"equivalence\"></wiki-ref> with what he says, written ↔. You translated this in <level-ref to=\"e-says\"></level-ref>, and took ↔ apart on the prover in <level-ref to=\"iffUse\"></level-ref>."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这是<wiki-ref to=\"liar\"></wiki-ref>在岛上的样子。",
+    "en": "This is the island’s form of the <wiki-ref to=\"liar\"></wiki-ref>."
+  },
+  "tasks": [
+    {
+      "kind": "gates",
+      "step": { "zh": "翻译", "en": "Translate" },
+      "blind": true,
+      "parts": ["gNot", "gAnd", "gOr", "gImp", "gIff"],
+      "target": "KA ↔ ¬KA",
+      "brief": {
+        "zh": "岛民 a 说：「我是无赖。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。",
+        "en": "An islander a says: “I am a knave.” Wire it as a circuit: it outputs true on the rows where what a says fits what a is."
+      },
+      "hint": [{ "zh": "「我是无赖」就是「¬a 是骑士」。", "en": "“I am a knave” is “¬a is a knight”." }],
+      "solution": ["n = gNot(KA)", "e = gIff(KA, n)", "out <- e"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "证明", "en": "Prove" },
+      "tests": [{ "premises": { "p": "A ↔ ¬A" }, "goal": "⊥" }],
+      "cases": [{ "A": "KA" }, { "A": "KC" }],
+      "intro": [
+        {
+          "t": {
+            "zh": "证明谁也说不出「我是无赖」：从它的翻译推出矛盾。",
+            "en": "Prove that nobody can say “I am a knave”: derive a contradiction from its translation."
+          }
+        }
+      ],
+      "hint": [
+        { "zh": "先把 ↔ 拆成两个方向。", "en": "First split the ↔ into its two directions." },
+        { "zh": "「¬a 是骑士」就是「a 是骑士 → ⊥」。", "en": "“¬a is a knight” is “a is a knight → ⊥”." }
+      ],
+      "solution": ["e = andE(p)", "g = merge(e.left)", "m1 = mp(e.right, g)", "m2 = mp(g, m1)", "goal <- m2"]
+    }
+  ]
+}

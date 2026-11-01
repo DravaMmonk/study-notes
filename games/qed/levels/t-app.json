@@ -1,0 +1,49 @@
+{
+  "title": { "zh": "套用就是应用", "en": "Apply is application" },
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里为止，证明板只显示一句话证出了没有。这一章看证明本身：它可以写成一个式子，叫<wiki-ref to=\"proof-term\"></wiki-ref>，写法照<wiki-ref to=\"lean\"></wiki-ref>。从这一关起，证明板上的元件都显示自己的证明项。",
+        "en": "Until now the proof board has only shown whether a sentence is proved. This chapter looks at the proof itself: it can be written as an expression, a <wiki-ref to=\"proof-term\"></wiki-ref>, written as in <wiki-ref to=\"lean\"></wiki-ref>. From this level on, every part on the proof board shows its proof term."
+      }
+    },
+    {
+      "t": {
+        "zh": "每条已知的名字就是它的证明项。A → B 的证明可以看成一个<b>函数</b>：给它 A 的证明，它还你 B 的证明。所以套用就是<b>函数应用</b>，写作 p q。一句话是一个类型，它的证明是这个类型的程序：这叫<wiki-ref to=\"curry-howard\"></wiki-ref>。",
+        "en": "The name of each given is its proof term. A proof of A → B can be seen as a <b>function</b>: give it a proof of A and it gives back a proof of B. So Apply is <b>function application</b>, written p q. A sentence is a type, and its proof a program of that type: this is the <wiki-ref to=\"curry-howard\"></wiki-ref>."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "两次应用", "en": "Two applications" },
+      "tests": [{ "premises": { "p": "A → (B → C)", "q": "A", "r": "B" }, "goal": "C", "term": "p q r" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
+      "briefNote": { "zh": "证明项须为 p q r。", "en": "Its proof term must be p q r." },
+      "hint": [
+        {
+          "zh": "p q r 是 (p q) r：先把 p 用在 q 上，得到的再用在 r 上。",
+          "en": "p q r is (p q) r: first p used on q, then what that gives used on r."
+        }
+      ],
+      "solution": ["m1 = mp(p, q)", "m2 = mp(m1, r)", "goal <- m2"]
+    },
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "括号", "en": "Brackets" },
+      "tests": [{ "premises": { "p": "A → B", "q": "B → C", "r": "A" }, "goal": "C", "term": "q (p r)" }],
+      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+      "briefNote": { "zh": "证明项须为 q (p r)。", "en": "Its proof term must be q (p r)." },
+      "hint": [
+        {
+          "zh": "括号里的先算：p r 是一次套用，q 再用在它上面。",
+          "en": "What is in brackets comes first: p r is one Apply, and q is used on that."
+        }
+      ],
+      "solution": ["m1 = mp(p, r)", "m2 = mp(q, m1)", "goal <- m2"]
+    }
+  ]
+}

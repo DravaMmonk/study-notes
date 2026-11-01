@@ -1,0 +1,32 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "title": { "zh": "由假设得证", "en": "Among the givens" },
+  "adds": ["assumption"],
+  "tests": [{ "goal": "Rain → (Wind → Rain)" }, { "goal": "Wet → (Slip → Wet)" }, { "goal": "¬Rain → (Rain → ¬Rain)" }],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "剥掉所有的「若」之后，剩下的目标在哪里？", "en": "With every “if” peeled off, where is the goal that is left?" }],
+  "intro": [
+    {
+      "t": {
+        "zh": "倒着用假设框，目标少一层「若」，却没有证完：<part-ref to=\"part:rule\"></part-ref>只会把目标换成前提。",
+        "en": "The box used backwards takes one “if” off a goal, but does not finish it: <part-ref to=\"part:rule\"></part-ref> only replaces a goal with premises."
+      }
+    },
+    {
+      "t": {
+        "zh": "新元件<part-ref to=\"part:assumption\"></part-ref>：把第一个目标和它的一条已知合一，对上了，这个目标就证完了。",
+        "en": "A new part, <part-ref to=\"part:assumption\"></part-ref>: it unifies the first goal with one of its givens; when one fits, that goal is done."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = impI()",
+    "c1r0 = impI()",
+    "c0 = rule(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "c2 = assumption(c1)",
+    "out <- c2"
+  ]
+}

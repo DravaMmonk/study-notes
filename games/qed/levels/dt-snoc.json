@@ -1,0 +1,42 @@
+{
+  "title": { "zh": "接在后面", "en": "At the end" },
+  "consts": ["zero", "m"],
+  "intro": [
+    {
+      "t": {
+        "zh": "snoc 在向量后面接上一个，长度是 x + 1。用它从长 m 的向量造出长 S m 的。",
+        "en": "snoc puts one at the end of a vector, making it x + 1 long. Use it to make a vector S m long from one m long."
+      }
+    }
+  ],
+  "after": {
+    "zh": "在证明助手里写依赖类型的程序，常常是程序本身很短，让类型对上要靠一串等式。",
+    "en": "Writing dependently typed programs in a proof assistant is often like this: the program is short, and a string of equations makes the types fit."
+  },
+  "tasks": [
+    {
+      "kind": "term",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": {
+        "v": "Vec(m)",
+        "snoc": "∀x. Vec(x) → Vec(plus(x, s(zero)))",
+        "addZero": "∀x. plus(x, zero) = x",
+        "addSucc": "∀x. ∀y. plus(x, s(y)) = s(plus(x, y))"
+      },
+      "goal": "Vec(s(m))",
+      "defs": ["plus"],
+      "answer": "addZero m ▸ addSucc m zero ▸ snoc v",
+      "naive": "addSucc m zero ▸ snoc v",
+      "hint": [
+        { "zh": "snoc v 长 m + 1，也就是 m + S 0。要的是 S m。", "en": "snoc v is m + 1 long, that is, m + S 0. S m is wanted." },
+        {
+          "zh": "addSucc m 0 把 m + S 0 换成 S (m + 0)；还剩一步。",
+          "en": "addSucc m 0 turns m + S 0 into S (m + 0); one step is left."
+        }
+      ]
+    }
+  ]
+}

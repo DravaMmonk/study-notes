@@ -1,0 +1,35 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms"],
+  "title": { "zh": "不是 0，就是后一个", "en": "Zero, or one after" },
+  "types": ["nat"],
+  "tests": [{ "goal": "∀x. x = zero ∨ (∃y. x = s(y))" }],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "?t 读不出来，就留给后面的某一步去定。", "en": "If ?t cannot be read off, leave it for a later step to settle." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "声明给出的按情况分写成规则是 ⟦?t = 0 ⟹ ?C; ⋀x. ?t = S x ⟹ ?C⟧ ⟹ ?C：要证 ?C，两种情况各证一遍。",
+        "en": "The declaration’s cases rule reads ⟦?t = 0 ⟹ ?C; ⋀x. ?t = S x ⟹ ?C⟧ ⟹ ?C: to prove ?C, prove it in each case."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = allI()",
+    "c1r0 = math[use=[\"nat.exhaust\"]]()",
+    "c2r0 = orI[use=[disjI1]]()",
+    "c4r0 = orI[use=[disjI2]]()",
+    "c5r0 = exI()",
+    "c0 = rule(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "c2 = rule(c1, c2r0)",
+    "c3 = assumption(c2)",
+    "c4 = rule(c3, c4r0)",
+    "c5 = rule(c4, c5r0)",
+    "c6 = assumption(c5)",
+    "out <- c6"
+  ]
+}

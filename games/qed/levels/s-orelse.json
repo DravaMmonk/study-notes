@@ -1,0 +1,40 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "title": { "zh": "不行就换", "en": "Or else" },
+  "adds": ["append"],
+  "tests": [
+    { "goal": "Wind ∨ Rain", "hyps": ["Wind"] },
+    { "goal": "Rain → Rain" },
+    { "goal": "Slip ∨ Wet", "hyps": ["Slip"] }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "第一步取决于目标的结构。", "en": "The first step depends on the goal’s shape." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "目标的结构不止一种：补充对「或者」有效，对「若…则…」失败；假设框正好相反。新元件<part-ref to=\"part:append\"></part-ref>：每个框收到同一个状态，送出第一个没有失败的框的结果。",
+        "en": "Goals come in more than one shape: Add alternative works on an “or” and fails on an “if … then …”; the assumption box the other way round. A new part, <part-ref to=\"part:append\"></part-ref>: every region gets the same state, and the result is that of the first region that did not fail."
+      }
+    }
+  ],
+  "solution": [
+    "c0 = append(in, first: c1, second: c2) {",
+    "  first {",
+    "    c1r0 = orI[use=[disjI1]]()",
+    "    c1 = rule(c0.first, c1r0)",
+    "  }",
+    "  second {",
+    "    c2r0 = impI()",
+    "    c2 = rule(c0.second, c2r0)",
+    "  }",
+    "}",
+    "c3 = assumption(c0)",
+    "out <- c3"
+  ],
+  "after": {
+    "zh": "策略只能调用核的规则，组合得再复杂，也造不出假定理：这是<wiki-ref to=\"lcf\"></wiki-ref>的设计。",
+    "en": "A tactic can only call the kernel’s rules, so however it is combined it cannot make a false theorem: the design of <wiki-ref to=\"lcf\"></wiki-ref>."
+  }
+}

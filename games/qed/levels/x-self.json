@@ -1,0 +1,23 @@
+{
+  "kind": "proof",
+  "title": { "zh": "不用框恒等", "en": "Identity without a box" },
+  "tests": [{ "goal": "A → A" }],
+  "cases": [{ "A": "Rain" }, { "A": "Sat" }],
+  "without": ["impI", "chain", "swap", "merge"],
+  "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+  "hint": [
+    { "zh": "从 S 开始：S 套用两次之后得到的是什么？", "en": "Start from S: what does it give after two Applies?" },
+    {
+      "zh": "S 的第二句不一定是一个词。S 要的两句，都能用 K 造。",
+      "en": "S’s second sentence need not be a single word. Both sentences S then needs can be made with K."
+    }
+  ],
+  "solution": [
+    "s = axS[A=A, B=\"A -> A\", C=A]()",
+    "k1 = axK[A=A, B=\"A -> A\"]()",
+    "k2 = axK[A=A, B=A]()",
+    "m1 = mp(s, k1)",
+    "m2 = mp(m1, k2)",
+    "goal <- m2"
+  ]
+}

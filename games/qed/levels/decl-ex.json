@@ -1,0 +1,97 @@
+{
+  "adds": ["exI", "exE"],
+  "title": { "zh": "声明「存在」", "en": "Declaring “there is”" },
+  "declare": { "zh": "存在", "en": "there is" },
+  "target": "∃y. Human(y)",
+  "sentences": ["Human(x)", "Mortal(x)"],
+  "things": ["h", "i"],
+  "thing": true,
+  "tests": [
+    { "given": ["Human(h)"], "make": true },
+    { "given": ["Human(i)"], "make": true },
+    { "given": ["Mortal(h)"], "make": false },
+    { "given": [], "make": false },
+    { "given": ["∃y. Human(y)"], "goal": "Human(h)", "make": false },
+    { "given": ["∃y. Human(y)", "∀x. Human(x) → Mortal(x)"], "goal": "∃y. Mortal(y)", "make": true },
+    { "given": ["∃y. Human(y)", "∀x. Human(x) → Mortal(x)"], "goal": "Mortal(h)", "make": false }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "「对所有」不用声明：任取一样东西证出来，就是对所有东西证出来，证明核本来就会。「存在」不同：「∃y. y是人」要有某一样东西，再有它是人的证明，比如「苏格拉底是人」。",
+        "en": "“For all” needs no declaration: proved for any thing taken, it is proved for all, and the kernel can already do that. “There is” is different: “∃y. y is human” needs some thing and a proof that it is human, such as “Socrates is human”."
+      }
+    }
+  ],
+  "solution": [{ "binds": ["x"], "needs": ["Human(x)"] }],
+  "naive": [{ "binds": [], "needs": ["Human(x)"] }],
+  "tasks": [
+    {
+      "kind": "iso",
+      "step": { "zh": "找出错误", "en": "Find the fault" },
+      "play": "audit",
+      "want": "expose",
+      "boards": [{ "rules": [{ "binds": ["x"], "needs": ["Mortal(x)"] }] }],
+      "slots": [
+        { "make": false, "fixed": ["goal", "make"] },
+        { "given": ["∃y. Human(y)"], "keep": ["∃y. Human(y)"], "make": false, "fixed": ["make"] }
+      ],
+      "answer": [
+        { "given": ["Mortal(h)"], "make": false },
+        { "given": ["∃y. Human(y)"], "goal": "∃y. Mortal(y)", "make": false }
+      ],
+      "naive": [
+        { "given": ["Human(h)"], "make": false },
+        { "given": ["∃y. Human(y)"], "goal": "Human(h)", "make": false }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "板上这份声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。",
+            "en": "The declaration on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "需求：「存在一个人」：手里有某一样东西是人的证明，就能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。",
+        "en": "Requirement: “there is a human” may be introduced once some thing is proved to be human. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree."
+      },
+      "hint": [
+        {
+          "zh": "这份声明取了一样东西之后，要的是关于它的哪一句？",
+          "en": "Having taken a thing, which sentence about it does this declaration ask for?"
+        },
+        {
+          "zh": "这份声明的消去规则交还关于那样东西的哪一句？按需求，单凭「存在一个人」，能推出同一句吗？",
+          "en": "Which sentence about that thing does this declaration’s elimination rule hand back? By the requirement, does the same follow from “there is a human” alone?"
+        }
+      ]
+    },
+    {
+      "kind": "iso",
+      "step": { "zh": "编写声明", "en": "Write the declaration" },
+      "intro": [
+        {
+          "t": {
+            "zh": "每个成立条件前面多了一个开关「任取 x」：打开它，这条规则就对任取的一样东西 x 成立，它的前提可以提到 x。",
+            "en": "Each condition now starts with a switch, “for any x”: turned on, the rule holds for any thing x taken, and its premises may mention x."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "需求：「存在一个人」：手里有某一样东西是人的证明，就能引入。写出「存在一个人」的声明。",
+        "en": "Requirement: “there is a human” may be introduced once some thing is proved to be human. Write the declaration of “there is a human”."
+      },
+      "hint": [
+        {
+          "zh": "引入规则要两样：一样东西，和关于它的一句话。",
+          "en": "The introduction rule needs two things: a thing, and a sentence about it."
+        },
+        {
+          "zh": "打开成立条件 1 的「任取 x」，再添加前提「x是人」。",
+          "en": "Turn on “for any x” on condition 1, then add the premise “x is human”."
+        }
+      ]
+    }
+  ]
+}

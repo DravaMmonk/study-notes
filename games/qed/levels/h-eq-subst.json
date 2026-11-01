@@ -1,0 +1,29 @@
+{
+  "kind": "proof",
+  "title": { "zh": "定义相等：代换", "en": "Defining equality: substitution" },
+  "consts": ["i", "j"],
+  "propertyWords": true,
+  "words": ["everyday", "stars", "properties"],
+  "tests": [{ "premises": { "e": "∀P. P(i) → P(j)", "p": "B(i)" }, "goal": "B(j)" }],
+  "cases": [{ "B": "Bright" }, { "B": "Seen" }],
+  "hint": [
+    {
+      "zh": "<part-ref to=\"part:allE\"></part-ref>里选的是一种性质：「B(x)」，把 P 换掉。",
+      "en": "In <part-ref to=\"part:allE\"></part-ref> choose a property: “B(x)”, to put in for P."
+    },
+    { "zh": "得到「B(晨星) → B(昏星)」，再套用。", "en": "That gives “B(the Morning Star) → B(the Evening Star)”; then Apply." }
+  ],
+  "solution": ["i = allE[t=\"B(x)\"](e)", "m = mp(i, p)", "goal <- m"],
+  "intro": [
+    {
+      "t": {
+        "zh": "已知晨星 = 昏星，按定义写出来。<part-ref to=\"part:allE\"></part-ref>换掉 P 的是一句说 x 的话，每个 P(t) 都换成这句话，x 处填 t。",
+        "en": "Given the Morning Star = the Evening Star, written out by the definition. <part-ref to=\"part:allE\"></part-ref> puts in a sentence about x for P: each P(t) becomes that sentence with t in place of x."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这就是<part-ref to=\"part:rewrite\"></part-ref>：定义直接写下了相等的消去规则。",
+    "en": "This is <part-ref to=\"part:rewrite\"></part-ref>: the definition writes down equality’s elimination rule directly."
+  }
+}

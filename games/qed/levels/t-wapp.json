@@ -1,0 +1,84 @@
+{
+  "title": { "zh": "写函数", "en": "Write functions" },
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里为止，证明项都由元件写出。现在反过来：自己写证明项，交给证明助手检查。新的板叫<b>证明项板</b>，不接线，用下面的块拼出证明项：放进去的块写成字，它要填的地方留成框，框里再放别的块。拼完后，证明助手检查证明项的类型是不是要证的那句话。",
+        "en": "So far the parts have written the terms. Now the other way round: write the term yourself and let the proof assistant check it. The new board is the <b>term board</b>. No wiring: build the term from the pieces below. A piece put in is written out, with a box for each place it leaves open, and other pieces go in those boxes. When it is whole, the proof assistant checks that the term’s type is the sentence to prove."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "term",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "premises": { "p": "Rain → (Wind → Wet)", "q": "Rain", "r": "Wind" },
+      "goal": "Wet",
+      "answer": "p q r",
+      "hint": [
+        {
+          "zh": "套用写成「□ □」：前一个框放函数，后一个框放用在它上面的证明。p q r 是 (p q) r。",
+          "en": "Apply is “□ □”: the function in the first box, the proof it is used on in the second. p q r is (p q) r."
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "premises": { "p": "Rain → Wet", "q": "Wet → Slip", "r": "Rain" },
+      "goal": "Slip",
+      "answer": "q (p r)",
+      "hint": [
+        {
+          "zh": "最后用的是 q，它要的「地湿」从哪来？",
+          "en": "The last one used is q; where does the “ground is wet” it needs come from?"
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第三题", "en": "Problem 3" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "premises": { "p": "Rain → Wet", "q": "Wet → Slip" },
+      "goal": "Rain → Slip",
+      "answer": "fun a => q (p a)",
+      "hint": [
+        {
+          "zh": "假设框写作「fun _ => □」。拿到下雨的证明 a 以后，先交给谁？",
+          "en": "The assumption box is “fun _ => □”. Once a proves it rains, who gets it first?"
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第四题", "en": "Problem 4" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "premises": { "p": "Rain → Wet", "q": "Wet → Slip" },
+      "goal": "Rain → Slip",
+      "uses": ["chain"],
+      "answer": "chain p q",
+      "hint": [
+        {
+          "zh": "<part-ref to=\"lemma:chain\"></part-ref>这条引理是一个函数，吃它的两条前提。",
+          "en": "The lemma <part-ref to=\"lemma:chain\"></part-ref> is a function taking its two premises."
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第五题", "en": "Problem 5" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "premises": { "p": "Rain → (Wind → Wet)" },
+      "goal": "Wind → (Rain → Wet)",
+      "answer": "fun a b => p b a",
+      "hint": [
+        {
+          "zh": "两层 fun：a 证的是刮风，b 证的是下雨。p 先要哪一个？",
+          "en": "Two funs: a proves it is windy, b that it rains. Which does p want first?"
+        }
+      ]
+    }
+  ]
+}

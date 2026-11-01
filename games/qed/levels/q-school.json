@@ -1,0 +1,36 @@
+{
+  "kind": "query",
+  "consts": ["h", "i", "j", "k", "l", "m", "n"],
+  "worlds": [
+    {
+      "title": { "zh": "第一家", "en": "The first family" },
+      "things": ["i", "j", "k", "l", "m"],
+      "preds": { "Parent": [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], "School": ["l"] }
+    },
+    {
+      "title": { "zh": "第二家", "en": "The second family" },
+      "things": ["i", "j", "k", "l", "m", "n"],
+      "preds": {
+        "Parent": [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]],
+        "School": ["k", "l", "m", "n"]
+      }
+    }
+  ],
+  "title": { "zh": "孩子都在上学的家长", "en": "Parents whose children all go to school" },
+  "say": { "zh": "x 有孩子，而且 x 的孩子都在上学。", "en": "x has children, and all of x’s children go to school." },
+  "target": "(∃y. Parent(x, y)) ∧ ∀y. Parent(x, y) → School(y)",
+  "brief": {
+    "zh": "拼一句带着 x 的话，在每一家里，让它正好选中「有孩子、孩子又都在上学」的人。",
+    "en": "Build a sentence with x in it that picks out exactly those who have children, all of whom go to school."
+  },
+  "hint": [
+    {
+      "zh": "两件事用 ∧ 连起来：「有孩子」用 ∃，「孩子都在上学」用 ∀。",
+      "en": "Join two things with ∧: “has children” with ∃, “all children at school” with ∀."
+    },
+    {
+      "zh": "只写「孩子都在上学」，没有孩子的人也会被选中：对他们，这句话什么都不用查就成立，叫<wiki-ref to=\"vacuous\"></wiki-ref>。",
+      "en": "With only “all children at school”, those with no children are picked too: for them it holds with nothing to check, a <wiki-ref to=\"vacuous\"></wiki-ref>."
+    }
+  ]
+}

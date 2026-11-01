@@ -1,0 +1,57 @@
+{
+  "title": { "zh": "量词挪出来", "en": "Moving a quantifier out" },
+  "intro": [
+    {
+      "t": {
+        "zh": "「谁迟到，老师都会生气」和「只要有人迟到，老师就生气」是一回事吗？",
+        "en": "Is “whoever is late, the teacher is cross” the same as “if anyone is late, the teacher is cross”?"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "一个方向", "en": "One way" },
+      "tests": [{ "premises": { "p": "∀x. P(x) → Q" }, "goal": "(∃x. P(x)) → Q" }],
+      "cases": [{ "P": "IsLate", "Q": "Angry" }, { "P": "Cries", "Q": "Woken" }],
+      "hint": [
+        { "zh": "假设有人迟到了，把他拿出来，从已知里取他。", "en": "Assume someone is late, take them out, and take them from the given." }
+      ],
+      "solution": [
+        "g = impI[A=\"exists x. P(x)\"](body: f) {",
+        "  body {",
+        "    f = exE[x=a](g.body, body: m) {",
+        "      body {",
+        "        e = allE[t=a](p)",
+        "        m = mp(e, f.body)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- g"
+      ]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "另一个方向", "en": "The other way" },
+      "tests": [{ "premises": { "p": "(∃x. P(x)) → Q" }, "goal": "∀x. P(x) → Q" }],
+      "cases": [{ "P": "IsLate", "Q": "Angry" }, { "P": "Cries", "Q": "Woken" }],
+      "hint": [
+        { "zh": "任取一个 a，假设他迟到了：他就是那个「有人」。", "en": "Take any a and assume they are late: they are the “someone”." }
+      ],
+      "solution": [
+        "g = allI[x=a](body: h) {",
+        "  body {",
+        "    h = impI[A=\"P(a)\"](body: m) {",
+        "      body {",
+        "        i = exI(h.body)",
+        "        m = mp(p, i)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- g"
+      ]
+    }
+  ]
+}

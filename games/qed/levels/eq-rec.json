@@ -1,0 +1,87 @@
+{
+  "words": ["everyday", "terms", "stars", "vectors"],
+  "symbolicWords": { "Bright": { "zh": "P({0})", "en": "P({0})" }, "Seen": { "zh": "Q({0})", "en": "Q({0})" } },
+  "title": { "zh": "等量代换的证明项", "en": "The term of rewriting" },
+  "consts": ["i", "j", "k"],
+  "showcase": {
+    "zh": "证明板上点的框，就是证明项里没写出来的那部分：要证的那句里，哪几处是从等式一边换过来的，叫动机；核从要证的那句和后一个框的类型里把它读出来",
+    "en": "the boxes ticked on the proof board are the part a term does not write out: which places of the sentence to prove came from one side of the equation, the motive; the kernel reads it off the sentence to prove and the type of the second box"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "用等式只有一条路：<b>h ▸ p</b>（Lean 里是 Eq.rec）。h 证 a = b，p 证关于 a 的一句话，h ▸ p 证关于 b 的那一句。换掉哪几处，由<wiki-ref to=\"motive\"></wiki-ref>说明。",
+        "en": "There is one way to use an equation: <b>h ▸ p</b> (Eq.rec in Lean). If h proves a = b and p proves a sentence about a, h ▸ p proves the same sentence about b. Which places are replaced is given by the <wiki-ref to=\"motive\"></wiki-ref>."
+      }
+    },
+    {
+      "t": {
+        "zh": "它就是证明板上的<part-ref to=\"part:rewrite\"></part-ref>：先接一个，看它写出的证明项，再到证明项板上自己写。",
+        "en": "It is <part-ref to=\"part:rewrite\"></part-ref> on the proof board: wire one first and see the term it writes, then write it yourself on the term board."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "接线", "en": "Wire" },
+      "consts": ["i", "j", "k"],
+      "tests": [{ "premises": { "p": "i = j", "q": "Bright(i)" }, "goal": "Bright(j)", "term": "p ▸ q" }],
+      "cases": [],
+      "brief": {
+        "zh": "已知 p：「晨星 = 昏星」、q：「晨星很亮」，证出「昏星很亮」，再看它的证明项。",
+        "en": "Given p: “the Morning Star = the Evening Star” and q: “the Morning Star is bright”, prove “the Evening Star is bright”, then look at its term."
+      },
+      "hint": [
+        { "zh": "用<part-ref to=\"part:rewrite\"></part-ref>。", "en": "Use <part-ref to=\"part:rewrite\"></part-ref>." }
+      ],
+      "solution": ["w = rewrite[at=[0]](p, q)", "goal <- w"]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "p": "i = j", "q": "Bright(i)" },
+      "goal": "Bright(j)",
+      "answer": "p ▸ q",
+      "hint": [
+        {
+          "zh": "「□ ▸ □」：前一个框放等式，后一个框放关于晨星的那句。",
+          "en": "“□ ▸ □”: the equation in the first box, the sentence about the Morning Star in the second."
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第三题", "en": "Problem 3" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "p": "i = j", "q": "Seen(j)" },
+      "goal": "Seen(i)",
+      "answer": "p ▸ q",
+      "hint": [
+        {
+          "zh": "这回 q 说的是昏星，要证的是晨星：核两个方向都会试。",
+          "en": "This time q is about the Evening Star and the goal about the Morning Star: the kernel tries both ways."
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第四题", "en": "Problem 4" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "p": "i = j", "q": "Bright(i)", "r": "∀x. Bright(x) → Seen(x)" },
+      "goal": "Seen(j)",
+      "answer": "r j (p ▸ q)",
+      "hint": [
+        { "zh": "先由 q 换出「昏星很亮」，再交给 r。", "en": "First turn q into “the Evening Star is bright”, then give it to r." }
+      ]
+    }
+  ]
+}

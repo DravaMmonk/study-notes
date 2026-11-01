@@ -1,0 +1,44 @@
+{
+  "adds": ["saturate", "clausify", "res"],
+  "title": { "zh": "证书", "en": "The certificate" },
+  "intro": [
+    {
+      "t": {
+        "zh": "饱和器推出几十条子句，推出 ⊥ 用到的只有几条。从 ⊥ 顺着来源往回找，得到的就是一份<wiki-ref to=\"certificate\"></wiki-ref>：哪两条消出哪一条。",
+        "en": "The saturator makes dozens of clauses, and ⊥ needs only a few. Tracing ⊥ back through where each clause came from gives a <wiki-ref to=\"certificate\"></wiki-ref>: which two cancel into which."
+      }
+    }
+  ],
+  "after": { "zh": "找证明难，查证明容易。", "en": "Finding a proof is hard; checking one is easy." },
+  "tasks": [
+    {
+      "kind": "machine",
+      "want": "refuted",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "step": { "zh": "证明助手找", "en": "The proof assistant finds" },
+      "tests": [{ "goal": "Coffee", "hyps": ["Alarm → Up", "Up → Coffee", "Alarm"] }],
+      "brief": {
+        "zh": "设计一个证明助手，从「闹钟响了 → 我起床了」「我起床了 → 我喝了咖啡」「闹钟响了」推出 ⊥，看结果里的证书。",
+        "en": "Design a proof assistant that reaches ⊥ from “the alarm rings → I get up”, “I get up → I drink coffee” and “the alarm rings”, and look at the certificate in the result."
+      },
+      "hint": [
+        {
+          "zh": "<level-ref to=\"au-sledge\"></level-ref>的证明助手就够用。",
+          "en": "The proof assistant of <level-ref to=\"au-sledge\"></level-ref> will do."
+        }
+      ],
+      "solution": ["c0 = clausify(in)", "c1 = saturate(c0)", "out <- c1"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "照着重放", "en": "Replay it" },
+      "parts": ["res"],
+      "tests": [{ "premises": { "p": "¬A ∨ B", "q": "¬B ∨ C", "r": "A", "s": "¬C" }, "goal": "⊥" }],
+      "cases": [{ "A": "Alarm", "B": "Up", "C": "Coffee" }],
+      "briefNote": { "zh": "按照证明助手的证书，在证明板上重放。", "en": "Replay the proof assistant’s certificate on the proof board." },
+      "hint": [{ "zh": "证书里每一条推出的子句都写着它的两条来源。", "en": "Each clause in the certificate names the two it came from." }],
+      "solution": ["r1 = res(p, r)", "r2 = res(q, s)", "r3 = res(r1, r2)", "goal <- r3"]
+    }
+  ]
+}

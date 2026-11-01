@@ -1,0 +1,40 @@
+{
+  "kind": "machine",
+  "want": "becomes",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "合取范式", "en": "Conjunctive normal form" },
+  "tests": [
+    { "goal": "Rain ∨ (Wind ∧ Wet)", "becomes": [["(Rain ∨ Wind) ∧ (Rain ∨ Wet)"]] },
+    { "goal": "¬(Rain ∧ Wind) ∨ (Wet ∧ Slip)", "becomes": [["(¬Rain ∨ ¬Wind ∨ Wet) ∧ (¬Rain ∨ ¬Wind ∨ Slip)"]] },
+    {
+      "goal": "(Rain → Wet) ∧ (Wind ∨ (Rain ∧ Slip))",
+      "becomes": [["(¬Rain ∨ Wet) ∧ ((Wind ∨ Rain) ∧ (Wind ∨ Slip))"]]
+    }
+  ],
+  "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。", "en": "Design a proof assistant that turns each goal into the one wanted." },
+  "hint": [
+    { "zh": "从否定范式出发。", "en": "Start from negation normal form." },
+    { "zh": "还差的是让「或者」到「并且」底下去。", "en": "What is left is to bring every “or” under the “and”s." }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "<wiki-ref to=\"cnf\"></wiki-ref>：否定范式，并且「或者」都在「并且」底下，几串「或者」用「并且」连起来。每一串「或者」叫一个<wiki-ref to=\"clause\"></wiki-ref>。",
+        "en": "<wiki-ref to=\"cnf\"></wiki-ref>: negation normal form, with every “or” under the “and”s, a few strings of “or” joined by “and”. Each string of “or” is a <wiki-ref to=\"clause\"></wiki-ref>."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = arrow[use=[\"arrow.elim\"]]()",
+    "c0r1 = dneg[use=[\"dneg.elim\"]](c0r0)",
+    "c0r2 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r1)",
+    "c0r6 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c0r2)",
+    "c0 = simp(in, c0r6)",
+    "out <- c0"
+  ],
+  "after": {
+    "zh": "自动证明器动手之前，通常先把句子化成合取范式。",
+    "en": "Automatic provers usually bring a sentence to conjunctive normal form before anything else."
+  }
+}

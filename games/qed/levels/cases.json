@@ -1,0 +1,51 @@
+{
+  "kind": "proof",
+  "title": { "zh": "分情况", "en": "Case by case" },
+  "tests": [{ "premises": { "p": "A ∨ B", "q": "A → C", "r": "B → C" }, "goal": "C" }],
+  "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
+  "hint": [
+    {
+      "zh": "放一块分类讨论，把已知「我坐公交 ∨ 我骑车」接进元件上标着「A ∨ B」的输入口。元件下半部分有两个框：情况一的「假设」是「我坐公交」，情况二的是「我骑车」。",
+      "en": "Place a Case analysis and wire the given “I take the bus ∨ I cycle” into the input marked “A ∨ B” on its part. The lower half of the part holds two boxes: case one’s “Assume” is “I take the bus”, case two’s “I cycle”."
+    },
+    {
+      "zh": "情况一的框里放一块套用：「我坐公交 → 我准时到」接「A → B」口，框左上角的「假设」接「A」口，结果接到这个框右上角的「结论」。情况二照样做。",
+      "en": "In case one’s box put an Apply: “I take the bus → I arrive on time” into its “A → B” input, the box’s “Assume” at its top left into its “A” input, and the result into “Conclusion” at the box’s top right. Do the same in case two."
+    },
+    {
+      "zh": "两个框都证出「我准时到」以后，分类讨论元件右上角的输出就是「我准时到」，接到目标。",
+      "en": "Once both boxes prove “I arrive on time”, the output at the Case analysis part’s top right gives “I arrive on time”: wire it to the goal."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "要么我坐公交，要么我骑车，不知道是哪一个。坐公交，我准时到；骑车，我也准时到。",
+        "en": "Either I take the bus or I cycle; which, you do not know. By bus I arrive on time; by bike I arrive on time too."
+      }
+    },
+    {
+      "t": {
+        "zh": "光有「我坐公交 ∨ 我骑车」，拆不出「我坐公交」：说不定是骑车。",
+        "en": "From “I take the bus ∨ I cycle” alone you cannot take out “I take the bus”: perhaps I cycled."
+      }
+    },
+    {
+      "t": {
+        "zh": "「或者」生成的消去规则是<b>分情况</b>：一条引入规则一种情况。<part-ref to=\"part:orE\"></part-ref>像一个假设框，只是有两个框：情况一假设左边，情况二假设右边；两个框证出<b>同一句话</b>，它就给出这句话。",
+        "en": "The elimination rule made for “or” goes <b>case by case</b>: one case for each introduction rule. <part-ref to=\"part:orE\"></part-ref> is like an assumption box, but with two boxes: case one assumes the left, case two the right; when both prove the <b>same sentence</b>, it gives that sentence."
+      }
+    }
+  ],
+  "solution": [
+    "e = orE(p, left: m, right: m2) {",
+    "  left {",
+    "    m = mp(q, e.left)",
+    "  }",
+    "  right {",
+    "    m2 = mp(r, e.right)",
+    "  }",
+    "}",
+    "goal <- e"
+  ]
+}

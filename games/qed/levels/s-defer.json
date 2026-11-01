@@ -1,0 +1,32 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "title": { "zh": "先证哪一个", "en": "Which goal first" },
+  "adds": ["defer"],
+  "tests": [
+    { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(k)", "Human(j)", "Likes(j, i)"] },
+    { "goal": "∃x. Bird(x) ∧ Flies(x)", "hyps": ["Bird(i)", "Bird(l)", "Flies(l)"] }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "哪个目标对得上的已知少？", "en": "Which goal fits fewer givens?" }],
+  "intro": [
+    {
+      "t": {
+        "zh": "一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它。逆用<part-ref to=\"part:exI\"></part-ref>、再拼成以后，两个目标是 ?t是人、?t喜欢安。<part-ref to=\"part:assumption\"></part-ref>取第一条对得上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标便证不下去。",
+        "en": "When a ?-letter sits in two goals, whichever is proved first settles it. After <part-ref to=\"part:exI\"></part-ref> and Join backwards the goals are ?t is human, ?t likes Ann. <part-ref to=\"part:assumption\"></part-ref> takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved."
+      }
+    },
+    { "t": { "zh": "新元件「目标后移」：把第一个目标移到最后。", "en": "A new part, “Defer”: it moves the first goal to the end." } }
+  ],
+  "solution": [
+    "c0r0 = exI()",
+    "c1r0 = andI()",
+    "c0 = rule(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "c2 = defer(c1)",
+    "c3 = assumption(c2)",
+    "c4 = assumption(c3)",
+    "out <- c4"
+  ]
+}

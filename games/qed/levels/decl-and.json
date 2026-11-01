@@ -1,0 +1,58 @@
+{
+  "kind": "iso",
+  "adds": ["andI", "andE"],
+  "title": { "zh": "声明「并且」", "en": "Declaring “and”" },
+  "declare": { "zh": "并且", "en": "and" },
+  "target": "Rain ∧ Wind",
+  "sentences": ["Rain", "Wind"],
+  "tests": [
+    { "given": ["Rain", "Wind"], "make": true },
+    { "given": ["Rain"], "make": false },
+    { "given": ["Wind"], "make": false },
+    { "given": [], "make": false },
+    { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true },
+    { "given": ["Rain ∧ Wind"], "goal": "Wind", "make": true },
+    { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false },
+    { "given": ["Rain ∧ Wind", "Rain → (Wind → Wet)"], "goal": "Wet", "make": true }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "证明核到现在只认识「若…则…」（→）：<part-ref to=\"part:impI\"></part-ref>证出它，<part-ref to=\"part:mp\"></part-ref>用它，这两样是证明核自带的。证明核不会自动认识新符号：在依赖类型论中，可以通过<wiki-ref to=\"declaration\"></wiki-ref>来拟定新符号的构建和使用规则。现在要让证明核认识新的连接词「并且」：它表示两句话都成立。",
+        "en": "So far the kernel knows only “if … then …” (→): the <part-ref to=\"part:impI\"></part-ref> proves it and <part-ref to=\"part:mp\"></part-ref> uses it, both built into the kernel. A kernel does not automatically know new symbols: in dependent type theory, a <wiki-ref to=\"declaration\"></wiki-ref> can specify how a new symbol is constructed and used. Now the kernel is to know a new connective, “and”: both statements hold."
+      }
+    },
+    {
+      "t": {
+        "zh": "一条规则写作「⟦前提⟧ ⟹ 结论」：满足前提，就可以得到结论。<wiki-ref to=\"rule-arrow\"></wiki-ref>连接的是规则的前提和结论；→ 则是命题里的「若…则…」。",
+        "en": "A rule is written “⟦premises⟧ ⟹ conclusion”: if its premises hold, the conclusion follows. The <wiki-ref to=\"rule-arrow\"></wiki-ref> connects the premises and conclusion of a rule; → means “if … then …” within a statement."
+      }
+    },
+    {
+      "t": {
+        "zh": "<wiki-ref to=\"intro-rule\"></wiki-ref>说明怎样证明带有某个连接词的命题，<wiki-ref to=\"elim-rule\"></wiki-ref>说明怎样使用它。假设框就是「若…则…」的引入规则，套用就是它的消去规则。声明写出引入规则，消去规则由证明核生成。",
+        "en": "An <wiki-ref to=\"intro-rule\"></wiki-ref> says how to prove a statement with a connective, an <wiki-ref to=\"elim-rule\"></wiki-ref> how to use it. The assumption box is the introduction rule of “if … then …”, Apply its elimination rule. A declaration writes the introduction rules; the kernel makes the elimination rule."
+      }
+    },
+    {
+      "t": {
+        "zh": "表上每一行「成立条件」是一条引入规则：这一行的前提均为真，就可以得出结论。点「添加前提」，在弹出的窗口里拼出这个前提的句子；再加一行，就是另一条引入规则。写好后点「检查」。",
+        "en": "Each row “condition” on the table is an intro rule: when its premises all hold, the conclusion follows. Tap “Add a premise” and build its sentence in the window that opens; another row is another intro rule. Tap “Check” when it is written."
+      }
+    }
+  ],
+  "brief": {
+    "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。写出它的声明。",
+    "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write its declaration."
+  },
+  "hint": [
+    { "zh": "只有一条引入规则，它同时要两样。", "en": "There is one introduction rule, and it needs both at once." },
+    { "zh": "在成立条件 1 这一行添加两个前提：「下雨」和「刮风」。", "en": "Give condition 1 two premises: “it rains” and “it is windy”." }
+  ],
+  "solution": [{ "binds": [], "needs": ["Rain", "Wind"] }],
+  "naive": [{ "binds": [], "needs": ["Rain"] }, { "binds": [], "needs": ["Wind"] }],
+  "after": {
+    "zh": "「并且」原本不在证明核里，声明让证明核从此认得它。你可能已经注意到，规则表下面写出了由引入规则生成的<wiki-ref to=\"elim-rule\"></wiki-ref>：声明列出了构建该命题的全部方式，要使用它，就可以逐一考虑这些方式。Lean 走的就是声明这条路：「并且」「或者」「存在」「相等」都用一条声明（inductive）引入证明核，规则由声明生成；只有「若…则…」在 Lean 里是证明核自带的。",
+    "en": "“And” was not in the kernel before; the declaration is what makes the kernel know it. You may have noticed the <wiki-ref to=\"elim-rule\"></wiki-ref> written under the rule table, generated from the introduction rules: the declaration lists all the ways to construct the statement, so using it means considering each of those ways. Lean takes this road of declaring: “and”, “or”, “there is” and equality each come into its kernel by a declaration (inductive), and their rules are generated from it; only “if … then …” is built into Lean’s kernel."
+  }
+}

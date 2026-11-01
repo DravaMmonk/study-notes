@@ -1,0 +1,47 @@
+{
+  "title": { "zh": "补一句 have", "en": "A missing have" },
+  "intro": [
+    {
+      "t": {
+        "zh": "写脚本时，常常先写最后一句 show，再往前补它用到的事实，一句一句 have 出来。",
+        "en": "A script is often written from its last show backwards: the facts it uses are filled in before it, one have at a time."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "script",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "这段脚本少了一句。补上它。", "en": "This script is a row short. Put it in." },
+      "premises": { "p": "Rain → Wet", "q": "Wet → Slip", "r": "Rain" },
+      "goal": "Slip",
+      "given": [{ "k": "show", "stmt": "Slip", "using": ["q", "h1"], "by": "rule:mp" }],
+      "answer": [
+        { "k": "have", "stmt": "Wet", "using": ["p", "r"], "by": "rule:mp" },
+        { "k": "show", "stmt": "Slip", "using": ["q", "h1"], "by": "rule:mp" }
+      ],
+      "hint": [
+        {
+          "zh": "show 用到的 h1 还没有。新加的一行排在选中的那一行后面；要排到它前面，先删掉它再重写。",
+          "en": "The h1 that show uses is not there yet. A new row goes after the row selected; to put one in front, remove that row and write it again."
+        }
+      ]
+    },
+    {
+      "kind": "script",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "这段脚本少了两句。补上它们。", "en": "This script is two rows short. Put them in." },
+      "premises": { "p": "Rain ∧ Wind", "q": "Wind → Wet", "r": "Rain → Bus" },
+      "goal": "Wet ∧ Bus",
+      "given": [{ "k": "show", "stmt": "Wet ∧ Bus", "using": ["h3", "h4"], "by": "rule:conjI" }],
+      "answer": [
+        { "k": "have", "stmt": "Rain", "using": ["p"], "by": "rule:conjunct1" },
+        { "k": "have", "stmt": "Wind", "using": ["p"], "by": "rule:conjunct2" },
+        { "k": "have", "stmt": "Wet", "using": ["q", "h2"], "by": "rule:mp" },
+        { "k": "have", "stmt": "Bus", "using": ["r", "h1"], "by": "rule:mp" },
+        { "k": "show", "stmt": "Wet ∧ Bus", "using": ["h3", "h4"], "by": "rule:conjI" }
+      ],
+      "hint": [{ "zh": "先把「下雨 ∧ 刮风」拆成两句。", "en": "First split “it rains ∧ it is windy” into two." }]
+    }
+  ]
+}

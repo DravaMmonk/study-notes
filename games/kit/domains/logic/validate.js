@@ -1,12 +1,12 @@
-// The logic domain's checks for `npm run check` (../../engine/check.js): every proof level's reference proof closes
-// its goal and its naive one does not; every goal the reference proves has no countermodel on small domains (a level
-// whose goal is false would be caught), and a level that asks for a countermodel (`unprovable`) has one. A truth-table
-// level's formulas parse and its task can be done: a `counter` formula has a false row, a `valid` level mixes both.
-// Every letter a level shows has its everyday sentence, and every proof level comes as test cases (course.js). No proof
-// level is one use of a lemma it carries away from done. A truth circuit's reference board gives its sentence on every
-// row, its naive one does not (or breaks its gate budget), and a gate it builds computes exactly that sentence. A
-// proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level cannot have
-// (but for what its board starts with: a preset names cards of the answer).
+// The logic domain's checks for `npm run check` (../../engine/check.js), over a game's spec (domain.js): what reading
+// its content found wrong (course.js), then every proof level's reference proof closes its goal and its naive one does
+// not; every goal the reference proves has no countermodel on small domains (a level whose goal is false would be
+// caught). A truth-table level's formulas parse and its task can be done: a `counter` formula has a false row, a
+// `valid` level mixes both. Every letter a level shows has its everyday sentence, and every proof level comes as test
+// cases (course.js). No proof level is one use of a lemma it carries away from done. A truth circuit's reference board
+// gives its sentence on every row, its naive one does not (or breaks its gate budget), and a gate it builds, alone,
+// gives that sentence on every row. A proof that holds parts back (`without`) does not use them, and no reference
+// answer uses a part its level cannot have (but for what its board starts with: a preset names cards of the answer).
 import { formsAt, reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
@@ -17,8 +17,6 @@ import { counters, extent, structureOf } from './fol.js'
 import { premiseChips } from './ruleLines.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { checkScript, methodsOf, sentencesOf } from './script.js'
-import { proof } from './build.js'
-import { portsOf } from '../../engine/circuit.js'
 import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOfLevel, rulePartsOf } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
@@ -26,15 +24,15 @@ import { chipsFrom, chipsOf, missingChips } from './formulaTree.js'
 import { freeIn, parseTerm } from './pterm.js'
 import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
-import { checkGates, gatesOf, rowsFor } from './gates.js'
+import { checkGates, rowsFor, startGates } from './gates.js'
 import { checkIso, judgeCases, sentenceOf, waysIn } from './iso.js'
 import { checkDefine } from './define.js'
 import { say } from './notation.js'
 import { presetIds } from './course.js'
 
-/** spec: { levels, course }. Returns [{ text, fail? }]. */
-export function validate({ levels: given, course }) {
-  const out = []
+/** spec: domain.js spec(content). Returns [{ text, fail? }]. */
+export function validate({ levels: given, course, logic }) {
+  const out = logic.wrong.map((text) => ({ fail: true, text }))
   // Every task of a level is checked as a level of its own (course.js tasks).
   const builder = new Map(given.map((l) => [l.id, l.builds]))
   const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
@@ -92,10 +90,11 @@ export function validate({ levels: given, course }) {
       const bad = checkGates(level, level.naive)
       out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
     }
-    if (level.builds) {
-      const gate = gatesOf(level.gates)[level.builds]
-      const wrong = !gate ? ['no such gate'] : rowsFor(level).rows.filter(({ row, want }) => gate.f(rowsFor(level).letters.map((l) => row[l])) !== want)
-      if (wrong.length) out.push({ fail: true, text: `${level.id}: the gate ${level.builds} does not compute its sentence` })
+    // The gate a level builds runs its board (gates.js builtGates): alone, fed the level's letters, it passes the level.
+    if (level.builds && level.gates[level.builds]) {
+      const { letters } = rowsFor(level)
+      const alone = { nodes: [...startGates(level).nodes, { id: 'x', type: level.builds, params: {} }], wires: [...letters.map((l, k) => ({ from: l, to: 'x', port: level.gates[level.builds].ports[k] })), { from: 'x', to: 'out', port: 'in' }] }
+      if (!checkGates({ ...level, budget: undefined }, alone).pass) out.push({ fail: true, text: `${level.id}: the gate ${level.builds}, alone, does not give its sentence` })
     }
   }
   // A declaration by its two ways round: its reference answer passes every situation, its naive one does not.
@@ -131,13 +130,11 @@ export function validate({ levels: given, course }) {
       if (level.answer.length !== set) out.push({ fail: true, text: `  the reference answer has ${level.answer.length} cases for ${set} set out` })
       if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.keep ?? []).some((s) => !level.answer[k]?.given.includes(s)))) out.push({ fail: true, text: '  a reference case drops a premise its case keeps' })
       if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.fixed ?? []).some((cell) => JSON.stringify(c[cell]) !== JSON.stringify(level.answer[k]?.[cell])))) out.push({ fail: true, text: '  a reference case changes a cell its case fixes' })
-      if (level.answer.some((c) => (level.caseGoal && c.goal !== level.caseGoal) || (level.caseMake !== undefined && c.make !== level.caseMake))) out.push({ fail: true, text: '  a reference case breaks the goal or expectation the level fixes' })
+      if (level.answer.some((c) => level.caseGoal && c.goal !== level.caseGoal)) out.push({ fail: true, text: '  a reference case breaks the goal the level fixes' })
       // A board to check is right (want 'agree'); one to catch is wrong.
       level.boards.forEach(({ board }, k) => { if (checkIso(level, board, words).pass !== (level.want === 'agree')) out.push({ fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
       continue
     }
-    // Correcting by the diagram: no board given passes already.
-    if (level.play === 'repair') level.boards.forEach(({ board }, k) => { if (checkIso(level, board, words).pass) out.push({ fail: true, text: `  board ${k + 1} to correct already passes (bad)` }) })
     if (level.naive) {
       const bad = checkIso(level, level.naive, words)
       out.push({ fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
@@ -193,10 +190,8 @@ export function validate({ levels: given, course }) {
     if (level.given && run(level.given).pass) out.push({ fail: true, text: `${level.id}: the given script already checks` })
   }
   // A machine part a level builds runs that level's board (machine.js builtParts): the part alone, each of the level's
-  // inputs wired into the port of the same name, passes the level, unless a task of the level proves it (a law card
-  // proved on the proof board, then put to work).
-  const proven = new Set(given.filter((l) => l.proves || l.tasks?.some((t) => t.proves)).map((l) => l.id))
-  for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine' && !proven.has(l.id))) {
+  // inputs wired into the port of the same name, passes the level.
+  for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine')) {
     const names = inputsOfLevel(level).map((i) => i.name)
     const alone = { nodes: [...names.map((name) => ({ id: name, type: 'in', params: { name } })), { id: 'x', type: level.builds, params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [...names.map((name) => ({ from: name, to: 'x', port: name })), { from: 'x', to: 'out', port: 'in' }] }
     const run = runLevel(MACHINE_TESTS, level, alone)
@@ -207,13 +202,6 @@ export function validate({ levels: given, course }) {
     const statement = parseS(level.facts[level.fact].statement)
     if (!level.tests.every((t) => t.goal && same(parseS(t.goal), statement))) out.push({ fail: true, text: `${level.id}: its tests are not all the equation ${level.fact} it proves` })
   }
-  // A rule a task proves (not a lemma: a part with its own implementation) proves that task in one step.
-  for (const level of levels.filter((l) => l.kind === 'proof' && RULES[l.proves])) {
-    const ins = portsOf(RULES[level.proves], {})
-    const premises = Object.keys(level.schema.premises ?? {})
-    const alone = proof({ x: [level.proves] }, [...premises.map((p, k) => `${p}>x.${ins[k]}`), 'x>goal'], { premises })
-    if (!runLevel(LOGIC_TESTS, level, alone).pass) out.push({ fail: true, text: `${level.id}: the rule ${level.proves} does not prove the task that proves it` })
-  }
   for (const level of levels.filter((l) => l.kind === 'proof')) {
     const consts = level.consts ?? []
     // Induction is no first-order consequence (worlds with numbers past every S…S 0 satisfy the definitions and not
@@ -222,10 +210,8 @@ export function validate({ levels: given, course }) {
     for (const test of induction ? [] : level.tests) {
       const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
       const m = countermodel(premises, parse(test.goal, { consts }))
-      if (level.unprovable && !m) out.push({ fail: true, text: `${level.id}: ${test.goal} should have a countermodel, and none was found` })
-      if (!level.unprovable && m) out.push({ fail: true, text: `${level.id}: ${test.goal} has a countermodel, so no proof can exist` })
+      if (m) out.push({ fail: true, text: `${level.id}: ${test.goal} has a countermodel, so no proof can exist` })
     }
-    if (level.unprovable) { out.push({ text: `${level.id} ${keyOf(level.title)}: countermodel found` }); continue }
     const carried = level.lemmas ? reach(course, { id: level.id }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id && !level.without?.includes(p)) : []
     for (const p of carried) {
       // A test that asks for a term asks for one proof in particular, not just any.

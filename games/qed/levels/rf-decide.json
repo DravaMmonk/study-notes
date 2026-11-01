@@ -1,0 +1,101 @@
+{
+  "title": { "zh": "让核来算", "en": "Let the kernel compute" },
+  "intro": [
+    {
+      "t": {
+        "zh": "已知 sound 说判定程序是对的：taut x 算出真，x 就永远成立。它只要对所有公式证一次（对公式归纳）。",
+        "en": "The given sound says the decision procedure is right: if taut x works out true, x always holds. It needs proving only once, for every formula (by induction on formulas)."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这条路叫<wiki-ref to=\"reflection\"></wiki-ref>，Lean 的 decide 就是这样做的。",
+    "en": "This way is called <wiki-ref to=\"reflection\"></wiki-ref>, and it is how Lean’s decide works."
+  },
+  "tasks": [
+    {
+      "kind": "term",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl"],
+      "words": ["everyday", "terms", "reflection"],
+      "consts": ["p", "q", "tt", "ff"],
+      "stated": [
+        "ev(p, x, y) = x",
+        "ev(q, x, y) = y",
+        "ev(neg(z), x, y) = bnot(ev(z, x, y))",
+        "ev(conj(z, w), x, y) = band(ev(z, x, y), ev(w, x, y))",
+        "ev(disj(z, w), x, y) = bor(ev(z, x, y), ev(w, x, y))",
+        "bnot(tt) = ff",
+        "bnot(ff) = tt",
+        "band(tt, y) = y",
+        "band(ff, y) = ff",
+        "bor(tt, y) = tt",
+        "bor(ff, y) = y",
+        "taut(z) = band(ev(z, tt, tt), band(ev(z, tt, ff), band(ev(z, ff, tt), ev(z, ff, ff))))"
+      ],
+      "premises": { "sound": "∀x. taut(x) = tt → Taut(x)" },
+      "goal": "Taut(disj(p, neg(p)))",
+      "answer": "sound rfl",
+      "naive": "rfl",
+      "hint": [
+        {
+          "zh": "sound 要一个 taut x = 真 的证明。核会按定义算。",
+          "en": "sound wants a proof of taut x = true, and the kernel computes by the definitions."
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl"],
+      "words": ["everyday", "terms", "reflection"],
+      "consts": ["p", "q", "tt", "ff"],
+      "stated": [
+        "ev(p, x, y) = x",
+        "ev(q, x, y) = y",
+        "ev(neg(z), x, y) = bnot(ev(z, x, y))",
+        "ev(conj(z, w), x, y) = band(ev(z, x, y), ev(w, x, y))",
+        "ev(disj(z, w), x, y) = bor(ev(z, x, y), ev(w, x, y))",
+        "bnot(tt) = ff",
+        "bnot(ff) = tt",
+        "band(tt, y) = y",
+        "band(ff, y) = ff",
+        "bor(tt, y) = tt",
+        "bor(ff, y) = y",
+        "taut(z) = band(ev(z, tt, tt), band(ev(z, tt, ff), band(ev(z, ff, tt), ev(z, ff, ff))))"
+      ],
+      "premises": { "sound": "∀x. taut(x) = tt → Taut(x)" },
+      "goal": "Taut(disj(neg(conj(p, q)), disj(p, q)))",
+      "answer": "sound rfl",
+      "hint": [{ "zh": "和第一题一样，x 从要证的那句里读出来。", "en": "As in the first, x is read off the sentence to prove." }]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第三题", "en": "Problem 3" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl"],
+      "words": ["everyday", "terms", "reflection"],
+      "consts": ["p", "q", "tt", "ff"],
+      "stated": [
+        "ev(p, x, y) = x",
+        "ev(q, x, y) = y",
+        "ev(neg(z), x, y) = bnot(ev(z, x, y))",
+        "ev(conj(z, w), x, y) = band(ev(z, x, y), ev(w, x, y))",
+        "ev(disj(z, w), x, y) = bor(ev(z, x, y), ev(w, x, y))",
+        "bnot(tt) = ff",
+        "bnot(ff) = tt",
+        "band(tt, y) = y",
+        "band(ff, y) = ff",
+        "bor(tt, y) = tt",
+        "bor(ff, y) = y",
+        "taut(z) = band(ev(z, tt, tt), band(ev(z, tt, ff), band(ev(z, ff, tt), ev(z, ff, ff))))"
+      ],
+      "premises": { "sound": "∀x. taut(x) = tt → Taut(x)" },
+      "goal": "Taut(neg(conj(p, neg(p))))",
+      "answer": "sound rfl",
+      "hint": [{ "zh": "还是一样的证明项。", "en": "The same proof term again." }]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "一串结果", "en": "A run of results" },
+  "showcase": {
+    "zh": "一个元件现在给出所有对得上的结果，按顺序排成一串；后面的元件对每一种都做一遍，走不通的那几种自己消失：这就是回溯，光看说明想不到后面的元件会替前面的元件收拾残局",
+    "en": "a part now gives every result that fits, in order; each later part works on each of them, and those that lead nowhere drop out: this is backtracking, and from the description alone one does not guess that later parts clear up after earlier ones"
+  },
+  "tests": [
+    { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(k)", "Human(j)", "Likes(j, i)"] },
+    { "goal": "∃x. Likes(x, i) ∧ Likes(x, j)", "hyps": ["Likes(k, i)", "Likes(m, j)", "Likes(l, j)", "Likes(l, i)"] }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "不必再用目标后移。", "en": "There is no need to defer." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "第二组测试里，两个目标都有不止一个人对得上，先证哪一个都会先拿错人，调整次序也无济于事。",
+        "en": "In the second test more than one person fits each goal; whichever goes first takes the wrong one first, and reordering the goals does not help."
+      }
+    },
+    {
+      "t": {
+        "zh": "从这一关起，元件给出<b>所有</b>对得上的结果，按顺序排成一串：<part-ref to=\"part:assumption\"></part-ref>每对上一条已知，就是一种结果。后面的元件对每一种都做一遍，做不下去的自行消失，留下的第一种就是答案。元件上显示「第 1 种结果，共 n 种」。",
+        "en": "From this level on a part gives <b>every</b> result that fits, one after another: each given that <part-ref to=\"part:assumption\"></part-ref> fits is a result. Each later part works on every one of them; those that cannot go on drop out, and the first left is the answer. A part shows “result 1 of n”."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = exI()",
+    "c1r0 = andI()",
+    "c0 = rule(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "c2 = assumption(c1)",
+    "c3 = assumption(c2)",
+    "out <- c3"
+  ],
+  "after": {
+    "zh": "这叫<wiki-ref to=\"backtracking\"></wiki-ref>。",
+    "en": "This is <wiki-ref to=\"backtracking\"></wiki-ref>."
+  }
+}

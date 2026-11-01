@@ -1,0 +1,42 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms"],
+  "title": { "zh": "倒两次", "en": "Reversed twice" },
+  "types": ["list"],
+  "defs": ["app", "len", "rev"],
+  "tests": [{ "goal": "∀xs. rev(rev(xs)) = xs" }],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "化简卡在 rev (rev xs ++ [x]) 上。", "en": "Simp gets stuck on rev (rev xs ++ [x])." }],
+  "solution": [
+    "c0r0 = math[use=[\"list.induct\"]]()",
+    "c0 = rule(in, c0r0)",
+    "c1 = each(c0, body: c3) {",
+    "  body {",
+    "    c2r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\", revApp]]()",
+    "    c3r0 = refl()",
+    "    c2r5 = hyp(c2r0)",
+    "    c2 = simp(c1.body, c2r5)",
+    "    c3 = rule(c2, c3r0)",
+    "  }",
+    "}",
+    "out <- c1"
+  ],
+  "naive": [
+    "c0r0 = math[use=[\"list.induct\"]]()",
+    "c0 = rule(in, c0r0)",
+    "c1 = each(c0, body: c3) {",
+    "  body {",
+    "    c2r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\"]]()",
+    "    c3r0 = refl()",
+    "    c2r4 = hyp(c2r0)",
+    "    c2 = simp(c1.body, c2r4)",
+    "    c3 = rule(c2, c3r0)",
+    "  }",
+    "}",
+    "out <- c1"
+  ],
+  "after": { "zh": "这是 Isabelle 教程里的第一个定理。", "en": "This is the first theorem of the Isabelle tutorial." }
+}

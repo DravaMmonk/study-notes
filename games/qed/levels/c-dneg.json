@@ -1,0 +1,36 @@
+{
+  "title": { "zh": "双重否定律", "en": "Double negation" },
+  "builds": "dneg",
+  "intro": [
+    {
+      "t": {
+        "zh": "两句话能互相推出，说的就是同一件事，这叫<wiki-ref to=\"equivalence\"></wiki-ref>。「¬¬下雨」和「下雨」就是一对。",
+        "en": "Two sentences that each give the other say the same thing: they are in <wiki-ref to=\"equivalence\"></wiki-ref>. “¬¬it rains” and “it rains” are such a pair."
+      }
+    },
+    {
+      "t": {
+        "zh": "两个方向都证出后，合成一个元件，元件上切换方向。",
+        "en": "Once both directions are proved, they make one part that switches between the two."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "去掉两个 ¬", "en": "Two ¬s off" },
+      "tests": [{ "premises": { "p": "¬¬A" }, "goal": "A" }],
+      "cases": [{ "A": "Rain" }, { "A": "Locked" }],
+      "hint": [{ "zh": "手里有一条规则正好去掉两个 ¬。", "en": "One rule you hold takes exactly two ¬s off." }],
+      "solution": ["r = raa(p)", "goal <- r"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "加上两个 ¬", "en": "Two ¬s on" },
+      "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],
+      "cases": [{ "A": "Rain" }, { "A": "Locked" }],
+      "hint": [{ "zh": "「¬¬下雨」就是「¬下雨 → ⊥」。", "en": "“¬¬it rains” is “¬it rains → ⊥”." }],
+      "solution": ["f = impI[A=\"~A\"](body: m) {", "  body {", "    m = mp(f.body, p)", "  }", "}", "goal <- f"]
+    }
+  ]
+}

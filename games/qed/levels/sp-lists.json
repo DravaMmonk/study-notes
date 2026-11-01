@@ -1,0 +1,32 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms"],
+  "title": { "zh": "列表也一样", "en": "Lists too" },
+  "types": ["list"],
+  "defs": ["app", "len"],
+  "tests": [
+    { "goal": "len(app(cons(i, nil), cons(j, nil))) = s(s(zero))" },
+    { "goal": "app(cons(i, nil), app(cons(j, nil), cons(k, nil))) = cons(i, cons(j, cons(k, nil)))" },
+    { "goal": "len(app(cons(i, cons(j, nil)), nil)) = s(s(zero))" }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "四条定义都要用。", "en": "All four definitions are needed." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"def-list\"></level-ref>定义的 ++ 和 len，也交给化简去算。",
+        "en": "The ++ and len defined in <level-ref to=\"def-list\"></level-ref> go to Simp too."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\"]]()",
+    "c1r0 = refl()",
+    "c0 = simp(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "out <- c1"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "title": { "zh": "一句里套着一句", "en": "One inside another" },
+  "intro": [
+    {
+      "t": {
+        "zh": "一条条件命题的结论也可以是另一条条件命题。例如，「若今天是周六，则（若下雨，则我休息）」说的是：在今天是周六的条件下，「若下雨，则我休息」成立。",
+        "en": "The conclusion of a conditional can itself be another conditional. For example, “if today is Saturday, then (if it rains, I rest)” says that the whole statement “if it rains, I rest” holds on the condition that today is Saturday."
+      }
+    },
+    {
+      "t": {
+        "zh": "括号表明哪些话属于同一层。一次套用得到的结论可以是一整条条件命题；这条命题也能像其他已知一样，作为之后推理的前提。",
+        "en": "The parentheses show which parts belong together. One use of Apply can produce an entire conditional, which can then serve as a premise in further reasoning, just like a given."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "一句里套着一句", "en": "A sentence inside a sentence" },
+      "tests": [{ "premises": { "p": "A", "q": "A → (B → C)", "r": "B" }, "goal": "C" }],
+      "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+      "hint": [{ "zh": "套用的结果本身也可以是一句「若…则…」。", "en": "What Apply gives can itself be an “if … then …”." }],
+      "solution": ["m1 = mp(q, p)", "m2 = mp(m1, r)", "goal <- m2"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "推出来的规则", "en": "A rule you proved" },
+      "tests": [{ "premises": { "p": "A", "q": "A → (B → C)", "r": "(B → C) → D" }, "goal": "D" }],
+      "cases": [
+        { "A": "Sat", "B": "Rain", "C": "Rest", "D": "Happy" },
+        { "A": "Alarm", "B": "Coffee", "C": "Awake", "D": "OnTime" }
+      ],
+      "hint": [{ "zh": "最后一句已知的前件是什么？", "en": "What is the antecedent of the last given?" }],
+      "solution": ["m1 = mp(q, p)", "m2 = mp(r, m1)", "goal <- m2"]
+    }
+  ]
+}

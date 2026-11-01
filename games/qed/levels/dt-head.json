@@ -1,0 +1,59 @@
+{
+  "title": { "zh": "空的取不出来", "en": "Nothing to take from empty" },
+  "consts": ["zero", "m"],
+  "intro": [
+    {
+      "t": {
+        "zh": "head 取出向量的第一个，类型是 ∀x. Vec (S x) → Elem：只收长 S x 的向量。",
+        "en": "head takes out a vector’s first element; its type is ∀x. Vec (S x) → Elem: it takes only vectors S x long."
+      }
+    }
+  ],
+  "after": {
+    "zh": "别的语言里，取空向量的第一个是运行时的错；长度写进类型以后，它是类型错，程序运行之前就排除了。",
+    "en": "In other languages, taking the first of an empty vector is a runtime error; with the length in the type, it is a type error, ruled out before the program runs."
+  },
+  "tasks": [
+    {
+      "kind": "term",
+      "step": { "zh": "第一题", "en": "Problem 1" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "vnil": "Vec(zero)", "vcons": "∀x. Vec(x) → Vec(s(x))", "head": "∀x. Vec(s(x)) → Elem" },
+      "goal": "Elem",
+      "given": "head vnil",
+      "answer": "head (vcons vnil)",
+      "hint": [
+        {
+          "zh": "先点检查，看核说什么：head 要多长的向量？",
+          "en": "Check first and see what the kernel says: how long a vector does head want?"
+        }
+      ]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第二题", "en": "Problem 2" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "v": "Vec(m)", "vcons": "∀x. Vec(x) → Vec(s(x))", "head": "∀x. Vec(s(x)) → Elem" },
+      "goal": "Elem",
+      "answer": "head (vcons v)",
+      "naive": "head v",
+      "hint": [{ "zh": "m 可能是 0。", "en": "m may be 0." }]
+    },
+    {
+      "kind": "term",
+      "step": { "zh": "第三题", "en": "Problem 3" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
+      "words": ["everyday", "terms", "stars", "vectors"],
+      "premises": { "v": "Vec(s(s(m)))", "tail": "∀x. Vec(s(x)) → Vec(x)" },
+      "goal": "Vec(m)",
+      "answer": "tail (tail v)",
+      "naive": "tail v",
+      "hint": [{ "zh": "tail 去掉最前面一个。", "en": "tail drops the first one." }]
+    }
+  ]
+}

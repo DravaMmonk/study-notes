@@ -1,0 +1,27 @@
+{
+  "kind": "gates",
+  "title": { "zh": "只有一样", "en": "Exactly one" },
+  "target": "(Rain ∨ Wind) ∧ ¬(Rain ∧ Wind)",
+  "blind": true,
+  "budget": 4,
+  "brief": {
+    "zh": "「要么下雨，要么刮风，但不会两样都有。」接一块电路算出它，最多用 4 个门。",
+    "en": "“Either it rains or it is windy, but not both.” Wire a board that computes it, with at most 4 gates."
+  },
+  "hint": [
+    {
+      "zh": "不必按行拼。照这句话的字面看，它由哪几部分组成？",
+      "en": "No need to piece it together row by row. Read the sentence as it is said: what parts is it made of?"
+    }
+  ],
+  "solution": ["o = gOr(Rain, Wind)", "a = gAnd(Rain, Wind)", "n = gNot(a)", "b = gAnd(o, n)", "out <- b"],
+  "naive": [
+    "n1 = gNot(Wind)",
+    "n2 = gNot(Rain)",
+    "a1 = gAnd(Rain, n1)",
+    "a2 = gAnd(n2, Wind)",
+    "o = gOr(a1, a2)",
+    "out <- o"
+  ],
+  "after": { "zh": "这个连接词叫<b>异或</b>（XOR）。", "en": "This connective is <b>exclusive or</b> (XOR)." }
+}

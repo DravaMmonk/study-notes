@@ -1,0 +1,27 @@
+{
+  "sentences": ["(A → B) → (A → C)"],
+  "kind": "proof",
+  "title": { "zh": "不用框换顺序", "en": "Reordering without a box" },
+  "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "B → (A → C)" }],
+  "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+  "without": ["impI", "chain", "swap", "merge"],
+  "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+  "hint": [
+    { "zh": "已知能接进哪一种 S？套用以后得到什么？", "en": "Which S can the given go into, and what does Apply then give?" },
+    {
+      "zh": "还缺的一段，K 能不能补上？两段首尾相接以后，照<level-ref to=\"x-chain\"></level-ref>接起来。",
+      "en": "Can K supply the missing piece? Once two pieces meet end to end, join them as in <level-ref to=\"x-chain\"></level-ref>."
+    }
+  ],
+  "solution": [
+    "s = axS[A=A, B=B, C=C]()",
+    "k = axK[A=B, B=A]()",
+    "k2 = axK[A=\"(A -> B) -> (A -> C)\", B=B]()",
+    "s2 = axS[A=B, B=\"A -> B\", C=\"A -> C\"]()",
+    "m1 = mp(s, p)",
+    "m2 = mp(k2, m1)",
+    "m3 = mp(s2, m2)",
+    "m4 = mp(m3, k)",
+    "goal <- m4"
+  ]
+}

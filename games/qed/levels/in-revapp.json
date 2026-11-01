@@ -1,0 +1,96 @@
+{
+  "title": { "zh": "倒过来拼", "en": "Reversing an append" },
+  "fact": "revApp",
+  "intro": [
+    {
+      "t": {
+        "zh": "rev 把列表倒过来。先定义它，再看它和拼接的关系。",
+        "en": "rev reverses a list. Define it first, then see how it relates to append."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "定义倒过来", "en": "Defining reverse" },
+      "fn": "rev",
+      "on": 0,
+      "defs": ["app"],
+      "rows": [
+        { "lhs": "rev(nil)", "choices": ["nil"] },
+        {
+          "lhs": "rev(cons(x, xs))",
+          "choices": [
+            "app(rev(xs), cons(x, nil))",
+            "cons(x, rev(xs))",
+            "app(cons(x, nil), rev(xs))",
+            "rev(app(xs, cons(x, nil)))"
+          ]
+        }
+      ],
+      "tests": [
+        { "term": "rev(cons(i, cons(j, cons(k, nil))))", "value": "cons(k, cons(j, cons(i, nil)))" },
+        { "term": "rev(cons(i, nil))", "value": "cons(i, nil)" }
+      ],
+      "solution": ["nil", "app(rev(xs), cons(x, nil))"],
+      "naive": ["nil", "cons(x, rev(xs))"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "x :: xs 倒过来，x 在最后。", "en": "In x :: xs reversed, x comes last." }]
+    },
+    {
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "step": { "zh": "倒过来拼", "en": "Reversing an append" },
+      "types": ["list"],
+      "defs": ["app", "len", "rev"],
+      "tests": [{ "goal": "∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        {
+          "zh": "[] 的情况要 rev ys = rev ys ++ []；另一种情况，两个 ++ 要换一种结合方式。",
+          "en": "The [] case needs rev ys = rev ys ++ []; the other needs two ++ grouped the other way."
+        },
+        { "zh": "这两件事，「数理规则书」里都有证出的等式。", "en": "The “Rule book of numbers” has equations proved for both." }
+      ],
+      "solution": [
+        "c0r0 = math[use=[\"list.induct\"]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = each(c0, body: c4) {",
+        "  body {",
+        "    c2r0 = allI()",
+        "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\", appNil, appAssoc]]()",
+        "    c4r0 = refl()",
+        "    c3r6 = hyp(c3r0)",
+        "    c2 = rule(c1.body, c2r0)",
+        "    c3 = simp(c2, c3r6)",
+        "    c4 = rule(c3, c4r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ],
+      "naive": [
+        "c0r0 = math[use=[\"list.induct\"]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = each(c0, body: c4) {",
+        "  body {",
+        "    c2r0 = allI()",
+        "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\"]]()",
+        "    c4r0 = refl()",
+        "    c3r4 = hyp(c3r0)",
+        "    c2 = rule(c1.body, c2r0)",
+        "    c3 = simp(c2, c3r4)",
+        "    c4 = rule(c3, c4r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ]
+    }
+  ]
+}

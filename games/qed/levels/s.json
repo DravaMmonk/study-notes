@@ -1,0 +1,37 @@
+{
+  "kind": "proof",
+  "title": { "zh": "在条件下套用", "en": "Apply under a condition" },
+  "tests": [{ "goal": "(A → (B → C)) → ((A → B) → (A → C))" }],
+  "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+  "builds": "axS",
+  "hint": [
+    { "zh": "数一数最外层有几个 →。", "en": "Count the outermost →s." },
+    { "zh": "最里面的框里，三个假设都看得见。", "en": "Inside the innermost box, all three assumptions are visible." }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "下雨的时候，只要刮风，就地湿；下雨的时候，一定刮风。那么下雨的时候，就地湿：这是在「下雨」这个条件下套用。这句话叫 <part-ref to=\"lemma:axS\"></part-ref>。",
+        "en": "When it rains, if it is windy the ground is wet; when it rains, it is windy. So when it rains, the ground is wet: Apply under the condition “it rains”. This sentence is called <part-ref to=\"lemma:axS\"></part-ref>."
+      }
+    }
+  ],
+  "solution": [
+    "f = impI[A=\"A -> (B -> C)\"](body: g) {",
+    "  body {",
+    "    g = impI[A=\"A -> B\"](body: h) {",
+    "      body {",
+    "        h = impI[A=A](body: m3) {",
+    "          body {",
+    "            m1 = mp(f.body, h.body)",
+    "            m2 = mp(g.body, h.body)",
+    "            m3 = mp(m1, m2)",
+    "          }",
+    "        }",
+    "      }",
+    "    }",
+    "  }",
+    "}",
+    "goal <- f"
+  ]
+}

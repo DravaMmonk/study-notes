@@ -1,0 +1,49 @@
+{
+  "adds": ["saturate", "clausify"],
+  "title": { "zh": "交给证明器", "en": "Hand it to the prover" },
+  "after": {
+    "zh": "证明助手推出的 ⊥ 只有它自己担保：子句不是核证出来的。",
+    "en": "A ⊥ reached by the proof assistant is vouched for by nothing but itself: the clauses were not proved by the kernel."
+  },
+  "tasks": [
+    {
+      "kind": "machine",
+      "want": "decide",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "step": { "zh": "证明器", "en": "The prover" },
+      "tests": [
+        { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"] },
+        { "goal": "Rain", "hyps": ["Rain → Wet", "Wet"] },
+        { "goal": "Mortal(h)", "hyps": ["∀x. Human(x) → Mortal(x)", "Human(h)"] },
+        { "goal": "OnTime", "hyps": ["Bus → OnTime", "Bike ∨ Bus"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手，直接从目标出发：推得出的推出 ⊥，推不出的一直归结到再没有新子句。",
+        "en": "Design a proof assistant that starts from the goal itself: where the goal follows, reach ⊥; where it does not, resolve until no new clause appears."
+      },
+      "hint": [{ "zh": "本章已经搭出了两个证明助手。", "en": "This chapter has already built two proof assistants." }],
+      "solution": ["c0 = clausify(in)", "c1 = saturate(c0)", "out <- c1"],
+      "naive": ["c0 = clausify(in)", "c1 = resolve(c0)", "out <- c1"]
+    },
+    {
+      "kind": "truth",
+      "step": { "zh": "读出那一行", "en": "Read the row" },
+      "ask": "counter",
+      "formulas": ["(Bus → OnTime) ∧ (Bike ∨ Bus) → OnTime"],
+      "intro": [
+        {
+          "t": {
+            "zh": "最后一个目标，证明助手饱和完也没有推出 ⊥。",
+            "en": "On the last goal, the proof assistant saturated without reaching ⊥."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "找出一行，让已知都成立，要证的那句却不成立。",
+        "en": "Find a row where the hypotheses all hold and the goal does not."
+      },
+      "hint": [{ "zh": "看饱和以后只有一个文字的子句。", "en": "Look at the one-literal clauses after saturating." }]
+    }
+  ]
+}

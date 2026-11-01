@@ -8,23 +8,24 @@ import { ArrowRightFromLine, Box, CircuitBoard, Flag, GitFork, Repeat, Rows3, Se
 import { L, tr } from '../../../shell/i18n.js'
 import Entries from '../../../shell/Entries.jsx'
 import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
-import { startProof } from '../build.js'
-import { FORMULA_TEXT, fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
+import { startProof } from '../proof.js'
+import { fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
 import { choicesOf } from '../choices.js'
 import { chipsFrom } from '../formulaTree.js'
 import { vocabulary } from '../fol.js'
 import { LOGIC_TESTS } from '../proof.js'
-import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf } from '../machine.js'
+import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf, startMachine } from '../machine.js'
+import { machineShape } from '../blueprint.js'
 import { parseS, ruleText } from '../schematic.js'
 import { rewriteText } from '../rewrite.js'
 import { say, sayTerm } from '../notation.js'
 import { constructorsOf } from '../datatype.js'
 import { paramsOf } from '../../../engine/forms.js'
-import { portsOf } from '../../../engine/circuit.js'
 import { certificate, clauseFormula, refuted } from '../resolution.js'
 import { elimOf, genRuleText } from '../elimgen.js'
 import { printTerm } from '../pterm.js'
-import { MACHINE_TEXT, familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
+import { familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
+import { MACHINE_TEXT } from '../partText.js'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -289,12 +290,11 @@ const machineName = (level, type) => (isRulePart(level, type) ? rulePartName(lev
 /** The editor's description of a machine board (../../../circuit/model.js parts), for a level's inputs. */
 function machinePartsFor(level) {
   const labels = new Map(inputsOfLevel(level).map((i) => [i.name, i.label]))
-  // The generator's board (chapter 3) carries rules as values: it takes no rule parts.
-  const ruleParts = level.want === 'elim' ? new Map() : rulePartsOf(level)
+  const shape = machineShape(level)
+  const { ruleParts } = shape
   const isRulePart = (_, type) => ruleParts.has(type) && !MACHINE_PARTS[type]
   return {
-    inputs: (node) => (node.type === 'out' ? ['in'] : node.type === 'in' ? [] : MACHINE_PARTS[node.type] ? portsOf(MACHINE_PARTS[node.type], node) : isRulePart(level, node.type) ? portsOf(RULE_PART, node) : []),
-    role: (node) => (node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
+    ...shape,
     label: (node) => (node.type === 'in' ? labels.get(node.params.name) ?? T('输入', 'Input') : node.type === 'out' ? T('结果', 'Result') : machineName(level, node.type)),
     portLabel: (node, port) => (port === 'rules' ? RULES_PORT : port === 'before' ? BEFORE_PORT : MACHINE_TEXT[node.type]?.frames?.[port] ? T('结果', 'Result') : MACHINE_TEXT[node.type]?.ports?.[port] ?? ''),
     family: (node) => (node.type === 'in' ? 'given' : node.type === 'out' ? 'end' : isRulePart(level, node.type) ? 'rule' : MACHINE_PARTS[node.type]?.frames ? 'box' : 'lemma'),
@@ -306,15 +306,10 @@ function machinePartsFor(level) {
     // A built part has room for its tools beside its name; unfolded, it shows the board it runs inside its card.
     cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : MACHINE_PARTS[node.type]?.built ? (node.open ? 480 : 210) : 170),
     frames: (node) => (MACHINE_PARTS[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: MACHINE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
-    text: FORMULA_TEXT,
     rules: { ...Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')), ...Object.fromEntries([...ruleParts.keys()].map((type) => [type, RULE_PART])) },
   }
 }
 
-const startMachine = (level) => ({
-  nodes: [...inputsOfLevel(level).map((i, k) => ({ id: i.name, type: 'in', params: { name: i.name }, x: 20, y: 40 + k * 130 })), { id: 'out', type: 'out', params: { name: 'out' }, x: 900, y: 40 }],
-  wires: [],
-})
 const inputNames = (circuit) => circuit.nodes.filter((n) => n.type === 'in').map((n) => n.params.name).sort().join()
 
 export const MACHINE = {

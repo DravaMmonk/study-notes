@@ -1,0 +1,27 @@
+{
+  "kind": "proof",
+  "title": { "zh": "不用框接起来", "en": "Joining without a box" },
+  "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
+  "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+  "without": ["impI", "chain", "swap", "merge"],
+  "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+  "hint": [
+    {
+      "zh": "有框时，证明是什么样子？框里的每一步，没有框时由谁来做？",
+      "en": "What does the proof look like with a box? Without one, what does each step inside it?"
+    },
+    { "zh": "框里的套用是在条件「下雨」下做的。", "en": "The Apply inside the box happens under the condition “it rains”." }
+  ],
+  "solution": [
+    "k = axK[A=\"B -> C\", B=A]()",
+    "s = axS[A=A, B=B, C=C]()",
+    "m1 = mp(k, q)",
+    "m2 = mp(s, m1)",
+    "m3 = mp(m2, p)",
+    "goal <- m3"
+  ],
+  "after": {
+    "zh": "任何一个框都能换成 K、S 和套用，这叫<wiki-ref to=\"deduction\"></wiki-ref>。",
+    "en": "Any box can be traded for K, S and Apply: the <wiki-ref to=\"deduction\"></wiki-ref>."
+  }
+}

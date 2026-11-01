@@ -1,0 +1,67 @@
+{
+  "kind": "machine",
+  "want": "becomes",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "title": { "zh": "按形状分解目标", "en": "The goal by its shape" },
+  "builds": "introRules",
+  "tests": [
+    { "goal": "Rain ∧ Wind", "becomes": [["Rain", "Wind"]] },
+    { "goal": "Rain → Wet", "becomes": [["Rain ⊢ Wet"]] },
+    { "goal": "Rain ∨ Wind", "becomes": [["Rain"], ["Wind"]] },
+    { "goal": "∀x. Human(x) → Mortal(x)", "becomes": [["⋀a. Human(a) → Mortal(a)"]] },
+    { "goal": "∃x. Human(x)", "becomes": [["Human(?t)"]] },
+    { "goal": "Rain", "becomes": [] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：用每一条对得上的引入规则把目标倒着拆一步，每种拆法都留下；一条都对不上时失败。",
+    "en": "Design a proof assistant that takes the goal one step apart with every introduction rule that fits, keeping every way; when none fits, it fails."
+  },
+  "hint": [
+    {
+      "zh": "引入规则有六条：拼接、假设框、补充左右两条、任取框、概括。",
+      "en": "There are six introduction rules: Join, the assumption box, Add alternative left and right, the for-any box, and Generalise."
+    },
+    {
+      "zh": "<part-ref to=\"part:append\"></part-ref>上可以选六个框。",
+      "en": "<part-ref to=\"part:append\"></part-ref> can be set to six regions."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里，每一步用哪条规则，都是你看过目标后选定的。引入规则看的是目标：目标是什么结构，就是哪条引入规则造出来的。设计出的证明助手会成为新元件「分解目标」。",
+        "en": "Until now, the rule for each step was chosen by you after looking at the goals. Introduction rules look at the goal: a goal’s shape says which introduction rule made it. The proof assistant you design becomes a new part, “Goal apart”."
+      }
+    }
+  ],
+  "solution": [
+    "c0 = append[ways=\"6\"](in, first: c1, second: c2, third: c3, fourth: c4, fifth: c5, sixth: c6) {",
+    "  first {",
+    "    c1r0 = andI()",
+    "    c1 = rule(c0.first, c1r0)",
+    "  }",
+    "  second {",
+    "    c2r0 = impI()",
+    "    c2 = rule(c0.second, c2r0)",
+    "  }",
+    "  third {",
+    "    c3r0 = orI[use=[disjI1]]()",
+    "    c3 = rule(c0.third, c3r0)",
+    "  }",
+    "  fourth {",
+    "    c4r0 = orI[use=[disjI2]]()",
+    "    c4 = rule(c0.fourth, c4r0)",
+    "  }",
+    "  fifth {",
+    "    c5r0 = allI()",
+    "    c5 = rule(c0.fifth, c5r0)",
+    "  }",
+    "  sixth {",
+    "    c6r0 = exI()",
+    "    c6 = rule(c0.sixth, c6r0)",
+    "  }",
+    "}",
+    "out <- c0"
+  ]
+}

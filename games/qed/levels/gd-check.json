@@ -1,0 +1,47 @@
+{
+  "kind": "machine",
+  "want": "proved",
+  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+  "backtrack": true,
+  "words": ["everyday", "terms", "codes"],
+  "title": { "zh": "检查证明是一次计算", "en": "Checking a proof is a computation" },
+  "stated": [
+    "concl(ax(x)) = x",
+    "concl(use(x, y)) = then(concl(x), concl(y))",
+    "then(imp(x, y), x) = y",
+    "ok(ax(x)) = isax(x)",
+    "ok(use(x, y)) = both(both(ok(x), ok(y)), fits(concl(x), concl(y)))",
+    "fits(imp(x, y), x) = tt",
+    "both(tt, x) = x",
+    "isax(rain) = tt",
+    "isax(imp(rain, wet)) = tt",
+    "isax(imp(wet, slip)) = tt"
+  ],
+  "tests": [
+    { "goal": "ok(use(ax(imp(rain, wet)), ax(rain))) = tt" },
+    { "goal": "concl(use(ax(imp(rain, wet)), ax(rain))) = wet" },
+    { "goal": "ok(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = tt" },
+    { "goal": "concl(use(ax(imp(wet, slip)), use(ax(imp(rain, wet)), ax(rain)))) = slip" }
+  ],
+  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+  "hint": [{ "zh": "十条定义都要用。", "en": "All ten definitions are needed." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "第二步：证明也写成数。证明是一棵树，叶子是公理，每个分叉是一次套用，和证明板上接的一样；树也能编成数。检查一个证明只看两件事：每片叶子都在公理表里，每次套用都对得上（「若 A 则 B」接上的正是 A）。公理表里有：下雨、下雨 → 地湿、地湿 → 路滑。",
+        "en": "The second step: proofs become numbers too. A proof is a tree whose leaves are axioms and whose forks are each an Apply, as wired on the board; a tree can be coded as a number. Checking a proof looks at two things: every leaf is in the table of axioms, and every Apply fits (the “if A then B” meets just A). The table holds: it rains, it rains → the ground is wet, the ground is wet → the road is slippery."
+      }
+    }
+  ],
+  "solution": [
+    "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\"]]()",
+    "c1r0 = refl()",
+    "c0 = simp(in, c0r0)",
+    "c1 = rule(c0, c1r0)",
+    "out <- c1"
+  ],
+  "after": {
+    "zh": "「A 证得出」于是成了一句关于数的话：有一个数，是通过检查、结论为 A 的证明。记作 Prov(⌜A⌝)。",
+    "en": "“A can be proved” thus becomes a sentence about numbers: some number is a proof that passes the check and concludes A. It is written Prov(⌜A⌝)."
+  }
+}

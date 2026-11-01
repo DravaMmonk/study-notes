@@ -1,0 +1,23 @@
+{
+  "kind": "proof",
+  "title": { "zh": "取一个", "en": "Take one" },
+  "consts": ["i"],
+  "adds": ["allE"],
+  "tests": [{ "premises": { "p": "∀x. P(x) → Q(x)", "q": "P(i)" }, "goal": "Q(i)" }],
+  "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+  "hint": [
+    {
+      "zh": "「对所有 x」说的话，对安也成立：在元件上把 x 换成安。",
+      "en": "What holds for every x holds for Ann: on the part, put Ann in for x."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "新元件<part-ref to=\"part:allE\"></part-ref>：接进「∀x. …」，在元件上选一样东西，输出就是把 x 换成它的那句话。",
+        "en": "A new part, <part-ref to=\"part:allE\"></part-ref>: wire in a “∀x. …”, choose a thing on the part, and out comes the sentence with x replaced by it."
+      }
+    }
+  ],
+  "solution": ["e = allE[t=i](p)", "m = mp(e, q)", "goal <- m"]
+}

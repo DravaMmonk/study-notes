@@ -1,0 +1,71 @@
+{
+  "title": { "zh": "框就是 λ", "en": "The box is λ" },
+  "intro": [
+    {
+      "t": {
+        "zh": "套用把函数用在证明上；函数则由假设框造出。造函数写作 <b>fun h => …</b>，意思是「拿到 h，就给出 …」：框里假设的那一句名叫 h，框里的证明可以用它，框外得到一个等着 h 的函数。这叫<wiki-ref to=\"lambda\"></wiki-ref>，也写作 λ h => …。",
+        "en": "Apply uses a function on a proof; the function is made by the assumption box. A function is written <b>fun h => …</b>, “given h, give …”: the sentence the box assumes is named h, the proof inside may use it, and outside comes a function waiting for an h. This is <wiki-ref to=\"lambda\"></wiki-ref>, also written λ h => …."
+      }
+    },
+    {
+      "t": {
+        "zh": "元件上，框里的假设叫 h1，里面一层框的叫 h2。名字只是记号：fun h => h 和 fun x => x 是同一个证明项。",
+        "en": "On the parts, a box’s assumption is h1 and the one of a box inside it h2. Names are only labels: fun h => h and fun x => x are the same term."
+      }
+    }
+  ],
+  "after": {
+    "zh": "真值表只说一句话真不真，证明项还记得它<b>为什么</b>真：同一个类型可以有不同的程序。",
+    "en": "A truth table only says whether a sentence is true; a proof term also remembers <b>why</b>. One type can have different programs."
+  },
+  "tasks": [
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "一个框", "en": "One box" },
+      "tests": [{ "premises": { "p": "A → (B → C)", "q": "B" }, "goal": "A → C", "term": "fun h => p h q" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
+      "briefNote": { "zh": "证明项须为 fun h => p h q。", "en": "Its proof term must be fun h => p h q." },
+      "hint": [
+        {
+          "zh": "fun h => … 是一个框，h 是框里假设的那一句；箭头后面是框里要接出的东西。",
+          "en": "fun h => … is a box, h the sentence it assumes; after the arrow is what is wired inside it."
+        }
+      ],
+      "solution": [
+        "f = impI[A=A](body: m2) {",
+        "  body {",
+        "    m1 = mp(p, f.body)",
+        "    m2 = mp(m1, q)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    },
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "外层的假设", "en": "The outer assumption" },
+      "tests": [{ "goal": "A → (A → A)", "term": "fun a b => a" }],
+      "cases": [{ "A": "Rain" }, { "A": "Sat" }],
+      "briefNote": { "zh": "证明项须为 fun a b => a。", "en": "Its proof term must be fun a b => a." },
+      "hint": [
+        {
+          "zh": "fun a b => … 是 fun a => fun b => … 的简写：两层框，外层假设 a，里层假设 b。",
+          "en": "fun a b => … is short for fun a => fun b => …: two boxes, the outer assuming a, the inner b."
+        }
+      ],
+      "solution": ["f = impI[A=A](body: g) {", "  body {", "    g = impI[A=A](body: f.body)", "  }", "}", "goal <- f"]
+    },
+    {
+      "kind": "proof",
+      "terms": true,
+      "step": { "zh": "里层的假设", "en": "The inner assumption" },
+      "tests": [{ "goal": "A → (A → A)", "term": "fun a b => b" }],
+      "cases": [{ "A": "Rain" }, { "A": "Sat" }],
+      "brief": { "zh": "还是这一句，证明项须为 fun a b => b。", "en": "The same sentence, with the term fun a b => b." },
+      "hint": [{ "zh": "这回要的是里层框的那个假设。", "en": "This time the one wanted is the inner box’s assumption." }],
+      "solution": ["f = impI[A=A](body: g) {", "  body {", "    g = impI[A=A](body: g.body)", "  }", "}", "goal <- f"]
+    }
+  ]
+}

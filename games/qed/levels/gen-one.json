@@ -1,0 +1,47 @@
+{
+  "kind": "machine",
+  "want": "elim",
+  "inputs": [
+    { "name": "it", "label": { "zh": "它", "en": "It" } },
+    { "name": "ways", "label": { "zh": "引入规则", "en": "Intro rule" } }
+  ],
+  "single": true,
+  "builds": "elimGen",
+  "title": { "zh": "拆开它", "en": "Taking it apart" },
+  "adds": ["anyR", "swapConcl", "consFront", "mkRule"],
+  "tests": [
+    { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
+    {
+      "it": "?A ∧ (?B ∧ ?C)",
+      "ways": ["⟦?A; ?B; ?C⟧ ⟹ ?A ∧ (?B ∧ ?C)"],
+      "elim": ["?A ∧ (?B ∧ ?C)", "⟦?A; ?B; ?C⟧ ⟹ ?R"]
+    },
+    { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
+    { "it": "Truth", "ways": ["Truth"], "elim": ["Truth", "?R"] }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "每声明一样东西，证明核都由它的引入规则生成<wiki-ref to=\"elim-rule\"></wiki-ref>。这条支线把证明核里做这一步的部分亲手搭出来。",
+        "en": "Each time something is declared, the kernel makes its <wiki-ref to=\"elim-rule\"></wiki-ref> from the ways in. This branch builds that part of the kernel by hand."
+      }
+    },
+    {
+      "t": {
+        "zh": "这块板上，线上传的是规则本身。两个输入：声明的那句话（字母换成了 ?A、?B，生成的规则要对任何句子都成立），和它的<wiki-ref to=\"intro-rule\"></wiki-ref>。托盘里的元件把规则拆开、拼起来。每组测试是一份只有一条引入规则的声明，和要生成的消去规则。",
+        "en": "On this board the wires carry rules themselves. Two inputs: the declared sentence (its letters turned into ?A and ?B, since the rule made must hold for any sentences) and its <wiki-ref to=\"intro-rule\"></wiki-ref>. The parts in the tray take rules apart and put them together. Each test is a declaration with one way in, and the elimination rule to make."
+      }
+    }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：由只有一条引入规则的声明，生成它的消去规则。",
+    "en": "Design a proof assistant that makes the elimination rule of a declaration with one introduction rule."
+  },
+  "hint": [
+    {
+      "zh": "比一比引入规则和要生成的消去规则：哪一部分原样搬过去了，哪一部分换掉了？",
+      "en": "Compare the way in with the elimination rule to make: which part carries over as it is, and which is replaced?"
+    }
+  ],
+  "solution": ["r = anyR()", "s = swapConcl(ways, r)", "c = consFront(it, s)", "m = mkRule(c, r)", "out <- m"]
+}

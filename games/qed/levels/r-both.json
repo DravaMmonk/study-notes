@@ -1,0 +1,37 @@
+{
+  "kind": "machine",
+  "want": "unify",
+  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+  "title": { "zh": "两边都有 ?", "en": "? on both sides" },
+  "adds": ["uSwap", "uDecompose", "uConflict", "uEliminate"],
+  "tests": [
+    { "eqs": ["?A ∧ Wind ≐ Rain ∧ ?B"] },
+    { "eqs": ["Rain → ?B ≐ ?A"] },
+    { "eqs": ["?A → ?A ≐ ?B → Rain"] },
+    { "eqs": ["Rain ∧ ?B ≐ ?A ∨ Wind"] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：把每组等式解到底；对不上的，说「失败」。",
+    "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit."
+  },
+  "hint": [{ "zh": "?-字母在右边的等式，先翻过来。", "en": "Turn round any equation with its ?-letter on the right." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里，?-字母都在等式左边。可要对上的两句都可能带着 ?，这时会出现「下雨 ≐ ?B」这样 ? 在右边的等式，而现有的元件只认左边的 ?。新元件「定向」把它翻成 ?B ≐ 下雨。",
+        "en": "So far the ?-letters have all been on the left. But both sentences being fitted may hold them, and then an equation like “it rains ≐ ?B” appears, its ?-letter on the right, where the parts so far do not look. A new part, “Orient”, turns it into ?B ≐ it rains."
+      }
+    }
+  ],
+  "solution": [
+    "r = repeat(in, body: c3) {",
+    "  body {",
+    "    c0 = uDecompose(r.body)",
+    "    c1 = uSwap(c0)",
+    "    c2 = uEliminate(c1)",
+    "    c3 = uConflict(c2)",
+    "  }",
+    "}",
+    "out <- r"
+  ]
+}

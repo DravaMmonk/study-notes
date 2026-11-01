@@ -1,0 +1,37 @@
+{
+  "kind": "machine",
+  "want": "unify",
+  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+  "title": { "zh": "拆到底", "en": "All the way down" },
+  "adds": ["repeat", "uDecompose"],
+  "showcase": {
+    "zh": "重复框把框里接出的东西再送回框里，一圈一圈地做，直到不再变化或者失败：框开出的是上一圈的结果，不是一开始的输入；光看说明，容易以为它只做一遍",
+    "en": "the repeat frame feeds what is made inside back in, round after round, until nothing changes or it fails: what the frame opens with is the last round’s result, not the first input; from its description alone it is easy to think it runs once"
+  },
+  "tests": [
+    { "eqs": ["?A ∧ ?B ≐ Rain ∧ Wind"] },
+    { "eqs": ["((?A ∨ ?B) → ?C) ∧ ?D ≐ ((Rain ∨ Wind) → Wet) ∧ Slip"] },
+    { "eqs": ["(?A → ?B) ∧ ((?C ∨ ?D) ∧ ?E) ≐ (Rain → Wet) ∧ ((Wind ∨ Slip) ∧ Moon)"] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：不管要拆几层，都拆到每个等式左边只剩一个 ?-字母。",
+    "en": "Design a proof assistant that splits until each equation has a single ?-letter on its left, however many levels it takes."
+  },
+  "hint": [{ "zh": "框里放一个「分解」，其余交给框。", "en": "One Decompose in the frame; the frame does the rest." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "要拆几层，取决于规则和目标，事先不知道：接多少个「分解」，总会遇到更深的等式。",
+        "en": "How many levels must be split depends on the rule and the goal, and is not known beforehand: however many Decompose parts are wired, a deeper equation will come."
+      }
+    },
+    {
+      "t": {
+        "zh": "新元件<part-ref to=\"part:repeat\"></part-ref>：框左边开出它收到的东西，框里的元件做一圈，接回框右边的「结果」；下一圈，框开出的是这一圈的结果。如此反复，直到不再变化或者失败，送出最后一圈的结果。",
+        "en": "A new part, the <part-ref to=\"part:repeat\"></part-ref>: on its left the frame opens with what it receives; the parts inside do one round and wire back to “result” on its right; next round, it opens with this round’s result. So it goes on until nothing changes or it fails, and it gives the last round."
+      }
+    }
+  ],
+  "solution": ["r = repeat(in, body: c0) {", "  body {", "    c0 = uDecompose(r.body)", "  }", "}", "out <- r"],
+  "naive": ["c0 = uDecompose(in)", "c1 = uDecompose(c0)", "c2 = uDecompose(c1)", "out <- c2"]
+}

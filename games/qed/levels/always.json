@@ -1,0 +1,37 @@
+{
+  "kind": "truth",
+  "title": { "zh": "永远成立", "en": "Always true" },
+  "ask": "valid",
+  "symbols": ["→"],
+  "formulas": ["Rain → Rain", "Rain → Wet", "Rain ∧ Wind → Rain", "Rain → (Wind → Rain)", "Rain ∧ Wind → Wet"],
+  "brief": {
+    "zh": "下面五个命题，哪些在每一行都为真？逐一判断。",
+    "en": "Which of these five propositions are true on every row? Mark each one."
+  },
+  "hint": [
+    { "zh": "拿不准时，展开真值表逐行检查。", "en": "If you are unsure, expand the truth table and check its rows." },
+    { "zh": "只要有一行为假，就不是每一行都为真。", "en": "One false row is enough to rule it out." },
+    {
+      "zh": "「若下雨并且刮风，则地湿」：能不能下雨、刮风，地却不湿？",
+      "en": "“If it rains and it is windy, then the ground is wet”: can it rain and be windy while the ground stays dry?"
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "「若 X，则 Y」写作 <b>X → Y</b>；「X 并且 Y」在 X、Y 都为真时才为真。",
+        "en": "“If X, then Y” is written <b>X → Y</b>; “X and Y” is true only when both X and Y are."
+      }
+    },
+    {
+      "t": {
+        "zh": "在每一行都为真的命题叫<wiki-ref to=\"tautology\"></wiki-ref>。",
+        "en": "A proposition true on every row is a <wiki-ref to=\"tautology\"></wiki-ref>."
+      }
+    }
+  ],
+  "after": {
+    "zh": "一个命题是否永真，只取决于它的<b>逻辑形式</b>：把其中的基本命题换成别的，结论不变。",
+    "en": "Whether a proposition is a tautology depends only on its <b>logical form</b>: put other propositions in place of its atoms and the verdict stays the same."
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "kind": "machine",
+  "want": "unify",
+  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+  "title": { "zh": "代不完", "en": "It never ends" },
+  "adds": ["uCheck", "uDecompose", "uEliminate"],
+  "tests": [{ "eqs": ["?A ≐ ?A → Wet"] }, { "eqs": ["?A → ?A ≐ ?B → (?B ∧ Rain)"] }, { "eqs": ["?A ∧ ?B ≐ ?B ∧ Rain"] }],
+  "brief": {
+    "zh": "设计一个证明助手：把每组等式解到底；没有解的，说「失败」。",
+    "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when there is no solution."
+  },
+  "hint": [{ "zh": "重复框停下时，剩下的等式真的解完了吗？", "en": "When the frame stops, are the equations left really solved?" }],
+  "intro": [
+    {
+      "t": {
+        "zh": "?A ≐ ?A → 地湿：?A 要等于一句比它自身还长的话。代入一次，右边又多出一个 ?A，永远代不完，这组等式无解。现有的元件对它都无能为力：重复框转一圈毫无变化，就此停下。新元件「出现检查」：找到 ?A ≐ t 而 t 中含有 ?A 的等式，宣布失败。",
+        "en": "?A ≐ ?A → the ground is wet: ?A must equal a sentence longer than itself. Put in once, the right side gains another ?A, and it never ends: there is no solution. None of the parts so far can do anything with it; the repeat frame goes round once, nothing changes, and it stops. A new part, “Occurs check”, finds ?A ≐ t with ?A inside t, and declares failure."
+      }
+    }
+  ],
+  "solution": [
+    "r = repeat(in, body: c2) {",
+    "  body {",
+    "    c0 = uDecompose(r.body)",
+    "    c1 = uEliminate(c0)",
+    "    c2 = uCheck(c1)",
+    "  }",
+    "}",
+    "out <- r"
+  ],
+  "after": {
+    "zh": "许多合一程序为了速度省掉出现检查，Prolog 默认也不做；代价是可能「证」出假话。",
+    "en": "Many unifiers leave the occurs check out for speed, Prolog among them by default; the price is that something false may be “proved”."
+  }
+}

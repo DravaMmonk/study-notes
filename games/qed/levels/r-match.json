@@ -1,0 +1,38 @@
+{
+  "kind": "machine",
+  "want": "unify",
+  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+  "title": { "zh": "对上一条规则", "en": "Fitting a rule" },
+  "adds": ["uDecompose"],
+  "tests": [
+    { "eqs": ["?A ∧ ?B ≐ Rain ∧ Wind"] },
+    { "eqs": ["?A → ?B ≐ Rain → Wet ∧ Slip"] },
+    { "eqs": ["(?A → ?B) ∧ ?C ≐ (Rain → Wet) ∧ Wind"] }
+  ],
+  "brief": {
+    "zh": "设计一个证明助手：把规则的结论和目标对上，拆到每个等式左边都只剩一个 ?-字母。",
+    "en": "Design a proof assistant that fits a rule’s conclusion to a goal, splitting until each equation has a single ?-letter on its left."
+  },
+  "hint": [{ "zh": "一个「分解」只拆一层。第三组测试有两层。", "en": "One Decompose splits one level. The third test has two." }],
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里，元件上的句子都由你来选：假设框假设什么，补充补上哪一句。很多时候，目标已经说明了该填什么。",
+        "en": "So far you have chosen the sentences on parts yourself: what a box assumes, which side Add alternative adds. Often the goal already says what goes there."
+      }
+    },
+    {
+      "t": {
+        "zh": "规则可以写成带空位的形式：拼接是 ⟦?A; ?B⟧ ⟹ ?A ∧ ?B，方括号里是前提，⟹ 后面是结论。?A、?B 是<wiki-ref to=\"metavariable\"></wiki-ref>。这套写法取自<wiki-ref to=\"isabelle\"></wiki-ref>；<wiki-ref to=\"lean\"></wiki-ref>也有元变量。",
+        "en": "A rule can be written with blanks: Join is ⟦?A; ?B⟧ ⟹ ?A ∧ ?B, the premises in brackets, the conclusion after ⟹. ?A and ?B are <wiki-ref to=\"metavariable\"></wiki-ref>s. The notation is <wiki-ref to=\"isabelle\"></wiki-ref>’s; <wiki-ref to=\"lean\"></wiki-ref> has metavariables too."
+      }
+    },
+    {
+      "t": {
+        "zh": "要把规则用到目标上，先得让它的结论和目标对上：解 ?A ∧ ?B ≐ 下雨 ∧ 刮风，求出 ?A 和 ?B。这叫<wiki-ref to=\"unification\"></wiki-ref>。新元件「分解」：把两边结构相同的等式拆成对应部分之间的几个等式。",
+        "en": "To use a rule on a goal, its conclusion must first fit the goal: solve ?A ∧ ?B ≐ it rains ∧ it is windy for ?A and ?B. This is <wiki-ref to=\"unification\"></wiki-ref>. A new part, “Decompose”, splits an equation whose sides share a shape into equations between corresponding parts."
+      }
+    }
+  ],
+  "solution": ["c0 = uDecompose(in)", "c1 = uDecompose(c0)", "out <- c1"]
+}

@@ -1,0 +1,61 @@
+{
+  "title": { "zh": "定义拼接和长度", "en": "Defining append and length" },
+  "intro": [{ "t": { "zh": "为列表定义两个函数：拼接和长度。", "en": "Define two functions on lists: append and length." } }],
+  "tasks": [
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "拼接", "en": "Append" },
+      "fn": "app",
+      "on": 0,
+      "rows": [
+        { "lhs": "app(nil, ys)", "choices": ["ys", "nil"] },
+        {
+          "lhs": "app(cons(x, xs), ys)",
+          "choices": ["cons(x, app(xs, ys))", "app(xs, cons(x, ys))", "cons(x, app(cons(x, xs), ys))"]
+        }
+      ],
+      "tests": [
+        { "term": "app(cons(i, nil), cons(j, nil))", "value": "cons(i, cons(j, nil))" },
+        { "term": "app(cons(i, cons(j, nil)), cons(k, nil))", "value": "cons(i, cons(j, cons(k, nil)))" }
+      ],
+      "solution": ["ys", "cons(x, app(xs, ys))"],
+      "naive": ["ys", "app(xs, cons(x, ys))"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "x :: xs 接上 ys，x 仍在最前面。", "en": "In x :: xs followed by ys, x is still in front." }],
+      "intro": [
+        {
+          "t": {
+            "zh": "xs ++ ys 把两个列表接起来，拆开的是前一个列表。",
+            "en": "xs ++ ys joins two lists; the one it takes apart is the first."
+          }
+        }
+      ]
+    },
+    {
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "step": { "zh": "长度", "en": "Length" },
+      "fn": "len",
+      "on": 0,
+      "rows": [
+        { "lhs": "len(nil)", "choices": ["zero", "s(zero)"] },
+        { "lhs": "len(cons(x, xs))", "choices": ["s(len(xs))", "len(xs)", "s(len(cons(x, xs)))"] }
+      ],
+      "tests": [
+        { "term": "len(cons(i, cons(j, nil)))", "value": "s(s(zero))" },
+        { "term": "len(nil)", "value": "zero" }
+      ],
+      "solution": ["zero", "s(len(xs))"],
+      "naive": ["zero", "len(xs)"],
+      "brief": {
+        "zh": "给每一行选一个右边，让每个测试都算对。",
+        "en": "Pick a right side for every row so that every test works out right."
+      },
+      "hint": [{ "zh": "多一样东西，长度加一。", "en": "One more thing, one longer." }]
+    }
+  ]
+}

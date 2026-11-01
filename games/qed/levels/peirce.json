@@ -1,0 +1,45 @@
+{
+  "kind": "proof",
+  "title": { "zh": "皮尔士律", "en": "Peirce’s law" },
+  "tests": [{ "goal": "((A → B) → A) → A" }],
+  "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Pass" }],
+  "hint": [
+    { "zh": "下不下雨，两边都讨论。", "en": "Rain or no rain: take both sides." },
+    {
+      "zh": "不下雨的那一边，要设法得到「下雨 → 地湿」。",
+      "en": "On the side where it does not rain, find a way to get “it rains → the ground is wet”."
+    }
+  ],
+  "intro": [
+    {
+      "t": {
+        "zh": "这句话只有 →，看着古怪，真值表上每一行却都真。",
+        "en": "This sentence has nothing but →. It looks strange, yet it is true on every row."
+      }
+    }
+  ],
+  "solution": [
+    "f = impI[A=\"(A -> B) -> A\"](body: e) {",
+    "  body {",
+    "    l = lem[A=A]()",
+    "    e = orE(l, left: e.left, right: m2) {",
+    "      right {",
+    "        g = impI[A=A](body: b) {",
+    "          body {",
+    "            m = mp(e.right, g.body)",
+    "            b = botE[C=B](m)",
+    "          }",
+    "        }",
+    "        m2 = mp(f.body, g)",
+    "      }",
+    "    }",
+    "  }",
+    "}",
+    "goal <- f"
+  ],
+  "naive": ["f = impI[A=\"(A -> B) -> A\"](body: f.body)", "goal <- f"],
+  "after": {
+    "zh": "这是皮尔士律。在只有 → 的语言里，加上它就得到经典逻辑。",
+    "en": "This is Peirce’s law. Added to a language of → alone, it gives classical logic."
+  }
+}

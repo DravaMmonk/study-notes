@@ -1,0 +1,61 @@
+{
+  "title": { "zh": "两个都要", "en": "Both of them" },
+  "fold": ["axK", "axS"],
+  "intro": [
+    {
+      "t": {
+        "zh": "证明器里的「下雨 ∧ 刮风」和<level-ref to=\"g-and\"></level-ref>里的<part-ref to=\"part:gAnd\"></part-ref>门同义：下雨，并且刮风。",
+        "en": "In the prover, “it rains ∧ it is windy” means what the <part-ref to=\"part:gAnd\"></part-ref> gate of <level-ref to=\"g-and\"></level-ref> does: it rains, and it is windy."
+      }
+    },
+    {
+      "t": {
+        "zh": "<level-ref to=\"decl-and\"></level-ref>声明了「并且」，证明板上随之多了两块元件：<part-ref to=\"part:andI\"></part-ref>是它唯一的引入规则；<part-ref to=\"part:andE\"></part-ref>是由它生成的消去规则，两个输出口分别给出左边和右边。每个连接词都有一组引入规则和一组消去规则，这样组织的规则体系叫<wiki-ref to=\"natural\"></wiki-ref>。",
+        "en": "<level-ref to=\"decl-and\"></level-ref> declared “and”, and the proof board gained two parts: <part-ref to=\"part:andI\"></part-ref>, its one introduction rule, and <part-ref to=\"part:andE\"></part-ref>, the elimination rule made from it, whose two outputs give the left and the right. Every connective has its introduction and elimination rules; a system of rules organised this way is called <wiki-ref to=\"natural\"></wiki-ref>."
+      }
+    }
+  ],
+  "after": {
+    "zh": "不依赖任何已知证出的话叫<wiki-ref to=\"theorem\"></wiki-ref>：真值表上的永真式，在这里是证出来的。",
+    "en": "A sentence proved from no givens is a <wiki-ref to=\"theorem\"></wiki-ref>: a tautology of the truth tables, here proved."
+  },
+  "tasks": [
+    {
+      "kind": "proof",
+      "step": { "zh": "两个都要", "en": "Both of them" },
+      "tests": [{ "premises": { "p": "A ∧ B" }, "goal": "B ∧ A" }],
+      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Hungry", "B": "Late" }],
+      "hint": [{ "zh": "先拆开，再按新的顺序拼起来。", "en": "Take it apart, then put it back together in the new order." }],
+      "solution": ["e = andE(p)", "i = andI(e.right, e.left)", "goal <- i"]
+    },
+    {
+      "kind": "proof",
+      "step": { "zh": "搬进框里", "en": "Into a box" },
+      "tests": [{ "goal": "A ∧ B → B ∧ A" }],
+      "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Hungry", "B": "Late" }],
+      "hint": [
+        {
+          "zh": "刚才的证明可以整个搬进一个框里：框的假设拼成「下雨 ∧ 刮风」。",
+          "en": "The proof you just made can move into a box whole: assume “it rains ∧ it is windy”."
+        }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "这一次没有已知：「下雨 ∧ 刮风 → 刮风 ∧ 下雨」是一句永远成立的话。",
+            "en": "This time nothing is given: “it rains ∧ it is windy → it is windy ∧ it rains” always holds."
+          }
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"A & B\"](body: i) {",
+        "  body {",
+        "    e = andE(f.body)",
+        "    i = andI(e.right, e.left)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
+}
