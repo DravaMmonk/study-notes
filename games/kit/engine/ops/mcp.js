@@ -3,7 +3,7 @@
 // stdin and stdout. It offers the tools of tools.js and nothing else. Anything else the kernel prints goes to stderr,
 // so stdout carries only the protocol.
 import { createInterface } from 'node:readline'
-import { TOOLS } from './tools.js'
+import { TOOLS, lacking } from './tools.js'
 import { closeGames } from '../games.mjs'
 
 const PROTOCOL = '2025-06-18'
@@ -19,7 +19,6 @@ const inputSchema = (params) => ({
   required: Object.entries(params).filter(([, spec]) => !spec.endsWith('?')).map(([k]) => k),
   additionalProperties: false,
 })
-const missing = (params, args) => Object.entries(params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k)
 
 const METHODS = {
   initialize: ({ protocolVersion }) => ({
@@ -33,8 +32,8 @@ const METHODS = {
   'tools/call': async ({ name, arguments: args = {} }) => {
     const tool = TOOLS[name]
     if (!tool) throw Object.assign(new Error(`no tool ${name}`), { code: -32602 })
-    const lacking = missing(tool.params, args)
-    if (lacking.length) return { isError: true, content: [{ type: 'text', text: `${name} needs ${lacking.join(', ')}` }] }
+    const absent = lacking(tool, args)
+    if (absent.length) return { isError: true, content: [{ type: 'text', text: `${name} needs ${absent.join(', ')}` }] }
     try {
       const result = await tool.run(args)
       // A changeset refused or an audit that fails is still an answer: isError is for a call that could not run.

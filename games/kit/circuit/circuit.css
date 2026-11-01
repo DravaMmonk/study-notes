@@ -97,6 +97,10 @@
 .slots-toggle svg { flex: none; color: var(--muted); }
 .slots-toggle:hover, .slots.is-open .slots-toggle { box-shadow: 0 0 0 1px var(--rule), 0 6px 18px -12px rgba(0, 0, 0, .4); }
 .slots.is-open .slots-toggle > svg:last-child { transform: rotate(180deg); }
+.slots.has-take { display: flex; align-items: center; gap: 6px; }
+.slots-take { color: var(--paper); background: var(--accent); }
+.slots-take svg { color: inherit; }
+.slots-take:hover { box-shadow: 0 0 0 1px var(--accent-ink), 0 6px 18px -12px rgba(0, 0, 0, .4); }
 .slots-menu { position: absolute; z-index: 9; left: 0; bottom: calc(100% + 6px); width: 248px; max-height: min(340px, 60vh); display: flex; flex-direction: column; padding: 6px; border-radius: 12px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 16px 32px -18px rgba(0, 0, 0, .55); animation: rise-in 160ms ease; }
 .slots.is-phone .slots-menu { top: calc(100% + 6px); bottom: auto; width: min(280px, calc(100vw - 32px)); }
 .slots-menu ul { flex: 1 1 auto; min-height: 0; margin: 0; padding: 0; overflow-y: auto; list-style: none; }

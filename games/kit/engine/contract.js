@@ -26,11 +26,14 @@ const isFn = (f) => typeof f === 'function'
 //                       the save step that drops it (ops/migrate.js)
 //   tasks               { merge(levels), split(level) }: what a level of tasks is (ops level.merge / level.split)
 //   play                { open(ctx), attempt(ctx, text) }: the blind-play harness's hook (games/DESIGN.md 6.6)
+//   scene               scene(spec, level) → an SVG string or null: a level drawn headlessly (the MCP's render, the
+//                       studio; games/DESIGN.md 6.7)
 export const EXTENSIONS = {
   saves: isFn,
   changes: (c) => Boolean(c) && isFn(c.stale) && isFn(c.drop),
   tasks: (t) => Boolean(t) && isFn(t.merge) && isFn(t.split),
   play: (p) => Boolean(p) && isFn(p.open) && isFn(p.attempt),
+  scene: isFn,
 }
 
 const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string' && typeof v.en === 'string')

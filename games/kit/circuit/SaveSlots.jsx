@@ -1,14 +1,17 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Check, ChevronDown, ClipboardPaste, Copy, FileText, Layers, Pencil, Plus, X } from 'lucide-react'
+import { ArrowUpFromLine, Check, ChevronDown, ClipboardPaste, Copy, FileText, Layers, Pencil, Plus, X } from 'lucide-react'
 import { Dialog } from '../shell/Dialogs.jsx'
 import { tr } from '../shell/i18n.js'
 import BlueprintDialog from './BlueprintDialog.jsx'
+import { print } from './text.js'
 
 /**
  * A level's saved boards (../shell/slots.js), handed to the board's editor by the shell around a level's screen:
- * { game, level, at, list: [{ no, name }], open(k), add({ copy }), rename(k, name), drop(k) }. Outside a level (a bench in the parts
- * box, an intro) there is none, and the editors show no switcher.
+ * { game, level, at, list: [{ no, name }], open(k), add({ copy }), rename(k, name), drop(k), take? }. Outside a level (a bench in the parts
+ * box, an intro) there is none, and the editors show no switcher. `take` ({ label, use(text) }) is there while the
+ * studio edits one of the level's boards in the game (../studio): a button beside the switcher hands it the board on
+ * screen as blueprint text.
  */
 export const SlotsContext = createContext(null)
 
@@ -55,7 +58,7 @@ export default function SaveSlots({ phone = false, board = null }) {
   }
   const current = slots.list[slots.at]
   return (
-    <div className={`slots ${phone ? 'is-phone' : ''} ${open ? 'is-open' : ''}`} ref={root} onPointerDown={(e) => e.stopPropagation()}>
+    <div className={`slots ${phone ? 'is-phone' : ''} ${open ? 'is-open' : ''} ${slots.take ? 'has-take' : ''}`} ref={root} onPointerDown={(e) => e.stopPropagation()}>
       <button type="button" className="slots-toggle" onClick={() => (open ? close() : setOpen(true))} aria-expanded={open} aria-haspopup="menu" title={tr('这一关存下的电路', 'Boards saved on this level')}>
         <Layers size={phone ? 15 : 14} aria-hidden="true" />
         <span>{labelOf(current)}</span>
@@ -104,6 +107,12 @@ export default function SaveSlots({ phone = false, board = null }) {
             </div>
           )}
         </div>
+      )}
+      {slots.take && board && (
+        <button type="button" className="slots-toggle slots-take" onClick={() => slots.take.use(print(board.graph, board.parts).split('\n').slice(1).join('\n'))}>
+          <ArrowUpFromLine size={phone ? 15 : 14} aria-hidden="true" />
+          <span>{slots.take.label}</span>
+        </button>
       )}
       {text && board && <BlueprintDialog board={board} head={{ game: slots.game, level: slots.level }} mode={text} onClose={() => setText(null)} />}
       {/* On the page itself: the tools' blurred backing would otherwise hold the dialog inside it. */}

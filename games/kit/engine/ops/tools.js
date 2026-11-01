@@ -8,12 +8,17 @@ import { GAMES } from '../../../games.js'
 import { find } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
-import { GAMES_DIR, domainOf, readContent } from '../content-node.js'
+import { GAMES_DIR, domainOf, readContent, readPlaytests } from '../content-node.js'
+import { perLevel } from '../play/stats.js'
 import { drawDeps } from '../deps.js'
+import { boardSvg } from '../../circuit/svg.js'
 import { getAt, parsePath, showPath } from './edit.js'
 import { OPERATIONS } from './operations.js'
 import { hubCount, openGame } from './workspace.js'
-import { runChangeset } from './changeset.js'
+import { lastUndoable, readLog, runChangeset, undo } from './changeset.js'
+
+/** The arguments a call to `tool` lacks. */
+export const lacking = (tool, args) => Object.entries(tool.params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k)
 
 // The games folder the tools work on: the repository's, or GAMES_ROOT (a copy, for trying changes out).
 const ROOT = process.env.GAMES_ROOT ?? GAMES_DIR
@@ -23,8 +28,41 @@ const known = (game) => {
   return game
 }
 const levelIn = (content, level) => content.levels.find((l) => l.id === level) ?? (() => { throw new Error(`${content.id} has no level ${level}`) })()
+const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 /** The lines of a check that are about one level (its id first, then a space, a colon or a slash). */
-const about = (lines, level) => lines.filter((l) => new RegExp(`^${level.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[ :/]`).test(l.text))
+const about = (lines, level) => lines.filter((l) => new RegExp(`^${escape(level)}[ :/]`).test(l.text))
+
+/**
+ * The levels a line of the check is about (`ids`: the levels in play order, as the check's paths count them): the
+ * level a domain names, the level file a content problem is in, the level a copy problem's path counts to, the level
+ * a blind-play report is on, the levels a course finding lists (`part@level`), or the level the line starts with.
+ */
+export function levelsOfLine(line, ids) {
+  if (line.level) return [line.level]
+  const { text } = line
+  const file = /^content: levels\/(.+?)\.json/.exec(text)
+  if (file) return [file[1]]
+  const copy = /^text levels\.(\d+)\b/.exec(text)
+  if (copy) return ids[Number(copy[1])] ? [ids[Number(copy[1])]] : []
+  const report = /^REPORT [\w-]+: (\S+) /.exec(text)
+  if (report) return ids.includes(report[1]) ? [report[1]] : []
+  if (/^(OPEN )?course: /.test(text)) return [...new Set([...text.matchAll(/@([^\s,)]+)/g)].map((m) => m[1]).filter((id) => ids.includes(id)))]
+  const head = [...ids].sort((a, b) => b.length - a.length).find((id) => new RegExp(`^${escape(id)}[ :/]`).test(text))
+  return head ? [head] : []
+}
+
+/** A game opened under ROOT, with the change its log would undo next. */
+const logOf = (game) => {
+  const ws = openGame(known(game), ROOT)
+  return { log: readLog(ws), undoable: lastUndoable(ws)?.seq ?? null }
+}
+
+/** A game's content as a changeset would leave it (nothing written; an operation that fails throws its problem). */
+async function contentAfter(game, changeset) {
+  const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check: false })
+  if (!r.content) throw new Error(r.problems.join('; '))
+  return r.content
+}
 
 /** Every board (blueprint text) a level holds: [{ path, text }]. */
 async function boardsOf(content, level) {
@@ -39,7 +77,7 @@ export const TOOLS = {
     params: { game: 'string' },
     async run({ game }) {
       const content = readContent(known(game), ROOT)
-      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game) })
+      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), playtests: readPlaytests(game, ROOT) })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
   },
@@ -75,13 +113,21 @@ export const TOOLS = {
     },
   },
   render: {
-    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text. SVG and PNG are not drawn headlessly: say so.',
-    params: { game: 'string', level: 'string', path: 'string?', format: 'string?' },
-    async run({ game, level, path, format = 'text' }) {
-      if (format !== 'text') return { rendered: false, note: `${format}: boards and levels are drawn by the browser (React, kit/circuit and the domain’s ui); nothing draws them headlessly yet. Build the game (npm run build:games) and open the level, or ask for format text.` }
-      const content = readContent(known(game), ROOT)
+    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), and its scene where its domain draws one headlessly; changeset: as a changeset would leave it. PNG is not drawn.',
+    params: { game: 'string', level: 'string', path: 'string?', format: 'string?', changeset: 'object?' },
+    async run({ game, level, path, format = 'text', changeset = null }) {
+      if (format !== 'text' && format !== 'svg') return { rendered: false, note: `${format}: only text and svg are drawn headlessly; for a picture of the level as played, build the game (npm run build:games) and open it.` }
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
       const value = levelIn(content, level)
       const boards = await boardsOf(content, level)
+      if (format === 'svg') {
+        if (path !== undefined) {
+          const board = boards.find((b) => b.path === showPath(parsePath(path)))
+          return board ? { svg: boardSvg(board.text, { title: `${level} ${board.path}` }) } : { note: `${level} has no board at ${path}`, boards: boards.map((b) => b.path) }
+        }
+        const domain = await domainOf(content)
+        return { scene: domain.scene?.(domain.spec(content), level) ?? null, boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
+      }
       if (path !== undefined) {
         const board = boards.find((b) => b.path === showPath(parsePath(path)))
         return board ? { text: board.text } : { text: JSON.stringify(getAt(value, path), null, 2) }
@@ -112,6 +158,61 @@ export const TOOLS = {
     async run({ game, changeset }) {
       const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check: false })
       return { migration: r.step, says: r.says, problems: r.problems, notes: r.notes }
+    },
+  },
+  preview: {
+    about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, the save step, each file changed (its text before and after), the operation that failed if one did, and the change log. The studio shows a game through it.',
+    params: { game: 'string', changeset: 'object?' },
+    async run({ game, changeset = { ops: [] } }) {
+      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false })
+      const { content } = r
+      // Copy problems count levels in play order, which only a content that fits its vocabulary has.
+      const ids = !content ? [] : r.lines.some((l) => l.text.startsWith('content: ')) ? content.levels.map((l) => l.id) : (await domainOf(content)).spec(content).levels.map((l) => l.id)
+      return {
+        ok: r.ok, says: r.says, problems: r.problems, failed: r.failed, content, order: ids,
+        lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
+        migration: r.step, changes: r.changes, notes: r.notes, ...logOf(game),
+      }
+    },
+  },
+  seed: {
+    about: 'What a level’s screen keeps of one of its boards (path, default solution), as a changeset would leave it: put data in a save’s progress.data[level] (a level of tasks: at index task) and the level opens on that board.',
+    params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
+    async run({ game, level, path = 'solution', changeset = { ops: [] } }) {
+      const content = await contentAfter(game, changeset)
+      const keys = parsePath(path)
+      const lines = getAt(levelIn(content, level), keys)
+      const domain = await domainOf(content)
+      const read = (domain.spec(content).blueprints ?? []).filter((b) => b.level === level)
+      // The board the domain read from these very lines, else these lines read as the level reads its reference.
+      const bp = read.find((b) => JSON.stringify(b.write(b.board)) === JSON.stringify(lines))
+      const reference = read.filter((b) => !b.naive).at(-1)
+      if (!bp && !reference) return { note: `${level} has no board its domain reads` }
+      const board = bp ? bp.board : reference.read(lines)
+      return { data: ((bp ?? reference).save ?? ((b) => b))(board), task: keys[0] === 'tasks' ? keys[1] : null }
+    },
+  },
+  log: {
+    about: 'A game’s change log (changes.jsonl), oldest first, and the change undo would undo next.',
+    params: { game: 'string' },
+    async run({ game }) {
+      return logOf(game)
+    },
+  },
+  undo: {
+    about: 'Undo the last change of a game’s log not undone yet: its inverse run as a changeset, checked, and logged as an undo (dryRun: preview only).',
+    params: { game: 'string', dryRun: 'boolean?' },
+    async run({ game, dryRun = false }) {
+      const r = await undo(openGame(known(game), ROOT), { write: !dryRun })
+      return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, migration: r.step, files: r.files, diff: r.diff, notes: r.notes }
+    },
+  },
+  playtests: {
+    about: 'A game’s blind-play records (games/<game>/playtests/*.json, as the harness wrote them) and the audit panel’s numbers level by level (../play/stats.js perLevel): sessions, solved, gave up, attempts, hints, cost.',
+    params: { game: 'string' },
+    async run({ game }) {
+      const records = readPlaytests(known(game), ROOT)
+      return { records, levels: Object.fromEntries(perLevel(records)) }
     },
   },
   vocabulary: {
