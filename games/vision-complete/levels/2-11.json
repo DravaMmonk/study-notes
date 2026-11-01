@@ -40,10 +40,19 @@
     }
   ],
   "unlocks": ["downsample"],
-  "bench": "alias",
-  "setup": {
-    "fine": 256,
-    "ranges": { "k": [0, 24], "M": [4, 24], "K": [0, 16] },
+  "bench": {
+    "model": "alias",
+    "setup": { "fine": 256, "folds": [[9, 16, 7], [12, 16, 4]] },
+    "knobs": {
+      "k": { "label": { "zh": "真实频率 k", "en": "True frequency k" }, "min": 0, "max": 24, "step": 1 },
+      "M": { "label": { "zh": "采样点数 M", "en": "Number of samples M" }, "min": 4, "max": 24, "step": 1 },
+      "K": {
+        "label": { "zh": "采样前只保留 k ≤", "en": "Before sampling, keep only k ≤" },
+        "min": 0,
+        "max": 16,
+        "step": 1
+      }
+    },
     "stages": [
       {
         "title": { "zh": "冒名顶替", "en": "Impostor" },
@@ -51,10 +60,12 @@
           "zh": "只采 16 个点。空心圈是 k = 3 的波采到的值。找一个别的频率，采到的点和它一模一样。",
           "en": "Only 16 samples. The hollow rings are the values sampled from the k = 3 wave. Find another frequency whose samples are exactly the same."
         },
-        "control": "k",
+        "opens": ["k"],
+        "start": { "k": 4 },
+        "goal": [{ "of": "k", "not": 3 }, { "of": "sampleGap", "below": 0.000001 }],
         "samples": 16,
         "reference": { "c": 0.5, "A": 0.4, "k": 3, "phase": 0 },
-        "start": 4
+        "answers": "13,19"
       },
       {
         "title": { "zh": "最少几个点", "en": "Fewest points" },
@@ -62,9 +73,11 @@
           "zh": "一道 k = 5 的波。减少采样点数，直到从点上再也看不出原来的波。能看对的最少是几个点？",
           "en": "A k = 5 wave. Reduce the number of samples until the points no longer show the original wave. What is the fewest that still reads it correctly?"
         },
-        "control": "M",
+        "opens": ["M"],
+        "start": { "M": 16 },
+        "goal": [{ "of": "faithful", "is": true }, { "of": "fewer", "is": false }],
         "wave": { "c": 0.5, "A": 0.4, "k": 5, "phase": 30 },
-        "start": 16
+        "answers": "11"
       },
       {
         "title": { "zh": "先滤再采", "en": "Filter, then sample" },
@@ -72,7 +85,9 @@
           "zh": "这条线由四道波组成，要采 16 个点。采之前先把太快的波滤掉：保留哪些频率，采出来才和「应有的样子」一致？",
           "en": "This line is made of four waves and will be sampled at 16 points. Filter out the waves that are too fast before sampling: which frequencies should you keep so the samples match \"how it should look\"?"
         },
-        "control": "K",
+        "opens": ["K"],
+        "start": { "K": 16 },
+        "goal": [{ "of": "sampleGap", "below": 0.000001 }, { "of": "keepsLow", "is": true }],
         "samples": 16,
         "parts": [
           { "k": 2, "A": 0.22, "phase": 0 },
@@ -80,10 +95,16 @@
           { "k": 9, "A": 0.1, "phase": 0 },
           { "k": 12, "A": 0.08, "phase": 70 }
         ],
-        "start": 16
+        "answers": "7,8"
       }
     ],
-    "answers": [[13, 19], [11], [7, 8]],
-    "folds": [[9, 16, 7], [12, 16, 4]]
+    "layout": {
+      "main": [
+        { "plot": { "of": "plot", "height": [260, 220], "legend": true } },
+        { "text": { "of": "readout" } },
+        { "chips": { "of": "chips", "look": "wave" } }
+      ],
+      "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+    }
   }
 }

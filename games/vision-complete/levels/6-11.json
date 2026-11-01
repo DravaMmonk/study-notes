@@ -40,15 +40,56 @@
     }
   ],
   "unlocks": ["homography"],
-  "bench": "cover",
-  "setup": {
-    "cover": { "w": 60, "h": 84 },
-    "photo": { "w": 200, "h": 150 },
-    "title": [8, 10, 52, 30],
-    "logo": [22, 50, 38, 66],
-    "quad": [[78, 24], [140, 30], [166, 128], [48, 120]],
-    "clutter": { "note": [[14, 14], [34, 12], [36, 32], [16, 34]], "paper": [[176, 70], [206, 64], [210, 160], [186, 148]] },
-    "seed": 65,
-    "tol": 1.5
+  "bench": {
+    "model": "cover",
+    "setup": {
+      "cover": { "w": 60, "h": 84 },
+      "photo": { "w": 200, "h": 150 },
+      "title": [8, 10, 52, 30],
+      "logo": [22, 50, 38, 66],
+      "quad": [[78, 24], [140, 30], [166, 128], [48, 120]],
+      "clutter": {
+        "note": [[14, 14], [34, 12], [36, 32], [16, 34]],
+        "paper": [[176, 70], [206, 64], [210, 160], [186, 148]]
+      },
+      "seed": 65
+    },
+    "knobs": {
+      "pairs": { "list": true, "drawn": true },
+      "overlay": { "toggle": true, "start": true, "label": { "zh": "显示贴图", "en": "Show the pasted cover" } }
+    },
+    "actions": [{ "reset": ["pairs"], "label": { "zh": "清空", "en": "Clear" }, "icon": "reset" }],
+    "goal": [
+      { "of": "pairs", "label": { "zh": "点对", "en": "Pairs" }, "atLeast": 4, "format": "outOf" },
+      { "of": "error", "label": { "zh": "误差", "en": "Error" }, "below": 1.5, "format": "fixed2", "unit": " px" }
+    ],
+    "layout": {
+      "main": [{ "coverPairs": { "with": ["goals"] } }],
+      "foot": [
+        {
+          "panel": [
+            {
+              "row": [
+                {
+                  "stack": [
+                    { "text": { "text": { "zh": "变换", "en": "Transform" }, "look": "label" } },
+                    { "text": { "of": "transform", "look": "note" } },
+                    { "row": ["knobs", "actions"], "tight": true }
+                  ]
+                },
+                {
+                  "stack": [
+                    {
+                      "text": { "text": { "zh": "点对 · 封面 → 照片", "en": "Pairs · cover → photo" }, "look": "label" }
+                    },
+                    "coverPairList"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 }

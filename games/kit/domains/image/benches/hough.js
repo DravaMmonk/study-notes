@@ -1,7 +1,11 @@
-// The Hough voting bench (HoughVote.jsx): edge points vote for every line (θ, ρ) through them; the player picks a bin
-// size and wins when, in every scene, the two strongest peaks are the scene's two lines.
+// The Hough voting bench: edge points vote for every line (θ, ρ) through them; the player picks a bin size and wins
+// when, in every scene, the two strongest peaks are the scene's two lines.
+import { S } from '../../../engine/schema.js'
+import { judge } from '../../../engine/bench.js'
 import { random } from '../engine/image.js'
 import { houghAccumulate, houghPeaks, lineGap } from '../engine/match.js'
+
+const t = (zh, en) => ({ zh, en })
 
 const gauss = (next) => {
   let s = 0
@@ -69,7 +73,63 @@ export function houghBench({ scenes, steps, rhoMax, tol }) {
       if (index >= 0) used.add(index)
       return index
     })
-    return { acc, peaks, found, pass: found.every((i) => i >= 0) }
+    return { acc, peaks, found, matched: found.filter((i) => i >= 0).length }
   }
-  return { scenes, steps, run, rhoMax, tol, passesAll: (step) => scenes.every((scene) => run(scene, step).pass) }
+  return { scenes, steps, run, rhoMax, tol }
+}
+
+const NAMES = ['A', 'B']
+
+/** The bench model: knob `bin` (an index into [Δθ°, Δρ] bin sizes); each case a scene; matched: lines found. */
+export const hough = {
+  about: t('投票：边缘点给经过它的每条直线投票；旋钮 bin 选分箱大小；每个情形是一张图，matched 是前两个峰对上的线数', 'voting: edge points vote for every line through them; knob bin picks the bin size; each case is a picture, and matched counts the lines the top two peaks hit'),
+  setup: S.obj({ rhoMax: S.num(), tol: S.obj({ theta: S.num(), rho: S.num() }) }),
+  case: S.obj({ seed: S.int(), lines: S.list(S.obj({ theta: S.num(), rho: S.num(), n: S.int(), from: S.opt(S.num()), to: S.opt(S.num()) })), outliers: S.int() }),
+  make({ rhoMax, tol }, bench) {
+    const scenes = bench.cases.map(({ label, seed, lines, outliers }) => ({ label, lines, points: houghScene(seed, lines, outliers) }))
+    const steps = bench.knobs.bin.values
+    const m = houghBench({ scenes, steps, rhoMax, tol })
+    return {
+      ...m,
+      passesAll: (step) => scenes.every((scene) => judge(bench.goal, m.run(scene, step)).pass),
+      view(v, { caseIndex }) {
+        const scene = scenes[caseIndex]
+        const run = m.run(scene, v.bin)
+        const [dTheta, dRho] = steps[v.bin]
+        return {
+          matched: run.matched,
+          scene,
+          run,
+          bin: [dTheta, dRho],
+          dTheta: `${dTheta}°`,
+          dRho: `${dRho} px`,
+          cells: `${run.acc.nT}×${run.acc.nR}`,
+          peaksTitle: [scene.label, ' · ', t('票数最高的峰', 'peaks with the most votes')],
+          peaks: {
+            head: [t('峰', 'Peak'), 'θ', 'ρ', t('票数', 'Votes'), t('匹配', 'Match')],
+            rows: run.peaks.slice(0, 3).map((p, i) => {
+              const hit = run.found.indexOf(i)
+              return { dim: i >= 2, cells: [String(i + 1), `${p.theta.toFixed(1)}°`, p.rho.toFixed(1), String(p.votes), i < 2 ? { text: hit >= 0 ? NAMES[hit] : '—', tone: hit >= 0 ? 'pass' : 'fail' } : ''] }
+            }),
+          },
+          tolerance: t(`容差 ${tol.theta}°、${tol.rho} px。`, `Tolerance ${tol.theta}°, ${tol.rho} px.`),
+        }
+      },
+    }
+  },
+  verify(model) {
+    const { steps, rhoMax } = model
+    const pattern = steps.map((_, step) => model.passesAll(step))
+    if (!pattern.some(Boolean)) return 'no bin size passes every scene'
+    if (pattern[0] || pattern[1]) return 'the finest bins pass'
+    if (pattern.at(-1) || pattern.at(-2)) return 'the coarsest bins pass'
+    // Coarse bins must fail because the two rails fall into one cell or neighbouring cells: one peak.
+    const [dTheta, dRho] = steps.at(-1)
+    const [a, b] = model.scenes[0].lines
+    const cell = (line) => [Math.floor(line.theta / dTheta), Math.floor((line.rho + rhoMax) / dRho)]
+    const [ca, cb] = [cell(a), cell(b)]
+    if (Math.abs(ca[0] - cb[0]) > 1 || Math.abs(ca[1] - cb[1]) > 1) return 'coarse bins still separate the two rails'
+    if (model.run(model.scenes[0], steps.length - 1).matched > 1) return 'coarse bins find both rails'
+    return ''
+  },
 }

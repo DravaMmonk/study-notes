@@ -1,13 +1,15 @@
-// The book-cover bench (BookCover.jsx): the player pairs points on a cover with the same points in a photo of it on a
-// desk; the pairs fix a homography (an affine map with three) and the cover is pasted back, judged by its mean error
-// over a grid on the cover.
+// The book-cover bench: the player pairs points on a cover with the same points in a photo of it on a desk; the pairs
+// fix a homography (an affine map with three) and the cover is pasted back, judged by its mean error over a grid on
+// the cover.
+import { S } from '../../../engine/schema.js'
+import { limitOf } from '../../../engine/bench.js'
 import { random } from '../engine/image.js'
 import { affineFit, homographyDLT, invert3, project } from '../engine/match.js'
 
 const rectCorners = ([x0, y0, x1, y1]) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
 
 /**
- * The bench's model. cover / photo: { w, h }; title, logo: [x0, y0, x1, y1] boxes on the cover; quad: where the
+ * The pairing. cover / photo: { w, h }; title, logo: [x0, y0, x1, y1] boxes on the cover; quad: where the
  * cover's corners land in the photo; clutter: { note, paper } polygons on the desk, whose corners (the note's four,
  * the paper's first and last) are decoys; seed: the photo points' jitter; tol: the mean error that passes.
  */
@@ -120,4 +122,67 @@ export function coverBench({ cover, photo, title, logo, quad, clutter, seed, tol
   }
 
   return { COVER: cover, PHOTO: photo, coverPoints, photoPoints, fit, tol, renderPhoto, renderCover, project, trueQuad: quad, trueH, overlayError, photoIndexOf }
+}
+
+const t = (zh, en) => ({ zh, en })
+const num = S.num()
+const pt = S.list(num, { min: 2 })
+const QUAD = S.list(pt, { min: 4 })
+
+/** The bench model: knob `pairs` (picked on the pictures) and `overlay`; quantities pairs (how many) and error. */
+export const cover = {
+  about: t('四个角：在封面和照片上连出对应点（旋钮 pairs），解出单应，把封面贴回照片；算出点对数 pairs 和误差 error', 'four corners: pair points on the cover and in the photo (knob pairs), solve the homography, paste the cover back; computes how many pairs and the error'),
+  setup: S.obj({
+    cover: S.obj({ w: num, h: num }), photo: S.obj({ w: num, h: num }),
+    title: S.list(num, { min: 4 }), logo: S.list(num, { min: 4 }), quad: QUAD,
+    clutter: S.obj({ note: QUAD, paper: QUAD }), seed: S.int(),
+  }),
+  make(setup, bench) {
+    const m = coverBench({ ...setup, tol: limitOf(bench.goal, 'error').below })
+    return {
+      ...m,
+      view(v) {
+        const fit = m.fit(v.pairs)
+        const n = v.pairs.length
+        return {
+          pairs: n,
+          error: fit.error,
+          fit,
+          transform: n === 3
+            ? fit.model ? t('3 对点 → 仿射变换（6 个自由度）。', '3 pairs → affine transform (6 degrees of freedom).') : t('这 3 对点共线，无法确定变换。', 'These 3 pairs are collinear, so the transform is undetermined.')
+            : n === 4
+              ? fit.model ? t('4 对点 → 单应变换，用 DLT 求解（8 个自由度）。', '4 pairs → homography, solved with DLT (8 degrees of freedom).') : t('这 4 对点过于集中或共线，无法确定 H。', 'These 4 pairs are too clustered or collinear to determine H.')
+              : t('至少需要 3 对点才能贴上封面。', 'At least 3 pairs are needed to paste the cover on.'),
+        }
+      },
+    }
+  },
+  verify(model) {
+    const { trueH, coverPoints, photoPoints, fit, overlayError, photoIndexOf, tol } = model
+    if (!trueH) return 'no true pose'
+    // The DLT must recover a known homography exactly from 4 noise-free pairs.
+    const exact = homographyDLT(coverPoints.slice(0, 4).map((from) => ({ from, to: project(trueH, ...from) })))
+    if (!(overlayError(exact) < 1e-6)) return 'DLT does not recover the true H'
+    const goal = fit([0, 1, 2, 3].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
+    if (!(goal.error < tol)) return `4 corner pairs give error ${goal.error.toFixed(2)}`
+    const other = fit([4, 5, 10, 11].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
+    if (!(other.error < tol)) return `title + logo pairs give error ${other.error.toFixed(2)}`
+    // No three correct pairs, and not even the best affine fit to all twelve, can reach the goal.
+    let bestAffine = Infinity
+    for (let i = 0; i < 12; i++) {
+      for (let j = i + 1; j < 12; j++) {
+        for (let k = j + 1; k < 12; k++) {
+          const three = fit([i, j, k].map((c) => ({ cover: c, photo: photoIndexOf(c) })))
+          if (three.model) bestAffine = Math.min(bestAffine, three.error)
+        }
+      }
+    }
+    if (bestAffine < 3 * tol) return `three pairs reach error ${bestAffine.toFixed(2)}`
+    const lsq = affineFit(coverPoints.map((from, c) => ({ from, to: photoPoints[photoIndexOf(c)].at })))
+    if (overlayError(lsq) < 3 * tol) return 'least-squares affine fits'
+    // One wrong pair (title corner matched to the cover corner) must fail.
+    const wrong = fit([0, 1, 2, 7].map((c, i) => ({ cover: i === 3 ? 3 : c, photo: photoIndexOf(c) })))
+    if (wrong.error < tol) return 'a wrong pair passes'
+    return ''
+  },
 }

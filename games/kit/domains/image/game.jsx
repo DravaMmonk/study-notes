@@ -4,7 +4,7 @@
 import { createElement } from 'react'
 import '../../../../trace-viewer/src/index.css'
 import './image.css'
-import './ui/boards/kit.css'
+import '../../shell/bench/bench.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'

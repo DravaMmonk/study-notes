@@ -3,15 +3,17 @@
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
 // The items are implemented next to their schemas: parts in engine/nodes.js and engine/parts/, pictures, scenes,
-// targets, budgets, benches and save migrations in items/.
+// targets, budgets, bench models, bench displays and save migrations in items/.
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
+import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { PICTURES } from './items/pictures.js'
 import { SCENES } from './items/scenes/index.js'
 import { TARGETS } from './items/targets.js'
 import { CONSTRAINTS } from './items/constraints.js'
-import { BENCHES } from './items/benches.js'
+import { BENCH_MODELS } from './items/benches.js'
+import { DISPLAYS } from './items/displays.js'
 import { MIGRATIONS } from './items/migrations.js'
 
 const t = (zh, en) => ({ zh, en })
@@ -118,7 +120,7 @@ const PROBE = S.obj({
   wrong: TEXT,
   probes: S.list(S.obj({ label: TEXT, picture: S.call('picture') })),
 })
-const BENCH = S.by('bench', Object.fromEntries(Object.entries(BENCHES).map(([name, bench]) => [name, S.obj({ ...COMMON, kind: S.oneOf(['board']), bench: S.oneOf([name]), setup: bench.params })])))
+const BENCH = S.obj({ ...COMMON, kind: S.oneOf(['board']), bench: benchSchema(BENCH_MODELS) })
 
 /* ---------- game.json ---------- */
 
@@ -162,7 +164,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 1,
+  version: 2,
   kinds: {
     part: PARTS,
     unlock: UNLOCKS,
@@ -171,7 +173,8 @@ export const vocabulary = defineVocabulary({
     scene: Object.fromEntries(Object.entries(SCENES).map(([name, s]) => [name, { about: s.about, ...(s.setup ? { params: s.setup } : {}), test: s.test }])),
     target: items(TARGETS),
     constraint: items(CONSTRAINTS),
-    bench: Object.fromEntries(Object.entries(BENCHES).map(([name, b]) => [name, { about: b.about, params: b.params, board: b.board }])),
+    benchModel: Object.fromEntries(Object.entries(BENCH_MODELS).map(([name, m]) => [name, { about: m.about, ...(m.setup ? { params: m.setup } : {}), ...(m.stage ? { stage: m.stage } : {}), ...(m.case ? { case: m.case } : {}) }])),
+    display: displayItems(DISPLAYS),
     migration: items(MIGRATIONS),
   },
   game: GAME,

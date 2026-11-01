@@ -80,7 +80,9 @@ shows them at work in 《证明完毕》):
   when it continues the previous machine (extends or upgrades it), so earlier work is never dropped; a list (possibly
   `[]`) when it changes topic, leaving the rest behind. Ask: is the new machine a continuation of the last one?
 - **Discovery, not transcription.** No level hands over a formula to wire up; a quantity with several parameters
-  is a bench that opens one knob per step. A hard mechanism gets its own intro levels as a named series (§2.2).
+  is a bench that opens one knob per step (every bench is the kernel's parameter bench, written as data: a model
+  from the domain, knobs, stages, a goal of limits and a layout of display items; `games/DESIGN.md` §6.4). A hard
+  mechanism gets its own intro levels as a named series (§2.2).
 - **Branch whatever does not depend** (§1, §2). A run of levels that needs no part unlocked and no idea taught by the
   run before it must not wait behind it: make them a parallel set, or hang the run after the level it really needs.
   For each series, list the levels its reference answers and copy actually draw on; a series placed earlier that is

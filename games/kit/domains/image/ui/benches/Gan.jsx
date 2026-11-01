@@ -1,16 +1,11 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Check, RotateCcw, X } from 'lucide-react'
-import { PHONE, useMedia } from '../../../../shell/useMedia.js'
-import './depthgen.css'
-import { tr } from '../../../../shell/i18n.js'
+import { useMedia } from '../../../../shell/useMedia.js'
+import { L, tr } from '../../../../shell/i18n.js'
+import './gan.css'
 
-// 8-3 骗过鉴定员: the player sets how a turn splits between the judge and the generator and
-// plays turns. A greedy generator drives both pens onto the judge's favourite spot (mode
-// collapse) and then hops between the humps; a patient schedule settles one pen on each hump.
-//
-// One chart, one x axis (the data value, −4…4): the histograms on top, the judge's D(x) under
-// them, and the pens' history under that, newest turn at the top, so a pen's trace starts where it
-// stands in the histogram.
+// The GAN duel's chart (bench model `gan`): one x axis (the data value, −4…4) for the histograms of real and generated
+// samples, the judge's D(x) under them, and the pens' history under that, newest turn at the top, so a pen's trace
+// starts where it stands in the histogram. The drawing eases from one turn to the next.
 
 const BINS = 32
 const TRACE = 60
@@ -57,53 +52,11 @@ function useWidth(fallback) {
   return [setNode, width]
 }
 
-function Goal({ pass, children, value }) {
-  return (
-    <li className={`bk-goal ${pass ? 'is-pass' : ''}`}>
-      {pass ? <Check size={16} /> : <X size={16} />}
-      <span>{children}</span>
-      <b>{value}</b>
-    </li>
-  )
-}
-
-function Choice({ label, options, value, onChange, format, disabled }) {
-  return (
-    <div className="gan-choice">
-      <span className="bk-label">{label}</span>
-      <div className="bk-seg gan-seg" role="group" aria-label={label}>
-        {options.map((option) => (
-          <button key={option} aria-pressed={value === option} disabled={disabled} onClick={() => onChange(option)}>{format(option)}</button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-export default function GanDuel({ level, onSolve }) {
-  const m = level.model
-  const phone = useMedia(PHONE)
-  const [state, setState] = useState(m.start)
-  const [schedule, setSchedule] = useState(m.DEFAULT)
-  const [running, setRunning] = useState(0)
-  const solved = useRef(false)
+export function GanChart({ ctx }) {
+  const m = ctx.model
+  const { state } = ctx.view
+  const { phone } = ctx
   const [frame, width] = useWidth(600)
-
-  useEffect(() => {
-    if (state.streak >= m.WIN && !solved.current) {
-      solved.current = true
-      onSolve()
-    }
-  }, [state.streak, m.WIN, onSolve])
-
-  useEffect(() => {
-    if (!running) return undefined
-    const timer = setTimeout(() => {
-      setState((s) => m.turn(s, schedule))
-      setRunning((n) => n - 1)
-    }, 110)
-    return () => clearTimeout(timer)
-  }, [running, schedule, m])
 
   // The drawing eases between turns; the readouts always show the true state.
   const target = useMemo(() => [...state.pens, ...state.w], [state])
@@ -111,11 +64,8 @@ export default function GanDuel({ level, onSolve }) {
   const pens = eased.slice(0, 2)
   const w = eased.slice(2)
 
-  const measure = m.measure(state)
   const real = useMemo(() => m.histogram(m.REAL, BINS), [m])
   const fake = m.histogram(m.fakes(pens), BINS)
-  const merged = Math.abs(state.pens[0] - state.pens[1]) < 0.01
-  const busy = running > 0
 
   // Geometry, in screen pixels.
   const X0 = 30
@@ -138,20 +88,14 @@ export default function GanDuel({ level, onSolve }) {
   const traceY = (i) => TT + (i / (TRACE - 1)) * TH
   const ticks = phone ? [-4, -2, 0, 2, 4] : [-4, -3, -2, -1, 0, 1, 2, 3, 4]
 
-  const set = (key) => (value) => setSchedule((s) => ({ ...s, [key]: value }))
-  const reset = () => {
-    setRunning(0)
-    setState(m.start())
-  }
-
-  const stage = (
-    <section className="bk-stage gan-stage">
+  return (
+    <div className="gan-stage">
       <div className="gan-head">
         <span className="gan-key"><i className="is-real" />{tr('真实数据', 'Real data')}</span>
         <span className="gan-key"><i className="is-fake" />{tr('生成样本', 'Generated')}</span>
         <span className="gan-key"><i className="is-pen0" />{tr('笔 1', 'Pen 1')}</span>
         <span className="gan-key"><i className="is-pen1" />{tr('笔 2', 'Pen 2')}</span>
-        <span className="bk-chip gan-turn">{tr(`第 ${state.turn} 回合`, `Round ${state.turn}`)}</span>
+        <span className="bk-chip gan-turn">{L(ctx.view.round)}</span>
       </div>
       <div className="gan-frame" ref={frame}>
         <svg className="gan-chart" viewBox={`0 0 ${width} ${H}`} width={width} height={H} role="img" aria-label={tr('真实数据和生成样本的分布、鉴定员的判断 D(x)，以及两支笔随回合的位置', "The distributions of real and generated samples, the judge's judgement D(x), and the two pens' positions round by round")}>
@@ -187,61 +131,6 @@ export default function GanDuel({ level, onSolve }) {
           <text className="gan-title is-on-band" x={X0 + 8} y={DT + 16}>{tr('鉴定员 D(x)：判断 x 为真实数据的置信度', 'Judge D(x): confidence that x is real')}</text>
           <text className="gan-title" x={X0} y={TT - 10}>{tr(`两支笔的历史位置 ↓ 越往下越早（最近 ${TRACE} 回合）`, `Pen positions over time ↓ older further down (last ${TRACE} rounds)`)}</text>
         </svg>
-      </div>
-      <p className={`bk-verdict gan-verdict ${merged && state.turn > 0 ? 'is-fail' : ''}`} aria-live="polite">
-        {merged && state.turn > 0 ? tr('两支笔已经重合，无法再分开：模式坍塌。', 'The two pens have merged and can no longer separate: mode collapse.') : tr('笔 1 和笔 2 各生成一半样本；竖线标出它们当前的位置。', 'Pen 1 and pen 2 each generate half the samples; the vertical lines mark their current positions.')}
-      </p>
-    </section>
-  )
-
-  const goals = (
-    <section className="bk-panel gan-goals">
-      <span className="bk-label">{tr(`目标 · 同时满足，连续 ${m.WIN} 回合`, `Goals · all at once, ${m.WIN} rounds in a row`)}</span>
-      <ul className="bk-goals">
-        <Goal pass={measure.left >= 0.4} value={pct(measure.left)}>{tr('左堆', 'Left cluster')} <small>≥ 40%</small></Goal>
-        <Goal pass={measure.right >= 0.4} value={pct(measure.right)}>{tr('右堆', 'Right cluster')} <small>≥ 40%</small></Goal>
-        <Goal pass={Math.abs(measure.accuracy - 0.5) <= 0.05} value={`${(measure.accuracy * 100).toFixed(1)}%`}>{tr('准确率', 'Accuracy')} <small>50 ± 5%</small></Goal>
-        <Goal pass={state.streak >= m.WIN} value={`${Math.min(state.streak, m.WIN)} / ${m.WIN}`}>{tr('连续达标', 'Streak')}</Goal>
-      </ul>
-    </section>
-  )
-
-  const actions = (
-    <div className="gan-actions">
-      <button className="bk-btn is-primary" disabled={busy} onClick={() => setState((s) => m.turn(s, schedule))}>{tr('运行 1 回合', 'Play 1 round')}</button>
-      <button className="bk-btn" disabled={busy} onClick={() => setRunning(10)}>{busy ? tr(`还剩 ${running} 回合`, `${running} ${running === 1 ? 'round' : 'rounds'} left`) : tr('运行 10 回合', 'Play 10 rounds')}</button>
-      <button className="bk-btn gan-reset" onClick={reset} aria-label={tr('重新开始', 'Start over')}><RotateCcw size={14} /><span>{tr('重新开始', 'Start over')}</span></button>
-    </div>
-  )
-
-  const settings = (
-    <section className="bk-panel gan-settings">
-      <Choice label={tr('鉴定员每回合训练', 'Judge steps per round')} options={m.OPTIONS.dSteps} value={schedule.dSteps} onChange={set('dSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
-      <Choice label={tr('生成器每回合训练', 'Generator steps per round')} options={m.OPTIONS.gSteps} value={schedule.gSteps} onChange={set('gSteps')} format={(v) => tr(`${v} 步`, `${v} ${v === 1 ? 'step' : 'steps'}`)} disabled={busy} />
-      <Choice label={tr('生成器步长', 'Generator step size')} options={m.OPTIONS.gRate} value={schedule.gRate} onChange={set('gRate')} format={(v) => String(v)} disabled={busy} />
-      {!phone && actions}
-    </section>
-  )
-
-  if (phone) {
-    return (
-      <div className="bk gan">
-        {stage}
-        {goals}
-        {actions}
-        {settings}
-      </div>
-    )
-  }
-
-  return (
-    <div className="bk gan">
-      <div className="bk-split gan-split">
-        {stage}
-        <div className="bk-stack">
-          {goals}
-          {settings}
-        </div>
       </div>
     </div>
   )

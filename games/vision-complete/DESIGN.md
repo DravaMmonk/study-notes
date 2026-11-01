@@ -45,7 +45,7 @@
 
 1. **图像流水线编辑器（主机制，对应电路编辑器）**：画布上放节点、连线；输入节点是关卡给的相机，输出节点是要通过测试的显示屏。图是无环的，连出环会被拒绝。所有测试实时跑，改一根线立刻看到每个节点的输出小图和每组测试的对错。
 2. **旋钮与训练（第 4 章起）**：带参数的节点（卷积核、阈值）可以手调；“可学习核”多一个“训练”按钮，每按一次沿损失下降方向走一步，并画出损失曲线。玩家先手调、再看机器自己调，体会“学到的特征取代手工设计”。
-3. **专用机关台（几何与概率章节）**：针孔暗箱、双目、极线、RANSAC 这类问题用专门的交互台：拖动小孔、选基线、设定抽样次数后跑 200 次试验看成功率。
+3. **机关台（参数台，`games/DESIGN.md` 第 6.4 节）**：针孔暗箱、采样、训练、投票、RANSAC 这类拼不出来的机制在参数台上玩：拖动小孔、转旋钮、设定抽样次数后跑 200 次试验看成功率。所有机关台是内核的同一个参数台，一关只写数据：用哪个模型、哪些旋钮、目标是什么、画面怎么排。
 4. **速判小游戏**：每章一个，限时选择，练直觉。
 
 所有关卡：一两句目标；可选“提示”；过关后一句“刚才发生了什么”的点题（post-mortem），并解锁元件。
@@ -393,14 +393,14 @@ Grad-CAM 本身没有单独做成关：在每格一个权重的线性分类器�
 游戏只有内容，全是数据（[`games/DESIGN.md`](../DESIGN.md) 第 6 节）；运行它的都在图像领域 `games/kit/domains/image/`，内容能写什么由它的词汇表定。
 
 - 本文件夹：`game.json`（标题、上电台词、原始元件、取代关系、每种画法在哪关引入 `views`、各章 `eras` 和讲次 `chapter`、存档迁移 `saves`、元件箱怎么试元件 `box`、名言）、`levels/<id>.json`（一关一个：玩法、文案、引言 `intro`、测试场景和测试、隐藏测试、预算、参考解和天真解，参考解写成蓝图文本）、`glossary.json`（百科）。
-- `vocabulary.js`：词汇表。内容能引用的项分九种：元件（`part`）、解锁（`unlock`）、画法（`view`）、图像生成器（`picture`，如 `disk`、`glyph`、`zonePlate`，带参数）、测试场景（`scene`：一关的测试从哪来，`filter` 是「给定输入图，按目标算期望」，其余是专门的场景，如 `stereo`、`classifier`）、目标（`target`：期望图怎么由输入算出，如 `gauss`、`sharpen`）、预算（`constraint`）、机关台（`bench`）、存档迁移（`migration`）。还有 `game.json` 和一关的 schema（按玩法分 `graph`、`board`、`probe`）。
-- `items/`：每一种项的实现：`pictures.js`、`targets.js`、`scenes/`（按主题分文件，每个场景造出测试和 `setup`）、`constraints.js`、`benches.js`（机关台按名字取场景数据和 `verify`）、`migrations.js`。
+- `vocabulary.js`：词汇表。内容能引用的项分十种：元件（`part`）、解锁（`unlock`）、画法（`view`）、图像生成器（`picture`，如 `disk`、`glyph`、`zonePlate`，带参数）、测试场景（`scene`：一关的测试从哪来，`filter` 是「给定输入图，按目标算期望」，其余是专门的场景，如 `stereo`、`classifier`）、目标（`target`：期望图怎么由输入算出，如 `gauss`、`sharpen`）、预算（`constraint`）、机关台的模型（`benchModel`）、机关台的显示项（`display`：内核的加上本领域的）、存档迁移（`migration`）。还有 `game.json` 和一关的 schema（按玩法分 `graph`、`board`、`probe`）。
+- `items/`：每一种项的实现：`pictures.js`、`targets.js`、`scenes/`（按主题分文件，每个场景造出测试和 `setup`）、`constraints.js`、`benches.js`（机关台的模型项，每项带 `verify`）、`displays.js`（本领域的显示项和它们的参数）、`migrations.js`。
 - `domain.js`：把内容交给 `npm run check`（`spec`、`validate`）；`game.jsx`：把内容交给共享外壳。
 - `engine/image.js`：小尺寸浮点图像（默认 16×16）、测试图库、比较与误差。
 - `engine/nodes.js` 和 `engine/parts/`：元件注册表（端口、参数、计算、计算量），各章带来的元件按主题放在 `parts/` 里。
 - `engine/board.js`：电路板和蓝图文本互转（π 的倍数写成 `pi/8`）；从文本读出的板按离输入的远近排成列。
 - `engine/graph.js`：图像元件在共享引擎（`kit/engine`）上的求值、测试判定、计分和训练；`engine/own.js`：通关的电路封装成元件，运行玩家自己通关的那份电路。
 - `course.js`：把每关的数据变成能玩的关卡，按 `eras` 排出游玩顺序、前置关系、调色板顺序、画法；`intros.js`：引言的配图；`validate.js`：`npm run check` 的图像检查（参考解通过、天真解失败、机关台的 `verify`、只放封装件能通过它的那一关）。
-- `benches/`：机关台的运作（霍夫投票、RANSAC、书封面、暗箱、核速判、波、什么时候停、对比学习、GAN），`ui/boards/` 是它们的界面。
+- `benches/`：机关台的模型（暗箱、核速判、一道波、叠加、探针、采样、什么时候停、对比学习、霍夫投票、RANSAC、书封面、GAN），每个是一个模型项：由旋钮算出有名字的量，会自己走的还有状态和动作；`ui/benches/` 是本领域的显示项（暗箱的侧视图和屏幕、霍夫的点和累加器、RANSAC 的一次试验和每种比例一张卡、封面配点和点对列表、GAN 的分布图、嵌入圆和选择表、核速判的一轮和核卡），界面本身是内核的参数台。
 - `ui/`：电路关和探测关的界面、编辑器、测试面板、元件箱的试用台、图像画法。
 - 存档：浏览器 `localStorage`（已解决关卡、每关的图、最佳分数）。

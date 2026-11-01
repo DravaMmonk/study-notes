@@ -34,33 +34,63 @@
       }
     }
   ],
-  "bench": "racer",
-  "setup": {
-    "kernels": [
-      { "id": "identity", "cells": [0, 0, 0, 0, 1, 0, 0, 0, 0], "div": 1 },
-      { "id": "right", "cells": [0, 0, 0, 1, 0, 0, 0, 0, 0], "div": 1 },
-      { "id": "down", "cells": [0, 1, 0, 0, 0, 0, 0, 0, 0], "div": 1 },
-      { "id": "box", "cells": [1, 1, 1, 1, 1, 1, 1, 1, 1], "div": 9 },
-      { "id": "gauss", "cells": [1, 2, 1, 2, 4, 2, 1, 2, 1], "div": 16 },
-      { "id": "hmean", "cells": [0, 0, 0, 1, 1, 1, 0, 0, 0], "div": 3 },
-      { "id": "sobelx", "cells": [-1, 0, 1, -2, 0, 2, -1, 0, 1], "div": 8 },
-      { "id": "sobely", "cells": [-1, -2, -1, 0, 0, 0, 1, 2, 1], "div": 8 },
-      { "id": "sharpen", "cells": [0, -1, 0, -1, 5, -1, 0, -1, 0], "div": 1 },
-      { "id": "laplace", "cells": [0, 1, 0, 1, -4, 1, 0, 1, 0], "div": 1 }
-    ],
-    "inputs": [
-      { "impulse": { "x": 7, "y": 7 } },
-      "square",
-      { "glyph": { "letter": "F" } },
-      { "glyph": { "letter": "L" } },
-      "disk",
-      { "stepX": { "edge": 8 } },
-      { "checker": { "cell": 4 } },
-      "corner"
-    ],
-    "rounds": 10,
-    "pass": 8,
-    "minGap": 0.15,
-    "time": { "start": 8, "step": 0.6, "min": 2.5 }
+  "bench": {
+    "model": "racer",
+    "setup": {
+      "kernels": [
+        { "id": "identity", "cells": [0, 0, 0, 0, 1, 0, 0, 0, 0], "div": 1 },
+        { "id": "right", "cells": [0, 0, 0, 1, 0, 0, 0, 0, 0], "div": 1 },
+        { "id": "down", "cells": [0, 1, 0, 0, 0, 0, 0, 0, 0], "div": 1 },
+        { "id": "box", "cells": [1, 1, 1, 1, 1, 1, 1, 1, 1], "div": 9 },
+        { "id": "gauss", "cells": [1, 2, 1, 2, 4, 2, 1, 2, 1], "div": 16 },
+        { "id": "hmean", "cells": [0, 0, 0, 1, 1, 1, 0, 0, 0], "div": 3 },
+        { "id": "sobelx", "cells": [-1, 0, 1, -2, 0, 2, -1, 0, 1], "div": 8 },
+        { "id": "sobely", "cells": [-1, -2, -1, 0, 0, 0, 1, 2, 1], "div": 8 },
+        { "id": "sharpen", "cells": [0, -1, 0, -1, 5, -1, 0, -1, 0], "div": 1 },
+        { "id": "laplace", "cells": [0, 1, 0, 1, -4, 1, 0, 1, 0], "div": 1 }
+      ],
+      "inputs": [
+        { "impulse": { "x": 7, "y": 7 } },
+        "square",
+        { "glyph": { "letter": "F" } },
+        { "glyph": { "letter": "L" } },
+        "disk",
+        { "stepX": { "edge": 8 } },
+        { "checker": { "cell": 4 } },
+        "corner"
+      ],
+      "rounds": 10,
+      "minGap": 0.15,
+      "time": { "start": 8, "step": 0.6, "min": 2.5 }
+    },
+    "knobs": { "untimed": { "toggle": true, "label": { "zh": "不限时", "en": "No time limit" } } },
+    "actions": [{ "id": "start", "act": "start", "label": { "zh": "开始", "en": "Start" }, "primary": true }],
+    "goal": [{ "of": "final", "atLeast": 8 }],
+    "layout": {
+      "head": [{ "progress": { "of": "dots" } }, { "chips": { "of": "score" } }, "knobs"],
+      "main": [
+        { "kernelRound": { "when": "playing" } },
+        {
+          "stack": [
+            { "text": { "of": "result", "look": "title", "unless": "playing" } },
+            {
+              "text": {
+                "text": {
+                  "zh": "每轮给出一张输入图、一张输出图和四个 3×3 核，请选出产生这张输出图的核。",
+                  "en": "Each round shows an input, an output and four 3×3 kernels. Pick the kernel that produced the output."
+                },
+                "look": "lede",
+                "unless": "playing"
+              }
+            },
+            { "chips": { "of": "rules", "look": "plain", "unless": "playing" } },
+            { "actions": { "unless": "playing" } }
+          ],
+          "center": true
+        }
+      ],
+      "side": [{ "kernelChoices": { "when": "playing" } }, { "verdict": { "center": true, "when": "playing" } }],
+      "split": "even"
+    }
   }
 }

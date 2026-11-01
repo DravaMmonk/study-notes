@@ -1,14 +1,19 @@
-// The GAN duel bench (GanDuel.jsx): a two-pen generator against a discriminator, played in turns whose rhythm the
-// player sets (how many steps each side takes, and the generator's rate).
+// The GAN duel bench: a two-pen generator against a discriminator, played in turns whose rhythm the player sets (how
+// many steps each side takes, and the generator's rate).
 // Real data: two humps at ±mode (σ = width), n samples each at fixed quantiles. The generator G has two pens; each
 // draws half the samples as μ_k + width·q. The discriminator is D(x) = sigmoid(w₀ + w₁u + w₂u²)
 // with u = x/2. D climbs log D(real) + log(1 − D(fake)); G climbs log D(fake) (the non-saturating form).
+import { S } from '../../../engine/schema.js'
+import { judge, limitOf, startValues } from '../../../engine/bench.js'
+
+const t = (zh, en) => ({ zh, en })
+const num = S.num()
+
 /**
- * The bench's model. n samples per hump at ±mode with spread `width`; rateD: the discriminator's step; start: the
- * two pens' starting places; win: turns in a row that must look real; options: the rhythm's choices ({ dSteps,
- * gSteps, gRate }); fallback: the rhythm the bench starts on; good: a rhythm that wins.
+ * The duel. n samples per hump at ±mode with spread `width`; rateD: the discriminator's step; start: the two pens'
+ * starting places; good(measure): whether a turn looks real, counted into the streak.
  */
-export function ganBench({ n: N, mode: MODE, width: WIDTH, rateD: LR_D, start: START, win: WIN, options: OPTIONS, fallback, good: GOOD }) {
+export function ganBench({ n: N, mode: MODE, width: WIDTH, rateD: LR_D, start: START, good }) {
   const erfinv = (x) => {
     const a = 0.147
     const ln = Math.log(1 - x * x)
@@ -53,8 +58,6 @@ export function ganBench({ n: N, mode: MODE, width: WIDTH, rateD: LR_D, start: S
     const accuracy = (REAL.reduce((s, x) => s + D(state.w, x), 0) + xs.reduce((s, x) => s + 1 - D(state.w, x), 0)) / (REAL.length + xs.length)
     return { left: near(xs, -MODE), right: near(xs, MODE), accuracy }
   }
-  const good = (m) => m.left >= 0.4 && m.right >= 0.4 && Math.abs(m.accuracy - 0.5) <= 0.05
-
   const start = () => ({ pens: [...START], w: [0, 0, 0], turn: 0, streak: 0, history: [[...START]] })
   // One turn: D trains dSteps, then G trains gSteps at rate gRate.
   const turn = (state, { dSteps, gSteps, gRate }) => {
@@ -75,5 +78,59 @@ export function ganBench({ n: N, mode: MODE, width: WIDTH, rateD: LR_D, start: S
     return h
   }
 
-  return { REAL, MODE, WIN, OPTIONS, D, fakes, start, turn, measure, histogram, DEFAULT: fallback, GOOD }
+  return { REAL, MODE, D, fakes, start, turn, measure, histogram }
+}
+
+/** The bench model: knobs dSteps, gSteps, gRate (the rhythm); act turn and reset; streak counts turns the rest held. */
+export const gan = {
+  about: t('骗过鉴定员：两支笔的生成器对一个鉴定员，按旋钮 dSteps、gSteps、gRate 定的节奏轮流训练；算出 left、right（两堆各占多少）、accuracy、streak（其余目标连续达到的回合数）', 'fooling the judge: a two-pen generator against a discriminator, trained in turns at the rhythm of knobs dSteps, gSteps, gRate; computes left, right (each cluster’s share), accuracy, and streak (turns in a row the other limits held)'),
+  setup: S.obj({
+    n: S.int({ min: 1 }), mode: num, width: num, rateD: num, start: S.list(num, { min: 2 }),
+    good: S.obj({ dSteps: S.int(), gSteps: S.int(), gRate: num }, { about: t('一个能过关的节奏', 'a rhythm that wins') }),
+  }),
+  make({ good: rhythm, ...p }, bench) {
+    const rest = bench.goal.filter((l) => l.of !== 'streak')
+    const m = ganBench({ ...p, good: (measure) => judge(rest, measure).pass })
+    return {
+      ...m,
+      win: limitOf(bench.goal, 'streak').atLeast,
+      rhythm,
+      act: (state, name, v) => (name === 'reset' ? m.start() : m.turn(state, v)),
+      view(v, { process: state, running }) {
+        const measure = m.measure(state)
+        const merged = Math.abs(state.pens[0] - state.pens[1]) < 0.01
+        return {
+          ...measure,
+          streak: state.streak,
+          state,
+          round: t(`第 ${state.turn} 回合`, `Round ${state.turn}`),
+          labels: running ? { turn10: t(`还剩 ${running} 回合`, `${running} ${running === 1 ? 'round' : 'rounds'} left`) } : {},
+          say: merged && state.turn > 0
+            ? { tone: 'fail', text: t('两支笔已经重合，无法再分开：模式坍塌。', 'The two pens have merged and can no longer separate: mode collapse.') }
+            : { text: t('笔 1 和笔 2 各生成一半样本；竖线标出它们当前的位置。', 'Pen 1 and pen 2 each generate half the samples; the vertical lines mark their current positions.') },
+        }
+      },
+    }
+  },
+  verify(m, bench) {
+    const play = (schedule, turns) => {
+      let s = m.start()
+      let collapsed = false
+      for (let i = 0; i < turns; i++) {
+        s = m.turn(s, schedule)
+        const r = m.measure(s)
+        if (r.left > 0.9 || r.right > 0.9) collapsed = true
+        if (s.streak >= m.win) return { won: i + 1, collapsed, s }
+      }
+      return { won: 0, collapsed, s }
+    }
+    const naive = play(startValues(bench), 300)
+    if (naive.won) return `默认节奏第 ${naive.won} 回合就过关了`
+    if (!naive.collapsed) return '默认节奏没有出现模式坍塌'
+    const good = play(m.rhythm, 60)
+    if (!good.won) return '推荐节奏 60 回合内没有过关'
+    const r = m.measure(good.s)
+    if (Math.abs(r.accuracy - 0.5) > 0.05) return '过关时鉴定员准确率不在 0.5 附近'
+    return ''
+  },
 }

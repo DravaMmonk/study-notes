@@ -35,10 +35,7 @@ function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, cons
 /** A level as its screen and the checks take it (`intro` stays with the content). */
 export function playable({ intro, ...level }) {
   if (level.kind === 'probe') return { ...level, probes: level.probes.map((p) => [p.label, picture(p.picture)]) }
-  if (level.kind === 'board') {
-    const { bench, setup, ...rest } = level
-    return { ...rest, ...benchOf(bench, setup) }
-  }
+  if (level.kind === 'board') return { ...level, board: level.bench.model, ...benchOf(level.bench) }
   if (!level.tasks) return circuit(level)
   // A task's board has the level's inputs and outputs unless it says otherwise.
   const { tasks, ...base } = level

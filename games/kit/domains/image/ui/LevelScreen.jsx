@@ -1,4 +1,4 @@
-import { Suspense, createElement, useMemo, useState } from 'react'
+import { Suspense, lazy, useMemo, useState } from 'react'
 import { Brief, Level, PinnedPlay, RunDock, TestStatus, Workbench } from '../../../shell/index.js'
 import { Palette, freeSpot } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
@@ -10,10 +10,12 @@ import Editor from './Editor.jsx'
 import ProbeLevel from './ProbeLevel.jsx'
 import PhoneCircuit from './phone/PhoneCircuit.jsx'
 import TestPanel from './TestPanel.jsx'
-import { boardFor } from './boards/index.js'
 import { describe, familyOf, iconOf } from './catalog.js'
 import { kindOf, nodeView, viewFor } from './views/views.js'
 import { levelSensors } from './sensors.js'
+
+// Every bench level plays on the kernel's parameter bench, loaded only when one is opened.
+const BenchLevel = lazy(() => import('./benches/BenchLevel.jsx'))
 
 // Vision Complete's level screens on the shared game shell (games/kit/shell): a circuit to build (graph), a bench
 // (board) and the one probe level. The shell owns the bar, the map, the rail, the dialogs and the saved progress;
@@ -180,7 +182,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const clearCircuit = board.nodes.some((n) => !NODE_TYPES[n.type].fixed) ? () => { change(startBoard(level)); setLosses([]) } : null
   const play = level.kind === 'board' ? (
     <Suspense fallback={<div className="board-loading">{tr('载入中…', 'Loading…')}</div>}>
-      <BoardLevel level={level} onSolve={() => solve(null)} theme={theme} />
+      <BenchLevel level={level} onSolve={() => solve(null)} theme={theme} />
     </Suspense>
   ) : (
     <ProbeLevel level={level} onSolve={() => solve(null)} theme={theme} />
@@ -228,12 +230,6 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   )
 }
 
-// Boards are module-level lazy components looked up by name.
-function BoardLevel({ level, onSolve, theme }) {
-  const board = boardFor(level.board)
-  if (!board) return <div className="board-loading">{tr('这个机关台尚未完成。', 'This bench is not available yet.')}</div>
-  return createElement(board, { level, onSolve, theme })
-}
 
 function LossCurve({ losses }) {
   if (!losses.length) return <p className="panel-note">{tr('尚未训练。每训练一步，所有可学习的权重都朝误差减小的方向微调一点。', 'Not trained yet. Each step moves every learnable weight slightly in the direction that reduces the error.')}</p>

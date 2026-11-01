@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 1,
+  "vocabulary": 2,
   "open": { "thin-practice": ["arithmetic@0-4", "sqrt@2-5", "fqApply@2-7", "globalMax@3-8", "lrnConst@4-1", "exp@4-5", "argmin4@7-1", "autoencoder@8-1", "latent@8-4", "zeroUp@9-1"] },
   "title": { "zh": "视觉完备", "en": "Vision Complete" },
   "kicker": { "zh": "COMP90086 · 计算机视觉", "en": "COMP90086 · Computer Vision" },

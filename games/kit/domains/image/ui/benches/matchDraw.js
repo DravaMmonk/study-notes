@@ -1,16 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-// Small drawing helpers shared by the chapter 6 boards.
-
-// A greyscale image { w, h, data } as a PNG data URL, values lo…hi mapped to black…white.
-export function greyUrl(img, lo = 0, hi = 1) {
-  return pixelUrl(img.w, img.h, (target) => {
-    for (let i = 0; i < img.data.length; i++) {
-      const g = Math.round(255 * Math.min(1, Math.max(0, (img.data[i] - lo) / (hi - lo))))
-      target.set([g, g, g, 255], i * 4)
-    }
-  })
-}
+// Small drawing helpers shared by the chapter 6 benches' pictures.
 
 // Any w×h RGBA picture as a data URL; `paint` fills the ImageData array.
 export function pixelUrl(w, h, paint) {
@@ -31,17 +21,6 @@ export function tokenColour(name, fallback) {
   if (!match) return fallback
   const n = parseInt(match[1], 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
-}
-
-// Call onSolve once, the first time `done` becomes true.
-export function useSolveOnce(done, onSolve) {
-  const fired = useRef(false)
-  useEffect(() => {
-    if (done && !fired.current) {
-      fired.current = true
-      onSolve()
-    }
-  }, [done, onSolve])
 }
 
 // Client coordinates → the user units of an SVG element.

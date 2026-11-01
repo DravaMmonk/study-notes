@@ -33,94 +33,97 @@
       }
     }
   ],
-  "bench": "stop",
-  "setup": {
-    "degree": 10,
-    "seed": 7,
-    "wave": 2.2,
-    "train": 10,
-    "noise": 0.6,
-    "valid": 40,
-    "checkpoints": [
-      0,
-      3,
-      4,
-      5,
-      6,
-      7,
-      9,
-      11,
-      13,
-      16,
-      19,
-      24,
-      29,
-      35,
-      43,
-      53,
-      64,
-      79,
-      96,
-      118,
-      144,
-      176,
-      215,
-      263,
-      321,
-      392,
-      480,
-      586,
-      717,
-      876,
-      1071,
-      1309,
-      1600,
-      1957,
-      2392,
-      2924,
-      3574,
-      4369,
-      5341,
-      6530,
-      7982,
-      9758,
-      11929,
-      14582,
-      17826,
-      21792,
-      26640,
-      32566,
-      39811
-    ],
-    "rate": 0.5,
-    "lambdas": [
-      0.000001,
-      0.000001778279410038923,
-      0.000003162277660168379,
-      0.00000562341325190349,
-      0.000009999999999999999,
-      0.00001778279410038923,
-      0.000031622776601683795,
-      0.00005623413251903491,
-      0.00009999999999999999,
-      0.0001778279410038923,
-      0.00031622776601683794,
-      0.0005623413251903491,
-      0.001,
-      0.0017782794100389228,
-      0.0031622776601683794,
-      0.005623413251903491,
-      0.01,
-      0.01778279410038923,
-      0.03162277660168379,
-      0.056234132519034905,
-      0.1,
-      0.17782794100389226,
-      0.31622776601683794,
-      0.5623413251903491,
-      1
-    ],
-    "slack": 1.2,
+  "bench": {
+    "model": "stop",
+    "setup": { "degree": 10, "seed": 7, "wave": 2.2, "train": 10, "noise": 0.6, "valid": 40, "rate": 0.5 },
+    "knobs": {
+      "step": {
+        "label": { "zh": "训练步数", "en": "Training steps" },
+        "values": [
+          0,
+          3,
+          4,
+          5,
+          6,
+          7,
+          9,
+          11,
+          13,
+          16,
+          19,
+          24,
+          29,
+          35,
+          43,
+          53,
+          64,
+          79,
+          96,
+          118,
+          144,
+          176,
+          215,
+          263,
+          321,
+          392,
+          480,
+          586,
+          717,
+          876,
+          1071,
+          1309,
+          1600,
+          1957,
+          2392,
+          2924,
+          3574,
+          4369,
+          5341,
+          6530,
+          7982,
+          9758,
+          11929,
+          14582,
+          17826,
+          21792,
+          26640,
+          32566,
+          39811
+        ],
+        "format": "grouped"
+      },
+      "lambda": {
+        "label": { "zh": "正则化强度 λ", "en": "Regularisation strength λ" },
+        "values": [
+          0.000001,
+          0.000001778279410038923,
+          0.000003162277660168379,
+          0.00000562341325190349,
+          0.000009999999999999999,
+          0.00001778279410038923,
+          0.000031622776601683795,
+          0.00005623413251903491,
+          0.00009999999999999999,
+          0.0001778279410038923,
+          0.00031622776601683794,
+          0.0005623413251903491,
+          0.001,
+          0.0017782794100389228,
+          0.0031622776601683794,
+          0.005623413251903491,
+          0.01,
+          0.01778279410038923,
+          0.03162277660168379,
+          0.056234132519034905,
+          0.1,
+          0.17782794100389226,
+          0.31622776601683794,
+          0.5623413251903491,
+          1
+        ],
+        "format": "exp"
+      }
+    },
     "stages": [
       {
         "title": { "zh": "停在哪一步", "en": "Which step to stop at" },
@@ -128,7 +131,7 @@
           "zh": "实心点是训练用的 10 个样本（带噪声），空心点是没给模型看过的新样本。拖动「训练了多少步」，看曲线怎样变，下面两条误差线怎样走。停在新样本误差最低的那一步。",
           "en": "The filled dots are the 10 training samples (with noise); the hollow dots are new samples the model has never been shown. Drag \"Steps trained\" and watch how the curve changes and how the two error lines below move. Stop at the step where the error on new samples is lowest."
         },
-        "control": "step"
+        "opens": ["step"]
       },
       {
         "title": { "zh": "给弯曲加点代价", "en": "Make bending cost something" },
@@ -136,8 +139,55 @@
           "zh": "这次一直训练到底，但误差里多加一项：权重越大越受罚（λ × 所有权重的平方和）。调 λ，让新样本的误差尽量低。",
           "en": "This time training runs to the end, but the error gets an extra term: the larger the weights, the bigger the penalty (λ × the sum of all the squared weights). Tune λ to make the error on new samples as low as you can."
         },
-        "control": "lambda"
+        "opens": ["lambda"]
       }
-    ]
+    ],
+    "goal": [{ "of": "ratio", "atMost": 1.2 }],
+    "win": { "zh": "新样本误差已接近最低。", "en": "The error on new samples is close to its minimum." },
+    "status": { "zh": "新样本误差仍不够低。", "en": "The error on new samples is still too high." },
+    "layout": {
+      "main": [
+        {
+          "plot": {
+            "of": "curve",
+            "title": { "zh": "模型画出的曲线", "en": "The curve the model draws" },
+            "lo": -1.6,
+            "hi": 1.6,
+            "ticks": [-1, 0, 1],
+            "span": 2,
+            "height": [210, 180],
+            "legend": true
+          }
+        },
+        {
+          "plot": {
+            "of": "errors",
+            "title": { "of": "errorsTitle" },
+            "lo": -2.5,
+            "hi": 0.5,
+            "ticks": [-2, -1, 0],
+            "tickFormat": "pow10",
+            "left": 40,
+            "mark": "now",
+            "height": [180, 160],
+            "legend": true
+          }
+        },
+        {
+          "stats": {
+            "of": [
+              { "of": "train", "label": { "zh": "训练误差", "en": "Training error" }, "format": "fixed4" },
+              {
+                "of": "valid",
+                "label": { "zh": "新样本误差", "en": "New-sample error" },
+                "format": "fixed4",
+                "goal": true
+              }
+            ]
+          }
+        }
+      ],
+      "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+    }
   }
 }
