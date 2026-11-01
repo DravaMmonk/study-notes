@@ -94,7 +94,7 @@ function inputs(step, state, scope) {
   const comments = (state.review?.comments ?? []).filter((c) => c.owner === step.id && !c.done)
   if (comments.length) out.push(`## The person reviewing the game sent it back\n\n${comments.map((c) => `- ${c.at}: ${c.says}`).join('\n')}\n\nAddress each through the operation set; your report says how.`)
   if (review.length) out.push(`## Review findings for you to fix\n\n${review.map((f) => `- [${state.steps.review.runs.at(-1).findings.indexOf(f)}] ${f.at} (${f.rule}): ${f.says}`).join('\n')}\n\nFix each through the operation set; your report says which you fixed and how.`)
-  out.push(`## Your commands\n\nYou may Read any file, Write only in your directory, and run only these (nothing else is allowed):\n\n${step.commands.map((c) => `    ${COMMANDS[c].about}`).join('\n')}`)
+  out.push(`## Your commands\n\nYou may Read, Glob and Grep any file and Write only in your directory. Bash runs only these commands, each as a command of its own (no ls, cd, pipes or chains: anything else is refused, and these still work):\n\n${step.commands.map((c) => `    ${COMMANDS[c].about}`).join('\n')}`)
   return out.join('\n\n')
 }
 
