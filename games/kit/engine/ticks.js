@@ -49,9 +49,10 @@ const partFn = (parts) => (typeof parts === 'function' ? parts : (type) => parts
 
 /**
  * A player's board as a node. `bind(tick)` gives what its sources read that tick; `ctx` reaches every card. hear()
- * returns { values, errors, outputs } (outputs: its plain sinks by name, not those that drive or keep a register).
+ * returns { values, errors, outputs } (outputs: its plain sinks by name, not those that drive or keep a register), and
+ * with `traced` the tick's trace (circuit.js ctx.trace: the cards inside its packed parts with their paths).
  */
-export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {} }) {
+export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {}, traced = false }) {
   const partOf = partFn(parts)
   const state = new Map()
   const drives = circuit.nodes.filter((n) => partOf(n.type)?.drive)
@@ -66,11 +67,12 @@ export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {} }) {
     },
     hear(tick, line) {
       const stores = new Map()
-      const { values, errors } = runBoard(circuit, { parts, bind: bind(tick), ctx: { ...ctx, half: 'hear', tick, line, held, stores } })
+      const trace = traced ? [] : undefined
+      const { values, errors } = runBoard(circuit, { parts, bind: bind(tick), ctx: { ...ctx, half: 'hear', tick, line, held, stores, trace } })
       for (const n of circuit.nodes) if (partOf(n.type)?.store && values.has(n.id)) stores.set(n.params.reg, values.get(n.id))
       for (const [key, value] of stores) state.set(key, value)
       const outputs = Object.fromEntries(circuit.nodes.filter((n) => partOf(n.type)?.sink && !partOf(n.type).store && !partOf(n.type).drive).map((n) => [n.params?.name, values.get(n.id)]))
-      return { values, errors, outputs }
+      return { values, errors, outputs, ...(trace ? { trace } : {}) }
     },
   }
 }

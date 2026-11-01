@@ -34,11 +34,6 @@
 .ag-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
 .ag-node.is-stopped { box-shadow: 0 0 0 2px var(--status), var(--card); }
 
-/* ---- the board ---- */
-.ag-stage { display: flex; flex-direction: column; }
-.ag-board { position: relative; flex: 1; min-height: 0; }
-.ag-board > .kit-board { position: absolute; inset: 0; height: auto; margin: 0; }
-
 /* ---- the strip: the issue and repository, the turns, the context ---- */
 .ag-strip { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .ag-col { min-width: 0; display: grid; gap: 8px; align-content: start; }
@@ -112,12 +107,7 @@
 .ag-log li .ag-report { grid-column: 2; }
 
 /* ---- phone ---- */
-.ag-phone .ag-strip, .ag-hand-phone .ag-hand { grid-template-columns: minmax(0, 1fr); }
+.cl-phone .ag-strip, .ag-hand-phone .ag-hand { grid-template-columns: minmax(0, 1fr); }
 .ag-hand-phone .ag-hand { padding: 0; }
-.ag-sheet { display: grid; gap: 14px; }
-.ag-sheet .ag-card { padding: 0; }
-.ag-sheet .ag-field select { height: 40px; font-size: 16px; }
-.ag-desc { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.ag-add { display: grid; gap: 8px; }
-.ag-add button { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-left: 4px solid var(--fam, var(--rule)); border-radius: var(--r-md); text-align: left; color: var(--ink); background: var(--paper); font: inherit; }
-.ag-add small { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.cl-sheet .ag-card { padding: 0; }
+.cl-sheet .ag-field select { height: 40px; font-size: 16px; }

@@ -78,6 +78,8 @@ export function busCourse(content) {
         outputs: names,
         holds: true,
         built: level.builds,
+        // What the part runs, opened on a board: the player's board (or the reference) and the level that builds it.
+        opens: () => ({ circuit: own(), level: out }),
       })
     }
     return out

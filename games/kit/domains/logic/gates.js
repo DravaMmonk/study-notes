@@ -69,9 +69,10 @@ export function rowsFor(level) {
   return { letters, rows: rowsOf(letters).map((row) => ({ row, want: valueOn(target, row) })) }
 }
 
-/** What the board gives on one row: the engine's values, and the output (undefined when nothing reaches it). */
-export function runRow(level, circuit, row) {
-  const run = runBoard(circuit, { parts: gateParts(level.gates), bind: row })
+/** What the board gives on one row: the engine's values, and the output (undefined when nothing reaches it). With
+ *  `trace` (an array), every card computed goes onto it, the cards inside the gates the player built too. */
+export function runRow(level, circuit, row, trace) {
+  const run = runBoard(circuit, { parts: gateParts(level.gates), bind: row, ctx: trace ? { trace } : {} })
   return { ...run, value: run.outputs.out }
 }
 
