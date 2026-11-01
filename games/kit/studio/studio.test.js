@@ -138,7 +138,7 @@ test('the course tree lays out eras as the map does, with a slot between every t
   assert.equal(stays(tree, 'a', { after: 'e', on: 'path' }), false)
 })
 
-test('a changed file reads field by field: texts and boards whole, objects and same-length lists looked into', () => {
+test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {
   const before = { title: { zh: '甲', en: 'A' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ foundation: ['a', 'b'] }] }
   const after = { title: { zh: '甲', en: 'Ay' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ foundation: ['b', 'a', 'c'] }], note: 'n' }
   assert.deepEqual(fieldDiff(before, after), [
@@ -149,6 +149,19 @@ test('a changed file reads field by field: texts and boards whole, objects and s
     { path: ['note'], before: undefined, after: 'n', as: 'value' },
   ])
   assert.deepEqual(fieldDiff(undefined, { a: 1 }), [{ path: [], before: undefined, after: { a: 1 }, as: 'value' }])
+})
+
+test('a list that grew or shrank shows only the items added or removed, and items changed in place looked into', () => {
+  // A save step appended: only it, at its own index.
+  const saves = [{ version: 1, ops: [{ rename: { a: 'b' } }] }, { version: 2, why: 'w', ops: [{ solve: ['x', ['y']] }] }]
+  const step = { version: 3, ops: [{ data: { drop: ['z'] } }] }
+  assert.deepEqual(fieldDiff({ saves }, { saves: [...saves, step] }), [{ path: ['saves', 2], before: undefined, after: step, as: 'value' }])
+  // An item removed from the middle; another inserted where one changed.
+  assert.deepEqual(fieldDiff([{ n: 1 }, { n: 2 }, { n: 3 }], [{ n: 1 }, { n: 3 }]), [{ path: [1], before: { n: 2 }, after: undefined, as: 'value' }])
+  assert.deepEqual(fieldDiff([{ n: 1 }, { n: 2 }, { n: 9 }], [{ n: 1 }, { n: 5 }, { n: 6 }, { n: 9 }]), [
+    { path: [1, 'n'], before: 2, after: 5, as: 'value' },
+    { path: [2], before: undefined, after: { n: 6 }, as: 'value' },
+  ])
 })
 
 test('every level of the prototypes reads as a form: each text a text pair, each board a board, where the schema has it', async () => {

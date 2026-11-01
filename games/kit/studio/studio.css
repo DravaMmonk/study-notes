@@ -354,7 +354,7 @@ select.cell { width: auto; min-width: 52px; }
 .diff-side p:first-child { color: var(--muted); }
 del { color: var(--fail); background: color-mix(in srgb, var(--fail) 14%, transparent); text-decoration: line-through; }
 ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, transparent); text-decoration: none; }
-.diff-value { display: grid; gap: 2px; font: 12px/1.5 var(--mono); overflow-wrap: anywhere; }
+.diff-value { display: grid; gap: 2px; font: 12px/1.5 var(--mono); overflow-wrap: anywhere; white-space: pre-wrap; }
 .diff-lines { margin: 0; padding: 8px 10px; border-radius: 8px; background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); font: 11.5px/1.5 var(--mono); overflow-x: auto; }
 .diff-lines .is-del { color: var(--fail); }
 .diff-lines .is-ins { color: var(--ink); background: color-mix(in srgb, var(--status) 26%, transparent); }
