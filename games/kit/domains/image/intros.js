@@ -1,23 +1,25 @@
-// A level's introduction: the pages read before playing it, each { t, fig? }. t is a { zh, en } paragraph (either side may use
-// <b>…</b>); fig is an optional picture, one of three:
+// A level's introduction (its content's `intro`): the pages read before playing it, each { t, fig? }. t is a { zh, en }
+// paragraph (either side may use <b>…</b>); fig is an optional picture, one of three (vocabulary.js INTRO):
 //   { test: 0 }                            the level's test 0: input → expected (circuit levels only); on a level
 //                                          of several tasks, { task: 0, test: 0 } is a test of that task
 //   { part: 'shift', params: { dir: 'right' }, input: 'square' }
 //                                          one part working on a picture: input → part → output. A part with two
-//                                          inputs takes inputs: ['square', 'disk']. The pictures are source()'s.
+//                                          inputs takes inputs: ['square', 'disk']. Each is a picture
+//                                          (items/pictures.js), or 'test': the level's own first test input.
 //   { figure: 'conv-press' }               one of the notes' figures (trace-viewer/src/figures)
 // Any figure may add caption: { zh, en }; test and part figures may add view: 'terrain' and so on.
 import { isPair } from '../../shell/i18n.js'
-import { GLYPHS, patterns } from './engine/image.js'
 import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
+import { picture } from './items/pictures.js'
 
-// The pictures an intro can show without a test: a pattern by name ('square'), with its arguments
-// (['square', 4, 4, 8]), a letter ('glyph:L'), or a level's own first test input ('test').
+/** The picture an intro's part figure is fed: a picture, or 'test', the level's own first test input. */
 export function source(spec, level) {
   if (spec === 'test') return Object.values(level.tests?.[0]?.inputs ?? {})[0] ?? null
-  if (typeof spec === 'string' && spec.startsWith('glyph:')) return GLYPHS[spec.slice(6)] ? patterns.glyph(GLYPHS[spec.slice(6)]) : null
-  const [name, ...args] = Array.isArray(spec) ? spec : [spec]
-  return patterns[name] ? patterns[name](...args) : null
+  try {
+    return picture(spec)
+  } catch {
+    return null
+  }
 }
 
 /** The test a { test } figure shows: of the level, or of one of its tasks ({ task }). */

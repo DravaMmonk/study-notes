@@ -1,0 +1,49 @@
+{
+  "kind": "graph",
+  "title": { "zh": "缩小四倍", "en": "A quarter of the size" },
+  "brief": {
+    "zh": "把 32×32 缩成 8×8，看起来要和原图一样，只是小了。",
+    "en": "Shrink 32×32 to 8×8. It should look like the original, only smaller."
+  },
+  "hint": { "zh": "缩小一半时先模糊了一下。缩小四倍，要糊多少？", "en": "Halving the size needed a blur first. How much blur for a quarter?" },
+  "after": {
+    "zh": "缩得越狠，能留下的频率越低，采样前就要糊得越厉害：缩小 4 倍，σ 大约要翻一倍。",
+    "en": "The more you shrink, the lower the frequencies that can survive, so the harder you must blur before sampling: shrinking 4 times needs about twice the σ."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "图标要更小。这一关从 32×32 缩成 8×8，每个方向只留四分之一。",
+        "en": "Icons need to be smaller. This level shrinks 32×32 to 8×8, keeping a quarter in each direction."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：缩小四倍，看起来要和原图一样，只是小了。要想的问题：缩得更狠，能留下的频率是更高还是更低？",
+        "en": "Your task in this level: shrink four times so it looks like the original, only smaller. Something to think about: shrinking harder, are the frequencies that can survive higher or lower?"
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：斑马板", "en": "Set 1: a zone plate" } }
+    }
+  ],
+  "check": { "tolerance": 0.1, "mismatches": 3 },
+  "scene": "filter",
+  "setup": { "target": { "shrink": { "sigma": 2, "halvings": 2 } } },
+  "tests": [
+    { "label": { "zh": "斑马板", "en": "Zone plate" }, "in": { "zonePlate": { "k": 0.06, "A": 0.4 } } },
+    { "label": { "zh": "布纹", "en": "Fabric" }, "in": { "fabric": { "period": 3, "angle": 30 } } },
+    {
+      "label": { "zh": "字母 F", "en": "Letter F" },
+      "in": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.85, "ox": 4, "oy": 4, "scale": 5, "size": 32 } }
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "偏心斑马板", "en": "Off-centre zone plate" },
+      "in": { "zonePlate": { "k": 0.05, "cx": 10, "cy": 20, "A": 0.4 } }
+    },
+    { "label": { "zh": "细布纹", "en": "Fine fabric" }, "in": { "fabric": { "period": 2.5, "angle": 75 } } }
+  ],
+  "solution": ["n0 = gauss[sigma=2, border=edge](in)", "n1 = downsample(n0)", "n2 = downsample(n1)", "out <- n2"],
+  "naive": ["n0 = gauss[border=edge](in)", "n1 = downsample(n0)", "n2 = downsample(n1)", "out <- n2"],
+  "alsoFails": [["n0 = downsample(in)", "n1 = downsample(n0)", "out <- n1"]]
+}

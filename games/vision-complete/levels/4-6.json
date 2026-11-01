@@ -1,0 +1,95 @@
+{
+  "kind": "graph",
+  "title": { "zh": "异或", "en": "Exclusive or" },
+  "brief": {
+    "zh": "换了一批字母：X 是「只有一种笔画」（斜多弯少，或弯多斜少），O 是「两种都多，或者都少」。X 输出大于 0.6，O 小于 0.4。",
+    "en": "A new batch of letters: X means \"only one kind of stroke\" (more diagonal than curved, or the other way round), O means \"both kinds a lot, or both a little\". Above 0.6 for X, below 0.4 for O."
+  },
+  "hint": {
+    "zh": "先试一个神经元，在纸上画画这些点：一条直线分得开吗？神经元的输出，也可以交给另一个神经元。几个神经元一开始的权重一模一样的话，训练能让它们变得不一样吗？",
+    "en": "Try one neuron first, and sketch the points on paper: can a straight line separate them? A neuron's output can be fed to another neuron. If several neurons start with exactly the same weights, can training ever make them differ?"
+  },
+  "after": {
+    "zh": "一条直线怎么摆都分不开异或。两个神经元先各画一条线，把每个点变成两个新的数，输出神经元在新的坐标里一条线就够了：这就是隐藏层。还有一件事：几个神经元一开始完全一样，训练时每一步的变化也一样，永远学不出不同的东西，所以网络的权重要从不同的随机数开始。",
+    "en": "However you place one straight line, it cannot separate exclusive-or. Let two neurons each draw a line first, turning every point into two new numbers, and in these new coordinates the output neuron needs just one line: that is a hidden layer. One more thing: if several neurons start out identical, every training step changes them identically and they can never learn different things. That is why a network's weights start from different random numbers."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"4-5\"></level-ref>的 X 和 O 在平面上各占一边。这一关换了规则：X 是「只有一种笔画」，O 是「两种都有，或者都没有」。",
+        "en": "<level-ref to=\"4-5\"></level-ref>'s X and O each sat on one side of the plane. This level changes the rule: X means \"only one kind of stroke\", O means \"both kinds, or neither\"."
+      }
+    },
+    {
+      "t": {
+        "zh": "<level-ref to=\"4-5\"></level-ref>搭的 1 / (1 + e^(−z)) 现在是现成的元件<part-ref to=\"sigmoid\"></part-ref>。",
+        "en": "The 1 / (1 + e^(−z)) you built in <level-ref to=\"4-5\"></level-ref> is now the ready-made part <part-ref to=\"sigmoid\"></part-ref>."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：X 输出大于 0.6，O 小于 0.4。要想的问题：一个神经元是一条分界线，这些点能被一条直线分开吗？",
+        "en": "Your task in this level: above 0.6 for X, below 0.4 for O. Something to think about: one neuron is one dividing line; can these points be split by a straight line?"
+      }
+    }
+  ],
+  "inputs": ["f1", "f2"],
+  "inputLabels": { "f1": { "zh": "斜笔画", "en": "Diagonal strokes" }, "f2": { "zh": "弯笔画", "en": "Curved strokes" } },
+  "check": { "tolerance": 0.4 },
+  "trainRate": 10,
+  "scene": "strokes",
+  "tests": [
+    { "label": { "zh": "X (0.85, 0.15)", "en": "X (0.85, 0.15)" }, "letter": "X", "f1": 0.85, "f2": 0.15 },
+    { "label": { "zh": "X (0.15, 0.85)", "en": "X (0.15, 0.85)" }, "letter": "X", "f1": 0.15, "f2": 0.85 },
+    { "label": { "zh": "X (0.8, 0.25)", "en": "X (0.8, 0.25)" }, "letter": "X", "f1": 0.8, "f2": 0.25 },
+    { "label": { "zh": "X (0.25, 0.8)", "en": "X (0.25, 0.8)" }, "letter": "X", "f1": 0.25, "f2": 0.8 },
+    { "label": { "zh": "X (0.9, 0.3)", "en": "X (0.9, 0.3)" }, "letter": "X", "f1": 0.9, "f2": 0.3 },
+    { "label": { "zh": "X (0.3, 0.9)", "en": "X (0.3, 0.9)" }, "letter": "X", "f1": 0.3, "f2": 0.9 },
+    { "label": { "zh": "O (0.15, 0.15)", "en": "O (0.15, 0.15)" }, "letter": "O", "f1": 0.15, "f2": 0.15 },
+    { "label": { "zh": "O (0.85, 0.85)", "en": "O (0.85, 0.85)" }, "letter": "O", "f1": 0.85, "f2": 0.85 },
+    { "label": { "zh": "O (0.2, 0.3)", "en": "O (0.2, 0.3)" }, "letter": "O", "f1": 0.2, "f2": 0.3 },
+    { "label": { "zh": "O (0.8, 0.75)", "en": "O (0.8, 0.75)" }, "letter": "O", "f1": 0.8, "f2": 0.75 }
+  ],
+  "hidden": [
+    { "label": { "zh": "O (0.5, 0.45)", "en": "O (0.5, 0.45)" }, "letter": "O", "f1": 0.5, "f2": 0.45 },
+    { "label": { "zh": "O (0.55, 0.6)", "en": "O (0.55, 0.6)" }, "letter": "O", "f1": 0.55, "f2": 0.6 }
+  ],
+  "solution": [
+    "hw1 = lrnConst[p=[4.0805]]()",
+    "hw2 = lrnConst[p=[-4.3363]]()",
+    "hc = lrnConst[p=[-1.8815]]()",
+    "kw1 = lrnConst[p=[-3.8893]]()",
+    "kw2 = lrnConst[p=[4.0587]]()",
+    "kc = lrnConst[p=[-2.0048]]()",
+    "ow1 = lrnConst[p=[4.496]]()",
+    "ow2 = lrnConst[p=[4.3862]]()",
+    "oc = lrnConst[p=[-1.9479]]()",
+    "h1 = arith[op=mul](f1, hw1)",
+    "h2 = arith[op=mul](f2, hw2)",
+    "k1 = arith[op=mul](f1, kw1)",
+    "k2 = arith[op=mul](f2, kw2)",
+    "hs = arith[op=add](h1, h2)",
+    "ks = arith[op=add](k1, k2)",
+    "hb = arith[op=add](hs, hc)",
+    "kb = arith[op=add](ks, kc)",
+    "hq = lrnSigmoid(hb)",
+    "kq = lrnSigmoid(kb)",
+    "o1 = arith[op=mul](hq, ow1)",
+    "o2 = arith[op=mul](kq, ow2)",
+    "os = arith[op=add](o1, o2)",
+    "ob = arith[op=add](os, oc)",
+    "oq = lrnSigmoid(ob)",
+    "out <- oq"
+  ],
+  "naive": [
+    "ow1 = lrnConst[p=[2.5611]]()",
+    "ow2 = lrnConst[p=[-1.3987]]()",
+    "oc = lrnConst[p=[-0.3669]]()",
+    "o1 = arith[op=mul](f1, ow1)",
+    "o2 = arith[op=mul](f2, ow2)",
+    "os = arith[op=add](o1, o2)",
+    "ob = arith[op=add](os, oc)",
+    "oq = lrnSigmoid(ob)",
+    "out <- oq"
+  ]
+}

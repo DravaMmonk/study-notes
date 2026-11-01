@@ -1,0 +1,96 @@
+{
+  "kind": "graph",
+  "title": { "zh": "亮度变了也配得上", "en": "Matching through a change of light" },
+  "brief": {
+    "zh": "右图整体亮了一截。用匹配器找出哪个候选窗口和关键点的窗口是同一处，输出它的编号。",
+    "en": "The right image is brighter all over. Use the matcher to find which candidate window shows the same place as the keypoint window, and output its number."
+  },
+  "hint": {
+    "zh": "距离 = 平均((窗口 − 候选)²)。整体亮了一截时，每一格都差同一个数，这一点能先去掉吗？",
+    "en": "Distance = average((window − candidate)²). When everything is brighter by some amount, every cell differs by the same number. Can you take that away first?"
+  },
+  "after": {
+    "zh": "先让每个窗口减去自己的平均亮度，整体变亮就不影响距离了；再除以自己的标准差，连对比度变了也不怕。这就是归一化互相关（NCC）的想法，SIFT 描述子也会做类似的归一化。",
+    "en": "Subtract each window's own mean brightness first, and an overall brightening no longer affects the distance; divide by its own standard deviation as well, and even a contrast change does not matter. This is the idea behind normalised cross-correlation (NCC), and SIFT descriptors are normalised in a similar way."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"own-6-4\"></part-ref>接上三个距离，它给出配上的候选编号。",
+        "en": "The <part-ref to=\"own-6-4\"></part-ref> in the tray takes three distances and returns the number of the matching candidate."
+      }
+    },
+    {
+      "t": {
+        "zh": "两张照片常常不是同时拍的，光线变了，同一处在右图里整体亮一截。",
+        "en": "Two photos are often not taken at the same moment: the light changes, and the same place is brighter all over in the right one."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：找出哪个候选窗口和关键点的窗口是同一处，输出它的编号。",
+        "en": "Your task in this level: find which candidate window shows the same place as the keypoint window, and output its number."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+    }
+  ],
+  "inputs": ["p", "c1", "c2", "c3"],
+  "inputLabels": {
+    "p": { "zh": "关键点的窗口", "en": "Keypoint window" },
+    "c1": { "zh": "候选 1", "en": "Candidate 1" },
+    "c2": { "zh": "候选 2", "en": "Candidate 2" },
+    "c3": { "zh": "候选 3", "en": "Candidate 3" }
+  },
+  "outputs": ["idx"],
+  "outputLabels": { "idx": { "zh": "配上的候选", "en": "Matched candidate" } },
+  "check": { "tolerance": 0.1 },
+  "scene": "brighter",
+  "tests": [
+    { "label": { "zh": "是 1", "en": "Candidate 1" }, "seed": 31, "which": 0 },
+    { "label": { "zh": "是 3", "en": "Candidate 3" }, "seed": 32, "which": 2 },
+    { "label": { "zh": "是 2", "en": "Candidate 2" }, "seed": 33, "which": 1 }
+  ],
+  "hidden": [{ "label": { "zh": "又是 3", "en": "Candidate 3 again" }, "seed": 34, "which": 2 }],
+  "solution": [
+    "mp = fqMean(p)",
+    "m1 = fqMean(c1)",
+    "m2 = fqMean(c2)",
+    "m3 = fqMean(c3)",
+    "dp = arith[op=sub](p, mp)",
+    "d1 = arith[op=sub](c1, m1)",
+    "d2 = arith[op=sub](c2, m2)",
+    "d3 = arith[op=sub](c3, m3)",
+    "e1 = arith[op=sub](dp, d1)",
+    "e2 = arith[op=sub](dp, d2)",
+    "e3 = arith[op=sub](dp, d3)",
+    "q1 = arith[op=mul](e1, e1)",
+    "q2 = arith[op=mul](e2, e2)",
+    "q3 = arith[op=mul](e3, e3)",
+    "s1 = fqMean(q1)",
+    "s2 = fqMean(q2)",
+    "s3 = fqMean(q3)",
+    "m = own-6-4(s1, s2, s3)",
+    "idx <- m"
+  ],
+  "naive": [
+    "mp = fqMean(p)",
+    "m1 = fqMean(c1)",
+    "e1 = arith[op=sub](p, c1)",
+    "m2 = fqMean(c2)",
+    "e2 = arith[op=sub](p, c2)",
+    "m3 = fqMean(c3)",
+    "e3 = arith[op=sub](p, c3)",
+    "dp = arith[op=sub](p, mp)",
+    "d1 = arith[op=sub](c1, m1)",
+    "q1 = arith[op=mul](e1, e1)",
+    "d2 = arith[op=sub](c2, m2)",
+    "q2 = arith[op=mul](e2, e2)",
+    "d3 = arith[op=sub](c3, m3)",
+    "q3 = arith[op=mul](e3, e3)",
+    "s1 = fqMean(q1)",
+    "s2 = fqMean(q2)",
+    "s3 = fqMean(q3)",
+    "m = own-6-4(s1, s2, s3)",
+    "idx <- m"
+  ]
+}

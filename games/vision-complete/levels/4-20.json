@@ -1,0 +1,80 @@
+{
+  "kind": "graph",
+  "title": { "zh": "三选一", "en": "One of three" },
+  "brief": {
+    "zh": "分拣机要把零件分成三类：X、O 和 +。网络先给每类打一个分，分可正可负。把三个分变成三个概率：每个都在 0 到 1 之间，加起来是 1，分越高的概率越大。期望用的是 e^分 ÷ 三个 e^分 之和。",
+    "en": "The sorting machine has to put parts into three classes: X, O and +. The network first gives each class a score, which may be positive or negative. Turn the three scores into three probabilities, each between 0 and 1, adding up to 1, with a higher score getting a higher probability. The expected output uses e^score ÷ the sum of the three e^score."
+  },
+  "hint": {
+    "zh": "分可能是负数，直接除以总和会出错。exp 把任何数变成正数。",
+    "en": "Scores can be negative, so dividing by their sum goes wrong. exp turns any number positive."
+  },
+  "after": {
+    "zh": "这叫 Softmax：先用 e 的几次方把分变成正数，再除以总和。分差 1，概率就差 e 倍，最高分会被放大。分类网络的最后一步几乎都是它。",
+    "en": "This is the softmax: first make the scores positive with e to the power of each, then divide by the total. A difference of 1 in score is a factor of e in probability, so the top score is magnified. Almost every classification network ends with it."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "这一章最后三关，要搭一台零件分拣机：传送带上有 X、O、+ 三种零件，相机拍一张，机器说是哪一种。<level-ref to=\"4-19\"></level-ref>看到，模型要在新样本上也准才算数。",
+        "en": "The last three levels of this chapter build a parts sorter: X, O and + parts ride the belt, the camera takes a picture and the machine says which kind it is. <level-ref to=\"4-19\"></level-ref> showed that a model only counts if it is right on new samples too."
+      }
+    },
+    {
+      "t": {
+        "zh": "三选一时，网络先给每一类打一个分。可分数可正可负，加起来也不是 1，不能直接当成「有多大把握」。",
+        "en": "Choosing one of three, the network first gives each class a score. But scores can be positive or negative and do not add up to 1, so they cannot be read as \"how sure\" directly."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：把三个分变成三个概率，规则在说明里。要想的问题：负的分该怎么办？",
+        "en": "Your task in this level: turn the three scores into three probabilities, by the rule in the brief. Something to think about: what should happen to a negative score?"
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：分数 (2, 0, −1)", "en": "Set 1: scores (2, 0, −1)" } }
+    }
+  ],
+  "inputs": ["sx", "so", "sp"],
+  "inputLabels": {
+    "sx": { "zh": "X 的分", "en": "Score X" },
+    "so": { "zh": "O 的分", "en": "Score O" },
+    "sp": { "zh": "+ 的分", "en": "Score +" }
+  },
+  "outputs": ["px", "po", "pp"],
+  "outputLabels": { "px": { "zh": "是 X", "en": "Is X" }, "po": { "zh": "是 O", "en": "Is O" }, "pp": { "zh": "是 +", "en": "Is +" } },
+  "check": { "tolerance": 0.01 },
+  "scene": "scores",
+  "tests": [
+    { "label": { "zh": "(2, 0, -1)", "en": "(2, 0, -1)" }, "s": [2, 0, -1] },
+    { "label": { "zh": "(0.5, 0.5, 0.5)", "en": "(0.5, 0.5, 0.5)" }, "s": [0.5, 0.5, 0.5] },
+    { "label": { "zh": "(-1, 3, 1)", "en": "(-1, 3, 1)" }, "s": [-1, 3, 1] },
+    { "label": { "zh": "(1, -2, 2)", "en": "(1, -2, 2)" }, "s": [1, -2, 2] }
+  ],
+  "hidden": [
+    { "label": { "zh": "(5, -3, 0)", "en": "(5, -3, 0)" }, "s": [5, -3, 0] },
+    { "label": { "zh": "(-2, -2, -1)", "en": "(-2, -2, -1)" }, "s": [-2, -2, -1] }
+  ],
+  "solution": [
+    "ex = exp(sx)",
+    "eo = exp(so)",
+    "ep = exp(sp)",
+    "s1 = arith[op=add](ex, eo)",
+    "s2 = arith[op=add](s1, ep)",
+    "qx = arith[op=div](ex, s2)",
+    "qo = arith[op=div](eo, s2)",
+    "qp = arith[op=div](ep, s2)",
+    "px <- qx",
+    "po <- qo",
+    "pp <- qp"
+  ],
+  "naive": [
+    "s1 = arith[op=add](sx, so)",
+    "s2 = arith[op=add](s1, sp)",
+    "qx = arith[op=div](sx, s2)",
+    "qo = arith[op=div](so, s2)",
+    "qp = arith[op=div](sp, s2)",
+    "px <- qx",
+    "po <- qo",
+    "pp <- qp"
+  ]
+}

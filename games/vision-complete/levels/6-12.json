@@ -1,0 +1,64 @@
+{
+  "kind": "graph",
+  "title": { "zh": "贴回照片", "en": "Paste it back" },
+  "brief": {
+    "zh": "已知把封面搬到照片里的单应 H。把清楚的封面贴到照片里书的位置上：封面落到的地方是封面，其余还是照片。",
+    "en": "The homography H that carries the cover into the photo is given. Paste the crisp cover over the book in the photo: where the cover lands it is the cover, everywhere else still the photo."
+  },
+  "hint": {
+    "zh": "<part-ref to=\"part:warp\"></part-ref>能搬任何一张图。要知道封面落在哪，可以搬一张和封面一样大、全是 1 的图。",
+    "en": "<part-ref to=\"part:warp\"></part-ref> can carry any picture. To know where the cover lands, carry a picture the size of the cover that is all 1."
+  },
+  "after": {
+    "zh": "变形加上一张同样变形的掩膜，就能把一张图合成进另一张：AR 贴图、全景拼接、换天空都是这一步。",
+    "en": "A warp plus a mask warped the same way composites one picture into another: AR overlays, panorama stitching and sky replacement all take this step."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"homography\"></part-ref>：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。",
+        "en": "The <part-ref to=\"homography\"></part-ref> in the tray: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given."
+      }
+    },
+    {
+      "t": {
+        "zh": "新元件<part-ref to=\"part:warp\"></part-ref>按 H 把一张图搬到另一张图上。",
+        "en": "The new part <part-ref to=\"part:warp\"></part-ref> carries a picture onto another by H."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：把清楚的封面贴到照片里书的位置上。",
+        "en": "Your task in this level: paste the crisp cover over the book in the photo."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+    }
+  ],
+  "inputs": ["photo", "cover", "H"],
+  "inputLabels": {
+    "photo": { "zh": "照片", "en": "Photo" },
+    "cover": { "zh": "封面", "en": "Cover" },
+    "H": { "zh": "单应 H（9 个数）", "en": "Homography H (9 numbers)" }
+  },
+  "adds": ["warp"],
+  "scene": "paste",
+  "tests": [
+    { "label": { "zh": "往右斜", "en": "Leaning right" }, "quad": [[9, 5], [21, 7], [23, 27], [7, 25]] },
+    { "label": { "zh": "远的一边短", "en": "Far edge shorter" }, "quad": [[11, 6], [20, 6], [25, 26], [5, 26]] },
+    { "label": { "zh": "转了一下", "en": "Turned a little" }, "quad": [[6, 9], [18, 4], [25, 21], [12, 27]] }
+  ],
+  "hidden": [{ "label": { "zh": "小一点", "en": "Smaller" }, "quad": [[13, 10], [21, 11], [21, 22], [12, 21]] }],
+  "solution": [
+    "zk = const[c=0]()",
+    "ok = const()",
+    "w = warp(cover, H, photo)",
+    "z = arith[op=mul](cover, zk)",
+    "one = arith[op=add](z, ok)",
+    "m = warp(one, H, photo)",
+    "inv = invert(m)",
+    "keep = arith[op=mul](photo, inv)",
+    "sum = arith[op=add](keep, w)",
+    "out <- sum"
+  ],
+  "naive": ["w = warp(cover, H, photo)", "out <- w"]
+}

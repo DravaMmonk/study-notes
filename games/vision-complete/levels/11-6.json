@@ -1,0 +1,87 @@
+{
+  "kind": "graph",
+  "title": { "zh": "热图里的车", "en": "The car in the heat map" },
+  "brief": {
+    "zh": "只算挡住以后分数变低的地方：灰块遮挡图（3×3）里大于 0 的部分，有多大比例落在车上。输出这个比例。",
+    "en": "Count only where covering lowers the score: of the part of the grey 3×3 occlusion map above 0, what fraction lies on the car? Output that fraction."
+  },
+  "hint": {
+    "zh": "<level-ref to=\"11-4\"></level-ref>量的是分数，这次量的是热图。热图里的负数要先去掉。",
+    "en": "<level-ref to=\"11-4\"></level-ref> measured the score; this time measure the heat map, its negative cells taken out first."
+  },
+  "after": {
+    "zh": "遮挡图比贡献图宽一圈：挡板压在车边上时也盖住了一部分车，所以车周围也热起来。负数是反面证据，混进来会让比例变得没有意义，所以先截掉。Grad-CAM 最后也有一个 ReLU，道理相同：热图只画支持这个类别的地方。",
+    "en": "The occlusion map is a ring wider than the contribution map: a patch on the edge of the car covers some of the car too, so the cells round it warm up as well. Negative cells are evidence against, and mixed in they make the fraction meaningless, so they are cut off first. Grad-CAM ends in a ReLU for the same reason: the heat map only shows what supports the class."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"11-4\"></level-ref>的比例是从分数里直接量的，只有每格一个权重的模型才能这样拆。遮挡实验对哪种模型都能做，所以体检用遮挡图来量。",
+        "en": "The fraction in <level-ref to=\"11-4\"></level-ref> was measured straight from the score, which only a model with one weight per cell can be taken apart into. The occlusion experiment works on any model, so the check-up measures on the occlusion map."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：输出灰块遮挡图（3×3）有多大比例落在车上。",
+        "en": "Your task in this level: output what fraction of the grey 3×3 occlusion map lies on the car."
+      },
+      "fig": { "test": 2, "caption": { "zh": "第三组：房子旁的车", "en": "Set 3: a car by a house" } }
+    }
+  ],
+  "inputs": ["in", "w", "m"],
+  "inputLabels": {
+    "in": { "zh": "照片", "en": "Photo" },
+    "w": { "zh": "权重", "en": "Weights" },
+    "m": { "zh": "车的掩膜", "en": "Car mask" }
+  },
+  "check": { "tolerance": 0.01 },
+  "scene": "classifier",
+  "setup": { "check": "heatShare" },
+  "tests": [
+    { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+    {
+      "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
+      "street": { "cx": 5 },
+      "weights": "road"
+    },
+    {
+      "label": { "zh": "车和路都看", "en": "Looking at the car and the road" },
+      "street": { "cx": 4, "house": 12 },
+      "weights": "both"
+    },
+    { "label": { "zh": "车停得靠右", "en": "A car further right" }, "street": { "cx": 6 }, "weights": "car" }
+  ],
+  "hidden": [
+    { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
+    { "label": { "zh": "看得宽一点", "en": "A wider look" }, "street": { "cx": 6, "house": 0 }, "weights": "wide" }
+  ],
+  "solution": [
+    "c = arith[op=mul]()",
+    "h = own-11-2(in, w)",
+    "r = relu(h)",
+    "cm = arith[op=mul](r, m)",
+    "b = fqMean(r)",
+    "a = fqMean(cm)",
+    "q = arith[op=div](a, b)",
+    "out <- q"
+  ],
+  "naive": [
+    "c = arith[op=mul](in, w)",
+    "cm = arith[op=mul](c, m)",
+    "b = fqMean(c)",
+    "a = fqMean(cm)",
+    "q = arith[op=div](a, b)",
+    "out <- q"
+  ],
+  "alsoFails": [
+    [
+      "c = arith[op=mul]()",
+      "h = own-11-2(in, w)",
+      "cm = arith[op=mul](h, m)",
+      "b = fqMean(h)",
+      "a = fqMean(cm)",
+      "q = arith[op=div](a, b)",
+      "out <- q"
+    ]
+  ]
+}

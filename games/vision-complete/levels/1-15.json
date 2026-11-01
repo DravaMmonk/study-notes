@@ -1,0 +1,136 @@
+{
+  "kind": "graph",
+  "title": { "zh": "扫描仪", "en": "Scanner" },
+  "brief": {
+    "zh": "真实的扫描件：有噪声，有字，纸常常超出扫描范围。输出纸张的边，和期望一样。",
+    "en": "Real scans: noisy, with text, and the paper often runs off the edge. Output the paper's edges, as in the expected image."
+  },
+  "hint": {
+    "zh": "<level-ref to=\"1-13\"></level-ref>和<level-ref to=\"1-14\"></level-ref>各解决了一件事，这次纸上还有字。字的笔画只有一格粗，纸边却是一大片亮挨着一大片暗。",
+    "en": "<level-ref to=\"1-13\"></level-ref> and <level-ref to=\"1-14\"></level-ref> each solved one thing, and this time there is text on the paper too. Text strokes are one pixel thick, while a paper edge is a large bright area beside a large dark one."
+  },
+  "after": {
+    "zh": "大一点的高斯模糊把噪点和细笔画都糊成一片浅灰，几乎没有坡度；纸边是大块明暗的交界，糊了还是一道坡。看多粗的东西，就先模糊到多粗：这个「尺度」的想法后面会一再出现。扫描 App 找纸张四边，第一步就是这样一条流水线：模糊掉噪声和字，在不制造假边的前提下求梯度，再取阈值。找到的边，后面再拟合成四条直线，就能把斜拍的纸拉正。",
+    "en": "A larger Gaussian blur turns the grain and the thin strokes into a faint grey with almost no slope, while a paper edge, where large areas of light and dark meet, is still a slope after blurring. To look for things of a certain size, blur to that size first: this idea of \"scale\" will keep coming back. A scanning app finding the four sides of a page starts with exactly this pipeline: blur away the noise and the text, take gradients without inventing edges at the border, then threshold. The edges found are later fitted with four straight lines, so a page photographed at an angle can be straightened."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "扫描仪的最后一关：噪声、字、超出范围的纸，全都会遇到。",
+        "en": "The scanner's final level: noise, text and paper running off the scan, all at once."
+      }
+    },
+    {
+      "t": {
+        "zh": "纸上的字也有边，而且很多：每一笔都是一条暗线，两侧各有一道边。扫描仪要找的却只是纸的四边。",
+        "en": "The text on the paper has edges too, lots of them: every stroke is a dark line with an edge on each side. But the scanner only wants the paper's four sides."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：输出纸张的边，和期望一样。要想的问题：字的笔画和纸边，大小差了多少？",
+        "en": "Your task in this level: output the paper's edges, matching the expected image. Something to think about: how different in size are a stroke of text and a paper edge?"
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：一页带噪声的字", "en": "Set 1: a noisy page of text" } }
+    }
+  ],
+  "views": { "in": "pixels", "out": "pixels", "mid": "terrain" },
+  "check": { "tolerance": 0.02, "mismatches": 8 },
+  "scene": "scan",
+  "setup": { "expect": "paper" },
+  "tests": [
+    {
+      "label": { "zh": "一页字", "en": "A page of text" },
+      "x0": 4,
+      "y0": 4,
+      "x1": 19,
+      "y1": 19,
+      "lines": [[7, 7, 9], [7, 10, 6], [7, 13, 10], [7, 16, 8]],
+      "noise": 0.15,
+      "seed": 7
+    },
+    {
+      "label": { "zh": "出了右边", "en": "Off the right" },
+      "x0": 6,
+      "y0": 3,
+      "x1": 30,
+      "y1": 18,
+      "lines": [[9, 6, 10], [9, 9, 12], [9, 12, 8]],
+      "noise": 0.15,
+      "seed": 8
+    },
+    {
+      "label": { "zh": "出了左上角", "en": "Off the top left" },
+      "x0": -5,
+      "y0": -5,
+      "x1": 15,
+      "y1": 16,
+      "lines": [[2, 3, 9], [2, 6, 10], [2, 9, 7]],
+      "noise": 0.15,
+      "seed": 9
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "出了下边", "en": "Off the bottom" },
+      "x0": 3,
+      "y0": 8,
+      "x1": 20,
+      "y1": 40,
+      "lines": [[6, 11, 11], [6, 14, 9], [6, 17, 12]],
+      "noise": 0.15,
+      "seed": 10
+    },
+    { "label": { "zh": "没有字", "en": "No text" }, "x0": 5, "y0": 6, "x1": 18, "y1": 17, "noise": 0.15, "seed": 11 }
+  ],
+  "solution": [
+    "g = gauss[sigma=1.5, border=edge](in)",
+    "x = sobelx[border=edge](g)",
+    "y = sobely[border=edge](g)",
+    "xx = arith[op=mul](x, x)",
+    "yy = arith[op=mul](y, y)",
+    "a = arith[op=add](xx, yy)",
+    "t = threshold[t=0.01](a)",
+    "out <- t"
+  ],
+  "naive": [
+    "g = gauss[sigma=1.5, border=edge](in)",
+    "x = sobelx(g)",
+    "y = sobely(g)",
+    "xx = arith[op=mul](x, x)",
+    "yy = arith[op=mul](y, y)",
+    "a = arith[op=add](xx, yy)",
+    "t = threshold[t=0.01](a)",
+    "out <- t"
+  ],
+  "alsoFails": [
+    [
+      "x = sobelx[border=edge](in)",
+      "y = sobely[border=edge](in)",
+      "xx = arith[op=mul](x, x)",
+      "yy = arith[op=mul](y, y)",
+      "a = arith[op=add](xx, yy)",
+      "t = threshold[t=0.04](a)",
+      "out <- t"
+    ],
+    [
+      "x = sobelx[border=edge](in)",
+      "y = sobely[border=edge](in)",
+      "xx = arith[op=mul](x, x)",
+      "yy = arith[op=mul](y, y)",
+      "a = arith[op=add](xx, yy)",
+      "t = threshold[t=0.01](a)",
+      "out <- t"
+    ],
+    [
+      "g = gauss[border=edge](in)",
+      "x = sobelx[border=edge](g)",
+      "y = sobely[border=edge](g)",
+      "xx = arith[op=mul](x, x)",
+      "yy = arith[op=mul](y, y)",
+      "a = arith[op=add](xx, yy)",
+      "t = threshold[t=0.01](a)",
+      "out <- t"
+    ]
+  ]
+}

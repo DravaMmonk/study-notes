@@ -1,0 +1,63 @@
+{
+  "kind": "graph",
+  "title": { "zh": "重叠多少", "en": "How much overlap" },
+  "brief": {
+    "zh": "两个框画成掩膜（框里是 1）。输出它们的交并比 IoU = 交集的面积 ÷ 并集的面积。",
+    "en": "Two boxes drawn as masks (1 inside the box). Output their intersection over union, IoU = area of the intersection ÷ area of the union."
+  },
+  "hint": {
+    "zh": "交集是两张掩膜逐格相乘。并集 = 两个面积相加，再减去重复算的那部分。<part-ref to=\"mean\"></part-ref>量出的面积都差同一个倍数。",
+    "en": "The intersection is the two masks multiplied cell by cell. The union = the two areas added, minus the part counted twice. Areas measured with <part-ref to=\"mean\"></part-ref> are all off by the same factor."
+  },
+  "after": {
+    "zh": "IoU 在 0 到 1 之间：1 是完全重合，0 是不沾边。检测器画的框和标注的框 IoU 够大，才算找对了。",
+    "en": "IoU lies between 0 and 1: 1 is a perfect overlap, 0 is not touching at all. A detector's box only counts as right when its IoU with the labelled box is large enough."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "检测器不光要说出「有一只狗」，还要用一个框圈出它在哪。框得准不准，要和人标注的框比。",
+        "en": "A detector must not only say \"there is a dog\" but draw a box round where it is. How good the box is gets judged against a box a person labelled."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：两个框画成掩膜，输出它们的交并比，公式在说明里。",
+        "en": "Your task in this level: two boxes drawn as masks; output their intersection over union, with the formula in the brief."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：错开一点", "en": "Set 1: slightly off" } }
+    }
+  ],
+  "inputs": ["a", "b"],
+  "inputLabels": { "a": { "zh": "框 a", "en": "Box a" }, "b": { "zh": "框 b", "en": "Box b" } },
+  "packs": {
+    "name": { "zh": "IoU", "en": "IoU" },
+    "desc": {
+      "zh": "输出两个框掩膜的交并比：重叠面积除以合起来的面积。",
+      "en": "Outputs the intersection over union of two box masks: the overlap divided by the area they cover together."
+    }
+  },
+  "check": { "tolerance": 0.005 },
+  "scene": "boxPair",
+  "setup": { "expect": "iou" },
+  "tests": [
+    { "label": { "zh": "错开一点", "en": "Slightly off" }, "a": [2, 2, 10, 10], "b": [4, 3, 12, 11] },
+    { "label": { "zh": "大框套小框", "en": "A big box round a small one" }, "a": [1, 1, 15, 15], "b": [5, 5, 10, 10] },
+    { "label": { "zh": "只碰到边", "en": "Barely touching" }, "a": [0, 0, 8, 8], "b": [6, 6, 14, 14] }
+  ],
+  "hidden": [
+    { "label": { "zh": "一模一样", "en": "Identical" }, "a": [3, 4, 9, 12], "b": [3, 4, 9, 12] },
+    { "label": { "zh": "不重叠", "en": "Not overlapping" }, "a": [0, 0, 5, 5], "b": [8, 8, 14, 14] }
+  ],
+  "solution": [
+    "i = arith[op=mul](a, b)",
+    "ma = fqMean(a)",
+    "mb = fqMean(b)",
+    "mi = fqMean(i)",
+    "s = arith[op=add](ma, mb)",
+    "u = arith[op=sub](s, mi)",
+    "q = arith[op=div](mi, u)",
+    "out <- q"
+  ],
+  "naive": ["i = arith[op=mul](a, b)", "ma = fqMean(a)", "mi = fqMean(i)", "q = arith[op=div](mi, ma)", "out <- q"]
+}

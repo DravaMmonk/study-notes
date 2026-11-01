@@ -1,0 +1,47 @@
+{
+  "kind": "graph",
+  "title": { "zh": "去噪自编码器", "en": "Denoising autoencoder" },
+  "brief": { "zh": "输入的斑点带着噪声，期望是干净的斑点。", "en": "The blobs come in noisy, and the expected output is the clean blob." },
+  "hint": {
+    "zh": "模糊把噪声和斑点一起抹开。瓶颈只放得下两个数，噪声要几个数才记得住？",
+    "en": "A blur smears the noise and the blob alike. The bottleneck holds only two numbers; how many would it take to remember the noise?"
+  },
+  "after": {
+    "zh": "瓶颈里只有两个数，装得下「斑点在哪」，装不下每一格的噪声，所以解码出来是干净的。训练时输入加噪声、目标用原图，就是去噪自编码器；后面的扩散模型把这个想法推到底：从纯噪声一点点去噪，画出新图。",
+    "en": "The bottleneck holds only two numbers: enough for \"where the blob is\", not for the noise in every cell, so what is decoded comes out clean. Training with noisy inputs and the original as the target gives a denoising autoencoder, and diffusion models push the idea all the way: denoise from pure noise, little by little, to draw new pictures."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "拍出来的照片总带着噪点。一张图压成两个数，再画回来，噪点会怎样？",
+        "en": "Photos always come with grain. Squeeze a picture into two numbers and draw it back: what happens to the grain?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：输入的斑点带着噪声，输出干净的斑点。",
+        "en": "Your task in this level: the blobs come in noisy; output clean blobs."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+    }
+  ],
+  "check": { "tolerance": 0.15, "mismatches": 3 },
+  "scene": "noisyBlob",
+  "tests": [
+    { "label": { "zh": "斑点 1", "en": "Blob 1" }, "at": [3.5, 3.5], "seed": 300 },
+    { "label": { "zh": "斑点 2", "en": "Blob 2" }, "at": [3.5, 9.17], "seed": 301 },
+    { "label": { "zh": "斑点 3", "en": "Blob 3" }, "at": [6.33, 3.7], "seed": 302 },
+    { "label": { "zh": "斑点 4", "en": "Blob 4" }, "at": [6.33, 9.37], "seed": 303 },
+    { "label": { "zh": "斑点 5", "en": "Blob 5" }, "at": [9.17, 3.5], "seed": 304 },
+    { "label": { "zh": "斑点 6", "en": "Blob 6" }, "at": [9.17, 9.17], "seed": 305 },
+    { "label": { "zh": "斑点 7", "en": "Blob 7" }, "at": [12, 3.7], "seed": 306 },
+    { "label": { "zh": "斑点 8", "en": "Blob 8" }, "at": [12, 9.37], "seed": 307 }
+  ],
+  "hidden": [
+    { "label": { "zh": "新位置 1", "en": "New place 1" }, "at": [5.2, 8.1], "seed": 400 },
+    { "label": { "zh": "新位置 2", "en": "New place 2" }, "at": [10.4, 5.6], "seed": 401 }
+  ],
+  "solution": ["e = dg_encoder(in)", "d = dg_decoder(e)", "out <- d"],
+  "naive": ["out <- in"],
+  "alsoFails": [["g = gauss(in)", "out <- g"]]
+}

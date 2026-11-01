@@ -1,0 +1,54 @@
+{
+  "kind": "graph",
+  "title": { "zh": "竖着也来", "en": "Up and down too" },
+  "brief": {
+    "zh": "每个像素换成它和上下两个邻居的平均。",
+    "en": "Replace each pixel with the average of itself and its neighbours above and below."
+  },
+  "after": {
+    "zh": "同一个想法换一个方向。横着平均抹平左右的毛刺，竖着平均抹平上下的。",
+    "en": "The same idea in another direction. Averaging across smooths out spikes from side to side; averaging down smooths them from top to bottom."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-1\"></level-ref>的三点平均只看左右。噪点和毛刺可不只在横着的方向上。",
+        "en": "The three-point average from <level-ref to=\"1-1\"></level-ref> only looks left and right. Noise and specks are not only spread out sideways."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：每一格换成它自己和上下两个邻居的平均。",
+        "en": "Your task in this level: replace each cell with the average of itself and its neighbours above and below."
+      },
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "第一组测试：方块的上下两条边多出一圈灰", "en": "Set 1: the square's top and bottom edges gain a grey band" }
+      }
+    }
+  ],
+  "scene": "filter",
+  "setup": {
+    "target": { "correlate": { "kernel": [0, 0.3333333333333333, 0, 0, 0.3333333333333333, 0, 0, 0.3333333333333333, 0] } }
+  },
+  "tests": [
+    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+  ],
+  "hidden": [
+    { "label": { "zh": "横条", "en": "Horizontal bar" }, "in": { "stepY": { "edge": 9 } } },
+    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 12 } } }
+  ],
+  "solution": [
+    "kN = const[c=0.33]()",
+    "u = shift[dir=up](in)",
+    "d = shift[dir=down](in)",
+    "a = arith[op=add](u, d)",
+    "b = arith[op=add](a, in)",
+    "k = arith[op=mul](b, kN)",
+    "out <- k"
+  ],
+  "naive": ["h = blur3h(in)", "out <- h"]
+}

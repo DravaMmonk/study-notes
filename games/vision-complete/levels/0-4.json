@@ -1,0 +1,60 @@
+{
+  "kind": "graph",
+  "title": { "zh": "底片", "en": "Negative" },
+  "brief": { "zh": "黑变白、白变黑：输出 = 1 − 输入。", "en": "Black becomes white, white becomes black: output = 1 − input." },
+  "hint": { "zh": "先把所有数乘 −1，再整体加上一个数。", "en": "First multiply every number by −1, then add one number to all of them." },
+  "after": {
+    "zh": "每个像素各算各的，互不打扰。这叫逐像素运算：它改变亮度，却永远不知道邻居是谁。",
+    "en": "Each pixel is worked out on its own, leaving the others alone. This is a per-pixel operation: it changes brightness, but never knows who its neighbours are."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "胶片相机的底片上，明暗是反的：天空发黑，白衬衫发暗。冲印时再反一次，才变回正常。医生看 X 光片时，也常在正片和负片之间切换。",
+        "en": "On a film camera's negative, light and dark are reversed: the sky looks black and a white shirt looks dark. Printing reverses them again to bring the picture back to normal. Doctors reading X-rays also often switch between positive and negative."
+      }
+    },
+    {
+      "t": {
+        "zh": "在数字图里，反相就是把每格的数换掉：0 变 1，1 变 0，0.3 变 0.7。照片还是那张照片，只是明暗颠倒。",
+        "en": "In a digital image, inverting means replacing the number in every cell: 0 becomes 1, 1 becomes 0, 0.3 becomes 0.7. The photo is still the same photo, just with light and dark swapped."
+      }
+    },
+    {
+      "t": {
+        "zh": "为什么是「1 减去输入」？亮度都在 0 到 1 之间。只把每格乘 −1，暗的 0.3 会变成 −0.3，亮的 0.9 会变成 −0.9：明暗是反过来了，可所有的数都掉到了 0 以下，比黑还黑。再给每格加上 1，整张图就抬回 0 到 1 之间：−0.3 + 1 = 0.7，−0.9 + 1 = 0.1。所以「乘 −1 再加 1」就是 1 − 输入：原来越亮，现在越暗。",
+        "en": "Why \"1 minus the input\"? Brightness always lies between 0 and 1. Multiply each cell by −1 alone and a dark 0.3 becomes −0.3 while a bright 0.9 becomes −0.9: light and dark are swapped, but every number has dropped below 0, darker than black. Add 1 to every cell and the whole picture is lifted back into 0 … 1: −0.3 + 1 = 0.7 and −0.9 + 1 = 0.1. So \"multiply by −1, then add 1\" is 1 − input: what was brighter is now darker."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的元件都很朴素：<part-ref to=\"part:const\"></part-ref>一直输出同一个数；<part-ref to=\"part:mul\"></part-ref><part-ref to=\"part:add\"></part-ref>把两样东西逐格乘起来、加起来。一个数和一张图相乘、相加时，这个数用在每一格上。",
+        "en": "The parts in this level are all simple: <part-ref to=\"part:const\"></part-ref> always outputs the same number; <part-ref to=\"part:mul\"></part-ref> and <part-ref to=\"part:add\"></part-ref> multiply and add two things cell by cell. When a number meets a picture, the number applies to every cell."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：只用这些乘和加，凑出「1 减去输入」。",
+        "en": "Your task in this level: using only these multiplications and additions, make \"1 minus the input\"."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：方块和它的底片", "en": "Set 1: a square and its negative" } }
+    }
+  ],
+  "adds": ["mul", "const", "add"],
+  "unlocks": ["invert"],
+  "scene": "filter",
+  "setup": { "target": "negative" },
+  "tests": [
+    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
+    { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+  ],
+  "hidden": [
+    { "label": { "zh": "斜坡", "en": "Ramp" }, "in": "rampX" },
+    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 3 } } }
+  ],
+  "solution": ["kN = const[c=-1]()", "cN = const()", "k = mul(in, kN)", "c = add(k, cN)", "out <- c"],
+  "naive": ["kN = const[c=-1]()", "k = mul(in, kN)", "out <- k"]
+}

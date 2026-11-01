@@ -19,7 +19,7 @@ The design rules live in the repository, not in this skill. Before designing or 
    especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), author workflow (§7), pitfalls (§8)
    and case studies (§9–11).
 2. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
-3. The game's content: a data game (`games/DIRECTION.md`, `games/DESIGN.md` §6.1; 《状态之图》 first) is
+3. The game's content: a data game (`games/DIRECTION.md`, `games/DESIGN.md` §6.1; 《状态之图》, 《视觉完备》) is
    `games/<game>/game.json` (eras, parts, saves), `levels/<id>.json` and `glossary.json`, written in its domain's
    vocabulary (`games/kit/domains/<domain>/vocabulary.js`); a game not yet moved is still `spec.js` and `levels/`.
 

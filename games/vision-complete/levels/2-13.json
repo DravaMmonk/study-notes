@@ -1,0 +1,84 @@
+{
+  "kind": "graph",
+  "title": { "zh": "缩小一半", "en": "Half the size" },
+  "brief": {
+    "zh": "把 32×32 的图缩成 16×16，看起来要和原图一样（只是变小）。",
+    "en": "Shrink a 32×32 image to 16×16. It should look like the original, only smaller."
+  },
+  "hint": {
+    "zh": "隔点取样把每行 32 个点变成 16 个。采样台上看过：16 个点能分辨到哪个频率？更快的纹会怎样？在扔掉点之前，先做点什么。",
+    "en": "Downsampling turns the 32 pixels in each row into 16. As the sampling bench showed: up to what frequency can 16 samples tell apart? What happens to faster stripes? Do something before you throw pixels away."
+  },
+  "after": {
+    "zh": "直接隔点取样，频率高于 8 的细纹会折回来，冒充成原图里没有的粗纹（莫尔纹），这就是混叠。先用高斯模糊把这些频率压下去，再取样：抗混叠必须发生在采样之前。拍照、缩略图都会遇到同一个问题。",
+    "en": "Downsample directly and fine stripes above frequency 8 fold back, posing as coarse stripes the original never had (moiré). That is aliasing. Suppress those frequencies with a Gaussian blur first, then sample: anti-aliasing must happen before sampling. Cameras and thumbnails both face the same problem."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "相册要给每张照片做缩略图。这一章最后四关，就来搭这样一个缩略图服务：缩小照片，不出莫尔纹，还要算得快。",
+        "en": "A photo album wants a thumbnail for every photo. The last four levels of this chapter build that thumbnail service: shrink photos with no moiré, and do it quickly."
+      }
+    },
+    {
+      "t": {
+        "zh": "最直接的办法是隔一个点留一个：32×32 的图，每行每列只留一半，就成了 16×16。",
+        "en": "The most direct way is to keep every other pixel: keep half of every row and column of a 32×32 picture and it becomes 16×16."
+      }
+    },
+    {
+      "t": {
+        "zh": "<part-ref to=\"downsample\"></part-ref>做的就是这件事。对粗大的图案，它的效果很好：一张大格子的棋盘，缩小以后还是棋盘。",
+        "en": "<part-ref to=\"downsample\"></part-ref> does exactly this. On large patterns it works well: a checkerboard of big squares is still a checkerboard after shrinking."
+      },
+      "fig": {
+        "part": "downsample",
+        "caption": { "zh": "隔点取样：大格子棋盘缩成一半", "en": "Downsample: a large-square checkerboard shrunk to half" },
+        "input": "checker"
+      }
+    },
+    {
+      "t": {
+        "zh": "可测试里还有斑马板（一圈圈越往外越细的环）和细条纹。采样台上一维的实验，在这里换成了二维的图。它们缩小以后，还是原来的样子吗？",
+        "en": "But the tests also include a zone plate (rings that get finer towards the outside) and fine stripes. The 1D experiments from the sampling bench now become 2D images. Do these still look the same after shrinking?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：把 32×32 的图缩成 16×16，看起来要和原图一样，只是小了一号。",
+        "en": "In this level: shrink a 32×32 image to 16×16 so that it looks like the original, just one size smaller."
+      },
+      "fig": { "test": 0, "caption": { "zh": "斑马板：输入和期望", "en": "Zone plate: input and expected output" } }
+    }
+  ],
+  "check": { "tolerance": 0.12, "mismatches": 6 },
+  "scene": "filter",
+  "setup": { "target": { "shrink": { "sigma": 1, "halvings": 1 } } },
+  "tests": [
+    { "label": { "zh": "斑马板", "en": "Zone plate" }, "in": { "zonePlate": { "k": 0.06 } } },
+    {
+      "label": { "zh": "细条纹", "en": "Fine stripes" },
+      "in": { "stripes": { "period": 2.5, "lo": 0.1, "hi": 0.9, "w": 32, "h": 32 } }
+    },
+    {
+      "label": { "zh": "大圆盘", "en": "Large disc" },
+      "in": { "disk": { "cx": 15.5, "cy": 15.5, "r": 10, "lo": 0.1, "hi": 0.9, "size": 32 } }
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "横向细条纹", "en": "Fine horizontal stripes" },
+      "in": { "stripes": { "period": 2.5, "w": 32, "h": 32, "axis": "y" } }
+    },
+    {
+      "label": { "zh": "细棋盘", "en": "Fine checkerboard" },
+      "in": { "checker": { "cell": 1, "lo": 0.15, "hi": 0.85, "size": 32 } }
+    },
+    {
+      "label": { "zh": "偏心斑马板", "en": "Off-centre zone plate" },
+      "in": { "zonePlate": { "k": 0.05, "cx": 10, "cy": 20, "A": 0.4 } }
+    }
+  ],
+  "solution": ["g = gauss[border=edge](in)", "d = downsample(g)", "out <- d"],
+  "naive": ["d = downsample(in)", "out <- d"]
+}

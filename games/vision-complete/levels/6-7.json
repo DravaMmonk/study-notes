@@ -1,0 +1,72 @@
+{
+  "kind": "graph",
+  "title": { "zh": "车道线", "en": "Lane lines" },
+  "brief": {
+    "zh": "路面上有两条亮的车道线和几个亮点。在 Hough 累加器里只标出这两条线的格子：票数乘 1/8 以后的峰。",
+    "en": "The road has two bright lane lines and a few bright specks. Mark only the cells of these two lines in the Hough accumulator: the peaks after multiplying the votes by 1/8."
+  },
+  "hint": {
+    "zh": "每个亮点都投票，可一个孤零零的亮点票数分散，成不了峰。",
+    "en": "Every bright point votes, but a lone speck spreads its votes thin and makes no peak."
+  },
+  "after": {
+    "zh": "亮点、投票、找峰：Hough 把「找一条线」变成「在累加器里找峰」，挡掉了零散的杂点，线断了几段也照样找得到。车道保持系统的第一代就是这么做的。",
+    "en": "Points, votes, peaks: Hough turns \"find a line\" into \"find a peak in the accumulator\", which ignores scattered specks and still finds a line broken into pieces. The first lane-keeping systems worked exactly like this."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"hough\"></part-ref>：亮点进去，出来一张 (θ, ρ) 的票数图。",
+        "en": "The <part-ref to=\"hough\"></part-ref> in the tray: bright points go in, and a map of votes over (θ, ρ) comes out."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：路面上有两条车道线和几个亮点，在累加器里只标出这两条线。",
+        "en": "Your task in this level: the road has two lane lines and a few bright specks; mark only these two lines in the accumulator."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：两条车道", "en": "Set 1: two lanes" } }
+    }
+  ],
+  "scene": "road",
+  "tests": [
+    {
+      "label": { "zh": "两条车道", "en": "Two lanes" },
+      "lanes": [[3, 15, 7, 0], [13, 15, 9, 0]],
+      "specks": [[1, 2], [14, 3]]
+    },
+    {
+      "label": { "zh": "弯向一边", "en": "Leaning one way" },
+      "lanes": [[1, 15, 8, 0], [9, 15, 15, 2]],
+      "specks": [[4, 4], [12, 11]]
+    },
+    {
+      "label": { "zh": "杂点多一些", "en": "More specks" },
+      "lanes": [[4, 15, 6, 0], [14, 15, 10, 0]],
+      "specks": [[0, 0], [2, 9], [12, 5], [15, 14]]
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "一横一竖", "en": "One across, one down" },
+      "lanes": [[0, 12, 15, 12], [5, 0, 5, 15]],
+      "specks": [[10, 3], [13, 7]]
+    }
+  ],
+  "solution": [
+    "sk = const[c=0.13]()",
+    "t = threshold(in)",
+    "h = hough(t)",
+    "s = arith[op=mul](h, sk)",
+    "p = own-6-2(s)",
+    "out <- p"
+  ],
+  "naive": [
+    "sk = const[c=0.13]()",
+    "t = threshold(in)",
+    "h = hough(t)",
+    "s = arith[op=mul](h, sk)",
+    "b = threshold[t=0.3](s)",
+    "out <- b"
+  ]
+}

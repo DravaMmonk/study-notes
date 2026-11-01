@@ -1,0 +1,95 @@
+{
+  "kind": "graph",
+  "title": { "zh": "切多大", "en": "How big a patch" },
+  "brief": {
+    "zh": "还是补全对角，这次图案是 8×8 的，一张图四个。计算量不能超过 10。",
+    "en": "Mending across the diagonal again, this time with 8×8 patterns, four to a picture. The cost must not exceed 10."
+  },
+  "hint": {
+    "zh": "注意力的每一格都要把所有图块加一遍。图块越大，图块越少。",
+    "en": "Each cell of attention adds up over every patch. The bigger the patches, the fewer there are."
+  },
+  "after": {
+    "zh": "图块数 = 像素数 ÷ P²，注意力的计算量跟着图块数涨；图块大了，每块又粗得只能认出大结构。ViT 把 224×224 的图切成 16×16 的图块，正好是 196 个：在计算量和细节之间取的一个折中。",
+    "en": "The number of patches is the number of pixels ÷ P², and the cost of attention grows with it; but bigger patches are too coarse to see anything but large structure. ViT cuts a 224×224 image into 16×16 patches, exactly 196 of them: a compromise between cost and detail."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "注意力里，每一格都要把所有图块加一遍。图块切得越小，图块就越多，要算的也越多。",
+        "en": "In attention, every cell adds up over all the patches. The smaller the patches, the more of them there are, and the more there is to compute."
+      }
+    },
+    {
+      "t": {
+        "zh": "<part-ref to=\"attention\"></part-ref>多了一个设置：图块边长 P，可以是 2、4 或 8。",
+        "en": "<part-ref to=\"attention\"></part-ref> has gained a setting: the patch size P, which can be 2, 4 or 8."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：图案变成了 8×8 的，一张图四个，还是补全对角；计算量有上限。",
+        "en": "Your task in this level: the patterns are now 8×8, four to a picture, and it is mending across the diagonal again; the cost has a limit."
+      },
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "第一组：左上角的图案缺了几块", "en": "Set 1: the top-left pattern is missing a few blocks" }
+      }
+    }
+  ],
+  "constraint": { "cost": { "max": 10 } },
+  "scene": "mend",
+  "setup": { "scale": 2 },
+  "tests": [
+    {
+      "label": { "zh": "左上缺", "en": "Top left erased" },
+      "items": [
+        { "tile": "X", "at": [0, 0], "erased": [[0, 0], [1, 1]] },
+        { "tile": "X", "at": [1, 1] },
+        { "tile": "C", "at": [0, 1] },
+        { "tile": "P", "at": [1, 0] }
+      ]
+    },
+    {
+      "label": { "zh": "右上缺", "en": "Top right erased" },
+      "items": [
+        { "tile": "S", "at": [0, 1], "erased": [[3, 3], [2, 3], [3, 1]] },
+        { "tile": "S", "at": [1, 0] },
+        { "tile": "K", "at": [0, 0] },
+        { "tile": "R", "at": [1, 1] }
+      ]
+    },
+    {
+      "label": { "zh": "右下缺", "en": "Bottom right erased" },
+      "items": [
+        { "tile": "R", "at": [0, 0] },
+        { "tile": "R", "at": [1, 1], "erased": [[1, 0], [0, 1]] },
+        { "tile": "X", "at": [0, 1] },
+        { "tile": "C", "at": [1, 0] }
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "左下缺", "en": "Bottom left erased" },
+      "items": [
+        { "tile": "K", "at": [1, 0], "erased": [[0, 0], [1, 1], [3, 3]] },
+        { "tile": "K", "at": [0, 1] },
+        { "tile": "S", "at": [0, 0] },
+        { "tile": "P", "at": [1, 1] }
+      ]
+    },
+    {
+      "label": { "zh": "没缺", "en": "Nothing erased" },
+      "items": [
+        { "tile": "C", "at": [0, 0] },
+        { "tile": "C", "at": [1, 1] },
+        { "tile": "R", "at": [0, 1] },
+        { "tile": "X", "at": [1, 0] }
+      ]
+    }
+  ],
+  "solution": ["a = attention[s=8, P=8](in)", "t = threshold[t=0.3](a)", "out <- t"],
+  "naive": ["a = attention[s=8](in)", "t = threshold[t=0.3](a)", "out <- t"],
+  "alsoFails": [["a = attention[s=8, P=2](in)", "t = threshold[t=0.3](a)", "out <- t"]]
+}

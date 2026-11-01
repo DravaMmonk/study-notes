@@ -1,0 +1,77 @@
+{
+  "kind": "graph",
+  "title": { "zh": "锐化", "en": "Sharpen" },
+  "brief": {
+    "zh": "让细节更清楚：输出 = 原图 + 1.5 ×（原图 − 模糊图）。模糊用 σ = 1 的高斯。",
+    "en": "Make the details clearer: output = original + 1.5 × (original − blurred). Blur with a Gaussian of σ = 1."
+  },
+  "after": {
+    "zh": "原图减去模糊图，剩下的正是细节（高频）。把细节加回去，图就变“锐”了。",
+    "en": "The original minus the blurred image leaves exactly the detail (the high frequencies). Add the detail back and the image becomes \"sharper\"."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "暗房时代的摄影师有个怪招：把一张故意洗模糊的底片和原底片叠在一起印，照片反而更清楚。修图软件里的「USM 锐化」（unsharp mask）就源自这个做法。",
+        "en": "Darkroom photographers had an odd trick: print the original negative stacked with a deliberately blurred copy, and the photo comes out clearer. The \"USM sharpening\" (unsharp mask) in photo editors comes from this technique."
+      }
+    },
+    {
+      "t": {
+        "zh": "<part-ref to=\"gauss\"></part-ref>是你在<level-ref to=\"1-4\"></level-ref>里得到的元件，σ 控制模糊得多宽。",
+        "en": "<part-ref to=\"gauss\"></part-ref> is the part you earned in <level-ref to=\"1-4\"></level-ref>. σ controls how wide the blur is."
+      },
+      "fig": {
+        "part": "gauss",
+        "params": { "sigma": 1 },
+        "caption": { "zh": "高斯模糊，σ = 1", "en": "Gaussian blur, σ = 1" },
+        "input": "square"
+      }
+    },
+    {
+      "t": {
+        "zh": "要想的问题：「原图 − 模糊图」这张差图里，留下的是什么？为什么把它加回原图，图就显得更锐利？",
+        "en": "Something to think about: what is left in the difference image \"original − blurred\"? Why does adding it back to the original make the image look sharper?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：按公式搭出锐化。用地形画法看期望，每道台阶的边上都多出了一道凸起和一道凹陷。",
+        "en": "Your task in this level: build the sharpening from the formula. In terrain view, the expected output has an extra ridge and an extra dip beside every step."
+      },
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组测试：方块，用地形画法看", "en": "Set 1: square, in terrain view" } }
+    }
+  ],
+  "views": { "in": "terrain", "out": "terrain", "mid": "terrain" },
+  "scene": "filter",
+  "setup": { "target": { "sharpen": { "sigma": 1, "amount": 1.5 } } },
+  "tests": [
+    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+      "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 4 } }
+    },
+    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 21 } } }
+  ],
+  "solution": [
+    "kN = const[c=1.5]()",
+    "g = gauss(in)",
+    "d = arith[op=sub](in, g)",
+    "k = arith[op=mul](d, kN)",
+    "a = arith[op=add](in, k)",
+    "out <- a"
+  ],
+  "naive": [
+    "kN = const[c=1.5]()",
+    "g = gauss(in)",
+    "d = arith[op=sub](g, in)",
+    "k = arith[op=mul](d, kN)",
+    "a = arith[op=add](in, k)",
+    "out <- a"
+  ]
+}

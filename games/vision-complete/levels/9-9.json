@@ -1,0 +1,96 @@
+{
+  "kind": "graph",
+  "title": { "zh": "细胞分割", "en": "Segmenting cells" },
+  "brief": {
+    "zh": "一批显微镜切片，每张的亮度和对比度都不一样，细胞挨在一起。标出细胞，细胞之间的缝要留着。",
+    "en": "A batch of microscope slides, each with its own brightness and contrast, with cells touching. Mark the cells, and keep the gaps between them."
+  },
+  "hint": { "zh": "固定的门槛，在暗的切片上和亮的切片上不会都对。", "en": "A fixed threshold cannot be right on both dark slides and bright ones." },
+  "after": {
+    "zh": "自适应的分界、去噪的粗路径、保细节的跳连：一个小小的 U-Net 式流水线。真实的细胞分割网络把每一步都换成学出来的卷积，结构还是这个样子。",
+    "en": "An adaptive boundary, a coarse path that removes grain, a skip connection that keeps detail: a small U-Net-style pipeline. Real cell-segmentation networks replace every step with learnt convolutions, but the structure stays the same."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一批切片来自不同的显微镜、不同的染色，有的整体暗，有的整体亮。",
+        "en": "A batch of slides comes from different microscopes and stains: some dark overall, some bright."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：每张切片都标出细胞，缝要留着。",
+        "en": "Your task in this level: mark the cells on every slide, keeping the gaps."
+      },
+      "fig": { "test": 1, "caption": { "zh": "第二组：亮的切片", "en": "Set 2: a bright slide" } }
+    }
+  ],
+  "check": { "tolerance": 0.1, "mismatches": 4 },
+  "scene": "cells",
+  "tests": [
+    {
+      "label": { "zh": "暗的切片", "en": "A dark slide" },
+      "rects": [[2, 2, 14, 9]],
+      "gapX": [7],
+      "seed": 81,
+      "cell": 0.5,
+      "back": 0.2,
+      "grain": 0.1
+    },
+    {
+      "label": { "zh": "亮的切片", "en": "A bright slide" },
+      "rects": [[1, 3, 9, 15], [11, 1, 15, 7]],
+      "gapY": [9],
+      "seed": 82,
+      "cell": 0.95,
+      "back": 0.55,
+      "grain": 0.1
+    },
+    {
+      "label": { "zh": "一排细胞", "en": "A row of cells" },
+      "rects": [[1, 5, 15, 12]],
+      "gapX": [5, 9],
+      "seed": 83,
+      "cell": 0.7,
+      "back": 0.35,
+      "grain": 0.1
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "对比度低", "en": "Low contrast" },
+      "rects": [[2, 2, 14, 14]],
+      "gapX": [7],
+      "gapY": [7],
+      "seed": 84,
+      "cell": 0.6,
+      "back": 0.35,
+      "grain": 0.08
+    }
+  ],
+  "solution": [
+    "k0 = const[c=0.5]()",
+    "a1 = own-9-5(in, k0)",
+    "a2 = own-9-5(in, a1)",
+    "a3 = own-9-5(in, a2)",
+    "n = arith[op=sub](in, a3)",
+    "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](n)",
+    "f = threshold[t=0](n)",
+    "s = downsample(a)",
+    "c = threshold[t=-0.13](s)",
+    "u = tconv(c)",
+    "m = arith[op=mul](u, f)",
+    "out <- m"
+  ],
+  "naive": [
+    "k0 = const[c=0.5]()",
+    "n = arith[op=sub](in, k0)",
+    "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](n)",
+    "f = threshold[t=0](n)",
+    "s = downsample(a)",
+    "c = threshold[t=-0.13](s)",
+    "u = tconv(c)",
+    "m = arith[op=mul](u, f)",
+    "out <- m"
+  ]
+}

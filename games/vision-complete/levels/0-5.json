@@ -1,0 +1,53 @@
+{
+  "kind": "graph",
+  "title": { "zh": "拉开对比", "en": "Stretch the contrast" },
+  "brief": {
+    "zh": "这些照片灰蒙蒙的：最暗只有 0.25，最亮只有 0.75。把 0.25 变成 0、0.75 变成 1，中间的按比例拉开。",
+    "en": "These photos are washed out: the darkest is only 0.25 and the brightest only 0.75. Turn 0.25 into 0 and 0.75 into 1, stretching everything in between in proportion."
+  },
+  "hint": {
+    "zh": "先让最暗的那一格落到 0，再想要乘多少，最亮的才会落到 1。",
+    "en": "First bring the darkest cell down to 0, then work out what to multiply by so the brightest lands on 1."
+  },
+  "after": {
+    "zh": "先挪、再放大，就把 [0.25, 0.75] 拉满了 [0, 1]。修图软件的「色阶」「对比度」做的就是这件事。顺序要紧：先放大再挪，挪的量就得跟着变。",
+    "en": "Shift first, then scale, and [0.25, 0.75] fills all of [0, 1]. The \"levels\" and \"contrast\" tools in photo editors do exactly this. The order matters: scale first, and the amount you shift by has to change with it."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "阴天、起雾，或者镜头上有一层灰，拍出来的照片就灰蒙蒙的：最暗的地方不够黑，最亮的地方不够白，所有亮度都挤在中间一小段里。",
+        "en": "On an overcast or foggy day, or with dust on the lens, photos come out washed out: the darkest parts are not black enough, the brightest not white enough, and every brightness is squeezed into a narrow band in the middle."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的照片，亮度都挤在 0.25 到 0.75 之间。修图软件里的「色阶」能把它拉回 0 到 1。",
+        "en": "In this level's photos, every brightness is squeezed between 0.25 and 0.75. The \"levels\" tool in a photo editor can stretch it back out to 0 … 1."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：让 0.25 变成 0、0.75 变成 1，中间的亮度按比例拉开。要想的问题：先乘还是先加，结果一样吗？",
+        "en": "Your task in this level: turn 0.25 into 0 and 0.75 into 1, stretching the brightnesses in between in proportion. Something to think about: does it matter whether you multiply or add first?"
+      },
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "第一组测试：灰蒙蒙的方块和拉开后的方块", "en": "Set 1: a washed-out square and the square stretched" }
+      }
+    }
+  ],
+  "scene": "washedOut",
+  "tests": [
+    { "label": { "zh": "方块", "en": "Square" }, "photo": { "square": { "x0": 4, "y0": 4, "s": 8, "lo": 0, "hi": 1 } } },
+    { "label": { "zh": "圆盘", "en": "Disc" }, "photo": { "disk": { "cx": 7.5, "cy": 7.5, "r": 5, "lo": 0, "hi": 1 } } },
+    { "label": { "zh": "斜坡", "en": "Ramp" }, "photo": "rampX" },
+    { "label": { "zh": "字母 F", "en": "Letter F" }, "photo": { "glyph": { "letter": "F", "lo": 0, "hi": 1 } } }
+  ],
+  "hidden": [
+    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "photo": { "checker": { "cell": 4, "lo": 0, "hi": 1 } } },
+    { "label": { "zh": "随机纹理", "en": "Random texture" }, "photo": { "noise": { "seed": 9 } } }
+  ],
+  "solution": ["cN = const[c=-0.25]()", "kN = const[c=2]()", "c = add(in, cN)", "k = mul(c, kN)", "out <- k"],
+  "naive": ["kN = const[c=2]()", "cN = const[c=-0.25]()", "k = mul(in, kN)", "c = add(k, cN)", "out <- c"]
+}

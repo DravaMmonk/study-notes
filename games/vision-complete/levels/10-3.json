@@ -1,0 +1,101 @@
+{
+  "kind": "graph",
+  "title": { "zh": "排名表", "en": "The ranking" },
+  "brief": {
+    "zh": "检测结果按分数从高到低排好，每一个标了对（1）错（0）。第 k 名的精确率 = 前 k 名里对的个数 ÷ k。AP = 每个对的那一名的精确率加起来 ÷ G。",
+    "en": "The detections are sorted by score, high to low, each marked right (1) or wrong (0). The precision at rank k = the number right in the top k ÷ k. AP = the precisions at each right rank, added up, ÷ G."
+  },
+  "hint": {
+    "zh": "「前 k 名里对的个数」是一个累加：每一格加上它左边所有格。平移多了一个「格数」设置：先加左边 1 格的，再加左边 2 格的……",
+    "en": "\"The number right in the top k\" is a running total: every cell plus all the cells to its left. Shift now has a \"Steps\" setting: add the one 1 cell to the left, then the one 2 cells to the left…"
+  },
+  "after": {
+    "zh": "累加只要 4 次「平移再相加」就覆盖了 16 格：每次挪的格数翻倍。AP 是精确率—召回率曲线下的面积：对的越靠前，分越高；漏掉的标注拉低分母。",
+    "en": "The running total covers 16 cells with only 4 rounds of \"shift and add\", the shift doubling each time. AP is the area under the precision–recall curve: the earlier the right ones, the higher the score, and missed labels raise the denominator."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "检测器给出一串框，每个带一个分数。按分数排好，逐个看是对是错，就能给检测器打一个总分。",
+        "en": "A detector gives a list of boxes, each with a score. Sort them by score, check each in turn for right or wrong, and the detector can be given an overall mark."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的输入是排好的对错（一行 16 个 0 或 1）、名次 1 到 16，和一共标注了几个。",
+        "en": "The inputs of this level are the sorted rights and wrongs (a row of sixteen 0s and 1s), the ranks 1 to 16, and how many were labelled in all."
+      }
+    },
+    {
+      "t": { "zh": "这一关你要做的：按说明里的公式算出 AP。", "en": "Your task in this level: work out AP by the formula in the brief." },
+      "fig": { "test": 1, "caption": { "zh": "对错交替", "en": "Right and wrong in turn" } }
+    }
+  ],
+  "inputs": ["f", "k", "g"],
+  "inputLabels": {
+    "f": { "zh": "按分数排好的对错", "en": "Right or wrong, by score" },
+    "k": { "zh": "名次 1 … 16", "en": "Rank 1 … 16" },
+    "g": { "zh": "标注了几个 G", "en": "Number labelled, G" }
+  },
+  "unlocks": ["long-shift"],
+  "packs": {
+    "name": { "zh": "AP 计", "en": "AP meter" },
+    "desc": {
+      "zh": "读按分数排好的对错、名次和标注数 G，输出 AP。",
+      "en": "Reads right or wrong in score order, the ranks and the number labelled G, and outputs the AP."
+    }
+  },
+  "check": { "tolerance": 0.005 },
+  "scene": "ranking",
+  "tests": [
+    {
+      "label": { "zh": "前面都对", "en": "All right at the top" },
+      "flags": [1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+      "g": 8
+    },
+    {
+      "label": { "zh": "对错交替", "en": "Right and wrong in turn" },
+      "flags": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+      "g": 6
+    },
+    {
+      "label": { "zh": "漏了几个", "en": "A few missed" },
+      "flags": [0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+      "g": 7
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "最后才对", "en": "Right only at the end" },
+      "flags": [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1],
+      "g": 6
+    }
+  ],
+  "solution": [
+    "kN = const[c=16]()",
+    "h1 = shift[dir=right](f)",
+    "p1 = arith[op=add](f, h1)",
+    "h2 = shift[dir=right, n=2](p1)",
+    "p2 = arith[op=add](p1, h2)",
+    "h4 = shift[dir=right, n=4](p2)",
+    "p4 = arith[op=add](p2, h4)",
+    "h8 = shift[dir=right, n=8](p4)",
+    "p8 = arith[op=add](p4, h8)",
+    "pr = arith[op=div](p8, k)",
+    "m = arith[op=mul](pr, f)",
+    "a = fqMean(m)",
+    "s = arith[op=mul](a, kN)",
+    "q = arith[op=div](s, g)",
+    "out <- q"
+  ],
+  "naive": [
+    "kN = const[c=16]()",
+    "pr = arith[op=div](f, k)",
+    "m = arith[op=mul](pr, f)",
+    "a = fqMean(m)",
+    "s = arith[op=mul](a, kN)",
+    "q = arith[op=div](s, g)",
+    "out <- q"
+  ],
+  "grants": ["long-shift"]
+}

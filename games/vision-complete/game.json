@@ -1,0 +1,628 @@
+{
+  "domain": "image",
+  "vocabulary": 1,
+  "title": { "zh": "视觉完备", "en": "Vision Complete" },
+  "kicker": { "zh": "COMP90086 · 计算机视觉", "en": "COMP90086 · Computer Vision" },
+  "lede": {
+    "zh": "没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。",
+    "en": "No lectures: just parts, tests and a set of inputs and outputs. Start from “move the picture one pixel”, build blur, edges, corners and disparity yourself, and finally teach the machine to see."
+  },
+  "power": {
+    "title": { "zh": "上电", "en": "Power on" },
+    "lines": [
+      { "zh": "探测器 V-0，视觉芯片已上电。", "en": "Probe V-0, vision chip powered on." },
+      {
+        "zh": "传感器把世界变成一格格数字，可你还看不懂它们。",
+        "en": "Your sensor turns the world into a grid of numbers, but you cannot read them yet."
+      },
+      {
+        "zh": "母舰会给你一系列测试。每通过一个，你就多一个可以用的元件。",
+        "en": "The mothership will send you a series of tests. Each one you pass gives you a new part to use."
+      },
+      {
+        "zh": "没有说明书。动手试，看测试图，读数字。",
+        "en": "There is no manual. Try things, look at the test pictures, read the numbers."
+      }
+    ]
+  },
+  "primitives": [
+    "const",
+    "add",
+    "sub",
+    "mul",
+    "arith",
+    "merge",
+    "sqrt",
+    "exp",
+    "globalMax",
+    "fqApply",
+    "lrnConst",
+    "learn3",
+    "lrnConv",
+    "warp",
+    "zeroUp",
+    "argmin4",
+    "dg_encode",
+    "dg_decode",
+    "dg_mu",
+    "dg_sigma",
+    "dg_sample"
+  ],
+  "concept": {
+    "const": "arithmetic",
+    "add": "arithmetic",
+    "sub": "arithmetic",
+    "mul": "arithmetic",
+    "arith": "arithmetic",
+    "lrnConv": "learn3",
+    "dg_encode": "autoencoder",
+    "dg_decode": "autoencoder",
+    "dg_encoder": "autoencoder",
+    "dg_decoder": "autoencoder",
+    "dg_mu": "latent",
+    "dg_sigma": "latent",
+    "dg_sample": "latent"
+  },
+  "replaces": { "arith": ["add", "sub", "mul"] },
+  "views": { "profile": "1-1", "terrain": "1-4", "spectrum": "2-6", "slope": "3-7" },
+  "eras": [
+    {
+      "id": 0,
+      "foundation": [
+        "0-1",
+        {
+          "parallel": [
+            { "id": "move", "title": { "zh": "挪动", "en": "Moving" }, "levels": ["0-2", "0-3"] },
+            { "id": "tone", "title": { "zh": "明暗", "en": "Light and dark" }, "levels": ["0-4", "0-5", "0-6"] }
+          ]
+        },
+        "0-7",
+        "0-8"
+      ],
+      "challenges": [{ "level": "0-9", "after": "0-7" }],
+      "topics": [{ "id": "inspection", "levels": ["0-10", "0-11", "0-12"], "after": "0-7" }],
+      "chapter": {
+        "title": { "zh": "睁眼", "en": "Opening Eyes" },
+        "lecture": { "zh": "第 1–2 讲", "en": "Lectures 1–2" },
+        "question": { "zh": "图像是什么", "en": "What is an image?" }
+      }
+    },
+    {
+      "id": 1,
+      "keeps": "all",
+      "foundation": [
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        {
+          "parallel": [
+            { "id": "sharpen", "title": { "zh": "锐化", "en": "Sharpening" }, "levels": ["1-5"] },
+            { "id": "edges", "title": { "zh": "找边", "en": "Finding edges" }, "levels": ["1-6", "1-7"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "kernel", "title": { "zh": "3×3 核", "en": "The 3×3 kernel" }, "levels": ["1-8", "1-9", "1-10"] },
+            { "id": "border", "title": { "zh": "图的边上", "en": "At the border" }, "levels": ["1-11"] }
+          ]
+        }
+      ],
+      "challenges": [{ "level": "1-12", "after": "1-3" }],
+      "topics": [{ "id": "scanner", "levels": ["1-13", "1-14", "1-15"] }],
+      "chapter": {
+        "title": { "zh": "邻居", "en": "Neighbours" },
+        "lecture": { "zh": "第 3 讲", "en": "Lecture 3" },
+        "question": { "zh": "怎样用邻居算出新图", "en": "How do neighbours make a new image?" }
+      }
+    },
+    {
+      "id": 2,
+      "keeps": "all",
+      "foundation": [
+        "2-1",
+        "2-2",
+        {
+          "parallel": [{ "id": "probe", "title": { "zh": "频率探针", "en": "Frequency probe" }, "levels": ["2-3", "2-4", "2-5"] }]
+        },
+        "2-6",
+        {
+          "parallel": [
+            { "id": "filter", "title": { "zh": "滤波", "en": "Filtering" }, "levels": ["2-7", "2-8", "2-9", "2-10"] },
+            { "id": "sampling", "title": { "zh": "采样", "en": "Sampling" }, "levels": ["2-11"] }
+          ]
+        }
+      ],
+      "challenges": [{ "level": "2-12", "after": "2-10" }],
+      "topics": [{ "id": "thumbnails", "levels": ["2-13", "2-14", "2-15", "2-16"] }],
+      "chapter": {
+        "title": { "zh": "频率", "en": "Frequency" },
+        "lecture": { "zh": "第 4 讲", "en": "Lecture 4" },
+        "question": { "zh": "图像由哪些波组成", "en": "Which waves make up an image?" }
+      }
+    },
+    {
+      "id": 3,
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "light", "title": { "zh": "光照", "en": "Lighting" }, "levels": ["3-1", "3-2"] },
+            { "id": "camera", "title": { "zh": "相机", "en": "The camera" }, "levels": ["3-3", "3-4"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "colour", "title": { "zh": "只看颜色", "en": "Colour alone" }, "levels": ["3-5", "3-6"] },
+            { "id": "slope", "title": { "zh": "只看坡度", "en": "Slope alone" }, "levels": ["3-7", "3-8"] }
+          ]
+        }
+      ],
+      "challenges": [{ "level": "3-9" }],
+      "topics": [{ "id": "photometric", "levels": ["3-10", "3-11", "3-12"], "after": "3-7" }],
+      "chapter": {
+        "title": { "zh": "光与边", "en": "Light and Edges" },
+        "lecture": { "zh": "第 5 讲", "en": "Lecture 5" },
+        "question": { "zh": "照片的明暗从哪来", "en": "Where do light and shade come from?" }
+      }
+    },
+    {
+      "id": 4,
+      "keeps": "all",
+      "foundation": [
+        "4-1",
+        "4-2",
+        "4-3",
+        "4-4",
+        {
+          "parallel": [
+            { "id": "neuron", "title": { "zh": "神经元", "en": "The neuron" }, "levels": ["4-5", "4-6"] },
+            {
+              "id": "pool",
+              "title": { "zh": "非线性和池化", "en": "Nonlinearity and pooling" },
+              "levels": ["4-7", "4-8", "4-10", "4-11"]
+            },
+            {
+              "id": "conv",
+              "title": { "zh": "卷积层", "en": "Convolution layers" },
+              "levels": ["4-9", "4-13", "4-14", "4-15"]
+            }
+          ]
+        },
+        "4-12",
+        "4-16",
+        "4-17"
+      ],
+      "challenges": [{ "level": "4-18", "after": "4-13" }],
+      "topics": [{ "id": "sorter", "levels": ["4-19", "4-20", "4-21"] }],
+      "chapter": {
+        "title": { "zh": "学会看", "en": "Learning to See" },
+        "lecture": { "zh": "第 6–8 讲", "en": "Lectures 6–8" },
+        "question": { "zh": "机器怎样自己学会", "en": "How does a machine learn by itself?" }
+      }
+    },
+    {
+      "id": 5,
+      "keeps": "all",
+      "foundation": [
+        "5-1",
+        {
+          "parallel": [
+            { "id": "mend", "title": { "zh": "补全", "en": "Mending" }, "levels": ["5-2", "5-3", "5-4"] },
+            { "id": "order", "title": { "zh": "位置", "en": "Position" }, "levels": ["5-5"] }
+          ]
+        }
+      ],
+      "challenges": [{ "level": "5-6" }],
+      "topics": [{ "id": "dedup", "levels": ["5-7", "5-8", "5-9"], "after": "5-1" }],
+      "chapter": {
+        "title": { "zh": "全局视野", "en": "The Whole Picture" },
+        "lecture": { "zh": "第 9–10 讲", "en": "Lectures 9–10" },
+        "question": { "zh": "一步看到全图", "en": "Seeing the whole image in one step" }
+      }
+    },
+    {
+      "id": 6,
+      "keeps": [
+        "shift",
+        "const",
+        "invert",
+        "threshold",
+        "arith",
+        "merge",
+        "blur3h",
+        "box3",
+        "gauss",
+        "diffx",
+        "sobelx",
+        "sobely",
+        "kernel3",
+        "cos",
+        "fqWave",
+        "fqMean",
+        "sqrt",
+        "fqSpectrum",
+        "fqApply",
+        "fqLowpass",
+        "downsample",
+        "shade",
+        "sense",
+        "gradmag",
+        "globalMax",
+        "exp",
+        "relu",
+        "max",
+        "maxpool",
+        "attention"
+      ],
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "corners", "title": { "zh": "角点", "en": "Corners" }, "levels": ["6-1", "6-2", "6-3"] },
+            { "id": "match", "title": { "zh": "匹配", "en": "Matching" }, "levels": ["6-4", "6-5"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "vote", "title": { "zh": "投票", "en": "Voting" }, "levels": ["6-6", "6-7"] },
+            { "id": "consensus", "title": { "zh": "共识", "en": "Consensus" }, "levels": ["6-8"] }
+          ]
+        },
+        "6-9"
+      ],
+      "challenges": [{ "level": "6-10", "after": "6-5" }],
+      "topics": [{ "id": "cover", "levels": ["6-11", "6-12", "6-13"], "after": "6-8" }],
+      "chapter": {
+        "title": { "zh": "认出同一个点", "en": "The Same Point Again" },
+        "lecture": { "zh": "第 11–12 讲", "en": "Lectures 11–12" },
+        "question": { "zh": "哪些点容易再找到", "en": "Which points are easy to find again?" }
+      }
+    },
+    {
+      "id": 7,
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "disparity", "title": { "zh": "视差", "en": "Disparity" }, "levels": ["7-1", "7-2", "7-3", "7-4"] },
+            { "id": "lines", "title": { "zh": "点和线", "en": "Points and lines" }, "levels": ["7-5", "7-6"] }
+          ]
+        },
+        "7-7",
+        "7-8"
+      ],
+      "challenges": [{ "level": "7-9", "after": "7-7" }],
+      "topics": [{ "id": "avoid", "levels": ["7-10", "7-11", "7-12"], "after": "7-3" }],
+      "chapter": {
+        "title": { "zh": "第三个维度", "en": "The Third Dimension" },
+        "lecture": { "zh": "第 13–14 讲", "en": "Lectures 13–14" },
+        "question": { "zh": "两只眼睛怎样看出远近", "en": "How do two eyes judge distance?" }
+      }
+    },
+    {
+      "id": 8,
+      "keeps": [
+        "shift",
+        "const",
+        "invert",
+        "threshold",
+        "arith",
+        "merge",
+        "blur3h",
+        "box3",
+        "gauss",
+        "diffx",
+        "sobelx",
+        "sobely",
+        "kernel3",
+        "cos",
+        "fqWave",
+        "fqMean",
+        "sqrt",
+        "fqSpectrum",
+        "fqApply",
+        "fqLowpass",
+        "downsample",
+        "shade",
+        "sense",
+        "gradmag",
+        "globalMax",
+        "exp",
+        "relu",
+        "max",
+        "maxpool",
+        "own-6-2",
+        "attention"
+      ],
+      "foundation": [
+        "8-1",
+        {
+          "parallel": [
+            { "id": "autoencoder", "title": { "zh": "自编码器", "en": "Autoencoders" }, "levels": ["8-2", "8-3"] },
+            { "id": "sample", "title": { "zh": "抽样", "en": "Sampling" }, "levels": ["8-4", "8-5"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "adversary", "title": { "zh": "对抗", "en": "Adversaries" }, "levels": ["8-6"] },
+            { "id": "diffusion", "title": { "zh": "扩散", "en": "Diffusion" }, "levels": ["8-7", "8-8"] }
+          ]
+        }
+      ],
+      "challenges": [{ "level": "8-9", "after": "8-5" }],
+      "topics": [{ "id": "restore", "levels": ["8-10", "8-11"] }],
+      "chapter": {
+        "title": { "zh": "画出没见过的图", "en": "Drawing the Unseen" },
+        "lecture": { "zh": "第 15–17 讲", "en": "Lectures 15–17" },
+        "question": { "zh": "从随机数生成图像", "en": "Making images from random numbers" }
+      }
+    },
+    {
+      "id": 9,
+      "keeps": [
+        "shift",
+        "const",
+        "invert",
+        "threshold",
+        "arith",
+        "merge",
+        "blur3h",
+        "box3",
+        "gauss",
+        "diffx",
+        "sobelx",
+        "sobely",
+        "kernel3",
+        "cos",
+        "fqWave",
+        "fqMean",
+        "sqrt",
+        "fqSpectrum",
+        "fqApply",
+        "fqLowpass",
+        "downsample",
+        "shade",
+        "sense",
+        "gradmag",
+        "globalMax",
+        "exp",
+        "relu",
+        "max",
+        "maxpool",
+        "own-6-2",
+        "attention"
+      ],
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "upsample", "title": { "zh": "放大", "en": "Upsampling" }, "levels": ["9-1", "9-2", "9-3", "9-4"] },
+            { "id": "cluster", "title": { "zh": "分类", "en": "Grouping" }, "levels": ["9-5", "9-6"] }
+          ]
+        }
+      ],
+      "topics": [{ "id": "cells", "levels": ["9-7", "9-8", "9-9"] }],
+      "chapter": {
+        "title": { "zh": "每个像素是什么", "en": "What Every Pixel Is" },
+        "lecture": { "zh": "第 19–20 讲", "en": "Lectures 19–20" },
+        "question": { "zh": "给每个像素一个答案", "en": "An answer for every pixel" }
+      }
+    },
+    {
+      "id": 10,
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "iou", "title": { "zh": "重叠", "en": "Overlap" }, "levels": ["10-1", "10-2"] },
+            { "id": "ap", "title": { "zh": "排名", "en": "Ranking" }, "levels": ["10-3", "10-4"] }
+          ]
+        },
+        {
+          "parallel": [
+            { "id": "anchors", "title": { "zh": "锚框", "en": "Anchor boxes" }, "levels": ["10-5", "10-6"] },
+            { "id": "window", "title": { "zh": "滑窗", "en": "Sliding window" }, "levels": ["10-7"] }
+          ]
+        },
+        "10-8"
+      ],
+      "topics": [{ "id": "shelf", "levels": ["10-9", "10-10", "10-11"], "after": "10-7" }],
+      "chapter": {
+        "title": { "zh": "框出来", "en": "Boxing Things In" },
+        "lecture": { "zh": "第 21–22 讲", "en": "Lectures 21–22" },
+        "question": { "zh": "东西在哪、有多大", "en": "Where things are, and how big" }
+      }
+    },
+    {
+      "id": 11,
+      "keeps": "all",
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "occlude", "title": { "zh": "遮挡", "en": "Occlusion" }, "levels": ["11-1", "11-2", "11-3"] },
+            { "id": "share", "title": { "zh": "证据在哪", "en": "Where the evidence is" }, "levels": ["11-4"] },
+            { "id": "vit", "title": { "zh": "注意力", "en": "Attention" }, "levels": ["11-5"] }
+          ]
+        }
+      ],
+      "topics": [{ "id": "checkup", "levels": ["11-6", "11-7"], "after": ["11-3", "11-4"] }],
+      "chapter": {
+        "title": { "zh": "看它在看哪", "en": "Where Is It Looking?" },
+        "lecture": { "zh": "第 23 讲", "en": "Lecture 23" },
+        "question": { "zh": "它认的是车还是路", "en": "Does it see the car or the road?" }
+      }
+    }
+  ],
+  "saves": [
+    { "version": 2, "ops": [{ "rename": { "2-1": "2-8", "2-2": "2-4", "2-3": "2-6", "2-4": "2-9" } }] },
+    { "version": 3, "ops": [{ "rename": { "3-1": "3-5", "3-2": "3-7" } }] },
+    {
+      "version": 4,
+      "ops": [{ "rename": { "3-2": "3-4", "3-3": null, "3-4": "3-5", "3-5": "3-6", "3-6": "3-7", "3-7": "3-8" } }]
+    },
+    {
+      "version": 5,
+      "ops": [
+        {
+          "rename": { "4-1": "4-2", "4-2": "4-4", "4-3": "4-6", "4-4": "4-7", "4-5": "4-8", "4-6": "4-9", "4-7": "4-11" }
+        }
+      ]
+    },
+    { "version": 6, "ops": [{ "rename": { "1-7": "1-8", "1-8": "1-9" } }] },
+    { "version": 7, "ops": [{ "fields": { "boards": "data", "seenIntro": "seenPower" } }] },
+    {
+      "version": 8,
+      "ops": [
+        {
+          "rename": {
+            "0-3": "0-4",
+            "0-4": "0-7",
+            "0-5": "0-8",
+            "1-2": "1-3",
+            "1-3": "1-4",
+            "1-9": "1-5",
+            "1-4": "1-6",
+            "1-5": "1-8",
+            "1-6": "1-10",
+            "1-R": "1-11",
+            "1-7": "1-12",
+            "1-8": "1-13",
+            "2-1": null,
+            "2-2": null,
+            "2-4": null,
+            "2-5": null,
+            "2-7": "2-9",
+            "2-8": "2-11",
+            "2-9": "2-8",
+            "4-1": null,
+            "4-2": "4-3",
+            "4-3": null,
+            "4-4": "4-7",
+            "4-5": null,
+            "4-6": "4-11",
+            "4-7": "4-10",
+            "4-8": "4-13",
+            "4-9": "4-12",
+            "4-10": "4-17",
+            "4-11": "4-15",
+            "3-1": null,
+            "3-2": null,
+            "3-3": null,
+            "3-4": "3-5",
+            "3-5": null,
+            "3-6": "3-7",
+            "3-7": null
+          }
+        }
+      ]
+    },
+    {
+      "version": 9,
+      "ops": [
+        {
+          "rename": {
+            "1-7": null,
+            "1-8": "1-7",
+            "1-9": "1-8",
+            "1-10": "1-9",
+            "1-11": "1-10",
+            "1-12": "1-11",
+            "1-13": "1-12",
+            "1-14": "1-13",
+            "1-15": "1-14",
+            "1-16": "1-15",
+            "1-17": "1-16",
+            "1-18": "1-17"
+          }
+        },
+        { "grant": ["1-6", "diffy"] }
+      ]
+    },
+    { "version": 10, "ops": [{ "grant": ["1-12", "edge-filter"] }] },
+    { "version": 11, "ops": [{ "rename": { "5-1": "5-2", "5-2": "5-5", "5-3": "5-7" } }] },
+    {
+      "version": 12,
+      "ops": [
+        {
+          "rename": {
+            "6-2": null,
+            "6-3": "6-6",
+            "6-4": "6-8",
+            "6-5": "6-11",
+            "7-3": null,
+            "7-4": null,
+            "8-2": "8-4",
+            "8-3": "8-6"
+          }
+        }
+      ]
+    },
+    { "version": 13, "ops": [{ "rename": { "1-16": null, "1-17": "1-16" } }] },
+    {
+      "version": 14,
+      "ops": [
+        { "grant": ["2-2", "mean"] },
+        {
+          "rename": {
+            "2-3": "2-5",
+            "2-4": "2-6",
+            "2-5": "2-7",
+            "2-6": "2-8",
+            "2-7": "2-9",
+            "2-8": "2-10",
+            "2-9": "2-11",
+            "2-10": "2-12",
+            "2-11": "2-13",
+            "2-12": "2-14",
+            "2-13": "2-15",
+            "2-14": "2-16",
+            "2-15": "2-17",
+            "2-16": "2-18",
+            "2-17": "2-19",
+            "2-18": "2-20",
+            "2-19": "2-21",
+            "2-20": "2-22",
+            "2-21": "2-23",
+            "2-22": "2-24",
+            "2-23": "2-25",
+            "2-24": "2-26",
+            "2-25": "2-27",
+            "2-26": "2-28",
+            "2-27": "2-29",
+            "2-28": "2-30",
+            "2-29": "2-31",
+            "2-30": "2-32"
+          }
+        },
+        { "solve": ["2-5", ["2-3", "2-4"]] }
+      ]
+    },
+    { "version": 15, "ops": [{ "data": "ascii" }] },
+    {
+      "version": 16,
+      "ops": [
+        { "merge": ["1-11", ["1-11", "1-12"]] },
+        { "rename": { "1-13": "1-12", "1-14": "1-13", "1-15": "1-14", "1-16": "1-15" } },
+        {
+          "rename": { "4-14": "4-15", "4-15": "4-16", "4-16": "4-18", "4-17": "4-19", "4-18": "4-20", "4-19": "4-21" }
+        },
+        { "solve": ["4-15", ["4-14"]] },
+        { "solve": ["4-19", ["4-17"]] },
+        { "solve": ["5-1", ["4-17"]] }
+      ]
+    }
+  ],
+  "box": {
+    "sample": "1-1",
+    "inLevel": { "dg-decoder": "8-4", "dg-reparam": "8-4" },
+    "boards": {
+      "dg-reparam": [
+        "m = dg_mu[w=[0.4, -0.3]]()",
+        "s = dg_sigma[w=[0.5, 0.25]]()",
+        "r = dg_reparam(m, s, eps)",
+        "d = dg_decoder(r)",
+        "out <- d"
+      ]
+    }
+  },
+  "quotes": ["采样", "异或", "训练"]
+}
