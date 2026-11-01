@@ -21,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The operation set's replay tests rebuild past commits' content (games/kit/engine/ops/replay.test.js).
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
