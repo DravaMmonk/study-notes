@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FlaskConical, FolderTree, Play, RotateCcw, X } from 'lucide-react'
 import { Brief, Level, Text } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { playHand } from '../hand.js'
+import { playHand, stepHand } from '../hand.js'
 import { cut } from '../model.js'
 import { ContextBar, Report, RepoView, actionText, entryText } from './views.jsx'
 
 // A hand level of 《软件工厂》 (chapter 0, ../hand.js): no machine yet, the player is the loop. The context the model
 // will read sits on top, as the bar it reads it by; the repository beside it, a file put into the context with a click;
 // what happened below. Calling the model, listing the files and running the tests are the player's buttons, and the
-// level is passed once a test run the player starts comes back green. The moves are the level's save.
+// level is passed once a test run the player starts comes back green. The moves are the level's save, its test runs
+// among them: a report goes back into the context the model reads, so it is part of the work, not a run to drop when
+// the level is left. Reopened, the level shows them as they were and is not passed again.
 
 export default function HandScreen({ game, level: entry, saved, save, solve, phone }) {
   const level = entry.source
@@ -23,12 +25,13 @@ export default function HandScreen({ game, level: entry, saved, save, solve, pho
     const next = [...ops, op]
     setOps(next)
     save(next)
+    const after = stepHand(level, session, op)
+    if (op[0] === 'test' && after.green) solve({ tokens: after.tokens })
   }
   const reset = () => {
     setOps([])
     save([])
   }
-  useEffect(() => { if (session.green) solve({ tokens: session.tokens }) }, [session.green])
 
   const files = session.context.filter((e) => e.kind === 'file').map((e) => e.file)
   const brief = (
