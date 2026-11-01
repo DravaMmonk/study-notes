@@ -15,8 +15,9 @@
     "new-game": "node ../games/kit/engine/scaffold.js game",
     "op": "node ../games/kit/engine/ops/cli.js",
     "mcp": "node ../games/kit/engine/ops/mcp.js",
+    "studio": "vite --open /studio.html",
     "build:games": "node ../games/kit/app/build.mjs",
-    "test": "node --test ../games/kit/engine/*.test.js ../games/kit/engine/ops/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/domains/*/*.test.js",
+    "test": "node --test ../games/kit/engine/*.test.js ../games/kit/engine/ops/*.test.js ../games/kit/app/*.test.js ../games/kit/studio/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/domains/*/*.test.js",
     "conform": "python3 ../games/kit/domains/unix/conformance/real.py"
   },
   "dependencies": {

@@ -46,8 +46,11 @@ const SITE = { games: '../index.html' }
  *
  * A level may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
  * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
+ *
+ * `author` is the studio playing the game it edits (../studio/play.jsx): { level, take: { label, use(text) } } puts a
+ * button beside the board switcher of that level that hands the board on screen to the studio as blueprint text.
  */
-export default function GameShell({ game }) {
+export default function GameShell({ game, author = null }) {
   const [progress, setProgress] = useState(() => game.store.load())
   const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
   // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
@@ -244,6 +247,7 @@ export default function GameShell({ game }) {
     open: slotted(openSlot),
     add: slotted(addSlot),
     rename: (k, name) => setProgress((p) => renameSlot(p, level.id, k, name)),
+    take: author?.level === level.id ? author.take : null,
     // A slot dropped takes its runs with it: a slot added later may take its number.
     drop: (k) => {
       const no = slots.list[k].no

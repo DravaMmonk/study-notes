@@ -36,8 +36,10 @@ function courseOf(domain, content) {
 /**
  * Apply `changeset` to the open game `ws`. write: put it on disk when it passes (otherwise it is a dry run);
  * check: run the whole game's checks (off: only its content against the vocabulary, for a quick preview); domain: the
- * game's domain module (its own by default). Returns { ok, says, problems, step (the save step added, or null), diff,
- * files, inverse (the changeset undoing it), notes }.
+ * game's domain module (its own by default). Returns { ok, says, problems, failed (the index of the operation that
+ * failed, or null), lines (every line of the check), step (the save step added, or null), diff, files, changes ([{
+ * file, before, after }] texts), content (the game as the changeset leaves it, null when an operation failed),
+ * inverse (the changeset undoing it), notes }.
  */
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, domain: given = null } = {}) {
   const content0 = ws.content()
@@ -49,16 +51,16 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   const idOps = []
   const placed = new Set()
   const own = new Set()
-  const fail = (problems) => {
+  const fail = (problems, op = null) => {
     ws.restore(start)
-    return { ok: false, says, problems, step: null, diff: '', files: [], inverse: null, notes: [] }
+    return { ok: false, says, problems, failed: op, lines: [], step: null, diff: '', files: [], changes: [], content: null, inverse: null, notes: [] }
   }
   for (const [k, { op: name, ...args }] of (changeset.ops ?? []).entries()) {
     const op = OPERATIONS[name]
     const where = `op ${k + 1} (${name})`
-    if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(OPERATIONS).join(', ')}`])
+    if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(OPERATIONS).join(', ')}`], k)
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
-    if (wrong.length) return fail(wrong.map((p) => `${where}: ${p.at === '(root)' ? '' : `${p.at.slice(1)}: `}${p.says}`))
+    if (wrong.length) return fail(wrong.map((p) => `${where}: ${p.at === '(root)' ? '' : `${p.at.slice(1)}: `}${p.says}`), k)
     try {
       const done = op.apply(ws, args, { vocabulary, domain })
       says.push(done.says)
@@ -68,7 +70,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
       for (const id of done.placed ?? []) placed.add(id)
       for (const id of done.own ?? []) own.add(id)
     } catch (error) {
-      return fail([`${where}: ${error.message}`])
+      return fail([`${where}: ${error.message}`], k)
     }
   }
 
@@ -103,14 +105,15 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   const listed = hubCount(ws.hub, ws.id) === null ? null : ws.levels.size
   const lines = check ? await checkGame(content, { domain, listed }) : checkContent(vocabulary, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
+  const changes = ws.changes()
   const diff = ws.diff()
-  const files = ws.changes().map((c) => c.file)
+  const files = changes.map((c) => c.file)
   const ok = problems.length === 0
   if (ok && write) {
     ws.write()
     log(ws, { why: changeset.why, ops: changeset.ops, step, files, inverse, ...(undoes !== null && { undoes }) })
   } else ws.restore(start)
-  return { ok, says, problems, step, diff, files, inverse: { why: `undo: ${changeset.why ?? says.join('; ')}`, ops: inverse }, notes }
+  return { ok, says, problems, failed: null, lines, step, diff, files, changes, content, inverse: { why: `undo: ${changeset.why ?? says.join('; ')}`, ops: inverse }, notes }
 }
 
 /** The game's change log, oldest first. */
@@ -134,6 +137,6 @@ export function lastUndoable(ws) {
 /** Undo the last change of the log (write: put it on disk). */
 export async function undo(ws, options = {}) {
   const entry = lastUndoable(ws)
-  if (!entry) return { ok: false, says: [], problems: ['nothing to undo'], step: null, diff: '', files: [], inverse: null, notes: [] }
+  if (!entry) return { ok: false, says: [], problems: ['nothing to undo'], failed: null, lines: [], step: null, diff: '', files: [], changes: [], content: null, inverse: null, notes: [] }
   return runChangeset(ws, { why: `undo #${entry.seq}${entry.why ? `: ${entry.why}` : ''}`, ops: entry.inverse }, { ...options, undoes: entry.seq })
 }

@@ -4,6 +4,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { GAMES } from '../games/games.js'
 import { gameApp } from '../games/kit/app/vite.js'
+import { studioApp } from '../games/kit/app/studio.js'
 
 // On the dev server the games sit where the published site puts them: the hub at /game/index.html (straight from
 // games/, with its kit), each game at /game/<id>/index.html (game.html, every game's page, which picks the game from
@@ -41,7 +42,7 @@ const gamePaths = () => ({
 export default defineConfig({
   // The shared game shell lives outside this project (games/kit/shell); resolve its React from here.
   resolve: { dedupe: ['react', 'react-dom', 'lucide-react'] },
-  plugins: [react(), gamePaths(), gameApp()],
+  plugins: [react(), gamePaths(), gameApp(), studioApp()],
   server: {
     fs: {
       allow: ['..'],
