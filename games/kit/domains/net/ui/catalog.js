@@ -13,7 +13,7 @@ export const CARDS = {
     name: T('读寄存卡', 'Register'), icon: ArrowUpFromLine, family: 'memory',
     desc: T('给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。', 'Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set).'),
   },
-  keep: { name: T('存寄存卡', 'Keep'), icon: ArrowDownToLine, family: 'memory', desc: T('把接入的值存进同名寄存卡，从下一拍起可以读出。', 'Stores its input in the register of the same name; it can be read from the next tick on.') },
+  keep: { name: T('存寄存卡', 'Keep'), icon: ArrowDownToLine, family: 'memory', desc: T('把接入的值存进同名寄存卡，从下一拍起可以读出；接入的是「—」时也存进去，不接时不存，寄存卡留着原来的值。', 'Stores its input in the register of the same name; it can be read from the next tick on. A 「—」 is stored like any value; with nothing wired, nothing is stored and the register keeps what it had.') },
   const: { name: T('常数', 'Constant'), icon: Hash, family: 'value', desc: T('始终给出设定的数。', 'Always gives the number it is set to.') },
   select: { name: T('选择', 'Select'), icon: Split, family: 'logic', desc: T('「条件」为「是」或 1 时给出「是」输入，为「否」或 0 时给出「否」输入，为「—」时给出「—」；未接线的输入读作「—」。', 'Gives its Yes input when Condition is yes or 1, its No input when Condition is no or 0, and 「—」 when Condition is 「—」; an unconnected input reads 「—」.') },
   add: { name: T('相加', 'Add'), icon: Plus, family: 'value', desc: T('给出两个数之和。只要有一个输入为「—」，就给出「—」。', 'Gives the sum of its two numbers. Gives 「—」 if either input is 「—」.') },

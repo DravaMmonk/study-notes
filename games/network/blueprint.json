@@ -361,12 +361,20 @@
       "from": ["deframer", "crchold", "serializerhold", "reg", "keep", "equal", "select", "error-detection"]
     },
     {
+      "part": "sender",
+      "about": {
+        "zh": "发帧器：从交来的字节里取出一帧，边送边算校验码，内容后面跟上校验字节，前后加旗标、做位填充送出。",
+        "en": "Sender: takes a frame from the bytes handed down, works out its check as it goes, and sends it with the check byte after the content, a flag at each end and the whole stuffed."
+      },
+      "from": ["framer", "crchold", "serializerhold", "select", "equal", "error-detection"]
+    },
+    {
       "part": "nic",
       "about": {
         "zh": "网卡：上面交来的帧带上校验字节成帧送到线上；线上收到的帧拆开、核对，逐个字节交给上面，帧尾报好坏。",
         "en": "Network card: frames handed down go on the wire framed with their check byte; frames off the wire are unwrapped and checked, going up byte by byte with word at each end of whether they are intact."
       },
-      "from": ["framer", "receiver", "crchold", "serializerhold", "layer"]
+      "from": ["sender", "receiver", "layer"]
     }
   ],
   "eras": [
@@ -775,6 +783,26 @@
               "uses": ["wire", "xor", "reg", "keep", "select", "poly-division", "stall"]
             },
             {
+              "id": "1-41",
+              "title": { "zh": "带上校验字节", "en": "Send the check byte" },
+              "task": {
+                "zh": "像塞一个 0 那样送出交来的每一帧，只是内容后面多跟一个校验字节（5 个 0 加 3 位校验码）。",
+                "en": "Send each frame handed to you as in slipping in a 0, except that its content is followed by a check byte (five 0s, then the 3 check bits)."
+              },
+              "role": "practice",
+              "dimension": "depth",
+              "builds": "sender",
+              "uses": [
+                "wire",
+                "framer",
+                "crchold",
+                "serializerhold",
+                "equal",
+                "select",
+                "error-detection"
+              ]
+            },
+            {
               "id": "1-17",
               "title": { "zh": "查出坏帧", "en": "Catch bad frames" },
               "task": {
@@ -806,7 +834,7 @@
               "role": "foundation",
               "idea": "layer",
               "builds": "nic",
-              "uses": ["wire", "framer", "receiver", "crchold", "serializerhold", "layer"]
+              "uses": ["wire", "sender", "receiver", "layer"]
             },
             {
               "id": "1-37",
@@ -825,7 +853,7 @@
           "id": "fix",
           "title": { "zh": "哪一位翻了", "en": "Which bit flipped" },
           "kind": "challenge",
-          "after": "1-15",
+          "after": "1-35",
           "slots": [
             {
               "id": "1-20",
@@ -904,7 +932,8 @@
         "1-30",
         "1-32",
         "1-35",
-        "1-40"
+        "1-40",
+        "1-41"
       ],
       "status": "done",
       "note": {
@@ -919,7 +948,7 @@
         "zh": "可以拉取的输入：关卡给一列字节（可分成几帧），板在一拍里说「下一个」，下一拍这一项出现在输入上，取完给「—」，帧与帧之间给出帧界。",
         "en": "An input the board pulls from: the level gives a list of bytes (possibly in frames); when the board asks for the next one, it appears on the input the following tick, 「—」 once used up, with frame boundaries marked."
       },
-      "for": ["1-10", "1-12", "1-16", "1-18", "1-32", "1-40"],
+      "for": ["1-10", "1-12", "1-16", "1-18", "1-32", "1-40", "1-41"],
       "status": "done",
       "note": {
         "zh": "做成了：关卡的 pulls 说哪个输入是队首、哪个输入标出一帧的最后一个字节、哪个输出取走它；测试的 queue 是一列帧。",
@@ -975,7 +1004,7 @@
         "zh": "一种帧格式，像 flagcheck，只是校验码作为内容后面的一个整字节送出（前面补 0 凑满 8 位），一起做位填充；帧完好要求内容是整字节、最后一个字节等于内容的校验码。bytes、ends、sent、relayed 都按它解。",
         "en": "A frame format like flagcheck, except that the check bits go as one whole byte after the content (0s before them to make 8), stuffed with it; a frame is intact when its content is whole bytes and its last byte equals the content's check. bytes, ends, sent and relayed decode it."
       },
-      "for": ["1-17", "1-18", "1-37"],
+      "for": ["1-17", "1-18", "1-37", "1-41"],
       "status": "done",
       "note": {
         "zh": "做成了：格式 flagbyte，校验位前面补 0 凑成一个字节，和内容一起填充；bytes、ends、sent、relayed 都按它解。",

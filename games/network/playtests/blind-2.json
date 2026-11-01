@@ -34,7 +34,19 @@
    "1-27",
    "1-28",
    "1-40",
-   "1-29"
+   "1-29",
+   "1-30",
+   "1-31",
+   "1-32",
+   "1-14",
+   "1-15",
+   "1-16",
+   "1-35",
+   "1-20",
+   "1-36",
+   "1-17",
+   "1-18",
+   "1-37"
   ],
   "flags": [
    "counter",
@@ -44,7 +56,13 @@
    "counterhold",
    "serializerhold",
    "framer",
-   "deserializerhold"
+   "deserializerhold",
+   "deframer",
+   "xor",
+   "crc",
+   "crchold",
+   "receiver",
+   "nic"
   ],
   "data": {
    "1-1": {
@@ -5526,6 +5544,6266 @@
       "port": "in"
      }
     ]
+   },
+   "1-30": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "ins",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "acc",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "f",
+      "type": "flagspot",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "r5",
+      "type": "equal",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "nl",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "hl",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "hold",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "rp",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "nr",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "kr",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "op0",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "open",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "close",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "sh0",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "sh",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "g1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "g2",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "got0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "gb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "i1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "cn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ci0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs2",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "f",
+      "port": "line"
+     },
+     {
+      "from": "c",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "r",
+      "to": "r5",
+      "port": "a"
+     },
+     {
+      "from": "c5",
+      "to": "r5",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nl",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nl",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nl",
+      "port": "no"
+     },
+     {
+      "from": "r5",
+      "to": "hl",
+      "port": "if"
+     },
+     {
+      "from": "nl",
+      "to": "hl",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hl",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "hold",
+      "port": "if"
+     },
+     {
+      "from": "hl",
+      "to": "hold",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hold",
+      "port": "no"
+     },
+     {
+      "from": "r",
+      "to": "rp",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "rp",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nr",
+      "port": "if"
+     },
+     {
+      "from": "rp",
+      "to": "nr",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nr",
+      "port": "no"
+     },
+     {
+      "from": "nr",
+      "to": "kr",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "op0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "op0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "op0",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "open",
+      "port": "if"
+     },
+     {
+      "from": "op0",
+      "to": "open",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "open",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "close",
+      "port": "if"
+     },
+     {
+      "from": "ins",
+      "to": "close",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "close",
+      "port": "no"
+     },
+     {
+      "from": "e0",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "acc",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh0",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "sh",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "sh",
+      "port": "yes"
+     },
+     {
+      "from": "sh0",
+      "to": "sh",
+      "port": "no"
+     },
+     {
+      "from": "sh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "g1",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "g1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "g1",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "g2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "g2",
+      "port": "yes"
+     },
+     {
+      "from": "g1",
+      "to": "g2",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "got0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "got0",
+      "port": "yes"
+     },
+     {
+      "from": "g2",
+      "to": "got0",
+      "port": "no"
+     },
+     {
+      "from": "got0",
+      "to": "gb",
+      "port": "if"
+     },
+     {
+      "from": "sh",
+      "to": "gb",
+      "port": "yes"
+     },
+     {
+      "from": "open",
+      "to": "i1",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "i1",
+      "port": "yes"
+     },
+     {
+      "from": "ins",
+      "to": "i1",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "i1",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "cn",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cn",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "cn",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "ci0",
+      "port": "if"
+     },
+     {
+      "from": "cn",
+      "to": "ci0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "ci0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "c",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "ci0",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "rs",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs",
+      "port": "yes"
+     },
+     {
+      "from": "ci",
+      "to": "rs",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "rs2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs2",
+      "port": "yes"
+     },
+     {
+      "from": "rs",
+      "to": "rs2",
+      "port": "no"
+     },
+     {
+      "from": "rs2",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "got0",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "gb",
+      "to": "byte",
+      "port": "in"
+     }
+    ]
+   },
+   "1-31": {
+    "nodes": [
+     {
+      "id": "a",
+      "type": "rx",
+      "params": {
+       "name": "a"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "rx",
+      "params": {
+       "name": "b"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "x",
+      "type": "tx",
+      "params": {
+       "name": "x"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "e",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "e",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "e",
+      "port": "b"
+     },
+     {
+      "from": "e",
+      "to": "s",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "s",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "s",
+      "port": "no"
+     },
+     {
+      "from": "s",
+      "to": "x",
+      "port": "in"
+     }
+    ]
+   },
+   "1-32": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "e8",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "h",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "pb",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "pn",
+      "type": "xor",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nd",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "n1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "e8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "e8",
+      "port": "b"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "a"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "a",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "d",
+      "to": "pb",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "pb",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "pb",
+      "port": "no"
+     },
+     {
+      "from": "pb",
+      "to": "pn",
+      "port": "a"
+     },
+     {
+      "from": "bt",
+      "to": "pn",
+      "port": "b"
+     },
+     {
+      "from": "pn",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "e8",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "c",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     },
+     {
+      "from": "a",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "h",
+      "to": "nd",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "nd",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nd",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "n1",
+      "port": "if"
+     },
+     {
+      "from": "nd",
+      "to": "n1",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "n1",
+      "port": "no"
+     },
+     {
+      "from": "e8",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "h",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "next",
+      "port": "in"
+     }
+    ]
+   },
+   "1-14": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "ok",
+      "type": "out",
+      "params": {
+       "name": "ok"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "e8",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "pb",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "pn",
+      "type": "xor",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "tot",
+      "type": "xor",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "okv",
+      "type": "equal",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "bo",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "oo",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "e8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "e8",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "sh",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "pb",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "pb",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "pb",
+      "port": "no"
+     },
+     {
+      "from": "pb",
+      "to": "pn",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "pn",
+      "port": "b"
+     },
+     {
+      "from": "pn",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "a",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e8",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "tot",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "tot",
+      "port": "b"
+     },
+     {
+      "from": "tot",
+      "to": "okv",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "okv",
+      "port": "b"
+     },
+     {
+      "from": "e8",
+      "to": "bo",
+      "port": "if"
+     },
+     {
+      "from": "b",
+      "to": "bo",
+      "port": "yes"
+     },
+     {
+      "from": "e8",
+      "to": "oo",
+      "port": "if"
+     },
+     {
+      "from": "okv",
+      "to": "oo",
+      "port": "yes"
+     },
+     {
+      "from": "bo",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "oo",
+      "to": "ok",
+      "port": "in"
+     }
+    ]
+   },
+   "1-15": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "restart",
+      "type": "in",
+      "params": {
+       "name": "restart"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "rem",
+      "type": "out",
+      "params": {
+       "name": "rem"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "r0",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "w",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     }
+    ],
+    "wires": [
+     {
+      "from": "restart",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r0",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "r0",
+      "port": "no"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "r1",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "n1",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "fb",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "w",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "w",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "rem",
+      "port": "in"
+     }
+    ]
+   },
+   "1-16": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c9",
+      "type": "const",
+      "params": {
+       "value": 9
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c10",
+      "type": "const",
+      "params": {
+       "value": 10
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "i",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "bl",
+      "type": "reg",
+      "params": {
+       "reg": "E",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "e8",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "e9",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "e10",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "h",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "kbl",
+      "type": "keep",
+      "params": {
+       "reg": "E"
+      },
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "r0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "k9",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "chk",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "nb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "nc",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "nd",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "n1i",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 290,
+      "y": 210
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 210
+     }
+    ],
+    "wires": [
+     {
+      "from": "i",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "e8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "e8",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "e9",
+      "port": "a"
+     },
+     {
+      "from": "c9",
+      "to": "e9",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "e10",
+      "port": "a"
+     },
+     {
+      "from": "c10",
+      "to": "e10",
+      "port": "b"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "a"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "bl",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kbl",
+      "port": "in"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "i",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "d",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "r0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r0",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "r0",
+      "port": "no"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "bt",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "e9",
+      "to": "k9",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "k9",
+      "port": "yes"
+     },
+     {
+      "from": "e10",
+      "to": "k9",
+      "port": "no"
+     },
+     {
+      "from": "e8",
+      "to": "chk",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "chk",
+      "port": "yes"
+     },
+     {
+      "from": "k9",
+      "to": "chk",
+      "port": "no"
+     },
+     {
+      "from": "chk",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "b",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "r1",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "chk",
+      "to": "nb",
+      "port": "if"
+     },
+     {
+      "from": "c",
+      "to": "nb",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "nb",
+      "port": "no"
+     },
+     {
+      "from": "chk",
+      "to": "nc",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nc",
+      "port": "yes"
+     },
+     {
+      "from": "fb",
+      "to": "nc",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "nb",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "nc",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "chk",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "a",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     },
+     {
+      "from": "i",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "h",
+      "to": "nd",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "nd",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nd",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "n1i",
+      "port": "if"
+     },
+     {
+      "from": "nd",
+      "to": "n1i",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "n1i",
+      "port": "no"
+     },
+     {
+      "from": "e10",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "n1i",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "h",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "next",
+      "port": "in"
+     }
+    ]
+   },
+   "1-35": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "ok",
+      "type": "out",
+      "params": {
+       "name": "ok"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c9",
+      "type": "const",
+      "params": {
+       "value": 9
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c10",
+      "type": "const",
+      "params": {
+       "value": 10
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "i",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "acc",
+      "type": "reg",
+      "params": {
+       "reg": "E",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "e8",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "e9",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "e10",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "k9",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "chk",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kacc",
+      "type": "keep",
+      "params": {
+       "reg": "E"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r0",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "w",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "okv",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "bo",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "oo",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     }
+    ],
+    "wires": [
+     {
+      "from": "i",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "e8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "e8",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "e9",
+      "port": "a"
+     },
+     {
+      "from": "c9",
+      "to": "e9",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "e10",
+      "port": "a"
+     },
+     {
+      "from": "c10",
+      "to": "e10",
+      "port": "b"
+     },
+     {
+      "from": "e9",
+      "to": "k9",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "k9",
+      "port": "yes"
+     },
+     {
+      "from": "e10",
+      "to": "k9",
+      "port": "no"
+     },
+     {
+      "from": "e8",
+      "to": "chk",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "chk",
+      "port": "yes"
+     },
+     {
+      "from": "k9",
+      "to": "chk",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "acc",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "chk",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "sh",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "kacc",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "r0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r0",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "r0",
+      "port": "no"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "r1",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "n1",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "fb",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "w",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "w",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "okv",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "okv",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e10",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "e10",
+      "to": "bo",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "bo",
+      "port": "yes"
+     },
+     {
+      "from": "e10",
+      "to": "oo",
+      "port": "if"
+     },
+     {
+      "from": "okv",
+      "to": "oo",
+      "port": "yes"
+     },
+     {
+      "from": "bo",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "oo",
+      "to": "ok",
+      "port": "in"
+     }
+    ]
+   },
+   "1-20": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "pos",
+      "type": "out",
+      "params": {
+       "name": "pos"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c3",
+      "type": "const",
+      "params": {
+       "value": 3
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c4",
+      "type": "const",
+      "params": {
+       "value": 4
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "c6",
+      "type": "const",
+      "params": {
+       "value": 6
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "i",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "e6",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "r0",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "w",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "q1",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "q2",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "q3",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "q4",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "q5",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "q6",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "q7",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s1",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s2",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s3",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s4",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s5",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s6",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s7",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "oo",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     }
+    ],
+    "wires": [
+     {
+      "from": "i",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "e6",
+      "port": "a"
+     },
+     {
+      "from": "c6",
+      "to": "e6",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "r0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r0",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "r0",
+      "port": "no"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "r1",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "n1",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "fb",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "w",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "w",
+      "port": "b"
+     },
+     {
+      "from": "i",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e6",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "w",
+      "to": "q1",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "q1",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "q2",
+      "port": "a"
+     },
+     {
+      "from": "c2",
+      "to": "q2",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "q3",
+      "port": "a"
+     },
+     {
+      "from": "c3",
+      "to": "q3",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "q4",
+      "port": "a"
+     },
+     {
+      "from": "c4",
+      "to": "q4",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "q5",
+      "port": "a"
+     },
+     {
+      "from": "c5",
+      "to": "q5",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "q6",
+      "port": "a"
+     },
+     {
+      "from": "c6",
+      "to": "q6",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "q7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "q7",
+      "port": "b"
+     },
+     {
+      "from": "q1",
+      "to": "s1",
+      "port": "if"
+     },
+     {
+      "from": "c3",
+      "to": "s1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "s1",
+      "port": "no"
+     },
+     {
+      "from": "q2",
+      "to": "s2",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "s2",
+      "port": "yes"
+     },
+     {
+      "from": "s1",
+      "to": "s2",
+      "port": "no"
+     },
+     {
+      "from": "q3",
+      "to": "s3",
+      "port": "if"
+     },
+     {
+      "from": "c7",
+      "to": "s3",
+      "port": "yes"
+     },
+     {
+      "from": "s2",
+      "to": "s3",
+      "port": "no"
+     },
+     {
+      "from": "q4",
+      "to": "s4",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "s4",
+      "port": "yes"
+     },
+     {
+      "from": "s3",
+      "to": "s4",
+      "port": "no"
+     },
+     {
+      "from": "q5",
+      "to": "s5",
+      "port": "if"
+     },
+     {
+      "from": "c4",
+      "to": "s5",
+      "port": "yes"
+     },
+     {
+      "from": "s4",
+      "to": "s5",
+      "port": "no"
+     },
+     {
+      "from": "q6",
+      "to": "s6",
+      "port": "if"
+     },
+     {
+      "from": "c6",
+      "to": "s6",
+      "port": "yes"
+     },
+     {
+      "from": "s5",
+      "to": "s6",
+      "port": "no"
+     },
+     {
+      "from": "q7",
+      "to": "s7",
+      "port": "if"
+     },
+     {
+      "from": "c5",
+      "to": "s7",
+      "port": "yes"
+     },
+     {
+      "from": "s6",
+      "to": "s7",
+      "port": "no"
+     },
+     {
+      "from": "e6",
+      "to": "oo",
+      "port": "if"
+     },
+     {
+      "from": "s7",
+      "to": "oo",
+      "port": "yes"
+     },
+     {
+      "from": "oo",
+      "to": "pos",
+      "port": "in"
+     }
+    ]
+   },
+   "1-36": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "restart",
+      "type": "in",
+      "params": {
+       "name": "restart"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "rem",
+      "type": "out",
+      "params": {
+       "name": "rem"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "r0",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "m2",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "m1",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "m0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "w",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     }
+    ],
+    "wires": [
+     {
+      "from": "restart",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r0",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "r0",
+      "port": "no"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "m2",
+      "port": "if"
+     },
+     {
+      "from": "r2",
+      "to": "m2",
+      "port": "yes"
+     },
+     {
+      "from": "r1",
+      "to": "m2",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "m1",
+      "port": "if"
+     },
+     {
+      "from": "r1",
+      "to": "m1",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "m1",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "m0",
+      "port": "if"
+     },
+     {
+      "from": "r0",
+      "to": "m0",
+      "port": "yes"
+     },
+     {
+      "from": "fb",
+      "to": "m0",
+      "port": "no"
+     },
+     {
+      "from": "m2",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "m1",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "m0",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "m2",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "m2",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "m1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "m1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "w",
+      "port": "a"
+     },
+     {
+      "from": "m0",
+      "to": "w",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "rem",
+      "port": "in"
+     }
+    ]
+   },
+   "1-17": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "ok",
+      "type": "out",
+      "params": {
+       "name": "ok"
+      },
+      "x": 980,
+      "y": 460
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "st",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "acc",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "lv",
+      "type": "reg",
+      "params": {
+       "reg": "E",
+       "start": 0
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "mk",
+      "type": "reg",
+      "params": {
+       "reg": "F",
+       "start": 0
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "f",
+      "type": "flagspot",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "s0",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "s2",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "ins",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "r5",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nl",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "hl",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "hold",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "rp",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nr",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kr",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "open",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "close",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "cr",
+      "type": "crchold",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "sh0",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "sh",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "g1",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "g2",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "comp",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "gv",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "bo",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nlv",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "klv",
+      "type": "keep",
+      "params": {
+       "reg": "E"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "okc",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nmk",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kmk",
+      "type": "keep",
+      "params": {
+       "reg": "F"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "oo",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s1",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s3",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ns",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ks",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "cn",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ci0",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "rs",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "rs2",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 350,
+      "y": 210
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "f",
+      "port": "line"
+     },
+     {
+      "from": "st",
+      "to": "s0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "s0",
+      "port": "b"
+     },
+     {
+      "from": "st",
+      "to": "s2",
+      "port": "a"
+     },
+     {
+      "from": "c2",
+      "to": "s2",
+      "port": "b"
+     },
+     {
+      "from": "s0",
+      "to": "ins",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ins",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "ins",
+      "port": "no"
+     },
+     {
+      "from": "c",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "r",
+      "to": "r5",
+      "port": "a"
+     },
+     {
+      "from": "c5",
+      "to": "r5",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nl",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nl",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nl",
+      "port": "no"
+     },
+     {
+      "from": "r5",
+      "to": "hl",
+      "port": "if"
+     },
+     {
+      "from": "nl",
+      "to": "hl",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hl",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "hold",
+      "port": "if"
+     },
+     {
+      "from": "hl",
+      "to": "hold",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hold",
+      "port": "no"
+     },
+     {
+      "from": "r",
+      "to": "rp",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "rp",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nr",
+      "port": "if"
+     },
+     {
+      "from": "rp",
+      "to": "nr",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nr",
+      "port": "no"
+     },
+     {
+      "from": "nr",
+      "to": "kr",
+      "port": "in"
+     },
+     {
+      "from": "f",
+      "to": "open",
+      "port": "if"
+     },
+     {
+      "from": "s0",
+      "to": "open",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "open",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "close",
+      "port": "if"
+     },
+     {
+      "from": "ins",
+      "to": "close",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "close",
+      "port": "no"
+     },
+     {
+      "from": "line",
+      "to": "cr",
+      "port": "line"
+     },
+     {
+      "from": "open",
+      "to": "cr",
+      "port": "restart"
+     },
+     {
+      "from": "hold",
+      "to": "cr",
+      "port": "hold"
+     },
+     {
+      "from": "e0",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "acc",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh0",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "sh",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "sh",
+      "port": "yes"
+     },
+     {
+      "from": "sh0",
+      "to": "sh",
+      "port": "no"
+     },
+     {
+      "from": "sh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "g1",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "g1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "g1",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "g2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "g2",
+      "port": "yes"
+     },
+     {
+      "from": "g1",
+      "to": "g2",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "comp",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "comp",
+      "port": "yes"
+     },
+     {
+      "from": "g2",
+      "to": "comp",
+      "port": "no"
+     },
+     {
+      "from": "comp",
+      "to": "gv",
+      "port": "if"
+     },
+     {
+      "from": "s2",
+      "to": "gv",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "gv",
+      "port": "no"
+     },
+     {
+      "from": "gv",
+      "to": "bo",
+      "port": "if"
+     },
+     {
+      "from": "lv",
+      "to": "bo",
+      "port": "yes"
+     },
+     {
+      "from": "comp",
+      "to": "nlv",
+      "port": "if"
+     },
+     {
+      "from": "sh",
+      "to": "nlv",
+      "port": "yes"
+     },
+     {
+      "from": "lv",
+      "to": "nlv",
+      "port": "no"
+     },
+     {
+      "from": "nlv",
+      "to": "klv",
+      "port": "in"
+     },
+     {
+      "from": "cr",
+      "to": "okc",
+      "port": "a"
+     },
+     {
+      "from": "sh",
+      "to": "okc",
+      "port": "b"
+     },
+     {
+      "from": "comp",
+      "to": "nmk",
+      "port": "if"
+     },
+     {
+      "from": "okc",
+      "to": "nmk",
+      "port": "yes"
+     },
+     {
+      "from": "mk",
+      "to": "nmk",
+      "port": "no"
+     },
+     {
+      "from": "nmk",
+      "to": "kmk",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "oo",
+      "port": "if"
+     },
+     {
+      "from": "mk",
+      "to": "oo",
+      "port": "yes"
+     },
+     {
+      "from": "comp",
+      "to": "s1",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "s1",
+      "port": "yes"
+     },
+     {
+      "from": "st",
+      "to": "s1",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "s3",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "s3",
+      "port": "yes"
+     },
+     {
+      "from": "s1",
+      "to": "s3",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "ns",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ns",
+      "port": "yes"
+     },
+     {
+      "from": "s3",
+      "to": "ns",
+      "port": "no"
+     },
+     {
+      "from": "ns",
+      "to": "ks",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "cn",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cn",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "cn",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "ci0",
+      "port": "if"
+     },
+     {
+      "from": "cn",
+      "to": "ci0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "ci0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "c",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "ci0",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "rs",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs",
+      "port": "yes"
+     },
+     {
+      "from": "ci",
+      "to": "rs",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "rs2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs2",
+      "port": "yes"
+     },
+     {
+      "from": "rs",
+      "to": "rs2",
+      "port": "no"
+     },
+     {
+      "from": "rs2",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "gv",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "bo",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "oo",
+      "to": "ok",
+      "port": "in"
+     }
+    ]
+   },
+   "1-18": {
+    "nodes": [
+     {
+      "id": "rx",
+      "type": "rx",
+      "params": {
+       "name": "rx"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "down",
+      "type": "in",
+      "params": {
+       "name": "down"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "last",
+      "type": "in",
+      "params": {
+       "name": "last"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "send",
+      "type": "in",
+      "params": {
+       "name": "send"
+      },
+      "x": 20,
+      "y": 460
+     },
+     {
+      "id": "tx",
+      "type": "tx",
+      "params": {
+       "name": "tx"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "up",
+      "type": "out",
+      "params": {
+       "name": "up"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 460
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 600
+     },
+     {
+      "id": "ok",
+      "type": "out",
+      "params": {
+       "name": "ok"
+      },
+      "x": 980,
+      "y": 740
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c6",
+      "type": "const",
+      "params": {
+       "value": 6
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "w",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "ir",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 8
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "bl",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "fs",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "fz",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "f2",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "bo",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "lo",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "fr",
+      "type": "framer",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "take",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "chk",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "lc",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "n1f",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "nf",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kf",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "start",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kbl",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "wb",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r2",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r1",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r0",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "wn",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "wsel",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kw",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "rc",
+      "type": "receiver",
+      "params": {},
+      "x": 350,
+      "y": 90
+     }
+    ],
+    "wires": [
+     {
+      "from": "fs",
+      "to": "fz",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "fz",
+      "port": "b"
+     },
+     {
+      "from": "fs",
+      "to": "f2",
+      "port": "a"
+     },
+     {
+      "from": "c2",
+      "to": "f2",
+      "port": "b"
+     },
+     {
+      "from": "f2",
+      "to": "bo",
+      "port": "if"
+     },
+     {
+      "from": "w",
+      "to": "bo",
+      "port": "yes"
+     },
+     {
+      "from": "down",
+      "to": "bo",
+      "port": "no"
+     },
+     {
+      "from": "f2",
+      "to": "lo",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "lo",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "lo",
+      "port": "no"
+     },
+     {
+      "from": "bo",
+      "to": "fr",
+      "port": "byte"
+     },
+     {
+      "from": "lo",
+      "to": "fr",
+      "port": "last"
+     },
+     {
+      "from": "send",
+      "to": "fr",
+      "port": "send"
+     },
+     {
+      "from": "fr#line",
+      "to": "tx",
+      "port": "in"
+     },
+     {
+      "from": "f2",
+      "to": "take",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "take",
+      "port": "yes"
+     },
+     {
+      "from": "fr#next",
+      "to": "take",
+      "port": "no"
+     },
+     {
+      "from": "f2",
+      "to": "chk",
+      "port": "if"
+     },
+     {
+      "from": "fr#next",
+      "to": "chk",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "chk",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "next",
+      "port": "in"
+     },
+     {
+      "from": "last",
+      "to": "lc",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "lc",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "lc",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "n1f",
+      "port": "if"
+     },
+     {
+      "from": "lc",
+      "to": "n1f",
+      "port": "yes"
+     },
+     {
+      "from": "fs",
+      "to": "n1f",
+      "port": "no"
+     },
+     {
+      "from": "chk",
+      "to": "nf",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nf",
+      "port": "yes"
+     },
+     {
+      "from": "n1f",
+      "to": "nf",
+      "port": "no"
+     },
+     {
+      "from": "nf",
+      "to": "kf",
+      "port": "in"
+     },
+     {
+      "from": "take",
+      "to": "start",
+      "port": "if"
+     },
+     {
+      "from": "fz",
+      "to": "start",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "start",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "ir",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "down",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "bl",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kbl",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "cur",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "start",
+      "to": "wb",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "wb",
+      "port": "yes"
+     },
+     {
+      "from": "w",
+      "to": "wb",
+      "port": "no"
+     },
+     {
+      "from": "wb",
+      "to": "r2",
+      "port": "n"
+     },
+     {
+      "from": "c5",
+      "to": "r2",
+      "port": "i"
+     },
+     {
+      "from": "wb",
+      "to": "r1",
+      "port": "n"
+     },
+     {
+      "from": "c6",
+      "to": "r1",
+      "port": "i"
+     },
+     {
+      "from": "wb",
+      "to": "r0",
+      "port": "n"
+     },
+     {
+      "from": "c7",
+      "to": "r0",
+      "port": "i"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "bt",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "wn",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "wn",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "wsel",
+      "port": "if"
+     },
+     {
+      "from": "w",
+      "to": "wsel",
+      "port": "yes"
+     },
+     {
+      "from": "wn",
+      "to": "wsel",
+      "port": "no"
+     },
+     {
+      "from": "wsel",
+      "to": "kw",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "rx",
+      "to": "rc",
+      "port": "line"
+     },
+     {
+      "from": "rc#byte",
+      "to": "up",
+      "port": "in"
+     },
+     {
+      "from": "rc#got",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "rc#end",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "rc#ok",
+      "to": "ok",
+      "port": "in"
+     }
+    ]
    }
   },
   "slots": {},
@@ -9550,6 +15828,3403 @@
       "port": "in"
      }
     ]
+   },
+   "1-30": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "ins",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "acc",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "f",
+      "type": "flagspot",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "r5",
+      "type": "equal",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "nl",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "hl",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "hold",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "rp",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "nr",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "kr",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "op0",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "open",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "close",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "sh0",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "sh",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "g1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "g2",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "got0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "gb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "i1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "cn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ci0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs2",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "f",
+      "port": "line"
+     },
+     {
+      "from": "c",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "r",
+      "to": "r5",
+      "port": "a"
+     },
+     {
+      "from": "c5",
+      "to": "r5",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nl",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nl",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nl",
+      "port": "no"
+     },
+     {
+      "from": "r5",
+      "to": "hl",
+      "port": "if"
+     },
+     {
+      "from": "nl",
+      "to": "hl",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hl",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "hold",
+      "port": "if"
+     },
+     {
+      "from": "hl",
+      "to": "hold",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hold",
+      "port": "no"
+     },
+     {
+      "from": "r",
+      "to": "rp",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "rp",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nr",
+      "port": "if"
+     },
+     {
+      "from": "rp",
+      "to": "nr",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nr",
+      "port": "no"
+     },
+     {
+      "from": "nr",
+      "to": "kr",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "op0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "op0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "op0",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "open",
+      "port": "if"
+     },
+     {
+      "from": "op0",
+      "to": "open",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "open",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "close",
+      "port": "if"
+     },
+     {
+      "from": "ins",
+      "to": "close",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "close",
+      "port": "no"
+     },
+     {
+      "from": "e0",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "acc",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh0",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "sh",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "sh",
+      "port": "yes"
+     },
+     {
+      "from": "sh0",
+      "to": "sh",
+      "port": "no"
+     },
+     {
+      "from": "sh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "g1",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "g1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "g1",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "g2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "g2",
+      "port": "yes"
+     },
+     {
+      "from": "g1",
+      "to": "g2",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "got0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "got0",
+      "port": "yes"
+     },
+     {
+      "from": "g2",
+      "to": "got0",
+      "port": "no"
+     },
+     {
+      "from": "got0",
+      "to": "gb",
+      "port": "if"
+     },
+     {
+      "from": "sh",
+      "to": "gb",
+      "port": "yes"
+     },
+     {
+      "from": "open",
+      "to": "i1",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "i1",
+      "port": "yes"
+     },
+     {
+      "from": "ins",
+      "to": "i1",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "i1",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "cn",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cn",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "cn",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "ci0",
+      "port": "if"
+     },
+     {
+      "from": "cn",
+      "to": "ci0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "ci0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "c",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "ci0",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "rs",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs",
+      "port": "yes"
+     },
+     {
+      "from": "ci",
+      "to": "rs",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "rs2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs2",
+      "port": "yes"
+     },
+     {
+      "from": "rs",
+      "to": "rs2",
+      "port": "no"
+     },
+     {
+      "from": "rs2",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "got0",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "gb",
+      "to": "byte",
+      "port": "in"
+     }
+    ]
+   },
+   "1-31": {
+    "nodes": [
+     {
+      "id": "a",
+      "type": "rx",
+      "params": {
+       "name": "a"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "rx",
+      "params": {
+       "name": "b"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "x",
+      "type": "tx",
+      "params": {
+       "name": "x"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "e",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "e",
+      "port": "a"
+     },
+     {
+      "from": "b",
+      "to": "e",
+      "port": "b"
+     },
+     {
+      "from": "e",
+      "to": "s",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "s",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "s",
+      "port": "no"
+     },
+     {
+      "from": "s",
+      "to": "x",
+      "port": "in"
+     }
+    ]
+   },
+   "1-15": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "restart",
+      "type": "in",
+      "params": {
+       "name": "restart"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "rem",
+      "type": "out",
+      "params": {
+       "name": "rem"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "r0",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "w",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     }
+    ],
+    "wires": [
+     {
+      "from": "restart",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r0",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "r0",
+      "port": "no"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "r1",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "n1",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "fb",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "w",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "w",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "rem",
+      "port": "in"
+     }
+    ]
+   },
+   "1-36": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "restart",
+      "type": "in",
+      "params": {
+       "name": "restart"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "rem",
+      "type": "out",
+      "params": {
+       "name": "rem"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "r0",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "m2",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "m1",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "m0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     },
+     {
+      "id": "w",
+      "type": "add",
+      "params": {},
+      "x": 260,
+      "y": 120
+     }
+    ],
+    "wires": [
+     {
+      "from": "restart",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "restart",
+      "to": "r0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "r0",
+      "port": "yes"
+     },
+     {
+      "from": "c",
+      "to": "r0",
+      "port": "no"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "m2",
+      "port": "if"
+     },
+     {
+      "from": "r2",
+      "to": "m2",
+      "port": "yes"
+     },
+     {
+      "from": "r1",
+      "to": "m2",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "m1",
+      "port": "if"
+     },
+     {
+      "from": "r1",
+      "to": "m1",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "m1",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "m0",
+      "port": "if"
+     },
+     {
+      "from": "r0",
+      "to": "m0",
+      "port": "yes"
+     },
+     {
+      "from": "fb",
+      "to": "m0",
+      "port": "no"
+     },
+     {
+      "from": "m2",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "m1",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "m0",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "m2",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "m2",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "m1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "m1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "w",
+      "port": "a"
+     },
+     {
+      "from": "m0",
+      "to": "w",
+      "port": "b"
+     },
+     {
+      "from": "w",
+      "to": "rem",
+      "port": "in"
+     }
+    ]
+   },
+   "1-17": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "ok",
+      "type": "out",
+      "params": {
+       "name": "ok"
+      },
+      "x": 980,
+      "y": 460
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "st",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "acc",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "lv",
+      "type": "reg",
+      "params": {
+       "reg": "E",
+       "start": 0
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "mk",
+      "type": "reg",
+      "params": {
+       "reg": "F",
+       "start": 0
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "f",
+      "type": "flagspot",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "s0",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "s2",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "ins",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "r5",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nl",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "hl",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "hold",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "rp",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nr",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kr",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "open",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "close",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "cr",
+      "type": "crchold",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "sh0",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "sh",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "g1",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "g2",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "comp",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "gv",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "bo",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nlv",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "klv",
+      "type": "keep",
+      "params": {
+       "reg": "E"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "okc",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nmk",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kmk",
+      "type": "keep",
+      "params": {
+       "reg": "F"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "oo",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s1",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "s3",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ns",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ks",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "cn",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ci0",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "rs",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "rs2",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 350,
+      "y": 210
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "f",
+      "port": "line"
+     },
+     {
+      "from": "st",
+      "to": "s0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "s0",
+      "port": "b"
+     },
+     {
+      "from": "st",
+      "to": "s2",
+      "port": "a"
+     },
+     {
+      "from": "c2",
+      "to": "s2",
+      "port": "b"
+     },
+     {
+      "from": "s0",
+      "to": "ins",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ins",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "ins",
+      "port": "no"
+     },
+     {
+      "from": "c",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "r",
+      "to": "r5",
+      "port": "a"
+     },
+     {
+      "from": "c5",
+      "to": "r5",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nl",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nl",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nl",
+      "port": "no"
+     },
+     {
+      "from": "r5",
+      "to": "hl",
+      "port": "if"
+     },
+     {
+      "from": "nl",
+      "to": "hl",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hl",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "hold",
+      "port": "if"
+     },
+     {
+      "from": "hl",
+      "to": "hold",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hold",
+      "port": "no"
+     },
+     {
+      "from": "r",
+      "to": "rp",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "rp",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "nr",
+      "port": "if"
+     },
+     {
+      "from": "rp",
+      "to": "nr",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nr",
+      "port": "no"
+     },
+     {
+      "from": "nr",
+      "to": "kr",
+      "port": "in"
+     },
+     {
+      "from": "f",
+      "to": "open",
+      "port": "if"
+     },
+     {
+      "from": "s0",
+      "to": "open",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "open",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "close",
+      "port": "if"
+     },
+     {
+      "from": "ins",
+      "to": "close",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "close",
+      "port": "no"
+     },
+     {
+      "from": "line",
+      "to": "cr",
+      "port": "line"
+     },
+     {
+      "from": "open",
+      "to": "cr",
+      "port": "restart"
+     },
+     {
+      "from": "hold",
+      "to": "cr",
+      "port": "hold"
+     },
+     {
+      "from": "e0",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "acc",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh0",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "sh",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "sh",
+      "port": "yes"
+     },
+     {
+      "from": "sh0",
+      "to": "sh",
+      "port": "no"
+     },
+     {
+      "from": "sh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "g1",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "g1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "g1",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "g2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "g2",
+      "port": "yes"
+     },
+     {
+      "from": "g1",
+      "to": "g2",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "comp",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "comp",
+      "port": "yes"
+     },
+     {
+      "from": "g2",
+      "to": "comp",
+      "port": "no"
+     },
+     {
+      "from": "comp",
+      "to": "gv",
+      "port": "if"
+     },
+     {
+      "from": "s2",
+      "to": "gv",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "gv",
+      "port": "no"
+     },
+     {
+      "from": "gv",
+      "to": "bo",
+      "port": "if"
+     },
+     {
+      "from": "lv",
+      "to": "bo",
+      "port": "yes"
+     },
+     {
+      "from": "comp",
+      "to": "nlv",
+      "port": "if"
+     },
+     {
+      "from": "sh",
+      "to": "nlv",
+      "port": "yes"
+     },
+     {
+      "from": "lv",
+      "to": "nlv",
+      "port": "no"
+     },
+     {
+      "from": "nlv",
+      "to": "klv",
+      "port": "in"
+     },
+     {
+      "from": "cr",
+      "to": "okc",
+      "port": "a"
+     },
+     {
+      "from": "sh",
+      "to": "okc",
+      "port": "b"
+     },
+     {
+      "from": "comp",
+      "to": "nmk",
+      "port": "if"
+     },
+     {
+      "from": "okc",
+      "to": "nmk",
+      "port": "yes"
+     },
+     {
+      "from": "mk",
+      "to": "nmk",
+      "port": "no"
+     },
+     {
+      "from": "nmk",
+      "to": "kmk",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "oo",
+      "port": "if"
+     },
+     {
+      "from": "mk",
+      "to": "oo",
+      "port": "yes"
+     },
+     {
+      "from": "comp",
+      "to": "s1",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "s1",
+      "port": "yes"
+     },
+     {
+      "from": "st",
+      "to": "s1",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "s3",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "s3",
+      "port": "yes"
+     },
+     {
+      "from": "s1",
+      "to": "s3",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "ns",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ns",
+      "port": "yes"
+     },
+     {
+      "from": "s3",
+      "to": "ns",
+      "port": "no"
+     },
+     {
+      "from": "ns",
+      "to": "ks",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "cn",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cn",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "cn",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "ci0",
+      "port": "if"
+     },
+     {
+      "from": "cn",
+      "to": "ci0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "ci0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "c",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "ci0",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "rs",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs",
+      "port": "yes"
+     },
+     {
+      "from": "ci",
+      "to": "rs",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "rs2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs2",
+      "port": "yes"
+     },
+     {
+      "from": "rs",
+      "to": "rs2",
+      "port": "no"
+     },
+     {
+      "from": "rs2",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "gv",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "bo",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "oo",
+      "to": "ok",
+      "port": "in"
+     }
+    ]
+   },
+   "1-18": {
+    "nodes": [
+     {
+      "id": "rx",
+      "type": "rx",
+      "params": {
+       "name": "rx"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "down",
+      "type": "in",
+      "params": {
+       "name": "down"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "last",
+      "type": "in",
+      "params": {
+       "name": "last"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "send",
+      "type": "in",
+      "params": {
+       "name": "send"
+      },
+      "x": 20,
+      "y": 460
+     },
+     {
+      "id": "tx",
+      "type": "tx",
+      "params": {
+       "name": "tx"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "up",
+      "type": "out",
+      "params": {
+       "name": "up"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 460
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 600
+     },
+     {
+      "id": "ok",
+      "type": "out",
+      "params": {
+       "name": "ok"
+      },
+      "x": 980,
+      "y": 740
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "c6",
+      "type": "const",
+      "params": {
+       "value": 6
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "w",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "ir",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 8
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "bl",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "fs",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "fz",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "f2",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "bo",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "lo",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "fr",
+      "type": "framer",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "take",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "chk",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "lc",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "n1f",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "nf",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kf",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "start",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kbl",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "wb",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r2",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r1",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "r0",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "fb",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "n1",
+      "type": "xor",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "t",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "t2",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "u",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "v",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "wn",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "wsel",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "kw",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 350,
+      "y": 90
+     },
+     {
+      "id": "rc",
+      "type": "receiver",
+      "params": {},
+      "x": 350,
+      "y": 90
+     }
+    ],
+    "wires": [
+     {
+      "from": "fs",
+      "to": "fz",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "fz",
+      "port": "b"
+     },
+     {
+      "from": "fs",
+      "to": "f2",
+      "port": "a"
+     },
+     {
+      "from": "c2",
+      "to": "f2",
+      "port": "b"
+     },
+     {
+      "from": "f2",
+      "to": "bo",
+      "port": "if"
+     },
+     {
+      "from": "w",
+      "to": "bo",
+      "port": "yes"
+     },
+     {
+      "from": "down",
+      "to": "bo",
+      "port": "no"
+     },
+     {
+      "from": "f2",
+      "to": "lo",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "lo",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "lo",
+      "port": "no"
+     },
+     {
+      "from": "bo",
+      "to": "fr",
+      "port": "byte"
+     },
+     {
+      "from": "lo",
+      "to": "fr",
+      "port": "last"
+     },
+     {
+      "from": "send",
+      "to": "fr",
+      "port": "send"
+     },
+     {
+      "from": "fr#line",
+      "to": "tx",
+      "port": "in"
+     },
+     {
+      "from": "f2",
+      "to": "take",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "take",
+      "port": "yes"
+     },
+     {
+      "from": "fr#next",
+      "to": "take",
+      "port": "no"
+     },
+     {
+      "from": "f2",
+      "to": "chk",
+      "port": "if"
+     },
+     {
+      "from": "fr#next",
+      "to": "chk",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "chk",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "next",
+      "port": "in"
+     },
+     {
+      "from": "last",
+      "to": "lc",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "lc",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "lc",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "n1f",
+      "port": "if"
+     },
+     {
+      "from": "lc",
+      "to": "n1f",
+      "port": "yes"
+     },
+     {
+      "from": "fs",
+      "to": "n1f",
+      "port": "no"
+     },
+     {
+      "from": "chk",
+      "to": "nf",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nf",
+      "port": "yes"
+     },
+     {
+      "from": "n1f",
+      "to": "nf",
+      "port": "no"
+     },
+     {
+      "from": "nf",
+      "to": "kf",
+      "port": "in"
+     },
+     {
+      "from": "take",
+      "to": "start",
+      "port": "if"
+     },
+     {
+      "from": "fz",
+      "to": "start",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "start",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "ir",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "take",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "down",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "bl",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kbl",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "cur",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "start",
+      "to": "wb",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "wb",
+      "port": "yes"
+     },
+     {
+      "from": "w",
+      "to": "wb",
+      "port": "no"
+     },
+     {
+      "from": "wb",
+      "to": "r2",
+      "port": "n"
+     },
+     {
+      "from": "c5",
+      "to": "r2",
+      "port": "i"
+     },
+     {
+      "from": "wb",
+      "to": "r1",
+      "port": "n"
+     },
+     {
+      "from": "c6",
+      "to": "r1",
+      "port": "i"
+     },
+     {
+      "from": "wb",
+      "to": "r0",
+      "port": "n"
+     },
+     {
+      "from": "c7",
+      "to": "r0",
+      "port": "i"
+     },
+     {
+      "from": "r2",
+      "to": "fb",
+      "port": "a"
+     },
+     {
+      "from": "bt",
+      "to": "fb",
+      "port": "b"
+     },
+     {
+      "from": "r0",
+      "to": "n1",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "n1",
+      "port": "b"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "a"
+     },
+     {
+      "from": "r1",
+      "to": "t",
+      "port": "b"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "a"
+     },
+     {
+      "from": "t",
+      "to": "t2",
+      "port": "b"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "a"
+     },
+     {
+      "from": "n1",
+      "to": "u",
+      "port": "b"
+     },
+     {
+      "from": "t2",
+      "to": "v",
+      "port": "a"
+     },
+     {
+      "from": "u",
+      "to": "v",
+      "port": "b"
+     },
+     {
+      "from": "v",
+      "to": "wn",
+      "port": "a"
+     },
+     {
+      "from": "fb",
+      "to": "wn",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "wsel",
+      "port": "if"
+     },
+     {
+      "from": "w",
+      "to": "wsel",
+      "port": "yes"
+     },
+     {
+      "from": "wn",
+      "to": "wsel",
+      "port": "no"
+     },
+     {
+      "from": "wsel",
+      "to": "kw",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "rx",
+      "to": "rc",
+      "port": "line"
+     },
+     {
+      "from": "rc#byte",
+      "to": "up",
+      "port": "in"
+     },
+     {
+      "from": "rc#got",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "rc#end",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "rc#ok",
+      "to": "ok",
+      "port": "in"
+     }
+    ]
    }
   },
   "best": {},
@@ -9902,12 +19577,216 @@
   {
    "level": "1-30",
    "task": 0,
-   "outcome": "open",
+   "outcome": "solved",
    "required": true,
-   "attempts": 0,
+   "attempts": 1,
    "hints": 0,
-   "parts": [],
-   "seen": 1793550411479
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "flagspot",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 27
+  },
+  {
+   "level": "1-31",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 2,
+   "hints": 0,
+   "parts": [
+    "const",
+    "equal",
+    "select"
+   ],
+   "seconds": 13
+  },
+  {
+   "level": "1-32",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 14
+  },
+  {
+   "level": "1-14",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 9
+  },
+  {
+   "level": "1-15",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 2,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "keep",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 18
+  },
+  {
+   "level": "1-16",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 2,
+   "hints": 0,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 25
+  },
+  {
+   "level": "1-35",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 12
+  },
+  {
+   "level": "1-20",
+   "task": 0,
+   "outcome": "solved",
+   "required": false,
+   "attempts": 3,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 33
+  },
+  {
+   "level": "1-36",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "keep",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 9
+  },
+  {
+   "level": "1-17",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "crchold",
+    "equal",
+    "flagspot",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 45
+  },
+  {
+   "level": "1-18",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 3,
+   "hints": 0,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "framer",
+    "keep",
+    "receiver",
+    "reg",
+    "select",
+    "xor"
+   ],
+   "seconds": 63
+  },
+  {
+   "level": "1-37",
+   "task": 0,
+   "outcome": "gave-up",
+   "required": true,
+   "attempts": 6,
+   "hints": 2,
+   "parts": [
+    "const",
+    "keep",
+    "nic",
+    "reg",
+    "select"
+   ],
+   "seconds": 141
   }
  ],
  "attempts": [
@@ -10126,6 +20005,203 @@
    "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nc8 = const[value=8]()\na = reg[reg=A, start=8]()\nb = reg[reg=B, start=0]()\ncur = select(start, z, a)\nacc = select(start, z, b)\nis8 = equal(cur, c8)\nn = add(cur, o)\nd2 = add(acc, acc)\nd0 = equal(cur, c7)\nd = select(hold, z, d0)\nnx0 = select(is8, c8, n)\nnx = select(hold, cur, nx0)\nsh = add(d2, line)\nka = keep[reg=A](nx)\nna0 = select(is8, acc, sh)\nnacc = select(hold, acc, na0)\nkb = keep[reg=B](nacc)\ndone <- d\nbyte <- nacc\n",
    "pass": true,
    "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-30",
+   "task": 0,
+   "at": "2026-11-01T16:27:18.145Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc5 = const[value=5]()\nc7 = const[value=7]()\nins = reg[reg=A, start=0]()\nc = reg[reg=B, start=0]()\nacc = reg[reg=C, start=0]()\nr = reg[reg=D, start=0]()\nf = flagspot(line)\ne0 = equal(c, z)\ne7 = equal(c, c7)\nr5 = equal(r, c5)\nnl = select(line, z, o)\nhl = select(r5, nl, z)\nhold = select(ins, hl, z)\nrp = add(r, o)\nnr = select(line, rp, z)\nkr = keep[reg=D](nr)\nop0 = select(ins, z, o)\nopen = select(f, op0, z)\nclose = select(f, ins, z)\nab = select(e0, z, acc)\nd2 = add(ab, ab)\nsh0 = add(d2, line)\nsh = select(hold, acc, sh0)\nkc = keep[reg=C](sh)\ng1 = select(ins, e7, z)\ng2 = select(hold, z, g1)\ngot0 = select(close, z, g2)\ngb = select(got0, sh)\ni1 = select(open, o, ins)\nni = select(close, z, i1)\nki = keep[reg=A](ni)\np = add(c, o)\ncn = select(e7, z, p)\nci0 = select(ins, cn, z)\nci = select(hold, c, ci0)\nrs = select(open, z, ci)\nrs2 = select(close, z, rs)\nkb = keep[reg=B](rs2)\nend <- close\ngot <- got0\nbyte <- gb\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-31",
+   "task": 0,
+   "at": "2026-11-01T16:27:30.886Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\ne = equal(a, b)\nx <- select(e, z, o)\n",
+   "pass": false,
+   "says": "The text was not imported:\n- Line 4: Expected a name, found “(”."
+  },
+  {
+   "level": "1-31",
+   "task": 0,
+   "at": "2026-11-01T16:27:37.127Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\ne = equal(a, b)\ns = select(e, z, o)\nx <- s\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-32",
+   "task": 0,
+   "at": "2026-11-01T16:27:56.855Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc8 = const[value=8]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(a, z)\ne8 = equal(a, c8)\nh = equal(byte, byte)\ncb = select(d, byte, b)\nkb = keep[reg=B](cb)\nbt = bit(cb, a)\npb = select(d, z, c)\npn = xor(pb, bt)\nkc = keep[reg=C](pn)\nln = select(e8, c, bt)\nline <- ln\np = add(a, o)\nnd = select(h, o, z)\nn1 = select(d, nd, p)\nna = select(e8, z, n1)\nka = keep[reg=A](na)\nnx = select(d, h, z)\nnext <- nx\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-14",
+   "task": 0,
+   "at": "2026-11-01T16:28:11.452Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc8 = const[value=8]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(a, z)\ne8 = equal(a, c8)\nab = select(d, z, b)\nd2 = add(ab, ab)\nsh = add(d2, line)\nkb = keep[reg=B](sh)\npb = select(d, z, c)\npn = xor(pb, line)\nkc = keep[reg=C](pn)\np = add(a, o)\nna = select(e8, z, p)\nka = keep[reg=A](na)\ntot = xor(c, line)\nokv = equal(tot, z)\nbo = select(e8, b, _)\noo = select(e8, okv, _)\nbyte <- bo\nok <- oo\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-15",
+   "task": 0,
+   "at": "2026-11-01T16:28:27.126Z",
+   "text": "z = const[value=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nr2 = select(restart, z, a)\nr1 = select(restart, z, b)\nr0 = select(restart, z, c)\nfb = xor(r2, line)\nn2 = r1\nn1 = xor(r0, fb)\nn0 = fb\nka = keep[reg=A](r1)\nkb = keep[reg=B](n1)\nkc = keep[reg=C](fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nw = add(v, fb)\nrem <- w\n",
+   "pass": false,
+   "says": "The text was not imported:\n- Line 10: Expected “(”, found “n1”."
+  },
+  {
+   "level": "1-15",
+   "task": 0,
+   "at": "2026-11-01T16:28:35.373Z",
+   "text": "z = const[value=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nr2 = select(restart, z, a)\nr1 = select(restart, z, b)\nr0 = select(restart, z, c)\nfb = xor(r2, line)\nn1 = xor(r0, fb)\nka = keep[reg=A](r1)\nkb = keep[reg=B](n1)\nkc = keep[reg=C](fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nw = add(v, fb)\nrem <- w\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 4 hidden test(s): pass"
+  },
+  {
+   "level": "1-16",
+   "task": 0,
+   "at": "2026-11-01T16:28:53.199Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc8 = const[value=8]()\nc10 = const[value=10]()\ni = reg[reg=D, start=0]()\nbl = reg[reg=E, start=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(i, z)\ne10 = equal(i, c10)\nh = equal(byte, byte)\ncb = select(d, byte, bl)\nkbl = keep[reg=E](cb)\nbt = bit(cb, i)\nr2 = select(d, z, a)\nr1 = select(d, z, b)\nr0 = select(d, z, c)\nfb = xor(r2, bt)\nn1 = xor(r0, fb)\nchk = bit(c8, z)\nbig = equal(i, i)\np = add(i, o)\nnd = select(h, o, z)\nn1i = select(d, nd, p)\nni = select(e10, z, n1i)\nki = keep[reg=D](ni)\nnx = select(d, h, z)\nnext <- nx\ndat = select(equal(i, c8), z, o)\n",
+   "pass": false,
+   "says": "The text was not imported:\n- Line 30: Expected “,”, found “(”."
+  },
+  {
+   "level": "1-16",
+   "task": 0,
+   "at": "2026-11-01T16:29:07.018Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc8 = const[value=8]()\nc9 = const[value=9]()\nc10 = const[value=10]()\ni = reg[reg=D, start=0]()\nbl = reg[reg=E, start=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(i, z)\ne8 = equal(i, c8)\ne9 = equal(i, c9)\ne10 = equal(i, c10)\nh = equal(byte, byte)\ncb = select(d, byte, bl)\nkbl = keep[reg=E](cb)\nbt = bit(cb, i)\nr2 = select(d, z, a)\nr1 = select(d, z, b)\nr0 = select(d, z, c)\nfb = xor(r2, bt)\nn1 = xor(r0, fb)\nk9 = select(e9, o, e10)\nchk = select(e8, o, k9)\nna = select(chk, b, r1)\nnb = select(chk, c, n1)\nnc = select(chk, z, fb)\nka = keep[reg=A](na)\nkb = keep[reg=B](nb)\nkc = keep[reg=C](nc)\nln = select(chk, a, bt)\nline <- ln\np = add(i, o)\nnd = select(h, o, z)\nn1i = select(d, nd, p)\nni = select(e10, z, n1i)\nki = keep[reg=D](ni)\nnx = select(d, h, z)\nnext <- nx\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-35",
+   "task": 0,
+   "at": "2026-11-01T16:29:24.922Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc8 = const[value=8]()\nc9 = const[value=9]()\nc10 = const[value=10]()\ni = reg[reg=D, start=0]()\nacc = reg[reg=E, start=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(i, z)\ne8 = equal(i, c8)\ne9 = equal(i, c9)\ne10 = equal(i, c10)\nk9 = select(e9, o, e10)\nchk = select(e8, o, k9)\nab = select(d, z, acc)\nd2 = add(ab, ab)\nsh = add(d2, line)\nna = select(chk, acc, sh)\nkacc = keep[reg=E](na)\nr2 = select(d, z, a)\nr1 = select(d, z, b)\nr0 = select(d, z, c)\nfb = xor(r2, line)\nn1 = xor(r0, fb)\nka = keep[reg=A](r1)\nkb = keep[reg=B](n1)\nkc = keep[reg=C](fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nw = add(v, fb)\nokv = equal(w, z)\np = add(i, o)\nni = select(e10, z, p)\nki = keep[reg=D](ni)\nbo = select(e10, acc, _)\noo = select(e10, okv, _)\nbyte <- bo\nok <- oo\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-20",
+   "task": 0,
+   "at": "2026-11-01T16:29:42.638Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc3 = const[value=3]()\nc4 = const[value=4]()\nc5 = const[value=5]()\nc6 = const[value=6]()\nc7 = const[value=7]()\ni = reg[reg=D, start=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(i, z)\ne6 = equal(i, c6)\nr2 = select(d, z, a)\nr1 = select(d, z, b)\nr0 = select(d, z, c)\nfb = xor(r2, line)\nn1 = xor(r0, fb)\nka = keep[reg=A](r1)\nkb = keep[reg=B](n1)\nkc = keep[reg=C](fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nw = add(v, fb)\np = add(i, o)\nni = select(e6, z, p)\nki = keep[reg=D](ni)\ns1 = select(equal(w, o), c7, z)\ns2 = select(equal(w, c2), c6, s1)\ns3 = select(equal(w, c3), c4, s2)\ns4 = select(equal(w, c4), c5, s3)\ns5 = select(equal(w, c5), o, s4)\ns6 = select(equal(w, c6), c3, s5)\ns7 = select(equal(w, c7), c2, s6)\noo = select(e6, s7, _)\npos <- oo\n",
+   "pass": false,
+   "says": "The text was not imported:\n- Line 31: Expected “,”, found “(”."
+  },
+  {
+   "level": "1-20",
+   "task": 0,
+   "at": "2026-11-01T16:29:51.165Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc3 = const[value=3]()\nc4 = const[value=4]()\nc5 = const[value=5]()\nc6 = const[value=6]()\nc7 = const[value=7]()\ni = reg[reg=D, start=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(i, z)\ne6 = equal(i, c6)\nr2 = select(d, z, a)\nr1 = select(d, z, b)\nr0 = select(d, z, c)\nfb = xor(r2, line)\nn1 = xor(r0, fb)\nka = keep[reg=A](r1)\nkb = keep[reg=B](n1)\nkc = keep[reg=C](fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nw = add(v, fb)\np = add(i, o)\nni = select(e6, z, p)\nki = keep[reg=D](ni)\nq1 = equal(w, o)\nq2 = equal(w, c2)\nq3 = equal(w, c3)\nq4 = equal(w, c4)\nq5 = equal(w, c5)\nq6 = equal(w, c6)\nq7 = equal(w, c7)\ns1 = select(q1, c7, z)\ns2 = select(q2, c6, s1)\ns3 = select(q3, c4, s2)\ns4 = select(q4, c5, s3)\ns5 = select(q5, o, s4)\ns6 = select(q6, c3, s5)\ns7 = select(q7, c2, s6)\noo = select(e6, s7, _)\npos <- oo\n",
+   "pass": false,
+   "says": "- Test 1: pass\n- Test 2: FAIL — At tick 6, “Flipped bit” should be 1; the board gives 5.\n- Test 3: not run"
+  },
+  {
+   "level": "1-20",
+   "task": 0,
+   "at": "2026-11-01T16:30:03.762Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc3 = const[value=3]()\nc4 = const[value=4]()\nc5 = const[value=5]()\nc6 = const[value=6]()\nc7 = const[value=7]()\ni = reg[reg=D, start=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nd = equal(i, z)\ne6 = equal(i, c6)\nr2 = select(d, z, a)\nr1 = select(d, z, b)\nr0 = select(d, z, c)\nfb = xor(r2, line)\nn1 = xor(r0, fb)\nka = keep[reg=A](r1)\nkb = keep[reg=B](n1)\nkc = keep[reg=C](fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nw = add(v, fb)\np = add(i, o)\nni = select(e6, z, p)\nki = keep[reg=D](ni)\nq1 = equal(w, o)\nq2 = equal(w, c2)\nq3 = equal(w, c3)\nq4 = equal(w, c4)\nq5 = equal(w, c5)\nq6 = equal(w, c6)\nq7 = equal(w, c7)\ns1 = select(q1, c3, z)\ns2 = select(q2, c2, s1)\ns3 = select(q3, c7, s2)\ns4 = select(q4, o, s3)\ns5 = select(q5, c4, s4)\ns6 = select(q6, c6, s5)\ns7 = select(q7, c5, s6)\noo = select(e6, s7, _)\npos <- oo\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-36",
+   "task": 0,
+   "at": "2026-11-01T16:30:18.648Z",
+   "text": "z = const[value=0]()\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nc = reg[reg=C, start=0]()\nr2 = select(restart, z, a)\nr1 = select(restart, z, b)\nr0 = select(restart, z, c)\nfb = xor(r2, line)\nn1 = xor(r0, fb)\nm2 = select(hold, r2, r1)\nm1 = select(hold, r1, n1)\nm0 = select(hold, r0, fb)\nka = keep[reg=A](m2)\nkb = keep[reg=B](m1)\nkc = keep[reg=C](m0)\nt = add(m2, m2)\nt2 = add(t, t)\nu = add(m1, m1)\nv = add(t2, u)\nw = add(v, m0)\nrem <- w\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 4 hidden test(s): pass"
+  },
+  {
+   "level": "1-17",
+   "task": 0,
+   "at": "2026-11-01T16:31:09.867Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc5 = const[value=5]()\nc7 = const[value=7]()\nst = reg[reg=A, start=0]()\nc = reg[reg=B, start=0]()\nacc = reg[reg=C, start=0]()\nr = reg[reg=D, start=0]()\nlv = reg[reg=E, start=0]()\nmk = reg[reg=F, start=0]()\nf = flagspot(line)\ns0 = equal(st, z)\ns2 = equal(st, c2)\nins = select(s0, z, o)\ne0 = equal(c, z)\ne7 = equal(c, c7)\nr5 = equal(r, c5)\nnl = select(line, z, o)\nhl = select(r5, nl, z)\nhold = select(ins, hl, z)\nrp = add(r, o)\nnr = select(line, rp, z)\nkr = keep[reg=D](nr)\nopen = select(f, s0, z)\nclose = select(f, ins, z)\ncr = crchold(line, open, hold)\nab = select(e0, z, acc)\nd2 = add(ab, ab)\nsh0 = add(d2, line)\nsh = select(hold, acc, sh0)\nkc = keep[reg=C](sh)\ng1 = select(ins, e7, z)\ng2 = select(hold, z, g1)\ncomp = select(close, z, g2)\ngv = select(comp, s2, z)\nbo = select(gv, lv, _)\nnlv = select(comp, sh, lv)\nklv = keep[reg=E](nlv)\nokc = equal(cr, sh)\nnmk = select(comp, okc, mk)\nkmk = keep[reg=F](nmk)\noo = select(close, mk, _)\ns1 = select(comp, c2, st)\ns3 = select(open, o, s1)\nns = select(close, z, s3)\nks = keep[reg=A](ns)\np = add(c, o)\ncn = select(e7, z, p)\nci0 = select(ins, cn, z)\nci = select(hold, c, ci0)\nrs = select(open, z, ci)\nrs2 = select(close, z, rs)\nkb = keep[reg=B](rs2)\nend <- close\ngot <- gv\nbyte <- bo\nok <- oo\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-18",
+   "task": 0,
+   "at": "2026-11-01T16:31:55.507Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc5 = const[value=5]()\nc6 = const[value=6]()\nc7 = const[value=7]()\nc8 = const[value=8]()\nw = reg[reg=A, start=0]()\nir = reg[reg=B, start=8]()\nbl = reg[reg=C, start=0]()\nfs = reg[reg=D, start=0]()\nfz = equal(fs, z)\nf2 = equal(fs, c2)\nbo = select(f2, w, down)\nlo = select(f2, o, last)\nfr = framer(bo, lo, send)\ntx <- fr.line\nrawn = fr.next\ntake = select(f2, z, rawn)\nchk = select(f2, rawn, z)\nnext <- take\nlc = select(last, c2, o)\nn1f = select(take, lc, fs)\nnf = select(chk, z, n1f)\nkf = keep[reg=D](nf)\nstart = select(take, fz, z)\ncur = select(take, z, ir)\ncb = select(take, down, bl)\nkbl = keep[reg=C](cb)\nis8 = equal(cur, c8)\nbt = bit(cb, cur)\nwb = select(start, z, w)\nr2 = bit(wb, c5)\nr1 = bit(wb, c6)\nr0 = bit(wb, c7)\nfb = xor(r2, bt)\nn1 = xor(r0, fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nwn = add(v, fb)\nwsel = select(is8, w, wn)\nkw = keep[reg=A](wsel)\np = add(cur, o)\nni = select(is8, c8, p)\nki = keep[reg=B](ni)\nrc = receiver(rx)\nup <- rc.byte\ngot <- rc.got\nend <- rc.end\nok <- rc.ok\n",
+   "pass": false,
+   "says": "The text was not imported:\n- Line 18: Expected “(”, found “.”."
+  },
+  {
+   "level": "1-18",
+   "task": 0,
+   "at": "2026-11-01T16:32:06.234Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc5 = const[value=5]()\nc6 = const[value=6]()\nc7 = const[value=7]()\nc8 = const[value=8]()\nw = reg[reg=A, start=0]()\nir = reg[reg=B, start=8]()\nbl = reg[reg=C, start=0]()\nfs = reg[reg=D, start=0]()\nfz = equal(fs, z)\nf2 = equal(fs, c2)\nbo = select(f2, w, down)\nlo = select(f2, o, last)\nfr = framer(bo, lo, send)\ntx <- fr.line\ntake = select(f2, z, fr.next)\nchk = select(f2, fr.next, z)\nnext <- take\nlc = select(last, c2, o)\nn1f = select(take, lc, fs)\nnf = select(chk, z, n1f)\nkf = keep[reg=D](nf)\nstart = select(take, fz, z)\ncur = select(take, z, ir)\ncb = select(take, down, bl)\nkbl = keep[reg=C](cb)\nis8 = equal(cur, c8)\nbt = bit(cb, cur)\nwb = select(start, z, w)\nr2 = bit(wb, c5)\nr1 = bit(wb, c6)\nr0 = bit(wb, c7)\nfb = xor(r2, bt)\nn1 = xor(r0, fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nwn = add(v, fb)\nwsel = select(is8, w, wn)\nkw = keep[reg=A](wsel)\np = add(cur, o)\nni = select(is8, c8, p)\nki = keep[reg=B](ni)\nrc = receiver(rx)\nup <- rc.byte\ngot <- rc.got\nend <- rc.end\nok <- rc.ok\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: what the far end receives should be 1 2 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-18",
+   "task": 0,
+   "at": "2026-11-01T16:32:19.942Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc5 = const[value=5]()\nc6 = const[value=6]()\nc7 = const[value=7]()\nc8 = const[value=8]()\nw = reg[reg=A, start=0]()\nir = reg[reg=B, start=8]()\nbl = reg[reg=C, start=0]()\nfs = reg[reg=D, start=0]()\nfz = equal(fs, z)\nf2 = equal(fs, c2)\nbo = select(f2, w, down)\nlo = select(f2, o, z)\nfr = framer(bo, lo, send)\ntx <- fr.line\ntake = select(f2, z, fr.next)\nchk = select(f2, fr.next, z)\nnext <- take\nlc = select(last, c2, o)\nn1f = select(take, lc, fs)\nnf = select(chk, z, n1f)\nkf = keep[reg=D](nf)\nstart = select(take, fz, z)\ncur = select(take, z, ir)\ncb = select(take, down, bl)\nkbl = keep[reg=C](cb)\nis8 = equal(cur, c8)\nbt = bit(cb, cur)\nwb = select(start, z, w)\nr2 = bit(wb, c5)\nr1 = bit(wb, c6)\nr0 = bit(wb, c7)\nfb = xor(r2, bt)\nn1 = xor(r0, fb)\nt = add(r1, r1)\nt2 = add(t, t)\nu = add(n1, n1)\nv = add(t2, u)\nwn = add(v, fb)\nwsel = select(is8, w, wn)\nkw = keep[reg=A](wsel)\np = add(cur, o)\nni = select(is8, c8, p)\nki = keep[reg=B](ni)\nrc = receiver(rx)\nup <- rc.byte\ngot <- rc.got\nend <- rc.end\nok <- rc.ok\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-37",
+   "task": 0,
+   "at": "2026-11-01T16:32:43.906Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\npf = reg[reg=A, start=0]()\npv = reg[reg=B, start=0]()\ndn = select(pf, pv, _)\nn = nic(rx, dn, o, o)\ntx <- n.tx\nv = select(n.ok, o, z)\nnv = select(n.end, v, pv)\nkv = keep[reg=B](nv)\nc1 = select(n.next, z, pf)\nc2 = select(n.end, o, c1)\nkf = keep[reg=A](c2)\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: the replies the far end receives should be 1 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-37",
+   "task": 0,
+   "at": "2026-11-01T16:33:31.036Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\npf = reg[reg=A, start=0]()\ndn = select(pf, o, _)\nn = nic(rx, dn, o, o)\ntx <- n.tx\nc1 = select(n.next, z, pf)\nc2 = select(n.end, o, c1)\nkf = keep[reg=A](c2)\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: the replies the far end receives should be 1 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-37",
+   "task": 0,
+   "at": "2026-11-01T16:33:50.445Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc16 = const[value=16]()\nk = reg[reg=A, start=0]()\npv = reg[reg=B, start=0]()\nkz = equal(k, z)\nk16 = equal(k, c16)\nact = select(kz, z, o)\ndn = select(act, pv, _)\nn = nic(rx, dn, o, o)\ntx <- n.tx\nv = select(n.ok, o, z)\nnv = select(n.end, v, pv)\nkv = keep[reg=B](nv)\np = add(k, o)\na1 = select(k16, z, p)\na2 = select(kz, z, a1)\na3 = select(n.end, o, a2)\nkk = keep[reg=A](a3)\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: the replies the far end receives should be 1 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-37",
+   "task": 0,
+   "at": "2026-11-01T16:34:03.609Z",
+   "text": "o = const[value=1]()\nn = nic(rx, o, o, o)\ntx <- n.tx\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: the replies the far end receives should be 1 end; the board gives 1 end 1 end.\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-37",
+   "task": 0,
+   "at": "2026-11-01T16:34:22.541Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc20 = const[value=20]()\nk = reg[reg=E, start=0]()\npv = reg[reg=F, start=0]()\nkz = equal(k, z)\nk16 = equal(k, c20)\nact = select(kz, z, o)\ndn = select(act, pv, _)\nn = nic(rx, dn, o, o)\ntx <- n.tx\nv = select(n.ok, o, z)\nnv = select(n.end, v, pv)\nkv = keep[reg=F](nv)\np = add(k, o)\na1 = select(k16, z, p)\na2 = select(kz, z, a1)\na3 = select(n.end, o, a2)\nkk = keep[reg=E](a3)\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: the replies the far end receives should be 1 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-37",
+   "task": 0,
+   "at": "2026-11-01T16:34:49.001Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\npf = reg[reg=E, start=0]()\npv = reg[reg=F, start=0]()\ndn = select(pf, pv, _)\nn = nic(rx, dn, o, o)\ntx <- n.tx\ntk = select(pf, n.next, z)\nv = select(n.ok, o, z)\nnv = select(n.end, v, pv)\nkv = keep[reg=F](nv)\nc1 = select(tk, z, pf)\nc2 = select(n.end, o, c1)\nkf = keep[reg=E](c2)\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: the replies the far end receives should be 1 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run"
   }
- ]
+ ],
+ "usage": {
+  "tokens": 6220376,
+  "seconds": 984,
+  "cost": 1.6518512000000003
+ }
 }
