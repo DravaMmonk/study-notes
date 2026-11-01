@@ -50,14 +50,19 @@
         {
           "parallel": [
             { "id": "async", "title": { "zh": "起始位", "en": "Start bits" }, "levels": ["1-9", "1-10"] },
-            { "id": "flags", "title": { "zh": "旗标", "en": "Flags" }, "levels": ["1-11"] }
+            { "id": "flags", "title": { "zh": "旗标", "en": "Flags" }, "levels": ["1-11", "1-12", "1-13"] },
+            {
+              "id": "errors",
+              "title": { "zh": "线会出错", "en": "The wire errs" },
+              "levels": ["1-14", "1-15", "1-16"]
+            }
           ]
         },
-        "1-14",
-        "1-15",
-        "1-16"
+        "1-17",
+        "1-18",
+        "1-19"
       ],
-      "challenges": [{ "level": "1-20", "after": "1-16" }]
+      "challenges": [{ "level": "1-20", "after": "1-15" }]
     }
   ],
   "saves": []

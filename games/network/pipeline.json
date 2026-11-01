@@ -334,6 +334,44 @@
           ],
           "report": "I stopped before finishing: 15 of the 20 slots are written, and the gate is not clean. The other five slots can't be built honestly with the parts this era has, so I left them out rather than fake them. The 6 gate failures are those five missing slots (`bp-levels` for 1-12, 1-13, 1-17, 1-18, 1-19) plus `bp-eras`, which fails because game.json's eras leave them out. There are no adds, builds, uses or naive failures. `./check` passes: every reference answer passes its tests and hidden tests, every built part passes alone on its own level, and every naive answer fails.\n\n**Levels written:** 1-1 to 1-11, 1-14, 1-15, 1-16, and 1-20 as a challenge after 1-16. Each has its slot's adds, builds and uses, hidden tests, and a naive answer that fails. Primitives and `concept` (`const→select`, `keep→reg`, `equal→bit`) are set. I replaced the starter's two levels and its one glossary entry (tick).\n\n**Effort:** 2 changesets applied. One dry-run was refused: a link to a built part (`part:crc`), which I changed to a level link.\n\n**Ports I added beyond the slot wording:**\n- **1-8 deserializer has a `start` input**, like the serializer's. As the slot is worded (\"from the first tick\") the counter never restarts, so the part gives one byte and stops. 1-9 and 1-14 can't use it. With no start, it still counts from the first tick, so the slot's task still holds. Because tests now restart at odd ticks, its output is checked with written-out expected values (`given`). That check can't require 「—」 on the ticks in between.\n- **1-7 serializer** keeps the byte from its start tick and starts over on each new start. 1-10 relies on both.\n\n**Hard to express:**\n- **1-10** needs to know when the queue is empty. The only way is `equal(byte, byte)`, which gives 「—」 for 「—」. A hidden test catches a board that keeps sending start bits after the queue runs out.\n- **1-16:** the CRC from 1-15 gives the remainder of the bits so far, but the check bits are the remainder with three zeros added. Those are only known 3 ticks too late. The reference instead feeds the CRC what it sends and, during the check ticks, sends the top bit XOR the middle bit of the remainder from the tick before. It's correct, but it's an algebra trick the slot doesn't hint at.\n- **1-20** needs about 40 parts. Blocks are 7 bits and the deserializer takes 8, so it takes two deserializers taking turns, a stored syndrome, and the 4-bit value rebuilt by hand. The flipped bit's position comes straight from the syndrome, but the rest is busywork, which the handbook says challenges should avoid.\n\n**Slots I couldn't express, and why:**\n- **1-18 (network card):** the flagcheck format needs 3 check bits stuffed in before the closing flag (8n+3 bits between flags). A framer that only takes whole bytes can never produce that. A framer input for check bits would never be tested in 1-12, which uses plain flags. This is the blocker.\n- **1-19 (relay):** needs the network card from 1-18.\n- **1-12 (framer):** it can be built (the serializer sends the flags; the content goes out bit by bit with its own position count). But only 1-18 uses it, so the `unused` audit refuses it on its own.\n- **1-13 (deframer):** removing stuffed 0s means a tick that doesn't count. The deserializer is built on a counter of ticks and can't pause, so it can't gather stuffed content. It would need a \"hold\" input.\n- **1-17 (drop bad frames):** for the same reason, the CRC would have to skip stuffed bits and flag bits. It can't hold either.\n\n**What the blueprint or domain would need to change:**\n- Give the deserializer and the CRC a hold input, or make a tick-counter that can pause a primitive.\n- Make the check fit whole bytes (an 8-bit generator, so the network card can pass the check through the framer as one more byte), or let the framer take trailing bits.\n- Either reword 1-16's task, or give the CRC the zeros-appended form so the check bits can be read straight off it.\n- Rethink 1-20's 7-bit blocks against the 8-bit deserializer.\n\nFiles are in /tmp/pipeline-network-levels-2YiykC:\n- cs1.json\n- cs2.json",
           "transcript": "/tmp/pipeline-network-levels-2YiykC/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-01T15:03:40.637Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 6125282,
+            "seconds": 1689,
+            "cost": 6.684181799999999,
+            "turns": 54
+          },
+          "calls": {
+            "op": {
+              "runs": 8,
+              "failed": 2
+            },
+            "check": {
+              "runs": 3,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 2,
+              "failed": 1
+            },
+            "deps": {
+              "runs": 0,
+              "failed": 0
+            },
+            "eras": {
+              "runs": 1,
+              "failed": 0
+            }
+          },
+          "changes": [
+            8,
+            9
+          ],
+          "report": "The gate is clean. All 20 slots now have levels, and `./check` passes every one: each reference answer passes its tests and hidden tests, each empty board fails, each naive board fails, and each built part works on its own.\n\n## Levels written\n- **The 15 existing levels, brought in line with the revised blueprint:**\n  - **1-6:** the counter gets a `hold` input. The naive board counts held ticks one tick too early.\n  - **1-7, 1-9, 1-10, 1-11, 1-14, 1-16, 1-20:** every counter in their reference answers now has `hold` wired to 0.\n  - **1-8:** the deserializer gets `start` and `hold`, and still works when start and hold fall on the same tick.\n  - **1-15:** the CRC now outputs the check form and takes `hold`. The naive board does the plain division.\n  - **1-16:** reads bits 5–7 of a held CRC. The naive board forgets to hold the CRC.\n  - **1-20:** rewritten as \"which bit flipped\" and moved after 1-15. The naive board outputs the remainder itself.\n- **The five new levels:**\n  - **1-12 framer:** stuffs the content, including a 0 after five 1s at the very end. The naive board doesn't stuff.\n  - **1-13 deframer:** takes stuffing out by pausing the deserializer. The naive board doesn't.\n  - **1-17 receiver:** built as the blueprint planned. The naive board passes the check byte up as content.\n  - **1-18 network card:** the naive board feeds the CRC to the framer live instead of latching it.\n  - **1-19 relay:** the naive board never flips a bit, so a broken frame leaves intact.\n- **Eras** now match `./eras` exactly.\n\nThere were 2 changesets and 2 refused attempts. The first refusal was the audit rejecting the framer and deframer until later levels use them, so 1-12 to 1-19 had to go in together. The second was a bug in my card: it passed the queue's `last` flag straight to the framer, so frames closed before their check byte.\n\n## What was hard to express\nNothing on a board can test for 「—」 (every part passes it through). So a part that reads another part's stream of bytes can't tell when a byte has arrived. I widened some part interfaces beyond the blueprint to get around this. The blueprint doesn't mention these changes, so it should record them:\n- **Deserializer:** gets a `done` output that is 0 or 1.\n- **Deframer, receiver and card:** give 0/1 `got` and `end` signals beside the byte (and `ok` for intact). These are checked with the `given` want, using tick arrays I worked out by hand.\n- **Framer and card:** get a `send` input, and a frame only starts on a tick it is 1. Without it the relay can't work: the outgoing card would start sending at tick 0, before any byte has arrived. 1-12 and 1-18 test `send`, including pauses between frames.\n- **Exact timing in the copy:** because `given` checks exact ticks, the receiver and card briefs have to say when each byte comes out (\"on the tick the byte after it is complete\"). That gives away part of the hold-back idea.\n- **Relay buffer:** the relay needs a three-byte buffer, not two. When a frame's first bytes are heavily stuffed, the outgoing card falls further behind. Test 3 of 1-19 covers this.\n\n## Where I think the blueprint is off\n- **1-19 as a practice slot.** It is the largest board in the era: about 50 parts and 5 registers, with a queue, a count, an end-of-frame state, and a flip timed two ticks after the last byte is taken. I'd make it the era's closing level, or turn it into a challenge.\n- **A domain request, optional.** A tick-by-tick want for \"a byte arrives here\" in the flag formats would replace my hand-computed arrays and let the briefs say less about timing.\n\nAs the curriculum designer asked, every test flip leaves the stuffing alone. The relay flips a padding bit of its own check byte, which guarantees the frame it sends on is broken.",
+          "transcript": "/tmp/pipeline-network-levels-CXs6kM/transcript.jsonl"
         }
       ],
       "gates": [
@@ -377,6 +415,24 @@
               "says": "its eras differ from the blueprint’s"
             }
           ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-01T15:03:54.723Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "check",
+              "at": "network",
+              "says": "hub: games.js lists 15 levels, the game has 20"
+            }
+          ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-01T15:04:28.432Z",
+          "ok": true,
+          "failures": [],
           "reports": []
         }
       ]

@@ -51,25 +51,26 @@
     "eight = const[value=8]()",
     "b = reg[reg=A, start=0]()",
     "sn = select(b, z, line)",
-    "c = counter(sn)",
+    "c = counter(sn, z)",
     "e8 = equal(c, eight)",
     "e1 = equal(c, o)",
-    "d = deserializer(line, e1)",
+    "d = deserializer(line, e1, z)",
     "cl = select(e8, z, b)",
     "nb = select(sn, o, cl)",
     "kb = keep[reg=A](nb)",
-    "y = select(e8, d)",
+    "y = select(e8, d.byte)",
     "out = select(b, y)",
     "byte <- out"
   ],
   "naive": [
+    "z = const[value=0]()",
     "o = const[value=1]()",
     "eight = const[value=8]()",
-    "c = counter(line)",
+    "c = counter(line, z)",
     "e8 = equal(c, eight)",
     "e1 = equal(c, o)",
-    "d = deserializer(line, e1)",
-    "y = select(e8, d)",
+    "d = deserializer(line, e1, z)",
+    "y = select(e8, d.byte)",
     "byte <- y"
   ]
 }

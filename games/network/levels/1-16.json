@@ -1,8 +1,8 @@
 {
   "title": { "zh": "带上校验码", "en": "Append the check" },
   "brief": {
-    "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码：让这 11 位不进位地除以 1011 余 0 的那 3 位。",
-    "en": "Send the byte handed to you bit by bit from the first tick, top bit first, followed at once by its 3 check bits: the three that make the eleven divide by 1011, without carries, leaving 0."
+    "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码。",
+    "en": "Send the byte handed to you bit by bit from the first tick, top bit first, followed at once by its 3 check bits."
   },
   "intro": [
     {
@@ -30,20 +30,19 @@
   "solution": [
     "z = const[value=0]()",
     "o = const[value=1]()",
-    "five = const[value=5]()",
-    "six = const[value=6]()",
-    "c = counter(z)",
+    "four = const[value=4]()",
+    "c = counter(z, z)",
     "e0 = equal(c, z)",
     "s = serializer(byte, e0)",
     "p = reg[reg=A, start=0]()",
     "np = select(s.done, o, p)",
     "kp = keep[reg=A](np)",
+    "c2 = counter(s.done, z)",
+    "i = add(c2, four)",
     "rr = reg[reg=B, start=0]()",
-    "t = bit(rr, five)",
-    "m = bit(rr, six)",
-    "cb = xor(t, m)",
+    "cb = bit(rr, i)",
     "l = select(p, cb, s.line)",
-    "k = crc(l, z)",
+    "k = crc(l, z, p)",
     "kb = keep[reg=B](k)",
     "line <- l",
     "next <- e0"
@@ -51,17 +50,19 @@
   "naive": [
     "z = const[value=0]()",
     "o = const[value=1]()",
-    "five = const[value=5]()",
-    "c = counter(z)",
+    "four = const[value=4]()",
+    "c = counter(z, z)",
     "e0 = equal(c, z)",
     "s = serializer(byte, e0)",
     "p = reg[reg=A, start=0]()",
     "np = select(s.done, o, p)",
     "kp = keep[reg=A](np)",
+    "c2 = counter(s.done, z)",
+    "i = add(c2, four)",
     "rr = reg[reg=B, start=0]()",
-    "t = bit(rr, five)",
-    "l = select(p, t, s.line)",
-    "k = crc(l, z)",
+    "cb = bit(rr, i)",
+    "l = select(p, cb, s.line)",
+    "k = crc(l, z, z)",
     "kb = keep[reg=B](k)",
     "line <- l",
     "next <- e0"

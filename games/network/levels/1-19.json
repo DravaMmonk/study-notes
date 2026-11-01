@@ -1,0 +1,148 @@
+{
+  "title": { "zh": "接力", "en": "Relay" },
+  "brief": {
+    "zh": "在两根线之间转发：左边进线上来的帧，一个字节一个字节地交给右边的网卡，从右边的出线送出去，不等整帧收完。左边到时是坏的帧，从右边出去也不能是完好的。",
+    "en": "Forward between two wires: pass each frame from the left wire in on to a card for the right-hand wire out, byte by byte, without waiting for the whole frame. A frame that arrived broken on the left must not leave intact on the right."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一根线只连着两头。要让帧走得更远，中间的节点得把一根线上收到的帧，转到另一根线上去。",
+        "en": "A wire joins only two ends. For a frame to travel further, a node in the middle has to pass what it receives on one wire on to another."
+      }
+    }
+  ],
+  "wires": {
+    "in": [{ "name": "left", "label": { "zh": "左边进线", "en": "Left wire in" } }],
+    "out": [{ "name": "right", "label": { "zh": "右边出线", "en": "Right wire out" } }]
+  },
+  "tests": [
+    { "ticks": 80, "wires": { "left": { "send": [{ "frames": [[65]], "format": "flagbyte" }] } } },
+    {
+      "ticks": 130,
+      "wires": { "left": { "send": [{ "frames": [[1, 2, 3], [200]], "format": "flagbyte" }], "flips": [60] } }
+    },
+    {
+      "ticks": 130,
+      "wires": { "left": { "send": [{ "frames": [[255, 255, 0, 0, 0, 7]], "format": "flagbyte" }] } }
+    }
+  ],
+  "hidden": [
+    {
+      "ticks": 120,
+      "wires": { "left": { "send": [{ "frames": [[126, 31], [0]], "format": "flagbyte" }], "flips": [30] } }
+    },
+    {
+      "ticks": 150,
+      "wires": {
+        "left": { "send": [{ "frames": [[10], [20, 30], [40]], "format": "flagbyte" }], "flips": [43] }
+      }
+    },
+    {
+      "ticks": 110,
+      "wires": { "left": { "send": [{ "frames": [[255, 255, 255, 255]], "format": "flagbyte" }] } }
+    }
+  ],
+  "want": { "right": { "relayed": { "wire": "left", "format": "flagbyte" } } },
+  "solution": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "two = const[value=2]()",
+    "three = const[value=3]()",
+    "L = nic(left, z, z, z)",
+    "nr = reg[reg=A, start=0]()",
+    "q1 = reg[reg=B, start=0]()",
+    "q2 = reg[reg=C, start=0]()",
+    "q3 = reg[reg=D, start=0]()",
+    "er = reg[reg=E, start=0]()",
+    "e0 = equal(nr, z)",
+    "e1 = equal(nr, o)",
+    "e2 = equal(nr, two)",
+    "e3 = equal(nr, three)",
+    "ez = equal(er, z)",
+    "lst = select(ez, z, e1)",
+    "snd = select(e0, z, o)",
+    "R = nic(z, q1, lst, snd)",
+    "s1 = select(R.next, q2, q1)",
+    "s2 = select(R.next, q3, q2)",
+    "w1 = select(R.next, e1, e0)",
+    "w2 = select(R.next, e2, e1)",
+    "w3 = select(R.next, e3, e2)",
+    "p1 = select(L.got, w1, z)",
+    "p2 = select(L.got, w2, z)",
+    "p3 = select(L.got, w3, z)",
+    "n1 = select(p1, L.up, s1)",
+    "n2 = select(p2, L.up, s2)",
+    "n3 = select(p3, L.up, q3)",
+    "k1 = keep[reg=B](n1)",
+    "k2 = keep[reg=C](n2)",
+    "k3 = keep[reg=D](n3)",
+    "inc = add(nr, o)",
+    "d0 = select(e2, o, two)",
+    "dec = select(e1, z, d0)",
+    "a0 = select(L.got, nr, dec)",
+    "a1 = select(L.got, inc, nr)",
+    "nn = select(R.next, a0, a1)",
+    "kn = keep[reg=A](nn)",
+    "lp = select(R.next, lst, z)",
+    "fc = counter(lp, z)",
+    "f2 = equal(fc, two)",
+    "eb = equal(er, two)",
+    "fl = select(f2, eb, z)",
+    "xr = xor(R.tx, fl)",
+    "bad = select(L.ok, o, two)",
+    "ev0 = select(fl, z, er)",
+    "eg = select(eb, two, z)",
+    "ev1 = select(lp, eg, ev0)",
+    "ev = select(L.end, bad, ev1)",
+    "ke = keep[reg=E](ev)",
+    "right <- xr"
+  ],
+  "naive": [
+    "z = const[value=0]()",
+    "o = const[value=1]()",
+    "two = const[value=2]()",
+    "three = const[value=3]()",
+    "L = nic(left, z, z, z)",
+    "nr = reg[reg=A, start=0]()",
+    "q1 = reg[reg=B, start=0]()",
+    "q2 = reg[reg=C, start=0]()",
+    "q3 = reg[reg=D, start=0]()",
+    "er = reg[reg=E, start=0]()",
+    "e0 = equal(nr, z)",
+    "e1 = equal(nr, o)",
+    "e2 = equal(nr, two)",
+    "e3 = equal(nr, three)",
+    "ez = equal(er, z)",
+    "lst = select(ez, z, e1)",
+    "snd = select(e0, z, o)",
+    "R = nic(z, q1, lst, snd)",
+    "s1 = select(R.next, q2, q1)",
+    "s2 = select(R.next, q3, q2)",
+    "w1 = select(R.next, e1, e0)",
+    "w2 = select(R.next, e2, e1)",
+    "w3 = select(R.next, e3, e2)",
+    "p1 = select(L.got, w1, z)",
+    "p2 = select(L.got, w2, z)",
+    "p3 = select(L.got, w3, z)",
+    "n1 = select(p1, L.up, s1)",
+    "n2 = select(p2, L.up, s2)",
+    "n3 = select(p3, L.up, q3)",
+    "k1 = keep[reg=B](n1)",
+    "k2 = keep[reg=C](n2)",
+    "k3 = keep[reg=D](n3)",
+    "inc = add(nr, o)",
+    "d0 = select(e2, o, two)",
+    "dec = select(e1, z, d0)",
+    "a0 = select(L.got, nr, dec)",
+    "a1 = select(L.got, inc, nr)",
+    "nn = select(R.next, a0, a1)",
+    "kn = keep[reg=A](nn)",
+    "lp = select(R.next, lst, z)",
+    "bad = select(L.ok, o, two)",
+    "ev1 = select(lp, z, er)",
+    "ev = select(L.end, bad, ev1)",
+    "ke = keep[reg=E](ev)",
+    "right <- R.tx"
+  ]
+}

@@ -671,7 +671,7 @@ npm run op -- <游戏> log                                    看修改日志
 
 **文案 lint**（`lintCopy`，`check` 已经查两面、链接和按位置指关卡，这里补手册第 4 节能机械看出的）：`copy-banned` 口语、翻译腔和「卡片」「方块」；`copy-ahead` 往后透露；`copy-length` 目标、引言一段、提示、点题的长度上限；`copy-intro-part` 引言一开口就是新元件；`copy-after-part` 点题链接了元件（多半在复述接法）；`copy-brief-why` 目标里讲理由。
 
-**评审队列**：`npm run pipeline -- <游戏> queue` 把每一道闸门再跑一遍，全部清零时在 `pipeline.json` 记下 `review: { status: 'pending', changes: [修改日志的序号…] }`。人在 studio 里评审（第 6.7 节）：修改日志里是 agent 写下的每一个变更集，各带它的「为什么」，能逐个撤销；要改的就地改，成为人自己的变更集。
+**评审队列**：`npm run pipeline -- <游戏> queue` 把每一道闸门再跑一遍，全部清零时在 `pipeline.json` 记下 `review: { status: 'pending', changes: [修改日志的序号…] }`。人在 studio 里评审（第 6.7 节）：修改日志里是 agent 写下的每一个变更集，各带它的「为什么」，能逐个撤销；要改的就地改，成为人自己的变更集。要退回给 agent 的，写成评审意见：`npm run pipeline -- <游戏> comment <在哪> --owner <步> --why "…"`，游戏退出队列，那一步下一次跑的时候把这些意见当作输入（决策五的「驳回并写意见」；studio 的评审页签还没有写意见的入口，接上时写的就是这一处）。
 
 ---
 

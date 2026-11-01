@@ -16,17 +16,19 @@ import { checkGame } from '../engine/checks.js'
 import { domainOf, readContent, readPlaytests } from '../engine/content-node.js'
 import { domainProblems, specProblems, validateProblems } from '../engine/contract.js'
 import { perLevel, spikes } from '../engine/play/stats.js'
-import { GAMES } from '../../games.js'
+import { hubCount } from '../engine/ops/workspace.js'
 import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
 
 export const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const finding = (rule, at, says) => ({ rule, at, says })
 
-/** npm run check's lines for a game, as findings (rule: check). */
+/** npm run check's lines for a game, as findings (rule: check). The hub's level count is read afresh: an operation in
+ *  the same run may have just changed it. */
 async function checks(id) {
   const content = readContent(id)
-  const lines = await checkGame(content, { domain: await domainOf(content), listed: GAMES.find((g) => g.id === id)?.levels ?? null, playtests: readPlaytests(id) })
+  const listed = hubCount(readFileSync(resolve(GAMES_DIR, 'games.js'), 'utf8'), id)
+  const lines = await checkGame(content, { domain: await domainOf(content), listed, playtests: readPlaytests(id) })
   return lines.filter((l) => l.fail).map((l) => finding('check', l.level ?? id, l.text))
 }
 

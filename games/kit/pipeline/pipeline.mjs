@@ -15,6 +15,9 @@
 //   explain <level> --why "…"      say why a blind give-up or spike is what it is (the blind gate reads it)
 //   resolve <k> --why "…"          mark finding k of the last review fixed (by which change)
 //   queue                          every gate again; when all are clean, the game's changes go into the review queue
+//   comment <at> --owner <step> --why "…"
+//                                  a person's review comment (sending the game back): the next run of that step gets
+//                                  it as input, and the game leaves the queue until it is queued again
 import { spawnSync } from 'node:child_process'
 import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -28,7 +31,7 @@ import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { GAMES_DIR, STEPS, briefOf, stepOf } from './steps.js'
 
-const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | vocab | explain <level> --why … | resolve <k> --why … | queue)'
+const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | vocab | explain <level> --why … | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
 const argv = process.argv.slice(2)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
 const words = argv.filter((a, k) => !a.startsWith('--') && !argv[k - 1]?.startsWith('--'))
@@ -88,6 +91,8 @@ function inputs(step, state, scope) {
   const from = option('--from')
   const back = from && state.steps[from]?.runs?.at(-1)
   if (back) out.push(`## What the ${from} step reported\n\nThe ${stepOf(from).role} stopped on what this step decided. Its report:\n\n${back.report}`)
+  const comments = (state.review?.comments ?? []).filter((c) => c.owner === step.id && !c.done)
+  if (comments.length) out.push(`## The person reviewing the game sent it back\n\n${comments.map((c) => `- ${c.at}: ${c.says}`).join('\n')}\n\nAddress each through the operation set; your report says how.`)
   if (review.length) out.push(`## Review findings for you to fix\n\n${review.map((f) => `- [${state.steps.review.runs.at(-1).findings.indexOf(f)}] ${f.at} (${f.rule}): ${f.says}`).join('\n')}\n\nFix each through the operation set; your report says which you fixed and how.`)
   out.push(`## Your commands\n\nYou may Read any file, Write only in your directory, and run only these (nothing else is allowed):\n\n${step.commands.map((c) => `    ${COMMANDS[c].about}`).join('\n')}`)
   return out.join('\n\n')
@@ -138,6 +143,7 @@ async function run(step, state) {
       entry.findings = null
     }
   }
+  for (const c of state.review?.comments ?? []) if (c.owner === step.id && !c.done) c.done = { by: entry.by, at: entry.at }
   const at = state.steps[step.id] ?? (state.steps[step.id] = { runs: [], gates: [] })
   at.runs.push(entry)
   writeState(state)
@@ -169,7 +175,7 @@ if (command === 'status') {
   const result = await gate(stepOf('queue'), state)
   show(result)
   if (!result.failures.length) {
-    state.review = { status: 'pending', at: now(), changes: seqs(), note: option('--why') ?? null }
+    state.review = { status: 'pending', at: now(), changes: seqs(), note: option('--why') ?? null, ...(state.review?.comments ? { comments: state.review.comments } : {}) }
     writeState(state)
     console.log(`in the review queue: changes ${state.review.changes.join(', ')}`)
   }
@@ -198,6 +204,15 @@ if (command === 'status') {
     code = 1
   } else {
     findings[Number(arg)].resolved = { why: option('--why'), at: now() }
+    writeState(state)
+  }
+} else if (command === 'comment' && arg && option('--owner') && option('--why')) {
+  if (!stepOf(option('--owner'))) {
+    console.error(`no step ${option('--owner')}`)
+    code = 1
+  } else {
+    const review = state.review ?? { status: 'none', changes: [] }
+    state.review = { ...review, status: 'returned', comments: [...(review.comments ?? []), { at: arg, owner: option('--owner'), says: option('--why'), when: now() }] }
     writeState(state)
   }
 } else {
