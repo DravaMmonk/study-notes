@@ -38,6 +38,9 @@ copying the last wording forward.
   model, items, ui), content (`games/<game>/`). Content is data only: it picks vocabulary items `{ item: params }`
   and writes tests, copy and reference / naive boards as blueprint text, never a function. Anything new (a part's
   evaluation, a world, a check, a panel) goes into the domain's vocabulary and implementation.
+- A domain keeps the domain contract (`games/DESIGN.md` §6.3, `kit/engine/contract.js`, checked by `npm test`). A new
+  topic picks its mechanisms from the catalogue (§6.5) and starts from `npm run new-domain -- <name> --mechanism
+  <m>`; a new game on an existing domain from `npm run new-game -- <id> --domain <d>`.
 - A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
 - `npm run check` (in `trace-viewer/`) must be clean before committing curriculum changes; `npm test` for kit
