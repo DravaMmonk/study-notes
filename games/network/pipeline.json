@@ -1407,6 +1407,43 @@
           ]
         }
       ]
+    },
+    "blind": {
+      "runs": [],
+      "gates": [
+        {
+          "at": "2026-11-01T18:48:37.761Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "blind-unplayed",
+              "at": "1-41",
+              "says": "no session played it"
+            },
+            {
+              "rule": "blind-gave-up",
+              "at": "1-37",
+              "says": "1 of 1 session(s) gave it up, and nobody has said why (npm run pipeline -- network explain 1-37 --why …)"
+            },
+            {
+              "rule": "blind-spike",
+              "at": "1-27",
+              "says": "1-27 costs 3.5 attempts against 1.5 on its neighbours (1-13, 1-28); 2 session(s); unexplained"
+            },
+            {
+              "rule": "blind-spike",
+              "at": "1-40",
+              "says": "1-40 costs 3.0 attempts against 1.0 on its neighbours (1-28, 1-29); 2 session(s); unexplained"
+            },
+            {
+              "rule": "blind-spike",
+              "at": "1-37",
+              "says": "1-37 costs 7.0 attempts against 3.0 on its neighbours (1-18); 1 session(s); unexplained"
+            }
+          ],
+          "reports": []
+        }
+      ]
     }
   }
 }

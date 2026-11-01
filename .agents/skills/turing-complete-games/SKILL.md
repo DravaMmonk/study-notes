@@ -40,6 +40,11 @@ copying the last wording forward.
 - A domain keeps the domain contract (`games/DESIGN.md` §6.3, `kit/engine/contract.js`, checked by `npm test`). A new
   topic picks its mechanisms from the catalogue (§6.5) and starts from `npm run new-domain -- <name> --mechanism
   <m>`; a new game on an existing domain from `npm run new-game -- <id> --domain <d>`.
+- A new topic's content is made by the agent pipeline (`games/DESIGN.md` §7.2, `kit/pipeline/`, `npm run pipeline --
+  <game> …`): blueprint, domain (code, by an engineer), levels, copy, review, blind play, queue — each step a brief
+  and a gate, each product written through the operation set, every run and gate recorded in `pipeline.json`. When a
+  later step stops on an earlier one's product, hand its report back (`run <step> --from <later step>`); do not work
+  around it in the later step.
 - A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
 - Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …`, the MCP
