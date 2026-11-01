@@ -45,7 +45,7 @@ export function racerRounds({ kernels, inputs, racer }, seed) {
 export const racer = {
   about: t('核速判：看输入和输出，限时选出是哪个 3×3 核；旋钮 untimed（不限时）；一局结束后 final 是答对的轮数', 'the kernel sprint: from an input and its output, pick the 3×3 kernel against the clock; knob untimed; once a run ends, final is how many rounds were right'),
   setup: S.obj({
-    kernels: S.list(S.obj({ id: S.str(), cells: S.list(num, { min: 9 }), div: num }), { about: t('核按 3×3 核元件的读法：权重是 cells ÷ div', 'kernels as the 3×3 kernel part reads them: the weights are cells ÷ div') }),
+    kernels: S.list(S.obj({ id: S.str(), cells: S.list(num, { min: 9, view: 'grid' }), div: num }), { about: t('核按 3×3 核元件的读法：权重是 cells ÷ div', 'kernels as the 3×3 kernel part reads them: the weights are cells ÷ div') }),
     inputs: S.list(S.call('picture')),
     rounds: S.int({ min: 1 }), minGap: num,
     time: S.obj({ start: num, step: num, min: num }, { about: t('第 n 轮（从 0 数）的秒数：max(min, start − step·n)', 'the seconds for round n (from 0): max(min, start − step·n)') }),

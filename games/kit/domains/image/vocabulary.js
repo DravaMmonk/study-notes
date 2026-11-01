@@ -57,7 +57,7 @@ const FIGURE = S.either(
   S.obj({ part: S.ref('part'), params: S.opt(S.map(S.any())), input: S.opt(SOURCE), inputs: S.opt(S.list(SOURCE)), view: S.opt(VIEW), caption: S.opt(TEXT) }),
   S.obj({ figure: S.str({ about: t('笔记插图的名字（trace-viewer/src/figures）', 'the name of one of the notes’ figures (trace-viewer/src/figures)') }), caption: S.opt(TEXT) }),
 )
-const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { about: t('引言：进关前读的几页，每页一段话和一张可选的图', 'the intro: pages read before playing, each a paragraph and maybe a figure') })
+const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', about: t('引言：进关前读的几页，每页一段话和一张可选的图', 'the intro: pages read before playing, each a paragraph and maybe a figure') })
 
 const COMMON = {
   title: TEXT,
@@ -65,7 +65,7 @@ const COMMON = {
   hint: S.opt(TEXT),
   after: TEXT,
   intro: INTRO,
-  unlocks: S.opt(S.list(S.ref('unlock'))),
+  unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
 }
 /** What a circuit level, or one task of one, says about its board. */
 const BOARD_FIELDS = {
@@ -74,7 +74,7 @@ const BOARD_FIELDS = {
   outputs: S.opt(ids),
   outputLabels: S.opt(S.map(TEXT)),
   views: S.opt(VIEWS_OF),
-  adds: S.opt(S.list(S.ref('part'))),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   check: S.opt(CHECK),
   constraint: S.opt(S.call('constraint')),
   trainRate: S.opt(S.num({ about: t('训练一步走多远', 'how far one training step goes') })),
@@ -87,10 +87,10 @@ const LEVEL_FIELDS = {
   ...COMMON,
   ...BOARD_FIELDS,
   kind: S.oneOf(['graph']),
-  fold: S.opt(S.list(S.ref('part'))),
-  grants: S.opt(S.list(S.ref('unlock'), { about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件', 'setting options the level gives for its own play (it builds a part with one); never a part') })),
-  packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { about: t('通关的电路成为一个元件：它的名字和说明', 'the passing circuit becomes a part: its name and description') })),
-  showcase: S.opt(S.str({ about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
+  fold: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件', 'setting options the level gives for its own play (it builds a part with one); never a part') })),
+  packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { section: 'course', about: t('通关的电路成为一个元件：它的名字和说明', 'the passing circuit becomes a part: its name and description') })),
+  showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
 }
 const TASK_FIELDS = {
   ...BOARD_FIELDS,
@@ -98,18 +98,18 @@ const TASK_FIELDS = {
   brief: TEXT,
   hint: S.opt(TEXT),
   after: S.opt(TEXT),
-  unlocks: S.opt(S.list(S.ref('unlock'))),
-  withhold: S.opt(S.list(S.ref('unlock'), { about: t('这一段亲手搭的东西：玩家已有也先收起', 'what this task builds by hand: kept from a player who holds it already') })),
+  unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
+  withhold: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段亲手搭的东西：玩家已有也先收起', 'what this task builds by hand: kept from a player who holds it already') })),
   carries: S.opt(S.bool({ about: t('从上一段的电路开始', 'start from the task before’s board') })),
 }
 // A circuit level (or task) by its scene: the scene's setup, and its tests in the scene's shape.
 const byScene = (fields) => S.by('scene', Object.fromEntries(Object.entries(SCENES).map(([name, scene]) => {
   const test = S.obj({ label: TEXT, train: S.opt(S.bool({ about: t('false：不拿来训练，只用来检查训练（新样本）', 'false: not trained on, only checking the training (a new sample)') })), ...scene.test.fields })
   const setup = scene.setup && (Object.values(scene.setup.fields).every((f) => f.optional) ? S.opt(scene.setup) : scene.setup)
-  return [name, S.obj({ ...fields, scene: S.oneOf([name]), ...(setup ? { setup } : {}), tests: S.list(test, { min: 1 }), hidden: S.opt(S.list(test)) })]
+  return [name, S.obj({ ...fields, scene: S.oneOf([name]), ...(setup ? { setup } : {}), tests: S.list(test, { min: 1, section: 'tests' }), hidden: S.opt(S.list(test, { section: 'tests' })) })]
 })))
 // A level of several tasks: each task has its own brief and pass text.
-const GRAPH = S.either(byScene(LEVEL_FIELDS), S.obj({ ...LEVEL_FIELDS, brief: S.opt(TEXT), after: S.opt(TEXT), tasks: S.list(byScene(TASK_FIELDS), { min: 2 }) }))
+const GRAPH = S.either(byScene(LEVEL_FIELDS), S.obj({ ...LEVEL_FIELDS, brief: S.opt(TEXT), after: S.opt(TEXT), tasks: S.list(byScene(TASK_FIELDS), { min: 2, section: 'tasks' }) }))
 const PROBE = S.obj({
   ...COMMON,
   kind: S.oneOf(['probe']),

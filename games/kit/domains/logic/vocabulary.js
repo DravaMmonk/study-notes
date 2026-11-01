@@ -124,18 +124,18 @@ const ANY = {
   hint: S.opt(TEXTS),
   intro: S.opt(INTRO),
   after: S.opt(S.text({ about: t('通关后的一句（只说这一关，不剧透做法）', 'the pass text (this level only, never the way it is solved)') })),
-  adds: S.opt(S.list(PART, { about: t('这一关新带来的元件', 'the parts this level brings in') })),
-  fold: S.opt(PARTS),
-  without: S.opt(S.list(PART, { about: t('这一关不给的元件（一段证明不许用框）', 'parts the level holds back (a proof without boxes)') })),
+  adds: S.opt(S.list(PART, { section: 'course', about: t('这一关新带来的元件', 'the parts this level brings in') })),
+  fold: S.opt(S.list(PART, { section: 'course' })),
+  without: S.opt(S.list(PART, { section: 'course', about: t('这一关不给的元件（一段证明不许用框）', 'parts the level holds back (a proof without boxes)') })),
   parts: S.opt(S.list(PART, { about: t('换了一种板的任务手里有的元件', 'the parts a task on another kind of board holds') })),
   words: S.opt(WORDS),
   consts: S.opt(S.list(S.str(), { about: t('这一关的名字（特定的东西）', 'the names (particular things) the level reads') })),
   symbols: S.opt(S.list(S.oneOf(['¬', '∧', '∨', '→', '↔', '⊥', '∀', '∃']), { about: t('从这一关起在公式里出现的连接词', 'the connectives formulas write from this level on') })),
   propertyWords: S.opt(S.bool()),
   symbolicWords: S.opt(S.map(S.text(), { about: t('最后一个测试（字母）里，这些词怎么读', 'how these words read in the last test, the letters') })),
-  showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
-  builds: S.opt(S.str({ about: t('通过后做成元件：game.json 的引理、门，或机器板上的元件', 'once passed it is a part: a lemma or gate of game.json, or a machine part') })),
-  fact: S.opt(S.str({ about: t('这一关证出的等式（game.json facts）', 'the equation this level proves (game.json facts)') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
+  builds: S.opt(S.str({ section: 'course', about: t('通过后做成元件：game.json 的引理、门，或机器板上的元件', 'once passed it is a part: a lemma or gate of game.json, or a machine part') })),
+  fact: S.opt(S.str({ section: 'course', about: t('这一关证出的等式（game.json facts）', 'the equation this level proves (game.json facts)') })),
 }
 const RULE_ROWS = S.list(S.obj({ binds: ids, needs: SENTENCES }), { about: t('一份声明：每条引入规则一行，取的东西和前提（规则表的写法）', 'a declaration: one introduction rule a row, the things it takes and its premises (as the rule table writes it)') })
 const CASE = S.obj({ given: SENTENCES, goal: S.opt(SENTENCE), make: S.bool(), uses: S.opt(SENTENCES) })
@@ -157,8 +157,8 @@ const ISO = {
 }
 const BY_KIND = {
   proof: {
-    tests: S.list(S.obj({ premises: S.opt(PREMISES), goal: SENTENCE, term: S.opt(S.str()) }), { min: 1, about: t('一个模式（用字母写）', 'one pattern, written in letters') }),
-    cases: S.list(S.map(SENTENCE), { about: t('每组测试把字母换成哪些句子', 'the sentences each test puts in place of the letters') }),
+    tests: S.list(S.obj({ premises: S.opt(PREMISES), goal: SENTENCE, term: S.opt(S.str()) }), { min: 1, section: 'tests', about: t('一个模式（用字母写）', 'one pattern, written in letters') }),
+    cases: S.list(S.map(SENTENCE), { section: 'tests', about: t('每组测试把字母换成哪些句子', 'the sentences each test puts in place of the letters') }),
     solution: BOARD, naive: S.opt(BOARD), sentences: S.opt(SENTENCES), terms: S.opt(S.bool()), script: S.opt(S.list(ROW)), briefNote: S.opt(S.text()),
   },
   truth: { ask: S.oneOf(['fill', 'valid', 'counter', 'sat']), formulas: SENTENCES },
@@ -166,13 +166,13 @@ const BY_KIND = {
   iso: ISO,
   define: {
     fn: S.str(), on: S.opt(S.either(S.int({ min: 0 }), NONE)), rows: S.list(S.obj({ lhs: S.str(), when: S.opt(S.str()), choices: ids })),
-    tests: S.list(S.obj({ term: S.str(), value: S.str() })), solution: ids, naive: S.opt(ids), defs: S.opt(ids),
+    tests: S.list(S.obj({ term: S.str(), value: S.str() }), { section: 'tests' }), solution: S.list(S.str(), { section: 'answers' }), naive: S.opt(ids), defs: S.opt(ids),
   },
   translate: { say: S.text(), target: SENTENCE, decoys: S.opt(SENTENCES) },
   query: { say: S.text(), target: SENTENCE, decoys: S.opt(SENTENCES), worlds: S.list(S.obj({ title: S.text(), things: ids, preds: S.map(S.list(S.either(S.str(), ids)), { about: t('每个谓词对哪些东西成立（一样东西，或几样一组）', 'what each predicate holds of (a thing, or a tuple of things)') }) })) },
   model: { say: S.opt(S.text()), meant: S.opt(SENTENCE), wrong: S.opt(SENTENCE), answer: WORLD, given: S.opt(SENTENCES), goal: S.opt(SENTENCE) },
   machine: {
-    want: S.ref('want'), inputs: S.opt(S.list(S.obj({ name: S.str(), label: S.text() }))), single: S.opt(S.bool()), tests: S.list(MTEST, { min: 1 }), hidden: S.opt(S.list(MTEST)),
+    want: S.ref('want'), inputs: S.opt(S.list(S.obj({ name: S.str(), label: S.text() }))), single: S.opt(S.bool()), tests: S.list(MTEST, { min: 1, section: 'tests' }), hidden: S.opt(S.list(MTEST, { section: 'tests' })),
     solution: BOARD, naive: S.opt(BOARD), budget: S.opt(S.int({ min: 1 })), backtrack: S.opt(S.bool()),
     rules: S.opt(S.map(S.obj({ name: S.text(), premises: S.list(S.str()), conclusion: S.str() }), { about: t('这一关自带的规则（元件）', 'rules the level states, each a part') })),
     preset: S.opt(S.list(S.str(), { about: t('参考解里预先放在板上的元件（锁住）', 'cards of the reference answer the board starts with, locked') })),
@@ -193,7 +193,7 @@ const TASK = byKind({ step: S.text(), carries: S.opt(S.bool({ about: t('接着�
 const LEVEL = S.either(
   byKind({ title: S.text() }),
   // A level of several tasks: what it says for all of them (a declaration's sentence and cases too), then each task.
-  S.obj({ title: S.text(), ...ANY, ...opts(ISO), tasks: S.list(TASK, { min: 1 }) }),
+  S.obj({ title: S.text(), ...ANY, ...opts(ISO), tasks: S.list(TASK, { min: 1, section: 'tasks' }) }),
 )
 
 /* ---------- game.json ---------- */
