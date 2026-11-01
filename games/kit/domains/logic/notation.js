@@ -8,7 +8,7 @@
 //
 // First-order words (chapter 6 on): a predicate's words are a template, its arguments as {0}, {1}
 // (Human: { zh: '{0}是人' }), and a constant's words are its name (ann: { zh: '安' }); a variable stays itself.
-import { show, showTerm, termsOf } from './formula.js'
+import { arityIn, show, showTerm, termsOf } from './formula.js'
 
 const BIN = { '→': 1, '↔': 0, '∨': 2, '∧': 3 }
 const QUANT = {
@@ -56,7 +56,18 @@ export function render(f, notation, lang, outer = -1) {
     case 'meta': return f.args?.length ? `${f.name}(${f.args.map((t) => termWords(t, notation, lang)).join(', ')})` : f.name
     case '⊥': return known('⊥') ? '⊥' : lang === 'zh' ? '矛盾' : 'contradiction'
     case '¬': return known('¬') ? `¬${render(f.a, notation, lang, 9)}` : `${lang === 'zh' ? '并非' : 'not '}${part(f.a)}`
-    case '∀': case '∃': return known(f.op) ? wrap(`${f.op}${f.v}. ${render(f.body, notation, lang, -1)}`, -1) : wrap(QUANT[f.op][lang](f.v, render(f.body, notation, lang, -1)), -1)
+    case '∀': case '∃': {
+      const arity = f.prop ? arityIn(f.body, f.v) : -1
+      if (notation.propertyWords && notation.words && (arity === 0 || arity === 1)) {
+        const meaning = arity === 0 ? { zh: '该命题', en: 'that proposition' } : { zh: '{0}具有该性质', en: '{0} has that property' }
+        const body = render(f.body, { ...notation, words: { ...notation.words, [f.v]: meaning } }, lang, -1)
+        const prefix = arity === 0
+          ? (f.op === '∀' ? { zh: '对于任意命题，', en: 'for every proposition, ' } : { zh: '存在一个命题，使得', en: 'there is a proposition such that ' })
+          : (f.op === '∀' ? { zh: '对于任意性质，', en: 'for every property, ' } : { zh: '存在一种性质，使得', en: 'there is a property such that ' })
+        return wrap(`${prefix[lang]}${body}`, -1)
+      }
+      return known(f.op) ? wrap(`${f.op}${f.v}. ${render(f.body, notation, lang, -1)}`, -1) : wrap(QUANT[f.op][lang](f.v, render(f.body, notation, lang, -1)), -1)
+    }
     default: {
       const p = BIN[f.op]
       // An → or ↔ inside another connective always keeps its brackets: A → (B → A), never A → B → A; with

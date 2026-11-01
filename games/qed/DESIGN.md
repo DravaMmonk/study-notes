@@ -634,4 +634,4 @@
 
 **补题的候选**（优先级高的知识点，只用现有题型，还没动手）：第 6 章声明「相等」只有写声明，没有找错的段（判定器把没取东西的 a = a 当成固定的名字，和真实的证明器不一致，先不出这类题）；第 12 章的类型声明没有找错和填表；第 12 章定义（加法、拼接、插入排序）没有「定义写错了」的找错关，`sort-len` 没有「陈述太弱」的检验。
 
-Proof cases use concrete object names and everyday predicates by default. Each proof also offers a final symbolic case, showing the same schema with letter names without changing the proof or its saved board. Bound variables and mathematical operators remain symbolic in both presentations.
+Proof cases use concrete object names and everyday predicates by default. Each proof also offers a final symbolic case, showing the same schema with letter names without changing the proof or its saved board. In the concrete presentation, quantified propositions and properties are described in words; variables and mathematical operators remain symbolic when needed to express the statement.

@@ -76,7 +76,7 @@ export const hol = [
 
 // a = b defined as ∀P. P(a) → P(b): whatever holds of a holds of b. P is any property, a sentence about x.
 const LEIB = '∀P. P(i) → P(j)'
-const STAR = { consts: ['i', 'j'], words: { ...WORDS, ...STAR_NAMES } }
+const STAR = { consts: ['i', 'j'], propertyWords: true, words: { ...WORDS, ...STAR_NAMES, P: T('{0}具有该性质', '{0} has that property'), Q: T('{0}具有该性质', '{0} has that property') } }
 
 export const leibniz = [
   {
@@ -86,7 +86,7 @@ export const leibniz = [
     ...STAR,
     tests: [{ premises: {}, goal: '∀P. P(i) → P(i)' }],
     cases: [],
-    brief: T('不用任何已知，证明：对任何性质 P，晨星有 P，晨星就有 P。', 'From nothing, prove: for every property P, if the Morning Star has P, the Morning Star has P.'),
+    brief: T('不用任何已知，证明：对于任意性质，如果晨星具有该性质，那么晨星具有该性质。', 'From nothing, prove: for every property, if the Morning Star has that property, then the Morning Star has it.'),
     hint: [
       T('任取框取的名字选 P：框里 P 是任意一种性质。', 'Take the name P in the for-any box: inside, P is any property at all.'),
       T('框里是一个假设框：它的假设就是它要的结论。', 'Inside goes an assumption box whose assumption is just the conclusion it wants.'),
