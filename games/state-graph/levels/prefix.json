@@ -1,0 +1,169 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "前面所有的", "en": "Everything before" },
+  "short": { "zh": "扫描臂一次读一整段", "en": "A sweep arm reads a whole run at once" },
+  "intro": [
+    {
+      "t": {
+        "zh": "新的一章，新的机器人「扫帚」。它多了一条<part-ref to=\"sweep\"></part-ref>，能一次扫过一整段格子，把整段的数一起送进电路板。",
+        "en": "A new chapter and a new robot: Broom. It has a <part-ref to=\"sweep\"></part-ref> that sweeps a whole run of cells in one go and feeds every number in the run into the circuit board."
+      }
+    },
+    {
+      "t": {
+        "zh": "一条街上，每家门口放着一些钱。机器人要在每家下面写：<b>从 1 号到这一家，一共有多少钱</b>。",
+        "en": "Along a street, each house has some money at its door. Under each house the robot must write: <b>how much money there is in total from house 1 up to this one</b>."
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            {
+              "id": "h0",
+              "x": 0,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "1号", "en": "#1" },
+              "value": 3,
+              "cls": "house "
+            },
+            {
+              "id": "h1",
+              "x": 62,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "2号", "en": "#2" },
+              "value": 1,
+              "cls": "house "
+            },
+            {
+              "id": "h2",
+              "x": 124,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "3号", "en": "#3" },
+              "value": 4,
+              "cls": "house "
+            },
+            {
+              "id": "h3",
+              "x": 186,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "4号", "en": "#4" },
+              "value": 1,
+              "cls": "house "
+            },
+            {
+              "id": "h4",
+              "x": 248,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "5号", "en": "#5" },
+              "value": 5,
+              "cls": "house "
+            }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "扫描臂送来的是<b>一整段</b>：接到电路板上的线会变粗。汇合器能直接吃下一整段，段里的每个数都参与。",
+        "en": "What the sweep arm sends is <b>a whole run</b>: its wire on the circuit board is drawn thicker. A Merger can take a whole run directly, and every number in it takes part."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "在每家下面写上：从 1 号到这一家，一共有多少钱。",
+      "en": "Under each house, write how much money there is in total from house 1 up to this one."
+    },
+    "how": {
+      "zh": "这一关有两个阶段，会检查整行。先用扫描臂；通过后，扫描臂会被收起来。",
+      "en": "This level has two stages and checks the whole row. Use the sweep arm first; once you pass, the arm is folded away."
+    }
+  },
+  "robot": "broom",
+  "unlock": "sweep",
+  "testLabel": { "zh": "{a.length} 户人家", "en": "{a.length} houses" },
+  "tests": [{ "a": [3, 1, 4, 1, 5] }, { "a": [2, 7, 1, 8, 2, 8] }],
+  "stages": [
+    {
+      "world": "prefix",
+      "facts": ["money"],
+      "solution": ["m = msum(view.seg)", "cell <- m"],
+      "hints": [
+        {
+          "zh": "在视野下面点<part-ref to=\"sweep\"></part-ref>，读它扫过的那一整段。",
+          "en": "Click the <part-ref to=\"sweep\"></part-ref> under the view to read the whole run it passes over."
+        },
+        {
+          "zh": "把这一整段接进「加起来」汇合器，再接到本格。",
+          "en": "Wire the whole run into a “sum” Merger, then wire that to this cell."
+        }
+      ],
+      "ask": {
+        "zh": "用扫描臂把 1 号到这一家的钱一次扫进来，加起来。",
+        "en": "Use the sweep arm to bring in the money from house 1 to this one in one go, and add it up."
+      },
+      "done": {
+        "head": { "zh": "扫出来了", "en": "Swept" },
+        "body": [
+          {
+            "zh": "可是扫描臂每到一家，都要从 1 号重新扫一遍：第 100 家要读 100 格。",
+            "en": "But at every house, the sweep arm sweeps again from house 1: house 100 means reading 100 cells."
+          },
+          {
+            "zh": "<b>左边那一格，不是已经存着「到上一家一共多少」了吗？</b>下一阶段，扫描臂收起来了。",
+            "en": "<b>Doesn’t the cell on the left already hold “the total up to the previous house”?</b> In the next stage, the sweep arm is folded away."
+          }
+        ]
+      },
+      "checkAll": true
+    },
+    {
+      "world": "prefix",
+      "facts": ["money"],
+      "solution": ["a = add(view.prev, facts.money)", "cell <- a"],
+      "hints": [
+        {
+          "zh": "到这一家一共的钱 = 到上一家一共的钱 + 这家的钱。",
+          "en": "Total up to this house = total up to the previous house + this house’s money."
+        },
+        {
+          "zh": "读「上一格」和「这家的钱」，接进加法器。",
+          "en": "Read “previous” and “this house’s money”, and wire them into an Adder."
+        }
+      ],
+      "ask": {
+        "zh": "扫描臂收起来了：只用左边一格和这家的钱。",
+        "en": "The sweep arm is folded away: use only the cell on the left and this house’s money."
+      },
+      "noArm": true,
+      "checkAll": true
+    }
+  ],
+  "debrief": {
+    "title": { "zh": "能用上一格，就别重扫", "en": "If the last cell will do, don’t sweep again" },
+    "body": [
+      {
+        "zh": "两种做法答案一样。可扫描臂在第 n 家要读 n 格，100 户人家一共要读 5050 格；用左边一格，每家只读 1 格，一共 100 格。",
+        "en": "Both ways give the same answers. But the sweep arm reads n cells at house n, so 100 houses take 5,050 reads in all; using the cell on the left, each house reads just 1 cell, 100 in all."
+      },
+      {
+        "zh": "<b>能用上一格存好的答案，就别从头再扫一遍</b>：这是动态规划的老规矩。",
+        "en": "<b>If the previous cell has already stored the answer, don’t sweep again from the start</b>: that is an old rule of dynamic programming."
+      }
+    ],
+    "note": {
+      "zh": "前缀和：到这一家一共 = 到上一家一共 + 这家。能用上一格，就别重扫。",
+      "en": "Prefix sums: total up to this house = total up to the previous one + this house. If the last cell will do, don’t sweep again."
+    }
+  }
+}

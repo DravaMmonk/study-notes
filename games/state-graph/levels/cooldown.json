@@ -1,0 +1,54 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "冷冻期", "en": "A day’s rest" },
+  "short": { "zh": "卖掉后要歇一天", "en": "Rest a day after selling" },
+  "intro": [
+    {
+      "t": {
+        "zh": "现在可以买卖很多次，但<b>卖掉的第二天不能买</b>：要歇一天。",
+        "en": "Now you may trade as often as you like, but <b>not buy on the day after you sell</b>: you have to rest a day."
+      }
+    },
+    {
+      "t": {
+        "zh": "状态还是三种：空手、手里有股、刚卖掉。「刚卖掉」过一天就回到「空手」，这一步的进账是 0。",
+        "en": "There are still three states: empty-handed, holding, just sold. “Just sold” turns back into “empty-handed” a day later, and that step brings in 0."
+      }
+    }
+  ],
+  "mission": {
+    "goal": { "zh": "算出最多能赚多少钱。", "en": "Work out the most money you can make." },
+    "how": {
+      "zh": "层和层怎么接，世界已经接好了。你的电路板要改吗？",
+      "en": "How the layers connect is set by the world. Does your board need to change?"
+    }
+  },
+  "robot": "stack",
+  "hints": [
+    {
+      "zh": "先试试<level-ref to=\"stock1\"></level-ref>的电路板。",
+      "en": "Try <level-ref to=\"stock1\"></level-ref>’s board first."
+    }
+  ],
+  "world": "stock",
+  "facts": ["gain"],
+  "tests": [
+    { "p": [1, 2, 3, 0, 2], "cool": true },
+    { "p": [1, 2, 4, 1, 7, 8, 3], "cool": true },
+    { "p": [6, 1, 6, 4, 3, 0, 2], "cool": true }
+  ],
+  "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"],
+  "debrief": {
+    "title": { "zh": "同一块电路板", "en": "The same board" },
+    "body": [
+      {
+        "zh": "电路板一点没变，变的只是层和层怎么接：「刚卖掉」走回「空手」，那一步就是歇着的那一天。",
+        "en": "The board didn’t change at all; only how the layers connect did. Stepping from “just sold” back to “empty-handed” is the day of rest."
+      },
+      {
+        "zh": "<level-ref to=\"stock1\"></level-ref>是这一关剪掉一根箭头：卖掉了，就回不去了。",
+        "en": "<level-ref to=\"stock1\"></level-ref> is this one with an arrow cut: once sold, there is no going back."
+      }
+    ]
+  }
+}

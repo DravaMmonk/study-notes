@@ -1,0 +1,62 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "三把钥匙", "en": "Three keys" },
+  "short": { "zh": "每多记一件事，表就翻一倍", "en": "Every extra thing doubles the table" },
+  "intro": [
+    {
+      "t": {
+        "zh": "三把钥匙、三种颜色的门。状态三把都记着：一共几层？",
+        "en": "Three keys and doors of three colours. The state remembers all three keys: how many layers in all?"
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "算出合法路线的条数：所有层终点的数加起来。",
+      "en": "Work out the number of valid routes: the end cells of every layer, added up."
+    },
+    "how": { "zh": "每一格把每一层都算一遍。", "en": "Every cell works out every layer." }
+  },
+  "robot": "stack",
+  "noTrace": true,
+  "world": "keys",
+  "facts": ["start", "gain", "lose", "shut"],
+  "tests": [
+    {
+      "R": 4,
+      "C": 5,
+      "keys": { "red": [1, 0], "blue": [0, 2], "green": [2, 1] },
+      "doors": [{ "at": [1, 3], "color": "red" }, { "at": [2, 3], "color": "blue" }, { "at": [3, 2], "color": "green" }]
+    },
+    {
+      "R": 4,
+      "C": 5,
+      "keys": { "red": [0, 1], "blue": [2, 0], "green": [1, 2] },
+      "doors": [
+        { "at": [3, 1], "color": "red" },
+        { "at": [1, 4], "color": "green" },
+        { "at": [2, 3], "color": "blue" },
+        { "at": [3, 3], "color": "green" }
+      ]
+    }
+  ],
+  "solution": [
+    "c = counter(view.up, view.left, facts.start)",
+    "p = msum(view.upPrev, view.leftPrev)",
+    "b1 = block(facts.shut, c)",
+    "g = pass(facts.gain, p)",
+    "b2 = block(facts.lose, b1)",
+    "m = msum(b2, g)",
+    "cell <- m"
+  ],
+  "remember": ["red", "blue", "green"],
+  "debrief": {
+    "title": { "zh": "状态爆炸", "en": "State explosion" },
+    "body": [
+      {
+        "zh": "三把钥匙，8 层；十把钥匙，1,024 层；二十把，一百多万层。每多记一件事，表就翻一倍。",
+        "en": "Three keys, 8 layers; ten keys, 1,024; twenty, over a million. Every extra thing remembered doubles the table."
+      }
+    ]
+  }
+}

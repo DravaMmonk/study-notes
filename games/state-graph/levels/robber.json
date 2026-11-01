@@ -1,0 +1,243 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "不能连着偷", "en": "No two in a row" },
+  "short": { "zh": "一个数记不住全部", "en": "One number can’t remember it all" },
+  "intro": [
+    {
+      "t": {
+        "zh": "新的一章，一个新难题。一条街上有一排房子，每家藏着一些钱。小偷<b>不能连着偷相邻的两家</b>，否则会触发警报。最多能偷到多少钱？",
+        "en": "A new chapter and a new puzzle. A street has a row of houses, each with some money hidden inside. A thief <b>can’t rob two neighboring houses</b>, or the alarm goes off. What is the most money the thief can take?"
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            {
+              "id": "h0",
+              "x": 0,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "1号", "en": "#1" },
+              "value": 2,
+              "cls": "house "
+            },
+            {
+              "id": "h1",
+              "x": 62,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "2号", "en": "#2" },
+              "value": 7,
+              "cls": "house "
+            },
+            {
+              "id": "h2",
+              "x": 124,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "3号", "en": "#3" },
+              "value": 9,
+              "cls": "house "
+            },
+            {
+              "id": "h3",
+              "x": 186,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "4号", "en": "#4" },
+              "value": 3,
+              "cls": "house "
+            },
+            {
+              "id": "h4",
+              "x": 248,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "5号", "en": "#5" },
+              "value": 1,
+              "cls": "house "
+            }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "比如偷 1 号、3 号、5 号，一共 2 + 9 + 1 = <b>12</b>。偷 2 号和 4 号，只有 7 + 3 = 10。",
+        "en": "For example, robbing #1, #3 and #5 gives 2 + 9 + 1 = <b>12</b>. Robbing #2 and #4 gives only 7 + 3 = 10."
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            {
+              "id": "h0",
+              "x": 0,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "1号", "en": "#1" },
+              "value": 2,
+              "cls": "house hot"
+            },
+            {
+              "id": "h1",
+              "x": 62,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "2号", "en": "#2" },
+              "value": 7,
+              "cls": "house dimc"
+            },
+            {
+              "id": "h2",
+              "x": 124,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "3号", "en": "#3" },
+              "value": 9,
+              "cls": "house hot"
+            },
+            {
+              "id": "h3",
+              "x": 186,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "4号", "en": "#4" },
+              "value": 3,
+              "cls": "house dimc"
+            },
+            {
+              "id": "h4",
+              "x": 248,
+              "y": 0,
+              "w": 52,
+              "h": 60,
+              "label": { "zh": "5号", "en": "#5" },
+              "value": 1,
+              "cls": "house hot"
+            }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "这一章的机器人是「千层」：它的视野只有 3×3，每到一家，只看得见<b>上一家的格子</b>，看不见更早的。视野里红框是这一家，左边一格是上一家；「本格信息」里的「这家的钱」是这家藏的钱。",
+        "en": "This chapter’s robot is Layercake: its view is only 3×3, so at each house it sees <b>only the previous house’s cell</b>, nothing earlier. In the view, the red frame is this house and the cell to its left is the previous one; in the This cell panel, “this house’s money” is the money hidden in this house."
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            { "id": "f0", "x": 0, "y": 0, "w": 52, "h": 52, "corner": 0, "cls": "dimc" },
+            { "id": "f1", "x": 62, "y": 0, "w": 52, "h": 52, "corner": 1, "cls": "dimc" },
+            { "id": "f2", "x": 124, "y": 0, "w": 52, "h": 52, "corner": 2, "cls": "lit" },
+            { "id": "f3", "x": 186, "y": 0, "w": 52, "h": 52, "corner": 3, "cls": "sel" }
+          ],
+          "edges": [
+            { "a": "f0", "b": "f1", "cls": "dim", "bend": 0, "off": 0 },
+            { "a": "f1", "b": "f2", "cls": "dim", "bend": 0, "off": 0 },
+            { "a": "f2", "b": "f3", "cls": "hot", "bend": 0, "off": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "要钱最多，合并时应该取较大，元件里新添了「取较大」汇合器。先试试只用一行格子，每格记「看完前 i 家，最多偷到多少」。<b>如果失败了，请仔细读失败的原因</b>，它会告诉你一件很重要的事。",
+        "en": "To get the most money, merging should take the larger value, so the components now include a “max” Merger. First try with a single row of cells, each recording “the most that can be stolen from the first i houses”. <b>If it fails, read the reason carefully</b>: it will tell you something very important."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "不能偷相邻的两家，否则会触发警报。算出每条街最多能偷多少钱。",
+      "en": "Robbing two neighboring houses sets off the alarm. Work out the most money that can be stolen on each street."
+    },
+    "how": {
+      "zh": "先拼一块电路板试试。这一关的第一次失败在计划之中，请仔细读失败的原因。",
+      "en": "Build a board and give it a try. The first failure in this level is part of the plan, so read the reason carefully."
+    }
+  },
+  "robot": "stack",
+  "unlock": "layer",
+  "tests": [{ "a": [2, 7, 9, 3, 1] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }],
+  "stages": [
+    {
+      "world": "rob1",
+      "facts": ["money"],
+      "onFail": {
+        "head": { "zh": "一个数记不住全部", "en": "One number can’t remember it all" },
+        "body": {
+          "zh": "第 {test} 条街最多能偷 <b>{want}</b>，机器算出了 <b>{got}</b>。可这次的问题不在电路：只要每家只有一个格子，怎么拼都会出错。看这个反例：",
+          "en": "On street {test} the most that can be stolen is <b>{want}</b>, but the machine computed <b>{got}</b>. This time the problem isn’t your circuit: as long as each house has only one cell, any wiring will go wrong. Look at this counterexample:"
+        },
+        "show": "robConflict",
+        "next": { "zh": "给状态加一层", "en": "Add a layer to the state" }
+      }
+    },
+    {
+      "world": "rob2",
+      "facts": ["money"],
+      "solution": [
+        "n = mmax(view.pn, view.pr)",
+        "a = add(view.pn, facts.money)",
+        "b = mmax(n, a)",
+        "no <- n",
+        "yes <- a",
+        "best <- b"
+      ],
+      "hints": [
+        {
+          "zh": "这家不偷的话，上一家偷没偷都可以：没偷 = 取较大（上家没偷，上家偷了）。",
+          "en": "If this house is skipped, the previous one may or may not have been robbed: skipped = max(prev skipped, prev robbed)."
+        },
+        {
+          "zh": "上一家没偷，这家才可以偷：偷了 = 上家没偷 + 这家的钱。",
+          "en": "This house can only be robbed if the previous one was skipped: robbed = prev skipped + this house’s money."
+        },
+        {
+          "zh": "看完这一家，它可能偷了，也可能没偷：最多 = 取较大（没偷，偷了）。",
+          "en": "After this house, it may or may not have been robbed: most so far = max(skipped, robbed)."
+        }
+      ],
+      "tip": {
+        "zh": "现在每家有三个格子，机器人站在中间那一格上。视野里一列红框从上到下是「这家没偷」「这家偷了」「最多偷到」；左边一列是上一家的三格。第 0 家还没开始：没偷 = 0，偷了 = —（不可能）。",
+        "en": "Each house now has three cells, and the robot stands on the middle one. In the view, the column of red frames is, from top to bottom, “skipped”, “robbed” and “most so far”; the column to the left is the previous house’s three cells. House 0 is before anything starts: skipped = 0, robbed = — (impossible)."
+      },
+      "unlockToast": {
+        "zh": "解锁了<part-ref to=\"layer\"></part-ref>：现在每家有三个格子",
+        "en": "Unlocked <part-ref to=\"layer\"></part-ref>: each house now has three cells"
+      }
+    }
+  ],
+  "debrief": {
+    "title": { "zh": "多记一件事，问题就解开了", "en": "Remember one more thing, and it’s solved" },
+    "body": [
+      {
+        "zh": "每家只有一个格子时，这个格子要同时代表「这家偷了」和「这家没偷」，可它们的未来不一样：前者不能偷下一家，后者可以。",
+        "en": "With one cell per house, that cell has to stand for both “this house was robbed” and “this house was skipped”, but their futures differ: the first can’t rob the next house, the second can."
+      },
+      {
+        "zh": "加了一层之后，每种情况<b>各有自己的格子</b>，机器就不会再混淆了。",
+        "en": "With an extra layer, each case <b>gets a cell of its own</b>, and the machine no longer mixes them up."
+      },
+      {
+        "zh": "<strong>好的状态，要记住所有会影响未来的信息。</strong>这是设计动态规划时最难、也最重要的一步。",
+        "en": "<strong>A good state remembers everything that can affect the future.</strong> This is the hardest, and the most important, step in designing a dynamic program."
+      }
+    ],
+    "note": {
+      "zh": "状态要记住所有会影响未来的信息。不够，就加一层。",
+      "en": "A state must remember everything that affects the future. If it falls short, add a layer."
+    }
+  }
+}

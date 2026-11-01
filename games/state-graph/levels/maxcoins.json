@@ -1,0 +1,60 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "最值钱的路", "en": "The richest route" },
+  "short": { "zh": "一路捡金币", "en": "Gold along the way" },
+  "intro": [
+    {
+      "t": {
+        "zh": "每个路口上放着一些金币，就是格子左上角的数字。只能往右或往下走，经过的路口，金币都归你，起点和终点也算。",
+        "en": "Every crossing holds some gold coins: the number in each cell’s top-left corner. You may only go right or down, and you keep the coins at every crossing you pass through, start and end included."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "从左上走到右下，最多能捡到多少金币？",
+      "en": "Going from the top left to the bottom right, how many coins can you collect at most?"
+    },
+    "how": { "zh": "还是逐行、从左上开始算。", "en": "Still row by row, from the top left." }
+  },
+  "robot": "scout",
+  "diagnose": [
+    {
+      "when": { "all": [{ "has": "mmin" }, { "not": { "has": "mmax" } }] },
+      "say": { "zh": "这次要的是金币最多：用「取较大」。", "en": "This time you want the most gold: use “max”." }
+    }
+  ],
+  "hints": [
+    {
+      "zh": "只能走一条路：到这个路口，两边你会选哪一边？",
+      "en": "You walk one route only: at this crossing, which side would you pick?"
+    },
+    {
+      "zh": "起点没有来路，取较大只能得到「—」。在起点往汇合器里送一个 0。",
+      "en": "The start has no way in, so the max gives “—”. At the start, feed a 0 into the merger."
+    }
+  ],
+  "world": "grid",
+  "facts": ["start", "coin"],
+  "tests": [
+    { "R": 3, "C": 3, "coins": [[1, 3, 1], [1, 5, 1], [4, 2, 1]] },
+    { "R": 3, "C": 4, "coins": [[2, 0, 0, 5], [0, 9, 0, 0], [3, 0, 1, 2]] },
+    { "R": 4, "C": 4, "coins": [[0, 1, 0, 4], [2, 0, 6, 0], [0, 7, 0, 1], [3, 0, 2, 0]] }
+  ],
+  "solution": [
+    "k = const[value=0]()",
+    "g = pass(facts.start, k)",
+    "m = mmax(view.up, view.left, g)",
+    "a = add(m, facts.coin)",
+    "cell <- a"
+  ],
+  "debrief": {
+    "title": { "zh": "同一副骨架", "en": "The same skeleton" },
+    "body": [
+      {
+        "zh": "和<level-ref to=\"cheapest\"></level-ref>的电路板一模一样，只是汇合器换成了「取较大」，体力换成了金币。",
+        "en": "It is the very same board as in <level-ref to=\"cheapest\"></level-ref>, with the merger swapped to “max” and energy swapped for gold."
+      }
+    ]
+  }
+}

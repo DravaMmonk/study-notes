@@ -1,0 +1,142 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "格子世界", "en": "Grid world" },
+  "short": { "zh": "站在这里有多好", "en": "How good is it to stand here" },
+  "intro": [
+    {
+      "t": {
+        "zh": "一张地图上有<b>宝藏</b>（价值 10）、<b>陷阱</b>（价值 −10）和墙。机器人想知道：站在每一格上，<b>有多好</b>？",
+        "en": "A map has <b>treasure</b> (value 10), <b>traps</b> (value −10) and walls. The robot wants to know: on each cell, <b>how good is it to stand there</b>?"
+      }
+    },
+    {
+      "t": {
+        "zh": "离宝藏越近越好。规定：每一格的价值 = 四个邻居里最大的那个，<b>打个九折</b>（× 0.9）。宝藏旁边是 9，再远一步是 8.1，再远是 7.29……",
+        "en": "The closer to the treasure, the better. The rule: each cell’s value = the largest of its four neighbours, <b>discounted by 10%</b> (× 0.9). Next to the treasure it is 9, one step further 8.1, then 7.29…"
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            {
+              "id": "v0",
+              "x": 0,
+              "y": 0,
+              "w": 54,
+              "h": 54,
+              "value": 10,
+              "label": { "zh": "宝藏", "en": "treasure" },
+              "cls": "gold"
+            },
+            { "id": "v1", "x": 62, "y": 0, "w": 54, "h": 54, "value": 9, "cls": "lit" },
+            { "id": "v2", "x": 124, "y": 0, "w": 54, "h": 54, "value": 8.1, "cls": "lit" },
+            { "id": "v3", "x": 186, "y": 0, "w": 54, "h": 54, "value": 7.29, "cls": "lit" },
+            { "id": "v4", "x": 248, "y": 0, "w": 54, "h": 54, "value": 6.56, "cls": "lit" }
+          ],
+          "edges": []
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "打折要用<part-ref to=\"part:mul\"></part-ref>（<level-ref to=\"safefrog\"></level-ref>见过）。这一关的常数可以设成 0.9。",
+        "en": "The discount takes a <part-ref to=\"part:mul\"></part-ref> (you met it in <level-ref to=\"safefrog\"></level-ref>). In this level a Constant can be set to 0.9."
+      },
+      "fig": {
+        "circuit": {
+          "taps": [{ "id": "m", "label": { "zh": "最大的邻居 · 9", "en": "best neighbour · 9" } }],
+          "parts": [
+            { "id": "k", "name": { "zh": "常数", "en": "Constant" }, "tag": "= 0.9" },
+            { "id": "x", "name": { "zh": "乘法器", "en": "Multiplier" }, "tag": "a × b", "row": 1 }
+          ],
+          "outs": [{ "id": "o", "label": { "zh": "本格 · 8.1", "en": "this cell · 8.1" } }],
+          "wires": [{ "from": "m", "to": "x" }, { "from": "k", "to": "x" }, { "from": "x", "to": "o" }]
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "一开始每一格都是 0。机器人会一轮一轮地扫，直到整张表不再变。",
+        "en": "Every cell starts at 0. The robot scans round after round until the whole table stops changing."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "每一格的价值 = 四个邻居里最大的价值 × 0.9。宝藏是 10，陷阱是 −10，墙不能走。算出每一格的价值。",
+      "en": "Each cell’s value = the largest value among its four neighbours × 0.9. Treasure is 10, traps are −10, and walls can’t be entered. Work out the value of every cell."
+    },
+    "how": {
+      "zh": "这一关会检查整张表。常数放上电路板后，点它可以改成 0.9。",
+      "en": "This level checks the whole table. Once a Constant is on the board, click it to change it to 0.9."
+    }
+  },
+  "robot": "loop",
+  "unlock": "value",
+  "builds": {
+    "ports": [
+      { "way": { "n": 1, "sensor": "up" } },
+      { "way": { "n": 2, "sensor": "down" } },
+      { "way": { "n": 3, "sensor": "left" } },
+      { "way": { "n": 4, "sensor": "right" } }
+    ],
+    "setting": 0.9
+  },
+  "diagnose": [
+    {
+      "when": { "not": { "has": "mul" } },
+      "say": {
+        "zh": "每远一步要打个九折：用乘法器把最大的邻居乘上 0.9。",
+        "en": "Each step further away is discounted by 10%: use a Multiplier to multiply the best neighbour by 0.9."
+      }
+    }
+  ],
+  "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+  "consts": [0, 0.5, 0.8, 0.9, 1],
+  "hints": [
+    {
+      "zh": "四个邻居都接进「取较大」：一个汇合器只有三个口，就用两个串起来。",
+      "en": "Wire all four neighbours into “max”: a Merger has only three inputs, so chain two of them."
+    },
+    {
+      "zh": "最大的那个再乘 0.9：乘法器一边接最大值，一边接常数 0.9。",
+      "en": "Then multiply the largest by 0.9: wire the max into one side of a Multiplier and a Constant 0.9 into the other."
+    }
+  ],
+  "world": "vgrid",
+  "tests": [
+    {
+      "R": 5,
+      "C": 6,
+      "gold": [0, 5],
+      "traps": [[1, 4], [3, 2]],
+      "walls": [[1, 1], [2, 1], [2, 3], [2, 4], [4, 4]]
+    },
+    { "R": 4, "C": 5, "gold": [3, 4], "traps": [[2, 3]], "walls": [[1, 1], [1, 2], [3, 2]] }
+  ],
+  "solution": [
+    "a = mmax(view.up, view.down, view.left)",
+    "k = const[value=0.9]()",
+    "b = mmax(a, view.right)",
+    "x = mul(b, k)",
+    "cell <- x"
+  ],
+  "rounds": true,
+  "arrows": true,
+  "debrief": {
+    "title": { "zh": "价值迭代", "en": "Value iteration" },
+    "body": [
+      {
+        "zh": "每一格的数，就是从这里走到宝藏有多好：每远一步，打一次九折。陷阱是 −10，没有谁会往那里走，所以它也带不坏邻居。",
+        "en": "Each cell’s number says how good it is to head for the treasure from there: every step further away knocks off another 10%. Traps are −10, and nobody walks into one, so they can’t drag their neighbours down either."
+      },
+      {
+        "zh": "这是<b>强化学习</b>最早的一块基石，叫<wiki-ref to=\"valueIter\"></wiki-ref>。下棋的程序、学走路的机器人，都要先学会估计「站在这里有多好」。用的还是老一套：看邻居，取最好，记下来。",
+        "en": "This is one of the first cornerstones of <b>reinforcement learning</b>, called <wiki-ref to=\"valueIter\"></wiki-ref>. Programs that play board games and robots learning to walk all have to learn to estimate “how good is it to stand here” first. The method is the same old one: look at the neighbours, take the best, write it down."
+      }
+    ],
+    "note": {
+      "zh": "价值迭代：每格 = 邻居里最好的 × 折扣，扫到不再变。",
+      "en": "Value iteration: each cell = the best neighbour × a discount, scanned until nothing changes."
+    }
+  }
+}

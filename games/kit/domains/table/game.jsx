@@ -1,31 +1,36 @@
-// A table game on the shared shell (../../shell): its spec becomes the shell's game description, with the table
-// domain's screen (every level played through its mode), its parts box by robot and its intro pictures.
+// A table game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
+// becomes the shell's game description, with the table domain's screen (every level played through its mode), its
+// parts box by robot, its intro pictures and its save migrations.
 import { Cable, Grid3x3 } from 'lucide-react'
-import './table.css'
+import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
 import { migrations } from '../../shell/saves.js'
 import { eraLevels, introductions, isCore, pathLevels } from '../../course.js'
-import ModeScreen from './screen.jsx'
-import Hero from './hero.jsx'
-import { sceneSVG } from './svg.js'
-import PartDemo from './circuit/PartDemo.jsx'
-import { lookIcon } from './circuit/looks.js'
-import { COMPONENTS, modelsOf } from './circuit/components.js'
-import { T, lazy, tr } from './i18n.js'
-import { ROBOTS } from './circuit/robots.js'
+import ModeScreen from './ui/screen.jsx'
+import Hero from './ui/hero.jsx'
+import { sceneSVG } from './ui/svg.js'
+import PartDemo from './ui/PartDemo.jsx'
+import { lookIcon } from './ui/looks.js'
+import { PRIMITIVES, modelsOf } from './model/parts.js'
+import { ROBOTS } from './model/robots.js'
+import { T, lazy, tr } from './lang.js'
+import { tableCourse } from './course.js'
+import { savesOf } from './items/migrations.js'
 
 function IntroFigure({ fig }) {
   return <div className="fig" dangerouslySetInnerHTML={{ __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) }} />
 }
 
 /**
- * spec: { id, title, kicker, lede: { zh, en } (what the game teaches and what the player ends up building, not how many levels), eras, table (tableCourse's result), glossary, legacyKey? where
- * saves from before the shell live, saves: migration steps (../../shell/saves.js), borrow: { part: level id } the level
- * whose board a part that is an idea is tried on }
+ * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, parts, saves: migration steps
+ * (../../shell/saves.js, a { data } step naming a migration item), legacyKey? where saves from before the shell live,
+ * borrow?: { part: level id } the level whose board a part that is an idea is tried on, levels, glossary }.
  */
-export function defineTableGame(spec) {
-  const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS, course } = spec.table
-  const ERAS = spec.eras
+export default function tableGame(content) {
+  const table = tableCourse(content)
+  const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS, course } = table
+  const ERAS = content.eras
+  const borrow = content.borrow ?? {}
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
     index,
@@ -41,11 +46,11 @@ export function defineTableGame(spec) {
     note: L.debrief.note,
   }))
 
-  // Saves from before the shell, under spec.legacyKey as { done, seen, data, all }.
+  // Saves from before the shell, under content.legacyKey as { done, seen, data, all }.
   function legacy() {
-    if (!spec.legacyKey) return null
+    if (!content.legacyKey) return null
     try {
-      const old = JSON.parse(window.localStorage.getItem(spec.legacyKey))
+      const old = JSON.parse(window.localStorage.getItem(content.legacyKey))
       if (!old) return null
       const done = LEVELS.filter((L) => old.done?.[L.id])
       return { version: 1, solved: done.map((L) => L.id), flags: done.filter((L) => L.unlock).map((L) => L.unlock), data: old.data ?? {}, introSeen: old.seen ?? {}, all: Boolean(old.all), seenPower: true }
@@ -59,11 +64,11 @@ export function defineTableGame(spec) {
   const cardOf = (k) => modelsOf(k)?.[0] ?? k
   const cards = [...introductions(course, cardOf)]
   const nameOf = (k) => {
-    const c = COMPONENTS[k]
-    const twin = !modelsOf(k) && cards.some(([o]) => o !== k && String(COMPONENTS[o].name) === String(c.name))
+    const c = PRIMITIVES[k]
+    const twin = !modelsOf(k) && cards.some(([o]) => o !== k && String(PRIMITIVES[o].name) === String(c.name))
     return twin ? T(`${c.name.zh} · ${c.tag.zh}`, `${c.name.en} · ${c.tag.en}`) : c.name
   }
-  const descOf = (k) => (modelsOf(k) ? lazy(() => modelsOf(k).map((m) => tr(`「${COMPONENTS[m].tag}」${COMPONENTS[m].desc}`, `<i>${COMPONENTS[m].tag}</i>: ${COMPONENTS[m].desc}`)).join('<br>')) : COMPONENTS[k].desc)
+  const descOf = (k) => (modelsOf(k) ? lazy(() => modelsOf(k).map((m) => tr(`「${PRIMITIVES[m].tag}」${PRIMITIVES[m].desc}`, `<i>${PRIMITIVES[m].tag}</i>: ${PRIMITIVES[m].desc}`)).join('<br>')) : PRIMITIVES[k].desc)
   const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
 
   // The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,
@@ -78,16 +83,16 @@ export function defineTableGame(spec) {
   })
 
   const game = defineGame({
-    id: spec.id,
-    glossary: spec.glossary,
-    title: spec.title,
-    kicker: spec.kicker,
-    lede: spec.lede,
+    id: content.id,
+    glossary: content.glossary,
+    title: content.title,
+    kicker: content.kicker,
+    lede: content.lede,
     Hero,
     html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),
     levels,
-    progress: { ...migrations(spec.saves ?? []), legacy },
+    progress: { ...migrations(savesOf(content.saves ?? [])), legacy },
     // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
@@ -103,10 +108,13 @@ export function defineTableGame(spec) {
       all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
       // The part on a bench: its level's board (a primitive's, the level that brings it in), with inputs, constants and
       // models to change and a Run button.
-      demo: (part, { phone }) => <PartDemo key={part.key} partKey={part.key} phone={phone} levels={LEVELS} borrow={part.at ? { [part.key]: part.at[0] } : spec.borrow ?? {}} />,
+      demo: (part, { phone }) => {
+        const key = part.key.replace(/^part:/, '')
+        return <PartDemo key={part.key} partKey={key} phone={phone} levels={LEVELS} borrow={part.at ? { [key]: part.at[0] } : borrow} />
+      },
       filters: robotFilters,
     },
   })
-  game.table = spec.table
+  game.table = table
   return game
 }

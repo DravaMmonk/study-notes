@@ -19,7 +19,9 @@ The design rules live in the repository, not in this skill. Before designing or 
    especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), author workflow (§7), pitfalls (§8)
    and case studies (§9–11).
 2. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
-3. The game's spec: `games/<game>/spec.js` and its `levels/` (eras in `levels/eras.js` or `levels/route.js`).
+3. The game's content: a data game (`games/DIRECTION.md`, `games/DESIGN.md` §6.1; 《状态之图》 first) is
+   `games/<game>/game.json` (eras, parts, saves), `levels/<id>.json` and `glossary.json`, written in its domain's
+   vocabulary (`games/kit/domains/<domain>/vocabulary.js`); a game not yet moved is still `spec.js` and `levels/`.
 
 **Docs first, and only the current design.** Every change to a course (a new chapter, a reordering, parts split
 or merged, a mechanism moved) is made in the design docs before the code: `games/DESIGN.md` for what holds for every
@@ -32,8 +34,11 @@ copying the last wording forward.
 
 ## Hard rules
 
-- A game writes only its spec. Parts, worlds, evaluation and UI belong in `games/kit` (domain modules under
-  `games/kit/domains/`); add new capabilities there, never inside a game folder.
+- Three layers: kernel (`games/kit/engine`, `circuit`, `shell`), domain (`games/kit/domains/<domain>`: vocabulary,
+  model, items, ui), content (`games/<game>/`). Content is data only: it picks vocabulary items `{ item: params }`
+  and writes tests, copy and reference / naive boards as blueprint text, never a function. Anything new (a part's
+  evaluation, a world, a check, a panel) goes into the domain's vocabulary and implementation.
+- A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
 - `npm run check` (in `trace-viewer/`) must be clean before committing curriculum changes; `npm test` for kit
   changes.

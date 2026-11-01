@@ -1,0 +1,105 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "找最像的一段", "en": "Find the most alike stretch" },
+  "short": { "zh": "低于 0 就重新开始", "en": "Below 0, start again" },
+  "intro": [
+    {
+      "t": {
+        "zh": "两段长长的 DNA，整体并不像，可中间可能藏着一小段<b>非常像</b>的片段。怎么把它找出来？",
+        "en": "Two long stretches of DNA may not look alike overall, yet hide a short piece in the middle that is <b>very alike</b>. How do you find it?"
+      }
+    },
+    {
+      "t": {
+        "zh": "还是对齐表，第 0 行第 0 列都是 0。给每一步打分：字相同的一对 <b>+2</b>，不同的一对 <b>−1</b>，空一个位置（从上面或左边来）<b>−1</b>。「本格信息」里的「本格得分」，就是这一格这一对的 +2 或 −1。",
+        "en": "An alignment table again, with row 0 and column 0 all 0. Each step scores: a matching pair <b>+2</b>, a mismatched pair <b>−1</b>, and a gap (coming from up or left) <b>−1</b>. The “cell score” in the This cell panel is this cell’s pair: +2 or −1."
+      }
+    },
+    {
+      "t": {
+        "zh": "关键的一步：如果算出来的分数<b>低于 0</b>，就截成 0，意思是「前面的都不要了，从这里重新开始」。背着负分走下去，不如重新开始。",
+        "en": "The key step: if a score comes out <b>below 0</b>, it is cut to 0, meaning “drop everything before and start again from here”. Starting afresh beats carrying a negative score along."
+      }
+    },
+    {
+      "t": {
+        "zh": "最像的一段不一定在右下角，它可能出现在<b>表里任何地方</b>：答案是整张表里最大的那一格。",
+        "en": "The most alike stretch isn’t necessarily in the bottom-right corner: it could be <b>anywhere in the table</b>, so the answer is the largest cell in the whole table."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "找出两串字母里最相似的一段：字相同 +2，不同 −1，空位 −1，低于 0 就截成 0。答案是表里最大的分数。",
+      "en": "Find the most similar stretch of two strings: a match +2, a mismatch −1, a gap −1, and anything below 0 is cut to 0. The answer is the largest score in the table."
+    },
+    "how": {
+      "zh": "常数可以设成负数。通过后，看看表倒推出的那一段。",
+      "en": "Constants can be set to negative numbers. Once you pass, see the stretch traced back from the table."
+    }
+  },
+  "robot": "ranger",
+  "unlock": "local",
+  "naive": [
+    "a = add(view.ul, facts.score)",
+    "k = const[value=-1]()",
+    "b = add(view.up, k)",
+    "c = add(view.left, k)",
+    "m = mmax(a, b, c)",
+    "cell <- m"
+  ],
+  "diagnose": [
+    {
+      "when": { "all": [{ "not": { "has": { "part": "const", "value": 0 } } }, { "uses": "score" }] },
+      "say": {
+        "zh": "分数会变成负的。负分不如重新开始：再取一次较大，和常数 0 比一比。",
+        "en": "Scores can go negative, and a negative score is worse than starting again: take the max once more, against a Constant 0."
+      }
+    }
+  ],
+  "trace": "local",
+  "after": "local",
+  "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+  "consts": [-2, -1, 0, 1, 2],
+  "hints": [
+    {
+      "zh": "三条来路各要加上哪一步的分数？想找最像的一段，该怎么把它们合起来？",
+      "en": "Which step’s score does each of the three ways in add? To find the most alike stretch, how should they be combined?"
+    },
+    {
+      "zh": "低于 0 就截成 0：再接一个「取较大」，另一个口接常数 0。",
+      "en": "Below 0 is cut to 0: add another “max”, with a Constant 0 in its other input."
+    }
+  ],
+  "world": "local",
+  "facts": ["score"],
+  "tests": [{ "top": "AGTACGCA", "left": "TATGC" }, { "top": "GGTTGACTA", "left": "TGTTACGG" }],
+  "solution": [
+    "a = add(view.ul, facts.score)",
+    "k = const[value=-1]()",
+    "z = const[value=0]()",
+    "b = add(view.up, k)",
+    "c = add(view.left, k)",
+    "m = mmax(a, b, c)",
+    "n = mmax(m, z)",
+    "cell <- n"
+  ],
+  "border0": true,
+  "debrief": {
+    "title": { "zh": "局部对齐", "en": "Local alignment" },
+    "body": [
+      {
+        "zh": "整体对齐（两串从头比到尾，叫 Needleman-Wunsch 算法）和它用同样的打分，只差一个「低于 0 就截成 0」：有了它，表就从「整体有多像」变成了「最像的一段在哪」。这个截断不用新元件：取较大，再和 0 比一比。",
+        "en": "Global alignment (comparing two strings end to end, the Needleman-Wunsch algorithm) uses the same scoring, differing only in “below 0 is cut to 0”: with that one change, the table goes from “how alike are they overall” to “where is the most alike stretch”. The cut needs no new component: take the max against 0."
+      },
+      {
+        "zh": "这叫 <b>Smith-Waterman 算法</b>。生物学家在基因库里找相似的片段、查一段病毒和已知病毒有多像，用的就是它。",
+        "en": "This is the <b>Smith-Waterman algorithm</b>. Biologists use it to search gene databases for similar pieces, and to check how closely a virus resembles known ones."
+      }
+    ],
+    "note": {
+      "zh": "局部对齐：低于 0 就截成 0；答案在表里最大的那一格。",
+      "en": "Local alignment: below 0 is cut to 0; the answer is the largest cell in the table."
+    }
+  }
+}

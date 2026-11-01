@@ -47,7 +47,8 @@ const bare = (params) => !params || (params.type === 'obj' && Object.values(para
  */
 export function validate(schema, value, { vocabulary = null, at = '' } = {}) {
   const out = []
-  const say = (where, says) => out.push({ at: where || '(root)', says })
+  // `shape`: the value is not the shape asked for at all (a by's field names no case), not just wrong inside.
+  const say = (where, says, shape = false) => out.push({ at: where || '(root)', says, ...(shape ? { shape } : {}) })
   const item = (kind, name) => vocabulary?.kinds[kind]?.[name]
 
   const walk = (s, v, where) => {
@@ -99,7 +100,7 @@ export function validate(schema, value, { vocabulary = null, at = '' } = {}) {
         if (tries.every((t) => t.length)) {
           // The closest fit says what is wrong: a shape the value has (no problem with the value itself, only inside it),
           // then the fewest problems.
-          const miss = (t) => (t.some((p) => p.at === (where || '(root)')) ? 1 : 0)
+          const miss = (t) => (t.some((p) => p.shape || p.at === (where || '(root)')) ? 1 : 0)
           const best = tries.reduce((a, b) => (miss(b) < miss(a) || (miss(b) === miss(a) && b.length < a.length) ? b : a))
           out.push(...best)
         }
@@ -108,7 +109,7 @@ export function validate(schema, value, { vocabulary = null, at = '' } = {}) {
       case 'by': {
         if (!isObj(v)) return say(where, `expected an object, found ${show(v)}`)
         const shape = s.cases[v[s.field]]
-        if (!shape) return say(`${where}.${s.field}`, `expected one of ${Object.keys(s.cases).map(show).join(', ')}, found ${show(v[s.field])}`)
+        if (!shape) return say(`${where}.${s.field}`, `expected one of ${Object.keys(s.cases).map(show).join(', ')}, found ${show(v[s.field])}`, true)
         walk(shape, v, where)
         return
       }

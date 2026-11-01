@@ -1,0 +1,71 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "最长回文子序列", "en": "The longest palindrome inside" },
+  "short": { "zh": "跳着挑也算", "en": "Skipping letters is allowed" },
+  "intro": [
+    {
+      "t": {
+        "zh": "从一串字母里挑出一些，顺序不变，可以跳着挑，让挑出来的字母<b>正着读、反着读都一样</b>。最多能挑几个？比如 CHARACTER 里能挑出 CARAC，一共 5 个。",
+        "en": "Pick some letters out of a string, keeping their order but skipping any you like, so that what you picked <b>reads the same forwards and backwards</b>. How many can you pick at most? From CHARACTER, say, you can pick CARAC: 5 letters."
+      }
+    },
+    {
+      "t": {
+        "zh": "表和<level-ref to=\"palin\"></level-ref>一样：第 i 到第 j 个字母这一段占一格，存「这一段里最多能挑几个」。一个字母自己就是回文，对角线已经填好 1。",
+        "en": "The table is the one from <level-ref to=\"palin\"></level-ref>: the run from letter i to letter j has a cell, holding “the most letters you can pick from this run”. A single letter is a palindrome on its own, so the diagonal is already filled with 1."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "算出整串字母里，最长的回文子序列有几个字母。",
+      "en": "Work out how many letters the longest palindrome you can pick from the whole string has."
+    },
+    "how": { "zh": "按长度从短到长扫。", "en": "Scan by length, shortest first." }
+  },
+  "robot": "ranger",
+  "diagnose": [
+    {
+      "when": { "all": [{ "not": { "uses": "dl" } }, { "uses": "same" }] },
+      "say": {
+        "zh": "两头都挑上时，剩下的是去掉两头之后的那一段：左下那一格。",
+        "en": "When both ends are picked, what is left is the run without both ends: the cell down-left."
+      }
+    }
+  ],
+  "hints": [
+    {
+      "zh": "两头的字母相同时，两头都能挑上。剩下要挑的是哪一段，在哪一格？",
+      "en": "If the two end letters match, both can be picked. Which run is left to pick from, and which cell holds it?"
+    },
+    {
+      "zh": "两头不同：至少有一头用不上。扔掉左头是下面一格，扔掉右头是左边一格，取较大。",
+      "en": "If they differ, at least one end goes unused. Dropping the left end is the cell below, dropping the right end the cell to the left: take the larger."
+    }
+  ],
+  "world": "interval",
+  "facts": ["same"],
+  "tests": [{ "s": "CHARACTER" }, { "s": "AGBDBA" }, { "s": "BBABCBCAB" }],
+  "solution": [
+    "k = const[value=2]()",
+    "a = add(view.dl, k)",
+    "g = pass(facts.same, a)",
+    "m = mmax(view.down, view.left, g)",
+    "cell <- m"
+  ],
+  "diag": 1,
+  "empty0": true,
+  "debrief": {
+    "title": { "zh": "又是同一副骨架", "en": "The same skeleton again" },
+    "body": [
+      {
+        "zh": "这块电路板和<level-ref to=\"lcs\"></level-ref>几乎一样：一个取较大，加上一个「相同时 + 几」的放行闸。",
+        "en": "This board is nearly the one from <level-ref to=\"lcs\"></level-ref>: a max, plus a Pass gate that adds something when the letters match."
+      },
+      {
+        "zh": "对齐表比的是两个词，这里比的是一个词的两头。表换了形状，骨架没换。",
+        "en": "The alignment table compares two words; here you compare the two ends of one word. The table changed shape; the skeleton did not."
+      }
+    ]
+  }
+}

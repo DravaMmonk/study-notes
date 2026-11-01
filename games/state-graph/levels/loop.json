@@ -1,0 +1,88 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "绕一圈", "en": "Going round" },
+  "short": { "zh": "一轮一轮地扫", "en": "Scan round after round" },
+  "intro": [
+    {
+      "t": {
+        "zh": "前面所有的表都有一个默契：<b>箭头不会绕回来</b>。机器人按顺序扫一遍，读到的格子总是已经算好了。",
+        "en": "Every table so far has shared one unspoken rule: <b>the arrows never loop back</b>. The robot scans once in order, and every cell it reads is already computed."
+      }
+    },
+    {
+      "t": {
+        "zh": "这座城市不一样：可以往<b>上下左右</b>四个方向走，每进入一个路口都要花它角上的体力。最省力的路线，可能要先往右，再往下，再<b>往左</b>绕回来。",
+        "en": "This city is different: you can move in all four directions, <b>up, down, left and right</b>, and entering each crossing costs the energy in its corner. The cheapest route may go right, then down, then <b>left</b> to loop back."
+      }
+    },
+    {
+      "t": {
+        "zh": "格子要读四个邻居，可下面和右边的格子，这一轮还没算到。没关系：这一章的机器人会<b>一轮一轮地扫</b>。还没算到的格子先读「—」，或者读上一轮留下的值；扫到整张表一格都不再变，就停下来。",
+        "en": "Each cell reads four neighbours, but the cells below and to the right haven’t been reached yet this round. No matter: in this chapter the robot <b>scans round after round</b>. A cell not reached yet reads as “—”, or as whatever the last round left there; once a whole round changes nothing, it stops."
+      }
+    },
+    {
+      "t": {
+        "zh": "运行时，黄框是这一轮里变了的格子。看看一共要扫几轮。",
+        "en": "While it runs, yellow frames mark the cells this round has changed. See how many rounds it takes."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "可以往上下左右走，每进入一个路口都要花它角上的体力（起点也算）。算出从左上到右下最少要花多少体力。",
+      "en": "You can move up, down, left or right, and entering each crossing costs the energy in its corner (the start counts too). Work out the least energy it takes to get from the top left to the bottom right."
+    },
+    "how": {
+      "zh": "机器人会一轮一轮地扫，直到表不再变。这一关会检查整张表。",
+      "en": "The robot scans round after round until the table stops changing. This level checks the whole table."
+    }
+  },
+  "robot": "loop",
+  "hints": [
+    {
+      "zh": "四个方向都可能是来路：上、下、左、右都接进「取较小」。一个汇合器只有三个口，就用两个串起来。",
+      "en": "Any of the four directions can be a way in: wire up, down, left and right into “min”. A Merger has only three inputs, so chain two of them."
+    },
+    {
+      "zh": "最后加上本格体力。起点的邻居一开始都是「—」，用放行闸在起点送一个 0 进去。",
+      "en": "Finally add the cell energy. The start’s neighbours all begin as “—”, so use a Pass gate to let a 0 in at the start."
+    }
+  ],
+  "world": "grid",
+  "facts": ["start", "cost"],
+  "tests": [
+    {
+      "R": 5,
+      "C": 5,
+      "costs": [[1, 1, 1, 1, 1], [9, 9, 9, 9, 1], [1, 1, 1, 1, 1], [1, 9, 9, 9, 9], [1, 1, 1, 1, 1]]
+    },
+    { "R": 5, "C": 3, "costs": [[1, 1, 1], [9, 9, 1], [1, 1, 1], [1, 9, 9], [1, 1, 1]] }
+  ],
+  "solution": [
+    "a = mmin(view.up, view.down, view.left)",
+    "z = const[value=0]()",
+    "g = pass(facts.start, z)",
+    "b = mmin(a, view.right, g)",
+    "p = add(b, facts.cost)",
+    "cell <- p"
+  ],
+  "rounds": true,
+  "debrief": {
+    "title": { "zh": "扫到不再变", "en": "Scan until it settles" },
+    "body": [
+      {
+        "zh": "路线会绕回来时，没有哪个顺序能保证「读到的都已经算好」。办法是<b>一遍一遍地扫</b>：每扫一轮，答案离真相就近一步；哪一轮一格都没变，就是真相了。",
+        "en": "When routes can loop back, no order can promise that “everything read is already computed”. The way out is to <b>scan again and again</b>: every round brings the answers a step closer to the truth, and once a round changes nothing, you have it."
+      },
+      {
+        "zh": "这叫 <b>Bellman-Ford</b> 算法。网络里的路由器彼此交换「到各处有多远」，就是用这种一轮一轮「放松」的办法找最短路。",
+        "en": "This is the <b>Bellman-Ford</b> algorithm. Routers on a network tell each other “how far it is to everywhere”, and find shortest paths with exactly this round-by-round “relaxing”."
+      }
+    ],
+    "note": {
+      "zh": "有环时扫一遍不够：一轮一轮地扫，直到表不再变。",
+      "en": "With loops, one scan isn’t enough: scan round after round until the table stops changing."
+    }
+  }
+}

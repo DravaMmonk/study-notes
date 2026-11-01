@@ -1,0 +1,111 @@
+{
+  "mode": "trace",
+  "title": { "zh": "找路线", "en": "Find the routes" },
+  "short": { "zh": "在单行道地图上一条条找", "en": "Trace them one by one on a one-way map" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这是一张小镇地图。<b>每个地点是一个格子，每条单行道是一根箭头</b>，只能顺着箭头走。",
+        "en": "Here is a map of a small town. <b>Each place is a cell and each one-way street is an arrow</b>, and you can only travel the way the arrows point."
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            { "id": "H", "x": 0, "y": 0, "w": 84, "h": 64, "label": { "zh": "家", "en": "Home" } },
+            { "id": "A", "x": -85, "y": 120, "w": 84, "h": 64, "label": { "zh": "面包店", "en": "Bakery" } },
+            { "id": "B", "x": 85, "y": 120, "w": 84, "h": 64, "label": { "zh": "公园", "en": "Park" } },
+            { "id": "T", "x": 0, "y": 240, "w": 84, "h": 64, "label": { "zh": "学校", "en": "School" } }
+          ],
+          "edges": [
+            { "a": "H", "b": "A", "cls": "idle", "bend": 0, "off": 0 },
+            { "a": "H", "b": "B", "cls": "idle", "bend": 0, "off": 0 },
+            { "a": "A", "b": "B", "cls": "idle", "bend": 0, "off": 0 },
+            { "a": "A", "b": "T", "cls": "idle", "bend": 0, "off": 0 },
+            { "a": "B", "b": "T", "cls": "idle", "bend": 0, "off": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "一条<b>路线</b>，就是从家出发、顺着箭头一站站走、最后到达学校的一串地点。比如：家 → 面包店 → 学校。",
+        "en": "A <b>route</b> is a sequence of places that starts at Home, follows the arrows stop by stop, and ends at School. For example: Home → Bakery → School."
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            { "id": "H", "x": 0, "y": 0, "w": 84, "h": 64, "label": { "zh": "家", "en": "Home" }, "cls": "path" },
+            {
+              "id": "A",
+              "x": -85,
+              "y": 120,
+              "w": 84,
+              "h": 64,
+              "label": { "zh": "面包店", "en": "Bakery" },
+              "cls": "path"
+            },
+            { "id": "B", "x": 85, "y": 120, "w": 84, "h": 64, "label": { "zh": "公园", "en": "Park" } },
+            {
+              "id": "T",
+              "x": 0,
+              "y": 240,
+              "w": 84,
+              "h": 64,
+              "label": { "zh": "学校", "en": "School" },
+              "cls": "path"
+            }
+          ],
+          "edges": [
+            { "a": "H", "b": "A", "cls": "good", "bend": 0, "off": 0 },
+            { "a": "H", "b": "B", "cls": "dim", "bend": 0, "off": 0 },
+            { "a": "A", "b": "B", "cls": "dim", "bend": 0, "off": 0 },
+            { "a": "A", "b": "T", "cls": "good", "bend": 0, "off": 0 },
+            { "a": "B", "b": "T", "cls": "dim", "bend": 0, "off": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "请你亲手把<b>所有</b>路线找出来：从「家」开始，顺着箭头一个个点地点，点到「学校」就记下一条。",
+        "en": "Find <b>every</b> route yourself: start at “Home”, click places one after another along the arrows, and each time you reach “School” a route is recorded."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "找出从家到学校的所有路线。只能顺着箭头走（单行道）。",
+      "en": "Find all the routes from Home to School. You can only go the way the arrows point (one-way streets)."
+    },
+    "how": {
+      "zh": "从「家」开始，顺着箭头依次点地点。点错了，再点一下最后那个地点就能退一步。",
+      "en": "Start at “Home” and click places in order along the arrows. If you click a wrong one, click the last place again to step back."
+    }
+  },
+  "cells": [
+    { "id": "H", "x": 0, "y": 0, "label": { "zh": "家", "en": "Home" } },
+    { "id": "A", "x": -85, "y": 120, "label": { "zh": "面包店", "en": "Bakery" } },
+    { "id": "B", "x": 85, "y": 120, "label": { "zh": "公园", "en": "Park" } },
+    { "id": "T", "x": 0, "y": 240, "label": { "zh": "学校", "en": "School" } }
+  ],
+  "edges": [["H", "A"], ["H", "B"], ["A", "B"], ["A", "T"], ["B", "T"]],
+  "start": "H",
+  "end": "T",
+  "debrief": {
+    "title": { "zh": "一共 3 条路线", "en": "3 routes in all" },
+    "body": [
+      {
+        "zh": "现在地图只有 4 个地点，一条条找还不算累。",
+        "en": "With only 4 places on the map, tracing routes one by one isn’t too tiring."
+      },
+      {
+        "zh": "但地点稍微多一点，路线就会多到找不完，还很容易漏掉或者重复。",
+        "en": "But add a few more places and there are too many routes to trace, and it is easy to miss one or count one twice."
+      }
+    ],
+    "note": {
+      "zh": "路线 = 从起点顺着箭头走到终点的一串地点。",
+      "en": "A route = a sequence of places leading from the start to the end along the arrows."
+    }
+  }
+}

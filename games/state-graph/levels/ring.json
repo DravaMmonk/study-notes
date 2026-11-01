@@ -1,0 +1,64 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "环形街道", "en": "A ring of houses" },
+  "short": { "zh": "首尾也挨着", "en": "The ends are neighbours too" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这条街首尾相连，围成一圈：<b>第一家和最后一家也是邻居</b>，不能都偷。",
+        "en": "This street runs round in a ring: <b>the first and the last house are neighbours too</b>, and can’t both be robbed."
+      }
+    },
+    {
+      "t": {
+        "zh": "表有两层，甲和乙，每层都是<level-ref to=\"robber\"></level-ref>那样的两行：这家没偷、这家偷了。两层各记什么由你决定；本格信息里有「是第一家」「是最后一家」和「是甲层」。",
+        "en": "The table has two layers, A and B, each the two rows of <level-ref to=\"robber\"></level-ref>: this house skipped, this house robbed. What each layer records is up to you; the cell’s facts include “is the first house”, “is the last house” and “is layer A”."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "不能偷相邻的两家，第一家和最后一家也算相邻。算出最多能偷多少钱。",
+      "en": "No two neighbouring houses, and the first and the last count as neighbours. Work out the most money you can steal."
+    },
+    "how": { "zh": "答案是两层最后一列里最大的那一格。", "en": "The answer is the largest cell in the last column of either layer." }
+  },
+  "robot": "stack",
+  "naive": ["n = mmax(view.pn, view.pr)", "a = add(view.pn, facts.money)", "no <- n", "yes <- a"],
+  "hints": [
+    {
+      "zh": "首尾不能都偷，所以每种偷法至少放过其中一家。那两层可以各管一种情况吗？",
+      "en": "The ends can’t both be robbed, so every plan leaves at least one of them alone. Could each layer take one of those cases?"
+    },
+    {
+      "zh": "哪一层、哪一家的「偷了」要拦下？「是甲层」可以当放行闸和拦截闸的条件。",
+      "en": "On which layer is “robbed” stopped, and at which house? “Is layer A” can be a gate’s condition."
+    }
+  ],
+  "world": "ring",
+  "facts": ["money", "first", "last", "sideA"],
+  "tests": [{ "a": [2, 3, 2] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }, { "a": [6, 2, 3, 7, 1, 5] }],
+  "solution": [
+    "n = mmax(view.pn, view.pr)",
+    "a = add(view.pn, facts.money)",
+    "f = pass(facts.sideA, facts.first)",
+    "l = block(facts.sideA, facts.last)",
+    "x = many(f, l)",
+    "k = block(x, a)",
+    "no <- n",
+    "yes <- k"
+  ],
+  "debrief": {
+    "title": { "zh": "拆成两种情况", "en": "Split into two cases" },
+    "body": [
+      {
+        "zh": "一圈拆不开，就分情况：甲层第一家不偷，剩下的是一条直街；乙层最后一家不偷，也是一条直街。两层取较大。",
+        "en": "A ring won’t straighten out, so split it into cases: on layer A the first house is left alone and the rest is a straight street; on layer B the last is. Take the better of the two layers."
+      },
+      {
+        "zh": "分情况也是多记一件事：这一件事，就是「我在哪种情况里」。",
+        "en": "Splitting into cases is remembering one more thing too: which case you are in."
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "有的词更贵", "en": "Some words cost more" },
+  "short": { "zh": "每一块的代价不同", "en": "Every piece has its own cost" },
+  "intro": [
+    {
+      "t": {
+        "zh": "常见的词便宜，生僻的词贵：词典里每个词标着一个<b>代价</b>。切法的代价是每一块加起来，挑最省的切法。",
+        "en": "Common words are cheap and rare ones dear: every word in the dictionary has a <b>cost</b>. A way of cutting costs the sum of its pieces; find the cheapest."
+      }
+    },
+    { "t": { "zh": "块数最少的切法，不一定最省。", "en": "The way with the fewest pieces is not always the cheapest." } }
+  ],
+  "mission": {
+    "goal": { "zh": "算出每串字母最省的切法要花多少代价。", "en": "Work out what the cheapest way to cut each string costs." },
+    "how": { "zh": "词典和代价写在测试旁边。", "en": "The dictionary and its costs are shown next to the tests." }
+  },
+  "robot": "broom",
+  "testLabel": "{s}",
+  "after": "dictionary",
+  "hints": [
+    {
+      "zh": "和<level-ref to=\"wordbreak\"></level-ref>比，变的只有每一块的代价。",
+      "en": "Compared with <level-ref to=\"wordbreak\"></level-ref>, only each piece’s cost has changed."
+    }
+  ],
+  "world": "pieces",
+  "facts": ["ground"],
+  "tests": [
+    { "s": "pineapplepen", "dict": { "pine": 2, "apple": 1, "pineapple": 4, "pen": 1 } },
+    { "s": "catsanddog", "dict": { "cat": 1, "cats": 3, "and": 1, "sand": 2, "dog": 1 } },
+    { "s": "icecreamcone", "dict": { "ice": 1, "cream": 1, "icecream": 3, "cone": 1, "creamcone": 1 } }
+  ],
+  "solution": [
+    "a = add(view.seg, view.cost)",
+    "z = const[value=0]()",
+    "g = pass(facts.ground, z)",
+    "m = mmin(a, g)",
+    "cell <- m"
+  ],
+  "debrief": {
+    "title": { "zh": "代价换了，电路没换", "en": "New costs, the same circuit" },
+    "body": [
+      {
+        "zh": "在<level-ref to=\"wordbreak\"></level-ref>里，每一块都算 1，所以数的是块数。代价一换，同一块电路板就去找最省的切法。",
+        "en": "In <level-ref to=\"wordbreak\"></level-ref> every piece cost 1, so it counted pieces. Change the costs, and the same board finds the cheapest cut."
+      }
+    ]
+  }
+}

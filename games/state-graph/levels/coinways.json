@@ -1,0 +1,51 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "凑零钱有几种", "en": "How many ways to pay" },
+  "short": { "zh": "数组合，不数排列", "en": "Count combinations, not orders" },
+  "intro": [
+    {
+      "t": {
+        "zh": "用 1 元、2 元、5 元的硬币凑出 5 元，有几种凑法？每种硬币要多少有多少，<b>只看用了哪些硬币，不看先后</b>：1 + 2 + 2 和 2 + 1 + 2 算同一种。",
+        "en": "How many ways are there to make 5 yuan from 1-, 2- and 5-yuan coins? There are as many of each coin as you like, and <b>only which coins you use counts, not their order</b>: 1 + 2 + 2 and 2 + 1 + 2 are the same way."
+      }
+    },
+    {
+      "t": {
+        "zh": "表是背包表的样子：行是硬币，列是金额。第 0 行「不用硬币」只凑得出 0 元，算 1 种，已经填好了。",
+        "en": "The table looks like the knapsack table: rows are coins, columns are amounts. Row 0, “no coins”, only makes 0 yuan, which counts as 1 way; it is filled in already."
+      }
+    }
+  ],
+  "mission": {
+    "goal": { "zh": "算出凑出这个金额，一共有几种凑法。", "en": "Work out how many ways there are to make the amount." },
+    "how": { "zh": "逐行，从左往右。", "en": "Row by row, left to right." }
+  },
+  "robot": "reach",
+  "naive": ["m = msum(view.up, view.upk)", "cell <- m"],
+  "hints": [
+    {
+      "zh": "这一行的凑法分成两种：一枚这种硬币都不用，或者至少用一枚。",
+      "en": "This row’s ways split in two: no coin of this kind at all, or at least one."
+    },
+    {
+      "zh": "至少用一枚的：拿掉一枚，剩下的金额还能用这种硬币，所以还在这一行。",
+      "en": "With at least one: take one off, and what is left may still use this coin, so it stays on this row."
+    }
+  ],
+  "world": "knap",
+  "tests": [
+    { "W": 5, "ways": true, "items": [{ "w": 1 }, { "w": 2 }, { "w": 5 }] },
+    { "W": 10, "ways": true, "items": [{ "w": 2 }, { "w": 3 }, { "w": 5 }] },
+    { "W": 8, "ways": true, "items": [{ "w": 1 }, { "w": 2 }, { "w": 3 }] }
+  ],
+  "solution": ["m = msum(view.up, view.rowk)", "cell <- m"],
+  "debrief": {
+    "title": { "zh": "一行一种硬币", "en": "One coin to a row" },
+    "body": [
+      {
+        "zh": "按硬币一行一行算，每种凑法只数一次：它用到哪几种硬币，就在哪几行里长出来，先后不同也不会多数。",
+        "en": "Going one coin to a row, every way is counted once: it grows on the rows of the coins it uses, so a different order is never counted again."
+      }
+    ]
+  }
+}

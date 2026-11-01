@@ -1,0 +1,60 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "有坑也有价", "en": "Pits and prices" },
+  "short": { "zh": "又要体力，又有坑", "en": "Energy costs and pits" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这座城市的路口既要花体力，有的还塌成了坑，根本过不去。",
+        "en": "In this city every crossing costs energy, and some have caved in and can’t be passed at all."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "只能往右或往下走，绕开所有的坑。从左上走到右下，最少要花多少体力？",
+      "en": "Only right or down, avoiding every pit. Going from the top left to the bottom right, what is the least energy you can spend?"
+    },
+    "how": { "zh": "坑画成石头的样子。", "en": "Pits are drawn like rocks." }
+  },
+  "robot": "scout",
+  "diagnose": [
+    {
+      "when": { "not": { "uses": "rock" } },
+      "say": { "zh": "有的路口是坑，过不去。读一读「是石头」。", "en": "Some crossings are pits and can’t be passed. Read “is rock”." }
+    }
+  ],
+  "hints": [
+    { "zh": "体力和坑，这两件事你以前分别处理过吗？", "en": "Energy and pits: have you handled each of them before?" },
+    {
+      "zh": "坑上要掐断：拦截闸在条件是「是」时输出「—」。",
+      "en": "Cut off the pits: a Block gate outputs “—” when its condition is “yes”."
+    }
+  ],
+  "world": "grid",
+  "facts": ["start", "cost", "rock"],
+  "tests": [
+    { "R": 3, "C": 3, "costs": [[1, 1, 4], [5, 2, 1], [3, 1, 1]], "rocks": [[1, 1]] },
+    { "R": 3, "C": 4, "costs": [[2, 1, 1, 3], [1, 6, 2, 1], [4, 1, 2, 1]], "rocks": [[0, 2], [2, 1]] },
+    {
+      "R": 4,
+      "C": 4,
+      "costs": [[1, 2, 2, 1], [3, 1, 4, 2], [1, 5, 1, 3], [2, 1, 2, 1]],
+      "rocks": [[1, 1], [2, 3]]
+    }
+  ],
+  "solution": ["c = min(view.up, view.left, facts.start, facts.cost)", "b = block(facts.rock, c)", "cell <- b"],
+  "debrief": {
+    "title": { "zh": "零件叠零件", "en": "Parts on parts" },
+    "body": [
+      {
+        "zh": "最省力格管体力，拦截闸管坑。两个都是你前面造出来、学会的东西，这里只是把它们接在一起。",
+        "en": "The Cheapest cell takes care of energy, the Block gate takes care of pits. Both are things you built or learned earlier; here you only wired them together."
+      },
+      {
+        "zh": "坑上是「—」：取较小会跳过它，所以经过坑的路线自然被排除了。",
+        "en": "A pit holds “—”, and “min” skips it, so routes through a pit drop out by themselves."
+      }
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "你是想打这个词吗", "en": "Did you mean…?" },
+  "short": { "zh": "编辑距离，用在纠错上", "en": "Edit distance, put to work on typos" },
+  "intro": [
+    {
+      "t": {
+        "zh": "你打出了 ACROS。词典里有几个候选词，哪个离它<b>最近</b>？",
+        "en": "You typed ACROS. The dictionary has a few candidate words: which one is <b>closest</b> to it?"
+      }
+    },
+    {
+      "t": {
+        "zh": "「最近」就是改动最少：<wiki-ref to=\"edit\"></wiki-ref>。托盘里的<part-ref to=\"cost\"></part-ref>，算的就是它。",
+        "en": "“Closest” means fewest changes: the <wiki-ref to=\"edit\"></wiki-ref>. The <part-ref to=\"cost\"></part-ref> in the tray works it out."
+      }
+    },
+    {
+      "t": {
+        "zh": "每个测试是一个候选词。三个测试都通过后，看看哪个候选词的步数最少。",
+        "en": "Each test is one candidate word. Once all three tests pass, see which candidate needs the fewest steps."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "算出打错的词 ACROS 和每个候选词之间的编辑距离（删、插、换各算 1 步）。",
+      "en": "Work out the edit distance between the typo ACROS and each candidate word (delete, insert and replace each count as 1 step)."
+    },
+    "how": {
+      "zh": "<part-ref to=\"cost\"></part-ref>在托盘里，接好它的五个输入就行。",
+      "en": "The <part-ref to=\"cost\"></part-ref> is in the tray: just wire up its five inputs."
+    }
+  },
+  "robot": "ranger",
+  "testLabel": "{left} → {top}",
+  "after": { "spell": { "candidates": ["ACROSS", "CROSS", "MACRO"] } },
+  "hints": [
+    {
+      "zh": "编辑距离器的五个口：左上、上面、左边、两字相同、是起点，照着接。",
+      "en": "The Edit Distance Meter’s five inputs: up-left, up, left, letters match, is start. Wire them up to match."
+    }
+  ],
+  "world": "align",
+  "facts": ["same", "start"],
+  "tests": [
+    { "left": "ACROS", "top": "ACROSS" },
+    { "left": "ACROS", "top": "CROSS" },
+    { "left": "ACROS", "top": "MACRO" }
+  ],
+  "solution": ["e = cost(view.ul, view.up, view.left, facts.same, facts.start)", "cell <- e"],
+  "border0": false,
+  "debrief": {
+    "title": { "zh": "纠错", "en": "Spelling correction" },
+    "body": [
+      {
+        "zh": "输入法和搜索框的「你是不是要找」，就是这样做的：把打出来的词和词典里的候选词一一比较，挑编辑距离最小的。",
+        "en": "This is how keyboards and search boxes come up with “Did you mean…?”: compare the typed word with each candidate in the dictionary and pick the one with the smallest edit distance."
+      },
+      {
+        "zh": "你没有重新拼电路，只是把编辑距离的元件拿过来，接到新问题上。",
+        "en": "You didn’t build a new circuit: you just took the Edit Distance part and wired it into a new problem."
+      }
+    ],
+    "note": {
+      "zh": "纠错：和每个候选词算编辑距离，挑最小的。",
+      "en": "Spelling correction: work out the edit distance to each candidate and pick the smallest."
+    }
+  }
+}

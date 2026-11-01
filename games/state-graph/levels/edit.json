@@ -1,0 +1,165 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "改错字", "en": "Fix the typo" },
+  "short": { "zh": "每条来路都有代价", "en": "Every way in has a cost" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"replace\"></level-ref>只许换字母。可打字时还会多打、漏打：真正的纠错要回答，把一个词改成另一个词，<b>最少要几步</b>？",
+        "en": "<level-ref to=\"replace\"></level-ref> only allowed swapping letters. But typing also adds and drops letters, so real correction has to answer: what is <b>the fewest steps</b> that turn one word into another?"
+      }
+    },
+    {
+      "t": {
+        "zh": "每一步只能做一件事：<b>删掉</b>一个字、<b>插入</b>一个字，或者把一个字<b>换成</b>另一个字。比如 CAT → CUT 只要 1 步：把 A 换成 U。",
+        "en": "Each step does exactly one thing: <b>delete</b> a letter, <b>insert</b> a letter, or <b>replace</b> one letter with another. For example, CAT → CUT takes just 1 step: replace A with U."
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            { "id": "a0", "x": 0, "y": 0, "w": 44, "h": 44, "value": "C", "cls": "tile ok" },
+            { "id": "a1", "x": 54, "y": 0, "w": 44, "h": 44, "value": "A", "cls": "tile bad" },
+            { "id": "a2", "x": 108, "y": 0, "w": 44, "h": 44, "value": "T", "cls": "tile ok" },
+            { "id": "b0", "x": 0, "y": 110, "w": 44, "h": 44, "value": "C", "cls": "tile ok" },
+            { "id": "b1", "x": 54, "y": 110, "w": 44, "h": 44, "value": "U", "cls": "tile hot" },
+            { "id": "b2", "x": 108, "y": 110, "w": 44, "h": 44, "value": "T", "cls": "tile ok" }
+          ],
+          "edges": [
+            { "a": "a0", "b": "b0", "cls": "link", "bend": 0, "off": 0 },
+            { "a": "a1", "b": "b1", "cls": "hot", "bend": 0, "off": 0 },
+            { "a": "a2", "b": "b2", "cls": "link", "bend": 0, "off": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "还是对齐表：行是原来的词，列是目标词。格子记着「把原词的前几个字，改成目标词的前几个字」最少要几步。三个邻居各有含义：",
+        "en": "It’s an alignment table again: the rows are the original word, the columns the target word. Each cell records the fewest steps that turn “the first few letters of the original” into “the first few letters of the target”. Each of the three neighbors has a meaning:"
+      },
+      "fig": {
+        "scene": {
+          "cells": [
+            {
+              "id": "ul",
+              "x": 0,
+              "y": 0,
+              "w": 96,
+              "h": 70,
+              "label": { "zh": "左上", "en": "up-left" },
+              "sub": { "zh": "保留或替换", "en": "keep / replace" }
+            },
+            {
+              "id": "u",
+              "x": 116,
+              "y": 0,
+              "w": 96,
+              "h": 70,
+              "label": { "zh": "上面", "en": "up" },
+              "sub": { "zh": "删掉一个字", "en": "delete one" }
+            },
+            {
+              "id": "l",
+              "x": 0,
+              "y": 90,
+              "w": 96,
+              "h": 70,
+              "label": { "zh": "左边", "en": "left" },
+              "sub": { "zh": "插入一个字", "en": "insert one" }
+            },
+            {
+              "id": "c",
+              "x": 116,
+              "y": 90,
+              "w": 96,
+              "h": 70,
+              "label": { "zh": "本格", "en": "this cell" },
+              "cls": "sel"
+            }
+          ],
+          "edges": [
+            { "a": "ul", "b": "c", "cls": "hot", "bend": 0, "off": 0 },
+            { "a": "u", "b": "c", "cls": "hot", "bend": 0, "off": 0 },
+            { "a": "l", "b": "c", "cls": "hot", "bend": 0, "off": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "每条来路都有自己的<b>代价</b>：从这条路来，要多花几步。删、插、换都要多花 1 步；两个字相同时，从左上来可以直接保留，不花步数。",
+        "en": "Every way in has its own <b>cost</b>: how many extra steps it takes to come that way. Deleting, inserting and replacing each cost 1 step; when the two letters match, coming from the up-left lets you keep the letter for free."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一次，第 0 行和第 0 列<b>没有现成的数</b>，也要由电路来算。想一想：把原词的前 3 个字改成空词，要几步？两边都是空词时呢？",
+        "en": "This time, row 0 and column 0 <b>have no ready-made numbers</b>; the circuit has to compute them too. Think: how many steps turn the first 3 letters of the original into an empty word? And when both words are empty?"
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "每一步只能删掉、插入或替换一个字。拼出改错字的电路，算出把一个词改成另一个词的最少步数。",
+      "en": "Each step deletes, inserts or replaces one letter. Build the typo-fixing circuit and work out the fewest steps that turn one word into another."
+    },
+    "how": {
+      "zh": "这块电路板要用到好几个元件。通过后，看看表格倒推出的具体改法。",
+      "en": "This board needs quite a few components. Once you pass, look at the exact edits the table traces back."
+    }
+  },
+  "robot": "ranger",
+  "unlock": "cost",
+  "builds": {
+    "ports": [{ "reads": "ul" }, { "reads": "up" }, { "reads": "left" }, { "reads": "same" }, { "reads": "start" }]
+  },
+  "testLabel": "{left} → {top}",
+  "trace": "edit",
+  "after": "edit",
+  "boardOpt": { "minScale": 0.66, "maxScale": 1.2 },
+  "hints": [
+    {
+      "zh": "删掉一个字（从上面来）、插入一个字（从左边来）、换掉一个字（从左上来），都要多花 1 步。要步数最少，这三条来路该怎么合起来？",
+      "en": "Deleting a letter (from above), inserting one (from the left) and replacing one (from the up-left) each cost 1 more step. To get the fewest steps, how should these three ways in be combined?"
+    },
+    {
+      "zh": "两个字相同时，可以直接保留：从左上来，不花步数。用放行闸，条件接「两字相同」，数接「左上」。",
+      "en": "When the two letters match you can just keep it: come from the up-left at no cost. Use a Pass gate with “letters match” as its condition and “up-left” as its number."
+    },
+    {
+      "zh": "起点（两边都是空词）是 0 步：「是起点」放行一个 0。最后把这三路都接进另一个「取较小」汇合器。",
+      "en": "The start (both words empty) is 0 steps: let a 0 through on “is start”. Finally, wire all three paths into another “min” Merger."
+    }
+  ],
+  "world": "align",
+  "facts": ["same", "start"],
+  "tests": [{ "left": "CAT", "top": "CUT" }, { "left": "HORSE", "top": "ROS" }, { "left": "KITTEN", "top": "SITTING" }],
+  "solution": [
+    "k = const[value=1]()",
+    "n = mmin(view.up, view.left, view.ul)",
+    "z = const[value=0]()",
+    "g1 = pass(facts.same, view.ul)",
+    "a = add(n, k)",
+    "g0 = pass(facts.start, z)",
+    "m = mmin(a, g1, g0)",
+    "cell <- m"
+  ],
+  "border0": false,
+  "debrief": {
+    "title": { "zh": "编辑距离", "en": "Edit distance" },
+    "body": [
+      {
+        "zh": "把一个词改成另一个词的最少步数，叫作<b>编辑距离</b>。输入法纠错、搜索引擎的「你是不是要找」、基因突变分析，用的都是它。",
+        "en": "The fewest steps that turn one word into another is called the <b>edit distance</b>. Autocorrect, a search engine’s “Did you mean…?” and the analysis of gene mutations all rely on it."
+      },
+      {
+        "zh": "和<level-ref to=\"lcs\"></level-ref>比，表格的形状一点没变，只是<b>给每条来路标上代价，再取较小</b>。连边上的一行一列，也是同一块电路算出来的。同一张对齐表，换一块电路板，就能回答另一个问题。",
+        "en": "Compared with <level-ref to=\"lcs\"></level-ref>, the table’s shape didn’t change at all: you just <b>gave every way in a cost and took the min</b>. Even the row and column along the edges were computed by the same circuit. The same alignment table with a different circuit board answers a different question."
+      }
+    ],
+    "note": {
+      "zh": "编辑距离：删除、插入、替换各 + 1，字相同可以免费保留，取较小。",
+      "en": "Edit distance: delete, insert and replace each cost 1, a matching letter can be kept for free, and you take the min."
+    }
+  }
+}

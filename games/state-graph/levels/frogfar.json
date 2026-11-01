@@ -1,0 +1,58 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "跳得更远", "en": "A longer leap" },
+  "short": { "zh": "视野和伸缩臂一起用", "en": "The view and the arm together" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这条河里的青蛙更灵活：<b>可以从前一块石头跳过来，也可以从「↶ k」那块跳过来</b>。没写 ↶ 的石头，只能从前一块来。",
+        "en": "The frog in this river is more agile: <b>it can jump on from the stone before, or from the stone marked “↶ k”</b>. A stone with no ↶ can only be reached from the one before."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "算出青蛙从岸边跳到最后一块石头，一共有几种跳法。",
+      "en": "Work out how many different ways the frog can get from the bank to the last stone."
+    },
+    "how": { "zh": "岸边算 1 种：已经站在那里了。", "en": "The bank counts as 1 way: the frog is already there." }
+  },
+  "robot": "reach",
+  "diagnose": [
+    {
+      "when": { "not": { "uses": "m1" } },
+      "say": {
+        "zh": "青蛙也能从前一块跳来：前一块在视野里。",
+        "en": "The frog can also come from the stone before, which is in the view."
+      }
+    },
+    {
+      "when": { "not": { "uses": "back" } },
+      "say": { "zh": "长跳的来处要用伸缩臂去读。", "en": "Where the long jump comes from is read with the arm." }
+    }
+  ],
+  "hints": [
+    {
+      "zh": "最后一跳从哪来？前一块，或者伸缩臂够到的那块。两种都算上：加起来。",
+      "en": "Where does the last jump come from? The stone before, or the one the arm reaches. Count both: add them up."
+    },
+    { "zh": "岸边算 1 种：放行闸放过一个 1。", "en": "The bank counts as 1 way: let a 1 through a Pass gate." }
+  ],
+  "world": "river",
+  "facts": ["bank"],
+  "tests": [
+    { "k": [0, null, 2, 3, 2, 4, 3] },
+    { "k": [0, null, 2, 2, 3, null, 4, 2] },
+    { "k": [0, null, 2, 3, 4, 2, 5, 3, 2] }
+  ],
+  "solution": ["c = counter(view.m1, view.back, facts.bank)", "cell <- c"],
+  "debrief": {
+    "title": { "zh": "又是爬楼梯", "en": "Climbing stairs again" },
+    "body": [
+      {
+        "zh": "和爬楼梯一样，只是「前 2 级」换成了伸缩臂读到的那一块。来路离得多远都行，结构不变。",
+        "en": "It is climbing stairs, with “2 steps down” swapped for the stone the arm reads. A way in can be any distance away; the structure stays the same."
+      }
+    ]
+  }
+}

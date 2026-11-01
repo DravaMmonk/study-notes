@@ -1,0 +1,109 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "机器人传话", "en": "Robot relay" },
+  "short": { "zh": "点一格，接一根线", "en": "Click a cell, wire it in" },
+  "intro": [
+    {
+      "t": {
+        "zh": "从这一章起，计算交给一个<b>小机器人</b>。它会一格一格地走过整张表，在每一格上做同一件事。",
+        "en": "From this chapter on, the computing is done by a <b>little robot</b>. It walks through the whole table cell by cell and does the same thing on every cell."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关只有一排格子，最左边那格已经写好了一个数。机器人从第 2 格出发往右走，<b>每到一格，就把左边那格的数抄过来</b>。",
+        "en": "This level has a single row of cells, and the leftmost one already holds a number. The robot starts on cell 2 and walks right, and <b>on each cell it copies the number from the cell to its left</b>."
+      },
+      "fig": {
+        "grid": {
+          "R": 1,
+          "C": 5,
+          "arrows": false,
+          "cells": {
+            "0,0": { "value": 7, "cls": "lit" },
+            "0,1": { "value": 7, "cls": "lit" },
+            "0,2": { "value": "?", "cls": "hot" }
+          },
+          "robot": "0,2"
+        }
+      }
+    },
+    {
+      "t": {
+        "zh": "机器人怎么知道要抄左边？靠你接的电路板。输入栏里是机器人的<b>视野</b>：中间红框是它脚下的格子，结果就写在这里。电路板左边的<b>视野</b>元件就是它：在视野里点「左边」那一格，元件上就多一个输出口，把那一格的数送进电路板。",
+        "en": "How does the robot know to copy from the left? From the circuit board you wire up. The inputs pane shows the robot’s <b>view</b>: the red frame in the middle is the cell it stands on, where the result is written. The <b>View</b> part on the left of the circuit board is that view: click the “left” cell, and the part gains an output that brings that cell’s number into the circuit."
+      },
+      "fig": { "window": { "vals": { "left": 7, "self": "?" }, "on": ["left"] } }
+    },
+    {
+      "t": {
+        "zh": "最后，从输入「左边」底部的圆点拖一根线，接到电路板最下面红框的「本格」。意思是：左边送来几，本格就写几。也可以先点一个圆点，再点另一个。",
+        "en": "Finally, drag a wire from the dot under the “left” input to “this cell”, the red-framed output at the bottom of the board. It means: whatever comes from the left, write it in this cell. You can also click one dot and then the other."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "让机器人把最左边格子里的数，一格一格抄到最右边：每一格都等于它左边那一格。",
+      "en": "Have the robot copy the number in the leftmost cell, cell by cell, all the way to the right: every cell equals the cell to its left."
+    },
+    "how": {
+      "zh": "在视野里点「左边」那一格，视野元件上多出一个输出口，把它连到「本格」，然后点「运行测试」。",
+      "en": "Click the “left” cell in the view: the View part gets an output for it. Wire that to “this cell”, then click “Run tests”."
+    }
+  },
+  "robot": "scout",
+  "guide": [
+    {
+      "until": { "reads": "left" },
+      "say": {
+        "zh": "第 1 步：在视野里点「左边」那一格，「视野」元件上就多一个输出口。",
+        "en": "Step 1: click the “left” cell in the view, and the “View” part gains an output."
+      }
+    },
+    {
+      "until": "wired",
+      "say": {
+        "zh": "第 2 步：从「视野」元件右边的圆点拖一根线，接到「本格」。",
+        "en": "Step 2: drag a wire from the dot on the “View” part’s right to “this cell”."
+      }
+    },
+    {
+      "say": {
+        "zh": "第 3 步：点「运行测试」，看机器人一格一格地抄过去。",
+        "en": "Step 3: click “Run tests” and watch the robot copy its way along, cell by cell."
+      }
+    }
+  ],
+  "diagnose": [
+    {
+      "when": { "uses": "right" },
+      "say": {
+        "zh": "机器人从左往右走，到一格时它右边的格子还空着，不能读。",
+        "en": "The robot walks from left to right, so when it reaches a cell, the cell to its right is still empty and can’t be read."
+      }
+    }
+  ],
+  "hints": [
+    {
+      "zh": "在视野里点「左边」，再把「视野」元件上多出来的输出口连到「本格」。",
+      "en": "Click “left” in the view, then wire the new output on the “View” part to “this cell”."
+    }
+  ],
+  "world": "grid",
+  "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
+  "solution": ["cell <- view.left"],
+  "debrief": {
+    "title": { "zh": "机器人学会了抄", "en": "The robot learned to copy" },
+    "body": [
+      {
+        "zh": "你只接了一根线，机器人就在每一格上照做了一遍。<b>电路板就是规则</b>：只写一次，机器人在每一格上都用它。",
+        "en": "You drew a single wire, and the robot carried it out on every cell. <b>The circuit board is the rule</b>: you write it once, and the robot uses it on every cell."
+      }
+    ],
+    "note": {
+      "zh": "电路板描述一格的规则，机器人在每一格上运行它。",
+      "en": "A circuit board describes the rule for one cell; the robot runs it on every cell."
+    }
+  }
+}

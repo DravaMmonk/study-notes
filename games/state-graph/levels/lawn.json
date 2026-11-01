@@ -1,0 +1,76 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "最大的正方形", "en": "The biggest square" },
+  "short": { "zh": "一格存什么？", "en": "What should a cell hold?" },
+  "intro": [
+    {
+      "t": {
+        "zh": "一块地上长着几棵树。想在空地上铺一块<b>正方形</b>的草坪，四条边和格子对齐，不能压到树。最大能铺多大？",
+        "en": "A field has a few trees on it. You want to lay a <b>square</b> lawn on the open ground, lined up with the cells, without covering a tree. How big can it be?"
+      }
+    },
+    {
+      "t": {
+        "zh": "地的上边和左边围着一圈 0，表示地外。答案是正方形的边长。",
+        "en": "The field is ringed above and to the left by 0s, meaning outside the field. The answer is the square’s side."
+      }
+    }
+  ],
+  "mission": {
+    "goal": { "zh": "算出最大的正方形草坪的边长。", "en": "Work out the side of the biggest square lawn." },
+    "how": { "zh": "答案是整张表里最大的数。", "en": "The answer is the largest number anywhere in the table." }
+  },
+  "robot": "scout",
+  "naive": [
+    "m = mmax(view.up, view.left)",
+    "k = const[value=1]()",
+    "z = const[value=0]()",
+    "a = add(m, k)",
+    "g = pass(facts.open, a)",
+    "s = msum(g, z)",
+    "cell <- s"
+  ],
+  "hints": [
+    {
+      "zh": "答案是整张表里最大的数。每一格里的数，该描述一个什么样的正方形？",
+      "en": "The answer is the largest number in the table. What square should the number in each cell describe?"
+    },
+    {
+      "zh": "让每一格只回答一个问题：以它为右下角的正方形，最大能有多大？",
+      "en": "Let each cell answer one question only: how big can a square be whose bottom-right corner it is?"
+    }
+  ],
+  "world": "lawn",
+  "facts": ["open"],
+  "tests": [
+    { "R": 4, "C": 4, "trees": [[1, 3], [4, 1]] },
+    { "R": 4, "C": 5, "trees": [[2, 2], [1, 5], [4, 4]] },
+    { "R": 5, "C": 5, "trees": [[1, 1], [3, 5], [5, 2]] }
+  ],
+  "solution": [
+    "m = mmin(view.up, view.left, view.ul)",
+    "k = const[value=1]()",
+    "z = const[value=0]()",
+    "a = add(m, k)",
+    "g = pass(facts.open, a)",
+    "s = msum(g, z)",
+    "cell <- s"
+  ],
+  "debrief": {
+    "title": { "zh": "一格存什么", "en": "What a cell holds" },
+    "body": [
+      {
+        "zh": "一格存的是「以我为右下角的最大正方形边长」。它比上面、左边、左上三格里最小的那个多 1：任何一边短了，正方形都撑不大。",
+        "en": "A cell holds “the side of the biggest square whose bottom-right corner I am”. It is one more than the smallest of the cells above, to the left and up-left: if any of them is short, the square can’t grow."
+      },
+      {
+        "zh": "树下面是 0：「加起来」汇合器把「—」跳过，只剩常数 0。",
+        "en": "Under a tree it is 0: the “sum” merger skips the “—” and only the Constant 0 is left."
+      },
+      {
+        "zh": "难的不是接线，是想清楚一格该存什么。",
+        "en": "The hard part was not the wiring but deciding what a cell should hold."
+      }
+    ]
+  }
+}
