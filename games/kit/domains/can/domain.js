@@ -16,6 +16,8 @@ function spec(content) {
     course: bus.course,
     levels: bus.LEVELS,
     bus,
+    blueprints: bus.blueprints,
+    syncOwn: bus.syncOwn,
     texts: { chapters: bus.CHAPTERS, glossary: content.glossary.entries },
   }
 }

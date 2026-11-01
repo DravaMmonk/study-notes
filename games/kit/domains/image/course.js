@@ -6,7 +6,7 @@
 import { defineCourse, eraLevels, layout, offer, reach, usable } from '../../course.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { OWN, ownPart } from './engine/own.js'
-import { fromText } from './engine/board.js'
+import { fromText, toText } from './engine/board.js'
 import { picture } from './items/pictures.js'
 import { testsOf } from './items/scenes/index.js'
 import { constraintOf } from './items/constraints.js'
@@ -16,31 +16,39 @@ import { benchOf } from './items/benches.js'
 // puts the constant and the four kinds of arithmetic first, then the rest in the order they were met.
 const ARITHMETIC = ['const', 'add', 'sub', 'mul', 'arith', 'merge']
 
-/** A circuit level (or one task of one) as the level runs take it: its tests, boards and budget made from their data. */
-function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, constraint, ...rest }) {
+/**
+ * A circuit level (or one task of one) as the level runs take it: its tests, boards and budget made from their data.
+ * keep({ board, write, read, naive? }) hears of every board read from blueprint text (domain.js blueprints).
+ */
+function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, constraint, ...rest }, keep) {
   const io = { inputs: rest.inputs ?? ['in'], outputs: rest.outputs ?? ['out'] }
   const spec = { ...io, scene, setup }
-  const board = (lines) => fromText(lines, io)
+  const read = (lines) => fromText(lines, io)
+  const board = (lines, wrong = false) => {
+    const b = read(lines)
+    keep({ board: b, write: toText, read, ...(wrong ? { naive: true } : {}) })
+    return b
+  }
   return {
     ...rest,
     tests: testsOf(spec, tests),
     ...(hidden && { hidden: testsOf(spec, hidden) }),
     ...(solution && { solution: board(solution) }),
-    ...(naive && { naive: board(naive) }),
-    ...(alsoFails && { alsoFails: alsoFails.map(board) }),
+    ...(naive && { naive: board(naive, true) }),
+    ...(alsoFails && { alsoFails: alsoFails.map((lines) => board(lines, true)) }),
     ...(constraint && { constraint: constraintOf(constraint) }),
   }
 }
 
-/** A level as its screen and the checks take it (`intro` stays with the content). */
-export function playable({ intro, ...level }) {
+/** A level as its screen and the checks take it (`intro` stays with the content); keep as for circuit. */
+function playable({ intro, ...level }, keep) {
   if (level.kind === 'probe') return { ...level, probes: level.probes.map((p) => [p.label, picture(p.picture)]) }
   if (level.kind === 'board') return { ...level, board: level.bench.model, ...benchOf(level.bench) }
-  if (!level.tasks) return circuit(level)
+  if (!level.tasks) return circuit(level, keep)
   // A task's board has the level's inputs and outputs unless it says otherwise.
   const { tasks, ...base } = level
   const io = Object.fromEntries(['inputs', 'outputs'].filter((k) => base[k]).map((k) => [k, base[k]]))
-  return { ...base, tasks: tasks.map((task) => circuit({ ...io, ...task })) }
+  return { ...base, tasks: tasks.map((task) => circuit({ ...io, ...task }, keep)) }
 }
 
 /**
@@ -52,7 +60,8 @@ export function playable({ intro, ...level }) {
  * folds away (`fold`); see ../../course.js reach and offer.
  * A level may be several tasks in order (`tasks: [{ step, brief, tests, hidden, solution, unlocks?, withhold?, … }]`):
  * each task is the level with what it changes, and a level that shows a new part alone says why (`showcase`).
- * Returns { CHAPTERS, LEVELS, levelById, course, intros, usableIn(level, flags), offerIn(level, flags), syncOwn(progress) }.
+ * Returns { CHAPTERS, LEVELS, levelById, course, intros, usableIn(level, flags), offerIn(level, flags), syncOwn(progress),
+ * blueprints }.
  */
 export function imageCourse({ eras, levels, views = {}, primitives, concept = {}, replaces = {} }) {
   const plan = layout(eras)
@@ -60,9 +69,10 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
   // after it, whose boards may hold it, are read.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
   const byIdAll = {}
+  const blueprints = []
   for (const id of plan.order) {
     if (!content[id]) throw new Error(`route names a level that does not exist: ${id}`)
-    const level = playable(content[id])
+    const level = playable(content[id], (bp) => blueprints.push({ level: id, ...bp }))
     byIdAll[id] = level
     if (level.packs) NODE_TYPES[`own-${id}`] = ownPart(level)
   }
@@ -151,5 +161,5 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
   /** Everything the player has for a level: what it shows, and what it folds away ({ shown, folded }). */
   const offerIn = (level, flags) => offer(course, { id: level.id }, flags)
 
-  return { CHAPTERS, LEVELS, levelById, course, intros, usableIn, offerIn, syncOwn }
+  return { CHAPTERS, LEVELS, levelById, course, intros, usableIn, offerIn, syncOwn, blueprints }
 }

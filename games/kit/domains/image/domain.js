@@ -15,6 +15,9 @@ function spec(content) {
     course: image.course,
     levels: image.LEVELS,
     intros: image.intros,
+    blueprints: image.blueprints,
+    // The board each packing level's part runs, by level id: the screens keep it as the level's passed board.
+    syncOwn: (built) => image.syncOwn({ solved: Object.keys(built), data: built }),
     texts: { chapters: image.CHAPTERS, intros: image.intros, glossary: content.glossary.entries },
     quotes: content.quotes ?? [],
   }

@@ -13,7 +13,7 @@
 //   r = reg[reg=A, start=1]()
 //   k = keep[reg=A](line)
 //   bit <- r
-import { parse } from '../../circuit/text.js'
+import { parse, print } from '../../circuit/text.js'
 import { portsOf } from '../../engine/circuit.js'
 import { FIXED } from './parts.js'
 
@@ -61,4 +61,13 @@ export function fromText(lines, level, partOf) {
     return { from: w.from, to: w.to, port }
   })
   return { nodes: all, wires: out }
+}
+
+/** A board as blueprint lines, as content writes it (no header): what fromText reads back on the level. */
+export function toText(board, partOf) {
+  const shape = {
+    inputs: (n) => (n.type === 'out' ? ['in'] : FIXED.includes(n.type) ? [] : portsOf(partOf(n.type), n)),
+    role: (n) => (n.type === 'out' ? 'sink' : FIXED.includes(n.type) ? 'source' : 'part'),
+  }
+  return print(board, shape).split('\n').filter((line) => line && !line.startsWith('#'))
 }

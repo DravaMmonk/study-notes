@@ -5,6 +5,7 @@
 import { vocabulary } from './vocabulary.js'
 import { logicCourse } from './course.js'
 import { validate } from './validate.js'
+import { syncOwn } from './built.js'
 
 /** A logic game's spec, as npm run check reads one (../../engine/check.js). */
 function spec(content) {
@@ -16,6 +17,8 @@ function spec(content) {
     course: logic.course,
     levels: logic.LEVELS,
     logic,
+    blueprints: logic.blueprints,
+    syncOwn,
     quotes: content.quotes ?? [],
     texts: { chapters: logic.CHAPTERS, lemmas: content.lemmas, facts: content.facts ?? {}, gates: content.gates ?? {}, revisions: content.revisions ?? {}, glossary: content.glossary.entries },
   }

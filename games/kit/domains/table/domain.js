@@ -3,7 +3,7 @@
 // draws: the page's side is game.jsx.
 
 import { vocabulary } from './vocabulary.js';
-import { tableCourse } from './course.js';
+import { syncOwn, tableCourse } from './course.js';
 import { validate } from './validate.js';
 
 /** A table game's spec, as npm run check reads one (../../engine/check.js). */
@@ -16,6 +16,8 @@ function spec(content) {
     course: table.course,
     levels: table.LEVELS,
     table,
+    blueprints: table.blueprints,
+    syncOwn,
     texts: { chapters: table.CHAPTERS, parts: table.PARTS, glossary: content.glossary.entries },
     audit: table.problems,
   };

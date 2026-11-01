@@ -45,12 +45,12 @@ export function sentenceProblems(gold, palette) {
   return problems
 }
 
-/** spec: domain.js spec(content), its `syntax` the course (course.js syntaxCourse). Returns [{ text, fail? }]. */
+/** spec: domain.js spec(content), its `syntax` the course (course.js syntaxCourse). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ syntax }) {
   return syntax.LEVELS.map((level) => {
     const sentences = level.tasks ?? [level]
     const problems = sentences.flatMap((s, k) => sentenceProblems(s.gold, level.palette).map((p) => (level.tasks ? `task ${k + 1}: ${p}` : p)))
     const folds = sentences.reduce((n, s) => n + s.gold.folds.length, 0)
-    return { fail: problems.length > 0, text: `${level.id} ${textKey(level.title)}: ${problems.length ? problems.join('; ') : `${sentences.length} sentence${sentences.length === 1 ? '' : 's'}, ${folds} fold${folds === 1 ? '' : 's'} sound`}` }
+    return { level: level.id, fail: problems.length > 0, text: `${level.id} ${textKey(level.title)}: ${problems.length ? problems.join('; ') : `${sentences.length} sentence${sentences.length === 1 ? '' : 's'}, ${folds} fold${folds === 1 ? '' : 's'} sound`}` }
   })
 }

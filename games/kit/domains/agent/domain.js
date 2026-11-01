@@ -16,6 +16,7 @@ function spec(content) {
     course: agent.course,
     levels: agent.LEVELS,
     agent,
+    blueprints: agent.blueprints,
     texts: { chapters: agent.CHAPTERS, glossary: content.glossary.entries, issues: content.issues },
   }
 }

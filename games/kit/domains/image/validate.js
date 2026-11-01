@@ -18,20 +18,22 @@ const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: '
 const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.url)
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
-/** spec: { levels, intros }. Returns [{ text, fail? }]. */
+/** spec: { levels, intros }. Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ levels, intros }) {
   const out = []
-  const fail = (text) => out.push({ text, fail: true })
-  const say = (text) => out.push({ text })
+  const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
+  const sayAt = (text, level) => out.push({ text, ...(level ? { level } : {}) })
 
   const parts = Object.fromEntries(Object.entries(NODE_TYPES).map(([type, spec]) => [type, { label: spec.label, description: spec.description, params: spec.params }]))
-  for (const problem of untranslated(parts, 'parts')) fail(`text ${problem}`)
+  for (const problem of untranslated(parts, 'parts')) failAt(`text ${problem}`)
 
-  for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) fail(`${level.id}: 引言：${problem}`)
+  for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) failAt(`${level.id}: 引言：${problem}`, level.id)
 
   // A level of several tasks is checked task by task, each as a level of its own (`1-11/1`).
-  const played = levels.flatMap((level) => (level.tasks ? level.tasks.map((task, k) => ({ ...task, id: `${level.id}/${k + 1}` })) : [level]))
+  const played = levels.flatMap((level) => (level.tasks ? level.tasks.map((task, k) => ({ ...task, id: `${level.id}/${k + 1}`, home: level.id })) : [level]))
   for (const level of played) {
+    const fail = (text) => failAt(text, level.home ?? level.id)
+    const say = (text) => sayAt(text, level.home ?? level.id)
     if (level.kind !== 'graph') {
       // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.
       const problem = level.verify ? level.verify() : ''

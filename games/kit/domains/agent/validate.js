@@ -14,7 +14,7 @@ import { usable } from '../../course.js'
 
 const all = (level) => ({ ...level, tests: [...level.tests, ...level.hidden] })
 
-/** spec: domain.js spec(content). Returns [{ text, fail? }]. */
+/** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ agent }) {
   const { LEVELS, course, filesIn } = agent
   const out = agent.wrong.map((text) => ({ text, fail: true }))
@@ -22,7 +22,7 @@ export function validate({ agent }) {
     const name = `${level.id} ${keyOf(level.title)}`
     if (level.kind === 'hand') {
       const s = playHand(level, level.solution)
-      out.push({ fail: !s.green, text: `${name}: ${s.green ? `answer PASS in ${level.solution.length} moves, ${s.tokens} tokens` : 'the reference moves do not end in a green test run'}` })
+      out.push({ level: level.id, fail: !s.green, text: `${name}: ${s.green ? `answer PASS in ${level.solution.length} moves, ${s.tokens} tokens` : 'the reference moves do not end in a green test run'}` })
       continue
     }
     const problems = []
@@ -40,7 +40,7 @@ export function validate({ agent }) {
       if (naive.pass) problems.push('the naive answer passes')
     }
     const tokens = ref.runs.reduce((n, r) => n + r.tokens, 0)
-    out.push({ fail: problems.length > 0, text: `${name}: ${problems.length ? problems.join('; ') : `answer PASS (${ref.runs.length} tests, ${tokens} tokens)${level.naive ? ', the naive answer fails' : ''}`}` })
+    out.push({ level: level.id, fail: problems.length > 0, text: `${name}: ${problems.length ? problems.join('; ') : `answer PASS (${ref.runs.length} tests, ${tokens} tokens)${level.naive ? ', the naive answer fails' : ''}`}` })
   }
   return out
 }

@@ -14,7 +14,7 @@
 //   m = model(k)
 //   r = read[file="src/cart.js"]()
 //   repo <- m
-import { parse } from '../../circuit/text.js'
+import { parse, print } from '../../circuit/text.js'
 import { FIXED, PARTS } from './parts.js'
 
 const SOURCES = ['issue', 'history', 'code']
@@ -66,3 +66,10 @@ export function fromText(lines, level) {
   })
   return { nodes, wires: out }
 }
+
+// The shape of a board's cards for the blueprint printer (../../circuit/text.js): each card's ports, and which are the
+// level's own.
+const SHAPE = { inputs: (n) => PARTS[n.type].inputs, role: (n) => (PARTS[n.type].source ? 'source' : PARTS[n.type].sink ? 'sink' : 'part') }
+
+/** A board as blueprint lines, as content writes it (no header): what fromText reads back. */
+export const toText = (board) => print(board, SHAPE).split('\n').filter((line) => line && !line.startsWith('#'))

@@ -16,7 +16,7 @@ import { provesShape, startProof } from './proof.js'
 import { ownBoard } from './built.js'
 import { PRIMITIVE_GATES, builtGates, startGates } from './gates.js'
 import { boardOf } from './ruleLines.js'
-import { fromLines, gateShape, machineShape, proofShape } from './blueprint.js'
+import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
 
 /** The ids of the cards a level presets on its board. */
 export const presetIds = (level) => level.preset ?? []
@@ -186,9 +186,14 @@ export function logicCourse(content) {
   const proofs = {}
   const gatePorts = Object.fromEntries(Object.entries(gates).map(([type, g]) => [type, { inputs: g.ports }]))
   /** A board some blueprint lines write, on what the level gives (an empty one, its fault said, when they cannot be read). */
+  // Every board the content writes as blueprint text, with how it reads back on its level (domain.js blueprints).
+  const blueprints = []
   const board = (one, field, start, shape, types) => {
     try {
-      return fromLines(one[field], start, shape, types)
+      const read = (lines) => fromLines(lines, start, shape, types)
+      const b = read(one[field])
+      blueprints.push({ level: one.id, board: b, write: (x) => toLines(x, shape), read, ...(field === 'naive' ? { naive: true } : {}) })
+      return b
     } catch (e) {
       wrong.push(`${one.id}: its ${field}: ${e.message}`)
       return start
@@ -313,6 +318,11 @@ export function logicCourse(content) {
     const types = [...Object.keys(MACHINE_PARTS), ...shape.ruleParts.keys()]
     for (const field of ['solution', 'naive']) if (one[field]) one[field] = board(one, field, startMachine(one), shape, types)
   }
+  // A board's place in its level's save (built.js): the board itself, or in a level of tasks its task's place in a list.
+  for (const bp of blueprints) {
+    const task = byId.get(bp.level).tasks?.findIndex((t) => t.solution === bp.board || t.naive === bp.board) ?? -1
+    if (task >= 0) bp.save = (b) => Object.assign([], { [task]: b })
+  }
   // A lemma runs the proof of each of its shapes (proof.js lemma).
   const provers = lemmaProofs(lemmas, revisions, LEVELS, wrong)
   Object.assign(proofs, provers.proofs)
@@ -359,7 +369,7 @@ export function logicCourse(content) {
     const { shown, folded, ...rest } = offer(course, { id: level.id }, flags, proved(level))
     return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
   }
-  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions, proofs, provers: provers.levels, wrong }
+  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions, proofs, provers: provers.levels, blueprints, wrong }
 }
 
 /**

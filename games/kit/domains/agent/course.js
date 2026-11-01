@@ -7,10 +7,10 @@
 // the level's `mode` says. A board level's fixed cards follow from its machine (board.js fixedOf). A level names only
 // the primitives it brings in (`adds`); everything met before carries.
 //
-// Returns { LEVELS, CHAPTERS, course, offerIn(level, flags), filesIn(level), wrong }: `wrong`, what reading the content
+// Returns { LEVELS, CHAPTERS, course, offerIn(level, flags), filesIn(level), blueprints, wrong }: `wrong`, what reading the content
 // found that its schema cannot say (an issue or a repository that is not there, a board that does not read).
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
-import { fixedOf, fromText } from './board.js'
+import { fixedOf, fromText, toText } from './board.js'
 import { opOf } from './hand.js'
 import { filesOf } from './world.js'
 
@@ -29,9 +29,13 @@ export function agentCourse(content) {
     if (!issue) say(id, `no issue ${t.issue}`)
     return { ...t, issue: { id: t.issue, ...issue }, repo: repos[issue?.repo] ?? { files: {} } }
   }
-  const board = (L, text) => {
+  // Every board the content writes as blueprint text, with how it reads back on its level (domain.js blueprints).
+  const blueprints = []
+  const board = (L, text, naive = false) => {
     try {
-      return fromText(text, L)
+      const b = fromText(text, L)
+      blueprints.push({ level: L.id, board: b, write: toText, read: (lines) => fromText(lines, L), ...(naive ? { naive } : {}) })
+      return b
     } catch (e) {
       say(L.id, e.en ?? String(e))
       return { nodes: [], wires: [] }
@@ -55,7 +59,7 @@ export function agentCourse(content) {
     const tests = level.tests.map(resolve(id))
     const L = { ...out, tests, hidden: (level.hidden ?? []).map(resolve(id)), fixed: fixedOf(machine.mode, tests) }
     L.solution = board(L, level.solution)
-    if (level.naive) L.naive = board(L, level.naive)
+    if (level.naive) L.naive = board(L, level.naive, true)
     return L
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
@@ -81,6 +85,7 @@ export function agentCourse(content) {
     CHAPTERS,
     course,
     wrong,
+    blueprints,
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
     filesIn: (level) => filesOf([...(level.tests ?? [level.test]), ...(level.hidden ?? [])].map((t) => t.repo)),
   }

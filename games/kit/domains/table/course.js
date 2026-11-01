@@ -7,7 +7,7 @@ import { packed } from '../../engine/boards.js';
 import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } from '../../course.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { BUILT, isGiven, modelsOf } from './model/parts.js';
-import { fitted, fromText, portsProblem, splitSrc } from './model/board.js';
+import { fitted, fromText, portsProblem, splitSrc, toText } from './model/board.js';
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { runCircuit } from './model/run.js';
@@ -93,13 +93,16 @@ const asPacked = b => {
 
 /**
  * The course of a table game's content (content.js assemble). Returns { LEVELS, REQUIRES, PLACE, TRACKS, CHAPTERS,
- * LABELS, PARTS, PRIMITIVES, course, usableIn(L, flags), offerIn(L, flags), problems() }.
+ * LABELS, PARTS, PRIMITIVES, course, usableIn(L, flags), offerIn(L, flags), problems(), blueprints, wrong }.
  */
 export function tableCourse(content) {
   const { eras, levels, parts: PARTS, primitives: PRIMITIVES } = hydrate(content);
   // What building the course finds wrong with its content beyond its schema (validate.js reports it).
   const wrong = [];
   const say = (level, text) => wrong.push(`${level}: ${text}`);
+  // Every board the content writes as blueprint text, with how it reads back on its stage (domain.js blueprints); a
+  // stage's board is kept in the level's save as { stage, boards }.
+  const blueprints = [];
 
   /** A level's number, as in CURRICULUM.md: on an era's main path the era and its place ('1-4'), in a topic its letter
    *  and place ('S2'), and C1, C2… for an era's challenges. */
@@ -152,16 +155,19 @@ export function tableCourse(content) {
       const ports = last && L.builds ? L.builds.ports.map(c => portOf(portCall(c), WORLDS[s.world])) : [];
       stage.given = { offers: offersOf(stage, robot), inputs: ports.filter(p => p.input).map(p => p.input), outs: WORLDS[s.world].outs.map(o => o[0]) };
       if (last) stage.ports = ports;
-      const board = text => {
+      const read = text => fitted(fromText(text, stage.given), stage.given);
+      const board = (text, naive) => {
         try {
-          return fitted(fromText(text, stage.given), stage.given);
+          const b = read(text);
+          blueprints.push({ level: L.id, board: b, write: toText, read, ...(naive ? { naive } : {}), save: kept => ({ stage: k, boards: Object.assign(Array(k + 1).fill(null), { [k]: kept }) }) });
+          return b;
         } catch (e) {
           say(L.id, e.en ?? String(e));
           return null;
         }
       };
       if (s.solution) stage.solution = board(s.solution);
-      if (last && L.naive) L.naiveBoard = board(L.naive);
+      if (last && L.naive) L.naiveBoard = board(L.naive, true);
       return stage;
     });
     for (const s of L.stages) if (s.solution) s.expected = s.tests.map(t => runCircuit(WORLDS[s.world], t, s.solution, s).value);
@@ -275,7 +281,7 @@ export function tableCourse(content) {
     return out;
   }
 
-  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, usableIn, offerIn, problems: audit, wrong };
+  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, usableIn, offerIn, problems: audit, blueprints, wrong };
 }
 
 /** A run that reports a broken board instead of throwing (the checks). */

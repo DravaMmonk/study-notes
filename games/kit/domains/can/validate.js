@@ -13,7 +13,7 @@ import { runLevel } from './run.js'
 /** A level with its hidden tests after the others. */
 const all = (level) => ({ ...level, tests: [...level.tests, ...level.hidden] })
 
-/** spec: domain.js spec(content). Returns [{ text, fail? }]. */
+/** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ bus }) {
   const { LEVELS, course, partOf } = bus
   // A player who reached a level has built every part before it.
@@ -49,7 +49,7 @@ export function validate({ bus }) {
     }
     const ticks = ref.runs.reduce((n, r) => n + r.ticks.length, 0)
     const hidden = level.hidden.length ? ` + ${level.hidden.length} hidden` : ''
-    out.push({ fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `answer PASS (${level.tests.length} tests${hidden}, ${ticks} ticks)${naive}${level.builds ? `, part ${level.builds.type} PASS` : ''}`}` })
+    out.push({ level: level.id, fail: problems.length > 0, text: `${level.id} ${keyOf(level.title)}: ${problems.length ? problems.join('; ') : `answer PASS (${level.tests.length} tests${hidden}, ${ticks} ticks)${naive}${level.builds ? `, part ${level.builds.type} PASS` : ''}`}` })
   }
   return out
 }

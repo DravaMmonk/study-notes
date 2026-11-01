@@ -5,12 +5,12 @@
 // registers), and the course the shared audit checks.
 //
 // A level's tests run as long as their bus; its inputs give one value a tick.
-// Returns { LEVELS, CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built), wrong }: `wrong`, what
+// Returns { LEVELS, CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built), blueprints, wrong }: `wrong`, what
 // reading the content found that its schema cannot say (a board that does not read, an output with nothing wanted).
 import { packed } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { busOf } from './bus.js'
-import { fits, fromText } from './board.js'
+import { fits, fromText, toText } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
@@ -33,6 +33,8 @@ export function busCourse(content) {
   // Each built part runs the board its level was passed with (while it still fits the level), or the level's reference.
   const BUILT = {}
   const partOf = (type) => PARTS[type] ?? BUILT[type]
+  // Every board the content writes as blueprint text, with how it reads back on its level (domain.js blueprints).
+  const blueprints = []
   const LEVELS = plan.order.filter((id) => {
     if (!given.has(id)) say(id, 'an era names a level that does not exist')
     return given.has(id)
@@ -54,16 +56,18 @@ export function busCourse(content) {
       hidden: (level.hidden ?? []).map((t) => ({ ...t, bus: busFrom(t.bus) })),
       want: wantOf(level.want),
     }
-    const read = (lines, what) => {
+    const read = (lines, what, naive = false) => {
       try {
-        return fromText(lines, out, partOf)
+        const board = fromText(lines, out, partOf)
+        blueprints.push({ level: id, board, write: (b) => toText(b, partOf), read: (text) => fromText(text, out, partOf), ...(naive ? { naive } : {}) })
+        return board
       } catch (e) {
         say(id, `${what}: ${e.en ?? String(e)}`)
         return { nodes: [], wires: [] }
       }
     }
     out.solution = read(level.solution, 'the answer')
-    if (level.naive) out.naive = read(level.naive, 'the naive answer')
+    if (level.naive) out.naive = read(level.naive, 'the naive answer', true)
     if (level.builds) {
       const fitting = new WeakMap()
       const own = () => {
@@ -108,6 +112,7 @@ export function busCourse(content) {
     partOf,
     BUILT,
     wrong,
+    blueprints,
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
     syncOwn: (built = {}) => {
       OWN.clear()
