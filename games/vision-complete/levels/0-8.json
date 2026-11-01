@@ -39,15 +39,35 @@
       }
     }
   ],
-  "bench": "obscura",
-  "setup": {
-    "arrow": 100,
-    "shaft": 4,
-    "table": 640,
-    "plate": [150, 520],
-    "gap": 20,
-    "holes": [0.3, 0.6, 1, 1.6, 2.5],
-    "goal": { "height": 30, "slack": 1, "blur": 1.5, "light": 1 },
-    "start": { "Z": 360, "s": 430, "D": 2.5 }
+  "bench": {
+    "model": "obscura",
+    "setup": { "arrow": 100, "shaft": 4, "table": 640, "gap": 20 },
+    "knobs": {
+      "Z": { "min": 150, "max": 520, "step": 1, "start": 360, "drawn": true },
+      "s": { "min": 170, "max": 640, "step": 1, "start": 430, "drawn": true },
+      "D": {
+        "label": { "zh": "孔径 D", "en": "Aperture D" },
+        "choices": [{ "value": 0.3 }, { "value": 0.6 }, { "value": 1 }, { "value": 1.6 }, { "value": 2.5 }],
+        "start": 2.5,
+        "look": "dot",
+        "unit": " mm"
+      }
+    },
+    "goal": [
+      {
+        "of": "height",
+        "label": { "zh": "像高", "en": "Image height" },
+        "near": 30,
+        "atMost": 1,
+        "format": "fixed1",
+        "unit": " mm"
+      },
+      { "of": "blur", "label": { "zh": "模糊", "en": "Blur" }, "below": 1.5, "format": "fixed2", "unit": " mm" },
+      { "of": "light", "label": { "zh": "亮度", "en": "Brightness" }, "atLeast": 1, "format": "fixed2" }
+    ],
+    "layout": {
+      "main": ["obscura"],
+      "foot": [{ "panel": ["knobs"] }, { "row": ["obscuraScreen", "goals"], "narrow": true }]
+    }
   }
 }

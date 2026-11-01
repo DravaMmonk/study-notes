@@ -39,16 +39,81 @@
       }
     }
   ],
-  "bench": "gan",
-  "setup": {
-    "n": 64,
-    "mode": 2,
-    "width": 0.35,
-    "rateD": 2,
-    "start": [0.4, 0.9],
-    "win": 3,
-    "options": { "dSteps": [1, 3, 10], "gSteps": [1, 3, 10], "gRate": [0.2, 0.5, 1, 2] },
-    "fallback": { "dSteps": 1, "gSteps": 10, "gRate": 1 },
-    "good": { "dSteps": 3, "gSteps": 1, "gRate": 0.5 }
+  "bench": {
+    "model": "gan",
+    "setup": {
+      "n": 64,
+      "mode": 2,
+      "width": 0.35,
+      "rateD": 2,
+      "start": [0.4, 0.9],
+      "good": { "dSteps": 3, "gSteps": 1, "gRate": 0.5 }
+    },
+    "knobs": {
+      "dSteps": {
+        "label": { "zh": "鉴定员每回合训练", "en": "Judge steps per round" },
+        "choices": [
+          { "value": 1, "label": { "zh": "1 步", "en": "1 step" } },
+          { "value": 3, "label": { "zh": "3 步", "en": "3 steps" } },
+          { "value": 10, "label": { "zh": "10 步", "en": "10 steps" } }
+        ],
+        "start": 1
+      },
+      "gSteps": {
+        "label": { "zh": "生成器每回合训练", "en": "Generator steps per round" },
+        "choices": [
+          { "value": 1, "label": { "zh": "1 步", "en": "1 step" } },
+          { "value": 3, "label": { "zh": "3 步", "en": "3 steps" } },
+          { "value": 10, "label": { "zh": "10 步", "en": "10 steps" } }
+        ],
+        "start": 10
+      },
+      "gRate": {
+        "label": { "zh": "生成器步长", "en": "Generator step size" },
+        "choices": [{ "value": 0.2 }, { "value": 0.5 }, { "value": 1 }, { "value": 2 }],
+        "start": 1
+      }
+    },
+    "actions": [
+      { "act": "turn", "label": { "zh": "运行 1 回合", "en": "Play 1 round" }, "primary": true },
+      {
+        "id": "turn10",
+        "act": "turn",
+        "repeat": 10,
+        "every": 110,
+        "label": { "zh": "运行 10 回合", "en": "Play 10 rounds" }
+      },
+      { "act": "reset", "label": { "zh": "重新开始", "en": "Start over" }, "icon": "reset", "always": true }
+    ],
+    "goal": [
+      { "of": "left", "label": { "zh": "左堆", "en": "Left cluster" }, "atLeast": 0.4, "format": "pct" },
+      { "of": "right", "label": { "zh": "右堆", "en": "Right cluster" }, "atLeast": 0.4, "format": "pct" },
+      {
+        "of": "accuracy",
+        "label": { "zh": "准确率", "en": "Accuracy" },
+        "near": 0.5,
+        "atMost": 0.05,
+        "format": "pct1"
+      },
+      { "of": "streak", "label": { "zh": "连续达标", "en": "Streak" }, "atLeast": 3, "format": "outOf" }
+    ],
+    "layout": {
+      "main": ["ganChart", "verdict"],
+      "split": "narrow",
+      "side": [
+        {
+          "panel": [
+            {
+              "text": {
+                "text": { "zh": "目标 · 同时满足，连续 3 回合", "en": "Goals · all at once, 3 rounds in a row" },
+                "look": "label"
+              }
+            },
+            { "goals": { "phoneCols": 2 } }
+          ]
+        },
+        { "panel": ["knobs", "actions"] }
+      ]
+    }
   }
 }

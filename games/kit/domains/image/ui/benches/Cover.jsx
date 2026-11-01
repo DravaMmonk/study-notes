@@ -1,13 +1,13 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Check, RotateCcw, X } from 'lucide-react'
-import { pixelUrl, svgPoint, useSolveOnce, useWidth } from './matchDraw.js'
-import { PHONE, useMedia } from '../../../../shell/useMedia.js'
+import { X } from 'lucide-react'
+import { pixelUrl, svgPoint, useWidth } from './matchDraw.js'
 import { L, tr } from '../../../../shell/i18n.js'
-import './MatchBoards.css'
+import './match.css'
 
-// 6-5 书封面: pair a point on the cover with the same point in the photo (drag from one to the other,
-// or tap one and then the other). Three pairs give an affine map, four give a homography (solved by
-// DLT); the cover is warped onto the photo with it.
+// The book-cover bench's pictures (bench model `cover`): pair a point on the cover with the same point in the photo
+// (drag from one to the other, or tap one and then the other) into the knob `pairs`; three pairs give an affine map,
+// four a homography, and the cover is warped onto the photo with it. The pairs made are listed with a delete button
+// each. A drag between two pictures is an interaction no knob control can stand in for.
 
 const S = 3 // svg units per image pixel
 const PAD = 14 // svg margin around each picture, room for armed rings and tags
@@ -26,13 +26,13 @@ function toClient(svg, [x, y]) {
   return [at.x, at.y]
 }
 
-export default function BookCover({ level, onSolve }) {
-  const m = level.model
-  const phone = useMedia(PHONE)
-  const [pairs, setPairs] = useState([])
+export function CoverPairs({ ctx, children }) {
+  const m = ctx.model
+  const { phone } = ctx
+  const { pairs, overlay } = ctx.values
+  const setPairs = (next) => ctx.set('pairs', next)
+  const setMessage = (message) => ctx.setUi({ message })
   const [armed, setArmed] = useState(null) // { side: 'cover' | 'photo', index }
-  const [message, setMessage] = useState('') // '' or a { zh, en } pair, resolved at render
-  const [overlay, setOverlay] = useState(true)
   const coverSvg = useRef(null)
   const photoSvg = useRef(null)
   const stage = useRef(null)
@@ -40,9 +40,7 @@ export default function BookCover({ level, onSolve }) {
   const draft = useRef(null)
   const stageWidth = useWidth(stage)
 
-  const fit = useMemo(() => m.fit(pairs), [m, pairs])
-  const done = pairs.length === 4 && fit.error < m.tol
-  useSolveOnce(done, onSolve)
+  const { fit } = ctx.view
 
   const coverUrl = useMemo(() => pixelUrl(m.COVER.w, m.COVER.h, m.renderCover), [m])
   const photoUrl = useMemo(() => pixelUrl(m.PHOTO.w, m.PHOTO.h, (t) => m.renderPhoto(t)), [m])
@@ -171,16 +169,12 @@ export default function BookCover({ level, onSolve }) {
   const usedCover = new Map(pairs.map((p, i) => [p.cover, i]))
   const usedPhoto = new Map(pairs.map((p, i) => [p.photo, i]))
   const quad = fit.model ? [[0, 0], [m.COVER.w, 0], [m.COVER.w, m.COVER.h], [0, m.COVER.h]].map(([x, y]) => photoXY(m.project(fit.model, x, y))) : null
-  const hasError = Number.isFinite(fit.error)
   const errorOk = fit.error < m.tol
   const cw = m.COVER.w * S
   const ch = m.COVER.h * S
   const pw = m.PHOTO.w * S
   const ph = m.PHOTO.h * S
 
-  let status = tr('至少需要 3 对点才能贴上封面。', 'At least 3 pairs are needed to paste the cover on.')
-  if (pairs.length === 3) status = fit.model ? tr('3 对点 → 仿射变换（6 个自由度）。', '3 pairs → affine transform (6 degrees of freedom).') : tr('这 3 对点共线，无法确定变换。', 'These 3 pairs are collinear, so the transform is undetermined.')
-  if (pairs.length === 4) status = fit.model ? tr('4 对点 → 单应变换，用 DLT 求解（8 个自由度）。', '4 pairs → homography, solved with DLT (8 degrees of freedom).') : tr('这 4 对点过于集中或共线，无法确定 H。', 'These 4 pairs are too clustered or collinear to determine H.')
   const prompt =
     armed?.side === 'cover'
       ? tr('已选封面上的点 → 再点击照片中的同一点。', 'Cover point selected → now click the same point in the photo.')
@@ -199,24 +193,9 @@ export default function BookCover({ level, onSolve }) {
     )
   }
 
-  const goal = (
-    <ul className="bk-goals">
-      <li className={`bk-goal ${pairs.length === 4 ? 'is-pass' : ''}`}>
-        {pairs.length === 4 ? <Check size={16} /> : <X size={16} />}
-        <span>{tr('点对', 'Pairs')}</span>
-        <b>{pairs.length} / 4</b>
-      </li>
-      <li className={`bk-goal ${hasError && errorOk ? 'is-pass' : ''}`}>
-        {hasError && errorOk ? <Check size={16} /> : <X size={16} />}
-        <span>{tr('误差', 'Error')} <small>&lt; {m.tol} px</small></span>
-        <b className={hasError ? (errorOk ? 'mb-ok' : 'mb-bad') : ''}>{hasError ? `${fit.error.toFixed(2)} px` : '—'}</b>
-      </li>
-    </ul>
-  )
-
   return (
-    <div className="bk mb mb-cover" onPointerDown={() => setArmed(null)}>
-      <div className="bk-stage mb-cover-stage" ref={stage}>
+    <div className="mb mb-cover" onPointerDown={() => setArmed(null)}>
+      <div className="mb-cover-stage" ref={stage}>
         <div className="mb-cover-grid">
           <figure className="mb-cover-fig">
             <span className="bk-label">{tr('封面', 'Cover')}</span>
@@ -228,7 +207,7 @@ export default function BookCover({ level, onSolve }) {
             </svg>
           </figure>
           <div className="mb-cover-aside">
-            {goal}
+            {children}
             <p className={`bk-note mb-prompt ${armed ? 'is-armed' : ''}`}>{prompt}</p>
           </div>
           <figure className="mb-photo-fig">
@@ -254,39 +233,34 @@ export default function BookCover({ level, onSolve }) {
         )}
       </div>
 
-      <section className="bk-panel mb-cover-details">
-        <div className="mb-cover-controls">
-          <span className="bk-label">{tr('变换', 'Transform')}</span>
-          <p className="bk-note mb-status">{status}</p>
-          {message && <p className="bk-verdict is-fail">{L(message)}</p>}
-          <div className="bk-row">
-            <label className="bk-check" onPointerDown={(e) => e.stopPropagation()}>
-              <input type="checkbox" checked={overlay} onChange={(e) => setOverlay(e.target.checked)} /> {tr('显示贴图', 'Show the pasted cover')}
-            </label>
-            <button className="bk-btn" onClick={() => { setPairs([]); setArmed(null); setMessage('') }} disabled={!pairs.length}><RotateCcw size={14} /> {tr('清空', 'Clear')}</button>
-          </div>
-        </div>
-        <div>
-          <span className="bk-label">{tr('点对 · 封面 → 照片', 'Pairs · cover → photo')}</span>
-          {pairs.length ? (
-            <ol className="mb-pairs">
-              {pairs.map((p, i) => {
-                const [x, y] = m.coverPoints[p.cover]
-                const [u, v] = m.photoPoints[p.photo].at
-                return (
-                  <li key={`${p.cover}-${p.photo}`}>
-                    <i>{i + 1}</i>
-                    <span>({x}, {y}) → ({u.toFixed(0)}, {v.toFixed(0)})</span>
-                    <button aria-label={tr(`删除第 ${i + 1} 对`, `Delete pair ${i + 1}`)} onPointerDown={(e) => e.stopPropagation()} onClick={() => setPairs((all) => all.filter((_, j) => j !== i))}><X size={15} /></button>
-                  </li>
-                )
-              })}
-            </ol>
-          ) : (
-            <p className="bk-note">{tr('还没有点对。', 'No pairs yet.')}</p>
-          )}
-        </div>
-      </section>
+    </div>
+  )
+}
+
+export function CoverPairList({ ctx }) {
+  const m = ctx.model
+  const { pairs } = ctx.values
+  const { message } = ctx.ui
+  return (
+    <div className="mb">
+      {message && <p className="bk-verdict is-fail">{L(message)}</p>}
+      {pairs.length ? (
+        <ol className="mb-pairs">
+          {pairs.map((p, i) => {
+            const [x, y] = m.coverPoints[p.cover]
+            const [u, v] = m.photoPoints[p.photo].at
+            return (
+              <li key={`${p.cover}-${p.photo}`}>
+                <i>{i + 1}</i>
+                <span>({x}, {y}) → ({u.toFixed(0)}, {v.toFixed(0)})</span>
+                <button aria-label={tr(`删除第 ${i + 1} 对`, `Delete pair ${i + 1}`)} onClick={() => ctx.set('pairs', pairs.filter((_, j) => j !== i))}><X size={15} /></button>
+              </li>
+            )
+          })}
+        </ol>
+      ) : (
+        <p className="bk-note">{tr('还没有点对。', 'No pairs yet.')}</p>
+      )}
     </div>
   )
 }

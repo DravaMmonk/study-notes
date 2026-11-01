@@ -40,9 +40,18 @@
     }
   ],
   "unlocks": ["hough"],
-  "bench": "hough",
-  "setup": {
-    "scenes": [
+  "bench": {
+    "model": "hough",
+    "setup": { "rhoMax": 34, "tol": { "theta": 4, "rho": 1.5 } },
+    "knobs": {
+      "bin": {
+        "label": { "zh": "分箱大小", "en": "Bin size" },
+        "values": [[1, 0.25], [1.5, 0.5], [2, 0.75], [3, 1], [4.5, 1.5], [6, 2], [9, 3], [12, 4], [18, 6]],
+        "start": 1,
+        "ends": [{ "zh": "细", "en": "Fine" }, { "zh": "粗", "en": "Coarse" }]
+      }
+    },
+    "cases": [
       {
         "label": { "zh": "两条轨道", "en": "Two rails" },
         "seed": 6,
@@ -62,8 +71,51 @@
         "outliers": 18
       }
     ],
-    "steps": [[1, 0.25], [1.5, 0.5], [2, 0.75], [3, 1], [4.5, 1.5], [6, 2], [9, 3], [12, 4], [18, 6]],
-    "rhoMax": 34,
-    "tol": { "theta": 4, "rho": 1.5 }
+    "goal": [{ "of": "matched", "label": { "zh": "已匹配", "en": "matched" }, "atLeast": 2, "format": "outOf" }],
+    "layout": {
+      "head": [{ "cases": { "passed": { "zh": "张图通过", "en": "images passed" } } }],
+      "main": ["houghPlanes"],
+      "foot": [
+        {
+          "row": [
+            {
+              "panel": [
+                { "text": { "text": { "zh": "分箱大小", "en": "Bin size" }, "look": "label" } },
+                "knobs",
+                {
+                  "stats": {
+                    "of": [
+                      { "of": "dTheta", "label": "Δθ" },
+                      { "of": "dRho", "label": "Δρ" },
+                      { "of": "cells", "label": { "zh": "格", "en": "cells" } }
+                    ],
+                    "phone": "line"
+                  }
+                }
+              ],
+              "dock": true
+            },
+            {
+              "panel": [
+                {
+                  "text": {
+                    "text": { "zh": "目标 · 前两个峰分别匹配 A 和 B", "en": "Goal · the top two peaks match A and B" },
+                    "look": "label"
+                  }
+                },
+                "goals"
+              ]
+            },
+            {
+              "panel": [
+                { "text": { "of": "peaksTitle", "look": "label" } },
+                { "table": { "of": "peaks" } },
+                { "text": { "of": "tolerance", "look": "note" } }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 }

@@ -49,16 +49,69 @@
     }
   ],
   "unlocks": ["mean"],
-  "bench": "sum",
-  "setup": {
-    "N": 32,
-    "ks": [1, 2, 3, 4, 5, 6, 7, 8],
-    "step": 0.01,
-    "max": 0.5,
-    "tolerance": 0.03,
+  "bench": {
+    "model": "sum",
+    "setup": { "N": 32, "ks": [1, 2, 3, 4, 5, 6, 7, 8] },
+    "knobs": {
+      "k1": {
+        "label": { "zh": "频率 1 的振幅", "en": "Amplitude at frequency 1" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      },
+      "k2": {
+        "label": { "zh": "频率 2 的振幅", "en": "Amplitude at frequency 2" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      },
+      "k3": {
+        "label": { "zh": "频率 3 的振幅", "en": "Amplitude at frequency 3" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      },
+      "k4": {
+        "label": { "zh": "频率 4 的振幅", "en": "Amplitude at frequency 4" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      },
+      "k5": {
+        "label": { "zh": "频率 5 的振幅", "en": "Amplitude at frequency 5" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      },
+      "k6": {
+        "label": { "zh": "频率 6 的振幅", "en": "Amplitude at frequency 6" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      },
+      "k7": {
+        "label": { "zh": "频率 7 的振幅", "en": "Amplitude at frequency 7" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      },
+      "k8": {
+        "label": { "zh": "频率 8 的振幅", "en": "Amplitude at frequency 8" },
+        "min": 0,
+        "max": 0.5,
+        "step": 0.01,
+        "format": "fixed2"
+      }
+    },
     "stages": [
       {
-        "target": [0.3, 0, 0.1, 0, 0, 0, 0, 0],
         "title": { "zh": "两道波", "en": "Two waves" },
         "note": {
           "zh": "目标是几道波加起来的。调各个频率的振幅，把你的曲线叠到目标上。",
@@ -67,10 +120,10 @@
         "win": {
           "zh": "这条曲线就是两道波逐点相加：频率 1 给出一个大起伏，频率 3 在上面添了三个小起伏。看下面的平均：叠了波，整行的平均还是 0.5。",
           "en": "This curve is just two waves added point by point: frequency 1 gives one big swing, and frequency 3 adds three small ones on top. Look at the average below: with the waves stacked on, the row still averages 0.5."
-        }
+        },
+        "target": [0.3, 0, 0.1, 0, 0, 0, 0, 0]
       },
       {
-        "target": [0.3819718634205488, 0, 0.12732395447351627, 0, 0.07639437268410976, 0, 0.0545674090600784, 0],
         "title": { "zh": "一道陡边", "en": "A steep edge" },
         "note": {
           "zh": "这次的目标是这些波能叠出的最像方波的样子：一半亮、一半暗，中间是陡边。先只调频率 1，看还差哪些起伏，再一道道补上去。",
@@ -79,8 +132,45 @@
         "win": {
           "zh": "只用到了奇数频率，而且频率越高振幅越小。高频把边拉陡；只到频率 7，陡边旁边还留着一点小波纹。",
           "en": "Only odd frequencies were needed, and the higher the frequency, the smaller its amplitude. The high frequencies make the edge steep; stopping at 7 still leaves a little ripple beside it."
-        }
+        },
+        "target": [0.3819718634205488, 0, 0.12732395447351627, 0, 0.07639437268410976, 0, 0.0545674090600784, 0]
       }
-    ]
+    ],
+    "goal": [{ "of": "gap", "atMost": 0.03 }],
+    "status": { "zh": "尚未与目标重合。", "en": "Not on the target yet." },
+    "layout": {
+      "main": [
+        {
+          "plot": {
+            "lines": [
+              {
+                "of": "target",
+                "kind": "target",
+                "label": { "zh": "目标", "en": "target" },
+                "legend": { "zh": "目标", "en": "Target" }
+              },
+              {
+                "of": "yours",
+                "kind": "yours",
+                "label": { "zh": "你的", "en": "yours" },
+                "legend": { "zh": "你叠加出的", "en": "Yours" }
+              }
+            ],
+            "height": [240, 200],
+            "legend": true
+          }
+        },
+        {
+          "strips": {
+            "rows": [
+              { "of": "targetRow", "label": { "zh": "目标", "en": "Target" } },
+              { "of": "row", "label": { "zh": "你的", "en": "Yours" } }
+            ]
+          }
+        },
+        { "text": { "of": "formula" } }
+      ],
+      "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+    }
   }
 }

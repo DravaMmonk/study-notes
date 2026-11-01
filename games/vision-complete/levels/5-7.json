@@ -40,20 +40,85 @@
     }
   ],
   "unlocks": ["embed"],
-  "bench": "contrast",
-  "setup": {
-    "names": ["T", "L", "X", "O", "F"],
-    "base": [
-      { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9 } },
-      { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9 } },
-      { "glyph": { "letter": "X", "lo": 0.1, "hi": 0.9 } },
-      { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9 } },
-      { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9 } }
+  "bench": {
+    "model": "contrast",
+    "setup": {
+      "names": ["T", "L", "X", "O", "F"],
+      "base": [
+        { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9 } },
+        { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9 } },
+        { "glyph": { "letter": "X", "lo": 0.1, "hi": 0.9 } },
+        { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9 } },
+        { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9 } }
+      ],
+      "tau": 0.2,
+      "rate": 0.5,
+      "testSeeds": [901, 902, 903]
+    },
+    "knobs": {
+      "pull": {
+        "toggle": true,
+        "fixed": true,
+        "start": true,
+        "label": { "zh": "拉近搭档（分子）", "en": "Pull partners close (numerator)" }
+      },
+      "push": { "toggle": true, "label": { "zh": "推开其他视图（分母）", "en": "Push other views away (denominator)" } }
+    },
+    "actions": [
+      { "act": "train", "arg": 1, "label": { "zh": "训练 1 步", "en": "Train 1 step" } },
+      { "act": "train", "arg": 20, "label": { "zh": "训练 20 步", "en": "Train 20 steps" }, "primary": true },
+      { "act": "reset", "label": { "zh": "重置编码器", "en": "Reset encoder" }, "icon": "reset" }
     ],
-    "tau": 0.2,
-    "rate": 0.5,
-    "goal": 0.5,
-    "collapse": 0.9,
-    "testSeeds": [901, 902, 903]
+    "goal": [
+      {
+        "of": "worst",
+        "label": { "zh": "认对搭档的最低概率", "en": "Lowest chance of picking the partner" },
+        "atLeast": 0.5,
+        "format": "pct"
+      },
+      {
+        "of": "negative",
+        "label": { "zh": "负对平均 sim，不坍缩", "en": "Mean sim of negative pairs, no collapse" },
+        "atMost": 0.9,
+        "format": "fixed2"
+      }
+    ],
+    "layout": {
+      "main": [
+        {
+          "embedding": {
+            "with": [
+              {
+                "text": { "text": { "zh": "嵌入平面 · 测验视图", "en": "Embedding plane · quiz views" }, "look": "label" }
+              },
+              { "chips": { "of": "steps" } }
+            ]
+          }
+        },
+        { "verdict": { "center": true } },
+        {
+          "text": {
+            "text": {
+              "zh": "● 第 1 个视图　○ 第 2 个视图　— 连线连接同一张图的两个视图",
+              "en": "● First view  ○ Second view  — A line joins the two views of the same image"
+            },
+            "look": "legend"
+          }
+        }
+      ],
+      "split": "wide",
+      "side": [
+        { "panel": [{ "text": { "text": { "zh": "目标", "en": "Goals" }, "look": "label" } }, "goals"] },
+        {
+          "panel": [
+            { "text": { "of": "formula", "look": "serif" } },
+            "knobs",
+            "actions",
+            { "curve": { "of": "losses", "caption": "lossNote" } }
+          ]
+        },
+        "choiceMatrix"
+      ]
+    }
   }
 }
