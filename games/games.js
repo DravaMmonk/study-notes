@@ -82,10 +82,10 @@ export const GAMES = [
     progress: () => (read('bus.v1')?.solved || []).length,
   },
   {
-    id: 'network', href: 'network/index.html', title: 'network', en: 'network', topic: { zh: 'network', en: 'network' },
-    desc: { zh: '一根线，每一拍上面有一位。先听它，再自己往上说。', en: 'One line, one bit on it each tick. Listen to it first, then talk on it yourself.' },
-    levels: 33, dev: true, hidden: true,
-    page: { icon: 'M16 32h32M32 16v32', description: 'network network' },
+    id: 'network', href: 'network/index.html', title: '从一根线开始', en: 'From One Wire', topic: { zh: '计算机网络', en: 'Computer Networks' },
+    desc: { zh: '一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。', en: 'One wire, one bit a tick, and some bits go wrong. Start by passing a bit on, and build a network adapter of your own, layer by layer.' },
+    levels: 33, art: 'wave', dev: true,
+    page: { icon: 'M10 32h14l4-10 8 20 4-10h14', description: '从一根线开始 From One Wire：从一根会出错的线搭起计算机网络。Computer networking built up from one wire that gets bits wrong.' },
     progress: () => (read('network.v1')?.solved || []).length,
   },
 ];

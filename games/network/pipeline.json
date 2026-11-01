@@ -851,6 +851,133 @@
               "says": "异步传输 (asynchronous transmission, in start-bit) and 存储转发 (store-and-forward, in cut-through) are defined inside other entries and have none of their own. Give them entries, or drop the terms."
             }
           ]
+        },
+        {
+          "at": "2026-11-01T16:26:22.008Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 3777809,
+            "seconds": 455,
+            "cost": 2.8815555000000006,
+            "turns": 56
+          },
+          "calls": {
+            "check": {
+              "runs": 3,
+              "failed": 0
+            },
+            "lint": {
+              "runs": 1,
+              "failed": 0
+            },
+            "deps": {
+              "runs": 1,
+              "failed": 0
+            }
+          },
+          "changes": [],
+          "report": "I've reviewed the whole game (all 33 levels, the blueprint, game.json, glossary and the part catalog). There are 14 findings: 8 to fix before a person reviews it and 6 judgement calls. Each fix is a change to a level, the blueprint or the text, not a failing check. The four most important:\n\n- **Untested input:** no test checks the 「发送」 (send) input, but 「回一声」 (1-37) depends on it. A player's own framer that ignores it would pass 「塞一个 0」 (1-40) and 「一块网卡」 (1-18), and then 1-37 can't be passed.\n- **\"Intact\" is overstated:** in 「翻了两位」 (1-35) and the later levels, \"完好 / intact\" only means \"the check fits\". One hidden test expects a damaged byte to be reported intact.\n- **The network card level hides a second new idea:** it is presented as just putting parts together, but the sending side's check byte has never been built before.\n- **The challenge sits too early:** 「哪一位翻了」 (1-20) relies on something only taught in 1-35.\n\nOne more thing: the playtest file grew while I was reading. A single session now shows 「拆帧」 (1-13) taking three attempts against one for the levels around it.\n\n```json\n{ \"findings\": [\n  { \"at\": \"1-40\", \"owner\": \"levels\", \"rule\": \"The level asks what it says (§4 tests; §8 新元件不是必需的)\", \"fix\": true,\n    \"says\": \"The briefs of 1-12, 1-40 and 1-18 say a new frame starts only while 「发送」 is 1, but `sent` compares only the order of what the far end decodes, so a board that ignores 发送 passes every test; yet 1-37 drives nic's send with a pending answer, so a player whose own framer (1-40) ignores it is stuck at 1-37 with a part that cannot be fixed there. Add a want or test that fails when a frame starts while 发送 is 0 (for example a far-end decode that also checks that no frame begins on a tick 发送 is 0), and have the 1-12 intro say why a sender waits for 发送.\" },\n  { \"at\": \"1-35\", \"owner\": \"copy\", \"rule\": \"The domain's honesty; brief states the task (§4 目标只陈述任务)\", \"fix\": true,\n    \"says\": \"The domain's `intact` means 'the check fits', and hidden test 1 (flips at 0 and 7, exactly 7 apart) expects a damaged byte to be reported intact, yet the brief asks 'whether it arrived intact'. Word it the way 1-14 does (「校验是否相符」 / 'whether its check fits') here and in 1-17, 1-18, 1-37, in the receiver and nic descriptions, and in the 完好/Intact output label.\" },\n  { \"at\": \"1-18\", \"owner\": \"blueprint\", \"rule\": \"One new idea a level; intros assemble the machine (§1, §2.2 难的机制拆开引入)\", \"fix\": true,\n    \"says\": \"The upward half is just `receiver(rx)` wired to the outputs, and the real work is new: working out a frame's check byte on the sending side (serializerhold into crchold) and handing it to the framer after the last byte. No earlier level does this (1-16 sends a bare 3-bit check after one byte), and only the hints mention it. Add a sending-side level mirroring 1-17 (frames sent with their check byte, building a sender part) so that 1-18 only puts the parts together under the layering idea.\" },\n  { \"at\": \"1-20\", \"owner\": \"blueprint\", \"rule\": \"Prerequisites decide what has been seen (§2); challenge uses only established mechanisms (§2.5)\", \"fix\": true,\n    \"says\": \"1-20 hangs after 1-15, but its naive answer and first hint assume the player knows that an intact codeword divided with its check leaves 0, which is 1-35's idea, and its intro ('so far check bits have only judged whether something arrived intact') is false on a path where the CRC has only been computed. Hang it after 1-35.\" },\n  { \"at\": \"game\", \"owner\": \"copy\", \"rule\": \"元件说明只写功能：碰到「—」怎么办直白写清 (§4)\", \"fix\": true,\n    \"says\": \"The Wire out (tx) description says only '0 when nothing is wired'; it should also say that 「—」 is said as 0, which shift out's description and the 1-10 reference (`equal(byte, byte)` going 「—」 on an empty queue) rely on. Bit of says nothing about a Number of 「—」; state it.\" },\n  { \"at\": \"1-40\", \"owner\": \"copy\", \"rule\": \"The domain's honesty: a part's description says less than it does (§4 元件说明)\", \"fix\": true,\n    \"says\": \"The framer's description never mentions its 「末字节」/last input, which marks a frame's final byte and is what ends a frame; nic's description leaves it out too. Add one clause to each.\" },\n  { \"at\": \"1-6\", \"owner\": \"copy\", \"rule\": \"英文一面按英文的习惯写 (§4)\", \"fix\": true,\n    \"says\": \"'counted from the first tick before restart is ever 1' (1-6 brief, counter description, 1-27 brief, counterhold description) reads as 'the first tick before restart'. Write something like 'and, until restart is first 1, counted from the very first tick'.\" },\n  { \"at\": \"1-20\", \"owner\": \"copy\", \"rule\": \"Challenge: fewer hints, hard by a leap not by tedium (§2.5)\", \"fix\": false,\n    \"says\": \"Hint 2 ('flip each of the 7 positions in turn: what remainder does each leave?') hands over the leap the blueprint names (seven positions, seven different remainders). What is left is a table of five equal/select pairs, which is closer to tedium than insight; consider dropping hint 2 or making the matching itself the leap.\" },\n  { \"at\": \"1-15\", \"owner\": \"copy\", \"rule\": \"不剧透核心思路；提示第一级只指方向 (§4)\", \"fix\": false,\n    \"says\": \"Hint 3 ('compare each new bit with the top bit held before deciding whether this step subtracts the generator') is the core of the bit-at-a-time division. As the last hint this may be acceptable, but it comes close to giving the wiring.\" },\n  { \"at\": \"blueprint\", \"owner\": \"blueprint\", \"rule\": \"Practice really varies the idea; 重看旧东西不一个点一关 (§1, §8)\", \"fix\": false,\n    \"says\": \"1-28, 1-29 and 1-36 each repeat 1-27's move (add a hold input that freezes the part's state) on another part. Consider making them tasks of one level, or of the levels that first need each one, rather than three separate levels of the same puzzle.\" },\n  { \"at\": \"blueprint\", \"owner\": \"blueprint\", \"rule\": \"Practice density 3–5 per mechanism, ending in combine or true-or-false (§2.3)\", \"fix\": false,\n    \"says\": \"Choice (1-3), memory (1-5), counting (1-22), compare (1-23), binary (1-8) and start bits (1-10) each get a single practice level before the next idea arrives, ",
+          "transcript": "/tmp/pipeline-network-review-Pm8JWP/transcript.jsonl",
+          "findings": [
+            {
+              "at": "1-40",
+              "owner": "levels",
+              "rule": "The level asks what it says (§4 tests; §8 新元件不是必需的)",
+              "fix": true,
+              "says": "The briefs of 1-12, 1-40 and 1-18 say a new frame starts only while 「发送」 is 1, but `sent` compares only the order of what the far end decodes, so a board that ignores 发送 passes every test; yet 1-37 drives nic's send with a pending answer, so a player whose own framer (1-40) ignores it is stuck at 1-37 with a part that cannot be fixed there. Add a want or test that fails when a frame starts while 发送 is 0 (for example a far-end decode that also checks that no frame begins on a tick 发送 is 0), and have the 1-12 intro say why a sender waits for 发送."
+            },
+            {
+              "at": "1-35",
+              "owner": "copy",
+              "rule": "The domain's honesty; brief states the task (§4 目标只陈述任务)",
+              "fix": true,
+              "says": "The domain's `intact` means 'the check fits', and hidden test 1 (flips at 0 and 7, exactly 7 apart) expects a damaged byte to be reported intact, yet the brief asks 'whether it arrived intact'. Word it the way 1-14 does (「校验是否相符」 / 'whether its check fits') here and in 1-17, 1-18, 1-37, in the receiver and nic descriptions, and in the 完好/Intact output label."
+            },
+            {
+              "at": "1-18",
+              "owner": "blueprint",
+              "rule": "One new idea a level; intros assemble the machine (§1, §2.2 难的机制拆开引入)",
+              "fix": true,
+              "says": "The upward half is just `receiver(rx)` wired to the outputs, and the real work is new: working out a frame's check byte on the sending side (serializerhold into crchold) and handing it to the framer after the last byte. No earlier level does this (1-16 sends a bare 3-bit check after one byte), and only the hints mention it. Add a sending-side level mirroring 1-17 (frames sent with their check byte, building a sender part) so that 1-18 only puts the parts together under the layering idea."
+            },
+            {
+              "at": "1-20",
+              "owner": "blueprint",
+              "rule": "Prerequisites decide what has been seen (§2); challenge uses only established mechanisms (§2.5)",
+              "fix": true,
+              "says": "1-20 hangs after 1-15, but its naive answer and first hint assume the player knows that an intact codeword divided with its check leaves 0, which is 1-35's idea, and its intro ('so far check bits have only judged whether something arrived intact') is false on a path where the CRC has only been computed. Hang it after 1-35."
+            },
+            {
+              "at": "game",
+              "owner": "copy",
+              "rule": "元件说明只写功能：碰到「—」怎么办直白写清 (§4)",
+              "fix": true,
+              "says": "The Wire out (tx) description says only '0 when nothing is wired'; it should also say that 「—」 is said as 0, which shift out's description and the 1-10 reference (`equal(byte, byte)` going 「—」 on an empty queue) rely on. Bit of says nothing about a Number of 「—」; state it."
+            },
+            {
+              "at": "1-40",
+              "owner": "copy",
+              "rule": "The domain's honesty: a part's description says less than it does (§4 元件说明)",
+              "fix": true,
+              "says": "The framer's description never mentions its 「末字节」/last input, which marks a frame's final byte and is what ends a frame; nic's description leaves it out too. Add one clause to each."
+            },
+            {
+              "at": "1-6",
+              "owner": "copy",
+              "rule": "英文一面按英文的习惯写 (§4)",
+              "fix": true,
+              "says": "'counted from the first tick before restart is ever 1' (1-6 brief, counter description, 1-27 brief, counterhold description) reads as 'the first tick before restart'. Write something like 'and, until restart is first 1, counted from the very first tick'."
+            },
+            {
+              "at": "1-20",
+              "owner": "copy",
+              "rule": "Challenge: fewer hints, hard by a leap not by tedium (§2.5)",
+              "fix": false,
+              "says": "Hint 2 ('flip each of the 7 positions in turn: what remainder does each leave?') hands over the leap the blueprint names (seven positions, seven different remainders). What is left is a table of five equal/select pairs, which is closer to tedium than insight; consider dropping hint 2 or making the matching itself the leap."
+            },
+            {
+              "at": "1-15",
+              "owner": "copy",
+              "rule": "不剧透核心思路；提示第一级只指方向 (§4)",
+              "fix": false,
+              "says": "Hint 3 ('compare each new bit with the top bit held before deciding whether this step subtracts the generator') is the core of the bit-at-a-time division. As the last hint this may be acceptable, but it comes close to giving the wiring."
+            },
+            {
+              "at": "blueprint",
+              "owner": "blueprint",
+              "rule": "Practice really varies the idea; 重看旧东西不一个点一关 (§1, §8)",
+              "fix": false,
+              "says": "1-28, 1-29 and 1-36 each repeat 1-27's move (add a hold input that freezes the part's state) on another part. Consider making them tasks of one level, or of the levels that first need each one, rather than three separate levels of the same puzzle."
+            },
+            {
+              "at": "blueprint",
+              "owner": "blueprint",
+              "rule": "Practice density 3–5 per mechanism, ending in combine or true-or-false (§2.3)",
+              "fix": false,
+              "says": "Choice (1-3), memory (1-5), counting (1-22), compare (1-23), binary (1-8) and start bits (1-10) each get a single practice level before the next idea arrives, and apart from 1-35 no group ends in a true-or-false level. §2.3 allows short early groups, but start bits and binary in particular are thin."
+            },
+            {
+              "at": "1-17",
+              "owner": "blueprint",
+              "rule": "The domain's honesty",
+              "fix": false,
+              "says": "Because the check byte is the content's CRC with 0s in front, the receiver cannot run every bit through the CRC and look for 0 (the trick 1-35's hint teaches). The reference instead holds each byte back and re-serializes it into crchold, which real receivers do not do. Computing the check over the content followed by five 0s would keep the zero-remainder check; otherwise the encyclopedia should admit the difference."
+            },
+            {
+              "at": "1-27",
+              "owner": "copy",
+              "rule": "不往后透露 (§4)",
+              "fix": false,
+              "says": "'这一关先让计数器能停' / 'This level first makes the counter able to stand still' previews that more levels follow; 'This level makes the counter able to stand still' says the same thing without it."
+            },
+            {
+              "at": "1-13",
+              "owner": "levels",
+              "rule": "一个新主题的第二关不能比第一关难一大截 (§2.2)",
+              "fix": false,
+              "says": "The playtest reports a difficulty spike: 3.0 attempts against 1.0 for its neighbours, from one session only. The likely trap is the closing flag also looking like a full byte; if more sessions confirm it, surface that case in a visible test rather than in a hint."
+            }
+          ]
         }
       ],
       "gates": [
@@ -1001,6 +1128,84 @@
               "rule": "review-note",
               "at": "glossary:start-bit",
               "says": "异步传输 (asynchronous transmission, in start-bit) and 存储转发 (store-and-forward, in cut-through) are defined inside other entries and have none of their own. Give them entries, or drop the terms."
+            }
+          ]
+        },
+        {
+          "at": "2026-11-01T16:26:22.015Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "review",
+              "at": "1-40",
+              "says": "levels: The briefs of 1-12, 1-40 and 1-18 say a new frame starts only while 「发送」 is 1, but `sent` compares only the order of what the far end decodes, so a board that ignores 发送 passes every test; yet 1-37 drives nic's send with a pending answer, so a player whose own framer (1-40) ignores it is stuck at 1-37 with a part that cannot be fixed there. Add a want or test that fails when a frame starts while 发送 is 0 (for example a far-end decode that also checks that no frame begins on a tick 发送 is 0), and have the 1-12 intro say why a sender waits for 发送."
+            },
+            {
+              "rule": "review",
+              "at": "1-35",
+              "says": "copy: The domain's `intact` means 'the check fits', and hidden test 1 (flips at 0 and 7, exactly 7 apart) expects a damaged byte to be reported intact, yet the brief asks 'whether it arrived intact'. Word it the way 1-14 does (「校验是否相符」 / 'whether its check fits') here and in 1-17, 1-18, 1-37, in the receiver and nic descriptions, and in the 完好/Intact output label."
+            },
+            {
+              "rule": "review",
+              "at": "1-18",
+              "says": "blueprint: The upward half is just `receiver(rx)` wired to the outputs, and the real work is new: working out a frame's check byte on the sending side (serializerhold into crchold) and handing it to the framer after the last byte. No earlier level does this (1-16 sends a bare 3-bit check after one byte), and only the hints mention it. Add a sending-side level mirroring 1-17 (frames sent with their check byte, building a sender part) so that 1-18 only puts the parts together under the layering idea."
+            },
+            {
+              "rule": "review",
+              "at": "1-20",
+              "says": "blueprint: 1-20 hangs after 1-15, but its naive answer and first hint assume the player knows that an intact codeword divided with its check leaves 0, which is 1-35's idea, and its intro ('so far check bits have only judged whether something arrived intact') is false on a path where the CRC has only been computed. Hang it after 1-35."
+            },
+            {
+              "rule": "review",
+              "at": "game",
+              "says": "copy: The Wire out (tx) description says only '0 when nothing is wired'; it should also say that 「—」 is said as 0, which shift out's description and the 1-10 reference (`equal(byte, byte)` going 「—」 on an empty queue) rely on. Bit of says nothing about a Number of 「—」; state it."
+            },
+            {
+              "rule": "review",
+              "at": "1-40",
+              "says": "copy: The framer's description never mentions its 「末字节」/last input, which marks a frame's final byte and is what ends a frame; nic's description leaves it out too. Add one clause to each."
+            },
+            {
+              "rule": "review",
+              "at": "1-6",
+              "says": "copy: 'counted from the first tick before restart is ever 1' (1-6 brief, counter description, 1-27 brief, counterhold description) reads as 'the first tick before restart'. Write something like 'and, until restart is first 1, counted from the very first tick'."
+            }
+          ],
+          "reports": [
+            {
+              "rule": "review-note",
+              "at": "1-20",
+              "says": "Hint 2 ('flip each of the 7 positions in turn: what remainder does each leave?') hands over the leap the blueprint names (seven positions, seven different remainders). What is left is a table of five equal/select pairs, which is closer to tedium than insight; consider dropping hint 2 or making the matching itself the leap."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-15",
+              "says": "Hint 3 ('compare each new bit with the top bit held before deciding whether this step subtracts the generator') is the core of the bit-at-a-time division. As the last hint this may be acceptable, but it comes close to giving the wiring."
+            },
+            {
+              "rule": "review-note",
+              "at": "blueprint",
+              "says": "1-28, 1-29 and 1-36 each repeat 1-27's move (add a hold input that freezes the part's state) on another part. Consider making them tasks of one level, or of the levels that first need each one, rather than three separate levels of the same puzzle."
+            },
+            {
+              "rule": "review-note",
+              "at": "blueprint",
+              "says": "Choice (1-3), memory (1-5), counting (1-22), compare (1-23), binary (1-8) and start bits (1-10) each get a single practice level before the next idea arrives, and apart from 1-35 no group ends in a true-or-false level. §2.3 allows short early groups, but start bits and binary in particular are thin."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-17",
+              "says": "Because the check byte is the content's CRC with 0s in front, the receiver cannot run every bit through the CRC and look for 0 (the trick 1-35's hint teaches). The reference instead holds each byte back and re-serializes it into crchold, which real receivers do not do. Computing the check over the content followed by five 0s would keep the zero-remainder check; otherwise the encyclopedia should admit the difference."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-27",
+              "says": "'这一关先让计数器能停' / 'This level first makes the counter able to stand still' previews that more levels follow; 'This level makes the counter able to stand still' says the same thing without it."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-13",
+              "says": "The playtest reports a difficulty spike: 3.0 attempts against 1.0 for its neighbours, from one session only. The likely trap is the closing flag also looking like a full byte; if more sessions confirm it, surface that case in a visible test rather than in a hint."
             }
           ]
         }

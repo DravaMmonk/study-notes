@@ -1,0 +1,10131 @@
+{
+ "game": "network",
+ "session": "blind-2",
+ "player": {
+  "kind": "llm",
+  "model": "claude-sonnet-5-5"
+ },
+ "lang": "en",
+ "started": "2026-11-01T16:18:46.548Z",
+ "limits": {
+  "attempts": 6,
+  "levels": 33
+ },
+ "progress": {
+  "version": 2,
+  "solved": [
+   "1-1",
+   "1-2",
+   "1-3",
+   "1-4",
+   "1-5",
+   "1-6",
+   "1-22",
+   "1-21",
+   "1-23",
+   "1-7",
+   "1-8",
+   "1-9",
+   "1-10",
+   "1-11",
+   "1-26",
+   "1-12",
+   "1-13",
+   "1-27",
+   "1-28",
+   "1-40",
+   "1-29"
+  ],
+  "flags": [
+   "counter",
+   "serializer",
+   "deserializer",
+   "flagspot",
+   "counterhold",
+   "serializerhold",
+   "framer",
+   "deserializerhold"
+  ],
+  "data": {
+   "1-1": {
+    "nodes": [
+     {
+      "id": "left",
+      "type": "rx",
+      "params": {
+       "name": "left"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "right",
+      "type": "tx",
+      "params": {
+       "name": "right"
+      },
+      "x": 980,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "left",
+      "to": "right",
+      "port": "in"
+     }
+    ]
+   },
+   "1-2": {
+    "nodes": [
+     {
+      "id": "left",
+      "type": "rx",
+      "params": {
+       "name": "left"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "right",
+      "type": "tx",
+      "params": {
+       "name": "right"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "left",
+      "to": "s",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "s",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "s",
+      "port": "no"
+     },
+     {
+      "from": "s",
+      "to": "right",
+      "port": "in"
+     }
+    ]
+   },
+   "1-3": {
+    "nodes": [
+     {
+      "id": "a",
+      "type": "rx",
+      "params": {
+       "name": "a"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "rx",
+      "params": {
+       "name": "b"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "x",
+      "type": "tx",
+      "params": {
+       "name": "x"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "s",
+      "port": "if"
+     },
+     {
+      "from": "b",
+      "to": "s",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "s",
+      "port": "no"
+     },
+     {
+      "from": "s",
+      "to": "x",
+      "port": "in"
+     }
+    ]
+   },
+   "1-4": {
+    "nodes": [
+     {
+      "id": "left",
+      "type": "rx",
+      "params": {
+       "name": "left"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "right",
+      "type": "tx",
+      "params": {
+       "name": "right"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 440,
+      "y": 40
+     }
+    ],
+    "wires": [
+     {
+      "from": "left",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "right",
+      "port": "in"
+     }
+    ]
+   },
+   "1-5": {
+    "nodes": [
+     {
+      "id": "left",
+      "type": "rx",
+      "params": {
+       "name": "left"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "right",
+      "type": "tx",
+      "params": {
+       "name": "right"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "left",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "r",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "right",
+      "port": "in"
+     }
+    ]
+   },
+   "1-6": {
+    "nodes": [
+     {
+      "id": "reset",
+      "type": "in",
+      "params": {
+       "name": "reset"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "count",
+      "type": "out",
+      "params": {
+       "name": "count"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "reset",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "r",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "n",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "count",
+      "port": "in"
+     }
+    ]
+   },
+   "1-22": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "run",
+      "type": "out",
+      "params": {
+       "name": "run"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "r",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "n",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "run",
+      "port": "in"
+     }
+    ]
+   },
+   "1-21": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "e",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 440,
+      "y": 420
+     }
+    ],
+    "wires": [
+     {
+      "from": "r",
+      "to": "e",
+      "port": "a"
+     },
+     {
+      "from": "s",
+      "to": "e",
+      "port": "b"
+     },
+     {
+      "from": "r",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "e",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "e",
+      "to": "line",
+      "port": "in"
+     }
+    ]
+   },
+   "1-23": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "x",
+      "type": "tx",
+      "params": {
+       "name": "x"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "f",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "e",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     }
+    ],
+    "wires": [
+     {
+      "from": "r",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "n",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "e",
+      "port": "a"
+     },
+     {
+      "from": "f",
+      "to": "e",
+      "port": "b"
+     },
+     {
+      "from": "e",
+      "to": "x",
+      "port": "in"
+     }
+    ]
+   },
+   "1-7": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 260,
+      "y": 120
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "cur",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "is8",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     }
+    ]
+   },
+   "1-8": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "acc",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "nacc",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "acc",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "acc",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "acc",
+      "port": "no"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "nacc",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "nacc",
+      "port": "yes"
+     },
+     {
+      "from": "sh",
+      "to": "nacc",
+      "port": "no"
+     },
+     {
+      "from": "nacc",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "nacc",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     }
+    ]
+   },
+   "1-9": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c9",
+      "type": "const",
+      "params": {
+       "value": 9
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "idle",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "e9",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "n2",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "st",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "d",
+      "type": "deserializer",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "g",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "idle",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "idle",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "e9",
+      "port": "a"
+     },
+     {
+      "from": "c9",
+      "to": "e9",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "e9",
+      "to": "n2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "n2",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "n2",
+      "port": "no"
+     },
+     {
+      "from": "idle",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "line",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "n2",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "a",
+      "to": "st",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "st",
+      "port": "b"
+     },
+     {
+      "from": "line",
+      "to": "d",
+      "port": "line"
+     },
+     {
+      "from": "st",
+      "to": "d",
+      "port": "start"
+     },
+     {
+      "from": "d#done",
+      "to": "g",
+      "port": "if"
+     },
+     {
+      "from": "d#byte",
+      "to": "g",
+      "port": "yes"
+     },
+     {
+      "from": "g",
+      "to": "byte",
+      "port": "in"
+     }
+    ]
+   },
+   "1-10": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c9",
+      "type": "const",
+      "params": {
+       "value": 9
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 9
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "h",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "idle",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "e8",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "bl",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "lb",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "li",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     },
+     {
+      "id": "nxt",
+      "type": "select",
+      "params": {},
+      "x": 350,
+      "y": 210
+     }
+    ],
+    "wires": [
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "a"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "idle",
+      "port": "a"
+     },
+     {
+      "from": "c9",
+      "to": "idle",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "e8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "e8",
+      "port": "b"
+     },
+     {
+      "from": "a",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "h",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "c9",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "idle",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "ni",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "idle",
+      "to": "bl",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "bl",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "bl",
+      "port": "no"
+     },
+     {
+      "from": "bl",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "bl",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "a",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "e8",
+      "to": "lb",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "lb",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "lb",
+      "port": "no"
+     },
+     {
+      "from": "h",
+      "to": "li",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "li",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "li",
+      "port": "no"
+     },
+     {
+      "from": "idle",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "li",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "lb",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     },
+     {
+      "from": "idle",
+      "to": "nxt",
+      "port": "if"
+     },
+     {
+      "from": "h",
+      "to": "nxt",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nxt",
+      "port": "no"
+     },
+     {
+      "from": "nxt",
+      "to": "next",
+      "port": "in"
+     }
+    ]
+   },
+   "1-11": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "flag",
+      "type": "out",
+      "params": {
+       "name": "flag"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "t1",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "t",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "f",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     }
+    ],
+    "wires": [
+     {
+      "from": "s",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "s",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "s",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "t1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "t1",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "t1",
+      "port": "no"
+     },
+     {
+      "from": "e0",
+      "to": "t",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "t",
+      "port": "yes"
+     },
+     {
+      "from": "t1",
+      "to": "t",
+      "port": "no"
+     },
+     {
+      "from": "line",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "t",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "line",
+      "to": "f",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "f",
+      "port": "yes"
+     },
+     {
+      "from": "e7",
+      "to": "f",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "flag",
+      "port": "in"
+     }
+    ]
+   },
+   "1-26": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "n",
+      "type": "out",
+      "params": {
+       "name": "n"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "f",
+      "type": "flagspot",
+      "params": {},
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "t",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "sn",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 610
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "f",
+      "port": "line"
+     },
+     {
+      "from": "a",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "b",
+      "to": "t",
+      "port": "if"
+     },
+     {
+      "from": "p",
+      "to": "t",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "t",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "t",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "f",
+      "to": "sn",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "sn",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "sn",
+      "port": "no"
+     },
+     {
+      "from": "sn",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "n",
+      "port": "in"
+     }
+    ]
+   },
+   "1-12": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "last",
+      "type": "in",
+      "params": {
+       "name": "last"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "send",
+      "type": "in",
+      "params": {
+       "name": "send"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "fl",
+      "type": "const",
+      "params": {
+       "value": 126
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "m",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "bl",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "m0",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "m1",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "h",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "go",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "n1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "nn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ln",
+      "type": "bit",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "g8",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nd0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mg",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ml",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "md",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "km",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "m0",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m1",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "m1",
+      "port": "b"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "a"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "b"
+     },
+     {
+      "from": "send",
+      "to": "go",
+      "port": "if"
+     },
+     {
+      "from": "h",
+      "to": "go",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "go",
+      "port": "no"
+     },
+     {
+      "from": "go",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "fl",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "n1",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "n1",
+      "port": "yes"
+     },
+     {
+      "from": "fl",
+      "to": "n1",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nn",
+      "port": "if"
+     },
+     {
+      "from": "n0",
+      "to": "nn",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "nn",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "nn",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "bl",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "ln",
+      "port": "n"
+     },
+     {
+      "from": "ci",
+      "to": "ln",
+      "port": "i"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     },
+     {
+      "from": "ci",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "go",
+      "to": "g8",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "g8",
+      "port": "yes"
+     },
+     {
+      "from": "c8",
+      "to": "g8",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nd0",
+      "port": "if"
+     },
+     {
+      "from": "g8",
+      "to": "nd0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nd0",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "nd0",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "go",
+      "to": "mg",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "mg",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mg",
+      "port": "no"
+     },
+     {
+      "from": "last",
+      "to": "ml",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "ml",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "ml",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "mm",
+      "port": "if"
+     },
+     {
+      "from": "ml",
+      "to": "mm",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mm",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "md",
+      "port": "if"
+     },
+     {
+      "from": "mg",
+      "to": "md",
+      "port": "yes"
+     },
+     {
+      "from": "mm",
+      "to": "md",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "nm",
+      "port": "if"
+     },
+     {
+      "from": "md",
+      "to": "nm",
+      "port": "yes"
+     },
+     {
+      "from": "m",
+      "to": "nm",
+      "port": "no"
+     },
+     {
+      "from": "nm",
+      "to": "km",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "m1",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "next",
+      "port": "in"
+     }
+    ]
+   },
+   "1-13": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "f",
+      "type": "flagspot",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "ins",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "acc",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "cl0",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "close",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "op0",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "open",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "g1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "got0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "gb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "i1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "cn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs2",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "f",
+      "port": "line"
+     },
+     {
+      "from": "c",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "ins",
+      "to": "cl0",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "cl0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "cl0",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "close",
+      "port": "if"
+     },
+     {
+      "from": "cl0",
+      "to": "close",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "close",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "op0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "op0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "op0",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "open",
+      "port": "if"
+     },
+     {
+      "from": "op0",
+      "to": "open",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "open",
+      "port": "no"
+     },
+     {
+      "from": "e0",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "acc",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "sh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "g1",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "g1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "g1",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "got0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "got0",
+      "port": "yes"
+     },
+     {
+      "from": "g1",
+      "to": "got0",
+      "port": "no"
+     },
+     {
+      "from": "got0",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "got0",
+      "to": "gb",
+      "port": "if"
+     },
+     {
+      "from": "sh",
+      "to": "gb",
+      "port": "yes"
+     },
+     {
+      "from": "gb",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "open",
+      "to": "i1",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "i1",
+      "port": "yes"
+     },
+     {
+      "from": "ins",
+      "to": "i1",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "i1",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "cn",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cn",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "cn",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "cn",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "rs",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs",
+      "port": "yes"
+     },
+     {
+      "from": "ci",
+      "to": "rs",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "rs2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs2",
+      "port": "yes"
+     },
+     {
+      "from": "rs",
+      "to": "rs2",
+      "port": "no"
+     },
+     {
+      "from": "rs2",
+      "to": "kb",
+      "port": "in"
+     }
+    ]
+   },
+   "1-27": {
+    "nodes": [
+     {
+      "id": "reset",
+      "type": "in",
+      "params": {
+       "name": "reset"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "count",
+      "type": "out",
+      "params": {
+       "name": "count"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "m",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "h",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "o",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "b",
+      "to": "m",
+      "port": "if"
+     },
+     {
+      "from": "n",
+      "to": "m",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "m",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "h",
+      "port": "if"
+     },
+     {
+      "from": "r",
+      "to": "h",
+      "port": "yes"
+     },
+     {
+      "from": "m",
+      "to": "h",
+      "port": "no"
+     },
+     {
+      "from": "reset",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "h",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "count",
+      "port": "in"
+     }
+    ]
+   },
+   "1-28": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "d0",
+      "type": "equal",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "d",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "nx0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "ln0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 800
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "cur",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "cur",
+      "to": "d0",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "d",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "yes"
+     },
+     {
+      "from": "d0",
+      "to": "d",
+      "port": "no"
+     },
+     {
+      "from": "is8",
+      "to": "nx0",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx0",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "cur",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "nx0",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "is8",
+      "to": "ln0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln0",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "ln0",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     }
+    ]
+   },
+   "1-40": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "last",
+      "type": "in",
+      "params": {
+       "name": "last"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "send",
+      "type": "in",
+      "params": {
+       "name": "send"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "fl",
+      "type": "const",
+      "params": {
+       "value": 126
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "m",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "bl",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "e",
+      "type": "reg",
+      "params": {
+       "reg": "E",
+       "start": 0
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "m0",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "m1",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "nm0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "sw",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ct",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "r5",
+      "type": "equal",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "hold",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "h",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "ml",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "go",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "n1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "g8",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mg",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nd0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "md",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "cbh",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "na0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nm0b",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "nm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "km",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ne",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ke",
+      "type": "keep",
+      "params": {
+       "reg": "E"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rp",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "nr",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kr",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "m0",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m1",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "m1",
+      "port": "b"
+     },
+     {
+      "from": "m0",
+      "to": "nm0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nm0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nm0",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "sw",
+      "port": "if"
+     },
+     {
+      "from": "nm0",
+      "to": "sw",
+      "port": "yes"
+     },
+     {
+      "from": "e",
+      "to": "sw",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "ct",
+      "port": "if"
+     },
+     {
+      "from": "m1",
+      "to": "ct",
+      "port": "yes"
+     },
+     {
+      "from": "e",
+      "to": "ct",
+      "port": "no"
+     },
+     {
+      "from": "r",
+      "to": "r5",
+      "port": "a"
+     },
+     {
+      "from": "c5",
+      "to": "r5",
+      "port": "b"
+     },
+     {
+      "from": "sw",
+      "to": "hold",
+      "port": "if"
+     },
+     {
+      "from": "r5",
+      "to": "hold",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hold",
+      "port": "no"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "a"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "b"
+     },
+     {
+      "from": "last",
+      "to": "ml",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "ml",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "ml",
+      "port": "no"
+     },
+     {
+      "from": "send",
+      "to": "go",
+      "port": "if"
+     },
+     {
+      "from": "h",
+      "to": "go",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "go",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "n1",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "n1",
+      "port": "yes"
+     },
+     {
+      "from": "fl",
+      "to": "n1",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "mm",
+      "port": "if"
+     },
+     {
+      "from": "ml",
+      "to": "mm",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mm",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "nx0",
+      "port": "if"
+     },
+     {
+      "from": "m1",
+      "to": "nx0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nx0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "nx0",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "go",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "fl",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "ci",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "go",
+      "to": "g8",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "g8",
+      "port": "yes"
+     },
+     {
+      "from": "c8",
+      "to": "g8",
+      "port": "no"
+     },
+     {
+      "from": "go",
+      "to": "mg",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "mg",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mg",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nn",
+      "port": "if"
+     },
+     {
+      "from": "n0",
+      "to": "nn",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "nn",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nd0",
+      "port": "if"
+     },
+     {
+      "from": "g8",
+      "to": "nd0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nd0",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "md",
+      "port": "if"
+     },
+     {
+      "from": "mg",
+      "to": "md",
+      "port": "yes"
+     },
+     {
+      "from": "mm",
+      "to": "md",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "nn",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "bl",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "cbh",
+      "port": "if"
+     },
+     {
+      "from": "bl",
+      "to": "cbh",
+      "port": "yes"
+     },
+     {
+      "from": "cb",
+      "to": "cbh",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "na0",
+      "port": "if"
+     },
+     {
+      "from": "nd0",
+      "to": "na0",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "na0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "a",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "na0",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "nm0b",
+      "port": "if"
+     },
+     {
+      "from": "md",
+      "to": "nm0b",
+      "port": "yes"
+     },
+     {
+      "from": "m",
+      "to": "nm0b",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nm",
+      "port": "if"
+     },
+     {
+      "from": "m",
+      "to": "nm",
+      "port": "yes"
+     },
+     {
+      "from": "nm0b",
+      "to": "nm",
+      "port": "no"
+     },
+     {
+      "from": "cbh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "ci",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "hold",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "nm",
+      "to": "km",
+      "port": "in"
+     },
+     {
+      "from": "hold",
+      "to": "ne",
+      "port": "if"
+     },
+     {
+      "from": "e",
+      "to": "ne",
+      "port": "yes"
+     },
+     {
+      "from": "ct",
+      "to": "ne",
+      "port": "no"
+     },
+     {
+      "from": "ne",
+      "to": "ke",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "rp",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "rp",
+      "port": "b"
+     },
+     {
+      "from": "ln",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "rp",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "ct",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "r1",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nr",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nr",
+      "port": "yes"
+     },
+     {
+      "from": "r2",
+      "to": "nr",
+      "port": "no"
+     },
+     {
+      "from": "nr",
+      "to": "kr",
+      "port": "in"
+     },
+     {
+      "from": "nx",
+      "to": "next",
+      "port": "in"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     }
+    ]
+   },
+   "1-29": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "acc",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "d0",
+      "type": "equal",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "d",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "na0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nacc",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "acc",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "acc",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "acc",
+      "port": "no"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "d0",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "d",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "yes"
+     },
+     {
+      "from": "d0",
+      "to": "d",
+      "port": "no"
+     },
+     {
+      "from": "is8",
+      "to": "nx0",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx0",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "cur",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "nx0",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "is8",
+      "to": "na0",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "na0",
+      "port": "yes"
+     },
+     {
+      "from": "sh",
+      "to": "na0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nacc",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "nacc",
+      "port": "yes"
+     },
+     {
+      "from": "na0",
+      "to": "nacc",
+      "port": "no"
+     },
+     {
+      "from": "nacc",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     },
+     {
+      "from": "nacc",
+      "to": "byte",
+      "port": "in"
+     }
+    ]
+   }
+  },
+  "slots": {},
+  "built": {
+   "1-6": {
+    "nodes": [
+     {
+      "id": "reset",
+      "type": "in",
+      "params": {
+       "name": "reset"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "count",
+      "type": "out",
+      "params": {
+       "name": "count"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "reset",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "r",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "n",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "count",
+      "port": "in"
+     }
+    ]
+   },
+   "1-7": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 260,
+      "y": 120
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "cur",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "is8",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     }
+    ]
+   },
+   "1-8": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "acc",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "nacc",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "acc",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "acc",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "acc",
+      "port": "no"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "is8",
+      "to": "nacc",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "nacc",
+      "port": "yes"
+     },
+     {
+      "from": "sh",
+      "to": "nacc",
+      "port": "no"
+     },
+     {
+      "from": "nacc",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "nacc",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     }
+    ]
+   },
+   "1-11": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "flag",
+      "type": "out",
+      "params": {
+       "name": "flag"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "s",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "t1",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "t",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "f",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     }
+    ],
+    "wires": [
+     {
+      "from": "s",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "s",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "s",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "t1",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "t1",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "t1",
+      "port": "no"
+     },
+     {
+      "from": "e0",
+      "to": "t",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "t",
+      "port": "yes"
+     },
+     {
+      "from": "t1",
+      "to": "t",
+      "port": "no"
+     },
+     {
+      "from": "line",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "t",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "line",
+      "to": "f",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "f",
+      "port": "yes"
+     },
+     {
+      "from": "e7",
+      "to": "f",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "flag",
+      "port": "in"
+     }
+    ]
+   },
+   "1-12": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "last",
+      "type": "in",
+      "params": {
+       "name": "last"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "send",
+      "type": "in",
+      "params": {
+       "name": "send"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "fl",
+      "type": "const",
+      "params": {
+       "value": 126
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "m",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "bl",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "m0",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "m1",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "h",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "go",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "n1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "nn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ln",
+      "type": "bit",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "g8",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nd0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mg",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ml",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "md",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "km",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "m0",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m1",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "m1",
+      "port": "b"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "a"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "b"
+     },
+     {
+      "from": "send",
+      "to": "go",
+      "port": "if"
+     },
+     {
+      "from": "h",
+      "to": "go",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "go",
+      "port": "no"
+     },
+     {
+      "from": "go",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "fl",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "n1",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "n1",
+      "port": "yes"
+     },
+     {
+      "from": "fl",
+      "to": "n1",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nn",
+      "port": "if"
+     },
+     {
+      "from": "n0",
+      "to": "nn",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "nn",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "nn",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "bl",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "ln",
+      "port": "n"
+     },
+     {
+      "from": "ci",
+      "to": "ln",
+      "port": "i"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     },
+     {
+      "from": "ci",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "go",
+      "to": "g8",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "g8",
+      "port": "yes"
+     },
+     {
+      "from": "c8",
+      "to": "g8",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nd0",
+      "port": "if"
+     },
+     {
+      "from": "g8",
+      "to": "nd0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nd0",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "nd0",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "go",
+      "to": "mg",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "mg",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mg",
+      "port": "no"
+     },
+     {
+      "from": "last",
+      "to": "ml",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "ml",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "ml",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "mm",
+      "port": "if"
+     },
+     {
+      "from": "ml",
+      "to": "mm",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mm",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "md",
+      "port": "if"
+     },
+     {
+      "from": "mg",
+      "to": "md",
+      "port": "yes"
+     },
+     {
+      "from": "mm",
+      "to": "md",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "nm",
+      "port": "if"
+     },
+     {
+      "from": "md",
+      "to": "nm",
+      "port": "yes"
+     },
+     {
+      "from": "m",
+      "to": "nm",
+      "port": "no"
+     },
+     {
+      "from": "nm",
+      "to": "km",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "m1",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "next",
+      "port": "in"
+     }
+    ]
+   },
+   "1-13": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "got",
+      "type": "out",
+      "params": {
+       "name": "got"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "end",
+      "type": "out",
+      "params": {
+       "name": "end"
+      },
+      "x": 980,
+      "y": 320
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "f",
+      "type": "flagspot",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "ins",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "c",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "acc",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "e0",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "e7",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "cl0",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "close",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "op0",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "open",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "ab",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "g1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "got0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "gb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "i1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ni",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ki",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "cn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rs2",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "line",
+      "to": "f",
+      "port": "line"
+     },
+     {
+      "from": "c",
+      "to": "e0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "e0",
+      "port": "b"
+     },
+     {
+      "from": "c",
+      "to": "e7",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "e7",
+      "port": "b"
+     },
+     {
+      "from": "ins",
+      "to": "cl0",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "cl0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "cl0",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "close",
+      "port": "if"
+     },
+     {
+      "from": "cl0",
+      "to": "close",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "close",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "op0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "op0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "op0",
+      "port": "no"
+     },
+     {
+      "from": "f",
+      "to": "open",
+      "port": "if"
+     },
+     {
+      "from": "op0",
+      "to": "open",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "open",
+      "port": "no"
+     },
+     {
+      "from": "e0",
+      "to": "ab",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ab",
+      "port": "yes"
+     },
+     {
+      "from": "acc",
+      "to": "ab",
+      "port": "no"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "ab",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "sh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "ins",
+      "to": "g1",
+      "port": "if"
+     },
+     {
+      "from": "e7",
+      "to": "g1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "g1",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "got0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "got0",
+      "port": "yes"
+     },
+     {
+      "from": "g1",
+      "to": "got0",
+      "port": "no"
+     },
+     {
+      "from": "got0",
+      "to": "got",
+      "port": "in"
+     },
+     {
+      "from": "got0",
+      "to": "gb",
+      "port": "if"
+     },
+     {
+      "from": "sh",
+      "to": "gb",
+      "port": "yes"
+     },
+     {
+      "from": "gb",
+      "to": "byte",
+      "port": "in"
+     },
+     {
+      "from": "close",
+      "to": "end",
+      "port": "in"
+     },
+     {
+      "from": "open",
+      "to": "i1",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "i1",
+      "port": "yes"
+     },
+     {
+      "from": "ins",
+      "to": "i1",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "ni",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ni",
+      "port": "yes"
+     },
+     {
+      "from": "i1",
+      "to": "ni",
+      "port": "no"
+     },
+     {
+      "from": "ni",
+      "to": "ki",
+      "port": "in"
+     },
+     {
+      "from": "c",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "e7",
+      "to": "cn",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cn",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "cn",
+      "port": "no"
+     },
+     {
+      "from": "ins",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "cn",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "open",
+      "to": "rs",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs",
+      "port": "yes"
+     },
+     {
+      "from": "ci",
+      "to": "rs",
+      "port": "no"
+     },
+     {
+      "from": "close",
+      "to": "rs2",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "rs2",
+      "port": "yes"
+     },
+     {
+      "from": "rs",
+      "to": "rs2",
+      "port": "no"
+     },
+     {
+      "from": "rs2",
+      "to": "kb",
+      "port": "in"
+     }
+    ]
+   },
+   "1-27": {
+    "nodes": [
+     {
+      "id": "reset",
+      "type": "in",
+      "params": {
+       "name": "reset"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "count",
+      "type": "out",
+      "params": {
+       "name": "count"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 0
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "m",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "h",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "out",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "k",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 230
+     }
+    ],
+    "wires": [
+     {
+      "from": "o",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "b",
+      "to": "m",
+      "port": "if"
+     },
+     {
+      "from": "n",
+      "to": "m",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "m",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "h",
+      "port": "if"
+     },
+     {
+      "from": "r",
+      "to": "h",
+      "port": "yes"
+     },
+     {
+      "from": "m",
+      "to": "h",
+      "port": "no"
+     },
+     {
+      "from": "reset",
+      "to": "out",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "out",
+      "port": "yes"
+     },
+     {
+      "from": "h",
+      "to": "out",
+      "port": "no"
+     },
+     {
+      "from": "out",
+      "to": "k",
+      "port": "in"
+     },
+     {
+      "from": "out",
+      "to": "count",
+      "port": "in"
+     }
+    ]
+   },
+   "1-28": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "d0",
+      "type": "equal",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "d",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "nx0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "ln0",
+      "type": "select",
+      "params": {},
+      "x": 260,
+      "y": 60
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 240,
+      "y": 800
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "cb",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "cur",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "cur",
+      "to": "d0",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "d",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "yes"
+     },
+     {
+      "from": "d0",
+      "to": "d",
+      "port": "no"
+     },
+     {
+      "from": "is8",
+      "to": "nx0",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx0",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "cur",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "nx0",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "is8",
+      "to": "ln0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln0",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "ln0",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     }
+    ]
+   },
+   "1-40": {
+    "nodes": [
+     {
+      "id": "byte",
+      "type": "in",
+      "params": {
+       "name": "byte"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "last",
+      "type": "in",
+      "params": {
+       "name": "last"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "send",
+      "type": "in",
+      "params": {
+       "name": "send"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "line",
+      "type": "tx",
+      "params": {
+       "name": "line"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "next",
+      "type": "out",
+      "params": {
+       "name": "next"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c2",
+      "type": "const",
+      "params": {
+       "value": 2
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c5",
+      "type": "const",
+      "params": {
+       "value": 5
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "fl",
+      "type": "const",
+      "params": {
+       "value": 126
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "m",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "bl",
+      "type": "reg",
+      "params": {
+       "reg": "C",
+       "start": 0
+      },
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "r",
+      "type": "reg",
+      "params": {
+       "reg": "D",
+       "start": 0
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "e",
+      "type": "reg",
+      "params": {
+       "reg": "E",
+       "start": 0
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "d",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "m0",
+      "type": "equal",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "m1",
+      "type": "equal",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "nm0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "sw",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ct",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "r5",
+      "type": "equal",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "hold",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "h",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "ml",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "go",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "n1",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "ci",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "n0",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "p",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "g8",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "mg",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nn",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nd0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "md",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "cb",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "cbh",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "na0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "na",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nm0b",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "nm",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "kc",
+      "type": "keep",
+      "params": {
+       "reg": "C"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "bt",
+      "type": "bit",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ln",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "km",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "ne",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "ke",
+      "type": "keep",
+      "params": {
+       "reg": "E"
+      },
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "rp",
+      "type": "add",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "r1",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "r2",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "nr",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 150
+     },
+     {
+      "id": "kr",
+      "type": "keep",
+      "params": {
+       "reg": "D"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "a",
+      "to": "d",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "d",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m0",
+      "port": "a"
+     },
+     {
+      "from": "z",
+      "to": "m0",
+      "port": "b"
+     },
+     {
+      "from": "m",
+      "to": "m1",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "m1",
+      "port": "b"
+     },
+     {
+      "from": "m0",
+      "to": "nm0",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nm0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nm0",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "sw",
+      "port": "if"
+     },
+     {
+      "from": "nm0",
+      "to": "sw",
+      "port": "yes"
+     },
+     {
+      "from": "e",
+      "to": "sw",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "ct",
+      "port": "if"
+     },
+     {
+      "from": "m1",
+      "to": "ct",
+      "port": "yes"
+     },
+     {
+      "from": "e",
+      "to": "ct",
+      "port": "no"
+     },
+     {
+      "from": "r",
+      "to": "r5",
+      "port": "a"
+     },
+     {
+      "from": "c5",
+      "to": "r5",
+      "port": "b"
+     },
+     {
+      "from": "sw",
+      "to": "hold",
+      "port": "if"
+     },
+     {
+      "from": "r5",
+      "to": "hold",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "hold",
+      "port": "no"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "a"
+     },
+     {
+      "from": "byte",
+      "to": "h",
+      "port": "b"
+     },
+     {
+      "from": "last",
+      "to": "ml",
+      "port": "if"
+     },
+     {
+      "from": "c2",
+      "to": "ml",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "ml",
+      "port": "no"
+     },
+     {
+      "from": "send",
+      "to": "go",
+      "port": "if"
+     },
+     {
+      "from": "h",
+      "to": "go",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "go",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "n1",
+      "port": "if"
+     },
+     {
+      "from": "byte",
+      "to": "n1",
+      "port": "yes"
+     },
+     {
+      "from": "fl",
+      "to": "n1",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "ci",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ci",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "ci",
+      "port": "no"
+     },
+     {
+      "from": "m1",
+      "to": "mm",
+      "port": "if"
+     },
+     {
+      "from": "ml",
+      "to": "mm",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mm",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "nx0",
+      "port": "if"
+     },
+     {
+      "from": "m1",
+      "to": "nx0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "nx0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "nx0",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "go",
+      "to": "n0",
+      "port": "if"
+     },
+     {
+      "from": "fl",
+      "to": "n0",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "n0",
+      "port": "no"
+     },
+     {
+      "from": "ci",
+      "to": "p",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "p",
+      "port": "b"
+     },
+     {
+      "from": "go",
+      "to": "g8",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "g8",
+      "port": "yes"
+     },
+     {
+      "from": "c8",
+      "to": "g8",
+      "port": "no"
+     },
+     {
+      "from": "go",
+      "to": "mg",
+      "port": "if"
+     },
+     {
+      "from": "o",
+      "to": "mg",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "mg",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nn",
+      "port": "if"
+     },
+     {
+      "from": "n0",
+      "to": "nn",
+      "port": "yes"
+     },
+     {
+      "from": "n1",
+      "to": "nn",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "nd0",
+      "port": "if"
+     },
+     {
+      "from": "g8",
+      "to": "nd0",
+      "port": "yes"
+     },
+     {
+      "from": "o",
+      "to": "nd0",
+      "port": "no"
+     },
+     {
+      "from": "m0",
+      "to": "md",
+      "port": "if"
+     },
+     {
+      "from": "mg",
+      "to": "md",
+      "port": "yes"
+     },
+     {
+      "from": "mm",
+      "to": "md",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "cb",
+      "port": "if"
+     },
+     {
+      "from": "nn",
+      "to": "cb",
+      "port": "yes"
+     },
+     {
+      "from": "bl",
+      "to": "cb",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "cbh",
+      "port": "if"
+     },
+     {
+      "from": "bl",
+      "to": "cbh",
+      "port": "yes"
+     },
+     {
+      "from": "cb",
+      "to": "cbh",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "na0",
+      "port": "if"
+     },
+     {
+      "from": "nd0",
+      "to": "na0",
+      "port": "yes"
+     },
+     {
+      "from": "p",
+      "to": "na0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "na",
+      "port": "if"
+     },
+     {
+      "from": "a",
+      "to": "na",
+      "port": "yes"
+     },
+     {
+      "from": "na0",
+      "to": "na",
+      "port": "no"
+     },
+     {
+      "from": "d",
+      "to": "nm0b",
+      "port": "if"
+     },
+     {
+      "from": "md",
+      "to": "nm0b",
+      "port": "yes"
+     },
+     {
+      "from": "m",
+      "to": "nm0b",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nm",
+      "port": "if"
+     },
+     {
+      "from": "m",
+      "to": "nm",
+      "port": "yes"
+     },
+     {
+      "from": "nm0b",
+      "to": "nm",
+      "port": "no"
+     },
+     {
+      "from": "cbh",
+      "to": "kc",
+      "port": "in"
+     },
+     {
+      "from": "cb",
+      "to": "bt",
+      "port": "n"
+     },
+     {
+      "from": "ci",
+      "to": "bt",
+      "port": "i"
+     },
+     {
+      "from": "hold",
+      "to": "ln",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "ln",
+      "port": "yes"
+     },
+     {
+      "from": "bt",
+      "to": "ln",
+      "port": "no"
+     },
+     {
+      "from": "na",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "nm",
+      "to": "km",
+      "port": "in"
+     },
+     {
+      "from": "hold",
+      "to": "ne",
+      "port": "if"
+     },
+     {
+      "from": "e",
+      "to": "ne",
+      "port": "yes"
+     },
+     {
+      "from": "ct",
+      "to": "ne",
+      "port": "no"
+     },
+     {
+      "from": "ne",
+      "to": "ke",
+      "port": "in"
+     },
+     {
+      "from": "r",
+      "to": "rp",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "rp",
+      "port": "b"
+     },
+     {
+      "from": "ln",
+      "to": "r1",
+      "port": "if"
+     },
+     {
+      "from": "rp",
+      "to": "r1",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "r1",
+      "port": "no"
+     },
+     {
+      "from": "ct",
+      "to": "r2",
+      "port": "if"
+     },
+     {
+      "from": "r1",
+      "to": "r2",
+      "port": "yes"
+     },
+     {
+      "from": "z",
+      "to": "r2",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nr",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "nr",
+      "port": "yes"
+     },
+     {
+      "from": "r2",
+      "to": "nr",
+      "port": "no"
+     },
+     {
+      "from": "nr",
+      "to": "kr",
+      "port": "in"
+     },
+     {
+      "from": "nx",
+      "to": "next",
+      "port": "in"
+     },
+     {
+      "from": "ln",
+      "to": "line",
+      "port": "in"
+     }
+    ]
+   },
+   "1-29": {
+    "nodes": [
+     {
+      "id": "line",
+      "type": "rx",
+      "params": {
+       "name": "line"
+      },
+      "x": 20,
+      "y": 40
+     },
+     {
+      "id": "start",
+      "type": "in",
+      "params": {
+       "name": "start"
+      },
+      "x": 20,
+      "y": 180
+     },
+     {
+      "id": "hold",
+      "type": "in",
+      "params": {
+       "name": "hold"
+      },
+      "x": 20,
+      "y": 320
+     },
+     {
+      "id": "byte",
+      "type": "out",
+      "params": {
+       "name": "byte"
+      },
+      "x": 980,
+      "y": 40
+     },
+     {
+      "id": "done",
+      "type": "out",
+      "params": {
+       "name": "done"
+      },
+      "x": 980,
+      "y": 180
+     },
+     {
+      "id": "z",
+      "type": "const",
+      "params": {
+       "value": 0
+      },
+      "x": 240,
+      "y": 40
+     },
+     {
+      "id": "o",
+      "type": "const",
+      "params": {
+       "value": 1
+      },
+      "x": 440,
+      "y": 40
+     },
+     {
+      "id": "c7",
+      "type": "const",
+      "params": {
+       "value": 7
+      },
+      "x": 640,
+      "y": 40
+     },
+     {
+      "id": "c8",
+      "type": "const",
+      "params": {
+       "value": 8
+      },
+      "x": 240,
+      "y": 230
+     },
+     {
+      "id": "a",
+      "type": "reg",
+      "params": {
+       "reg": "A",
+       "start": 8
+      },
+      "x": 440,
+      "y": 230
+     },
+     {
+      "id": "b",
+      "type": "reg",
+      "params": {
+       "reg": "B",
+       "start": 0
+      },
+      "x": 640,
+      "y": 230
+     },
+     {
+      "id": "cur",
+      "type": "select",
+      "params": {},
+      "x": 240,
+      "y": 420
+     },
+     {
+      "id": "acc",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 420
+     },
+     {
+      "id": "is8",
+      "type": "equal",
+      "params": {},
+      "x": 640,
+      "y": 420
+     },
+     {
+      "id": "n",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 610
+     },
+     {
+      "id": "d2",
+      "type": "add",
+      "params": {},
+      "x": 240,
+      "y": 800
+     },
+     {
+      "id": "d0",
+      "type": "equal",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "d",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nx",
+      "type": "select",
+      "params": {},
+      "x": 440,
+      "y": 610
+     },
+     {
+      "id": "sh",
+      "type": "add",
+      "params": {},
+      "x": 440,
+      "y": 800
+     },
+     {
+      "id": "ka",
+      "type": "keep",
+      "params": {
+       "reg": "A"
+      },
+      "x": 640,
+      "y": 610
+     },
+     {
+      "id": "na0",
+      "type": "select",
+      "params": {},
+      "x": 290,
+      "y": 90
+     },
+     {
+      "id": "nacc",
+      "type": "select",
+      "params": {},
+      "x": 640,
+      "y": 800
+     },
+     {
+      "id": "kb",
+      "type": "keep",
+      "params": {
+       "reg": "B"
+      },
+      "x": 290,
+      "y": 150
+     }
+    ],
+    "wires": [
+     {
+      "from": "start",
+      "to": "cur",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "cur",
+      "port": "yes"
+     },
+     {
+      "from": "a",
+      "to": "cur",
+      "port": "no"
+     },
+     {
+      "from": "start",
+      "to": "acc",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "acc",
+      "port": "yes"
+     },
+     {
+      "from": "b",
+      "to": "acc",
+      "port": "no"
+     },
+     {
+      "from": "cur",
+      "to": "is8",
+      "port": "a"
+     },
+     {
+      "from": "c8",
+      "to": "is8",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "n",
+      "port": "a"
+     },
+     {
+      "from": "o",
+      "to": "n",
+      "port": "b"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "a"
+     },
+     {
+      "from": "acc",
+      "to": "d2",
+      "port": "b"
+     },
+     {
+      "from": "cur",
+      "to": "d0",
+      "port": "a"
+     },
+     {
+      "from": "c7",
+      "to": "d0",
+      "port": "b"
+     },
+     {
+      "from": "hold",
+      "to": "d",
+      "port": "if"
+     },
+     {
+      "from": "z",
+      "to": "d",
+      "port": "yes"
+     },
+     {
+      "from": "d0",
+      "to": "d",
+      "port": "no"
+     },
+     {
+      "from": "is8",
+      "to": "nx0",
+      "port": "if"
+     },
+     {
+      "from": "c8",
+      "to": "nx0",
+      "port": "yes"
+     },
+     {
+      "from": "n",
+      "to": "nx0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nx",
+      "port": "if"
+     },
+     {
+      "from": "cur",
+      "to": "nx",
+      "port": "yes"
+     },
+     {
+      "from": "nx0",
+      "to": "nx",
+      "port": "no"
+     },
+     {
+      "from": "d2",
+      "to": "sh",
+      "port": "a"
+     },
+     {
+      "from": "line",
+      "to": "sh",
+      "port": "b"
+     },
+     {
+      "from": "nx",
+      "to": "ka",
+      "port": "in"
+     },
+     {
+      "from": "is8",
+      "to": "na0",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "na0",
+      "port": "yes"
+     },
+     {
+      "from": "sh",
+      "to": "na0",
+      "port": "no"
+     },
+     {
+      "from": "hold",
+      "to": "nacc",
+      "port": "if"
+     },
+     {
+      "from": "acc",
+      "to": "nacc",
+      "port": "yes"
+     },
+     {
+      "from": "na0",
+      "to": "nacc",
+      "port": "no"
+     },
+     {
+      "from": "nacc",
+      "to": "kb",
+      "port": "in"
+     },
+     {
+      "from": "d",
+      "to": "done",
+      "port": "in"
+     },
+     {
+      "from": "nacc",
+      "to": "byte",
+      "port": "in"
+     }
+    ]
+   }
+  },
+  "best": {},
+  "tasks": {},
+  "seenPower": true,
+  "introSeen": {},
+  "all": false
+ },
+ "levels": [
+  {
+   "level": "1-1",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 6
+  },
+  {
+   "level": "1-2",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "const",
+    "select"
+   ],
+   "seconds": 8
+  },
+  {
+   "level": "1-3",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "const",
+    "select"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-4",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "keep",
+    "reg"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-5",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "const",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-6",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 8
+  },
+  {
+   "level": "1-22",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 7
+  },
+  {
+   "level": "1-21",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-23",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 6
+  },
+  {
+   "level": "1-7",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 12
+  },
+  {
+   "level": "1-8",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 13
+  },
+  {
+   "level": "1-9",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 2,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "deserializer",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 22
+  },
+  {
+   "level": "1-10",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 20
+  },
+  {
+   "level": "1-11",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 11
+  },
+  {
+   "level": "1-26",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 2,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "flagspot",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 14
+  },
+  {
+   "level": "1-12",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 26
+  },
+  {
+   "level": "1-13",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 3,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "flagspot",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 44
+  },
+  {
+   "level": "1-27",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 19
+  },
+  {
+   "level": "1-28",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 8
+  },
+  {
+   "level": "1-40",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 3,
+   "hints": 1,
+   "parts": [
+    "add",
+    "bit",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 91
+  },
+  {
+   "level": "1-29",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [
+    "add",
+    "const",
+    "equal",
+    "keep",
+    "reg",
+    "select"
+   ],
+   "seconds": 9
+  },
+  {
+   "level": "1-30",
+   "task": 0,
+   "outcome": "open",
+   "required": true,
+   "attempts": 0,
+   "hints": 0,
+   "parts": [],
+   "seen": 1793550411479
+  }
+ ],
+ "attempts": [
+  {
+   "level": "1-1",
+   "task": 0,
+   "at": "2026-11-01T16:18:52.543Z",
+   "text": "right <- left\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-2",
+   "task": 0,
+   "at": "2026-11-01T16:19:08.164Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\ns = select(left, z, o)\nright <- s\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-3",
+   "task": 0,
+   "at": "2026-11-01T16:19:19.576Z",
+   "text": "z = const[value=0]()\ns = select(a, b, z)\nx <- s\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-4",
+   "task": 0,
+   "at": "2026-11-01T16:19:33.686Z",
+   "text": "r = reg[reg=A, start=0]()\nk = keep[reg=A](left)\nright <- r\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-5",
+   "task": 0,
+   "at": "2026-11-01T16:19:47.486Z",
+   "text": "o = const[value=1]()\nr = reg[reg=A, start=0]()\nout = select(left, o, r)\nk = keep[reg=A](out)\nright <- out\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-6",
+   "task": 0,
+   "at": "2026-11-01T16:20:01.557Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nr = reg[reg=A, start=0]()\nout = select(reset, z, r)\nn = add(out, o)\nk = keep[reg=A](n)\ncount <- out\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-22",
+   "task": 0,
+   "at": "2026-11-01T16:20:15.054Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nr = reg[reg=A, start=0]()\nn = add(r, o)\nout = select(line, n, z)\nk = keep[reg=A](out)\nrun <- out\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-21",
+   "task": 0,
+   "at": "2026-11-01T16:20:28.466Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\ns = const[value=7]()\nr = reg[reg=A, start=0]()\ne = equal(r, s)\nn = add(r, o)\nnx = select(e, z, n)\nk = keep[reg=A](nx)\nline <- e\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-23",
+   "task": 0,
+   "at": "2026-11-01T16:20:40.118Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nf = const[value=5]()\nr = reg[reg=A, start=0]()\nn = add(r, o)\nout = select(line, n, z)\nk = keep[reg=A](out)\ne = equal(out, f)\nx <- e\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-7",
+   "task": 0,
+   "at": "2026-11-01T16:20:59.544Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nc8 = const[value=8]()\na = reg[reg=A, start=8]()\nb = reg[reg=B, start=0]()\ncur = select(start, z, a)\ncb = select(start, byte, b)\nkb = keep[reg=B](cb)\nis8 = equal(cur, c8)\nn = add(cur, o)\nnx = select(is8, c8, n)\nka = keep[reg=A](nx)\nbt = bit(cb, cur)\nln = select(is8, z, bt)\nline <- ln\nd = equal(cur, c7)\ndone <- d\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-8",
+   "task": 0,
+   "at": "2026-11-01T16:21:17.866Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nc8 = const[value=8]()\na = reg[reg=A, start=8]()\nb = reg[reg=B, start=0]()\ncur = select(start, z, a)\nacc = select(start, z, b)\nis8 = equal(cur, c8)\nn = add(cur, o)\nnx = select(is8, c8, n)\nka = keep[reg=A](nx)\nd2 = add(acc, acc)\nsh = add(d2, line)\nnacc = select(is8, acc, sh)\nkb = keep[reg=B](nacc)\nbyte <- nacc\nd = equal(cur, c7)\ndone <- d\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-9",
+   "task": 0,
+   "at": "2026-11-01T16:21:37.409Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc9 = const[value=9]()\na = reg[reg=A, start=0]()\nidle = equal(a, z)\ne9 = equal(a, c9)\nn = add(a, o)\nn2 = select(e9, z, n)\nnx = select(idle, line, n2)\nk = keep[reg=A](nx)\nst = equal(a, o)\nd = deserializer(line, st)\nbyte <- d.byte\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — At tick 0, “Byte” should be —; the board gives 0.\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-9",
+   "task": 0,
+   "at": "2026-11-01T16:21:46.841Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc9 = const[value=9]()\na = reg[reg=A, start=0]()\nidle = equal(a, z)\ne9 = equal(a, c9)\nn = add(a, o)\nn2 = select(e9, z, n)\nnx = select(idle, line, n2)\nk = keep[reg=A](nx)\nst = equal(a, o)\nd = deserializer(line, st)\ng = select(d.done, d.byte, _)\nbyte <- g\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-10",
+   "task": 0,
+   "at": "2026-11-01T16:22:14.527Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc8 = const[value=8]()\nc9 = const[value=9]()\na = reg[reg=A, start=9]()\nb = reg[reg=B, start=0]()\nh = equal(byte, byte)\nidle = equal(a, c9)\ne8 = equal(a, c8)\nn = add(a, o)\nni = select(h, z, c9)\nnx = select(idle, ni, n)\nka = keep[reg=A](nx)\nbl = select(idle, byte, b)\nkb = keep[reg=B](bl)\nbt = bit(bl, a)\nlb = select(e8, z, bt)\nli = select(h, o, z)\nln = select(idle, li, lb)\nline <- ln\nnxt = select(idle, h, z)\nnext <- nxt\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-11",
+   "task": 0,
+   "at": "2026-11-01T16:22:31.349Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\ns = reg[reg=A, start=0]()\ne0 = equal(s, z)\ne7 = equal(s, c7)\nn = add(s, o)\nt1 = select(e7, z, n)\nt = select(e0, z, t1)\nnx = select(line, t, o)\nk = keep[reg=A](nx)\nf = select(line, z, e7)\nflag <- f\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-26",
+   "task": 0,
+   "at": "2026-11-01T16:22:46.700Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nf = flagspot(line)\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nn = add(a, o)\nt = select(b, n, z)\nout = select(f, z, t)\nka = keep[reg=A](out)\nsn = select(f, o, b)\nkb = keep[reg=B](sn)\nn <- out\n",
+   "pass": false,
+   "says": "The text was not imported:\n- Line 6: “n” is given by the level; its type cannot change."
+  },
+  {
+   "level": "1-26",
+   "task": 0,
+   "at": "2026-11-01T16:22:53.412Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nf = flagspot(line)\na = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\np = add(a, o)\nt = select(b, p, z)\nout = select(f, z, t)\nka = keep[reg=A](out)\nsn = select(f, o, b)\nkb = keep[reg=B](sn)\nn <- out\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-12",
+   "task": 0,
+   "at": "2026-11-01T16:23:26.062Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc8 = const[value=8]()\nfl = const[value=126]()\na = reg[reg=A, start=8]()\nm = reg[reg=B, start=0]()\nbl = reg[reg=C, start=0]()\nd = equal(a, c8)\nm0 = equal(m, z)\nm1 = equal(m, o)\nh = equal(byte, byte)\ngo = select(send, h, z)\nn0 = select(go, fl, z)\nn1 = select(m1, byte, fl)\nnn = select(m0, n0, n1)\ncb = select(d, nn, bl)\nkc = keep[reg=C](cb)\nci = select(d, z, a)\nln = bit(cb, ci)\nline <- ln\np = add(ci, o)\ng8 = select(go, o, c8)\nnd0 = select(m0, g8, o)\nna = select(d, nd0, p)\nka = keep[reg=A](na)\nmg = select(go, o, z)\nml = select(last, c2, o)\nmm = select(m1, ml, z)\nmd = select(m0, mg, mm)\nnm = select(d, md, m)\nkm = keep[reg=B](nm)\nnx = select(d, m1, z)\nnext <- nx\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- Test 4: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-13",
+   "task": 0,
+   "at": "2026-11-01T16:23:49.848Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nf = flagspot(line)\nins = reg[reg=A, start=0]()\nc = reg[reg=B, start=0]()\nacc = reg[reg=C, start=0]()\ne0 = equal(c, z)\ne7 = equal(c, c7)\ncl0 = select(ins, e0, z)\nclose = select(f, cl0, z)\nop0 = select(ins, z, o)\nopen = select(f, op0, z)\nab = select(e0, z, acc)\nd2 = add(ab, ab)\nsh = add(d2, line)\nkc = keep[reg=C](sh)\ngot0 = select(ins, e7, z)\ngot <- got0\nbyte <- sh\nend <- close\ni1 = select(open, o, ins)\nni = select(close, z, i1)\nki = keep[reg=A](ni)\np = add(c, o)\ncn = select(e7, z, p)\nci = select(ins, cn, z)\nrs = select(open, z, ci)\nrs2 = select(close, z, rs)\nkb = keep[reg=B](rs2)\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — At tick 23, “Got” should be 0; the board gives yes.\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-13",
+   "task": 0,
+   "at": "2026-11-01T16:24:02.333Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nf = flagspot(line)\nins = reg[reg=A, start=0]()\nc = reg[reg=B, start=0]()\nacc = reg[reg=C, start=0]()\ne0 = equal(c, z)\ne7 = equal(c, c7)\ncl0 = select(ins, e7, z)\nclose = select(f, cl0, z)\nop0 = select(ins, z, o)\nopen = select(f, op0, z)\nab = select(e0, z, acc)\nd2 = add(ab, ab)\nsh = add(d2, line)\nkc = keep[reg=C](sh)\ng1 = select(ins, e7, z)\ngot0 = select(close, z, g1)\ngot <- got0\nbyte <- sh\nend <- close\ni1 = select(open, o, ins)\nni = select(close, z, i1)\nki = keep[reg=A](ni)\np = add(c, o)\ncn = select(e7, z, p)\nci = select(ins, cn, z)\nrs = select(open, z, ci)\nrs2 = select(close, z, rs)\nkb = keep[reg=B](rs2)\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Byte”: the bytes received should be 65; the board gives 0 1 1 1 1 1 1 0 0 1 2 4 8 16 32 65 0 1 3 7 15 31 63 126 0 0.\n- Test 2: not run\n- Test 3: not run"
+  },
+  {
+   "level": "1-13",
+   "task": 0,
+   "at": "2026-11-01T16:24:15.601Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nf = flagspot(line)\nins = reg[reg=A, start=0]()\nc = reg[reg=B, start=0]()\nacc = reg[reg=C, start=0]()\ne0 = equal(c, z)\ne7 = equal(c, c7)\ncl0 = select(ins, e7, z)\nclose = select(f, cl0, z)\nop0 = select(ins, z, o)\nopen = select(f, op0, z)\nab = select(e0, z, acc)\nd2 = add(ab, ab)\nsh = add(d2, line)\nkc = keep[reg=C](sh)\ng1 = select(ins, e7, z)\ngot0 = select(close, z, g1)\ngot <- got0\ngb = select(got0, sh, _)\nbyte <- gb\nend <- close\ni1 = select(open, o, ins)\nni = select(close, z, i1)\nki = keep[reg=A](ni)\np = add(c, o)\ncn = select(e7, z, p)\nci = select(ins, cn, z)\nrs = select(open, z, ci)\nrs2 = select(close, z, rs)\nkb = keep[reg=B](rs2)\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 2 hidden test(s): pass"
+  },
+  {
+   "level": "1-27",
+   "task": 0,
+   "at": "2026-11-01T16:24:39.826Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nr = reg[reg=A, start=0]()\nb = reg[reg=B, start=0]()\nkb = keep[reg=B](o)\nn = add(r, o)\nm = select(b, n, z)\nh = select(hold, r, m)\nout = select(reset, z, h)\nk = keep[reg=A](out)\ncount <- out\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  },
+  {
+   "level": "1-28",
+   "task": 0,
+   "at": "2026-11-01T16:24:53.600Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nc8 = const[value=8]()\na = reg[reg=A, start=8]()\nb = reg[reg=B, start=0]()\ncur = select(start, z, a)\ncb = select(start, byte, b)\nkb = keep[reg=B](cb)\nis8 = equal(cur, c8)\nn = add(cur, o)\nbt = bit(cb, cur)\nd0 = equal(cur, c7)\nd = select(hold, z, d0)\nnx0 = select(is8, c8, n)\nnx = select(hold, cur, nx0)\nln0 = select(is8, z, bt)\nln = select(hold, z, ln0)\nka = keep[reg=A](nx)\ndone <- d\nline <- ln\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 4 hidden test(s): pass"
+  },
+  {
+   "level": "1-40",
+   "task": 0,
+   "at": "2026-11-01T16:25:26.807Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc5 = const[value=5]()\nc8 = const[value=8]()\nfl = const[value=126]()\na = reg[reg=A, start=8]()\nm = reg[reg=B, start=0]()\nbl = reg[reg=C, start=0]()\nr = reg[reg=D, start=0]()\ne = reg[reg=E, start=0]()\nd = equal(a, c8)\nm0 = equal(m, z)\nm1 = equal(m, o)\nnm0 = select(m0, z, o)\ntt = select(d, nm0, e)\nr5 = equal(r, c5)\nhold = select(tt, r5, z)\nh = equal(byte, byte)\nml = select(last, c2, o)\ngo = select(send, h, z)\nn1 = select(m1, byte, fl)\nci = select(d, z, a)\nmm = select(m1, ml, z)\nnx0 = select(d, m1, z)\nnx = select(hold, z, nx0)\nn0 = select(go, fl, z)\np = add(ci, o)\ng8 = select(go, o, c8)\nmg = select(go, o, z)\nnn = select(m0, n0, n1)\nnd0 = select(m0, g8, o)\nmd = select(m0, mg, mm)\ncb = select(d, nn, bl)\ncbh = select(hold, bl, cb)\nna0 = select(d, nd0, p)\nna = select(hold, a, na0)\nnm0b = select(d, md, m)\nnm = select(hold, m, nm0b)\nkc = keep[reg=C](cbh)\nbt = bit(cb, ci)\nln = select(hold, z, bt)\nka = keep[reg=A](na)\nkm = keep[reg=B](nm)\nne = select(hold, e, tt)\nke = keep[reg=E](ne)\nrp = add(r, o)\nr1 = select(ln, rp, z)\nr2 = select(tt, r1, z)\nnr = select(hold, z, r2)\nkr = keep[reg=D](nr)\nnext <- nx\nline <- ln\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: what the far end receives should be 65 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run\n- Test 4: not run"
+  },
+  {
+   "level": "1-40",
+   "task": 0,
+   "at": "2026-11-01T16:26:07.421Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc5 = const[value=5]()\nc8 = const[value=8]()\nfl = const[value=126]()\na = reg[reg=A, start=8]()\nm = reg[reg=B, start=0]()\nbl = reg[reg=C, start=0]()\nr = reg[reg=D, start=0]()\ne = reg[reg=E, start=0]()\nd = equal(a, c8)\nm0 = equal(m, z)\nm1 = equal(m, o)\nnm0 = select(m0, z, o)\ntt = select(d, nm0, e)\nr5 = equal(r, c5)\nhold = select(tt, r5, z)\nh = equal(byte, byte)\nml = select(last, c2, o)\ngo = select(send, h, z)\nn1 = select(m1, byte, fl)\nci = select(d, z, a)\nmm = select(m1, ml, z)\nnx0 = select(d, m1, z)\nnx = select(hold, z, nx0)\nn0 = select(go, fl, z)\np = add(ci, o)\ng8 = select(go, o, c8)\nmg = select(go, o, z)\nnn = select(m0, n0, n1)\nnd0 = select(m0, g8, o)\nmd = select(m0, mg, mm)\ncb = select(d, nn, bl)\ncbh = select(hold, bl, cb)\nna0 = select(d, nd0, p)\nna = select(hold, a, na0)\nnm0b = select(d, md, m)\nnm = select(hold, m, nm0b)\nkc = keep[reg=C](cbh)\nbt = bit(cb, ci)\nln = select(hold, z, bt)\nka = keep[reg=A](na)\nkm = keep[reg=B](nm)\nne = select(hold, e, tt)\nke = keep[reg=E](ne)\nrp = add(r, o)\nr1 = select(ln, rp, z)\nr2 = select(tt, r1, z)\nnr = select(hold, z, r2)\nkr = keep[reg=D](nr)\nnext <- nx\nline <- ln\n",
+   "pass": false,
+   "says": "- Test 1: FAIL — “Wire out”: what the far end receives should be 65 end; the board gives (nothing).\n- Test 2: not run\n- Test 3: not run\n- Test 4: not run"
+  },
+  {
+   "level": "1-40",
+   "task": 0,
+   "at": "2026-11-01T16:26:30.277Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc2 = const[value=2]()\nc5 = const[value=5]()\nc8 = const[value=8]()\nfl = const[value=126]()\na = reg[reg=A, start=8]()\nm = reg[reg=B, start=0]()\nbl = reg[reg=C, start=0]()\nr = reg[reg=D, start=0]()\ne = reg[reg=E, start=0]()\nd = equal(a, c8)\nm0 = equal(m, z)\nm1 = equal(m, o)\nnm0 = select(m0, z, o)\nsw = select(d, nm0, e)\nct = select(d, m1, e)\nr5 = equal(r, c5)\nhold = select(sw, r5, z)\nh = equal(byte, byte)\nml = select(last, c2, o)\ngo = select(send, h, z)\nn1 = select(m1, byte, fl)\nci = select(d, z, a)\nmm = select(m1, ml, z)\nnx0 = select(d, m1, z)\nnx = select(hold, z, nx0)\nn0 = select(go, fl, z)\np = add(ci, o)\ng8 = select(go, o, c8)\nmg = select(go, o, z)\nnn = select(m0, n0, n1)\nnd0 = select(m0, g8, o)\nmd = select(m0, mg, mm)\ncb = select(d, nn, bl)\ncbh = select(hold, bl, cb)\nna0 = select(d, nd0, p)\nna = select(hold, a, na0)\nnm0b = select(d, md, m)\nnm = select(hold, m, nm0b)\nkc = keep[reg=C](cbh)\nbt = bit(cb, ci)\nln = select(hold, z, bt)\nka = keep[reg=A](na)\nkm = keep[reg=B](nm)\nne = select(hold, e, ct)\nke = keep[reg=E](ne)\nrp = add(r, o)\nr1 = select(ln, rp, z)\nr2 = select(ct, r1, z)\nnr = select(hold, z, r2)\nkr = keep[reg=D](nr)\nnext <- nx\nline <- ln\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- Test 4: pass\n- 4 hidden test(s): pass"
+  },
+  {
+   "level": "1-29",
+   "task": 0,
+   "at": "2026-11-01T16:26:45.037Z",
+   "text": "z = const[value=0]()\no = const[value=1]()\nc7 = const[value=7]()\nc8 = const[value=8]()\na = reg[reg=A, start=8]()\nb = reg[reg=B, start=0]()\ncur = select(start, z, a)\nacc = select(start, z, b)\nis8 = equal(cur, c8)\nn = add(cur, o)\nd2 = add(acc, acc)\nd0 = equal(cur, c7)\nd = select(hold, z, d0)\nnx0 = select(is8, c8, n)\nnx = select(hold, cur, nx0)\nsh = add(d2, line)\nka = keep[reg=A](nx)\nna0 = select(is8, acc, sh)\nnacc = select(hold, acc, na0)\nkb = keep[reg=B](nacc)\ndone <- d\nbyte <- nacc\n",
+   "pass": true,
+   "says": "- Test 1: pass\n- Test 2: pass\n- Test 3: pass\n- 3 hidden test(s): pass"
+  }
+ ]
+}
