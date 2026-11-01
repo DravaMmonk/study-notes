@@ -145,7 +145,7 @@ MCP 的 `modify`、studio 的每个编辑按钮、CLI 三者只是这套操作�
 每个阶段写明完成标准；做完就从这里删掉。
 
 **阶段 0+1 · 收口 kit、规格化与词汇表 v1（其余游戏）**
-《状态之图》已经走完：内容是 `game.json`、每关一个 JSON、`glossary.json`；领域给出词汇表（`kit/domains/table/vocabulary.js`），`npm run check` 先按 schema 查内容再跑审计；封装件跑学习者的电路。照它把其余游戏迁过去：生成器与谓词改引用，规格从 JS 改成 JSON；封装件全部跑学习者的电路（真值电路的门），电路关界面合成一份，最后一次运行接到所有玩法，机关台抽成通用参数台，`unused`、`bare-intro` 在所有游戏打开；课程蓝图变数据；补 `thin-practice`、`bypass`。
+《状态之图》《软件工厂》《车在说话》已经走完：内容是 `game.json`、每关一个 JSON、`glossary.json`；领域给出词汇表（`kit/domains/<领域>/vocabulary.js`），`npm run check` 先按 schema 查内容再跑审计；封装件跑学习者的电路。照它把其余游戏迁过去：生成器与谓词改引用，规格从 JS 改成 JSON；封装件全部跑学习者的电路（真值电路的门），电路关界面合成一份，最后一次运行接到所有玩法，机关台抽成通用参数台，`unused`、`bare-intro` 在所有游戏打开；课程蓝图变数据；补 `thin-practice`、`bypass`。
 完成标准：所有游戏的文件夹里没有一行可执行代码；每款游戏的蓝图数据能画出元件依赖图；`npm run check`、`npm test` 清零。
 
 **阶段 2 · 操作集、迁移生成、CLI 与 MCP**

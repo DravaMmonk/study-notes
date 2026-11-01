@@ -5,7 +5,7 @@ import Sheet from '../../../shell/Sheet.jsx'
 import { L, tr } from '../../../shell/i18n.js'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../../../circuit/index.js'
 import { MISSING, portsOf } from '../../../engine/circuit.js'
-import { startBoard } from '../build.js'
+import { fits, startBoard } from '../board.js'
 import { FIXED, PARTS, REGISTERS } from '../parts.js'
 import { runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
@@ -42,12 +42,6 @@ function partsFor(level, bus) {
     },
     cardWidth: (node) => (FIXED.includes(node.type) ? 140 : 156),
   }
-}
-
-// A saved board still fits: the level's fixed cards, and every card one the domain knows.
-const fits = (circuit, level, partOf) => {
-  const fixed = (c) => c.nodes.filter((n) => FIXED.includes(n.type)).map((n) => n.id).sort().join()
-  return fixed(circuit) === fixed(startBoard(level)) && circuit.nodes.every((n) => partOf(n.type))
 }
 
 /** What a card shows of a value: a bit, a number, yes or no, or 「—」. */

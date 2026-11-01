@@ -1,0 +1,23 @@
+{
+  "kind": "board",
+  "title": { "zh": "自己去读", "en": "Read it yourself" },
+  "brief": {
+    "zh": "没有人替你贴代码了。从仓库里读出要改的文件，交给模型。",
+    "en": "Nobody pastes the code for you now. Read the file to change from the repository and hand it to the model."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "这一关的 issue 只写了要改哪个文件，代码要从仓库里拿。读文件元件按它的设置读出一个文件，作为一段上下文。",
+        "en": "This level’s issues only say which file to change; the code has to come from the repository. The read part reads the file its setting names, as a context."
+      }
+    }
+  ],
+  "adds": ["read"],
+  "tests": [{ "issue": "qty-zero" }, { "issue": "remove-missing" }],
+  "solution": ["r = read[file=\"src/cart.js\"]()", "k = concat(issue, r)", "m = model(k)", "repo <- m"],
+  "after": {
+    "zh": "你替模型去仓库里拿了它要看的东西。哪个文件该读，现在是你在 issue 里找出来的。",
+    "en": "You fetched from the repository what the model needed to see. Which file to read, you found in the issue yourself."
+  }
+}

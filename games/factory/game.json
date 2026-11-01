@@ -1,0 +1,284 @@
+{
+  "domain": "agent",
+  "vocabulary": 1,
+  "title": { "zh": "软件工厂", "en": "Software Factory" },
+  "kicker": { "zh": "开发中 · 从一次模型调用搭起编码 agent", "en": "In development · A coding agent from one model call" },
+  "lede": {
+    "zh": "编码 agent 里面是什么？从一次模型调用开始，亲手决定它看到什么、能做什么、什么时候算做完：先替它拿文件，再让它自己读、自己找、改到测试通过。最后搭出的，是一个自己接 issue、自己修好的 agent。",
+    "en": "What is inside a coding agent? Starting from one model call, you decide what it sees, what it may do and when it is done: first you fetch its files, then it reads and looks for itself, and goes on until the tests pass. What you end up with is an agent that takes an issue and fixes it on its own."
+  },
+  "primitives": ["model", "concat", "read", "list", "test"],
+  "machines": { "hand": { "window": 3000 }, "once": { "window": 2500 }, "loop": { "window": 4000, "turns": 12 } },
+  "eras": [
+    {
+      "id": 0,
+      "machine": "hand",
+      "title": { "zh": "纸笔", "en": "Pen and paper" },
+      "question": { "zh": "模型到底看到了什么？", "en": "What does the model actually see?" },
+      "foundation": ["0-1", "0-2", "0-3"]
+    },
+    {
+      "id": 1,
+      "machine": "once",
+      "keeps": "all",
+      "title": { "zh": "一问一答", "en": "One call" },
+      "question": { "zh": "只能问一次，要给它看什么？", "en": "One call only: what do you show it?" },
+      "foundation": ["1-1", "1-2", "1-3"],
+      "practice": ["1-4", "1-5", "1-6"]
+    },
+    {
+      "id": 2,
+      "machine": "loop",
+      "keeps": "all",
+      "title": { "zh": "循环", "en": "The loop" },
+      "question": { "zh": "让它自己去拿，什么时候停？", "en": "Let it fetch for itself: when does it stop?" },
+      "foundation": ["2-1", "2-2", "2-3"],
+      "practice": ["2-4", "2-5", "2-6"],
+      "challenges": [{ "level": "2-C", "after": "2-3" }]
+    }
+  ],
+  "repos": {
+    "shop": {
+      "files": {
+        "src/cart.js": { "tokens": 320, "segs": ["addItem", "removeItem", "total"] },
+        "src/price.js": { "tokens": 260, "segs": ["discount", "tax"] },
+        "src/user.js": { "tokens": 300, "segs": ["login", "logout"] },
+        "README.md": { "tokens": 180, "segs": ["intro"] }
+      }
+    },
+    "blog": {
+      "files": {
+        "src/posts.js": { "tokens": 480, "segs": ["listPosts", "formatDate"] },
+        "src/text.js": { "tokens": 420, "segs": ["slugify", "excerpt"] },
+        "src/feed.js": { "tokens": 450, "segs": ["rss", "atom"] },
+        "src/theme.css": { "tokens": 380, "segs": ["colors", "layout"] }
+      }
+    },
+    "mono": {
+      "files": {
+        "pkg/auth/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/billing/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/cache/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/cli/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/config/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/cron/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/db/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/email/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/events/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/export/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/flags/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/geo/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/i18n/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/images/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/import/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/jobs/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/logs/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/maps/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/media/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/metrics/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/notify/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/orders/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/pdf/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/queue/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/search/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/shipping/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/sms/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/stock/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/tags/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/tax/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/uploads/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/users/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/webhooks/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] },
+        "pkg/zip/index.js": { "tokens": 340, "segs": ["init", "handle", "close", "check"] }
+      }
+    }
+  },
+  "issues": {
+    "qty-zero": {
+      "repo": "shop",
+      "title": { "zh": "数量为 0 的商品", "en": "Items of quantity 0" },
+      "text": {
+        "zh": "<code>src/cart.js</code> 的 <code>addItem</code>：数量为 0 的商品不应该加进购物车。",
+        "en": "<code>addItem</code> in <code>src/cart.js</code>: an item of quantity 0 should not go into the cart."
+      },
+      "edits": [{ "at": "src/cart.js#addItem", "seen": "file" }]
+    },
+    "remove-missing": {
+      "repo": "shop",
+      "title": { "zh": "删掉不存在的商品", "en": "Removing an item that is not there" },
+      "text": {
+        "zh": "<code>src/cart.js</code> 的 <code>removeItem</code>：删一件购物车里没有的商品时，应该什么都不做，现在会报错。",
+        "en": "<code>removeItem</code> in <code>src/cart.js</code>: removing an item not in the cart should do nothing; now it throws."
+      },
+      "edits": [{ "at": "src/cart.js#removeItem", "seen": "file" }]
+    },
+    "pasted-total": {
+      "repo": "shop",
+      "title": { "zh": "总价少算了运费", "en": "The total leaves out shipping" },
+      "text": {
+        "zh": "下面是 <code>src/cart.js</code> 的代码。<code>total</code> 算总价时漏掉了运费，请加上。",
+        "en": "Here is the code of <code>src/cart.js</code>. <code>total</code> leaves shipping out of the total; please add it."
+      },
+      "pasted": ["src/cart.js"],
+      "tokens": 380,
+      "edits": [{ "at": "src/cart.js#total", "seen": "file" }]
+    },
+    "pasted-tax": {
+      "repo": "shop",
+      "title": { "zh": "税率写死了", "en": "A hard-coded tax rate" },
+      "text": {
+        "zh": "下面是 <code>src/price.js</code> 的代码。<code>tax</code> 把税率写死成 10%，应该从配置里读。",
+        "en": "Here is the code of <code>src/price.js</code>. <code>tax</code> hard-codes a 10% rate; it should read the rate from the settings."
+      },
+      "pasted": ["src/price.js"],
+      "tokens": 320,
+      "edits": [{ "at": "src/price.js#tax", "seen": "file" }]
+    },
+    "tax-round": {
+      "repo": "shop",
+      "title": { "zh": "税额的零头", "en": "Rounding the tax" },
+      "text": {
+        "zh": "<code>src/price.js</code> 的 <code>tax</code>：税额要四舍五入到分。",
+        "en": "<code>tax</code> in <code>src/price.js</code>: the tax should be rounded to the cent."
+      },
+      "edits": [{ "at": "src/price.js#tax", "seen": "file" }]
+    },
+    "member-discount": {
+      "repo": "shop",
+      "title": { "zh": "会员九折", "en": "Ten percent off for members" },
+      "text": {
+        "zh": "会员结账打九折：<code>src/price.js</code> 的 <code>discount</code> 要认出会员，<code>src/cart.js</code> 的 <code>total</code> 要用上这个折扣。",
+        "en": "Members get ten percent off at checkout: <code>discount</code> in <code>src/price.js</code> should know a member, and <code>total</code> in <code>src/cart.js</code> should apply it."
+      },
+      "edits": [{ "at": "src/price.js#discount", "seen": "file" }, { "at": "src/cart.js#total", "seen": "file" }]
+    },
+    "coupon": {
+      "repo": "shop",
+      "title": { "zh": "优惠券", "en": "Coupons" },
+      "text": {
+        "zh": "支持优惠券：<code>src/cart.js</code> 的 <code>addItem</code> 要能带一张券，<code>src/price.js</code> 的 <code>discount</code> 按券减价。",
+        "en": "Support coupons: <code>addItem</code> in <code>src/cart.js</code> should take a coupon, and <code>discount</code> in <code>src/price.js</code> should take it off the price."
+      },
+      "edits": [{ "at": "src/cart.js#addItem", "seen": "file" }, { "at": "src/price.js#discount", "seen": "file" }]
+    },
+    "checkout": {
+      "repo": "shop",
+      "title": { "zh": "结账三处", "en": "Three changes at checkout" },
+      "text": {
+        "zh": "结账要改三处：<code>src/cart.js</code> 的 <code>addItem</code> 记下商品的税类，<code>total</code> 按税类分开加总，<code>src/price.js</code> 的 <code>tax</code> 按税类算。",
+        "en": "Checkout needs three changes: <code>addItem</code> in <code>src/cart.js</code> keeps an item’s tax class, <code>total</code> adds up by tax class, and <code>tax</code> in <code>src/price.js</code> works by tax class."
+      },
+      "tokens": 90,
+      "edits": [
+        { "at": "src/cart.js#addItem", "seen": "file" },
+        { "at": "src/cart.js#total", "seen": "file" },
+        { "at": "src/price.js#tax", "seen": "file" }
+      ]
+    },
+    "logout-session": {
+      "repo": "shop",
+      "title": { "zh": "退出后还登录着", "en": "Still signed in after signing out" },
+      "text": {
+        "zh": "<code>logout</code> 没有清掉会话，退出以后刷新页面还是登录状态。",
+        "en": "<code>logout</code> does not clear the session: after signing out, a reload still shows you signed in."
+      },
+      "edits": [{ "at": "src/user.js#logout", "seen": "seg" }]
+    },
+    "login-case": {
+      "repo": "shop",
+      "title": { "zh": "邮箱大小写", "en": "Upper and lower case in emails" },
+      "text": {
+        "zh": "<code>login</code> 要忽略邮箱的大小写。",
+        "en": "<code>login</code> should ignore case in email addresses."
+      },
+      "edits": [{ "at": "src/user.js#login", "seen": "seg" }]
+    },
+    "discount-cap": {
+      "repo": "shop",
+      "title": { "zh": "折扣不能超过一半", "en": "No more than half off" },
+      "text": {
+        "zh": "<code>discount</code> 最多只能打到五折，现在叠加以后会出现负价格。",
+        "en": "<code>discount</code> should take at most half off; stacked discounts now give negative prices."
+      },
+      "edits": [{ "at": "src/price.js#discount", "seen": "seg", "trap": true }]
+    },
+    "empty-cart": {
+      "repo": "shop",
+      "title": { "zh": "空购物车的总价", "en": "The total of an empty cart" },
+      "text": {
+        "zh": "购物车是空的时候，<code>total</code> 应该是 0，现在是 <code>NaN</code>。",
+        "en": "With an empty cart, <code>total</code> should be 0; now it is <code>NaN</code>."
+      },
+      "edits": [{ "at": "src/cart.js#total", "seen": "seg", "trap": true }]
+    },
+    "two-traps": {
+      "repo": "shop",
+      "title": { "zh": "退款", "en": "Refunds" },
+      "text": {
+        "zh": "支持退款：<code>removeItem</code> 退回已付的钱，<code>tax</code> 把退回部分的税也退掉。",
+        "en": "Support refunds: <code>removeItem</code> pays back what was paid, and <code>tax</code> pays back the tax on it too."
+      },
+      "edits": [
+        { "at": "src/cart.js#removeItem", "seen": "seg", "trap": true },
+        { "at": "src/price.js#tax", "seen": "seg", "trap": true }
+      ]
+    },
+    "negative-total": {
+      "repo": "shop",
+      "title": { "zh": "结账金额是负数", "en": "A negative checkout total" },
+      "text": { "zh": "有用户反馈：结账金额偶尔会是负数。", "en": "A user reports that the checkout total is sometimes negative." },
+      "symptom": true,
+      "edits": [{ "at": "src/price.js#discount", "seen": "none", "trap": true }]
+    },
+    "stuck-session": {
+      "repo": "shop",
+      "title": { "zh": "换了账号还是原来的人", "en": "Switching accounts keeps the old one" },
+      "text": {
+        "zh": "有用户反馈：退出再用另一个账号登录，看到的还是原来账号的购物车。",
+        "en": "A user reports that after signing out and in with another account, they still see the old account’s cart."
+      },
+      "symptom": true,
+      "edits": [{ "at": "src/user.js#logout", "seen": "none" }, { "at": "src/cart.js#total", "seen": "none" }]
+    },
+    "slug-spaces": {
+      "repo": "blog",
+      "title": { "zh": "标题里的空格", "en": "Spaces in titles" },
+      "text": {
+        "zh": "文章标题里有空格时，<code>slugify</code> 生成的链接打不开。",
+        "en": "When a post title has spaces, the link <code>slugify</code> makes does not open."
+      },
+      "tokens": 80,
+      "edits": [{ "at": "src/text.js#slugify", "seen": "seg" }]
+    },
+    "date-format": {
+      "repo": "blog",
+      "title": { "zh": "日期格式", "en": "Date format" },
+      "text": {
+        "zh": "<code>formatDate</code> 要按读者所在的地区显示日期。",
+        "en": "<code>formatDate</code> should show dates the way the reader’s region writes them."
+      },
+      "tokens": 80,
+      "edits": [{ "at": "src/posts.js#formatDate", "seen": "seg" }]
+    },
+    "list-order": {
+      "repo": "blog",
+      "title": { "zh": "文章顺序", "en": "Post order" },
+      "text": {
+        "zh": "<code>listPosts</code> 要把最新的文章排在最前面。",
+        "en": "<code>listPosts</code> should put the newest posts first."
+      },
+      "tokens": 80,
+      "edits": [{ "at": "src/posts.js#listPosts", "seen": "seg" }]
+    },
+    "webhook-retry": {
+      "repo": "mono",
+      "title": { "zh": "webhook 重试", "en": "Retrying webhooks" },
+      "text": {
+        "zh": "<code>handle</code> 遇到对方超时时要重试三次，现在直接丢掉。见 <code>webhooks</code> 包的测试。",
+        "en": "<code>handle</code> should retry three times when the other side times out; now it drops the call. See the tests of the <code>webhooks</code> package."
+      },
+      "edits": [{ "at": "pkg/webhooks/index.js#handle", "seen": "seg" }]
+    }
+  },
+  "saves": []
+}

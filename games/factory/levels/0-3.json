@@ -1,0 +1,23 @@
+{
+  "kind": "hand",
+  "mode": "once",
+  "title": { "zh": "窗口满了", "en": "The window is full" },
+  "brief": {
+    "zh": "这个模型一次只能读 700 个 token。让它修好这个 issue。",
+    "en": "This model reads at most 700 tokens at a time. Get it to fix this issue."
+  },
+  "hint": [
+    { "zh": "上下文条上变灰的部分，模型看不到。", "en": "Whatever turns grey on the context bar, the model does not see." },
+    {
+      "zh": "issue 只写了函数名。每个文件里有哪些函数，仓库那一栏里写着。",
+      "en": "The issue names only the function. The repository panel shows which functions each file holds."
+    }
+  ],
+  "window": 700,
+  "test": { "issue": "slug-spaces" },
+  "solution": [{ "add": "src/text.js" }, "call", "test"],
+  "after": {
+    "zh": "上下文有上限，叫<b>窗口</b>。超出的部分从最早的开始丢掉，而最早放进去的往往就是 issue 本身：模型看不到任务，就以为没事可做。放进上下文的东西不是越多越好，要挑。",
+    "en": "A context has a limit, its <b>window</b>. What goes over is dropped from the oldest on, and the oldest is often the issue itself: a model that cannot see its task thinks there is nothing to do. More in the context is not better; pick."
+  }
+}

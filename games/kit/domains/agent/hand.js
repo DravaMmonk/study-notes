@@ -3,12 +3,20 @@
 // when a test run the player starts comes back green.
 //
 //   level { machine: { mode, window }, test: { repo, issue }, solution: [op] }
-//   op    ['add', file] | ['list'] | ['drop', k] | ['call'] | ['test']
+//   op    ['add', file] | ['list'] | ['drop', k] | ['call'] | ['test']   (the save keeps a session as its ops; content
+//         writes each as a move of the vocabulary, { add: file } or 'call', which opOf reads)
 // A session is { context, state, log, tokens, green }: the context the model will read (the issue first), the
 // repository, what has happened ([{ op, … }] for the view), the tokens the calls took, and whether the last test run
 // passed. In a loop the model's actions stay in the context, as a machine would keep them.
 import { call } from './model.js'
+import { callOf } from '../../engine/schema.js'
 import { actEntry, applyWrite, fileEntry, freshState, issueEntry, listEntry, runTests } from './world.js'
+
+/** A move as content writes it (vocabulary.js move) as the op a session keeps. */
+export const opOf = (move) => {
+  const [op, arg] = callOf(move)
+  return typeof arg === 'object' ? [op] : [op, arg]
+}
 
 export const startHand = (level) => ({ context: [issueEntry(level.test.issue)], state: freshState(), log: [], tokens: 0, green: false })
 

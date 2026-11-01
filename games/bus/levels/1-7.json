@@ -1,0 +1,45 @@
+{
+  "title": { "zh": "有人开口了", "en": "Someone speaks" },
+  "brief": {
+    "zh": "总线连着至少 11 拍隐性之后的第一个显性，回答「是」；其余每一拍回答「否」。",
+    "en": "Answer yes on the first dominant bit after at least 11 recessive ones in a row, and no on every other tick."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "没人说话时总线一直是隐性。一个控制器开口，先说一位显性：这一位叫<wiki-ref to=\"sof\"></wiki-ref>。",
+        "en": "With nobody talking the bus stays recessive. A controller that starts talking first says one dominant bit: the <wiki-ref to=\"sof\"></wiki-ref>."
+      }
+    },
+    {
+      "t": {
+        "zh": "可一帧里面到处都有显性。只有在总线确实安静过一阵以后的那个显性，才是一帧的开头。",
+        "en": "Yet a frame is full of dominant bits. Only the dominant bit after the bus has really been quiet for a while is where a frame begins."
+      }
+    }
+  ],
+  "hint": [
+    { "zh": "数出这一拍之前隐性连着多长。", "en": "Count how long the recessive run before this tick is." },
+    { "zh": "显性是 0，可以拿它和常数 0 比。", "en": "Dominant is 0, and can be compared with a constant 0." }
+  ],
+  "listens": true,
+  "outputs": [{ "name": "sof", "label": { "zh": "帧起始", "en": "Start of frame" } }],
+  "tests": [
+    { "bus": { "frames": [{ "id": "0x123", "data": ["0x01"] }] } },
+    { "bus": { "idle": 11, "frames": [{ "id": "0x0f3", "data": ["0x55", "0xaa"] }, { "id": "0x2a5", "data": [] }] } }
+  ],
+  "want": { "sof": "startOfFrame" },
+  "solution": [
+    "c = counter(line)",
+    "ten = const[value=10]()",
+    "lt = compare[form=lt](ten, c)",
+    "z = const[value=0]()",
+    "e = compare[form=eq](line, z)",
+    "s = select(lt, e, lt)",
+    "sof <- s"
+  ],
+  "after": {
+    "zh": "一帧的最后是 11 位隐性：应答界定位、7 位帧结束、3 位帧间间隔。所以两帧紧挨着时，这条规则照样认得出下一帧。",
+    "en": "A frame ends with 11 recessive bits: the ACK delimiter, 7 bits of end of frame and 3 of intermission. So even with frames back to back, this rule still finds the next one."
+  }
+}

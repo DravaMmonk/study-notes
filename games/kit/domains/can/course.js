@@ -1,48 +1,75 @@
-// A course of 《车在说话》 levels from a game's spec: the play order and level tree from its eras (../../course.js layout),
-// each level's tests on a bus built from its frames, the parts the levels build (each running the board the player
-// passed it with: a packed part that keeps its own registers), and the course the shared audit checks.
+// A bus game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be in
+// it): the play order and level tree from its eras (../../course.js layout), each level's tests on a bus built from its
+// frames and what its outputs must be (wants.js), its reference board, the parts the levels build (each running the
+// board the player passed it with: a packed part that keeps its own registers), and the course the shared audit checks.
 //
-// busCourse({ eras, levels })
-//   levels  in any order: { id, title, brief, hint?, intro?, after?, note?, adds?: [part], listens?: true (the bus
-//           card), inputs?: [{ name, label }], outputs: [{ name, label }], tests: [{ bus: { idle?, frames, tail? },
-//           inputs? }], want(test) → { output name: [value per tick] }, solution(board, partOf) → circuit,
-//           builds?: { type, name, desc } }
-//           A level's tests run as long as their bus; its inputs give one value a tick.
-// Returns { LEVELS, CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built) }.
+// A level's tests run as long as their bus; its inputs give one value a tick.
+// Returns { LEVELS, CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built), wrong }: `wrong`, what
+// reading the content found that its schema cannot say (a board that does not read, an output with nothing wanted).
 import { packed } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { busOf } from './bus.js'
-import { board } from './build.js'
-import { PARTS, PRIMITIVES } from './parts.js'
+import { fits, fromText } from './board.js'
+import { PARTS } from './parts.js'
+import { wantOf } from './wants.js'
 
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
 
-export function busCourse({ eras, levels }) {
+// An identifier or a byte as content writes it: a number, or hexadecimal.
+const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
+const busFrom = ({ frames, ...rest }) => busOf({ ...rest, frames: frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
+
+export function busCourse(content) {
+  const { eras, primitives, levels } = content
+  const wrong = []
+  const say = (level, text) => wrong.push(`${level}: ${text}`)
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
-  for (const l of levels) if (!eraOf.has(l.id)) throw new Error(`level ${l.id} is in no era`)
+  for (const l of levels) if (!eraOf.has(l.id)) say(l.id, 'the level is in no era')
 
-  // Each built part runs the board its level was passed with, or the level's reference board.
+  // Each built part runs the board its level was passed with (while it still fits the level), or the level's reference.
   const BUILT = {}
   const partOf = (type) => PARTS[type] ?? BUILT[type]
-  const LEVELS = plan.order.map((id) => {
+  const LEVELS = plan.order.filter((id) => {
+    if (!given.has(id)) say(id, 'an era names a level that does not exist')
+    return given.has(id)
+  }).map((id) => {
     const level = given.get(id)
-    if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
+    const names = level.outputs.map((o) => o.name)
+    for (const name of names) if (!level.want[name]) say(id, `nothing is wanted of the output ${name}`)
+    for (const name of Object.keys(level.want)) if (!names.includes(name)) say(id, `wants ${name}, which is no output`)
+    for (const t of level.tests) {
+      for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say(id, 'a frame carries at most 8 bytes')
+      for (const i of level.inputs ?? []) if (!t.inputs?.[i.name]) say(id, `a test gives nothing on the input ${i.name}`)
+    }
     const out = {
       ...level,
       era: eraOf.get(id).id,
       requires: plan.requires.get(id) ?? [],
       adds: level.adds ?? [],
-      tests: level.tests.map((t) => ({ ...t, bus: busOf(t.bus) })),
+      tests: level.tests.map((t) => ({ ...t, bus: busFrom(t.bus) })),
+      want: wantOf(level.want),
     }
-    out.solution = level.solution((nodes, wires) => board(out, nodes, wires, partOf))
+    try {
+      out.solution = fromText(level.solution, out, partOf)
+    } catch (e) {
+      say(id, e.en ?? String(e))
+      out.solution = { nodes: [], wires: [] }
+    }
     if (level.builds) {
+      const fitting = new WeakMap()
+      const own = () => {
+        const b = OWN.get(id)
+        if (!b) return out.solution
+        if (!fitting.has(b)) fitting.set(b, fits(b, out, partOf))
+        return fitting.get(b) ? b : out.solution
+      }
       BUILT[level.builds.type] = packed({
-        circuit: () => OWN.get(id) ?? out.solution,
+        circuit: own,
         inputs: (level.inputs ?? []).map((i) => i.name),
-        outputs: level.outputs.map((o) => o.name),
+        outputs: names,
         holds: true,
         built: level.builds,
       })
@@ -55,13 +82,14 @@ export function busCourse({ eras, levels }) {
   const course = defineCourse({
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.builds ? [L.builds.type] : [] })),
     eras,
-    primitives: PRIMITIVES,
+    primitives,
     adds: (level) => byId.get(level.id)?.adds ?? [],
     needs: (part) => (builderOf.has(part) ? part : null),
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
     // A register is read and kept by two cards: one idea.
     concept: (part) => (part === 'keep' ? 'reg' : part),
-    needed: (level) => [...new Set(byId.get(level.id).solution.nodes.map((n) => n.type).filter((t) => !PARTS[t] || PRIMITIVES.includes(t)))],
+    needed: (level) => [...new Set(byId.get(level.id).solution.nodes.map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
+    showcase: (level) => byId.get(level.id)?.showcase ?? null,
     abstraction: true,
   })
   return {
@@ -70,6 +98,7 @@ export function busCourse({ eras, levels }) {
     course,
     partOf,
     BUILT,
+    wrong,
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
     syncOwn: (built = {}) => {
       OWN.clear()

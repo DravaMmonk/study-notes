@@ -1,0 +1,33 @@
+{
+  "kind": "hand",
+  "mode": "once",
+  "title": { "zh": "它只知道你给它的", "en": "It knows what you give it" },
+  "brief": {
+    "zh": "让模型修好这个 issue，再跑一次测试确认。",
+    "en": "Get the model to fix this issue, then run the tests to make sure."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<wiki-ref to=\"model\"></wiki-ref>就是编码 agent 里的那个大模型：读一段文字，给出一个动作。它读到的那段文字叫<b>上下文</b>。",
+        "en": "<wiki-ref to=\"model\"></wiki-ref> is the large model inside a coding agent: it reads some text and gives one action. The text it reads is its <b>context</b>."
+      }
+    },
+    {
+      "t": {
+        "zh": "现在还没有任何机器替你跑它。你自己决定上下文里放什么，按下「调用」，看它做了什么，再自己跑测试。",
+        "en": "No machine runs it for you yet. You decide what goes into the context, press Call, see what it did, and run the tests yourself."
+      }
+    }
+  ],
+  "hint": [
+    { "zh": "先不放文件，调用一次，看它写了什么，再跑测试。", "en": "Call it once with no file, see what it writes, and run the tests." },
+    { "zh": "issue 里写了要改的文件名。", "en": "The issue names the file to change." }
+  ],
+  "test": { "issue": "qty-zero" },
+  "solution": [{ "add": "src/cart.js" }, "call", "test"],
+  "after": {
+    "zh": "没看到 <code>addItem</code> 的代码，模型照样写了：它编了一个仓库里不存在的函数。把文件放进上下文，它就写对了。模型只知道上下文里的东西；上下文外面的，它会编。",
+    "en": "Without the code of <code>addItem</code> the model wrote anyway: it made up a function the repository does not have. With the file in its context, it wrote it right. The model knows only what is in its context; what is outside, it makes up."
+  }
+}

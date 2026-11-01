@@ -1,0 +1,24 @@
+{
+  "kind": "board",
+  "title": { "zh": "把代码贴上", "en": "Paste the code in" },
+  "brief": {
+    "zh": "这次 issue 没贴代码，代码单独给在左边。让模型两样都看到。",
+    "en": "This time the issue has no code; the code comes separately on the left. Let the model see both."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "只接 issue 的板，在这里会编出不存在的函数：代码不在模型的上下文里。模型只有一个输入口，两样东西要先并成一段。",
+        "en": "A board wired with the issue alone makes up functions here: the code is not in the model’s context. The model has one input, so the two have to become one context first."
+      }
+    }
+  ],
+  "adds": ["concat"],
+  "tests": [{ "issue": "qty-zero", "code": "src/cart.js" }, { "issue": "tax-round", "code": "src/price.js" }],
+  "solution": ["k = concat(issue, code)", "m = model(k)", "repo <- m"],
+  "naive": ["m = model(issue)", "repo <- m"],
+  "after": {
+    "zh": "拼接把几段上下文按顺序接成一段。现在由你决定模型看到什么、按什么顺序看到。",
+    "en": "Concat joins contexts into one, in order. Now you decide what the model sees, and in what order."
+  }
+}
