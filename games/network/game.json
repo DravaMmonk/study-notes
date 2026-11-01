@@ -2,16 +2,16 @@
   "domain": "net",
   "vocabulary": 1,
   "title": {
-    "zh": "network",
-    "en": "network"
+    "zh": "从一根线开始",
+    "en": "From One Wire"
   },
   "kicker": {
-    "zh": "开发中",
-    "en": "In development"
+    "zh": "计算机网络",
+    "en": "Computer networks"
   },
   "lede": {
-    "zh": "一根线，每一拍送一位。从传一位话开始，一层层搭出能可靠地收发一帧的网卡。",
-    "en": "One wire, one bit a tick. Start by passing a bit on, and build up, layer by layer, a network card that sends and receives a frame reliably."
+    "zh": "一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。",
+    "en": "One wire, one bit a tick, and some bits go wrong. Start by passing a bit on, and build a network adapter of your own, layer by layer."
   },
   "primitives": [
     "select",
@@ -35,8 +35,8 @@
         "en": "One wire"
       },
       "question": {
-        "zh": "一根一拍送一位、还会出错的线，怎样让两头可靠地交换一帧？",
-        "en": "How do two ends exchange a frame over a wire that carries a bit a tick and gets some wrong?"
+        "zh": "一根一拍只送一位、还会出错的线，两头怎样互相送出一帧，并知道它完好？",
+        "en": "Over a wire that carries a bit a tick and gets some wrong, how do two ends send each other a frame and know it arrived intact?"
       },
       "foundation": [
         "1-1",

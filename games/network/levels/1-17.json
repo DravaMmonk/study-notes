@@ -1,15 +1,29 @@
 {
   "title": { "zh": "查出坏帧", "en": "Catch bad frames" },
   "brief": {
-    "zh": "线会翻位。每帧的内容后面跟一个校验字节（5 个 0，再加整帧内容的 3 位校验码），和内容一起做位填充。逐个给出每帧的内容字节，每个字节在它后面那个字节收全的那一拍给出，同时「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1，「完好」说出这一帧是否完好。其余各拍「字节」「完好」是「—」，「收到」「帧尾」为 0。",
-    "en": "The wire flips bits. Each frame's content is followed by a check byte (five 0s, then the 3 check bits of the whole content), stuffed along with it. Give each frame's content bytes one by one, each on the tick the byte after it is complete, with got 1 on that tick; on the tick the closing flag is complete make end 1 and say in intact whether the frame arrived intact. On every other tick the byte and intact are 「—」, got and end 0."
+    "zh": "逐个给出每帧的内容字节（校验字节除外）：每个在后一个字节收全的那一拍给出，「收到」为 1；结尾旗标收完时「帧尾」为 1，「完好」说出这帧是否完好；其余各拍为「—」或 0。",
+    "en": "Give each frame's content bytes, the check byte aside: each on the tick the byte after it is complete, with got 1. When the closing flag is complete, end is 1 and intact says whether the frame arrived intact. On every other tick, 「—」 or 0."
   },
   "intro": [
     {
       "t": {
-        "zh": "到这里为止，校验码护着的只是一个字节。一帧有几个字节事先不知道，校验码于是放在整帧的内容后面，补成一个整字节：收的一方要等这一帧收完，才知道哪个字节是校验字节。",
-        "en": "So far a check has guarded a single byte. A frame's length is not known in advance, so its check goes after the whole content, padded to a whole byte: the receiver only knows which byte is the check once the frame is over."
+        "zh": "到这里为止，校验码护着的只是一个字节，线照样会翻位。一帧有几个字节事先不知道，校验码于是放在整帧内容的后面：前面补 5 个 0 凑成一个校验字节，和内容一起做位填充。收的一方要等这一帧结束，才知道最后收到的是校验字节。",
+        "en": "So far a check has guarded a single byte, and the wire still flips bits. A frame's length is not known in advance, so its check goes after the whole content: five 0s in front make it a check byte, stuffed along with the content. Only when the frame ends does the receiver know the last byte was the check."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "<part-ref to=\"deframer\"></part-ref>交出的每个字节，都可能是最后那个校验字节。",
+      "en": "Any byte <part-ref to=\"deframer\"></part-ref> gives could be the closing check byte."
+    },
+    {
+      "zh": "一个字节先留住，等下一个字节收全时再交出去。",
+      "en": "Hold each byte back until the next one is complete, then pass it on."
+    },
+    {
+      "zh": "帧尾那一拍，<part-ref to=\"crc\"></part-ref>收进的应当只有内容字节的位。",
+      "en": "By the frame's end, <part-ref to=\"crc\"></part-ref> should have taken in the bits of the content bytes and nothing else."
     }
   ],
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },

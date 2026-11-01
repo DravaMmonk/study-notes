@@ -1,15 +1,26 @@
 {
   "title": { "zh": "塞一个 0", "en": "Slip in a 0" },
   "brief": {
-    "zh": "把交来的字节一帧一帧地送出：每帧前后各加旗标 01111110，内容里每连着 5 个 1 就多说一个 0。一帧只在「发送」为 1 的拍开始，两帧之间线上是 0。「下一个」为 1 的那一拍取走眼前的字节，「末字节」说明它是不是这一帧的最后一个。",
-    "en": "Send the bytes handed to you frame by frame: the flag 01111110 at each end of a frame, and a 0 added after every five 1s in its content. A frame begins only on a tick send is 1, and the wire is 0 between frames. Saying next takes the byte in front of you; last says whether it ends its frame."
+    "zh": "一帧一帧送出交来的字节：前后加旗标 01111110，内容里每连着 5 个 1 多说一个 0。帧只在「发送」为 1 时开始，帧间线上为 0；「下一个」取走队首，「末字节」标出帧尾。",
+    "en": "Send the bytes handed to you frame by frame: the flag 01111110 at each end, and a 0 added after every five 1s in the content. A frame starts only on a tick send is 1, and the wire is 0 between frames. Next takes the byte in front; last marks a frame's final byte."
   },
   "intro": [
     {
       "t": {
-        "zh": "旗标标出一帧从哪开始、到哪结束。可一帧的内容本身也可能含有 01111110：收的一方会把它当成旗标，一帧被从中间切断。于是两头再约好一条：内容里每连着 5 个 1，发送方就多说一个 0，收的一方再把它去掉，内容里就永远不会出现旗标。",
-        "en": "Flags mark where a frame begins and ends. But a frame's content may itself hold 01111110: the receiver takes it for a flag and the frame is cut in two. So the ends agree on one more rule: after every five 1s in a row in the content, the sender says an extra 0, and the receiver takes it out again, so the content never looks like a flag."
+        "zh": "<level-ref to=\"1-11\"></level-ref>里，旗标标出一帧的开头和结尾。可帧的内容本身也可能含有 01111110：收的一方会把它当成旗标，一帧被从中间切断。两头于是再约好一条：内容里每连着 5 个 1，发送方就多说一个 0，收的一方再把它去掉。这叫<wiki-ref to=\"stuffing\"></wiki-ref>。",
+        "en": "In <level-ref to=\"1-11\"></level-ref> flags mark where a frame begins and ends. But the content itself may hold 01111110: the receiver takes it for a flag and the frame is cut in two. So the ends agree on one more rule: after every five 1s in a row in the content the sender says an extra 0, and the receiver takes it out again. This is <wiki-ref to=\"stuffing\"></wiki-ref>."
       }
+    }
+  ],
+  "hint": [
+    { "zh": "旗标原样说出，不做填充；填充只管内容。", "en": "Flags go out as they are, unstuffed; only the content is stuffed." },
+    {
+      "zh": "多说 0 的那一拍，内容停一拍不走：正在说的那一位留到下一拍。",
+      "en": "On the tick of the extra 0 the content stands still: the bit that was due waits a tick."
+    },
+    {
+      "zh": "该不该多说一个 0，要看刚说出去的内容里连着几个 1。",
+      "en": "Whether an extra 0 is due depends on how many 1s in a row the content has just put on the wire."
     }
   ],
   "inputs": [

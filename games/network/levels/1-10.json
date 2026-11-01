@@ -7,10 +7,18 @@
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-9\"></level-ref>收的是这样的字节，现在轮到发送一方。要送的字节排成一队，一次只看得见排在最前面的那一个；队伍空了，看到的是「—」。",
-        "en": "<level-ref to=\"1-9\"></level-ref> received bytes like these; now it is the sender's turn. The bytes to send wait in a queue, and only the one in front can be seen; once the queue is empty, it shows 「—」."
+        "zh": "<level-ref to=\"1-9\"></level-ref>收的是这样的字节，这一次换到发送的一方。要送的字节排成一队，板只看得见排在最前面的那一个；队伍空了，看到的是「—」。",
+        "en": "<level-ref to=\"1-9\"></level-ref> received bytes like these; now the board is the sender. The bytes to send wait in a queue, and only the one in front can be seen; once the queue is empty, it shows 「—」."
       }
     }
+  ],
+  "hint": [
+    { "zh": "一个字节连同起始位和停止位，一共占 10 拍。", "en": "A byte with its start and stop bits takes 10 ticks." },
+    {
+      "zh": "<part-ref to=\"serializer\"></part-ref>只说那 8 位，起始位那一拍要另外说。",
+      "en": "<part-ref to=\"serializer\"></part-ref> says only the 8 bits; the start bit's tick is up to you."
+    },
+    { "zh": "队伍空了以后，也不能再说起始位。", "en": "Once the queue is empty, no more start bits either." }
   ],
   "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
   "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],

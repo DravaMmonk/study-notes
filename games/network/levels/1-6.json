@@ -7,9 +7,23 @@
   "intro": [
     {
       "t": {
-        "zh": "要知道一个字节该发到第几位、已经收了几位，板得知道过了几拍；寄存卡只记一个值，手上的元件又都不能让一个数变大。新元件<part-ref to=\"part:add\"></part-ref>给出两个数之和。",
-        "en": "To know which bit of a byte is due, or how many have come in, a board must know how many ticks have passed; a register holds one value, and nothing in hand makes a number grow. The new part <part-ref to=\"part:add\"></part-ref> gives the sum of two numbers."
+        "zh": "要知道一个字节该发到第几位、已经收了几位，板得知道过了几拍。寄存卡只记得住一个值，手上的元件又都不能让一个数变大。新元件<part-ref to=\"part:add\"></part-ref>给出两个数之和。",
+        "en": "To know which bit of a byte is due, or how many have come in, a board must know how many ticks have passed. A register holds a single value, and nothing in hand can make a number grow. The new part <part-ref to=\"part:add\"></part-ref> gives the sum of two numbers."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "先不管「重来」和「暂停」，只让输出每拍大一。",
+      "en": "Leave restart and hold aside at first, and just make the output grow by one each tick."
+    },
+    {
+      "zh": "「重来」那一拍的数是 0；「暂停」那一拍的数和上一拍一样。两种情况各由一个选择决定。",
+      "en": "On a restart tick the number is 0; on a hold tick it is what it was. Each case is a choice of its own."
+    },
+    {
+      "zh": "要留到下一拍的值不止一个时，就用几个名字不同的寄存卡。",
+      "en": "When more than one value has to last until the next tick, use registers with different names."
     }
   ],
   "adds": ["add"],

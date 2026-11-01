@@ -1,15 +1,35 @@
 {
   "title": { "zh": "边收边除", "en": "Divide as it comes" },
   "brief": {
-    "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码：这些位后面补上三个 0、不进位地除以 1011 的余数，写成一个数。「重来」为 1 的那一拍从这一位重新算起；「暂停」为 1 的拍不收这一位。",
+    "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码，即这些位补上三个 0 后不进位地除以 1011 的余数；「重来」为 1 的拍从这一位重新算起，「暂停」为 1 的拍不收这一位。",
     "en": "Every tick, output the 3 check bits due after the bits received so far: their carry-less remainder by 1011 with three 0s appended, as a number. On a tick restart is 1, start over from that bit; on a tick hold is 1, leave that bit out."
   },
   "intro": [
     {
       "t": {
-        "zh": "奇偶校验位只查得出奇数个错位：恰好翻两位时，校验照样相符。更强的校验把一串位当作一个大数，后面补上几个 0，用不进位的除法除以约好的除数（生成式），余数就是要跟在后面的校验码。不进位的除法里，每一步减法都是逐位的异或。",
-        "en": "A parity bit catches only an odd number of flips: with exactly two flipped, it still checks out. A stronger check reads a run of bits as one big number, appends a few 0s and divides it, without carries, by an agreed divisor (the generator); the remainder is the check to send after the bits. In carry-less division, every subtraction is a bitwise XOR."
+        "zh": "<level-ref to=\"1-14\"></level-ref>的校验位只查得出奇数个错位：恰好翻两位时，校验照样相符。",
+        "en": "The parity bit of <level-ref to=\"1-14\"></level-ref> catches only an odd number of flips: with exactly two flipped, it still checks out."
       }
+    },
+    {
+      "t": {
+        "zh": "更强的校验把一串位当作一个大数，后面补上几个 0，用<wiki-ref to=\"carryless\"></wiki-ref>除以约好的除数，这个除数叫<wiki-ref to=\"generator\"></wiki-ref>；余数就是跟在数据后面的校验码。这种校验叫<wiki-ref to=\"crc\"></wiki-ref>。",
+        "en": "A stronger check reads a run of bits as one big number, appends a few 0s and divides it by <wiki-ref to=\"carryless\"></wiki-ref> by an agreed divisor, the <wiki-ref to=\"generator\"></wiki-ref>; the remainder is the check sent after the data. This check is a <wiki-ref to=\"crc\"></wiki-ref>."
+      }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "先在纸上把 1101 补上 000，不进位地除以 1011，看每一步余数怎样变。",
+      "en": "On paper, append 000 to 1101 and divide it by 1011 without carries, watching the remainder at each step."
+    },
+    {
+      "zh": "三个寄存卡各记一位，就记得下除到这一拍为止的结果。",
+      "en": "Three registers, a bit each, are enough to hold where the division stands."
+    },
+    {
+      "zh": "要的是补上三个 0 以后的余数：新来的一位先和结果的最高位比一比，再决定这一步减不减生成式。",
+      "en": "What is wanted is the remainder with three 0s appended: compare each new bit with the top bit held before deciding whether this step subtracts the generator."
     }
   ],
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },

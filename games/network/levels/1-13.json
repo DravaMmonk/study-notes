@@ -1,15 +1,29 @@
 {
   "title": { "zh": "拆帧", "en": "Unwrap the frame" },
   "brief": {
-    "zh": "从线上认出旗标之间的每一帧，去掉塞进的 0，逐个给出内容字节：一个字节收全的那一拍，「字节」给出它，「收到」为 1；结尾旗标收完的那一拍，「帧尾」为 1。其余各拍「字节」是「—」，「收到」和「帧尾」为 0。",
-    "en": "Find each frame between flags on the wire, take out the stuffed 0s and give the content bytes one by one: on the tick a byte is complete, output it and make got 1; on the tick the closing flag is complete, make end 1. On every other tick the byte is 「—」 and got and end are 0."
+    "zh": "认出线上旗标之间的每一帧，去掉塞进的 0，逐个给出内容字节：字节收全的那一拍输出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1。其余各拍字节为「—」，两个信号为 0。",
+    "en": "Find each frame between flags on the wire, take out the stuffed 0s and give the content bytes one by one: output each on the tick it is complete, with got 1; end is 1 on the tick the closing flag is complete. Otherwise the byte is 「—」 and both signals 0."
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-12\"></level-ref>送出的帧到了线的另一头：收的一方要认出旗标，把塞进的 0 去掉，再把位拼回字节。",
-        "en": "Frames like those of <level-ref to=\"1-12\"></level-ref> reach the other end of the wire: the receiver has to spot the flags, take out the stuffed 0s and put the bits back into bytes."
+        "zh": "<level-ref to=\"1-12\"></level-ref>送出的帧到了线的另一头。这一次在收的一方：认出旗标，去掉塞进的 0，把位拼回字节。",
+        "en": "Frames like those of <level-ref to=\"1-12\"></level-ref> reach the other end of the wire. Now the board is the receiver: spotting flags, taking out the stuffed 0s and putting the bits back into bytes."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "连着五个 1 之后来的 0 是塞进去的，不算内容。",
+      "en": "A 0 that comes after five 1s in a row was stuffed in and is not content."
+    },
+    {
+      "zh": "<part-ref to=\"deserializer\"></part-ref>在「暂停」的拍不收线上的位。",
+      "en": "<part-ref to=\"deserializer\"></part-ref> leaves out the wire's bit on hold ticks."
+    },
+    {
+      "zh": "结尾旗标的 8 位收齐时，看起来也像收满了一个字节。",
+      "en": "When the 8 bits of the closing flag are in, they look like a full byte too."
     }
   ],
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },

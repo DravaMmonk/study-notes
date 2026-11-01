@@ -7,9 +7,20 @@
   "intro": [
     {
       "t": {
-        "zh": "寄存卡记住的不必是线上的位：存进去的可以是板上算出的任何值，下一拍再拿来接着算。",
-        "en": "A register need not keep the bit off the wire: it can keep anything the board works out, to be worked on again the next tick."
+        "zh": "<level-ref to=\"1-4\"></level-ref>里，寄存卡存的是线上来的位。存进去的也可以是板上算出的任何值，下一拍再拿来接着算。",
+        "en": "In <level-ref to=\"1-4\"></level-ref> the register kept the bit off the wire. It can keep anything the board works out, to be worked on again the next tick."
       }
+    }
+  ],
+  "hint": [
+    { "zh": "要记住的是「到现在为止听到过 1 没有」。", "en": "What has to be remembered is whether a 1 has been heard yet." },
+    {
+      "zh": "这一拍该说什么，取决于这一拍听到的和上一拍记下的。",
+      "en": "What to say this tick depends on what is heard now and what was kept last tick."
+    },
+    {
+      "zh": "听到 1 的那一拍就要说 1，不能等到下一拍。",
+      "en": "On the very tick a 1 is heard, the board must already say 1, not a tick later."
     }
   ],
   "wires": {

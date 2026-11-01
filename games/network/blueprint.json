@@ -313,8 +313,8 @@
       "machine": "one-wire",
       "title": { "zh": "一根线", "en": "One wire" },
       "question": {
-        "zh": "一根一拍送一位、还会出错的线，怎样让两头可靠地交换一帧？",
-        "en": "How do two ends exchange a frame over a wire that carries a bit a tick and gets some wrong?"
+        "zh": "一根一拍只送一位、还会出错的线，两头怎样互相送出一帧，并知道它完好？",
+        "en": "Over a wire that carries a bit a tick and gets some wrong, how do two ends send each other a frame and know it arrived intact?"
       },
       "why": {
         "zh": "起点是一根线：两头约好 0 和 1，什么格式都还没有。这一代从照搬一位开始，一层层装出能发能收、能查错的网卡。纸笔一代教的几件事并进第一次用得着它们的关：两种状态在传话，二进制数在逐位发送和接收。",

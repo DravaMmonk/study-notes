@@ -7,10 +7,18 @@
   "intro": [
     {
       "t": {
-        "zh": "要送过去的是 0 到 255 的数，线一拍却只送一位。一个字节是 8 位二进制数，每一位的分量是后一位的两倍。新元件<part-ref to=\"part:bit\"></part-ref>从一个数里取出指定的一位，<part-ref to=\"part:equal\"></part-ref>说两个数是否相同。",
-        "en": "What must go across is a number from 0 to 255, but the wire carries one bit a tick. A byte is an 8-bit binary number, each place worth twice the next. The new part <part-ref to=\"part:bit\"></part-ref> takes one given bit out of a number, and <part-ref to=\"part:equal\"></part-ref> says whether two numbers are the same."
+        "zh": "要送过去的是 0 到 255 的数，线一拍却只送一位。一个<wiki-ref to=\"byte\"></wiki-ref>是 8 位的<wiki-ref to=\"binary\"></wiki-ref>，每一位的分量是后一位的两倍；把它拆成位，一拍一位地说出去，叫<wiki-ref to=\"serial\"></wiki-ref>。新元件<part-ref to=\"part:bit\"></part-ref>从一个数里取出指定的一位，<part-ref to=\"part:equal\"></part-ref>说两个数是否相同。",
+        "en": "What must go across is a number from 0 to 255, but the wire carries one bit a tick. A <wiki-ref to=\"byte\"></wiki-ref> is an 8-bit <wiki-ref to=\"binary\"></wiki-ref>, each place worth twice the next; taking it apart and saying it a bit a tick is <wiki-ref to=\"serial\"></wiki-ref>. The new part <part-ref to=\"part:bit\"></part-ref> takes a given bit out of a number, and <part-ref to=\"part:equal\"></part-ref> says whether two numbers are the same."
       }
     }
+  ],
+  "hint": [
+    {
+      "zh": "<part-ref to=\"counter\"></part-ref>说得出从「开始」起过了几拍。",
+      "en": "<part-ref to=\"counter\"></part-ref> can tell how many ticks have passed since start."
+    },
+    { "zh": "「开始」之前和 8 位说完以后，线上都要是 0。", "en": "The wire must be 0 before start and after the eighth bit." },
+    { "zh": "说到一半时，输入上的字节可能已经换了。", "en": "Halfway through, the byte on the input may already have changed." }
   ],
   "adds": ["bit", "equal"],
   "inputs": [

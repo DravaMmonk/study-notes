@@ -1,15 +1,29 @@
 {
   "title": { "zh": "线会出错", "en": "The wire errs" },
   "brief": {
-    "zh": "线上从第一拍起接连送来字节，每个字节后面跟一个奇偶校验位（让这 9 位里 1 的个数为偶数），线会翻位。在每个校验位到达的那一拍，「字节」输出收到的字节，「完好」说出校验是否相符；其余各拍两者都是「—」。",
-    "en": "Bytes come down the wire back to back from the first tick, each followed by a parity bit (making the count of 1s in the nine even), and the wire flips bits. On the tick each parity bit arrives, output the byte received and say whether its parity checks out; 「—」 on both at every other tick."
+    "zh": "从第一拍起，线上接连送来字节，每个后跟一个校验位，使这 9 位里 1 的个数为偶数；线会翻位。每个校验位到达的那一拍，输出收到的字节和校验是否相符，其余各拍为「—」。",
+    "en": "From the first tick, bytes come down the wire back to back, each followed by a bit that makes the count of 1s in the nine even; the wire flips bits. On the tick each such bit arrives, output the byte received and whether it checks out; 「—」 on every other tick."
   },
   "intro": [
     {
       "t": {
-        "zh": "从这里起，线会把个别的位翻过来。收到的字节错了，收的一方却毫不知情，照样把它交出去。两头于是约好一条规则：发送方在数据后面附一位，收的一方按同一规则核对，就知道数据在线上有没有被改。",
-        "en": "From here on, the wire flips the odd bit. A byte arrives wrong and the receiver hands it on without knowing. So the ends agree on a rule: the sender appends a bit after the data, and the receiver checks it by the same rule to tell whether the data changed on the way."
+        "zh": "从这里起，线会把个别的位翻过来。收到的字节错了，收的一方却毫不知情，照样把它交出去。两头于是约好一条规则：发送方在数据后面附几位，收的一方按同一规则核对，就知道数据在线上有没有被改。这叫<wiki-ref to=\"error-detection\"></wiki-ref>。最简单的规则只附一位，让 1 的个数凑成偶数，叫<wiki-ref to=\"parity\"></wiki-ref>。",
+        "en": "From here on, the wire flips the odd bit. A byte arrives wrong and the receiver hands it on without knowing. So the ends agree on a rule: the sender appends a few bits to the data, and the receiver checks them by the same rule to tell whether the data changed on the way. This is <wiki-ref to=\"error-detection\"></wiki-ref>. The simplest rule appends one bit that makes the count of 1s even: a <wiki-ref to=\"parity\"></wiki-ref>."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "1 的个数是奇是偶，可以一位一位地跟着记。",
+      "en": "Whether the count of 1s is odd or even can be tracked bit by bit."
+    },
+    {
+      "zh": "<part-ref to=\"xor\"></part-ref>把记下的奇偶和新来的一位合成新的奇偶。",
+      "en": "<part-ref to=\"xor\"></part-ref> folds a new bit into the parity kept so far."
+    },
+    {
+      "zh": "字节一个接一个，中间没有空拍：每 9 拍从头算起。",
+      "en": "The bytes come back to back with no gap: start afresh every 9 ticks."
     }
   ],
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },

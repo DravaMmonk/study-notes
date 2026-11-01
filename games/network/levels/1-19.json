@@ -1,15 +1,29 @@
 {
   "title": { "zh": "接力", "en": "Relay" },
   "brief": {
-    "zh": "在两根线之间转发：左边进线上来的帧，一个字节一个字节地交给右边的网卡，从右边的出线送出去，不等整帧收完。左边到时是坏的帧，从右边出去也不能是完好的。",
-    "en": "Forward between two wires: pass each frame from the left wire in on to a card for the right-hand wire out, byte by byte, without waiting for the whole frame. A frame that arrived broken on the left must not leave intact on the right."
+    "zh": "在两根线之间转发：左边进线上来的帧，一个字节一个字节地交给右边的网卡，从右边的出线送出，不等整帧收完。左边到时是坏的帧，从右边出去也不能是完好的。",
+    "en": "Forward between two wires: pass each frame from the left wire in to an adapter on the right wire out, byte by byte, without waiting for the whole frame. A frame that arrived broken on the left must not leave intact on the right."
   },
   "intro": [
     {
       "t": {
-        "zh": "一根线只连着两头。要让帧走得更远，中间的节点得把一根线上收到的帧，转到另一根线上去。",
-        "en": "A wire joins only two ends. For a frame to travel further, a node in the middle has to pass what it receives on one wire on to another."
+        "zh": "一根线只连着两头。要让帧走得更远，中间的节点得把一根线上收到的帧，转到另一根线上去。不等整帧收完就往外转，叫<wiki-ref to=\"cut-through\"></wiki-ref>。",
+        "en": "A wire joins only two ends. For a frame to travel further, a node in the middle must pass what it receives on one wire on to another. Passing it on before the whole frame is in is <wiki-ref to=\"cut-through\"></wiki-ref>."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "左边的网卡往上交字节，右边的网卡从上面取字节，两边的快慢并不一样。",
+      "en": "The left adapter hands bytes up and the right one takes them from above, and the two do not keep the same pace."
+    },
+    {
+      "zh": "右边要取字节的时候，左边未必刚好交来一个：中间要存得下几个字节。",
+      "en": "When the right side wants a byte, the left may not have one just then: the middle must hold a few."
+    },
+    {
+      "zh": "坏帧到帧尾才认得出，那时它的大部分已经送了出去；能动的只剩还没送出的那几位。",
+      "en": "A bad frame shows only at its end, when most of it has already gone out; all that can still change is the bits not yet sent."
     }
   ],
   "wires": {

@@ -10,9 +10,16 @@
   "intro": [
     {
       "t": {
-        "zh": "传话的板只能原样照搬：线上来什么，就说什么。要让说出的位和听到的不一样，板得能按条件改变一个值。新元件<part-ref to=\"part:select\"></part-ref>按条件在两路之间取一路，<part-ref to=\"part:const\"></part-ref>给出一个固定的数。",
-        "en": "A relay can only copy: what comes down the wire is what it says. To say something other than what it hears, a board must change a value by a condition. The new part <part-ref to=\"part:select\"></part-ref> picks one of two values by a condition, and <part-ref to=\"part:const\"></part-ref> gives a fixed number."
+        "zh": "<level-ref to=\"1-1\"></level-ref>的板只能原样照搬：线上来什么，就说什么。要说出和听到的不一样的位，板得能按条件改变一个值。新元件<part-ref to=\"part:select\"></part-ref>按条件在两路之间取一路，<part-ref to=\"part:const\"></part-ref>给出一个固定的数。",
+        "en": "The board of <level-ref to=\"1-1\"></level-ref> can only copy: whatever comes down the wire is what it says. To say a bit other than the one it hears, a board must change a value by a condition. The new part <part-ref to=\"part:select\"></part-ref> picks one of two values by a condition, and <part-ref to=\"part:const\"></part-ref> gives a fixed number."
       }
+    }
+  ],
+  "hint": [
+    { "zh": "听到的位本身就可以当作条件。", "en": "The bit you hear can itself be the condition." },
+    {
+      "zh": "听到 1 时该说什么、听到 0 时该说什么，各由一个常数给出。",
+      "en": "What to say on a 1 and what to say on a 0 can each come from a constant."
     }
   ],
   "adds": [

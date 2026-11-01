@@ -21,7 +21,8 @@ const BANNED = [
   [/搞定|接一下|啥|就行|没事/, 'colloquial: write standard written Chinese'],
   [/进行|得到证明|得到揭示|被引入|对[^，。]{1,8}进行/, 'translationese: use an active verb'],
   [/卡片|方块/, 'everything on a board is a 元件'],
-  [/\b(?:cards?|blocks?)\b/i, 'everything on a board is a part'],
+  // A network card is the field's own term, not a board's piece.
+  [/(?<!network )\bcards?\b|\bblocks?\b/i, 'everything on a board is a part'],
   [/\b(?:simply|just wire|obviously)\b/i, 'no hand-waving words'],
 ]
 const AHEAD = [/下一关|后面的关|后面你会|之后会用到|以后会用到|稍后/, /\bnext level\b|\blater levels?\b|\byou will (?:later|soon)\b|\bcoming up\b/i]
@@ -47,10 +48,9 @@ export function lintCopy(content) {
   ].filter(([, v]) => v)
   const words = (at, text) => {
     const { zh, en } = sides(text)
-    for (const [re, why] of BANNED) {
-      const m = plain(zh).match(re) ?? plain(en).match(re)
-      if (m) say('copy-banned', at, `「${m[0]}」: ${why}`)
-    }
+    // One finding a text for each rule: the first banned word it has.
+    const banned = BANNED.map(([re, why]) => [plain(zh).match(re) ?? plain(en).match(re), why]).find(([m]) => m)
+    if (banned) say('copy-banned', at, `「${banned[0][0]}」: ${banned[1]}`)
     const ahead = plain(zh).match(AHEAD[0]) ?? plain(en).match(AHEAD[1])
     if (ahead) say('copy-ahead', at, `「${ahead[0]}」`)
   }

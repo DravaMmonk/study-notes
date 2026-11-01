@@ -1,17 +1,35 @@
 {
-  "title": { "zh": "一块网卡", "en": "A network card" },
+  "title": { "zh": "一块网卡", "en": "A network adapter" },
   "brief": {
-    "zh": "搭一块网卡，两个方向同时在走。往下：交来的帧带上校验字节，成帧送到出线上；一帧只在「发送」为 1 的拍开始，「下一个」为 1 的那一拍取走眼前的字节。往上：进线上来的帧拆开、核对，每个内容字节在它后面那个字节收全的那一拍交给上面，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1，「完好」说出这一帧是否完好。其余各拍「字节」「完好」是「—」，「收到」「帧尾」为 0。",
-    "en": "Build a network card, with both directions running at once. Down: frames handed to it go out on the wire out, framed with their check byte; a frame begins only on a tick send is 1, and saying next takes the byte in front of you. Up: frames off the wire in are unwrapped and checked, each content byte going up on the tick the byte after it is complete, with got 1; on the tick the closing flag is complete, end is 1 and intact says whether the frame arrived intact. On every other tick the byte and intact are 「—」, got and end 0."
+    "zh": "搭一块网卡，两个方向同时工作。往下：交来的帧带上校验字节成帧，从出线送出，「发送」为 1 时开始，「下一个」取走队首。往上：进线上的帧拆开、核对，输出的时机同<part-ref to=\"receiver\"></part-ref>。",
+    "en": "Build a network adapter working both ways at once. Down: frames handed to it go out framed on the wire out with their check byte, starting on a tick send is 1, next taking the byte in front. Up: frames off the wire in are unwrapped and checked, timed as in <part-ref to=\"receiver\"></part-ref>."
   },
   "intro": [
     {
       "t": {
-        "zh": "发帧、收帧、查错分在几块板上，每一个要用线的节点都得把它们重新接一遍。把它们装进一块网卡：对上面只收发整帧的字节，对下面只收发线上的位，上面不必知道旗标、填充和校验字节。这叫分层。",
-        "en": "Sending frames, receiving them and checking them sit on separate boards, and every node that uses a wire would have to wire them up again. Put them in one network card: it deals in the bytes of whole frames with the layer above and in bits on the wire below, and the layer above never sees flags, stuffing or the check byte. This is layering."
+        "zh": "发帧和收帧各是一个元件，查错的校验码又要另外算：每一个要用线的节点，都得把它们重新接一遍。把它们装进一块网卡：对上面只收发整帧的字节，对下面只收发线上的位，上面不必知道旗标、填充和校验字节。这叫<wiki-ref to=\"layering\"></wiki-ref>。",
+        "en": "Sending frames and receiving them are separate parts, and the check is worked out apart from both: every node that uses a wire would have to wire them up again. Put them into one network adapter: it deals in the bytes of whole frames with the layer above and in bits on the wire below, and the layer above never sees flags, stuffing or the check byte. This is <wiki-ref to=\"layering\"></wiki-ref>."
       }
     }
   ],
+  "hint": [
+    {
+      "zh": "两个方向互不相干；往上的一半，手上已经有现成的元件。",
+      "en": "The two directions do not touch each other, and a part in hand already does the upward half."
+    },
+    {
+      "zh": "<part-ref to=\"framer\"></part-ref>只送交给它的字节：校验字节要在最后一个内容字节之后交给它。",
+      "en": "<part-ref to=\"framer\"></part-ref> sends only the bytes it is given: the check byte has to be given to it after the last content byte."
+    },
+    {
+      "zh": "<part-ref to=\"crc\"></part-ref>要收的是内容字节本身的位，不是线上带着旗标和填充的位；整帧内容收完时的结果要留住。",
+      "en": "<part-ref to=\"crc\"></part-ref> must take in the bits of the content bytes, not the wire's bits with flags and stuffing; keep its result from the moment the whole content is in."
+    }
+  ],
+  "after": {
+    "zh": "从这里起，用线的节点只和网卡打交道：每一层只管自己的事。",
+    "en": "From here on a node that uses a wire deals only with its adapter: each layer minds its own business."
+  },
   "wires": {
     "in": [{ "name": "rx", "label": { "zh": "进线", "en": "Wire in" } }],
     "out": [{ "name": "tx", "label": { "zh": "出线", "en": "Wire out" } }]
@@ -1389,7 +1407,7 @@
   ],
   "builds": {
     "type": "nic",
-    "name": { "zh": "网卡", "en": "Network card" },
+    "name": { "zh": "网卡", "en": "Network adapter" },
     "desc": {
       "zh": "往下：交来的帧带上校验字节成帧送到出线上，「发送」为 1 的拍开始一帧，「下一个」为 1 的那一拍取走眼前的字节。往上：进线上来的帧拆开、核对，每个内容字节在它后面那个字节收全的那一拍给出，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1，「完好」说出这一帧是否完好。",
       "en": "Down: frames handed to it go out on its wire out, framed with their check byte; a frame begins on a tick send is 1, and next is 1 on the tick it takes the byte in front of it. Up: frames off its wire in are unwrapped and checked, each content byte given on the tick the byte after it is complete, with got 1; on the tick the closing flag is complete, end is 1 and intact says whether the frame arrived intact."

@@ -7,9 +7,19 @@
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-2\"></level-ref>里，条件和被选的值来自同一根线。这一次条件来自一根线，要说什么还取决于另一根线。",
-        "en": "In <level-ref to=\"1-2\"></level-ref> the condition and the value came from the same wire. Now the condition comes from one wire, and what to say depends on the other as well."
+        "zh": "到这里为止，说什么只取决于一根线。这一次板要同时听两根线，说出的位由两根线一起决定。",
+        "en": "So far what the board says has depended on one wire. Now it listens to two, and what it says depends on both."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "先固定一根线的值，看另一根线该怎样决定输出。",
+      "en": "Hold one wire still and see how the other should decide the output."
+    },
+    {
+      "zh": "线 A 为 0 时，输出和线 B 是什么关系？线 A 为 1 时呢？",
+      "en": "When wire A is 0, how does the output relate to wire B? And when A is 1?"
     }
   ],
   "wires": {

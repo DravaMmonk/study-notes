@@ -1,15 +1,29 @@
 {
   "title": { "zh": "一位一位地收", "en": "Gather a byte" },
   "brief": {
-    "zh": "从「开始」为 1 的那一拍起（还没为 1 过时从第一拍起），每逢「暂停」为 0 的拍就收进线上的一位，最高位在前；收满 8 位的那一拍，「字节」输出这个字节，「收完」为 1，其余各拍「收完」为 0。",
-    "en": "From the tick start is 1 (from the first tick, before it ever is), take in the bit on the wire on every tick hold is 0, top bit first; on the tick the eighth is taken, output the byte and make done 1; done is 0 on every other tick."
+    "zh": "从「开始」为 1 的那一拍起（还没为 1 过时从第一拍起），「暂停」为 0 的拍收进线上的一位，最高位在前；收满 8 位的那一拍输出这个字节，「收完」为 1，其余各拍为 0。",
+    "en": "From the tick start is 1 (from the first tick, before it ever is), take in the wire's bit on each tick hold is 0, top bit first; on the tick the eighth comes in, output the byte and make done 1, and 0 on every other tick."
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-7\"></level-ref>把一个字节拆成位送出去；线的另一头要把位拼回一个数。",
-        "en": "<level-ref to=\"1-7\"></level-ref> takes a byte apart into bits; the other end of the wire has to put the bits back into a number."
+        "zh": "<level-ref to=\"1-7\"></level-ref>把一个字节拆成位送了出去。这一次换到线的另一头：把一位一位到来的位拼回一个数。",
+        "en": "<level-ref to=\"1-7\"></level-ref> takes a byte apart into bits and sends them. Now the board is at the other end of the wire, putting the bits back into a number as they come."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "每收进一位，已经攒下的数要怎样变，才能让先到的位分量更大？",
+      "en": "With each new bit, what must happen to the number held so far, so that earlier bits end up worth more?"
+    },
+    {
+      "zh": "已经收了几位，<part-ref to=\"counter\"></part-ref>数得出来；「暂停」的拍它也不数。",
+      "en": "<part-ref to=\"counter\"></part-ref> can count the bits taken in, and it skips the hold ticks too."
+    },
+    {
+      "zh": "「开始」那一拍收进的就是第一位，之前攒下的都不算。",
+      "en": "The bit on the start tick is the first one; whatever was gathered before it does not count."
     }
   ],
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },

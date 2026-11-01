@@ -89,6 +89,8 @@ test('the copy lint names the rule each text breaks', () => {
   assert.deepEqual(found({}), [])
   assert.deepEqual(found({ brief: { zh: '对输入进行比较。', en: 'Compare the inputs.' } }), ['copy-banned'])
   assert.deepEqual(found({ intro: [{ t: { zh: '新元件「加一」：输入加 1。', en: 'A new part: Add one.' } }] }), ['copy-intro-part'])
+  assert.deepEqual(found({ brief: { zh: '放一块卡片。', en: 'Place a card.' } }), ['copy-banned'])
+  assert.deepEqual(found({ brief: { zh: '搭一块网卡。', en: 'Build a network card.' } }), [])
   assert.deepEqual(found({ after: { zh: '<part-ref to="part:reg"></part-ref>记住了它。', en: '<part-ref to="part:reg"></part-ref> kept it.' } }), ['copy-after-part'])
   assert.deepEqual(found({ after: { zh: '下一关会用到它。', en: 'The next level uses it.' } }), ['copy-ahead'])
   assert.deepEqual(found({ brief: { zh: '交出和，因为后面要用。', en: 'Give the sum, because it is needed.' } }), ['copy-brief-why'])

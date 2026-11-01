@@ -7,9 +7,23 @@
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-15\"></level-ref>在收的一方算出余数。发送方要在数据后面附上校验码，让整串位的余数为 0，收的一方一除便知是否完好。",
-        "en": "<level-ref to=\"1-15\"></level-ref> works out a remainder at the receiving end. The sender must append check bits that make the remainder of the whole run 0, so that one division tells the receiver whether it is intact."
+        "zh": "<level-ref to=\"1-15\"></level-ref>在收的一方算出校验码。这一次换到发送的一方：校验码要紧跟在数据后面送出去。",
+        "en": "<level-ref to=\"1-15\"></level-ref> works out the check at the receiving end. Now the board is the sender, and the check has to follow the data onto the wire."
       }
+    }
+  ],
+  "hint": [
+    {
+      "zh": "说到线上的每一位，也要同时交给<part-ref to=\"crc\"></part-ref>。",
+      "en": "Every bit said on the wire should also go to <part-ref to=\"crc\"></part-ref>."
+    },
+    {
+      "zh": "字节说完以后，<part-ref to=\"crc\"></part-ref>不该再收位，不然校验码会跟着变。",
+      "en": "Once the byte is out, <part-ref to=\"crc\"></part-ref> must take in no more bits, or the check moves."
+    },
+    {
+      "zh": "校验码是 0 到 7 的数：它的 3 位排在一个 8 位数的最后。",
+      "en": "The check is a number from 0 to 7: its 3 bits are the last three of an 8-bit number."
     }
   ],
   "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
