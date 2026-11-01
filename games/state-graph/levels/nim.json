@@ -69,6 +69,7 @@
     }
   },
   "robot": "ranger",
+  "adds": ["not"],
   "diagnose": [
     {
       "when": { "not": { "has": "not" } },

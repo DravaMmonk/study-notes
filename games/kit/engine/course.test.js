@@ -1,8 +1,8 @@
-// node --test games/kit/engine — the course audit's practice and abstraction rules (../course.js), the board matching
+// node --test games/kit/engine — the course audit's placement and abstraction rules (../course.js), the board matching
 // under `bypass` (match.js) and the part dependency graph (deps.js), on small made-up courses.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { PRACTICE, againstOpen, audit, defineCourse } from '../course.js'
+import { againstOpen, audit, defineCourse } from '../course.js'
 import { dependencies, dot, mermaid } from './deps.js'
 import { rebuilt } from './match.js'
 
@@ -26,52 +26,49 @@ function sketch(eras, spec, extra = {}) {
     ...extra,
   })
 }
-const thin = (course) => audit(course).filter((f) => f.rule === 'thin-practice').map((f) => `${f.part}@${f.level}`)
+const idle = (course) => audit(course).filter((f) => f.rule === 'idle-idea').map((f) => `${f.part}@${f.level}`)
 const bypass = (course) => audit(course).filter((f) => f.rule === 'bypass').map((f) => `${f.part}@${f.level}`)
 
-test('a new idea wants its practice before the next new idea', () => {
-  assert.equal(PRACTICE, 3)
+test('a new idea is put to work before two more new ideas come in; no number of levels is asked for', () => {
+  // a: used by 2, right after it. b: 3 brings c before b returns at 4, one idea between, fine. d: e and f come in
+  // before d's first use at 7.
   const spec = {
-    1: { adds: ['a'], uses: ['a'] }, 2: { uses: ['a'] }, 3: { uses: ['a'] }, 4: { uses: ['a'] },
-    5: { adds: ['b'], uses: ['b'] }, 6: { uses: ['b'] }, 7: { adds: ['c'], uses: ['b', 'c'] },
+    1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], uses: ['a', 'b'] }, 3: { adds: ['c'], uses: ['c'] }, 4: { uses: ['b', 'c'] },
+    5: { adds: ['d'], uses: ['d'] }, 6: { adds: ['e'], uses: ['e'] }, 6.5: { adds: ['f'], uses: ['f', 'e'] }, 7: { uses: ['d', 'f'] },
   }
-  assert.deepEqual(thin(sketch([{ foundation: ['1', '2', '3', '4', '5', '6', '7'] }], spec)), ['b@5', 'c@7'])
+  const course = sketch([{ foundation: ['1', '2', '3', '4', '5', '6', '6.5', '7'] }], spec)
+  assert.deepEqual(idle(course), ['d@5'])
+  assert.match(audit(course).find((f) => f.rule === 'idle-idea').text, /first put to work at 7, after 2 other new ideas \(e, f\)/)
 })
 
-test('a level that only builds a part is practice; one bringing a new idea is not', () => {
-  const spec = {
-    1: { adds: ['a'], uses: ['a'] }, 2: { builds: 'P', uses: ['a', 'a'] }, 3: { uses: ['P'] },
-    4: { adds: ['b'], uses: ['a', 'b'] }, 5: { uses: ['a'] },
-  }
-  // a: levels 2 and 3 count (3 uses P, not a), 4 brings b and ends the run, 5 comes after it.
-  assert.deepEqual(thin(sketch([{ foundation: ['1', '2', '3', '4', '5'] }], spec)), ['a@1', 'b@4'])
+test('an idea its own level does not use, or that no later level uses, is idle; a declaration uses what it declares', () => {
+  const spec = { 1: { adds: ['a', 'b'], uses: ['a'] }, 2: { adds: ['c'], uses: ['a', 'c'] }, 3: { uses: ['a', 'b'] } }
+  assert.deepEqual(idle(sketch([{ foundation: ['1', '2', '3'] }], spec)), ['b@1', 'c@2'])
+  const declaring = sketch([{ foundation: ['1', '2', '3'] }], spec, { declares: (l) => (l.id === '1' ? ['b'] : []) })
+  assert.deepEqual(idle(declaring), ['c@2'])
+  // The last level's idea has nothing after it to wait for.
+  assert.deepEqual(idle(sketch([{ foundation: ['1'] }], { 1: { adds: ['a'], uses: ['a'] } })), [])
 })
 
-test('practice runs along prerequisites: across a parallel set and into the next era, not into optional branches', () => {
+test('an idea keeps working inside a built part, and other branches bring nothing in between', () => {
+  // a is next used only through P, built from it. On the parallel set, y's new idea is not between 1 and z.
   const spec = {
-    1: { adds: ['a'], uses: ['a'] }, x: { uses: ['a'] }, y: { adds: ['b'], uses: ['b'] }, z: { uses: ['a'] },
-    t1: { uses: ['a'] }, t2: { adds: ['c'], uses: ['a', 'c'] }, ch: { uses: ['a'] }, 2: { uses: ['a'] },
+    1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b'] }, x: { adds: ['c'], uses: ['c'] }, y: { adds: ['d'], uses: ['d'] },
+    z: { uses: ['P', 'c'] }, w: { uses: ['d'] },
   }
-  const eras = [
-    { foundation: ['1', { parallel: [{ id: 'p', levels: ['x'] }, { id: 'q', levels: ['y', 'z'] }] }], topics: [{ id: 't', levels: ['t1', 't2'], after: '1' }], challenges: [{ level: 'ch', after: '1' }] },
-    { foundation: ['2'] },
-  ]
-  // a: x counts (y, on the other branch, is no level between them); z and 2 come after y's new idea; the topic and
-  // the challenge may be skipped. The topic's c is not audited.
-  const found = audit(sketch(eras, spec)).filter((f) => f.rule === 'thin-practice')
-  assert.deepEqual(found.map((f) => `${f.part}@${f.level}`), ['a@1', 'b@y'])
-  assert.match(found[0].text, /^1 level\(s\) use it before the next new idea \(y\)/)
-  // Without the new idea on the other branch, z and the next era's level count too.
-  assert.deepEqual(thin(sketch(eras, { ...spec, y: { uses: ['a'] } })), [])
+  const eras = [{ foundation: ['1', '2', { parallel: [{ id: 'p', levels: ['x', 'z'] }, { id: 'q', levels: ['y', 'w'] }] }] }]
+  assert.deepEqual(idle(sketch(eras, spec)), [])
+  // Without P, a waits for z behind b and c.
+  assert.deepEqual(idle(sketch(eras, { ...spec, 2: { adds: ['b'], uses: ['b'] }, z: { uses: ['a', 'b', 'c'] } })), ['a@1'])
 })
 
-test('an idea is a concept, and an ability of the machine is an idea too', () => {
+test('an ability of the machine is an idea too, and an idea is a concept', () => {
   const spec = {
-    1: { adds: ['a'], uses: ['a'], can: ['view'] }, 2: { adds: ['b'], uses: ['b'], can: ['view'] }, 3: { uses: ['a'], can: ['view'] }, 4: { uses: ['a'], can: ['view'] }, 5: { uses: ['b'], can: ['far'] },
+    1: { adds: ['a'], uses: ['a'], can: ['view'] }, 2: { adds: ['b'], uses: ['b'], can: ['view', 'far'] }, 3: { adds: ['c'], uses: ['c'], can: ['view'] },
+    4: { adds: ['e'], uses: ['e'], can: ['view'] }, 5: { uses: ['a', 'c', 'e'], can: ['far'] },
   }
-  // b is a's concept: level 2 brings nothing new. view is new at 1 and used by 2, 3, 4; far at 5 has nothing after.
-  const course = sketch([{ foundation: ['1', '2', '3', '4', '5'] }], spec, { concept: (p) => (p === 'b' ? 'a' : p) })
-  assert.deepEqual(thin(course), ['far@5'])
+  // b is a's concept, so 2 brings only far; far waits at 5 behind c and e.
+  assert.deepEqual(idle(sketch([{ foundation: ['1', '2', '3', '4', '5'] }], spec, { concept: (p) => (p === 'b' ? 'a' : p) })), ['far@2'])
 })
 
 // Boards in the shared circuit model: in → parts → out.
@@ -130,9 +127,9 @@ test('the part dependency graph: where each part comes in, what a built part is 
 })
 
 test('findings a game leaves open are listed, new ones and ones met since are not', () => {
-  const found = [{ rule: 'thin-practice', level: '1', part: 'a' }, { rule: 'thin-practice', level: '1', part: 'a' }, { rule: 'thin-practice', level: '5', part: 'b' }, { rule: 'bypass', level: '3', part: 'P' }]
-  assert.deepEqual(againstOpen(found, { 'thin-practice': ['a@1', 'c@7'] }), [
-    { rule: 'thin-practice', fresh: ['b@5'], left: ['a@1'], gone: ['c@7'] },
+  const found = [{ rule: 'idle-idea', level: '1', part: 'a' }, { rule: 'idle-idea', level: '1', part: 'a' }, { rule: 'idle-idea', level: '5', part: 'b' }, { rule: 'bypass', level: '3', part: 'P' }]
+  assert.deepEqual(againstOpen(found, { 'idle-idea': ['a@1', 'c@7'] }), [
+    { rule: 'idle-idea', fresh: ['b@5'], left: ['a@1'], gone: ['c@7'] },
     { rule: 'bypass', fresh: ['P@3'], left: [], gone: [] },
   ])
   assert.deepEqual(againstOpen([], { nothing: ['x@1'] }), [{ rule: 'nothing', fresh: [], left: [], gone: ['x@1'] }])

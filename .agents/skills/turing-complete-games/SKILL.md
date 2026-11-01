@@ -63,9 +63,11 @@ shows them at work in 《证明完毕》):
 - **Practice density.** Each new mechanism is followed by its own cluster of 3–5 levels that vary it along
   different dimensions (§2.3 table: surface, direction, depth, scaffolding, combination, true-or-false), easy to
   hard, ending in a combination or a false-target level — before the next mechanism appears. The era must not
-  read as a list of one theorem or rule per level. The audit counts the levels (`thin-practice`, §5); whether they
-  really vary the mechanism is still yours to judge. A finding a game cannot fix yet goes on its work list (its
-  design doc and `game.json` `open`), never away by loosening the rule.
+  read as a list of one theorem or rule per level. Practice is judged by hand, for real variation; never add
+  levels to reach a count. The audit's `idle-idea` (§5) only checks placement: an idea is used by the level that
+  brings it in, and put to work again before two more new ideas arrive. Its fix is moving the idea to where it is
+  needed or making the later levels truly use it. A finding a game cannot fix yet goes on its work list (its design
+  doc and `game.json` `open`), never away by loosening the rule.
 - **Lead-in.** Every new part or ability has a cause: an earlier level where the player does it by hand or hits
   the wall it removes. A level whose reference answer is "place the new part, wire it to the goal" is a smell. The
   one exception is a part whose use is itself abstract enough to get wrong from its description (an assumption box:

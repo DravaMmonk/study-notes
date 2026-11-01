@@ -18,7 +18,7 @@
 
 1. 没有面向 agent 的接口：作者流程是散文，MCP 不存在。
 2. 领域模块是每个专题的真实成本，没有脚手架、没有机制目录，新专题仍从零写代码。
-3. 没有经验性验证：没有任何「有人（或 agent）玩过」的数据。`thin-practice` 一开，七款游戏都露出同一个毛病：新想法一个接一个，中间的练习不够（第 6 节的工作单）。
+3. 没有经验性验证：没有任何「有人（或 agent）玩过」的数据。审计只能查出编排上的硬伤（想法放早了、搭了没人用、能绕过封装件），练得够不够、难度曲线对不对，还得靠盲玩。
 4. kit 自身不统一：部分封装件仍是内置实现、电路关界面各写一份、最后一次运行只接了一部分。
 5. 存档迁移手写，设计文档与代码的一致性靠约定。
 6. 没有人的编辑入口；没有版本与发布形态。
@@ -42,7 +42,7 @@
 | 产物 | 内容 | 审计 |
 |---|---|---|
 | 课程蓝图 | 机体阶梯、每代能力、原始元件清单、元件依赖图、每个机制「第一次非它不可」的位置、练习簇、并行组 | 不依赖的就分支、抽象在上升、机制放在被核心用到的地方、基础元件最少 |
-| 关卡规格 | 目标、传感器、测试、参考解、naive 解、新带来的元件、折叠、预置、任务段、挂靠 | 现有 `audit` 全部，加 `thin-practice`、`bypass`、`bare-intro` 全开 |
+| 关卡规格 | 目标、传感器、测试、参考解、naive 解、新带来的元件、折叠、预置、任务段、挂靠 | 现有 `audit` 全部，`idle-idea`、`bypass`、`bare-intro` 全开 |
 | 文案与百科 | 中英两面、链接、词条、修订 | 现有 `check` 的文案检查，加禁用词与长度 lint |
 
 设计文档保留，只写理由与取舍；凡是能检查的事实从数据来，不再手抄。
@@ -145,19 +145,13 @@ MCP 的 `modify`、studio 的每个编辑按钮、CLI 三者只是这套操作�
 每个阶段写明完成标准；做完就从这里删掉。
 
 **阶段 0+1 · 收口 kit、规格化与词汇表 v1（其余游戏）**
-所有游戏（《状态之图》《视觉完备》《句法之图》《证明完毕》《证明完毕 · 试做》《软件工厂》《车在说话》）的内容都已是数据：`game.json`、每关一个 JSON、`glossary.json`；领域给出词汇表（`kit/domains/<领域>/vocabulary.js`），`npm run check` 先按 schema 查内容再跑审计；封装件跑学习者的电路（《证明完毕》的真值电路的门、证明板上的引理也是；《句法之图》《软件工厂》没有封装件），`unused`、`bare-intro`、`thin-practice`、`bypass` 在所有游戏打开；课程的形状都是数据（`eras`、`primitives`、`concept`、`replaces`、`local`），`npm run deps -- <游戏>` 从它画出元件依赖图。还要做的：电路关界面合成一份，最后一次运行接到所有玩法；补练习（下面的工作单）。
+所有游戏（《状态之图》《视觉完备》《句法之图》《证明完毕》《证明完毕 · 试做》《软件工厂》《车在说话》）的内容都已是数据：`game.json`、每关一个 JSON、`glossary.json`；领域给出词汇表（`kit/domains/<领域>/vocabulary.js`），`npm run check` 先按 schema 查内容再跑审计；封装件跑学习者的电路（《证明完毕》的真值电路的门、证明板上的引理也是；《句法之图》《软件工厂》没有封装件），`unused`、`bare-intro`、`idle-idea`、`bypass` 在所有游戏打开；课程的形状都是数据（`eras`、`primitives`、`concept`、`replaces`、`local`），`npm run deps -- <游戏>` 从它画出元件依赖图。还要做的：电路关界面合成一份，最后一次运行接到所有玩法；把审计报出的编排问题改掉（下面的工作单）。
 
-**工作单：练习不够（`thin-practice`）。** 一个新想法之后、下一个新想法之前，用到它的必修关不到 3 关。每一处都要在那个想法后面补一组练习关（第 2.3 节的维度表），或者把后面的新想法往后挪；动一款游戏的课程之前先改它的设计文档。各游戏 `game.json` 的 `open` 列着同一批（`npm run check` 列成 `OPEN`），补完一处就从两边删掉。共 50 处：
+**工作单：想法放早了（`idle-idea`）。** 审计是为了提高设计和编排关卡的质量，不是为了多出几关：每一处都是把想法挪到需要它的地方、或者让后面的关真的用上它。改课程之前先改游戏的设计文档；各游戏 `game.json` 的 `open` 列着同一批（`npm run check` 列成 `OPEN`），改完一处就从两边删掉。共 4 处，都记在 `qed/DESIGN.md`：
 
-| 游戏 | 处数 | 想法@引入它的关 | 工作单 |
-|---|---|---|---|
-| 《视觉完备》 | 10 | arithmetic@0-4、sqrt@2-5、fqApply@2-7、globalMax@3-8、lrnConst@4-1、exp@4-5、argmin4@7-1、autoencoder@8-1、latent@8-4、zeroUp@9-1 | `vision-complete/DESIGN.md` |
-| 《状态之图》 | 17 | view@copy、msum@confluence、pass@stamp、facts@stamp、block@rocks、not@reach、add@slantcost、far@stairs、order@order、heads@lcs、arm@frog、mul@safefrog、mul@forward、cells@robber、probe@keydoor、layers@keydoor、rounds@loop | `state-graph/CURRICULUM.md` |
-| 《证明完毕》 | 11 | gNot@g-not、and@decl-and、or@decl-or、botE@decl-bot、allI@q-allI、allE@q-allE、ex@decl-ex、rule@r-rule、append@s-orelse、each@s-each、search@s-search | `qed/DESIGN.md` |
-| 《证明完毕 · 试做》 | 4 | mp@apply、and@and、orI@or、orE@cases | `qed/DESIGN.md` |
-| 《句法之图》 | 1 | skeleton@1-1 | `syntax-graph/DESIGN.md` |
-| 《软件工厂》 | 3 | model@1-1、concat@1-2、list@2-2 | `factory/DESIGN.md` |
-| 《车在说话》 | 4 | reg@1-2、compare@1-3、arith@1-4、const@1-5 | `bus/DESIGN.md` |
+- 《证明完毕》`and@decl-and`：第 3 章把 ∧、∨、⊥ 的声明一口气写完，第 4 章才用；∧ 第一次用在 `and`，中间进来了 ∨、⊥E。
+- 《证明完毕》`each@s-each`：「每个目标」第一次用在 `in-zero`，中间进来了搜索、反证、改写。
+- 《证明完毕 · 试做》`and@and`、`orI@or`：试做的 12 关一关一条规则，∧ 的规则和引入 ∨ 之后没有关再用。
 
 完成标准：所有游戏的文件夹里没有一行可执行代码；`npm run check`、`npm test` 清零，各游戏 `game.json` 的 `open` 删空。
 

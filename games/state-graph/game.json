@@ -1,7 +1,6 @@
 {
   "domain": "table",
   "vocabulary": 1,
-  "open": { "thin-practice": ["view@copy", "msum@confluence", "pass@stamp", "facts@stamp", "block@rocks", "not@reach", "add@slantcost", "far@stairs", "order@order", "heads@lcs", "arm@frog", "mul@safefrog", "mul@forward", "cells@robber", "probe@keydoor", "layers@keydoor", "rounds@loop"] },
   "title": { "zh": "状态之图", "en": "State Graph" },
   "kicker": { "zh": "从零开始的动态规划解谜", "en": "Dynamic programming puzzles, from scratch" },
   "lede": {

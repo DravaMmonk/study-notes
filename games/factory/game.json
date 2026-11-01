@@ -1,7 +1,6 @@
 {
   "domain": "agent",
   "vocabulary": 1,
-  "open": { "thin-practice": ["model@1-1", "concat@1-2", "list@2-2"] },
   "title": { "zh": "软件工厂", "en": "Software Factory" },
   "kicker": { "zh": "开发中 · 从一次模型调用搭起编码 agent", "en": "In development · A coding agent from one model call" },
   "lede": {

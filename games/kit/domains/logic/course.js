@@ -269,6 +269,8 @@ export function logicCourse(content) {
       const answers = answersOf(l)
       return answers.length ? answers.flatMap(rulesIn) : null
     },
+    // A declaration's answer is the rules it declares: writing them puts them to work.
+    declares: (l) => (byId.get(l.id).kind === 'iso' ? byId.get(l.id).adds ?? [] : []),
     boards: answersOf,
     folds: (l) => byId.get(l.id).fold ?? [],
     showcase: (l) => byId.get(l.id).showcase ?? null,

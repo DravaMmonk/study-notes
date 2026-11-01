@@ -65,7 +65,7 @@
     }
   },
   "robot": "scout",
-  "adds": ["many", "not"],
+  "adds": ["many"],
   "testLabel": { "zh": "{R}×{C} · {rocks.length} 块石头", "en": "{R}×{C} · {rocks.length} rocks" },
   "checkAll": true,
   "hints": [

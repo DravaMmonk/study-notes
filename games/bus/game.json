@@ -1,7 +1,6 @@
 {
   "domain": "can",
   "vocabulary": 2,
-  "open": { "thin-practice": ["reg@1-2", "compare@1-3", "arith@1-4", "const@1-5"] },
   "title": { "zh": "车在说话", "en": "The Car Talks" },
   "kicker": { "zh": "开发中 · 车载总线与诊断", "en": "In development · In-vehicle bus and diagnostics" },
   "lede": {

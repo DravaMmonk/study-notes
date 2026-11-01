@@ -1,7 +1,6 @@
 {
   "domain": "syntax",
   "vocabulary": 1,
-  "open": { "thin-practice": ["skeleton@1-1"] },
   "title": {
     "zh": "句法之图",
     "en": "Syntax Graph"

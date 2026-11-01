@@ -57,6 +57,8 @@
 //                                          a part whose use is abstract enough to get wrong from its description
 //                                          (an assumption box), never for one a sentence explains (a block gate). The
 //                                          bare-intro rule lets a level with a reason be
+//   declares(level) → [part]               parts whose definition is the level's answer (a declaration): writing
+//                                          them puts them to work in that level (idle-idea)
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
 // })
@@ -65,9 +67,6 @@
 // ideas new in a level; introductions(course) where each primitive comes in; isCore(course, level) whether a level is
 // a milestone the map draws full size; audit(course) lists every broken rule.
 import { rebuilt } from './engine/match.js'
-
-/** How many levels use a new idea before the next one (thin-practice). */
-export const PRACTICE = 3
 
 /** What each rule of the audit means, for reports (../engine/check.js). */
 export const RULE_TEXT = {
@@ -93,7 +92,7 @@ export const RULE_TEXT = {
   unused: 'a built part that no later reference answer (nor a later task of its own level) uses',
   'optional-built': 'a part built on an optional level (a topic or a challenge) used by a level that does not require that level',
   'upgrade-order': 'a level upgrading a part that does not require the level that built it before',
-  'thin-practice': `a new idea that fewer than ${PRACTICE} levels use before the next new idea`,
+  'idle-idea': 'a new idea no later level puts to work before two more new ideas come in (brought in before it is needed)',
   bypass: 'a reference answer of no built part that wires up, from three parts or more, the board of a part it holds',
 }
 
@@ -197,7 +196,7 @@ export function layout(eras) {
 // A showcase's reason, written plainly or in each language.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], folds = () => [], showcase = () => null, abstraction = false }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], folds = () => [], showcase = () => null, declares = () => [], abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -219,7 +218,7 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, folds, showcase, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, folds, showcase, declares, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -373,7 +372,7 @@ export function audit(course) {
     if (role === 'challenge' && ideas.size) say('challenge-new', level.id, [...ideas].join(' '), 'a challenge brings nothing new')
     else if (ideas.size > 1) say('many-new', level.id, [...ideas].join(' '), `${ideas.size} new parts in one level (one new idea per level)`)
   }
-  practice(course, say)
+  idle(course, say)
   bypass(course, say)
   if (!plan) return out
 
@@ -441,38 +440,62 @@ export function againstOpen(found, open = {}) {
 }
 
 /**
- * thin-practice: after a level meets a new idea, at least PRACTICE levels use it before the next new idea comes
- * (games/DESIGN.md 2.3 and 5). A new idea is a primitive's concept met first (fresh, but no part that stays where it
- * is brought: a puzzle's given), or an ability of the machine (uses) that no level before it on the tree relied on. A
- * level that only builds a part brings no new idea: the part is made of ideas the player has, and building it is
- * practice of them. A level after the new one counts when it is required (topics and challenges may be skipped), comes
- * after it on the tree (requires, all the way back: across eras and through parallel branches), brings no new idea
- * itself and has no level bringing one between the two; it uses the idea when its reference answer has a part of that
- * concept (needed), or its board relies on that ability. Ideas met on optional levels are left out: a topic adds one
- * idea a level by design, its finale using them all (topic-finale), and a challenge brings none.
+ * idle-idea: a new idea goes where it is first needed (games/DESIGN.md 1 and 5). After a level meets a new idea, a
+ * level after it on the tree puts the idea to work before two more new ideas have come in: the next new idea may come
+ * first (it may build on this one, or this one returns right after it), a second may not. A new idea is a primitive's
+ * concept met first (fresh, but no part that stays where it is brought: a puzzle's given), or an ability of the
+ * machine (uses) that no level before it on the tree relied on. Any later level that uses it counts, optional or not,
+ * and so does one using a built part made with it (the idea keeps working inside the part);
+ * the new ideas counted between the two are those of required levels on the way. The level that brings an idea in
+ * uses it itself (a level with a reference answer). An idea met on an optional level is
+ * not checked: a topic adds one idea a level and its finale uses them all (topic-finale).
+ * The rule finds an idea brought in early, or several stacked before any is used. It asks for no number of levels:
+ * the fix is to move an idea to where it is needed, never to pad the course.
  */
-function practice(course, say) {
+function idle(course, say) {
   const placed = course.levels.filter((l) => !course.plan || course.plan.place.has(l.id))
   const required = (l) => !OPTIONAL.includes(course.plan?.place.get(l.id)?.role)
   const abilities = (l) => course.uses(l) ?? []
+  // The concepts a level's reference answer puts to work: its parts', and those inside each built part it uses (the
+  // reference of the level that builds it, all the way down).
+  const inside = new Map()
+  const concepts = (l, seen = new Set()) => {
+    if (inside.has(l.id)) return inside.get(l.id)
+    seen.add(l.id)
+    const out = new Set()
+    for (const p of course.needed(l) ?? []) {
+      out.add(course.concept(p) ?? p)
+      const by = course.builder(p)
+      const at = by && placed.find((m) => m.id === by)
+      if (at && !seen.has(at.id)) for (const c of concepts(at, seen)) out.add(c)
+    }
+    inside.set(l.id, out)
+    return out
+  }
   const news = new Map(placed.map((l) => {
-    const before = placed.filter((m) => course.before(m.id, l.id))
-    const seen = new Set(before.flatMap(abilities))
+    const seen = new Set(placed.filter((m) => course.before(m.id, l.id)).flatMap(abilities))
     const kept = new Set(course.adds(l).filter((p) => !course.local(p)).map(course.concept))
     return [l.id, [
-      ...[...fresh(course, l)].filter((c) => kept.has(c)).map((key) => ({ key, uses: (m) => (course.needed(m) ?? []).some((p) => (course.concept(p) ?? p) === key) })),
+      ...[...fresh(course, l)].filter((c) => kept.has(c)).map((key) => ({ key, uses: (m) => concepts(m).has(key) })),
       ...[...new Set(abilities(l))].filter((a) => !seen.has(a)).map((key) => ({ key, uses: (m) => abilities(m).includes(key) })),
     ]]
   }))
   for (const level of placed.filter(required)) {
-    if (!news.get(level.id).length) continue
-    const after = placed.filter((l) => required(l) && course.before(level.id, l.id))
-    const next = after.filter((l) => news.get(l.id).length)
-    const run = after.filter((l) => !news.get(l.id).length && !next.some((m) => course.before(m.id, l.id)))
-    const first = next.filter((m) => !next.some((x) => course.before(x.id, m.id))).map((m) => m.id)
+    const after = placed.filter((l) => course.before(level.id, l.id))
     for (const idea of news.get(level.id)) {
-      const n = run.filter(idea.uses).length
-      if (n < PRACTICE) say('thin-practice', level.id, idea.key, `${n} level(s) use it before ${first.length ? `the next new idea (${first.join(', ')})` : 'the course ends'}`)
+      if (course.needed(level) && !idea.uses(level) && !course.declares(level).some((p) => (course.concept(p) ?? p) === idea.key)) {
+        say('idle-idea', level.id, idea.key, 'its own level does not use it')
+        continue
+      }
+      const users = after.filter(idea.uses)
+      const first = users.filter((u) => !users.some((x) => x !== u && course.before(x.id, u.id)))
+      if (!first.length) {
+        if (after.length) say('idle-idea', level.id, idea.key, 'no level after it uses it')
+        continue
+      }
+      const between = (u) => [...new Set(after.filter((m) => m !== u && required(m) && course.before(m.id, u.id)).flatMap((m) => news.get(m.id).map((i) => i.key)))]
+      const [at, ideas] = first.map((u) => [u.id, between(u)]).reduce((a, b) => (b[1].length < a[1].length ? b : a))
+      if (ideas.length >= 2) say('idle-idea', level.id, idea.key, `first put to work at ${at}, after ${ideas.length} other new ideas (${ideas.join(', ')})`)
     }
   }
 }
