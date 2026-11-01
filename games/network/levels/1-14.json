@@ -29,7 +29,7 @@
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
   "outputs": [
     { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-    { "name": "ok", "label": { "zh": "完好", "en": "Intact" } }
+    { "name": "ok", "label": { "zh": "相符", "en": "Fits" } }
   ],
   "tests": [
     { "wires": { "line": { "send": [{ "bytes": [65], "format": "parity" }] } } },

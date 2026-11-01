@@ -7,15 +7,15 @@
   "intro": [
     {
       "t": {
-        "zh": "发帧和收帧各是一个元件，查错的校验码又要另外算：每一个要用线的节点，都得把它们重新接一遍。把它们装进一块网卡：对上面只收发整帧的字节，对下面只收发线上的位，上面不必知道旗标、填充和校验字节。这叫<wiki-ref to=\"layering\"></wiki-ref>。",
-        "en": "Sending frames and receiving them are separate parts, and the check is worked out apart from both: every node that uses a wire would have to wire them up again. Put them into one network adapter: it deals in the bytes of whole frames with the layer above and in bits on the wire below, and the layer above never sees flags, stuffing or the check byte. This is <wiki-ref to=\"layering\"></wiki-ref>."
+        "zh": "<part-ref to=\"sender\"></part-ref>和<part-ref to=\"receiver\"></part-ref>各管一个方向，每一个要用线的节点都得把两者重新接一遍。把它们装进一块网卡：对上面只收发整帧的字节，对下面只收发线上的位，旗标、填充和校验字节都留在网卡里。这叫<wiki-ref to=\"layering\"></wiki-ref>。",
+        "en": "<part-ref to=\"sender\"></part-ref> and <part-ref to=\"receiver\"></part-ref> each handle one direction, and every node that uses a wire would have to wire the two up again. Put them into one network adapter: it deals in the bytes of whole frames with the layer above and in bits on the wire below, and flags, stuffing and the check byte stay inside it. This is <wiki-ref to=\"layering\"></wiki-ref>."
       }
     }
   ],
   "hint": [
     {
-      "zh": "两个方向互不相干；每一半，手上都已经有现成的元件。",
-      "en": "The two directions do not touch each other, and a part in hand already does each half."
+      "zh": "两个方向互不相干，各接各的。",
+      "en": "The two directions do not touch each other."
     }
   ],
   "wires": {
@@ -32,7 +32,7 @@
     { "name": "up", "label": { "zh": "字节", "en": "Byte" } },
     { "name": "got", "label": { "zh": "收到", "en": "Got" } },
     { "name": "end", "label": { "zh": "帧尾", "en": "End" } },
-    { "name": "ok", "label": { "zh": "完好", "en": "Intact" } }
+    { "name": "ok", "label": { "zh": "相符", "en": "Fits" } }
   ],
   "pulls": { "input": "down", "next": "next", "last": "last" },
   "tests": [
@@ -1380,8 +1380,8 @@
     "type": "nic",
     "name": { "zh": "网卡", "en": "Network adapter" },
     "desc": {
-      "zh": "往下：交来的帧带上校验字节成帧送到出线上，「发送」为 1 的拍开始一帧，「下一个」为 1 的那一拍取走眼前的字节。往上：进线上来的帧拆开、核对，每个内容字节在它后面那个字节收全的那一拍给出，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1，「完好」说出这一帧是否完好。",
-      "en": "Down: frames handed to it go out on its wire out, framed with their check byte; a frame begins on a tick send is 1, and next is 1 on the tick it takes the byte in front of it. Up: frames off its wire in are unwrapped and checked, each content byte given on the tick the byte after it is complete, with got 1; on the tick the closing flag is complete, end is 1 and intact says whether the frame arrived intact."
+      "zh": "往下：交来的帧带上校验字节成帧送到出线上，「发送」为 1 的拍开始一帧，「下一个」为 1 的那一拍取走眼前的字节，「末字节」为 1 的字节是一帧的最后一个。往上：进线上来的帧拆开、核对，每个内容字节在它后面那个字节收全的那一拍给出，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1，「相符」说出这一帧的校验是否相符。",
+      "en": "Down: frames handed to it go out on its wire out, framed with their check byte; a frame begins on a tick send is 1, next is 1 on the tick it takes the byte in front of it, and a byte with last 1 ends its frame. Up: frames off its wire in are unwrapped and checked, each content byte given on the tick the byte after it is complete, with got 1; on the tick the closing flag is complete, end is 1 and fits says whether the frame's check fits."
     }
   }
 }

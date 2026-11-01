@@ -699,6 +699,40 @@
           ],
           "report": "The gate is clean (`./gate`: \"gate clean\") after two changesets: `copy2.json` with the main rewrite and `copy3.json` with one length fix. I fixed four of the five review findings; the fifth needed no change.\n\n## Review findings\n- **[11] glossary:crc** — Fixed. The second paragraph now states the limits plainly. Generator 1011 catches any single flip. It catches two flips only when they are less than 7 bits apart. Two flips exactly 7 bits apart, or any multiple of 7, leave a remainder of 0, so such a pair can get through in a frame dozens of bits long. It ends by saying Ethernet's 32-bit CRC catches any two flips in a normal-length frame.\n- **[13] 1-18** — Fixed: I deleted the pass text.\n- **[14]** — Fixed. The sentence was actually in 1-31, the level that used to be 1-3, not in 1-14. It now reads 「这根线会翻位」 / \"This wire flips bits\". 1-14's own 「线照样会翻位」 is true on every path, because 1-31 always comes before it.\n- **[15] 1-15** — Fixed. The English now reads \"divides it, using <carry-less division>, by an agreed divisor, the <generator>\".\n- **[16] Select** — No change needed. Select's description lives in the domain's catalog (code), which I can't change, but the catalog in this tree (`kit/domains/net/ui/catalog.js:18`) already says it gives 「—」 when Condition is 「—」, and that an unconnected input reads 「—」.\n\n## What I rewrote\n- **Built parts that replace older ones:** counterhold, serializerhold, deserializerhold and crchold are now named 带暂停的计数器 / 移位发送 / 按字节收 / CRC (English: Pausable counter / shift out / shift in / CRC). Each description opens by saying what it adds (\"比计数器多一个「暂停」…\" / \"A counter with a hold input…\") and then gives the full behaviour. The counter's description now covers restart and hold being 1 together, and shift out's covers 「—」 after the eighth bit and restarting.\n- **Briefs of 1-27, 1-28, 1-29, 1-40 and 1-36:** these named earlier levels by their titles (「像数拍一样」 and similar), which counts as a reference without a link. Each now states its task on its own.\n- **Intros:**\n  - 1-27 now carries the stall problem once: a 01111110 inside the content cuts the frame, and the counter can't wait.\n  - 1-40 no longer repeats that point; it links the two pausable parts and states the stuffing rule.\n  - 1-29 says what changed from the shift-in level.\n  - 1-35 no longer repeats 1-15's parity sentence word for word.\n  - 1-6 had a forward reference to bytes; I removed it.\n  - 1-17 had a sentence that duplicated its first hint; I dropped it and the intro now says the level combines unwrapping and checking.\n- **Hints:**\n  - 1-31's hints were nearly copies of the new 1-3's; the first one now points to 1-2 and 1-3.\n  - 1-14's first hint now points to 1-32 instead of repeating its hint.\n  - 1-30's hints were reordered so they go from direction to detail; the last now targets what the wrong answer gets wrong (which tick to skip).\n  - 1-21 gets a pointing first hint.\n  - The 1-20 challenge gets a second hint.\n  - 1-1's first hint: 「这一关不必放任何元件。」\n- **1-20 pass text:** it gave away the key idea (that the remainder tells you where the flip is). It now gives only the bigger picture and links error correction.\n\n## New entries\n- **成帧 / framing**, opens at 1-12 and is linked from its intro.\n- **确认 / acknowledgement** (ACK and NAK), opens at 1-37 and is linked from its intro.\n\n## Lint finding\n- copy-length on 1-28's brief: 99 Chinese characters against a limit of 90. Shortened, and the gate is clean.\n\n## Possible problems in the levels themselves\n- **1-27's intro vs 1-13's tests:** the intro (following the blueprint's reason for this level) says 1-13's receiver cuts a frame whose content holds 01111110, but no 1-13 test sends byte 126, so the player never sees it happen there. A test with that content in 1-13, or in 1-12 for the sending side, would show the problem before 1-27 claims it.\n- **1-35:** one hidden test flips bits 0 and 7. They are exactly 7 apart, so the check misses them and the frame is expected to count as intact. The level is consistent with its pass text, but it tests the limit of the generator rather than the level's stated task (catching two flips).\n- **1-18's English title** is \"A network adapter\" while the blueprint says \"network card\". This is only naming, but the two should match.",
           "transcript": "/tmp/pipeline-network-copy-ILghhT/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-01T16:49:05.013Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 1623982,
+            "seconds": 240,
+            "cost": 1.2716255000000003,
+            "turns": 31
+          },
+          "calls": {
+            "op": {
+              "runs": 5,
+              "failed": 0
+            },
+            "check": {
+              "runs": 0,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 2,
+              "failed": 1
+            },
+            "lint": {
+              "runs": 0,
+              "failed": 0
+            }
+          },
+          "changes": [
+            24,
+            25
+          ],
+          "report": "The gate is clean. I made two changesets: `copy3.json`, then `copy3b.json` to shorten 1-41's brief.\n\n## What I rewrote\n\n**1-41 (new level)**\n- **Brief:** I replaced the quoted level name \"as in slipping in a 0\" with a link to 1-40, and trimmed the brief to fit the length limit.\n- **Intro:** it now says what the machine lacks: a check has guarded only one byte so far, and the framer's frames carry none. Then it says what this level adds: a check byte after the whole content, five 0s in front. I dropped the second link to the error-detection entry, since 1-31 already brings that term in.\n- **Sender description:** now says what `last` (末字节) does.\n\n**1-17 and 1-18 (now that 1-41 comes first)**\n- **1-17 intro:** no longer brings in the check byte as new. It now says that the sender adds the check byte but the deframer passes it up as one more content byte, so broken frames go up anyway. This level does the receiving side.\n- **1-18 intro:** no longer says the check is worked out apart from sending and receiving. It now says the sender and the receiver each handle one direction, and every node would have to wire them up again. The adapter keeps flags, stuffing and the check byte inside it.\n- **1-18 hint:** it said a part in hand already does each half. The intro now names both parts, so the hint gave the answer away. It now says only that the two directions don't touch.\n\n**1-37 (the player who gave up)**\n- The brief now says the adapter takes whatever byte is at its input once `send` is 1, so `send` must stay 0 until a reply is waiting.\n- I also changed \"1 if intact\" to \"1 if its check fits\", and the intro's \"can tell whether they are intact\" to \"checks each one\".\n\n## Review findings\n- **[1] Fixed.** Every place that said \"whether it arrived intact\" now says \"whether its check fits\" (校验是否相符), as 1-14 does:\n  - the 1-35 and 1-17 briefs;\n  - the 1-37 brief;\n  - the receiver and network adapter descriptions;\n  - the output label, which goes from 完好/Intact to 相符/Fits in 1-14, 1-35, 1-17 and 1-18. 1-18's brief already said \"unwrapped and checked\", so it needed no change.\n- **[5] Fixed.** The framer, sender and network adapter descriptions now each end with one clause on `last`: a byte with `last` at 1 is its frame's final byte.\n- **[6] Fixed.** The English now reads \"and, until restart is first 1, counted from the very first tick\" in the 1-6 brief, the counter description, the 1-27 brief and the pausable counter description. In 1-27 I split it into two sentences so it reads cleanly.\n\n## Encyclopedia\nI wrote no new entries; none were needed.\n\n## Lint\nOne failure: 1-41's brief was too long (100 characters in Chinese against a limit of 90, 273 in English against 270). I shortened it, and nothing else failed.\n\n## Problems I left alone\n- **\"Intact\" still appears elsewhere.** The era question asks how the two ends \"know it arrived intact\", and the acknowledgement entry and 1-37's hint (\"知道它好坏以后\") speak of a frame being good or broken. As an aim this is fair, and none of these was in the findings, so I left them. If you want \"intact\" to mean only \"the check fits\" everywhere, change these next.\n- **1-18's intro now names the whole answer.** It names both parts, and the reference answer is just those two parts wired up. That is the honest \"what you have\" for this level, but the level is mostly about the layering idea, not the building.",
+          "transcript": "/tmp/pipeline-network-copy-HkFsr4/transcript.jsonl"
         }
       ],
       "gates": [
@@ -710,6 +744,12 @@
         },
         {
           "at": "2026-11-01T16:18:24.833Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-01T16:49:18.234Z",
           "ok": true,
           "failures": [],
           "reports": []
@@ -982,7 +1022,11 @@
               "owner": "copy",
               "rule": "The domain's honesty; brief states the task (§4 目标只陈述任务)",
               "fix": true,
-              "says": "The domain's `intact` means 'the check fits', and hidden test 1 (flips at 0 and 7, exactly 7 apart) expects a damaged byte to be reported intact, yet the brief asks 'whether it arrived intact'. Word it the way 1-14 does (「校验是否相符」 / 'whether its check fits') here and in 1-17, 1-18, 1-37, in the receiver and nic descriptions, and in the 完好/Intact output label."
+              "says": "The domain's `intact` means 'the check fits', and hidden test 1 (flips at 0 and 7, exactly 7 apart) expects a damaged byte to be reported intact, yet the brief asks 'whether it arrived intact'. Word it the way 1-14 does (「校验是否相符」 / 'whether its check fits') here and in 1-17, 1-18, 1-37, in the receiver and nic descriptions, and in the 完好/Intact output label.",
+              "resolved": {
+                "why": "the copy writer's third run",
+                "at": "2026-11-01T16:49:54.585Z"
+              }
             },
             {
               "at": "1-18",
@@ -1022,14 +1066,22 @@
               "owner": "copy",
               "rule": "The domain's honesty: a part's description says less than it does (§4 元件说明)",
               "fix": true,
-              "says": "The framer's description never mentions its 「末字节」/last input, which marks a frame's final byte and is what ends a frame; nic's description leaves it out too. Add one clause to each."
+              "says": "The framer's description never mentions its 「末字节」/last input, which marks a frame's final byte and is what ends a frame; nic's description leaves it out too. Add one clause to each.",
+              "resolved": {
+                "why": "the copy writer's third run",
+                "at": "2026-11-01T16:49:54.709Z"
+              }
             },
             {
               "at": "1-6",
               "owner": "copy",
               "rule": "英文一面按英文的习惯写 (§4)",
               "fix": true,
-              "says": "'counted from the first tick before restart is ever 1' (1-6 brief, counter description, 1-27 brief, counterhold description) reads as 'the first tick before restart'. Write something like 'and, until restart is first 1, counted from the very first tick'."
+              "says": "'counted from the first tick before restart is ever 1' (1-6 brief, counter description, 1-27 brief, counterhold description) reads as 'the first tick before restart'. Write something like 'and, until restart is first 1, counted from the very first tick'.",
+              "resolved": {
+                "why": "the copy writer's third run",
+                "at": "2026-11-01T16:49:54.830Z"
+              }
             },
             {
               "at": "1-20",
@@ -1274,6 +1326,48 @@
               "says": "copy: 'counted from the first tick before restart is ever 1' (1-6 brief, counter description, 1-27 brief, counterhold description) reads as 'the first tick before restart'. Write something like 'and, until restart is first 1, counted from the very first tick'."
             }
           ],
+          "reports": [
+            {
+              "rule": "review-note",
+              "at": "1-20",
+              "says": "Hint 2 ('flip each of the 7 positions in turn: what remainder does each leave?') hands over the leap the blueprint names (seven positions, seven different remainders). What is left is a table of five equal/select pairs, which is closer to tedium than insight; consider dropping hint 2 or making the matching itself the leap."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-15",
+              "says": "Hint 3 ('compare each new bit with the top bit held before deciding whether this step subtracts the generator') is the core of the bit-at-a-time division. As the last hint this may be acceptable, but it comes close to giving the wiring."
+            },
+            {
+              "rule": "review-note",
+              "at": "blueprint",
+              "says": "1-28, 1-29 and 1-36 each repeat 1-27's move (add a hold input that freezes the part's state) on another part. Consider making them tasks of one level, or of the levels that first need each one, rather than three separate levels of the same puzzle."
+            },
+            {
+              "rule": "review-note",
+              "at": "blueprint",
+              "says": "Choice (1-3), memory (1-5), counting (1-22), compare (1-23), binary (1-8) and start bits (1-10) each get a single practice level before the next idea arrives, and apart from 1-35 no group ends in a true-or-false level. §2.3 allows short early groups, but start bits and binary in particular are thin."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-17",
+              "says": "Because the check byte is the content's CRC with 0s in front, the receiver cannot run every bit through the CRC and look for 0 (the trick 1-35's hint teaches). The reference instead holds each byte back and re-serializes it into crchold, which real receivers do not do. Computing the check over the content followed by five 0s would keep the zero-remainder check; otherwise the encyclopedia should admit the difference."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-27",
+              "says": "'这一关先让计数器能停' / 'This level first makes the counter able to stand still' previews that more levels follow; 'This level makes the counter able to stand still' says the same thing without it."
+            },
+            {
+              "rule": "review-note",
+              "at": "1-13",
+              "says": "The playtest reports a difficulty spike: 3.0 attempts against 1.0 for its neighbours, from one session only. The likely trap is the closing flag also looking like a full byte; if more sessions confirm it, surface that case in a visible test rather than in a hint."
+            }
+          ]
+        },
+        {
+          "at": "2026-11-01T16:49:54.952Z",
+          "ok": true,
+          "failures": [],
           "reports": [
             {
               "rule": "review-note",

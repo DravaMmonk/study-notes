@@ -2,7 +2,7 @@
   "title": { "zh": "停一拍", "en": "Stand still" },
   "brief": {
     "zh": "输出自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，那一拍的数和上一拍相同。",
-    "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, counted from the first tick before restart is ever 1; ticks on which hold is 1 do not count, and on them the number stays as it was."
+    "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick. Ticks on which hold is 1 do not count, and on them the number stays as it was."
   },
   "intro": [
     {
@@ -66,7 +66,7 @@
     "name": { "zh": "带暂停的计数器", "en": "Pausable counter" },
     "desc": {
       "zh": "比计数器多一个「暂停」：给出自「重来」上一次为 1 起过了几拍，那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，数停在原处，「重来」同时为 1 时仍为 0。",
-      "en": "A counter with a hold input: how many ticks since restart was last 1, 0 on that tick and counted from the first tick before restart is ever 1; ticks on which hold is 1 do not count and the number stands still, though it is 0 if restart is 1 as well."
+      "en": "A counter with a hold input: how many ticks since restart was last 1, 0 on that tick and, until restart is first 1, counted from the very first tick; ticks on which hold is 1 do not count and the number stands still, though it is 0 if restart is 1 as well."
     },
     "replaces": ["counter"]
   }

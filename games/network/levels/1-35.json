@@ -1,8 +1,8 @@
 {
   "title": { "zh": "翻了两位", "en": "Two bits flipped" },
   "brief": {
-    "zh": "从第一拍起，每个字节后面紧跟它的 3 位校验码，线在一个字节里可能翻两位：每个字节的校验码到齐的那一拍，输出这个字节和它是否完好。",
-    "en": "From the first tick, each byte comes followed by its 3 check bits, and the wire may flip two bits in one: on the tick a byte's check is all in, output the byte and whether it arrived intact."
+    "zh": "从第一拍起，每个字节后面紧跟它的 3 位校验码，线在一个字节里可能翻两位：每个字节的校验码到齐的那一拍，输出这个字节和校验是否相符。",
+    "en": "From the first tick, each byte comes followed by its 3 check bits, and the wire may flip two bits in one: on the tick a byte's check is all in, output the byte and whether its check fits."
   },
   "intro": [
     {
@@ -26,7 +26,7 @@
   "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
   "outputs": [
     { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-    { "name": "ok", "label": { "zh": "完好", "en": "Intact" } }
+    { "name": "ok", "label": { "zh": "相符", "en": "Fits" } }
   ],
   "tests": [
     { "wires": { "line": { "send": [{ "bytes": [65], "format": "check" }] } } },
