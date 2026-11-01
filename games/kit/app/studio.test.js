@@ -1,7 +1,7 @@
 // node --test games/kit/app — the studio's HTTP bridge (studio.js) end to end: the tools of ../engine/ops/tools.js
 // over HTTP, on a copy of a game (GAMES_ROOT) so its writes land in a temp folder. A studio session in miniature:
 // preview a pending changeset (nothing written; the content, the check's lines by level, the migration and the files
-// it would change), seed a level's board, apply, read the log, undo.
+// it would change), seed a level’s board, apply, read the log, undo; and the second lane the slow reads take.
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
@@ -102,4 +102,21 @@ test('apply, read the log, undo: the content comes back as it was', async () => 
   assert.deepEqual(JSON.parse(onDisk('levels/copy.json')), JSON.parse(before))
   assert.equal((await post('log', { game: 'qed-lab' })).body.undoable, null, 'an undo is not itself undone')
   assert.deepEqual((await post('playtests', { game: 'qed-lab' })).body, { records: [], levels: {} })
+})
+
+test('the slow reads go to the second lane: a quick preview is not held up by a whole check, a write waits for both', async () => {
+  const { bridge } = await import('./studio.js')
+  const done = []
+  const later = (ms, what) => new Promise((ok) => setTimeout(() => { done.push(what); ok({ what }) }, ms))
+  const tools = Object.fromEntries(['preview', 'modify', 'names'].map((name) => [name, { about: name, params: {}, run: (args) => later(5, `${name}${args.check === false ? ' quick' : ''}`) }]))
+  const aside = { run: (name) => later(120, `${name} aside`) }
+  const middleware = bridge(tools, () => [], aside)
+  const lane = createServer((req, res) => middleware(req, res, () => {}))
+  await new Promise((ok) => lane.listen(0, '127.0.0.1', ok))
+  const at = `http://127.0.0.1:${lane.address().port}/studio/api/`
+  const send = (tool, args) => fetch(at + tool, { method: 'POST', body: JSON.stringify(args) }).then((r) => r.json())
+  const answers = await Promise.all([send('preview', { game: 'g' }), send('preview', { game: 'g', check: false }), send('names', {}), send('modify', {})])
+  lane.close()
+  assert.deepEqual(answers.map((a) => a.what), ['preview aside', 'preview quick', 'names', 'modify'])
+  assert.deepEqual(done, ['preview quick', 'names', 'preview aside', 'modify'], 'the quick calls answer while the check runs; the write waits for it')
 })
