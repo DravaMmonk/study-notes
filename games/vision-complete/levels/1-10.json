@@ -1,0 +1,66 @@
+{
+  "kind": "board",
+  "title": { "zh": "核速判", "en": "Kernel sprint" },
+  "brief": {
+    "zh": "看输入和输出，选出是哪个 3×3 核做的（按<part-ref to=\"kernel3\"></part-ref>元件的读法）。10 轮对 8 轮过关，越往后越快。",
+    "en": "Look at the input and the output, and pick the 3×3 kernel that made it (read the way the <part-ref to=\"kernel3\"></part-ref> part reads it). Get 8 of 10 rounds right to pass; it gets faster as you go."
+  },
+  "hint": {
+    "zh": "权重全正、和为 1：变软。正负相抵、和为 0：平坦处变 0。只有一个 1：整张图挪了一格。",
+    "en": "All weights positive, summing to 1: softer. Positives and negatives cancelling, summing to 0: flat areas become 0. A single 1: the whole image shifts by one pixel."
+  },
+  "after": {
+    "zh": "你已经能从结果反推核：全正且和为 1 是平滑，越集中越接近原图；和为 0 的核只对变化有反应，是求导；中心大、四周为负是锐化；只有一个 1 是平移，挪的方向和 1 的位置相反。",
+    "en": "You can now work back from a result to its kernel. All positive and summing to 1 is smoothing, and the more concentrated, the closer to the original. A kernel that sums to 0 responds only to change: a derivative. A large centre with negative neighbours is sharpening. A single 1 is a shift, moving the opposite way from where the 1 sits."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "这一章的平均、高斯、差分、锐化，连同把图挪一格的平移，都能写成一个 3×3 核。熟练以后，看一眼处理前后的图，就该猜得出用了什么核。",
+        "en": "This chapter's average, Gaussian, difference and sharpen, along with the shift that moves an image by one pixel, can all be written as a 3×3 kernel. With practice, one look at an image before and after should tell you which kernel was used."
+      },
+      "fig": { "figure": "conv-press", "caption": { "zh": "核压过整张图", "en": "A kernel passing over the whole image" } }
+    },
+    {
+      "t": {
+        "zh": "台上每轮给一张输入和一张输出，下面四个元件各是一个核，数字按<part-ref to=\"kernel3\"></part-ref>元件的读法排列。选出做出这张输出的那一个。",
+        "en": "Each round, the bench shows an input and an output. Each of the four parts below is a kernel, with its numbers laid out the way the <part-ref to=\"kernel3\"></part-ref> part reads them. Pick the one that made this output."
+      }
+    },
+    {
+      "t": {
+        "zh": "一共十轮，对八轮过关，越往后给的时间越短，也可以关掉计时先练。要想的问题：不逐格去算，只扫一眼核里的数，你靠什么认出它？",
+        "en": "There are ten rounds, and eight right answers pass. Later rounds give you less time, and you can switch the timer off to practise first. Something to think about: without working it out cell by cell, just glancing at the numbers in a kernel, how do you recognise it?"
+      }
+    }
+  ],
+  "bench": "racer",
+  "setup": {
+    "kernels": [
+      { "id": "identity", "cells": [0, 0, 0, 0, 1, 0, 0, 0, 0], "div": 1 },
+      { "id": "right", "cells": [0, 0, 0, 1, 0, 0, 0, 0, 0], "div": 1 },
+      { "id": "down", "cells": [0, 1, 0, 0, 0, 0, 0, 0, 0], "div": 1 },
+      { "id": "box", "cells": [1, 1, 1, 1, 1, 1, 1, 1, 1], "div": 9 },
+      { "id": "gauss", "cells": [1, 2, 1, 2, 4, 2, 1, 2, 1], "div": 16 },
+      { "id": "hmean", "cells": [0, 0, 0, 1, 1, 1, 0, 0, 0], "div": 3 },
+      { "id": "sobelx", "cells": [-1, 0, 1, -2, 0, 2, -1, 0, 1], "div": 8 },
+      { "id": "sobely", "cells": [-1, -2, -1, 0, 0, 0, 1, 2, 1], "div": 8 },
+      { "id": "sharpen", "cells": [0, -1, 0, -1, 5, -1, 0, -1, 0], "div": 1 },
+      { "id": "laplace", "cells": [0, 1, 0, 1, -4, 1, 0, 1, 0], "div": 1 }
+    ],
+    "inputs": [
+      { "impulse": { "x": 7, "y": 7 } },
+      "square",
+      { "glyph": { "letter": "F" } },
+      { "glyph": { "letter": "L" } },
+      "disk",
+      { "stepX": { "edge": 8 } },
+      { "checker": { "cell": 4 } },
+      "corner"
+    ],
+    "rounds": 10,
+    "pass": 8,
+    "minGap": 0.15,
+    "time": { "start": 8, "step": 0.6, "min": 2.5 }
+  }
+}

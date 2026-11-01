@@ -1,0 +1,56 @@
+{
+  "kind": "graph",
+  "title": { "zh": "还原 x₀", "en": "Getting x₀ back" },
+  "brief": { "zh": "知道当初加的是哪份噪声 ε，把原图 x₀ 还原出来。", "en": "Knowing which noise ε was added, get the original picture x₀ back." },
+  "hint": { "zh": "把加噪的公式倒过来解 x₀。", "en": "Solve the noise formula backwards for x₀." },
+  "after": {
+    "zh": "只要知道噪声，原图一步就能还原。扩散模型要学的正是这件事：看着 x_t 猜出 ε。猜得越准，还原得越好。",
+    "en": "Know the noise and the original comes back in one step. This is exactly what a diffusion model learns: looking at x_t, guess ε. The better the guess, the better the restoration."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "加噪是往前走。生成一张图要往回走：从噪声里把图找回来。",
+        "en": "Adding noise goes forwards. Generating a picture goes backwards: finding the picture again in the noise."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：知道当初加的是哪份噪声，把原图还原出来。",
+        "en": "Your task in this level: knowing which noise was added, get the original picture back."
+      },
+      "fig": { "test": 1, "caption": { "zh": "第二组：一半", "en": "Set 2: half and half" } }
+    }
+  ],
+  "inputs": ["xt", "eps", "ab"],
+  "inputLabels": {
+    "xt": { "zh": "加了噪的 x_t", "en": "Noisy x_t" },
+    "eps": { "zh": "当初加的噪声 ε", "en": "The noise ε that was added" },
+    "ab": { "zh": "剩下多少 ᾱ", "en": "How much is left, ᾱ" }
+  },
+  "packs": {
+    "name": { "zh": "还原", "en": "Restore" },
+    "desc": {
+      "zh": "输出 (x_t − √(1 − ᾱ)·ε) / √ᾱ：由 x_t 和噪声 ε 还原 x₀。",
+      "en": "Outputs (x_t − √(1 − ᾱ)·ε) / √ᾱ: x₀ recovered from x_t and the noise ε."
+    }
+  },
+  "scene": "restoring",
+  "tests": [
+    { "label": { "zh": "一点点噪声", "en": "A little noise" }, "letter": "T", "seed": 101, "ab": 0.9 },
+    { "label": { "zh": "一半", "en": "Half and half" }, "letter": "X", "seed": 102, "ab": 0.5 },
+    { "label": { "zh": "几乎全是噪声", "en": "Almost all noise" }, "letter": "L", "seed": 103, "ab": 0.1 }
+  ],
+  "hidden": [{ "label": { "zh": "字母 F", "en": "Letter F" }, "letter": "F", "seed": 104, "ab": 0.6 }],
+  "solution": [
+    "one = const()",
+    "s1 = sqrt(ab)",
+    "om = arith[op=sub](one, ab)",
+    "s2 = sqrt(om)",
+    "b = arith[op=mul](eps, s2)",
+    "d = arith[op=sub](xt, b)",
+    "q = arith[op=div](d, s1)",
+    "out <- q"
+  ],
+  "naive": ["s1 = sqrt(ab)", "q = arith[op=div](xt, s1)", "out <- q"]
+}

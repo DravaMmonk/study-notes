@@ -1,0 +1,89 @@
+{
+  "kind": "board",
+  "title": { "zh": "采样", "en": "Sampling" },
+  "brief": {
+    "zh": "把一条连续的波变成一排点，只保留采到的值。三个小实验，看看采样会把什么弄丢、又会凭空造出什么。",
+    "en": "Turn a continuous wave into a row of points, keeping only the sampled values. Three small experiments show what sampling loses, and what it makes up out of nothing."
+  },
+  "hint": {
+    "zh": "点之间发生了什么，采样后谁也不知道。一个周期里至少要有几个点，才认得出这道波？",
+    "en": "Once sampled, nobody knows what happened between the points. How many points per cycle, at least, does it take to recognise the wave?"
+  },
+  "after": {
+    "zh": "采 M 个点，只能分辨 M/2 以下的频率（奈奎斯特频率）。更快的波不会消失，而是折回来，冒充成一道慢波（k 冒充成 M − k），这就是混叠，采完以后无法再分开。所以要在采样之前把高于 M/2 的频率去掉，也就是先低通、再采样。",
+    "en": "With M samples you can only tell apart frequencies below M/2 (the Nyquist frequency). Faster waves do not vanish: they fold back and pose as a slower wave (k poses as M − k). This is aliasing, and once sampled the two can no longer be separated. So frequencies above M/2 must be removed before sampling: low-pass first, then sample."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "相机拍照、扫描仪扫图，都是把连续变化的景物变成一格格的数。这叫<b>采样</b>：只在一些位置记下值，用这些值代表整条曲线。",
+        "en": "A camera taking a photo and a scanner scanning a page both turn a continuously varying scene into a grid of numbers. This is called <b>sampling</b>: recording values at only some positions and letting them stand for the whole curve."
+      }
+    },
+    {
+      "t": {
+        "zh": "采样会出怪事。视频里飞转的车轮有时像在倒着转；用手机拍电脑屏幕，屏幕上会浮出一圈圈原来没有的波纹。这些花纹是从哪来的？",
+        "en": "Sampling can do strange things. A fast-spinning wheel in a video sometimes seems to turn backwards; photograph a computer screen with your phone and rippling patterns appear that were never there. Where do these patterns come from?"
+      }
+    },
+    {
+      "t": {
+        "zh": "机关台上画着一条真实的波、采到的点，以及只看这些点时它像什么。三个小实验各问一件事：一道波能被别的波冒充吗？最少几个点才认得出它？采之前能做什么？",
+        "en": "The bench draws a real wave, the samples taken from it, and what it looks like if you only see those samples. Three small experiments each ask one thing: can one wave pose as another? How few samples can you get away with and still recognise it? What can you do before sampling?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：完成三个实验，每个只有一个可调的量。每次都比一比：从点上看起来的样子，和真实的波差在哪里。",
+        "en": "In this level: complete the three experiments, each with just one thing to adjust. Each time, compare what the samples suggest with the real wave, and see where they differ."
+      }
+    }
+  ],
+  "unlocks": ["downsample"],
+  "bench": "alias",
+  "setup": {
+    "fine": 256,
+    "ranges": { "k": [0, 24], "M": [4, 24], "K": [0, 16] },
+    "stages": [
+      {
+        "title": { "zh": "冒名顶替", "en": "Impostor" },
+        "note": {
+          "zh": "只采 16 个点。空心圈是 k = 3 的波采到的值。找一个别的频率，采到的点和它一模一样。",
+          "en": "Only 16 samples. The hollow rings are the values sampled from the k = 3 wave. Find another frequency whose samples are exactly the same."
+        },
+        "control": "k",
+        "samples": 16,
+        "reference": { "c": 0.5, "A": 0.4, "k": 3, "phase": 0 },
+        "start": 4
+      },
+      {
+        "title": { "zh": "最少几个点", "en": "Fewest points" },
+        "note": {
+          "zh": "一道 k = 5 的波。减少采样点数，直到从点上再也看不出原来的波。能看对的最少是几个点？",
+          "en": "A k = 5 wave. Reduce the number of samples until the points no longer show the original wave. What is the fewest that still reads it correctly?"
+        },
+        "control": "M",
+        "wave": { "c": 0.5, "A": 0.4, "k": 5, "phase": 30 },
+        "start": 16
+      },
+      {
+        "title": { "zh": "先滤再采", "en": "Filter, then sample" },
+        "note": {
+          "zh": "这条线由四道波组成，要采 16 个点。采之前先把太快的波滤掉：保留哪些频率，采出来才和「应有的样子」一致？",
+          "en": "This line is made of four waves and will be sampled at 16 points. Filter out the waves that are too fast before sampling: which frequencies should you keep so the samples match \"how it should look\"?"
+        },
+        "control": "K",
+        "samples": 16,
+        "parts": [
+          { "k": 2, "A": 0.22, "phase": 0 },
+          { "k": 7, "A": 0.1, "phase": 40 },
+          { "k": 9, "A": 0.1, "phase": 0 },
+          { "k": 12, "A": 0.08, "phase": 70 }
+        ],
+        "start": 16
+      }
+    ],
+    "answers": [[13, 19], [11], [7, 8]],
+    "folds": [[9, 16, 7], [12, 16, 4]]
+  }
+}

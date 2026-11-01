@@ -1,0 +1,87 @@
+{
+  "kind": "graph",
+  "title": { "zh": "三个数的叉积", "en": "Cross product of three numbers" },
+  "brief": {
+    "zh": "输出 a × b：第 i 个数 = a 的第 i+1 个 × b 的第 i+2 个 − a 的第 i+2 个 × b 的第 i+1 个，下标数到头就从第一个接着数。",
+    "en": "Output a × b: number i = a's number i+1 × b's number i+2 − a's number i+2 × b's number i+1, with the count going round to the first again past the end."
+  },
+  "hint": {
+    "zh": "平移的「边界」设置多了「循环」：挪出去的从另一头回来。",
+    "en": "Shift's \"Border\" setting now has \"Wrap round\": what moves out comes back in at the other end."
+  },
+  "after": {
+    "zh": "叉积和两个向量都垂直。在齐次坐标里，一个点 (x, y, 1) 和一条线 (a, b, c) 都是三个数：两点的叉积是过它们的线，两线的叉积是它们的交点。",
+    "en": "The cross product is perpendicular to both vectors. In homogeneous coordinates a point (x, y, 1) and a line (a, b, c) are both three numbers: the cross product of two points is the line through them, and of two lines it is the point where they meet."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "接下来几关，一个点、一条线都写成三个数，放在一行里：点 (x, y) 写成 (x, y, 1)，线 ax + by + c = 0 写成 (a, b, c)。这叫齐次坐标。",
+        "en": "In the next few levels a point and a line are both written as three numbers in a row: the point (x, y) as (x, y, 1), and the line ax + by + c = 0 as (a, b, c). These are called homogeneous coordinates."
+      }
+    },
+    {
+      "t": {
+        "zh": "叉积把两组三个数变成新的三个数，和原来两个都垂直。",
+        "en": "The cross product turns two sets of three numbers into a new three, perpendicular to both."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：按说明里的公式算出 a × b。",
+        "en": "Your task in this level: work out a × b by the formula in the brief."
+      },
+      "fig": { "test": 1, "caption": { "zh": "第二组：两个点", "en": "Set 2: two points" } }
+    }
+  ],
+  "inputs": ["a", "b"],
+  "inputLabels": { "a": { "zh": "a（三个数）", "en": "a (three numbers)" }, "b": { "zh": "b（三个数）", "en": "b (three numbers)" } },
+  "unlocks": ["wrap"],
+  "packs": {
+    "name": { "zh": "叉积", "en": "Cross product" },
+    "desc": { "zh": "输出两个三维向量的叉积 a × b。", "en": "Outputs the cross product a × b of two 3-vectors." }
+  },
+  "scene": "filter",
+  "setup": { "target": "cross" },
+  "tests": [
+    {
+      "label": { "zh": "x 叉 y", "en": "x cross y" },
+      "inputs": { "a": { "row": { "values": [1, 0, 0] } }, "b": { "row": { "values": [0, 1, 0] } } }
+    },
+    {
+      "label": { "zh": "两个点", "en": "Two points" },
+      "inputs": { "a": { "row": { "values": [2, 1, 1] } }, "b": { "row": { "values": [5, 3, 1] } } }
+    },
+    {
+      "label": { "zh": "一般的", "en": "General" },
+      "inputs": { "a": { "row": { "values": [0.5, -1, 2] } }, "b": { "row": { "values": [1.5, 2, -0.5] } } }
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "反过来", "en": "The other way round" },
+      "inputs": { "a": { "row": { "values": [1.5, 2, -0.5] } }, "b": { "row": { "values": [0.5, -1, 2] } } }
+    }
+  ],
+  "solution": [
+    "a1 = shift[dir=left, border=wrap](a)",
+    "b1 = shift[dir=left, border=wrap](b)",
+    "a2 = shift[dir=left, border=wrap](a1)",
+    "b2 = shift[dir=left, border=wrap](b1)",
+    "p = arith[op=mul](a1, b2)",
+    "q = arith[op=mul](a2, b1)",
+    "c = arith[op=sub](p, q)",
+    "out <- c"
+  ],
+  "naive": [
+    "a1 = shift[dir=left](a)",
+    "b1 = shift[dir=left](b)",
+    "a2 = shift[dir=left](a1)",
+    "b2 = shift[dir=left](b1)",
+    "p = arith[op=mul](a1, b2)",
+    "q = arith[op=mul](a2, b1)",
+    "c = arith[op=sub](p, q)",
+    "out <- c"
+  ],
+  "grants": ["wrap"]
+}

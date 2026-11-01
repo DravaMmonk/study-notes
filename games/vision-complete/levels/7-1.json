@@ -1,0 +1,124 @@
+{
+  "kind": "graph",
+  "title": { "zh": "找视差", "en": "Find the disparity" },
+  "brief": {
+    "zh": "左右两台相机拍同一个场景。输出每个像素的视差 d（0 … 3）：右图里同一个点比左图往左挪了几格。",
+    "en": "Two cameras, left and right, photograph the same scene. Output each pixel's disparity d (0 … 3): how many pixels further left the same point is in the right image."
+  },
+  "hint": {
+    "zh": "对每个可能的 d，把右图挪一挪再和左图比。单个像素比不准时，看看它周围。",
+    "en": "For each possible d, shift the right image and compare it with the left one. When single pixels do not compare reliably, look at what is around them."
+  },
+  "after": {
+    "zh": "形状只在「匹配」里出现：每张图单看都只是杂点。对应点只需在同一行里找，视差越大，物体越近。",
+    "en": "The shape only appears through matching: each image on its own is just speckle. Corresponding points only need to be searched for along the same row, and the larger the disparity, the nearer the object."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "伸出一根手指放在眼前，轮流闭上左眼和右眼：手指和远处的墙，哪个跳得更厉害？同一样东西在两只眼里错开的距离，叫<b>视差</b>。",
+        "en": "Hold a finger up in front of your eyes and close your left and right eye in turn: which jumps more, your finger or the far wall? The distance by which the same thing is offset between your two eyes is called <b>disparity</b>."
+      }
+    },
+    {
+      "t": {
+        "zh": "机器人和汽车上的双目相机也靠视差判断远近。这一关的两张图都是随机噪点，单看哪张都没有形状；心理学家 Julesz 在 1960 年用这种图证明，人不认出任何物体也能看出立体。",
+        "en": "The stereo cameras on robots and cars also use disparity to judge distance. Both images in this level are random dots, and neither shows any shape on its own; in 1960 the psychologist Julesz used images like these to show that people can see depth without recognising any object."
+      }
+    },
+    {
+      "t": {
+        "zh": "新原件<part-ref to=\"part:argmin4\"></part-ref>接四张图，逐格看哪一张最小，输出它的编号 0–3。",
+        "en": "The new primitive <part-ref to=\"part:argmin4\"></part-ref> takes four pictures and, cell by cell, outputs the number 0–3 of the one that is smallest."
+      }
+    },
+    {
+      "t": {
+        "zh": "输出是一张视差图：每格填 0 到 3，表示那里的东西在两张图之间错开了几格，少数格子出错可以接受。要想的是：怎样判断右图的某一格和左图的这一格是同一处？",
+        "en": "The output is a disparity map: each pixel holds 0 to 3, the number of pixels by which the thing there is offset between the two images. A few wrong pixels are fine. The question is: how can you tell that a pixel in the right image is the same spot as this pixel in the left image?"
+      },
+      "fig": { "test": 0, "caption": { "zh": "左图、右图 → 每格的视差", "en": "Left image, right image → disparity at each pixel" } }
+    }
+  ],
+  "inputs": ["left", "right"],
+  "inputLabels": { "left": { "zh": "左相机", "en": "Left camera" }, "right": { "zh": "右相机", "en": "Right camera" } },
+  "views": { "out": "terrain" },
+  "adds": ["argmin4"],
+  "unlocks": ["disparity"],
+  "check": { "tolerance": 0.1, "mismatches": 34 },
+  "scene": "stereo",
+  "tests": [
+    {
+      "label": { "zh": "第 1 对", "en": "Pair 1" },
+      "seed": 11,
+      "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
+      "noise": 0.1
+    },
+    {
+      "label": { "zh": "第 2 对", "en": "Pair 2" },
+      "seed": 12,
+      "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
+      "noise": 0.1
+    },
+    {
+      "label": { "zh": "第 3 对", "en": "Pair 3" },
+      "seed": 13,
+      "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
+      "noise": 0.1
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "远一点的块", "en": "A farther block" },
+      "seed": 14,
+      "layers": [{ "box": [3, 3, 10, 10], "d": 1 }],
+      "noise": 0.1
+    },
+    {
+      "label": { "zh": "近一点的块", "en": "A nearer block" },
+      "seed": 15,
+      "layers": [{ "box": [6, 7, 13, 14], "d": 3 }],
+      "noise": 0.1
+    }
+  ],
+  "solution": [
+    "e0 = arith[op=sub](left, right)",
+    "r10 = shift[dir=right](right)",
+    "r20 = shift[dir=right](right)",
+    "r30 = shift[dir=right](right)",
+    "q0 = arith[op=mul](e0, e0)",
+    "e1 = arith[op=sub](left, r10)",
+    "r21 = shift[dir=right](r20)",
+    "r31 = shift[dir=right](r30)",
+    "b0 = box3(q0)",
+    "q1 = arith[op=mul](e1, e1)",
+    "e2 = arith[op=sub](left, r21)",
+    "r32 = shift[dir=right](r31)",
+    "b1 = box3(q1)",
+    "q2 = arith[op=mul](e2, e2)",
+    "e3 = arith[op=sub](left, r32)",
+    "b2 = box3(q2)",
+    "q3 = arith[op=mul](e3, e3)",
+    "b3 = box3(q3)",
+    "argmin = argmin4(b0, b1, b2, b3)",
+    "out <- argmin"
+  ],
+  "naive": [
+    "e0 = arith[op=sub](left, right)",
+    "r10 = shift[dir=right](right)",
+    "r20 = shift[dir=right](right)",
+    "r30 = shift[dir=right](right)",
+    "q0 = arith[op=mul](e0, e0)",
+    "e1 = arith[op=sub](left, r10)",
+    "r21 = shift[dir=right](r20)",
+    "r31 = shift[dir=right](r30)",
+    "q1 = arith[op=mul](e1, e1)",
+    "e2 = arith[op=sub](left, r21)",
+    "r32 = shift[dir=right](r31)",
+    "q2 = arith[op=mul](e2, e2)",
+    "e3 = arith[op=sub](left, r32)",
+    "q3 = arith[op=mul](e3, e3)",
+    "argmin = argmin4(q0, q1, q2, q3)",
+    "out <- argmin"
+  ]
+}

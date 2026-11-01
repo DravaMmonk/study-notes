@@ -1,0 +1,41 @@
+{
+  "kind": "graph",
+  "title": { "zh": "拽不歪的线", "en": "A line that will not be dragged" },
+  "brief": {
+    "zh": "边缘图里有一条直线和一堆杂点。画出这条直线（离线不到 0.7 的格子为 1）。",
+    "en": "An edge map holds one straight line and a heap of specks. Draw the line (cells closer than 0.7 are 1)."
+  },
+  "hint": {
+    "zh": "杂点越多，一轮抽中两个线上点的机会越小。",
+    "en": "The more specks, the smaller the chance that a round draws two points on the line."
+  },
+  "after": {
+    "zh": "最小二乘会被每个杂点往外拽一点；RANSAC 只信得到最多支持的那条线，再用它的内点重新拟合，杂点再多也拽不歪。要几轮由杂点的比例决定，δ 由线上点的抖动决定。",
+    "en": "Least squares gets pulled a little by every speck; RANSAC trusts only the line with the most support and refits it on its inliers, so however many specks there are they cannot drag it. The number of rounds is set by the share of specks, and δ by how much the points on the line wobble."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"ransac\"></part-ref>，轮数 k 和 δ 都能调。",
+        "en": "The <part-ref to=\"ransac\"></part-ref> in the tray has the rounds k and δ to set."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：边缘图里有一条直线和一堆杂点，把这条线画出来。",
+        "en": "Your task in this level: an edge map holds one straight line and a heap of specks; draw the line."
+      },
+      "fig": { "test": 1, "caption": { "zh": "杂点更多的那组", "en": "The set with more specks" } }
+    }
+  ],
+  "check": { "tolerance": 0.1, "mismatches": 3 },
+  "scene": "clutter",
+  "tests": [
+    { "label": { "zh": "斜线和杂点", "en": "A slant and specks" }, "line": [1, 14, 14, 3], "seed": 41, "outliers": 10 },
+    { "label": { "zh": "杂点更多", "en": "More specks" }, "line": [2, 2, 13, 12], "seed": 42, "outliers": 16 },
+    { "label": { "zh": "陡的线", "en": "A steep line" }, "line": [6, 0, 9, 15], "seed": 43, "outliers": 12 }
+  ],
+  "hidden": [{ "label": { "zh": "平的线", "en": "A flat line" }, "line": [0, 9, 15, 7], "seed": 44, "outliers": 14 }],
+  "solution": ["r = ransac[k=60](in)", "out <- r"],
+  "naive": ["r = ransac[k=1](in)", "out <- r"]
+}

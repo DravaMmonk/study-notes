@@ -1,5 +1,6 @@
 import { ArrowRightFromLine, ArrowRightToLine } from 'lucide-react'
 import { NODE_TYPES, inputsOf } from '../engine/nodes.js'
+import { BOARD_TEXT } from '../engine/board.js'
 import { tr } from '../../../shell/i18n.js'
 import { familyOf, iconOf } from './catalog.js'
 
@@ -19,6 +20,8 @@ export function partsFor({ sensors, outputLabels } = {}) {
       return NODE_TYPES[node.type].label
     },
     portLabel: (node, port) => PORT_LABELS[port] ?? port,
+    // As blueprint text, as content writes boards (../engine/board.js).
+    text: BOARD_TEXT,
     family: (node) => familyOf(node.type ?? 'input'),
     icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type)),
   }

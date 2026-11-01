@@ -1,0 +1,73 @@
+{
+  "kind": "graph",
+  "title": { "zh": "大的小的都要", "en": "Large and small alike" },
+  "brief": {
+    "zh": "货架上有小箱子，也有大一倍的箱子，记号也大一倍。小 X 在正中间输出 1；大 X 的正中间输出一个 2×2 的小块。",
+    "en": "The shelf has small boxes and boxes twice the size, with marks twice as big. Output 1 at the centre of a small X, and a 2×2 block at the centre of a large X."
+  },
+  "hint": {
+    "zh": "3×3 的模板认不出 6×6 的 X。要是图缩小一半，大 X 会变成什么样？",
+    "en": "A 3×3 template cannot recognise a 6×6 X. If the picture were half the size, what would a large X become?"
+  },
+  "after": {
+    "zh": "同一个检测器，在原图上找小的，在缩小的图上找大的，再把结果放大回来合在一起：这就是图像金字塔上的多尺度检测。FPN 在网络内部做同样的事。",
+    "en": "The same detector finds small things on the original and large things on a shrunken copy, and the results are enlarged back and merged: this is multi-scale detection on an image pyramid. FPN does the same thing inside the network."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "货架上的箱子有小有大，大箱子的记号也大一倍。",
+        "en": "Some boxes on the shelf are small and some large, and the large boxes have marks twice the size."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：小 X 标一个点，大 X 标一个 2×2 的小块。",
+        "en": "Your task in this level: mark a small X with a point and a large X with a 2×2 block."
+      },
+      "fig": { "test": 0, "caption": { "zh": "一大一小", "en": "One large, one small" } }
+    }
+  ],
+  "scene": "shelf",
+  "setup": { "expect": "both" },
+  "tests": [
+    {
+      "label": { "zh": "一大一小", "en": "One large, one small" },
+      "marks": [{ "mark": "X", "at": [5, 5] }, { "mark": "X", "at": [15, 15], "scale": 2 }, { "mark": "O", "at": [20, 4] }]
+    },
+    {
+      "label": { "zh": "大的 O", "en": "A large O" },
+      "marks": [
+        { "mark": "O", "at": [7, 17], "scale": 2 },
+        { "mark": "X", "at": [18, 6] },
+        { "mark": "X", "at": [13, 5], "scale": 2 }
+      ]
+    },
+    {
+      "label": { "zh": "两个大的", "en": "Two large" },
+      "marks": [
+        { "mark": "X", "at": [5, 19], "scale": 2 },
+        { "mark": "X", "at": [19, 19], "scale": 2 },
+        { "mark": "X", "at": [11, 4] }
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "只有大的", "en": "Only large" },
+      "marks": [{ "mark": "X", "at": [9, 9], "scale": 2 }, { "mark": "O", "at": [19, 15], "scale": 2 }]
+    }
+  ],
+  "solution": [
+    "k = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](in)",
+    "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
+    "t = threshold[t=3](k)",
+    "d = downsample(a)",
+    "k2 = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](d)",
+    "t2 = threshold[t=3](k2)",
+    "u = tconv(t2)",
+    "m = max(t, u)",
+    "out <- m"
+  ],
+  "naive": ["k = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](in)", "t = threshold[t=3](k)", "out <- t"]
+}

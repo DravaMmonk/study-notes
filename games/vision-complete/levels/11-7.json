@@ -1,0 +1,92 @@
+{
+  "kind": "graph",
+  "title": { "zh": "体检报告", "en": "The check-up" },
+  "brief": {
+    "zh": "给每个分类器出一份报告：一张灰块遮挡图（3×3），和一个数——热图大于 0 的部分落在车上的不到 0.5，就输出 1（它靠背景认车），否则输出 0。",
+    "en": "Write a report on each classifier: a grey 3×3 occlusion map, and a number: 1 if less than 0.5 of the heat map's part above 0 lies on the car (it recognises cars by the background), 0 otherwise."
+  },
+  "hint": {
+    "zh": "「不到」和<part-ref to=\"threshold\"></part-ref>说的「超过」正好相反。",
+    "en": "\"Less than\" is the exact opposite of the \"above\" that <part-ref to=\"threshold\"></part-ref> answers."
+  },
+  "after": {
+    "zh": "热图给人看，一个数给流水线用：上线前把每个模型在一批照片上跑一遍，比例低的先拦下来。这批照片里车和路总在一起，所以分数高不说明模型学对了，要看它为什么高。",
+    "en": "The heat map is for people to look at, the number for the pipeline: before release, every model runs over a batch of photos, and the ones with a low fraction are held back. In these photos cars and roads always go together, so a high score does not show the model learnt the right thing; what matters is why it is high."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "最后把检查做成一份报告：一张热图给人看，一个数给流水线判断要不要拦下这个模型。",
+        "en": "Finally the check becomes a report: a heat map for people to look at, and a number for the pipeline to decide whether to hold the model back."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：两个输出，热图是灰块遮挡图（3×3）；热图落在车上的比例不到一半就输出 1，否则输出 0。",
+        "en": "Your task in this level: two outputs; the heat map is the grey 3×3 occlusion map, and the number is 1 if less than half of it lies on the car, 0 otherwise."
+      },
+      "fig": { "test": 1, "caption": { "zh": "第二组：只看路的分类器", "en": "Set 2: a classifier that looks at the road" } }
+    }
+  ],
+  "inputs": ["in", "w", "m"],
+  "inputLabels": {
+    "in": { "zh": "照片", "en": "Photo" },
+    "w": { "zh": "权重", "en": "Weights" },
+    "m": { "zh": "车的掩膜", "en": "Car mask" }
+  },
+  "outputs": ["heat", "cheat"],
+  "outputLabels": { "heat": { "zh": "热图", "en": "Heat map" }, "cheat": { "zh": "靠背景", "en": "Leans on the background" } },
+  "views": { "in": "pixels", "mid": "terrain" },
+  "check": { "tolerance": 0.02 },
+  "scene": "classifier",
+  "setup": { "check": "checkup" },
+  "tests": [
+    { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+    {
+      "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
+      "street": { "cx": 5 },
+      "weights": "road"
+    },
+    {
+      "label": { "zh": "车和路都看", "en": "Looking at the car and the road" },
+      "street": { "cx": 4, "house": 12 },
+      "weights": "both"
+    },
+    {
+      "label": { "zh": "看车底下的分类器", "en": "A classifier that looks under the car" },
+      "street": { "cx": 5 },
+      "weights": "shadow"
+    },
+    { "label": { "zh": "车停得靠右", "en": "A car further right" }, "street": { "cx": 6 }, "weights": "car" },
+    { "label": { "zh": "房子旁边的车", "en": "A car by a house" }, "street": { "cx": 4, "house": 12 }, "weights": "road" }
+  ],
+  "hidden": [
+    { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
+    { "label": { "zh": "看得宽一点", "en": "A wider look" }, "street": { "cx": 6, "house": 0 }, "weights": "wide" }
+  ],
+  "solution": [
+    "c = arith[op=mul]()",
+    "h = own-11-2(in, w)",
+    "r = relu(h)",
+    "cm = arith[op=mul](r, m)",
+    "b = fqMean(r)",
+    "a = fqMean(cm)",
+    "q = arith[op=div](a, b)",
+    "t = threshold(q)",
+    "v = invert(t)",
+    "heat <- h",
+    "cheat <- v"
+  ],
+  "naive": [
+    "c = arith[op=mul]()",
+    "h = own-11-2(in, w)",
+    "r = relu(h)",
+    "cm = arith[op=mul](r, m)",
+    "b = fqMean(r)",
+    "a = fqMean(cm)",
+    "q = arith[op=div](a, b)",
+    "t = threshold(q)",
+    "heat <- h",
+    "cheat <- t"
+  ]
+}

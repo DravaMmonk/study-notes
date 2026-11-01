@@ -1,0 +1,53 @@
+{
+  "kind": "board",
+  "title": { "zh": "暗箱", "en": "Camera obscura" },
+  "brief": {
+    "zh": "让箭头在屏幕上成 30 mm 高的像：要够清楚，也要够亮。",
+    "en": "Make the arrow form a 30 mm tall image on the screen: sharp enough, and bright enough."
+  },
+  "hint": {
+    "zh": "拖孔板和屏幕，在孔板上换孔。一次只动一样，看像高、模糊、亮度各跟着什么变。",
+    "en": "Drag the pinhole plate and the screen, and change the hole in the plate. Move one thing at a time and watch what each of image height, blur and brightness follows."
+  },
+  "after": {
+    "zh": "像高只看比例：x = −f·X/Z，屏幕离孔越远、物体离孔越近，像越大，而且总是倒的。孔越大，同一点的光在屏上铺成越大的斑 D·(Z+f)/Z，像越亮也越糊；屏幕拉近也更亮。",
+    "en": "Image height depends only on a ratio: x = −f·X/Z. The farther the screen is from the hole and the nearer the object, the bigger the image, and it is always upside down. The bigger the hole, the bigger the spot D·(Z+f)/Z that light from one point spreads into on the screen, so the image gets brighter and blurrier; moving the screen closer also makes it brighter."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "两千多年前，《墨经》就记下过：暗室的墙上开个小孔，屋外的景物会在对面墙上成一个倒立的像。这叫小孔成像，开孔的暗室叫暗箱，它是相机最早的样子。",
+        "en": "More than two thousand years ago, the Mohist Canon recorded that if you open a small hole in the wall of a dark room, the scene outside forms an upside-down image on the opposite wall. This is the pinhole camera; the dark room with the hole is called a camera obscura, the earliest form of the camera."
+      }
+    },
+    {
+      "t": {
+        "zh": "台上从左到右是一支箭头、一块开孔的板和一块屏幕。Z 是箭头到孔板的距离，f 是孔板到屏幕的距离，孔的直径叫 D，有几种可换。另有一块小图，画的是从正面看屏幕上的像。",
+        "en": "On the bench, from left to right, are an arrow, a board with a hole in it and a screen. Z is the distance from the arrow to the board, f is the distance from the board to the screen, and the hole's diameter is D, with a few sizes to choose from. A small extra picture shows the image on the screen as seen from the front."
+      }
+    },
+    {
+      "t": {
+        "zh": "要想的问题有两个：屏上的像有多大，由什么决定？孔开大或开小，像会变成什么样？",
+        "en": "Two things to think about: what decides how big the image on the screen is? And what happens to the image when the hole is made bigger or smaller?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：让屏上的像满足台边列出的几项要求。每一项达到与否，台上都会实时标出。",
+        "en": "Your task in this level: make the image on the screen meet the requirements listed beside the bench. The bench shows live whether each one is met."
+      }
+    }
+  ],
+  "bench": "obscura",
+  "setup": {
+    "arrow": 100,
+    "shaft": 4,
+    "table": 640,
+    "plate": [150, 520],
+    "gap": 20,
+    "holes": [0.3, 0.6, 1, 1.6, 2.5],
+    "goal": { "height": 30, "slack": 1, "blur": 1.5, "light": 1 },
+    "start": { "Z": 360, "s": 430, "D": 2.5 }
+  }
+}

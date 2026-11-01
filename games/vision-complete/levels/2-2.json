@@ -1,0 +1,86 @@
+{
+  "kind": "board",
+  "title": { "zh": "叠加", "en": "Adding waves" },
+  "brief": {
+    "zh": "频率 1 到 8 各有一道正弦波，每道一个振幅旋钮，加起来再放在 0.5 的中线上。先叠出两道波，再叠出一道接近方波的曲线。",
+    "en": "There is a sine wave for each frequency from 1 to 8, each with an amplitude knob; they are added up on a middle line of 0.5. Stack up two waves first, then a curve close to a square wave."
+  },
+  "hint": {
+    "zh": "先只调频率 1，看误差还剩哪些起伏，再一道道补上去。",
+    "en": "Set frequency 1 first, see which wiggles are left over, then add waves one at a time."
+  },
+  "after": {
+    "zh": "方波只用到奇数频率，振幅按 1、1/3、1/5、1/7 递减。边越陡，需要的高频越多；只到频率 7 的话，陡边旁边总留着一圈小波纹。任何一条曲线都能这样拆成一组波，这就是傅里叶级数。每道正弦波正负抵消，平均是 0，所以不管怎么叠，整行的平均都是中线。",
+    "en": "A square wave uses only odd frequencies, with amplitudes falling as 1, 1/3, 1/5, 1/7. The steeper an edge, the more high frequencies it needs; stop at frequency 7 and a ripple always remains beside the steep edge. Any curve can be split into waves like this: that is the Fourier series. Each sine wave cancels itself out and averages 0, so however they are stacked, the row averages to the middle line."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"2-1\"></level-ref>的条纹都是一道干净的波。可真实的图里有方块、字母、边缘，没有一样长得像波。把几道不同频率的波加在一起，能拼出什么样的形状？",
+        "en": "<level-ref to=\"2-1\"></level-ref>'s stripes were a single clean wave. But real pictures have squares, letters and edges, and none of them looks like a wave. What shapes can you make by adding waves of different frequencies together?"
+      }
+    },
+    {
+      "t": {
+        "zh": "声音里也有同样的事：钢琴和小提琴弹同一个音，听起来却不同，因为里面混着的高低不同的波，比例不一样。",
+        "en": "Sound works the same way: a piano and a violin playing the same note sound different, because the waves of different pitch mixed in them come in different proportions."
+      }
+    },
+    {
+      "t": {
+        "zh": "台上频率 1 到 8 各有一道正弦波，就是<part-ref to=\"wave\"></part-ref>元件选 sin 时的样子。每道波只有一个旋钮：它的振幅。",
+        "en": "The bench has a sine wave for each frequency from 1 to 8, just like the <part-ref to=\"wave\"></part-ref> part set to sin. Each wave has one knob: its amplitude."
+      },
+      "fig": {
+        "part": "fqWave",
+        "params": { "k": 2, "form": "sin" },
+        "caption": {
+          "zh": "<part-ref to=\"wave\"></part-ref>元件：k = 2 的 sin",
+          "en": "The <part-ref to=\"wave\"></part-ref> part: sin with k = 2"
+        },
+        "inputs": []
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：调各个频率的振幅，先叠出由两道波组成的目标，再叠出一条接近方波的曲线。要想的问题：光滑的波能拼出一道陡边吗？",
+        "en": "Your task in this level: set the amplitude of each frequency, first to stack up a target made of two waves, then a curve close to a square wave. Something to think about: can smooth waves make a steep edge?"
+      }
+    }
+  ],
+  "unlocks": ["mean"],
+  "bench": "sum",
+  "setup": {
+    "N": 32,
+    "ks": [1, 2, 3, 4, 5, 6, 7, 8],
+    "step": 0.01,
+    "max": 0.5,
+    "tolerance": 0.03,
+    "stages": [
+      {
+        "target": [0.3, 0, 0.1, 0, 0, 0, 0, 0],
+        "title": { "zh": "两道波", "en": "Two waves" },
+        "note": {
+          "zh": "目标是几道波加起来的。调各个频率的振幅，把你的曲线叠到目标上。",
+          "en": "The target is a few waves added up. Set the amplitude of each frequency to stack your curve onto the target."
+        },
+        "win": {
+          "zh": "这条曲线就是两道波逐点相加：频率 1 给出一个大起伏，频率 3 在上面添了三个小起伏。看下面的平均：叠了波，整行的平均还是 0.5。",
+          "en": "This curve is just two waves added point by point: frequency 1 gives one big swing, and frequency 3 adds three small ones on top. Look at the average below: with the waves stacked on, the row still averages 0.5."
+        }
+      },
+      {
+        "target": [0.3819718634205488, 0, 0.12732395447351627, 0, 0.07639437268410976, 0, 0.0545674090600784, 0],
+        "title": { "zh": "一道陡边", "en": "A steep edge" },
+        "note": {
+          "zh": "这次的目标是这些波能叠出的最像方波的样子：一半亮、一半暗，中间是陡边。先只调频率 1，看还差哪些起伏，再一道道补上去。",
+          "en": "This time the target is the nearest these waves come to a square wave: half light, half dark, with a steep edge between. Set frequency 1 first, see which wiggles are still missing, then add waves one at a time."
+        },
+        "win": {
+          "zh": "只用到了奇数频率，而且频率越高振幅越小。高频把边拉陡；只到频率 7，陡边旁边还留着一点小波纹。",
+          "en": "Only odd frequencies were needed, and the higher the frequency, the smaller its amplitude. The high frequencies make the edge steep; stopping at 7 still leaves a little ripple beside it."
+        }
+      }
+    ]
+  }
+}

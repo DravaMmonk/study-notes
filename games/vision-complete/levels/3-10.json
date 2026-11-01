@@ -1,0 +1,73 @@
+{
+  "kind": "graph",
+  "title": { "zh": "一个亮度不够", "en": "One brightness is not enough" },
+  "brief": {
+    "zh": "产线上的金属板刷了漆，漆色深浅不一。同一块板在三盏灯下各拍一张：灯从右边 (0.6, 0, 0.8)、下边 (0, 0.6, 0.8) 和正面 (0, 0, 1) 照来。标出朝右倾斜的地方：法线的 x 分量超过 z 分量的 0.15 倍。",
+    "en": "Metal sheets on the line are painted unevenly, some patches darker than others. Each sheet is photographed under three lamps: from the right (0.6, 0, 0.8), from below (0, 0.6, 0.8) and from the front (0, 0, 1). Mark where the surface leans to the right: where the normal's x component is more than 0.15 times its z component."
+  },
+  "hint": {
+    "zh": "一张照片里暗，可能是漆深，也可能是朝向。三张照片里，什么是一样的？",
+    "en": "Dark in one photo may mean dark paint or a turned-away surface. What is the same in all three photos?"
+  },
+  "after": {
+    "zh": "一张照片只给出一个亮度，它同时取决于漆色和朝向，分不开。换一盏灯再拍一张，漆色在两张里一样，比一比就消掉了，剩下的只和朝向有关。这就是光度立体：用几盏已知的灯，从明暗里解出表面的朝向。",
+    "en": "One photo gives one brightness, which depends on both the paint and the facing, and the two cannot be told apart. Take another photo under another lamp: the paint is the same in both, so comparing them cancels it, and what is left depends only on the facing. This is photometric stereo: with a few known lamps, the facing of a surface is solved from its shading."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "产线上的金属板刷了漆，要检查有没有磕出的凹坑和划痕。坑和划痕改变的是表面的朝向，可漆色深浅不一，单看一张照片里的明暗，分不清是漆还是坑。这一章最后三关，就来搭这台检测仪。",
+        "en": "Painted metal sheets on a line must be checked for dents and scratches. These change which way the surface faces, but the paint is uneven, so the shading in a single photo cannot tell paint from dent. The last three levels of this chapter build this inspection machine."
+      }
+    },
+    {
+      "t": {
+        "zh": "每块板在三盏灯下各拍一张：右灯、下灯和正面灯，方向都在说明里。三张照片里，漆色是一样的，变的只是灯。",
+        "en": "Each sheet is photographed under three lamps: from the right, from below and from the front, with their directions in the brief. The paint is the same in all three photos; only the lamp changes."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：一个鼓包，三张照片", "en": "Set 1: a bump, three photos" } }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：标出表面朝右倾斜的地方。要想的问题：一张照片里的暗，可能是什么造成的？两张照片之间的什么关系，和漆色无关？",
+        "en": "Your task in this level: mark where the surface leans to the right. Something to think about: what could make a spot dark in one photo? What relation between two photos has nothing to do with the paint?"
+      }
+    }
+  ],
+  "inputs": ["p1", "p2", "p3"],
+  "inputLabels": {
+    "p1": { "zh": "右灯", "en": "Lamp right" },
+    "p2": { "zh": "下灯", "en": "Lamp below" },
+    "p3": { "zh": "正面灯", "en": "Lamp front" }
+  },
+  "check": { "tolerance": 0.02, "mismatches": 2 },
+  "scene": "photometric",
+  "setup": { "expect": "lean", "above": 0.15 },
+  "tests": [
+    { "label": { "zh": "一个鼓包", "en": "A bump" }, "height": [{ "dome": [7.5, 7.5, 6, 2.5] }], "seed": 3 },
+    {
+      "label": { "zh": "斜着的板", "en": "A sloping sheet" },
+      "height": [{ "tilt": [-0.3, 0] }, { "dome": [4, 11, 3, 1] }],
+      "seed": 4
+    },
+    { "label": { "zh": "一道沟", "en": "A groove" }, "height": [{ "groove": [3, 2, 12, 13, 3, 1.5] }], "seed": 5 }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "两个坑", "en": "Two dents" },
+      "height": [{ "bowl": [5, 5, 4, 1.5] }, { "bowl": [11, 11, 4, 1.5] }],
+      "seed": 6
+    },
+    { "label": { "zh": "平板", "en": "A flat sheet" }, "height": [], "seed": 7 }
+  ],
+  "solution": [
+    "f8N = const[c=0.8]()",
+    "f8 = arith[op=mul](p3, f8N)",
+    "ux = arith[op=sub](p1, f8)",
+    "q = arith[op=div](ux, p3)",
+    "t = threshold[t=0.09](q)",
+    "out <- t"
+  ],
+  "naive": ["t = threshold[t=0.55](p1)", "out <- t"],
+  "alsoFails": [["d = arith[op=sub](p1, p3)", "t = threshold[t=0](d)", "out <- t"]]
+}

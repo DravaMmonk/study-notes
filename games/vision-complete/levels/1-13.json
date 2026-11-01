@@ -1,0 +1,96 @@
+{
+  "kind": "graph",
+  "title": { "zh": "先去噪", "en": "Clean up first" },
+  "brief": {
+    "zh": "扫描仪的传感器有噪声。把扫描件变成期望里那样干净、柔和的图。",
+    "en": "The scanner's sensor is noisy. Turn the scan into a clean, soft image like the expected one."
+  },
+  "hint": {
+    "zh": "期望图并不比原件更清楚，只是没有颗粒。图边上的纸不能变黑。",
+    "en": "The expected image is no sharper than the original, it just has no grain. Paper at the image border must not turn dark."
+  },
+  "after": {
+    "zh": "一点模糊换来安静的图，后面的步骤才不会被颗粒骗。图边要复制边缘，不然纸贴着边时会多出一圈暗框。",
+    "en": "A little blur buys a quiet image, so the later steps are not fooled by grain. The border must replicate the edge, or paper touching it gains a dark frame."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "扫描 App 拍下一张纸，要先找出纸的四边，才能把它裁下来、拉正。这一章最后三关，就来搭这样一台扫描仪。",
+        "en": "A scanning app that photographs a sheet of paper must first find the sheet's four sides before it can crop and straighten it. The last three levels of this chapter build such a scanner."
+      }
+    },
+    {
+      "t": {
+        "zh": "真实的扫描件有三个麻烦：传感器的噪点、纸上的字，还有超出扫描范围的纸。先对付第一个。",
+        "en": "Real scans bring three problems: sensor noise, the text on the paper, and paper that runs off the edge of the scan. First, the noise."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：把带颗粒的扫描件变成期望里那样干净、柔和的图。",
+        "en": "Your task in this level: turn the grainy scan into a clean, soft image like the expected one."
+      },
+      "fig": { "test": 1, "caption": { "zh": "第二组测试：纸贴着上边", "en": "Set 2: paper against the top" } }
+    }
+  ],
+  "check": { "tolerance": 0.1, "mismatches": 8 },
+  "scene": "scan",
+  "setup": { "expect": "clean" },
+  "tests": [
+    {
+      "label": { "zh": "一张纸", "en": "A sheet" },
+      "x0": 3,
+      "y0": 4,
+      "x1": 19,
+      "y1": 21,
+      "lines": [[6, 8, 10], [6, 11, 8], [6, 14, 11]],
+      "noise": 0.2,
+      "seed": 2
+    },
+    {
+      "label": { "zh": "贴着上边", "en": "Against the top" },
+      "x0": 5,
+      "y0": 0,
+      "x1": 21,
+      "y1": 17,
+      "lines": [[8, 4, 9], [8, 7, 7]],
+      "noise": 0.2,
+      "seed": 3
+    },
+    {
+      "label": { "zh": "小纸条", "en": "A slip" },
+      "x0": 7,
+      "y0": 7,
+      "x1": 16,
+      "y1": 15,
+      "lines": [[9, 10, 5]],
+      "noise": 0.2,
+      "seed": 4
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "贴着左边", "en": "Against the left" },
+      "x0": 0,
+      "y0": 3,
+      "x1": 14,
+      "y1": 20,
+      "lines": [[3, 7, 8], [3, 10, 9]],
+      "noise": 0.2,
+      "seed": 5
+    },
+    {
+      "label": { "zh": "整张纸", "en": "A whole page" },
+      "x0": 1,
+      "y0": 1,
+      "x1": 22,
+      "y1": 22,
+      "lines": [[4, 5, 14], [4, 9, 12], [4, 13, 15], [4, 17, 10]],
+      "noise": 0.2,
+      "seed": 6
+    }
+  ],
+  "solution": ["g = gauss[border=edge](in)", "out <- g"],
+  "naive": ["out <- in"]
+}

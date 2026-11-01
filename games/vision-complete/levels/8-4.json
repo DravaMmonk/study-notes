@@ -1,0 +1,85 @@
+{
+  "kind": "graph",
+  "title": { "zh": "随机也能求导", "en": "Differentiating through randomness" },
+  "brief": {
+    "zh": "老师用每组的噪声 ε 画出了右边的斑点（z 从 N(μ, σ²) 中采样）。学出 μ 和 σ，用同样的 ε 画出同样的图。",
+    "en": "The teacher drew the blob on the right from each set's noise ε (z sampled from N(μ, σ²)). Learn μ and σ, and draw the same image from the same ε."
+  },
+  "hint": {
+    "zh": "采样器每算一次都换一个随机数，训练看到的只是噪声。老师用的那组 ε 就在输入里。",
+    "en": "The sampler draws a new random number every time it runs, so all training sees is noise. The teacher's ε is right there in the input."
+  },
+  "after": {
+    "zh": "采样这一步没法求导：每次重抽，训练分不清结果变好是因为改了 μ、σ 还是运气。把它写成 z = μ + σ·ε，随机全部来自输入 ε，z 对 μ、σ 就只是乘和加，梯度清清楚楚。这叫重参数化，VAE 的编码器就是这样训练的。",
+    "en": "You cannot differentiate through the sampling step: with a fresh draw each time, training cannot tell whether a better result came from changing μ and σ or from luck. Write it as z = μ + σ·ε instead: all the randomness comes from the input ε, z is just a multiply and an add of μ and σ, and the gradient is perfectly clear. This is called reparameterization, and it is how a VAE's encoder is trained."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"8-1\"></level-ref>的解码器能把两个数画成斑点。要是这两个数随机抽，就能画出没见过的斑点，这就是生成。随机不是乱来：数从正态分布里抽，大多落在中心 μ 附近，σ 越大越散。",
+        "en": "The decoder from <level-ref to=\"8-1\"></level-ref> can turn two numbers into a blob. If those two numbers are drawn at random, it can draw blobs it has never seen: that is generation. Random does not mean anything goes: the numbers are drawn from a normal distribution, so most land near the centre μ, and the larger σ is, the more they spread out."
+      }
+    },
+    {
+      "t": {
+        "zh": "训练就是把参数拧一点，看结果变好还是变坏，再往好的方向调；能算出该往哪拧，叫求导。可 μ、σ 和画出的图之间夹着一步随机抽样，这种调法还行得通吗？",
+        "en": "Training means nudging the parameters a little, seeing whether the result gets better or worse, and adjusting in the better direction; working out which way to nudge is called differentiating. But there is a random sampling step between μ, σ and the image that gets drawn. Can this kind of adjustment still work?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的元件：μ、σ 各是两个可训练的数；「采样」每算一次都抽一个新的随机数；<part-ref to=\"dg-decoder\"></part-ref>把两个数画成斑点，一个管左右，一个管上下。",
+        "en": "The parts in this level: μ and σ are each two trainable numbers; \"Sample\" draws a fresh random number every time it runs; <part-ref to=\"dg-decoder\"></part-ref> turns two numbers into a blob, one controlling left-right and the other up-down."
+      }
+    },
+    {
+      "t": {
+        "zh": "老师画每张图用的随机数 ε，测试都给了你。你要学出老师的 μ 和 σ，用同样的 ε 画出同样的斑点。Stable Diffusion 里压缩、还原图的部分，训练时也要过这一关。",
+        "en": "The tests give you the random numbers ε the teacher used to draw each image. You must learn the teacher's μ and σ so that the same ε draws the same blob. The part of Stable Diffusion that compresses and restores images has to clear this same hurdle in training."
+      },
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "一组噪声 ε → 老师用它画出的斑点", "en": "A set of noise ε → the blob the teacher drew with it" }
+      }
+    }
+  ],
+  "inputs": ["eps"],
+  "inputLabels": { "eps": { "zh": "噪声 ε", "en": "Noise ε" } },
+  "adds": ["dg_mu", "dg_sigma", "dg_sample"],
+  "unlocks": ["dg-reparam"],
+  "check": { "tolerance": 0.05, "mismatches": 2 },
+  "trainRate": 5,
+  "scene": "latent",
+  "setup": { "mu": [0.4, -0.3], "sigma": [0.5, 0.25] },
+  "tests": [
+    { "label": { "zh": "噪声 1", "en": "Noise 1" }, "eps": [-0.15738025902594666, -0.3665433102133928] },
+    { "label": { "zh": "噪声 2", "en": "Noise 2" }, "eps": [-0.5793135698148925, 0.7747426907692732] },
+    { "label": { "zh": "噪声 3", "en": "Noise 3" }, "eps": [-0.36846678756550255, 0.2665129891924992] },
+    { "label": { "zh": "噪声 4", "en": "Noise 4" }, "eps": [1.0402741069865438, -1.1488194373201288] },
+    { "label": { "zh": "噪声 5", "en": "Noise 5" }, "eps": [0.2077102301028476, -2.861436591880299] }
+  ],
+  "hidden": [
+    { "label": { "zh": "新噪声 1", "en": "New noise 1" }, "eps": [-0.9863590502434351, 0.8134585891904641] },
+    { "label": { "zh": "新噪声 2", "en": "New noise 2" }, "eps": [0.8000895947544758, -1.605486916577271] },
+    { "label": { "zh": "新噪声 3", "en": "New noise 3" }, "eps": [-0.5342398439291406, -0.09229389826413596] }
+  ],
+  "solution": [
+    "m = dg_mu[w=[0.4, -0.3]]()",
+    "s = dg_sigma[w=[0.5, 0.25]]()",
+    "x = arith[op=mul](s, eps)",
+    "a = arith[op=add](m, x)",
+    "d = dg_decoder(a)",
+    "out <- d"
+  ],
+  "naive": [
+    "m = dg_mu[w=[0.4, -0.3]]()",
+    "s = dg_sigma[w=[0.5, 0.25]]()",
+    "z = dg_sample(m, s)",
+    "d = dg_decoder(z)",
+    "out <- d"
+  ],
+  "alsoFails": [
+    ["m = dg_mu[w=[0.4, -0.3]]()", "d = dg_decoder(m)", "out <- d"],
+    ["m = dg_mu[w=[0.4, -0.3]]()", "a = arith[op=add](m, eps)", "d = dg_decoder(a)", "out <- d"]
+  ]
+}

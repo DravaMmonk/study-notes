@@ -1,0 +1,142 @@
+{
+  "kind": "graph",
+  "title": { "zh": "频率探针", "en": "Frequency probe" },
+  "brief": {
+    "zh": "输入是一条 32 个点的波形，由几道波和一个平均亮度叠成。读出其中频率 k = 3 那道波的振幅 A，输出一个数。有一条波形里根本没有 k = 3。",
+    "en": "The input is a waveform of 32 points, made of a few waves plus an average brightness. Read off the amplitude A of the wave with frequency k = 3, and output that one number. One of the waveforms has no k = 3 at all."
+  },
+  "hint": {
+    "zh": "你能自己造一道 k = 3 的波。怎样把它和输入放在一起算，才能让 k = 3 的部分留下、别的频率互相抵消？可藏着的波要是错开了位置呢？",
+    "en": "You can make a k = 3 wave yourself. How can you combine it with the input so the k = 3 part stays and the other frequencies cancel out? But what if the hidden wave is shifted?"
+  },
+  "after": {
+    "zh": "这就是傅里叶变换：拿每个频率的 cos 和 sin 去和信号逐点相乘、求平均。两个读数 a、b 合起来，振幅是 2·√(a² + b²)，和波错开多少无关；错开多少（相位）是 atan2(b, a)。只用 cos 的探针会把错开 90° 的波量成 0。图像也一样，只是波有两个方向：对每一个 (kx, ky) 都做一次探针，把测到的振幅画在 (kx, ky) 那一格，就是图像的频谱，中心是 (0, 0)，也就是平均亮度。",
+    "en": "This is the Fourier transform: multiply the signal per-pixel by the cos and the sin of each frequency, and average. Together the two readings a and b give the amplitude 2·√(a² + b²), however far the wave is shifted; how far it is shifted (the phase) is atan2(b, a). A probe with only cos measures a wave shifted by 90° as 0. Images work the same way, except that waves have two directions: run the probe once for every (kx, ky) and draw the amplitude it measures in cell (kx, ky), and you have the image's spectrum. The centre is (0, 0), the average brightness."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"2-3\"></level-ref>和<level-ref to=\"2-4\"></level-ref>在台上看过探针怎么工作。这一关要把它搭成电路：输入一条混着几道波、有的还错开的曲线，读出频率 3 那道波的振幅。",
+        "en": "<level-ref to=\"2-3\"></level-ref> and <level-ref to=\"2-4\"></level-ref> showed on the bench how a probe works. This level builds it as a circuit: the input is a curve of several waves mixed, some of them shifted, and you read off the amplitude of the frequency-3 wave."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的电路不处理图像，处理的是一行 32 个点的波形，输出一个数。<part-ref to=\"mean\"></part-ref>把一行数变成一个数。",
+        "en": "This level's circuit does not process an image but a waveform of 32 points, and outputs a single number. <part-ref to=\"mean\"></part-ref> turns a row of numbers into one number."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：读出输入里 k = 3 那道波的振幅，也就是它最亮处比它自己的平均高出多少。五条测试波形都要读准。",
+        "en": "In this level: read off the amplitude of the k = 3 wave in the input, that is, how far its brightest point rises above its own average. Get all five test waveforms right."
+      },
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "波形 A：输入的一行，和期望读出的数", "en": "Waveform A: the input row and the expected reading" }
+      }
+    }
+  ],
+  "adds": ["sqrt"],
+  "unlocks": ["spectrum"],
+  "check": { "tolerance": 0.01 },
+  "scene": "waveform",
+  "setup": { "k": 3 },
+  "tests": [
+    { "label": { "zh": "波形 A", "en": "Waveform A" }, "c": 0.5, "waves": [{ "k": 3, "A": 0.3 }, { "k": 1, "A": 0.1 }] },
+    {
+      "label": { "zh": "波形 B", "en": "Waveform B" },
+      "c": 0.5,
+      "waves": [{ "k": 3, "A": 0.2, "phase": 90 }, { "k": 5, "A": 0.15 }]
+    },
+    {
+      "label": { "zh": "波形 C", "en": "Waveform C" },
+      "c": 0.45,
+      "waves": [{ "k": 3, "A": 0.25, "phase": 200 }, { "k": 2, "A": 0.1 }]
+    },
+    {
+      "label": { "zh": "波形 D", "en": "Waveform D" },
+      "c": 0.5,
+      "waves": [{ "k": 5, "A": 0.3 }, { "k": 1, "A": 0.1, "phase": 60 }]
+    },
+    {
+      "label": { "zh": "波形 E", "en": "Waveform E" },
+      "c": 0.5,
+      "waves": [{ "k": 3, "A": 0.15, "phase": 45 }, { "k": 6, "A": 0.12 }, { "k": 4, "A": 0.1 }]
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "波形 F", "en": "Waveform F" },
+      "c": 0.6,
+      "waves": [{ "k": 3, "A": 0.35, "phase": 300 }, { "k": 4, "A": 0.2 }, { "k": 7, "A": 0.1, "phase": 20 }]
+    },
+    {
+      "label": { "zh": "波形 G", "en": "Waveform G" },
+      "c": 0.3,
+      "waves": [{ "k": 2, "A": 0.3, "phase": 50 }, { "k": 3, "A": 0.08, "phase": 135 }, { "k": 8, "A": 0.2 }]
+    }
+  ],
+  "solution": [
+    "c = fqWave[k=3]()",
+    "s = fqWave[k=3, form=sin]()",
+    "gN = const[c=2]()",
+    "mc = arith[op=mul](in, c)",
+    "ms = arith[op=mul](in, s)",
+    "ac = fqMean(mc)",
+    "as = fqMean(ms)",
+    "qc = arith[op=mul](ac, ac)",
+    "qs = arith[op=mul](as, as)",
+    "t = arith[op=add](qc, qs)",
+    "r = sqrt(t)",
+    "g = arith[op=mul](r, gN)",
+    "out <- g"
+  ],
+  "naive": [
+    "c = fqWave[k=3]()",
+    "gN = const[c=2]()",
+    "m = arith[op=mul](in, c)",
+    "a = fqMean(m)",
+    "g = arith[op=mul](a, gN)",
+    "out <- g"
+  ],
+  "alsoFails": [
+    [
+      "c = fqWave[k=3]()",
+      "s = fqWave[k=3, form=sin]()",
+      "mc = arith[op=mul](in, c)",
+      "ms = arith[op=mul](in, s)",
+      "ac = fqMean(mc)",
+      "as = fqMean(ms)",
+      "qc = arith[op=mul](ac, ac)",
+      "qs = arith[op=mul](as, as)",
+      "t = arith[op=add](qc, qs)",
+      "r = sqrt(t)",
+      "out <- r"
+    ],
+    [
+      "s = fqWave[k=3, form=sin]()",
+      "gN = const[c=2]()",
+      "m = arith[op=mul](in, s)",
+      "a = fqMean(m)",
+      "g = arith[op=mul](a, gN)",
+      "out <- g"
+    ],
+    [
+      "c = fqWave[k=5]()",
+      "s = fqWave[k=5, form=sin]()",
+      "gN = const[c=2]()",
+      "mc = arith[op=mul](in, c)",
+      "ms = arith[op=mul](in, s)",
+      "ac = fqMean(mc)",
+      "as = fqMean(ms)",
+      "qc = arith[op=mul](ac, ac)",
+      "qs = arith[op=mul](as, as)",
+      "t = arith[op=add](qc, qs)",
+      "r = sqrt(t)",
+      "g = arith[op=mul](r, gN)",
+      "out <- g"
+    ],
+    ["a = fqMean(in)", "out <- a"]
+  ]
+}

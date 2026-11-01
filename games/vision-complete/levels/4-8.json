@@ -1,0 +1,59 @@
+{
+  "kind": "graph",
+  "title": { "zh": "取较大", "en": "The larger one" },
+  "brief": {
+    "zh": "两张图逐格比较，每格输出较大的那个：max(a, b)。",
+    "en": "Compare two pictures cell by cell and output the larger value in each: max(a, b)."
+  },
+  "hint": { "zh": "ReLU 留下正的部分。a 比 b 大多少？", "en": "ReLU keeps the positive part. How much bigger is a than b?" },
+  "after": {
+    "zh": "max(a, b) = b + ReLU(a − b)：a 大就补上多出的那一截，b 大就什么也不补。",
+    "en": "max(a, b) = b + ReLU(a − b): if a is bigger, add the amount it is bigger by; if b is bigger, add nothing."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的 ReLU 让负数变 0、正数不变。",
+        "en": "The ReLU in the tray turns negatives into 0 and leaves positives as they are."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：两张图逐格比较，每格输出较大的那个。要想的问题：a 比 b 大多少？这个差什么时候是正的？",
+        "en": "Your task in this level: compare two pictures cell by cell and output the larger value in each. Something to think about: how much bigger is a than b? When is that difference positive?"
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：方块和圆盘", "en": "Set 1: a square and a disc" } }
+    }
+  ],
+  "inputs": ["a", "b"],
+  "inputLabels": { "a": "a", "b": "b" },
+  "unlocks": ["max"],
+  "scene": "filter",
+  "setup": { "target": "max" },
+  "tests": [
+    {
+      "label": { "zh": "方块和圆盘", "en": "Square and disc" },
+      "inputs": { "a": "square", "b": { "disk": { "cx": 9, "cy": 9, "r": 5 } } }
+    },
+    {
+      "label": { "zh": "横条和竖条", "en": "Bars across and down" },
+      "inputs": { "a": { "stepY": { "edge": 8 } }, "b": { "stepX": { "edge": 8 } } }
+    },
+    {
+      "label": { "zh": "两片纹理", "en": "Two textures" },
+      "inputs": { "a": { "noise": { "seed": 51 } }, "b": { "noise": { "seed": 52 } } }
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "字母和棋盘", "en": "Letter and checkerboard" },
+      "inputs": { "a": { "glyph": { "letter": "T" } }, "b": { "checker": { "cell": 4, "lo": 0.2, "hi": 0.6 } } }
+    },
+    {
+      "label": { "zh": "斜坡和纹理", "en": "Ramp and texture" },
+      "inputs": { "a": "rampX", "b": { "noise": { "seed": 53 } } }
+    }
+  ],
+  "solution": ["d = arith[op=sub](a, b)", "r = relu(d)", "s = arith[op=add](r, b)", "out <- s"],
+  "naive": ["hN = const[c=0.5]()", "s = arith[op=add](a, b)", "h = arith[op=mul](s, hN)", "out <- h"]
+}

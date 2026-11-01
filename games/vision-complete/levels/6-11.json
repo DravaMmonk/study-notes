@@ -1,0 +1,54 @@
+{
+  "kind": "board",
+  "title": { "zh": "四个角", "en": "Four corners" },
+  "brief": {
+    "zh": "从封面上的点拖到照片里同一个点，连出对应点对。把封面贴回照片，平均误差小于 1.5 像素即通过。",
+    "en": "Drag from a point on the cover to the same point in the photo to make a pair of corresponding points. The cover is pasted back onto the photo; you pass when the mean error is under 1.5 pixels."
+  },
+  "hint": {
+    "zh": "贴回去的封面哪里对不上？斜着拍的书，远的一边更短。",
+    "en": "Where does the pasted cover fail to line up? In a book photographed at an angle, the far edge is shorter."
+  },
+  "after": {
+    "zh": "单应矩阵 H 有 8 个自由度，每对点给 2 个方程，所以至少要 4 对点，游戏用 DLT 从你的点对解出了 H。3 对点只能定出仿射（6 个自由度），它保持平行，贴不上透视下的书。实际流水线里，这些点对来自距离比检验后的候选，再由 RANSAC 反复抽 4 对、数内点选出来。",
+    "en": "The homography H has 8 degrees of freedom and each pair of points gives 2 equations, so it needs at least 4 pairs; the game solved H from your pairs with DLT. Three pairs only fix an affine map (6 degrees of freedom), which keeps lines parallel and cannot fit a book seen in perspective. In a real pipeline the pairs come from candidates that passed the ratio test, and RANSAC picks them by repeatedly drawing 4 pairs and counting inliers."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "用手机对着一本书拍，App 能认出是哪本书，还能把封面图贴回照片里，增强现实（AR）常这样做。难处在于书是斜着拍的，在照片里不再方方正正。",
+        "en": "Point your phone at a book and an app can tell which book it is and even paste the cover image back into the photo; augmented reality (AR) often works like this. The hard part is that the book is shot at an angle, so in the photo it is no longer a neat rectangle."
+      }
+    },
+    {
+      "t": {
+        "zh": "把封面贴回照片，需要一个变换：它告诉封面上的每个点，落到照片的哪里。变换由几对对应点算出来，点对给得合适，就贴得准。",
+        "en": "Pasting the cover back into the photo needs a transformation: it tells each point on the cover where it lands in the photo. The transformation is computed from a few pairs of corresponding points; choose the pairs well and the cover lands accurately."
+      }
+    },
+    {
+      "t": {
+        "zh": "台上左边是封面，右边是照片。从封面上的一个点连到照片里同一个点，游戏会用你给的点对算出变换，把封面贴上去，并显示平均误差。",
+        "en": "On the bench the cover is on the left and the photo on the right. Connect a point on the cover to the same point in the photo; the game computes the transformation from your point pairs, pastes the cover on and shows the average error."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关要把封面贴准，平均误差小于 1.5 像素。动手前先看看照片里书的形状：和封面原来的长方形比，变了哪些？",
+        "en": "In this level you must paste the cover accurately, with an average error under 1.5 pixels. Before you start, look at the shape of the book in the photo: compared with the cover's original rectangle, what has changed?"
+      }
+    }
+  ],
+  "unlocks": ["homography"],
+  "bench": "cover",
+  "setup": {
+    "cover": { "w": 60, "h": 84 },
+    "photo": { "w": 200, "h": 150 },
+    "title": [8, 10, 52, 30],
+    "logo": [22, 50, 38, 66],
+    "quad": [[78, 24], [140, 30], [166, 128], [48, 120]],
+    "clutter": { "note": [[14, 14], [34, 12], [36, 32], [16, 34]], "paper": [[176, 70], [206, 64], [210, 160], [186, 148]] },
+    "seed": 65,
+    "tol": 1.5
+  }
+}

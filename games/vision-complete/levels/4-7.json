@@ -1,0 +1,80 @@
+{
+  "kind": "graph",
+  "title": { "zh": "两种边都要", "en": "Both kinds of edge" },
+  "brief": {
+    "zh": "暗→亮的边和亮→暗的边都要输出正的强度（输出 = |右边 − 自己|）。",
+    "en": "Both dark→light and light→dark edges must give a positive strength (output = |right − self|)."
+  },
+  "hint": {
+    "zh": "只用加、减和乘常数，无论怎么组合，暗→亮和亮→暗都会得到相反的符号。有没有办法只留下正的部分？",
+    "en": "With only adding, subtracting and multiplying by constants, however you combine them, dark→light and light→dark get opposite signs. Is there a way to keep only the positive part?"
+  },
+  "after": {
+    "zh": "任何只含加、减和乘常数的组合都是线性的，正负号必然对称。「负数变 0、正数不变」叫 ReLU。中间插一个非线性，网络才能表达「两种都要」。这就是神经网络需要激活函数的原因。",
+    "en": "Any combination of adding, subtracting and multiplying by constants is linear, so the signs are bound to be symmetric. \"Negatives become 0, positives stay\" is called ReLU. Only with a nonlinearity in between can a network express \"I want both\". This is why neural networks need activation functions."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "你用差分找过台阶：暗→亮是正，亮→暗是负，符号还能告诉你边朝哪边。可很多时候只关心「这里有没有边」，不在乎方向。",
+        "en": "You found steps with a difference: dark→bright is positive, bright→dark negative, and the sign even tells you which way the edge faces. But often all that matters is \"is there an edge here\", whatever its direction."
+      }
+    },
+    {
+      "t": {
+        "zh": "回忆一下横向差分：一个亮方块的左右两条边，一条是正的，一条是负的。这一关要两条都变成正的强度。",
+        "en": "Recall the horizontal difference: of a bright square's left and right edges, one comes out positive and the other negative. In this level both have to become positive strengths."
+      },
+      "fig": {
+        "part": "diffx",
+        "caption": {
+          "zh": "横向差分处理亮方块：两侧一正一负",
+          "en": "Horizontal difference on a bright square: one side positive, the other negative"
+        },
+        "input": "square"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：不管是变亮还是变暗，每条竖边都输出它的强度。先看清第一组的输入和期望。",
+        "en": "Your task: for every vertical edge, whether it goes brighter or darker, output its strength. Look carefully at the input and expected output of Set 1 first."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：亮方块 → 两条边都是正的", "en": "Set 1: bright square → both edges positive" } }
+    }
+  ],
+  "unlocks": ["relu"],
+  "scene": "filter",
+  "setup": { "target": "absdiff" },
+  "tests": [
+    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+    {
+      "label": { "zh": "亮底暗块", "en": "Dark square on light" },
+      "in": { "square": { "x0": 4, "y0": 4, "s": 8, "lo": 0.9, "hi": 0.1 } }
+    },
+    { "label": { "zh": "字母 O", "en": "Letter O" }, "in": { "glyph": { "letter": "O" } } },
+    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+  ],
+  "hidden": [
+    { "label": { "zh": "往右变暗的坡", "en": "Ramp darkening to the right" }, "in": { "ramp": { "c": 0.85, "dx": -0.04 } } },
+    {
+      "label": { "zh": "挪开的低对比圆盘", "en": "Shifted low-contrast disc" },
+      "in": { "disk": { "cx": 10, "cy": 6, "r": 3.5, "lo": 0.35, "hi": 0.6 } }
+    },
+    {
+      "label": { "zh": "字母 X", "en": "Letter X" },
+      "in": { "glyph": { "letter": "X", "lo": 0.8, "hi": 0.2, "ox": 4, "oy": 4 } }
+    }
+  ],
+  "solution": [
+    "nN = const[c=-1]()",
+    "d = diffx(in)",
+    "n = arith[op=mul](d, nN)",
+    "pt = threshold[t=0](d)",
+    "pm = arith[op=mul](d, pt)",
+    "qt = threshold[t=0](n)",
+    "qm = arith[op=mul](n, qt)",
+    "a = arith[op=add](pm, qm)",
+    "out <- a"
+  ],
+  "naive": ["d = diffx(in)", "out <- d"]
+}

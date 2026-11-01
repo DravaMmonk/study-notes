@@ -1,0 +1,78 @@
+{
+  "kind": "graph",
+  "title": { "zh": "同一个问题", "en": "The same question" },
+  "brief": {
+    "zh": "每个图块都换成全图最亮（各格加起来最大）的那个图块。",
+    "en": "Replace every patch with the brightest patch in the picture (the one whose cells add up to the most)."
+  },
+  "hint": {
+    "zh": "自注意力里，每块用自己去提问。要是每块问的是同一个问题呢？",
+    "en": "In self-attention, each patch asks with itself. What if every patch asked the same question?"
+  },
+  "after": {
+    "zh": "所有图块用同一个查询（全 1）去问，分数就只看每块的总和，大家都看向同一块。ViT 在图块前面多放一个可学习的 [CLS] 图块，它的查询经过训练，专门替整张图提问，分类时只读它的输出。",
+    "en": "When every patch asks with the same query (all ones), the score depends only on each patch's total, and they all look at the same patch. ViT puts an extra learnable [CLS] patch in front of the others; its query is trained to ask on behalf of the whole picture, and only its output is read to classify."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "自注意力里，每个图块都用自己去提问，所以各问各的。",
+        "en": "In self-attention every patch asks with itself, so each asks its own question."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：每个图块都换成全图最亮的那个图块，也就是各格加起来最大的那一块。",
+        "en": "Your task in this level: replace every patch with the brightest patch in the picture, the one whose cells add up to the most."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+    }
+  ],
+  "scene": "brightest",
+  "tests": [
+    {
+      "label": { "zh": "第一组", "en": "Set 1" },
+      "items": [
+        { "tile": "X", "at": [0, 0], "hi": 0.9 },
+        { "tile": "C", "at": [1, 2], "hi": 0.6 },
+        { "tile": "P", "at": [3, 1], "hi": 0.5 }
+      ]
+    },
+    {
+      "label": { "zh": "第二组", "en": "Set 2" },
+      "items": [
+        { "tile": "K", "at": [2, 3], "hi": 0.4 },
+        { "tile": "S", "at": [0, 1], "hi": 0.8 },
+        { "tile": "R", "at": [3, 3], "hi": 0.7 }
+      ]
+    },
+    {
+      "label": { "zh": "第三组", "en": "Set 3" },
+      "items": [
+        { "tile": "C", "at": [1, 1], "hi": 0.9 },
+        { "tile": "X", "at": [2, 2], "hi": 0.3 },
+        { "tile": "P", "at": [0, 3], "hi": 0.6 },
+        { "tile": "R", "at": [3, 0], "hi": 0.5 }
+      ]
+    }
+  ],
+  "hidden": [
+    {
+      "label": { "zh": "第四组", "en": "Set 4" },
+      "items": [
+        { "tile": "R", "at": [0, 0], "hi": 0.5 },
+        { "tile": "S", "at": [3, 2], "hi": 0.6 },
+        { "tile": "X", "at": [1, 3], "hi": 0.9 }
+      ]
+    }
+  ],
+  "solution": [
+    "zk = const[c=0]()",
+    "ok = const()",
+    "z = arith[op=mul](in, zk)",
+    "o = arith[op=add](z, ok)",
+    "a = attention[s=40](o, in, in)",
+    "out <- a"
+  ],
+  "naive": ["a = attention[s=40](in)", "out <- a"]
+}
