@@ -1,9 +1,5 @@
 {
   "title": { "zh": "一个接一个", "en": "One after another" },
-  "brief": {
-    "zh": "把交来的字节依次送出，每个字节前加起始位 1，后加停止位 0；字节送完以后线上一直是 0。说「下一个」为 1 的那一拍取走眼前的字节，下一拍换上后一个。",
-    "en": "Send the bytes handed to you one after another, each with a start bit 1 before it and a stop bit 0 after; once they are all sent the wire stays 0. Saying next takes the byte in front of you that tick, and the following one shows the tick after."
-  },
   "intro": [
     {
       "t": {
@@ -12,54 +8,62 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "一个字节连同起始位和停止位，一共占 10 拍。", "en": "A byte with its start and stop bits takes 10 ticks." },
+  "tasks": [
     {
-      "zh": "<part-ref to=\"serializer\"></part-ref>只说那 8 位，起始位那一拍要另外说。",
-      "en": "<part-ref to=\"serializer\"></part-ref> says only the 8 bits; the start bit's tick is up to you."
-    },
-    { "zh": "队伍空了以后，也不能再说起始位。", "en": "Once the queue is empty, no more start bits either." }
-  ],
-  "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
-  "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
-  "pulls": { "input": "byte", "next": "next" },
-  "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
-  "tests": [
-    { "ticks": 22, "queue": [[65]] },
-    { "ticks": 32, "queue": [[0, 255]] },
-    { "ticks": 12, "queue": [] }
-  ],
-  "hidden": [{ "ticks": 42, "queue": [[128, 1, 170]] }, { "ticks": 32, "queue": [[7], [9]] }],
-  "want": { "line": { "sent": { "format": "startstop" } } },
-  "solution": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "nine = const[value=9]()",
-    "g = reg[reg=A, start=1]()",
-    "c = counter(g)",
-    "e0 = equal(c, z)",
-    "e1 = equal(c, o)",
-    "e9 = equal(c, nine)",
-    "ka = keep[reg=A](e9)",
-    "s = serializer(byte, e1)",
-    "has = equal(byte, byte)",
-    "l = select(e0, has, s.line)",
-    "line <- l",
-    "next <- e1"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "nine = const[value=9]()",
-    "g = reg[reg=A, start=1]()",
-    "c = counter(g)",
-    "e0 = equal(c, z)",
-    "e1 = equal(c, o)",
-    "e9 = equal(c, nine)",
-    "ka = keep[reg=A](e9)",
-    "s = serializer(byte, e1)",
-    "l = select(e0, o, s.line)",
-    "line <- l",
-    "next <- e1"
+      "brief": {
+        "zh": "把交来的字节依次送出，每个字节前加起始位 1，后加停止位 0；字节送完以后线上一直是 0。说「下一个」为 1 的那一拍取走眼前的字节，下一拍换上后一个。",
+        "en": "Send the bytes handed to you one after another, each with a start bit 1 before it and a stop bit 0 after; once they are all sent the wire stays 0. Saying next takes the byte in front of you that tick, and the following one shows the tick after."
+      },
+      "hint": [
+        { "zh": "一个字节连同起始位和停止位，一共占 10 拍。", "en": "A byte with its start and stop bits takes 10 ticks." },
+        {
+          "zh": "<part-ref to=\"serializer\"></part-ref>只说那 8 位，起始位那一拍要另外说。",
+          "en": "<part-ref to=\"serializer\"></part-ref> says only the 8 bits; the start bit's tick is up to you."
+        },
+        { "zh": "队伍空了以后，也不能再说起始位。", "en": "Once the queue is empty, no more start bits either." }
+      ],
+      "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "pulls": { "input": "byte", "next": "next" },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "tests": [
+        { "ticks": 22, "queue": [[65]] },
+        { "ticks": 32, "queue": [[0, 255]] },
+        { "ticks": 12, "queue": [] }
+      ],
+      "hidden": [{ "ticks": 42, "queue": [[128, 1, 170]] }, { "ticks": 32, "queue": [[7], [9]] }],
+      "want": { "line": { "sent": { "format": "startstop" } } },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "nine = const[value=9]()",
+        "g = reg[reg=A, start=1]()",
+        "c = counter(g)",
+        "e0 = equal(c, z)",
+        "e1 = equal(c, o)",
+        "e9 = equal(c, nine)",
+        "ka = keep[reg=A](e9)",
+        "s = serializer(byte, e1)",
+        "has = equal(byte, byte)",
+        "l = select(e0, has, s.line)",
+        "line <- l",
+        "next <- e1"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "nine = const[value=9]()",
+        "g = reg[reg=A, start=1]()",
+        "c = counter(g)",
+        "e0 = equal(c, z)",
+        "e1 = equal(c, o)",
+        "e9 = equal(c, nine)",
+        "ka = keep[reg=A](e9)",
+        "s = serializer(byte, e1)",
+        "l = select(e0, o, s.line)",
+        "line <- l",
+        "next <- e1"
+      ]
+    }
   ]
 }

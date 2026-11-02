@@ -1,9 +1,5 @@
 {
   "title": { "zh": "每 8 拍一次", "en": "Every eighth tick" },
-  "brief": {
-    "zh": "在第 7、15、23……拍说 1，其余各拍说 0（第一拍是第 0 拍）。",
-    "en": "Say 1 on ticks 7, 15, 23 and so on, and 0 on every other tick (the first tick is tick 0)."
-  },
   "intro": [
     {
       "t": {
@@ -12,74 +8,88 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "<part-ref to=\"counter\"></part-ref>的「重来」也可以由板自己说了算。",
-      "en": "The board itself can decide when <part-ref to=\"counter\"></part-ref> restarts."
-    },
-    { "zh": "数到 7 以后，计数要从 0 重新开始。", "en": "After 7, the count must start again from 0." },
-    {
-      "zh": "数到 7 的那一拍发生的事，要到下一拍才能让计数重来。",
-      "en": "What happens on the tick the count reaches 7 can restart it only on the tick after."
-    }
-  ],
   "adds": ["equal"],
-  "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
-  "tests": [
-    { "ticks": 10, "expect": { "line": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0] } },
-    { "ticks": 20, "expect": { "line": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0] } }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "ticks": 33,
-      "expect": {
-        "line": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0
-        ]
-      }
-    },
-    { "ticks": 3, "expect": { "line": [0, 0, 0] } }
-  ],
-  "want": { "line": "given" },
-  "solution": [
-    "sv = const[value=7]()",
-    "r = reg[reg=A, start=0]()",
-    "c = counter(r)",
-    "e = equal(c, sv)",
-    "k = keep[reg=A](e)",
-    "line <- e"
-  ],
-  "naive": ["z = const[value=0]()", "sv = const[value=7]()", "c = counter(z)", "e = equal(c, sv)", "line <- e"]
+      "brief": {
+        "zh": "在第 7、15、23……拍说 1，其余各拍说 0（第一拍是第 0 拍）。",
+        "en": "Say 1 on ticks 7, 15, 23 and so on, and 0 on every other tick (the first tick is tick 0)."
+      },
+      "hint": [
+        {
+          "zh": "<part-ref to=\"counter\"></part-ref>的「重来」也可以由板自己说了算。",
+          "en": "The board itself can decide when <part-ref to=\"counter\"></part-ref> restarts."
+        },
+        { "zh": "数到 7 以后，计数要从 0 重新开始。", "en": "After 7, the count must start again from 0." },
+        {
+          "zh": "数到 7 的那一拍发生的事，要到下一拍才能让计数重来。",
+          "en": "What happens on the tick the count reaches 7 can restart it only on the tick after."
+        }
+      ],
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "tests": [
+        { "ticks": 10, "expect": { "line": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0] } },
+        { "ticks": 20, "expect": { "line": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0] } }
+      ],
+      "hidden": [
+        {
+          "ticks": 33,
+          "expect": {
+            "line": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
+          }
+        },
+        { "ticks": 3, "expect": { "line": [0, 0, 0] } }
+      ],
+      "want": { "line": "given" },
+      "solution": [
+        "sv = const[value=7]()",
+        "r = reg[reg=A, start=0]()",
+        "c = counter(r)",
+        "e = equal(c, sv)",
+        "k = keep[reg=A](e)",
+        "line <- e"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "sv = const[value=7]()",
+        "c = counter(z)",
+        "e = equal(c, sv)",
+        "line <- e"
+      ]
+    }
+  ]
 }

@@ -1,9 +1,5 @@
 {
   "title": { "zh": "带上校验码", "en": "Append the check" },
-  "brief": {
-    "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码。",
-    "en": "Send the byte handed to you bit by bit from the first tick, top bit first, followed at once by its 3 check bits."
-  },
   "intro": [
     {
       "t": {
@@ -12,74 +8,82 @@
       }
     }
   ],
-  "hint": [
+  "tasks": [
     {
-      "zh": "说到线上的每一位，也要同时交给<part-ref to=\"crc\"></part-ref>。",
-      "en": "Every bit said on the wire should also go to <part-ref to=\"crc\"></part-ref>."
-    },
-    {
-      "zh": "字节说完的那一拍，校验码就定了；之后线上的位不该再改变它。",
-      "en": "The check is settled on the tick the byte is out; the bits on the wire after that must not change it."
-    },
-    {
-      "zh": "校验码是 0 到 7 的数：它的 3 位排在一个 8 位数的最后。",
-      "en": "The check is a number from 0 to 7: its 3 bits are the last three of an 8-bit number."
+      "brief": {
+        "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码。",
+        "en": "Send the byte handed to you bit by bit from the first tick, top bit first, followed at once by its 3 check bits."
+      },
+      "hint": [
+        {
+          "zh": "说到线上的每一位，也要同时交给<part-ref to=\"crc\"></part-ref>。",
+          "en": "Every bit said on the wire should also go to <part-ref to=\"crc\"></part-ref>."
+        },
+        {
+          "zh": "字节说完的那一拍，校验码就定了；之后线上的位不该再改变它。",
+          "en": "The check is settled on the tick the byte is out; the bits on the wire after that must not change it."
+        },
+        {
+          "zh": "校验码是 0 到 7 的数：它的 3 位排在一个 8 位数的最后。",
+          "en": "The check is a number from 0 to 7: its 3 bits are the last three of an 8-bit number."
+        }
+      ],
+      "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "pulls": { "input": "byte", "next": "next" },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "tests": [
+        { "ticks": 13, "queue": [[1]] },
+        { "ticks": 13, "queue": [[178]] },
+        { "ticks": 13, "queue": [[0]] }
+      ],
+      "hidden": [
+        { "ticks": 13, "queue": [[255]] },
+        { "ticks": 13, "queue": [[128]] },
+        { "ticks": 13, "queue": [[105]] }
+      ],
+      "want": { "line": { "sent": { "format": "check" } } },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "four = const[value=4]()",
+        "c = counter(z)",
+        "e0 = equal(c, z)",
+        "s = serializer(byte, e0)",
+        "k = crc(s.line, e0)",
+        "rr = reg[reg=B, start=0]()",
+        "nr = select(s.done, k, rr)",
+        "kb = keep[reg=B](nr)",
+        "p = reg[reg=A, start=0]()",
+        "np = select(s.done, o, p)",
+        "kp = keep[reg=A](np)",
+        "c2 = counter(s.done)",
+        "i = add(c2, four)",
+        "cb = bit(rr, i)",
+        "l = select(p, cb, s.line)",
+        "line <- l",
+        "next <- e0"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "four = const[value=4]()",
+        "c = counter(z)",
+        "e0 = equal(c, z)",
+        "s = serializer(byte, e0)",
+        "p = reg[reg=A, start=0]()",
+        "np = select(s.done, o, p)",
+        "kp = keep[reg=A](np)",
+        "c2 = counter(s.done)",
+        "i = add(c2, four)",
+        "rr = reg[reg=B, start=0]()",
+        "cb = bit(rr, i)",
+        "l = select(p, cb, s.line)",
+        "k = crc(l, e0)",
+        "kb = keep[reg=B](k)",
+        "line <- l",
+        "next <- e0"
+      ]
     }
-  ],
-  "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
-  "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
-  "pulls": { "input": "byte", "next": "next" },
-  "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
-  "tests": [
-    { "ticks": 13, "queue": [[1]] },
-    { "ticks": 13, "queue": [[178]] },
-    { "ticks": 13, "queue": [[0]] }
-  ],
-  "hidden": [
-    { "ticks": 13, "queue": [[255]] },
-    { "ticks": 13, "queue": [[128]] },
-    { "ticks": 13, "queue": [[105]] }
-  ],
-  "want": { "line": { "sent": { "format": "check" } } },
-  "solution": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "four = const[value=4]()",
-    "c = counter(z)",
-    "e0 = equal(c, z)",
-    "s = serializer(byte, e0)",
-    "k = crc(s.line, e0)",
-    "rr = reg[reg=B, start=0]()",
-    "nr = select(s.done, k, rr)",
-    "kb = keep[reg=B](nr)",
-    "p = reg[reg=A, start=0]()",
-    "np = select(s.done, o, p)",
-    "kp = keep[reg=A](np)",
-    "c2 = counter(s.done)",
-    "i = add(c2, four)",
-    "cb = bit(rr, i)",
-    "l = select(p, cb, s.line)",
-    "line <- l",
-    "next <- e0"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "four = const[value=4]()",
-    "c = counter(z)",
-    "e0 = equal(c, z)",
-    "s = serializer(byte, e0)",
-    "p = reg[reg=A, start=0]()",
-    "np = select(s.done, o, p)",
-    "kp = keep[reg=A](np)",
-    "c2 = counter(s.done)",
-    "i = add(c2, four)",
-    "rr = reg[reg=B, start=0]()",
-    "cb = bit(rr, i)",
-    "l = select(p, cb, s.line)",
-    "k = crc(l, e0)",
-    "kb = keep[reg=B](k)",
-    "line <- l",
-    "next <- e0"
   ]
 }

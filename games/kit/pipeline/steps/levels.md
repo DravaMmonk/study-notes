@@ -36,7 +36,10 @@ and you do not change the blueprint.
 
 1. Remove the starter's levels and glossary entries (`level.remove`, `glossary.remove`), set `primitives` and
    `concept` with `game.set`, and set `eras` to exactly what `./eras` prints (`game.set path=eras`).
-2. Add the levels with `level.add` (data: the level's fields; no `to`, the eras already place them). Write
+2. Add the levels with `level.add` (data: the level's fields; no `to`, the eras already place them). A level is a
+   list of tasks where the vocabulary's level has `tasks`: what it says once (title, intro, pass text, what it builds)
+   on the level, each puzzle (brief, hints, ports, tests, answers) a task; most levels are one task, and a level whose
+   puzzle is done in steps on one idea is several. Write
    changesets as JSON files in your directory (`{ "why": …, "ops": [ … ] }`) and run `./op --file <file>`; use
    `--dry-run` to see problems without writing. A changeset is checked as a whole and written only when the whole game
    passes, so add a builder level together with the levels that use what it builds, or the whole era at once.

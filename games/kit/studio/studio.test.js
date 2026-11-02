@@ -294,7 +294,7 @@ function* fieldsIn(f) {
 test('on the real games: the hinted values get their controls, and each cell control gives back the value it shows', async () => {
   const want = {
     bus: [['1-6', 'tests.0.inputs', 'wave']],
-    network: [['1-12', 'tests.0.inputs', 'wave'], ['1-12', 'tests.3.expect', 'wave'], ['1-1', 'tests.0.wires.left.send.0.bits', 'ticks']],
+    network: [['1-12', 'tasks.0.tests.0.inputs', 'wave'], ['1-12', 'tasks.0.tests.3.expect', 'wave'], ['1-1', 'tasks.0.tests.0.wires.left.send.0.bits', 'ticks']],
     'state-graph': [['cheapest', 'tests.0.costs', 'grid'], ['carve', 'img', 'grid']],
     'vision-complete': [['1-1', 'setup.target.correlate.kernel', 'grid'], ['10-3', 'tests.0.flags', 'ticks']],
     qed: [['and', 'tasks.0.cases', 'table'], ['and', 'tasks.0.tests.0.premises', 'table']],

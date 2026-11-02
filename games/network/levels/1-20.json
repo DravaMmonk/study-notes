@@ -1,9 +1,5 @@
 {
   "title": { "zh": "哪一位翻了", "en": "Which bit flipped" },
-  "brief": {
-    "zh": "线上从第一拍起接连送来 7 位码字：4 位数据加 3 位校验码（生成式 1011），每个最多翻一位。码字最后一位到达的那一拍，输出翻的是第几位（先到的为第 1 位），没翻输出 0。",
-    "en": "From the first tick, 7-bit codewords come down the wire back to back: 4 data bits, then 3 check bits (generator 1011), with at most one bit flipped in each. On the tick a codeword's last bit arrives, output which bit flipped (the first to arrive is 1), or 0 if none."
-  },
   "intro": [
     {
       "t": {
@@ -12,149 +8,157 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "先在纸上算：没有翻位时余数是多少？只翻第 1 位时呢？",
-      "en": "Work it out on paper first: what is the remainder when nothing flipped? When only bit 1 flipped?"
-    },
-    {
-      "zh": "7 个位置各翻一位，各留下什么余数？",
-      "en": "Flip each of the 7 positions in turn: what remainder does each leave?"
-    }
-  ],
   "after": {
     "zh": "找得出哪一位错了，就改得回来，不必请对方重发：这叫<wiki-ref to=\"error-correction\"></wiki-ref>。",
     "en": "Knowing which bit is wrong is enough to put it right without asking for it again: this is <wiki-ref to=\"error-correction\"></wiki-ref>."
   },
-  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-  "outputs": [{ "name": "pos", "label": { "zh": "翻了的位", "en": "Flipped bit" } }],
-  "tests": [
+  "tasks": [
     {
-      "ticks": 14,
-      "wires": { "line": { "send": [{ "bytes": [5, 12], "format": "blocks" }] } },
-      "expect": { "pos": [null, null, null, null, null, null, 0, null, null, null, null, null, null, 0] }
-    },
-    {
-      "ticks": 7,
-      "wires": { "line": { "send": [{ "bytes": [9], "format": "blocks" }], "flips": [0] } },
-      "expect": { "pos": [null, null, null, null, null, null, 1] }
-    },
-    {
-      "ticks": 21,
-      "wires": { "line": { "send": [{ "bytes": [3, 10, 6], "format": "blocks" }], "flips": [5, 9] } },
-      "expect": {
-        "pos": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          6,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          3,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          0
-        ]
-      }
-    }
-  ],
-  "hidden": [
-    {
-      "ticks": 28,
-      "wires": {
-        "line": { "send": [{ "bytes": [15, 0, 7, 8], "format": "blocks" }], "flips": [3, 8, 18, 26] }
+      "brief": {
+        "zh": "线上从第一拍起接连送来 7 位码字：4 位数据加 3 位校验码（生成式 1011），每个最多翻一位。码字最后一位到达的那一拍，输出翻的是第几位（先到的为第 1 位），没翻输出 0。",
+        "en": "From the first tick, 7-bit codewords come down the wire back to back: 4 data bits, then 3 check bits (generator 1011), with at most one bit flipped in each. On the tick a codeword's last bit arrives, output which bit flipped (the first to arrive is 1), or 0 if none."
       },
-      "expect": {
-        "pos": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          4,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          2,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          5,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          6
-        ]
-      }
-    },
-    {
-      "ticks": 7,
-      "wires": { "line": { "send": [{ "bytes": [0], "format": "blocks" }], "flips": [6] } },
-      "expect": { "pos": [null, null, null, null, null, null, 7] }
-    },
-    {
-      "ticks": 14,
-      "wires": { "line": { "send": [{ "bytes": [1, 2], "format": "blocks" }], "flips": [1, 11] } },
-      "expect": { "pos": [null, null, null, null, null, null, 2, null, null, null, null, null, null, 5] }
+      "hint": [
+        {
+          "zh": "先在纸上算：没有翻位时余数是多少？只翻第 1 位时呢？",
+          "en": "Work it out on paper first: what is the remainder when nothing flipped? When only bit 1 flipped?"
+        },
+        {
+          "zh": "7 个位置各翻一位，各留下什么余数？",
+          "en": "Flip each of the 7 positions in turn: what remainder does each leave?"
+        }
+      ],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "outputs": [{ "name": "pos", "label": { "zh": "翻了的位", "en": "Flipped bit" } }],
+      "tests": [
+        {
+          "ticks": 14,
+          "wires": { "line": { "send": [{ "bytes": [5, 12], "format": "blocks" }] } },
+          "expect": { "pos": [null, null, null, null, null, null, 0, null, null, null, null, null, null, 0] }
+        },
+        {
+          "ticks": 7,
+          "wires": { "line": { "send": [{ "bytes": [9], "format": "blocks" }], "flips": [0] } },
+          "expect": { "pos": [null, null, null, null, null, null, 1] }
+        },
+        {
+          "ticks": 21,
+          "wires": { "line": { "send": [{ "bytes": [3, 10, 6], "format": "blocks" }], "flips": [5, 9] } },
+          "expect": {
+            "pos": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              6,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              3,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              0
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "ticks": 28,
+          "wires": {
+            "line": { "send": [{ "bytes": [15, 0, 7, 8], "format": "blocks" }], "flips": [3, 8, 18, 26] }
+          },
+          "expect": {
+            "pos": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              4,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              2,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              5,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              6
+            ]
+          }
+        },
+        {
+          "ticks": 7,
+          "wires": { "line": { "send": [{ "bytes": [0], "format": "blocks" }], "flips": [6] } },
+          "expect": { "pos": [null, null, null, null, null, null, 7] }
+        },
+        {
+          "ticks": 14,
+          "wires": { "line": { "send": [{ "bytes": [1, 2], "format": "blocks" }], "flips": [1, 11] } },
+          "expect": { "pos": [null, null, null, null, null, null, 2, null, null, null, null, null, null, 5] }
+        }
+      ],
+      "want": { "pos": "given" },
+      "solution": [
+        "z = const[value=0]()",
+        "one = const[value=1]()",
+        "three = const[value=3]()",
+        "four = const[value=4]()",
+        "five = const[value=5]()",
+        "six = const[value=6]()",
+        "seven = const[value=7]()",
+        "g = reg[reg=A, start=0]()",
+        "c = counter(g)",
+        "e6 = equal(c, six)",
+        "kg = keep[reg=A](e6)",
+        "k = crc(line, g)",
+        "q4 = equal(k, four)",
+        "q1 = equal(k, one)",
+        "q5 = equal(k, five)",
+        "q7 = equal(k, seven)",
+        "q3 = equal(k, three)",
+        "s1 = select(q4, one, k)",
+        "s2 = select(q1, three, s1)",
+        "s3 = select(q5, four, s2)",
+        "s4 = select(q7, five, s3)",
+        "s5 = select(q3, seven, s4)",
+        "y = select(e6, s5)",
+        "pos <- y"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "six = const[value=6]()",
+        "g = reg[reg=A, start=0]()",
+        "c = counter(g)",
+        "e6 = equal(c, six)",
+        "kg = keep[reg=A](e6)",
+        "k = crc(line, g)",
+        "y = select(e6, k)",
+        "pos <- y"
+      ]
     }
-  ],
-  "want": { "pos": "given" },
-  "solution": [
-    "z = const[value=0]()",
-    "one = const[value=1]()",
-    "three = const[value=3]()",
-    "four = const[value=4]()",
-    "five = const[value=5]()",
-    "six = const[value=6]()",
-    "seven = const[value=7]()",
-    "g = reg[reg=A, start=0]()",
-    "c = counter(g)",
-    "e6 = equal(c, six)",
-    "kg = keep[reg=A](e6)",
-    "k = crc(line, g)",
-    "q4 = equal(k, four)",
-    "q1 = equal(k, one)",
-    "q5 = equal(k, five)",
-    "q7 = equal(k, seven)",
-    "q3 = equal(k, three)",
-    "s1 = select(q4, one, k)",
-    "s2 = select(q1, three, s1)",
-    "s3 = select(q5, four, s2)",
-    "s4 = select(q7, five, s3)",
-    "s5 = select(q3, seven, s4)",
-    "y = select(e6, s5)",
-    "pos <- y"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "six = const[value=6]()",
-    "g = reg[reg=A, start=0]()",
-    "c = counter(g)",
-    "e6 = equal(c, six)",
-    "kg = keep[reg=A](e6)",
-    "k = crc(line, g)",
-    "y = select(e6, k)",
-    "pos <- y"
   ]
 }

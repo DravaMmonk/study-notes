@@ -1,9 +1,5 @@
 {
   "title": { "zh": "两边都是 1", "en": "Both are 1" },
-  "brief": {
-    "zh": "听两根线：两根线上都是 1 时说 1，否则说 0。",
-    "en": "Listen to two wires: say 1 when both carry a 1, and 0 otherwise."
-  },
   "intro": [
     {
       "t": {
@@ -12,52 +8,53 @@
       }
     }
   ],
-  "hint": [
+  "tasks": [
     {
-      "zh": "先固定线 A 的值，看线 B 该怎样决定输出。",
-      "en": "Hold wire A still and see how wire B should decide the output."
-    },
-    {
-      "zh": "线 A 为 0 时，输出是什么？线 A 为 1 时呢？",
-      "en": "When wire A is 0, what is the output? And when A is 1?"
+      "brief": {
+        "zh": "听两根线：两根线上都是 1 时说 1，否则说 0。",
+        "en": "Listen to two wires: say 1 when both carry a 1, and 0 otherwise."
+      },
+      "hint": [
+        {
+          "zh": "先固定线 A 的值，看线 B 该怎样决定输出。",
+          "en": "Hold wire A still and see how wire B should decide the output."
+        },
+        { "zh": "线 A 为 0 时，输出是什么？线 A 为 1 时呢？", "en": "When wire A is 0, what is the output? And when A is 1?" }
+      ],
+      "wires": {
+        "in": [
+          { "name": "a", "label": { "zh": "线 A", "en": "Wire A" } },
+          { "name": "b", "label": { "zh": "线 B", "en": "Wire B" } }
+        ],
+        "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
+      },
+      "tests": [
+        {
+          "wires": { "a": { "send": [{ "bits": "0101" }] }, "b": { "send": [{ "bits": "0011" }] } },
+          "expect": { "x": [0, 0, 0, 1, 0, 0] }
+        },
+        {
+          "wires": { "a": { "send": [{ "bits": "110100" }] }, "b": { "send": [{ "bits": "011101" }] } },
+          "expect": { "x": [0, 1, 0, 1, 0, 0, 0, 0] }
+        }
+      ],
+      "hidden": [
+        {
+          "wires": { "a": { "send": [{ "bits": "1111" }] }, "b": { "send": [{ "bits": "0000" }] } },
+          "expect": { "x": [0, 0, 0, 0, 0, 0] }
+        },
+        {
+          "wires": { "a": { "send": [{ "bits": "1010" }] }, "b": { "send": [{ "bits": "1010" }] } },
+          "expect": { "x": [1, 0, 1, 0, 0, 0] }
+        },
+        {
+          "wires": { "a": { "send": [{ "bits": "0000" }] }, "b": { "send": [{ "bits": "1111" }] } },
+          "expect": { "x": [0, 0, 0, 0, 0, 0] }
+        }
+      ],
+      "want": { "x": "given" },
+      "solution": ["z = const[value=0]()", "d = select(a, b, z)", "x <- d"],
+      "naive": ["o = const[value=1]()", "d = select(a, o, b)", "x <- d"]
     }
-  ],
-  "wires": {
-    "in": [
-      { "name": "a", "label": { "zh": "线 A", "en": "Wire A" } },
-      { "name": "b", "label": { "zh": "线 B", "en": "Wire B" } }
-    ],
-    "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
-  },
-  "tests": [
-    {
-      "wires": { "a": { "send": [{ "bits": "0101" }] }, "b": { "send": [{ "bits": "0011" }] } },
-      "expect": { "x": [0, 0, 0, 1, 0, 0] }
-    },
-    {
-      "wires": { "a": { "send": [{ "bits": "110100" }] }, "b": { "send": [{ "bits": "011101" }] } },
-      "expect": { "x": [0, 1, 0, 1, 0, 0, 0, 0] }
-    }
-  ],
-  "hidden": [
-    {
-      "wires": { "a": { "send": [{ "bits": "1111" }] }, "b": { "send": [{ "bits": "0000" }] } },
-      "expect": { "x": [0, 0, 0, 0, 0, 0] }
-    },
-    {
-      "wires": { "a": { "send": [{ "bits": "1010" }] }, "b": { "send": [{ "bits": "1010" }] } },
-      "expect": { "x": [1, 0, 1, 0, 0, 0] }
-    },
-    {
-      "wires": { "a": { "send": [{ "bits": "0000" }] }, "b": { "send": [{ "bits": "1111" }] } },
-      "expect": { "x": [0, 0, 0, 0, 0, 0] }
-    }
-  ],
-  "want": { "x": "given" },
-  "solution": [
-    "z = const[value=0]()",
-    "d = select(a, b, z)",
-    "x <- d"
-  ],
-  "naive": ["o = const[value=1]()", "d = select(a, o, b)", "x <- d"]
+  ]
 }

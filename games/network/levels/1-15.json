@@ -1,9 +1,5 @@
 {
   "title": { "zh": "边收边除", "en": "Divide as it comes" },
-  "brief": {
-    "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码，即这些位补上三个 0 后不进位地除以 1011 的余数；「重来」为 1 的拍从这一位重新算起。",
-    "en": "Every tick, output the 3 check bits due after the bits received so far: their carry-less remainder by 1011 with three 0s appended, as a number. On a tick restart is 1, start over from that bit."
-  },
   "intro": [
     {
       "t": {
@@ -18,109 +14,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "先在纸上把 1101 补上 000，不进位地除以 1011，看每一步余数怎样变。",
-      "en": "On paper, append 000 to 1101 and divide it by 1011 without carries, watching the remainder at each step."
-    },
-    {
-      "zh": "三个寄存卡各记一位，就记得下除到这一拍为止的结果。",
-      "en": "Three registers, a bit each, are enough to hold where the division stands."
-    },
-    {
-      "zh": "要的是补上三个 0 以后的余数：新来的一位先和结果的最高位比一比，再决定这一步减不减生成式。",
-      "en": "What is wanted is the remainder with three 0s appended: compare each new bit with the top bit held before deciding whether this step subtracts the generator."
-    }
-  ],
-  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-  "inputs": [
-    { "name": "restart", "label": { "zh": "重来", "en": "Restart" } }
-  ],
-  "outputs": [{ "name": "rem", "label": { "zh": "校验码", "en": "Check" } }],
-  "tests": [
-    {
-      "ticks": 8,
-      "wires": { "line": { "send": [{ "bits": "11010011" }] } },
-      "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0, 0] }
-    },
-    {
-      "ticks": 8,
-      "wires": { "line": { "send": [{ "bits": "11010110" }] } },
-      "inputs": { "restart": [0, 0, 0, 0, 1, 0, 0, 0] }
-    },
-    {
-      "ticks": 7,
-      "wires": { "line": { "send": [{ "bits": "0001011" }] } },
-      "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0] }
-    }
-  ],
-  "hidden": [
-    {
-      "ticks": 9,
-      "wires": { "line": { "send": [{ "bits": "100000001" }] } },
-      "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0, 0, 0] }
-    },
-    {
-      "ticks": 4,
-      "wires": { "line": { "send": [{ "bits": "0110" }] } },
-      "inputs": { "restart": [1, 1, 1, 1] }
-    },
-    {
-      "ticks": 6,
-      "wires": { "line": { "send": [{ "bits": "111111" }] } },
-      "inputs": { "restart": [0, 0, 1, 0, 0, 0] }
-    },
-    {
-      "ticks": 12,
-      "wires": { "line": { "send": [{ "bits": "111011110110" }] } },
-      "inputs": {
-        "restart": [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
-      }
-    }
-  ],
-  "want": {
-    "rem": {
-      "remainder": { "wire": "line", "poly": "1011", "reset": "restart", "form": "check" }
-    }
-  },
-  "solution": [
-    "z = const[value=0]()",
-    "a2 = reg[reg=A, start=0]()",
-    "a1 = reg[reg=B, start=0]()",
-    "a0 = reg[reg=C, start=0]()",
-    "b2 = select(restart, z, a2)",
-    "b1 = select(restart, z, a1)",
-    "b0 = select(restart, z, a0)",
-    "cy = xor(b2, line)",
-    "n1 = xor(b0, cy)",
-    "ka = keep[reg=A](b1)",
-    "kb = keep[reg=B](n1)",
-    "kc = keep[reg=C](cy)",
-    "t1 = add(b1, b1)",
-    "t2 = add(t1, n1)",
-    "t3 = add(t2, t2)",
-    "r = add(t3, cy)",
-    "rem <- r"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "a2 = reg[reg=A, start=0]()",
-    "a1 = reg[reg=B, start=0]()",
-    "a0 = reg[reg=C, start=0]()",
-    "b2 = select(restart, z, a2)",
-    "b1 = select(restart, z, a1)",
-    "b0 = select(restart, z, a0)",
-    "n1 = xor(b0, b2)",
-    "n0 = xor(line, b2)",
-    "ka = keep[reg=A](b1)",
-    "kb = keep[reg=B](n1)",
-    "kc = keep[reg=C](n0)",
-    "t1 = add(b1, b1)",
-    "t2 = add(t1, n1)",
-    "t3 = add(t2, t2)",
-    "r = add(t3, n0)",
-    "rem <- r"
-  ],
   "builds": {
     "type": "crc",
     "name": { "zh": "CRC", "en": "CRC" },
@@ -128,5 +21,110 @@
       "zh": "到这一拍为止收进的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数，0 到 7 的数）；「重来」为 1 的那一拍从这一位重新算起。",
       "en": "The 3 check bits due after the bits taken in so far (their carry-less remainder by 1011 with three 0s appended, a number from 0 to 7); on a tick restart is 1 it starts over from that bit."
     }
-  }
+  },
+  "tasks": [
+    {
+      "brief": {
+        "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码，即这些位补上三个 0 后不进位地除以 1011 的余数；「重来」为 1 的拍从这一位重新算起。",
+        "en": "Every tick, output the 3 check bits due after the bits received so far: their carry-less remainder by 1011 with three 0s appended, as a number. On a tick restart is 1, start over from that bit."
+      },
+      "hint": [
+        {
+          "zh": "先在纸上把 1101 补上 000，不进位地除以 1011，看每一步余数怎样变。",
+          "en": "On paper, append 000 to 1101 and divide it by 1011 without carries, watching the remainder at each step."
+        },
+        {
+          "zh": "三个寄存卡各记一位，就记得下除到这一拍为止的结果。",
+          "en": "Three registers, a bit each, are enough to hold where the division stands."
+        },
+        {
+          "zh": "要的是补上三个 0 以后的余数：新来的一位先和结果的最高位比一比，再决定这一步减不减生成式。",
+          "en": "What is wanted is the remainder with three 0s appended: compare each new bit with the top bit held before deciding whether this step subtracts the generator."
+        }
+      ],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "inputs": [{ "name": "restart", "label": { "zh": "重来", "en": "Restart" } }],
+      "outputs": [{ "name": "rem", "label": { "zh": "校验码", "en": "Check" } }],
+      "tests": [
+        {
+          "ticks": 8,
+          "wires": { "line": { "send": [{ "bits": "11010011" }] } },
+          "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0, 0] }
+        },
+        {
+          "ticks": 8,
+          "wires": { "line": { "send": [{ "bits": "11010110" }] } },
+          "inputs": { "restart": [0, 0, 0, 0, 1, 0, 0, 0] }
+        },
+        {
+          "ticks": 7,
+          "wires": { "line": { "send": [{ "bits": "0001011" }] } },
+          "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0] }
+        }
+      ],
+      "hidden": [
+        {
+          "ticks": 9,
+          "wires": { "line": { "send": [{ "bits": "100000001" }] } },
+          "inputs": { "restart": [0, 0, 0, 0, 0, 0, 0, 0, 0] }
+        },
+        {
+          "ticks": 4,
+          "wires": { "line": { "send": [{ "bits": "0110" }] } },
+          "inputs": { "restart": [1, 1, 1, 1] }
+        },
+        {
+          "ticks": 6,
+          "wires": { "line": { "send": [{ "bits": "111111" }] } },
+          "inputs": { "restart": [0, 0, 1, 0, 0, 0] }
+        },
+        {
+          "ticks": 12,
+          "wires": { "line": { "send": [{ "bits": "111011110110" }] } },
+          "inputs": { "restart": [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0] }
+        }
+      ],
+      "want": {
+        "rem": { "remainder": { "wire": "line", "poly": "1011", "reset": "restart", "form": "check" } }
+      },
+      "solution": [
+        "z = const[value=0]()",
+        "a2 = reg[reg=A, start=0]()",
+        "a1 = reg[reg=B, start=0]()",
+        "a0 = reg[reg=C, start=0]()",
+        "b2 = select(restart, z, a2)",
+        "b1 = select(restart, z, a1)",
+        "b0 = select(restart, z, a0)",
+        "cy = xor(b2, line)",
+        "n1 = xor(b0, cy)",
+        "ka = keep[reg=A](b1)",
+        "kb = keep[reg=B](n1)",
+        "kc = keep[reg=C](cy)",
+        "t1 = add(b1, b1)",
+        "t2 = add(t1, n1)",
+        "t3 = add(t2, t2)",
+        "r = add(t3, cy)",
+        "rem <- r"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "a2 = reg[reg=A, start=0]()",
+        "a1 = reg[reg=B, start=0]()",
+        "a0 = reg[reg=C, start=0]()",
+        "b2 = select(restart, z, a2)",
+        "b1 = select(restart, z, a1)",
+        "b0 = select(restart, z, a0)",
+        "n1 = xor(b0, b2)",
+        "n0 = xor(line, b2)",
+        "ka = keep[reg=A](b1)",
+        "kb = keep[reg=B](n1)",
+        "kc = keep[reg=C](n0)",
+        "t1 = add(b1, b1)",
+        "t2 = add(t1, n1)",
+        "t3 = add(t2, t2)",
+        "r = add(t3, n0)",
+        "rem <- r"
+      ]
+    }
+  ]
 }

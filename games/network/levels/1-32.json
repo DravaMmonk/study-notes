@@ -1,9 +1,5 @@
 {
   "title": { "zh": "奇偶校验位", "en": "A parity bit" },
-  "brief": {
-    "zh": "从第一拍起把交来的字节一个接一个送出，中间不留空：每个字节后面跟一个校验位，字节里有奇数个 1 时为 1。",
-    "en": "From the first tick, send the bytes handed to you back to back, each followed by a parity bit that is 1 when the byte holds an odd number of 1s."
-  },
   "intro": [
     {
       "t": {
@@ -12,59 +8,67 @@
       }
     }
   ],
-  "hint": [
+  "tasks": [
     {
-      "zh": "1 的个数是奇是偶，可以一位一位地跟着记。",
-      "en": "Whether the count of 1s is odd or even can be tracked bit by bit."
-    },
-    { "zh": "一个字节连同校验位占 9 拍。", "en": "A byte with its parity bit takes 9 ticks." }
-  ],
-  "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
-  "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
-  "pulls": { "input": "byte", "next": "next" },
-  "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
-  "tests": [
-    { "ticks": 11, "queue": [[65]] },
-    { "ticks": 20, "queue": [[1, 254]] },
-    { "ticks": 5, "queue": [] }
-  ],
-  "hidden": [
-    { "ticks": 29, "queue": [[7, 128, 170]] },
-    { "ticks": 9, "queue": [[1]] },
-    { "ticks": 22, "queue": [[255, 0]] }
-  ],
-  "want": { "line": { "sent": { "format": "parity" } } },
-  "solution": [
-    "z = const[value=0]()",
-    "eight = const[value=8]()",
-    "g = reg[reg=A, start=1]()",
-    "c = counter(g)",
-    "e8 = equal(c, eight)",
-    "ka = keep[reg=A](e8)",
-    "e0 = equal(c, z)",
-    "s = serializer(byte, e0)",
-    "pr = reg[reg=B, start=0]()",
-    "base = select(e0, z, pr)",
-    "x = xor(base, s.line)",
-    "kb = keep[reg=B](x)",
-    "l = select(e8, pr, s.line)",
-    "line <- l",
-    "next <- e0"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "eight = const[value=8]()",
-    "g = reg[reg=A, start=1]()",
-    "c = counter(g)",
-    "e8 = equal(c, eight)",
-    "ka = keep[reg=A](e8)",
-    "e0 = equal(c, z)",
-    "s = serializer(byte, e0)",
-    "pr = reg[reg=B, start=0]()",
-    "x = xor(pr, s.line)",
-    "kb = keep[reg=B](x)",
-    "l = select(e8, pr, s.line)",
-    "line <- l",
-    "next <- e0"
+      "brief": {
+        "zh": "从第一拍起把交来的字节一个接一个送出，中间不留空：每个字节后面跟一个校验位，字节里有奇数个 1 时为 1。",
+        "en": "From the first tick, send the bytes handed to you back to back, each followed by a parity bit that is 1 when the byte holds an odd number of 1s."
+      },
+      "hint": [
+        {
+          "zh": "1 的个数是奇是偶，可以一位一位地跟着记。",
+          "en": "Whether the count of 1s is odd or even can be tracked bit by bit."
+        },
+        { "zh": "一个字节连同校验位占 9 拍。", "en": "A byte with its parity bit takes 9 ticks." }
+      ],
+      "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "pulls": { "input": "byte", "next": "next" },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "tests": [
+        { "ticks": 11, "queue": [[65]] },
+        { "ticks": 20, "queue": [[1, 254]] },
+        { "ticks": 5, "queue": [] }
+      ],
+      "hidden": [
+        { "ticks": 29, "queue": [[7, 128, 170]] },
+        { "ticks": 9, "queue": [[1]] },
+        { "ticks": 22, "queue": [[255, 0]] }
+      ],
+      "want": { "line": { "sent": { "format": "parity" } } },
+      "solution": [
+        "z = const[value=0]()",
+        "eight = const[value=8]()",
+        "g = reg[reg=A, start=1]()",
+        "c = counter(g)",
+        "e8 = equal(c, eight)",
+        "ka = keep[reg=A](e8)",
+        "e0 = equal(c, z)",
+        "s = serializer(byte, e0)",
+        "pr = reg[reg=B, start=0]()",
+        "base = select(e0, z, pr)",
+        "x = xor(base, s.line)",
+        "kb = keep[reg=B](x)",
+        "l = select(e8, pr, s.line)",
+        "line <- l",
+        "next <- e0"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "eight = const[value=8]()",
+        "g = reg[reg=A, start=1]()",
+        "c = counter(g)",
+        "e8 = equal(c, eight)",
+        "ka = keep[reg=A](e8)",
+        "e0 = equal(c, z)",
+        "s = serializer(byte, e0)",
+        "pr = reg[reg=B, start=0]()",
+        "x = xor(pr, s.line)",
+        "kb = keep[reg=B](x)",
+        "l = select(e8, pr, s.line)",
+        "line <- l",
+        "next <- e0"
+      ]
+    }
   ]
 }

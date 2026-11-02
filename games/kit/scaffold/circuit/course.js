@@ -1,18 +1,27 @@
 // A __name__ game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be
-// in it): the play order and level tree from its eras (../../course.js layout), each level's tests, its reference
-// board and naive board, the parts the levels build (each running the board the player passed it with, a packed part)
-// and the course the shared audit checks.
+// in it): the play order and level tree from its eras (../../course.js layout); each level's tasks
+// (../../engine/tasks.js), each read with its tests, its reference board and naive board; the parts the levels build
+// (each running the board the player passed its level's last task with, a packed part) and the course the shared audit
+// checks.
 //
-// Returns { LEVELS, CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built), blueprints, wrong }:
-// `wrong`, what reading the content found that its schema cannot say (a board that does not read, an output no test
-// expects).
+// Returns { LEVELS, played, builtBy(type), CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built),
+// blueprints, wrong }: LEVELS, the levels as content writes them with their place in the course; played: level id →
+// its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
+// found that its schema cannot say (a board that does not read, an output no test expects).
 import { packed } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
+import { taskLevels } from '../../engine/tasks.js'
 import { fits, fromText, toText } from './board.js'
 import { PARTS } from './parts.js'
 
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
+
+/** The board a level keeps for its part: a level of tasks keeps a list, the last task's board is the part's. */
+const lastBoard = (kept) => {
+  const board = Array.isArray(kept) ? kept.at(-1) : kept
+  return board?.nodes ? board : null
+}
 
 export function __name__Course(content) {
   const { eras, primitives, levels, concept = {} } = content
@@ -26,52 +35,64 @@ export function __name__Course(content) {
   // Each built part runs the board its level was passed with (while it still fits the level), or the level's reference.
   const BUILT = {}
   const partOf = (type) => PARTS[type] ?? BUILT[type]
-  // Every board the content writes as blueprint text, with how it reads back on its level (domain.js blueprints).
+  // Every board the content writes as blueprint text, with how it reads back on its task (domain.js blueprints).
   const blueprints = []
+  // Each level's tasks, read (../../engine/tasks.js).
+  const played = new Map()
+  /** A task read; `where` names it in what reading it finds. */
+  const readTask = (id, task, where) => {
+    const out = { ...task, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: task.adds ?? [], hidden: task.hidden ?? [] }
+    for (const t of [...task.tests, ...out.hidden]) {
+      for (const o of task.outputs) if (t.expect[o.name] === undefined) say(where, `a test expects nothing of the output ${o.name}`)
+      for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(where, `a test gives nothing on the input ${i.name}`)
+    }
+    const read = (lines, what, naive = false) => {
+      try {
+        const board = fromText(lines, out, partOf)
+        blueprints.push({ level: id, task: task.task, board, write: (b) => toText(b, partOf), read: (text) => fromText(text, out, partOf), ...(naive ? { naive } : {}) })
+        return board
+      } catch (e) {
+        say(where, `${what}: ${e.en ?? String(e)}`)
+        return { nodes: [], wires: [] }
+      }
+    }
+    out.solution = read(task.solution, 'the answer')
+    if (task.naive) out.naive = read(task.naive, 'the naive answer', true)
+    return out
+  }
   const LEVELS = plan.order.filter((id) => {
     if (!given.has(id)) say(id, 'an era names a level that does not exist')
     return given.has(id)
   }).map((id) => {
     const level = given.get(id)
-    const out = { ...level, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: level.adds ?? [], hidden: level.hidden ?? [] }
-    for (const t of [...level.tests, ...out.hidden]) {
-      for (const o of level.outputs) if (t.expect[o.name] === undefined) say(id, `a test expects nothing of the output ${o.name}`)
-      for (const i of level.inputs) if (t.inputs[i.name] === undefined) say(id, `a test gives nothing on the input ${i.name}`)
-    }
-    const read = (lines, what, naive = false) => {
-      try {
-        const board = fromText(lines, out, partOf)
-        blueprints.push({ level: id, board, write: (b) => toText(b, partOf), read: (text) => fromText(text, out, partOf), ...(naive ? { naive } : {}) })
-        return board
-      } catch (e) {
-        say(id, `${what}: ${e.en ?? String(e)}`)
-        return { nodes: [], wires: [] }
-      }
-    }
-    out.solution = read(level.solution, 'the answer')
-    if (level.naive) out.naive = read(level.naive, 'the naive answer', true)
+    const tasks = taskLevels(level)
+    const read = tasks.map((task, k) => readTask(id, task, tasks.length > 1 ? `${id} task ${k + 1}` : id))
+    played.set(id, read)
+    // The part a level builds runs its last task's board: the player's, while it fits, else the reference.
+    const last = read.at(-1)
     if (level.builds) {
       const fitting = new WeakMap()
       const own = () => {
         const b = OWN.get(id)
-        if (!b) return out.solution
-        if (!fitting.has(b)) fitting.set(b, fits(b, out, partOf))
-        return fitting.get(b) ? b : out.solution
+        if (!b) return last.solution
+        if (!fitting.has(b)) fitting.set(b, fits(b, last, partOf))
+        return fitting.get(b) ? b : last.solution
       }
       BUILT[level.builds.type] = packed({
         circuit: own,
-        inputs: level.inputs.map((i) => i.name),
-        outputs: level.outputs.map((o) => o.name),
+        inputs: last.inputs.map((i) => i.name),
+        outputs: last.outputs.map((o) => o.name),
         built: level.builds,
-        // What the part runs, opened on a board: the player's board (or the reference) and the level that builds it.
-        opens: () => ({ circuit: own(), level: out }),
+        // What the part runs, opened on a board: the player's board (or the reference) and the task that builds it.
+        opens: () => ({ circuit: own(), level: last }),
       })
     }
-    return out
+    return { ...level, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: level.adds ?? [] }
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
   const byId = new Map(LEVELS.map((L) => [L.id, L]))
   const builderOf = new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, L]))
+  const solutions = (id) => played.get(id).map((T) => T.solution)
   const course = defineCourse({
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.builds ? [L.builds.type] : [] })),
     eras,
@@ -80,14 +101,17 @@ export function __name__Course(content) {
     needs: (part) => (builderOf.has(part) ? part : null),
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
     concept: (part) => concept[part] ?? part,
-    naive: (level) => Boolean(byId.get(level.id)?.naive),
-    needed: (level) => [...new Set(byId.get(level.id).solution.nodes.map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
-    boards: (level) => [byId.get(level.id).solution],
+    naive: (level) => played.get(level.id)?.some((T) => T.naive) ?? false,
+    needed: (level) => [...new Set(solutions(level.id).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
+    boards: (level) => solutions(level.id),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     abstraction: true,
   })
   return {
     LEVELS,
+    played,
+    // The task whose board a built part runs: the last of the level that builds it.
+    builtBy: (type) => (builderOf.has(type) ? played.get(builderOf.get(type).id).at(-1) : null),
     CHAPTERS,
     course,
     partOf,
@@ -97,7 +121,7 @@ export function __name__Course(content) {
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
     syncOwn: (built = {}) => {
       OWN.clear()
-      for (const [id, circuit] of Object.entries(built)) if (circuit?.nodes) OWN.set(id, circuit)
+      for (const [id, kept] of Object.entries(built)) if (lastBoard(kept)) OWN.set(id, lastBoard(kept))
     },
   }
 }

@@ -1,9 +1,5 @@
 {
   "title": { "zh": "数拍", "en": "Count the ticks" },
-  "brief": {
-    "zh": "输出自「重来」上一次为 1 起已经过了几拍：那一拍为 0；「重来」还没为 1 过时，从第一拍数起。",
-    "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick."
-  },
   "intro": [
     {
       "t": {
@@ -12,53 +8,7 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "先不管「重来」，只让输出每拍大一。",
-      "en": "Leave restart aside at first, and just make the output grow by one each tick."
-    },
-    {
-      "zh": "「重来」那一拍的数是 0：这是一个选择。",
-      "en": "On a restart tick the number is 0: that is a choice."
-    }
-  ],
   "adds": ["add"],
-  "inputs": [
-    { "name": "reset", "label": { "zh": "重来", "en": "Restart" } }
-  ],
-  "outputs": [{ "name": "count", "label": { "zh": "拍数", "en": "Ticks" } }],
-  "tests": [
-    { "ticks": 6, "inputs": { "reset": [0, 0, 0, 0, 0, 0] } },
-    { "ticks": 9, "inputs": { "reset": [0, 0, 0, 1, 0, 0, 0, 1, 0] } },
-    { "ticks": 5, "inputs": { "reset": [1, 0, 0, 0, 0] } }
-  ],
-  "hidden": [
-    {
-      "ticks": 12,
-      "inputs": { "reset": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0] }
-    },
-    { "ticks": 4, "inputs": { "reset": [1, 1, 1, 0] } },
-    { "ticks": 7, "inputs": { "reset": [0, 1, 0, 0, 0, 0, 1] } }
-  ],
-  "want": { "count": { "count": { "reset": "reset" } } },
-  "solution": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "r = reg[reg=A, start=0]()",
-    "c = select(reset, z, r)",
-    "n = add(c, o)",
-    "ka = keep[reg=A](n)",
-    "count <- c"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "r = reg[reg=A, start=0]()",
-    "n = add(r, o)",
-    "c = select(reset, z, n)",
-    "ka = keep[reg=A](c)",
-    "count <- c"
-  ],
   "builds": {
     "type": "counter",
     "name": { "zh": "计数器", "en": "Counter" },
@@ -66,5 +16,51 @@
       "zh": "自「重来」上一次为 1 起过了几拍：那一拍为 0；「重来」还没为 1 过时从第一拍数起。",
       "en": "How many ticks since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick."
     }
-  }
+  },
+  "tasks": [
+    {
+      "brief": {
+        "zh": "输出自「重来」上一次为 1 起已经过了几拍：那一拍为 0；「重来」还没为 1 过时，从第一拍数起。",
+        "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick."
+      },
+      "hint": [
+        {
+          "zh": "先不管「重来」，只让输出每拍大一。",
+          "en": "Leave restart aside at first, and just make the output grow by one each tick."
+        },
+        { "zh": "「重来」那一拍的数是 0：这是一个选择。", "en": "On a restart tick the number is 0: that is a choice." }
+      ],
+      "inputs": [{ "name": "reset", "label": { "zh": "重来", "en": "Restart" } }],
+      "outputs": [{ "name": "count", "label": { "zh": "拍数", "en": "Ticks" } }],
+      "tests": [
+        { "ticks": 6, "inputs": { "reset": [0, 0, 0, 0, 0, 0] } },
+        { "ticks": 9, "inputs": { "reset": [0, 0, 0, 1, 0, 0, 0, 1, 0] } },
+        { "ticks": 5, "inputs": { "reset": [1, 0, 0, 0, 0] } }
+      ],
+      "hidden": [
+        { "ticks": 12, "inputs": { "reset": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0] } },
+        { "ticks": 4, "inputs": { "reset": [1, 1, 1, 0] } },
+        { "ticks": 7, "inputs": { "reset": [0, 1, 0, 0, 0, 0, 1] } }
+      ],
+      "want": { "count": { "count": { "reset": "reset" } } },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "c = select(reset, z, r)",
+        "n = add(c, o)",
+        "ka = keep[reg=A](n)",
+        "count <- c"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "n = add(r, o)",
+        "c = select(reset, z, n)",
+        "ka = keep[reg=A](c)",
+        "count <- c"
+      ]
+    }
+  ]
 }

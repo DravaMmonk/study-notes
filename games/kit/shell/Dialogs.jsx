@@ -51,7 +51,7 @@ export function TaskDoneDialog({ game, level, task, index, next, onStay, onNext 
         <Paragraphs text={task.after} />
         <div className="dialog-actions">
           <button onClick={onStay}>{tr('留在这里', 'Stay here')}</button>
-          <button className="is-primary" onClick={onNext} autoFocus>{tr(`下一个任务：${L(next.step)}`, `Next task: ${L(next.step)}`)}</button>
+          <button className="is-primary" onClick={onNext} autoFocus>{next.step ? tr(`下一个任务：${L(next.step)}`, `Next task: ${L(next.step)}`) : tr('下一个任务', 'Next task')}</button>
         </div>
       </div>
     </div>

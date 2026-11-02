@@ -3,10 +3,6 @@
     "zh": "反着说",
     "en": "Say the opposite"
   },
-  "brief": {
-    "zh": "每一拍把听到的位反过来说出去：听到 1 说 0，听到 0 说 1。",
-    "en": "Every tick, say the opposite of the bit you hear: 0 for 1, 1 for 0."
-  },
   "intro": [
     {
       "t": {
@@ -15,75 +11,38 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "听到的位本身就可以当作条件。", "en": "The bit you hear can itself be the condition." },
-    {
-      "zh": "听到 1 时该说什么、听到 0 时该说什么，各由一个常数给出。",
-      "en": "What to say on a 1 and what to say on a 0 can each come from a constant."
-    }
-  ],
   "adds": [
     "select",
     "const"
   ],
-  "wires": {
-    "in": [
-      {
-        "name": "left",
-        "label": {
-          "zh": "左线",
-          "en": "Left wire"
-        }
-      }
-    ],
-    "out": [
-      {
-        "name": "right",
-        "label": {
-          "zh": "右线",
-          "en": "Right wire"
-        }
-      }
-    ]
-  },
-  "tests": [
+  "tasks": [
     {
-      "wires": {
-        "left": {
-          "send": [
-            {
-              "bits": "0110"
-            }
-          ]
+      "brief": {
+        "zh": "每一拍把听到的位反过来说出去：听到 1 说 0，听到 0 说 1。",
+        "en": "Every tick, say the opposite of the bit you hear: 0 for 1, 1 for 0."
+      },
+      "hint": [
+        { "zh": "听到的位本身就可以当作条件。", "en": "The bit you hear can itself be the condition." },
+        {
+          "zh": "听到 1 时该说什么、听到 0 时该说什么，各由一个常数给出。",
+          "en": "What to say on a 1 and what to say on a 0 can each come from a constant."
         }
-      }
-    },
-    {
+      ],
       "wires": {
-        "left": {
-          "send": [
-            {
-              "bits": "1100101"
-            }
-          ]
-        }
-      }
+        "in": [{ "name": "left", "label": { "zh": "左线", "en": "Left wire" } }],
+        "out": [{ "name": "right", "label": { "zh": "右线", "en": "Right wire" } }]
+      },
+      "tests": [
+        { "wires": { "left": { "send": [{ "bits": "0110" }] } } },
+        { "wires": { "left": { "send": [{ "bits": "1100101" }] } } }
+      ],
+      "hidden": [
+        { "wires": { "left": { "send": [{ "bits": "1111" }] } } },
+        { "wires": { "left": { "send": [{ "bits": "0000" }] } } }
+      ],
+      "want": { "right": { "opposite": { "wire": "left" } } },
+      "solution": ["z = const[value=0]()", "o = const[value=1]()", "s = select(left, z, o)", "right <- s"],
+      "naive": ["z = const[value=0]()", "o = const[value=1]()", "s = select(left, o, z)", "right <- s"]
     }
-  ],
-  "hidden": [
-    { "wires": { "left": { "send": [{ "bits": "1111" }] } } },
-    { "wires": { "left": { "send": [{ "bits": "0000" }] } } }
-  ],
-  "want": {
-    "right": {
-      "opposite": { "wire": "left" }
-    }
-  },
-  "solution": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "s = select(left, z, o)",
-    "right <- s"
-  ],
-  "naive": ["z = const[value=0]()", "o = const[value=1]()", "s = select(left, o, z)", "right <- s"]
+  ]
 }

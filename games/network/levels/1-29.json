@@ -1,9 +1,5 @@
 {
   "title": { "zh": "跳过一位", "en": "Skip a bit" },
-  "brief": {
-    "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前，「暂停」为 1 的拍那一位不收；收满 8 位的那一拍输出这个字节，「收完」为 1，其余各拍为 0。",
-    "en": "From the tick start is 1, take in 8 bits off the wire, top bit first, leaving out the bit of any tick hold is 1; on the tick the eighth is taken in, output the byte and make done 1, and 0 on every other tick."
-  },
   "intro": [
     {
       "t": {
@@ -11,160 +7,6 @@
         "en": "The 0 slipped in by <level-ref to=\"1-40\"></level-ref> is not content. The receiver must be able to stand still too: on that tick <part-ref to=\"deserializer\"></part-ref> must not take in the wire's bit."
       }
     }
-  ],
-  "hint": [{ "zh": "「开始」那一拍也可能是「暂停」的拍。", "en": "The start tick may be a hold tick too." }],
-  "carry": "1-8",
-  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-  "inputs": [
-    { "name": "start", "label": { "zh": "开始", "en": "Start" } },
-    { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
-  ],
-  "outputs": [
-    { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-    { "name": "done", "label": { "zh": "收完", "en": "Done" } }
-  ],
-  "tests": [
-    {
-      "ticks": 10,
-      "wires": { "line": { "send": [{ "bits": "10110010" }] } },
-      "inputs": { "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
-      "expect": {
-        "byte": [null, null, null, null, null, null, null, 178, null, null],
-        "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-      }
-    },
-    {
-      "ticks": 13,
-      "wires": { "line": { "send": [{ "idle": 3 }, { "bits": "00000001" }] } },
-      "inputs": {
-        "start": [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": {
-        "byte": [null, null, null, null, null, null, null, null, null, null, 1, null, null],
-        "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-      }
-    },
-    {
-      "ticks": 12,
-      "wires": { "line": { "send": [{ "bits": "1011011010" }] } },
-      "inputs": { "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "hold": [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0] },
-      "expect": {
-        "byte": [null, null, null, null, null, null, null, null, null, 170, null, null],
-        "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-      }
-    }
-  ],
-  "hidden": [
-    {
-      "ticks": 12,
-      "wires": { "line": { "send": [{ "bits": "1101000001" }] } },
-      "inputs": { "start": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "hold": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
-      "expect": {
-        "byte": [null, null, null, null, null, null, null, null, null, 65, null, null],
-        "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-      }
-    },
-    {
-      "ticks": 15,
-      "wires": { "line": { "send": [{ "bits": "1010111001100" }] } },
-      "inputs": {
-        "start": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": {
-        "byte": [null, null, null, null, null, null, null, null, null, null, null, null, 204, null, null],
-        "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-      }
-    },
-    {
-      "ticks": 19,
-      "wires": { "line": { "send": [{ "bits": "11111111000000011" }] } },
-      "inputs": {
-        "start": [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": {
-        "byte": [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          255,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          3,
-          null,
-          null
-        ],
-        "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-      }
-    }
-  ],
-  "want": { "byte": "given", "done": "given" },
-  "solution": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "sv = const[value=7]()",
-    "pr = reg[reg=D, start=0]()",
-    "st0 = select(start, o, pr)",
-    "es = select(hold, z, st0)",
-    "np = select(hold, st0, z)",
-    "kp = keep[reg=D](np)",
-    "c = counterhold(es, hold)",
-    "r = reg[reg=B, start=0]()",
-    "a = select(es, o, r)",
-    "e = equal(c, sv)",
-    "hz = select(hold, z, e)",
-    "h = select(a, hz, z)",
-    "na = select(h, z, a)",
-    "ka = keep[reg=B](na)",
-    "ar = reg[reg=C, start=0]()",
-    "base = select(es, z, ar)",
-    "dbl = add(base, base)",
-    "nx = add(dbl, line)",
-    "acc = select(hold, base, nx)",
-    "kc = keep[reg=C](acc)",
-    "dn = select(h, o, z)",
-    "y = select(h, acc)",
-    "byte <- y",
-    "done <- dn"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "sv = const[value=7]()",
-    "pr = reg[reg=D, start=0]()",
-    "st0 = select(start, o, pr)",
-    "es = select(hold, z, st0)",
-    "np = select(hold, st0, z)",
-    "kp = keep[reg=D](np)",
-    "c = counterhold(es, hold)",
-    "r = reg[reg=B, start=0]()",
-    "a = select(es, o, r)",
-    "e = equal(c, sv)",
-    "hz = select(hold, z, e)",
-    "h = select(a, hz, z)",
-    "na = select(h, z, a)",
-    "ka = keep[reg=B](na)",
-    "ar = reg[reg=C, start=0]()",
-    "base = select(es, z, ar)",
-    "dbl = add(base, base)",
-    "nx = add(dbl, line)",
-    "kc = keep[reg=C](nx)",
-    "dn = select(h, o, z)",
-    "y = select(h, nx)",
-    "byte <- y",
-    "done <- dn"
   ],
   "builds": {
     "type": "deserializerhold",
@@ -174,5 +16,173 @@
       "en": "Shift in with a hold input: from the tick start is 1, takes in 8 bits off its wire in, top bit first, leaving out the bit of every tick hold is 1; on the tick the eighth comes in it gives the byte with done 1; on every other tick the byte is 「—」 and done 0."
     },
     "replaces": ["deserializer"]
-  }
+  },
+  "tasks": [
+    {
+      "brief": {
+        "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前，「暂停」为 1 的拍那一位不收；收满 8 位的那一拍输出这个字节，「收完」为 1，其余各拍为 0。",
+        "en": "From the tick start is 1, take in 8 bits off the wire, top bit first, leaving out the bit of any tick hold is 1; on the tick the eighth is taken in, output the byte and make done 1, and 0 on every other tick."
+      },
+      "hint": [{ "zh": "「开始」那一拍也可能是「暂停」的拍。", "en": "The start tick may be a hold tick too." }],
+      "carry": "1-8",
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "inputs": [
+        { "name": "start", "label": { "zh": "开始", "en": "Start" } },
+        { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
+      ],
+      "outputs": [
+        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
+        { "name": "done", "label": { "zh": "收完", "en": "Done" } }
+      ],
+      "tests": [
+        {
+          "ticks": 10,
+          "wires": { "line": { "send": [{ "bits": "10110010" }] } },
+          "inputs": { "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+          "expect": {
+            "byte": [null, null, null, null, null, null, null, 178, null, null],
+            "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+          }
+        },
+        {
+          "ticks": 13,
+          "wires": { "line": { "send": [{ "idle": 3 }, { "bits": "00000001" }] } },
+          "inputs": {
+            "start": [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": {
+            "byte": [null, null, null, null, null, null, null, null, null, null, 1, null, null],
+            "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+          }
+        },
+        {
+          "ticks": 12,
+          "wires": { "line": { "send": [{ "bits": "1011011010" }] } },
+          "inputs": {
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+          },
+          "expect": {
+            "byte": [null, null, null, null, null, null, null, null, null, 170, null, null],
+            "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "ticks": 12,
+          "wires": { "line": { "send": [{ "bits": "1101000001" }] } },
+          "inputs": {
+            "start": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": {
+            "byte": [null, null, null, null, null, null, null, null, null, 65, null, null],
+            "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+          }
+        },
+        {
+          "ticks": 15,
+          "wires": { "line": { "send": [{ "bits": "1010111001100" }] } },
+          "inputs": {
+            "start": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": {
+            "byte": [null, null, null, null, null, null, null, null, null, null, null, null, 204, null, null],
+            "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+          }
+        },
+        {
+          "ticks": 19,
+          "wires": { "line": { "send": [{ "bits": "11111111000000011" }] } },
+          "inputs": {
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": {
+            "byte": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              255,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              3,
+              null,
+              null
+            ],
+            "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+          }
+        }
+      ],
+      "want": { "byte": "given", "done": "given" },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "sv = const[value=7]()",
+        "pr = reg[reg=D, start=0]()",
+        "st0 = select(start, o, pr)",
+        "es = select(hold, z, st0)",
+        "np = select(hold, st0, z)",
+        "kp = keep[reg=D](np)",
+        "c = counterhold(es, hold)",
+        "r = reg[reg=B, start=0]()",
+        "a = select(es, o, r)",
+        "e = equal(c, sv)",
+        "hz = select(hold, z, e)",
+        "h = select(a, hz, z)",
+        "na = select(h, z, a)",
+        "ka = keep[reg=B](na)",
+        "ar = reg[reg=C, start=0]()",
+        "base = select(es, z, ar)",
+        "dbl = add(base, base)",
+        "nx = add(dbl, line)",
+        "acc = select(hold, base, nx)",
+        "kc = keep[reg=C](acc)",
+        "dn = select(h, o, z)",
+        "y = select(h, acc)",
+        "byte <- y",
+        "done <- dn"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "sv = const[value=7]()",
+        "pr = reg[reg=D, start=0]()",
+        "st0 = select(start, o, pr)",
+        "es = select(hold, z, st0)",
+        "np = select(hold, st0, z)",
+        "kp = keep[reg=D](np)",
+        "c = counterhold(es, hold)",
+        "r = reg[reg=B, start=0]()",
+        "a = select(es, o, r)",
+        "e = equal(c, sv)",
+        "hz = select(hold, z, e)",
+        "h = select(a, hz, z)",
+        "na = select(h, z, a)",
+        "ka = keep[reg=B](na)",
+        "ar = reg[reg=C, start=0]()",
+        "base = select(es, z, ar)",
+        "dbl = add(base, base)",
+        "nx = add(dbl, line)",
+        "kc = keep[reg=C](nx)",
+        "dn = select(h, o, z)",
+        "y = select(h, nx)",
+        "byte <- y",
+        "done <- dn"
+      ]
+    }
+  ]
 }

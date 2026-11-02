@@ -4,7 +4,7 @@ import { CircuitLevel, Timeline, useLevelBoard, useLevelRun } from '../../../she
 import { L, tr } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { fits, portsIn, wiring } from '../board.js'
+import { carriedOnto, fits, portsIn, wiring } from '../board.js'
 import { FIXED, REGISTERS } from '../parts.js'
 import { checked as checkedOf, runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
@@ -23,7 +23,7 @@ const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? nam
 
 /** The editor's description of this level's cards (../../../circuit/model.js): the wiring (../board.js), drawn. */
 function partsFor(level, own) {
-  const builderOf = (type) => own.LEVELS.find((L) => L.builds?.type === type)
+  const builderOf = own.builtBy
   return {
     ...wiring(level, own),
     label: (node) => {
@@ -71,7 +71,8 @@ export default function Screen(screen) {
   const own = game.net
   own.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, own), [level, own])
-  const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, own.partOf) ? saved : own.opening(level, progress.built)), fresh: () => own.opening(level, progress.built) })
+  // A task that goes on from the task before (`carries`) opens on that board, its ports swapped for its own.
+  const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, own.partOf) ? saved : saved?.nodes && level.carries ? carriedOnto(level, saved) : own.opening(level, progress.built)), fresh: () => own.opening(level, progress.built) })
   const { circuit, change } = board
   const [revealed] = useState(solved)
   const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
@@ -91,7 +92,7 @@ export default function Screen(screen) {
     },
   })
   const { shown: palette, folded } = useMemo(() => own.offerIn(level, flags), [own, level, flags])
-  const builderOf = (type) => own.LEVELS.find((L) => L.builds?.type === type)
+  const builderOf = own.builtBy
 
   // The tick shown: the one a run is on (or its last, once past it); before a run, the first, as a preview.
   const runOf = checked.runs[run.at]

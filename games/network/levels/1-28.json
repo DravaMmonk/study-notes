@@ -1,9 +1,5 @@
 {
   "title": { "zh": "字节停一拍", "en": "The byte waits" },
-  "brief": {
-    "zh": "从「开始」为 1 的那一拍起，把那一拍输入的字节从最高位起逐位说到线上，8 位说完后说 0；「暂停」为 1 的拍说 0，该说的那一位留到下一拍。说出最后一位的那一拍「送完」为 1。",
-    "en": "From the tick start is 1, say the byte input then on the wire bit by bit from the top, then 0; on a tick hold is 1 say 0, and the bit due waits for the next tick. Done is 1 on the tick the last bit is said."
-  },
   "intro": [
     {
       "t": {
@@ -11,130 +7,6 @@
         "en": "<part-ref to=\"counterhold\"></part-ref> can stand still now. The byte being sent must too: on the tick an extra bit goes in, the bit of the byte that was due waits for the next tick."
       }
     }
-  ],
-  "hint": [{ "zh": "「开始」那一拍也可能是「暂停」的拍。", "en": "The start tick may be a hold tick too." }],
-  "carry": "1-7",
-  "inputs": [
-    { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-    { "name": "start", "label": { "zh": "开始", "en": "Start" } },
-    { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
-  ],
-  "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
-  "outputs": [{ "name": "done", "label": { "zh": "送完", "en": "Done" } }],
-  "tests": [
-    {
-      "ticks": 10,
-      "inputs": {
-        "byte": [178, 178, 178, 178, 178, 178, 178, 178, 178, 178],
-        "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": { "line": [1, 0, 1, 1, 0, 0, 1, 0, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0] }
-    },
-    {
-      "ticks": 11,
-      "inputs": {
-        "byte": [178, 178, 178, 178, 178, 178, 178, 178, 178, 178, 178],
-        "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": { "line": [1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0] }
-    },
-    {
-      "ticks": 12,
-      "inputs": {
-        "byte": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
-        "start": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": { "line": [0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0], "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0] }
-    }
-  ],
-  "hidden": [
-    {
-      "ticks": 10,
-      "inputs": {
-        "byte": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
-        "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
-      },
-      "expect": { "line": [1, 1, 1, 1, 1, 1, 1, 1, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0] }
-    },
-    {
-      "ticks": 13,
-      "inputs": {
-        "byte": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        "start": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
-      },
-      "expect": {
-        "line": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-        "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
-      }
-    },
-    {
-      "ticks": 10,
-      "inputs": {
-        "byte": [200, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": { "line": [1, 0, 1, 0, 0, 1, 0, 0, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0] }
-    },
-    {
-      "ticks": 11,
-      "inputs": {
-        "byte": [129, 129, 129, 129, 129, 129, 129, 129, 129, 129, 129],
-        "start": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        "hold": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-      },
-      "expect": { "line": [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0], "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0] }
-    }
-  ],
-  "want": { "line": "given", "done": "given" },
-  "solution": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "sv = const[value=7]()",
-    "pr = reg[reg=D, start=0]()",
-    "st0 = select(start, o, pr)",
-    "es = select(hold, z, st0)",
-    "np = select(hold, st0, z)",
-    "kp = keep[reg=D](np)",
-    "c = counterhold(es, hold)",
-    "r = reg[reg=A, start=0]()",
-    "on = select(es, o, r)",
-    "ka = keep[reg=A](on)",
-    "rb = reg[reg=B, start=0]()",
-    "b = select(start, byte, rb)",
-    "kb = keep[reg=B](b)",
-    "v = bit(b, c)",
-    "l0 = select(on, v, z)",
-    "l = select(hold, z, l0)",
-    "e = equal(c, sv)",
-    "d0 = select(e, on, z)",
-    "d = select(hold, z, d0)",
-    "line <- l",
-    "done <- d"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "sv = const[value=7]()",
-    "c = counterhold(start, z)",
-    "r = reg[reg=A, start=0]()",
-    "on = select(start, o, r)",
-    "ka = keep[reg=A](on)",
-    "rb = reg[reg=B, start=0]()",
-    "b = select(start, byte, rb)",
-    "kb = keep[reg=B](b)",
-    "v = bit(b, c)",
-    "l0 = select(on, v, z)",
-    "l = select(hold, z, l0)",
-    "e = equal(c, sv)",
-    "d = select(e, on, z)",
-    "line <- l",
-    "done <- d"
   ],
   "builds": {
     "type": "serializerhold",
@@ -144,5 +16,140 @@
       "en": "Shift out with a hold input: from the tick start is 1, says the byte of that tick bit by bit from the top; on a tick hold is 1 it says 0 and the bit due waits a tick; after the eighth bit it says 「—」 (0 on a wire). Done is 1 on the tick the last bit is said. Start again sends anew."
     },
     "replaces": ["serializer"]
-  }
+  },
+  "tasks": [
+    {
+      "brief": {
+        "zh": "从「开始」为 1 的那一拍起，把那一拍输入的字节从最高位起逐位说到线上，8 位说完后说 0；「暂停」为 1 的拍说 0，该说的那一位留到下一拍。说出最后一位的那一拍「送完」为 1。",
+        "en": "From the tick start is 1, say the byte input then on the wire bit by bit from the top, then 0; on a tick hold is 1 say 0, and the bit due waits for the next tick. Done is 1 on the tick the last bit is said."
+      },
+      "hint": [{ "zh": "「开始」那一拍也可能是「暂停」的拍。", "en": "The start tick may be a hold tick too." }],
+      "carry": "1-7",
+      "inputs": [
+        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
+        { "name": "start", "label": { "zh": "开始", "en": "Start" } },
+        { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
+      ],
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "outputs": [{ "name": "done", "label": { "zh": "送完", "en": "Done" } }],
+      "tests": [
+        {
+          "ticks": 10,
+          "inputs": {
+            "byte": [178, 178, 178, 178, 178, 178, 178, 178, 178, 178],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": { "line": [1, 0, 1, 1, 0, 0, 1, 0, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0] }
+        },
+        {
+          "ticks": 11,
+          "inputs": {
+            "byte": [178, 178, 178, 178, 178, 178, 178, 178, 178, 178, 178],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": { "line": [1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0] }
+        },
+        {
+          "ticks": 12,
+          "inputs": {
+            "byte": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
+            "start": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": {
+            "line": [0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0],
+            "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "ticks": 10,
+          "inputs": {
+            "byte": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+          },
+          "expect": { "line": [1, 1, 1, 1, 1, 1, 1, 1, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0] }
+        },
+        {
+          "ticks": 13,
+          "inputs": {
+            "byte": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "start": [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]
+          },
+          "expect": {
+            "line": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]
+          }
+        },
+        {
+          "ticks": 10,
+          "inputs": {
+            "byte": [200, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": { "line": [1, 0, 1, 0, 0, 1, 0, 0, 0, 0], "done": [0, 0, 0, 0, 0, 0, 0, 0, 1, 0] }
+        },
+        {
+          "ticks": 11,
+          "inputs": {
+            "byte": [129, 129, 129, 129, 129, 129, 129, 129, 129, 129, 129],
+            "start": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "hold": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "expect": { "line": [0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0], "done": [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0] }
+        }
+      ],
+      "want": { "line": "given", "done": "given" },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "sv = const[value=7]()",
+        "pr = reg[reg=D, start=0]()",
+        "st0 = select(start, o, pr)",
+        "es = select(hold, z, st0)",
+        "np = select(hold, st0, z)",
+        "kp = keep[reg=D](np)",
+        "c = counterhold(es, hold)",
+        "r = reg[reg=A, start=0]()",
+        "on = select(es, o, r)",
+        "ka = keep[reg=A](on)",
+        "rb = reg[reg=B, start=0]()",
+        "b = select(start, byte, rb)",
+        "kb = keep[reg=B](b)",
+        "v = bit(b, c)",
+        "l0 = select(on, v, z)",
+        "l = select(hold, z, l0)",
+        "e = equal(c, sv)",
+        "d0 = select(e, on, z)",
+        "d = select(hold, z, d0)",
+        "line <- l",
+        "done <- d"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "sv = const[value=7]()",
+        "c = counterhold(start, z)",
+        "r = reg[reg=A, start=0]()",
+        "on = select(start, o, r)",
+        "ka = keep[reg=A](on)",
+        "rb = reg[reg=B, start=0]()",
+        "b = select(start, byte, rb)",
+        "kb = keep[reg=B](b)",
+        "v = bit(b, c)",
+        "l0 = select(on, v, z)",
+        "l = select(hold, z, l0)",
+        "e = equal(c, sv)",
+        "d = select(e, on, z)",
+        "line <- l",
+        "done <- d"
+      ]
+    }
+  ]
 }

@@ -1,4 +1,5 @@
 // A level of 《从一根线开始》 drawn without a browser (domain.js `scene`, for the MCP's render and the studio): each test
+// of each task
 // as the waveform draws it — a lane per wire in (what arrives) and per wire out or output wanted tick by tick — one
 // bit a tick, up for 1. Colours are the kit's tokens where the SVG sits in a page that has them.
 import { checked } from './run.js'
@@ -11,16 +12,16 @@ const name = (x) => esc(x.label?.en ?? x.name)
 
 /** The SVG of level `id` of a game's spec on the net domain, or null when it has no such level. */
 export function scene(spec, id) {
-  const level = spec.levels.find((l) => l.id === id)
-  if (!level) return null
-  const blocks = level.tests.map((test) => {
-    const want = level.want(test)
+  const tasks = spec.net.played.get(id)
+  if (!tasks) return null
+  const blocks = tasks.flatMap((task) => task.tests.map((test) => {
+    const want = task.want(test)
     return [
-      ...(level.wires?.in ?? []).map((w) => ({ label: name(w), ticks: test.wires[w.name] })),
-      ...checked(level).filter((o) => want[o.name]?.ticks).map((o) => ({ label: `${name(o)} ✓`, ticks: want[o.name].ticks, wanted: true })),
+      ...(task.wires?.in ?? []).map((w) => ({ label: name(w), ticks: test.wires[w.name] })),
+      ...checked(task).filter((o) => want[o.name]?.ticks).map((o) => ({ label: `${name(o)} ✓`, ticks: want[o.name].ticks, wanted: true })),
     ]
-  })
-  const longest = Math.max(1, ...level.tests.map((t) => t.ticks))
+  }))
+  const longest = Math.max(1, ...tasks.flatMap((task) => task.tests.map((t) => t.ticks)))
   const width = 90 + longest * TICK + 10
   let y = 6
   const rows = []

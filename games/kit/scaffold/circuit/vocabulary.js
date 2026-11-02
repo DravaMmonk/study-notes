@@ -6,6 +6,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
+import { taskLevel } from '../../engine/tasks.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -28,23 +29,28 @@ const PARTS = {
 const PORT = S.obj({ name: NAME, label: S.text() })
 const VALUES = S.map(S.num(), { about: t('每个输入或输出的值，按名字', 'a value for each input or output, by name') })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
-const LEVEL = S.obj({
+// What a level says once; then each task: its puzzle, done in turn (../../engine/tasks.js).
+const ONCE = {
   title: S.text(),
-  brief: S.text(),
   intro: S.opt(S.list(S.obj({ t: S.text() }))),
-  hint: S.opt(TEXTS),
   after: S.opt(S.text()),
   note: S.opt(S.text()),
-  adds: S.opt(S.list(S.ref('part'))),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的输入口和结果口就是那个任务的输入和输出', 'once passed the last task’s board is the part `type`: its ports are that task’s inputs and outputs') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+}
+const TASK = {
+  brief: S.text(),
+  hint: S.opt(TEXTS),
+  intro: S.opt(S.list(S.obj({ t: S.text() }), { section: 'read', about: t('这个任务自己的引言：第一次做到它时读', 'the task’s own intro: read the first time it is played') })),
+  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
   inputs: S.list(PORT),
   outputs: S.list(PORT, { min: 1 }),
-  tests: S.list(TEST, { min: 1 }),
-  hidden: S.opt(S.list(TEST, { about: t('隐藏测试：每次运行一并检查，通关后公开', 'hidden tests: checked with every run and shown once passed') })),
+  tests: S.list(TEST, { min: 1, section: 'tests' }),
+  hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开', 'hidden tests: checked with every run and shown once passed') })),
   solution: BOARD,
-  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { about: t('通过后这块板成为元件 type：它的输入口和结果口就是关卡的输入和输出', 'once passed the board is the part `type`: its ports are the level’s inputs and outputs') })),
-  showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
-})
+  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
+}
 
 /* ---------- game.json ---------- */
 
@@ -82,5 +88,5 @@ export const vocabulary = defineVocabulary({
   version: 1,
   kinds: { part: PARTS },
   game: GAME,
-  level: LEVEL,
+  level: taskLevel(ONCE, TASK),
 })

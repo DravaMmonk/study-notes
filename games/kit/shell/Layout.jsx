@@ -87,7 +87,7 @@ export function Brief({ game, level, text, tip, hint, children }) {
         <span className="brief-id">{game.levelLabel(level)}</span>
         <h1>{L(level.title)}</h1>
       </header>
-      {level.steps && <TaskSteps steps={level.steps} />}
+      {level.steps?.names.length > 1 && <TaskSteps steps={level.steps} />}
       {paragraphs.map((p, k) => <Text key={k} game={game} className="brief-text" text={p} />)}
       {tip && <Text game={game} className="brief-tip" text={tip} />}
       {hints.length > 0 && (
@@ -117,7 +117,7 @@ function TaskSteps({ steps }) {
           <li key={k}>
             <button type="button" className={`${k === steps.at ? 'is-on' : ''} ${k < steps.done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
               <i>{k < steps.done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
-              <span>{L(name)}</span>
+              <span>{name ? L(name) : tr(`任务 ${k + 1}`, `Task ${k + 1}`)}</span>
             </button>
           </li>
         )

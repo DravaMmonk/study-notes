@@ -77,7 +77,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
       const entry = outcomeOf(record, at.level.id, at.task, required(at.level.id), now())
       if (opened.covered !== false) return { at, ctx, opened, entry, skipped }
       close(entry, 'skipped', now(), { why: side(opened.why, 'en') })
-      skipped.push(`${names('level', at.level.id)}${at.level.tasks ? ` (${at.task + 1}/${at.level.tasks.length})` : ''}: ${say(opened.why)}`)
+      skipped.push(`${names('level', at.level.id)}${at.level.tasks?.length > 1 ? ` (${at.task + 1}/${at.level.tasks.length})` : ''}: ${say(opened.why)}`)
       pass(at)
       asked = null
     }
@@ -85,7 +85,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
 
   const heading = (at) => {
     const chapter = game.chapters?.find((c) => c.id === at.level.chapter)
-    const steps = at.level.tasks ? ` · ${lang === 'en' ? 'task' : '任务'} ${at.task + 1}/${at.level.tasks.length}${at.level.tasks[at.task].step ? ` ${say(at.level.tasks[at.task].step)}` : ''}` : ''
+    const steps = at.level.tasks?.length > 1 ? ` · ${lang === 'en' ? 'task' : '任务'} ${at.task + 1}/${at.level.tasks.length}${at.level.tasks[at.task].step ? ` ${say(at.level.tasks[at.task].step)}` : ''}` : ''
     return `${chapter ? `[${say(chapter.title)}] ` : ''}${names('level', at.level.id)}${steps}`
   }
   // The brief and hints a screen shows: the hook's, else the level's (the shell's entry, or the domain's level under it).

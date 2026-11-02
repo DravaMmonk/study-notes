@@ -1,9 +1,5 @@
 {
   "title": { "zh": "听到过 1", "en": "Heard a 1" },
-  "brief": {
-    "zh": "线上出现 1 之前一直说 0；出现过 1 以后，每一拍都说 1。",
-    "en": "Say 0 until a 1 has come down the wire, and 1 on every tick after that."
-  },
   "intro": [
     {
       "t": {
@@ -12,43 +8,51 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "要记住的是「到现在为止听到过 1 没有」。", "en": "What has to be remembered is whether a 1 has been heard yet." },
+  "tasks": [
     {
-      "zh": "这一拍该说什么，取决于这一拍听到的和上一拍记下的。",
-      "en": "What to say this tick depends on what is heard now and what was kept last tick."
-    },
-    {
-      "zh": "听到 1 的那一拍就要说 1，不能等到下一拍。",
-      "en": "On the very tick a 1 is heard, the board must already say 1, not a tick later."
+      "brief": {
+        "zh": "线上出现 1 之前一直说 0；出现过 1 以后，每一拍都说 1。",
+        "en": "Say 0 until a 1 has come down the wire, and 1 on every tick after that."
+      },
+      "hint": [
+        { "zh": "要记住的是「到现在为止听到过 1 没有」。", "en": "What has to be remembered is whether a 1 has been heard yet." },
+        {
+          "zh": "这一拍该说什么，取决于这一拍听到的和上一拍记下的。",
+          "en": "What to say this tick depends on what is heard now and what was kept last tick."
+        },
+        {
+          "zh": "听到 1 的那一拍就要说 1，不能等到下一拍。",
+          "en": "On the very tick a 1 is heard, the board must already say 1, not a tick later."
+        }
+      ],
+      "wires": {
+        "in": [{ "name": "left", "label": { "zh": "左线", "en": "Left wire" } }],
+        "out": [{ "name": "right", "label": { "zh": "右线", "en": "Right wire" } }]
+      },
+      "tests": [
+        { "wires": { "left": { "send": [{ "bits": "0001000" }] } } },
+        { "wires": { "left": { "send": [{ "bits": "1000" }] } } },
+        { "wires": { "left": { "send": [{ "bits": "0000" }] } } }
+      ],
+      "hidden": [
+        { "wires": { "left": { "send": [{ "bits": "00000001" }] } } },
+        { "wires": { "left": { "send": [{ "bits": "0101" }] } } }
+      ],
+      "want": { "right": { "heard": { "wire": "left" } } },
+      "solution": [
+        "o = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "s = select(left, o, r)",
+        "k = keep[reg=A](s)",
+        "right <- s"
+      ],
+      "naive": [
+        "o = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "s = select(left, o, r)",
+        "k = keep[reg=A](s)",
+        "right <- r"
+      ]
     }
-  ],
-  "wires": {
-    "in": [{ "name": "left", "label": { "zh": "左线", "en": "Left wire" } }],
-    "out": [{ "name": "right", "label": { "zh": "右线", "en": "Right wire" } }]
-  },
-  "tests": [
-    { "wires": { "left": { "send": [{ "bits": "0001000" }] } } },
-    { "wires": { "left": { "send": [{ "bits": "1000" }] } } },
-    { "wires": { "left": { "send": [{ "bits": "0000" }] } } }
-  ],
-  "hidden": [
-    { "wires": { "left": { "send": [{ "bits": "00000001" }] } } },
-    { "wires": { "left": { "send": [{ "bits": "0101" }] } } }
-  ],
-  "want": { "right": { "heard": { "wire": "left" } } },
-  "solution": [
-    "o = const[value=1]()",
-    "r = reg[reg=A, start=0]()",
-    "s = select(left, o, r)",
-    "k = keep[reg=A](s)",
-    "right <- s"
-  ],
-  "naive": [
-    "o = const[value=1]()",
-    "r = reg[reg=A, start=0]()",
-    "s = select(left, o, r)",
-    "k = keep[reg=A](s)",
-    "right <- r"
   ]
 }

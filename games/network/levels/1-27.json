@@ -1,9 +1,5 @@
 {
   "title": { "zh": "停一拍", "en": "Stand still" },
-  "brief": {
-    "zh": "输出自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，那一拍的数和上一拍相同。",
-    "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick. Ticks on which hold is 1 do not count, and on them the number stays as it was."
-  },
   "intro": [
     {
       "t": {
@@ -11,55 +7,6 @@
         "en": "If a frame's content itself holds 01111110, the receiver of <level-ref to=\"1-13\"></level-ref> takes it for a flag and cuts the frame in two. Breaking it up means slipping an extra bit into the content, and on that tick everything else must wait; but <part-ref to=\"counter\"></part-ref> moves on every tick. This level first makes the counter able to stand still."
       }
     }
-  ],
-  "hint": [
-    { "zh": "「重来」和「暂停」同时为 1 时，「重来」优先。", "en": "When restart and hold are both 1, restart wins." },
-    {
-      "zh": "要留到下一拍的值不止一个时，就用几个名字不同的寄存卡。",
-      "en": "When more than one value has to last until the next tick, use registers with different names."
-    }
-  ],
-  "carry": "1-6",
-  "inputs": [
-    { "name": "reset", "label": { "zh": "重来", "en": "Restart" } },
-    { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
-  ],
-  "outputs": [{ "name": "count", "label": { "zh": "拍数", "en": "Ticks" } }],
-  "tests": [
-    { "ticks": 6, "inputs": { "reset": [0, 0, 0, 0, 0, 0], "hold": [0, 0, 0, 0, 0, 0] } },
-    { "ticks": 9, "inputs": { "reset": [0, 0, 0, 1, 0, 0, 0, 1, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0] } },
-    { "ticks": 8, "inputs": { "reset": [0, 0, 0, 0, 0, 0, 0, 0], "hold": [0, 0, 1, 1, 0, 1, 0, 0] } }
-  ],
-  "hidden": [
-    {
-      "ticks": 12,
-      "inputs": { "reset": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
-    },
-    { "ticks": 6, "inputs": { "reset": [0, 0, 1, 0, 0, 0], "hold": [1, 0, 1, 1, 0, 0] } },
-    { "ticks": 4, "inputs": { "reset": [1, 1, 1, 0], "hold": [0, 0, 0, 1] } }
-  ],
-  "want": { "count": { "count": { "reset": "reset", "hold": "hold" } } },
-  "solution": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "r = reg[reg=A, start=0]()",
-    "s = reg[reg=B, start=0]()",
-    "h = select(hold, s, r)",
-    "c = select(reset, z, h)",
-    "n = add(c, o)",
-    "ka = keep[reg=A](n)",
-    "kb = keep[reg=B](c)",
-    "count <- c"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "o = const[value=1]()",
-    "r = reg[reg=A, start=0]()",
-    "c = select(reset, z, r)",
-    "n = add(c, o)",
-    "m = select(hold, c, n)",
-    "ka = keep[reg=A](m)",
-    "count <- c"
   ],
   "builds": {
     "type": "counterhold",
@@ -69,5 +16,65 @@
       "en": "A counter with a hold input: how many ticks since restart was last 1, 0 on that tick and, until restart is first 1, counted from the very first tick; ticks on which hold is 1 do not count and the number stands still, though it is 0 if restart is 1 as well."
     },
     "replaces": ["counter"]
-  }
+  },
+  "tasks": [
+    {
+      "brief": {
+        "zh": "输出自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，那一拍的数和上一拍相同。",
+        "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick. Ticks on which hold is 1 do not count, and on them the number stays as it was."
+      },
+      "hint": [
+        { "zh": "「重来」和「暂停」同时为 1 时，「重来」优先。", "en": "When restart and hold are both 1, restart wins." },
+        {
+          "zh": "要留到下一拍的值不止一个时，就用几个名字不同的寄存卡。",
+          "en": "When more than one value has to last until the next tick, use registers with different names."
+        }
+      ],
+      "carry": "1-6",
+      "inputs": [
+        { "name": "reset", "label": { "zh": "重来", "en": "Restart" } },
+        { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
+      ],
+      "outputs": [{ "name": "count", "label": { "zh": "拍数", "en": "Ticks" } }],
+      "tests": [
+        { "ticks": 6, "inputs": { "reset": [0, 0, 0, 0, 0, 0], "hold": [0, 0, 0, 0, 0, 0] } },
+        { "ticks": 9, "inputs": { "reset": [0, 0, 0, 1, 0, 0, 0, 1, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0] } },
+        { "ticks": 8, "inputs": { "reset": [0, 0, 0, 0, 0, 0, 0, 0], "hold": [0, 0, 1, 1, 0, 1, 0, 0] } }
+      ],
+      "hidden": [
+        {
+          "ticks": 12,
+          "inputs": {
+            "reset": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        { "ticks": 6, "inputs": { "reset": [0, 0, 1, 0, 0, 0], "hold": [1, 0, 1, 1, 0, 0] } },
+        { "ticks": 4, "inputs": { "reset": [1, 1, 1, 0], "hold": [0, 0, 0, 1] } }
+      ],
+      "want": { "count": { "count": { "reset": "reset", "hold": "hold" } } },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "s = reg[reg=B, start=0]()",
+        "h = select(hold, s, r)",
+        "c = select(reset, z, h)",
+        "n = add(c, o)",
+        "ka = keep[reg=A](n)",
+        "kb = keep[reg=B](c)",
+        "count <- c"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "c = select(reset, z, r)",
+        "n = add(c, o)",
+        "m = select(hold, c, n)",
+        "ka = keep[reg=A](m)",
+        "count <- c"
+      ]
+    }
+  ]
 }

@@ -1,9 +1,5 @@
 {
   "title": { "zh": "翻了两位", "en": "Two bits flipped" },
-  "brief": {
-    "zh": "从第一拍起，每个字节后面紧跟它的 3 位校验码，线在一个字节里可能翻两位：每个字节的校验码到齐的那一拍，输出这个字节和校验是否相符。",
-    "en": "From the first tick, each byte comes followed by its 3 check bits, and the wire may flip two bits in one: on the tick a byte's check is all in, output the byte and whether its check fits."
-  },
   "intro": [
     {
       "t": {
@@ -12,70 +8,78 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "一个字节连同校验码占 11 拍。", "en": "A byte with its check takes 11 ticks." },
-    {
-      "zh": "完好的字节连同它的校验码一起除，余数是多少？",
-      "en": "Divide an intact byte together with its check: what remainder is left?"
-    }
-  ],
   "after": {
     "zh": "相隔正好 7 位的两处翻位，生成式 1011 照样查不出。",
     "en": "Two flips exactly 7 bits apart still slip past the generator 1011."
   },
-  "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-  "outputs": [
-    { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-    { "name": "ok", "label": { "zh": "相符", "en": "Fits" } }
-  ],
-  "tests": [
-    { "wires": { "line": { "send": [{ "bytes": [65], "format": "check" }] } } },
-    { "wires": { "line": { "send": [{ "bytes": [0, 255], "format": "check" }], "flips": [3, 5] } } },
-    { "wires": { "line": { "send": [{ "bytes": [170, 85], "format": "check" }], "flips": [13, 20] } } }
-  ],
-  "hidden": [
-    { "wires": { "line": { "send": [{ "bytes": [0], "format": "check" }], "flips": [0, 7] } } },
-    { "wires": { "line": { "send": [{ "bytes": [7, 7, 7], "format": "check" }], "flips": [12, 13] } } },
-    { "wires": { "line": { "send": [{ "bytes": [128, 64], "format": "check" }], "flips": [0] } } }
-  ],
-  "want": {
-    "byte": { "decoded": { "wire": "line", "format": "check" } },
-    "ok": { "intact": { "wire": "line", "format": "check" } }
-  },
-  "solution": [
-    "z = const[value=0]()",
-    "ten = const[value=10]()",
-    "g = reg[reg=A, start=1]()",
-    "c = counter(g)",
-    "e10 = equal(c, ten)",
-    "ka = keep[reg=A](e10)",
-    "d = deserializer(line, g)",
-    "rb = reg[reg=B, start=0]()",
-    "nb = select(d.done, d.byte, rb)",
-    "kb = keep[reg=B](nb)",
-    "y = select(e10, rb)",
-    "k = crc(line, g)",
-    "ok0 = equal(k, z)",
-    "okv = select(e10, ok0)",
-    "byte <- y",
-    "ok <- okv"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "ten = const[value=10]()",
-    "g = reg[reg=A, start=1]()",
-    "c = counter(g)",
-    "e10 = equal(c, ten)",
-    "ka = keep[reg=A](e10)",
-    "d = deserializer(line, g)",
-    "rb = reg[reg=B, start=0]()",
-    "nb = select(d.done, d.byte, rb)",
-    "kb = keep[reg=B](nb)",
-    "y = select(e10, rb)",
-    "k = crc(line, z)",
-    "ok0 = equal(k, z)",
-    "okv = select(e10, ok0)",
-    "byte <- y",
-    "ok <- okv"
+  "tasks": [
+    {
+      "brief": {
+        "zh": "从第一拍起，每个字节后面紧跟它的 3 位校验码，线在一个字节里可能翻两位：每个字节的校验码到齐的那一拍，输出这个字节和校验是否相符。",
+        "en": "From the first tick, each byte comes followed by its 3 check bits, and the wire may flip two bits in one: on the tick a byte's check is all in, output the byte and whether its check fits."
+      },
+      "hint": [
+        { "zh": "一个字节连同校验码占 11 拍。", "en": "A byte with its check takes 11 ticks." },
+        {
+          "zh": "完好的字节连同它的校验码一起除，余数是多少？",
+          "en": "Divide an intact byte together with its check: what remainder is left?"
+        }
+      ],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "outputs": [
+        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
+        { "name": "ok", "label": { "zh": "相符", "en": "Fits" } }
+      ],
+      "tests": [
+        { "wires": { "line": { "send": [{ "bytes": [65], "format": "check" }] } } },
+        { "wires": { "line": { "send": [{ "bytes": [0, 255], "format": "check" }], "flips": [3, 5] } } },
+        { "wires": { "line": { "send": [{ "bytes": [170, 85], "format": "check" }], "flips": [13, 20] } } }
+      ],
+      "hidden": [
+        { "wires": { "line": { "send": [{ "bytes": [0], "format": "check" }], "flips": [0, 7] } } },
+        { "wires": { "line": { "send": [{ "bytes": [7, 7, 7], "format": "check" }], "flips": [12, 13] } } },
+        { "wires": { "line": { "send": [{ "bytes": [128, 64], "format": "check" }], "flips": [0] } } }
+      ],
+      "want": {
+        "byte": { "decoded": { "wire": "line", "format": "check" } },
+        "ok": { "intact": { "wire": "line", "format": "check" } }
+      },
+      "solution": [
+        "z = const[value=0]()",
+        "ten = const[value=10]()",
+        "g = reg[reg=A, start=1]()",
+        "c = counter(g)",
+        "e10 = equal(c, ten)",
+        "ka = keep[reg=A](e10)",
+        "d = deserializer(line, g)",
+        "rb = reg[reg=B, start=0]()",
+        "nb = select(d.done, d.byte, rb)",
+        "kb = keep[reg=B](nb)",
+        "y = select(e10, rb)",
+        "k = crc(line, g)",
+        "ok0 = equal(k, z)",
+        "okv = select(e10, ok0)",
+        "byte <- y",
+        "ok <- okv"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "ten = const[value=10]()",
+        "g = reg[reg=A, start=1]()",
+        "c = counter(g)",
+        "e10 = equal(c, ten)",
+        "ka = keep[reg=A](e10)",
+        "d = deserializer(line, g)",
+        "rb = reg[reg=B, start=0]()",
+        "nb = select(d.done, d.byte, rb)",
+        "kb = keep[reg=B](nb)",
+        "y = select(e10, rb)",
+        "k = crc(line, z)",
+        "ok0 = equal(k, z)",
+        "okv = select(e10, ok0)",
+        "byte <- y",
+        "ok <- okv"
+      ]
+    }
   ]
 }
