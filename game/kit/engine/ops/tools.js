@@ -3,7 +3,8 @@
 // layer over the kernel (the checks, the operation set, the dependency graph, the vocabulary). None has logic of its
 // own: a change is always a changeset (changeset.js). params: each argument's JSON type, '?' when it may be left out.
 import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { execFileSync } from 'node:child_process'
+import { relative, resolve } from 'node:path'
 import { GAMES } from '../../../games.js'
 import { find } from '../schema.js'
 import { describe } from '../vocabulary.js'
@@ -18,6 +19,7 @@ import { getAt, parsePath, showPath } from './edit.js'
 import { OPERATIONS } from './operations.js'
 import { hubCount, openGame } from './workspace.js'
 import { lastUndoable, readLog, runChangeset, undo } from './changeset.js'
+import { replaceOps, searchContent } from './search.js'
 
 /** The arguments a call to `tool` lacks. */
 export const lacking = (tool, args) => Object.entries(tool.params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k)
@@ -241,6 +243,41 @@ export const TOOLS = {
       if (!bp && !reference) return { note: `${level} has no board its domain reads` }
       const board = bp ? bp.board : reference.read(lines)
       return { data: ((bp ?? reference).save ?? ((b) => b))(board), task: keys[0] === 'tasks' ? keys[1] : null }
+    },
+  },
+  search: {
+    about: 'Find text across a game (as a changeset would leave it): every text pair side by side (never inside a link tag), every board line, the ids of levels and entries. query: { find, regex?, caseSensitive?, word?, sides?: [zh, en], kinds?: [text, board, id] }. The hits in play order, each with its file, level, path and the spans matched.',
+    params: { game: 'string', query: 'object', changeset: 'object?' },
+    async run({ game, query, changeset = null }) {
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+      const hits = searchContent(content, (await domainOf(content)).vocabulary, query)
+      return { count: hits.length, hits }
+    },
+  },
+  replace: {
+    about: 'Replace across a game as operations, nothing written: the changeset ({ why, ops }: text.set for each text, level.blueprint for each board) that replaces the query’s matches with `with` ($1… for a regex’s groups), each change before and after, and the ids found and left alone (level.rename changes an id). Run it with modify (dryRun first). pick: only these hits (file|path|side or line).',
+    params: { game: 'string', query: 'object', with: 'string', pick: 'array?', changeset: 'object?' },
+    async run({ game, query, with: replacement, pick = null, changeset = null }) {
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+      const { ops, changes, skipped } = replaceOps(content, (await domainOf(content)).vocabulary, query, replacement, pick)
+      return { changeset: { why: `replace ${JSON.stringify(query.find)} with ${JSON.stringify(replacement)}`, ops }, changes, skipped: skipped.map((h) => ({ file: h.file, path: showPath(h.path), text: h.text })) }
+    },
+  },
+  history: {
+    about: 'A file of a game as git holds it at a revision (default HEAD): a level (level), game.json (file: game.json) or another file of the game folder, read from the repository the games folder is in. A games folder outside git (a GAMES_ROOT copy) says so.',
+    params: { game: 'string', level: 'string?', file: 'string?', rev: 'string?' },
+    async run({ game, level, file, rev = 'HEAD' }) {
+      const dir = resolve(ROOT, known(game))
+      const name = level !== undefined ? `levels/${level}.json` : file ?? 'game.json'
+      const path = relative(dir, resolve(dir, name))
+      if (path.startsWith('..')) throw new Error(`${name} is outside ${game}`)
+      let text
+      try {
+        text = execFileSync('git', ['-C', dir, 'show', `${rev}:./${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+      } catch (error) {
+        return { found: false, rev, file: name, why: String(error.stderr ?? error.message).trim().split('\n')[0] }
+      }
+      return { found: true, rev, file: name, text, ...(name.endsWith('.json') && { value: JSON.parse(text) }) }
     },
   },
   log: {

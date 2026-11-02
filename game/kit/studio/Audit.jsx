@@ -1,68 +1,77 @@
-// The audit panel (DIRECTION decision 6): npm run check's lines for the game as the pending changeset leaves it,
-// recomputed on every edit — the selected level's first, then every other level that fails, then the game's own —
-// and what blind play says of the level (the records in games/<game>/playtests/, written by the blind-play harness:
-// npm run blind). While the whole check of the latest edit is still running, the last one shows faded.
-// A failing line is the check's own words; a line about a field goes to it; a level's line selects it.
-import { useMemo } from 'react'
-import { tr } from '../shell/i18n.js'
-import { showPath } from '../engine/ops/edit.js'
+// The audit panel (DIRECTION decision 6) as a worklist: npm run check's lines for the game as the pending changeset
+// leaves it, recomputed on every edit, one row a line (worklist.js) — filtered by severity, rule, the level selected
+// and words; F8 and Shift+F8 step through them, each step going to the field the line is about (or its level). While
+// the whole check of the latest edit is still running, the last one shows faded. Below, what blind play says of the
+// level selected (the records in games/<game>/playtests/, written by npm run blind).
+import { useEffect, useMemo, useState } from 'react'
+import { L, tr } from '../shell/i18n.js'
+import { SEVERITIES, filterItems, stepIn, tally } from './worklist.js'
+import { usePref } from './prefs.js'
 
-/** Scroll to the field a finding is about and put the caret in it. */
-const goTo = (path) => {
-  const el = document.querySelector(`[data-path="${CSS.escape(showPath(path))}"]`)
-  if (!el) return
-  el.scrollIntoView({ block: 'center', behavior: 'smooth' })
-  el.querySelector('input, textarea, select, [contenteditable="true"]')?.focus({ preventScroll: true })
-}
+const SEVERITY = { fail: ['不过', 'failing'], open: ['待办', 'open'], report: ['报告', 'reported'], pass: ['通过', 'passing'] }
+const SHOWN = 400 // rows drawn at most; the rest summed up
 
-function Line({ line, place }) {
-  const kind = line.fail ? 'is-fail' : line.text.startsWith('OPEN ') ? 'is-open' : ''
-  if (place?.path?.length) return <li className={`audit-line ${kind}`}><button type="button" onClick={() => goTo(place.path)}><code>{showPath(place.path)}</code> {place.says}</button></li>
-  return <li className={`audit-line ${kind}`}>{line.text}</li>
-}
-
-export default function Audit({ lines, fresh, last, at, places, playtests, busy, ops, migration, onSelect, onReview }) {
-  const byLevel = useMemo(() => {
-    const map = new Map()
-    for (const line of lines) for (const id of line.levels ?? []) map.set(id, [...(map.get(id) ?? []), line])
-    return map
-  }, [lines])
-  const fails = lines.filter((l) => l.fail)
-  const mine = at?.level ? byLevel.get(at.level) ?? [] : []
-  const placeOf = (line) => places.find((p) => p.level === at?.level && p.path && line.text.endsWith(p.says))
-  const others = [...byLevel].filter(([id, ls]) => id !== at?.level && ls.some((l) => l.fail))
-  const game = lines.filter((l) => !l.levels?.length)
+export default function Audit({ items, fresh, last, at, playtests, busy, ops, migration, onJump, onReview }) {
+  const [filter, setFilter] = usePref('audit-filter', { severities: ['fail', 'open', 'report'], rule: '', mine: false })
+  const [query, setQuery] = useState('')
+  const [cursor, setCursor] = useState(-1)
+  const { rules, severities } = useMemo(() => tally(items), [items])
+  const shown = useMemo(() => filterItems(items, { severities: filter.severities, rules: filter.rule ? [filter.rule] : [], level: filter.mine ? at?.level ?? null : null, query }), [items, filter, at, query])
+  useEffect(() => setCursor(-1), [filter, query])
+  const go = (k) => {
+    setCursor(k)
+    if (shown[k]) onJump(shown[k])
+  }
+  // F8 / Shift+F8, or the palette's next and previous finding.
+  useEffect(() => {
+    const step = (s) => go(stepIn(shown.length, Math.min(cursor, shown.length - 1), s))
+    const key = (e) => { if (e.key === 'F8') { e.preventDefault(); step(e.shiftKey ? -1 : 1) } }
+    const asked = (e) => step(e.detail)
+    window.addEventListener('keydown', key)
+    window.addEventListener('studio:finding', asked)
+    return () => { window.removeEventListener('keydown', key); window.removeEventListener('studio:finding', asked) }
+  })
+  useEffect(() => { document.querySelector('.audit-row.is-at')?.scrollIntoView({ block: 'nearest' }) }, [cursor])
+  const set = (patch) => setFilter((f) => ({ ...f, ...patch }))
+  const toggle = (s) => set({ severities: filter.severities.includes(s) ? filter.severities.filter((x) => x !== s) : [...filter.severities, s] })
+  const fails = severities.get('fail') ?? 0
   const failedOp = last && last.failed !== null && last.failed !== undefined
   return (
     <div className={`audit ${busy || !fresh ? 'is-busy' : ''}`} aria-busy={!fresh}>
-      <button type="button" className={`audit-sum ${fails.length || failedOp ? 'is-fail' : 'is-ok'}`} onClick={onReview}>
-        <b>{failedOp ? tr('操作失败', 'An operation fails') : fails.length ? tr(`${fails.length} 处不过`, `${fails.length} failing`) : tr('全部通过', 'All clear')}</b>
-        {(ops.length > 0 || !fresh) && <span>{!fresh ? tr('检查中', 'checking') : ''}{!fresh && ops.length ? ' · ' : ''}{ops.length ? tr(`${ops.length} 个待定操作`, `${ops.length} pending`) : ''}{migration ? ` · v${migration.version}` : ''}</span>}
+      <button type="button" className={`audit-sum ${fails || failedOp ? 'is-fail' : 'is-ok'}`} onClick={onReview}>
+        <b>{failedOp ? tr('操作失败', 'An operation fails') : fails ? tr(`${fails} 处不过`, `${fails} failing`) : tr('全部通过', 'All clear')}</b>
+        {ops.length > 0 && <span>{tr(`${ops.length} 个待定`, `${ops.length} pending`)}{migration ? ` · v${migration.version}` : ''}</span>}
+        {!fresh && <i className="audit-wait" title={tr('检查中', 'Checking')} />}
       </button>
-      {failedOp && <ul className="audit-lines">{last.problems.map((p) => <li key={p} className="audit-line is-fail">{p}</li>)}</ul>}
-      {at?.level && (
-        <section>
-          <h2>{at.level}</h2>
-          {mine.length > 0 && <ul className="audit-lines">{[...mine].sort((a, b) => Number(Boolean(b.fail)) - Number(Boolean(a.fail))).map((l, k) => <Line key={k} line={l} place={l.fail ? placeOf(l) : null} />)}</ul>}
-          <Playtests playtests={playtests} level={at.level} />
-        </section>
-      )}
-      {others.length > 0 && (
-        <section>
-          {others.map(([id, ls]) => (
-            <div key={id} className="audit-level">
-              <button type="button" onClick={() => onSelect({ level: id })}>{id}</button>
-              <ul className="audit-lines">{ls.filter((l) => l.fail).map((l, k) => <Line key={k} line={l} />)}</ul>
-            </div>
+      {failedOp && <ul className="audit-lines">{last.problems.map((p) => <li key={p} className="audit-row is-fail is-wide">{p}</li>)}</ul>}
+      <div className="audit-filter">
+        <div className="seg is-small" role="group" aria-label={tr('严重程度', 'Severity')}>
+          {SEVERITIES.map((s) => (
+            <button key={s} type="button" className={`is-${s} ${filter.severities.includes(s) ? 'is-on' : ''}`} aria-pressed={filter.severities.includes(s)} onClick={() => toggle(s)} title={tr(...SEVERITY[s])}>
+              <i />{severities.get(s) ?? 0}
+            </button>
           ))}
-        </section>
-      )}
-      {game.length > 0 && (
-        <details className="audit-game" open={game.some((l) => l.fail)}>
-          <summary>{tr('整款游戏', 'The game')}</summary>
-          <ul className="audit-lines">{game.map((l, k) => <Line key={k} line={l} />)}</ul>
-        </details>
-      )}
+        </div>
+        <button type="button" className={`audit-mine ${filter.mine ? 'is-on' : ''}`} aria-pressed={filter.mine} onClick={() => set({ mine: !filter.mine })} disabled={!at?.level} title={tr('只看选中的关', 'Only the level selected')}>{at?.level ?? '—'}</button>
+        <select className="audit-rule" value={filter.rule} onChange={(e) => set({ rule: e.target.value })} aria-label={tr('规则', 'Rule')}>
+          <option value="">{tr('全部规则', 'every rule')}</option>
+          {[...rules].sort(([a], [b]) => a.localeCompare(b)).map(([r, n]) => <option key={r} value={r}>{r} · {n}</option>)}
+        </select>
+        <input className="audit-query" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr('筛选', 'Filter')} aria-label={tr('筛选', 'Filter')} />
+      </div>
+      <ol className="audit-lines" aria-label={tr('检查', 'Check')}>
+        {shown.slice(0, SHOWN).map((it, k) => (
+          <li key={`${k} ${it.text}`} className={`audit-row is-${it.severity} ${k === cursor ? 'is-at' : ''}`}>
+            <button type="button" onClick={() => go(k)} title={it.text}>
+              <code>{it.levels[0] ?? it.rule}</code>
+              <span>{it.text}</span>
+            </button>
+          </li>
+        ))}
+        {shown.length > SHOWN && <li className="audit-more">{tr(`还有 ${shown.length - SHOWN} 行`, `${shown.length - SHOWN} more`)}</li>}
+        {!shown.length && <li className="audit-more">—</li>}
+      </ol>
+      {at?.level && <Playtests playtests={playtests} level={at.level} />}
     </div>
   )
 }
@@ -77,8 +86,8 @@ function Playtests({ playtests, level }) {
   const stats = levels[level]
   if (!records.length || !stats) return null
   return (
-    <div className="audit-plays">
-      <b>{tr(`盲玩 ${stats.solved}/${stats.sessions} 通过 · 代价 ${stats.cost.toFixed(1)}`, `Blind play ${stats.solved}/${stats.sessions} solved · cost ${stats.cost.toFixed(1)}`)}</b>
+    <details className="audit-plays">
+      <summary>{tr(`盲玩 ${stats.solved}/${stats.sessions} 通过 · 代价 ${stats.cost.toFixed(1)}`, `Blind play ${stats.solved}/${stats.sessions} solved · cost ${stats.cost.toFixed(1)}`)}</summary>
       {records.map((r) => {
         const tries = (r.attempts ?? []).filter((a) => a.level === level)
         const outcome = r.levels.find((e) => e.level === level)
@@ -88,13 +97,13 @@ function Playtests({ playtests, level }) {
             <summary>{r.session} · {outcome.outcome} · {tr(`${outcome.attempts} 次`, `${outcome.attempts} attempt(s)`)}{outcome.hints ? ` · ${tr(`${outcome.hints} 次提示`, `${outcome.hints} hint(s)`)}` : ''}</summary>
             {tries.map((a, k) => (
               <div key={k} className={`audit-try ${a.pass ? 'is-pass' : ''}`}>
-                <pre>{a.text}</pre>
-                <pre className="is-says">{a.says}</pre>
+                <pre>{L(a.text)}</pre>
+                <pre className="is-says">{L(a.says)}</pre>
               </div>
             ))}
           </details>
         )
       })}
-    </div>
+    </details>
   )
 }

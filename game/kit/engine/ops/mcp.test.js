@@ -46,7 +46,7 @@ test('the server speaks MCP over stdio', async () => {
   assert.equal((await ask('nothing/here')).error.code, -32601)
 
   const { tools } = (await ask('tools/list')).result
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['audit', 'blueprint', 'deps', 'log', 'migrate_diff', 'modify', 'names', 'playtests', 'preview', 'render', 'run_reference', 'run_tests', 'seed', 'undo', 'vocabulary'])
+  assert.deepEqual(tools.map((t) => t.name).sort(), ['audit', 'blueprint', 'deps', 'history', 'log', 'migrate_diff', 'modify', 'names', 'playtests', 'preview', 'render', 'replace', 'run_reference', 'run_tests', 'search', 'seed', 'undo', 'vocabulary'])
   assert.deepEqual(tools.find((t) => t.name === 'modify').inputSchema.required, ['game', 'changeset'])
   assert.equal((await call('modify', { game: 'qed-lab' })).isError, true)
 })
@@ -96,4 +96,18 @@ test('changing tools: migrate_diff previews, modify refuses a failing changeset 
   assert.equal(done.migration, null)
   assert.equal(JSON.parse(readFileSync(join(root, 'qed-lab', 'levels', 'box.json'), 'utf8')).hint[0].en, hint.en)
   assert.equal(JSON.parse(readFileSync(join(root, 'qed-lab', 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
+})
+
+test('search and replace: hits across the game, a replace as a changeset that modify applies; history outside git says so', async () => {
+  const found = (await call('search', { game: 'qed-lab', query: { find: 'assume', kinds: ['text'] } })).data
+  assert.ok(found.count > 0 && found.hits.every((h) => h.kind === 'text' && h.at.length), JSON.stringify(found).slice(0, 300))
+  const { changeset, changes } = (await call('replace', { game: 'qed-lab', query: { find: 'Saturday', caseSensitive: true }, with: 'Sunday' })).data
+  assert.ok(changeset.ops.length >= 1 && changeset.ops.every((op) => op.op === 'text.set' && op.en && op.zh === undefined))
+  assert.ok(changes.every((c) => c.after.includes('Sunday') && !c.after.includes('Saturday')))
+  const done = (await call('modify', { game: 'qed-lab', changeset })).data
+  assert.equal(done.written, true, done.problems.join('\n'))
+  assert.equal((await call('search', { game: 'qed-lab', query: { find: 'Saturday', caseSensitive: true } })).data.count, 0)
+  const old = (await call('history', { game: 'qed-lab', level: 'box' })).data
+  assert.equal(old.found, false)
+  assert.match(old.why, /git/i)
 })

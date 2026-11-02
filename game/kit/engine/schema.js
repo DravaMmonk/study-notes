@@ -160,8 +160,8 @@ export function validate(schema, value, { vocabulary = null, levels = null, at =
 }
 
 /**
- * Every place in `value` that `schema` gives the type `type` (a 'level', a 'board', a 'text'…), as [{ path, value }]:
- * `path` the keys from `value` down to it. Where the schema allows several shapes (either), the value is read as the
+ * Every place in `value` that `schema` gives the type `type` (a 'level', a 'board', a 'text'…), as [{ path, value,
+ * schema }]: `path` the keys from `value` down to it, `schema` the one there (its hints too). Where the schema allows several shapes (either), the value is read as the
  * one it fits; a value fitting none is not looked into.
  */
 export function find(schema, value, type, { vocabulary = null } = {}) {
@@ -169,7 +169,7 @@ export function find(schema, value, type, { vocabulary = null } = {}) {
   const fits = (s, v) => validate(s, v, { vocabulary }).length === 0
   const walk = (s, v, path) => {
     if (v === undefined) return
-    if (s.type === type) out.push({ path, value: v })
+    if (s.type === type) out.push({ path, value: v, schema: s })
     switch (s.type) {
       case 'list':
         if (Array.isArray(v)) v.forEach((x, k) => walk(s.of, x, [...path, k]))
