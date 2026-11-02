@@ -23,7 +23,7 @@ export const CARDS = {
   size: { name: T('尺寸', 'Size'), icon: Maximize2, family: 'image', desc: T('给出图的宽 w 和高 h。', 'Gives an image’s width w and height h.') },
   grid: { name: T('坐标网格', 'Grid'), icon: Grid3x3, family: 'image', desc: T('给出 w × h 的两张坐标图：x 图每格是自己的 x，y 图每格是自己的 y。w、h 须为正整数。', 'Gives the two w × h coordinate images: in x every cell holds its own x, in y its own y. w and h must be positive whole numbers.') },
   lookup: { name: T('取像素', 'Lookup'), icon: ScanSearch, family: 'image', desc: T('在图的 (x, y) 处取值。x、y 是数时取一个像素；是同样大小的坐标图时，每格各取一个，拼成一张同样大小的图。坐标须为整数；出界时按设置报错、取 0 或取最近的边。', 'Reads the image at (x, y). At numbers it reads one pixel; at coordinate images of one size it reads one per cell, an image of that size. Coordinates must be whole numbers; outside the image it stops, reads 0 or reads the nearest edge, as set.') },
-  channel: { name: T('取通道', 'Channel'), icon: Layers, family: 'image', desc: T('给出彩色图的第 c 个通道，一张灰度图（0、1、2 是 R、G、B）。', 'Gives channel c of a colour image as a grey one (0, 1, 2 are R, G, B).') },
+  channel: { name: T('取通道', 'Channel'), icon: Layers, family: 'image', desc: T('给出彩色像素里第 c 个位置（0、1、2，在元件上选）上的数组成的灰度图。哪个位置是哪种颜色，看图按什么顺序存：RGB 图的 0 是红，BGR 图的 0 是蓝。', 'Gives the grey image of the numbers at position c (0, 1 or 2, set on the part) of each colour pixel. Which colour sits at a position depends on the image’s channel order: in an RGB image 0 is red, in a BGR one blue.') },
   compose: { name: T('合成彩色', 'Compose'), icon: Blend, family: 'image', desc: T('把三张同样大小的灰度图合成一张彩色图（R、G、B）。', 'Makes three grey images of one size one colour image (R, G, B).') },
 }
 
@@ -35,9 +35,12 @@ export const PORT_LABELS = {
   lookup: { image: T('图', 'Image'), x: 'x', y: 'y' },
   size: { image: T('图', 'Image') },
   grid: { w: 'w', h: 'h' },
-  channel: { image: T('图', 'Image'), c: 'c' },
+  channel: { image: T('图', 'Image') },
   compose: { r: 'R', g: 'G', b: 'B' },
 }
+
+/** The channels a channel card takes. */
+export const CHANNELS = [['0', '0'], ['1', '1'], ['2', '2']]
 
 /** What a lookup does outside the image, as its card offers it. */
 export const OUTSIDE = [['error', T('报错', 'Stop')], ['zero', T('取 0', 'Read 0')], ['clamp', T('取最近的边', 'Nearest edge')]]

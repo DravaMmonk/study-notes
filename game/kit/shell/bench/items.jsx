@@ -117,6 +117,23 @@ function Verdict({ params, ctx }) {
 function Goals({ params, ctx }) {
   const { cases, verdicts, caseIndex } = ctx
   const style = params.phoneCols === 2 ? 'bk-goals is-two' : 'bk-goals'
+  // Judged on submit: the goal's limits show, its readings wait for Check.
+  if (!ctx.revealed) {
+    return (
+      <div className="bk-stack">
+        <ul className={style}>
+          {verdicts[0].rows.map((r) => (
+            <li key={r.limit.of} className="bk-goal">
+              <Circle size={14} />
+              <span><Rich text={r.limit.label} />{needText(r.limit) && <> <small>{needText(r.limit)}</small></>}</span>
+              <b>?</b>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="bk-btn is-primary" onClick={ctx.check}>{tr('检查这个设置', 'Check this setting')}</button>
+      </div>
+    )
+  }
   if (cases) {
     return (
       <ul className={style}>

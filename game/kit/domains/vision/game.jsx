@@ -44,7 +44,8 @@ export default function visionGame(content) {
   const vision = visionCourse(content)
   const { LEVELS, CHAPTERS, course } = vision
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at }))
-  const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
+  // A part upgraded by later levels is one part in the components box, as its last upgrade names and describes it.
+  const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
   const labels = levelLabels(content.eras)
   const game = defineGame({
     id: content.id,

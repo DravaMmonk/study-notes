@@ -38,6 +38,7 @@
 .vi-test th, .vi-test td { padding: 4px 14px 4px 0; text-align: left; vertical-align: top; }
 .vi-test thead th { color: var(--muted); font: 500 11px var(--sans, inherit); }
 .vi-test tbody th { color: var(--muted); font-weight: 500; }
+.vi-results { display: grid; gap: 6px; }
 .vi-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
 .vi-verdict.is-fail { color: var(--fail); }
 .vi-verdict.is-pass { color: var(--status); }

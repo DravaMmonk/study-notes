@@ -86,7 +86,14 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
     locate: () => <>{picture({ mark: { x: params.x, y: params.y } })}<div className="vi-coords">{coord('x')}{coord('y')}</div></>,
   }
   const stage = <div className={`vi-grid is-${name}`}>{asked[name]()}</div>
-  const results = verdict ? <p className={`vi-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('对了。', 'Right.') : L(verdict.why)}</p> : null
+  // The task's naive answer, given, is told why it is wrong (the misconception the point corrects).
+  const naive = verdict && !verdict.pass && task.naive && JSON.stringify(answer) === JSON.stringify(task.naive.answer)
+  const results = verdict ? (
+    <div className="vi-results">
+      <p className={`vi-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('对了。', 'Right.') : L(verdict.why)}</p>
+      {naive && <p className="vi-verdict is-fail">{L(task.naive.why)}</p>}
+    </div>
+  ) : null
   const dock = <RunDock go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={task.hint} phone={phone} />
   return <Level phone={phone} className="vi-grid-level" brief={brief} stage={stage} results={results} dock={dock} />
