@@ -88,4 +88,11 @@ export const GAMES = [
     page: { icon: 'M10 32h14l4-10 8 20 4-10h14', description: '从一根线开始 From One Wire：从一根会出错的线搭起计算机网络。Computer networking built up from one wire that gets bits wrong.' },
     progress: () => (read('network.v1')?.solved || []).length,
   },
+  {
+    id: 'vision-lab', href: 'vision-lab/index.html', title: 'Vision Lab', en: 'Vision Lab', topic: { zh: 'Vision Lab', en: 'Vision Lab' },
+    desc: { zh: '从一格一格的数出发，搭出读图、移图、缩放的电路，再用相机模型解释图从哪里来。', en: 'Start from a grid of numbers, wire circuits that read, move and resize images, and explain with a camera model where an image comes from.' },
+    levels: 59, dev: true, hidden: true,
+    page: { icon: 'M16 32h32M32 16v32', description: 'Vision Lab Vision Lab' },
+    progress: () => (read('vision-lab.v1')?.solved || []).length,
+  },
 ];
