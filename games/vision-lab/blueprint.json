@@ -52,7 +52,896 @@
       "lacks": { "zh": "还不能利用邻域做滤波或学习。", "en": "Cannot yet perform neighbourhood filtering or learning." }
     }
   ],
-  "ideas": [
+  "primitives": [
+    {
+      "part": "lookup",
+      "about": { "zh": "读取像素", "en": "Pixel lookup" },
+      "why": { "zh": "取样是图像工作台读取图像的基本能力。", "en": "Reading a pixel is a primitive image-workbench capability." }
+    },
+    {
+      "part": "channel",
+      "about": { "zh": "选择通道", "en": "Select a channel" },
+      "why": {
+        "zh": "单通道数值运算无法拆开彩色图的表示。",
+        "en": "Arithmetic on scalar planes does not decompose an RGB value."
+      }
+    },
+    {
+      "part": "compose",
+      "about": { "zh": "合成通道", "en": "Compose channels" },
+      "why": { "zh": "数值运算无法从三张灰度图构造彩色图类型。", "en": "Arithmetic cannot form a colour image from three planes." }
+    },
+    {
+      "part": "grid",
+      "about": { "zh": "生成坐标", "en": "Generate coordinates" },
+      "why": { "zh": "必须由工作台提供每个输出位置。", "en": "Output positions must be provided by the workbench." }
+    },
+    {
+      "part": "const",
+      "about": { "zh": "常数", "en": "Constant" },
+      "why": {
+        "zh": "无输入时不能仅由运算产生固定数值。",
+        "en": "A fixed number cannot be made from operations with no inputs."
+      }
+    },
+    {
+      "part": "add",
+      "about": { "zh": "相加", "en": "Add" },
+      "why": { "zh": "这是数值计算的基础运算。", "en": "Addition is a basic numeric operation." }
+    },
+    {
+      "part": "sub",
+      "about": { "zh": "相减", "en": "Subtract" },
+      "why": { "zh": "需要从已有数值求差。", "en": "A primitive operation is needed to form differences." }
+    },
+    {
+      "part": "size",
+      "about": { "zh": "图像尺寸", "en": "Image size" },
+      "why": { "zh": "仅靠像素数值无法得到输入宽高。", "en": "Pixel values alone do not expose the image dimensions." }
+    },
+    {
+      "part": "less",
+      "about": { "zh": "比较", "en": "Compare" },
+      "why": { "zh": "数值计算需要基础的顺序比较。", "en": "A basic ordering comparison is needed." }
+    },
+    {
+      "part": "select",
+      "about": { "zh": "选择数值", "en": "Select a value" },
+      "why": { "zh": "比较结果必须能控制输出。", "en": "A comparison must be able to control the output." }
+    },
+    {
+      "part": "mul",
+      "about": { "zh": "相乘", "en": "Multiply" },
+      "why": { "zh": "缩放坐标需要乘法。", "en": "Coordinate scaling needs multiplication." }
+    },
+    {
+      "part": "div",
+      "about": { "zh": "相除", "en": "Divide" },
+      "why": { "zh": "缩放坐标需要除法。", "en": "Coordinate scaling needs division." }
+    },
+    {
+      "part": "floor",
+      "about": { "zh": "向下取整", "en": "Floor" },
+      "why": { "zh": "连续位置转为索引需要基本取整。", "en": "Continuous coordinates need a basic integer conversion." }
+    }
+  ],
+  "built": [
+    { "part": "crop", "about": { "zh": "裁剪", "en": "Crop" }, "from": ["grid", "add", "lookup"] },
+    {
+      "part": "translate",
+      "about": { "zh": "平移", "en": "Translate" },
+      "from": ["size", "grid", "sub", "lookup"]
+    },
+    {
+      "part": "resizeNearest",
+      "about": { "zh": "最近邻缩放", "en": "Nearest resize" },
+      "from": ["const", "size", "grid", "sampleAxis", "add", "floor", "lookup"]
+    },
+    {
+      "part": "resizeLinear",
+      "about": { "zh": "双线性缩放", "en": "Bilinear resize" },
+      "from": ["const", "size", "grid", "sampleAxis", "floor", "sub", "add", "lookup", "mul"]
+    },
+    {
+      "part": "quantise",
+      "about": { "zh": "量化器", "en": "Quantiser" },
+      "from": ["const", "larger", "smaller", "sub", "mul", "add", "floor", "div"]
+    },
+    { "part": "larger", "about": { "zh": "较大值", "en": "Larger value" }, "from": ["less", "select"] },
+    { "part": "smaller", "about": { "zh": "较小值", "en": "Smaller value" }, "from": ["less", "select"] },
+    {
+      "part": "sampleAxis",
+      "about": { "zh": "采样坐标", "en": "Sampling coordinates" },
+      "from": ["const", "sub", "less", "larger", "div", "mul", "select"]
+    }
+  ],
+  "eras": [
+    {
+      "id": 0,
+      "machine": "station",
+      "title": { "zh": "让机器看见问题", "en": "What is the question?" },
+      "question": { "zh": "机器要回答什么？", "en": "What must the machine answer?" },
+      "why": { "zh": "从视觉问题与证据开始。", "en": "Start with visual questions and evidence." },
+      "series": [
+        {
+          "id": "task_output",
+          "title": { "zh": "输出规格", "en": "Output specifications" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0A1",
+              "title": { "zh": "一张图，不同的问题", "en": "One picture, different questions" },
+              "task": {
+                "zh": "每题选出刚好包含所需信息的输出。",
+                "en": "For each question choose the output containing just the required information."
+              },
+              "role": "foundation",
+              "uses": ["query", "outputs"],
+              "teaches": "outputs"
+            },
+            {
+              "id": "0A2",
+              "title": { "zh": "类别之外", "en": "Beyond the class" },
+              "task": {
+                "zh": "每题选择刚好包含所需信息的输出。",
+                "en": "For each question choose the output containing just the required information."
+              },
+              "role": "practice",
+              "uses": ["query", "outputs"]
+            },
+            {
+              "id": "0A3",
+              "title": { "zh": "区域和物体", "en": "Regions and objects" },
+              "task": {
+                "zh": "每题选出刚好满足要求的输出图。",
+                "en": "For each question choose the output map with just the required information."
+              },
+              "role": "practice",
+              "uses": ["query", "outputs"],
+              "dimension": "depth"
+            },
+            {
+              "id": "0A4",
+              "title": { "zh": "一份输出能回答什么", "en": "What an output can answer" },
+              "task": {
+                "zh": "每题至少选择一种足以回答问题的输出。",
+                "en": "For each question choose at least one output sufficient to answer it."
+              },
+              "role": "practice",
+              "uses": ["query", "outputs"],
+              "dimension": "combine"
+            }
+          ]
+        },
+        {
+          "id": "variation",
+          "title": { "zh": "外观变化", "en": "Changes in appearance" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0B1",
+              "title": { "zh": "换个角度", "en": "A different view" },
+              "task": { "zh": "选出所有只改变相机的候选。", "en": "Select every candidate that changes only the camera." },
+              "role": "foundation",
+              "uses": ["scene", "viewpoint"],
+              "teaches": "viewpoint"
+            },
+            {
+              "id": "0B2",
+              "title": { "zh": "换一盏光", "en": "Change the light" },
+              "task": { "zh": "选出所有只改变光照的候选。", "en": "Select every candidate that changes only the lighting." },
+              "role": "practice",
+              "uses": ["scene", "viewpoint"]
+            },
+            {
+              "id": "0B3",
+              "title": { "zh": "屏幕后面", "en": "Behind the screen" },
+              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
+              "role": "practice",
+              "uses": ["scene", "viewpoint"],
+              "dimension": "depth"
+            },
+            {
+              "id": "0B4",
+              "title": { "zh": "设计测试", "en": "Choose a test set" },
+              "task": { "zh": "选择能覆盖所有指定变化的图片。", "en": "Choose images covering every specified change." },
+              "role": "practice",
+              "uses": ["scene", "viewpoint"],
+              "dimension": "combine"
+            }
+          ],
+          "parallel": "scene_paths"
+        },
+        {
+          "id": "evidence_path",
+          "title": { "zh": "证据与歧义", "en": "Evidence and ambiguity" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0C1",
+              "title": { "zh": "场景与图", "en": "Scene and image" },
+              "task": { "zh": "为每样东西选择它的角色。", "en": "Choose the role of each item." },
+              "role": "foundation",
+              "uses": ["scene", "evidence"],
+              "teaches": "evidence"
+            },
+            {
+              "id": "0C2",
+              "title": { "zh": "一样大的像", "en": "The same apparent size" },
+              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
+              "role": "practice",
+              "uses": ["scene", "evidence"]
+            },
+            {
+              "id": "0C3",
+              "title": { "zh": "核对预测", "en": "Check the predictions" },
+              "task": {
+                "zh": "选择一条错误记录；没有错误时选择“没有错误”。",
+                "en": "Choose one erroneous record, or “No errors shown” if none is wrong."
+              },
+              "role": "practice",
+              "uses": ["scene", "evidence"],
+              "dimension": "direction"
+            },
+            {
+              "id": "0C4",
+              "title": { "zh": "找反例", "en": "Find a counterexample" },
+              "task": { "zh": "选择能反驳这句话的记录。", "en": "Choose a record that refutes the claim." },
+              "role": "practice",
+              "uses": ["scene", "evidence"],
+              "dimension": "false"
+            }
+          ],
+          "parallel": "scene_paths"
+        },
+        {
+          "id": "station_join",
+          "title": { "zh": "完成任务规格", "en": "Specify and test a task" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0D1",
+              "title": { "zh": "给检查系统定任务", "en": "Specify an inspection task" },
+              "task": { "zh": "选择满足任务要求的输出类型。", "en": "Choose an output type that meets the task." },
+              "role": "foundation",
+              "uses": ["query", "outputs", "viewpoint", "evidence"]
+            },
+            {
+              "id": "0D2",
+              "title": { "zh": "该拿什么来比", "en": "What should be compared?" },
+              "task": {
+                "zh": "为每项预测选择可比较的参考数据。",
+                "en": "Choose comparable reference data for each prediction."
+              },
+              "role": "foundation",
+              "uses": ["query", "outputs", "viewpoint", "evidence"]
+            },
+            {
+              "id": "0D3",
+              "title": { "zh": "一张图片的边界", "en": "The limits of one picture" },
+              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
+              "role": "foundation",
+              "uses": ["query", "outputs", "viewpoint", "evidence"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "machine": "camera",
+      "keeps": [],
+      "title": { "zh": "从场景到像素", "en": "From scene to pixels" },
+      "question": { "zh": "图像怎样形成和存储？", "en": "How are images formed and stored?" },
+      "why": { "zh": "测试台需要图像与成像模型。", "en": "The test station needs images and a camera model." },
+      "series": [
+        {
+          "id": "image_intro",
+          "title": { "zh": "观察数字图像", "en": "Observe a digital image" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "1A1",
+              "title": { "zh": "一格格的数", "en": "A grid of numbers" },
+              "task": { "zh": "把图中的值填入空格。", "en": "Copy the values into the empty grid." },
+              "role": "foundation",
+              "uses": ["pixels", "pixel"],
+              "teaches": "pixel"
+            },
+            {
+              "id": "1A2",
+              "title": { "zh": "选出像素", "en": "Find a pixel" },
+              "task": { "zh": "选出坐标 (2, 0) 的像素。", "en": "Select the pixel at (2, 0)." },
+              "role": "practice",
+              "uses": ["pixels", "pixel"],
+              "dimension": "direction"
+            },
+            {
+              "id": "1A3",
+              "title": { "zh": "三个通道", "en": "Three channels" },
+              "task": { "zh": "把右边的像素设为蓝色 (0, 0, 1)。", "en": "Set the pixel on the right to blue (0, 0, 1)." },
+              "role": "practice",
+              "uses": ["pixels", "pixel"]
+            },
+            {
+              "id": "1A4",
+              "title": { "zh": "数值如何变化", "en": "How values change" },
+              "task": { "zh": "把每张图和变化方式配对。", "en": "Match each image to the kind of change." },
+              "role": "practice",
+              "uses": ["pixels", "pixel"],
+              "dimension": "combine"
+            }
+          ]
+        },
+        {
+          "id": "projection_path",
+          "title": { "zh": "针孔相机", "en": "Pinhole camera" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "1B1",
+              "title": { "zh": "穿过小孔", "en": "Through the opening" },
+              "task": { "zh": "移动物点，使投影落在目标上。", "en": "Move the point so its projection reaches the target." },
+              "role": "foundation",
+              "uses": ["optics", "projection"],
+              "teaches": "projection"
+            },
+            {
+              "id": "1B2",
+              "title": { "zh": "移动物体", "en": "Move the object" },
+              "task": { "zh": "调整距离，让像高为 1。", "en": "Adjust depth until the image height is 1." },
+              "role": "practice",
+              "uses": ["optics", "projection"]
+            },
+            {
+              "id": "1B3",
+              "title": { "zh": "移动像平面", "en": "Move the image plane" },
+              "task": {
+                "zh": "调整像平面距离，让像高为 2。",
+                "en": "Adjust the image plane distance until the image height is 2."
+              },
+              "role": "practice",
+              "uses": ["optics", "projection"],
+              "dimension": "direction"
+            },
+            {
+              "id": "1B4",
+              "title": { "zh": "相同的像", "en": "The same image" },
+              "task": {
+                "zh": "选出至少两组像高为 1、距离不同的组合。",
+                "en": "Choose at least two pairs with image height 1 at different depths."
+              },
+              "role": "practice",
+              "uses": ["optics", "projection"],
+              "dimension": "combine"
+            }
+          ],
+          "parallel": "foundations"
+        },
+        {
+          "id": "array_path",
+          "title": { "zh": "图像数组", "en": "Image arrays" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "1C1",
+              "title": { "zh": "行和列", "en": "Rows and columns" },
+              "task": { "zh": "抄下数组的值。", "en": "Copy the values of the array." },
+              "role": "foundation",
+              "uses": ["pixels", "coordinate"],
+              "teaches": "coordinate"
+            },
+            {
+              "id": "1C2",
+              "title": { "zh": "读取像素", "en": "Read a pixel" },
+              "task": { "zh": "交出图在 (x, y) 处的值。", "en": "Give the image value at (x, y)." },
+              "role": "foundation",
+              "uses": ["pixels", "coordinate", "lookupidea", "lookup"],
+              "adds": ["lookup"],
+              "teaches": "lookupidea"
+            },
+            {
+              "id": "1C2a",
+              "title": { "zh": "读取另一处", "en": "Read another position" },
+              "task": { "zh": "读出图像在 (x, y) 的值。", "en": "Read the image value at (x, y)." },
+              "role": "practice",
+              "uses": ["circuit", "lookupidea", "lookup"]
+            },
+            {
+              "id": "1C3",
+              "title": { "zh": "取出通道", "en": "Separate a channel" },
+              "task": {
+                "zh": "读取像素 (x, y) 的 c 通道。c 的 0、1、2 分别代表 R、G、B。",
+                "en": "Read channel c at pixel (x, y). Channels 0, 1, 2 mean R, G, B."
+              },
+              "role": "foundation",
+              "uses": ["pixels", "lookupidea", "channelidea", "channel", "lookup"],
+              "adds": ["channel"],
+              "teaches": "channelidea"
+            },
+            {
+              "id": "1C4",
+              "title": { "zh": "重组颜色", "en": "Reassemble colour" },
+              "task": {
+                "zh": "交换图像的红色与蓝色通道，保留绿色。输入 r、g、b 是对应的通道编号。",
+                "en": "Exchange red and blue channels while retaining green. Inputs r, g, b identify the channels."
+              },
+              "role": "foundation",
+              "uses": ["pixels", "channelidea", "composeidea", "channel", "compose"],
+              "adds": ["compose"],
+              "teaches": "composeidea"
+            },
+            {
+              "id": "1C5",
+              "title": { "zh": "交换颜色通道", "en": "Reorder colour channels" },
+              "task": {
+                "zh": "将蓝、红、绿通道依次作为输出的红、绿、蓝通道。",
+                "en": "Use the blue, red, and green channels as the output red, green, and blue channels, respectively."
+              },
+              "role": "practice",
+              "uses": ["pixels", "composeidea", "channelidea", "channel", "compose"],
+              "dimension": "combine"
+            }
+          ],
+          "parallel": "foundations"
+        },
+        {
+          "id": "lens_path",
+          "title": { "zh": "透镜和对焦", "en": "Lens and focus" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "1G1",
+              "title": { "zh": "进光量", "en": "Collecting light" },
+              "task": { "zh": "调整光圈，使进光量为 4。", "en": "Adjust the aperture until collected light is 4." },
+              "role": "foundation",
+              "uses": ["optics", "projection", "lensidea"],
+              "teaches": "lensidea"
+            },
+            {
+              "id": "1G2",
+              "title": { "zh": "远处清晰", "en": "Focus on the far object" },
+              "task": { "zh": "调整对焦距离，让远处物体清晰。", "en": "Adjust focus until the far object is sharp." },
+              "role": "practice",
+              "uses": ["optics", "lensidea", "projection"]
+            },
+            {
+              "id": "1G3",
+              "title": { "zh": "清晰的范围", "en": "Depth of field" },
+              "task": {
+                "zh": "保持对焦距离，调整光圈，使清晰深度范围至少为 3000 毫米。",
+                "en": "Keep focus fixed and adjust the aperture until the sharp depth range is at least 3000 mm."
+              },
+              "role": "practice",
+              "uses": ["optics", "lensidea", "projection"],
+              "dimension": "combine"
+            }
+          ],
+          "parallel": "applications"
+        },
+        {
+          "id": "image_ops",
+          "title": { "zh": "裁剪、缩放与表示", "en": "Crop, resize and representation" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "1D0",
+              "title": { "zh": "标出坐标", "en": "Mark coordinates" },
+              "task": {
+                "zh": "读取从左上角开始、大小为 w × h 的区域。",
+                "en": "Read a w × h region starting at the upper-left corner."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "grididea", "grid", "lookup", "lookupidea"],
+              "adds": ["grid"],
+              "teaches": "grididea"
+            },
+            {
+              "id": "1D0a",
+              "title": { "zh": "从另一个起点出发", "en": "Start elsewhere" },
+              "task": { "zh": "把一行坐标全部增加起点 x0。", "en": "Offset each coordinate in a row by x0." },
+              "role": "foundation",
+              "uses": ["circuit", "arithidea", "grididea", "grid", "add"],
+              "adds": ["add"],
+              "teaches": "arithidea"
+            },
+            {
+              "id": "1D1",
+              "title": { "zh": "截取窗口", "en": "A window into an image" },
+              "task": {
+                "zh": "截取左上角为 (x0, y0)、大小为 w × h 的区域。",
+                "en": "Crop a w × h region starting at (x0, y0)."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "cropidea", "lookupidea", "grididea", "arithidea", "grid", "add", "lookup"],
+              "builds": "crop",
+              "teaches": "cropidea"
+            },
+            {
+              "id": "1D2",
+              "title": { "zh": "保留原来的值", "en": "Keep the samples" },
+              "task": { "zh": "截取指定区域。", "en": "Crop the specified region." },
+              "role": "practice",
+              "uses": ["circuit", "cropidea", "crop"]
+            },
+            {
+              "id": "1D2a",
+              "title": { "zh": "原图的尺寸", "en": "The original size" },
+              "task": {
+                "zh": "交出与原图同样宽高的横坐标图和纵坐标图。",
+                "en": "Output horizontal and vertical coordinate images matching the input dimensions."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "sizeidea", "size", "grid", "grididea"],
+              "adds": ["size"],
+              "teaches": "sizeidea"
+            },
+            {
+              "id": "1D2b",
+              "title": { "zh": "向相反方向取值", "en": "Read in the opposite direction" },
+              "task": {
+                "zh": "从图像宽度减去右侧留出的 margin，交出对应的横向位置。",
+                "en": "Subtract the right margin from the image width to obtain the horizontal position."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "subidea", "sizeidea", "size", "sub"],
+              "adds": ["sub"],
+              "teaches": "subidea"
+            },
+            {
+              "id": "1D3",
+              "title": { "zh": "移动图像", "en": "Move the picture" },
+              "task": {
+                "zh": "按 (dx, dy) 移动图像，空出的位置填 0。",
+                "en": "Move the image by (dx, dy), filling uncovered cells with 0."
+              },
+              "role": "foundation",
+              "uses": [
+                "circuit",
+                "moveidea",
+                "sizeidea",
+                "subidea",
+                "lookupidea",
+                "grididea",
+                "size",
+                "grid",
+                "sub",
+                "lookup"
+              ],
+              "builds": "translate",
+              "teaches": "moveidea"
+            },
+            {
+              "id": "1D4",
+              "title": { "zh": "截取移动的图", "en": "Crop a moving picture" },
+              "task": { "zh": "先移动图像，再截取指定区域。", "en": "Translate the image, then crop the specified region." },
+              "role": "practice",
+              "uses": ["circuit", "cropidea", "moveidea", "translate", "crop"],
+              "dimension": "combine"
+            },
+            {
+              "id": "1E1",
+              "title": { "zh": "新的采样位置", "en": "New sample positions" },
+              "task": { "zh": "将端点 0 到 2 均匀分成五个位置。", "en": "Place five evenly spaced positions from 0 to 2." },
+              "role": "foundation",
+              "uses": ["pixels", "coordinate", "moveidea"]
+            },
+            {
+              "id": "1E1a",
+              "title": { "zh": "一个固定的数", "en": "A fixed number" },
+              "task": { "zh": "交出 x 的下一个位置。", "en": "Output the position following x." },
+              "role": "foundation",
+              "uses": ["circuit", "constidea", "arithidea", "const", "add"],
+              "adds": ["const"],
+              "teaches": "constidea"
+            },
+            {
+              "id": "1E1b",
+              "title": { "zh": "改变间距", "en": "Change the spacing" },
+              "task": { "zh": "把每个横坐标按倍数 2 拉开，交出新坐标图。", "en": "Multiply each horizontal coordinate by 2." },
+              "role": "foundation",
+              "uses": ["circuit", "mulidea", "grididea", "constidea", "const", "grid", "mul"],
+              "adds": ["mul"],
+              "teaches": "mulidea"
+            },
+            {
+              "id": "1E1c",
+              "title": { "zh": "平均分布", "en": "Even spacing" },
+              "task": {
+                "zh": "把 length 按 scale 放大，再均分为 n 段；交出每段长度。",
+                "en": "Scale length by scale, divide it into n equal intervals, and output one interval length."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "dividea", "mulidea", "mul", "div"],
+              "adds": ["div"],
+              "teaches": "dividea"
+            },
+            {
+              "id": "1E1d",
+              "title": { "zh": "选择较小的整数", "en": "Choose the lower integer" },
+              "task": {
+                "zh": "把 length 按 n 等分，交出每段长度向下取整后的值。",
+                "en": "Divide length into n equal intervals and round the interval length down."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "flooridea", "dividea", "div", "floor"],
+              "adds": ["floor"],
+              "teaches": "flooridea"
+            },
+            {
+              "id": "1E1e",
+              "title": { "zh": "比较位置", "en": "Compare positions" },
+              "task": {
+                "zh": "将 a 向下取整；如果结果小于 b 交出 1，否则交出 0。",
+                "en": "Round a down; output 1 if the result is less than b and 0 otherwise."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "lessidea", "flooridea", "floor", "less"],
+              "adds": ["less"],
+              "teaches": "lessidea"
+            },
+            {
+              "id": "1E1g",
+              "title": { "zh": "选择一个值", "en": "Select a value" },
+              "task": {
+                "zh": "当 a 小于 b 时交出 a，否则交出 b。",
+                "en": "Output a when a is less than b, otherwise output b."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "selectidea", "lessidea", "less", "select"],
+              "adds": ["select"],
+              "teaches": "selectidea"
+            },
+            {
+              "id": "1E1f",
+              "title": { "zh": "不低于一", "en": "At least one" },
+              "task": { "zh": "交出 a 和 b 中较大的数。", "en": "Output the larger of a and b." },
+              "role": "foundation",
+              "uses": ["circuit", "selectidea", "largeridea", "lessidea", "less", "select"],
+              "builds": "larger",
+              "teaches": "largeridea"
+            },
+            {
+              "id": "1E1h",
+              "title": { "zh": "坐标从哪里取", "en": "Find source positions" },
+              "task": {
+                "zh": "原轴有 m 个位置，新轴有 n 个位置；交出新位置 i 对应的原坐标。首尾对齐；n 为 1 时取原轴中心。",
+                "en": "Given m source positions and n output positions, map output i to a source coordinate. Align endpoints; for n = 1 use the source centre."
+              },
+              "role": "foundation",
+              "uses": [
+                "circuit",
+                "axisidea",
+                "const",
+                "sub",
+                "less",
+                "larger",
+                "div",
+                "mul",
+                "select",
+                "subidea",
+                "constidea",
+                "mulidea",
+                "dividea",
+                "lessidea",
+                "selectidea",
+                "largeridea"
+              ],
+              "builds": "sampleAxis",
+              "teaches": "axisidea"
+            },
+            {
+              "id": "1E1i",
+              "title": { "zh": "整张坐标图", "en": "Map a coordinate grid" },
+              "task": {
+                "zh": "把宽为 n 的输出坐标映射到宽为 m 的原图。输出为一行。",
+                "en": "Map n output positions to source width m. Output one row."
+              },
+              "role": "practice",
+              "uses": ["circuit", "axisidea", "const", "grid", "sampleAxis", "grididea", "constidea"]
+            },
+            {
+              "id": "1E2",
+              "title": { "zh": "最近的像素", "en": "Nearest pixel" },
+              "task": {
+                "zh": "用最近邻把图缩放到 w × h。首尾对齐；只有一个位置时取原图中心。等距时取较大坐标。",
+                "en": "Resize to w × h using nearest neighbours. Align endpoints; for one sample use the source centre. Break ties towards the larger index."
+              },
+              "role": "foundation",
+              "uses": [
+                "circuit",
+                "nearestidea",
+                "dividea",
+                "flooridea",
+                "largeridea",
+                "lookupidea",
+                "grididea",
+                "arithidea",
+                "sizeidea",
+                "constidea",
+                "axisidea",
+                "const",
+                "size",
+                "grid",
+                "sampleAxis",
+                "add",
+                "floor",
+                "lookup"
+              ],
+              "builds": "resizeNearest",
+              "teaches": "nearestidea"
+            },
+            {
+              "id": "1E3",
+              "title": { "zh": "像素之间", "en": "Between pixels" },
+              "task": {
+                "zh": "用双线性插值缩放到 w × h；首尾对齐，单个输出位置取原图中心。",
+                "en": "Resize to w × h using bilinear interpolation; align endpoints and use the source centre for a single output position."
+              },
+              "role": "foundation",
+              "uses": [
+                "circuit",
+                "nearestidea",
+                "linearidea",
+                "lookupidea",
+                "grididea",
+                "arithidea",
+                "sizeidea",
+                "subidea",
+                "constidea",
+                "mulidea",
+                "flooridea",
+                "axisidea",
+                "const",
+                "size",
+                "grid",
+                "sampleAxis",
+                "floor",
+                "sub",
+                "add",
+                "lookup",
+                "mul"
+              ],
+              "builds": "resizeLinear",
+              "teaches": "linearidea"
+            },
+            {
+              "id": "1E4",
+              "title": { "zh": "比较放大结果", "en": "Compare enlargements" },
+              "task": {
+                "zh": "分别交出最近邻和双线性缩放结果。",
+                "en": "Output the nearest-neighbour and bilinear resize results."
+              },
+              "role": "practice",
+              "uses": ["circuit", "nearestidea", "linearidea", "resizeNearest", "resizeLinear"],
+              "dimension": "combine"
+            },
+            {
+              "id": "1F1",
+              "title": { "zh": "数值和显示", "en": "Values and display" },
+              "task": {
+                "zh": "显示把小于 0 的亮度画为 0，大于 1 的画为 1。填出显示亮度。",
+                "en": "Display maps brightness below 0 to 0 and above 1 to 1. Fill in the displayed brightness."
+              },
+              "role": "foundation",
+              "uses": ["pixels", "displayidea"],
+              "teaches": "displayidea"
+            },
+            {
+              "id": "1F1a",
+              "title": { "zh": "不高于一", "en": "At most one" },
+              "task": { "zh": "交出 a 和 b 中较小的数。", "en": "Output the smaller of a and b." },
+              "role": "foundation",
+              "uses": ["circuit", "displayidea", "smalleridea", "lessidea", "selectidea", "less", "select"],
+              "builds": "smaller",
+              "teaches": "smalleridea"
+            },
+            {
+              "id": "1F2",
+              "title": { "zh": "有限的亮度", "en": "Finite brightness levels" },
+              "task": {
+                "zh": "把 0 至 1 均匀分为 L 个亮度，取最近值；等距时取较大值。范围外先限制到 0 至 1。",
+                "en": "Use L evenly spaced brightness levels from 0 to 1; choose the nearest, breaking ties upwards. Clamp values outside the range."
+              },
+              "role": "foundation",
+              "uses": [
+                "circuit",
+                "displayidea",
+                "quantidea",
+                "arithidea",
+                "subidea",
+                "constidea",
+                "mulidea",
+                "dividea",
+                "flooridea",
+                "largeridea",
+                "smalleridea",
+                "const",
+                "larger",
+                "smaller",
+                "sub",
+                "mul",
+                "add",
+                "floor",
+                "div"
+              ],
+              "builds": "quantise",
+              "teaches": "quantidea"
+            },
+            {
+              "id": "1F3",
+              "title": { "zh": "还能找回吗", "en": "Can it be recovered?" },
+              "task": { "zh": "将输入量化为 3 个等级。", "en": "Quantise the input to 3 levels." },
+              "role": "practice",
+              "uses": ["circuit", "constidea", "quantidea", "const", "quantise"],
+              "dimension": "false"
+            },
+            {
+              "id": "1Z1",
+              "title": { "zh": "图像处理台", "en": "Image processing station" },
+              "task": {
+                "zh": "裁剪指定区域，双线性缩放到目标宽高，再量化到 L 个等级。",
+                "en": "Crop the given region, resize it bilinearly, then quantise it to L levels."
+              },
+              "role": "foundation",
+              "uses": ["circuit", "linearidea", "cropidea", "quantidea", "crop", "resizeLinear", "quantise"]
+            }
+          ],
+          "parallel": "applications"
+        },
+        {
+          "id": "crop_challenge",
+          "title": { "zh": "缩放裁剪区域", "en": "Resize a crop" },
+          "kind": "challenge",
+          "slots": [
+            {
+              "id": "1X1",
+              "title": { "zh": "放大裁剪区域", "en": "Resize a crop" },
+              "task": {
+                "zh": "截取指定区域，然后用最近邻缩放到目标宽高。",
+                "en": "Crop the given region, then resize it using nearest-neighbour sampling."
+              },
+              "role": "challenge",
+              "uses": ["circuit", "nearestidea", "cropidea", "crop", "resizeNearest"],
+              "naive": {
+                "zh": "先缩放整幅图再按旧坐标裁剪。",
+                "en": "Resize the full image before applying the original crop coordinates."
+              }
+            }
+          ],
+          "after": "1E4"
+        }
+      ]
+    }
+  ],
+  "parallel": [
+    {
+      "id": "scene_paths",
+      "why": { "zh": "外观变化与证据判断互不依赖。", "en": "Appearance variation and evidence do not depend on one another." }
+    },
+    {
+      "id": "foundations",
+      "why": {
+        "zh": "针孔投影与数组坐标各自建立。",
+        "en": "Pinhole projection and array coordinates can be learned independently."
+      }
+    },
+    {
+      "id": "applications",
+      "why": {
+        "zh": "图像运算与透镜实验互不依赖。",
+        "en": "Image operations and lens experiments do not depend on one another."
+      }
+    }
+  ],
+  "requests": [],
+  "deferred": [
+    {
+      "about": { "zh": "空间滤波及后续视觉专题", "en": "Spatial filtering and later vision topics" },
+      "why": { "zh": "本次只制作第 0、1 章。", "en": "This scope covers chapters 0 and 1." }
+    }
+  ],
+  "knowledge": [
     {
       "id": "outputs",
       "about": { "zh": "输出规格", "en": "Output specifications" },
@@ -215,904 +1104,6 @@
         "zh": "不同尺寸的网格需要一致的坐标对应。",
         "en": "Grids of different sizes need a consistent coordinate mapping."
       }
-    }
-  ],
-  "primitives": [
-    {
-      "part": "lookup",
-      "about": { "zh": "读取像素", "en": "Pixel lookup" },
-      "why": { "zh": "取样是图像工作台读取图像的基本能力。", "en": "Reading a pixel is a primitive image-workbench capability." }
-    },
-    {
-      "part": "channel",
-      "about": { "zh": "选择通道", "en": "Select a channel" },
-      "why": {
-        "zh": "单通道数值运算无法拆开彩色图的表示。",
-        "en": "Arithmetic on scalar planes does not decompose an RGB value."
-      }
-    },
-    {
-      "part": "compose",
-      "about": { "zh": "合成通道", "en": "Compose channels" },
-      "why": { "zh": "数值运算无法从三张灰度图构造彩色图类型。", "en": "Arithmetic cannot form a colour image from three planes." }
-    },
-    {
-      "part": "grid",
-      "about": { "zh": "生成坐标", "en": "Generate coordinates" },
-      "why": { "zh": "必须由工作台提供每个输出位置。", "en": "Output positions must be provided by the workbench." }
-    },
-    {
-      "part": "const",
-      "about": { "zh": "常数", "en": "Constant" },
-      "why": {
-        "zh": "无输入时不能仅由运算产生固定数值。",
-        "en": "A fixed number cannot be made from operations with no inputs."
-      }
-    },
-    {
-      "part": "add",
-      "about": { "zh": "相加", "en": "Add" },
-      "why": { "zh": "这是数值计算的基础运算。", "en": "Addition is a basic numeric operation." }
-    },
-    {
-      "part": "sub",
-      "about": { "zh": "相减", "en": "Subtract" },
-      "why": { "zh": "需要从已有数值求差。", "en": "A primitive operation is needed to form differences." }
-    },
-    {
-      "part": "size",
-      "about": { "zh": "图像尺寸", "en": "Image size" },
-      "why": { "zh": "仅靠像素数值无法得到输入宽高。", "en": "Pixel values alone do not expose the image dimensions." }
-    },
-    {
-      "part": "less",
-      "about": { "zh": "比较", "en": "Compare" },
-      "why": { "zh": "数值计算需要基础的顺序比较。", "en": "A basic ordering comparison is needed." }
-    },
-    {
-      "part": "select",
-      "about": { "zh": "选择数值", "en": "Select a value" },
-      "why": { "zh": "比较结果必须能控制输出。", "en": "A comparison must be able to control the output." }
-    },
-    {
-      "part": "mul",
-      "about": { "zh": "相乘", "en": "Multiply" },
-      "why": { "zh": "缩放坐标需要乘法。", "en": "Coordinate scaling needs multiplication." }
-    },
-    {
-      "part": "div",
-      "about": { "zh": "相除", "en": "Divide" },
-      "why": { "zh": "缩放坐标需要除法。", "en": "Coordinate scaling needs division." }
-    },
-    {
-      "part": "floor",
-      "about": { "zh": "向下取整", "en": "Floor" },
-      "why": { "zh": "连续位置转为索引需要基本取整。", "en": "Continuous coordinates need a basic integer conversion." }
-    }
-  ],
-  "built": [
-    { "part": "crop", "about": { "zh": "裁剪", "en": "Crop" }, "from": ["grid", "add", "lookup"] },
-    {
-      "part": "translate",
-      "about": { "zh": "平移", "en": "Translate" },
-      "from": ["size", "grid", "sub", "lookup"]
-    },
-    {
-      "part": "resizeNearest",
-      "about": { "zh": "最近邻缩放", "en": "Nearest resize" },
-      "from": ["const", "size", "grid", "sampleAxis", "add", "floor", "lookup"]
-    },
-    {
-      "part": "resizeLinear",
-      "about": { "zh": "双线性缩放", "en": "Bilinear resize" },
-      "from": ["const", "size", "grid", "sampleAxis", "floor", "sub", "add", "lookup", "mul"]
-    },
-    {
-      "part": "quantise",
-      "about": { "zh": "量化器", "en": "Quantiser" },
-      "from": ["const", "larger", "smaller", "sub", "mul", "add", "floor", "div"]
-    },
-    { "part": "larger", "about": { "zh": "较大值", "en": "Larger value" }, "from": ["less", "select"] },
-    { "part": "smaller", "about": { "zh": "较小值", "en": "Smaller value" }, "from": ["less", "select"] },
-    {
-      "part": "sampleAxis",
-      "about": { "zh": "采样坐标", "en": "Sampling coordinates" },
-      "from": ["const", "sub", "less", "larger", "div", "mul", "select"]
-    }
-  ],
-  "eras": [
-    {
-      "id": 0,
-      "machine": "station",
-      "title": { "zh": "让机器看见问题", "en": "What is the question?" },
-      "question": { "zh": "机器要回答什么？", "en": "What must the machine answer?" },
-      "why": { "zh": "从视觉问题与证据开始。", "en": "Start with visual questions and evidence." },
-      "series": [
-        {
-          "id": "task_output",
-          "title": { "zh": "输出规格", "en": "Output specifications" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0A1",
-              "title": { "zh": "一张图，不同的问题", "en": "One picture, different questions" },
-              "task": {
-                "zh": "每题选出刚好包含所需信息的输出。",
-                "en": "For each question choose the output containing just the required information."
-              },
-              "role": "foundation",
-              "uses": ["query", "outputs"],
-              "idea": "outputs"
-            },
-            {
-              "id": "0A2",
-              "title": { "zh": "类别之外", "en": "Beyond the class" },
-              "task": {
-                "zh": "每题选择刚好包含所需信息的输出。",
-                "en": "For each question choose the output containing just the required information."
-              },
-              "role": "practice",
-              "uses": ["query", "outputs"],
-              "dimension": "surface"
-            },
-            {
-              "id": "0A3",
-              "title": { "zh": "区域和物体", "en": "Regions and objects" },
-              "task": {
-                "zh": "每题选出刚好满足要求的输出图。",
-                "en": "For each question choose the output map with just the required information."
-              },
-              "role": "practice",
-              "uses": ["query", "outputs"],
-              "dimension": "depth"
-            },
-            {
-              "id": "0A4",
-              "title": { "zh": "一份输出能回答什么", "en": "What an output can answer" },
-              "task": {
-                "zh": "每题至少选择一种足以回答问题的输出。",
-                "en": "For each question choose at least one output sufficient to answer it."
-              },
-              "role": "practice",
-              "uses": ["query", "outputs"],
-              "dimension": "combine"
-            }
-          ]
-        },
-        {
-          "id": "variation",
-          "title": { "zh": "外观变化", "en": "Changes in appearance" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0B1",
-              "title": { "zh": "换个角度", "en": "A different view" },
-              "task": { "zh": "选出所有只改变相机的候选。", "en": "Select every candidate that changes only the camera." },
-              "role": "foundation",
-              "uses": ["scene", "viewpoint"],
-              "idea": "viewpoint"
-            },
-            {
-              "id": "0B2",
-              "title": { "zh": "换一盏光", "en": "Change the light" },
-              "task": { "zh": "选出所有只改变光照的候选。", "en": "Select every candidate that changes only the lighting." },
-              "role": "practice",
-              "uses": ["scene", "viewpoint"],
-              "dimension": "surface"
-            },
-            {
-              "id": "0B3",
-              "title": { "zh": "屏幕后面", "en": "Behind the screen" },
-              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
-              "role": "practice",
-              "uses": ["scene", "viewpoint"],
-              "dimension": "depth"
-            },
-            {
-              "id": "0B4",
-              "title": { "zh": "设计测试", "en": "Choose a test set" },
-              "task": { "zh": "选择能覆盖所有指定变化的图片。", "en": "Choose images covering every specified change." },
-              "role": "practice",
-              "uses": ["scene", "viewpoint"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "scene_paths"
-        },
-        {
-          "id": "evidence_path",
-          "title": { "zh": "证据与歧义", "en": "Evidence and ambiguity" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0C1",
-              "title": { "zh": "场景与图", "en": "Scene and image" },
-              "task": { "zh": "为每样东西选择它的角色。", "en": "Choose the role of each item." },
-              "role": "foundation",
-              "uses": ["scene", "evidence"],
-              "idea": "evidence"
-            },
-            {
-              "id": "0C2",
-              "title": { "zh": "一样大的像", "en": "The same apparent size" },
-              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
-              "role": "practice",
-              "uses": ["scene", "evidence"],
-              "dimension": "surface"
-            },
-            {
-              "id": "0C3",
-              "title": { "zh": "核对预测", "en": "Check the predictions" },
-              "task": {
-                "zh": "选择一条错误记录；没有错误时选择“没有错误”。",
-                "en": "Choose one erroneous record, or “No errors shown” if none is wrong."
-              },
-              "role": "practice",
-              "uses": ["scene", "evidence"],
-              "dimension": "direction"
-            },
-            {
-              "id": "0C4",
-              "title": { "zh": "找反例", "en": "Find a counterexample" },
-              "task": { "zh": "选择能反驳这句话的记录。", "en": "Choose a record that refutes the claim." },
-              "role": "practice",
-              "uses": ["scene", "evidence"],
-              "dimension": "false"
-            }
-          ],
-          "parallel": "scene_paths"
-        },
-        {
-          "id": "station_join",
-          "title": { "zh": "完成任务规格", "en": "Specify and test a task" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0D1",
-              "title": { "zh": "给检查系统定任务", "en": "Specify an inspection task" },
-              "task": { "zh": "选择满足任务要求的输出类型。", "en": "Choose an output type that meets the task." },
-              "role": "foundation",
-              "uses": ["query", "outputs", "viewpoint", "evidence"]
-            },
-            {
-              "id": "0D2",
-              "title": { "zh": "该拿什么来比", "en": "What should be compared?" },
-              "task": {
-                "zh": "为每项预测选择可比较的参考数据。",
-                "en": "Choose comparable reference data for each prediction."
-              },
-              "role": "foundation",
-              "uses": ["query", "outputs", "viewpoint", "evidence"]
-            },
-            {
-              "id": "0D3",
-              "title": { "zh": "一张图片的边界", "en": "The limits of one picture" },
-              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
-              "role": "foundation",
-              "uses": ["query", "outputs", "viewpoint", "evidence"]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "machine": "camera",
-      "keeps": [],
-      "title": { "zh": "从场景到像素", "en": "From scene to pixels" },
-      "question": { "zh": "图像怎样形成和存储？", "en": "How are images formed and stored?" },
-      "why": { "zh": "测试台需要图像与成像模型。", "en": "The test station needs images and a camera model." },
-      "series": [
-        {
-          "id": "image_intro",
-          "title": { "zh": "观察数字图像", "en": "Observe a digital image" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1A1",
-              "title": { "zh": "一格格的数", "en": "A grid of numbers" },
-              "task": { "zh": "把图中的值填入空格。", "en": "Copy the values into the empty grid." },
-              "role": "foundation",
-              "uses": ["pixels", "pixel"],
-              "idea": "pixel"
-            },
-            {
-              "id": "1A2",
-              "title": { "zh": "选出像素", "en": "Find a pixel" },
-              "task": { "zh": "选出坐标 (2, 0) 的像素。", "en": "Select the pixel at (2, 0)." },
-              "role": "practice",
-              "uses": ["pixels", "pixel"],
-              "dimension": "direction"
-            },
-            {
-              "id": "1A3",
-              "title": { "zh": "三个通道", "en": "Three channels" },
-              "task": { "zh": "把右边的像素设为蓝色 (0, 0, 1)。", "en": "Set the pixel on the right to blue (0, 0, 1)." },
-              "role": "practice",
-              "uses": ["pixels", "pixel"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1A4",
-              "title": { "zh": "数值如何变化", "en": "How values change" },
-              "task": { "zh": "把每张图和变化方式配对。", "en": "Match each image to the kind of change." },
-              "role": "practice",
-              "uses": ["pixels", "pixel"],
-              "dimension": "combine"
-            }
-          ]
-        },
-        {
-          "id": "projection_path",
-          "title": { "zh": "针孔相机", "en": "Pinhole camera" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1B1",
-              "title": { "zh": "穿过小孔", "en": "Through the opening" },
-              "task": { "zh": "移动物点，使投影落在目标上。", "en": "Move the point so its projection reaches the target." },
-              "role": "foundation",
-              "uses": ["optics", "projection"],
-              "idea": "projection"
-            },
-            {
-              "id": "1B2",
-              "title": { "zh": "移动物体", "en": "Move the object" },
-              "task": { "zh": "调整距离，让像高为 1。", "en": "Adjust depth until the image height is 1." },
-              "role": "practice",
-              "uses": ["optics", "projection"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1B3",
-              "title": { "zh": "移动像平面", "en": "Move the image plane" },
-              "task": {
-                "zh": "调整像平面距离，让像高为 2。",
-                "en": "Adjust the image plane distance until the image height is 2."
-              },
-              "role": "practice",
-              "uses": ["optics", "projection"],
-              "dimension": "direction"
-            },
-            {
-              "id": "1B4",
-              "title": { "zh": "相同的像", "en": "The same image" },
-              "task": {
-                "zh": "选出至少两组像高为 1、距离不同的组合。",
-                "en": "Choose at least two pairs with image height 1 at different depths."
-              },
-              "role": "practice",
-              "uses": ["optics", "projection"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "foundations"
-        },
-        {
-          "id": "array_path",
-          "title": { "zh": "图像数组", "en": "Image arrays" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1C1",
-              "title": { "zh": "行和列", "en": "Rows and columns" },
-              "task": { "zh": "抄下数组的值。", "en": "Copy the values of the array." },
-              "role": "foundation",
-              "uses": ["pixels", "coordinate"],
-              "idea": "coordinate"
-            },
-            {
-              "id": "1C2",
-              "title": { "zh": "读取像素", "en": "Read a pixel" },
-              "task": { "zh": "交出图在 (x, y) 处的值。", "en": "Give the image value at (x, y)." },
-              "role": "foundation",
-              "uses": ["pixels", "coordinate", "lookupidea", "lookup"],
-              "idea": "lookupidea",
-              "adds": ["lookup"]
-            },
-            {
-              "id": "1C2a",
-              "title": { "zh": "读取另一处", "en": "Read another position" },
-              "task": { "zh": "读出图像在 (x, y) 的值。", "en": "Read the image value at (x, y)." },
-              "role": "practice",
-              "uses": ["circuit", "lookupidea", "lookup"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1C3",
-              "title": { "zh": "取出通道", "en": "Separate a channel" },
-              "task": {
-                "zh": "读取像素 (x, y) 的 c 通道。c 的 0、1、2 分别代表 R、G、B。",
-                "en": "Read channel c at pixel (x, y). Channels 0, 1, 2 mean R, G, B."
-              },
-              "role": "foundation",
-              "uses": ["pixels", "lookupidea", "channelidea", "channel", "lookup"],
-              "idea": "channelidea",
-              "adds": ["channel"]
-            },
-            {
-              "id": "1C4",
-              "title": { "zh": "重组颜色", "en": "Reassemble colour" },
-              "task": {
-                "zh": "交换图像的红色与蓝色通道，保留绿色。输入 r、g、b 是对应的通道编号。",
-                "en": "Exchange red and blue channels while retaining green. Inputs r, g, b identify the channels."
-              },
-              "role": "foundation",
-              "uses": ["pixels", "channelidea", "composeidea", "channel", "compose"],
-              "idea": "composeidea",
-              "adds": ["compose"]
-            },
-            {
-              "id": "1C5",
-              "title": { "zh": "交换颜色通道", "en": "Reorder colour channels" },
-              "task": {
-                "zh": "将蓝、红、绿通道依次作为输出的红、绿、蓝通道。",
-                "en": "Use the blue, red, and green channels as the output red, green, and blue channels, respectively."
-              },
-              "role": "practice",
-              "uses": ["pixels", "composeidea", "channelidea", "channel", "compose"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "foundations"
-        },
-        {
-          "id": "lens_path",
-          "title": { "zh": "透镜和对焦", "en": "Lens and focus" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1G1",
-              "title": { "zh": "进光量", "en": "Collecting light" },
-              "task": { "zh": "调整光圈，使进光量为 4。", "en": "Adjust the aperture until collected light is 4." },
-              "role": "foundation",
-              "uses": ["optics", "projection", "lensidea"],
-              "idea": "lensidea"
-            },
-            {
-              "id": "1G2",
-              "title": { "zh": "远处清晰", "en": "Focus on the far object" },
-              "task": { "zh": "调整对焦距离，让远处物体清晰。", "en": "Adjust focus until the far object is sharp." },
-              "role": "practice",
-              "uses": ["optics", "lensidea", "projection"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1G3",
-              "title": { "zh": "清晰的范围", "en": "Depth of field" },
-              "task": {
-                "zh": "保持对焦距离，调整光圈，使清晰深度范围至少为 3000 毫米。",
-                "en": "Keep focus fixed and adjust the aperture until the sharp depth range is at least 3000 mm."
-              },
-              "role": "practice",
-              "uses": ["optics", "lensidea", "projection"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "applications"
-        },
-        {
-          "id": "image_ops",
-          "title": { "zh": "裁剪、缩放与表示", "en": "Crop, resize and representation" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1D0",
-              "title": { "zh": "标出坐标", "en": "Mark coordinates" },
-              "task": {
-                "zh": "读取从左上角开始、大小为 w × h 的区域。",
-                "en": "Read a w × h region starting at the upper-left corner."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "grididea", "grid", "lookup", "lookupidea"],
-              "idea": "grididea",
-              "adds": ["grid"]
-            },
-            {
-              "id": "1D0a",
-              "title": { "zh": "从另一个起点出发", "en": "Start elsewhere" },
-              "task": { "zh": "把一行坐标全部增加起点 x0。", "en": "Offset each coordinate in a row by x0." },
-              "role": "foundation",
-              "uses": ["circuit", "arithidea", "grididea", "grid", "add"],
-              "idea": "arithidea",
-              "adds": ["add"]
-            },
-            {
-              "id": "1D1",
-              "title": { "zh": "截取窗口", "en": "A window into an image" },
-              "task": {
-                "zh": "截取左上角为 (x0, y0)、大小为 w × h 的区域。",
-                "en": "Crop a w × h region starting at (x0, y0)."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "cropidea", "lookupidea", "grididea", "arithidea", "grid", "add", "lookup"],
-              "idea": "cropidea",
-              "builds": "crop"
-            },
-            {
-              "id": "1D2",
-              "title": { "zh": "保留原来的值", "en": "Keep the samples" },
-              "task": { "zh": "截取指定区域。", "en": "Crop the specified region." },
-              "role": "practice",
-              "uses": ["circuit", "cropidea", "crop"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1D2a",
-              "title": { "zh": "原图的尺寸", "en": "The original size" },
-              "task": {
-                "zh": "交出与原图同样宽高的横坐标图和纵坐标图。",
-                "en": "Output horizontal and vertical coordinate images matching the input dimensions."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "sizeidea", "size", "grid", "grididea"],
-              "idea": "sizeidea",
-              "adds": ["size"]
-            },
-            {
-              "id": "1D2b",
-              "title": { "zh": "向相反方向取值", "en": "Read in the opposite direction" },
-              "task": {
-                "zh": "从图像宽度减去右侧留出的 margin，交出对应的横向位置。",
-                "en": "Subtract the right margin from the image width to obtain the horizontal position."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "subidea", "sizeidea", "size", "sub"],
-              "idea": "subidea",
-              "adds": ["sub"]
-            },
-            {
-              "id": "1D3",
-              "title": { "zh": "移动图像", "en": "Move the picture" },
-              "task": {
-                "zh": "按 (dx, dy) 移动图像，空出的位置填 0。",
-                "en": "Move the image by (dx, dy), filling uncovered cells with 0."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "moveidea",
-                "sizeidea",
-                "subidea",
-                "lookupidea",
-                "grididea",
-                "size",
-                "grid",
-                "sub",
-                "lookup"
-              ],
-              "idea": "moveidea",
-              "builds": "translate"
-            },
-            {
-              "id": "1D4",
-              "title": { "zh": "截取移动的图", "en": "Crop a moving picture" },
-              "task": { "zh": "先移动图像，再截取指定区域。", "en": "Translate the image, then crop the specified region." },
-              "role": "practice",
-              "uses": ["circuit", "cropidea", "moveidea", "translate", "crop"],
-              "dimension": "combine"
-            },
-            {
-              "id": "1E1",
-              "title": { "zh": "新的采样位置", "en": "New sample positions" },
-              "task": { "zh": "将端点 0 到 2 均匀分成五个位置。", "en": "Place five evenly spaced positions from 0 to 2." },
-              "role": "foundation",
-              "uses": ["pixels", "coordinate", "moveidea"]
-            },
-            {
-              "id": "1E1a",
-              "title": { "zh": "一个固定的数", "en": "A fixed number" },
-              "task": { "zh": "交出 x 的下一个位置。", "en": "Output the position following x." },
-              "role": "foundation",
-              "uses": ["circuit", "constidea", "arithidea", "const", "add"],
-              "idea": "constidea",
-              "adds": ["const"]
-            },
-            {
-              "id": "1E1b",
-              "title": { "zh": "改变间距", "en": "Change the spacing" },
-              "task": { "zh": "把每个横坐标按倍数 2 拉开，交出新坐标图。", "en": "Multiply each horizontal coordinate by 2." },
-              "role": "foundation",
-              "uses": ["circuit", "mulidea", "grididea", "constidea", "const", "grid", "mul"],
-              "idea": "mulidea",
-              "adds": ["mul"]
-            },
-            {
-              "id": "1E1c",
-              "title": { "zh": "平均分布", "en": "Even spacing" },
-              "task": {
-                "zh": "把 length 按 scale 放大，再均分为 n 段；交出每段长度。",
-                "en": "Scale length by scale, divide it into n equal intervals, and output one interval length."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "dividea", "mulidea", "mul", "div"],
-              "idea": "dividea",
-              "adds": ["div"]
-            },
-            {
-              "id": "1E1d",
-              "title": { "zh": "选择较小的整数", "en": "Choose the lower integer" },
-              "task": {
-                "zh": "把 length 按 n 等分，交出每段长度向下取整后的值。",
-                "en": "Divide length into n equal intervals and round the interval length down."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "flooridea", "dividea", "div", "floor"],
-              "idea": "flooridea",
-              "adds": ["floor"]
-            },
-            {
-              "id": "1E1e",
-              "title": { "zh": "比较位置", "en": "Compare positions" },
-              "task": {
-                "zh": "将 a 向下取整；如果结果小于 b 交出 1，否则交出 0。",
-                "en": "Round a down; output 1 if the result is less than b and 0 otherwise."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "lessidea", "flooridea", "floor", "less"],
-              "idea": "lessidea",
-              "adds": ["less"]
-            },
-            {
-              "id": "1E1g",
-              "title": { "zh": "选择一个值", "en": "Select a value" },
-              "task": {
-                "zh": "当 a 小于 b 时交出 a，否则交出 b。",
-                "en": "Output a when a is less than b, otherwise output b."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "selectidea", "lessidea", "less", "select"],
-              "idea": "selectidea",
-              "adds": ["select"]
-            },
-            {
-              "id": "1E1f",
-              "title": { "zh": "不低于一", "en": "At least one" },
-              "task": { "zh": "交出 a 和 b 中较大的数。", "en": "Output the larger of a and b." },
-              "role": "foundation",
-              "uses": ["circuit", "selectidea", "largeridea", "lessidea", "less", "select"],
-              "idea": "largeridea",
-              "builds": "larger"
-            },
-            {
-              "id": "1E1h",
-              "title": { "zh": "坐标从哪里取", "en": "Find source positions" },
-              "task": {
-                "zh": "原轴有 m 个位置，新轴有 n 个位置；交出新位置 i 对应的原坐标。首尾对齐；n 为 1 时取原轴中心。",
-                "en": "Given m source positions and n output positions, map output i to a source coordinate. Align endpoints; for n = 1 use the source centre."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "axisidea",
-                "const",
-                "sub",
-                "less",
-                "larger",
-                "div",
-                "mul",
-                "select",
-                "subidea",
-                "constidea",
-                "mulidea",
-                "dividea",
-                "lessidea",
-                "selectidea",
-                "largeridea"
-              ],
-              "idea": "axisidea",
-              "builds": "sampleAxis"
-            },
-            {
-              "id": "1E1i",
-              "title": { "zh": "整张坐标图", "en": "Map a coordinate grid" },
-              "task": {
-                "zh": "把宽为 n 的输出坐标映射到宽为 m 的原图。输出为一行。",
-                "en": "Map n output positions to source width m. Output one row."
-              },
-              "role": "practice",
-              "uses": ["circuit", "axisidea", "const", "grid", "sampleAxis", "grididea", "constidea"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1E2",
-              "title": { "zh": "最近的像素", "en": "Nearest pixel" },
-              "task": {
-                "zh": "用最近邻把图缩放到 w × h。首尾对齐；只有一个位置时取原图中心。等距时取较大坐标。",
-                "en": "Resize to w × h using nearest neighbours. Align endpoints; for one sample use the source centre. Break ties towards the larger index."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "nearestidea",
-                "dividea",
-                "flooridea",
-                "largeridea",
-                "lookupidea",
-                "grididea",
-                "arithidea",
-                "sizeidea",
-                "constidea",
-                "axisidea",
-                "const",
-                "size",
-                "grid",
-                "sampleAxis",
-                "add",
-                "floor",
-                "lookup"
-              ],
-              "idea": "nearestidea",
-              "builds": "resizeNearest"
-            },
-            {
-              "id": "1E3",
-              "title": { "zh": "像素之间", "en": "Between pixels" },
-              "task": {
-                "zh": "用双线性插值缩放到 w × h；首尾对齐，单个输出位置取原图中心。",
-                "en": "Resize to w × h using bilinear interpolation; align endpoints and use the source centre for a single output position."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "nearestidea",
-                "linearidea",
-                "lookupidea",
-                "grididea",
-                "arithidea",
-                "sizeidea",
-                "subidea",
-                "constidea",
-                "mulidea",
-                "flooridea",
-                "axisidea",
-                "const",
-                "size",
-                "grid",
-                "sampleAxis",
-                "floor",
-                "sub",
-                "add",
-                "lookup",
-                "mul"
-              ],
-              "idea": "linearidea",
-              "builds": "resizeLinear"
-            },
-            {
-              "id": "1E4",
-              "title": { "zh": "比较放大结果", "en": "Compare enlargements" },
-              "task": {
-                "zh": "分别交出最近邻和双线性缩放结果。",
-                "en": "Output the nearest-neighbour and bilinear resize results."
-              },
-              "role": "practice",
-              "uses": ["circuit", "nearestidea", "linearidea", "resizeNearest", "resizeLinear"],
-              "dimension": "combine"
-            },
-            {
-              "id": "1F1",
-              "title": { "zh": "数值和显示", "en": "Values and display" },
-              "task": {
-                "zh": "显示把小于 0 的亮度画为 0，大于 1 的画为 1。填出显示亮度。",
-                "en": "Display maps brightness below 0 to 0 and above 1 to 1. Fill in the displayed brightness."
-              },
-              "role": "foundation",
-              "uses": ["pixels", "displayidea"],
-              "idea": "displayidea"
-            },
-            {
-              "id": "1F1a",
-              "title": { "zh": "不高于一", "en": "At most one" },
-              "task": { "zh": "交出 a 和 b 中较小的数。", "en": "Output the smaller of a and b." },
-              "role": "foundation",
-              "uses": ["circuit", "displayidea", "smalleridea", "lessidea", "selectidea", "less", "select"],
-              "idea": "smalleridea",
-              "builds": "smaller"
-            },
-            {
-              "id": "1F2",
-              "title": { "zh": "有限的亮度", "en": "Finite brightness levels" },
-              "task": {
-                "zh": "把 0 至 1 均匀分为 L 个亮度，取最近值；等距时取较大值。范围外先限制到 0 至 1。",
-                "en": "Use L evenly spaced brightness levels from 0 to 1; choose the nearest, breaking ties upwards. Clamp values outside the range."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "displayidea",
-                "quantidea",
-                "arithidea",
-                "subidea",
-                "constidea",
-                "mulidea",
-                "dividea",
-                "flooridea",
-                "largeridea",
-                "smalleridea",
-                "const",
-                "larger",
-                "smaller",
-                "sub",
-                "mul",
-                "add",
-                "floor",
-                "div"
-              ],
-              "idea": "quantidea",
-              "builds": "quantise"
-            },
-            {
-              "id": "1F3",
-              "title": { "zh": "还能找回吗", "en": "Can it be recovered?" },
-              "task": { "zh": "将输入量化为 3 个等级。", "en": "Quantise the input to 3 levels." },
-              "role": "practice",
-              "uses": ["circuit", "constidea", "quantidea", "const", "quantise"],
-              "dimension": "false"
-            },
-            {
-              "id": "1Z1",
-              "title": { "zh": "图像处理台", "en": "Image processing station" },
-              "task": {
-                "zh": "裁剪指定区域，双线性缩放到目标宽高，再量化到 L 个等级。",
-                "en": "Crop the given region, resize it bilinearly, then quantise it to L levels."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "linearidea", "cropidea", "quantidea", "crop", "resizeLinear", "quantise"]
-            }
-          ],
-          "parallel": "applications"
-        },
-        {
-          "id": "crop_challenge",
-          "title": { "zh": "缩放裁剪区域", "en": "Resize a crop" },
-          "kind": "challenge",
-          "slots": [
-            {
-              "id": "1X1",
-              "title": { "zh": "放大裁剪区域", "en": "Resize a crop" },
-              "task": {
-                "zh": "截取指定区域，然后用最近邻缩放到目标宽高。",
-                "en": "Crop the given region, then resize it using nearest-neighbour sampling."
-              },
-              "role": "challenge",
-              "uses": ["circuit", "nearestidea", "cropidea", "crop", "resizeNearest"],
-              "naive": {
-                "zh": "先缩放整幅图再按旧坐标裁剪。",
-                "en": "Resize the full image before applying the original crop coordinates."
-              }
-            }
-          ],
-          "after": "1E4"
-        }
-      ]
-    }
-  ],
-  "parallel": [
-    {
-      "id": "scene_paths",
-      "why": { "zh": "外观变化与证据判断互不依赖。", "en": "Appearance variation and evidence do not depend on one another." }
-    },
-    {
-      "id": "foundations",
-      "why": {
-        "zh": "针孔投影与数组坐标各自建立。",
-        "en": "Pinhole projection and array coordinates can be learned independently."
-      }
-    },
-    {
-      "id": "applications",
-      "why": {
-        "zh": "图像运算与透镜实验互不依赖。",
-        "en": "Image operations and lens experiments do not depend on one another."
-      }
-    }
-  ],
-  "requests": [],
-  "deferred": [
-    {
-      "about": { "zh": "空间滤波及后续视觉专题", "en": "Spatial filtering and later vision topics" },
-      "why": { "zh": "本次只制作第 0、1 章。", "en": "This scope covers chapters 0 and 1." }
     }
   ]
 }

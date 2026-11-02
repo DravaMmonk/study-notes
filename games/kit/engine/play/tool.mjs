@@ -5,6 +5,7 @@
 //   { "id": 1, "tool": "play_view",    "args": { "game": "bus", "session": "s1", "level"?: "1-2" } }
 //   { "id": 2, "tool": "play_attempt", "args": { "game": "bus", "session": "s1", "text": "bit <- line" } }
 //   { "id": 3, "tool": "play_hint",    "args": { "game": "bus", "session": "s1" } }
+//   { "id": 4, "tool": "play_explain", "args": { "game": "bus", "session": "s1", "text": "a register keeps…" } }
 //   { "id": 4, "tool": "play_give_up", "args": { "game": "bus", "session": "s1" } }
 //   { "id": 5, "tool": "play_status",  "args": { "game": "bus", "session": "s1" } }
 //   → { "id": 1, "result": { "text": "…", "level"?, "task"?, "pass"? } }   or   { "id": 1, "error": "…" }
@@ -20,6 +21,7 @@ export const TOOLS = {
   play_view: (play, args) => play.view(args.level ?? null),
   play_attempt: (play, args) => play.attempt(String(args.text ?? '')),
   play_hint: (play) => play.hint(),
+  play_explain: (play, args) => play.explain(String(args.text ?? '')),
   play_give_up: (play) => play.giveUp(),
   play_status: (play) => play.status(),
 }

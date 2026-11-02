@@ -69,26 +69,54 @@ copying the last wording forward.
 - Part types, port names and setting values are ASCII, so every board prints as a blueprint (`kit/circuit/text.js`,
   `games/DESIGN.md` §6): symbols go in labels; a notation that is symbolic by nature gets a `parts.text` spelling.
 
-## Purpose: depth, not brevity
+## Purpose: playing is learning
 
-These games exist to go step by step from the very first idea to advanced knowledge. Length is never a reason to
-cut: as long as every level has real content and the layout follows the rules below, a longer era or a longer
-course is better — a complex mechanism taken apart into more pieces, each built up from the one below it in more
-detail, is exactly the point. When planning, do not cap the number of levels or chapters, merge eras to save
-length, or skip a sub-mechanism because "the course is already long"; take a hard mechanism apart until each piece
-is one small step, and give each piece its practice. What is not allowed is padding: levels that repeat without a
-new dimension, or chapters with no mechanism of their own.
+Every wire placed, knob turned and claim judged must be the player working out a piece of the field; what they
+carry away is knowledge they can state in the field's own terms, not the game's controls (`games/DESIGN.md` §1,
+§4.1). So a course is planned from **knowledge points** taken from the sources (a concept, method, convention or
+fact, with its term and where the course teaches it), never from parts: a part, an operation or a knob is a tool
+that comes in with the point that needs it. The number of levels follows the knowledge: a hard point is taken apart
+into steps, each a level, and each of its facets (a convention, an edge, a failure, a look-alike) is practised; a
+level with no point and no new facet of one is padding and is cut, and new numbers alone are tests or tasks, not a
+level. When a check says something is under-practised, look for a missing facet; if there is none, the course did
+not need more levels.
+
+## Learning checklist
+
+Read every level as a learner who has not taken the course, against its blueprint slot (`question`, `chain`,
+`teaches`/`facet`, the point's `term`, `source`, `wall`, `misconception`):
+
+- **A point of the field.** Name the knowledge point and its source. A level whose only content is a part or an
+  operation ("take the larger", "round down") is a tool level: fold the tool into the level that needs it.
+- **A question, then a chain.** The intro leaves the learner holding the slot's question, in the field's words, with
+  what is given and what counts as right. Walk the chain: can every step be taken from what is on screen (a task,
+  a test, a feedback line, a counterexample)? A one-step chain ("do what the brief says") is a task or a test of a
+  neighbouring level, not a level.
+- **The answer depends on the material.** For a judgement or choice, cover the picture and the data: if the answer
+  still follows from the wording, from matching the prompt's words to an option's label, or from the options'
+  order, the level teaches nothing. Options get neutral names; the difference lives in the material.
+- **No sliding to green.** A bench whose single open knob is dragged until the goal's readout turns green is solved
+  without thought (`pd-slide`): open knobs that pull against each other, ask for a prediction before the result, or
+  judge only on submit.
+- **The misconception fails, with a reason.** The naive answer is the point's misconception; a test makes it fail,
+  and its feedback says what is wrong in the field's terms, never "the goal is not met".
+- **Named after it is done.** Passing a level that brings a point names it by its term and links its entry; the entry
+  defines it in the field's words, cites the source and sets it apart from its neighbours. After a chapter, the
+  learner can retell it in the field's terms.
+- **No repeats.** The same reference board in two levels (`pd-repeat-board`), the same intro, brief, hint or "why it
+  is wrong" in two places (`pd-repeat-text`): one of them is padding, or boilerplate standing in for what this level
+  says.
 
 ## Curriculum review checklist
 
 The audit cannot see everything. Before calling a curriculum done, check these by hand (`games/DESIGN.md` §11
 shows them at work in 《证明完毕》):
 
-- **Practice density.** Each new mechanism is followed by its own cluster of 3–5 levels that vary it along
-  different dimensions (§2.3 table: surface, direction, depth, scaffolding, combination, true-or-false), easy to
-  hard, ending in a combination or a false-target level — before the next mechanism appears. The era must not
-  read as a list of one theorem or rule per level. Practice is judged by hand, for real variation; never add
-  levels to reach a count. The audit's `idle-idea` (§5) only checks placement: an idea is used by the level that
+- **Practice density.** Each new knowledge point is followed by practice of its facets, one facet a level, varied
+  along the §2.3 dimensions (direction, depth, scaffolding, combination, true-or-false), easy to hard, ending in a
+  combination or a false-target level — before the next point appears. New surface or new numbers are tests or
+  tasks of a level, never a level. The era must not read as a list of one theorem or rule per level. Practice is
+  judged by hand, for real variation; never add levels to reach a count. The audit's `idle-idea` (§5) only checks placement: an idea is used by the level that
   brings it in, and put to work again before two more new ideas arrive. Its fix is moving the idea to where it is
   needed or making the later levels truly use it. A finding a game cannot fix yet goes on its work list (its design
   doc and `game.json` `open`), never away by loosening the rule.
@@ -155,11 +183,19 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
 
 - No spoiler of a core idea of the topic (a recurrence, why a merge operation is right); say what a part does,
   never why it solves the level. Mechanical levels may hand-hold.
-- **Pass texts never touch the answer (hard rule).** A pass text says nothing of the level's answer, wiring or way of
-  solving it: no retelling of what was wired, no why it works, no naming the key step. At most one high-level,
-  abstract pointer where it truly helps; most minor levels (practice, mechanical) get none.
-- **Brevity.** Standard written language, no translationese. Copy runs on from the level before; a point is made once,
-  where it first comes up, never again. Nothing to say means nothing written.
+- **Pass texts name the knowledge, never the answer (hard rule).** A level that brings a knowledge point names what
+  the player just did by the field's term, links its entry, and says in a sentence or two where it sits in the field
+  (what it solves, what it is not, what the course or common libraries call it). It says nothing of the level's
+  answer, wiring or way of solving it: no retelling of what was wired, no why it works, no naming the key step.
+  Practice levels may have none.
+- **Complete, not padded.** An intro lets someone who has not taken the course know where the machine is stuck (in
+  the field's words), the question this level answers, what is given and what counts as right. A sentence that
+  would fit any level ("the pipeline must now handle new numbers") says nothing. Copy runs on from the level before;
+  a point is made once, where it first comes up. Standard written language, no translationese.
+- **The wording does not answer.** A brief, a prompt or an option never uses the answer's words ("box its location"
+  against an option "a location box"); options are named neutrally.
+- **The field's terms.** Terms are the sources' and the field's own, in both languages; every knowledge point has an
+  entry of its id, opened at the level that brings it, linked there.
 - No forward references: nothing about later levels; a pass text only sums up this level.
 - References to a level, a part or an encyclopedia entry are links, on both the zh and en side:
   `<level-ref to="id">`, `<part-ref to="part key">`, `<wiki-ref to="entry id">` (each closed at once). They show the

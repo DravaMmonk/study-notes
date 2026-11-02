@@ -5,6 +5,7 @@
 //   (no action)            print the level played now (or `level`, when it is open): what the player sees of it
 //   --attempt <file | ->   try a board (blueprint text, or the domain's own answer) from a file or stdin
 //   --hint                 open the next hint
+//   --explain <text>       after a pass: what you worked out on that level, in the field's terms
 //   --give-up              give the level up and move on
 //   --status               where the session stands
 //   --usage k=v,…          note what the whole session cost (tokens, seconds, cost), as the runner knows it
@@ -23,12 +24,12 @@ for (let k = 0; k < args.length; k++) {
   const a = args[k]
   if (!a.startsWith('--')) { plain.push(a); continue }
   const key = a.slice(2)
-  const takes = ['session', 'lang', 'attempts', 'levels', 'player', 'attempt', 'usage'].includes(key)
+  const takes = ['session', 'lang', 'attempts', 'levels', 'player', 'attempt', 'usage', 'explain'].includes(key)
   flags[key] = takes ? args[++k] : true
 }
 const [game, level = null] = plain
 if (!game) {
-  console.error('usage: npm run play -- <game> [level] [--session name] [--attempt file|-] [--hint] [--give-up] [--status]')
+  console.error('usage: npm run play -- <game> [level] [--session name] [--attempt file|-] [--explain text] [--hint] [--give-up] [--status]')
   process.exit(2)
 }
 
@@ -42,6 +43,7 @@ const { play, record, save } = await openSession(game, flags.session ?? 'cli', {
 
 let out
 if (flags.attempt) out = play.attempt(flags.attempt === '-' ? readFileSync(0, 'utf8') : readFileSync(flags.attempt, 'utf8'))
+else if (flags.explain) out = play.explain(flags.explain)
 else if (flags.hint) out = play.hint()
 else if (flags['give-up']) out = play.giveUp()
 else if (flags.status) out = play.status()

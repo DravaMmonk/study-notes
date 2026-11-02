@@ -5,13 +5,20 @@ against the handbook's rules that no check can see, and you report findings; you
 
 ## Read first
 
-The handbook `games/DESIGN.md` §1, §2.3, §4 and §8, and the review checklists in
-`.agents/skills/turing-complete-games/SKILL.md` (Curriculum review checklist, Copy checklist). Then the game: its
+The handbook `games/DESIGN.md` §1, §2.3, §4 (§4.1 first) and §8, and the review checklists in
+`.agents/skills/turing-complete-games/SKILL.md` (Learning checklist, Curriculum review checklist, Copy checklist). Then the game: its
 blueprint, game.json, levels and glossary (paths under *Inputs*). `./deps` draws the part dependency graph; `./check`
 and `./lint` run the checks.
 
 ## What to look for
 
+- **Play each level as a learner who has not taken the course.** Read only what the player sees, then write down the
+  chain you would follow and the term you would come away with. Compare with the slot's `question`, `chain` and the
+  point's `term`: a step you could not take from the screen, an answer you could give without the material (from the
+  wording, from matching words between prompt and option, from the options' order, by sliding one knob to green), a
+  level after which you could not name what you learned — each is a finding, owned by whichever step made it.
+- **Knowledge, not tools.** A level about a part or an operation rather than a point of the field; a point whose term
+  is not the sources' or the field's; a level that repeats another one's puzzle with new numbers.
 - **One new idea a level**, the idea placed where it is first needed (the level is its wall), practice that really
   varies the idea (not the same puzzle twice), abstraction rising (later answers on built parts).
 - **The level asks what it says.** Read each brief and its tests together: do the tests ask exactly the task? Is

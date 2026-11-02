@@ -61,7 +61,13 @@ for (const [id, count] of Object.entries(GAMES)) {
       const r = play.attempt(refText)
       // A stage of a table level passes without the level passing: the next view is the next stage of it.
       if (!r.pass) assert.match(r.text, /On to stage/, `${view.level}: the reference fails: ${r.text}`)
-      if (r.pass) played++
+      if (r.pass) {
+        // A pass asks what the player worked out; the answer is kept on the level's outcome.
+        assert.match(r.text, /--explain/)
+        play.explain(`worked out ${view.level}`)
+        assert.equal(record.levels.filter((e) => e.outcome === 'solved').at(-1).learned, `worked out ${view.level}`)
+        played++
+      }
     }
     assert.equal(played, count, `${id}: ${played} levels passed of ${count}`)
     if (['bus', 'factory', 'vision-complete'].includes(id)) assert.ok(naives > 0, `${id}: no naive answer was tried`)
