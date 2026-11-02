@@ -29,6 +29,39 @@
           "changes": [],
           "report": "Not logged in · Please run /login",
           "transcript": "/var/folders/16/l6ytcvs91vg1_myvbh7zl6bw0000gn/T/pipeline-vision-lab-blueprint-xcgnN4/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-02T16:23:45.504Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 4193490,
+            "seconds": 1345,
+            "cost": 5.5330126,
+            "turns": 36
+          },
+          "calls": {
+            "op": {
+              "runs": 7,
+              "failed": 0
+            },
+            "check": {
+              "runs": 1,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 3,
+              "failed": 2
+            }
+          },
+          "changes": [
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "report": "The gate passes with no failures. The blueprint replaces the old one entirely (`blueprint.put`). It is at `/home/user/study-notes/games/vision-lab/blueprint.json`, and the changeset I ran is `blueprint.json` in my working directory. What's left on the gate is 12 \"no practice after this point\" reports and the one open request, all explained below.\n\n## Knowledge points (21)\n\n**Era 0, \"What is the question?\"** (all cite `01-introduction.md` except robustness, which cites `02-basics.md`):\n- object detection (§1, slide 7)\n- instance segmentation (§1 and §3, slides 7 and 30)\n- intra-class variation (§3, slide 28)\n- robustness (`02-basics.md` §1, adversarial examples)\n- inverse problem (§2, slide 8)\n\n**Era 1, \"From scene to pixels\"** (`02-basics.md` unless noted):\n- image array (§3 and §1)\n- pixel coordinates (§3)\n- pinhole projection (§1 and §2)\n- lens (§2)\n- depth of field (§2)\n- field of view (§2)\n- focal length in pixels (§4 workshop and §2)\n- channel order (§3 and §4 workshop)\n- value range (§3, plus the chapter spec §1F1)\n- sampling grid (§4, plus the chapter spec §1E)\n- nearest-neighbour interpolation (§4)\n- linear interpolation (§4)\n- bilinear interpolation (§4)\n- quantisation (§3 and §1, plus the chapter spec §1F2)\n- cropping (§4)\n- aspect ratio (§4)\n\n## Shape of the course: 30 slots instead of 59\n\n**Era 0 (9 slots).** \"State the output\" (0A1–0A3) comes first, then two parallel series, \"Appearance changes\" (0B1–0B3) and \"What an image can tell\" (0C1–0C2), which join at a final combine slot (0D1). Every slot is a choice task, and the domain works out right and wrong answers from the data.\n\n**Era 1 (21 slots).** \"The digital image\" (1A1–1A3) comes first, then three parallel branches:\n- **Pinhole and lens** (1B1–1B8), on the parameter bench.\n- **Read an image right** (1C1–1C2): channel order, then value range.\n- **Resize, quantise and crop** (1D1–1D10), as circuits. The player builds five parts: `sampleGrid`, `resizeNearest`, `resizeLinear` (built in 1D4, then upgraded to bilinear in 1D5), `quantise` and `crop`. The last slot (1D10) uses `crop` and `resizeLinear`.\n- One optional challenge, 1X1 \"Digital zoom\", hangs after 1D10.\n\n**How many slots each point gets.** Every point is brought in by exactly one slot. The practice slots each show a new facet:\n- detection and instance segmentation: 0A3, what a depth map's values mean\n- robustness: 0B3, designing the test set instead of judging a claim\n- inverse problem: 0C2, occlusion\n- pinhole projection: 1B2, changing the focal length; 1B3, size and distance can't be told apart\n- pixel coordinates: 1A3, array index `I[y, x]` against a `(w, h)` size\n- depth of field: 1B6, aperture and focus traded off together\n- nearest neighbour: 1D3, shrinking drops fine stripes\n- bilinear interpolation: 1D6, no method is always best\n- quantisation: 1D8, it can't be undone\n\nBilinear interpolation is split into two steps, 1D4 (one dimension) then 1D5 (two), as the brief suggests.\n\n**Where I departed from the chapter spec.** Each change is also written into the blueprint's scope:\n- **Translation moved to the filtering chapter.** In chapter 1 only the contrived 1D4 used it.\n- **Lens follows the pinhole in one branch.** It no longer runs as its own parallel series.\n- **No showcase levels for single parts.** Lookup, channel and compose come in with the first point that needs them; the eight old slots that each taught one part (constant, larger value and so on) are gone.\n- **Resizing aligns pixel centres** (as OpenCV's bilinear resize does). A 1-pixel output needs no special case, so the compare and select parts aren't needed.\n- **Subtraction isn't a primitive.** It's wired as adding −1 times b.\n- **Fewer primitives.** There are 12, and none can be wired from the others except `max`; the next section explains why I kept it.\n\n## Request (open)\n\n**`pinhole-sensor`** (for 1B7 and 1B8): give the pinhole bench a sensor of known size in mm and pixels. It should draw the sensor's edges, mark objects that fall outside the frame, show readings in pixels as well as mm, accept targets in pixels, and hold several objects. Field of view and focal length in pixels can't be taught without seeing where the frame ends and converting mm to pixels. Neither can move to a circuit: the camera branch doesn't hold the arithmetic parts.\n\n## REPORT findings left\n\nThe 12 `bp-lonely` reports (a point with no practice slot before the next one), with my reasons:\n- **0A1, 0B1, 1A1, 1B4, 1B7, 1D1, 1D4, 1D9:** the next slot builds on the point, and its edge cases are already rounds or tests of the slot itself.\n- **1B8, 1C1, 1C2, 1D10:** each ends its branch. Its other facets are tasks inside the slot, or (for aspect ratio) the challenge.\n\nI found no further facet that wouldn't be padding.\n\n## What I'm unsure of\n\n- **Two judgement calls on primitives.** I dropped `sub` but kept both `min` and `max`. `max` can be wired as −min(−a, −b), but I judged that sign trick off-topic (handbook §8, primitives too low).\n- **The mechanism label for choice tasks.** They're filed under `audit`, because the catalogue's list of mechanism ids has no entry for them.\n- **Era 1 wants a \"camera meets pixels\" join, but the audit blocks it.** The last series of an era must use a part built in that era, so the resizing pipeline has to come last. That puts the join (focal length in pixels) at the end of the camera branch instead.\n- **1B8 may be too easy to slide through on the bench.** It asks for a computed value. The level designer may need a predict-then-check task, or a choice task with a written answer.\n- **The camera branch doesn't really need \"The digital image\".** It runs after that series only because its last slot uses pixel coordinates.",
+          "transcript": "/tmp/pipeline-vision-lab-blueprint-Srv3EQ/transcript.jsonl"
         }
       ],
       "gates": [
@@ -146,6 +179,91 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-02T16:23:45.535Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-lonely",
+              "at": "0A1",
+              "says": "detection has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "0B1",
+              "says": "intra-class-variation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A1",
+              "says": "image-array has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1B4",
+              "says": "lens has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1B7",
+              "says": "field-of-view has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1B8",
+              "says": "pixel-units has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1C1",
+              "says": "channel-order has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1C2",
+              "says": "value-range has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D1",
+              "says": "sampling-grid has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D4",
+              "says": "linear-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D9",
+              "says": "cropping has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D10",
+              "says": "aspect-ratio has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-open",
+              "at": "pinhole-sensor",
+              "says": "domain request open: Give the pinhole bench an optional sensor (height and width in millimetres and in pixels, principal point at its centre): draw its edges on the image plane, mark which objects fall beyond them and are out of view, read image positions and heights in both millimetres and pixels, allow targets in pixels, and allow several objects at different lateral positions.",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -162,6 +280,17 @@
               "says": "its slot has a naive answer, the level none"
             }
           ],
+          "reports": []
+        }
+      ]
+    },
+    "domain": {
+      "runs": [],
+      "gates": [
+        {
+          "at": "2026-11-02T16:25:48.018Z",
+          "ok": true,
+          "failures": [],
           "reports": []
         }
       ]

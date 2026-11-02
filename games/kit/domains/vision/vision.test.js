@@ -15,7 +15,7 @@ import { gridCheck, gridReference, gridStart } from './grid.js'
 import { JUDGES, verdictOf } from './judges.js'
 import { describe, factsOf, render, revealing, sameImage } from './scene.js'
 import { play } from './play.js'
-import { project } from './benches/pinhole.js'
+import { pinhole, pinholeView, project } from './benches/pinhole.js'
 import { lensView } from './benches/lens.js'
 import { lessonProblems } from './benches/lesson.js'
 import domain from './domain.js'
@@ -303,6 +303,26 @@ test('the pinhole bench projects onto the upright virtual plane (1B1–1B3)', ()
   assert.equal(project({ H: 2, f: 2, Z: 4 }).h, 1)
   assert.equal(project({ H: 3, f: 2, Z: 6 }).h, 1)
   assert.equal(project({ H: 2, Z: 4, f: 4 }).h, 2)
+})
+
+test('the pinhole bench with a sensor: pixels, the field of view, and which objects fall out of view (1B7, 1B8)', () => {
+  // A 20 mm × 30 mm sensor of 200 × 300 pixels: 0.1 mm a pixel.
+  const sensor = { height: 20, width: 30, pxHeight: 200, pxWidth: 300 }
+  const one = pinholeView({ H: 120, Z: 600, sensor }, { f: 50 })
+  assert.equal(one.h, 10)
+  assert.equal(one.h_px, 100)
+  assert.equal(one.fpx, 500)
+  assert.ok(Math.abs(one.fov - 2 * Math.atan(10 / 50) * 180 / Math.PI) < 1e-9)
+  assert.equal(one.inView, 1)
+  // A row of objects at one depth: a long focal length puts the outer ones past the sensor's edges.
+  const row = { Z: 1000, sensor, objects: [{ id: 'mid', X: -50, H: 100 }, { id: 'top', X: 150, H: 100 }, { id: 'low', X: -250, H: 100 }] }
+  const wide = pinholeView(row, { f: 35 })
+  const long = pinholeView(row, { f: 100 })
+  assert.deepEqual([wide.in_mid, wide.in_top, wide.in_low, wide.allIn], [1, 1, 1, 1])
+  assert.deepEqual([long.in_mid, long.in_top, long.in_low, long.inView, long.allIn], [1, 0, 0, 1, 0])
+  assert.ok(Math.abs(long.h_mid_px - 100) < 1e-9)
+  assert.ok(long.fov < wide.fov)
+  assert.equal(pinhole.verify(pinhole.make({ target: { of: 'h_px', value: 1 } }), {}), 'a target in pixels needs a sensor')
 })
 
 test('a bench’s lesson: the start fails, some setting passes, the naive settings fail, every pass holds what it teaches', () => {
