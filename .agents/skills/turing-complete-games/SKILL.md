@@ -51,7 +51,8 @@ copying the last wording forward.
   server's `modify`, or the studio (`npm run studio`, §6.7: the same tools over HTTP, forms from the schemas, the
   game played from the pending changeset), never JSON edited by hand. A changeset is checked as a whole and written
   only when it passes, with its save migration generated; read the game's `vocabulary` (MCP) or `npm run op -- list`
-  first. The studio knows no domain: it picks a generic kernel control from a value's schema shape; where the shape
+  first. A wording changed across a game is the `replace` tool's changeset (MCP, or the studio's search), run through
+  `modify` like any other — never a find-and-replace on the files. The studio knows no domain: it picks a generic kernel control from a value's schema shape; where the shape
   does not say how a value reads, the vocabulary adds a declarative hint to the schema (`view: 'grid' | 'ticks'`,
   `step`, `section`; `games/DESIGN.md` §6.7), and a domain may only add a headless display (`scene` in domain.js),
   never an editor.
