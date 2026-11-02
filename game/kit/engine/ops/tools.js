@@ -236,13 +236,15 @@ export const TOOLS = {
       const keys = parsePath(path)
       const lines = getAt(levelIn(content, level), keys)
       const domain = await domainOf(content)
+      const task = keys[0] === 'tasks' ? keys[1] : null
       const read = (domain.spec(content).blueprints ?? []).filter((b) => b.level === level)
-      // The board the domain read from these very lines, else these lines read as the level reads its reference.
+      // The board the domain read from these very lines, else these lines read as the level (its task, where the
+      // domain says which) reads its reference.
       const bp = read.find((b) => JSON.stringify(b.write(b.board)) === JSON.stringify(lines))
-      const reference = read.filter((b) => !b.naive).at(-1)
+      const reference = read.filter((b) => !b.naive && (task === null || b.task === undefined || b.task === task)).at(-1)
       if (!bp && !reference) return { note: `${level} has no board its domain reads` }
       const board = bp ? bp.board : reference.read(lines)
-      return { data: ((bp ?? reference).save ?? ((b) => b))(board), task: keys[0] === 'tasks' ? keys[1] : null }
+      return { data: ((bp ?? reference).save ?? ((b) => b))(board), task }
     },
   },
   search: {

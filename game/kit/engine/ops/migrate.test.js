@@ -12,7 +12,6 @@ const migrate = (ops, save) => migrations([{ version: 2, ops }]).migrate({ versi
 test('ancestors and id moves', () => {
   assert.deepEqual([...ancestors(path(['a', 'b', 'c']).levels).get('c')], ['b', 'a'])
   assert.deepEqual([...idMoves(['a', 'b'], [{ rename: { a: 'x' } }, { rename: { x: 'y', b: null } }])], [['a', ['y']], ['b', []]])
-  assert.deepEqual([...idMoves(['a', 'b', 'c'], [{ merge: ['a', ['a', 'b']] }, { split: ['c', ['c1', 'c2']] }])], [['a', ['a']], ['b', ['a']], ['c', ['c1', 'c2']]])
 })
 
 test('a level put earlier is counted solved for whoever solved the level now after it', () => {
@@ -39,18 +38,18 @@ test('a renamed level keeps its state; a removed one loses it; the step speaks o
   assert.deepEqual(out.data, { bee: 'board b' })
 })
 
-test('a level that now builds a part makes the kept board the part’s', () => {
-  const ops = saveOps({ before: path(['a', 'b']), after: path(['a', 'b'], { b: ['adder'] }), idOps: [] })
-  assert.deepEqual(ops, [{ built: ['b'] }])
-  assert.deepEqual(migrate(ops, { solved: ['a', 'b'], data: { b: 'board' } }).built, { b: 'board' })
+test('a level that now builds a part makes the board kept on its last task the part’s', () => {
+  const keys = (id) => (id === 'b' ? ['b1', 'b2'] : [id])
+  const ops = saveOps({ before: path(['a', 'b']), after: path(['a', 'b'], { b: ['adder'] }), idOps: [], keys })
+  assert.deepEqual(ops, [{ built: [['b', 'b2']] }])
+  assert.deepEqual(migrate(ops, { solved: ['a', 'b'], data: { b2: 'board' } }).built, { b2: 'board' })
 })
 
-test('a level whose kept state no longer applies drops it the domain’s way, and a domain without one refuses', () => {
-  const drop = (ids) => [{ data: { drop: ids } }]
-  assert.deepEqual(saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a'], drop }), [{ data: { drop: ['a'] } }])
-  assert.throws(() => saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a'] }), /no way to drop it/)
+test('a level whose puzzle changed drops the boards kept on each of its tasks', () => {
+  const keys = (id) => [`${id}#0`, `${id}#1`]
+  assert.deepEqual(saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a'], keys }), [{ drop: ['a#0', 'a#1'] }])
 })
 
-test('with no course before (content that did not fit), only the ops’ own and the domain’s', () => {
+test('with no course before (content that did not fit), only the ops’ own and the stale boards', () => {
   assert.deepEqual(saveOps({ before: null, after: path(['a']), idOps: [{ rename: { x: 'a' } }], placed: new Set(['a']) }), [{ rename: { x: 'a' } }])
 })

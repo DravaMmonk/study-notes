@@ -20,7 +20,7 @@ const T = (zh, en) => ({ zh, en })
 
 /** The editor's description of this level's cards (../../../circuit/model.js): the wiring (../board.js), drawn. */
 function partsFor(level, own) {
-  const builderOf = (type) => own.LEVELS.find((L) => L.builds?.type === type)
+  const builderOf = own.builtBy
   const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
   return {
     ...wiring(level, own),
@@ -88,7 +88,7 @@ export default function Screen(screen) {
     },
   })
   const { shown: palette, folded } = useMemo(() => own.offerIn(level, flags), [own, level, flags])
-  const builderOf = (type) => own.LEVELS.find((L) => L.builds?.type === type)
+  const builderOf = own.builtBy
 
   // The tick shown: the one a run is on (or its last, once past it); before a run, the first, as a preview.
   const runOf = checked.runs[run.at]

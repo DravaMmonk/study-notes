@@ -6,7 +6,8 @@
 // plays on in line.js.
 
 import { S } from '../../engine/schema.js'
-import { defineVocabulary } from '../../engine/vocabulary.js'
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { taskLevel } from '../../engine/tasks.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -40,26 +41,31 @@ const TEST = S.obj({
   line: BITS,
   inputs: S.opt(S.map(S.list(S.int()), { about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
 })
-const LEVEL = S.obj({
+// What a level says once; then each task: its puzzle, done in turn (../../engine/tasks.js).
+const ONCE = {
   title: S.text(),
-  brief: S.text(),
   intro: S.opt(S.list(S.obj({ t: S.text() }))),
-  hint: S.opt(TEXTS),
   after: S.opt(S.text()),
   note: S.opt(S.text()),
-  adds: S.opt(S.list(S.ref('part'))),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的输入口和结果口就是那个任务的输入和输出', 'once passed the last task’s board is the part `type`: its ports are that task’s inputs and outputs') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+}
+const TASK = {
+  brief: S.text(),
+  hint: S.opt(TEXTS),
+  intro: S.opt(S.list(S.obj({ t: S.text() }), { section: 'read', about: t('这个任务自己的引言：第一次做到它时读', 'the task’s own intro: read the first time it is played') })),
+  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
   listens: S.opt(S.bool({ about: t('板上有线元件', 'the board has the line card') })),
   talks: S.opt(S.bool({ about: t('板上有「说」元件：接到它的位每一拍说到线上', 'the board has the say card: the bit wired to it goes on the line every tick') })),
   inputs: S.opt(S.list(PORT)),
   outputs: S.opt(S.list(PORT)),
-  tests: S.list(TEST, { min: 1 }),
-  hidden: S.opt(S.list(TEST, { about: t('隐藏测试：每次运行一并检查，通关后公开', 'hidden tests: checked with every run and shown once passed') })),
+  tests: S.list(TEST, { min: 1, section: 'tests' }),
+  hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开', 'hidden tests: checked with every run and shown once passed') })),
   want: S.map(S.call('want'), { about: t('每个输出（和 say）每一拍应当是什么', 'what each output (and say) must be, tick by tick') }),
   solution: BOARD,
-  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { about: t('通过后这块板成为元件 type：它的输入口和结果口就是关卡的输入和输出', 'once passed the board is the part `type`: its ports are the level’s inputs and outputs') })),
-  showcase: S.opt(S.text({ about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
-})
+  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
+}
 
 /* ---------- game.json ---------- */
 
@@ -76,14 +82,6 @@ const ERA = S.obj({
   topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
 })
-const SAVE_OP = S.either(
-  S.obj({ rename: S.map(S.either(S.str(), S.oneOf([null]))) }),
-  S.obj({ grant: S.list(S.str()) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ built: ids }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ split: S.list(S.either(S.str(), ids)) }),
-)
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
@@ -91,7 +89,7 @@ const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
-  saves: S.list(S.obj({ version: S.int({ min: 2 }), ops: S.list(SAVE_OP) })),
+  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({
@@ -99,5 +97,5 @@ export const vocabulary = defineVocabulary({
   version: 1,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
-  level: LEVEL,
+  level: taskLevel(ONCE, TASK),
 })

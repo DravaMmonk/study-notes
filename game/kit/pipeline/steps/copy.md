@@ -32,7 +32,7 @@ in Chinese and English, through the operation set. You change no test, board or 
 
 ## How to work
 
-Use `text.set` for one text (`level=<id> path=intro[0].t zh=… en=…`), `level.patch` for several fields of a level,
+Use `text.set` for one text (`level=<id> path=intro[0].t zh=… en=…`; a task's brief: `path=tasks[0].brief`), `level.patch` for several fields of a level,
 `game.set` for game.json texts (`eras[0].title`, `lede`…), `glossary.put` for entries. Write changesets as JSON files
 in your directory and run `./op --file <file>` (`--dry-run` first). `./lint` runs the copy lint; `./check` the game's
 checks (links, both sides, entries open in time); `./gate` both. Every failure names a rule. Fix until the gate is

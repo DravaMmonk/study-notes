@@ -12,7 +12,7 @@
 // Nothing a player could not see is shown: no reference or naive answers, no hidden tests (only how many fail), no
 // level data beyond what the screen draws.
 
-import { firstTask, flagsIn, passed, saved, tasksDone } from '../../shell/progress.js'
+import { firstTask, flagsIn, passed, saved, taskPassed } from '../../shell/progress.js'
 import { close, outcomeOf } from './session.js'
 import { plain, refsIn, side } from './words.js'
 
@@ -55,7 +55,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     level: level.tasks ? { ...level, ...level.tasks[task] } : level,
     flags: flagsIn(game, record.progress, level, task),
     progress: record.progress,
-    solved: solved().has(level.id) || tasksDone(game, record.progress, level.id) > task,
+    solved: solved().has(level.id) || taskPassed(game, record.progress, level.id, task),
     task,
     fails: record.levels.find((e) => e.level === level.id && e.task === task)?.attempts ?? 0,
   })
@@ -77,7 +77,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
       const entry = outcomeOf(record, at.level.id, at.task, required(at.level.id), now())
       if (opened.covered !== false) return { at, ctx, opened, entry, skipped }
       close(entry, 'skipped', now(), { why: side(opened.why, 'en') })
-      skipped.push(`${names('level', at.level.id)}${at.level.tasks ? ` (${at.task + 1}/${at.level.tasks.length})` : ''}: ${say(opened.why)}`)
+      skipped.push(`${names('level', at.level.id)}${at.level.tasks?.length > 1 ? ` (${at.task + 1}/${at.level.tasks.length})` : ''}: ${say(opened.why)}`)
       pass(at)
       asked = null
     }
@@ -85,7 +85,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
 
   const heading = (at) => {
     const chapter = game.chapters?.find((c) => c.id === at.level.chapter)
-    const steps = at.level.tasks ? ` · ${lang === 'en' ? 'task' : '任务'} ${at.task + 1}/${at.level.tasks.length}${at.level.tasks[at.task].step ? ` ${say(at.level.tasks[at.task].step)}` : ''}` : ''
+    const steps = at.level.tasks?.length > 1 ? ` · ${lang === 'en' ? 'task' : '任务'} ${at.task + 1}/${at.level.tasks.length}${at.level.tasks[at.task].step ? ` ${say(at.level.tasks[at.task].step)}` : ''}` : ''
     return `${chapter ? `[${say(chapter.title)}] ` : ''}${names('level', at.level.id)}${steps}`
   }
   // The brief and hints a screen shows: the hook's, else the level's (the shell's entry, or the domain's level under it).

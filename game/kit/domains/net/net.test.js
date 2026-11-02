@@ -93,10 +93,10 @@ test('a board on its wires: registers carry, the queue is pulled, the far end de
 })
 
 test('a built part takes its level’s wires as ports', () => {
-  const lv = (id, extra) => ({ id, title: id, brief: id, ...extra })
+  const lv = (id, { builds, adds, ...task }) => ({ id, title: id, ...(adds && { adds }), ...(builds && { builds }), tasks: [{ brief: id, ...task }] })
   const content = assemble({
     id: 't',
-    game: { domain: 'net', vocabulary: 1, title: 't', kicker: 'k', lede: 'l', primitives: ['reg', 'keep'], eras: [{ id: 1, title: 'e', question: 'q', foundation: ['1-1', '1-2'] }], saves: [] },
+    game: { domain: 'net', vocabulary: 2, title: 't', kicker: 'k', lede: 'l', primitives: ['reg', 'keep'], eras: [{ id: 1, title: 'e', question: 'q', foundation: ['1-1', '1-2'] }], saves: [] },
     levels: [
       ['1-1', lv('1-1', { adds: ['reg', 'keep'], wires: W(['a'], ['b']), tests: [{ wires: { a: { send: [{ bits: '1011' }] } } }], want: { b: { late: { wire: 'a', first: 0 } } }, solution: ['r = reg[reg=A, start=0]()', 'k = keep[reg=A](a)', 'b <- r'], builds: { type: 'delay', name: 'delay', desc: 'd' } })],
       ['1-2', lv('1-2', { wires: W(['x'], ['y']), tests: [{ wires: { x: { send: [{ bits: '1101' }] } } }], want: { y: { late: { wire: 'x', first: 0 } } }, solution: ['d = delay(x)', 'y <- d'] })],
@@ -105,7 +105,7 @@ test('a built part takes its level’s wires as ports', () => {
   })
   const net = netCourse(content)
   assert.deepEqual(net.wrong, [])
-  const L = net.LEVELS[1]
+  const L = net.played.get('1-2')[0]
   assert.equal(runLevel(L, L.solution, net.partOf).pass, true)
   // Two of them on one board keep their own registers: a delay of two ticks.
   const two = { ...L, want: wantOf({ y: 'given' }), tests: [{ ticks: 4, wires: { x: [1, 1, 0, 1] }, inputs: {}, queue: [], expect: { y: [0, 0, 1, 1] } }] }

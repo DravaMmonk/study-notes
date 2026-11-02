@@ -2,12 +2,16 @@ import { createElement, useEffect, useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { Plain } from './Layout.jsx'
+import { useMark } from './edit.js'
+import { AddMark } from './EditMarks.jsx'
 
 // A level's introduction, or a task's (`step`: its name): a few pages to read before playing, each with an optional picture
 // the game draws (its IntroFigure). It opens by itself the first time and again from the bar. On a phone it is a
-// bottom sheet, on a desktop a card in the middle. ← and → turn the page, Escape closes.
-export default function IntroSheet({ game, level, pages, step, theme, onClose }) {
+// bottom sheet, on a desktop a card in the middle. ← and → turn the page, Escape closes. `marks`: each page's field
+// ({ at, scope }) while the studio edits (edit.js), its text picked by a click and a page added after it by a +.
+export default function IntroSheet({ game, level, pages, marks = [], step, theme, onClose }) {
   const [page, setPage] = useState(0)
+  const mark = useMark()
   const last = page === pages.length - 1
 
   useEffect(() => {
@@ -21,7 +25,8 @@ export default function IntroSheet({ game, level, pages, step, theme, onClose })
   }, [onClose, pages.length])
 
   if (!pages.length) return null
-  const current = pages[page]
+  const current = pages[Math.min(page, pages.length - 1)]
+  const at = marks[page]
 
   return (
     <div className="intro-scrim" onClick={onClose}>
@@ -33,10 +38,11 @@ export default function IntroSheet({ game, level, pages, step, theme, onClose })
         <h2 id="intro-title">{L(level.title)}{step && <small className="intro-step">{L(step)}</small>}</h2>
         <div className="intro-body" key={page}>
           {current.fig && game.IntroFigure && createElement(game.IntroFigure, { fig: current.fig, level, theme })}
-          {game.html ? <p className="intro-text" dangerouslySetInnerHTML={{ __html: String(L(current.t)) }} /> : <p className="intro-text"><Rich text={L(current.t)} /></p>}
+          {game.html ? <p className="intro-text" {...(at ? mark(`${at.at}.t`, at.scope) : {})} dangerouslySetInnerHTML={{ __html: String(L(current.t)) }} /> : <p className="intro-text" {...(at ? mark(`${at.at}.t`, at.scope) : {})}><Rich text={L(current.t)} /></p>}
         </div>
         <footer className="intro-foot">
           <span className="intro-dots" aria-hidden="true">{pages.map((_, i) => <i key={i} className={i === page ? 'is-on' : ''} />)}</span>
+          {at && <AddMark at={at.at.replace(/\[\d+\]$/, '')} scope={at.scope} index={Number(/\[(\d+)\]$/.exec(at.at)[1])} label={{ zh: '一页', en: 'a page' }} />}
           {page > 0 && <button className="intro-back" onClick={() => setPage(page - 1)}>{tr('上一页', 'Back')}</button>}
           <button className="intro-next" onClick={() => (last ? onClose() : setPage(page + 1))}>{last ? tr('开始', 'Start') : tr('下一页', 'Next')}<ArrowRight size={15} /></button>
         </footer>

@@ -6,7 +6,8 @@
 // their far ends speak in wire.js.
 
 import { S } from '../../engine/schema.js'
-import { defineVocabulary } from '../../engine/vocabulary.js'
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { taskLevel } from '../../engine/tasks.js'
 import { FORMATS } from './wire.js'
 
 const t = (zh, en) => ({ zh, en })
@@ -80,14 +81,21 @@ const TEST = S.obj({
   expect: S.opt(S.map(S.list(S.any()), { view: 'ticks', about: t('given 要的值：每个输出每一拍的值，null 是「—」', 'what `given` wants: each output’s value tick by tick, null for 「—」') })),
   ticks: S.opt(S.int({ min: 1, about: t('跑多少拍（默认：给的东西都到达以后再过两拍）', 'how many ticks it runs (by default two after everything it gives has arrived)') })),
 })
-const LEVEL = S.obj({
+// What a level says once; then each task: its puzzle, done in turn (../../engine/tasks.js).
+const ONCE = {
   title: S.text(),
-  brief: S.text(),
   intro: S.opt(S.list(S.obj({ t: S.text() }))),
-  hint: S.opt(TEXTS),
   after: S.opt(S.text()),
   note: S.opt(S.text()),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些', 'the built parts it supersedes: from this level on the tray offers it instead of them') })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的口就是那个任务的进线、输入、出线和输出', 'once passed the last task’s board is the part `type`: its ports are that task’s wires in, inputs, wires out and outputs') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+}
+const TASK = {
+  brief: S.text(),
+  hint: S.opt(TEXTS),
+  intro: S.opt(S.list(S.obj({ t: S.text() }), { section: 'read', about: t('这个任务自己的引言：第一次做到它时读（第一个任务的接在这一关的后面）', 'the task’s own intro: read the first time it is played (the first task’s after the level’s)') })),
+  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
   wires: S.opt(S.obj({ in: S.opt(S.list(WIRE)), out: S.opt(S.list(WIRE)) }, { about: t('板听的进线、板说的出线；它们和输入输出一样是板的口', 'the wires the board hears and the wires it says on; like inputs and outputs, they are the board’s ports') })),
   inputs: S.opt(S.list(PORT)),
   outputs: S.opt(S.list(PORT)),
@@ -96,11 +104,10 @@ const LEVEL = S.obj({
   hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
   want: S.map(S.call('want'), { about: t('每个输出和出线应当是什么', 'what each output and wire out must be') }),
   solution: BOARD,
-  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些', 'the built parts it supersedes: from this level on the tray offers it instead of them') })) }, { section: 'course', about: t('通过后这块板成为元件 type：它的口就是关卡的进线、输入、出线和输出', 'once passed the board is the part `type`: its ports are the level’s wires in, inputs, wires out and outputs') })),
-  carry: S.opt(S.level({ about: t('从玩家在这一关通过时的板开始（没通过就用它的参考解），换上这一关的进线、输入、出线和输出；必须是先修', 'start from the board the player passed this level with (its reference when not passed), its wires, inputs and outputs swapped for this level’s; it must be a prerequisite') })),
-  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
-})
+  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
+  carry: S.opt(S.level({ about: t('从玩家在这一关通过时的板开始（没通过就用它的参考解），换上这个任务的进线、输入、出线和输出；必须是先修', 'start from the board the player passed this level with (its reference when not passed), its wires, inputs and outputs swapped for this task’s; it must be a prerequisite') })),
+  carries: S.opt(S.bool({ about: t('从上一个任务的板开始，换上这个任务的口', 'start from the task before’s board, its ports swapped for this task’s') })),
+}
 
 /* ---------- game.json ---------- */
 
@@ -117,14 +124,6 @@ const ERA = S.obj({
   topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
 })
-const SAVE_OP = S.either(
-  S.obj({ rename: S.map(S.either(S.str(), S.oneOf([null]))) }),
-  S.obj({ grant: S.list(S.str()) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ built: ids }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ split: S.list(S.either(S.str(), ids)) }),
-)
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
@@ -132,13 +131,13 @@ const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
-  saves: S.list(S.obj({ version: S.int({ min: 2 }), ops: S.list(SAVE_OP) })),
+  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'net',
-  version: 1,
+  version: 3,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
-  level: LEVEL,
+  level: taskLevel(ONCE, TASK),
 })

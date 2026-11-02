@@ -17,7 +17,7 @@ import { CARDS, PORT_LABELS } from './catalog.js'
 
 /** The editor's description of this level's cards (../../../circuit/model.js). */
 function partsFor(level, game) {
-  const builderOf = (type) => game.LEVELS.find((L) => L.builds?.type === type)
+  const builderOf = game.builtBy
   const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
   return {
     inputs: (node) => (game.BUILT[node.type] ? builderOf(node.type).inputs.map((i) => i.name) : PARTS[node.type] ? portsOf(PARTS[node.type], node) : []),
@@ -73,7 +73,7 @@ export default function Screen(screen) {
     },
   })
   const { shown: palette, folded } = useMemo(() => game.offerIn(level, flags), [game, level, flags])
-  const builderOf = (type) => game.LEVELS.find((L) => L.builds?.type === type)
+  const builderOf = game.builtBy
 
   // What the board shows: during a run, what the engine had computed by the step shown; before one, the test picked.
   const runOf = checked.runs[run.at]

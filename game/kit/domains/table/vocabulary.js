@@ -4,10 +4,10 @@
 //
 // The items are implemented next to them: parts in model/parts.js, worlds in model/worlds/, robots in model/robots.js,
 // modes in ui/modes/ (one screen each, ui/LevelScreen.jsx), and the items content calls (figures, conditions, traces,
-// panels, explains, migrations) in items/.
+// panels, explains) in items/.
 
 import { S } from '../../engine/schema.js';
-import { defineVocabulary } from '../../engine/vocabulary.js';
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js';
 
 const t = (zh, en) => ({ zh, en });
 const item = (about, params) => ({ about, ...(params ? { params } : {}) });
@@ -127,10 +127,6 @@ const PANELS = {
 };
 const EXPLAINS = {
   roll: item(t('压成一行时，改写方向错了会把一件物品放两次', 'in one row, rewriting the wrong way packs an item twice')),
-};
-const MIGRATIONS = {
-  oldBoards: item(t('第 3 版以前的电路板：去掉一些元件，给元件改名', 'boards from before version 3: drop some parts, rename others'), S.obj({ drop: S.opt(ids), rename: S.opt(S.map(S.str())) })),
-  boards: item(t('电路板换成第 3 版的形状；搭出的元件按它的名字', 'boards into the shape of version 3, built parts by their names'), S.obj({ parts: S.map(S.str()) })),
 };
 const PORTS = {
   reads: item(t('读这一关的一个传感器，名字随它', 'a sensor of the level, named as it is'), S.str()),
@@ -252,16 +248,6 @@ const ERA = S.obj({
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: S.text(), desc: S.text() }),
 });
-const SAVE_OP = S.either(
-  S.obj({ rename: S.map(S.either(S.str(), NONE)) }),
-  S.obj({ fields: S.map(S.str()) }),
-  S.obj({ grant: S.list(S.str()) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ built: ids }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ split: S.list(S.either(S.str(), ids)) }),
-  S.obj({ data: S.call('migration') }),
-);
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
@@ -270,8 +256,7 @@ const GAME = S.obj({
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   parts: S.map(S.obj({ name: S.text(), desc: S.text() }), { about: t('关卡解锁的元件和想法：元件箱里的名字和说明', 'what levels unlock: their names and descriptions in the components box') }),
   eras: S.list(ERA, { min: 1 }),
-  saves: S.list(S.obj({ version: int({ min: 2 }), ops: S.list(SAVE_OP) })),
-  legacyKey: S.opt(S.str()),
+  saves: SAVES,
   borrow: S.opt(S.map(S.level(), { about: t('一个想法在元件箱里借用哪一关的电路板', 'the level whose board an idea borrows in the components box') })),
 });
 
@@ -288,7 +273,6 @@ export const vocabulary = defineVocabulary({
     trace: TRACES,
     panel: PANELS,
     explain: EXPLAINS,
-    migration: MIGRATIONS,
     port: PORTS,
   },
   game: GAME,

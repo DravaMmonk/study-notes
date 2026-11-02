@@ -1,10 +1,47 @@
 {
-  "title": { "zh": "听线", "en": "Listen" },
-  "brief": { "zh": "每一拍交出线上的位。", "en": "Give the bit on the line, every tick." },
-  "intro": [{ "t": { "zh": "线上每一拍有一位：0 或 1。", "en": "The line carries one bit each tick: 0 or 1." } }],
-  "listens": true,
-  "outputs": [{ "name": "bit", "label": { "zh": "位", "en": "Bit" } }],
-  "tests": [{ "line": "0110100" }, { "line": "1001.11" }],
-  "want": { "bit": "line" },
-  "solution": ["bit <- line"]
+  "title": {
+    "zh": "听线",
+    "en": "Listen"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "线上每一拍有一位：0 或 1。",
+        "en": "The line carries one bit each tick: 0 or 1."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1-1",
+      "brief": {
+        "zh": "每一拍交出线上的位。",
+        "en": "Give the bit on the line, every tick."
+      },
+      "listens": true,
+      "outputs": [
+        {
+          "name": "bit",
+          "label": {
+            "zh": "位",
+            "en": "Bit"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "line": "0110100"
+        },
+        {
+          "line": "1001.11"
+        }
+      ],
+      "want": {
+        "bit": "line"
+      },
+      "solution": [
+        "bit <- line"
+      ]
+    }
+  ]
 }

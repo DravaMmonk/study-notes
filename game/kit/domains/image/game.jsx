@@ -12,7 +12,6 @@ import { migrations } from '../../shell/saves.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { fromText } from './engine/board.js'
 import { imageCourse } from './course.js'
-import { savesOf } from './items/migrations.js'
 import LevelScreen from './ui/LevelScreen.jsx'
 import PartDemo from './ui/PartDemo.jsx'
 import Hero from './ui/Hero.jsx'
@@ -37,7 +36,7 @@ const OPTION_NAMES = {
 
 /**
  * content (../../engine/content.js): { id, title, kicker, lede, power, eras, primitives, concept, replaces, views,
- * saves: migration steps (../../shell/saves.js, a { data } step naming a migration item), box: { sample, inLevel,
+ * saves: migration steps (../../shell/saves.js), box: { sample, inLevel,
  * boards } how the parts box tries a part (ui/PartDemo.jsx), levels, glossary }.
  */
 export default function imageGame(content) {
@@ -73,7 +72,7 @@ export default function imageGame(content) {
     power: content.power,
     chapters: CHAPTERS.map((chapter) => ({ ...chapter, label: chapter.lecture })),
     levels: LEVELS,
-    progress: migrations(savesOf(content.saves ?? [])),
+    progress: migrations(content.saves),
     intro: (level) => image.intros[level.id],
     IntroFigure,
     kinds: {

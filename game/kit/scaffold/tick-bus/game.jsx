@@ -22,6 +22,9 @@ import Screen from './ui/Screen.jsx'
 import { CARDS } from './ui/catalog.js'
 import { __name__Course } from './course.js'
 
+/** The fields of an object that hold something. */
+const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
+
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
  *  (../../shell/saves.js), levels, glossary }. */
 export default function __name__Game(content) {
@@ -40,23 +43,27 @@ export default function __name__Game(content) {
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,
+    // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
+    // its screen reading the task as the course read it (`source`).
     levels: LEVELS.map((L, index) => ({
       id: L.id,
       index,
-      source: L,
       fresh: L.adds,
       chapter: L.era,
       requires: L.requires,
       title: L.title,
       kind: 'tick',
       unlocks: L.builds ? [L.builds.type] : [],
-      brief: L.brief,
-      hint: L.hint,
+      intro: L.intro,
       after: L.after,
       note: L.note,
+      tasks: __name__.played.get(L.id).map((T, k) => {
+        const { step, brief, hint, intro, after } = L.tasks[k]
+        return { key: T.taskId, ...defined({ step, brief, hint, intro, after }), source: T }
+      }),
     })),
     progress: migrations(content.saves),
-    intro: (level) => level.source.intro,
+    intro: (level) => level.intro,
     kinds: { tick: { Screen, icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } } },
     parts: { all: [...primitives, ...built] },
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),

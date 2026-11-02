@@ -34,7 +34,7 @@ export const portsOut = (level) => [...(level.talks ? [{ name: 'say', label: { z
  * and icons): the ports of each card, which are given, and a built part's outputs by name when it has several.
  */
 export function wiring(level, __name__) {
-  const builderOf = (type) => __name__.LEVELS.find((L) => L.builds?.type === type)
+  const builderOf = __name__.builtBy
   return {
     inputs: (node) => {
       if (__name__.BUILT[node.type]) return builderOf(node.type).inputs?.map((i) => i.name) ?? []

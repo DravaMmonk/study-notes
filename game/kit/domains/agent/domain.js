@@ -22,7 +22,4 @@ function spec(content) {
   }
 }
 
-// Its saves name no migration items: the shell's ops as written.
-const saves = (steps) => steps
-
-export default { vocabulary, spec, validate, play, saves }
+export default { vocabulary, spec, validate, play }

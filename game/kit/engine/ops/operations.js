@@ -3,11 +3,11 @@
 //
 // An operation is { about, params (schema.js: its arguments as data), apply(ws, args, ctx) }. apply edits the
 // workspace (workspace.js) and returns { says, inverse, saves?, placed?, own? }: what it did, in words; the operations
-// that undo it; the save migration ops (../../shell/saves.js) it alone knows it needs (a level renamed, removed,
-// merged, split); the levels it put somewhere in the course (added or moved there); and the levels whose kept state
-// its own save ops carry (merged, split), which no other migration touches. ctx: { vocabulary, domain }; merging and
-// splitting levels of tasks is the domain's (domain.js `tasks`: { merge(levels, title) → level, split(level) →
-// [level] }), as only it knows what a task is. What a change
+// that undo it; the save migration ops (../../shell/saves.js) it alone knows it needs (a level renamed or removed, a
+// task removed or renamed); the levels it put somewhere in the course (added or moved there); and the levels whose kept
+// state its own save ops carry, which no other migration touches. ctx: { vocabulary, domain }. In a domain whose
+// levels are lists of tasks with ids (../tasks.js), tasks are added, removed, moved (in a level or to another: two
+// levels made one, or one split) and renamed by id; the saves keep a task by its id, so a move needs no step. What a change
 // means for the saves beyond that (a new prerequisite, a puzzle whose kept boards no longer apply) is read off the
 // content before and after the whole changeset (migrate.js).
 import { S, shapeAt } from '../schema.js'
@@ -16,6 +16,7 @@ import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.j
 import { PATHS, describe, locate, putIn, takeOut } from './place.js'
 import { levelRefs, renameRefs } from './refs.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
+import { TASK_ID, findTask, hasTaskIds, newTaskId } from '../tasks.js'
 
 const t = (zh, en) => ({ zh, en })
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal', 'a field’s path: tests[0].goal') })
@@ -42,6 +43,21 @@ const restore = (op, base, path, args) => {
 }
 // game.json's saves are history: written by the migration generator (migrate.js), never edited.
 const notSaves = (path) => (parsePath(path)[0] === 'saves' ? fail('game.json saves are written by the migration generator, not edited') : path)
+// Tasks by id (../tasks.js): the levels as a list, a task found, where a task goes in a level.
+const TASK = S.str({ pattern: TASK_ID, about: t('任务的 id', 'a task’s id') })
+const TASK_PLACE = S.obj({ level: S.level(), after: S.opt(TASK), first: S.opt(S.bool()) }, { about: t('一关里的一个位置：after 那个任务后面，first 时最前，都不给就在最后', 'a place in a level: after that task, first, or else last') })
+const tasked = (vocabulary) => hasTaskIds(vocabulary) || fail(`the ${vocabulary.domain} domain’s levels are no lists of tasks with ids`)
+const levelsOf = (ws) => [...ws.levels].map(([id, l]) => ({ id, ...l }))
+const taskOf = (ws, id) => findTask(levelsOf(ws), id) ?? fail(`no task ${id}`)
+/** Where in level `level`'s tasks (without task `except`) a task goes: its index. */
+const indexIn = (tasks, level, { after, first }) => {
+  if (first) return 0
+  if (after === undefined) return tasks.length
+  const k = tasks.findIndex((x) => x.id === after)
+  return k < 0 ? fail(`${level} has no task ${after}`) : k + 1
+}
+/** The place a task is at in its level, said as task.move and task.add take it. */
+const placeOf = (tasks, k) => (k === 0 ? { first: true } : { after: tasks[k - 1].id })
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')
   return /^#\s*blueprint\b/.test(lines[0]) ? lines.slice(1) : lines
@@ -176,45 +192,62 @@ export const OPERATIONS = {
       }
     },
   },
-  'level.merge': {
-    about: t('几关合成一关的几个任务（按给的顺序），留下 into 的 id 和位置', 'merge levels into the tasks of one (in the order given), keeping the id and place of `into`'),
-    params: S.obj({ levels: S.list(S.level(), { min: 2 }), into: S.level() }),
-    apply(ws, { levels, into }, { vocabulary, domain }) {
-      if (!domain?.tasks) fail(`the ${domain?.vocabulary.domain ?? ''} domain gives no way to merge levels into tasks`)
-      if (!levels.includes(into)) fail(`${into} is not among the levels merged`)
-      if (new Set(levels).size !== levels.length) fail('a level is named twice')
-      const merged = domain.tasks.merge(levels.map((id) => levelOf(ws, id)), levelOf(ws, into).title)
-      for (const id of levels.filter((x) => x !== into)) {
-        ws.game = { ...ws.game, eras: takeOut(ws.game.eras, id).eras }
-        ws.levels.delete(id)
-        renameRefs(ws, vocabulary, id, into)
-      }
-      ws.levels.set(into, merged)
-      return { says: `${levels.join(' + ')} → ${into} (${levels.length} tasks)`, inverse: [{ op: 'level.split', level: into, into: levels }], saves: [{ merge: [into, levels] }], own: [into, ...levels] }
+  'task.add': {
+    about: t('给一关加一个任务：它的字段（id 不给就生成一个），排在 after 那个任务后面（first 时最前，都不给就在最后）', 'add a task to a level: its fields (an id made up when none is given), after the task `after` (first, or else last)'),
+    params: S.obj({ level: S.level(), data: S.map(S.any()), after: S.opt(TASK), first: S.opt(S.bool()) }),
+    apply(ws, { level, data, after, first }, { vocabulary }) {
+      tasked(vocabulary)
+      const base = levelOf(ws, level)
+      const id = data.id ?? newTaskId(levelsOf(ws), level)
+      if (findTask(levelsOf(ws), id)) fail(`there is a task ${id} already`)
+      if (id !== level && ws.levels.has(id)) fail(`${id} is a level’s id`)
+      const at = indexIn(base.tasks, level, { after, first })
+      const { id: _id, ...fields } = data
+      ws.levels.set(level, { ...base, tasks: [...base.tasks.slice(0, at), { id, ...fields }, ...base.tasks.slice(at)] })
+      return { says: `${level}: task ${id} added (${at + 1} of ${base.tasks.length + 1})`, inverse: [{ op: 'task.remove', task: id }] }
     },
   },
-  'level.split': {
-    about: t('一关的几个任务拆成几关（按任务的顺序），排在它原来的位置', 'split a level’s tasks into levels of their own (in task order), where it was'),
-    params: S.obj({ level: S.level(), into: S.list(NEW_ID, { min: 2 }) }),
-    apply(ws, { level, into }, { vocabulary, domain }) {
-      if (!domain?.tasks) fail(`the ${domain?.vocabulary.domain ?? ''} domain gives no way to split a level into levels`)
-      if (!Array.isArray(levelOf(ws, level).tasks)) fail(`${level} is no level of tasks`)
-      const parts = domain.tasks.split(levelOf(ws, level))
-      if (parts.length !== into.length) fail(`${level} has ${parts.length} tasks, and ${into.length} ids are given`)
-      for (const id of into) if (id !== level && ws.levels.has(id)) fail(`there is a level ${id} already`)
-      const keep = into.includes(level)
-      let eras = ws.game.eras
-      let last = level
-      // In the place of the level, in order: its own id stays where it is, the others before and after it.
-      for (const id of into.slice(0, keep ? into.indexOf(level) : 0)) eras = putIn(eras, id, { before: level })
-      for (const id of into.slice(keep ? into.indexOf(level) + 1 : 0)) { eras = putIn(eras, id, { after: last }); last = id }
-      if (!keep) eras = takeOut(eras, level).eras
-      ws.game = { ...ws.game, eras }
-      ws.levels.delete(level)
-      into.forEach((id, k) => ws.levels.set(id, parts[k]))
-      if (!keep) renameRefs(ws, vocabulary, level, into.at(-1))
-      const inverse = keep ? [{ op: 'level.merge', levels: into, into: level }] : [{ op: 'level.merge', levels: into, into: into.at(-1) }, { op: 'level.rename', level: into.at(-1), to: level }]
-      return { says: `${level} → ${into.join(' + ')}`, inverse, saves: [{ split: [level, into] }], own: [level, ...into] }
+  'task.remove': {
+    about: t('去掉一个任务；一关至少留一个任务（整关不要了用 level.remove）', 'remove a task; a level keeps at least one (level.remove removes the whole level)'),
+    params: S.obj({ task: TASK }),
+    apply(ws, { task }, { vocabulary }) {
+      tasked(vocabulary)
+      const { level, at } = taskOf(ws, task)
+      const base = levelOf(ws, level)
+      if (base.tasks.length === 1) fail(`${task} is ${level}’s only task: remove the level instead`)
+      ws.levels.set(level, { ...base, tasks: base.tasks.filter((x) => x.id !== task) })
+      return { says: `${level}: task ${task} removed`, inverse: [{ op: 'task.add', level, data: base.tasks[at], ...placeOf(base.tasks, at) }], saves: [{ drop: [task] }], own: [level] }
+    },
+  },
+  'task.move': {
+    about: t('把一个任务挪到一关里的另一个位置，或挪进另一关；玩家存下的板和通过与否跟着它走。挪走一关唯一的任务时，同一个变更集里删掉那一关（合成两关）', 'move a task within its level or into another; what players kept of it goes with it. Moving a level’s only task out, remove that level in the same changeset (two levels made one)'),
+    params: S.obj({ task: TASK, to: TASK_PLACE }),
+    apply(ws, { task, to }, { vocabulary }) {
+      tasked(vocabulary)
+      const { level: from, at } = taskOf(ws, task)
+      const source = levelOf(ws, from)
+      levelOf(ws, to.level)
+      if (to.after === task) fail(`${task} cannot go after itself`)
+      const moving = source.tasks[at]
+      ws.levels.set(from, { ...source, tasks: source.tasks.filter((x) => x.id !== task) })
+      const target = levelOf(ws, to.level)
+      const k = indexIn(target.tasks, to.level, to)
+      ws.levels.set(to.level, { ...target, tasks: [...target.tasks.slice(0, k), moving, ...target.tasks.slice(k)] })
+      const back = { op: 'task.move', task, to: { level: from, ...placeOf(source.tasks, at) } }
+      return { says: `${task}: ${from === to.level ? `moved in ${from}` : `${from} → ${to.level}`} (${k + 1} of ${levelOf(ws, to.level).tasks.length})`, inverse: [back], own: [from, to.level] }
+    },
+  },
+  'task.rename': {
+    about: t('给一个任务换 id；玩家存下的东西跟着换', 'give a task a new id; what players kept of it follows'),
+    params: S.obj({ task: TASK, to: TASK }),
+    apply(ws, { task, to }, { vocabulary }) {
+      tasked(vocabulary)
+      const { level, at } = taskOf(ws, task)
+      if (findTask(levelsOf(ws), to)) fail(`there is a task ${to} already`)
+      if (to !== level && ws.levels.has(to)) fail(`${to} is a level’s id`)
+      const base = levelOf(ws, level)
+      ws.levels.set(level, { ...base, tasks: base.tasks.map((x, k) => (k === at ? { ...x, id: to } : x)) })
+      return { says: `${level}: task ${task} → ${to}`, inverse: [{ op: 'task.rename', task: to, to: task }], saves: [{ retask: { [task]: to } }], own: [level] }
     },
   },
   'game.set': {

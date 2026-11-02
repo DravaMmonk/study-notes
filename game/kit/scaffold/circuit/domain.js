@@ -22,5 +22,5 @@ function spec(content) {
   }
 }
 
-// The tools' hooks on a domain (kit/engine/contract.js EXTENSIONS: saves, changes, tasks, play) go here too.
+// The tools' hooks on a domain (kit/engine/contract.js EXTENSIONS: changes, play, scene) go here too.
 export default { vocabulary, spec, validate }

@@ -34,11 +34,7 @@ const DOMAIN = {
     const course = { index: new Map(order.map((id, k) => [id, k])), levels: order.map((id) => ({ id })), builds: () => [] }
     return { levels: order.map((id, k) => ({ id, requires: k ? [order[k - 1]] : [] })), course }
   },
-  changes: { stale: (a, b) => JSON.stringify(a.tests) !== JSON.stringify(b.tests), drop: (ids) => [{ data: { drop: ids } }] },
-  tasks: {
-    merge: (levels, title) => ({ title, tasks: levels.map(({ title: step, ...rest }) => ({ step, ...rest })) }),
-    split: (level) => level.tasks.map(({ step, ...rest }) => ({ title: step, ...rest })),
-  },
+  changes: { stale: (a, b) => JSON.stringify(a.tests) !== JSON.stringify(b.tests) },
 }
 
 function toy() {
@@ -146,25 +142,6 @@ test('level.add puts a new level in; level.remove refuses while anything names t
   assert.equal(ws.game.eras[1].challenges, undefined)
 })
 
-test('level.merge makes levels the tasks of one, level.split gives them back, each with its save op', () => {
-  const { ws } = toy()
-  const merged = run(ws, 'level.merge', { levels: ['b1', 'b2'], into: 'b2' })
-  assert.deepEqual(merged.saves, [{ merge: ['b2', ['b1', 'b2']] }])
-  assert.deepEqual(merged.own, ['b2', 'b1', 'b2'])
-  assert.deepEqual(level(ws, 'b2').tasks.map((t) => t.step.en), ['b1', 'b2'])
-  assert.ok(!ws.levels.has('b1'))
-  assert.deepEqual(ws.game.eras[1].foundation, ['b2'])
-  // What named b1 names the level it is a task of now.
-  assert.equal(ws.game.eras[1].challenges[0].after, 'b2')
-  const split = run(ws, 'level.split', { level: 'b2', into: ['b1', 'b2'] })
-  assert.deepEqual(split.saves, [{ split: ['b2', ['b1', 'b2']] }])
-  assert.deepEqual(ws.game.eras[1].foundation, ['b1', 'b2'])
-  assert.deepEqual(level(ws, 'b1'), toy().ws.levels.get('b1'))
-  assert.deepEqual(split.inverse, [{ op: 'level.merge', levels: ['b1', 'b2'], into: 'b2' }])
-  assert.throws(() => run(ws, 'level.split', { level: 'b1', into: ['x', 'y'] }), /b1 is no level of tasks/)
-  assert.throws(() => OPERATIONS['level.merge'].apply(ws, { levels: ['a1', 'a3'], into: 'a1' }, { vocabulary: VOCAB }), /gives no way to merge/)
-})
-
 test('game.set and game.unset edit game.json, but never its saves', () => {
   const { ws } = toy()
   roundTrip(ws, 'game.set', { path: 'title', value: { zh: '玩具', en: 'Toy' } })
@@ -211,7 +188,7 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
     { op: 'level.add', level: 'n1', data: { title: 'N' }, to: { after: 'first' } },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(done.ok, true, done.problems.join('\n'))
-  assert.deepEqual(done.step, { version: 2, ops: [{ rename: { b2: 'first' } }, { data: { drop: ['a3'] } }, { solve: ['a1', ['first', 'n1']] }] })
+  assert.deepEqual(done.step, { version: 2, ops: [{ rename: { b2: 'first' } }, { drop: ['a3'] }, { solve: ['a1', ['first', 'n1']] }] })
   assert.ok(existsSync(join(root, 'toy', 'levels', 'first.json')) && !existsSync(join(root, 'toy', 'levels', 'b2.json')))
   assert.match(readFileSync(join(root, 'games.js'), 'utf8'), /levels: 7/)
   assert.deepEqual(readLog(ws).map((e) => [e.seq, e.why, e.files.length]), [[1, why, 6]])
@@ -222,4 +199,34 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
   assert.deepEqual(back.step.ops[0], { rename: { n1: null } })
   assert.deepEqual(readLog(ws).map((e) => e.undoes), [undefined, 1])
   assert.match((await undo(ws, { domain: DOMAIN, check: false })).problems[0], /nothing to undo/)
+})
+
+test('tasks by id: task.add, task.move in a level and across levels, task.rename, task.remove, each undone', async () => {
+  const { taskLevel } = await import('../tasks.js')
+  const T = defineVocabulary({ domain: 'tasked', version: 1, kinds: {}, game: VOCAB.game, level: taskLevel({ title: S.text() }, { brief: S.text() }) })
+  const tx = (s) => ({ zh: s, en: s })
+  const levels = new Map([['p', { title: tx('p'), tasks: [{ id: 'p', brief: tx('p1') }, { id: 'p2', brief: tx('p2') }] }], ['q', { title: tx('q'), tasks: [{ id: 'q', brief: tx('q1') }] }], ['r', { title: tx('r'), tasks: [{ id: 'r1', brief: tx('r1') }] }]])
+  const ws = { levels: new Map(levels), game: { eras: [] } }
+  const go = (op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: T, domain: null })
+  const ids = (id) => ws.levels.get(id).tasks.map((x) => x.id)
+  const before = JSON.stringify([...ws.levels])
+  // A level's only task moved out leaves it empty, for the same changeset to remove (the check refuses it otherwise).
+  const merged = go('task.move', { task: 'r1', to: { level: 'q' } })
+  assert.deepEqual([ws.levels.get('r').tasks, ids('q')], [[], ['q', 'r1']])
+  for (const { op, ...args } of merged.inverse) go(op, args)
+  const added = go('task.add', { level: 'p', data: { brief: tx('new') }, first: true })
+  assert.deepEqual(ids('p'), ['p_2', 'p', 'p2'])
+  assert.throws(() => go('task.add', { level: 'q', data: { id: 'p', brief: tx('x') } }), /there is a task p already/)
+  assert.throws(() => go('task.add', { level: 'p', data: { id: 'r', brief: tx('x') } }), /r is a level’s id/)
+  const inLevel = go('task.move', { task: 'p2', to: { level: 'p', first: true } })
+  assert.deepEqual([ids('p'), inLevel.saves], [['p2', 'p_2', 'p'], undefined])
+  const across = go('task.move', { task: 'p', to: { level: 'q', after: 'q' } })
+  assert.deepEqual([ids('p'), ids('q'), across.saves], [['p2', 'p_2'], ['q', 'p'], undefined])
+  const renamed = go('task.rename', { task: 'p_2', to: 'two' })
+  assert.deepEqual(renamed.saves, [{ retask: { p_2: 'two' } }])
+  assert.throws(() => go('task.remove', { task: 'r1' }), /only task: remove the level/)
+  const removed = go('task.remove', { task: 'two' })
+  assert.deepEqual(removed.saves, [{ drop: ['two'] }])
+  for (const done of [removed, renamed, across, inLevel, added]) for (const { op, ...args } of done.inverse) go(op, args)
+  assert.equal(JSON.stringify([...ws.levels]), before)
 })

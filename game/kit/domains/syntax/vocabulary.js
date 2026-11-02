@@ -3,19 +3,18 @@
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
 // The items are implemented next to them: the parts (the skeleton's roles and the constructions a modifier is folded
-// as) in model/parts.js, a sentence and its answer in model/sentence.js, the save migrations in items/migrations.js.
+// as) in model/parts.js, a sentence and its answer in model/sentence.js.
 
 import { S } from '../../engine/schema.js'
-import { defineVocabulary } from '../../engine/vocabulary.js'
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 import { PARTS, ROLES, TYPES } from './model/parts.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const ids = S.list(S.str())
-const NONE = S.oneOf([null])
 const TEXTS = S.list(S.text())
 
-/* ---------- the parts, the machine, the migrations ---------- */
+/* ---------- the parts, the machine ---------- */
 
 /** A part is what a level brings in (`adds`): a role of the skeleton ('role:subj') or a construction ('pp'). */
 const partText = (key) => (key.startsWith('role:') ? ROLES[key.slice(5)] : TYPES[key])
@@ -25,10 +24,6 @@ const PART_ITEMS = Object.fromEntries(PARTS.map((key) => {
 }))
 const MACHINES = {
   reader: item(t('读者：标出主干，把修饰成分折到它修饰的词上', 'the reader: marks the skeleton, folds each modifier onto the word it modifies')),
-}
-const MIGRATIONS = {
-  none: item(t('什么都不带过来：改名时每一关都去掉，改写时每一关留下的状态都清空', 'nothing carries over: renaming drops every level, rewriting empties every level’s kept state')),
-  drop: item(t('这几关存下的状态去掉：重新开始', 'these levels’ kept state dropped: they start afresh'), ids),
 }
 
 /* ---------- a level ---------- */
@@ -81,28 +76,19 @@ const ERA = S.obj({
   question: S.text(),
   foundation: S.list(ITEM),
 })
-const SAVE_OP = S.either(
-  S.obj({ rename: S.either(S.map(S.either(S.str(), NONE)), S.ref('migration')) }),
-  S.obj({ fields: S.map(S.str()) }),
-  S.obj({ grant: S.list(S.str()) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ split: S.list(S.either(S.str(), ids)) }),
-  S.obj({ data: S.call('migration') }),
-)
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up able to do, not how many levels') }),
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
-  saves: S.list(S.obj({ version: S.int({ min: 2 }), ops: S.list(SAVE_OP) })),
+  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'syntax',
   version: 2,
-  kinds: { part: PART_ITEMS, machine: MACHINES, migration: MIGRATIONS },
+  kinds: { part: PART_ITEMS, machine: MACHINES },
   game: GAME,
   level: LEVEL,
 })

@@ -1,106 +1,56 @@
-// Bringing an older save up to date, written as data in a game's spec. A game's saves carry its own version number;
-// each step brings saves from before its version forward, by a list of operations done in order:
+// Bringing a save up to date with the content, written as data in a game's spec (game.json `saves`, the schema
+// ../engine/vocabulary.js SAVES). A game's saves carry its own version number; each step brings saves from before its
+// version forward, by a list of operations done in order. The operation set writes them (../engine/ops/migrate.js);
+// nothing else does. A save keeps a level's state by its id and a task's by its key (progress.js), so only these
+// change what it holds:
 //
-//   { rename: { old id: new id | null } }   level ids move (null drops a level's state); or a function id → id | null
-//   { fields: { old field: new field } }     the save's own fields move (a field missing on the save is left alone)
-//   { grant: [level id, flag] }              a flag for whoever solved that level
-//   { solve: [level id, [level id…]] }       levels counted solved for whoever solved that one
-//   { data: (value, level id) → value }      every level's kept state rewritten (a part renamed or gone from boards),
-//                                            the boards waiting in its other slots too (slots.js), and the board
-//                                            a part was built from (built)
-//   { tasks: (passed, level id) → passed }  how many tasks of a level count passed, rewritten (tasks taken out of a
-//                                            level; 0 drops the count)
-//   { built: [level id…] }                   for each of these levels solved, the board it keeps becomes the board
-//                                            its part runs (built), as solving it now records: a level of tasks
-//                                            keeps the list of its tasks' boards; a board built kept already stays
-//                                            (a level of tasks' one board, kept before tasks kept their own, is
-//                                            its last task's)
-//   { merge: [level id, [level id…]] }       levels that became the tasks of one level, in order: their boards make
-//                                            its list of task boards, the run of them solved from the first its tasks
-//                                            passed (all of them: the level solved); their other slots are dropped
-//   { split: [level id, [level id…]] }       a level whose tasks became levels of their own, in order (the reverse
-//                                            of merge): each takes its task's board, and those its tasks passed are
-//                                            solved; the level's other slots are dropped
+//   { rename: { old level id: new id | null } }   level ids move (null drops the level's state), and with them the keys
+//                                                 of its tasks that are written after it (`<level>#<k>`)
+//   { solve: [level id, [level id…]] }            levels counted solved for whoever solved that one
+//   { built: [[level id, task key]…] }            for each of these levels solved, the board kept on that task (its
+//                                                 last) becomes the board its part runs
+//   { drop: [task key…] }                         the boards kept on these tasks, every slot's and the part's, dropped:
+//                                                 their puzzle changed, or they are gone (whether they are passed stays)
+//   { retask: { old task key: new key } }         task ids renamed
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
-const RECORDS = ['data', 'boards', 'slots', 'built', 'best', 'tasks', 'introSeen']
+const BY_TASK = ['data', 'slots', 'built', 'introSeen']
+const BY_LEVEL = ['best', 'introSeen']
 
-function rename(save, to) {
-  const move = typeof to === 'function' ? to : (id) => (id in to ? to[id] : id)
-  const out = { ...save, solved: (save.solved ?? []).map(move).filter((id) => id !== null) }
-  for (const field of RECORDS) {
-    if (!save[field]) continue
-    out[field] = Object.fromEntries(Object.entries(save[field]).map(([id, value]) => [move(id), value]).filter(([id]) => id !== null))
-  }
+/** A record (an object by key) with its keys moved by `move` (null: dropped). */
+const rekeyed = (record, move) => Object.fromEntries(Object.entries(record ?? {}).map(([k, v]) => [move(k), v]).filter(([k]) => k !== null))
+
+/** The save with every key moved by `move` (null drops it): the tasks' records and lists, and, by level, `levels`. */
+function rekey(save, move, levels = move) {
+  const out = { ...save, passed: (save.passed ?? []).map(move).filter((k) => k !== null), solved: (save.solved ?? []).map(levels).filter((k) => k !== null) }
+  for (const field of BY_TASK) if (save[field]) out[field] = rekeyed(save[field], move)
+  for (const field of BY_LEVEL) if (save[field] && !BY_TASK.includes(field)) out[field] = rekeyed(save[field], levels)
   return out
 }
 
 const OPS = {
-  rename,
-  fields: (save, moves) => {
-    const out = { ...save }
-    for (const [from, to] of Object.entries(moves)) {
-      if (!(from in out)) continue
-      out[to] = out[from]
-      delete out[from]
+  rename: (save, to) => {
+    const level = (id) => (id in to ? to[id] : id)
+    // A task key written after its level (`<level>#<k>`) moves with it; a level's own key is its id.
+    const key = (k) => {
+      const [id, ...rest] = String(k).split('#')
+      if (!(id in to)) return k
+      return to[id] === null ? null : [to[id], ...rest].join('#')
     }
-    return out
+    return rekey(save, key, level)
   },
-  grant: (save, [level, flag]) => ((save.solved ?? []).includes(level) && !(save.flags ?? []).includes(flag) ? { ...save, flags: [...(save.flags ?? []), flag] } : save),
-  data: (save, f) => ({
-    ...save,
-    ...(save.data && { data: Object.fromEntries(Object.entries(save.data).map(([id, value]) => [id, f(value, id)])) }),
-    ...(save.built && { built: Object.fromEntries(Object.entries(save.built).map(([id, value]) => [id, f(value, id)])) }),
-    ...(save.slots && { slots: Object.fromEntries(Object.entries(save.slots).map(([id, s]) => [id, { ...s, list: s.list.map((slot) => ('data' in slot ? { ...slot, data: f(slot.data, id) } : slot)) }])) }),
-  }),
-  built: (save, ids) => {
-    const kept = (id) => {
-      const [data, had] = [save.data?.[id], save.built?.[id]]
-      if (!Array.isArray(data)) return had ?? data
-      if (Array.isArray(had)) return had
-      return data.map((board, k) => (k === data.length - 1 && had ? had : board ?? null))
-    }
-    const boards = ids.filter((id) => (save.solved ?? []).includes(id)).map((id) => [id, kept(id)]).filter(([, b]) => b)
+  solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),
+  built: (save, pairs) => {
+    const boards = pairs.filter(([level, key]) => (save.solved ?? []).includes(level) && save.data?.[key] && !save.built?.[key]).map(([, key]) => [key, save.data[key]])
     return boards.length ? { ...save, built: { ...save.built, ...Object.fromEntries(boards) } } : save
   },
-  merge: (save, [into, ids]) => {
-    const solved = save.solved ?? []
-    const run = ids.findIndex((id) => !solved.includes(id))
-    const passed = run < 0 ? ids.length : run
-    const out = { ...save, solved: [...solved.filter((id) => !ids.includes(id)), ...(passed === ids.length ? [into] : [])] }
-    for (const field of RECORDS) {
-      if (!save[field]) continue
-      out[field] = Object.fromEntries(Object.entries(save[field]).filter(([id]) => !ids.includes(id)))
-    }
-    if (save.data && ids.some((id) => save.data[id] != null)) out.data[into] = ids.map((id) => save.data[id] ?? null)
-    if (save.best?.[ids.at(-1)]) out.best[into] = save.best[ids.at(-1)]
-    if (save.introSeen && ids.some((id) => save.introSeen[id])) out.introSeen[into] = ids.map((id) => save.introSeen[id]).find(Boolean)
-    if (passed && passed < ids.length) out.tasks = { ...out.tasks, [into]: passed }
+  drop: (save, keys) => {
+    const out = { ...save }
+    for (const field of ['data', 'slots', 'built']) if (save[field]) out[field] = Object.fromEntries(Object.entries(save[field]).filter(([k]) => !keys.includes(k)))
     return out
   },
-  split: (save, [from, ids]) => {
-    const solved = save.solved ?? []
-    const passed = solved.includes(from) ? ids.length : save.tasks?.[from] ?? 0
-    const out = { ...save, solved: [...new Set([...solved.filter((id) => id !== from), ...ids.slice(0, passed)])] }
-    for (const field of RECORDS) {
-      if (!save[field]) continue
-      out[field] = Object.fromEntries(Object.entries(save[field]).filter(([id]) => id !== from))
-    }
-    const boards = save.data?.[from]
-    if (Array.isArray(boards)) ids.forEach((id, k) => { if (boards[k] != null) out.data[id] = boards[k] })
-    if (save.best?.[from]) out.best[ids.at(-1)] = save.best[from]
-    if (save.introSeen?.[from]) out.introSeen[ids[0]] = save.introSeen[from]
-    return out
-  },
-  tasks: (save, f) => ({ ...save, tasks: Object.fromEntries(Object.entries(save.tasks ?? {}).map(([id, n]) => [id, f(n, id)]).filter(([, n]) => n > 0)) }),
-  solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),
-}
-
-/** Ids `prefix<n>` with n ≥ from move up by `by`: shiftIds('2-', 3, 2) moves 2-3 to 2-5 and leaves 2-1 alone. */
-export const shiftIds = (prefix, from, by) => (id) => {
-  const n = id.startsWith(prefix) ? Number(id.slice(prefix.length)) : NaN
-  return Number.isInteger(n) && n >= from ? `${prefix}${n + by}` : id
+  retask: (save, to) => rekey(save, (k) => to[k] ?? k, (id) => id),
 }
 
 /** steps: [{ version, ops: [op] }] in version order. */

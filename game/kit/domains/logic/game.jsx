@@ -1,6 +1,6 @@
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
-// a machine board …), its parts box of proved lemmas and built parts, its map art and its save migrations.
+// a machine board …), its parts box of proved lemmas and built parts, its map art and its save migrations (the operation set's).
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
@@ -26,7 +26,6 @@ import { PRIMITIVE_GATES } from './gates.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
-import { savesOf } from './items/migrations.js'
 
 // A level's declaration task, if it has one: a declaration on the rule board (iso.js).
 const isoOf = (level) => (level.kind === 'iso' ? level : level.tasks?.find((t) => t.kind === 'iso') ?? null)
@@ -36,8 +35,7 @@ const givesRules = (level) => !(level.source.tasks ?? [level.source]).some((t) =
 
 /**
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), saves:
- * migration steps (../../shell/saves.js, a { data } or { tasks } step naming a migration item, items/migrations.js),
- * levels, glossary }.
+ * migration steps (../../shell/saves.js), levels, glossary }.
  */
 export default function logicGame(content) {
   const logic = logicCourse(content)
@@ -91,7 +89,7 @@ export default function logicGame(content) {
     html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, title: chapter.title, question: chapter.question, track: chapter.track })),
     levels,
-    progress: migrations(savesOf(content.saves)),
+    progress: migrations(content.saves),
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
     kinds: {

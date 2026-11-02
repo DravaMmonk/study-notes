@@ -21,17 +21,13 @@ import { describe } from './vocabulary.js'
 export const ENTRIES = ['vocabulary', 'spec', 'validate']
 const isFn = (f) => typeof f === 'function'
 // Each extension point and the shape it must have. A tool that needs more of every domain adds its hook here.
-//   saves(steps)        the save steps of game.json as the shell runs them (ops/migrate.js, the shell)
-//   changes             { stale(before, after), drop(ids) }: when a changed level's kept state no longer applies, and
-//                       the save step that drops it (ops/migrate.js)
-//   tasks               { merge(levels), split(level) }: what a level of tasks is (ops level.merge / level.split)
+//   changes             { stale(before, after) }: when a changed level's kept boards no longer apply (the save step
+//                       then drops them, ops/migrate.js)
 //   play                { open(ctx), attempt(ctx, text) }: the blind-play harness's hook (games/DESIGN.md 6.6)
 //   scene               scene(spec, level) → an SVG string or null: a level drawn headlessly (the MCP's render, the
 //                       studio; games/DESIGN.md 6.7)
 export const EXTENSIONS = {
-  saves: isFn,
-  changes: (c) => Boolean(c) && isFn(c.stale) && isFn(c.drop),
-  tasks: (t) => Boolean(t) && isFn(t.merge) && isFn(t.split),
+  changes: (c) => Boolean(c) && isFn(c.stale),
   play: (p) => Boolean(p) && isFn(p.open) && isFn(p.attempt),
   scene: isFn,
 }
@@ -179,8 +175,9 @@ export function specProblems(domain, content, spec) {
 }
 
 /**
- * spec.blueprints: [{ level, board, write(board) → lines, read(lines) → board, naive?, save?(board) → the level's save }]
- * every board the content writes as blueprint text (`naive` for a naive answer), how the domain writes it and reads
+ * spec.blueprints: [{ level, task?, key?, board, write(board) → lines, read(lines) → board, naive?, save?(board) → the level's save }]
+ * every board the content writes as blueprint text (`naive` for a naive answer; `task`, the index of the task it is a
+ * board of, `key` that task's key in the saves, ../shell/progress.js, by default the level's id), how the domain writes it and reads
  * it back on its level, and what the level's screen keeps of it in progress.built (by default the board itself).
  * A course whose levels hold boards (course.boards) lists them; every one reads back as itself: written (the domain's
  * `write`) and read again on its level (`read`), it computes the same, and writing it again gives the same text.
@@ -255,17 +252,18 @@ export async function validateProblems(domain, content, spec) {
     for (const id of named(fails)) if (!changed.includes(id) && !(id && downstream(id))) out.push(`validate: ${id ?? 'a line naming no level'} fails, though only naive answers moved: ${fails.find((l) => l.level === id).text}`)
   }
   // The built parts run what syncOwn hands them: each builder level's last reference board unplugged (its wires into
-  // the level's own nodes dropped, `out <- a`), kept as the level's screen keeps it, makes that level fail.
-  const unplugged = Object.fromEntries(builders.flatMap((id) => {
+  // the level's own nodes dropped, `out <- a`), kept as the level's screen keeps it, under its task's key in the
+  // saves, makes that level fail.
+  const unplugged = builders.flatMap((id) => {
     const bp = spec.blueprints?.filter((b) => b.level === id && !b.naive).at(-1)
-    return bp ? [[id, (bp.save ?? ((b) => b))(bp.read(bp.write(bp.board).filter((line) => !line.includes('<-'))))]] : []
-  }))
+    return bp ? [{ id, key: bp.key ?? id, board: (bp.save ?? ((b) => b))(bp.read(bp.write(bp.board).filter((line) => !line.includes('<-')))) }] : []
+  })
   const runsOwn = []
-  if (Object.keys(unplugged).length) {
-    spec.syncOwn(unplugged)
+  if (unplugged.length) {
+    spec.syncOwn(Object.fromEntries(unplugged.map((u) => [u.key, u.board])))
     const fails = failing(await domain.validate(spec))
     spec.syncOwn({})
-    for (const id of Object.keys(unplugged)) if (fails.some((l) => l.level === id)) runsOwn.push(id)
+    for (const { id } of unplugged) if (fails.some((l) => l.level === id)) runsOwn.push(id)
   }
   return { problems: out, runsOwn, builders }
 }

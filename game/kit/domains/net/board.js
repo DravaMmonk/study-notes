@@ -32,16 +32,15 @@ export function fixedOf(level) {
  * and icons): the ports of each card, which are given, and a built part's outputs by name when it has several.
  */
 export function wiring(level, net) {
-  const builderOf = (type) => net.LEVELS.find((L) => L.builds?.type === type)
   return {
     inputs: (node) => {
-      if (net.BUILT[node.type]) return portsIn(builderOf(node.type)).map((i) => i.name)
+      if (net.BUILT[node.type]) return portsIn(net.builtBy(node.type)).map((i) => i.name)
       return PARTS[node.type] ? portsOf(PARTS[node.type], node) : []
     },
     role: (node) => (node.type === 'rx' || node.type === 'in' ? 'source' : node.type === 'out' || node.type === 'tx' ? 'sink' : 'part'),
     packed: (node) => Boolean(net.BUILT[node.type]),
     outputs: (node) => {
-      const outs = net.BUILT[node.type] && portsOut(builderOf(node.type))
+      const outs = net.BUILT[node.type] && portsOut(net.builtBy(node.type))
       return outs && outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
     },
   }

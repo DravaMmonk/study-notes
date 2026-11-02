@@ -1,25 +1,27 @@
-// Saved progress for a game on the shared shell. It lives in this browser only, under `<game id>.v1`:
+// Saved progress for a game on the shared shell. It lives in this browser only, under `<game id>.v2`:
 //
-//   { version, solved: [levelId], flags: [flag], data: { [levelId]: anything the level keeps },
-//     slots: { [levelId]: the level's other saved boards (slots.js) }, best: { [levelId]: score }, tasks: { [levelId]: tasks passed },
-//     built: { [levelId]: the board that last passed a level whose board a part runs (a level of tasks: a list, one
-//              board a task) },
-//     seenPower, introSeen: { [levelId]: true }, all }
+//   { version, solved: [level id], flags: [flag], passed: [task key], data: { [task key]: what its screen keeps },
+//     slots: { [task key]: its other saved boards (slots.js) }, built: { [task key]: the board a part runs },
+//     best: { [level id]: score }, introSeen: { [level id | task key]: true }, seenPower, all }
 //
-// A game's own `progress.migrate(saved)` brings an older save (its own version numbers, or an older key it read
-// before the shell existed) up to this shape; `progress.version` is the game's current version.
+// What a level is (solved, its best score) is kept by its id; what a puzzle is — its board, its other boards, whether
+// it is passed, the board a part runs — by its task's key (taskKey: the task's id, ../engine/tasks.js keyOf), so a
+// task moved within its level or to another, or levels made one, keeps it all. A level once solved stays solved, even
+// when it gains a task. `version` is the game's save version: its steps (saves.js, game.json `saves`) bring a save
+// written before the content changed up to date. A save of any other shape (an older key) is not read: the player
+// starts afresh.
+import { keyOf } from '../engine/tasks.js'
 
-const blank = (version) => ({ version, solved: [], flags: [], data: {}, slots: {}, built: {}, best: {}, tasks: {}, seenPower: false, introSeen: {}, all: false })
+const blank = (version) => ({ version, solved: [], flags: [], passed: [], data: {}, slots: {}, built: {}, best: {}, seenPower: false, introSeen: {}, all: false })
 
-export function createProgress({ id, version = 1, migrate = (saved) => saved, legacy = () => null }) {
-  const key = `${id}.v1`
+export function createProgress({ id, version = 1, migrate = (saved) => saved }) {
+  const key = `${id}.v2`
   return {
     key,
     load() {
       try {
-        const stored = JSON.parse(window.localStorage.getItem(key)) ?? legacy() ?? { version }
-        const saved = migrate(stored)
-        return { ...blank(version), ...saved, version }
+        const stored = JSON.parse(window.localStorage.getItem(key)) ?? { version }
+        return { ...blank(version), ...migrate(stored), version }
       } catch {
         return blank(version)
       }
@@ -41,28 +43,36 @@ export function createProgress({ id, version = 1, migrate = (saved) => saved, le
 /** A fresh progress, as a new save starts. */
 export const fresh = (version = 1) => blank(version)
 
-/** How many of a level's tasks are passed (all of them once it is solved). */
-export const tasksDone = (game, p, id) => (p.solved.includes(id) ? game.byId[id]?.tasks?.length ?? 1 : p.tasks?.[id] ?? 0)
+/** Task k's key: the task's id (the shell level's task `key`), `<level>#<k>` without one, the level's id without tasks. */
+export const taskKey = (level, k = 0) => (level.tasks ? keyOf(level.id, level.tasks[k].key, k) : level.id)
 
-/** The task a level opens at: the first not yet passed. */
-export const firstTask = (game, p, id) => Math.min(tasksDone(game, p, id), (game.byId[id]?.tasks?.length ?? 1) - 1)
+/** Whether task k of level `id` is passed (all of them once it is solved). */
+export const taskPassed = (game, p, id, k) => p.solved.includes(id) || p.passed.includes(taskKey(game.byId[id], k))
 
-/** Progress with what the level's screen keeps at task `taskAt` (a level of tasks keeps a list, one entry a task). */
-export function saved(p, level, taskAt, data) {
-  if (!level.tasks) return { ...p, data: { ...p.data, [level.id]: data } }
-  const list = Array.from({ length: level.tasks.length }, (_, k) => (Array.isArray(p.data[level.id]) ? p.data[level.id][k] ?? null : null))
-  return { ...p, data: { ...p.data, [level.id]: Object.assign(list, { [taskAt]: data }) } }
+/** The task a level opens at: the first not yet passed (the last, once all are). */
+export function firstTask(game, p, id) {
+  const n = game.byId[id]?.tasks?.length ?? 1
+  for (let k = 0; k < n; k += 1) if (!taskPassed(game, p, id, k)) return k
+  return n - 1
 }
 
+/** Progress with level `id` opened at task k: the tasks before it passed, it and the level not. */
+export function openAt(game, p, id, k) {
+  const level = game.byId[id]
+  const keys = (level.tasks ?? [null]).map((_, j) => taskKey(level, j))
+  return { ...p, solved: p.solved.filter((x) => x !== id), passed: [...new Set([...p.passed.filter((x) => !keys.includes(x)), ...keys.slice(0, k)])] }
+}
+
+/** Progress with what the level's screen keeps at task `taskAt`. */
+export const saved = (p, level, taskAt, data) => ({ ...p, data: { ...p.data, [taskKey(level, taskAt)]: data } })
+
 /** The boards kept for the parts that run them, once `level` passes at `taskAt` (`keeps`, by default a level that
- *  unlocks something; a level of tasks keeps one a task). */
+ *  unlocks something). */
 function kept(p, level, taskAt) {
-  const tasks = level.tasks
-  const board = tasks ? p.data[level.id]?.[taskAt] : p.data[level.id]
+  const key = taskKey(level, taskAt)
+  const board = p.data[key]
   if (!(level.keeps ?? level.unlocks?.length) || !board) return p.built
-  if (!tasks) return { ...p.built, [level.id]: board }
-  const list = Array.isArray(p.built[level.id]) ? p.built[level.id] : []
-  return { ...p.built, [level.id]: Object.assign(Array.from({ length: tasks.length }, (_, k) => list[k] ?? null), { [taskAt]: board }) }
+  return { ...p.built, [key]: board }
 }
 
 /**
@@ -72,11 +82,11 @@ function kept(p, level, taskAt) {
  */
 export function passed(game, p, level, taskAt, score = null) {
   const built = kept(p, level, taskAt)
-  if (level.tasks && taskAt < level.tasks.length - 1) return { ...p, built, tasks: { ...p.tasks, [level.id]: Math.max(tasksDone(game, p, level.id), taskAt + 1) } }
+  const now = { ...p, built, passed: [...new Set([...p.passed, taskKey(level, taskAt)])] }
+  if (level.tasks && taskAt < level.tasks.length - 1) return now
   const best = p.best[level.id]
   return {
-    ...p,
-    built,
+    ...now,
     solved: [...new Set([...p.solved, level.id])],
     flags: [...new Set([...p.flags, ...(level.unlocks ?? [])])],
     best: score && game.better(score, best) ? { ...p.best, [level.id]: score } : p.best,

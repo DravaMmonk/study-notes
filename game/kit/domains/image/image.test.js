@@ -1,12 +1,11 @@
 // The image board as content and saves hold it: blueprint text both ways (every level's reference too), how a board
-// read from text is laid out, boards saved before version 15, and a packed part running the player's own circuit.
+// read from text is laid out, and a packed part running the player's own circuit.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readContent } from '../../engine/content-node.js'
 import { fromText, toText } from './engine/board.js'
 import { evaluate, outputImages } from './engine/graph.js'
 import { OWN } from './engine/own.js'
-import { savesOf } from './items/migrations.js'
 import { picture } from './items/pictures.js'
 import { imageCourse } from './course.js'
 
@@ -44,17 +43,6 @@ test('every level’s reference boards read back to the lines content wrote', ()
       if (task.solution) assert.deepEqual(toText(board), task.solution, raw.id)
     }
   }
-})
-
-test('a board saved before version 15 has Shift’s arrows and the reparameterisation’s Greek ports spelt in ASCII', () => {
-  const step = savesOf(content.saves).find((s) => s.version === 15)
-  const ascii = step.ops[0].data
-  const old = { nodes: [{ id: 's', type: 'shift', params: { dir: '→' } }], wires: [{ from: 'm', to: 'r', port: 'μ' }, { from: 'e', to: 'r', port: 'ε' }] }
-  const now = ascii({ ...old, passed: old })
-  assert.equal(now.nodes[0].params.dir, 'right')
-  assert.deepEqual(now.wires.map((w) => w.port), ['mu', 'eps'])
-  assert.deepEqual(now.passed, { nodes: now.nodes, wires: now.wires })
-  assert.equal(ascii(null), null)
 })
 
 test('a packed part runs the circuit the player passed its level with', () => {

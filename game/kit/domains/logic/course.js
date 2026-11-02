@@ -14,6 +14,7 @@ import { typeOf } from './iso.js'
 import { equations } from './define.js'
 import { provesShape, startProof } from './proof.js'
 import { ownBoard } from './built.js'
+import { keyOf } from '../../engine/tasks.js'
 import { PRIMITIVE_GATES, builtGates, startGates } from './gates.js'
 import { boardOf } from './ruleLines.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -318,10 +319,10 @@ export function logicCourse(content) {
     const types = [...Object.keys(MACHINE_PARTS), ...shape.ruleParts.keys()]
     for (const field of ['solution', 'naive']) if (one[field]) one[field] = board(one, field, startMachine(one), shape, types)
   }
-  // A board's place in its level's save (built.js): the board itself, or in a level of tasks its task's place in a list.
+  // A board's place in the saves (built.js): its level's id, or in a level of tasks its task's key.
   for (const bp of blueprints) {
     const task = byId.get(bp.level).tasks?.findIndex((t) => t.solution === bp.board || t.naive === bp.board) ?? -1
-    if (task >= 0) bp.save = (b) => Object.assign([], { [task]: b })
+    if (task >= 0) bp.key = keyOf(bp.level, undefined, task)
   }
   // A lemma runs the proof of each of its shapes (proof.js lemma).
   const provers = lemmaProofs(lemmas, revisions, LEVELS, wrong)

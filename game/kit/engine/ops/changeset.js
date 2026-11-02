@@ -18,6 +18,7 @@ import { domainOf, readPlaytests } from '../content-node.js'
 import { OPERATIONS } from './operations.js'
 import { saveOps } from './migrate.js'
 import { hubCount } from './workspace.js'
+import { keyOf } from '../tasks.js'
 
 export const LOG = 'changes.jsonl'
 
@@ -74,7 +75,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     }
   }
 
-  // The save step: the operations' own ops, the levels whose kept state no longer applies, new prerequisites, new builds.
+  // The save step: the operations' own ops, the boards that no longer apply, new prerequisites, new builds.
   const notes = []
   const before = courseOf(domain, content0)
   const content1 = ws.content()
@@ -88,7 +89,12 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   }) : []
   let step = null
   try {
-    const ops = saveOps({ before: after && before, after, idOps, placed, stale, drop: domain.changes?.drop })
+    // A level's task keys in the saves (../tasks.js keyOf), as the changeset leaves it.
+    const keys = (id) => {
+      const level = ws.levels.get(id)
+      return Array.isArray(level?.tasks) ? level.tasks.map((task, k) => keyOf(id, task.id, k)) : [id]
+    }
+    const ops = saveOps({ before: after && before, after, idOps, placed, stale, keys })
     if (ops.length) {
       const saves = ws.game.saves ?? []
       // A step says why it was written where the game's schema has room for it.

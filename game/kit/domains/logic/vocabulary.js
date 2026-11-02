@@ -4,11 +4,11 @@
 //
 // The items are implemented next to them: proof rules in proof.js, gates in gates.js, the machine board's parts in
 // machine.js (their names in partText.js), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
-// the proof-term forms in termTree.js, and the save migrations in items/migrations.js. Sentences are text in the
+// and the proof-term forms in termTree.js. Sentences are text in the
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
 import { S } from '../../engine/schema.js'
-import { defineVocabulary } from '../../engine/vocabulary.js'
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 import { RULES } from './proof.js'
 import { PRIMITIVE_GATES } from './gates.js'
 import { MACHINE_PARTS } from './machine.js'
@@ -79,39 +79,6 @@ const FORMS = {
   subst: item(t('▸：等量代换', '▸: rewriting by an equation')),
 }
 
-/* ---------- what content calls: save migrations ---------- */
-
-/** A pick of a reshape: what goes in one place of a level's new kept state, from its old one. */
-const PICK = S.either(
-  S.oneOf([null, 'it', 'drop'], { about: t('null：空；it：原来的整个状态；drop：去掉', 'null: empty; it: the whole old state; drop: gone') }),
-  S.int({ min: 0, about: t('原来的第 k 项（没有时为空）', 'the old item k (empty when there is none)') }),
-  S.list(S.int({ min: 0 }), { about: t('[k, j]：原来第 k 项的第 j 项', '[k, j]: item j of the old item k') }),
-  S.obj({ at: S.int({ min: 0 }), or: S.opt(S.oneOf([null, 'drop'])) }, { about: t('原来的第 at 项照原样；它为空时取 or', 'the old item at as it is; or, when it is empty') }),
-  S.obj({ slice: S.list(S.int()), of: S.opt(S.int({ min: 0 })), empty: S.opt(S.list(S.oneOf([null]))) }, { about: t('原来的（或第 of 项的）一段，展开在这里；一段为空时放 empty', 'a run of the old items (of item `of`), spread here; `empty` when the run is empty') }),
-)
-const PICKS = S.either(S.list(PICK), PICK)
-const RESHAPE = S.obj({
-  list: S.opt(PICKS), one: S.opt(PICKS), null: S.opt(PICKS), always: S.opt(PICKS),
-  length: S.opt(S.int({ min: 0, about: t('只改这么长的列表', 'only a list this long') })),
-}, { about: t('原来是任务列表（list）、一块（one）、null，或不论什么（always）时，新的状态', 'the new state when the old one is a list of task states (list), one state (one), null, or anything (always)') })
-const MIGRATIONS = {
-  drop: item(t('这几关存下的状态去掉：重新开始', 'these levels’ kept state dropped: they start afresh'), ids),
-  reshape: item(t('一关的任务变了：存下的状态挪到它现在属于的任务', 'a level’s tasks changed: its kept state moves to the tasks it now belongs to'), S.map(RESHAPE)),
-  retype: item(t('存下的板上的元件改名：一种类型（带这些设置）换成另一种，设置全留或只留 keep', 'parts renamed on every kept board: a type (with these settings) becomes another, keeping all its settings or those in keep'),
-    S.list(S.obj({ type: S.str(), params: S.opt(S.map(S.any())), to: S.str(), keep: S.opt(ids) }))),
-  listParam: item(t('元件上原来只选一样的设置，改成一串', 'a setting that held one choice now holds a list'), S.obj({ key: S.str() })),
-  dropBoards: item(t('某种形状的板不再能玩：重新开始（任务列表里的变成空，单独一块的变成 alone）', 'boards of a shape that no longer plays start afresh (empty in a list of tasks, alone on its own)'),
-    S.obj({ match: S.oneOf(['ruleOnCard', 'numberParts', 'declChain', 'declBoard'], { about: t('卡片上写着规则；用了数与列表的旧元件；用「前面」串起来的声明；声明板', 'rules named on a card; the old parts of numbers and lists; a declaration chained by “before”; a declaration board') }), alone: S.oneOf(['null', 'drop']) })),
-  auditWork: item(t('写下的检验条例成了共用的检验玩法的作业，改对的声明成了它的第一块板（这几关的这几个任务）', 'the test cases written became the work of the shared audit, the declaration corrected its first board (these tasks of these levels)'), S.map(S.list(S.int({ min: 0 })))),
-  caseGiven: item(t('检验条例写成「已知、目标、推得出与否」：原来的 have 成了 given（这几关的这几个任务）', 'a test case written as given, goal and whether it follows: its old have is its given (these tasks of these levels)'), S.map(S.list(S.int({ min: 0 })))),
-  worldWork: item(t('这几关造的世界成了对付板上那条错误推理的作业', 'the world built on these levels is the work against the wrong inference on its board'), ids),
-  declLines: item(t('存成一行行块的声明，变回它的规则板', 'a declaration kept as lines of blocks becomes its rule board')),
-  objectNames: item(t('存下的公式、证明项和世界里的东西改名（at：某一关另外的改法）', 'things renamed in every formula, term and world kept (at: a level’s own renaming on top)'), S.obj({ names: S.map(S.str()), at: S.opt(S.map(S.map(S.str()))) })),
-}
-const COUNTS = {
-  passed: item(t('一关已通过的任务数：清零（0）、少 less 个、最多 most 个', 'how many of a level’s tasks count passed: none (0), fewer by less, at most most'),
-    S.map(S.either(S.oneOf([0]), S.obj({ less: S.opt(S.int({ min: 1 })), most: S.opt(S.int({ min: 0 })) })))),
-}
 
 /* ---------- a level ---------- */
 
@@ -220,16 +187,6 @@ const LEMMA = S.obj({
 const FACT = S.obj({ name: S.text(), statement: SENTENCE, desc: S.text(), rule: S.opt(S.obj({ premises: S.list(S.str()), conclusion: S.str() })) })
 const GATE = S.obj({ name: S.text(), desc: S.text(), ports: S.list(S.str(), { about: t('门的口，依次接搭出它那一关的字母', 'the gate’s ports, the letters of the level that builds it in order') }) })
 const REVISION = S.obj({ at: S.opt(S.level()), by: S.opt(S.level()), desc: S.opt(S.text()), forms: S.opt(ids) })
-const SAVE_OP = S.either(
-  S.obj({ rename: S.map(S.either(S.str(), NONE)) }),
-  S.obj({ grant: S.list(S.str()) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ built: ids }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ split: S.list(S.either(S.str(), ids)) }),
-  S.obj({ data: S.call('migration') }),
-  S.obj({ tasks: S.call('count') }),
-)
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
@@ -246,7 +203,7 @@ const GAME = S.obj({
   revisions: S.opt(S.map(S.list(REVISION), { about: t('元件的说明和形状随课程长', 'how a part’s description and shapes grow along the course') })),
   eras: S.list(ERA, { min: 1 }),
   quotes: S.opt(S.list(S.str(), { about: t('文案里可以直接引用、不用链接的名字', 'names copy may quote rather than link') })),
-  saves: S.list(S.obj({ version: S.int({ min: 2 }), why: S.opt(S.str()), ops: S.list(SAVE_OP) })),
+  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({
@@ -257,8 +214,6 @@ export const vocabulary = defineVocabulary({
     kind: KINDS,
     want: WANTS,
     form: FORMS,
-    migration: MIGRATIONS,
-    count: COUNTS,
   },
   game: GAME,
   level: LEVEL,

@@ -12,6 +12,7 @@
 // })
 import { S, validate } from './schema.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
+import { taskIdProblems } from './tasks.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
@@ -26,6 +27,24 @@ export const GLOSSARY = S.obj({
  */
 export const OPEN = S.map(S.list(S.str({ pattern: '^[^@]*@[^@]+$' })))
 
+/**
+ * game.json's `saves`, the same in every game: the save migration steps the operation set writes (ops/migrate.js),
+ * each a version, why it was written, and the shell's save operations (../shell/saves.js) — level ids renamed or gone,
+ * levels counted solved, boards made a part's, boards dropped, task ids renamed.
+ */
+const LEVEL_OR_NONE = S.either(S.str(), S.oneOf([null]))
+export const SAVES = S.list(S.obj({
+  version: S.int({ min: 2 }),
+  why: S.opt(S.str()),
+  ops: S.list(S.either(
+    S.obj({ rename: S.map(LEVEL_OR_NONE) }),
+    S.obj({ solve: S.list(S.either(S.str(), S.list(S.str()))) }),
+    S.obj({ built: S.list(S.list(S.str(), { min: 2 })) }),
+    S.obj({ drop: S.list(S.str()) }),
+    S.obj({ retask: S.map(S.str()) }),
+  )),
+}))
+
 export function defineVocabulary({ domain, version, kinds, game, level }) {
   return { domain, version, kinds, game, level }
 }
@@ -35,7 +54,8 @@ export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
 
 /**
  * Every place a game's content (content.js assemble) does not fit its domain's vocabulary, as [{ at, says }]: the
- * file and the path in it. A course blueprint (blueprint.json) is the kernel's, the same in every domain.
+ * file and the path in it. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
+ * that task ids are unique in a game and never another level's (tasks.js).
  */
 export function checkContent(vocabulary, content) {
   const out = []
@@ -49,6 +69,7 @@ export function checkContent(vocabulary, content) {
   add(validate(vocabulary.game, game, { vocabulary, levels: ids }), 'game.json')
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
   for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids }), `levels/${levelId}.json`)
+  out.push(...taskIdProblems(levels))
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   return out

@@ -3,9 +3,9 @@
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
 // The items are implemented next to their schemas: parts in engine/nodes.js and engine/parts/, pictures, scenes,
-// targets, budgets, bench models, bench displays and save migrations in items/.
+// targets, budgets, bench models and bench displays in items/.
 import { S } from '../../engine/schema.js'
-import { defineVocabulary } from '../../engine/vocabulary.js'
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { PICTURES } from './items/pictures.js'
@@ -14,7 +14,6 @@ import { TARGETS } from './items/targets.js'
 import { CONSTRAINTS } from './items/constraints.js'
 import { BENCH_MODELS } from './items/benches.js'
 import { DISPLAYS } from './items/displays.js'
-import { MIGRATIONS } from './items/migrations.js'
 
 const t = (zh, en) => ({ zh, en })
 /** A kind's items as the vocabulary prints them: what each is, and its parameters. */
@@ -135,15 +134,6 @@ const ERA = S.obj({
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: TEXT, lecture: TEXT, question: TEXT }),
 })
-const NONE = S.oneOf([null])
-const SAVE_OP = S.either(
-  S.obj({ rename: S.map(S.either(S.str(), NONE)) }),
-  S.obj({ fields: S.map(S.str()) }),
-  S.obj({ grant: S.list(S.str(), { min: 2 }) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ data: S.call('migration') }),
-)
 const GAME = S.obj({
   title: TEXT,
   kicker: TEXT,
@@ -154,7 +144,7 @@ const GAME = S.obj({
   replaces: S.map(S.list(S.ref('part')), { about: t('一个元件出现后取代的元件', 'the parts a part supersedes once met') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）', 'the level each way of drawing a picture comes with (pixels from the start)') }),
   eras: S.list(ERA, { min: 1 }),
-  saves: S.list(S.obj({ version: S.int({ min: 2 }), ops: S.list(SAVE_OP) })),
+  saves: SAVES,
   box: S.obj({
     sample: S.level({ about: t('没有测试的关解锁的元件，在这一关的测试图上试', 'the level whose pictures a part from a level without tests is tried on') }),
     inLevel: S.map(S.level(), { about: t('在这一关的参考电路里试的元件', 'parts tried inside a level’s own reference circuit') }),
@@ -176,7 +166,6 @@ export const vocabulary = defineVocabulary({
     constraint: items(CONSTRAINTS),
     benchModel: Object.fromEntries(Object.entries(BENCH_MODELS).map(([name, m]) => [name, { about: m.about, ...(m.setup ? { params: m.setup } : {}), ...(m.stage ? { stage: m.stage } : {}), ...(m.case ? { case: m.case } : {}) }])),
     display: displayItems(DISPLAYS),
-    migration: items(MIGRATIONS),
   },
   game: GAME,
   level: S.by('kind', { graph: GRAPH, probe: PROBE, board: BENCH }),

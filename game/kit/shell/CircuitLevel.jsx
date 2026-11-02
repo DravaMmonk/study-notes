@@ -7,6 +7,8 @@ import { Brief, PhonePage, Text } from './Layout.jsx'
 import RunDock from './RunDock.jsx'
 import Sheet from './Sheet.jsx'
 import TestTabs from './TestTabs.jsx'
+import { useEdit } from './edit.js'
+import { PickMark } from './EditMarks.jsx'
 import { usePlayback } from './usePlayback.jsx'
 import { useKeptVerdict } from './useKeptVerdict.js'
 import Workbench, { TestStatus } from './Workbench.jsx'
@@ -162,6 +164,7 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
   const { circuit, change } = board
   const own = useRef(null)
   const root = rootRef ?? own
+  const edit = useEdit()
   const [target, setTarget] = useState(null) // the frame region a new card goes into (desktop)
   const card = { wireState: (wire, ctx) => (ctx.view?.values.get(wire.from) !== undefined ? 'live' : 'dead'), ...faces }
 
@@ -206,7 +209,7 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
       rootRef={root}
       className={`cl-level ${className}`}
       brief={briefEl}
-      parts={all.length > 0 && <Palette compact items={items} folded={folded} onAdd={add} />}
+      parts={(all.length > 0 || edit) && <>{all.length > 0 && <Palette compact items={items} folded={folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
       stage={
         <div className="cl-stage">
           <div className="cl-board">

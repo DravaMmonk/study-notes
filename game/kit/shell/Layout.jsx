@@ -3,15 +3,18 @@ import { Check, ChevronDown, Lightbulb, Lock } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { refParts } from './refs.js'
 import { RunDrawer } from './RunDock.jsx'
+import { useEdit, useMark } from './edit.js'
+import { AddMark } from './EditMarks.jsx'
 import Workbench from './Workbench.jsx'
 
 // The level screen's frame on a phone (PhonePage; on a desktop, Workbench.jsx), and what goes in it in every game:
 // the brief, the text it is written in.
 
-/** A level's text: plain, or the game's own markup when the game says its text is HTML (defineGame `html`). */
-export function Text({ game, as: Tag = 'p', className, text, onClick }) {
+/** A level's text: plain, or the game's own markup when the game says its text is HTML (defineGame `html`). `mark`:
+ *  the props marking it as a field of the content while the studio edits (edit.js). */
+export function Text({ game, as: Tag = 'p', className, text, onClick, mark = {} }) {
   const value = String(L(text) ?? '')
-  return game?.html ? <Tag className={className} onClick={onClick} dangerouslySetInnerHTML={{ __html: value }} /> : <Tag className={className} onClick={onClick}><Plain text={value} /></Tag>
+  return game?.html ? <Tag className={className} onClick={onClick} {...mark} dangerouslySetInnerHTML={{ __html: value }} /> : <Tag className={className} onClick={onClick} {...mark}><Plain text={value} /></Tag>
 }
 
 /** Plain text, with its references to levels, parts and encyclopedia entries (refs.js) as links. */
@@ -77,26 +80,34 @@ export function TaskCard({ children }) {
  */
 export function Brief({ game, level, text, tip, hint, children }) {
   const [shown, setShown] = useState(0) // how many hints are open
+  const edit = useEdit()
+  const mark = useMark()
   const body = text ?? level.brief
-  const paragraphs = (Array.isArray(body) ? body : [body]).filter(Boolean)
+  const many = Array.isArray(body)
+  const paragraphs = (many ? body : [body]).filter(Boolean)
   const hints = (Array.isArray(hint) ? hint : [hint]).filter(Boolean)
+  const hintAt = (k) => (Array.isArray(hint) ? `hint[${k}]` : 'hint')
+  // While the studio edits, every hint shows, each a field to pick.
+  const open = edit ? hints.length : shown
   const more = shown < hints.length
   return (
     <>
       <header className="brief-head">
         <span className="brief-id">{game.levelLabel(level)}</span>
-        <h1>{L(level.title)}</h1>
+        <h1 {...mark('title', 'level')}>{L(level.title)}</h1>
       </header>
-      {level.steps && <TaskSteps steps={level.steps} />}
-      {paragraphs.map((p, k) => <Text key={k} game={game} className="brief-text" text={p} />)}
-      {tip && <Text game={game} className="brief-tip" text={tip} />}
-      {hints.length > 0 && (
+      {level.steps && (edit || level.steps.names.length > 1) && <TaskSteps steps={level.steps} />}
+      {paragraphs.map((p, k) => <Text key={k} game={game} className="brief-text" text={p} mark={mark(many ? `brief[${k}]` : 'brief')} />)}
+      {tip && <Text game={game} className="brief-tip" text={tip} mark={mark('tip')} />}
+      {(hints.length > 0 || edit) && (
         <div className="hint-block">
-          {hints.slice(0, shown).map((h, k) => <Text key={k} game={game} className="hint" text={h} />)}
-          <button className="hint-toggle" onClick={() => setShown(more ? shown + 1 : 0)} aria-expanded={shown > 0}>
-            <Lightbulb size={14} />
-            {more ? (shown ? tr(`下一条提示（${shown + 1}/${hints.length}）`, `Next hint (${shown + 1}/${hints.length})`) : tr('提示', 'Hint')) : tr('收起提示', 'Hide hints')}
-          </button>
+          {hints.slice(0, open).map((h, k) => <Text key={k} game={game} className="hint" text={h} mark={mark(hintAt(k))} />)}
+          {edit ? <AddMark at="hint" label={{ zh: '提示', en: 'a hint' }} /> : (
+            <button className="hint-toggle" onClick={() => setShown(more ? shown + 1 : 0)} aria-expanded={shown > 0}>
+              <Lightbulb size={14} />
+              {more ? (shown ? tr(`下一条提示（${shown + 1}/${hints.length}）`, `Next hint (${shown + 1}/${hints.length})`) : tr('提示', 'Hint')) : tr('收起提示', 'Hide hints')}
+            </button>
+          )}
         </div>
       )}
       {children}
@@ -106,22 +117,27 @@ export function Brief({ game, level, text, tip, hint, children }) {
 
 /**
  * A level's tasks in order (GameShell tasks): the one played, the ones passed, and the ones still locked behind the
- * task before them. Any task open can be gone back to.
+ * task before them (`passed`: whether each is). Any task open can be gone back to. While the studio edits, every task is open, the one played
+ * names a field (its name), and a + adds a task after the last.
  */
 function TaskSteps({ steps }) {
+  const edit = useEdit()
+  const mark = useMark()
   return (
     <ol className="task-steps">
       {steps.names.map((name, k) => {
-        const open = k <= steps.done
+        const done = steps.passed[k]
+        const open = edit || done || k === 0 || steps.passed[k - 1]
         return (
           <li key={k}>
-            <button type="button" className={`${k === steps.at ? 'is-on' : ''} ${k < steps.done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
-              <i>{k < steps.done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
-              <span>{L(name)}</span>
+            <button type="button" {...(k === steps.at ? mark('step') : {})} className={`${k === steps.at ? 'is-on' : ''} ${done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
+              <i>{done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
+              <span>{name ? L(name) : tr(`任务 ${k + 1}`, `Task ${k + 1}`)}</span>
             </button>
           </li>
         )
       })}
+      {edit && <li><AddMark at="tasks" scope="level" label={{ zh: '任务', en: 'a task' }} /></li>}
     </ol>
   )
 }

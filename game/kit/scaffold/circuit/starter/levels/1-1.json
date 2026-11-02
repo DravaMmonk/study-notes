@@ -1,6 +1,8 @@
 {
-  "title": { "zh": "加了再减", "en": "Add, then take away" },
-  "brief": { "zh": "交出 a 加 b、再减去 c 的结果。", "en": "Give a plus b, less c." },
+  "title": {
+    "zh": "加了再减",
+    "en": "Add, then take away"
+  },
   "intro": [
     {
       "t": {
@@ -9,23 +11,96 @@
       }
     }
   ],
-  "hint": [{ "zh": "一块元件的输出可以接到另一块元件的输入上。", "en": "One part’s output can go into another part’s input." }],
-  "adds": ["add", "sub"],
-  "inputs": [
-    { "name": "a", "label": "a" },
-    { "name": "b", "label": "b" },
-    { "name": "c", "label": "c" }
+  "adds": [
+    "add",
+    "sub"
   ],
-  "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
-  "tests": [
-    { "inputs": { "a": 1, "b": 2, "c": 3 }, "expect": { "out": 0 } },
-    { "inputs": { "a": 10, "b": 4, "c": 6 }, "expect": { "out": 8 } }
-  ],
-  "hidden": [{ "inputs": { "a": 7, "b": 8, "c": -9 }, "expect": { "out": 24 } }],
-  "solution": ["s = add(a, b)", "d = sub(s, c)", "out <- d"],
   "builds": {
     "type": "addSub",
-    "name": { "zh": "加了再减", "en": "Add then subtract" },
-    "desc": { "zh": "给出 a 加 b、再减去 c 的结果。", "en": "Gives a plus b, less c." }
-  }
+    "name": {
+      "zh": "加了再减",
+      "en": "Add then subtract"
+    },
+    "desc": {
+      "zh": "给出 a 加 b、再减去 c 的结果。",
+      "en": "Gives a plus b, less c."
+    }
+  },
+  "tasks": [
+    {
+      "id": "1-1",
+      "brief": {
+        "zh": "交出 a 加 b、再减去 c 的结果。",
+        "en": "Give a plus b, less c."
+      },
+      "hint": [
+        {
+          "zh": "一块元件的输出可以接到另一块元件的输入上。",
+          "en": "One part’s output can go into another part’s input."
+        }
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "label": "a"
+        },
+        {
+          "name": "b",
+          "label": "b"
+        },
+        {
+          "name": "c",
+          "label": "c"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "label": {
+            "zh": "结果",
+            "en": "Result"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "a": 1,
+            "b": 2,
+            "c": 3
+          },
+          "expect": {
+            "out": 0
+          }
+        },
+        {
+          "inputs": {
+            "a": 10,
+            "b": 4,
+            "c": 6
+          },
+          "expect": {
+            "out": 8
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "a": 7,
+            "b": 8,
+            "c": -9
+          },
+          "expect": {
+            "out": 24
+          }
+        }
+      ],
+      "solution": [
+        "s = add(a, b)",
+        "d = sub(s, c)",
+        "out <- d"
+      ]
+    }
+  ]
 }

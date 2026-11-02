@@ -1,6 +1,8 @@
 {
-  "title": { "zh": "晚一拍", "en": "A tick late" },
-  "brief": { "zh": "每一拍把输入上一拍的值说到线上；第一拍说 0。", "en": "Every tick, say on the line what the input was the tick before; say 0 on the first tick." },
+  "title": {
+    "zh": "晚一拍",
+    "en": "A tick late"
+  },
   "intro": [
     {
       "t": {
@@ -9,14 +11,71 @@
       }
     }
   ],
-  "adds": ["reg", "keep"],
-  "talks": true,
-  "inputs": [{ "name": "b", "label": { "zh": "位", "en": "Bit" } }],
-  "tests": [
-    { "line": "......", "inputs": { "b": [1, 0, 1, 1, 0, 0] } },
-    { "line": ".....", "inputs": { "b": [0, 1, 1, 0, 1] } }
+  "after": {
+    "zh": "寄存卡让电路记得上一拍。",
+    "en": "A register lets a circuit remember the tick before."
+  },
+  "adds": [
+    "reg",
+    "keep"
   ],
-  "want": { "say": { "delayed": { "input": "b", "first": 0 } } },
-  "solution": ["r = reg[reg=A, start=0]()", "k = keep[reg=A](b)", "say <- r"],
-  "after": { "zh": "寄存卡让电路记得上一拍。", "en": "A register lets a circuit remember the tick before." }
+  "tasks": [
+    {
+      "id": "1-2",
+      "brief": {
+        "zh": "每一拍把输入上一拍的值说到线上；第一拍说 0。",
+        "en": "Every tick, say on the line what the input was the tick before; say 0 on the first tick."
+      },
+      "talks": true,
+      "inputs": [
+        {
+          "name": "b",
+          "label": {
+            "zh": "位",
+            "en": "Bit"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "line": "......",
+          "inputs": {
+            "b": [
+              1,
+              0,
+              1,
+              1,
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "line": ".....",
+          "inputs": {
+            "b": [
+              0,
+              1,
+              1,
+              0,
+              1
+            ]
+          }
+        }
+      ],
+      "want": {
+        "say": {
+          "delayed": {
+            "input": "b",
+            "first": 0
+          }
+        }
+      },
+      "solution": [
+        "r = reg[reg=A, start=0]()",
+        "k = keep[reg=A](b)",
+        "say <- r"
+      ]
+    }
+  ]
 }

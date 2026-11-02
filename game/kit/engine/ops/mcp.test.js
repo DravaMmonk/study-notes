@@ -54,7 +54,7 @@ test('the server speaks MCP over stdio', async () => {
 test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps', async () => {
   const vocabulary = (await call('vocabulary', { game: 'qed-lab' })).data
   assert.equal(vocabulary.domain, 'logic')
-  assert.ok(vocabulary.vocabulary.kinds.migration.drop && vocabulary.operations['level.move'].params.fields.to)
+  assert.ok(vocabulary.vocabulary.kinds.part && vocabulary.operations['task.move'].params.fields.to)
 
   const audit = (await call('audit', { game: 'qed-lab' })).data
   assert.equal(audit.ok, true, audit.failures.join('\n'))
@@ -79,7 +79,7 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
 test('changing tools: migrate_diff previews, modify refuses a failing changeset and writes a passing one', async () => {
   const goal = { op: 'level.set', level: 'box', path: 'tests[0].goal', value: 'A → (B → C)' }
   const diff = (await call('migrate_diff', { game: 'qed-lab', changeset: { ops: [goal] } })).data
-  assert.deepEqual(diff.migration, { version: 3, ops: [{ data: { drop: ['box'] } }] })
+  assert.deepEqual(diff.migration, { version: 2, ops: [{ drop: ['box'] }] })
 
   // The reference no longer proves the new goal: refused, nothing written.
   const refused = (await call('modify', { game: 'qed-lab', changeset: { ops: [goal] } })).data
