@@ -10,7 +10,8 @@ import ImageView, { Picture } from './ImageView.jsx'
 // data once the one before is right. A round shows what it is about — an image, the picture its candidate scenes all
 // render, a reference scene, a scene the player may turn and relight (`explore`) — then its items, each with the
 // options to choose from (one, or several where the judge takes several). Check asks the judge, which works out the
-// answer from the round's own data, and says item by item what is wrong.
+// answer from the round's own data, and says item by item what is wrong; a claim answered wrong that one candidate
+// scene makes true and another false shows those two from a view that tells them apart (course.js `reveals`).
 
 const KNOBS = {
   yaw: { label: { zh: '方位', en: 'Yaw' }, of: 'camera', min: -180, max: 180 },
@@ -23,6 +24,21 @@ const KNOBS = {
 function Shown({ rows, value }) {
   const img = value ?? fromRows(rows)
   return img.w * img.h <= 36 ? <ImageView value={img} numbers axes /> : <Picture value={img} scale={Math.max(2, Math.floor(240 / Math.max(img.w, img.h)))} />
+}
+
+/** Why a claim is undetermined, seen: the two candidate scenes it splits, from a view that tells them apart. */
+function Reveal({ round, reveal }) {
+  const images = useMemo(() => reveal.scenes.map((k) => render({ ...round.scenes[k], camera: reveal.camera }).image), [round, reveal])
+  return (
+    <div className="vi-reveal">
+      {images.map((img, j) => (
+        <figure key={j}>
+          <Picture value={img} scale={4} />
+          <figcaption>{tr(`换个角度看场景 ${reveal.scenes[j] + 1}：${j ? '不成立' : '成立'}`, `Scene ${reveal.scenes[j] + 1} from another view: ${j ? 'fails' : 'holds'}`)}</figcaption>
+        </figure>
+      ))}
+    </div>
+  )
 }
 
 /** A scene the player turns and relights: one slider a knob the round opens. */
@@ -103,6 +119,7 @@ export default function ChoiceScreen({ game, level: entry, saved, save, solve, l
         ))}
       </div>
       {wrongOf(k) && <p className="vi-verdict is-fail">{L(wrongOf(k))}</p>}
+      {wrongOf(k) && round.reveals?.[k] && <Reveal round={round} reveal={round.reveals[k]} />}
     </section>
   ))
   const stage = (

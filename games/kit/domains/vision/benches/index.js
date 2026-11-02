@@ -3,7 +3,9 @@
 // (../ui/benches/). A model item is
 //   { about, setup?   its parameters
 //     make(setup, bench) → model      { view(values) → the quantities a goal limits }
-//     verify(model, bench) → ''       the bench's lesson holds on these data (what is wrong, else ''), for npm run check }
+//     verify(model, bench) → ''       the model's data fit it (what is wrong, else ''), for npm run check }
+// The lesson itself (the start fails, some setting passes, the naive settings fail, what passes holds) is the task's
+// (lesson.js).
 import { pinhole } from './pinhole.js'
 import { lens } from './lens.js'
 
@@ -17,7 +19,7 @@ export const DISPLAYS = {
   blurCurve: { about: t('模糊圈对深度的曲线：清晰门槛、清晰的深度范围和每个物体的位置', 'the blur circle against depth: the sharpness threshold, the sharp range and each object') },
 }
 
-/** A bench task's bench with its model made, and its check (verify: '' when the lesson holds). */
+/** A bench task's bench with its model made, and its check (verify: '' when the model's data fit it). */
 export function benchOf(bench) {
   const item = BENCH_MODELS[bench.model]
   const model = item.make(bench.setup ?? {}, bench)

@@ -2,18 +2,25 @@
 // an attempt judged as the screen judges it.
 //
 //   circuit  the kit's circuit play (../../engine/play/circuit.js): images written as their rows of numbers
-//   grid     the image as a table of numbers with its axes (or a picture's description); the answer is rows of numbers
+//   grid     the image as a table of numbers with its axes (a picture only: each cell's brightness as seen); the answer is rows of numbers
 //            (one row a line, values by spaces, a colour pixel r,g,b) or `x y`
-//   choice   every round at once, each item with its options by id; the answer is one line a round, the items' picks
-//            separated by `;` and several options of one item by `,`
-//   bench    not covered (turning knobs): skipped, said so
+//   choice   every round at once: what it shows (an image as its table, a scene as the picture described: its regions
+//            of colour, nothing the picture does not show), each item with its options by id and label only (the data a
+//            judge reads stays hidden); the answer is one line a round, the items' picks separated by `;` and several
+//            options of one item by `,`; a claim answered wrong that two candidate scenes split shows the two described
+//            from a view that tells them apart, as the screen does
+//   bench    the model, the knobs, each step's goal and the readings at the start; an attempt is settings tried in turn,
+//            each answered with the model's readings, as the bench's pictures and goal rows show them. A bench with
+//            cases, buttons or picks on a picture is not covered: skipped, said so
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
-import { fmt, fromRows, pixel, show } from './image.js'
+import { display, fmt, fromRows, pixel, show } from './image.js'
 import { startBoard } from './board.js'
 import { runLevel } from './run.js'
 import { askOf, gridCheck } from './grid.js'
 import { judgeOf } from './judges.js'
-import { render } from './scene.js'
+import { COLOURS, describe } from './scene.js'
+import { BENCH_MODELS } from './benches/index.js'
+import { goalOf, judge, knobKind, knobStart, knobValues, needText, openKnobs, rowValue, startValues } from '../../engine/bench.js'
 
 const T = (zh, en) => ({ zh, en })
 const pick = (text, lang) => (typeof text === 'string' ? text : text?.[lang] ?? '')
@@ -58,6 +65,19 @@ function table(rows) {
   return [`y\\x ${Array.from({ length: img.w }, (_, x) => String(x).padStart(width)).join(' ')}`, ...cells.map((r, y) => `${String(y).padStart(3)} ${r.map((c) => c.padStart(width)).join(' ')}`)].join('\n')
 }
 
+/** An image shown only as a picture, as the eye reads it: each cell's brightness 0 (darkest) to 9 (lightest), a colour
+ *  cell the nearest named colour. */
+function pictureOf(rows) {
+  const img = fromRows(rows)
+  const near = (p) => Object.entries(COLOURS).reduce((best, [k, c]) => { const d = c.rgb.reduce((s, v, j) => s + (v - display(p[j])) ** 2, 0); return d < best.d ? { k, d } : best }, { k: null, d: Infinity }).k
+  const cells = Array.from({ length: img.h }, (_, y) => Array.from({ length: img.w }, (_, x) => { const p = pixel(img, x, y); return Array.isArray(p) ? near(p) : String(Math.round(display(p) * 9)) }))
+  const width = Math.max(...cells.flat().map((c) => c.length))
+  return T(
+    [`只给画面，不给数：每格写它看上去的亮度，0 最暗、9 最亮${img.c === 3 ? '（彩色格写最接近的颜色）' : ''}`, ...cells.map((r) => r.map((c) => c.padStart(width)).join(' '))].join('\n'),
+    [`Shown as a picture, no numbers: each cell its brightness as seen, 0 darkest to 9 lightest${img.c === 3 ? ' (a colour cell the nearest named colour)' : ''}`, ...cells.map((r) => r.map((c) => c.padStart(width)).join(' '))].join('\n'),
+  )
+}
+
 /** An answer typed as rows: a line a row, values by spaces, a colour pixel r,g,b. */
 const rowsOf = (text) => text.trim().split('\n').map((line) => line.trim().split(/\s+/).map((v) => (v.includes(',') ? v.split(',').map(Number) : Number(v))))
 
@@ -76,7 +96,7 @@ const grid = {
     const highlight = name === 'locate' ? both((lang) => (lang === 'en' ? `Highlighted: the cell holding ${show(pixel(fromRows(L.image), params.x, params.y))} at row ${params.y + 1} from the top, column ${params.x + 1} from the left.` : `高亮的是从上数第 ${params.y + 1} 行、从左数第 ${params.x + 1} 列、值为 ${show(pixel(fromRows(L.image), params.x, params.y))} 的格子。`)) : null
     return {
       sections: [
-        { title: T('图', 'The image'), text: showNumbers ? table(L.image) : T(`一张 ${fromRows(L.image).w} × ${fromRows(L.image).h} 的图（只给画面，不给数）`, `a ${fromRows(L.image).w} × ${fromRows(L.image).h} image (shown as a picture, no numbers)`) },
+        { title: T('图', 'The image'), text: showNumbers ? table(L.image) : pictureOf(L.image) },
         ...(highlight ? [{ title: T('高亮', 'Highlighted'), text: highlight }] : []),
       ],
       write: ask,
@@ -91,20 +111,28 @@ const grid = {
   },
 }
 
-/** A scene in words: what the picture shows, as its pixels' colours (no facts the picture does not give). */
-const picture = (scene) => T(`一张 ${render(scene).image.w} × ${render(scene).image.h} 的渲染图`, `a ${render(scene).image.w} × ${render(scene).image.h} rendering`)
+/** What a round shows besides its items, in words: an image as its table, a scene as its picture described. */
+const shownOf = (round, lang) => [
+  ...(round.image ? [table(round.image)] : []),
+  ...(round.scenes ? [`${lang === 'en' ? 'The picture' : '这一轮的图'}: ${pick(describe(round.scenes[0]), lang)}`] : []),
+  ...(round.reference ? [`${lang === 'en' ? 'Reference' : '参照'}: ${pick(describe(round.reference), lang)}`] : []),
+  ...(round.explore ? [`${lang === 'en' ? 'A scene to turn and relight (here from where it starts; turning it is not covered)' : '可以转视角、调光的场景（这里只给起始的样子，转动不在盲玩里）'}: ${pick(describe(round.explore.scene), lang)}`] : []),
+]
+
+/** An option as its button shows it: its label, its image as a table, its scene as its picture described. */
+const optionOf = (o, lang) => [`${o.id} = ${pick(o.label, lang)}`, ...(o.image ? [table(o.image)] : []), ...(o.scene ? [pick(describe(o.scene), lang)] : [])].join('\n')
 
 const choice = {
   open(ctx) {
     const L = ctx.level.source
-    const { judge, name } = judgeOf(L.judge)
+    const { judge } = judgeOf(L.judge)
     const sections = L.rounds.map((round, r) => ({
       title: T(`第 ${r + 1} 轮`, `Round ${r + 1}`),
       text: both((lang) => [
-        ...(round.image ? [table(round.image)] : []),
-        ...(name === 'claims' ? [lang === 'en' ? `${round.scenes.length} candidate scene(s), all compatible with the picture: ${round.scenes.map((s, k) => `scene ${k + 1}: ${s.objects.map((o) => `${o.id} (${o.class}, ${o.colour})`).join(', ')}`).join('; ')}` : `${round.scenes.length} 个候选场景，都和这张图相容：${round.scenes.map((s, k) => `场景 ${k + 1}：${s.objects.map((o) => `${o.id}（${o.class}，${o.colour}）`).join('、')}`).join('；')}`] : []),
-        ...round.items.map((it, k) => `${lang === 'en' ? 'Item' : '题'} ${k + 1}: ${pick(it.prompt, lang)}${it.claim ? ` [${JSON.stringify(it.claim)}]` : ''}`),
-        `${lang === 'en' ? 'Options' : '选项'}: ${round.options.map((o) => `${o.id} = ${pick(o.label, lang)}${o.gives ? ` (${o.gives.join(', ')})` : ''}${o.varies ? ` (${o.varies.join(', ')})` : ''}${o.predicted ? ` (${lang === 'en' ? 'label' : '标签'} ${o.truth}, ${lang === 'en' ? 'predicted' : '预测'} ${o.predicted})` : ''}${o.scene ? ` [${pick(picture(o.scene), lang)}]` : ''}`).join('; ')}`,
+        ...shownOf(round, lang),
+        ...round.items.map((it, k) => `${lang === 'en' ? 'Item' : '题'} ${k + 1}: ${pick(it.prompt, lang)}`),
+        `${lang === 'en' ? 'Options' : '选项'}:`,
+        ...round.options.map((o) => optionOf(o, lang)),
       ].join('\n')),
     }))
     return { sections, write: T(`每轮一行；一行里每题的选项编号用 ; 隔开${judge.multi ? '，一题选几个时用 , 隔开' : ''}。`, `One line a round; in a line, each item's option ids separated by ;${judge.multi ? ', several for one item by ,' : ''}.`) }
@@ -113,26 +141,102 @@ const choice = {
     const L = ctx.level.source
     const { judge, params } = judgeOf(L.judge)
     const lines = text.trim().split('\n')
+    const says = []
     const tests = L.rounds.map((round, r) => {
       const picks = (lines[r] ?? '').split(';').map((s) => s.split(',').map((x) => x.trim()).filter(Boolean))
       const wrong = judge.check(round, picks, params)
-      return { label: T(`第 ${r + 1} 轮`, `Round ${r + 1}`), pass: !wrong.length, says: wrong[0]?.why ?? null }
+      // What the screen shows under a claim answered wrong that two candidate scenes split: the two from another view.
+      for (const w of wrong) {
+        const reveal = round.reveals?.[w.item]
+        if (reveal) says.push(both((lang) => reveal.scenes.map((k, j) => `${lang === 'en' ? `Scene ${k + 1} from another view (${j ? 'fails' : 'holds'})` : `换个角度看场景 ${k + 1}（${j ? '不成立' : '成立'}）`}: ${pick(describe({ ...round.scenes[k], camera: reveal.camera }), lang)}`).join('\n')))
+      }
+      return { label: T(`第 ${r + 1} 轮`, `Round ${r + 1}`), pass: !wrong.length, says: wrong.length ? both((lang) => wrong.map((w) => pick(w.why, lang)).join('\n')) : null }
     })
-    return { tests, pass: tests.every((x) => x.pass) }
+    return { tests, says, pass: tests.every((x) => x.pass) }
   },
 }
 
-export const play = {
+/** What a knob takes, in words. */
+const knobText = (name, knob, lang) => {
+  const kind = knobKind(knob)
+  const label = knob.label ? ` (${pick(knob.label, lang)})` : ''
+  const range = kind === 'range' ? `${knob.min}–${knob.max}, ${lang === 'en' ? 'step' : '步长'} ${knob.step}`
+    : kind === 'toggle' ? 'true / false'
+      : kind === 'choice' ? knob.choices.map((c) => `${JSON.stringify(c.value)}${c.label ? ` (${pick(c.label, lang)})` : ''}`).join(', ')
+        : knob.values.map((v, i) => `${i} = ${JSON.stringify(v)}`).join(', ')
+  return `${name}${label}: ${range}${knob.unit ?? ''}; ${lang === 'en' ? 'starts at' : '起始'} ${JSON.stringify(knobStart(knob))}${knob.fixed ? (lang === 'en' ? ' (fixed)' : '（不能动）') : ''}`
+}
+
+/** The model's numbers at a setting, as the bench's pictures and readouts show them. */
+const readings = (quantities) => Object.entries(quantities).filter(([, v]) => typeof v === 'number').map(([k, v]) => `${k} = ${fmt(v)}`).join(', ')
+
+/** A setting typed as `name = value, …`, over the stage's start; what is wrong with it, or the values. */
+function settingOf(bench, stage, line) {
+  const values = startValues(bench, stage)
+  const open = openKnobs(bench, stage)
+  for (const part of line.split(',').map((x) => x.trim()).filter(Boolean)) {
+    const [name, raw] = part.split('=').map((x) => x.trim())
+    if (!open.includes(name)) return { wrong: T(`「${name}」不是这一步能动的旋钮`, `“${name}” is no knob this step turns`) }
+    let v
+    try { v = JSON.parse(raw) } catch { v = raw }
+    if (!knobValues(bench.knobs[name]).some((x) => Math.abs(x - v) < 1e-9 || x === v)) return { wrong: T(`${name} 取不到 ${raw}`, `${name} cannot be set to ${raw}`) }
+    values[name] = v
+  }
+  return { values }
+}
+
+const bench = {
   open(ctx) {
-    const kind = ctx.level.source.kind
-    if (kind === 'circuit') return circuit.open(ctx)
-    if (kind === 'grid') return grid.open(ctx)
-    if (kind === 'choice') return choice.open(ctx)
-    return { covered: false, why: T('参数台（转旋钮），不接电路也不填答案', 'a parameter bench (turning knobs); nothing to wire or write') }
+    const L = ctx.level.source
+    const b = L.bench
+    if (b.cases || b.actions || Object.values(b.knobs ?? {}).some((k) => knobKind(k) === 'list')) return { covered: false, why: T('带情形、按钮或要在图上点出来的参数台', 'a bench with cases, buttons or picks on a picture') }
+    const model = L.made.model
+    const stages = b.stages ?? [null]
+    return {
+      sections: [
+        { title: T('实验台', 'The bench'), text: both((lang) => pick(BENCH_MODELS[b.model].about, lang)) },
+        { title: T('旋钮', 'Knobs'), text: both((lang) => Object.entries(b.knobs ?? {}).map(([n, k]) => knobText(n, k, lang)).join('\n')) },
+        ...stages.map((stage, k) => ({
+          title: stage ? T(`第 ${k + 1} 步：${pick(stage.title, 'zh')}`, `Step ${k + 1}: ${pick(stage.title, 'en')}`) : T('目标', 'The goal'),
+          text: both((lang) => [
+            ...(stage ? [pick(stage.note, lang), `${lang === 'en' ? 'Knobs open' : '能动的旋钮'}: ${openKnobs(b, stage).join(', ')}`] : []),
+            ...goalOf(b, stage).map((l) => `${pick(l.label, lang) || l.of} (${l.of}) ${needText(l) || [l.is !== undefined && `= ${JSON.stringify(l.is)}`, l.not !== undefined && `≠ ${JSON.stringify(l.not)}`].filter(Boolean).join(' ')}`),
+            `${lang === 'en' ? 'Now' : '此刻'}: ${readings({ ...startValues(b, stage), ...model.view(startValues(b, stage)) })}`,
+          ].join('\n')),
+        })),
+      ],
+      write: T('一行一个设置：名字 = 值, 名字 = 值（没写的旋钮留在这一步的起始值）。几行就是依次试几次；一个设置达到这一步的目标，下一行就到下一步。',
+        'One setting a line: name = value, name = value (knobs left out stay at the step’s start). Several lines are tries in turn; once a setting meets a step’s goal, the next line is on the next step.'),
+    }
   },
   attempt(ctx, text) {
-    const kind = ctx.level.source.kind
-    return kind === 'circuit' ? circuit.attempt(ctx, text) : kind === 'grid' ? grid.attempt(ctx, text) : choice.attempt(ctx, text)
+    const b = ctx.level.source.bench
+    const model = ctx.level.source.made.model
+    const stages = b.stages ?? [null]
+    const tests = stages.map((stage, k) => ({ label: stage ? T(`第 ${k + 1} 步`, `Step ${k + 1}`) : T('目标', 'The goal'), pass: null }))
+    const says = []
+    let at = 0
+    for (const line of text.trim().split('\n').filter((x) => x.trim())) {
+      if (at >= stages.length) break
+      const { values, wrong } = settingOf(b, stages[at], line)
+      if (wrong) {
+        says.push(both((lang) => `${line.trim()}: ${pick(wrong, lang)}`))
+        continue
+      }
+      const q = { ...values, ...model.view(values) }
+      const verdict = judge(goalOf(b, stages[at]), q)
+      says.push(both((lang) => `${line.trim()} → ${readings(q)}; ${verdict.pass ? (lang === 'en' ? 'goal met' : '达到目标') : `${lang === 'en' ? 'not yet' : '还没达到'}: ${verdict.rows.filter((r) => !r.pass).map((r) => `${r.limit.of} = ${rowValue(r.limit, r.value)}`).join(', ')}`}`))
+      tests[at].pass = verdict.pass
+      if (verdict.pass) at += 1
+    }
+    return { tests, says, pass: at >= stages.length }
   },
+}
+
+const KINDS = { circuit, grid, choice, bench }
+
+export const play = {
+  open: (ctx) => KINDS[ctx.level.source.kind].open(ctx),
+  attempt: (ctx, text) => KINDS[ctx.level.source.kind].attempt(ctx, text),
 }
 

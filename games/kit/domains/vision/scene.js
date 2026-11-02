@@ -149,3 +149,45 @@ export function differences(a, b) {
   return keys.filter((k) => JSON.stringify(a[k] ?? null) !== JSON.stringify(b[k] ?? null))
 }
 
+
+/**
+ * A view that tells two scenes apart: the camera turned about the point it looks at (yaw by eighths of a turn, at its
+ * own pitch, then higher) until the two give different pictures; null when no such view does.
+ */
+export function revealing(a, b) {
+  const base = a.camera
+  for (const pitch of [base.pitch, 35, 60]) {
+    for (const turn of [45, -45, 90, -90, 135, -135, 180]) {
+      const camera = { ...base, yaw: base.yaw + turn, pitch }
+      if (!sameImage({ ...a, camera }, { ...b, camera })) return camera
+    }
+  }
+  return null
+}
+
+/**
+ * A picture of a scene in words, for a blind player: its size and background, then each surface it shows (an object's,
+ * the floor) as a region of one colour — where it lies and how many pixels — in the order they appear from the top
+ * left. Nothing the picture does not show: no names, no classes, nothing hidden; shading is left out.
+ */
+export function describe(scene) {
+  const { image, at } = render(scene)
+  const regions = new Map()
+  at.forEach((k, i) => {
+    if (k === null) return
+    const [x, y] = [i % image.w, Math.floor(i / image.w)]
+    const r = regions.get(k) ?? { x0: x, x1: x, y0: y, y1: y, n: 0 }
+    regions.set(k, { x0: Math.min(r.x0, x), x1: Math.max(r.x1, x), y0: Math.min(r.y0, y), y1: Math.max(r.y1, y), n: r.n + 1 })
+  })
+  const name = (colour) => COLOURS[colour]?.name ?? T('灰', 'grey')
+  const lines = (lang) => [...regions.entries()].map(([k, r]) => {
+    const c = name(k < 0 ? scene.floor : scene.objects[k].colour)[lang]
+    const what = k < 0 ? (lang === 'en' ? `the floor (${c})` : `地面（${c}色）`) : lang === 'en' ? `a ${c} region` : `一块${c}色区域`
+    return lang === 'en' ? `${what}: x ${r.x0}–${r.x1}, y ${r.y0}–${r.y1}, ${r.n} pixels` : `${what}：x ${r.x0}–${r.x1}，y ${r.y0}–${r.y1}，共 ${r.n} 个像素`
+  })
+  const bg = scene.background && name(scene.background)
+  return T(
+    [`${image.w} × ${image.h} 的画面，背景${bg ? `${bg.zh}色` : '是天空'}（不计明暗）：`, ...lines('zh')].join('\n'),
+    [`a ${image.w} × ${image.h} picture, ${bg ? `a ${bg.en} background` : 'the sky behind'} (shading left out):`, ...lines('en')].join('\n'),
+  )
+}

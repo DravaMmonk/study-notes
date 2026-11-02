@@ -69,6 +69,9 @@
 .vi-option { display: grid; justify-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
 .vi-option:hover { border-color: var(--accent); }
 .vi-option[aria-pressed='true'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--paper)); box-shadow: inset 0 0 0 1px var(--accent); }
+.vi-reveal { display: flex; flex-wrap: wrap; gap: 14px; }
+.vi-reveal figure { margin: 0; display: grid; gap: 4px; }
+.vi-reveal figcaption { color: var(--muted); font-size: 12px; }
 .vi-explore { display: grid; gap: 10px; }
 .vi-knobs { display: grid; gap: 6px; max-width: 320px; }
 .vi-knobs .vi-field { grid-template-columns: 96px minmax(0, 1fr) 44px; }

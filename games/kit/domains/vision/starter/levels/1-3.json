@@ -17,19 +17,64 @@
           "H": 2,
           "f": 2,
           "object": "arrow",
-          "target": { "of": "h", "value": 1 }
+          "target": {
+            "of": "h",
+            "value": 1
+          }
         },
         "knobs": {
-          "Z": { "label": { "zh": "距离 Z", "en": "Depth Z" }, "min": 1, "max": 8, "step": 1, "start": 2 }
+          "Z": {
+            "label": {
+              "zh": "距离 Z",
+              "en": "Depth Z"
+            },
+            "min": 1,
+            "max": 8,
+            "step": 1,
+            "start": 2
+          }
         },
         "goal": [
-          { "of": "h", "label": { "zh": "像高", "en": "Image height" }, "near": 1, "atMost": 0.001, "format": "fixed2" }
+          {
+            "of": "h",
+            "label": {
+              "zh": "像高",
+              "en": "Image height"
+            },
+            "near": 1,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
         ],
         "layout": {
-          "main": ["pinholeRays"],
-          "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }]
+          "main": [
+            "pinholeRays"
+          ],
+          "foot": [
+            {
+              "panel": [
+                "knobs"
+              ]
+            },
+            {
+              "row": [
+                "goals"
+              ]
+            }
+          ]
         }
-      }
+      },
+      "naive": [
+        {
+          "set": {
+            "Z": 1
+          },
+          "why": {
+            "zh": "以为物体近了像会变小：其实像高 h = fH/Z，近了更大。",
+            "en": "Thinking a nearer object images smaller: the height is h = fH/Z, larger when nearer."
+          }
+        }
+      ]
     }
   ]
 }
