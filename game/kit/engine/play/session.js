@@ -6,6 +6,7 @@
 //   levels     one outcome a level (or task) played: solved, gave up (the session's cap on attempts, or the player),
 //              skipped (a play the harness does not cover; the level counts as passed so the course goes on, and a part
 //              it builds runs its reference board, as for any level passed without a board)
+//              a solved one keeps what the player says they worked out on it (`learned`)
 //   attempts   every attempt in order: the text sent, whether it passed, what the game said
 import { S, validate } from '../schema.js'
 
@@ -22,6 +23,7 @@ const OUTCOME = S.obj({
   seconds: S.opt(S.num({ about: 'from first seeing the level to its outcome' })),
   why: S.opt(S.str({ about: 'why a level was skipped' })),
   seen: S.opt(S.num({ about: 'while open: when the level was first seen (ms since 1970)' })),
+  learned: S.opt(S.str({ about: 'once solved: what the player says they worked out, in their own words' })),
 })
 
 const ATTEMPT = S.obj({

@@ -28,11 +28,12 @@ Your ONLY way to see and play the game is the command ./play in the current dire
   ./play --attempt - <<'END'     submit an answer (the lines up to END); the game tells you what passed or failed
   ...your answer lines...
   END
+  ./play --explain "…"           after passing a level: what you worked out on it, in the field's own terms
   ./play --hint                  open the next hint of this level (use it when you are stuck; hints are counted)
   ./play --give-up               give the level up and go on to the next one
   ./play --status                how the session stands
 
-Rules: do not try to read any file, source code, level data, or answers; do not run any command other than ./play (others are blocked). Play from the first level in order. On each level, think about the task, then attempt; read the feedback and try again. A level has at most ${attempts} attempts; after that the game moves on by itself. Ask for a hint only when you are genuinely stuck. Keep going until ./play says the session is over (it will end after ${levels} levels). Then reply with a short note: which levels were hard and why, and anything in the game's words that confused you.`
+Rules: do not try to read any file, source code, level data, or answers; do not run any command other than ./play (others are blocked). Play from the first level in order. On each level, think about the task, then attempt; read the feedback and try again. A level has at most ${attempts} attempts; after that the game moves on by itself. Ask for a hint only when you are genuinely stuck. Each time a level is passed, say what you worked out on it with ./play --explain "…": one or two sentences in the field's own terms, what you now understand, not what you wired. Keep going until ./play says the session is over (it will end after ${levels} levels). Then reply with a short note: which levels were hard and why, and anything in the game's words that confused you.`
 
 const start = Date.now()
 const run = spawnSync('claude', ['-p', PROMPT, '--model', model, '--tools', 'Bash', '--allowedTools', 'Bash(./play:*)', '--permission-mode', 'dontAsk', '--strict-mcp-config', '--setting-sources', '', '--no-session-persistence', '--max-turns', '400', '--output-format', 'stream-json', '--verbose'], { cwd: dir, encoding: 'utf8', maxBuffer: 1 << 28 })

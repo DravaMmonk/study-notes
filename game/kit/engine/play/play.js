@@ -22,6 +22,13 @@ const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
  * game: defineGame's result; course: the course the audit checks (its plan says which levels are required); hook: the
  * domain's play hook; record: the session (./session.js), changed in place as the player plays.
  */
+/** What a pass asks of the player: what they worked out, in the field's words (the pipeline compares it with the
+ *  knowledge the level brings, games/DESIGN.md 7.2). */
+const EXPLAIN = {
+  en: 'In a sentence or two, in the field’s own terms: what did you work out on this level? (./play --explain "…")',
+  zh: '用本领域的术语写一两句：这一关你弄明白了什么？（./play --explain "…"）',
+}
+
 export function createPlay({ game, course, hook, record, now = () => new Date() }) {
   const lang = record.lang
   const solved = () => new Set(record.progress.solved)
@@ -195,7 +202,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
       close(entry, 'solved', now())
       pass(at, r.board, r.score ?? null)
       const after = (at.level.tasks ? at.level.tasks[at.task].after : null) ?? (at.level.tasks && at.task < at.level.tasks.length - 1 ? null : at.level.after)
-      return { pass: true, text: `${says}\n\n${at.level.tasks && at.task < at.level.tasks.length - 1 ? (en ? 'Task passed.' : '这一段通过了。') : en ? 'Level passed.' : '通关。'}${after ? `\n${say(after)}` : ''}` }
+      return { pass: true, text: `${says}\n\n${at.level.tasks && at.task < at.level.tasks.length - 1 ? (en ? 'Task passed.' : '这一段通过了。') : en ? 'Level passed.' : '通关。'}${after ? `\n${say(after)}` : ''}\n\n${EXPLAIN[lang]}` }
     }
     if (entry.attempts >= record.limits.attempts) {
       close(entry, 'gave-up', now())
@@ -203,6 +210,14 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
       return { pass: false, text: `${says}\n\n${en ? `That was attempt ${entry.attempts}, the session's limit for a level: the level is given up and the session moves on.` : `这是第 ${entry.attempts} 次尝试，到了这一局每关的上限：放弃这一关，继续往下。`}` }
     }
     return { pass: false, text: `${says}\n\n${en ? `Attempt ${entry.attempts} of ${record.limits.attempts}.` : `第 ${entry.attempts} 次尝试，共 ${record.limits.attempts} 次。`}` }
+  }
+
+  /** What the player says they worked out on the level (or task) just passed, kept on its outcome. */
+  function explain(text) {
+    const entry = [...record.levels].reverse().find((e) => e.outcome === 'solved')
+    if (!entry) return { text: lang === 'en' ? 'No level passed yet.' : '还没有通过的关。' }
+    entry.learned = String(text).trim()
+    return { text: lang === 'en' ? 'Noted.' : '记下了。' }
   }
 
   /** Give the level played now up and move on. */
@@ -221,6 +236,6 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     return { text: `${record.game} · ${record.session}: ${by('solved')} solved, ${by('gave-up')} given up, ${by('skipped')} skipped; ${record.attempts.length} attempts` }
   }
 
-  return { view, hint, attempt, giveUp, status }
+  return { view, hint, attempt, explain, giveUp, status }
 }
 
