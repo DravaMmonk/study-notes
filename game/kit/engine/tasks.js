@@ -12,18 +12,27 @@ import { S } from './schema.js'
 const t = (zh, en) => ({ zh, en })
 export const TASK_ID = '^[A-Za-z0-9][A-Za-z0-9_-]*$'
 
-/** A level's schema: the fields it says once (`once`) and its tasks, each an id, an optional name and `task`'s fields. */
+const OWN = {
+  id: S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）', 'the task’s id, unique in the game; what a player keeps of it goes by it (a level’s one task usually has the level’s id)') }),
+  step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）', 'the task’s name on the strip of tasks (not shown when the level has one task)') })),
+}
+
+/**
+ * A level's schema: the fields it says once (`once`) and its tasks, each an id, an optional name and `task`'s fields;
+ * `task` may instead be a by-schema (S.by('kind', { … })), tasks of several shapes, each case an object of its fields.
+ */
 export const taskLevel = (once, task) => S.obj({
   ...once,
-  tasks: S.list(S.obj({
-    id: S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）', 'the task’s id, unique in the game; what a player keeps of it goes by it (a level’s one task usually has the level’s id)') }),
-    step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）', 'the task’s name on the strip of tasks (not shown when the level has one task)') })),
-    ...task,
-  }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关', 'the tasks done in turn; passing the last passes the level') }),
+  tasks: S.list(task.type === 'by'
+    ? { ...task, cases: Object.fromEntries(Object.entries(task.cases).map(([k, c]) => [k, { ...c, fields: { ...OWN, ...c.fields } }])) }
+    : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关', 'the tasks done in turn; passing the last passes the level') }),
 })
 
 /** Whether a vocabulary's levels are lists of tasks with ids. */
-export const hasTaskIds = (vocabulary) => Boolean(vocabulary.level.fields?.tasks?.of?.fields?.id)
+export const hasTaskIds = (vocabulary) => {
+  const of = vocabulary.level.fields?.tasks?.of
+  return Boolean(of?.fields?.id ?? (of?.type === 'by' && Object.values(of.cases).every((c) => c.fields?.id)))
+}
 
 /**
  * A task's key in a player's saves (../shell/progress.js): its id; in a level whose tasks have none (a prototype
