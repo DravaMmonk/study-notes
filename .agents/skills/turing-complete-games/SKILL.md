@@ -79,7 +79,17 @@ that comes in with the point that needs it. **The main path is the lectures' the
 models, methods and how they relate). Technical content — a library's or a tool's way (OpenCV's channel order,
 `uint8`, function names), a file format, a workshop's recipe — never appears on the main path, not as a task, a
 sentence or a link: it is taught only in optional topics hung after the theory it applies or after the era's main
-path ends. The number of levels follows the knowledge: a hard point is taken apart
+path ends.
+
+**Levels go where the difficulty is, not over everything.** The point of a Turing-Complete-style game is taking a
+complex body of knowledge apart and climbing it bottom up: plain, direct points are the base components, abstraction
+rises layer by layer, and the hard core (the complicated circuit) becomes understandable. So before placing levels,
+place the knowledge: which points are the chapter's core (what the lectures spend effort on, later chapters stand
+on, students get wrong); how hard each is (`intuitive`: a sentence makes it plain, nobody is stumped by it — only
+mentioned in copy and entries, never trained; `learnable`; `hard`: abstract, far from daily life, hard-named); and
+what shallower points each is built from (`depends`). A hard point is taken down to its origins and reached by a
+series of levels, one step each; most of a chapter's levels are on the ladders to its core. The number of levels
+follows the difficulty: a hard point is taken apart
 into steps, each a level, and each of its facets (a convention, an edge, a failure, a look-alike) is practised; a
 level with no point and no new facet of one is padding and is cut, and new numbers alone are tests or tasks, not a
 level. When a check says something is under-practised, look for a missing facet; if there is none, the course did
@@ -90,6 +100,12 @@ not need more levels.
 Read every level as a learner who has not taken the course, against its blueprint slot (`question`, `chain`,
 `teaches`/`facet`, the point's `term`, `source`, `wall`, `misconception`):
 
+- **Worth training.** Would an adult who has not taken the course get it wrong without this level? If a sentence
+  makes it plain ("different vision tasks give answers of different shapes"), it is not a level (`bp-trivial`):
+  mention it in an intro, a summary or an entry.
+- **Climbed, not jumped.** A hard point (abstract, far from daily life) is the top of a ladder of levels from its
+  shallowest origins (`bp-shallow`, `bp-depends`); most levels sit on the ladders to the chapter's core
+  (`bp-ladder`).
 - **A point of the field.** Name the knowledge point and its source. A level whose only content is a part or an
   operation ("take the larger", "round down") is a tool level: fold the tool into the level that needs it.
 - **No technical content on the main path.** A main-path level that teaches, uses, mentions or links a library's
