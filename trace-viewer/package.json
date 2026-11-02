@@ -19,9 +19,6 @@
     "build:games": "node ../games/kit/app/build.mjs",
     "test": "node --test ../games/kit/engine/*.test.js ../games/kit/engine/ops/*.test.js ../games/kit/engine/play/*.test.js ../games/kit/app/*.test.js ../games/kit/studio/*.test.js ../games/kit/circuit/*.test.js ../games/kit/shell/*.test.js ../games/kit/domains/*/*.test.js ../games/kit/pipeline/*.test.js",
     "conform": "python3 ../games/kit/domains/unix/conformance/real.py",
-    "play": "node ../games/kit/engine/play/cli.mjs",
-    "playtests": "node ../games/kit/engine/play/stats-cli.mjs",
-    "blind": "node ../games/kit/engine/play/blind.mjs",
     "pipeline": "node ../games/kit/pipeline/pipeline.mjs"
   },
   "dependencies": {

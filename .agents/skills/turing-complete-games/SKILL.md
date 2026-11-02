@@ -48,7 +48,7 @@ copying the last wording forward.
   topic picks its mechanisms from the catalogue (§6.5) and starts from `npm run new-domain -- <name> --mechanism
   <m>`; a new game on an existing domain from `npm run new-game -- <id> --domain <d>`.
 - A new topic's content is made by the agent pipeline (`games/DESIGN.md` §7.2, `kit/pipeline/`, `npm run pipeline --
-  <game> …`): blueprint, domain (code, by an engineer), levels, copy, review, blind play, queue — each step a brief
+  <game> …`): blueprint, domain (code, by an engineer), levels, copy, review, queue — each step a brief
   and a gate, each product written through the operation set, every run and gate recorded in `pipeline.json`. When a
   later step stops on an earlier one's product, hand its report back (`run <step> --from <later step>`); do not work
   around it in the later step.
@@ -227,11 +227,9 @@ Before calling a change done (`games/DESIGN.md` §7, steps 9–11):
 2. `npm run check` and `npm test` in `trace-viewer/` are clean; build the touched games.
 3. Look in a browser on desktop and phone at a few typical levels per game (layers, sweeps, intervals, big tables),
    not only the one you changed. To watch a run, write the reference solution into the save, then step and run.
-4. For a curriculum change, play it blind (`games/DESIGN.md` §6.6): `npm run blind -- <game> <session>` starts a fresh
-   agent whose only tool is `./play`; `npm run playtests` shows pass rate and difficulty level by level. Read every
-   `REPORT difficulty-spike` against the attempts and the player's closing note, and write the cause into the game's
-   design doc. A new domain gives its `play` hook in `domain.js` (a circuit domain through
-   `kit/engine/play/circuit.js`); its play tests run in `npm test`.
+4. A new domain gives its `play` hook in `domain.js` (a circuit domain through `kit/engine/play/circuit.js`): the
+   level in words and an attempt judged, which `run_tests` uses; its play tests run in `npm test`. Blind play is
+   paused (`games/DESIGN.md` §6.6).
 5. Report what was checked and what was not.
 
 ## Interaction

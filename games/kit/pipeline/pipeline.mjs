@@ -12,7 +12,6 @@
 //   eras                           game.json's eras as the blueprint lays them out (for the level designer)
 //   lint                           the copy lint
 //   vocab                          the domain's vocabulary and the operations, as JSON
-//   explain <level> --why "…"      say why a blind give-up or spike is what it is (the blind gate reads it)
 //   resolve <k> --why "…"          mark finding k of the last review fixed (by which change)
 //   queue                          every gate again; when all are clean, the game's changes go into the review queue
 //   comment <at> --owner <step> --why "…"
@@ -31,7 +30,7 @@ import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { GAMES_DIR, STEPS, briefOf, stepOf } from './steps.js'
 
-const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | vocab | explain <level> --why … | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
+const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
 const argv = process.argv.slice(2)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
 const words = argv.filter((a, k) => !a.startsWith('--') && !argv[k - 1]?.startsWith('--'))
@@ -80,6 +79,8 @@ function inputs(step, state, scope) {
     `- Game: ${game} (its folder: ${dir}; domain: ${content.domain}, ${resolve(GAMES_DIR, 'kit/domains', content.domain)})`,
     `- Repository root: ${resolve(GAMES_DIR, '..')} (games/DESIGN.md is ${resolve(GAMES_DIR, 'DESIGN.md')})`,
     `- Course material: ${['DESIGN.md', 'CURRICULUM.md'].map((f) => resolve(dir, f)).filter(existsSync).join(', ') || '(none)'}`,
+    // The sources the blueprint teaches from, each said to be there or not (the agent reads them; a missing one is a gap).
+    ...(content.blueprint?.sources?.length ? [`- The blueprint's sources: ${content.blueprint.sources.map((f) => `${resolve(GAMES_DIR, '..', f)}${existsSync(resolve(GAMES_DIR, '..', f)) ? '' : ' (missing)'}`).join(', ')}`] : []),
     `- Blueprint: ${content.blueprint ? resolve(dir, 'blueprint.json') : '(none yet)'}`,
     `- Vocabulary: ./vocabulary.json (the domain's items and schemas, and the operations)`,
     `- The domain's part catalog: ${resolve(GAMES_DIR, 'kit/domains', content.domain, 'ui/catalog.js')}`,
@@ -194,9 +195,6 @@ if (command === 'status') {
 } else if (command === 'vocab') {
   const content = readContent(game)
   console.log(JSON.stringify({ vocabulary: describe((await domainOf(content)).vocabulary), operations: Object.keys(OPERATIONS) }, null, 1))
-} else if (command === 'explain' && arg && option('--why')) {
-  state.explained = [...(state.explained ?? []).filter((e) => e.level !== arg), { level: arg, why: option('--why'), at: now() }]
-  writeState(state)
 } else if (command === 'resolve' && arg !== undefined && option('--why')) {
   const findings = state.steps.review?.runs?.at(-1)?.findings
   if (!findings?.[Number(arg)]) {
