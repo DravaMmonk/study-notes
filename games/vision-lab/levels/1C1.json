@@ -1,0 +1,34 @@
+{
+  "title": { "zh": "行和列", "en": "Rows and columns" },
+  "intro": [
+    {
+      "t": {
+        "zh": "图里的坐标和数组里的行列指向同一组值。",
+        "en": "Image coordinates and array rows and columns refer to the same values."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1C1",
+      "kind": "grid",
+      "brief": { "zh": "抄下数组的值。", "en": "Copy the values of the array." },
+      "image": [[1, 2, 3], [4, 5, 6]],
+      "ask": "copy"
+    },
+    {
+      "id": "1C1_2",
+      "kind": "grid",
+      "brief": { "zh": "选出坐标 (2, 0) 的格子。", "en": "Select the cell at (2, 0)." },
+      "image": [[1, 2, 3], [4, 5, 6]],
+      "ask": { "pick": { "x": 2, "y": 0 } }
+    },
+    {
+      "id": "1C1_3",
+      "kind": "grid",
+      "brief": { "zh": "写出高亮格子的坐标。", "en": "Write the highlighted cell’s coordinates." },
+      "image": [[1, 2, 3], [4, 5, 6]],
+      "ask": { "locate": { "x": 0, "y": 1 } }
+    }
+  ]
+}

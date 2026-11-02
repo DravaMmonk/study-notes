@@ -1,0 +1,170 @@
+{
+  "game": "vision-lab",
+  "steps": {
+    "blueprint": {
+      "runs": [
+        {
+          "at": "2026-11-02T14:49:26.241Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 0,
+            "seconds": 3,
+            "cost": 0,
+            "turns": 1
+          },
+          "calls": {
+            "op": {
+              "runs": 0,
+              "failed": 0
+            },
+            "check": {
+              "runs": 0,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 0,
+              "failed": 0
+            }
+          },
+          "changes": [],
+          "report": "Not logged in · Please run /login",
+          "transcript": "/var/folders/16/l6ytcvs91vg1_myvbh7zl6bw0000gn/T/pipeline-vision-lab-blueprint-xcgnN4/transcript.jsonl"
+        }
+      ],
+      "gates": [
+        {
+          "at": "2026-11-02T14:49:26.242Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "bp-missing",
+              "at": "vision-lab",
+              "says": "the game has no blueprint.json"
+            }
+          ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-02T14:58:38.082Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-lonely",
+              "at": "1C1",
+              "says": "coordinate has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1C3",
+              "says": "channelidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D0",
+              "says": "grididea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D0a",
+              "says": "arithidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D2a",
+              "says": "sizeidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1D2b",
+              "says": "subidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E1a",
+              "says": "constidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E1b",
+              "says": "mulidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E1c",
+              "says": "dividea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E1d",
+              "says": "flooridea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E1e",
+              "says": "lessidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E1g",
+              "says": "selectidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E1f",
+              "says": "largeridea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1E2",
+              "says": "nearestidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F1",
+              "says": "displayidea has no practice slot before the next idea",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F1a",
+              "says": "smalleridea has no practice slot before the next idea",
+              "report": true
+            }
+          ]
+        }
+      ]
+    },
+    "levels": {
+      "runs": [],
+      "gates": [
+        {
+          "at": "2026-11-02T14:59:50.558Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "bp-naive",
+              "at": "1X1",
+              "says": "its slot has a naive answer, the level none"
+            }
+          ],
+          "reports": []
+        }
+      ]
+    }
+  }
+}

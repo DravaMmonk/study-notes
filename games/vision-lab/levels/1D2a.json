@@ -1,0 +1,37 @@
+{
+  "title": { "zh": "原图的尺寸", "en": "The original size" },
+  "intro": [
+    {
+      "t": {
+        "zh": "裁剪器按给定大小工作；要保留整张图，需要先读取原来的宽高。",
+        "en": "The cropper takes a supplied size. Keeping the whole image requires its original dimensions."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1D2a",
+      "kind": "circuit",
+      "brief": {
+        "zh": "交出与原图同样宽高的横坐标图和纵坐标图。",
+        "en": "Output horizontal and vertical coordinate images matching the input dimensions."
+      },
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [{ "name": "x", "label": "x" }, { "name": "y", "label": "y" }],
+      "tests": [
+        {
+          "inputs": { "image": [[1, 2, 3], [4, 5, 6]] },
+          "expect": { "x": [[0, 1, 2], [0, 1, 2]], "y": [[0, 0, 0], [1, 1, 1]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 2], [3, 4], [5, 6]] },
+          "expect": { "x": [[0, 1], [0, 1], [0, 1]], "y": [[0, 0], [1, 1], [2, 2]] }
+        }
+      ],
+      "solution": ["s = size(image)", "g = grid(s.w, s.h)", "x <- g.x", "y <- g.y"]
+    }
+  ],
+  "adds": ["size"]
+}

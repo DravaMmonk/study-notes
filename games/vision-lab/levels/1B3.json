@@ -1,0 +1,49 @@
+{
+  "title": { "zh": "移动像平面", "en": "Move the image plane" },
+  "intro": [
+    {
+      "t": {
+        "zh": "距离固定以后，相机内部的像平面位置仍会影响投影。",
+        "en": "With object depth fixed, the image plane position still affects the projection."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1B3",
+      "kind": "bench",
+      "brief": {
+        "zh": "调整像平面距离，让像高为 2。",
+        "en": "Adjust the image plane distance until the image height is 2."
+      },
+      "bench": {
+        "model": "pinhole",
+        "setup": { "H": 2, "Z": 4, "object": "arrow", "target": { "of": "h", "value": 2 } },
+        "knobs": { "f": { "label": "f", "min": 1, "max": 6, "step": 1, "start": 1 } },
+        "goal": [{ "of": "h", "label": "h", "near": 2, "atMost": 0.001 }],
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        { "set": { "f": 2 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
+      ]
+    },
+    {
+      "id": "1B3_2",
+      "kind": "bench",
+      "brief": {
+        "zh": "在另一组物体和距离下，让像高为 1.5。",
+        "en": "For another object and depth, make the image height 1.5."
+      },
+      "bench": {
+        "model": "pinhole",
+        "setup": { "H": 3, "Z": 6, "object": "arrow", "target": { "of": "h", "value": 1.5 } },
+        "knobs": { "f": { "label": "f", "min": 1, "max": 6, "step": 1, "start": 1 } },
+        "goal": [{ "of": "h", "label": "h", "near": 1.5, "atMost": 0.001 }],
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        { "set": { "f": 2 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "title": { "zh": "取出通道", "en": "Separate a channel" },
+  "intro": [
+    {
+      "t": {
+        "zh": "流水线能读灰度值，还不能单独查看彩色图的一个通道。",
+        "en": "The pipeline reads grey values but cannot yet inspect one colour channel."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1C3",
+      "kind": "circuit",
+      "brief": {
+        "zh": "读取像素 (x, y) 的 c 通道。c 的 0、1、2 分别代表 R、G、B。",
+        "en": "Read channel c at pixel (x, y). Channels 0, 1, 2 mean R, G, B."
+      },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "c", "label": "c" },
+        { "name": "x", "label": "x" },
+        { "name": "y", "label": "y" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "image": [[[1, 0, 0], [0, 0, 1]]], "c": 2, "x": 1, "y": 0 }, "expect": { "out": 1 } },
+        {
+          "inputs": { "image": [[[0.1, 0.4, 0.7], [0.6, 0.8, 0.3]]], "c": 1, "x": 0, "y": 0 },
+          "expect": { "out": 0.4 }
+        }
+      ],
+      "solution": ["p = channel(image, c)", "r = lookup(p, x, y)", "out <- r"],
+      "hidden": [
+        { "inputs": { "image": [[[0.2, 0.3, 0.4]]], "c": 0, "x": 0, "y": 0 }, "expect": { "out": 0.2 } }
+      ]
+    },
+    {
+      "id": "1C3_2",
+      "kind": "circuit",
+      "brief": {
+        "zh": "交出整张图的指定通道。c 的 0、1、2 分别代表 R、G、B。",
+        "en": "Output the selected channel for the whole image. 0, 1, 2 mean R, G, B."
+      },
+      "inputs": [{ "name": "image", "label": "image" }, { "name": "c", "label": "c" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "image": [[[1, 0, 0], [0, 0, 1]]], "c": 2 }, "expect": { "out": [[0, 1]] } },
+        {
+          "inputs": { "image": [[[0.1, 0.4, 0.7], [0.6, 0.8, 0.3]]], "c": 1 },
+          "expect": { "out": [[0.4, 0.8]] }
+        }
+      ],
+      "solution": ["p = channel(image, c)", "out <- p"],
+      "hidden": [{ "inputs": { "image": [[[0.2, 0.3, 0.4]]], "c": 0 }, "expect": { "out": [[0.2]] } }]
+    }
+  ],
+  "adds": ["channel"]
+}

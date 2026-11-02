@@ -1,0 +1,53 @@
+{
+  "title": { "zh": "截取移动的图", "en": "Crop a moving picture" },
+  "intro": [
+    {
+      "t": {
+        "zh": "移动和截取解决的是不同问题，现在让它们在一条流水线里工作。",
+        "en": "Moving and cropping solve different problems. Put them together in a pipeline."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1D4",
+      "kind": "circuit",
+      "brief": { "zh": "先移动图像，再截取指定区域。", "en": "Translate the image, then crop the specified region." },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "dx", "label": "dx" },
+        { "name": "dy", "label": "dy" },
+        { "name": "x0", "label": "x0" },
+        { "name": "y0", "label": "y0" },
+        { "name": "w", "label": "w" },
+        { "name": "h", "label": "h" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "dx": 1, "dy": 0, "x0": 1, "y0": 0, "w": 2, "h": 2 },
+          "expect": { "out": [[1, 2], [4, 5]] }
+        },
+        {
+          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "dx": -1, "dy": 0, "x0": 0, "y0": 0, "w": 2, "h": 1 },
+          "expect": { "out": [[2, 3]] }
+        }
+      ],
+      "solution": ["m = translate(image, dx, dy)", "c = crop(m, x0, y0, w, h)", "out <- c"],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            "dx": 0,
+            "dy": 1,
+            "x0": 1,
+            "y0": 1,
+            "w": 2,
+            "h": 2
+          },
+          "expect": { "out": [[2, 3], [5, 6]] }
+        }
+      ]
+    }
+  ]
+}

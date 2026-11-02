@@ -1,0 +1,27 @@
+{
+  "title": { "zh": "选出像素", "en": "Find a pixel" },
+  "intro": [
+    {
+      "t": {
+        "zh": "图里的每格都有位置；交换两个方向会选中不同的格。",
+        "en": "Each cell has a position; swapping the directions can select a different cell."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1A2",
+      "kind": "grid",
+      "brief": { "zh": "选出坐标 (2, 0) 的像素。", "en": "Select the pixel at (2, 0)." },
+      "image": [[0, 0.5, 1], [1, 0.25, 0]],
+      "ask": { "pick": { "x": 2, "y": 0 } }
+    },
+    {
+      "id": "1A2_2",
+      "kind": "grid",
+      "brief": { "zh": "写出高亮像素的坐标。", "en": "Write the coordinates of the highlighted pixel." },
+      "image": [[0, 0.5, 1], [1, 0.25, 0]],
+      "ask": { "locate": { "x": 0, "y": 1 } }
+    }
+  ]
+}

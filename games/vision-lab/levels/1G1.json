@@ -1,0 +1,33 @@
+{
+  "title": { "zh": "进光量", "en": "Collecting light" },
+  "intro": [
+    {
+      "t": {
+        "zh": "针孔不能模拟镜头的聚焦。用简化的薄透镜观察这一变化。",
+        "en": "A pinhole does not model lens focus. Observe this in a simplified thin-lens model."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1G1",
+      "kind": "bench",
+      "brief": { "zh": "调整光圈，使进光量为 4。", "en": "Adjust the aperture until collected light is 4." },
+      "bench": {
+        "model": "lens",
+        "setup": {
+          "F": 50,
+          "A0": 5,
+          "cMax": 0.03,
+          "objects": [{ "id": "near", "z": 1000, "label": { "zh": "物体", "en": "Object" } }]
+        },
+        "knobs": { "A": { "label": "A", "min": 1, "max": 10, "step": 1, "start": 5 } },
+        "goal": [{ "of": "light", "label": "light", "near": 4, "atMost": 0.001 }],
+        "layout": { "main": ["lensRays", "blurCurve"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        { "set": { "A": 3 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
+      ]
+    }
+  ]
+}

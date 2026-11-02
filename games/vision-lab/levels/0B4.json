@@ -1,0 +1,172 @@
+{
+  "title": { "zh": "设计测试", "en": "Choose a test set" },
+  "intro": [
+    {
+      "t": {
+        "zh": "参照图展示一个几何物体。为检查识别器是否能应对变化，需要挑选与参照图不同的测试图。",
+        "en": "The reference image shows a geometric object. To test whether a recogniser handles changes, choose test images that differ from it."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "0B4",
+      "kind": "choice",
+      "brief": { "zh": "选择能覆盖所有指定变化的图片。", "en": "Choose images covering every specified change." },
+      "hint": [
+        {
+          "zh": "与参照图比较相机角度、受光方向和物体是否被遮挡。",
+          "en": "Compare the camera angle, direction of light, and occlusion with the reference."
+        }
+      ],
+      "judge": { "cover": { "needs": ["view", "light", "occlusion"] } },
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "选出的图片需要覆盖视角、光照和遮挡。",
+                "en": "Choose images covering viewpoint, lighting and occlusion."
+              }
+            }
+          ],
+          "options": [
+            {
+              "id": "A",
+              "label": { "zh": "候选 A", "en": "Candidate A" },
+              "scene": {
+                "size": [32, 24],
+                "camera": { "yaw": 60, "pitch": 10, "distance": 6, "f": 2 },
+                "light": { "azimuth": 30, "elevation": 60 },
+                "floor": "white",
+                "objects": [
+                  {
+                    "id": "shape",
+                    "class": "shape",
+                    "colour": "red",
+                    "boxes": [
+                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
+                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
+                    ]
+                  }
+                ]
+              },
+              "varies": ["view"]
+            },
+            {
+              "id": "B",
+              "label": { "zh": "候选 B", "en": "Candidate B" },
+              "scene": {
+                "size": [32, 24],
+                "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 2 },
+                "light": { "azimuth": -75, "elevation": 60 },
+                "floor": "white",
+                "objects": [
+                  {
+                    "id": "shape",
+                    "class": "shape",
+                    "colour": "red",
+                    "boxes": [
+                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
+                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
+                    ]
+                  }
+                ]
+              },
+              "varies": ["light"]
+            },
+            {
+              "id": "C",
+              "label": { "zh": "候选 C", "en": "Candidate C" },
+              "scene": {
+                "size": [32, 24],
+                "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 2 },
+                "light": { "azimuth": 30, "elevation": 60 },
+                "floor": "white",
+                "objects": [
+                  {
+                    "id": "shape",
+                    "class": "shape",
+                    "colour": "red",
+                    "boxes": [
+                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
+                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
+                    ]
+                  },
+                  {
+                    "id": "screen",
+                    "class": "screen",
+                    "colour": "grey",
+                    "boxes": [{ "at": [0.15, 0.55, 1.3], "size": [0.45, 1.1, 0.1] }]
+                  }
+                ]
+              },
+              "varies": ["occlusion"]
+            },
+            {
+              "id": "D",
+              "label": { "zh": "候选 D", "en": "Candidate D" },
+              "scene": {
+                "size": [32, 24],
+                "camera": { "yaw": 60, "pitch": 10, "distance": 6, "f": 2 },
+                "light": { "azimuth": -75, "elevation": 60 },
+                "floor": "white",
+                "objects": [
+                  {
+                    "id": "shape",
+                    "class": "shape",
+                    "colour": "red",
+                    "boxes": [
+                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
+                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
+                    ]
+                  }
+                ]
+              },
+              "varies": ["view", "light"]
+            },
+            {
+              "id": "E",
+              "label": { "zh": "候选 E", "en": "Candidate E" },
+              "scene": {
+                "size": [32, 24],
+                "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 2 },
+                "light": { "azimuth": 30, "elevation": 60 },
+                "floor": "white",
+                "objects": [
+                  {
+                    "id": "shape",
+                    "class": "shape",
+                    "colour": "red",
+                    "boxes": [
+                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
+                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
+                    ]
+                  }
+                ]
+              },
+              "varies": []
+            }
+          ],
+          "reference": {
+            "size": [32, 24],
+            "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 2 },
+            "light": { "azimuth": 30, "elevation": 60 },
+            "floor": "white",
+            "objects": [
+              {
+                "id": "shape",
+                "class": "shape",
+                "colour": "red",
+                "boxes": [
+                  { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
+                  { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

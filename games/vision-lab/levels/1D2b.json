@@ -1,0 +1,30 @@
+{
+  "title": { "zh": "向相反方向取值", "en": "Read in the opposite direction" },
+  "intro": [
+    {
+      "t": {
+        "zh": "移动图像时，每个输出位置都要找到它原来读值的位置。",
+        "en": "Moving an image requires every output position to find where its value came from."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1D2b",
+      "kind": "circuit",
+      "brief": {
+        "zh": "从图像宽度减去右侧留出的 margin，交出对应的横向位置。",
+        "en": "Subtract the right margin from the image width to obtain the horizontal position."
+      },
+      "inputs": [{ "name": "image", "label": "image" }, { "name": "margin", "label": "margin" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "margin": 1 }, "expect": { "out": 2 } },
+        { "inputs": { "image": [[1, 2], [3, 4], [5, 6]], "margin": 1 }, "expect": { "out": 1 } }
+      ],
+      "solution": ["s = size(image)", "p = sub(s.w, margin)", "out <- p"],
+      "hidden": [{ "inputs": { "image": [[1, 2, 3, 4]], "margin": 2 }, "expect": { "out": 2 } }]
+    }
+  ],
+  "adds": ["sub"]
+}

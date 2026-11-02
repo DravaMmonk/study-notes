@@ -1,0 +1,53 @@
+{
+  "title": { "zh": "放大裁剪区域", "en": "Resize a crop" },
+  "intro": [
+    {
+      "t": {
+        "zh": "截取和缩放都已经可用；把它们接成一条流水线。",
+        "en": "Cropping and resizing are available; connect them in one pipeline."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1X1",
+      "kind": "circuit",
+      "brief": {
+        "zh": "截取指定区域，然后用最近邻缩放到目标宽高。",
+        "en": "Crop the given region, then resize it using nearest-neighbour sampling."
+      },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "x0", "label": "x0" },
+        { "name": "y0", "label": "y0" },
+        { "name": "cw", "label": "cw" },
+        { "name": "ch", "label": "ch" },
+        { "name": "w", "label": "w" },
+        { "name": "h", "label": "h" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            "x0": 1,
+            "y0": 0,
+            "cw": 2,
+            "ch": 2,
+            "w": 3,
+            "h": 3
+          },
+          "expect": { "out": [[2, 3, 3], [5, 6, 6], [5, 6, 6]] }
+        }
+      ],
+      "solution": ["c = crop(image, x0, y0, cw, ch)", "r = resizeNearest(c, w, h)", "out <- r"],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "x0": 1, "y0": 0, "cw": 2, "ch": 2, "w": 2, "h": 2 },
+          "expect": { "out": [[2, 3], [5, 6]] }
+        }
+      ],
+      "naive": ["r = resizeNearest(image, w, h)", "out <- r"]
+    }
+  ]
+}

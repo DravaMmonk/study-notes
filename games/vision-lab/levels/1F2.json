@@ -1,0 +1,49 @@
+{
+  "title": { "zh": "有限的亮度", "en": "Finite brightness levels" },
+  "intro": [
+    {
+      "t": {
+        "zh": "连续的值不总能原样保存。构造只输出指定个数亮度的量化器。",
+        "en": "Continuous values cannot always be stored unchanged. Build a quantiser with a specified number of output levels."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1F2",
+      "kind": "circuit",
+      "brief": {
+        "zh": "把 0 至 1 均匀分为 L 个亮度，取最近值；等距时取较大值。范围外先限制到 0 至 1。",
+        "en": "Use L evenly spaced brightness levels from 0 to 1; choose the nearest, breaking ties upwards. Clamp values outside the range."
+      },
+      "inputs": [{ "name": "v", "label": "v" }, { "name": "L", "label": "L" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "v": [[0, 0.2, 0.7, 1]], "L": 3 }, "expect": { "out": [[0, 0, 0.5, 1]] } },
+        { "inputs": { "v": [[0.49, 0.5]], "L": 2 }, "expect": { "out": [[0, 1]] } }
+      ],
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "half = const[value=0.5]()",
+        "lo = larger(v, zero)",
+        "c = smaller(lo, one)",
+        "k = sub(L, one)",
+        "scaled = mul(c, k)",
+        "up = add(scaled, half)",
+        "q = floor(up)",
+        "r = div(q, k)",
+        "out <- r"
+      ],
+      "hidden": [
+        { "inputs": { "v": [[0.25, 0.75, -0.2, 1.3]], "L": 3 }, "expect": { "out": [[0.5, 1, 0, 1]] } },
+        { "inputs": { "v": 0.2, "L": 5 }, "expect": { "out": 0.25 } }
+      ]
+    }
+  ],
+  "builds": {
+    "type": "quantise",
+    "name": { "zh": "量化", "en": "Quantise" },
+    "desc": { "zh": "将亮度限制并量化到 L 个均匀等级。", "en": "Clamps and quantises brightness to L evenly spaced levels." }
+  }
+}

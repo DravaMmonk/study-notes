@@ -1,0 +1,27 @@
+{
+  "title": { "zh": "一格格的数", "en": "A grid of numbers" },
+  "intro": [
+    {
+      "t": {
+        "zh": "相机送来了一张小图。读出图里的数，才能检查后续的处理。",
+        "en": "The camera has sent a small image. Read its values before processing it."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1A1",
+      "kind": "grid",
+      "brief": { "zh": "把图中的值填入空格。", "en": "Copy the values into the empty grid." },
+      "image": [[0, 0.5, 1], [1, 0.25, 0]],
+      "ask": "copy"
+    },
+    {
+      "id": "1A1_2",
+      "kind": "grid",
+      "brief": { "zh": "填入另一张图的值。", "en": "Copy the values of another image." },
+      "image": [[0.2, 0.9], [0.7, 0.1], [0.4, 0.6]],
+      "ask": "copy"
+    }
+  ]
+}

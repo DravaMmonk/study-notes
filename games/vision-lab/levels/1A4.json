@@ -1,0 +1,32 @@
+{
+  "title": { "zh": "数值如何变化", "en": "How values change" },
+  "intro": [
+    {
+      "t": {
+        "zh": "两张图可以用不同方式改变。比较同一位置的数。",
+        "en": "Two images can change in different ways. Compare values at each position."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1A4",
+      "kind": "choice",
+      "brief": { "zh": "把每张图和变化方式配对。", "en": "Match each image to the kind of change." },
+      "judge": "match",
+      "rounds": [
+        {
+          "image": [[0.2, 0.8]],
+          "items": [
+            { "prompt": { "zh": "每格亮度都增加。", "en": "Both cells are brighter." }, "is": "bright" },
+            { "prompt": { "zh": "原来的两个值交换位置。", "en": "The original values exchange positions." }, "is": "move" }
+          ],
+          "options": [
+            { "id": "a", "label": { "zh": "图 A", "en": "Image A" }, "image": [[0.3, 0.9]], "is": "bright" },
+            { "id": "b", "label": { "zh": "图 B", "en": "Image B" }, "image": [[0.8, 0.2]], "is": "move" }
+          ]
+        }
+      ]
+    }
+  ]
+}

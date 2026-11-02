@@ -1,0 +1,92 @@
+{
+  "title": { "zh": "一张图片的边界", "en": "The limits of one picture" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这道题明确给出全部候选：屏后的物体在一个场景中是蓝色，在另一个场景中是绿色；两者的正面图相同。",
+        "en": "For this puzzle the candidates are exhaustive: the object behind the screen is blue in one scene and green in the other, and both have the same front view."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "0D3",
+      "kind": "choice",
+      "brief": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
+      "hint": [{ "zh": "找出画面能排除和不能排除的情况。", "en": "Consider which candidate scenes the picture can rule out." }],
+      "judge": "claims",
+      "rounds": [
+        {
+          "scenes": [
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "floor": "white",
+              "objects": [
+                {
+                  "id": "cube",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
+                },
+                {
+                  "id": "screen",
+                  "class": "screen",
+                  "colour": "grey",
+                  "boxes": [{ "at": [1, 0.8, 1.2], "size": [1.6, 1.6, 0.1] }]
+                },
+                {
+                  "id": "ball",
+                  "class": "ball",
+                  "colour": "blue",
+                  "boxes": [{ "at": [1, 0.35, 0], "size": [0.6, 0.6, 0.6] }]
+                }
+              ]
+            },
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "floor": "white",
+              "objects": [
+                {
+                  "id": "cube",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
+                },
+                {
+                  "id": "screen",
+                  "class": "screen",
+                  "colour": "grey",
+                  "boxes": [{ "at": [1, 0.8, 1.2], "size": [1.6, 1.6, 0.1] }]
+                },
+                {
+                  "id": "ball",
+                  "class": "ball",
+                  "colour": "green",
+                  "boxes": [{ "at": [1, 0.35, 0], "size": [0.6, 0.6, 0.6] }]
+                }
+              ]
+            }
+          ],
+          "items": [
+            {
+              "prompt": { "zh": "立方体是红色的。", "en": "The cube is red." },
+              "claim": { "colour": { "object": "cube", "is": "red" } }
+            },
+            {
+              "prompt": { "zh": "屏后的物体在画面中可见。", "en": "The object behind the screen is visible." },
+              "claim": { "visible": { "object": "ball" } }
+            },
+            {
+              "prompt": { "zh": "屏后的物体是绿色的。", "en": "The object behind the screen is green." },
+              "claim": { "colour": { "object": "ball", "is": "green" } }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

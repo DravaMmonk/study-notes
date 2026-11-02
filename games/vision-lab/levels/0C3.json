@@ -1,0 +1,67 @@
+{
+  "title": { "zh": "核对预测", "en": "Check the predictions" },
+  "intro": [
+    {
+      "t": {
+        "zh": "预测是机器给出的答案；要知道它是否正确，还需要对应的标注。",
+        "en": "A prediction is the machine’s answer; checking it requires the corresponding label."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "0C3",
+      "kind": "choice",
+      "brief": {
+        "zh": "选择一条错误记录；没有错误时选择“没有错误”。",
+        "en": "Choose one erroneous record, or “No errors shown” if none is wrong."
+      },
+      "hint": [{ "zh": "逐条对照预测和标注。", "en": "Compare each prediction with its label." }],
+      "judge": "refute",
+      "rounds": [
+        {
+          "items": [{ "prompt": { "zh": "哪条记录表明预测出错？", "en": "Which record shows an error?" } }],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "标注：猫；预测：猫", "en": "Label: cat; prediction: cat" },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            {
+              "id": "b",
+              "label": { "zh": "标注：狗；预测：猫", "en": "Label: dog; prediction: cat" },
+              "truth": "dog",
+              "predicted": "cat"
+            },
+            {
+              "id": "c",
+              "label": { "zh": "标注：车；预测：车", "en": "Label: car; prediction: car" },
+              "truth": "car",
+              "predicted": "car"
+            },
+            { "id": "none", "label": { "zh": "没有错误", "en": "No errors shown" } }
+          ]
+        },
+        {
+          "items": [{ "prompt": { "zh": "哪条记录表明预测出错？", "en": "Which record shows an error?" } }],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "标注：猫；预测：猫", "en": "Label: cat; prediction: cat" },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            {
+              "id": "c",
+              "label": { "zh": "标注：车；预测：车", "en": "Label: car; prediction: car" },
+              "truth": "car",
+              "predicted": "car"
+            },
+            { "id": "none", "label": { "zh": "没有错误", "en": "No errors shown" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

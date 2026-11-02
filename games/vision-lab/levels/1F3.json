@@ -1,0 +1,46 @@
+{
+  "title": { "zh": "还能找回吗", "en": "Can it be recovered?" },
+  "intro": [
+    {
+      "t": {
+        "zh": "量化改变了可表示的值。检查不同输入是否仍然可以区分。",
+        "en": "Quantisation changes the representable values. Check whether different inputs remain distinguishable."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1F3",
+      "kind": "circuit",
+      "brief": { "zh": "将输入量化为 3 个等级。", "en": "Quantise the input to 3 levels." },
+      "inputs": [{ "name": "v", "label": "v" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "v": [[0.1, 0.2, 0.7]] }, "expect": { "out": [[0, 0, 0.5]] } },
+        { "inputs": { "v": [[0, 0.5, 1]] }, "expect": { "out": [[0, 0.5, 1]] } }
+      ],
+      "solution": ["L = const[value=3]()", "r = quantise(v, L)", "out <- r"],
+      "hidden": [{ "inputs": { "v": [[0.25, 0.75]] }, "expect": { "out": [[0.5, 1]] } }]
+    },
+    {
+      "id": "1F3_2",
+      "kind": "choice",
+      "brief": {
+        "zh": "仅知道输出是 0，能确定输入是 0.1 还是 0.2 吗？",
+        "en": "Given only an output of 0, can you tell whether the input was 0.1 or 0.2?"
+      },
+      "judge": "match",
+      "rounds": [
+        {
+          "items": [
+            { "prompt": { "zh": "选择能否确定。", "en": "Choose whether it can be determined." }, "is": "no" }
+          ],
+          "options": [
+            { "id": "yes", "label": { "zh": "能确定", "en": "Can determine" }, "is": "yes" },
+            { "id": "no", "label": { "zh": "不能确定", "en": "Cannot determine" }, "is": "no" }
+          ]
+        }
+      ]
+    }
+  ]
+}

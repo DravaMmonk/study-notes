@@ -1,0 +1,39 @@
+{
+  "title": { "zh": "远处清晰", "en": "Focus on the far object" },
+  "intro": [
+    {
+      "t": {
+        "zh": "针孔不能模拟镜头的聚焦。用简化的薄透镜观察这一变化。",
+        "en": "A pinhole does not model lens focus. Observe this in a simplified thin-lens model."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1G2",
+      "kind": "bench",
+      "brief": { "zh": "调整对焦距离，让远处物体清晰。", "en": "Adjust focus until the far object is sharp." },
+      "bench": {
+        "model": "lens",
+        "setup": {
+          "F": 50,
+          "A0": 5,
+          "cMax": 0.03,
+          "objects": [
+            { "id": "near", "z": 1000, "label": { "zh": "近处", "en": "Near" } },
+            { "id": "far", "z": 4000, "label": { "zh": "远处", "en": "Far" } }
+          ]
+        },
+        "knobs": { "focus": { "label": "focus", "min": 1000, "max": 4000, "step": 1000, "start": 1000 } },
+        "goal": [{ "of": "sharp_far", "label": "sharp_far", "near": 1, "atMost": 0.001 }],
+        "layout": { "main": ["lensRays", "blurCurve"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "focus": 2000 },
+          "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." }
+        }
+      ]
+    }
+  ]
+}

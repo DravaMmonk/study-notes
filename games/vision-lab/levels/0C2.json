@@ -1,0 +1,58 @@
+{
+  "title": { "zh": "一样大的像", "en": "The same apparent size" },
+  "intro": [
+    {
+      "t": {
+        "zh": "两个候选场景使用同一台相机，拍出的图相同；物体在场景中的大小和位置可能不同。",
+        "en": "Both candidate scenes use the same camera and produce the same image; the object’s size and position in the scene may differ."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "0C2",
+      "kind": "choice",
+      "brief": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
+      "hint": [{ "zh": "找出画面能排除和不能排除的情况。", "en": "Consider which candidate scenes the picture can rule out." }],
+      "judge": "claims",
+      "rounds": [
+        {
+          "scenes": [
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "cube",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
+                }
+              ]
+            },
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "cube",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-1.8, 0.5, -6], "size": [2, 2, 2] }]
+                }
+              ]
+            }
+          ],
+          "items": [
+            {
+              "prompt": { "zh": "立方体沿相机光轴的距离是 6。", "en": "The cube is 6 units away along the camera axis." },
+              "claim": { "depth": { "object": "cube", "z": 6, "tol": 0.05 } }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

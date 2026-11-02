@@ -1,0 +1,40 @@
+{
+  "title": { "zh": "找反例", "en": "Find a counterexample" },
+  "intro": [
+    {
+      "t": {
+        "zh": "有人声称：无论背景如何，机器的每次预测都正确。一条不符合的记录就足以反驳这句话。",
+        "en": "A claim says every prediction remains correct regardless of background. One contrary record can refute it."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "0C4",
+      "kind": "choice",
+      "brief": { "zh": "选择能反驳这句话的记录。", "en": "Choose a record that refutes the claim." },
+      "hint": [{ "zh": "对照每条记录的标注和预测。", "en": "Compare the label and prediction in each record." }],
+      "judge": "refute",
+      "rounds": [
+        {
+          "items": [{ "prompt": { "zh": "哪条记录反驳这句话？", "en": "Which record refutes the claim?" } }],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "前景是猫，草地背景；预测为猫", "en": "Cat foreground, grass background; predicted cat" },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            {
+              "id": "b",
+              "label": { "zh": "前景是猫，雪地背景；预测为狗", "en": "Cat foreground, snow background; predicted dog" },
+              "truth": "cat",
+              "predicted": "dog"
+            },
+            { "id": "none", "label": { "zh": "没有反例", "en": "No counterexample" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "title": { "zh": "平均分布", "en": "Even spacing" },
+  "intro": [
+    { "t": { "zh": "现有流水线需要处理新的数值条件。", "en": "The current pipeline must handle a new numeric condition." } }
+  ],
+  "tasks": [
+    {
+      "id": "1E1c",
+      "kind": "circuit",
+      "brief": {
+        "zh": "把 length 按 scale 放大，再均分为 n 段；交出每段长度。",
+        "en": "Scale length by scale, divide it into n equal intervals, and output one interval length."
+      },
+      "inputs": [
+        { "name": "length", "label": "length" },
+        { "name": "scale", "label": "scale" },
+        { "name": "n", "label": "n" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "length": 2, "scale": 2, "n": 4 }, "expect": { "out": 1 } },
+        { "inputs": { "length": 6, "scale": 0.5, "n": 3 }, "expect": { "out": 1 } }
+      ],
+      "solution": ["s = mul(length, scale)", "p = div(s, n)", "out <- p"],
+      "hidden": [{ "inputs": { "length": 8, "scale": 0.25, "n": 4 }, "expect": { "out": 0.5 } }]
+    }
+  ],
+  "adds": ["div"]
+}

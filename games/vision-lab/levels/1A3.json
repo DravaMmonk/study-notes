@@ -1,0 +1,27 @@
+{
+  "title": { "zh": "三个通道", "en": "Three channels" },
+  "intro": [
+    {
+      "t": {
+        "zh": "灰度图只有一个值；彩色像素还要区分各通道。",
+        "en": "A grey pixel has one value; a colour pixel has separate channels."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1A3",
+      "kind": "grid",
+      "brief": { "zh": "把右边的像素设为蓝色 (0, 0, 1)。", "en": "Set the pixel on the right to blue (0, 0, 1)." },
+      "image": [[[1, 0, 0], [0, 0, 0]]],
+      "ask": { "set": { "x": 1, "y": 0, "value": [0, 0, 1] } }
+    },
+    {
+      "id": "1A3_2",
+      "kind": "grid",
+      "brief": { "zh": "把左下角的像素设为 (0.2, 0.7, 0.4)。", "en": "Set the lower-left pixel to (0.2, 0.7, 0.4)." },
+      "image": [[[0, 0.1, 0.2], [0.3, 0.4, 0.5]], [[0, 0, 0], [0.8, 0.2, 0.1]]],
+      "ask": { "set": { "x": 0, "y": 1, "value": [0.2, 0.7, 0.4] } }
+    }
+  ]
+}

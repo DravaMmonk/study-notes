@@ -1,0 +1,40 @@
+{
+  "title": { "zh": "标出坐标", "en": "Mark coordinates" },
+  "intro": [
+    {
+      "t": {
+        "zh": "取一个像素时给出一个位置；一整片区域需要每个输出位置的坐标。",
+        "en": "Reading one pixel uses one position; a region needs a coordinate at each output position."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1D0",
+      "kind": "circuit",
+      "brief": {
+        "zh": "读取从左上角开始、大小为 w × h 的区域。",
+        "en": "Read a w × h region starting at the upper-left corner."
+      },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "w", "label": "w" },
+        { "name": "h", "label": "h" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "w": 2, "h": 2 },
+          "expect": { "out": [[1, 2], [4, 5]] }
+        },
+        {
+          "inputs": { "image": [[1, 2], [3, 4], [5, 6]], "w": 1, "h": 3 },
+          "expect": { "out": [[1], [3], [5]] }
+        }
+      ],
+      "solution": ["g = grid(w, h)", "r = lookup(image, g.x, g.y)", "out <- r"],
+      "hidden": [{ "inputs": { "image": [[1, 2, 3]], "w": 2, "h": 1 }, "expect": { "out": [[1, 2]] } }]
+    }
+  ],
+  "adds": ["grid"]
+}

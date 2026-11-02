@@ -1,0 +1,28 @@
+{
+  "title": { "zh": "选择较小的整数", "en": "Choose the lower integer" },
+  "intro": [
+    { "t": { "zh": "现有流水线需要处理新的数值条件。", "en": "The current pipeline must handle a new numeric condition." } }
+  ],
+  "tasks": [
+    {
+      "id": "1E1d",
+      "kind": "circuit",
+      "brief": {
+        "zh": "把位移 length 按 n 等分，交出每段位移向下取整后的值。",
+        "en": "Divide displacement length into n equal parts and round the displacement down."
+      },
+      "inputs": [{ "name": "length", "label": "length" }, { "name": "n", "label": "n" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "length": 5, "n": 2 }, "expect": { "out": 2 } },
+        { "inputs": { "length": 8, "n": 3 }, "expect": { "out": 2 } }
+      ],
+      "solution": ["d = div(length, n)", "p = floor(d)", "out <- p"],
+      "hidden": [
+        { "inputs": { "length": 3, "n": 2 }, "expect": { "out": 1 } },
+        { "inputs": { "length": -3, "n": 2 }, "expect": { "out": -2 } }
+      ]
+    }
+  ],
+  "adds": ["floor"]
+}

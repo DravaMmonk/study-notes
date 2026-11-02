@@ -1,0 +1,28 @@
+{
+  "groups": [
+    {
+      "id": "image",
+      "title": {
+        "zh": "图",
+        "en": "Images"
+      }
+    }
+  ],
+  "entries": [
+    {
+      "id": "pixel",
+      "group": "image",
+      "title": {
+        "zh": "像素",
+        "en": "pixel"
+      },
+      "at": "1A1",
+      "body": [
+        {
+          "zh": "图上的一格：坐标 (x, y)，x 从左往右数，y 从上往下数，都从 0 起；灰度图一格一个数，彩色图一格三个数 [R, G, B]。",
+          "en": "One cell of an image: at (x, y), x counted left to right and y top to bottom, both from 0; a grey image holds one number a cell, a colour image three, [R, G, B]."
+        }
+      ]
+    }
+  ]
+}

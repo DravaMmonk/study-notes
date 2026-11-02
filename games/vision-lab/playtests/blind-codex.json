@@ -1,0 +1,191 @@
+{
+ "game": "vision-lab",
+ "session": "blind-codex",
+ "player": {
+  "kind": "llm"
+ },
+ "lang": "en",
+ "started": "2026-11-02T15:00:34.722Z",
+ "limits": {
+  "attempts": 8
+ },
+ "progress": {
+  "version": 2,
+  "solved": [
+   "0A1",
+   "0A2",
+   "0A3",
+   "0A4",
+   "0B1",
+   "0B2",
+   "0B3",
+   "0B4"
+  ],
+  "flags": [],
+  "passed": [
+   "0A1",
+   "0A2",
+   "0A3",
+   "0A4",
+   "0B1",
+   "0B2",
+   "0B3",
+   "0B4"
+  ],
+  "data": {},
+  "slots": {},
+  "built": {},
+  "best": {},
+  "seenPower": true,
+  "introSeen": {},
+  "all": false
+ },
+ "levels": [
+  {
+   "level": "0A1",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 0
+  },
+  {
+   "level": "0A2",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 4
+  },
+  {
+   "level": "0A3",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 4
+  },
+  {
+   "level": "0A4",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 5
+  },
+  {
+   "level": "0B1",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 1,
+   "parts": [],
+   "seconds": 8
+  },
+  {
+   "level": "0B2",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 5
+  },
+  {
+   "level": "0B3",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 4
+  },
+  {
+   "level": "0B4",
+   "task": 0,
+   "outcome": "solved",
+   "required": true,
+   "attempts": 1,
+   "hints": 0,
+   "parts": [],
+   "seconds": 5
+  }
+ ],
+ "attempts": [
+  {
+   "level": "0A1",
+   "task": 0,
+   "at": "2026-11-02T15:00:34.725Z",
+   "text": "label;box\nbox;label\n",
+   "pass": true,
+   "says": "- Round 1: pass\n- Round 2: pass"
+  },
+  {
+   "level": "0A2",
+   "task": 0,
+   "at": "2026-11-02T15:00:41.867Z",
+   "text": "label;detect\ndetect\n",
+   "pass": true,
+   "says": "- Round 1: pass\n- Round 2: pass"
+  },
+  {
+   "level": "0A3",
+   "task": 0,
+   "at": "2026-11-02T15:00:48.101Z",
+   "text": "sem;inst\nsem;inst\n",
+   "pass": true,
+   "says": "- Round 1: pass\n- Round 2: pass"
+  },
+  {
+   "level": "0A4",
+   "task": 0,
+   "at": "2026-11-02T15:00:54.279Z",
+   "text": "sem;depth\ninst;depth\n",
+   "pass": true,
+   "says": "- Round 1: pass\n- Round 2: pass"
+  },
+  {
+   "level": "0B1",
+   "task": 0,
+   "at": "2026-11-02T15:01:03.959Z",
+   "text": "A\n",
+   "pass": true,
+   "says": "- Round 1: pass"
+  },
+  {
+   "level": "0B2",
+   "task": 0,
+   "at": "2026-11-02T15:01:12.851Z",
+   "text": "B\n",
+   "pass": true,
+   "says": "- Round 1: pass"
+  },
+  {
+   "level": "0B3",
+   "task": 0,
+   "at": "2026-11-02T15:01:18.551Z",
+   "text": "supported;undetermined\n",
+   "pass": true,
+   "says": "- Round 1: pass"
+  },
+  {
+   "level": "0B4",
+   "task": 0,
+   "at": "2026-11-02T15:01:25.099Z",
+   "text": "A,B,C\n",
+   "pass": true,
+   "says": "- Round 1: pass"
+  }
+ ]
+}

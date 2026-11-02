@@ -1,0 +1,30 @@
+{
+  "title": { "zh": "读取另一处", "en": "Read another position" },
+  "intro": [
+    {
+      "t": {
+        "zh": "同一个读取器应当随坐标改变而读到不同的位置。",
+        "en": "The same reader must follow changes in the supplied coordinates."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1C2a",
+      "kind": "circuit",
+      "brief": { "zh": "读出图像在 (x, y) 的值。", "en": "Read the image value at (x, y)." },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "x", "label": "x" },
+        { "name": "y", "label": "y" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "image": [[7, 8, 9], [2, 4, 6]], "x": 0, "y": 1 }, "expect": { "out": 2 } },
+        { "inputs": { "image": [[7, 8, 9], [2, 4, 6]], "x": 2, "y": 0 }, "expect": { "out": 9 } }
+      ],
+      "solution": ["p = lookup(image, x, y)", "out <- p"],
+      "hidden": [{ "inputs": { "image": [[5], [6], [7]], "x": 0, "y": 2 }, "expect": { "out": 7 } }]
+    }
+  ]
+}

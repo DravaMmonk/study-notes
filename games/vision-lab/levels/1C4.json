@@ -1,0 +1,55 @@
+{
+  "title": { "zh": "重组颜色", "en": "Reassemble colour" },
+  "intro": [
+    {
+      "t": {
+        "zh": "单个通道不能显示完整颜色，需要重新组合。",
+        "en": "One channel cannot show a complete colour; the channels must be combined."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1C4",
+      "kind": "circuit",
+      "brief": {
+        "zh": "交换图像的红色与蓝色通道，保留绿色。输入 r、g、b 是对应的通道编号。",
+        "en": "Exchange red and blue channels while retaining green. Inputs r, g, b identify the channels."
+      },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "r", "label": "r" },
+        { "name": "g", "label": "g" },
+        { "name": "b", "label": "b" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[[1, 0, 0], [0, 0.5, 0.8]]], "r": 0, "g": 1, "b": 2 },
+          "expect": { "out": [[[0, 0, 1], [0.8, 0.5, 0]]] }
+        }
+      ],
+      "solution": [
+        "rr = channel(image, r)",
+        "gg = channel(image, g)",
+        "bb = channel(image, b)",
+        "p = compose(bb, gg, rr)",
+        "out <- p"
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[[0.2, 0.4, 0.9]]], "r": 0, "g": 1, "b": 2 },
+          "expect": { "out": [[[0.9, 0.4, 0.2]]] }
+        }
+      ],
+      "naive": [
+        "rr = channel(image, r)",
+        "gg = channel(image, g)",
+        "bb = channel(image, b)",
+        "p = compose(rr, gg, bb)",
+        "out <- p"
+      ]
+    }
+  ],
+  "adds": ["compose"]
+}

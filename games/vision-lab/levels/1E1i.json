@@ -1,0 +1,29 @@
+{
+  "title": { "zh": "整张坐标图", "en": "Map a coordinate grid" },
+  "intro": [
+    {
+      "t": {
+        "zh": "一个轴的坐标映射已经可以复用。现在把它用于一整行输出位置。",
+        "en": "The axis mapping can be reused. Apply it to a whole row of output positions."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1E1i",
+      "kind": "circuit",
+      "brief": {
+        "zh": "把宽为 n 的输出坐标映射到宽为 m 的原图。输出为一行。",
+        "en": "Map n output positions to source width m. Output one row."
+      },
+      "inputs": [{ "name": "m", "label": "m" }, { "name": "n", "label": "n" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "m": 3, "n": 5 }, "expect": { "out": [[0, 0.5, 1, 1.5, 2]] } },
+        { "inputs": { "m": 4, "n": 1 }, "expect": { "out": [[1.5]] } }
+      ],
+      "solution": ["one = const[value=1]()", "g = grid(n, one)", "x = sampleAxis(g.x, m, n)", "out <- x"],
+      "hidden": [{ "inputs": { "m": 2, "n": 3 }, "expect": { "out": [[0, 0.5, 1]] } }]
+    }
+  ]
+}

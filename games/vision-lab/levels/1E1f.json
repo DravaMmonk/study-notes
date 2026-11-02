@@ -1,0 +1,55 @@
+{
+  "title": { "zh": "取较大值", "en": "Take the larger value" },
+  "intro": [
+    {
+      "t": {
+        "zh": "后续计算中的数值需要保持在下限以上。先搭出一个能比较任意两个值的元件。",
+        "en": "Later calculations need values to stay above a lower bound. First build a part that compares any two values."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1E1f_hand",
+      "kind": "choice",
+      "brief": { "zh": "选择每组中较大的数。", "en": "Choose the larger value in each pair." },
+      "judge": "match",
+      "rounds": [
+        {
+          "items": [
+            { "prompt": { "zh": "2 和 5 中较大的是？", "en": "Which is larger, 2 or 5?" }, "is": "five" },
+            { "prompt": { "zh": "−3 和 −1 中较大的是？", "en": "Which is larger, −3 or −1?" }, "is": "minusone" }
+          ],
+          "options": [
+            { "id": "two", "label": "2", "is": "two" },
+            { "id": "five", "label": "5", "is": "five" },
+            { "id": "minus3", "label": "−3", "is": "minus3" },
+            { "id": "minusone", "label": "−1", "is": "minusone" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1E1f",
+      "kind": "circuit",
+      "brief": { "zh": "交出 a 和 b 中较大的数。", "en": "Output the larger of a and b." },
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "a": 0, "b": 1 }, "expect": { "out": 1 } },
+        { "inputs": { "a": 3, "b": 2 }, "expect": { "out": 3 } },
+        { "inputs": { "a": 2, "b": 2 }, "expect": { "out": 2 } }
+      ],
+      "solution": ["c = less(a, b)", "p = select(c, b, a)", "out <- p"],
+      "hidden": [
+        { "inputs": { "a": -2, "b": -5 }, "expect": { "out": -2 } },
+        { "inputs": { "a": [[2, 5]], "b": [[4, 3]] }, "expect": { "out": [[4, 5]] } }
+      ]
+    }
+  ],
+  "builds": {
+    "type": "larger",
+    "name": { "zh": "取较大值", "en": "Take the larger value" },
+    "desc": { "zh": "取两个输入中较大的值。", "en": "Returns the larger of two input values." }
+  }
+}

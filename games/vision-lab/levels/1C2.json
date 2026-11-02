@@ -1,0 +1,61 @@
+{
+  "title": { "zh": "读取像素", "en": "Read a pixel" },
+  "intro": [
+    {
+      "t": {
+        "zh": "观察器能指出位置，但流水线还不能读取该位置的值。",
+        "en": "The viewer can identify a position, but the pipeline cannot yet read its value."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1C2",
+      "kind": "circuit",
+      "brief": { "zh": "交出图在 (x, y) 处的值。", "en": "Give the image value at (x, y)." },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "x", "label": "x" },
+        { "name": "y", "label": "y" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "x": 2, "y": 1 }, "expect": { "out": 6 } },
+        { "inputs": { "image": [[1, 2], [3, 4], [5, 6]], "x": 0, "y": 2 }, "expect": { "out": 5 } }
+      ],
+      "solution": ["r = lookup(image, x, y)", "out <- r"],
+      "hidden": [{ "inputs": { "image": [[7]], "x": 0, "y": 0 }, "expect": { "out": 7 } }],
+      "naive": ["r = lookup(image, y, x)", "out <- r"]
+    },
+    {
+      "id": "1C2_2",
+      "kind": "circuit",
+      "brief": {
+        "zh": "坐标输入可以是两张同尺寸的坐标图；交出逐格读取的结果。",
+        "en": "Coordinate inputs may be two matching coordinate images; output the value read at each pair."
+      },
+      "inputs": [
+        { "name": "image", "label": "image" },
+        { "name": "x", "label": "x" },
+        { "name": "y", "label": "y" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "x": [[0, 2]], "y": [[1, 0]] },
+          "expect": { "out": [[4, 3]] }
+        },
+        {
+          "inputs": { "image": [[7, 8], [9, 10]], "x": [[1], [0]], "y": [[1], [0]] },
+          "expect": { "out": [[10], [7]] }
+        }
+      ],
+      "solution": ["r = lookup(image, x, y)", "out <- r"]
+    }
+  ],
+  "adds": ["lookup"],
+  "showcase": {
+    "zh": "同一读取元件接受数值坐标，也接受整张坐标图，输出形状随之变化。",
+    "en": "The same lookup accepts scalar coordinates or coordinate images, changing the shape of its output."
+  }
+}

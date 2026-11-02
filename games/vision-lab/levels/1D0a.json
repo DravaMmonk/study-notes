@@ -1,0 +1,27 @@
+{
+  "title": { "zh": "从另一个起点出发", "en": "Start elsewhere" },
+  "intro": [
+    {
+      "t": {
+        "zh": "坐标图从零开始。新窗口可以从原图中别的位置开始。",
+        "en": "The coordinate grid starts at zero. A new window may begin elsewhere in the image."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1D0a",
+      "kind": "circuit",
+      "brief": { "zh": "把一行坐标全部增加起点 x0。", "en": "Offset each coordinate in a row by x0." },
+      "inputs": [{ "name": "w", "label": "w" }, { "name": "h", "label": "h" }, { "name": "x0", "label": "x0" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "w": 3, "h": 1, "x0": 2 }, "expect": { "out": [[2, 3, 4]] } },
+        { "inputs": { "w": 2, "h": 2, "x0": 1 }, "expect": { "out": [[1, 2], [1, 2]] } }
+      ],
+      "solution": ["g = grid(w, h)", "x = add(g.x, x0)", "out <- x"],
+      "hidden": [{ "inputs": { "w": 1, "h": 1, "x0": 5 }, "expect": { "out": [[5]] } }]
+    }
+  ],
+  "adds": ["add"]
+}

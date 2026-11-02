@@ -1,0 +1,22 @@
+{
+  "title": { "zh": "改变间距", "en": "Change the spacing" },
+  "intro": [
+    { "t": { "zh": "现有流水线需要处理新的数值条件。", "en": "The current pipeline must handle a new numeric condition." } }
+  ],
+  "tasks": [
+    {
+      "id": "1E1b",
+      "kind": "circuit",
+      "brief": { "zh": "把每个横坐标按倍数 2 拉开，交出新坐标图。", "en": "Multiply each horizontal coordinate by 2." },
+      "inputs": [{ "name": "w", "label": "w" }, { "name": "h", "label": "h" }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        { "inputs": { "w": 3, "h": 1 }, "expect": { "out": [[0, 2, 4]] } },
+        { "inputs": { "w": 2, "h": 2 }, "expect": { "out": [[0, 2], [0, 2]] } }
+      ],
+      "solution": ["c = const[value=2]()", "g = grid(w, h)", "p = mul(g.x, c)", "out <- p"],
+      "hidden": [{ "inputs": { "w": 1, "h": 1 }, "expect": { "out": [[0]] } }]
+    }
+  ],
+  "adds": ["mul"]
+}
