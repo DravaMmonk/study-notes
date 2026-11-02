@@ -73,14 +73,23 @@ function Resizer({ side, size, open, setLayout }) {
   const clamp = (n) => Math.max(SIZE[side][0], Math.min(SIZE[side][1], n))
   // The side panel is on the right: dragging left widens it.
   const sign = side === 'side' ? -1 : 1
+  // The handle captures the pointer, so the drag ends wherever it is let go — over the game's iframe too, which would
+  // otherwise take the pointerup for itself; while it lasts the iframe takes no pointer at all (studio.css).
   const drag = (e) => {
     if (!open) return
     e.preventDefault()
+    const handle = e.currentTarget
+    handle.setPointerCapture(e.pointerId)
+    document.body.classList.add('is-resizing')
     const at0 = across ? e.clientX : e.clientY
     const move = (ev) => set({ [side]: clamp(across ? size + sign * (ev.clientX - at0) : size - (ev.clientY - at0)) })
-    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
+    const end = () => {
+      document.body.classList.remove('is-resizing')
+      handle.removeEventListener('pointermove', move)
+      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) handle.removeEventListener(type, end)
+    }
+    handle.addEventListener('pointermove', move)
+    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) handle.addEventListener(type, end)
   }
   return (
     <div
