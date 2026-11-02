@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "检测框只把物体圈在一个矩形里，说不出框里哪些像素属于物体。有的输出给每个像素一个数，是一张和照片一样大的图：0 是背景，其余的数是什么意思，要对照画面读出来。",
-        "en": "A detection box only rings an object with a rectangle and cannot say which pixels inside it belong to the object. Some outputs give every pixel a number, a map as large as the photo: 0 is background, and what the other numbers mean has to be read against the picture."
+        "zh": "检测框只把物体圈在一个矩形里，说不出框里哪些像素属于物体。有的输出给每个像素一个数，是一张和照片一样大的图：0 是背景。这一关不给照片，只给这些图；其余的数是什么意思，只能从它们在图上怎样分布读出来。",
+        "en": "A detection box only rings an object with a rectangle and cannot say which pixels inside it belong to the object. Some outputs give every pixel a number, a map as large as the photo: 0 is background. This level shows no photo, only the maps, so what the other numbers mean has to be read from how they spread across each map."
       }
     },
     {

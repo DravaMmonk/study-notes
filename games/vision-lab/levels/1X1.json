@@ -17,10 +17,19 @@
       "id": "1X1",
       "kind": "circuit",
       "brief": {
-        "zh": "输入一张图和倍数 k：交出同样大小的图，内容是原图中心放大 k 倍。",
-        "en": "Given an image and a factor k, give an image of the same size showing the original's centre magnified k times."
+        "zh": "输入一张图和倍数 k：交出同样大小的图，内容是原图中心那个宽、高各为 1/k 的窗口放大 k 倍，只用窗口里的像素。",
+        "en": "Given an image and a factor k, give an image of the same size showing the window at the original's centre, 1/k as wide and as tall, magnified k times, made from the pixels inside that window only."
       },
-      "hint": [{ "zh": "放大以后，原来的坐标也跟着放大了。", "en": "After enlarging, the old coordinates are enlarged too." }],
+      "hint": [
+        {
+          "zh": "变焦后的画面只用得到原图的哪些像素？先把它们取出来。",
+          "en": "Which pixels of the original can the zoomed picture use? Take those out first."
+        },
+        {
+          "zh": "窗口宽是原宽的 1/k，左右两边各留下多少？",
+          "en": "The window is 1/k of the width: how much is left over on each side?"
+        }
+      ],
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
         { "name": "k", "label": { "zh": "倍数 k", "en": "Factor k" } }

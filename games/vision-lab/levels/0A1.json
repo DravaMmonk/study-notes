@@ -40,9 +40,12 @@
       "rounds": [
         {
           "items": [
-            { "prompt": { "zh": "图里有猫吗？", "en": "Is there a cat in the picture?" }, "needs": ["class"] },
+            { "prompt": { "zh": "图里有狗吗？", "en": "Is there a dog in the picture?" }, "needs": ["class"] },
             {
-              "prompt": { "zh": "这两只猫各在图的哪里？", "en": "Where in the picture is each of the two cats?" },
+              "prompt": {
+                "zh": "图里的每只动物是什么、各在哪里？",
+                "en": "What is each animal in the picture, and where is it?"
+              },
               "needs": ["class", "location", "instance"]
             }
           ],

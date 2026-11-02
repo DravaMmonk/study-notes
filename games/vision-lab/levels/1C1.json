@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关要接一块电路：输入从左边进来，输出从右边出去。要把一个像素的三个数拆开、重新排，工作台还没有这样的元件。新元件<part-ref to=\"part:channel\"></part-ref>取出彩色图的一个通道，设成 R、G 或 B，就是每格的第一、第二或第三个数；<part-ref to=\"part:compose\"></part-ref>把三张灰度图合成一张彩色图。每个像素都和期望相符才算对。",
-        "en": "This level wires a circuit: inputs come in on the left, outputs leave on the right. Taking a pixel's three numbers apart and putting them back in another order needs parts the workbench lacks. The new part <part-ref to=\"part:channel\"></part-ref> takes one channel out of a colour image, set to R, G or B, the first, second or third number of each cell; <part-ref to=\"part:compose\"></part-ref> makes three grey images one colour image. It is right when every pixel matches the expected one."
+        "zh": "这一关要接一块电路：输入从左边进来，输出从右边出去。把一个像素的三个数拆开、重排，要用新元件：<part-ref to=\"part:channel\"></part-ref>取出每个像素第 0、1 或 2 个位置上的数（在元件上设定），组成一张灰度图；<part-ref to=\"part:compose\"></part-ref>把三张灰度图依次当作 R、G、B，合成一张彩色图。每个像素都和期望相符才算对。",
+        "en": "This level wires a circuit: inputs come in on the left, outputs leave on the right. Taking a pixel's three numbers apart and reordering them needs new parts: <part-ref to=\"part:channel\"></part-ref> takes the number at position 0, 1 or 2 of every pixel, as set on the part, as a grey image; <part-ref to=\"part:compose\"></part-ref> takes three grey images as R, G and B, in that order, and makes one colour image. It is right when every pixel matches the expected one."
       }
     }
   ],
@@ -24,8 +24,8 @@
       "id": "1C1",
       "kind": "circuit",
       "brief": {
-        "zh": "输入是按 BGR 存的照片：交出同一张照片按 RGB 存的样子。",
-        "en": "The input is a photo stored as BGR: give the same photo stored as RGB."
+        "zh": "输入是用 OpenCV 读进来的照片：交出同一张照片，颜色和本来的一样。",
+        "en": "The input is a photo read with OpenCV: give the same photo in its true colours."
       },
       "hint": [
         {
@@ -33,14 +33,14 @@
           "en": "First wire the input straight to the output, and see which numbers are swapped in the first differing cell."
         },
         {
-          "zh": "把三个通道分别取出来看：设成 R 取出的那一张，装的是天空的什么颜色？",
-          "en": "Take the three channels out one by one: the one set to R, which colour of the sky does it hold?"
+          "zh": "把三个位置的数分别取出来看：天空在哪一张里最亮？蓝天本该亮在哪一种颜色上？",
+          "en": "Take the numbers at the three positions out one by one: in which of them is the sky brightest? Which colour should a blue sky be bright in?"
         }
       ],
       "inputs": [
-        { "name": "image", "label": { "zh": "照片（BGR）", "en": "Photo (BGR)" } }
+        { "name": "image", "label": { "zh": "OpenCV 读进来的照片", "en": "Photo read with OpenCV" } }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "照片（RGB）", "en": "Photo (RGB)" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "颜色正确的照片", "en": "Photo in true colours" } }],
       "tests": [
         {
           "inputs": { "image": [[[0.9, 0.6, 0.2], [0.1, 0.1, 0.8]]] },

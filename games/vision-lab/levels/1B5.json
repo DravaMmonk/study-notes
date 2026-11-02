@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：近处和远处两个物体，怎样在一张照片里都清晰？曲线画出每个深度的模糊圈和清晰的门槛。两个标记都清晰、进光量又不低于 1，才算对。",
-        "en": "This level asks: how can a near and a far object both be sharp in one photo? The curve draws each depth's blur circle against the sharpness threshold. It is right when both markers are sharp and the light is at least 1."
+        "zh": "这一关的问题是：近处和远处两个物体，怎样在一张照片里都清晰？先想好哪一档光圈行，再按「检查」：检查之后，曲线才画出每个深度的模糊圈和清晰的门槛。进光量以 3 mm 光圈的进光为 1。两个标记都清晰、进光量又不低于 1，才算对。",
+        "en": "This level asks: how can a near and a far object both be sharp in one photo? Decide which stop will do before you press Check: only then does the curve draw each depth's blur circle against the sharpness threshold. Light is measured against a 3 mm aperture, which lets in 1. It is right when both markers are sharp and the light is at least 1."
       }
     }
   ],
@@ -28,9 +28,10 @@
       },
       "hint": [
         {
-          "zh": "比较两档光圈下，曲线低于门槛的那一段有多宽。",
-          "en": "Compare how wide the stretch of the curve below the threshold is at two apertures."
-        }
+          "zh": "检查过 f/2 之后，比较曲线低于门槛的那一段：光圈收小一档，模糊圈和这一段各会怎样？",
+          "en": "Once f/2 is checked, look at the stretch of the curve below the threshold: one stop smaller, what happens to the blur circles and to that stretch?"
+        },
+        { "zh": "每收小一档，进光量就只剩四分之一。", "en": "Each stop smaller leaves a quarter of the light." }
       ],
       "bench": {
         "model": "lens",
@@ -70,6 +71,7 @@
           { "of": "sharp_far", "label": { "zh": "远处的标记清晰", "en": "Far marker sharp" }, "is": 1 },
           { "of": "light", "label": { "zh": "进光量", "en": "Light" }, "atLeast": 1, "format": "fixed2" }
         ],
+        "check": "submit",
         "layout": {
           "main": ["lensRays", "blurCurve"],
           "foot": [

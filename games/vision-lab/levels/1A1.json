@@ -88,8 +88,8 @@
       "naive": {
         "answer": [[[1, 0, 0], [0, 1, 0], [1, 1, 1]], [[0, 0, 0], [1, 1, 1], [0.5, 0.5, 0.5]]],
         "why": {
-          "zh": "只把 (1, 1) 的蓝色调到 1，得到 (1, 1, 1)，那是白色：纯蓝还要红和绿都是 0。",
-          "en": "Raising only the blue number of (1, 1) gives (1, 1, 1), which is white: pure blue also needs its red and green at 0."
+          "zh": "只把第二行正中间那个像素的蓝色调到 1，得到 (1, 1, 1)，那是白色：纯蓝还要红和绿都是 0。",
+          "en": "Raising only the blue number of the middle pixel in the second row gives (1, 1, 1), which is white: pure blue also needs its red and green at 0."
         }
       }
     }

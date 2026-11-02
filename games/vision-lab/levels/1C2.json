@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1C1\"></level-ref>弄清了三个数的顺序，还没问它们的大小。电路算出的值可以落在 [0, 1] 之外，屏幕却只显示得出 0 到 1，超出的部分画成最黑或最白。文件里的像素又常存成<wiki-ref to=\"uint8\"></wiki-ref>：0 到 255 的整数，255 最亮。",
-        "en": "<level-ref to=\"1C1\"></level-ref> settled the order of the three numbers but not their size. A circuit may compute values outside [0, 1], while a screen shows only 0 to 1 and draws whatever lies beyond as the darkest or the brightest. And files often store pixels as <wiki-ref to=\"uint8\"></wiki-ref>: whole numbers from 0 to 255, 255 the brightest."
+        "zh": "<level-ref to=\"1C1\"></level-ref>弄清了三个数的顺序，还没问它们的大小。电路算出的值可以落在 [0, 1] 之外，比如 −0.2 或 1.2；这样的值画到屏幕上是什么样子，还没有看过。文件里的像素又常存成<wiki-ref to=\"uint8\"></wiki-ref>：0 到 255 的整数，255 最亮。",
+        "en": "<level-ref to=\"1C1\"></level-ref> settled the order of the three numbers but not their size. A circuit may compute values outside [0, 1], such as −0.2 or 1.2, and how such values look on a screen has not come up yet. And files often store pixels as <wiki-ref to=\"uint8\"></wiki-ref>: whole numbers from 0 to 255, 255 the brightest."
       }
     },
     {

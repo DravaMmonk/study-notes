@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：只看这一张图，红色箱子离相机多远？题目给出这张图和几个都渲得出它的候选场景，判断关于场景的每句话：在每个候选场景里都对，才算成立；都错是不成立；有对有错就是无法确定。",
-        "en": "This level asks: from this image alone, how far is the red box from the camera? You get the image and several candidate scenes that all render it, and judge each statement about the scene: true in every candidate, it holds; false in every one, it does not; true in some and false in others, it is undetermined."
+        "zh": "这一关的问题是：只看这一张图，箱子离相机多远？题目给出这张图和几个都渲得出它的候选场景，判断关于场景的每句话：在每个候选场景里都对，才算成立；都错是不成立；有对有错就是无法确定。",
+        "en": "This level asks: from this image alone, how far is the box from the camera? You get the image and several candidate scenes that all render it, and judge each statement about the scene: true in every candidate, it holds; false in every one, it does not; true in some and false in others, it is undetermined."
       }
     }
   ],
@@ -95,20 +95,20 @@
         {
           "items": [
             {
-              "prompt": { "zh": "画面里有两个立方体。", "en": "There are two cubes in the scene." },
-              "claim": { "count": { "class": "cube", "n": 2 } }
+              "prompt": { "zh": "右边的立方体离相机 2 米。", "en": "The cube on the right is 2 m from the camera." },
+              "claim": { "depth": { "object": "right", "z": 2 } }
             },
             {
-              "prompt": { "zh": "绿色立方体离相机 2 米。", "en": "The green cube is 2 m from the camera." },
-              "claim": { "depth": { "object": "green", "z": 2 } }
+              "prompt": { "zh": "左边的立方体是红色的。", "en": "The cube on the left is red." },
+              "claim": { "colour": { "object": "left", "is": "red" } }
             },
             {
-              "prompt": { "zh": "场景里有一个球。", "en": "There is a ball in the scene." },
-              "claim": { "exists": { "class": "ball" } }
+              "prompt": { "zh": "右边的立方体在画面里看得见。", "en": "The cube on the right shows in the picture." },
+              "claim": { "visible": { "object": "right" } }
             },
             {
-              "prompt": { "zh": "黄色立方体在画面里看得见。", "en": "The yellow cube shows in the picture." },
-              "claim": { "visible": { "object": "yellow" } }
+              "prompt": { "zh": "左边的立方体高 0.4 米。", "en": "The cube on the left is 0.4 m tall." },
+              "claim": { "height": { "object": "left", "h": 0.4 } }
             }
           ],
           "scenes": [
@@ -117,13 +117,13 @@
               "light": { "azimuth": 30, "elevation": 50 },
               "objects": [
                 {
-                  "id": "yellow",
+                  "id": "left",
                   "class": "cube",
                   "colour": "yellow",
                   "boxes": [{ "at": [-0.9, 0.2, 2.5], "size": [0.4, 0.4, 0.4] }]
                 },
                 {
-                  "id": "green",
+                  "id": "right",
                   "class": "cube",
                   "colour": "green",
                   "boxes": [{ "at": [0.5, 0.6, 3], "size": [0.5, 0.5, 0.5] }]
@@ -135,16 +135,34 @@
               "light": { "azimuth": 30, "elevation": 50 },
               "objects": [
                 {
-                  "id": "yellow",
+                  "id": "left",
                   "class": "cube",
                   "colour": "yellow",
                   "boxes": [{ "at": [-0.9, 0.2, 2.5], "size": [0.4, 0.4, 0.4] }]
                 },
                 {
-                  "id": "green",
+                  "id": "right",
                   "class": "cube",
                   "colour": "green",
                   "boxes": [{ "at": [0.75, 0.65, 2], "size": [0.75, 0.75, 0.75] }]
+                }
+              ]
+            },
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "left",
+                  "class": "cube",
+                  "colour": "yellow",
+                  "boxes": [{ "at": [-1.8, -0.1, 0], "size": [0.8, 0.8, 0.8] }]
+                },
+                {
+                  "id": "right",
+                  "class": "cube",
+                  "colour": "green",
+                  "boxes": [{ "at": [0.5, 0.6, 3], "size": [0.5, 0.5, 0.5] }]
                 }
               ]
             }
@@ -154,7 +172,7 @@
       "naive": {
         "picks": [
           [["supported"], ["supported"], ["supported"], ["contradicted"]],
-          [["supported"], ["supported"], ["contradicted"], ["supported"]]
+          [["supported"], ["contradicted"], ["supported"], ["supported"]]
         ],
         "why": {
           "zh": "按箱子在图里的大小定出了一个距离：可小而近的箱子和大而远的箱子渲出同一张图，距离和高度在候选场景里各不相同。",

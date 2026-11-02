@@ -66,7 +66,14 @@
             { "id": "d", "label": "40" }
           ]
         }
-      ]
+      ],
+      "naive": {
+        "picks": [[["a"]], [["a"]]],
+        "why": {
+          "zh": "把像素数当成毫米代进了 h/f = H/Z：100 像素不是 100 mm。传感器 20 mm 排 200 个像素，每个像素 0.1 mm，100 像素只有 10 mm；按 500 mm 的焦距，像会有 100 mm 高，比整块传感器还高。",
+          "en": "That puts the pixel count into h/f = H/Z as millimetres, but 100 pixels are not 100 mm. The sensor holds 200 pixels in 20 mm, so a pixel is 0.1 mm and 100 pixels are 10 mm; at f = 500 mm the image would be 100 mm tall, taller than the whole sensor."
+        }
+      }
     },
     {
       "id": "1B8_2",
@@ -104,7 +111,32 @@
             "format": "int"
           }
         ],
-        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+        "check": "submit",
+        "layout": {
+          "main": ["pinholeRays"],
+          "foot": [
+            { "panel": ["knobs"] },
+            {
+              "stats": {
+                "of": [
+                  {
+                    "of": "fpx",
+                    "label": { "zh": "以像素计的焦距", "en": "Focal length in pixels" },
+                    "format": "int",
+                    "unit": " px"
+                  },
+                  {
+                    "of": "fov",
+                    "label": { "zh": "竖直视场", "en": "Vertical field of view" },
+                    "format": "fixed1",
+                    "unit": "°"
+                  }
+                ]
+              }
+            },
+            { "row": ["goals"] }
+          ]
+        }
       },
       "naive": [
         {
@@ -124,6 +156,16 @@
         "zh": "这台相机 f = 50 mm，每个像素 0.1 mm：写出它以像素计的焦距和竖直方向的视场。",
         "en": "This camera has f = 50 mm and 0.1 mm pixels: give its focal length in pixels and its vertical field of view."
       },
+      "hint": [
+        {
+          "zh": "上一个任务的台子在 f = 50 mm 时读出了以像素计的焦距和视场。",
+          "en": "At f = 50 mm the bench in the last task read out the focal length in pixels and the field of view."
+        },
+        {
+          "zh": "从针孔看传感器的上边和下边：半个传感器高除以焦距，是半个视场角的正切。",
+          "en": "Seen from the pinhole, half the sensor's height over the focal length is the tangent of half the view angle."
+        }
+      ],
       "judge": "answer",
       "rounds": [
         {

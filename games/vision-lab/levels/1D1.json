@@ -54,6 +54,13 @@
           "rows": [[-0.16667, 0.5, 1.16667]],
           "label": { "zh": "新像素在原图里的 x", "en": "x in the original" }
         }
+      },
+      "naive": {
+        "answer": [[0, 1, 2]],
+        "why": {
+          "zh": "这是把新像素当成旧像素重新编号：原图这一行只有 x = 0 和 x = 1 两个像素，x = 2 落在原图外面。新旧两排一样长，三个新像素中心要分布在两个旧像素占的那段长度上。",
+          "en": "That renumbers the new pixels as if they were old ones: the original row has pixels at x = 0 and x = 1 only, so x = 2 lies outside it. The two rows are equally long, so the three new centres spread over the length the two old pixels cover."
+        }
       }
     },
     {

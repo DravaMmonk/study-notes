@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：要把一排物体全拍进画面，焦距该变长还是变短？三支箭都在 2000 mm 外，台上只有焦距 f 能动。第一个任务要三支都在画面里，中间那支乙又不能太小；第二个任务只拍乙，要它占满画面的高度。",
-        "en": "This level asks: to get a whole row of objects into the frame, should the focal length grow or shrink? Three arrows stand 2000 mm away, and only the focal length f turns. The first task wants all three in view without the middle arrow B shrinking too far; the second shows B alone and wants it to fill the frame's height."
+        "zh": "这一关的问题是：要把几个物体全拍进画面，焦距该变长还是变短？三支箭都在 2000 mm 外，台上只有焦距 f 能动。第一个任务要三支都在画面里，中间那支乙又不能太小；第二个任务只拍乙，要它占满画面的高度。",
+        "en": "This level asks: to get several objects into the frame at once, should the focal length grow or shrink? Three arrows stand 2000 mm away, and only the focal length f turns. The first task wants all three in view without the middle arrow B shrinking too far; the second shows B alone and wants it to fill the frame's height."
       }
     }
   ],
@@ -63,6 +63,7 @@
             "format": "int"
           }
         ],
+        "check": "submit",
         "layout": {
           "main": ["pinholeRays"],
           "foot": [
@@ -111,8 +112,8 @@
       },
       "hint": [
         {
-          "zh": "台上读得出视场：焦距变了，它往哪边变？",
-          "en": "The bench reads out the field of view: which way does it move as the focal length changes?"
+          "zh": "上一个任务里读到过视场：焦距变长，它往哪边变？乙要占满 20 mm 的传感器，像要多高？",
+          "en": "The last task read out the field of view: which way does it move as the focal length grows? To fill the 20 mm sensor, how tall must B's image be?"
         }
       ],
       "bench": {
@@ -141,6 +142,7 @@
             "format": "int"
           }
         ],
+        "check": "submit",
         "layout": {
           "main": ["pinholeRays"],
           "foot": [

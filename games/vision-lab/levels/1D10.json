@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "测试图里画着一个正方形的东西：交出的 S×S 图里，它还得是正方形。多出来的部分从两边平均去掉，除不尽时左上少去掉一个像素。横幅和竖幅的照片都要成立。",
-        "en": "The test images hold something square, and in the S×S result it must still be square. The excess is removed evenly from both sides, one pixel less at the top-left when it does not divide. It must work for landscape and portrait photos alike."
+        "zh": "测试图里画着一个正方形的东西：交出的 S×S 图里，它还得是正方形。结果里每个像素都来自照片，不留空边；它的中心对准照片的中心，对不准时偏左上半个像素。横幅和竖幅的照片都要成立。",
+        "en": "The test images hold something square, and in the S×S result it must still be square. Every pixel of the result comes from the photo, with no empty borders, and it is centred on the photo's centre, half a pixel towards the top-left where it cannot be exact. It must work for landscape and portrait photos alike."
       }
     }
   ],
@@ -23,8 +23,8 @@
       "id": "1D10",
       "kind": "circuit",
       "brief": {
-        "zh": "输入一张图和边长 S：按同一个比例缩放到短边等于 S，再从中间裁出 S×S。",
-        "en": "Given an image and a side S, scale it by one factor until its short side is S, then crop S×S from the middle."
+        "zh": "输入一张照片和边长 S：交出 S×S 的图，照片里的正方形在图里仍是正方形，画面居中。",
+        "en": "Given a photo and a side S, give an S×S image, centred on the photo, in which squares stay square."
       },
       "hint": [
         {

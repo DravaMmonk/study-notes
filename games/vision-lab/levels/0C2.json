@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "在<level-ref to=\"0C1\"></level-ref>里，图上看得见的东西也可能有几种解释。这一关场景里立着一块不透明的灰色挡板，挡住了它后面的东西：被<wiki-ref to=\"occlusion\"></wiki-ref>的部分，图里一个像素也没有。题目照样给出一张图和几个都渲得出它的候选场景。",
-        "en": "In <level-ref to=\"0C1\"></level-ref> even what the image shows allowed several explanations. Here an opaque grey screen stands in the scene and hides what is behind it: a part lost to <wiki-ref to=\"occlusion\"></wiki-ref> has not one pixel in the image. As before you get the image and several candidate scenes that all render it."
+        "zh": "在<level-ref to=\"0C1\"></level-ref>里，图上看得见的东西也可能有几种解释。这一关场景里立着一块不透明的挡板，挡住了它后面的东西：被<wiki-ref to=\"occlusion\"></wiki-ref>的部分，图里一个像素也没有。题目照样给出一张图和几个都渲得出它的候选场景。",
+        "en": "In <level-ref to=\"0C1\"></level-ref> even what the image shows allowed several explanations. Here an opaque screen stands in the scene and hides what is behind it: a part lost to <wiki-ref to=\"occlusion\"></wiki-ref> has not one pixel in the image. As before you get the image and several candidate scenes that all render it."
       }
     },
     {
@@ -108,7 +108,7 @@
               "claim": { "exists": { "class": "dog" } }
             },
             {
-              "prompt": { "zh": "黄色箱子在画面里看得见。", "en": "The yellow crate shows in the picture." },
+              "prompt": { "zh": "最左边的箱子在画面里看得见。", "en": "The crate at the far left shows in the picture." },
               "claim": { "visible": { "object": "crate" } }
             },
             {
@@ -116,7 +116,7 @@
               "claim": { "count": { "class": "cat", "n": 0 } }
             },
             {
-              "prompt": { "zh": "黄色箱子是绿色的。", "en": "The yellow crate is green." },
+              "prompt": { "zh": "最左边的箱子是绿色的。", "en": "The crate at the far left is green." },
               "claim": { "colour": { "object": "crate", "is": "green" } }
             }
           ],

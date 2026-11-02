@@ -23,6 +23,12 @@
         "zh": "物高 1、距离 4 都固定：只调像平面距离 f，让像高等于 1。",
         "en": "Object height 1 and depth 4 are fixed: adjust only the plane distance f so the image is 1 tall."
       },
+      "hint": [
+        {
+          "zh": "检查一次 f = 1 时的像高，再想 f 要变成几倍。",
+          "en": "Check the image height once at f = 1, then work out how many times longer f must be."
+        }
+      ],
       "bench": {
         "model": "pinhole",
         "setup": { "H": 1, "Z": 4, "object": "arrow", "target": { "of": "h", "value": 1 } },
@@ -44,6 +50,7 @@
             "format": "fixed2"
           }
         ],
+        "check": "submit",
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [
@@ -137,6 +144,7 @@
             "format": "fixed2"
           }
         ],
+        "check": "submit",
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [

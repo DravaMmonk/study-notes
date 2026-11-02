@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：一点穿过针孔，落在像平面的什么位置？同一个物体离得越远，像怎样变？两个任务各只开一个旋钮：先横向移动一点，再前后移动一支箭。像落到圆圈标出的目标上才算对。",
-        "en": "This level asks: where on the image plane does a point land after passing the hole, and how does the image change as the object moves away? Each of the two tasks opens one knob: first move a point sideways, then move an arrow in depth. It is right when the image lands on the circled target."
+        "zh": "这一关的问题是：一点穿过针孔，落在像平面的什么位置？同一个物体离得越远，像怎样变？两个任务各只开一个旋钮：先横向移动一点，再前后移动一支箭。先想好放在哪里再按「检查」，检查之后才画出光线和像；像落到圆圈标出的目标上才算对。",
+        "en": "This level asks: where on the image plane does a point land after passing the hole, and how does the image change as the object moves away? Each of the two tasks opens one knob: first move a point sideways, then move an arrow in depth. Decide where to put it before you press Check; the rays and the image are drawn only once you check. It is right when the image lands on the circled target."
       }
     }
   ],
@@ -48,6 +48,7 @@
             "format": "fixed2"
           }
         ],
+        "check": "submit",
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [
@@ -71,8 +72,8 @@
       },
       "hint": [
         {
-          "zh": "先看箭在 Z = 2 和 Z = 4 时，像各有多高。",
-          "en": "First see how tall the image is with the arrow at Z = 2 and at Z = 4."
+          "zh": "检查一次 Z = 2，看像有多高；距离加倍，像高会怎样？",
+          "en": "Check once at Z = 2 and see how tall the image is; what happens to it when the depth doubles?"
         }
       ],
       "bench": {
@@ -90,6 +91,7 @@
             "format": "fixed2"
           }
         ],
+        "check": "submit",
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [

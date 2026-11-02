@@ -55,37 +55,99 @@
           ]
         },
         {
+          "image": [
+            [
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66]
+            ],
+            [
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.42, 0.3, 0.2],
+              [0.42, 0.3, 0.2],
+              [0.78, 0.74, 0.66]
+            ],
+            [
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.42, 0.3, 0.2],
+              [0.42, 0.3, 0.2],
+              [0.78, 0.74, 0.66]
+            ],
+            [
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.78, 0.74, 0.66],
+              [0.42, 0.3, 0.2],
+              [0.42, 0.3, 0.2],
+              [0.78, 0.74, 0.66]
+            ],
+            [
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32]
+            ],
+            [
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32],
+              [0.5, 0.42, 0.32]
+            ]
+          ],
           "items": [
             {
               "prompt": {
-                "zh": "空房间里，找出每个人。",
-                "en": "In an empty room, find every person."
+                "zh": "在这个房间里搜寻机器人要去救的人。",
+                "en": "Search this room for the people the robot must reach."
               },
               "needs": ["class", "location", "instance"]
             },
             {
-              "prompt": { "zh": "每个人离机器人多远？", "en": "How far is each person from the robot?" },
-              "needs": ["class", "instance", "depth"]
+              "prompt": { "zh": "门洞离机器人多远？", "en": "How far is the doorway from the robot?" },
+              "needs": ["depth"]
             }
           ],
           "options": [
             {
               "id": "a",
               "label": {
-                "zh": "人 (6, 4)–(12, 20) 3.1 米；人 (30, 10)–(36, 22) 7.4 米",
-                "en": "person (6, 4)–(12, 20) 3.1 m; person (30, 10)–(36, 22) 7.4 m"
+                "zh": "标签：无人",
+                "en": "label: no person"
               },
-              "gives": ["class", "location", "instance", "depth"]
+              "gives": ["class"]
             },
             {
               "id": "b",
-              "label": { "zh": "（空）", "en": "(empty)" },
+              "label": { "zh": "检测列表：[]", "en": "detection list: []" },
               "gives": ["class", "location", "instance"]
             },
             {
               "id": "c",
-              "label": { "zh": "人", "en": "person" },
-              "gives": ["class"]
+              "label": { "zh": "一张 48 × 36 的距离网格（米）", "en": "a 48 × 36 grid of distances in metres" },
+              "gives": ["depth", "region"]
             }
           ]
         }
@@ -126,15 +188,30 @@
           "options": [
             {
               "id": "a",
-              "label": { "zh": "激光测距：3.4 米", "en": "laser range finder: 3.4 m" },
-              "measures": "distance"
+              "label": { "zh": "卷尺：这个人身高 1.7 米", "en": "tape measure: this person stands 1.7 m tall" },
+              "measures": "height"
             },
-            { "id": "b", "label": { "zh": "人工标注：人", "en": "annotator: person" }, "measures": "class" },
             {
-              "id": "c",
+              "id": "b",
               "label": { "zh": "人工标注：(5, 4)–(12, 21)", "en": "annotator: (5, 4)–(12, 21)" },
               "measures": "box"
-            }
+            },
+            {
+              "id": "c",
+              "label": { "zh": "人工标注：画面里 2 个人", "en": "annotator: 2 people in view" },
+              "measures": "count"
+            },
+            {
+              "id": "d",
+              "label": { "zh": "激光测距：到最近的人 3.4 米", "en": "laser range finder: 3.4 m to the nearest person" },
+              "measures": "distance"
+            },
+            {
+              "id": "e",
+              "label": { "zh": "人工标注：人的中心在 (9, 12)", "en": "annotator: the person's centre at (9, 12)" },
+              "measures": "point"
+            },
+            { "id": "f", "label": { "zh": "人工标注：人", "en": "annotator: person" }, "measures": "class" }
           ]
         },
         {
@@ -151,14 +228,37 @@
           "options": [
             {
               "id": "a",
+              "label": { "zh": "卷尺：门宽 0.9 米", "en": "tape measure: the door is 0.9 m wide" },
+              "measures": "width"
+            },
+            {
+              "id": "b",
               "label": { "zh": "人工标注：(29, 9)–(36, 23)", "en": "annotator: (29, 9)–(36, 23)" },
               "measures": "box"
             },
-            { "id": "b", "label": { "zh": "人工标注：人、狗", "en": "annotator: person, dog" }, "measures": "class" },
-            { "id": "c", "label": { "zh": "卷尺：7.0 米", "en": "tape measure: 7.0 m" }, "measures": "distance" }
+            {
+              "id": "c",
+              "label": {
+                "zh": "卷尺：沿地面从机器人量到那个人，7.0 米",
+                "en": "tape measure: 7.0 m along the floor from the robot to that person"
+              },
+              "measures": "distance"
+            },
+            {
+              "id": "d",
+              "label": { "zh": "人工标注：脚在 (33, 22)", "en": "annotator: feet at (33, 22)" },
+              "measures": "point"
+            }
           ]
         }
-      ]
+      ],
+      "naive": {
+        "picks": [[["e"], ["a"], ["c"]], [["a"], ["d"]]],
+        "why": {
+          "zh": "这是按单位配的：米配米、像素坐标配像素坐标。身高不是距离，一个点不是一个框，人数也不是类别：参照和预测量的是同一种东西，才检验得了它。",
+          "en": "That pairs by unit: metres with metres, pixel coordinates with pixel coordinates. A height is not a distance, one point is not a box, and a head count is not a class: a reference tests a prediction only when both measure the same thing."
+        }
+      }
     },
     {
       "id": "0D1_3",
@@ -180,12 +280,20 @@
               "claim": { "depth": { "object": "left", "z": 3 } }
             },
             {
-              "prompt": { "zh": "画面里有两个人。", "en": "There are two people in the scene." },
+              "prompt": { "zh": "场景里正好有两个人。", "en": "There are exactly two people in the scene." },
               "claim": { "count": { "class": "person", "n": 2 } }
             },
             {
-              "prompt": { "zh": "现场有一只狗。", "en": "There is a dog at the site." },
+              "prompt": { "zh": "场景里有一只狗。", "en": "There is a dog in the scene." },
               "claim": { "exists": { "class": "dog" } }
+            },
+            {
+              "prompt": { "zh": "右边那个人是紫色的。", "en": "The person on the right is purple." },
+              "claim": { "colour": { "object": "right", "is": "purple" } }
+            },
+            {
+              "prompt": { "zh": "左边那个人在画面里看得见。", "en": "The person on the left shows in the picture." },
+              "claim": { "visible": { "object": "left" } }
             }
           ],
           "scenes": [
@@ -222,6 +330,36 @@
                   "class": "person",
                   "colour": "brown",
                   "boxes": [{ "at": [0.6, 0.4, 1.5], "size": [0.3, 0.8, 0.3] }]
+                }
+              ]
+            },
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "left",
+                  "class": "person",
+                  "colour": "purple",
+                  "boxes": [{ "at": [-0.5, 0.5, 2], "size": [0.3, 0.9, 0.3] }]
+                },
+                {
+                  "id": "right",
+                  "class": "person",
+                  "colour": "brown",
+                  "boxes": [{ "at": [0.6, 0.4, 1.5], "size": [0.3, 0.8, 0.3] }]
+                },
+                {
+                  "id": "behind",
+                  "class": "person",
+                  "colour": "orange",
+                  "boxes": [{ "at": [0.9, 0.35, -0.2], "size": [0.2, 0.6, 0.2] }]
+                },
+                {
+                  "id": "pet",
+                  "class": "dog",
+                  "colour": "white",
+                  "boxes": [{ "at": [-0.8, 0.4, 0.4], "size": [0.3, 0.3, 0.4] }]
                 }
               ]
             }

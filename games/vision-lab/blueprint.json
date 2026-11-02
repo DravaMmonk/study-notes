@@ -158,12 +158,12 @@
     },
     {
       "id": "intra-class-variation",
-      "term": { "zh": "类内变化", "en": "intra-class variation" },
+      "term": { "zh": "外观变化（视角与光照）", "en": "appearance variation (viewpoint and illumination)" },
       "about": {
-        "zh": "同一类、甚至同一个物体的照片，会因大小和距离、视角和姿态、光照、背景、遮挡而大不相同：几乎每个像素都变了，物体却没有变。识别因此不能记住像素，要找对这些无关变化有容忍度的表示。",
-        "en": "Photos of one class, even of one object, differ greatly with size and distance, viewpoint and pose, lighting, background and occlusion: nearly every pixel changes while the object does not. Recognition therefore cannot memorise pixels; it needs a representation tolerant of these irrelevant changes."
+        "zh": "同一个物体换了视角或光照，拍出的图几乎每个像素都变了，物体本身却没有变；物体自身的形状变了才是另一个物体。讲义列出的无关变化还有大小和距离、背景、遮挡。识别因此不能记住像素，要找对这些无关变化有容忍度的表示。",
+        "en": "Seen from another viewpoint or under another light, one object yields an image in which nearly every pixel has changed while the object has not; only a change in the object's own shape makes it another object. The lecture's other irrelevant changes are size and distance, background and occlusion. Recognition therefore cannot memorise pixels; it needs a representation tolerant of these irrelevant changes."
       },
-      "source": "docs/Unimelb/26S2/CV/01-introduction.md §3 (why recognition is hard, slide 28)",
+      "source": "docs/Unimelb/26S2/CV/01-introduction.md §3 (why recognition is hard, slide 28: size and distance, viewpoint and pose, lighting, background, occlusion)",
       "wall": {
         "zh": "两张图几乎没有一个像素相同：拍的会是同一个物体吗？",
         "en": "Two images share almost no pixel values: can they show the same object?"

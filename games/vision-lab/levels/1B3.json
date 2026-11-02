@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "到这里，任务都是由物体求像。这一关反过来问：看到像有多高，能定出物体有多远吗？焦距固定为 f = 2。每一轮给出几组（物高, 距离），选出像高都是 1、距离又各不相同的那几组，全部选对、一组不多才算对。",
-        "en": "So far every task has gone from the object to its image. This level asks the other way: does the height of an image tell how far away the object is? The focal length is fixed at f = 2. Each round lists several (height, depth) pairs; choose those that all image 1 tall at different depths, all of them and no others."
+        "zh": "到这里，任务都是由物体求像。这一关反过来问：看到像有多高，能定出物体有多远吗？焦距固定为 f = 2。每一轮给出几组（物高, 距离），选出至少两组：选中的每一组像高都是 1，各组的距离互不相同。",
+        "en": "So far every task has gone from the object to its image. This level asks the other way: does the height of an image tell how far away the object is? The focal length is fixed at f = 2. Each round lists several (height, depth) pairs; choose at least two, every one of them imaging 1 tall and no two at the same depth."
       }
     }
   ],
