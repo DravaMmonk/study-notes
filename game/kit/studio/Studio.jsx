@@ -74,22 +74,28 @@ function Resizer({ side, size, open, setLayout }) {
   // The side panel is on the right: dragging left widens it.
   const sign = side === 'side' ? -1 : 1
   // The handle captures the pointer, so the drag ends wherever it is let go — over the game's iframe too, which would
-  // otherwise take the pointerup for itself; while it lasts the iframe takes no pointer at all (studio.css).
+  // otherwise take the pointerup for itself; while it lasts the iframe takes no pointer at all (studio.css). A drag
+  // whose letting go never arrived (the window lost focus, a browser that dropped it) ends at the next move made with
+  // no button down.
   const drag = (e) => {
-    if (!open) return
+    if (!open || e.button !== 0) return
     e.preventDefault()
     const handle = e.currentTarget
     handle.setPointerCapture(e.pointerId)
     document.body.classList.add('is-resizing')
     const at0 = across ? e.clientX : e.clientY
-    const move = (ev) => set({ [side]: clamp(across ? size + sign * (ev.clientX - at0) : size - (ev.clientY - at0)) })
+    const ENDS = ['pointerup', 'pointercancel', 'lostpointercapture']
     const end = () => {
       document.body.classList.remove('is-resizing')
-      handle.removeEventListener('pointermove', move)
-      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) handle.removeEventListener(type, end)
+      for (const type of ['pointermove', ...ENDS]) window.removeEventListener(type, on, true)
+      window.removeEventListener('blur', end)
     }
-    handle.addEventListener('pointermove', move)
-    for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) handle.addEventListener(type, end)
+    const on = (ev) => {
+      if (ENDS.includes(ev.type) || ev.buttons === 0) return end()
+      set({ [side]: clamp(across ? size + sign * (ev.clientX - at0) : size - (ev.clientY - at0)) })
+    }
+    for (const type of ['pointermove', ...ENDS]) window.addEventListener(type, on, true)
+    window.addEventListener('blur', end)
   }
   return (
     <div

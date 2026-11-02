@@ -38,7 +38,7 @@ function Marks({ mark }) {
   ].filter(Boolean).join(' · ')
   return (
     <span className="mk" title={says}>
-      {mark.fails > 0 ? <i className="mk-fail">{mark.fails}</i> : mark.open > 0 ? <i className="mk-open" /> : null}
+      <span className="mk-slot">{mark.fails > 0 ? <i className="mk-fail">{mark.fails}</i> : mark.open > 0 ? <i className="mk-open" /> : null}</span>
       <i className={`mk-ref is-${mark.domain ?? 'none'}`} />
       <i className="mk-n">{mark.tests || ''}</i>
       <i className="mk-cost" style={{ '--cost': mark.cost === null ? 0 : Math.min(1, mark.cost / COST_TOP) }} data-high={mark.cost >= 2 ? '' : undefined} />
