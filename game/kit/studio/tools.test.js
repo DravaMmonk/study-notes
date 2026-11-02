@@ -100,7 +100,6 @@ test('the check’s lines as a worklist: severity, rule, levels; filtered, stepp
   assert.equal(ruleOf("OPEN course: a new idea no later level puts to work before two more new ideas come in (brought in before it is needed) (2, on the game's work list): x@a"), 'idle-idea')
   assert.equal(ruleOf('course: left open in game.json, but met now (unused): drop x@a'), 'unused')
   assert.equal(ruleOf('REPORT difficulty-spike: a costs 3.0 attempts'), 'difficulty-spike')
-  assert.equal(ruleOf('PLAYTESTS 2 session(s)'), 'playtests')
   assert.equal(ruleOf('a links the entry x, which opens later (at b)'), 'links')
   assert.equal(ruleOf('a 甲: answer PASS (2 tests)'), 'domain')
   const items = [
@@ -117,11 +116,11 @@ test('the check’s lines as a worklist: severity, rule, levels; filtered, stepp
   assert.deepEqual([...tally(items).severities], [['pass', 1], ['fail', 2], ['report', 1], ['open', 1]])
   assert.deepEqual([stepIn(3, -1, 1), stepIn(3, -1, -1), stepIn(3, 2, 1), stepIn(3, 0, -1), stepIn(0, -1, 1)], [0, 2, 0, 2, -1])
   assert.equal(testsOf(VOCAB.level, LEVELS[0], VOCAB), 3, 'visible and hidden tests')
-  const marks = marksOf(CONTENT, VOCAB, items, { levels: { a: { cost: 2.5 } } }, true)
-  assert.deepEqual(marks.get('a'), { fails: 1, open: 1, domain: 'pass', tests: 3, cost: 2.5 })
-  assert.deepEqual(marks.get('b'), { fails: 1, open: 1, domain: 'fail', tests: 1, cost: null })
+  const marks = marksOf(CONTENT, VOCAB, items, true)
+  assert.deepEqual(marks.get('a'), { fails: 1, open: 1, domain: 'pass', tests: 3 })
+  assert.deepEqual(marks.get('b'), { fails: 1, open: 1, domain: 'fail', tests: 1 })
   assert.equal(marks.get('c').domain, 'pass', 'the whole check in, nothing failing: its answers pass')
-  assert.equal(marksOf(CONTENT, VOCAB, [], {}, false).get('c').domain, null, 'not checked yet')
+  assert.equal(marksOf(CONTENT, VOCAB, [], false).get('c').domain, null, 'not checked yet')
 })
 
 test('on the real games: the palette indexes every level and the tree’s marks count every test', async () => {
@@ -131,7 +130,7 @@ test('on the real games: the palette indexes every level and the tree’s marks 
     const items = paletteIndex({ content })
     assert.equal(items.filter((it) => it.kind === 'level').length, content.levels.length, game)
     assert.equal(items.filter((it) => it.kind === 'entry').length, content.glossary.entries.length, game)
-    const marks = marksOf(content, vocabulary, [], {}, false)
+    const marks = marksOf(content, vocabulary, [], false)
     assert.ok([...marks.values()].some((m) => m.tests > 0), game)
   }
 })

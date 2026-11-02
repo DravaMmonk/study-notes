@@ -16,17 +16,13 @@ import { RULE_TEXT, againstOpen, audit } from '../course.js'
 import { REF, refProblems, untranslated } from './text.js'
 import { gameOf } from './games.mjs'
 import { checkContent } from './vocabulary.js'
-import { checkPlaytest } from './play/session.js'
-import { panel, spikes } from './play/stats.js'
 
 /**
- * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has;
- * playtests: its blind-play records (content-node.js readPlaytests), each checked against its schema, summed up as the
- * audit panel's lines (./play/stats.js) and audited for difficulty spikes once there are enough sessions.
+ * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
  * `domain`: its domain module (content-node.js domainOf). Content that does not fit the vocabulary is not built into a course: what
  * is wrong with it is all there is to say.
  */
-export async function checkGame(content, { domain, listed, playtests = [] }) {
+export async function checkGame(content, { domain, listed }) {
   const lines = []
   const fail = (text) => lines.push({ fail: true, text })
   const wrong = checkContent(domain.vocabulary, content)
@@ -34,11 +30,7 @@ export async function checkGame(content, { domain, listed, playtests = [] }) {
   if (wrong.length) return lines
   const spec = domain.spec(content)
 
-  for (const r of playtests) for (const w of checkPlaytest(r)) fail(`playtests/${r.session}.json: ${w.at}: ${w.says}`)
-  const played = spikes(spec.course, playtests).filter((f) => f.enough)
-  lines.push(...panel(spec.levels.map((l) => l.id), spec.course, playtests).map((text) => ({ text })))
-
-  for (const { rule, fresh, left, gone } of againstOpen([...audit(spec.course), ...(spec.audit?.() ?? []), ...played], content.open ?? {})) {
+  for (const { rule, fresh, left, gone } of againstOpen([...audit(spec.course), ...(spec.audit?.() ?? [])], content.open ?? {})) {
     const text = RULE_TEXT[rule]
     if (!text) { fail(`game.json.open: ${rule} is no rule of the audit`); continue }
     if (fresh.length) fail(`course: ${text} (${fresh.length}): ${fresh.join('  ')}`)

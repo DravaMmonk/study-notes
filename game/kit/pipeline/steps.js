@@ -9,16 +9,13 @@
 //   copy       copy writer           rewrites every text, glossary    gate: check + conformance (terms linked to their
 //                                                                            entries) + the copy lint + the pedagogy lint
 //   review     reviewer              reads it all, reports findings   gate: no finding to fix left open
-//   blind      blind players         playtests/                       gate: every level played; give-ups and spikes explained;
-//                                                                            reports what players say they learned against each level's point
 //   queue      —                     the review queue entry           gate: every gate above still clean
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { checkGame } from '../engine/checks.js'
-import { domainOf, readContent, readPlaytests } from '../engine/content-node.js'
+import { domainOf, readContent } from '../engine/content-node.js'
 import { domainProblems, specProblems, validateProblems } from '../engine/contract.js'
-import { perLevel, spikes } from '../engine/play/stats.js'
 import { hubCount } from '../engine/ops/workspace.js'
 import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
@@ -32,7 +29,7 @@ const finding = (rule, at, says) => ({ rule, at, says })
 async function checks(id) {
   const content = readContent(id)
   const listed = hubCount(readFileSync(resolve(GAMES_DIR, 'games.js'), 'utf8'), id)
-  const lines = await checkGame(content, { domain: await domainOf(content), listed, playtests: readPlaytests(id) })
+  const lines = await checkGame(content, { domain: await domainOf(content), listed })
   return lines.filter((l) => l.fail).map((l) => finding('check', l.level ?? id, l.text))
 }
 
@@ -57,25 +54,6 @@ async function pedagogyOf(id) {
   const domain = await domainOf(content)
   const all = lintPedagogy(content, domain.spec(content))
   return { failures: all.filter((f) => !f.report), reports: all.filter((f) => f.report) }
-}
-
-/**
- * What the blind players say they worked out, against the knowledge each level brings (its slot's `teaches`): a
- * level passed without a word on it, or whose words never name the point's term, may be passed without being learned.
- */
-function learning(content, records) {
-  const points = new Map((content.blueprint?.knowledge ?? []).map((k) => [k.id, k]))
-  const teaches = new Map((content.blueprint?.eras ?? []).flatMap((e) => e.series.flatMap((x) => x.slots)).filter((s) => s.teaches).map((s) => [s.id, points.get(s.teaches)]))
-  const out = []
-  for (const r of records) {
-    for (const e of r.levels) {
-      const point = teaches.get(e.level)
-      if (e.outcome !== 'solved' || !point) continue
-      if (!e.learned) out.push(finding('blind-unsaid', e.level, `${r.session}: passed, and the player said nothing of what they worked out`))
-      else if (![point.term.zh, point.term.en].some((term) => term && e.learned.toLowerCase().includes(String(term).toLowerCase()))) out.push(finding('blind-term', e.level, `${r.session}: “${e.learned}” never names ${point.term.en} / ${point.term.zh}`))
-    }
-  }
-  return out
 }
 
 /** The last run of a step recorded in the game's pipeline state. */
@@ -142,29 +120,6 @@ export const STEPS = [
       if (!run?.findings) return { failures: [finding('review-missing', id, 'no review has run')], reports: [] }
       const open = run.findings.filter((f) => f.fix && !f.resolved)
       return { failures: open.map((f) => finding('review', f.at, `${f.owner}: ${f.says}`)), reports: run.findings.filter((f) => !f.fix).map((f) => finding('review-note', f.at, f.says)) }
-    },
-  },
-  {
-    id: 'blind',
-    who: 'blind players',
-    role: 'blind player',
-    gate: async (id, state) => {
-      const content = readContent(id)
-      const domain = await domainOf(content)
-      const spec = domain.spec(content)
-      const records = readPlaytests(id)
-      const stats = perLevel(records)
-      const explained = new Map((state.explained ?? []).map((e) => [e.level, e]))
-      const failures = []
-      if (!records.length) failures.push(finding('blind-none', id, 'no blind session has been played'))
-      for (const l of spec.levels) {
-        const s = stats.get(l.id)
-        const skipped = records.some((r) => r.levels.some((e) => e.level === l.id && e.outcome === 'skipped'))
-        if (!s && !skipped && records.length) failures.push(finding('blind-unplayed', l.id, 'no session played it'))
-        if (s?.gaveUp && !explained.has(l.id)) failures.push(finding('blind-gave-up', l.id, `${s.gaveUp} of ${s.sessions} session(s) gave it up, and nobody has said why (npm run pipeline -- ${id} explain ${l.id} --why …)`))
-      }
-      for (const f of spikes(spec.course, records)) if (!explained.has(f.level)) failures.push(finding('blind-spike', f.level, `${f.text}; unexplained`))
-      return { failures, reports: [...[...explained.values()].map((e) => finding('blind-explained', e.level, e.why)), ...learning(content, records)] }
     },
   },
   {

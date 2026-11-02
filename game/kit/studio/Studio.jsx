@@ -123,7 +123,6 @@ export default function Studio() {
   const [rawNames, setRawNames] = useState(null)
   const [busy, setBusy] = useState(false)
   const [rev, setRev] = useState(0) // bumped when the files change (apply, undo)
-  const [playtests, setPlaytests] = useState({ records: [], levels: {} })
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : null))
   const [picked, setPicked] = useState(() => new Set(QUERY.get('level') ? [QUERY.get('level')] : []))
   const [tab, setTab] = useState(() => (TABS.some(([id]) => id === QUERY.get('tab')) ? QUERY.get('tab') : 'page'))
@@ -153,7 +152,7 @@ export default function Studio() {
   }, [])
   useEffect(() => remember(game, at, tab), [game, at, tab])
 
-  // A game opened: its vocabulary and blind-play records; nothing pending.
+  // A game opened: its vocabulary; nothing pending.
   useEffect(() => {
     setVocab(null)
     setShown(null)
@@ -162,7 +161,6 @@ export default function Studio() {
     setOps([])
     setRedo([])
     call('vocabulary', { game }).then(setVocab)
-    call('playtests', { game }).then(setPlaytests)
   }, [game])
   useEffect(() => {
     call('preview', { game, check: false }).then((r) => setBase(r.content)).catch(() => setBase(null))
@@ -248,7 +246,7 @@ export default function Studio() {
   }, [checked, fresh, shown])
   const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
-  const marks = useMemo(() => (content && vocab ? marksOf(content, vocab.vocabulary, items, playtests, fresh) : null), [content, vocab, items, playtests, fresh])
+  const marks = useMemo(() => (content && vocab ? marksOf(content, vocab.vocabulary, items, fresh) : null), [content, vocab, items, fresh])
   const names = useMemo(() => rawNames && {
     level: new Map(rawNames.levels.map((l) => [l.id, l])),
     part: new Map(rawNames.parts.map((p) => [p.key, p.name])),
@@ -596,7 +594,7 @@ export default function Studio() {
           </aside>
           {layout.auditOpen && <Resizer side="audit" size={layout.audit} open setLayout={setLayout} />}
           <aside className="studio-audit">
-            <Audit items={items} fresh={fresh} last={last} at={at} playtests={playtests} busy={busy} ops={ops} migration={shown.migration} open={layout.auditOpen} onToggle={() => togglePanel('audit')} onJump={jumpTo} onReview={() => setTab('review')} />
+            <Audit items={items} fresh={fresh} last={last} at={at} busy={busy} ops={ops} migration={shown.migration} open={layout.auditOpen} onToggle={() => togglePanel('audit')} onJump={jumpTo} onReview={() => setTab('review')} />
           </aside>
         </div>
       )}

@@ -9,8 +9,7 @@ import { GAMES } from '../../../games.js'
 import { find } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
-import { GAMES_DIR, domainOf, readContent, readPlaytests } from '../content-node.js'
-import { perLevel } from '../play/stats.js'
+import { GAMES_DIR, domainOf, readContent } from '../content-node.js'
 import { gameOf } from '../games.mjs'
 import { flagsIn, fresh } from '../../shell/progress.js'
 import { drawDeps } from '../deps.js'
@@ -81,7 +80,7 @@ export const TOOLS = {
     params: { game: 'string' },
     async run({ game }) {
       const content = readContent(known(game), ROOT)
-      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), playtests: readPlaytests(game, ROOT) })
+      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game) })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
   },
@@ -295,14 +294,6 @@ export const TOOLS = {
     async run({ game, dryRun = false }) {
       const r = await undo(openGame(known(game), ROOT), { write: !dryRun })
       return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, migration: r.step, files: r.files, diff: r.diff, notes: r.notes }
-    },
-  },
-  playtests: {
-    about: 'A game’s blind-play records (games/<game>/playtests/*.json, as the harness wrote them) and the audit panel’s numbers level by level (../play/stats.js perLevel): sessions, solved, gave up, attempts, hints, cost.',
-    params: { game: 'string' },
-    async run({ game }) {
-      const records = readPlaytests(known(game), ROOT)
-      return { records, levels: Object.fromEntries(perLevel(records)) }
     },
   },
   vocabulary: {
