@@ -40,6 +40,9 @@ and you do not change the blueprint.
   naive answer that is the point's misconception and fails a test (visible or hidden); where the vocabulary lets a
   naive answer say why it is wrong, it says so in the field's terms, never "the goal is not met". Give other levels a
   naive answer too wherever there is an obvious wrong idea: it proves the tests catch it.
+- **Supplements stay supplements.** What a slot `extends` (a workshop's or a library's way, a tool's convention)
+  appears as a small task after the theory, a hidden test or a line the copy writer will put in the pass text,
+  never as the level's question.
 - **Nothing twice.** No two levels share a reference board (`pd-repeat-board`) and no text is copied from one level
   to another (`pd-repeat-text`): a level that would repeat another is a test or a task of it.
 - **Lead-in.** A level that brings a primitive must not be solved by placing it alone (the audit's `bare-intro`).

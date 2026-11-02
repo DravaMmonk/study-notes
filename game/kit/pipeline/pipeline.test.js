@@ -9,7 +9,7 @@ import { boardShape, lintPedagogy } from './pedagogy.js'
 const t = (s) => ({ zh: s, en: s })
 const slot = (id, extra = {}) => ({ id, title: t(id), task: t(id), question: t(`why ${id}?`), chain: [t('try'), t('see')], role: 'foundation', uses: [], ...(extra.role === 'practice' ? { facet: t('a new case') } : {}), ...extra })
 const series = (id, slots, extra = {}) => ({ id, title: t(id), kind: 'foundation', slots, ...extra })
-const point = (id) => ({ id, term: t(`the ${id} term`), about: t('x'), source: 'notes/lecture-1.md §2', wall: t('x') })
+const point = (id, basis = 'lecture') => ({ id, term: t(`the ${id} term`), about: t('x'), source: 'notes/lecture-1.md §2', wall: t('x'), basis })
 
 // One era: a wire, a register brought and practised, a part built from it and used last.
 const base = () => ({
@@ -70,6 +70,12 @@ test('each rule catches the blueprint that breaks it', () => {
   assert.ok(broken((bp, s) => { delete s[0].slots[1].facet }).includes('bp-facet 1-2'))
   assert.ok(broken((bp, s) => { s[0].slots[0].chain = [t('one step')] }).some((r) => r.startsWith('bp-schema')))
   assert.ok(broken((bp, s) => { delete s[0].slots[0].question }).includes('bp-question 1-1'))
+  // The lectures' theory is a level's core; a supplement rides on a theory level that extends it.
+  assert.ok(broken((bp) => { bp.knowledge.push(point('library', 'supplement')) }).includes('bp-extends library'))
+  assert.deepEqual(broken((bp, s) => { bp.knowledge.push(point('library', 'supplement')); s[0].slots[0].extends = ['library'] }), [])
+  assert.ok(broken((bp, s) => { bp.knowledge[0].basis = 'supplement' }).includes('bp-core 1-1'))
+  assert.ok(broken((bp, s) => { s[0].slots[0].extends = ['count'] }).includes('bp-extends 1-1'))
+  assert.ok(broken((bp) => { delete bp.knowledge[0].basis }).includes('bp-point memory'))
   assert.ok(broken((bp) => { delete bp.knowledge[1].source }).includes('bp-point count'))
   assert.ok(broken((bp) => { bp.machines[0].can = [] }).includes('bp-machine 1-1'))
   assert.ok(broken((bp, s) => { s.push(series('ch', [slot('1-6', { role: 'challenge', uses: ['counter'] })], { kind: 'challenge' })) }).includes('bp-challenge 1-6'))
