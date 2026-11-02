@@ -4,7 +4,8 @@
 // and gives its parameters' fields, a number steps (and slides where its range is known), a list folds its items into
 // one-line summaries and reorders them by dragging, cells and ticks are edited as cells (Cells.jsx), text as text with
 // its links as chips (TextField.jsx), and a board is drawn (../circuit/svg.js) and edited as blueprint text or in the
-// game's own circuit editor.
+// game's own circuit editor. On a wide form a field's label sits beside it (what it means under the label while it is
+// in use), and runs of short fields sit several to a row.
 //
 //   <Field field label onEdit ctx />   onEdit(path, { set } | { unset: true }, type)
 //   ctx: { vocabulary, levels, levelOptions, names, onBoard(path), findings: Map(showPath → [says]),
@@ -156,19 +157,21 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   })()
   const head = (label !== null || onRemove || field.tags || field.shapes?.length > 1 || changed) && (
     <div className="field-head">
-      {label !== null && <span className="field-key">{label}</span>}
-      {label !== null && field.about && <span className="field-help" title={L(field.about)}>{L(field.about)}</span>}
+      {label !== null && <span className="field-key" title={field.about ? L(field.about) : undefined}>{label}</span>}
       {field.tags && <TagChoice field={field} onEdit={onEdit} ctx={ctx} />}
       {field.shapes?.length > 1 && <Shapes field={field} onEdit={onEdit} ctx={ctx} />}
       {changed && <button type="button" className="field-undo" onClick={revert} title={tr('改回去', 'Put it back')} aria-label={tr(`把 ${name} 改回去`, `Put ${name} back`)}><RotateCcw size={12} /></button>}
       {onRemove && <button type="button" className="field-x" onClick={onRemove} aria-label={tr('去掉', 'Remove')}><X size={13} /></button>}
+      {label !== null && field.about && <span className="field-help">{L(field.about)}</span>}
     </div>
   )
   return (
-    <div className={`field is-${field.kind} ${CONTAINERS.includes(field.kind) ? 'is-nested' : ''} ${changed ? 'is-changed' : ''} ${found.length ? 'is-wrong' : ''}`} data-path={key}>
+    <div className={`field is-${field.kind} ${CONTAINERS.includes(field.kind) ? 'is-nested' : ''} ${head ? 'has-head' : ''} ${changed ? 'is-changed' : ''} ${found.length ? 'is-wrong' : ''}`} data-path={key}>
       {head}
-      {body}
-      {field.kind !== 'text' && found.length > 0 && <ul className="field-findings">{found.map((f) => <li key={f}>{f}</li>)}</ul>}
+      <div className="field-body">
+        {body}
+        {field.kind !== 'text' && found.length > 0 && <ul className="field-findings">{found.map((f) => <li key={f}>{f}</li>)}</ul>}
+      </div>
     </div>
   )
 }
@@ -324,21 +327,30 @@ function MapField({ field, onEdit, ctx }) {
   )
 }
 
-/** An object's fields, then a row of the optional ones it has not, to add. */
+/** Kinds of value short enough to sit several to a row on a wide form. */
+const SHORT = ['num', 'bool', 'str', 'choice', 'chips', 'numbers']
+const isShort = (f) => SHORT.includes(f.kind) || (f.kind === 'call' && !f.params)
+
+/** An object's fields (runs of short ones side by side), then a row of the optional ones it has not, to add. */
 export function ObjField({ field, onEdit, ctx, keys = null }) {
   const tags = new Set((field.tags ?? []).map((t) => t.key))
   const mine = field.fields.filter((f) => !tags.has(f.key) && (!keys || keys.includes(f.key)))
   const absent = mine.filter((f) => !f.field && f.optional)
+  const runs = []
+  for (const f of mine.filter((x) => x.field)) {
+    const short = isShort(f.field)
+    if (short && runs.at(-1)?.short) runs.at(-1).fields.push(f)
+    else runs.push({ short, fields: [f] })
+  }
+  const one = (f) => <Field key={f.key} field={{ ...f.field, about: f.about ?? f.field.about }} label={f.key} onEdit={onEdit} ctx={ctx} onRemove={f.optional ? () => onEdit(f.field.path, { unset: true }, null) : null} />
   return (
     <div className="field-obj">
-      {mine.filter((f) => f.field).map((f) => (
-        <Field key={f.key} field={{ ...f.field, about: f.about ?? f.field.about }} label={f.key} onEdit={onEdit} ctx={ctx} onRemove={f.optional ? () => onEdit(f.field.path, { unset: true }, null) : null} />
-      ))}
+      {runs.map((run) => (run.short && run.fields.length > 1 ? <div key={run.fields[0].key} className="field-grid">{run.fields.map(one)}</div> : run.fields.map(one)))}
       {absent.length > 0 && (
         <div className="field-absent">
           {absent.map((f) => (
             <button key={f.key} type="button" title={f.about ? L(f.about) : undefined} onClick={() => onEdit([...field.path, f.key], { set: blank(f.schema, ctx) }, f.schema.type)}>
-              <Plus size={12} aria-hidden="true" />{f.key}
+              <Plus size={11} aria-hidden="true" />{f.key}
             </button>
           ))}
         </div>

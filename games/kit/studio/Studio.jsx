@@ -1,32 +1,49 @@
 // The studio (games/DESIGN.md 6.7, DIRECTION decision 5): one page to review, edit and play a game without code. It
 // is a thin skin over the operation set: every edit is an operation added to a pending changeset; the server runs
 // the changeset without writing (the preview tool) and answers with the content it leaves, every line of the check,
-// the save migration it would add and each file it changes. The tree, the forms, the game played, the audit and the
-// review all show that one answer.
+// the save migration it would add and each file it changes. The tree, the forms, the copy table, the comparisons, the
+// game played, the audit and the review all show that one answer; search and replace and bulk edits only ever add
+// operations to it.
 //
 // A preview comes in two steps, so editing stays quick on a big game: at once the content the changeset leaves,
 // checked against the vocabulary only; then, a moment after the last edit and one at a time, the whole check (the
 // domain's own: every reference run), which takes seconds on the biggest games. Until it is back the audit shows the
 // last one as stale. Applying writes the changeset (modify); undo runs the change log's.
+//
+// The page: the tree (or search) on the left, the audit on the right, each folding away and resizable (remembered per
+// viewer, prefs.js); the command palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
 import './studio.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Command, ListTree, Search as SearchIcon } from 'lucide-react'
 import { GAMES } from '../../games.js'
 import { mountBarMenus } from '../menu.js'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { eraLevels } from '../course.js'
+import { find } from '../engine/schema.js'
+import { parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { boardsOf, placesOf, pushOp, referenceFor } from './form.js'
-import { showPath } from '../engine/ops/edit.js'
+import { itemOf, marksOf } from './worklist.js'
+import { paletteIndex } from './palette.js'
+import { bulkMove } from './bulk.js'
+import { focusField } from './jump.js'
+import { usePref } from './prefs.js'
 import Tree from './Tree.jsx'
+import Search from './Search.jsx'
 import Editor from './Editor.jsx'
+import CopyTable from './CopyTable.jsx'
+import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
+import Palette from './Palette.jsx'
+import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['edit', '编辑', 'Edit'], ['play', '试玩', 'Play'], ['review', '变更', 'Changes']]
+const TABS = [['edit', '编辑', 'Edit'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['play', '试玩', 'Play'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
+const WIDTH = { min: 180, max: 640 }
 
 /** Keep the studio's place in the address: the game, what is selected, the tab. */
 const remember = (game, at, tab) => {
@@ -40,10 +57,35 @@ const remember = (game, at, tab) => {
 }
 const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
 
+/** The handle between two columns: drag to resize, double-click (or Enter) to fold, arrows to nudge. */
+function Resizer({ side, width, open, setLayout }) {
+  const set = (patch) => setLayout((l) => ({ ...l, ...patch }))
+  const drag = (e) => {
+    if (!open) return
+    e.preventDefault()
+    const x0 = e.clientX
+    const move = (ev) => set({ [side]: Math.max(WIDTH.min, Math.min(WIDTH.max, width + (side === 'tree' ? 1 : -1) * (ev.clientX - x0))) })
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+  return (
+    <div
+      className={`studio-resize is-${side} ${open ? '' : 'is-shut'}`} role="separator" aria-orientation="vertical" tabIndex={0} aria-label={tr('拖动改宽，双击收起', 'Drag to resize, double-click to fold')}
+      onPointerDown={drag} onDoubleClick={() => set({ [`${side}Open`]: !open })} onClick={() => !open && set({ [`${side}Open`]: true })}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') set({ [`${side}Open`]: !open })
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') set({ [side]: Math.max(WIDTH.min, Math.min(WIDTH.max, width + ((e.key === 'ArrowRight') === (side === 'tree') ? 16 : -16))) })
+      }}
+    />
+  )
+}
+
 export default function Studio() {
   const [game, setGame] = useState(QUERY.get('game') ?? GAMES[0].id)
   const [vocab, setVocab] = useState(null)
   const [ops, setOps] = useState([])
+  const [redo, setRedo] = useState([]) // operations taken back, the last first to come back
   const [why, setWhy] = useState('')
   const [shown, setShown] = useState(null) // the last quick preview that left a content
   const [last, setLast] = useState(null) // the last quick preview (an operation may have failed)
@@ -54,12 +96,17 @@ export default function Studio() {
   const [rev, setRev] = useState(0) // bumped when the files change (apply, undo)
   const [playtests, setPlaytests] = useState({ records: [], levels: {} })
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : null))
+  const [picked, setPicked] = useState(() => new Set(QUERY.get('level') ? [QUERY.get('level')] : []))
   const [tab, setTab] = useState(QUERY.get('tab') ?? 'edit')
   const [play, setPlay] = useState(null) // { level, seed, take }
   const [sheet, setSheet] = useState(false) // a board open in the game's editor over the form
-  const [moving, setMoving] = useState(null) // the level being moved in the tree
+  const [moving, setMoving] = useState(null) // the levels being moved in the tree
   const [said, setSaid] = useState(null) // what the last apply or undo said
   const [runs, setRuns] = useState({}) // test runs: `${level}|${path}` → the run_tests answer
+  const [layout, setLayout] = usePref('layout', { tree: 260, audit: 340, treeOpen: true, auditOpen: true })
+  const [side, setSide] = usePref('side', 'tree')
+  const [copyScope, setCopyScope] = useState(null) // the copy tab's scope: an era's index, 'all' or 'glossary'
+  const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
   const [, setLang] = useState(getLang)
 
   useEffect(() => {
@@ -81,6 +128,7 @@ export default function Studio() {
     setChecked(null)
     setRawNames(null)
     setOps([])
+    setRedo([])
     call('vocabulary', { game }).then(setVocab)
     call('playtests', { game }).then(setPlaytests)
   }, [game])
@@ -157,18 +205,6 @@ export default function Studio() {
     return () => window.clearTimeout(timer)
   }, [game, sceneOf, changeset])
 
-  // Ctrl/Cmd+Z outside a field: the last pending operation goes.
-  useEffect(() => {
-    const key = (e) => {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z' && !editable(document.activeElement)) {
-        e.preventDefault()
-        setOps((list) => list.slice(0, -1))
-      }
-    }
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
-  }, [])
-
   const content = shown?.content ?? null
   const fresh = checked?.key === key
   // The check's lines: the whole check's when it is of these changes, else the quick one's (the content against its
@@ -178,7 +214,9 @@ export default function Studio() {
     if (fresh) return checked.lines
     return [...(shown?.lines ?? []), ...checked.lines.filter((l) => !l.text.startsWith('content: '))]
   }, [checked, fresh, shown])
+  const items = useMemo(() => lines.map(itemOf), [lines])
   const places = useMemo(() => placesOf(lines, checked?.order ?? shown?.order ?? []), [lines, checked, shown])
+  const marks = useMemo(() => (content && vocab ? marksOf(content, vocab.vocabulary, items, playtests, fresh) : null), [content, vocab, items, playtests, fresh])
   const names = useMemo(() => rawNames && {
     level: new Map(rawNames.levels.map((l) => [l.id, l])),
     part: new Map(rawNames.parts.map((p) => [p.key, p.name])),
@@ -187,6 +225,7 @@ export default function Studio() {
     stamp: rawNames.stamp,
     onLevel: (id) => select({ level: id }),
   }, [rawNames]) // eslint-disable-line react-hooks/exhaustive-deps
+  const playOrder = useMemo(() => (rawNames ? rawNames.levels.map((l) => l.id) : content?.levels.map((l) => l.id) ?? []), [rawNames, content])
   const levelOptions = useMemo(() => {
     if (!content) return null
     const eraOf = new Map((content.eras ?? []).flatMap((era) => eraLevels(era).map((id) => [id, era])))
@@ -195,19 +234,78 @@ export default function Studio() {
       const era = eraOf.get(l.id)
       const shown = label.get(l.id)?.label ?? l.id
       return { value: l.id, label: shown, title: l.title, group: era ? `${era.id} ${L(era.title ?? era.chapter?.title) ?? ''}` : null, ...(shown !== l.id && { about: l.id }) }
-    }).sort((a, b) => (rawNames ? rawNames.levels.findIndex((l) => l.id === a.value) - rawNames.levels.findIndex((l) => l.id === b.value) : 0))
-  }, [content, rawNames])
+    }).sort((a, b) => playOrder.indexOf(a.value) - playOrder.indexOf(b.value))
+  }, [content, rawNames, playOrder])
 
-  const edit = (op) => setOps((list) => pushOp(list, op))
-  const select = (next) => {
+  // The pending changeset: an edit (standing for the last when it edits the same thing), several operations at once,
+  // the last taken back and put again.
+  const opsNow = useRef(ops)
+  opsNow.current = ops
+  const redoNow = useRef(redo)
+  redoNow.current = redo
+  const edit = useCallback((op) => { setOps((list) => pushOp(list, op)); setRedo([]) }, [])
+  const addOps = useCallback((list, reason = null) => {
+    setOps((now) => [...now, ...list])
+    setRedo([])
+    if (reason) setWhy((w) => w || reason)
+  }, [])
+  const back = useCallback((k) => {
+    const now = opsNow.current
+    if (k >= now.length) return
+    setRedo((r) => [...r, ...now.slice(k).reverse()])
+    setOps(now.slice(0, k))
+  }, [])
+  const again = useCallback(() => {
+    const r = redoNow.current
+    if (!r.length) return
+    setOps((now) => [...now, r.at(-1)])
+    setRedo(r.slice(0, -1))
+  }, [])
+
+  const select = (next, keep = false) => {
     setAt(next)
     setMoving(null)
+    if (!keep) setPicked(new Set(next?.level ? [next.level] : []))
     if (tab === 'play' && next?.level) setPlay({ level: next.level, seed: null, take: null })
+  }
+  /** Go to a field: of a level (its form), of game.json (an era's form, or the game's), or of the encyclopedia (the copy table). */
+  const jump = (level, path, file = null) => {
+    const keys = path ? parsePath(path) : []
+    if (file === 'glossary') {
+      setCopyScope('glossary')
+      setTab('copy')
+      return
+    }
+    if (level) select({ level })
+    else if (keys[0] === 'eras') select({ era: keys[1] })
+    else select({ game: true })
+    setTab('edit')
+    if (keys.length) window.setTimeout(() => focusField(keys))
+  }
+  /** Go to what a finding of the check is about: the field it names, else its level. */
+  const jumpTo = (item) => {
+    const place = places.find((p) => item.levels.includes(p.level) && p.path && item.text.endsWith(p.says))
+    if (place) return jump(place.level, place.path)
+    const game = /^content: game\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
+    if (game) return jump(null, game[1].replace(/^\./, ''), 'game')
+    if (/^content: glossary\.json/.test(item.text)) return jump(null, null, 'glossary')
+    if (item.levels[0]) select({ level: item.levels[0] })
   }
   // Play a level, opened on one of its boards (path) when given; `take`: the board is being edited there.
   const playLevel = async (level, path = null, take = false) => {
     const seed = path ? await call('seed', { game, level, path, changeset: { ops } }) : null
     setPlay({ level, seed: seed?.data !== undefined ? seed : null, take: take ? { path, label: tr(`用作 ${path}`, `Use as ${path}`) } : null })
+  }
+  // The path of a level's reference board, or null for a level without boards.
+  const referenceOf = (level) => {
+    const value = content?.levels.find((l) => l.id === level)
+    const ref = value && boardsOf(vocab.vocabulary, value).reference
+    return ref ? showPath(ref) : null
+  }
+  const playFrom = (level, reference) => {
+    playLevel(level, reference ? referenceOf(level) : null)
+    setSheet(false)
+    setTab('play')
   }
   const onBoard = async (level, path) => {
     await playLevel(level, path, true)
@@ -223,6 +321,7 @@ export default function Studio() {
     setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
     if (r.ok) {
       setOps([])
+      setRedo([])
       setWhy('')
       setRev((n) => n + 1)
     }
@@ -232,9 +331,15 @@ export default function Studio() {
     setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
     if (r.ok) setRev((n) => n + 1)
   }
-  const move = (level, to) => {
-    edit({ op: 'level.move', level, to })
+  const move = (levels, to) => {
+    if (levels.length === 1) edit({ op: 'level.move', level: levels[0], to })
+    else addOps(bulkMove(levels, to))
     setMoving(null)
+  }
+  const duplicate = (level, id) => {
+    const { id: _, ...value } = content.levels.find((l) => l.id === level)
+    edit({ op: 'level.add', level: id, data: value, to: { after: level } })
+    select({ level: id })
   }
   const tests = {
     of: (level, path) => runs[`${level}|${showPath(path)}`] ?? null,
@@ -248,21 +353,91 @@ export default function Studio() {
       setRuns((r) => ({ ...r, [k]: answer }))
     },
   }
-
-  // The path of a level's reference board, or null for a level without boards.
-  const referenceOf = (level) => {
-    const value = content?.levels.find((l) => l.id === level)
-    const ref = value && boardsOf(vocab.vocabulary, value).reference
-    return ref ? showPath(ref) : null
+  const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
+  const openSearch = () => {
+    setSide('search')
+    setLayout((l) => ({ ...l, treeOpen: true }))
+    window.setTimeout(() => document.querySelector('.search input')?.focus())
   }
+
+  // The studio's actions: the palette lists them, the keys run the same ones.
+  const level = at?.level && content?.levels.some((l) => l.id === at.level) ? at.level : null
+  const ACTIONS = [
+    ['search', tr('在整款游戏里搜索、替换', 'Search and replace across the game'), `${MOD}+Shift+F`, openSearch],
+    ['copy', tr('文案表', 'Copy table'), '', () => setTab('copy')],
+    ['compare', tr('比较', 'Compare'), '', () => setTab('compare')],
+    ...(level ? [
+      ['play-ref', tr('载入参考解试玩这一关', 'Play this level with its reference'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
+      ['play', tr('试玩这一关', 'Play this level'), level, () => playFrom(level, false)],
+      ['duplicate', tr('复制这一关成新的一关……', 'Duplicate this level as…'), level, (id) => duplicate(level, id), { placeholder: tr(`${level} 的副本的 id`, `The id of ${level}’s copy`), value: `${level}-2` }],
+      ['rename', tr('给这一关换 id……', 'Rename this level…'), level, (id) => { edit({ op: 'level.rename', level, to: id }); select({ level: id }) }, { placeholder: tr(`${level} 的新 id`, `${level}’s new id`), value: level }],
+      ['move', tr('移动这一关', 'Move this level'), level, () => setMoving([level])],
+    ] : []),
+    ['next', tr('下一处检查结果', 'Next finding'), 'F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: 1 }))],
+    ['previous', tr('上一处检查结果', 'Previous finding'), 'Shift+F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: -1 }))],
+    ...(ops.length ? [['drop', tr('去掉最后一个待定操作', 'Drop the last pending operation'), `${MOD}+Z`, () => back(ops.length - 1)]] : []),
+    ...(redo.length ? [['redo', tr('放回去掉的操作', 'Put a dropped operation back'), `${MOD}+Shift+Z`, again]] : []),
+    ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃', 'Discard all'), '', () => setOps([])]] : []),
+    ['tree', tr('收起或打开左栏', 'Fold the left panel'), 'Alt+[', () => togglePanel('tree')],
+    ['audit', tr('收起或打开右栏', 'Fold the right panel'), 'Alt+]', () => togglePanel('audit')],
+    ['keys', tr('快捷键', 'Keys'), '?', () => setOverlay('keys')],
+  ].map(([id, label, keys, run, ask]) => ({ id, label, keys, run, ...(ask && { ask }) }))
+
+  const fields = useMemo(() => {
+    if (!level || !vocab) return []
+    const { id: _, ...value } = content.levels.find((l) => l.id === level)
+    return [...new Set([...Object.keys(value), ...find(vocab.vocabulary.level, value, 'text', { vocabulary: vocab.vocabulary }).map((t) => showPath(t.path))])]
+  }, [level, content, vocab])
+  const recent = useMemo(() => {
+    const seen = new Set()
+    return [...ops].reverse().filter((op) => op.path !== undefined).map((op) => ({ level: op.level ?? null, path: showPath(op.path) })).filter((r) => {
+      const k = `${r.level} ${r.path}`
+      if (seen.has(k)) return false
+      seen.add(k)
+      return true
+    }).slice(0, 8)
+  }, [ops])
+  const paletteItems = useMemo(() => (overlay === 'palette' && content ? paletteIndex({ content, labels: rawNames?.levels, level, fields, items, recent, actions: ACTIONS.map((a) => ({ id: a.id, label: a.label, keys: a.keys })), lang: getLang() }).map((it) => (it.kind === 'action' ? { ...it, ask: ACTIONS.find((a) => a.id === it.action)?.ask } : it)) : []), [overlay]) // eslint-disable-line react-hooks/exhaustive-deps
+  const runItem = (item, word) => {
+    if (item.kind === 'action') return ACTIONS.find((a) => a.id === item.action)?.run(word)
+    if (item.kind === 'level') { select({ level: item.level }); if (tab !== 'play') setTab('edit'); return undefined }
+    if (item.kind === 'era') { select({ era: item.era }); setTab('edit'); return undefined }
+    if (item.kind === 'field' || item.kind === 'recent') return jump(item.level, item.path, item.level ? null : 'game')
+    if (item.kind === 'entry') { setCopyScope('glossary'); setTab('copy'); return undefined }
+    if (item.kind === 'finding') return jumpTo(item.finding)
+    return undefined
+  }
+
+  // The keys (Shortcuts.jsx lists them).
+  const keyRef = useRef(null)
+  keyRef.current = (e) => {
+    const mod = e.ctrlKey || e.metaKey
+    const k = e.key.toLowerCase()
+    if (mod && k === 'k') { e.preventDefault(); setOverlay((o) => (o === 'palette' ? null : 'palette')) }
+    else if (mod && e.shiftKey && k === 'f') { e.preventDefault(); openSearch() }
+    else if (mod && k === 'z' && !editable(document.activeElement)) { e.preventDefault(); if (e.shiftKey) again(); else back(opsNow.current.length - 1) }
+    else if (mod && e.key === 'Enter' && level) { e.preventDefault(); playFrom(level, true) }
+    else if (e.altKey && e.code === 'BracketLeft') { e.preventDefault(); togglePanel('tree') }
+    else if (e.altKey && e.code === 'BracketRight') { e.preventDefault(); togglePanel('audit') }
+    else if (e.key === '?' && !mod && !editable(document.activeElement)) { e.preventDefault(); setOverlay('keys') }
+    else if (e.key === 'Escape' && picked.size > 1 && !overlay) setPicked(new Set(at?.level ? [at.level] : []))
+  }
+  useEffect(() => {
+    const key = (e) => keyRef.current(e)
+    window.addEventListener('keydown', key)
+    return () => window.removeEventListener('keydown', key)
+  }, [])
 
   const ready = content && vocab
   const result = { ok: fresh && checked.ok, problems: last && !last.content ? last.problems : fresh ? checked.problems : [], failed: last?.failed ?? null, says: last?.says ?? shown?.says, fresh }
+  const pickedIds = playOrder.filter((id) => picked.has(id))
+  const scope = copyScope ?? (at?.era !== undefined ? at.era : at?.level ? (content?.eras ?? []).findIndex((era) => eraLevels(era).includes(at.level)) : 'all')
+  const style = { '--tree-w': `${layout.treeOpen ? layout.tree : 0}px`, '--audit-w': `${layout.auditOpen ? layout.audit : 0}px` }
   return (
     <div className={`studio ${moving ? 'is-moving' : ''}`}>
       <header className="kit-bar studio-bar">
-        <span className="kit-brand"><i className="kit-chip" aria-hidden="true" /><span>Studio</span></span>
-        <select className="studio-game" value={game} onChange={(e) => { setGame(e.target.value); setAt(null); setPlay(null); setSheet(false) }} aria-label={tr('游戏', 'Game')}>
+        <span className="kit-brand"><i className="kit-chip" aria-hidden="true" /></span>
+        <select className="studio-game" value={game} onChange={(e) => { setGame(e.target.value); select(null); setPlay(null); setSheet(false) }} aria-label={tr('游戏', 'Game')}>
           {GAMES.map((g) => <option key={g.id} value={g.id}>{tr(g.title, g.en)}</option>)}
         </select>
         <nav className="studio-tabs" role="tablist">
@@ -273,34 +448,51 @@ export default function Studio() {
           ))}
         </nav>
         <span className="kit-spacer" />
+        <button type="button" className="studio-palette" onClick={() => setOverlay('palette')} title={tr('命令面板', 'Command palette')}><Command size={13} aria-hidden="true" /><kbd>{MOD}K</kbd></button>
         <i className={`studio-busy ${busy || !fresh ? 'is-on' : ''}`} aria-hidden="true" />
         <div className="kit-actions" ref={actions} />
       </header>
       {!ready ? <div className="studio-loading">{tr('读取中……', 'Loading…')}</div> : (
-        <div className={`studio-body is-${tab}`}>
+        <div className={`studio-body is-${tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'}`} style={style}>
           <aside className="studio-tree">
-            <Tree content={content} lines={lines} at={at} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} />
+            <div className="side-tabs" role="tablist">
+              <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程', 'Course')}><ListTree size={14} aria-hidden="true" /></button>
+              <button type="button" role="tab" aria-selected={side === 'search'} className={side === 'search' ? 'is-on' : ''} onClick={openSearch} title={`${tr('搜索', 'Search')} (${MOD}+Shift+F)`}><SearchIcon size={14} aria-hidden="true" /></button>
+            </div>
+            {side === 'search'
+              ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
+              : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} />}
           </aside>
+          <Resizer side="tree" width={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
           <main className="studio-main">
             {tab !== 'play' && (
               <div className="studio-scroll">
-                {tab === 'edit' && <Editor content={content} base={base} vocab={vocab} at={at} scene={scene} places={places} names={names} levelOptions={levelOptions} tests={tests} onEdit={edit} onSelect={select} onPlay={(level) => { playLevel(level); setTab('play') }} onMove={setMoving} onBoard={onBoard} />}
+                {tab === 'edit' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} scene={scene} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} tests={tests} onEdit={edit} onOps={addOps} onSelect={select} onPlay={playFrom} onMove={setMoving} onBoard={onBoard} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />}
+                {tab === 'copy' && (
+                  <article className="editor is-wide">
+                    <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />
+                  </article>
+                )}
+                {tab === 'compare' && <Compare game={game} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}
                 {tab === 'review' && (
                   <Review
-                    ops={ops} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
-                    onRemove={(k) => setOps((list) => list.filter((_, i) => i !== k))}
-                    onDiscard={() => setOps([])} onOpen={(cs) => { setOps(cs.ops); setWhy(cs.why ?? '') }} onApply={apply} onUndo={undo} onSelect={(level) => { select({ level }); setTab('edit') }}
+                    ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
+                    onRemove={(k) => { setOps((list) => list.filter((_, i) => i !== k)); setRedo([]) }} onBack={back} onRedo={again}
+                    onDiscard={() => { setOps([]); setRedo([]) }} onOpen={(cs) => { setOps(cs.ops); setRedo([]); setWhy(cs.why ?? '') }} onApply={apply} onUndo={undo} onSelect={(lvl) => { select({ level: lvl }); setTab('edit') }}
                   />
                 )}
               </div>
             )}
-            <GameFrame visible={tab === 'play' || sheet} sheet={sheet} onClose={() => setSheet(false)} content={content} play={play} onTake={onTake} reference={play && referenceOf(play.level)} onReference={(level) => playLevel(level, referenceOf(level))} />
+            <GameFrame visible={tab === 'play' || sheet} sheet={sheet} onClose={() => setSheet(false)} content={content} play={play} onTake={onTake} reference={play && referenceOf(play.level)} onReference={(lvl) => playLevel(lvl, referenceOf(lvl))} />
           </main>
+          <Resizer side="audit" width={layout.audit} open={layout.auditOpen} setLayout={setLayout} />
           <aside className="studio-audit">
-            <Audit lines={lines} fresh={fresh} last={last} at={at} places={places} playtests={playtests} busy={busy} ops={ops} migration={shown.migration} onSelect={select} onReview={() => setTab('review')} />
+            <Audit items={items} fresh={fresh} last={last} at={at} playtests={playtests} busy={busy} ops={ops} migration={shown.migration} onJump={jumpTo} onReview={() => setTab('review')} />
           </aside>
         </div>
       )}
+      {overlay === 'palette' && ready && <Palette items={paletteItems} onRun={runItem} onClose={() => setOverlay(null)} />}
+      {overlay === 'keys' && <Shortcuts onClose={() => setOverlay(null)} />}
     </div>
   )
 }

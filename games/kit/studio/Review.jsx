@@ -1,16 +1,15 @@
-// The changeset review (DIRECTION decision 5): the pending operations, each in the operation set's own words and
-// removable; why the change is made; the save migration it adds; every file it changes, read field by field (a text
+// The changeset review (DIRECTION decision 5): the pending operations, each in the operation set's own words,
+// removable, or the changeset taken back to just before it (and what was taken back put again: redo); why the change is made; the save migration it adds; every file it changes, read field by field (a text
 // pair side by side, a board line by line, any other value before and after) or as a line diff; then apply it, or
 // discard it. A changeset from a file (what an agent hands in) opens as the pending one. Below, the game's change log
 // (changes.jsonl), whose last change can be undone.
 import { useState } from 'react'
-import { Check, FileUp, Undo2, X } from 'lucide-react'
+import { Check, FileUp, Redo2, Undo2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
-import { showPath } from '../engine/ops/edit.js'
-import { lineDiff } from '../engine/ops/diff.js'
 import { fieldDiff, parsed } from './diff.js'
+import { DiffFields, Lines } from './DiffView.jsx'
 
-export default function Review({ ops, result, shown, why, setWhy, said, onRemove, onDiscard, onApply, onUndo, onSelect, onOpen }) {
+export default function Review({ ops, redo, result, shown, why, setWhy, said, onRemove, onBack, onRedo, onDiscard, onApply, onUndo, onSelect, onOpen }) {
   const failed = result.failed
   const ok = result.ok && ops.length > 0
   const [wrong, setWrong] = useState(null)
@@ -46,6 +45,7 @@ export default function Review({ ops, result, shown, why, setWhy, said, onRemove
                 <li key={k} className={failed === k ? 'is-fail' : ''}>
                   <code>{name}</code>
                   <span>{result.says?.[k] ?? JSON.stringify(args).slice(0, 120)}</span>
+                  {k < ops.length - 1 && <button type="button" className="field-x" onClick={() => onBack(k + 1)} title={tr('撤回到这里', 'Take back to here')} aria-label={tr('撤回到这里', 'Take back to here')}><Undo2 size={13} /></button>}
                   <button type="button" className="field-x" onClick={() => onRemove(k)} aria-label={tr('去掉这个操作', 'Drop this operation')}><X size={13} /></button>
                 </li>
               )
@@ -56,6 +56,7 @@ export default function Review({ ops, result, shown, why, setWhy, said, onRemove
           <div className="review-actions">
             <button type="button" className="kit-btn is-label is-solid review-apply" disabled={!ok} onClick={onApply}><Check size={14} aria-hidden="true" />{result.fresh || failed !== null ? tr('应用', 'Apply') : tr('检查中……', 'Checking…')}</button>
             <button type="button" className="kit-btn is-label" onClick={onDiscard}><X size={14} aria-hidden="true" />{tr('全部放弃', 'Discard all')}</button>
+            {redo.length > 0 && <button type="button" className="kit-btn is-label" onClick={onRedo} title="Ctrl/⌘+Shift+Z"><Redo2 size={14} aria-hidden="true" />{redo.length}</button>}
           </div>
           {shown.migration && (
             <section className="review-block">
@@ -65,7 +66,12 @@ export default function Review({ ops, result, shown, why, setWhy, said, onRemove
           )}
           {shown.changes.map((c) => <FileDiff key={c.file} change={c} onSelect={onSelect} />)}
         </>
-      ) : <p className="review-empty">{tr('没有待定的修改。', 'Nothing pending.')}</p>}
+      ) : (
+        <p className="review-empty">
+          {tr('没有待定的修改。', 'Nothing pending.')}
+          {redo.length > 0 && <button type="button" className="kit-btn is-label" onClick={onRedo}><Redo2 size={14} aria-hidden="true" />{redo.length}</button>}
+        </p>
+      )}
       {said && <p className={`review-said ${said.ok ? '' : 'is-fail'}`}>{said.text}</p>}
       <Log log={shown.log} undoable={shown.undoable} onUndo={onUndo} />
     </article>
@@ -86,61 +92,9 @@ function FileDiff({ change, onSelect }) {
         {json && <button type="button" className={`kit-btn is-label ${lines ? 'is-on' : ''}`} onClick={() => setLines(!lines)}>{tr('逐行', 'Lines')}</button>}
       </h2>
       {json && !lines
-        ? <Fields rows={fieldDiff(parsed(change.before), parsed(change.after))} />
+        ? <DiffFields rows={fieldDiff(parsed(change.before), parsed(change.after))} />
         : <Lines before={change.before ?? ''} after={change.after ?? ''} />}
     </section>
-  )
-}
-
-function Fields({ rows }) {
-  return (
-    <div className="diff-fields">
-      {rows.map((r) => (
-        <div key={showPath(r.path)} className={`diff-row is-${r.as}`}>
-          <span className="field-key">{showPath(r.path) || tr('整个文件', 'whole file')}</span>
-          {r.as === 'text' ? (
-            <div className="diff-text">
-              {['zh', 'en'].map((side) => <Side key={side} before={pick(r.before, side)} after={pick(r.after, side)} />)}
-            </div>
-          ) : r.as === 'lines' ? <Lines before={(r.before ?? []).join('\n')} after={(r.after ?? []).join('\n')} /> : (
-            <div className="diff-value">
-              {r.before !== undefined && <del>{show(r.before)}</del>}
-              {r.after !== undefined && <ins>{show(r.after)}</ins>}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-const pick = (v, side) => (v === undefined ? undefined : typeof v === 'string' ? v : v[side])
-/** A value as JSON: on one line when it is short, indented when it is a long object or list. */
-const show = (v) => {
-  const line = JSON.stringify(v)
-  return line.length <= 100 || v === null || typeof v !== 'object' ? line : JSON.stringify(v, null, 2)
-}
-
-/** A text as a line a token (a word, a run of spaces, a Chinese character), for a diff word by word. */
-const tokens = (s) => (s ?? '').match(/[　-鿿＀-￯]|[^\S\n]+|\n|[^\s　-鿿＀-￯]+/g)?.map((t) => (t === '\n' ? '↵' : t)).join('\n') ?? ''
-
-/** One side of a text: before and after, the words that changed marked. */
-function Side({ before, after }) {
-  if (before === after) return <p className="diff-same">{after}</p>
-  const words = lineDiff(tokens(before), tokens(after))
-  return (
-    <div className="diff-side">
-      <p>{words.filter(([k]) => k !== '+').map(([k, w], i) => (k === '-' ? <del key={i}>{w}</del> : <span key={i}>{w}</span>))}</p>
-      <p>{words.filter(([k]) => k !== '-').map(([k, w], i) => (k === '+' ? <ins key={i}>{w}</ins> : <span key={i}>{w}</span>))}</p>
-    </div>
-  )
-}
-
-function Lines({ before, after }) {
-  return (
-    <pre className="diff-lines">
-      {lineDiff(before, after).map(([k, line], i) => <span key={i} className={k === '-' ? 'is-del' : k === '+' ? 'is-ins' : ''}>{k} {line}{'\n'}</span>)}
-    </pre>
   )
 }
 

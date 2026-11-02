@@ -3,7 +3,8 @@
 // is put in from a picker that searches the game's levels, parts and entries, never typed as a tag. The copy rules a
 // machine can see (../engine/text.js, ../pipeline/lint.js) are checked as it is typed, beside it.
 //
-//   <TextField value field onSet names />   onSet({ zh } | { en }): the side typed into
+//   <TextField value field onSet names compact? />   onSet({ zh } | { en }): the side typed into; compact: the findings
+//                                                    a count on the text, listed while it is being edited
 //   names: { level: Map(id → { label, title }), part: Map(key → name), wiki: Map(id → title), quotes, onLevel(id) }
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link2 } from 'lucide-react'
@@ -191,7 +192,7 @@ export function textFindings(pair, field, names) {
   return [...new Set(found)]
 }
 
-export function TextField({ value, onSet, label, field = '', names, findings = [] }) {
+export function TextField({ value, onSet, label, field = '', names, findings = [], compact = false }) {
   const pair = pairOf(value)
   // Typed text kept here while the operation it makes is on its way back.
   const [draft, setDraft] = useState(pair)
@@ -215,7 +216,7 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
   ] : []), [names])
   const all = [...new Set([...textFindings(draft, field, names), ...findings].map(bare))]
   return (
-    <div className={`field-text ${all.length ? 'has-findings' : ''}`}>
+    <div className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
       <div className="text-sides">
         <Side value={draft.zh ?? ''} onChange={set('zh')} names={names} lang="zh" label={`${label} 中文`} api={sides.zh} onFocus={() => setSide('zh')} />
         <Side value={draft.en ?? ''} onChange={set('en')} names={names} lang="en" label={`${label} English`} api={sides.en} onFocus={() => setSide('en')} />
@@ -235,6 +236,7 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
           )}
         </div>
       )}
+      {compact && all.length > 0 && <i className="text-mark" title={all.join('\n')}>{all.length}</i>}
       {all.length > 0 && <ul className="field-findings">{all.map((f) => <li key={f}>{f}</li>)}</ul>}
     </div>
   )

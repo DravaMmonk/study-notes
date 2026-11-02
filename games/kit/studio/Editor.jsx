@@ -1,17 +1,22 @@
 // What the studio edits, as forms from the schemas (Fields.jsx, form.js): a level (its file), in sections — what the
-// player reads, the puzzle, its tests, its answers, its place in the course (form.js sectionOf), Alt+1… to jump; an
-// era (its place in game.json, and every text of its levels in play order, to read a chapter's copy through and fix it
-// in place); or the rest of game.json. Each edit becomes the operation that makes it (form.js opFor); the level's own
-// actions are operations too: level.rename, level.add (a copy after it), level.remove, and moving it in the tree.
+// player reads, the puzzle, its tests, its answers, its place in the course (form.js sectionOf), Alt+1… to jump, each
+// folding away (remembered per viewer); several levels picked in the tree, as a bulk edit (Bulk.jsx); an era (its place
+// in game.json, and the copy table of its levels: every text in play order, to read a chapter's copy through and fix
+// it in place); or the rest of game.json. Each edit becomes the operation that makes it (form.js opFor); the level's
+// own actions are operations too: level.rename, level.add (a copy after it), level.remove, and moving it in the tree.
 // The check's findings show on the field they are about (form.js placesOf, placeFindings); a field changed by the
 // pending changeset can be put back as it was.
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRightLeft, Copy, Play, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
-import { eraLevels } from '../course.js'
-import { formOf, holdsLevels, opFor, placeFindings, sectionsOf, textsOf } from './form.js'
-import { Field, ObjField, Shapes, TagChoice, TextField } from './Fields.jsx'
+import { formOf, holdsLevels, opFor, placeFindings, sectionsOf } from './form.js'
+import { Field, ObjField, Shapes, TagChoice } from './Fields.jsx'
+import CopyTable from './CopyTable.jsx'
+import { textField } from './copy.js'
+import Bulk from './Bulk.jsx'
+import { usePref } from './prefs.js'
+import { MOD } from './Shortcuts.jsx'
 
 const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
 // What the game form leaves out: what is not game.json's own schema, the course (the tree and the eras edit it) and
@@ -20,15 +25,13 @@ const NOT_FORM = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'e
 const SECTION = {
   read: ['文案', 'Copy'], puzzle: ['谜题', 'Puzzle'], tests: ['测试', 'Tests'], answers: ['答案', 'Answers'], course: ['课程', 'Course'], tasks: ['任务', 'Tasks'],
 }
-/** The copy rule a level's text is held to: the field it is (a task's own field for a task's text). */
-const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] ?? '')
-
-export default function Editor({ content, base, vocab, at, scene, places, names, levelOptions, tests, onEdit, onSelect, onPlay, onMove, onBoard }) {
+export default function Editor({ content, base, vocab, at, picked, scene, places, names, levelOptions, playOrder, tests, onEdit, onOps, onSelect, onPlay, onMove, onBoard, onJump }) {
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
   const common = { vocabulary, order, names, levelOptions, onEdit, onSelect }
+  if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
   if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, scene, places, tests, onPlay, onMove, onBoard }} />
-  if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} />
+  if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} places={places} playOrder={playOrder} onJump={onJump} />
   return <GameEditor {...common} content={content} base={base} />
 }
 
@@ -43,6 +46,7 @@ const beforeIn = (value) => (path) => {
 }
 
 function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id, scene, places, tests, onEdit, onSelect, onPlay, onMove, onBoard }) {
+  const [folded, setFolded] = usePref('folded-sections', [])
   const { id: _, ...value } = content.levels.find((l) => l.id === id)
   const was = base?.levels.find((l) => l.id === id)
   const form = formOf(vocabulary.level, value, { vocabulary, levels: order })
@@ -73,55 +77,69 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
       const s = sections[Number(e.code.slice(5)) - 1]
       if (!s) return
       e.preventDefault()
-      const el = document.getElementById(`section-${s.section}`)
-      el?.scrollIntoView({ block: 'start', behavior: 'smooth' })
-      el?.querySelector('input, textarea, select, [contenteditable="true"], button')?.focus({ preventScroll: true })
+      setFolded((f) => f.filter((x) => x !== s.section))
+      window.setTimeout(() => {
+        const el = document.getElementById(`section-${s.section}`)
+        el?.scrollIntoView({ block: 'start' })
+        el?.querySelector('.field input, .field textarea, .field select, [contenteditable="true"], .field button')?.focus({ preventScroll: true })
+      })
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [sections])
+  }, [sections, setFolded])
   const edit = editIn({ level: id }, onEdit)
+  const fold = (section) => setFolded((f) => (f.includes(section) ? f.filter((x) => x !== section) : [...f, section]))
+  const jump = (section) => {
+    if (folded.includes(section)) fold(section)
+    window.setTimeout(() => document.getElementById(`section-${section}`)?.scrollIntoView({ block: 'start' }))
+  }
   return (
     <article className="editor">
       <header className="editor-head">
         <input className="editor-id" value={name} onChange={(e) => setName(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} aria-label={tr('关卡 id', 'Level id')} size={Math.max(3, name.length)} />
         <h1>{L(value.title)}</h1>
-        <span className="kit-spacer" />
-        <button type="button" className="kit-btn is-label is-solid" onClick={() => onPlay(id)}><Play size={14} aria-hidden="true" />{tr('试玩', 'Play')}</button>
-        <button type="button" className="kit-btn is-label" onClick={() => onMove(id)} title={tr('移动', 'Move')}><ArrowRightLeft size={14} aria-hidden="true" /></button>
-        <button type="button" className="kit-btn is-label" onClick={copy} title={tr('复制', 'Copy')}><Copy size={14} aria-hidden="true" /></button>
-        <button type="button" className="kit-btn is-label" onClick={() => { onEdit({ op: 'level.remove', level: id }); onSelect(null) }} title={tr('删除', 'Remove')}><Trash2 size={14} aria-hidden="true" /></button>
-        <div className="editor-row">
-          {form.tags && <TagChoice field={form} onEdit={edit} ctx={ctx} />}
-          {form.shapes?.length > 1 && <Shapes field={form} onEdit={edit} ctx={ctx} />}
-          {sections && (
+        {form.tags && <TagChoice field={form} onEdit={edit} ctx={ctx} />}
+        {form.shapes?.length > 1 && <Shapes field={form} onEdit={edit} ctx={ctx} />}
+        {sections && (
           <nav className="editor-sections" aria-label={tr('分区', 'Sections')}>
             {sections.map((s, k) => (
-              <a key={s.section} href={`#section-${s.section}`} title={`Alt+${k + 1}`} onClick={(e) => { e.preventDefault(); document.getElementById(`section-${s.section}`)?.scrollIntoView({ block: 'start', behavior: 'smooth' }) }}>{tr(...SECTION[s.section])}</a>
+              <a key={s.section} href={`#section-${s.section}`} title={`Alt+${k + 1}`} className={folded.includes(s.section) ? 'is-folded' : ''} onClick={(e) => { e.preventDefault(); jump(s.section) }}>{tr(...SECTION[s.section])}</a>
             ))}
           </nav>
-          )}
-        </div>
+        )}
+        <span className="kit-spacer" />
+        <span className="editor-tools">
+          <button type="button" className="kit-btn" onClick={() => onPlay(id, false)} title={tr('试玩', 'Play')} aria-label={tr('试玩', 'Play')}><Play size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={() => onPlay(id, true)} title={tr(`载入参考解试玩（${MOD}+Enter）`, `Play with the reference (${MOD}+Enter)`)} aria-label={tr('载入参考解试玩', 'Play with the reference')}><CirclePlay size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={() => onMove([id])} title={tr('移动', 'Move')} aria-label={tr('移动', 'Move')}><ArrowRightLeft size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={copy} title={tr('复制成新的一关', 'Duplicate as a new level')} aria-label={tr('复制', 'Duplicate')}><Copy size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={() => { onEdit({ op: 'level.remove', level: id }); onSelect(null) }} title={tr('删除', 'Remove')} aria-label={tr('删除', 'Remove')}><Trash2 size={14} aria-hidden="true" /></button>
+        </span>
       </header>
       {rest.length > 0 && <ul className="field-findings is-level">{rest.map((f) => <li key={f}>{f}</li>)}</ul>}
       {scene && <div className="board-svg editor-scene" dangerouslySetInnerHTML={{ __html: scene }} />}
-      {sections ? sections.map((s) => (
-        <section key={s.section} id={`section-${s.section}`} className={`editor-section is-${s.section}`}>
-          <h2>{tr(...SECTION[s.section])}</h2>
-          <ObjField field={form} onEdit={edit} ctx={ctx} keys={s.fields.map((f) => f.key)} />
-        </section>
-      )) : <Field field={form} label={null} onEdit={edit} ctx={ctx} />}
+      {sections ? sections.map((s) => {
+        const shut = folded.includes(s.section)
+        return (
+          <section key={s.section} id={`section-${s.section}`} className={`editor-section is-${s.section} ${shut ? 'is-folded' : ''}`}>
+            <button type="button" className="editor-fold" onClick={() => fold(s.section)} aria-expanded={!shut}>
+              <ChevronRight size={11} aria-hidden="true" />{tr(...SECTION[s.section])}
+              {shut && <small>{s.fields.filter((f) => f.field).map((f) => f.key).join(' · ')}</small>}
+            </button>
+            {!shut && <ObjField field={form} onEdit={edit} ctx={ctx} keys={s.fields.map((f) => f.key)} />}
+          </section>
+        )
+      }) : <Field field={form} label={null} onEdit={edit} ctx={ctx} />}
     </article>
   )
 }
 
-function EraEditor({ content, vocabulary, order, names, levelOptions, e, onEdit, onSelect }) {
+function EraEditor({ content, vocabulary, order, names, levelOptions, e, places, playOrder, onEdit, onJump }) {
   const era = content.eras[e]
   const ctx = ctxOf({ vocabulary, order, names, levelOptions })
   const eraSchema = vocabulary.game.fields.eras.of
-  // The era's own fields; where its levels go (the tree edits that) folded away below them.
-  const part = (course) => formOf({ ...eraSchema, fields: Object.fromEntries(Object.entries(eraSchema.fields).filter(([, s]) => holdsLevels(s) === course)) }, era, { vocabulary, levels: order }, ['eras', e])
-  const ids = new Set(eraLevels(era))
+  // The era's own fields but its texts (in the copy table below); where its levels go (the tree edits that) folded away.
+  const part = (course) => formOf({ ...eraSchema, fields: Object.fromEntries(Object.entries(eraSchema.fields).filter(([, s]) => holdsLevels(s) === course && (course || s.type !== 'text'))) }, era, { vocabulary, levels: order }, ['eras', e])
   return (
     <article className="editor">
       <header className="editor-head">
@@ -133,22 +151,7 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, onEdit,
         <summary>{tr('关卡的位置', 'Where the levels go')}</summary>
         <Field field={part(true)} label={null} onEdit={editIn({ game: true }, onEdit)} ctx={ctx} />
       </details>
-      <section className="copy">
-        {order.filter((id) => ids.has(id)).map((id) => {
-          const { id: _, ...value } = content.levels.find((l) => l.id === id)
-          return (
-            <div key={id} className="copy-level">
-              <button type="button" className="copy-head" onClick={() => onSelect({ level: id })}><b>{id}</b> {L(value.title)}</button>
-              {textsOf(vocabulary.level, value, vocabulary).map(({ path, value: text }) => (
-                <div key={showPath(path)} className="copy-row">
-                  <span className="field-key">{showPath(path)}</span>
-                  <TextField value={text} label={`${id} ${showPath(path)}`} field={textField(path)} names={names} onSet={(next) => onEdit(opFor({ level: id }, path, { set: next }, 'text'))} />
-                </div>
-              ))}
-            </div>
-          )
-        })}
-      </section>
+      <CopyTable content={content} vocabulary={vocabulary} scope={e} order={playOrder} names={names} places={places} onEdit={onEdit} onJump={onJump} />
     </article>
   )
 }
