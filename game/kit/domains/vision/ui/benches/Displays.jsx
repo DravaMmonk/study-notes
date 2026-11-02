@@ -8,36 +8,50 @@ import { blurAt, imageAt } from '../../benches/lens.js'
 const W = 640
 const fix = (v) => Number(v.toFixed(2))
 
-/** The pinhole camera from the side: the centre at the left, the upright virtual image plane at f, the object at Z. */
+/** The pinhole camera from the side: the centre at the left, the upright virtual image plane at f, the objects at their
+ *  depths, a ray through the centre to each end of each; with a sensor, its edges on the plane, and what falls past
+ *  them dashed and marked out of view. */
 export function PinholeRays({ ctx }) {
   const { q, bench, model } = ctx
-  const { object = 'arrow', target } = model.setup
-  const zMax = Math.max(bench.knobs?.Z?.max ?? 0, q.Z) * 1.08
-  const tall = Math.max(Math.abs(q.H), Math.abs(q.X), Math.abs(q.h), Math.abs(q.u), Math.abs(target?.value ?? 0), 0.5) * 1.25
-  const H = 260
+  const { object = 'arrow', target, objects, sensor } = model.setup
+  // What is drawn: each object as [depth, bottom, top] and its image's [bottom, top]; one object from the knobs.
+  const drawn = objects
+    ? objects.map((o) => ({ id: o.id, label: o.label, Z: o.Z ?? q.Z, ends: [o.X, o.X + o.H], image: [q[`u_${o.id}`], q[`u_${o.id}`] + q[`h_${o.id}`]], seen: q[`in_${o.id}`] !== 0 }))
+    : [{ id: null, Z: q.Z, ends: object === 'arrow' ? [0, q.H] : [q.X, q.X], image: object === 'arrow' ? [0, q.h] : [q.u, q.u], seen: q.inView !== 0 }]
+  const px = sensor ? sensor.pxHeight / sensor.height : null
+  const targetMm = target && (target.of.endsWith('_px') ? target.value / px : target.value)
+  const zMax = Math.max(bench.knobs?.Z?.max ?? 0, q.f, ...drawn.map((d) => d.Z)) * 1.08
+  const tall = Math.max(0.5, ...drawn.flatMap((d) => [...d.ends, ...d.image].map(Math.abs)), Math.abs(targetMm ?? 0), sensor ? sensor.height / 2 : 0) * 1.2
+  const H = 280
   const x = (z) => 40 + (z / zMax) * (W - 80)
-  const y = (v) => H / 2 - (v / tall) * (H / 2 - 20)
-  const top = object === 'arrow' ? q.H : q.X
-  const img = object === 'arrow' ? q.h : q.u
-  // The ray through the centre, drawn on to the plane or the object, whichever is farther.
-  const reach = Math.max(q.Z, q.f)
+  const y = (v) => H / 2 - (v / tall) * (H / 2 - 22)
+  const mm = (v) => `${fix(v)}${px ? ` (${fix(v * px)} px)` : ''}`
   return (
     <svg className="vi-bench" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr('针孔相机侧视图', 'The pinhole camera from the side')}>
       <line className="vb-axis" x1={x(0)} x2={x(zMax)} y1={y(0)} y2={y(0)} />
       <line className="vb-plane" x1={x(q.f)} x2={x(q.f)} y1={16} y2={H - 16} />
-      <text className="vb-note" x={x(q.f)} y={12}>{tr('像平面', 'Image plane')} f = {fix(q.f)}</text>
-      <line className="vb-ray" x1={x(0)} y1={y(0)} x2={x(reach)} y2={y((top * reach) / q.Z)} />
-      {target && <circle className="vb-target" cx={x(q.f)} cy={y(target.value)} r={7} />}
-      <circle className="vb-image" cx={x(q.f)} cy={y(img)} r={4} />
-      {object === 'arrow' ? (
-        <>
-          <line className="vb-object" x1={x(q.Z)} x2={x(q.Z)} y1={y(0)} y2={y(q.H)} />
-          <line className="vb-image" x1={x(q.f)} x2={x(q.f)} y1={y(0)} y2={y(q.h)} />
-        </>
-      ) : <circle className="vb-object" cx={x(q.Z)} cy={y(q.X)} r={5} />}
+      {sensor && <line className="vb-sensor" x1={x(q.f)} x2={x(q.f)} y1={y(sensor.height / 2)} y2={y(-sensor.height / 2)} />}
+      <text className="vb-note" x={x(q.f)} y={12}>{tr('像平面', 'Image plane')} f = {mm(q.f)}</text>
+      {drawn.map((d, k) => {
+        const reach = Math.max(d.Z, q.f)
+        return (
+          <g key={d.id ?? k} className={d.seen ? '' : 'vb-out'}>
+            {[...new Set(d.ends)].map((e) => <line key={e} className="vb-ray" x1={x(0)} y1={y(0)} x2={x(reach)} y2={y((e * reach) / d.Z)} />)}
+            {d.ends[0] === d.ends[1]
+              ? <circle className="vb-object" cx={x(d.Z)} cy={y(d.ends[0])} r={5} />
+              : <line className="vb-object" x1={x(d.Z)} x2={x(d.Z)} y1={y(d.ends[0])} y2={y(d.ends[1])} />}
+            {d.image[0] === d.image[1]
+              ? <circle className="vb-image" cx={x(q.f)} cy={y(d.image[0])} r={4} />
+              : <line className="vb-image" x1={x(q.f)} x2={x(q.f)} y1={y(d.image[0])} y2={y(d.image[1])} />}
+            {d.label && <text className="vb-note" x={x(d.Z) + 8} y={y(d.ends[1]) - 6}>{L(d.label)}</text>}
+            {!d.seen && <text className="vb-note vb-out-note" x={x(d.Z)} y={y(d.ends[0]) + 16}>{tr('不在画面里', 'out of view')}</text>}
+          </g>
+        )
+      })}
+      {targetMm !== undefined && <circle className="vb-target" cx={x(q.f)} cy={y(targetMm)} r={7} />}
       <circle className="vb-centre" cx={x(0)} cy={y(0)} r={4} />
-      <text className="vb-note" x={x(q.Z)} y={H - 4}>Z = {fix(q.Z)}</text>
-      <text className="vb-note is-left" x={x(q.f) + 8} y={y(img) - 8}>{object === 'arrow' ? `h = ${fix(q.h)}` : `u = ${fix(q.u)}`}</text>
+      {!objects && <text className="vb-note" x={x(q.Z)} y={H - 4}>Z = {fix(q.Z)}</text>}
+      {!objects && <text className="vb-note is-left" x={x(q.f) + 8} y={y(drawn[0].image[1]) - 8}>{object === 'arrow' ? `h = ${mm(q.h)}` : `u = ${mm(q.u)}`}</text>}
     </svg>
   )
 }

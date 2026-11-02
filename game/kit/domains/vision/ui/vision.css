@@ -85,6 +85,10 @@
 .vi-bench .vb-ray { stroke: var(--w3); stroke-width: 1.5; }
 .vi-bench .vb-object { stroke: var(--ink); fill: var(--ink); stroke-width: 3; }
 .vi-bench .vb-image { stroke: var(--accent); fill: var(--accent); stroke-width: 3; }
+.vi-bench .vb-sensor { stroke: var(--accent); stroke-width: 5; opacity: 0.35; }
+.vi-bench .vb-out { opacity: 0.45; }
+.vi-bench .vb-out .vb-object, .vi-bench .vb-out .vb-image { stroke-dasharray: 4 3; }
+.vi-bench .vb-out-note { fill: var(--fail); }
 .vi-bench .vb-target { fill: none; stroke: var(--status); stroke-width: 2; stroke-dasharray: 3 3; }
 .vi-bench .vb-centre { fill: var(--ink); }
 .vi-bench .vb-lens { fill: color-mix(in srgb, var(--n2) 25%, transparent); stroke: var(--n2); }
