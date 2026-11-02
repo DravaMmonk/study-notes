@@ -75,10 +75,11 @@ Every wire placed, knob turned and claim judged must be the player working out a
 carry away is knowledge they can state in the field's own terms, not the game's controls (`games/DESIGN.md` §1,
 §4.1). So a course is planned from **knowledge points** taken from the sources (a concept, method, convention or
 fact, with its term and where the course teaches it), never from parts: a part, an operation or a knob is a tool
-that comes in with the point that needs it. **The lectures' theory is the line** (concepts, models, methods and how
-they relate); everything else — a workshop's or a library's way (OpenCV's channel order, `uint8`, function names), a
-tool's convention, background — is a supplement: a small task, a sentence of a pass text or an entry on the theory
-level that uses it (`extends`), never a level's core. The number of levels follows the knowledge: a hard point is taken apart
+that comes in with the point that needs it. **The main path is the lectures' theory and nothing else** (concepts,
+models, methods and how they relate). Technical content — a library's or a tool's way (OpenCV's channel order,
+`uint8`, function names), a file format, a workshop's recipe — never appears on the main path, not as a task, a
+sentence or a link: it is taught only in optional topics hung after the theory it applies or after the era's main
+path ends. The number of levels follows the knowledge: a hard point is taken apart
 into steps, each a level, and each of its facets (a convention, an edge, a failure, a look-alike) is practised; a
 level with no point and no new facet of one is padding and is cut, and new numbers alone are tests or tasks, not a
 level. When a check says something is under-practised, look for a missing facet; if there is none, the course did
@@ -91,9 +92,9 @@ Read every level as a learner who has not taken the course, against its blueprin
 
 - **A point of the field.** Name the knowledge point and its source. A level whose only content is a part or an
   operation ("take the larger", "round down") is a tool level: fold the tool into the level that needs it.
-- **Theory first.** The point a level is built around is the lectures' theory. A level whose core is a workshop's
-  or a library's way of doing it (`bp-core`) turns the course into a tool manual: hang that as a supplement
-  (`extends`) on the theory level that uses it.
+- **No technical content on the main path.** A main-path level that teaches, uses, mentions or links a library's
+  or a tool's way (`bp-main-tech`, `bp-main-link`) turns the course into a tool manual: move it to an optional topic
+  after the theory it applies, or after the main path.
 - **A question, then a chain.** The intro leaves the learner holding the slot's question, in the field's words, with
   what is given and what counts as right. Walk the chain: can every step be taken from what is on screen (a task,
   a test, a feedback line, a counterexample)? A one-step chain ("do what the brief says") is a task or a test of a
@@ -191,7 +192,7 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
   never why it solves the level. Mechanical levels may hand-hold.
 - **Pass texts name the knowledge, never the answer (hard rule).** A level that brings a knowledge point names what
   the player just did by the field's term, links its entry, and says in a sentence or two where it sits in the field
-  (what it solves, what it is not, what the course or common libraries call it). It says nothing of the level's
+  (what it solves, what it is not, what the course calls it; on the main path never a library's name). It says nothing of the level's
   answer, wiring or way of solving it: no retelling of what was wired, no why it works, no naming the key step.
   Practice levels may have none.
 - **Complete, not padded.** An intro lets someone who has not taken the course know where the machine is stuck (in

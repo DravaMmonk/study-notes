@@ -23,10 +23,11 @@ Work in this order: the knowledge first, the levels from it. A course planned fr
 level, and a level about a part teaches nothing of the field.
 
 - **Knowledge.** Go through the sources section by section and list what a learner must come away knowing. The
-  lectures' theory is the course's line: concepts, models, methods and how they relate (`basis: 'lecture'`), and
-  every level is built around one. What the workshops or libraries do, a tool's convention, background and
-  extensions are supplements (`basis: 'supplement'`): each is hung on the theory slot that uses it (`extends`) as a
-  small task, a sentence of the pass text or an entry, never a slot of its own. Each point is a concept, method,
+  main path is the lectures' theory and nothing else: concepts, models, methods and how they relate (`basis:
+  'lecture'`), every main-path level built around one. Technical content — a library's or a tool's way (OpenCV's
+  channel order, `uint8`, function names), a file format, a workshop's recipe — is `basis: 'technical'` and never
+  touches the main path (`bp-main-tech`): it is taught only in optional topics (series `kind: 'topic'`), hung
+  `after` the theory slot it applies or after the era's last main-path slot. Each point is a concept, method,
   convention or fact of the field, with the `term` the sources use (both languages, the
   field's own words), what it says (`about`), where the sources teach it (`source`: a file of `sources` with its
   section, page or slide), the question a learner cannot answer without it (`wall`) and the intuitive wrong idea it

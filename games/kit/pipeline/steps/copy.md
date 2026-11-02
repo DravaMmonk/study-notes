@@ -28,9 +28,9 @@ in Chinese and English, through the operation set. You change no test, board or 
   that uses the answer's words. Hints go from direction to detail, the first only pointing.
 - A level that brings a knowledge point has a pass text that names what the player just did by the point's term,
   links its entry, and says in a sentence or two where it sits in the field (what it solves, what it is not, what
-  the sources or common libraries call it) — never how this level was solved. Practice levels may have none.
-- A supplement a level `extends` (a workshop's or a library's way, a tool's convention) gets a sentence where it
-  helps — usually the pass text, after the theory is named — and its entry linked; it never takes over the intro.
+  the sources call it; never a library's name on the main path) — never how this level was solved. Practice levels may have none.
+- The main path's copy carries no technical content: no library or tool, its names or its conventions, no link
+  to a technical entry (`bp-main-link`); those belong to the optional topics' levels.
 - Every knowledge point has an encyclopedia entry whose id is the point's id, opened (`at`) at the level that brings
   it and linked there (`bp-entry`, `bp-term`): its title is the term, its body defines it in the field's words, cites
   the source and sets it apart from its neighbours. Other terms of the field get entries too.
