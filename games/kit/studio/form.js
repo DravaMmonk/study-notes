@@ -453,3 +453,47 @@ export function holdsLevels(schema) {
 
 /** Every text a value holds under its schema: [{ path, value }], in the schema's order. */
 export const textsOf = (schema, value, vocabulary) => find(schema, value, 'text', { vocabulary })
+
+/**
+ * The field of a form at `path`: { field } where the form shows one (a field of an object also with its `key`, `about`,
+ * `optional`, `schema`), { absent: { key, schema, about } } for an optional field of an object not written yet, or null.
+ */
+export function fieldAt(form, path) {
+  const want = showPath(path)
+  const walk = (field, entry = null) => {
+    if (showPath(field.path) === want) return { field, ...(entry && { entry }) }
+    for (const x of field.items ?? []) { const hit = walk(x); if (hit) return hit }
+    for (const e of field.entries ?? []) { const hit = walk(e.field, { key: e.key }); if (hit) return hit }
+    for (const f of field.fields ?? []) {
+      if (!f.field) {
+        if (showPath([...field.path, f.key]) === want) return { absent: { key: f.key, schema: f.schema, about: f.about, path: [...field.path, f.key] } }
+        continue
+      }
+      const hit = walk(f.field, f)
+      if (hit) return hit
+    }
+    if (field.params) return walk(field.params)
+    return null
+  }
+  return walk(form)
+}
+
+/* ---------- a file as a form ---------- */
+
+// What game.json's form leaves out: what is not its own schema, and the save migrations (written by the operation set).
+const NOT_FORM = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'saves']
+export const gameFields = (content) => Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_FORM.includes(k)))
+
+/** The form of the file `at` holds, as the content has it now. */
+export function fileForm(content, vocabulary, at, order) {
+  if (at?.level) {
+    const level = content.levels.find((l) => l.id === at.level)
+    if (!level) return null
+    const { id: _, ...value } = level
+    return { value, form: formOf(vocabulary.level, value, { vocabulary, levels: order }) }
+  }
+  const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => k !== 'saves')) }
+  const value = gameFields(content)
+  return { value, form: formOf(schema, value, { vocabulary, levels: order }) }
+}
+

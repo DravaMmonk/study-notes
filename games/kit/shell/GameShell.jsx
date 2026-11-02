@@ -15,6 +15,7 @@ import { setRefs } from './refs.js'
 import { firstTask as openTask, flagsIn, passed, saved as savedAt, tasksDone as passedTasks } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
+import { EditContext, same } from './edit.js'
 
 // Every game sits at game/<id>/index.html, under the games hub (game/index.html): on the published site, and on the
 // dev server too (trace-viewer/vite.config.js).
@@ -49,7 +50,10 @@ const SITE = { games: '../index.html' }
  * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
  *
  * `author` is the studio playing the game it edits (../studio/play.jsx): { level, take: { label, use(text) } } puts a
- * button beside the board switcher of that level that hands the board on screen to the studio as blueprint text.
+ * button beside the board switcher of that level that hands the board on screen to the studio as blueprint text;
+ * `go` { task, n } goes to that task of the level played (again whenever n changes, or once the level has it); `edit` { picked, pick(mark), add(mark), onTask(level, task) } makes the page the
+ * studio's editor (edit.js): the fields on screen are marked and picked by a click, introductions open only when asked
+ * (a level without one offers to add one), and the studio hears which task is played.
  */
 export default function GameShell({ game, author = null }) {
   const [progress, setProgress] = useState(() => game.store.load())
@@ -230,10 +234,34 @@ export default function GameShell({ game, author = null }) {
   }
 
   // The introduction of what is played: the level's and its first task's, or a later task's own; seen once per task.
-  const pages = !level ? [] : taskAt === 0 ? [...(game.intro(level) ?? []), ...(tasks?.[0]?.intro ?? [])] : tasks[taskAt].intro ?? []
+  const own = !level ? [] : taskAt === 0 ? game.intro(level) ?? [] : []
+  const pages = !level ? [] : [...own, ...(tasks?.[taskAt]?.intro ?? [])]
+  // Each page's field, for the studio: the level's pages, then the task's own.
+  const pageMarks = pages.map((_, k) => (k < own.length ? { at: `intro[${k}]`, scope: 'level' } : { at: `intro[${k - own.length}]`, scope: 'task' }))
   const introKey = level && (taskAt === 0 ? level.id : `${level.id}#${taskAt}`)
   const intro = pages.length > 0
   const kind = level && game.kinds[played.kind]
+
+  // The studio's editor: what is picked, and every pick or + said with the level and the task played.
+  const authoring = author?.edit ?? null
+  const edit = useMemo(() => (authoring && level ? {
+    level: level.id,
+    task: taskAt,
+    picked: authoring.picked?.level === level.id ? authoring.picked : null,
+    pick: (mark) => authoring.pick({ ...mark, level: level.id, task: taskAt }),
+    add: (mark) => authoring.add({ ...mark, level: level.id, task: taskAt }),
+  } : null), [authoring, level, taskAt])
+  useEffect(() => {
+    if (authoring && level) authoring.onTask?.(level.id, taskAt)
+  }, [authoring, level?.id, taskAt]) // eslint-disable-line react-hooks/exhaustive-deps
+  // The studio's `go`: taken once, as soon as the level has the task.
+  const wanted = author?.go
+  const [gone, setGone] = useState(null)
+  if (wanted && tasks && wanted.task < tasks.length && wanted.n !== gone) {
+    setGone(wanted.n)
+    if (wanted.task !== taskAt) goTask(wanted.task)
+  }
+  const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (
     <div className={`game ${level ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
@@ -251,11 +279,12 @@ export default function GameShell({ game, author = null }) {
         {level && (
           <span className="game-level-title">
             <b>{game.levelLabel(level)}</b>
-            <span>{L(level.title)}</span>
+            <span {...titleMark}>{L(level.title)}</span>
             {chapter && <small>{L(chapter.title)}</small>}
           </span>
         )}
         {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(introKey)} aria-label={tr('引言', 'Intro')}><BookOpen size={16} /><span>{tr('引言', 'Intro')}</span></button>}
+        {edit && !intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => edit.add({ at: 'intro', scope: taskAt === 0 ? 'level' : 'task' })}><BookOpen size={16} /><span>{tr('+ 引言', '+ Intro')}</span></button>}
         {level && game.glossary && (
           <button className="kit-btn is-label bar-button notes-button wiki-button" onClick={() => setSheet('wiki')} aria-label={tr(`百科${wiki.unread.length ? `（${wiki.unread.length} 条未读）` : ''}`, `Encyclopedia${wiki.unread.length ? ` (${wiki.unread.length} unread)` : ''}`)}>
             <BookMarked size={16} /><span>{tr('百科', 'Encyclopedia')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
@@ -297,17 +326,21 @@ export default function GameShell({ game, author = null }) {
               }}
             />
           )}
-          {kind
-            ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
-            : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
+          <EditContext.Provider value={edit}>
+            {kind
+              ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
+              : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
+          </EditContext.Provider>
         </div>
       )}
-      {intro && (introFor === introKey || ((progress.seenPower || !game.power) && !progress.introSeen?.[introKey])) && (
+      {intro && (introFor === introKey || (!edit && (progress.seenPower || !game.power) && !progress.introSeen?.[introKey])) && (
+        <EditContext.Provider value={edit}>
         <IntroSheet
           key={introKey}
           game={game}
           level={level}
           pages={pages}
+          marks={pageMarks}
           step={taskAt > 0 ? tasks[taskAt].step : null}
           theme={theme}
           onClose={() => {
@@ -315,6 +348,7 @@ export default function GameShell({ game, author = null }) {
             setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [introKey]: true } }))
           }}
         />
+        </EditContext.Provider>
       )}
       {taskWon !== null && tasks && (
         <TaskDoneDialog game={game} level={level} task={tasks[taskWon]} index={taskWon} next={tasks[taskWon + 1]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon + 1)} />

@@ -1,7 +1,8 @@
-/* The studio (Studio.jsx): the course tree (or search) on the left, what is edited (or copied, compared, played,
-   reviewed) in the middle, the audit in a drawer under it; each scrolls on its own, the tree and the drawer resize and
-   fold (the drawer to its one-line bar, which long check lines need the width for). On a narrow screen the three
-   follow each other. Tokens from ../tokens.css, the bar
+/* The studio (Studio.jsx): the course tree (or search) on the left, the level in the middle (the game's own page,
+   where it is edited; or its fields as rows, its copy, a comparison, the changes), the field picked in the side panel
+   on the right, the audit in a drawer under the middle; each scrolls on its own, the tree, the side panel and the
+   drawer resize and fold (the drawer to its one-line bar, which long check lines need the width for). On a narrow
+   screen they follow each other. Tokens from ../tokens.css, the bar
    and buttons from ../ui.css; the studio's own denser scale below. Density comes from removing chrome: a field's
    label sits beside it, short fields share a row, folded things fold to one line. */
 
@@ -33,10 +34,13 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 @keyframes studio-pulse { 50% { opacity: .25; } }
 
 /* ---- the columns: the tree, and the form over the audit drawer ---- */
-.studio-body { flex: 1; display: grid; grid-template-columns: var(--tree-w) 5px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto auto; min-height: 0; }
+.studio-body { flex: 1; display: grid; grid-template-columns: var(--tree-w) 5px minmax(0, 1fr) 5px var(--side-w); grid-template-rows: minmax(0, 1fr) auto auto; min-height: 0; }
 .studio-body > * { min-height: 0; overflow: auto; }
 .studio-tree { grid-area: 1 / 1 / 4 / 2; background: var(--rail); }
 .studio-resize.is-tree { grid-area: 1 / 2 / 4 / 3; }
+.studio-resize.is-side { grid-area: 1 / 4 / 4 / 5; }
+.studio-side { grid-area: 1 / 5 / 4 / 6; background: var(--paper); container-type: inline-size; }
+.studio-body.no-side > .studio-side { visibility: hidden; }
 .studio-body > .studio-main { grid-area: 1 / 3; position: relative; overflow: hidden; background: var(--canvas); }
 .studio-resize.is-audit { grid-area: 2 / 3; height: 5px; }
 .studio-body > .studio-audit { grid-area: 3 / 3; overflow: hidden; background: var(--paper); border-top: 1px solid var(--hairline); }
@@ -54,6 +58,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
   .studio-body > * { overflow: visible; }
   .studio-resize { display: none; }
   .studio-tree { max-height: 40vh; overflow: auto; }
+  .studio-body.no-side > .studio-side { display: none; }
   .studio-body:not(.no-audit) > .studio-audit { height: auto; }
   .studio-play iframe { height: 80vh; }
   .studio-game { max-width: 7em; }
@@ -411,8 +416,10 @@ select.cell { width: auto; min-width: 46px; }
 
 /* ---- the game played ---- */
 .studio-play { position: absolute; inset: 0; display: flex; flex-direction: column; }
-.studio-play.is-sheet { z-index: 10; margin: 8px; border-radius: 10px; overflow: hidden; box-shadow: var(--lift), 0 0 0 1px var(--hairline); }
 .studio-play-bar code { color: var(--muted); font: 11.5px/1 var(--mono); }
+.play-mode { display: inline-flex; gap: 1px; padding: 2px; border-radius: 7px; background: var(--hover); }
+.play-mode button { height: 22px; padding: 0 8px; display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 5px; color: var(--muted); background: none; font: 600 11.5px/1 var(--sans); cursor: pointer; }
+.play-mode button.is-on { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); }
 .studio-play.is-hidden { visibility: hidden; pointer-events: none; }
 .studio-play-bar { height: 34px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
 .studio-play-bar b { color: var(--accent-ink); font: 600 12px/1 var(--mono); }
@@ -545,3 +552,41 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
   .field:hover > .field-head .field-shapes, .field:focus-within > .field-head .field-shapes,
   .li-head:hover > .li-tools, .li-head:focus-within > .li-tools { opacity: 1; }
 }
+
+/* ---- the fields as rows (Rows.jsx): one line each, opened in the side panel ---- */
+.rows { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; }
+.row { min-height: var(--row); display: grid; grid-template-columns: var(--key-w) minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 2px 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; text-align: left; cursor: pointer; }
+.row:hover { background: var(--hover); }
+.row.is-on { background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 2px 0 0 var(--accent); }
+.row-key { display: inline-flex; align-items: center; gap: 4px; min-width: 0; color: var(--muted); font: 600 11.5px/1.2 var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-dot { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--accent); }
+.row-sum { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--fs)/1.3 var(--sans); }
+.row.is-wrong .row-key { color: var(--fail); }
+.row-found { min-width: 16px; height: 16px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 8px; color: var(--paper); background: var(--fail); font: 600 10px/1 var(--mono); }
+.rows-tasks { display: grid; gap: 6px; }
+.rows-task { padding-left: 8px; border-left: 2px solid var(--line); }
+.row.is-head .row-key { color: var(--accent-ink); }
+.rows .field-absent { margin-top: 4px; }
+
+/* ---- the side panel (Inspector.jsx): the field picked, its control ---- */
+.insp { min-height: 100%; display: grid; grid-template-rows: auto auto minmax(0, 1fr); align-content: start; }
+.insp.is-empty { place-items: center; padding: 24px 18px; color: var(--muted); text-align: center; }
+.insp.is-empty p { display: grid; justify-items: center; gap: 8px; margin: 0; max-width: 24em; line-height: 1.5; }
+.insp-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
+.insp-path { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
+.insp-step { display: inline-flex; align-items: center; color: var(--faint); }
+.insp-crumb { padding: 2px 4px; border: 0; border-radius: 4px; color: var(--accent-ink); background: none; font: 600 11.5px/1.2 var(--mono); cursor: pointer; }
+.insp-crumb:hover:not(:disabled) { background: var(--hover); }
+.insp-crumb:disabled { color: var(--ink); cursor: default; }
+.insp-close { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
+.insp-close:hover { color: var(--ink); background: var(--hover); }
+.insp-tools { display: flex; align-items: center; gap: 2px; padding: 4px 8px; border-bottom: 1px solid var(--line); color: var(--muted); font: var(--fs-mini)/1 var(--mono); }
+.insp-tools button { width: 24px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
+.insp-tools button:hover:not(:disabled) { color: var(--ink); background: var(--hover); }
+.insp-tools button:disabled { opacity: .35; cursor: default; }
+.insp-body { padding: 8px 10px 40px; min-width: 0; }
+.insp-about { margin: 0 0 6px; color: var(--muted); font: 12px/1.45 var(--sans); }
+.insp-note { margin: 0; padding: 10px; color: var(--muted); line-height: 1.5; }
+.insp-absent { display: grid; justify-items: start; gap: 6px; }
+/* In a narrow side panel a text's two sides go one under the other. */
+@container (max-width: 520px) { .insp-body .text-sides { grid-template-columns: minmax(0, 1fr); } }

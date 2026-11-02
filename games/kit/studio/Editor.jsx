@@ -1,17 +1,17 @@
-// What the studio edits, as forms from the schemas (Fields.jsx, form.js): a level (its file), in sections — what the
-// player reads, the puzzle, its tests, its answers, its place in the course (form.js sectionOf), Alt+1… to jump, each
-// folding away (remembered per viewer); several levels picked in the tree, as a bulk edit (Bulk.jsx); an era (its place
-// in game.json, and the copy table of its levels: every text in play order, to read a chapter's copy through and fix
-// it in place); or the rest of game.json. Each edit becomes the operation that makes it (form.js opFor); the level's
-// own actions are operations too: level.rename, level.add (a copy after it), level.remove, and moving it in the tree.
-// The check's findings show on the field they are about (form.js placesOf, placeFindings); a field changed by the
-// pending changeset can be put back as it was.
+// The fields of what the studio edits, as rows (Rows.jsx), each opening its control in the side panel
+// (Inspector.jsx): a level (its file), in sections — what the player reads, the puzzle, its tests, its answers, its
+// place in the course, its tasks (form.js sectionOf), Alt+1… to jump, each folding away (remembered per viewer); several
+// levels picked in the tree, as a bulk edit (Bulk.jsx); an era (its place in game.json, and the copy table of its
+// levels: every text in play order, to read a chapter's copy through and fix it in place); or the rest of game.json.
+// The level's own actions are operations: level.rename, level.add (a copy after it), level.remove, and moving it in
+// the tree. A row says how many findings of the check are on its field and whether the pending changes touched it.
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
-import { formOf, holdsLevels, opFor, placeFindings, sectionsOf } from './form.js'
-import { Field, ObjField, Shapes, TagChoice } from './Fields.jsx'
+import { blank, formOf, gameFields, holdsLevels, opFor, placeFindings, sectionsOf } from './form.js'
+import { Field, Shapes, TagChoice } from './Fields.jsx'
+import Rows from './Rows.jsx'
 import CopyTable from './CopyTable.jsx'
 import { textField } from './copy.js'
 import Bulk from './Bulk.jsx'
@@ -19,18 +19,15 @@ import { usePref } from './prefs.js'
 import { MOD } from './Shortcuts.jsx'
 
 const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
-// What the game form leaves out: what is not game.json's own schema, the course (the tree and the eras edit it) and
-// the save migrations (written by the operation set).
-const NOT_FORM = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'eras', 'saves']
 const SECTION = {
   read: ['文案', 'Copy'], puzzle: ['谜题', 'Puzzle'], tests: ['测试', 'Tests'], answers: ['答案', 'Answers'], course: ['课程', 'Course'], tasks: ['任务', 'Tasks'],
 }
-export default function Editor({ content, base, vocab, at, picked, scene, places, names, levelOptions, playOrder, tests, onEdit, onOps, onSelect, onPlay, onMove, onBoard, onJump }) {
+export default function Editor({ content, base, vocab, at, picked, field, scene, places, names, levelOptions, playOrder, onEdit, onOps, onSelect, onPick, onPlay, onMove, onJump }) {
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
-  const common = { vocabulary, order, names, levelOptions, onEdit, onSelect }
+  const common = { vocabulary, order, names, levelOptions, onEdit, onSelect, onPick, field: field?.path ? showPath(field.path) : null }
   if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
-  if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, scene, places, tests, onPlay, onMove, onBoard }} />
+  if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, scene, places, onPlay, onMove }} />
   if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} places={places} playOrder={playOrder} onJump={onJump} />
   return <GameEditor {...common} content={content} base={base} />
 }
@@ -38,6 +35,11 @@ export default function Editor({ content, base, vocab, at, picked, scene, places
 const ctxOf = ({ vocabulary, order, names, levelOptions }, extra = {}) => ({ vocabulary, levels: order, names, levelOptions, textField, ...extra })
 /** The edit of a field in `file` as its operation. */
 const editIn = (file, onEdit) => (path, edit, type) => onEdit(opFor(file, path, edit, type))
+/** An optional field added blank in `file`, and opened in the side panel. */
+const addIn = (file, onEdit, onPick, ctx) => (path, schema) => {
+  onEdit(opFor(file, path, { set: blank(schema, ctx) }, schema.type))
+  onPick(path)
+}
 /** A field's value before the pending changes, in `value` (undefined: nothing before, a new file): [had, value]. */
 const beforeIn = (value) => (path) => {
   if (value === undefined) return [false, undefined]
@@ -45,18 +47,14 @@ const beforeIn = (value) => (path) => {
   return [v !== undefined, v]
 }
 
-function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id, scene, places, tests, onEdit, onSelect, onPlay, onMove, onBoard }) {
+function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id, scene, places, field, onEdit, onSelect, onPick, onPlay, onMove }) {
   const [folded, setFolded] = usePref('folded-sections', [])
   const { id: _, ...value } = content.levels.find((l) => l.id === id)
   const was = base?.levels.find((l) => l.id === id)
   const form = formOf(vocabulary.level, value, { vocabulary, levels: order })
   const { at: findings, rest } = placeFindings(form, places.filter((p) => p.level === id))
-  const ctx = ctxOf({ vocabulary, order, names, levelOptions }, {
-    onBoard: (path) => onBoard(id, showPath(path)),
-    findings,
-    before: beforeIn(was && (({ id: __, ...v }) => v)(was)),
-    tests: { of: (path) => tests.of(id, path), run: (path) => tests.run(id, path) },
-  })
+  const ctx = ctxOf({ vocabulary, order, names, levelOptions })
+  const before = beforeIn(was && (({ id: __, ...v }) => v)(was))
   const sections = form.kind === 'obj' ? sectionsOf(form) : null
   const [name, setName] = useState(id)
   const rename = () => {
@@ -126,15 +124,15 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
               <ChevronRight size={11} aria-hidden="true" />{tr(...SECTION[s.section])}
               {shut && <small>{s.fields.filter((f) => f.field).map((f) => f.key).join(' · ')}</small>}
             </button>
-            {!shut && <ObjField field={form} onEdit={edit} ctx={ctx} keys={s.fields.map((f) => f.key)} />}
+            {!shut && <Rows form={form} keys={s.fields.map((f) => f.key)} picked={field} findings={findings} before={before} onPick={onPick} onAdd={addIn({ level: id }, onEdit, onPick, ctx)} />}
           </section>
         )
-      }) : <Field field={form} label={null} onEdit={edit} ctx={ctx} />}
+      }) : <Field field={form} label={null} onEdit={edit} ctx={{ ...ctx, findings, before }} />}
     </article>
   )
 }
 
-function EraEditor({ content, vocabulary, order, names, levelOptions, e, places, playOrder, onEdit, onJump }) {
+function EraEditor({ content, vocabulary, order, names, levelOptions, e, places, playOrder, field, onEdit, onPick, onJump }) {
   const era = content.eras[e]
   const ctx = ctxOf({ vocabulary, order, names, levelOptions })
   const eraSchema = vocabulary.game.fields.eras.of
@@ -146,29 +144,28 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, places,
         <span className="editor-id is-static">{era.id}</span>
         <h1>{L(era.title ?? era.chapter?.title) ?? ''}</h1>
       </header>
-      <Field field={part(false)} label={null} onEdit={editIn({ game: true }, onEdit)} ctx={ctx} />
+      <Rows form={part(false)} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
       <details className="editor-course">
         <summary>{tr('关卡的位置', 'Where the levels go')}</summary>
-        <Field field={part(true)} label={null} onEdit={editIn({ game: true }, onEdit)} ctx={ctx} />
+        <Rows form={part(true)} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
       </details>
       <CopyTable content={content} vocabulary={vocabulary} scope={e} order={playOrder} names={names} places={places} onEdit={onEdit} onJump={onJump} />
     </article>
   )
 }
 
-function GameEditor({ content, base, vocabulary, order, names, levelOptions, onEdit }) {
+function GameEditor({ content, base, vocabulary, order, names, levelOptions, field, onEdit, onPick }) {
   const { domain, vocabulary: version, open } = content
-  const strip = (c) => Object.fromEntries(Object.entries(c).filter(([k]) => !NOT_FORM.includes(k)))
-  const game = strip(content)
+  const strip = (c) => Object.fromEntries(Object.entries(gameFields(c)).filter(([k]) => k !== 'eras'))
   const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => k !== 'eras' && k !== 'saves')) }
-  const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { before: beforeIn(base && strip(base)) })
+  const ctx = ctxOf({ vocabulary, order, names, levelOptions })
   return (
     <article className="editor">
       <header className="editor-head">
         <span className="editor-id is-static">{domain} · v{version}</span>
         <h1>{L(content.title)}</h1>
       </header>
-      <Field field={formOf(schema, game, { vocabulary, levels: order })} label={null} onEdit={editIn({ game: true }, onEdit)} ctx={ctx} />
+      <Rows form={formOf(schema, strip(content), { vocabulary, levels: order })} picked={field} before={beforeIn(base && strip(base))} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
       {open && <pre className="editor-open">{JSON.stringify(open, null, 1)}</pre>}
     </article>
   )

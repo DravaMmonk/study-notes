@@ -17,4 +17,7 @@ export const taskLevel = (once, task) => S.obj({
 })
 
 /** Each task of a level as a level of its own: the level's fields under the task's, its index `task`. */
-export const taskLevels = ({ tasks, ...level }) => tasks.map(({ step: _, ...task }, k) => ({ ...level, ...task, task: k }))
+export const taskLevels = ({ tasks, ...level }) => tasks.map((task, k) => {
+  const { step: _step, ...own } = task
+  return { ...level, ...own, task: k }
+})

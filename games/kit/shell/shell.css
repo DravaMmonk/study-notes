@@ -602,3 +602,15 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .kit-pop.is-above { animation-name: pop-in-above; }
 @keyframes pop-in-above { from { opacity: 0; transform: translateY(4px) scale(.985); } }
 @media (prefers-reduced-motion: reduce) { .kit-pop { animation: none; } }
+
+/* ---- the page as the studio's editor (edit.js): fields marked on screen, picked by a click; a + adds an item ---- */
+[data-edit] { cursor: pointer; border-radius: 3px; outline: 1px dashed transparent; outline-offset: 2px; transition: outline-color 80ms ease, background-color 80ms ease; }
+[data-edit]:hover { outline-color: var(--accent); background-color: color-mix(in srgb, var(--accent) 7%, transparent); }
+[data-edit][data-picked] { outline: 2px solid var(--accent); background-color: color-mix(in srgb, var(--accent) 10%, transparent); }
+.edit-add { height: 22px; margin: 4px 0; padding: 0 8px; display: inline-flex; align-items: center; gap: 4px; border: 1px dashed var(--rule); border-radius: 999px; color: var(--muted); background: none; font: 600 11.5px/1 var(--sans); cursor: pointer; }
+.edit-add:hover { color: var(--accent-ink); border-color: var(--accent); }
+.edit-add.is-pick { border-style: solid; }
+.edit-add[data-picked] { color: var(--accent-ink); border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.task-steps .edit-add { height: 30px; margin: 0; }
+.test-list .edit-add, .pb-tests .edit-add { margin: 0; }
+.intro-foot .edit-add { margin: 0 auto 0 8px; }

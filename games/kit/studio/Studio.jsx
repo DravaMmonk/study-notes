@@ -10,8 +10,11 @@
 // domain's own: every reference run), which takes seconds on the biggest games. Until it is back the audit shows the
 // last one as stale. Applying writes the changeset (modify); undo runs the change log's.
 //
-// The page: the tree (or search) on the left, the audit in a drawer under the middle, each folding away and resizable
-// (remembered per viewer, prefs.js); the command palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
+// The page: the tree (or search) on the left; in the middle the level as the game shows it, which is where it is
+// edited (GameFrame.jsx: a click on a field on screen picks it, a + adds an item), or its fields as rows, its copy, a
+// comparison, the changes; the field picked in the side panel on the right (Inspector.jsx), with its control; the
+// audit in a drawer under the middle. Each folds away and resizes (remembered per viewer, prefs.js); the command
+// palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
 import './studio.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Command, ListTree, Search as SearchIcon } from 'lucide-react'
@@ -22,11 +25,11 @@ import { eraLevels } from '../course.js'
 import { find } from '../engine/schema.js'
 import { parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
-import { boardsOf, placesOf, pushOp, referenceFor } from './form.js'
+import { boardsOf, opFor, placesOf, pushOp, referenceFor } from './form.js'
+import { addFor, markOf, markPath } from './marks.js'
 import { itemOf, marksOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { bulkMove } from './bulk.js'
-import { focusField } from './jump.js'
 import { usePref } from './prefs.js'
 import Tree from './Tree.jsx'
 import Search from './Search.jsx'
@@ -36,14 +39,16 @@ import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
+import Inspector from './Inspector.jsx'
+import { textField } from './copy.js'
 import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['edit', '编辑', 'Edit'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['play', '试玩', 'Play'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
-const SIZE = { tree: [180, 640], audit: [90, 900] } // px: the tree's width, the audit drawer's height
+const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
 
 /** Keep the studio's place in the address: the game, what is selected, the tab. */
 const remember = (game, at, tab) => {
@@ -63,13 +68,15 @@ const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'S
  */
 function Resizer({ side, size, open, setLayout }) {
   const set = (patch) => setLayout((l) => ({ ...l, ...patch }))
-  const across = side === 'tree'
+  const across = side !== 'audit'
   const clamp = (n) => Math.max(SIZE[side][0], Math.min(SIZE[side][1], n))
+  // The side panel is on the right: dragging left widens it.
+  const sign = side === 'side' ? -1 : 1
   const drag = (e) => {
     if (!open) return
     e.preventDefault()
     const at0 = across ? e.clientX : e.clientY
-    const move = (ev) => set({ [side]: clamp(across ? size + ev.clientX - at0 : size - (ev.clientY - at0)) })
+    const move = (ev) => set({ [side]: clamp(across ? size + sign * (ev.clientX - at0) : size - (ev.clientY - at0)) })
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
@@ -80,7 +87,7 @@ function Resizer({ side, size, open, setLayout }) {
       onPointerDown={drag} onDoubleClick={() => set({ [`${side}Open`]: !open })} onClick={() => !open && set({ [`${side}Open`]: true })}
       onKeyDown={(e) => {
         if (e.key === 'Enter') set({ [`${side}Open`]: !open })
-        const nudge = across ? { ArrowRight: 16, ArrowLeft: -16 }[e.key] : { ArrowUp: 16, ArrowDown: -16 }[e.key]
+        const nudge = across ? sign * { ArrowRight: 16, ArrowLeft: -16 }[e.key] : { ArrowUp: 16, ArrowDown: -16 }[e.key]
         if (nudge) set({ [side]: clamp(size + nudge) })
       }}
     />
@@ -103,13 +110,16 @@ export default function Studio() {
   const [playtests, setPlaytests] = useState({ records: [], levels: {} })
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : null))
   const [picked, setPicked] = useState(() => new Set(QUERY.get('level') ? [QUERY.get('level')] : []))
-  const [tab, setTab] = useState(QUERY.get('tab') ?? 'edit')
-  const [play, setPlay] = useState(null) // { level, seed, take }
-  const [sheet, setSheet] = useState(false) // a board open in the game's editor over the form
+  const [tab, setTab] = useState(() => (TABS.some(([id]) => id === QUERY.get('tab')) ? QUERY.get('tab') : 'page'))
+  const [play, setPlay] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level'), seed: null, take: null } : null)) // { level, seed, take }
+  const [field, setField] = useState(null) // the field in the side panel: { path, focus? } | { missing } | null
+  const [pageEdit, setPageEdit] = usePref('page-edit', true) // the page as the editor, or the game alone
+  const [pageTask, setPageTask] = useState(0) // the task the page plays
+  const [go, setGo] = useState(null) // a task for the page to go to: { task }
   const [moving, setMoving] = useState(null) // the levels being moved in the tree
   const [said, setSaid] = useState(null) // what the last apply or undo said
   const [runs, setRuns] = useState({}) // test runs: `${level}|${path}` → the run_tests answer
-  const [layout, setLayout] = usePref('layout', { tree: 260, audit: 240, treeOpen: true, auditOpen: true })
+  const [layout, setLayout] = usePref('layout', { tree: 240, audit: 220, side: 380, treeOpen: true, auditOpen: true, sideOpen: true })
   const [side, setSide] = usePref('side', 'tree')
   const [copyScope, setCopyScope] = useState(null) // the copy tab's scope: an era's index, 'all' or 'glossary'
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
@@ -269,12 +279,17 @@ export default function Studio() {
   }, [])
 
   const select = (next, keep = false) => {
+    const other = next?.level !== at?.level || next?.era !== at?.era || Boolean(next?.game) !== Boolean(at?.game)
     setAt(next)
     setMoving(null)
+    if (other) setField(null)
     if (!keep) setPicked(new Set(next?.level ? [next.level] : []))
-    if (tab === 'play' && next?.level) setPlay({ level: next.level, seed: null, take: null })
+    if (next?.level && next.level !== play?.level) {
+      setPlay({ level: next.level, seed: null, take: null })
+      setPageTask(0)
+    }
   }
-  /** Go to a field: of a level (its form), of game.json (an era's form, or the game's), or of the encyclopedia (the copy table). */
+  /** Go to a field: of a level, of game.json (an era's, or the game's) — in the side panel — or of the encyclopedia (the copy table). */
   const jump = (level, path, file = null) => {
     const keys = path ? parsePath(path) : []
     if (file === 'glossary') {
@@ -285,8 +300,15 @@ export default function Studio() {
     if (level) select({ level })
     else if (keys[0] === 'eras') select({ era: keys[1] })
     else select({ game: true })
-    setTab('edit')
-    if (keys.length) window.setTimeout(() => focusField(keys))
+    if (!level && tab === 'page') setTab('fields')
+    if (keys.length) pickField(keys, true)
+    else setField(null)
+  }
+  /** A field into the side panel (opened if folded); a field of another task has the page play that task. */
+  const pickField = (path, focus = false) => {
+    setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
+    setField({ path, ...(focus && { focus }) })
+    if (path[0] === 'tasks' && Number.isInteger(path[1]) && path[1] !== pageTask) setGo({ task: path[1] })
   }
   /** Go to what a finding of the check is about: the field it names, else its level. */
   const jumpTo = (item) => {
@@ -301,6 +323,7 @@ export default function Studio() {
   const playLevel = async (level, path = null, take = false) => {
     const seed = path ? await call('seed', { game, level, path, changeset: { ops } }) : null
     setPlay({ level, seed: seed?.data !== undefined ? seed : null, take: take ? { path, label: tr(`用作 ${path}`, `Use as ${path}`) } : null })
+    if (seed?.task !== null && seed?.task !== undefined) setPageTask(seed.task)
   }
   // The path of a level's reference board, or null for a level without boards.
   const referenceOf = (level) => {
@@ -310,17 +333,43 @@ export default function Studio() {
   }
   const playFrom = (level, reference) => {
     playLevel(level, reference ? referenceOf(level) : null)
-    setSheet(false)
-    setTab('play')
+    setTab('page')
   }
+  // A board of the level edited in the game's own circuit editor, on the page: its 「用作 …」 writes it back.
   const onBoard = async (level, path) => {
+    setTab('page')
     await playLevel(level, path, true)
-    setSheet(true)
   }
   const onTake = ({ level, path, text }) => {
     edit({ op: 'level.blueprint', level, path, text })
-    setPlay((p) => ({ ...p, seed: null }))
-    setSheet(false)
+    setPlay((p) => ({ ...p, seed: null, take: null }))
+  }
+  // What the page says: a field picked, an item added, the task it plays, a board taken back.
+  const levelValue = (id) => {
+    const l = content?.levels.find((x) => x.id === id)
+    if (!l) return null
+    const { id: _, ...value } = l
+    return value
+  }
+  const onPage = (m) => {
+    if (m.type === 'take') return onTake(m)
+    if (m.type === 'task') { if (m.level === play?.level) setPageTask(m.task); return undefined }
+    const value = levelValue(m.level)
+    if (!value) return undefined
+    if (m.level !== at?.level) select({ level: m.level })
+    setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
+    if (m.type === 'pick') {
+      const path = markPath(value, vocab.vocabulary, m)
+      return setField(path ? { path, focus: true } : { missing: m.at })
+    }
+    if (m.type === 'add') {
+      const added = addFor(value, vocab.vocabulary, m)
+      if (!added) return setField({ missing: m.at })
+      edit(opFor({ level: m.level }, added.path, { set: added.set }, 'list'))
+      setField({ path: added.at, focus: true })
+      if (added.path.length === 1 && added.path[0] === 'tasks') setGo({ task: added.at[1] })
+    }
+    return undefined
   }
   const apply = async () => {
     const r = await call('modify', { game, changeset })
@@ -360,6 +409,26 @@ export default function Studio() {
     },
   }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
+  // The side panel's field: its control's context (as the forms had it), and the mark the page draws it with.
+  const sideFile = at?.level && content?.levels.some((l) => l.id === at.level) ? { level: at.level } : at ? { game: true } : null
+  const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level } : null
+  const sideCtx = vocab && content && {
+    vocabulary: vocab.vocabulary,
+    levels: content.levels.map((l) => l.id),
+    names,
+    levelOptions,
+    textField,
+    ...(sideFile?.level && {
+      onBoard: (path) => onBoard(sideFile.level, showPath(path)),
+      tests: { of: (path) => tests.of(sideFile.level, path), run: (path) => tests.run(sideFile.level, path) },
+      before: (path) => {
+        const was = base?.levels.find((l) => l.id === sideFile.level)
+        if (!was) return [false, undefined]
+        const v = path.reduce((x, k) => (x === undefined || x === null ? undefined : x[k]), was)
+        return [v !== undefined, v]
+      },
+    }),
+  }
   const openSearch = () => {
     setSide('search')
     setLayout((l) => ({ ...l, treeOpen: true }))
@@ -372,9 +441,11 @@ export default function Studio() {
     ['search', tr('在整款游戏里搜索、替换', 'Search and replace across the game'), `${MOD}+Shift+F`, openSearch],
     ['copy', tr('文案表', 'Copy table'), '', () => setTab('copy')],
     ['compare', tr('比较', 'Compare'), '', () => setTab('compare')],
+    ['page', tr('画面：在游戏的页面上改', 'Page: edit on the game’s own page'), '', () => { setTab('page'); setPageEdit(true) }],
+    ['fields', tr('字段：这一关的全部字段', 'Fields: every field of the level'), '', () => setTab('fields')],
     ...(level ? [
       ['play-ref', tr('载入参考解试玩这一关', 'Play this level with its reference'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
-      ['play', tr('试玩这一关', 'Play this level'), level, () => playFrom(level, false)],
+      ['play', tr('试玩这一关（不显示编辑标记）', 'Play this level (no edit marks)'), level, () => { setPageEdit(false); playFrom(level, false) }],
       ['duplicate', tr('复制这一关成新的一关……', 'Duplicate this level as…'), level, (id) => duplicate(level, id), { placeholder: tr(`${level} 的副本的 id`, `The id of ${level}’s copy`), value: `${level}-2` }],
       ['rename', tr('给这一关换 id……', 'Rename this level…'), level, (id) => { edit({ op: 'level.rename', level, to: id }); select({ level: id }) }, { placeholder: tr(`${level} 的新 id`, `${level}’s new id`), value: level }],
       ['move', tr('移动这一关', 'Move this level'), level, () => setMoving([level])],
@@ -386,6 +457,7 @@ export default function Studio() {
     ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃', 'Discard all'), '', () => setOps([])]] : []),
     ['tree', tr('收起或打开左栏', 'Fold the left panel'), 'Alt+[', () => togglePanel('tree')],
     ['audit', tr('收起或打开检查栏', 'Fold the audit drawer'), 'Alt+]', () => togglePanel('audit')],
+    ['side', tr('收起或打开侧栏', 'Fold the side panel'), 'Alt+\\', () => togglePanel('side')],
     ['keys', tr('快捷键', 'Keys'), '?', () => setOverlay('keys')],
   ].map(([id, label, keys, run, ask]) => ({ id, label, keys, run, ...(ask && { ask }) }))
 
@@ -406,8 +478,8 @@ export default function Studio() {
   const paletteItems = useMemo(() => (overlay === 'palette' && content ? paletteIndex({ content, labels: rawNames?.levels, level, fields, items, recent, actions: ACTIONS.map((a) => ({ id: a.id, label: a.label, keys: a.keys })), lang: getLang() }).map((it) => (it.kind === 'action' ? { ...it, ask: ACTIONS.find((a) => a.id === it.action)?.ask } : it)) : []), [overlay]) // eslint-disable-line react-hooks/exhaustive-deps
   const runItem = (item, word) => {
     if (item.kind === 'action') return ACTIONS.find((a) => a.id === item.action)?.run(word)
-    if (item.kind === 'level') { select({ level: item.level }); if (tab !== 'play') setTab('edit'); return undefined }
-    if (item.kind === 'era') { select({ era: item.era }); setTab('edit'); return undefined }
+    if (item.kind === 'level') { select({ level: item.level }); if (!['page', 'fields'].includes(tab)) setTab('page'); return undefined }
+    if (item.kind === 'era') { select({ era: item.era }); setTab('fields'); return undefined }
     if (item.kind === 'field' || item.kind === 'recent') return jump(item.level, item.path, item.level ? null : 'game')
     if (item.kind === 'entry') { setCopyScope('glossary'); setTab('copy'); return undefined }
     if (item.kind === 'finding') return jumpTo(item.finding)
@@ -425,6 +497,7 @@ export default function Studio() {
     else if (mod && e.key === 'Enter' && level) { e.preventDefault(); playFrom(level, true) }
     else if (e.altKey && e.code === 'BracketLeft') { e.preventDefault(); togglePanel('tree') }
     else if (e.altKey && e.code === 'BracketRight') { e.preventDefault(); togglePanel('audit') }
+    else if (e.altKey && e.code === 'Backslash') { e.preventDefault(); togglePanel('side') }
     else if (e.key === '?' && !mod && !editable(document.activeElement)) { e.preventDefault(); setOverlay('keys') }
     else if (e.key === 'Escape' && picked.size > 1 && !overlay) setPicked(new Set(at?.level ? [at.level] : []))
   }
@@ -438,17 +511,17 @@ export default function Studio() {
   const result = { ok: fresh && checked.ok, problems: last && !last.content ? last.problems : fresh ? checked.problems : [], failed: last?.failed ?? null, says: last?.says ?? shown?.says, fresh }
   const pickedIds = playOrder.filter((id) => picked.has(id))
   const scope = copyScope ?? (at?.era !== undefined ? at.era : at?.level ? (content?.eras ?? []).findIndex((era) => eraLevels(era).includes(at.level)) : 'all')
-  const style = { '--tree-w': `${layout.treeOpen ? layout.tree : 0}px`, '--audit-h': `${layout.audit}px` }
+  const style = { '--tree-w': `${layout.treeOpen ? layout.tree : 0}px`, '--audit-h': `${layout.audit}px`, '--side-w': `${layout.sideOpen ? layout.side : 0}px` }
   return (
     <div className={`studio ${moving ? 'is-moving' : ''}`}>
       <header className="kit-bar studio-bar">
         <span className="kit-brand"><i className="kit-chip" aria-hidden="true" /></span>
-        <select className="studio-game" value={game} onChange={(e) => { setGame(e.target.value); select(null); setPlay(null); setSheet(false) }} aria-label={tr('游戏', 'Game')}>
+        <select className="studio-game" value={game} onChange={(e) => { setGame(e.target.value); select(null); setPlay(null) }} aria-label={tr('游戏', 'Game')}>
           {GAMES.map((g) => <option key={g.id} value={g.id}>{tr(g.title, g.en)}</option>)}
         </select>
         <nav className="studio-tabs" role="tablist">
           {TABS.map(([id, zh, en]) => (
-            <button key={id} role="tab" aria-selected={tab === id} className={`studio-tab ${tab === id ? 'is-on' : ''}`} onClick={() => { setTab(id); setSheet(false); if (id === 'play' && !play && at?.level) setPlay({ level: at.level, seed: null, take: null }) }}>
+            <button key={id} role="tab" aria-selected={tab === id} className={`studio-tab ${tab === id ? 'is-on' : ''}`} onClick={() => setTab(id)}>
               {tr(zh, en)}{id === 'review' && ops.length > 0 && <b className={`studio-count ${last?.failed !== null && last?.failed !== undefined ? 'is-fail' : ''}`}>{ops.length}</b>}
             </button>
           ))}
@@ -459,7 +532,7 @@ export default function Studio() {
         <div className="kit-actions" ref={actions} />
       </header>
       {!ready ? <div className="studio-loading">{tr('读取中……', 'Loading…')}</div> : (
-        <div className={`studio-body is-${tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'}`} style={style}>
+        <div className={`studio-body is-${tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
           <aside className="studio-tree">
             <div className="side-tabs" role="tablist">
               <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程', 'Course')}><ListTree size={14} aria-hidden="true" /></button>
@@ -471,9 +544,9 @@ export default function Studio() {
           </aside>
           <Resizer side="tree" size={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
           <main className="studio-main">
-            {tab !== 'play' && (
+            {tab !== 'page' && (
               <div className="studio-scroll">
-                {tab === 'edit' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} scene={scene} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} tests={tests} onEdit={edit} onOps={addOps} onSelect={select} onPlay={playFrom} onMove={setMoving} onBoard={onBoard} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />}
+                {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} scene={scene} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">
                     <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />
@@ -484,13 +557,20 @@ export default function Studio() {
                   <Review
                     ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
                     onRemove={(k) => { setOps((list) => list.filter((_, i) => i !== k)); setRedo([]) }} onBack={back} onRedo={again}
-                    onDiscard={() => { setOps([]); setRedo([]) }} onOpen={(cs) => { setOps(cs.ops); setRedo([]); setWhy(cs.why ?? '') }} onApply={apply} onUndo={undo} onSelect={(lvl) => { select({ level: lvl }); setTab('edit') }}
+                    onDiscard={() => { setOps([]); setRedo([]) }} onOpen={(cs) => { setOps(cs.ops); setRedo([]); setWhy(cs.why ?? '') }} onApply={apply} onUndo={undo} onSelect={(lvl) => { select({ level: lvl }); setTab('page') }}
                   />
                 )}
               </div>
             )}
-            <GameFrame visible={tab === 'play' || sheet} sheet={sheet} onClose={() => setSheet(false)} content={content} play={play} onTake={onTake} reference={play && referenceOf(play.level)} onReference={(lvl) => playLevel(lvl, referenceOf(lvl))} />
+            <GameFrame
+              visible={tab === 'page'} content={content} play={play} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage}
+              reference={play && referenceOf(play.level)} onReference={(lvl) => playLevel(lvl, referenceOf(lvl))} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
+            />
           </main>
+          <Resizer side="side" size={layout.side} open={layout.sideOpen} setLayout={setLayout} />
+          <aside className="studio-side">
+            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} ctx={sideCtx} places={places} onEdit={edit} onPick={(path) => pickField(path)} onClose={() => setField(null)} />}
+          </aside>
           {layout.auditOpen && <Resizer side="audit" size={layout.audit} open setLayout={setLayout} />}
           <aside className="studio-audit">
             <Audit items={items} fresh={fresh} last={last} at={at} playtests={playtests} busy={busy} ops={ops} migration={shown.migration} open={layout.auditOpen} onToggle={() => togglePanel('audit')} onJump={jumpTo} onReview={() => setTab('review')} />
