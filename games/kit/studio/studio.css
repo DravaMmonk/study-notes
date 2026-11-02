@@ -90,7 +90,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .tree-role { padding: 3px 4px 1px; color: var(--faint); font: var(--fs-mini)/1.2 var(--mono); letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tree-level { min-width: 0; height: 22px; padding: 0 4px 0 6px; display: flex; align-items: center; gap: 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; font: 12px/1 var(--sans); text-align: left; cursor: pointer; }
 .tree-level b { flex: none; min-width: 2.6em; color: var(--muted); font: 600 var(--fs-mini)/1 var(--mono); }
-.tree-level > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-level > span:not(.mk) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tree-level:hover { background: var(--hover); }
 .tree-level.is-picked { background: color-mix(in srgb, var(--select) 16%, transparent); box-shadow: inset 2px 0 0 var(--select); }
 .tree-level.is-on { color: var(--select-ink); background: var(--select); box-shadow: none; }
@@ -109,7 +109,9 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .tree-slot.is-over, .tree-slot:hover { background: var(--accent); }
 
 /* A level's marks: failing findings, open ones, the domain's answers, its tests, blind play's cost. */
-.mk { flex: none; display: inline-flex; align-items: center; gap: 3px; }
+.mk { flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: 3px; }
+/* The first place holds the failing count or the open dot, the same width on every row, so the squares line up. */
+.mk-slot { width: 16px; display: inline-grid; place-items: center; }
 .mk i { font-style: normal; }
 .mk-fail { min-width: 14px; height: 14px; padding: 0 3px; display: inline-grid; place-items: center; border-radius: 7px; color: #fff; background: var(--fail); font: 700 9.5px/1 var(--mono); font-style: normal; }
 .mk-open { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
