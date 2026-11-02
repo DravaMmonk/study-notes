@@ -3,17 +3,21 @@
   "intro": [
     {
       "t": {
-        "zh": "一辆车上的视觉系统同时交出五份输出：一个标签、一组框和三张逐像素图。检查台要把车上各个模块的请求分给它们。",
-        "en": "The vision system on a car hands in five outputs at once: a label, a set of boxes and three per-pixel maps. The station must route the requests of the car's modules to them."
+        "zh": "到这里，请求问的都是类别和位置。一辆车上的视觉系统同时交出五份输出：一个标签、一组检测框和三张逐像素图。车上各个模块的请求由检查台分给它们，其中一个请求问的是距离。",
+        "en": "So far every request has asked about classes and positions. The vision system on a car hands in five outputs at once: a label, a set of detection boxes and three per-pixel maps. The station routes the requests of the car's modules to them, and one request asks about distance."
       }
     },
     {
       "t": {
-        "zh": "和前面不同，这里一个请求可以有几份够用的输出，选出其中任何够用的都算对。要看清的是每份输出里的数是什么意思、以什么为单位：「那辆车离我多远」该由哪一份回答？",
-        "en": "Unlike before, a request may have several sufficient outputs, and choosing any that suffice is right. What matters is what the numbers in each output mean, and in what unit: which output answers 'how far away is that car'?"
+        "zh": "这一关新在两处：一个请求可以有几份够用的输出，选出够用的都算对；三张图的格子里都是数，含义却不同，要对照画面读出来。这一关的问题是：「那辆车离我多远」该由哪一份回答？类别图里的数能当距离用吗？",
+        "en": "Two things are new here: a request may have several sufficient outputs, and choosing those that suffice is right; and the three maps all hold numbers that mean different things, to be read against the picture. This level asks: which output answers 'how far away is that car'? Can the numbers in a class map serve as distances?"
       }
     }
   ],
+  "after": {
+    "zh": "每格是一个距离的图叫<wiki-ref to=\"depth-map\"></wiki-ref>，是三维恢复的输出；类别输出里的数是编号，回答不了「多远」。",
+    "en": "A map whose every cell is a distance is a <wiki-ref to=\"depth-map\"></wiki-ref>, an output of 3D reconstruction; the numbers in a class output are ids and cannot answer 'how far'."
+  },
   "tasks": [
     {
       "id": "0A3",
@@ -24,8 +28,8 @@
       },
       "hint": [
         {
-          "zh": "三张图的格子里都是数：对照图里的物体，猜出每张图的数是编号、类别还是长度。",
-          "en": "All three maps hold numbers: compare them with the scene and work out whether each map's numbers are ids, classes or lengths."
+          "zh": "三张图的格子里都是数：对照图里的物体，判断每张图的数是编号、类别还是长度。",
+          "en": "All three maps hold numbers: compare them with the objects in the picture and decide whether each map's numbers are ids, classes or lengths."
         }
       ],
       "judge": { "fields": { "mode": "enough" } },

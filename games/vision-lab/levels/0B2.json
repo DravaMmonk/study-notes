@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "一个分类器的作者说：「它在任何背景下都认得出猫。」检查台拿到一批样例，每个样例有人工标注的真实类别和分类器的预测，还有预测的置信度。",
-        "en": "The author of a classifier claims: 'it recognises a cat against any background.' The station receives a batch of cases, each with its labelled true class, the classifier's prediction and the confidence of that prediction."
+        "zh": "检查台看出了同一个物体能拍成很不一样的图。一个分类器面对这些变化能不能照样认对，要靠检验。它的作者说：「它在任何背景下都认得出猫。」检查台拿到几批样例，每个样例写着人工标注的类别、背景、分类器的预测和置信度。",
+        "en": "The station has seen that one object can be photographed very differently. Whether a classifier still answers right through such changes has to be tested. Its author claims: 'it recognises a cat against any background.' The station receives a few batches of cases, each listing the labelled class, the background, the classifier's prediction and its confidence."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：分类器在一张照片上答对了，而且很有把握，这能说明它换了背景也认得出吗？选出一个能推翻这句话的样例；一个也没有时，选「没有」。",
-        "en": "This level asks: when a classifier gets one photo right, and confidently, does that show it will recognise the cat against other backgrounds? Choose a case that refutes the claim; when there is none, choose 'none'."
+        "zh": "这一关的问题是：分类器在一张照片上答对了，而且很有把握，这能说明它换了背景也认得出吗？每一批选出一个能推翻这句话的样例；一个也没有时，选「没有」。",
+        "en": "This level asks: when a classifier gets one photo right, and confidently, does that show it will recognise the cat against other backgrounds? In each batch choose a case that refutes the claim; when there is none, choose 'none'."
       }
     }
   ],
   "after": {
-    "zh": "输入有无关的变化时输出仍然可靠，叫<wiki-ref to=\"robustness\"></wiki-ref>：答对一次证明不了，一个反例就能推翻。",
-    "en": "Staying reliable when irrelevant things about the input change is <wiki-ref to=\"robustness\"></wiki-ref>: one right answer cannot prove it, one counterexample refutes it."
+    "zh": "无关变化下输出仍可靠，叫<wiki-ref to=\"robustness\"></wiki-ref>：一个反例就能推翻它；只改几个像素的<wiki-ref to=\"adversarial-example\"></wiki-ref>也是反例。",
+    "en": "An output that stays reliable through irrelevant change shows <wiki-ref to=\"robustness\"></wiki-ref>; one counterexample refutes it, and an <wiki-ref to=\"adversarial-example\"></wiki-ref>, a few pixels changed, is one too."
   },
   "tasks": [
     {

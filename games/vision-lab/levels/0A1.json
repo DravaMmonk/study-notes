@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "检查台收到一张照片和几个关于它的问题。它自己不会看图，只能从几份现成的输出里挑：每份输出是某个视觉系统交出的答案。",
-        "en": "The test station receives a photo and a few questions about it. It cannot look at the photo itself; it can only choose among ready-made outputs, each the answer some vision system handed in."
+        "zh": "整台机器从一台视觉检查台起步。它不会计算，也碰不到一个像素：它只看图，读别的视觉系统交出的输出，判断哪一份回答了请求。同一张图上能提的问题不止一种，每种问题要的输出形式也不一样。",
+        "en": "The whole machine starts as a vision test station. It computes nothing and cannot touch a single pixel: it looks at the image, reads the outputs other vision systems hand in, and judges which of them answers a request. One image can be asked many kinds of question, and each kind needs its own form of output."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：图里有哪些物体、它们在哪里，一个答案至少要带上哪些信息？读每份输出里写了什么，为每个问题选出够回答它、又不多带东西的那一份。",
-        "en": "This level asks: which objects are in the picture and where are they — what must an answer contain at the least? Read what each output says, and give every question the output that answers it without carrying anything more."
+        "zh": "这一关的问题是：图里有哪些物体、它们在哪里，一个答案至少要带上哪些信息？每一轮有两个问题和三份输出，每份输出照原样写出它说了什么。为每个问题选出刚好够回答它的那一份：缺了信息不够，多带了不需要的也不算刚好。",
+        "en": "This level asks: which objects are in the image and where are they — what must an answer contain at the least? Each round has two questions and three outputs, each written out exactly as it was handed in. Give every question the output that is just enough to answer it: an output missing something falls short, and one carrying more than is needed is not just enough either."
       }
     }
   ],
   "after": {
-    "zh": "给出每个物体的类别和框，这样的输出是<wiki-ref to=\"detection\"></wiki-ref>的结果；只给类别是分类。",
-    "en": "An output that gives each object a class and a box is the result of <wiki-ref to=\"detection\"></wiki-ref>; a class alone is classification."
+    "zh": "每个物体一个类别加一个<wiki-ref to=\"bounding-box\"></wiki-ref>，是<wiki-ref to=\"detection\"></wiki-ref>的输出；只给类别的是<wiki-ref to=\"classification\"></wiki-ref>，不说位置。",
+    "en": "A class and a <wiki-ref to=\"bounding-box\"></wiki-ref> for each object is the output of <wiki-ref to=\"detection\"></wiki-ref>; a class alone is <wiki-ref to=\"classification\"></wiki-ref>, which says nothing of position."
   },
   "tasks": [
     {

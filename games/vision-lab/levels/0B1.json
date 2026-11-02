@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "检查台旁边多了一个受控的小场景：一个物体、一架能绕着它转的相机和一盏灯。场景渲出的每张图，你都可以拿来和候选图比。",
-        "en": "Beside the station there is now a small controlled scene: one object, a camera that orbits it and a lamp. Every picture the scene renders can be compared with the candidates."
+        "zh": "检查台会比较输出和请求了，可识别还要回答「这是不是同一个东西」，而同一个物体换个角度、换盏灯，拍出的像素就全变了。检查台旁边多了一个受控的小场景：一个物体、一架能绕着它转的相机和一盏灯。场景渲出的图，可以拿来和候选图比较。",
+        "en": "The station can now compare outputs with requests, but recognition must also say whether two pictures show the same thing, and one object seen from another angle or under another lamp gives entirely different pixels. Beside the station there is now a small controlled scene: one object, a camera that orbits it and a lamp. What the scene renders can be compared with the candidates."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：两张图的像素几乎都不同，拍的会是同一个物体吗？参照图拍的是场景里的物体；选出所有拍的也是它的候选图。",
-        "en": "This level asks: when two pictures differ in almost every pixel, can they show the same object? The reference shows the object in the scene; choose every candidate that shows it too."
+        "zh": "这一关的问题是：两张图的像素几乎都不同，拍的会是同一个物体吗？参照图拍的是场景里的那个物体。第一个任务只能转相机，第二个任务只能移灯；每一轮选出拍的也是它的全部候选图，一张不多，一张不少。",
+        "en": "This level asks: when two pictures differ in almost every pixel, can they show the same object? The reference shows the object in the scene. In the first task only the camera turns, in the second only the lamp moves; in each round choose every candidate that shows that object too, no more and no fewer."
       }
     }
   ],
   "after": {
-    "zh": "同一个物体换个视角、换盏灯，像素几乎全变，这叫<wiki-ref to=\"intra-class-variation\"></wiki-ref>。",
-    "en": "One object seen from another angle or under another light changes nearly every pixel: this is <wiki-ref to=\"intra-class-variation\"></wiki-ref>."
+    "zh": "同一个物体换视角、换光照，像素几乎全变，这是<wiki-ref to=\"intra-class-variation\"></wiki-ref>：识别要容忍它，不能靠记住像素。",
+    "en": "One object under another viewpoint or light changes nearly every pixel: this is <wiki-ref to=\"intra-class-variation\"></wiki-ref>, which recognition must tolerate instead of memorising pixels."
   },
   "tasks": [
     {

@@ -3,8 +3,8 @@
     {
       "id": "image",
       "title": {
-        "zh": "图",
-        "en": "Images"
+        "zh": "视觉术语",
+        "en": "Vision terms"
       }
     }
   ],
@@ -274,8 +274,255 @@
       "see": ["cropping"],
       "body": [
         {
-          "zh": "图的宽与高之比。把 768×512 直接压成 512×512 会改变宽高比，物体变胖或变瘦；要保持比例，宽和高乘同一个比例（约 768×512 → 768 · 2/3 × 512 · 2/3），要的形状再用裁剪取出。OpenCV 的尺寸写成 (宽, 高)，NumPy 的形状是 (高, 宽, 通道)，不能照搬。出处：COMP90086 第 2 讲（幻灯片 34）与 workshop 2。",
-          "en": "An image's width over its height. Squashing 768×512 straight into 512×512 changes it, and objects grow fatter or thinner; to keep proportions, scale width and height by one factor and take the wanted shape with a crop. OpenCV writes a size as (width, height) while a NumPy shape is (height, width, channels); one cannot be passed as the other. Source: COMP90086 lecture 2 (slide 34) and workshop 2."
+          "zh": "图的宽与高之比。把 768×512 直接压成 512×512 会改变宽高比，物体变胖或变瘦；要保持比例，宽和高乘同一个比例（缩到约 512×341），要的形状再用裁剪取出。OpenCV 的尺寸写成 (宽, 高)，NumPy 的形状是 (高, 宽, 通道)，两者不能照搬。出处：COMP90086 第 2 讲（幻灯片 34）与 workshop 2。",
+          "en": "An image's width over its height. Squashing 768×512 straight into 512×512 changes it, and objects grow fatter or thinner; to keep proportions, scale width and height by one factor (to about 512×341) and take the wanted shape with a crop. OpenCV writes a size as (width, height) while a NumPy shape is (height, width, channels); one cannot be passed as the other. Source: COMP90086 lecture 2 (slide 34) and workshop 2."
+        }
+      ]
+    },
+    {
+      "id": "classification",
+      "group": "image",
+      "title": { "zh": "分类", "en": "classification" },
+      "at": "0A1",
+      "see": ["detection"],
+      "body": [
+        {
+          "zh": "回答「整张图主要是什么」：给整张图一个或少量类别标签（dog），不说物体在哪里，也不说有几个。讲义也叫识别。检测再给每个物体一个位置，分割把答案细化到每个像素。出处：COMP90086 第 1 讲，视觉任务（幻灯片 7）。",
+          "en": "Answers what the image mainly shows: one or a few class labels for the whole image (dog), saying neither where the objects are nor how many there are. The lectures also call it recognition. Detection adds a position for each object, and segmentation refines the answer down to each pixel. Source: COMP90086 lecture 1, vision tasks (slide 7)."
+        }
+      ]
+    },
+    {
+      "id": "bounding-box",
+      "group": "image",
+      "title": { "zh": "边界框", "en": "bounding box" },
+      "at": "0A1",
+      "see": ["detection"],
+      "body": [
+        {
+          "zh": "框住一个物体的矩形，用左上角和右下角两个像素坐标写出，例如 (4, 10)–(20, 26)。检测给每个物体一个类别和一个边界框；只有框、没有类别，说了在哪里，没说是什么。框只给出大致的范围，哪些像素属于物体要由分割回答。出处：COMP90086 第 1 讲，视觉任务（幻灯片 7）。",
+          "en": "The rectangle around an object, written as two pixel coordinates, its top-left and bottom-right corners, such as (4, 10)–(20, 26). Detection gives each object a class and a bounding box; a box without a class says where but not what. A box gives only the rough extent: which pixels belong to the object is for segmentation to answer. Source: COMP90086 lecture 1, vision tasks (slide 7)."
+        }
+      ]
+    },
+    {
+      "id": "semantic-segmentation",
+      "group": "image",
+      "title": { "zh": "语义分割", "en": "semantic segmentation" },
+      "at": "0A2",
+      "see": ["instance-segmentation", "classification"],
+      "body": [
+        {
+          "zh": "给每个像素标出它属于哪一类（道路、天空、人）。它只说「哪一类」，不说「哪一个」：同一类的几个物体挨在一起时连成一片，从图上数不出个数。要分开同类的各个物体，用实例分割。出处：COMP90086 第 1 讲，视觉任务（幻灯片 7）。",
+          "en": "Labels each pixel with the class it belongs to (road, sky, person). It says which class, not which object: touching objects of one class merge into one region, and the map cannot tell how many there are. Telling apart the objects of one class is instance segmentation. Source: COMP90086 lecture 1, vision tasks (slide 7)."
+        }
+      ]
+    },
+    {
+      "id": "depth-map",
+      "group": "image",
+      "title": { "zh": "深度图", "en": "depth map" },
+      "at": "0A3",
+      "see": ["semantic-segmentation"],
+      "body": [
+        {
+          "zh": "和图像一样大的一张图，每格是那一点离相机的距离，例如以米计。它是三维恢复的一种输出，回答「多远」。它的数是长度，可以比较远近、相减；类别图和实例图里的数是编号，不能当距离用。出处：COMP90086 第 1 讲，视觉任务（三维恢复，幻灯片 7）。",
+          "en": "A map as large as the image whose every cell holds that point's distance from the camera, in metres say. It is one output of 3D reconstruction and answers 'how far'. Its numbers are lengths, which can be compared and subtracted; the numbers in a class map or an instance map are ids and cannot serve as distances. Source: COMP90086 lecture 1, vision tasks (3D reconstruction, slide 7)."
+        }
+      ]
+    },
+    {
+      "id": "adversarial-example",
+      "group": "image",
+      "title": { "zh": "对抗样本", "en": "adversarial example" },
+      "at": "0B2",
+      "see": ["robustness"],
+      "body": [
+        {
+          "zh": "刻意扰动过的输入：只改动很少的像素，人眼几乎看不出变化，却能让神经网络把一个数字判成另一个数字，或把 dog 判成 hot dog，而且置信度很高。它说明模型在常见的照片上答得好，不等于它对输入的变化鲁棒。出处：COMP90086 第 2 讲，对抗样本（幻灯片 2–3）。",
+          "en": "An input perturbed on purpose: a few altered pixels, a change the eye hardly sees, make a neural network read one digit as another or a dog as a hot dog, and with high confidence. It shows that answering ordinary photos well does not make a model robust to changes in its input. Source: COMP90086 lecture 2, adversarial examples (slides 2–3)."
+        }
+      ]
+    },
+    {
+      "id": "computer-graphics",
+      "group": "image",
+      "title": { "zh": "计算机图形学", "en": "computer graphics" },
+      "at": "0C1",
+      "see": ["inverse-problem"],
+      "body": [
+        {
+          "zh": "已知物体、材质、灯光和相机，向前生成一张图像：这是正问题。计算机视觉走反方向，从图像推测这些东西。实际系统常把两者放在一起：按当前的估计渲染一张预测图，和真实的图比较，再用差异修正估计，叫 render and compare。出处：COMP90086 第 1 讲，视觉与图形学（幻灯片 8）。",
+          "en": "Given objects, materials, lights and a camera, generate an image forwards: a forward problem. Computer vision goes the other way, inferring these from the image. Real systems often combine the two: render a predicted image from the current estimate, compare it with the real one and correct the estimate by the difference — render and compare. Source: COMP90086 lecture 1, vision and graphics (slide 8)."
+        }
+      ]
+    },
+    {
+      "id": "occlusion",
+      "group": "image",
+      "title": { "zh": "遮挡", "en": "occlusion" },
+      "at": "0C2",
+      "see": ["inverse-problem", "intra-class-variation"],
+      "body": [
+        {
+          "zh": "一个物体挡在另一个前面，被挡住的部分在图像里没有一个像素。它是识别难的原因之一：同一个物体露出的部分不同，看上去就不同。被整个挡住的东西，图像既不能证实，也不能否定，连「它不在场景里」也说不出。出处：COMP90086 第 1 讲，识别为什么难（幻灯片 28）。",
+          "en": "One object stands in front of another, and the hidden part has no pixel at all in the image. It is one reason recognition is hard: one object looks different depending on what part of it shows. Of something entirely hidden the image can confirm nothing and deny nothing — not even that it is absent from the scene. Source: COMP90086 lecture 1, why recognition is hard (slide 28)."
+        }
+      ]
+    },
+    {
+      "id": "pixel",
+      "group": "image",
+      "title": { "zh": "像素", "en": "pixel" },
+      "at": "1A1",
+      "see": ["image-array"],
+      "body": [
+        {
+          "zh": "数字图像的一格。灰度图里一个像素是一个数，说那里有多亮；彩色图里是几个数，每个通道一个。像素只记下亮度和颜色，不记下这一点离相机多远。出处：COMP90086 第 2 讲，成像与图像张量（幻灯片 8、22）。",
+          "en": "One cell of a digital image. In a greyscale image a pixel is one number, how bright that place is; in a colour image it is several numbers, one per channel. A pixel records brightness and colour, not how far that point is from the camera. Source: COMP90086 lecture 2, image formation and the image tensor (slides 8, 22)."
+        }
+      ]
+    },
+    {
+      "id": "channel",
+      "group": "image",
+      "title": { "zh": "通道", "en": "channel" },
+      "at": "1A1",
+      "see": ["image-array", "pixel"],
+      "body": [
+        {
+          "zh": "彩色图比灰度图多出的那一维：每个像素按通道存几个数，最常见的是红、绿、蓝三个。三个通道是相机和人眼视觉的工程表示（人眼有三类主要的视锥细胞），不是说自然界只有三种颜色。取出一个通道，得到的是一张灰度图。出处：COMP90086 第 2 讲，图像张量（幻灯片 22）。",
+          "en": "The axis a colour image has beyond a greyscale one: each pixel stores one number per channel, most often three, for red, green and blue. Three channels are an engineering representation shared by cameras and human vision (the eye has three main kinds of cone), not a claim that nature has only three colours. One channel taken out is a greyscale image. Source: COMP90086 lecture 2, the image tensor (slide 22)."
+        }
+      ]
+    },
+    {
+      "id": "opencv",
+      "group": "image",
+      "title": { "zh": "OpenCV", "en": "OpenCV" },
+      "at": "1A3",
+      "see": ["pixel-coordinates"],
+      "body": [
+        {
+          "zh": "常用的开源计算机视觉库，Python 里写作 cv2。用它时要记住它自己的约定：尺寸写成 (宽, 高)，和 NumPy 数组的形状 (高, 宽, 通道) 相反；cv2.imread 读进来的彩色图按 BGR 排通道；缩放的插值方式有 INTER_NEAREST、INTER_LINEAR 等。出处：COMP90086 第 2 讲与 workshop 2。",
+          "en": "A widely used open-source computer vision library, cv2 in Python. Its own conventions must be kept in mind: a size is written (width, height), the reverse of a NumPy array's shape (height, width, channels); cv2.imread reads colour images with their channels in BGR order; its resizing interpolations include INTER_NEAREST and INTER_LINEAR. Source: COMP90086 lecture 2 and workshop 2."
+        }
+      ]
+    },
+    {
+      "id": "image-plane",
+      "group": "image",
+      "title": { "zh": "像平面", "en": "image plane" },
+      "at": "1B1",
+      "see": ["pinhole-projection", "focal-length"],
+      "body": [
+        {
+          "zh": "针孔相机里光线穿过针孔后落上的平面，讲义也叫成像平面；它离针孔的距离是焦距 f。真实相机的传感器在针孔后面，像是倒的；讲义把像平面画在针孔前面，像不倒过来，也省掉负号。这是坐标约定，不是传感器真正的位置。出处：COMP90086 第 2 讲，针孔相机与成像模型（幻灯片 11、18）。",
+          "en": "The plane that rays reach after passing a pinhole camera's hole, at the focal length f from it. In a real camera the sensor is behind the hole and the image is upside down; the lectures draw the image plane in front of the hole, so the image is upright and the minus signs go away. This is a coordinate convention, not where the sensor really is. Source: COMP90086 lecture 2, the pinhole camera and the image formation model (slides 11, 18)."
+        }
+      ]
+    },
+    {
+      "id": "focal-length",
+      "group": "image",
+      "title": { "zh": "焦距", "en": "focal length" },
+      "at": "1B1",
+      "see": ["image-plane", "pinhole-projection"],
+      "body": [
+        {
+          "zh": "针孔相机里是针孔到像平面的距离 f，透镜相机里是镜头的焦距。它管像的大小，和管进光量的光圈直径是两个不同的长度，不能混为一谈。像平面上它以毫米计，在数字图像里常换成以像素计。出处：COMP90086 第 2 讲，针孔相机与透镜（幻灯片 11、13）。",
+          "en": "In a pinhole camera, the distance f from the hole to the image plane; in a lens camera, the lens's focal length. It sets the image size and is a different length from the aperture diameter, which sets the light; the two are not to be confused. On the image plane it is in millimetres; for digital images it is often converted to pixels. Source: COMP90086 lecture 2, the pinhole camera and lenses (slides 11, 13)."
+        }
+      ]
+    },
+    {
+      "id": "aperture",
+      "group": "image",
+      "title": { "zh": "光圈", "en": "aperture" },
+      "at": "1B4",
+      "see": ["lens", "focal-length"],
+      "body": [
+        {
+          "zh": "镜头放光进来的开口，大小用直径 D 表示（台上记作 A）。它管进来多少光；管像的大小的是焦距。光圈小，接近针孔，进光少；光圈大，进光多。摄影上用 f 数写光圈。出处：COMP90086 第 2 讲，透镜与光圈（幻灯片 13、16）。",
+          "en": "The opening through which a lens lets light in, its size given as the diameter D (A on the bench). It sets how much light comes in; the image size is the focal length's business. A small aperture comes close to a pinhole and lets in little light; a large one lets in more. Photography writes the aperture as an f-number. Source: COMP90086 lecture 2, lens and aperture (slides 13, 16)."
+        }
+      ]
+    },
+    {
+      "id": "blur-circle",
+      "group": "image",
+      "title": { "zh": "模糊圈", "en": "blur circle" },
+      "at": "1B4",
+      "see": ["lens", "aperture"],
+      "body": [
+        {
+          "zh": "一点射出的光经过透镜，在传感器上落成的那个小圆，也叫弥散圆。点在对焦距离上时，它缩成一点；不在时，它有一定大小，这一点就显得糊。模糊圈小于一个门槛（比如一个像素的大小）时，就算清晰。出处：COMP90086 第 2 讲，相机为什么需要透镜（幻灯片 12–13）。",
+          "en": "The small disc that the light from one point makes on the sensor after the lens, also called the circle of confusion. For a point at the focus distance it shrinks to a point; otherwise it has some size and the point looks blurred. A blur circle below a threshold, such as one pixel's size, counts as sharp. Source: COMP90086 lecture 2, why cameras need lenses (slides 12–13)."
+        }
+      ]
+    },
+    {
+      "id": "f-number",
+      "group": "image",
+      "title": { "zh": "f 数", "en": "f-number" },
+      "at": "1B5",
+      "see": ["aperture", "focal-length"],
+      "body": [
+        {
+          "zh": "摄影上写光圈的方式：f 数 = 焦距 / 光圈直径，写成 f/2、f/5.6、f/32。同一支镜头，f 数越大，光圈越小。70 mm 镜头在 f/5.6 时，光圈直径约为 70/5.6 = 12.5 mm。出处：COMP90086 第 2 讲，光圈与景深（幻灯片 16）。",
+          "en": "Photography's way of writing the aperture: f-number = focal length / aperture diameter, written f/2, f/5.6, f/32. On one lens, the larger the f-number, the smaller the aperture. A 70 mm lens at f/5.6 has an aperture about 70/5.6 = 12.5 mm across. Source: COMP90086 lecture 2, aperture and depth of field (slide 16)."
+        }
+      ]
+    },
+    {
+      "id": "principal-point",
+      "group": "image",
+      "title": { "zh": "主点", "en": "principal point" },
+      "at": "1B7",
+      "see": ["image-plane"],
+      "body": [
+        {
+          "zh": "光轴穿过像平面的那一点，像平面上量位置的起点。理想相机的主点在传感器正中，视场两边对称；真实相机的主点会有偏移，要和像素尺寸、镜头畸变一起考虑。出处：COMP90086 第 2 讲，针孔相机与焦距（幻灯片 11、15）。",
+          "en": "The point where the optical axis meets the image plane, from which positions on the plane are measured. In an ideal camera it sits at the centre of the sensor and the field of view is symmetric; in a real camera it is offset and must be accounted for along with the pixel size and lens distortion. Source: COMP90086 lecture 2, the pinhole camera and focal length (slides 11, 15)."
+        }
+      ]
+    },
+    {
+      "id": "matplotlib",
+      "group": "image",
+      "title": { "zh": "Matplotlib", "en": "Matplotlib" },
+      "at": "1C1",
+      "see": ["opencv", "channel-order"],
+      "body": [
+        {
+          "zh": "Python 的绘图库。matplotlib.pyplot.imshow 按 RGB 显示彩色图，所以 OpenCV 读进来的 BGR 图要先用 cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 换通道顺序再显示；这一步只换顺序，不改内容和尺寸。出处：COMP90086 workshop 2。",
+          "en": "Python's plotting library. matplotlib.pyplot.imshow displays colour images as RGB, so a BGR image read by OpenCV is first converted with cv2.cvtColor(image, cv2.COLOR_BGR2RGB); this changes only the channel order, not the content or the size. Source: COMP90086 workshop 2."
+        }
+      ]
+    },
+    {
+      "id": "uint8",
+      "group": "image",
+      "title": { "zh": "uint8", "en": "uint8" },
+      "at": "1C2",
+      "see": ["value-range", "quantisation"],
+      "body": [
+        {
+          "zh": "无符号 8 位整数，像素最常见的存法：每个值是 0 到 255 的整数，黑是 0，白是 255，RGB 里的纯红是 [255, 0, 0]。相加、相乘容易溢出，所以处理时常换成 float32 并缩到 [0, 1]，算完再明确地换回去。出处：COMP90086 第 2 讲，数据类型（幻灯片 26）与 workshop 2。",
+          "en": "The unsigned 8-bit integer, the commonest way to store pixels: each value a whole number from 0 to 255, black 0, white 255, pure red in RGB [255, 0, 0]. Sums and products overflow easily, so processing often converts to float32 scaled to [0, 1] and casts back explicitly at the end. Source: COMP90086 lecture 2, data types (slide 26), and workshop 2."
+        }
+      ]
+    },
+    {
+      "id": "numpy",
+      "group": "image",
+      "title": { "zh": "NumPy", "en": "NumPy" },
+      "at": "1D9",
+      "see": ["image-array", "cropping"],
+      "body": [
+        {
+          "zh": "Python 的数组库。图像在里面是一个数组，形状写成 (高, 宽, 通道)，下标先行后列：image[y, x]。切片 image[y0:y0+h, x0:x0+w] 取出一块；切片返回的常是原数组的视图，要单独修改时先 .copy()。出处：COMP90086 第 2 讲与 workshop 2。",
+          "en": "Python's array library. An image is an array whose shape is written (height, width, channels), indexed row first: image[y, x]. The slice image[y0:y0+h, x0:x0+w] takes out a region; a slice is often a view of the original array, so copy it with .copy() before changing it on its own. Source: COMP90086 lecture 2 and workshop 2."
         }
       ]
     }

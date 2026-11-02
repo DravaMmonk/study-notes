@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "最近邻缩放放大时成块。这一关换一个方向：最近邻缩小图像时，没被选中的旧像素去了哪里？先把条纹图缩到一半宽、再放大回原来的宽，同时交出每个新像素的采样位置；再判断原图的哪些列留在了结果里。",
-        "en": "Nearest-neighbour enlarging makes squares. This level goes the other way: when nearest neighbour shrinks an image, what becomes of the old pixels it does not pick? First shrink striped images to half their width and enlarge them back, giving each new pixel's sample position as well; then judge which of the original's columns survive."
+        "zh": "<level-ref to=\"1D2\"></level-ref>里放大成块，但每个旧像素都还在。这一关换一个方向：最近邻缩小图像时，没被选中的旧像素去了哪里？第一个任务把条纹图缩到一半宽、再放大回原宽，同时交出每个新像素的采样位置；第二个任务判断原图的哪些列留在了结果里。",
+        "en": "In <level-ref to=\"1D2\"></level-ref> enlarging came out blocky, but every old pixel was still there. This level goes the other way: when nearest neighbour shrinks an image, what becomes of the old pixels it does not pick? The first task shrinks striped images to half their width and back again, giving each new pixel's sample position too; the second judges which of the original's columns survive."
       }
     }
   ],

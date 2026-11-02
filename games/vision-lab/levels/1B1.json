@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "图里的数从哪里来？工作台先装上相机台：一台理想的针孔相机。场景里一点射出的光穿过针孔，落在离针孔 f 的像平面上。台上把像平面画在针孔前面，像是正的。",
-        "en": "Where do an image's numbers come from? The workbench first gets a camera bench: an ideal pinhole camera. Light from a point of the scene passes through the hole and lands on the image plane at distance f from it. The bench draws the plane in front of the hole, so the image is upright."
+        "zh": "工作台能存、能读像素，却说不出这些数从哪里来：场景里的一点，落到图上的哪个位置？相机台从一台理想的针孔相机起步：一点射出的光穿过针孔，落在离针孔 f 的<wiki-ref to=\"image-plane\"></wiki-ref>上，f 叫<wiki-ref to=\"focal-length\"></wiki-ref>。台上把像平面画在针孔前面，像是正的。",
+        "en": "The workbench can store and read pixels but cannot say where the numbers come from: where in the image does a point of the scene land? The camera bench starts with an ideal pinhole camera: light from a point passes the hole and lands on the <wiki-ref to=\"image-plane\"></wiki-ref> at distance f from it, f being the <wiki-ref to=\"focal-length\"></wiki-ref>. The bench draws the plane in front of the hole, so the image is upright."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：一点穿过针孔，落在像平面的什么位置？同一个物体离得越远，像怎样变？每一步只有一个旋钮能动，让像落到圆圈标出的目标上。",
-        "en": "This level asks: where on the image plane does a point land after passing the hole? How does the image change as the object moves away? Each step opens one knob; bring the image onto the circled target."
+        "zh": "这一关的问题是：一点穿过针孔，落在像平面的什么位置？同一个物体离得越远，像怎样变？两个任务各只开一个旋钮：先横向移动一点，再前后移动一支箭。像落到圆圈标出的目标上才算对。",
+        "en": "This level asks: where on the image plane does a point land after passing the hole, and how does the image change as the object moves away? Each of the two tasks opens one knob: first move a point sideways, then move an arrow in depth. It is right when the image lands on the circled target."
       }
     }
   ],
   "after": {
-    "zh": "这就是<wiki-ref to=\"pinhole-projection\"></wiki-ref>：像的位置和大小都随 f/Z 缩放。",
-    "en": "This is <wiki-ref to=\"pinhole-projection\"></wiki-ref>: where the image lands and how big it is both scale with f/Z."
+    "zh": "这是<wiki-ref to=\"pinhole-projection\"></wiki-ref>：像的位置和大小按 f/Z 缩放；讲义把像平面画在针孔前面，只是坐标约定。",
+    "en": "This is <wiki-ref to=\"pinhole-projection\"></wiki-ref>: where the image lands and how big it is scale with f/Z; drawing the plane in front of the hole is only a coordinate convention."
   },
   "tasks": [
     {

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "两个物体在 1000 mm 和 3000 mm，两个都要清晰，进光量又不能低于 1。这回光圈和对焦距离都能动。这一关的问题是：既要两个深度都清晰，又要足够的光，对焦该放在哪里？",
-        "en": "Two objects stand at 1000 mm and 3000 mm; both must be sharp and the light must not fall below 1. This time the aperture and the focus distance both turn. This level asks: with both depths to keep sharp and enough light to gather, where should the focus go?"
+        "zh": "<level-ref to=\"1B5\"></level-ref>里对焦不能动，只能靠光圈换景深。这一关新在组合：光圈和对焦距离都能动，两个旋钮互相牵制。两个物体在 1000 mm 和 3000 mm，都要清晰，进光量又不能低于 1。这一关的问题是：既要两个深度都清晰，又要足够的光，对焦该放在哪里？",
+        "en": "In <level-ref to=\"1B5\"></level-ref> the focus was fixed and only the aperture traded depth of field. What is new is the combination: the aperture and the focus distance both turn, and they pull against each other. Two objects stand at 1000 mm and 3000 mm; both must be sharp and the light must not fall below 1. This level asks: with both depths to keep sharp and enough light to gather, where should the focus go?"
       }
     }
   ],
@@ -18,8 +18,12 @@
       },
       "hint": [
         {
-          "zh": "清晰范围在对焦距离的两边都有：只用上一边，另一边就白白浪费了。",
-          "en": "The sharp range extends on both sides of the focus: use only one side and the other is wasted."
+          "zh": "移动对焦距离时，看曲线低于门槛的那一段跟着往哪里走。",
+          "en": "As the focus distance moves, watch where the stretch of the curve below the threshold goes."
+        },
+        {
+          "zh": "清晰范围在对焦距离的两边都有：对焦在一个物体上时，有一边用不上。",
+          "en": "The sharp range reaches to both sides of the focus: focused on one of the objects, one side goes unused."
         }
       ],
       "bench": {

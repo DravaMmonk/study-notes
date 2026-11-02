@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "有的输出不止给一个框，而是给每个像素一个数：一张和照片一样大的图。0 是背景，其余的数是什么意思，要从图里读出来。",
-        "en": "Some outputs give not a box but a number for every pixel: a map as large as the photo. 0 is background; what the other numbers mean has to be read from the map."
+        "zh": "检测框只把物体圈在一个矩形里，说不出框里哪些像素属于物体。有的输出给每个像素一个数，是一张和照片一样大的图：0 是背景，其余的数是什么意思，要对照画面读出来。",
+        "en": "A detection box only rings an object with a rectangle and cannot say which pixels inside it belong to the object. Some outputs give every pixel a number, a map as large as the photo: 0 is background, and what the other numbers mean has to be read against the picture."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：「每个像素属于哪一类」和「每个像素属于哪一个物体」是同一个问题吗？对着每张图里的数，为每个问题选出刚好够回答它的那张。",
-        "en": "This level asks: is 'which class does each pixel belong to' the same question as 'which object does each pixel belong to'? Reading the numbers in each map, give every question the map that is just enough to answer it."
+        "zh": "这一关的问题是：「每个像素属于哪一类」和「每个像素属于哪一个物体」是同一个问题吗？每一轮有两个问题和几张逐像素图，图名不说它是哪一种。为每个问题选出刚好够回答它的那张。",
+        "en": "This level asks: is 'which class does each pixel belong to' the same question as 'which object does each pixel belong to'? Each round has two questions and a few per-pixel maps whose names do not say what kind they are. Give every question the map that is just enough to answer it."
       }
     }
   ],
   "after": {
-    "zh": "给每个像素标出它属于哪一个物体，叫<wiki-ref to=\"instance-segmentation\"></wiki-ref>；只标类别的是语义分割。",
-    "en": "Labelling each pixel with the object it belongs to is <wiki-ref to=\"instance-segmentation\"></wiki-ref>; labelling only the class is semantic segmentation."
+    "zh": "每个像素标出属于哪一个物体，是<wiki-ref to=\"instance-segmentation\"></wiki-ref>；只标类别，是<wiki-ref to=\"semantic-segmentation\"></wiki-ref>。",
+    "en": "Labelling each pixel with its object is <wiki-ref to=\"instance-segmentation\"></wiki-ref>; labelling only its class is <wiki-ref to=\"semantic-segmentation\"></wiki-ref>."
   },
   "tasks": [
     {

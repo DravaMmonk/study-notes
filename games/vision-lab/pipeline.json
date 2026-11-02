@@ -516,6 +516,102 @@
           "reports": []
         }
       ]
+    },
+    "copy": {
+      "runs": [
+        {
+          "at": "2026-11-02T17:15:38.941Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 7698989,
+            "seconds": 679,
+            "cost": 5.2642153999999985,
+            "turns": 75
+          },
+          "calls": {
+            "op": {
+              "runs": 9,
+              "failed": 0
+            },
+            "check": {
+              "runs": 0,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 3,
+              "failed": 2
+            },
+            "lint": {
+              "runs": 0,
+              "failed": 0
+            }
+          },
+          "changes": [
+            14,
+            15,
+            16
+          ],
+          "report": "The gate is clean: no lint or check failures. The only remaining output is eight `pd-slide` reports, which are about how the bench levels are built, not about the copy.\n\n## What I rewrote\n- **Game:** the lede. It promised circuits that \"move\" images, but translation was moved out of chapter 1, so it now describes what the game actually covers. Title, kicker and era titles and questions are unchanged; they already fit.\n- **Chapter 0 (9 levels) and chapter 1 (21 levels):** every intro now says where the machine is stuck, the level's question, what is given and what counts as right.\n  - The two era openers (0A1, 1A1) say what the machine is and what the new chapter adds.\n  - Practice levels name the facet that is new.\n  - New parts are named only after their need is stated (1C1, 1D1's circuit task, 1D2, 1D7).\n- **Parallel branches:** 1C1 used to claim \"the workbench wires its first circuit\", which is false for a player who does the resizing branch first. Copy that relied on position now uses level links or general phrasing that holds on every path (\"到这里…\").\n- **Pass texts:** each level that brings a knowledge point names it by its term, links its entry, and adds where it sits in the field (OpenCV names, neighbouring terms). I added pass texts to 0A3 (depth map) and 1B3 (the inverse problem as the camera poses it).\n- **Hints and briefs:**\n  - 1D4 now has three hints that start by only pointing, and its brief no longer says \"weighted by distance\".\n  - 1B6's single hint gave the method away; it now has two, from direction to detail.\n  - 1D10 lost the banned word \"simply\" (the gate's one failure).\n  - 0B3's brief says \"something standing in front\" instead of \"occlusion\", because the occlusion entry only opens on the other branch.\n\n## Encyclopedia\n- **New entries (19), each opened at the level where it first appears:** classification, bounding box, semantic segmentation, depth map (lecture 1, slide 7); adversarial example (lecture 2, slides 2–3); computer graphics (lecture 1, slide 8); occlusion (lecture 1, slide 28); pixel, channel (lecture 2, slides 8 and 22); image plane, focal length (lecture 2, slides 11, 13 and 18); aperture, blur circle, f-number (lecture 2, slides 12–16); principal point (lecture 2, slide 15); uint8 (lecture 2, slide 26, and workshop 2); OpenCV, Matplotlib, NumPy (lecture 2 and workshop 2).\n- **Existing entries:** the 19 knowledge-point entries were already in place. I fixed the example in the aspect-ratio entry, which now says \"about 512×341\" as the notes do, and retitled the encyclopedia's group from \"图 / Images\" to \"视觉术语 / Vision terms\".\n\n## Lint findings I hit\n- `copy-banned` \"simply\" in 1D10 (fixed).\n- \"block\" in my draft NumPy entry, caught on a dry run and changed to \"region\".\n- I also dropped a task pass text I had drafted for 0D1 because it restated the answer.\n\n## Problems in the levels themselves\n1. **`pd-slide`:** 1B1 (both tasks), 1B2 (tasks 1 and 3), 1B5, 1B7 (both tasks) and 1B8's bench task each have one knob and a goal that reads out live, so a player can turn it until the reading turns green. The copy no longer says \"until the reading turns green\", but the benches need a second knob that pulls against the first, or a check only on submit.\n2. **1D6 task 3:** the blueprint's counterexample is a sharp black-and-white edge softened by bilinear, but the level uses label maps where in-between values mean nothing. That is a different facet from the one the blueprint names.\n3. **1D10:** with these tests, nearest-neighbour resizing passes as well as bilinear, and the rounding of the scaled size is never exercised. Neither choice is actually tested.\n4. **1X1:** §2.5 says a challenge's pass text should explain the leap, while §4 says pass texts never touch the answer. I followed §2.5 (\"digital zoom is cropping followed by enlarging\"). Please confirm that's the reading you want.\n5. **Channel and compose (1C1)** are never used again; this is already listed as an open `idle-idea` in `game.json`.\n6. **Domain catalog:** the channel part's English description says \"set on the **card**\", a word the copy rules ban. It lives in `kit/domains/vision/ui/catalog.js`, which this step can't edit.\n\nThe changesets are in my working directory: `glossary.json`, `ch0.json` and `ch1.json`.",
+          "transcript": "/tmp/pipeline-vision-lab-copy-mZaOj1/transcript.jsonl"
+        }
+      ],
+      "gates": [
+        {
+          "at": "2026-11-02T17:15:47.229Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "pd-slide",
+              "at": "1B1",
+              "says": "only X turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B1 task 1B1_2",
+              "says": "only Z turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B2 task 1B2_3",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B5",
+              "says": "only A turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B7",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B7 task 1B7_2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B8 task 1B8_2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            }
+          ]
+        }
+      ]
     }
   }
 }

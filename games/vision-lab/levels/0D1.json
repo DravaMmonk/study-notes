@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "检查台要正式上岗了：一台救援机器人在倒塌的楼里找人，找到一个就要靠过去。它的视觉系统交出什么、怎样检验、哪些问题一张图答不了，都由检查台来定。",
-        "en": "The station goes to work: a rescue robot searches a collapsed building for people and must go to each one it finds. What its vision system hands in, how that is tested, and which questions one image cannot answer are the station's to settle."
+        "zh": "检查台会判断一份输出够不够回答请求，会找反例，也知道一张图说明不了什么。这一关把三样放进一个应用：一台救援机器人在倒塌的楼里找人，找到一个就要靠过去。它的视觉系统交出什么、怎样检验、哪些问题单凭一张图答不了，都由检查台来定。",
+        "en": "The station can judge whether an output answers a request, find counterexamples, and tell what one image cannot settle. This level puts the three into one application: a rescue robot searches a collapsed building and must go to each person it finds. What its vision system hands in, how that is tested and which questions one image cannot answer are all for the station to decide."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：机器人要找到每个人并靠过去，它的视觉输出要包含什么，又该怎样检验？一共三步：选输出，配检验用的参照，再判断几句关于现场的话。",
-        "en": "This level asks: a robot must find every person and go to them — what must its vision output contain, and how should it be tested? There are three steps: choose the outputs, pair them with references to test against, then judge statements about the site."
+        "zh": "这一关的问题是：机器人要找到每个人并靠过去，它的视觉输出要包含什么，又该怎样检验？三个任务依次是：为请求选输出，为每种预测配上检验它的参照，再判断几句关于现场的话。新的一点是：输出要包含什么，由机器人接下来要做的动作决定。",
+        "en": "This level asks: a rescue robot must find every person and go to them — what must its vision output contain, and how should it be tested? The three tasks: choose outputs for the requests, pair each kind of prediction with a reference that tests it, then judge a few statements about the site. What is new: the robot's next action decides what the output must contain."
       }
     }
   ],

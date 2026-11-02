@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "场景里立着一块不透明的灰色挡板，挡住了它后面的东西。检查台照样拿到一张图和几个都渲得出这张图的候选场景。",
-        "en": "An opaque grey screen stands in the scene and hides what is behind it. The station again gets one image and several candidate scenes that all render it."
+        "zh": "在<level-ref to=\"0C1\"></level-ref>里，图上看得见的东西也可能有几种解释。这一关场景里立着一块不透明的灰色挡板，挡住了它后面的东西：被<wiki-ref to=\"occlusion\"></wiki-ref>的部分，图里一个像素也没有。题目照样给出一张图和几个都渲得出它的候选场景。",
+        "en": "In <level-ref to=\"0C1\"></level-ref> even what the image shows allowed several explanations. Here an opaque grey screen stands in the scene and hides what is behind it: a part lost to <wiki-ref to=\"occlusion\"></wiki-ref> has not one pixel in the image. As before you get the image and several candidate scenes that all render it."
       }
     },
     {
       "t": {
-        "zh": "这一关要回答的是：图里看不到的东西，图像能说明它是什么吗？关于看得见的物体和关于挡板后面的话，都按候选场景判断。",
-        "en": "This level asks: can an image say what something it does not show is? Judge the statements about the visible objects and about what is behind the screen, by the candidate scenes alike."
+        "zh": "这一关新在看不见的东西：图里看不到的，图像能说明它是什么吗？关于看得见的物体和关于挡板后面的话，都按候选场景判断，每个场景里都对才算成立，每个场景里都错才算不成立。",
+        "en": "What is new is the unseen: can an image say what something it does not show is? Statements about the visible objects and about what is behind the screen are judged alike against the candidate scenes: true in every one, they hold; false in every one, they do not."
       }
     }
   ],

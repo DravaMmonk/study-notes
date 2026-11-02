@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "检查台判断得了答案，却碰不到图里的一个数。工作台从这里补起：相机把光变成数，计算机存下的就是这些数。这一章的灰度图里，0 是黑，1 是白，中间的数是不同深浅的灰。",
-        "en": "The station could judge answers but could not touch a single number of an image. The workbench starts here: the camera turns light into numbers, and those numbers are what the computer stores. In this chapter's grey images 0 is black, 1 is white and the numbers between are shades of grey."
+        "zh": "检查台能判断答案，却说不出图里的数从哪里来，也读不了、改不了、算不了一个像素。这一章给它装上相机与图像工作台：先弄清一张图怎样存成数，再搭相机模型和处理图像的电路。",
+        "en": "The station could judge answers but could not say where an image's numbers come from, nor read, change or compute a single pixel. This chapter gives it a camera and image workbench: first how an image is stored as numbers, then camera models and circuits that process images."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：相机拍下的这张小图，存进计算机是什么样子？照着画面把每个像素的数填进格子；格子摆成什么形状，图就存成什么形状。",
-        "en": "This level asks: what does this small picture from the camera look like once it is stored in the computer? Following the picture, fill in each pixel's number; the shape of the grid is the shape the image is stored in."
+        "zh": "这一关的问题是：相机拍下的这张小图，存进计算机是什么样子？画面旁边是一张空格子，行数和列数由你填出的样子决定。灰度图里每个<wiki-ref to=\"pixel\"></wiki-ref>是一个数：0 是黑，1 是白，中间是不同深浅的灰。照着画面填，形状和每个数都对才算对。",
+        "en": "This level asks: what does this small picture from the camera look like once it is stored in the computer? Beside the picture is an empty grid whose rows and columns are whatever you fill in. In a grey image each <wiki-ref to=\"pixel\"></wiki-ref> is one number: 0 is black, 1 is white, and the numbers between are shades of grey. Fill it from the picture; it is right when the shape and every number are."
       }
     }
   ],
   "after": {
-    "zh": "灰度图存成 高 × 宽 的<wiki-ref to=\"image-array\"></wiki-ref>，彩色图每格存三个数。",
-    "en": "A grey image is stored as a height × width <wiki-ref to=\"image-array\"></wiki-ref>; a colour image holds three numbers a cell."
+    "zh": "灰度图存成 高 × 宽 的<wiki-ref to=\"image-array\"></wiki-ref>，彩色图再多一维通道：高 × 宽 × 3。像素只说多亮，不说多远。",
+    "en": "A grey image is stored as a height × width <wiki-ref to=\"image-array\"></wiki-ref>, a colour image with one more axis for channels: height × width × 3. A pixel says how bright, not how far."
   },
   "tasks": [
     {
@@ -70,8 +70,8 @@
       "intro": [
         {
           "t": {
-            "zh": "彩色图的每个像素存三个数 (R, G, B)：红、绿、蓝各有多亮，各在 0 到 1 之间。",
-            "en": "Each pixel of a colour image stores three numbers (R, G, B): how bright its red, green and blue are, each from 0 to 1."
+            "zh": "彩色图多一维<wiki-ref to=\"channel\"></wiki-ref>：每个像素存三个数 (R, G, B)，说红、绿、蓝各有多亮，各在 0 到 1 之间。",
+            "en": "A colour image has one more axis, the <wiki-ref to=\"channel\"></wiki-ref>: each pixel stores three numbers (R, G, B), how bright its red, green and blue are, each from 0 to 1."
           }
         }
       ],

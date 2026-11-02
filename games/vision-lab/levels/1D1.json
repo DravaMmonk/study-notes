@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "工作台要能缩放图像。和取出一部分不同，缩放要给新图的每个像素算出一个值；在算值之前，先得知道它落在原图的什么位置。",
-        "en": "The workbench must resize images. Unlike taking out a part, resizing computes a value for every pixel of the new image; before any value, each new pixel needs its position in the original."
+        "zh": "工作台能读写每个像素，却只能照原样摆放：一张图要放大或缩小，它没有办法。缩放和取出一部分不同，要给新图的每个像素算出一个值；算值之前，先得知道这个像素落在原图的什么位置。",
+        "en": "The workbench can read and write every pixel, but only where it already is: it cannot enlarge or shrink an image. Unlike taking out a part, resizing computes a value for every pixel of the new image; before any value, it must know where that pixel sits in the original."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：图像放大或缩小时，新图的每个像素对应原图的什么位置？约定是新旧两排像素的中心对齐，两排一样长。先在格子上手算一行，再搭一块电路。",
-        "en": "This level asks: when an image is enlarged or shrunk, where in the original does each new pixel sit? The convention: the two rows of pixels are equally long and their centres are aligned. First work out one row by hand on the grid, then wire a circuit."
+        "zh": "这一关的问题是：图像放大或缩小时，新图的每个像素对应原图的什么位置？约定是新旧两排像素一样长、像素中心对齐。第一个任务在格子上手算一行，第二个任务搭一块电路，交出整张新图的两张源坐标图，测试的坐标都对才算对。",
+        "en": "This level asks: when an image is enlarged or shrunk, where in the original does each new pixel sit? The convention: the old and the new row are equally long and pixel centres are aligned. The first task works out one row by hand on the grid; the second wires a circuit that gives the whole new image's two source-coordinate images, right when every tested coordinate is."
       }
     }
   ],
@@ -24,8 +24,8 @@
     }
   },
   "after": {
-    "zh": "这就是<wiki-ref to=\"sampling-grid\"></wiki-ref>：新图的每个像素反向映射回原图。",
-    "en": "This is a <wiki-ref to=\"sampling-grid\"></wiki-ref>: every pixel of the new image mapped back into the original."
+    "zh": "这是<wiki-ref to=\"sampling-grid\"></wiki-ref>：每个新像素反向映射回原图，不把旧像素正向搬过去；各个库的对齐约定不同，要写明。",
+    "en": "This is a <wiki-ref to=\"sampling-grid\"></wiki-ref>: each new pixel mapped back into the original, not old pixels pushed forwards; libraries align differently, so the convention must be stated."
   },
   "tasks": [
     {
@@ -63,8 +63,14 @@
       "intro": [
         {
           "t": {
-            "zh": "手算一行可以，一整张图就要电路了。新元件：<part-ref to=\"part:const\"></part-ref>、<part-ref to=\"part:grid\"></part-ref>（给定宽高，给出每格就是自己 x、y 的两张图），以及<part-ref to=\"part:add\"></part-ref>、<part-ref to=\"part:mul\"></part-ref>、<part-ref to=\"part:div\"></part-ref>，它们对数和整张图逐个值地算。",
-            "en": "One row by hand is fine; a whole image needs a circuit. New parts: <part-ref to=\"part:const\"></part-ref>, <part-ref to=\"part:grid\"></part-ref> (for a width and height, the two images whose cells hold their own x and y), and <part-ref to=\"part:add\"></part-ref>, <part-ref to=\"part:mul\"></part-ref> and <part-ref to=\"part:div\"></part-ref>, which work value by value on numbers and whole images."
+            "zh": "手算一行可以，一整张图要每个像素各算一遍，就要电路了：输入从左边进来，输出从右边出去。新图的每个像素先要有自己的坐标，而手上没有元件能从两个数造出一整张图。",
+            "en": "One row works by hand; a whole image, every pixel worked out, needs a circuit: inputs come in on the left, outputs leave on the right. Each new pixel first needs its own coordinates, and no part in hand makes a whole image out of two numbers."
+          }
+        },
+        {
+          "t": {
+            "zh": "新元件<part-ref to=\"part:grid\"></part-ref>给定宽和高，给出每格就是自己 x、y 的两张坐标图。坐标还要换算：<part-ref to=\"part:const\"></part-ref>给出一个固定的数，<part-ref to=\"part:add\"></part-ref>、<part-ref to=\"part:mul\"></part-ref>、<part-ref to=\"part:div\"></part-ref>对数和整张图逐个值地算。",
+            "en": "The new part <part-ref to=\"part:grid\"></part-ref> takes a width and a height and gives the two coordinate images whose cells hold their own x and y. The coordinates still need converting: <part-ref to=\"part:const\"></part-ref> gives a fixed number, and <part-ref to=\"part:add\"></part-ref>, <part-ref to=\"part:mul\"></part-ref> and <part-ref to=\"part:div\"></part-ref> work value by value on numbers and whole images."
           }
         }
       ],

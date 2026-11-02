@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "针孔小，进来的光少，图很暗；把孔开大，同一点的光会落到传感器上不同的地方。工作台换上一块焦距 50 mm 的透镜：光圈直径 A 管进来多少光，对焦距离管透镜把哪个距离上的光会聚到一点。",
-        "en": "A small pinhole lets in little light and the image is dark; widen it, and light from one point lands at different places on the sensor. The workbench now holds a 50 mm lens: the aperture diameter A sets how much light comes in, the focus distance which depth the lens gathers back to a point."
+        "zh": "针孔小，进来的光少，图很暗；把孔开大，同一点的光会落到传感器上不同的地方，图就糊。相机台在针孔的位置换上一块焦距 50 mm 的透镜，开两个旋钮：<wiki-ref to=\"aperture\"></wiki-ref>直径 A 管进来多少光，对焦距离是透镜对准的那个距离。",
+        "en": "A small pinhole lets in little light and the image is dark; widen it and light from one point lands at different places on the sensor, and the image blurs. The camera bench puts a 50 mm lens where the hole was and opens two knobs: the <wiki-ref to=\"aperture\"></wiki-ref> diameter A sets how much light comes in, and the focus distance is the distance the lens is set to."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：要让图更亮又不变糊，只把孔开大够吗？进光量至少要到 4，近处的箱子还要清晰：它在传感器上的模糊圈不超过 0.03 mm。",
-        "en": "This level asks: to make the image brighter without blurring it, is widening the hole enough? The light must reach at least 4, and the near crate must be sharp: its blur circle on the sensor no wider than 0.03 mm."
+        "zh": "这一关的问题是：要让图更亮又不变糊，只把孔开大够吗？台上有近处的箱子和远处的树。进光量至少要到 4，近处的箱子还要清晰：它在传感器上的<wiki-ref to=\"blur-circle\"></wiki-ref>不超过 0.03 mm。",
+        "en": "This level asks: to make the image brighter without blurring it, is widening the hole enough? The bench holds a near crate and a far tree. The light must reach at least 4, and the near crate must be sharp: its <wiki-ref to=\"blur-circle\"></wiki-ref> on the sensor no wider than 0.03 mm."
       }
     }
   ],
   "after": {
-    "zh": "<wiki-ref to=\"lens\"></wiki-ref>只把一个距离上的光会聚到一点，别的距离成模糊圈。",
-    "en": "A <wiki-ref to=\"lens\"></wiki-ref> gathers the light of one depth to a point; other depths make blur circles."
+    "zh": "<wiki-ref to=\"lens\"></wiki-ref>让大光圈进来的光重新会聚，但只对对焦距离上的点准，别处成模糊圈；光圈管亮度，焦距管像的大小。",
+    "en": "A <wiki-ref to=\"lens\"></wiki-ref> brings the light of a wide aperture back together, but only for points at the focus distance; others make blur circles. The aperture sets the light, the focal length the image size."
   },
   "tasks": [
     {

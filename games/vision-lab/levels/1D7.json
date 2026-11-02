@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "图像存进文件时，每个值只能取有限的几级：uint8 有 256 级。电路算出来的值还可能越出 [0, 1]。",
-        "en": "When an image is stored, each value can take only a few levels: uint8 has 256. And values a circuit computes may leave [0, 1]."
+        "zh": "电路算出的值是任意的实数，还可能越出 [0, 1]；图像存进文件时，每个值却只能取有限的几级，比如 0 到 255 的整数，共 256 级。工作台还没有办法把一个值存成其中一级。",
+        "en": "The values a circuit computes are arbitrary real numbers and may leave [0, 1]; stored in a file, though, each value can take only finitely many levels, whole numbers from 0 to 255, say, 256 in all. The workbench has no way yet to store a value as one of them."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：一个值只能存成 L 级中的一级时，该存哪一级？L 级把 [0, 1] 等分，L = 3 时是 0、0.5、1。新元件<part-ref to=\"part:min\"></part-ref>和<part-ref to=\"part:max\"></part-ref>逐个值取两者中小的、大的。正好在两级中间时，约定取较大的一级。",
-        "en": "This level asks: when a value can only be stored as one of L levels, which should it be? L levels divide [0, 1] evenly: with L = 3 they are 0, 0.5 and 1. The new parts <part-ref to=\"part:min\"></part-ref> and <part-ref to=\"part:max\"></part-ref> take the smaller and the larger of two, value by value. A value exactly between two levels goes to the larger, by convention."
+        "zh": "这一关的问题是：一个值只能存成 L 级中的一级时，该存哪一级？L 级把 [0, 1] 等分，L = 3 时是 0、0.5、1；正好在两级中间时，约定取较大的一级。越出 [0, 1] 的值要先截回来，而加减乘除和向下取整都定不出上下界：新元件<part-ref to=\"part:min\"></part-ref>和<part-ref to=\"part:max\"></part-ref>逐个值取两者中小的、大的。",
+        "en": "This level asks: when a value can only be stored as one of L levels, which should it be? L levels divide [0, 1] evenly: with L = 3 they are 0, 0.5 and 1; a value exactly between two levels goes to the larger, by convention. Values outside [0, 1] must be brought back first, and neither arithmetic nor floor can set a bound: the new parts <part-ref to=\"part:min\"></part-ref> and <part-ref to=\"part:max\"></part-ref> take the smaller and the larger of two, value by value."
       }
     }
   ],
@@ -24,8 +24,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"quantisation\"></wiki-ref>：uint8 就是 256 级的量化。",
-    "en": "This is <wiki-ref to=\"quantisation\"></wiki-ref>: uint8 is quantisation to 256 levels."
+    "zh": "这是<wiki-ref to=\"quantisation\"></wiki-ref>：把连续的值存成有限的几级，取最近的一级，不是截掉小数；uint8 就是 256 级。",
+    "en": "This is <wiki-ref to=\"quantisation\"></wiki-ref>: storing continuous values as finitely many levels, the nearest one, not the fraction cut off; uint8 has 256 levels."
   },
   "tasks": [
     {

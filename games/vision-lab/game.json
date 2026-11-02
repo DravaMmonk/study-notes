@@ -10,8 +10,8 @@
     "en": "In development"
   },
   "lede": {
-    "zh": "从一格一格的数出发，搭出读图、移图、缩放的电路，再用相机模型解释图从哪里来。",
-    "en": "Start from a grid of numbers, wire circuits that read, move and resize images, and explain with a camera model where an image comes from."
+    "zh": "先弄清一张图能回答什么，再从一格格的数起步，搭出相机模型和读图、缩放、量化、裁剪的电路：场景怎样变成一组数，这组数又怎样被处理。",
+    "en": "First learn what one image can answer; then, starting from cells of numbers, build camera models and circuits that read, resize, quantise and crop images: how a scene becomes an array of numbers, and how that array is handled."
   },
   "primitives": [
     "channel",

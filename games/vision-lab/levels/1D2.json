@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "有了采样网格，每个新像素都知道自己落在原图的哪里；可这个位置一般不是整数，原图在那里没有像素。",
-        "en": "With the sampling grid every new pixel knows where it sits in the original; but that position is seldom a whole number, and the original has no pixel there."
+        "zh": "有了<part-ref to=\"sampleGrid\"></part-ref>，每个新像素都知道自己落在原图的哪里；可这个位置一般不是整数，原图在那里没有像素。手上的元件只在同一个位置上算，没有一个能把原图某处的值搬到新图上。",
+        "en": "With the <part-ref to=\"sampleGrid\"></part-ref> every new pixel knows where it sits in the original; but that position is seldom a whole number, and the original has no pixel there. The parts in hand compute in place, and none can carry a value from somewhere in the original to the new image."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：放大一张图时，落在两个旧像素之间的新像素，值从哪里来？新元件<part-ref to=\"part:size\"></part-ref>读出图的宽高，<part-ref to=\"part:lookup\"></part-ref>按整数坐标在图上取值，<part-ref to=\"part:floor\"></part-ref>向下取整。离两边一样远时，约定取坐标较大的一边。",
-        "en": "This level asks: when an image is enlarged, where does a new pixel that falls between two old ones get its value? New parts: <part-ref to=\"part:size\"></part-ref> reads an image's width and height, <part-ref to=\"part:lookup\"></part-ref> reads an image at whole-number coordinates, <part-ref to=\"part:floor\"></part-ref> rounds down. When a position is equally far from two pixels, the convention takes the larger coordinate."
+        "zh": "这一关的问题是：放大一张图时，落在两个旧像素之间的新像素，值从哪里来？新元件<part-ref to=\"part:lookup\"></part-ref>按整数坐标在图上取值，<part-ref to=\"part:size\"></part-ref>读出图的宽高，<part-ref to=\"part:floor\"></part-ref>把连续的数变成整数。离两边一样远时，约定取坐标较大的一边。输出图逐格和期望相符才算对。",
+        "en": "This level asks: when an image is enlarged, where does a new pixel that falls between two old ones get its value? New parts: <part-ref to=\"part:lookup\"></part-ref> reads an image at whole-number coordinates, <part-ref to=\"part:size\"></part-ref> gives an image's width and height, and <part-ref to=\"part:floor\"></part-ref> turns a continuous number into a whole one. When a position is equally far from two pixels, the convention takes the larger coordinate. It is right when the output matches the expected image cell by cell."
       }
     }
   ],
@@ -24,8 +24,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"nearest-neighbour\"></wiki-ref>：放大后一块一块的，OpenCV 里叫 INTER_NEAREST。",
-    "en": "This is <wiki-ref to=\"nearest-neighbour\"></wiki-ref>: enlargements come out in squares; OpenCV calls it INTER_NEAREST."
+    "zh": "这是<wiki-ref to=\"nearest-neighbour\"></wiki-ref>：快、边缘硬，放大后成块；OpenCV 里叫 INTER_NEAREST。",
+    "en": "This is <wiki-ref to=\"nearest-neighbour\"></wiki-ref>: fast, with hard edges, and blocky when enlarged; OpenCV calls it INTER_NEAREST."
   },
   "tasks": [
     {

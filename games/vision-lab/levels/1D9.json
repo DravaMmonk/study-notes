@@ -3,8 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "流水线常常只要图里的一部分。这一关的问题是：从一张图里取出一块时，输出的像素值是原图里已有的，还是新算出来的？输入一张图、窗口左上角的 x0、y0 和窗口的宽 w、高 h。",
-        "en": "A pipeline often wants only part of an image. This level asks: when a region is taken out of an image, are the output's pixel values ones the original holds, or newly computed? The inputs are an image, the window's top-left x0, y0, and its width w and height h."
+        "zh": "流水线常常只要图里的一部分，比如物体所在的那一片。手上的<part-ref to=\"resizeNearest\"></part-ref>改的是整张图的尺寸，每个输出像素都在整张图上采样。这一关的问题是：从一张图里取出一部分时，输出的像素值是原图里已有的，还是新算出来的？",
+        "en": "A pipeline often wants only part of an image, the region where an object is, say. The <part-ref to=\"resizeNearest\"></part-ref> in hand changes the whole image's size, every output pixel sampled across the whole image. This level asks: when part of an image is taken out, are the output's pixel values ones the original holds, or newly computed?"
+      }
+    },
+    {
+      "t": {
+        "zh": "输入一张图、窗口左上角的 x0、y0 和窗口的宽 w、高 h。交出窗口里的像素，测试逐格和原图核对；隐藏测试里有贴边的窗口和彩色图。",
+        "en": "The inputs are an image, the window's top-left x0, y0, and its width w and height h. Give the pixels inside the window; the tests check them cell by cell against the original, and hidden tests include windows on the border and a colour image."
       }
     }
   ],
@@ -17,8 +23,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"cropping\"></wiki-ref>：NumPy 写成 image[y0:y0+h, x0:x0+w]。",
-    "en": "This is <wiki-ref to=\"cropping\"></wiki-ref>: in NumPy, image[y0:y0+h, x0:x0+w]."
+    "zh": "这是<wiki-ref to=\"cropping\"></wiki-ref>：取原数组的子区域，像素值原样保留。<wiki-ref to=\"numpy\"></wiki-ref>写成 image[y0:y0+h, x0:x0+w]。",
+    "en": "This is <wiki-ref to=\"cropping\"></wiki-ref>: a sub-region of the original array, its pixel values kept as they are. In <wiki-ref to=\"numpy\"></wiki-ref> it is image[y0:y0+h, x0:x0+w]."
   },
   "tasks": [
     {

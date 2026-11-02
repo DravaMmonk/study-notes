@@ -3,11 +3,15 @@
   "intro": [
     {
       "t": {
-        "zh": "相机台上，同一个像高可以来自不同的物体。焦距 f = 2 固定。这一关的问题是：看到像有多高，能定出物体有多远吗？从几组（物高, 距离）里，选出像高都是 1、距离却各不相同的几组。",
-        "en": "On the camera bench one image height can come from different objects. The focal length is fixed at f = 2. This level asks: does the height of an image tell how far away the object is? From several (height, depth) pairs, choose those that all image 1 tall at different depths."
+        "zh": "到这里，任务都是由物体求像。这一关反过来问：看到像有多高，能定出物体有多远吗？焦距固定为 f = 2。每一轮给出几组（物高, 距离），选出像高都是 1、距离又各不相同的那几组，全部选对、一组不多才算对。",
+        "en": "So far every task has gone from the object to its image. This level asks the other way: does the height of an image tell how far away the object is? The focal length is fixed at f = 2. Each round lists several (height, depth) pairs; choose those that all image 1 tall at different depths, all of them and no others."
       }
     }
   ],
+  "after": {
+    "zh": "像只定出物高和距离的比 H/Z：大而远和小而近成同一个像，这是<wiki-ref to=\"inverse-problem\"></wiki-ref>在相机上的样子。",
+    "en": "An image fixes only the ratio H/Z: large-and-far and small-and-near image alike — the <wiki-ref to=\"inverse-problem\"></wiki-ref> as the camera poses it."
+  },
   "tasks": [
     {
       "id": "1B3",

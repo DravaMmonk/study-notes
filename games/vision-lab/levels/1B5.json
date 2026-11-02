@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "透镜对焦在 1500 mm，近处的标记在 1200 mm，远处的在 2000 mm。光圈这回用摄影的写法给出：f 数是焦距除以光圈直径，50 mm 镜头的 f/2 就是 25 mm 的光圈。",
-        "en": "The lens is focused at 1500 mm, with the near marker at 1200 mm and the far one at 2000 mm. The aperture is now given the photographer's way: the f-number is the focal length over the aperture diameter, so f/2 on a 50 mm lens is a 25 mm aperture."
+        "zh": "<level-ref to=\"1B4\"></level-ref>只要一个物体清晰。这一关有两个标记，近处的在 1200 mm，远处的在 2000 mm；透镜对焦在 1500 mm，不能动。光圈这回用摄影的写法给出：<wiki-ref to=\"f-number\"></wiki-ref>是焦距除以光圈直径，50 mm 镜头的 f/2 就是 25 mm 的光圈。",
+        "en": "<level-ref to=\"1B4\"></level-ref> needed one object sharp. Here there are two markers, the near one at 1200 mm and the far one at 2000 mm; the lens is focused at 1500 mm and stays there. The aperture is now given the photographer's way: the <wiki-ref to=\"f-number\"></wiki-ref> is the focal length over the aperture diameter, so f/2 on a 50 mm lens is a 25 mm aperture."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：近处和远处两个物体，怎样在一张照片里都清晰？曲线画出每个深度的模糊圈和清晰的门槛；进光量也不能低于 1。",
-        "en": "This level asks: how can a near and a far object both be sharp in one photo? The curve draws each depth's blur circle against the sharpness threshold; and the light must not fall below 1."
+        "zh": "这一关的问题是：近处和远处两个物体，怎样在一张照片里都清晰？曲线画出每个深度的模糊圈和清晰的门槛。两个标记都清晰、进光量又不低于 1，才算对。",
+        "en": "This level asks: how can a near and a far object both be sharp in one photo? The curve draws each depth's blur circle against the sharpness threshold. It is right when both markers are sharp and the light is at least 1."
       }
     }
   ],
   "after": {
-    "zh": "同时清晰的深度范围叫<wiki-ref to=\"depth-of-field\"></wiki-ref>：f 数越大，光圈越小，它越深。",
-    "en": "The range of depths sharp at once is the <wiki-ref to=\"depth-of-field\"></wiki-ref>: the larger the f-number, the smaller the aperture and the deeper it is."
+    "zh": "同时清晰的深度范围叫<wiki-ref to=\"depth-of-field\"></wiki-ref>：光圈越小、f 数越大，它越深，进来的光也越少。",
+    "en": "The range of depths sharp at once is the <wiki-ref to=\"depth-of-field\"></wiki-ref>: the smaller the aperture, the larger the f-number, the deeper it is and the less light comes in."
   },
   "tasks": [
     {

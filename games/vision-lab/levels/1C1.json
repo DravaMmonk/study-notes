@@ -3,21 +3,21 @@
   "intro": [
     {
       "t": {
-        "zh": "一张用 OpenCV 读进来的照片，在这里显示出来，蓝天却成了橙色。这一关的问题是：同一张照片，为什么在这里显示出橙色的天空？",
-        "en": "A photo read in with OpenCV is displayed here, and its blue sky has turned orange. This level asks: why does the same photo show an orange sky here?"
+        "zh": "工作台读得出一个像素的三个数，却没有问过这三个数各是哪种颜色。一张用<wiki-ref to=\"opencv\"></wiki-ref>读进来的照片在这里显示出来，蓝天成了橙色。这一关的问题是：同一张照片，为什么在这里显示出橙色的天空？",
+        "en": "The workbench can read a pixel's three numbers but has never asked which colour each one is. A photo read in with <wiki-ref to=\"opencv\"></wiki-ref> is displayed here, and its blue sky has turned orange. This level asks: why does the same photo show an orange sky here?"
       }
     },
     {
       "t": {
-        "zh": "工作台第一次接电路：输入从左边进来，输出从右边出去。新元件<part-ref to=\"part:channel\"></part-ref>取出彩色图的一个通道，取哪一个是它的设置：R、G 或 B，也就是每格的第一、第二或第三个数；<part-ref to=\"part:compose\"></part-ref>把三张灰度图合成一张彩色图。",
-        "en": "The workbench wires its first circuit: inputs come in on the left, outputs leave on the right. The new part <part-ref to=\"part:channel\"></part-ref> takes one channel out of a colour image, and which one is its setting: R, G or B, the first, second or third number of each cell. <part-ref to=\"part:compose\"></part-ref> makes three grey images one colour image."
+        "zh": "这一关要接一块电路：输入从左边进来，输出从右边出去。要把一个像素的三个数拆开、重新排，工作台还没有这样的元件。新元件<part-ref to=\"part:channel\"></part-ref>取出彩色图的一个通道，设成 R、G 或 B，就是每格的第一、第二或第三个数；<part-ref to=\"part:compose\"></part-ref>把三张灰度图合成一张彩色图。每个像素都和期望相符才算对。",
+        "en": "This level wires a circuit: inputs come in on the left, outputs leave on the right. Taking a pixel's three numbers apart and putting them back in another order needs parts the workbench lacks. The new part <part-ref to=\"part:channel\"></part-ref> takes one channel out of a colour image, set to R, G or B, the first, second or third number of each cell; <part-ref to=\"part:compose\"></part-ref> makes three grey images one colour image. It is right when every pixel matches the expected one."
       }
     }
   ],
   "adds": ["channel", "compose"],
   "after": {
-    "zh": "各个库的<wiki-ref to=\"channel-order\"></wiki-ref>不同：OpenCV 读图得到 BGR，Matplotlib 按 RGB 显示。",
-    "en": "Libraries differ in <wiki-ref to=\"channel-order\"></wiki-ref>: OpenCV reads images as BGR, Matplotlib displays RGB."
+    "zh": "各个库的<wiki-ref to=\"channel-order\"></wiki-ref>不同：<wiki-ref to=\"opencv\"></wiki-ref>读图得到 BGR，<wiki-ref to=\"matplotlib\"></wiki-ref>按 RGB 显示。",
+    "en": "Libraries differ in <wiki-ref to=\"channel-order\"></wiki-ref>: <wiki-ref to=\"opencv\"></wiki-ref> reads images as BGR, <wiki-ref to=\"matplotlib\"></wiki-ref> displays RGB."
   },
   "tasks": [
     {

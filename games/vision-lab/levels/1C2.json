@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "电路算出的值可以落在 [0, 1] 之外。屏幕只显示得出 0 到 1，画的时候超出的部分画成最黑或最白。",
-        "en": "A circuit may compute values outside [0, 1]. A screen shows only 0 to 1, and draws whatever lies beyond as the darkest or the brightest."
+        "zh": "<level-ref to=\"1C1\"></level-ref>弄清了三个数的顺序，还没问它们的大小。电路算出的值可以落在 [0, 1] 之外，屏幕却只显示得出 0 到 1，超出的部分画成最黑或最白。文件里的像素又常存成<wiki-ref to=\"uint8\"></wiki-ref>：0 到 255 的整数，255 最亮。",
+        "en": "<level-ref to=\"1C1\"></level-ref> settled the order of the three numbers but not their size. A circuit may compute values outside [0, 1], while a screen shows only 0 to 1 and draws whatever lies beyond as the darkest or the brightest. And files often store pixels as <wiki-ref to=\"uint8\"></wiki-ref>: whole numbers from 0 to 255, 255 the brightest."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：两个像素看上去一样白，存着的数一样吗？先填出每格显示出来的值，再把 OpenCV 读进来的 uint8 像素换成 [0, 1] 里的 (R, G, B)。uint8 是 0 到 255 的整数，255 最亮。",
-        "en": "This level asks: when two pixels look equally white, do they hold the same number? First fill in each cell's displayed value, then turn uint8 pixels read by OpenCV into (R, G, B) in [0, 1]. A uint8 is a whole number from 0 to 255, 255 the brightest."
+        "zh": "这一关的问题是：两个像素看上去一样白，存着的数一样吗？第一个任务对照每格存着的数，填出它显示出来的值；第二个任务把 OpenCV 读进来的 uint8 像素写成 [0, 1] 里的 (R, G, B)。每格的数都对才算对。",
+        "en": "This level asks: when two pixels look equally white, do they hold the same number? The first task has you fill in each cell's displayed value from its stored one; the second, write uint8 pixels read by OpenCV as (R, G, B) in [0, 1]. It is right when every cell's numbers are."
       }
     }
   ],
   "after": {
-    "zh": "像素值有<wiki-ref to=\"value-range\"></wiki-ref>和类型：显示时截到两端，存着的数不变。",
-    "en": "Pixel values have a <wiki-ref to=\"value-range\"></wiki-ref> and a type: the display clips to the ends, the stored numbers stay."
+    "zh": "像素值有<wiki-ref to=\"value-range\"></wiki-ref>和类型：显示时截到两端，存着的数不变；处理时常把 uint8 换成 [0, 1] 的浮点数。",
+    "en": "Pixel values have a <wiki-ref to=\"value-range\"></wiki-ref> and a type: the display clips to the ends while the stored numbers stay; processing often turns uint8 into floats in [0, 1]."
   },
   "tasks": [
     {

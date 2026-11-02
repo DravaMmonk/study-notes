@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "图里的长度以像素计，像平面上的长度以毫米计。传感器把两者连起来：它高 20 mm，排着 200 个像素。",
-        "en": "Lengths in the image are counted in pixels, lengths on the image plane in millimetres. The sensor links the two: it is 20 mm tall and holds 200 pixels."
+        "zh": "相机台上的长度以毫米计，图里的长度以像素计。这台相机的传感器高 20 mm，竖直方向排着 200 个像素。",
+        "en": "Lengths on the camera bench are in millimetres, lengths in the image in pixels. This camera's sensor is 20 mm tall and holds 200 pixels from top to bottom."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：物体在图里高 100 像素，实高 120 mm，离相机 600 mm，镜头的焦距是多少毫米？先算，再到相机台上验证，最后写出以像素计的焦距。",
-        "en": "This level asks: an object is 100 pixels tall in the image, 120 mm tall and 600 mm from the camera — what is the lens's focal length in millimetres? Work it out, check it on the camera bench, then state the focal length in pixels."
+        "zh": "这一关的问题是：物体在图里高 100 像素，实高 120 mm，离相机 600 mm，镜头的焦距是多少毫米？三个任务：先算出焦距，再到相机台上验证，最后写出以像素计的焦距和这台相机竖直方向的<wiki-ref to=\"field-of-view\"></wiki-ref>。",
+        "en": "This level asks: an object is 100 pixels tall in the image, 120 mm tall in reality and 600 mm from the camera — what is the lens's focal length in millimetres? Three tasks: work it out, check it on the camera bench, then give the focal length in pixels and this camera's vertical <wiki-ref to=\"field-of-view\"></wiki-ref>."
       }
     }
   ],
   "after": {
-    "zh": "焦距除以像素尺寸，就是<wiki-ref to=\"pixel-units\"></wiki-ref>。",
-    "en": "The focal length divided by the pixel size is the <wiki-ref to=\"pixel-units\"></wiki-ref>."
+    "zh": "物理焦距除以像素尺寸，就是<wiki-ref to=\"pixel-units\"></wiki-ref>：焦距换成图像坐标的单位，视场也能直接用像素算。",
+    "en": "The physical focal length over the pixel size is the <wiki-ref to=\"pixel-units\"></wiki-ref>: the focal length in the image's own units, from which the field of view follows in pixels."
   },
   "tasks": [
     {

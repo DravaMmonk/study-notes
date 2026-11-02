@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "要读写一个像素，先得说清是哪一个。工作台给图上的每一格一对坐标 (x, y)，格子旁边画着两条坐标轴。",
-        "en": "To read or write a pixel one must first say which. The workbench gives every cell of an image a pair of coordinates (x, y), and draws the two axes beside the grid."
+        "zh": "数存好了，要读写其中一个像素，先得说清是哪一个。工作台给图上的每一格一对坐标 (x, y)，格子旁边画着两条坐标轴。",
+        "en": "The numbers are stored; to read or write one pixel, one must first say which. The workbench gives every cell of an image a pair of coordinates (x, y) and draws the two axes beside the grid."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：图像坐标 (x, y) 指的是哪一个像素？对着坐标轴点出给定坐标的格子，再反过来写出高亮格子的坐标。",
-        "en": "This level asks: which pixel do image coordinates (x, y) refer to? Reading the axes, pick the cell at given coordinates, then go the other way and write the coordinates of a highlighted cell."
+        "zh": "这一关的问题是：图像坐标 (x, y) 指的是哪一个像素？前两个任务对着坐标轴点出给定坐标的格子，其中一张图宽高不等；第三个任务反过来，写出高亮格子的坐标。点中或写对那一格才算对。",
+        "en": "This level asks: which pixel do image coordinates (x, y) refer to? The first two tasks have you pick the cell at given coordinates by the axes, one of them on an image whose width and height differ; the third goes the other way and asks for the coordinates of a highlighted cell. Only the right cell counts."
       }
     }
   ],
   "after": {
-    "zh": "这就是<wiki-ref to=\"pixel-coordinates\"></wiki-ref>：原点在左上角，从 0 数起。",
-    "en": "These are <wiki-ref to=\"pixel-coordinates\"></wiki-ref>: the origin at the top-left corner, counting from 0."
+    "zh": "这是<wiki-ref to=\"pixel-coordinates\"></wiki-ref>：原点在左上角，从 0 数起，y 向下增大，和数学课上 y 轴朝上的坐标不同。",
+    "en": "These are <wiki-ref to=\"pixel-coordinates\"></wiki-ref>: the origin at the top-left corner, counting from 0, y growing downwards, unlike the upward y of school geometry."
   },
   "tasks": [
     {

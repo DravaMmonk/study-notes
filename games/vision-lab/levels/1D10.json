@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "识别网络要 S×S 的输入，照片却有各种宽高。这一关的问题是：网络要 512×512，手里是 768×512 的照片，直接缩放到 512×512 可以吗？",
-        "en": "A recognition network wants S×S input, while photos come in every width and height. This level asks: the network wants 512×512 and the photo is 768×512 — can it simply be resized to 512×512?"
+        "zh": "识别网络要 S×S 的输入，照片却有各种宽高。手上的缩放元件能把任何图缩成任何尺寸。这一关的问题是：网络要 512×512，手里是 768×512 的照片，直接缩放到 512×512 可以吗？",
+        "en": "A recognition network wants S×S input, while photos come in every width and height. The resizers in hand can bring any image to any size. This level asks: the network wants 512×512 and the photo is 768×512 — can it be resized straight to 512×512?"
       }
     },
     {
       "t": {
-        "zh": "测试图里画着一个正方形的东西：交出的 S×S 图里，它还得是正方形，多出来的部分从两边平均去掉，除不尽时左上少去掉一个像素。",
-        "en": "The test images hold something square: in the S×S result it must still be square, and the excess is removed evenly from both sides, one pixel less at the top-left when it does not divide."
+        "zh": "测试图里画着一个正方形的东西：交出的 S×S 图里，它还得是正方形。多出来的部分从两边平均去掉，除不尽时左上少去掉一个像素。横幅和竖幅的照片都要成立。",
+        "en": "The test images hold something square, and in the S×S result it must still be square. The excess is removed evenly from both sides, one pixel less at the top-left when it does not divide. It must work for landscape and portrait photos alike."
       }
     }
   ],
   "after": {
-    "zh": "这样保住了<wiki-ref to=\"aspect-ratio\"></wiki-ref>：宽和高乘同一个比例。",
-    "en": "This keeps the <wiki-ref to=\"aspect-ratio\"></wiki-ref>: width and height scaled by one factor."
+    "zh": "宽与高之比叫<wiki-ref to=\"aspect-ratio\"></wiki-ref>：宽高各缩各的会改变它，圆变成椭圆；OpenCV 的尺寸写成 (宽, 高)。",
+    "en": "Width over height is the <wiki-ref to=\"aspect-ratio\"></wiki-ref>: scaling width and height separately changes it and turns circles into ellipses; OpenCV writes a size as (width, height)."
   },
   "tasks": [
     {

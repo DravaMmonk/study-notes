@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "手机的数码变焦没有换镜头，它手上只有已经拍下的像素。这一关的问题是：它怎样把画面中间放大 k 倍？交出的图和输入一样大，显示的是原图中心那一部分放大 k 倍后的样子。",
-        "en": "A phone's digital zoom changes no lens; all it has are the pixels already taken. This level asks: how does it magnify the middle of the picture k times? The result is as large as the input and shows the part at the original's centre magnified k times."
+        "zh": "手上已经有<part-ref to=\"crop\"></part-ref>和<part-ref to=\"resizeLinear\"></part-ref>。手机的数码变焦没有换镜头，它只有已经拍下的像素。这一关的问题是：它怎样把画面中间放大 k 倍？交出的图和输入一样大，显示原图中心那一部分放大 k 倍后的样子；隐藏测试有非正方形的图和别的 k。",
+        "en": "The <part-ref to=\"crop\"></part-ref> and the <part-ref to=\"resizeLinear\"></part-ref> are in hand. A phone's digital zoom changes no lens; all it has are the pixels already taken. This level asks: how does it magnify the middle of the picture k times? The result is as large as the input and shows the part at the original's centre magnified k times; hidden tests use non-square images and other k."
       }
     }
   ],
   "after": {
-    "zh": "数码变焦只用已有的像素：它放大了画面，没有带来新的细节。",
-    "en": "Digital zoom uses only the pixels already there: it magnifies the picture and brings no new detail."
+    "zh": "数码变焦等于先<wiki-ref to=\"cropping\"></wiki-ref>、再放大：它只用已有的像素，不带来新的细节；光学变焦换的是镜头的焦距。",
+    "en": "Digital zoom is <wiki-ref to=\"cropping\"></wiki-ref> followed by enlarging: it uses only the pixels already there and adds no detail; optical zoom changes the lens's focal length."
   },
   "tasks": [
     {

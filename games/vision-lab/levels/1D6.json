@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "手上有两种缩放：最近邻和双线性。这一关的问题是：用它们放大同一张图，结果差在哪里？是不是总有一种更好？先并排放大，再把结果认到剖面上，最后判断一句论断。",
-        "en": "Two resizers are in hand: nearest neighbour and bilinear. This level asks: enlarging one image with each, how do the results differ, and is one always better? Enlarge side by side, match the results to profiles, then judge a claim."
+        "zh": "手上有两种缩放：<part-ref to=\"resizeNearest\"></part-ref>和<part-ref to=\"resizeLinear\"></part-ref>。这一关新在取舍：用它们放大同一张图，结果差在哪里？是不是总有一种更好？三个任务：先并排放大，再把结果认到剖面上，最后找出推翻「双线性总比最近邻好」的那组结果。",
+        "en": "Two resizers are in hand: the <part-ref to=\"resizeNearest\"></part-ref> and the <part-ref to=\"resizeLinear\"></part-ref>. What is new is the trade-off: enlarging one image with each, how do the results differ, and is one always better? Three tasks: enlarge side by side, match the results to profiles, then find the result that refutes 'bilinear is always better than nearest neighbour'."
       }
     }
   ],

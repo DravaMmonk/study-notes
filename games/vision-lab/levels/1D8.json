@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "量化器把每个值存成最近的一级。这一关的问题是：量化以后，原来的值还能找回来吗？先让量化器存一张图，同时交出每一格的原值可能落在的范围；再反过来，从几组输入里找出存成同一个结果的那些。",
-        "en": "The quantiser stores each value as the nearest level. This level asks: after quantisation, can the original values be recovered? First have the quantiser store an image and give, for each cell, the range its original value may lie in; then go backwards and find, among several inputs, those stored as one same result."
+        "zh": "<part-ref to=\"quantise\"></part-ref>把每个值存成最近的一级。这一关新在辨真伪：量化以后，原来的值还能找回来吗？第一个任务让量化器存一张图，同时交出每一格的原值可能落在的范围；第二个任务反过来，从几组输入里选出存成同一个结果的全部输入。",
+        "en": "The <part-ref to=\"quantise\"></part-ref> stores each value as the nearest level. What is new is testing a belief: after quantisation, can the original values be recovered? The first task has the quantiser store an image and give, for each cell, the range its original may lie in; the second goes backwards and picks, among several inputs, every one stored as the same result."
       }
     }
   ],

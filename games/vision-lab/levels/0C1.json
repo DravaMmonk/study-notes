@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "图形学从物体、光照和相机出发，正向渲出一张图。检查台面对的是反方向：手里只有图，要说出场景是什么样。",
-        "en": "Graphics starts from objects, light and a camera and renders an image forwards. The station faces the other way: it holds only the image and must say what the scene is like."
+        "zh": "到这里，检查台默认答案就在图里。可图是由场景生成的：<wiki-ref to=\"computer-graphics\"></wiki-ref>从物体、材质、光照和相机出发，正向渲出图像；视觉走反方向，手里只有图，要说出场景是什么样。",
+        "en": "So far the station has assumed the answer is in the image. But images are generated from scenes: <wiki-ref to=\"computer-graphics\"></wiki-ref> renders an image forwards from objects, materials, light and a camera; vision goes the other way, holding only the image and having to say what the scene is like."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：只看这一张图，红色箱子离相机多远？几个候选场景都渲得出这张图。一句话在每个候选场景里都对，才算成立；都错是不成立；有对有错就是无法确定。",
-        "en": "This level asks: from this image alone, how far is the red box from the camera? Several candidate scenes all render this image. A statement true in every candidate holds, false in every one does not hold, and true in some, false in others is undetermined."
+        "zh": "这一关的问题是：只看这一张图，红色箱子离相机多远？题目给出这张图和几个都渲得出它的候选场景，判断关于场景的每句话：在每个候选场景里都对，才算成立；都错是不成立；有对有错就是无法确定。",
+        "en": "This level asks: from this image alone, how far is the red box from the camera? You get the image and several candidate scenes that all render it, and judge each statement about the scene: true in every candidate, it holds; false in every one, it does not; true in some and false in others, it is undetermined."
       }
     }
   ],
   "after": {
-    "zh": "从图像推回场景是<wiki-ref to=\"inverse-problem\"></wiki-ref>：不同的场景能渲出同一张图。",
-    "en": "Going from the image back to the scene is an <wiki-ref to=\"inverse-problem\"></wiki-ref>: different scenes can render the same image."
+    "zh": "从图像推回场景是<wiki-ref to=\"inverse-problem\"></wiki-ref>：三维投成二维丢了一维，不同的场景能渲出同一张图。",
+    "en": "Inferring the scene from the image is an <wiki-ref to=\"inverse-problem\"></wiki-ref>: projecting 3D to 2D loses a dimension, and different scenes can render the same image."
   },
   "tasks": [
     {

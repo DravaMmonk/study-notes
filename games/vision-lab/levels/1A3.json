@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "程序里读像素用的是数组下标 I[第几行, 第几列]，不是坐标 (x, y)。两种写法说的是同一批像素，顺序却不一样。",
-        "en": "A program reads a pixel by its array index I[row, column], not by coordinates (x, y). The two name the same pixels, in a different order."
+        "zh": "<level-ref to=\"1A2\"></level-ref>用的是坐标 (x, y)，程序里读像素用的却是数组下标 I[第几行, 第几列]。两种写法说的是同一批像素，顺序不一样。",
+        "en": "<level-ref to=\"1A2\"></level-ref> used coordinates (x, y), but a program reads a pixel by its array index I[row, column]. The two name the same pixels in a different order."
       }
     },
     {
       "t": {
-        "zh": "这一关从坐标换到数组：按下标点出像素，再从数组的形状读出图的宽和高。库里还有第三种写法：OpenCV 把尺寸写成 (宽, 高)。",
-        "en": "This level moves from coordinates to arrays: pick pixels by index, then read an image's width and height off its array shape. Libraries add a third way of writing it: OpenCV gives a size as (width, height)."
+        "zh": "这一关新在方向：从坐标换到数组。先按下标点出像素，再从数组的形状读出图的宽和高，最后把<wiki-ref to=\"opencv\"></wiki-ref>给出的尺寸写成数组形状；OpenCV 把尺寸写成 (宽, 高)。每一问都要点中那一格或写对那两个数。",
+        "en": "What is new is the direction: from coordinates to arrays. Pick a pixel by its index, read an image's width and height off its array shape, then write as an array shape a size given by <wiki-ref to=\"opencv\"></wiki-ref>, which writes sizes as (width, height). Each task wants the right cell or the right two numbers."
       }
     }
   ],

@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "线性缩放只沿一行插值，竖直方向照抄离得最近的那一行。这一关的问题是：在二维图像里，落在四个旧像素中间的新像素，值怎么算？",
-        "en": "Linear resizing interpolates only along a row and copies the nearest row vertically. This level asks: in a 2D image, how is the value of a new pixel among four old ones computed?"
+        "zh": "<part-ref to=\"resizeLinear\"></part-ref>只沿一行插值，竖直方向照抄离得最近的那一行。放大一张二维的图，新像素在上下方向也落在两行之间。这一关的问题是：在二维图像里，落在四个旧像素中间的新像素，值怎么算？",
+        "en": "The <part-ref to=\"resizeLinear\"></part-ref> interpolates only along a row and copies the nearest row vertically. Enlarging a 2D image, a new pixel also falls between two rows. This level asks: in a 2D image, how is the value of a new pixel among four old ones computed?"
       }
     },
     {
       "t": {
-        "zh": "先用手上的线性缩放只改一张图的宽度，看它在每一行上做了什么；再把这块元件升级：新像素由周围四个旧像素加权。",
-        "en": "First use the linear resizer in hand to change only an image's width, and see what it does on each row; then upgrade the part: a new pixel weighted from the four old pixels around it."
+        "zh": "两个任务：先用手上的线性缩放只改一张图的宽度，看它在每一行上做了什么；再升级这个元件，让新像素的值由周围四个旧像素决定。升级后的元件要通过二维放大和缩小的测试。",
+        "en": "Two tasks: first use the linear resizer in hand to change only an image's width and see what it does on each row; then upgrade the part so a new pixel's value comes from the four old pixels around it. The upgraded part must pass tests that enlarge and shrink in two dimensions."
       }
     }
   ],
@@ -23,8 +23,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>：四个权重之和为 1，OpenCV 里叫 INTER_LINEAR。",
-    "en": "This is <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>: four weights summing to 1; OpenCV calls it INTER_LINEAR."
+    "zh": "这是<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>：新值是四个邻居的加权平均，比最近邻平滑；OpenCV 里叫 INTER_LINEAR。",
+    "en": "This is <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>: the new value a weighted average of four neighbours, smoother than nearest neighbour; OpenCV calls it INTER_LINEAR."
   },
   "tasks": [
     {

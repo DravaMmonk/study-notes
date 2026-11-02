@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "在针孔相机上，像的大小靠移动物体来改。这一关物体和它的距离都锁住了：物体不动、相机不挪，还有什么能让像变大？",
-        "en": "On the pinhole camera the image size was changed by moving the object. Here the object and its distance are locked: with neither the object nor the camera moving, what else can make the image larger?"
+        "zh": "在<level-ref to=\"1B1\"></level-ref>里，像的大小靠移动物体来改。这一关物体和它的距离都锁住了：物体不动、相机不挪，还有什么能让像变大？",
+        "en": "In <level-ref to=\"1B1\"></level-ref> the image size changed when the object moved. Here the object and its distance are locked: with neither the object nor the camera moving, what else can make the image larger?"
       }
     },
     {
       "t": {
-        "zh": "台上只有像平面的距离 f 能动。先在台上让像高达到目标；再对另外两组数不上台、先算出 f，最后拿其中一组上台验证。",
-        "en": "Only the plane distance f turns on the bench. First bring the image to the target height there; then, for two other sets of numbers, work out f without the bench, and finally check one of them on it."
+        "zh": "这一关新在改相机，不改场景：台上只有<wiki-ref to=\"focal-length\"></wiki-ref> f 能动。先在台上让像高达到目标；再不上台，为另外两组数算出 f；最后拿其中一组上台验证，像高等于目标才算对。",
+        "en": "What is new is changing the camera instead of the scene: only the <wiki-ref to=\"focal-length\"></wiki-ref> f turns. First bring the image to the target height on the bench; then work out f for two other sets of numbers without it; finally check one of them on the bench, where the image must match the target."
       }
     }
   ],

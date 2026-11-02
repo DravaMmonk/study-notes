@@ -3,20 +3,20 @@
   "intro": [
     {
       "t": {
-        "zh": "像平面不是无限大的：相机台装上一块 20 mm 高、200 像素的传感器，主点在中心。像落到传感器边外的物体，不在画面里。",
-        "en": "The image plane is not endless: the camera bench now holds a sensor 20 mm and 200 pixels tall, its principal point at the centre. An object whose image falls past its edges is out of the picture."
+        "zh": "到这里，像平面一直是无限大的，物体的像总能落上去。真正的相机只有一块传感器：相机台装上一块 20 mm 高、200 像素的传感器，<wiki-ref to=\"principal-point\"></wiki-ref>在中心。像落到传感器边外的物体，不在画面里。",
+        "en": "Until now the image plane has been endless, and every image had somewhere to land. A real camera has only a sensor: the camera bench now holds one 20 mm and 200 pixels tall, its <wiki-ref to=\"principal-point\"></wiki-ref> at the centre. An object whose image falls past its edges is out of the picture."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：要把一排物体全拍进画面，焦距该变长还是变短？传感器大小不变，物体都在 2000 mm 外，台上只有焦距 f 能动。",
-        "en": "This level asks: to get a whole row of objects into the frame, should the focal length grow or shrink? The sensor stays as it is, the objects stand 2000 mm away, and only the focal length f turns."
+        "zh": "这一关的问题是：要把一排物体全拍进画面，焦距该变长还是变短？三支箭都在 2000 mm 外，台上只有焦距 f 能动。第一个任务要三支都在画面里，中间那支乙又不能太小；第二个任务只拍乙，要它占满画面的高度。",
+        "en": "This level asks: to get a whole row of objects into the frame, should the focal length grow or shrink? Three arrows stand 2000 mm away, and only the focal length f turns. The first task wants all three in view without the middle arrow B shrinking too far; the second shows B alone and wants it to fill the frame's height."
       }
     }
   ],
   "after": {
-    "zh": "焦距决定看得多宽，这就是<wiki-ref to=\"field-of-view\"></wiki-ref>：焦距越短，看得越宽。",
-    "en": "The focal length decides how wide the camera sees: its <wiki-ref to=\"field-of-view\"></wiki-ref>. The shorter the focal length, the wider."
+    "zh": "焦距决定看得多宽，这是<wiki-ref to=\"field-of-view\"></wiki-ref>：传感器一定时，焦距短看得宽，焦距长看得窄、物体显得大。",
+    "en": "How wide a camera sees is its <wiki-ref to=\"field-of-view\"></wiki-ref>: with the sensor fixed, a short focal length sees wide, a long one narrow, with objects looking larger."
   },
   "tasks": [
     {

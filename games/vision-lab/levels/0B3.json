@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "这次检查台不判断别人的论断，而是替一个杯子分类器设计检验：从一批拍杯子的样例里挑出一组测试。",
-        "en": "This time the station does not judge someone's claim; it designs the test for a mug classifier, picking a test set out of a batch of photos of a mug."
+        "zh": "在<level-ref to=\"0B2\"></level-ref>里，检查台检验的是别人的论断，样例是现成的。这一关方向反过来：由检查台替一个杯子分类器设计检验，从一批拍杯子的样例里挑出一组测试集。",
+        "en": "In <level-ref to=\"0B2\"></level-ref> the station judged someone else's claim against cases already given. This level turns the other way: the station designs the test for a mug classifier, picking a test set out of a batch of photos of a mug."
       }
     },
     {
       "t": {
-        "zh": "要检验它对无关变化是否鲁棒，测试集里该放哪些样例？看每张样例和第一张比变了什么：视角、光照，还是有东西挡在前面。选出的一组要把这三种变化都覆盖到。",
-        "en": "To test whether it is robust to irrelevant change, which cases belong in the set? Look at what each photo changes against the first: the viewpoint, the light, or something standing in front. The set you choose must cover all three changes."
+        "zh": "这一关的问题是：要检验它的<wiki-ref to=\"robustness\"></wiki-ref>，测试集里该放哪些样例？看每张样例和一张普通的正面照比变了什么：视角、光照，还是有东西挡在杯子前面。选出的一组要把这三种变化都覆盖到。",
+        "en": "This level asks: to test its <wiki-ref to=\"robustness\"></wiki-ref>, which cases belong in the test set? See what each case changes against a plain front view: the viewpoint, the light, or something standing in front of the mug. The set you choose must cover all three changes."
       }
     }
   ],
@@ -19,8 +19,8 @@
       "id": "0B3",
       "kind": "choice",
       "brief": {
-        "zh": "选出一组样例，让它覆盖换视角、换光照和有遮挡三种变化。",
-        "en": "Choose a set of cases that covers a changed viewpoint, changed lighting and occlusion."
+        "zh": "选出一组样例，让它覆盖换视角、换光照和有东西挡在前面三种变化。",
+        "en": "Choose a set of cases that covers a changed viewpoint, changed lighting and something standing in front."
       },
       "hint": [
         {
