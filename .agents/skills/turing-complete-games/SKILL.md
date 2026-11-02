@@ -37,6 +37,10 @@ copying the last wording forward.
   model, items, ui), content (`games/<game>/`). Content is data only: it picks vocabulary items `{ item: params }`
   and writes tests, copy and reference / naive boards as blueprint text, never a function. Anything new (a part's
   evaluation, a world, a check, a panel) goes into the domain's vocabulary and implementation.
+- A level is a list of tasks (`games/DESIGN.md` §4, `kit/engine/tasks.js`): what it says once (title, intro, pass
+  text, parts brought and built) on the level, each puzzle (brief, hints, ports, tests, answers) a task; a level of one
+  task is a plain level. A new domain writes its level schema with `taskLevel(once, task)` and reads levels task by task
+  (`taskLevels`); the prototype domains keep `kind` plus optional `tasks` until they are redone.
 - A domain keeps the domain contract (`games/DESIGN.md` §6.3, `kit/engine/contract.js`, checked by `npm test`). A new
   topic picks its mechanisms from the catalogue (§6.5) and starts from `npm run new-domain -- <name> --mechanism
   <m>`; a new game on an existing domain from `npm run new-game -- <id> --domain <d>`.
@@ -48,8 +52,9 @@ copying the last wording forward.
 - A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
 - Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …`, the MCP
-  server's `modify`, or the studio (`npm run studio`, §6.7: the same tools over HTTP, forms from the schemas, the
-  game played from the pending changeset), never JSON edited by hand. A changeset is checked as a whole and written
+  server's `modify`, or the studio (`npm run studio`, §6.7: the same tools over HTTP; a level edited on the
+  game's own page, played from the pending changeset, a click on a field on screen opening its schema control in the
+  side panel and a + adding a task, hint, page or test where it shows; fields with no place on screen as rows), never JSON edited by hand. A changeset is checked as a whole and written
   only when it passes, with its save migration generated; read the game's `vocabulary` (MCP) or `npm run op -- list`
   first. A wording changed across a game is the `replace` tool's changeset (MCP, or the studio's search), run through
   `modify` like any other — never a find-and-replace on the files. The studio knows no domain: it picks a generic kernel control from a value's schema shape; where the shape

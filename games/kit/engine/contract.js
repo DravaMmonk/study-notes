@@ -179,8 +179,8 @@ export function specProblems(domain, content, spec) {
 }
 
 /**
- * spec.blueprints: [{ level, board, write(board) → lines, read(lines) → board, naive?, save?(board) → the level's save }]
- * every board the content writes as blueprint text (`naive` for a naive answer), how the domain writes it and reads
+ * spec.blueprints: [{ level, task?, board, write(board) → lines, read(lines) → board, naive?, save?(board) → the level's save }]
+ * every board the content writes as blueprint text (`naive` for a naive answer; `task`, the task it is a board of), how the domain writes it and reads
  * it back on its level, and what the level's screen keeps of it in progress.built (by default the board itself).
  * A course whose levels hold boards (course.boards) lists them; every one reads back as itself: written (the domain's
  * `write`) and read again on its level (`read`), it computes the same, and writing it again gives the same text.
