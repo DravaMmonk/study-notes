@@ -40,7 +40,7 @@ const wholeSize = (n, name) => {
 
 /** Where a coordinate outside the image reads, by the lookup's `outside` setting: null for 0, or a clamped index. */
 const OUTSIDE = ['error', 'zero', 'clamp']
-const CHANNELS = ['R', 'G', 'B']
+const CHANNELS = ['0', '1', '2']
 
 /** image at (x, y): x and y numbers (a value; a colour image gives a 1 × 1 colour image) or coordinate images. */
 function lookup({ image, x, y }, node) {
@@ -93,13 +93,14 @@ export const PARTS = {
     }),
   },
   lookup: { inputs: ['image', 'x', 'y'], settings: { outside: OUTSIDE }, eval: strict(lookup) },
-  // The channel is a setting (R, G or B), not a wire: which plane to take is a choice made on the card.
+  // The channel is a setting, its position in the pixel (0, 1, 2), not a wire. It is a position, not a colour: which
+  // colour sits there is the image's channel order (RGB, or BGR as OpenCV reads it).
   channel: {
     inputs: ['image'],
     settings: { c: CHANNELS },
     eval: strict(({ image }, node) => {
       if (!isImage(image) || image.c !== 3) fail('channel 要一张彩色图', 'channel needs a colour image')
-      const c = CHANNELS.indexOf(node.params?.c ?? 'R')
+      const c = CHANNELS.indexOf(String(node.params?.c ?? '0'))
       return make(image.w, image.h, 1, (x, y) => image.data[(y * image.w + x) * 3 + c])
     }),
   },

@@ -64,7 +64,7 @@ function Cell({ value }) {
 const NONE = []
 const valueOf = (node, key, view) => view.values.get(key ? `${node.id}#${key}` : node.id)
 // A new card's settings are its defaults written in, so the card shows them.
-const defaults = (type) => (type === 'const' ? { value: '0' } : type === 'lookup' ? { outside: 'error' } : type === 'channel' ? { c: 'R' } : {})
+const defaults = (type) => (type === 'const' ? { value: '0' } : type === 'lookup' ? { outside: 'error' } : type === 'channel' ? { c: '0' } : {})
 
 export default function Screen(screen) {
   const { game: shell, level: entry, solved, flags, progress } = screen
@@ -125,7 +125,7 @@ export default function Screen(screen) {
     if (node.type === 'channel') {
       return (
         <label className="vi-field">
-          <span>{tr('通道', 'Channel')}</span>
+          <span>{tr('位置', 'Position')}</span>
           <select value={p.c} disabled={ctx.readOnly} onPointerDown={stop} onChange={(e) => setParam(node, 'c', e.target.value)}>
             {CHANNELS.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
           </select>

@@ -44,7 +44,7 @@ const circuit = circuitPlay({
     }
   },
   key: ({ game }, type) => (game.vision.BUILT[type] ? type : `part:${type}`),
-  settings: (_ctx, type) => (type === 'const' ? [{ key: 'value', values: ['…'] }] : type === 'lookup' ? [{ key: 'outside', values: ['error', 'zero', 'clamp'] }] : type === 'channel' ? [{ key: 'c', values: ['R', 'G', 'B'] }] : []),
+  settings: (_ctx, type) => (type === 'const' ? [{ key: 'value', values: ['…'] }] : type === 'lookup' ? [{ key: 'outside', values: ['error', 'zero', 'clamp'] }] : type === 'channel' ? [{ key: 'c', values: ['0', '1', '2'] }] : []),
   given: ({ level: { source: L } }) => both((lang) => [...L.inputs.map((i) => `${i.name}: ${lang === 'en' ? 'input' : '输入'} “${pick(i.label, lang)}”`), ...L.outputs.map((o) => `${o.name}: ${lang === 'en' ? 'output' : '输出'} “${pick(o.label, lang)}”`)].join('\n')),
   tests: ({ level: { source: L }, solved }) => testsOf(L, solved).map((test, k) => ({
     label: T(`测试 ${k + 1}`, `Test ${k + 1}`),

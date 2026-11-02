@@ -97,7 +97,7 @@ Read every level as a learner who has not taken the course, against its blueprin
   order, the level teaches nothing. Options get neutral names; the difference lives in the material.
 - **No sliding to green.** A bench whose single open knob is dragged until the goal's readout turns green is solved
   without thought (`pd-slide`): open knobs that pull against each other, ask for a prediction before the result, or
-  judge only on submit.
+  judge only on submit (`check: 'submit'`: readings and results stay hidden until the player checks a setting).
 - **The misconception fails, with a reason.** The naive answer is the point's misconception; a test makes it fail,
   and its feedback says what is wrong in the field's terms, never "the goal is not met".
 - **Named after it is done.** Passing a level that brings a point names it by its term and links its entry; the entry

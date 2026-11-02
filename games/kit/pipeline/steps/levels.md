@@ -28,8 +28,8 @@ and you do not change the blueprint.
 - **The answer depends on the material.** In a choice or judgement, the player must look at the picture, the data or
   the scene to answer: options get neutral names, the prompt never uses the answer's words, the right options do not
   sit in the same place each round, and the material differs between rounds in what matters. In a bench, sliding the
-  one open knob until the goal turns green is no puzzle (`pd-slide`): open knobs that pull against each other, or
-  stage it so the player predicts before seeing.
+  one open knob until the goal turns green is no puzzle (`pd-slide`): open knobs that pull against each other, stage
+  it so the player predicts before seeing, or judge it on submit (`check: 'submit'`, games/DESIGN.md §6.4).
 - **Its slot, exactly.** `adds` is the slot's `adds`; `builds` the slot's part (its `type` is the part's id, its
   `name` and `desc` the part's name and what it does); the reference answer uses every part in the slot's `uses`. The
   board's given nodes and tests ask exactly the slot's `task`.

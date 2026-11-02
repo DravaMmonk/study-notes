@@ -69,7 +69,7 @@ test('an output with no value fails even where 「—」 is expected: a card tha
 
 test('channels: one plane out of a colour image, three planes into one, unequal planes refused', () => {
   // 1C3: [(1,0,0),(0,0,1)], the blue plane [0, 1].
-  allPass(['p = channel[c=B](image)', 'out <- p'], ['image'], [[{ image: [[[1, 0, 0], [0, 0, 1]]] }, [[0, 1]]]])
+  allPass(['p = channel[c=2](image)', 'out <- p'], ['image'], [[{ image: [[[1, 0, 0], [0, 0, 1]]] }, [[0, 1]]]])
   // 1C4: R [1,0], G [0,0.5], B [0,1] → [(1,0,0),(0,0.5,1)].
   allPass(['m = compose(r, g, b)', 'out <- m'], ['r', 'g', 'b'], [[{ r: [[1, 0]], g: [[0, 0.5]], b: [[0, 1]] }, [[[1, 0, 0], [0, 0.5, 1]]]]])
   assert.throws(() => PARTS.compose.eval({ r: fromRows([[1, 0]]), g: fromRows([[0]]), b: fromRows([[0, 1]]) }), /differ in size/)
@@ -294,6 +294,11 @@ test('cover, refute, pair, same and project judge from the options’ own data (
   const cases = [{ id: 'a', varies: ['view'] }, { id: 'b', varies: ['light', 'occlusion'] }, { id: 'c', varies: [] }, { id: 'd', varies: ['view', 'light'] }]
   assert.deepEqual(JUDGES.cover.check({ options: cases, items: [{}] }, [['a', 'b']], { needs: ['view', 'light', 'occlusion'] }), [])
   assert.match(JUDGES.cover.check({ options: cases, items: [{}] }, [['a', 'c']], { needs: ['view', 'light', 'occlusion'] })[0].why.en, /light, occlusion/)
+  // Choosing everything is not choosing: a case the others make spare is pointed out.
+  const labelled = cases.map((c) => ({ ...c, label: { zh: c.id, en: c.id } }))
+  assert.match(JUDGES.cover.check({ options: labelled, items: [{}] }, [['a', 'b', 'c', 'd']], { needs: ['view', 'light', 'occlusion'] })[0].why.en, /“a” brings no change/)
+  const least = JUDGES.cover.reference({ options: labelled, items: [{}] }, { needs: ['view', 'light', 'occlusion'] })
+  assert.deepEqual(JUDGES.cover.check({ options: labelled, items: [{}] }, least, { needs: ['view', 'light', 'occlusion'] }), [])
   const preds = [{ id: 'x', truth: 'cat', predicted: 'cat' }, { id: 'y', truth: 'cat', predicted: 'dog' }, { id: 'none', label: 'none' }]
   assert.deepEqual(JUDGES.refute.reference({ options: preds, items: [{}] }), [['y']])
   assert.deepEqual(JUDGES.refute.reference({ options: [preds[0], preds[2]], items: [{}] }), [['none']])

@@ -3,7 +3,9 @@ import { blurAt, imageAt } from '../../benches/lens.js'
 
 // The vision benches' pictures (../../benches/index.js DISPLAYS), each a display item of the kernel's bench
 // (../../../../shell/bench/Bench.jsx) drawing what its model computes: { params, ctx } with ctx.q the knob values and
-// the model's quantities together, ctx.model.setup the bench's fixed data.
+// the model's quantities together, ctx.model.setup the bench's fixed data. On a bench judged on submit, what the model
+// works out (images, rays to them, blur, readings) is drawn only once the setting is checked (ctx.revealed); the
+// scene the player sets up is always drawn.
 
 const W = 640
 const fix = (v) => Number(v.toFixed(2))
@@ -26,6 +28,7 @@ export function PinholeRays({ ctx }) {
   const x = (z) => 40 + (z / zMax) * (W - 80)
   const y = (v) => H / 2 - (v / tall) * (H / 2 - 22)
   const mm = (v) => `${fix(v)}${px ? ` (${fix(v * px)} px)` : ''}`
+  const shown = ctx.revealed !== false
   return (
     <svg className="vi-bench" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr('针孔相机侧视图', 'The pinhole camera from the side')}>
       <line className="vb-axis" x1={x(0)} x2={x(zMax)} y1={y(0)} y2={y(0)} />
@@ -35,23 +38,23 @@ export function PinholeRays({ ctx }) {
       {drawn.map((d, k) => {
         const reach = Math.max(d.Z, q.f)
         return (
-          <g key={d.id ?? k} className={d.seen ? '' : 'vb-out'}>
-            {[...new Set(d.ends)].map((e) => <line key={e} className="vb-ray" x1={x(0)} y1={y(0)} x2={x(reach)} y2={y((e * reach) / d.Z)} />)}
+          <g key={d.id ?? k} className={!shown || d.seen ? '' : 'vb-out'}>
+            {shown && [...new Set(d.ends)].map((e) => <line key={e} className="vb-ray" x1={x(0)} y1={y(0)} x2={x(reach)} y2={y((e * reach) / d.Z)} />)}
             {d.ends[0] === d.ends[1]
               ? <circle className="vb-object" cx={x(d.Z)} cy={y(d.ends[0])} r={5} />
               : <line className="vb-object" x1={x(d.Z)} x2={x(d.Z)} y1={y(d.ends[0])} y2={y(d.ends[1])} />}
-            {d.image[0] === d.image[1]
+            {shown && (d.image[0] === d.image[1]
               ? <circle className="vb-image" cx={x(q.f)} cy={y(d.image[0])} r={4} />
-              : <line className="vb-image" x1={x(q.f)} x2={x(q.f)} y1={y(d.image[0])} y2={y(d.image[1])} />}
+              : <line className="vb-image" x1={x(q.f)} x2={x(q.f)} y1={y(d.image[0])} y2={y(d.image[1])} />)}
             {d.label && <text className="vb-note" x={x(d.Z) + 8} y={y(d.ends[1]) - 6}>{L(d.label)}</text>}
-            {!d.seen && <text className="vb-note vb-out-note" x={x(d.Z)} y={y(d.ends[0]) + 16}>{tr('不在画面里', 'out of view')}</text>}
+            {shown && !d.seen && <text className="vb-note vb-out-note" x={x(d.Z)} y={y(d.ends[0]) + 16}>{tr('不在画面里', 'out of view')}</text>}
           </g>
         )
       })}
       {targetMm !== undefined && <circle className="vb-target" cx={x(q.f)} cy={y(targetMm)} r={7} />}
       <circle className="vb-centre" cx={x(0)} cy={y(0)} r={4} />
       {!objects && <text className="vb-note" x={x(q.Z)} y={H - 4}>Z = {fix(q.Z)}</text>}
-      {!objects && <text className="vb-note is-left" x={x(q.f) + 8} y={y(drawn[0].image[1]) - 8}>{object === 'arrow' ? `h = ${mm(q.h)}` : `u = ${mm(q.u)}`}</text>}
+      {!objects && shown && <text className="vb-note is-left" x={x(q.f) + 8} y={y(drawn[0].image[1]) - 8}>{object === 'arrow' ? `h = ${mm(q.h)}` : `u = ${mm(q.u)}`}</text>}
     </svg>
   )
 }
@@ -70,6 +73,7 @@ export function LensRays({ ctx }) {
   const right = (d) => lensX + 30 + ((d - b0) / (b1 - b0)) * (W - lensX - 60)
   const half = (H / 2 - 24) * Math.min(1, q.A / (model.setup.A0 * 2))
   const cy = H / 2
+  const shown = ctx.revealed !== false
   return (
     <svg className="vi-bench" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr('薄透镜侧视图', 'The thin lens from the side')}>
       <line className="vb-axis" x1={10} x2={W - 10} y1={cy} y2={cy} />
@@ -84,8 +88,8 @@ export function LensRays({ ctx }) {
           <g key={o.id} className={`vb-cone is-${k % 4} ${sharp ? 'is-sharp' : ''}`}>
             <line x1={left(o.z)} y1={cy} x2={lensX} y2={cy - half} />
             <line x1={left(o.z)} y1={cy} x2={lensX} y2={cy + half} />
-            <polyline points={`${lensX},${cy - half} ${right(si)},${cy} ${lensX},${cy + half}`} />
-            <line className="vb-spot" x1={right(q.s)} x2={right(q.s)} y1={cy - spread} y2={cy + spread} />
+            {shown && <polyline points={`${lensX},${cy - half} ${right(si)},${cy} ${lensX},${cy + half}`} />}
+            {shown && <line className="vb-spot" x1={right(q.s)} x2={right(q.s)} y1={cy - spread} y2={cy + spread} />}
             <circle cx={left(o.z)} cy={cy} r={5} />
             <text className="vb-note" x={left(o.z)} y={cy + 22 + (k % 2) * 14}>{o.label ? L(o.label) : o.id}</text>
           </g>
@@ -110,16 +114,18 @@ export function BlurCurve({ ctx }) {
   const y = (b) => H - 24 - (Math.min(b, top) / top) * (H - 40)
   const near = Math.max(q.near, z0)
   const far = Number.isFinite(q.far) ? Math.min(q.far, z1) : z1
+  const shown = ctx.revealed !== false
   return (
     <svg className="vi-bench" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr('模糊圈随深度变化', 'The blur circle against depth')}>
-      <rect className="vb-range" x={x(near)} y={12} width={Math.max(0, x(far) - x(near))} height={H - 36} />
+      {shown && <rect className="vb-range" x={x(near)} y={12} width={Math.max(0, x(far) - x(near))} height={H - 36} />}
       <line className="vb-axis" x1={40} x2={W - 20} y1={H - 24} y2={H - 24} />
       <line className="vb-limit" x1={40} x2={W - 20} y1={y(cMax)} y2={y(cMax)} />
       <text className="vb-note is-left" x={44} y={y(cMax) - 6}>{tr('清晰门槛', 'Sharp enough')}</text>
-      <polyline className="vb-curve" points={samples.map((z, k) => `${x(z).toFixed(1)},${y(blurs[k]).toFixed(1)}`).join(' ')} />
+      {shown && <polyline className="vb-curve" points={samples.map((z, k) => `${x(z).toFixed(1)},${y(blurs[k]).toFixed(1)}`).join(' ')} />}
+      {!shown && <text className="vb-note" x={W / 2} y={H / 2}>{tr('检查这个设置后画出', 'Drawn once this setting is checked')}</text>}
       {objects.map((o, k) => (
         <g key={o.id} className={`vb-dot is-${k % 4}`}>
-          <circle cx={x(o.z)} cy={y(q[`blur_${o.id}`])} r={5} />
+          {shown && <circle cx={x(o.z)} cy={y(q[`blur_${o.id}`])} r={5} />}
           <text className="vb-note" x={x(o.z)} y={H - 8}>{o.label ? L(o.label) : o.id}</text>
         </g>
       ))}

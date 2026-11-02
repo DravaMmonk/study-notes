@@ -81,6 +81,11 @@ function whyOf(round, it, k, got, ok, need) {
 }
 
 const factorList = S.list(S.ref('factor'))
+/** Whether the cases picked cover every change needed. */
+const covers = (round, picked, needs) => {
+  const seen = new Set(round.options.filter((o) => picked.includes(o.id)).flatMap((o) => o.varies ?? []))
+  return needs.every((f) => seen.has(f))
+}
 const fieldsOf = (o) => o.gives ?? []
 
 export const JUDGES = {
@@ -110,13 +115,16 @@ export const JUDGES = {
     },
     reference: (round) => round.items.map((it) => [verdictOf(it.claim, round.scenes).verdict]),
   }),
-  cover: item(t('选几个情形，合起来要覆盖 needs 里的每一种变化（选项的 varies）', 'choose cases that together cover every change in `needs` (an option’s `varies`)'), S.obj({ needs: factorList }), {
+  cover: item(t('选几个情形，合起来要覆盖 needs 里的每一种变化（选项的 varies），每个选中的都要带来别的没覆盖的变化', 'choose cases that together cover every change in `needs` (an option’s `varies`), each bringing a change the others do not'), S.obj({ needs: factorList }), {
     multi: true,
     check(round, picks, { needs }) {
       const got = picks[0] ?? []
       const seen = new Set(round.options.filter((o) => got.includes(o.id)).flatMap((o) => o.varies ?? []))
       const missing = needs.filter((f) => !seen.has(f))
-      return missing.length ? [{ item: 0, why: t(`还没有覆盖：${missing.join('、')}`, `not covered yet: ${missing.join(', ')}`) }] : []
+      if (missing.length) return [{ item: 0, why: t(`还没有覆盖：${missing.join('、')}`, `not covered yet: ${missing.join(', ')}`) }]
+      // Every case chosen must bring a needed change the others do not: choosing everything is not choosing.
+      const spare = round.options.find((o) => got.includes(o.id) && covers(round, got.filter((x) => x !== o.id), needs))
+      return spare ? [{ item: 0, why: t(`「${spare.label.zh}」带来的变化，别的已选情形都覆盖了：去掉它也够`, `“${spare.label.en}” brings no change the other cases chosen do not: it can go`) }] : []
     },
     reference(round, { needs }) {
       // Greedy: the case covering most of what is still missing, until all is.
@@ -128,7 +136,8 @@ export const JUDGES = {
         out.push(best.id)
         for (const f of best.varies) left.delete(f)
       }
-      return [out]
+      // A case a later one made spare is dropped, so the reference is a set nothing can be taken from.
+      return [out.reduce((keep, id) => (covers(round, keep.filter((x) => x !== id), needs) ? keep.filter((x) => x !== id) : keep), out)]
     },
   }),
   refute: item(t('选出推翻「每个预测都对」的情形（选项的 predicted 和 truth 不同）；都对时选 id 为 none 的选项', 'choose a case refuting “every prediction is right” (an option whose `predicted` differs from its `truth`); when all are right, the option with id none'), null,

@@ -76,9 +76,9 @@
         }
       ],
       "solution": [
-        "r = channel[c=B](image)",
-        "g = channel[c=G](image)",
-        "b = channel[c=R](image)",
+        "r = channel[c=2](image)",
+        "g = channel[c=1](image)",
+        "b = channel[c=0](image)",
         "rgb = compose(r, g, b)",
         "out <- rgb"
       ],

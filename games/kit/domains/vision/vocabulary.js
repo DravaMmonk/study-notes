@@ -42,7 +42,7 @@ const PART_ABOUT = {
   size: t('图的宽 w 和高 h', 'An image’s width w and height h'),
   grid: t('给定宽高的两张坐标图：x 图每格是它的 x，y 图每格是它的 y', 'The two coordinate images of a size: in x each cell holds its x, in y its y'),
   lookup: t('按坐标在图上取值：坐标是数取一个值，是坐标图取出同样大小的一张图；坐标须为整数；出界按设置报错、取 0 或取最近的边', 'An image read at coordinates: at numbers one value, at coordinate images an image of their size; whole numbers only; outside it stops, reads 0 or reads the nearest edge, as set'),
-  channel: t('彩色图的一个通道（设置 c：R、G 或 B）', 'One channel of a colour image (setting c: R, G or B)'),
+  channel: t('彩色像素里第 c 个位置（设置 c：0、1、2）组成的灰度图；哪个位置是哪种颜色看图的通道顺序', 'The grey image of position c (setting c: 0, 1 or 2) of each colour pixel; which colour that is depends on the image’s channel order'),
   compose: t('三张同样大小的灰度图拼成彩色图（R、G、B）', 'Three grey images of one size made one colour image (R, G, B)'),
 }
 const PARTS = Object.fromEntries(PRIMITIVES.map((k) => [k, item(PART_ABOUT[k])]))

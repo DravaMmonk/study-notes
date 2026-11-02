@@ -4,8 +4,8 @@
 //   pd-repeat-board   two levels' reference boards are the same board: the same puzzle twice
 //   pd-repeat-text    a text the player reads (an intro page, a brief, a hint, a pass text, why a naive answer is
 //                     wrong) is word for word in two places: boilerplate standing in for what this level says
-//   pd-slide          (report) a bench step with one knob open and the goal's readout on screen: turning it until the
-//                     readout turns green passes, whether or not the player has understood anything
+//   pd-slide          (report) a bench step with one knob open and the goal's readout on screen, judged live: turning
+//                     it until the readout turns green passes, whether or not the player has understood anything
 //
 // lintPedagogy(content, spec) → [{ rule, at, says, report? }]; spec is the domain's (its `blueprints`: every board the
 // content writes, by level and task).
@@ -93,7 +93,7 @@ export function lintPedagogy(content, spec) {
   for (const level of content.levels) {
     for (const task of level.tasks ?? [level]) {
       const bench = task.bench
-      if (!bench?.knobs || !JSON.stringify(bench.layout ?? {}).includes(KERNEL_GOALS)) continue
+      if (!bench?.knobs || bench.check === 'submit' || !JSON.stringify(bench.layout ?? {}).includes(KERNEL_GOALS)) continue
       for (const [k, stage] of (bench.stages ?? [null]).entries()) {
         const open = stage?.opens ?? Object.keys(bench.knobs).filter((n) => !bench.knobs[n].fixed)
         if (open.length === 1) say('pd-slide', `${level.id}${task.id && task.id !== level.id ? ` task ${task.id}` : ''}${stage ? ` step ${k + 1}` : ''}`, `only ${open[0]} turns, and the goal reads out live`, true)
