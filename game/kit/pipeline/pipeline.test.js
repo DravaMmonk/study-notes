@@ -70,11 +70,14 @@ test('each rule catches the blueprint that breaks it', () => {
   assert.ok(broken((bp, s) => { delete s[0].slots[1].facet }).includes('bp-facet 1-2'))
   assert.ok(broken((bp, s) => { s[0].slots[0].chain = [t('one step')] }).some((r) => r.startsWith('bp-schema')))
   assert.ok(broken((bp, s) => { delete s[0].slots[0].question }).includes('bp-question 1-1'))
-  // The lectures' theory is a level's core; a supplement rides on a theory level that extends it.
-  assert.ok(broken((bp) => { bp.knowledge.push(point('library', 'supplement')) }).includes('bp-extends library'))
-  assert.deepEqual(broken((bp, s) => { bp.knowledge.push(point('library', 'supplement')); s[0].slots[0].extends = ['library'] }), [])
-  assert.ok(broken((bp, s) => { bp.knowledge[0].basis = 'supplement' }).includes('bp-core 1-1'))
-  assert.ok(broken((bp, s) => { s[0].slots[0].extends = ['count'] }).includes('bp-extends 1-1'))
+  // The main path teaches the lectures' theory only; a technical point lives in an optional topic.
+  const library = (bp, s, slotExtra = {}) => {
+    bp.knowledge.push(point('library', 'technical'))
+    s.push(series('tools', [slot('T1', { role: 'intro', teaches: 'library', uses: ['library', 'reg'], ...slotExtra })], { kind: 'topic', after: '1-2' }))
+  }
+  assert.deepEqual(broken((bp, s) => library(bp, s)), [])
+  assert.ok(broken((bp, s) => { bp.knowledge[0].basis = 'technical' }).includes('bp-main-tech 1-1'))
+  assert.ok(broken((bp, s) => { library(bp, s); s[0].slots[2].uses.push('library') }).includes('bp-main-tech 1-3'))
   assert.ok(broken((bp) => { delete bp.knowledge[0].basis }).includes('bp-point memory'))
   assert.ok(broken((bp) => { delete bp.knowledge[1].source }).includes('bp-point count'))
   assert.ok(broken((bp) => { bp.machines[0].can = [] }).includes('bp-machine 1-1'))
@@ -153,4 +156,8 @@ test('conformance: the level that brings a point links its entry, opened there',
   assert.deepEqual(terms(content(ids.map((id) => level(id)), [{ id: 'memory', at: '1-2' }])), ['bp-entry memory', 'bp-term 1-1', 'bp-entry count', 'bp-term 1-4'])
   const linked = ids.map((id) => level(id, id === '1-1' ? 'a <wiki-ref to="memory"></wiki-ref>' : id === '1-4' ? 'a <wiki-ref to="count"></wiki-ref>' : 'none'))
   assert.deepEqual(terms(content(linked, [{ id: 'memory', at: '1-1' }, { id: 'count', at: '1-4' }])), [])
+  // A main-path level that links a technical point's entry carries technical content.
+  bp.knowledge.push(point('library', 'technical'))
+  const leaky = linked.map((l) => (l.id === '1-2' ? { ...l, tasks: [{ id: '1-2', brief: t('see <wiki-ref to="library"></wiki-ref>') }] } : l))
+  assert.ok(conformance(bp, content(leaky, []), spec).some((f) => f.rule === 'bp-main-link' && f.at === '1-2'))
 })
