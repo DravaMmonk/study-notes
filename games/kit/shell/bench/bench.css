@@ -1,7 +1,7 @@
 /* The parameter bench (Bench.jsx): its layout, controls, goals and the kernel's display items. A domain's own display
    items keep only their drawings in their own stylesheets. Phone layout (≤ 760px) stacks everything in one column. */
 
-.bk { width: 100%; max-width: 1180px; margin: 0 auto; padding: 24px 28px 40px; display: grid; gap: 16px; align-content: start; }
+.bk { box-sizing: border-box; width: 100%; max-width: 1180px; margin: 0 auto; padding: 24px 28px 40px; display: grid; gap: 16px; align-content: start; }
 .bk-split { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
 .bk-split.is-even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .bk-split.is-narrow { grid-template-columns: minmax(0, 1fr) minmax(300px, 340px); }

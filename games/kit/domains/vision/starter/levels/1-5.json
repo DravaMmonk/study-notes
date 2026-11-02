@@ -1,0 +1,118 @@
+{
+  "title": {
+    "zh": "右边那一格",
+    "en": "The cell to the right"
+  },
+  "adds": [
+    "lookup"
+  ],
+  "tasks": [
+    {
+      "id": "1-5",
+      "kind": "circuit",
+      "brief": {
+        "zh": "交出图在 (x, y) 右边那一格的值。",
+        "en": "Give the image’s value one cell to the right of (x, y)."
+      },
+      "inputs": [
+        {
+          "name": "image",
+          "label": {
+            "zh": "图",
+            "en": "Image"
+          }
+        },
+        {
+          "name": "x",
+          "label": "x"
+        },
+        {
+          "name": "y",
+          "label": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "label": {
+            "zh": "值",
+            "en": "Value"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [
+                1,
+                2,
+                3
+              ],
+              [
+                4,
+                5,
+                6
+              ]
+            ],
+            "x": 1,
+            "y": 1
+          },
+          "expect": {
+            "out": 6
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                1,
+                2
+              ],
+              [
+                3,
+                4
+              ],
+              [
+                5,
+                6
+              ]
+            ],
+            "x": 0,
+            "y": 2
+          },
+          "expect": {
+            "out": 6
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [
+              [
+                7,
+                8
+              ]
+            ],
+            "x": 0,
+            "y": 0
+          },
+          "expect": {
+            "out": 8
+          }
+        }
+      ],
+      "solution": [
+        "one = const[value=1]()",
+        "x1 = add(x, one)",
+        "r = lookup(image, x1, y)",
+        "out <- r"
+      ],
+      "naive": [
+        "r = lookup(image, x, y)",
+        "out <- r"
+      ]
+    }
+  ]
+}

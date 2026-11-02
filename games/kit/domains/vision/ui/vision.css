@@ -1,0 +1,104 @@
+/* The vision domain's screens: cards on the shared circuit editor with images on them, the grid, choice and bench
+   tasks, and the images drawn. Colours come from the kit's tokens. */
+[data-family='given'] { --fam: var(--w0); }
+[data-family='value'] { --fam: var(--w3); }
+[data-family='logic'] { --fam: var(--n1); }
+[data-family='image'] { --fam: var(--n2); }
+[data-family='built'] { --fam: var(--w5); }
+[data-family='end'] { --fam: var(--accent); }
+
+/* ---- images ---- */
+.vi-image { display: block; max-width: 100%; height: auto; }
+.vi-num { font: 600 11px var(--mono); text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; pointer-events: none; }
+.vi-num.is-dark { fill: #1b1f24; }
+.vi-num.is-light { fill: #f4f6f8; }
+.vi-axis { font: 11px var(--mono); fill: var(--muted); text-anchor: middle; dominant-baseline: central; }
+.vi-lines line { stroke: var(--line); stroke-width: 1; }
+.vi-mark { fill: none; stroke: var(--accent); stroke-width: 3; }
+.vi-pick { cursor: pointer; }
+.vi-pick:hover rect { opacity: 0.85; }
+.vi-picture { display: block; image-rendering: pixelated; border-radius: var(--r-sm); }
+
+/* ---- cards ---- */
+.vi-card { padding: 4px 10px 0; display: grid; gap: 5px; min-width: 0; }
+.vi-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.vi-thumb { display: flex; align-items: end; gap: 6px; }
+.vi-thumb small { color: var(--muted); font: 11px var(--mono); }
+.vi-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
+.vi-error.is-missing { color: var(--faint); }
+.vi-field { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }
+.vi-field > span { color: var(--muted); font-size: 11px; }
+.vi-field select, .vi-field input:not([type='range']) { min-width: 0; height: 26px; padding: 0 6px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12px var(--mono); }
+.vi-field :is(select, input):focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
+.vi-field.is-inline { grid-template-columns: auto 72px; }
+
+/* ---- the test under the board ---- */
+.vi-strip { display: grid; gap: 10px; min-width: 0; }
+.vi-test { border-collapse: collapse; font: 13px var(--mono); }
+.vi-test th, .vi-test td { padding: 4px 14px 4px 0; text-align: left; vertical-align: top; }
+.vi-test thead th { color: var(--muted); font: 500 11px var(--sans, inherit); }
+.vi-test tbody th { color: var(--muted); font-weight: 500; }
+.vi-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
+.vi-verdict.is-fail { color: var(--fail); }
+.vi-verdict.is-pass { color: var(--status); }
+
+/* ---- grid tasks ---- */
+.vi-grid { display: grid; gap: 14px; justify-items: start; padding: 20px; }
+.vi-shown { display: flex; flex-wrap: wrap; gap: 18px; align-items: start; }
+.vi-label { margin: 0; color: var(--muted); font-size: 13px; }
+.vi-coords { display: flex; gap: 14px; }
+.vi-rows { border-collapse: collapse; font: 12px var(--mono); }
+.vi-rows th { color: var(--muted); font-weight: 500; padding: 2px 6px; }
+.vi-rows td { padding: 2px; }
+.vi-rows input { width: 52px; height: 30px; padding: 0 6px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas); color: var(--ink); font: 12px var(--mono); text-align: right; }
+.vi-rows input:focus { outline: none; border-color: var(--accent); background: var(--paper); }
+.vi-rgb { display: flex; gap: 2px; }
+.vi-rgb input { width: 40px; }
+
+/* ---- choice tasks ---- */
+.vi-choice { display: grid; gap: 18px; padding: 20px; max-width: 880px; }
+.vi-round { margin: 0; color: var(--muted); font-size: 12px; }
+.vi-about { display: flex; flex-wrap: wrap; gap: 18px; align-items: start; }
+.vi-about:empty { display: none; }
+.vi-about figure { margin: 0; display: grid; gap: 4px; }
+.vi-about figcaption { color: var(--muted); font-size: 12px; }
+.vi-item { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md, 8px); background: var(--paper); }
+.vi-item.is-wrong { border-color: var(--fail); }
+.vi-prompt { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink); }
+.vi-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.vi-option { display: grid; justify-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.vi-option:hover { border-color: var(--accent); }
+.vi-option[aria-pressed='true'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--paper)); box-shadow: inset 0 0 0 1px var(--accent); }
+.vi-explore { display: grid; gap: 10px; }
+.vi-knobs { display: grid; gap: 6px; max-width: 320px; }
+.vi-knobs .vi-field { grid-template-columns: 96px minmax(0, 1fr) 44px; }
+.vi-knobs input[type='range'] { accent-color: var(--accent); }
+.vi-knobs output { font: 12px var(--mono); color: var(--muted); text-align: right; }
+
+/* ---- bench pictures ---- */
+.vi-bench { display: block; width: 100%; height: auto; }
+.vi-bench .vb-axis { stroke: var(--line); stroke-dasharray: 4 4; }
+.vi-bench .vb-plane { stroke: var(--muted); stroke-width: 2; }
+.vi-bench .vb-ray { stroke: var(--w3); stroke-width: 1.5; }
+.vi-bench .vb-object { stroke: var(--ink); fill: var(--ink); stroke-width: 3; }
+.vi-bench .vb-image { stroke: var(--accent); fill: var(--accent); stroke-width: 3; }
+.vi-bench .vb-target { fill: none; stroke: var(--status); stroke-width: 2; stroke-dasharray: 3 3; }
+.vi-bench .vb-centre { fill: var(--ink); }
+.vi-bench .vb-lens { fill: color-mix(in srgb, var(--n2) 25%, transparent); stroke: var(--n2); }
+.vi-bench .vb-cone line, .vi-bench .vb-cone polyline { fill: none; stroke: currentColor; stroke-width: 1.2; opacity: 0.75; }
+.vi-bench .vb-cone circle { fill: currentColor; }
+.vi-bench .vb-cone .vb-spot { stroke-width: 5; opacity: 1; }
+.vi-bench .is-0 { color: var(--w3); }
+.vi-bench .is-1 { color: var(--n1); }
+.vi-bench .is-2 { color: var(--w5); }
+.vi-bench .is-3 { color: var(--n2); }
+.vi-bench .vb-range { fill: color-mix(in srgb, var(--status) 12%, transparent); }
+.vi-bench .vb-limit { stroke: var(--status); stroke-dasharray: 5 4; }
+.vi-bench .vb-curve { fill: none; stroke: var(--ink); stroke-width: 2; }
+.vi-bench .vb-dot circle { fill: currentColor; }
+.vi-bench .vb-note { font: 11px var(--mono); fill: var(--muted); text-anchor: middle; }
+.vi-bench .vb-note.is-left { text-anchor: start; }
+
+/* ---- a card's sheet on a phone ---- */
+.cl-sheet .vi-card { padding: 0; }
+.cl-sheet .vi-field :is(select, input) { height: 40px; font-size: 16px; }

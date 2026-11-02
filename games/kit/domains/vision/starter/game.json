@@ -1,0 +1,45 @@
+{
+  "domain": "vision",
+  "vocabulary": 1,
+  "title": {
+    "zh": "__title__",
+    "en": "__title__"
+  },
+  "kicker": {
+    "zh": "开发中",
+    "en": "In development"
+  },
+  "lede": {
+    "zh": "从一格一格的数出发，搭出读图、移图、缩放的电路，再用相机模型解释图从哪里来。",
+    "en": "Start from a grid of numbers, wire circuits that read, move and resize images, and explain with a camera model where an image comes from."
+  },
+  "primitives": [
+    "const",
+    "add",
+    "lookup"
+  ],
+  "concept": {
+    "const": "add"
+  },
+  "eras": [
+    {
+      "id": 1,
+      "title": {
+        "zh": "图是一格格的数",
+        "en": "An image is a grid of numbers"
+      },
+      "question": {
+        "zh": "一张图里有什么，又是从哪里来的？",
+        "en": "What is in an image, and where does it come from?"
+      },
+      "foundation": [
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5"
+      ]
+    }
+  ],
+  "saves": []
+}

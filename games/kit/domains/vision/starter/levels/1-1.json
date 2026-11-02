@@ -1,0 +1,35 @@
+{
+  "title": {
+    "zh": "格子的坐标",
+    "en": "Where a cell is"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一张灰度图是一格格的数，每格是一个<wiki-ref to=\"pixel\"></wiki-ref>：0 最暗，1 最亮。",
+        "en": "A grey image is a grid of numbers, each cell a <wiki-ref to=\"pixel\"></wiki-ref>: 0 darkest, 1 lightest."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1-1",
+      "kind": "grid",
+      "brief": {
+        "zh": "高亮的那一格在哪里？写出它的 x 和 y。",
+        "en": "Where is the highlighted cell? Write its x and y."
+      },
+      "image": [
+        [0, 0.2, 0.4, 0.6],
+        [0.1, 0.3, 0.9, 0.7],
+        [0.2, 0.4, 0.6, 0.8]
+      ],
+      "ask": {
+        "locate": {
+          "x": 2,
+          "y": 1
+        }
+      }
+    }
+  ]
+}

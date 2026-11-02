@@ -1,0 +1,71 @@
+{
+  "title": {
+    "zh": "往右一格",
+    "en": "One cell to the right"
+  },
+  "adds": [
+    "const",
+    "add"
+  ],
+  "tasks": [
+    {
+      "id": "1-4",
+      "kind": "circuit",
+      "brief": {
+        "zh": "交出 (x, y) 右边那一格的 x。",
+        "en": "Give the x of the cell to the right of (x, y)."
+      },
+      "inputs": [
+        {
+          "name": "x",
+          "label": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "label": {
+            "zh": "右边的 x",
+            "en": "x to the right"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "x": 0
+          },
+          "expect": {
+            "out": 1
+          }
+        },
+        {
+          "inputs": {
+            "x": 3
+          },
+          "expect": {
+            "out": 4
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "x": 7
+          },
+          "expect": {
+            "out": 8
+          }
+        }
+      ],
+      "solution": [
+        "one = const[value=1]()",
+        "x1 = add(x, one)",
+        "out <- x1"
+      ],
+      "naive": [
+        "out <- x"
+      ]
+    }
+  ]
+}
