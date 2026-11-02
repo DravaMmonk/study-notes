@@ -5,8 +5,8 @@
 // The parts are implemented in parts.js, drawn as ui/catalog.js says.
 
 import { S } from '../../engine/schema.js'
-import { defineVocabulary } from '../../engine/vocabulary.js'
-import { TASK_SAVE, taskLevel } from '../../engine/tasks.js'
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { taskLevel } from '../../engine/tasks.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -66,14 +66,6 @@ const ERA = S.obj({
   topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels: ids, title: S.opt(S.text()) }))),
   challenges: S.opt(S.list(S.obj({ level: S.str(), after: S.opt(AFTER) }))),
 })
-const SAVE_OP = S.either(
-  S.obj({ rename: S.map(S.either(S.str(), S.oneOf([null]))) }),
-  S.obj({ grant: S.list(S.str()) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ split: S.list(S.either(S.str(), ids)) }),
-  TASK_SAVE,
-)
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
@@ -81,7 +73,7 @@ const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
-  saves: S.list(S.obj({ version: S.int({ min: 2 }), ops: S.list(SAVE_OP) })),
+  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({

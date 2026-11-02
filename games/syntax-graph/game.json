@@ -93,17 +93,5 @@
       ]
     }
   ],
-  "saves": [
-    {
-      "version": 6,
-      "ops": [
-        {
-          "rename": "none"
-        },
-        {
-          "data": "none"
-        }
-      ]
-    }
-  ]
+  "saves": []
 }

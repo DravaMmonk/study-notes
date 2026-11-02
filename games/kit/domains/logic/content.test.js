@@ -1,11 +1,9 @@
-// The logic domain on its content: boards as blueprint text both ways, the save migrations content names, the
-// courses of 《证明完毕》 read from its data (test cases, words, save history), and the parts the player builds
-// running the player's board.
+// The logic domain on its content: boards as blueprint text both ways, the courses of 《证明完毕》 read from its data
+// (test cases, words), and the parts the player builds running the player's board.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readContent } from '../../engine/content-node.js'
 import { runBoard } from '../../engine/boards.js'
-import { migrations } from '../../shell/saves.js'
 import { logicCourse } from './course.js'
 import { parse } from './formula.js'
 import { render } from './notation.js'
@@ -13,9 +11,7 @@ import { fromLines, gateShape, machineShape, proofShape, toLines } from './bluep
 import { LOGIC_TESTS, startProof } from './proof.js'
 import { runLevel } from '../../engine/tests.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
-import { migration, savesOf } from './items/migrations.js'
 import { syncOwn } from './built.js'
-import logic from './domain.js'
 
 const QED = readContent('qed')
 const course = logicCourse(QED)
@@ -93,32 +89,6 @@ test('a level reads its letters in the word sets it names, merged in order', () 
   assert.match(words.P.zh, /具有该性质/)
 })
 
-test('save migrations: reshaping a level’s task boards, renaming things, counting tasks passed', () => {
-  const reshape = migration({ reshape: { a: { list: [null, { slice: [1] }], one: [null, 'it'] }, b: { list: { at: 0, or: 'drop' } } } })
-  assert.deepEqual(reshape([1, 2, 3], 'a'), [null, 2, 3])
-  assert.deepEqual(reshape({ nodes: [] }, 'a'), [null, { nodes: [] }])
-  assert.equal(reshape([null], 'b'), undefined)
-  assert.deepEqual(reshape([1], 'c'), [1])
-  const names = migration({ objectNames: { names: { ann: 'i', phos: 'i' }, at: { eq: { phos: 'a' } } } })
-  assert.deepEqual(names({ nodes: [{ params: { t: 'phos', f: 'Parent(ann, x)' } }], consts: { ann: 0 }, unchanged: 'announce' }, 'other'), { nodes: [{ params: { t: 'i', f: 'Parent(i, x)' } }], consts: { i: 0 }, unchanged: 'announce' })
-  assert.deepEqual(names({ t: 'phos' }, 'eq'), { t: 'a' })
-  const [{ ops: [{ tasks }] }] = savesOf([{ version: 2, ops: [{ tasks: { passed: { a: { less: 2 }, b: 0, c: { most: 1 } } } }] }])
-  assert.deepEqual([tasks(3, 'a'), tasks(1, 'a'), tasks(2, 'b'), tasks(3, 'c'), tasks(3, 'd')], [1, 0, 0, 1, 3])
-})
-
-test('an old save migrates through the whole history and keeps its progress', () => {
-  const { migrate, version } = migrations(savesOf(QED.saves))
-  const old = { version: 77, solved: ['q-eq', 'g-or'], data: { 'q-eq': { nodes: [{ params: { t: 'hesp' } }] }, 'g-or': { nodes: [{ id: 'x', type: 'gNot' }], wires: [] } }, built: { 'q-sym': { nodes: [{ params: { t: 'phos' } }] } }, slots: { 'q-eq': { list: [{ data: { nodes: [{ params: { t: 'phos' } }] } }] } } }
-  const saved = migrate(old)
-  assert.equal(version, Math.max(...QED.saves.map((s) => s.version)))
-  assert.deepEqual(saved.solved, ['q-eq', 'g-or'])
-  assert.equal(saved.data['q-eq'].nodes[0].params.t, 'b')
-  assert.equal(saved.built['q-sym'].nodes[0].params.t, 'i')
-  assert.equal(saved.slots['q-eq'].list[0].data.nodes[0].params.t, 'a')
-  // A gate solved before gates ran the player's board: its board is the gate's now.
-  assert.deepEqual(saved.built['g-or'], old.data['g-or'])
-})
-
 test('a gate the player built runs the board it passed with; one that no longer passes leaves the reference', () => {
   const builder = level('g-or')
   const gates = builder.gates
@@ -163,52 +133,12 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   // Arrow's two shapes are the two tasks of c-arrow: au-iff's first task runs the first one's board alone.
   const empty = (one) => ({ nodes: startProof(one).nodes, wires: [] })
   const [elim, intro] = level('c-arrow').tasks
-  syncOwn({ 'c-arrow': [null, empty(intro)] })
+  syncOwn({ 'c-arrow#1': empty(intro) })
   assert.equal(course.proofs.arrow.elim.board(), elim.solution)
   assert.equal(run('au-iff', 0).pass, true)
-  syncOwn({ 'c-arrow': [empty(elim), null] })
+  syncOwn({ 'c-arrow#0': empty(elim) })
   assert.equal(run('au-iff', 0).pass, false)
   assert.equal(run('au-iff', 1).pass, true)
   syncOwn({})
 })
 
-test('an old save keeps the boards of the levels that proved its lemmas', () => {
-  const { migrate } = migrations(savesOf(QED.saves))
-  const board = (n) => ({ nodes: [{ id: `n${n}` }], wires: [] })
-  // Version 79 kept one board for a level of tasks (its last task's), and data for every task.
-  const saved = migrate({ version: 79, solved: ['demorgan', 'chain'], data: { demorgan: [board(1), board(2), board(3), board(4)], chain: board(5) }, built: { demorgan: board(6), chain: board(7) } })
-  assert.deepEqual(saved.built.demorgan, [board(1), board(2), board(3), board(6)])
-  assert.deepEqual(saved.built.chain, board(7))
-  syncOwn(saved.built)
-  assert.deepEqual(course.proofs.dm.andNot.board(), board(2))
-  assert.deepEqual(course.proofs.dm.notAnd.board(), board(6))
-  // A lemma level solved with no board kept runs the reference proof.
-  assert.equal(course.proofs.lem[''].board(), level('raa').tasks[1].solution)
-  syncOwn({})
-})
-
-test('levels merged into tasks and split again read as they did: every task its puzzle, answers and copy', () => {
-  // The course reads a task as the level's fields under its own (course.js).
-  const tasksOf = ({ tasks, builds, fact, after, intro, title, ...base }) => tasks.map((t) => ({ ...base, ...t }))
-  const kept = (task) => Object.fromEntries(Object.entries(task).filter(([k]) => !['intro', 'after', 'fact', 'builds'].includes(k)))
-  let n = 0
-  for (const { id, ...one } of QED.levels.filter((x) => x.tasks)) {
-    let back
-    try {
-      back = logic.tasks.merge(logic.tasks.split(one), one.title)
-    } catch (error) {
-      assert.match(error.message, /both say/, id)
-      continue
-    }
-    n++
-    assert.deepEqual(tasksOf(back).map(kept), tasksOf(one).map(kept), id)
-    assert.deepEqual(back.title, one.title, id)
-  }
-  assert.ok(n > 40)
-  // Two levels merged: each a task, the first one's intro the level's.
-  const [a, b] = QED.levels.filter((x) => !x.tasks && x.intro).slice(0, 2).map(({ id, ...one }) => one)
-  const merged = logic.tasks.merge([a, b], a.title)
-  assert.deepEqual(merged.tasks.map((t) => t.step), [a.title, b.title])
-  assert.deepEqual(merged.intro, a.intro)
-  assert.deepEqual(logic.tasks.split(merged).map((x) => x.title), [a.title, b.title])
-})

@@ -2,7 +2,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
-import { migrations } from './saves.js'
 
 const start = { data: { a: { nodes: [1] } }, slots: {} }
 
@@ -44,21 +43,3 @@ test('names, and dropping the slot played or another', () => {
   assert.equal(slotsOf(addSlot(other, 'a'), 'a').list.at(-1).no, 4)
 })
 
-test('migrations move and rewrite the waiting boards too', () => {
-  const saved = { version: 1, solved: [], data: { a: 1 }, slots: { a: { at: 0, list: [{ no: 1, name: '' }, { no: 2, name: '', data: 2 }] } } }
-  const out = migrations([{ version: 2, ops: [{ rename: { a: 'b' } }, { data: (v) => v * 10 }] }]).migrate(saved)
-  assert.deepEqual(out.data, { b: 10 })
-  assert.deepEqual(out.slots.b.list.map((s) => s.data), [undefined, 20])
-})
-
-test('a solved level’s kept board becomes the board its part runs; a level of tasks keeps one a task', () => {
-  const { migrate } = migrations([{ version: 2, ops: [{ built: ['a', 'b', 'c', 'd', 'e'] }] }])
-  const out = migrate({
-    version: 1,
-    solved: ['a', 'b', 'd', 'e'],
-    data: { a: { nodes: [1] }, b: [{ nodes: [2] }, { nodes: [3] }], c: { nodes: [4] }, d: { nodes: [5] }, e: [{ nodes: [6] }, { nodes: [7] }] },
-    // What a save kept already stays: a level's board, and a level of tasks' one board, its last task's.
-    built: { d: { nodes: [8] }, e: { nodes: [9] } },
-  })
-  assert.deepEqual(out.built, { a: { nodes: [1] }, b: [{ nodes: [2] }, { nodes: [3] }], d: { nodes: [8] }, e: [{ nodes: [6] }, { nodes: [9] }] })
-})

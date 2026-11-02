@@ -3,9 +3,9 @@
 // its hints, its board's ports, its tests, its answers. A level of one task is a plain level.
 //
 // Every task has an id, unique in the game and never another level's id (a level's one task usually has the level's
-// own). What a player keeps of a task — its board, whether it is passed — is kept by that id, so a task moves within
-// its level or to another level and its board goes with it (the operations task.add, task.remove, task.move,
-// task.rename, ops/operations.js). The shell plays each task as the level with the task's fields over it
+// own). What a player keeps of a task — its board, whether it is passed — is kept by that id (keyOf), so a task moves
+// within its level or to another level and its board goes with it, with no save migration (the operations task.add,
+// task.remove, task.move, task.rename, ops/operations.js). The shell plays each task as the level with the task's fields over it
 // (../shell/GameShell.jsx), and so does every domain reading one (taskLevels).
 import { S } from './schema.js'
 
@@ -24,6 +24,12 @@ export const taskLevel = (once, task) => S.obj({
 
 /** Whether a vocabulary's levels are lists of tasks with ids. */
 export const hasTaskIds = (vocabulary) => Boolean(vocabulary.level.fields?.tasks?.of?.fields?.id)
+
+/**
+ * A task's key in a player's saves (../shell/progress.js): its id; in a level whose tasks have none (a prototype
+ * domain's) `<level>#<k>`; a level without tasks is its own one task, keyed by the level's id.
+ */
+export const keyOf = (level, id, k) => id ?? (k === undefined || k === null ? level : `${level}#${k}`)
 
 /** Each task of a level as a level of its own: the level's fields under the task's, its index `task`, its id `taskId`. */
 export const taskLevels = ({ tasks, ...level }) => tasks.map((task, k) => {
@@ -64,6 +70,3 @@ export function taskIdProblems(levels) {
   }
   return out
 }
-
-/** The save op a domain's game.json schema takes for tasks moved, renamed or removed (../shell/saves.js `task`). */
-export const TASK_SAVE = S.obj({ task: S.obj({ id: S.str(), from: S.str(), to: S.opt(S.str()), as: S.opt(S.str()) }) })

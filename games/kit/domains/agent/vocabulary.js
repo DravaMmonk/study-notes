@@ -6,7 +6,7 @@
 // run.js, plays in ui/, the moves of a hand session in hand.js, the repositories and issues in world.js.
 
 import { S } from '../../engine/schema.js'
-import { defineVocabulary } from '../../engine/vocabulary.js'
+import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -111,14 +111,6 @@ const ERA = S.obj({
   topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
 })
-const SAVE_OP = S.either(
-  S.obj({ rename: S.map(S.either(S.str(), S.oneOf([null]))) }),
-  S.obj({ fields: S.map(S.str()) }),
-  S.obj({ grant: S.list(S.str()) }),
-  S.obj({ solve: S.list(S.either(S.str(), ids)) }),
-  S.obj({ merge: S.list(S.either(S.str(), ids)) }),
-  S.obj({ split: S.list(S.either(S.str(), ids)) }),
-)
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
@@ -128,7 +120,7 @@ const GAME = S.obj({
   eras: S.list(ERA, { min: 1 }),
   repos: S.map(REPO),
   issues: S.map(ISSUE),
-  saves: S.list(S.obj({ version: S.int({ min: 2 }), ops: S.list(SAVE_OP) })),
+  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({

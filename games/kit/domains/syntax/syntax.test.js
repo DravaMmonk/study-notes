@@ -1,14 +1,12 @@
 // node --test games/kit/domains/syntax — sentence analysis: tokens and spans, folding and its refusals, the check of an
 // analysis against the answer, the order folds can be made in, the level checks, and the content contract (the
-// vocabulary's schemas, the save migrations content names).
+// vocabulary's schemas).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { check, fold, foldRefusal, mark, order, resolve, say, skeleton, standing, targetRefusal, tokenize, units, unfold } from './model/sentence.js'
 import { sentenceProblems } from './validate.js'
 import { validate as fits } from '../../engine/schema.js'
 import { vocabulary } from './vocabulary.js'
-import { savesOf } from './items/migrations.js'
-import { migrations } from '../../shell/saves.js'
 
 const T = (zh, en) => ({ zh, en })
 const spec = {
@@ -125,13 +123,3 @@ test('a level as content: the vocabulary’s schema takes a sentence or tasks, a
   assert.ok(says({ ...level, roles: { subj: 'A small change' } }).some((p) => /roles\.verb: is missing/.test(p)))
 })
 
-test('saves: the migration none drops every level from before its version, as the old function did', () => {
-  const { version, migrate } = migrations(savesOf([{ version: 6, ops: [{ rename: 'none' }, { data: 'none' }] }]))
-  assert.equal(version, 6)
-  const old = { version: 5, solved: ['quick', 'build'], data: { quick: { words: [1] } }, best: { quick: { tries: 1 } }, introSeen: { quick: true }, all: true }
-  assert.deepEqual(migrate(old), { version: 5, solved: [], data: {}, best: {}, introSeen: {}, all: true })
-  const now = { version: 6, solved: ['1-1'], data: { '1-1': { analysis: { folds: [], roles: {} }, tries: 1, passed: true } } }
-  assert.deepEqual(migrate(now), now)
-  assert.ok(fits(vocabulary.game.fields.saves, [{ version: 6, ops: [{ rename: 'none' }, { data: 'none' }] }], { vocabulary }).length === 0)
-  assert.ok(fits(vocabulary.game.fields.saves, [{ version: 6, ops: [{ rename: 'gone' }] }], { vocabulary }).length > 0)
-})

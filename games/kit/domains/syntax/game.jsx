@@ -23,13 +23,12 @@ import Hero from './ui/Hero.jsx'
 import { skeleton } from './model/sentence.js'
 import { ROLES, TYPES } from './model/parts.js'
 import { syntaxCourse } from './course.js'
-import { savesOf } from './items/migrations.js'
 
 const ICON = { 'role:subj': Rows3, 'role:verb': Rows3, 'role:obj': Rows3, 'role:comp': Rows3, pp: CornerDownRight, rel: Quote }
 const textOf = (key) => (key.startsWith('role:') ? ROLES[key.slice(5)] : TYPES[key])
 
-/** content (../../engine/content.js): { id, title, kicker, lede, eras, saves: migration steps (../../shell/saves.js, a
- *  step naming a migration item), levels, glossary }. */
+/** content (../../engine/content.js): { id, title, kicker, lede, eras, saves: migration steps
+ *  (../../shell/saves.js), levels, glossary }. */
 export default function syntaxGame(content) {
   const { LEVELS, CHAPTERS, course } = syntaxCourse(content)
   const parts = [...introductions(course)].map(([key, at]) => ({ key, name: textOf(key).name, desc: textOf(key).desc, icon: ICON[key] ?? SquareStack, at }))
@@ -59,7 +58,7 @@ export default function syntaxGame(content) {
       note: L.debrief.note,
       tasks: L.tasks?.map((t) => ({ kind: 'analyze', step: t.step, source: t, brief: t.brief, after: t.after, intro: t.intro })),
     })),
-    progress: migrations(savesOf(content.saves ?? [])),
+    progress: migrations(content.saves),
     intro: (level) => level.source.intro,
     // What a level brings in: the roles and constructions it adds, named once it is passed.
     unlocked: (level) => (level.source.adds ?? []).map((key) => named.get(key)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon })),

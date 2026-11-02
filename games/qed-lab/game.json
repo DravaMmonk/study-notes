@@ -167,11 +167,5 @@
     }
   ],
   "quotes": ["套用"],
-  "saves": [
-    {
-      "version": 2,
-      "why": "Version 2 gave Suppose and Case by case new puzzles that put ∧ and ∨ back to work: their kept boards solve the old ones, so they start afresh.",
-      "ops": [{ "data": { "drop": ["box", "cases"] } }]
-    }
-  ]
+  "saves": []
 }

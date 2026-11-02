@@ -77,12 +77,13 @@
 
 专题的关沿用上一关的电路（专题是同一个问题在长大）；主线上一关若是在前一关的电路上升级（比如两路汇合 → 认出起点），也可以写明 `carry: '<那一关>'`，从玩家在那一关留下的电路开始，那一关必须是它的先修（审计 `carry-unseen`）。其余主线的系列和并行组，每关从空板开始。
 
-**改顺序、编号或谜题，存档迁移由操作集生成**（第 7 节），不手写。一次修改（变更集）需要的那一版迁移（`kit/engine/ops/migrate.js`，接进 `kit/shell/saves.js`）：
-- 关卡改了 id 是 `rename`，删掉的关是 `rename` 成 `null`；几关合成一关的几个任务是 `merge`（它们的电路变成这一关按任务排的列表），反过来是 `split`。
-- 任务有 id 的关（第 4 节），玩家存下的板和通过与否按任务 id 记：任务在关内换位置、插进新任务都不用迁移；挪进另一关、换 id、删掉是 `task`（`{ id, from, to?, as? }`：板——每块存档里的、元件跑的那块——和通过与否跟着它走，从已通过的关挪出来的算作通过）。
+**存档按任务记。** 外壳存下的（`kit/shell/progress.js`，浏览器里 `<游戏 id>.v2`）分两层：关卡层面的是通过的关（`solved`，一关通过了就一直算通过，后来多了任务也不收回）、得分（`best`）；谜题层面的全部按**任务 key** 记：每个任务的板和它的几块存档（`data`、`slots`）、通过了哪些任务（`passed`）、元件跑的那块板（`built`）。任务 key 就是任务的 id（第 4 节）；原型领域里没有 id 的任务是 `<关>#<第几个>`，没有任务的关是关自己的 id。所以任务在关内换位置、插进新任务、挪进别的关、几关合成一关，都不用迁移存档。这个形状之前的存档不读，玩家从空白开始。
+
+**改编号或谜题，存档迁移由操作集生成**（第 7 节），不手写。一次修改（变更集）需要的那一版迁移（`kit/engine/ops/migrate.js`，接进 `kit/shell/saves.js`），只有五种操作：
+- 关卡改了 id 是 `rename`（连同 `<关>#<k>` 形式的任务 key），删掉的关是 `rename` 成 `null`；任务换了 id 是 `retask`。
 - 一关被放到（新加或挪到）课程里的一个位置，从此成了某些关的先修（`requires` 一路往上），而玩家没打它就通过了那些关：从他通过的最早那一关起，把它记为通过（`solve`），谁都不会被赶回去。只记被放过去的那一关：一关往后挪，它越过的那些关不因此记给早先通过它的人。
-- 一关从此搭出一个元件：通过它的人存下的那块板成为元件跑的板（`built`）。
-- 一关的谜题变了，玩家存下的东西答的是旧谜题：领域说哪些改动算（`domain.js` 的 `changes.stale`）、怎么在存档里去掉（`changes.drop`，比如《证明完毕》的 `{ "data": { "drop": [关卡 id] } }`）。电路关的板是程序，测试变了照样跑，不去掉；托盘（`adds`）变了也不去掉。
+- 一关从此搭出一个元件：通过它的人在它最后一个任务上存下的板成为元件跑的板（`built: [[关, 任务 key]]`）。
+- 一关的谜题变了，玩家存下的板答的是旧谜题：领域说哪些改动算（`domain.js` 的 `changes.stale(旧关, 新关)`），这一关每个任务的板就去掉（`drop: [任务 key]`，通过与否留着）。电路关的板是程序，测试变了照样跑，领域不说算；托盘（`adds`）变了也不算。删掉的任务同样 `drop`。
 
 数据写法（`games/kit/course.js` 的 `layout(eras)`）：
 
@@ -368,7 +369,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 - 文字一律写成 `{ "zh": …, "en": … }` 两面；与语言无关的符号（`a + b`）可以写成一个字符串。
 - 引用词汇表的地方写成单键对象 `{ "项名": 参数 }`，没有参数的项也可以只写项名。例如诊断：`{ "when": { "uses": "right" }, "say": {…} }`；条件可以用 `all`、`any`、`not` 组合。
 - 参考解、naive 解、预置电路都写成蓝图文本（`kit/circuit/text.js`，每行一个字符串的列表），和玩家导出、导入的是同一种文本。
-- 存档迁移是数据，由操作集生成（第 2 节、第 7 节）：`kit/shell/saves.js` 的操作，要改写存档里电路的（`data`）或一关已通过的任务数的（`tasks`），写领域给出的迁移项的名字和参数（schema 有 `why` 的游戏，每一步还带一句 `why`，说那一版改了什么）。已有的各版是历史，操作集不改它们。
+- 存档迁移是数据，由操作集生成（第 2 节、第 7 节）：`game.json` 的 `saves`，每一版是 `kit/shell/saves.js` 的几个操作和一句可选的 `why`，schema 是内核的（`kit/engine/vocabulary.js` 的 `SAVES`），领域不加自己的迁移项。已有的各版是历史，操作集不改它们。
 - 文件按统一的格式写：两格缩进，一个对象或列表连同键和后面的逗号不超过 112 列就写在一行，否则展开（`kit/engine/ops/json.js`）。早先写成的文件不全是这个格式；操作集改一个文件时，没变的部分照原文留下，只有新写的部分用这个格式，所以 diff 只有改了的那几行。
 - 课程的形状都是数据：代际、并行组、专题和挑战的挂靠（`eras`）、原始元件（`primitives`）、哪几块元件合起来是一个想法（`concept`）、合并与升级（`replaces`）、留在原地的元件（`local`）、跨章带走什么（`keeps`）。领域代码只从关卡和参考解里读出事实（用到哪些元件、依赖哪些能力），不替课程做决定。
 - 内核的 `kit/engine/content.js` 把这几个文件组装成一份内容（`assemble`）；构建时 `kit/app/vite.js` 生成入口，`npm run check` 在 node 下读盘（`readContent`），两条路组装出同一份内容。
@@ -390,12 +391,12 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 | 给出 | 形状 | 契约测试查什么 |
 |---|---|---|
-| `domain.js` 默认导出 | `{ vocabulary, spec, validate }`，node 下能跑，不碰界面；工具加的钩子也挂在这里，登记在 `contract.js` 的 `EXTENSIONS`（连同每个钩子要的形状）：存档的 `saves(steps)`（`game.json` 的存档迁移换成外壳要的函数）、操作集的 `changes`（`stale(旧关, 新关)`：这次改动让玩家存下的东西不再适用，`drop(ids)`：去掉它们的存档操作）和 `tasks`（`merge(关卡, 标题)`、`split(关卡)`：几关合成一关的任务、拆回来）、盲玩的 `play`、无头画一关的 `scene(spec, 关卡)`（返回 SVG 文本或 `null`，MCP 的 `render` 和 studio 用，第 6.7 节） | 三个入口都在，没有不认识的键 |
+| `domain.js` 默认导出 | `{ vocabulary, spec, validate }`，node 下能跑，不碰界面；工具加的钩子也挂在这里，登记在 `contract.js` 的 `EXTENSIONS`（连同每个钩子要的形状）：操作集的 `changes`（`stale(旧关, 新关)`：这次改动让玩家存下的板不再适用，内核去掉这一关每个任务的板）、盲玩的 `play`、无头画一关的 `scene(spec, 关卡)`（返回 SVG 文本或 `null`，MCP 的 `render` 和 studio 用，第 6.7 节） | 三个入口都在，没有不认识的键 |
 | `vocabulary` | `defineVocabulary`（第 6.2 节）：种类 → 项（`about` 说明它是什么，`params` 参数的 schema），加 `game`、`level` 两个 schema | `domain` 就是文件夹名，版本从 1 起；每一项有说明；schema 只用 `schema.js` 的类型，`ref`、`call` 指向存在的种类；整份是数据（没有函数），`describe` 打印出来就是它自己；游戏的内容合它（`checkContent`） |
 | `spec(content)` | `{ id, domain, title, course, levels, texts?, quotes?, audit?(), blueprints?, syncOwn? }`：`course` 是 `defineCourse` 的结果，`levels` 按游玩顺序，每关有 `id`、`title`、`requires` | id、标题、关卡集合和内容一致，课程的关卡就是 `levels` 的顺序；`audit()` 报 `{ rule, level, part }` |
 | 课程钩子（`kit/course.js` 的 `defineCourse`） | `adds`、`builds`、`granted`、`uses`、`folds`、`declares` 给名字的列表；`needed` 给列表或 `null`；`boards` 给板的列表；`machine`、`world`、`concept`、`needs` 给名字或 `null`；`can` 给列表或 `null`；`naive`、`local` 给真假；`showcase` 给理由或 `null`；`replaces` 给列表 | 每一关、每个元件上都按形状调用一遍，审计只报认识的规则 |
-| `spec.blueprints` | 内容里写成蓝图文本的每一块板：`{ level, task?, board, write(board) → 行, read(行) → board, naive?, save?(board) }`（`task`：一串任务的关里是第几个任务的板），`save` 说这一关的界面怎样把这块板存进 `progress.built`（默认就是板本身：《状态之图》存 `{ stage, boards }`，《证明完毕》一关几段任务时存一列） | 关卡有参考板（`course.boards`）时必须给；每一块写出来再读回，算的东西不变，再写一遍文本不变 |
-| `spec.syncOwn(built)` | 课程有搭出的元件时必须给：把外壳的 `progress.built` 交给封装件，之后每个封装件跑那里记下的板（没有就跑参考解） | 每个搭建关最后一块参考板拔掉接到输出的线（`out <- a` 那几行），交给 `syncOwn`，那一关必须查不过：封装件真的在跑交给它的板。做不到的关列在 `contract.test.js` 的 `BUILT_IN` 里，写明原因，单子只会变短 |
+| `spec.blueprints` | 内容里写成蓝图文本的每一块板：`{ level, task?, key?, board, write(board) → 行, read(行) → board, naive?, save?(board) }`（`task`：一串任务的关里是第几个任务的板，`key`：那个任务在存档里的 key，默认是关的 id），`save` 说这一关的界面怎样把这块板存进 `progress.built`（默认就是板本身；《状态之图》存 `{ stage, boards }`） | 关卡有参考板（`course.boards`）时必须给；每一块写出来再读回，算的东西不变，再写一遍文本不变 |
+| `spec.syncOwn(built)` | 课程有搭出的元件时必须给：把外壳的 `progress.built`（按任务 key 记）交给封装件，之后每个封装件跑它那一关最后一个任务记下的板（没有就跑参考解） | 每个搭建关最后一块参考板拔掉接到输出的线（`out <- a` 那几行），交给 `syncOwn`，那一关必须查不过：封装件真的在跑交给它的板。做不到的关列在 `contract.test.js` 的 `BUILT_IN` 里，写明原因，单子只会变短 |
 | `validate(spec)` | `[{ text, fail?, level? }]`：参考解通过、naive 解失败、封装件单独放在搭它的那一关上通过；说某一关的行写明 `level` | 把内容里每关的 naive 解放到参考解的位置（不动搭建关），这些关都要查不过，别的关只有排在它们后面的可以跟着不过（后面的关可以建在前面的答案上：声明的类型、定义的函数） |
 | `game.jsx` | `default (content) → defineGame(…)`：外壳的游戏描述，关卡界面放在 `kinds` | 在 node 下经 vite 载入（`kit/engine/games.mjs`，和 `check` 一样）：关卡就是 `spec` 的关卡、同样的顺序，每关的 `kind` 有 `Screen`，章、元件箱、百科、存档都在 |
 
@@ -595,7 +596,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **提示用在哪里**：`view: 'grid'`——《状态之图》的矩阵（花费、金币、能量、图）、《视觉完备》的卷积核（`kit/domains/image/items/targets.js` 的 `KERNEL`、赛车台的核）；`view: 'ticks'`——《车在说话》测试的输入，《从一根线开始》测试的输入、`given` 要的值、位串 `bits`；`section`——每个领域的测试列表（`tests`、`hidden`，《证明完毕》的 `cases`、定义关的测试）是 `tests`，带来、折叠、搭出的元件和展示理由（`adds`、`fold`、`builds`、`unlock`、`grants`、`packs`、`showcase`……）是 `course`，有任务的关的 `tasks` 是 `tasks`，《视觉完备》带插图的引言是 `read`。
 
-**没有做的控件和原因**：图像（按像素画的图）——内容里没有按像素写的图，《视觉完备》的图都是有名字的图案加参数（`S.call('picture')`），《状态之图》的小图是数的矩阵，用矩阵的刷子；世界——各领域的世界参数都是上面这些形状的组合（坐标对、矩阵、记录），没有一个需要单独的控件；坐标对的列表（石头、墙、陷阱）没有在棋盘上点格子的控件——要知道棋盘大小就得认识兄弟字段 `R`、`C`，需要一个说明「这些点落在哪张格子上」的提示，留到按专题重做时有内容用它再加；`level.merge`、`level.split` 没有按钮。「运行参考解」在《状态之图》的电路关上不可用：它的盲玩钩子只能在一局之内从头玩到这一关时打开，单独打开一关时读不进参考解（`run_tests` 照实报出读不进的行）；《证明完毕》的证明板钩子不支持（第 6.6 节）。
+**没有做的控件和原因**：图像（按像素画的图）——内容里没有按像素写的图，《视觉完备》的图都是有名字的图案加参数（`S.call('picture')`），《状态之图》的小图是数的矩阵，用矩阵的刷子；世界——各领域的世界参数都是上面这些形状的组合（坐标对、矩阵、记录），没有一个需要单独的控件；坐标对的列表（石头、墙、陷阱）没有在棋盘上点格子的控件——要知道棋盘大小就得认识兄弟字段 `R`、`C`，需要一个说明「这些点落在哪张格子上」的提示，留到按专题重做时有内容用它再加。「运行参考解」在《状态之图》的电路关上不可用：它的盲玩钩子只能在一局之内从头玩到这一关时打开，单独打开一关时读不进参考解（`run_tests` 照实报出读不进的行）；《证明完毕》的证明板钩子不支持（第 6.6 节）。
 
 **没有做的工具和原因**：搜索不搜文字和板以外的字符串（元件的名字、端口名这类 `S.str()`）——它们多半是领域的标识，替换要像换 id 一样改到每一处引用，只换一处会弄坏内容，要换就用对应的操作；替换没有「换 id」——那是 `level.rename`，命令面板里有；批量修改不批量删除关卡（`level.remove` 一次一关，别处还提到它时拒绝，批量删只会得到一串拒绝）；比较不比较两章、整款游戏（评审页签已经逐文件给出整个变更集的字段级 diff）；命令面板不做模糊的全文搜索（那是左栏的搜索）。
 
@@ -635,14 +636,13 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 | 操作 | 做什么 | 自带的存档迁移 |
 |---|---|---|
-| `level.set`、`level.unset`、`level.patch`、`level.replace` | 改一关的一个字段（路径 `tests[0].goal`）、去掉一个字段或列表的一项、按 JSON merge patch 改几个字段、整关换掉；新字段按 schema 的字段顺序放 | 谜题变了时由领域给（第 2 节） |
+| `level.set`、`level.unset`、`level.patch`、`level.replace` | 改一关的一个字段（路径 `tests[0].goal`）、去掉一个字段或列表的一项、按 JSON merge patch 改几个字段、整关换掉；新字段按 schema 的字段顺序放 | 谜题变了（领域的 `changes.stale` 说算）：`drop` |
 | `level.blueprint` | 把一关的一块板（参考解、naive 解……，schema 里的 `S.board()`）写成蓝图文本，先按蓝图语法读一遍 | 同上 |
 | `level.adds` | 一关新带来的元件里加上、拿掉几样 | — |
 | `level.add`、`level.remove` | 加一关（内容和课程里的位置）；删一关（文件和位置，掏空的分支、专题一起去掉），别处还提到它时拒绝并列出在哪里 | 新放进来的关成了先修：`solve`；删：`rename` 成 `null` |
 | `level.rename` | 换 id：文件名和提到它的每一处（`S.level()` 的字段、文字里的链接、`open`） | `rename` |
 | `level.move` | 挪到课程里的另一个位置：同一章、跨章、进出并行组的分支、专题、挑战（位置的写法见 `ops/place.js`） | 成了新的先修：`solve` |
-| `level.merge`、`level.split` | 几关合成一关的任务、拆回几关（任务长什么样由领域的 `tasks` 给，现在只有《证明完毕》的领域给；一关是一串有 id 的任务的领域不用它们：合成是 `task.move` 加 `level.remove`，拆开是 `level.add` 加 `task.move`） | `merge`、`split` |
-| `task.add`、`task.remove`、`task.move`、`task.rename` | 一关是一串有 id 的任务的领域（第 4 节）：加一个任务（放在某个任务后面、最前或最后；不给 id 就起一个），删一个（一关至少留一个，整关不要用 `level.remove`），挪到关内别的位置或另一关（`to: { level, after? / first? }`；挪走一关唯一的任务时，同一个变更集里要删掉那一关，否则检查不过），换 id；按 id 找任务，id 在整款游戏里唯一（`npm run check` 查） | 挪进另一关、删掉、换 id：`task` |
+| `task.add`、`task.remove`、`task.move`、`task.rename` | 一关是一串有 id 的任务的领域（第 4 节）：加一个任务（放在某个任务后面、最前或最后；不给 id 就起一个），删一个（一关至少留一个，整关不要用 `level.remove`），挪到关内别的位置或另一关（`to: { level, after? / first? }`；挪走一关唯一的任务时，同一个变更集里要删掉那一关，否则检查不过），换 id；按 id 找任务，id 在整款游戏里唯一（`npm run check` 查）；几关合成一关就是把任务挪过去、删掉空了的关，拆开是加关再挪任务 | 删掉：`drop`；换 id：`retask`；挪动不用迁移 |
 | `game.set`、`game.unset` | 改 `game.json` 的一个字段（课程、元件、标题……）；存档迁移不能改 | — |
 | `text.set` | 改一段文字的一面或两面（一关、`game.json`、百科里的） | — |
 | `glossary.put`、`glossary.set`、`glossary.remove` | 写一条百科、改几个字段、删一条 | — |

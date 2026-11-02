@@ -22,13 +22,6 @@ import { wantOf } from './wants.js'
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
 
-/** The board a level keeps for its part (a level of tasks keeps one by task id, ../../shell/progress.js): its last
- *  task's (`last`, that task's id). */
-const lastBoard = (kept, last) => {
-  const board = kept?.nodes ? kept : kept?.[last]
-  return board?.nodes ? board : null
-}
-
 /** A test as content writes it, run out: what arrives on each wire in, tick by tick, and how many ticks it runs. */
 function testOf(level, t) {
   const sent = Object.fromEntries((level.wires?.in ?? []).map((w) => [w.name, said(t.wires?.[w.name]?.send ?? [])]))
@@ -86,7 +79,7 @@ export function netCourse(content) {
     const read = (lines, what, naive = false) => {
       try {
         const board = fromText(lines, out, partOf)
-        blueprints.push({ level: id, task: task.task, board, write: (b) => toText(b, partOf), read: (text) => fromText(text, out, partOf), ...(naive ? { naive } : {}) })
+        blueprints.push({ level: id, task: task.task, key: task.taskId, board, write: (b) => toText(b, partOf), read: (text) => fromText(text, out, partOf), ...(naive ? { naive } : {}) })
         return board
       } catch (e) {
         say(where, `${what}: ${e.en ?? String(e)}`)
@@ -164,16 +157,18 @@ export function netCourse(content) {
     // its last task's reference), or its fixed cards alone.
     opening: (task, built = {}) => {
       if (!task.carry) return startBoard(task)
-      const board = lastBoard(built[task.carry], played.get(task.carry)?.at(-1).taskId) ?? played.get(task.carry)?.at(-1).solution
+      const last = played.get(task.carry)?.at(-1)
+      const board = built[last?.taskId]?.nodes ? built[last.taskId] : last?.solution
       return board ? carriedOnto(task, board) : startBoard(task)
     },
     // The table's rule in this domain: a task that carries on from a board requires the level it comes from.
     audit: () => LEVELS.flatMap((L) => played.get(L.id).filter((T) => T.carry && !course.before(T.carry, L.id)).map((T) => ({ rule: 'carry-unseen', level: L.id, part: T.carry }))),
     syncOwn: (built = {}) => {
       OWN.clear()
-      for (const [id, kept] of Object.entries(built)) {
-        const board = lastBoard(kept, played.get(id)?.at(-1).taskId)
-        if (board) OWN.set(id, board)
+      // The shell keeps boards by task (../../shell/progress.js): a level's part runs its last task's.
+      for (const L of LEVELS) {
+        const board = built[played.get(L.id).at(-1).taskId]
+        if (board?.nodes) OWN.set(L.id, board)
       }
     },
   }

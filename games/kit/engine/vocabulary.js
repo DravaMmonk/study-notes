@@ -27,6 +27,24 @@ export const GLOSSARY = S.obj({
  */
 export const OPEN = S.map(S.list(S.str({ pattern: '^[^@]*@[^@]+$' })))
 
+/**
+ * game.json's `saves`, the same in every game: the save migration steps the operation set writes (ops/migrate.js),
+ * each a version, why it was written, and the shell's save operations (../shell/saves.js) — level ids renamed or gone,
+ * levels counted solved, boards made a part's, boards dropped, task ids renamed.
+ */
+const LEVEL_OR_NONE = S.either(S.str(), S.oneOf([null]))
+export const SAVES = S.list(S.obj({
+  version: S.int({ min: 2 }),
+  why: S.opt(S.str()),
+  ops: S.list(S.either(
+    S.obj({ rename: S.map(LEVEL_OR_NONE) }),
+    S.obj({ solve: S.list(S.either(S.str(), S.list(S.str()))) }),
+    S.obj({ built: S.list(S.list(S.str(), { min: 2 })) }),
+    S.obj({ drop: S.list(S.str()) }),
+    S.obj({ retask: S.map(S.str()) }),
+  )),
+}))
+
 export function defineVocabulary({ domain, version, kinds, game, level }) {
   return { domain, version, kinds, game, level }
 }

@@ -21,13 +21,6 @@ import { wantOf } from './wants.js'
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
 
-/** The board a level keeps for its part (a level of tasks keeps one by task id, ../../shell/progress.js): its last
- *  task's (`last`, that task's id). */
-const lastBoard = (kept, last) => {
-  const board = kept?.nodes ? kept : kept?.[last]
-  return board?.nodes ? board : null
-}
-
 /** A test as content writes it, its line read into values. */
 const testOf = (t) => ({ ...t, line: bitsOf(t.line) })
 
@@ -69,7 +62,7 @@ export function __name__Course(content) {
     const read = (lines, what, naive = false) => {
       try {
         const board = fromText(lines, out, partOf)
-        blueprints.push({ level: id, task: task.task, board, write: (b) => toText(b, partOf), read: (text) => fromText(text, out, partOf), ...(naive ? { naive } : {}) })
+        blueprints.push({ level: id, task: task.task, key: task.taskId, board, write: (b) => toText(b, partOf), read: (text) => fromText(text, out, partOf), ...(naive ? { naive } : {}) })
         return board
       } catch (e) {
         say(where, `${what}: ${e.en ?? String(e)}`)
@@ -142,9 +135,10 @@ export function __name__Course(content) {
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
     syncOwn: (built = {}) => {
       OWN.clear()
-      for (const [id, kept] of Object.entries(built)) {
-        const board = lastBoard(kept, played.get(id)?.at(-1).taskId)
-        if (board) OWN.set(id, board)
+      // The shell keeps boards by task (../../shell/progress.js): a level's part runs its last task's.
+      for (const L of LEVELS) {
+        const board = built[played.get(L.id).at(-1).taskId]
+        if (board?.nodes) OWN.set(L.id, board)
       }
     },
   }

@@ -12,7 +12,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskPassed, taskRecord } from './progress.js'
+import { firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskPassed } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { EditContext, same } from './edit.js'
@@ -40,14 +40,13 @@ const SITE = { games: '../index.html' }
  * A level may be several tasks done in order (`tasks: [{ kind, step, … }]`, each what that task changes of the level:
  * its screen's kind, its name `step`, its brief, its `after`…). Each task is played as a level of its own kind, the
  * last one being the level itself: a task opens once the one before it is passed, passing it says what it taught and
- * goes on, and passing the last passes the level. The tasks passed are kept per level (progress.tasks), and what each
- * task's screen keeps goes in the level's data, one entry a task — by the task's id (`key`) where it has one, so a task
- * moved keeps its board (progress.js). A task marked `carries` goes on with what
+ * goes on, and passing the last passes the level. Which tasks are passed and what each task's screen keeps (its board,
+ * its other boards) go by the task's key — its id (`key`) where it has one — so a task moved keeps them (progress.js). A task marked `carries` goes on with what
  * the task before it made: it opens on that task's board. A task holds the flags the tasks before it open (`opens`),
  * before the level unlocks them. A task may bring introduction pages of its own (`intro`): they open the first time the task is
  * played (the first task's after the level's), so its brief need only say what it asks.
  *
- * A level may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
+ * A task may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
  * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
  *
  * `author` is the studio playing the game it edits (../studio/play.jsx): { level, take: { label, use(text) } } puts a
@@ -142,10 +141,8 @@ export default function GameShell({ game, author = null }) {
   }
   const played = tasks ? { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), go: goTask } } : level
   // A task that goes on from the one before (`carries`) opens on that task's board until it has one of its own.
-  const kept = (data) => {
-    if (!tasks) return data
-    return taskRecord(level, data, taskAt) ?? (tasks[taskAt].carries && taskAt > 0 ? taskRecord(level, data, taskAt - 1) : undefined)
-  }
+  const key = level ? taskKey(level, taskAt) : null
+  const kept = () => progress.data[key] ?? (tasks?.[taskAt].carries && taskAt > 0 ? progress.data[taskKey(level, taskAt - 1)] : undefined)
 
   // What a level screen can do to the shell.
   const save = (data) => setProgress((p) => savedAt(p, level, taskAt, data))
@@ -198,16 +195,16 @@ export default function GameShell({ game, author = null }) {
     open(target.id)
   }
 
-  // The level's saved boards. Choosing another starts the screen over on it, with nothing left of the last run.
-  const slots = level ? slotsOf(progress, level.id) : null
+  // The task's saved boards. Choosing another starts the screen over on it, with nothing left of the last run.
+  const slots = level ? slotsOf(progress, key) : null
   const slotted = (f) => (...args) => {
-    setProgress((p) => f(p, level.id, ...args))
+    setProgress((p) => f(p, key, ...args))
     setWon(null)
     setFailure(null)
     setFails(0)
   }
   // The last run of the board played (see above).
-  const runAt = slots && runKey(taskAt, slots.list[slots.at].no)
+  const runAt = slots && runKey(key, slots.list[slots.at].no)
   const lastRun = level ? runs[runAt] : undefined
   const keepRun = (mark) => setRuns((kept) => {
     if (JSON.stringify(kept[runAt] ?? null) === JSON.stringify(mark ?? null)) return kept
@@ -222,7 +219,7 @@ export default function GameShell({ game, author = null }) {
     level: level.id,
     open: slotted(openSlot),
     add: slotted(addSlot),
-    rename: (k, name) => setProgress((p) => renameSlot(p, level.id, k, name)),
+    rename: (k, name) => setProgress((p) => renameSlot(p, key, k, name)),
     take: author?.level === level.id ? author.take : null,
     // A slot dropped takes its runs with it: a slot added later may take its number.
     drop: (k) => {
@@ -237,7 +234,7 @@ export default function GameShell({ game, author = null }) {
   const pages = !level ? [] : [...own, ...(tasks?.[taskAt]?.intro ?? [])]
   // Each page's field, for the studio: the level's pages, then the task's own.
   const pageMarks = pages.map((_, k) => (k < own.length ? { at: `intro[${k}]`, scope: 'level' } : { at: `intro[${k - own.length}]`, scope: 'task' }))
-  const introKey = level && (taskAt === 0 ? level.id : `${level.id}#${taskKey(level, taskAt)}`)
+  const introKey = level && (taskAt === 0 ? level.id : key)
   const intro = pages.length > 0
   const kind = level && game.kinds[played.kind]
 
@@ -327,7 +324,7 @@ export default function GameShell({ game, author = null }) {
           )}
           <EditContext.Provider value={edit}>
             {kind
-              ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || (tasks ? isPassed(taskAt) : false), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
+              ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || (tasks ? isPassed(taskAt) : false), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
               : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
           </EditContext.Provider>
         </div>

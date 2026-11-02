@@ -349,36 +349,6 @@
       ]
     }
   ],
-  "saves": [
-    {
-      "version": 2,
-      "ops": [
-        { "rename": { "origin": null } },
-        { "solve": ["cheapest", ["slantcost"]] },
-        { "data": { "oldBoards": { "drop": ["bp:origin"], "rename": { "bp:cheapest": "bp:slantcost" } } } }
-      ]
-    },
-    {
-      "version": 3,
-      "ops": [
-        {
-          "data": {
-            "boards": {
-              "parts": {
-                "bp:stamp": "counter",
-                "bp:slantcost": "min",
-                "bp:edit": "cost",
-                "bp:knaptable": "choose",
-                "bp:stones": "interval",
-                "bp:value": "value"
-              }
-            }
-          }
-        },
-        { "built": ["stamp", "slantcost", "edit", "knaptable", "stones", "value"] }
-      ]
-    }
-  ],
-  "legacyKey": "state-graph-v2",
+  "saves": [],
   "borrow": { "seam": "seam" }
 }

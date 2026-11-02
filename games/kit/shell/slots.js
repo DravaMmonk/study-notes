@@ -1,11 +1,12 @@
-// A level's saved circuits: the player may keep several boards for one level and switch between them. The one being
-// played is the level's data (progress.data[id]), as always; the others wait in progress.slots[id]:
+// A task's saved circuits: the player may keep several boards for one task (a level's, for a level of one) and switch
+// between them. `id` is the task's key (progress.js taskKey). The one being played is its data (progress.data[id]), as
+// always; the others wait in progress.slots[id]:
 //
 //   { at: index of the one played, list: [{ no, name, data? }] }
 //
 // `no` is a slot's own number, never reused within a level: it names an unnamed slot ("电路 2") and tells the shell
 // when the board on screen must start over. A slot waiting holds its data; the one played holds none (its data is the
-// level's). A level with no record has one slot, the level's data.
+// task's). A task with no record has one slot, its data.
 
 const clone = (value) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)))
 
@@ -52,7 +53,7 @@ export function renameSlot(progress, id, k, name) {
   return { ...progress, slots: { ...progress.slots, [id]: { ...slots, list: replaced(slots.list, k, { ...slots.list[k], name: name.trim() }) } } }
 }
 
-/** The key a board's last run is kept under while its level is open (GameShell): the task it is on and its slot's number. */
+/** The key a board's last run is kept under while its level is open (GameShell): its task's key and its slot's number. */
 export const runKey = (task, no) => `${task}#${no}`
 
 /** Slot k gone (never the last one); if it was played, the one before it (or after, for the first) is played instead. */

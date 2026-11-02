@@ -15,7 +15,6 @@ import { PRIMITIVES, modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
 import { T, lazy, tr } from './lang.js'
 import { syncOwn, tableCourse } from './course.js'
-import { savesOf } from './items/migrations.js'
 
 function IntroFigure({ fig }) {
   return <div className="fig" dangerouslySetInnerHTML={{ __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) }} />
@@ -23,7 +22,7 @@ function IntroFigure({ fig }) {
 
 /**
  * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, parts, saves: migration steps
- * (../../shell/saves.js, a { data } step naming a migration item), legacyKey? where saves from before the shell live,
+ * (../../shell/saves.js),
  * borrow?: { part: level id } the level whose board a part that is an idea is tried on, levels, glossary }.
  */
 export default function tableGame(content) {
@@ -45,19 +44,6 @@ export default function tableGame(content) {
     after: L.debrief.body,
     note: L.debrief.note,
   }))
-
-  // Saves from before the shell, under content.legacyKey as { done, seen, data, all }.
-  function legacy() {
-    if (!content.legacyKey) return null
-    try {
-      const old = JSON.parse(window.localStorage.getItem(content.legacyKey))
-      if (!old) return null
-      const done = LEVELS.filter((L) => old.done?.[L.id])
-      return { version: 1, solved: done.map((L) => L.id), flags: done.filter((L) => L.unlock).map((L) => L.unlock), data: old.data ?? {}, introSeen: old.seen ?? {}, all: Boolean(old.all), seenPower: true }
-    } catch {
-      return null
-    }
-  }
 
   // The primitives in the components box, one card each (a merger's models are one card), from the level that brings
   // the card in. A card named like another says which one it is.
@@ -92,7 +78,7 @@ export default function tableGame(content) {
     html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),
     levels,
-    progress: { ...migrations(savesOf(content.saves ?? [])), legacy },
+    progress: migrations(content.saves),
     // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
