@@ -1,6 +1,7 @@
 /* The studio (Studio.jsx): the course tree (or search) on the left, what is edited (or copied, compared, played,
-   reviewed) in the middle, the audit on the right; each column scrolls on its own, the side ones resize and fold. On a
-   tablet the audit goes under the middle column; on a narrow screen the tree too. Tokens from ../tokens.css, the bar
+   reviewed) in the middle, the audit in a drawer under it; each scrolls on its own, the tree and the drawer resize and
+   fold (the drawer to its one-line bar, which long check lines need the width for). On a narrow screen the three
+   follow each other. Tokens from ../tokens.css, the bar
    and buttons from ../ui.css; the studio's own denser scale below. Density comes from removing chrome: a field's
    label sits beside it, short fields share a row, folded things fold to one line. */
 
@@ -20,7 +21,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 /* ---- the bar ---- */
 .studio-bar { gap: 10px; }
 .studio-game { height: 28px; max-width: 14em; padding: 0 6px; border: 0; border-radius: var(--r-sm); color: var(--ink); background: var(--hover); font: 600 var(--fs)/1 var(--sans); }
-.studio-tabs { display: flex; gap: 1px; padding: 2px; border-radius: 8px; background: var(--hover); }
+.studio-tabs { min-width: 0; display: flex; gap: 1px; padding: 2px; overflow-x: auto; border-radius: 8px; background: var(--hover); scrollbar-width: none; }
 .studio-tab { height: 24px; padding: 0 10px; display: inline-flex; align-items: center; gap: 5px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font: 600 12px/1 var(--sans); cursor: pointer; }
 .studio-tab.is-on { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); }
 .studio-count { min-width: 16px; height: 16px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 8px; color: var(--paper); background: var(--accent); font: 600 10px/1 var(--mono); }
@@ -31,34 +32,32 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .studio-busy.is-on { opacity: 1; animation: studio-pulse 900ms ease-in-out infinite; }
 @keyframes studio-pulse { 50% { opacity: .25; } }
 
-/* ---- the columns ---- */
-.studio-body { flex: 1; display: grid; grid-template-columns: var(--tree-w) 5px minmax(0, 1fr) 5px var(--audit-w); grid-template-rows: minmax(0, 1fr); min-height: 0; }
+/* ---- the columns: the tree, and the form over the audit drawer ---- */
+.studio-body { flex: 1; display: grid; grid-template-columns: var(--tree-w) 5px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto auto; min-height: 0; }
 .studio-body > * { min-height: 0; overflow: auto; }
-.studio-tree { background: var(--rail); }
-.studio-body > .studio-main { position: relative; overflow: hidden; background: var(--canvas); }
-.studio-audit { background: var(--paper); }
-.studio-body.no-tree > .studio-tree, .studio-body.no-audit > .studio-audit { visibility: hidden; }
+.studio-tree { grid-area: 1 / 1 / 4 / 2; background: var(--rail); }
+.studio-resize.is-tree { grid-area: 1 / 2 / 4 / 3; }
+.studio-body > .studio-main { grid-area: 1 / 3; position: relative; overflow: hidden; background: var(--canvas); }
+.studio-resize.is-audit { grid-area: 2 / 3; height: 5px; }
+.studio-body > .studio-audit { grid-area: 3 / 3; overflow: hidden; background: var(--paper); border-top: 1px solid var(--hairline); }
+.studio-body:not(.no-audit) > .studio-audit { height: min(var(--audit-h), 70vh); }
+.studio-body.no-tree > .studio-tree { visibility: hidden; }
 .studio-resize { position: relative; z-index: 2; overflow: visible; background: linear-gradient(to right, transparent 2px, var(--hairline) 2px 3px, transparent 3px); cursor: col-resize; touch-action: none; }
+.studio-resize.is-audit { background: none; cursor: row-resize; }
 .studio-resize:hover, .studio-resize:focus-visible { outline: none; background: var(--accent); }
 .studio-resize.is-shut { cursor: e-resize; background: var(--line); }
-.studio-resize.is-audit.is-shut { cursor: w-resize; }
 .studio-resize.is-shut::after { content: ''; position: absolute; inset: 40% 1px; border-radius: 2px; background: var(--rule); }
 
-@media (max-width: 1180px) {
-  .studio-body { grid-template-columns: var(--tree-w) 5px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
-  .studio-tree, .studio-resize.is-tree { grid-row: 1 / 3; }
-  .studio-resize.is-audit { display: none; }
-  .studio-audit { grid-column: 3; max-height: 30vh; border-top: 1px solid var(--hairline); }
-  .studio-body.no-audit > .studio-audit { display: none; }
-}
 @media (max-width: 760px) {
   .studio { height: auto; min-height: 100vh; }
   .studio-body { display: block; }
   .studio-body > * { overflow: visible; }
   .studio-resize { display: none; }
   .studio-tree { max-height: 40vh; overflow: auto; }
-  .studio-audit { max-height: none; }
+  .studio-body:not(.no-audit) > .studio-audit { height: auto; }
   .studio-play iframe { height: 80vh; }
+  .studio-game { max-width: 7em; }
+  .studio-palette kbd { display: none; }
 }
 
 /* ---- the left panel: the tree, or search ---- */
@@ -420,15 +419,21 @@ select.cell { width: auto; min-width: 46px; }
 .studio-play iframe { flex: 1; width: 100%; border: 0; background: var(--canvas); }
 
 /* ---- the audit: a worklist ---- */
-.audit { padding: 6px 8px 32px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; }
+.audit { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); grid-template-columns: minmax(0, 1fr); }
 .audit.is-busy .audit-lines { opacity: .6; transition: opacity 200ms ease; }
-.audit-sum { position: relative; display: flex; align-items: baseline; gap: 8px; padding: 6px 8px; border: 0; border-radius: 6px; text-align: left; cursor: pointer; font: inherit; }
+.audit-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 4px 8px; }
+.audit-bar.is-ok { background: color-mix(in srgb, var(--status) 16%, transparent); }
+.audit-bar.is-fail { background: color-mix(in srgb, var(--fail) 14%, transparent); }
+.audit-sum { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 6px 0 2px; border: 0; border-radius: 5px; color: var(--ink); background: none; cursor: pointer; font: inherit; }
+.audit-sum:hover { background: var(--hover); }
+.audit-sum > svg { flex: none; color: var(--muted); transition: transform 120ms ease; }
+.audit.is-open .audit-sum > svg { transform: rotate(180deg); }
 .audit-sum b { font: 600 12.5px/1.3 var(--sans); }
-.audit-sum span { color: var(--muted); font: var(--fs-mini)/1.3 var(--mono); }
-.audit-sum.is-ok { color: var(--ink); background: color-mix(in srgb, var(--status) 22%, transparent); }
-.audit-sum.is-fail { color: var(--ink); background: color-mix(in srgb, var(--fail) 18%, transparent); }
-.audit-wait { margin-left: auto; width: 7px; height: 7px; align-self: center; border-radius: 50%; background: var(--accent); animation: studio-pulse 900ms ease-in-out infinite; }
-.audit-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.audit-pending { height: 22px; padding: 0 7px; border: 0; border-radius: 5px; color: var(--muted); background: var(--hover); cursor: pointer; font: var(--fs-mini)/1 var(--mono); }
+.audit-pending:hover { color: var(--ink); }
+.audit-wait { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: studio-pulse 900ms ease-in-out infinite; }
+.audit-body { overflow: auto; padding: 4px 8px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; align-content: start; }
+.audit-filter { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px; }
 .audit-filter .seg button { display: inline-flex; align-items: center; gap: 3px; padding: 0 5px; }
 .audit-filter .seg button i { width: 6px; height: 6px; border-radius: 50%; background: var(--rule); }
 .audit-filter .seg button.is-fail i { background: var(--fail); }
@@ -438,18 +443,18 @@ select.cell { width: auto; min-width: 46px; }
 .audit-filter .seg button:not(.is-on) { opacity: .55; }
 .audit-mine { height: 24px; max-width: 8em; padding: 0 6px; border: 0; border-radius: 5px; color: var(--muted); background: var(--hover); font: 600 var(--fs-mini)/1 var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .audit-mine.is-on { color: var(--select-ink); background: var(--select); }
-.audit-rule { flex: 1; min-width: 6em; height: 24px; }
-.audit-query { flex: 1 1 100%; height: 24px; padding: 0 7px; border: 0; border-radius: 5px; color: var(--ink); background: var(--hover); font: var(--fs)/1 var(--sans); }
-.audit-lines { margin: 0; padding: 0; list-style: none; display: grid; gap: 1px; }
+.audit-rule { min-width: 6em; height: 24px; }
+.audit-query { flex: 0 1 16em; min-width: 6em; height: 24px; padding: 0 7px; border: 0; border-radius: 5px; color: var(--ink); background: var(--hover); font: var(--fs)/1 var(--sans); }
+.audit-lines { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1px; }
 .audit-row button { all: unset; box-sizing: border-box; width: 100%; display: flex; gap: 6px; padding: 2px 6px; border-radius: 4px; cursor: pointer; font: 11px/1.45 var(--mono); color: var(--muted); }
 .audit-row button:hover { background: var(--hover); }
-.audit-row code { flex: none; max-width: 7em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent-ink); font-weight: 600; }
-.audit-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.audit-row code { flex: none; width: 7em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent-ink); font-weight: 600; }
+.audit-row span { min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .audit-row.is-fail button { color: var(--ink); box-shadow: inset 2px 0 0 var(--fail); }
 .audit-row.is-open button { box-shadow: inset 2px 0 0 var(--accent); }
 .audit-row.is-report button { box-shadow: inset 2px 0 0 var(--select); }
 .audit-row.is-at button { background: color-mix(in srgb, var(--select) 14%, transparent); }
-.audit-row.is-at span, .audit-row.is-wide { white-space: pre-wrap; overflow-wrap: anywhere; }
+.audit-row.is-wide { white-space: pre-wrap; overflow-wrap: anywhere; }
 li.audit-row.is-wide { padding: 3px 6px; border-radius: 4px; color: var(--ink); background: color-mix(in srgb, var(--fail) 14%, transparent); font: 11px/1.45 var(--mono); }
 .audit-more { padding: 2px 6px; color: var(--faint); font: var(--fs-mini)/1.4 var(--mono); }
 .audit-plays { display: grid; gap: 4px; }

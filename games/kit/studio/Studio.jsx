@@ -10,8 +10,8 @@
 // domain's own: every reference run), which takes seconds on the biggest games. Until it is back the audit shows the
 // last one as stale. Applying writes the changeset (modify); undo runs the change log's.
 //
-// The page: the tree (or search) on the left, the audit on the right, each folding away and resizable (remembered per
-// viewer, prefs.js); the command palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
+// The page: the tree (or search) on the left, the audit in a drawer under the middle, each folding away and resizable
+// (remembered per viewer, prefs.js); the command palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
 import './studio.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Command, ListTree, Search as SearchIcon } from 'lucide-react'
@@ -43,7 +43,7 @@ const QUERY = new URLSearchParams(window.location.search)
 const TABS = [['edit', '编辑', 'Edit'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['play', '试玩', 'Play'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
-const WIDTH = { min: 180, max: 640 }
+const SIZE = { tree: [180, 640], audit: [90, 900] } // px: the tree's width, the audit drawer's height
 
 /** Keep the studio's place in the address: the game, what is selected, the tab. */
 const remember = (game, at, tab) => {
@@ -57,25 +57,31 @@ const remember = (game, at, tab) => {
 }
 const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
 
-/** The handle between two columns: drag to resize, double-click (or Enter) to fold, arrows to nudge. */
-function Resizer({ side, width, open, setLayout }) {
+/**
+ * The handle beside the tree (across, for its width) or above the audit drawer (along, for its height): drag to
+ * resize, double-click (or Enter) to fold, arrows to nudge.
+ */
+function Resizer({ side, size, open, setLayout }) {
   const set = (patch) => setLayout((l) => ({ ...l, ...patch }))
+  const across = side === 'tree'
+  const clamp = (n) => Math.max(SIZE[side][0], Math.min(SIZE[side][1], n))
   const drag = (e) => {
     if (!open) return
     e.preventDefault()
-    const x0 = e.clientX
-    const move = (ev) => set({ [side]: Math.max(WIDTH.min, Math.min(WIDTH.max, width + (side === 'tree' ? 1 : -1) * (ev.clientX - x0))) })
+    const at0 = across ? e.clientX : e.clientY
+    const move = (ev) => set({ [side]: clamp(across ? size + ev.clientX - at0 : size - (ev.clientY - at0)) })
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
   }
   return (
     <div
-      className={`studio-resize is-${side} ${open ? '' : 'is-shut'}`} role="separator" aria-orientation="vertical" tabIndex={0} aria-label={tr('拖动改宽，双击收起', 'Drag to resize, double-click to fold')}
+      className={`studio-resize is-${side} ${open ? '' : 'is-shut'}`} role="separator" aria-orientation={across ? 'vertical' : 'horizontal'} tabIndex={0} aria-label={tr('拖动改大小，双击收起', 'Drag to resize, double-click to fold')}
       onPointerDown={drag} onDoubleClick={() => set({ [`${side}Open`]: !open })} onClick={() => !open && set({ [`${side}Open`]: true })}
       onKeyDown={(e) => {
         if (e.key === 'Enter') set({ [`${side}Open`]: !open })
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') set({ [side]: Math.max(WIDTH.min, Math.min(WIDTH.max, width + ((e.key === 'ArrowRight') === (side === 'tree') ? 16 : -16))) })
+        const nudge = across ? { ArrowRight: 16, ArrowLeft: -16 }[e.key] : { ArrowUp: 16, ArrowDown: -16 }[e.key]
+        if (nudge) set({ [side]: clamp(size + nudge) })
       }}
     />
   )
@@ -103,7 +109,7 @@ export default function Studio() {
   const [moving, setMoving] = useState(null) // the levels being moved in the tree
   const [said, setSaid] = useState(null) // what the last apply or undo said
   const [runs, setRuns] = useState({}) // test runs: `${level}|${path}` → the run_tests answer
-  const [layout, setLayout] = usePref('layout', { tree: 260, audit: 340, treeOpen: true, auditOpen: true })
+  const [layout, setLayout] = usePref('layout', { tree: 260, audit: 240, treeOpen: true, auditOpen: true })
   const [side, setSide] = usePref('side', 'tree')
   const [copyScope, setCopyScope] = useState(null) // the copy tab's scope: an era's index, 'all' or 'glossary'
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
@@ -379,7 +385,7 @@ export default function Studio() {
     ...(redo.length ? [['redo', tr('放回去掉的操作', 'Put a dropped operation back'), `${MOD}+Shift+Z`, again]] : []),
     ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃', 'Discard all'), '', () => setOps([])]] : []),
     ['tree', tr('收起或打开左栏', 'Fold the left panel'), 'Alt+[', () => togglePanel('tree')],
-    ['audit', tr('收起或打开右栏', 'Fold the right panel'), 'Alt+]', () => togglePanel('audit')],
+    ['audit', tr('收起或打开检查栏', 'Fold the audit drawer'), 'Alt+]', () => togglePanel('audit')],
     ['keys', tr('快捷键', 'Keys'), '?', () => setOverlay('keys')],
   ].map(([id, label, keys, run, ask]) => ({ id, label, keys, run, ...(ask && { ask }) }))
 
@@ -432,7 +438,7 @@ export default function Studio() {
   const result = { ok: fresh && checked.ok, problems: last && !last.content ? last.problems : fresh ? checked.problems : [], failed: last?.failed ?? null, says: last?.says ?? shown?.says, fresh }
   const pickedIds = playOrder.filter((id) => picked.has(id))
   const scope = copyScope ?? (at?.era !== undefined ? at.era : at?.level ? (content?.eras ?? []).findIndex((era) => eraLevels(era).includes(at.level)) : 'all')
-  const style = { '--tree-w': `${layout.treeOpen ? layout.tree : 0}px`, '--audit-w': `${layout.auditOpen ? layout.audit : 0}px` }
+  const style = { '--tree-w': `${layout.treeOpen ? layout.tree : 0}px`, '--audit-h': `${layout.audit}px` }
   return (
     <div className={`studio ${moving ? 'is-moving' : ''}`}>
       <header className="kit-bar studio-bar">
@@ -463,7 +469,7 @@ export default function Studio() {
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
               : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} />}
           </aside>
-          <Resizer side="tree" width={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
+          <Resizer side="tree" size={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
           <main className="studio-main">
             {tab !== 'play' && (
               <div className="studio-scroll">
@@ -485,9 +491,9 @@ export default function Studio() {
             )}
             <GameFrame visible={tab === 'play' || sheet} sheet={sheet} onClose={() => setSheet(false)} content={content} play={play} onTake={onTake} reference={play && referenceOf(play.level)} onReference={(lvl) => playLevel(lvl, referenceOf(lvl))} />
           </main>
-          <Resizer side="audit" width={layout.audit} open={layout.auditOpen} setLayout={setLayout} />
+          {layout.auditOpen && <Resizer side="audit" size={layout.audit} open setLayout={setLayout} />}
           <aside className="studio-audit">
-            <Audit items={items} fresh={fresh} last={last} at={at} playtests={playtests} busy={busy} ops={ops} migration={shown.migration} onJump={jumpTo} onReview={() => setTab('review')} />
+            <Audit items={items} fresh={fresh} last={last} at={at} playtests={playtests} busy={busy} ops={ops} migration={shown.migration} open={layout.auditOpen} onToggle={() => togglePanel('audit')} onJump={jumpTo} onReview={() => setTab('review')} />
           </aside>
         </div>
       )}
