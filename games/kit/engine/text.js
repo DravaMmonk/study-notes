@@ -24,6 +24,18 @@ export function untranslated(value, path, out = [], visited = new Set()) {
 }
 
 export const REF = /<(level|part|wiki)-ref to="([^"]+)"><\/\1-ref>/g
+/** The references (as kind:id) `other` holds more often than `text`: what one side of a pair still lacks. */
+export function lacking(other, text) {
+  const count = new Map()
+  for (const m of String(text).matchAll(REF)) count.set(`${m[1]}:${m[2]}`, (count.get(`${m[1]}:${m[2]}`) ?? 0) + 1)
+  const out = []
+  for (const m of String(other).matchAll(REF)) {
+    const v = `${m[1]}:${m[2]}`
+    if (count.get(v)) count.set(v, count.get(v) - 1)
+    else if (!out.includes(v)) out.push(v)
+  }
+  return out
+}
 // Ways of pointing at another level without a link: by position, or 「its title」 followed by 那一关.
 const POINTING = { zh: /上一关|下一关|前一关|(?<!最)后一关|前两关|前几关|」那一?关/, en: /\b(the last|previous|next|earlier) levels?\b|\blevel on how\b/i }
 const WHAT = { level: 'level', part: 'part', wiki: 'encyclopedia entry' }

@@ -9,6 +9,7 @@ export const KEYS = [
   [`${MOD}+Shift+Z`, '把去掉的操作放回来', 'Put a dropped operation back'],
   [`${MOD}+Enter`, '载入参考解，从这一关试玩', 'Play this level with its reference loaded'],
   ['F8 / Shift+F8', '下一处 / 上一处检查结果，跳到它说的字段', 'Next / previous finding, at the field it is about'],
+  [`${MOD}+L · [[`, '在文字里插入链接（选中的字拿去搜，换成链接）', 'Insert a link in a text (a selection is searched for and replaced)'],
   ['Alt+1…6', '跳到这一关的第几段', 'Jump to a section of the level'],
   ['Alt+[ / Alt+]', '收起或打开左栏 / 右栏', 'Fold the left / right panel'],
   ['↑ ↓', '树上逐关走（Shift：一路选上）', 'Level to level in the tree (Shift: pick as you go)'],

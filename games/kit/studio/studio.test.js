@@ -17,6 +17,7 @@ import {
 import { lintText } from '../pipeline/lint.js'
 import { courseTree, stays } from './tree.js'
 import { fieldDiff } from './diff.js'
+import { lacking } from '../engine/text.js'
 
 const VOCAB = defineVocabulary({
   domain: 'toy',
@@ -324,4 +325,11 @@ test('on the real games: the hinted values get their controls, and each cell con
     }
   }
   for (const k of ['grid', 'ticks', 'wave', 'table', 'numbers', 'chips', 'text', 'board', 'choice', 'call', 'list']) assert.ok(counts[k] > 0, `some field is ${k}`)
+})
+
+test('the link picker offers first the links the other language has more of than this one', () => {
+  const l = (id) => `<level-ref to="${id}"></level-ref>`
+  const w = (id) => `<wiki-ref to="${id}"></wiki-ref>`
+  assert.deepEqual(lacking(`${l('a')} ${w('x')} ${w('x')}`, `${w('x')}`), ['level:a', 'wiki:x'])
+  assert.deepEqual(lacking(`${l('a')}`, `${l('a')} ${w('x')}`), [])
 })

@@ -1,7 +1,9 @@
 // A text pair as an author writes it: Chinese and English side by side, each growing with what it holds. A link
 // (<level-ref>, <part-ref>, <wiki-ref>, ../shell/refs.js) shows as a chip with the name it will show in the game, and
-// is put in from a picker that searches the game's levels, parts and entries, never typed as a tag. The copy rules a
-// machine can see (../engine/text.js, ../pipeline/lint.js) are checked as it is typed, beside it.
+// is put in from a picker that searches the game's levels, parts and entries, never typed as a tag: opened by 🔗, by
+// Ctrl/⌘+L (a selection becomes the search and is replaced by the link) or by typing [[ (【【 from a Chinese keyboard);
+// the links the other language has and this one lacks come first. The copy rules a machine can see
+// (../engine/text.js, ../pipeline/lint.js) are checked as it is typed, beside it.
 //
 //   <TextField value field onSet names compact? />   onSet({ zh } | { en }): the side typed into; compact: the findings
 //                                                    a count on the text, listed while it is being edited
@@ -9,13 +11,14 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link2 } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
-import { refProblems, untranslated } from '../engine/text.js'
+import { REF, lacking, refProblems, untranslated } from '../engine/text.js'
 import { lintText } from '../pipeline/lint.js'
 import { OptionList } from './Picker.jsx'
+import { MOD } from './Shortcuts.jsx'
 
-const REF = /<(level|part|wiki)-ref to="([^"]+)"><\/\1-ref>/g
 const HAS_REF = /<(level|part|wiki)-ref to="[^"]+"><\/\1-ref>/
 const tag = (kind, to) => `<${kind}-ref to="${to}"></${kind}-ref>`
+const TRIGGERS = ['[[', '【【']
 const pairOf = (value) => (typeof value === 'string' ? { zh: value, en: value } : value ?? { zh: '', en: '' })
 
 /** What a chip says: a level's number and title, a part's name, an entry's title (in the side's language). */
@@ -63,38 +66,45 @@ function textOf(node) {
 }
 const serialize = (el) => [...el.childNodes].map(textOf).join('')
 
-/** Where the caret is, counted in the text the side stands for. */
-function caretOf(el) {
-  const sel = window.getSelection()
-  if (!sel.rangeCount || !el.contains(sel.anchorNode)) return null
-  const range = sel.getRangeAt(0).cloneRange()
+/** Where a point (container, offset) is, counted in the text the side stands for. */
+function offsetOf(el, container, offset) {
+  const range = document.createRange()
   range.selectNodeContents(el)
-  range.setEnd(sel.anchorNode, sel.anchorOffset)
+  range.setEnd(container, offset)
   const box = document.createElement('div')
   box.append(range.cloneContents())
   return serialize(box).length
 }
 
-/** The caret put back at `n`, counted as caretOf counts (after a chip it would fall inside). */
-function placeCaret(el, n) {
+/** The selection in a side as [start, end], counted as offsetOf counts; null when it is elsewhere. */
+function spanOf(el) {
+  const sel = window.getSelection()
+  if (!sel.rangeCount || !el.contains(sel.anchorNode)) return null
+  const r = sel.getRangeAt(0)
+  return [offsetOf(el, r.startContainer, r.startOffset), offsetOf(el, r.endContainer, r.endOffset)]
+}
+
+/** A range's start or end put at `n`, counted as offsetOf counts (never inside a chip). */
+function setPoint(el, range, n, end) {
   let left = n
-  const range = document.createRange()
   for (const node of el.childNodes) {
     const size = textOf(node).length
-    if (node.nodeType === Node.TEXT_NODE && left <= size) {
-      range.setStart(node, left)
-      range.collapse(true)
-      return select(range)
-    }
     if (left <= size) {
-      range.setStartAfter(node)
-      range.collapse(true)
-      return select(range)
+      if (node.nodeType === Node.TEXT_NODE) end ? range.setEnd(node, left) : range.setStart(node, left)
+      else if (left === 0) end ? range.setEndBefore(node) : range.setStartBefore(node)
+      else end ? range.setEndAfter(node) : range.setStartAfter(node)
+      return
     }
     left -= size
   }
-  range.selectNodeContents(el)
-  range.collapse(false)
+  end ? range.setEnd(el, el.childNodes.length) : range.setStart(el, el.childNodes.length)
+}
+
+/** The selection put back at [start, end]. */
+function placeSpan(el, start, end = start) {
+  const range = document.createRange()
+  setPoint(el, range, start, false)
+  setPoint(el, range, end, true)
   select(range)
 }
 const select = (range) => {
@@ -103,39 +113,49 @@ const select = (range) => {
   sel.addRange(range)
 }
 
-/** One side: editable text with chips. `api` gets insert(kind, id), to put a link where the caret was. */
-function Side({ value, onChange, names, lang, label, api, onFocus }) {
+/**
+ * One side: editable text with chips. `api` gets insert(kind, id), to put a link over the selection it last had, and
+ * focus(), to go back to it; onLink(query) asks for the link picker.
+ */
+function Side({ value, onChange, names, lang, label, api, onFocus, onLink }) {
   const el = useRef(null)
   const composing = useRef(false)
-  const saved = useRef(null) // the caret when the side last lost focus
+  const saved = useRef(null) // the selection when the side last lost focus
+  const keep = () => { saved.current = spanOf(el.current) ?? saved.current }
   // Drawn again only when the text is not what the side shows already (typing never redraws it under the caret).
   useLayoutEffect(() => {
     const stamp = String(names?.stamp)
     if (el.current.dataset.names === stamp && serialize(el.current) === value) return
+    // Drawn again under the caret (a title typed renames its chips): the selection stays where it was.
+    const span = document.activeElement === el.current ? spanOf(el.current) : null
     draw(el.current, value, names, lang)
+    if (span) placeSpan(el.current, ...span)
     el.current.dataset.names = stamp
   }, [value, names, lang])
 
   const changed = () => {
     if (composing.current) return
     let text = serialize(el.current)
+    const caret = spanOf(el.current)?.[1] ?? null
+    // [[ just typed asks for a link there, and goes.
+    const trigger = caret !== null && TRIGGERS.includes(text.slice(caret - 2, caret))
+    if (trigger) text = text.slice(0, caret - 2) + text.slice(caret)
     // A tag typed or pasted as text becomes its chip.
-    if ([...el.current.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && HAS_REF.test(n.nodeValue))) {
-      const caret = caretOf(el.current)
+    if (trigger || [...el.current.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && HAS_REF.test(n.nodeValue))) {
       draw(el.current, text, names, lang)
-      if (caret !== null) placeCaret(el.current, caret)
+      if (caret !== null) placeSpan(el.current, trigger ? caret - 2 : caret)
       text = serialize(el.current)
     }
     onChange(text)
+    if (trigger) {
+      keep()
+      onLink('')
+    }
   }
   api.current = {
     insert(kind, id) {
-      const node = el.current
-      node.focus()
-      if (saved.current !== null) placeCaret(node, saved.current)
-      else placeCaret(node, serialize(node).length)
-      const sel = window.getSelection()
-      const range = sel.getRangeAt(0)
+      api.current.focus()
+      const range = window.getSelection().getRangeAt(0)
       const c = chip(kind, id, names, lang)
       range.deleteContents()
       range.insertNode(c)
@@ -143,6 +163,13 @@ function Side({ value, onChange, names, lang, label, api, onFocus }) {
       range.collapse(true)
       select(range)
       changed()
+      keep()
+    },
+    focus() {
+      const node = el.current
+      node.focus()
+      const end = serialize(node).length
+      placeSpan(node, ...(saved.current ?? [end, end]))
     },
   }
   return (
@@ -152,9 +179,9 @@ function Side({ value, onChange, names, lang, label, api, onFocus }) {
       onCompositionStart={() => { composing.current = true }}
       onCompositionEnd={() => { composing.current = false; changed() }}
       onFocus={onFocus}
-      onBlur={() => { saved.current = caretOf(el.current) ?? saved.current }}
-      onKeyUp={() => { saved.current = caretOf(el.current) }}
-      onMouseUp={() => { saved.current = caretOf(el.current) }}
+      onBlur={keep}
+      onKeyUp={keep}
+      onMouseUp={keep}
       onPaste={(e) => {
         e.preventDefault()
         document.execCommand('insertText', false, e.clipboardData.getData('text/plain'))
@@ -163,6 +190,11 @@ function Side({ value, onChange, names, lang, label, api, onFocus }) {
         if (e.key === 'Enter') {
           e.preventDefault()
           document.execCommand('insertLineBreak')
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'l') {
+          e.preventDefault()
+          keep()
+          const picked = window.getSelection().getRangeAt(0).cloneContents()
+          onLink(picked.querySelector('[data-ref]') ? '' : picked.textContent.trim())
         }
       }}
       onClick={(e) => {
@@ -203,7 +235,7 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
   }, [key])
   const sides = { zh: useRef(null), en: useRef(null) }
   const [side, setSide] = useState('zh')
-  const [linking, setLinking] = useState(false)
+  const [linking, setLinking] = useState(null) // the picker's first search while it is open
   const set = useCallback((s) => (text) => {
     typing.current = Date.now()
     setDraft((d) => ({ ...d, [s]: text }))
@@ -214,21 +246,29 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
     ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('元件', 'Parts') })),
     ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科', 'Encyclopedia') })),
   ] : []), [names])
+  // The links the other side has more of than this side, first.
+  const missing = linking === null ? [] : lacking(draft[side === 'zh' ? 'en' : 'zh'] ?? '', draft[side] ?? '')
+  const offered = missing.length ? [
+    ...options.filter((o) => missing.includes(o.value)).map((o) => ({ ...o, group: side === 'zh' ? 'English' : '中文' })),
+    ...options.filter((o) => !missing.includes(o.value)),
+  ] : options
+  const link = (s) => (query) => { setSide(s); setLinking(query) }
+  const close = () => { setLinking(null); sides[side].current?.focus() }
   const all = [...new Set([...textFindings(draft, field, names), ...findings].map(bare))]
   return (
     <div className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
       <div className="text-sides">
-        <Side value={draft.zh ?? ''} onChange={set('zh')} names={names} lang="zh" label={`${label} 中文`} api={sides.zh} onFocus={() => setSide('zh')} />
-        <Side value={draft.en ?? ''} onChange={set('en')} names={names} lang="en" label={`${label} English`} api={sides.en} onFocus={() => setSide('en')} />
+        <Side value={draft.zh ?? ''} onChange={set('zh')} names={names} lang="zh" label={`${label} 中文`} api={sides.zh} onFocus={() => setSide('zh')} onLink={link('zh')} />
+        <Side value={draft.en ?? ''} onChange={set('en')} names={names} lang="en" label={`${label} English`} api={sides.en} onFocus={() => setSide('en')} onLink={link('en')} />
       </div>
       {names && (
         <div className="text-tools">
-          <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(!linking)} aria-label={tr('插入链接', 'Insert a link')} title={tr('插入链接', 'Insert a link')}><Link2 size={13} aria-hidden="true" /></button>
-          {linking && (
+          <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(linking === null ? '' : null)} aria-label={tr('插入链接', 'Insert a link')} title={tr(`插入链接（${MOD}+L 或 [[）`, `Insert a link (${MOD}+L or [[)`)}><Link2 size={13} aria-hidden="true" /></button>
+          {linking !== null && (
             <OptionList
-              options={options} value={null} onClose={() => setLinking(false)}
+              options={offered} value={null} query={linking} onClose={close}
               onPick={(v) => {
-                setLinking(false)
+                setLinking(null)
                 const [kind, ...id] = v.split(':')
                 sides[side].current?.insert(kind, id.join(':'))
               }}

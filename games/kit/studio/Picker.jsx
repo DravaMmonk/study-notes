@@ -21,9 +21,9 @@ function useDismiss(ref, open, close) {
   }, [ref, open, close])
 }
 
-/** The popover's list: a search box over every word of each option, arrows and Enter to pick, Escape to leave. */
-export function OptionList({ options, value, onPick, onClose, autoFocus = true }) {
-  const [query, setQuery] = useState('')
+/** The popover's list: a search box (starting at `query`) over every word of each option, arrows and Enter to pick, Escape to leave. */
+export function OptionList({ options, value, onPick, onClose, autoFocus = true, query: first = '' }) {
+  const [query, setQuery] = useState(first)
   const [at, setAt] = useState(0)
   const list = useRef(null)
   const shown = useMemo(() => {
