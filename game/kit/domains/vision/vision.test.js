@@ -3,6 +3,8 @@
 // (crop, translate, nearest and bilinear resizing, a quantiser) on the public and hidden cases, the grid asks, the
 // choice judges, the scene model, the pinhole and thin-lens benches; and its starter game passing its own checks.
 import { test } from 'node:test'
+import { readdirSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 import { readContent } from '../../engine/content-node.js'
 import { PARTS } from './parts.js'
@@ -247,7 +249,11 @@ test('blind play: a claims round is the picture described, options by label; a b
   assert.match(wrong.says[0].en, /Scene 1 from another view \(holds\): a 32 × 24 picture/)
   assert.equal(play.attempt(ctx('1-2'), 'supported;undetermined').pass, true)
   const bench = play.open(ctx('1-3'))
-  assert.match(bench.sections.map((x) => x.text.en).join('\n'), /Z \(Depth Z\): 1–8, step 1; starts at 2[\s\S]*Now: Z = 2, .*h = 2/)
+  const benchText = bench.sections.map((x) => x.text.en).join('\n')
+  assert.match(benchText, /- the pinhole camera from the side/)
+  assert.match(benchText, /Z \(Depth Z\): 1–8, step 1; starts at 2[\s\S]*Now: Z = 2, h = 2$/)
+  // What the screen does not say, blind play does not either: no formula from the model's own description.
+  assert.doesNotMatch(benchText, /fH|f·H|= f/)
   const tried = play.attempt(ctx('1-3'), 'Z = 1\nZ = 9\nZ = 4')
   assert.equal(tried.pass, true)
   assert.deepEqual(tried.says.map((x) => x.en.split(' → ')[0].split(':')[0]), ['Z = 1', 'Z = 9', 'Z = 4'])
@@ -327,4 +333,10 @@ test('the starter game fits the vocabulary and passes its checks, every kind of 
   assert.deepEqual(lines.filter((l) => l.fail), [])
   const kinds = new Set(content.levels.flatMap((l) => l.tasks.map((t) => t.kind)))
   assert.deepEqual([...kinds].sort(), ['bench', 'choice', 'circuit', 'grid'])
+})
+
+test('the domain’s page code calls no method older iOS Safari lacks', () => {
+  const files = readdirSync(import.meta.dirname, { recursive: true }).filter((f) => /\.jsx?$/.test(f) && !f.endsWith('.test.js'))
+  const used = files.flatMap((f) => [...readFileSync(resolve(import.meta.dirname, f), 'utf8').matchAll(/\.(at|findLast|findLastIndex|toSorted|toReversed|groupBy)\(|structuredClone\(/g)].map((m) => `${f}: ${m[0]}`))
+  assert.deepEqual(used, [])
 })

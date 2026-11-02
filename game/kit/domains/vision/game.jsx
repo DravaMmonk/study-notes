@@ -67,7 +67,7 @@ export default function visionGame(content) {
         chapter: L.era,
         requires: L.requires,
         title: L.title,
-        kind: tasks.at(-1).kind,
+        kind: tasks[tasks.length - 1].kind,
         unlocks: L.builds ? [L.builds.type] : [],
         intro: L.intro,
         after: L.after,
