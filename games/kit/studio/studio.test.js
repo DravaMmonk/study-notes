@@ -340,7 +340,7 @@ test('a mark on the game page is the field it shows: the task’s, else the leve
   const T = { brief: S.text(), hint: S.opt(S.list(S.text())), tests: S.list(S.obj({ n: S.int() }), { min: 1, section: 'tests' }) }
   const vocabulary = defineVocabulary({ domain: 't', version: 1, kinds: {}, game: S.obj({ title: S.text() }), level: taskLevel({ title: S.text(), hint: S.opt(S.list(S.text())) }, T) })
   const t = (s) => ({ zh: s, en: s })
-  const level = { title: t('L'), hint: [t('shared')], tasks: [{ brief: t('a'), tests: [{ n: 1 }] }, { step: t('two'), brief: t('b'), hint: [t('own')], tests: [{ n: 2 }] }] }
+  const level = { title: t('L'), hint: [t('shared')], tasks: [{ id: 'L', brief: t('a'), tests: [{ n: 1 }] }, { id: 'L2', step: t('two'), brief: t('b'), hint: [t('own')], tests: [{ n: 2 }] }] }
   assert.deepEqual(markPath(level, vocabulary, { at: 'brief', scope: 'task', task: 1 }), ['tasks', 1, 'brief'])
   assert.deepEqual(markPath(level, vocabulary, { at: 'title', scope: 'level', task: 1 }), ['title'])
   // A task without hints of its own shows the level's; one with its own shows those.
@@ -350,15 +350,23 @@ test('a mark on the game page is the field it shows: the task’s, else the leve
   assert.deepEqual(markPath(level, vocabulary, { at: 'brief[1]', scope: 'task', task: 0 }), ['tasks', 0, 'brief'])
   assert.equal(markPath(level, vocabulary, { at: 'tip', scope: 'task', task: 0 }), null)
   // A + on the tests copies the last; on hints (words alone) it adds a blank one, to the list the task shows.
-  const test = addFor(level, vocabulary, { at: 'tests', scope: 'task', task: 1 })
-  assert.deepEqual([test.path, test.set, test.at], [['tasks', 1, 'tests'], [{ n: 2 }, { n: 2 }], ['tasks', 1, 'tests', 1]])
-  const hint = addFor(level, vocabulary, { at: 'hint', scope: 'task', task: 1 })
-  assert.deepEqual([hint.path, hint.set.at(-1)], [['tasks', 1, 'hint'], { zh: '', en: '' }])
-  // A new task copies the one played, without its name.
-  const task = addFor(level, vocabulary, { at: 'tasks', scope: 'level', task: 1 })
-  assert.deepEqual([task.path, task.set.length, task.set[2], task.at], [['tasks'], 3, { brief: t('b'), hint: [t('own')], tests: [{ n: 2 }] }, ['tasks', 2]])
+  const test = addFor('L', level, vocabulary, { at: 'tests', scope: 'task', task: 1 })
+  assert.deepEqual([test.op, test.at], [{ op: 'level.set', level: 'L', path: ['tasks', 1, 'tests'], value: [{ n: 2 }, { n: 2 }] }, ['tasks', 1, 'tests', 1]])
+  const hint = addFor('L', level, vocabulary, { at: 'hint', scope: 'task', task: 1 })
+  assert.deepEqual([hint.op.path, hint.op.value.at(-1)], [['tasks', 1, 'hint'], { zh: '', en: '' }])
+  // A new task copies the one played, without its id and its name, and goes after it.
+  const task = addFor('L', level, vocabulary, { at: 'tasks', scope: 'level', task: 0 })
+  assert.deepEqual([task.op, task.at], [{ op: 'task.add', level: 'L', data: { brief: t('a'), tests: [{ n: 1 }] }, after: 'L' }, ['tasks', 1]])
   // And back: a field drawn picked on the page.
   assert.deepEqual(markOf(level, ['tasks', 1, 'tests', 0]), { at: 'tests[0]', scope: 'task', task: 1 })
   assert.deepEqual(markOf(level, ['title']), { at: 'title', scope: 'level' })
   assert.deepEqual(markOf({ brief: t('x') }, ['brief']), { at: 'brief', scope: null })
+})
+
+test('task operations stand alone in a pending changeset, but a task renamed again is renamed once', () => {
+  const add = { op: 'task.add', level: 'p', data: {} }
+  assert.equal(pushOp([add], add).length, 2)
+  const up = { op: 'task.move', task: 'a', to: { level: 'p', first: true } }
+  assert.equal(pushOp([up], up).length, 2)
+  assert.deepEqual(pushOp([{ op: 'task.rename', task: 'a', to: 'ab' }], { op: 'task.rename', task: 'ab', to: 'abc' }), [{ op: 'task.rename', task: 'a', to: 'abc' }])
 })

@@ -17,9 +17,10 @@ import { PARTS } from './parts.js'
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
 
-/** The board a level keeps for its part: a level of tasks keeps a list, the last task's board is the part's. */
-const lastBoard = (kept) => {
-  const board = Array.isArray(kept) ? kept.at(-1) : kept
+/** The board a level keeps for its part (a level of tasks keeps one by task id, ../../shell/progress.js): its last
+ *  task's (`last`, that task's id). */
+const lastBoard = (kept, last) => {
+  const board = kept?.nodes ? kept : kept?.[last]
   return board?.nodes ? board : null
 }
 
@@ -66,7 +67,7 @@ export function __name__Course(content) {
   }).map((id) => {
     const level = given.get(id)
     const tasks = taskLevels(level)
-    const read = tasks.map((task, k) => readTask(id, task, tasks.length > 1 ? `${id} task ${k + 1}` : id))
+    const read = tasks.map((task) => readTask(id, task, tasks.length > 1 ? `${id} task ${task.taskId}` : id))
     played.set(id, read)
     // The part a level builds runs its last task's board: the player's, while it fits, else the reference.
     const last = read.at(-1)
@@ -121,7 +122,10 @@ export function __name__Course(content) {
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
     syncOwn: (built = {}) => {
       OWN.clear()
-      for (const [id, kept] of Object.entries(built)) if (lastBoard(kept)) OWN.set(id, lastBoard(kept))
+      for (const [id, kept] of Object.entries(built)) {
+        const board = lastBoard(kept, played.get(id)?.at(-1).taskId)
+        if (board) OWN.set(id, board)
+      }
     },
   }
 }

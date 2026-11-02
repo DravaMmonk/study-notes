@@ -5,7 +5,9 @@
 // era folds away (remembered per viewer). A click selects a level; Ctrl/⌘-click picks several, Shift-click a run of
 // them, for a bulk edit. Dragging a level (or the levels picked) onto a slot between two others, or Move and then a
 // slot, is a level.move each; its save migration shows in the changes before it is applied. ↑ and ↓ go from level to
-// level, with Shift picking as they go.
+// level, with Shift picking as they go. A level of several tasks with ids (../engine/tasks.js) lists them under it: a
+// click opens the task in the side panel, and dragging one onto another level puts it after that level's tasks, onto
+// another task after that task (task.move; what players kept of it follows its id).
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -44,7 +46,9 @@ function Marks({ mark }) {
   )
 }
 
-export default function Tree({ game, content, marks, at, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null }) {
+export default function Tree({ game, content, marks, at, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, tasked = false, onTask, onTaskMove }) {
+  const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
+  const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => courseTree(content.eras ?? []), [content])
   const rows = useMemo(() => rowsOf(tree), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
@@ -112,12 +116,47 @@ export default function Tree({ game, content, marks, at, picked, setPicked, onSe
         window.setTimeout(() => setMoving(ids))
       }}
       onDragEnd={() => setMoving(null)}
+      {...(taskDrag && taskTarget(id, { level: id }))}
     >
       <b>{id}</b>
       <span>{L(byId.get(id)?.title) ?? ''}</span>
       <Marks mark={marks?.get(id)} />
     </button>
   )
+  /** What makes a row a place a dragged task goes. */
+  const taskTarget = (key, to) => ({
+    'data-over': taskOver === key ? '' : undefined,
+    onDragOver: (event) => { event.preventDefault(); setTaskOver(key) },
+    onDragLeave: () => setTaskOver(null),
+    onDrop: (event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      setTaskOver(null)
+      if (to.after !== taskDrag) onTaskMove(taskDrag, to)
+      setTaskDrag(null)
+    },
+  })
+  // The tasks of a level of several, under it.
+  const tasksOf = (id) => {
+    const tasks = byId.get(id)?.tasks
+    if (!tasked || !Array.isArray(tasks) || tasks.length < 2) return null
+    return (
+      <div className="tree-tasks">
+        {tasks.map((task, k) => (
+          <button
+            key={task.id} type="button" draggable className={`tree-task ${taskDrag === task.id ? 'is-moving' : ''}`} title={task.id}
+            onClick={() => onTask(id, k)}
+            onDragStart={(event) => { event.stopPropagation(); event.dataTransfer.setData('text/plain', task.id); event.dataTransfer.effectAllowed = 'move'; window.setTimeout(() => setTaskDrag(task.id)) }}
+            onDragEnd={() => { setTaskDrag(null); setTaskOver(null) }}
+            {...(taskDrag && taskTarget(task.id, { level: id, after: task.id }))}
+          >
+            <i>{k + 1}</i>
+            <span>{task.step ? L(task.step) : task.id}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
   const slot = (to) => {
     if (!moving || (moving.length === 1 && stays(tree, moving[0], to))) return <div key={JSON.stringify(to)} className="tree-gap" />
     const key = JSON.stringify(to)
@@ -140,6 +179,7 @@ export default function Tree({ game, content, marks, at, picked, setPicked, onSe
       {levels.map((id, k) => (
         <div key={id} className="tree-run">
           {level(id)}
+          {tasksOf(id)}
           {slot(slots[k + 1])}
         </div>
       ))}
@@ -170,7 +210,7 @@ export default function Tree({ game, content, marks, at, picked, setPicked, onSe
                 {slot(slots[0])}
                 {items.map((item, k) => (
                   <div key={item.level ?? item.parallel.map((b) => b.branch.id).join('+')} className="tree-run">
-                    {item.level ? level(item.level) : (
+                    {item.level ? <>{level(item.level)}{tasksOf(item.level)}</> : (
                       <div className="tree-set">
                         {item.parallel.map(({ branch, levels, slots: bs }) => (
                           <div key={branch.id} className="tree-branch">

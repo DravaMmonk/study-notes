@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-14",
       "brief": {
         "zh": "从第一拍起，线上接连送来字节，每个后跟一个校验位，使这 9 位里 1 的个数为偶数；线会翻位。每个校验位到达的那一拍，输出收到的字节和校验是否相符，其余各拍为「—」。",
         "en": "From the first tick, bytes come down the wire back to back, each followed by a bit that makes the count of 1s in the nine even; the wire flips bits. On the tick each such bit arrives, output the byte received and whether it checks out; 「—」 on every other tick."

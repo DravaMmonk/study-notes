@@ -13,6 +13,7 @@
   ],
   "tasks": [
     {
+      "id": "1-2",
       "brief": {
         "zh": "交出 a + b − c + d − e。",
         "en": "Give a + b − c + d − e."

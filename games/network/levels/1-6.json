@@ -19,6 +19,7 @@
   },
   "tasks": [
     {
+      "id": "1-6",
       "brief": {
         "zh": "输出自「重来」上一次为 1 起已经过了几拍：那一拍为 0；「重来」还没为 1 过时，从第一拍数起。",
         "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick."

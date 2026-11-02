@@ -25,8 +25,9 @@ import { eraLevels } from '../course.js'
 import { find } from '../engine/schema.js'
 import { parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
-import { boardsOf, opFor, placesOf, pushOp, referenceFor } from './form.js'
+import { boardsOf, placesOf, pushOp, referenceFor } from './form.js'
 import { addFor, markOf, markPath } from './marks.js'
+import { hasTaskIds } from '../engine/tasks.js'
 import { itemOf, marksOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { bulkMove } from './bulk.js'
@@ -308,7 +309,7 @@ export default function Studio() {
   const pickField = (path, focus = false) => {
     setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
     setField({ path, ...(focus && { focus }) })
-    if (path[0] === 'tasks' && Number.isInteger(path[1]) && path[1] !== pageTask) setGo({ task: path[1] })
+    if (path[0] === 'tasks' && Number.isInteger(path[1])) setGo({ task: path[1] })
   }
   /** Go to what a finding of the check is about: the field it names, else its level. */
   const jumpTo = (item) => {
@@ -363,11 +364,11 @@ export default function Studio() {
       return setField(path ? { path, focus: true } : { missing: m.at })
     }
     if (m.type === 'add') {
-      const added = addFor(value, vocab.vocabulary, m)
+      const added = addFor(m.level, value, vocab.vocabulary, m)
       if (!added) return setField({ missing: m.at })
-      edit(opFor({ level: m.level }, added.path, { set: added.set }, 'list'))
+      edit(added.op)
       setField({ path: added.at, focus: true })
-      if (added.path.length === 1 && added.path[0] === 'tasks') setGo({ task: added.at[1] })
+      if (added.at.length === 2 && added.at[0] === 'tasks') setGo({ task: added.at[1] })
     }
     return undefined
   }
@@ -390,6 +391,13 @@ export default function Studio() {
     if (levels.length === 1) edit({ op: 'level.move', level: levels[0], to })
     else addOps(bulkMove(levels, to))
     setMoving(null)
+  }
+  // A task dragged in the tree: moved after a task, or after the last task of a level (task.move), and opened there.
+  const moveTask = (task, to) => {
+    edit({ op: 'task.move', task, to })
+    const rest = content.levels.find((l) => l.id === to.level).tasks.filter((x) => x.id !== task)
+    select({ level: to.level })
+    pickField(['tasks', to.after ? rest.findIndex((x) => x.id === to.after) + 1 : rest.length])
   }
   const duplicate = (level, id) => {
     const { id: _, ...value } = content.levels.find((l) => l.id === level)
@@ -540,7 +548,7 @@ export default function Studio() {
             </div>
             {side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
-              : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} />}
+              : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} tasked={hasTaskIds(vocab.vocabulary)} onTask={(lvl, k) => { select({ level: lvl }); pickField(['tasks', k]) }} onTaskMove={moveTask} />}
           </aside>
           <Resizer side="tree" size={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
           <main className="studio-main">
@@ -569,7 +577,7 @@ export default function Studio() {
           </main>
           <Resizer side="side" size={layout.side} open={layout.sideOpen} setLayout={setLayout} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} ctx={sideCtx} places={places} onEdit={edit} onPick={(path) => pickField(path)} onClose={() => setField(null)} />}
+            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onClose={() => setField(null)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} />}
           </aside>
           {layout.auditOpen && <Resizer side="audit" size={layout.audit} open setLayout={setLayout} />}
           <aside className="studio-audit">

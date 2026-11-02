@@ -19,6 +19,7 @@
   },
   "tasks": [
     {
+      "id": "1-28",
       "brief": {
         "zh": "从「开始」为 1 的那一拍起，把那一拍输入的字节从最高位起逐位说到线上，8 位说完后说 0；「暂停」为 1 的拍说 0，该说的那一位留到下一拍。说出最后一位的那一拍「送完」为 1。",
         "en": "From the tick start is 1, say the byte input then on the wire bit by bit from the top, then 0; on a tick hold is 1 say 0, and the bit due waits for the next tick. Done is 1 on the tick the last bit is said."

@@ -11,6 +11,7 @@
   "adds": ["equal"],
   "tasks": [
     {
+      "id": "1-21",
       "brief": {
         "zh": "在第 7、15、23……拍说 1，其余各拍说 0（第一拍是第 0 拍）。",
         "en": "Say 1 on ticks 7, 15, 23 and so on, and 0 on every other tick (the first tick is tick 0)."

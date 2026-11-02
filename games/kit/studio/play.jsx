@@ -17,7 +17,7 @@ import '../shell/shell.css'
 import '../circuit/circuit.css'
 import { useEffect, useMemo, useState } from 'react'
 import { GameShell } from '../shell/index.js'
-import { createProgress } from '../shell/progress.js'
+import { createProgress, openAt, saved } from '../shell/progress.js'
 import { applyLang } from '../lang.js'
 import { DOMAINS } from 'virtual:studio-domains'
 
@@ -40,19 +40,11 @@ async function gameOf(content, stamp) {
 
 /** A save with every level open and `level` opened on a board (a level of tasks: at its task). */
 function seeded(game, level, seed) {
-  const p = game.store.load()
-  const next = { ...p, all: true, seenPower: true }
-  if (seed) {
-    if (seed.task === null) next.data = { ...p.data, [level]: seed.data }
-    else {
-      const list = Array.isArray(p.data[level]) ? [...p.data[level]] : []
-      list[seed.task] = seed.data
-      next.data = { ...p.data, [level]: list }
-      next.tasks = { ...p.tasks, [level]: seed.task }
-      next.solved = p.solved.filter((id) => id !== level)
-    }
-  }
-  game.store.save(next)
+  const p = { ...game.store.load(), all: true, seenPower: true }
+  const at = game.byId[level]
+  if (!seed || !at) return game.store.save(p)
+  if (seed.task === null) return game.store.save(saved(p, at, 0, seed.data))
+  return game.store.save(saved(openAt(game, p, level, seed.task), at, seed.task, seed.data))
 }
 
 export default function Play() {

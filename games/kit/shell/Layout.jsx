@@ -117,7 +117,7 @@ export function Brief({ game, level, text, tip, hint, children }) {
 
 /**
  * A level's tasks in order (GameShell tasks): the one played, the ones passed, and the ones still locked behind the
- * task before them. Any task open can be gone back to. While the studio edits, every task is open, the one played
+ * task before them (`passed`: whether each is). Any task open can be gone back to. While the studio edits, every task is open, the one played
  * names a field (its name), and a + adds a task after the last.
  */
 function TaskSteps({ steps }) {
@@ -126,11 +126,12 @@ function TaskSteps({ steps }) {
   return (
     <ol className="task-steps">
       {steps.names.map((name, k) => {
-        const open = edit || k <= steps.done
+        const done = steps.passed[k]
+        const open = edit || done || k === 0 || steps.passed[k - 1]
         return (
           <li key={k}>
-            <button type="button" {...(k === steps.at ? mark('step') : {})} className={`${k === steps.at ? 'is-on' : ''} ${k < steps.done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
-              <i>{k < steps.done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
+            <button type="button" {...(k === steps.at ? mark('step') : {})} className={`${k === steps.at ? 'is-on' : ''} ${done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
+              <i>{done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
               <span>{name ? L(name) : tr(`任务 ${k + 1}`, `Task ${k + 1}`)}</span>
             </button>
           </li>

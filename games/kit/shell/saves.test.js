@@ -43,3 +43,31 @@ test('a split level solved solves every part', () => {
   assert.deepEqual(out.solved, ['1-10', '1-11'])
   assert.deepEqual(out.data, { '1-11': 'b' })
 })
+
+const step = (op) => migrations([{ version: 2, ops: [{ task: op }] }]).migrate
+test('a task moved takes its board, every slot’s, its part’s and its being passed to the level it goes to', () => {
+  const save = { version: 1, solved: [], data: { p: { a: 'A', b: 'B' }, q: { q: 'Q' } }, built: { p: { a: 'BA' } }, tasks: { p: ['a'] }, slots: { p: { at: 0, list: [{ no: 1 }, { no: 2, data: { a: 'A2' } }] }, q: { at: 0, list: [{ no: 1 }, { no: 2, data: {} }] } } }
+  const out = step({ id: 'a', from: 'p', to: 'q' })(save)
+  assert.deepEqual(out.data, { p: { b: 'B' }, q: { q: 'Q', a: 'A' } })
+  assert.deepEqual(out.built, { p: {}, q: { a: 'BA' } })
+  assert.deepEqual(out.tasks, { p: [], q: ['a'] })
+  assert.deepEqual(out.slots.q.list[1].data, { a: 'A2' })
+  // Out of a level solved, it counts passed; renamed, it goes by its new id; removed, it is gone.
+  assert.deepEqual(step({ id: 'b', from: 'p', to: 'q' })({ ...save, solved: ['p'] }).tasks.q, ['b'])
+  assert.deepEqual(step({ id: 'a', from: 'p', to: 'p', as: 'z' })(save).data.p, { b: 'B', z: 'A' })
+  assert.deepEqual(step({ id: 'a', from: 'p' })(save).data, { p: { b: 'B' }, q: { q: 'Q' } })
+})
+
+test('a level whose tasks have ids keeps their boards and passing by id, so a task put in between finds its own', async () => {
+  const { fresh, firstTask, openAt, passed, saved, taskPassed, taskRecord } = await import('./progress.js')
+  const level = { id: 'p', keeps: true, tasks: [{ key: 'a' }, { key: 'b' }] }
+  const game = { byId: { p: level }, better: () => true }
+  let p = saved(fresh(), level, 0, 'A')
+  p = passed(game, p, level, 0)
+  assert.deepEqual([p.data.p, p.tasks.p, p.built.p, firstTask(game, p, 'p')], [{ a: 'A' }, ['a'], { a: 'A' }, 1])
+  // A task put first: the one passed stays passed and keeps its board; the new one opens first.
+  const grown = { ...level, tasks: [{ key: 'n' }, ...level.tasks] }
+  game.byId.p = grown
+  assert.deepEqual([taskPassed(game, p, 'p', 1), taskRecord(grown, p.data.p, 1), firstTask(game, p, 'p')], [true, 'A', 0])
+  assert.deepEqual(openAt(game, p, 'p', 2).tasks.p, ['n', 'a'])
+})

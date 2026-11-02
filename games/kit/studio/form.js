@@ -412,11 +412,14 @@ const target = (op) => JSON.stringify([op.op, op.level ?? op.in ?? null, op.path
 
 /**
  * A pending changeset's operations with `op` added: standing for the last one when that edits the same thing (a text
- * keeps the side the last one changed and this one does not).
+ * keeps the side the last one changed and this one does not; a task renamed again is renamed once).
  */
 export function pushOp(ops, op) {
   const last = ops.at(-1)
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op)) return [...ops, op]
+  // A task's id typed a letter at a time is one rename, from the id it had.
+  if (op.op === 'task.rename' && last?.op === 'task.rename' && last.to === op.task) return [...ops.slice(0, -1), { ...op, task: last.task }]
+  // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op) || op.op.startsWith('task.')) return [...ops, op]
   return [...ops.slice(0, -1), op.op === 'text.set' ? { ...last, ...op } : op]
 }
 

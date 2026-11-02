@@ -18,6 +18,7 @@
   },
   "tasks": [
     {
+      "id": "1-18",
       "brief": {
         "zh": "搭一块网卡，两个方向同时工作。往下：交来的帧带上校验字节成帧，从出线送出，「发送」为 1 时开始，「下一个」取走队首。往上：进线上的帧拆开、核对，输出的时机同<part-ref to=\"receiver\"></part-ref>。",
         "en": "Build a network adapter working both ways at once. Down: frames handed to it go out framed on the wire out with their check byte, starting on a tick send is 1, next taking the byte in front. Up: frames off the wire in are unwrapped and checked, timed as in <part-ref to=\"receiver\"></part-ref>."

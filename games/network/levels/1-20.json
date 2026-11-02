@@ -14,6 +14,7 @@
   },
   "tasks": [
     {
+      "id": "1-20",
       "brief": {
         "zh": "线上从第一拍起接连送来 7 位码字：4 位数据加 3 位校验码（生成式 1011），每个最多翻一位。码字最后一位到达的那一拍，输出翻的是第几位（先到的为第 1 位），没翻输出 0。",
         "en": "From the first tick, 7-bit codewords come down the wire back to back: 4 data bits, then 3 check bits (generator 1011), with at most one bit flipped in each. On the tick a codeword's last bit arrives, output which bit flipped (the first to arrive is 1), or 0 if none."

@@ -22,9 +22,10 @@ import { wantOf } from './wants.js'
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
 
-/** The board a level keeps for its part: a level of tasks keeps a list, the last task's board is the part's. */
-const lastBoard = (kept) => {
-  const board = Array.isArray(kept) ? kept.at(-1) : kept
+/** The board a level keeps for its part (a level of tasks keeps one by task id, ../../shell/progress.js): its last
+ *  task's (`last`, that task's id). */
+const lastBoard = (kept, last) => {
+  const board = kept?.nodes ? kept : kept?.[last]
   return board?.nodes ? board : null
 }
 
@@ -102,7 +103,7 @@ export function netCourse(content) {
   }).map((id) => {
     const level = given.get(id)
     const tasks = taskLevels(level)
-    const read = tasks.map((task, k) => readTask(id, task, tasks.length > 1 ? `${id} task ${k + 1}` : id))
+    const read = tasks.map((task) => readTask(id, task, tasks.length > 1 ? `${id} task ${task.taskId}` : id))
     played.set(id, read)
     // The part a level builds runs its last task's board: the player's, while it fits, else the reference.
     const last = read.at(-1)
@@ -163,14 +164,17 @@ export function netCourse(content) {
     // its last task's reference), or its fixed cards alone.
     opening: (task, built = {}) => {
       if (!task.carry) return startBoard(task)
-      const board = lastBoard(built[task.carry]) ?? played.get(task.carry)?.at(-1).solution
+      const board = lastBoard(built[task.carry], played.get(task.carry)?.at(-1).taskId) ?? played.get(task.carry)?.at(-1).solution
       return board ? carriedOnto(task, board) : startBoard(task)
     },
     // The table's rule in this domain: a task that carries on from a board requires the level it comes from.
     audit: () => LEVELS.flatMap((L) => played.get(L.id).filter((T) => T.carry && !course.before(T.carry, L.id)).map((T) => ({ rule: 'carry-unseen', level: L.id, part: T.carry }))),
     syncOwn: (built = {}) => {
       OWN.clear()
-      for (const [id, kept] of Object.entries(built)) if (lastBoard(kept)) OWN.set(id, lastBoard(kept))
+      for (const [id, kept] of Object.entries(built)) {
+        const board = lastBoard(kept, played.get(id)?.at(-1).taskId)
+        if (board) OWN.set(id, board)
+      }
     },
   }
 }

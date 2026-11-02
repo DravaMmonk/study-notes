@@ -12,6 +12,7 @@
 // })
 import { S, validate } from './schema.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
+import { taskIdProblems } from './tasks.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
@@ -35,7 +36,8 @@ export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
 
 /**
  * Every place a game's content (content.js assemble) does not fit its domain's vocabulary, as [{ at, says }]: the
- * file and the path in it. A course blueprint (blueprint.json) is the kernel's, the same in every domain.
+ * file and the path in it. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
+ * that task ids are unique in a game and never another level's (tasks.js).
  */
 export function checkContent(vocabulary, content) {
   const out = []
@@ -49,6 +51,7 @@ export function checkContent(vocabulary, content) {
   add(validate(vocabulary.game, game, { vocabulary, levels: ids }), 'game.json')
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
   for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids }), `levels/${levelId}.json`)
+  out.push(...taskIdProblems(levels))
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   return out

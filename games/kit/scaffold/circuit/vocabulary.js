@@ -6,7 +6,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { taskLevel } from '../../engine/tasks.js'
+import { TASK_SAVE, taskLevel } from '../../engine/tasks.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -72,6 +72,7 @@ const SAVE_OP = S.either(
   S.obj({ solve: S.list(S.either(S.str(), ids)) }),
   S.obj({ merge: S.list(S.either(S.str(), ids)) }),
   S.obj({ split: S.list(S.either(S.str(), ids)) }),
+  TASK_SAVE,
 )
 const GAME = S.obj({
   title: S.text(),

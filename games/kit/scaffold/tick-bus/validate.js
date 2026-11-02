@@ -54,7 +54,7 @@ export function validate({ __name__ }) {
       }
       const ticks = ref.runs.reduce((n, r) => n + r.ticks.length, 0)
       const hidden = task.hidden.length ? ` + ${task.hidden.length} hidden` : ''
-      const head = tasks.length > 1 ? `task ${k + 1}: ` : ''
+      const head = tasks.length > 1 ? `task ${task.taskId}: ` : ''
       return { problems, text: `${head}${problems.length ? problems.join('; ') : `answer PASS (${task.tests.length} tests${hidden}, ${ticks} ticks)${naive}${builds ? `, part ${level.builds.type} PASS` : ''}`}` }
     })
     out.push({ level: level.id, fail: said.some((x) => x.problems.length > 0), text: `${level.id} ${keyOf(level.title)}: ${said.map((x) => x.text).join(' · ')}` })

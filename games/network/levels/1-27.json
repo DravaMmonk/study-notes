@@ -19,6 +19,7 @@
   },
   "tasks": [
     {
+      "id": "1-27",
       "brief": {
         "zh": "输出自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，那一拍的数和上一拍相同。",
         "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick. Ticks on which hold is 1 do not count, and on them the number stays as it was."

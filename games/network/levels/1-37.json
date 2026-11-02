@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-37",
       "brief": {
         "zh": "进线上每到一帧，就从出线回一个只有一个字节的帧：校验相符回 1，不符回 0。<part-ref to=\"nic\"></part-ref>在「发送」为 1 时取走输入上的字节，不论那是什么；没有回话等着时，「发送」为 0。",
         "en": "For every frame that arrives on the wire in, send back a one-byte frame on the wire out: 1 if its check fits, 0 if not. <part-ref to=\"nic\"></part-ref> takes whatever byte is at its input once send is 1, so keep send at 0 until a reply is waiting."

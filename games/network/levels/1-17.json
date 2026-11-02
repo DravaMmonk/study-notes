@@ -18,6 +18,7 @@
   },
   "tasks": [
     {
+      "id": "1-17",
       "brief": {
         "zh": "逐个给出每帧的内容字节（校验字节除外）：每个在后一个字节收全的那一拍给出，「收到」为 1；结尾旗标收完时「帧尾」为 1，「相符」说出这帧的校验是否相符；其余各拍为「—」或 0。",
         "en": "Give each frame's content bytes, the check byte aside: each on the tick the byte after it is complete, with got 1. When the closing flag is complete, end is 1 and fits says whether the frame's check fits. On every other tick, 「—」 or 0."

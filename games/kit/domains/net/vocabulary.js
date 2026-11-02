@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { taskLevel } from '../../engine/tasks.js'
+import { TASK_SAVE, taskLevel } from '../../engine/tasks.js'
 import { FORMATS } from './wire.js'
 
 const t = (zh, en) => ({ zh, en })
@@ -131,6 +131,7 @@ const SAVE_OP = S.either(
   S.obj({ built: ids }),
   S.obj({ merge: S.list(S.either(S.str(), ids)) }),
   S.obj({ split: S.list(S.either(S.str(), ids)) }),
+  TASK_SAVE,
 )
 const GAME = S.obj({
   title: S.text(),
@@ -144,7 +145,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'net',
-  version: 2,
+  version: 3,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: taskLevel(ONCE, TASK),

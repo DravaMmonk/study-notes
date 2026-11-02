@@ -96,6 +96,13 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .tree-level.is-on { color: var(--select-ink); background: var(--select); box-shadow: none; }
 .tree-level.is-on b { color: inherit; opacity: .8; }
 .tree-level.is-moving { opacity: .45; }
+.tree-tasks { display: grid; margin: 0 0 2px 2.9em; padding-left: 6px; border-left: 1px solid var(--line); }
+.tree-task { min-width: 0; height: 19px; display: flex; align-items: center; gap: 5px; padding: 0 4px; border: 0; border-radius: 4px; color: var(--muted); background: none; font: 11.5px/1 var(--sans); text-align: left; cursor: grab; }
+.tree-task i { flex: none; color: var(--faint); font: 600 var(--fs-mini)/1 var(--mono); font-style: normal; }
+.tree-task span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-task:hover { color: var(--ink); background: var(--hover); }
+.tree-task.is-moving { opacity: .45; }
+.tree-level[data-over], .tree-task[data-over] { box-shadow: inset 0 -2px 0 var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .tree-gap { height: 0; }
 .tree-slot { height: 3px; margin: 0; padding: 0; border: 0; border-radius: 2px; background: color-mix(in srgb, var(--accent) 35%, transparent); cursor: pointer; transition: height 120ms ease; }
 .studio.is-moving .tree-slot { height: 12px; margin: 1px 0; }
@@ -590,3 +597,7 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .insp-absent { display: grid; justify-items: start; gap: 6px; }
 /* In a narrow side panel a text's two sides go one under the other. */
 @container (max-width: 520px) { .insp-body .text-sides { grid-template-columns: minmax(0, 1fr); } }
+.insp-tools.is-task { flex-wrap: wrap; row-gap: 4px; }
+.insp-move { flex-basis: 100%; display: flex; align-items: center; gap: 6px; }
+.insp-move small { font: var(--fs-mini)/1 var(--mono); }
+.insp-move .pick-button { flex: 1; min-width: 0; }

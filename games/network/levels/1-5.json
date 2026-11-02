@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-5",
       "brief": {
         "zh": "线上出现 1 之前一直说 0；出现过 1 以后，每一拍都说 1。",
         "en": "Say 0 until a 1 has come down the wire, and 1 on every tick after that."

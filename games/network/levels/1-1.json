@@ -13,6 +13,7 @@
   ],
   "tasks": [
     {
+      "id": "1-1",
       "brief": {
         "zh": "每一拍把左线上听到的位说到右线上。",
         "en": "Every tick, say on the right wire the bit heard on the left wire."

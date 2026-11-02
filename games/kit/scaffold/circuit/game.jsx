@@ -54,7 +54,7 @@ export default function __name__Game(content) {
       note: L.note,
       tasks: __name__.played.get(L.id).map((T, k) => {
         const { step, brief, hint, intro, after } = L.tasks[k]
-        return { ...defined({ step, brief, hint, intro, after }), source: T }
+        return { key: T.taskId, ...defined({ step, brief, hint, intro, after }), source: T }
       }),
     })),
     progress: migrations(content.saves),

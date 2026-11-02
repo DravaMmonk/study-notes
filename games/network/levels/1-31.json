@@ -18,6 +18,7 @@
   },
   "tasks": [
     {
+      "id": "1-31",
       "brief": {
         "zh": "对方把每一位同时说在两根线上，线会翻位：两根线上的位不同时说 1，相同时说 0。",
         "en": "The far end says every bit on two wires at once and the wires flip bits: say 1 when the two disagree and 0 when they agree."

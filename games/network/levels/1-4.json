@@ -11,6 +11,7 @@
   "adds": ["reg", "keep"],
   "tasks": [
     {
+      "id": "1-4",
       "brief": {
         "zh": "每一拍说出上一拍听到的位；第一拍说 0。",
         "en": "Every tick, say the bit heard the tick before; say 0 on the first tick."

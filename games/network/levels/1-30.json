@@ -18,6 +18,7 @@
   },
   "tasks": [
     {
+      "id": "1-30",
       "brief": {
         "zh": "认出线上旗标之间的每一帧，去掉塞进的 0，逐个给出内容字节：字节收全的那一拍输出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1。其余各拍字节为「—」，两个信号为 0。",
         "en": "Find each frame between flags on the wire, take out the stuffed 0s and give the content bytes one by one: output each on the tick it is complete, with got 1; end is 1 on the tick the closing flag is complete. Otherwise the byte is 「—」 and both signals 0."

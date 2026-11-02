@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-26",
       "brief": {
         "zh": "每一拍输出上一个旗标结束以后线上又来了几位：旗标结束的那一拍为 0；还没来过旗标时也输出 0。",
         "en": "Every tick, output how many bits have come since the last flag ended: 0 on the tick it ends, and 0 before any flag has come."

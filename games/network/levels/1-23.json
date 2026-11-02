@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-23",
       "brief": {
         "zh": "线上连着来到第 5 个 1 的那一拍说 1，其余各拍说 0。",
         "en": "Say 1 on the tick that brings the fifth 1 in a row, and 0 on every other tick."

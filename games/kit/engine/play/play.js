@@ -12,7 +12,7 @@
 // Nothing a player could not see is shown: no reference or naive answers, no hidden tests (only how many fail), no
 // level data beyond what the screen draws.
 
-import { firstTask, flagsIn, passed, saved, tasksDone } from '../../shell/progress.js'
+import { firstTask, flagsIn, passed, saved, taskPassed } from '../../shell/progress.js'
 import { close, outcomeOf } from './session.js'
 import { plain, refsIn, side } from './words.js'
 
@@ -55,7 +55,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     level: level.tasks ? { ...level, ...level.tasks[task] } : level,
     flags: flagsIn(game, record.progress, level, task),
     progress: record.progress,
-    solved: solved().has(level.id) || tasksDone(game, record.progress, level.id) > task,
+    solved: solved().has(level.id) || taskPassed(game, record.progress, level.id, task),
     task,
     fails: record.levels.find((e) => e.level === level.id && e.task === task)?.attempts ?? 0,
   })

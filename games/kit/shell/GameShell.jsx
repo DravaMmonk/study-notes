@@ -12,7 +12,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { firstTask as openTask, flagsIn, passed, saved as savedAt, tasksDone as passedTasks } from './progress.js'
+import { firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskPassed, taskRecord } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { EditContext, same } from './edit.js'
@@ -41,7 +41,8 @@ const SITE = { games: '../index.html' }
  * its screen's kind, its name `step`, its brief, its `after`…). Each task is played as a level of its own kind, the
  * last one being the level itself: a task opens once the one before it is passed, passing it says what it taught and
  * goes on, and passing the last passes the level. The tasks passed are kept per level (progress.tasks), and what each
- * task's screen keeps goes in the level's data as a list, one entry a task. A task marked `carries` goes on with what
+ * task's screen keeps goes in the level's data, one entry a task — by the task's id (`key`) where it has one, so a task
+ * moved keeps its board (progress.js). A task marked `carries` goes on with what
  * the task before it made: it opens on that task's board. A task holds the flags the tasks before it open (`opens`),
  * before the level unlocks them. A task may bring introduction pages of its own (`intro`): they open the first time the task is
  * played (the first task's after the level's), so its brief need only say what it asks.
@@ -59,7 +60,6 @@ export default function GameShell({ game, author = null }) {
   const [progress, setProgress] = useState(() => game.store.load())
   const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
   // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
-  const tasksDone = (id) => passedTasks(game, progress, id)
   const firstTask = (id) => openTask(game, progress, id)
   const [taskAt, setTaskAt] = useState(() => (levelId && game.byId[levelId] ? firstTask(levelId) : 0))
   const [taskWon, setTaskWon] = useState(null) // the task just passed, on a level with several
@@ -133,19 +133,18 @@ export default function GameShell({ game, author = null }) {
 
   // The task played, as a level of its own: the level with what the task changes, and its steps for the brief.
   const tasks = level?.tasks ?? null
-  const done = level ? tasksDone(level.id) : 0
+  const isPassed = (k) => taskPassed(game, progress, level.id, k)
   const goTask = (k) => {
     setTaskAt(k)
     setTaskWon(null)
     setFailure(null)
     setFails(0)
   }
-  const played = tasks ? { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, done, go: goTask } } : level
+  const played = tasks ? { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), go: goTask } } : level
   // A task that goes on from the one before (`carries`) opens on that task's board until it has one of its own.
   const kept = (data) => {
     if (!tasks) return data
-    const list = Array.isArray(data) ? data : []
-    return list[taskAt] ?? (tasks[taskAt].carries && taskAt > 0 ? list[taskAt - 1] ?? undefined : undefined)
+    return taskRecord(level, data, taskAt) ?? (tasks[taskAt].carries && taskAt > 0 ? taskRecord(level, data, taskAt - 1) : undefined)
   }
 
   // What a level screen can do to the shell.
@@ -238,7 +237,7 @@ export default function GameShell({ game, author = null }) {
   const pages = !level ? [] : [...own, ...(tasks?.[taskAt]?.intro ?? [])]
   // Each page's field, for the studio: the level's pages, then the task's own.
   const pageMarks = pages.map((_, k) => (k < own.length ? { at: `intro[${k}]`, scope: 'level' } : { at: `intro[${k - own.length}]`, scope: 'task' }))
-  const introKey = level && (taskAt === 0 ? level.id : `${level.id}#${taskAt}`)
+  const introKey = level && (taskAt === 0 ? level.id : `${level.id}#${taskKey(level, taskAt)}`)
   const intro = pages.length > 0
   const kind = level && game.kinds[played.kind]
 
@@ -328,7 +327,7 @@ export default function GameShell({ game, author = null }) {
           )}
           <EditContext.Provider value={edit}>
             {kind
-              ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || done > taskAt, solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
+              ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(progress.data[level.id]), save, solved: solved.has(level.id) || (tasks ? isPassed(taskAt) : false), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
               : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
           </EditContext.Provider>
         </div>

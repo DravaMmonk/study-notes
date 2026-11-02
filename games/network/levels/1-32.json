@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-32",
       "brief": {
         "zh": "从第一拍起把交来的字节一个接一个送出，中间不留空：每个字节后面跟一个校验位，字节里有奇数个 1 时为 1。",
         "en": "From the first tick, send the bytes handed to you back to back, each followed by a parity bit that is 1 when the byte holds an odd number of 1s."

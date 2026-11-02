@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-10",
       "brief": {
         "zh": "把交来的字节依次送出，每个字节前加起始位 1，后加停止位 0；字节送完以后线上一直是 0。说「下一个」为 1 的那一拍取走眼前的字节，下一拍换上后一个。",
         "en": "Send the bytes handed to you one after another, each with a start bit 1 before it and a stop bit 0 after; once they are all sent the wire stays 0. Saying next takes the byte in front of you that tick, and the following one shows the tick after."

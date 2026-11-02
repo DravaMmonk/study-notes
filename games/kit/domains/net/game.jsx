@@ -61,7 +61,7 @@ export default function netGame(content) {
       note: L.note,
       tasks: net.played.get(L.id).map((T, k) => {
         const { step, brief, hint, intro, after, carries } = L.tasks[k]
-        return { ...defined({ step, brief, hint, intro, after, carries }), source: T }
+        return { key: T.taskId, ...defined({ step, brief, hint, intro, after, carries }), source: T }
       }),
     })),
     progress: migrations(content.saves),

@@ -2,24 +2,33 @@
 // name), in the rows of a file (Rows.jsx), by a finding, the palette or a search — with its control from the schema
 // (Fields.jsx, the same controls the forms used), what it means, the findings on it and its undo. Above it the way to
 // it, each step a link to the field around it; an item of a list can be moved, copied and taken out here; an optional
-// field not written yet is added from here. Picking another field, or another level, changes what it shows.
+// field not written yet is added from here. A task of a level whose tasks have ids (../engine/tasks.js) is moved,
+// copied, taken out, moved into another level and renamed by the task operations, so what players kept of it follows
+// it. Picking another field, or another level, changes what it shows.
 //
-//   <Inspector content base vocab at field ctx onEdit onPick onClose />
+//   <Inspector content base vocab at field ctx onEdit onOps onPick onClose onLevel />
 //   at: the file shown ({ level } | { game: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
+import { hasTaskIds } from '../engine/tasks.js'
 import { blank, fieldAt, fileForm, moved, opFor, placeFindings } from './form.js'
 import { Field } from './Fields.jsx'
+import { Picker } from './Picker.jsx'
 
-export default function Inspector({ content, vocab, at, field, ctx, places, onEdit, onPick, onClose }) {
+export default function Inspector({ content, vocab, at, field, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
   const { vocabulary } = vocab
   const order = ctx.levels
   const file = at?.level ? { level: at.level } : { game: true }
   const shown = field?.path && fileForm(content, vocabulary, at, order)
   const hit = shown ? fieldAt(shown.form, field.path) : null
-  const edit = (path, change, type) => onEdit(opFor(file, path, change, type))
+  const tasked = Boolean(at?.level) && hasTaskIds(vocabulary)
+  const edit = (path, change, type) => {
+    // A task's id changes by task.rename, so what players kept of it follows.
+    if (tasked && path.length === 3 && path[0] === 'tasks' && path[2] === 'id' && change.set !== undefined) return onEdit({ op: 'task.rename', task: getAt(shown.value, path), to: change.set })
+    return onEdit(opFor(file, path, change, type))
+  }
   const { at: findings } = shown ? placeFindings(shown.form, places.filter((p) => (at?.level ? p.level === at.level : !p.level))) : { at: new Map() }
   const body = useRef(null)
   // A field picked by a finding, the palette or a search takes the caret.
@@ -46,7 +55,8 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
   const path = field.path
   const last = path.at(-1)
   const parent = path.slice(0, -1)
-  const list = typeof last === 'number' ? getAt(shown.value, parent) : null
+  const isTask = tasked && path.length === 2 && path[0] === 'tasks'
+  const list = typeof last === 'number' && !isTask ? getAt(shown.value, parent) : null
   const optional = !list && hit.entry?.optional
   const ctxHere = { ...ctx, findings }
   return (
@@ -59,6 +69,7 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
           <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(parent) }} title={tr('去掉这个字段', 'Remove the field')}><Trash2 size={13} /></button>
         </div>
       )}
+      {isTask && <TaskTools content={content} level={at.level} tasks={shown.value.tasks} k={last} ctx={ctx} onEdit={onEdit} onOps={onOps} onPick={onPick} onLevel={onLevel} />}
       {list && (
         <div className="insp-tools">
           <span>{tr(`第 ${last + 1} 项，共 ${list.length} 项`, `Item ${last + 1} of ${list.length}`)}</span>
@@ -82,6 +93,38 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+/**
+ * A task's own tools: up, down, a copy after it (a new id), out of the level (not its only task), and into another
+ * level — its only task too, the level then removed with it. Each is a task operation, the saves following the id.
+ */
+function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLevel }) {
+  const task = tasks[k]
+  const place = (j) => (j === 0 ? { first: true } : { after: tasks[j - 1].id })
+  const only = tasks.length === 1
+  const others = (ctx.levelOptions ?? []).filter((o) => o.value !== level)
+  const into = (to) => {
+    const ops = [{ op: 'task.move', task: task.id, to: { level: to } }, ...(only ? [{ op: 'level.remove', level }] : [])]
+    onOps(ops)
+    const n = content.levels.find((l) => l.id === to)?.tasks?.length ?? 0
+    onLevel(to, ['tasks', n])
+  }
+  return (
+    <div className="insp-tools is-task">
+      <span>{tr(`任务 ${k + 1} / ${tasks.length}`, `Task ${k + 1} of ${tasks.length}`)}</span>
+      <span className="kit-spacer" />
+      <button type="button" disabled={k === 0} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, ...place(k - 1) } }); onPick(['tasks', k - 1]) }} title={tr('上移', 'Move up')}><ArrowUp size={13} /></button>
+      <button type="button" disabled={k === tasks.length - 1} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, after: tasks[k + 1].id } }); onPick(['tasks', k + 1]) }} title={tr('下移', 'Move down')}><ArrowDown size={13} /></button>
+      <button type="button" onClick={() => { const { id: _id, ...data } = task; onEdit({ op: 'task.add', level, data, after: task.id }); onPick(['tasks', k + 1]) }} title={tr('复制成新的任务', 'Duplicate as a new task')}><Copy size={13} /></button>
+      <button type="button" disabled={only} onClick={() => { onEdit({ op: 'task.remove', task: task.id }); onPick(['tasks', Math.max(0, k - 1)]) }} title={only ? tr('一关至少留一个任务', 'A level keeps one task') : tr('去掉这个任务', 'Remove the task')}><Trash2 size={13} /></button>
+      <span className="insp-move" title={only ? tr('并进另一关：这一关只有这个任务，挪过去后删掉这一关', 'Merge into another level: this is the level’s only task, the level is removed') : tr('挪进另一关（排在它的任务最后）', 'Move into another level (after its tasks)')}>
+        <ArrowRightLeft size={13} aria-hidden="true" />
+        <small>{only ? tr('并进', 'Merge into') : tr('挪进', 'Move into')}</small>
+        <Picker options={others} value={undefined} onPick={into} label={only ? tr('并进…', 'Merge into…') : tr('挪进…', 'Move into…')} />
+      </span>
     </div>
   )
 }

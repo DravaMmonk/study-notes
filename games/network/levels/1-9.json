@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-9",
       "brief": {
         "zh": "对方随时可能先说一个 1，再送 8 位，最后说一个 0；每收到一个字节，就在它最后一位到达的那一拍输出它，其余各拍输出「—」。",
         "en": "At any tick the far end may say a 1, then 8 bits, then a 0; output each byte on the tick its last bit arrives, and 「—」 on every other tick."

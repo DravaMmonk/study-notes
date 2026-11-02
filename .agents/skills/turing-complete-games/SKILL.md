@@ -39,8 +39,11 @@ copying the last wording forward.
   evaluation, a world, a check, a panel) goes into the domain's vocabulary and implementation.
 - A level is a list of tasks (`games/DESIGN.md` §4, `kit/engine/tasks.js`): what it says once (title, intro, pass
   text, parts brought and built) on the level, each puzzle (brief, hints, ports, tests, answers) a task; a level of one
-  task is a plain level. A new domain writes its level schema with `taskLevel(once, task)` and reads levels task by task
-  (`taskLevels`); the prototype domains keep `kind` plus optional `tasks` until they are redone.
+  task is a plain level. Every task has an id unique in the game (a level's one task usually has the level's id); what
+  players keep goes by it, so tasks are inserted, reordered, moved into another level or renamed with `task.add`,
+  `task.move`, `task.remove`, `task.rename` (two levels made one: move the tasks, remove the emptied level in the same
+  changeset). A new domain writes its level schema with `taskLevel(once, task)` and reads levels task by task
+  (`taskLevels`); the prototype domains keep `kind` plus optional `tasks` without ids until they are redone.
 - A domain keeps the domain contract (`games/DESIGN.md` §6.3, `kit/engine/contract.js`, checked by `npm test`). A new
   topic picks its mechanisms from the catalogue (§6.5) and starts from `npm run new-domain -- <name> --mechanism
   <m>`; a new game on an existing domain from `npm run new-game -- <id> --domain <d>`.

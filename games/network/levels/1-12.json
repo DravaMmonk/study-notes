@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-12",
       "brief": {
         "zh": "把交来的每一帧送出，前后各加一个旗标 01111110，只在「发送」为 1 时开始新的一帧。「下一个」取走队首，「末字节」标出帧尾。",
         "en": "Send each frame handed to you with a flag 01111110 before and after it, starting a new frame only while send is 1. Next takes the byte in front; last marks a frame's final byte."

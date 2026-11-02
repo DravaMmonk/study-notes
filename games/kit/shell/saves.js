@@ -21,10 +21,15 @@
 //   { split: [level id, [level id…]] }       a level whose tasks became levels of their own, in order (the reverse
 //                                            of merge): each takes its task's board, and those its tasks passed are
 //                                            solved; the level's other slots are dropped
+//   { task: { id, from, to?, as? } }         a task with an id (../engine/tasks.js) moved from level `from` to level
+//                                            `to` (none: removed), renamed `as`: its board (in every slot, and the one
+//                                            its part runs) goes with it, and so does its being passed — passed in
+//                                            `to` for whoever passed it, or solved `from`
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
 const RECORDS = ['data', 'boards', 'slots', 'built', 'best', 'tasks', 'introSeen']
+const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 
 function rename(save, to) {
   const move = typeof to === 'function' ? to : (id) => (id in to ? to[id] : id)
@@ -91,6 +96,39 @@ const OPS = {
     if (Array.isArray(boards)) ids.forEach((id, k) => { if (boards[k] != null) out.data[id] = boards[k] })
     if (save.best?.[from]) out.best[ids.at(-1)] = save.best[from]
     if (save.introSeen?.[from]) out.introSeen[ids[0]] = save.introSeen[from]
+    return out
+  },
+  task: (save, { id, from, to = null, as = id }) => {
+    const take = (record) => {
+      const own = isObj(record) ? { ...record } : null
+      const it = own?.[id]
+      if (own) delete own[id]
+      return [own, it]
+    }
+    const put = (record, it) => (it === undefined ? record : { ...(isObj(record) ? record : {}), [as]: it })
+    const out = { ...save }
+    for (const field of ['data', 'built']) {
+      if (!save[field]?.[from]) continue
+      const [left, it] = take(save[field][from])
+      out[field] = { ...save[field], [from]: left }
+      if (to) out[field][to] = put(out[field][to], it)
+    }
+    if (save.slots?.[from]) {
+      const moved = []
+      const slots = { ...save.slots, [from]: { ...save.slots[from], list: save.slots[from].list.map((slot) => {
+        const [left, it] = take(slot.data)
+        moved.push(it)
+        return 'data' in slot ? { ...slot, data: left } : slot
+      }) } }
+      out.slots = slots
+      // A slot of the level it goes to gets the board of the slot of the same place, where it has one.
+      if (to && slots[to]) slots[to] = { ...slots[to], list: slots[to].list.map((slot, k) => ('data' in slot && moved[k] !== undefined ? { ...slot, data: put(slot.data, moved[k]) } : slot)) }
+    }
+    const passed = (save.solved ?? []).includes(from) || (Array.isArray(save.tasks?.[from]) && save.tasks[from].includes(id))
+    const tasks = { ...save.tasks }
+    if (Array.isArray(tasks[from])) tasks[from] = tasks[from].filter((x) => x !== id)
+    if (to && passed && !(save.solved ?? []).includes(to)) tasks[to] = [...new Set([...(Array.isArray(tasks[to]) ? tasks[to] : []), as])]
+    out.tasks = tasks
     return out
   },
   tasks: (save, f) => ({ ...save, tasks: Object.fromEntries(Object.entries(save.tasks ?? {}).map(([id, n]) => [id, f(n, id)]).filter(([, n]) => n > 0)) }),

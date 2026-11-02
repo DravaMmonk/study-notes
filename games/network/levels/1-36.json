@@ -19,6 +19,7 @@
   },
   "tasks": [
     {
+      "id": "1-36",
       "brief": {
         "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数）；「重来」为 1 的拍从这一位重新算起，「暂停」为 1 的拍那一位不收进去。",
         "en": "Every tick, output the 3 check bits due after the bits received so far (their carry-less remainder by 1011 with three 0s appended); on a tick restart is 1, start over from that bit, and leave out the bit of any tick hold is 1."

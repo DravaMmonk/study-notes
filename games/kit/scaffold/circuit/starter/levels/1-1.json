@@ -28,6 +28,7 @@
   },
   "tasks": [
     {
+      "id": "1-1",
       "brief": {
         "zh": "交出 a 加 b、再减去 c 的结果。",
         "en": "Give a plus b, less c."

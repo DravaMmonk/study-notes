@@ -17,6 +17,7 @@
   ],
   "tasks": [
     {
+      "id": "1-2",
       "brief": {
         "zh": "每一拍把听到的位反过来说出去：听到 1 说 0，听到 0 说 1。",
         "en": "Every tick, say the opposite of the bit you hear: 0 for 1, 1 for 0."

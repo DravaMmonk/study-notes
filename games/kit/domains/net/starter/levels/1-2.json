@@ -21,6 +21,7 @@
   ],
   "tasks": [
     {
+      "id": "1-2",
       "brief": {
         "zh": "每一拍在右线上说出左线上一拍的位；第一拍说 0。",
         "en": "Every tick, say on the right-hand wire the bit the left-hand wire had the tick before; say 0 on the first tick."

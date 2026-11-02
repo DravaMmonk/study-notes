@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "1-16",
       "brief": {
         "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码。",
         "en": "Send the byte handed to you bit by bit from the first tick, top bit first, followed at once by its 3 check bits."

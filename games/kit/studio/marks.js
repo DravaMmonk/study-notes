@@ -5,7 +5,8 @@
 // that is no list of tasks has them all on itself. Domain-free: only the content and its schema are read.
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { shapeAt } from '../engine/schema.js'
-import { blank, sectionOf } from './form.js'
+import { hasTaskIds } from '../engine/tasks.js'
+import { blank, opFor, sectionOf } from './form.js'
 
 const copy = (v) => JSON.parse(JSON.stringify(v))
 
@@ -33,12 +34,14 @@ export function markPath(value, vocabulary, mark) {
 }
 
 /**
- * What a + on the page adds (a mark on a list: a hint, a page, a test, a task), as one edit of the level:
- * { path, set } — the list with the new item, `at` its path (to pick it). A new item of words alone (a hint, a page)
- * starts blank, to be written; any other copies its neighbour (a test), so it is whole at once; a new task copies the task played, without its name and its own introduction, so the level
- * plays on at once; a list not there yet starts with the one item. Null when the level has no room for it.
+ * What a + on the page adds (a mark on a list: a hint, a page, a test, a task), as one operation on level `level`:
+ * { op, at } — `at` the new item's path (to pick it). A new item of words alone (a hint, a page) starts blank, to be
+ * written; any other copies its neighbour (a test), so it is whole at once; a list not there yet starts with the one
+ * item. A new task copies the task played, without its id, its name and its own introduction, so the level plays on
+ * at once, and goes after it (task.add, where tasks have ids; else at the end of the list). Null when the level has no
+ * room for it.
  */
-export function addFor(value, vocabulary, mark) {
+export function addFor(level, value, vocabulary, mark) {
   const path = markPath(value, vocabulary, mark)
   if (!path) return null
   const schema = shapeAt(vocabulary.level, value, path, { vocabulary })
@@ -49,10 +52,11 @@ export function addFor(value, vocabulary, mark) {
   const near = list[Math.min(at, list.length) - 1] ?? list[0]
   let item
   if (path.length === 1 && path[0] === 'tasks') {
-    const { step: _, intro: __, ...task } = copy(list[mark.task] ?? near)
+    const { id, step: _step, intro: _intro, ...task } = copy(list[mark.task] ?? near)
+    if (hasTaskIds(vocabulary)) return { op: { op: 'task.add', level, data: task, after: id }, at: ['tasks', mark.task + 1] }
     item = task
   } else item = near !== undefined && sectionOf(schema.of) !== 'read' ? copy(near) : blank(schema.of, ctx)
-  return { path, set: [...list.slice(0, at), item, ...list.slice(at)], at: [...path, at] }
+  return { op: opFor({ level }, path, { set: [...list.slice(0, at), item, ...list.slice(at)] }, 'list'), at: [...path, at] }
 }
 
 /** The mark of a field of a level's content, to draw it picked on the page: a task's under that task (the task
