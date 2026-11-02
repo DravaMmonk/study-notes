@@ -1,0 +1,3671 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../topics/05-generation.html">
+      
+      
+        <link rel="next" href="engine-domain-assessment.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Computer Vision Game: Chapter 0 and 1 Level Specifications - Drava's Study Notes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../../game/kit/tokens.css">
+    
+      <link rel="stylesheet" href="../../../../game/kit/ui.css">
+    
+      <link rel="stylesheet" href="../../../../game/kit/prose.css">
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <script>try{var t=localStorage.getItem("fieldnotes.theme");document.documentElement.dataset.theme=["paper","night","blueprint"].indexOf(t)>-1?t:matchMedia("(prefers-color-scheme: dark)").matches?"night":"paper"}catch(e){document.documentElement.dataset.theme="paper"}</script>
+
+  <script>window.__i18n={"lang": null, "pairs": [{"zh": {"url": "NOTE_TAKING_GUIDELINES.zh.html", "title": "笔记撰写规范"}, "en": {"url": "NOTE_TAKING_GUIDELINES.html", "title": "Note Taking Guidelines"}}, {"zh": {"url": "index.zh.html", "title": "Drava 的学习笔记"}, "en": {"url": "index.html", "title": "Drava's Study Notes"}}, {"zh": {"url": "Other/DLCV/01-CNN.zh.html", "title": "1 卷积神经网络"}, "en": {"url": "Other/DLCV/01-CNN.html", "title": "1 Convolutional Neural Networks"}}, {"zh": {"url": "Unimelb/25S2/AIP/01-Search.zh.html", "title": "1 搜索"}, "en": {"url": "Unimelb/25S2/AIP/01-Search.html", "title": "1 Search"}}, {"zh": {"url": "Unimelb/25S2/AIP/02-Planning.zh.html", "title": "2 规划"}, "en": {"url": "Unimelb/25S2/AIP/02-Planning.html", "title": "2 Planning"}}, {"zh": {"url": "Unimelb/25S2/AIP/03-Relaxation.zh.html", "title": "3 松弛"}, "en": {"url": "Unimelb/25S2/AIP/03-Relaxation.html", "title": "3 Relaxation"}}, {"zh": {"url": "Unimelb/25S2/AIP/04-Exploration.zh.html", "title": "4 探索"}, "en": {"url": "Unimelb/25S2/AIP/04-Exploration.html", "title": "4 Exploration"}}, {"zh": {"url": "Unimelb/25S2/AIP/05-RL.zh.html", "title": "5 强化学习"}, "en": {"url": "Unimelb/25S2/AIP/05-RL.html", "title": "5 Reinforced Learning"}}, {"zh": {"url": "Unimelb/25S2/AIP/06-MDP.zh.html", "title": "6 马尔可夫决策过程"}, "en": {"url": "Unimelb/25S2/AIP/06-MDP.html", "title": "6 Markov Decision Process"}}, {"zh": {"url": "Unimelb/25S2/AIP/07-MC.zh.html", "title": "7 蒙特卡洛"}, "en": {"url": "Unimelb/25S2/AIP/07-MC.html", "title": "7 Monte Carlo"}}, {"zh": {"url": "Unimelb/25S2/AIP/08-TD.zh.html", "title": "8 时序差分"}, "en": {"url": "Unimelb/25S2/AIP/08-TD.html", "title": "8 Temporal Difference"}}, {"zh": {"url": "Unimelb/25S2/AIP/09-Value-Approx.zh.html", "title": "9 价值函数近似"}, "en": {"url": "Unimelb/25S2/AIP/09-Value-Approx.html", "title": "9 Value Function Approximation"}}, {"zh": {"url": "Unimelb/25S2/AIP/10-Policy-Approx.zh.html", "title": "10 策略函数近似"}, "en": {"url": "Unimelb/25S2/AIP/10-Policy-Approx.html", "title": "10 Policy Function Approximation"}}, {"zh": {"url": "Unimelb/25S2/AIP/11-Integrating.zh.html", "title": "11 学习与规划的结合"}, "en": {"url": "Unimelb/25S2/AIP/11-Integrating.html", "title": "11 Integrating Learning and Planning"}}, {"zh": {"url": "Unimelb/25S2/IML/01-probability.zh.html", "title": "1 概率"}, "en": {"url": "Unimelb/25S2/IML/01-probability.html", "title": "1 Probability"}}, {"zh": {"url": "Unimelb/25S2/IML/02-KNN.zh.html", "title": "2 K 近邻"}, "en": {"url": "Unimelb/25S2/IML/02-KNN.html", "title": "2 K-Nearest Neighbours"}}, {"zh": {"url": "Unimelb/25S2/IML/03-DT.zh.html", "title": "3 决策树"}, "en": {"url": "Unimelb/25S2/IML/03-DT.html", "title": "3 Decision Trees"}}, {"zh": {"url": "Unimelb/25S2/IML/04-NB.zh.html", "title": "4 朴素贝叶斯"}, "en": {"url": "Unimelb/25S2/IML/04-NB.html", "title": "4 Naive Bayes"}}, {"zh": {"url": "Unimelb/25S2/IML/05-LR.zh.html", "title": "5 线性回归与逻辑回归"}, "en": {"url": "Unimelb/25S2/IML/05-LR.html", "title": "5 Linear & Logistic Regression"}}, {"zh": {"url": "Unimelb/25S2/IML/06-SVM.zh.html", "title": "6 支持向量机"}, "en": {"url": "Unimelb/25S2/IML/06-SVM.html", "title": "6 Support Vector Machine"}}, {"zh": {"url": "Unimelb/26S1/ADBS/01-core.zh.html", "title": "1 DBMC 的核心"}, "en": {"url": "Unimelb/26S1/ADBS/01-core.html", "title": "1 Core of DBMC"}}, {"zh": {"url": "Unimelb/26S1/ADBS/02-query.zh.html", "title": "2 查询优化"}, "en": {"url": "Unimelb/26S1/ADBS/02-query.html", "title": "2 Query Optimisation"}}, {"zh": {"url": "Unimelb/26S1/NLP/00-overview.zh.html", "title": "00 课程概览与历史"}, "en": {"url": "Unimelb/26S1/NLP/00-overview.html", "title": "00 Course Overview and History"}}, {"zh": {"url": "Unimelb/26S1/NLP/01-preprocessing.zh.html", "title": "01 文本预处理"}, "en": {"url": "Unimelb/26S1/NLP/01-preprocessing.html", "title": "01 Text Preprocessing"}}, {"zh": {"url": "Unimelb/26S1/NLP/02-n-gram.zh.html", "title": "02 N-gram 语言模型"}, "en": {"url": "Unimelb/26S1/NLP/02-n-gram.html", "title": "02 N-gram Language Models"}}, {"zh": {"url": "Unimelb/26S1/NLP/03-classification.zh.html", "title": "03 文本分类"}, "en": {"url": "Unimelb/26S1/NLP/03-classification.html", "title": "03 Text Classification"}}, {"zh": {"url": "Unimelb/26S1/NLP/04-sequence-labelling.zh.html", "title": "04 序列标注：词性标注与 HMM"}, "en": {"url": "Unimelb/26S1/NLP/04-sequence-labelling.html", "title": "04 Sequence Labelling: POS Tagging and HMMs"}}, {"zh": {"url": "Unimelb/26S1/NLP/05-feedforward.zh.html", "title": "05 前馈网络"}, "en": {"url": "Unimelb/26S1/NLP/05-feedforward.html", "title": "05 Feedforward Networks"}}, {"zh": {"url": "Unimelb/26S1/NLP/06-recurrent.zh.html", "title": "06 循环网络"}, "en": {"url": "Unimelb/26S1/NLP/06-recurrent.html", "title": "06 Recurrent Networks"}}, {"zh": {"url": "Unimelb/26S1/NLP/07-transformer.zh.html", "title": "07 Transformer"}, "en": {"url": "Unimelb/26S1/NLP/07-transformer.html", "title": "07 Transformer"}}, {"zh": {"url": "Unimelb/26S1/NLP/08-word-embeddings.zh.html", "title": "08 词嵌入"}, "en": {"url": "Unimelb/26S1/NLP/08-word-embeddings.html", "title": "08 Word Embeddings"}}, {"zh": {"url": "Unimelb/26S1/NLP/09-pretrained-models.zh.html", "title": "09 预训练模型"}, "en": {"url": "Unimelb/26S1/NLP/09-pretrained-models.html", "title": "09 Pretrained Models"}}, {"zh": {"url": "Unimelb/26S1/NLP/README.zh.html", "title": "COMP90042 自然语言处理"}, "en": {"url": "Unimelb/26S1/NLP/index.html", "title": "COMP90042 Natural Language Processing"}}, {"zh": {"url": "Unimelb/26S1/SPM/01-overview.zh.html", "title": "1 概述"}, "en": {"url": "Unimelb/26S1/SPM/01-overview.html", "title": "1 Overview"}}, {"en": {"url": "Unimelb/26S2/CV/01-introduction.en.html", "title": "COMP90086 Lecture 1 - Introduction"}, "zh": {"url": "Unimelb/26S2/CV/01-introduction.html", "title": "COMP90086 Lecture 1 - Introduction"}}, {"en": {"url": "Unimelb/26S2/CV/02-basics.en.html", "title": "COMP90086 Lecture 2 - Imaging Basics"}, "zh": {"url": "Unimelb/26S2/CV/02-basics.html", "title": "COMP90086 Lecture 2 - Imaging Basics"}}, {"en": {"url": "Unimelb/26S2/CV/03-filters.en.html", "title": "COMP90086 Lecture 3 - Spatial Filtering"}, "zh": {"url": "Unimelb/26S2/CV/03-filters.html", "title": "COMP90086 Lecture 3 - Spatial Filtering"}}, {"en": {"url": "Unimelb/26S2/CV/04-fourier.en.html", "title": "COMP90086 Lecture 4 - Frequency Filtering"}, "zh": {"url": "Unimelb/26S2/CV/04-fourier.html", "title": "COMP90086 Lecture 4 - Frequency Filtering"}}, {"en": {"url": "Unimelb/26S2/CV/05-image-formation-ii.en.html", "title": "COMP90086 Lecture 5 - Image Formation II"}, "zh": {"url": "Unimelb/26S2/CV/05-image-formation-ii.html", "title": "COMP90086 Lecture 5 - Image Formation II"}}, {"en": {"url": "Unimelb/26S2/CV/06-cnns-i.en.html", "title": "COMP90086 Lecture 6 - Convolutional Neural Networks I"}, "zh": {"url": "Unimelb/26S2/CV/06-cnns-i.html", "title": "COMP90086 Lecture 6 - Convolutional Neural Networks I"}}, {"en": {"url": "Unimelb/26S2/CV/07-cnns-ii.en.html", "title": "COMP90086 Lecture 7 - Convolutional Neural Networks II"}, "zh": {"url": "Unimelb/26S2/CV/07-cnns-ii.html", "title": "COMP90086 Lecture 7 - Convolutional Neural Networks II"}}, {"en": {"url": "Unimelb/26S2/CV/08-cnns-iii.en.html", "title": "COMP90086 Lecture 8 - Convolutional Neural Networks III"}, "zh": {"url": "Unimelb/26S2/CV/08-cnns-iii.html", "title": "COMP90086 Lecture 8 - Convolutional Neural Networks III"}}, {"en": {"url": "Unimelb/26S2/CV/09-vit.en.html", "title": "COMP90086 Lecture 9 - Vision Transformers"}, "zh": {"url": "Unimelb/26S2/CV/09-vit.html", "title": "COMP90086 Lecture 9 - Vision Transformers"}}, {"en": {"url": "Unimelb/26S2/CV/10-representations.en.html", "title": "COMP90086 Lecture 10 - Representation Learning"}, "zh": {"url": "Unimelb/26S2/CV/10-representations.html", "title": "COMP90086 Lecture 10 - Representation Learning"}}, {"en": {"url": "Unimelb/26S2/CV/11-features.en.html", "title": "COMP90086 Lecture 11 - Local Features"}, "zh": {"url": "Unimelb/26S2/CV/11-features.html", "title": "COMP90086 Lecture 11 - Local Features"}}, {"en": {"url": "Unimelb/26S2/CV/12-feature-matching.en.html", "title": "COMP90086 Lecture 12 - Feature Matching"}, "zh": {"url": "Unimelb/26S2/CV/12-feature-matching.html", "title": "COMP90086 Lecture 12 - Feature Matching"}}, {"en": {"url": "Unimelb/26S2/CV/13-depth-stereo.en.html", "title": "COMP90086 Lecture 13 - Depth and Stereo"}, "zh": {"url": "Unimelb/26S2/CV/13-depth-stereo.html", "title": "COMP90086 Lecture 13 - Depth and Stereo"}}, {"en": {"url": "Unimelb/26S2/CV/14-two-view-geometry.en.html", "title": "COMP90086 Lecture 14 - Two-view Geometry"}, "zh": {"url": "Unimelb/26S2/CV/14-two-view-geometry.html", "title": "COMP90086 Lecture 14 - Two-view Geometry"}}, {"en": {"url": "Unimelb/26S2/CV/15-generation.en.html", "title": "COMP90086 Lecture 15 - Image Generation"}, "zh": {"url": "Unimelb/26S2/CV/15-generation.html", "title": "COMP90086 Lecture 15 - Image Generation"}}, {"en": {"url": "Unimelb/26S2/CV/16-gans.en.html", "title": "COMP90086 Lecture 16 - Generative Adversarial Networks"}, "zh": {"url": "Unimelb/26S2/CV/16-gans.html", "title": "COMP90086 Lecture 16 - Generative Adversarial Networks"}}, {"en": {"url": "Unimelb/26S2/CV/17-diffusion.en.html", "title": "COMP90086 Lecture 17 - Diffusion Models"}, "zh": {"url": "Unimelb/26S2/CV/17-diffusion.html", "title": "COMP90086 Lecture 17 - Diffusion Models"}}, {"en": {"url": "Unimelb/26S2/CV/19-segmentation-i.en.html", "title": "COMP90086 Lecture 19 - Image Segmentation I"}, "zh": {"url": "Unimelb/26S2/CV/19-segmentation-i.html", "title": "COMP90086 Lecture 19 - Image Segmentation I"}}, {"en": {"url": "Unimelb/26S2/CV/20-segmentation-ii.en.html", "title": "COMP90086 Lecture 20 - Image Segmentation II"}, "zh": {"url": "Unimelb/26S2/CV/20-segmentation-ii.html", "title": "COMP90086 Lecture 20 - Image Segmentation II"}}, {"en": {"url": "Unimelb/26S2/CV/21-object-detection-i.en.html", "title": "COMP90086 Lecture 21 - Object Detection I"}, "zh": {"url": "Unimelb/26S2/CV/21-object-detection-i.html", "title": "COMP90086 Lecture 21 - Object Detection I"}}, {"en": {"url": "Unimelb/26S2/CV/22-object-detection-ii.en.html", "title": "COMP90086 Lecture 22 - Object Detection II"}, "zh": {"url": "Unimelb/26S2/CV/22-object-detection-ii.html", "title": "COMP90086 Lecture 22 - Object Detection II"}}, {"zh": {"url": "Unimelb/26S2/CV/READING-LINKS.zh.html", "title": "COMP90086 阅读链接"}, "en": {"url": "Unimelb/26S2/CV/READING-LINKS.html", "title": "COMP90086 Reading Links"}}, {"en": {"url": "Unimelb/26S2/CV/README.en.html", "title": "COMP90086 Computer Vision"}, "zh": {"url": "Unimelb/26S2/CV/index.html", "title": "COMP90086 Computer Vision"}}, {"en": {"url": "Unimelb/26S2/CV/RESOURCE-STATUS.en.html", "title": "COMP90086 Resource Completeness"}, "zh": {"url": "Unimelb/26S2/CV/RESOURCE-STATUS.html", "title": "COMP90086 资源完整性"}}, {"en": {"url": "Unimelb/26S2/CV/topics/01-image-formation.en.html", "title": "Topic 1: How images are formed"}, "zh": {"url": "Unimelb/26S2/CV/topics/01-image-formation.html", "title": "专题 1：图像怎样形成"}}, {"en": {"url": "Unimelb/26S2/CV/topics/02-image-processing.en.html", "title": "Topic 2: How to process images"}, "zh": {"url": "Unimelb/26S2/CV/topics/02-image-processing.html", "title": "专题 2：怎样处理图像"}}, {"en": {"url": "Unimelb/26S2/CV/topics/03-learning-features.en.html", "title": "Topic 3: How to learn image features"}, "zh": {"url": "Unimelb/26S2/CV/topics/03-learning-features.html", "title": "专题 3：怎样学习图像特征"}}, {"en": {"url": "Unimelb/26S2/CV/topics/04-matching-and-3d.en.html", "title": "Topic 4: How to match and recover 3D"}, "zh": {"url": "Unimelb/26S2/CV/topics/04-matching-and-3d.html", "title": "专题 4：怎样匹配并恢复三维"}}, {"en": {"url": "Unimelb/26S2/CV/topics/05-generation.en.html", "title": "Topic 5: How to generate new images"}, "zh": {"url": "Unimelb/26S2/CV/topics/05-generation.html", "title": "专题 5：怎样生成新图像"}}, {"en": {"url": "Unimelb/26S2/CV/topics/README.en.html", "title": "COMP90086 Device Gallery"}, "zh": {"url": "Unimelb/26S2/CV/topics/index.html", "title": "COMP90086 装置图鉴"}}], "sections": {"University of Melbourne": "墨尔本大学", "2026 Semester 2": "2026 年第二学期", "COMP90086 Computer Vision": "COMP90086 计算机视觉", "Device gallery": "装置图鉴", "2026 Semester 1": "2026 年第一学期", "COMP90042 Natural Language Processing": "COMP90042 自然语言处理", "COMP90050 Advanced Database Systems": "COMP90050 高级数据库系统", "SWEN90016 Software Processes and Management": "SWEN90016 软件过程与管理", "2025 Semester 2": "2025 年第二学期", "COMP90054 AI Planning for Autonomy": "COMP90054 面向自主系统的 AI 规划", "COMP90049 Introduction to Machine Learning": "COMP90049 机器学习导论", "COMP30026 Models of Computation": "COMP30026 计算模型", "Self-study": "自学", "CS231n Deep Learning for Computer Vision": "CS231n 计算机视觉深度学习"}};(function(d){var l;try{l=localStorage.getItem('fieldnotes.lang')}catch(e){}if(l!=='zh'&&l!=='en')l=/^zh\b/i.test(navigator.language||'')?'zh':'en';var a=document.querySelector('link[rel=alternate][hreflang='+l+']');if(d.lang&&d.lang!==l&&a)location.replace(a.href+location.hash)})(window.__i18n)</script></head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#computer-vision-game-chapter-0-and-1-level-specifications" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Drava's Study Notes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Computer Vision Game: Chapter 0 and 1 Level Specifications
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../index.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Drava's Study Notes
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../index.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  University of Melbourne
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../Other/DLCV/01-CNN.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Self-study
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../NOTE_TAKING_GUIDELINES.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Note Taking Guidelines
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Drava's Study Notes
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drava's Study Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    University of Melbourne
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    University of Melbourne
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2026 Semester 2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2026 Semester 2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Computer Vision
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_1" id="__nav_2_1_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90086 Computer Vision
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 1 - Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-basics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 2 - Imaging Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-filters.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 3 - Spatial Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-fourier.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 4 - Frequency Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-image-formation-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 5 - Image Formation II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-cnns-i.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 6 - Convolutional Neural Networks I
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-cnns-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 7 - Convolutional Neural Networks II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-cnns-iii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 8 - Convolutional Neural Networks III
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-vit.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 9 - Vision Transformers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-representations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 10 - Representation Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-features.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 11 - Local Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-feature-matching.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 12 - Feature Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-depth-stereo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 13 - Depth and Stereo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-two-view-geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 14 - Two-view Geometry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-generation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 15 - Image Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-gans.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 16 - Generative Adversarial Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-diffusion.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 17 - Diffusion Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-segmentation-i.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 19 - Image Segmentation I
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-segmentation-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 20 - Image Segmentation II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-object-detection-i.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 21 - Object Detection I
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-object-detection-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 22 - Object Detection II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../READING-LINKS.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Reading Links
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RESOURCE-STATUS.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 资源完整性
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_25" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../topics/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Device gallery
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_1_25" id="__nav_2_1_1_25_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_25_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_25">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Device gallery
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topics/01-image-formation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 1：图像怎样形成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topics/02-image-processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 2：怎样处理图像
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topics/03-learning-features.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 3：怎样学习图像特征
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topics/04-matching-and-3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 4：怎样匹配并恢复三维
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../topics/05-generation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 5：怎样生成新图像
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_26" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1_1_26" id="__nav_2_1_1_26_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision game specs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_26_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1_1_26">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Vision game specs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Computer Vision Game: Chapter 0 and 1 Level Specifications
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="chapters-0-1.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Computer Vision Game: Chapter 0 and 1 Level Specifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="engine-domain-assessment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0–1 Implementation Gap Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2026 Semester 1
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2026 Semester 1
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_1" id="__nav_2_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90050 Advanced Database Systems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90050 Advanced Database Systems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/ADBS/01-core.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Core of DBMC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/ADBS/02-query.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Query Optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../26S1/NLP/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90042 Natural Language Processing
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_2_2" id="__nav_2_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90042 Natural Language Processing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/00-overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 Course Overview and History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/01-preprocessing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 Text Preprocessing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/02-n-gram.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 N-gram Language Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/03-classification.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 Text Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/04-sequence-labelling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 Sequence Labelling: POS Tagging and HMMs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/05-feedforward.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 Feedforward Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/06-recurrent.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 Recurrent Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/07-transformer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 Transformer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/08-word-embeddings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 Word Embeddings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/NLP/09-pretrained-models.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 Pretrained Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_3" id="__nav_2_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SWEN90016 Software Processes and Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SWEN90016 Software Processes and Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../26S1/SPM/01-overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2025 Semester 2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2025 Semester 2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_1" id="__nav_2_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90054 AI Planning for Autonomy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90054 AI Planning for Autonomy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/01-Search.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/02-Planning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/03-Relaxation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/04-Exploration.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/05-RL.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/06-MDP.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Markov Decision Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/07-MC.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Monte Carlo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/08-TD.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Temporal Difference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/09-Value-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/10-Policy-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Policy Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/AIP/11-Integrating.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Integrating Learning and Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_2" id="__nav_2_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90049 Introduction to Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90049 Introduction to Machine Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/IML/01-probability.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Probability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/IML/02-KNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 K-Nearest Neighbours
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/IML/03-DT.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Decision Trees
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/IML/04-NB.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Naive Bayes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/IML/05-LR.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Linear &amp; Logistic Regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/IML/06-SVM.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Support Vector Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_3" id="__nav_2_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP30026 Models of Computation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP30026 Models of Computation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../25S2/MoC/01-introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-study
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Self-study
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CS231n Deep Learning for Computer Vision
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CS231n Deep Learning for Computer Vision
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../Other/DLCV/01-CNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Convolutional Neural Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../Other/DLCV/02-RNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 RNN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../NOTE_TAKING_GUIDELINES.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Note Taking Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="computer-vision-game-chapter-0-and-1-level-specifications">Computer Vision Game: Chapter 0 and 1 Level Specifications<a class="headerlink" href="#computer-vision-game-chapter-0-and-1-level-specifications" title="Permanent link">&para;</a></h1>
+<p>Status: independent design proposal, not executable game content. This proposal follows the agreed course outline, not the current demo's chapter numbering. Player-facing copy below is provisional English; Chinese localisation and glossary links are implementation work. Chapter and task identifiers are stable proposal identifiers, not existing save keys. Do not overwrite existing levels with these IDs.</p>
+<p>Sources: COMP90086 2026 lectures 1–2 and workshop 2, the course notes <code>01-introduction.md</code> and <code>02-basics.md</code>, and <code>games/DESIGN.md</code>. Some imaging details here are deliberately simplified; each model states its assumptions. Refer to <code>engine-domain-assessment.md</code> for implementation dependencies and unresolved design choices.</p>
+<h2 id="common-contract">Common contract<a class="headerlink" href="#common-contract" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A level contains at least one uniquely identified task. Each task has an input, player action, success condition, visible and hidden cases, and feedback. A multi-task level progresses in order; only completing the final task completes the level.</li>
+<li>Level references and parts below express prerequisites and outputs, not a requirement to implement the current image vocabulary as-is. New reusable parts are created only by builder tasks; they execute the player's saved board and accept exactly the declared ports. An observation, scene or model may be supplied as a local primitive, not presented as a player-built part.</li>
+<li>Chapter 0 is a task-selection and observation branch. Chapter 1 carries the task/test vocabulary but does not require a reusable artefact from Chapter 0. All parts built within Chapter 1 remain available there. Subsequent chapters should carry the relevant image and resampling parts.</li>
+<li>Each group is an ordered learning series. Where branches share an anchor, neither is a prerequisite of the other; the named join requires both. At most three parallel branches are displayed together. Challenge levels are optional and never gate a required level.</li>
+<li>Image coordinate convention: zero-based <code>(x,y)</code> with x right and y down; array access <code>I[y,x]</code>. RGB channels are ordered R, G, B. Values are real numbers unless a level explicitly quantises them. Tests compare dimensions and values independently; floating-point tolerance is <code>1e-5</code> unless otherwise stated. Do not silently clip values during computation.</li>
+<li>Public examples are shown to players; hidden cases cover changed data, geometry and boundary conditions. A concrete failing case shows input, requested output, actual output and the mismatch; interactive tasks show the failed condition. Hidden cases are not a claim of exhaustive verification.</li>
+<li>Intros identify the present limitation and the role of the new action without giving the key solution. Hints progress from what to examine to a more specific direction; they do not prescribe a full board. Pass text never explains the answer; omitted pass text is intentional. These specs describe author-facing reference strategies, not text shown before solving.</li>
+<li>Each level below specifies reference behaviour and at least one counterexample; implementers must encode and run reference boards or interactions against all cases before calling the content ready. Where a task requires a model or operation not yet present, it is <strong>proposed</strong>, not implemented.</li>
+</ul>
+<h1 id="chapter-0-what-is-the-question">Chapter 0 — What Is the Question?<a class="headerlink" href="#chapter-0-what-is-the-question" title="Permanent link">&para;</a></h1>
+<p>Machine: a visual test station that can inspect a scene, its image and candidate answers. The station's immediate limitation is that a picture alone does not say what kind of answer is requested. No trained detector is implied.</p>
+<p>Topology: <code>0A1–0A4</code> → parallel series <code>0B1–0B4</code> and <code>0C1–0C4</code> → <code>0D1–0D3</code>. The final join needs both branches. Cases within a level can be multiple tasks; the learner receives the full task statement and candidate outputs, not a fabricated model confidence.</p>
+<h2 id="series-0a-state-the-output">Series 0A — State the output<a class="headerlink" href="#series-0a-state-the-output" title="Permanent link">&para;</a></h2>
+<h3 id="0a1-one-image-one-question">0A1 · One image, one question<a class="headerlink" href="#0a1-one-image-one-question" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: match each question to an output shape. Actions: select among a class label, box, per-pixel category map and depth map. No need to recognise the object itself.</li>
+<li>Public tasks: “What object class is present?” → class label; “Where is the bicycle?” → bounding box. Hidden: reverse the option order and use a different class and location.</li>
+<li>Check: exact mapping for every question; show the question and chosen versus required output. Reference: label for a whole-image classification request; box for a single requested object's location. Misconception: always choose the most detailed output.</li>
+<li>Hint: compare the question's requested information with what each output contains. Unlock: none.</li>
+</ul>
+<h3 id="0a2-a-label-is-not-a-location">0A2 · A label is not a location<a class="headerlink" href="#0a2-a-label-is-not-a-location" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: distinguish class-only output from class-plus-position detection. Select which of two supplied outputs answers each request.</li>
+<li>Public: an image contains two cats; a label <code>cat</code> answers presence, while two labelled boxes answer where the cats are. Hidden: one instance, different class, and boxes with labels removed; a box alone is not a labelled detection.</li>
+<li>Check: all outputs must meet the request; feedback highlights missing class or location. Reference: evaluate required fields, not appearance. Naive: class label alone for detection. Hint: ask whether the answer identifies both what and where. Unlock: none.</li>
+</ul>
+<h3 id="0a3-regions-and-instances">0A3 · Regions and instances<a class="headerlink" href="#0a3-regions-and-instances" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: distinguish a semantic map from an instance map. Public: two touching dogs, one semantic class colour versus two instance IDs. Hidden: two separate instances and a single instance with multiple disconnected visible pieces.</li>
+<li>Check: output type and instance identity, not chosen colours or numerical IDs. Reference: semantic assigns classes per pixel; instance output distinguishes individual objects. Naive: assign all same-class pixels the same instance. Hint: count objects, not colours. Unlock: none.</li>
+</ul>
+<h3 id="0a4-what-can-the-answer-tell-you">0A4 · What can the answer tell you?<a class="headerlink" href="#0a4-what-can-the-answer-tell-you" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: route three requests to suitable supplied outputs: classification, semantic segmentation and depth. The player may choose more than one sufficient output when genuinely sufficient; ground-truth task wording determines sufficiency.</li>
+<li>Public: class label for presence; per-pixel class map for where road pixels are; depth map for distance at a visible pixel. Hidden: reorder outputs and change targets. Reference: choose an output containing the requested information. Naive: choose a class map to answer metric distance. Hint: inspect the units or meaning of each value. Unlock: none.</li>
+</ul>
+<h2 id="series-0b-appearance-changes">Series 0B — Appearance changes<a class="headerlink" href="#series-0b-appearance-changes" title="Permanent link">&para;</a></h2>
+<h3 id="0b1-change-the-view">0B1 · Change the view<a class="headerlink" href="#0b1-change-the-view" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: identify which of several supplied images can be produced by changing camera viewpoint around a fixed object in a controlled scene. Scene simulator supplies renderings; player can rotate viewpoint and compare.</li>
+<li>Public: fixed asymmetric object, front and side views. Hidden: different asymmetric object, camera angles and distractor depicting a changed object. Check: classify all candidates using the scene's known state, not an inferred real-world identity. Reference: explore viewpoint and compare candidates. Naive: treat any pixel change as object change. Hint: move only the camera. Unlock: camera-view control, local to the station.</li>
+</ul>
+<h3 id="0b2-light-changes-the-picture">0B2 · Light changes the picture<a class="headerlink" href="#0b2-light-changes-the-picture" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: match two images of the same fixed object under different lighting, among candidates generated from a known controlled scene. Public: left/right light, one object; hidden: new object and intensity, including shadow. Check by scene identity metadata. Reference: examine stable shape across lighting changes. Naive: exact pixel equality. Hint: isolate the variable controlled by the light. Unlock: none; detailed reflectance belongs to a later chapter.</li>
+</ul>
+<h3 id="0b3-hidden-from-view">0B3 · Hidden from view<a class="headerlink" href="#0b3-hidden-from-view" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: distinguish visible evidence from occluded scene content. Public: an opaque screen hides one of two scene objects; select claims established by the image. Hidden: swap hidden object while maintaining identical visible rendering.</li>
+<li>Check: all and only claims true across supplied compatible scenes; show two compatible scenes on failure. Reference: withhold a claim about an entirely hidden object. Naive: infer hidden identity from the visible scene. Hint: compare what changes behind the screen. Unlock: none.</li>
+</ul>
+<h3 id="0b4-a-test-set-with-variation">0B4 · A test set with variation<a class="headerlink" href="#0b4-a-test-set-with-variation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: choose a minimal test set satisfying explicit coverage requirements: at least one changed viewpoint, one changed lighting and one occlusion; one test may cover multiple requirements. Public: five labelled cases; hidden: permuted cases and overlapping coverage.</li>
+<li>Check: all required factors covered; no strict minimum-cardinality requirement unless the task explicitly asks for it. Reference: choose cases covering each factor. Naive: several nearly identical images. Hint: mark the variable changed in each case. Unlock: reusable test-case selection concept, not an executable part.</li>
+</ul>
+<h2 id="series-0c-evidence-and-ambiguity">Series 0C — Evidence and ambiguity<a class="headerlink" href="#series-0c-evidence-and-ambiguity" title="Permanent link">&para;</a></h2>
+<h3 id="0c1-scene-and-image">0C1 · Scene and image<a class="headerlink" href="#0c1-scene-and-image" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: place supplied artefacts on the correct side of a scene-to-image mapping: 3D object, camera, image and pixel array. Public: one rendered object and its image; hidden: reordered artefacts. Check: correct role for every artefact. Reference: distinguish world, sensor and stored representation. Naive: classify a pixel array as the object itself. Hint: which items exist in the scene before capture? Unlock: none.</li>
+</ul>
+<h3 id="0c2-same-image-different-world">0C2 · Same image, different world<a class="headerlink" href="#0c2-same-image-different-world" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: decide whether depth is uniquely determined by the supplied image and calibration. Public: two labelled scenes scale both object size and distance by the same factor under a pinhole camera and share the same image. Hidden: another pair with different scale factor. Check: select “not uniquely determined” and identify the compatible scenes; explain with visual comparison rather than free text. Reference: both scenes remain possible. Naive: pick a unique distance from apparent size alone. Hint: compare projected size and the information supplied. Unlock: none.</li>
+</ul>
+<h3 id="0c3-inspect-a-prediction">0C3 · Inspect a prediction<a class="headerlink" href="#0c3-inspect-a-prediction" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: compare a preset classifier's outputs against labelled examples and identify an error. Public: three labels, including one incorrect prediction; hidden: reordered samples, including a correct set where “no error shown” is accepted.</li>
+<li>Check: compare predictions with supplied labels, not with model internals. Reference: find mismatch or select no visible mismatch. Naive: assume high confidence proves correctness. Hint: inspect prediction and reference side by side. Unlock: local prediction/label comparison view.</li>
+</ul>
+<h3 id="0c4-a-counterexample-to-a-claim">0C4 · A counterexample to a claim<a class="headerlink" href="#0c4-a-counterexample-to-a-claim" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: test the claim “this classifier recognises objects regardless of background” on supplied labelled cases and choose an observation that can refute it. Public: same foreground object, two backgrounds, different predictions, at least one incorrect. Hidden: different classes and candidate order.</li>
+<li>Check: selected case must violate the stated claim; distinguish a passing case from proof of universal correctness. Reference: choose a falsifying case. Naive: choose a single correct prediction as proof. Hint: look for a case inconsistent with the claim. Unlock: none.</li>
+</ul>
+<h2 id="series-0d-put-the-station-to-work">Series 0D — Put the station to work<a class="headerlink" href="#series-0d-put-the-station-to-work" title="Permanent link">&para;</a></h2>
+<h3 id="0d1-specify-the-task">0D1 · Specify the task<a class="headerlink" href="#0d1-specify-the-task" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: given a rescue scene and a request to locate each person, configure required output fields. Public: two people; hidden: zero and three people. Check: a set of labelled boxes, including an empty set when no target is present; no requirement to produce detections. Reference: choose class and position per instance. Naive: one whole-image class or one unlabelled box. Hint: the request asks both what and where. Unlock: none.</li>
+</ul>
+<h3 id="0d2-decide-what-can-be-tested">0D2 · Decide what can be tested<a class="headerlink" href="#0d2-decide-what-can-be-tested" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: pair an existing output with a valid test: predicted labels vs class labels, boxes vs reference boxes, or depth vs known distances. Public: three pairs; hidden: reorder and include an unmatched candidate. Check: field compatibility and units. Reference: matching predicted and reference quantities. Naive: evaluate a predicted distance against a class label. Hint: compare what the two sides measure. Unlock: none.</li>
+</ul>
+<h3 id="0d3-the-limits-of-one-image">0D3 · The limits of one image<a class="headerlink" href="#0d3-the-limits-of-one-image" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: classify statements about a supplied image as supported, contradicted, or undetermined across a finite set of fully specified candidate scenes. Public: visible red object; one fully occluded object differs across two otherwise identical scenes. Hidden: candidates reordered and different scene. Check: evaluate all candidate scenes: supported = true in all; contradicted = false in all; undetermined = mixed. The finite candidate set is explicitly declared exhaustive for this puzzle only.</li>
+<li>Reference: compare the same claim across all scenes. Naive: choose a single plausible world as certain. Feedback: show a pair of scenes that disagrees. Hint: look for a claim that changes while the picture does not. Unlock: chapter completion. No claim that all real-world alternatives have been enumerated.</li>
+</ul>
+<h1 id="chapter-1-from-scene-to-pixels">Chapter 1 — From Scene to Pixels<a class="headerlink" href="#chapter-1-from-scene-to-pixels" title="Permanent link">&para;</a></h1>
+<p>Machine: a controlled camera and image workbench. Introductory optical levels use local scene primitives, not a player-built physical camera. The image pipeline is built from primitive coordinate sampling and scalar arithmetic only after the learner has seen the data it operates on.</p>
+<p>Topology: <code>1A1–1A4</code> → parallel <code>1B1–1B4</code> (pinhole) and <code>1C1–1C4</code> (arrays) → <code>1D1–1D4</code> (crop and translation) → <code>1E1–1E4</code> (resizing) → <code>1F1–1F3</code> (representation). Optional <code>1X1</code> attaches to <code>1E4</code>. 1B and 1C require only 1A. 1D needs the array branch and the image notion introduced in 1A; the chapter join also requires 1B. Keep lens/defocus <code>1G1–1G3</code> parallel to 1D–1F after 1B4, with chapter completion after both. This preserves independent paths and fits three columns.</p>
+<h2 id="series-1a-observe-a-digital-image">Series 1A — Observe a digital image<a class="headerlink" href="#series-1a-observe-a-digital-image" title="Permanent link">&para;</a></h2>
+<h3 id="1a1-the-sensor-grid">1A1 · The sensor grid<a class="headerlink" href="#1a1-the-sensor-grid" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: inspect a tiny 3×2 grayscale image and reproduce its six numeric entries in the supplied grid. Public rows <code>[0, 0.5, 1]</code>, <code>[1, 0.25, 0]</code>. Hidden: asymmetric values and 2×3 shape.</li>
+<li>Check: dimensions and each entry, tolerance <code>1e-5</code>. Reference: read each labelled cell. Naive: transpose rows and columns. Hint: compare width, height and the top-left corner. Unlock: image grid inspection view; it is not a fabricated built part.</li>
+</ul>
+<h3 id="1a2-select-a-pixel">1A2 · Select a pixel<a class="headerlink" href="#1a2-select-a-pixel" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: select pixel at <code>(x,y)</code> in a displayed image; two tasks switch from coordinate → cell to cell → coordinate. Public: 3×2, coordinate <code>(2,0)</code> means top-right. Hidden: <code>(0,1)</code> and non-square grids.</li>
+<li>Check exact position; output highlights the corresponding coordinate. Reference: x moves right, y down. Naive: swap x and y. Hint: follow the labelled axes. Unlock: none.</li>
+</ul>
+<h3 id="1a3-three-channels">1A3 · Three channels<a class="headerlink" href="#1a3-three-channels" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: read and edit RGB values of one pixel. Public: <code>(1,0,0)</code> is red, set a different pixel to <code>(0,0,1)</code> for blue. Hidden: asymmetric triples and channel swaps; no perceptual requirement beyond the declared RGB display.</li>
+<li>Check exact numeric channel vector, not image colour alone. Reference: edit named channels. Naive: exchange R and B. Hint: inspect the channel labels. Unlock: channel inspection view, requiring colour support.</li>
+</ul>
+<h3 id="1a4-one-image-different-values">1A4 · One image, different values<a class="headerlink" href="#1a4-one-image-different-values" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: identify which of two changed arrays represents a brightness change and which only moves values. Public: <code>[0.2,0.8]</code> versus <code>[0.3,0.9]</code> and <code>[0.8,0.2]</code>. Hidden: asymmetric 2D inputs, no clipping. Check each specified case by values, not inferred physical illumination. Reference: compare locations and values. Naive: say all changes are movement. Hint: compare the value at each coordinate. Unlock: none.</li>
+</ul>
+<h2 id="series-1b-the-pinhole-camera">Series 1B — The pinhole camera<a class="headerlink" href="#series-1b-the-pinhole-camera" title="Permanent link">&para;</a></h2>
+<p>Coordinate convention for all pinhole tests: camera at origin, optical axis +Z, image coordinates x and y right/up in an ideal <em>virtual image plane</em> at distance f; <code>u=fX/Z</code>, <code>v=fY/Z</code>, <code>Z&gt;0</code>. The physical screen behind a pinhole is inverted; do not mix the two conventions in a test. Projection is independent of pixel conversion until 1C. These are ideal geometric scenes, not lens models.</p>
+<h3 id="1b1-through-a-small-opening">1B1 · Through a small opening<a class="headerlink" href="#1b1-through-a-small-opening" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: align a virtual screen marker with the projected point by moving the object in X while f and Z are fixed. Public: f=2, Z=4, X=2 → u=1; hidden: X=-2 → -1 and X=0 → 0. Player sees rays and can experiment; formula is not shown as the answer.</li>
+<li>Check marker position within 0.05 scene units; feedback overlays the ray and marker. Reference: trace the line from point through camera centre to plane. Naive: assume u=X for every depth. Hint: follow the ray through the opening. Unlock: local pinhole scene primitive.</li>
+</ul>
+<h3 id="1b2-move-the-object-away">1B2 · Move the object away<a class="headerlink" href="#1b2-move-the-object-away" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: restore a target image size by moving the object along Z. Public: object height H=2, f=2, target projected height 1 → Z=4. Hidden: H=3, f=2, target 1 → Z=6; restrict Z to positive range.</li>
+<li>Check projected height within 0.05; show actual vs target. Reference: explore distance while holding f and object fixed. Naive: assume projected size is unchanged by distance. Hint: compare the rays for near and far positions. Unlock: none.</li>
+</ul>
+<h3 id="1b3-change-focal-length">1B3 · Change focal length<a class="headerlink" href="#1b3-change-focal-length" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: match a target projected size using f, with H and Z fixed. Public H=2, Z=4, target 2 → f=4; hidden H=3, Z=6, target 1.5 → f=3. Check tolerance 0.05. Reference: explore f at fixed scene and distance. Naive: move the object when only f may change. Hint: watch where the image plane lies. Unlock: none.</li>
+</ul>
+<h3 id="1b4-same-image-different-distances">1B4 · Same image, different distances<a class="headerlink" href="#1b4-same-image-different-distances" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: find two allowed <code>(H,Z)</code> pairs that yield the same projected height at fixed f. Public f=2: <code>(H,Z)=(1,2)</code> and <code>(2,4)</code> both yield 1. Hidden: a different target and finite set of candidate pairs.</li>
+<li>Check projected equality and distinct depths; show both scenes. Reference: choose pairs with equal H/Z. Naive: conclude apparent size alone determines depth. Hint: change size and distance independently. Unlock: none; links back conceptually to 0C2 without requiring it on this branch.</li>
+</ul>
+<h2 id="series-1c-arrays-coordinates-and-channels">Series 1C — Arrays, coordinates and channels<a class="headerlink" href="#series-1c-arrays-coordinates-and-channels" title="Permanent link">&para;</a></h2>
+<h3 id="1c1-row-and-column">1C1 · Row and column<a class="headerlink" href="#1c1-row-and-column" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: reproduce a 3×2 array in an image grid and answer two coordinate queries. Public <code>[[1,2,3],[4,5,6]]</code>; <code>(2,0)=3</code>, <code>(0,1)=4</code>. Hidden: different shape and asymmetric entries.</li>
+<li>Check grid dimensions and query values. Reference: array row is y, column is x. Naive: use <code>I[x,y]</code>. Hint: compare labels on the grid and array. Unlock: none.</li>
+</ul>
+<h3 id="1c2-read-any-pixel">1C2 · Read any pixel<a class="headerlink" href="#1c2-read-any-pixel" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: build a sampler with inputs <code>image,x,y</code> and scalar output <code>value</code>; coordinates are in-bounds integers. The only new primitive is local integer lookup. Public input <code>[[1,2,3],[4,5,6]]</code>, <code>(2,1)</code> → 6. Hidden: non-square images, all corners, arbitrary values.</li>
+<li>Check all cases, including output scalar shape. Reference: connect image and coordinates to lookup. Since using a lookup is itself a first encounter with a typed coordinate port, this is an interaction showcase, not a substantive algorithmic builder; <strong>do not unlock the lookup as a player-built part</strong>. Primitive becomes available for later genuine construction. Hint: inspect the source coordinate. Unlock: integer lookup primitive.</li>
+</ul>
+<h3 id="1c3-separate-colour-channels">1C3 · Separate colour channels<a class="headerlink" href="#1c3-separate-colour-channels" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: given a colour image, construct an RGB channel inspector returning the selected channel as a scalar image. Inputs <code>image,channel</code>; output <code>plane</code>. Public: 1×2 pixels <code>[(1,0,0),(0,0,1)]</code>, blue plane <code>[0,1]</code>. Hidden: green, red and asymmetric values.</li>
+<li>New primitive: channel selection; if it is itself merely selected and wired, treat as a local demonstration rather than a built part. Reference: use channel selection. Check shape and values. Naive: assume all channels equal. Hint: compare the labelled channels. Unlock: channel selection primitive, no built part.</li>
+</ul>
+<h3 id="1c4-reassemble-colour">1C4 · Reassemble colour<a class="headerlink" href="#1c4-reassemble-colour" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: build <code>composeRGB(R,G,B) → image</code> from the primitive channel assembly operation, then use it in a second task on a multi-pixel image. Public R=<code>[1,0]</code>, G=<code>[0,0.5]</code>, B=<code>[0,1]</code> → pixels <code>[(1,0,0),(0,0.5,1)]</code>. Hidden: asymmetric planes and distinct dimensions; unequal dimensions are invalid and must produce a visible error.</li>
+<li>Reference: connect each named plane to the matching input. This is a single primitive call and <strong>must not be represented as a player-built abstraction</strong>; unlock the assembly primitive after successful interaction, then use it with channel selection in a genuine reorder task. Naive: swap red and blue. Hint: inspect each channel independently. Unlock: channel assembly primitive.</li>
+</ul>
+<h2 id="series-1d-crop-and-translate">Series 1D — Crop and translate<a class="headerlink" href="#series-1d-crop-and-translate" title="Permanent link">&para;</a></h2>
+<p>Coordinate-sampling primitive: for each output coordinate, a mapping provides a source coordinate; integer lookup reads the source. Output size is specified by the task, not guessed from the input. Outside-image policy for this series is explicitly zero unless a task says otherwise.</p>
+<h3 id="1d1-a-window-into-an-image">1D1 · A window into an image<a class="headerlink" href="#1d1-a-window-into-an-image" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: construct <code>crop(image,x0,y0,w,h) → image</code>, with valid integer rectangle inputs. Public <code>[[1,2,3],[4,5,6],[7,8,9]]</code>, rectangle <code>(1,0,2,2)</code> → <code>[[2,3],[5,6]]</code>. Hidden: non-square source, edge-aligned rectangle, 1×1 crop, varying origins and sizes.</li>
+<li>Adds: coordinate-grid and integer arithmetic primitives, with lookup from 1C2. Reference: map each output coordinate to an offset source coordinate and sample. Naive: resize full source instead of selecting a rectangle. Hint: compare output's top-left with source position. Build: crop part with all five declared input ports; board must read each. Use later in 1D2 and later image workflows.</li>
+</ul>
+<h3 id="1d2-cropping-keeps-the-samples">1D2 · Cropping keeps the samples<a class="headerlink" href="#1d2-cropping-keeps-the-samples" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: use the crop part to extract a requested rectangle, then extract a different-sized rectangle from a second image. Public: above image, <code>(0,1,3,2)</code> → <code>[[4,5,6],[7,8,9]]</code>. Hidden: dynamic rectangle and asymmetric pixels.</li>
+<li>Check exact dimensions and values; reference uses crop. Naive: stretch the full image to target dimensions. Hint: compare which original samples remain. Unlock: none.</li>
+</ul>
+<h3 id="1d3-move-the-picture">1D3 · Move the picture<a class="headerlink" href="#1d3-move-the-picture" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: build <code>translate(image,dx,dy) → image</code>, retaining input dimensions and filling uncovered pixels with zero. Public input <code>[[1,2,3],[4,5,6]]</code>, <code>(dx,dy)=(1,0)</code> → <code>[[0,1,2],[0,4,5]]</code>. Hidden: negative x, vertical shifts, zero shift and values crossing all borders.</li>
+<li>Adds: in-bounds test and conditional selection primitives if not derivable from existing scalar primitives. Reference: map each output location back to the corresponding source location; use zero outside. Naive: source mapping in the same direction as visible content motion. Hint: for an output cell, ask where its value came from. Build: translate part with dynamic dx/dy; later used in 1D4 and subsequent filtering.</li>
+</ul>
+<h3 id="1d4-crop-a-moving-target">1D4 · Crop a moving target<a class="headerlink" href="#1d4-crop-a-moving-target" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: use translate and crop on the same input to produce a specified moved and extracted region. Public: input <code>[[1,2,3],[4,5,6]]</code>, translate <code>(1,0)</code>, then crop <code>(1,0,2,2)</code> → <code>[[1,2],[4,5]]</code>. Hidden: alternate shift, crop position and source image; both operations are task inputs.</li>
+<li>Reference: use previously built parts in the required order. Naive: crop first without adjusting coordinates. Check image and size. Hint: inspect the intermediate image. Unlock: none.</li>
+</ul>
+<h2 id="series-1e-resampling">Series 1E — Resampling<a class="headerlink" href="#series-1e-resampling" title="Permanent link">&para;</a></h2>
+<p>Resizing convention: source and destination pixel centres align at their endpoints. For destination size n&gt;1, source coordinate <code>s=i*(m-1)/(n-1)</code>; for n=1 use the source centre <code>(m-1)/2</code>. Nearest-neighbour ties round towards the larger index. Bilinear interpolation clamps at the source boundary. Images have positive integer sizes. This convention is explicit because libraries differ.</p>
+<h3 id="1e1-where-should-the-new-samples-go">1E1 · Where should the new samples go?<a class="headerlink" href="#1e1-where-should-the-new-samples-go" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: place sample coordinates for a 1D row before choosing their values. Public: 3 source samples at x=0,1,2 resized to 5 positions → <code>0,0.5,1,1.5,2</code>. Hidden: 2→3, 4→1 (centre 1.5), and identity. Check coordinates within <code>1e-5</code>. Reference: distribute output centres using the declared endpoint convention. Naive: use output indices directly. Hint: compare the first and last sample positions. Unlock: no part.</li>
+</ul>
+<h3 id="1e2-nearest-neighbour">1E2 · Nearest neighbour<a class="headerlink" href="#1e2-nearest-neighbour" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: build <code>resizeNearest(image,w,h) → image</code> from output grid, source-coordinate mapping, rounding and lookup. Public: row <code>[0,1]</code> to width 3 → <code>[0,1,1]</code> under the stated tie rule. Hidden: 2D asymmetric input, width or height 1, identity, enlargement and reduction.</li>
+<li>Check dimensions and exact source values. Reference: compute mapped coordinate, choose nearest source pixel, sample. Naive: always take floor; <code>[0,1]</code>→3 exposes the tie. Hint: compare distances from each output position to source centres. Build: nearest-neighbour resize with dynamic dimensions; use in 1E4.</li>
+</ul>
+<h3 id="1e3-between-pixels">1E3 · Between pixels<a class="headerlink" href="#1e3-between-pixels" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: build <code>resizeLinear(image,w,h) → image</code> with bilinear interpolation, starting with a 1D task and continuing to 2D. Public 1D <code>[0,1]</code>→3 = <code>[0,0.5,1]</code>; public 2D <code>[[0,1],[1,0]]</code>→3×3 has centre 0.5. Hidden: asymmetric values, non-square input, boundaries and output size 1.</li>
+<li>Adds: floor, fractional part and bounded source read if not already present. Reference: interpolate neighbouring source values in x and y; full arithmetic is author-only. Naive: nearest neighbour, exposed at the 1D middle. Hint: compare the new position's distance to its neighbours. Build: bilinear resize with dimensions as inputs; use in 1E4 and later segmentation work.</li>
+</ul>
+<h3 id="1e4-compare-two-enlargements">1E4 · Compare two enlargements<a class="headerlink" href="#1e4-compare-two-enlargements" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: produce both nearest and bilinear outputs for a supplied image, then identify which supplied profile matches each result. Public <code>[0,1]</code>→5: nearest <code>[0,0,1,1,1]</code>; linear <code>[0,0.25,0.5,0.75,1]</code>. Hidden: reversed edge and 2D asymmetry.</li>
+<li>Check both numerical images and profile assignment. Reference uses both player-built parts; no assertion that one universally recovers lost detail. Naive: use one method for both. Hint: examine newly placed samples. Unlock: none. Later anti-aliasing is outside this chapter; reductions here show samples without implying aliasing has been solved.</li>
+</ul>
+<h2 id="series-1f-numeric-representations">Series 1F — Numeric representations<a class="headerlink" href="#series-1f-numeric-representations" title="Permanent link">&para;</a></h2>
+<h3 id="1f1-values-and-display-range">1F1 · Values and display range<a class="headerlink" href="#1f1-values-and-display-range" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: compare a numerical image with its displayed version. Display clips only for display to [0,1], while stored float values remain unchanged. Public stored <code>[-0.2,0.5,1.2]</code> → displayed <code>[0,0.5,1]</code>; hidden distinct out-of-range values. Check both numeric and displayed answers. Reference: distinguish representation from display mapping. Naive: assume display clipping overwrites data. Hint: inspect the numeric readout. Unlock: numeric/display comparison.</li>
+</ul>
+<h3 id="1f2-quantisation">1F2 · Quantisation<a class="headerlink" href="#1f2-quantisation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: build a uniform scalar quantiser on [0,1] for a declared number of representable levels <code>L≥2</code>: <code>round((L-1)*clamp(v,0,1))/(L-1)</code>, ties towards the larger level. Public L=3, inputs <code>[0,0.2,0.7,1]</code> → <code>[0,0,0.5,1]</code>. Hidden: thresholds, ties and L=2 or 5.</li>
+<li>Adds: clamp and rounding primitives if absent. Reference: normalise to integer levels, round and scale back. Naive: truncate instead of nearest; hidden tie and near-boundary cases catch it. Build: quantiser with dynamic L; use in 1F3. This is a simplified uniform quantiser, not a claim about every image format.</li>
+</ul>
+<h3 id="1f3-preserve-or-discard-information">1F3 · Preserve or discard information<a class="headerlink" href="#1f3-preserve-or-discard-information" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: use the player's quantiser to produce a requested three-level image and choose whether the original float values can be uniquely recovered from it. Public 0.2 and 0.1 both map to 0 at L=3. Hidden: values on either side of a threshold and different L.</li>
+<li>Check resulting values and non-uniqueness answer; show two valid inputs mapping to the same quantised value. Reference uses quantiser. Naive: equate number of stored levels with original precision. Hint: try two input values close together. Unlock: none.</li>
+</ul>
+<h2 id="series-1g-lenses-and-focus">Series 1G — Lenses and focus<a class="headerlink" href="#series-1g-lenses-and-focus" title="Permanent link">&para;</a></h2>
+<p>The visual model must label itself a simplified thin-lens or bounded teaching model. Parameters, units and validity domain are fixed in each task; physical image inversion and finite aperture must not be hidden behind a pinhole model. Do not require quantitative lens-defocus formulas until the actual scene model is specified and validated.</p>
+<h3 id="1g1-collecting-light">1G1 · Collecting light<a class="headerlink" href="#1g1-collecting-light" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: vary aperture in a controlled lens scene and choose which of two exposures receives more light while other factors are fixed. Public and hidden: different aperture sizes with fixed exposure and illumination. Check monotonic ordering only within the model's declared range; no demand for a universal brightness equation. Reference: experiment with aperture alone. Naive: assume the lens position changed. Hint: inspect the opening. Unlock: local lens scene primitive.</li>
+</ul>
+<h3 id="1g2-focus-at-different-depths">1G2 · Focus at different depths<a class="headerlink" href="#1g2-focus-at-different-depths" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: focus separately on a near and a far object using a focus control. Public: two marked objects at different depths; hidden: changed distances and object order. Check by an engine-provided, independently computed sharpness target with a declared tolerance and non-overlapping acceptable ranges. Reference: alter focus and compare both objects. Naive: assume all depths can be simultaneously sharp at every aperture. Hint: inspect the two targets as focus changes. Unlock: none.</li>
+</ul>
+<h3 id="1g3-aperture-and-depth-of-field">1G3 · Aperture and depth of field<a class="headerlink" href="#1g3-aperture-and-depth-of-field" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Goal: compare depth ranges judged acceptably sharp at two apertures under explicitly held exposure and focus, with an exposure compensation control fixed by the scene. Public: smaller and larger aperture; hidden: different near/far markers. Check only the declared model's focus range; feedback shows sharpness curves and threshold. Reference: compare depth ranges rather than raw brightness. Naive: change focus as well as aperture and attribute the result to aperture. Hint: hold the other settings fixed. Unlock: none.</li>
+</ul>
+<h2 id="optional-challenge">Optional challenge<a class="headerlink" href="#optional-challenge" title="Permanent link">&para;</a></h2>
+<h3 id="1x1-resize-a-crop">1X1 · Resize a crop<a class="headerlink" href="#1x1-resize-a-crop" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Anchor: 1E4. Goal: crop a supplied region and resize it to the requested dimensions using the specified interpolation. Public 2×2 crop enlarged to 3×3; hidden: non-square crop and dimensions. Reference uses the player's crop and requested resize parts. Naive: resize the entire image and then take the same numeric crop. Check dimensions and all numeric pixels; show the first differing cell. No new primitive or required unlock.</li>
+</ul>
+<h2 id="cross-chapter-use-and-acceptance">Cross-chapter use and acceptance<a class="headerlink" href="#cross-chapter-use-and-acceptance" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>crop</code> → 1D2, 1D4, 1X1; <code>translate</code> → 1D4 and spatial-filter chapter; nearest and linear resizing → 1E4 and later pipelines; quantiser → 1F3. No built part is left without a specified later use.</li>
+<li>The exact graph of component capabilities, typed ports and allowed operations remains a design requirement: run a dependency and minimal-primitives review before authoring executable content. A primitive may only be introduced at a real need; combining existing parts must produce a built part rather than a new shortcut.</li>
+<li>Acceptance before release: all reference interactions/boards pass public and hidden cases; negative examples fail; new built parts run saved boards; prerequisite graph and glossary references validate; inspect desktop and phone; run course checks and blind play. None of these checks has been executed for this proposal.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../../../../javascripts/site.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
