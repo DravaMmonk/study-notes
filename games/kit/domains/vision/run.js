@@ -33,9 +33,11 @@ function noValue(circuit, errors, id) {
     upstream.push(n)
     stack.push(...into(n))
   }
-  const stopped = upstream.findLast((n) => errors.has(n) && errors.get(n) !== MISSING)
+  // Farthest upstream first (no findLast: older iOS Safari lacks it).
+  const back = [...upstream].reverse()
+  const stopped = back.find((n) => errors.has(n) && errors.get(n) !== MISSING)
   if (stopped) return T(`没有值：「${stopped}」停下了（${errors.get(stopped).zh}）`, `has no value: “${stopped}” stopped (${errors.get(stopped).en})`)
-  const lacking = upstream.findLast((n) => errors.get(n) === MISSING) ?? upstream[0]
+  const lacking = back.find((n) => errors.get(n) === MISSING) ?? upstream[0]
   return T(`没有值：「${lacking}」缺少输入`, `has no value: “${lacking}” lacks an input`)
 }
 

@@ -22,6 +22,9 @@ import { judgeOf, optionsOf, verdictOf } from './judges.js'
 import { revealing, sameImage } from './scene.js'
 import { benchOf } from './benches/index.js'
 
+/** A list's last item (no Array.prototype.at: older iOS Safari lacks it). */
+const lastOf = (list) => list[list.length - 1]
+
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
 
@@ -129,7 +132,7 @@ export function visionCourse(content) {
     const read = tasks.map((task) => readTask(id, task, tasks.length > 1 ? `${id} task ${task.taskId}` : id))
     played.set(id, read)
     // The part a level builds runs its last task's board: the player's, while it fits, else the reference.
-    const last = read.at(-1)
+    const last = read[read.length - 1]
     if (level.builds && last.kind !== 'circuit') say(id, 'it builds a part, and its last task is no circuit')
     else if (level.builds) {
       const fitting = new WeakMap()
@@ -172,7 +175,7 @@ export function visionCourse(content) {
     LEVELS,
     played,
     // The task whose board a built part runs: the last of the level that builds it.
-    builtBy: (type) => (builderOf.has(type) ? played.get(builderOf.get(type).id).at(-1) : null),
+    builtBy: (type) => (builderOf.has(type) ? lastOf(played.get(builderOf.get(type).id)) : null),
     CHAPTERS,
     course,
     partOf,
@@ -184,7 +187,7 @@ export function visionCourse(content) {
       OWN.clear()
       // The shell keeps boards by task (../../shell/progress.js): a level's part runs its last task's.
       for (const L of LEVELS) {
-        const board = built[played.get(L.id).at(-1).taskId]
+        const board = built[lastOf(played.get(L.id)).taskId]
         if (board?.nodes) OWN.set(L.id, board)
       }
     },

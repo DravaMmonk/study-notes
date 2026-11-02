@@ -9,8 +9,9 @@
 //            judge reads stays hidden); the answer is one line a round, the items' picks separated by `;` and several
 //            options of one item by `,`; a claim answered wrong that two candidate scenes split shows the two described
 //            from a view that tells them apart, as the screen does
-//   bench    the model, the knobs, each step's goal and the readings at the start; an attempt is settings tried in turn,
-//            each answered with the model's readings, as the bench's pictures and goal rows show them. A bench with
+//   bench    what the bench's pictures draw (their descriptions, never the model's own, which may state the relation the
+//            bench is for), the knobs, each step's goal and the readings at the start; an attempt is settings tried in
+//            turn, each answered with what the screen reads out: the knobs and the goal's quantities. A bench with
 //            cases, buttons or picks on a picture is not covered: skipped, said so
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { display, fmt, fromRows, pixel, show } from './image.js'
@@ -19,7 +20,8 @@ import { runLevel } from './run.js'
 import { askOf, gridCheck } from './grid.js'
 import { judgeOf } from './judges.js'
 import { COLOURS, describe } from './scene.js'
-import { BENCH_MODELS } from './benches/index.js'
+import { DISPLAYS } from './benches/index.js'
+import { callOf } from '../../engine/schema.js'
 import { goalOf, judge, knobKind, knobStart, knobValues, needText, openKnobs, rowValue, startValues } from '../../engine/bench.js'
 
 const T = (zh, en) => ({ zh, en })
@@ -167,8 +169,23 @@ const knobText = (name, knob, lang) => {
   return `${name}${label}: ${range}${knob.unit ?? ''}; ${lang === 'en' ? 'starts at' : '起始'} ${JSON.stringify(knobStart(knob))}${knob.fixed ? (lang === 'en' ? ' (fixed)' : '（不能动）') : ''}`
 }
 
-/** The model's numbers at a setting, as the bench's pictures and readouts show them. */
-const readings = (quantities) => Object.entries(quantities).filter(([, v]) => typeof v === 'number').map(([k, v]) => `${k} = ${fmt(v)}`).join(', ')
+/** What the screen reads out at a setting: the knobs' values and the goal's quantities, as its goal rows show them. */
+const readings = (bench, stage, q) => [...new Set([...Object.keys(bench.knobs ?? {}), ...goalOf(bench, stage).map((l) => l.of)])]
+  .map((k) => `${k} = ${typeof q[k] === 'number' ? fmt(q[k]) : JSON.stringify(q[k] ?? null)}`).join(', ')
+
+/** The domain's pictures a bench's layout puts on screen, by what each draws. */
+function picturesIn(layout) {
+  const names = []
+  const walk = (b) => {
+    if (Array.isArray(b)) return b.forEach(walk)
+    if (b && typeof b === 'object' && ['panel', 'stack', 'row'].some((k) => k in b)) return walk(b.panel ?? b.stack ?? b.row)
+    const [name, params] = callOf(b)
+    if (DISPLAYS[name] && !names.includes(name)) names.push(name)
+    if (params?.with) walk(params.with)
+  }
+  for (const part of ['head', 'main', 'side', 'foot']) walk(layout[part] ?? [])
+  return names.map((n) => DISPLAYS[n].about)
+}
 
 /** A setting typed as `name = value, …`, over the stage's start; what is wrong with it, or the values. */
 function settingOf(bench, stage, line) {
@@ -194,14 +211,14 @@ const bench = {
     const stages = b.stages ?? [null]
     return {
       sections: [
-        { title: T('实验台', 'The bench'), text: both((lang) => pick(BENCH_MODELS[b.model].about, lang)) },
+        { title: T('台上画的', 'What the bench draws'), text: both((lang) => picturesIn(b.layout).map((a) => `- ${pick(a, lang)}`).join('\n')) },
         { title: T('旋钮', 'Knobs'), text: both((lang) => Object.entries(b.knobs ?? {}).map(([n, k]) => knobText(n, k, lang)).join('\n')) },
         ...stages.map((stage, k) => ({
           title: stage ? T(`第 ${k + 1} 步：${pick(stage.title, 'zh')}`, `Step ${k + 1}: ${pick(stage.title, 'en')}`) : T('目标', 'The goal'),
           text: both((lang) => [
             ...(stage ? [pick(stage.note, lang), `${lang === 'en' ? 'Knobs open' : '能动的旋钮'}: ${openKnobs(b, stage).join(', ')}`] : []),
             ...goalOf(b, stage).map((l) => `${pick(l.label, lang) || l.of} (${l.of}) ${needText(l) || [l.is !== undefined && `= ${JSON.stringify(l.is)}`, l.not !== undefined && `≠ ${JSON.stringify(l.not)}`].filter(Boolean).join(' ')}`),
-            `${lang === 'en' ? 'Now' : '此刻'}: ${readings({ ...startValues(b, stage), ...model.view(startValues(b, stage)) })}`,
+            `${lang === 'en' ? 'Now' : '此刻'}: ${readings(b, stage, { ...startValues(b, stage), ...model.view(startValues(b, stage)) })}`,
           ].join('\n')),
         })),
       ],
@@ -225,7 +242,7 @@ const bench = {
       }
       const q = { ...values, ...model.view(values) }
       const verdict = judge(goalOf(b, stages[at]), q)
-      says.push(both((lang) => `${line.trim()} → ${readings(q)}; ${verdict.pass ? (lang === 'en' ? 'goal met' : '达到目标') : `${lang === 'en' ? 'not yet' : '还没达到'}: ${verdict.rows.filter((r) => !r.pass).map((r) => `${r.limit.of} = ${rowValue(r.limit, r.value)}`).join(', ')}`}`))
+      says.push(both((lang) => `${line.trim()} → ${readings(b, stages[at], q)}; ${verdict.pass ? (lang === 'en' ? 'goal met' : '达到目标') : `${lang === 'en' ? 'not yet' : '还没达到'}: ${verdict.rows.filter((r) => !r.pass).map((r) => `${r.limit.of} = ${rowValue(r.limit, r.value)}`).join(', ')}`}`))
       tests[at].pass = verdict.pass
       if (verdict.pass) at += 1
     }
