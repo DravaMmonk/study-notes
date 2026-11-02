@@ -4,7 +4,6 @@
 // offset X and depth Z > 0 projects to u = f·X / Z; an upright object of height H at depth Z projects to h = f·H / Z.
 // Projection says nothing about pixels yet.
 import { S } from '../../../engine/schema.js'
-import { lessonHolds } from './lesson.js'
 
 const t = (zh, en) => ({ zh, en })
 
@@ -26,6 +25,6 @@ export const pinhole = {
   },
   verify(model, bench) {
     if (['Z', 'f'].some((n) => bench.knobs?.[n] && !(bench.knobs[n].min > 0))) return 'the Z and f knobs must stay positive'
-    return lessonHolds(bench, model.view)
+    return ''
   },
 }

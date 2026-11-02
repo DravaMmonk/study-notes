@@ -5,7 +5,8 @@
 //            fails; a part a level builds, placed alone on that task's board and wired to its ports, passes
 //   grid     the answer the ask works out passes; the answer the player starts from does not
 //   choice   in every round the judge's own answer passes and an empty answer fails
-//   bench    the model's verify: the lesson holds on these data (the start fails, some setting passes)
+//   bench    the model's data fit it (its verify), and the lesson holds (benches/lesson.js): each step's start fails and
+//            some setting passes, every naive setting fails, every setting that passes meets `holds`
 import { keyOf } from '../../shell/i18n.js'
 import { usable } from '../../course.js'
 import { fromText, startBoard } from './board.js'
@@ -13,6 +14,7 @@ import { FIXED } from './parts.js'
 import { runLevel } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { judgeOf } from './judges.js'
+import { lessonProblems } from './benches/lesson.js'
 
 /** A task with its hidden tests after the others. */
 const all = (task) => ({ ...task, tests: [...task.tests, ...task.hidden] })
@@ -63,8 +65,9 @@ function choiceSaid(task) {
 }
 
 function benchSaid(task) {
-  const why = task.made ? task.made.verify() : 'its bench does not read'
-  return { problems: why ? [why] : [], ok: `bench ${task.bench.model} PASS` }
+  if (!task.made) return { problems: ['its bench does not read'] }
+  const why = task.made.verify()
+  return { problems: why ? [why] : lessonProblems(task, task.made.model.view), ok: `bench ${task.bench.model} PASS (${task.naive.length} naive failing${task.holds ? ', holds on every pass' : ''})` }
 }
 
 /** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it; a level of

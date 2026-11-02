@@ -18,8 +18,8 @@ import { PARTS } from './parts.js'
 import { readTest } from './run.js'
 import { fromRows } from './image.js'
 import { askOf } from './grid.js'
-import { judgeOf, optionsOf } from './judges.js'
-import { sameImage } from './scene.js'
+import { judgeOf, optionsOf, verdictOf } from './judges.js'
+import { revealing, sameImage } from './scene.js'
 import { benchOf } from './benches/index.js'
 
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
@@ -86,10 +86,20 @@ export function visionCourse(content) {
         name === 'claims' && round.items.some((it) => !it.claim) && 'every item of a claims round is a claim',
         name === 'same' && (!round.reference || options.some((o) => !o.scene)) && 'the same judge needs a reference scene and a scene on every option',
         name === 'fields' && round.items.some((it) => !it.needs) && 'every item of a fields round says what it needs',
-        round.sameImage && round.scenes?.slice(1).some((sc) => !sameImage(round.scenes[0], sc)) && 'its candidate scenes are said to give the same picture, and do not',
+        round.scenes?.slice(1).some((sc) => !sameImage(round.scenes[0], sc)) && 'its candidate scenes do not all give the same picture',
       ].filter(Boolean)
+      // A claim true in one candidate scene and false in another is shown, when answered wrong, from a view that tells
+      // the two apart: one there must be.
+      const reveals = name === 'claims' && !problems.length ? round.items.map((it, k) => {
+        const { verdict, truths } = verdictOf(it.claim, round.scenes)
+        if (verdict !== 'undetermined') return null
+        const scenes = [truths.indexOf(true), truths.indexOf(false)]
+        const camera = revealing(round.scenes[scenes[0]], round.scenes[scenes[1]])
+        if (!camera) problems.push(`item ${k + 1}: scenes ${scenes[0] + 1} and ${scenes[1] + 1} look alike from every view, so the player cannot be shown why it is undetermined`)
+        return camera && { scenes, camera }
+      }) : null
       for (const p of problems) say(at, p)
-      const read = { ...round, options }
+      const read = { ...round, options, ...(reveals ? { reveals } : {}) }
       if (!problems.length && !judge.multi && judge.reference(read, params).some((picks) => picks.length > 1)) say(at, `the ${name} judge takes one option an item, and an item has several right ones`)
       return read
     })

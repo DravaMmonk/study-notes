@@ -8,7 +8,7 @@
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
-import { benchSchema, displayItems } from '../../engine/bench.js'
+import { LIMIT, benchSchema, displayItems } from '../../engine/bench.js'
 import { PRIMITIVES } from './parts.js'
 import { ASK_ITEMS } from './grid.js'
 import { CLAIMS, JUDGES } from './judges.js'
@@ -112,8 +112,7 @@ const ROUND = S.obj({
   image: S.opt(IMAGE),
   items: S.list(ITEM, { min: 1 }),
   options: S.opt(S.list(OPTION, { min: 1 })),
-  scenes: S.opt(S.list(SCENE, { min: 1, about: t('这一轮的候选场景（claims 在它们上面算）', 'the round’s candidate scenes (claims are judged on them)') })),
-  sameImage: S.opt(S.bool({ about: t('候选场景渲出来必须是同一张图（npm run check 查）', 'the candidate scenes must render the same picture (npm run check checks)') })),
+  scenes: S.opt(S.list(SCENE, { min: 1, about: t('这一轮的候选场景（claims 在它们上面算）：都得渲出同一张图（npm run check 查）', 'the round’s candidate scenes (claims are judged on them): they must all render one picture (npm run check checks)') })),
   reference: S.opt(SCENE),
   explore: S.opt(S.obj({ scene: SCENE, knobs: S.list(S.oneOf(['yaw', 'pitch', 'azimuth', 'elevation']), { min: 1 }) }, { about: t('玩家能自己转视角、调光的场景', 'a scene the player turns and relights') })),
 })
@@ -158,7 +157,12 @@ const TASK = S.by('kind', {
     judge: S.call('judge'),
     rounds: S.list(ROUND, { min: 1, section: 'tests', about: t('一轮一轮答：第一轮公开，后面的换了数据，答对一轮才出下一轮', 'answered round by round: the first shown, the later ones with changed data, each after the one before is right') }),
   }),
-  bench: S.obj({ kind: S.oneOf(['bench']), ...COMMON, bench: benchSchema(BENCH_MODELS) }),
+  bench: S.obj({
+    kind: S.oneOf(['bench']), ...COMMON,
+    bench: benchSchema(BENCH_MODELS),
+    naive: S.list(S.obj({ set: S.map(S.any()), step: S.opt(S.int({ min: 1 })), why: S.text() }), { min: 1, section: 'tests', about: t('玩家容易试的错误设置（step：第几步，默认 1），每个都必须达不到目标（npm run check 查）', 'settings a player is likely to try that are wrong (step: which step, 1 by default), each of which must miss the goal (npm run check checks)') }),
+    holds: S.opt(S.list(LIMIT, { section: 'tests', about: t('这一课要教的关系：每个达到目标的设置也都得满足它（npm run check 把旋钮的每个取值都试一遍）', 'the relation the bench teaches: every setting that meets the goal must meet these too (npm run check tries every value of the knobs)') })),
+  }),
 })
 
 /* ---------- game.json ---------- */

@@ -5,7 +5,6 @@
 // scene held fixed). The depth range judged sharp runs from `near` to `far` (far may be infinite). Valid for depths
 // beyond F; the image inversion of a real lens is drawn, not hidden.
 import { S } from '../../../engine/schema.js'
-import { lessonHolds } from './lesson.js'
 
 const t = (zh, en) => ({ zh, en })
 
@@ -50,6 +49,6 @@ export const lens = {
     if (objects.some((o) => o.z <= F)) return 'every object must stand beyond the focal length'
     const focus = bench.knobs?.focus
     if (focus && (focus.min ?? F + 1) <= F) return 'the focus knob must stay beyond the focal length'
-    return lessonHolds(bench, model.view)
+    return ''
   },
 }

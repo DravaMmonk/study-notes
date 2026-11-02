@@ -103,7 +103,7 @@ export const JUDGES = {
         const n = nth(k)
         if (verdict === 'undetermined') {
           const [a, b] = [truths.indexOf(true), truths.indexOf(false)]
-          return [{ item: k, why: t(`${n.zh}：在场景 ${a + 1} 里成立，在场景 ${b + 1} 里不成立，而两者都和这张图相容`, `${n.en}: it holds in scene ${a + 1} and fails in scene ${b + 1}, both compatible with the picture`) }]
+          return [{ item: k, why: t(`${n.zh}：在场景 ${a + 1} 里成立，在场景 ${b + 1} 里不成立，而从这个角度拍，两者给出的都是这张图`, `${n.en}: it holds in scene ${a + 1} and fails in scene ${b + 1}, and from this view both give this very picture`) }]
         }
         return [{ item: k, why: verdict === 'supported' ? t(`${n.zh}：每个相容的场景里它都成立`, `${n.en}: it holds in every compatible scene`) : t(`${n.zh}：每个相容的场景里它都不成立`, `${n.en}: it fails in every compatible scene`) }]
       })

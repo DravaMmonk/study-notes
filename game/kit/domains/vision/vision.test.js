@@ -11,9 +11,11 @@ import { readTest, runLevel } from './run.js'
 import { differs, fromRows, toRows } from './image.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { JUDGES, verdictOf } from './judges.js'
-import { factsOf, render, sameImage } from './scene.js'
+import { describe, factsOf, render, revealing, sameImage } from './scene.js'
+import { play } from './play.js'
 import { project } from './benches/pinhole.js'
 import { lensView } from './benches/lens.js'
+import { lessonProblems } from './benches/lesson.js'
 import domain from './domain.js'
 
 const partOf = (type) => PARTS[type]
@@ -54,6 +56,15 @@ test('lookup reads at whole coordinates, by number or by coordinate image, outsi
   assert.equal(PARTS.lookup.eval({ image: img, x: 9, y: 1 }, { params: { outside: 'clamp' } }), 6)
 })
 
+test('an output with no value fails even where 「—」 is expected: a card that stopped, an input lacking, no wire', () => {
+  const cases = [[{ a: 1 }, null]]
+  assert.match(passes(['z = const[value=0]()', 'd = div(a, z)', 'e = add(d, a)', 'out <- e'], ['a'], cases)[0], /“d” stopped \(divided by 0\)/)
+  assert.match(passes(['e = add(a, _)', 'out <- e'], ['a'], cases)[0], /“e” lacks an input/)
+  assert.match(passes([], ['a'], cases)[0], /is not wired/)
+  // 「—」 given is 「—」 passed on: a value, and it passes where 「—」 is expected.
+  assert.deepEqual(passes(['e = add(a, a)', 'out <- e'], ['a'], [[{ a: null }, null]]), [null])
+})
+
 test('channels: one plane out of a colour image, three planes into one, unequal planes refused', () => {
   // 1C3: [(1,0,0),(0,0,1)], the blue plane [0, 1].
   allPass(['c = const[value=2]()', 'p = channel(image, c)', 'out <- p'], ['image'], [[{ image: [[[1, 0, 0], [0, 0, 1]]] }, [[0, 1]]]])
@@ -91,7 +102,7 @@ test('crop, built from grid, add and lookup (1D1, 1D2)', () => {
     [{ image: [[1, 2, 3, 4], [5, 6, 7, 8]], x0: 0, y0: 0, w: 4, h: 2 }, [[1, 2, 3, 4], [5, 6, 7, 8]]],
   ])
   // A rectangle reaching past the image stops, said why.
-  assert.match(passes(CROP, ['image', 'x0', 'y0', 'w', 'h'], [[{ image: nine, x0: 2, y0: 0, w: 2, h: 1 }, [[3, 0]]]])[0], /should be/)
+  assert.match(passes(CROP, ['image', 'x0', 'y0', 'w', 'h'], [[{ image: nine, x0: 2, y0: 0, w: 2, h: 1 }, [[3, 0]]]])[0], /“r” stopped \(\(3, 0\) is outside the 3 × 3 image\)/)
 })
 
 test('translate, keeping the size and filling with zero (1D3), then crop after it (1D4)', () => {
@@ -196,6 +207,54 @@ test('claims over candidate scenes: supported, contradicted, undetermined (0B3, 
   assert.deepEqual(JUDGES.claims.check(round, JUDGES.claims.reference(round, {}), {}), [])
 })
 
+// The starter game with its choice task made a claims round on these scenes (and `more` over the round).
+const claimsGame = (scenes, more = {}) => {
+  const content = readContent('starter', import.meta.dirname)
+  const levels = content.levels.map((l) => (l.id !== '1-2' ? l : { ...l, tasks: [{ ...l.tasks[0], judge: 'claims', rounds: [{ scenes, items: [{ prompt: 'red', claim: { colour: { object: 'cube', is: 'red' } } }, { prompt: 'blue', claim: { colour: { object: 'ball', is: 'blue' } } }], ...more }] }] }))
+  return domain.spec({ ...content, levels }).vision
+}
+
+test('a claims round: its scenes give one picture, a claim they split is shown from a view that tells them apart', () => {
+  const [blue, green] = [SCENE('blue'), SCENE('green')]
+  const camera = revealing(blue, green)
+  assert.ok(camera && !sameImage({ ...blue, camera }, { ...green, camera }))
+  assert.equal(revealing(blue, blue), null)
+  const vision = claimsGame([blue, green])
+  assert.deepEqual(vision.wrong, [])
+  assert.deepEqual(vision.played.get('1-2')[0].rounds[0].reveals, [null, { scenes: [0, 1], camera }])
+  // Scenes that do not give one picture are refused, flag or none.
+  assert.match(claimsGame([blue, { ...green, light: { azimuth: -40, elevation: 60 } }]).wrong[0], /do not all give the same picture/)
+})
+
+test('a picture in words shows what it shows: regions of colour, no names, nothing hidden', () => {
+  const words = describe(SCENE('blue')).en
+  assert.match(words, /^a 32 × 24 picture/)
+  assert.match(words, /a red region: x \d+–\d+, y \d+–\d+, \d+ pixels/)
+  assert.match(words, /the floor \(white\)/)
+  assert.doesNotMatch(words, /blue|ball|cube|screen/)
+  assert.equal(describe(SCENE('blue')).en, describe(SCENE('green')).en)
+})
+
+test('blind play: a claims round is the picture described, options by label; a bench is tried setting by setting', () => {
+  const vision = claimsGame([SCENE('blue'), SCENE('green')])
+  const ctx = (id) => ({ level: { source: vision.played.get(id)[0] } })
+  const shown = play.open(ctx('1-2')).sections[0].text.en
+  assert.match(shown, /The picture: a 32 × 24 picture/)
+  assert.match(shown, /supported = Supported/)
+  assert.doesNotMatch(shown, /ball|cube|"colour"/)
+  const wrong = play.attempt(ctx('1-2'), 'supported;supported')
+  assert.equal(wrong.pass, false)
+  assert.match(wrong.says[0].en, /Scene 1 from another view \(holds\): a 32 × 24 picture/)
+  assert.equal(play.attempt(ctx('1-2'), 'supported;undetermined').pass, true)
+  const bench = play.open(ctx('1-3'))
+  assert.match(bench.sections.map((x) => x.text.en).join('\n'), /Z \(Depth Z\): 1–8, step 1; starts at 2[\s\S]*Now: Z = 2, .*h = 2/)
+  const tried = play.attempt(ctx('1-3'), 'Z = 1\nZ = 9\nZ = 4')
+  assert.equal(tried.pass, true)
+  assert.deepEqual(tried.says.map((x) => x.en.split(' → ')[0].split(':')[0]), ['Z = 1', 'Z = 9', 'Z = 4'])
+  assert.match(tried.says[1].en, /cannot be set to 9/)
+  assert.equal(play.attempt(ctx('1-3'), 'Z = 3').pass, false)
+})
+
 test('fields: the least output that answers a question, or any that does (0A1, 0A2, 0A4)', () => {
   const options = [
     { id: 'label', label: 'label', gives: ['class'] },
@@ -238,6 +297,18 @@ test('the pinhole bench projects onto the upright virtual plane (1B1–1B3)', ()
   assert.equal(project({ H: 2, f: 2, Z: 4 }).h, 1)
   assert.equal(project({ H: 3, f: 2, Z: 6 }).h, 1)
   assert.equal(project({ H: 2, Z: 4, f: 4 }).h, 2)
+})
+
+test('a bench’s lesson: the start fails, some setting passes, the naive settings fail, every pass holds what it teaches', () => {
+  const bench = { model: 'pinhole', setup: { H: 2, object: 'arrow' }, knobs: { Z: { min: 1, max: 8, step: 1, start: 2 }, f: { min: 1, max: 4, step: 1, start: 2 } }, goal: [{ of: 'h', near: 1, atMost: 0.001 }] }
+  const view = (v) => project({ H: 2, ...v })
+  const task = (more) => ({ bench, naive: [{ set: { Z: 1 }, why: 'nearer is not smaller' }], ...more })
+  assert.deepEqual(lessonProblems(task({}), view), [])
+  assert.deepEqual(lessonProblems(task({ naive: [{ set: { Z: 4 }, why: '…' }] }), view), ['the naive setting Z=4 passes'])
+  // Taught: move the object, keep the plane. Turning f as well reaches the goal another way, and the check says so.
+  assert.match(lessonProblems(task({ holds: [{ of: 'f', is: 2 }] }), view)[0], /the bench: Z=2, f=1 passes without what the bench teaches/)
+  assert.deepEqual(lessonProblems(task({ bench: { ...bench, knobs: { ...bench.knobs, f: { ...bench.knobs.f, fixed: true } } }, holds: [{ of: 'f', is: 2 }] }), view), [])
+  assert.deepEqual(lessonProblems(task({ bench: { ...bench, knobs: { Z: bench.knobs.Z } } }), view), ['the bench: the starting setting already passes'])
 })
 
 test('the thin-lens bench: light grows with the aperture, focus picks a depth, a smaller aperture a deeper range (1G1–1G3)', () => {
