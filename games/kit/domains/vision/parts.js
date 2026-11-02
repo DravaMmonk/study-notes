@@ -40,6 +40,7 @@ const wholeSize = (n, name) => {
 
 /** Where a coordinate outside the image reads, by the lookup's `outside` setting: null for 0, or a clamped index. */
 const OUTSIDE = ['error', 'zero', 'clamp']
+const CHANNELS = ['R', 'G', 'B']
 
 /** image at (x, y): x and y numbers (a value; a colour image gives a 1 × 1 colour image) or coordinate images. */
 function lookup({ image, x, y }, node) {
@@ -92,11 +93,13 @@ export const PARTS = {
     }),
   },
   lookup: { inputs: ['image', 'x', 'y'], settings: { outside: OUTSIDE }, eval: strict(lookup) },
+  // The channel is a setting (R, G or B), not a wire: which plane to take is a choice made on the card.
   channel: {
-    inputs: ['image', 'c'],
-    eval: strict(({ image, c }) => {
+    inputs: ['image'],
+    settings: { c: CHANNELS },
+    eval: strict(({ image }, node) => {
       if (!isImage(image) || image.c !== 3) fail('channel 要一张彩色图', 'channel needs a colour image')
-      if (![0, 1, 2].includes(c)) fail(`通道应当是 0、1、2（R、G、B），得到 ${c}`, `the channel should be 0, 1 or 2 (R, G, B), got ${c}`)
+      const c = CHANNELS.indexOf(node.params?.c ?? 'R')
       return make(image.w, image.h, 1, (x, y) => image.data[(y * image.w + x) * 3 + c])
     }),
   },

@@ -1,46 +1,107 @@
 {
-  "title": { "zh": "穿过小孔", "en": "Through the opening" },
+  "title": { "zh": "穿过小孔", "en": "Through a small hole" },
   "intro": [
     {
       "t": {
-        "zh": "图像来自场景中的光。先用理想针孔观察一个点投到哪里。",
-        "en": "An image comes from the scene. Start with an ideal pinhole and a single projected point."
+        "zh": "图里的数从哪里来？工作台先装上相机台：一台理想的针孔相机。场景里一点射出的光穿过针孔，落在离针孔 f 的像平面上。台上把像平面画在针孔前面，像是正的。",
+        "en": "Where do an image's numbers come from? The workbench first gets a camera bench: an ideal pinhole camera. Light from a point of the scene passes through the hole and lands on the image plane at distance f from it. The bench draws the plane in front of the hole, so the image is upright."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：一点穿过针孔，落在像平面的什么位置？同一个物体离得越远，像怎样变？每一步只有一个旋钮能动，让像落到圆圈标出的目标上。",
+        "en": "This level asks: where on the image plane does a point land after passing the hole? How does the image change as the object moves away? Each step opens one knob; bring the image onto the circled target."
       }
     }
   ],
+  "after": {
+    "zh": "这就是<wiki-ref to=\"pinhole-projection\"></wiki-ref>：像的位置和大小都随 f/Z 缩放。",
+    "en": "This is <wiki-ref to=\"pinhole-projection\"></wiki-ref>: where the image lands and how big it is both scale with f/Z."
+  },
   "tasks": [
     {
       "id": "1B1",
       "kind": "bench",
-      "brief": { "zh": "移动物点，使投影落在目标上。", "en": "Move the point so its projection reaches the target." },
+      "step": { "zh": "横向移动", "en": "Sideways" },
+      "brief": {
+        "zh": "f = 2、Z = 4：横向移动这一点，让它的像落在 u = 1 的标记上。",
+        "en": "With f = 2 and Z = 4, move the point sideways so its image lands on the mark at u = 1."
+      },
+      "hint": [
+        {
+          "zh": "顺着画出的光线看：它从物体出发，穿过针孔，停在像平面上。",
+          "en": "Follow the drawn ray: it leaves the object, passes the hole and stops on the image plane."
+        }
+      ],
       "bench": {
         "model": "pinhole",
         "setup": { "Z": 4, "f": 2, "object": "point", "target": { "of": "u", "value": 1 } },
-        "knobs": { "X": { "label": "X", "min": -4, "max": 4, "step": 1, "start": 0 } },
-        "goal": [{ "of": "u", "label": "u", "near": 1, "atMost": 0.001 }],
+        "knobs": {
+          "X": { "label": { "zh": "横向位置 X", "en": "Offset X" }, "min": -4, "max": 4, "step": 0.5, "start": 0 }
+        },
+        "goal": [
+          {
+            "of": "u",
+            "label": { "zh": "像的位置 u", "en": "Image position u" },
+            "near": 1,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [
-        { "set": { "X": -2 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
-      ]
+        {
+          "set": { "X": 1 },
+          "why": {
+            "zh": "把物体放在 X = 1，像却只落到 u = 0.5：像不在物体的高度上，它按 f/Z 缩小了。",
+            "en": "With the point at X = 1 its image lands only at u = 0.5: the image is not at the object's height, it is shrunk by f/Z."
+          }
+        }
+      ],
+      "holds": [{ "of": "X", "near": 2, "atMost": 0.001 }]
     },
     {
       "id": "1B1_2",
       "kind": "bench",
+      "step": { "zh": "前后移动", "en": "In depth" },
       "brief": {
-        "zh": "移动物点，使投影落在左侧的目标上。",
-        "en": "Move the point so its projection reaches the target on the left."
+        "zh": "箭高 2、f = 2：只前后移动这支箭，让像高等于 0.5。",
+        "en": "An arrow 2 tall, f = 2: move the arrow only in depth so its image is 0.5 tall."
       },
+      "hint": [
+        {
+          "zh": "先看箭在 Z = 2 和 Z = 4 时，像各有多高。",
+          "en": "First see how tall the image is with the arrow at Z = 2 and at Z = 4."
+        }
+      ],
       "bench": {
         "model": "pinhole",
-        "setup": { "Z": 4, "f": 2, "object": "point", "target": { "of": "u", "value": -1 } },
-        "knobs": { "X": { "label": "X", "min": -4, "max": 4, "step": 1, "start": 0 } },
-        "goal": [{ "of": "u", "label": "u", "near": -1, "atMost": 0.001 }],
+        "setup": { "H": 2, "f": 2, "object": "arrow", "target": { "of": "h", "value": 0.5 } },
+        "knobs": {
+          "Z": { "label": { "zh": "距离 Z", "en": "Depth Z" }, "min": 1, "max": 8, "step": 1, "start": 2 }
+        },
+        "goal": [
+          {
+            "of": "h",
+            "label": { "zh": "像高 h", "en": "Image height h" },
+            "near": 0.5,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [
-        { "set": { "X": 2 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
-      ]
+        {
+          "set": { "Z": 5 },
+          "why": {
+            "zh": "以为距离每加 1，像高就少同样一截：像高按 1/Z 变化，Z = 5 时是 0.8。",
+            "en": "Assuming each unit of depth takes the same amount off the image: the height goes as 1/Z, and at Z = 5 it is 0.8."
+          }
+        }
+      ],
+      "holds": [{ "of": "Z", "near": 8, "atMost": 0.001 }]
     }
   ]
 }

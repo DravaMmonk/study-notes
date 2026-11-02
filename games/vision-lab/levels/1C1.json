@@ -1,34 +1,88 @@
 {
-  "title": { "zh": "行和列", "en": "Rows and columns" },
+  "title": { "zh": "橙色的天空", "en": "An orange sky" },
   "intro": [
     {
       "t": {
-        "zh": "图里的坐标和数组里的行列指向同一组值。",
-        "en": "Image coordinates and array rows and columns refer to the same values."
+        "zh": "一张用 OpenCV 读进来的照片，在这里显示出来，蓝天却成了橙色。这一关的问题是：同一张照片，为什么在这里显示出橙色的天空？",
+        "en": "A photo read in with OpenCV is displayed here, and its blue sky has turned orange. This level asks: why does the same photo show an orange sky here?"
+      }
+    },
+    {
+      "t": {
+        "zh": "工作台第一次接电路：输入从左边进来，输出从右边出去。新元件<part-ref to=\"part:channel\"></part-ref>取出彩色图的一个通道，取哪一个是它的设置：R、G 或 B，也就是每格的第一、第二或第三个数；<part-ref to=\"part:compose\"></part-ref>把三张灰度图合成一张彩色图。",
+        "en": "The workbench wires its first circuit: inputs come in on the left, outputs leave on the right. The new part <part-ref to=\"part:channel\"></part-ref> takes one channel out of a colour image, and which one is its setting: R, G or B, the first, second or third number of each cell. <part-ref to=\"part:compose\"></part-ref> makes three grey images one colour image."
       }
     }
   ],
+  "adds": ["channel", "compose"],
+  "after": {
+    "zh": "各个库的<wiki-ref to=\"channel-order\"></wiki-ref>不同：OpenCV 读图得到 BGR，Matplotlib 按 RGB 显示。",
+    "en": "Libraries differ in <wiki-ref to=\"channel-order\"></wiki-ref>: OpenCV reads images as BGR, Matplotlib displays RGB."
+  },
   "tasks": [
     {
       "id": "1C1",
-      "kind": "grid",
-      "brief": { "zh": "抄下数组的值。", "en": "Copy the values of the array." },
-      "image": [[1, 2, 3], [4, 5, 6]],
-      "ask": "copy"
-    },
-    {
-      "id": "1C1_2",
-      "kind": "grid",
-      "brief": { "zh": "选出坐标 (2, 0) 的格子。", "en": "Select the cell at (2, 0)." },
-      "image": [[1, 2, 3], [4, 5, 6]],
-      "ask": { "pick": { "x": 2, "y": 0 } }
-    },
-    {
-      "id": "1C1_3",
-      "kind": "grid",
-      "brief": { "zh": "写出高亮格子的坐标。", "en": "Write the highlighted cell’s coordinates." },
-      "image": [[1, 2, 3], [4, 5, 6]],
-      "ask": { "locate": { "x": 0, "y": 1 } }
+      "kind": "circuit",
+      "brief": {
+        "zh": "输入是按 BGR 存的照片：交出同一张照片按 RGB 存的样子。",
+        "en": "The input is a photo stored as BGR: give the same photo stored as RGB."
+      },
+      "hint": [
+        {
+          "zh": "先把输入原样接到输出，看第一个不同的格子里哪几个数对调了。",
+          "en": "First wire the input straight to the output, and see which numbers are swapped in the first differing cell."
+        },
+        {
+          "zh": "把三个通道分别取出来看：设成 R 取出的那一张，装的是天空的什么颜色？",
+          "en": "Take the three channels out one by one: the one set to R, which colour of the sky does it hold?"
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "照片（BGR）", "en": "Photo (BGR)" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "照片（RGB）", "en": "Photo (RGB)" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[[0.9, 0.6, 0.2], [0.1, 0.1, 0.8]]] },
+          "expect": { "out": [[[0.2, 0.6, 0.9], [0.8, 0.1, 0.1]]] }
+        },
+        {
+          "inputs": {
+            "image": [[[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [0.5, 0.5, 0.5]]]
+          },
+          "expect": { "out": [[[0, 0, 1], [0, 1, 0]], [[1, 0, 0], [0.5, 0.5, 0.5]]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[[0, 0.5, 1]]] },
+          "expect": { "out": [[[1, 0.5, 0]]] }
+        },
+        {
+          "inputs": {
+            "image": [
+              [[0.3, 0.2, 0.7], [0.4, 0.9, 0]],
+              [[0.6, 0.6, 0.1], [0, 0, 0]],
+              [[1, 1, 1], [0.2, 0.8, 0.4]]
+            ]
+          },
+          "expect": {
+            "out": [
+              [[0.7, 0.2, 0.3], [0, 0.9, 0.4]],
+              [[0.1, 0.6, 0.6], [0, 0, 0]],
+              [[1, 1, 1], [0.4, 0.8, 0.2]]
+            ]
+          }
+        }
+      ],
+      "solution": [
+        "r = channel[c=B](image)",
+        "g = channel[c=G](image)",
+        "b = channel[c=R](image)",
+        "rgb = compose(r, g, b)",
+        "out <- rgb"
+      ],
+      "naive": ["out <- image"]
     }
   ]
 }

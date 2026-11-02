@@ -1,10 +1,16 @@
 {
-  "title": { "zh": "三个通道", "en": "Three channels" },
+  "title": { "zh": "先行后列", "en": "Row before column" },
   "intro": [
     {
       "t": {
-        "zh": "灰度图只有一个值；彩色像素还要区分各通道。",
-        "en": "A grey pixel has one value; a colour pixel has separate channels."
+        "zh": "程序里读像素用的是数组下标 I[第几行, 第几列]，不是坐标 (x, y)。两种写法说的是同一批像素，顺序却不一样。",
+        "en": "A program reads a pixel by its array index I[row, column], not by coordinates (x, y). The two name the same pixels, in a different order."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关从坐标换到数组：按下标点出像素，再从数组的形状读出图的宽和高。库里还有第三种写法：OpenCV 把尺寸写成 (宽, 高)。",
+        "en": "This level moves from coordinates to arrays: pick pixels by index, then read an image's width and height off its array shape. Libraries add a third way of writing it: OpenCV gives a size as (width, height)."
       }
     }
   ],
@@ -12,16 +18,45 @@
     {
       "id": "1A3",
       "kind": "grid",
-      "brief": { "zh": "把右边的像素设为蓝色 (0, 0, 1)。", "en": "Set the pixel on the right to blue (0, 0, 1)." },
-      "image": [[[1, 0, 0], [0, 0, 0]]],
-      "ask": { "set": { "x": 1, "y": 0, "value": [0, 0, 1] } }
+      "step": { "zh": "按下标点", "en": "Pick by index" },
+      "brief": { "zh": "点出数组元素 I[1, 2] 所在的像素。", "en": "Pick the pixel that holds the array element I[1, 2]." },
+      "hint": [{ "zh": "这张图只有 2 行。", "en": "This image has only 2 rows." }],
+      "image": [[0.5, 0.1, 0.9], [0.3, 0.6, 0.2]],
+      "ask": { "pick": { "x": 2, "y": 1 } }
     },
     {
       "id": "1A3_2",
       "kind": "grid",
-      "brief": { "zh": "把左下角的像素设为 (0.2, 0.7, 0.4)。", "en": "Set the lower-left pixel to (0.2, 0.7, 0.4)." },
-      "image": [[[0, 0.1, 0.2], [0.3, 0.4, 0.5]], [[0, 0, 0], [0.8, 0.2, 0.1]]],
-      "ask": { "set": { "x": 0, "y": 1, "value": [0.2, 0.7, 0.4] } }
+      "step": { "zh": "从形状读宽高", "en": "Size from shape" },
+      "brief": {
+        "zh": "这张图的数组形状是 (2, 3)：写出它的宽和高。",
+        "en": "This image's array shape is (2, 3): write its width and height."
+      },
+      "image": [[0.2, 0.4, 0.6], [0.8, 1, 0]],
+      "ask": { "fill": { "rows": [[3, 2]], "label": { "zh": "宽、高", "en": "width, height" } } }
+    },
+    {
+      "id": "1A3_3",
+      "kind": "grid",
+      "step": { "zh": "从尺寸写形状", "en": "Shape from size" },
+      "brief": {
+        "zh": "OpenCV 说这张图的尺寸是 (4, 5)：写出它的数组形状。",
+        "en": "OpenCV gives this image's size as (4, 5): write its array shape."
+      },
+      "hint": [
+        {
+          "zh": "数组的形状先写哪一维？OpenCV 的尺寸先写哪一维？",
+          "en": "Which dimension does an array shape list first? Which does an OpenCV size list first?"
+        }
+      ],
+      "image": [
+        [0.1, 0.3, 0.5, 0.7],
+        [0.2, 0.4, 0.6, 0.8],
+        [0.3, 0.5, 0.7, 0.9],
+        [0.4, 0.6, 0.8, 1],
+        [0.5, 0.7, 0.9, 0.1]
+      ],
+      "ask": { "fill": { "rows": [[5, 4]], "label": { "zh": "形状", "en": "shape" } } }
     }
   ]
 }

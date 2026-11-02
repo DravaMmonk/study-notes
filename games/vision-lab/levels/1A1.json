@@ -1,27 +1,97 @@
 {
-  "title": { "zh": "一格格的数", "en": "A grid of numbers" },
+  "title": { "zh": "一格格的数", "en": "Cells of numbers" },
   "intro": [
     {
       "t": {
-        "zh": "相机送来了一张小图。读出图里的数，才能检查后续的处理。",
-        "en": "The camera has sent a small image. Read its values before processing it."
+        "zh": "检查台判断得了答案，却碰不到图里的一个数。工作台从这里补起：相机把光变成数，计算机存下的就是这些数。这一章的灰度图里，0 是黑，1 是白，中间的数是不同深浅的灰。",
+        "en": "The station could judge answers but could not touch a single number of an image. The workbench starts here: the camera turns light into numbers, and those numbers are what the computer stores. In this chapter's grey images 0 is black, 1 is white and the numbers between are shades of grey."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：相机拍下的这张小图，存进计算机是什么样子？照着画面把每个像素的数填进格子；格子摆成什么形状，图就存成什么形状。",
+        "en": "This level asks: what does this small picture from the camera look like once it is stored in the computer? Following the picture, fill in each pixel's number; the shape of the grid is the shape the image is stored in."
       }
     }
   ],
+  "after": {
+    "zh": "灰度图存成 高 × 宽 的<wiki-ref to=\"image-array\"></wiki-ref>，彩色图每格存三个数。",
+    "en": "A grey image is stored as a height × width <wiki-ref to=\"image-array\"></wiki-ref>; a colour image holds three numbers a cell."
+  },
   "tasks": [
     {
       "id": "1A1",
       "kind": "grid",
-      "brief": { "zh": "把图中的值填入空格。", "en": "Copy the values into the empty grid." },
-      "image": [[0, 0.5, 1], [1, 0.25, 0]],
-      "ask": "copy"
+      "step": { "zh": "横着的图", "en": "A wide image" },
+      "brief": {
+        "zh": "照着画面，把这张 3 像素宽、2 像素高的灰度图存成一格格的数。",
+        "en": "Following the picture, store this grey image, 3 pixels wide and 2 high, as cells of numbers."
+      },
+      "hint": [
+        { "zh": "画面里只有三种颜色：黑、中灰、白。", "en": "The picture holds only three shades: black, mid grey and white." }
+      ],
+      "image": [[0, 0.5, 1], [1, 0, 0.5]],
+      "show": "picture",
+      "ask": "copy",
+      "naive": {
+        "answer": [[0, 1], [0.5, 0], [1, 0.5]],
+        "why": {
+          "zh": "这是按 宽 × 高 抄的：画面的第一行像素抄成了格子的第一列。数组先写高、再写宽，格子的第 y 行就是画面的第 y 行。",
+          "en": "This is copied as width × height: the picture's first row went into the grid's first column. An array lists height first, then width; row y of the grid is row y of the picture."
+        }
+      }
     },
     {
       "id": "1A1_2",
       "kind": "grid",
-      "brief": { "zh": "填入另一张图的值。", "en": "Copy the values of another image." },
-      "image": [[0.2, 0.9], [0.7, 0.1], [0.4, 0.6]],
-      "ask": "copy"
+      "step": { "zh": "竖着的图", "en": "A tall image" },
+      "brief": { "zh": "再存一张 2 像素宽、3 像素高的灰度图。", "en": "Now store a grey image 2 pixels wide and 3 high." },
+      "hint": [
+        {
+          "zh": "画面里的一行像素，存成格子里的哪一行？",
+          "en": "Which row of the grid does a row of pixels in the picture go to?"
+        }
+      ],
+      "image": [[1, 0], [0.5, 0.5], [0, 1]],
+      "show": "picture",
+      "ask": "copy",
+      "naive": {
+        "answer": [[1, 0.5, 0], [0, 0.5, 1]],
+        "why": {
+          "zh": "这张图 2 像素宽、3 像素高，抄出来却是 2 行 3 列：行和列对调了，每一行要是画面里的一行像素。",
+          "en": "The image is 2 pixels wide and 3 high, but this copy has 2 rows of 3: rows and columns are swapped, and each row must be one row of the picture's pixels."
+        }
+      }
+    },
+    {
+      "id": "1A1_3",
+      "kind": "grid",
+      "step": { "zh": "彩色图", "en": "A colour image" },
+      "intro": [
+        {
+          "t": {
+            "zh": "彩色图的每个像素存三个数 (R, G, B)：红、绿、蓝各有多亮，各在 0 到 1 之间。",
+            "en": "Each pixel of a colour image stores three numbers (R, G, B): how bright its red, green and blue are, each from 0 to 1."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "把第二行正中间那个像素改成纯蓝，别的格子不动。",
+        "en": "Turn the middle pixel of the second row pure blue, leaving every other cell as it is."
+      },
+      "hint": [
+        { "zh": "纯蓝：蓝色最亮，红和绿一点也没有。", "en": "Pure blue: the blue at its brightest, no red and no green at all." }
+      ],
+      "image": [[[1, 0, 0], [0, 1, 0], [1, 1, 1]], [[0, 0, 0], [1, 1, 0], [0.5, 0.5, 0.5]]],
+      "show": "both",
+      "ask": { "set": { "x": 1, "y": 1, "value": [0, 0, 1] } },
+      "naive": {
+        "answer": [[[1, 0, 0], [0, 1, 0], [1, 1, 1]], [[0, 0, 0], [1, 1, 1], [0.5, 0.5, 0.5]]],
+        "why": {
+          "zh": "只把 (1, 1) 的蓝色调到 1，得到 (1, 1, 1)，那是白色：纯蓝还要红和绿都是 0。",
+          "en": "Raising only the blue number of (1, 1) gives (1, 1, 1), which is white: pure blue also needs its red and green at 0."
+        }
+      }
     }
   ]
 }

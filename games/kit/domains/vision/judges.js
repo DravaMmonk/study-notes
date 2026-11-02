@@ -169,3 +169,14 @@ export const judgeOf = (call) => {
 
 /** The options a round offers: its own, or the verdicts of a claims round. */
 export const optionsOf = (round, name) => round.options ?? (name === 'claims' ? VERDICTS : [])
+
+/** The first round a choice task's naive picks fail (null: they fail none, or are not one a round). */
+export function naiveRound(task) {
+  const { judge, params } = judgeOf(task.judge)
+  if (!task.naive || task.naive.picks.length !== task.rounds.length) return null
+  const k = task.rounds.findIndex((round, r) => judge.check(round, task.naive.picks[r], params).length > 0)
+  return k < 0 ? null : k
+}
+
+/** Whether a round's picks are the task's naive ones (the screen then says why they are wrong). */
+export const isNaive = (task, r, picks) => Boolean(task.naive) && JSON.stringify(task.naive.picks[r]?.map((p) => [...p].sort())) === JSON.stringify(picks.map((p) => [...(p ?? [])].sort()))

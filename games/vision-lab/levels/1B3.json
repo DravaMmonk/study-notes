@@ -1,48 +1,108 @@
 {
-  "title": { "zh": "移动像平面", "en": "Move the image plane" },
+  "title": { "zh": "一样高的像", "en": "Images of one height" },
   "intro": [
     {
       "t": {
-        "zh": "距离固定以后，相机内部的像平面位置仍会影响投影。",
-        "en": "With object depth fixed, the image plane position still affects the projection."
+        "zh": "相机台上，同一个像高可以来自不同的物体。焦距 f = 2 固定。这一关的问题是：看到像有多高，能定出物体有多远吗？从几组（物高, 距离）里，选出像高都是 1、距离却各不相同的几组。",
+        "en": "On the camera bench one image height can come from different objects. The focal length is fixed at f = 2. This level asks: does the height of an image tell how far away the object is? From several (height, depth) pairs, choose those that all image 1 tall at different depths."
       }
     }
   ],
   "tasks": [
     {
       "id": "1B3",
-      "kind": "bench",
+      "kind": "choice",
       "brief": {
-        "zh": "调整像平面距离，让像高为 2。",
-        "en": "Adjust the image plane distance until the image height is 2."
+        "zh": "f = 2：选出像高都是 1、距离各不相同的两组以上。",
+        "en": "With f = 2, choose two or more pairs that all image 1 tall, each at its own depth."
       },
-      "bench": {
-        "model": "pinhole",
-        "setup": { "H": 2, "Z": 4, "object": "arrow", "target": { "of": "h", "value": 2 } },
-        "knobs": { "f": { "label": "f", "min": 1, "max": 6, "step": 1, "start": 1 } },
-        "goal": [{ "of": "h", "label": "h", "near": 2, "atMost": 0.001 }],
-        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
-      },
-      "naive": [
-        { "set": { "f": 2 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
-      ]
-    },
-    {
-      "id": "1B3_2",
-      "kind": "bench",
-      "brief": {
-        "zh": "在另一组物体和距离下，让像高为 1.5。",
-        "en": "For another object and depth, make the image height 1.5."
-      },
-      "bench": {
-        "model": "pinhole",
-        "setup": { "H": 3, "Z": 6, "object": "arrow", "target": { "of": "h", "value": 1.5 } },
-        "knobs": { "f": { "label": "f", "min": 1, "max": 6, "step": 1, "start": 1 } },
-        "goal": [{ "of": "h", "label": "h", "near": 1.5, "atMost": 0.001 }],
-        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
-      },
-      "naive": [
-        { "set": { "f": 2 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
+      "hint": [
+        {
+          "zh": "物高和距离一起翻倍时，像高怎样变？",
+          "en": "When height and depth double together, what happens to the image height?"
+        }
+      ],
+      "judge": { "project": { "f": 2, "target": 1 } },
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "哪几组的像高都是 1、距离又各不相同？",
+                "en": "Which pairs all image 1 tall at different depths?"
+              }
+            }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "红箱：物高 1，距离 2", "en": "red crate: height 1, depth 2" },
+              "H": 1,
+              "Z": 2
+            },
+            {
+              "id": "b",
+              "label": { "zh": "蓝箱：物高 1，距离 2", "en": "blue crate: height 1, depth 2" },
+              "H": 1,
+              "Z": 2
+            },
+            {
+              "id": "c",
+              "label": { "zh": "黄箱：物高 1，距离 4", "en": "yellow crate: height 1, depth 4" },
+              "H": 1,
+              "Z": 4
+            },
+            {
+              "id": "d",
+              "label": { "zh": "绿箱：物高 2，距离 4", "en": "green crate: height 2, depth 4" },
+              "H": 2,
+              "Z": 4
+            },
+            {
+              "id": "e",
+              "label": { "zh": "白箱：物高 2，距离 2", "en": "white crate: height 2, depth 2" },
+              "H": 2,
+              "Z": 2
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "换一批：哪几组的像高都是 1、距离又各不相同？",
+                "en": "A new batch: which pairs all image 1 tall at different depths?"
+              }
+            }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "灯塔：物高 3，距离 3", "en": "lighthouse: height 3, depth 3" },
+              "H": 3,
+              "Z": 3
+            },
+            {
+              "id": "b",
+              "label": { "zh": "灯塔模型：物高 0.5，距离 1", "en": "lighthouse model: height 0.5, depth 1" },
+              "H": 0.5,
+              "Z": 1
+            },
+            {
+              "id": "c",
+              "label": { "zh": "路灯：物高 1，距离 3", "en": "street lamp: height 1, depth 3" },
+              "H": 1,
+              "Z": 3
+            },
+            { "id": "d", "label": { "zh": "电线杆：物高 3，距离 6", "en": "pole: height 3, depth 6" }, "H": 3, "Z": 6 },
+            {
+              "id": "e",
+              "label": { "zh": "邮筒：物高 1.5，距离 3", "en": "postbox: height 1.5, depth 3" },
+              "H": 1.5,
+              "Z": 3
+            }
+          ]
+        }
       ]
     }
   ]

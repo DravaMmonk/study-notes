@@ -1,10 +1,16 @@
 {
-  "title": { "zh": "移动物体", "en": "Move the object" },
+  "title": { "zh": "换一支镜头", "en": "A longer lens" },
   "intro": [
     {
       "t": {
-        "zh": "针孔相机已经能投影；同一物体距离改变时，像的大小也会变化。",
-        "en": "The pinhole projects an object. Moving the same object changes its projected size."
+        "zh": "在针孔相机上，像的大小靠移动物体来改。这一关物体和它的距离都锁住了：物体不动、相机不挪，还有什么能让像变大？",
+        "en": "On the pinhole camera the image size was changed by moving the object. Here the object and its distance are locked: with neither the object nor the camera moving, what else can make the image larger?"
+      }
+    },
+    {
+      "t": {
+        "zh": "台上只有像平面的距离 f 能动。先在台上让像高达到目标；再对另外两组数不上台、先算出 f，最后拿其中一组上台验证。",
+        "en": "Only the plane distance f turns on the bench. First bring the image to the target height there; then, for two other sets of numbers, work out f without the bench, and finally check one of them on it."
       }
     }
   ],
@@ -12,35 +18,137 @@
     {
       "id": "1B2",
       "kind": "bench",
-      "brief": { "zh": "调整距离，让像高为 1。", "en": "Adjust depth until the image height is 1." },
+      "step": { "zh": "调 f", "en": "Turn f" },
+      "brief": {
+        "zh": "物高 1、距离 4 都固定：只调像平面距离 f，让像高等于 1。",
+        "en": "Object height 1 and depth 4 are fixed: adjust only the plane distance f so the image is 1 tall."
+      },
       "bench": {
         "model": "pinhole",
-        "setup": { "H": 2, "f": 2, "object": "arrow", "target": { "of": "h", "value": 1 } },
-        "knobs": { "Z": { "label": "Z", "min": 1, "max": 8, "step": 1, "start": 2 } },
-        "goal": [{ "of": "h", "label": "h", "near": 1, "atMost": 0.001 }],
+        "setup": { "H": 1, "Z": 4, "object": "arrow", "target": { "of": "h", "value": 1 } },
+        "knobs": {
+          "f": {
+            "label": { "zh": "像平面距离 f", "en": "Plane distance f" },
+            "min": 0.5,
+            "max": 8,
+            "step": 0.5,
+            "start": 1
+          }
+        },
+        "goal": [
+          {
+            "of": "h",
+            "label": { "zh": "像高 h", "en": "Image height h" },
+            "near": 1,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [
-        { "set": { "Z": 1 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
+        {
+          "set": { "f": 0.5 },
+          "why": {
+            "zh": "以为像平面挪近，像会变大：f 越短，光线越早落到像平面上，像越小。",
+            "en": "Assuming a nearer plane gives a larger image: the shorter f, the sooner the rays meet the plane and the smaller the image."
+          }
+        }
       ]
     },
     {
       "id": "1B2_2",
-      "kind": "bench",
+      "kind": "choice",
+      "step": { "zh": "先算再说", "en": "Predict" },
       "brief": {
-        "zh": "调整另一物体的距离，让像高为 1。",
-        "en": "Adjust the other object’s depth until its image height is 1."
+        "zh": "不上台，先算：每组数要把像平面放在多远？",
+        "en": "Without the bench, work it out: how far must the plane stand for each set?"
+      },
+      "hint": [
+        {
+          "zh": "像高、物高、距离和 f 之间的比例，在台上已经看到过。",
+          "en": "The bench has already shown how image height, object height, depth and f relate."
+        }
+      ],
+      "judge": "answer",
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "物高 1.5、距离 6，要像高 1：f 是多少？",
+                "en": "Height 1.5, depth 6, image height wanted 1: what is f?"
+              },
+              "answer": ["c"]
+            }
+          ],
+          "options": [
+            { "id": "a", "label": "2" },
+            { "id": "b", "label": "9" },
+            { "id": "c", "label": "4" },
+            { "id": "d", "label": "6" }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "物高 2、距离 10，要像高 0.5：f 是多少？",
+                "en": "Height 2, depth 10, image height wanted 0.5: what is f?"
+              },
+              "answer": ["a"]
+            }
+          ],
+          "options": [
+            { "id": "a", "label": "2.5" },
+            { "id": "b", "label": "10" },
+            { "id": "c", "label": "0.1" },
+            { "id": "d", "label": "40" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1B2_3",
+      "kind": "bench",
+      "step": { "zh": "上台验证", "en": "Check it" },
+      "brief": {
+        "zh": "物高 2、距离 10：把 f 设成你算出的值，看像高是不是 0.5。",
+        "en": "Height 2, depth 10: set f to the value you worked out, and see whether the image is 0.5 tall."
       },
       "bench": {
         "model": "pinhole",
-        "setup": { "H": 3, "f": 2, "object": "arrow", "target": { "of": "h", "value": 1 } },
-        "knobs": { "Z": { "label": "Z", "min": 1, "max": 9, "step": 1, "start": 3 } },
-        "goal": [{ "of": "h", "label": "h", "near": 1, "atMost": 0.001 }],
+        "setup": { "H": 2, "Z": 10, "object": "arrow", "target": { "of": "h", "value": 0.5 } },
+        "knobs": {
+          "f": {
+            "label": { "zh": "像平面距离 f", "en": "Plane distance f" },
+            "min": 0.5,
+            "max": 8,
+            "step": 0.5,
+            "start": 1
+          }
+        },
+        "goal": [
+          {
+            "of": "h",
+            "label": { "zh": "像高 h", "en": "Image height h" },
+            "near": 0.5,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
         "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
       "naive": [
-        { "set": { "Z": 1 }, "why": { "zh": "这个设置没有达到目标。", "en": "This setting does not meet the goal." } }
-      ]
+        {
+          "set": { "f": 5 },
+          "why": {
+            "zh": "f = 像高 × 距离，漏掉了物高：物高是 2，f = 5 时像高是 1，是目标的两倍。",
+            "en": "f = image height × depth leaves out the object's height: with H = 2, f = 5 gives an image 1 tall, twice the target."
+          }
+        }
+      ],
+      "holds": [{ "of": "f", "near": 2.5, "atMost": 0.001 }]
     }
   ]
 }

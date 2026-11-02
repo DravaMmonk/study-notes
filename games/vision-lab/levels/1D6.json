@@ -1,0 +1,210 @@
+{
+  "title": { "zh": "两种放大", "en": "Two enlargements" },
+  "intro": [
+    {
+      "t": {
+        "zh": "手上有两种缩放：最近邻和双线性。这一关的问题是：用它们放大同一张图，结果差在哪里？是不是总有一种更好？先并排放大，再把结果认到剖面上，最后判断一句论断。",
+        "en": "Two resizers are in hand: nearest neighbour and bilinear. This level asks: enlarging one image with each, how do the results differ, and is one always better? Enlarge side by side, match the results to profiles, then judge a claim."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1D6",
+      "kind": "circuit",
+      "step": { "zh": "并排放大", "en": "Side by side" },
+      "brief": {
+        "zh": "输入一张图和新的宽、高：交出最近邻和双线性各自缩放的结果。",
+        "en": "Given an image and a new width and height, give the nearest-neighbour and the bilinear results."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "w", "label": { "zh": "新宽", "en": "New width" } },
+        { "name": "h", "label": { "zh": "新高", "en": "New height" } }
+      ],
+      "outputs": [
+        { "name": "nn", "label": { "zh": "最近邻", "en": "Nearest" } },
+        { "name": "bl", "label": { "zh": "双线性", "en": "Bilinear" } }
+      ],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 1]], "w": 5, "h": 1 },
+          "expect": { "nn": [[0, 0, 1, 1, 1]], "bl": [[0, 0.1, 0.5, 0.9, 1]] }
+        },
+        {
+          "inputs": { "image": [[0, 0, 1, 1]], "w": 8, "h": 1 },
+          "expect": { "nn": [[0, 0, 0, 0, 1, 1, 1, 1]], "bl": [[0, 0, 0, 0.25, 0.75, 1, 1, 1]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0, 1], [1, 0]], "w": 3, "h": 3 },
+          "expect": {
+            "nn": [[0, 1, 1], [1, 0, 0], [1, 0, 0]],
+            "bl": [[0, 0.5, 1], [0.5, 0.5, 0.5], [1, 0.5, 0]]
+          }
+        }
+      ],
+      "solution": ["n = resizeNearest(image, w, h)", "l = resizeLinear(image, w, h)", "nn <- n", "bl <- l"]
+    },
+    {
+      "id": "1D6_2",
+      "kind": "choice",
+      "step": { "zh": "认剖面", "en": "Profiles" },
+      "brief": { "zh": "为两种放大的结果各选出它的剖面。", "en": "For each of the two enlargements, choose its profile." },
+      "judge": "match",
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "[0, 1] 用最近邻放大到 5 像素",
+                "en": "[0, 1] enlarged to 5 pixels by nearest neighbour"
+              },
+              "is": "nearest"
+            },
+            {
+              "prompt": { "zh": "[0, 1] 用双线性放大到 5 像素", "en": "[0, 1] enlarged to 5 pixels by bilinear" },
+              "is": "bilinear"
+            }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "剖面 1", "en": "Profile 1" },
+              "image": [[0, 0.25, 0.5, 0.75, 1]],
+              "is": "corners"
+            },
+            {
+              "id": "b",
+              "label": { "zh": "剖面 2", "en": "Profile 2" },
+              "image": [[0, 0.1, 0.5, 0.9, 1]],
+              "is": "bilinear"
+            },
+            {
+              "id": "c",
+              "label": { "zh": "剖面 3", "en": "Profile 3" },
+              "image": [[0, 0, 1, 1, 1]],
+              "is": "nearest"
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "[0, 0, 1, 1] 用双线性放大到 8 像素",
+                "en": "[0, 0, 1, 1] enlarged to 8 pixels by bilinear"
+              },
+              "is": "bilinear"
+            },
+            {
+              "prompt": {
+                "zh": "[0, 0, 1, 1] 用最近邻放大到 8 像素",
+                "en": "[0, 0, 1, 1] enlarged to 8 pixels by nearest neighbour"
+              },
+              "is": "nearest"
+            }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "剖面 1", "en": "Profile 1" },
+              "image": [[0, 0, 0, 0, 1, 1, 1, 1]],
+              "is": "nearest"
+            },
+            {
+              "id": "b",
+              "label": { "zh": "剖面 2", "en": "Profile 2" },
+              "image": [[0, 0, 0, 0, 0, 1, 1, 1]],
+              "is": "shifted"
+            },
+            {
+              "id": "c",
+              "label": { "zh": "剖面 3", "en": "Profile 3" },
+              "image": [[0, 0, 0, 0.25, 0.75, 1, 1, 1]],
+              "is": "bilinear"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1D6_3",
+      "kind": "choice",
+      "step": { "zh": "一个反例", "en": "A counterexample" },
+      "brief": {
+        "zh": "选出说明「双线性总比最近邻好」不成立的那组结果。",
+        "en": "Choose the result that shows 'bilinear is always better than nearest neighbour' does not hold."
+      },
+      "hint": [
+        {
+          "zh": "有的图里，每个值都有固定的含义，两者之间的值没有意义。",
+          "en": "In some images every value has a fixed meaning, and values in between mean nothing."
+        }
+      ],
+      "judge": "answer",
+      "rounds": [
+        {
+          "items": [
+            { "prompt": { "zh": "哪一组结果是反例？", "en": "Which result is a counterexample?" }, "answer": ["b"] }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": {
+                "zh": "天空的亮度渐变 [0.2, 0.4]，双线性放大：[0.2, 0.25, 0.35, 0.4]",
+                "en": "a sky's brightness ramp [0.2, 0.4], bilinear: [0.2, 0.25, 0.35, 0.4]"
+              }
+            },
+            {
+              "id": "b",
+              "label": {
+                "zh": "分割标签图（0 背景，1 物体）[0, 1]，双线性放大：[0, 0.25, 0.75, 1]",
+                "en": "a segmentation label map (0 background, 1 object) [0, 1], bilinear: [0, 0.25, 0.75, 1]"
+              }
+            },
+            {
+              "id": "c",
+              "label": {
+                "zh": "一张照片的灰度 [0.6, 0.8]，双线性放大：[0.6, 0.65, 0.75, 0.8]",
+                "en": "a photo's grey levels [0.6, 0.8], bilinear: [0.6, 0.65, 0.75, 0.8]"
+              }
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": { "zh": "这一批里，哪一组结果是反例？", "en": "In this batch, which result is a counterexample?" },
+              "answer": ["c"]
+            }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": {
+                "zh": "温度图 [10, 30]，双线性放大：[10, 15, 25, 30]",
+                "en": "a temperature map [10, 30], bilinear: [10, 15, 25, 30]"
+              }
+            },
+            {
+              "id": "b",
+              "label": {
+                "zh": "深度图 [2, 4]，双线性放大：[2, 2.5, 3.5, 4]",
+                "en": "a depth map [2, 4], bilinear: [2, 2.5, 3.5, 4]"
+              }
+            },
+            {
+              "id": "c",
+              "label": {
+                "zh": "类别编号图（1 道路，3 行人）[1, 3]，双线性放大：[1, 1.5, 2.5, 3]",
+                "en": "a class id map (1 road, 3 pedestrian) [1, 3], bilinear: [1, 1.5, 2.5, 3]"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,10 +1,16 @@
 {
-  "title": { "zh": "区域和物体", "en": "Regions and objects" },
+  "title": { "zh": "这份输出能回答什么", "en": "What this output can answer" },
   "intro": [
     {
       "t": {
-        "zh": "图中有两个同类的几何物体；第一张图里它们相接。比较两张输出图能表示的信息。",
-        "en": "The picture contains two geometric objects of one class; in the first picture they touch. Compare what the two output maps can represent."
+        "zh": "一辆车上的视觉系统同时交出五份输出：一个标签、一组框和三张逐像素图。检查台要把车上各个模块的请求分给它们。",
+        "en": "The vision system on a car hands in five outputs at once: a label, a set of boxes and three per-pixel maps. The station must route the requests of the car's modules to them."
+      }
+    },
+    {
+      "t": {
+        "zh": "和前面不同，这里一个请求可以有几份够用的输出，选出其中任何够用的都算对。要看清的是每份输出里的数是什么意思、以什么为单位：「那辆车离我多远」该由哪一份回答？",
+        "en": "Unlike before, a request may have several sufficient outputs, and choosing any that suffice is right. What matters is what the numbers in each output mean, and in what unit: which output answers 'how far away is that car'?"
       }
     }
   ],
@@ -13,123 +19,133 @@
       "id": "0A3",
       "kind": "choice",
       "brief": {
-        "zh": "每题选出刚好满足要求的输出图。",
-        "en": "For each question choose the output map with just the required information."
+        "zh": "为每个请求选出能回答它的输出，够用的都可以选。",
+        "en": "For each request, choose outputs that answer it; any that suffice may be chosen."
       },
-      "hint": [{ "zh": "同类物体需要分开吗？", "en": "Must objects of the same class be kept apart?" }],
-      "judge": { "fields": { "mode": "exact" } },
+      "hint": [
+        {
+          "zh": "三张图的格子里都是数：对照图里的物体，猜出每张图的数是编号、类别还是长度。",
+          "en": "All three maps hold numbers: compare them with the scene and work out whether each map's numbers are ids, classes or lengths."
+        }
+      ],
+      "judge": { "fields": { "mode": "enough" } },
       "rounds": [
         {
-          "image": [
-            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-            [0.1, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.1],
-            [0.1, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.1],
-            [0.1, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.1],
-            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-          ],
           "items": [
             {
               "prompt": {
-                "zh": "标出属于物体的像素，不必区分物体。",
-                "en": "Mark object pixels without distinguishing the objects."
+                "zh": "路面是哪些像素？",
+                "en": "Which pixels are road?"
               },
               "needs": ["class", "region"]
             },
             {
               "prompt": {
-                "zh": "标出属于每个物体的像素，并区分两个物体。",
-                "en": "Mark the pixels of each object and distinguish the two."
+                "zh": "每个行人各在哪里？",
+                "en": "Where is each pedestrian?"
               },
-              "needs": ["class", "region", "instance"]
+              "needs": ["class", "location", "instance"]
+            },
+            {
+              "prompt": {
+                "zh": "第 2 行第 4 列那个像素处的车，离相机多远？",
+                "en": "How far from the camera is the car at row 2, column 4?"
+              },
+              "needs": ["depth"]
             }
           ],
           "options": [
             {
-              "id": "sem",
-              "label": { "zh": "类别图：两个物体用同一颜色", "en": "Class map: one colour for both objects" },
-              "image": [
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 1, 1, 1, 1, 1, 0],
-                [0, 1, 1, 1, 1, 1, 1, 0],
-                [0, 1, 1, 1, 1, 1, 1, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0]
-              ],
-              "gives": ["class", "region", "location"]
+              "id": "a",
+              "label": { "zh": "街道", "en": "street" },
+              "gives": ["class"]
             },
             {
-              "id": "inst",
-              "label": { "zh": "实例图：两个物体用不同颜色", "en": "Instance map: one colour per object" },
-              "image": [
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0.4, 0.4, 0.4, 1, 1, 1, 0],
-                [0, 0.4, 0.4, 0.4, 1, 1, 1, 0],
-                [0, 0.4, 0.4, 0.4, 1, 1, 1, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0]
-              ],
-              "gives": ["class", "region", "location", "instance"]
+              "id": "b",
+              "label": {
+                "zh": "行人 (1, 1)–(1, 2)；轿车 (3, 1)–(4, 2)",
+                "en": "pedestrian (1, 1)–(1, 2); car (3, 1)–(4, 2)"
+              },
+              "gives": ["class", "location", "instance"]
+            },
+            {
+              "id": "c",
+              "label": { "zh": "图 1", "en": "Map 1" },
+              "gives": ["class", "location", "region"],
+              "image": [[0, 0, 0, 0, 0, 0], [0, 2, 0, 3, 3, 0], [1, 2, 1, 3, 3, 1], [1, 1, 1, 1, 1, 1]]
+            },
+            {
+              "id": "d",
+              "label": { "zh": "图 2", "en": "Map 2" },
+              "gives": ["depth", "region"],
+              "image": [[30, 30, 30, 30, 30, 30], [20, 6, 20, 9, 9, 20], [5, 6, 5, 9, 9, 5], [3, 3, 3, 3, 3, 3]]
+            },
+            {
+              "id": "e",
+              "label": { "zh": "图 3", "en": "Map 3" },
+              "gives": ["class", "location", "region", "instance"],
+              "image": [[0, 0, 0, 0, 0, 0], [0, 1, 0, 2, 2, 0], [3, 1, 3, 2, 2, 3], [3, 3, 3, 3, 3, 3]]
             }
           ]
         },
         {
-          "image": [
-            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-            [0.1, 0.8, 0.8, 0.1, 0.1, 0.1, 0.1, 0.1],
-            [0.1, 0.8, 0.8, 0.1, 0.1, 0.8, 0.8, 0.1],
-            [0.1, 0.8, 0.8, 0.1, 0.1, 0.8, 0.8, 0.1],
-            [0.1, 0.8, 0.8, 0.1, 0.1, 0.8, 0.8, 0.1],
-            [0.1, 0.1, 0.1, 0.1, 0.1, 0.8, 0.8, 0.1],
-            [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-          ],
           "items": [
             {
               "prompt": {
-                "zh": "标出属于物体的像素，不必区分物体。",
-                "en": "Mark object pixels without distinguishing the objects."
+                "zh": "最近的那面墙离相机多远？",
+                "en": "How far from the camera is the nearest wall?"
               },
-              "needs": ["class", "region"]
+              "needs": ["depth"]
             },
             {
               "prompt": {
-                "zh": "标出属于每个物体的像素，并区分两个物体。",
-                "en": "Mark the pixels of each object and distinguish the two."
+                "zh": "停着几辆车？",
+                "en": "How many cars are parked?"
               },
-              "needs": ["class", "region", "instance"]
+              "needs": ["class", "instance"]
+            },
+            {
+              "prompt": { "zh": "画面里有行人吗？", "en": "Is there a pedestrian in the picture?" },
+              "needs": ["class"]
             }
           ],
           "options": [
             {
-              "id": "sem",
-              "label": { "zh": "类别图：两个物体用同一颜色", "en": "Class map: one colour for both objects" },
+              "id": "a",
+              "label": { "zh": "图 1", "en": "Map 1" },
+              "gives": ["class", "location", "region", "instance"],
               "image": [
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 1, 1, 0, 0, 0, 0, 0],
-                [0, 1, 1, 0, 0, 1, 1, 0],
-                [0, 1, 1, 0, 0, 1, 1, 0],
-                [0, 1, 1, 0, 0, 1, 1, 0],
-                [0, 0, 0, 0, 0, 1, 1, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0]
-              ],
-              "gives": ["class", "region", "location"]
+                [0, 0, 0, 0, 0, 0],
+                [1, 1, 0, 2, 2, 0],
+                [1, 1, 0, 2, 2, 0],
+                [3, 3, 3, 3, 3, 3]
+              ]
             },
             {
-              "id": "inst",
-              "label": { "zh": "实例图：两个物体用不同颜色", "en": "Instance map: one colour per object" },
+              "id": "b",
+              "label": { "zh": "图 2", "en": "Map 2" },
+              "gives": ["class", "location", "region"],
               "image": [
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0.4, 0.4, 0, 0, 0, 0, 0],
-                [0, 0.4, 0.4, 0, 0, 1, 1, 0],
-                [0, 0.4, 0.4, 0, 0, 1, 1, 0],
-                [0, 0.4, 0.4, 0, 0, 1, 1, 0],
-                [0, 0, 0, 0, 0, 1, 1, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0]
-              ],
-              "gives": ["class", "region", "location", "instance"]
+                [4, 4, 4, 4, 4, 4],
+                [3, 3, 4, 3, 3, 4],
+                [3, 3, 1, 3, 3, 1],
+                [1, 1, 1, 1, 1, 1]
+              ]
+            },
+            { "id": "c", "label": { "zh": "轿车、轿车", "en": "car, car" }, "gives": ["class"] },
+            {
+              "id": "d",
+              "label": { "zh": "图 3", "en": "Map 3" },
+              "gives": ["depth", "region"],
+              "image": [[12, 12, 12, 12, 12, 12], [7, 7, 12, 8, 8, 12], [7, 7, 4, 8, 8, 4], [2, 2, 2, 2, 2, 2]]
+            },
+            {
+              "id": "e",
+              "label": {
+                "zh": "轿车 (0, 1)–(1, 2)；轿车 (3, 1)–(4, 2)",
+                "en": "car (0, 1)–(1, 2); car (3, 1)–(4, 2)"
+              },
+              "gives": ["class", "location", "instance"]
             }
           ]
         }

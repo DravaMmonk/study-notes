@@ -1,125 +1,114 @@
 {
-  "title": { "zh": "一张图，不同的问题", "en": "One picture, different questions" },
+  "title": { "zh": "一个标签，两只猫", "en": "One label, two cats" },
   "intro": [
     {
       "t": {
-        "zh": "机器要回答什么，决定它应当交出什么结果。",
-        "en": "What a machine is asked determines what its answer must contain."
+        "zh": "检查台收到一张照片和几个关于它的问题。它自己不会看图，只能从几份现成的输出里挑：每份输出是某个视觉系统交出的答案。",
+        "en": "The test station receives a photo and a few questions about it. It cannot look at the photo itself; it can only choose among ready-made outputs, each the answer some vision system handed in."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：图里有哪些物体、它们在哪里，一个答案至少要带上哪些信息？读每份输出里写了什么，为每个问题选出够回答它、又不多带东西的那一份。",
+        "en": "This level asks: which objects are in the picture and where are they — what must an answer contain at the least? Read what each output says, and give every question the output that answers it without carrying anything more."
       }
     }
   ],
+  "after": {
+    "zh": "给出每个物体的类别和框，这样的输出是<wiki-ref to=\"detection\"></wiki-ref>的结果；只给类别是分类。",
+    "en": "An output that gives each object a class and a box is the result of <wiki-ref to=\"detection\"></wiki-ref>; a class alone is classification."
+  },
   "tasks": [
     {
       "id": "0A1",
       "kind": "choice",
       "brief": {
-        "zh": "每题选出刚好包含所需信息的输出。",
-        "en": "For each question choose the output containing just the required information."
+        "zh": "为每个问题选出刚好够回答它的输出。",
+        "en": "For each question, choose the output that is just enough to answer it."
       },
-      "hint": [{ "zh": "比较问题需要的信息与每个输出。", "en": "Compare what the question needs with each output." }],
+      "hint": [
+        {
+          "zh": "先读每份输出里写了什么：它说了「是什么」，还是也说了「在哪里」？",
+          "en": "First read what each output actually says: does it say what is there, or also where?"
+        },
+        {
+          "zh": "图里有两个物体时，「在哪里」要对每一个都答得上。",
+          "en": "With two objects in the picture, 'where' has to be answered for each of them."
+        }
+      ],
       "judge": { "fields": { "mode": "exact" } },
       "rounds": [
         {
           "items": [
-            { "prompt": { "zh": "图中是什么类别？", "en": "What class is in the image?" }, "needs": ["class"] },
+            { "prompt": { "zh": "图里有猫吗？", "en": "Is there a cat in the picture?" }, "needs": ["class"] },
             {
-              "prompt": { "zh": "已知是红色物体，框出它的位置。", "en": "The object is red. Give its location." },
-              "needs": ["location"]
+              "prompt": { "zh": "这两只猫各在图的哪里？", "en": "Where in the picture is each of the two cats?" },
+              "needs": ["class", "location", "instance"]
             }
           ],
           "options": [
-            { "id": "label", "label": { "zh": "一张类别标签", "en": "One class label" }, "gives": ["class"] },
-            { "id": "box", "label": { "zh": "一个位置框", "en": "One bounding box" }, "gives": ["location"] },
+            { "id": "a", "label": { "zh": "猫", "en": "cat" }, "gives": ["class"] },
             {
-              "id": "detect",
-              "label": { "zh": "每个物体的类别和位置框", "en": "A class and box for each object" },
+              "id": "b",
+              "label": {
+                "zh": "猫 (4, 10)–(20, 26)；猫 (30, 8)–(44, 24)",
+                "en": "cat (4, 10)–(20, 26); cat (30, 8)–(44, 24)"
+              },
               "gives": ["class", "location", "instance"]
             },
             {
-              "id": "sem",
-              "label": { "zh": "每个像素的类别", "en": "A class per pixel" },
-              "gives": ["class", "region", "location"]
-            },
-            {
-              "id": "inst",
-              "label": { "zh": "每个像素的类别和物体编号", "en": "A class and object ID per pixel" },
-              "gives": ["class", "region", "instance", "location"]
-            },
-            {
-              "id": "depth",
-              "label": { "zh": "每个像素的距离", "en": "A distance at each pixel" },
-              "gives": ["depth", "region"]
+              "id": "c",
+              "label": {
+                "zh": "(4, 10)–(20, 26)；(30, 8)–(44, 24)",
+                "en": "(4, 10)–(20, 26); (30, 8)–(44, 24)"
+              },
+              "gives": ["location", "instance"]
             }
-          ],
-          "reference": {
-            "size": [32, 24],
-            "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-            "light": { "azimuth": 30, "elevation": 60 },
-            "floor": "white",
-            "objects": [
-              {
-                "id": "object",
-                "class": "object",
-                "colour": "red",
-                "boxes": [
-                  { "at": [0, 0.35, 0], "size": [0.55, 0.55, 0.42] },
-                  { "at": [0, 0.75, 0], "size": [0.35, 0.3, 0.35] }
-                ]
-              }
-            ]
-          }
+          ]
         },
         {
           "items": [
             {
-              "prompt": { "zh": "已知是红色物体，指出它的位置。", "en": "The object is red. Give its location." },
-              "needs": ["location"]
+              "prompt": {
+                "zh": "画面里的每辆车是哪种车、停在哪里？",
+                "en": "What kind of vehicle is each one in the picture, and where is it parked?"
+              },
+              "needs": ["class", "location", "instance"]
             },
-            { "prompt": { "zh": "图中的物体是什么类别？", "en": "What class is the object?" }, "needs": ["class"] }
+            { "prompt": { "zh": "画面里有公交车吗？", "en": "Is there a bus in the picture?" }, "needs": ["class"] }
           ],
           "options": [
             {
-              "id": "depth",
-              "label": { "zh": "每个像素的距离", "en": "A distance at each pixel" },
-              "gives": ["depth", "region"]
+              "id": "a",
+              "label": {
+                "zh": "(2, 12)–(18, 22)；(26, 14)–(40, 24)",
+                "en": "(2, 12)–(18, 22); (26, 14)–(40, 24)"
+              },
+              "gives": ["location", "instance"]
             },
             {
-              "id": "inst",
-              "label": { "zh": "每个像素的类别和物体编号", "en": "A class and object ID per pixel" },
-              "gives": ["class", "region", "instance", "location"]
-            },
-            {
-              "id": "sem",
-              "label": { "zh": "每个像素的类别", "en": "A class per pixel" },
-              "gives": ["class", "region", "location"]
-            },
-            {
-              "id": "detect",
-              "label": { "zh": "每个物体的类别和位置框", "en": "A class and box for each object" },
+              "id": "b",
+              "label": {
+                "zh": "轿车 (2, 12)–(18, 22)；公交车 (26, 14)–(40, 24)",
+                "en": "car (2, 12)–(18, 22); bus (26, 14)–(40, 24)"
+              },
               "gives": ["class", "location", "instance"]
             },
-            { "id": "box", "label": { "zh": "一个位置框", "en": "One bounding box" }, "gives": ["location"] },
-            { "id": "label", "label": { "zh": "一张类别标签", "en": "One class label" }, "gives": ["class"] }
-          ],
-          "reference": {
-            "size": [32, 24],
-            "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-            "light": { "azimuth": 30, "elevation": 60 },
-            "floor": "white",
-            "objects": [
-              {
-                "id": "object",
-                "class": "object",
-                "colour": "red",
-                "boxes": [
-                  { "at": [0, 0.35, 0], "size": [0.55, 0.55, 0.42] },
-                  { "at": [0, 0.75, 0], "size": [0.35, 0.3, 0.35] }
-                ]
-              }
-            ]
-          }
+            {
+              "id": "c",
+              "label": { "zh": "公交车、轿车", "en": "bus, car" },
+              "gives": ["class"]
+            }
+          ]
         }
-      ]
+      ],
+      "naive": {
+        "picks": [[["a"], ["a"]], [["c"], ["c"]]],
+        "why": {
+          "zh": "类别标签只说图里有什么，不说在哪里：问「各在哪里」的题要每个物体各有一个位置，标签里一个位置也没有。",
+          "en": "A class label says what is in the picture, not where: a question about where each object is needs a position for every object, and the label holds none."
+        }
+      }
     }
   ]
 }

@@ -1,47 +1,89 @@
 {
-  "title": { "zh": "相同的像", "en": "The same image" },
+  "title": { "zh": "更亮，但不糊", "en": "Brighter, but not blurred" },
   "intro": [
     {
       "t": {
-        "zh": "一张图可以对应不同场景。比较两种物体和距离的组合。",
-        "en": "One image can correspond to different scenes. Compare object-height and depth pairs."
+        "zh": "针孔小，进来的光少，图很暗；把孔开大，同一点的光会落到传感器上不同的地方。工作台换上一块焦距 50 mm 的透镜：光圈直径 A 管进来多少光，对焦距离管透镜把哪个距离上的光会聚到一点。",
+        "en": "A small pinhole lets in little light and the image is dark; widen it, and light from one point lands at different places on the sensor. The workbench now holds a 50 mm lens: the aperture diameter A sets how much light comes in, the focus distance which depth the lens gathers back to a point."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：要让图更亮又不变糊，只把孔开大够吗？进光量至少要到 4，近处的箱子还要清晰：它在传感器上的模糊圈不超过 0.03 mm。",
+        "en": "This level asks: to make the image brighter without blurring it, is widening the hole enough? The light must reach at least 4, and the near crate must be sharp: its blur circle on the sensor no wider than 0.03 mm."
       }
     }
   ],
+  "after": {
+    "zh": "<wiki-ref to=\"lens\"></wiki-ref>只把一个距离上的光会聚到一点，别的距离成模糊圈。",
+    "en": "A <wiki-ref to=\"lens\"></wiki-ref> gathers the light of one depth to a point; other depths make blur circles."
+  },
   "tasks": [
     {
       "id": "1B4",
-      "kind": "choice",
+      "kind": "bench",
       "brief": {
-        "zh": "选出至少两组像高为 1、距离不同的组合。",
-        "en": "Choose at least two pairs with image height 1 at different depths."
+        "zh": "调光圈和对焦距离：进光量不低于 4，近处的箱子清晰。",
+        "en": "Set the aperture and the focus distance: light at least 4, and the near crate sharp."
       },
-      "judge": { "project": { "f": 2, "target": 1 } },
-      "rounds": [
+      "hint": [
         {
-          "items": [{ "prompt": { "zh": "焦距为 2。", "en": "The focal length is 2." } }],
-          "options": [
-            { "id": "a", "label": { "zh": "物高 1，距离 2", "en": "Height 1, depth 2" }, "H": 1, "Z": 2 },
-            { "id": "b", "label": { "zh": "物高 2，距离 4", "en": "Height 2, depth 4" }, "H": 2, "Z": 4 },
-            { "id": "c", "label": { "zh": "物高 2，距离 2", "en": "Height 2, depth 2" }, "H": 2, "Z": 2 }
+          "zh": "光圈开大以后，看两个物体的模糊圈；再看对焦距离改变的是哪一个。",
+          "en": "After opening the aperture, watch both objects' blur circles; then see which one the focus distance changes."
+        }
+      ],
+      "bench": {
+        "model": "lens",
+        "setup": {
+          "F": 50,
+          "A0": 5,
+          "cMax": 0.03,
+          "objects": [
+            { "id": "near", "z": 1000, "label": { "zh": "近处的箱子", "en": "near crate" } },
+            { "id": "far", "z": 3000, "label": { "zh": "远处的树", "en": "far tree" } }
           ]
         },
+        "knobs": {
+          "A": {
+            "label": { "zh": "光圈直径 A", "en": "Aperture A" },
+            "min": 1,
+            "max": 16,
+            "step": 1,
+            "start": 2,
+            "unit": " mm"
+          },
+          "focus": {
+            "label": { "zh": "对焦距离", "en": "Focus distance" },
+            "min": 1000,
+            "max": 5000,
+            "step": 500,
+            "start": 3000,
+            "unit": " mm"
+          }
+        },
+        "goal": [
+          { "of": "light", "label": { "zh": "进光量", "en": "Light" }, "atLeast": 4, "format": "fixed2" },
+          { "of": "sharp_near", "label": { "zh": "近处的箱子清晰", "en": "Near crate sharp" }, "is": 1 }
+        ],
+        "layout": { "main": ["lensRays", "blurCurve"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
         {
-          "items": [
-            {
-              "prompt": {
-                "zh": "焦距仍为 2，选择至少两组距离不同而像高为 1 的组合。",
-                "en": "The focal length is still 2. Choose at least two pairs with different depths and image height 1."
-              }
-            }
-          ],
-          "options": [
-            { "id": "a", "label": { "zh": "物高 3，距离 6", "en": "Height 3, depth 6" }, "H": 3, "Z": 6 },
-            { "id": "b", "label": { "zh": "物高 4，距离 8", "en": "Height 4, depth 8" }, "H": 4, "Z": 8 },
-            { "id": "c", "label": { "zh": "物高 4，距离 4", "en": "Height 4, depth 4" }, "H": 4, "Z": 4 }
-          ]
+          "set": { "A": 16 },
+          "why": {
+            "zh": "只把光圈开大：光够了，可箱子不在对焦距离上，它的模糊圈随光圈一起变大。",
+            "en": "Only opening the aperture: the light is enough, but the crate is not at the focus distance and its blur circle grows with the aperture."
+          }
+        },
+        {
+          "set": { "focus": 1000 },
+          "why": {
+            "zh": "只对焦、不开光圈：箱子清晰了，进光量仍然只有 0.16。",
+            "en": "Only focusing, aperture unchanged: the crate is sharp, but the light is still only 0.16."
+          }
         }
-      ]
+      ],
+      "holds": [{ "of": "focus", "near": 1000, "atMost": 1 }]
     }
   ]
 }

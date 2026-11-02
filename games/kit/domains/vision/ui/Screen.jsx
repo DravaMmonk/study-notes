@@ -9,7 +9,7 @@ import { fits, startBoard } from '../board.js'
 import { FIXED, PARTS } from '../parts.js'
 import { runLevel } from '../run.js'
 import { fmt, isImage, show } from '../image.js'
-import { CARDS, OUTSIDE, PORT_LABELS } from './catalog.js'
+import { CARDS, CHANNELS, OUTSIDE, PORT_LABELS } from './catalog.js'
 import ImageView from './ImageView.jsx'
 
 // A circuit task of a vision game on the kit's circuit level (../../../shell/CircuitLevel.jsx): the task's inputs down
@@ -64,7 +64,7 @@ function Cell({ value }) {
 const NONE = []
 const valueOf = (node, key, view) => view.values.get(key ? `${node.id}#${key}` : node.id)
 // A new card's settings are its defaults written in, so the card shows them.
-const defaults = (type) => (type === 'const' ? { value: '0' } : type === 'lookup' ? { outside: 'error' } : {})
+const defaults = (type) => (type === 'const' ? { value: '0' } : type === 'lookup' ? { outside: 'error' } : type === 'channel' ? { c: 'R' } : {})
 
 export default function Screen(screen) {
   const { game: shell, level: entry, solved, flags, progress } = screen
@@ -118,6 +118,16 @@ export default function Screen(screen) {
           <span>{tr('出界', 'Outside')}</span>
           <select value={p.outside} disabled={ctx.readOnly} onPointerDown={stop} onChange={(e) => setParam(node, 'outside', e.target.value)}>
             {OUTSIDE.map(([v, text]) => <option key={v} value={v}>{L(text)}</option>)}
+          </select>
+        </label>
+      )
+    }
+    if (node.type === 'channel') {
+      return (
+        <label className="vi-field">
+          <span>{tr('通道', 'Channel')}</span>
+          <select value={p.c} disabled={ctx.readOnly} onPointerDown={stop} onChange={(e) => setParam(node, 'c', e.target.value)}>
+            {CHANNELS.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
           </select>
         </label>
       )

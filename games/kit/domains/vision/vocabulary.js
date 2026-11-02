@@ -42,7 +42,7 @@ const PART_ABOUT = {
   size: t('图的宽 w 和高 h', 'An image’s width w and height h'),
   grid: t('给定宽高的两张坐标图：x 图每格是它的 x，y 图每格是它的 y', 'The two coordinate images of a size: in x each cell holds its x, in y its y'),
   lookup: t('按坐标在图上取值：坐标是数取一个值，是坐标图取出同样大小的一张图；坐标须为整数；出界按设置报错、取 0 或取最近的边', 'An image read at coordinates: at numbers one value, at coordinate images an image of their size; whole numbers only; outside it stops, reads 0 or reads the nearest edge, as set'),
-  channel: t('彩色图的第 c 个通道（0、1、2 是 R、G、B）', 'Channel c of a colour image (0, 1, 2 are R, G, B)'),
+  channel: t('彩色图的一个通道（设置 c：R、G 或 B）', 'One channel of a colour image (setting c: R, G or B)'),
   compose: t('三张同样大小的灰度图拼成彩色图（R、G、B）', 'Three grey images of one size made one colour image (R, G, B)'),
 }
 const PARTS = Object.fromEntries(PRIMITIVES.map((k) => [k, item(PART_ABOUT[k])]))
@@ -151,11 +151,13 @@ const TASK = S.by('kind', {
     ask: S.call('ask'),
     show: S.opt(S.oneOf(['numbers', 'picture', 'both'], { about: t('图怎么给玩家看：数、画面、两样都看（默认两样）', 'how the image is shown: numbers, picture or both (both by default)') })),
     tolerance: S.opt(S.num({ min: 0 })),
+    naive: S.opt(S.obj({ answer: S.any({ about: t('和这个 ask 的答案同形：一行行的数，或 { x, y }', 'shaped as the ask’s answer: rows of numbers, or { x, y }') }), why: S.text() }, { section: 'tests', about: t('知识点要纠正的那个错误答案和它为什么错：npm run check 查它判错；玩家交出它时，屏幕说出为什么错', 'the wrong answer the point corrects and why it is wrong: npm run check checks it fails; when the player gives it, the screen says why') })),
   }),
   choice: S.obj({
     kind: S.oneOf(['choice']), ...COMMON,
     judge: S.call('judge'),
     rounds: S.list(ROUND, { min: 1, section: 'tests', about: t('一轮一轮答：第一轮公开，后面的换了数据，答对一轮才出下一轮', 'answered round by round: the first shown, the later ones with changed data, each after the one before is right') }),
+    naive: S.opt(S.obj({ picks: S.list(S.list(S.list(S.str())), { about: t('每一轮、每一题选的选项 id', 'the option ids picked, a list a round, a list an item') }), why: S.text() }, { section: 'tests', about: t('知识点要纠正的那个错误答法和它为什么错：npm run check 查它在某一轮判错；玩家在那一轮交出它时，屏幕说出为什么错', 'the wrong picks the point corrects and why they are wrong: npm run check checks they fail a round; when the player gives them there, the screen says why') })),
   }),
   bench: S.obj({
     kind: S.oneOf(['bench']), ...COMMON,

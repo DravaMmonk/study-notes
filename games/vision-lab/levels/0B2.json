@@ -1,127 +1,159 @@
 {
-  "title": { "zh": "换一盏光", "en": "Change the light" },
+  "title": { "zh": "一个反例", "en": "One counterexample" },
   "intro": [
     {
       "t": {
-        "zh": "相机和物体不动时，光照变化也会改变画面。",
-        "en": "Even with the camera and object fixed, lighting can change the picture."
+        "zh": "一个分类器的作者说：「它在任何背景下都认得出猫。」检查台拿到一批样例，每个样例有人工标注的真实类别和分类器的预测，还有预测的置信度。",
+        "en": "The author of a classifier claims: 'it recognises a cat against any background.' The station receives a batch of cases, each with its labelled true class, the classifier's prediction and the confidence of that prediction."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：分类器在一张照片上答对了，而且很有把握，这能说明它换了背景也认得出吗？选出一个能推翻这句话的样例；一个也没有时，选「没有」。",
+        "en": "This level asks: when a classifier gets one photo right, and confidently, does that show it will recognise the cat against other backgrounds? Choose a case that refutes the claim; when there is none, choose 'none'."
       }
     }
   ],
+  "after": {
+    "zh": "输入有无关的变化时输出仍然可靠，叫<wiki-ref to=\"robustness\"></wiki-ref>：答对一次证明不了，一个反例就能推翻。",
+    "en": "Staying reliable when irrelevant things about the input change is <wiki-ref to=\"robustness\"></wiki-ref>: one right answer cannot prove it, one counterexample refutes it."
+  },
   "tasks": [
     {
       "id": "0B2",
       "kind": "choice",
-      "brief": { "zh": "选出所有只改变光照的候选。", "en": "Select every candidate that changes only the lighting." },
-      "hint": [{ "zh": "保持物体和相机不动，调整光的方向。", "en": "Keep the object and camera fixed and turn the light." }],
-      "judge": { "same": { "vary": "light" } },
+      "brief": {
+        "zh": "选出能推翻「它在任何背景下都认得出猫」的样例；没有就选「没有」。",
+        "en": "Choose a case that refutes 'it recognises a cat against any background'; if there is none, choose 'none'."
+      },
+      "hint": [
+        {
+          "zh": "置信度说的是分类器自己有多肯定，不是它对不对：逐个把预测和标注对一对。",
+          "en": "The confidence says how sure the classifier is, not whether it is right: check each prediction against its label."
+        }
+      ],
+      "judge": "refute",
       "rounds": [
         {
-          "reference": {
-            "size": [32, 24],
-            "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-            "light": { "azimuth": 30, "elevation": 60 },
-            "floor": "white",
-            "objects": [
-              {
-                "id": "shape",
-                "class": "shape",
-                "colour": "red",
-                "boxes": [
-                  { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
-                  { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
-                ]
-              }
-            ]
-          },
-          "explore": {
-            "scene": {
-              "size": [32, 24],
-              "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-              "light": { "azimuth": 30, "elevation": 60 },
-              "floor": "white",
-              "objects": [
-                {
-                  "id": "shape",
-                  "class": "shape",
-                  "colour": "red",
-                  "boxes": [
-                    { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
-                    { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
-                  ]
-                }
-              ]
-            },
-            "knobs": ["azimuth", "elevation"]
-          },
-          "items": [{ "prompt": { "zh": "哪些候选只改变光照？", "en": "Which candidates change only the light?" } }],
+          "items": [{ "prompt": { "zh": "哪个样例推翻了这句话？", "en": "Which case refutes the claim?" } }],
           "options": [
             {
-              "id": "A",
-              "label": { "zh": "候选 A", "en": "Candidate A" },
-              "scene": {
-                "size": [32, 24],
-                "camera": { "yaw": 70, "pitch": 10, "distance": 6, "f": 1 },
-                "light": { "azimuth": 30, "elevation": 60 },
-                "floor": "white",
-                "objects": [
-                  {
-                    "id": "shape",
-                    "class": "shape",
-                    "colour": "red",
-                    "boxes": [
-                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
-                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
-                    ]
-                  }
-                ]
-              }
+              "id": "a",
+              "label": {
+                "zh": "标注：猫 · 背景：沙发 · 预测：猫（99%）",
+                "en": "label: cat · background: sofa · predicted: cat (99%)"
+              },
+              "truth": "cat",
+              "predicted": "cat"
             },
             {
-              "id": "B",
-              "label": { "zh": "候选 B", "en": "Candidate B" },
-              "scene": {
-                "size": [32, 24],
-                "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-                "light": { "azimuth": -75, "elevation": 60 },
-                "floor": "white",
-                "objects": [
-                  {
-                    "id": "shape",
-                    "class": "shape",
-                    "colour": "red",
-                    "boxes": [
-                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
-                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
-                    ]
-                  }
-                ]
-              }
+              "id": "b",
+              "label": {
+                "zh": "标注：猫 · 背景：草地 · 预测：猫（92%）",
+                "en": "label: cat · background: grass · predicted: cat (92%)"
+              },
+              "truth": "cat",
+              "predicted": "cat"
             },
             {
-              "id": "C",
-              "label": { "zh": "候选 C", "en": "Candidate C" },
-              "scene": {
-                "size": [32, 24],
-                "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-                "light": { "azimuth": 30, "elevation": 60 },
-                "floor": "white",
-                "objects": [
-                  {
-                    "id": "shape",
-                    "class": "shape",
-                    "colour": "blue",
-                    "boxes": [
-                      { "at": [0, 0.4, 0], "size": [1, 0.8, 0.5] },
-                      { "at": [0.4, 1, 0.1], "size": [0.35, 0.6, 0.3] }
-                    ]
-                  }
-                ]
-              }
+              "id": "c",
+              "label": {
+                "zh": "标注：猫 · 背景：雪地 · 预测：狐狸（71%）",
+                "en": "label: cat · background: snow · predicted: fox (71%)"
+              },
+              "truth": "cat",
+              "predicted": "fox"
+            },
+            {
+              "id": "d",
+              "label": {
+                "zh": "标注：猫 · 背景：窗台 · 预测：猫（88%）",
+                "en": "label: cat · background: windowsill · predicted: cat (88%)"
+              },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            { "id": "none", "label": { "zh": "没有", "en": "none" } }
+          ]
+        },
+        {
+          "items": [
+            { "prompt": { "zh": "这一批里，哪个样例推翻了这句话？", "en": "In this batch, which case refutes the claim?" } }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": {
+                "zh": "标注：猫 · 背景：地毯 · 预测：猫（64%）",
+                "en": "label: cat · background: carpet · predicted: cat (64%)"
+              },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            {
+              "id": "b",
+              "label": {
+                "zh": "标注：猫 · 背景：车顶 · 预测：猫（97%）",
+                "en": "label: cat · background: car roof · predicted: cat (97%)"
+              },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            {
+              "id": "c",
+              "label": {
+                "zh": "标注：猫 · 背景：书架 · 预测：猫（58%）",
+                "en": "label: cat · background: bookshelf · predicted: cat (58%)"
+              },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            { "id": "none", "label": { "zh": "没有", "en": "none" } }
+          ]
+        },
+        {
+          "items": [
+            { "prompt": { "zh": "又一批样例：哪个推翻了这句话？", "en": "Another batch: which case refutes the claim?" } }
+          ],
+          "options": [
+            { "id": "none", "label": { "zh": "没有", "en": "none" } },
+            {
+              "id": "a",
+              "label": {
+                "zh": "标注：猫 · 背景：沙滩 · 预测：狗（98%）",
+                "en": "label: cat · background: beach · predicted: dog (98%)"
+              },
+              "truth": "cat",
+              "predicted": "dog"
+            },
+            {
+              "id": "b",
+              "label": {
+                "zh": "标注：猫 · 背景：厨房 · 预测：猫（81%）",
+                "en": "label: cat · background: kitchen · predicted: cat (81%)"
+              },
+              "truth": "cat",
+              "predicted": "cat"
+            },
+            {
+              "id": "c",
+              "label": {
+                "zh": "标注：猫 · 背景：树枝 · 预测：猫头鹰（55%）",
+                "en": "label: cat · background: branch · predicted: owl (55%)"
+              },
+              "truth": "cat",
+              "predicted": "owl"
             }
           ]
         }
-      ]
+      ],
+      "naive": {
+        "picks": [[["a"]], [["b"]], [["b"]]],
+        "why": {
+          "zh": "这个样例的预测和标注一致：答对的样例，置信度再高，也推翻不了「任何背景下都认得出」。要找的是预测和标注不一致的那个。",
+          "en": "This case's prediction matches its label: a right answer, however confident, cannot refute 'recognises it against any background'. Look for a case whose prediction differs from its label."
+        }
+      }
     }
   ]
 }

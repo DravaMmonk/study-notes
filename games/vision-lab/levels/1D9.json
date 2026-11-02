@@ -1,0 +1,119 @@
+{
+  "title": { "zh": "开一扇窗", "en": "A window into the image" },
+  "intro": [
+    {
+      "t": {
+        "zh": "流水线常常只要图里的一部分。这一关的问题是：从一张图里取出一块时，输出的像素值是原图里已有的，还是新算出来的？输入一张图、窗口左上角的 x0、y0 和窗口的宽 w、高 h。",
+        "en": "A pipeline often wants only part of an image. This level asks: when a region is taken out of an image, are the output's pixel values ones the original holds, or newly computed? The inputs are an image, the window's top-left x0, y0, and its width w and height h."
+      }
+    }
+  ],
+  "builds": {
+    "type": "crop",
+    "name": { "zh": "裁剪", "en": "Crop" },
+    "desc": {
+      "zh": "输入一张图、窗口左上角 x0、y0 和宽 w、高 h，输出窗口里的像素，值原样不变",
+      "en": "Takes an image, a window's top-left x0, y0 and its width w and height h; gives the pixels inside the window, values unchanged"
+    }
+  },
+  "after": {
+    "zh": "这是<wiki-ref to=\"cropping\"></wiki-ref>：NumPy 写成 image[y0:y0+h, x0:x0+w]。",
+    "en": "This is <wiki-ref to=\"cropping\"></wiki-ref>: in NumPy, image[y0:y0+h, x0:x0+w]."
+  },
+  "tasks": [
+    {
+      "id": "1D9",
+      "kind": "circuit",
+      "brief": {
+        "zh": "输入一张图、窗口左上角 (x0, y0) 和宽 w、高 h：交出窗口里的像素。",
+        "en": "Given an image, a window's top-left corner (x0, y0) and its width w and height h, give the pixels inside the window."
+      },
+      "hint": [
+        {
+          "zh": "窗口里坐标 (x, y) 的像素，是原图里的哪一个？",
+          "en": "Which pixel of the original is the window's pixel at (x, y)?"
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "x0", "label": "x0" },
+        { "name": "y0", "label": "y0" },
+        { "name": "w", "label": { "zh": "宽", "en": "Width" } },
+        { "name": "h", "label": { "zh": "高", "en": "Height" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "窗口", "en": "Window" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 1,
+            "y0": 0,
+            "w": 2,
+            "h": 2
+          },
+          "expect": { "out": [[2, 3], [6, 7]] }
+        },
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 2,
+            "y0": 1,
+            "w": 2,
+            "h": 2
+          },
+          "expect": { "out": [[7, 8], [11, 12]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 3,
+            "y0": 2,
+            "w": 1,
+            "h": 1
+          },
+          "expect": { "out": [[12]] }
+        },
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 0,
+            "y0": 0,
+            "w": 4,
+            "h": 3
+          },
+          "expect": { "out": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]] }
+        },
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 0,
+            "y0": 1,
+            "w": 3,
+            "h": 1
+          },
+          "expect": { "out": [[5, 6, 7]] }
+        },
+        {
+          "inputs": {
+            "image": [[[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 1]]],
+            "x0": 1,
+            "y0": 0,
+            "w": 1,
+            "h": 2
+          },
+          "expect": { "out": [[[0, 1, 0]], [[1, 1, 1]]] }
+        }
+      ],
+      "solution": [
+        "g = grid(w, h)",
+        "xs = add(g.x, x0)",
+        "ys = add(g.y, y0)",
+        "r = lookup(image, xs, ys)",
+        "out <- r"
+      ],
+      "naive": ["r = resizeNearest(image, w, h)", "out <- r"]
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "title": { "zh": "有限的级数", "en": "Finitely many levels" },
+  "intro": [
+    {
+      "t": {
+        "zh": "图像存进文件时，每个值只能取有限的几级：uint8 有 256 级。电路算出来的值还可能越出 [0, 1]。",
+        "en": "When an image is stored, each value can take only a few levels: uint8 has 256. And values a circuit computes may leave [0, 1]."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：一个值只能存成 L 级中的一级时，该存哪一级？L 级把 [0, 1] 等分，L = 3 时是 0、0.5、1。新元件<part-ref to=\"part:min\"></part-ref>和<part-ref to=\"part:max\"></part-ref>逐个值取两者中小的、大的。正好在两级中间时，约定取较大的一级。",
+        "en": "This level asks: when a value can only be stored as one of L levels, which should it be? L levels divide [0, 1] evenly: with L = 3 they are 0, 0.5 and 1. The new parts <part-ref to=\"part:min\"></part-ref> and <part-ref to=\"part:max\"></part-ref> take the smaller and the larger of two, value by value. A value exactly between two levels goes to the larger, by convention."
+      }
+    }
+  ],
+  "adds": ["min", "max"],
+  "builds": {
+    "type": "quantise",
+    "name": { "zh": "量化", "en": "Quantise" },
+    "desc": {
+      "zh": "输入一张图和级数 L，输出量化后的图：先截到 [0, 1]，再存成最近的一级",
+      "en": "Takes an image and a number of levels L; gives the quantised image: clipped to [0, 1], then stored as the nearest level"
+    }
+  },
+  "after": {
+    "zh": "这是<wiki-ref to=\"quantisation\"></wiki-ref>：uint8 就是 256 级的量化。",
+    "en": "This is <wiki-ref to=\"quantisation\"></wiki-ref>: uint8 is quantisation to 256 levels."
+  },
+  "tasks": [
+    {
+      "id": "1D7",
+      "kind": "circuit",
+      "brief": {
+        "zh": "输入一张图和级数 L：截到 [0, 1] 以后，每个值存成离它最近的一级。",
+        "en": "Given an image and a number of levels L, clip to [0, 1], then store each value as the level nearest to it."
+      },
+      "hint": [
+        {
+          "zh": "乘上 L − 1 以后，每一级正好落在一个整数上。",
+          "en": "Multiplied by L − 1, every level lands on a whole number."
+        },
+        { "zh": "−0.2 和 1.3 这样的值会算出不存在的级。", "en": "Values such as −0.2 and 1.3 give levels that do not exist." }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "L", "label": { "zh": "级数 L", "en": "Levels L" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "量化后", "en": "Quantised" } }],
+      "tests": [
+        { "inputs": { "image": [[0, 0.3, 0.8, 0.75]], "L": 3 }, "expect": { "out": [[0, 0.5, 1, 1]] } },
+        { "inputs": { "image": [[0.1, 0.4, 0.6, 1]], "L": 5 }, "expect": { "out": [[0, 0.5, 0.5, 1]] } }
+      ],
+      "hidden": [
+        { "inputs": { "image": [[-0.2, 1.3, 0.5]], "L": 3 }, "expect": { "out": [[0, 1, 0.5]] } },
+        { "inputs": { "image": [[0.49, 0.5, 0.51]], "L": 2 }, "expect": { "out": [[0, 1, 1]] } },
+        { "inputs": { "image": [[0.5]], "L": 256 }, "expect": { "out": [[0.50196078]] } },
+        { "inputs": { "image": [[0.2, 0.9], [0.4, 0.6]], "L": 2 }, "expect": { "out": [[0, 1], [0, 1]] } }
+      ],
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "neg = const[value=-1]()",
+        "half = const[value=0.5]()",
+        "lo = max(image, zero)",
+        "c = min(lo, one)",
+        "steps = add(L, neg)",
+        "sc = mul(c, steps)",
+        "r = add(sc, half)",
+        "k = floor(r)",
+        "q = div(k, steps)",
+        "out <- q"
+      ],
+      "naive": [
+        "neg = const[value=-1]()",
+        "steps = add(L, neg)",
+        "sc = mul(image, steps)",
+        "k = floor(sc)",
+        "q = div(k, steps)",
+        "out <- q"
+      ]
+    }
+  ]
+}

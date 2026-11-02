@@ -1,61 +1,76 @@
 {
-  "title": { "zh": "读取像素", "en": "Read a pixel" },
+  "title": { "zh": "看上去一样白", "en": "Equally white to the eye" },
   "intro": [
     {
       "t": {
-        "zh": "观察器能指出位置，但流水线还不能读取该位置的值。",
-        "en": "The viewer can identify a position, but the pipeline cannot yet read its value."
+        "zh": "电路算出的值可以落在 [0, 1] 之外。屏幕只显示得出 0 到 1，画的时候超出的部分画成最黑或最白。",
+        "en": "A circuit may compute values outside [0, 1]. A screen shows only 0 to 1, and draws whatever lies beyond as the darkest or the brightest."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：两个像素看上去一样白，存着的数一样吗？先填出每格显示出来的值，再把 OpenCV 读进来的 uint8 像素换成 [0, 1] 里的 (R, G, B)。uint8 是 0 到 255 的整数，255 最亮。",
+        "en": "This level asks: when two pixels look equally white, do they hold the same number? First fill in each cell's displayed value, then turn uint8 pixels read by OpenCV into (R, G, B) in [0, 1]. A uint8 is a whole number from 0 to 255, 255 the brightest."
       }
     }
   ],
+  "after": {
+    "zh": "像素值有<wiki-ref to=\"value-range\"></wiki-ref>和类型：显示时截到两端，存着的数不变。",
+    "en": "Pixel values have a <wiki-ref to=\"value-range\"></wiki-ref> and a type: the display clips to the ends, the stored numbers stay."
+  },
   "tasks": [
     {
       "id": "1C2",
-      "kind": "circuit",
-      "brief": { "zh": "交出图在 (x, y) 处的值。", "en": "Give the image value at (x, y)." },
-      "inputs": [
-        { "name": "image", "label": "image" },
-        { "name": "x", "label": "x" },
-        { "name": "y", "label": "y" }
+      "kind": "grid",
+      "step": { "zh": "显示和存储", "en": "Shown and stored" },
+      "brief": {
+        "zh": "对照每格存着的数，填出它在屏幕上显示出来的值。",
+        "en": "From each cell's stored number, fill in the value the screen displays."
+      },
+      "hint": [
+        {
+          "zh": "看画面里最白的几格：它们存的数都一样吗？",
+          "en": "Look at the whitest cells of the picture: do they all hold the same number?"
+        }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
-      "tests": [
-        { "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "x": 2, "y": 1 }, "expect": { "out": 6 } },
-        { "inputs": { "image": [[1, 2], [3, 4], [5, 6]], "x": 0, "y": 2 }, "expect": { "out": 5 } }
-      ],
-      "solution": ["r = lookup(image, x, y)", "out <- r"],
-      "hidden": [{ "inputs": { "image": [[7]], "x": 0, "y": 0 }, "expect": { "out": 7 } }],
-      "naive": ["r = lookup(image, y, x)", "out <- r"]
+      "image": [[-0.2, 0.5, 1.2], [1, 0, 0.8]],
+      "show": "both",
+      "ask": {
+        "fill": { "rows": [[0, 0.5, 1], [1, 0, 0.8]], "label": { "zh": "显示出来的值", "en": "displayed values" } }
+      },
+      "naive": {
+        "answer": [[-0.2, 0.5, 1.2], [1, 0, 0.8]],
+        "why": {
+          "zh": "这是存着的数，不是显示出来的：屏幕只显示得出 0 到 1，−0.2 画成 0，1.2 画成 1，而存着的数照旧不变。",
+          "en": "These are the stored numbers, not the displayed ones: a screen shows only 0 to 1, so −0.2 is drawn as 0 and 1.2 as 1, while the stored numbers stay as they were."
+        }
+      }
     },
     {
       "id": "1C2_2",
-      "kind": "circuit",
+      "kind": "grid",
+      "step": { "zh": "uint8", "en": "uint8" },
       "brief": {
-        "zh": "坐标输入可以是两张同尺寸的坐标图；交出逐格读取的结果。",
-        "en": "Coordinate inputs may be two matching coordinate images; output the value read at each pair."
+        "zh": "这两个像素是 OpenCV 读进来的 uint8 值：写成 [0, 1] 里的 (R, G, B)。",
+        "en": "These two pixels are uint8 values read by OpenCV: write them as (R, G, B) in [0, 1]."
       },
-      "inputs": [
-        { "name": "image", "label": "image" },
-        { "name": "x", "label": "x" },
-        { "name": "y", "label": "y" }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
-      "tests": [
-        {
-          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "x": [[0, 2]], "y": [[1, 0]] },
-          "expect": { "out": [[4, 3]] }
-        },
-        {
-          "inputs": { "image": [[7, 8], [9, 10]], "x": [[1], [0]], "y": [[1], [0]] },
-          "expect": { "out": [[10], [7]] }
+      "hint": [{ "zh": "OpenCV 读进来的三个数按什么顺序排？", "en": "In what order does OpenCV store the three numbers?" }],
+      "image": [[[255, 51, 0], [0, 128, 255]]],
+      "show": "numbers",
+      "tolerance": 0.005,
+      "ask": {
+        "fill": {
+          "rows": [[[0, 0.2, 1], [1, 0.502, 0]]],
+          "label": { "zh": "(R, G, B)，0 到 1", "en": "(R, G, B), 0 to 1" }
         }
-      ],
-      "solution": ["r = lookup(image, x, y)", "out <- r"]
+      },
+      "naive": {
+        "answer": [[[1, 0.2, 0], [0, 0.502, 1]]],
+        "why": {
+          "zh": "除以 255 没错，顺序却照 RGB 读了：OpenCV 读进来的三个数是 B、G、R，第一个数是蓝。",
+          "en": "Dividing by 255 is right, but the numbers were read as RGB: OpenCV stores B, G, R, so the first number is blue."
+        }
+      }
     }
-  ],
-  "adds": ["lookup"],
-  "showcase": {
-    "zh": "同一读取元件接受数值坐标，也接受整张坐标图，输出形状随之变化。",
-    "en": "The same lookup accepts scalar coordinates or coordinate images, changing the shape of its output."
-  }
+  ]
 }

@@ -18,7 +18,7 @@ import { display, fmt, fromRows, pixel, show } from './image.js'
 import { startBoard } from './board.js'
 import { runLevel } from './run.js'
 import { askOf, gridCheck } from './grid.js'
-import { judgeOf } from './judges.js'
+import { isNaive, judgeOf } from './judges.js'
 import { COLOURS, describe } from './scene.js'
 import { DISPLAYS } from './benches/index.js'
 import { callOf } from '../../engine/schema.js'
@@ -44,7 +44,7 @@ const circuit = circuitPlay({
     }
   },
   key: ({ game }, type) => (game.vision.BUILT[type] ? type : `part:${type}`),
-  settings: (_ctx, type) => (type === 'const' ? [{ key: 'value', values: ['…'] }] : type === 'lookup' ? [{ key: 'outside', values: ['error', 'zero', 'clamp'] }] : []),
+  settings: (_ctx, type) => (type === 'const' ? [{ key: 'value', values: ['…'] }] : type === 'lookup' ? [{ key: 'outside', values: ['error', 'zero', 'clamp'] }] : type === 'channel' ? [{ key: 'c', values: ['R', 'G', 'B'] }] : []),
   given: ({ level: { source: L } }) => both((lang) => [...L.inputs.map((i) => `${i.name}: ${lang === 'en' ? 'input' : '输入'} “${pick(i.label, lang)}”`), ...L.outputs.map((o) => `${o.name}: ${lang === 'en' ? 'output' : '输出'} “${pick(o.label, lang)}”`)].join('\n')),
   tests: ({ level: { source: L }, solved }) => testsOf(L, solved).map((test, k) => ({
     label: T(`测试 ${k + 1}`, `Test ${k + 1}`),
@@ -109,7 +109,8 @@ const grid = {
     const { name } = askOf(L)
     const answer = ['pick', 'locate'].includes(name) ? (([x, y]) => ({ x: Number(x), y: Number(y) }))(text.trim().split(/[\s,]+/)) : rowsOf(text)
     const why = gridCheck(L, answer)
-    return { tests: [{ label: T('答案', 'The answer'), pass: !why, says: why }], pass: !why, keep: answer }
+    const naive = why && L.naive && JSON.stringify(answer) === JSON.stringify(L.naive.answer)
+    return { tests: [{ label: T('答案', 'The answer'), pass: !why, says: why }], ...(naive ? { says: [L.naive.why] } : {}), pass: !why, keep: answer }
   },
 }
 
@@ -147,6 +148,7 @@ const choice = {
     const tests = L.rounds.map((round, r) => {
       const picks = (lines[r] ?? '').split(';').map((s) => s.split(',').map((x) => x.trim()).filter(Boolean))
       const wrong = judge.check(round, picks, params)
+      if (wrong.length && isNaive(L, r, picks)) says.push(L.naive.why)
       // What the screen shows under a claim answered wrong that two candidate scenes split: the two from another view.
       for (const w of wrong) {
         const reveal = round.reveals?.[w.item]

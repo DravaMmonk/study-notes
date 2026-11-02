@@ -1,10 +1,10 @@
 {
-  "title": { "zh": "移动图像", "en": "Move the picture" },
+  "title": { "zh": "缩小时丢掉了什么", "en": "What shrinking drops" },
   "intro": [
     {
       "t": {
-        "zh": "裁剪会改变范围。现在要保持原尺寸，把内容移到新位置。",
-        "en": "A crop changes the extent. Now move the content while retaining the original dimensions."
+        "zh": "最近邻缩放放大时成块。这一关换一个方向：最近邻缩小图像时，没被选中的旧像素去了哪里？先把条纹图缩到一半宽、再放大回原来的宽，同时交出每个新像素的采样位置；再判断原图的哪些列留在了结果里。",
+        "en": "Nearest-neighbour enlarging makes squares. This level goes the other way: when nearest neighbour shrinks an image, what becomes of the old pixels it does not pick? First shrink striped images to half their width and enlarge them back, giving each new pixel's sample position as well; then judge which of the original's columns survive."
       }
     }
   ],
@@ -12,60 +12,126 @@
     {
       "id": "1D3",
       "kind": "circuit",
+      "step": { "zh": "缩小再放大", "en": "Shrink and back" },
       "brief": {
-        "zh": "按 (dx, dy) 移动图像，空出的位置填 0。",
-        "en": "Move the image by (dx, dy), filling uncovered cells with 0."
+        "zh": "把输入的图缩到一半宽（高不变），交出缩小的图、每个新像素在原图里的 x，以及缩小的图再放大回原宽的样子。",
+        "en": "Shrink the input to half its width (height unchanged), and give the shrunk image, each new pixel's x in the original, and the shrunk image enlarged back to the original width."
       },
-      "inputs": [
-        { "name": "image", "label": "image" },
-        { "name": "dx", "label": "dx" },
-        { "name": "dy", "label": "dy" }
+      "hint": [
+        {
+          "zh": "缩小后再放大，宽回来了：原图里的值也都回来了吗？",
+          "en": "Shrinking and then enlarging brings the width back: does it bring back every value of the original too?"
+        }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [
+        { "name": "out", "label": { "zh": "缩小后", "en": "Shrunk" } },
+        { "name": "pos", "label": { "zh": "原图 x", "en": "Source x" } },
+        { "name": "back", "label": { "zh": "放大回原宽", "en": "Enlarged back" } }
+      ],
       "tests": [
         {
-          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "dx": 1, "dy": 0 },
-          "expect": { "out": [[0, 1, 2], [0, 4, 5]] }
+          "inputs": { "image": [[0, 1, 0, 1, 0, 1, 0, 1]] },
+          "expect": { "out": [[1, 1, 1, 1]], "pos": [[0.5, 2.5, 4.5, 6.5]], "back": [[1, 1, 1, 1, 1, 1, 1, 1]] }
         },
         {
-          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "dx": -1, "dy": 0 },
-          "expect": { "out": [[2, 3, 0], [5, 6, 0]] }
+          "inputs": { "image": [[0, 0, 1, 1, 0, 0, 1, 1]] },
+          "expect": { "out": [[0, 1, 0, 1]], "pos": [[0.5, 2.5, 4.5, 6.5]], "back": [[0, 0, 1, 1, 0, 0, 1, 1]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 2, 3, 4], [5, 6, 7, 8]] },
+          "expect": {
+            "out": [[2, 4], [6, 8]],
+            "pos": [[0.5, 2.5], [0.5, 2.5]],
+            "back": [[2, 2, 4, 4], [6, 6, 8, 8]]
+          }
+        },
+        {
+          "inputs": { "image": [[0.3, 0.9]] },
+          "expect": { "out": [[0.9]], "pos": [[0.5]], "back": [[0.9, 0.9]] }
         }
       ],
       "solution": [
         "s = size(image)",
-        "g = grid(s.w, s.h)",
-        "sx = sub(g.x, dx)",
-        "sy = sub(g.y, dy)",
-        "r = lookup[outside=zero](image, sx, sy)",
-        "out <- r"
-      ],
-      "hidden": [
-        {
-          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "dx": 0, "dy": 1 },
-          "expect": { "out": [[0, 0, 0], [1, 2, 3]] }
-        },
-        {
-          "inputs": { "image": [[[1, 0, 0], [0, 0, 1]]], "dx": 1, "dy": 0 },
-          "expect": { "out": [[[0, 0, 0], [1, 0, 0]]] }
-        }
+        "two = const[value=2]()",
+        "hw = div(s.w, two)",
+        "r = resizeNearest(image, hw, s.h)",
+        "b = resizeNearest(r, s.w, s.h)",
+        "sg = sampleGrid(s.w, s.h, hw, s.h)",
+        "out <- r",
+        "pos <- sg.x",
+        "back <- b"
       ],
       "naive": [
         "s = size(image)",
-        "g = grid(s.w, s.h)",
-        "sx = add(g.x, dx)",
-        "sy = add(g.y, dy)",
-        "r = lookup[outside=zero](image, sx, sy)",
-        "out <- r"
+        "two = const[value=2]()",
+        "hw = div(s.w, two)",
+        "r = resizeNearest(image, hw, s.h)",
+        "sg = sampleGrid(s.w, s.h, hw, s.h)",
+        "out <- r",
+        "pos <- sg.x",
+        "back <- image"
+      ]
+    },
+    {
+      "id": "1D3_2",
+      "kind": "choice",
+      "step": { "zh": "哪些列留下", "en": "What survives" },
+      "brief": {
+        "zh": "选出值留在了缩小结果里的那些原图列。",
+        "en": "Choose the original columns whose values survive in the shrunk result."
+      },
+      "hint": [{ "zh": "每个新像素只读原图的一列。", "en": "Each new pixel reads one column of the original." }],
+      "judge": "answer",
+      "rounds": [
+        {
+          "image": [[0, 1, 0, 1, 0, 1, 0, 1]],
+          "items": [
+            {
+              "prompt": {
+                "zh": "这一行 8 像素宽，最近邻缩到 4 像素：哪几列的值留了下来？",
+                "en": "This row, 8 pixels wide, is shrunk to 4 by nearest neighbour: which columns' values survive?"
+              },
+              "answer": ["c1", "c3", "c5", "c7"]
+            }
+          ],
+          "options": [
+            { "id": "c0", "label": "x = 0" },
+            { "id": "c1", "label": "x = 1" },
+            { "id": "c2", "label": "x = 2" },
+            { "id": "c3", "label": "x = 3" },
+            { "id": "c4", "label": "x = 4" },
+            { "id": "c5", "label": "x = 5" },
+            { "id": "c6", "label": "x = 6" },
+            { "id": "c7", "label": "x = 7" }
+          ]
+        },
+        {
+          "image": [[0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1]],
+          "items": [
+            {
+              "prompt": {
+                "zh": "这一行 9 像素宽，最近邻缩到 3 像素：哪几列的值留了下来？",
+                "en": "This row, 9 pixels wide, is shrunk to 3 by nearest neighbour: which columns' values survive?"
+              },
+              "answer": ["c1", "c4", "c7"]
+            }
+          ],
+          "options": [
+            { "id": "c0", "label": "x = 0" },
+            { "id": "c1", "label": "x = 1" },
+            { "id": "c2", "label": "x = 2" },
+            { "id": "c3", "label": "x = 3" },
+            { "id": "c4", "label": "x = 4" },
+            { "id": "c5", "label": "x = 5" },
+            { "id": "c6", "label": "x = 6" },
+            { "id": "c7", "label": "x = 7" },
+            { "id": "c8", "label": "x = 8" }
+          ]
+        }
       ]
     }
-  ],
-  "builds": {
-    "type": "translate",
-    "name": { "zh": "平移", "en": "Translate" },
-    "desc": {
-      "zh": "按给定方向移动图像，空出的像素填 0。",
-      "en": "Moves an image by the given offset, filling uncovered pixels with 0."
-    }
-  }
+  ]
 }

@@ -1,53 +1,91 @@
 {
-  "title": { "zh": "放大裁剪区域", "en": "Resize a crop" },
+  "title": { "zh": "数码变焦", "en": "Digital zoom" },
   "intro": [
     {
       "t": {
-        "zh": "截取和缩放都已经可用；把它们接成一条流水线。",
-        "en": "Cropping and resizing are available; connect them in one pipeline."
+        "zh": "手机的数码变焦没有换镜头，它手上只有已经拍下的像素。这一关的问题是：它怎样把画面中间放大 k 倍？交出的图和输入一样大，显示的是原图中心那一部分放大 k 倍后的样子。",
+        "en": "A phone's digital zoom changes no lens; all it has are the pixels already taken. This level asks: how does it magnify the middle of the picture k times? The result is as large as the input and shows the part at the original's centre magnified k times."
       }
     }
   ],
+  "after": {
+    "zh": "数码变焦只用已有的像素：它放大了画面，没有带来新的细节。",
+    "en": "Digital zoom uses only the pixels already there: it magnifies the picture and brings no new detail."
+  },
   "tasks": [
     {
       "id": "1X1",
       "kind": "circuit",
       "brief": {
-        "zh": "截取指定区域，然后用最近邻缩放到目标宽高。",
-        "en": "Crop the given region, then resize it using nearest-neighbour sampling."
+        "zh": "输入一张图和倍数 k：交出同样大小的图，内容是原图中心放大 k 倍。",
+        "en": "Given an image and a factor k, give an image of the same size showing the original's centre magnified k times."
       },
+      "hint": [{ "zh": "放大以后，原来的坐标也跟着放大了。", "en": "After enlarging, the old coordinates are enlarged too." }],
       "inputs": [
-        { "name": "image", "label": "image" },
-        { "name": "x0", "label": "x0" },
-        { "name": "y0", "label": "y0" },
-        { "name": "cw", "label": "cw" },
-        { "name": "ch", "label": "ch" },
-        { "name": "w", "label": "w" },
-        { "name": "h", "label": "h" }
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "k", "label": { "zh": "倍数 k", "en": "Factor k" } }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "变焦后", "en": "Zoomed" } }],
       "tests": [
         {
-          "inputs": {
-            "image": [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
-            "x0": 1,
-            "y0": 0,
-            "cw": 2,
-            "ch": 2,
-            "w": 3,
-            "h": 3
-          },
-          "expect": { "out": [[2, 3, 3], [5, 6, 6], [5, 6, 6]] }
-        }
-      ],
-      "solution": ["c = crop(image, x0, y0, cw, ch)", "r = resizeNearest(c, w, h)", "out <- r"],
-      "hidden": [
+          "inputs": { "image": [[0, 0, 0, 0], [0, 1, 2, 0], [0, 3, 4, 0], [0, 0, 0, 0]], "k": 2 },
+          "expect": {
+            "out": [[1, 1.25, 1.75, 2], [1.5, 1.75, 2.25, 2.5], [2.5, 2.75, 3.25, 3.5], [3, 3.25, 3.75, 4]]
+          }
+        },
         {
-          "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "x0": 1, "y0": 0, "cw": 2, "ch": 2, "w": 2, "h": 2 },
-          "expect": { "out": [[2, 3], [5, 6]] }
+          "inputs": {
+            "image": [[0, 0, 0, 0, 0, 0], [0, 1, 2, 3, 0, 0], [0, 4, 5, 6, 0, 0], [0, 0, 0, 0, 0, 0]],
+            "k": 2
+          },
+          "expect": {
+            "out": [
+              [1, 1.25, 1.75, 2.25, 2.75, 3],
+              [1.75, 2, 2.5, 3, 3.5, 3.75],
+              [3.25, 3.5, 4, 4.5, 5, 5.25],
+              [4, 4.25, 4.75, 5.25, 5.75, 6]
+            ]
+          }
         }
       ],
-      "naive": ["r = resizeNearest(image, w, h)", "out <- r"]
+      "hidden": [
+        { "inputs": { "image": [[1, 2], [3, 4]], "k": 1 }, "expect": { "out": [[1, 2], [3, 4]] } },
+        {
+          "inputs": { "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]], "k": 4 },
+          "expect": { "out": [[6, 6, 6, 6], [6, 6, 6, 6], [6, 6, 6, 6], [6, 6, 6, 6]] }
+        },
+        {
+          "inputs": { "image": [[0, 1, 2, 0], [0, 3, 4, 0]], "k": 2 },
+          "expect": { "out": [[1, 1.25, 1.75, 2], [1, 1.25, 1.75, 2]] }
+        }
+      ],
+      "solution": [
+        "s = size(image)",
+        "cw = div(s.w, k)",
+        "ch = div(s.h, k)",
+        "neg = const[value=-1]()",
+        "two = const[value=2]()",
+        "ncw = mul(cw, neg)",
+        "nch = mul(ch, neg)",
+        "ew = add(s.w, ncw)",
+        "eh = add(s.h, nch)",
+        "dw = div(ew, two)",
+        "dh = div(eh, two)",
+        "x0 = floor(dw)",
+        "y0 = floor(dh)",
+        "c = crop(image, x0, y0, cw, ch)",
+        "r = resizeLinear(c, s.w, s.h)",
+        "out <- r"
+      ],
+      "naive": [
+        "s = size(image)",
+        "bw = mul(s.w, k)",
+        "bh = mul(s.h, k)",
+        "big = resizeLinear(image, bw, bh)",
+        "zero = const[value=0]()",
+        "c = crop(big, zero, zero, s.w, s.h)",
+        "out <- c"
+      ]
     }
   ]
 }

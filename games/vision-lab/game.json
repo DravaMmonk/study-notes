@@ -14,123 +14,98 @@
     "en": "Start from a grid of numbers, wire circuits that read, move and resize images, and explain with a camera model where an image comes from."
   },
   "primitives": [
-    "lookup",
     "channel",
     "compose",
+    "const",
     "grid",
     "add",
-    "size",
-    "sub",
-    "const",
     "mul",
     "div",
+    "size",
     "floor",
-    "less",
-    "select"
+    "lookup",
+    "min",
+    "max"
   ],
-  "concept": {},
+  "concept": {
+    "channel": "channels",
+    "compose": "channels",
+    "const": "sampling",
+    "grid": "sampling",
+    "add": "sampling",
+    "mul": "sampling",
+    "div": "sampling",
+    "size": "nearest",
+    "floor": "nearest",
+    "lookup": "nearest",
+    "min": "clip",
+    "max": "clip"
+  },
   "eras": [
     {
       "id": 0,
       "title": {
-        "zh": "让机器看见问题",
+        "zh": "问题是什么",
         "en": "What is the question?"
       },
       "question": {
-        "zh": "机器要回答什么？",
-        "en": "What must the machine answer?"
+        "zh": "一个视觉系统能被问什么，一张图又能回答什么？",
+        "en": "What can a vision system be asked, and what can one image answer?"
       },
       "foundation": [
         "0A1",
         "0A2",
         "0A3",
-        "0A4",
         {
           "parallel": [
             {
-              "id": "variation",
-              "title": { "zh": "外观变化", "en": "Changes in appearance" },
-              "levels": ["0B1", "0B2", "0B3", "0B4"]
+              "id": "appearance",
+              "title": { "zh": "外观会变", "en": "Appearance changes" },
+              "levels": ["0B1", "0B2", "0B3"]
             },
             {
-              "id": "evidence_path",
-              "title": { "zh": "证据与歧义", "en": "Evidence and ambiguity" },
-              "levels": ["0C1", "0C2", "0C3", "0C4"]
+              "id": "ambiguity",
+              "title": { "zh": "一张图能说明什么", "en": "What an image can tell" },
+              "levels": ["0C1", "0C2"]
             }
           ]
         },
-        "0D1",
-        "0D2",
-        "0D3"
+        "0D1"
       ]
     },
     {
       "id": 1,
-      "keeps": [],
+      "keeps": "all",
       "title": { "zh": "从场景到像素", "en": "From scene to pixels" },
-      "question": { "zh": "图像怎样形成和存储？", "en": "How are images formed and stored?" },
+      "question": {
+        "zh": "场景怎样变成一组数，这组数又怎样被裁剪、缩放和存下来？",
+        "en": "How does a scene become an array of numbers, and how is that array cropped, resized and stored?"
+      },
       "foundation": [
         "1A1",
         "1A2",
         "1A3",
-        "1A4",
         {
           "parallel": [
             {
-              "id": "projection_path",
-              "title": { "zh": "针孔相机", "en": "Pinhole camera" },
-              "levels": ["1B1", "1B2", "1B3", "1B4"]
+              "id": "camera",
+              "title": { "zh": "针孔与透镜", "en": "Pinhole and lens" },
+              "levels": ["1B1", "1B2", "1B3", "1B4", "1B5", "1B6", "1B7", "1B8"]
             },
             {
-              "id": "array_path",
-              "title": { "zh": "图像数组", "en": "Image arrays" },
-              "levels": ["1C1", "1C2", "1C2a", "1C3", "1C4", "1C5"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "lens_path",
-              "title": { "zh": "透镜和对焦", "en": "Lens and focus" },
-              "levels": ["1G1", "1G2", "1G3"]
+              "id": "colour",
+              "title": { "zh": "读对一张图", "en": "Read an image right" },
+              "levels": ["1C1", "1C2"]
             },
             {
-              "id": "image_ops",
-              "title": { "zh": "裁剪、缩放与表示", "en": "Crop, resize and representation" },
-              "levels": [
-                "1D0",
-                "1D0a",
-                "1D1",
-                "1D2",
-                "1D2a",
-                "1D2b",
-                "1D3",
-                "1D4",
-                "1E1",
-                "1E1a",
-                "1E1b",
-                "1E1c",
-                "1E1d",
-                "1E1e",
-                "1E1g",
-                "1E1f",
-                "1E1h",
-                "1E1i",
-                "1E2",
-                "1E3",
-                "1E4",
-                "1F1",
-                "1F1a",
-                "1F2",
-                "1F3",
-                "1Z1"
-              ]
+              "id": "resample",
+              "title": { "zh": "缩放、量化与裁剪", "en": "Resize, quantise and crop" },
+              "levels": ["1D1", "1D2", "1D3", "1D4", "1D5", "1D6", "1D7", "1D8", "1D9", "1D10"]
             }
           ]
         }
       ],
-      "challenges": [{ "level": "1X1", "after": "1E4" }]
+      "challenges": [{ "level": "1X1", "after": "1D10" }]
     }
   ],
   "saves": [
@@ -144,6 +119,63 @@
         { "rename": { "1-4": null } },
         { "rename": { "1-5": null } }
       ]
+    },
+    {
+      "version": 3,
+      "why": "Chapter 0 from the new blueprint: the old levels and glossary go, the station's nine levels come in",
+      "ops": [
+        { "rename": { "0A4": null } },
+        { "rename": { "0B4": null } },
+        { "rename": { "0C3": null } },
+        { "rename": { "0C4": null } },
+        { "rename": { "0D2": null } },
+        { "rename": { "0D3": null } },
+        { "rename": { "1A1": null } },
+        { "rename": { "1A2": null } },
+        { "rename": { "1A3": null } },
+        { "rename": { "1A4": null } },
+        { "rename": { "1B1": null } },
+        { "rename": { "1B2": null } },
+        { "rename": { "1B3": null } },
+        { "rename": { "1B4": null } },
+        { "rename": { "1C1": null } },
+        { "rename": { "1C2": null } },
+        { "rename": { "1C2a": null } },
+        { "rename": { "1C3": null } },
+        { "rename": { "1C4": null } },
+        { "rename": { "1C5": null } },
+        { "rename": { "1D0": null } },
+        { "rename": { "1D0a": null } },
+        { "rename": { "1D1": null } },
+        { "rename": { "1D2": null } },
+        { "rename": { "1D2a": null } },
+        { "rename": { "1D2b": null } },
+        { "rename": { "1D3": null } },
+        { "rename": { "1D4": null } },
+        { "rename": { "1E1": null } },
+        { "rename": { "1E1a": null } },
+        { "rename": { "1E1b": null } },
+        { "rename": { "1E1c": null } },
+        { "rename": { "1E1d": null } },
+        { "rename": { "1E1e": null } },
+        { "rename": { "1E1g": null } },
+        { "rename": { "1E1f": null } },
+        { "rename": { "1E1h": null } },
+        { "rename": { "1E1i": null } },
+        { "rename": { "1E2": null } },
+        { "rename": { "1E3": null } },
+        { "rename": { "1E4": null } },
+        { "rename": { "1F1": null } },
+        { "rename": { "1F1a": null } },
+        { "rename": { "1F2": null } },
+        { "rename": { "1F3": null } },
+        { "rename": { "1G1": null } },
+        { "rename": { "1G2": null } },
+        { "rename": { "1G3": null } },
+        { "rename": { "1X1": null } },
+        { "rename": { "1Z1": null } }
+      ]
     }
-  ]
+  ],
+  "open": { "idle-idea": ["channels@1C1"] }
 }

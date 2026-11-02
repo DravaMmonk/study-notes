@@ -12,7 +12,7 @@ import { fromText, toText } from './board.js'
 import { readTest, runLevel } from './run.js'
 import { differs, fromRows, toRows } from './image.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
-import { JUDGES, verdictOf } from './judges.js'
+import { JUDGES, isNaive, verdictOf } from './judges.js'
 import { describe, factsOf, render, revealing, sameImage } from './scene.js'
 import { play } from './play.js'
 import { pinhole, pinholeView, project } from './benches/pinhole.js'
@@ -69,7 +69,7 @@ test('an output with no value fails even where 「—」 is expected: a card tha
 
 test('channels: one plane out of a colour image, three planes into one, unequal planes refused', () => {
   // 1C3: [(1,0,0),(0,0,1)], the blue plane [0, 1].
-  allPass(['c = const[value=2]()', 'p = channel(image, c)', 'out <- p'], ['image'], [[{ image: [[[1, 0, 0], [0, 0, 1]]] }, [[0, 1]]]])
+  allPass(['p = channel[c=B](image)', 'out <- p'], ['image'], [[{ image: [[[1, 0, 0], [0, 0, 1]]] }, [[0, 1]]]])
   // 1C4: R [1,0], G [0,0.5], B [0,1] → [(1,0,0),(0,0.5,1)].
   allPass(['m = compose(r, g, b)', 'out <- m'], ['r', 'g', 'b'], [[{ r: [[1, 0]], g: [[0, 0.5]], b: [[0, 1]] }, [[[1, 0, 0], [0, 0.5, 1]]]]])
   assert.throws(() => PARTS.compose.eval({ r: fromRows([[1, 0]]), g: fromRows([[0]]), b: fromRows([[0, 1]]) }), /differ in size/)
@@ -226,6 +226,21 @@ test('a claims round: its scenes give one picture, a claim they split is shown f
   assert.deepEqual(vision.played.get('1-2')[0].rounds[0].reveals, [null, { scenes: [0, 1], camera }])
   // Scenes that do not give one picture are refused, flag or none.
   assert.match(claimsGame([blue, { ...green, light: { azimuth: -40, elevation: 60 } }]).wrong[0], /do not all give the same picture/)
+})
+
+test('a grid or choice task names its naive answer: the check makes sure it fails, the player who gives it is told why', () => {
+  const content = readContent('starter', import.meta.dirname)
+  const withNaive = (id, naive) => ({ ...content, levels: content.levels.map((l) => (l.id !== id ? l : { ...l, tasks: [{ ...l.tasks[0], naive }] })) })
+  const why = { zh: '把 x 和 y 弄反了', en: 'x and y swapped' }
+  const said = (c, id) => domain.validate(domain.spec(c)).find((l) => l.level === id)
+  assert.match(said(withNaive('1-1', { answer: { x: 1, y: 2 }, why }), '1-1').text, /grid PASS, naive fails/)
+  assert.match(said(withNaive('1-1', { answer: { x: 2, y: 1 }, why }), '1-1').text, /the naive answer passes/)
+  const picks = [[['detect'], ['detect']]]
+  assert.match(said(withNaive('1-2', { picks, why }), '1-2').text, /naive fails round 1/)
+  assert.match(said(withNaive('1-2', { picks: [[['classify'], ['detect']]], why }), '1-2').text, /the naive answer passes every round/)
+  const task = domain.spec(withNaive('1-2', { picks, why })).vision.played.get('1-2')[0]
+  assert.ok(isNaive(task, 0, [['detect'], ['detect']]))
+  assert.match(play.attempt({ level: { source: task } }, 'detect;detect').says.at(-1).en, /x and y swapped/)
 })
 
 test('a picture in words shows what it shows: regions of colour, no names, nothing hidden', () => {

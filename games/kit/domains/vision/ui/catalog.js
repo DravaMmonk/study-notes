@@ -23,7 +23,7 @@ export const CARDS = {
   size: { name: T('尺寸', 'Size'), icon: Maximize2, family: 'image', desc: T('给出图的宽 w 和高 h。', 'Gives an image’s width w and height h.') },
   grid: { name: T('坐标网格', 'Grid'), icon: Grid3x3, family: 'image', desc: T('给出 w × h 的两张坐标图：x 图每格是自己的 x，y 图每格是自己的 y。w、h 须为正整数。', 'Gives the two w × h coordinate images: in x every cell holds its own x, in y its own y. w and h must be positive whole numbers.') },
   lookup: { name: T('取像素', 'Lookup'), icon: ScanSearch, family: 'image', desc: T('在图的 (x, y) 处取值。x、y 是数时取一个像素；是同样大小的坐标图时，每格各取一个，拼成一张同样大小的图。坐标须为整数；出界时按设置报错、取 0 或取最近的边。', 'Reads the image at (x, y). At numbers it reads one pixel; at coordinate images of one size it reads one per cell, an image of that size. Coordinates must be whole numbers; outside the image it stops, reads 0 or reads the nearest edge, as set.') },
-  channel: { name: T('取通道', 'Channel'), icon: Layers, family: 'image', desc: T('给出彩色图的第 c 个通道，一张灰度图（0、1、2 是 R、G、B）。', 'Gives channel c of a colour image as a grey one (0, 1, 2 are R, G, B).') },
+  channel: { name: T('取通道', 'Channel'), icon: Layers, family: 'image', desc: T('给出彩色图的一个通道（元件上选 R、G 或 B），一张灰度图。', 'Gives one channel of a colour image (R, G or B, set on the card) as a grey one.') },
   compose: { name: T('合成彩色', 'Compose'), icon: Blend, family: 'image', desc: T('把三张同样大小的灰度图合成一张彩色图（R、G、B）。', 'Makes three grey images of one size one colour image (R, G, B).') },
 }
 
@@ -35,9 +35,12 @@ export const PORT_LABELS = {
   lookup: { image: T('图', 'Image'), x: 'x', y: 'y' },
   size: { image: T('图', 'Image') },
   grid: { w: 'w', h: 'h' },
-  channel: { image: T('图', 'Image'), c: 'c' },
+  channel: { image: T('图', 'Image') },
   compose: { r: 'R', g: 'G', b: 'B' },
 }
+
+/** The channels a channel card takes. */
+export const CHANNELS = [['R', 'R'], ['G', 'G'], ['B', 'B']]
 
 /** What a lookup does outside the image, as its card offers it. */
 export const OUTSIDE = [['error', T('报错', 'Stop')], ['zero', T('取 0', 'Read 0')], ['clamp', T('取最近的边', 'Nearest edge')]]

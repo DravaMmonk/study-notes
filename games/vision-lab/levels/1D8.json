@@ -1,0 +1,129 @@
+{
+  "title": { "zh": "还能找回吗", "en": "Can it be recovered" },
+  "intro": [
+    {
+      "t": {
+        "zh": "量化器把每个值存成最近的一级。这一关的问题是：量化以后，原来的值还能找回来吗？先让量化器存一张图，同时交出每一格的原值可能落在的范围；再反过来，从几组输入里找出存成同一个结果的那些。",
+        "en": "The quantiser stores each value as the nearest level. This level asks: after quantisation, can the original values be recovered? First have the quantiser store an image and give, for each cell, the range its original value may lie in; then go backwards and find, among several inputs, those stored as one same result."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1D8",
+      "kind": "circuit",
+      "step": { "zh": "存下来", "en": "Store" },
+      "brief": {
+        "zh": "输入一张图和级数 L：交出量化的结果，以及每一格的原值可能在的范围，从 low 到 high（都在 [0, 1] 里）。",
+        "en": "Given an image and a number of levels L, give the quantised result and, for each cell, the range its original may lie in, from low to high (both within [0, 1])."
+      },
+      "hint": [
+        {
+          "zh": "相邻两级隔多远？一个值离它存成的那一级，最远能有多远？",
+          "en": "How far apart are two neighbouring levels? How far can a value lie from the level it is stored as?"
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "L", "label": { "zh": "级数 L", "en": "Levels L" } }
+      ],
+      "outputs": [
+        { "name": "out", "label": { "zh": "量化后", "en": "Quantised" } },
+        { "name": "low", "label": { "zh": "原值最低", "en": "Lowest original" } },
+        { "name": "high", "label": { "zh": "原值最高", "en": "Highest original" } }
+      ],
+      "tests": [
+        {
+          "inputs": { "image": [[0.1, 0.2]], "L": 3 },
+          "expect": { "out": [[0, 0]], "low": [[0, 0]], "high": [[0.25, 0.25]] }
+        },
+        {
+          "inputs": { "image": [[0.6, 0.7, 0.9]], "L": 3 },
+          "expect": { "out": [[0.5, 0.5, 1]], "low": [[0.25, 0.25, 0.75]], "high": [[0.75, 0.75, 1]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.3, 0.45]], "L": 2 },
+          "expect": { "out": [[0, 0]], "low": [[0, 0]], "high": [[0.5, 0.5]] }
+        },
+        {
+          "inputs": { "image": [[0.4], [0.95]], "L": 5 },
+          "expect": { "out": [[0.5], [1]], "low": [[0.375], [0.875]], "high": [[0.625], [1]] }
+        }
+      ],
+      "solution": [
+        "q = quantise(image, L)",
+        "neg = const[value=-1]()",
+        "half = const[value=0.5]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "gaps = add(L, neg)",
+        "d = div(half, gaps)",
+        "nd = mul(d, neg)",
+        "lo = add(q, nd)",
+        "hi = add(q, d)",
+        "loc = max(lo, zero)",
+        "hic = min(hi, one)",
+        "out <- q",
+        "low <- loc",
+        "high <- hic"
+      ],
+      "naive": ["q = quantise(image, L)", "out <- q", "low <- q", "high <- q"]
+    },
+    {
+      "id": "1D8_2",
+      "kind": "choice",
+      "step": { "zh": "反推", "en": "Backwards" },
+      "brief": {
+        "zh": "选出量化以后和给出的结果完全相同的全部输入。",
+        "en": "Choose every input whose quantised result is exactly the one given."
+      },
+      "hint": [
+        {
+          "zh": "把每组输入逐个值算一遍，看它存成哪一级。",
+          "en": "Work each input through value by value, and see which level it is stored as."
+        }
+      ],
+      "judge": "answer",
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "存成 3 级以后得到 [0, 0.5] 的输入有哪些？",
+                "en": "Which inputs become [0, 0.5] when stored in 3 levels?"
+              },
+              "answer": ["a", "b", "d"]
+            }
+          ],
+          "options": [
+            { "id": "a", "label": "[0.1, 0.6]" },
+            { "id": "b", "label": "[0.2, 0.4]" },
+            { "id": "c", "label": "[0.3, 0.5]" },
+            { "id": "d", "label": "[0.24, 0.74]" },
+            { "id": "e", "label": "[0.26, 0.5]" }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "存成 2 级以后得到 [0, 1] 的输入有哪些？",
+                "en": "Which inputs become [0, 1] when stored in 2 levels?"
+              },
+              "answer": ["b", "c", "e"]
+            }
+          ],
+          "options": [
+            { "id": "a", "label": "[0.5, 0.6]" },
+            { "id": "b", "label": "[0.1, 0.9]" },
+            { "id": "c", "label": "[0.49, 0.51]" },
+            { "id": "d", "label": "[0.6, 0.4]" },
+            { "id": "e", "label": "[0.4, 0.5]" }
+          ]
+        }
+      ]
+    }
+  ]
+}

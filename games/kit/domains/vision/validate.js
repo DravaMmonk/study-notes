@@ -3,8 +3,8 @@
 //   circuit  the reference board passes every test and hidden test and uses only the parts the level holds and its
 //            fixed cards; the empty board fails; the naive board, where there is one, is one the level could hold and
 //            fails; a part a level builds, placed alone on that task's board and wired to its ports, passes
-//   grid     the answer the ask works out passes; the answer the player starts from does not
-//   choice   in every round the judge's own answer passes and an empty answer fails
+//   grid     the answer the ask works out passes; the answer the player starts from does not; the naive answer fails
+//   choice   in every round the judge's own answer passes and an empty answer fails; the naive picks fail a round
 //   bench    the model's data fit it (its verify), and the lesson holds (benches/lesson.js): each step's start fails and
 //            some setting passes, every naive setting fails, every setting that passes meets `holds`
 import { keyOf } from '../../shell/i18n.js'
@@ -13,7 +13,7 @@ import { fromText, startBoard } from './board.js'
 import { FIXED } from './parts.js'
 import { runLevel } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
-import { judgeOf } from './judges.js'
+import { judgeOf, naiveRound } from './judges.js'
 import { lessonProblems } from './benches/lesson.js'
 
 /** A task with its hidden tests after the others. */
@@ -50,7 +50,8 @@ function gridSaid(task) {
   const why = gridCheck(task, gridReference(task))
   if (why) problems.push(`its own answer fails: ${why.en}`)
   if (!gridCheck(task, gridStart(task))) problems.push('the answer it starts from passes')
-  return { problems, ok: 'grid PASS' }
+  if (task.naive && !gridCheck(task, task.naive.answer)) problems.push('the naive answer passes')
+  return { problems, ok: `grid PASS${task.naive ? ', naive fails' : ''}` }
 }
 
 function choiceSaid(task) {
@@ -61,7 +62,9 @@ function choiceSaid(task) {
     if (wrong.length) problems.push(`round ${r + 1}: its own answer fails: ${wrong[0].why.en}`)
     if (!judge.check(round, round.items.map(() => []), params).length) problems.push(`round ${r + 1}: answering nothing passes`)
   })
-  return { problems, ok: `choice PASS (${task.rounds.length} round${task.rounds.length > 1 ? 's' : ''})` }
+  const naive = task.naive && naiveRound(task)
+  if (task.naive && naive === null) problems.push(task.naive.picks.length !== task.rounds.length ? `the naive answer has picks for ${task.naive.picks.length} rounds, the task ${task.rounds.length}` : 'the naive answer passes every round')
+  return { problems, ok: `choice PASS (${task.rounds.length} round${task.rounds.length > 1 ? 's' : ''}${naive !== null && task.naive ? `, naive fails round ${naive + 1}` : ''})` }
 }
 
 function benchSaid(task) {

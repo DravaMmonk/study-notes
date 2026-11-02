@@ -268,7 +268,84 @@
       ]
     },
     "levels": {
-      "runs": [],
+      "runs": [
+        {
+          "at": "2026-11-02T16:54:32.735Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 13690858,
+            "seconds": 1647,
+            "cost": 9.420492800000002,
+            "turns": 88
+          },
+          "calls": {
+            "op": {
+              "runs": 9,
+              "failed": 3
+            },
+            "check": {
+              "runs": 2,
+              "failed": 0
+            },
+            "gate": {
+              "runs": 2,
+              "failed": 2
+            },
+            "deps": {
+              "runs": 0,
+              "failed": 0
+            },
+            "eras": {
+              "runs": 1,
+              "failed": 0
+            }
+          },
+          "changes": [
+            10,
+            11
+          ],
+          "report": "The gate is down to the 8 `bp-naive` failures caused by the vocabulary gap, plus `pd-slide` reports. Done.\n\n## Report: level specs for vision-lab, chapters 0–1\n\n**Result.** All 30 slots have a level, and all 21 knowledge points have a glossary entry that opens at the level that teaches it. `./check` passes: every reference answer, naive answer and built part runs, and the old 59 levels and the `pixel` entry are gone. `./gate` still shows **8 failures, all `bp-naive`**, which the vocabulary can't fix (first point below), and 7 `pd-slide` reports. It took 2 written changesets (chapter 0, then chapter 1) and 3 refused attempts: a probe that confirmed the gap, glossary ops in the wrong order, and wrong `part-ref` keys plus the idle-idea finding.\n\n### Gaps that need a domain or blueprint decision\n1. **Choice and grid tasks can't carry a naive answer.** The schema refuses `naive` on them (\"is not a field here\"). So slots 0A1, 0A2, 0B1, 0B2, 0C1 (choice) and 1A1, 1A2, 1C2 (grid) fail `bp-naive`. Their wrong answers are still caught by the judge's feedback, but nothing records the misconception as a naive that must fail. Request for the domain: add `naive` to choice tasks (wrong picks per round, with a why) and to grid tasks (a wrong answer, with a why), and have `check` confirm each one fails.\n2. **1C1 can't get channel numbers on its own branch.** `channel` takes its index as a wire, and `const` only arrives in 1D1, on another parallel branch. I put 0, 1 and 2 on the board as given inputs. A cleaner fix would be to make `c` a setting on the part, or bring `const` in earlier.\n3. **The colour parts are never used again in chapters 0–1.** No later level in this run uses channel/compose, so the course audit flags them as idle. I recorded this in `game.json`'s `open` as `idle-idea: channels@1C1`. The handbook says the same item also belongs on the work list in the game's own DESIGN.md, which I can't write to, so someone needs to add it there.\n4. **1D5 has to use the part it upgrades.** The slot lists `resizeLinear` in `uses`, but the task that builds it can't contain it. I added a first task (\"change only the width\") that uses `resizeLinear` and gives the same result whether the part is the row-only or the bilinear version. Someone should check in the game shell that the tray actually offers `resizeLinear` on its own upgrade level.\n\n### `pd-slide` reports\n- **1B1 (both tasks), 1B2, 1B7 (both tasks):** single-knob steps by the blueprint's own design (\"only the scene or only the camera moves\").\n- **1B8 task 2:** the bench only checks a value the player has already committed to in the prediction task before it.\n- **1B5:** one knob, but it's an f-number choice the player has to translate into an aperture, and sharpness and light pull against each other, so only f/16 passes.\n\n### Where each chain lands on screen\n- **Chapter 0:**\n  - 0A1, 0A2 and 0A3 judge which outputs answer each question, from the outputs' actual data: neutral map names, numbers in the maps, answers in different places each round.\n  - 0B1 has a turnable scene in two tasks (viewpoint, then light).\n  - 0B2's third round has \"none\" as the right answer.\n  - 0B3 shows its cases as rendered scenes.\n  - In 0C1, 0C2 and 0D1's last task, the candidate scenes really render the same picture (checked). A wrong answer shows them from a view that tells them apart: a scaled box, a hidden ball, a hidden dog or cat.\n- **1A:** reading or writing pictures, picking cells, reading the shape and the OpenCV size.\n- **1B:**\n  - Pinhole benches with naive settings and `holds`.\n  - The lens model in 1B4–1B6: each has exactly one passing setting, and the naive settings are the misconception.\n  - The sensor bench for field of view and pixel units, plus prediction tasks.\n- **1C:** 1C1 is a channel-swap circuit whose naive is the straight pass-through; 1C2 asks for displayed values and the uint8/BGR conversion.\n- **1D:**\n  - Each building level's naive is the misconception and fails its first test: i → i (1D1), always rounding down so the lookup runs outside (1D2), nearest neighbour (1D4), the row-only board (1D5), cutting off the fraction without clipping (1D7), resizing instead of cropping (1D9), squashing to S×S (1D10).\n  - Hidden tests cover shrinking, same size, width 1, colour, non-square images and the borders.\n  - 1D3, 1D6 and 1D8 pair a circuit with a judgement task.\n  - 1X1's naive (enlarge, then crop at (0, 0)) fails.\n\n**Chain steps that don't fully land:**\n- **0A1, step 3:** the fields judge only says an option \"does not answer it\"; it doesn't name the missing class.\n- **1A1, step 1:** the copy grid already has the image's shape, so a transposed copy can't actually be typed in.\n\n### Where the blueprint looks off\n- **1D3 and 1D8:** the circuit task is thin (it mostly places a built part); the real puzzle is the judgement task.\n- **1B2:** step 3 says \"predict, then check on the bench\", but the level has no re-check after the prediction.\n- **1A3:** close to 1A2. It holds up only through its shape and OpenCV-size tasks.\n\nThe changesets are in my directory as `cs1-era0.json` and `cs2-era1.json`.",
+          "transcript": "/tmp/pipeline-vision-lab-levels-zhBT1b/transcript.jsonl"
+        },
+        {
+          "at": "2026-11-02T17:03:32.937Z",
+          "by": "agent:claude-opus-5-5",
+          "usage": {
+            "tokens": 3158813,
+            "seconds": 419,
+            "cost": 2.7161914,
+            "turns": 54
+          },
+          "calls": {
+            "op": {
+              "runs": 5,
+              "failed": 0
+            },
+            "check": {
+              "runs": 2,
+              "failed": 1
+            },
+            "gate": {
+              "runs": 3,
+              "failed": 1
+            },
+            "deps": {
+              "runs": 0,
+              "failed": 0
+            },
+            "eras": {
+              "runs": 0,
+              "failed": 0
+            }
+          },
+          "changes": [
+            12,
+            13
+          ],
+          "report": "The gate is clean. All eight `bp-naive` failures are fixed, `./check` passes, and the only items left are 8 `pd-slide` reports. I explain below why each one stays.\n\n**Changesets:** two written, none refused (`cs3-naive.json`, `cs4-thought.json` in my directory).\n\n### 1. Naive answers on the eight slots\n`./check` confirms every one fails, and the player who gives it is told why in the slot's own terms.\n\n| Slot | Naive | Fails |\n|---|---|---|\n| 0A1 | The class label for both questions | round 1 |\n| 0A2 | The semantic map for both questions | round 1 |\n| 0B1 | The candidate with the same view and the most matching pixels, but a reshaped chair (both tasks) | round 1 |\n| 0B2 | The most confident correct case | round 1 |\n| 0C1 | \"Box is 2 m away\" and \"box is 0.5 m tall\" judged as holding | round 1 |\n| 1A1 | The image copied width × height (transposed) | both copy tasks |\n| 1A2 | y counted up from the bottom; x and y swapped in the write-coordinates task | all three tasks |\n| 1C2 | Stored values given as displayed values; the uint8 pixel read as RGB | both tasks |\n\n- **Extra naive on 1A1:** the colour task also has one, raising only the blue number, which gives white.\n- **1A2 bug fixed:** its first image had 2 rows, so \"(0, 1) at the bottom left\", the chain's wrong pick, was actually the right cell. The image now has 4 rows, so counting y upwards lands on a different cell.\n\n### 2. 1C1\nIt now uses `channel[c=B]`, `channel[c=G]` and `channel[c=R]`, with no number inputs on the board. The intro and hint now refer to the setting. The pass-through naive still fails test 1.\n\n### 3. Steps I had flagged as thin\n- **1B2:** I added task 3, which re-checks the prediction from task 2 on the bench (height 2, depth 10, f = 2.5). Its naive, f = 5, forgets the object's height. Chain step 3 (\"estimate, then check\") now has its place on screen.\n- **1B7, task 1:** I added a second goal: arrow B must be at least 40 px tall. It pulls against \"all in view\", so only f = 20 passes. A new naive covers shortening f all the way.\n- **1D3:** the circuit now also enlarges the shrunk image back to full width. On the fine stripes the round trip comes out all 1s; on the wide stripes it gets the original back. The naive treats the round trip as restoring the original, and it fails. Chain steps 1 and 3 now show up as test results, not just a wiring job.\n- **1D8:** the circuit now outputs, for each cell, the range of original values that are stored as that level. That takes half a step, 0.5/(L−1), clipped to [0, 1]. The naive gives a range of zero width (assuming the stored value is the original), and it fails. A hidden test uses L = 5.\n\n### `pd-slide` reports that stay, and why\n- **1B1 (both tasks):** the blueprint opens one variable per step on purpose (\"only sideways\" / \"only in depth\"). This is the first projection, so the player is meant to discover it on the bench. The naive settings and `holds` fix the one passing value.\n- **1B2 task 1 and 1B7 task 2:** the slot locks everything except f. In 1B7 task 2 two goals bound f from both sides (at least 190 px, and still in view).\n- **1B5:** focus is fixed by the slot. The single aperture knob trades sharpness against light, and only f/16 passes.\n- **1B2 task 3 and 1B8 task 2:** these are re-check benches. The player has already committed to the value in the prediction task before.\n\n### Still open\n- **Colour parts unused:** `idle-idea: channels@1C1` is still on the game's work list. Nothing later in chapters 0–1 uses `channel` or `compose`.\n- **1A1, step 1:** whether a transposed copy can be typed in depends on the grid UI. The naive is checked in the text play and by `check`.\n\nI don't think any slot in the blueprint is wrong after this pass. 1D3 and 1D8 now earn their circuit tasks, and the 1B2 gap is closed.",
+          "transcript": "/tmp/pipeline-vision-lab-levels-kkjZC5/transcript.jsonl"
+        }
+      ],
       "gates": [
         {
           "at": "2026-11-02T14:59:50.558Z",
@@ -281,6 +358,151 @@
             }
           ],
           "reports": []
+        },
+        {
+          "at": "2026-11-02T16:54:40.273Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "bp-naive",
+              "at": "0A1",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "0A2",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "0B1",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "0B2",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "0C1",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "1A1",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "1A2",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "1C2",
+              "says": "its slot has a naive answer, no task of the level has one"
+            }
+          ],
+          "reports": [
+            {
+              "rule": "pd-slide",
+              "at": "1B1",
+              "says": "only X turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B1 task 1B1_2",
+              "says": "only Z turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B5",
+              "says": "only A turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B7",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B7 task 1B7_2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B8 task 1B8_2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-02T17:03:41.521Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "pd-slide",
+              "at": "1B1",
+              "says": "only X turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B1 task 1B1_2",
+              "says": "only Z turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B2 task 1B2_3",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B5",
+              "says": "only A turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B7",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B7 task 1B7_2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            },
+            {
+              "rule": "pd-slide",
+              "at": "1B8 task 1B8_2",
+              "says": "only f turns, and the goal reads out live",
+              "report": true
+            }
+          ]
         }
       ]
     },

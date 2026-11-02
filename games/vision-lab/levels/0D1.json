@@ -1,10 +1,16 @@
 {
-  "title": { "zh": "给检查系统定任务", "en": "Specify an inspection task" },
+  "title": { "zh": "救援机器人的任务", "en": "A task for a rescue robot" },
   "intro": [
     {
       "t": {
-        "zh": "检查系统需要指出画面中每个红色几何物体的位置。",
-        "en": "An inspection system must locate each red geometric object in the picture."
+        "zh": "检查台要正式上岗了：一台救援机器人在倒塌的楼里找人，找到一个就要靠过去。它的视觉系统交出什么、怎样检验、哪些问题一张图答不了，都由检查台来定。",
+        "en": "The station goes to work: a rescue robot searches a collapsed building for people and must go to each one it finds. What its vision system hands in, how that is tested, and which questions one image cannot answer are the station's to settle."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：机器人要找到每个人并靠过去，它的视觉输出要包含什么，又该怎样检验？一共三步：选输出，配检验用的参照，再判断几句关于现场的话。",
+        "en": "This level asks: a robot must find every person and go to them — what must its vision output contain, and how should it be tested? There are three steps: choose the outputs, pair them with references to test against, then judge statements about the site."
       }
     }
   ],
@@ -12,109 +18,214 @@
     {
       "id": "0D1",
       "kind": "choice",
-      "brief": { "zh": "选择满足任务要求的输出类型。", "en": "Choose an output type that meets the task." },
-      "hint": [{ "zh": "答案需要区分每个人。", "en": "The answer must distinguish individual people." }],
+      "step": { "zh": "选输出", "en": "Outputs" },
+      "brief": {
+        "zh": "为机器人的每个请求选出刚好够用的输出。",
+        "en": "For each of the robot's requests, choose the output that is just enough."
+      },
+      "hint": [
+        { "zh": "机器人要靠过去：它得知道往哪里走。", "en": "The robot must go to the person: it needs to know where to head." }
+      ],
+      "after": { "zh": "输出选定了。接下来要定怎样检验它。", "en": "The outputs are chosen. Next, how to test them." },
       "judge": { "fields": { "mode": "exact" } },
       "rounds": [
         {
           "items": [
             {
-              "prompt": { "zh": "给出每个红色物体的类别与位置。", "en": "Give the class and location of each red object." },
+              "prompt": { "zh": "找出每个人，好一个一个靠过去。", "en": "Find every person, so as to go to each in turn." },
               "needs": ["class", "location", "instance"]
-            }
+            },
+            { "prompt": { "zh": "这一层还有没有人？", "en": "Is anyone left on this floor?" }, "needs": ["class"] }
           ],
           "options": [
-            { "id": "label", "label": { "zh": "一张类别标签", "en": "One class label" }, "gives": ["class"] },
-            { "id": "box", "label": { "zh": "一个位置框", "en": "One bounding box" }, "gives": ["location"] },
+            { "id": "a", "label": { "zh": "人", "en": "person" }, "gives": ["class"] },
             {
-              "id": "detect",
-              "label": { "zh": "每个物体的类别和位置框", "en": "A class and box for each object" },
+              "id": "b",
+              "label": {
+                "zh": "人 (6, 4)–(12, 20)；人 (30, 10)–(36, 22)",
+                "en": "person (6, 4)–(12, 20); person (30, 10)–(36, 22)"
+              },
               "gives": ["class", "location", "instance"]
             },
             {
-              "id": "sem",
-              "label": { "zh": "每个像素的类别", "en": "A class per pixel" },
-              "gives": ["class", "region", "location"]
-            },
-            {
-              "id": "inst",
-              "label": { "zh": "每个像素的类别和物体编号", "en": "A class and object ID per pixel" },
-              "gives": ["class", "region", "instance", "location"]
-            },
-            {
-              "id": "depth",
-              "label": { "zh": "每个像素的距离", "en": "A distance at each pixel" },
+              "id": "c",
+              "label": { "zh": "每个像素的距离（米）", "en": "a distance in metres at every pixel" },
               "gives": ["depth", "region"]
             }
-          ],
-          "reference": {
-            "size": [32, 24],
-            "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-            "light": { "azimuth": 30, "elevation": 60 },
-            "floor": "white",
-            "objects": [
-              {
-                "id": "person1",
-                "class": "block",
-                "colour": "red",
-                "boxes": [
-                  { "at": [-0.6, 0.35, 0], "size": [0.55, 0.55, 0.42] },
-                  { "at": [-0.6, 0.75, 0], "size": [0.35, 0.3, 0.35] }
-                ]
-              },
-              {
-                "id": "person2",
-                "class": "block",
-                "colour": "red",
-                "boxes": [
-                  { "at": [0.6, 0.35, 0], "size": [0.55, 0.55, 0.42] },
-                  { "at": [0.6, 0.75, 0], "size": [0.35, 0.3, 0.35] }
-                ]
-              }
-            ]
-          }
+          ]
         },
         {
           "items": [
             {
               "prompt": {
-                "zh": "图中没有红色物体：输出允许是空集合。仍需要哪类输出？",
-                "en": "There are no red objects: an empty set is allowed. Which output type is needed?"
+                "zh": "空房间里，找出每个人。",
+                "en": "In an empty room, find every person."
               },
               "needs": ["class", "location", "instance"]
+            },
+            {
+              "prompt": { "zh": "每个人离机器人多远？", "en": "How far is each person from the robot?" },
+              "needs": ["class", "instance", "depth"]
             }
           ],
           "options": [
-            { "id": "label", "label": { "zh": "一张类别标签", "en": "One class label" }, "gives": ["class"] },
-            { "id": "box", "label": { "zh": "一个位置框", "en": "One bounding box" }, "gives": ["location"] },
             {
-              "id": "detect",
-              "label": { "zh": "每个物体的类别和位置框", "en": "A class and box for each object" },
+              "id": "a",
+              "label": {
+                "zh": "人 (6, 4)–(12, 20) 3.1 米；人 (30, 10)–(36, 22) 7.4 米",
+                "en": "person (6, 4)–(12, 20) 3.1 m; person (30, 10)–(36, 22) 7.4 m"
+              },
+              "gives": ["class", "location", "instance", "depth"]
+            },
+            {
+              "id": "b",
+              "label": { "zh": "（空）", "en": "(empty)" },
               "gives": ["class", "location", "instance"]
             },
             {
-              "id": "sem",
-              "label": { "zh": "每个像素的类别", "en": "A class per pixel" },
-              "gives": ["class", "region", "location"]
+              "id": "c",
+              "label": { "zh": "人", "en": "person" },
+              "gives": ["class"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0D1_2",
+      "kind": "choice",
+      "step": { "zh": "配参照", "en": "References" },
+      "brief": {
+        "zh": "为每一种预测选出能拿来检验它的参照。",
+        "en": "For each kind of prediction, choose the reference it can be tested against."
+      },
+      "hint": [
+        {
+          "zh": "预测和参照要量同一种东西，才比得出对错。",
+          "en": "A prediction and its reference must measure the same kind of thing for one to check the other."
+        }
+      ],
+      "after": {
+        "zh": "每种预测都有了检验它的参照。最后看一张图本身能说明多少。",
+        "en": "Every prediction has a reference to test it. Last, how much one image can tell."
+      },
+      "judge": "pair",
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": { "zh": "预测：人 (6, 4)–(12, 20)", "en": "Predicted: person (6, 4)–(12, 20)" },
+              "measures": "box"
             },
             {
-              "id": "inst",
-              "label": { "zh": "每个像素的类别和物体编号", "en": "A class and object ID per pixel" },
-              "gives": ["class", "region", "instance", "location"]
+              "prompt": { "zh": "预测：最近的人 3.1 米", "en": "Predicted: nearest person 3.1 m" },
+              "measures": "distance"
+            },
+            { "prompt": { "zh": "预测：画面里有人", "en": "Predicted: a person is in view" }, "measures": "class" }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "激光测距：3.4 米", "en": "laser range finder: 3.4 m" },
+              "measures": "distance"
+            },
+            { "id": "b", "label": { "zh": "人工标注：人", "en": "annotator: person" }, "measures": "class" },
+            {
+              "id": "c",
+              "label": { "zh": "人工标注：(5, 4)–(12, 21)", "en": "annotator: (5, 4)–(12, 21)" },
+              "measures": "box"
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": { "zh": "预测：门口的人 7.4 米", "en": "Predicted: the person by the door 7.4 m" },
+              "measures": "distance"
             },
             {
-              "id": "depth",
-              "label": { "zh": "每个像素的距离", "en": "A distance at each pixel" },
-              "gives": ["depth", "region"]
+              "prompt": { "zh": "预测：人 (30, 10)–(36, 22)", "en": "Predicted: person (30, 10)–(36, 22)" },
+              "measures": "box"
             }
           ],
-          "reference": {
-            "size": [32, 24],
-            "camera": { "yaw": 0, "pitch": 10, "distance": 6, "f": 1 },
-            "light": { "azimuth": 30, "elevation": 60 },
-            "floor": "white",
-            "objects": []
-          }
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "人工标注：(29, 9)–(36, 23)", "en": "annotator: (29, 9)–(36, 23)" },
+              "measures": "box"
+            },
+            { "id": "b", "label": { "zh": "人工标注：人、狗", "en": "annotator: person, dog" }, "measures": "class" },
+            { "id": "c", "label": { "zh": "卷尺：7.0 米", "en": "tape measure: 7.0 m" }, "measures": "distance" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0D1_3",
+      "kind": "choice",
+      "step": { "zh": "一张图的局限", "en": "One image's limits" },
+      "brief": {
+        "zh": "对着机器人拍下的图和候选场景，判断每句话成立、不成立，还是无法确定。",
+        "en": "Given the robot's picture and the candidate scenes, judge whether each statement holds, does not hold, or is undetermined."
+      },
+      "hint": [
+        { "zh": "每个候选场景都渲得出机器人拍到的这张图。", "en": "Every candidate scene renders the very picture the robot took." }
+      ],
+      "judge": "claims",
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": { "zh": "左边那个人离机器人 3 米。", "en": "The person on the left is 3 m from the robot." },
+              "claim": { "depth": { "object": "left", "z": 3 } }
+            },
+            {
+              "prompt": { "zh": "画面里有两个人。", "en": "There are two people in the scene." },
+              "claim": { "count": { "class": "person", "n": 2 } }
+            },
+            {
+              "prompt": { "zh": "现场有一只狗。", "en": "There is a dog at the site." },
+              "claim": { "exists": { "class": "dog" } }
+            }
+          ],
+          "scenes": [
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "left",
+                  "class": "person",
+                  "colour": "purple",
+                  "boxes": [{ "at": [-0.5, 0.5, 2], "size": [0.3, 0.9, 0.3] }]
+                },
+                {
+                  "id": "right",
+                  "class": "person",
+                  "colour": "brown",
+                  "boxes": [{ "at": [0.6, 0.4, 1.5], "size": [0.3, 0.8, 0.3] }]
+                }
+              ]
+            },
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "left",
+                  "class": "person",
+                  "colour": "purple",
+                  "boxes": [{ "at": [-1, 0.5, -1], "size": [0.6, 1.8, 0.6] }]
+                },
+                {
+                  "id": "right",
+                  "class": "person",
+                  "colour": "brown",
+                  "boxes": [{ "at": [0.6, 0.4, 1.5], "size": [0.3, 0.8, 0.3] }]
+                }
+              ]
+            }
+          ]
         }
       ]
     }

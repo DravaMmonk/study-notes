@@ -1,0 +1,87 @@
+{
+  "title": { "zh": "前后都清晰，还要够亮", "en": "Sharp front to back, and bright enough" },
+  "intro": [
+    {
+      "t": {
+        "zh": "两个物体在 1000 mm 和 3000 mm，两个都要清晰，进光量又不能低于 1。这回光圈和对焦距离都能动。这一关的问题是：既要两个深度都清晰，又要足够的光，对焦该放在哪里？",
+        "en": "Two objects stand at 1000 mm and 3000 mm; both must be sharp and the light must not fall below 1. This time the aperture and the focus distance both turn. This level asks: with both depths to keep sharp and enough light to gather, where should the focus go?"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1B6",
+      "kind": "bench",
+      "brief": {
+        "zh": "同时调光圈和对焦距离：两个物体都清晰，进光量不低于 1。",
+        "en": "Set the aperture and the focus together: both objects sharp and the light at least 1."
+      },
+      "hint": [
+        {
+          "zh": "清晰范围在对焦距离的两边都有：只用上一边，另一边就白白浪费了。",
+          "en": "The sharp range extends on both sides of the focus: use only one side and the other is wasted."
+        }
+      ],
+      "bench": {
+        "model": "lens",
+        "setup": {
+          "F": 50,
+          "A0": 1.5,
+          "cMax": 0.03,
+          "objects": [
+            { "id": "near", "z": 1000, "label": { "zh": "近处的人", "en": "near person" } },
+            { "id": "far", "z": 3000, "label": { "zh": "远处的门", "en": "far door" } }
+          ]
+        },
+        "knobs": {
+          "A": {
+            "label": { "zh": "光圈直径 A", "en": "Aperture A" },
+            "min": 0.5,
+            "max": 3,
+            "step": 0.25,
+            "start": 0.75,
+            "unit": " mm"
+          },
+          "focus": {
+            "label": { "zh": "对焦距离", "en": "Focus distance" },
+            "min": 1000,
+            "max": 3000,
+            "step": 250,
+            "start": 1000,
+            "unit": " mm"
+          }
+        },
+        "goal": [
+          { "of": "sharp_near", "label": { "zh": "近处清晰", "en": "Near sharp" }, "is": 1 },
+          { "of": "sharp_far", "label": { "zh": "远处清晰", "en": "Far sharp" }, "is": 1 },
+          { "of": "light", "label": { "zh": "进光量", "en": "Light" }, "atLeast": 1, "format": "fixed2" }
+        ],
+        "layout": { "main": ["lensRays", "blurCurve"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "focus": 1000, "A": 0.75 },
+          "why": {
+            "zh": "对焦在近处，再收光圈直到两个都清晰：进光量只剩 0.25。",
+            "en": "Focusing on the near object and closing down until both are sharp: the light is only 0.25."
+          }
+        },
+        {
+          "set": { "focus": 1000, "A": 1.5 },
+          "why": {
+            "zh": "光够了，对焦却还在近处：远处的门糊了。",
+            "en": "The light is enough, but the focus is still on the near object: the far door blurs."
+          }
+        },
+        {
+          "set": { "focus": 3000, "A": 1.5 },
+          "why": {
+            "zh": "对焦挪到远处：近处的人又糊了。",
+            "en": "Moving the focus to the far object: now the near person blurs."
+          }
+        }
+      ],
+      "holds": [{ "of": "focus", "near": 1500, "atMost": 1 }]
+    }
+  ]
+}

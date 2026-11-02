@@ -1,37 +1,166 @@
 {
-  "title": { "zh": "场景与图", "en": "Scene and image" },
+  "title": { "zh": "同一张图，不同的世界", "en": "One image, different worlds" },
   "intro": [
     {
       "t": {
-        "zh": "计算机接收的是相机产生的数据；场景本身、相机和图像各有不同角色。",
-        "en": "The computer receives data produced by a camera; the scene, the camera and the image have different roles."
+        "zh": "图形学从物体、光照和相机出发，正向渲出一张图。检查台面对的是反方向：手里只有图，要说出场景是什么样。",
+        "en": "Graphics starts from objects, light and a camera and renders an image forwards. The station faces the other way: it holds only the image and must say what the scene is like."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：只看这一张图，红色箱子离相机多远？几个候选场景都渲得出这张图。一句话在每个候选场景里都对，才算成立；都错是不成立；有对有错就是无法确定。",
+        "en": "This level asks: from this image alone, how far is the red box from the camera? Several candidate scenes all render this image. A statement true in every candidate holds, false in every one does not hold, and true in some, false in others is undetermined."
       }
     }
   ],
+  "after": {
+    "zh": "从图像推回场景是<wiki-ref to=\"inverse-problem\"></wiki-ref>：不同的场景能渲出同一张图。",
+    "en": "Going from the image back to the scene is an <wiki-ref to=\"inverse-problem\"></wiki-ref>: different scenes can render the same image."
+  },
   "tasks": [
     {
       "id": "0C1",
       "kind": "choice",
-      "brief": { "zh": "为每样东西选择它的角色。", "en": "Choose the role of each item." },
-      "hint": [{ "zh": "哪些东西存在于拍照之前？", "en": "Which things exist before the picture is taken?" }],
-      "judge": "match",
+      "brief": {
+        "zh": "判断关于场景的每句话：成立、不成立，还是无法确定。",
+        "en": "Judge each statement about the scene: holds, does not hold, or undetermined."
+      },
+      "hint": [
+        {
+          "zh": "箱子在图里的大小，取决于它有多大，也取决于它有多远。",
+          "en": "How big the box looks in the image depends on how big it is, and also on how far away."
+        }
+      ],
+      "judge": "claims",
       "rounds": [
         {
           "items": [
             {
-              "prompt": { "zh": "现实中的立方体属于哪一类？", "en": "Which role does a physical cube have?" },
-              "is": "world"
+              "prompt": { "zh": "红色箱子离相机 2 米。", "en": "The red box is 2 m from the camera." },
+              "claim": { "depth": { "object": "box", "z": 2 } }
             },
-            { "prompt": { "zh": "相机属于哪一类？", "en": "Which role does the camera have?" }, "is": "camera" },
-            { "prompt": { "zh": "像素数组属于哪一类？", "en": "Which role does a pixel array have?" }, "is": "image" }
+            {
+              "prompt": { "zh": "箱子是红色的。", "en": "The box is red." },
+              "claim": { "colour": { "object": "box", "is": "red" } }
+            },
+            {
+              "prompt": { "zh": "箱子高 0.5 米。", "en": "The box is 0.5 m tall." },
+              "claim": { "height": { "object": "box", "h": 0.5 } }
+            },
+            {
+              "prompt": { "zh": "箱子是蓝色的。", "en": "The box is blue." },
+              "claim": { "colour": { "object": "box", "is": "blue" } }
+            }
           ],
-          "options": [
-            { "id": "w", "label": { "zh": "场景中的物体", "en": "Object in the scene" }, "is": "world" },
-            { "id": "c", "label": { "zh": "成像装置", "en": "Imaging device" }, "is": "camera" },
-            { "id": "i", "label": { "zh": "图像数据", "en": "Image data" }, "is": "image" }
+          "scenes": [
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "box",
+                  "class": "box",
+                  "colour": "red",
+                  "boxes": [{ "at": [0.3, 0.5, 3], "size": [0.5, 0.5, 0.5] }]
+                }
+              ]
+            },
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "box",
+                  "class": "box",
+                  "colour": "red",
+                  "boxes": [{ "at": [0.6, 0.5, 1], "size": [1, 1, 1] }]
+                }
+              ]
+            },
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "box",
+                  "class": "box",
+                  "colour": "red",
+                  "boxes": [{ "at": [0.9, 0.5, -1], "size": [1.5, 1.5, 1.5] }]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": { "zh": "画面里有两个立方体。", "en": "There are two cubes in the scene." },
+              "claim": { "count": { "class": "cube", "n": 2 } }
+            },
+            {
+              "prompt": { "zh": "绿色立方体离相机 2 米。", "en": "The green cube is 2 m from the camera." },
+              "claim": { "depth": { "object": "green", "z": 2 } }
+            },
+            {
+              "prompt": { "zh": "场景里有一个球。", "en": "There is a ball in the scene." },
+              "claim": { "exists": { "class": "ball" } }
+            },
+            {
+              "prompt": { "zh": "黄色立方体在画面里看得见。", "en": "The yellow cube shows in the picture." },
+              "claim": { "visible": { "object": "yellow" } }
+            }
+          ],
+          "scenes": [
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "yellow",
+                  "class": "cube",
+                  "colour": "yellow",
+                  "boxes": [{ "at": [-0.9, 0.2, 2.5], "size": [0.4, 0.4, 0.4] }]
+                },
+                {
+                  "id": "green",
+                  "class": "cube",
+                  "colour": "green",
+                  "boxes": [{ "at": [0.5, 0.6, 3], "size": [0.5, 0.5, 0.5] }]
+                }
+              ]
+            },
+            {
+              "camera": { "yaw": 0, "pitch": 0, "distance": 5, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 50 },
+              "objects": [
+                {
+                  "id": "yellow",
+                  "class": "cube",
+                  "colour": "yellow",
+                  "boxes": [{ "at": [-0.9, 0.2, 2.5], "size": [0.4, 0.4, 0.4] }]
+                },
+                {
+                  "id": "green",
+                  "class": "cube",
+                  "colour": "green",
+                  "boxes": [{ "at": [0.75, 0.65, 2], "size": [0.75, 0.75, 0.75] }]
+                }
+              ]
+            }
           ]
         }
-      ]
+      ],
+      "naive": {
+        "picks": [
+          [["supported"], ["supported"], ["supported"], ["contradicted"]],
+          [["supported"], ["supported"], ["contradicted"], ["supported"]]
+        ],
+        "why": {
+          "zh": "按箱子在图里的大小定出了一个距离：可小而近的箱子和大而远的箱子渲出同一张图，距离和高度在候选场景里各不相同。",
+          "en": "That reads one distance off the box's size in the image, but a small near box and a large far one render the same picture: depth and height differ between the candidate scenes."
+        }
+      }
     }
   ]
 }

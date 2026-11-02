@@ -10,17 +10,272 @@
   ],
   "entries": [
     {
-      "id": "pixel",
+      "id": "detection",
       "group": "image",
       "title": {
-        "zh": "像素",
-        "en": "pixel"
+        "zh": "目标检测",
+        "en": "object detection"
       },
+      "at": "0A1",
+      "body": [
+        {
+          "zh": "回答「哪些物体在哪里」：给每个物体一个类别和一个边界框。分类只给整张图一个或几个类别标签，不说位置；不带类别的框只说了在哪里，没说是什么；分割再把答案细化到每个像素。出处：COMP90086 第 1 讲，视觉任务（幻灯片 7）。",
+          "en": "Answers which objects are where: a class and a bounding box for each object. Classification gives the whole image one or a few class labels and says nothing about position; a box without a class says where but not what; segmentation refines the answer down to each pixel. Source: COMP90086 lecture 1, vision tasks (slide 7)."
+        }
+      ]
+    },
+    {
+      "id": "instance-segmentation",
+      "group": "image",
+      "title": { "zh": "实例分割", "en": "instance segmentation" },
+      "at": "0A2",
+      "see": ["detection"],
+      "body": [
+        {
+          "zh": "给每个像素标出它属于哪一个具体物体（人-1、人-2）。语义分割只标出每个像素属于哪一类：同一类的几个物体挨在一起时连成一片，数不出个数；一个物体被挡成两块时，实例分割仍把两块标成同一个物体。出处：COMP90086 第 1 讲（幻灯片 7、30）。",
+          "en": "Labels each pixel with the particular object it belongs to (person-1, person-2). Semantic segmentation labels only each pixel's class: touching objects of one class merge into one region and cannot be counted; when an occluder cuts one object in two, instance segmentation still gives both pieces one id. Source: COMP90086 lecture 1 (slides 7, 30)."
+        }
+      ]
+    },
+    {
+      "id": "intra-class-variation",
+      "group": "image",
+      "title": { "zh": "类内变化", "en": "intra-class variation" },
+      "at": "0B1",
+      "body": [
+        {
+          "zh": "同一类、甚至同一个物体的照片，会因大小和距离、视角和姿态、光照、背景、遮挡而大不相同：几乎每个像素都变了，物体却没有变。所以识别不能靠记住像素，要找对这些无关变化有容忍度的表示。出处：COMP90086 第 1 讲，识别为什么难（幻灯片 28）。",
+          "en": "Photos of one class, even of one object, differ greatly with size and distance, viewpoint and pose, lighting, background and occlusion: nearly every pixel changes while the object does not. Recognition therefore cannot memorise pixels; it needs a representation tolerant of these irrelevant changes. Source: COMP90086 lecture 1, why recognition is hard (slide 28)."
+        }
+      ]
+    },
+    {
+      "id": "robustness",
+      "group": "image",
+      "title": { "zh": "鲁棒性", "en": "robustness" },
+      "at": "0B2",
+      "see": ["intra-class-variation"],
+      "body": [
+        {
+          "zh": "输入有无关的变化（视角、光照、背景，甚至只改了几个像素的对抗样本）时，输出仍然可靠。一次答对、哪怕置信度很高，也证明不了它；一个反例就能推翻「总能认出」，所以测试集要把每一种变化都覆盖到。出处：COMP90086 第 2 讲，对抗样本（幻灯片 2–3）。",
+          "en": "A system's output stays reliable when irrelevant things about its input change (viewpoint, lighting, background, even the few altered pixels of an adversarial example). One correct answer, however confident, does not show it; one counterexample refutes 'it always recognises', so a test set must cover each kind of change. Source: COMP90086 lecture 2, adversarial examples (slides 2–3)."
+        }
+      ]
+    },
+    {
+      "id": "inverse-problem",
+      "group": "image",
+      "title": { "zh": "反问题", "en": "inverse problem" },
+      "at": "0C1",
+      "body": [
+        {
+          "zh": "图形学由物体、材质、光照和相机正向生成图像，是正问题；视觉反过来从图像推回这些东西，是反问题。三维场景投成二维图像丢了一维信息，不同的场景能生成同一张图，所以单凭一张图，有些问题（物体多远、多大，挡住的是什么）没有唯一的答案。出处：COMP90086 第 1 讲，视觉与图形学（幻灯片 8）。",
+          "en": "Graphics generates an image forwards from objects, materials, lighting and camera: a forward problem. Vision infers them backwards from the image: an inverse problem. Projecting a 3D scene to a 2D image loses a dimension and different scenes can produce the same image, so from one image alone some questions (how far, how big, what is hidden) have no unique answer. Source: COMP90086 lecture 1, vision and graphics (slide 8)."
+        }
+      ]
+    },
+    {
+      "id": "image-array",
+      "group": "image",
+      "title": { "zh": "图像数组", "en": "image array" },
       "at": "1A1",
       "body": [
         {
-          "zh": "图上的一格：坐标 (x, y)，x 从左往右数，y 从上往下数，都从 0 起；灰度图一格一个数，彩色图一格三个数 [R, G, B]。",
-          "en": "One cell of an image: at (x, y), x counted left to right and y top to bottom, both from 0; a grey image holds one number a cell, a colour image three, [R, G, B]."
+          "zh": "相机把光变成电信号，计算机存下的是数：灰度图是 高 × 宽 的二维数组，每格是一个像素的亮度；彩色图多一维通道，是 高 × 宽 × 3 的张量，每个像素是 (R, G, B) 三个数。数组的形状先写高、再写宽。一个像素只说这里有多亮，不说这一点离相机多远。出处：COMP90086 第 2 讲（幻灯片 8、22）。",
+          "en": "The camera turns light into a signal and the computer stores numbers: a greyscale image is a height × width array, each cell one pixel's brightness; a colour image adds a channel axis, a height × width × 3 tensor, each pixel three numbers (R, G, B). The shape lists height first, then width. A pixel says how bright a place is, not how far it is from the camera. Source: COMP90086 lecture 2 (slides 8, 22)."
+        }
+      ]
+    },
+    {
+      "id": "pixel-coordinates",
+      "group": "image",
+      "title": { "zh": "像素坐标", "en": "pixel coordinates" },
+      "at": "1A2",
+      "see": ["image-array"],
+      "body": [
+        {
+          "zh": "图像坐标从左上角起、从 0 数：x 向右增大，y 向下增大，和数学课上 y 轴朝上的坐标不同。按数组读时先行后列，写成 I[y, x]；OpenCV 的尺寸却写成 (宽, 高)。出处：COMP90086 第 2 讲，像素坐标（幻灯片 26）。",
+          "en": "Image coordinates start at the top-left corner and count from 0: x grows to the right and y grows downwards, unlike the upward y of school geometry. Read as an array, row comes first: I[y, x]; OpenCV, though, writes a size as (width, height). Source: COMP90086 lecture 2, pixel coordinates (slide 26)."
+        }
+      ]
+    },
+    {
+      "id": "pinhole-projection",
+      "group": "image",
+      "title": { "zh": "针孔投影", "en": "pinhole projection" },
+      "at": "1B1",
+      "body": [
+        {
+          "zh": "针孔相机把三维点 (X, Y, Z) 投到离针孔 f 的像平面上：x = fX/Z，y = fY/Z（相似三角形）。同样大的物体越远像越小，焦距 f 越长像越大；像只定出 H/Z 的比，大而远和小而近成同一个像。讲义把像平面画在针孔前面，像不倒过来：这是坐标约定，不是传感器真正的位置。出处：COMP90086 第 2 讲（幻灯片 11、18）。",
+          "en": "A pinhole camera projects a 3D point (X, Y, Z) onto the image plane at distance f from the hole: x = fX/Z, y = fY/Z (similar triangles). An object of a given size images smaller the farther it is and larger the longer f is; the image fixes only the ratio H/Z, so large-and-far and small-and-near image alike. The lectures draw the image plane in front of the hole, so the image is upright: a coordinate convention, not where the sensor really is. Source: COMP90086 lecture 2 (slides 11, 18)."
+        }
+      ]
+    },
+    {
+      "id": "lens",
+      "group": "image",
+      "title": { "zh": "透镜", "en": "lens" },
+      "at": "1B4",
+      "see": ["pinhole-projection"],
+      "body": [
+        {
+          "zh": "针孔小，进光少，图暗；把孔开大，同一点的光落到传感器上的不同地方，图就糊。透镜让大孔进来的光重新会聚到一点，但只对对焦距离上的点会聚得准，别的距离的点在传感器上成一个模糊圈。光圈直径管进光量，焦距管像的大小，两者不能混。出处：COMP90086 第 2 讲，相机为什么需要透镜（幻灯片 12–13）。",
+          "en": "A small pinhole lets in little light and the image is dark; widen the hole and light from one point lands at different places on the sensor, and the image blurs. A lens brings the light through a wide opening back to a point, but only for points at the focus distance; points at other depths make a blur circle on the sensor. The aperture diameter sets the light, the focal length the image size; the two are not to be confused. Source: COMP90086 lecture 2, why cameras need lenses (slides 12–13)."
+        }
+      ]
+    },
+    {
+      "id": "depth-of-field",
+      "group": "image",
+      "title": { "zh": "景深", "en": "depth of field" },
+      "at": "1B5",
+      "see": ["lens"],
+      "body": [
+        {
+          "zh": "同时显得清晰的深度范围。光圈小，模糊圈小，景深大，但进光少；光圈大，进光多，景深窄。摄影上用 f 数 = 焦距 / 光圈直径表示光圈：70 mm 镜头在 f/5.6 时光圈直径约 12.5 mm，f/32 的光圈更小、景深更大。出处：COMP90086 第 2 讲，光圈与景深（幻灯片 16）。",
+          "en": "The range of depths that look sharp at once. A small aperture makes small blur circles and a deep range but lets in little light; a large aperture lets in more light and the range narrows. Photography states the aperture as the f-number = focal length / aperture diameter: a 70 mm lens at f/5.6 has an aperture of about 12.5 mm, and f/32 is a smaller aperture with a deeper range. Source: COMP90086 lecture 2, aperture and depth of field (slide 16)."
+        }
+      ]
+    },
+    {
+      "id": "field-of-view",
+      "group": "image",
+      "title": { "zh": "视场", "en": "field of view" },
+      "at": "1B7",
+      "see": ["pinhole-projection"],
+      "body": [
+        {
+          "zh": "传感器大小一定时，焦距决定看得多宽：焦距短，视场大；焦距长，视场小，物体在图里显得大。图像宽 2000 像素、主点居中、焦距 1000 像素时，每边约 45°，视场约 90°。出处：COMP90086 第 2 讲，焦距与视场（幻灯片 15）。",
+          "en": "With the sensor size fixed, the focal length decides how wide the camera sees: a short focal length gives a wide field of view, a long one a narrow view in which objects look larger. For an image 2000 pixels wide with the principal point in the middle and a focal length of 1000 pixels, each side covers about 45° and the field of view is about 90°. Source: COMP90086 lecture 2, focal length and field of view (slide 15)."
+        }
+      ]
+    },
+    {
+      "id": "pixel-units",
+      "group": "image",
+      "title": { "zh": "以像素计的焦距", "en": "focal length in pixels" },
+      "at": "1B8",
+      "see": ["field-of-view", "pixel-coordinates"],
+      "body": [
+        {
+          "zh": "像平面上的长度以毫米计，图像里的长度以像素计，两者靠传感器的尺寸换算（每个像素多少毫米）。以像素计的焦距就是物理焦距除以像素尺寸。物体在 20 mm、200 像素高的传感器上占 100 像素，就是 10 mm：先换成毫米，再代入 h/f = H/Z。出处：COMP90086 第 2 讲与 workshop 2。",
+          "en": "Lengths on the image plane are in millimetres and lengths in the image in pixels; the sensor's size converts one to the other (millimetres per pixel). The focal length in pixels is the physical focal length divided by the pixel size. An object covering 100 pixels of a sensor 20 mm and 200 pixels tall is 10 mm tall on it: convert to millimetres first, then use h/f = H/Z. Source: COMP90086 lecture 2 and workshop 2."
+        }
+      ]
+    },
+    {
+      "id": "channel-order",
+      "group": "image",
+      "title": { "zh": "通道顺序", "en": "channel order" },
+      "at": "1C1",
+      "see": ["image-array"],
+      "body": [
+        {
+          "zh": "彩色图三个通道怎么排没有统一约定：OpenCV 读图得到 BGR，Matplotlib 按 RGB 显示。顺序弄错，红和蓝对调，形状和尺寸都不变；换顺序只是重排通道，不改图像的内容和大小。出处：COMP90086 第 2 讲，通道顺序（幻灯片 25）与 workshop 2。",
+          "en": "There is no single convention for ordering a colour image's three channels: OpenCV reads images as BGR, Matplotlib displays them as RGB. Get the order wrong and red and blue swap while the shape and size stay; reordering only rearranges the channels and changes neither content nor size. Source: COMP90086 lecture 2, channel ordering (slide 25), and workshop 2."
+        }
+      ]
+    },
+    {
+      "id": "value-range",
+      "group": "image",
+      "title": { "zh": "数值范围", "en": "value range" },
+      "at": "1C2",
+      "see": ["channel-order"],
+      "body": [
+        {
+          "zh": "像素值有范围和类型：uint8 是 0 到 255 的整数，白是 255；处理时常换成 [0, 1] 的浮点数，好做加减乘除、不溢出。计算结果可以超出范围，显示时才把超出的值截到两端，存着的数不变：看上去一样白的两个像素，存的数可以不同。出处：COMP90086 第 2 讲，像素坐标、数据类型与文件格式（幻灯片 26）。",
+          "en": "Pixel values have a range and a type: uint8 holds whole numbers from 0 to 255, white being 255; processing often converts to floats in [0, 1] so that arithmetic works without overflow. Results may leave the range; only the display clips them to its ends, and the stored numbers stay: two pixels that look equally white can hold different values. Source: COMP90086 lecture 2, coordinates, data types and file formats (slide 26)."
+        }
+      ]
+    },
+    {
+      "id": "sampling-grid",
+      "group": "image",
+      "title": { "zh": "采样网格", "en": "sampling grid" },
+      "at": "1D1",
+      "body": [
+        {
+          "zh": "缩放一张图，要给新图的每个像素算出值，先得知道它在原图里的位置：在新图上铺一张采样网格，把每个新像素反向映射回原图的坐标，而不是把旧像素正向搬过去（那样放大时会留下空洞）。本课按像素中心对齐（OpenCV 的双线性缩放、PyTorch 的 align_corners=False 也这样）：宽从 m 变成 n 时，新像素 x 对应原图的 (x + 0.5)·m/n − 0.5。库与库的约定不同，所以要写明。出处：COMP90086 第 2 讲（幻灯片 34）。",
+          "en": "To resize an image every new pixel needs a value, and first a position in the original: lay a sampling grid over the new image and map each new pixel back to coordinates in the original, rather than pushing old pixels forwards (which leaves holes when enlarging). This course aligns pixel centres, as OpenCV's bilinear resize and PyTorch's align_corners=False do: when a width m becomes n, new pixel x sits at (x + 0.5)·m/n − 0.5 in the original. Libraries differ in this convention, so it must be stated. Source: COMP90086 lecture 2 (slide 34)."
+        }
+      ]
+    },
+    {
+      "id": "nearest-neighbour",
+      "group": "image",
+      "title": { "zh": "最近邻插值", "en": "nearest-neighbour interpolation" },
+      "at": "1D2",
+      "see": ["sampling-grid"],
+      "body": [
+        {
+          "zh": "每个新像素复制原图里离它最近的那个像素的值。快，边缘硬，但放大后成块，缩小时整列整行的像素被丢掉，比取样间隔细的细节整个消失。离两边一样远时按约定取坐标较大的一边。它和裁剪不同：裁剪只取出已有的像素，不改尺寸。OpenCV 里叫 INTER_NEAREST。出处：COMP90086 第 2 讲（幻灯片 35）。",
+          "en": "Each new pixel copies the value of the original pixel nearest to it. It is fast and keeps edges hard, but enlarging makes squares and shrinking drops whole rows and columns, so detail finer than the sample spacing vanishes. When a position is equally far from two pixels, the convention takes the larger coordinate. Unlike cropping, which takes existing pixels without resizing. OpenCV calls it INTER_NEAREST. Source: COMP90086 lecture 2 (slide 35)."
+        }
+      ]
+    },
+    {
+      "id": "linear-interpolation",
+      "group": "image",
+      "title": { "zh": "线性插值", "en": "linear interpolation" },
+      "at": "1D4",
+      "see": ["nearest-neighbour"],
+      "body": [
+        {
+          "zh": "新位置落在两个相邻像素之间、离左边那个的距离是 t（0 ≤ t < 1）时，值取两边按距离的加权平均：(1 − t)·I[x0] + t·I[x0 + 1]。权重之和为 1，离得越近权重越大，所以新值介于两边之间，不只是照抄某一个旧像素。出处：COMP90086 第 2 讲（幻灯片 36，一维的情形）。",
+          "en": "When a new position lies between two neighbouring pixels at distance t from the left one (0 ≤ t < 1), its value is their distance-weighted average: (1 − t)·I[x0] + t·I[x0 + 1]. The weights sum to 1 and the nearer pixel weighs more, so the new value lies between the two instead of copying one old pixel. Source: COMP90086 lecture 2 (slide 36, the one-dimensional case)."
+        }
+      ]
+    },
+    {
+      "id": "bilinear-interpolation",
+      "group": "image",
+      "title": { "zh": "双线性插值", "en": "bilinear interpolation" },
+      "at": "1D5",
+      "see": ["linear-interpolation", "nearest-neighbour"],
+      "body": [
+        {
+          "zh": "在二维里，新位置落在四个旧像素之间；横向距离为 H、纵向距离为 V 时，四个权重是 (1−H)(1−V)、H(1−V)、(1−H)V、HV，和为 1，等于先沿 x、再沿 y 各做一次线性插值。它比最近邻平滑，却会把很锐的边变软，还会在标签图上造出不存在的值。双三次和 Lanczos 看更大的邻域，没有一种插值对每个任务都最好。OpenCV 里叫 INTER_LINEAR。出处：COMP90086 第 2 讲（幻灯片 36–37）。",
+          "en": "In two dimensions a new position falls among four old pixels; with horizontal distance H and vertical distance V the four weights are (1−H)(1−V), H(1−V), (1−H)V and HV, summing to 1 — the same as linear interpolation along x and then along y. It is smoother than nearest neighbour but softens very sharp edges and invents values that do not exist in a label map. Bicubic and Lanczos look at larger neighbourhoods; no interpolation is best for every task. OpenCV calls it INTER_LINEAR. Source: COMP90086 lecture 2 (slides 36–37)."
+        }
+      ]
+    },
+    {
+      "id": "quantisation",
+      "group": "image",
+      "title": { "zh": "量化", "en": "quantisation" },
+      "at": "1D7",
+      "see": ["value-range"],
+      "body": [
+        {
+          "zh": "传感器的信号最后存成有限个取值：uint8 每个值是 0 到 255 的整数，共 256 级。把实数存成 L 级，先把它截到可表示的范围，再取最近的一级（四舍五入，不是截掉小数）。不同的值会落到同一级，量化丢掉的信息找不回来。出处：COMP90086 第 2 讲（数据类型、uint8 的范围）。",
+          "en": "The sensor's signal ends up stored as finitely many values: in uint8 each value is a whole number from 0 to 255, 256 levels. Storing a real number in L levels first clips it to the representable range, then takes the nearest level (rounding, not cutting off the fraction). Different values fall into one level, and what quantisation discards cannot be recovered. Source: COMP90086 lecture 2 (data types, the uint8 range)."
+        }
+      ]
+    },
+    {
+      "id": "cropping",
+      "group": "image",
+      "title": { "zh": "裁剪", "en": "cropping" },
+      "at": "1D9",
+      "see": ["sampling-grid"],
+      "body": [
+        {
+          "zh": "取原数组的一个子区域，已有的像素值原样保留，不算新值；缩放改变数组的大小，要给新位置算出值。NumPy 里写成 image[y0:y0+h, x0:x0+w]。中心裁剪的起点是 x0 = ⌊(W − w)/2⌋、y0 = ⌊(H − h)/2⌋。出处：COMP90086 第 2 讲（幻灯片 34）与 workshop 2。",
+          "en": "Takes a sub-region of the original array and keeps its pixel values as they are, computing nothing new; resizing changes the array's size and must compute values for the new positions. In NumPy it is image[y0:y0+h, x0:x0+w]. A centre crop starts at x0 = ⌊(W − w)/2⌋, y0 = ⌊(H − h)/2⌋. Source: COMP90086 lecture 2 (slide 34) and workshop 2."
+        }
+      ]
+    },
+    {
+      "id": "aspect-ratio",
+      "group": "image",
+      "title": { "zh": "宽高比", "en": "aspect ratio" },
+      "at": "1D10",
+      "see": ["cropping"],
+      "body": [
+        {
+          "zh": "图的宽与高之比。把 768×512 直接压成 512×512 会改变宽高比，物体变胖或变瘦；要保持比例，宽和高乘同一个比例（约 768×512 → 768 · 2/3 × 512 · 2/3），要的形状再用裁剪取出。OpenCV 的尺寸写成 (宽, 高)，NumPy 的形状是 (高, 宽, 通道)，不能照搬。出处：COMP90086 第 2 讲（幻灯片 34）与 workshop 2。",
+          "en": "An image's width over its height. Squashing 768×512 straight into 512×512 changes it, and objects grow fatter or thinner; to keep proportions, scale width and height by one factor and take the wanted shape with a crop. OpenCV writes a size as (width, height) while a NumPy shape is (height, width, channels); one cannot be passed as the other. Source: COMP90086 lecture 2 (slide 34) and workshop 2."
         }
       ]
     }

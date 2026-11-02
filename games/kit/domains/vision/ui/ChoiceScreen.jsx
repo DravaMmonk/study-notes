@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { fromRows } from '../image.js'
-import { judgeOf } from '../judges.js'
+import { isNaive, judgeOf } from '../judges.js'
 import { render } from '../scene.js'
 import ImageView, { Picture } from './ImageView.jsx'
 
@@ -129,7 +129,14 @@ export default function ChoiceScreen({ game, level: entry, saved, save, solve, l
       {items}
     </div>
   )
-  const results = verdict ? <p className={`vi-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? (last ? tr('全部答对。', 'All right.') : tr('这一轮答对了，下一轮换了数据。', 'This round is right; the next one changes the data.')) : tr(`还有 ${verdict.wrong.length} 处不对，已标出。`, `${verdict.wrong.length} still wrong, marked.`)}</p> : null
+  // The task's naive picks, given here, are told why they are wrong (the misconception the point corrects).
+  const naive = verdict && !verdict.pass && isNaive(task, state.round, picks)
+  const results = verdict ? (
+    <div className="vi-results">
+      <p className={`vi-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? (last ? tr('全部答对。', 'All right.') : tr('这一轮答对了，下一轮换了数据。', 'This round is right; the next one changes the data.')) : tr(`还有 ${verdict.wrong.length} 处不对，已标出。`, `${verdict.wrong.length} still wrong, marked.`)}</p>
+      {naive && <p className="vi-verdict is-fail">{L(task.naive.why)}</p>}
+    </div>
+  ) : null
   const go = verdict?.pass ? (last ? tr('全部答对', 'All right') : tr('下一轮', 'Next round')) : tr('检查', 'Check')
   const dock = <RunDock go={{ label: go, pass: Boolean(verdict?.pass && last), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={task.hint} phone={phone} />
