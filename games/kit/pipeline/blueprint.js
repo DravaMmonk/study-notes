@@ -5,7 +5,9 @@
 //   the topic, its learner and endpoint, and how far this blueprint goes (scope, deferred)
 //   the mechanisms picked from the catalogue (DESIGN 6.5), the machines and the abilities each has (the machine ladder)
 //   the knowledge the course teaches (DESIGN 1, 4.1): each point a piece of the field — its term, what it says, where
-//   the sources teach it, the question a learner cannot answer without it (`wall`), the wrong idea it replaces;
+//   the sources teach it, the question a learner cannot answer without it (`wall`), the wrong idea it replaces, and
+//   its basis: the lectures' theory (the course's line: a level is built around one) or a supplement (a workshop's
+//   or a library's way, a tool's convention, background: hung on a theory level that uses it, never a level's core);
 //   the primitives, each with why it cannot be wired from what is held; the parts the player builds, each with what
 //   it is built from. A primitive is a tool, never a knowledge point: it comes in with the point that needs it (a part
 //   the player builds may embody a point: cropping, built as crop).
@@ -42,6 +44,7 @@ const SLOT = S.obj({
   chain: S.opt(S.list(S.text(), { min: 2, about: t('玩家从问题走到答案的思路，一步一句：试了什么、看到什么、因此想到什么；每一步都落在屏幕上能做或能看到的东西上', 'the player’s way from the question to the answer, a step a sentence: what they try, what they see, what it makes them think; every step lands on something on screen') })),
   role: S.oneOf(ROLES),
   teaches: S.opt(S.str({ pattern: '^[A-Za-z][A-Za-z0-9_-]*$', about: t('这一关带来的知识点（knowledge 的 id）；练习关不带新点，它练的点写在 uses 里', 'the knowledge point it brings (a knowledge id); a practice slot brings none, the point it practises is in its uses') })),
+  extends: S.opt(S.list(ID, { about: t('这一关顺带补充的 supplement 知识点：一个任务、点题里的一句或一个词条，不是这一关的核心', 'the supplement points this level adds in passing: a task, a sentence of its pass text or an entry, never its core') })),
   facet: S.opt(S.text({ about: t('练习关：这个知识点的哪一面是前面没见过的（一个约定、一个边界、一种失效）', 'a practice slot: which side of the point the slots before did not show (a convention, an edge, a failure)') })),
   adds: S.opt(S.list(ID)),
   builds: S.opt(ID),
@@ -83,6 +86,7 @@ export const BLUEPRINT = S.obj({
     source: S.opt(S.str({ about: t('课程材料里讲它的地方：sources 里的一个文件，加章节、页或幻灯片', 'where the sources teach it: a file of `sources`, with its section, page or slide') })),
     wall: S.text({ about: t('不懂它就答不上的那个问题：带来它的那一关就是这堵墙', 'the question a learner cannot answer without it: the slot that brings it is that wall') }),
     misconception: S.opt(S.text({ about: t('它要纠正的直觉错误；带来它的那一关的 naive 答案就是这个错误', 'the intuitive wrong idea it replaces; the naive answer of the slot that brings it is that idea') })),
+    basis: S.opt(S.oneOf(['lecture', 'supplement'], { about: t('lecture：讲义里的理论（概念、模型、方法），课程的主线，一关以它为核心；supplement：补充和延伸（实验课和库的做法、工具的约定、背景），不单独成关，挂在用到它的理论关上（slot 的 extends）', 'lecture: the lectures’ theory (a concept, model or method), the course’s line, a level built around it; supplement: what adds to it (a workshop’s or a library’s way, a tool’s convention, background), never a level of its own, hung on the theory level that uses it (a slot’s extends)') })),
   }), { min: 1, about: t('课程要教的本领域知识；元件是工具，不是知识点', 'the field knowledge the course teaches; a primitive is a tool, not a knowledge point') }),
   primitives: S.list(S.obj({ part: ID, about: S.text(), why: S.text({ about: t('为什么不能用已有的元件接出来', 'why it cannot be wired from the parts held') }) })),
   built: S.list(S.obj({ part: ID, about: S.text(), from: S.list(ID) })),
@@ -105,7 +109,9 @@ export const BLUEPRINT_RULES = {
   'bp-schema': 'the blueprint does not fit its schema',
   'bp-unique': 'an id is used twice',
   'bp-refs': 'names something the blueprint does not define',
-  'bp-point': 'a knowledge point without its term or its source',
+  'bp-point': 'a knowledge point without its term, its source or its basis (lecture or supplement)',
+  'bp-core': 'a slot is built around a supplement point (it brings or practises one): a level’s core is the lectures’ theory',
+  'bp-extends': 'a supplement point no slot extends, or a slot extends what is not a supplement point',
   'bp-source': 'a knowledge point cites no file of the blueprint’s sources',
   'bp-question': 'a slot without the question it answers, or without a chain of at least two steps to the answer',
   'bp-knowledge': 'a slot works on no knowledge point: it neither brings one nor uses one (filler)',
@@ -218,11 +224,16 @@ export function auditBlueprint(bp) {
     for (const u of s.uses) if (!known(u)) say('bp-refs', s.id, `uses ${u}, which is not defined`)
     for (const a of s.adds ?? []) if (!prims.has(a)) say('bp-refs', s.id, `adds ${a}, which is no primitive`)
     if (s.teaches && !points.has(s.teaches)) say('bp-refs', s.id, `brings the knowledge point ${s.teaches}, which is not defined`)
+    for (const e of s.extends ?? []) if (!points.has(e)) say('bp-refs', s.id, `extends ${e}, which is no knowledge point`)
     if (s.builds && !built.has(s.builds)) say('bp-refs', s.id, `builds ${s.builds}, which is no built part`)
     if ((s.adds ?? []).length && !s.teaches) say('bp-adds-teaches', s.id, `adds ${s.adds.join(', ')} and brings no knowledge point that needs it`)
     const challenge = s.role === 'challenge' || s.series.kind === 'challenge'
-    if (!s.teaches && !challenge && !s.uses.some((u) => points.has(u))) say('bp-knowledge', s.id, 'it neither brings a knowledge point nor uses one')
+    if (!s.teaches && !challenge && !s.uses.some((u) => points.has(u) && points.get(u).basis !== 'supplement')) say('bp-knowledge', s.id, 'it neither brings a point of the lectures’ theory nor uses one')
     if (s.role === 'practice' && !s.facet) say('bp-facet', s.id, 'a practice slot without the facet it shows')
+    // The lectures' theory is a level's core; a supplement rides on a theory level (extends), never carries one.
+    const supplement = (id) => points.get(id)?.basis === 'supplement'
+    if (supplement(s.teaches) || (s.role === 'practice' && s.uses.some(supplement) && !s.uses.some((u) => points.has(u) && !supplement(u)))) say('bp-core', s.id, `it is built around ${s.teaches ?? s.uses.find(supplement)}, a supplement`)
+    for (const e of s.extends ?? []) if (!supplement(e)) say('bp-extends', s.id, `extends ${e}, which is no supplement point`)
     if (!s.question || !s.chain) say('bp-question', s.id, `it has no ${[!s.question && 'question', !s.chain && 'chain'].filter(Boolean).join(' and no ')}`)
   }
   for (const r of bp.requests ?? []) for (const id of r.for) if (!slots.some((s) => s.id === id)) say('bp-refs', r.id, `the request is for ${id}, which is no slot`)
@@ -231,8 +242,8 @@ export function auditBlueprint(bp) {
   const low = (x) => String(x ?? '').trim().toLowerCase()
   const toolNames = new Set(bp.primitives.flatMap((p) => [p.part, p.about?.zh, p.about?.en].map(low)).filter(Boolean))
   for (const k of bp.knowledge) {
-    if (!k.term || !k.source) {
-      say('bp-point', k.id, `it has no ${[!k.term && 'term', !k.source && 'source'].filter(Boolean).join(' and no ')}`)
+    if (!k.term || !k.source || !k.basis) {
+      say('bp-point', k.id, `it has no ${[!k.term && 'term', !k.source && 'source', !k.basis && 'basis'].filter(Boolean).join(' and no ')}`)
       continue
     }
     if (!bp.sources.some((src) => k.source.startsWith(src))) say('bp-source', k.id, `cites ${k.source}, no file of the sources`)
@@ -252,7 +263,7 @@ export function auditBlueprint(bp) {
     for (const x of names) {
       const list = at.get(x) ?? []
       if (kind === 'knowledge point' && !list.length) {
-        say('bp-taught', x, 'no slot brings it')
+        if (points.get(x).basis !== 'supplement') say('bp-taught', x, 'no slot brings it')
         continue
       }
       const chain = kind === 'built part' && list.length > 1 && list.every((id, k) => !k || ancestors(id).has(list[k - 1]))
@@ -308,6 +319,7 @@ export function auditBlueprint(bp) {
     const between = later.filter((id) => !optional(id) && byId.get(id).teaches && ancestors(next).has(id) && id !== next)
     if (between.length >= 2) say('bp-first-use', at, `${point} comes back first at ${next}, after ${between.join(', ')} bring two more points`)
   }
+  for (const k of bp.knowledge) if (k.basis === 'supplement' && !slots.some((s) => (s.extends ?? []).includes(k.id))) say('bp-extends', k.id, 'a supplement no slot extends')
   // A point that takes many slots: each must be a facet of its own, never the same puzzle again.
   for (const k of bp.knowledge) {
     const on = slots.filter((s) => s.teaches === k.id || (s.role === 'practice' && s.uses.includes(k.id)))
@@ -387,8 +399,8 @@ export const CONFORMANCE_RULES = {
   'bp-builds': 'a level builds another part than its slot, or none',
   'bp-uses': 'a level’s reference answer leaves out a part its slot stands on',
   'bp-naive': 'a slot with a naive answer whose level has none',
-  'bp-entry': 'a knowledge point has no encyclopedia entry of its id, opened at the level that brings it',
-  'bp-term': 'the level that brings a knowledge point does not link its entry where the player reads it',
+  'bp-entry': 'a knowledge point has no encyclopedia entry of its id (a lecture point’s opened at the level that brings it)',
+  'bp-term': 'the level that brings a knowledge point, or extends a supplement, does not link its entry where the player reads it',
 }
 
 /** Every text of a level, its tasks' included, as plain strings. */
@@ -422,12 +434,19 @@ export function conformance(bp, content, spec) {
     const needed = new Set(at === undefined ? [] : course.needed(course.levels[at]) ?? [])
     for (const u of s.uses) if (parts.has(u) && !needed.has(u)) say('bp-uses', s.id, `its answer does not use ${u}`)
     if (s.naive && !(level.tasks ?? [level]).some((task) => task.naive)) say('bp-naive', s.id, 'its slot has a naive answer, no task of the level has one')
-    // The point a level brings is named by the field's term, linked to its entry, where the player reads it.
+    // The point a level brings is named by the field's term, linked to its entry, where the player reads it; so is
+    // each supplement it extends (its entry opens there or before).
+    const { title, intro, after, note, tasks, brief, hint } = level
+    const read = textsOf({ title, intro, after, note, tasks, brief, hint })
+    const entryOf = (id) => (content.glossary?.entries ?? []).find((e) => e.id === id)
     if (s.teaches) {
-      const entry = (content.glossary?.entries ?? []).find((e) => e.id === s.teaches)
+      const entry = entryOf(s.teaches)
       if (!entry || entry.at !== s.id) say('bp-entry', s.teaches, entry ? `its entry opens at ${entry.at}, not ${s.id}` : 'no entry of its id')
-      const { title, intro, after, note, tasks, brief, hint } = level
-      if (!textsOf({ title, intro, after, note, tasks, brief, hint }).some((x) => x.includes(`wiki-ref to="${s.teaches}"`))) say('bp-term', s.id, `links no <wiki-ref to="${s.teaches}">`)
+      if (!read.some((x) => x.includes(`wiki-ref to="${s.teaches}"`))) say('bp-term', s.id, `links no <wiki-ref to="${s.teaches}">`)
+    }
+    for (const e of s.extends ?? []) {
+      if (!entryOf(e)) say('bp-entry', e, 'no entry of its id')
+      if (!read.some((x) => x.includes(`wiki-ref to="${e}"`))) say('bp-term', s.id, `extends ${e} and links no <wiki-ref to="${e}">`)
     }
   }
   return out
