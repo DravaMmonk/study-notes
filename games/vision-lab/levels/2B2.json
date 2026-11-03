@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "相邻处理要继续组合，不能每次都悄悄缩小画面。本关选用<wiki-ref to=\"padding-border-rules\"></wiki-ref>中的补零规则，保留所有中心位置；比较边缘和中间同样的输入，看看输出是否还相同。",
-        "en": "To compose local operations, the frame must not silently shrink each time. Use zero <wiki-ref to=\"padding-border-rules\"></wiki-ref> and retain every centre position. Compare equal inputs at the edge and in the interior: do their outputs stay equal?"
+        "zh": "处理照片边缘时，窗口的一部分会落到画面之外。如果仍要保留原图尺寸，应如何处理缺失的邻居？本关采用<wiki-ref to=\"padding-border-rules\"></wiki-ref>中的补零规则；比较边缘与内部的相同输入，观察输出是否仍然相同。",
+        "en": "At a photograph’s edge, part of the processing window falls outside the image. How should missing neighbours be handled if the output is to retain the original size? Use zero <wiki-ref to=\"padding-border-rules\"></wiki-ref>, then compare equal inputs at the edge and in the interior."
       }
     }
   ],

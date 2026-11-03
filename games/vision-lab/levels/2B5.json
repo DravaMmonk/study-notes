@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "两条路线在这里汇合：方向约定已经核对，也能分别读行与列。用<wiki-ref to=\"separable-filter\"></wiki-ref>思考两次处理如何组合；先追踪一个输入位置到各输出位置的贡献，再组合已搭好的部件。",
-        "en": "The routes meet here: orientation is checked and both rows and columns can be addressed. Use <wiki-ref to=\"separable-filter\"></wiki-ref> to reason about composition. Track one input contribution across output positions before combining the built parts."
+        "zh": "照片中的一个亮点会影响周围多个位置。二维处理能否由横向和纵向两次处理组成？结合已验证的方向约定与行列读取方式，用<wiki-ref to=\"separable-filter\"></wiki-ref>追踪一个输入对各输出的贡献，再组合已有元件。",
+        "en": "A bright point in a photograph can influence several nearby positions. Can a two-dimensional operation be composed from horizontal and vertical passes? Using the established orientation and row and column addressing conventions, trace one input’s contributions with <wiki-ref to=\"separable-filter\"></wiki-ref>, then combine the existing parts."
       }
     }
   ],
@@ -17,8 +17,8 @@
     }
   },
   "after": {
-    "zh": "横向结果成为纵向输入时，两次权重会相乘，而不是相加。这个贡献路径解释了为何能合成二维权重；它只覆盖可分解的核，不能据此把任意二维核都拆开。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-    "en": "When the horizontal result becomes the vertical input, the two weights multiply rather than add. That contribution path explains the combined 2D weights. It covers separable <wiki-ref to=\"kernel\"></wiki-ref>, not every possible 2D kernel."
+    "zh": "<wiki-ref to=\"separable-filter\"></wiki-ref>中，横向与纵向的权重共同决定二维邻域中各位置的贡献。只有满足可分解条件的<wiki-ref to=\"kernel\"></wiki-ref>才能这样处理，并非任意二维核都适用。",
+    "en": "In a <wiki-ref to=\"separable-filter\"></wiki-ref>, horizontal and vertical weights jointly determine each position’s contribution to the two-dimensional neighbourhood. This applies only to separable <wiki-ref to=\"kernel\"></wiki-ref>, not every two-dimensional kernel."
   },
   "tasks": [
     {

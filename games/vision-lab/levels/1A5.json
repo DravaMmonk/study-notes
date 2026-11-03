@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "现在只保留画面的一部分，用<wiki-ref to=\"crop-vs-resize\"></wiki-ref>完成。先把选中的区域搬进小图，再追踪新图的每一格来自原图哪里；新图左上角不再对应原图左上角。",
-        "en": "Keep only part of the image using <wiki-ref to=\"crop-vs-resize\"></wiki-ref>. Move the selected region into a smaller image, then track where each new cell comes from. The two top-left corners no longer coincide."
+        "zh": "从照片中截取一块区域时，截出的画面怎样对应原图？用<wiki-ref to=\"crop-vs-resize\"></wiki-ref>保留选中的区域，追踪新图各位置在原图中的来源；新图的左上角对应所选区域的起点。",
+        "en": "When a region is cut from a photograph, how does the result correspond to the original? Use <wiki-ref to=\"crop-vs-resize\"></wiki-ref> to retain the selected region and trace each position in the new image back to its source. The new top-left corner corresponds to the start of the selected region."
       }
     }
   ],
@@ -18,8 +18,8 @@
     }
   },
   "after": {
-    "zh": "裁出的数值没有重新估计，变化的是读取位置。沿同一偏移追踪四个角，可以检验<wiki-ref to=\"crop-vs-resize\"></wiki-ref>电路是否保留了整块区域，而不只碰巧取对一格。",
-    "en": "The values were not re-estimated; their read positions changed. Track the same offset at all four corners to check that the <wiki-ref to=\"crop-vs-resize\"></wiki-ref> circuit preserves a whole region rather than one lucky cell."
+    "zh": "<wiki-ref to=\"crop-vs-resize\"></wiki-ref>保留选定区域的原有数值，只改变区域的位置和坐标范围；它不会像缩放那样重新确定输出的采样位置。",
+    "en": "<wiki-ref to=\"crop-vs-resize\"></wiki-ref> retains the selected region’s original values while changing its position and coordinate range. Unlike resizing, it does not establish new sampling positions."
   },
   "tasks": [
     {

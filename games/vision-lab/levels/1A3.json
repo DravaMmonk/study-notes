@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "两条路线在这里汇合：<wiki-ref to=\"pinhole-projection\"></wiki-ref>给出相对<wiki-ref to=\"optical-axis\"></wiki-ref>的偏移，<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>让你能在数表中定位。先在横向坐标条上做两步：按<wiki-ref to=\"pixel-pitch\"></wiki-ref>换单位，再用<wiki-ref to=\"principal-point\"></wiki-ref>换原点；最后接成<wiki-ref to=\"pixel\"></wiki-ref>相机。",
-        "en": "The routes meet here: <wiki-ref to=\"pinhole-projection\"></wiki-ref> gives an offset from the axis, while the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> locates cells in the table. On the horizontal strip, first convert units using <wiki-ref to=\"pixel-pitch\"></wiki-ref>, then move the origin using the <wiki-ref to=\"principal-point\"></wiki-ref>; finally compose a <wiki-ref to=\"pixel\"></wiki-ref> camera. (<wiki-ref to=\"optical-axis\"></wiki-ref>)"
+        "zh": "相机形成的像要记录在图像中，还需要确定它落在哪个位置。<wiki-ref to=\"pinhole-projection\"></wiki-ref>给出相对<wiki-ref to=\"optical-axis\"></wiki-ref>的偏移，而<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>规定了图像中的位置如何计数。在横向坐标条上，先用<wiki-ref to=\"pixel-pitch\"></wiki-ref>换算单位，再以<wiki-ref to=\"principal-point\"></wiki-ref>调整原点，最后将两者组合成<wiki-ref to=\"pixel\"></wiki-ref>相机。",
+        "en": "To record a projected image, a camera must locate it in the image array. <wiki-ref to=\"pinhole-projection\"></wiki-ref> gives an offset from the <wiki-ref to=\"optical-axis\"></wiki-ref>, while the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> specifies how image positions are counted. On the horizontal strip, convert units using <wiki-ref to=\"pixel-pitch\"></wiki-ref>, adjust the origin using the <wiki-ref to=\"principal-point\"></wiki-ref>, then compose a <wiki-ref to=\"pixel\"></wiki-ref> camera."
       }
     }
   ],
   "after": {
-    "zh": "这就是<wiki-ref to=\"pixel-camera\"></wiki-ref>。光路没变，变的是用什么单位、从哪里计数。将<wiki-ref to=\"pixel-focal-length\"></wiki-ref>交给已搭好的投影部件，再把结果平移到图像原点，才能与数组里的位置对齐；把这两步混成一次，就容易漏掉负偏移或原点平移。 (<wiki-ref to=\"projection-ray\"></wiki-ref>)",
-    "en": "This is <wiki-ref to=\"pixel-camera\"></wiki-ref>. The <wiki-ref to=\"projection-ray\"></wiki-ref> stays the same; the measurement unit and origin change. Feed the <wiki-ref to=\"pixel-focal-length\"></wiki-ref> to the projection part, then shift into the image frame. Keeping these steps distinct handles negative offsets and the change of origin."
+    "zh": "<wiki-ref to=\"pixel-camera\"></wiki-ref>将投影位置与图像坐标联系起来：光路不变，变化的是单位和原点。区分<wiki-ref to=\"pixel-focal-length\"></wiki-ref>的单位换算与坐标原点的平移，有助于正确表示负偏移。 (<wiki-ref to=\"projection-ray\"></wiki-ref>)",
+    "en": "A <wiki-ref to=\"pixel-camera\"></wiki-ref> relates projected positions to image coordinates: the <wiki-ref to=\"projection-ray\"></wiki-ref> is unchanged, while the units and origin differ. Distinguishing the unit conversion for <wiki-ref to=\"pixel-focal-length\"></wiki-ref> from the shift of origin helps represent negative offsets correctly."
   },
   "tasks": [
     {

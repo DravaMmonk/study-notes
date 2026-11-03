@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "Workshop 2 的一道题：知道物体多高、多远，从照片里量出它占多少<wiki-ref to=\"pixel\"></wiki-ref>，反推镜头的<wiki-ref to=\"focal-length\"></wiki-ref>。照片里量的是像素，<wiki-ref to=\"similar-triangles\"></wiki-ref>要的是<wiki-ref to=\"sensor\"></wiki-ref>上的毫米。",
-        "en": "A Workshop 2 exercise: knowing how tall and how far an object is, measure the span in <wiki-ref to=\"pixel\"></wiki-ref> units in the photo and work back to the lens's <wiki-ref to=\"focal-length\"></wiki-ref>. The photo gives pixel counts; <wiki-ref to=\"similar-triangles\"></wiki-ref> want millimetres on the <wiki-ref to=\"sensor\"></wiki-ref>."
+        "zh": "已知物体的实际高度和距离，并测得它在照片中占据的<wiki-ref to=\"pixel\"></wiki-ref>数，能否估计镜头的<wiki-ref to=\"focal-length\"></wiki-ref>？照片给出的是像素数，而<wiki-ref to=\"similar-triangles\"></wiki-ref>关系需要<wiki-ref to=\"sensor\"></wiki-ref>上的实际长度。",
+        "en": "If an object’s height and distance are known and its size in the photograph is measured in <wiki-ref to=\"pixel\"></wiki-ref>, can the lens’s <wiki-ref to=\"focal-length\"></wiki-ref> be estimated? The photograph gives a pixel count, while <wiki-ref to=\"similar-triangles\"></wiki-ref> requires a physical length on the <wiki-ref to=\"sensor\"></wiki-ref>."
       }
     },
     {

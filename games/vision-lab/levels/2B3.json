@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "这条必修路线研究权重的方向，不必等待列处理。用<wiki-ref to=\"impulse\"></wiki-ref>检查<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>：沿窗口追踪唯一亮点分别遇到哪个权重，再让电路符合题目要求的翻转约定。",
-        "en": "This required route studies weight orientation without waiting for column processing. Use an <wiki-ref to=\"impulse\"></wiki-ref> to inspect <wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>: track which weight meets the single bright sample, then make the circuit obey the requested flip convention."
+        "zh": "观察一条由暗到亮的边界时，权重的方向会影响变化的符号。用<wiki-ref to=\"impulse\"></wiki-ref>考察<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>：追踪唯一亮点遇到的权重，再让电路符合题目要求的翻转约定。",
+        "en": "When observing a dark-to-bright boundary, weight orientation affects the sign of the change. Use an <wiki-ref to=\"impulse\"></wiki-ref> to examine <wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>: track the weight meeting the single bright sample, then make the circuit obey the requested flip convention."
       }
     }
   ],
   "after": {
-    "zh": "亮点把权重方向暴露出来；对称权重会掩盖这个错误，所以还要用不对称权重检查。下一步处理二维方向时，应先确定窗口位置的约定，而不靠输出“看起来差不多”。",
-    "en": "The bright sample exposes weight orientation. Symmetric weights hide this error, so asymmetric tests matter. Before processing two directions, establish positional conventions rather than accepting outputs that look similar."
+    "zh": "<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>的区别涉及权重的方向。对称权重可能掩盖方向差异，而不对称权重能帮助检查约定；数值相近的结果不一定表示使用了相同运算。",
+    "en": "<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref> differ in weight orientation. Symmetric weights can hide that difference; asymmetric weights help check the convention. Similar-looking results do not necessarily imply the same operation."
   },
   "tasks": [
     {

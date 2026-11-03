@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "把两条路线装进同一台处理器。先按 wr、wg、wb 选择要观察的颜色组合，用<wiki-ref to=\"gaussian-filter\"></wiki-ref>减弱细碎变化，再调用<wiki-ref to=\"image-gradient\"></wiki-ref>的强度部件检查剩下的分界。输出处理后的图与它的边缘强度，两者都要通过测试。",
-        "en": "Assemble both routes into one processor. Select a colour mixture with wr, wg and wb, reduce fine variation with <wiki-ref to=\"gaussian-filter\"></wiki-ref>, then call the <wiki-ref to=\"image-gradient\"></wiki-ref> strength part to inspect the remaining transitions. Output both the processed image and its edge strength."
+        "zh": "分析彩色照片时，关注不同颜色可能突出不同的结构；细碎变化又可能影响边缘的观察。组合已有元件，按 wr、wg、wb 选择颜色权重，用<wiki-ref to=\"gaussian-filter\"></wiki-ref>平滑图像，再用<wiki-ref to=\"image-gradient\"></wiki-ref>的强度元件分析变化。输出处理后的图像和对应的边缘强度。",
+        "en": "In a colour photograph, different colour mixtures can reveal different structures, while fine variation can affect edge analysis. Combine the existing parts: choose colour weights wr, wg and wb, smooth the image with <wiki-ref to=\"gaussian-filter\"></wiki-ref>, and use the <wiki-ref to=\"image-gradient\"></wiki-ref> strength part to analyse change. Output the processed image and its edge strength."
       }
     }
   ],

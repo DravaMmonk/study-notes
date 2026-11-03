@@ -3,21 +3,21 @@
   "intro": [
     {
       "t": {
-        "zh": "Workshop 2 里用 OpenCV 读进来的照片，三个数按 B、G、R 存；交给 Matplotlib 按 R、G、B 显示，红蓝就对调了，蓝天变成橙色。另一个坑：照片常用 uint8 存，0 到 255，算出来超出范围会绕回去。",
-        "en": "In Workshop 2 a photo read with OpenCV stores its three numbers as B, G, R; shown by Matplotlib as R, G, B, red and blue trade places and a blue sky turns orange. Another trap: photos are often uint8, 0 to 255, and a result out of range wraps around."
+        "zh": "一张照片在不同工具中显示时，蓝天可能变成橙色：原因可能是颜色通道的排列顺序不同。Workshop 2 中，OpenCV 读入的顺序为 B、G、R，而 Matplotlib 按 R、G、B 显示。图像计算还需要留意数据类型：uint8 的范围为 0 到 255，超出范围的运算结果可能发生回绕。",
+        "en": "A photograph can display an orange sky in another tool because its colour channels are ordered differently. In Workshop 2, OpenCV reads B, G, R while Matplotlib displays R, G, B. Image calculations also depend on data type: uint8 ranges from 0 to 255, and arithmetic results outside that range can wrap around."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：怎样把颜色换回来？新元件<part-ref to=\"part:compose\"></part-ref>把三张<wiki-ref to=\"greyscale-image\"></wiki-ref>依次当作 R、G、B 合成彩色图。",
-        "en": "This level asks: how are the colours put back? New part: <part-ref to=\"part:compose\"></part-ref> makes three grey images R, G and B of one colour image. (<wiki-ref to=\"greyscale-image\"></wiki-ref>)"
+        "zh": "怎样恢复照片的颜色？<part-ref to=\"part:compose\"></part-ref>将三张<wiki-ref to=\"greyscale-image\"></wiki-ref>依次作为 R、G、B 通道合成彩色图。",
+        "en": "How can the photograph’s colours be restored? <part-ref to=\"part:compose\"></part-ref> combines three <wiki-ref to=\"greyscale-image\"></wiki-ref> as the R, G and B channels of a colour image."
       }
     }
   ],
   "adds": ["compose"],
   "after": {
-    "zh": "这是<wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref>的差别和<wiki-ref to=\"channel-edit-dtype\"></wiki-ref>的坑：先换好顺序，算之前换成更宽的类型。",
-    "en": "This is the <wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref> difference and the <wiki-ref to=\"channel-edit-dtype\"></wiki-ref> trap: swap the order before handing over, widen the type before computing."
+    "zh": "不同工具的颜色通道顺序可能不同，交换顺序前需要确认输入和输出的约定（<wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref>）。整数类型的取值范围也会影响计算结果（<wiki-ref to=\"channel-edit-dtype\"></wiki-ref>）；计算前应选择足以容纳结果的类型。",
+    "en": "Tools may use different channel orders, so check input and output conventions before rearranging them (<wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref>). Integer ranges also affect computed results (<wiki-ref to=\"channel-edit-dtype\"></wiki-ref>); choose a type that can hold the result before computing."
   },
   "tasks": [
     {

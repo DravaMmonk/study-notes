@@ -3,15 +3,15 @@
   "intro": [
     {
       "t": {
-        "zh": "这条路线从数表开始，不需要先会相机几何。通过<wiki-ref to=\"image-array-checks\"></wiki-ref>与<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>查看表示约定：指出位置、改变一格，再让电路读取右邻和当前位置的差。彩色样例约定按 R、G、B 排列，数值在 0 到 1。",
-        "en": "This route starts from tables and needs no camera geometry. Open <wiki-ref to=\"image-array-checks\"></wiki-ref> and the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> for the representation: locate a cell, change one cell, then wire the difference between it and its right neighbour. Colour examples use R, G, B order with values from 0 to 1."
+        "zh": "放大一张照片，可以看到它由许多小色点组成。计算机如何找到并修改其中一个点，又如何比较相邻位置？参照<wiki-ref to=\"image-array-checks\"></wiki-ref>和<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>，定位并修改数表中的一格，再计算它与右邻的差。彩色样例按 R、G、B 排列，数值范围为 0 到 1。",
+        "en": "Magnify a photograph and its small coloured elements become visible. How can a computer locate and change one element, or compare neighbouring positions? Using <wiki-ref to=\"image-array-checks\"></wiki-ref> and the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>, locate and edit a cell, then calculate its difference from its right neighbour. Colour examples use R, G, B order and values from 0 to 1."
       }
     }
   ],
   "adds": ["lookup", "const", "sub", "add"],
   "after": {
-    "zh": "同一张数表换一个读取位置，得到的值就可能不同；图像运算首先要保证“取到了哪里”。邻居差把这种定位用于比较，为后面的局部处理打下基础。",
-    "en": "Reading another position can change the value obtained from the same table. Before computing, establish where the input comes from. Neighbour differences use that positioning to make a comparison, ready for local processing."
+    "zh": "图像中的数值与位置共同决定了读到的内容。<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>使定位和比较邻近<wiki-ref to=\"pixel\"></wiki-ref>成为可能；坐标顺序不一致则可能读到或修改错误的位置。",
+    "en": "Image values and positions together determine what is read. The <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> makes it possible to locate and compare neighbouring <wiki-ref to=\"pixel\"></wiki-ref>; inconsistent coordinate order can select or change the wrong position."
   },
   "tasks": [
     {

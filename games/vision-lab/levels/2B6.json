@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "这一支用<wiki-ref to=\"gaussian-filter\"></wiki-ref>处理细碎变化。先检查一个亮点向周围传播的结果，再用同样的部件处理一条明暗分界；本关给定行、列权重 [1/4,1/2,1/4]，图外补零。",
-        "en": "This branch uses <wiki-ref to=\"gaussian-filter\"></wiki-ref> for fine-scale variation. Check how one bright sample spreads, then apply the same parts to an intensity step. Row and column weights are [1/4,1/2,1/4], with zero outside."
+        "zh": "照片中的细小亮度变化可能掩盖更大范围的结构。用<wiki-ref to=\"gaussian-filter\"></wiki-ref>观察平滑的效果：先检查一个亮点对周围的影响，再处理一条明暗分界。本关行、列权重均为 [1/4,1/2,1/4]，图外补零。",
+        "en": "Fine intensity variation in a photograph can obscure larger structures. Use <wiki-ref to=\"gaussian-filter\"></wiki-ref> to examine smoothing: first inspect the effect of one bright point on its surroundings, then process an intensity boundary. Row and column weights are [1/4,1/2,1/4], with zero outside."
       }
     }
   ],
@@ -17,8 +17,8 @@
     }
   },
   "after": {
-    "zh": "亮点传播到邻居，分界也随之变缓；减弱细碎变化的同时，定位锐利边界的能力也会损失。内部常值区域可保持亮度，但补零造成的边界不满足相同邻域条件。",
-    "en": "The bright sample spreads and the step becomes gentler. Reducing fine variation also sacrifices sharp boundary localisation. Constant interior regions can keep their intensity; zero-padded boundaries do not have the same neighbourhood conditions."
+    "zh": "<wiki-ref to=\"gaussian-filter\"></wiki-ref>减弱细小变化，也会使锐利边界变得模糊。内部常值区域可以保持亮度，但补零边界的邻域条件不同，因此边缘可能变暗。",
+    "en": "<wiki-ref to=\"gaussian-filter\"></wiki-ref> reduces fine variation but also blurs sharp boundaries. Constant interior regions can retain their intensity, while zero-padded boundaries have different neighbourhoods and may darken."
   },
   "tasks": [
     {

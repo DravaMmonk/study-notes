@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "有限大小的<wiki-ref to=\"sensor\"></wiki-ref>只接住部分<wiki-ref to=\"projection-ray\"></wiki-ref>。固定它的高度，只改变<wiki-ref to=\"focal-length\"></wiki-ref>，观察上下两条边界：怎样让<wiki-ref to=\"field-of-view\"></wiki-ref>正好为 90°？这一关不涉及<wiki-ref to=\"pixel\"></wiki-ref>换算。",
-        "en": "A finite <wiki-ref to=\"sensor\"></wiki-ref> captures only some rays. Keep its height fixed and change the <wiki-ref to=\"focal-length\"></wiki-ref>: how can the <wiki-ref to=\"field-of-view\"></wiki-ref> become exactly 90°? No <wiki-ref to=\"pixel\"></wiki-ref> conversion is needed here. (<wiki-ref to=\"projection-ray\"></wiki-ref>)"
+        "zh": "拍摄同一场景时，有的镜头能容纳更宽的景物，有的只能拍到局部。有限大小的<wiki-ref to=\"sensor\"></wiki-ref>只接收部分<wiki-ref to=\"projection-ray\"></wiki-ref>。固定传感器高度，改变<wiki-ref to=\"focal-length\"></wiki-ref>并观察两条边界：怎样使<wiki-ref to=\"field-of-view\"></wiki-ref>恰好为 90°？",
+        "en": "Different lenses capture different amounts of the same scene. A finite <wiki-ref to=\"sensor\"></wiki-ref> receives only some <wiki-ref to=\"projection-ray\"></wiki-ref>. Keep its height fixed and change the <wiki-ref to=\"focal-length\"></wiki-ref> while observing the two boundaries: how can the <wiki-ref to=\"field-of-view\"></wiki-ref> be exactly 90°?"
       }
     }
   ],

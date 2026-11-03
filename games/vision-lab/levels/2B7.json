@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "这一支要找变化而不是保留平均值。先比较一行的左右邻居，保留正负，再用<wiki-ref to=\"sobel-filter\"></wiki-ref>处理两个方向。手算题给窗口位置的权重；电路题沿用二维部件的书写<wiki-ref to=\"kernel\"></wiki-ref>约定，注意核对二者。",
-        "en": "This branch seeks change rather than an average. First compare left and right neighbours, retaining the sign, then use <wiki-ref to=\"sobel-filter\"></wiki-ref> in both directions. The hand calculation gives positional window weights; the circuit uses the 2D part's written <wiki-ref to=\"kernel\"></wiki-ref> convention. Reconcile the two."
+        "zh": "照片中物体的轮廓常伴随亮度变化。怎样区分由暗到亮与由亮到暗的变化，并同时观察两个方向？先比较一行的相邻值，再用<wiki-ref to=\"sobel-filter\"></wiki-ref>处理图像。手算题给出窗口位置的权重；电路题采用二维元件的书写<wiki-ref to=\"kernel\"></wiki-ref>约定，注意核对两种顺序。",
+        "en": "Object outlines in a photograph often coincide with intensity changes. How can dark-to-bright and bright-to-dark changes be distinguished in both directions? First compare neighbouring values in a row, then process the image with <wiki-ref to=\"sobel-filter\"></wiki-ref>. The hand calculation gives positional window weights; the circuit uses the 2D part’s written <wiki-ref to=\"kernel\"></wiki-ref> convention. Reconcile the two orders."
       }
     }
   ],
@@ -17,8 +17,8 @@
     }
   },
   "after": {
-    "zh": "同一条分界从暗到亮与从亮到暗，响应的符号相反；把符号丢掉，就不能判断增亮方向。平坦区域即使很亮也可以没有响应，图像边界的补零却可能制造额外响应。 (<wiki-ref to=\"padding-border-rules\"></wiki-ref>)",
-    "en": "Reversing a step from dark-to-bright to bright-to-dark reverses the response sign. Losing it loses the brightening direction. A bright flat region can have zero response, while zero <wiki-ref to=\"padding-border-rules\"></wiki-ref> can create extra responses at image boundaries."
+    "zh": "<wiki-ref to=\"sobel-filter\"></wiki-ref>的带符号响应反映亮度变化的方向；平坦区域即使很亮也可能没有响应。图像边界的补零则可能产生额外响应。 (<wiki-ref to=\"padding-border-rules\"></wiki-ref>)",
+    "en": "Signed <wiki-ref to=\"sobel-filter\"></wiki-ref> responses indicate the direction of intensity change. A bright flat region can have zero response, while zero <wiki-ref to=\"padding-border-rules\"></wiki-ref> can create extra responses at image boundaries."
   },
   "tasks": [
     {

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "<wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref>：NumPy 给出图的形状时先写行数（高）、再写列数（宽）；OpenCV 要尺寸时却先写宽、再写高。Workshop 2 要从图的正中间裁出一块，两种顺序一混，裁出的位置就偏了。",
-        "en": "<wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref>: NumPy gives an image's shape as rows (height) first, then columns (width); OpenCV asks for a size as width first, then height. Workshop 2 crops a region from the very centre, and mixing the two orders puts it off-centre."
+        "zh": "从照片中心裁取区域时，需要准确确定宽、高和起点。不同工具对尺寸的排列约定可能不同：<wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref>说明了 NumPy 图像形状与 OpenCV 尺寸的顺序。若混淆两者，裁剪区域可能偏离中心。",
+        "en": "A centre crop requires the width, height and starting position to be identified correctly. Tools may order dimensions differently: <wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref> describes the conventions for NumPy image shapes and OpenCV sizes. Confusing them can move the crop away from the centre."
       }
     },
     {

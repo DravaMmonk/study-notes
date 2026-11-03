@@ -3,15 +3,15 @@
   "intro": [
     {
       "t": {
-        "zh": "改过输出尺寸后，题目直接给出原图中的采样位置。用<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>完成这次读取，比较 0.4 和 0.5 附近的结果。本题约定距离相同时取坐标较大的一边，图外取最近边界。",
-        "en": "After changing output size, the task supplies sample positions in the original. Use <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref> and compare positions around 0.4 and 0.5. Ties take the larger coordinate and positions outside use the nearest boundary."
+        "zh": "放大照片时，输出图像需要比原图更多的位置；这些位置不一定落在原有像素中心。题目给出原图中的采样位置，用<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>读取数值，并比较 0.4 和 0.5 附近的结果。本题约定距离相同时取坐标较大的一边，图外取最近边界。",
+        "en": "Enlarging a photograph requires more output positions, which need not fall on original pixel centres. The task supplies sample positions in the original: use <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref> to read values and compare positions around 0.4 and 0.5. Ties take the larger coordinate; outside positions use the nearest boundary."
       }
     }
   ],
   "adds": ["floor"],
   "after": {
-    "zh": "位置只移动一点，读到的值却可能突然改变；这种不连续来自所选邻居的切换。取样规则决定了新图的结构，坐标正确并不保证放大后平滑。",
-    "en": "A tiny position change can cause a sudden value change when the selected neighbour switches. The sampling rule determines the new image structure; correct coordinates alone do not ensure a smooth enlargement."
+    "zh": "<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>使用最近位置的值。采样位置连续移动时，所选邻居可能突然切换，因此放大结果可能出现阶梯；坐标正确本身并不保证平滑。",
+    "en": "<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref> uses the value at the nearest position. As the sampling position moves continuously, the selected neighbour can change abruptly, producing steps in an enlargement. Correct coordinates alone do not ensure smoothness."
   },
   "tasks": [
     {

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "先造相机的投影部件。图中 O 是<wiki-ref to=\"camera-centre\"></wiki-ref>，虚线标出<wiki-ref to=\"optical-axis\"></wiki-ref>，f 指向<wiki-ref to=\"virtual-image-plane\"></wiki-ref>。本实验所有长度共用模型单位，采用正像的虚像平面。固定参照一直保留：每次只改变 X、Z、f 中的一个，先预测，再检查。",
-        "en": "Build the projection part of the camera. O marks the <wiki-ref to=\"camera-centre\"></wiki-ref>, the dashed line the <wiki-ref to=\"optical-axis\"></wiki-ref>, and f locates the <wiki-ref to=\"virtual-image-plane\"></wiki-ref>. All lengths share model units and the virtual image is upright. Keep the reference in view: change one of X, Z and f at a time, predict, then check."
+        "zh": "拍摄远处的物体时，物体在照片中的位置和大小由什么决定？先用理想相机研究一个点：图中 O 是<wiki-ref to=\"camera-centre\"></wiki-ref>，虚线是<wiki-ref to=\"optical-axis\"></wiki-ref>，f 确定<wiki-ref to=\"virtual-image-plane\"></wiki-ref>的位置。所有长度使用同一模型单位，虚像为正像。每次只改变 X、Z、f 中的一个，先预测，再与固定参照比较。",
+        "en": "What determines where a distant object appears in a photograph and how large it looks? Begin with a point in an ideal camera: O is the <wiki-ref to=\"camera-centre\"></wiki-ref>, the dashed line is the <wiki-ref to=\"optical-axis\"></wiki-ref>, and f locates the <wiki-ref to=\"virtual-image-plane\"></wiki-ref>. All lengths share model units and the virtual image is upright. Change one of X, Z and f at a time, predict, then compare with the fixed reference."
       }
     }
   ],

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "<wiki-ref to=\"pinhole-projection\"></wiki-ref>能从场景得到图像，但反过来是否唯一？保留 H=1、Z=4、f=2 的参照，让一支至少高一倍的箭拍出相同的像。之后只在额外给定 Z 的条件下倒推位置。",
-        "en": "<wiki-ref to=\"pinhole-projection\"></wiki-ref> maps a scene to an image. Is the reverse unique? Keep the H=1, Z=4, f=2 reference and construct an arrow at least twice as tall with the same image. Then invert a point position only when Z is supplied."
+        "zh": "照片中的两个人看起来一样高，他们在现实中一定一样高吗？<wiki-ref to=\"pinhole-projection\"></wiki-ref>可以从场景得到图像，但同一图像可能对应不同场景。以 H=1、Z=4、f=2 为参照，构造一支至少高一倍、成像相同的箭，再在额外给定 Z 的条件下倒推位置。",
+        "en": "If two people appear equally tall in a photograph, must they be equally tall in reality? <wiki-ref to=\"pinhole-projection\"></wiki-ref> maps a scene to an image, but one image may correspond to different scenes. Using H=1, Z=4, f=2 as a reference, construct an arrow at least twice as tall with the same image, then infer position when Z is also given."
       }
     }
   ],

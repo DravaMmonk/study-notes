@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "已经会按坐标读取，现在要让一个输出同时依赖周围的值。打开<wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>和<wiki-ref to=\"linear-filter\"></wiki-ref>，用窗口逐格跟踪<wiki-ref to=\"kernel\"></wiki-ref>。本关只算三个邻居都在图内的位置。",
-        "en": "Coordinate lookup is ready; now one output must depend on surrounding values. Open <wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref> and <wiki-ref to=\"linear-filter\"></wiki-ref>, then follow the <wiki-ref to=\"kernel\"></wiki-ref> with the movable window. Only positions with three neighbours inside the image are used."
+        "zh": "照片中的噪点可以通过周围像素的信息减弱，但只读取单个位置无法做到这一点。利用<wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>与<wiki-ref to=\"linear-filter\"></wiki-ref>，观察窗口移动时<wiki-ref to=\"kernel\"></wiki-ref>如何作用于邻域。本关只计算三个邻居都在图内的位置。",
+        "en": "Nearby pixels can help reduce noise in a photograph, but reading a single position cannot do this. Use <wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref> and <wiki-ref to=\"linear-filter\"></wiki-ref> to observe how a <wiki-ref to=\"kernel\"></wiki-ref> acts on a neighbourhood as the window moves. Compute only positions where all three neighbours are inside the image."
       }
     }
   ],

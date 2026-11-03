@@ -3,15 +3,15 @@
   "intro": [
     {
       "t": {
-        "zh": "<wiki-ref to=\"sobel-filter\"></wiki-ref>已有两个带符号的响应。现在用<wiki-ref to=\"image-gradient\"></wiki-ref>比较不同朝向的变化强度：先在响应表中检验转向和正负是否改变强度，再造一块可复用部件。",
-        "en": "<wiki-ref to=\"sobel-filter\"></wiki-ref> provides two signed responses. Use the <wiki-ref to=\"image-gradient\"></wiki-ref> to compare change strength across orientations: first test rotations and sign changes in a response table, then build a reusable part."
+        "zh": "照片中的边缘可能朝向不同方向，如何比较它们的变化强度？<wiki-ref to=\"sobel-filter\"></wiki-ref>给出两个带符号的方向响应。利用<wiki-ref to=\"image-gradient\"></wiki-ref>，先比较响应表中不同方向和符号的变化，再构建可复用的强度元件。",
+        "en": "Edges in a photograph can point in different directions. How can their change strengths be compared? <wiki-ref to=\"sobel-filter\"></wiki-ref> provides two signed directional responses. Using the <wiki-ref to=\"image-gradient\"></wiki-ref>, compare directions and signs in the response table, then build a reusable strength part."
       }
     }
   ],
   "adds": ["sqrt"],
   "after": {
-    "zh": "相同强度的变化可以指向不同方向，两个响应直接相加会相消，无法稳定比较。把响应作为两个互相垂直的分量处理，才可在保留方向信息的同时另取一个非负强度。",
-    "en": "Equally strong changes can point in different directions. Adding signed responses can cancel them and fails as a stable comparison. Treating them as perpendicular components lets direction remain distinct from nonnegative strength."
+    "zh": "<wiki-ref to=\"image-gradient\"></wiki-ref>用两个方向的响应描述局部变化：方向与非负强度是不同的信息。直接相加可能使正负响应相消，不能稳定地比较变化强度。",
+    "en": "The <wiki-ref to=\"image-gradient\"></wiki-ref> describes local change using two directional responses: direction and nonnegative strength convey different information. Direct addition can cancel signed responses and does not reliably compare strengths."
   },
   "builds": {
     "type": "edgeStrength",

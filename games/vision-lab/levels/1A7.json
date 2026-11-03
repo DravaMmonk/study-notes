@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "保持与<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>相同的采样位置，改用<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>。先看一行上靠左、靠右两点怎样变化，再把这个做法用于四个角；图外仍取最近边界。",
-        "en": "Keep the same sample positions but use <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>. First compare points near either end of a row, then extend that reasoning to four corners. Outside positions still use the nearest boundary. (<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>)"
+        "zh": "放大后的照片可能出现明显的阶梯边缘。能否利用周围的像素，让相邻采样位置之间的变化更平滑？在相同采样位置比较<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>与<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>：先观察一行中靠近两端的位置，再考虑四个角；图外取最近边界。",
+        "en": "An enlarged photograph can have visibly stepped edges. Can surrounding pixels produce smoother changes between nearby sample positions? Compare <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref> with <wiki-ref to=\"bilinear-interpolation\"></wiki-ref> at the same positions: first observe points near either end of a row, then consider four corners. Outside positions use the nearest boundary."
       }
     }
   ],
   "after": {
-    "zh": "横向与纵向分别考虑距离，可以在四个邻居之间连续过渡。这减少了阶梯感，却不会补回原图未记录的细节；平滑的结果不等于更多真实信息。",
-    "en": "Considering horizontal and vertical distances separately gives a continuous transition between four neighbours. It reduces stepping without recovering detail absent from the original; a smoother result does not contain more measured information."
+    "zh": "<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>根据横向和纵向距离在邻近值之间过渡，可以减轻阶梯感；但它不能恢复原图未记录的细节，平滑不等于增加真实信息。",
+    "en": "<wiki-ref to=\"bilinear-interpolation\"></wiki-ref> transitions between neighbouring values according to horizontal and vertical distances, reducing stepping. It cannot recover detail absent from the original: smoothness does not add measured information."
   },
   "tasks": [
     {

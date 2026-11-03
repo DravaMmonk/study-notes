@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "这条必修路线把<wiki-ref to=\"linear-filter\"></wiki-ref>转向上下，不依赖核方向路线。先在窗口里追踪一列：保持 x 不动，只改变 y，再把刚验证的读取方式推广到整张图。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-        "en": "This required route turns <wiki-ref to=\"linear-filter\"></wiki-ref> vertically, independently of the <wiki-ref to=\"kernel\"></wiki-ref>-orientation route. Track one column in the window: keep x fixed, vary y, then extend the checked addressing to the image."
+        "zh": "图像中的变化既可能沿水平方向出现，也可能沿竖直方向出现。要沿列应用<wiki-ref to=\"linear-filter\"></wiki-ref>，需要读取哪些邻居？先在窗口中追踪一列，保持 x 不变、改变 y，再将读取方式用于整张图。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
+        "en": "Changes in an image can run vertically as well as horizontally. Which neighbours are needed to apply a <wiki-ref to=\"linear-filter\"></wiki-ref> down a column? Track one column in the window, keeping x fixed and varying y, then extend the addressing to the whole image. (<wiki-ref to=\"kernel\"></wiki-ref>)"
       }
     }
   ],
@@ -17,8 +17,8 @@
     }
   },
   "after": {
-    "zh": "横、竖处理的代数结构一致，差别落在“读哪个邻居”。用非方形图与不对称内容测试，才能让误把 y 改成 x 的接法显出差异。",
-    "en": "Horizontal and vertical operations share an algebraic structure; the addressed neighbours differ. Non-square images with asymmetric content expose a circuit that changes x where y was intended."
+    "zh": "横向与纵向<wiki-ref to=\"linear-filter\"></wiki-ref>使用相同的计算结构，区别在于邻居的位置。使用非方形图和不对称内容，有助于发现坐标方向混淆。",
+    "en": "Horizontal and vertical <wiki-ref to=\"linear-filter\"></wiki-ref> share the same computational structure but address different neighbours. Non-square images with asymmetric content help expose confusion between coordinate directions."
   },
   "tasks": [
     {
