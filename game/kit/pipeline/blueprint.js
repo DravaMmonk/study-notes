@@ -132,7 +132,8 @@ export const BLUEPRINT_RULES = {
   'bp-part-point': 'a knowledge point is a primitive (its id or term is a primitive’s id or name): a tool is not knowledge',
   'bp-placed': 'a primitive has not exactly one slot that brings it, or a built part is built nowhere or by slots that are no chain of upgrades',
   'bp-order': 'a slot (or a built part) stands on something not there yet on every path to it',
-  'bp-first-use': 'a knowledge point is not used where it comes in, or not used again before two more points arrive',
+  'bp-first-use': 'a knowledge point is not used where it comes in',
+  'bp-reuse': 'a knowledge point is not used again before two more points arrive, or not at all on the main path after it (report: is it reused through a part, or linked back to later?)',
   'bp-unused': 'a built part no later slot stands on',
   'bp-practice': 'a practice cluster repeats a dimension (padding) or does not end in combine or false',
   'bp-branch': 'a series on the main path needs nothing from the series before it: branch it',
@@ -147,7 +148,7 @@ export const BLUEPRINT_RULES = {
   'bp-open': 'a request is still open (the domain step resolves it)',
 }
 /** Rules that are reported for a person to judge, never failed. */
-export const REPORTED = new Set(['bp-bare', 'bp-lonely', 'bp-heavy', 'bp-ladder', 'bp-open'])
+export const REPORTED = new Set(['bp-bare', 'bp-lonely', 'bp-heavy', 'bp-ladder', 'bp-open', 'bp-reuse'])
 
 /** Every slot of the blueprint with its era and series, in the order the eras list them. */
 export const slotsOf = (bp) => bp.eras.flatMap((era) => era.series.flatMap((series) => series.slots.map((slot) => ({ ...slot, era, series }))))
@@ -326,11 +327,11 @@ export function auditBlueprint(bp) {
     const next = later.find((id) => usesPoint(byId.get(id), point))
     if (!next) {
       // An optional topic hung after it (an extension once the main path ends) need not use it.
-      if (later.some((id) => !optional(id))) say('bp-first-use', at, `no slot after it uses ${point}`)
+      if (later.some((id) => !optional(id))) say('bp-reuse', at, `no slot after it uses ${point}`)
       continue
     }
     const between = later.filter((id) => !optional(id) && byId.get(id).teaches && ancestors(next).has(id) && id !== next)
-    if (between.length >= 2) say('bp-first-use', at, `${point} comes back first at ${next}, after ${between.join(', ')} bring two more points`)
+    if (between.length >= 2) say('bp-reuse', at, `${point} comes back first at ${next}, after ${between.join(', ')} bring two more points`)
   }
   // A point that is not hard and takes many slots: each must be a facet of its own, never the same puzzle again.
   for (const k of bp.knowledge) {

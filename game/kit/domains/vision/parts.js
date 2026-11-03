@@ -75,6 +75,7 @@ export const PARTS = {
   mul: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => p * q)) },
   div: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => (q === 0 ? fail('除以 0', 'divided by 0') : p / q))) },
   floor: { inputs: ['a'], eval: strict(({ a }) => zip([a], Math.floor)) },
+  sqrt: { inputs: ['a'], eval: strict(({ a }) => zip([a], (p) => (p < 0 ? fail('负数没有平方根', 'a negative number has no square root') : Math.sqrt(p)))) },
   min: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], Math.min)) },
   max: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], Math.max)) },
   less: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => (p < q ? 1 : 0))) },
