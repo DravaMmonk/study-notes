@@ -314,7 +314,7 @@
 - **元件名用书面语，并说明作用。** 元件名用标准书面用语，尽量写成「动作 + 对象」（替换结论、分解目标、逆用规则），让人一眼看出它做什么；学科里有通行术语的用通行术语（德摩根律、全称实例化、回溯搜索），成对的元件用成对的名称（全称概括 / 全称实例化，分解目标 / 分解假设）。口语化的说法（「已知里有」「几条路」「去掉箭头」）不做元件名；关卡标题可以保留日常说法。
 - **元件说明只写功能。** 原始元件和搭出的封装件一样：读哪些口、输出什么、碰到「—」怎么办，直白写清。不写「你拼出的电路板，现在是一个元件」「你在某关里搭的」这类没有信息的话，也不写它能用在哪些题上；过关点题也不必再宣布「电路现在是元件」，通关窗口已经列出解锁的元件。
 - **不剧透核心思路。** 元件说明、引言、提示、百科只说一个东西"做什么"，不说"为什么这样就能解题"。带着专题核心思考点的句子一律删掉（比如动态规划里"走不通的路，加多少都走不通"这类解释、该选哪种汇合操作、一张表的递推）。简单的机械关可以手把手。
-- **通关点题命名知识，不谈答案（硬性标准）。** 带来知识点的关，过关点题（`after`）用本领域的术语说出玩家刚做成的是什么，链接词条，再用一两句说它在本领域里的位置（它解决什么问题、和哪个相近的概念不同；库和工具里怎么叫是技术内容，主线上不写）。点题不写任何和这道题的答案、接法、解题思路有关的内容：不复述刚才怎么接的，不解释为什么这样接就对，不点出关键的那一步。练习关可以不写点题。审查时对每一句问：它说的是这道题怎么做的吗？是就删；它说出了本领域的叫法吗？带来知识点的关，没说就补。
+- **通关点题命名知识，不谈答案（硬性标准）。** 带来知识点的关，过关点题（`after`）用本领域的术语说出玩家刚做成的是什么，链接词条，再用一两句说它在本领域里的位置（它解决什么问题、和哪个相近的概念不同；库和工具里怎么叫是技术内容，主线上不写）。点题不复述这道题的具体答案、接法和操作顺序；应解释已发现关系的原理、适用条件及边界，不能把“不剧透”当作省略分析的理由。练习关可以不写点题。审查时对每一句问：它说的是这道题怎么做的吗？是就删；它说出了本领域的叫法吗？带来知识点的关，没说就补。
 - **说全，不凑字。** 引言要让一个没学过的人读完就知道：机器在这里卡在哪（用本领域的话说情境）、这一关要回答的问题、手里有什么、怎样算答对。这几样缺一样，玩家就只能照着目标操作，想不起来为什么。前后关卡的文案要衔接，同一个知识点只在第一次出现的地方讲一次，后面不再重复；不写空话、套话（「现有流水线需要处理新的数值条件」这种放在哪一关都成立的句子，等于没写），不为凑满引言或点题硬写一句。
 - **不往后透露。** 引言和过关点题都不描述后面的关（"下一关会……""后面你会用到……"）。过关点题只总结这一关学到了什么。
 - **板上的东西都叫元件。** 文案里不说「卡片」「块」：放在板上的、托盘里的、元件箱里的都是元件。手机上也不报格子的序号：放元件时说「放在这一格」「放下了「① 套用」」，用元件的编号和名字指它。
@@ -327,12 +327,47 @@
 
 ---
 
+### 4.3 Learning routes, guidance and bench acceptance
+
+Required parallel routes let the learner choose study order, not skip core knowledge: each route develops an
+independent ability and a later join requires the abilities it actually uses. Peripheral topics are optional and
+cannot gate a required route. Serial edges need a knowledge/part dependency, not a chapter number. Review a wholly
+serial chapter for avoidable dependencies without forcing cosmetic branches. The shared `parallel` layout is an
+AND join; do not treat it as an OR-choice feature.
+
+Review the actual conceptual load of every task, not only its `teaches` field or new-part count. New terminology,
+physical-to-pixel units, coordinate-origin shifts and angular reasoning can be independent learning steps. Establish
+the needed meanings and small observable operations before combining them; group small tasks only when they answer
+one coherent question. Do not replace a missing foundation with the final formula in a hint.
+
+Guidance includes model assumptions, named objects and conventions, known quantities and a usable observation.
+A discovery hint must point to evidence visible at that moment and to controls available in that task. Afterwards,
+a core introduction explains the principle, causal relationship and scope the player has discovered. This analysis
+is required where it completes the learning; the no-spoiler rule forbids pre-solving the target and replaying a
+particular solution, not explaining the model after discovery.
+
+Non-assembly puzzles have the same burden of meaningful reasoning as assembly. Specify the competing explanations,
+controlled intervention, observable contrast and transfer check. A submit button plus an unlabelled schematic is
+not enough. Discovery must expose the evidence it requests; assessment can withhold a result only with adequate
+prior support and explanatory feedback. Domain displays identify relevant objects, dimensions, units, coordinate
+origins and state changes, with a coherent visual hierarchy and legible labels. New terms and controls appear only
+when needed. Static inspection checks the contract; actual composition and touch/keyboard usability require visual
+and interaction evidence and cannot be certified by source inspection alone.
+
+Use `.agents/skills/turing-complete-games/references/learning-review.md` for the evidence worksheet and finding IDs.
+The vision domain's concrete acceptance contract is `kit/domains/vision/DESIGN.md`. These requirements apply before
+content authoring and during review; missing domain capabilities return to the domain step rather than being hidden
+inside prose or executable content.
+
+
 ## 5. 规则与自动检查
 
 规则尽量交给引擎检查，作者写偏了能被直接发现。
 
 | 规则 | 检查 | 状态 |
 |---|---|---|
+| A wholly serial chapter has justified concept/part dependencies | `pd-serial-chapter` reports the topology; review decides whether required parallel routes are missing | Structural report, not a forced branch quota |
+| Task concepts, guidance, principle synthesis and bench display satisfy §4.3 | Static semantic review with task-level evidence and domain ownership | Required review; visual/interaction acceptance remains separate |
 | Subject-specific terms are explained by first use, including diagram referents and task timing | Review step and Copy checklist: inspect actual definitions along guaranteed prerequisite paths | Manual review; not detected by `npm run check` or copy lint |
 | 关卡新带来的每个元件，要么是原始元件，要么已被更早的关卡搭出 | `npm run check`（kit/course.js 的 `audit`） | 已实现 |
 | 一个元件不能在"搭出它"的那一关就直接给出 | 同上（`own-level`） | 已实现 |
@@ -658,7 +693,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 ### 6.8 vision 领域
 
-**计算机视觉按专题重做时用的领域**（`kit/domains/vision/`，从数据流电路模板起步，一关是一串有 id 的任务）。它把课程规格（`docs/Unimelb/26S2/CV/vision-game-specs/`，第 0、1 章）要的能力都备好：值、元件、四种任务、判定、场景和参数台；关卡还没写，`starter/` 只放每种任务各一个的最小样例，给 `new-game` 和契约测试用。原型《视觉完备》的 `image` 领域不动，随阶段 6.5 退下。
+**计算机视觉按专题重做时用的领域**（`kit/domains/vision/`，从数据流电路模板起步，一关是一串有 id 的任务）。领域展示与学习验收还需遵守 `kit/domains/vision/DESIGN.md`；教学可用性不由数值测试代替。它把课程规格（`docs/Unimelb/26S2/CV/vision-game-specs/`，第 0、1 章）要的能力都备好：值、元件、四种任务、判定、场景和参数台；`vision-lab` 已有前两章试做内容；`starter/` 只放每种任务各一个的最小样例，给 `new-game` 和契约测试用，不是教学质量样板。原型《视觉完备》的 `image` 领域不动，随阶段 6.5 退下。
 
 **值。** 线上走的是数（`null` 是「—」）或图像 `{ w, h, c, data }`：`c` 为 1 是灰度、3 是 RGB，按行存、同一像素的通道挨着（`vision/image.js`）。内容里一张图写成行：灰度是数的行，彩色是 `[R, G, B]` 的行；坐标零起，x 向右、y 向下，读 `I[y, x]`。值是实数，计算里不偷偷截断；只在画出来时把 [0, 1] 之外的值截到两端（显示和存的数分开，`1F1`）。测试按尺寸、通道数和每个值比，容差默认 `1e-5`（任务可写 `tolerance`），不对时说出第一个不同的格子：哪一格、应当是多少、板给了多少。
 

@@ -80,6 +80,16 @@ level, and a level about a part teaches nothing of the field.
   line. Optional topics and challenges hang `after` the slot they need.
 - **Abstraction rises.** Later slots stand on built parts; the last series of an era uses what the era built.
 
+## Learning-route evidence
+
+Read `games/DESIGN.md` §4.3 and `.agents/skills/turing-complete-games/references/learning-review.md`. Before choosing
+serial order, inventory concepts and reference-answer dependencies, identify independent required routes and their
+joins, and distinguish them from topics the learner may skip. Shared `parallel` means complete every route in any
+order. Explain necessary serial edges instead of adding decorative forks. Count new representations, units and
+reasoning steps within tasks, not just one `teaches` id per slot. Plan the prerequisite observations before a hard
+combination; discovery and assessment must have the evidence their chains require. If a labelled view, comparison
+or interaction is missing, request it from the domain before drafting levels.
+
 ## Requests
 
 When the course needs something the domain's vocabulary lacks (a part, a want, a world, a play form), add a

@@ -8,7 +8,7 @@ against the handbook's rules that no check can see, and you report findings; you
 The handbook `games/DESIGN.md` §1, §2.3, §4 (§4.1 first) and §8, and the review checklists in
 `.agents/skills/turing-complete-games/SKILL.md` (Learning checklist, Curriculum review checklist, Copy checklist). Then the game: its
 blueprint, game.json, levels and glossary (paths under *Inputs*). `./deps` draws the part dependency graph; `./check`
-and `./lint` run the checks.
+and `./lint` run the checks. `./pedagogy` reports structural learning risks without writing pipeline state.
 
 ## What to look for
 
@@ -31,6 +31,29 @@ and `./lint` run the checks.
 - **The domain's honesty.** A simplification the encyclopedia does not admit; a part's description that says more or
   less than it does.
 
+## Required learning-design passes
+
+Read `games/DESIGN.md` §4.3 and `.agents/skills/turing-complete-games/references/learning-review.md`. Inspect the
+source of the domain displays as well as content; for vision read `games/kit/domains/vision/DESIGN.md`.
+
+- **Routes:** identify independent required tracks, their joins and optional topics. Verify each serial edge by
+  a knowledge or part dependency, walking both orders of any parallel routes. An optional branch cannot substitute
+  for independent core routes. `pd-serial-chapter` asks for this judgement; it does not demand arbitrary forks.
+- **Task load:** inventory guaranteed prior concepts and each new term, unit, origin or representational change.
+  Locate the task where each is made usable. One `teaches` id or several tasks do not excuse several unacquired
+  ideas at once. Report a missing foundation rather than prescribing the target's formula as a hint.
+- **Guidance and synthesis:** trace what the player can actually infer before solving, with available observations
+  and staged hints; afterwards check for a correct principle-level explanation and its limits. Neither “do what the
+  brief says” nor a summary naming the field alone proves understanding. Do not ban useful post-discovery analysis
+  merely because it explains a causal relationship.
+- **Non-assembly puzzle and display:** inspect the meaningful decision, controlled experiment, visual referents,
+  units and feedback. Check result visibility at the point the clue needs it; hiding all evidence until submission
+  can make a discovery task unlearnable. Separate source-verifiable gaps from visual quality that still requires
+  desktop/phone inspection; do not claim a screenshot or interaction check you did not perform.
+
+Use the reference's finding IDs and worksheet to ground every blocker. A missing domain capability belongs to
+`owner: "domain"`, not a copy workaround. The reviewer still changes no content and starts no blind-play run.
+
 ## Required terminology pass
 
 Review every level and its tasks in player-visible order, in both languages. Inspect the intro, brief, every hint
@@ -46,7 +69,7 @@ and pass text (`after`), including task overrides. For each subject-specific ter
    teach “optical axis”; the text must explain what it is and which line represents it.
 4. Report each missing definition as a blocking finding (`fix: true`), using `rule: "terminology-before-use"`.
    In `says`, include the term, language, level/task and field of unsupported use, the definition's location if it
-   exists but is unavailable, and what must change. Use `owner: "copy"` for an explanation or diagram-label fix;
+   exists but is unavailable, and what must change. Use `owner: "copy"` for wording, or `owner: "domain"` for missing display labels/capabilities;
    use `owner: "blueprint"` or `"levels"` when the prerequisite or task sequence must change. Preserve the existing
    no-spoiler rule: define the term without supplying the puzzle's solution.
 
@@ -58,7 +81,7 @@ an entry, link or earlier occurrence alone does not establish that the term was 
 Reply with your findings as one JSON block (and nothing after it):
 
     ```json
-    { "findings": [ { "at": "<level id | game | glossary:<id> | blueprint>", "owner": "blueprint" | "levels" | "copy",
+    { "findings": [ { "at": "<level id | game | glossary:<id> | blueprint>", "owner": "blueprint" | "domain" | "levels" | "copy",
                       "rule": "<handbook section or checklist item>", "fix": true | false, "says": "<what is wrong and
                       what would be right, one or two sentences>" } ] }
     ```

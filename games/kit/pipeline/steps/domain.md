@@ -16,6 +16,14 @@ parameters), its implementation, its drawing, the level in words and an attempt 
 the request's status through the operation set (`blueprint.set`): `done`, or `declined` with a `note` saying why and
 what the course does instead (the blueprint changes to match, and its gate stays clean).
 
+Read `games/DESIGN.md` §4.3 and the domain's learning/display design before resolving a request. For non-assembly
+interactions, specify named referents, quantities, units, coordinate conventions, a controlled intervention and
+observable feedback. Separate discovery evidence from withheld assessment results: a clue must not depend on a ray,
+measurement or comparison hidden at that moment. Stable scales and explicit schematics must preserve the intended
+geometric reasoning. A working model is not visual acceptance; desktop/phone labels, contrast and interaction need
+screenshots and actual inspection. Record missing capabilities as open domain work instead of treating explanatory
+copy as an implementation. For vision use `games/kit/domains/vision/DESIGN.md`.
+
 Content stays data: nothing in this step writes a level.
 
 ## Gate

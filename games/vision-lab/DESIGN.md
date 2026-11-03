@@ -1,8 +1,8 @@
 # Vision Lab
 
 Status: a trial of the first two chapters of the course map in
-`docs/Unimelb/26S2/CV/vision-game-specs/knowledge-map-1-12.md`, laid out the way Turing Complete teaches: each chapter
-builds a machine, each level builds, uses, discovers or judges, and a part built is called directly by later levels.
+`docs/Unimelb/26S2/CV/vision-game-specs/knowledge-map-1-12.md`, with two currently serial main paths. Each chapter aims to build a machine, and
+parts built are called by later levels; that structure alone does not establish a successful learning ladder.
 `blueprint.json` is the authority for the knowledge points, slots and order; the encyclopedia entries come from the
 entries of the course map.
 
@@ -43,3 +43,27 @@ entries of the course map.
 - The row filter becomes a part only once it pads (2B2), so every filter after keeps the image's size.
 - The nearest and bilinear samplers and the gradient are not parts yet: no level in these two chapters calls them.
   They become parts when the chapters that call them (the panorama stitcher) are built.
+
+## Required learning-design repairs before content revision
+
+The first two chapters are not accepted as pedagogically complete. See the source-based
+[static review](../../docs/Unimelb/26S2/CV/vision-game-specs/trial-chapters-1-2-review.md), handbook §4.3 and the
+[vision domain contract](../kit/domains/vision/DESIGN.md). This work list does not change the current blueprint or levels.
+
+- Establish independent required learning routes and genuine joins; distinguish choice of study order from optional
+  topics. In Chapter 1, geometric projection and image-array coordinates need a justified relationship before their
+  pixel-camera combination. In Chapter 2, inspect kernel orientation versus column processing and the Gaussian versus
+  Sobel/gradient routes after their common filtering basis. Do not impose either full route as the other's prerequisite.
+  These are candidates requiring a fresh dependency audit, not an executable reordered course.
+- Map the foundations of field of view, physical/pixel scale and coordinate origins before combining them in 1A3.
+  Walk the tasks from novice-visible evidence and prior conventions, not from the author-facing formula or `chain`.
+- Make the observations promised by 1A1's hints available in a discovery phase, and support transfer from the bench
+  to its circuit. Distinguish necessary teaching evidence from a numeric answer withheld for assessment.
+- Give 1A1/1A2 principle-level synthesis with model assumptions and the limits of inverse inference; remove unsupported
+  generalisations about what a single image determines.
+- Establish annotated optical/coordinate views and an interaction/visual acceptance plan in the domain before those
+  views are used to repair the content. High-quality presentation remains unverified until the actual screens are
+  inspected at desktop and phone sizes.
+
+The present change establishes design rules and static review; it does not close these findings, implement a new
+camera view, reorder levels, or alter player saves.

@@ -10,6 +10,7 @@
 //                                  it the last report of a later step that stopped on this one's product
 //   gate <step>                    run the step's gate and record it; exit 1 when it fails
 //   eras                           game.json's eras as the blueprint lays them out (for the level designer)
+//   pedagogy                       read-only structural pedagogy findings (no pipeline state written)
 //   lint                           the copy lint
 //   vocab                          the domain's vocabulary and the operations, as JSON
 //   resolve <k> --why "…"          mark finding k of the last review fixed (by which change)
@@ -28,9 +29,9 @@ import { OPERATIONS } from '../engine/ops/operations.js'
 import { knownGames } from '../engine/cli-args.js'
 import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
-import { GAMES_DIR, STEPS, briefOf, stepOf } from './steps.js'
+import { GAMES_DIR, STEPS, briefOf, pedagogyOf, stepOf } from './steps.js'
 
-const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
+const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | pedagogy | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
 const argv = process.argv.slice(2)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
 const words = argv.filter((a, k) => !a.startsWith('--') && !argv[k - 1]?.startsWith('--'))
@@ -55,10 +56,10 @@ async function gate(step, state) {
   return { failures, reports }
 }
 
-const show = ({ failures, reports }) => {
+const show = ({ failures, reports }, clean = 'gate clean') => {
   for (const f of failures) console.log(`FAIL ${f.rule} ${f.at}: ${f.says}`)
   for (const f of reports) console.log(`REPORT ${f.rule} ${f.at}: ${f.says}`)
-  console.log(failures.length ? `${failures.length} failure(s)` : 'gate clean')
+  console.log(failures.length ? `${failures.length} failure(s)` : clean)
 }
 
 // The commands an agent's directory offers, each a script that runs one tool on this game and logs its exit.
@@ -69,6 +70,7 @@ const COMMANDS = {
   deps: { run: () => `node ../games/kit/engine/deps.js ${game} --levels`, about: './deps   the part dependency graph (Mermaid), levels included' },
   eras: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} eras`, about: './eras   game.json\'s eras as the blueprint lays them out' },
   lint: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} lint`, about: './lint   the copy lint' },
+  pedagogy: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} pedagogy`, about: './pedagogy   read-only structural pedagogy findings; reports still need semantic review' },
 }
 
 function inputs(step, state, scope) {
@@ -187,6 +189,10 @@ if (command === 'status') {
     console.error(`${game} has no blueprint.json`)
     code = 1
   } else console.log(JSON.stringify(erasOf(blueprint), null, 1))
+} else if (command === 'pedagogy') {
+  const result = await pedagogyOf(game)
+  show(result, 'no structural failures; reports still require semantic review')
+  code = result.failures.length ? 1 : 0
 } else if (command === 'lint') {
   const found = lintCopy(readContent(game))
   for (const f of found) console.log(`FAIL ${f.rule} ${f.at}: ${f.says}`)

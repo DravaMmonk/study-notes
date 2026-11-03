@@ -24,11 +24,15 @@ in Chinese and English, through the operation set. You change no test, board or 
   what is given; what counts as right. A new part is named only after the need for it is said. A practice level's
   intro says which facet is new. An era's first level says what module the era adds and why the last machine is not
   enough. A sentence that would fit any level is cut and replaced by what this level says.
-- Nothing that gives the answer away: no wiring, no recurrence, no "why it works", and no brief, prompt or option
-  that uses the answer's words. Hints go from direction to detail, the first only pointing.
+- Before discovery, explain the situation, assumptions and conventions without providing the target's wiring or
+  complete derivation. Hints first identify a usable observation or controlled comparison, then scaffold the missing
+  step as needed; they cannot point to a control or result unavailable in the task. Do not confuse withholding a
+  definition with preserving a puzzle. Apply handbook §4.3 and the learning-review reference.
 - A level that brings a knowledge point has a pass text that names what the player just did by the point's term,
   links its entry, and says in a sentence or two where it sits in the field (what it solves, what it is not, what
-  the sources call it; never a library's name on the main path) — never how this level was solved. Practice levels may have none.
+  the sources call it; never a library's name on the main path). Explain the principle behind the discovered
+  relationship and its assumptions or ambiguity; do not replay the specific board, numeric answer or control
+  sequence. A bare name or formula without that synthesis is insufficient. Practice levels may have none.
 - The main path's copy carries no technical content: no library or tool, its names or its conventions, no link
   to a technical entry (`bp-main-link`); those belong to the optional topics' levels.
 - Every knowledge point has an encyclopedia entry whose id is the point's id, opened (`at`) at the level that brings

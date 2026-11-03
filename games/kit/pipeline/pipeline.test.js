@@ -174,3 +174,16 @@ test('conformance: the level that brings a point links its entry, opened there',
   const leaky = linked.map((l) => (l.id === '1-2' ? { ...l, tasks: [{ id: '1-2', brief: t('see <wiki-ref to="library"></wiki-ref>') }] } : l))
   assert.ok(conformance(bp, content(leaky, []), spec).some((f) => f.rule === 'bp-main-link' && f.at === '1-2'))
 })
+
+
+test('serial chapters are review candidates; optional topics do not count as required parallel routes', () => {
+  const serial = { id: 1, foundation: ['a'], practice: ['b'], topics: [{ id: 'extra', after: 'a', levels: ['c'] }] }
+  const found = (eras) => lintPedagogy({ levels: [], eras }, { blueprints: [] }).filter((f) => f.rule === 'pd-serial-chapter')
+  const reports = found([serial])
+  assert.equal(reports.length, 1)
+  assert.equal(reports[0].at, 'era 1')
+  assert.equal(reports[0].report, true, 'a serial shape is not proof of a bad dependency')
+  assert.deepEqual(found([{ id: 1, foundation: [] }, { id: 2, foundation: ['a'] }]), [])
+  assert.deepEqual(found([{ ...serial, foundation: [{ parallel: [{ id: 'left', levels: ['a'] }, { id: 'right', levels: ['b'] }] }], practice: ['join'] }]), [])
+  assert.equal(found([{ ...serial, foundation: [{ parallel: [{ id: 'left', levels: ['a', 'b'] }, { id: 'empty', levels: [] }] }], practice: [] }]).length, 1, 'an empty second branch does not establish a choice of order')
+})

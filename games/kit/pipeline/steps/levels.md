@@ -50,6 +50,15 @@ and you do not change the blueprint.
   intro states the slot's question with what is given and what counts as right. The copy writer rewrites it in the
   next step. Never put the answer in it.
 
+## Task-level learning evidence
+
+Apply handbook §4.3 and the worksheet in `.agents/skills/turing-complete-games/references/learning-review.md`. For
+each task boundary identify guaranteed prior knowledge, new terms/units/representations, the action or observation
+that establishes them, and a changed case testing transfer. A task count does not hide a concept jump. On a bench,
+state what meaningful choice remains after the controls and readouts are visible; submit-only checking alone does
+not establish puzzle quality. If the chain requires an invisible ray, unsupported comparison or undefined frame,
+return the issue to the domain or blueprint. Do not repair a structural gap by giving the full answer in a hint.
+
 ## How to work
 
 1. Remove the starter's levels and glossary entries (`level.remove`, `glossary.remove`), set `primitives` and

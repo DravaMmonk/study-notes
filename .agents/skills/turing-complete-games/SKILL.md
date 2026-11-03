@@ -95,6 +95,15 @@ level with no point and no new facet of one is padding and is cut, and new numbe
 level. When a check says something is under-practised, look for a missing facet; if there is none, the course did
 not need more levels.
 
+## Learning design and static review
+
+For chapter topology, task scaffolding or non-assembly interactions, read
+[references/learning-review.md](references/learning-review.md), alongside handbook §4.3 and the domain's design.
+Use its task-by-task evidence worksheet and finding IDs: required parallel routes versus optional topics; concept
+and representation steps; guidance visible before use; principle-level synthesis; meaningful bench decisions and
+labelled causal displays. A clean automated audit does not establish these semantic properties. For a docs-only
+request, record the current findings and domain requirements without changing content or claiming visual fixes.
+
 ## Learning checklist
 
 Read every level as a learner who has not taken the course, against its blueprint slot (`question`, `chain`,
@@ -216,12 +225,13 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
   bare name, link or unexplained dashed line is insufficient. Record the term, language, level/task, field and
   definition location (or absence); report missing definitions as blocking findings. Define what the term means
   without giving the solution. Link checks and copy lint do not perform this semantic check.
-- No spoiler of a core idea of the topic (a recurrence, why a merge operation is right); say what a part does,
-  never why it solves the level. Mechanical levels may hand-hold.
+- Before discovery, define the model and conventions without supplying the target's complete derivation or
+  construction. After discovery, explain the general causal principle and its limits without replaying a board or
+  numeric answer. Meaningful analysis is not a spoiler; missing foundations are not desirable difficulty.
 - **Pass texts name the knowledge, never the answer (hard rule).** A level that brings a knowledge point names what
   the player just did by the field's term, links its entry, and says in a sentence or two where it sits in the field
   (what it solves, what it is not, what the course calls it; on the main path never a library's name). It says nothing of the level's
-  answer, wiring or way of solving it: no retelling of what was wired, no why it works, no naming the key step.
+  answer, wiring or way of solving it: no retelling of the particular wiring or target answer. Explain why the observed relationship follows from the model and what it does not establish.
   Practice levels may have none.
 - **Complete, not padded.** An intro lets someone who has not taken the course know where the machine is stuck (in
   the field's words), the question this level answers, what is given and what counts as right. A sentence that

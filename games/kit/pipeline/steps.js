@@ -49,7 +49,7 @@ async function conformanceOf(id) {
 }
 
 /** The pedagogy lint's findings split into failures and reports. */
-async function pedagogyOf(id) {
+export async function pedagogyOf(id) {
   const content = readContent(id)
   const domain = await domainOf(content)
   const all = lintPedagogy(content, domain.spec(content))
@@ -94,7 +94,7 @@ export const STEPS = [
     id: 'levels',
     who: 'agent',
     role: 'level designer',
-    commands: ['op', 'check', 'gate', 'deps', 'eras'],
+    commands: ['op', 'check', 'gate', 'deps', 'eras', 'pedagogy'],
     gate: async (id) => {
       const pedagogy = await pedagogyOf(id)
       return { failures: [...(await checks(id)), ...(await conformanceOf(id)).filter((f) => f.rule !== 'bp-term' && f.rule !== 'bp-entry'), ...pedagogy.failures], reports: pedagogy.reports }
@@ -104,7 +104,7 @@ export const STEPS = [
     id: 'copy',
     who: 'agent',
     role: 'copy writer',
-    commands: ['op', 'check', 'gate', 'lint'],
+    commands: ['op', 'check', 'gate', 'lint', 'pedagogy'],
     gate: async (id) => {
       const pedagogy = await pedagogyOf(id)
       return { failures: [...(await checks(id)), ...(await conformanceOf(id)), ...lintCopy(readContent(id)), ...pedagogy.failures], reports: pedagogy.reports }
@@ -114,7 +114,7 @@ export const STEPS = [
     id: 'review',
     who: 'agent',
     role: 'reviewer',
-    commands: ['check', 'lint', 'deps'],
+    commands: ['check', 'lint', 'deps', 'pedagogy'],
     gate: async (id, state) => {
       const run = lastRun(state, 'review')
       if (!run?.findings) return { failures: [finding('review-missing', id, 'no review has run')], reports: [] }

@@ -9,10 +9,14 @@
 //   pd-quiz           (report) a task that only asks the player to pick an answer (a choice task): nothing is built,
 //                     tried or worked out; what it asks belongs in the copy (intro, pass text), or in a task to do
 //
+//   pd-serial-chapter (report) a chapter has multiple main-path levels but no required parallel routes; review
+//                     must justify the serial dependencies or identify independent required routes
+//
 // lintPedagogy(content, spec) → [{ rule, at, says, report? }]; spec is the domain's (its `blueprints`: every board the
 // content writes, by level and task).
 
 export const PEDAGOGY_RULES = {
+  'pd-serial-chapter': 'a chapter has a wholly serial main path: review whether each serial dependency is necessary (report)',
   'pd-repeat-board': 'two levels have the same reference board: one of them repeats the other',
   'pd-repeat-text': 'a text the player reads is word for word the same in two places: boilerplate',
   'pd-slide': 'a bench step turns one knob with the goal read out live: it passes by sliding until green (report)',
@@ -70,6 +74,14 @@ const KERNEL_GOALS = '"goals"'
 export function lintPedagogy(content, spec) {
   const out = []
   const say = (rule, at, says, report = false) => out.push({ rule, at, says, ...(report ? { report: true } : {}) })
+
+  // Optional topics do not make the required route parallel. This reports shape, never independence.
+  for (const era of content.eras ?? []) {
+    const main = [...era.foundation, ...(era.practice ?? [])]
+    const parallel = main.some((item) => typeof item !== 'string' && item.parallel.filter((b) => b.levels.length).length > 1)
+    const count = main.reduce((n, item) => n + (typeof item === 'string' ? 1 : item.parallel.reduce((sum, b) => sum + b.levels.length, 0)), 0)
+    if (count > 1 && !parallel) say('pd-serial-chapter', `era ${era.id}`, 'the main path is wholly serial; justify its concept/part dependencies or identify independent required routes', true)
+  }
 
   // The same reference board in two levels.
   const boards = new Map()
