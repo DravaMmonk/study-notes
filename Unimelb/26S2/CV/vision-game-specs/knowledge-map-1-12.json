@@ -1,1812 +1,2339 @@
 {
- "lines": [
+ "chapters": [
   {
-   "id": "geometry",
-   "title": "成像几何：从场景到像",
-   "series": [
+   "id": "camera",
+   "title": "相机：从场景到像素",
+   "machine": "一台把三维场景拍成像素图、再能任意缩放的相机",
+   "after": [],
+   "levels": [
     {
-     "summit": null,
-     "levels": [
-      "computer-vision-definition@1",
-      "forward-vs-inverse-problem@1"
+     "id": "A1",
+     "title": "投影一个点",
+     "role": "build",
+     "teaches": [
+      "pinhole-projection@2"
      ],
-     "cores": [
-      "forward-vs-inverse-problem@1"
-     ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": null,
-     "levels": [
+     "tasks": [
       "image-formation-3d-to-2d@2",
-      "pinhole-projection@2",
-      "angle-of-view-from-pixel-focal-length@2"
+      "lens-aperture-tradeoff@2",
+      "focal-length-field-of-view@2"
      ],
-     "cores": [
-      "angle-of-view-from-pixel-focal-length@2"
+     "makes": "投影",
+     "uses": [],
+     "copy": [
+      "computer-vision-definition@1",
+      "course-roadmap@1",
+      "gan-diffusion-background@1",
+      "f-number-depth-of-field@2",
+      "lens-distortion@2",
+      "camera-model-conventions@2",
+      "scene-vs-camera-factors@2"
      ],
-     "side": [],
-     "optional": [
-      "pixel-to-mm-focal-length@2"
-     ],
-     "checkpoint": null
+     "part": "levels",
+     "chapter": "camera",
+     "recall": []
     },
     {
-     "summit": null,
-     "levels": [
-      "recognition-variation@1",
-      "good-representation@1"
+     "id": "A2",
+     "title": "很多场景，同一张图",
+     "role": "discover",
+     "teaches": [
+      "forward-vs-inverse-problem@1"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    }
-   ],
-   "breaks": [],
-   "needs": [],
-   "metrics": {
-    "levels": 7,
-    "side": 0,
-    "optional": 1,
-    "practice": 0,
-    "steps": 6,
-    "breaks": 0,
-    "recalls": 0,
-    "hard_run": 0
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
-   }
-  },
-  {
-   "id": "pixels",
-   "title": "像素数组与重采样",
-   "series": [
+     "tasks": [
+      "geometry-navigation-action-tasks@1",
+      "richer-scene-outputs@1"
+     ],
+     "makes": null,
+     "uses": [
+      "投影"
+     ],
+     "copy": [
+      "vision-task-outputs@1",
+      "semantic-vs-instance-segmentation@1",
+      "render-and-compare@1",
+      "multi-view-3d-reconstruction@1",
+      "augmented-reality-placement@1",
+      "applications-combine-tasks@1",
+      "task-output-supports-action@1"
+     ],
+     "part": "levels",
+     "chapter": "camera",
+     "recall": []
+    },
     {
-     "summit": "pixel-coordinate-convention@2",
-     "levels": [
+     "id": "A3",
+     "title": "以像素为单位的焦距",
+     "role": "build",
+     "teaches": [
+      "angle-of-view-from-pixel-focal-length@2"
+     ],
+     "tasks": [],
+     "makes": "像素相机",
+     "uses": [
+      "投影"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "camera",
+     "recall": []
+    },
+    {
+     "id": "A4",
+     "title": "图是一张数表",
+     "role": "build",
+     "teaches": [
       "image-array-checks@2",
       "pixel-coordinate-convention@2"
      ],
-     "cores": [],
-     "side": [],
-     "optional": [
+     "tasks": [],
+     "makes": "取像素",
+     "uses": [
+      "像素相机"
+     ],
+     "copy": [
+      "pixel-dtype-range@2",
+      "jpeg-lossy-compression@2"
+     ],
+     "part": "levels",
+     "chapter": "camera",
+     "recall": []
+    },
+    {
+     "id": "A5",
+     "title": "裁剪不是缩放",
+     "role": "build",
+     "teaches": [
+      "crop-vs-resize@2"
+     ],
+     "tasks": [],
+     "makes": "裁剪",
+     "uses": [
+      "取像素"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "camera",
+     "recall": []
+    },
+    {
+     "id": "A6",
+     "title": "最近的那个像素",
+     "role": "build",
+     "teaches": [
+      "nearest-neighbour-interpolation@2"
+     ],
+     "tasks": [],
+     "makes": "最近邻采样",
+     "uses": [
+      "取像素"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "camera",
+     "recall": []
+    },
+    {
+     "id": "A7",
+     "title": "四个邻居的加权平均",
+     "role": "build",
+     "teaches": [
+      "bilinear-interpolation@2"
+     ],
+     "tasks": [
+      "resampling-methods@2"
+     ],
+     "makes": "双线性采样",
+     "uses": [
+      "最近邻采样"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "camera",
+     "recall": []
+    }
+   ],
+   "optional": [
+    {
+     "id": "A-W1",
+     "title": "传感器毫米与像素",
+     "role": "build",
+     "teaches": [
+      "pixel-to-mm-focal-length@2"
+     ],
+     "uses": [
+      "像素相机"
+     ],
+     "tasks": [],
+     "copy": [],
+     "makes": null,
+     "part": "optional",
+     "chapter": "camera"
+    },
+    {
+     "id": "A-W2",
+     "title": "颜色顺序与数值溢出",
+     "role": "discover",
+     "teaches": [
       "opencv-bgr-to-rgb@2",
       "channel-edit-dtype@2"
      ],
-     "checkpoint": null
+     "uses": [
+      "取像素"
+     ],
+     "tasks": [],
+     "copy": [],
+     "makes": null,
+     "part": "optional",
+     "chapter": "camera"
     },
     {
-     "summit": null,
-     "levels": [
-      "crop-vs-resize@2",
-      "bilinear-interpolation@2"
-     ],
-     "cores": [
-      "bilinear-interpolation@2"
-     ],
-     "side": [],
-     "optional": [
+     "id": "A-W3",
+     "title": "宽高顺序与中心裁剪",
+     "role": "build",
+     "teaches": [
       "opencv-size-vs-numpy-shape@2",
       "center-crop-and-copy@2"
      ],
-     "checkpoint": null
+     "uses": [
+      "裁剪"
+     ],
+     "tasks": [],
+     "copy": [],
+     "makes": null,
+     "part": "optional",
+     "chapter": "camera"
     }
    ],
-   "breaks": [],
-   "needs": [
-    "geometry"
-   ],
    "metrics": {
-    "levels": 4,
+    "levels": 7,
     "side": 0,
-    "optional": 4,
-    "practice": 0,
-    "steps": 3,
-    "breaks": 0,
-    "recalls": 0,
-    "hard_run": 0
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
+    "optional": 3,
+    "builds": 6,
+    "follows": 5,
+    "steps": 6,
+    "imports": []
    }
   },
   {
-   "id": "filtering",
-   "title": "滤波：局部加权",
-   "series": [
+   "id": "convolver",
+   "title": "卷积器：局部加权",
+   "machine": "一台通用卷积器，和用它搭成的模糊器与边缘检测器",
+   "after": [
+    "camera"
+   ],
+   "levels": [
     {
-     "summit": null,
-     "levels": [
+     "id": "B1",
+     "title": "看一个像素，还是看一片",
+     "role": "discover",
+     "teaches": [
       "pixel-vs-local-operator@3",
-      "linear-filter@3",
-      "convolution@3",
-      "convolution-vs-cross-correlation@3"
+      "linear-filter@3"
      ],
-     "cores": [
-      "convolution-vs-cross-correlation@3"
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "取像素"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "copy": [],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
     },
     {
-     "summit": null,
-     "levels": [
+     "id": "B2",
+     "title": "滑动加权和",
+     "role": "build",
+     "teaches": [
+      "convolution@3"
+     ],
+     "tasks": [
+      "filtering-by-hand@3",
+      "valid-output-size@3"
+     ],
+     "makes": "卷积器",
+     "uses": [
+      "取像素"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
+    },
+    {
+     "id": "B3",
+     "title": "边上怎么办",
+     "role": "upgrade",
+     "teaches": [
+      "padding-border-rules@3"
+     ],
+     "tasks": [],
+     "makes": "卷积器",
+     "uses": [
+      "卷积器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
+    },
+    {
+     "id": "B4",
+     "title": "翻转，还是不翻转",
+     "role": "discover",
+     "teaches": [
+      "convolution-vs-cross-correlation@3"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "卷积器"
+     ],
+     "copy": [
+      "library-convolution-is-correlation@3"
+     ],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
+    },
+    {
+     "id": "B5",
+     "title": "模糊",
+     "role": "use",
+     "teaches": [
+      "gaussian-filter@3"
+     ],
+     "tasks": [
+      "kernel-size-vs-sigma@3",
+      "gaussian-kernel-truncation@3"
+     ],
+     "makes": "模糊器",
+     "uses": [
+      "卷积器"
+     ],
+     "copy": [
+      "sharpen-and-motion-blur-kernels@3"
+     ],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
+    },
+    {
+     "id": "B6",
+     "title": "拆成两步",
+     "role": "build",
+     "teaches": [
       "linear-filter-properties@3",
       "separable-filter@3"
      ],
-     "cores": [
-      "separable-filter@3"
+     "tasks": [],
+     "makes": "可分离卷积器",
+     "uses": [
+      "卷积器",
+      "模糊器"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "copy": [
+      "merge-filters-associativity@3"
+     ],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
     },
     {
-     "summit": "padding-border-rules@3",
-     "levels": [
-      "filtering-by-hand@3",
-      "valid-output-size@3",
-      "padding-border-rules@3"
+     "id": "B7",
+     "title": "找边",
+     "role": "use",
+     "teaches": [
+      "sobel-filter@3"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": "gaussian-filter@3",
-     "levels": [
-      "gaussian-filter@3"
-     ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": "signed-edge-response@3",
-     "levels": [
-      "sobel-filter@3",
+     "tasks": [
       "signed-edge-response@3"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "makes": "Sobel",
+     "uses": [
+      "卷积器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
     },
     {
-     "summit": null,
-     "levels": [
+     "id": "B8",
+     "title": "梯度：边有多强、朝哪边",
+     "role": "build",
+     "teaches": [
+      "image-gradient@5"
+     ],
+     "tasks": [
+      "edge-as-rapid-change@5"
+     ],
+     "makes": "梯度",
+     "uses": [
+      "Sobel"
+     ],
+     "copy": [
+      "spectral-power-distribution@5",
+      "spectral-channel-response@5",
+      "metamerism@5",
+      "colour-spaces@5",
+      "rgb-to-xyz-transform@5",
+      "lab-colour-manipulation@5",
+      "derivative-edge-filters@5"
+     ],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": []
+    },
+    {
+     "id": "B9",
+     "title": "彩色图的卷积",
+     "role": "upgrade",
+     "teaches": [
       "colour-filtering@3"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "tasks": [],
+     "makes": "多通道卷积器",
+     "uses": [
+      "卷积器"
+     ],
+     "copy": [
+      "multi-kernel-feature-maps@3"
+     ],
+     "part": "levels",
+     "chapter": "convolver",
+     "recall": [
+      "image-array-checks@2"
+     ]
     }
    ],
-   "breaks": [
-    [
-     "padding-border-rules@3",
-     "gaussian-filter@3"
-    ],
-    [
-     "signed-edge-response@3",
-     "colour-filtering@3"
-    ]
-   ],
-   "needs": [
-    "pixels"
-   ],
    "metrics": {
-    "levels": 13,
+    "levels": 9,
     "side": 0,
     "optional": 0,
-    "practice": 0,
-    "steps": 12,
-    "breaks": 2,
-    "recalls": 1,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
+    "builds": 5,
+    "follows": 5,
+    "steps": 8,
+    "imports": [
+     "取像素"
+    ]
    }
   },
   {
-   "id": "fourier",
+   "id": "frequency",
    "title": "频率：换一种方式看图",
-   "series": [
+   "machine": "一台频谱分析仪和频域滤波器",
+   "after": [
+    "convolver"
+   ],
+   "levels": [
     {
-     "summit": null,
-     "levels": [
-      "sinusoid-parameters@4",
-      "fourier-magnitude-phase@4",
-      "phase-carries-structure@4"
+     "id": "F1",
+     "title": "正弦条纹",
+     "role": "discover",
+     "teaches": [
+      "sinusoid-parameters@4"
      ],
-     "cores": [
-      "phase-carries-structure@4"
+     "tasks": [
+      "signal-as-sinusoid-sum@4",
+      "spatial-frequency@4",
+      "dc-component@4"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "makes": null,
+     "uses": [],
+     "copy": [
+      "frequency-domain-compression@4",
+      "jpeg-dct-compression@4"
+     ],
+     "part": "levels",
+     "chapter": "frequency",
+     "recall": []
     },
     {
-     "summit": null,
-     "levels": [
-      "convolution-theorem@4",
-      "fourier-2d-centred-spectrum@4",
-      "frequency-domain-mask@4",
-      "low-pass-filter@4",
-      "ringing-artefact@4"
+     "id": "F2",
+     "title": "幅度与相位",
+     "role": "build",
+     "teaches": [
+      "fourier-magnitude-phase@4"
      ],
-     "cores": [
-      "ringing-artefact@4"
+     "tasks": [],
+     "makes": "频谱",
+     "uses": [],
+     "copy": [],
+     "part": "levels",
+     "chapter": "frequency",
+     "recall": []
+    },
+    {
+     "id": "F3",
+     "title": "交换幅度和相位",
+     "role": "discover",
+     "teaches": [
+      "phase-carries-structure@4"
      ],
-     "side": [
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "频谱"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "frequency",
+     "recall": []
+    },
+    {
+     "id": "F4",
+     "title": "读频谱",
+     "role": "discover",
+     "teaches": [
+      "fourier-2d-centred-spectrum@4"
+     ],
+     "tasks": [
       "spectrum-reading@4",
-      "stripe-spectrum-relation@4",
-      "filtering-route-choice@4",
+      "stripe-spectrum-relation@4"
+     ],
+     "makes": null,
+     "uses": [
+      "频谱"
+     ],
+     "copy": [
+      "gan-frequency-forensics@4"
+     ],
+     "part": "levels",
+     "chapter": "frequency",
+     "recall": []
+    },
+    {
+     "id": "F5",
+     "title": "卷积等于相乘",
+     "role": "discover",
+     "teaches": [
+      "convolution-theorem@4"
+     ],
+     "tasks": [
+      "filtering-route-choice@4"
+     ],
+     "makes": null,
+     "uses": [
+      "频谱",
+      "卷积器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "frequency",
+     "recall": [
+      "convolution-vs-cross-correlation@3"
+     ]
+    },
+    {
+     "id": "F6",
+     "title": "在频谱上挖洞",
+     "role": "build",
+     "teaches": [
+      "frequency-domain-mask@4",
+      "low-pass-filter@4"
+     ],
+     "tasks": [
       "high-pass-filter@4"
      ],
-     "optional": [],
-     "checkpoint": null
+     "makes": "频域滤波器",
+     "uses": [
+      "频谱"
+     ],
+     "copy": [
+      "highpass-as-one-minus-lowpass@4",
+      "band-pass-filter@4"
+     ],
+     "part": "levels",
+     "chapter": "frequency",
+     "recall": [
+      "gaussian-filter@3"
+     ]
+    },
+    {
+     "id": "F7",
+     "title": "硬截断的波纹",
+     "role": "discover",
+     "teaches": [
+      "ringing-artefact@4"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "频域滤波器",
+      "模糊器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "frequency",
+     "recall": [
+      "模糊器"
+     ]
     }
    ],
-   "breaks": [
-    [
-     "convolution-theorem@4",
-     "fourier-2d-centred-spectrum@4"
-    ]
-   ],
-   "needs": [
-    "filtering"
-   ],
    "metrics": {
-    "levels": 8,
-    "side": 4,
+    "levels": 7,
+    "side": 0,
     "optional": 0,
-    "practice": 0,
-    "steps": 7,
-    "breaks": 1,
-    "recalls": 2,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
+    "builds": 2,
+    "follows": 4,
+    "steps": 6,
+    "imports": [
+     "卷积器",
+     "模糊器"
+    ]
    }
   },
   {
    "id": "light",
    "title": "光与边缘",
-   "series": [
+   "machine": "一个朗伯着色器，用来检验边缘和梯度在什么变化下还靠得住",
+   "after": [
+    "convolver"
+   ],
+   "levels": [
     {
-     "summit": null,
-     "levels": [
-      "lambertian-reflectance@5",
-      "normal-from-shading-ambiguity@5"
+     "id": "L1",
+     "title": "一个面有多亮",
+     "role": "build",
+     "teaches": [
+      "lambertian-reflectance@5"
      ],
-     "cores": [
-      "normal-from-shading-ambiguity@5"
+     "tasks": [],
+     "makes": "着色器",
+     "uses": [
+      "投影"
      ],
-     "side": [
+     "copy": [
+      "checker-shadow-illusion@5",
+      "specular-reflection@5",
+      "non-lambertian-effects@5"
+     ],
+     "part": "levels",
+     "chapter": "light",
+     "recall": [
+      "投影",
+      "image-formation-3d-to-2d@2"
+     ]
+    },
+    {
+     "id": "L2",
+     "title": "暗是因为颜色深，还是光弱",
+     "role": "discover",
+     "teaches": [
       "reflectance-illumination-ambiguity@5"
      ],
-     "optional": [],
-     "checkpoint": null
+     "tasks": [
+      "cast-shadow@5",
+      "edges-not-object-boundaries@5"
+     ],
+     "makes": null,
+     "uses": [
+      "着色器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "light",
+     "recall": []
     },
     {
-     "summit": null,
-     "levels": [
-      "edge-as-rapid-change@5",
+     "id": "L3",
+     "title": "一个亮度，很多朝向",
+     "role": "discover",
+     "teaches": [
+      "normal-from-shading-ambiguity@5"
+     ],
+     "tasks": [
+      "shape-from-shading@5"
+     ],
+     "makes": null,
+     "uses": [
+      "着色器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "light",
+     "recall": [
+      "forward-vs-inverse-problem@1"
+     ]
+    },
+    {
+     "id": "L4",
+     "title": "不变、容忍、等变",
+     "role": "judge",
+     "teaches": [
       "invariance-tolerance-equivariance@5"
      ],
-     "cores": [
-      "invariance-tolerance-equivariance@5"
+     "tasks": [
+      "gradient-brightness-shift-vs-contrast@5"
      ],
-     "side": [
+     "makes": null,
+     "uses": [
+      "梯度"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "light",
+     "recall": [
+      "梯度",
+      "edge-as-rapid-change@5"
+     ]
+    },
+    {
+     "id": "L5",
+     "title": "边缘跟着物体动",
+     "role": "discover",
+     "teaches": [
       "edge-response-under-transforms@5"
      ],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": null,
-     "levels": [
-      "image-gradient@5"
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "梯度",
+      "着色器"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "copy": [
+      "robust-recognition-strategies@5",
+      "transformation-robustness-checks@10"
+     ],
+     "part": "levels",
+     "chapter": "light",
+     "recall": [
+      "signed-edge-response@3"
+     ]
     }
-   ],
-   "breaks": [
-    [
-     "invariance-tolerance-equivariance@5",
-     "image-gradient@5"
-    ]
-   ],
-   "needs": [
-    "geometry",
-    "filtering"
    ],
    "metrics": {
     "levels": 5,
-    "side": 2,
+    "side": 0,
     "optional": 0,
-    "practice": 0,
+    "builds": 1,
+    "follows": 2,
     "steps": 4,
-    "breaks": 1,
-    "recalls": 3,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": false,
-    "length": true,
-    "hard_run": true
+    "imports": [
+     "投影",
+     "梯度"
+    ]
    }
   },
   {
    "id": "cnn",
-   "title": "卷积网络的结构",
-   "series": [
+   "title": "卷积网络",
+   "machine": "一个能训练、能判断该停在哪一步的小 CNN 分类器",
+   "after": [
+    "convolver"
+   ],
+   "levels": [
     {
-     "summit": null,
-     "levels": [
-      "fully-connected-neuron@6",
-      "mlp-flatten-limits@6",
+     "id": "C1",
+     "title": "一个神经元",
+     "role": "build",
+     "teaches": [
+      "fully-connected-neuron@6"
+     ],
+     "tasks": [],
+     "makes": "神经元",
+     "uses": [],
+     "copy": [
+      "deep-learning-enablers@6"
+     ],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C2",
+     "title": "折一下：ReLU",
+     "role": "upgrade",
+     "teaches": [
+      "nonlinearity-relu@6"
+     ],
+     "tasks": [],
+     "makes": "神经元",
+     "uses": [
+      "神经元"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C3",
+     "title": "把图拉平的代价",
+     "role": "judge",
+     "teaches": [
+      "mlp-flatten-limits@6"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "神经元"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": [
+      "image-array-checks@2"
+     ]
+    },
+    {
+     "id": "C4",
+     "title": "只看邻域，处处同一组权重",
+     "role": "build",
+     "teaches": [
       "local-connectivity@6",
       "weight-sharing@6",
-      "cnn-convolution@6",
+      "cnn-convolution@6"
+     ],
+     "tasks": [
       "activation-map@6",
+      "cnn-equivariance-limits@6"
+     ],
+     "makes": "卷积层",
+     "uses": [
+      "神经元",
+      "卷积器"
+     ],
+     "copy": [
+      "inductive-bias@9"
+     ],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": [
+      "卷积器",
+      "pixel-vs-local-operator@3",
+      "convolution@3",
+      "convolution-vs-cross-correlation@3",
+      "convolution@3"
+     ]
+    },
+    {
+     "id": "C5",
+     "title": "几个输入通道，几个滤波器",
+     "role": "upgrade",
+     "teaches": [
       "channels-filters-activation-maps@6"
      ],
-     "cores": [
-      "channels-filters-activation-maps@6"
+     "tasks": [],
+     "makes": "卷积层",
+     "uses": [
+      "卷积层",
+      "多通道卷积器"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": [
+      "多通道卷积器",
+      "colour-filtering@3"
+     ]
     },
     {
-     "summit": "cnn-feature-hierarchy@6",
-     "levels": [
-      "nonlinearity-relu@6",
-      "conv-relu-stacking@6",
-      "cnn-feature-hierarchy@6"
-     ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": "gradient-descent-backprop@6",
-     "levels": [
-      "gradient-descent-backprop@6"
-     ],
-     "cores": [],
-     "foundation": true,
-     "side": [
-      "minibatch-epoch-learning-rate@7"
-     ],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": "conv-parameter-count@6",
-     "levels": [
-      "conv-parameter-count@6"
-     ],
-     "cores": [],
-     "foundation": true,
-     "side": [
-      "fc-vs-conv-parameter-count@6",
-      "stacked-small-kernels@8"
-     ],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": null,
-     "levels": [
+     "id": "C6",
+     "title": "一层有多少参数、输出多大",
+     "role": "discover",
+     "teaches": [
+      "conv-parameter-count@6",
       "conv-output-size@6"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "tasks": [
+      "fc-vs-conv-parameter-count@6"
+     ],
+     "makes": null,
+     "uses": [
+      "卷积层"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": [
+      "padding-border-rules@3",
+      "valid-output-size@3"
+     ]
+    },
+    {
+     "id": "C7",
+     "title": "缩小：池化",
+     "role": "build",
+     "teaches": [
+      "downsampling-purpose@7",
+      "max-average-pooling@7"
+     ],
+     "tasks": [
+      "strided-convolution@7"
+     ],
+     "makes": "池化",
+     "uses": [
+      "卷积层"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C8",
+     "title": "组装分类器",
+     "role": "build",
+     "teaches": [
+      "conv-relu-stacking@6",
+      "cnn-classifier-pipeline@7"
+     ],
+     "tasks": [
+      "cnn-feature-hierarchy@6",
+      "occlusion-sensitivity@10",
+      "class-activation-mapping@10"
+     ],
+     "makes": "CNN 分类器",
+     "uses": [
+      "卷积层",
+      "池化"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C9",
+     "title": "分数变成概率",
+     "role": "upgrade",
+     "teaches": [
+      "softmax@7"
+     ],
+     "tasks": [],
+     "makes": "Softmax",
+     "uses": [
+      "CNN 分类器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C10",
+     "title": "错得有多离谱：交叉熵",
+     "role": "build",
+     "teaches": [
+      "cross-entropy-loss@7"
+     ],
+     "tasks": [],
+     "makes": "交叉熵",
+     "uses": [
+      "Softmax"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C11",
+     "title": "沿着梯度下山",
+     "role": "build",
+     "teaches": [
+      "gradient-descent-backprop@6"
+     ],
+     "tasks": [
+      "minibatch-epoch-learning-rate@7",
+      "grad-cam@10"
+     ],
+     "makes": "训练器",
+     "uses": [
+      "CNN 分类器",
+      "交叉熵"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C12",
+     "title": "背题与学会",
+     "role": "discover",
+     "teaches": [
+      "overfitting@7"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "训练器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C13",
+     "title": "谁来决定停在哪",
+     "role": "judge",
+     "teaches": [
+      "train-validation-test-roles@7"
+     ],
+     "tasks": [
+      "early-stopping-validation@7"
+     ],
+     "makes": null,
+     "uses": [
+      "训练器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "cnn",
+     "recall": []
     }
    ],
-   "breaks": [
-    [
-     "cnn-feature-hierarchy@6",
-     "gradient-descent-backprop@6"
-    ],
-    [
-     "gradient-descent-backprop@6",
-     "conv-parameter-count@6"
-    ],
-    [
-     "conv-parameter-count@6",
-     "conv-output-size@6"
-    ]
-   ],
-   "needs": [
-    "pixels",
-    "filtering"
+   "side": [
+    {
+     "id": "C-S1",
+     "title": "给权重加约束",
+     "role": "use",
+     "teaches": [
+      "l1-l2-regularization@7",
+      "dropout@7"
+     ],
+     "uses": [
+      "训练器"
+     ],
+     "tasks": [],
+     "copy": [],
+     "makes": null,
+     "part": "side",
+     "chapter": "cnn",
+     "recall": []
+    },
+    {
+     "id": "C-S2",
+     "title": "多造一些训练图",
+     "role": "build",
+     "teaches": [
+      "data-augmentation@7"
+     ],
+     "makes": "数据增强",
+     "uses": [
+      "裁剪",
+      "双线性采样"
+     ],
+     "tasks": [
+      "alexnet-ingredients@8"
+     ],
+     "copy": [
+      "distortion-generalization@10"
+     ],
+     "part": "side",
+     "chapter": "cnn",
+     "recall": [
+      "裁剪",
+      "双线性采样",
+      "crop-vs-resize@2"
+     ]
+    }
    ],
    "metrics": {
     "levels": 13,
-    "side": 3,
+    "side": 2,
     "optional": 0,
-    "practice": 0,
+    "builds": 10,
+    "follows": 12,
     "steps": 12,
-    "breaks": 3,
-    "recalls": 9,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": false,
-    "length": true,
-    "hard_run": true
-   }
-  },
-  {
-   "id": "training",
-   "title": "训练与评估",
-   "series": [
-    {
-     "summit": null,
-     "levels": [
-      "overfitting@7",
-      "train-validation-test-roles@7"
-     ],
-     "cores": [
-      "train-validation-test-roles@7"
-     ],
-     "side": [
-      "l1-l2-regularization@7",
-      "dropout@7",
-      "early-stopping-validation@7"
-     ],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": null,
-     "levels": [
-      "downsampling-purpose@7",
-      "max-average-pooling@7",
-      "cnn-classifier-pipeline@7",
-      "softmax@7"
-     ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    }
-   ],
-   "breaks": [],
-   "needs": [
-    "light",
-    "cnn"
-   ],
-   "metrics": {
-    "levels": 6,
-    "side": 3,
-    "optional": 0,
-    "practice": 0,
-    "steps": 5,
-    "breaks": 0,
-    "recalls": 3,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
+    "imports": [
+     "卷积器",
+     "双线性采样",
+     "多通道卷积器",
+     "裁剪"
+    ]
    }
   },
   {
    "id": "deep",
    "title": "更深、更省的网络",
-   "series": [
+   "machine": "残差块和深度可分离卷积块",
+   "after": [
+    "cnn"
+   ],
+   "levels": [
     {
-     "summit": null,
-     "levels": [
-      "architecture-tradeoffs@8",
-      "depth-degradation@8",
+     "id": "N1",
+     "title": "结构上能调什么",
+     "role": "judge",
+     "teaches": [
+      "architecture-tradeoffs@8"
+     ],
+     "tasks": [
+      "stacked-small-kernels@8",
+      "cnn-receptive-field-growth@9"
+     ],
+     "makes": null,
+     "uses": [
+      "CNN 分类器"
+     ],
+     "copy": [
+      "bagnet-local-evidence@10",
+      "texture-vs-shape@10"
+     ],
+     "part": "levels",
+     "chapter": "deep",
+     "recall": [
+      "conv-parameter-count@6",
+      "downsampling-purpose@7"
+     ]
+    },
+    {
+     "id": "N2",
+     "title": "越深越差",
+     "role": "discover",
+     "teaches": [
+      "depth-degradation@8"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "训练器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "deep",
+     "recall": []
+    },
+    {
+     "id": "N3",
+     "title": "只学差的那一点",
+     "role": "build",
+     "teaches": [
       "residual-learning@8"
      ],
-     "cores": [
-      "residual-learning@8"
+     "tasks": [],
+     "makes": "残差块",
+     "uses": [
+      "卷积层"
      ],
-     "side": [
+     "copy": [],
+     "part": "levels",
+     "chapter": "deep",
+     "recall": [
+      "卷积层"
+     ]
+    },
+    {
+     "id": "N4",
+     "title": "1×1 卷积",
+     "role": "build",
+     "teaches": [
+      "one-by-one-convolution@8"
+     ],
+     "tasks": [],
+     "makes": "1×1 卷积",
+     "uses": [
+      "卷积层"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "deep",
+     "recall": [
+      "channels-filters-activation-maps@6"
+     ]
+    },
+    {
+     "id": "N5",
+     "title": "先各管各的通道，再混合",
+     "role": "build",
+     "teaches": [
+      "depthwise-separable-convolution@8"
+     ],
+     "tasks": [
+      "separable-vs-depthwise-separable@8"
+     ],
+     "makes": "深度可分离块",
+     "uses": [
+      "1×1 卷积",
+      "卷积层",
+      "可分离卷积器"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "deep",
+     "recall": [
+      "可分离卷积器"
+     ]
+    }
+   ],
+   "side": [
+    {
+     "id": "N-S1",
+     "title": "并行多尺度与复合缩放",
+     "role": "judge",
+     "teaches": [
       "inception-multiscale@8",
       "efficientnet-compound-scaling@8"
      ],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": null,
-     "levels": [
-      "one-by-one-convolution@8",
-      "depthwise-separable-convolution@8"
+     "uses": [
+      "1×1 卷积"
      ],
-     "cores": [
-      "depthwise-separable-convolution@8"
+     "tasks": [],
+     "copy": [
+      "auxiliary-classifier@8"
      ],
-     "side": [
-      "separable-vs-depthwise-separable@8"
-     ],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": null,
-     "levels": [
-      "pixel-vs-feature-space@8"
-     ],
-     "cores": [],
-     "foundation": true,
-     "side": [
-      "transfer-learning-modes@8",
-      "finetuning-depth-choice@8"
-     ],
-     "optional": [],
-     "checkpoint": null
+     "makes": null,
+     "part": "side",
+     "chapter": "deep",
+     "recall": []
     }
    ],
-   "breaks": [
-    [
-     "depthwise-separable-convolution@8",
-     "pixel-vs-feature-space@8"
-    ]
-   ],
-   "needs": [
-    "geometry",
-    "filtering",
-    "cnn",
-    "training"
-   ],
    "metrics": {
-    "levels": 6,
-    "side": 5,
+    "levels": 5,
+    "side": 1,
     "optional": 0,
-    "practice": 0,
-    "steps": 5,
-    "breaks": 1,
-    "recalls": 10,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
+    "builds": 3,
+    "follows": 3,
+    "steps": 4,
+    "imports": [
+     "CNN 分类器",
+     "卷积层",
+     "可分离卷积器",
+     "训练器"
+    ]
    }
   },
   {
    "id": "attention",
    "title": "注意力",
-   "series": [
-    {
-     "summit": null,
-     "levels": [
-      "patch-tokenization@9",
-      "patch-embedding@9",
-      "query-key-value@9",
-      "scaled-dot-product-attention@9",
-      "attention-matrix-rows@9"
-     ],
-     "cores": [
-      "scaled-dot-product-attention@9",
-      "attention-matrix-rows@9"
-     ],
-     "side": [
-      "positional-encoding@9"
-     ],
-     "optional": [],
-     "checkpoint": null
-    },
-    {
-     "summit": null,
-     "levels": [
-      "multi-head-attention@9",
-      "transformer-encoder-block@9",
-      "class-token@9"
-     ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [
-      "mean-attention-distance@9"
-     ],
-     "checkpoint": null
-    }
-   ],
-   "breaks": [],
-   "needs": [
-    "pixels",
-    "cnn",
-    "training",
+   "machine": "一个 ViT 编码器块",
+   "after": [
     "deep"
    ],
+   "levels": [
+    {
+     "id": "T1",
+     "title": "把图切成小块",
+     "role": "build",
+     "teaches": [
+      "patch-tokenization@9"
+     ],
+     "tasks": [],
+     "makes": "切块",
+     "uses": [
+      "裁剪"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": [
+      "image-array-checks@2"
+     ]
+    },
+    {
+     "id": "T2",
+     "title": "小块变成向量",
+     "role": "build",
+     "teaches": [
+      "patch-embedding@9"
+     ],
+     "tasks": [],
+     "makes": "嵌入",
+     "uses": [
+      "切块",
+      "神经元"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": [
+      "神经元",
+      "fully-connected-neuron@6"
+     ]
+    },
+    {
+     "id": "T3",
+     "title": "查询、键、数值",
+     "role": "build",
+     "teaches": [
+      "query-key-value@9"
+     ],
+     "tasks": [],
+     "makes": "QKV",
+     "uses": [
+      "嵌入"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": []
+    },
+    {
+     "id": "T4",
+     "title": "谁该听谁的",
+     "role": "build",
+     "teaches": [
+      "scaled-dot-product-attention@9"
+     ],
+     "tasks": [
+      "patch-size-quadratic-cost@9"
+     ],
+     "makes": "注意力",
+     "uses": [
+      "QKV",
+      "Softmax"
+     ],
+     "copy": [
+      "shifted-window-attention@9"
+     ],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": [
+      "Softmax",
+      "softmax@7"
+     ]
+    },
+    {
+     "id": "T5",
+     "title": "注意力矩阵的一行",
+     "role": "discover",
+     "teaches": [
+      "attention-matrix-rows@9"
+     ],
+     "tasks": [
+      "global-receptive-field-attention@9"
+     ],
+     "makes": null,
+     "uses": [
+      "注意力"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": []
+    },
+    {
+     "id": "T6",
+     "title": "位置去哪了",
+     "role": "upgrade",
+     "teaches": [
+      "positional-encoding@9"
+     ],
+     "tasks": [],
+     "makes": "嵌入",
+     "uses": [
+      "嵌入",
+      "注意力"
+     ],
+     "copy": [
+      "cnn-vs-vit-comparison@9"
+     ],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": []
+    },
+    {
+     "id": "T7",
+     "title": "几个头一起看",
+     "role": "upgrade",
+     "teaches": [
+      "multi-head-attention@9"
+     ],
+     "tasks": [],
+     "makes": "注意力",
+     "uses": [
+      "注意力"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": []
+    },
+    {
+     "id": "T8",
+     "title": "编码器块",
+     "role": "build",
+     "teaches": [
+      "transformer-encoder-block@9"
+     ],
+     "tasks": [],
+     "makes": "编码器块",
+     "uses": [
+      "注意力",
+      "残差块",
+      "神经元"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": [
+      "残差块",
+      "nonlinearity-relu@6",
+      "residual-learning@8"
+     ]
+    },
+    {
+     "id": "T9",
+     "title": "一个专门汇总的 token",
+     "role": "build",
+     "teaches": [
+      "class-token@9"
+     ],
+     "tasks": [],
+     "makes": "ViT 分类器",
+     "uses": [
+      "编码器块",
+      "Softmax"
+     ],
+     "copy": [
+      "vit-architecture-pipeline@9"
+     ],
+     "part": "levels",
+     "chapter": "attention",
+     "recall": []
+    }
+   ],
+   "optional": [
+    {
+     "id": "T-W1",
+     "title": "每个头看多远",
+     "role": "discover",
+     "teaches": [
+      "mean-attention-distance@9"
+     ],
+     "uses": [
+      "编码器块"
+     ],
+     "tasks": [],
+     "copy": [],
+     "makes": null,
+     "part": "optional",
+     "chapter": "attention"
+    }
+   ],
    "metrics": {
-    "levels": 8,
-    "side": 1,
+    "levels": 9,
+    "side": 0,
     "optional": 1,
-    "practice": 2,
-    "steps": 7,
-    "breaks": 0,
-    "recalls": 6,
-    "hard_run": 2
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
+    "builds": 8,
+    "follows": 6,
+    "steps": 8,
+    "imports": [
+     "Softmax",
+     "残差块",
+     "神经元",
+     "裁剪"
+    ]
    }
   },
   {
    "id": "representation",
    "title": "表示学习",
-   "series": [
+   "machine": "一个不靠标签学出来的嵌入器，和用它做的零样本分类",
+   "after": [
+    "attention"
+   ],
+   "levels": [
     {
-     "summit": "contrastive-pairing@10",
-     "levels": [
-      "cross-entropy-loss@7",
-      "data-augmentation@7",
-      "self-supervised-representation@10",
-      "contrastive-pairing@10"
+     "id": "R1",
+     "title": "同一类，长得不一样",
+     "role": "judge",
+     "teaches": [
+      "recognition-variation@1",
+      "good-representation@1"
      ],
-     "cores": [],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "tasks": [
+      "pixel-vs-feature-space@8",
+      "representation-embedding@10"
+     ],
+     "makes": null,
+     "uses": [
+      "CNN 分类器"
+     ],
+     "copy": [
+      "fast-guess-then-refine@1",
+      "adversarial-example@2",
+      "adversarial-frequency-analysis@4",
+      "label-set-recognition@6",
+      "learned-vs-handcrafted-features@6",
+      "accuracy-class-imbalance@6",
+      "top-n-accuracy@8",
+      "failure-case-analysis@8",
+      "dataset-distribution-bias@10"
+     ],
+     "part": "levels",
+     "chapter": "representation",
+     "recall": [
+      "CNN 分类器"
+     ]
     },
     {
-     "summit": null,
-     "levels": [
-      "cosine-similarity@10",
-      "contrastive-loss@10",
+     "id": "R2",
+     "title": "没有标签也能学",
+     "role": "discover",
+     "teaches": [
+      "self-supervised-representation@10"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "数据增强"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "representation",
+     "recall": [
+      "数据增强",
+      "data-augmentation@7"
+     ]
+    },
+    {
+     "id": "R3",
+     "title": "谁和谁是一对",
+     "role": "build",
+     "teaches": [
+      "contrastive-pairing@10"
+     ],
+     "tasks": [],
+     "makes": "配对",
+     "uses": [
+      "数据增强"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "representation",
+     "recall": []
+    },
+    {
+     "id": "R4",
+     "title": "两个向量有多像",
+     "role": "build",
+     "teaches": [
+      "cosine-similarity@10"
+     ],
+     "tasks": [],
+     "makes": "余弦相似度",
+     "uses": [
+      "嵌入"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "representation",
+     "recall": []
+    },
+    {
+     "id": "R5",
+     "title": "拉近一对，推开其余",
+     "role": "build",
+     "teaches": [
+      "contrastive-loss@10"
+     ],
+     "tasks": [],
+     "makes": "对比损失",
+     "uses": [
+      "配对",
+      "余弦相似度",
+      "交叉熵"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "representation",
+     "recall": [
+      "交叉熵",
+      "cross-entropy-loss@7"
+     ]
+    },
+    {
+     "id": "R6",
+     "title": "一批里有多少候选",
+     "role": "discover",
+     "teaches": [
+      "simclr-candidate-count@10"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "对比损失"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "representation",
+     "recall": []
+    },
+    {
+     "id": "R7",
+     "title": "温度：分数拉开多少",
+     "role": "discover",
+     "teaches": [
       "temperature@10"
      ],
-     "cores": [
-      "temperature@10"
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "对比损失",
+      "Softmax"
      ],
-     "side": [
+     "copy": [],
+     "part": "levels",
+     "chapter": "representation",
+     "recall": []
+    }
+   ],
+   "side": [
+    {
+     "id": "R-S1",
+     "title": "图和文字放进同一个空间",
+     "role": "build",
+     "teaches": [
       "clip-shared-embedding@10",
       "zero-shot-classification@10"
      ],
-     "optional": [],
-     "checkpoint": null
+     "makes": "零样本分类器",
+     "uses": [
+      "余弦相似度",
+      "对比损失"
+     ],
+     "tasks": [
+      "class-token-decomposition@10"
+     ],
+     "copy": [
+      "clip-evaluation-and-uses@10"
+     ],
+     "part": "side",
+     "chapter": "representation",
+     "recall": []
     },
     {
-     "summit": null,
-     "levels": [
-      "simclr-candidate-count@10"
+     "id": "R-S2",
+     "title": "借别人训练好的网络",
+     "role": "use",
+     "teaches": [
+      "transfer-learning-modes@8",
+      "finetuning-depth-choice@8"
      ],
-     "cores": [
-      "simclr-candidate-count@10"
+     "uses": [
+      "CNN 分类器",
+      "余弦相似度"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "tasks": [],
+     "copy": [
+      "vit-vs-cnn-data-scale@9"
+     ],
+     "makes": null,
+     "part": "side",
+     "chapter": "representation",
+     "recall": [
+      "minibatch-epoch-learning-rate@7",
+      "overfitting@7"
+     ]
     }
    ],
-   "breaks": [
-    [
-     "cross-entropy-loss@7",
-     "data-augmentation@7"
-    ],
-    [
-     "temperature@10",
-     "simclr-candidate-count@10"
-    ]
-   ],
-   "needs": [
-    "pixels",
-    "training"
-   ],
    "metrics": {
-    "levels": 8,
+    "levels": 7,
     "side": 2,
     "optional": 0,
-    "practice": 0,
-    "steps": 7,
-    "breaks": 2,
-    "recalls": 2,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": false,
-    "length": true,
-    "hard_run": true
+    "builds": 4,
+    "follows": 4,
+    "steps": 6,
+    "imports": [
+     "CNN 分类器",
+     "Softmax",
+     "交叉熵",
+     "嵌入",
+     "数据增强"
+    ]
    }
   },
   {
-   "id": "corners",
-   "title": "角点与描述子",
-   "series": [
+   "id": "stitcher",
+   "title": "匹配：全景拼接",
+   "machine": "一台全景拼接器：找角点、描述、匹配、剔除外点、算单应、把图拼起来",
+   "after": [
+    "light"
+   ],
+   "levels": [
     {
-     "summit": null,
-     "levels": [
+     "id": "E1",
+     "title": "挪一挪窗口",
+     "role": "discover",
+     "teaches": [
       "local-feature-spatial-use@11",
-      "flat-edge-corner@11",
-      "shift-cost-ssd@11",
-      "second-moment-matrix@11",
-      "eigenvalue-corner-test@11"
+      "flat-edge-corner@11"
      ],
-     "cores": [
-      "second-moment-matrix@11",
-      "eigenvalue-corner-test@11"
+     "tasks": [
+      "dense-vs-sparse-features@11",
+      "keypoint-repeatability@11"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "makes": null,
+     "uses": [
+      "取像素"
+     ],
+     "copy": [
+      "blob-and-learned-detectors@11"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": [
+      "取像素"
+     ]
     },
     {
-     "summit": "harris-pipeline-nms@11",
-     "levels": [
+     "id": "E2",
+     "title": "位移代价",
+     "role": "build",
+     "teaches": [
+      "shift-cost-ssd@11"
+     ],
+     "tasks": [],
+     "makes": "位移代价",
+     "uses": [
+      "取像素"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": [
+      "gaussian-filter@3"
+     ]
+    },
+    {
+     "id": "E3",
+     "title": "用梯度近似：矩阵 M",
+     "role": "build",
+     "teaches": [
+      "second-moment-matrix@11"
+     ],
+     "tasks": [],
+     "makes": "结构矩阵",
+     "uses": [
+      "梯度",
+      "模糊器",
+      "位移代价"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": [
+      "梯度",
+      "模糊器",
+      "image-gradient@5",
+      "signed-edge-response@3"
+     ]
+    },
+    {
+     "id": "E4",
+     "title": "两个特征值说了什么",
+     "role": "discover",
+     "teaches": [
+      "eigenvalue-corner-test@11"
+     ],
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "结构矩阵"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": []
+    },
+    {
+     "id": "E5",
+     "title": "角点检测器",
+     "role": "build",
+     "teaches": [
       "harris-response@11",
       "harris-pipeline-nms@11"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "tasks": [],
+     "makes": "角点检测器",
+     "uses": [
+      "结构矩阵"
+     ],
+     "copy": [
+      "other-corner-scores@11"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": [
+      "convolution@3"
+     ]
     },
     {
-     "summit": "harris-invariance@11",
-     "levels": [
+     "id": "E6",
+     "title": "旋转、变亮、放大之后",
+     "role": "judge",
+     "teaches": [
       "harris-invariance@11"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "tasks": [],
+     "makes": null,
+     "uses": [
+      "角点检测器"
+     ],
+     "copy": [
+      "harris-gain-threshold@11"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": [
+      "invariance-tolerance-equivariance@5"
+     ]
     },
     {
-     "summit": null,
-     "levels": [
-      "sift-descriptor@11",
-      "sift-scale-orientation@11"
+     "id": "E7",
+     "title": "描述一个角点",
+     "role": "build",
+     "teaches": [
+      "sift-descriptor@11"
      ],
-     "cores": [],
-     "foundation": true,
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    }
-   ],
-   "breaks": [
-    [
-     "local-feature-spatial-use@11",
-     "flat-edge-corner@11"
-    ],
-    [
-     "harris-pipeline-nms@11",
-     "harris-invariance@11"
-    ]
-   ],
-   "needs": [
-    "filtering",
-    "light"
-   ],
-   "metrics": {
-    "levels": 10,
-    "side": 0,
-    "optional": 0,
-    "practice": 1,
-    "steps": 9,
-    "breaks": 2,
-    "recalls": 5,
-    "hard_run": 2
-   },
-   "gates": {
-    "chain": false,
-    "length": true,
-    "hard_run": true
-   }
-  },
-  {
-   "id": "matching",
-   "title": "鲁棒匹配",
-   "series": [
-    {
-     "summit": null,
-     "levels": [
-      "least-squares-outlier-sensitivity@12",
-      "ransac-loop@12",
-      "ransac-iterations@12"
+     "tasks": [
+      "sift-scale-orientation@11",
+      "detector-vs-descriptor@11",
+      "descriptor-goals@11"
      ],
-     "cores": [
-      "ransac-iterations@12"
+     "makes": "描述子",
+     "uses": [
+      "梯度",
+      "角点检测器"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "copy": [
+      "sift-normalisation@11"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": []
     },
     {
-     "summit": null,
-     "levels": [
-      "ransac-threshold-refit@12",
-      "feature-space-nearest-neighbours@10",
-      "ratio-test@12",
+     "id": "E8",
+     "title": "匹配要彼此说得通",
+     "role": "judge",
+     "teaches": [
       "geometric-consistency@12",
-      "transformation-dof@12",
-      "homography-four-pairs@12",
+      "transformation-dof@12"
+     ],
+     "tasks": [
+      "correspondence-matching@12"
+     ],
+     "makes": null,
+     "uses": [
+      "描述子"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": []
+    },
+    {
+     "id": "E9",
+     "title": "一个坏点毁掉直线",
+     "role": "discover",
+     "teaches": [
+      "least-squares-outlier-sensitivity@12"
+     ],
+     "tasks": [
+      "noise-vs-outlier@12",
+      "voting-model-support@12",
+      "hough-line-voting@12",
+      "hough-polar-form@12",
+      "hough-accumulator@12"
+     ],
+     "makes": null,
+     "uses": [],
+     "copy": [
+      "hough-edge-to-line-pipeline@12",
+      "hough-parameters@12",
+      "hough-dimensionality@12"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": []
+    },
+    {
+     "id": "E10",
+     "title": "随便抽几个试试",
+     "role": "build",
+     "teaches": [
+      "ransac-loop@12"
+     ],
+     "tasks": [
+      "ransac-threshold-refit@12"
+     ],
+     "makes": "RANSAC",
+     "uses": [],
+     "copy": [],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": []
+    },
+    {
+     "id": "E11",
+     "title": "要抽多少轮",
+     "role": "discover",
+     "teaches": [
+      "ransac-iterations@12"
+     ],
+     "tasks": [
+      "hough-vs-ransac@12"
+     ],
+     "makes": null,
+     "uses": [
+      "RANSAC"
+     ],
+     "copy": [
+      "ransac-limits@12"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": []
+    },
+    {
+     "id": "E12",
+     "title": "最近的不一定对",
+     "role": "build",
+     "teaches": [
+      "ratio-test@12"
+     ],
+     "tasks": [
+      "feature-space-nearest-neighbours@10",
+      "explanation-heatmap-limits@10",
+      "instance-recognition@12"
+     ],
+     "makes": "匹配器",
+     "uses": [
+      "描述子"
+     ],
+     "copy": [
+      "pca-tsne@10",
+      "ratio-test-book-example@12"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": []
+    },
+    {
+     "id": "E13",
+     "title": "四对点定一个单应",
+     "role": "build",
+     "teaches": [
+      "homography-four-pairs@12"
+     ],
+     "tasks": [],
+     "makes": "单应",
+     "uses": [
+      "投影"
+     ],
+     "copy": [],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": [
+      "投影"
+     ]
+    },
+    {
+     "id": "E14",
+     "title": "拼一张全景",
+     "role": "build",
+     "teaches": [
       "homography-ransac-pipeline@12"
      ],
-     "cores": [
-      "homography-ransac-pipeline@12"
+     "tasks": [],
+     "makes": "全景拼接器",
+     "uses": [
+      "角点检测器",
+      "描述子",
+      "匹配器",
+      "RANSAC",
+      "单应",
+      "双线性采样"
      ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
+     "copy": [
+      "feature-matching-applications@12"
+     ],
+     "part": "levels",
+     "chapter": "stitcher",
+     "recall": [
+      "双线性采样"
+     ]
     }
    ],
-   "breaks": [
-    [
-     "ransac-threshold-refit@12",
-     "feature-space-nearest-neighbours@10"
-    ]
-   ],
-   "needs": [
-    "deep",
-    "corners"
+   "optional": [
+    {
+     "id": "E-W1",
+     "title": "cornerHarris 参数与 FLANN 书封面定位",
+     "role": "use",
+     "teaches": [
+      "opencv-cornerharris-params@11",
+      "flann-candidates@12"
+     ],
+     "uses": [
+      "角点检测器",
+      "匹配器"
+     ],
+     "tasks": [
+      "layerwise-shape-param-tracking@7",
+      "weight-initialization-identical-filters@7",
+      "keras-mnist-mlp-vs-cnn@7",
+      "separable-cnn-workshop@8",
+      "grad-cam-target-class-workshop@10",
+      "filter-vs-feature-map-workshop@10"
+     ],
+     "copy": [],
+     "makes": null,
+     "part": "optional",
+     "chapter": "stitcher"
+    }
    ],
    "metrics": {
-    "levels": 10,
+    "levels": 14,
     "side": 0,
-    "optional": 0,
-    "practice": 1,
-    "steps": 9,
-    "breaks": 1,
-    "recalls": 3,
-    "hard_run": 1
-   },
-   "gates": {
-    "chain": true,
-    "length": true,
-    "hard_run": true
+    "optional": 1,
+    "builds": 8,
+    "follows": 12,
+    "steps": 13,
+    "imports": [
+     "双线性采样",
+     "取像素",
+     "投影",
+     "梯度",
+     "模糊器"
+    ]
    }
   }
  ],
- "slots": {
-  "computer-vision-definition@1": {
-   "tasks": [
-    "geometry-navigation-action-tasks@1",
-    "richer-scene-outputs@1"
+ "parts": {
+  "made": {
+   "投影": [
+    "A1"
    ],
-   "copy": [
-    "vision-task-outputs@1",
-    "semantic-vs-instance-segmentation@1",
-    "augmented-reality-placement@1",
-    "applications-combine-tasks@1",
-    "task-output-supports-action@1"
+   "像素相机": [
+    "A3"
    ],
-   "recall": []
-  },
-  "forward-vs-inverse-problem@1": {
-   "tasks": [],
-   "copy": [
-    "render-and-compare@1",
-    "multi-view-3d-reconstruction@1"
+   "取像素": [
+    "A4"
    ],
-   "recall": []
-  },
-  "image-formation-3d-to-2d@2": {
-   "tasks": [],
-   "copy": [
-    "scene-vs-camera-factors@2"
+   "裁剪": [
+    "A5"
    ],
-   "recall": []
-  },
-  "pinhole-projection@2": {
-   "tasks": [
-    "lens-aperture-tradeoff@2",
-    "focal-length-field-of-view@2"
+   "最近邻采样": [
+    "A6"
    ],
-   "copy": [
-    "f-number-depth-of-field@2",
-    "lens-distortion@2",
-    "camera-model-conventions@2"
+   "双线性采样": [
+    "A7"
    ],
-   "recall": []
-  },
-  "angle-of-view-from-pixel-focal-length@2": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "recognition-variation@1": {
-   "tasks": [],
-   "copy": [
-    "label-set-recognition@6",
-    "accuracy-class-imbalance@6"
+   "卷积器": [
+    "B2",
+    "B3"
    ],
-   "recall": []
-  },
-  "good-representation@1": {
-   "tasks": [],
-   "copy": [
-    "course-roadmap@1",
-    "fast-guess-then-refine@1",
-    "gan-diffusion-background@1",
-    "adversarial-example@2"
+   "模糊器": [
+    "B5"
    ],
-   "recall": []
-  },
-  "image-array-checks@2": {
-   "tasks": [],
-   "copy": [
-    "pixel-dtype-range@2",
-    "jpeg-lossy-compression@2",
-    "frequency-domain-compression@4",
-    "jpeg-dct-compression@4"
+   "可分离卷积器": [
+    "B6"
    ],
-   "recall": []
-  },
-  "pixel-coordinate-convention@2": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "crop-vs-resize@2": {
-   "tasks": [
-    "nearest-neighbour-interpolation@2"
+   "Sobel": [
+    "B7"
    ],
-   "copy": [],
-   "recall": []
-  },
-  "bilinear-interpolation@2": {
-   "tasks": [
-    "resampling-methods@2"
+   "梯度": [
+    "B8"
    ],
-   "copy": [],
-   "recall": []
-  },
-  "pixel-vs-local-operator@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "linear-filter@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "convolution@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "convolution-vs-cross-correlation@3": {
-   "tasks": [],
-   "copy": [
-    "library-convolution-is-correlation@3"
+   "多通道卷积器": [
+    "B9"
    ],
-   "recall": []
-  },
-  "linear-filter-properties@3": {
-   "tasks": [],
-   "copy": [
-    "merge-filters-associativity@3"
+   "频谱": [
+    "F2"
    ],
-   "recall": []
-  },
-  "separable-filter@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "filtering-by-hand@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "valid-output-size@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "padding-border-rules@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "gaussian-filter@3": {
-   "tasks": [
-    "kernel-size-vs-sigma@3",
-    "gaussian-kernel-truncation@3"
+   "频域滤波器": [
+    "F6"
    ],
-   "copy": [
-    "sharpen-and-motion-blur-kernels@3"
+   "着色器": [
+    "L1"
    ],
-   "recall": []
-  },
-  "sobel-filter@3": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "signed-edge-response@3": {
-   "tasks": [],
-   "copy": [
-    "learned-vs-handcrafted-features@6"
+   "神经元": [
+    "C1",
+    "C2"
    ],
-   "recall": []
-  },
-  "colour-filtering@3": {
-   "tasks": [],
-   "copy": [
-    "multi-kernel-feature-maps@3"
+   "卷积层": [
+    "C4",
+    "C5"
    ],
-   "recall": [
-    "image-array-checks@2"
+   "池化": [
+    "C7"
+   ],
+   "CNN 分类器": [
+    "C8"
+   ],
+   "Softmax": [
+    "C9"
+   ],
+   "交叉熵": [
+    "C10"
+   ],
+   "训练器": [
+    "C11"
+   ],
+   "数据增强": [
+    "C-S2"
+   ],
+   "残差块": [
+    "N3"
+   ],
+   "1×1 卷积": [
+    "N4"
+   ],
+   "深度可分离块": [
+    "N5"
+   ],
+   "切块": [
+    "T1"
+   ],
+   "嵌入": [
+    "T2",
+    "T6"
+   ],
+   "QKV": [
+    "T3"
+   ],
+   "注意力": [
+    "T4",
+    "T7"
+   ],
+   "编码器块": [
+    "T8"
+   ],
+   "ViT 分类器": [
+    "T9"
+   ],
+   "配对": [
+    "R3"
+   ],
+   "余弦相似度": [
+    "R4"
+   ],
+   "对比损失": [
+    "R5"
+   ],
+   "零样本分类器": [
+    "R-S1"
+   ],
+   "位移代价": [
+    "E2"
+   ],
+   "结构矩阵": [
+    "E3"
+   ],
+   "角点检测器": [
+    "E5"
+   ],
+   "描述子": [
+    "E7"
+   ],
+   "RANSAC": [
+    "E10"
+   ],
+   "匹配器": [
+    "E12"
+   ],
+   "单应": [
+    "E13"
+   ],
+   "全景拼接器": [
+    "E14"
    ]
   },
-  "sinusoid-parameters@4": {
-   "tasks": [
-    "signal-as-sinusoid-sum@4"
+  "reuse": {
+   "投影": [
+    "A2",
+    "A3",
+    "L1",
+    "E13"
    ],
-   "copy": [],
-   "recall": []
-  },
-  "fourier-magnitude-phase@4": {
-   "tasks": [
-    "spatial-frequency@4"
+   "像素相机": [
+    "A4",
+    "A-W1"
    ],
-   "copy": [
-    "adversarial-frequency-analysis@4"
+   "取像素": [
+    "A5",
+    "A6",
+    "A-W2",
+    "B1",
+    "B2",
+    "E1",
+    "E2"
    ],
-   "recall": []
-  },
-  "phase-carries-structure@4": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "convolution-theorem@4": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "convolution-vs-cross-correlation@3"
-   ]
-  },
-  "fourier-2d-centred-spectrum@4": {
-   "tasks": [
-    "dc-component@4"
+   "裁剪": [
+    "A-W3",
+    "C-S2",
+    "T1"
    ],
-   "copy": [],
-   "recall": []
-  },
-  "frequency-domain-mask@4": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "low-pass-filter@4": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "gaussian-filter@3"
-   ]
-  },
-  "ringing-artefact@4": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "spectrum-reading@4": {
-   "tasks": [],
-   "copy": [
-    "gan-frequency-forensics@4"
+   "最近邻采样": [
+    "A7"
    ],
-   "recall": []
-  },
-  "stripe-spectrum-relation@4": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "filtering-route-choice@4": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "high-pass-filter@4": {
-   "tasks": [],
-   "copy": [
-    "highpass-as-one-minus-lowpass@4",
-    "band-pass-filter@4"
+   "双线性采样": [
+    "C-S2",
+    "E14"
    ],
-   "recall": []
-  },
-  "lambertian-reflectance@5": {
-   "tasks": [],
-   "copy": [
-    "checker-shadow-illusion@5",
-    "specular-reflection@5",
-    "non-lambertian-effects@5"
+   "卷积器": [
+    "B3",
+    "B4",
+    "B5",
+    "B6",
+    "B7",
+    "B9",
+    "F5",
+    "C4"
    ],
-   "recall": [
-    "image-formation-3d-to-2d@2"
-   ]
-  },
-  "normal-from-shading-ambiguity@5": {
-   "tasks": [
-    "shape-from-shading@5"
+   "模糊器": [
+    "B6",
+    "F7",
+    "E3"
    ],
-   "copy": [],
-   "recall": [
-    "forward-vs-inverse-problem@1"
-   ]
-  },
-  "reflectance-illumination-ambiguity@5": {
-   "tasks": [
-    "cast-shadow@5"
+   "可分离卷积器": [
+    "N5"
    ],
-   "copy": [],
-   "recall": []
-  },
-  "edge-as-rapid-change@5": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "invariance-tolerance-equivariance@5": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "edge-response-under-transforms@5": {
-   "tasks": [],
-   "copy": [
-    "robust-recognition-strategies@5",
-    "transformation-robustness-checks@10"
+   "Sobel": [
+    "B8"
    ],
-   "recall": [
-    "signed-edge-response@3"
-   ]
-  },
-  "image-gradient@5": {
-   "tasks": [
-    "edges-not-object-boundaries@5",
-    "gradient-brightness-shift-vs-contrast@5"
+   "梯度": [
+    "L4",
+    "L5",
+    "E3",
+    "E7"
    ],
-   "copy": [
-    "spectral-power-distribution@5",
-    "spectral-channel-response@5",
-    "metamerism@5",
-    "colour-spaces@5",
-    "rgb-to-xyz-transform@5",
-    "lab-colour-manipulation@5",
-    "derivative-edge-filters@5"
+   "多通道卷积器": [
+    "C5"
    ],
-   "recall": []
-  },
-  "fully-connected-neuron@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "mlp-flatten-limits@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "image-array-checks@2"
-   ]
-  },
-  "local-connectivity@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "pixel-vs-local-operator@3"
-   ]
-  },
-  "weight-sharing@6": {
-   "tasks": [
-    "cnn-equivariance-limits@6"
+   "频谱": [
+    "F3",
+    "F4",
+    "F5",
+    "F6"
    ],
-   "copy": [
-    "inductive-bias@9"
+   "频域滤波器": [
+    "F7"
    ],
-   "recall": [
-    "convolution@3"
-   ]
-  },
-  "cnn-convolution@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "convolution-vs-cross-correlation@3"
-   ]
-  },
-  "activation-map@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "channels-filters-activation-maps@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "colour-filtering@3"
-   ]
-  },
-  "nonlinearity-relu@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "conv-relu-stacking@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "cnn-feature-hierarchy@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "sobel-filter@3"
-   ]
-  },
-  "gradient-descent-backprop@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "minibatch-epoch-learning-rate@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "conv-parameter-count@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "fc-vs-conv-parameter-count@6": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "valid-output-size@3"
-   ]
-  },
-  "stacked-small-kernels@8": {
-   "tasks": [
-    "cnn-receptive-field-growth@9"
+   "着色器": [
+    "L2",
+    "L3",
+    "L5"
    ],
-   "copy": [
-    "bagnet-local-evidence@10",
-    "texture-vs-shape@10"
+   "神经元": [
+    "C2",
+    "C3",
+    "C4",
+    "T2",
+    "T8"
    ],
-   "recall": [
-    "local-connectivity@6"
-   ]
-  },
-  "conv-output-size@6": {
-   "tasks": [],
-   "copy": [
-    "deep-learning-enablers@6"
+   "卷积层": [
+    "C5",
+    "C6",
+    "C7",
+    "C8",
+    "N3",
+    "N4",
+    "N5"
    ],
-   "recall": [
-    "padding-border-rules@3"
-   ]
-  },
-  "overfitting@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "train-validation-test-roles@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "l1-l2-regularization@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "dropout@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "early-stopping-validation@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "downsampling-purpose@7": {
-   "tasks": [
-    "strided-convolution@7"
+   "池化": [
+    "C8"
    ],
-   "copy": [],
-   "recall": [
-    "invariance-tolerance-equivariance@5"
-   ]
-  },
-  "max-average-pooling@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "activation-map@6"
-   ]
-  },
-  "cnn-classifier-pipeline@7": {
-   "tasks": [
-    "occlusion-sensitivity@10",
-    "class-activation-mapping@10",
-    "grad-cam@10"
+   "CNN 分类器": [
+    "C9",
+    "C11",
+    "N1",
+    "R1",
+    "R-S2"
    ],
-   "copy": [],
-   "recall": [
-    "conv-relu-stacking@6"
-   ]
-  },
-  "softmax@7": {
-   "tasks": [],
-   "copy": [
-    "top-n-accuracy@8",
-    "failure-case-analysis@8"
+   "Softmax": [
+    "C10",
+    "T4",
+    "T9",
+    "R7"
    ],
-   "recall": []
-  },
-  "architecture-tradeoffs@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "conv-parameter-count@6"
-   ]
-  },
-  "depth-degradation@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "residual-learning@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "gradient-descent-backprop@6"
-   ]
-  },
-  "inception-multiscale@8": {
-   "tasks": [],
-   "copy": [
-    "auxiliary-classifier@8"
+   "交叉熵": [
+    "C11",
+    "R5"
    ],
-   "recall": [
-    "channels-filters-activation-maps@6"
-   ]
-  },
-  "efficientnet-compound-scaling@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "one-by-one-convolution@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "depthwise-separable-convolution@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "separable-vs-depthwise-separable@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "separable-filter@3"
-   ]
-  },
-  "pixel-vs-feature-space@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "cnn-feature-hierarchy@6",
-    "good-representation@1",
-    "recognition-variation@1"
-   ]
-  },
-  "transfer-learning-modes@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "cnn-classifier-pipeline@7",
-    "minibatch-epoch-learning-rate@7"
-   ]
-  },
-  "finetuning-depth-choice@8": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "overfitting@7"
-   ]
-  },
-  "patch-tokenization@9": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "image-array-checks@2"
-   ]
-  },
-  "patch-embedding@9": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "fully-connected-neuron@6"
-   ]
-  },
-  "query-key-value@9": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "gradient-descent-backprop@6"
-   ]
-  },
-  "scaled-dot-product-attention@9": {
-   "tasks": [
-    "patch-size-quadratic-cost@9"
+   "训练器": [
+    "C12",
+    "C13",
+    "C-S1",
+    "N2"
    ],
-   "copy": [
-    "shifted-window-attention@9"
+   "数据增强": [
+    "R2",
+    "R3"
    ],
-   "recall": [
-    "softmax@7"
-   ]
-  },
-  "attention-matrix-rows@9": {
-   "tasks": [
-    "global-receptive-field-attention@9"
+   "残差块": [
+    "T8"
    ],
-   "copy": [],
-   "recall": []
-  },
-  "positional-encoding@9": {
-   "tasks": [],
-   "copy": [
-    "cnn-vs-vit-comparison@9",
-    "vit-vs-cnn-data-scale@9"
+   "1×1 卷积": [
+    "N5",
+    "N-S1"
    ],
-   "recall": []
-  },
-  "multi-head-attention@9": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "transformer-encoder-block@9": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "nonlinearity-relu@6",
-    "residual-learning@8"
-   ]
-  },
-  "class-token@9": {
-   "tasks": [
-    "representation-embedding@10"
+   "深度可分离块": [],
+   "切块": [
+    "T2"
    ],
-   "copy": [
-    "vit-architecture-pipeline@9"
+   "嵌入": [
+    "T3",
+    "T6",
+    "R4"
    ],
-   "recall": []
-  },
-  "cross-entropy-loss@7": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "data-augmentation@7": {
-   "tasks": [
-    "alexnet-ingredients@8"
+   "QKV": [
+    "T4"
    ],
-   "copy": [
-    "distortion-generalization@10",
-    "dataset-distribution-bias@10"
+   "注意力": [
+    "T5",
+    "T6",
+    "T7",
+    "T8"
    ],
-   "recall": [
-    "crop-vs-resize@2",
-    "overfitting@7"
-   ]
-  },
-  "self-supervised-representation@10": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "contrastive-pairing@10": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "cosine-similarity@10": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "contrastive-loss@10": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "temperature@10": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "clip-shared-embedding@10": {
-   "tasks": [
-    "class-token-decomposition@10"
+   "编码器块": [
+    "T9",
+    "T-W1"
    ],
-   "copy": [],
-   "recall": []
-  },
-  "zero-shot-classification@10": {
-   "tasks": [],
-   "copy": [
-    "clip-evaluation-and-uses@10"
+   "ViT 分类器": [],
+   "配对": [
+    "R5"
    ],
-   "recall": []
-  },
-  "simclr-candidate-count@10": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "local-feature-spatial-use@11": {
-   "tasks": [
-    "dense-vs-sparse-features@11",
-    "keypoint-repeatability@11"
+   "余弦相似度": [
+    "R5",
+    "R-S1",
+    "R-S2"
    ],
-   "copy": [
-    "blob-and-learned-detectors@11"
+   "对比损失": [
+    "R6",
+    "R7",
+    "R-S1"
    ],
-   "recall": []
-  },
-  "flat-edge-corner@11": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "shift-cost-ssd@11": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "gaussian-filter@3"
-   ]
-  },
-  "second-moment-matrix@11": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "image-gradient@5",
-    "signed-edge-response@3"
-   ]
-  },
-  "eigenvalue-corner-test@11": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "harris-response@11": {
-   "tasks": [],
-   "copy": [
-    "other-corner-scores@11"
+   "零样本分类器": [],
+   "位移代价": [
+    "E3"
    ],
-   "recall": []
-  },
-  "harris-pipeline-nms@11": {
-   "tasks": [
-    "detector-vs-descriptor@11",
-    "descriptor-goals@11",
-    "correspondence-matching@12"
+   "结构矩阵": [
+    "E4",
+    "E5"
    ],
-   "copy": [],
-   "recall": [
-    "convolution@3"
-   ]
-  },
-  "harris-invariance@11": {
-   "tasks": [],
-   "copy": [
-    "harris-gain-threshold@11"
+   "角点检测器": [
+    "E6",
+    "E7",
+    "E14",
+    "E-W1"
    ],
-   "recall": [
-    "invariance-tolerance-equivariance@5"
-   ]
-  },
-  "sift-descriptor@11": {
-   "tasks": [],
-   "copy": [
-    "sift-normalisation@11"
+   "描述子": [
+    "E8",
+    "E12",
+    "E14"
    ],
-   "recall": []
-  },
-  "sift-scale-orientation@11": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "least-squares-outlier-sensitivity@12": {
-   "tasks": [
-    "voting-model-support@12",
-    "hough-line-voting@12",
-    "hough-polar-form@12"
+   "RANSAC": [
+    "E11",
+    "E14"
    ],
-   "copy": [
-    "hough-edge-to-line-pipeline@12",
-    "hough-parameters@12"
+   "匹配器": [
+    "E14",
+    "E-W1"
    ],
-   "recall": []
-  },
-  "ransac-loop@12": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "ransac-iterations@12": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "ransac-threshold-refit@12": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "feature-space-nearest-neighbours@10": {
-   "tasks": [
-    "explanation-heatmap-limits@10",
-    "instance-recognition@12"
+   "单应": [
+    "E14"
    ],
-   "copy": [
-    "pca-tsne@10"
-   ],
-   "recall": [
-    "pixel-vs-feature-space@8"
-   ]
-  },
-  "ratio-test@12": {
-   "tasks": [],
-   "copy": [
-    "ratio-test-book-example@12"
-   ],
-   "recall": []
-  },
-  "geometric-consistency@12": {
-   "tasks": [],
-   "copy": [],
-   "recall": [
-    "local-feature-spatial-use@11"
-   ]
-  },
-  "transformation-dof@12": {
-   "tasks": [
-    "hough-vs-ransac@12"
-   ],
-   "copy": [
-    "hough-dimensionality@12",
-    "ransac-limits@12"
-   ],
-   "recall": []
-  },
-  "homography-four-pairs@12": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "homography-ransac-pipeline@12": {
-   "tasks": [],
-   "copy": [
-    "feature-matching-applications@12"
-   ],
-   "recall": [
-    "sift-scale-orientation@11"
-   ]
-  },
-  "pixel-to-mm-focal-length@2": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "opencv-bgr-to-rgb@2": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "channel-edit-dtype@2": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "opencv-size-vs-numpy-shape@2": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "center-crop-and-copy@2": {
-   "tasks": [],
-   "copy": [],
-   "recall": []
-  },
-  "mean-attention-distance@9": {
-   "tasks": [
-    "layerwise-shape-param-tracking@7",
-    "weight-initialization-identical-filters@7",
-    "keras-mnist-mlp-vs-cnn@7"
-   ],
-   "copy": [],
-   "recall": []
+   "全景拼接器": []
   }
- },
- "practice": {
-  "harris-pipeline-nms@11": [
-   [
-    "noise-vs-outlier@12"
-   ]
-  ],
-  "least-squares-outlier-sensitivity@12": [
-   [
-    "hough-accumulator@12"
-   ]
-  ],
-  "mean-attention-distance@9": [
-   [
-    "separable-cnn-workshop@8",
-    "grad-cam-target-class-workshop@10",
-    "filter-vs-feature-map-workshop@10"
-   ],
-   [
-    "opencv-cornerharris-params@11",
-    "flann-candidates@12"
-   ]
-  ]
- },
- "total": {
-  "steps": 86,
-  "breaks": 13,
-  "recalls": 44,
-  "far_max": 79
- },
- "gates": {
-  "chain": 0.8,
-  "line_min": 4,
-  "line_max": 20,
-  "hard_run": 2
  },
  "overrides": {
   "cores": {
@@ -1889,6 +2416,12 @@
     "a": "resampling-methods@2",
     "b": "homography-ransac-pipeline@12",
     "why": "流水线只提到 Warp 映射坐标，12-feature-matching.md 中没有讨论插值或 bicubic/Lanczos，至多是弱相关"
+   },
+   {
+    "op": "remove",
+    "a": "forward-vs-inverse-problem@1",
+    "b": "image-formation-3d-to-2d@2",
+    "why": "成像流程（三维到二维、丢失深度）不需要先懂正反问题；笔记只是按这个顺序讲。先亲手投影，再发现一张图对应很多场景"
    }
   ],
   "related": [
@@ -2175,14 +2708,12 @@
    "wall": "一个根据摄像头画面自动避障的机器人算不算计算机视觉系统？用定义的两个判断问题说明。",
    "deps": [],
    "check": [],
-   "importance": 16.5,
+   "importance": 14.5,
    "reach_lectures": [
     2,
-    3,
     4,
     5,
     6,
-    7,
     8,
     9,
     10,
@@ -2227,6 +2758,7 @@
     11,
     12
    ],
+   "core": true,
    "tier": "copy"
   },
   {
@@ -2311,20 +2843,11 @@
     "computer-vision-definition@1"
    ],
    "check": [],
-   "importance": 17.5,
+   "importance": 8.0,
    "reach_lectures": [
-    2,
-    3,
-    4,
     5,
-    6,
-    7,
-    8,
-    9,
-    10,
     12
    ],
-   "core": true,
    "tier": "level"
   },
   {
@@ -2693,9 +3216,7 @@
    "why": "流程是日常拍照经验的分解，结论是一句话。",
    "misconception": "以为知道一个像素的坐标和亮度就能求出对应的三维点。",
    "wall": "为什么仅凭一个像素无法知道对应的点离相机多远？列出两种补回深度的办法。",
-   "deps": [
-    "forward-vs-inverse-problem@1"
-   ],
+   "deps": [],
    "check": [],
    "importance": 14.5,
    "reach_lectures": [
@@ -4996,7 +5517,8 @@
    ],
    "importance": 2.5,
    "reach_lectures": [],
-   "tier": "copy"
+   "tier": "copy",
+   "merged_into": "signed-edge-response@3"
   },
   {
    "id": "edges-not-object-boundaries",
