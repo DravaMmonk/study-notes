@@ -4,7 +4,6 @@ import { CircuitLevel, useLevelBoard, useLevelRun } from '../../../shell/index.j
 import { L, tr } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
 import { MISSING, portsOf } from '../../../engine/circuit.js'
-import { viewAt } from '../../../engine/trace.js'
 import { fits, startBoard } from '../board.js'
 import { FIXED, PARTS } from '../parts.js'
 import { runLevel } from '../run.js'
@@ -81,7 +80,8 @@ export default function Screen(screen) {
   const hiddenFailed = useMemo(() => (hidden.length ? runLevel({ ...level, tests: hidden }, circuit, game.partOf).runs.filter((r) => r.fail).length : 0), [level, hidden, circuit, game])
   const run = useLevelRun(screen, board, {
     tests: tests.map((t, k) => ({ label: tr(`测试 ${k + 1}`, `Test ${k + 1}`), hidden: t.hidden })),
-    steps: { of: (k) => checked.runs[k].trace, check: (k) => checked.runs[k].fail?.why ?? '' },
+    // A run checks every test at once and shows its result: an image circuit has nothing to step through.
+    judge: () => ({ pass: checked.runs.every((r) => !r.fail), results: checked.runs.map((r) => ({ pass: !r.fail, reason: r.fail ? L(r.fail.why) : '' })) }),
     hidden: {
       count: hidden.length,
       fails: () => hiddenFailed,
@@ -94,11 +94,10 @@ export default function Screen(screen) {
   const { shown: palette, folded } = useMemo(() => game.offerIn(level, flags), [game, level, flags])
   const builderOf = game.builtBy
 
-  // What the board shows: during a run, what the engine had computed by the step shown; before one, the test picked.
+  // What the board shows: what the engine computes for the test picked.
   const runOf = checked.runs[run.at]
-  const shown = run.playback.shown(run.at)
-  const view = run.run ? viewAt(runOf.trace, shown.at >= 0 ? shown.at : shown.list.length - 1) : runOf
-  const ended = Boolean(run.run && (run.run.test > run.at || run.run.over))
+  const view = runOf
+  const ended = run.over
 
   const setParam = (node, key, value) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
   const settings = (node, ctx) => {
@@ -149,7 +148,7 @@ export default function Screen(screen) {
   const test = tests[run.at]
   const rows = [
     ...level.inputs.map((i) => [i.label, test.inputs[i.name], undefined]),
-    ...level.outputs.map((o) => [o.label, test.expect[o.name], ended || !run.run ? runOf.outputs[o.name] : undefined]),
+    ...level.outputs.map((o) => [o.label, test.expect[o.name], runOf.outputs[o.name]]),
   ]
   const strip = (
     <div className="vi-strip">
@@ -158,7 +157,6 @@ export default function Screen(screen) {
         <tbody>{rows.map(([label, want, got], k) => <tr key={k}><th>{L(label)}</th><td><Cell value={want} /></td><td><Cell value={got} /></td></tr>)}</tbody>
       </table>
       {ended && runOf.fail && <p className="vi-verdict is-fail">{L(runOf.fail.why)}</p>}
-      {run.run?.over && run.run.final && <p className="vi-verdict is-fail">{run.run.final}</p>}
     </div>
   )
 
@@ -192,7 +190,7 @@ export default function Screen(screen) {
           return inside && { ...inside, parts: partsFor(inside.level, game) }
         },
         edit: (node) => openRef('level', builderOf(node.type).id),
-        trace: () => ({ trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
+        trace: () => ({ trace: runOf.trace }),
       }}
     />
   )

@@ -17,13 +17,19 @@ export function PinholeRays({ ctx }) {
   const { q, bench, model } = ctx
   const { object = 'arrow', target, objects, sensor } = model.setup
   // What is drawn: each object as [depth, bottom, top] and its image's [bottom, top]; one object from the knobs.
-  const drawn = objects
+  const drawnAt = (q) => objects
     ? objects.map((o) => ({ id: o.id, label: o.label, Z: o.Z ?? q.Z, ends: [o.X, o.X + o.H], image: [q[`u_${o.id}`], q[`u_${o.id}`] + q[`h_${o.id}`]], seen: q[`in_${o.id}`] !== 0 }))
     : [{ id: null, Z: q.Z, ends: object === 'arrow' ? [0, q.H] : [q.X, q.X], image: object === 'arrow' ? [0, q.h] : [q.u, q.u], seen: q.inView !== 0 }]
+  const drawn = drawnAt(q)
   const px = sensor ? sensor.pxHeight / sensor.height : null
   const targetMm = target && (target.of.endsWith('_px') ? target.value / px : target.value)
-  const zMax = Math.max(bench.knobs?.Z?.max ?? 0, q.f, ...drawn.map((d) => d.Z)) * 1.08
-  const tall = Math.max(0.5, ...drawn.flatMap((d) => [...d.ends, ...d.image].map(Math.abs)), Math.abs(targetMm ?? 0), sensor ? sensor.height / 2 : 0) * 1.2
+  // The scale is the bench's, not the setting's: worked out over every corner of the knobs' ranges, so a point moves
+  // across a fixed picture instead of the picture rescaling around it.
+  const ranged = Object.entries(bench.knobs ?? {}).filter(([, k]) => !k.fixed && k.min !== undefined && k.max !== undefined)
+  const corners = ranged.reduce((all, [name, k]) => all.flatMap((c) => [{ ...c, [name]: k.min }, { ...c, [name]: k.max }]), [{}])
+  const reach = corners.map((c) => ({ ...q, ...c, ...model.view({ ...q, ...c }) }))
+  const zMax = Math.max(q.f, ...reach.flatMap((r) => [r.f, ...drawnAt(r).map((d) => d.Z)])) * 1.08
+  const tall = Math.max(0.5, ...reach.flatMap((r) => drawnAt(r).flatMap((d) => [...d.ends, ...d.image].map(Math.abs))), Math.abs(targetMm ?? 0), sensor ? sensor.height / 2 : 0) * 1.2
   const H = 280
   const x = (z) => 40 + (z / zMax) * (W - 80)
   const y = (v) => H / 2 - (v / tall) * (H / 2 - 22)
