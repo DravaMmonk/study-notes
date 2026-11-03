@@ -258,6 +258,8 @@ test('blind play: a claims round is the picture described, options by label; a b
   const shown = play.open(ctx('1-2')).sections[0].text.en
   assert.match(shown, /The picture: a 32 × 24 picture/)
   assert.match(shown, /supported = Supported/)
+  const given = claimsGame([SCENE('blue'), SCENE('green')], { given: { zh: '立方体边长 1 米。', en: 'The cube is 1 m on a side.' } })
+  assert.match(play.open({ level: { source: given.played.get('1-2')[0] } }).sections[0].text.en, /^Given: The cube is 1 m on a side\./)
   assert.doesNotMatch(shown, /ball|cube|"colour"/)
   const wrong = play.attempt(ctx('1-2'), 'supported;supported')
   assert.equal(wrong.pass, false)

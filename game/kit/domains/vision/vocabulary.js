@@ -109,6 +109,7 @@ const OPTION = S.obj({
   Z: S.opt(num),
 })
 const ROUND = S.obj({
+  given: S.opt(S.text({ about: t('这一轮除了图以外玩家知道的事，显示在图旁边（一轮的前提不写进某一题的题干）', 'what the player knows in this round besides the picture, shown beside it (a premise of the round, never inside one item’s prompt)') })),
   image: S.opt(IMAGE),
   items: S.list(ITEM, { min: 1 }),
   options: S.opt(S.list(OPTION, { min: 1 })),

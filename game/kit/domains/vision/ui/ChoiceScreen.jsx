@@ -99,6 +99,7 @@ export default function ChoiceScreen({ game, level: entry, saved, save, solve, l
   const sceneImages = useMemo(() => new Map(round.options.filter((o) => o.scene).map((o) => [o.id, render(o.scene).image])), [round])
   const about = (
     <div className="vi-about">
+      {round.given && <p className="vi-given">{L(round.given)}</p>}
       {round.image && <Shown rows={round.image} />}
       {round.scenes && <figure><Shown value={render(round.scenes[0]).image} /><figcaption>{tr('这一轮的图', 'The picture of this round')}</figcaption></figure>}
       {round.reference && <figure><Shown value={render(round.reference).image} /><figcaption>{tr('参照', 'Reference')}</figcaption></figure>}

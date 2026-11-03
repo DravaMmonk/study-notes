@@ -116,6 +116,7 @@ const grid = {
 
 /** What a round shows besides its items, in words: an image as its table, a scene as its picture described. */
 const shownOf = (round, lang) => [
+  ...(round.given ? [`${lang === 'en' ? 'Given' : '已知'}: ${pick(round.given, lang)}`] : []),
   ...(round.image ? [table(round.image)] : []),
   ...(round.scenes ? [`${lang === 'en' ? 'The picture' : '这一轮的图'}: ${pick(describe(round.scenes[0]), lang)}`] : []),
   ...(round.reference ? [`${lang === 'en' ? 'Reference' : '参照'}: ${pick(describe(round.reference), lang)}`] : []),
