@@ -294,7 +294,7 @@ function PhoneLevel({ screen, board, parts, ctx, card, inside, all, items, folde
   const body = node && (sheetBody ?? card.body)?.(node, ctx)
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
-    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
+    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock} drawerOpen>
       <SlotBoard
         dense={dense}
         graph={circuit}

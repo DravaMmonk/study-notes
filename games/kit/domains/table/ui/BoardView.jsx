@@ -121,7 +121,7 @@ export function SgPhone({ board, rootRef, brief, tests, results, dock, children 
   // On a phone a part goes by its name alone; what it does is in its sheet.
   const tray = <Tray items={board.palette().map((p) => ({ ...p, label: p.name, family: 'sg' }))} folded={board.folded().map((p) => ({ ...p, label: p.name, family: 'sg' }))} onPick={editing.placeFirstFree} />
   return (
-    <PhonePage rootRef={rootRef} scrollRef={scroller} className="sg-level is-circuit" brief={brief} tests={tests} tray={tray} results={results} dock={dock}>
+    <PhonePage rootRef={rootRef} scrollRef={scroller} className="sg-level is-circuit" brief={brief} tests={tests} tray={tray} results={results} dock={dock} drawerOpen>
       {children}
       <div className="sg-slots">
         <SlotBoard graph={graph} parts={parts} nameOf={editing.nameOf} thumb={thumb} tileExtra={tileExtra} outNote={(node, key) => (isCard(node.type) ? <b className="sg-oval">{board.outValue(node, key) || '—'}</b> : null)} picking={editing.picking} moving={editing.moving} canLand={editing.canLand} onPort={editing.onPort} onNode={editing.onNode} onSlot={editing.onSlot} history={editing.history} onClear={board.clearable() ? board.reset : null} onChange={board.change} types={board.types()} />
