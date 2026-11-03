@@ -1,0 +1,4785 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://dravammonk.github.io/study-notes/Unimelb/26S2/CV/LEARNING-PATHS.html">
+      
+      
+        <link rel="prev" href="22-object-detection-ii.html">
+      
+      
+        <link rel="next" href="READING-LINKS.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>COMP90086 专题主线、任务与补充关 - Drava's Study Notes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+        <script src="https://unpkg.com/iframe-worker/shim"></script>
+      
+    
+    
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/kit/tokens.css">
+    
+      <link rel="stylesheet" href="../../../assets/kit/ui.css">
+    
+      <link rel="stylesheet" href="../../../assets/kit/prose.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <script>try{var t=localStorage.getItem("fieldnotes.theme");document.documentElement.dataset.theme=["paper","night","blueprint"].indexOf(t)>-1?t:matchMedia("(prefers-color-scheme: dark)").matches?"night":"paper"}catch(e){document.documentElement.dataset.theme="paper"}</script>
+
+  <script>window.__i18n={"lang": null, "pairs": [{"zh": {"url": "NOTE_TAKING_GUIDELINES.zh.html", "title": "笔记撰写规范"}, "en": {"url": "NOTE_TAKING_GUIDELINES.html", "title": "Note Taking Guidelines"}}, {"zh": {"url": "index.zh.html", "title": "Drava 的学习笔记"}, "en": {"url": "index.html", "title": "Drava's Study Notes"}}, {"zh": {"url": "Other/DLCV/01-CNN.zh.html", "title": "1 卷积神经网络"}, "en": {"url": "Other/DLCV/01-CNN.html", "title": "1 Convolutional Neural Networks"}}, {"zh": {"url": "Unimelb/25S2/AIP/01-Search.zh.html", "title": "1 搜索"}, "en": {"url": "Unimelb/25S2/AIP/01-Search.html", "title": "1 Search"}}, {"zh": {"url": "Unimelb/25S2/AIP/02-Planning.zh.html", "title": "2 规划"}, "en": {"url": "Unimelb/25S2/AIP/02-Planning.html", "title": "2 Planning"}}, {"zh": {"url": "Unimelb/25S2/AIP/03-Relaxation.zh.html", "title": "3 松弛"}, "en": {"url": "Unimelb/25S2/AIP/03-Relaxation.html", "title": "3 Relaxation"}}, {"zh": {"url": "Unimelb/25S2/AIP/04-Exploration.zh.html", "title": "4 探索"}, "en": {"url": "Unimelb/25S2/AIP/04-Exploration.html", "title": "4 Exploration"}}, {"zh": {"url": "Unimelb/25S2/AIP/05-RL.zh.html", "title": "5 强化学习"}, "en": {"url": "Unimelb/25S2/AIP/05-RL.html", "title": "5 Reinforced Learning"}}, {"zh": {"url": "Unimelb/25S2/AIP/06-MDP.zh.html", "title": "6 马尔可夫决策过程"}, "en": {"url": "Unimelb/25S2/AIP/06-MDP.html", "title": "6 Markov Decision Process"}}, {"zh": {"url": "Unimelb/25S2/AIP/07-MC.zh.html", "title": "7 蒙特卡洛"}, "en": {"url": "Unimelb/25S2/AIP/07-MC.html", "title": "7 Monte Carlo"}}, {"zh": {"url": "Unimelb/25S2/AIP/08-TD.zh.html", "title": "8 时序差分"}, "en": {"url": "Unimelb/25S2/AIP/08-TD.html", "title": "8 Temporal Difference"}}, {"zh": {"url": "Unimelb/25S2/AIP/09-Value-Approx.zh.html", "title": "9 价值函数近似"}, "en": {"url": "Unimelb/25S2/AIP/09-Value-Approx.html", "title": "9 Value Function Approximation"}}, {"zh": {"url": "Unimelb/25S2/AIP/10-Policy-Approx.zh.html", "title": "10 策略函数近似"}, "en": {"url": "Unimelb/25S2/AIP/10-Policy-Approx.html", "title": "10 Policy Function Approximation"}}, {"zh": {"url": "Unimelb/25S2/AIP/11-Integrating.zh.html", "title": "11 学习与规划的结合"}, "en": {"url": "Unimelb/25S2/AIP/11-Integrating.html", "title": "11 Integrating Learning and Planning"}}, {"zh": {"url": "Unimelb/25S2/IML/01-probability.zh.html", "title": "1 概率"}, "en": {"url": "Unimelb/25S2/IML/01-probability.html", "title": "1 Probability"}}, {"zh": {"url": "Unimelb/25S2/IML/02-KNN.zh.html", "title": "2 K 近邻"}, "en": {"url": "Unimelb/25S2/IML/02-KNN.html", "title": "2 K-Nearest Neighbours"}}, {"zh": {"url": "Unimelb/25S2/IML/03-DT.zh.html", "title": "3 决策树"}, "en": {"url": "Unimelb/25S2/IML/03-DT.html", "title": "3 Decision Trees"}}, {"zh": {"url": "Unimelb/25S2/IML/04-NB.zh.html", "title": "4 朴素贝叶斯"}, "en": {"url": "Unimelb/25S2/IML/04-NB.html", "title": "4 Naive Bayes"}}, {"zh": {"url": "Unimelb/25S2/IML/05-LR.zh.html", "title": "5 线性回归与逻辑回归"}, "en": {"url": "Unimelb/25S2/IML/05-LR.html", "title": "5 Linear & Logistic Regression"}}, {"zh": {"url": "Unimelb/25S2/IML/06-SVM.zh.html", "title": "6 支持向量机"}, "en": {"url": "Unimelb/25S2/IML/06-SVM.html", "title": "6 Support Vector Machine"}}, {"zh": {"url": "Unimelb/26S1/ADBS/01-core.zh.html", "title": "1 DBMC 的核心"}, "en": {"url": "Unimelb/26S1/ADBS/01-core.html", "title": "1 Core of DBMC"}}, {"zh": {"url": "Unimelb/26S1/ADBS/02-query.zh.html", "title": "2 查询优化"}, "en": {"url": "Unimelb/26S1/ADBS/02-query.html", "title": "2 Query Optimisation"}}, {"zh": {"url": "Unimelb/26S1/NLP/00-overview.zh.html", "title": "00 课程概览与历史"}, "en": {"url": "Unimelb/26S1/NLP/00-overview.html", "title": "00 Course Overview and History"}}, {"zh": {"url": "Unimelb/26S1/NLP/01-preprocessing.zh.html", "title": "01 文本预处理"}, "en": {"url": "Unimelb/26S1/NLP/01-preprocessing.html", "title": "01 Text Preprocessing"}}, {"zh": {"url": "Unimelb/26S1/NLP/02-n-gram.zh.html", "title": "02 N-gram 语言模型"}, "en": {"url": "Unimelb/26S1/NLP/02-n-gram.html", "title": "02 N-gram Language Models"}}, {"zh": {"url": "Unimelb/26S1/NLP/03-classification.zh.html", "title": "03 文本分类"}, "en": {"url": "Unimelb/26S1/NLP/03-classification.html", "title": "03 Text Classification"}}, {"zh": {"url": "Unimelb/26S1/NLP/04-sequence-labelling.zh.html", "title": "04 序列标注：词性标注与 HMM"}, "en": {"url": "Unimelb/26S1/NLP/04-sequence-labelling.html", "title": "04 Sequence Labelling: POS Tagging and HMMs"}}, {"zh": {"url": "Unimelb/26S1/NLP/05-feedforward.zh.html", "title": "05 前馈网络"}, "en": {"url": "Unimelb/26S1/NLP/05-feedforward.html", "title": "05 Feedforward Networks"}}, {"zh": {"url": "Unimelb/26S1/NLP/06-recurrent.zh.html", "title": "06 循环网络"}, "en": {"url": "Unimelb/26S1/NLP/06-recurrent.html", "title": "06 Recurrent Networks"}}, {"zh": {"url": "Unimelb/26S1/NLP/07-transformer.zh.html", "title": "07 Transformer"}, "en": {"url": "Unimelb/26S1/NLP/07-transformer.html", "title": "07 Transformer"}}, {"zh": {"url": "Unimelb/26S1/NLP/08-word-embeddings.zh.html", "title": "08 词嵌入"}, "en": {"url": "Unimelb/26S1/NLP/08-word-embeddings.html", "title": "08 Word Embeddings"}}, {"zh": {"url": "Unimelb/26S1/NLP/09-pretrained-models.zh.html", "title": "09 预训练模型"}, "en": {"url": "Unimelb/26S1/NLP/09-pretrained-models.html", "title": "09 Pretrained Models"}}, {"zh": {"url": "Unimelb/26S1/NLP/README.zh.html", "title": "COMP90042 自然语言处理"}, "en": {"url": "Unimelb/26S1/NLP/index.html", "title": "COMP90042 Natural Language Processing"}}, {"zh": {"url": "Unimelb/26S1/SPM/01-overview.zh.html", "title": "1 概述"}, "en": {"url": "Unimelb/26S1/SPM/01-overview.html", "title": "1 Overview"}}, {"en": {"url": "Unimelb/26S2/CV/01-introduction.en.html", "title": "COMP90086 Lecture 1 - Introduction"}, "zh": {"url": "Unimelb/26S2/CV/01-introduction.html", "title": "COMP90086 Lecture 1 - Introduction"}}, {"en": {"url": "Unimelb/26S2/CV/02-basics.en.html", "title": "COMP90086 Lecture 2 - Imaging Basics"}, "zh": {"url": "Unimelb/26S2/CV/02-basics.html", "title": "COMP90086 Lecture 2 - Imaging Basics"}}, {"en": {"url": "Unimelb/26S2/CV/03-filters.en.html", "title": "COMP90086 Lecture 3 - Spatial Filtering"}, "zh": {"url": "Unimelb/26S2/CV/03-filters.html", "title": "COMP90086 Lecture 3 - Spatial Filtering"}}, {"en": {"url": "Unimelb/26S2/CV/04-fourier.en.html", "title": "COMP90086 Lecture 4 - Frequency Filtering"}, "zh": {"url": "Unimelb/26S2/CV/04-fourier.html", "title": "COMP90086 Lecture 4 - Frequency Filtering"}}, {"en": {"url": "Unimelb/26S2/CV/05-image-formation-ii.en.html", "title": "COMP90086 Lecture 5 - Image Formation II"}, "zh": {"url": "Unimelb/26S2/CV/05-image-formation-ii.html", "title": "COMP90086 Lecture 5 - Image Formation II"}}, {"en": {"url": "Unimelb/26S2/CV/06-cnns-i.en.html", "title": "COMP90086 Lecture 6 - Convolutional Neural Networks I"}, "zh": {"url": "Unimelb/26S2/CV/06-cnns-i.html", "title": "COMP90086 Lecture 6 - Convolutional Neural Networks I"}}, {"en": {"url": "Unimelb/26S2/CV/07-cnns-ii.en.html", "title": "COMP90086 Lecture 7 - Convolutional Neural Networks II"}, "zh": {"url": "Unimelb/26S2/CV/07-cnns-ii.html", "title": "COMP90086 Lecture 7 - Convolutional Neural Networks II"}}, {"en": {"url": "Unimelb/26S2/CV/08-cnns-iii.en.html", "title": "COMP90086 Lecture 8 - Convolutional Neural Networks III"}, "zh": {"url": "Unimelb/26S2/CV/08-cnns-iii.html", "title": "COMP90086 Lecture 8 - Convolutional Neural Networks III"}}, {"en": {"url": "Unimelb/26S2/CV/09-vit.en.html", "title": "COMP90086 Lecture 9 - Vision Transformers"}, "zh": {"url": "Unimelb/26S2/CV/09-vit.html", "title": "COMP90086 Lecture 9 - Vision Transformers"}}, {"en": {"url": "Unimelb/26S2/CV/10-representations.en.html", "title": "COMP90086 Lecture 10 - Representation Learning"}, "zh": {"url": "Unimelb/26S2/CV/10-representations.html", "title": "COMP90086 Lecture 10 - Representation Learning"}}, {"en": {"url": "Unimelb/26S2/CV/11-features.en.html", "title": "COMP90086 Lecture 11 - Local Features"}, "zh": {"url": "Unimelb/26S2/CV/11-features.html", "title": "COMP90086 Lecture 11 - Local Features"}}, {"en": {"url": "Unimelb/26S2/CV/12-feature-matching.en.html", "title": "COMP90086 Lecture 12 - Feature Matching"}, "zh": {"url": "Unimelb/26S2/CV/12-feature-matching.html", "title": "COMP90086 Lecture 12 - Feature Matching"}}, {"en": {"url": "Unimelb/26S2/CV/13-depth-stereo.en.html", "title": "COMP90086 Lecture 13 - Depth and Stereo"}, "zh": {"url": "Unimelb/26S2/CV/13-depth-stereo.html", "title": "COMP90086 Lecture 13 - Depth and Stereo"}}, {"en": {"url": "Unimelb/26S2/CV/14-two-view-geometry.en.html", "title": "COMP90086 Lecture 14 - Two-view Geometry"}, "zh": {"url": "Unimelb/26S2/CV/14-two-view-geometry.html", "title": "COMP90086 Lecture 14 - Two-view Geometry"}}, {"en": {"url": "Unimelb/26S2/CV/15-generation.en.html", "title": "COMP90086 Lecture 15 - Image Generation"}, "zh": {"url": "Unimelb/26S2/CV/15-generation.html", "title": "COMP90086 Lecture 15 - Image Generation"}}, {"en": {"url": "Unimelb/26S2/CV/16-gans.en.html", "title": "COMP90086 Lecture 16 - Generative Adversarial Networks"}, "zh": {"url": "Unimelb/26S2/CV/16-gans.html", "title": "COMP90086 Lecture 16 - Generative Adversarial Networks"}}, {"en": {"url": "Unimelb/26S2/CV/17-diffusion.en.html", "title": "COMP90086 Lecture 17 - Diffusion Models"}, "zh": {"url": "Unimelb/26S2/CV/17-diffusion.html", "title": "COMP90086 Lecture 17 - Diffusion Models"}}, {"en": {"url": "Unimelb/26S2/CV/19-segmentation-i.en.html", "title": "COMP90086 Lecture 19 - Image Segmentation I"}, "zh": {"url": "Unimelb/26S2/CV/19-segmentation-i.html", "title": "COMP90086 Lecture 19 - Image Segmentation I"}}, {"en": {"url": "Unimelb/26S2/CV/20-segmentation-ii.en.html", "title": "COMP90086 Lecture 20 - Image Segmentation II"}, "zh": {"url": "Unimelb/26S2/CV/20-segmentation-ii.html", "title": "COMP90086 Lecture 20 - Image Segmentation II"}}, {"en": {"url": "Unimelb/26S2/CV/21-object-detection-i.en.html", "title": "COMP90086 Lecture 21 - Object Detection I"}, "zh": {"url": "Unimelb/26S2/CV/21-object-detection-i.html", "title": "COMP90086 Lecture 21 - Object Detection I"}}, {"en": {"url": "Unimelb/26S2/CV/22-object-detection-ii.en.html", "title": "COMP90086 Lecture 22 - Object Detection II"}, "zh": {"url": "Unimelb/26S2/CV/22-object-detection-ii.html", "title": "COMP90086 Lecture 22 - Object Detection II"}}, {"zh": {"url": "Unimelb/26S2/CV/READING-LINKS.zh.html", "title": "COMP90086 阅读链接"}, "en": {"url": "Unimelb/26S2/CV/READING-LINKS.html", "title": "COMP90086 Reading Links"}}, {"en": {"url": "Unimelb/26S2/CV/README.en.html", "title": "COMP90086 Computer Vision"}, "zh": {"url": "Unimelb/26S2/CV/index.html", "title": "COMP90086 Computer Vision"}}, {"en": {"url": "Unimelb/26S2/CV/RESOURCE-STATUS.en.html", "title": "COMP90086 Resource Completeness"}, "zh": {"url": "Unimelb/26S2/CV/RESOURCE-STATUS.html", "title": "COMP90086 资源完整性"}}, {"en": {"url": "Unimelb/26S2/CV/topics/01-image-formation.en.html", "title": "Topic 1: How images are formed"}, "zh": {"url": "Unimelb/26S2/CV/topics/01-image-formation.html", "title": "专题 1：图像怎样形成"}}, {"en": {"url": "Unimelb/26S2/CV/topics/02-image-processing.en.html", "title": "Topic 2: How to process images"}, "zh": {"url": "Unimelb/26S2/CV/topics/02-image-processing.html", "title": "专题 2：怎样处理图像"}}, {"en": {"url": "Unimelb/26S2/CV/topics/03-learning-features.en.html", "title": "Topic 3: How to learn image features"}, "zh": {"url": "Unimelb/26S2/CV/topics/03-learning-features.html", "title": "专题 3：怎样学习图像特征"}}, {"en": {"url": "Unimelb/26S2/CV/topics/04-matching-and-3d.en.html", "title": "Topic 4: How to match and recover 3D"}, "zh": {"url": "Unimelb/26S2/CV/topics/04-matching-and-3d.html", "title": "专题 4：怎样匹配并恢复三维"}}, {"en": {"url": "Unimelb/26S2/CV/topics/05-generation.en.html", "title": "Topic 5: How to generate new images"}, "zh": {"url": "Unimelb/26S2/CV/topics/05-generation.html", "title": "专题 5：怎样生成新图像"}}, {"en": {"url": "Unimelb/26S2/CV/topics/README.en.html", "title": "COMP90086 Device Gallery"}, "zh": {"url": "Unimelb/26S2/CV/topics/index.html", "title": "COMP90086 装置图鉴"}}], "sections": {"University of Melbourne": "墨尔本大学", "2026 Semester 2": "2026 年第二学期", "COMP90086 Computer Vision": "COMP90086 计算机视觉", "Device gallery": "装置图鉴", "2026 Semester 1": "2026 年第一学期", "COMP90042 Natural Language Processing": "COMP90042 自然语言处理", "COMP90050 Advanced Database Systems": "COMP90050 高级数据库系统", "SWEN90016 Software Processes and Management": "SWEN90016 软件过程与管理", "2025 Semester 2": "2025 年第二学期", "COMP90054 AI Planning for Autonomy": "COMP90054 面向自主系统的 AI 规划", "COMP90049 Introduction to Machine Learning": "COMP90049 机器学习导论", "COMP30026 Models of Computation": "COMP30026 计算模型", "Self-study": "自学", "CS231n Deep Learning for Computer Vision": "CS231n 计算机视觉深度学习"}};(function(d){var l;try{l=localStorage.getItem('fieldnotes.lang')}catch(e){}if(l!=='zh'&&l!=='en')l=/^zh\b/i.test(navigator.language||'')?'zh':'en';var a=document.querySelector('link[rel=alternate][hreflang='+l+']');if(d.lang&&d.lang!==l&&a)location.replace(a.href+location.hash)})(window.__i18n)</script></head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#comp90086" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-header__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Drava's Study Notes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              COMP90086 专题主线、任务与补充关
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../index.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Drava's Study Notes
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="index.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  University of Melbourne
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../Other/DLCV/01-CNN.html" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Self-study
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../NOTE_TAKING_GUIDELINES.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Note Taking Guidelines
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../index.html" title="Drava&#39;s Study Notes" class="md-nav__button md-logo" aria-label="Drava's Study Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Drava's Study Notes
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drava's Study Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    University of Melbourne
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    University of Melbourne
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2026 Semester 2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2026 Semester 2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Computer Vision
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_1" id="__nav_2_1_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90086 Computer Vision
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="01-introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 1 - Introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="02-basics.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 2 - Imaging Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="03-filters.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 3 - Spatial Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-fourier.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 4 - Frequency Filtering
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-image-formation-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 5 - Image Formation II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="06-cnns-i.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 6 - Convolutional Neural Networks I
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="07-cnns-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 7 - Convolutional Neural Networks II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="08-cnns-iii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 8 - Convolutional Neural Networks III
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="09-vit.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 9 - Vision Transformers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="10-representations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 10 - Representation Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="11-features.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 11 - Local Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="12-feature-matching.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 12 - Feature Matching
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="13-depth-stereo.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 13 - Depth and Stereo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="14-two-view-geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 14 - Two-view Geometry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="15-generation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 15 - Image Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="16-gans.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 16 - Generative Adversarial Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="17-diffusion.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 17 - Diffusion Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="19-segmentation-i.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 19 - Image Segmentation I
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="20-segmentation-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 20 - Image Segmentation II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="21-object-detection-i.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 21 - Object Detection I
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="22-object-detection-ii.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Lecture 22 - Object Detection II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 专题主线、任务与补充关
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="LEARNING-PATHS.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 专题主线、任务与补充关
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 图像怎样形成和表示
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 怎样用固定规则处理图像
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 怎样学习可用的特征
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 怎样匹配并恢复三维
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 怎样从分布生成图像
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 怎样得到区域与像素标签
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 怎样定位物体并评价
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        补充关与支线任务
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workshop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        可选专题：Workshop 与应用
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        依赖与验收约束
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="READING-LINKS.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 Reading Links
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="RESOURCE-STATUS.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 资源完整性
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="SOURCE-AUDIT.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 逐讲来源核对与纠错记录
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_27" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="encyclopedia/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encyclopedia
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_1_27" id="__nav_2_1_1_27_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_27_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_27">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Encyclopedia
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/01-image-formation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图像、成像与表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/02-processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    空间与频率处理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/03-learning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习特征与表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/04-geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    匹配与三维几何
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/05-generation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图像生成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/06-segmentation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    区域与像素分割
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/07-detection.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检测、集合与评估
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/08-optional.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    可选专题：Workshop 与应用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_28" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="topics/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Device gallery
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_1_28" id="__nav_2_1_1_28_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_28_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_28">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Device gallery
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="topics/01-image-formation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 1：图像怎样形成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="topics/02-image-processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 2：怎样处理图像
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="topics/03-learning-features.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 3：怎样学习图像特征
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="topics/04-matching-and-3d.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 4：怎样匹配并恢复三维
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="topics/05-generation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    专题 5：怎样生成新图像
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_29" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1_1_29" id="__nav_2_1_1_29_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision game specs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_29_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_29">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Vision game specs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vision-game-specs/chapters-0-1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Computer Vision Game: Chapter 0 and 1 Level Specifications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vision-game-specs/engine-domain-assessment.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0–1 Implementation Gap Assessment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vision-game-specs/knowledge-map-1-12.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第 1–12 讲：知识词条与关卡排版（草案）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vision-game-specs/trial-chapters-1-2-review.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision Lab chapters 1–2: static learning review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2026 Semester 1
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2026 Semester 1
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_1" id="__nav_2_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90050 Advanced Database Systems
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90050 Advanced Database Systems
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/ADBS/01-core.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Core of DBMC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/ADBS/02-query.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Query Optimisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../26S1/NLP/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90042 Natural Language Processing
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_2_2" id="__nav_2_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90042 Natural Language Processing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/00-overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 Course Overview and History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/01-preprocessing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 Text Preprocessing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/02-n-gram.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 N-gram Language Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/03-classification.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 Text Classification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/04-sequence-labelling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 Sequence Labelling: POS Tagging and HMMs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/05-feedforward.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 Feedforward Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/06-recurrent.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 Recurrent Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/07-transformer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 Transformer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/08-word-embeddings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 Word Embeddings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/NLP/09-pretrained-models.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 Pretrained Models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2_3" id="__nav_2_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SWEN90016 Software Processes and Management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SWEN90016 Software Processes and Management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../26S1/SPM/01-overview.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2025 Semester 2
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    2025 Semester 2
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_1" id="__nav_2_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90054 AI Planning for Autonomy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90054 AI Planning for Autonomy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/01-Search.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/02-Planning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/03-Relaxation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Relaxation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/04-Exploration.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Exploration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/05-RL.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Reinforced Learning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/06-MDP.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Markov Decision Process
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/07-MC.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    7 Monte Carlo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/08-TD.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    8 Temporal Difference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/09-Value-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    9 Value Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/10-Policy-Approx.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 Policy Function Approximation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/AIP/11-Integrating.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 Integrating Learning and Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_2" id="__nav_2_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90049 Introduction to Machine Learning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP90049 Introduction to Machine Learning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/IML/01-probability.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Probability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/IML/02-KNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2 K-Nearest Neighbours
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/IML/03-DT.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    3 Decision Trees
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/IML/04-NB.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    4 Naive Bayes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/IML/05-LR.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    5 Linear &amp; Logistic Regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/IML/06-SVM.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    6 Support Vector Machine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_3" id="__nav_2_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP30026 Models of Computation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMP30026 Models of Computation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../25S2/MoC/01-introduction.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 introduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Self-study
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Self-study
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CS231n Deep Learning for Computer Vision
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CS231n Deep Learning for Computer Vision
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Other/DLCV/01-CNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    1 Convolutional Neural Networks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../Other/DLCV/02-RNN.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 RNN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../NOTE_TAKING_GUIDELINES.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Note Taking Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="comp90086">COMP90086 专题主线、任务与补充关<a class="headerlink" href="#comp90086" title="Permanent link">&para;</a></h1>
+<p>这是笔记的学习路线及后续关卡设计依据，<strong>不是已实现的游戏关卡清单</strong>。每项可操作目标见链接词条的“验收（自拟）”；原有游戏和章节 0–1 设计本次未修改。</p>
+<p>主线只使用当前讲义有依据的概念。分类为“应用举例”或“只在 Workshop 出现”的项目全部放在可选专题。每条的直接依赖可点击回读，跨专题依赖在词条中明确列出；不要求把所有专题编号当成唯一线性顺序。</p>
+<p>重要起点必须实际完成：<strong>像素坐标 → 局部加权和 → 通道；类别分数 → 损失 → 数据划分；点与线 → 相机 → 极线；概率 → 噪声方差 → 前向扩散；区域 → 邻接图；框 → IoU → 一对一匹配 → P–R → AP。</strong> 这些都安排为关卡，不只出现在开场文字中。关卡和任务通过的是明确计算、构造、诊断或追踪行为，不把记术语当验收。</p>
+<h2 id="1">1. 图像怎样形成和表示<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>词条</th>
+<th>层级</th>
+<th>直接前置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.1</td>
+<td><a href="encyclopedia/01-image-formation.html#vision-task">视觉任务与输出</a></td>
+<td>关卡</td>
+<td>无</td>
+</tr>
+<tr>
+<td>1.2</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#vision-task">视觉任务与输出</a></td>
+</tr>
+<tr>
+<td>1.3</td>
+<td><a href="encyclopedia/01-image-formation.html#projection">针孔投影与深度歧义</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>1.4</td>
+<td><a href="encyclopedia/01-image-formation.html#sampling">裁剪、重采样与插值</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>1.5</td>
+<td><a href="encyclopedia/01-image-formation.html#reflectance">朗伯反射与成像歧义</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#projection">针孔投影与深度歧义</a></td>
+</tr>
+<tr>
+<td>1.6</td>
+<td><a href="encyclopedia/01-image-formation.html#colour">光谱、三色响应与颜色空间</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>1.7</td>
+<td><a href="encyclopedia/01-image-formation.html#equivariance">不变性、容忍度与等变性</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2">2. 怎样用固定规则处理图像<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>词条</th>
+<th>层级</th>
+<th>直接前置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.1</td>
+<td><a href="encyclopedia/02-processing.html#weighted-sum">像素算子与局部加权和</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>2.2</td>
+<td><a href="encyclopedia/02-processing.html#convolution">卷积与互相关</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/02-processing.html#weighted-sum">像素算子与局部加权和</a></td>
+</tr>
+<tr>
+<td>2.3</td>
+<td><a href="encyclopedia/02-processing.html#filters">平滑、锐化与高斯核</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/02-processing.html#weighted-sum">像素算子与局部加权和</a></td>
+</tr>
+<tr>
+<td>2.4</td>
+<td><a href="encyclopedia/02-processing.html#gradient">偏导数、梯度与边缘</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/02-processing.html#weighted-sum">像素算子与局部加权和</a></td>
+</tr>
+<tr>
+<td>2.5</td>
+<td><a href="encyclopedia/02-processing.html#padding">边界与输出尺寸</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/02-processing.html#convolution">卷积与互相关</a></td>
+</tr>
+<tr>
+<td>2.6</td>
+<td><a href="encyclopedia/02-processing.html#sinusoid">频率、幅度与相位</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>2.7</td>
+<td><a href="encyclopedia/02-processing.html#fourier">二维频谱与傅里叶变换</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/02-processing.html#sinusoid">频率、幅度与相位</a></td>
+</tr>
+<tr>
+<td>2.8</td>
+<td><a href="encyclopedia/02-processing.html#frequency-filter">卷积定理与频率滤波</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/02-processing.html#fourier">二维频谱与傅里叶变换</a>、<a href="encyclopedia/02-processing.html#convolution">卷积与互相关</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. 怎样学习可用的特征<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>词条</th>
+<th>层级</th>
+<th>直接前置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.1</td>
+<td><a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#vision-task">视觉任务与输出</a>、<a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>3.2</td>
+<td><a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/02-processing.html#convolution">卷积与互相关</a>、<a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+</tr>
+<tr>
+<td>3.3</td>
+<td><a href="encyclopedia/03-learning.html#stride">步幅、尺寸与感受野</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a>、<a href="encyclopedia/02-processing.html#padding">边界与输出尺寸</a></td>
+</tr>
+<tr>
+<td>3.4</td>
+<td><a href="encyclopedia/03-learning.html#pooling">最大池化与平均池化</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a></td>
+</tr>
+<tr>
+<td>3.5</td>
+<td><a href="encyclopedia/03-learning.html#classification-loss">Softmax 与交叉熵</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+</tr>
+<tr>
+<td>3.6</td>
+<td><a href="encyclopedia/03-learning.html#train-split">训练、验证与测试</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#classification-loss">Softmax 与交叉熵</a></td>
+</tr>
+<tr>
+<td>3.7</td>
+<td><a href="encyclopedia/03-learning.html#regularisation">正则化、Dropout 与提前停止</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#train-split">训练、验证与测试</a></td>
+</tr>
+<tr>
+<td>3.8</td>
+<td><a href="encyclopedia/03-learning.html#optimisation">批次、学习率与增强</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#train-split">训练、验证与测试</a></td>
+</tr>
+<tr>
+<td>3.9</td>
+<td><a href="encyclopedia/03-learning.html#receptive-field">小核堆叠与多尺度结构</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#stride">步幅、尺寸与感受野</a></td>
+</tr>
+<tr>
+<td>3.10</td>
+<td><a href="encyclopedia/03-learning.html#residual">残差连接</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a>、<a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+</tr>
+<tr>
+<td>3.11</td>
+<td><a href="encyclopedia/03-learning.html#depthwise">深度可分离卷积与模型缩放</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a>、<a href="encyclopedia/03-learning.html#receptive-field">小核堆叠与多尺度结构</a></td>
+</tr>
+<tr>
+<td>3.12</td>
+<td><a href="encyclopedia/03-learning.html#transfer">迁移学习与微调</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#train-split">训练、验证与测试</a>、<a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+</tr>
+<tr>
+<td>3.13</td>
+<td><a href="encyclopedia/03-learning.html#patches">归纳偏置与图块 token</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#equivariance">不变性、容忍度与等变性</a>、<a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a></td>
+</tr>
+<tr>
+<td>3.14</td>
+<td><a href="encyclopedia/03-learning.html#attention">Query、Key、Value 与自注意力</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#patches">归纳偏置与图块 token</a></td>
+</tr>
+<tr>
+<td>3.15</td>
+<td><a href="encyclopedia/03-learning.html#position">位置编码与 Transformer 块</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#attention">Query、Key、Value 与自注意力</a>、<a href="encyclopedia/03-learning.html#residual">残差连接</a></td>
+</tr>
+<tr>
+<td>3.16</td>
+<td><a href="encyclopedia/03-learning.html#contrastive">自监督与对比学习</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#classification-loss">Softmax 与交叉熵</a>、<a href="encyclopedia/03-learning.html#optimisation">批次、学习率与增强</a></td>
+</tr>
+<tr>
+<td>3.17</td>
+<td><a href="encyclopedia/03-learning.html#clip">CLIP 与零样本分类</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#contrastive">自监督与对比学习</a></td>
+</tr>
+<tr>
+<td>3.18</td>
+<td><a href="encyclopedia/03-learning.html#interpretability">遮挡、CAM 与表示检查</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a>、<a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 怎样匹配并恢复三维<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>词条</th>
+<th>层级</th>
+<th>直接前置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.1</td>
+<td><a href="encyclopedia/04-geometry.html#keypoint">关键点、检测器与描述子</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/02-processing.html#gradient">偏导数、梯度与边缘</a>、<a href="encyclopedia/01-image-formation.html#equivariance">不变性、容忍度与等变性</a></td>
+</tr>
+<tr>
+<td>4.2</td>
+<td><a href="encyclopedia/04-geometry.html#harris">结构张量与 Harris 角点</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#keypoint">关键点、检测器与描述子</a>、<a href="encyclopedia/02-processing.html#weighted-sum">像素算子与局部加权和</a></td>
+</tr>
+<tr>
+<td>4.3</td>
+<td><a href="encyclopedia/04-geometry.html#sift">SIFT 描述与尺度方向对齐</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/04-geometry.html#keypoint">关键点、检测器与描述子</a>、<a href="encyclopedia/02-processing.html#gradient">偏导数、梯度与边缘</a></td>
+</tr>
+<tr>
+<td>4.4</td>
+<td><a href="encyclopedia/04-geometry.html#outlier">噪声、外点与几何一致性</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#sift">SIFT 描述与尺度方向对齐</a></td>
+</tr>
+<tr>
+<td>4.5</td>
+<td><a href="encyclopedia/04-geometry.html#hough">Hough 参数空间投票</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/02-processing.html#gradient">偏导数、梯度与边缘</a>、<a href="encyclopedia/04-geometry.html#outlier">噪声、外点与几何一致性</a></td>
+</tr>
+<tr>
+<td>4.6</td>
+<td><a href="encyclopedia/04-geometry.html#ransac">RANSAC 与采样次数</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#outlier">噪声、外点与几何一致性</a></td>
+</tr>
+<tr>
+<td>4.7</td>
+<td><a href="encyclopedia/04-geometry.html#ratio-test">描述子比值检验</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/04-geometry.html#sift">SIFT 描述与尺度方向对齐</a></td>
+</tr>
+<tr>
+<td>4.8</td>
+<td><a href="encyclopedia/04-geometry.html#homography">平面单应变换</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#ransac">RANSAC 与采样次数</a>、<a href="encyclopedia/04-geometry.html#ratio-test">描述子比值检验</a></td>
+</tr>
+<tr>
+<td>4.9</td>
+<td><a href="encyclopedia/04-geometry.html#depth-cues">单视图深度线索</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/01-image-formation.html#projection">针孔投影与深度歧义</a></td>
+</tr>
+<tr>
+<td>4.10</td>
+<td><a href="encyclopedia/04-geometry.html#disparity">校正双目的视差与深度</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#projection">针孔投影与深度歧义</a></td>
+</tr>
+<tr>
+<td>4.11</td>
+<td><a href="encyclopedia/04-geometry.html#stereo-matching">双目窗口代价与全局约束</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#disparity">校正双目的视差与深度</a>、<a href="encyclopedia/04-geometry.html#outlier">噪声、外点与几何一致性</a></td>
+</tr>
+<tr>
+<td>4.12</td>
+<td><a href="encyclopedia/04-geometry.html#homogeneous">齐次点、直线与叉积</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>4.13</td>
+<td><a href="encyclopedia/04-geometry.html#calibration">相机内参、外参与标定</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#homogeneous">齐次点、直线与叉积</a>、<a href="encyclopedia/01-image-formation.html#projection">针孔投影与深度歧义</a></td>
+</tr>
+<tr>
+<td>4.14</td>
+<td><a href="encyclopedia/04-geometry.html#epipolar">极平面、极点与极线</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#calibration">相机内参、外参与标定</a></td>
+</tr>
+<tr>
+<td>4.15</td>
+<td><a href="encyclopedia/04-geometry.html#fundamental">本质矩阵与基础矩阵</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/04-geometry.html#epipolar">极平面、极点与极线</a>、<a href="encyclopedia/04-geometry.html#ransac">RANSAC 与采样次数</a></td>
+</tr>
+<tr>
+<td>4.16</td>
+<td><a href="encyclopedia/04-geometry.html#rectification">双目校正、三角化与退化</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/04-geometry.html#fundamental">本质矩阵与基础矩阵</a>、<a href="encyclopedia/04-geometry.html#disparity">校正双目的视差与深度</a>、<a href="encyclopedia/04-geometry.html#homography">平面单应变换</a></td>
+</tr>
+<tr>
+<td>4.17</td>
+<td><a href="encyclopedia/04-geometry.html#learned-depth">监督与双目自监督深度</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/04-geometry.html#stereo-matching">双目窗口代价与全局约束</a>、<a href="encyclopedia/03-learning.html#train-split">训练、验证与测试</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="5">5. 怎样从分布生成图像<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>词条</th>
+<th>层级</th>
+<th>直接前置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5.1</td>
+<td><a href="encyclopedia/05-generation.html#probability">概率密度与条件生成</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#vision-task">视觉任务与输出</a></td>
+</tr>
+<tr>
+<td>5.2</td>
+<td><a href="encyclopedia/05-generation.html#autoencoder">自编码器与瓶颈</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a>、<a href="encyclopedia/03-learning.html#classification-loss">Softmax 与交叉熵</a></td>
+</tr>
+<tr>
+<td>5.3</td>
+<td><a href="encyclopedia/05-generation.html#vae">VAE、重参数化与两项损失</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/05-generation.html#autoencoder">自编码器与瓶颈</a>、<a href="encyclopedia/05-generation.html#probability">概率密度与条件生成</a></td>
+</tr>
+<tr>
+<td>5.4</td>
+<td><a href="encyclopedia/05-generation.html#latent-sampling">潜空间采样与编辑</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/05-generation.html#vae">VAE、重参数化与两项损失</a></td>
+</tr>
+<tr>
+<td>5.5</td>
+<td><a href="encyclopedia/05-generation.html#gan">GAN 的生成器与判别器</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/05-generation.html#probability">概率密度与条件生成</a>、<a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+</tr>
+<tr>
+<td>5.6</td>
+<td><a href="encyclopedia/05-generation.html#gan-stability">对抗平衡与模式坍塌</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/05-generation.html#gan">GAN 的生成器与判别器</a></td>
+</tr>
+<tr>
+<td>5.7</td>
+<td><a href="encyclopedia/05-generation.html#generation-evaluation">记忆、逼真度与多样性</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/05-generation.html#gan-stability">对抗平衡与模式坍塌</a>、<a href="encyclopedia/03-learning.html#train-split">训练、验证与测试</a></td>
+</tr>
+<tr>
+<td>5.8</td>
+<td><a href="encyclopedia/05-generation.html#conditional-gan">条件 GAN 与循环一致性</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/05-generation.html#gan">GAN 的生成器与判别器</a></td>
+</tr>
+<tr>
+<td>5.9</td>
+<td><a href="encyclopedia/05-generation.html#gaussian-noise">高斯噪声与方差相加</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/05-generation.html#probability">概率密度与条件生成</a>、<a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>5.10</td>
+<td><a href="encyclopedia/05-generation.html#forward-diffusion">前向扩散与累计信号</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/05-generation.html#gaussian-noise">高斯噪声与方差相加</a></td>
+</tr>
+<tr>
+<td>5.11</td>
+<td><a href="encyclopedia/05-generation.html#noise-prediction">时间条件与噪声预测训练</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/05-generation.html#forward-diffusion">前向扩散与累计信号</a>、<a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+</tr>
+<tr>
+<td>5.12</td>
+<td><a href="encyclopedia/05-generation.html#reverse-diffusion">反向生成与采样器边界</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/05-generation.html#noise-prediction">时间条件与噪声预测训练</a></td>
+</tr>
+<tr>
+<td>5.13</td>
+<td><a href="encyclopedia/05-generation.html#latent-diffusion">潜空间扩散</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/05-generation.html#autoencoder">自编码器与瓶颈</a>、<a href="encyclopedia/05-generation.html#reverse-diffusion">反向生成与采样器边界</a></td>
+</tr>
+<tr>
+<td>5.14</td>
+<td><a href="encyclopedia/05-generation.html#conditional-diffusion">条件扩散与补全</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/05-generation.html#reverse-diffusion">反向生成与采样器边界</a>、<a href="encyclopedia/03-learning.html#clip">CLIP 与零样本分类</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="6">6. 怎样得到区域与像素标签<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>词条</th>
+<th>层级</th>
+<th>直接前置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6.1</td>
+<td><a href="encyclopedia/06-segmentation.html#segmentation">区域、语义与实例分割</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#vision-task">视觉任务与输出</a>、<a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>6.2</td>
+<td><a href="encyclopedia/06-segmentation.html#clustering">颜色聚类、K-means 与 GMM</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/06-segmentation.html#segmentation">区域、语义与实例分割</a>、<a href="encyclopedia/01-image-formation.html#colour">光谱、三色响应与颜色空间</a></td>
+</tr>
+<tr>
+<td>6.3</td>
+<td><a href="encyclopedia/06-segmentation.html#mean-shift">Mean shift 的加权均值与模式</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#clustering">颜色聚类、K-means 与 GMM</a>、<a href="encyclopedia/02-processing.html#weighted-sum">像素算子与局部加权和</a>、<a href="encyclopedia/05-generation.html#gaussian-noise">高斯噪声与方差相加</a></td>
+</tr>
+<tr>
+<td>6.4</td>
+<td><a href="encyclopedia/06-segmentation.html#bandwidth">空间颜色特征与带宽</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#mean-shift">Mean shift 的加权均值与模式</a>、<a href="encyclopedia/01-image-formation.html#pixels">像素、坐标与通道</a></td>
+</tr>
+<tr>
+<td>6.5</td>
+<td><a href="encyclopedia/06-segmentation.html#superpixels">超像素与过分割</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#segmentation">区域、语义与实例分割</a></td>
+</tr>
+<tr>
+<td>6.6</td>
+<td><a href="encyclopedia/06-segmentation.html#slic">SLIC 的局部聚类与连通处理</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#superpixels">超像素与过分割</a>、<a href="encyclopedia/06-segmentation.html#clustering">颜色聚类、K-means 与 GMM</a>、<a href="encyclopedia/02-processing.html#gradient">偏导数、梯度与边缘</a></td>
+</tr>
+<tr>
+<td>6.7</td>
+<td><a href="encyclopedia/06-segmentation.html#rag">区域邻接图与合并</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#superpixels">超像素与过分割</a></td>
+</tr>
+<tr>
+<td>6.8</td>
+<td><a href="encyclopedia/06-segmentation.html#fcn">逐像素分类与全卷积网络</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#channels">多通道卷积与参数共享</a>、<a href="encyclopedia/03-learning.html#classification-loss">Softmax 与交叉熵</a>、<a href="encyclopedia/06-segmentation.html#segmentation">区域、语义与实例分割</a></td>
+</tr>
+<tr>
+<td>6.9</td>
+<td><a href="encyclopedia/06-segmentation.html#encoder-decoder">编码解码与空间分辨率</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#fcn">逐像素分类与全卷积网络</a>、<a href="encyclopedia/03-learning.html#pooling">最大池化与平均池化</a></td>
+</tr>
+<tr>
+<td>6.10</td>
+<td><a href="encyclopedia/06-segmentation.html#unpooling">最大反池化</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#encoder-decoder">编码解码与空间分辨率</a>、<a href="encyclopedia/03-learning.html#pooling">最大池化与平均池化</a></td>
+</tr>
+<tr>
+<td>6.11</td>
+<td><a href="encyclopedia/06-segmentation.html#transpose-conv">转置卷积与重叠求和</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#encoder-decoder">编码解码与空间分辨率</a>、<a href="encyclopedia/02-processing.html#convolution">卷积与互相关</a></td>
+</tr>
+<tr>
+<td>6.12</td>
+<td><a href="encyclopedia/06-segmentation.html#unet">U-Net 的跨尺度特征拼接</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/06-segmentation.html#encoder-decoder">编码解码与空间分辨率</a>、<a href="encyclopedia/06-segmentation.html#transpose-conv">转置卷积与重叠求和</a></td>
+</tr>
+<tr>
+<td>6.13</td>
+<td><a href="encyclopedia/06-segmentation.html#sam">SAM 的提示与候选掩码</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/03-learning.html#attention">Query、Key、Value 与自注意力</a>、<a href="encyclopedia/06-segmentation.html#encoder-decoder">编码解码与空间分辨率</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="7">7. 怎样定位物体并评价<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>词条</th>
+<th>层级</th>
+<th>直接前置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7.1</td>
+<td><a href="encyclopedia/07-detection.html#detection">检测框与滑动窗口</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/01-image-formation.html#vision-task">视觉任务与输出</a>、<a href="encyclopedia/03-learning.html#recognition">分类表示与神经网络</a></td>
+</tr>
+<tr>
+<td>7.2</td>
+<td><a href="encyclopedia/07-detection.html#iou">交并比 IoU</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#detection">检测框与滑动窗口</a></td>
+</tr>
+<tr>
+<td>7.3</td>
+<td><a href="encyclopedia/07-detection.html#proposals">候选区域与 Selective Search</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#detection">检测框与滑动窗口</a>、<a href="encyclopedia/06-segmentation.html#rag">区域邻接图与合并</a></td>
+</tr>
+<tr>
+<td>7.4</td>
+<td><a href="encyclopedia/07-detection.html#box-regression">边界框回归</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#proposals">候选区域与 Selective Search</a></td>
+</tr>
+<tr>
+<td>7.5</td>
+<td><a href="encyclopedia/07-detection.html#rcnn">R-CNN 的区域分类与训练</a></td>
+<td>任务</td>
+<td><a href="encyclopedia/07-detection.html#proposals">候选区域与 Selective Search</a>、<a href="encyclopedia/07-detection.html#box-regression">边界框回归</a>、<a href="encyclopedia/03-learning.html#transfer">迁移学习与微调</a></td>
+</tr>
+<tr>
+<td>7.6</td>
+<td><a href="encyclopedia/07-detection.html#roi-pooling">共享特征与 RoI pooling</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#rcnn">R-CNN 的区域分类与训练</a>、<a href="encyclopedia/03-learning.html#pooling">最大池化与平均池化</a></td>
+</tr>
+<tr>
+<td>7.7</td>
+<td><a href="encyclopedia/07-detection.html#rpn">Faster R-CNN、锚框与 RPN</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#roi-pooling">共享特征与 RoI pooling</a>、<a href="encyclopedia/07-detection.html#box-regression">边界框回归</a></td>
+</tr>
+<tr>
+<td>7.8</td>
+<td><a href="encyclopedia/07-detection.html#yolo">YOLO v1 的网格预测</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#detection">检测框与滑动窗口</a>、<a href="encyclopedia/07-detection.html#box-regression">边界框回归</a>、<a href="encyclopedia/03-learning.html#classification-loss">Softmax 与交叉熵</a></td>
+</tr>
+<tr>
+<td>7.9</td>
+<td><a href="encyclopedia/07-detection.html#detr">DETR、对象查询与集合预测</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/03-learning.html#attention">Query、Key、Value 与自注意力</a>、<a href="encyclopedia/03-learning.html#position">位置编码与 Transformer 块</a>、<a href="encyclopedia/07-detection.html#detection">检测框与滑动窗口</a></td>
+</tr>
+<tr>
+<td>7.10</td>
+<td><a href="encyclopedia/07-detection.html#set-matching">集合匹配损失</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#detr">DETR、对象查询与集合预测</a>、<a href="encyclopedia/07-detection.html#box-regression">边界框回归</a></td>
+</tr>
+<tr>
+<td>7.11</td>
+<td><a href="encyclopedia/07-detection.html#nms">非极大值抑制 NMS</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#iou">交并比 IoU</a>、<a href="encyclopedia/07-detection.html#detection">检测框与滑动窗口</a></td>
+</tr>
+<tr>
+<td>7.12</td>
+<td><a href="encyclopedia/07-detection.html#detection-matching">检测评估的一对一匹配</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#iou">交并比 IoU</a>、<a href="encyclopedia/07-detection.html#nms">非极大值抑制 NMS</a></td>
+</tr>
+<tr>
+<td>7.13</td>
+<td><a href="encyclopedia/07-detection.html#precision-recall">精确率、召回率与 P–R 曲线</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#detection-matching">检测评估的一对一匹配</a></td>
+</tr>
+<tr>
+<td>7.14</td>
+<td><a href="encyclopedia/07-detection.html#map">AP、mAP 与评价协议</a></td>
+<td>关卡</td>
+<td><a href="encyclopedia/07-detection.html#precision-recall">精确率、召回率与 P–R 曲线</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">补充关与支线任务<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>这些讲义词条不占用上面的主线步位；重要的操作边界安排为补充任务，背景安排为纯文案。它们的前置仍沿用词条声明，不以“补充”删除重要训练。</p>
+<table>
+<thead>
+<tr>
+<th>词条</th>
+<th>形式</th>
+<th>为什么保留</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="encyclopedia/01-image-formation.html#lens">焦距、光圈与景深</a></td>
+<td>补充任务</td>
+<td>补足视角、聚焦与景深的取舍。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/01-image-formation.html#material">阴影、高光与材质</a></td>
+<td>纯文案</td>
+<td>解释成像模型的适用边界。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/02-processing.html#separable">空间可分离滤波与计算量</a></td>
+<td>补充任务</td>
+<td>训练计算拆分与等价性检查。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/02-processing.html#ringing">硬截断与振铃</a></td>
+<td>补充任务</td>
+<td>检查频域截断带来的边缘伪影。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/02-processing.html#compression">频域压缩</a></td>
+<td>纯文案</td>
+<td>连接频率表示与存储。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/03-learning.html#attention-cost">注意力的成本与数据取舍</a></td>
+<td>纯文案</td>
+<td>说明全局关系的计算和数据成本。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/03-learning.html#robustness">纹理偏置与分布变化</a></td>
+<td>纯文案</td>
+<td>限制由准确率到泛化的推论。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/06-segmentation.html#stuff-things">可数物体与连续材质</a></td>
+<td>纯文案</td>
+<td>说明实例计数的对象范围。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/06-segmentation.html#grabcut">GrabCut 与框内前景背景</a></td>
+<td>补充任务</td>
+<td>补足传统交互前背景分离。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/06-segmentation.html#mask-loss">分割损失与掩码质量预测</a></td>
+<td>补充任务</td>
+<td>补足边界加权、掩码学习与质量评分。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/07-detection.html#instance-mask">Mask R-CNN 与实例掩码</a></td>
+<td>补充任务</td>
+<td>连接目标检测与实例分割。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/03-learning.html#bag-features">视觉词袋与空间信息</a></td>
+<td>补充任务</td>
+<td>对照忽略布局与利用空间结构的表示。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/03-learning.html#embedding-view">PCA、t-SNE 与表示邻居</a></td>
+<td>补充任务</td>
+<td>避免误读表示可视化。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/03-learning.html#classification-metrics">分类准确率与错误分析</a></td>
+<td>补充任务</td>
+<td>补足分类结果的协议与错误分析。</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/05-generation.html#generation-cost">生成模型的质量与采样成本</a></td>
+<td>纯文案</td>
+<td>限制对步数、质量与效率的泛化。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="workshop">可选专题：Workshop 与应用<a class="headerlink" href="#workshop" title="Permanent link">&para;</a></h2>
+<p>这些项目不解锁必修主线，也不成为任何讲义词条的必修前置。仅在 Workshop 里操作讲义概念，并不意味着该概念本身只来自 Workshop。</p>
+<table>
+<thead>
+<tr>
+<th>词条</th>
+<th>分类</th>
+<th>形式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="encyclopedia/08-optional.html#bgr">OpenCV 的 BGR 与数组副本</a></td>
+<td>只在 Workshop 出现</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#attention-distance">平均注意距离</a></td>
+<td>只在 Workshop 出现</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#gradcam-practice">同图不同目标的 Grad-CAM 实验</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#diffusion-schedule-practice">扩散的 1000 步实现实验</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#normalised-cut-practice">Normalized cut 图分割实验</a></td>
+<td>只在 Workshop 出现</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#camera-example">从像素高度计算焦距</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#cnn-parameter-practice">Workshop 5 补充：沿原题计算参数与输出</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#mnist-practice">Workshop：把训练流程连起来</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#separable-cnn-practice">Workshop 5 补充：保留原设计的可分离 CNN</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#feature-map-practice">Workshop 5 补充：滤波器与特征图不是同一件事</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#harris-api-practice">Workshop 7：把窗口参数与评分参数分开</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#matching-practice">Workshop 7：从描述子候选到书封面定位</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#stereo-practice">Workshop 8：调窗口时观察什么</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#calibration-practice">Workshop 8：先标定，再检查极线</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+<tr>
+<td><a href="encyclopedia/08-optional.html#generation-practice">Workshop 9：从重建走向生成</a></td>
+<td>应用举例</td>
+<td>可选任务</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">依赖与验收约束<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>每个任务只在声明的前置掌握后安排。学习路线表的相邻项只是推荐阅读顺序，不能凭相邻位置凭空建立知识依赖。若某专题依赖另一专题，先沿依赖链接完成对应词条，而非强制学完整个专题。当前关系图已检查编号唯一、依赖存在、无环，并保证可选内容不进入必修前置。</p>
+<p><a href="encyclopedia/index.html">完整词条与知识图</a> · <a href="SOURCE-AUDIT.html">逐讲核对记录</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.indexes", "navigation.top", "navigation.tabs", "search.highlight", "search.suggest", "toc.integrate", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "diagrams"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+        <script src="../../../javascripts/site.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

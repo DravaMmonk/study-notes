@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://dravammonk.github.io/study-notes/Unimelb/26S2/CV/17-diffusion.html">
+      
       
         <link rel="prev" href="16-gans.html">
       
@@ -42,11 +44,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../game/kit/tokens.css">
+      <link rel="stylesheet" href="../../../assets/kit/tokens.css">
     
-      <link rel="stylesheet" href="../../../game/kit/ui.css">
+      <link rel="stylesheet" href="../../../assets/kit/ui.css">
     
-      <link rel="stylesheet" href="../../../game/kit/prose.css">
+      <link rel="stylesheet" href="../../../assets/kit/prose.css">
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
@@ -492,6 +494,12 @@
       
         
           
+        
+      
+        
+      
+        
+      
         
       
         
@@ -1128,6 +1136,17 @@
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
       
+        阶梯起点：为什么噪声系数要开平方
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
         难点：不用一步步计算所有中间图
       
     </span>
@@ -1149,6 +1168,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="2. 训练学什么，生成又做什么">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        难点：从预测噪声走到下一状态
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1163,10 +1199,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         本讲自测
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        词条与学习任务
       
     </span>
   </a>
@@ -1301,6 +1348,34 @@
   
   
     <li class="md-nav__item">
+      <a href="LEARNING-PATHS.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 专题主线、任务与补充关
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="READING-LINKS.html" class="md-nav__link">
         
   
@@ -1356,6 +1431,349 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="SOURCE-AUDIT.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 逐讲来源核对与纠错记录
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_27" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="encyclopedia/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encyclopedia
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_1_27" id="__nav_2_1_1_27_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_27_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_27">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Encyclopedia
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/01-image-formation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图像、成像与表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/02-processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    空间与频率处理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/03-learning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习特征与表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/04-geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    匹配与三维几何
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/05-generation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图像生成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/06-segmentation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    区域与像素分割
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/07-detection.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检测、集合与评估
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/08-optional.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    可选专题：Workshop 与应用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
       
@@ -1386,7 +1804,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_25" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_28" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1408,14 +1826,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_2_1_1_25" id="__nav_2_1_1_25_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2_1_1_28" id="__nav_2_1_1_28_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_25_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_1_1_25">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_28_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_28">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1590,6 +2008,8 @@
       
         
       
+        
+      
     
     
     
@@ -1603,10 +2023,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_26" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_29" >
         
           
-          <label class="md-nav__link" for="__nav_2_1_1_26" id="__nav_2_1_1_26_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_1_1_29" id="__nav_2_1_1_29_label" tabindex="0">
             
   
   
@@ -1624,8 +2044,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_26_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_1_1_26">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_29_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_29">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1706,6 +2126,34 @@
     
   
     第 1–12 讲：知识词条与关卡排版（草案）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vision-game-specs/trial-chapters-1-2-review.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision Lab chapters 1–2: static learning review
   
 
     
@@ -3437,7 +3885,7 @@
 
 
 <h1 id="comp90086-lecture-17-diffusion-models">COMP90086 Lecture 17 - Diffusion Models<a class="headerlink" href="#comp90086-lecture-17-diffusion-models" title="Permanent link">&para;</a></h1>
-<p>来源：<code>lecture/COMP90086-17-Diffusion.pdf</code>（36 页）；<code>transcript/COMP90086_2026_SM2 Week-09-W-transcript.txt</code>（2026-09-23，开头先补充 GAN 条件生成）；Week 10 扩散练习及答案。2026-10-13 导入。页码指 PDF 页码。</p>
+<p>来源：<code>lecture/COMP90086-17-Diffusion.pdf</code>（36 页）；<code>transcript/COMP90086_2026_SM2 Week-09-W-transcript.txt</code>（2026-09-23，开头先补充 GAN 条件生成）；Week 10 扩散练习及答案。2026-11-03 依据本地归档复核。页码指 PDF 页码。</p>
 <p>本讲回答：<strong>怎样从一张随机噪声图，逐步生成有结构的图像？</strong> 训练时先主动给真实图加噪声，让网络学习恢复线索；生成时从噪声开始，反复调用网络。</p>
 <p>学习路线：<a href="#topic-1">加噪</a> → <a href="#topic-2">训练与生成</a> → <a href="#topic-3">潜空间与条件</a>。重点是区分已知的加噪过程与需要学习的去噪过程，难点是时间步和噪声系数。</p>
 <p><a id="topic-1"></a></p>
@@ -3449,7 +3897,10 @@ x_t=\sqrt{1-\beta_t}\,x_{t-1}+\sqrt{\beta_t}\,\epsilon_t,
 \qquad \epsilon_t\sim\mathcal N(0,I).
 \]</div>
 <p><span class="arithmatex">\(x_{t-1}\)</span> 是上一步图像， <span class="arithmatex">\(x_t\)</span> 是加噪后的图像； <span class="arithmatex">\(\beta_t\)</span> 控制这一步噪声的量， <span class="arithmatex">\(\epsilon_t\)</span> 是各位置独立采样的标准高斯噪声。两个平方根分别控制保留多少旧图，以及混入多少噪声。 <span class="arithmatex">\(t\)</span> 表示破坏程度对应的步骤，不是视频帧号。</p>
-<h3 id="_1">难点：不用一步步计算所有中间图<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<h3 id="_1">阶梯起点：为什么噪声系数要开平方<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>第 13 页合并噪声的依据是<strong>独立噪声的方差相加</strong>。若两份标准高斯噪声独立，乘以 a、b 再相加，方差为 a²+b²，不是 a+b。一步公式中的噪声标准差为 <span class="arithmatex">\(\sqrt{\beta_t}\)</span>，因此噪声方差是 <span class="arithmatex">\(\beta_t\)</span>。把图像的“强度系数”和高斯分布的“方差”分清，后面的累计公式才有意义。</p>
+<p>理解用例（自拟）：两份独立标准噪声各乘 <span class="arithmatex">\(1/\sqrt{2}\)</span> 后相加，方差仍为 1；若复用同一份噪声，独立性不成立，不能用这个结果。这个起点安排为 <a href="encyclopedia/05-generation.html#gaussian-noise">独立关卡</a>。</p>
+<h3 id="_2">难点：不用一步步计算所有中间图<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
 <p><img alt="PDF 13 - Combining noising steps" src="assets/17-diffusion/slide-13.png" /></p>
 <p>图里长推导的作用是把前面很多步合成一次计算。重点看最后一行：</p>
 <div class="arithmatex">\[
@@ -3482,13 +3933,24 @@ x_t=\sqrt{\bar\alpha_t}\,x_0+\sqrt{1-\bar\alpha_t}\,\epsilon.
 </table>
 <p>课件第 19–28 页用 U-Net 实现估计器。训练中原图和人为加入的噪声都已知，因此可以把预测噪声与真实噪声做均方误差比较。告诉网络 <span class="arithmatex">\(t\)</span> ，是让它知道这张图现在被破坏到什么程度；U-Net 的结构见 <a href="20-segmentation-ii.html#topic-3">分割第二讲</a>。</p>
 <p><strong>易错</strong>：从纯噪声生成时，没有某张待恢复原图作为答案。网络利用训练中学到的图像规律生成新样本。课件展示的是逐步估计的思路，具体采样器的更新公式和步数应以对应实现为准。</p>
-<p>Week 10 的 <code>workshop/week-10/worksheet10-diffusion.ipynb</code> 依次练习高斯噪声、破坏图像、训练估计器及反向生成；答案在同目录。先比较“训练用的真实带噪图”与“生成过程中自己预测的中间图”，再看最终图像。Notebook 已归档，本次未执行训练。</p>
+<p><strong>Workshop 应用（可选）</strong>：<a href="encyclopedia/08-optional.html#diffusion-schedule-practice">1000 步实现实验</a> 核对加噪系数、训练与反向生成。练习中的步数不作为所有扩散方法的固定要求，本次未运行或训练模型。</p>
+<h3 id="_3">难点：从预测噪声走到下一状态<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>课件第 22–24 页允许预测原图或噪声，两者由同一加噪关系联系：</p>
+<div class="arithmatex">\[
+\hat x_0=\frac{x_t-\sqrt{1-\bar\alpha_t}\hat\epsilon}{\sqrt{\bar\alpha_t}}.
+\]</div>
+<p>这是由已知系数和网络预测得到的<strong>原图估计</strong>，不保证等于某张真实原图。第 27 页再用估计的原图与噪声构造较低噪声状态：</p>
+<div class="arithmatex">\[
+\hat x_{t-1}=\sqrt{\bar\alpha_{t-1}}\hat x_0+
+\sqrt{1-\bar\alpha_{t-1}}\hat\epsilon.
+\]</div>
+<p>这说明为什么同一网络能反复调用，也说明预测误差会进入后续输入。不要把“下一步仍含噪声”误解成“网络每一步都必须直接输出干净图像”。这里只按讲义解释更新示意，不把它当作所有采样器通用公式。讲义 p.21 用均值／标准差记高斯；若采用均值／协方差记法，该步协方差应为 <span class="arithmatex">\(\beta_t I\)</span>，阅读不同记法时需核对。</p>
 <p><a id="topic-3"></a></p>
 <h2 id="3">3. 怎样减少计算，怎样指定生成内容<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
 <p><img alt="PDF 30 - Latent diffusion" src="assets/17-diffusion/slide-30.png" /></p>
 <p>图中的 <span class="arithmatex">\(E\)</span> 先把图像压缩成表示 <span class="arithmatex">\(z\)</span> ， <span class="arithmatex">\(D\)</span> 再把表示还原为图像。潜空间扩散把加噪、去噪放在较小的 <span class="arithmatex">\(z\)</span> 上进行，最后才解码回像素。这里复用了 <a href="15-generation.html">自编码器</a> 的思想，通常可以减少去噪网络处理的数据量。</p>
 <p>条件生成再给网络一条线索，例如类别、文本表示或另一张图。输入不再只有 <span class="arithmatex">\(x_t,t\)</span> ，还包括“希望生成什么”的条件。课件第 31–34 页展示文本条件和图像补全；条件引导结果，但不意味着输入一句话就会得到唯一图像。</p>
-<h2 id="_2">本讲自测<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h2 id="_4">本讲自测<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ol>
 <li>已知 <span class="arithmatex">\(x_0\)</span> 和时间步 <span class="arithmatex">\(t\)</span> ，为什么可以直接构造 <span class="arithmatex">\(x_t\)</span> ？</li>
 <li>训练时可以使用真实噪声计算误差，生成时为什么不行？</li>
@@ -3500,6 +3962,10 @@ x_t=\sqrt{\bar\alpha_t}\,x_0+\sqrt{1-\bar\alpha_t}\,\epsilon.
 原始论文和课程推荐的博客统一保存在 [Week 9 Reading Links](READING-LINKS.md#week-9-diffusion-models)。阅读时先核对其预测目标和采样过程，不把课件中的示意更新式当成所有扩散模型的通用实现。
 
 </details>
+
+<h2 id="_5">词条与学习任务<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<p>本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 <a href="encyclopedia/08-optional.html">可选专题</a>。</p>
+<p><a href="encyclopedia/05-generation.html#gaussian-noise">高斯噪声与方差相加</a> · <a href="encyclopedia/05-generation.html#forward-diffusion">前向扩散与累计信号</a> · <a href="encyclopedia/05-generation.html#noise-prediction">时间条件与噪声预测训练</a> · <a href="encyclopedia/05-generation.html#reverse-diffusion">反向生成与采样器边界</a> · <a href="encyclopedia/05-generation.html#latent-diffusion">潜空间扩散</a> · <a href="encyclopedia/05-generation.html#conditional-diffusion">条件扩散与补全</a> · <a href="encyclopedia/05-generation.html#generation-cost">生成模型的质量与采样成本</a></p>
 
 
 

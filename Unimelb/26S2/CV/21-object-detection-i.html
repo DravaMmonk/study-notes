@@ -8,6 +8,8 @@
       
       
       
+        <link rel="canonical" href="https://dravammonk.github.io/study-notes/Unimelb/26S2/CV/21-object-detection-i.html">
+      
       
         <link rel="prev" href="20-segmentation-ii.html">
       
@@ -42,11 +44,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../game/kit/tokens.css">
+      <link rel="stylesheet" href="../../../assets/kit/tokens.css">
     
-      <link rel="stylesheet" href="../../../game/kit/ui.css">
+      <link rel="stylesheet" href="../../../assets/kit/ui.css">
     
-      <link rel="stylesheet" href="../../../game/kit/prose.css">
+      <link rel="stylesheet" href="../../../assets/kit/prose.css">
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
@@ -492,6 +494,12 @@
       
         
           
+        
+      
+        
+      
+        
+      
         
       
         
@@ -1216,6 +1224,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="2. R-CNN：先找值得检查的区域">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        先分清原版的训练阶段
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1230,10 +1255,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_1" class="md-nav__link">
+  <a href="#_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         本讲自测
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        词条与学习任务
       
     </span>
   </a>
@@ -1264,6 +1300,34 @@
     
   
     COMP90086 Lecture 22 - Object Detection II
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="LEARNING-PATHS.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 专题主线、任务与补充关
   
 
     
@@ -1339,6 +1403,349 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="SOURCE-AUDIT.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMP90086 逐讲来源核对与纠错记录
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_27" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="encyclopedia/index.html" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Encyclopedia
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2_1_1_27" id="__nav_2_1_1_27_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_27_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_27">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Encyclopedia
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/01-image-formation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图像、成像与表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/02-processing.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    空间与频率处理
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/03-learning.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    学习特征与表示
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/04-geometry.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    匹配与三维几何
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/05-generation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    图像生成
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/06-segmentation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    区域与像素分割
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/07-detection.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    检测、集合与评估
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="encyclopedia/08-optional.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    可选专题：Workshop 与应用
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
       
@@ -1369,7 +1776,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_25" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_28" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1391,14 +1798,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_2_1_1_25" id="__nav_2_1_1_25_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2_1_1_28" id="__nav_2_1_1_28_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_25_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_1_1_25">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_28_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_28">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1573,6 +1980,8 @@
       
         
       
+        
+      
     
     
     
@@ -1586,10 +1995,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_26" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1_29" >
         
           
-          <label class="md-nav__link" for="__nav_2_1_1_26" id="__nav_2_1_1_26_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_1_1_29" id="__nav_2_1_1_29_label" tabindex="0">
             
   
   
@@ -1607,8 +2016,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_26_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_1_1_26">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_2_1_1_29_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1_1_29">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1689,6 +2098,34 @@
     
   
     第 1–12 讲：知识词条与关卡排版（草案）
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="vision-game-specs/trial-chapters-1-2-review.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision Lab chapters 1–2: static learning review
   
 
     
@@ -3420,7 +3857,7 @@
 
 
 <h1 id="comp90086-lecture-21-object-detection-i">COMP90086 Lecture 21 - Object Detection I<a class="headerlink" href="#comp90086-lecture-21-object-detection-i" title="Permanent link">&para;</a></h1>
-<p>来源：<code>lecture/COMP90086-21-ObjectDetection.pdf</code>（55 页）。2026-10-13 从 Canvas Week 11 导入；封面沿用 2021 年，按当前发布位置归档。Week 11 录播尚未发生，本篇是讲义预习笔记，不引用老师原话。</p>
+<p>来源：<code>lecture/COMP90086-21-ObjectDetection.pdf</code>（55 页，2026-10-26 归档的当前版）；<code>transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt</code>。2026-11-03 复核；转写开头先续讲 SAM，随后才进入检测。本篇不再标为预习。以下使用 PDF 页码，封面年份与版权年份分开看。</p>
 <p>本讲回答：<strong>除了知道图里有什么，怎样指出每个物体在哪里？</strong></p>
 <p>学习路线：<a href="#topic-1">框与 IoU</a> → <a href="#topic-2">R-CNN</a> → <a href="#topic-3">Fast 与 Faster R-CNN</a>。重点是三种方法分别减少了哪一步的计算。</p>
 <p><a id="topic-1"></a></p>
@@ -3435,6 +3872,8 @@
 <p><a id="topic-2"></a></p>
 <h2 id="2-r-cnn">2. R-CNN：先找值得检查的区域<a class="headerlink" href="#2-r-cnn" title="Permanent link">&para;</a></h2>
 <p>R-CNN 用候选区域（region proposals）缩小搜索范围。先通过 Selective Search 提出可能包含物体的框，再逐框调整尺寸、提取 CNN 特征，做类别判断和位置修正。</p>
+<h3 id="_1">先分清原版的训练阶段<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>第 28 页的原版 R-CNN 先从 ImageNet 预训练 CNN 开始，将分类层改成物体类别加背景并适配检测区域；再把提取的特征用于逐类线性 SVM 和类别特定的框回归。不能把原版的整套训练压成一个现代的端到端检测头。候选框中背景很多，课件还用采样比例说明类别不平衡。</p>
 <p>框回归预测的是对候选框的调整，而不是直接把候选框当最终答案。课件第 27 页写成：</p>
 <div class="arithmatex">\[
 b_x=p_x+p_wt_x,\quad b_y=p_y+p_ht_y,\qquad
@@ -3444,7 +3883,7 @@ b_w=p_w e^{t_w},\quad b_h=p_h e^{t_h}.
 <p><a id="topic-3"></a></p>
 <h2 id="3-fast-faster">3. 从 Fast 到 Faster，各快在哪里<a class="headerlink" href="#3-fast-faster" title="Permanent link">&para;</a></h2>
 <p><img alt="PDF 34 - Shared features in Fast R-CNN" src="assets/21-object-detection-i/slide-34.png" /></p>
-<p>图中整张图先经过一次 CNN，得到共享特征图。各 ROI 在特征图中取对应区域，再用 ROI pooling 整理成固定大小，最后分别预测类别和框。Fast R-CNN 避免了原版对每个候选框重跑 CNN，但候选区域仍来自外部方法。</p>
+<p>图中整张图先经过一次 CNN，得到共享特征图。各 ROI 在特征图中取对应区域，再用 ROI pooling 整理成固定大小，最后分别预测类别和框。Fast R-CNN 避免了原版对每个候选框重跑 CNN，但候选区域仍来自外部方法。第 39–40 页的 RoI pooling 先把像素框映射到特征网格，取整后分箱，再在各箱做最大池化。它得到统一尺寸，却可能丢失精细位置；“共享整图特征”也不代表不同框的池化结果相同。</p>
 <p><img alt="PDF 50 - Learned proposals in Faster R-CNN" src="assets/21-object-detection-i/slide-50.png" /></p>
 <p>从下往上读：共享特征图先送入 RPN（区域候选网络），产生候选框，再交给检测分支。RPN 在特征图各位置放置不同尺度或长宽比的参考框，预测是否有物体及框的调整。</p>
 <table>
@@ -3473,13 +3912,17 @@ b_w=p_w e^{t_w},\quad b_h=p_h e^{t_h}.
 </tr>
 </tbody>
 </table>
+<p>第 53 页补充 RPN 的两个训练目标：是否有物体使用二元交叉熵，框修正使用 Smooth L1。整个模型还包括 Fast R-CNN 的检测分支；共享骨干不意味着所有损失或输出都是同一种量。</p>
 <p><strong>易错</strong>：RPN 的“是否有物体”与最终“是哪一类物体”是不同问题。名字中的 Faster 指候选生成也交给网络，不表示不再需要候选区域。</p>
-<h2 id="_1">本讲自测<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h2 id="_2">本讲自测<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ol>
 <li>一个框 IoU 很高，为什么仍可能是错误检测？</li>
 <li>Fast R-CNN 共享了哪部分计算？</li>
 <li>Faster R-CNN 相比 Fast R-CNN 改变了哪一部分？</li>
 </ol>
+<h2 id="_3">词条与学习任务<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<p>本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 <a href="encyclopedia/08-optional.html">可选专题</a>。</p>
+<p><a href="encyclopedia/07-detection.html#detection">检测框与滑动窗口</a> · <a href="encyclopedia/07-detection.html#iou">交并比 IoU</a> · <a href="encyclopedia/07-detection.html#proposals">候选区域与 Selective Search</a> · <a href="encyclopedia/07-detection.html#box-regression">边界框回归</a> · <a href="encyclopedia/07-detection.html#rcnn">R-CNN 的区域分类与训练</a> · <a href="encyclopedia/07-detection.html#roi-pooling">共享特征与 RoI pooling</a> · <a href="encyclopedia/07-detection.html#rpn">Faster R-CNN、锚框与 RPN</a></p>
 
 
 
