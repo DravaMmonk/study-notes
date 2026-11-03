@@ -31,7 +31,7 @@
      ],
      "part": "levels",
      "chapter": "camera",
-     "recall": []
+     "links": []
     },
     {
      "id": "A2",
@@ -59,7 +59,7 @@
      ],
      "part": "levels",
      "chapter": "camera",
-     "recall": []
+     "links": []
     },
     {
      "id": "A3",
@@ -76,7 +76,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "camera",
-     "recall": []
+     "links": []
     },
     {
      "id": "A4",
@@ -97,7 +97,7 @@
      ],
      "part": "levels",
      "chapter": "camera",
-     "recall": []
+     "links": []
     },
     {
      "id": "A5",
@@ -114,7 +114,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "camera",
-     "recall": []
+     "links": []
     },
     {
      "id": "A6",
@@ -131,7 +131,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "camera",
-     "recall": []
+     "links": []
     },
     {
      "id": "A7",
@@ -150,7 +150,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "camera",
-     "recall": []
+     "links": []
     }
    ],
    "optional": [
@@ -168,7 +168,8 @@
      "copy": [],
      "makes": null,
      "part": "optional",
-     "chapter": "camera"
+     "chapter": "camera",
+     "links": []
     },
     {
      "id": "A-W2",
@@ -185,7 +186,8 @@
      "copy": [],
      "makes": null,
      "part": "optional",
-     "chapter": "camera"
+     "chapter": "camera",
+     "links": []
     },
     {
      "id": "A-W3",
@@ -202,7 +204,8 @@
      "copy": [],
      "makes": null,
      "part": "optional",
-     "chapter": "camera"
+     "chapter": "camera",
+     "links": []
     }
    ],
    "metrics": {
@@ -239,7 +242,16 @@
      "copy": [],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": [
+      {
+       "to": "A4",
+       "for": [
+        {
+         "part": "取像素"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "B2",
@@ -259,7 +271,16 @@
      "copy": [],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": [
+      {
+       "to": "A4",
+       "for": [
+        {
+         "part": "取像素"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "B3",
@@ -276,7 +297,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": []
     },
     {
      "id": "B4",
@@ -295,7 +316,7 @@
      ],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": []
     },
     {
      "id": "B5",
@@ -317,7 +338,7 @@
      ],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": []
     },
     {
      "id": "B6",
@@ -338,7 +359,7 @@
      ],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": []
     },
     {
      "id": "B7",
@@ -357,7 +378,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": []
     },
     {
      "id": "B8",
@@ -384,7 +405,7 @@
      ],
      "part": "levels",
      "chapter": "convolver",
-     "recall": []
+     "links": []
     },
     {
      "id": "B9",
@@ -403,8 +424,15 @@
      ],
      "part": "levels",
      "chapter": "convolver",
-     "recall": [
-      "image-array-checks@2"
+     "links": [
+      {
+       "to": "A4",
+       "for": [
+        {
+         "entry": "image-array-checks@2"
+        }
+       ]
+      }
      ]
     }
    ],
@@ -448,7 +476,7 @@
      ],
      "part": "levels",
      "chapter": "frequency",
-     "recall": []
+     "links": []
     },
     {
      "id": "F2",
@@ -463,7 +491,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "frequency",
-     "recall": []
+     "links": []
     },
     {
      "id": "F3",
@@ -480,7 +508,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "frequency",
-     "recall": []
+     "links": []
     },
     {
      "id": "F4",
@@ -502,7 +530,7 @@
      ],
      "part": "levels",
      "chapter": "frequency",
-     "recall": []
+     "links": []
     },
     {
      "id": "F5",
@@ -522,8 +550,34 @@
      "copy": [],
      "part": "levels",
      "chapter": "frequency",
-     "recall": [
-      "convolution-vs-cross-correlation@3"
+     "links": [
+      {
+       "to": "B2",
+       "for": [
+        {
+         "part": "卷积器"
+        },
+        {
+         "entry": "convolution@3"
+        }
+       ]
+      },
+      {
+       "to": "B3",
+       "for": [
+        {
+         "part": "卷积器"
+        }
+       ]
+      },
+      {
+       "to": "B4",
+       "for": [
+        {
+         "entry": "convolution-vs-cross-correlation@3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -547,8 +601,15 @@
      ],
      "part": "levels",
      "chapter": "frequency",
-     "recall": [
-      "gaussian-filter@3"
+     "links": [
+      {
+       "to": "B5",
+       "for": [
+        {
+         "entry": "gaussian-filter@3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -567,8 +628,15 @@
      "copy": [],
      "part": "levels",
      "chapter": "frequency",
-     "recall": [
-      "模糊器"
+     "links": [
+      {
+       "to": "B5",
+       "for": [
+        {
+         "part": "模糊器"
+        }
+       ]
+      }
      ]
     }
    ],
@@ -612,9 +680,15 @@
      ],
      "part": "levels",
      "chapter": "light",
-     "recall": [
-      "投影",
-      "image-formation-3d-to-2d@2"
+     "links": [
+      {
+       "to": "A1",
+       "for": [
+        {
+         "part": "投影"
+        }
+       ]
+      }
      ]
     },
     {
@@ -635,7 +709,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "light",
-     "recall": []
+     "links": []
     },
     {
      "id": "L3",
@@ -654,8 +728,15 @@
      "copy": [],
      "part": "levels",
      "chapter": "light",
-     "recall": [
-      "forward-vs-inverse-problem@1"
+     "links": [
+      {
+       "to": "A2",
+       "for": [
+        {
+         "entry": "forward-vs-inverse-problem@1"
+        }
+       ]
+      }
      ]
     },
     {
@@ -675,9 +756,15 @@
      "copy": [],
      "part": "levels",
      "chapter": "light",
-     "recall": [
-      "梯度",
-      "edge-as-rapid-change@5"
+     "links": [
+      {
+       "to": "B8",
+       "for": [
+        {
+         "part": "梯度"
+        }
+       ]
+      }
      ]
     },
     {
@@ -699,8 +786,15 @@
      ],
      "part": "levels",
      "chapter": "light",
-     "recall": [
-      "signed-edge-response@3"
+     "links": [
+      {
+       "to": "B8",
+       "for": [
+        {
+         "part": "梯度"
+        }
+       ]
+      }
      ]
     }
    ],
@@ -740,7 +834,7 @@
      ],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": []
     },
     {
      "id": "C2",
@@ -757,7 +851,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": []
     },
     {
      "id": "C3",
@@ -774,8 +868,15 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": [
-      "image-array-checks@2"
+     "links": [
+      {
+       "to": "A4",
+       "for": [
+        {
+         "entry": "image-array-checks@2"
+        }
+       ]
+      }
      ]
     },
     {
@@ -801,12 +902,42 @@
      ],
      "part": "levels",
      "chapter": "cnn",
-     "recall": [
-      "卷积器",
-      "pixel-vs-local-operator@3",
-      "convolution@3",
-      "convolution-vs-cross-correlation@3",
-      "convolution@3"
+     "links": [
+      {
+       "to": "B1",
+       "for": [
+        {
+         "entry": "pixel-vs-local-operator@3"
+        }
+       ]
+      },
+      {
+       "to": "B2",
+       "for": [
+        {
+         "part": "卷积器"
+        },
+        {
+         "entry": "convolution@3"
+        }
+       ]
+      },
+      {
+       "to": "B3",
+       "for": [
+        {
+         "part": "卷积器"
+        }
+       ]
+      },
+      {
+       "to": "B4",
+       "for": [
+        {
+         "entry": "convolution-vs-cross-correlation@3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -825,9 +956,18 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": [
-      "多通道卷积器",
-      "colour-filtering@3"
+     "links": [
+      {
+       "to": "B9",
+       "for": [
+        {
+         "part": "多通道卷积器"
+        },
+        {
+         "entry": "colour-filtering@3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -848,9 +988,15 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": [
-      "padding-border-rules@3",
-      "valid-output-size@3"
+     "links": [
+      {
+       "to": "B3",
+       "for": [
+        {
+         "entry": "padding-border-rules@3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -871,7 +1017,16 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": [
+      {
+       "to": "L4",
+       "for": [
+        {
+         "entry": "invariance-tolerance-equivariance@5"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "C8",
@@ -894,7 +1049,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": []
     },
     {
      "id": "C9",
@@ -911,7 +1066,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": []
     },
     {
      "id": "C10",
@@ -928,7 +1083,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": []
     },
     {
      "id": "C11",
@@ -949,7 +1104,16 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": [
+      {
+       "to": "C1",
+       "for": [
+        {
+         "entry": "fully-connected-neuron@6"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "C12",
@@ -966,7 +1130,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": []
     },
     {
      "id": "C13",
@@ -985,7 +1149,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "cnn",
-     "recall": []
+     "links": []
     }
    ],
    "side": [
@@ -1005,7 +1169,16 @@
      "makes": null,
      "part": "side",
      "chapter": "cnn",
-     "recall": []
+     "links": [
+      {
+       "to": "C1",
+       "for": [
+        {
+         "entry": "fully-connected-neuron@6"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "C-S2",
@@ -1027,10 +1200,26 @@
      ],
      "part": "side",
      "chapter": "cnn",
-     "recall": [
-      "裁剪",
-      "双线性采样",
-      "crop-vs-resize@2"
+     "links": [
+      {
+       "to": "A5",
+       "for": [
+        {
+         "part": "裁剪"
+        },
+        {
+         "entry": "crop-vs-resize@2"
+        }
+       ]
+      },
+      {
+       "to": "A7",
+       "for": [
+        {
+         "part": "双线性采样"
+        }
+       ]
+      }
      ]
     }
    ],
@@ -1078,9 +1267,31 @@
      ],
      "part": "levels",
      "chapter": "deep",
-     "recall": [
-      "conv-parameter-count@6",
-      "downsampling-purpose@7"
+     "links": [
+      {
+       "to": "C6",
+       "for": [
+        {
+         "entry": "conv-parameter-count@6"
+        }
+       ]
+      },
+      {
+       "to": "C7",
+       "for": [
+        {
+         "entry": "downsampling-purpose@7"
+        }
+       ]
+      },
+      {
+       "to": "C8",
+       "for": [
+        {
+         "part": "CNN 分类器"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1098,7 +1309,24 @@
      "copy": [],
      "part": "levels",
      "chapter": "deep",
-     "recall": []
+     "links": [
+      {
+       "to": "C11",
+       "for": [
+        {
+         "part": "训练器"
+        }
+       ]
+      },
+      {
+       "to": "C12",
+       "for": [
+        {
+         "entry": "overfitting@7"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "N3",
@@ -1115,8 +1343,31 @@
      "copy": [],
      "part": "levels",
      "chapter": "deep",
-     "recall": [
-      "卷积层"
+     "links": [
+      {
+       "to": "C4",
+       "for": [
+        {
+         "part": "卷积层"
+        }
+       ]
+      },
+      {
+       "to": "C5",
+       "for": [
+        {
+         "part": "卷积层"
+        }
+       ]
+      },
+      {
+       "to": "C11",
+       "for": [
+        {
+         "entry": "gradient-descent-backprop@6"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1134,8 +1385,34 @@
      "copy": [],
      "part": "levels",
      "chapter": "deep",
-     "recall": [
-      "channels-filters-activation-maps@6"
+     "links": [
+      {
+       "to": "C4",
+       "for": [
+        {
+         "part": "卷积层"
+        }
+       ]
+      },
+      {
+       "to": "C5",
+       "for": [
+        {
+         "part": "卷积层"
+        },
+        {
+         "entry": "channels-filters-activation-maps@6"
+        }
+       ]
+      },
+      {
+       "to": "C6",
+       "for": [
+        {
+         "entry": "conv-parameter-count@6"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1157,8 +1434,42 @@
      "copy": [],
      "part": "levels",
      "chapter": "deep",
-     "recall": [
-      "可分离卷积器"
+     "links": [
+      {
+       "to": "B6",
+       "for": [
+        {
+         "part": "可分离卷积器"
+        }
+       ]
+      },
+      {
+       "to": "C4",
+       "for": [
+        {
+         "part": "卷积层"
+        }
+       ]
+      },
+      {
+       "to": "C5",
+       "for": [
+        {
+         "part": "卷积层"
+        },
+        {
+         "entry": "channels-filters-activation-maps@6"
+        }
+       ]
+      },
+      {
+       "to": "C6",
+       "for": [
+        {
+         "entry": "conv-parameter-count@6"
+        }
+       ]
+      }
      ]
     }
    ],
@@ -1181,7 +1492,24 @@
      "makes": null,
      "part": "side",
      "chapter": "deep",
-     "recall": []
+     "links": [
+      {
+       "to": "C5",
+       "for": [
+        {
+         "entry": "channels-filters-activation-maps@6"
+        }
+       ]
+      },
+      {
+       "to": "C6",
+       "for": [
+        {
+         "entry": "conv-parameter-count@6"
+        }
+       ]
+      }
+     ]
     }
    ],
    "metrics": {
@@ -1222,8 +1550,23 @@
      "copy": [],
      "part": "levels",
      "chapter": "attention",
-     "recall": [
-      "image-array-checks@2"
+     "links": [
+      {
+       "to": "A4",
+       "for": [
+        {
+         "entry": "image-array-checks@2"
+        }
+       ]
+      },
+      {
+       "to": "A5",
+       "for": [
+        {
+         "part": "裁剪"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1242,9 +1585,26 @@
      "copy": [],
      "part": "levels",
      "chapter": "attention",
-     "recall": [
-      "神经元",
-      "fully-connected-neuron@6"
+     "links": [
+      {
+       "to": "C1",
+       "for": [
+        {
+         "part": "神经元"
+        },
+        {
+         "entry": "fully-connected-neuron@6"
+        }
+       ]
+      },
+      {
+       "to": "C2",
+       "for": [
+        {
+         "part": "神经元"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1262,7 +1622,16 @@
      "copy": [],
      "part": "levels",
      "chapter": "attention",
-     "recall": []
+     "links": [
+      {
+       "to": "C11",
+       "for": [
+        {
+         "entry": "gradient-descent-backprop@6"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "T4",
@@ -1284,9 +1653,18 @@
      ],
      "part": "levels",
      "chapter": "attention",
-     "recall": [
-      "Softmax",
-      "softmax@7"
+     "links": [
+      {
+       "to": "C9",
+       "for": [
+        {
+         "part": "Softmax"
+        },
+        {
+         "entry": "softmax@7"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1306,7 +1684,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "attention",
-     "recall": []
+     "links": []
     },
     {
      "id": "T6",
@@ -1326,7 +1704,7 @@
      ],
      "part": "levels",
      "chapter": "attention",
-     "recall": []
+     "links": []
     },
     {
      "id": "T7",
@@ -1343,7 +1721,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "attention",
-     "recall": []
+     "links": []
     },
     {
      "id": "T8",
@@ -1362,10 +1740,37 @@
      "copy": [],
      "part": "levels",
      "chapter": "attention",
-     "recall": [
-      "残差块",
-      "nonlinearity-relu@6",
-      "residual-learning@8"
+     "links": [
+      {
+       "to": "C1",
+       "for": [
+        {
+         "part": "神经元"
+        }
+       ]
+      },
+      {
+       "to": "C2",
+       "for": [
+        {
+         "part": "神经元"
+        },
+        {
+         "entry": "nonlinearity-relu@6"
+        }
+       ]
+      },
+      {
+       "to": "N3",
+       "for": [
+        {
+         "part": "残差块"
+        },
+        {
+         "entry": "residual-learning@8"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1386,7 +1791,16 @@
      ],
      "part": "levels",
      "chapter": "attention",
-     "recall": []
+     "links": [
+      {
+       "to": "C9",
+       "for": [
+        {
+         "part": "Softmax"
+        }
+       ]
+      }
+     ]
     }
    ],
    "optional": [
@@ -1404,7 +1818,8 @@
      "copy": [],
      "makes": null,
      "part": "optional",
-     "chapter": "attention"
+     "chapter": "attention",
+     "links": []
     }
    ],
    "metrics": {
@@ -1459,8 +1874,15 @@
      ],
      "part": "levels",
      "chapter": "representation",
-     "recall": [
-      "CNN 分类器"
+     "links": [
+      {
+       "to": "C8",
+       "for": [
+        {
+         "part": "CNN 分类器"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1478,9 +1900,18 @@
      "copy": [],
      "part": "levels",
      "chapter": "representation",
-     "recall": [
-      "数据增强",
-      "data-augmentation@7"
+     "links": [
+      {
+       "to": "C-S2",
+       "for": [
+        {
+         "part": "数据增强"
+        },
+        {
+         "entry": "data-augmentation@7"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1498,7 +1929,27 @@
      "copy": [],
      "part": "levels",
      "chapter": "representation",
-     "recall": []
+     "links": [
+      {
+       "to": "C9",
+       "for": [
+        {
+         "entry": "softmax@7"
+        }
+       ]
+      },
+      {
+       "to": "C-S2",
+       "for": [
+        {
+         "part": "数据增强"
+        },
+        {
+         "entry": "data-augmentation@7"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "R4",
@@ -1515,7 +1966,24 @@
      "copy": [],
      "part": "levels",
      "chapter": "representation",
-     "recall": []
+     "links": [
+      {
+       "to": "T2",
+       "for": [
+        {
+         "part": "嵌入"
+        }
+       ]
+      },
+      {
+       "to": "T6",
+       "for": [
+        {
+         "part": "嵌入"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "R5",
@@ -1534,9 +2002,26 @@
      "copy": [],
      "part": "levels",
      "chapter": "representation",
-     "recall": [
-      "交叉熵",
-      "cross-entropy-loss@7"
+     "links": [
+      {
+       "to": "C9",
+       "for": [
+        {
+         "entry": "softmax@7"
+        }
+       ]
+      },
+      {
+       "to": "C10",
+       "for": [
+        {
+         "part": "交叉熵"
+        },
+        {
+         "entry": "cross-entropy-loss@7"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1554,7 +2039,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "representation",
-     "recall": []
+     "links": []
     },
     {
      "id": "R7",
@@ -1572,7 +2057,16 @@
      "copy": [],
      "part": "levels",
      "chapter": "representation",
-     "recall": []
+     "links": [
+      {
+       "to": "C9",
+       "for": [
+        {
+         "part": "Softmax"
+        }
+       ]
+      }
+     ]
     }
    ],
    "side": [
@@ -1597,7 +2091,7 @@
      ],
      "part": "side",
      "chapter": "representation",
-     "recall": []
+     "links": []
     },
     {
      "id": "R-S2",
@@ -1618,9 +2112,26 @@
      "makes": null,
      "part": "side",
      "chapter": "representation",
-     "recall": [
-      "minibatch-epoch-learning-rate@7",
-      "overfitting@7"
+     "links": [
+      {
+       "to": "C8",
+       "for": [
+        {
+         "part": "CNN 分类器"
+        },
+        {
+         "entry": "cnn-classifier-pipeline@7"
+        }
+       ]
+      },
+      {
+       "to": "C12",
+       "for": [
+        {
+         "entry": "overfitting@7"
+        }
+       ]
+      }
      ]
     }
    ],
@@ -1669,8 +2180,15 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": [
-      "取像素"
+     "links": [
+      {
+       "to": "A4",
+       "for": [
+        {
+         "part": "取像素"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1688,8 +2206,23 @@
      "copy": [],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": [
-      "gaussian-filter@3"
+     "links": [
+      {
+       "to": "A4",
+       "for": [
+        {
+         "part": "取像素"
+        }
+       ]
+      },
+      {
+       "to": "B5",
+       "for": [
+        {
+         "entry": "gaussian-filter@3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1709,11 +2242,26 @@
      "copy": [],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": [
-      "梯度",
-      "模糊器",
-      "image-gradient@5",
-      "signed-edge-response@3"
+     "links": [
+      {
+       "to": "B5",
+       "for": [
+        {
+         "part": "模糊器"
+        }
+       ]
+      },
+      {
+       "to": "B8",
+       "for": [
+        {
+         "part": "梯度"
+        },
+        {
+         "entry": "image-gradient@5"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1731,7 +2279,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "links": []
     },
     {
      "id": "E5",
@@ -1751,8 +2299,15 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": [
-      "convolution@3"
+     "links": [
+      {
+       "to": "B2",
+       "for": [
+        {
+         "entry": "convolution@3"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1772,8 +2327,15 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": [
-      "invariance-tolerance-equivariance@5"
+     "links": [
+      {
+       "to": "L4",
+       "for": [
+        {
+         "entry": "invariance-tolerance-equivariance@5"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1798,7 +2360,27 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "links": [
+      {
+       "to": "B5",
+       "for": [
+        {
+         "entry": "gaussian-filter@3"
+        }
+       ]
+      },
+      {
+       "to": "B8",
+       "for": [
+        {
+         "part": "梯度"
+        },
+        {
+         "entry": "image-gradient@5"
+        }
+       ]
+      }
+     ]
     },
     {
      "id": "E8",
@@ -1818,7 +2400,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "links": []
     },
     {
      "id": "E9",
@@ -1843,7 +2425,7 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "links": []
     },
     {
      "id": "E10",
@@ -1860,7 +2442,7 @@
      "copy": [],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "links": []
     },
     {
      "id": "E11",
@@ -1881,7 +2463,7 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "links": []
     },
     {
      "id": "E12",
@@ -1905,7 +2487,7 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "links": []
     },
     {
      "id": "E13",
@@ -1922,8 +2504,15 @@
      "copy": [],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": [
-      "投影"
+     "links": [
+      {
+       "to": "A1",
+       "for": [
+        {
+         "part": "投影"
+        }
+       ]
+      }
      ]
     },
     {
@@ -1948,8 +2537,23 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": [
-      "双线性采样"
+     "links": [
+      {
+       "to": "A7",
+       "for": [
+        {
+         "part": "双线性采样"
+        }
+       ]
+      },
+      {
+       "to": "E5",
+       "for": [
+        {
+         "part": "角点检测器"
+        }
+       ]
+      }
      ]
     }
    ],
@@ -1977,7 +2581,28 @@
      "copy": [],
      "makes": null,
      "part": "optional",
-     "chapter": "stitcher"
+     "chapter": "stitcher",
+     "links": [
+      {
+       "to": "B7",
+       "for": [
+        {
+         "entry": "sobel-filter@3"
+        }
+       ]
+      },
+      {
+       "to": "E5",
+       "for": [
+        {
+         "part": "角点检测器"
+        },
+        {
+         "entry": "harris-pipeline-nms@11"
+        }
+       ]
+      }
+     ]
     }
    ],
    "metrics": {
