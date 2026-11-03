@@ -3847,10 +3847,12 @@ reference and naive programs, pinhole displays, neighbourhood aid and generated 
 replaces the findings against the trial at <code>4a1a67de</code>; it is not a novice learning-outcome study.</p>
 <h2 id="curriculum-decisions">Curriculum decisions<a class="headerlink" href="#curriculum-decisions" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Chapter 1 starts with two required routes: geometry (1A1 → 1A2) and arrays (1A4). Neither needs the other's
-  parts. Both join at 1A3, then continue through cropping and sampling. Displayed main-path numbers are 1-1 to 1-7;
-  stable content ids are retained. The constrained framing experiment is F1 (1F1), an optional topic
-  after 1A1. It is independent of pixel-coordinate conversion and must not block that join.</li>
+<li>Chapter 1 has a common opening, then the representation ladder 1A1 → 1A4 → 1A3 → cropping → sampling.
+  The opening establishes the lab's camera/processor goal, scene measurements and the circuit interaction loop.
+  Arrays make photographs addressable; origin translation then composes those coordinates with projection.
+  Displayed main-path numbers are 1-1 to 1-6. Inverse ambiguity is I1 (1I1), an optional topic after 1A1;
+  its conditional-inverse circuit is not used by pixel coordinates and must not gate them. Framing is F1 (1F1),
+  also optional after 1A1. Neither experiment is a prerequisite of the representation ladder.</li>
 <li>Chapter 2 shares 2B1–2B2, splits kernel orientation (2B3) from column addressing (2B4), and joins at 2B5.
   This join actually flips both written kernels before calling positional row/column parts. Asymmetric tests
   reject omitted flips. Smoothing (2B6) and changes (2B7–2B8) then run independently; 2B9 outputs a weighted
@@ -3868,12 +3870,12 @@ replaces the findings against the trial at <code>4a1a67de</code>; it is not a no
 </thead>
 <tbody>
 <tr>
-<td>R1: serial routes</td>
-<td>Blueprint parallel groups and actual <code>course.before</code> relations are checked. Both initial routes are open in a fresh game; genuine joins require both ends. Orientation affects the 2D program; smoothing and gradient parts affect the final program.</td>
+<td>R1: artificial join / missing shared opening</td>
+<td>The inverse experiment is optional and never gates pixel coordinates. The main path establishes the editing loop, array locations/readings and origin translation in order. Chapter 2 retains genuine joins: orientation affects the 2D program, and smoothing/gradient parts affect the final program. A serial-chapter report is retained and justified by this representation ladder, not suppressed.</td>
 </tr>
 <tr>
 <td>R2: concept jump</td>
-<td>The circuit receives focal length already expressed in pixels; its task is composition with a supplied principal point. Unit conventions are explained, and zero/negative offsets and different principal points are tested. Separate arithmetic prediction gates are removed.</td>
+<td>Physical/pixel units have an independent illustrated example. A movable signed-offset ruler exposes the origin distinction before a small transformation task; only then does the task compose it with projection. Zero, positive, negative and varied-origin cases reject a fixed shift or omitted shift. X/Z unit cancellation is stated before composition.</td>
 </tr>
 <tr>
 <td>R3: hidden discovery evidence</td>
@@ -3885,7 +3887,7 @@ replaces the findings against the trial at <code>4a1a67de</code>; it is not a no
 </tr>
 <tr>
 <td>R5: unsupported inverse claims</td>
-<td>1A2 constructs a different height/depth pair with the same projection. Its synthesis distinguishes assumed depth from recovered depth and makes no uniqueness claim about colour or object count.</td>
+<td>Optional 1I1 constructs a different height/depth pair with the same projection. Its synthesis distinguishes assumed depth from recovered depth and makes no uniqueness claim about colour or object count.</td>
 </tr>
 <tr>
 <td>R6: inadequate synthesis</td>
@@ -3916,25 +3918,25 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 <tbody>
 <tr>
 <td>1A1_2</td>
-<td>No prior course knowledge; geometric entries and observable test cases</td>
+<td>Lab objective, camera measurements, ports/test/run interaction and observable cases</td>
 <td>General projection circuit with two arithmetic parts</td>
 <td>Controlled X/Z/f cases plus negative/zero positions; no numeric bench gate</td>
 </tr>
 <tr>
-<td>1A2</td>
-<td>Projection</td>
+<td>1I1</td>
+<td>Projection; optional</td>
 <td>Construct a different lighthouse scene with the same photograph</td>
 <td>Fixed H=1, Z=4 reference; change height and depth, not an answer choice</td>
 </tr>
 <tr>
-<td>1A2_2</td>
-<td>Non-unique inverse experiment</td>
+<td>1I1_2</td>
+<td>Non-unique inverse experiment; optional</td>
 <td>Reconstruction conditional on Z</td>
 <td>Same image with different supplied depths produces different X</td>
 </tr>
 <tr>
 <td>1A4_sample</td>
-<td>Independent starting route; coordinate convention is given</td>
+<td>Circuit loop; illustrated array positions versus readings; lookup interface</td>
 <td>Compare two addressed samples</td>
 <td>Non-square images, coordinate-order errors and signed differences</td>
 </tr>
@@ -3945,8 +3947,14 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 <td>Same comparison, one added addressing dependency; positive and negative differences</td>
 </tr>
 <tr>
+<td>1A3_origin</td>
+<td>Array convention; physical/pixel unit example and signed-offset ruler</td>
+<td>Transform a displacement into an absolute column</td>
+<td>Zero/positive/negative offsets and different origins</td>
+</tr>
+<tr>
 <td>1A3_2</td>
-<td>Projection, arrays and supplied focal length in pixels</td>
+<td>Projection, origin transformation and explicit X/Z unit cancellation</td>
 <td>Compose signed projection and origin shift</td>
 <td>Zero/negative X and different c_x values reject a hard-coded centre</td>
 </tr>
@@ -3976,7 +3984,7 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 </tr>
 <tr>
 <td>2B1, 2B1_2</td>
-<td>Image coordinates and circuit tools</td>
+<td>Camera/array machine; shared chapter goal and independent moving-window example</td>
 <td>Inspect a moving window, then general weighted sum</td>
 <td>Three source factors shown; output grid remains empty; valid-output offset is labelled</td>
 </tr>
@@ -4041,19 +4049,25 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 scalar answer entry, colour-pixel selection, experiment controls, glossary activation, task progression and the
 fixed Check button. Desktop scenes are checked at 1440 × 1000. A Q.E.D. phone-shell smoke check verifies truth-table taps,
 width containment and the fixed action bar. The matrix records actual actions and screenshots; no claim is made about physical iPhone keyboard behaviour or novice learning gains.</p>
+<p>The guidance revision additionally verifies the Chinese opening on WebKit, the English desktop opening, an actual
+touch-built projection circuit, the origin task and progression into a touch-built pixel-camera circuit. The
+offset-ruler button changes sides; the introductory filter window changes samples while keeping positional weights.
+An introduction's coordinate-term link opens its available glossary entry. Four scalar inputs occupy two rows at
+both 320 and 390 px without page overflow. A 320 px Q.E.D. circuit confirms that two short boolean sources share
+one row and that their ports remain touch-selectable. These are interaction observations, not learner-outcome claims.</p>
 <h2 id="automated-and-migration-evidence">Automated and migration evidence<a class="headerlink" href="#automated-and-migration-evidence" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Complete kit suite: 316 tests passed, none failed or cancelled. Targeted vision/terminology checks cover route
-  independence, real joins, projection examples, partial visibility, axis-specific pitch, FOV invariance, window samples, aid/answer consistency and save invalidation.</li>
+  shared anchors, optional experiment independence, real joins, projection examples, partial visibility, axis-specific pitch, FOV invariance, window samples, aid/answer consistency and save invalidation.</li>
 <li>Every game's content/reference-answer checks pass. The revised trial passes blueprint audit and conformance.</li>
 <li>Terminology registry/reference checks have no structural failures. Revised fields retain matching Chinese and
   English references. Literal-name reports remain in unchanged sampling, introductory filtering and Workshop copy;
   this release does not claim a complete semantic terminology audit. The overview's machine name “卷积器” remains
   a reviewed ordinary-name candidate.</li>
-<li>Existing level ids and retained circuit-task ids remain stable. Eight obsolete tasks are removed and one
-  sample-comparison task is added; the game retains twenty levels and two experimental tasks. Save steps remove
-  obsolete answers. The current level-level invalidation policy also resets saved inverse-experiment answers
-  when its bench layout changes; completion records remain. Task moves/renames and prerequisite changes have generated save steps. Changed
+<li>The game retains twenty levels, thirty-two tasks and two experimental tasks. The inverse topic and its tasks
+  are renamed to 1I1 / 1I1_2 through generated level/task migrations. Adding origin translation invalidates saved
+  pixel-camera answers, while completion records remain. The current level-level invalidation policy also resets
+  saved inverse-experiment answers when its bench layout changes. Task moves/renames and prerequisite changes have generated save steps. Changed
   puzzle contracts/reference programs drop incompatible stored boards, including the revised 2D/Sobel programs;
   wording changes preserve answers. Existing completion records are retained by the shared migration contract.</li>
 <li>The game builds successfully; publication uses the independent games workflow. Release verification includes the published page and assets.</li>
