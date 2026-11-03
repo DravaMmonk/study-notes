@@ -1741,12 +1741,7 @@
       "harris-response@11",
       "harris-pipeline-nms@11"
      ],
-     "tasks": [
-      "detector-vs-descriptor@11",
-      "descriptor-goals@11",
-      "correspondence-matching@12",
-      "noise-vs-outlier@12"
-     ],
+     "tasks": [],
      "makes": "角点检测器",
      "uses": [
       "结构矩阵"
@@ -1777,7 +1772,9 @@
      ],
      "part": "levels",
      "chapter": "stitcher",
-     "recall": []
+     "recall": [
+      "invariance-tolerance-equivariance@5"
+     ]
     },
     {
      "id": "E7",
@@ -1787,7 +1784,9 @@
       "sift-descriptor@11"
      ],
      "tasks": [
-      "sift-scale-orientation@11"
+      "sift-scale-orientation@11",
+      "detector-vs-descriptor@11",
+      "descriptor-goals@11"
      ],
      "makes": "描述子",
      "uses": [
@@ -1809,7 +1808,9 @@
       "geometric-consistency@12",
       "transformation-dof@12"
      ],
-     "tasks": [],
+     "tasks": [
+      "correspondence-matching@12"
+     ],
      "makes": null,
      "uses": [
       "描述子"
@@ -1827,6 +1828,7 @@
       "least-squares-outlier-sensitivity@12"
      ],
      "tasks": [
+      "noise-vs-outlier@12",
       "voting-model-support@12",
       "hough-line-voting@12",
       "hough-polar-form@12",
@@ -1983,7 +1985,7 @@
     "side": 0,
     "optional": 1,
     "builds": 8,
-    "follows": 11,
+    "follows": 12,
     "steps": 13,
     "imports": [
      "双线性采样",
