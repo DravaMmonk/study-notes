@@ -22,8 +22,8 @@ in Chinese and English, through the operation set. You change no test, board or 
 
 - Treat `glossary.json` as the professional-term registry: canonical `title`, optional bilingual `aliases`, the
   existing `body` as explanation and `at` as opening level. Use term references in prose, and registered names for
-  concise labels. Do not create another definition field. Run `./terminology` for registry/reference errors and
-  known bare-name candidates; independently inventory unregistered terms, including diagram/control vocabulary.
+  titles. Diagram/control labels need a clickable term or adjacent term tag. Do not create another definition field.
+  Run `./terminology` for registry/reference errors and known bare-name candidates; independently inventory unregistered terms, including diagram/control vocabulary.
 
 - An intro is complete: where the machine (or the level before it) is stuck, in the field's words; the slot's question;
   what is given; what counts as right. A new part is named only after the need for it is said. A practice level's
@@ -31,8 +31,8 @@ in Chinese and English, through the operation set. You change no test, board or 
   enough. A sentence that would fit any level is cut and replaced by what this level says.
 - Before discovery, explain the situation, assumptions and conventions without providing the target's wiring or
   complete derivation. Hints first identify a usable observation or controlled comparison, then scaffold the missing
-  step as needed; they cannot point to a control or result unavailable in the task. Do not confuse withholding a
-  definition with preserving a puzzle. Apply handbook §4.3 and the learning-review reference.
+  step as needed; they cannot point to a control or result unavailable in the task. Do not confuse withholding an
+  accessible glossary explanation with preserving a puzzle. Apply handbook §4.3 and the learning-review reference.
 - A level that brings a knowledge point has a pass text that names what the player just did by the point's term,
   links its entry, and says in a sentence or two where it sits in the field (what it solves, what it is not, what
   the sources call it; never a library's name on the main path). Explain the principle behind the discovered
@@ -46,12 +46,14 @@ in Chinese and English, through the operation set. You change no test, board or 
 - References are links: `<level-ref to="id"></level-ref>` (only to a prerequisite), `<part-ref to="key"></part-ref>`
   (`part:<primitive>` or a built part's type), `<wiki-ref to="entry"></wiki-ref>`, on both sides.
 - No two places say the same words (`pd-repeat-text`): an intro, brief, hint or pass text is this level's own.
-- Define subject-specific terms when they first appear, before relying on them in the intro, brief, hints or
-  pass text (including task-level copy). An explanation must be in the current text or an earlier guaranteed
-  prerequisite; later tasks, optional/parallel branches and pass text shown only after the earlier use do not count.
-  Link an available glossary definition at first use, and identify named diagram elements with labels or explicit
-  descriptions. Do not assume an unexplained dashed line teaches “optical axis.” Check both languages. This needs
-  manual reading even when `./lint` and `./check` pass; fix what the term means without revealing the solution.
+- Explain professional terms through clickable `<wiki-ref>` tags, available where used. The entry body is the
+  explanation: do not repeat or paraphrase its definition in intros, briefs, hints or pass text. A player may click
+  to learn the meaning; no inline explanation or evidence of prior reading is required. Copy establishes the
+  situation, supports reasoning and synthesises the discovered relationship. Preserve task-specific assumptions,
+  quantities and measurement conventions; link terms within them instead of adding dictionary prose.
+  Match diagram terms to visible elements with labels and a clickable term or adjacent tag. Check both languages
+  and task overrides. Missing/locked/inaccessible entries and definition duplication block review; use the entry
+  for definitions and the copy for learning guidance, without revealing the solution.
 - Both sides real. Chinese: 书面语, no 「进行」「被引入」「搞定」, no 卡片/块 for parts. English: idiomatic, the
   field's own terms.
 

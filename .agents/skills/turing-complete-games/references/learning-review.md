@@ -35,7 +35,7 @@ A single `teaches` id does not prove that a level introduces only one idea. For 
 - What the learner must infer, and the visible evidence that permits that inference.
 
 Distinguish a new name for an already observed thing from an independent reasoning step. Several unfamiliar names
-can be explained together when they describe one object; several independent changes cannot be hidden in one task.
+can link to entries together when they describe one object; several independent changes cannot be hidden in one task.
 When the learner must simultaneously convert physical length to pixels, move an origin and interpret an angle,
 show how these steps were acquired. If they were not, request a decomposition or prerequisite correction instead
 of adding the final formula to a hint. Foundational steps can be tasks within a level when they serve one question;
@@ -53,7 +53,8 @@ identify the small observation or action that makes it usable. Apply this to bot
 ## 3. Guidance and principle-level synthesis
 
 Before solving, an intro establishes the physical or conceptual situation, model assumptions, named referents,
-known quantities, the question and the success criterion. Give definitions and conventions; leave the target
+known quantities, the question and the success criterion. Link professional terms to available glossary entries
+instead of defining them inline. State task-specific assumptions and measurement conventions, leaving the target
 relation or construction to discover. A prompt such as “watch the ray” is useful only if the ray is visible then.
 
 Hints repair a specific missing step: what to observe; what to vary while holding something fixed; what contrast
@@ -62,9 +63,10 @@ that task. “Try again” is not guidance, and a recipe for the complete answer
 
 After discovery, synthesis explains what relationship the observation establishes, why the model accounts for it,
 and the limits of the conclusion. It may state a general relation already discovered and discuss what remains
-underdetermined. It must not replay a particular board, target value, or sequence of controls. Definitions needed
-before solving cannot be deferred to this summary. Concision follows completeness; neither a decorative slogan
-nor a long encyclopedia paragraph is sufficient by itself.
+underdetermined. It must not replay a particular board, target value, or sequence of controls. Definitions and
+reference detail belong in clickable entries and must not be repeated or paraphrased in this summary. Access to
+meaning is satisfied by an available term link; do not demand inline definitions or evidence of prior reading.
+Retain causal analysis and reasoning support: a glossary link alone cannot scaffold a hard inference.
 
 For inverse problems, separate ambiguity from conditional reconstruction: assuming a depth permits one calculation;
 it does not recover the actual depth from the image. Never generalise an experiment into claims its controlled
@@ -137,3 +139,9 @@ same spelling may be ordinary language. Independently extract technical terms mi
 domain UI/diagram vocabulary not held in schema-declared content. Every confirmed unregistered or unlinked
 professional use blocks semantic approval. The dictionary and text must be corrected through existing glossary/text
 operations, not by auto-generating definitions or duplicating the registry.
+
+Review click access separately from instructional support. Diagram/control labels identify visible referents and
+provide clickable entries or adjacent term tags. Keep the term's meaning in its entry, not in repeated intro/hint/
+summary definitions. Report missing or inaccessible explanations as `terminology-before-use` and semantic
+repetition of entry definitions as `term-definition-duplication`. Do not flag necessary shared vocabulary,
+task-specific assumptions, conventions or synthesis as duplicate definitions.

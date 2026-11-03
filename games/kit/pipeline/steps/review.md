@@ -62,7 +62,8 @@ registered aliases. First independently extract professional terms from all play
 labels and domain UI; then reconcile that inventory with the registry. A lookup of registered names alone cannot
 find unregistered terminology. Report confirmed missing terms as `term-unregistered` blockers, and confirmed
 technical bare-name usage as `term-unlinked` blockers; ordinary-language occurrences are not errors merely because
-the same word names a concept. Titles/concise labels may use a registered name directly, but are not explanations.
+the same word names a concept. Titles may use a registered name directly; diagram/control labels must identify
+their visible referents and offer a clickable term or adjacent term tag.
 
 Resolve every registry/reference FAIL and judge every literal-name REPORT. Add real entries via the operation set;
 never invent a definition just to silence the checker. Preserve the name/source vocabulary of the field. Then:
@@ -70,22 +71,27 @@ never invent a definition just to silence the checker. Preserve the name/source 
 Review every level and its tasks in player-visible order, in both languages. Inspect the intro, brief, every hint
 and pass text (`after`), including task overrides. For each subject-specific term:
 
-1. Find where its meaning is actually explained. Cite the current text or an earlier guaranteed prerequisite,
-   including the task and field; do not infer that the learner knows it from a level number or a flat file order.
-2. Check timing and reachability. Later tasks, optional or parallel branches, author-only documentation and locked
-   entries do not count. A pass-text definition cannot support unexplained use in that task's intro or hints.
-   A glossary entry counts only if it is available, linked at first use and contains an actual definition.
-3. Check the visible referent. When the term names a line, axis, region or other diagram element, the label or
-   accompanying explanation must identify it unambiguously. A dashed line with no name or explanation does not
-   teach “optical axis”; the text must explain what it is and which line represents it.
-4. Report each missing definition as a blocking finding (`fix: true`), using `rule: "terminology-before-use"`.
-   In `says`, include the term, language, level/task and field of unsupported use, the definition's location if it
-   exists but is unavailable, and what must change. Use `owner: "copy"` for wording, or `owner: "domain"` for missing display labels/capabilities;
-   use `owner: "blueprint"` or `"levels"` when the prerequisite or task sequence must change. Preserve the existing
-   no-spoiler rule: define the term without supplying the puzzle's solution.
+1. Check that clicking the term opens the correct entry, with a real explanation in that language. The entry
+   body is the explanation; do not require the intro, hint or summary to define it, or evidence of prior reading.
+2. Check availability where used. The entry must be global, open on this level, or open on every guaranteed
+   prerequisite path. Later levels and optional/parallel routes cannot provide required access. Cite the entry id,
+   opening level and source field. Do not infer reachability from flat file order.
+3. Check the visible referent. Diagram/control labels identify the particular line, axis, region or quantity and
+   provide a clickable term or adjacent tag. The entry explains what an optical axis means; the diagram label
+   identifies which line it is. No duplicate definition in accompanying prose is required.
+4. Check separation of copy and explanation. Definitions, terminology distinctions and reference detail belong
+   in the entry. Report introductions, hints or summaries repeating or paraphrasing them under
+   `term-definition-duplication`; retain task-specific assumptions, reasoning guidance, causal analysis and
+   synthesis of what the player discovered. Sharing necessary vocabulary is not duplication. A checked term link
+   satisfies access to meaning; it does not excuse a missing reasoning step or observation in a hard task.
+5. Report missing/empty/locked/inaccessible explanations as blocking `terminology-before-use` findings, not a
+   request for inline definitions. Use `fix: true`; include the term, language, level/task, field and entry id.
+   Route glossary/link or duplicated-copy repairs to `owner: "copy"`, missing clickable labels/capabilities to
+   `owner: "domain"`, and prerequisite/task sequencing repairs to `"blueprint"` or `"levels"`. Never supply the
+   puzzle's solution merely to explain a term.
 
-Do not treat a clean link check or copy lint as evidence that this pass is complete. This is a semantic review:
-an entry, link or earlier occurrence alone does not establish that the term was explained.
+A clean registry/reference check does not establish usable click access, adequate explanations or absence of
+semantic duplication. Review these properties directly; do not infer the player's comprehension from clicks.
 
 ## Output
 

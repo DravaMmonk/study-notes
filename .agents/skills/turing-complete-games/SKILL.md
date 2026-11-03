@@ -219,18 +219,17 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
 
 - **One term registry per game** (handbook §4). Use `glossary.json`: canonical titles, optional bilingual `aliases`,
   existing entry `body` as explanation and `at` as opening level. No parallel simple-definition field. Prose uses
-  term references; concise labels may use registered names. `./terminology --json` gives registry/reference errors
-  and literal bare-name candidates. Semantic review independently inventories terms absent from the dictionary,
+  term references; titles may use registered names. Diagram/control labels need clickable access.
+  `./terminology --json` gives registry/reference errors and literal bare-name candidates. Semantic review independently inventories terms absent from the dictionary,
   including domain UI/diagram labels, then reconciles every candidate. Do not mistake ordinary-language matches
   for professional usage or infer completeness from a clean lookup.
-- **Terms are explained by first use** (handbook §4; manual review). For each level and ordered task, inspect
-  intro, brief, every hint and pass text in both languages. Locate an actual explanation in the current text or
-  an earlier guaranteed prerequisite, not a later task, optional/parallel branch or author-only notes. A pass-text
-  definition cannot justify earlier unexplained use; an unlocked glossary entry counts when linked at first use
-  and actually defines the term. Match diagram terms to labelled or explicitly identified visible elements; a
-  bare name, link or unexplained dashed line is insufficient. Record the term, language, level/task, field and
-  definition location (or absence); report missing definitions as blocking findings. Define what the term means
-  without giving the solution. Link checks and copy lint do not perform this semantic check.
+- **Click for meaning; copy guides reasoning** (handbook §4; manual review). Professional terms in prose link
+  to available glossary entries. The existing body explains the term; no inline definition or evidence of prior
+  reading is required. Keep definitions and reference detail in entries, not repeated or paraphrased in intros,
+  hints or summaries. Copy supplies the situation, reasoning support and synthesis. Diagram/control labels identify
+  visible referents and offer a clickable term or adjacent tag. Check both languages and each task: missing,
+  locked or inaccessible explanations block under `terminology-before-use`; duplicated definitions block under
+  `term-definition-duplication`. A term link does not replace observations or practice for a hard reasoning step.
 - Before discovery, define the model and conventions without supplying the target's complete derivation or
   construction. After discovery, explain the general causal principle and its limits without replaying a board or
   numeric answer. Meaningful analysis is not a spoiler; missing foundations are not desirable difficulty.
