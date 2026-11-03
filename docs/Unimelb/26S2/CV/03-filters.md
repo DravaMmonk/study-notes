@@ -227,3 +227,9 @@ $$
 1. 同一个非对称核，卷积与互相关为什么会给出不同结果？
 2. 固定核窗口，增大高斯尺度会怎样改变权重？
 3. 为什么可分离的二维核能用两次一维计算完成？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[像素算子与局部加权和](encyclopedia/02-processing.md#weighted-sum) · [卷积与互相关](encyclopedia/02-processing.md#convolution) · [平滑、锐化与高斯核](encyclopedia/02-processing.md#filters) · [边界与输出尺寸](encyclopedia/02-processing.md#padding) · [空间可分离滤波与计算量](encyclopedia/02-processing.md#separable)

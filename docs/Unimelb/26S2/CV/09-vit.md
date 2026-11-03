@@ -263,12 +263,18 @@ $$
 
 </details>
 
-### Workshop 6：全局可见之后，模型实际看多远
+### 可选应用
 
-来源：`workshop/week-06/worksheet06.ipynb`。原练习用预训练 ViT 分类，再计算各层各个 head 的平均注意距离：用注意力权重加权图块之间的空间距离。它让你检查“结构允许看远处”是否真的变成“这张图上关注远处”。换图后再比较，不能把单张图的结果当成所有输入的固定规律。本次未重新运行模型。
+原 Workshop 练习单列在 [Workshop 6：全局可见之后，模型实际看多远](encyclopedia/08-optional.md#attention-distance)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. 224×224 图像用 16×16 图块时，有多少图块及分类 token？
 2. 注意力矩阵的一行在比较什么，又对什么做加权？
 3. 图块边长减半后，图块数量与两两比较成本各变成几倍？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[归纳偏置与图块 token](encyclopedia/03-learning.md#patches) · [Query、Key、Value 与自注意力](encyclopedia/03-learning.md#attention) · [位置编码与 Transformer 块](encyclopedia/03-learning.md#position) · [注意力的成本与数据取舍](encyclopedia/03-learning.md#attention-cost) · [视觉词袋与空间信息](encyclopedia/03-learning.md#bag-features)

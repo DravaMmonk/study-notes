@@ -168,12 +168,18 @@ $f$ 是把 $F$ 的九个元素按行排成的向量。八对位置合适、独�
 
 **补充**：SfM（运动恢复结构）把这个过程扩展到多幅图，再一起调整相机与三维点；SLAM 则在图像不断到来时同时定位与建图。本讲先掌握两视图即可。
 
-### Workshop 8：先标定，再检查极线
+### 可选应用
 
-`workshop/week-08/worksheet08.ipynb` 先比较单张与多张棋盘标定，再用特征匹配估计 F 并画极线。检查点是否落在对应极线上，而不是只看函数是否返回一个矩阵。原题还给出已知 10 米基线：在匹配有效、非退化且内参已知时，这个长度可用来补上最后的尺度信息。这是依据本讲的解题思路。官方答案现已保存为同目录下的 `worksheet08_solution.ipynb`，可用来核对结果。
+原 Workshop 练习单列在 [Workshop 8：先标定，再检查极线](encyclopedia/08-optional.md#calibration-practice)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. $(4,6,2)^\top$ 对应哪个二维点？为什么齐次坐标整体乘常数不改变结果？
 2. $H p$ 与 $F p$ 的几何含义有什么不同？
 3. 为什么相机只旋转时，两张清晰照片仍不足以用视差恢复深度？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[齐次点、直线与叉积](encyclopedia/04-geometry.md#homogeneous) · [相机内参、外参与标定](encyclopedia/04-geometry.md#calibration) · [极平面、极点与极线](encyclopedia/04-geometry.md#epipolar) · [本质矩阵与基础矩阵](encyclopedia/04-geometry.md#fundamental) · [双目校正、三角化与退化](encyclopedia/04-geometry.md#rectification)

@@ -129,12 +129,18 @@ $\lambda$ 太小，杂点难去除；太大，真实的物体边界也会被抹�
 
 本周阅读见 [Reading Links](READING-LINKS.md)。先能解释视差公式与匹配失败，再看单目深度演示。
 
-### Workshop 8：调窗口时观察什么
+### 可选应用
 
-`workshop/week-08/worksheet08.ipynb` 要求改变 `numDisparities` 与 `blockSize`，并比较 BM 与 SGBM。前者改变搜索的视差范围，后者改变局部匹配窗口；分别观察漏匹配、杂点与深度边界。**易错**：算法给出的视差图不是天然以米计的深度图，需结合本讲相机参数换算。第 8 周暂无官方答案，本次未运行练习。
+原 Workshop 练习单列在 [Workshop 8：调窗口时观察什么](encyclopedia/08-optional.md#stereo-practice)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. 相同相机下，视差减半，深度怎样变？距离加倍时同样的视差误差又怎样放大？
 2. 为什么大匹配窗口能减少噪声，却可能破坏物体边界？
 3. 无深度标签的双目训练，究竟用什么判断网络预测好不好？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[单视图深度线索](encyclopedia/04-geometry.md#depth-cues) · [校正双目的视差与深度](encyclopedia/04-geometry.md#disparity) · [双目窗口代价与全局约束](encyclopedia/04-geometry.md#stereo-matching) · [监督与双目自监督深度](encyclopedia/04-geometry.md#learned-depth)

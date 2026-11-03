@@ -116,3 +116,9 @@ GAN Lab 等演示链接统一放在 [Reading Links](READING-LINKS.md)。先观�
 1. 更新判别器与更新生成器时，分别希望 $D(G(z))$ 向哪个方向变化？
 2. 一批图像十分清晰，为什么仍可能是糟糕的生成模型？
 3. CycleGAN 为什么要检查“变过去再变回来”？它是否因此不需要训练数据？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[GAN 的生成器与判别器](encyclopedia/05-generation.md#gan) · [对抗平衡与模式坍塌](encyclopedia/05-generation.md#gan-stability) · [记忆、逼真度与多样性](encyclopedia/05-generation.md#generation-evaluation) · [条件 GAN 与循环一致性](encyclopedia/05-generation.md#conditional-gan)

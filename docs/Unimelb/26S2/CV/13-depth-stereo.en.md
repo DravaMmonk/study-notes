@@ -131,7 +131,7 @@ For this week's readings see [Reading Links](READING-LINKS.md). First be able to
 
 ### Workshop 8: what to watch when tuning windows
 
-`workshop/week-08/worksheet08.ipynb` asks you to vary `numDisparities` and `blockSize`, and to compare BM and SGBM. The former changes the disparity search range, the latter the local matching window; observe missed matches, speckles and depth boundaries for each. **Common mistake**: the disparity map an algorithm outputs is not inherently a depth map in metres; it must be converted using this lecture's camera parameters. There is no official solution for Week 8 yet, and the exercise was not run this time.
+`workshop/week-08/worksheet08.ipynb` asks you to vary `numDisparities` and `blockSize`, and to compare BM and SGBM. The former changes the disparity search range, the latter the local matching window; observe missed matches, speckles and depth boundaries for each. **Common mistake**: the disparity map an algorithm outputs is not inherently a depth map in metres; it must be converted using this lecture's camera parameters. Week 8 solutions are archived in the same directory; the exercise was not run for this update.
 
 ## Self-test for this lecture
 

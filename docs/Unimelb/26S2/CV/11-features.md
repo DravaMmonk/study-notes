@@ -220,12 +220,18 @@ PPT 与 transcript 将归一化讲成“归一化 → 大值截到 0.2 → 再�
 
 下一讲会将描述子比较产生的候选匹配放进同一个几何模型检查。**外观相似是候选证据，空间关系一致才进一步支持对应关系。**
 
-### Workshop 7：把窗口参数与评分参数分开
+### 可选应用
 
-`workshop/week-07/worksheet07.ipynb` 使用 `cornerHarris`。其中 `blockSize` 控制汇总梯度的邻域，`ksize` 控制求导算子大小，`k` 控制 Harris 评分中的惩罚项。它们对应本讲不同步骤，不能都理解为“角点灵敏度”。
+原 Workshop 练习单列在 [Workshop 7：把窗口参数与评分参数分开](encyclopedia/08-optional.md#harris-api-practice)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. 为什么直线边缘上的位置，比角点更难唯一确定？
 2. Harris 矩阵的两个特征值都大，意味着什么？
 3. SIFT 的 128 维怎样数出来，尺度与主方向分别对付什么变化？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[关键点、检测器与描述子](encyclopedia/04-geometry.md#keypoint) · [结构张量与 Harris 角点](encyclopedia/04-geometry.md#harris) · [SIFT 描述与尺度方向对齐](encyclopedia/04-geometry.md#sift)

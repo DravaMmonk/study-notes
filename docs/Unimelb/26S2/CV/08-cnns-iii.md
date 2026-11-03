@@ -99,13 +99,9 @@ $$
 
 **易错**：这里分开的是空间计算与通道混合；第 3 讲的可分离滤波器分开的是横向与纵向，两者不是同一种拆法。这样参数和 FLOPs（浮点运算次数）更少，适合手机和实时应用，但限制了可学习的卷积核形式，准确率可能低于较重的 VGG/ResNet。
 
-#### Workshop 5 补充：保留原设计的可分离 CNN
+#### 可选应用
 
-练习本在 MNIST 灰度输入上使用 8、16 个输出通道的两层 $5\times5$ 可分离卷积，中间配合池化，最后接 10 类输出。沿用上面两步，下面只代入原题尺寸。
-
-按原解答，第一层参数为 $5\times5\times1+1\times1\times1\times8+8=41$ ；第二层为 $5\times5\times8+1\times1\times8\times16+16=344$ ；全连接为 $256\times10+10=2570$ ；合计 $2955$ 。这不是开头 RGB 参数题的原网络，不能直接把 2955 与 48770 的差全部归因于可分离卷积。
-
-原练习要求对照较早的 CNN 比较参数量与测试准确率，参考解答的文字结论是参数减少、准确率相近，但这次小模型运行时间更长。它提醒我们额外操作开销可能抵消计算量节省；这是原解答中的观察，本次没有重新跑实验。
+原 Workshop 练习单列在 [Workshop 5 补充：保留原设计的可分离 CNN](encyclopedia/08-optional.md#separable-cnn-practice)，不作为本讲必修前置。
 
 #### EfficientNet：共同缩放深度、宽度、分辨率
 
@@ -160,3 +156,9 @@ CNN 的中间层把像素转换成特征向量：它的维度更低，而且同�
 1. 残差块怎样更容易表示“保持输入不变”？
 2. 深度可分离卷积的两个步骤分别处理空间还是通道？
 3. 只有少量新任务数据时，冻结骨干与微调整网有什么取舍？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[小核堆叠与多尺度结构](encyclopedia/03-learning.md#receptive-field) · [残差连接](encyclopedia/03-learning.md#residual) · [深度可分离卷积与模型缩放](encyclopedia/03-learning.md#depthwise) · [迁移学习与微调](encyclopedia/03-learning.md#transfer) · [分类准确率与错误分析](encyclopedia/03-learning.md#classification-metrics)

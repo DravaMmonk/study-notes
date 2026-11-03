@@ -47,31 +47,9 @@
 
 <!-- figure: pool-sorter -->
 
-#### Workshop 5 补充：沿原题计算参数与输出
+#### 可选应用
 
-来源：`workshop/week-05/worksheet05_solution.ipynb` 开头的 CNN 参数题。原解答标题误写成 Exercise 3，但对应的是开头 Exercise 1。
-
-沿用 [CNNs I](06-cnns-i.md) 的参数公式，逐层代入原题尺寸：
-
-| 原题层 | 参数计算 | 输出形状（不含批次） |
-| --- | --- | --- |
-| A | $5\times5\times3\times20+20=1520$ | $22\times22\times20$ |
-| B | $3\times3\times20\times40+40=7240$ | $20\times20\times40$ |
-| C 池化 | $0$ | $10\times10\times40$ |
-| D 全连接 | $4000\times10+10=40010$ | $10$ |
-
-总参数为 $1520+7240+40010=48770$ 。Dense 前展平得到的 4000，来自 $10\times10\times40$ ，不是另加的训练参数。
-
-原题还问初始化后的输出。若所有参数为 0，B 的输出是 $20\times20\times40$ 的全零数组。若权重全为 1、偏置为 0，所有输出通道执行相同局部累加，因而形成相同的模糊响应；原参考解答将其描述为 averaging 滤波器。
-
-<details>
-<summary>延伸内容（可选）：原解答“averaging”的措辞校正</summary>
-
-<p>权重全为 1 时严格算的是求和，没有除以核元素数量，因此数值不等于平均。可以用模糊图理解空间效果，但不要据此认为亮度范围保持不变。这是按题目权重设置对原解答的校正。</p>
-
-</details>
-
-原题最后提出用可分离卷积或堆叠小卷积核减少参数。具体可分离练习接在 [CNNs III](08-cnns-iii.md) 对应主题中。
+原 Workshop 练习单列在 [Workshop 5 补充：沿原题计算参数与输出](encyclopedia/08-optional.md#cnn-parameter-practice)，不作为本讲必修前置。
 
 <a id="topic-2"></a>
 ## 2. 减少过拟合：训练约束与停止时机
@@ -154,21 +132,18 @@ $$
 增强不能违背标签的含义。例如自然物体通常可以水平翻转，但上下翻转、过大的颜色变化可能把图像变成训练分布中不存在的样子，反而伤害模型。
 
 <a id="topic-4"></a>
-## 4. Workshop：把训练流程连起来
+## 可选应用
 
-### Workshop 4：用 MNIST 对比 MLP 和 CNN
-
-本周 `workshop/week-04/worksheet04_solution.ipynb` 先处理颜色空间和图像形成，再用 MNIST（ $28\times28$ 单通道手写数字）比较 MLP 与 CNN：
-
-- MLP 先把图像展平成 $784$ 个数字，再用全连接层分类；
-- CNN 保留二维结构，用 `Conv2D`、`MaxPooling2D`、`Flatten` 和输出层分类；
-- 代码把像素除以 255，使输入落在 $[0,1]$ ，并增加通道维度以符合 Keras 的 `(batch, height, width, channels)` 输入格式；
-- 参考解答的参数计算提醒我们：卷积滤波器会在空间位置共享权重，所以通常比直接展平的 MLP 参数更少；在这个 MNIST 练习中，CNN 测试准确率也更高。
-
-先关注概念，不必死记一次运行得到的具体准确率：随机初始化、轮数、硬件和软件版本都会改变最后的小数。
+原 Workshop 练习单列在 [Workshop：把训练流程连起来](encyclopedia/08-optional.md#mnist-practice)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. 带步幅的卷积和池化都缩小特征图，它们在参数上有什么不同？
 2. 训练损失下降、验证损失上升时，应该检查什么？
 3. 交叉熵为什么会惩罚真实类别的低预测概率？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[最大池化与平均池化](encyclopedia/03-learning.md#pooling) · [Softmax 与交叉熵](encyclopedia/03-learning.md#classification-loss) · [训练、验证与测试](encyclopedia/03-learning.md#train-split) · [正则化、Dropout 与提前停止](encyclopedia/03-learning.md#regularisation) · [批次、学习率与增强](encyclopedia/03-learning.md#optimisation)

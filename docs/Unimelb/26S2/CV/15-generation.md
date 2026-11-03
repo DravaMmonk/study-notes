@@ -149,12 +149,18 @@ $$
 
 本周去噪演示与阅读链接集中在 [Reading Links](READING-LINKS.md)。
 
-### Workshop 9：从重建走向生成
+### 可选应用
 
-`workshop/week-09/worksheet9.ipynb` 与 `worksheet9_Autoencoders_solution.ipynb` 已归档，配套的 `pretrained_checkpoints/` 保留预训练权重。比较模型时，先区分“输入一张图再重建”与“从潜空间采样生成”；若进入对抗训练部分，接着阅读 [GAN 的两个网络](16-gans.md#topic-1)。本次只整理资源，没有运行或训练这些模型。
+原 Workshop 练习单列在 [Workshop 9：从重建走向生成](encyclopedia/08-optional.md#generation-practice)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. $p(y\mid x)$ 与 $p(x\mid y)$ 的输入和预测对象各是什么？
 2. 普通 AE 的重建结果很好，为什么仍可能无法从随机潜变量生成合理图像？
 3. VAE 的重建项、KL 项分别限制什么？生成新图像时还需要编码器输入吗？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[概率密度与条件生成](encyclopedia/05-generation.md#probability) · [自编码器与瓶颈](encyclopedia/05-generation.md#autoencoder) · [VAE、重参数化与两项损失](encyclopedia/05-generation.md#vae) · [潜空间采样与编辑](encyclopedia/05-generation.md#latent-sampling)

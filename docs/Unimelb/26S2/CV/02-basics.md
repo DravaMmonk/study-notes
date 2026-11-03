@@ -225,62 +225,18 @@ $$
 
 bicubic 会看更大的邻域，用 cubic function 估计新值；Lanczos 是另一种采样方法。没有一种插值对所有任务都最好，要根据速度、边缘和目标尺寸选择。
 
-### Workshop 2：把概念写成代码
+### 可选应用
 
-Workshop 参考解答把本讲的五个重点串在一起：读图、缩放、裁剪、改通道、用相似三角形求焦距。
-
-#### OpenCV 和 Matplotlib 的颜色顺序
-
-`cv2.imread` 默认读入 BGR，但 `matplotlib.pyplot.imshow` 按 RGB 显示。显示前要转换：
-
-```python
-display_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-```
-
-这只改变通道顺序，不改变图像内容或空间尺寸。
-
-#### 缩放、中心裁剪和深拷贝
-
-OpenCV 的大小 tuple 是 `(width, height)`，NumPy 形状却通常写成 `(height, width, channels)`。对 $H\times W$ 图像做宽 $w_c$ 、高 $h_c$ 的 center 裁剪：
-
-$$
-x_0=\left\lfloor\frac{W-w_c}{2}\right\rfloor,
-\qquad
-y_0=\left\lfloor\frac{H-h_c}{2}\right\rfloor.
-$$
-
-然后取 `image[y0:y0 + hc, x0:x0 + wc]`。NumPy 切片常返回视图；如果要修改副本而不影响原裁剪，应使用 `.copy()`。
-
-对 BGR 图像，把红色通道改成蓝色与绿色通道的平均值：
-
-$$
-R'(x,y)=\frac{G(x,y)+B(x,y)}{2}.
-$$
-
-如果原数组是 `uint8`，先用较宽或浮点类型做计算，再明确 cast，避免溢出或隐式截断。
-
-#### 用传感器尺寸求焦距
-
-传感器高度为 $20\ \mathrm{mm}$ ，对应 $200$ 像素；物体在图像中高 $100$ 像素，因此它在传感器上高：
-
-$$
-h_i=20\ \mathrm{mm}\times\frac{100}{200}=10\ \mathrm{mm}.
-$$
-
-物体实际高 $h_o=120\ \mathrm{mm}$ ，距离 $z=600\ \mathrm{mm}$ 。由相似三角形：
-
-$$
-\frac{h_i}{f}=\frac{h_o}{z}
-\quad\Longrightarrow\quad
-f=\frac{h_i z}{h_o}
-=\frac{10\times600}{120}
-=50\ \mathrm{mm}.
-$$
-
-重点是先把像素换成传感器上的毫米；不能直接把像素和毫米放进同一个比例式。
+原 Workshop 练习单列在 [Workshop 2：把概念写成代码](encyclopedia/08-optional.md#bgr)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. 物体距离加倍、焦距不变时，投影大小怎样变？
 2. 为什么 NumPy 的形状不能原样当作 OpenCV 的缩放尺寸？
 3. 新像素落在四个旧像素之间时，双线性插值怎样得到它的值？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[像素、坐标与通道](encyclopedia/01-image-formation.md#pixels) · [针孔投影与深度歧义](encyclopedia/01-image-formation.md#projection) · [焦距、光圈与景深](encyclopedia/01-image-formation.md#lens) · [裁剪、重采样与插值](encyclopedia/01-image-formation.md#sampling)

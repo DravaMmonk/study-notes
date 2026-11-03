@@ -1,41 +1,20 @@
 # COMP90086 资源完整性
 
-增量核对日期：**2026-10-13**。Canvas 当前显示 Week 1–11；本次检查 Week 9–11、新增录播及 Week 8 答案。Week 1–8 原有资源保留，未逐页重新审计其线上版本。
+本地核对日期：**2026-11-03**。当前本地有 **22 份现行讲义 PDF、22 份按周转写、23 份 Workshop Notebook（含答案与旧版）**。本次未重新访问 Canvas，不据本地归档断言线上资源是否发布。
 
-| 周次 | Slides PDF | Transcript | Workshop | 答案 | Reading Links |
-| --- | --- | --- | --- | --- | --- |
-| 1 | 2 份 | 2 份 | 已有 | 不适用 | 已保存 |
-| 2–7（每周） | 2 份 | 2 份 | 已有 | 已有 | 已保存 |
-| 8 | 2 份 | 2 份（本次补齐周五） | 已有 | 本次补齐 | 已保存 |
-| 9 | 1 份（页面发布 1 份） | 1 份；另见下方日期说明 | 已下载，含预训练权重 | 已下载 | 本次新增 |
-| 10 | 2 份 | 2 份 | 已下载 | 已下载 | 本次新增 |
-| 11 | 2 份 | 尚未到授课日期 | 新旧两版均保留 | 页面暂无链接 | 本次新增 |
+| 内容 | 本地状态 |
+| --- | --- |
+| Lecture 1–17、19–22 | PDF 与相应主题转写已有；L21、22 不再是预习 |
+| Lecture 23 Revision | PDF 与 Week 12 W 转写已有，用作全课覆盖索引 |
+| Workshop Week 1–11 | 练习已归档；Week 2–11 的答案已归档 |
+| L21、22 旧版 | `lecture/superseded/2026-10-13/` 保留历史版本；当前笔记使用现行版 |
+| Workshop 11 旧版 | `worksheet11-old-24.ipynb` 与新版分开保留 |
+| 外部阅读、外部数据及模型依赖 | 不保证已离线镜像，未重新执行 Notebook 或训练模型 |
 
-目前本地共有 **21 份讲义 PDF、19 份字幕**。本次新增 5 份讲义、4 份字幕、Week 9–11 练习、Week 8–10 答案及配套文件，共 **23 个资源文件**（含原始压缩包、旧版练习和解压权重）。新增 5 篇学习笔记及 17 张选用课件截图；截图旁附有解释。
+本地课程目录与 study-notes 归档中，本次核对的 PDF、转写和 Notebook **逐文件 SHA-256 相同**；Notebook 均能解析为 JSON。清单不包含所有外部数据文件，因此不把这次核对称为全依赖复现。
 
-## 尚未完整或需要区分的项目
-
-- Week 11 录播排期为 10 月 14 日、16 日；截至核对日期仍在未来，两篇目标检测笔记依据讲义编写，标为预习。
-- Echo360 的 9 月 25 日、9 月 30 日、10 月 2 日条目没有可见的 Transcript 面板或下载入口。仅有录播条目不能证明当天实际授课，未把这三条直接计为缺失的教学字幕。
-- Week 11 Workshop 尚无答案链接。
-- 已发布讲义编号从 17 跳到 19；本次检查的 Week 9–11 页面未见 Lecture 18 链接，保留原编号。
-- Readings Online 于 10 月 13 日复查仍返回 Leganto 错误。周页面上的阅读链接及书目章节已保存，但不能确认是否存在额外清单；这也不表示教材、外部网页全文已离线下载。
-- Notebook 内引用的外部数据、模型依赖和下载链接没有另行镜像；本次没有执行练习或训练模型。
-
-## 同步与验证
-
-- 课程目录与 study notes 的 **149 个分类资源文件**逐文件 SHA-256 一致；新增文件的来源与校验值保存在 JSON 清单中。
-- 新增 5 份 PDF 可读取；两个 Week 9 原始 ZIP 通过完整性检查。全库按周存放的 21 个顶层 Notebook 均可解析为 JSON。
-- Week 9 两个页面提供同名压缩包，实际练习与权重内容相同，差异仅为 `__MACOSX` 元数据；两个原包都保留，解压时略过系统元数据与 Notebook 自动备份。
-- Week 11 讲义页提供 `worksheet11.ipynb`，Workshop 页提供 `worksheet11-old-24.ipynb`，分别保存，避免旧版覆盖新版。
-- 第 21、22 讲封面仍印有 2021；第 22 讲页脚仍印有 Week 10。这是当前 Canvas 提供的源文件，未改动封面或据此改归档周次。
-- 原有完整 Canvas 导出与 2026-09-18 Excel 表保持历史快照；本页和 JSON 清单记录本次增量状态。
-
-## 来源与存放位置
-
-- [Canvas Modules](https://canvas.lms.unimelb.edu.au/courses/241625/modules)
-- [课程笔记索引](README.md)
-- [Reading Links](READING-LINKS.md)
-- [Resource inventory](RESOURCE-INVENTORY.json)
-
-`lecture/`、`transcript/`、`workshop/week-NN/` 保存分类资料，`workshop/packages/` 保留原始配套包。主课程目录与 study notes 各保留一份；原始资料与截图保持本地，不提交到版本库。
+- [逐讲核对与纠错](SOURCE-AUDIT.md)
+- [本次本地校验清单](LOCAL-SOURCE-AUDIT.json)
+- [历史 Canvas 导入记录](RESOURCE-INVENTORY.json)：保留原核对日期与线上页面证据。
+- [Reading Links](READING-LINKS.md)：周页面提供的阅读链接；不能据链接列表声称读过全文。
+- [词条、依赖与主线](encyclopedia/README.md)

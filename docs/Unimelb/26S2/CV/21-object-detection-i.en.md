@@ -1,6 +1,6 @@
 # COMP90086 Lecture 21 - Object Detection I
 
-Sources: `lecture/COMP90086-21-ObjectDetection.pdf` (55 pages). Imported from Canvas Week 11 on 2026-10-13; the cover still says 2021, and it is filed by its current release location. The Week 11 recording has not happened yet, so this is a preview note based on the slides and does not quote the lecturer.
+Sources: `lecture/COMP90086-21-ObjectDetection.pdf` (55 pages, current archive version dated 2026-10-26) and `transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt`. Checked against the local archive on 2026-11-03. The recording starts by finishing SAM before moving to detection. This is no longer a preview; the 2021 copyright line is distinct from the 2026 cover semester.
 
 This lecture answers: **beyond knowing what is in an image, how do we point out where each object is?**
 
@@ -59,3 +59,9 @@ Read from bottom to top: the shared feature map is first fed into the RPN (regio
 1. A box has a very high IoU; why could it still be a wrong detection?
 2. Which part of the computation does Fast R-CNN share?
 3. Which part did Faster R-CNN change relative to Fast R-CNN?
+
+## Training and region features: additions
+
+The original R-CNN pipeline has distinct training stages: adapt the pretrained CNN to object-plus-background classification, then use its features for class-specific linear SVMs and bounding-box regression (PDF p.28). This differs from describing all stages as a single end-to-end detection head. RoI pooling maps image boxes to a quantised feature grid, divides each region into bins and max-pools each bin (p.39–40). RPN training combines binary objectness classification and Smooth L1 box regression (p.53).
+
+The updated [Chinese entry index](encyclopedia/README.md) records direct prerequisites and planned learning activities. The activities have not been implemented in the game.

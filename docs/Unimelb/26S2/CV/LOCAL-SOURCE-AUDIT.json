@@ -1,0 +1,386 @@
+{
+  "checked_at": "2026-11-03",
+  "scope": "Local archive only; not a new Canvas publication check.",
+  "files": [
+    {
+      "path": "lecture/COMP90086-01-Introduction.pdf",
+      "sha256": "828e91c48d3fbc841a793334c718219a43f417b5e19d00b625a8b5cfcbd8f0fe",
+      "notes_copy_matches": true,
+      "pages": 35
+    },
+    {
+      "path": "lecture/COMP90086-02-Basics.pdf",
+      "sha256": "32dc879d912396a2489db91ab8e2f19b12efc27a5b7b0da5914297746b8e215e",
+      "notes_copy_matches": true,
+      "pages": 41
+    },
+    {
+      "path": "lecture/COMP90086-03-Filters.pdf",
+      "sha256": "3dedf2276cf0c801ee9ff476e83c69f2c069df6bc12e1421f3893201149210fc",
+      "notes_copy_matches": true,
+      "pages": 47
+    },
+    {
+      "path": "lecture/COMP90086-04-Fourier.pdf",
+      "sha256": "aefbee71964ae423b2e5c07f6472a856faa7cc310c6b6123328669a0dd42646f",
+      "notes_copy_matches": true,
+      "pages": 58
+    },
+    {
+      "path": "lecture/COMP90086-05-ImageFormationII.pdf",
+      "sha256": "a2f3d68ceddd1ec0783084ab2b426266554394eb4504e9b6ca67f317db576a13",
+      "notes_copy_matches": true,
+      "pages": 53
+    },
+    {
+      "path": "lecture/COMP90086-06-CNNsI.pdf",
+      "sha256": "779ea2a1099152d5129c7d82200051ed5c1ef2c0e0a6a351c393e7d2f49058db",
+      "notes_copy_matches": true,
+      "pages": 54
+    },
+    {
+      "path": "lecture/COMP90086-07-CNNsII.pdf",
+      "sha256": "a99ae3fa89024c95955ab36b63ba863e3ef029ad206b68d89e40708d79cd4063",
+      "notes_copy_matches": true,
+      "pages": 41
+    },
+    {
+      "path": "lecture/COMP90086-08-CNNsIII.pdf",
+      "sha256": "ef68306e82919b44590f966d1fafa9a465b4d636a62a766f47d39dedb6f26349",
+      "notes_copy_matches": true,
+      "pages": 48
+    },
+    {
+      "path": "lecture/COMP90086-09-ViT.pdf",
+      "sha256": "b67b41d95d387a773a1384197331a9763fa1697d1046262433b27196a1989c9c",
+      "notes_copy_matches": true,
+      "pages": 35
+    },
+    {
+      "path": "lecture/COMP90086-10-representations.pdf",
+      "sha256": "d21d1cecd7da6a49a98fb53abb487e06ca36f20738319f9496772fa665f3b0a3",
+      "notes_copy_matches": true,
+      "pages": 44
+    },
+    {
+      "path": "lecture/COMP90086-11-features.pdf",
+      "sha256": "d96b16d46b5f8d02715656e9072e9d9889553ca629d05fd6e0ae9462a37f70f2",
+      "notes_copy_matches": true,
+      "pages": 31
+    },
+    {
+      "path": "lecture/COMP90086-15-Generation.pdf",
+      "sha256": "a4ddd0eba37cc17acac43af2dfda01c58f0801cd0e2ccead48498efff5c59b69",
+      "notes_copy_matches": true,
+      "pages": 47
+    },
+    {
+      "path": "lecture/COMP90086-16-GANs.pdf",
+      "sha256": "cff857956680b7ab141dc513e5d8dc89a29666b2812041f41822d8b10b6d1706",
+      "notes_copy_matches": true,
+      "pages": 41
+    },
+    {
+      "path": "lecture/COMP90086-17-Diffusion.pdf",
+      "sha256": "8580e95db6f20a758634a79b67a4e6171d0ca2dc0acb0c3ab89b92b8cf758c50",
+      "notes_copy_matches": true,
+      "pages": 36
+    },
+    {
+      "path": "lecture/COMP90086-19-Segmentation.pdf",
+      "sha256": "8d4c46422af5b529365f8b484cc231b9ffe311d89116761ed0e13bf3b06dc694",
+      "notes_copy_matches": true,
+      "pages": 50
+    },
+    {
+      "path": "lecture/COMP90086-20-Segmentation2.pdf",
+      "sha256": "42a9af1a5c82f920db2cd2a31ea58b9410fc0ab11b6f20b6c4279a47ed9b4a31",
+      "notes_copy_matches": true,
+      "pages": 47
+    },
+    {
+      "path": "lecture/COMP90086-21-ObjectDetection.pdf",
+      "sha256": "0ff082c0286292bb4babf0868e62bee61a4d5358d607c4ec53bf71b3fcf85261",
+      "notes_copy_matches": true,
+      "pages": 55
+    },
+    {
+      "path": "lecture/COMP90086-22-ObjectDetection2.pdf",
+      "sha256": "924b8c9ac81ab635bf18ee15a628adb63b7c267bd1e69155072b0e1cdb340ac5",
+      "notes_copy_matches": true,
+      "pages": 36
+    },
+    {
+      "path": "lecture/COMP90086-23-Revision.pdf",
+      "sha256": "6028bb30677d50063397324af9478488a12797a618c98a00deffb6203b7698b7",
+      "notes_copy_matches": true,
+      "pages": 20
+    },
+    {
+      "path": "lecture/COMP90086_12_feature-matching.pdf",
+      "sha256": "6608997fb06674ba5ddedf9dc291abf81bf9b562ce3cda4e548163d3a4b5ba8c",
+      "notes_copy_matches": true,
+      "pages": 29
+    },
+    {
+      "path": "lecture/COMP90086_13_depth-stereo.pdf",
+      "sha256": "7486ecd6f7c62739fb31e129f8006854548a143cf47cb611c84aad83ccff37b1",
+      "notes_copy_matches": true,
+      "pages": 32
+    },
+    {
+      "path": "lecture/COMP90086_14_two-view-geometry.pdf",
+      "sha256": "b4777818ca76806551c6964574b0f35c648f578e325ad0ac4ef7c547da608c28",
+      "notes_copy_matches": true,
+      "pages": 33
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-01-F-transcript.txt",
+      "sha256": "165fe749677d41d212b2cab4d10072f596eb78772b799cb450299920edbf2b91",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-01-W-transcript.txt",
+      "sha256": "713a6872d54c158fab7068f458a12b2ad726a0be1b025cc65f050a647fdd6dcf",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-02-F-transcript.txt",
+      "sha256": "c0098c1ff142817d1204e1e6d532d22325e2eeb8a4ba769fc5bc49714c2d7805",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-02-W-transcript.txt",
+      "sha256": "5c92b1250b82bdc151f41e056fe9929204bccc97b6d3ef5ac006e647fd656811",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-03-F-transcript.txt",
+      "sha256": "dbe24b26f1a7d4aeeaf9b986248a7cff5acf0de0f0eabf8c3ed2c454a62003d9",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-03-W-transcript.txt",
+      "sha256": "8f564d529e8e3e9af1382c45f6f12ef57b5152d1b3b857218bb2a1a2b80e75bf",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-04-F-transcript.txt",
+      "sha256": "d1642b35484be4b0deb9c631d060a4418e3d544e56ed7e461e0ac677f6d0cd30",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-04-W-transcript.txt",
+      "sha256": "4a693ff5f06ed1ebe0bbfbab87c5d9eda5b7e61895cc91eabe3e3aa112b32d1c",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-05-F-transcript.txt",
+      "sha256": "f40e449e848a089faf4d105407c458a42b9a44e3b1c3efe2a77d2f82b8b6e22e",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-05-W-transcript.txt",
+      "sha256": "79050d0134a759b982be682e3bd1314b1e612bd5d45515909dfd8806a4e667a7",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-06-F-transcript.txt",
+      "sha256": "ffd6c4160aaf8df1fc38720e47b695cf526e106046709eaee26f18480dd14528",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-06-W-transcript.txt",
+      "sha256": "c65b037a721dd53d78f95e278a9de0dc53e2583769a04cb9e4e0b9526859a528",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-07-F-transcript.txt",
+      "sha256": "916b50e50ec024e9300e7a03a43aaafd9b50a3aea91af9c941bc2f612d0d901a",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-07-W-transcript.txt",
+      "sha256": "9a3f38f40bc389a97b804ece3337aa125c607ce8e1f4e9e4106b7896bd9e5ea2",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-08-F-transcript.txt",
+      "sha256": "24438a033d4bf0598376b0ebb03cb7f6a3d751ef43d99e4d654038c6907ed59c",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-08-W-transcript.txt",
+      "sha256": "31775088eee01e49f05a6a8a7ed5579783b7fb1cdab293e65129839e02886251",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-09-W-transcript.txt",
+      "sha256": "0b21eda0ab1c0d21d4f155066050cf5fc9eeb3ecbd7278a891c7236c134e840b",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-10-F-transcript.txt",
+      "sha256": "b27b959f37b91994afb03683b02388919feb1a3aa7a5b9fe067773285f5e035c",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-10-W-transcript.txt",
+      "sha256": "b32c4c5cd2c5a28839467660b7f1cd53ff1313b2a8b15fa8a4f1a2b4cba52630",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-11-F-transcript.txt",
+      "sha256": "7b55281ae2d815dea114ba422cf712e3545f758833c339fb0e88b74cbe193d48",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-11-W-transcript.txt",
+      "sha256": "e2a9a5d90a40b007e1c8eb747faf47474efb032919392c44369b266476b85b92",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "transcript/COMP90086_2026_SM2 Week-12-W-transcript.txt",
+      "sha256": "451ef7e5776a87c7c77bcb0f69ab0bc2985cdf89e6a3ad82c6c05310ff7f0c7f",
+      "notes_copy_matches": true
+    },
+    {
+      "path": "workshop/week-01/worksheet01.ipynb",
+      "sha256": "e0a4ad260c91a12cda5a5a015fe278cd4e27938621c56fa90ff0e951afc4e0f4",
+      "notes_copy_matches": true,
+      "cells": 12
+    },
+    {
+      "path": "workshop/week-02/worksheet02.ipynb",
+      "sha256": "53f09aa8d8a27b49cd12e931022646d08a9c145cc60eb719410f9a24c491b87f",
+      "notes_copy_matches": true,
+      "cells": 126
+    },
+    {
+      "path": "workshop/week-02/workshop02_solution.ipynb",
+      "sha256": "5d29818965b9ab46ac7f5e609e7acf5f0a63fc8a5e121ccfd1388914bfceb050",
+      "notes_copy_matches": true,
+      "cells": 17
+    },
+    {
+      "path": "workshop/week-03/worksheet03.ipynb",
+      "sha256": "1fa05164286db43560902b33f85021527a00a7af106399ddebf6d5c5ea51c5d2",
+      "notes_copy_matches": true,
+      "cells": 81
+    },
+    {
+      "path": "workshop/week-03/workshop03_solution.ipynb",
+      "sha256": "27fdc4a94a05d31889126c86081730a569ba6e683df66eba8c7bdc37527d11ae",
+      "notes_copy_matches": true,
+      "cells": 14
+    },
+    {
+      "path": "workshop/week-04/worksheet04.ipynb",
+      "sha256": "e7e93918f1c5ae62ed213ba3c46fcf8f216e671e27fec123983d74c2be192f75",
+      "notes_copy_matches": true,
+      "cells": 65
+    },
+    {
+      "path": "workshop/week-04/worksheet04_solution.ipynb",
+      "sha256": "7e110f97c941e3c16d7d1e6bf38a896c8acac7188286a2edb2d5553753358911",
+      "notes_copy_matches": true,
+      "cells": 65
+    },
+    {
+      "path": "workshop/week-05/worksheet05.ipynb",
+      "sha256": "44a36c0a5be46d2dcaedf7db546741a843e623929f61ce8b43ef5df64d95c3a7",
+      "notes_copy_matches": true,
+      "cells": 37
+    },
+    {
+      "path": "workshop/week-05/worksheet05_solution.ipynb",
+      "sha256": "95ebc30ab1c7cd2e3a6b0d1b2f8eadc442ece2ba7a8f0f92640d9b9aa5f1d184",
+      "notes_copy_matches": true,
+      "cells": 41
+    },
+    {
+      "path": "workshop/week-06/worksheet06.ipynb",
+      "sha256": "cdc464be0a90d9b8469d95fe3f96d5ad8c494e9063e5c8828687deb690a6862c",
+      "notes_copy_matches": true,
+      "cells": 47
+    },
+    {
+      "path": "workshop/week-06/worksheet06_solution.ipynb",
+      "sha256": "0502cb79abfad97e47b9e52e84c504a075590e577a23e8064b12bd977b659f12",
+      "notes_copy_matches": true,
+      "cells": 47
+    },
+    {
+      "path": "workshop/week-07/worksheet07.ipynb",
+      "sha256": "3c8266232ae2ca96ed3b1b67fe38aa186fa2bb28eb8c2a0f7f95e9bf4465004c",
+      "notes_copy_matches": true,
+      "cells": 58
+    },
+    {
+      "path": "workshop/week-07/worksheet07_solution.ipynb",
+      "sha256": "ff72fed7cc69683526f625a692db7b16365a4c309eafbf6f042b46fbc85ee700",
+      "notes_copy_matches": true,
+      "cells": 66
+    },
+    {
+      "path": "workshop/week-08/worksheet08.ipynb",
+      "sha256": "6fd012cf3924ab41c3f36a6d7044bcd3b0846938c82dcdbb7f79c810d0453a6c",
+      "notes_copy_matches": true,
+      "cells": 44
+    },
+    {
+      "path": "workshop/week-08/worksheet08_solution.ipynb",
+      "sha256": "313f038d78e36c67ad2df36899a199cce45b9cc8eedeaee2e5bc5a8985f2e42f",
+      "notes_copy_matches": true,
+      "cells": 44
+    },
+    {
+      "path": "workshop/week-09/worksheet9.ipynb",
+      "sha256": "e6a1181e03baaf96880198dcf6d075ef1af60bb22b1e9bd7db6964776ab3c9e8",
+      "notes_copy_matches": true,
+      "cells": 87
+    },
+    {
+      "path": "workshop/week-09/worksheet9_Autoencoders_solution.ipynb",
+      "sha256": "c55991dfaf37a68672a73ec41a65636ce7f9610b559e08bf6234e2dc663869a9",
+      "notes_copy_matches": true,
+      "cells": 94
+    },
+    {
+      "path": "workshop/week-10/worksheet10-diffusion-solution.ipynb",
+      "sha256": "b7165d0f0effb357de7db7d072c289812758383ffe7ef956238be3099107fac0",
+      "notes_copy_matches": true,
+      "cells": 33
+    },
+    {
+      "path": "workshop/week-10/worksheet10-diffusion.ipynb",
+      "sha256": "fc4c3ab9cc544ee45c6591d5437b8bf1609fdfc55d1fc1c909e6d1e5d169c1e8",
+      "notes_copy_matches": true,
+      "cells": 33
+    },
+    {
+      "path": "workshop/week-11/worksheet11-old-24.ipynb",
+      "sha256": "91689ed86e4b9d4b5dff22634bec8568c0c9df78ba0858dccba04bfa63d2678d",
+      "notes_copy_matches": true,
+      "cells": 59
+    },
+    {
+      "path": "workshop/week-11/worksheet11.ipynb",
+      "sha256": "173aa0659c66a849e0455d4b5e229a4a5daf80e237c391c2bac4fb39d784f10f",
+      "notes_copy_matches": true,
+      "cells": 59
+    },
+    {
+      "path": "workshop/week-11/worksheet11_solution.ipynb",
+      "sha256": "176351ec8198139ddc6258c94ef487ce47a71e5ecd3bf077ad26104e7ec98d99",
+      "notes_copy_matches": true,
+      "cells": 62
+    },
+    {
+      "path": "workshop/week-12/worksheet12_colab_new.ipynb",
+      "sha256": "6ab685fec14e623b3634cbdf7566b245ef3c1be1b1973922b3fba0d83b69c2ad",
+      "notes_copy_matches": true,
+      "cells": 49
+    }
+  ]
+}

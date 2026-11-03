@@ -13,7 +13,7 @@ These notes are written for learners who are new to computer vision. Each lectur
 | How to generate new images | [15 AE and VAE](15-generation.en.md) → [16 GAN](16-gans.en.md) → [17 Diffusion models](17-diffusion.en.md) | Tell apart reconstruction, adversarial training and step-by-step denoising |
 | How to locate and segment objects | [19 Classical segmentation](19-segmentation-i.en.md) → [20 Learned segmentation](20-segmentation-ii.en.md) → [21 Two-stage detection](21-object-detection-i.en.md) → [22 One-stage detection and evaluation](22-object-detection-ii.en.md) | Distinguish pixel grouping, classes, instances and bounding boxes |
 
-While following the course, read the notes in file order 01–22 (21 notes so far; Canvas shows no link for Lecture 18, so that number is left as a gap); when revising, read by topic using the table above. For a hands-on feel for the concepts, see the [Device Gallery](topics/README.en.md): 16 interactive devices cover the first 16 lectures, grouped into five topic notes, and each is also embedded in the matching section of its lecture (they are only visible when reading in Fieldnotes). A concept that recurs across lectures is explained in detail only in its main section; other places link back to it.
+While following the course, read the notes in file order 01–22 (21 content lectures; Lecture 18 was cancelled, so the original numbering skips it); when revising, read by topic using the table above. For a hands-on feel for the concepts, see the [Device Gallery](topics/README.en.md): 16 interactive devices cover the first 16 lectures, grouped into five topic notes, and each is also embedded in the matching section of its lecture (they are only visible when reading in Fieldnotes). A concept that recurs across lectures is explained in detail only in its main section; other places link back to it.
 
 ## Where the workshops fit
 
@@ -37,18 +37,18 @@ The notes explain the purpose of each original exercise and where it is easy to 
 
 ## Resources and sources
 
-- [Resource completeness](RESOURCE-STATUS.en.md): incrementally updated to Week 11 on 2026-10-13; lists items not yet released or not obtainable.
+- [Resource completeness](RESOURCE-STATUS.en.md): local archive checked on 2026-11-03; distinguishes available sources from unresolved gaps.
 - [Reading Links](READING-LINKS.md): all reading links and chapters kept in one place, so the notes do not repeat them.
 - [Resource inventory and checksums](RESOURCE-INVENTORY.json): sources, original file names and local checksum records.
 
-Each note opens by listing its PDF and transcripts. Lectures 1–17 and 19–20 have local transcripts; Lectures 21–22 are preview notes based on the released slides, with the recorded lectures scheduled for 14 and 16 October. `老师原话` (the lecturer's words) is used only for English that can be checked against the transcripts; the Chinese explanations are the notes' interpretation of the material. Examples of my own and derivations beyond the course are marked separately.
+Each note opens by listing its PDF and transcripts. Lectures 1–17 and 19–22 have corresponding local transcripts; Lecture 23 Revision also has a transcript. Lecturer quotations refer to verified transcript wording.
 
-Slide screenshot numbers always refer to the **PDF page number**, which may differ from the printed footer number; screenshots of interactive demos are static images. The cover slides of Lectures 10, 11, 21 and 22 still carry an old year, and the footers of Lectures 15 and 16 still say Week 9; filing by week follows where Canvas currently publishes them and the lecture topic.
+Slide screenshot numbers always refer to the **PDF page number**, which may differ from the printed footer number; screenshots of interactive demos are static images. Lectures 10 and 11 retain older cover years; the current L21/L22 covers say 2026, while the copyright line retains 2021. Lectures 15 and 16 retain Week 9 footers. Filing follows the archived course context and topic.
 
 | Local directory | Contents |
 | --- | --- |
-| `lecture/` | 21 lecture slide PDFs |
-| `transcript/` | 19 transcripts filed by Week/W/F |
+| `lecture/` | 22 current lecture slide PDFs |
+| `transcript/` | 22 transcripts filed by Week/W/F |
 | `workshop/week-NN/` | Week 1–11 exercises and accompanying files, Week 2–10 released solutions |
 | `workshop/packages/` | Original workshop archives |
 | `assets/<topic>/` | PNG screenshots of selected slides |
@@ -62,3 +62,9 @@ Original course materials and screenshots are kept locally and not committed to 
 **Sampling, Aliasing, and Filtering**. The original due date was 2026-08-23 23:59, worth 6% of the final grade; this records the original requirements and says nothing about any current extension or submission status.
 
 The tasks cover downsampling and aliasing, Gaussian anti-aliasing, and a run-time comparison of direct 2D filtering, separable 1D filtering and the FFT method. The local `assignment/A1/` keeps the specification, the notebook, `zoneplate.png` and `picket-fence.jpg`; the original specification is authoritative for the exact deliverables.
+
+## Local archive update, 2026-11-03
+
+The current local archive contains 22 slide PDFs (including Lecture 23 Revision), 22 weekly transcripts and 23 workshop notebooks including solutions and the old Week 11 worksheet. Lectures 21 and 22 are no longer previews. The current L22 PDF has 36 pages and covers YOLO, DETR and evaluation. The 2021 copyright line on L21/L22 is not the cover semester. Lecture 18 was cancelled and is not missing material. This was a local check, not a fresh Canvas publication check.
+
+The new [Chinese encyclopedia](encyclopedia/README.md) contains 121 entries with sources, direct prerequisites and activity tiers. [Learning paths](LEARNING-PATHS.md) separate lecture routes, supplementary activities and optional workshop/application topics. These are teaching specifications, not implemented game levels. The detailed new entry material is currently in Chinese.

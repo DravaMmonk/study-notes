@@ -2586,5 +2586,13 @@
     "2026-09-25",
     "2026-09-30",
     "2026-10-02"
+  ],
+  "user_confirmed_corrections": [
+    {
+      "confirmed_at": "2026-11-03",
+      "lecture": 18,
+      "status": "cancelled",
+      "note": "The user confirmed that Lecture 18 was cancelled. The numbering skips 18; this is not missing course material."
+    }
   ]
 }

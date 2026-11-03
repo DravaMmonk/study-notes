@@ -191,3 +191,9 @@ JPEG 的简化流程是：
 1. 条纹变密后，中心化频谱的亮点向哪里移动？
 2. 为什么交换两张图的相位会改变可辨认的结构？
 3. 硬低通与高斯低通在边缘附近可能有什么不同？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[频率、幅度与相位](encyclopedia/02-processing.md#sinusoid) · [二维频谱与傅里叶变换](encyclopedia/02-processing.md#fourier) · [卷积定理与频率滤波](encyclopedia/02-processing.md#frequency-filter) · [硬截断与振铃](encyclopedia/02-processing.md#ringing) · [频域压缩](encyclopedia/02-processing.md#compression)

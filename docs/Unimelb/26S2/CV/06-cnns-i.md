@@ -271,3 +271,9 @@ CNN 不是“只要用了卷积就一定识别得好”。它提供了适合图�
 1. 输入有 3 个通道、输出有 10 个通道，一个滤波器应覆盖多少输入通道？
 2. 卷积层参数量与输出尺寸分别取决于哪些量？
 3. 为什么卷积堆叠中还要加入 ReLU？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[分类表示与神经网络](encyclopedia/03-learning.md#recognition) · [多通道卷积与参数共享](encyclopedia/03-learning.md#channels) · [步幅、尺寸与感受野](encyclopedia/03-learning.md#stride)

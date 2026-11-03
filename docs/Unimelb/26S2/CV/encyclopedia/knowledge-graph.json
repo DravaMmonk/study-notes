@@ -1,0 +1,1901 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-11-03",
+  "scope": "Local archived course materials; no live Canvas verification. Planned activities are not playable levels.",
+  "entries": [
+    {
+      "id": "vision-task",
+      "title": "视觉任务与输出",
+      "topic": 1,
+      "lecture": 1,
+      "pages": "6–8、26–30",
+      "requires": [],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#vision-task",
+      "source_pdf": "COMP90086-01-Introduction.pdf"
+    },
+    {
+      "id": "pixels",
+      "title": "像素、坐标与通道",
+      "topic": 1,
+      "lecture": 2,
+      "pages": "22–27",
+      "requires": [
+        "vision-task"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#pixels",
+      "source_pdf": "COMP90086-02-Basics.pdf"
+    },
+    {
+      "id": "projection",
+      "title": "针孔投影与深度歧义",
+      "topic": 1,
+      "lecture": 2,
+      "pages": "10–15",
+      "requires": [
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#projection",
+      "source_pdf": "COMP90086-02-Basics.pdf"
+    },
+    {
+      "id": "lens",
+      "title": "焦距、光圈与景深",
+      "topic": 1,
+      "lecture": 2,
+      "pages": "12–17",
+      "requires": [
+        "projection"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#lens",
+      "source_pdf": "COMP90086-02-Basics.pdf"
+    },
+    {
+      "id": "sampling",
+      "title": "裁剪、重采样与插值",
+      "topic": 1,
+      "lecture": 2,
+      "pages": "34–40",
+      "requires": [
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#sampling",
+      "source_pdf": "COMP90086-02-Basics.pdf"
+    },
+    {
+      "id": "reflectance",
+      "title": "朗伯反射与成像歧义",
+      "topic": 1,
+      "lecture": 5,
+      "pages": "5–7、22–30",
+      "requires": [
+        "projection"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#reflectance",
+      "source_pdf": "COMP90086-05-ImageFormationII.pdf"
+    },
+    {
+      "id": "colour",
+      "title": "光谱、三色响应与颜色空间",
+      "topic": 1,
+      "lecture": 5,
+      "pages": "9–20",
+      "requires": [
+        "pixels"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#colour",
+      "source_pdf": "COMP90086-05-ImageFormationII.pdf"
+    },
+    {
+      "id": "material",
+      "title": "阴影、高光与材质",
+      "topic": 1,
+      "lecture": 5,
+      "pages": "31–35",
+      "requires": [
+        "reflectance",
+        "colour"
+      ],
+      "tier": "纯文案",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#material",
+      "source_pdf": "COMP90086-05-ImageFormationII.pdf"
+    },
+    {
+      "id": "equivariance",
+      "title": "不变性、容忍度与等变性",
+      "topic": 1,
+      "lecture": 5,
+      "pages": "36–53",
+      "requires": [
+        "pixels"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "01-image-formation.md#equivariance",
+      "source_pdf": "COMP90086-05-ImageFormationII.pdf"
+    },
+    {
+      "id": "weighted-sum",
+      "title": "像素算子与局部加权和",
+      "topic": 2,
+      "lecture": 3,
+      "pages": "6–16",
+      "requires": [
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#weighted-sum",
+      "source_pdf": "COMP90086-03-Filters.pdf"
+    },
+    {
+      "id": "convolution",
+      "title": "卷积与互相关",
+      "topic": 2,
+      "lecture": 3,
+      "pages": "17–19",
+      "requires": [
+        "weighted-sum"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#convolution",
+      "source_pdf": "COMP90086-03-Filters.pdf"
+    },
+    {
+      "id": "filters",
+      "title": "平滑、锐化与高斯核",
+      "topic": 2,
+      "lecture": 3,
+      "pages": "21–35",
+      "requires": [
+        "weighted-sum"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#filters",
+      "source_pdf": "COMP90086-03-Filters.pdf"
+    },
+    {
+      "id": "gradient",
+      "title": "偏导数、梯度与边缘",
+      "topic": 2,
+      "lecture": 5,
+      "pages": "39–45",
+      "requires": [
+        "weighted-sum"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#gradient",
+      "source_pdf": "COMP90086-05-ImageFormationII.pdf"
+    },
+    {
+      "id": "padding",
+      "title": "边界与输出尺寸",
+      "topic": 2,
+      "lecture": 3,
+      "pages": "41–46",
+      "requires": [
+        "convolution"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#padding",
+      "source_pdf": "COMP90086-03-Filters.pdf"
+    },
+    {
+      "id": "separable",
+      "title": "空间可分离滤波与计算量",
+      "topic": 2,
+      "lecture": 3,
+      "pages": "37–40",
+      "requires": [
+        "convolution"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#separable",
+      "source_pdf": "COMP90086-03-Filters.pdf"
+    },
+    {
+      "id": "sinusoid",
+      "title": "频率、幅度与相位",
+      "topic": 2,
+      "lecture": 4,
+      "pages": "6–22",
+      "requires": [
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#sinusoid",
+      "source_pdf": "COMP90086-04-Fourier.pdf"
+    },
+    {
+      "id": "fourier",
+      "title": "二维频谱与傅里叶变换",
+      "topic": 2,
+      "lecture": 4,
+      "pages": "24–35",
+      "requires": [
+        "sinusoid"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#fourier",
+      "source_pdf": "COMP90086-04-Fourier.pdf"
+    },
+    {
+      "id": "frequency-filter",
+      "title": "卷积定理与频率滤波",
+      "topic": 2,
+      "lecture": 4,
+      "pages": "37–44",
+      "requires": [
+        "fourier",
+        "convolution"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#frequency-filter",
+      "source_pdf": "COMP90086-04-Fourier.pdf"
+    },
+    {
+      "id": "ringing",
+      "title": "硬截断与振铃",
+      "topic": 2,
+      "lecture": 4,
+      "pages": "45–50",
+      "requires": [
+        "frequency-filter"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#ringing",
+      "source_pdf": "COMP90086-04-Fourier.pdf"
+    },
+    {
+      "id": "compression",
+      "title": "频域压缩",
+      "topic": 2,
+      "lecture": 4,
+      "pages": "52–54",
+      "requires": [
+        "fourier"
+      ],
+      "tier": "纯文案",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "02-processing.md#compression",
+      "source_pdf": "COMP90086-04-Fourier.pdf"
+    },
+    {
+      "id": "recognition",
+      "title": "分类表示与神经网络",
+      "topic": 3,
+      "lecture": 6,
+      "pages": "5–24",
+      "requires": [
+        "vision-task",
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#recognition",
+      "source_pdf": "COMP90086-06-CNNsI.pdf"
+    },
+    {
+      "id": "channels",
+      "title": "多通道卷积与参数共享",
+      "topic": 3,
+      "lecture": 6,
+      "pages": "29–46",
+      "requires": [
+        "convolution",
+        "recognition"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#channels",
+      "source_pdf": "COMP90086-06-CNNsI.pdf"
+    },
+    {
+      "id": "stride",
+      "title": "步幅、尺寸与感受野",
+      "topic": 3,
+      "lecture": 6,
+      "pages": "47–53",
+      "requires": [
+        "channels",
+        "padding"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#stride",
+      "source_pdf": "COMP90086-06-CNNsI.pdf"
+    },
+    {
+      "id": "pooling",
+      "title": "最大池化与平均池化",
+      "topic": 3,
+      "lecture": 7,
+      "pages": "6–14",
+      "requires": [
+        "channels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#pooling",
+      "source_pdf": "COMP90086-07-CNNsII.pdf"
+    },
+    {
+      "id": "classification-loss",
+      "title": "Softmax 与交叉熵",
+      "topic": 3,
+      "lecture": 7,
+      "pages": "25–28",
+      "requires": [
+        "recognition"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#classification-loss",
+      "source_pdf": "COMP90086-07-CNNsII.pdf"
+    },
+    {
+      "id": "train-split",
+      "title": "训练、验证与测试",
+      "topic": 3,
+      "lecture": 7,
+      "pages": "29、35–40",
+      "requires": [
+        "classification-loss"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#train-split",
+      "source_pdf": "COMP90086-07-CNNsII.pdf"
+    },
+    {
+      "id": "regularisation",
+      "title": "正则化、Dropout 与提前停止",
+      "topic": 3,
+      "lecture": 7,
+      "pages": "16–23",
+      "requires": [
+        "train-split"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#regularisation",
+      "source_pdf": "COMP90086-07-CNNsII.pdf"
+    },
+    {
+      "id": "optimisation",
+      "title": "批次、学习率与增强",
+      "topic": 3,
+      "lecture": 7,
+      "pages": "30–40",
+      "requires": [
+        "train-split"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#optimisation",
+      "source_pdf": "COMP90086-07-CNNsII.pdf"
+    },
+    {
+      "id": "receptive-field",
+      "title": "小核堆叠与多尺度结构",
+      "topic": 3,
+      "lecture": 8,
+      "pages": "12–20",
+      "requires": [
+        "stride"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#receptive-field",
+      "source_pdf": "COMP90086-08-CNNsIII.pdf"
+    },
+    {
+      "id": "residual",
+      "title": "残差连接",
+      "topic": 3,
+      "lecture": 8,
+      "pages": "21–26",
+      "requires": [
+        "channels",
+        "recognition"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#residual",
+      "source_pdf": "COMP90086-08-CNNsIII.pdf"
+    },
+    {
+      "id": "depthwise",
+      "title": "深度可分离卷积与模型缩放",
+      "topic": 3,
+      "lecture": 8,
+      "pages": "27–32",
+      "requires": [
+        "channels",
+        "receptive-field"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#depthwise",
+      "source_pdf": "COMP90086-08-CNNsIII.pdf"
+    },
+    {
+      "id": "transfer",
+      "title": "迁移学习与微调",
+      "topic": 3,
+      "lecture": 8,
+      "pages": "35–48",
+      "requires": [
+        "train-split",
+        "recognition"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#transfer",
+      "source_pdf": "COMP90086-08-CNNsIII.pdf"
+    },
+    {
+      "id": "patches",
+      "title": "归纳偏置与图块 token",
+      "topic": 3,
+      "lecture": 9,
+      "pages": "5–14",
+      "requires": [
+        "equivariance",
+        "channels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#patches",
+      "source_pdf": "COMP90086-09-ViT.pdf"
+    },
+    {
+      "id": "attention",
+      "title": "Query、Key、Value 与自注意力",
+      "topic": 3,
+      "lecture": 9,
+      "pages": "15–18、20",
+      "requires": [
+        "patches"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#attention",
+      "source_pdf": "COMP90086-09-ViT.pdf"
+    },
+    {
+      "id": "position",
+      "title": "位置编码与 Transformer 块",
+      "topic": 3,
+      "lecture": 9,
+      "pages": "19–24",
+      "requires": [
+        "attention",
+        "residual"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#position",
+      "source_pdf": "COMP90086-09-ViT.pdf"
+    },
+    {
+      "id": "attention-cost",
+      "title": "注意力的成本与数据取舍",
+      "topic": 3,
+      "lecture": 9,
+      "pages": "26–34",
+      "requires": [
+        "attention",
+        "train-split"
+      ],
+      "tier": "纯文案",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#attention-cost",
+      "source_pdf": "COMP90086-09-ViT.pdf"
+    },
+    {
+      "id": "contrastive",
+      "title": "自监督与对比学习",
+      "topic": 3,
+      "lecture": 10,
+      "pages": "5–9",
+      "requires": [
+        "classification-loss",
+        "optimisation"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#contrastive",
+      "source_pdf": "COMP90086-10-representations.pdf"
+    },
+    {
+      "id": "clip",
+      "title": "CLIP 与零样本分类",
+      "topic": 3,
+      "lecture": 10,
+      "pages": "11–17",
+      "requires": [
+        "contrastive"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#clip",
+      "source_pdf": "COMP90086-10-representations.pdf"
+    },
+    {
+      "id": "interpretability",
+      "title": "遮挡、CAM 与表示检查",
+      "topic": 3,
+      "lecture": 10,
+      "pages": "19–30",
+      "requires": [
+        "recognition",
+        "channels"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#interpretability",
+      "source_pdf": "COMP90086-10-representations.pdf"
+    },
+    {
+      "id": "robustness",
+      "title": "纹理偏置与分布变化",
+      "topic": 3,
+      "lecture": 10,
+      "pages": "35–43",
+      "requires": [
+        "train-split",
+        "interpretability"
+      ],
+      "tier": "纯文案",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#robustness",
+      "source_pdf": "COMP90086-10-representations.pdf"
+    },
+    {
+      "id": "keypoint",
+      "title": "关键点、检测器与描述子",
+      "topic": 4,
+      "lecture": 11,
+      "pages": "6–11、24–25",
+      "requires": [
+        "gradient",
+        "equivariance"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#keypoint",
+      "source_pdf": "COMP90086-11-features.pdf"
+    },
+    {
+      "id": "harris",
+      "title": "结构张量与 Harris 角点",
+      "topic": 4,
+      "lecture": 11,
+      "pages": "12–21",
+      "requires": [
+        "keypoint",
+        "weighted-sum"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#harris",
+      "source_pdf": "COMP90086-11-features.pdf"
+    },
+    {
+      "id": "sift",
+      "title": "SIFT 描述与尺度方向对齐",
+      "topic": 4,
+      "lecture": 11,
+      "pages": "25–29",
+      "requires": [
+        "keypoint",
+        "gradient"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#sift",
+      "source_pdf": "COMP90086-11-features.pdf"
+    },
+    {
+      "id": "outlier",
+      "title": "噪声、外点与几何一致性",
+      "topic": 4,
+      "lecture": 12,
+      "pages": "5–9",
+      "requires": [
+        "sift"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#outlier",
+      "source_pdf": "COMP90086_12_feature-matching.pdf"
+    },
+    {
+      "id": "hough",
+      "title": "Hough 参数空间投票",
+      "topic": 4,
+      "lecture": 12,
+      "pages": "11–16",
+      "requires": [
+        "gradient",
+        "outlier"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#hough",
+      "source_pdf": "COMP90086_12_feature-matching.pdf"
+    },
+    {
+      "id": "ransac",
+      "title": "RANSAC 与采样次数",
+      "topic": 4,
+      "lecture": 12,
+      "pages": "18–20",
+      "requires": [
+        "outlier"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#ransac",
+      "source_pdf": "COMP90086_12_feature-matching.pdf"
+    },
+    {
+      "id": "ratio-test",
+      "title": "描述子比值检验",
+      "topic": 4,
+      "lecture": 12,
+      "pages": "22–24",
+      "requires": [
+        "sift"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#ratio-test",
+      "source_pdf": "COMP90086_12_feature-matching.pdf"
+    },
+    {
+      "id": "homography",
+      "title": "平面单应变换",
+      "topic": 4,
+      "lecture": 12,
+      "pages": "25–28",
+      "requires": [
+        "ransac",
+        "ratio-test"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#homography",
+      "source_pdf": "COMP90086_12_feature-matching.pdf"
+    },
+    {
+      "id": "depth-cues",
+      "title": "单视图深度线索",
+      "topic": 4,
+      "lecture": 13,
+      "pages": "5–8",
+      "requires": [
+        "projection"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#depth-cues",
+      "source_pdf": "COMP90086_13_depth-stereo.pdf"
+    },
+    {
+      "id": "disparity",
+      "title": "校正双目的视差与深度",
+      "topic": 4,
+      "lecture": 13,
+      "pages": "10–13",
+      "requires": [
+        "projection"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#disparity",
+      "source_pdf": "COMP90086_13_depth-stereo.pdf"
+    },
+    {
+      "id": "stereo-matching",
+      "title": "双目窗口代价与全局约束",
+      "topic": 4,
+      "lecture": 13,
+      "pages": "15–24",
+      "requires": [
+        "disparity",
+        "outlier"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#stereo-matching",
+      "source_pdf": "COMP90086_13_depth-stereo.pdf"
+    },
+    {
+      "id": "learned-depth",
+      "title": "监督与双目自监督深度",
+      "topic": 4,
+      "lecture": 13,
+      "pages": "27–30",
+      "requires": [
+        "stereo-matching",
+        "train-split"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#learned-depth",
+      "source_pdf": "COMP90086_13_depth-stereo.pdf"
+    },
+    {
+      "id": "homogeneous",
+      "title": "齐次点、直线与叉积",
+      "topic": 4,
+      "lecture": 14,
+      "pages": "6–8",
+      "requires": [
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#homogeneous",
+      "source_pdf": "COMP90086_14_two-view-geometry.pdf"
+    },
+    {
+      "id": "calibration",
+      "title": "相机内参、外参与标定",
+      "topic": 4,
+      "lecture": 14,
+      "pages": "10–13",
+      "requires": [
+        "homogeneous",
+        "projection"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#calibration",
+      "source_pdf": "COMP90086_14_two-view-geometry.pdf"
+    },
+    {
+      "id": "epipolar",
+      "title": "极平面、极点与极线",
+      "topic": 4,
+      "lecture": 14,
+      "pages": "18–22",
+      "requires": [
+        "calibration"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#epipolar",
+      "source_pdf": "COMP90086_14_two-view-geometry.pdf"
+    },
+    {
+      "id": "fundamental",
+      "title": "本质矩阵与基础矩阵",
+      "topic": 4,
+      "lecture": 14,
+      "pages": "20–26",
+      "requires": [
+        "epipolar",
+        "ransac"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#fundamental",
+      "source_pdf": "COMP90086_14_two-view-geometry.pdf"
+    },
+    {
+      "id": "rectification",
+      "title": "双目校正、三角化与退化",
+      "topic": 4,
+      "lecture": 14,
+      "pages": "16、28–31",
+      "requires": [
+        "fundamental",
+        "disparity",
+        "homography"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "04-geometry.md#rectification",
+      "source_pdf": "COMP90086_14_two-view-geometry.pdf"
+    },
+    {
+      "id": "probability",
+      "title": "概率密度与条件生成",
+      "topic": 5,
+      "lecture": 15,
+      "pages": "5–18",
+      "requires": [
+        "vision-task"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#probability",
+      "source_pdf": "COMP90086-15-Generation.pdf"
+    },
+    {
+      "id": "autoencoder",
+      "title": "自编码器与瓶颈",
+      "topic": 5,
+      "lecture": 15,
+      "pages": "22–30",
+      "requires": [
+        "recognition",
+        "classification-loss"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#autoencoder",
+      "source_pdf": "COMP90086-15-Generation.pdf"
+    },
+    {
+      "id": "vae",
+      "title": "VAE、重参数化与两项损失",
+      "topic": 5,
+      "lecture": 15,
+      "pages": "31–38",
+      "requires": [
+        "autoencoder",
+        "probability"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#vae",
+      "source_pdf": "COMP90086-15-Generation.pdf"
+    },
+    {
+      "id": "latent-sampling",
+      "title": "潜空间采样与编辑",
+      "topic": 5,
+      "lecture": 15,
+      "pages": "39–46",
+      "requires": [
+        "vae"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#latent-sampling",
+      "source_pdf": "COMP90086-15-Generation.pdf"
+    },
+    {
+      "id": "gan",
+      "title": "GAN 的生成器与判别器",
+      "topic": 5,
+      "lecture": 16,
+      "pages": "7–14",
+      "requires": [
+        "probability",
+        "recognition"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#gan",
+      "source_pdf": "COMP90086-16-GANs.pdf"
+    },
+    {
+      "id": "gan-stability",
+      "title": "对抗平衡与模式坍塌",
+      "topic": 5,
+      "lecture": 16,
+      "pages": "15、19、29–33",
+      "requires": [
+        "gan"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#gan-stability",
+      "source_pdf": "COMP90086-16-GANs.pdf"
+    },
+    {
+      "id": "generation-evaluation",
+      "title": "记忆、逼真度与多样性",
+      "topic": 5,
+      "lecture": 16,
+      "pages": "21–33",
+      "requires": [
+        "gan-stability",
+        "train-split"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#generation-evaluation",
+      "source_pdf": "COMP90086-16-GANs.pdf"
+    },
+    {
+      "id": "conditional-gan",
+      "title": "条件 GAN 与循环一致性",
+      "topic": 5,
+      "lecture": 16,
+      "pages": "35–40",
+      "requires": [
+        "gan"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#conditional-gan",
+      "source_pdf": "COMP90086-16-GANs.pdf"
+    },
+    {
+      "id": "gaussian-noise",
+      "title": "高斯噪声与方差相加",
+      "topic": 5,
+      "lecture": 17,
+      "pages": "10–13",
+      "requires": [
+        "probability",
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#gaussian-noise",
+      "source_pdf": "COMP90086-17-Diffusion.pdf"
+    },
+    {
+      "id": "forward-diffusion",
+      "title": "前向扩散与累计信号",
+      "topic": 5,
+      "lecture": 17,
+      "pages": "10–14",
+      "requires": [
+        "gaussian-noise"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#forward-diffusion",
+      "source_pdf": "COMP90086-17-Diffusion.pdf"
+    },
+    {
+      "id": "noise-prediction",
+      "title": "时间条件与噪声预测训练",
+      "topic": 5,
+      "lecture": 17,
+      "pages": "19–24",
+      "requires": [
+        "forward-diffusion",
+        "recognition"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#noise-prediction",
+      "source_pdf": "COMP90086-17-Diffusion.pdf"
+    },
+    {
+      "id": "reverse-diffusion",
+      "title": "反向生成与采样器边界",
+      "topic": 5,
+      "lecture": 17,
+      "pages": "21–28",
+      "requires": [
+        "noise-prediction"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#reverse-diffusion",
+      "source_pdf": "COMP90086-17-Diffusion.pdf"
+    },
+    {
+      "id": "latent-diffusion",
+      "title": "潜空间扩散",
+      "topic": 5,
+      "lecture": 17,
+      "pages": "30、35",
+      "requires": [
+        "autoencoder",
+        "reverse-diffusion"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#latent-diffusion",
+      "source_pdf": "COMP90086-17-Diffusion.pdf"
+    },
+    {
+      "id": "conditional-diffusion",
+      "title": "条件扩散与补全",
+      "topic": 5,
+      "lecture": 17,
+      "pages": "31–35",
+      "requires": [
+        "reverse-diffusion",
+        "clip"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#conditional-diffusion",
+      "source_pdf": "COMP90086-17-Diffusion.pdf"
+    },
+    {
+      "id": "segmentation",
+      "title": "区域、语义与实例分割",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "3–8、40–42",
+      "requires": [
+        "vision-task",
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#segmentation",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "clustering",
+      "title": "颜色聚类、K-means 与 GMM",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "10–13",
+      "requires": [
+        "segmentation",
+        "colour"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#clustering",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "mean-shift",
+      "title": "Mean shift 的加权均值与模式",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "14–24",
+      "requires": [
+        "clustering",
+        "weighted-sum",
+        "gaussian-noise"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#mean-shift",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "bandwidth",
+      "title": "空间颜色特征与带宽",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "25–27",
+      "requires": [
+        "mean-shift",
+        "pixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#bandwidth",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "superpixels",
+      "title": "超像素与过分割",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "29–30、35、38",
+      "requires": [
+        "segmentation"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#superpixels",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "slic",
+      "title": "SLIC 的局部聚类与连通处理",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "31–33",
+      "requires": [
+        "superpixels",
+        "clustering",
+        "gradient"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#slic",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "rag",
+      "title": "区域邻接图与合并",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "36–38",
+      "requires": [
+        "superpixels"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#rag",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "stuff-things",
+      "title": "可数物体与连续材质",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "41",
+      "requires": [
+        "segmentation"
+      ],
+      "tier": "纯文案",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#stuff-things",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "grabcut",
+      "title": "GrabCut 与框内前景背景",
+      "topic": 6,
+      "lecture": 19,
+      "pages": "43、47–49",
+      "requires": [
+        "clustering",
+        "rag"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#grabcut",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "fcn",
+      "title": "逐像素分类与全卷积网络",
+      "topic": 6,
+      "lecture": 20,
+      "pages": "8–13、26–30",
+      "requires": [
+        "channels",
+        "classification-loss",
+        "segmentation"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#fcn",
+      "source_pdf": "COMP90086-20-Segmentation2.pdf"
+    },
+    {
+      "id": "encoder-decoder",
+      "title": "编码解码与空间分辨率",
+      "topic": 6,
+      "lecture": 20,
+      "pages": "12–14、25",
+      "requires": [
+        "fcn",
+        "pooling"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#encoder-decoder",
+      "source_pdf": "COMP90086-20-Segmentation2.pdf"
+    },
+    {
+      "id": "unpooling",
+      "title": "最大反池化",
+      "topic": 6,
+      "lecture": 20,
+      "pages": "15",
+      "requires": [
+        "encoder-decoder",
+        "pooling"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#unpooling",
+      "source_pdf": "COMP90086-20-Segmentation2.pdf"
+    },
+    {
+      "id": "transpose-conv",
+      "title": "转置卷积与重叠求和",
+      "topic": 6,
+      "lecture": 20,
+      "pages": "16–24",
+      "requires": [
+        "encoder-decoder",
+        "convolution"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#transpose-conv",
+      "source_pdf": "COMP90086-20-Segmentation2.pdf"
+    },
+    {
+      "id": "unet",
+      "title": "U-Net 的跨尺度特征拼接",
+      "topic": 6,
+      "lecture": 20,
+      "pages": "32–36",
+      "requires": [
+        "encoder-decoder",
+        "transpose-conv"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#unet",
+      "source_pdf": "COMP90086-20-Segmentation2.pdf"
+    },
+    {
+      "id": "sam",
+      "title": "SAM 的提示与候选掩码",
+      "topic": 6,
+      "lecture": 20,
+      "pages": "38–42、44–47",
+      "requires": [
+        "attention",
+        "encoder-decoder"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#sam",
+      "source_pdf": "COMP90086-20-Segmentation2.pdf"
+    },
+    {
+      "id": "mask-loss",
+      "title": "分割损失与掩码质量预测",
+      "topic": 6,
+      "lecture": 20,
+      "pages": "27、34、43",
+      "requires": [
+        "classification-loss",
+        "sam"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "06-segmentation.md#mask-loss",
+      "source_pdf": "COMP90086-20-Segmentation2.pdf"
+    },
+    {
+      "id": "detection",
+      "title": "检测框与滑动窗口",
+      "topic": 7,
+      "lecture": 21,
+      "pages": "6–12",
+      "requires": [
+        "vision-task",
+        "recognition"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#detection",
+      "source_pdf": "COMP90086-21-ObjectDetection.pdf"
+    },
+    {
+      "id": "iou",
+      "title": "交并比 IoU",
+      "topic": 7,
+      "lecture": 21,
+      "pages": "13–16",
+      "requires": [
+        "detection"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#iou",
+      "source_pdf": "COMP90086-21-ObjectDetection.pdf"
+    },
+    {
+      "id": "proposals",
+      "title": "候选区域与 Selective Search",
+      "topic": 7,
+      "lecture": 21,
+      "pages": "18–23",
+      "requires": [
+        "detection",
+        "rag"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#proposals",
+      "source_pdf": "COMP90086-21-ObjectDetection.pdf"
+    },
+    {
+      "id": "box-regression",
+      "title": "边界框回归",
+      "topic": 7,
+      "lecture": 21,
+      "pages": "26–29",
+      "requires": [
+        "proposals"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#box-regression",
+      "source_pdf": "COMP90086-21-ObjectDetection.pdf"
+    },
+    {
+      "id": "rcnn",
+      "title": "R-CNN 的区域分类与训练",
+      "topic": 7,
+      "lecture": 21,
+      "pages": "21–32",
+      "requires": [
+        "proposals",
+        "box-regression",
+        "transfer"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#rcnn",
+      "source_pdf": "COMP90086-21-ObjectDetection.pdf"
+    },
+    {
+      "id": "roi-pooling",
+      "title": "共享特征与 RoI pooling",
+      "topic": 7,
+      "lecture": 21,
+      "pages": "34–46",
+      "requires": [
+        "rcnn",
+        "pooling"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#roi-pooling",
+      "source_pdf": "COMP90086-21-ObjectDetection.pdf"
+    },
+    {
+      "id": "rpn",
+      "title": "Faster R-CNN、锚框与 RPN",
+      "topic": 7,
+      "lecture": 21,
+      "pages": "47–54",
+      "requires": [
+        "roi-pooling",
+        "box-regression"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#rpn",
+      "source_pdf": "COMP90086-21-ObjectDetection.pdf"
+    },
+    {
+      "id": "yolo",
+      "title": "YOLO v1 的网格预测",
+      "topic": 7,
+      "lecture": 22,
+      "pages": "5–9",
+      "requires": [
+        "detection",
+        "box-regression",
+        "classification-loss"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#yolo",
+      "source_pdf": "COMP90086-22-ObjectDetection2.pdf"
+    },
+    {
+      "id": "detr",
+      "title": "DETR、对象查询与集合预测",
+      "topic": 7,
+      "lecture": 22,
+      "pages": "10–15",
+      "requires": [
+        "attention",
+        "position",
+        "detection"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#detr",
+      "source_pdf": "COMP90086-22-ObjectDetection2.pdf"
+    },
+    {
+      "id": "set-matching",
+      "title": "集合匹配损失",
+      "topic": 7,
+      "lecture": 22,
+      "pages": "12–14",
+      "requires": [
+        "detr",
+        "box-regression"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#set-matching",
+      "source_pdf": "COMP90086-22-ObjectDetection2.pdf"
+    },
+    {
+      "id": "nms",
+      "title": "非极大值抑制 NMS",
+      "topic": 7,
+      "lecture": 22,
+      "pages": "17–22",
+      "requires": [
+        "iou",
+        "detection"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#nms",
+      "source_pdf": "COMP90086-22-ObjectDetection2.pdf"
+    },
+    {
+      "id": "detection-matching",
+      "title": "检测评估的一对一匹配",
+      "topic": 7,
+      "lecture": 22,
+      "pages": "23–31",
+      "requires": [
+        "iou",
+        "nms"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#detection-matching",
+      "source_pdf": "COMP90086-22-ObjectDetection2.pdf"
+    },
+    {
+      "id": "precision-recall",
+      "title": "精确率、召回率与 P–R 曲线",
+      "topic": 7,
+      "lecture": 22,
+      "pages": "24–32",
+      "requires": [
+        "detection-matching"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#precision-recall",
+      "source_pdf": "COMP90086-22-ObjectDetection2.pdf"
+    },
+    {
+      "id": "map",
+      "title": "AP、mAP 与评价协议",
+      "topic": 7,
+      "lecture": 22,
+      "pages": "31–36",
+      "requires": [
+        "precision-recall"
+      ],
+      "tier": "关卡",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#map",
+      "source_pdf": "COMP90086-22-ObjectDetection2.pdf"
+    },
+    {
+      "id": "instance-mask",
+      "title": "Mask R-CNN 与实例掩码",
+      "topic": 7,
+      "lecture": 19,
+      "pages": "42–45",
+      "requires": [
+        "rpn",
+        "fcn",
+        "segmentation"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "07-detection.md#instance-mask",
+      "source_pdf": "COMP90086-19-Segmentation.pdf"
+    },
+    {
+      "id": "bag-features",
+      "title": "视觉词袋与空间信息",
+      "topic": 3,
+      "lecture": 9,
+      "pages": "8–13",
+      "requires": [
+        "keypoint",
+        "clustering"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#bag-features",
+      "source_pdf": "COMP90086-09-ViT.pdf"
+    },
+    {
+      "id": "embedding-view",
+      "title": "PCA、t-SNE 与表示邻居",
+      "topic": 3,
+      "lecture": 10,
+      "pages": "20–23",
+      "requires": [
+        "recognition"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#embedding-view",
+      "source_pdf": "COMP90086-10-representations.pdf"
+    },
+    {
+      "id": "classification-metrics",
+      "title": "分类准确率与错误分析",
+      "topic": 3,
+      "lecture": 8,
+      "pages": "5–10",
+      "requires": [
+        "train-split"
+      ],
+      "tier": "任务",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "03-learning.md#classification-metrics",
+      "source_pdf": "COMP90086-08-CNNsIII.pdf"
+    },
+    {
+      "id": "generation-cost",
+      "title": "生成模型的质量与采样成本",
+      "topic": 5,
+      "lecture": 17,
+      "pages": "36",
+      "requires": [
+        "generation-evaluation",
+        "reverse-diffusion",
+        "vae"
+      ],
+      "tier": "纯文案",
+      "kind": "讲义内容",
+      "source": null,
+      "path": "05-generation.md#generation-cost",
+      "source_pdf": "COMP90086-17-Diffusion.pdf"
+    },
+    {
+      "id": "bgr",
+      "title": "OpenCV 的 BGR 与数组副本",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "pixels",
+        "sampling"
+      ],
+      "tier": "任务",
+      "kind": "只在 Workshop 出现",
+      "source": "workshop/week-02/worksheet02.ipynb：OpenCV / Channel order；workshop02_solution.ipynb：(3)–(5)",
+      "path": "08-optional.md#bgr",
+      "source_pdf": null
+    },
+    {
+      "id": "attention-distance",
+      "title": "平均注意距离",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "attention",
+        "position"
+      ],
+      "tier": "任务",
+      "kind": "只在 Workshop 出现",
+      "source": "workshop/week-06/worksheet06.ipynb：mean attention distance",
+      "path": "08-optional.md#attention-distance",
+      "source_pdf": null
+    },
+    {
+      "id": "gradcam-practice",
+      "title": "同图不同目标的 Grad-CAM 实验",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "interpretability"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-06/worksheet06.ipynb：Grad-CAM / Exercise 5；概念见 L10 PDF p.27–29",
+      "path": "08-optional.md#gradcam-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "diffusion-schedule-practice",
+      "title": "扩散的 1000 步实现实验",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "forward-diffusion",
+        "reverse-diffusion"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-10/worksheet10-diffusion.ipynb：2.1–2.3、3、5",
+      "path": "08-optional.md#diffusion-schedule-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "normalised-cut-practice",
+      "title": "Normalized cut 图分割实验",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "rag"
+      ],
+      "tier": "任务",
+      "kind": "只在 Workshop 出现",
+      "source": "workshop/week-11/worksheet11.ipynb：Graph-based Segmentation / Normalized Cut",
+      "path": "08-optional.md#normalised-cut-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "camera-example",
+      "title": "从像素高度计算焦距",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "projection",
+        "pixels"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-02/workshop02_solution.ipynb：(6)",
+      "path": "08-optional.md#camera-example",
+      "source_pdf": null
+    },
+    {
+      "id": "cnn-parameter-practice",
+      "title": "Workshop 5 补充：沿原题计算参数与输出",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "channels",
+        "stride",
+        "pooling"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-05/worksheet05_solution.ipynb：Exercise 1",
+      "path": "08-optional.md#cnn-parameter-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "mnist-practice",
+      "title": "Workshop：把训练流程连起来",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "recognition",
+        "train-split"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-04/worksheet04_solution.ipynb：MNIST",
+      "path": "08-optional.md#mnist-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "separable-cnn-practice",
+      "title": "Workshop 5 补充：保留原设计的可分离 CNN",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "depthwise",
+        "train-split"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-05/worksheet05_solution.ipynb：Separable CNN",
+      "path": "08-optional.md#separable-cnn-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "feature-map-practice",
+      "title": "Workshop 5 补充：滤波器与特征图不是同一件事",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "channels",
+        "transfer"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-05/worksheet05_solution.ipynb：VGG16 / ResNet50",
+      "path": "08-optional.md#feature-map-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "harris-api-practice",
+      "title": "Workshop 7：把窗口参数与评分参数分开",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "harris"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-07/worksheet07.ipynb：cornerHarris",
+      "path": "08-optional.md#harris-api-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "matching-practice",
+      "title": "Workshop 7：从描述子候选到书封面定位",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "ratio-test",
+        "homography"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-07/worksheet07.ipynb：Hough / SIFT / FLANN / Homography",
+      "path": "08-optional.md#matching-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "stereo-practice",
+      "title": "Workshop 8：调窗口时观察什么",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "stereo-matching"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-08/worksheet08.ipynb；worksheet08_solution.ipynb",
+      "path": "08-optional.md#stereo-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "calibration-practice",
+      "title": "Workshop 8：先标定，再检查极线",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "calibration",
+        "fundamental",
+        "rectification"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-08/worksheet08.ipynb；worksheet08_solution.ipynb",
+      "path": "08-optional.md#calibration-practice",
+      "source_pdf": null
+    },
+    {
+      "id": "generation-practice",
+      "title": "Workshop 9：从重建走向生成",
+      "topic": 8,
+      "lecture": null,
+      "pages": "",
+      "requires": [
+        "autoencoder",
+        "vae",
+        "gan"
+      ],
+      "tier": "任务",
+      "kind": "应用举例",
+      "source": "workshop/week-09/worksheet9.ipynb；worksheet9_Autoencoders_solution.ipynb",
+      "path": "08-optional.md#generation-practice",
+      "source_pdf": null
+    }
+  ]
+}

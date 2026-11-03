@@ -244,19 +244,18 @@ PPT 参数栏给出 $\delta=3$ px、150 次迭代。这是该演示的设置，�
 
 </details>
 
-### Workshop 7：从描述子候选到书封面定位
+### 可选应用
 
-`workshop/week-07/worksheet07.ipynb` 把 Hough、Harris、SIFT、近邻检索与单应估计接在一起。FLANN 是加快近邻查找的工具；它提出候选，不负责证明几何对应。
-
-<details>
-<summary>延伸内容：练习中的 ratio test 文字方向</summary>
-
-<p>原练习文字有“比值大于阈值才保留”的表述；应按本讲公式及练习代码理解为最近距离显著小于次近距离才接受。距离比接近 1 表示候选难分，不是更可靠。</p>
-
-</details>
+原 Workshop 练习单列在 [Workshop 7：从描述子候选到书封面定位](encyclopedia/08-optional.md#matching-practice)，不作为本讲必修前置。
 
 ## 本讲自测
 
 1. Hough 的峰值与 RANSAC 的一致集分别表示什么？
 2. 内点比例下降时，达到相同成功概率为何需要更多轮？
 3. 距离比值检验已经筛过的匹配，为什么还需要几何检验？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[噪声、外点与几何一致性](encyclopedia/04-geometry.md#outlier) · [Hough 参数空间投票](encyclopedia/04-geometry.md#hough) · [RANSAC 与采样次数](encyclopedia/04-geometry.md#ransac) · [描述子比值检验](encyclopedia/04-geometry.md#ratio-test) · [平面单应变换](encyclopedia/04-geometry.md#homography)

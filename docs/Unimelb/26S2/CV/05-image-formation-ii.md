@@ -267,3 +267,9 @@ $$
 1. 同样一个较暗像素，可能由哪些不同因素造成？
 2. 平坦区域、阴影边缘和物体轮廓的梯度分别告诉我们什么？
 3. 整图加常数与乘常数，对梯度有何不同影响？
+
+## 词条与学习任务
+
+本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 [可选专题](encyclopedia/08-optional.md)。
+
+[朗伯反射与成像歧义](encyclopedia/01-image-formation.md#reflectance) · [光谱、三色响应与颜色空间](encyclopedia/01-image-formation.md#colour) · [阴影、高光与材质](encyclopedia/01-image-formation.md#material) · [不变性、容忍度与等变性](encyclopedia/01-image-formation.md#equivariance) · [偏导数、梯度与边缘](encyclopedia/02-processing.md#gradient)

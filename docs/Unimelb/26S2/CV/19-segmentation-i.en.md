@@ -1,6 +1,6 @@
 # COMP90086 Lecture 19 - Image Segmentation I
 
-Sources: `lecture/COMP90086-19-Segmentation.pdf` (50 pages); `transcript/COMP90086_2026_SM2 Week-10-W-transcript.txt` (2026-10-07); the Week 11 segmentation exercise. Imported 2026-10-13. Canvas jumps from Lecture 17 to 19 and no Lecture 18 link was seen this time, so the course's original numbering is kept.
+Sources: `lecture/COMP90086-19-Segmentation.pdf` (50 pages); `transcript/COMP90086_2026_SM2 Week-10-W-transcript.txt` (2026-10-07); the Week 11 segmentation exercise. Imported 2026-10-13. Lecture 18 was cancelled; the course's original numbering is preserved.
 
 This lecture answers: **how can we cut an image into regions that are similar inside and different from one another?** This lecture works mainly from colour and position, without first requiring the network to recognise "what this is".
 
