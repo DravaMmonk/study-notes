@@ -1,0 +1,105 @@
+{
+  "title": { "zh": "最近的那个像素", "en": "The nearest pixel" },
+  "intro": [
+    {
+      "t": {
+        "zh": "缩放时，新图的每个像素对应原图里的一个位置，这个位置一般不是整数：原图在那里没有像素。这一关先不管位置怎么算出来，题目直接给出。",
+        "en": "When resizing, each pixel of the new image corresponds to a position in the original, seldom a whole number: the original has no pixel there. This level does not ask how the positions are worked out; they are given."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：落在像素之间的位置，最简单的取值办法是什么？先手算一行，再接一块电路。离两边一样远时，约定取坐标较大的一边；落到图外，取最近的边。",
+        "en": "This level asks: what is the simplest value for a position between pixels? First work out a row by hand, then wire a circuit. When a position is equally far from two pixels, take the larger coordinate; outside the image, the nearest edge."
+      }
+    }
+  ],
+  "adds": ["floor"],
+  "after": {
+    "zh": "这是<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>：照抄最近的像素，快、边缘硬，放大后成块，新图里只有原图已有的值。",
+    "en": "This is <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>: copy the nearest pixel; fast and hard-edged, blocky when enlarged, with only values the original had."
+  },
+  "tasks": [
+    {
+      "id": "1A6",
+      "kind": "grid",
+      "step": { "zh": "手算", "en": "By hand" },
+      "brief": {
+        "zh": "这一行在 x = −0.25、0.4、0.5、1.6、2.2 处取值：写出每个位置最近的像素的值。",
+        "en": "Read this row at x = −0.25, 0.4, 0.5, 1.6 and 2.2: write the value of the pixel nearest each position."
+      },
+      "hint": [
+        { "zh": "0.5 离 0 和 1 一样近；2.2 最近的像素是哪个？", "en": "0.5 is as near 0 as 1; which pixel is nearest 2.2?" }
+      ],
+      "image": [[0, 4, 8]],
+      "show": "both",
+      "tolerance": 0.01,
+      "ask": { "fill": { "rows": [[0, 0, 4, 8, 8]], "label": { "zh": "取到的值", "en": "Values read" } } },
+      "naive": {
+        "answer": [[0, 0, 0, 4, 8]],
+        "why": {
+          "zh": "这是一律向下取整：1.6 离 2 比离 1 近，却取了 1 的值；0.5 离两边一样近，按约定取 1。最近的整数是加 0.5 再向下取整。",
+          "en": "That rounds every position down: 1.6 is nearer 2 than 1 but read 1; 0.5 is equally near both and by the convention reads 1. The nearest whole number is add 0.5, then round down."
+        }
+      }
+    },
+    {
+      "id": "1A6_2",
+      "kind": "circuit",
+      "step": { "zh": "接成电路", "en": "Wire it" },
+      "intro": [
+        {
+          "t": {
+            "zh": "位置用两张坐标图给出：x 图每格是要取的横坐标，y 图是纵坐标。新元件<part-ref to=\"part:floor\"></part-ref>把数向下取整；<part-ref to=\"part:lookup\"></part-ref>可以在元件上设成出界取最近的边。",
+            "en": "The positions come as two coordinate images: each cell of x is the column to read, of y the row. New part: <part-ref to=\"part:floor\"></part-ref> rounds down; <part-ref to=\"part:lookup\"></part-ref> can be set on the part to read the nearest edge outside the image."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入一张图和两张坐标图 x、y：交出每个位置最近的像素的值。",
+        "en": "Given an image and the coordinate images x and y, give the value of the pixel nearest each position."
+      },
+      "hint": [{ "zh": "手算时你是怎样从 1.6 得到 2 的？", "en": "By hand, how did you get from 1.6 to 2?" }],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "xs", "label": { "zh": "位置 x（坐标图）", "en": "Positions x" } },
+        { "name": "ys", "label": { "zh": "位置 y（坐标图）", "en": "Positions y" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "取到的值", "en": "Values read" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 4, 8]], "xs": [[-0.25, 0.4, 0.5, 1.6]], "ys": [[0, 0, 0, 0]] },
+          "expect": { "out": [[0, 0, 4, 8]] }
+        },
+        {
+          "inputs": {
+            "image": [[1, 2], [3, 4]],
+            "xs": [[0.5, 1.5], [0.5, 1.5]],
+            "ys": [[-0.3, -0.3], [0.6, 0.6]]
+          },
+          "expect": { "out": [[2, 2], [4, 4]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[5, 6, 7]], "xs": [[2.49, 2.51, -1]], "ys": [[0, 0, 0]] },
+          "expect": { "out": [[7, 7, 5]] }
+        },
+        {
+          "inputs": { "image": [[[1, 0, 0], [0, 0, 1]]], "xs": [[0.2, 0.7]], "ys": [[0, 0]] },
+          "expect": { "out": [[[1, 0, 0], [0, 0, 1]]] }
+        }
+      ],
+      "solution": [
+        "half = const[value=0.5]()",
+        "ax = add(xs, half)",
+        "ay = add(ys, half)",
+        "fx = floor(ax)",
+        "fy = floor(ay)",
+        "r = lookup[outside=clamp](image, fx, fy)",
+        "out <- r"
+      ],
+      "naive": ["fx = floor(xs)", "fy = floor(ys)", "r = lookup[outside=clamp](image, fx, fy)", "out <- r"]
+    }
+  ]
+}

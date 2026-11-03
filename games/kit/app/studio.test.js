@@ -42,7 +42,7 @@ const onDisk = (file) => readFileSync(join(root, 'qed-lab', file), 'utf8')
 
 test('the bridge lists the tools, and says what is wrong with a call', async () => {
   const list = await (await fetch(`${base}/studio/api/`)).json()
-  assert.ok(['preview', 'modify', 'seed', 'undo', 'log', 'playtests', 'vocabulary'].every((t) => list[t]?.about))
+  assert.ok(['preview', 'modify', 'seed', 'undo', 'log', 'vocabulary'].every((t) => list[t]?.about))
   assert.equal((await fetch(`${base}/elsewhere`)).status, 404)
   assert.equal((await post('nothing', {})).status, 404)
   assert.equal((await fetch(`${base}/studio/api/preview`)).status, 405)
@@ -101,7 +101,6 @@ test('apply, read the log, undo: the content comes back as it was', async () => 
   // The same content; a line the change rewrote keeps the file format (../engine/ops/json.js), as every write does.
   assert.deepEqual(JSON.parse(onDisk('levels/copy.json')), JSON.parse(before))
   assert.equal((await post('log', { game: 'qed-lab' })).body.undoable, null, 'an undo is not itself undone')
-  assert.deepEqual((await post('playtests', { game: 'qed-lab' })).body, { records: [], levels: {} })
 })
 
 test('the slow reads go to the second lane: a quick preview is not held up by a whole check, a write waits for both', async () => {

@@ -38,6 +38,7 @@
 .vi-test th, .vi-test td { padding: 4px 14px 4px 0; text-align: left; vertical-align: top; }
 .vi-test thead th { color: var(--muted); font: 500 11px var(--sans, inherit); }
 .vi-test tbody th { color: var(--muted); font-weight: 500; }
+.vi-results { display: grid; gap: 6px; }
 .vi-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
 .vi-verdict.is-fail { color: var(--fail); }
 .vi-verdict.is-pass { color: var(--status); }
@@ -46,6 +47,12 @@
 .vi-grid { display: grid; gap: 14px; justify-items: start; padding: 20px; }
 .vi-shown { display: flex; flex-wrap: wrap; gap: 18px; align-items: start; }
 .vi-label { margin: 0; color: var(--muted); font-size: 13px; }
+.vi-strips { width: 100%; max-width: 420px; display: block; }
+.vi-strips .vs-cell { fill: var(--canvas); stroke: var(--ink); stroke-width: 1; }
+.vi-strips .vs-centre { fill: var(--ink); }
+.vi-strips :is(.vs-num, .vs-edge, .vs-note) { font: 11px var(--mono); fill: var(--muted); }
+.vi-strips :is(.vs-num, .vs-edge) { text-anchor: middle; }
+.vi-strips .vs-mark { fill: var(--accent); }
 .vi-coords { display: flex; gap: 14px; }
 .vi-rows { border-collapse: collapse; font: 12px var(--mono); }
 .vi-rows th { color: var(--muted); font-weight: 500; padding: 2px 6px; }
@@ -64,6 +71,7 @@
 .vi-about figcaption { color: var(--muted); font-size: 12px; }
 .vi-item { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md, 8px); background: var(--paper); }
 .vi-item.is-wrong { border-color: var(--fail); }
+.vi-given { flex-basis: 100%; margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink); border-left: 3px solid var(--accent); padding-left: 10px; }
 .vi-prompt { margin: 0; font-size: 14px; line-height: 1.55; color: var(--ink); }
 .vi-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .vi-option { display: grid; justify-items: center; gap: 6px; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
@@ -85,6 +93,10 @@
 .vi-bench .vb-ray { stroke: var(--w3); stroke-width: 1.5; }
 .vi-bench .vb-object { stroke: var(--ink); fill: var(--ink); stroke-width: 3; }
 .vi-bench .vb-image { stroke: var(--accent); fill: var(--accent); stroke-width: 3; }
+.vi-bench .vb-sensor { stroke: var(--accent); stroke-width: 5; opacity: 0.35; }
+.vi-bench .vb-out { opacity: 0.45; }
+.vi-bench .vb-out .vb-object, .vi-bench .vb-out .vb-image { stroke-dasharray: 4 3; }
+.vi-bench .vb-out-note { fill: var(--fail); }
 .vi-bench .vb-target { fill: none; stroke: var(--status); stroke-width: 2; stroke-dasharray: 3 3; }
 .vi-bench .vb-centre { fill: var(--ink); }
 .vi-bench .vb-lens { fill: color-mix(in srgb, var(--n2) 25%, transparent); stroke: var(--n2); }

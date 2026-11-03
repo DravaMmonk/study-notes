@@ -1,0 +1,109 @@
+{
+  "title": { "zh": "模糊", "en": "Blur" },
+  "intro": [
+    {
+      "t": {
+        "zh": "把一个像素和它的邻居平均，图就模糊了。均值滤波每个邻居一样重；高斯滤波让中心最重、越远越轻，模糊得更柔和、更自然。",
+        "en": "Averaging a pixel with its neighbours blurs the picture. A mean filter weighs every neighbour equally; a Gaussian weighs the centre most and the farther ones less, a softer, more natural blur."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：一个亮点经过高斯模糊，会变成什么样？先手算，再用二维滤波器接一个高斯模糊器：行和列的权重都是 1/4、1/2、1/4。",
+        "en": "This level asks: what does a single bright point become after a Gaussian blur? Work it out by hand, then wire a Gaussian blur from the 2D filter, the row and column weights both 1/4, 1/2, 1/4."
+      }
+    }
+  ],
+  "builds": {
+    "type": "blur",
+    "name": { "zh": "高斯模糊", "en": "Gaussian blur" },
+    "desc": {
+      "zh": "输入一张图，输出用 [1/4, 1/2, 1/4] 横竖各滤一遍的模糊图，图外补 0",
+      "en": "Takes an image; gives it blurred by [1/4, 1/2, 1/4] across and down, 0 outside"
+    }
+  },
+  "after": {
+    "zh": "这是<wiki-ref to=\"gaussian-filter\"></wiki-ref>：一个亮点变成中间亮、四周渐暗的一团。核越大、σ 越大，模糊越强。",
+    "en": "This is a <wiki-ref to=\"gaussian-filter\"></wiki-ref>: a bright point becomes a blob, bright in the middle and fading out. The larger the kernel and σ, the stronger the blur."
+  },
+  "tasks": [
+    {
+      "id": "2B6",
+      "kind": "grid",
+      "step": { "zh": "一个亮点", "en": "A bright point" },
+      "brief": {
+        "zh": "这张图只有 (1, 1) 是 16：横竖各用 [1/4, 1/2, 1/4] 滤一遍，图外补 0，写出结果。",
+        "en": "Only (1, 1) of this image is 16: filter across and down with [1/4, 1/2, 1/4], 0 outside, and write the result."
+      },
+      "hint": [
+        {
+          "zh": "先横着滤：16 分到左、中、右三格各是多少？",
+          "en": "Filter across first: how much of the 16 goes to the left, centre and right?"
+        }
+      ],
+      "image": [[0, 0, 0, 0], [0, 16, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+      "show": "numbers",
+      "ask": {
+        "fill": {
+          "rows": [[1, 2, 1, 0], [2, 4, 2, 0], [1, 2, 1, 0], [0, 0, 0, 0]],
+          "label": { "zh": "模糊后", "en": "Blurred" }
+        }
+      },
+      "naive": {
+        "answer": [[0, 0, 0, 0], [4, 8, 4, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+        "why": {
+          "zh": "这是只横着滤了一遍：竖直方向也要滤，亮点向上下扩散，中心只剩 4。",
+          "en": "That filters across only: down must be filtered too, spreading the point up and down and leaving 4 at the centre."
+        }
+      }
+    },
+    {
+      "id": "2B6_2",
+      "kind": "circuit",
+      "step": { "zh": "高斯模糊", "en": "Gaussian blur" },
+      "brief": {
+        "zh": "输入一张图：交出横竖各用 [1/4, 1/2, 1/4] 滤过的模糊图。",
+        "en": "Given an image, give it filtered across and down by [1/4, 1/2, 1/4]."
+      },
+      "hint": [
+        {
+          "zh": "<part-ref to=\"filter2D\"></part-ref> 要六个权重。",
+          "en": "The <part-ref to=\"filter2D\"></part-ref> takes six weights."
+        }
+      ],
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "模糊后", "en": "Blurred" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 0, 0, 0], [0, 16, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
+          "expect": { "out": [[1, 2, 1, 0], [2, 4, 2, 0], [1, 2, 1, 0], [0, 0, 0, 0]] }
+        },
+        {
+          "inputs": { "image": [[0, 0, 4, 4], [0, 0, 4, 4], [0, 0, 4, 4]] },
+          "expect": { "out": [[0, 0.75, 2.25, 2.25], [0, 1, 3, 3], [0, 0.75, 2.25, 2.25]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 3, 2, 5], [4, 0, 6, 1], [2, 2, 8, 3]] },
+          "expect": {
+            "out": [[1.125, 1.75, 2.3125, 2], [1.6875, 2.6875, 3.6875, 2.625], [1.25, 2.375, 3.4375, 2.25]]
+          }
+        }
+      ],
+      "solution": [
+        "q = const[value=0.25]()",
+        "h = const[value=0.5]()",
+        "f = filter2D(image, q, h, q, q, h, q)",
+        "out <- f"
+      ],
+      "naive": [
+        "t = const[value=0.3333333333]()",
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "f = filter2D(image, t, t, t, z, o, z)",
+        "out <- f"
+      ]
+    }
+  ]
+}

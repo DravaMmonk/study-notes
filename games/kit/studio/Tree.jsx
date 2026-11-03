@@ -1,7 +1,7 @@
 // The course tree in the studio: each era as the map lays it out (tree.js) — its main path, its parallel branches one
-// under another, its topics and challenges — a row a level, with what the check, the domain, the tests and blind play
+// under another, its topics and challenges — a row a level, with what the check, the domain and the tests
 // say of it as small marks (worklist.js marksOf): failing findings (a count), open or reported ones (a dot), the
-// domain's answers (a square: passing, failing, not checked yet), the tests it holds, blind play's cost (a bar). An
+// domain's answers (a square: passing, failing, not checked yet), the tests it holds. An
 // era folds away (remembered per viewer). A click selects a level; Ctrl/⌘-click picks several, Shift-click a run of
 // them, for a bulk edit. Dragging a level (or the levels picked) onto a slot between two others, or Move and then a
 // slot, is a level.move each; its save migration shows in the changes before it is applied. ↑ and ↓ go from level to
@@ -14,7 +14,6 @@ import { L, tr } from '../shell/i18n.js'
 import { courseTree, stays } from './tree.js'
 import { usePref } from './prefs.js'
 
-const COST_TOP = 6 // the cost a full bar stands for
 
 /** The levels of a tree in the order its rows show them. */
 export function rowsOf(tree) {
@@ -34,14 +33,12 @@ function Marks({ mark }) {
     mark.open ? tr(`${mark.open} 处待办`, `${mark.open} open`) : null,
     mark.domain ? tr(`答案${mark.domain === 'pass' ? '通过' : '不过'}`, `answers ${mark.domain === 'pass' ? 'pass' : 'fail'}`) : null,
     tr(`${mark.tests} 个测试`, `${mark.tests} tests`),
-    mark.cost !== null ? tr(`盲玩代价 ${mark.cost.toFixed(1)}`, `blind cost ${mark.cost.toFixed(1)}`) : null,
   ].filter(Boolean).join(' · ')
   return (
     <span className="mk" title={says}>
       <span className="mk-slot">{mark.fails > 0 ? <i className="mk-fail">{mark.fails}</i> : mark.open > 0 ? <i className="mk-open" /> : null}</span>
       <i className={`mk-ref is-${mark.domain ?? 'none'}`} />
       <i className="mk-n">{mark.tests || ''}</i>
-      <i className="mk-cost" style={{ '--cost': mark.cost === null ? 0 : Math.min(1, mark.cost / COST_TOP) }} data-high={mark.cost >= 2 ? '' : undefined} />
     </span>
   )
 }

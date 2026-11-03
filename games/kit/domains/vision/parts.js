@@ -40,6 +40,7 @@ const wholeSize = (n, name) => {
 
 /** Where a coordinate outside the image reads, by the lookup's `outside` setting: null for 0, or a clamped index. */
 const OUTSIDE = ['error', 'zero', 'clamp']
+const CHANNELS = ['0', '1', '2']
 
 /** image at (x, y): x and y numbers (a value; a colour image gives a 1 × 1 colour image) or coordinate images. */
 function lookup({ image, x, y }, node) {
@@ -74,6 +75,7 @@ export const PARTS = {
   mul: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => p * q)) },
   div: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => (q === 0 ? fail('除以 0', 'divided by 0') : p / q))) },
   floor: { inputs: ['a'], eval: strict(({ a }) => zip([a], Math.floor)) },
+  sqrt: { inputs: ['a'], eval: strict(({ a }) => zip([a], (p) => (p < 0 ? fail('负数没有平方根', 'a negative number has no square root') : Math.sqrt(p)))) },
   min: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], Math.min)) },
   max: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], Math.max)) },
   less: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => (p < q ? 1 : 0))) },
@@ -92,11 +94,14 @@ export const PARTS = {
     }),
   },
   lookup: { inputs: ['image', 'x', 'y'], settings: { outside: OUTSIDE }, eval: strict(lookup) },
+  // The channel is a setting, its position in the pixel (0, 1, 2), not a wire. It is a position, not a colour: which
+  // colour sits there is the image's channel order (RGB, or BGR as OpenCV reads it).
   channel: {
-    inputs: ['image', 'c'],
-    eval: strict(({ image, c }) => {
+    inputs: ['image'],
+    settings: { c: CHANNELS },
+    eval: strict(({ image }, node) => {
       if (!isImage(image) || image.c !== 3) fail('channel 要一张彩色图', 'channel needs a colour image')
-      if (![0, 1, 2].includes(c)) fail(`通道应当是 0、1、2（R、G、B），得到 ${c}`, `the channel should be 0, 1 or 2 (R, G, B), got ${c}`)
+      const c = CHANNELS.indexOf(String(node.params?.c ?? '0'))
       return make(image.w, image.h, 1, (x, y) => image.data[(y * image.w + x) * 3 + c])
     }),
   },

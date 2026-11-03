@@ -1,0 +1,131 @@
+{
+  "title": { "zh": "裁剪不是缩放", "en": "Cropping is not resizing" },
+  "intro": [
+    {
+      "t": {
+        "zh": "要一张小一点的图，有两种做法：裁剪是从原图里取一块，每个值都是原图里本来就有的；缩放是把整张图变成别的尺寸，新位置上的值要算出来。",
+        "en": "There are two ways to a smaller picture: cropping takes a part of the original, every value one the original already has; resizing changes the whole picture's size, and the values at the new positions must be worked out."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：裁剪出的图，每个像素来自原图的哪里？先在格子上手裁一块，再接出一块裁剪电路。",
+        "en": "This level asks: where in the original does each pixel of a crop come from? First crop by hand on the grid, then wire a cropping circuit."
+      }
+    }
+  ],
+  "adds": ["grid"],
+  "builds": {
+    "type": "crop",
+    "name": { "zh": "裁剪", "en": "Crop" },
+    "desc": {
+      "zh": "输入一张图、左上角 x0、y0 和宽 w、高 h，输出从 (x0, y0) 起的 w × h 一块",
+      "en": "Takes an image, the top-left corner x0, y0, and a width w and height h; gives the w × h region from (x0, y0)"
+    }
+  },
+  "after": {
+    "zh": "这是<wiki-ref to=\"crop-vs-resize\"></wiki-ref>：裁剪只是平移坐标去取原值；缩放要在原图里没有像素的位置上算出新值。",
+    "en": "This is <wiki-ref to=\"crop-vs-resize\"></wiki-ref>: a crop only shifts coordinates to read existing values; a resize must work out values where the original has no pixel."
+  },
+  "tasks": [
+    {
+      "id": "1A5",
+      "kind": "grid",
+      "step": { "zh": "手裁", "en": "By hand" },
+      "brief": {
+        "zh": "从 (1, 1) 起裁出 2 × 2 的一块（宽 2、高 2）。",
+        "en": "Crop the 2 × 2 region (width 2, height 2) starting at (1, 1)."
+      },
+      "hint": [
+        { "zh": "新图的 (0, 0) 来自原图的哪一格？", "en": "Which cell of the original does the new (0, 0) come from?" }
+      ],
+      "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+      "show": "numbers",
+      "ask": { "fill": { "rows": [[6, 7], [10, 11]], "label": { "zh": "裁出的图", "en": "The crop" } } },
+      "naive": {
+        "answer": [[1, 2], [5, 6]],
+        "why": {
+          "zh": "这是从 (0, 0) 起裁的：新图的 (0, 0) 要取原图的 (1, 1)，每个坐标都加上左上角的偏移。",
+          "en": "That crops from (0, 0): the new (0, 0) must read the original (1, 1); every coordinate adds the corner's offset."
+        }
+      }
+    },
+    {
+      "id": "1A5_2",
+      "kind": "circuit",
+      "step": { "zh": "裁剪电路", "en": "Crop circuit" },
+      "intro": [
+        {
+          "t": {
+            "zh": "一整张新图的每个像素都要算出它在原图的坐标。新元件<part-ref to=\"part:grid\"></part-ref>：给定宽和高，给出两张坐标图，x 图每格是自己的 x，y 图每格是自己的 y；<part-ref to=\"part:lookup\"></part-ref>接上坐标图，就一次取出整张图。",
+            "en": "Every pixel of a whole new image needs its coordinates in the original. New part <part-ref to=\"part:grid\"></part-ref>: given a width and a height it gives two coordinate images, each cell of x holding its own x and of y its own y; fed coordinate images, <part-ref to=\"part:lookup\"></part-ref> reads a whole image at once."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入一张图和 x0、y0、w、h：交出从 (x0, y0) 起的 w × h 一块。",
+        "en": "Given an image and x0, y0, w and h, give the w × h region from (x0, y0)."
+      },
+      "hint": [
+        {
+          "zh": "先给新图每格一对自己的坐标，再挪到原图里去。",
+          "en": "First give each new cell its own coordinates, then move them into the original."
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "x0", "label": { "zh": "左上角 x0", "en": "Corner x0" } },
+        { "name": "y0", "label": { "zh": "左上角 y0", "en": "Corner y0" } },
+        { "name": "w", "label": { "zh": "宽 w", "en": "Width w" } },
+        { "name": "h", "label": { "zh": "高 h", "en": "Height h" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "裁出的图", "en": "The crop" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 1,
+            "y0": 1,
+            "w": 2,
+            "h": 2
+          },
+          "expect": { "out": [[6, 7], [10, 11]] }
+        },
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 2,
+            "y0": 0,
+            "w": 2,
+            "h": 3
+          },
+          "expect": { "out": [[3, 4], [7, 8], [11, 12]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "x0": 0,
+            "y0": 2,
+            "w": 4,
+            "h": 1
+          },
+          "expect": { "out": [[9, 10, 11, 12]] }
+        },
+        {
+          "inputs": { "image": [[[1, 0, 0], [0, 1, 0]]], "x0": 1, "y0": 0, "w": 1, "h": 1 },
+          "expect": { "out": [[[0, 1, 0]]] }
+        }
+      ],
+      "solution": [
+        "g = grid(w, h)",
+        "xs = add(g.x, x0)",
+        "ys = add(g.y, y0)",
+        "r = lookup(image, xs, ys)",
+        "out <- r"
+      ],
+      "naive": ["g = grid(w, h)", "r = lookup(image, g.x, g.y)", "out <- r"]
+    }
+  ]
+}

@@ -2,8 +2,7 @@
 // open or shut, and in the drawer a worklist: npm run check's lines for the game as the pending changeset
 // leaves it, recomputed on every edit, one row a line (worklist.js) — filtered by severity, rule, the level selected
 // and words; F8 and Shift+F8 step through them, each step going to the field the line is about (or its level). While
-// the whole check of the latest edit is still running, the last one shows faded. Below, what blind play says of the
-// level selected (the records in games/<game>/playtests/, written by npm run blind).
+// the whole check of the latest edit is still running, the last one shows faded.
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronUp } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -13,7 +12,7 @@ import { usePref } from './prefs.js'
 const SEVERITY = { fail: ['不过', 'failing'], open: ['待办', 'open'], report: ['报告', 'reported'], pass: ['通过', 'passing'] }
 const SHOWN = 400 // rows drawn at most; the rest summed up
 
-export default function Audit({ items, fresh, last, at, playtests, busy, ops, migration, open, onToggle, onJump, onReview }) {
+export default function Audit({ items, fresh, last, at, busy, ops, migration, open, onToggle, onJump, onReview }) {
   const [filter, setFilter] = usePref('audit-filter', { severities: ['fail', 'open', 'report'], rule: '', mine: false })
   const [query, setQuery] = useState('')
   const [cursor, setCursor] = useState(-1)
@@ -56,7 +55,6 @@ export default function Audit({ items, fresh, last, at, playtests, busy, ops, mi
         <div className="audit-body">
           {failedOp && <ul className="audit-lines">{last.problems.map((p) => <li key={p} className="audit-row is-fail is-wide">{p}</li>)}</ul>}
           <Lines shown={shown} cursor={cursor} go={go} />
-          {at?.level && <Playtests playtests={playtests} level={at.level} />}
         </div>
       )}
     </div>
@@ -99,37 +97,5 @@ function Lines({ shown, cursor, go }) {
       {shown.length > SHOWN && <li className="audit-more">{tr(`还有 ${shown.length - SHOWN} 行`, `${shown.length - SHOWN} more`)}</li>}
       {!shown.length && <li className="audit-more">—</li>}
     </ol>
-  )
-}
-
-/**
- * Blind play on a level (the harness's records, ../engine/play/session.js; the numbers its stats give level by level,
- * ../engine/play/stats.js): how many sessions solved it and at what cost, and each session's attempts there, what
- * the player sent and what the game said back.
- */
-function Playtests({ playtests, level }) {
-  const { records, levels } = playtests
-  const stats = levels[level]
-  if (!records.length || !stats) return null
-  return (
-    <details className="audit-plays">
-      <summary>{tr(`盲玩 ${stats.solved}/${stats.sessions} 通过 · 代价 ${stats.cost.toFixed(1)}`, `Blind play ${stats.solved}/${stats.sessions} solved · cost ${stats.cost.toFixed(1)}`)}</summary>
-      {records.map((r) => {
-        const tries = (r.attempts ?? []).filter((a) => a.level === level)
-        const outcome = r.levels.find((e) => e.level === level)
-        if (!outcome) return null
-        return (
-          <details key={r.session} className="audit-session">
-            <summary>{r.session} · {outcome.outcome} · {tr(`${outcome.attempts} 次`, `${outcome.attempts} attempt(s)`)}{outcome.hints ? ` · ${tr(`${outcome.hints} 次提示`, `${outcome.hints} hint(s)`)}` : ''}</summary>
-            {tries.map((a, k) => (
-              <div key={k} className={`audit-try ${a.pass ? 'is-pass' : ''}`}>
-                <pre>{L(a.text)}</pre>
-                <pre className="is-says">{L(a.says)}</pre>
-              </div>
-            ))}
-          </details>
-        )
-      })}
-    </details>
   )
 }

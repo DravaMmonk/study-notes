@@ -9,6 +9,8 @@
 //   stages   steps taken in turn, each opening some knobs and with its own goal; optional
 //   actions  buttons: an act of the model, run once or `repeat` times, or a reset of some knobs
 //   goal     limits on what the model computes (`of`), every one must hold; a stage may give its own
+//   check    live (the goal judged as the knobs turn) or submit (judged only when the player presses Check: the
+//            goal's readings and the pictures' results stay hidden until then, so a knob is not slid until green)
 //   layout   where the display items go: head, main (the bench's card), side (beside it), foot
 //
 // This module is node-safe: the schema, the judge and the number formats, shared by `npm run check` and the bench
@@ -139,6 +141,7 @@ export function benchSchema(models) {
     stages: S.opt(S.list(S.obj({ ...STAGE_COMMON, ...(m.stage?.fields ?? {}) }), { min: 1 })),
     actions: S.opt(S.list(ACTION)),
     goal: S.opt(S.list(LIMIT)),
+    check: S.opt(S.oneOf(['live', 'submit'], { about: t('目标怎样判：live 随旋钮实时判（默认）；submit 只在玩家按「检查」时判，在那之前目标的读数和画面里的结果都不显示，玩家要先想好再试', 'how the goal is judged: live as the knobs turn (the default); submit only when the player presses Check, the goal\'s readings and the result in the pictures hidden until then, so the player thinks before trying') })),
     win: S.opt(S.text()), status: S.opt(S.text()),
     layout: LAYOUT,
   })])))

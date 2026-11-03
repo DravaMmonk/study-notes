@@ -12,7 +12,8 @@ import './bench.css'
 //
 //   <Bench bench={…} model={…} displays={…} onSolve={…} theme={…} />
 //
-// A display component gets { params, ctx: the bench's state below, children: its `with` items }.
+// A display component gets { params, ctx: the bench's state below, children: its `with` items }. On a bench judged on
+// submit, `ctx.revealed` says whether the setting on the knobs has been checked: a display draws its result only then.
 
 const BLOCK_KEYS = ['panel', 'stack', 'row']
 const isBlock = (b) => b && typeof b === 'object' && BLOCK_KEYS.some((k) => k in b)
@@ -29,6 +30,9 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
   const [running, setRunning] = useState(null) // { action, left } while an action repeats
   const [caseIndex, setCaseIndex] = useState(0)
   const [ui, setUiState] = useState({})
+  // A bench judged on submit keeps, per stage, the setting last checked: the result shows while the knobs stay there.
+  const submit = bench.check === 'submit'
+  const [checkedAt, setCheckedAt] = useState(() => (stages ?? [null]).map(() => null))
   const solved = useRef(false)
 
   const stage = stages?.[stageIndex] ?? null
@@ -43,7 +47,9 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model, v, stage, stageIndex, process, left, cases])
   const verdicts = views.map((view) => judge(goalOf(bench, stage), { ...v, ...view }))
-  const pass = verdicts.every((j) => j.pass)
+  const revealed = !submit || checkedAt[at] === JSON.stringify(v)
+  const pass = revealed && verdicts.every((j) => j.pass)
+  const check = () => setCheckedAt((all) => all.map((x, i) => (i === at ? JSON.stringify(v) : x)))
 
   // A stage is passed the first time its goal holds; the bench is solved once every stage is, or its goal holds.
   useEffect(() => {
@@ -91,7 +97,7 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
   const view = views[caseIndex] ?? views[0]
   const c = {
     bench, model, phone, theme, stages, stage, stageIndex, setStageIndex, reached, passed, next, cases, caseIndex, setCase: setCaseIndex,
-    values: v, set, open, process, view, q: { ...v, ...view }, views, verdicts, pass, act, busy: Boolean(running), ui,
+    values: v, set, open, process, view, q: { ...v, ...view }, views, verdicts, pass, act, busy: Boolean(running), ui, submit, revealed, check,
     setUi: (change) => setUiState((old) => ({ ...old, ...change })),
   }
   const shown = (b) => {

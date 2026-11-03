@@ -1,0 +1,90 @@
+{
+  "title": { "zh": "宽高顺序与中心裁剪", "en": "Width, height and a centre crop" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref>：NumPy 给出图的形状时先写行数（高）、再写列数（宽）；OpenCV 要尺寸时却先写宽、再写高。Workshop 2 要从图的正中间裁出一块，两种顺序一混，裁出的位置就偏了。",
+        "en": "<wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref>: NumPy gives an image's shape as rows (height) first, then columns (width); OpenCV asks for a size as width first, then height. Workshop 2 crops a region from the very centre, and mixing the two orders puts it off-centre."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：已知形状 (rows, cols)，正中间那一块的左上角在哪？",
+        "en": "This level asks: given the shape (rows, cols), where is the centre region's top-left corner?"
+      }
+    }
+  ],
+  "after": {
+    "zh": "形状先高后宽，尺寸先宽后高；<wiki-ref to=\"center-crop-and-copy\"></wiki-ref>从余量的一半起。",
+    "en": "A shape is height first, a size width first; a <wiki-ref to=\"center-crop-and-copy\"></wiki-ref> starts half the spare room in."
+  },
+  "tasks": [
+    {
+      "id": "1W2",
+      "kind": "circuit",
+      "brief": {
+        "zh": "输入一张图、它的形状 rows、cols 和裁剪的宽 w、高 h：交出正中间的那一块。",
+        "en": "Given an image, its shape rows and cols, and the crop width w and height h, give the region at the very centre."
+      },
+      "hint": [{ "zh": "横向的余量是哪个数减 w？", "en": "The room left across is which number less w?" }],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "rows", "label": { "zh": "形状第 0 维（行数）", "en": "Shape 0 (rows)" } },
+        { "name": "cols", "label": { "zh": "形状第 1 维（列数）", "en": "Shape 1 (columns)" } },
+        { "name": "w", "label": { "zh": "裁剪宽 w", "en": "Crop width w" } },
+        { "name": "h", "label": { "zh": "裁剪高 h", "en": "Crop height h" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "正中的一块", "en": "The centre region" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "rows": 3,
+            "cols": 4,
+            "w": 2,
+            "h": 1
+          },
+          "expect": { "out": [[6, 7]] }
+        },
+        {
+          "inputs": {
+            "image": [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]],
+            "rows": 3,
+            "cols": 4,
+            "w": 3,
+            "h": 3
+          },
+          "expect": { "out": [[1, 2, 3], [5, 6, 7], [9, 10, 11]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 2], [3, 4], [5, 6], [7, 8]], "rows": 4, "cols": 2, "w": 2, "h": 2 },
+          "expect": { "out": [[3, 4], [5, 6]] }
+        }
+      ],
+      "solution": [
+        "two = const[value=2]()",
+        "dx = sub(cols, w)",
+        "dy = sub(rows, h)",
+        "hx = div(dx, two)",
+        "hy = div(dy, two)",
+        "x0 = floor(hx)",
+        "y0 = floor(hy)",
+        "c = crop(image, x0, y0, w, h)",
+        "out <- c"
+      ],
+      "naive": [
+        "two = const[value=2]()",
+        "dx = sub(rows, w)",
+        "dy = sub(cols, h)",
+        "hx = div(dx, two)",
+        "hy = div(dy, two)",
+        "x0 = floor(hx)",
+        "y0 = floor(hy)",
+        "c = crop(image, x0, y0, w, h)",
+        "out <- c"
+      ]
+    }
+  ]
+}

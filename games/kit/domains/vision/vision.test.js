@@ -11,11 +11,11 @@ import { PARTS } from './parts.js'
 import { fromText, toText } from './board.js'
 import { readTest, runLevel } from './run.js'
 import { differs, fromRows, toRows } from './image.js'
-import { gridCheck, gridReference, gridStart } from './grid.js'
-import { JUDGES, verdictOf } from './judges.js'
+import { gridCheck, gridReference, gridStart, parseNumber } from './grid.js'
+import { JUDGES, isNaive, verdictOf } from './judges.js'
 import { describe, factsOf, render, revealing, sameImage } from './scene.js'
 import { play } from './play.js'
-import { project } from './benches/pinhole.js'
+import { pinhole, pinholeView, project } from './benches/pinhole.js'
 import { lensView } from './benches/lens.js'
 import { lessonProblems } from './benches/lesson.js'
 import domain from './domain.js'
@@ -69,7 +69,7 @@ test('an output with no value fails even where 「—」 is expected: a card tha
 
 test('channels: one plane out of a colour image, three planes into one, unequal planes refused', () => {
   // 1C3: [(1,0,0),(0,0,1)], the blue plane [0, 1].
-  allPass(['c = const[value=2]()', 'p = channel(image, c)', 'out <- p'], ['image'], [[{ image: [[[1, 0, 0], [0, 0, 1]]] }, [[0, 1]]]])
+  allPass(['p = channel[c=2](image)', 'out <- p'], ['image'], [[{ image: [[[1, 0, 0], [0, 0, 1]]] }, [[0, 1]]]])
   // 1C4: R [1,0], G [0,0.5], B [0,1] → [(1,0,0),(0,0.5,1)].
   allPass(['m = compose(r, g, b)', 'out <- m'], ['r', 'g', 'b'], [[{ r: [[1, 0]], g: [[0, 0.5]], b: [[0, 1]] }, [[[1, 0, 0], [0, 0.5, 1]]]]])
   assert.throws(() => PARTS.compose.eval({ r: fromRows([[1, 0]]), g: fromRows([[0]]), b: fromRows([[0, 1]]) }), /differ in size/)
@@ -228,6 +228,21 @@ test('a claims round: its scenes give one picture, a claim they split is shown f
   assert.match(claimsGame([blue, { ...green, light: { azimuth: -40, elevation: 60 } }]).wrong[0], /do not all give the same picture/)
 })
 
+test('a grid or choice task names its naive answer: the check makes sure it fails, the player who gives it is told why', () => {
+  const content = readContent('starter', import.meta.dirname)
+  const withNaive = (id, naive) => ({ ...content, levels: content.levels.map((l) => (l.id !== id ? l : { ...l, tasks: [{ ...l.tasks[0], naive }] })) })
+  const why = { zh: '把 x 和 y 弄反了', en: 'x and y swapped' }
+  const said = (c, id) => domain.validate(domain.spec(c)).find((l) => l.level === id)
+  assert.match(said(withNaive('1-1', { answer: { x: 1, y: 2 }, why }), '1-1').text, /grid PASS, naive fails/)
+  assert.match(said(withNaive('1-1', { answer: { x: 2, y: 1 }, why }), '1-1').text, /the naive answer passes/)
+  const picks = [[['detect'], ['detect']]]
+  assert.match(said(withNaive('1-2', { picks, why }), '1-2').text, /naive fails round 1/)
+  assert.match(said(withNaive('1-2', { picks: [[['classify'], ['detect']]], why }), '1-2').text, /the naive answer passes every round/)
+  const task = domain.spec(withNaive('1-2', { picks, why })).vision.played.get('1-2')[0]
+  assert.ok(isNaive(task, 0, [['detect'], ['detect']]))
+  assert.match(play.attempt({ level: { source: task } }, 'detect;detect').says.at(-1).en, /x and y swapped/)
+})
+
 test('a picture in words shows what it shows: regions of colour, no names, nothing hidden', () => {
   const words = describe(SCENE('blue')).en
   assert.match(words, /^a 32 × 24 picture/)
@@ -243,6 +258,8 @@ test('blind play: a claims round is the picture described, options by label; a b
   const shown = play.open(ctx('1-2')).sections[0].text.en
   assert.match(shown, /The picture: a 32 × 24 picture/)
   assert.match(shown, /supported = Supported/)
+  const given = claimsGame([SCENE('blue'), SCENE('green')], { given: { zh: '立方体边长 1 米。', en: 'The cube is 1 m on a side.' } })
+  assert.match(play.open({ level: { source: given.played.get('1-2')[0] } }).sections[0].text.en, /^Given: The cube is 1 m on a side\./)
   assert.doesNotMatch(shown, /ball|cube|"colour"/)
   const wrong = play.attempt(ctx('1-2'), 'supported;supported')
   assert.equal(wrong.pass, false)
@@ -279,6 +296,11 @@ test('cover, refute, pair, same and project judge from the options’ own data (
   const cases = [{ id: 'a', varies: ['view'] }, { id: 'b', varies: ['light', 'occlusion'] }, { id: 'c', varies: [] }, { id: 'd', varies: ['view', 'light'] }]
   assert.deepEqual(JUDGES.cover.check({ options: cases, items: [{}] }, [['a', 'b']], { needs: ['view', 'light', 'occlusion'] }), [])
   assert.match(JUDGES.cover.check({ options: cases, items: [{}] }, [['a', 'c']], { needs: ['view', 'light', 'occlusion'] })[0].why.en, /light, occlusion/)
+  // Choosing everything is not choosing: a case the others make spare is pointed out.
+  const labelled = cases.map((c) => ({ ...c, label: { zh: c.id, en: c.id } }))
+  assert.match(JUDGES.cover.check({ options: labelled, items: [{}] }, [['a', 'b', 'c', 'd']], { needs: ['view', 'light', 'occlusion'] })[0].why.en, /“a” brings no change/)
+  const least = JUDGES.cover.reference({ options: labelled, items: [{}] }, { needs: ['view', 'light', 'occlusion'] })
+  assert.deepEqual(JUDGES.cover.check({ options: labelled, items: [{}] }, least, { needs: ['view', 'light', 'occlusion'] }), [])
   const preds = [{ id: 'x', truth: 'cat', predicted: 'cat' }, { id: 'y', truth: 'cat', predicted: 'dog' }, { id: 'none', label: 'none' }]
   assert.deepEqual(JUDGES.refute.reference({ options: preds, items: [{}] }), [['y']])
   assert.deepEqual(JUDGES.refute.reference({ options: [preds[0], preds[2]], items: [{}] }), [['none']])
@@ -303,6 +325,26 @@ test('the pinhole bench projects onto the upright virtual plane (1B1–1B3)', ()
   assert.equal(project({ H: 2, f: 2, Z: 4 }).h, 1)
   assert.equal(project({ H: 3, f: 2, Z: 6 }).h, 1)
   assert.equal(project({ H: 2, Z: 4, f: 4 }).h, 2)
+})
+
+test('the pinhole bench with a sensor: pixels, the field of view, and which objects fall out of view (1B7, 1B8)', () => {
+  // A 20 mm × 30 mm sensor of 200 × 300 pixels: 0.1 mm a pixel.
+  const sensor = { height: 20, width: 30, pxHeight: 200, pxWidth: 300 }
+  const one = pinholeView({ H: 120, Z: 600, sensor }, { f: 50 })
+  assert.equal(one.h, 10)
+  assert.equal(one.h_px, 100)
+  assert.equal(one.fpx, 500)
+  assert.ok(Math.abs(one.fov - 2 * Math.atan(10 / 50) * 180 / Math.PI) < 1e-9)
+  assert.equal(one.inView, 1)
+  // A row of objects at one depth: a long focal length puts the outer ones past the sensor's edges.
+  const row = { Z: 1000, sensor, objects: [{ id: 'mid', X: -50, H: 100 }, { id: 'top', X: 150, H: 100 }, { id: 'low', X: -250, H: 100 }] }
+  const wide = pinholeView(row, { f: 35 })
+  const long = pinholeView(row, { f: 100 })
+  assert.deepEqual([wide.in_mid, wide.in_top, wide.in_low, wide.allIn], [1, 1, 1, 1])
+  assert.deepEqual([long.in_mid, long.in_top, long.in_low, long.inView, long.allIn], [1, 0, 0, 1, 0])
+  assert.ok(Math.abs(long.h_mid_px - 100) < 1e-9)
+  assert.ok(long.fov < wide.fov)
+  assert.equal(pinhole.verify(pinhole.make({ target: { of: 'h_px', value: 1 } }), {}), 'a target in pixels needs a sensor')
 })
 
 test('a bench’s lesson: the start fails, some setting passes, the naive settings fail, every pass holds what it teaches', () => {
@@ -339,4 +381,12 @@ test('the domain’s page code calls no method older iOS Safari lacks', () => {
   const files = readdirSync(import.meta.dirname, { recursive: true }).filter((f) => /\.jsx?$/.test(f) && !f.endsWith('.test.js'))
   const used = files.flatMap((f) => [...readFileSync(resolve(import.meta.dirname, f), 'utf8').matchAll(/\.(at|findLast|findLastIndex|toSorted|toReversed|groupBy)\(|structuredClone\(/g)].map((m) => `${f}: ${m[0]}`))
   assert.deepEqual(used, [])
+})
+
+test('a typed number: decimals, negatives and fractions; nothing yet while it is half typed', () => {
+  assert.equal(parseNumber('0.5'), 0.5)
+  assert.equal(parseNumber('-1/6'), -1 / 6)
+  assert.equal(parseNumber(' 7 / 6 '), 7 / 6)
+  assert.equal(parseNumber('0.'), 0)
+  for (const half of ['', '-', '1/', '1/0', '.']) assert.equal(parseNumber(half), null)
 })

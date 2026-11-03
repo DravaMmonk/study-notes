@@ -18,7 +18,7 @@ import { display, fmt, fromRows, pixel, show } from './image.js'
 import { startBoard } from './board.js'
 import { runLevel } from './run.js'
 import { askOf, gridCheck } from './grid.js'
-import { judgeOf } from './judges.js'
+import { isNaive, judgeOf } from './judges.js'
 import { COLOURS, describe } from './scene.js'
 import { DISPLAYS } from './benches/index.js'
 import { callOf } from '../../engine/schema.js'
@@ -44,7 +44,7 @@ const circuit = circuitPlay({
     }
   },
   key: ({ game }, type) => (game.vision.BUILT[type] ? type : `part:${type}`),
-  settings: (_ctx, type) => (type === 'const' ? [{ key: 'value', values: ['…'] }] : type === 'lookup' ? [{ key: 'outside', values: ['error', 'zero', 'clamp'] }] : []),
+  settings: (_ctx, type) => (type === 'const' ? [{ key: 'value', values: ['…'] }] : type === 'lookup' ? [{ key: 'outside', values: ['error', 'zero', 'clamp'] }] : type === 'channel' ? [{ key: 'c', values: ['0', '1', '2'] }] : []),
   given: ({ level: { source: L } }) => both((lang) => [...L.inputs.map((i) => `${i.name}: ${lang === 'en' ? 'input' : '输入'} “${pick(i.label, lang)}”`), ...L.outputs.map((o) => `${o.name}: ${lang === 'en' ? 'output' : '输出'} “${pick(o.label, lang)}”`)].join('\n')),
   tests: ({ level: { source: L }, solved }) => testsOf(L, solved).map((test, k) => ({
     label: T(`测试 ${k + 1}`, `Test ${k + 1}`),
@@ -100,6 +100,11 @@ const grid = {
       sections: [
         { title: T('图', 'The image'), text: showNumbers ? table(L.image) : pictureOf(L.image) },
         ...(highlight ? [{ title: T('高亮', 'Highlighted'), text: highlight }] : []),
+        ...(params.strip ? [{ title: T('两条等长的条', 'Two bars of one length'), text: both((lang) => {
+          const { old, new: n } = params.strip
+          const edges = Array.from({ length: old + 1 }, (_, k) => k - 0.5).join(', ')
+          return lang === 'en' ? `Above, the ${old} original pixels, centres at x = ${Array.from({ length: old }, (_, k) => k).join(', ')}, edges at ${edges}. Below, ${n} new pixels sharing the same length equally.` : `上面是原图的 ${old} 个像素，中心在 x = ${Array.from({ length: old }, (_, k) => k).join('、')}，边界在 ${edges}。下面是 ${n} 个新像素，平分同一段长度。`
+        }) }] : []),
       ],
       write: ask,
     }
@@ -109,12 +114,14 @@ const grid = {
     const { name } = askOf(L)
     const answer = ['pick', 'locate'].includes(name) ? (([x, y]) => ({ x: Number(x), y: Number(y) }))(text.trim().split(/[\s,]+/)) : rowsOf(text)
     const why = gridCheck(L, answer)
-    return { tests: [{ label: T('答案', 'The answer'), pass: !why, says: why }], pass: !why, keep: answer }
+    const naive = why && L.naive && JSON.stringify(answer) === JSON.stringify(L.naive.answer)
+    return { tests: [{ label: T('答案', 'The answer'), pass: !why, says: why }], ...(naive ? { says: [L.naive.why] } : {}), pass: !why, keep: answer }
   },
 }
 
 /** What a round shows besides its items, in words: an image as its table, a scene as its picture described. */
 const shownOf = (round, lang) => [
+  ...(round.given ? [`${lang === 'en' ? 'Given' : '已知'}: ${pick(round.given, lang)}`] : []),
   ...(round.image ? [table(round.image)] : []),
   ...(round.scenes ? [`${lang === 'en' ? 'The picture' : '这一轮的图'}: ${pick(describe(round.scenes[0]), lang)}`] : []),
   ...(round.reference ? [`${lang === 'en' ? 'Reference' : '参照'}: ${pick(describe(round.reference), lang)}`] : []),
@@ -147,6 +154,7 @@ const choice = {
     const tests = L.rounds.map((round, r) => {
       const picks = (lines[r] ?? '').split(';').map((s) => s.split(',').map((x) => x.trim()).filter(Boolean))
       const wrong = judge.check(round, picks, params)
+      if (wrong.length && isNaive(L, r, picks)) says.push(L.naive.why)
       // What the screen shows under a claim answered wrong that two candidate scenes split: the two from another view.
       for (const w of wrong) {
         const reveal = round.reveals?.[w.item]

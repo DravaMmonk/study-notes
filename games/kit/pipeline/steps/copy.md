@@ -12,21 +12,31 @@ in Chinese and English, through the operation set. You change no test, board or 
    intro; pass texts never touch the answer; brevity; no forward references; links, never quoted names or positions;
    proper nouns have entries linked where they come in; links only to what is open by then; standard written Chinese
    without translationese; English written as English).
-2. The blueprint (`blueprint.json`): each slot's task, idea and the idea's wall — the wall is what the intro says the
-   machine lacks.
+2. The blueprint (`blueprint.json`): each knowledge point's term, definition, source, wall and misconception; each
+   slot's question and chain. The wall is what the intro says the machine lacks; the question is where the intro
+   leaves the player; the term is what the pass text names.
 3. The levels (`levels/*.json`), `game.json` and `glossary.json` in the game's folder, and the domain's part catalog
    (path under *Inputs*) for the primitives' names and descriptions.
 
 ## Rules to hold
 
-- An intro says what the machine (or the level before it) cannot do here and what piece this level adds; a new part
-  is named only after the need for it is said. A practice level's intro says which dimension changed. An era's first
-  level says what module the era adds and why the last machine is not enough.
-- Nothing that gives the answer away: no wiring, no recurrence, no "why it works". Hints go from direction to detail,
-  the first only pointing. Most practice levels need no pass text; where there is one, it is one abstract sentence.
+- An intro is complete: where the machine (or the level before it) is stuck, in the field's words; the slot's question;
+  what is given; what counts as right. A new part is named only after the need for it is said. A practice level's
+  intro says which facet is new. An era's first level says what module the era adds and why the last machine is not
+  enough. A sentence that would fit any level is cut and replaced by what this level says.
+- Nothing that gives the answer away: no wiring, no recurrence, no "why it works", and no brief, prompt or option
+  that uses the answer's words. Hints go from direction to detail, the first only pointing.
+- A level that brings a knowledge point has a pass text that names what the player just did by the point's term,
+  links its entry, and says in a sentence or two where it sits in the field (what it solves, what it is not, what
+  the sources call it; never a library's name on the main path) — never how this level was solved. Practice levels may have none.
+- The main path's copy carries no technical content: no library or tool, its names or its conventions, no link
+  to a technical entry (`bp-main-link`); those belong to the optional topics' levels.
+- Every knowledge point has an encyclopedia entry whose id is the point's id, opened (`at`) at the level that brings
+  it and linked there (`bp-entry`, `bp-term`): its title is the term, its body defines it in the field's words, cites
+  the source and sets it apart from its neighbours. Other terms of the field get entries too.
 - References are links: `<level-ref to="id"></level-ref>` (only to a prerequisite), `<part-ref to="key"></part-ref>`
-  (`part:<primitive>` or a built part's type), `<wiki-ref to="entry"></wiki-ref>`, on both sides. Every term of the
-  field gets an entry (`glossary.put`, `at` the level where it comes in) linked where it is introduced.
+  (`part:<primitive>` or a built part's type), `<wiki-ref to="entry"></wiki-ref>`, on both sides.
+- No two places say the same words (`pd-repeat-text`): an intro, brief, hint or pass text is this level's own.
 - Define subject-specific terms when they first appear, before relying on them in the intro, brief, hints or
   pass text (including task-level copy). An explanation must be in the current text or an earlier guaranteed
   prerequisite; later tasks, optional/parallel branches and pass text shown only after the earlier use do not count.
@@ -46,5 +56,6 @@ clean.
 
 ## Finish
 
-Reply with a short report: what you rewrote, the entries you wrote, the lint findings you hit, and anything in the
-levels themselves you think is wrong (a task the tests do not ask, a level that teaches two things).
+Reply with a short report: what you rewrote, the entries you wrote (term and source each), the lint findings you hit,
+and anything in the levels themselves you think is wrong (a task the tests do not ask, a level that teaches two
+things or nothing, a chain step with no place on screen).

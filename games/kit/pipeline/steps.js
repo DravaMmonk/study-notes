@@ -5,20 +5,21 @@
 //   blueprint  curriculum designer   writes blueprint.json            gate: the blueprint audit (blueprint.js)
 //   domain     engineer (code)       resolves the blueprint's requests gate: no request open, contract, check, tests
 //   levels     level designer        writes levels, eras, primitives  gate: npm run check + conformance to the blueprint
-//   copy       copy writer           rewrites every text, glossary    gate: check + conformance + the copy lint
+//                                                                            (but its terms) + the pedagogy lint
+//   copy       copy writer           rewrites every text, glossary    gate: check + conformance (terms linked to their
+//                                                                            entries) + the copy lint + the pedagogy lint
 //   review     reviewer              reads it all, reports findings   gate: no finding to fix left open
-//   blind      blind players         playtests/                       gate: every level played; give-ups and spikes explained
 //   queue      —                     the review queue entry           gate: every gate above still clean
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { checkGame } from '../engine/checks.js'
-import { domainOf, readContent, readPlaytests } from '../engine/content-node.js'
+import { domainOf, readContent } from '../engine/content-node.js'
 import { domainProblems, specProblems, validateProblems } from '../engine/contract.js'
-import { perLevel, spikes } from '../engine/play/stats.js'
 import { hubCount } from '../engine/ops/workspace.js'
 import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
+import { lintPedagogy } from './pedagogy.js'
 
 export const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const finding = (rule, at, says) => ({ rule, at, says })
@@ -28,7 +29,7 @@ const finding = (rule, at, says) => ({ rule, at, says })
 async function checks(id) {
   const content = readContent(id)
   const listed = hubCount(readFileSync(resolve(GAMES_DIR, 'games.js'), 'utf8'), id)
-  const lines = await checkGame(content, { domain: await domainOf(content), listed, playtests: readPlaytests(id) })
+  const lines = await checkGame(content, { domain: await domainOf(content), listed })
   return lines.filter((l) => l.fail).map((l) => finding('check', l.level ?? id, l.text))
 }
 
@@ -45,6 +46,14 @@ async function conformanceOf(id) {
   if (!content.blueprint) return [finding('bp-missing', id, 'the game has no blueprint.json')]
   const domain = await domainOf(content)
   return conformance(content.blueprint, content, domain.spec(content))
+}
+
+/** The pedagogy lint's findings split into failures and reports. */
+async function pedagogyOf(id) {
+  const content = readContent(id)
+  const domain = await domainOf(content)
+  const all = lintPedagogy(content, domain.spec(content))
+  return { failures: all.filter((f) => !f.report), reports: all.filter((f) => f.report) }
 }
 
 /** The last run of a step recorded in the game's pipeline state. */
@@ -86,14 +95,20 @@ export const STEPS = [
     who: 'agent',
     role: 'level designer',
     commands: ['op', 'check', 'gate', 'deps', 'eras'],
-    gate: async (id) => ({ failures: [...(await checks(id)), ...(await conformanceOf(id))], reports: [] }),
+    gate: async (id) => {
+      const pedagogy = await pedagogyOf(id)
+      return { failures: [...(await checks(id)), ...(await conformanceOf(id)).filter((f) => f.rule !== 'bp-term' && f.rule !== 'bp-entry'), ...pedagogy.failures], reports: pedagogy.reports }
+    },
   },
   {
     id: 'copy',
     who: 'agent',
     role: 'copy writer',
     commands: ['op', 'check', 'gate', 'lint'],
-    gate: async (id) => ({ failures: [...(await checks(id)), ...(await conformanceOf(id)), ...lintCopy(readContent(id))], reports: [] }),
+    gate: async (id) => {
+      const pedagogy = await pedagogyOf(id)
+      return { failures: [...(await checks(id)), ...(await conformanceOf(id)), ...lintCopy(readContent(id)), ...pedagogy.failures], reports: pedagogy.reports }
+    },
   },
   {
     id: 'review',
@@ -105,29 +120,6 @@ export const STEPS = [
       if (!run?.findings) return { failures: [finding('review-missing', id, 'no review has run')], reports: [] }
       const open = run.findings.filter((f) => f.fix && !f.resolved)
       return { failures: open.map((f) => finding('review', f.at, `${f.owner}: ${f.says}`)), reports: run.findings.filter((f) => !f.fix).map((f) => finding('review-note', f.at, f.says)) }
-    },
-  },
-  {
-    id: 'blind',
-    who: 'blind players',
-    role: 'blind player',
-    gate: async (id, state) => {
-      const content = readContent(id)
-      const domain = await domainOf(content)
-      const spec = domain.spec(content)
-      const records = readPlaytests(id)
-      const stats = perLevel(records)
-      const explained = new Map((state.explained ?? []).map((e) => [e.level, e]))
-      const failures = []
-      if (!records.length) failures.push(finding('blind-none', id, 'no blind session has been played'))
-      for (const l of spec.levels) {
-        const s = stats.get(l.id)
-        const skipped = records.some((r) => r.levels.some((e) => e.level === l.id && e.outcome === 'skipped'))
-        if (!s && !skipped && records.length) failures.push(finding('blind-unplayed', l.id, 'no session played it'))
-        if (s?.gaveUp && !explained.has(l.id)) failures.push(finding('blind-gave-up', l.id, `${s.gaveUp} of ${s.sessions} session(s) gave it up, and nobody has said why (npm run pipeline -- ${id} explain ${l.id} --why …)`))
-      }
-      for (const f of spikes(spec.course, records)) if (!explained.has(f.level)) failures.push(finding('blind-spike', f.level, `${f.text}; unexplained`))
-      return { failures, reports: [...explained.values()].map((e) => finding('blind-explained', e.level, e.why)) }
     },
   },
   {

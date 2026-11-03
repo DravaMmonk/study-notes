@@ -12,7 +12,6 @@ export function ruleOf(text) {
   const body = text.replace(/^(OPEN|REPORT) /, '')
   if (body.startsWith('content: ')) return 'content'
   if (body.startsWith('text ')) return 'copy'
-  if (/^PLAYTESTS |^playtests\//.test(body)) return 'playtests'
   if (body.startsWith('hub: ')) return 'hub'
   if (body.startsWith('game.json.open: ')) return 'open'
   const report = /^([\w-]+): /.exec(body)
@@ -73,9 +72,9 @@ export function testsOf(schema, level, vocabulary) {
  * passes, or when the whole check is in and none fails — a domain that reports a level only when it fails); cost:
  * blind play's (null without sessions).
  */
-export function marksOf(content, vocabulary, items, playtests, checked) {
+export function marksOf(content, vocabulary, items, checked) {
   const out = new Map()
-  for (const { id, ...level } of content.levels) out.set(id, { fails: 0, open: 0, domain: null, tests: testsOf(vocabulary.level, level, vocabulary), cost: playtests?.levels?.[id]?.cost ?? null })
+  for (const { id, ...level } of content.levels) out.set(id, { fails: 0, open: 0, domain: null, tests: testsOf(vocabulary.level, level, vocabulary) })
   for (const it of items) for (const id of it.levels) {
     const m = out.get(id)
     if (!m) continue

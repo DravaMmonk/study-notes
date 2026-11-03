@@ -1,27 +1,135 @@
 {
-  "title": { "zh": "三个通道", "en": "Three channels" },
+  "title": { "zh": "以像素为单位的焦距", "en": "Focal length in pixels" },
   "intro": [
     {
       "t": {
-        "zh": "灰度图只有一个值；彩色像素还要区分各通道。",
-        "en": "A grey pixel has one value; a colour pixel has separate channels."
+        "zh": "真相机的像平面是一块传感器：高 24 mm，分成 1200 行像素，一个像素高 0.02 mm。图里的位置用像素数，焦距也可以换成像素：毫米焦距除以每个像素的大小。",
+        "en": "A real camera's image plane is a sensor: 24 mm high, split into 1200 rows of pixels, each 0.02 mm. Positions in a picture are counted in pixels, and the focal length can be too: the focal length in millimetres over a pixel's size."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：焦距怎样决定拍得下多宽的视野，像素坐标又怎样从投影得出？先调焦距，让竖直视场正好 90°：一根灯杆离相机多远就有多高，杆顶刚好落在画面上沿；再用投影接出一块输出像素坐标的电路。",
+        "en": "This level asks: how does the focal length decide how wide a view fits, and how do pixel coordinates come from the projection? First set the focal length so the vertical field of view is exactly 90°, a pole as tall as it is far away just reaching the frame's top edge; then wire the projection into a circuit that gives pixel coordinates."
       }
     }
   ],
+  "adds": ["add"],
+  "after": {
+    "zh": "这是<wiki-ref to=\"angle-of-view-from-pixel-focal-length\"></wiki-ref>：焦距越长视野越窄；画面半高等于像素焦距时视场 90°。",
+    "en": "This is the <wiki-ref to=\"angle-of-view-from-pixel-focal-length\"></wiki-ref>: the longer the focal length, the narrower the view; when half the frame equals the focal length in pixels, the view is 90°."
+  },
   "tasks": [
     {
       "id": "1A3",
-      "kind": "grid",
-      "brief": { "zh": "把右边的像素设为蓝色 (0, 0, 1)。", "en": "Set the pixel on the right to blue (0, 0, 1)." },
-      "image": [[[1, 0, 0], [0, 0, 0]]],
-      "ask": { "set": { "x": 1, "y": 0, "value": [0, 0, 1] } }
+      "kind": "bench",
+      "step": { "zh": "调视野", "en": "Set the view" },
+      "brief": {
+        "zh": "传感器高 24 mm、1200 像素：调焦距 f，让竖直视场正好 90°，灯杆顶刚好在画面里。",
+        "en": "A 24 mm, 1200-pixel-high sensor: set the focal length f so the vertical field of view is exactly 90°, the pole's top just in the frame."
+      },
+      "hint": [
+        {
+          "zh": "90° 的视场，一半是 45°：从小孔到画面上沿的那条光线，往上走的和往前走的一样多。",
+          "en": "Half of 90° is 45°: the ray from the hole to the frame's top edge rises as far as it goes forward."
+        }
+      ],
+      "bench": {
+        "model": "pinhole",
+        "setup": {
+          "objects": [{ "id": "pole", "X": 0, "H": 50, "Z": 50, "label": { "zh": "灯杆", "en": "Pole" } }],
+          "sensor": { "height": 24, "width": 36, "pxHeight": 1200, "pxWidth": 1800 }
+        },
+        "knobs": {
+          "f": {
+            "label": { "zh": "焦距 f（mm）", "en": "Focal length f (mm)" },
+            "min": 6,
+            "max": 60,
+            "step": 6,
+            "start": 6
+          }
+        },
+        "goal": [
+          {
+            "of": "fov",
+            "label": { "zh": "竖直视场（度）", "en": "Vertical view (degrees)" },
+            "near": 90,
+            "atMost": 0.5,
+            "format": "fixed2"
+          },
+          { "of": "in_pole", "label": { "zh": "灯杆顶在画面里", "en": "Pole's top in the frame" }, "is": 1 }
+        ],
+        "check": "submit",
+        "layout": {
+          "main": ["pinholeRays"],
+          "foot": [
+            { "panel": ["knobs"] },
+            {
+              "stats": {
+                "of": [
+                  {
+                    "of": "fpx",
+                    "label": { "zh": "像素焦距", "en": "Focal length in pixels" },
+                    "format": "int",
+                    "unit": " px"
+                  }
+                ]
+              }
+            },
+            { "row": ["goals"] }
+          ]
+        }
+      },
+      "naive": [
+        {
+          "set": { "f": 24 },
+          "why": {
+            "zh": "以为焦距等于传感器高度时视场是 90°：那时半高 12 mm 只有焦距的一半，视场约 53°，杆顶出了画面。焦距要等于半高 12 mm。",
+            "en": "Taking a focal length equal to the sensor's height for 90°: then the half-height, 12 mm, is half the focal length, the view about 53° and the pole's top out of frame. The focal length must equal the half-height, 12 mm."
+          }
+        }
+      ],
+      "holds": [{ "of": "f", "near": 12, "atMost": 0.001 }]
     },
     {
       "id": "1A3_2",
-      "kind": "grid",
-      "brief": { "zh": "把左下角的像素设为 (0.2, 0.7, 0.4)。", "en": "Set the lower-left pixel to (0.2, 0.7, 0.4)." },
-      "image": [[[0, 0.1, 0.2], [0.3, 0.4, 0.5]], [[0, 0, 0], [0.8, 0.2, 0.1]]],
-      "ask": { "set": { "x": 0, "y": 1, "value": [0.2, 0.7, 0.4] } }
+      "kind": "circuit",
+      "step": { "zh": "像素坐标", "en": "Pixel coordinates" },
+      "intro": [
+        {
+          "t": {
+            "zh": "像素坐标从画面左边数起，光轴穿过的那一点（主点）在画面中间，坐标是 c_x。新元件<part-ref to=\"part:add\"></part-ref>。",
+            "en": "Pixel coordinates count from the frame's left edge; the point the optical axis passes through (the principal point) sits mid-frame at c_x. New part: <part-ref to=\"part:add\"></part-ref>."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入 X、Z、像素焦距 f_px 和主点 c_x：交出像点的像素横坐标 u。",
+        "en": "Given X, Z, the focal length in pixels f_px and the principal point c_x, give the image's pixel column u."
+      },
+      "hint": [
+        {
+          "zh": "<part-ref to=\"project\"></part-ref> 已经会算以光轴为原点的位置；像素坐标的原点在哪里？",
+          "en": "The <part-ref to=\"project\"></part-ref> already gives the position measured from the axis; where is the origin of pixel coordinates?"
+        }
+      ],
+      "inputs": [
+        { "name": "X", "label": { "zh": "横向位置 X", "en": "Sideways X" } },
+        { "name": "Z", "label": { "zh": "距离 Z", "en": "Distance Z" } },
+        { "name": "fpx", "label": { "zh": "像素焦距 f_px", "en": "Focal length f_px" } },
+        { "name": "cx", "label": { "zh": "主点 c_x", "en": "Principal point c_x" } }
+      ],
+      "outputs": [{ "name": "u", "label": { "zh": "像素横坐标 u", "en": "Pixel column u" } }],
+      "tests": [
+        { "inputs": { "X": 1, "Z": 2, "fpx": 900, "cx": 900 }, "expect": { "u": 1350 } },
+        { "inputs": { "X": -2, "Z": 4, "fpx": 500, "cx": 320 }, "expect": { "u": 70 } }
+      ],
+      "hidden": [
+        { "inputs": { "X": 0, "Z": 5, "fpx": 700, "cx": 640 }, "expect": { "u": 640 } },
+        { "inputs": { "X": 3, "Z": 3, "fpx": 100, "cx": 50 }, "expect": { "u": 150 } }
+      ],
+      "solution": ["p = project(X, Z, fpx)", "q = add(p, cx)", "u <- q"],
+      "naive": ["p = project(X, Z, fpx)", "u <- p"]
     }
   ]
 }

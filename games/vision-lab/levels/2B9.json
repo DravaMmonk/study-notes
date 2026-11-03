@@ -1,0 +1,111 @@
+{
+  "title": { "zh": "彩色图的卷积", "en": "Convolving a colour picture" },
+  "intro": [
+    {
+      "t": {
+        "zh": "彩色图每个像素有三个数。处理彩色图的核也有三层，每个通道一层：三层各自滤过自己的通道，再加起来，得到一张图。",
+        "en": "A colour picture has three numbers a pixel. A kernel for it has three layers too, one per channel: each filters its own channel, and the three are added into one picture."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：三个通道各自模糊、再按权重加起来，结果是什么？新元件取通道，取出每个像素第 0、1、2 个位置（红、绿、蓝）上的数，组成一张灰度图。",
+        "en": "This level asks: blur each channel, then add them up by weights; what comes out? New part: channel takes the number at position 0, 1 or 2 (red, green, blue) of every pixel as a grey image."
+      }
+    }
+  ],
+  "adds": ["channel"],
+  "after": {
+    "zh": "这是<wiki-ref to=\"colour-filtering\"></wiki-ref>：核有几层就对应几个通道，各层结果相加成一张图。",
+    "en": "This is <wiki-ref to=\"colour-filtering\"></wiki-ref>: a kernel has a layer per channel, and the layers' results add up to one picture."
+  },
+  "tasks": [
+    {
+      "id": "2B9",
+      "kind": "circuit",
+      "intro": [
+        {
+          "t": {
+            "zh": "新元件<part-ref to=\"part:channel\"></part-ref>：在元件上设定取第几个位置。",
+            "en": "New part: <part-ref to=\"part:channel\"></part-ref>; set on the part which position it takes."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入一张彩色图和权重 wr、wg、wb：把三个通道各自高斯模糊，再按 wr × 红 + wg × 绿 + wb × 蓝 加起来。",
+        "en": "Given a colour image and the weights wr, wg, wb, Gaussian-blur each channel, then add wr × red + wg × green + wb × blue."
+      },
+      "hint": [
+        {
+          "zh": "先把三个通道分开，各自模糊，再乘权重。",
+          "en": "First take the three channels apart, blur each, then weight them."
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "彩色图", "en": "Colour image" } },
+        { "name": "wr", "label": { "zh": "红的权重 wr", "en": "Red weight wr" } },
+        { "name": "wg", "label": { "zh": "绿的权重 wg", "en": "Green weight wg" } },
+        { "name": "wb", "label": { "zh": "蓝的权重 wb", "en": "Blue weight wb" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+              [[1, 1, 1], [0, 0, 0], [0.5, 0.5, 0.5]],
+              [[0, 0, 0], [1, 0, 1], [0, 1, 1]]
+            ],
+            "wr": 1,
+            "wg": 0,
+            "wb": 0
+          },
+          "expect": { "out": [[0.375, 0.21875, 0.0625], [0.4375, 0.375, 0.1875], [0.25, 0.34375, 0.1875]] }
+        },
+        {
+          "inputs": {
+            "image": [
+              [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+              [[1, 1, 1], [0, 0, 0], [0.5, 0.5, 0.5]],
+              [[0, 0, 0], [1, 0, 1], [0, 1, 1]]
+            ],
+            "wr": 0.3,
+            "wg": 0.6,
+            "wb": 0.1
+          },
+          "expect": { "out": [[0.275, 0.29375, 0.1625], [0.35, 0.38125, 0.2875], [0.175, 0.28125, 0.2875]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [
+              [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+              [[1, 1, 1], [0, 0, 0], [0.5, 0.5, 0.5]],
+              [[0, 0, 0], [1, 0, 1], [0, 1, 1]]
+            ],
+            "wr": 0,
+            "wg": -1,
+            "wb": 1
+          },
+          "expect": { "out": [[-0.125, -0.125, 0.125], [0, 0.0625, 0.125], [0.125, 0.25, 0.125]] }
+        }
+      ],
+      "solution": [
+        "r = channel[c=0](image)",
+        "g = channel[c=1](image)",
+        "b = channel[c=2](image)",
+        "br = blur(r)",
+        "bg = blur(g)",
+        "bb = blur(b)",
+        "rw = mul(br, wr)",
+        "gw = mul(bg, wg)",
+        "bw = mul(bb, wb)",
+        "s1 = add(rw, gw)",
+        "s2 = add(s1, bw)",
+        "out <- s2"
+      ],
+      "naive": ["r = channel[c=0](image)", "br = blur(r)", "rw = mul(br, wr)", "out <- rw"]
+    }
+  ]
+}

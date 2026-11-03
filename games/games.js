@@ -90,8 +90,8 @@ export const GAMES = [
   },
   {
     id: 'vision-lab', href: 'vision-lab/index.html', title: 'Vision Lab', en: 'Vision Lab', topic: { zh: 'Vision Lab', en: 'Vision Lab' },
-    desc: { zh: '从一格一格的数出发，搭出读图、移图、缩放的电路，再用相机模型解释图从哪里来。', en: 'Start from a grid of numbers, wire circuits that read, move and resize images, and explain with a camera model where an image comes from.' },
-    levels: 59, dev: true, hidden: true,
+    desc: { zh: '一章一章造出视觉的机器：先造相机，把场景投影成像素、在任意位置取值；再造卷积器，搭出模糊器和边缘检测器。', en: 'Build the machines of vision chapter by chapter: a camera that projects a scene into pixels and reads them anywhere, then a convolver that makes a blur and an edge detector.' },
+    levels: 19, dev: true, hidden: true,
     page: { icon: 'M16 32h32M32 16v32', description: 'Vision Lab Vision Lab' },
     progress: () => (read('vision-lab.v1')?.solved || []).length,
   },

@@ -1,0 +1,132 @@
+{
+  "title": { "zh": "滑动加权和", "en": "A sliding weighted sum" },
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里，每个新值都只看原图的一个位置。可模糊、找边这样的处理，要看一个像素周围的一片：<wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>。最常用的一种，是把邻域里的像素各乘一个权重再相加，这组权重叫<wiki-ref to=\"linear-filter\"></wiki-ref>的卷积核。",
+        "en": "So far each new value looks at one position of the original. Blurring or finding edges needs the patch around a pixel: <wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>. The commonest kind multiplies each pixel of the neighbourhood by a weight and adds them up; the weights are the kernel of a <wiki-ref to=\"linear-filter\"></wiki-ref>."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：让一组权重沿着一行滑过去，每个位置算一次加权和，结果是什么样？先手算一行，再接成电路：输入一张图和左、中、右三个权重。",
+        "en": "This level asks: sliding three weights along a row and taking the weighted sum at each position, what comes out? First work out a row by hand, then wire it: an image and the left, centre and right weights."
+      }
+    }
+  ],
+  "adds": ["size"],
+  "after": {
+    "zh": "这是<wiki-ref to=\"convolution\"></wiki-ref>：一组权重滑过整张图，每个位置算一次加权和。只算三格都在图里的位置，输出比原图窄 2。",
+    "en": "This is the <wiki-ref to=\"convolution\"></wiki-ref>: a set of weights slides over the image, one weighted sum per position. Taking only positions with all three cells inside, the output is 2 narrower."
+  },
+  "tasks": [
+    {
+      "id": "2B1",
+      "kind": "grid",
+      "step": { "zh": "手算", "en": "By hand" },
+      "brief": {
+        "zh": "权重左 1、中 0、右 −1 滑过这一行：写出三格都在图里的每个位置的加权和。",
+        "en": "Slide the weights left 1, centre 0, right −1 along this row: write the weighted sum at each position whose three cells are all inside."
+      },
+      "hint": [
+        {
+          "zh": "第一个位置以 x = 1 为中心：1 × 左邻 + 0 × 自己 + (−1) × 右邻。",
+          "en": "The first position is centred on x = 1: 1 × left + 0 × here + (−1) × right."
+        }
+      ],
+      "image": [[1, 3, 2, 5, 4]],
+      "show": "numbers",
+      "ask": { "fill": { "rows": [[-1, -2, -2]], "label": { "zh": "加权和", "en": "Weighted sums" } } },
+      "naive": {
+        "answer": [[1, 2, 2]],
+        "why": {
+          "zh": "这是右邻减左邻：权重左 1、右 −1，是左邻减右邻。权重跟着位置走，不要颠倒。",
+          "en": "That is right less left: with the left weight 1 and the right −1 it is left less right. The weights go with their positions."
+        }
+      }
+    },
+    {
+      "id": "2B1_2",
+      "kind": "circuit",
+      "step": { "zh": "接成电路", "en": "Wire it" },
+      "intro": [
+        {
+          "t": {
+            "zh": "新元件<part-ref to=\"part:size\"></part-ref>读出图的宽 w 和高 h。只算三格都在图里的位置：输出宽 w − 2，第 x 格以原图的 x + 1 为中心。",
+            "en": "New part: <part-ref to=\"part:size\"></part-ref> gives an image's width w and height h. Take only positions with all three cells inside: the output is w − 2 wide, its cell x centred on the original x + 1."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入一张图和权重 a、b、c：交出每个位置 a × 左邻 + b × 自己 + c × 右邻。",
+        "en": "Given an image and the weights a, b, c, give a × left + b × here + c × right at each position."
+      },
+      "hint": [
+        {
+          "zh": "输出的每格要取原图的三个像素：它们的 x 各是多少？",
+          "en": "Each output cell reads three pixels of the original: what is each one's x?"
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "a", "label": { "zh": "左邻权重 a", "en": "Left weight a" } },
+        { "name": "b", "label": { "zh": "中心权重 b", "en": "Centre weight b" } },
+        { "name": "c", "label": { "zh": "右邻权重 c", "en": "Right weight c" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "加权和", "en": "Weighted sums" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[1, 3, 2, 5, 4]], "a": 1, "b": 0, "c": -1 },
+          "expect": { "out": [[-1, -2, -2]] }
+        },
+        {
+          "inputs": { "image": [[1, 3, 2, 5], [4, 0, 6, 1], [2, 2, 8, 3]], "a": 1, "b": 1, "c": 1 },
+          "expect": { "out": [[6, 10], [10, 7], [12, 13]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 3, 2, 5], [4, 0, 6, 1], [2, 2, 8, 3]], "a": 0.25, "b": 0.5, "c": 0.25 },
+          "expect": { "out": [[2.25, 3], [2.5, 3.25], [3.5, 5.25]] }
+        },
+        { "inputs": { "image": [[2, 4, 6]], "a": 0, "b": 1, "c": 0 }, "expect": { "out": [[4]] } }
+      ],
+      "solution": [
+        "s = size(image)",
+        "two = const[value=2]()",
+        "one = const[value=1]()",
+        "w2 = sub(s.w, two)",
+        "g = grid(w2, s.h)",
+        "x1 = add(g.x, one)",
+        "x2 = add(g.x, two)",
+        "l = lookup(image, g.x, g.y)",
+        "m = lookup(image, x1, g.y)",
+        "r = lookup(image, x2, g.y)",
+        "la = mul(l, a)",
+        "mb = mul(m, b)",
+        "rc = mul(r, c)",
+        "s1 = add(la, mb)",
+        "s2 = add(s1, rc)",
+        "out <- s2"
+      ],
+      "naive": [
+        "s = size(image)",
+        "two = const[value=2]()",
+        "one = const[value=1]()",
+        "w2 = sub(s.w, two)",
+        "g = grid(w2, s.h)",
+        "x1 = add(g.x, one)",
+        "x2 = add(g.x, one)",
+        "l = lookup(image, g.x, g.y)",
+        "m = lookup(image, x1, g.y)",
+        "r = lookup(image, x2, g.y)",
+        "la = mul(l, a)",
+        "mb = mul(m, b)",
+        "rc = mul(r, c)",
+        "s1 = add(la, mb)",
+        "s2 = add(s1, rc)",
+        "out <- s2"
+      ]
+    }
+  ]
+}

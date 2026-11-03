@@ -14,7 +14,7 @@ import { resolve } from 'node:path'
 import { validate } from '../schema.js'
 import { checkContent } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
-import { domainOf, readPlaytests } from '../content-node.js'
+import { domainOf } from '../content-node.js'
 import { OPERATIONS } from './operations.js'
 import { saveOps } from './migrate.js'
 import { hubCount } from './workspace.js'
@@ -109,7 +109,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   const content = ws.content()
   // The hub's count goes with the change (workspace.js), so it is checked against the levels there are now.
   const listed = hubCount(ws.hub, ws.id) === null ? null : ws.levels.size
-  const lines = check ? await checkGame(content, { domain, listed, playtests: readPlaytests(ws.id, ws.root) }) : checkContent(vocabulary, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
+  const lines = check ? await checkGame(content, { domain, listed }) : checkContent(vocabulary, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
   const changes = ws.changes()
   const diff = ws.diff()

@@ -6,33 +6,76 @@ code. Your product is one file of data, `blueprint.json`, written through the op
 
 ## Read first
 
-1. The handbook `games/DESIGN.md`: §1 (principles and the four hard rules for ordering a chapter), §2 (course
-   structure: eras, foundation and practice, the practice dimensions table in §2.3, topics, challenges, the level tree),
-   §6.5 (the mechanism catalogue) and §8 (pitfalls). §11 shows the rules at work on a real course.
-2. The course material listed under *Inputs* (a topic's design sketch is intent and source, not a finished spec:
-   keep what serves the rules, change what breaks them, and say why in the blueprint's own words).
+1. The handbook `games/DESIGN.md`: §1 (playing is learning; the principles and the four hard rules for ordering a
+   chapter), §2 (course structure: eras, foundation and practice, the practice dimensions table in §2.3, topics,
+   challenges, the level tree), §4.1 (a level's knowledge contract and the kinds of level that teach nothing), §6.5
+   (the mechanism catalogue) and §8 (pitfalls). §11 shows the rules at work on a real course.
+2. The course material listed under *Inputs*, all of it: the lectures and notes are where the knowledge comes from.
+   A topic's design sketch is intent, not a finished spec: keep what serves the rules, change what breaks them, and
+   say why in the blueprint's own words.
 3. The blueprint's schema: `games/kit/pipeline/blueprint.js` (`BLUEPRINT`, and the audit rules `BLUEPRINT_RULES`).
 4. The domain's vocabulary (`vocabulary.json` in your directory): what the domain can do today. The blueprint may ask
    for more (see *Requests*), but every request costs engineering; ask only for what the course needs.
 
 ## What to decide
 
+Work in this order: the knowledge first, the levels from it. A course planned from its parts ends up one part a
+level, and a level about a part teaches nothing of the field.
+
+- **Knowledge.** Go through the sources section by section and list what a learner must come away knowing. The
+  main path is the lectures' theory and nothing else: concepts, models, methods and how they relate (`basis:
+  'lecture'`), every main-path level built around one. Technical content — a library's or a tool's way (OpenCV's
+  channel order, `uint8`, function names), a file format, a workshop's recipe — is `basis: 'technical'` and never
+  touches the main path (`bp-main-tech`): it is taught only in optional topics (series `kind: 'topic'`), hung
+  `after` the theory slot it applies or after the era's last main-path slot. Each point is a concept, method,
+  convention or fact of the field, with the `term` the sources use (both languages, the
+  field's own words), what it says (`about`), where the sources teach it (`source`: a file of `sources` with its
+  section, page or slide), the question a learner cannot answer without it (`wall`) and the intuitive wrong idea it
+  replaces (`misconception`). A primitive, an operation or a knob is never a point (a part the player builds may
+  embody one: cropping, built as crop): "a constant", "rounding down", "the
+  larger of two" are tools, and come in with the point that first needs them (a slot may add several primitives
+  for its one point; the level designer groups them with `concept`).
+- **Place the knowledge before placing levels.** Covering every point of the sources is not the aim; climbing to
+  their hard core is. For each point decide:
+  - `difficulty`: `intuitive` (a sentence makes it plain; an adult who has not taken the course would not get it
+    wrong — e.g. "different vision tasks give answers of different shapes"), `learnable` (needs an example or a
+    level of practice), `hard` (abstract, far from daily life, its name explains nothing — e.g. depth of field,
+    perspective projection, the inverse problem). Intuitive points get no slot: a slot names them in its intro,
+    summary or entries (`mentions`).
+  - `core`: the few points each chapter is really about — what the lectures spend effort on, what later chapters
+    stand on, what students get wrong. Every era names at least one.
+  - `depends`: the shallower points it is built from. Take every hard point down until you reach origins a
+    learner can grasp by doing one plain thing (a point lands on one point; a bigger hole makes a spot), and order
+    the slots up that graph: a hard point comes only after at least two of the points it stands on have been
+    taught (`bp-shallow`), each step adding one thing (games/DESIGN.md §4.2, "拆一个难点").
+  Spend the levels where the difficulty is: most of an era's main-path slots should be on the ladders to its core
+  points (`bp-ladder`); a learnable point off every ladder is worth asking whether it needs a level at all.
 - **Endpoint and scope.** What the learner can build at the end of the whole course, and what this blueprint covers
   now (the eras named in *Inputs*). Eras left for later go into `deferred` with why.
 - **Mechanisms** from the catalogue, each with where it is used and why it fits (§6.5's questions).
 - **The machine ladder.** One machine per era, with the abilities it has (`can`) and what it lacks (`lacks`: the
   reason the next era exists). The first machine is deliberately narrow.
-- **Ideas.** Every new idea the course brings, each with its `wall`: what the player hits without it, so the slot that
-  brings it can be that wall (§1: a mechanism goes where it is first indispensable, not where it could first be made).
+- **Where each point goes.** A point's slot is its wall (§1: a point goes where it is first indispensable, not where
+  it could first be made).
 - **Primitives** (start as few as possible; for each, `why` it cannot be wired from what is already held) and
   **built parts** (each with what it is built `from`). Anything wirable from parts in hand is built, never a primitive.
 - **Eras → series → slots.** A slot is one level to be: its id (the level id, e.g. `1-4`; topics take a letter and a
-  number, `N1`), a working title, the `task` in one sentence, its `role`, the one `idea` it brings (at most one), the
-  primitives it `adds`, the part it `builds`, the parts / ideas / abilities its reference answer stands on (`uses`:
-  name every part the answer must use, so the level designer and the conformance check can hold the level to it),
-  and for practice slots the `dimension` it varies (§2.3). A challenge has a `naive` answer and nothing new.
-- **Practice.** Each new idea on the main path is followed by its own cluster of practice slots that vary it along
-  different dimensions, ending in `combine` or `false` (§2.3). Never pad: a slot without a new dimension is cut.
+  number, `N1`), a working title, the `task` in one sentence, the `question` playing it answers (in the field's words,
+  not an instruction: "When an image is enlarged, where do the new pixels' values come from?"), the `chain` from the
+  question to the answer (two or more steps, a sentence each: what the player tries, what they see, what it makes
+  them think — every step lands on something on screen: a task, a test, a feedback line, a counterexample), its
+  `role`, the one knowledge point it brings (`teaches`) or, for a practice slot, the new `facet` of a point it shows,
+  the primitives it `adds`, the part it `builds`, the parts / points / abilities its reference answer stands on
+  (`uses`: name every part the answer must use, and the point a practice slot practises), the slot's `naive` answer
+  where the point has a misconception (it is that misconception), and for practice slots the `dimension` it varies
+  (§2.3). A challenge has a `naive` answer and nothing new.
+- **Practice.** Each new point on the main path is followed by practice of its facets, one facet a slot, ending in
+  `combine` or `false` (§2.3). New numbers for the same facet are tests or tasks of a slot, never a slot of their
+  own. Never pad: a slot without a point or a new facet is cut; when the audit reports a point as unpractised, look
+  for a facet the course really has, and leave the report with your reason if there is none.
+- **Steps, not slots, for a hard point.** A point too big for one level is taken apart into steps, each a slot with
+  its own question (bilinear interpolation: first in one dimension, then in two). A step is a step of the point, not
+  a tool on the way to it.
 - **Branching.** Series that do not depend on each other are a parallel set (same `parallel` id, at most three), not a
   line. Optional topics and challenges hang `after` the slot they need.
 - **Abstraction rises.** Later slots stand on built parts; the last series of an era uses what the era built.
@@ -61,5 +104,8 @@ apply to titles and tasks too). Ids are ASCII.
 
 ## Finish
 
-When the gate is clean, reply with a short report: the shape of the course (eras, series, slot count), the requests
-you made and why, the REPORT findings you left and why, and what you were unsure of.
+When the gate is clean, reply with a short report: each era's core points and the ladder of points up to each
+(its steps in order), the points you judged intuitive and where they are mentioned, the knowledge points by era
+(term, source and difficulty each), the shape of
+the course (eras, series, slots; how many slots each point takes and why), the requests you made and why, the REPORT
+findings you left and why, and what you were unsure of.

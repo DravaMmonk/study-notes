@@ -1,0 +1,80 @@
+{
+  "title": { "zh": "梯度：边有多强、朝哪边", "en": "The gradient: how strong, which way" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<wiki-ref to=\"edge-as-rapid-change\"></wiki-ref>：gx 和 gy 合起来是一个箭头，叫梯度，指向亮度增加最快的方向；它的长度说明边有多强，不管边朝哪边。",
+        "en": "An <wiki-ref to=\"edge-as-rapid-change\"></wiki-ref>: gx and gy together make an arrow, the gradient, pointing the way brightness rises fastest; its length says how strong the edge is, whichever way it runs."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：怎样不管方向、只量出边有多强？比如 gx = 4、gy = 0 时它指向右，gx = 0、gy = −4 时指向上（y 向下数）。用 Sobel 接出梯度的大小；新元件开平方。",
+        "en": "This level asks: how is an edge's strength measured, whatever its direction? With gx = 4 and gy = 0 it points right, with gx = 0 and gy = −4 up (y counts down). Wire the gradient's size from the Sobel filter; new part: square root."
+      }
+    }
+  ],
+  "adds": ["sqrt"],
+  "after": {
+    "zh": "这是<wiki-ref to=\"image-gradient\"></wiki-ref>：方向由 gx、gy 定，大小是 √(gx² + gy²)。这台边缘检测器后面还会用到。",
+    "en": "This is the <wiki-ref to=\"image-gradient\"></wiki-ref>: its direction set by gx and gy, its size √(gx² + gy²). This edge detector is used again later."
+  },
+  "tasks": [
+    {
+      "id": "2B8",
+      "kind": "circuit",
+      "intro": [
+        {
+          "t": {
+            "zh": "新元件<part-ref to=\"part:sqrt\"></part-ref>给出平方根。",
+            "en": "New part: <part-ref to=\"part:sqrt\"></part-ref> gives the square root."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
+        "en": "Given an image, give the gradient's size √(gx² + gy²) at each position."
+      },
+      "hint": [
+        { "zh": "gx、gy 有正有负；直接相加，正负会抵消。", "en": "gx and gy can be negative; added as they are, they cancel." }
+      ],
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [{ "name": "mag", "label": { "zh": "梯度大小", "en": "Gradient size" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 0, 4, 4], [0, 0, 4, 4], [0, 0, 4, 4]] },
+          "expect": {
+            "mag": [[0, 12.649111, 16.970563, 16.970563], [0, 16, 16, 16], [0, 12.649111, 16.970563, 16.970563]]
+          }
+        },
+        {
+          "inputs": { "image": [[1, 3, 2, 5], [4, 0, 6, 1], [2, 2, 8, 3]] },
+          "expect": {
+            "mag": [
+              [10, 10.77033, 13.928388, 12.806248],
+              [5.09902, 12.083046, 10.29563, 22.090722],
+              [8.944272, 17.204651, 13.341664, 23.4094]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0, 0, 0, 0], [0, 16, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
+          "expect": {
+            "mag": [[22.627417, 32, 22.627417, 0], [32, 0, 32, 0], [22.627417, 32, 22.627417, 0], [0, 0, 0, 0]]
+          }
+        }
+      ],
+      "solution": [
+        "s = sobel(image)",
+        "xx = mul(s.gx, s.gx)",
+        "yy = mul(s.gy, s.gy)",
+        "t = add(xx, yy)",
+        "m = sqrt(t)",
+        "mag <- m"
+      ],
+      "naive": ["s = sobel(image)", "t = add(s.gx, s.gy)", "mag <- t"]
+    }
+  ]
+}

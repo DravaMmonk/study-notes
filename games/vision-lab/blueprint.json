@@ -1,1118 +1,1358 @@
 {
   "topic": { "zh": "计算机视觉", "en": "Computer vision" },
-  "learner": { "zh": "没有计算机视觉基础的学习者", "en": "Learners new to computer vision" },
+  "learner": {
+    "zh": "学过编程和中学数学、没有学过计算机视觉的学习者（COMP90086 的学生）",
+    "en": "Learners who can program and know school mathematics but have not studied computer vision (COMP90086 students)"
+  },
   "endpoint": {
-    "zh": "构造并检验处理、识别、测量和生成图像的视觉系统。",
-    "en": "Build and test systems that process, recognise, measure and generate images."
+    "zh": "一章一章造出视觉的机器：相机、卷积器，往后是卷积网络、注意力和全景拼接器；每个部件在后面的章里直接复用。",
+    "en": "Build the machines of vision chapter by chapter: a camera, a convolver, later a convolutional network, attention and a panorama stitcher, each part reused in the chapters after."
   },
   "scope": {
-    "zh": "先制作第 0、1 章：视觉任务、数字图像和基础成像。",
-    "en": "Chapters 0 and 1: visual tasks, digital images and basic image formation."
+    "zh": "第 1–2 章（讲义第 1–3 讲和第 5 讲的梯度），依据 docs/Unimelb/26S2/CV/vision-game-specs/knowledge-map-1-12.md 的章节方案：相机（投影、像素焦距、数表、裁剪、最近邻、双线性）和卷积器（滑动加权、补边、翻转、可分离、高斯、Sobel、梯度、彩色卷积）。Workshop 内容做成可选专题。",
+    "en": "Chapters 1–2 (lectures 1–3 and the gradient of lecture 5), after the chapter plan in docs/Unimelb/26S2/CV/vision-game-specs/knowledge-map-1-12.md: the camera (projection, focal length in pixels, the table of numbers, cropping, nearest neighbour, bilinear) and the convolver (sliding weighted sums, padding, flipping, separable, Gaussian, Sobel, the gradient, colour convolution). Workshop content is optional topics."
   },
   "sources": [
-    "docs/Unimelb/26S2/CV/vision-game-specs/chapters-0-1.md",
-    "docs/Unimelb/26S2/CV/lecture/COMP90086-01-Introduction.pdf",
-    "docs/Unimelb/26S2/CV/lecture/COMP90086-02-Basics.pdf"
+    "docs/Unimelb/26S2/CV/01-introduction.md",
+    "docs/Unimelb/26S2/CV/02-basics.md",
+    "docs/Unimelb/26S2/CV/03-filters.md",
+    "docs/Unimelb/26S2/CV/05-image-formation-ii.md"
   ],
   "mechanisms": [
     {
-      "id": "table",
-      "where": { "zh": "视觉任务和像素", "en": "Visual tasks and pixels" },
-      "why": { "zh": "填写并比较结构化答案。", "en": "Enter and compare structured answers." }
+      "id": "circuit",
+      "where": {
+        "zh": "每关最后一步：把关系接成电路，做出的板成为后面的部件",
+        "en": "The last step of most levels: the relation wired as a circuit, the board a part for later"
+      },
+      "why": {
+        "zh": "《图灵完备》式的抽象：造出的部件在后面直接调用，复杂的机器由简单的部件一层层搭起",
+        "en": "Turing Complete's abstraction: parts built are called directly later, complex machines built up from simple parts"
+      }
     },
     {
-      "id": "circuit",
-      "where": { "zh": "图像操作", "en": "Image operations" },
-      "why": { "zh": "从低层操作搭出可复用流程。", "en": "Build reusable flows from lower-level operations." }
+      "id": "manual",
+      "where": {
+        "zh": "动手算：读图、裁剪、取值、卷积核",
+        "en": "Working by hand: reading, cropping, sampling, kernels"
+      },
+      "why": {
+        "zh": "先亲手当一回机器，电路才有前因",
+        "en": "Acting as the machine first gives the circuit its reason"
+      }
     },
     {
       "id": "bench",
-      "where": { "zh": "成像", "en": "Image formation" },
-      "why": { "zh": "通过改变参数探索成像。", "en": "Explore image formation by changing parameters." }
+      "where": {
+        "zh": "针孔相机台：投影、视场",
+        "en": "The pinhole bench: projection, field of view"
+      },
+      "why": {
+        "zh": "连续量的关系先预测再检查",
+        "en": "Relations between continuous quantities, predicted, then checked"
+      }
     }
   ],
   "abilities": [
-    { "id": "query", "about": { "zh": "任务与答案", "en": "Tasks and answers" } },
-    { "id": "scene", "about": { "zh": "控制场景", "en": "Controlled scenes" } },
-    { "id": "pixels", "about": { "zh": "读取图像", "en": "Inspect images" } },
-    { "id": "circuit", "about": { "zh": "搭建图像流程", "en": "Build image flows" } },
-    { "id": "optics", "about": { "zh": "光学实验", "en": "Optical experiments" } }
+    {
+      "id": "optics",
+      "about": {
+        "zh": "针孔相机台",
+        "en": "The pinhole camera bench"
+      }
+    },
+    {
+      "id": "pixels",
+      "about": {
+        "zh": "读写像素格（grid 任务）",
+        "en": "Read and write pixel grids (grid tasks)"
+      }
+    },
+    {
+      "id": "circuit",
+      "about": {
+        "zh": "图像电路：搭出的板成为部件",
+        "en": "Image circuits: a board built becomes a part"
+      }
+    }
   ],
   "machines": [
     {
-      "id": "station",
-      "title": { "zh": "视觉测试台", "en": "Visual test station" },
-      "can": ["query", "scene"],
-      "lacks": { "zh": "还不能构建图像处理流程。", "en": "Cannot yet build image-processing flows." }
+      "id": "camera",
+      "title": { "zh": "相机", "en": "The camera" },
+      "can": ["optics", "pixels", "circuit"],
+      "lacks": {
+        "zh": "它只会把场景拍成数表、按位置取值：不会把一个像素和它的邻居合起来算。",
+        "en": "It only pictures a scene as a table and reads values at positions: it cannot combine a pixel with its neighbours."
+      }
     },
     {
-      "id": "camera",
-      "title": { "zh": "相机与图像工作台", "en": "Camera and image workbench" },
-      "can": ["query", "scene", "pixels", "circuit", "optics"],
-      "lacks": { "zh": "还不能利用邻域做滤波或学习。", "en": "Cannot yet perform neighbourhood filtering or learning." }
+      "id": "convolver",
+      "title": { "zh": "卷积器", "en": "The convolver" },
+      "can": ["pixels", "circuit"],
+      "lacks": {
+        "zh": "每个输出只是邻域的加权和，权重是人定的：它不会自己学出权重，这是卷积网络存在的理由。",
+        "en": "Each output is a weighted sum over a neighbourhood with weights set by hand: it cannot learn them, the reason convolutional networks exist."
+      }
     }
   ],
-  "ideas": [
+  "knowledge": [
     {
-      "id": "outputs",
-      "about": { "zh": "输出规格", "en": "Output specifications" },
-      "wall": { "zh": "不同视觉问题要求不同形状的答案。", "en": "Different questions require different kinds of output." }
-    },
-    {
-      "id": "viewpoint",
-      "about": { "zh": "视角变化", "en": "Viewpoint changes" },
-      "wall": { "zh": "相同物体可能产生不同图像。", "en": "The same object can produce different images." }
-    },
-    {
-      "id": "evidence",
-      "about": { "zh": "证据与反例", "en": "Evidence and counterexamples" },
+      "id": "pinhole-projection",
+      "term": { "zh": "针孔相机投影", "en": "Pinhole camera projection" },
+      "about": {
+        "zh": "针孔相机中，三维点 P=(x,y,z) 投到成像平面上的 (x_i,y_i)，pinhole 到成像平面的距离为 f（焦距）。由相似三角形得 x_i = f·x/z，y_i = f·y/z：同样大小的物体，z 越大投影越小，f 越大投影越大。真实相机还要把世界坐标转成相机坐标，并考虑主点、像素尺寸和镜头畸变，但这个小模型是之后相机几何的基础。",
+        "en": "In a pinhole camera, a 3D point P=(x,y,z) projects to (x_i,y_i) on the image plane, and the distance from the pinhole to the image plane is f (the focal length). By similar triangles, x_i = f·x/z, y_i = f·y/z: for objects of the same size, the larger z, the smaller the projection, and the larger f, the larger the projection. A real camera also has to convert world coordinates into camera coordinates and account for the principal point, pixel size and lens distortion, but this small model is the foundation for the camera geometry that follows."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §1 针孔相机模型：先学最简单的投影 (slide 11)",
       "wall": {
-        "zh": "一张图不能保证唯一场景或模型总是正确。",
-        "en": "An image need not identify one world or establish universal correctness."
+        "zh": "物体距离加倍、焦距不变时，投影大小怎样变？",
+        "en": "If an object's distance doubles and the focal length stays the same, how does the size of its projection change?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为可以由 (x_i,y_i) 反过来唯一求出 (x,y,z)；一个像素坐标只确定一条视线，深度未知。",
+        "en": "Thinking you can recover (x,y,z) uniquely from (x_i,y_i); a pixel coordinate determines only a line of sight, and the depth is unknown."
       }
     },
     {
-      "id": "pixel",
-      "about": { "zh": "像素与通道", "en": "Pixels and channels" },
+      "id": "forward-vs-inverse-problem",
+      "term": { "zh": "正向问题与反向问题：图形学与视觉", "en": "Forward (graphics) vs inverse (vision) problem" },
+      "about": {
+        "zh": "计算机图形学已知物体、材质、灯光和相机，向前生成一张图像，是正向问题；计算机视觉已知图像，反过来推测物体、材质、灯光和相机，是反向问题。反问题通常更难，因为不同的三维场景可能产生很相似的二维图像。",
+        "en": "Computer graphics knows the objects, materials, lighting and camera and works forwards to produce an image: a forward problem. Computer vision knows the image and works backwards to infer the objects, materials, lighting and camera: an inverse problem. The inverse problem is usually harder, because different 3D scenes can produce very similar 2D images."
+      },
+      "source": "docs/Unimelb/26S2/CV/01-introduction.md §2 计算机视觉和计算机图形学的方向相反 (slide 8)",
       "wall": {
-        "zh": "图像的数值、位置和颜色需要区分。",
-        "en": "A picture has numerical values, positions and colour channels."
+        "zh": "为什么同一张照片可能对应不同的三维场景？",
+        "en": "Why can the same photo correspond to different 3D scenes?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为只要图像足够清晰就能唯一还原三维场景；不同三维场景可能产生相似的二维图像。",
+        "en": "Thinking that as long as the image is clear enough, the 3D scene can be recovered uniquely; different 3D scenes can produce similar 2D images."
+      },
+      "depends": ["pinhole-projection"]
+    },
+    {
+      "id": "angle-of-view-from-pixel-focal-length",
+      "term": { "zh": "以像素表示的焦距与视野角", "en": "Focal length in pixels and angle of view" },
+      "about": {
+        "zh": "在数字图像中焦距常用像素表示：它只是把物理焦距除以像素尺寸，换成图像坐标单位。例如图像宽 2000 像素、主点在中间、焦距 1000 像素时，左右各约 45°，总视野范围约 90°。",
+        "en": "In digital images the focal length is often expressed in pixels: this divides the physical focal length by the pixel size, converting it into image-coordinate units. For example, if the image is 2000 pixels wide, the principal point is in the middle and the focal length is 1000 pixels, each side spans about 45°, giving a total field of view of about 90°."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §2 焦距与视野范围 (slide 15)",
+      "wall": {
+        "zh": "宽 2000 像素、主点居中、焦距 1000 像素的图像，水平视野为什么约 90°？",
+        "en": "For an image 2000 pixels wide with a centred principal point and a focal length of 1000 pixels, why is the horizontal field of view about 90°?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "把以像素为单位的焦距和以毫米为单位的焦距直接比较或混用。",
+        "en": "Directly comparing or mixing up a focal length in pixels with a focal length in millimetres."
+      },
+      "core": true,
+      "depends": ["pinhole-projection"]
+    },
+    {
+      "id": "image-array-checks",
+      "term": { "zh": "图像张量：形状、通道顺序与数据类型", "en": "Image tensor layout, channel order and dtype" },
+      "about": {
+        "zh": "灰度图像可以看成二维数组；颜色图像通常有三个通道，表示成 height × width × channels 的三维张量。RGB 三通道是相机和人类视觉的工程表示（人眼有三类主要视锥细胞），并非自然界只有三种颜色。使用图像前先检查三件事：形状是 H×W×C 还是 C×H×W，通道顺序是 RGB 还是 BGR，数值范围和数据类型是什么；不同程序库的约定可能不同。",
+        "en": "A greyscale image can be seen as a 2D array; a colour image usually has three channels and is represented as a 3D tensor of height × width × channels. The three RGB channels are an engineering representation for cameras and human vision (the human eye has three main types of cone cell), not because nature has only three colours. Before using an image, check three things: whether the shape is H×W×C or C×H×W, whether the channel order is RGB or BGR, and what the value range and data type are; different libraries may use different conventions."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §3 数字图像是怎样存储的 (slides 22, 25)",
+      "wall": {
+        "zh": "拿到一个形状为 (3, 480, 640) 的数组，它可能是哪种布局？使用前还要检查哪两件事？",
+        "en": "Given an array of shape (3, 480, 640), what layout might it be? What two other things must you check before using it?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为所有库都按 RGB、H×W×C 存储图像。",
+        "en": "Thinking every library stores images as RGB, H×W×C."
       }
     },
     {
-      "id": "projection",
-      "about": { "zh": "针孔投影", "en": "Pinhole projection" },
+      "id": "crop-vs-resize",
+      "term": { "zh": "裁剪与缩放", "en": "Crop vs resize" },
+      "about": {
+        "zh": "Crop 从原数组取一个子区域，已有像素数值不变；Resize 改变数组尺寸，必须为新位置计算像素数值。直接把 768×512 压成 512×512 会改变宽高比，物体可能变胖或变瘦；若保持比例，目标尺寸应接近 512×341。",
+        "en": "Cropping takes a sub-region of the original array, and the existing pixel values are unchanged; resizing changes the size of the array, so pixel values must be computed for the new positions. Squashing 768×512 straight to 512×512 changes the aspect ratio, so objects may become fatter or thinner; if the proportions are kept, the target size should be about 512×341."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §4 裁剪与缩放不是一回事 (slide 34)",
       "wall": {
-        "zh": "真实场景中的距离不能直接从图像位置读出。",
-        "en": "A scene point’s depth is not directly available from its image location."
-      }
+        "zh": "把 768×512 图像缩到 512 并保持比例，另一边应是多少？裁剪和缩放哪个需要计算新像素值？",
+        "en": "If a 768×512 image is resized to 512 while keeping its proportions, what should the other side be? Which of cropping and resizing requires new pixel values to be computed?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为裁剪也要插值，或以为缩放只是“截掉一部分”。",
+        "en": "Thinking cropping also requires interpolation, or that resizing is just ‘cutting off a part’."
+      },
+      "depends": ["image-array-checks"]
     },
     {
-      "id": "coordinate",
-      "about": { "zh": "数组坐标", "en": "Array coordinates" },
+      "id": "nearest-neighbour-interpolation",
+      "term": { "zh": "最近邻插值", "en": "Nearest-neighbour interpolation" },
+      "about": {
+        "zh": "最近邻插值对每个新像素，找到原图中最近的像素，直接复制它的值。优点是快、边缘硬；缺点是放大或缩小时容易出现明显的方块感或锯齿。",
+        "en": "For each new pixel, nearest-neighbour interpolation finds the nearest pixel in the original image and copies its value directly. Its advantages are speed and hard edges; its drawback is that enlarging or shrinking easily produces obvious blockiness or jagged edges."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §4 最近邻插值 (slide 35)",
       "wall": {
-        "zh": "行列与图像中的水平和竖直坐标容易混淆。",
-        "en": "Image coordinates and array rows and columns are easy to confuse."
-      }
+        "zh": "用最近邻把图像放大 4 倍，为什么会出现方块感？",
+        "en": "Why does enlarging an image 4 times with nearest neighbour make it look blocky?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为最近邻会产生原图中没有的新数值；它只复制已有值。",
+        "en": "Thinking nearest neighbour produces new values not present in the original image; it only copies existing values."
+      },
+      "depends": ["crop-vs-resize"]
     },
     {
-      "id": "lookupidea",
-      "about": { "zh": "读取像素", "en": "Pixel lookup" },
-      "wall": { "zh": "知道坐标还不能自动读取该处的值。", "en": "Knowing a coordinate does not yet read its value." }
-    },
-    {
-      "id": "channelidea",
-      "about": { "zh": "选择颜色通道", "en": "Select a channel" },
-      "wall": { "zh": "一个颜色像素包含多个数。", "en": "A colour pixel contains several values." }
-    },
-    {
-      "id": "composeidea",
-      "about": { "zh": "合成颜色通道", "en": "Compose colour channels" },
-      "wall": { "zh": "独立的通道需要重新成为一张彩色图。", "en": "Separate channels need to become one colour image." }
-    },
-    {
-      "id": "grididea",
-      "about": { "zh": "坐标网格", "en": "Coordinate grids" },
-      "wall": { "zh": "需要为输出的每个位置确定读取源的位置。", "en": "Each output position needs a source position." }
-    },
-    {
-      "id": "arithidea",
-      "about": { "zh": "坐标运算", "en": "Coordinate arithmetic" },
-      "wall": { "zh": "输出和来源的位置可以不同。", "en": "The output position can differ from its source." }
-    },
-    {
-      "id": "cropidea",
-      "about": { "zh": "裁剪", "en": "Cropping" },
-      "wall": { "zh": "需要从图像中提取指定窗口。", "en": "A specified window must be extracted from an image." }
-    },
-    {
-      "id": "sizeidea",
-      "about": { "zh": "尺寸", "en": "Image dimensions" },
-      "wall": { "zh": "平移输出需要与输入尺寸一致。", "en": "A translation must preserve the input dimensions." }
-    },
-    {
-      "id": "moveidea",
-      "about": { "zh": "平移", "en": "Translation" },
-      "wall": { "zh": "裁剪窗口本身不能移动画面。", "en": "A crop does not move content within the image." }
-    },
-    {
-      "id": "nearestidea",
-      "about": { "zh": "最近邻重采样", "en": "Nearest-neighbour resampling" },
-      "wall": { "zh": "新网格位置可能不落在原有样本上。", "en": "New positions may lie between existing samples." }
-    },
-    {
-      "id": "linearidea",
-      "about": { "zh": "双线性插值", "en": "Bilinear interpolation" },
-      "wall": { "zh": "最近邻会产生阶梯。", "en": "Nearest-neighbour interpolation gives step-like transitions." }
-    },
-    {
-      "id": "displayidea",
-      "about": { "zh": "数值与显示", "en": "Values and display" },
-      "wall": { "zh": "显示亮度与存储值可能不同。", "en": "Displayed brightness can differ from stored values." }
-    },
-    {
-      "id": "quantidea",
-      "about": { "zh": "量化", "en": "Quantisation" },
+      "id": "bilinear-interpolation",
+      "term": { "zh": "双线性插值", "en": "Bilinear interpolation" },
+      "about": {
+        "zh": "新位置落在四个旧像素之间时，设横向距离为 H、纵向距离为 V，四个权重是 (1−H)(1−V)、H(1−V)、(1−H)V、HV；它们加起来等于 1，所以双线性插值本质上是四个邻居的加权平均。它通常比最近邻平滑，但会让非常锐利的边缘稍微软化，老师说它把模糊并入了采样步骤；缩图时仍要根据采样比例检查是否需要额外抗混叠。",
+        "en": "When a new position falls between four old pixels, let the horizontal distance be H and the vertical distance be V; the four weights are (1−H)(1−V), H(1−V), (1−H)V and HV. They sum to 1, so bilinear interpolation is essentially a weighted average of the four neighbours. It is usually smoother than nearest neighbour, but slightly softens very sharp edges; the lecturer says it folds blurring into the sampling step. When downsizing, you should still check, based on the sampling ratio, whether extra anti-aliasing is needed."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §4 双线性插值 (slide 36)",
       "wall": {
-        "zh": "有限取值无法区分任意接近的数。",
-        "en": "Finitely many levels cannot distinguish arbitrarily close values."
-      }
+        "zh": "新像素落在四个旧像素之间时，双线性插值怎样得到它的值？四个权重为什么加起来等于 1？",
+        "en": "When a new pixel falls between four old pixels, how does bilinear interpolation obtain its value? Why do the four weights sum to 1?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "把权重配反（让离得远的像素权重更大）；或以为双线性插值不会改变锐利边缘。",
+        "en": "Assigning the weights the wrong way round (giving more distant pixels larger weights); or thinking bilinear interpolation does not alter sharp edges."
+      },
+      "core": true,
+      "depends": ["nearest-neighbour-interpolation"]
     },
     {
-      "id": "lensidea",
-      "about": { "zh": "透镜与焦点", "en": "Lenses and focus" },
-      "wall": { "zh": "理想针孔没有刻画透镜的聚焦和光圈。", "en": "An ideal pinhole does not describe lens focus and aperture." }
-    },
-    {
-      "id": "subidea",
-      "about": { "zh": "坐标差", "en": "Coordinate differences" },
-      "wall": { "zh": "位置和位移不能只靠相加表示。", "en": "A source coordinate may require subtracting an offset." }
-    },
-    {
-      "id": "constidea",
-      "about": { "zh": "常数", "en": "Constants" },
-      "wall": { "zh": "某些任务需要输入中没有的固定数。", "en": "Some tasks require a fixed number not supplied as an input." }
-    },
-    {
-      "id": "mulidea",
-      "about": { "zh": "比例", "en": "Scaling" },
-      "wall": { "zh": "坐标差可能需要乘以比例。", "en": "A coordinate difference may need scaling." }
-    },
-    {
-      "id": "dividea",
-      "about": { "zh": "均分", "en": "Division" },
-      "wall": { "zh": "需要在指定范围分配样本。", "en": "Samples must be distributed over a given range." }
-    },
-    {
-      "id": "flooridea",
-      "about": { "zh": "取整", "en": "Rounding down" },
-      "wall": { "zh": "连续位置还不是整数索引。", "en": "A continuous position is not yet an integer index." }
-    },
-    {
-      "id": "lessidea",
-      "about": { "zh": "比较", "en": "Comparison" },
-      "wall": { "zh": "选择结果需要区分数值大小。", "en": "A choice needs a way to distinguish values." }
-    },
-    {
-      "id": "selectidea",
-      "about": { "zh": "按条件选择", "en": "Conditional selection" },
-      "wall": { "zh": "比较的结果需要控制一个输出。", "en": "A comparison must be able to control an output." }
-    },
-    {
-      "id": "largeridea",
-      "about": { "zh": "较大值", "en": "The larger value" },
-      "wall": { "zh": "多处需要选择两个数中较大的数。", "en": "Multiple tasks need the larger of two values." }
-    },
-    {
-      "id": "smalleridea",
-      "about": { "zh": "较小值", "en": "The smaller value" },
-      "wall": { "zh": "多处需要选择两个数中较小的数。", "en": "Multiple tasks need the smaller of two values." }
-    },
-    {
-      "id": "axisidea",
-      "about": { "zh": "采样坐标映射", "en": "Sampling coordinate mapping" },
+      "id": "convolution",
+      "term": { "zh": "线性滤波公式（滑动加权和）", "en": "Linear filtering / convolution formula (sliding weighted sum)" },
+      "about": {
+        "zh": "把卷积核放在图像的一个位置，对齐后逐项相乘再相加，写作 g(i,j)=Σ_{u,v} h(u,v) f(i−u,j−v)，其中 f 是输入、h 是核权重、g 是输出、(u,v) 是邻域内偏移。式中的 i−u、j−v 表示卷积；按窗口直接对齐相乘的互相关则读作 i+u、j+v。中心权重为 1、其余为 0 时两者都只是复制当前像素。",
+        "en": "Place the kernel at one position in the image, align it, multiply element by element and then add up, written as g(i,j)=Σ_{u,v} h(u,v) f(i−u,j−v), where f is the input, h the kernel weights, g the output and (u,v) the offset within the neighbourhood. The i−u, j−v in the formula denote convolution; cross-correlation, which multiplies directly with the window aligned, reads i+u, j+v instead. When the centre weight is 1 and all others are 0, both copy the current pixel."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md §1 线性滤波到底在算什么 (slide 9)",
       "wall": {
-        "zh": "不同尺寸的网格需要一致的坐标对应。",
-        "en": "Grids of different sizes need a consistent coordinate mapping."
-      }
+        "zh": "g(i,j)=Σh(u,v)f(i−u,j−v) 中的负号意味着核被怎样使用？",
+        "en": "What does the minus sign in g(i,j)=Σh(u,v)f(i−u,j−v) imply about how the kernel is used?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为公式里的 i−u 与窗口直接对齐相乘是同一件事。",
+        "en": "Thinking the i−u in the formula is the same thing as multiplying directly with the window aligned."
+      },
+      "depends": ["image-array-checks"]
+    },
+    {
+      "id": "padding-border-rules",
+      "term": { "zh": "补边与边界规则", "en": "Padding / border handling (constant, wrap, clamp, reflect)" },
+      "about": {
+        "zh": "在图像外补像素可使输出与输入同尺寸。Constant/zero 补固定值，简单但可能制造黑边；Wrap 把左接右、上接下，适合 tileable 纹理而不适合普通照片；Clamp/replicate 把边缘像素向外延伸，普通照片通常较自然；Reflect 镜像延伸，常能减少人工边界。没有一种规则永远最好，要看图像是否周期性、任务是否关心边缘及滤波器性质。",
+        "en": "Padding pixels outside the image lets the output be the same size as the input. Constant/zero fills with a fixed value, which is simple but may create black borders; Wrap joins left to right and top to bottom, which suits tileable textures but not ordinary photos; Clamp/replicate extends the edge pixels outwards, which usually looks more natural for ordinary photos; Reflect extends by mirroring and often reduces artificial borders. No rule is always best; it depends on whether the image is periodic, whether the task cares about the edges and the properties of the filter."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md §4 四种常见边界规则 (slides 42, 43, 44, 45)",
+      "wall": {
+        "zh": "普通照片做模糊时，zero 补边可能产生什么伪影？",
+        "en": "When blurring an ordinary photo, what artefact might zero padding produce?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为补零总是最好的默认选择。",
+        "en": "Thinking zero padding is always the best default choice."
+      },
+      "depends": ["convolution"]
+    },
+    {
+      "id": "convolution-vs-cross-correlation",
+      "term": { "zh": "卷积与互相关（是否翻转卷积核）", "en": "Convolution vs cross-correlation (kernel flip)" },
+      "about": {
+        "zh": "两者都做“滑动、相乘、相加”，唯一关键区别是卷积先把核旋转 180° 再使用，互相关直接使用。核关于中心对称时两者结果相同；核不对称时方向会改变。手算前要先确定是否翻核。",
+        "en": "Both do ‘slide, multiply, add’; the only key difference is that convolution first rotates the kernel by 180° before using it, whereas cross-correlation uses it directly. When the kernel is symmetric about its centre the two give the same result; when it is not, the direction changes. Before calculating by hand, first decide whether to flip the kernel."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md §1 互相关和卷积 (slide 17)",
+      "wall": {
+        "zh": "同一个非对称核，卷积与互相关为什么会给出不同结果？",
+        "en": "Why do convolution and cross-correlation give different results for the same asymmetric kernel?"
+      },
+      "difficulty": "hard",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为翻转只是左右翻，或以为任何核卷积与互相关结果都不同。",
+        "en": "Thinking the flip is only a left–right flip, or thinking convolution and cross-correlation give different results for every kernel."
+      },
+      "core": true,
+      "depends": ["convolution", "padding-border-rules"]
+    },
+    {
+      "id": "separable-filter",
+      "term": { "zh": "可分离滤波", "en": "Separable filter" },
+      "about": {
+        "zh": "若二维核可写成一个列向量与一个行向量的外积，就叫可分离，此时可先对每一行做一维滤波，再对每一列做一维滤波。k×k 核每像素约需 k² 次乘法，拆开后约需 2k 次，k 大时差别明显。高斯核常常接近或可以构造成可分离核。",
+        "en": "If a 2D kernel can be written as the outer product of a column vector and a row vector, it is called separable; you can then first apply a 1D filter to each row and then a 1D filter to each column. A k×k kernel needs about k² multiplications per pixel; split up, it needs about 2k, and the difference is significant when k is large. Gaussian kernels are often close to separable or can be constructed to be separable."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md §3 可分离滤波：把二维计算拆成两次一维计算 (slides 39, 40)",
+      "wall": {
+        "zh": "为什么可分离的二维核能用两次一维计算完成？",
+        "en": "Why can a separable 2D kernel be computed with two 1D passes?"
+      },
+      "difficulty": "hard",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为任何二维核都能拆成两个一维核。",
+        "en": "Thinking any 2D kernel can be split into two 1D kernels."
+      },
+      "core": true,
+      "depends": ["convolution", "padding-border-rules"]
+    },
+    {
+      "id": "gaussian-filter",
+      "term": { "zh": "均值滤波与高斯滤波（模糊）", "en": "Box (mean) filter vs Gaussian filter" },
+      "about": {
+        "zh": "均值滤波给邻域每个像素相同权重；高斯滤波离中心越近权重越大，形式为 G_σ(x,y)=1/(2πσ²)·exp(−(x²+y²)/(2σ²))。σ 控制影响范围，σ 越大模糊越强。模糊核通常归一化使权重和为 1，以免改变整体平均亮度；两种核都减少细节，但权重分配不同，保留的细节也不同。",
+        "en": "A mean filter gives every pixel in the neighbourhood the same weight; a Gaussian filter gives larger weights the closer a pixel is to the centre, in the form G_σ(x,y)=1/(2πσ²)·exp(−(x²+y²)/(2σ²)). σ controls the extent of the influence: the larger σ, the stronger the blur. Blur kernels are usually normalised so that the weights sum to 1, so as not to change the overall average brightness; both kernels reduce detail, but they distribute the weights differently, so they preserve different detail."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md §2 模糊：让变化变慢 (slides 27, 28)",
+      "wall": {
+        "zh": "为什么模糊核的权重和要为 1？σ 增大会怎样？",
+        "en": "Why should the weights of a blur kernel sum to 1? What happens as σ increases?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为高斯模糊和均值模糊效果完全一样，或忘记归一化。",
+        "en": "Thinking Gaussian blur and mean blur have exactly the same effect, or forgetting to normalise."
+      },
+      "depends": ["separable-filter"]
+    },
+    {
+      "id": "sobel-filter",
+      "term": { "zh": "Sobel 边缘滤波", "en": "Sobel filter (directional derivative)" },
+      "about": {
+        "zh": "Sobel 核近似计算横向和纵向两个方向的导数：S_x=[[1,0,−1],[2,0,−2],[1,0,−1]]，S_y=[[1,2,1],[0,0,0],[−1,−2,−1]]。平坦区域左右或上下差异小，响应接近 0；边缘附近差异大，响应较大。两张图分别找沿相应方向变化快的位置。",
+        "en": "The Sobel kernels approximate the derivatives in the horizontal and vertical directions: S_x=[[1,0,−1],[2,0,−2],[1,0,−1]], S_y=[[1,2,1],[0,0,0],[−1,−2,−1]]. In flat regions the left–right or up–down differences are small and the response is close to 0; near edges the differences are large and the response is larger. The two output images each find where the change along the corresponding direction is fast."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md §2 Sobel：找变化快的地方 (slides 29, 30)",
+      "wall": {
+        "zh": "S_x 在平坦区域与竖直边缘处响应分别是多少？",
+        "en": "What is the response of S_x in a flat region and at a vertical edge, respectively?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为 S_x 找的是水平方向的边缘线（实际找沿 x 方向变化快处）。",
+        "en": "Thinking S_x finds horizontal edge lines (it actually finds where the change along the x direction is fast)."
+      },
+      "depends": ["separable-filter", "convolution-vs-cross-correlation"]
+    },
+    {
+      "id": "image-gradient",
+      "term": { "zh": "图像梯度（幅度与方向）", "en": "Image gradient (magnitude and direction)" },
+      "about": {
+        "zh": "二维图像 f(x,y) 的梯度是 ∇f=[∂f/∂x, ∂f/∂y]ᵀ。幅度 ‖∇f‖=√((∂f/∂x)²+(∂f/∂y)²) 表示变化有多强，方向 θ=atan2(∂f/∂y, ∂f/∂x) 表示变化最快的方向。",
+        "en": "The gradient of a 2D image f(x,y) is ∇f=[∂f/∂x, ∂f/∂y]ᵀ. The magnitude ‖∇f‖=√((∂f/∂x)²+(∂f/∂y)²) indicates how strong the change is, and the direction θ=atan2(∂f/∂y, ∂f/∂x) indicates the direction of fastest change."
+      },
+      "source": "docs/Unimelb/26S2/CV/05-image-formation-ii.md §3 梯度：把“变化快”写成数字 (slide 40)",
+      "wall": {
+        "zh": "给定 ∂f/∂x=3、∂f/∂y=4，梯度幅度是多少？",
+        "en": "Given ∂f/∂x=3 and ∂f/∂y=4, what is the gradient magnitude?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "把梯度方向当成边缘的走向。",
+        "en": "Taking the gradient direction to be the direction in which the edge runs."
+      },
+      "depends": ["sobel-filter"]
+    },
+    {
+      "id": "colour-filtering",
+      "term": { "zh": "彩色图像滤波（多通道卷积核）", "en": "Colour / multi-channel filtering" },
+      "about": {
+        "zh": "RGB 图像除空间维度外还有通道维度，颜色滤波器尺寸可以是 K_h×K_w×3。它同时看同一邻域的 R、G、B，把所有乘积加在一起得到一个输出数值。常见错误是把 height×width×channel 当成普通二维图像，忘记核还要覆盖通道维度。",
+        "en": "Besides its spatial dimensions, an RGB image also has a channel dimension, so a colour filter can have size K_h×K_w×3. It looks at R, G and B in the same neighbourhood at once and sums all the products to give a single output value. A common mistake is to treat height×width×channel as an ordinary 2D image and forget that the kernel must also cover the channel dimension."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md §2 彩色图像的滤波核多了一个维度 (slide 31)",
+      "wall": {
+        "zh": "一个 3×3×3 核作用于 RGB 图像一个位置，输出几个数？",
+        "en": "When a 3×3×3 kernel is applied to an RGB image at one position, how many numbers does it output?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "misconception": {
+        "zh": "以为彩色滤波得到三个输出值或只对一个通道操作。",
+        "en": "Thinking colour filtering produces three output values, or operates on only one channel."
+      },
+      "depends": ["gaussian-filter", "image-array-checks"]
+    },
+    {
+      "id": "pixel-to-mm-focal-length",
+      "term": { "zh": "像素换算成传感器毫米再求焦距", "en": "Converting pixels to sensor millimetres to find focal length" },
+      "about": {
+        "zh": "传感器高 20 mm 对应 200 像素，物体在图像中高 100 像素，所以它在传感器上高 h_i = 20 mm × 100/200 = 10 mm。物体实际高 h_o = 120 mm、距离 z = 600 mm，由相似三角形 h_i/f = h_o/z 得 f = h_i·z/h_o = 10×600/120 = 50 mm。重点是先把像素换成传感器上的毫米，不能直接把像素和毫米放进同一个比例式。",
+        "en": "A sensor height of 20 mm corresponds to 200 pixels, and the object is 100 pixels high in the image, so its height on the sensor is h_i = 20 mm × 100/200 = 10 mm. The object's real height is h_o = 120 mm and its distance is z = 600 mm, so by similar triangles h_i/f = h_o/z, giving f = h_i·z/h_o = 10×600/120 = 50 mm. The key point is to convert pixels into millimetres on the sensor first; you cannot put pixels and millimetres directly into the same proportion."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §4 Workshop 2 · 用传感器尺寸求焦距",
+      "wall": {
+        "zh": "传感器高 20 mm 对应 200 像素，物体在图中占 100 像素，实高 120 mm、距离 600 mm，焦距是多少毫米？",
+        "en": "A sensor height of 20 mm corresponds to 200 pixels; an object occupies 100 pixels in the image, is 120 mm tall in reality and is 600 mm away. What is the focal length in millimetres?"
+      },
+      "difficulty": "hard",
+      "basis": "technical",
+      "misconception": {
+        "zh": "直接把 100 像素当作 h_i 代入，得到单位混乱的 f = 100×600/120 = 500。",
+        "en": "Substituting the 100 pixels directly as h_i, giving f = 100×600/120 = 500 with muddled units."
+      },
+      "depends": ["angle-of-view-from-pixel-focal-length"]
+    },
+    {
+      "id": "opencv-size-vs-numpy-shape",
+      "term": {
+        "zh": "OpenCV 尺寸 (width, height) 与 NumPy 形状 (height, width, channels)",
+        "en": "OpenCV (width, height) vs NumPy (height, width, channels)"
+      },
+      "about": {
+        "zh": "OpenCV 的大小 tuple 是 (width, height)，NumPy 形状却通常写成 (height, width, channels)。所以不能把 NumPy 的形状原样当作 OpenCV 的缩放尺寸，否则宽和高会对调。",
+        "en": "An OpenCV size tuple is (width, height), whereas a NumPy shape is usually written (height, width, channels). So you cannot use a NumPy shape as-is as an OpenCV resize size, or the width and height will be swapped."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §4 Workshop 2 · 缩放、中心裁剪和深拷贝",
+      "wall": {
+        "zh": "为什么 NumPy 的形状不能原样当作 OpenCV 的缩放尺寸？",
+        "en": "Why can a NumPy shape not be used as-is as an OpenCV resize size?"
+      },
+      "difficulty": "learnable",
+      "basis": "technical",
+      "misconception": {
+        "zh": "把 image.shape[:2] 直接传给 OpenCV 的缩放函数。",
+        "en": "Passing image.shape[:2] straight to OpenCV's resize function."
+      },
+      "depends": ["crop-vs-resize"]
+    },
+    {
+      "id": "opencv-bgr-to-rgb",
+      "term": { "zh": "OpenCV 的 BGR 与 Matplotlib 的 RGB", "en": "OpenCV BGR vs Matplotlib RGB" },
+      "about": {
+        "zh": "cv2.imread 默认读入 BGR，但 matplotlib.pyplot.imshow 按 RGB 显示，所以显示前要用 cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 转换。这只改变通道顺序，不改变图像内容或空间尺寸。",
+        "en": "cv2.imread reads images as BGR by default, but matplotlib.pyplot.imshow displays them as RGB, so convert with cv2.cvtColor(image, cv2.COLOR_BGR2RGB) before displaying. This changes only the channel order, not the image content or spatial size."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §4 Workshop 2 · OpenCV 和 Matplotlib 的颜色顺序",
+      "wall": {
+        "zh": "用 cv2.imread 读图后直接 plt.imshow，红色物体会显示成什么颜色？为什么？",
+        "en": "If you read an image with cv2.imread and pass it straight to plt.imshow, what colour will a red object appear? Why?"
+      },
+      "difficulty": "learnable",
+      "basis": "technical",
+      "misconception": {
+        "zh": "显示时红蓝颠倒，却以为图片本身坏了；或以为转换会改变图像尺寸。",
+        "en": "Seeing red and blue swapped on display and thinking the image itself is broken; or thinking the conversion changes the image size."
+      },
+      "depends": ["image-array-checks"]
     }
   ],
   "primitives": [
     {
-      "part": "lookup",
-      "about": { "zh": "读取像素", "en": "Pixel lookup" },
-      "why": { "zh": "取样是图像工作台读取图像的基本能力。", "en": "Reading a pixel is a primitive image-workbench capability." }
-    },
-    {
-      "part": "channel",
-      "about": { "zh": "选择通道", "en": "Select a channel" },
+      "part": "mul",
+      "about": { "zh": "逐个值相乘", "en": "Multiply value by value" },
       "why": {
-        "zh": "单通道数值运算无法拆开彩色图的表示。",
-        "en": "Arithmetic on scalar planes does not decompose an RGB value."
+        "zh": "投影要乘焦距，乘法接不出来",
+        "en": "Projection multiplies by the focal length"
       }
     },
     {
-      "part": "compose",
-      "about": { "zh": "合成通道", "en": "Compose channels" },
-      "why": { "zh": "数值运算无法从三张灰度图构造彩色图类型。", "en": "Arithmetic cannot form a colour image from three planes." }
-    },
-    {
-      "part": "grid",
-      "about": { "zh": "生成坐标", "en": "Generate coordinates" },
-      "why": { "zh": "必须由工作台提供每个输出位置。", "en": "Output positions must be provided by the workbench." }
-    },
-    {
-      "part": "const",
-      "about": { "zh": "常数", "en": "Constant" },
+      "part": "div",
+      "about": {
+        "zh": "逐个值相除",
+        "en": "Divide value by value"
+      },
       "why": {
-        "zh": "无输入时不能仅由运算产生固定数值。",
-        "en": "A fixed number cannot be made from operations with no inputs."
+        "zh": "投影要除以距离",
+        "en": "Projection divides by the distance"
       }
     },
     {
       "part": "add",
-      "about": { "zh": "相加", "en": "Add" },
-      "why": { "zh": "这是数值计算的基础运算。", "en": "Addition is a basic numeric operation." }
+      "about": { "zh": "逐个值相加", "en": "Add value by value" },
+      "why": {
+        "zh": "基本算术",
+        "en": "Basic arithmetic"
+      }
+    },
+    {
+      "part": "const",
+      "about": { "zh": "固定的数", "en": "A fixed number" },
+      "why": {
+        "zh": "其余元件造不出一个固定的数",
+        "en": "No other part makes a fixed number"
+      }
     },
     {
       "part": "sub",
-      "about": { "zh": "相减", "en": "Subtract" },
-      "why": { "zh": "需要从已有数值求差。", "en": "A primitive operation is needed to form differences." }
+      "about": { "zh": "逐个值相减", "en": "Subtract value by value" },
+      "why": {
+        "zh": "差值是滤波和坐标里最常见的运算",
+        "en": "Differences are the commonest operation in filters and coordinates"
+      }
     },
     {
-      "part": "size",
-      "about": { "zh": "图像尺寸", "en": "Image size" },
-      "why": { "zh": "仅靠像素数值无法得到输入宽高。", "en": "Pixel values alone do not expose the image dimensions." }
+      "part": "lookup",
+      "about": { "zh": "按坐标取像素", "en": "Read a pixel at coordinates" },
+      "why": {
+        "zh": "其余元件都在原位置上算，取不到别处的值",
+        "en": "Every other part computes in place"
+      }
     },
     {
-      "part": "less",
-      "about": { "zh": "比较", "en": "Compare" },
-      "why": { "zh": "数值计算需要基础的顺序比较。", "en": "A basic ordering comparison is needed." }
-    },
-    {
-      "part": "select",
-      "about": { "zh": "选择数值", "en": "Select a value" },
-      "why": { "zh": "比较结果必须能控制输出。", "en": "A comparison must be able to control the output." }
-    },
-    {
-      "part": "mul",
-      "about": { "zh": "相乘", "en": "Multiply" },
-      "why": { "zh": "缩放坐标需要乘法。", "en": "Coordinate scaling needs multiplication." }
-    },
-    {
-      "part": "div",
-      "about": { "zh": "相除", "en": "Divide" },
-      "why": { "zh": "缩放坐标需要除法。", "en": "Coordinate scaling needs division." }
+      "part": "grid",
+      "about": {
+        "zh": "给定宽高的两张坐标图",
+        "en": "The two coordinate images of a size"
+      },
+      "why": {
+        "zh": "没有元件能从两个数造出一整张图",
+        "en": "No part makes a whole image from two numbers"
+      }
     },
     {
       "part": "floor",
-      "about": { "zh": "向下取整", "en": "Floor" },
-      "why": { "zh": "连续位置转为索引需要基本取整。", "en": "Continuous coordinates need a basic integer conversion." }
+      "about": { "zh": "向下取整", "en": "Round down" },
+      "why": {
+        "zh": "算术只给出连续的数，取像素要整数",
+        "en": "Arithmetic gives continuous numbers; lookup needs whole ones"
+      }
+    },
+    {
+      "part": "size",
+      "about": {
+        "zh": "图的宽和高",
+        "en": "An image's width and height"
+      },
+      "why": {
+        "zh": "电路只拿到图时读不出它的尺寸",
+        "en": "A circuit given only the image cannot read its size"
+      }
+    },
+    {
+      "part": "sqrt",
+      "about": {
+        "zh": "平方根",
+        "en": "Square root"
+      },
+      "why": {
+        "zh": "梯度的大小要开平方，算术接不出来",
+        "en": "The gradient's size needs a square root"
+      }
+    },
+    {
+      "part": "channel",
+      "about": { "zh": "取出彩色像素第 c 个位置的灰度图", "en": "The grey image of position c of each colour pixel" },
+      "why": {
+        "zh": "逐个值的算术拆不开一个像素的三个数",
+        "en": "Value-by-value arithmetic cannot take a pixel's three numbers apart"
+      }
+    },
+    {
+      "part": "compose",
+      "about": { "zh": "三张灰度图合成彩色图", "en": "Three grey images made one colour image" },
+      "why": { "zh": "没有元件能从灰度图造出彩色图", "en": "No other part makes a colour image from grey ones" }
     }
   ],
   "built": [
-    { "part": "crop", "about": { "zh": "裁剪", "en": "Crop" }, "from": ["grid", "add", "lookup"] },
     {
-      "part": "translate",
-      "about": { "zh": "平移", "en": "Translate" },
-      "from": ["size", "grid", "sub", "lookup"]
+      "part": "project",
+      "about": {
+        "zh": "投影：X、Z、f → u",
+        "en": "Projection: X, Z, f → u"
+      },
+      "from": ["mul", "div"]
     },
     {
-      "part": "resizeNearest",
-      "about": { "zh": "最近邻缩放", "en": "Nearest resize" },
-      "from": ["const", "size", "grid", "sampleAxis", "add", "floor", "lookup"]
+      "part": "crop",
+      "about": { "zh": "裁剪：从 (x0, y0) 起取 w × h", "en": "Crop: w × h from (x0, y0)" },
+      "from": ["grid", "add", "lookup"]
     },
     {
-      "part": "resizeLinear",
-      "about": { "zh": "双线性缩放", "en": "Bilinear resize" },
-      "from": ["const", "size", "grid", "sampleAxis", "floor", "sub", "add", "lookup", "mul"]
+      "part": "rowFilter",
+      "about": {
+        "zh": "行滤波器：左中右三个权重的滑动加权和",
+        "en": "Row filter: a sliding weighted sum of left, centre, right"
+      },
+      "from": ["size", "grid", "sub", "add", "mul", "lookup", "const"]
     },
     {
-      "part": "quantise",
-      "about": { "zh": "量化器", "en": "Quantiser" },
-      "from": ["const", "larger", "smaller", "sub", "mul", "add", "floor", "div"]
+      "part": "colFilter",
+      "about": {
+        "zh": "列滤波器：上中下三个权重的滑动加权和",
+        "en": "Column filter: a sliding weighted sum of above, centre, below"
+      },
+      "from": ["size", "grid", "sub", "add", "mul", "lookup", "const"]
     },
-    { "part": "larger", "about": { "zh": "较大值", "en": "Larger value" }, "from": ["less", "select"] },
-    { "part": "smaller", "about": { "zh": "较小值", "en": "Smaller value" }, "from": ["less", "select"] },
     {
-      "part": "sampleAxis",
-      "about": { "zh": "采样坐标", "en": "Sampling coordinates" },
-      "from": ["const", "sub", "less", "larger", "div", "mul", "select"]
-    }
+      "part": "filter2D",
+      "about": { "zh": "二维滤波器：先横后竖", "en": "2D filter: across, then down" },
+      "from": ["rowFilter", "colFilter"]
+    },
+    { "part": "blur", "about": { "zh": "高斯模糊", "en": "Gaussian blur" }, "from": ["filter2D", "const"] },
+    { "part": "sobel", "about": { "zh": "Sobel：gx、gy", "en": "Sobel: gx, gy" }, "from": ["filter2D", "const"] }
   ],
   "eras": [
     {
-      "id": 0,
-      "machine": "station",
-      "title": { "zh": "让机器看见问题", "en": "What is the question?" },
-      "question": { "zh": "机器要回答什么？", "en": "What must the machine answer?" },
-      "why": { "zh": "从视觉问题与证据开始。", "en": "Start with visual questions and evidence." },
-      "series": [
-        {
-          "id": "task_output",
-          "title": { "zh": "输出规格", "en": "Output specifications" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0A1",
-              "title": { "zh": "一张图，不同的问题", "en": "One picture, different questions" },
-              "task": {
-                "zh": "每题选出刚好包含所需信息的输出。",
-                "en": "For each question choose the output containing just the required information."
-              },
-              "role": "foundation",
-              "uses": ["query", "outputs"],
-              "idea": "outputs"
-            },
-            {
-              "id": "0A2",
-              "title": { "zh": "类别之外", "en": "Beyond the class" },
-              "task": {
-                "zh": "每题选择刚好包含所需信息的输出。",
-                "en": "For each question choose the output containing just the required information."
-              },
-              "role": "practice",
-              "uses": ["query", "outputs"],
-              "dimension": "surface"
-            },
-            {
-              "id": "0A3",
-              "title": { "zh": "区域和物体", "en": "Regions and objects" },
-              "task": {
-                "zh": "每题选出刚好满足要求的输出图。",
-                "en": "For each question choose the output map with just the required information."
-              },
-              "role": "practice",
-              "uses": ["query", "outputs"],
-              "dimension": "depth"
-            },
-            {
-              "id": "0A4",
-              "title": { "zh": "一份输出能回答什么", "en": "What an output can answer" },
-              "task": {
-                "zh": "每题至少选择一种足以回答问题的输出。",
-                "en": "For each question choose at least one output sufficient to answer it."
-              },
-              "role": "practice",
-              "uses": ["query", "outputs"],
-              "dimension": "combine"
-            }
-          ]
-        },
-        {
-          "id": "variation",
-          "title": { "zh": "外观变化", "en": "Changes in appearance" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0B1",
-              "title": { "zh": "换个角度", "en": "A different view" },
-              "task": { "zh": "选出所有只改变相机的候选。", "en": "Select every candidate that changes only the camera." },
-              "role": "foundation",
-              "uses": ["scene", "viewpoint"],
-              "idea": "viewpoint"
-            },
-            {
-              "id": "0B2",
-              "title": { "zh": "换一盏光", "en": "Change the light" },
-              "task": { "zh": "选出所有只改变光照的候选。", "en": "Select every candidate that changes only the lighting." },
-              "role": "practice",
-              "uses": ["scene", "viewpoint"],
-              "dimension": "surface"
-            },
-            {
-              "id": "0B3",
-              "title": { "zh": "屏幕后面", "en": "Behind the screen" },
-              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
-              "role": "practice",
-              "uses": ["scene", "viewpoint"],
-              "dimension": "depth"
-            },
-            {
-              "id": "0B4",
-              "title": { "zh": "设计测试", "en": "Choose a test set" },
-              "task": { "zh": "选择能覆盖所有指定变化的图片。", "en": "Choose images covering every specified change." },
-              "role": "practice",
-              "uses": ["scene", "viewpoint"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "scene_paths"
-        },
-        {
-          "id": "evidence_path",
-          "title": { "zh": "证据与歧义", "en": "Evidence and ambiguity" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0C1",
-              "title": { "zh": "场景与图", "en": "Scene and image" },
-              "task": { "zh": "为每样东西选择它的角色。", "en": "Choose the role of each item." },
-              "role": "foundation",
-              "uses": ["scene", "evidence"],
-              "idea": "evidence"
-            },
-            {
-              "id": "0C2",
-              "title": { "zh": "一样大的像", "en": "The same apparent size" },
-              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
-              "role": "practice",
-              "uses": ["scene", "evidence"],
-              "dimension": "surface"
-            },
-            {
-              "id": "0C3",
-              "title": { "zh": "核对预测", "en": "Check the predictions" },
-              "task": {
-                "zh": "选择一条错误记录；没有错误时选择“没有错误”。",
-                "en": "Choose one erroneous record, or “No errors shown” if none is wrong."
-              },
-              "role": "practice",
-              "uses": ["scene", "evidence"],
-              "dimension": "direction"
-            },
-            {
-              "id": "0C4",
-              "title": { "zh": "找反例", "en": "Find a counterexample" },
-              "task": { "zh": "选择能反驳这句话的记录。", "en": "Choose a record that refutes the claim." },
-              "role": "practice",
-              "uses": ["scene", "evidence"],
-              "dimension": "false"
-            }
-          ],
-          "parallel": "scene_paths"
-        },
-        {
-          "id": "station_join",
-          "title": { "zh": "完成任务规格", "en": "Specify and test a task" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "0D1",
-              "title": { "zh": "给检查系统定任务", "en": "Specify an inspection task" },
-              "task": { "zh": "选择满足任务要求的输出类型。", "en": "Choose an output type that meets the task." },
-              "role": "foundation",
-              "uses": ["query", "outputs", "viewpoint", "evidence"]
-            },
-            {
-              "id": "0D2",
-              "title": { "zh": "该拿什么来比", "en": "What should be compared?" },
-              "task": {
-                "zh": "为每项预测选择可比较的参考数据。",
-                "en": "Choose comparable reference data for each prediction."
-              },
-              "role": "foundation",
-              "uses": ["query", "outputs", "viewpoint", "evidence"]
-            },
-            {
-              "id": "0D3",
-              "title": { "zh": "一张图片的边界", "en": "The limits of one picture" },
-              "task": { "zh": "根据给出的候选场景判断每句话。", "en": "Judge each claim against the candidate scenes." },
-              "role": "foundation",
-              "uses": ["query", "outputs", "viewpoint", "evidence"]
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": 1,
       "machine": "camera",
-      "keeps": [],
-      "title": { "zh": "从场景到像素", "en": "From scene to pixels" },
-      "question": { "zh": "图像怎样形成和存储？", "en": "How are images formed and stored?" },
-      "why": { "zh": "测试台需要图像与成像模型。", "en": "The test station needs images and a camera model." },
+      "title": { "zh": "相机：从场景到像素", "en": "The camera: from scene to pixels" },
+      "question": {
+        "zh": "场景怎样变成一张数表，数表又怎样在任意位置取值？",
+        "en": "How does a scene become a table of numbers, and how is the table read at any position?"
+      },
+      "why": {
+        "zh": "从一台理想的针孔相机起步。",
+        "en": "Starting from an ideal pinhole camera."
+      },
       "series": [
         {
-          "id": "image_intro",
-          "title": { "zh": "观察数字图像", "en": "Observe a digital image" },
+          "id": "camera",
+          "title": { "zh": "相机", "en": "The camera" },
           "kind": "foundation",
           "slots": [
             {
               "id": "1A1",
-              "title": { "zh": "一格格的数", "en": "A grid of numbers" },
-              "task": { "zh": "把图中的值填入空格。", "en": "Copy the values into the empty grid." },
+              "title": { "zh": "投影一个点", "en": "Project a point" },
+              "task": {
+                "zh": "输入 X、Z、f：交出像点位置 u。",
+                "en": "Given X, Z and f, give the image position u."
+              },
+              "question": {
+                "zh": "点在哪里，它的像就落在哪里？",
+                "en": "where a point is, where does its image land?"
+              },
+              "chain": [
+                {
+                  "zh": "看光线：f = 2，点离小孔 Z = 4：横向移动这一点，让它的像落在 u = 1。",
+                  "en": "Follow the ray: f = 2, the point Z = 4 from the hole: move it sideways so its image lands at u = 1."
+                },
+                {
+                  "zh": "接成电路：输入 X、Z、f：交出像点位置 u。",
+                  "en": "Wire it: Given X, Z and f, give the image position u."
+                }
+              ],
               "role": "foundation",
-              "uses": ["pixels", "pixel"],
-              "idea": "pixel"
+              "uses": ["optics", "circuit", "pinhole-projection", "mul", "div"],
+              "teaches": "pinhole-projection",
+              "adds": ["mul", "div"],
+              "builds": "project",
+              "naive": {
+                "zh": "把点放在 X = 1，像却只落到 u = 0.5：光线穿过小孔后，横向位置按 f/Z = 2/4 缩小了一半。",
+                "en": "With the point at X = 1 the image lands at u = 0.5 only: through the hole, the sideways position shrinks by f/Z = 2/4, to half."
+              }
             },
             {
               "id": "1A2",
-              "title": { "zh": "选出像素", "en": "Find a pixel" },
-              "task": { "zh": "选出坐标 (2, 0) 的像素。", "en": "Select the pixel at (2, 0)." },
-              "role": "practice",
-              "uses": ["pixels", "pixel"],
-              "dimension": "direction"
+              "title": { "zh": "很多场景，同一张图", "en": "Many scenes, one picture" },
+              "task": {
+                "zh": "输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
+                "en": "Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
+              },
+              "question": {
+                "zh": "从一张图倒推回去，场景能定下来吗？",
+                "en": "going back from a picture, is the scene settled?"
+              },
+              "chain": [
+                {
+                  "zh": "另造一个场景：f = 2：调物高 H 和距离 Z，让像高仍是 0.5，箭至少 2 米高。",
+                  "en": "Another scene: f = 2: set the height H and the distance Z so the image is still 0.5 tall, the arrow at least 2 m."
+                },
+                {
+                  "zh": "倒推：输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
+                  "en": "Work back: Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
+                }
+              ],
+              "role": "foundation",
+              "uses": ["optics", "circuit", "pinhole-projection", "forward-vs-inverse-problem", "mul", "div"],
+              "teaches": "forward-vs-inverse-problem",
+              "naive": {
+                "zh": "只把箭加高：距离不变，像也跟着加倍成 1。要让像不变，距离得和物高一起加倍。",
+                "en": "Only making the arrow taller: at the same distance its image doubles to 1. For the same image the distance must double with the height."
+              }
             },
             {
               "id": "1A3",
-              "title": { "zh": "三个通道", "en": "Three channels" },
-              "task": { "zh": "把右边的像素设为蓝色 (0, 0, 1)。", "en": "Set the pixel on the right to blue (0, 0, 1)." },
-              "role": "practice",
-              "uses": ["pixels", "pixel"],
-              "dimension": "surface"
+              "title": { "zh": "以像素为单位的焦距", "en": "Focal length in pixels" },
+              "task": {
+                "zh": "输入 X、Z、像素焦距 f_px 和主点 c_x：交出像点的像素横坐标 u。",
+                "en": "Given X, Z, the focal length in pixels f_px and the principal point c_x, give the image's pixel column u."
+              },
+              "question": {
+                "zh": "焦距怎样决定拍得下多宽的视野，像素坐标又怎样从投影得出？",
+                "en": "how does the focal length decide how wide a view fits, and how do pixel coordinates come from the projection?"
+              },
+              "chain": [
+                {
+                  "zh": "调视野：传感器高 24 mm、1200 像素：调焦距 f，让竖直视场正好 90°，灯杆顶刚好在画面里。",
+                  "en": "Set the view: A 24 mm, 1200-pixel-high sensor: set the focal length f so the vertical field of view is exactly 90°, the pole's top just in the frame."
+                },
+                {
+                  "zh": "像素坐标：输入 X、Z、像素焦距 f_px 和主点 c_x：交出像点的像素横坐标 u。",
+                  "en": "Pixel coordinates: Given X, Z, the focal length in pixels f_px and the principal point c_x, give the image's pixel column u."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "optics",
+                "circuit",
+                "pinhole-projection",
+                "angle-of-view-from-pixel-focal-length",
+                "project",
+                "add"
+              ],
+              "teaches": "angle-of-view-from-pixel-focal-length",
+              "adds": ["add"],
+              "naive": {
+                "zh": "以为焦距等于传感器高度时视场是 90°：那时半高 12 mm 只有焦距的一半，视场约 53°，杆顶出了画面。焦距要等于半高 12 mm。",
+                "en": "Taking a focal length equal to the sensor's height for 90°: then the half-height, 12 mm, is half the focal length, the view about 53° and the pole's top out of frame. The focal length must equal the half-height, 12 mm."
+              }
             },
             {
               "id": "1A4",
-              "title": { "zh": "数值如何变化", "en": "How values change" },
-              "task": { "zh": "把每张图和变化方式配对。", "en": "Match each image to the kind of change." },
-              "role": "practice",
-              "uses": ["pixels", "pixel"],
-              "dimension": "combine"
+              "title": { "zh": "图是一张数表", "en": "A picture is a table of numbers" },
+              "task": {
+                "zh": "输入一张灰度图和坐标 x、y：交出右边邻居 (x+1, y) 减去 (x, y) 的值。",
+                "en": "Given a grey image and coordinates x and y, give the value at (x+1, y) less the value at (x, y)."
+              },
+              "question": {
+                "zh": "一个像素在数表的哪里，怎样读出它的值？",
+                "en": "where in the table is a pixel, and how is its value read?"
+              },
+              "chain": [
+                {
+                  "zh": "指坐标：写出高亮那一格的坐标 (x, y)。",
+                  "en": "Name a cell: Write the coordinates (x, y) of the highlighted cell."
+                },
+                {
+                  "zh": "改一个彩色像素：把 (1, 0) 的像素改成纯红，其他格子不动。",
+                  "en": "Change a colour pixel: Change the pixel at (1, 0) to pure red, leaving every other cell as it is."
+                },
+                {
+                  "zh": "读相邻像素：输入一张灰度图和坐标 x、y：交出右边邻居 (x+1, y) 减去 (x, y) 的值。",
+                  "en": "Read neighbours: Given a grey image and coordinates x and y, give the value at (x+1, y) less the value at (x, y)."
+                }
+              ],
+              "role": "foundation",
+              "uses": ["pixels", "circuit", "image-array-checks", "lookup", "const", "sub", "add"],
+              "teaches": "image-array-checks",
+              "adds": ["lookup", "const", "sub"],
+              "naive": {
+                "zh": "这是先写行、再写列（矩阵的习惯）：图像坐标先写 x（列），再写 y（行），高亮的格子在第 1 行第 2 列，是 (2, 1)。",
+                "en": "That gives the row first, the matrix way: image coordinates give x, the column, first and y, the row, second; the highlighted cell is in row 1, column 2, so (2, 1)."
+              }
+            },
+            {
+              "id": "1A5",
+              "title": { "zh": "裁剪不是缩放", "en": "Cropping is not resizing" },
+              "task": {
+                "zh": "输入一张图和 x0、y0、w、h：交出从 (x0, y0) 起的 w × h 一块。",
+                "en": "Given an image and x0, y0, w and h, give the w × h region from (x0, y0)."
+              },
+              "question": {
+                "zh": "裁剪出的图，每个像素来自原图的哪里？",
+                "en": "where in the original does each pixel of a crop come from?"
+              },
+              "chain": [
+                {
+                  "zh": "手裁：从 (1, 1) 起裁出 2 × 2 的一块（宽 2、高 2）。",
+                  "en": "By hand: Crop the 2 × 2 region (width 2, height 2) starting at (1, 1)."
+                },
+                {
+                  "zh": "裁剪电路：输入一张图和 x0、y0、w、h：交出从 (x0, y0) 起的 w × h 一块。",
+                  "en": "Crop circuit: Given an image and x0, y0, w and h, give the w × h region from (x0, y0)."
+                }
+              ],
+              "role": "foundation",
+              "uses": ["pixels", "circuit", "image-array-checks", "crop-vs-resize", "grid", "add", "lookup"],
+              "teaches": "crop-vs-resize",
+              "adds": ["grid"],
+              "builds": "crop",
+              "naive": {
+                "zh": "这是从 (0, 0) 起裁的：新图的 (0, 0) 要取原图的 (1, 1)，每个坐标都加上左上角的偏移。",
+                "en": "That crops from (0, 0): the new (0, 0) must read the original (1, 1); every coordinate adds the corner's offset."
+              }
+            },
+            {
+              "id": "1A6",
+              "title": { "zh": "最近的那个像素", "en": "The nearest pixel" },
+              "task": {
+                "zh": "输入一张图和两张坐标图 x、y：交出每个位置最近的像素的值。",
+                "en": "Given an image and the coordinate images x and y, give the value of the pixel nearest each position."
+              },
+              "question": {
+                "zh": "落在像素之间的位置，最简单的取值办法是什么？",
+                "en": "what is the simplest value for a position between pixels?"
+              },
+              "chain": [
+                {
+                  "zh": "手算：这一行在 x = −0.25、0.4、0.5、1.6、2.2 处取值：写出每个位置最近的像素的值。",
+                  "en": "By hand: Read this row at x = −0.25, 0.4, 0.5, 1.6 and 2.2: write the value of the pixel nearest each position."
+                },
+                {
+                  "zh": "接成电路：输入一张图和两张坐标图 x、y：交出每个位置最近的像素的值。",
+                  "en": "Wire it: Given an image and the coordinate images x and y, give the value of the pixel nearest each position."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "pixels",
+                "circuit",
+                "crop-vs-resize",
+                "nearest-neighbour-interpolation",
+                "floor",
+                "add",
+                "const",
+                "lookup"
+              ],
+              "teaches": "nearest-neighbour-interpolation",
+              "adds": ["floor"],
+              "naive": {
+                "zh": "这是一律向下取整：1.6 离 2 比离 1 近，却取了 1 的值；0.5 离两边一样近，按约定取 1。最近的整数是加 0.5 再向下取整。",
+                "en": "That rounds every position down: 1.6 is nearer 2 than 1 but read 1; 0.5 is equally near both and by the convention reads 1. The nearest whole number is add 0.5, then round down."
+              }
+            },
+            {
+              "id": "1A7",
+              "title": { "zh": "四个邻居的加权平均", "en": "A weighted average of four" },
+              "task": {
+                "zh": "输入一张图和两张坐标图 x、y：交出每个位置按四个邻居距离加权的值。",
+                "en": "Given an image and the coordinate images x and y, give each position's value weighted from its four neighbours by distance."
+              },
+              "question": {
+                "zh": "位置落在像素之间，值能不能按它离各个像素的远近来算？",
+                "en": "can a position between pixels take a value by how near it is to each?"
+              },
+              "chain": [
+                {
+                  "zh": "一行：[0, 4] 在 x = −0.25、0.25、0.75、1.25 处取值：按到左右两个像素的距离加权，写出每个值。",
+                  "en": "A row: Read [0, 4] at x = −0.25, 0.25, 0.75 and 1.25, weighting the pixels either side by distance: write each value."
+                },
+                {
+                  "zh": "四个邻居：这张 2 × 2 的图在 x、y 都取 −1/6、0.5、7/6 的 9 个位置取值：写出 3 × 3 的结果。",
+                  "en": "Four neighbours: Read this 2 × 2 image at the nine positions where x and y are each −1/6, 0.5 or 7/6: write the 3 × 3 result."
+                },
+                {
+                  "zh": "接成电路：输入一张图和两张坐标图 x、y：交出每个位置按四个邻居距离加权的值。",
+                  "en": "Wire it: Given an image and the coordinate images x and y, give each position's value weighted from its four neighbours by distance."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "pixels",
+                "circuit",
+                "nearest-neighbour-interpolation",
+                "bilinear-interpolation",
+                "floor",
+                "sub",
+                "add",
+                "mul",
+                "lookup",
+                "const"
+              ],
+              "teaches": "bilinear-interpolation",
+              "naive": {
+                "zh": "这是照抄最近的像素：0.25 和 0.75 位置不同，拿到的却是两端的值。按距离加权，0.25 处是 0.75 × 0 + 0.25 × 4 = 1。",
+                "en": "That copies the nearest pixel: 0.25 and 0.75 sit apart yet read the ends. Weighted by distance, 0.25 reads 0.75 × 0 + 0.25 × 4 = 1."
+              }
             }
           ]
         },
         {
-          "id": "projection_path",
-          "title": { "zh": "针孔相机", "en": "Pinhole camera" },
+          "id": "camera-workshop",
+          "title": { "zh": "Workshop：相机的工程细节", "en": "Workshop: the camera in practice" },
+          "kind": "topic",
+          "after": "1A7",
+          "slots": [
+            {
+              "id": "1W1",
+              "title": { "zh": "传感器毫米与像素", "en": "Sensor millimetres and pixels" },
+              "task": {
+                "zh": "输入 hpx、spx、smm、Z、H：交出焦距 f（毫米）。",
+                "en": "Given hpx, spx, smm, Z and H, give the focal length f in millimetres."
+              },
+              "question": {
+                "zh": "像素和毫米怎样换算，才能代进相似三角形？",
+                "en": "how are pixels and millimetres converted before the similar triangles?"
+              },
+              "chain": [
+                {
+                  "zh": "这一步：输入 hpx、spx、smm、Z、H：交出焦距 f（毫米）。",
+                  "en": "This step: Given hpx, spx, smm, Z and H, give the focal length f in millimetres."
+                },
+                {
+                  "zh": "这是<wiki-ref to=\"pixel-to-mm-focal-length\"></wiki-ref>：先把像素换成传感器上的毫米，再代进 h/f = H/Z。",
+                  "en": "This is <wiki-ref to=\"pixel-to-mm-focal-length\"></wiki-ref>: convert pixels to millimetres on the sensor first, then h/f = H/Z; pixels and millimetres never share a proportion."
+                }
+              ],
+              "role": "intro",
+              "uses": [
+                "circuit",
+                "angle-of-view-from-pixel-focal-length",
+                "pixel-to-mm-focal-length",
+                "mul",
+                "div"
+              ],
+              "teaches": "pixel-to-mm-focal-length",
+              "naive": {
+                "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
+                "en": "The intuitive board beside the reference; see the level's naive board."
+              }
+            },
+            {
+              "id": "1W2",
+              "title": { "zh": "宽高顺序与中心裁剪", "en": "Width, height and a centre crop" },
+              "task": {
+                "zh": "输入一张图、它的形状 rows、cols 和裁剪的宽 w、高 h：交出正中间的那一块。",
+                "en": "Given an image, its shape rows and cols, and the crop width w and height h, give the region at the very centre."
+              },
+              "question": {
+                "zh": "已知形状 (rows, cols)，正中间那一块的左上角在哪？",
+                "en": "given the shape (rows, cols), where is the centre region's top-left corner?"
+              },
+              "chain": [
+                {
+                  "zh": "这一步：输入一张图、它的形状 rows、cols 和裁剪的宽 w、高 h：交出正中间的那一块。",
+                  "en": "This step: Given an image, its shape rows and cols, and the crop width w and height h, give the region at the very centre."
+                },
+                {
+                  "zh": "形状先高后宽，尺寸先宽后高；<wiki-ref to=\"center-crop-and-copy\"></wiki-ref>从余量的一半起。",
+                  "en": "A shape is height first, a size width first; a <wiki-ref to=\"center-crop-and-copy\"></wiki-ref> starts half the spare room in."
+                }
+              ],
+              "role": "step",
+              "uses": [
+                "circuit",
+                "crop-vs-resize",
+                "opencv-size-vs-numpy-shape",
+                "crop",
+                "sub",
+                "div",
+                "floor",
+                "const"
+              ],
+              "teaches": "opencv-size-vs-numpy-shape",
+              "naive": {
+                "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
+                "en": "The intuitive board beside the reference; see the level's naive board."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "machine": "convolver",
+      "keeps": "all",
+      "title": { "zh": "卷积器：局部加权", "en": "The convolver: weighted neighbourhoods" },
+      "question": {
+        "zh": "怎样把一个像素和它的邻居合起来算，造出模糊器和边缘检测器？",
+        "en": "How is a pixel combined with its neighbours, to build a blur and an edge detector?"
+      },
+      "why": {
+        "zh": "相机只会按位置取值，不会把邻居合起来算。",
+        "en": "The camera only reads values at positions and cannot combine neighbours."
+      },
+      "series": [
+        {
+          "id": "convolver",
+          "title": { "zh": "卷积器", "en": "The convolver" },
           "kind": "foundation",
           "slots": [
             {
-              "id": "1B1",
-              "title": { "zh": "穿过小孔", "en": "Through the opening" },
-              "task": { "zh": "移动物点，使投影落在目标上。", "en": "Move the point so its projection reaches the target." },
-              "role": "foundation",
-              "uses": ["optics", "projection"],
-              "idea": "projection"
-            },
-            {
-              "id": "1B2",
-              "title": { "zh": "移动物体", "en": "Move the object" },
-              "task": { "zh": "调整距离，让像高为 1。", "en": "Adjust depth until the image height is 1." },
-              "role": "practice",
-              "uses": ["optics", "projection"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1B3",
-              "title": { "zh": "移动像平面", "en": "Move the image plane" },
+              "id": "2B1",
+              "title": { "zh": "滑动加权和", "en": "A sliding weighted sum" },
               "task": {
-                "zh": "调整像平面距离，让像高为 2。",
-                "en": "Adjust the image plane distance until the image height is 2."
+                "zh": "输入一张图和权重 a、b、c：交出每个位置 a × 左邻 + b × 自己 + c × 右邻。",
+                "en": "Given an image and the weights a, b, c, give a × left + b × here + c × right at each position."
               },
+              "question": {
+                "zh": "让一组权重沿着一行滑过去，每个位置算一次加权和，结果是什么样？",
+                "en": "sliding three weights along a row and taking the weighted sum at each position, what comes out?"
+              },
+              "chain": [
+                {
+                  "zh": "手算：权重左 1、中 0、右 −1 滑过这一行：写出三格都在图里的每个位置的加权和。",
+                  "en": "By hand: Slide the weights left 1, centre 0, right −1 along this row: write the weighted sum at each position whose three cells are all inside."
+                },
+                {
+                  "zh": "接成电路：输入一张图和权重 a、b、c：交出每个位置 a × 左邻 + b × 自己 + c × 右邻。",
+                  "en": "Wire it: Given an image and the weights a, b, c, give a × left + b × here + c × right at each position."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "pixels",
+                "circuit",
+                "image-array-checks",
+                "convolution",
+                "size",
+                "grid",
+                "sub",
+                "add",
+                "mul",
+                "lookup",
+                "const"
+              ],
+              "teaches": "convolution",
+              "adds": ["size"],
+              "naive": {
+                "zh": "这是右邻减左邻：权重左 1、右 −1，是左邻减右邻。权重跟着位置走，不要颠倒。",
+                "en": "That is right less left: with the left weight 1 and the right −1 it is left less right. The weights go with their positions."
+              }
+            },
+            {
+              "id": "2B2",
+              "title": { "zh": "边上怎么办", "en": "What about the edges?" },
+              "task": {
+                "zh": "输入一张图和权重 a、b、c：输出和原图一样宽，每个位置 a × 左邻 + b × 自己 + c × 右邻，图外补 0。",
+                "en": "Given an image and the weights a, b, c, give an output as wide as the image, a × left + b × here + c × right at each position, 0 outside."
+              },
+              "question": {
+                "zh": "图外面没有像素，邻居缺了怎么办？",
+                "en": "there are no pixels outside the image, so what of the missing neighbours?"
+              },
+              "chain": [
+                {
+                  "zh": "手算：三个权重都是 1/3（求左中右的平均），图外补 0：写出和原图一样宽的结果。",
+                  "en": "By hand: All three weights 1/3 (the average of left, here and right), 0 outside: write the result, as wide as the row."
+                },
+                {
+                  "zh": "行滤波器：输入一张图和权重 a、b、c：输出和原图一样宽，每个位置 a × 左邻 + b × 自己 + c × 右邻，图外补 0。",
+                  "en": "Row filter: Given an image and the weights a, b, c, give an output as wide as the image, a × left + b × here + c × right at each position, 0 outside."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "pixels",
+                "circuit",
+                "convolution",
+                "padding-border-rules",
+                "size",
+                "grid",
+                "sub",
+                "add",
+                "mul",
+                "lookup",
+                "const"
+              ],
+              "teaches": "padding-border-rules",
+              "builds": "rowFilter",
+              "naive": {
+                "zh": "这是图外取最近的边：题目约定图外补 0，两端只有两个 3 和一个 0，平均是 2。",
+                "en": "That reads the nearest edge outside: here 0 is padded outside, so each end averages two 3s and a 0, giving 2."
+              }
+            },
+            {
+              "id": "2B3",
+              "title": { "zh": "翻转，还是不翻转", "en": "Flip or not" },
+              "task": {
+                "zh": "输入一张图和卷积核 k1、k2、k3（按书写顺序）：交出卷积的结果，图外补 0。",
+                "en": "Given an image and the kernel k1, k2, k3 (in written order), give the convolution, 0 outside."
+              },
+              "question": { "zh": "翻不翻转，结果差在哪？", "en": "what does flipping change?" },
+              "chain": [
+                {
+                  "zh": "脉冲：不翻转，权重左 1、中 2、右 3 滑过这一行脉冲，图外补 0：写出结果。",
+                  "en": "An impulse: Without flipping, slide the weights left 1, centre 2, right 3 over this impulse, 0 outside: write the result."
+                },
+                {
+                  "zh": "真正的卷积：输入一张图和卷积核 k1、k2、k3（按书写顺序）：交出卷积的结果，图外补 0。",
+                  "en": "True convolution: Given an image and the kernel k1, k2, k3 (in written order), give the convolution, 0 outside."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "pixels",
+                "circuit",
+                "convolution",
+                "padding-border-rules",
+                "convolution-vs-cross-correlation",
+                "rowFilter"
+              ],
+              "teaches": "convolution-vs-cross-correlation",
+              "naive": {
+                "zh": "以为脉冲出来的就是核 [1, 2, 3]：亮点在左边那一格的右邻，乘的是右权重 3。不翻转时，出来的是倒过来的 [3, 2, 1]。",
+                "en": "Expecting the kernel [1, 2, 3] back: for the cell to its left, the bright cell is the right neighbour and meets the right weight 3. Without the flip, out comes [3, 2, 1] reversed."
+              }
+            },
+            {
+              "id": "2B4",
+              "title": { "zh": "竖着也来一遍", "en": "Down the columns too" },
+              "task": {
+                "zh": "输入一张图和权重 a、b、c：交出每个位置 a × 上邻 + b × 自己 + c × 下邻，图外补 0。",
+                "en": "Given an image and the weights a, b, c, give a × above + b × here + c × below at each position, 0 outside."
+              },
+              "question": {
+                "zh": "同一个滑动加权和，换成竖直方向该怎么接？",
+                "en": "how is the same sliding weighted sum wired down the columns?"
+              },
+              "chain": [
+                {
+                  "zh": "这一步：输入一张图和权重 a、b、c：交出每个位置 a × 上邻 + b × 自己 + c × 下邻，图外补 0。",
+                  "en": "This step: Given an image and the weights a, b, c, give a × above + b × here + c × below at each position, 0 outside."
+                },
+                {
+                  "zh": "同一个<wiki-ref to=\"convolution\"></wiki-ref>，只是邻居换成了上下：方向不同，计算一样。",
+                  "en": "The same <wiki-ref to=\"convolution\"></wiki-ref>, the neighbours now above and below: another direction, the same computation."
+                }
+              ],
               "role": "practice",
-              "uses": ["optics", "projection"],
+              "uses": [
+                "circuit",
+                "convolution",
+                "padding-border-rules",
+                "size",
+                "grid",
+                "sub",
+                "add",
+                "mul",
+                "lookup",
+                "const"
+              ],
+              "builds": "colFilter",
+              "naive": {
+                "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
+                "en": "The intuitive board beside the reference; see the level's naive board."
+              },
+              "facet": {
+                "zh": "同一个滑动加权和，邻居换成上下：方向不同，计算一样",
+                "en": "The same sliding weighted sum with the neighbours above and below: another direction, the same computation"
+              },
               "dimension": "direction"
             },
             {
-              "id": "1B4",
-              "title": { "zh": "相同的像", "en": "The same image" },
+              "id": "2B5",
+              "title": { "zh": "拆成两步", "en": "In two passes" },
               "task": {
-                "zh": "选出至少两组像高为 1、距离不同的组合。",
-                "en": "Choose at least two pairs with image height 1 at different depths."
+                "zh": "输入一张图、行权重 h1、h2、h3 和列权重 v1、v2、v3：交出先横后竖两次滤波的结果。",
+                "en": "Given an image, row weights h1, h2, h3 and column weights v1, v2, v3, give the result of filtering across, then down."
               },
-              "role": "practice",
-              "uses": ["optics", "projection"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "foundations"
-        },
-        {
-          "id": "array_path",
-          "title": { "zh": "图像数组", "en": "Image arrays" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1C1",
-              "title": { "zh": "行和列", "en": "Rows and columns" },
-              "task": { "zh": "抄下数组的值。", "en": "Copy the values of the array." },
-              "role": "foundation",
-              "uses": ["pixels", "coordinate"],
-              "idea": "coordinate"
-            },
-            {
-              "id": "1C2",
-              "title": { "zh": "读取像素", "en": "Read a pixel" },
-              "task": { "zh": "交出图在 (x, y) 处的值。", "en": "Give the image value at (x, y)." },
-              "role": "foundation",
-              "uses": ["pixels", "coordinate", "lookupidea", "lookup"],
-              "idea": "lookupidea",
-              "adds": ["lookup"]
-            },
-            {
-              "id": "1C2a",
-              "title": { "zh": "读取另一处", "en": "Read another position" },
-              "task": { "zh": "读出图像在 (x, y) 的值。", "en": "Read the image value at (x, y)." },
-              "role": "practice",
-              "uses": ["circuit", "lookupidea", "lookup"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1C3",
-              "title": { "zh": "取出通道", "en": "Separate a channel" },
-              "task": {
-                "zh": "读取像素 (x, y) 的 c 通道。c 的 0、1、2 分别代表 R、G、B。",
-                "en": "Read channel c at pixel (x, y). Channels 0, 1, 2 mean R, G, B."
+              "question": {
+                "zh": "一个 3 × 3 的核，什么时候能拆成横、竖两步？",
+                "en": "when can a 3 × 3 kernel be split into an across pass and a down pass?"
               },
-              "role": "foundation",
-              "uses": ["pixels", "lookupidea", "channelidea", "channel", "lookup"],
-              "idea": "channelidea",
-              "adds": ["channel"]
-            },
-            {
-              "id": "1C4",
-              "title": { "zh": "重组颜色", "en": "Reassemble colour" },
-              "task": {
-                "zh": "交换图像的红色与蓝色通道，保留绿色。输入 r、g、b 是对应的通道编号。",
-                "en": "Exchange red and blue channels while retaining green. Inputs r, g, b identify the channels."
-              },
-              "role": "foundation",
-              "uses": ["pixels", "channelidea", "composeidea", "channel", "compose"],
-              "idea": "composeidea",
-              "adds": ["compose"]
-            },
-            {
-              "id": "1C5",
-              "title": { "zh": "交换颜色通道", "en": "Reorder colour channels" },
-              "task": {
-                "zh": "将蓝、红、绿通道依次作为输出的红、绿、蓝通道。",
-                "en": "Use the blue, red, and green channels as the output red, green, and blue channels, respectively."
-              },
-              "role": "practice",
-              "uses": ["pixels", "composeidea", "channelidea", "channel", "compose"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "foundations"
-        },
-        {
-          "id": "lens_path",
-          "title": { "zh": "透镜和对焦", "en": "Lens and focus" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1G1",
-              "title": { "zh": "进光量", "en": "Collecting light" },
-              "task": { "zh": "调整光圈，使进光量为 4。", "en": "Adjust the aperture until collected light is 4." },
-              "role": "foundation",
-              "uses": ["optics", "projection", "lensidea"],
-              "idea": "lensidea"
-            },
-            {
-              "id": "1G2",
-              "title": { "zh": "远处清晰", "en": "Focus on the far object" },
-              "task": { "zh": "调整对焦距离，让远处物体清晰。", "en": "Adjust focus until the far object is sharp." },
-              "role": "practice",
-              "uses": ["optics", "lensidea", "projection"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1G3",
-              "title": { "zh": "清晰的范围", "en": "Depth of field" },
-              "task": {
-                "zh": "保持对焦距离，调整光圈，使清晰深度范围至少为 3000 毫米。",
-                "en": "Keep focus fixed and adjust the aperture until the sharp depth range is at least 3000 mm."
-              },
-              "role": "practice",
-              "uses": ["optics", "lensidea", "projection"],
-              "dimension": "combine"
-            }
-          ],
-          "parallel": "applications"
-        },
-        {
-          "id": "image_ops",
-          "title": { "zh": "裁剪、缩放与表示", "en": "Crop, resize and representation" },
-          "kind": "foundation",
-          "slots": [
-            {
-              "id": "1D0",
-              "title": { "zh": "标出坐标", "en": "Mark coordinates" },
-              "task": {
-                "zh": "读取从左上角开始、大小为 w × h 的区域。",
-                "en": "Read a w × h region starting at the upper-left corner."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "grididea", "grid", "lookup", "lookupidea"],
-              "idea": "grididea",
-              "adds": ["grid"]
-            },
-            {
-              "id": "1D0a",
-              "title": { "zh": "从另一个起点出发", "en": "Start elsewhere" },
-              "task": { "zh": "把一行坐标全部增加起点 x0。", "en": "Offset each coordinate in a row by x0." },
-              "role": "foundation",
-              "uses": ["circuit", "arithidea", "grididea", "grid", "add"],
-              "idea": "arithidea",
-              "adds": ["add"]
-            },
-            {
-              "id": "1D1",
-              "title": { "zh": "截取窗口", "en": "A window into an image" },
-              "task": {
-                "zh": "截取左上角为 (x0, y0)、大小为 w × h 的区域。",
-                "en": "Crop a w × h region starting at (x0, y0)."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "cropidea", "lookupidea", "grididea", "arithidea", "grid", "add", "lookup"],
-              "idea": "cropidea",
-              "builds": "crop"
-            },
-            {
-              "id": "1D2",
-              "title": { "zh": "保留原来的值", "en": "Keep the samples" },
-              "task": { "zh": "截取指定区域。", "en": "Crop the specified region." },
-              "role": "practice",
-              "uses": ["circuit", "cropidea", "crop"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1D2a",
-              "title": { "zh": "原图的尺寸", "en": "The original size" },
-              "task": {
-                "zh": "交出与原图同样宽高的横坐标图和纵坐标图。",
-                "en": "Output horizontal and vertical coordinate images matching the input dimensions."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "sizeidea", "size", "grid", "grididea"],
-              "idea": "sizeidea",
-              "adds": ["size"]
-            },
-            {
-              "id": "1D2b",
-              "title": { "zh": "向相反方向取值", "en": "Read in the opposite direction" },
-              "task": {
-                "zh": "从图像宽度减去右侧留出的 margin，交出对应的横向位置。",
-                "en": "Subtract the right margin from the image width to obtain the horizontal position."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "subidea", "sizeidea", "size", "sub"],
-              "idea": "subidea",
-              "adds": ["sub"]
-            },
-            {
-              "id": "1D3",
-              "title": { "zh": "移动图像", "en": "Move the picture" },
-              "task": {
-                "zh": "按 (dx, dy) 移动图像，空出的位置填 0。",
-                "en": "Move the image by (dx, dy), filling uncovered cells with 0."
-              },
+              "chain": [
+                {
+                  "zh": "合成的核：行权重 [1, 2, 1]、列权重 [1, 2, 1]：写出合成的 3 × 3 核，第 y 行第 x 列是列权重第 y 个乘行权重第 x 个。",
+                  "en": "The merged kernel: Row weights [1, 2, 1], column weights [1, 2, 1]: write the merged 3 × 3 kernel, row y, column x being column weight y times row weight x."
+                },
+                {
+                  "zh": "二维滤波器：输入一张图、行权重 h1、h2、h3 和列权重 v1、v2、v3：交出先横后竖两次滤波的结果。",
+                  "en": "2D filter: Given an image, row weights h1, h2, h3 and column weights v1, v2, v3, give the result of filtering across, then down."
+                }
+              ],
               "role": "foundation",
               "uses": [
+                "pixels",
                 "circuit",
-                "moveidea",
-                "sizeidea",
-                "subidea",
-                "lookupidea",
-                "grididea",
-                "size",
-                "grid",
-                "sub",
-                "lookup"
+                "convolution-vs-cross-correlation",
+                "separable-filter",
+                "rowFilter",
+                "colFilter"
               ],
-              "idea": "moveidea",
-              "builds": "translate"
-            },
-            {
-              "id": "1D4",
-              "title": { "zh": "截取移动的图", "en": "Crop a moving picture" },
-              "task": { "zh": "先移动图像，再截取指定区域。", "en": "Translate the image, then crop the specified region." },
-              "role": "practice",
-              "uses": ["circuit", "cropidea", "moveidea", "translate", "crop"],
-              "dimension": "combine"
-            },
-            {
-              "id": "1E1",
-              "title": { "zh": "新的采样位置", "en": "New sample positions" },
-              "task": { "zh": "将端点 0 到 2 均匀分成五个位置。", "en": "Place five evenly spaced positions from 0 to 2." },
-              "role": "foundation",
-              "uses": ["pixels", "coordinate", "moveidea"]
-            },
-            {
-              "id": "1E1a",
-              "title": { "zh": "一个固定的数", "en": "A fixed number" },
-              "task": { "zh": "交出 x 的下一个位置。", "en": "Output the position following x." },
-              "role": "foundation",
-              "uses": ["circuit", "constidea", "arithidea", "const", "add"],
-              "idea": "constidea",
-              "adds": ["const"]
-            },
-            {
-              "id": "1E1b",
-              "title": { "zh": "改变间距", "en": "Change the spacing" },
-              "task": { "zh": "把每个横坐标按倍数 2 拉开，交出新坐标图。", "en": "Multiply each horizontal coordinate by 2." },
-              "role": "foundation",
-              "uses": ["circuit", "mulidea", "grididea", "constidea", "const", "grid", "mul"],
-              "idea": "mulidea",
-              "adds": ["mul"]
-            },
-            {
-              "id": "1E1c",
-              "title": { "zh": "平均分布", "en": "Even spacing" },
-              "task": {
-                "zh": "把 length 按 scale 放大，再均分为 n 段；交出每段长度。",
-                "en": "Scale length by scale, divide it into n equal intervals, and output one interval length."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "dividea", "mulidea", "mul", "div"],
-              "idea": "dividea",
-              "adds": ["div"]
-            },
-            {
-              "id": "1E1d",
-              "title": { "zh": "选择较小的整数", "en": "Choose the lower integer" },
-              "task": {
-                "zh": "把 length 按 n 等分，交出每段长度向下取整后的值。",
-                "en": "Divide length into n equal intervals and round the interval length down."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "flooridea", "dividea", "div", "floor"],
-              "idea": "flooridea",
-              "adds": ["floor"]
-            },
-            {
-              "id": "1E1e",
-              "title": { "zh": "比较位置", "en": "Compare positions" },
-              "task": {
-                "zh": "将 a 向下取整；如果结果小于 b 交出 1，否则交出 0。",
-                "en": "Round a down; output 1 if the result is less than b and 0 otherwise."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "lessidea", "flooridea", "floor", "less"],
-              "idea": "lessidea",
-              "adds": ["less"]
-            },
-            {
-              "id": "1E1g",
-              "title": { "zh": "选择一个值", "en": "Select a value" },
-              "task": {
-                "zh": "当 a 小于 b 时交出 a，否则交出 b。",
-                "en": "Output a when a is less than b, otherwise output b."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "selectidea", "lessidea", "less", "select"],
-              "idea": "selectidea",
-              "adds": ["select"]
-            },
-            {
-              "id": "1E1f",
-              "title": { "zh": "不低于一", "en": "At least one" },
-              "task": { "zh": "交出 a 和 b 中较大的数。", "en": "Output the larger of a and b." },
-              "role": "foundation",
-              "uses": ["circuit", "selectidea", "largeridea", "lessidea", "less", "select"],
-              "idea": "largeridea",
-              "builds": "larger"
-            },
-            {
-              "id": "1E1h",
-              "title": { "zh": "坐标从哪里取", "en": "Find source positions" },
-              "task": {
-                "zh": "原轴有 m 个位置，新轴有 n 个位置；交出新位置 i 对应的原坐标。首尾对齐；n 为 1 时取原轴中心。",
-                "en": "Given m source positions and n output positions, map output i to a source coordinate. Align endpoints; for n = 1 use the source centre."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "axisidea",
-                "const",
-                "sub",
-                "less",
-                "larger",
-                "div",
-                "mul",
-                "select",
-                "subidea",
-                "constidea",
-                "mulidea",
-                "dividea",
-                "lessidea",
-                "selectidea",
-                "largeridea"
-              ],
-              "idea": "axisidea",
-              "builds": "sampleAxis"
-            },
-            {
-              "id": "1E1i",
-              "title": { "zh": "整张坐标图", "en": "Map a coordinate grid" },
-              "task": {
-                "zh": "把宽为 n 的输出坐标映射到宽为 m 的原图。输出为一行。",
-                "en": "Map n output positions to source width m. Output one row."
-              },
-              "role": "practice",
-              "uses": ["circuit", "axisidea", "const", "grid", "sampleAxis", "grididea", "constidea"],
-              "dimension": "surface"
-            },
-            {
-              "id": "1E2",
-              "title": { "zh": "最近的像素", "en": "Nearest pixel" },
-              "task": {
-                "zh": "用最近邻把图缩放到 w × h。首尾对齐；只有一个位置时取原图中心。等距时取较大坐标。",
-                "en": "Resize to w × h using nearest neighbours. Align endpoints; for one sample use the source centre. Break ties towards the larger index."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "nearestidea",
-                "dividea",
-                "flooridea",
-                "largeridea",
-                "lookupidea",
-                "grididea",
-                "arithidea",
-                "sizeidea",
-                "constidea",
-                "axisidea",
-                "const",
-                "size",
-                "grid",
-                "sampleAxis",
-                "add",
-                "floor",
-                "lookup"
-              ],
-              "idea": "nearestidea",
-              "builds": "resizeNearest"
-            },
-            {
-              "id": "1E3",
-              "title": { "zh": "像素之间", "en": "Between pixels" },
-              "task": {
-                "zh": "用双线性插值缩放到 w × h；首尾对齐，单个输出位置取原图中心。",
-                "en": "Resize to w × h using bilinear interpolation; align endpoints and use the source centre for a single output position."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "nearestidea",
-                "linearidea",
-                "lookupidea",
-                "grididea",
-                "arithidea",
-                "sizeidea",
-                "subidea",
-                "constidea",
-                "mulidea",
-                "flooridea",
-                "axisidea",
-                "const",
-                "size",
-                "grid",
-                "sampleAxis",
-                "floor",
-                "sub",
-                "add",
-                "lookup",
-                "mul"
-              ],
-              "idea": "linearidea",
-              "builds": "resizeLinear"
-            },
-            {
-              "id": "1E4",
-              "title": { "zh": "比较放大结果", "en": "Compare enlargements" },
-              "task": {
-                "zh": "分别交出最近邻和双线性缩放结果。",
-                "en": "Output the nearest-neighbour and bilinear resize results."
-              },
-              "role": "practice",
-              "uses": ["circuit", "nearestidea", "linearidea", "resizeNearest", "resizeLinear"],
-              "dimension": "combine"
-            },
-            {
-              "id": "1F1",
-              "title": { "zh": "数值和显示", "en": "Values and display" },
-              "task": {
-                "zh": "显示把小于 0 的亮度画为 0，大于 1 的画为 1。填出显示亮度。",
-                "en": "Display maps brightness below 0 to 0 and above 1 to 1. Fill in the displayed brightness."
-              },
-              "role": "foundation",
-              "uses": ["pixels", "displayidea"],
-              "idea": "displayidea"
-            },
-            {
-              "id": "1F1a",
-              "title": { "zh": "不高于一", "en": "At most one" },
-              "task": { "zh": "交出 a 和 b 中较小的数。", "en": "Output the smaller of a and b." },
-              "role": "foundation",
-              "uses": ["circuit", "displayidea", "smalleridea", "lessidea", "selectidea", "less", "select"],
-              "idea": "smalleridea",
-              "builds": "smaller"
-            },
-            {
-              "id": "1F2",
-              "title": { "zh": "有限的亮度", "en": "Finite brightness levels" },
-              "task": {
-                "zh": "把 0 至 1 均匀分为 L 个亮度，取最近值；等距时取较大值。范围外先限制到 0 至 1。",
-                "en": "Use L evenly spaced brightness levels from 0 to 1; choose the nearest, breaking ties upwards. Clamp values outside the range."
-              },
-              "role": "foundation",
-              "uses": [
-                "circuit",
-                "displayidea",
-                "quantidea",
-                "arithidea",
-                "subidea",
-                "constidea",
-                "mulidea",
-                "dividea",
-                "flooridea",
-                "largeridea",
-                "smalleridea",
-                "const",
-                "larger",
-                "smaller",
-                "sub",
-                "mul",
-                "add",
-                "floor",
-                "div"
-              ],
-              "idea": "quantidea",
-              "builds": "quantise"
-            },
-            {
-              "id": "1F3",
-              "title": { "zh": "还能找回吗", "en": "Can it be recovered?" },
-              "task": { "zh": "将输入量化为 3 个等级。", "en": "Quantise the input to 3 levels." },
-              "role": "practice",
-              "uses": ["circuit", "constidea", "quantidea", "const", "quantise"],
-              "dimension": "false"
-            },
-            {
-              "id": "1Z1",
-              "title": { "zh": "图像处理台", "en": "Image processing station" },
-              "task": {
-                "zh": "裁剪指定区域，双线性缩放到目标宽高，再量化到 L 个等级。",
-                "en": "Crop the given region, resize it bilinearly, then quantise it to L levels."
-              },
-              "role": "foundation",
-              "uses": ["circuit", "linearidea", "cropidea", "quantidea", "crop", "resizeLinear", "quantise"]
-            }
-          ],
-          "parallel": "applications"
-        },
-        {
-          "id": "crop_challenge",
-          "title": { "zh": "缩放裁剪区域", "en": "Resize a crop" },
-          "kind": "challenge",
-          "slots": [
-            {
-              "id": "1X1",
-              "title": { "zh": "放大裁剪区域", "en": "Resize a crop" },
-              "task": {
-                "zh": "截取指定区域，然后用最近邻缩放到目标宽高。",
-                "en": "Crop the given region, then resize it using nearest-neighbour sampling."
-              },
-              "role": "challenge",
-              "uses": ["circuit", "nearestidea", "cropidea", "crop", "resizeNearest"],
+              "teaches": "separable-filter",
+              "builds": "filter2D",
               "naive": {
-                "zh": "先缩放整幅图再按旧坐标裁剪。",
-                "en": "Resize the full image before applying the original crop coordinates."
+                "zh": "这是三行都抄了行权重：竖直方向也要乘上列权重，第 1 行整行乘 2。",
+                "en": "That copies the row weights into all three rows: the column weights multiply too, doubling row 1."
+              }
+            },
+            {
+              "id": "2B6",
+              "title": { "zh": "模糊", "en": "Blur" },
+              "task": {
+                "zh": "输入一张图：交出横竖各用 [1/4, 1/2, 1/4] 滤过的模糊图。",
+                "en": "Given an image, give it filtered across and down by [1/4, 1/2, 1/4]."
+              },
+              "question": {
+                "zh": "一个亮点经过高斯模糊，会变成什么样？",
+                "en": "what does a single bright point become after a Gaussian blur?"
+              },
+              "chain": [
+                {
+                  "zh": "一个亮点：这张图只有 (1, 1) 是 16：横竖各用 [1/4, 1/2, 1/4] 滤一遍，图外补 0，写出结果。",
+                  "en": "A bright point: Only (1, 1) of this image is 16: filter across and down with [1/4, 1/2, 1/4], 0 outside, and write the result."
+                },
+                {
+                  "zh": "高斯模糊：输入一张图：交出横竖各用 [1/4, 1/2, 1/4] 滤过的模糊图。",
+                  "en": "Gaussian blur: Given an image, give it filtered across and down by [1/4, 1/2, 1/4]."
+                }
+              ],
+              "role": "foundation",
+              "uses": ["pixels", "circuit", "separable-filter", "gaussian-filter", "filter2D", "const"],
+              "teaches": "gaussian-filter",
+              "builds": "blur",
+              "naive": {
+                "zh": "这是只横着滤了一遍：竖直方向也要滤，亮点向上下扩散，中心只剩 4。",
+                "en": "That filters across only: down must be filtered too, spreading the point up and down and leaving 4 at the centre."
+              }
+            },
+            {
+              "id": "2B7",
+              "title": { "zh": "找边", "en": "Find the edges" },
+              "task": {
+                "zh": "输入一张图：交出 gx（横向权重 −1、0、1，竖向 1、2、1）和 gy（横向 1、2、1，竖向 −1、0、1）。",
+                "en": "Given an image, give gx (across −1, 0, 1; down 1, 2, 1) and gy (across 1, 2, 1; down −1, 0, 1)."
+              },
+              "question": {
+                "zh": "Sobel 的两个响应 gx、gy 在不同方向的边上各是什么？",
+                "en": "what are Sobel's two responses gx and gy on edges running different ways?"
+              },
+              "chain": [
+                {
+                  "zh": "正还是负：只看横向：每格算右邻减左邻（图外补 0），写出结果。",
+                  "en": "Plus or minus: Across only: at each cell take the right neighbour less the left (0 outside) and write the result."
+                },
+                {
+                  "zh": "Sobel 滤波器：输入一张图：交出 gx（横向权重 −1、0、1，竖向 1、2、1）和 gy（横向 1、2、1，竖向 −1、0、1）。",
+                  "en": "Sobel filter: Given an image, give gx (across −1, 0, 1; down 1, 2, 1) and gy (across 1, 2, 1; down −1, 0, 1)."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "pixels",
+                "circuit",
+                "separable-filter",
+                "convolution-vs-cross-correlation",
+                "sobel-filter",
+                "filter2D",
+                "const"
+              ],
+              "teaches": "sobel-filter",
+              "builds": "sobel",
+              "naive": {
+                "zh": "这是只看变化有多大：响应带符号，从亮到暗的地方右邻比左邻暗，是负的。",
+                "en": "That records only how big the change is: the response is signed, and where it goes bright to dark the right neighbour is darker, so it is negative."
+              }
+            },
+            {
+              "id": "2B8",
+              "title": { "zh": "梯度：边有多强、朝哪边", "en": "The gradient: how strong, which way" },
+              "task": {
+                "zh": "输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
+                "en": "Given an image, give the gradient's size √(gx² + gy²) at each position."
+              },
+              "question": {
+                "zh": "怎样不管方向、只量出边有多强？",
+                "en": "how is an edge's strength measured, whatever its direction?"
+              },
+              "chain": [
+                {
+                  "zh": "这一步：输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
+                  "en": "This step: Given an image, give the gradient's size √(gx² + gy²) at each position."
+                },
+                {
+                  "zh": "这是<wiki-ref to=\"image-gradient\"></wiki-ref>：方向由 gx、gy 定，大小是 √(gx² + gy²)。这台边缘检测器后面还会用到。",
+                  "en": "This is the <wiki-ref to=\"image-gradient\"></wiki-ref>: its direction set by gx and gy, its size √(gx² + gy²). This edge detector is used again later."
+                }
+              ],
+              "role": "foundation",
+              "uses": ["circuit", "sobel-filter", "image-gradient", "sobel", "mul", "add", "sqrt"],
+              "teaches": "image-gradient",
+              "adds": ["sqrt"],
+              "naive": {
+                "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
+                "en": "The intuitive board beside the reference; see the level's naive board."
+              }
+            },
+            {
+              "id": "2B9",
+              "title": { "zh": "彩色图的卷积", "en": "Convolving a colour picture" },
+              "task": {
+                "zh": "输入一张彩色图和权重 wr、wg、wb：把三个通道各自高斯模糊，再按 wr × 红 + wg × 绿 + wb × 蓝 加起来。",
+                "en": "Given a colour image and the weights wr, wg, wb, Gaussian-blur each channel, then add wr × red + wg × green + wb × blue."
+              },
+              "question": {
+                "zh": "三个通道各自模糊、再按权重加起来，结果是什么？",
+                "en": "blur each channel, then add them up by weights; what comes out?"
+              },
+              "chain": [
+                {
+                  "zh": "这一步：输入一张彩色图和权重 wr、wg、wb：把三个通道各自高斯模糊，再按 wr × 红 + wg × 绿 + wb × 蓝 加起来。",
+                  "en": "This step: Given a colour image and the weights wr, wg, wb, Gaussian-blur each channel, then add wr × red + wg × green + wb × blue."
+                },
+                {
+                  "zh": "这是<wiki-ref to=\"colour-filtering\"></wiki-ref>：核有几层就对应几个通道，各层结果相加成一张图。",
+                  "en": "This is <wiki-ref to=\"colour-filtering\"></wiki-ref>: a kernel has a layer per channel, and the layers' results add up to one picture."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "circuit",
+                "gaussian-filter",
+                "image-gradient",
+                "colour-filtering",
+                "blur",
+                "channel",
+                "mul",
+                "add"
+              ],
+              "teaches": "colour-filtering",
+              "adds": ["channel"],
+              "naive": {
+                "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
+                "en": "The intuitive board beside the reference; see the level's naive board."
               }
             }
-          ],
-          "after": "1E4"
+          ]
+        },
+        {
+          "id": "colour-workshop",
+          "title": { "zh": "Workshop：颜色顺序与溢出", "en": "Workshop: channel order and overflow" },
+          "kind": "topic",
+          "after": "2B9",
+          "slots": [
+            {
+              "id": "2W1",
+              "title": { "zh": "颜色顺序与数值溢出", "en": "Channel order and overflow" },
+              "task": {
+                "zh": "输入是用 OpenCV 读进来的照片：交出同一张照片，颜色和本来的一样。",
+                "en": "The input is a photo read with OpenCV: give the same photo in its true colours."
+              },
+              "question": {
+                "zh": "怎样把颜色换回来？",
+                "en": "how are the colours put back?"
+              },
+              "chain": [
+                {
+                  "zh": "换回 RGB：输入是用 OpenCV 读进来的照片：交出同一张照片，颜色和本来的一样。",
+                  "en": "Back to RGB: The input is a photo read with OpenCV: give the same photo in its true colours."
+                },
+                {
+                  "zh": "这是<wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref>的差别和<wiki-ref to=\"channel-edit-dtype\"></wiki-ref>的坑：先换好顺序，算之前换成更宽的类型。",
+                  "en": "This is the <wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref> difference and the <wiki-ref to=\"channel-edit-dtype\"></wiki-ref> trap: swap the order before handing over, widen the type before computing."
+                }
+              ],
+              "role": "intro",
+              "uses": ["circuit", "image-array-checks", "opencv-bgr-to-rgb", "channel", "compose"],
+              "teaches": "opencv-bgr-to-rgb",
+              "adds": ["compose"],
+              "naive": {
+                "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
+                "en": "The intuitive board beside the reference; see the level's naive board."
+              }
+            }
+          ]
         }
       ]
-    }
-  ],
-  "parallel": [
-    {
-      "id": "scene_paths",
-      "why": { "zh": "外观变化与证据判断互不依赖。", "en": "Appearance variation and evidence do not depend on one another." }
-    },
-    {
-      "id": "foundations",
-      "why": {
-        "zh": "针孔投影与数组坐标各自建立。",
-        "en": "Pinhole projection and array coordinates can be learned independently."
-      }
-    },
-    {
-      "id": "applications",
-      "why": {
-        "zh": "图像运算与透镜实验互不依赖。",
-        "en": "Image operations and lens experiments do not depend on one another."
-      }
-    }
-  ],
-  "requests": [],
-  "deferred": [
-    {
-      "about": { "zh": "空间滤波及后续视觉专题", "en": "Spatial filtering and later vision topics" },
-      "why": { "zh": "本次只制作第 0、1 章。", "en": "This scope covers chapters 0 and 1." }
     }
   ]
 }

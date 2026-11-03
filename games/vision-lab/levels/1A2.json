@@ -1,27 +1,118 @@
 {
-  "title": { "zh": "选出像素", "en": "Find a pixel" },
+  "title": { "zh": "很多场景，同一张图", "en": "Many scenes, one picture" },
   "intro": [
     {
       "t": {
-        "zh": "图里的每格都有位置；交换两个方向会选中不同的格。",
-        "en": "Each cell has a position; swapping the directions can select a different cell."
+        "zh": "投影把场景变成图，方向是正的：给定场景，图就定了，这是图形学的方向。视觉反过来，手里只有图，要说出场景（<wiki-ref to=\"vision-task-outputs\"></wiki-ref>有类别、位置、每个像素的标签等各种形式）。",
+        "en": "Projection turns a scene into a picture, the forward way: given the scene, the picture is settled, as in graphics. Vision goes back, from the picture to the scene (its <wiki-ref to=\"vision-task-outputs\"></wiki-ref> take many forms: a class, a location, a label per pixel)."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：从一张图倒推回去，场景能定下来吗？台上一支 1 米高的箭离相机 4 米，像高 0.5。先另造一个场景：箭至少 2 米高，拍出一模一样的像；再接一块倒推电路，从像的位置算回物点。",
+        "en": "This level asks: going back from a picture, is the scene settled? On the bench an arrow 1 m tall stands 4 m away and images 0.5 tall. First make another scene, the arrow at least 2 m tall, that pictures exactly the same; then wire a circuit that works back from an image position to the point."
       }
     }
   ],
+  "after": {
+    "zh": "这是<wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>：大而远和小而近拍出同一张图，倒推得先知道距离；颜色、个数才是一张图定得了的。",
+    "en": "This is the <wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>: big-and-far pictures like small-and-near; working back needs the distance first; colour and count are what a picture settles."
+  },
   "tasks": [
     {
       "id": "1A2",
-      "kind": "grid",
-      "brief": { "zh": "选出坐标 (2, 0) 的像素。", "en": "Select the pixel at (2, 0)." },
-      "image": [[0, 0.5, 1], [1, 0.25, 0]],
-      "ask": { "pick": { "x": 2, "y": 0 } }
+      "kind": "bench",
+      "step": { "zh": "另造一个场景", "en": "Another scene" },
+      "brief": {
+        "zh": "f = 2：调物高 H 和距离 Z，让像高仍是 0.5，箭至少 2 米高。",
+        "en": "f = 2: set the height H and the distance Z so the image is still 0.5 tall, the arrow at least 2 m."
+      },
+      "hint": [
+        {
+          "zh": "物高加倍、距离不变，像会怎样？距离也加倍呢？",
+          "en": "Double the height and keep the distance: what does the image do? Double the distance too?"
+        }
+      ],
+      "bench": {
+        "model": "pinhole",
+        "setup": { "f": 2, "object": "arrow", "target": { "of": "h", "value": 0.5 } },
+        "knobs": {
+          "H": {
+            "label": { "zh": "物高 H（米）", "en": "Height H (m)" },
+            "min": 0.5,
+            "max": 4,
+            "step": 0.5,
+            "start": 1
+          },
+          "Z": {
+            "label": { "zh": "距离 Z（米）", "en": "Distance Z (m)" },
+            "min": 1,
+            "max": 16,
+            "step": 1,
+            "start": 4
+          }
+        },
+        "goal": [
+          {
+            "of": "h",
+            "label": { "zh": "像高 h", "en": "Image height h" },
+            "near": 0.5,
+            "atMost": 0.001,
+            "format": "fixed2"
+          },
+          { "of": "H", "label": { "zh": "物高 H", "en": "Height H" }, "atLeast": 2, "format": "fixed2" }
+        ],
+        "check": "submit",
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "H": 2, "Z": 4 },
+          "why": {
+            "zh": "只把箭加高：距离不变，像也跟着加倍成 1。要让像不变，距离得和物高一起加倍。",
+            "en": "Only making the arrow taller: at the same distance its image doubles to 1. For the same image the distance must double with the height."
+          }
+        }
+      ]
     },
     {
       "id": "1A2_2",
-      "kind": "grid",
-      "brief": { "zh": "写出高亮像素的坐标。", "en": "Write the coordinates of the highlighted pixel." },
-      "image": [[0, 0.5, 1], [1, 0.25, 0]],
-      "ask": { "locate": { "x": 0, "y": 1 } }
+      "kind": "circuit",
+      "step": { "zh": "倒推", "en": "Work back" },
+      "intro": [
+        {
+          "t": {
+            "zh": "倒过来：已知像点的位置 u，物点在哪？只有像不够，还得假设一个距离 Z。",
+            "en": "The other way: given the image position u, where is the point? The image alone is not enough; a distance Z must be assumed."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
+        "en": "Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
+      },
+      "hint": [
+        {
+          "zh": "u = fX/Z，把 X 解出来。",
+          "en": "u = fX/Z: solve it for X."
+        }
+      ],
+      "inputs": [
+        { "name": "u", "label": { "zh": "像点位置 u", "en": "Image position u" } },
+        { "name": "f", "label": { "zh": "像平面距离 f", "en": "Plane distance f" } },
+        { "name": "Z", "label": { "zh": "假设的距离 Z", "en": "Assumed distance Z" } }
+      ],
+      "outputs": [{ "name": "X", "label": { "zh": "物点位置 X", "en": "Point position X" } }],
+      "tests": [
+        { "inputs": { "u": 0.5, "f": 2, "Z": 4 }, "expect": { "X": 1 } },
+        { "inputs": { "u": 0.5, "f": 2, "Z": 8 }, "expect": { "X": 2 } }
+      ],
+      "hidden": [
+        { "inputs": { "u": -1, "f": 2, "Z": 6 }, "expect": { "X": -3 } },
+        { "inputs": { "u": 0, "f": 3, "Z": 5 }, "expect": { "X": 0 } }
+      ],
+      "solution": ["m = mul(u, Z)", "x = div(m, f)", "X <- x"],
+      "naive": ["X <- u"]
     }
   ]
 }
