@@ -1,0 +1,139 @@
+{
+  "title": { "zh": "别让条纹躲进相位", "en": "Do not lose stripes to phase" },
+  "intro": [
+    {
+      "t": {
+        "zh": "单频探针在某些平移下没有响应，尽管条纹还在。补上与第一路相差四分之一周的测量，把两路作为同一个系数的两个分量。 <wiki-ref to=\"quadrature-components\"></wiki-ref>",
+        "en": "A shifted stripe can make one probe silent while remaining visible. Add a quarter-turn projection and retain both components of the same coefficient. <wiki-ref to=\"quadrature-components\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "系数长度便于比较强弱，重建仍需要实部和虚部。普通实信号频率由共轭对共同描述。 <wiki-ref to=\"quadrature-components\"></wiki-ref>",
+    "en": "Coefficient length compares contributions; reconstruction still needs real and imaginary parts. Conjugate pairs represent real-signal frequencies. <wiki-ref to=\"quadrature-components\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_quadrature",
+      "kind": "circuit",
+      "step": {
+        "zh": "补齐相位信息",
+        "en": "Retain phase"
+      },
+      "brief": {
+        "zh": "用相差 1/4 周的两路投影测量一个频率。实部使用 cos，虚部使用 −sin，即 cos(角度+1/4周)；再给出系数长度。",
+        "en": "Measure a frequency using projections a quarter turn apart: real uses cos, imaginary uses −sin = cos(angle+1/4 turn). Also output coefficient length."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "行信号", "en": "Row signal" } },
+        { "name": "frequency", "label": { "zh": "频率索引", "en": "Frequency index" } }
+      ],
+      "outputs": [
+        { "name": "re", "label": { "zh": "实部", "en": "Real" } },
+        { "name": "im", "label": { "zh": "虚部", "en": "Imaginary" } },
+        { "name": "mag", "label": { "zh": "系数幅度", "en": "Coefficient magnitude" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [
+                0.7,
+                0.582842712474619,
+                0.3,
+                0.017157287525380982,
+                -0.10000000000000003,
+                0.017157287525380926,
+                0.29999999999999993,
+                0.5828427124746189
+              ]
+            ],
+            "frequency": 1
+          },
+          "expect": {
+            "re": [[0.19999999999999998]],
+            "im": [[-3.673361928996229e-18]],
+            "mag": [[0.19999999999999998]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                0.3,
+                0.017157287525380982,
+                -0.10000000000000003,
+                0.017157287525380926,
+                0.29999999999999993,
+                0.5828427124746189,
+                0.7,
+                0.582842712474619
+              ]
+            ],
+            "frequency": 1
+          },
+          "expect": { "re": [[-1.8573616964252913e-17]], "im": [[0.2]], "mag": [[0.2]] }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                0.582842712474619,
+                -0.08637033051562731,
+                0.4035276180410081,
+                0.582842712474619,
+                -0.08637033051562737,
+                0.403527618041008
+              ]
+            ],
+            "frequency": 2
+          },
+          "expect": { "re": [[0.14142135623730953]], "im": [[0.14142135623730948]], "mag": [[0.2]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.7, 0.7, 0.7, 0.7, 0.7]], "frequency": 0 },
+          "expect": { "re": [[0.7]], "im": [[0]], "mag": [[0.7]] }
+        }
+      ],
+      "solution": [
+        "zero = const[value=0]()",
+        "quarter = const[value=0.25]()",
+        "r = projection(image,frequency,zero)",
+        "i = projection(image,frequency,quarter)",
+        "m = magnitude(r,i)",
+        "re <- r",
+        "im <- i",
+        "mag <- m"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "r = projection(image,frequency,zero)",
+        "m = magnitude(r,r)",
+        "re <- r",
+        "im <- r",
+        "mag <- m"
+      ],
+      "naiveWhy": {
+        "zh": "两次相同相位仍只测一个方向，移动后的条纹可能被漏掉。第二路应当是独立的正交投影。",
+        "en": "Repeating one phase still measures one direction and can miss shifted stripes. The other projection must be orthogonal."
+      },
+      "hint": [
+        {
+          "zh": "比较同一条纹平移前后：一条投影可变成零，另一路应保留信息。长度由工具计算。",
+          "en": "Compare shifted versions of a stripe: one projection can vanish while the other retains information. Length is computed."
+        }
+      ],
+      "adds": []
+    }
+  ],
+  "builds": {
+    "type": "frequencyProbe",
+    "name": { "zh": "正交频率探针", "en": "Quadrature frequency probe" },
+    "desc": {
+      "zh": "保留指定频率的归一化实部、虚部及系数长度。",
+      "en": "Retain normalised real, imaginary and magnitude components at a specified frequency."
+    }
+  }
+}

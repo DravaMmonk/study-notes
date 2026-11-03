@@ -1,0 +1,133 @@
+{
+  "title": { "zh": "造一个单频探针", "en": "Build a single-frequency probe" },
+  "intro": [
+    {
+      "t": {
+        "zh": "波形发生器提供了可比较的刻度，现在让它与观测发生联系。直接看一行平均亮度会漏掉正负抵消的条纹；用匹配波形检验某个频率是否有贡献。 <wiki-ref to=\"frequency-projection\"></wiki-ref>",
+        "en": "The wave generator provides a basis. Connect it to observations: averaging brightness misses zero-mean stripes. Test a frequency through comparison with its matching wave. <wiki-ref to=\"frequency-projection\"></wiki-ref>"
+      },
+      "fig": "frequency-probe"
+    }
+  ],
+  "after": {
+    "zh": "一个投影取决于频率和相位。单路响应为零，不足以断言该频率不存在。 <wiki-ref to=\"frequency-projection\"></wiki-ref>",
+    "en": "A projection depends on both frequency and phase. Zero response from one probe does not prove the frequency is absent. <wiki-ref to=\"frequency-projection\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_projection",
+      "kind": "circuit",
+      "step": {
+        "zh": "测一个频率",
+        "en": "Project a frequency"
+      },
+      "brief": {
+        "zh": "让图像读数与指定频率、相位的波形逐格比较，输出每行的平均乘积。不同频率会在整行中互相抵消。",
+        "en": "Compare readings with a specified basis frequency/phase through their mean product per row. Different frequencies cancel over the row."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "行信号", "en": "Row signal" } },
+        { "name": "frequency", "label": { "zh": "探测周期数", "en": "Probe frequency" } },
+        { "name": "phase", "label": { "zh": "探测相位", "en": "Probe phase" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "投影响应", "en": "Projection response" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [
+                1,
+                0.7071067811865476,
+                6.123233995736766e-17,
+                -0.7071067811865475,
+                -1,
+                -0.7071067811865477,
+                -1.8369701987210297e-16,
+                0.7071067811865474
+              ]
+            ],
+            "frequency": 1,
+            "phase": 0
+          },
+          "expect": { "out": [[0.5]] }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                1,
+                6.123233995736766e-17,
+                -1,
+                -1.8369701987210297e-16,
+                1,
+                3.061616997868383e-16,
+                -1,
+                -4.286263797015736e-16
+              ]
+            ],
+            "frequency": 1,
+            "phase": 0
+          },
+          "expect": { "out": [[-2.798971782243275e-17]] }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                0,
+                0.7071067811865475,
+                1,
+                0.7071067811865476,
+                1.2246467991473532e-16,
+                -0.7071067811865475,
+                -1,
+                -0.7071067811865477
+              ]
+            ],
+            "frequency": 1,
+            "phase": 0.25
+          },
+          "expect": { "out": [[-0.5]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.4, 0.4, 0.4, 0.4, 0.4]], "frequency": 0, "phase": 0 },
+          "expect": { "out": [[0.4]] }
+        }
+      ],
+      "solution": [
+        "p = positions(image)",
+        "w = wave(p,frequency,phase)",
+        "product = arithmetic[op=mul](image,w)",
+        "v = reduceRows[mode=mean](product)",
+        "out <- v"
+      ],
+      "naive": [
+        "p = positions(image)",
+        "w = wave(p,frequency,phase)",
+        "v = reduceRows[mode=mean](w)",
+        "out <- v"
+      ],
+      "naiveWhy": {
+        "zh": "只平均基波没有使用观测；相同探针将对所有图像给出同一结果。",
+        "en": "Averaging the basis alone ignores the observation, producing the same result for different signals."
+      },
+      "hint": [
+        {
+          "zh": "观察同频与异频信号的逐格乘积。平均自动完成，但必须把观测纳入比较。",
+          "en": "Inspect products for matching and differing frequencies. Mean is automatic, but the observation must participate."
+        }
+      ],
+      "adds": ["positions"]
+    }
+  ],
+  "builds": {
+    "type": "projection",
+    "name": { "zh": "频率投影器", "en": "Frequency projection" },
+    "desc": {
+      "zh": "输出各行观测与指定波形的平均乘积，保留正负。",
+      "en": "Return each row’s signed mean product with the specified basis wave."
+    }
+  }
+}

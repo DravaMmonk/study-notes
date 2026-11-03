@@ -1,12 +1,13 @@
 /* The parameter bench (Bench.jsx): its layout, controls, goals and the kernel's display items. A domain's own display
    items keep only their drawings in their own stylesheets. Phone layout (≤ 760px) stacks everything in one column. */
 
-.bk { box-sizing: border-box; width: 100%; max-width: 1180px; margin: 0 auto; padding: 24px 28px 40px; display: grid; gap: 16px; align-content: start; }
+.bk { box-sizing: border-box; min-width: 0; width: 100%; max-width: 1180px; margin: 0 auto; padding: 24px 28px 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-content: start; }
 .bk-split { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
 .bk-split.is-even { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .bk-split.is-narrow { grid-template-columns: minmax(0, 1fr) minmax(300px, 340px); }
 .bk-split.is-wide { grid-template-columns: minmax(0, 1fr) minmax(340px, 430px); }
 .bk-stack { display: grid; gap: 12px; align-content: start; }
+.bk-stack > *, .bk-split > * { min-width: 0; }
 .bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
 /* The main visual sits on a paper card; secondary panels on the canvas tone. */
@@ -211,6 +212,9 @@
   .bench-row.is-narrow .bk-goal span { display: grid; line-height: 1.35; }
   .bench-row.is-tight { display: flex; }
   .bench-mono { font-size: 12px; }
+  .bk-field { min-height: 44px; grid-template-columns: minmax(88px, 1fr) minmax(80px, 1.2fr) 4em; }
+  .bk-field output { min-width: 0; }
+  .bk-range { height: 44px; }
   .bench-progress { flex-basis: 100%; max-width: none; }
   .bk-goals.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
   .bk-goals.is-two .bk-goal { min-height: 36px; padding: 6px 8px; gap: 6px; font-size: 12.5px; }

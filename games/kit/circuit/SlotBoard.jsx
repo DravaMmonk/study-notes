@@ -68,8 +68,9 @@ export function drawWires(el, graph, parts, live) {
       markup += `<path class="pb-wire is-live" d="${live.from.startsWith('o|') ? curve(a, b) : curve(b, a)}"/>`
     }
   }
-  svg.setAttribute('width', el.scrollWidth)
-  svg.setAttribute('height', el.scrollHeight)
+  // Translated parts and the SVG itself must not permanently enlarge the board's scroll extent.
+  svg.setAttribute('width', el.clientWidth)
+  svg.setAttribute('height', el.clientHeight)
   svg.innerHTML = markup
 }
 
@@ -138,7 +139,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
     }
   }
   const { sources, sinks } = layout(graph, parts)
-  // Up to four sources (or sinks) to a row, the rows as even as they can be: five go 3 + 2, eight 4 + 4.
+  // Up to four sinks to a row, the rows as even as they can be: five go 3 + 2, eight 4 + 4.
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
   const regionsOf = (node) => parts.frames?.(node) ?? []
   const own = (node) => new Set(regionsOf(node).map((r) => r.name))
@@ -322,7 +323,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
         </button>
       </div>
       <svg className="pb-wires" aria-hidden="true" />
-      <div className="pb-terms is-sources" style={cols(sources.length)}>
+      <div className="pb-terms is-sources">
         {sources.map((node) => (
           <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             {/* A source may take an input too (a reader told which layer to read). */}

@@ -1,0 +1,159 @@
+{
+  "title": { "zh": "硬切频率为何有波纹", "en": "Why hard cutoffs ripple" },
+  "intro": [
+    {
+      "t": {
+        "zh": "频率处理器已经能改变尺度，现在把它用于突变信号。硬截止与渐变处理都可能让图像变平滑，却产生不同的空间响应；用自己的比较器观察差别。 <wiki-ref to=\"frequency-ringing\"></wiki-ref>",
+        "en": "Apply the filter to abrupt signals. Hard and tapered gains can both smooth an image yet produce different spatial responses. Inspect them with your comparator. <wiki-ref to=\"frequency-ringing\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "硬截止可能在突变附近振铃。渐变也有细节代价；检查原值，避免显示截断掩盖过冲。 <wiki-ref to=\"frequency-ringing\"></wiki-ref>",
+    "en": "Hard cutoffs can ring near discontinuities. Tapering also costs detail. Inspect raw values so display clipping does not hide overshoot. <wiki-ref to=\"frequency-ringing\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_ringing",
+      "kind": "circuit",
+      "step": {
+        "zh": "比较滤波形状",
+        "en": "Compare filter shapes"
+      },
+      "brief": {
+        "zh": "把同一信号分别送入硬截止与渐变增益，输出两种重建及它们的差异大小。保留小于 0 或大于 1 的原始计算值。",
+        "en": "Process one signal with hard and tapered gains; output both reconstructions and their difference magnitude. Preserve values below 0 or above 1."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "突变信号", "en": "Abrupt signal" } },
+        { "name": "hard", "label": { "zh": "硬截止增益", "en": "Hard-cutoff gain" } },
+        { "name": "taper", "label": { "zh": "渐变增益", "en": "Tapered gain" } }
+      ],
+      "outputs": [
+        { "name": "hardResult", "label": { "zh": "硬截止重建", "en": "Hard-cutoff reconstruction" } },
+        { "name": "taperResult", "label": { "zh": "渐变重建", "en": "Tapered reconstruction" } },
+        { "name": "changed", "label": { "zh": "两种响应差异", "en": "Response difference" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0, 0, 0, 0, 1, 1, 1, 1]],
+            "hard": [[1, 1, 1, 0, 0, 0, 1, 1]],
+            "taper": [[1, 0.7, 0.25, 0, 0, 0, 0.25, 0.7]]
+          },
+          "expect": {
+            "hardResult": [
+              [
+                0.25,
+                -0.10355339059327343,
+                -0.1035533905932732,
+                0.24999999999999972,
+                0.7499999999999994,
+                1.1035533905932735,
+                1.1035533905932742,
+                0.7499999999999991
+              ]
+            ],
+            "taperResult": [
+              [
+                0.3250000000000002,
+                0.07751262658470863,
+                0.07751262658470857,
+                0.3249999999999998,
+                0.6749999999999997,
+                0.9224873734152915,
+                0.9224873734152917,
+                0.6749999999999994
+              ]
+            ],
+            "changed": [
+              [
+                0.07500000000000018,
+                0.18106601717798204,
+                0.18106601717798176,
+                0.07500000000000007,
+                0.07499999999999973,
+                0.18106601717798199,
+                0.18106601717798243,
+                0.07499999999999973
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[1, 0, 0, 0, 0, 0, 0, 0]],
+            "hard": [[1, 1, 1, 0, 0, 0, 1, 1]],
+            "taper": [[1, 0.7, 0.25, 0, 0, 0, 0.25, 0.7]]
+          },
+          "expect": {
+            "hardResult": [
+              [
+                0.625,
+                0.30177669529663687,
+                -0.12500000000000006,
+                -0.0517766952966368,
+                0.125,
+                -0.051776695296637025,
+                -0.12500000000000008,
+                0.3017766952966371
+              ]
+            ],
+            "taperResult": [
+              [
+                0.3625,
+                0.2487436867076458,
+                0.062499999999999965,
+                0.0012563132923542237,
+                0.012500000000000011,
+                0.0012563132923542279,
+                0.06249999999999994,
+                0.24874368670764602
+              ]
+            ],
+            "changed": [
+              [
+                0.2625,
+                0.05303300858899107,
+                0.18750000000000003,
+                0.05303300858899103,
+                0.11249999999999999,
+                0.05303300858899125,
+                0.18750000000000003,
+                0.05303300858899107
+              ]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "h = frequencyFilter(image,hard)",
+        "s = frequencyFilter(image,taper)",
+        "d = difference(h,s)",
+        "hardResult <- h",
+        "taperResult <- s",
+        "changed <- d"
+      ],
+      "naive": [
+        "h = frequencyFilter(image,hard)",
+        "s = frequencyFilter(image,hard)",
+        "d = difference(h,s)",
+        "hardResult <- h",
+        "taperResult <- s",
+        "changed <- d"
+      ],
+      "naiveWhy": {
+        "zh": "平滑形状取决于增益形状，重复硬截止不会得到渐变处理。检查突变附近的振荡与细节损失。",
+        "en": "Filter shape follows gain shape; repeating a hard cutoff does not produce tapered filtering. Inspect oscillation and detail loss near discontinuities."
+      },
+      "hint": [
+        {
+          "zh": "点开突变附近的格子查看原值。显示截断可能隐藏过冲，不能据此宣称没有振铃。",
+          "en": "Inspect raw cells near the discontinuity; display clipping can hide overshoot, not eliminate ringing."
+        }
+      ],
+      "adds": []
+    }
+  ]
+}

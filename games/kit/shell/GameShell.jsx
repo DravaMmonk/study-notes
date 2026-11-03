@@ -15,6 +15,7 @@ import { setRefs } from './refs.js'
 import { firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskPassed } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
+import { playFrame } from './viewport.js'
 import { EditContext, same } from './edit.js'
 
 // Each game links back to its parent hub, on the standalone site and the local dev server.
@@ -55,6 +56,7 @@ const SITE = { games: '../index.html' }
  * (a level without one offers to add one), and the studio hears which task is played.
  */
 export default function GameShell({ game, author = null }) {
+  const viewportRoot = useRef(null)
   const [progress, setProgress] = useState(() => game.store.load())
   const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
   // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
@@ -74,6 +76,34 @@ export default function GameShell({ game, author = null }) {
     return () => window.removeEventListener('langchange', onLang)
   }, [])
   const phone = useMedia(PHONE)
+  // Safari's software keyboard resizes the visual viewport without resizing the layout viewport.
+  useEffect(() => {
+    const viewport = window.visualViewport
+    const root = viewportRoot.current
+    if (!phone || !levelId || !viewport) return undefined
+    document.documentElement.classList.add('is-game-playing')
+    window.scrollTo(0, 0)
+    const update = () => {
+      const editing = document.activeElement?.matches('input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea, [contenteditable="true"]')
+      const frame = playFrame(viewport, Math.max(window.innerHeight, document.documentElement.clientHeight), editing)
+      root.style.setProperty('--play-height', `${frame.height}px`)
+      root.style.setProperty('--play-top', `${frame.top}px`)
+    }
+    update()
+    viewport.addEventListener('resize', update)
+    viewport.addEventListener('scroll', update)
+    document.addEventListener('focusin', update)
+    document.addEventListener('focusout', update)
+    return () => {
+      viewport.removeEventListener('resize', update)
+      viewport.removeEventListener('scroll', update)
+      document.removeEventListener('focusin', update)
+      document.removeEventListener('focusout', update)
+      document.documentElement.classList.remove('is-game-playing')
+      root.style.removeProperty('--play-height')
+      root.style.removeProperty('--play-top')
+    }
+  }, [phone, levelId])
   const solved = useMemo(() => new Set(progress.solved), [progress.solved])
   const [won, setWon] = useState(null) // the level just passed
   const [failure, setFailure] = useState(null) // { info, fails } of the last run that missed
@@ -259,7 +289,7 @@ export default function GameShell({ game, author = null }) {
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (
-    <div className={`game ${level ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
+    <div ref={viewportRoot} className={`game ${level ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
       {/* The kit's top bar (games/kit/ui.css), the same on every page of the notes and games. */}
       <header className="kit-bar game-bar">
         {level ? (

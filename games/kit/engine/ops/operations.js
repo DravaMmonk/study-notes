@@ -64,6 +64,11 @@ const blueprintLines = (text) => {
 }
 
 export const OPERATIONS = {
+  'save.retype': {
+    about: t('迁移所有存档板中的元件类型和固定设置，保留接线与布局', 'Migrate saved node types/settings while retaining wires and layout'),
+    params: S.obj({ types: S.map(S.obj({ type: S.ref('part'), params: S.map(S.any()) })) }),
+    apply(_ws, { types }) { return { says: `save: retype ${Object.keys(types).join(', ')}`, inverse: [], saves: [{ retype: types }] } },
+  },
   'level.set': {
     about: t('设一关的一个字段（路径可以深入）', 'set a field of a level (the path may go deep)'),
     params: S.obj({ level: S.level(), path: PATH, value: S.any() }),

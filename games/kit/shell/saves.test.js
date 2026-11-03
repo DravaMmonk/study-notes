@@ -49,3 +49,18 @@ test('solve, built, drop and retask', () => {
 test('a step naming an operation the shell does not know is refused when the game loads', () => {
   assert.throws(() => migrations([{ version: 2, ops: [{ merge: ['a', ['a', 'b']] }] }]), /unknown operation merge/)
 })
+
+test('node merges preserve circuits, nested slot boards and their settings without changing unrelated typed data',()=>{
+  const board={nodes:[{id:'m',type:'sub',x:14,y:29,params:{outside:'wrap'}}],wires:[{from:'a',to:'m',port:'a'}]}
+  const original={version:1,solved:['one'],passed:['task'],data:{task:board},built:{task:board},slots:{task:{at:0,list:[{no:1,data:board}]}},other:{type:'sub'}}
+  const migrate=step({retype:{sub:{type:'arithmetic',params:{op:'sub'}}}})
+  const result=migrate(original)
+  for(const value of [result.data.task,result.built.task,result.slots.task.list[0].data]){
+    assert.equal(value.nodes[0].type,'arithmetic');assert.equal(value.nodes[0].params.op,'sub')
+    assert.equal(value.nodes[0].params.outside,'wrap');assert.equal(value.nodes[0].x,14)
+    assert.deepEqual(value.wires,board.wires)
+  }
+  assert.deepEqual(result.other,{type:'sub'})
+  assert.equal(original.data.task.nodes[0].type,'sub')
+  assert.deepEqual(migrate(result),result)
+})

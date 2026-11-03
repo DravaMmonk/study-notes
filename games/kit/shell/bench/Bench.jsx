@@ -18,7 +18,7 @@ import './bench.css'
 const BLOCK_KEYS = ['panel', 'stack', 'row']
 const isBlock = (b) => b && typeof b === 'object' && BLOCK_KEYS.some((k) => k in b)
 
-export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
+export default function Bench({ bench, model, displays = {}, onSolve, theme, children }) {
   const phone = useMedia(PHONE)
   const stages = bench.stages ?? null
   const cases = bench.cases ?? null
@@ -99,6 +99,7 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
     bench, model, phone, theme, stages, stage, stageIndex, setStageIndex, reached, passed, next, cases, caseIndex, setCase: setCaseIndex,
     values: v, set, open, process, view, q: { ...v, ...view }, views, verdicts, pass, act, busy: Boolean(running), ui, submit, revealed, check,
     setUi: (change) => setUiState((old) => ({ ...old, ...change })),
+    externalControls: Boolean(children),
   }
   const shown = (b) => {
     if (isBlock(b)) return (b.panel ?? b.stack ?? b.row).some(shown)
@@ -110,7 +111,7 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
   const { head, main, side, foot, split } = bench.layout
   const hasSide = (side ?? []).some(shown)
   const card = <section className="bk-stage bk-stack bench-main">{render(main)}</section>
-  return (
+  const content = (
     <div className="bk bench">
       {head?.some(shown) && <div className="bench-head">{render(head)}</div>}
       {hasSide ? (
@@ -122,6 +123,8 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
       {foot?.some(shown) && <div className="bk-stack">{render(foot)}</div>}
     </div>
   )
+  // A screen can place the bench's stateful action in the shell's persistent run bar.
+  return children ? children({ content, ctx: c }) : content
 }
 
 // A layout block: a display item, or a card, a column or a row of blocks.

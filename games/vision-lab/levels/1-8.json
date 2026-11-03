@@ -1,0 +1,199 @@
+{
+  "title": { "zh": "给方向响应装上抗干扰结构", "en": "Stabilise directional responses" },
+  "intro": [
+    {
+      "t": {
+        "zh": "单纯差分也会响应细碎干扰。三点加权器可以沿另一条轴汇合读数；将它接到双轴差分器，再把两种方向统一到强度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
+        "en": "Raw differences also respond to fine nuisance. Use the weighted-line part along the other axis, then combine both directional responses into a strength measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "垂直平滑与差分组成 Sobel。强度保留两分量贡献，直接相加可能抵消，也不能据此识别物体。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
+    "en": "Sobel combines differentiation and perpendicular smoothing. Length retains both components; direct addition can cancel them. Responses are not recognition. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_sobel",
+      "kind": "circuit",
+      "step": {
+        "zh": "组合方向与强度",
+        "en": "Compose responses"
+      },
+      "brief": {
+        "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。",
+        "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } }
+      ],
+      "outputs": [
+        { "name": "gx", "label": { "zh": "Sobel gx", "en": "Sobel gx" } },
+        { "name": "gy", "label": { "zh": "Sobel gy", "en": "Sobel gy" } },
+        { "name": "strength", "label": { "zh": "变化强度", "en": "Gradient strength" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0.05, 0.05, 0.05, 0.75, 0.75],
+              [
+                0.15000000000000002,
+                0.15000000000000002,
+                0.15000000000000002,
+                0.8500000000000001,
+                0.8500000000000001
+              ],
+              [0.05, 0.05, 0.05, 0.75, 0.75],
+              [
+                0.15000000000000002,
+                0.15000000000000002,
+                0.15000000000000002,
+                0.8500000000000001,
+                0.8500000000000001
+              ]
+            ],
+            "kernel": [[1, 0, -1]]
+          },
+          "expect": {
+            "gx": [
+              [0, 0, 2.8, 2.8, 0],
+              [0, 0, 2.8, 2.8, 0],
+              [0, 0, 2.8000000000000003, 2.8000000000000003, 0],
+              [0, 0, 2.8000000000000003, 2.8000000000000003, 0]
+            ],
+            "gy": [
+              [
+                0.4000000000000001,
+                0.4000000000000001,
+                0.40000000000000013,
+                0.4000000000000003,
+                0.40000000000000036
+              ],
+              [0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0],
+              [
+                0.4000000000000001,
+                0.4000000000000001,
+                0.40000000000000013,
+                0.4000000000000003,
+                0.40000000000000036
+              ]
+            ],
+            "strength": [
+              [0.4000000000000001, 0.4000000000000001, 2.82842712474619, 2.82842712474619, 0.40000000000000036],
+              [0, 0, 2.8, 2.8, 0],
+              [0, 0, 2.8000000000000003, 2.8000000000000003, 0],
+              [
+                0.4000000000000001,
+                0.4000000000000001,
+                2.8284271247461903,
+                2.8284271247461903,
+                0.40000000000000036
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [0, 0, 0],
+              [0.1, 0.1, 0.1],
+              [0.2, 0.2, 0.2],
+              [0.30000000000000004, 0.30000000000000004, 0.30000000000000004]
+            ],
+            "kernel": [[1, 0, -1]]
+          },
+          "expect": {
+            "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            "gy": [
+              [0.4, 0.4, 0.4],
+              [0.8, 0.8, 0.8],
+              [0.8000000000000002, 0.8000000000000002, 0.8000000000000002],
+              [0.40000000000000013, 0.40000000000000013, 0.40000000000000013]
+            ],
+            "strength": [
+              [0.4, 0.4, 0.4],
+              [0.8, 0.8, 0.8],
+              [0.8000000000000002, 0.8000000000000002, 0.8000000000000002],
+              [0.40000000000000013, 0.40000000000000013, 0.40000000000000013]
+            ]
+          }
+        },
+        {
+          "inputs": { "image": [[0.8, 0.4, 0.1], [0.7, 0.3, 0]], "kernel": [[1, 0, -1]] },
+          "expect": {
+            "gx": [[-1.6, -2.8, -1.2000000000000002], [-1.5999999999999999, -2.8, -1.2]],
+            "gy": [
+              [-0.4000000000000003, -0.40000000000000013, -0.4],
+              [-0.4000000000000003, -0.40000000000000013, -0.4]
+            ],
+            "strength": [
+              [1.6492422502470643, 2.82842712474619, 1.264911064067352],
+              [1.649242250247064, 2.82842712474619, 1.2649110640673518]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]], "kernel": [[1, 0, -1]] },
+          "expect": {
+            "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            "gy": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            "strength": [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+          }
+        }
+      ],
+      "solution": [
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "g = derivatives[outside=clamp](image,kernel)",
+        "x = weightedLine[outside=clamp,axis=y](g.gx,one,two,one)",
+        "y = weightedLine[outside=clamp](g.gy,one,two,one)",
+        "m = magnitude(x,y)",
+        "gx <- x",
+        "gy <- y",
+        "strength <- m"
+      ],
+      "naive": [
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "g = derivatives[outside=clamp](image,kernel)",
+        "x = weightedLine[outside=clamp](g.gx,one,two,one)",
+        "y = weightedLine[outside=clamp,axis=y](g.gy,one,two,one)",
+        "m = magnitude(x,y)",
+        "gx <- x",
+        "gy <- y",
+        "strength <- m"
+      ],
+      "naiveWhy": {
+        "zh": "Sobel 在求导的垂直方向平滑。沿求导方向再次平滑会改变你要测量的响应。",
+        "en": "Sobel smooths perpendicular to differentiation. Smoothing along the derivative axis changes the intended measurement."
+      },
+      "hint": [
+        {
+          "zh": "把求导轴和去干扰轴分开考虑。长度元件已经提供平方、相加和开方，不要求你手算。",
+          "en": "Separate the derivative axis from the smoothing axis. Vector length supplies squaring, addition and square root."
+        }
+      ],
+      "starter": [
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "g = derivatives[outside=clamp](image,kernel)"
+      ],
+      "adds": ["magnitude"]
+    }
+  ],
+  "builds": {
+    "type": "sobel",
+    "name": { "zh": "Sobel 响应器", "en": "Sobel response" },
+    "desc": {
+      "zh": "运行你的差分、垂直平滑与长度电路，输出 gx、gy 和强度；核和图外规则显式给出。",
+      "en": "Run your derivative, perpendicular-smoothing and length circuit; expose gx, gy and strength with explicit kernel/borders."
+    },
+    "settings": ["outside"],
+    "defaults": { "outside": "clamp" }
+  }
+}

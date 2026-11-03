@@ -16,7 +16,7 @@ const rgb = (p) => {
   return { fill: `rgb(${r}, ${g}, ${b})`, light: 0.299 * r + 0.587 * g + 0.114 * b > 140 }
 }
 
-export default function ImageView({ value, numbers = false, axes = false, mark = null, onPick = null, cell: given, className = '', label }) {
+export default function ImageView({ value, numbers = false, axes = false, grid = false, mark = null, onPick = null, onHover, onLeave, cell: given, className = '', label, cellLabel }) {
   const { w, h } = value
   const cell = given ?? (numbers ? (value.c === 3 ? 58 : 36) : Math.max(4, Math.floor(220 / Math.max(w, h))))
   const off = axes ? AXIS : 0
@@ -26,9 +26,9 @@ export default function ImageView({ value, numbers = false, axes = false, mark =
       const p = pixel(value, x, y)
       const { fill, light } = rgb(p)
       cells.push(
-        <g key={`${x},${y}`} transform={`translate(${off + x * cell} ${off + y * cell})`} onClick={onPick ? () => onPick(x, y) : undefined} className={onPick ? 'vi-pick' : undefined}>
+        <g key={`${x},${y}`} transform={`translate(${off + x * cell} ${off + y * cell})`} onClick={onPick ? (e) => onPick(x, y, e) : undefined} onPointerEnter={onHover ? (e) => { if (e.pointerType === 'mouse') onHover(x, y, e) } : undefined} role={onPick ? 'button' : undefined} tabIndex={onPick ? 0 : undefined} aria-label={onPick ? cellLabel?.(x, y, p) ?? `(${x}, ${y})` : undefined} onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(x, y, e) } } : undefined} className={onPick ? 'vi-pick' : undefined}>
           <rect width={cell} height={cell} fill={fill} />
-          {numbers && <text x={cell / 2} y={cell / 2} className={`vi-num ${light ? 'is-dark' : 'is-light'}`}>{Array.isArray(p) ? p.map(fmt).join(' ') : fmt(p)}</text>}
+          {numbers && <text x={cell / 2} y={cell / 2} className={`vi-num ${light ? 'is-dark' : 'is-light'}`}>{Array.isArray(p) ? p.map((v, k) => <tspan key={k} x={cell / 2} y={cell / 2 + (k - 1) * 14}>{'RGB'[k]} {fmt(v)}</tspan>) : fmt(p)}</text>}
         </g>,
       )
     }
@@ -36,12 +36,12 @@ export default function ImageView({ value, numbers = false, axes = false, mark =
   const W = off + w * cell
   const H = off + h * cell
   return (
-    <svg className={`vi-image ${className}`} viewBox={`0 0 ${W} ${H}`} width={W} height={H} role="img" aria-label={label ?? `${w} × ${h}`}>
+    <svg className={`vi-image ${className}`} viewBox={`0 0 ${W} ${H}`} width={W} height={H} role={onPick ? 'group' : 'img'} aria-label={label ?? `${w} × ${h}`} onPointerLeave={onLeave}>
       {axes && Array.from({ length: w }, (_, x) => <text key={`x${x}`} className="vi-axis" x={off + x * cell + cell / 2} y={AXIS / 2}>{x}</text>)}
       {axes && Array.from({ length: h }, (_, y) => <text key={`y${y}`} className="vi-axis" x={AXIS / 2} y={off + y * cell + cell / 2}>{y}</text>)}
       {cells}
-      {numbers && <g className="vi-lines">{Array.from({ length: w + 1 }, (_, x) => <line key={`v${x}`} x1={off + x * cell} x2={off + x * cell} y1={off} y2={H} />)}{Array.from({ length: h + 1 }, (_, y) => <line key={`h${y}`} y1={off + y * cell} y2={off + y * cell} x1={off} x2={W} />)}</g>}
-      {mark && <rect className="vi-mark" x={off + mark.x * cell + 1.5} y={off + mark.y * cell + 1.5} width={cell - 3} height={cell - 3} />}
+      {(numbers || grid) && <g className="vi-lines" pointerEvents="none">{Array.from({ length: w + 1 }, (_, x) => <line key={`v${x}`} x1={off + x * cell} x2={off + x * cell} y1={off} y2={H} />)}{Array.from({ length: h + 1 }, (_, y) => <line key={`h${y}`} y1={off + y * cell} y2={off + y * cell} x1={off} x2={W} />)}</g>}
+      {mark && <rect className="vi-mark" pointerEvents="none" x={off + mark.x * cell + 1.5} y={off + mark.y * cell + 1.5} width={cell - 3} height={cell - 3} />}
     </svg>
   )
 }

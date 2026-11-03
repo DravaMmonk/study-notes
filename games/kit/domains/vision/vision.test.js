@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 import { readContent } from '../../engine/content-node.js'
 import { PARTS } from './parts.js'
-import { fromText, toText } from './board.js'
+import { fits, fromText, startBoard, toText } from './board.js'
 import { readTest, runLevel } from './run.js'
 import { differs, fromRows, toRows } from './image.js'
 import { gridCheck, gridReference, gridStart, parseNumber } from './grid.js'
@@ -33,6 +33,26 @@ const passes = (lines, inputs, cases) => {
   return runLevel(t, board, partOf).runs.map((r) => r.fail?.why.en ?? null)
 }
 const allPass = (lines, inputs, cases) => assert.deepEqual(passes(lines, inputs, cases), cases.map(() => null))
+
+test('coordinate sources expose independent x/y outputs and retain them through blueprint round trips', () => {
+  const t = {
+    inputs: ['A', 'B'].map((name) => ({ ...port(name), type: 'point' })),
+    outputs: [port('sumX'), port('deltaY')],
+    tests: [readTest({ inputs: { A: { x: -3, y: 7 }, B: { x: 4, y: -2 } }, expect: { sumX: 1, deltaY: 9 } })],
+  }
+  const board = fromText(['xs = add(A.x, B.x)', 'ys = sub(A.y, B.y)', 'sumX <- xs', 'deltaY <- ys'], t, partOf)
+  assert.deepEqual(PARTS.in.outputs(board.nodes[0]), ['x', 'y'])
+  assert.deepEqual(runLevel(t, board, partOf).runs[0].outputs, { sumX: 1, deltaY: 9 })
+  assert.equal(runLevel(t, board, partOf).pass, true)
+  assert.deepEqual(fromText(toText(board, partOf), t, partOf), board)
+  const wrong = structuredClone(board)
+  wrong.wires.find((w) => w.from === 'A#x').from = 'A#y'
+  assert.equal(runLevel(t, wrong, partOf).pass, false)
+  const saved = startBoard(t)
+  assert.equal(fits(saved, t, partOf), true)
+  delete saved.nodes[0].params.kind
+  assert.equal(fits(saved, t, partOf), false, 'a scalar source cannot reopen as a two-output point')
+})
 
 test('values: rows read into images and back; a difference names the first cell', () => {
   const img = fromRows([[0, 0.5, 1], [1, 0.25, 0]])

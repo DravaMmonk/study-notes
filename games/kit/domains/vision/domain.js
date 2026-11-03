@@ -4,6 +4,7 @@
 import { vocabulary } from './vocabulary.js'
 import { visionCourse } from './course.js'
 import { validate } from './validate.js'
+import { arithmeticBlueprint } from './tooling.js'
 import { play } from './play.js'
 
 /** A vision game's spec, as npm run check reads one (../../engine/check.js). */
@@ -25,7 +26,7 @@ function spec(content) {
 // Changed puzzle contracts or reference programs invalidate kept answers; wording changes preserve them.
 const contract = (level) => (level.tasks ?? []).map((t) => ({
   id: t.id, kind: t.kind,
-  ...(t.kind === 'circuit' ? { inputs: t.inputs.map((p) => p.name), outputs: t.outputs.map((p) => p.name), tests: t.tests, hidden: t.hidden, solution: t.solution }
+  ...(t.kind === 'circuit' ? { inputs: t.inputs.map((p) => [p.name, p.type]), outputs: t.outputs.map((p) => p.name), tests: t.tests, hidden: t.hidden, solution: arithmeticBlueprint(t.solution), starter: arithmeticBlueprint(t.starter) }
     : t.kind === 'grid' ? { image: t.image, ask: t.ask } : t.kind === 'bench' ? { bench: t.bench } : { rounds: t.rounds }),
 }))
 const changes = { stale: (before, after) => JSON.stringify(contract(before)) !== JSON.stringify(contract(after)) }

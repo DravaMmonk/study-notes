@@ -10,121 +10,113 @@
     "en": "In development"
   },
   "lede": {
-    "zh": "一章一章造出视觉的机器。先造一台相机：把场景投影到<wiki-ref to=\"pixel\"></wiki-ref>坐标、在任意位置取值；再造一台卷积器：把邻居加权合起来，搭出模糊器和边缘检测器。每个部件都会在后面直接复用。",
-    "en": "Build the machines of vision chapter by chapter. First a camera: project a scene into <wiki-ref to=\"pixel\"></wiki-ref> coordinates and read it at any position; then a convolver: weigh neighbours together into a blur and an edge detector. Every part is reused later."
+    "zh": "从基础图像元件造出比较仪、扫描器和二维频率去干扰仪",
+    "en": "Build a comparator, scanner and 2D frequency interference remover from basic image parts"
   },
   "primitives": [
-    "mul",
-    "div",
-    "add",
-    "const",
-    "sub",
-    "lookup",
-    "grid",
-    "floor",
-    "size",
-    "sqrt",
+    "abs",
+    "arithmetic",
     "channel",
-    "compose"
+    "const",
+    "cosine",
+    "expandRows",
+    "less",
+    "magnitude",
+    "max",
+    "offset",
+    "positions",
+    "reduceRows",
+    "restore",
+    "reverse",
+    "shift",
+    "size",
+    "transpose",
+    "trim",
+    "windowTable"
   ],
   "concept": {
-    "mul": "projection",
-    "div": "projection",
-    "add": "pixels",
-    "const": "pixels",
-    "sub": "pixels",
-    "lookup": "pixels",
-    "grid": "pixels",
-    "floor": "pixels",
-    "size": "filters",
-    "sqrt": "filters",
-    "channel": "channels",
-    "compose": "channels"
+    "abs": "arithmetic",
+    "const": "arithmetic",
+    "less": "arithmetic",
+    "shift": "sampling",
+    "offset": "sampling",
+    "max": "arithmetic",
+    "transpose": "localTraversal",
+    "reverse": "kernelOrientation",
+    "windowTable": "localTraversal",
+    "reduceRows": "localTraversal",
+    "restore": "localTraversal",
+    "trim": "localTraversal",
+    "channel": "channel",
+    "magnitude": "length",
+    "cosine": "trigonometry",
+    "positions": "coordinates",
+    "expandRows": "traversal",
+    "size": "localTraversal",
+    "arithmetic": "arithmetic"
   },
   "eras": [
     {
-      "id": 1,
-      "title": { "zh": "相机：从场景到像素", "en": "The camera: from scene to pixels" },
+      "id": 0,
+      "title": { "zh": "图像比较仪", "en": "Image comparison instrument" },
       "question": {
-        "zh": "场景怎样变成一张数表，数表又怎样在任意位置取值？",
-        "en": "How does a scene become a table of numbers, and how is the table read at any position?"
+        "zh": "怎样让图像读数变成可靠的变化证据？",
+        "en": "How can image readings become useful change evidence?"
       },
       "foundation": [
+        "0-1",
+        "0-2",
+        "0-3"
+      ]
+    },
+    {
+      "id": 1,
+      "keeps": "all",
+      "title": { "zh": "邻域处理器与扫描器", "en": "Neighbourhood processor and scanner" },
+      "question": {
+        "zh": "怎样把邻居、方向与通道装成扫描响应？",
+        "en": "How can neighbours, directions and channels form scanner responses?"
+      },
+      "foundation": [
+        "1-1",
         {
           "parallel": [
+            { "id": "e1-axis", "title": { "zh": "双轴与细节", "en": "axis" }, "levels": ["1-2", "1-5"] },
             {
-              "id": "camera-geometry",
-              "title": { "zh": "投影与成像几何", "en": "Projection geometry" },
-              "levels": ["1A1", "1A2"]
+              "id": "e1-kernel",
+              "title": { "zh": "核、边界与方向", "en": "kernel" },
+              "levels": ["1-3", "1-4", "1-6", "1-7", "1-8"]
             },
-            {
-              "id": "camera-array",
-              "title": { "zh": "数表与定位", "en": "Arrays and positions" },
-              "levels": ["1A4"]
-            }
+            { "id": "e1-channels", "title": { "zh": "通道", "en": "channels" }, "levels": ["1-9"] }
           ]
         },
-        "1A3",
-        "1A5",
-        "1A6",
-        "1A7"
-      ],
-      "topics": [
-        {
-          "id": "workshop-camera",
-          "title": { "zh": "Workshop：相机的工程细节", "en": "Workshop: camera practice" },
-          "levels": ["1W1", "1W2"],
-          "after": "1A7"
-        },
-        {
-          "id": "framing",
-          "title": { "zh": "可选：画面与视野", "en": "Optional: framing and field of view" },
-          "levels": ["1F1"],
-          "after": "1A1"
-        }
+        "1-10"
       ]
     },
     {
       "id": 2,
       "keeps": "all",
-      "title": { "zh": "卷积器：局部加权", "en": "The convolver: weighted neighbourhoods" },
+      "title": { "zh": "频率分析与去干扰仪", "en": "Frequency analyser and interference remover" },
       "question": {
-        "zh": "怎样把一个像素和它的邻居合起来算，造出模糊器和边缘检测器？",
-        "en": "How is a pixel combined with its neighbours, to build a blur and an edge detector?"
+        "zh": "怎样把局部处理扩展到频率表示并保留空间信息？",
+        "en": "How can frequency representations extend local processing while retaining spatial information?"
       },
       "foundation": [
-        "2B1",
-        "2B2",
+        "2-1",
+        "2-2",
+        "2-3",
+        "2-4",
         {
           "parallel": [
             {
-              "id": "filter-orientation",
-              "title": { "zh": "权重方向", "en": "Weight orientation" },
-              "levels": ["2B3"]
+              "id": "e2-synthesis",
+              "title": { "zh": "合成与频率处理", "en": "synthesis" },
+              "levels": ["2-5", "2-6", "2-9", "2-10", "2-11"]
             },
-            {
-              "id": "filter-column",
-              "title": { "zh": "竖直邻域", "en": "Vertical neighbourhoods" },
-              "levels": ["2B4"]
-            }
+            { "id": "e2-twoaxes", "title": { "zh": "二维扩展", "en": "twoaxes" }, "levels": ["2-7", "2-8", "2-12"] }
           ]
         },
-        "2B5",
-        {
-          "parallel": [
-            { "id": "filter-smooth", "title": { "zh": "平滑路线", "en": "Smoothing" }, "levels": ["2B6"] },
-            { "id": "filter-edge", "title": { "zh": "变化路线", "en": "Changes" }, "levels": ["2B7", "2B8"] }
-          ]
-        },
-        "2B9"
-      ],
-      "topics": [
-        {
-          "id": "colour-workshop",
-          "title": { "zh": "Workshop：颜色顺序与溢出", "en": "Workshop: channel order and overflow" },
-          "levels": ["2W1"],
-          "after": "2B9"
-        }
+        "2-13"
       ]
     }
   ],
@@ -296,6 +288,150 @@
       "version": 10,
       "why": "Keep the equal-scale FOV construction legible across the experimental range",
       "ops": [{ "drop": ["1F1"] }]
+    },
+    {
+      "version": 11,
+      "why": "Replace trivial onboarding and numeric bench gates with circuit reasoning; retain tangible inverse and framing experiments with competing constraints.",
+      "ops": [
+        { "drop": ["1A1"] },
+        { "drop": ["1A3_scale"] },
+        { "drop": ["1A3_origin"] },
+        { "drop": ["1A4"] },
+        { "drop": ["1A4_2"] },
+        { "drop": ["1F1"] }
+      ]
+    },
+    {
+      "version": 12,
+      "why": "Keep the framing apparatus physically ordered and align the ambiguity experiment with its calibration lighthouse.",
+      "ops": [{ "drop": ["1F1"] }]
+    },
+    {
+      "version": 13,
+      "why": "Remove rote crop, blur and difference worksheets; use observable output targets and weight-design constraints in the circuit tasks.",
+      "ops": [{ "drop": ["1A5"] }, { "drop": ["2B6"] }, { "drop": ["2B7"] }]
+    },
+    {
+      "version": 14,
+      "why": "Match the framed bulb silhouette to model visibility and preserve bilingual, touch-accessible term references.",
+      "ops": [{ "drop": ["1F1"] }]
+    },
+    {
+      "version": 15,
+      "why": "Keep experiment controls alongside the scene on desktop and in the same scrollable column on phones.",
+      "ops": [{ "drop": ["1A2", "1A2_2", "1F1"] }]
+    },
+    {
+      "version": 16,
+      "why": "Establish shared chapter openings, remove the false inverse join, scaffold pixel coordinates before composition, and provide prerequisite figures in both languages.",
+      "ops": [
+        { "rename": { "1A2": "1I1" } },
+        { "retask": { "1A2": "1I1" } },
+        { "retask": { "1A2_2": "1I1_2" } },
+        { "drop": ["1A3_origin", "1A3_2"] }
+      ]
+    },
+    {
+      "version": 17,
+      "why": "Represent sample positions A and B as two-output coordinate inputs instead of four separate scalar inputs.",
+      "ops": [{ "drop": ["1A4_sample", "1A4_3"] }]
+    },
+    {
+      "version": 18,
+      "why": "Keep the two coordinate inputs adjacent so A and B share a phone row.",
+      "ops": [{ "drop": ["1A4_sample", "1A4_3"] }]
+    },
+    {
+      "version": 19,
+      "why": "Scaffold nearest-neighbour assembly with observable sampling boundaries and a single-coordinate circuit before two-axis image sampling.",
+      "ops": [{ "drop": ["1A6", "1A6_snap", "1A6_2"] }]
+    },
+    {
+      "version": 20,
+      "why": "Rebuild trial around computer-vision theory and visual problem solving; supply technical arithmetic and wiring",
+      "ops": [
+        { "rename": { "2B4": null } },
+        { "rename": { "2B5": null } },
+        { "rename": { "1A4": null } },
+        { "rename": { "2B2": null } },
+        {
+          "drop": [
+            "1A3_2",
+            "1A5_2",
+            "1A6_labels",
+            "1A7_material",
+            "1A7_region",
+            "1I1",
+            "2B1_weights",
+            "2B1_boundary",
+            "2B3_convention",
+            "2B6_axes",
+            "2B7_direction",
+            "2B7_sobel",
+            "2B8_strength",
+            "2B9_pipeline"
+          ]
+        },
+        { "built": [["2B1", "2B1_boundary"]] }
+      ]
+    },
+    {
+      "version": 21,
+      "why": "Show discrete region identifiers as visible colours rather than clipped numeric intensities",
+      "ops": [{ "drop": ["1A6_labels", "1A7_material", "1A7_region"] }]
+    },
+    {
+      "version": 22,
+      "why": "Remove technical Workshop assessments entirely; retain accessible reference entries",
+      "ops": [{ "rename": { "1W1": null } }, { "rename": { "1W2": null } }, { "rename": { "2W1": null } }]
+    },
+    {
+      "version": 23,
+      "why": "Build construction-led stages 0–2: comparator, neighbourhood scanner and frequency machines",
+      "ops": [
+        { "rename": { "2B9": null } },
+        { "rename": { "2B8": null } },
+        { "rename": { "2B7": null } },
+        { "rename": { "2B6": null } },
+        { "rename": { "2B3": null } },
+        { "rename": { "2B1": null } },
+        { "rename": { "1I1": null } },
+        { "rename": { "1F1": null } },
+        { "rename": { "1A7": null } },
+        { "rename": { "1A6": null } },
+        { "rename": { "1A5": null } },
+        { "rename": { "1A3": null } },
+        { "rename": { "1A1": null } }
+      ]
+    },
+    {
+      "version": 24,
+      "why": "Expose the magnitude of the learner-built 2D spectrum for frequency interpretation",
+      "ops": [{ "drop": ["v2_two_axes"] }]
+    },
+    {
+      "version": 25,
+      "why": "Cover an explicit band-pass case, expose 2D magnitude and state zero-phase behaviour",
+      "ops": [{ "drop": ["v2_gain_mask", "v2_gain_apply"] }]
+    },
+    {
+      "version": 26,
+      "why": "Make the final machine consume both earned branches and expose the genuine one-axis limitation",
+      "ops": [{ "drop": ["v2_finale"] }]
+    },
+    {
+      "version": 27,
+      "why": "Numeric-only image views, task-scoped tool introductions, guided outside choices and configurable arithmetic",
+      "ops": [
+        {
+          "retype": {
+            "add": { "type": "arithmetic", "params": { "op": "add" } },
+            "sub": { "type": "arithmetic", "params": { "op": "sub" } },
+            "mul": { "type": "arithmetic", "params": { "op": "mul" } },
+            "div": { "type": "arithmetic", "params": { "op": "div" } }
+          }
+        }
+      ]
     }
   ]
 }

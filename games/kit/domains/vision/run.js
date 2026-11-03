@@ -11,7 +11,7 @@ import { differs, valueOf } from './image.js'
 
 const T = (zh, en) => ({ zh, en })
 
-/** A test as content writes it, its values read: { inputs, expect } of numbers, images and 「—」. */
+/** A test as content writes it, its values read: { inputs, expect } of numbers, images, points and 「—」. */
 export const readTest = (t) => ({
   ...t,
   inputs: Object.fromEntries(Object.entries(t.inputs).map(([k, v]) => [k, valueOf(v)])),
@@ -47,7 +47,8 @@ export function runTest(task, circuit, test, partOf) {
   const tol = task.tolerance ?? 1e-5
   for (const out of task.outputs) {
     const got = outputs[out.name]
-    const why = got === undefined ? noValue(circuit, errors, circuit.nodes.find((n) => n.type === 'out' && n.params?.name === out.name).id) : differs(test.expect[out.name], got, tol)
+    const sink = circuit.nodes.find((n) => n.type === 'out' && n.params?.name === out.name)
+    const why = got === undefined ? sink ? noValue(circuit, errors, sink.id) : T('缺少输出元件', 'is missing its output terminal') : differs(test.expect[out.name], got, tol)
     if (why) {
       return {
         values, errors, outputs, trace,
@@ -60,6 +61,15 @@ export function runTest(task, circuit, test, partOf) {
 
 /** Every test of a task on a board: { runs, pass }. */
 export function runLevel(task, circuit, partOf) {
-  const runs = task.tests.map((test) => runTest(task, circuit, test, partOf))
+  const runs = task.tests.map((test) => {
+    const result = runTest(task, circuit, test, partOf)
+    if (result.fail && task.naive && task.naiveWhy) {
+      const mistaken = runTest(task, task.naive, test, partOf)
+      const same = task.outputs.every(({ name }) => result.outputs[name] !== undefined && mistaken.outputs[name] !== undefined && !differs(mistaken.outputs[name], result.outputs[name], task.tolerance ?? 1e-5))
+      const reason = typeof task.naiveWhy === 'string' ? T(task.naiveWhy, task.naiveWhy) : task.naiveWhy
+      if (same) result.fail.why = { zh: `${result.fail.why.zh} ${reason.zh}`, en: `${result.fail.why.en} ${reason.en}` }
+    }
+    return result
+  })
   return { runs, pass: runs.every((r) => !r.fail) }
 }

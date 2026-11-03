@@ -15,17 +15,17 @@ import { FIXED } from './parts.js'
 
 /** The fixed cards of a level: its inputs down the left, its outputs down the right. */
 export function fixedOf(level) {
-  const left = level.inputs.map((i, k) => ({ id: i.name, type: 'in', params: { name: i.name }, x: 20, y: 40 + k * 120 }))
+  const left = level.inputs.map((i, k) => ({ id: i.name, type: 'in', params: { name: i.name, ...(i.type ? { kind: i.type } : {}) }, x: 20, y: 40 + k * 120 }))
   const right = level.outputs.map((o, k) => ({ id: o.name, type: 'out', params: { name: o.name }, x: 900, y: 40 + k * 120 }))
   return [...left, ...right]
 }
 
-/** The board a level opens on: its fixed cards. */
-export const startBoard = (level) => ({ nodes: fixedOf(level), wires: [] })
+/** Each opening/reset gets an independent editable starter, or just the fixed terminals. */
+export const startBoard = (level) => level.starter?.nodes ? { nodes: level.starter.nodes.map((n) => ({ ...n, params: { ...n.params } })), wires: level.starter.wires.map((w) => ({ ...w })) } : { nodes: fixedOf(level), wires: [] }
 
 /** Whether a saved board still fits its level: the level's fixed cards, and every card one the domain knows. */
 export function fits(circuit, level, partOf) {
-  const fixed = (c) => c.nodes.filter((n) => FIXED.includes(n.type)).map((n) => n.id).sort().join()
+  const fixed = (c) => c.nodes.filter((n) => FIXED.includes(n.type)).map((n) => `${n.id}:${n.params?.kind ?? ''}`).sort().join()
   return fixed(circuit) === fixed(startBoard(level)) && circuit.nodes.every((n) => partOf(n.type))
 }
 

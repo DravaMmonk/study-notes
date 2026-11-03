@@ -1,0 +1,99 @@
+{
+  "title": { "zh": "把一维部件用两次", "en": "Reuse the line along two axes" },
+  "intro": [
+    {
+      "t": {
+        "zh": "横向加权器只能看一条线。二维平均还需要另一条轴的邻居；自己的三点加权器已开放空间轴设置。你决定两次处理怎样连接，对比亮点的十字和矩形响应。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
+        "en": "The line sees one axis. A 2D average also needs the other; your weighted-line part exposes an axis setting. Decide how to connect two passes by comparing cross and square impulse responses. <wiki-ref to=\"filter-separability\"></wiki-ref>"
+      },
+      "fig": "separable"
+    }
+  ],
+  "after": {
+    "zh": "连续两轴处理形成外积贡献，不等于两图相加。只有可分离核才能这样替代，边界也须一致。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
+    "en": "Consecutive axis passes form outer-product contributions, not a sum of two images. Equivalence requires a separable kernel and matched borders. <wiki-ref to=\"filter-separability\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_separable",
+      "kind": "circuit",
+      "step": {
+        "zh": "连续处理两轴",
+        "en": "Compose axis passes"
+      },
+      "brief": {
+        "zh": "复用三点加权器，先沿一条轴处理，再沿另一条轴使用同一组权重。目标是二维外积权重，不是两张处理图相加。",
+        "en": "Reuse the weighted line along both axes using the same weights. Match the 2D outer-product rule, not the sum of two processed images."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "left", "label": { "zh": "前侧权重", "en": "First weight" } },
+        { "name": "centre", "label": { "zh": "中心权重", "en": "Centre weight" } },
+        { "name": "right", "label": { "zh": "后侧权重", "en": "Last weight" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "二维处理", "en": "2D result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
+            "left": 0.3333333333333333,
+            "centre": 0.3333333333333333,
+            "right": 0.3333333333333333
+          },
+          "expect": {
+            "out": [
+              [0.19999999999999998, 0.3, 0.19999999999999998],
+              [0.19999999999999998, 0.3, 0.19999999999999998]
+            ]
+          }
+        },
+        {
+          "inputs": { "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]], "left": 0.25, "centre": 0.5, "right": 0.25 },
+          "expect": { "out": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "left": 0.2,
+            "centre": 0.6,
+            "right": 0.2
+          },
+          "expect": { "out": [[0.384, 0.48, 0.48, 0.384], [0.48, 0.6, 0.6, 0.48], [0.384, 0.48, 0.48, 0.384]] }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "h = weightedLine(image,left,centre,right)",
+        "v = weightedLine[axis=y](h,left,centre,right)",
+        "out <- v"
+      ],
+      "naive": [
+        "h = weightedLine(image,left,centre,right)",
+        "v = weightedLine[axis=y](image,left,centre,right)",
+        "s = arithmetic[op=add](h,v)",
+        "out <- s"
+      ],
+      "naiveWhy": {
+        "zh": "独立处理两轴后相加只覆盖十字形贡献；前后组合才会让角上的邻居参与。",
+        "en": "Adding independent passes gives cross-shaped support; serial passes include corner contributions."
+      },
+      "hint": [
+        {
+          "zh": "用单个亮点观察角上的贡献从哪里来。元件的空间轴设置只改变取样方向，不改权重。",
+          "en": "Use an impulse to inspect corner contributions. The axis setting changes sample direction, not weights."
+        }
+      ],
+      "adds": []
+    }
+  ],
+  "builds": {
+    "type": "separable3",
+    "name": { "zh": "双轴加权器", "en": "Two-axis weighted filter" },
+    "desc": {
+      "zh": "把同一组三点权重沿两轴先后应用，运行你的三点加权电路。",
+      "en": "Apply the same three weights consecutively along both axes using your weighted-line circuit."
+    },
+    "settings": ["outside"],
+    "defaults": { "outside": "zero" }
+  }
+}

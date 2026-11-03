@@ -1,0 +1,88 @@
+{
+  "title": { "zh": "同一位置，三个通道", "en": "Three channels at one location" },
+  "intro": [
+    {
+      "t": {
+        "zh": "扫描器将接收彩色图，不能直接把三个颜色读数当作一个标量强度。把已经学会的加权关系用到通道轴，构建可调整的单通道测量。 <wiki-ref to=\"channel-aggregation\"></wiki-ref>",
+        "en": "The scanner will receive colour images. Three colour readings are not one scalar measurement. Reuse weighted combination along the channel axis to build an adjustable single-channel measurement. <wiki-ref to=\"channel-aggregation\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "空间与通道是不同聚合维度。这里的颜色权重是仪器规范，不是任意编码下的物理亮度。 <wiki-ref to=\"channel-aggregation\"></wiki-ref>",
+    "en": "Space and channels are different aggregation dimensions. These colour weights specify an instrument, not universal physical luminance. <wiki-ref to=\"channel-aggregation\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_channels",
+      "kind": "circuit",
+      "step": {
+        "zh": "跨通道贡献",
+        "en": "Channel contributions"
+      },
+      "brief": {
+        "zh": "输入为 RGB 读数。按给定通道贡献输出单通道测量；保留空间位置，权重已给定且无需手算。",
+        "en": "The input contains RGB readings. Combine the supplied channel contributions into one-channel measurements, preserving positions; weights and arithmetic are supplied."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "RGB 图", "en": "RGB image" } },
+        { "name": "wr", "label": { "zh": "R 贡献", "en": "R weight" } },
+        { "name": "wg", "label": { "zh": "G 贡献", "en": "G weight" } },
+        { "name": "wb", "label": { "zh": "B 贡献", "en": "B weight" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "通道测量", "en": "Channel measurement" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[[1, 0, 0], [0, 1, 0], [0, 0, 1]]], "wr": 0.25, "wg": 0.5, "wb": 0.25 },
+          "expect": { "out": [[0.25, 0.5, 0.25]] }
+        },
+        {
+          "inputs": {
+            "image": [[[0.2, 0.6, 0.4], [0.9, 0.1, 0.3]], [[0.3, 0.4, 0.8], [0.6, 0.5, 0.1]]],
+            "wr": 0.1,
+            "wg": 0.7,
+            "wb": 0.2
+          },
+          "expect": { "out": [[0.52, 0.22], [0.47, 0.43]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[[0.5, 0.5, 0.5]]], "wr": 0.25, "wg": 0.5, "wb": 0.25 },
+          "expect": { "out": [[0.5]] }
+        }
+      ],
+      "solution": [
+        "r = channel[c=0](image)",
+        "g = channel[c=1](image)",
+        "b = channel[c=2](image)",
+        "rw = arithmetic[op=mul](r,wr)",
+        "gw = arithmetic[op=mul](g,wg)",
+        "bw = arithmetic[op=mul](b,wb)",
+        "rg = arithmetic[op=add](rw,gw)",
+        "v = arithmetic[op=add](rg,bw)",
+        "out <- v"
+      ],
+      "naive": ["r = channel[c=0](image)", "out <- r"],
+      "naiveWhy": {
+        "zh": "空间位置不变不代表三个通道相同。只取 R 会漏掉其他通道的证据。",
+        "en": "Matching positions do not make channels identical. Reading only R loses the other channels."
+      },
+      "hint": [
+        {
+          "zh": "纯红、纯绿、纯蓝测试会分别显示每个通道是否接入。",
+          "en": "Pure red, green and blue samples expose each channel’s contribution."
+        }
+      ],
+      "adds": ["channel"]
+    }
+  ],
+  "builds": {
+    "type": "channelMeasure",
+    "name": { "zh": "通道测量器", "en": "Channel measurement" },
+    "desc": {
+      "zh": "按输入 wr、wg、wb 汇合 RGB，运行你自己的跨通道加权电路。",
+      "en": "Combine RGB with wr,wg,wb using your passed channel-weighting circuit."
+    }
+  }
+}

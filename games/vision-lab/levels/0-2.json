@@ -1,0 +1,98 @@
+{
+  "title": { "zh": "先比较同一个位置", "en": "Compare corresponding locations" },
+  "intro": [
+    {
+      "t": {
+        "zh": "传送带移动了工件，直接比较会把移动也标成变化。夹具已经测出取样偏移，不需要你估计位移。给比较器补上位置对应，再用真正的缺口检验它。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
+        "en": "The conveyor moved the item, so direct comparison reports motion as change. A fixture already measured the sampling offset; you do not estimate it. Add correspondence before comparison and test a real defect. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "已知位移能修复这部分位置对应，但没有解决未知配准。移动位置与改变亮度是不同操作。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
+    "en": "A known offset repairs correspondence, not unknown registration. Moving sample positions differs from changing intensity. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v0_alignment",
+      "kind": "circuit",
+      "step": {
+        "zh": "修复位置对应",
+        "en": "Align locations"
+      },
+      "brief": {
+        "zh": "夹具给出了取样偏移 dx、dy。先按它读取观测图，再与参照比较；图外取 0。",
+        "en": "The fixture supplies sampling offsets dx and dy. Read the observation at those offsets before comparing with the reference; outside reads are zero."
+      },
+      "inputs": [
+        { "name": "observed", "label": { "zh": "观测", "en": "Observation" } },
+        { "name": "reference", "label": { "zh": "参照", "en": "Reference" } },
+        { "name": "dx", "label": { "zh": "取样偏移 dx", "en": "Read offset dx" } },
+        { "name": "dy", "label": { "zh": "取样偏移 dy", "en": "Read offset dy" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "对齐后的变化", "en": "Aligned change" } }],
+      "tests": [
+        {
+          "inputs": {
+            "observed": [[0.1, 0.4, 0.8, 0.3]],
+            "reference": [[0.55, 0.8, 0.3, 0]],
+            "dx": 1,
+            "dy": 0
+          },
+          "expect": { "out": [[0.15000000000000002, 0, 0, 0]] }
+        },
+        {
+          "inputs": {
+            "observed": [[0.2, 0.6], [0.8, 0.1], [0.4, 0.5]],
+            "reference": [[0.15, 0], [0.2, 0.6], [0.8, 0.1]],
+            "dx": 0,
+            "dy": -1
+          },
+          "expect": { "out": [[0.15, 0], [0, 0], [0, 0]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "observed": [[0.3, 0.7, 0.1], [0.2, 0.9, 0.5]],
+            "reference": [[0.15, 0.3, 0.7], [0, 0.2, 0.9]],
+            "dx": -1,
+            "dy": 0
+          },
+          "expect": { "out": [[0.15, 0, 0], [0, 0, 0]] }
+        }
+      ],
+      "solution": ["s = shift(observed,dx,dy)", "d = difference(s,reference)", "out <- d"],
+      "naive": ["d = difference(observed,reference)", "out <- d"],
+      "naiveWhy": {
+        "zh": "错位让原本相同的结构落在不同位置。调整亮度不能修复位置对应。",
+        "en": "Misalignment compares different structures; changing intensity cannot repair correspondence."
+      },
+      "hint": [
+        {
+          "zh": "正 dx 表示输出 (x,y) 读取观测的 (x+dx,y+dy)，不表示把亮度加上 dx。",
+          "en": "Positive dx means output (x,y) reads observation (x+dx,y+dy); it does not add dx to brightness."
+        }
+      ],
+      "adds": ["shift"],
+      "outside": ["zero"],
+      "intro": [
+        {
+          "t": {
+            "zh": "相机只观测了图内的格子，位移取样会碰到缺少的邻居。本任务假设图外读数为 0；先查看独立示例，区分已有读数与补入的值。",
+            "en": "The camera observed only cells inside the image. Offset sampling can reach missing neighbours. This task assumes zero outside; compare observed and supplied values in the independent example."
+          },
+          "fig": "outside-zero"
+        }
+      ]
+    }
+  ],
+  "builds": {
+    "type": "alignedDifference",
+    "name": { "zh": "对齐比较器", "en": "Aligned comparator" },
+    "desc": {
+      "zh": "按给定 dx、dy 读取观测，再与参照逐位置比较；图外取 0。",
+      "en": "Read an observation at dx,dy offsets and compare with the reference, using zero outside."
+    }
+  }
+}

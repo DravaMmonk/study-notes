@@ -1,0 +1,284 @@
+{
+  "title": { "zh": "边缘以外没有观测", "en": "No observations beyond the border" },
+  "intro": [
+    {
+      "t": {
+        "zh": "卷积器在内部工作正常，常量图的边缘却可能变暗。现在明确每项任务的图外模型，再比较同尺寸延续与只保留有效内部这两种接口。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+        "en": "The convolver works inside but may darken constant-image edges. Specify each outside model and distinguish same-size continuation from retaining only valid interior outputs. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "补边是假设，不是观测。有效域避免图外读数，却改变输出尺寸；算法对照要匹配边界和域。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+    "en": "Padding is an assumption, not observation. Valid output avoids outside reads but changes size. Fair comparisons match boundaries and domains. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_border_clamp",
+      "kind": "circuit",
+      "step": {
+        "zh": "延续边缘",
+        "en": "Replicate edges"
+      },
+      "brief": {
+        "zh": "本任务假设图外延续最近边缘读数。保持卷积规则，修复边界输出。",
+        "en": "This task assumes replicated edge readings. Keep the convolution rule and adapt its boundary output."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ]
+          },
+          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
+            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
+          },
+          "expect": {
+            "out": [
+              [0.17500000000000002, 0.45, 0.775],
+              [0.5999999999999999, 0.44999999999999996, 0.45],
+              [0.35000000000000003, 0.6, 0.65]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": ["v = convolve[outside=clamp](image,kernel)", "out <- v"],
+      "naive": ["v = convolve[outside=zero](image,kernel)", "out <- v"],
+      "naiveWhy": {
+        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
+        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
+      },
+      "hint": [
+        {
+          "zh": "打开自己卷积器的图外假设。观察变化集中在哪些输出位置。",
+          "en": "Inspect your convolver’s outside setting and where its effects occur."
+        }
+      ],
+      "adds": [],
+      "outside": ["clamp"],
+      "intro": [
+        {
+          "t": {
+            "zh": "这里把同一卷积器放到边界问题中检验。图内读数不变，图外延续最近边缘；对照恒定图与变化边缘，检查这种假设影响哪些输出。",
+            "en": "Test the same convolver at image boundaries. Observed values stay fixed; the nearest edge continues outside. Compare constant and varied edges to locate the affected outputs."
+          },
+          "fig": "outside-clamp"
+        }
+      ]
+    },
+    {
+      "id": "v1_border_wrap",
+      "kind": "circuit",
+      "step": {
+        "zh": "周期延续",
+        "en": "Periodic borders"
+      },
+      "brief": {
+        "zh": "本任务假设图外周期相接。保持卷积规则，修复边界输出。",
+        "en": "This task assumes periodic continuation. Keep the convolution rule and adapt its boundary output."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ]
+          },
+          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
+            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
+          },
+          "expect": {
+            "out": [
+              [0.375, 0.45, 0.5750000000000001],
+              [0.5499999999999999, 0.44999999999999996, 0.5],
+              [0.45, 0.6, 0.55]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": ["v = convolve[outside=wrap](image,kernel)", "out <- v"],
+      "naive": ["v = convolve[outside=zero](image,kernel)", "out <- v"],
+      "naiveWhy": {
+        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
+        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
+      },
+      "hint": [
+        {
+          "zh": "把边缘两端想成相接的环：起点之前会读到哪一端？在非恒定图上对照复制边缘。",
+          "en": "Imagine the two ends connected in a loop: which end supplies reads before the start? Compare with replication on a varied image."
+        }
+      ],
+      "carries": true,
+      "outside": ["wrap"],
+      "intro": [
+        {
+          "t": {
+            "zh": "现在处理周期材料：图像一端离开后，从另一端继续读取。检查示例中负列号和超过宽度的位置，别把周期延续当作复制最近边缘。",
+            "en": "Now the material is periodic: reads leaving one end continue at the other. Inspect negative and out-of-range columns; periodic continuation differs from replicating an edge."
+          },
+          "fig": "outside-wrap"
+        }
+      ]
+    },
+    {
+      "id": "v1_border_reflect",
+      "kind": "circuit",
+      "step": {
+        "zh": "镜像延续",
+        "en": "Reflect borders"
+      },
+      "brief": {
+        "zh": "本任务假设图外镜像延续（含边缘格）。保持卷积规则，修复边界输出。",
+        "en": "This task assumes reflection including the edge sample. Keep the convolution rule and adapt its boundary output."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ]
+          },
+          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
+            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
+          },
+          "expect": {
+            "out": [
+              [0.17500000000000002, 0.45, 0.775],
+              [0.5999999999999999, 0.44999999999999996, 0.45],
+              [0.35000000000000003, 0.6, 0.65]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": ["v = convolve[outside=reflect](image,kernel)", "out <- v"],
+      "naive": ["v = convolve[outside=zero](image,kernel)", "out <- v"],
+      "naiveWhy": {
+        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
+        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
+      },
+      "hint": [
+        {
+          "zh": "本任务的镜像包含边缘格：在一行 [a,b,c] 外读一次得到 c，再往外得到 b。与周期延续比较。",
+          "en": "Reflection here repeats the edge sample: after [a,b,c] the next reads are c, then b. Compare against periodic continuation."
+        }
+      ],
+      "carries": true,
+      "outside": ["reflect"],
+      "intro": [
+        {
+          "t": {
+            "zh": "这次图像以边缘为界镜像延续，并包含边缘格。示例在列号 2、3、4 读到 0.9、0.9、0.5：边缘格重复一次，再反向延续。观察这与周期相接有什么不同。",
+            "en": "This task reflects at the border, including the edge sample. Example columns 2, 3, 4 read 0.9, 0.9, 0.5: the edge repeats, then readings continue in reverse. Compare this with periodic continuation."
+          },
+          "fig": "outside-reflect"
+        }
+      ]
+    },
+    {
+      "id": "v1_valid",
+      "kind": "circuit",
+      "step": {
+        "zh": "有效内部",
+        "en": "Valid interior"
+      },
+      "adds": ["trim"],
+      "brief": {
+        "zh": "另一个接口只接受邻域完全在原图内的结果。rx、ry 已给出，保留有效内部；不用猜测图外读数。",
+        "en": "Another interface accepts only results whose neighbourhood is fully inside. Supplied rx and ry identify the valid interior; no outside readings are assumed."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } },
+        { "name": "rx", "label": { "zh": "横向半径", "en": "Horizontal radius" } },
+        { "name": "ry", "label": { "zh": "纵向半径", "en": "Vertical radius" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "有效结果", "en": "Valid result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ],
+            "rx": 1,
+            "ry": 1
+          },
+          "expect": { "out": [[0.6, 0.6]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
+            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]],
+            "rx": 1,
+            "ry": 1
+          },
+          "expect": { "out": [[0.44999999999999996]] }
+        }
+      ],
+      "hidden": [],
+      "solution": ["v = convolve(image,kernel)", "t = trim(v,rx,ry)", "out <- t"],
+      "naive": ["v = convolve(image,kernel)", "out <- v"],
+      "naiveWhy": {
+        "zh": "有效输出的尺寸会缩小。换一种补边规则并不能产生这个更小的输出域。",
+        "en": "Valid output is smaller. Changing padding alone does not produce that output domain."
+      },
+      "hint": [
+        {
+          "zh": "系统按 rx、ry 自动计算宽高，只保留不触及图外的位置。",
+          "en": "The helper computes the dimensions from rx and ry and retains only interior locations."
+        }
+      ],
+      "intro": [
+        {
+          "t": {
+            "zh": "还可以不猜图外读数：只保留邻域完整落在原图内的输出。代价是宽高缩小。示例自动标出保留位置，本任务的 rx、ry 已给定。",
+            "en": "Another choice avoids assuming outside readings: retain only full neighbourhoods. The output becomes smaller. The example marks valid centres; task rx and ry are supplied."
+          },
+          "fig": "outside-valid"
+        }
+      ]
+    }
+  ]
+}

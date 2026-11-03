@@ -1,0 +1,205 @@
+{
+  "title": { "zh": "同一部件，压低还是增强细节", "en": "Suppress or enhance detail" },
+  "intro": [
+    {
+      "t": {
+        "zh": "双轴处理器已经能汇合邻居。现在用课程给出的高斯权重处理细碎变化，再把被抑制的细节用于另一种任务。权重和与小数由系统计算，你决定图像之间的关系。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+        "en": "The two-axis processor combines neighbours. Use supplied Gaussian weights to suppress fine variation, then reuse the removed detail for another purpose. Weight arithmetic is supplied; decide the image relationships. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "平滑也会损失细节。增强需要带符号细节，不能用绝对差替代；强增强还可能放大干扰。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+    "en": "Smoothing also removes detail. Enhancement needs signed detail rather than absolute difference, and can amplify nuisance. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_detail",
+      "kind": "circuit",
+      "step": {
+        "zh": "平滑与细节",
+        "en": "Smoothing and detail"
+      },
+      "brief": {
+        "zh": "用已归一化的高斯样本权重平滑，再按给定强度增强原图相对平滑图的带符号细节。另输出平滑改动的大小。",
+        "en": "Smooth with supplied normalised Gaussian sample weights, enhance signed detail at the given strength, and report the magnitude of the smoothing change."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
+        { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } },
+        { "name": "amount", "label": { "zh": "细节强度", "en": "Detail strength" } }
+      ],
+      "outputs": [
+        { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
+        { "name": "enhanced", "label": { "zh": "细节增强图", "en": "Enhanced" } },
+        { "name": "change", "label": { "zh": "改动大小", "en": "Change magnitude" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2],
+              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2],
+              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2]
+            ],
+            "side": 0.274068619061197,
+            "centre": 0.45186276187760605,
+            "amount": 1
+          },
+          "expect": {
+            "smooth": [
+              [
+                0.3096274476244788,
+                0.3807451047510425,
+                0.41925489524895765,
+                0.3807451047510425,
+                0.30962744762447886
+              ],
+              [
+                0.3096274476244788,
+                0.3807451047510425,
+                0.41925489524895765,
+                0.3807451047510425,
+                0.30962744762447886
+              ],
+              [
+                0.3096274476244788,
+                0.3807451047510425,
+                0.41925489524895765,
+                0.3807451047510425,
+                0.30962744762447886
+              ]
+            ],
+            "enhanced": [
+              [
+                0.09037255237552122,
+                0.8192548952489577,
+                -0.019254895248957626,
+                0.8192548952489577,
+                0.09037255237552116
+              ],
+              [
+                0.09037255237552122,
+                0.8192548952489577,
+                -0.019254895248957626,
+                0.8192548952489577,
+                0.09037255237552116
+              ],
+              [
+                0.09037255237552122,
+                0.8192548952489577,
+                -0.019254895248957626,
+                0.8192548952489577,
+                0.09037255237552116
+              ]
+            ],
+            "change": [
+              [
+                0.10962744762447879,
+                0.21925489524895758,
+                0.21925489524895764,
+                0.21925489524895758,
+                0.10962744762447885
+              ],
+              [
+                0.10962744762447879,
+                0.21925489524895758,
+                0.21925489524895764,
+                0.21925489524895758,
+                0.10962744762447885
+              ],
+              [
+                0.10962744762447879,
+                0.21925489524895758,
+                0.21925489524895764,
+                0.21925489524895758,
+                0.10962744762447885
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.1, 0.1, 0.8, 0.8], [0.1, 0.9, 0.8, 0.8], [0.1, 0.1, 0.8, 0.8]],
+            "side": 0.274068619061197,
+            "centre": 0.45186276187760605,
+            "amount": 0.6
+          },
+          "expect": {
+            "smooth": [
+              [0.16009088636328922, 0.39092115586521714, 0.6682428530204514, 0.8],
+              [0.19907312252237921, 0.4551919978001644, 0.7072250891795414, 0.8],
+              [0.16009088636328925, 0.39092115586521714, 0.6682428530204515, 0.8]
+            ],
+            "enhanced": [
+              [0.06394546818202648, -0.0745526935191303, 0.8790542881877292, 0.8],
+              [0.04055612648657248, 1.1668848013199014, 0.8556649464922752, 0.8],
+              [0.06394546818202645, -0.0745526935191303, 0.8790542881877291, 0.8]
+            ],
+            "change": [
+              [0.060090886363289214, 0.29092115586521716, 0.13175714697954866, 0],
+              [0.09907312252237921, 0.44480800219983563, 0.09277491082045863, 0],
+              [0.06009088636328924, 0.29092115586521716, 0.13175714697954855, 0]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+            "side": 0.274068619061197,
+            "centre": 0.45186276187760605,
+            "amount": 1.4
+          },
+          "expect": {
+            "smooth": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+            "enhanced": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+            "change": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "s = separable3[outside=clamp](image,side,centre,side)",
+        "detail = arithmetic[op=sub](image,s)",
+        "scaled = arithmetic[op=mul](detail,amount)",
+        "e = arithmetic[op=add](image,scaled)",
+        "d = difference(image,s)",
+        "smooth <- s",
+        "enhanced <- e",
+        "change <- d"
+      ],
+      "naive": [
+        "s = separable3[outside=clamp](image,side,centre,side)",
+        "detail = difference(image,s)",
+        "scaled = arithmetic[op=mul](detail,amount)",
+        "e = arithmetic[op=add](image,scaled)",
+        "d = difference(image,s)",
+        "smooth <- s",
+        "enhanced <- e",
+        "change <- d"
+      ],
+      "naiveWhy": {
+        "zh": "增强需要有正有负的细节；绝对差适合观察改动大小，但会让暗侧细节也被加亮。",
+        "en": "Enhancement needs signed detail. Absolute difference measures change but would brighten dark-side detail too."
+      },
+      "hint": [
+        {
+          "zh": "比较纹理、边缘和常量图。改动大小与要加回的带符号细节承担不同职责。",
+          "en": "Compare texture, edges and constants. Change magnitude and the signed detail to add back serve different purposes."
+        }
+      ],
+      "adds": [],
+      "outside": ["clamp"],
+      "intro": [
+        {
+          "t": {
+            "zh": "把图外补成 0 会让恒定图的边缘变暗。本任务假设图像在边缘之外维持最近的边缘读数。检查角落与内部有什么区别，再调整自己的处理器。",
+            "en": "Zero extension can darken constant-image edges. This task assumes the nearest edge reading continues outside. Inspect corners and interior before adjusting your processor."
+          },
+          "fig": "outside-clamp"
+        }
+      ]
+    }
+  ]
+}

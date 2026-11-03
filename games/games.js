@@ -89,10 +89,10 @@ export const GAMES = [
     progress: () => (read('network.v1')?.solved || []).length,
   },
   {
-    id: 'vision-lab', href: 'vision-lab/index.html', title: 'Vision Lab', en: 'Vision Lab', topic: { zh: 'Vision Lab', en: 'Vision Lab' },
-    desc: { zh: '一章一章造出视觉的机器：先造相机，把场景投影成像素、在任意位置取值；再造卷积器，搭出模糊器和边缘检测器。', en: 'Build the machines of vision chapter by chapter: a camera that projects a scene into pixels and reads them anywhere, then a convolver that makes a blur and an edge detector.' },
-    levels: 20, dev: true, hidden: true,
-    page: { icon: 'M16 32h32M32 16v32', description: 'Vision Lab Vision Lab' },
-    progress: () => (read('vision-lab.v1')?.solved || []).length,
+    id: 'vision-lab', href: 'vision-lab/index.html', title: '视觉实验室', en: 'Vision Lab', topic: { zh: '计算机视觉', en: 'Computer Vision' },
+    desc: { zh: '从图像运算造出比较仪、扫描器与频率去干扰仪。自己搭出的电路成为下一台机器的部件，计算和重复工作交给工具。', en: 'Build comparators, scanners and frequency interference removers from image arithmetic. Your passed circuits become reusable parts; tools handle calculation and repetition.' },
+    levels: 26, art: 'pipeline', dev: true,
+    page: { icon: 'M16 32h32M32 16v32', description: '视觉实验室 Vision Lab：从基础元件搭建比较仪、扫描器与频率分析仪。Build visual machines from reusable image circuits.' },
+    progress: () => (read('vision-lab.v2')?.solved || []).length,
   },
 ];

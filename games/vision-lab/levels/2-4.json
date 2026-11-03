@@ -1,0 +1,176 @@
+{
+  "title": { "zh": "从探针到整张频谱", "en": "Grow the probe into a spectrum" },
+  "intro": [
+    {
+      "t": {
+        "zh": "单频探针已经可靠。现在由工具展开重复工作，让同一个部件扫描所有离散频率；你负责把读数、频率和输出形状对应起来。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+        "en": "The single-frequency probe works. Expand repeated execution to every discrete frequency using the same part, while keeping observations, frequencies and output shape correctly associated. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+      },
+      "fig": "frequency-table"
+    }
+  ],
+  "after": {
+    "zh": "这里 DC 在索引 0，k 与 N−k 配对。未移中心的索引不能全部按“越大频率越高”理解。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+    "en": "DC is at index 0 and k pairs with N−k. Larger unshifted indices do not always mean higher frequencies. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_spectrum",
+      "kind": "circuit",
+      "step": {
+        "zh": "遍历频率",
+        "en": "Scan frequencies"
+      },
+      "brief": {
+        "zh": "让自己的探针对每行的 k=0…N−1 全部工作，保留实部、虚部、幅度。展开遍历替你重复读数和生成索引，不替你算系数。",
+        "en": "Run your probe at k=0…N−1 for every row, retaining real, imaginary and magnitude outputs. Expansion supplies repetitions and indices, not coefficients."
+      },
+      "inputs": [{ "name": "image", "label": { "zh": "图像行", "en": "Image rows" } }],
+      "outputs": [
+        { "name": "re", "label": { "zh": "频谱实部", "en": "Spectrum real" } },
+        { "name": "im", "label": { "zh": "频谱虚部", "en": "Spectrum imaginary" } },
+        { "name": "mag", "label": { "zh": "频谱幅度", "en": "Spectrum magnitude" } }
+      ],
+      "tests": [
+        {
+          "inputs": { "image": [[0.2, 0.8, 0.3, 0.5]] },
+          "expect": {
+            "re": [[0.45, -0.025000000000000005, -0.2, -0.024999999999999963]],
+            "im": [[0, -0.07500000000000002, -5.204748896376251e-17, 0.07499999999999998]],
+            "mag": [[0.45, 0.07905694150420951, 0.2, 0.07905694150420946]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                0.5,
+                0.5414213562373095,
+                0.3,
+                0.05857864376269048,
+                0.09999999999999995,
+                0.25857864376269046,
+                0.3,
+                0.3414213562373095
+              ]
+            ]
+          },
+          "expect": {
+            "re": [
+              [
+                0.3,
+                0.09999999999999999,
+                -9.067390516440166e-18,
+                4.236297372535286e-18,
+                0,
+                -4.880950727606728e-17,
+                -1.1990237921351275e-16,
+                0.10000000000000013
+              ]
+            ],
+            "im": [
+              [
+                0,
+                1.2346979308880266e-17,
+                -0.05000000000000001,
+                3.530621445066399e-17,
+                -2.4492935982947065e-17,
+                -7.444089631977803e-17,
+                0.04999999999999995,
+                8.382676994819665e-17
+              ]
+            ],
+            "mag": [
+              [
+                0.3,
+                0.09999999999999999,
+                0.05000000000000001,
+                3.555945717055906e-17,
+                2.4492935982947065e-17,
+                8.901581345707294e-17,
+                0.04999999999999995,
+                0.10000000000000013
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": { "image": [[0.6, 0.6, 0.6, 0.6, 0.6]] },
+          "expect": {
+            "re": [
+              [
+                0.6,
+                -5.551115123125783e-18,
+                -5.551115123125783e-18,
+                2.2204460492503132e-17,
+                7.216449660063518e-17
+              ]
+            ],
+            "im": [[0, 0, -3.3306690738754695e-17, -2.2204460492503132e-17, -5.551115123125783e-17]],
+            "mag": [
+              [0.6, 5.551115123125783e-18, 3.3766115072321296e-17, 3.140184917367551e-17, 9.104505742017336e-17]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.1, 0.4, 0.7], [0.8, 0.2, 0.5]] },
+          "expect": {
+            "re": [
+              [0.39999999999999997, -0.1500000000000001, -0.14999999999999988],
+              [0.5, 0.14999999999999994, 0.1500000000000001]
+            ],
+            "im": [
+              [0, 0.08660254037844378, -0.08660254037844402],
+              [0, 0.0866025403784438, -0.08660254037844396]
+            ],
+            "mag": [
+              [0.39999999999999997, 0.17320508075688779, 0.1732050807568877],
+              [0.5, 0.17320508075688765, 0.17320508075688787]
+            ]
+          }
+        }
+      ],
+      "solution": [
+        "t = expandRows(image)",
+        "p = frequencyProbe(t.values,t.frequency)",
+        "r = restore(p.re,image)",
+        "i = restore(p.im,image)",
+        "m = restore(p.mag,image)",
+        "re <- r",
+        "im <- i",
+        "mag <- m"
+      ],
+      "naive": [
+        "t = expandRows(image)",
+        "p = frequencyProbe(t.values,t.position)",
+        "r = restore(p.re,image)",
+        "i = restore(p.im,image)",
+        "m = restore(p.mag,image)",
+        "re <- r",
+        "im <- i",
+        "mag <- m"
+      ],
+      "naiveWhy": {
+        "zh": "频率索引在不同重复行变化，取样位置在同一行内变化；混用它们就不再是逐频率测量。",
+        "en": "Frequency index varies between repeated rows; sample position varies within a row. They have different roles."
+      },
+      "hint": [
+        {
+          "zh": "先检查展开表中哪一路每行恒定、哪一路随列变化。k=0 的系数应当等于原行平均值。",
+          "en": "Inspect which table varies by row and which by column. The k=0 coefficient equals the original row mean."
+        }
+      ],
+      "adds": ["expandRows", "size"]
+    }
+  ],
+  "builds": {
+    "type": "spectrum",
+    "name": { "zh": "逐行频谱仪", "en": "Row spectrum analyser" },
+    "desc": {
+      "zh": "用你的正交探针遍历全部频率，输出每行归一化频谱。",
+      "en": "Scan all frequencies with your quadrature probe to produce normalised row spectra."
+    }
+  }
+}

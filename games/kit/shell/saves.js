@@ -29,7 +29,16 @@ function rekey(save, move, levels = move) {
   return out
 }
 
+// Traverse saved board containers, including alternate slots, without touching unrelated typed data.
+function retypeBoards(value, types) {
+  if (Array.isArray(value)) return value.map((v) => retypeBoards(v,types))
+  if (!value || typeof value !== 'object') return value
+  const out = Object.fromEntries(Object.entries(value).map(([k,v]) => [k,retypeBoards(v,types)]))
+  if (Array.isArray(value.nodes)) out.nodes = out.nodes.map((node) => types[node?.type] ? { ...node, type: types[node.type].type, params: { ...node.params, ...types[node.type].params } } : node)
+  return out
+}
 const OPS = {
+  retype: (save, types) => ({ ...save, ...Object.fromEntries(['data','built','slots'].filter((key) => save[key]).map((key) => [key,retypeBoards(save[key],types)])) }),
   rename: (save, to) => {
     const level = (id) => (id in to ? to[id] : id)
     // A task key written after its level (`<level>#<k>`) moves with it; a level's own key is its id.

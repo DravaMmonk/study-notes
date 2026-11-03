@@ -50,7 +50,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
     markSeen(current)
     store.write(lastKey, current)
   }, [current, shownOnce]) // eslint-disable-line react-hooks/exhaustive-deps
-  // A reference clicked inside the box (a part's description) moves to that part.
+  // Opening a part reference from another panel selects that part directly.
   useEffect(() => {
     if (!start) return
     setFilter(null)
@@ -89,7 +89,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
         {back}
         {level && <span className="panel-label">{tr(`第 ${game.levelLabel(level)} 关 · ${L(level.title)}`, `Level ${game.levelLabel(level)} · ${L(level.title)}`)}</span>}
         <h2>{chip(part, 18)}{L(part.name)}</h2>
-        {part.desc && <p dangerouslySetInnerHTML={{ __html: String(L(part.desc)) }} />}
+        {part.desc && <p>{String(L(part.desc))}</p>}
         {rules.length > 0 && (
           <section className="parts-rules">
             <h3>{tr('给出的规则', 'Rules it gives')}</h3>

@@ -1,90 +1,66 @@
-# Vision Lab chapters 1–2: learning review
+# Vision Lab Chapters 1–2: theory-led learning review
 
-Reviewed 2026-11-04. Scope: the revised trial's blueprint, both-language copy, every changed task, glossary,
-reference and naive programs, pinhole displays, neighbourhood aid and generated save migrations. This review
-replaces the findings against the trial at `4a1a67de`; it is not a novice learning-outcome study.
+Reviewed 2026-11-04. The executable trial contains 13 levels and 16 tasks. Sources are COMP90086 lectures 1–3
+and lecture 5 gradient material. This is a source/content/interaction review, not a study of novice learning outcomes.
+The course contract is [Vision Lab DESIGN](../../../../../games/vision-lab/DESIGN.md).
 
-## Curriculum decisions
+## Learning sequence and decisions
 
-- Chapter 1 starts with two required routes: geometry (1A1 → 1A2) and arrays (1A4). Neither needs the other's
-  parts. Both join at 1A3, then continue through cropping and sampling. Displayed main-path numbers are 1-1 to 1-7;
-  stable content ids are retained. The former overloaded field-of-view experiment is F1 (1F1), an optional topic
-  after 1A1. It is independent of pixel-coordinate conversion and must not block that join.
-- Chapter 2 shares 2B1–2B2, splits kernel orientation (2B3) from column addressing (2B4), and joins at 2B5.
-  This join actually flips both written kernels before calling positional row/column parts. Asymmetric tests
-  reject omitted flips. Smoothing (2B6) and changes (2B7–2B8) then run independently; 2B9 outputs a weighted
-  blurred colour image and that image's edge strength, calling both branches' built parts.
-- Workshop content remains optional. Framing and camera Workshop topics have distinct F/W labels. Looking up a
-  foundation's meaning does not replace the practical task that teaches the reasoning.
+A shared camera opening precedes two independent required questions: scene ambiguity (1I1), and positions and
+image transformations (1A3 → 1A5 → 1A6 → 1A7). Both precede neighbourhood processing. Ambiguity establishes that
+processing an image need not recover the actual scene; the transform route supplies images and sampling meaning.
+Framing remains optional. Workshop details are reference entries only and have no assessment levels.
 
-## Disposition of the original blockers
+Chapter 2 proceeds through local smoothing and its boundary assumption, a perpendicular second pass, asymmetric
+kernel orientation, signed directional differences with perpendicular smoothing, vector strength, and a combined
+colour processor. This serial sequence is justified by the learner's own row smoother, 2D smoother, directional
+responses and strength module, plus the orientation and signal-meaning conventions each extension needs.
 
-| Finding | Repair and evidence |
-| --- | --- |
-| R1: serial routes | Blueprint parallel groups and actual `course.before` relations are checked. Both initial routes are open in a fresh game; genuine joins require both ends. Orientation affects the 2D program; smoothing and gradient parts affect the final program. |
-| R2: concept jump | 1A3 separately checks signed unit conversion, origin translation and circuit transfer. Task 2 retains the measured −1 px offset rather than asking the learner to rediscover it. Array conventions are acquired on the other required route. Field of view is separate and optional. |
-| R3: hidden discovery evidence | A fixed reference image and ray remain visible before checking a prediction. A submitted trial reveals its ray and measurement; changing the guess hides that trial again. The reference is never hidden by the assessment control. |
-| R4: inaccessible X/Z/f comparisons | 1A1 uses three controlled stages changing only X, Z or f from the same reference, then generalises in a circuit with independently varying inputs. Stage initial states and incorrect predictions fail. |
-| R5: unsupported inverse claims | 1A2 constructs a different height/depth pair with the same projection. Its synthesis distinguishes assumed depth from recovered depth and makes no uniqueness claim about colour or object count. |
-| R6: inadequate synthesis | Summaries connect observed constraints, consequences and limits. Definitions remain in clickable entries; summary review does not demand duplicated dictionary prose. Kernel sign, boundary artefacts and interpolation's information limits are addressed. |
-| R7: missing referents | Side views label O, the plane, scene/image values and distances. Term tags open meanings. The sensor strip separates a signed offset from an image-origin coordinate; c_x appears in the origin task rather than the unit task. |
-| R8: misleading angles | Side views explicitly disclose unequal axis scales. F1 uses one scale for both axes, sensor edges and full/half-angle arcs. Its parameter range keeps the construction readable at phone size. |
-
-## Task-boundary worksheet
-
-The same instructional contract applies to Chinese and English. Reference programs and calculations are checked
-independently of whether the copy reads well. Repeated terms in one visible field share one clickable tag.
-
-| Task(s) | Guaranteed basis | New action / representation | Evidence and transfer check |
+| Level/tasks | Guaranteed support | Assessed visual decision | Characteristic failure / transfer |
 | --- | --- | --- | --- |
-| 1A1 | No prior course knowledge; entries give geometric meanings | Predict three isolated X/Z/f changes | Fixed reference ray; trial result only after check; wrong predictions fail |
-| 1A1_2 | Three comparisons | General projection circuit | Positive, negative, zero and independently varying distance/focal inputs |
-| 1A2 | Projection | Construct a different scene with one image | Fixed H=1, Z=4 reference; H/Z construction, not an answer choice |
-| 1A2_2 | Non-unique inverse experiment | Reconstruction conditional on Z | Same image with different supplied depths produces different X |
-| 1A4 | Independent starting route | Locate row/column | Non-square grid exposes swapped coordinates |
-| 1A4_2 | Located cells | Change one RGB sample | Wrong-cell edit fails; other cells must stay unchanged |
-| 1A4_3 | Coordinates and sample values | Read two positions and subtract | Different rows, columns and signs; no projection part needed |
-| 1A3_scale | Both required routes | Convert signed physical offset | Horizontal strip; negative offset and explicit sensor size/count |
-| 1A3_origin | Checked −1 px offset | Translate to image-origin coordinate | Supplied c_x=7.5; keep sign; separate task and feedback |
-| 1A3_2 | Both acquired transformations | Compose projection and origin shift | Zero/negative X and different c_x values reject a hard-coded centre |
-| 1A5, 1A5_2 | Arrays and coordinate composition | Crop by hand, then map a whole output grid | Nonzero source origin; varied region sizes |
-| 1A6, 1A6_2 | Coordinate grids | Nearest sampling, then circuit | Supplied positions include ties, fractions and out-of-range values |
-| 1A7, 1A7_2, 1A7_3 | Nearest sampler and position convention | Row interpolation, four-neighbour combination, circuit | Unequal distances, interior and boundary samples; no claim of recovered detail |
-| 1F1 | Projection only; optional | Predict/check full FOV using equal-scale geometry | Both sensor edges and the half-angle; wrong full-height guess fails |
-| 2B1, 2B1_2 | Image coordinates and circuit tools | Inspect a moving window, then general weighted sum | Three source factors shown; output grid remains empty; valid-output offset is labelled |
-| 2B2, 2B2_2 | Local weighted sum | Keep boundary outputs with zero padding | Window exposes absent neighbours; constant row darkens at the ends |
-| 2B3, 2B3_2 | Padded row filter | Trace an impulse and reverse written weights | Asymmetric kernel distinguishes correlation from convolution |
-| 2B4_window, 2B4 | Same shared basis as 2B3 | Trace vertical neighbours, then column circuit | Column selection and y movement; non-square and asymmetric input |
-| 2B5, 2B5_2 | Both direction routes | Compose written kernels and implement 2D convolution | Unequal row/column weights, zero middle weight and signed rows; both-axis asymmetric hidden case rejects omitted flips |
-| 2B6, 2B6_2 | 2D filter | Predict a point spread, then build blur | Point, step and irregular-image tests; boundary caveat in synthesis |
-| 2B7, 2B7_2 | 2D filter and direction convention | Signed local differences, then Sobel pair | Positive/negative transitions and both axes; written kernels match actual part semantics |
-| 2B8_vectors, 2B8 | Sobel responses | Compare rotations/signs, then build strength part | Equal-length vectors reject signed addition; varied image outputs |
-| 2B9 | Both smoothing/change routes | Assemble a colour processor with two outputs | Weighted channels → blur → strength; both out and mag checked |
-| 1W1, 1W2, 2W1 | Their theory anchors; optional | Workshop units, shape/crop and channel conventions | Source labels retained; never required by a main route |
+| 1A1 | Lab role, geometric scene, units, formula and controlled examples | Compose projection relationships | Independent changes of X/Z/f, negative and zero X |
+| 1I1 | Projection and a stable reference photograph | Construct a different scene with the same observation | A taller object at the same distance changes the photograph |
+| 1A3 | Array/coordinate explanation, unit conversion, prewired projection | Translate an axis-relative displacement into an image-origin coordinate | Varied principal point, negative offsets and zero X |
+| 1A5 | Prewired output grid and source read, inspectable source values | Map local crop coordinates to original-image coordinates | Nonzero origin, non-square output and RGB source |
+| 1A6 | Sampling semantics and distances supplied | Preserve discrete region identity and apply an outside assumption | Bilinear mixes unknown class colours; zero outside invents a black class |
+| 1A7 material | Both sampling modes already explained; automatic weighting | Use interpolation according to the meaning of the material | Intensity transitions and class colours at the same coordinates |
+| 1A7 region | Own crop and sampling tool | Compose cropping and reading in the correct reference image | Reading original-image coordinates instead of crop-local coordinates; RGB transfer |
+| 2B1 weights | Moving weighted-window example, supplied 1:2:1 ratio, computed gain and normalisation | Preserve constant intensity while reducing rapid variation | Unnormalised sums brighten constants; copying does not smooth impulses |
+| 2B1 boundary | Same circuit carried over; explicit outside assumptions | Adapt the observation model at unmeasured neighbours | Zero-padding artefact versus constant extension |
+| 2B6 | Own row smoother and stencil, outer-product/cost explanation | Cover both image axes | Two horizontal passes leave horizontal stripes; non-square/RGB transfer |
+| 2B3 | Own 2D smoother and a written-kernel tool | Distinguish orientation using an asymmetric probe | Correlation differs on an asymmetric impulse although symmetric blur conceals it |
+| 2B7 direction | Supplied signed difference weights | Match response meaning to each image axis | Two copies of the same direction miss the perpendicular edge |
+| 2B7 Sobel | Difference and smoothing weights supplied | Place smoothing perpendicular to differentiation | Smoothing along the same axis does not implement the intended response |
+| 2B8 | Own directional responses and supplied vector-length formula/tool | Measure strength without signed cancellation | Reversed contrast defeats signed addition; both axes remain relevant |
+| 2B9 | Colour mixture arithmetic, own smoother and strength module | Compose the intended measurement signal path | Magnitude before smoothing differs because magnitude is nonlinear |
 
-## Interaction and visual acceptance
+No grid-fill tasks or nearest-integer formula assessments remain. Semantic sampling, neighbourhoods, written
+kernels, magnitude and colour mixture are supplied domain tools. Ratios and formulas are accessible guidance;
+manual normalisation, indexing, loops and per-channel plumbing are not assessed. Editable starters provide the
+technical wiring and must fail until the learner changes the intended decision. A one-operator task is justified
+by parameter/material decisions across contrasting cases, not by placing a named answer.
 
-Inspected the implemented local app at its desktop viewport and at 390 × 844. Verified the fresh-game branch
-choice, clicked a workbench optical-axis tag, opened the principal-point entry using Return, exercised all three
-projection stages with an incorrect and corrected prediction, completed unit conversion, inspected the separate
-origin task, moved a filtering window and submitted its hand calculation. The FOV construction was checked at
-phone size and its fixed range tightened for legibility. No claim is made about untested devices or measured
-learning gains. The browser's testing mode opens later levels for inspection; it is not evidence that prerequisites
-work. Required dependencies are checked separately against the actual course graph.
+## Verification and limits
 
-## Automated and migration evidence
+Model checks cover interpolation including RGB and outside samples, zero-weight interpolation neighbours,
+asymmetric convolution/correlation, neighbourhood direction and boundary assumptions, separable/full-kernel
+agreement on non-square RGB images, vector lengths, raw values and colour mixtures. Every reference and hidden
+case passes; every declared characteristic wrong program fails. Starters are cloned and do not already pass.
+Explanatory failure text is attached only to matching observed outputs.
 
-- Complete kit suite: 315 tests passed, none failed or cancelled. Targeted vision/terminology checks cover route
-  independence, real joins, prediction error, axis-specific pitch, FOV invariance, window samples, aid/answer consistency and save invalidation.
-- Every game's content/reference-answer checks pass. The revised trial passes blueprint audit and conformance.
-- Pedagogy check: no structural failures or serial-chapter report. Terminology: 48 entries, no registry/reference
-  failure. The literal substring “卷积” in the machine name “卷积器” in the overview is a reviewed candidate, not a
-  bare mathematical operation or a missing usable definition in a task. No other literal candidates remain.
-- Existing ids remain stable; task moves/renames and prerequisite changes have generated save steps. Changed
-  puzzle contracts/reference programs drop incompatible stored boards, including the revised 2D/Sobel programs;
-  wording changes preserve answers. Existing completion records are retained by the shared migration contract.
-- The game builds successfully. Build outputs are local preview artifacts; nothing has been deployed or pushed.
+Browser verification uses WebKit touch emulation at 390 px and 320 px, plus a desktop view. It checks editing the
+three compact weight fields, running, carrying the board to the boundary task, observing the specific dark-frame
+feedback, changing the outside assumption and passing. A colour-region sampler is changed through the actual
+method and boundary controls and passes at 320 px without horizontal page overflow. Result drawers start closed
+and open on Run. Compact images and plain component descriptions are preserved.
 
-Remaining evidence limit: this is an implemented, reviewed trial. A learner study has not established the right
-amount of guidance, puzzle enjoyment or long-term transfer. Those require observing fresh players, not adding
-more static rules or treating correct reference answers as proof of understanding.
+All 331 kit tests pass, every game builds, the complete content check passes, and the blueprint, levels and copy
+gates pass. Terminology inspection has no registry/reference failures or bare-name reports. The browser also
+verifies entering ratios 1:2:1, applying unit-sum normalisation and passing without calculating decimal weights.
+The optional separate agent-review runner has not been executed; this document records the direct semantic review.
+
+The automated course audit reports a wholly serial second chapter; the dependencies are justified above. Blueprint
+reports about practice density require human judgement: practice is within task sequences and changed structural,
+sign, material and boundary cases, rather than padded levels with changed numbers. Executable checks and UI
+interaction do not establish that a new learner understands the principles, enjoys the puzzles or transfers the
+knowledge to coursework. Physical iPhone keyboard and rubber-band behaviour remain unverified.

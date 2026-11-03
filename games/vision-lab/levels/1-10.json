@@ -1,0 +1,168 @@
+{
+  "title": { "zh": "装成一台扫描器", "en": "Assemble the scanner" },
+  "intro": [
+    {
+      "t": {
+        "zh": "彩色测量、邻域处理和方向响应都已经由你造出。现在给扫描台装上整条路径：先控制读数与尺度，再测变化，最后按已知规范输出标记。这里不要求检测完整纸张或做透视矫正。 <wiki-ref to=\"scanner-composition\"></wiki-ref>",
+        "en": "You have built channel measurement, neighbourhood processing and directional responses. Assemble the scanner path: control readings and scale, measure change, then mark according to the specification. Full document detection and perspective correction are outside this task. <wiki-ref to=\"scanner-composition\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "已验证的部件组成大机器，顺序和边界仍然重要。扫描响应是视觉证据，不是完整物体轮廓。 <wiki-ref to=\"scanner-composition\"></wiki-ref>",
+    "en": "Verified parts form larger machines, but order and borders still matter. Scanner responses are evidence, not complete object contours. <wiki-ref to=\"scanner-composition\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_scanner",
+      "kind": "circuit",
+      "step": {
+        "zh": "装配扫描器",
+        "en": "Assemble scanner"
+      },
+      "brief": {
+        "zh": "按仪器规范汇合彩色读数（1/4、1/2、1/4），在测方向前用给定高斯权重平滑，输出 Sobel 强度及严格超过阈值的标记。",
+        "en": "Use channel weights 1/4,1/2,1/4; smooth with supplied Gaussian weights before directional measurement. Output Sobel strength and marks strictly above threshold."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "待扫描 RGB 图", "en": "Scanner RGB input" } },
+        { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
+        { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } },
+        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } },
+        { "name": "threshold", "label": { "zh": "响应阈值", "en": "Response threshold" } }
+      ],
+      "outputs": [
+        { "name": "strength", "label": { "zh": "扫描响应", "en": "Scanner response" } },
+        { "name": "mask", "label": { "zh": "强响应标记", "en": "Strong-response mask" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [[0.15, 0.1, 0.12], [0.19, 0.1, 0.12], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6]],
+              [[0.19, 0.1, 0.12], [0.15, 0.1, 0.12], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6]],
+              [[0.15, 0.1, 0.12], [0.19, 0.1, 0.12], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6]],
+              [[0.19, 0.1, 0.12], [0.15, 0.1, 0.12], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6]]
+            ],
+            "side": 0.274068619061197,
+            "centre": 0.45186276187760605,
+            "kernel": [[1, 0, -1]],
+            "threshold": 0.7
+          },
+          "expect": {
+            "strength": [
+              [
+                0.5863531675217669,
+                1.5502132479536166,
+                1.5462338413996506,
+                0.5797878774362788,
+                0.0036505475849337153
+              ],
+              [
+                0.5847542530307999,
+                1.5477368426304037,
+                1.5462338413996504,
+                0.5822658244095464,
+                0.004096705723849799
+              ],
+              [
+                0.5828051865005872,
+                1.5447322997303026,
+                1.5462338413996504,
+                0.5852703587789557,
+                0.004096705723849799
+              ],
+              [
+                0.5811905640893937,
+                1.5422550490900377,
+                1.5462338413996504,
+                0.5877460667903504,
+                0.0036505475849337153
+              ]
+            ],
+            "mask": [[0, 1, 1, 0, 0], [0, 1, 1, 0, 0], [0, 1, 1, 0, 0], [0, 1, 1, 0, 0]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [[0.15, 0.1, 0.12], [0.19, 0.1, 0.12], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6]],
+              [[0.19, 0.1, 0.12], [0.15, 0.1, 0.12], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6]],
+              [[0.15, 0.1, 0.12], [0.19, 0.1, 0.12], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6]],
+              [[0.19, 0.1, 0.12], [0.15, 0.1, 0.12], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6]],
+              [[0.15, 0.1, 0.12], [0.19, 0.1, 0.12], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6]]
+            ],
+            "side": 0.274068619061197,
+            "centre": 0.45186276187760605,
+            "kernel": [[1, 0, -1]],
+            "threshold": 0.7
+          },
+          "expect": {
+            "strength": [
+              [0.5863531675217669, 1.5502132479536166, 1.5502132479536161, 0.5863531675217666],
+              [0.5847542530307999, 1.5477368426304037, 1.5477368426304035, 0.5847542530307994],
+              [0.5837661586003497, 1.5462338413996508, 1.5462338413996504, 0.5837661586003493],
+              [0.5847542530308, 1.547736842630404, 1.5477368426304035, 0.5847542530307993],
+              [0.586353167521767, 1.5502132479536168, 1.550213247953616, 0.5863531675217662]
+            ],
+            "mask": [[0, 1, 1, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 1, 1, 0], [0, 1, 1, 0]]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [
+              [[0.15, 0.1, 0.12], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6]],
+              [[0.19, 0.1, 0.12], [0.7, 0.65, 0.6], [0.74, 0.65, 0.6]],
+              [[0.15, 0.1, 0.12], [0.74, 0.65, 0.6], [0.7, 0.65, 0.6]]
+            ],
+            "side": 0.274068619061197,
+            "centre": 0.45186276187760605,
+            "kernel": [[1, 0, -1]],
+            "threshold": 0.7
+          },
+          "expect": {
+            "strength": [
+              [0.9650524620306812, 1.5462350698798548, 0.5811905640893933],
+              [0.9644167946072555, 1.5462338413996504, 0.581817046792395],
+              [0.9650524620306807, 1.5462350698798548, 0.5811905640893936]
+            ],
+            "mask": [[1, 1, 0], [1, 1, 0], [1, 1, 0]]
+          }
+        }
+      ],
+      "solution": [
+        "quarter = const[value=0.25]()",
+        "half = const[value=0.5]()",
+        "gray = channelMeasure(image,quarter,half,quarter)",
+        "smooth = separable3[outside=clamp](gray,side,centre,side)",
+        "edge = sobel[outside=clamp](smooth,kernel)",
+        "mark = less(threshold,edge.strength)",
+        "strength <- edge.strength",
+        "mask <- mark"
+      ],
+      "naive": [
+        "quarter = const[value=0.25]()",
+        "half = const[value=0.5]()",
+        "gray = channelMeasure(image,quarter,half,quarter)",
+        "edge = sobel[outside=clamp](gray,kernel)",
+        "mark = less(threshold,edge.strength)",
+        "strength <- edge.strength",
+        "mask <- mark"
+      ],
+      "naiveWhy": {
+        "zh": "阈值不能代替输入尺度的控制。没有前置平滑时，细碎变化也会进入方向响应。",
+        "en": "Thresholding does not replace scale control: fine variation reaches the directional response without preprocessing."
+      },
+      "hint": [
+        {
+          "zh": "分别检查单通道读数、平滑图和方向响应，找出干扰第一次被压低的位置。",
+          "en": "Inspect channel measurement, smoothing and directional responses to locate where nuisance is suppressed."
+        }
+      ],
+      "starter": ["quarter = const[value=0.25]()", "half = const[value=0.5]()"],
+      "adds": []
+    }
+  ]
+}

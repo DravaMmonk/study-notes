@@ -1,7 +1,7 @@
 // The vision domain's checks for `npm run check` (../../engine/checks.js): what reading the content found wrong
 // (course.js), then level by level, task by task, by its kind —
 //   circuit  the reference board passes every test and hidden test and uses only the parts the level holds and its
-//            fixed cards; the empty board fails; the naive board, where there is one, is one the level could hold and
+//            fixed cards; the starting board fails; the naive board, where there is one, is one the level could hold and
 //            fails; a part a level builds, placed alone on that task's board and wired to its ports, passes
 //   grid     the answer the ask works out passes; the answer the player starts from does not; the naive answer fails
 //   choice   in every round the judge's own answer passes and an empty answer fails; the naive picks fail a round
@@ -19,15 +19,17 @@ import { lessonProblems } from './benches/lesson.js'
 /** A task with its hidden tests after the others. */
 const all = (task) => ({ ...task, tests: [...task.tests, ...task.hidden] })
 
-function circuitSaid(task, { held, partOf, builds }) {
+function circuitSaid(task, { held, partOf, builds, outside }) {
   const problems = []
   const strays = (board, what) => board.nodes.filter((n) => !FIXED.includes(n.type) && !held.has(n.type)).forEach((n) => problems.push(`${what} uses ${n.type}, which the level does not hold`))
   strays(task.solution, 'the answer')
+  for (const [name, board] of [['answer',task.solution],['starter',task.starter],['naive',task.naive]]) for (const node of board?.nodes ?? []) if (node.params?.outside && !outside.includes(node.params.outside)) problems.push(`${name} uses outside=${node.params.outside} before its task introduction`)
+  if (task.starter) strays(task.starter, 'the starter')
   const where = (j) => (j < task.tests.length ? `test ${j + 1}` : `hidden test ${j - task.tests.length + 1}`)
   runLevel(all(task), task.solution, partOf).runs.forEach((r, j) => {
     if (r.fail) problems.push(`the answer fails ${where(j)}: ${r.fail.why.en}`)
   })
-  if (runLevel(task, startBoard(task), partOf).pass) problems.push('the empty board passes')
+  if (runLevel(task, startBoard(task), partOf).pass) problems.push('the starting board already passes')
   let naive = ''
   if (task.naive) {
     strays(task.naive, 'the naive answer')
@@ -82,9 +84,10 @@ export function validate({ vision }) {
   const out = vision.wrong.map((text) => ({ text, fail: true }))
   for (const level of LEVELS) {
     const tasks = vision.played.get(level.id)
-    const held = new Set(usable(course, { id: level.id }, built))
+
     const said = tasks.map((task, k) => {
-      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, builds: k === tasks.length - 1 ? level.builds : null })
+      const held = new Set(usable(course, task, built))
+      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, outside: vision.outsideIn(task), builds: k === tasks.length - 1 ? level.builds : null })
         : task.kind === 'grid' ? gridSaid(task)
           : task.kind === 'choice' ? choiceSaid(task)
             : benchSaid(task)

@@ -92,21 +92,31 @@ export function defineGame(def) {
     if (!text?.revisions) return text
     const later = text.revisions.filter(applies).sort((a, b) => index.get(a.at ?? a.by) - index.get(b.at ?? b.by))
     const { revisions: _, ...base } = text
-    return later.reduce((t, { at: _at, by: _by, forms, ...fields }) => ({ ...t, ...fields, ...(forms ? { forms: [...new Set([...(t.forms ?? []), ...forms])] } : {}) }), base)
+    return later.reduce((t, { forms, ...fields }) => {
+      delete fields.at
+      delete fields.by
+      return { ...t, ...fields, ...(forms ? { forms: [...new Set([...(t.forms ?? []), ...forms])] } : {}) }
+    }, base)
   }
   game.textAt = (text, id) => revise(text, (r) => (r.at ? game.after(id, r.at) : Boolean(byId[id]) && ancestors(byId[id]).has(r.by)))
   game.textFor = (text, progress) => revise(text, (r) => (r.at ? Boolean(byId[r.at]) && isOpen(byId[r.at], new Set(progress.solved), progress.all) : progress.all || progress.solved.includes(r.by)))
   // The primitives a level brings in, for the map.
   game.introduced = (level) => (def.parts?.all ?? []).filter((part) => part.at?.includes(level.id))
-  // A built part is earned by solving its level; a primitive once a level that brings it in opens. With every level
-  // unlocked, the components box is full too (the encyclopedia opens every entry the same way).
+  // A built part is earned by solving its level; a primitive when its introducing task becomes available.
+  // With every level unlocked, the components box is full too (the encyclopedia opens every entry the same way).
   if (def.parts) {
     game.parts = {
       ...def.parts,
       earned: (progress) => {
         if (progress.all) return def.parts.all.map((part) => part.key)
         const solved = new Set(progress.solved)
-        const met = def.parts.all.filter((part) => part.at?.some((id) => byId[id] && isOpen(byId[id], solved)))
+        const introduced = (part, id) => {
+          const level = byId[id]
+          if (!level || !isOpen(level, solved)) return false
+          if (!part.atTasks || solved.has(id)) return true
+          return level.tasks?.some((task, k) => part.atTasks.includes(task.key) && level.tasks.slice(0,k).every((prior) => progress.passed.includes(prior.key)))
+        }
+        const met = def.parts.all.filter((part) => part.at?.some((id) => introduced(part, id)))
         return [...game.flagsOf(progress), ...met.map((part) => part.key)]
       },
     }

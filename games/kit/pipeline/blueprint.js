@@ -475,7 +475,7 @@ export function conformance(bp, content, spec) {
   for (const s of slots) {
     const level = levels.get(s.id)
     if (!level) continue
-    const adds = [...(level.adds ?? [])].sort()
+    const adds = [...new Set([...(level.adds ?? []), ...(level.tasks ?? []).flatMap((t) => t.adds ?? [])])].sort()
     if (plain(adds) !== plain([...(s.adds ?? [])].sort())) say('bp-adds', s.id, `adds ${adds.join(', ') || 'nothing'}, its slot ${(s.adds ?? []).join(', ') || 'nothing'}`)
     const builds = level.builds?.type ?? null
     if (builds !== (s.builds ?? null)) say('bp-builds', s.id, `builds ${builds ?? 'nothing'}, its slot ${s.builds ?? 'nothing'}`)

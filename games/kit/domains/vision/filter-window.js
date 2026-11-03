@@ -1,4 +1,4 @@
-/** The three samples addressed by a positional 1D kernel; no output answer is exposed to the UI. */
+/** The three samples addressed by a positional 1D kernel, for inspection and automatic arithmetic. */
 export function filterWindow(rows, { weights, axis }, x, y) {
   return [-1, 0, 1].map((offset, i) => {
     const sx = x + (axis === 'row' ? offset : 0)
@@ -8,7 +8,7 @@ export function filterWindow(rows, { weights, axis }, x, y) {
   })
 }
 
-/** The stencil output used only by content validation, never to fill the player's answer. */
+/** The complete stencil output used by content validation. */
 export function windowResult(rows, window) {
   const margin = window.padding === 'valid' ? 1 : 0
   const row = window.axis === 'row'

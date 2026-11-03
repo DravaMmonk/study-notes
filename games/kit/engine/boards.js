@@ -101,7 +101,7 @@ export function packed({ circuit, inputs, outputs, holds = false, inside: around
 }
 
 // A circuit with a packed part's settings put on every card inside that takes them.
-function withSettings(circuit, params = {}, parts) {
+export function withSettings(circuit, params = {}, parts) {
   const keys = Object.keys(params).filter((k) => params[k] !== undefined && params[k] !== '')
   if (!keys.length) return circuit
   const partOf = partFn(parts)

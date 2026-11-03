@@ -10,6 +10,7 @@
 const T = (zh, en) => ({ zh, en })
 
 export const isImage = (v) => v !== null && typeof v === 'object' && Number.isInteger(v.w) && Number.isInteger(v.h) && Array.isArray(v.data)
+export const isPoint = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && Number.isFinite(v.x) && Number.isFinite(v.y)
 
 /** An image w × h of c channels, every value `value` (or each from fill(x, y, ch)). */
 export function make(w, h, c = 1, fill = 0) {
@@ -37,10 +38,10 @@ export function pixel(img, x, y) {
 }
 
 /** A content value read: a number, 「—」 (null), or rows read into an image. */
-export const valueOf = (v) => (v === null || v === undefined || typeof v === 'number' ? v ?? null : fromRows(v))
+export const valueOf = (v) => (v === null || v === undefined || typeof v === 'number' ? v ?? null : isPoint(v) ? { x: v.x, y: v.y } : fromRows(v))
 
 /** What a value is, in words: 「3 × 2 灰度图」, 「a number」. */
-export const kindOf = (v) => (v === null || v === undefined ? T('「—」', '「—」') : isImage(v) ? T(`${v.w} × ${v.h} ${v.c === 3 ? '彩色图' : '灰度图'}`, `a ${v.w} × ${v.h} ${v.c === 3 ? 'colour' : 'grey'} image`) : T('一个数', 'a number'))
+export const kindOf = (v) => (v === null || v === undefined ? T('「—」', '「—」') : isPoint(v) ? T('一个坐标点', 'a coordinate point') : isImage(v) ? T(`${v.w} × ${v.h} ${v.c === 3 ? '彩色图' : '灰度图'}`, `a ${v.w} × ${v.h} ${v.c === 3 ? 'colour' : 'grey'} image`) : T('一个数', 'a number'))
 
 const close = (a, b, tol) => Math.abs(a - b) <= tol
 
@@ -51,6 +52,7 @@ const close = (a, b, tol) => Math.abs(a - b) <= tol
 export function differs(want, got, tol = 1e-5) {
   const show = (v) => (Array.isArray(v) ? `(${v.map(fmt).join(', ')})` : fmt(v))
   if (want === null || want === undefined) return got === null || got === undefined ? null : T(`应当是「—」，得到${kindOf(got).zh}`, `should be 「—」, got ${kindOf(got).en}`)
+  if (isPoint(want)) return isPoint(got) && close(want.x, got.x, tol) && close(want.y, got.y, tol) ? null : T(`应当是坐标 (${fmt(want.x)}, ${fmt(want.y)})`, `should be point (${fmt(want.x)}, ${fmt(want.y)})`)
   if (!isImage(want)) {
     if (typeof got !== 'number') return T(`应当是一个数，得到${kindOf(got).zh}`, `should be a number, got ${kindOf(got).en}`)
     return close(want, got, tol) ? null : T(`应当是 ${fmt(want)}，得到 ${fmt(got)}`, `should be ${fmt(want)}, got ${fmt(got)}`)
@@ -76,7 +78,7 @@ export function fmt(v) {
 }
 
 /** A value in a line of text: a number, or an image's rows. */
-export const show = (v) => (isImage(v) ? `[${toRows(v).map((r) => `[${r.map((p) => (Array.isArray(p) ? `(${p.map(fmt).join(',')})` : fmt(p))).join(', ')}]`).join(', ')}]` : fmt(v))
+export const show = (v) => (isPoint(v) ? `(${fmt(v.x)}, ${fmt(v.y)})` : isImage(v) ? `[${toRows(v).map((r) => `[${r.map((p) => (Array.isArray(p) ? `(${p.map(fmt).join(',')})` : fmt(p))).join(', ')}]`).join(', ')}]` : fmt(v))
 
 /** What a stored value looks like on screen: clipped to [0, 1] for drawing only. */
 export const display = (v) => Math.min(1, Math.max(0, v))

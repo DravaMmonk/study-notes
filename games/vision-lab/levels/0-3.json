@@ -1,0 +1,97 @@
+{
+  "title": { "zh": "让质检台给出证据", "en": "Complete the inspection instrument" },
+  "intro": [
+    {
+      "t": {
+        "zh": "比较器已经能处理夹具给出的错位，现在把它接入质检规范。图像中的变化证据与最终的通过条件不是一回事：相机小幅读数波动在规范允许范围内。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+        "en": "The comparator handles the fixture offset. Connect it to the inspection specification: measured change and a decision condition are different. Small reading fluctuations are allowed. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "对齐、测量与判定各司其职。质检结论仍依赖给定光照、位移与容差。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+    "en": "Alignment, measurement and decision have separate roles. The inspection conclusion depends on supplied lighting, offsets and tolerance. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v0_inspection",
+      "kind": "circuit",
+      "step": {
+        "zh": "按规范标记",
+        "en": "Apply the criterion"
+      },
+      "brief": {
+        "zh": "容差由质检规范给定。输出对齐差异，以及严格超过容差的变化标记（1）；其余为 0。",
+        "en": "Tolerance is supplied by the inspection specification. Output aligned differences and a 1 only where a difference strictly exceeds tolerance."
+      },
+      "inputs": [
+        { "name": "observed", "label": { "zh": "观测", "en": "Observation" } },
+        { "name": "reference", "label": { "zh": "参照", "en": "Reference" } },
+        { "name": "dx", "label": { "zh": "取样 dx", "en": "Read dx" } },
+        { "name": "dy", "label": { "zh": "取样 dy", "en": "Read dy" } },
+        { "name": "tolerance", "label": { "zh": "允许变化", "en": "Tolerance" } }
+      ],
+      "outputs": [
+        { "name": "changes", "label": { "zh": "变化证据", "en": "Change evidence" } },
+        { "name": "mask", "label": { "zh": "超差标记", "en": "Over-tolerance mask" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "observed": [[0.1, 0.4, 0.8, 0.3]],
+            "reference": [[0.55, 0.8, 0.3, 0]],
+            "dx": 1,
+            "dy": 0,
+            "tolerance": 0.1
+          },
+          "expect": { "changes": [[0.15000000000000002, 0, 0, 0]], "mask": [[1, 0, 0, 0]] }
+        },
+        {
+          "inputs": {
+            "observed": [[0.2, 0.6], [0.8, 0.1], [0.4, 0.5]],
+            "reference": [[0.15, 0], [0.2, 0.6], [0.8, 0.1]],
+            "dx": 0,
+            "dy": -1,
+            "tolerance": 0.1
+          },
+          "expect": { "changes": [[0.15, 0], [0, 0], [0, 0]], "mask": [[1, 0], [0, 0], [0, 0]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "observed": [[0.3, 0.7, 0.1], [0.2, 0.9, 0.5]],
+            "reference": [[0.15, 0.3, 0.7], [0, 0.2, 0.9]],
+            "dx": -1,
+            "dy": 0,
+            "tolerance": 0.1
+          },
+          "expect": { "changes": [[0.15, 0, 0], [0, 0, 0]], "mask": [[1, 0, 0], [0, 0, 0]] }
+        }
+      ],
+      "solution": [
+        "d = alignedDifference(observed,reference,dx,dy)",
+        "m = less(tolerance,d)",
+        "changes <- d",
+        "mask <- m"
+      ],
+      "naive": [
+        "d = alignedDifference(observed,reference,dx,dy)",
+        "m = less(d,tolerance)",
+        "changes <- d",
+        "mask <- m"
+      ],
+      "naiveWhy": {
+        "zh": "标记应当随变化超过容差而出现，不是把合格位置标为缺陷。",
+        "en": "Mark changes exceeding tolerance, not positions that remain within it."
+      },
+      "hint": [
+        {
+          "zh": "先检查差异输出，再检查比较的两个输入谁在前。小于元件在 a<b 时输出 1。",
+          "en": "Check the difference first, then the order of the comparison inputs. Less returns 1 when a<b."
+        }
+      ],
+      "adds": ["less"]
+    }
+  ]
+}

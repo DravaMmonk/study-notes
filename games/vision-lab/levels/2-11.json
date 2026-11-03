@@ -1,0 +1,160 @@
+{
+  "title": { "zh": "验证两条滤波路径", "en": "Verify spatial and frequency paths" },
+  "intro": [
+    {
+      "t": {
+        "zh": "你有空间卷积器和频域处理器，现在让同一个规则走两条路径。先将边界设为周期，避免把不同问题当作算法误差；计算工具处理复数乘法，你核对信息路径。 <wiki-ref to=\"convolution-theorem\"></wiki-ref>",
+        "en": "You have spatial and frequency processors. Run one rule through both, using periodic boundaries so the comparison is fair. Arithmetic parts handle complex multiplication while you check the information path. <wiki-ref to=\"convolution-theorem\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "卷积定理的有限实现要匹配核原点、边界、输出域与归一化；等价不保证实现更快。 <wiki-ref to=\"convolution-theorem\"></wiki-ref>",
+    "en": "Finite convolution-theorem implementations must match kernel origin, borders, domains and normalisation. Equivalence does not guarantee speed. <wiki-ref to=\"convolution-theorem\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_convolution_theorem",
+      "kind": "circuit",
+      "step": {
+        "zh": "验证两条路径",
+        "en": "Verify both paths"
+      },
+      "brief": {
+        "zh": "空间路径使用周期卷积。频域路径把图像频谱与同一卷积器的单位脉冲响应频谱相乘，再重建；本归一化下系数乘积需要乘 N。输出两条路径及误差。",
+        "en": "The spatial path uses periodic convolution. Multiply the signal spectrum by the spectrum of the convolver’s impulse response, then reconstruct. With this normalisation multiply the coefficient product by N. Output both paths and their error."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "行信号", "en": "Row signal" } },
+        { "name": "kernel", "label": { "zh": "数学卷积核", "en": "Convolution kernel" } },
+        { "name": "impulse", "label": { "zh": "单位脉冲", "en": "Unit impulse" } }
+      ],
+      "outputs": [
+        { "name": "spatial", "label": { "zh": "空间卷积", "en": "Spatial convolution" } },
+        { "name": "frequency", "label": { "zh": "频域路径", "en": "Frequency path" } },
+        { "name": "error", "label": { "zh": "两路径误差", "en": "Path error" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.2, 0.8, 0.3, 0.5]],
+            "kernel": [[0.25, 0.5, 0.25]],
+            "impulse": [[1, 0, 0, 0]]
+          },
+          "expect": {
+            "spatial": [[0.42500000000000004, 0.525, 0.475, 0.375]],
+            "frequency": [[0.42500000000000004, 0.525, 0.475, 0.375]],
+            "error": [[0, 0, 0, 0]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                0.5,
+                0.5414213562373095,
+                0.3,
+                0.05857864376269048,
+                0.09999999999999995,
+                0.25857864376269046,
+                0.3,
+                0.3414213562373095
+              ]
+            ],
+            "kernel": [[0.5, 0, -0.5]],
+            "impulse": [[1, 0, 0, 0, 0, 0, 0, 0]]
+          },
+          "expect": {
+            "spatial": [
+              [
+                0.09999999999999998,
+                -0.1,
+                -0.24142135623730948,
+                -0.10000000000000002,
+                0.09999999999999999,
+                0.10000000000000002,
+                0.041421356237309526,
+                0.1
+              ]
+            ],
+            "frequency": [
+              [
+                0.09999999999999998,
+                -0.1,
+                -0.24142135623730948,
+                -0.10000000000000002,
+                0.09999999999999999,
+                0.10000000000000002,
+                0.041421356237309526,
+                0.1
+              ]
+            ],
+            "error": [[0, 0, 0, 0, 0, 0, 0, 0]]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "h = convolve[outside=wrap](impulse,kernel)",
+        "x = spectrum(image)",
+        "k = spectrum(h)",
+        "rr = arithmetic[op=mul](x.re,k.re)",
+        "ii = arithmetic[op=mul](x.im,k.im)",
+        "ri = arithmetic[op=mul](x.re,k.im)",
+        "ir = arithmetic[op=mul](x.im,k.re)",
+        "r = arithmetic[op=sub](rr,ii)",
+        "i = arithmetic[op=add](ri,ir)",
+        "n = size(image)",
+        "rn = arithmetic[op=mul](r,n.w)",
+        "inorm = arithmetic[op=mul](i,n.w)",
+        "v = synthesise(rn,inorm)",
+        "s = convolve[outside=wrap](image,kernel)",
+        "e = difference(s,v)",
+        "spatial <- s",
+        "frequency <- v",
+        "error <- e"
+      ],
+      "naive": [
+        "h = convolve[outside=wrap](impulse,kernel)",
+        "x = spectrum(image)",
+        "k = spectrum(h)",
+        "rr = arithmetic[op=mul](x.re,k.re)",
+        "ii = arithmetic[op=mul](x.im,k.im)",
+        "ri = arithmetic[op=mul](x.re,k.im)",
+        "ir = arithmetic[op=mul](x.im,k.re)",
+        "r = arithmetic[op=sub](rr,ii)",
+        "i = arithmetic[op=add](ri,ir)",
+        "n = size(image)",
+        "rn = arithmetic[op=mul](r,n.w)",
+        "inorm = arithmetic[op=mul](i,n.w)",
+        "v = synthesise(rn,inorm)",
+        "s = convolve[outside=zero](image,kernel)",
+        "e = difference(s,v)",
+        "spatial <- s",
+        "frequency <- v",
+        "error <- e"
+      ],
+      "naiveWhy": {
+        "zh": "周期频域计算不能直接声称等于零补边空间卷积。必须统一边界、核原点和归一化。",
+        "en": "Periodic frequency processing is not directly equivalent to zero-padded spatial convolution. Match boundaries, kernel origin and normalisation."
+      },
+      "hint": [
+        {
+          "zh": "脉冲先经过自己的周期卷积器，自动建立核在周期数组中的原点。复数乘积的四项算术已放入起始板。",
+          "en": "Sending an impulse through your periodic convolver establishes the kernel origin. Four complex-product arithmetic terms are already placed in the starter."
+        }
+      ],
+      "starter": [
+        "h = convolve[outside=wrap](impulse,kernel)",
+        "x = spectrum(image)",
+        "k = spectrum(h)",
+        "rr = arithmetic[op=mul](x.re,k.re)",
+        "ii = arithmetic[op=mul](x.im,k.im)",
+        "ri = arithmetic[op=mul](x.re,k.im)",
+        "ir = arithmetic[op=mul](x.im,k.re)",
+        "r = arithmetic[op=sub](rr,ii)"
+      ],
+      "adds": []
+    }
+  ]
+}

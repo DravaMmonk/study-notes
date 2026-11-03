@@ -10,591 +10,560 @@
   ],
   "entries": [
     {
-      "id": "image-formation-3d-to-2d",
+      "id": "image-difference",
       "group": "image",
       "title": {
-        "zh": "成像流程",
-        "en": "image formation"
+        "zh": "图像差分",
+        "en": "Image differencing"
       },
-      "at": "1A1",
+      "at": "0-1",
       "body": [
         {
-          "zh": "一次拍照可分为：光源 → 表面反射 → 镜头／光学 → <wiki-ref to=\"sensor\"></wiki-ref> → 电信号 → 数字值。最重要的困难是现实世界是三维、普通照片只有二维：一个<wiki-ref to=\"pixel\"></wiki-ref>通常告诉我们“这里有多亮”，却不能单独告诉我们这个点离相机多远。因此视觉需要相机模型、多视图、深度传感器或学习模型来补回缺失信息。常见的误解：以为知道一个像素的坐标和亮度就能求出对应的三维点。出处：COMP90086 第 2 讲笔记，§1 成像：三维世界怎样变成二维图像 (slide 8)。",
-          "en": "Taking a photo can be broken down into: light source → surface reflection → lens/optics → <wiki-ref to=\"sensor\"></wiki-ref> → electrical signal → digital values. The most important difficulty is that the real world is 3D while an ordinary photo is only 2D: a <wiki-ref to=\"pixel\"></wiki-ref> usually tells us ‘how bright it is here’, but cannot on its own tell us how far that point is from the camera. Vision therefore needs camera models, multiple views, depth sensor or learned models to recover the missing information. A common mistake: Thinking that knowing a pixel's coordinates and brightness is enough to work out the corresponding 3D point. Source: COMP90086 lecture 2 notes, §1 (slide 8)."
+          "zh": "图像差分在对应位置和通道比较读数。带符号的差保留变化方向，绝对差保留变化大小。数值和位置是不同信息，图像算术逐位置执行。",
+          "en": "Image differencing compares corresponding locations and channels. Signed difference retains direction; absolute difference retains size. Values and positions are distinct; image arithmetic acts at matching locations."
+        },
+        {
+          "zh": "常见误解：只留下正变化，或把负数显示成黑色就认为没有变化。",
+          "en": "Common misconception: Keeping only positive changes, or treating clipped negative display values as no change."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; L3 PDF pp6–7 (point operations); absolute value is mathematical support",
+          "en": "Source: docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; L3 PDF pp6–7 (point operations); absolute value is mathematical support"
         }
       ]
     },
     {
-      "id": "pinhole-projection",
+      "id": "spatial-correspondence",
       "group": "image",
-      "title": { "zh": "针孔相机投影", "en": "Pinhole camera projection" },
-      "at": "1A1",
+      "title": { "zh": "空间对应", "en": "Spatial correspondence" },
+      "at": "0-2",
       "body": [
         {
-          "zh": "在相机坐标中，三维点 P=(X,Y,Z) 在正像的<wiki-ref to=\"virtual-image-plane\"></wiki-ref>上投到 (fX/Z,fY/Z)。由<wiki-ref to=\"similar-triangles\"></wiki-ref>可得这两个比例；X、Y、Z、f 使用一致的长度单位。一个投影位置对应一条视线，不能单凭它确定深度。出处：COMP90086 第 2 讲，slides 11、18。",
-          "en": "In camera coordinates, a point P=(X,Y,Z) projects to (fX/Z,fY/Z) on the upright <wiki-ref to=\"virtual-image-plane\"></wiki-ref>. <wiki-ref to=\"similar-triangles\"></wiki-ref> give these proportions; X, Y, Z and f use one length unit. An image position specifies a line of sight and does not determine depth on its own. Source: COMP90086 Lecture 2, slides 11, 18."
+          "zh": "逐位置比较需要同一场景位置对应。这里约定输出 (x,y) 读取输入 (x+dx,y+dy)，x 向右、y 向下为正；有限图像之外的值来自边界假设。",
+          "en": "Pointwise comparison requires corresponding scene locations. Here output (x,y) reads input (x+dx,y+dy), with x right and y down. Outside values follow an explicit boundary assumption."
+        },
+        {
+          "zh": "常见误解：给像素值加 dx 就是在移动图像。 <wiki-ref to=\"pixel\"></wiki-ref>",
+          "en": "Common misconception: Adding dx to pixel values moves the image. <wiki-ref to=\"pixel\"></wiki-ref>"
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; spatial-read convention is a declared task assumption",
+          "en": "Source: docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; spatial-read convention is a declared task assumption"
         }
       ]
     },
     {
-      "id": "vision-task-outputs",
+      "id": "decision-evidence",
       "group": "image",
       "title": {
-        "zh": "视觉任务",
-        "en": "vision tasks"
+        "zh": "测量与判定",
+        "en": "Measurement and decision"
       },
-      "at": "1A2",
+      "at": "0-3",
       "body": [
         {
-          "zh": "同一张图可以提出不同问题，答案形式也不同：识别／分类回答整张图主要是什么类别（如 dog）；检测回答哪些物体在哪里（类别 + 边界框）；分割回答每个<wiki-ref to=\"pixel\"></wiki-ref>属于什么。关键区分是：分类只给一个或少量类别标签，检测还要给位置，分割要把答案细化到像素。常见的误解：以为检测只是“更准的分类”；检测必须同时输出位置（边界框）。也容易以为分类分数高就代表系统理解了场景。出处：COMP90086 第 1 讲笔记，§1 先分清几种常见任务 (slide 7)。",
-          "en": "The same image can be asked different questions, and the answers take different forms: recognition/classification answers what category the whole image mainly shows (e.g. dog); detection answers which objects are where (category + bounding box); segmentation answers what each <wiki-ref to=\"pixel\"></wiki-ref> belongs to. The key distinction is that classification gives only one or a few category labels, detection must also give locations, and segmentation refines the answer down to individual pixel. A common mistake: Thinking detection is just ‘more accurate classification’; detection must also output locations (bounding boxes). It is also easy to assume that a high classification score means the system has understood the scene. Source: COMP90086 lecture 1 notes, §1 (slide 7)."
+          "zh": "测量输出保留变化量，判定根据任务给定的准则将证据转为标记。阈值比较不是对物体语义或缺陷成因的推断。",
+          "en": "Measurements retain change values; a task criterion turns evidence into a decision mask. Thresholding does not infer object meaning or defect cause."
+        },
+        {
+          "zh": "常见误解：测量值本身就是缺陷类别，或者零与非零足以处理所有读数波动。",
+          "en": "Common misconception: Treating measurements as defect classes, or assuming every nonzero change must fail."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/02-basics.md image arrays; L3 point operations; inspection/tolerance is a controlled application",
+          "en": "Source: docs/Unimelb/26S2/CV/02-basics.md image arrays; L3 point operations; inspection/tolerance is a controlled application"
         }
       ]
     },
     {
-      "id": "forward-vs-inverse-problem",
+      "id": "weighted-neighbourhood",
       "group": "image",
-      "title": { "zh": "反向问题", "en": "inverse problem" },
-      "at": "1A2",
+      "title": { "zh": "线性邻域运算", "en": "Linear neighbourhood operation" },
+      "at": "1-1",
       "body": [
         {
-          "zh": "计算机图形学已知物体、材质、灯光和相机，向前生成一张图像，是正向问题；计算机视觉已知图像，反过来推测物体、材质、灯光和相机，是反向问题。反问题通常更难，因为不同的三维场景可能产生很相似的二维图像。常见的误解：以为只要图像足够清晰就能唯一还原三维场景；不同三维场景可能产生相似的二维图像。出处：COMP90086 第 1 讲笔记，§2 计算机视觉和计算机图形学的方向相反 (slide 8)。",
-          "en": "Computer graphics knows the objects, materials, lighting and camera and works forwards to produce an image: a forward problem. Computer vision knows the image and works backwards to infer the objects, materials, lighting and camera: an inverse problem. The inverse problem is usually harder, because different 3D scenes can produce very similar 2D images. A common mistake: Thinking that as long as the image is clear enough, the 3D scene can be recovered uniquely; different 3D scenes can produce similar 2D images. Source: COMP90086 lecture 1 notes, §2 (slide 8)."
+          "zh": "线性局部运算把邻域的对应读数与权重相乘后相加。位置和符号有意义；对恒定输入，权重和决定输出增益。",
+          "en": "A linear local operation sums position-matched weighted readings. Positions and signs matter; the weight sum determines constant-input gain."
+        },
+        {
+          "zh": "常见误解：交换左右权重不会改变结果，或者所有权重都必须为正并且总和为 1。",
+          "en": "Common misconception: Swapping side weights has no effect, or all filters must have positive unit-sum weights."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp8–18,21–23",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp8–18,21–23"
         }
       ]
     },
     {
-      "id": "angle-of-view-from-pixel-focal-length",
+      "id": "filter-separability",
       "group": "image",
-      "title": { "zh": "视野角与焦距", "en": "angle of view and focal length" },
-      "at": "1F1",
+      "title": { "zh": "可分离滤波", "en": "Separable filtering" },
+      "at": "1-2",
       "body": [
         {
-          "zh": "固定<wiki-ref to=\"sensor\"></wiki-ref>尺寸，<wiki-ref to=\"focal-length\"></wiki-ref>增加使同一场景的投影变大，落在传感器边界内的场景范围变小。比较全角时应同时看两条边界<wiki-ref to=\"projection-ray\"></wiki-ref>。这里先用物理长度讨论几何；<wiki-ref to=\"pixel\"></wiki-ref>单位的换算在像素相机关卡练习。出处：COMP90086 第 2 讲，slide 15。",
-          "en": "For a fixed <wiki-ref to=\"sensor\"></wiki-ref> size, increasing <wiki-ref to=\"focal-length\"></wiki-ref> enlarges the scene projection and reduces the region fitting inside the sensor. Compare both boundary rays when considering the full angle. This geometry uses physical lengths; <wiki-ref to=\"pixel\"></wiki-ref>-unit conversion is practised in the pixel-camera level. Source: COMP90086 Lecture 2, slide 15. (<wiki-ref to=\"projection-ray\"></wiki-ref>)"
+          "zh": "若二维核是两个一维权重向量的外积，可以先后沿两轴计算，减少每个像素的加权次数。非可分离核不能直接这样替代；有限图像要保持相同边界与输出域。 <wiki-ref to=\"pixel\"></wiki-ref>",
+          "en": "An outer-product kernel can be applied as consecutive 1D passes, reducing weighted samples per pixel. Nonseparable kernels cannot be replaced this way, and boundaries/domains must agree. <wiki-ref to=\"pixel\"></wiki-ref>"
+        },
+        {
+          "zh": "常见误解：两条轴各处理一次再相加就等于二维平均。",
+          "en": "Common misconception: Adding independent axis outputs is a 2D average."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp37–40",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp37–40"
         }
       ]
     },
     {
-      "id": "image-array-checks",
+      "id": "local-kernel",
       "group": "image",
-      "title": { "zh": "图像数组", "en": "image array" },
-      "at": "1A4",
+      "title": { "zh": "互相关与局部核", "en": "Correlation and local kernels" },
+      "at": "1-3",
       "body": [
         {
-          "zh": "图像可按行、列存成数表。<wiki-ref to=\"greyscale-image\"></wiki-ref>的形状是高 × 宽；<wiki-ref to=\"rgb\"></wiki-ref> 图是高 × 宽 × 3，每格三个分量。这里讨论数学表示，按 (x,y) 指定列与行。出处：COMP90086 第 2 讲，slide 22。",
-          "en": "An image is a table of rows and columns: height × width in greyscale, height × width × 3 in <wiki-ref to=\"rgb\"></wiki-ref>. This is a mathematical representation; (x,y) specifies column and row. Source: COMP90086 Lecture 2, slide 22. (<wiki-ref to=\"greyscale-image\"></wiki-ref>)"
+          "zh": "互相关将书写核按中心对齐邻域，保持核的书写方向，计算对应元素乘积之和。核尺寸决定支持域，权重决定响应。",
+          "en": "Correlation centres a written kernel without reversing it and sums matching products. Kernel size determines support; weights determine response."
+        },
+        {
+          "zh": "常见误解：权重乘完之后还要再平均一次，或表中每行是一整张新图。",
+          "en": "Common misconception: Averaging after weighting, or treating each table row as a separate full image."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp9–18,31–35",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp9–18,31–35"
+        }
+      ]
+    },
+    {
+      "id": "convolution-orientation",
+      "group": "image",
+      "title": { "zh": "卷积核方向", "en": "Convolution orientation" },
+      "at": "1-4",
+      "body": [
+        {
+          "zh": "数学离散卷积使用反转的核，相比互相关需将核旋转 180 度。非对称核揭示方向差别；对称核会隐藏它。",
+          "en": "Discrete mathematical convolution reverses the kernel: rotate it 180 degrees relative to correlation. Asymmetric kernels reveal the difference; symmetric ones hide it."
+        },
+        {
+          "zh": "常见误解：对称模糊结果一致，就认为卷积和互相关没有区别。",
+          "en": "Common misconception: Assuming convolution and correlation are identical because symmetric blurs agree."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp17–18",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp17–18"
+        }
+      ]
+    },
+    {
+      "id": "smoothing-detail",
+      "group": "image",
+      "title": { "zh": "高斯平滑与细节增强", "en": "Gaussian smoothing and detail enhancement" },
+      "at": "1-5",
+      "body": [
+        {
+          "zh": "离散高斯样本可归一化为平滑核，尺度和支持域影响响应。非锐化增强把带符号的高频细节加回原图；不能保证恢复真实场景。",
+          "en": "Normalised sampled Gaussian weights form a smoother whose scale and support affect response. Unsharp enhancement adds signed high-frequency detail back to the original; it does not guarantee scene recovery."
+        },
+        {
+          "zh": "常见误解：平滑只删除噪声，或增强可以用绝对差代替带符号差。",
+          "en": "Common misconception: Smoothing removes only noise, or absolute difference can replace signed detail for enhancement."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp24–28,35",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp24–28,35"
+        }
+      ]
+    },
+    {
+      "id": "finite-boundaries",
+      "group": "image",
+      "title": { "zh": "边界规则与有效输出", "en": "Boundary rules and valid outputs" },
+      "at": "1-6",
+      "body": [
+        {
+          "zh": "有限图像没有图外观测。零、复制、周期和镜像代表不同延续模型；valid 只保留完整邻域，因此输出尺寸依核支持缩小。",
+          "en": "Finite images have no outside observations. Zero, replicate, periodic and reflected extension are different models. Valid output keeps full neighbourhoods and shrinks with support."
+        },
+        {
+          "zh": "常见误解：所有补边只影响外观，或保持原宽高的补边等于 valid。",
+          "en": "Common misconception: Padding only affects appearance, or same-size padding is equivalent to valid output."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp41–45",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp41–45"
+        }
+      ]
+    },
+    {
+      "id": "gradient-components",
+      "group": "image",
+      "title": { "zh": "图像梯度分量", "en": "Image gradient components" },
+      "at": "1-7",
+      "body": [
+        {
+          "zh": "图像梯度由两条空间轴的偏导数组成，离散差分近似它们。分量的正负保留变化方向，核约定与坐标方向必须明确。",
+          "en": "An image gradient contains derivatives along both spatial axes, approximated by differences. Signs retain direction; kernel and coordinate conventions must be explicit."
+        },
+        {
+          "zh": "常见误解：把同一张变化图当作两个方向，或者忽略负响应。",
+          "en": "Common misconception: Using one response for both axes, or discarding negative responses."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42"
+        }
+      ]
+    },
+    {
+      "id": "sobel-measurement",
+      "group": "image",
+      "title": { "zh": "Sobel 与梯度强度", "en": "Sobel and gradient strength" },
+      "at": "1-8",
+      "body": [
+        {
+          "zh": "Sobel 沿一轴差分、沿垂直轴平滑，组成二维方向核。梯度长度为 sqrt(gx²+gy²)，区别于有符号相加。尺度、噪声和边界都会影响响应。",
+          "en": "Sobel combines a derivative along one axis with smoothing along the other. Gradient length is sqrt(gx²+gy²), not signed addition. Scale, noise and boundaries affect responses."
+        },
+        {
+          "zh": "常见误解：应沿求导轴再次平均，或用 gx+gy 代替长度。",
+          "en": "Common misconception: Smoothing along the derivative axis, or replacing length with gx+gy."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42"
+        }
+      ]
+    },
+    {
+      "id": "channel-aggregation",
+      "group": "image",
+      "title": { "zh": "通道加权组合", "en": "Channel aggregation" },
+      "at": "1-9",
+      "body": [
+        {
+          "zh": "多通道图像在每个位置有多个读数。跨通道加权和将它们组合为新的测量，空间索引保持不变；多个输出核可以形成多个输出通道。",
+          "en": "A multi-channel image contains several readings per position. A weighted channel sum combines them into a measurement without changing positions; multiple output kernels can form multiple channels."
+        },
+        {
+          "zh": "常见误解：只取某一通道总能代替颜色组合，或通道混合会移动像素。 <wiki-ref to=\"pixel\"></wiki-ref>",
+          "en": "Common misconception: One channel always suffices, or mixing channels moves pixels. <wiki-ref to=\"pixel\"></wiki-ref>"
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp31–32",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp31–32"
+        }
+      ]
+    },
+    {
+      "id": "scanner-composition",
+      "group": "image",
+      "title": { "zh": "视觉处理流水线", "en": "Visual processing pipeline" },
+      "at": "1-10",
+      "body": [
+        {
+          "zh": "视觉流水线将已有测量、预处理和判定模块组合。每个模块有输入输出含义；顺序和边界影响结果，最终响应仍受任务假设限制。",
+          "en": "A visual pipeline composes measurements, preprocessing and decisions with explicit input/output meaning. Order and boundaries matter, and task assumptions limit the final response."
+        },
+        {
+          "zh": "常见误解：把原图直接接入边缘检测，再靠阈值弥补所有干扰。",
+          "en": "Common misconception: Feeding raw input to edge measurement and relying on thresholding to remove all nuisance."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md common filters and composition; controlled scanner application",
+          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md common filters and composition; controlled scanner application"
+        }
+      ]
+    },
+    {
+      "id": "wave-parameters",
+      "group": "image",
+      "title": { "zh": "频率、幅度与相位", "en": "Frequency, amplitude and phase" },
+      "at": "2-1",
+      "body": [
+        {
+          "zh": "余弦波可写成 A cos(2π(kx/N+p))。k 控制整行周期数，A 控制幅度，p 控制相位；这里相位以周为单位。波形的负值仍是有效计算数据。",
+          "en": "A cosine wave is A cos(2π(kx/N+p)): k controls cycles per row, A amplitude and p phase. This interface measures phase in turns. Negative wave values remain valid data."
+        },
+        {
+          "zh": "常见误解：频率是统一加到每个位置的偏移。",
+          "en": "Common misconception: Frequency is an offset added to every position."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp7–21; turns are the declared mathematical unit",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp7–21; turns are the declared mathematical unit"
+        }
+      ]
+    },
+    {
+      "id": "frequency-projection",
+      "group": "image",
+      "title": { "zh": "频率投影", "en": "Frequency projection" },
+      "at": "2-2",
+      "body": [
+        {
+          "zh": "将信号与基函数相乘并累加，可测量该方向的投影系数。这里按行长归一化为平均值；异频项在完整离散周期上正交抵消。单一相位只能测到一个方向。",
+          "en": "Multiplication and accumulation measure a signal’s projection onto a basis. Here the coefficient is normalised by row length. Different discrete frequencies are orthogonal across complete cycles; a single phase measures only one direction."
+        },
+        {
+          "zh": "常见误解：探针自己有波形就能测量，或一次零响应等于频率不存在。",
+          "en": "Common misconception: The basis alone measures the signal, or one zero response proves absence."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier transform PDF pp18–24",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier transform PDF pp18–24"
+        }
+      ]
+    },
+    {
+      "id": "quadrature-components",
+      "group": "image",
+      "title": {
+        "zh": "复数系数与正交投影",
+        "en": "Complex coefficients and quadrature"
+      },
+      "at": "2-3",
+      "body": [
+        {
+          "zh": "离散傅里叶系数的实部投影到 cos，虚部投影到 −sin。幅度是两分量的长度，相位由两分量的关系确定；这里只用归一化系数，不把系数幅度直接叫作波的峰值幅度。",
+          "en": "The DFT real part projects onto cos and the imaginary part onto −sin. Their length is coefficient magnitude and their relationship determines phase. Normalised coefficient magnitude is not automatically the sinusoid’s peak amplitude."
+        },
+        {
+          "zh": "常见误解：重复同一投影可以补齐相位，或系数幅度足够重建原图。",
+          "en": "Common misconception: Duplicating one projection recovers phase, or magnitude alone reconstructs the image."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–24,33–34",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–24,33–34"
+        }
+      ]
+    },
+    {
+      "id": "discrete-spectrum",
+      "group": "image",
+      "title": { "zh": "离散傅里叶频谱", "en": "Discrete Fourier spectrum" },
+      "at": "2-4",
+      "body": [
+        {
+          "zh": "离散频谱保留全部基函数投影。这里前向按 N 归一化，DC 位于索引 0；实信号的 k 与 N−k 系数互为共轭，索引应按周期解释。",
+          "en": "The discrete spectrum retains all basis projections. This convention normalises forward coefficients by N and stores DC at index 0. For real signals, k and N−k are conjugate and indices are periodic."
+        },
+        {
+          "zh": "常见误解：把取样位置当作频率索引，或只保留一半而不说明如何恢复。",
+          "en": "Common misconception: Confusing sample positions with frequency indices, or discarding half the data without a recovery rule."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–26",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–26"
+        }
+      ]
+    },
+    {
+      "id": "fourier-synthesis",
+      "group": "image",
+      "title": { "zh": "傅里叶重建", "en": "Fourier synthesis" },
+      "at": "2-5",
+      "body": [
+        {
+          "zh": "逆变换把各频率按复数系数组合。这里前向除以 N、逆向直接求和；实输出为 Σ(Re·cos−Im·sin)。只保留幅度通常不能还原原有空间关系。",
+          "en": "Inverse transformation combines frequencies using complex coefficients. This convention divides forward by N and sums inverse terms: Σ(Re·cos−Im·sin) for real output. Magnitude alone usually loses spatial relationships."
+        },
+        {
+          "zh": "常见误解：逆向也要平均，或者把虚部符号照搬为同相余弦。",
+          "en": "Common misconception: Averaging in both directions, or using the wrong imaginary contribution."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier transform and magnitude/phase PDF pp18–34",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier transform and magnitude/phase PDF pp18–34"
+        }
+      ]
+    },
+    {
+      "id": "phase-structure",
+      "group": "image",
+      "title": { "zh": "相位与空间结构", "en": "Phase and spatial structure" },
+      "at": "2-6",
+      "body": [
+        {
+          "zh": "平移可在保留频谱幅度时改变相位。幅度和相位共同决定重建，交换相位会改变结构；频谱为零的位置没有可定义的相位方向。",
+          "en": "Translation can change phase while retaining magnitudes. Both determine reconstruction; phase exchange changes structure. Zero coefficients have no defined phase direction."
+        },
+        {
+          "zh": "常见误解：幅度就是可重建的完整频谱，虚部是无用噪声。",
+          "en": "Common misconception: Magnitude is the complete reconstructible spectrum and imaginary components are noise."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp33–34",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp33–34"
+        }
+      ]
+    },
+    {
+      "id": "complex-transform",
+      "group": "image",
+      "title": { "zh": "复数输入的线性变换", "en": "Linear transformation of complex input" },
+      "at": "2-7",
+      "body": [
+        {
+          "zh": "傅里叶变换是线性的。对 a+ib，可分别计算 F(a)、F(b)，再组成 F(a)+iF(b)；乘 i 会交换实虚贡献并改变其中一项符号。",
+          "en": "The Fourier transform is linear: F(a+ib)=F(a)+iF(b). Multiplying by i exchanges real/imaginary contributions and negates one component."
+        },
+        {
+          "zh": "常见误解：第二条轴只需处理第一条轴的实部。",
+          "en": "Common misconception: The second axis needs only the first pass’s real part."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier representation and linearity; complex arithmetic is supplied support",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier representation and linearity; complex arithmetic is supplied support"
+        }
+      ]
+    },
+    {
+      "id": "two-dimensional-spectrum",
+      "group": "image",
+      "title": { "zh": "二维傅里叶变换", "en": "Two-dimensional Fourier transform" },
+      "at": "2-8",
+      "body": [
+        {
+          "zh": "二维 DFT 可分解为两条轴的完整复数一维变换。每条频率轴描述相应空间方向的变化；本约定总前向归一化为 1/(WH)。",
+          "en": "The 2D DFT separates into complete complex 1D transforms along both axes. Frequency axes correspond to spatial variation; this convention normalises forward by 1/(WH)."
+        },
+        {
+          "zh": "常见误解：第二次仍沿原来的行处理，或不恢复原图轴顺序。",
+          "en": "Common misconception: Transforming original rows twice, or failing to restore axis order."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32"
+        }
+      ]
+    },
+    {
+      "id": "frequency-filtering",
+      "group": "image",
+      "title": { "zh": "频域滤波", "en": "Frequency filtering" },
+      "at": "2-9",
+      "body": [
+        {
+          "zh": "频域滤波以逐频率增益乘复数系数再逆变换。低通保留接近零的频率，高通去掉低频，带通保留一个范围；实输出要求增益与共轭对称一致。",
+          "en": "Frequency filtering multiplies complex coefficients by gains before inversion. Low-pass keeps frequencies near zero, high-pass removes low frequencies, and band-pass keeps a range. Real output requires conjugate-consistent gains."
+        },
+        {
+          "zh": "常见误解：只调整实部，或者负索引天然属于低频。",
+          "en": "Common misconception: Adjusting only real components, or treating every negative index as low frequency."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp38–43",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp38–43"
+        }
+      ]
+    },
+    {
+      "id": "frequency-ringing",
+      "group": "image",
+      "title": { "zh": "振铃与滤波形状", "en": "Ringing and filter shape" },
+      "at": "2-10",
+      "body": [
+        {
+          "zh": "硬频率截止对应振荡的空间核，可能在突变附近产生振铃。渐变过渡改变空间响应，以额外平滑换取不同的振荡表现；应检查未截断数值。",
+          "en": "Hard frequency cutoffs correspond to oscillatory spatial kernels and can ring near discontinuities. Tapering changes that response, trading additional smoothing for different oscillation behaviour. Inspect unclipped values."
+        },
+        {
+          "zh": "常见误解：频域低通总是没有副作用，显示中没看到过冲就不存在。",
+          "en": "Common misconception: Low-pass has no side effects, or invisible clipped overshoot does not exist."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp44–47",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp44–47"
+        }
+      ]
+    },
+    {
+      "id": "convolution-theorem",
+      "group": "image",
+      "title": {
+        "zh": "卷积定理",
+        "en": "Convolution theorem"
+      },
+      "at": "2-11",
+      "body": [
+        {
+          "zh": "空间卷积对应频域复数逐点乘积。离散有限实现需匹配周期/补边约定、核原点、输出域和归一化；本例对每行使用周期卷积。",
+          "en": "Spatial convolution corresponds to pointwise complex frequency multiplication. Finite implementations must match periodic/padding conventions, kernel origin, output domain and normalisation. This task uses circular row convolution."
+        },
+        {
+          "zh": "常见误解：把周期频域结果与零边界卷积比较，认为差异就是算法错误。",
+          "en": "Common misconception: Comparing periodic frequency processing with zero-boundary convolution as if they were the same problem."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp35–37",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp35–37"
+        }
+      ]
+    },
+    {
+      "id": "two-dimensional-inverse",
+      "group": "image",
+      "title": { "zh": "二维逆变换与一致性", "en": "2D inversion and consistency" },
+      "at": "2-12",
+      "body": [
+        {
+          "zh": "本约定的二维前向除以 WH。逆变换可用共轭输入、前向变换、共轭结果再乘 WH 实现。实输出的虚部残差可检查频率操作的一致性。",
+          "en": "This 2D forward convention divides by WH. Inversion can conjugate input, transform, conjugate output and multiply by WH. Imaginary residuals help check frequency-operation consistency."
+        },
+        {
+          "zh": "常见误解：前向归一化重复使用不影响幅度，或可以静默丢弃非零虚部。",
+          "en": "Common misconception: Repeated forward normalisation preserves amplitude, or a nonzero imaginary result may be silently discarded."
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier transform/inverse, complex magnitude/phase; conjugation identity is mathematical support",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier transform/inverse, complex magnitude/phase; conjugation identity is mathematical support"
+        }
+      ]
+    },
+    {
+      "id": "interference-machine",
+      "group": "image",
+      "title": { "zh": "频率选择与信息损失", "en": "Frequency selection and information loss" },
+      "at": "2-13",
+      "body": [
+        {
+          "zh": "周期干扰常集中于特定频率。选择性增益可以抑制它，但与这些频率重叠的有用信号也会被抑制；噪声识别、边界与频率模型是任务假设。",
+          "en": "Periodic interference can concentrate at selected frequencies. Selective gains suppress it but also remove useful signal at those frequencies. Interference identity, boundaries and frequency models are assumptions."
+        },
+        {
+          "zh": "常见误解：任何平滑都只删噪声，或指定频率的抑制等于自动理解哪些像素是噪声。 <wiki-ref to=\"pixel\"></wiki-ref>",
+          "en": "Common misconception: Every smoother removes only noise, or suppressing specified frequencies automatically identifies nuisance pixels. <wiki-ref to=\"pixel\"></wiki-ref>"
+        },
+        {
+          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32,38–47; controlled known-frequency application",
+          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32,38–47; controlled known-frequency application"
         }
       ]
     },
     {
       "id": "pixel-coordinate-convention",
       "group": "image",
-      "title": { "zh": "像素坐标约定", "en": "Pixel coordinate convention" },
-      "at": "1A4",
+      "title": { "zh": "像素坐标", "en": "Pixel coordinates" },
+      "at": "0-1",
       "body": [
         {
-          "zh": "<wiki-ref to=\"image-array-checks\"></wiki-ref>通常从左上角开始：x 向右增加，y 向下增加，并且通常从 0 开始编号。这和数学课上 y 轴向上的笛卡尔坐标不一样。常见的误解：以为 y 轴向上增大；或以为数组下标先写 x 再写 y。出处：COMP90086 第 2 讲笔记，§3 <wiki-ref to=\"pixel\"></wiki-ref>坐标、数据类型和文件格式 (slide 26)。",
-          "en": "Image arrays usually start from the top-left corner: x increases to the right, y increases downwards, and numbering usually starts from 0. This differs from the Cartesian coordinates of maths lessons, where the y-axis points upwards. A common mistake: Thinking y increases upwards; or thinking array indices are written with x first and then y. Source: COMP90086 lecture 2 notes, §3 (slide 26). (<wiki-ref to=\"image-array-checks\"></wiki-ref>) (<wiki-ref to=\"pixel\"></wiki-ref>)"
+          "zh": "坐标从 0 开始，x 向右、y 向下。数值表中每格保存读数或位置；点击可查看其原值。",
+          "en": "Coordinates start at zero, x right and y down. A cell stores a reading or a position; select it to inspect the original value."
         }
       ]
-    },
-    {
-      "id": "crop-vs-resize",
-      "group": "image",
-      "title": { "zh": "裁剪与缩放", "en": "cropping and resizing" },
-      "at": "1A5",
-      "body": [
-        {
-          "zh": "Crop 从原数组取一个子区域，已有<wiki-ref to=\"pixel\"></wiki-ref>数值不变；Resize 改变数组尺寸，必须为新位置计算像素数值。直接把 768×512 压成 512×512 会改变宽高比，物体可能变胖或变瘦；若保持比例，目标尺寸应接近 512×341。常见的误解：以为裁剪也要插值，或以为缩放只是“截掉一部分”。出处：COMP90086 第 2 讲笔记，§4 裁剪与缩放不是一回事 (slide 34)。",
-          "en": "Cropping takes a sub-region of the original array, and the existing <wiki-ref to=\"pixel\"></wiki-ref> values are unchanged; resizing changes the size of the array, so pixel values must be computed for the new positions. Squashing 768×512 straight to 512×512 changes the aspect ratio, so objects may become fatter or thinner; if the proportions are kept, the target size should be about 512×341. A common mistake: Thinking cropping also requires interpolation, or that resizing is just ‘cutting off a part’. Source: COMP90086 lecture 2 notes, §4 (slide 34)."
-        }
-      ]
-    },
-    {
-      "id": "nearest-neighbour-interpolation",
-      "group": "image",
-      "title": { "zh": "最近邻插值", "en": "Nearest-neighbour interpolation" },
-      "at": "1A6",
-      "body": [
-        {
-          "zh": "最近邻插值对每个新<wiki-ref to=\"pixel\"></wiki-ref>，找到原图中最近的像素，直接复制它的值。优点是快、边缘硬；缺点是放大或缩小时容易出现明显的块状感或锯齿。常见的误解：以为最近邻会产生原图中没有的新数值；它只复制已有值。出处：COMP90086 第 2 讲笔记，§4 最近邻插值 (slide 35)。",
-          "en": "For each new <wiki-ref to=\"pixel\"></wiki-ref>, nearest-neighbour interpolation finds the nearest pixel in the original image and copies its value directly. Its advantages are speed and hard edges; its drawback is that enlarging or shrinking easily produces obvious blockiness or jagged edges. A common mistake: Thinking nearest neighbour produces new values not present in the original image; it only copies existing values. Source: COMP90086 lecture 2 notes, §4 (slide 35)."
-        }
-      ],
-      "aliases": [{ "zh": "最近邻", "en": "nearest neighbour" }]
-    },
-    {
-      "id": "bilinear-interpolation",
-      "group": "image",
-      "title": { "zh": "双线性插值", "en": "Bilinear interpolation" },
-      "at": "1A7",
-      "body": [
-        {
-          "zh": "新位置落在四个旧<wiki-ref to=\"pixel\"></wiki-ref>之间时，设横向距离为 H、纵向距离为 V，四个权重是 (1−H)(1−V)、H(1−V)、(1−H)V、HV；它们加起来等于 1，所以双线性插值本质上是四个邻居的加权平均。它通常比<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>平滑，但会让非常锐利的边缘稍微软化，老师说它把模糊并入了采样步骤；缩图时仍要根据采样比例检查是否需要额外抗混叠。常见的误解：把权重配反（让离得远的像素权重更大）；或以为双线性插值不会改变锐利边缘。出处：COMP90086 第 2 讲笔记，§4 双线性插值 (slide 36)。",
-          "en": "When a new position falls between four old <wiki-ref to=\"pixel\"></wiki-ref>, let the horizontal distance be H and the vertical distance be V; the four weights are (1−H)(1−V), H(1−V), (1−H)V and HV. They sum to 1, so bilinear interpolation is essentially a weighted average of the four neighbours. It is usually smoother than <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>, but slightly softens very sharp edges; the lecturer says it folds blurring into the sampling step. When downsizing, you should still check, based on the sampling ratio, whether extra anti-aliasing is needed. A common mistake: Assigning the weights the wrong way round (giving more distant pixel larger weights); or thinking bilinear interpolation does not alter sharp edges. Source: COMP90086 lecture 2 notes, §4 (slide 36)."
-        }
-      ],
-      "aliases": [{ "zh": "双线性", "en": "bilinear interpolation" }]
-    },
-    {
-      "id": "pixel-vs-local-operator",
-      "group": "image",
-      "title": { "zh": "邻域运算", "en": "neighbourhood operation" },
-      "at": "2B1",
-      "body": [
-        {
-          "zh": "逐<wiki-ref to=\"pixel\"></wiki-ref>运算的输出位置 (i,j) 只看输入同一位置的像素，例如变亮、变暗或 gamma correction，各位置独立计算。局部运算会看 (i,j) 周围的一个小区域（邻域），模糊、锐化和边缘检测都属于这一类。局部运算改变的是邻居之间的关系，例如葡萄图中加强邻域差异会让轮廓更明显，也可能放大颗粒感。常见的误解：以为 gamma correction 这类亮度调整也需要邻域。出处：COMP90086 第 3 讲笔记，§1 三种运算：看一个点、看邻居、做加权和 (slides 6, 8)。",
-          "en": "In a <wiki-ref to=\"pixel\"></wiki-ref> operation, the output at position (i,j) looks only at the input pixel at the same position, e.g. brightening, darkening or gamma correction; each position is computed independently. A local operation looks at a small region (neighbourhood) around (i,j); blurring, sharpening and edge detection all belong to this category. Local operations change the relationships between neighbours: for example, in the grapes image, strengthening the differences within a neighbourhood makes the outlines more visible, but may also amplify graininess. A common mistake: Thinking brightness adjustments such as gamma correction also need a neighbourhood. Source: COMP90086 lecture 3 notes, §1 (slides 6, 8)."
-        }
-      ]
-    },
-    {
-      "id": "linear-filter",
-      "group": "image",
-      "title": { "zh": "线性滤波", "en": "linear filtering" },
-      "at": "2B1",
-      "body": [
-        {
-          "zh": "线性滤波器是局部运算的一种：把邻域中的<wiki-ref to=\"pixel\"></wiki-ref>分别乘以权重再相加。这些权重排成的小矩阵叫<wiki-ref to=\"kernel\"></wiki-ref>或滤波器。它与一般局部运算的区别在于组合方式固定为加权和。常见的误解：把所有局部运算都当成线性滤波。出处：COMP90086 第 3 讲笔记，§1 线性滤波器。",
-          "en": "A linear filter is one kind of local operation: it multiplies each <wiki-ref to=\"pixel\"></wiki-ref> in the neighbourhood by a weight and then adds them up. The small matrix formed by these weights is called the <wiki-ref to=\"kernel\"></wiki-ref> or filter. What distinguishes it from general local operations is that the way of combining is fixed as a weighted sum. A common mistake: Treating every local operation as linear filtering. Source: COMP90086 lecture 3 notes, §1."
-        }
-      ]
-    },
-    {
-      "id": "convolution",
-      "group": "image",
-      "title": { "zh": "滑动加权和", "en": "sliding weighted sum" },
-      "at": "2B1",
-      "body": [
-        {
-          "zh": "把<wiki-ref to=\"kernel\"></wiki-ref>放在图像的一个位置，对齐后逐项相乘再相加，写作 g(i,j)=Σ_{u,v} h(u,v) f(i−u,j−v)，其中 f 是输入、h 是核权重、g 是输出、(u,v) 是邻域内偏移。式中的 i−u、j−v 表示<wiki-ref to=\"mathematical-convolution\"></wiki-ref>；按窗口直接对齐相乘的<wiki-ref to=\"cross-correlation\"></wiki-ref>则读作 i+u、j+v。中心权重为 1、其余为 0 时两者都只是复制当前<wiki-ref to=\"pixel\"></wiki-ref>。常见的误解：以为公式里的 i−u 与窗口直接对齐相乘是同一件事。出处：COMP90086 第 3 讲笔记，§1 <wiki-ref to=\"linear-filter\"></wiki-ref>到底在算什么 (slide 9)。",
-          "en": "Place the <wiki-ref to=\"kernel\"></wiki-ref> at one position in the image, align it, multiply element by element and then add up, written as g(i,j)=Σ_{u,v} h(u,v) f(i−u,j−v), where f is the input, h the kernel weights, g the output and (u,v) the offset within the neighbourhood. The i−u, j−v in the formula denote <wiki-ref to=\"mathematical-convolution\"></wiki-ref>; <wiki-ref to=\"cross-correlation\"></wiki-ref>, which multiplies directly with the window aligned, reads i+u, j+v instead. When the centre weight is 1 and all others are 0, both copy the current <wiki-ref to=\"pixel\"></wiki-ref>. A common mistake: Thinking the i−u in the formula is the same thing as multiplying directly with the window aligned. Source: COMP90086 lecture 3 notes, §1 (slide 9). (<wiki-ref to=\"linear-filter\"></wiki-ref>)"
-        }
-      ]
-    },
-    {
-      "id": "padding-border-rules",
-      "group": "image",
-      "title": { "zh": "补边", "en": "padding" },
-      "at": "2B2",
-      "body": [
-        {
-          "zh": "在图像外补<wiki-ref to=\"pixel\"></wiki-ref>可使输出与输入同尺寸。Constant/zero 补固定值，简单但可能制造黑边；Wrap 把左接右、上接下，适合 tileable 纹理而不适合普通照片；Clamp/replicate 把边缘像素向外延伸，普通照片通常较自然；Reflect 镜像延伸，常能减少人工边界。没有一种规则永远最好，要看图像是否周期性、任务是否关心边缘及滤波器性质。常见的误解：以为补零总是最好的默认选择。出处：COMP90086 第 3 讲笔记，§4 四种常见边界规则 (slides 42, 43, 44, 45)。",
-          "en": "Padding <wiki-ref to=\"pixel\"></wiki-ref> outside the image lets the output be the same size as the input. Constant/zero fills with a fixed value, which is simple but may create black borders; Wrap joins left to right and top to bottom, which suits tileable textures but not ordinary photos; Clamp/replicate extends the edge pixel outwards, which usually looks more natural for ordinary photos; Reflect extends by mirroring and often reduces artificial borders. No rule is always best; it depends on whether the image is periodic, whether the task cares about the edges and the properties of the filter. A common mistake: Thinking zero padding is always the best default choice. Source: COMP90086 lecture 3 notes, §4 (slides 42, 43, 44, 45)."
-        }
-      ]
-    },
-    {
-      "id": "convolution-vs-cross-correlation",
-      "group": "image",
-      "title": { "zh": "卷积与互相关", "en": "convolution and cross-correlation" },
-      "at": "2B3",
-      "body": [
-        {
-          "zh": "两者都做“滑动、相乘、相加”，唯一关键区别是<wiki-ref to=\"mathematical-convolution\"></wiki-ref>先把核旋转 180° 再使用，<wiki-ref to=\"cross-correlation\"></wiki-ref>直接使用。核关于中心对称时两者结果相同；核不对称时方向会改变。手算前要先确定是否翻核。常见的误解：以为翻转只是左右翻，或以为任何核卷积与互相关结果都不同。出处：COMP90086 第 3 讲笔记，§1 互相关和卷积 (slide 17)。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-          "en": "Both do ‘slide, multiply, add’; the only key difference is that <wiki-ref to=\"mathematical-convolution\"></wiki-ref> first rotates the <wiki-ref to=\"kernel\"></wiki-ref> by 180° before using it, whereas <wiki-ref to=\"cross-correlation\"></wiki-ref> uses it directly. When the kernel is symmetric about its centre the two give the same result; when it is not, the direction changes. Before calculating by hand, first decide whether to flip the kernel. A common mistake: Thinking the flip is only a left–right flip, or thinking convolution and cross-correlation give different results for every kernel. Source: COMP90086 lecture 3 notes, §1 (slide 17)."
-        }
-      ]
-    },
-    {
-      "id": "linear-filter-properties",
-      "group": "image",
-      "title": {
-        "zh": "线性滤波性质",
-        "en": "linear filter properties"
-      },
-      "at": "2B5",
-      "body": [
-        {
-          "zh": "<wiki-ref to=\"linear-filter\"></wiki-ref>满足交换律 f*h=h*f、结合律 f*h₁*h₂=f*(h₁*h₂)、分配律（滤波器可分配到相加的图像上）和标量结合律 k(f*h)=(kf)*h=f*(kh)。这些性质帮助重排计算。理论上可以交换或合并操作，但实际还要考虑图像大小、内存访问、是否需要中间结果和程序库实现。常见的误解：以为数学上可交换就一定更快。出处：COMP90086 第 3 讲笔记，§3 线性滤波的四个代数性质 (slide 37)。",
-          "en": "<wiki-ref to=\"linear-filter\"></wiki-ref> satisfies commutativity f*h=h*f, associativity f*h₁*h₂=f*(h₁*h₂), distributivity (a filter distributes over images that are added together) and scalar associativity k(f*h)=(kf)*h=f*(kh). These properties help rearrange the computation. In theory operations can be swapped or combined, but in practice you also have to consider image size, memory access, whether intermediate results are needed and the library's implementation. A common mistake: Thinking that being mathematically interchangeable necessarily makes it faster. Source: COMP90086 lecture 3 notes, §3 (slide 37)."
-        }
-      ]
-    },
-    {
-      "id": "separable-filter",
-      "group": "image",
-      "title": { "zh": "可分离滤波", "en": "Separable filter" },
-      "at": "2B5",
-      "body": [
-        {
-          "zh": "若二维核可写成一个列向量与一个行向量的外积，就叫可分离，此时可先对每一行做一维滤波，再对每一列做一维滤波。k×k 核每<wiki-ref to=\"pixel\"></wiki-ref>约需 k² 次乘法，拆开后约需 2k 次，k 大时差别明显。高斯核常常接近或可以构造成可分离核。常见的误解：以为任何二维核都能拆成两个一维核。出处：COMP90086 第 3 讲笔记，§3 可分离滤波：把二维计算拆成两次一维计算 (slides 39, 40)。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-          "en": "If a 2D <wiki-ref to=\"kernel\"></wiki-ref> can be written as the outer product of a column vector and a row vector, it is called separable; you can then first apply a 1D filter to each row and then a 1D filter to each column. A k×k kernel needs about k² multiplications per <wiki-ref to=\"pixel\"></wiki-ref>; split up, it needs about 2k, and the difference is significant when k is large. Gaussian kernels are often close to separable or can be constructed to be separable. A common mistake: Thinking any 2D kernel can be split into two 1D kernels. Source: COMP90086 lecture 3 notes, §3 (slides 39, 40)."
-        }
-      ]
-    },
-    {
-      "id": "gaussian-filter",
-      "group": "image",
-      "title": { "zh": "高斯滤波", "en": "Gaussian filtering" },
-      "at": "2B6",
-      "body": [
-        {
-          "zh": "均值滤波给邻域每个<wiki-ref to=\"pixel\"></wiki-ref>相同权重；高斯滤波离中心越近权重越大，形式为 G_σ(x,y)=1/(2πσ²)·exp(−(x²+y²)/(2σ²))。σ 控制影响范围，σ 越大模糊越强。模糊核通常归一化使权重和为 1，以免改变整体平均亮度；两种核都减少细节，但权重分配不同，保留的细节也不同。常见的误解：以为高斯模糊和均值模糊效果完全一样，或忘记归一化。出处：COMP90086 第 3 讲笔记，§2 模糊：让变化变慢 (slides 27, 28)。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-          "en": "A mean filter gives every <wiki-ref to=\"pixel\"></wiki-ref> in the neighbourhood the same weight; a Gaussian filter gives larger weights the closer a pixel is to the centre, in the form G_σ(x,y)=1/(2πσ²)·exp(−(x²+y²)/(2σ²)). σ controls the extent of the influence: the larger σ, the stronger the blur. A blur <wiki-ref to=\"kernel\"></wiki-ref> is usually normalised so that the weights sum to 1, so as not to change the overall average brightness; both kernels reduce detail, but they distribute the weights differently, so they preserve different detail. A common mistake: Thinking Gaussian blur and mean blur have exactly the same effect, or forgetting to normalise. Source: COMP90086 lecture 3 notes, §2 (slides 27, 28)."
-        }
-      ]
-    },
-    {
-      "id": "sobel-filter",
-      "group": "image",
-      "title": { "zh": "Sobel 滤波", "en": "Sobel filtering" },
-      "at": "2B7",
-      "body": [
-        {
-          "zh": "Sobel 用相互垂直的两组权重近似求强度变化。本游戏直接按窗口对齐相乘：g_x 的横向权重为 [−1,0,1]、纵向为 [1,2,1]；g_y 交换两个方向，所以沿坐标正方向从暗到亮为正。数学<wiki-ref to=\"mathematical-convolution\"></wiki-ref>采用相反的核写法；不能把<wiki-ref to=\"cross-correlation\"></wiki-ref>的符号约定与翻转后的核混用。[1,2,1] 的和为 4，本游戏不额外归一化。出处：COMP90086 第 3 讲，slides 29–30。 (<wiki-ref to=\"kernel\"></wiki-ref>) 本游戏二维滤波部件接收书写顺序的核：求 gx 时横向输入 [1,0,−1]，求 gy 时纵向输入 [1,0,−1]；它内部的翻转会得到上述位置权重。",
-          "en": "Sobel approximates intensity changes with two perpendicular sets of weights. This game aligns weights directly with the window: g_x uses [−1,0,1] across and [1,2,1] down; g_y swaps the directions. Dark to bright along a positive coordinate direction is therefore positive. Mathematical <wiki-ref to=\"mathematical-convolution\"></wiki-ref> writes the flipped <wiki-ref to=\"kernel\"></wiki-ref>; do not mix conventions. The [1,2,1] weights sum to 4 and are not normalised here. Source: COMP90086 Lecture 3, slides 29–30. (<wiki-ref to=\"cross-correlation\"></wiki-ref>) The 2D filter part takes written kernels: supply [1,0,−1] horizontally for gx or vertically for gy; its internal reversal yields the positional weights above."
-        }
-      ],
-      "aliases": [{ "zh": "Sobel", "en": "Sobel" }]
-    },
-    {
-      "id": "edge-as-rapid-change",
-      "group": "image",
-      "title": { "zh": "图像边缘", "en": "image edge" },
-      "at": "2B7",
-      "body": [
-        {
-          "zh": "沿一条水平扫描线看图像强度：平坦区域变化慢，边缘附近变化快。对强度求导数，就能突出这种变化。常见的误解：以为边缘是亮度高的地方。出处：COMP90086 第 5 讲笔记，§3 梯度：把“变化快”写成数字 (slide 39)。",
-          "en": "Look at the image intensity along a horizontal scan line: in flat regions it changes slowly, and near edges it changes quickly. Taking the derivative of the intensity highlights this change. A common mistake: Thinking edges are where the brightness is high. Source: COMP90086 lecture 5 notes, §3 (slide 39)."
-        }
-      ]
-    },
-    {
-      "id": "image-gradient",
-      "group": "image",
-      "title": { "zh": "图像梯度", "en": "image gradient" },
-      "at": "2B8",
-      "body": [
-        {
-          "zh": "二维图像 f(x,y) 的梯度是 ∇f=[∂f/∂x, ∂f/∂y]ᵀ。幅度 ‖∇f‖=√((∂f/∂x)²+(∂f/∂y)²) 表示变化有多强，方向 θ=atan2(∂f/∂y, ∂f/∂x) 表示变化最快的方向。常见的误解：把梯度方向当成边缘的走向。出处：COMP90086 第 5 讲笔记，§3 梯度：把“变化快”写成数字 (slide 40)。",
-          "en": "The gradient of a 2D image f(x,y) is ∇f=[∂f/∂x, ∂f/∂y]ᵀ. The magnitude ‖∇f‖=√((∂f/∂x)²+(∂f/∂y)²) indicates how strong the change is, and the direction θ=atan2(∂f/∂y, ∂f/∂x) indicates the direction of fastest change. A common mistake: Taking the gradient direction to be the direction in which the edge runs. Source: COMP90086 lecture 5 notes, §3 (slide 40)."
-        }
-      ]
-    },
-    {
-      "id": "colour-filtering",
-      "group": "image",
-      "title": { "zh": "彩色图像滤波", "en": "colour image filtering" },
-      "at": "2B9",
-      "body": [
-        {
-          "zh": "<wiki-ref to=\"rgb\"></wiki-ref> 图像除空间维度外还有<wiki-ref to=\"colour-channel\"></wiki-ref>维度，颜色滤波器尺寸可以是 K_h×K_w×3。它同时看同一邻域的 R、G、B，把所有乘积加在一起得到一个输出数值。常见错误是把 height×width×channel 当成普通二维图像，忘记核还要覆盖颜色通道维度。常见的误解：以为彩色滤波得到三个输出值或只对一个颜色通道操作。出处：COMP90086 第 3 讲笔记，§2 彩色图像的滤波核多了一个维度 (slide 31)。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-          "en": "Besides its spatial dimensions, an <wiki-ref to=\"rgb\"></wiki-ref> image also has a <wiki-ref to=\"colour-channel\"></wiki-ref> dimension, so a colour filter can have size K_h×K_w×3. It looks at R, G and B in the same neighbourhood at once and sums all the products to give a single output value. A common mistake is to treat height×width×colour channel as an ordinary 2D image and forget that the <wiki-ref to=\"kernel\"></wiki-ref> must also cover the colour channel dimension. A common mistake: Thinking colour filtering produces three output values, or operates on only one colour channel. Source: COMP90086 lecture 3 notes, §2 (slide 31)."
-        }
-      ]
-    },
-    {
-      "id": "pixel-to-mm-focal-length",
-      "group": "image",
-      "title": { "zh": "像素换算成传感器毫米再求焦距", "en": "Converting pixels to sensor millimetres to find focal length" },
-      "at": "1W1",
-      "body": [
-        {
-          "zh": "<wiki-ref to=\"sensor\"></wiki-ref>高 20 mm 对应 200 <wiki-ref to=\"pixel\"></wiki-ref>，物体在图像中高 100 像素，所以它在传感器上高 h_i = 20 mm × 100/200 = 10 mm。物体实际高 h_o = 120 mm、距离 z = 600 mm，由<wiki-ref to=\"similar-triangles\"></wiki-ref> h_i/f = h_o/z 得 f = h_i·z/h_o = 10×600/120 = 50 mm。重点是先把像素换成传感器上的毫米，不能直接把像素和毫米放进同一个比例式。常见的误解：直接把 100 像素当作 h_i 代入，得到单位混乱的 f = 100×600/120 = 500。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 用传感器尺寸求<wiki-ref to=\"focal-length\"></wiki-ref>。",
-          "en": "A <wiki-ref to=\"sensor\"></wiki-ref> height of 20 mm corresponds to 200 <wiki-ref to=\"pixel\"></wiki-ref> samples, and the object is 100 pixels high in the image, so its height on the sensor is h_i = 20 mm × 100/200 = 10 mm. The object's real height is h_o = 120 mm and its distance is z = 600 mm, so by <wiki-ref to=\"similar-triangles\"></wiki-ref> h_i/f = h_o/z, giving f = h_i·z/h_o = 10×600/120 = 50 mm. The key point is to convert pixel counts into millimetres on the sensor first; you cannot put pixel counts and millimetres directly into the same proportion. A common mistake: Substituting the 100 pixels directly as h_i, giving f = 100×600/120 = 500 with muddled units. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·. (<wiki-ref to=\"focal-length\"></wiki-ref>)"
-        }
-      ]
-    },
-    {
-      "id": "opencv-size-vs-numpy-shape",
-      "group": "image",
-      "title": {
-        "zh": "OpenCV 尺寸 (width, height) 与 NumPy 形状 (height, width, channels)",
-        "en": "OpenCV (width, height) vs NumPy (height, width, channels)"
-      },
-      "at": "1W2",
-      "body": [
-        {
-          "zh": "OpenCV 的大小 tuple 是 (width, height)，NumPy 形状却通常写成 (height, width, channels)。所以不能把 NumPy 的形状原样当作 OpenCV 的缩放尺寸，否则宽和高会对调。常见的误解：把 image.shape[:2] 直接传给 OpenCV 的缩放函数。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 缩放、中心裁剪和深拷贝。 (<wiki-ref to=\"colour-channel\"></wiki-ref>)",
-          "en": "An OpenCV size tuple is (width, height), whereas a NumPy shape is usually written (height, width, <wiki-ref to=\"colour-channel\"></wiki-ref>). So you cannot use a NumPy shape as-is as an OpenCV resize size, or the width and height will be swapped. A common mistake: Passing image.shape[:2] straight to OpenCV's resize function. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·."
-        }
-      ]
-    },
-    {
-      "id": "center-crop-and-copy",
-      "group": "image",
-      "title": { "zh": "中心裁剪与深拷贝", "en": "Centre crop and copying a NumPy slice" },
-      "at": "1W2",
-      "body": [
-        {
-          "zh": "对 H×W 图像做宽 w_c、高 h_c 的中心裁剪，起点为 x0 = ⌊(W−w_c)/2⌋、y0 = ⌊(H−h_c)/2⌋，然后取 image[y0:y0 + hc, x0:x0 + wc]（行方向 y 在前）。NumPy 切片常返回视图；如果要修改副本而不影响原裁剪，应使用 .copy()。常见的误解：把切片写成 image[x0:..., y0:...]；或以为切片得到的是独立副本，修改它不会影响原数组。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 缩放、中心裁剪和深拷贝。",
-          "en": "To take a centre crop of width w_c and height h_c from an H×W image, the starting point is x0 = ⌊(W−w_c)/2⌋, y0 = ⌊(H−h_c)/2⌋; then take image[y0:y0 + hc, x0:x0 + wc] (the row direction y comes first). NumPy slicing often returns a view; if you want to modify a copy without affecting the original crop, use .copy(). A common mistake: Writing the slice as image[x0:..., y0:...]; or thinking a slice is an independent copy, so modifying it will not affect the original array. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·."
-        }
-      ]
-    },
-    {
-      "id": "opencv-bgr-to-rgb",
-      "group": "image",
-      "title": { "zh": "OpenCV 的 BGR 与 Matplotlib 的 RGB", "en": "OpenCV BGR vs Matplotlib RGB" },
-      "at": "2W1",
-      "body": [
-        {
-          "zh": "cv2.imread 默认读入 BGR，但 matplotlib.pyplot.imshow 按 <wiki-ref to=\"rgb\"></wiki-ref> 显示，所以显示前要用 cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 转换。这只改变<wiki-ref to=\"colour-channel\"></wiki-ref>顺序，不改变图像内容或空间尺寸。常见的误解：显示时红蓝颠倒，却以为图片本身坏了；或以为转换会改变图像尺寸。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · OpenCV 和 Matplotlib 的颜色顺序。",
-          "en": "cv2.imread reads images as BGR by default, but matplotlib.pyplot.imshow displays them as <wiki-ref to=\"rgb\"></wiki-ref>, so convert with cv2.cvtColor(image, cv2.COLOR_BGR2RGB) before displaying. This changes only the <wiki-ref to=\"colour-channel\"></wiki-ref> order, not the image content or spatial size. A common mistake: Seeing red and blue swapped on display and thinking the image itself is broken; or thinking the conversion changes the image size. Source: COMP90086 lecture 2 notes, §4 Workshop 2 · OpenCV Matplotlib."
-        }
-      ]
-    },
-    {
-      "id": "channel-edit-dtype",
-      "group": "image",
-      "title": { "zh": "修改通道值与避免 uint8 溢出", "en": "Editing a channel without uint8 overflow" },
-      "at": "2W1",
-      "body": [
-        {
-          "zh": "Workshop 中对 BGR 图像把红色<wiki-ref to=\"colour-channel\"></wiki-ref>改成蓝色与绿色颜色通道的平均值：R'(x,y) = (G(x,y)+B(x,y))/2。如果原数组是 uint8，要先用较宽或浮点类型做计算，再明确 cast，避免溢出或隐式截断。常见的误解：在 BGR 数组里把第 0 个颜色通道当成红色；或直接用 uint8 相加后再除以 2。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 缩放、中心裁剪和深拷贝。",
-          "en": "In the workshop, the red <wiki-ref to=\"colour-channel\"></wiki-ref> of a BGR image is replaced by the average of the blue and green channel values: R'(x,y) = (G(x,y)+B(x,y))/2. If the original array is uint8, first do the calculation in a wider or floating-point type, then cast explicitly, to avoid overflow or implicit truncation. A common mistake: Treating colour channel 0 of a BGR array as red; or adding directly in uint8 and then dividing by 2. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·."
-        }
-      ]
-    },
-    {
-      "id": "optical-axis",
-      "group": "image",
-      "title": { "zh": "光轴", "en": "optical axis" },
-      "body": [
-        {
-          "zh": "穿过<wiki-ref to=\"camera-centre\"></wiki-ref>、垂直于<wiki-ref to=\"virtual-image-plane\"></wiki-ref>的参考直线。本游戏以它为 Z 方向，物点的横向偏移和像点的带符号偏移都相对它测量。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "The reference line through the <wiki-ref to=\"camera-centre\"></wiki-ref> perpendicular to the <wiki-ref to=\"virtual-image-plane\"></wiki-ref>. It is the Z direction here; lateral scene and image offsets are measured relative to it. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22."
-        }
-      ]
-    },
-    {
-      "id": "camera-centre",
-      "group": "image",
-      "title": { "zh": "相机中心", "en": "camera centre" },
-      "body": [
-        {
-          "zh": "理想针孔模型中所有<wiki-ref to=\"projection-ray\"></wiki-ref>经过的点 O，也是相机坐标的原点。<wiki-ref to=\"virtual-image-plane\"></wiki-ref>在它前方。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "The point O through which all projection rays pass in the ideal pinhole model, and the origin of camera coordinates. The <wiki-ref to=\"virtual-image-plane\"></wiki-ref> is in front of it. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22. (<wiki-ref to=\"projection-ray\"></wiki-ref>)"
-        }
-      ]
-    },
-    {
-      "id": "virtual-image-plane",
-      "group": "image",
-      "title": { "zh": "虚像平面", "en": "virtual image plane" },
-      "body": [
-        {
-          "zh": "为避免倒像而假想放在相机前方的成像平面，离<wiki-ref to=\"camera-centre\"></wiki-ref>的距离是 f。真实针孔后的屏幕会倒像；这里不混用这两种约定。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "An imaginary image plane in front of the camera, at distance f from its centre, used to avoid inversion. A screen behind a real pinhole gives an inverted image; the two conventions are not mixed here. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22. (<wiki-ref to=\"camera-centre\"></wiki-ref>)"
-        }
-      ],
-      "aliases": [{ "zh": "像平面", "en": "image plane" }]
-    },
-    {
-      "id": "focal-length",
-      "group": "image",
-      "title": { "zh": "焦距", "en": "focal length" },
-      "body": [
-        {
-          "zh": "本课程理想投影模型中的 f 表示<wiki-ref to=\"camera-centre\"></wiki-ref>到<wiki-ref to=\"virtual-image-plane\"></wiki-ref>的距离。物体位置不变时，f 越大，投影的长度或偏移越大。真实镜头的完整光学模型不由这一个参数描述。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "In this ideal projection model f is the distance from the <wiki-ref to=\"camera-centre\"></wiki-ref> to the <wiki-ref to=\"virtual-image-plane\"></wiki-ref>. For a fixed scene, a larger f gives a larger projected length or offset. One parameter does not describe the full optics of a real lens. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22."
-        }
-      ]
-    },
-    {
-      "id": "similar-triangles",
-      "group": "image",
-      "title": { "zh": "相似三角形", "en": "similar triangles" },
-      "body": [
-        {
-          "zh": "对应角相等、对应边成比例的三角形。针孔侧视图里，物点和像点与<wiki-ref to=\"camera-centre\"></wiki-ref>构成的两个直角三角形共用一个角，因此 u/f = X/Z。图若纵横缩放不同，比例关系由标注数值而非画面角度判断。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "Triangles with equal corresponding angles and proportional corresponding sides. In the pinhole slice, the right triangles from scene and image points share an angle at the <wiki-ref to=\"camera-centre\"></wiki-ref>, so u/f = X/Z. In a stretched schematic use the measurements rather than apparent angles. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22."
-        }
-      ]
-    },
-    {
-      "id": "sensor",
-      "group": "image",
-      "title": { "zh": "传感器", "en": "sensor" },
-      "body": [
-        {
-          "zh": "将到达平面的光记录为数字读数的器件。在本游戏几何图里，用一段有限宽或高的区域表示它，示例采用均匀取样。出处：COMP90086 第 2 讲，slide 8。",
-          "en": "The device recording incoming light as digital measurements. The geometric views represent it as a finite width or height, sampled uniformly in these examples. Source: COMP90086 Lecture 2, slide 8."
-        }
-      ],
-      "aliases": [{ "zh": "传感器", "en": "sensors" }]
-    },
-    {
-      "id": "field-of-view",
-      "group": "image",
-      "title": { "zh": "竖直视场", "en": "vertical field of view" },
-      "body": [
-        {
-          "zh": "从<wiki-ref to=\"camera-centre\"></wiki-ref>向<wiki-ref to=\"sensor\"></wiki-ref>上、下边缘看去，两条边界<wiki-ref to=\"projection-ray\"></wiki-ref>之间的全角。对居中的传感器，高 S、<wiki-ref to=\"focal-length\"></wiki-ref> f 时，半角满足 tan(θ/2)=S/(2f)，所以全角为 2 arctan(S/(2f))。水平视场将高度换成宽度。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "The full angle between rays from the <wiki-ref to=\"camera-centre\"></wiki-ref> to the <wiki-ref to=\"sensor\"></wiki-ref> top and bottom edges. For a centred sensor of height S and <wiki-ref to=\"focal-length\"></wiki-ref> f, tan(θ/2)=S/(2f), giving θ=2 arctan(S/(2f)). For horizontal field of view use width instead of height. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22. (<wiki-ref to=\"projection-ray\"></wiki-ref>)"
-        }
-      ],
-      "at": "1F1"
     },
     {
       "id": "pixel",
       "group": "image",
-      "title": { "zh": "像素", "en": "pixel" },
+      "title": { "zh": "像素", "en": "Pixel" },
+      "at": "0-1",
       "body": [
         {
-          "zh": "数字图像中的一个采样位置和它记录的数值；<wiki-ref to=\"greyscale-image\"></wiki-ref>记录一个强度值，<wiki-ref to=\"rgb\"></wiki-ref> 图记录三个<wiki-ref to=\"colour-channel\"></wiki-ref>值。像素的索引、物理尺寸和记录值是不同的量。 出处：COMP90086 Lecture 2, slides 22–25。",
-          "en": "A sampled location in a digital image and the value recorded there: one intensity in greyscale, three <wiki-ref to=\"colour-channel\"></wiki-ref> values in <wiki-ref to=\"rgb\"></wiki-ref>. Its index, physical size and recorded value are different quantities. Source: COMP90086 Lecture 2, slides 22–25. (<wiki-ref to=\"greyscale-image\"></wiki-ref>)"
-        }
-      ],
-      "aliases": [{ "zh": "像素", "en": "pixels" }]
-    },
-    {
-      "id": "colour-channel",
-      "group": "image",
-      "title": { "zh": "颜色通道", "en": "colour channel" },
-      "body": [
-        {
-          "zh": "彩色图像中同一类分量组成的二维数表。本游戏主线约定一个彩色<wiki-ref to=\"pixel\"></wiki-ref>按 R、G、B 排列，每个值在 0 到 1 之间；取一个通道不改变空间位置。 出处：COMP90086 Lecture 2, slides 22–25。",
-          "en": "A 2D table of one component of a colour image. Main-path examples use R, G, B order with values from 0 to 1; extracting a channel preserves spatial locations. Source: COMP90086 Lecture 2, slides 22–25. (<wiki-ref to=\"pixel\"></wiki-ref>)"
-        }
-      ],
-      "aliases": [{ "zh": "通道", "en": "channel" }, { "zh": "颜色通道", "en": "channels" }]
-    },
-    {
-      "id": "pixel-pitch",
-      "group": "image",
-      "title": { "zh": "像素间距", "en": "pixel pitch" },
-      "body": [
-        {
-          "zh": "相邻<wiki-ref to=\"pixel\"></wiki-ref>中心在<wiki-ref to=\"sensor\"></wiki-ref>上的物理距离。均匀采样时，传感器宽 W、横向 N 个像素，间距 s=W/N。物理偏移除以 s 才得到像素偏移。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "The physical distance between adjacent <wiki-ref to=\"pixel\"></wiki-ref> centres on the <wiki-ref to=\"sensor\"></wiki-ref>. With uniform sampling, a width W containing N pixels has pitch s=W/N. Divide a physical offset by s to obtain an offset in pixel units. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22."
-        }
-      ],
-      "at": "1A3"
-    },
-    {
-      "id": "principal-point",
-      "group": "image",
-      "title": { "zh": "主点", "en": "principal point" },
-      "body": [
-        {
-          "zh": "<wiki-ref to=\"optical-axis\"></wiki-ref>与<wiki-ref to=\"virtual-image-plane\"></wiki-ref>的交点。用图像坐标表示为 (c_x,c_y)，不一定在图像中心。本游戏坐标条假设居中；<wiki-ref to=\"pixel\"></wiki-ref>中心索引从 0 到 N−1 时，居中位置为 (N−1)/2，<wiki-ref to=\"sensor\"></wiki-ref>两边界为 −0.5 和 N−0.5。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "The intersection of the <wiki-ref to=\"optical-axis\"></wiki-ref> and <wiki-ref to=\"virtual-image-plane\"></wiki-ref>, at image coordinates (c_x,c_y); it need not be at the image centre. These strips assume it is centred: with centre indices 0 to N−1, its coordinate is (N−1)/2 and <wiki-ref to=\"sensor\"></wiki-ref> edges are −0.5 and N−0.5. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22. (<wiki-ref to=\"pixel\"></wiki-ref>)"
-        }
-      ],
-      "at": "1A3"
-    },
-    {
-      "id": "pixel-focal-length",
-      "group": "image",
-      "title": { "zh": "像素焦距", "en": "focal length in pixels" },
-      "body": [
-        {
-          "zh": "把物理<wiki-ref to=\"focal-length\"></wiki-ref> f 除以对应方向的<wiki-ref to=\"pixel-pitch\"></wiki-ref> s，得到 f_px=f/s。横向和纵向间距不同时两个方向的<wiki-ref to=\"pixel\"></wiki-ref>焦距也不同。它是单位换算，并没有移动相机或改变光路。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "The physical <wiki-ref to=\"focal-length\"></wiki-ref> f divided by the <wiki-ref to=\"pixel-pitch\"></wiki-ref> s in the relevant direction: f_px=f/s. Different horizontal and vertical pitches give different values. This converts units without moving the camera or changing its rays. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22. (<wiki-ref to=\"pixel\"></wiki-ref>)"
-        }
-      ],
-      "at": "1A3"
-    },
-    {
-      "id": "pixel-camera",
-      "group": "image",
-      "title": { "zh": "像素相机坐标", "en": "pixel camera coordinates" },
-      "body": [
-        {
-          "zh": "在横向相机切面里，物点横向 X、深度 Z 的带符号投影偏移是 f_px X/Z；从图像左侧的<wiki-ref to=\"pixel\"></wiki-ref>中心原点读坐标时，还需加上<wiki-ref to=\"principal-point\"></wiki-ref>坐标 c_x：x=f_px X/Z+c_x。偏移可以为负，列坐标的原点不同。 出处：COMP90086 Lecture 2, slides 11, 15, 18, 22。",
-          "en": "In a horizontal camera slice the signed projected offset is f_px X/Z for lateral X and depth Z. To express it from the image <wiki-ref to=\"pixel\"></wiki-ref>-centre origin, add the principal-point coordinate c_x: x=f_px X/Z+c_x. Signed offset and column coordinate have different origins. Source: COMP90086 Lecture 2, slides 11, 15, 18, 22. (<wiki-ref to=\"principal-point\"></wiki-ref>)"
-        }
-      ],
-      "at": "1A3"
-    },
-    {
-      "id": "impulse",
-      "group": "image",
-      "title": { "zh": "脉冲图像", "en": "impulse image" },
-      "body": [
-        {
-          "zh": "只有一个位置非零的图像。移动窗口时，观察这个位置分别被哪一个权重乘到，可以辨别核的方向。 出处：COMP90086 Lecture 3, slide 17。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-          "en": "An image with a single nonzero location. Tracking which weight meets that location as the window moves reveals the <wiki-ref to=\"kernel\"></wiki-ref> orientation. Source: COMP90086 Lecture 3, slide 17."
-        }
-      ],
-      "at": "2B3"
-    },
-    {
-      "id": "kernel",
-      "group": "image",
-      "title": { "zh": "卷积核", "en": "kernel" },
-      "body": [
-        {
-          "zh": "局部滤波使用的一组权重。这里一维窗口按左、中、右或上、中、下标明位置；<wiki-ref to=\"cross-correlation\"></wiki-ref>直接按这些位置使用，数学<wiki-ref to=\"mathematical-convolution\"></wiki-ref>先翻转方向。 出处：COMP90086 Lecture 3, slides 9–17。",
-          "en": "The weights of a local filter. A 1D window is labelled left/centre/right or above/centre/below here; correlation uses those positions directly, while mathematical <wiki-ref to=\"mathematical-convolution\"></wiki-ref> flips them first. Source: COMP90086 Lecture 3, slides 9–17. (<wiki-ref to=\"cross-correlation\"></wiki-ref>)"
-        }
-      ],
-      "at": "2B1",
-      "aliases": [{ "zh": "卷积核", "en": "kernels" }]
-    },
-    {
-      "id": "projection-ray",
-      "group": "image",
-      "title": { "zh": "投影光线", "en": "projection ray" },
-      "body": [
-        {
-          "zh": "理想投影模型中连接物点、<wiki-ref to=\"camera-centre\"></wiki-ref>和像点的直线。在<wiki-ref to=\"virtual-image-plane\"></wiki-ref>约定下，三者在同一方向的直线上。 出处：COMP90086 第 2 讲，slides 11、22–26。",
-          "en": "A straight line joining a scene point, <wiki-ref to=\"camera-centre\"></wiki-ref> and image point in the ideal model. With the virtual-plane convention they lie along the same forward direction. Source: COMP90086 Lecture 2, slides 11, 22–26. (<wiki-ref to=\"virtual-image-plane\"></wiki-ref>)"
-        }
-      ],
-      "aliases": [{ "zh": "光线", "en": "ray" }]
-    },
-    {
-      "id": "greyscale-image",
-      "group": "image",
-      "title": { "zh": "灰度图", "en": "greyscale image" },
-      "body": [
-        {
-          "zh": "每个采样位置只有一个强度数值的图像。本游戏用数表表示它；数值计算不自动限制在显示亮度范围内。 出处：COMP90086 第 2 讲，slides 11、22–26。",
-          "en": "An image with one intensity value per sampled location. It is represented by a table here; numerical computation need not stay inside the display intensity range. Source: COMP90086 Lecture 2, slides 11, 22–26."
-        }
-      ],
-      "aliases": [{ "zh": "灰度", "en": "grey image" }]
-    },
-    {
-      "id": "rgb",
-      "group": "image",
-      "title": { "zh": "RGB", "en": "RGB" },
-      "body": [
-        {
-          "zh": "以红、绿、蓝三个<wiki-ref to=\"colour-channel\"></wiki-ref>表示颜色。本游戏主线按 R、G、B 排列数值，每个颜色通道示例取 0 到 1；不表示自然光只有这三个波长。 出处：COMP90086 第 2 讲，slides 11、22–26。",
-          "en": "A colour representation using red, green and blue <wiki-ref to=\"colour-channel\"></wiki-ref> components. Main-path examples use R, G, B order and values from 0 to 1; this does not mean natural light has only three wavelengths. Source: COMP90086 Lecture 2, slides 11, 22–26."
+          "zh": "图像采样格，包含一个或多个通道读数。显示亮度限于 0–1，计算值可超出该区间。",
+          "en": "An image sample location with one or more channel readings. Display is clipped to 0–1, but stored values may lie outside it."
         }
       ]
-    },
-    {
-      "id": "coordinate-image",
-      "group": "image",
-      "title": { "zh": "坐标图", "en": "coordinate image" },
-      "body": [
-        {
-          "zh": "本游戏的表示工具（应用举例）：一张存坐标而非亮度的数表。x 图每格记录要读取的列，y 图记录要读取的行；两张一起决定新图每格从原图何处取值。 依据：COMP90086 第 2 讲，slides 11、22–26。",
-          "en": "A game representation tool (application example): a table containing coordinates rather than intensities. Each x cell records a source column, each y cell a source row; together they determine where every output reads from. Adapted from: COMP90086 Lecture 2, slides 11, 22–26."
-        }
-      ],
-      "at": "1A5"
-    },
-    {
-      "id": "mathematical-convolution",
-      "group": "image",
-      "title": { "zh": "卷积", "en": "convolution" },
-      "body": [
-        {
-          "zh": "把核反向后沿输入滑动，逐项相乘求和。一维反转左、右顺序，二维反转两个方向（旋转 180°）。本游戏的行、列滤波部件直接使用位置权重，需要在接线时安排翻转。 出处：COMP90086 第 3 讲，slides 9–17。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-          "en": "A weighted sum over a sliding input window with the <wiki-ref to=\"kernel\"></wiki-ref> reversed: reverse left/right in 1D, and both axes (180° rotation) in 2D. The row and column filter parts use positional weights directly, so wire the reversal when required. Source: COMP90086 Lecture 3, slides 9–17."
-        }
-      ],
-      "at": "2B1"
-    },
-    {
-      "id": "cross-correlation",
-      "group": "image",
-      "title": { "zh": "互相关", "en": "cross-correlation" },
-      "body": [
-        {
-          "zh": "将窗口中的值与相同位置的核权重相乘再求和，不翻转核。它与<wiki-ref to=\"mathematical-convolution\"></wiki-ref>的差别在非对称权重上才会显现。 出处：COMP90086 第 3 讲，slides 9–17。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
-          "en": "Multiply each window value by the <wiki-ref to=\"kernel\"></wiki-ref> weight at the same position and sum, without flipping the kernel. Asymmetric weights expose its difference from <wiki-ref to=\"mathematical-convolution\"></wiki-ref>. Source: COMP90086 Lecture 3, slides 9–17."
-        }
-      ],
-      "at": "2B1"
     }
   ]
 }

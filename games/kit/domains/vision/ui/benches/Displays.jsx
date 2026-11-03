@@ -9,7 +9,7 @@ import { blurAt, imageAt } from '../../benches/lens.js'
 
 const W = 640
 
-export { PinholeRays, PinholeField, SensorCoordinates } from './Pinhole.jsx'
+export { PinholeRays, PinholeField } from './Pinhole.jsx'
 
 /** The thin lens from the side: the objects at their depths on the left (squeezed), the lens, and behind it, drawn
  *  larger, where each object images and the cone it spreads into on the sensor. */

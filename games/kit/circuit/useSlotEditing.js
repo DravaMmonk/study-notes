@@ -204,7 +204,11 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     const handlers = {
       scroller: scroller.current,
       start: (g) => g.kind === 'port' && latest.current.unpick(),
-      move: (g) => g.kind === 'port' && board() && drawWires(board(), latest.current.graph, latest.current.parts, { from: g.id, x: g.x, y: g.y }),
+      // drag.js has applied the part's transform before this callback; read the moved ports, including frame contents.
+      move: (g) => {
+        const el = board()
+        if (el) drawWires(el, latest.current.graph, latest.current.parts, g.kind === 'port' ? { from: g.id, x: g.x, y: g.y } : undefined)
+      },
       drop: (g) => {
         const now = latest.current
         const over = g.over

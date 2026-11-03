@@ -1,0 +1,128 @@
+{
+  "title": { "zh": "变化有方向，也有正负", "en": "Change has direction and sign" },
+  "intro": [
+    {
+      "t": {
+        "zh": "卷积器已经有明确的核与边界约定。扫描器还需要知道变化沿哪条轴发生，以及亮度在增大还是减小。用两种单轴斜坡区分这两件事。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
+        "en": "The convolver now has explicit kernel and boundary conventions. The scanner needs the axis and sign of change. Distinguish them using single-axis ramps. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+      },
+      "fig": "directional-change"
+    }
+  ],
+  "after": {
+    "zh": "梯度分量保留变化方向与正负。负响应仍有效，不能因灰度显示变黑就丢掉。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
+    "en": "Gradient components retain direction and sign. Negative responses remain valid even when their grayscale display is black. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_derivatives",
+      "kind": "circuit",
+      "step": {
+        "zh": "双轴差分",
+        "en": "Two-axis differences"
+      },
+      "brief": {
+        "zh": "给定横向数学差分核，造出横向和纵向的带符号响应。x 向右、y 向下为正，图外延续边缘。",
+        "en": "Use the supplied horizontal mathematical derivative kernel to produce signed x and y responses. Positive axes are right and down; extend edge readings."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "横向差分核", "en": "Horizontal derivative kernel" } }
+      ],
+      "outputs": [
+        { "name": "gx", "label": { "zh": "横向响应 gx", "en": "Horizontal gx" } },
+        { "name": "gy", "label": { "zh": "纵向响应 gy", "en": "Vertical gy" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0, 0.1, 0.2, 0.30000000000000004, 0.4],
+              [0, 0.1, 0.2, 0.30000000000000004, 0.4],
+              [0, 0.1, 0.2, 0.30000000000000004, 0.4]
+            ],
+            "kernel": [[0.5, 0, -0.5]]
+          },
+          "expect": {
+            "gx": [
+              [0.05, 0.1, 0.10000000000000002, 0.1, 0.04999999999999999],
+              [0.05, 0.1, 0.10000000000000002, 0.1, 0.04999999999999999],
+              [0.05, 0.1, 0.10000000000000002, 0.1, 0.04999999999999999]
+            ],
+            "gy": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [0, 0, 0],
+              [0.15, 0.15, 0.15],
+              [0.3, 0.3, 0.3],
+              [0.44999999999999996, 0.44999999999999996, 0.44999999999999996]
+            ],
+            "kernel": [[0.5, 0, -0.5]]
+          },
+          "expect": {
+            "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            "gy": [
+              [0.075, 0.075, 0.075],
+              [0.15, 0.15, 0.15],
+              [0.14999999999999997, 0.14999999999999997, 0.14999999999999997],
+              [0.07499999999999998, 0.07499999999999998, 0.07499999999999998]
+            ]
+          }
+        },
+        {
+          "inputs": { "image": [[0.9, 0.5, 0.1], [0.8, 0.4, 0]], "kernel": [[0.5, 0, -0.5]] },
+          "expect": {
+            "gx": [[-0.2, -0.4, -0.2], [-0.2, -0.4, -0.2]],
+            "gy": [
+              [-0.04999999999999999, -0.04999999999999999, -0.05],
+              [-0.04999999999999999, -0.04999999999999999, -0.05]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+            "kernel": [[0.5, 0, -0.5]]
+          },
+          "expect": {
+            "gx": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            "gy": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+          }
+        }
+      ],
+      "solution": [
+        "x = convolve[outside=clamp](image,kernel)",
+        "y = convolve[outside=clamp,axis=y](image,kernel)",
+        "gx <- x",
+        "gy <- y"
+      ],
+      "naive": ["x = convolve[outside=clamp](image,kernel)", "gx <- x", "gy <- x"],
+      "naiveWhy": {
+        "zh": "另一条轴的响应需要另一方向的邻域，不能复制同一张响应图。",
+        "en": "The other component needs a differently oriented neighbourhood, not a duplicate response."
+      },
+      "hint": [
+        {
+          "zh": "先看只有一条轴发生变化的斜坡。核的方向与输出分量的方向应一致。",
+          "en": "Start with ramps changing along only one axis. Match kernel and component directions."
+        }
+      ],
+      "adds": []
+    }
+  ],
+  "builds": {
+    "type": "derivatives",
+    "name": { "zh": "双轴差分器", "en": "Two-axis differences" },
+    "desc": {
+      "zh": "用给定横向数学差分核及其转置，给出 gx、gy；图外规则可设置。",
+      "en": "Apply a supplied derivative kernel and its transpose to obtain gx and gy, with explicit borders."
+    },
+    "settings": ["outside"],
+    "defaults": { "outside": "clamp" }
+  }
+}

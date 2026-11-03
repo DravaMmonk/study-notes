@@ -1,0 +1,156 @@
+{
+  "title": { "zh": "从一行到两个空间方向", "en": "From rows to two spatial axes" },
+  "intro": [
+    {
+      "t": {
+        "zh": "复数频谱仪可以处理上一轮的输出，现在把同一台机器沿两条轴复用。用横纹、竖纹与长方形输入检查频率轴是否对应正确。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
+        "en": "The complex analyser can process its own output. Reuse it along both axes and check frequency axes with horizontal stripes, vertical stripes and rectangular inputs. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "二维频谱描述两轴变化，条纹方向与变化方向不同。索引仍按未移中心的周期顺序保存。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
+    "en": "The 2D spectrum describes variation along both axes. Stripe and variation directions differ; indices remain in unshifted periodic order. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_two_axes",
+      "kind": "circuit",
+      "step": {
+        "zh": "沿两轴复用",
+        "en": "Reuse on two axes"
+      },
+      "brief": {
+        "zh": "先处理每行，再沿另一条轴处理完整复数结果，最后恢复原来的轴顺序。输入可能是长方形，输出也必须保持相同宽高。",
+        "en": "Transform rows, then the other axis using complete complex results, and restore the original axis order. Rectangular inputs must retain their width and height."
+      },
+      "inputs": [
+        { "name": "real", "label": { "zh": "图像实部", "en": "Image real" } },
+        { "name": "imag", "label": { "zh": "图像虚部", "en": "Image imaginary" } }
+      ],
+      "outputs": [
+        { "name": "re", "label": { "zh": "二维频谱实部", "en": "2D spectrum real" } },
+        { "name": "im", "label": { "zh": "二维频谱虚部", "en": "2D spectrum imaginary" } },
+        { "name": "mag", "label": { "zh": "二维频谱幅度", "en": "2D spectrum magnitude" } }
+      ],
+      "tests": [
+        {
+          "inputs": { "real": [[0.1, 0.7, 0.3], [0.8, 0.2, 0.5]], "imag": [[0, 0, 0], [0, 0, 0]] },
+          "expect": {
+            "re": [
+              [0.43333333333333335, 0.008333333333333304, 0.008333333333333373],
+              [-0.06666666666666668, -0.14166666666666664, -0.14166666666666672]
+            ],
+            "im": [
+              [0, -0.014433756729740697, 0.014433756729740538],
+              [-3.061616997868383e-17, -0.1010362971081845, 0.10103629710818449]
+            ],
+            "mag": [
+              [0.43333333333333335, 0.016666666666666698, 0.016666666666666594],
+              [0.06666666666666668, 0.17400510848184247, 0.17400510848184253]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "real": [
+              [0.6000000000000001, 0.4, 0.2, 0.39999999999999997],
+              [0.7000000000000001, 0.5, 0.30000000000000004, 0.5],
+              [0.6000000000000001, 0.4, 0.2, 0.39999999999999997],
+              [0.5000000000000001, 0.30000000000000004, 0.1, 0.29999999999999993]
+            ],
+            "imag": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+          },
+          "expect": {
+            "re": [
+              [0.4, 0.1, 2.949029909160572e-17, 0.10000000000000006],
+              [
+                -6.123233995736768e-18,
+                2.3464684071046525e-18,
+                -3.0616169978683855e-18,
+                -1.4592936398578187e-17
+              ],
+              [0, 0, -1.73472347597681e-18, 6.938893903907228e-18],
+              [1.8369701987210307e-17, 3.776765588632117e-18, 3.0616169978683824e-18, 2.0716170394314958e-17]
+            ],
+            "im": [
+              [0, -2.0001021803551222e-17, -3.673940397442059e-17, -4.4919141793958415e-18],
+              [-0.05, 3.877276906038845e-18, 1.734723475976807e-18, -3.0616169978683847e-18],
+              [-1.83697019872103e-17, -6.123233995736766e-18, -3.0814879110195774e-33, -6.123233995736768e-18],
+              [0.049999999999999954, -1.6123744897512376e-17, -1.7347234759768133e-18, -9.184850993605153e-18]
+            ],
+            "mag": [
+              [0.4, 0.1, 4.7111161574599626e-17, 0.10000000000000006],
+              [0.05, 4.532018335316221e-18, 3.518915199282541e-18, 1.4910643560040753e-17],
+              [1.83697019872103e-17, 6.123233995736766e-18, 1.73472347597681e-18, 9.254309438106517e-18],
+              [0.049999999999999954, 1.6560166298426235e-17, 3.5189151992825405e-18, 2.2661006234962763e-17]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "real": [[0.6, 0.2], [0.3, 0.8], [0.1, 0.7]], "imag": [[0, 0], [0, 0], [0, 0]] },
+          "expect": {
+            "re": [
+              [0.45, -0.11666666666666665],
+              [-0.025000000000000012, 0.15833333333333335],
+              [-0.024999999999999967, 0.1583333333333333]
+            ],
+            "im": [
+              [0, -3.4698325975841673e-17],
+              [-0.04330127018922201, -0.014433756729740607],
+              [0.04330127018922184, 0.014433756729740718]
+            ],
+            "mag": [
+              [0.45, 0.11666666666666665],
+              [0.05000000000000008, 0.1589898669028243],
+              [0.049999999999999906, 0.15898986690282424]
+            ]
+          }
+        }
+      ],
+      "solution": [
+        "a = complexSpectrum(real,imag)",
+        "r = transpose(a.re)",
+        "i = transpose(a.im)",
+        "b = complexSpectrum(r,i)",
+        "br = transpose(b.re)",
+        "bi = transpose(b.im)",
+        "re <- br",
+        "im <- bi",
+        "m = magnitude(br,bi)",
+        "mag <- m"
+      ],
+      "naive": [
+        "a = complexSpectrum(real,imag)",
+        "r = transpose(a.re)",
+        "i = transpose(a.im)",
+        "b = complexSpectrum(r,i)",
+        "re <- b.re",
+        "im <- b.im",
+        "m = magnitude(b.re,b.im)",
+        "mag <- m"
+      ],
+      "naiveWhy": {
+        "zh": "第二次处理时轴顺序已经交换，输出接口还需要交换回来。方形图片可能掩盖尺寸问题。",
+        "en": "Axis order changes for the second pass and must be restored. Square images can hide the shape mistake."
+      },
+      "hint": [
+        {
+          "zh": "用长方形测试追踪每一步的宽高，同时保留两条复数分量。",
+          "en": "Track dimensions through the rectangular case and retain both complex components."
+        }
+      ],
+      "adds": ["transpose"]
+    }
+  ],
+  "builds": {
+    "type": "spectrum2D",
+    "name": { "zh": "二维频谱仪", "en": "2D spectrum analyser" },
+    "desc": {
+      "zh": "沿两轴复用自己的复数逐行变换，输出归一化的实部、虚部与幅度。",
+      "en": "Reuse your complex row transform along both axes and retain normalised real, imaginary and magnitude outputs."
+    }
+  }
+}

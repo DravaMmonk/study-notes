@@ -1,0 +1,113 @@
+{
+  "title": { "zh": "幅度相同，位置可以不同", "en": "Equal magnitudes, different arrangements" },
+  "intro": [
+    {
+      "t": {
+        "zh": "重建器可以检验“频率有多少”是否足够。现在交换两张图的幅度来源和相位来源，检查空间结构跟随哪一部分。只在非零系数上讨论相位，零系数的方向没有意义。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+        "en": "Use the synthesiser to test whether frequency amounts alone suffice. Mix magnitude and phase sources and inspect spatial structure. Phase is meaningful for nonzero coefficients; zero coefficients have no direction. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "相位保留频率的空间排列。丢掉相位可能改变结构，不仅是降低清晰度。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+    "en": "Phase retains spatial arrangement. Losing it can change structure, not merely sharpness. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_phase",
+      "kind": "circuit",
+      "step": {
+        "zh": "交换幅度与相位",
+        "en": "Mix magnitude/phase"
+      },
+      "brief": {
+        "zh": "重建时保留 B 的相位关系，使用 A 的频谱幅度。把 B 的两分量一起缩放到 A 的系数长度；零长度使用给定安全下限 10⁻¹²。 B 中的零系数保留为零。",
+        "en": "Reconstruct using B’s phase relationships and A’s magnitudes. Scale both B components together to A’s coefficient lengths; use the supplied 10⁻¹² floor for zero lengths. Zero coefficients in B remain zero."
+      },
+      "inputs": [
+        { "name": "amplitudeImage", "label": { "zh": "幅度来源 A", "en": "Magnitude source A" } },
+        { "name": "phaseImage", "label": { "zh": "相位来源 B", "en": "Phase source B" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "混合重建", "en": "Mixed reconstruction" } }],
+      "tests": [
+        {
+          "inputs": { "amplitudeImage": [[0.2, 0.8, 0.3, 0.5]], "phaseImage": [[0.5, 0.2, 0.8, 0.3]] },
+          "expect": { "out": [[0.5, 0.19999999999999996, 0.8, 0.3]] }
+        },
+        {
+          "inputs": {
+            "amplitudeImage": [
+              [
+                0.5,
+                0.5414213562373095,
+                0.3,
+                0.05857864376269048,
+                0.09999999999999995,
+                0.25857864376269046,
+                0.3,
+                0.3414213562373095
+              ]
+            ],
+            "phaseImage": [
+              [
+                0.5474873734152916,
+                0.44999999999999996,
+                0.05251262658470842,
+                -0.19999999999999998,
+                0.05251262658470828,
+                0.44999999999999996,
+                0.5474873734152915,
+                0.4999999999999999
+              ]
+            ]
+          },
+          "expect": {
+            "out": [
+              [
+                0.44142135623730955,
+                0.4000000000000001,
+                0.1585786437626906,
+                -1.17975505660906e-16,
+                0.1585786437626902,
+                0.4,
+                0.44142135623730955,
+                0.4000000000000002
+              ]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "epsilon = const[value=1e-12]()",
+        "a = spectrum(amplitudeImage)",
+        "b = spectrum(phaseImage)",
+        "safe = max(b.mag,epsilon)",
+        "scale = arithmetic[op=div](a.mag,safe)",
+        "r = arithmetic[op=mul](b.re,scale)",
+        "i = arithmetic[op=mul](b.im,scale)",
+        "v = synthesise(r,i)",
+        "out <- v"
+      ],
+      "naive": [
+        "a = spectrum(amplitudeImage)",
+        "zero = const[value=0]()",
+        "z = arithmetic[op=mul](a.mag,zero)",
+        "v = synthesise(a.mag,z)",
+        "out <- v"
+      ],
+      "naiveWhy": {
+        "zh": "把幅度当作全部实部并把虚部设零，会人为指定所有相位，而不是保留 B 的空间关系。",
+        "en": "Using magnitudes as real components and zero imaginary components imposes phases instead of retaining B’s spatial relationships."
+      },
+      "hint": [
+        {
+          "zh": "同一比例缩放实部和虚部会改变长度而保持方向。先比较平移前后的同一形状。",
+          "en": "Scaling both components equally changes length but preserves direction. Start by comparing a shape with its translation."
+        }
+      ],
+      "starter": ["epsilon = const[value=1e-12]()", "a = spectrum(amplitudeImage)", "b = spectrum(phaseImage)"],
+      "adds": ["max"]
+    }
+  ]
+}

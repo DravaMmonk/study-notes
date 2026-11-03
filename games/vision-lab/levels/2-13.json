@@ -1,0 +1,226 @@
+{
+  "title": { "zh": "装成一台去条纹仪", "en": "Assemble the interference remover" },
+  "intro": [
+    {
+      "t": {
+        "zh": "扫描台的局部处理器已经有用，却无法专门区分整幅图上的规则条纹。现在把二维分析、频率选择和二维重建接成机器，再与自己的空间处理器做公平对照。测试明确给出干扰位置，不要求猜频率或手算。 <wiki-ref to=\"interference-machine\"></wiki-ref>",
+        "en": "Local processing helps the scanner but cannot selectively isolate global periodic stripes. Assemble 2D analysis, gain selection and reconstruction, then compare fairly with your spatial processor. Interference locations are supplied; there is no frequency guessing or hand calculation. <wiki-ref to=\"interference-machine\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "二维选择能分开两条轴的频率；逐行对照揭示另一条轴的局限。已知干扰与有用信号重叠时，会损失信息。 <wiki-ref to=\"interference-machine\"></wiki-ref>",
+    "en": "2D selection distinguishes both frequency axes; row filtering exposes the other-axis limitation. Useful signal overlapping selected interference is still lost. <wiki-ref to=\"interference-machine\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_finale",
+      "kind": "circuit",
+      "step": {
+        "zh": "装配去干扰仪",
+        "en": "Assemble remover"
+      },
+      "brief": {
+        "zh": "按已知干扰的成对增益，做二维频域处理与重建。另输出逐行频率处理、局部周期平滑两个对照，检查各自保留和遗漏的信息。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
+        "en": "Apply paired gains for known interference using 2D analysis and reconstruction. Also output row-frequency filtering and periodic local smoothing to compare retained and missed information. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "带条纹观测", "en": "Striped observation" } },
+        { "name": "gain", "label": { "zh": "已知干扰的增益规范", "en": "Known-interference gains" } },
+        { "name": "kernel", "label": { "zh": "局部平滑对照核", "en": "Local-smoothing comparison kernel" } },
+        { "name": "rowGain", "label": { "zh": "逐行频域对照增益", "en": "Row-filter comparison gains" } }
+      ],
+      "outputs": [
+        { "name": "out", "label": { "zh": "去干扰图", "en": "Interference-removed image" } },
+        { "name": "imaginary", "label": { "zh": "虚部残差", "en": "Imaginary residual" } },
+        { "name": "local", "label": { "zh": "局部平滑对照", "en": "Local smoothing comparison" } },
+        { "name": "rowOnly", "label": { "zh": "逐行频域对照", "en": "Row-frequency comparison" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0.67, 0.52, 0.37, 0.52],
+              [0.55, 0.4, 0.25, 0.4],
+              [0.43000000000000005, 0.28, 0.13000000000000003, 0.28],
+              [0.55, 0.4, 0.25, 0.4]
+            ],
+            "gain": [[1, 0, 1, 0], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ],
+            "rowGain": [[1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0]]
+          },
+          "expect": {
+            "out": [
+              [0.52, 0.52, 0.52, 0.52],
+              [0.4, 0.4, 0.4, 0.4],
+              [0.28, 0.28, 0.28, 0.28],
+              [0.4, 0.4, 0.4, 0.4]
+            ],
+            "imaginary": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            "local": [
+              [0.49, 0.44, 0.39, 0.44],
+              [0.44999999999999996, 0.39999999999999997, 0.35, 0.4],
+              [0.41000000000000003, 0.36000000000000004, 0.31000000000000005, 0.36000000000000004],
+              [0.44999999999999996, 0.39999999999999997, 0.35, 0.39999999999999997]
+            ],
+            "rowOnly": [
+              [0.52, 0.52, 0.52, 0.52],
+              [0.4, 0.4, 0.4, 0.4],
+              [0.28, 0.28, 0.28, 0.28],
+              [0.4, 0.4, 0.4, 0.4]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [0.67, 0.5870820393249937, 0.45291796067500634, 0.45291796067500634, 0.5870820393249937],
+              [
+                0.44500000000000006,
+                0.3620820393249938,
+                0.22791796067500636,
+                0.22791796067500636,
+                0.3620820393249937
+              ],
+              [
+                0.44499999999999995,
+                0.36208203932499367,
+                0.22791796067500625,
+                0.22791796067500625,
+                0.3620820393249936
+              ]
+            ],
+            "gain": [[1, 1, 1, 1, 1], [0, 1, 1, 1, 1], [0, 1, 1, 1, 1]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ],
+            "rowGain": [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1], [1, 1, 1, 1, 1]]
+          },
+          "expect": {
+            "out": [
+              [0.52, 0.43708203932499373, 0.3029179606750063, 0.3029179606750063, 0.4370820393249937],
+              [0.52, 0.43708203932499373, 0.3029179606750063, 0.3029179606750063, 0.4370820393249937],
+              [0.52, 0.43708203932499373, 0.3029179606750063, 0.3029179606750063, 0.4370820393249937]
+            ],
+            "imaginary": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+            "local": [
+              [0.46472135954999577, 0.42, 0.3476393202250021, 0.3476393202250021, 0.42],
+              [
+                0.4647213595499959,
+                0.42000000000000004,
+                0.3476393202250022,
+                0.3476393202250022,
+                0.4200000000000001
+              ],
+              [
+                0.4647213595499957,
+                0.41999999999999993,
+                0.34763932022500205,
+                0.34763932022500205,
+                0.41999999999999993
+              ]
+            ],
+            "rowOnly": [
+              [0.67, 0.5870820393249937, 0.45291796067500634, 0.45291796067500634, 0.5870820393249937],
+              [
+                0.44500000000000006,
+                0.3620820393249938,
+                0.22791796067500636,
+                0.22791796067500636,
+                0.3620820393249937
+              ],
+              [
+                0.44499999999999995,
+                0.36208203932499367,
+                0.22791796067500625,
+                0.22791796067500625,
+                0.3620820393249936
+              ]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [
+              [0.67, 0.52, 0.37, 0.52],
+              [0.49, 0.34, 0.19000000000000003, 0.34],
+              [0.49, 0.33999999999999997, 0.18999999999999997, 0.33999999999999997]
+            ],
+            "gain": [[1, 0, 1, 0], [1, 1, 1, 1], [1, 1, 1, 1]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ],
+            "rowGain": [[1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0]]
+          },
+          "expect": {
+            "out": [
+              [0.52, 0.52, 0.52, 0.52],
+              [0.34, 0.34, 0.34, 0.34],
+              [0.33999999999999997, 0.33999999999999997, 0.33999999999999997, 0.33999999999999997]
+            ],
+            "imaginary": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            "local": [
+              [0.45, 0.4, 0.35000000000000003, 0.4],
+              [0.44999999999999996, 0.4, 0.35, 0.4000000000000001],
+              [0.44999999999999996, 0.39999999999999997, 0.35, 0.39999999999999997]
+            ],
+            "rowOnly": [
+              [0.52, 0.52, 0.52, 0.52],
+              [0.34, 0.34, 0.34, 0.34],
+              [0.33999999999999997, 0.33999999999999997, 0.33999999999999997, 0.33999999999999997]
+            ]
+          }
+        }
+      ],
+      "solution": [
+        "zero = const[value=0]()",
+        "z = arithmetic[op=mul](image,zero)",
+        "s = spectrum2D(image,z)",
+        "r = arithmetic[op=mul](s.re,gain)",
+        "i = arithmetic[op=mul](s.im,gain)",
+        "v = synthesise2D(r,i)",
+        "base = convolve[outside=wrap](image,kernel)",
+        "out <- v.out",
+        "imaginary <- v.imaginary",
+        "local <- base",
+        "rows = frequencyFilter(image,rowGain)",
+        "rowOnly <- rows"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "base = convolve[outside=wrap](image,kernel)",
+        "z = arithmetic[op=mul](image,zero)",
+        "out <- base",
+        "imaginary <- z",
+        "local <- base",
+        "rows = frequencyFilter(image,rowGain)",
+        "rowOnly <- rows"
+      ],
+      "naiveWhy": {
+        "zh": "局部平滑会同时削弱有用细节。这里已知干扰集中在指定频率，对应频域处理可以保留其他分量；不声称可自动识别任意干扰。",
+        "en": "Local smoothing also suppresses useful detail. Known interference at selected frequencies can be removed while retaining other components; this does not automatically identify arbitrary interference."
+      },
+      "hint": [
+        {
+          "zh": "频谱的两分量使用同一增益。先检查重建闭环和虚部残差，再比较局部平滑保留了什么。",
+          "en": "Apply the same gain to both components. Check reconstruction and imaginary residual before comparing retained details against local smoothing."
+        },
+        {
+          "zh": "横向频率处理能去掉沿 x 变化的条纹；沿 y 变化的干扰在每行都可能表现为 DC，不能在保留行均值的同时只删掉那部分。",
+          "en": "Row filtering can remove variation along x. Variation along y may appear as DC in each row; preserving row means cannot selectively remove that part."
+        }
+      ],
+      "adds": []
+    }
+  ]
+}

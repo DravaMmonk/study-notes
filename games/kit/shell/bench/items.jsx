@@ -109,7 +109,7 @@ function Verdict({ params, ctx }) {
   return (
     <div className="bench-next">
       {verdict}
-      {ctx.passed[ctx.stageIndex] && ctx.stageIndex < ctx.stages.length - 1 && <button type="button" className="bk-btn is-primary" onClick={ctx.next}>{tr('下一步', 'Next step')} <ArrowRight size={15} /></button>}
+      {!ctx.externalControls && ctx.passed[ctx.stageIndex] && ctx.stageIndex < ctx.stages.length - 1 && <button type="button" className="bk-btn is-primary" onClick={ctx.next}>{tr('下一步', 'Next step')} <ArrowRight size={15} /></button>}
     </div>
   )
 }
@@ -130,7 +130,7 @@ function Goals({ params, ctx }) {
             </li>
           ))}
         </ul>
-        <button type="button" className="bk-btn is-primary" onClick={ctx.check}>{tr('检查这个设置', 'Check this setting')}</button>
+        {!ctx.externalControls && <button type="button" className="bk-btn is-primary" onClick={ctx.check}>{tr('检查这个设置', 'Check this setting')}</button>}
       </div>
     )
   }

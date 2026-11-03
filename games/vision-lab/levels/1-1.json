@@ -1,0 +1,117 @@
+{
+  "title": { "zh": "让读数有邻居", "en": "Give readings a neighbourhood" },
+  "intro": [
+    {
+      "t": {
+        "zh": "质检台只能逐位置比较，无法利用周围读数区分细碎干扰和较大结构。这章要造邻域处理器，再把它装成扫描器。先从三个位置开始：取样位置与贡献权重分开，所有数值由电路计算。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+        "en": "The station compares individual locations but cannot use surrounding readings to separate fine nuisance from broader structure. Build a neighbourhood processor and then a scanner. Start with three positions: sample locations and contributions are separate; the circuit does the arithmetic. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+      },
+      "fig": "weighted-line"
+    }
+  ],
+  "after": {
+    "zh": "权重的位置、符号与总和分别影响方向、响应与增益。负权重和非单位增益也有用途。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+    "en": "Weight positions, signs and sum affect direction, response and gain. Negative weights and non-unit gain can be useful. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_line",
+      "kind": "circuit",
+      "step": {
+        "zh": "三路贡献",
+        "en": "Three contributions"
+      },
+      "brief": {
+        "zh": "用给定的位置权重组合左、中、右三个读数。输出与输入同尺寸，图外取 0；权重不必总为正，也不自动归一化。",
+        "en": "Combine left, centre and right readings with the supplied positional weights. Keep image size, read zero outside, and do not automatically normalise or discard negative weights."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
+        { "name": "left", "label": { "zh": "前侧权重", "en": "First weight" } },
+        { "name": "centre", "label": { "zh": "中心权重", "en": "Centre weight" } },
+        { "name": "right", "label": { "zh": "后侧权重", "en": "Last weight" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "加权结果", "en": "Weighted result" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 0, 1, 0, 0]], "left": 0.25, "centre": 0.5, "right": 0.25 },
+          "expect": { "out": [[0, 0.25, 0.5, 0.25, 0]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6, 0.6]],
+            "left": 0.3333333333333333,
+            "centre": 0.3333333333333333,
+            "right": 0.3333333333333333
+          },
+          "expect": { "out": [[0.39999999999999997, 0.6, 0.6, 0.6, 0.39999999999999997]] }
+        },
+        {
+          "inputs": { "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]], "left": -1, "centre": 0, "right": 1 },
+          "expect": { "out": [[0.8, 0.2, -0.8], [0.1, -0.19999999999999996, -0.1]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.7], [0.2]], "left": 0.2, "centre": 0.6, "right": 0.2 },
+          "expect": { "out": [[0.42], [0.12]] }
+        }
+      ],
+      "solution": [
+        "minus = const[value=-1]()",
+        "plus = const[value=1]()",
+        "l = offset(image,minus)",
+        "r = offset(image,plus)",
+        "a = arithmetic[op=mul](l,left)",
+        "b = arithmetic[op=mul](image,centre)",
+        "c = arithmetic[op=mul](r,right)",
+        "ab = arithmetic[op=add](a,b)",
+        "total = arithmetic[op=add](ab,c)",
+        "out <- total"
+      ],
+      "naive": [
+        "minus = const[value=-1]()",
+        "plus = const[value=1]()",
+        "l = offset(image,minus)",
+        "r = offset(image,plus)",
+        "a = arithmetic[op=mul](l,right)",
+        "b = arithmetic[op=mul](image,centre)",
+        "c = arithmetic[op=mul](r,left)",
+        "ab = arithmetic[op=add](a,b)",
+        "s = arithmetic[op=add](ab,c)",
+        "out <- s"
+      ],
+      "naiveWhy": {
+        "zh": "位置权重跟随读取的位置；交换两侧会反转非对称规则。恒定图还会显示权重和造成的增益。",
+        "en": "Weights belong to positions. Swapping sides reverses an asymmetric rule; constants also expose the gain from the weight sum."
+      },
+      "hint": [
+        {
+          "zh": "亮点能显示谁贡献到哪个位置；先把三路分别接到输出观察，再组合。",
+          "en": "An impulse reveals which sample contributes where. Inspect the branches before combining them."
+        },
+        {
+          "zh": "常量图检验总增益，非对称权重检验方向；系统计算所有乘积与和。",
+          "en": "Constants test gain and asymmetric weights test direction; products and sums are automatic."
+        }
+      ],
+      "starter": [
+        "minus = const[value=-1]()",
+        "plus = const[value=1]()",
+        "l = offset(image,minus)",
+        "r = offset(image,plus)"
+      ],
+      "adds": ["const", "offset"]
+    }
+  ],
+  "builds": {
+    "type": "weightedLine",
+    "name": { "zh": "三点加权器", "en": "Weighted line" },
+    "desc": {
+      "zh": "沿所选空间轴，按前侧、中心、后侧权重汇合三格读数。横向对应左中右，纵向对应上中下；图外规则可设置。",
+      "en": "Combine three readings along the selected axis: left/centre/right for x, above/centre/below for y, with explicit borders."
+    },
+    "settings": ["outside", "axis"],
+    "defaults": { "outside": "zero" }
+  }
+}

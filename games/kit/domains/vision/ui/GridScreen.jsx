@@ -2,50 +2,25 @@ import { useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { fromRows } from '../image.js'
-import { askOf, gridCheck, gridStart, parseNumber as parse } from '../grid.js'
+import { askOf, gridCheck, gridStart } from '../grid.js'
 import ImageView from './ImageView.jsx'
 import Strips from './Strips.jsx'
-import FilterWindow from './FilterWindow.jsx'
+import ImageInspector from './ImageInspector.jsx'
+import CalculationAid from './CalculationAid.jsx'
+import RowsEditor, { NumberField } from './RowsEditor.jsx'
 
-// A grid task (../grid.js): the image, as its numbers, its picture or both (`show`), with its axes; under it what the
+// A grid task (../grid.js): the image as numeric cells with axes; under it what the
 // ask wants — a grid to fill in (copy, fill, set), a cell to click (pick) or the coordinates of the cell marked
 // (locate). The answer is kept as it is typed; Check runs the ask's own check and says what is wrong.
-
-/** A number field that keeps what is typed while it is being typed ("-", "0.", "1/"), and shows a value set from
- *  outside once it differs from what the text reads as. A full keyboard: phones' decimal pads have no minus sign. */
-function NumberField({ value, onChange, ...rest }) {
-  const [text, setText] = useState(value ?? '')
-  const shown = parse(String(text)) === (value ?? null) ? text : value ?? ''
-  return <input {...rest} inputMode="text" autoComplete="off" value={shown} onChange={(e) => { setText(e.target.value); onChange(parse(e.target.value)) }} />
-}
-
-/** A grid of number fields, a colour cell three of them: rows of numbers or nulls, as the ask's answer. */
-function RowsEditor({ rows, onChange }) {
-  const set = (y, x, k, n) => onChange(rows.map((r, py) => (py !== y ? r : r.map((v, px) => (px !== x ? v : Array.isArray(v) ? v.map((c, j) => (j === k ? n : c)) : n)))))
-  const field = (v, y, x, k = null) => (
-    <NumberField key={k ?? 0} value={v} aria-label={`(${x}, ${y})${k === null ? '' : ` ${'RGB'[k]}`}`} onChange={(n) => set(y, x, k, n)} />
-  )
-  return (
-    <table className="vi-rows">
-      <thead><tr><th />{rows[0].map((_, x) => <th key={x}>{x}</th>)}</tr></thead>
-      <tbody>
-        {rows.map((r, y) => (
-          <tr key={y}>
-            <th>{y}</th>
-            {r.map((v, x) => <td key={x}>{Array.isArray(v) ? <span className="vi-rgb">{v.map((c, k) => field(c, y, x, k))}</span> : field(v, y, x)}</td>)}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
-}
 
 export default function GridScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const task = entry.source
   const { name, params } = askOf(task)
   const img = task.img
-  const show = task.show ?? 'both'
   const [answer, setAnswer] = useState(() => saved ?? gridStart(task))
+  const [at, select] = useState({ x: 0, y: 0 })
+  const calculation = Boolean(task.window || task.calculation)
+  const sourceLabel = task.calculation?.kind === 'magnitude' ? tr('分量表：行 0 为 gx，行 1 为 gy', 'Components: row 0 is gx, row 1 is gy') : task.calculation?.kind === 'product' ? tr('横向权重表', 'Row weights') : tr('原图', 'Source image')
   const judge = () => {
     const why = gridCheck(task, answer)
     return { pass: !why, why }
@@ -63,10 +38,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
   }
 
   const picture = (props) => (
-    <div className="vi-shown">
-      {show !== 'picture' && <ImageView value={img} numbers axes {...props} />}
-      {show !== 'numbers' && <ImageView value={img} axes={show === 'picture'} {...(show === 'picture' ? props : { mark: props.mark })} cell={Math.max(8, Math.floor(200 / Math.max(img.w, img.h)))} />}
-    </div>
+    <ImageInspector value={img} label={sourceLabel} {...props} />
   )
   const coord = (key) => (
     <label className="vi-field is-inline">
@@ -76,7 +48,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
   )
   const asked = {
     copy: () => <>{picture({})}<RowsEditor rows={answer} onChange={update} /></>,
-    fill: () => <>{picture({})}{task.window && <FilterWindow task={task} />}{params.strip && <Strips {...params.strip} marks={answer[0]} />}{params.label && <p className="vi-label">{L(params.label)}</p>}<RowsEditor rows={answer} onChange={update} /></>,
+    fill: () => <>{picture({})}{calculation && <CalculationAid task={task} rows={answer} at={at} select={select} apply={(value) => update(answer.map((row, y) => row.map((v, x) => x === at.x && y === at.y ? value : v)))} />}{params.strip && <Strips {...params.strip} marks={answer[0]} />}{params.label && <p className="vi-label">{L(params.label)}</p>}<RowsEditor rows={answer} onChange={update} selected={calculation ? at : undefined} onSelect={calculation ? select : undefined} /></>,
     set: () => (
       <>
         {picture({ mark: { x: params.x, y: params.y } })}
@@ -93,7 +65,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
     ),
     locate: () => <>{picture({ mark: { x: params.x, y: params.y } })}<div className="vi-coords">{coord('x')}{coord('y')}</div></>,
   }
-  const stage = <div className={`vi-grid is-${name}`}>{asked[name]()}</div>
+  const stage = <div className={`vi-grid is-${name} ${calculation ? 'has-calculation' : ''}`}>{asked[name]()}</div>
   // The task's naive answer, given, is told why it is wrong (the misconception the point corrects).
   const naive = verdict && !verdict.pass && task.naive && JSON.stringify(answer) === JSON.stringify(task.naive.answer)
   const results = verdict ? (

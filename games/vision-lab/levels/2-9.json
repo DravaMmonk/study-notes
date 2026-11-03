@@ -1,0 +1,170 @@
+{
+  "title": { "zh": "让指定频率通过", "en": "Control which frequencies pass" },
+  "intro": [
+    {
+      "t": {
+        "zh": "重建器让你能够改系数再回到图像。先从频率到零点的距离造增益，再把它接入完整的频率处理路径；不要把相位作为无关数据丢弃。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
+        "en": "The synthesiser lets you modify coefficients and return to images. Construct gains from frequency distance, then connect the full filtering path while retaining phase information. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
+      },
+      "fig": "frequency-filter"
+    }
+  ],
+  "after": {
+    "zh": "增益决定保留的尺度。实信号要成对处理正负频率，并对两分量使用一致增益。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
+    "en": "Gains select scales. Treat conjugate frequencies in pairs and apply consistent gains to both components. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_gain_mask",
+      "kind": "circuit",
+      "step": {
+        "zh": "造对称增益",
+        "en": "Build paired gains"
+      },
+      "brief": {
+        "zh": "频率表按未移中心顺序给出带符号的周期数。保留 |k|<cutoff，边界频率不保留。输出成对的低通增益，无需手算索引。",
+        "en": "Signed frequency indices are supplied in unshifted order. Keep |k|<cutoff, excluding the boundary, to produce paired low-pass gains without index calculations."
+      },
+      "inputs": [
+        { "name": "index", "label": { "zh": "带符号频率", "en": "Signed frequency" } },
+        { "name": "cutoff", "label": { "zh": "截止边界", "en": "Cutoff boundary" } }
+      ],
+      "outputs": [{ "name": "gain", "label": { "zh": "低通增益", "en": "Low-pass gain" } }],
+      "tests": [
+        {
+          "inputs": { "index": [[0, 1, 2, 3, -4, -3, -2, -1]], "cutoff": 2 },
+          "expect": { "gain": [[1, 1, 0, 0, 0, 0, 0, 1]] }
+        },
+        { "inputs": { "index": [[0, 1, 2, -2, -1]], "cutoff": 1 }, "expect": { "gain": [[1, 0, 0, 0, 0]] } }
+      ],
+      "hidden": [],
+      "solution": ["k = abs(index)", "g = less(k,cutoff)", "gain <- g"],
+      "naive": ["g = less(index,cutoff)", "gain <- g"],
+      "naiveWhy": {
+        "zh": "只比较有符号大小会让所有负频率通过。实信号的正负频率必须按相同规则处理。",
+        "en": "Comparing signed values alone keeps all negative frequencies. Real-signal frequency pairs need matching rules."
+      },
+      "hint": [
+        { "zh": "频率有正负，低通关心离零频率的距离。", "en": "Frequency has a sign; low-pass depends on distance from zero." }
+      ],
+      "adds": []
+    },
+    {
+      "id": "v2_gain_apply",
+      "kind": "circuit",
+      "step": {
+        "zh": "增益与重建",
+        "en": "Apply and reconstruct"
+      },
+      "brief": {
+        "zh": "用给定增益同时调整每个系数的两分量，再重建。增益满足共轭配对；既要支持低通，也要支持去 DC 或带通。",
+        "en": "Apply supplied gains to both coefficient components before reconstruction. Gains preserve conjugate pairing; support low-pass, DC removal and band selection."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图像行", "en": "Image rows" } },
+        { "name": "gain", "label": { "zh": "逐频率增益", "en": "Per-frequency gain" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "频率处理后", "en": "Frequency-filtered result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [
+                0.5,
+                0.5414213562373095,
+                0.3,
+                0.05857864376269048,
+                0.09999999999999995,
+                0.25857864376269046,
+                0.3,
+                0.3414213562373095
+              ]
+            ],
+            "gain": [[1, 1, 0, 0, 0, 0, 0, 1]]
+          },
+          "expect": {
+            "out": [
+              [
+                0.5000000000000001,
+                0.4414213562373096,
+                0.30000000000000004,
+                0.15857864376269049,
+                0.09999999999999987,
+                0.15857864376269049,
+                0.2999999999999998,
+                0.4414213562373098
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": { "image": [[0.2, 0.8, 0.3, 0.5]], "gain": [[0, 1, 1, 1]] },
+          "expect": {
+            "out": [[-0.24999999999999997, 0.35000000000000003, -0.15000000000000005, 0.04999999999999999]]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.1, 0.4, 0.7], [0.8, 0.2, 0.5]], "gain": [[1, 0, 0], [1, 0, 0]] },
+          "expect": {
+            "out": [[0.39999999999999997, 0.39999999999999997, 0.39999999999999997], [0.5, 0.5, 0.5]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                0.6500000000000001,
+                0.6060660171779821,
+                0.4,
+                0.1939339828220179,
+                0.14999999999999997,
+                0.39393398282201775,
+                0.4,
+                0.40606601717798213
+              ]
+            ],
+            "gain": [[0, 0, 1, 0, 0, 0, 1, 0]]
+          },
+          "expect": {
+            "out": [
+              [0, 0.1, 1.2246467991473533e-17, -0.1, -2.4492935982947065e-17, 0.1, 3.6739403974420595e-17, -0.1]
+            ]
+          }
+        }
+      ],
+      "solution": [
+        "p = spectrum(image)",
+        "r = arithmetic[op=mul](p.re,gain)",
+        "i = arithmetic[op=mul](p.im,gain)",
+        "v = synthesise(r,i)",
+        "out <- v"
+      ],
+      "naive": [
+        "p = spectrum(image)",
+        "r = arithmetic[op=mul](p.re,gain)",
+        "v = synthesise(r,p.im)",
+        "out <- v"
+      ],
+      "naiveWhy": {
+        "zh": "只改实部会让同一频率的相位和幅度关系失衡，带相位的条纹尤其明显。",
+        "en": "Changing only the real component distorts the coefficient; phased stripes expose it."
+      },
+      "hint": [
+        {
+          "zh": "如果要删除一个频率，它的两路投影都不能留下。",
+          "en": "Removing a frequency requires removing both projection components."
+        }
+      ]
+    }
+  ],
+  "builds": {
+    "type": "frequencyFilter",
+    "name": { "zh": "逐行频率处理器", "en": "Row frequency filter" },
+    "desc": {
+      "zh": "用自己的频谱仪、双分量增益与重建器处理每行。",
+      "en": "Filter rows using your analyser, paired component gains and synthesiser."
+    }
+  }
+}

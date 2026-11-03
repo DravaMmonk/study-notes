@@ -32,12 +32,11 @@ export function Level({ phone, stage, ...props }) {
  * A level on a phone, the same in every game: one page. The tests (their tabs) pinned at the top; in between, what
  * scrolls: the task in its foldable 任务 card, then the play area; at the bottom the tray (parts to place), the results
  * drawer and the run bar, pinned. The drawer holds what a run or check gives (`results`): folded away until the run
- * bar's first button opens it, or a run or check does (RunDock), unless `drawerOpen` opens it from the start (a circuit
- * level, whose tests and outputs are read beside the board); with nothing in it (null), there is no such button.
+ * bar's first button opens it, or a run or check does (RunDock). With nothing in it (null), there is no such button.
  * `results` left out: the level has no drawer.
  */
-export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief, tests, children, tray, results, dock, drawerOpen = false }) {
-  const [open, setOpen] = useState(drawerOpen)
+export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief, tests, children, tray, results, dock }) {
+  const [open, setOpen] = useState(false)
   const has = Boolean(results)
   const drawer = useMemo(() => ({ has, open: has && open, toggle: () => setOpen((o) => !o), show: () => setOpen(true) }), [has, open])
   return (

@@ -22,6 +22,10 @@ const items = (all) => Object.fromEntries(Object.entries(all).map(([k, v]) => [k
 const num = S.num()
 const ids = S.list(S.str())
 const TEXTS = S.list(S.text())
+const INTRO = S.list(S.obj({
+  t: S.text(),
+  fig: S.opt(S.oneOf(['lab', 'projection', 'samples', 'pixel-units', 'pixel-origin', 'filter-window', 'nearest-sampling', 'sampling-material', 'smoothing', 'separable', 'directional-change', 'inspection', 'inspection-samples', 'weighted-line', 'window-table', 'frequency-wave', 'frequency-probe', 'frequency-table', 'frequency-filter', 'outside-zero', 'outside-clamp', 'outside-wrap', 'outside-reflect', 'outside-valid'])),
+}))
 const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** Blueprint text (board.js), one line a string: a reference board, a naive one. */
 const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
@@ -29,6 +33,24 @@ const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符�
 /* ---------- what content names ---------- */
 
 const PART_ABOUT = {
+  arithmetic: t('可设置为加、减、乘、除，数与图逐值计算', 'Configurable elementwise addition, subtraction, multiplication or division'),
+  abs: t('逐值取绝对值', 'Absolute value, elementwise'),
+  cosine: t('以周为单位计算余弦：1 周是 2π 弧度', 'Cosine in turns: one turn is 2π radians'),
+  offset: t('沿指定轴读取偏移邻居', 'Read an offset neighbour along a selected axis'),
+  shift: t('按给定整数位移读取邻居，边界规则显式可选', 'Read an integer-offset neighbour with explicit boundary handling'),
+  transpose: t('交换行与列，保留原值', 'Exchange rows and columns without changing values'),
+  reverse: t('将表旋转 180 度', 'Rotate a table by 180 degrees'),
+  windowTable: t('展开每个邻域的读数和权重，不相乘、不求和', 'Expose each window’s samples and weights without multiplying or summing'),
+  reduceRows: t('逐行求和或平均，自动完成数值计算', 'Sum or average each row automatically'),
+  restore: t('将每个位置的单个结果还原为给定图像的尺寸', 'Restore one result per position to an image’s dimensions'),
+  trim: t('仅保留不接触图外的内部区域', 'Retain the interior that does not reach outside'),
+  positions: t('生成每行的归一化位置 x/N', 'Generate the normalised position x/N along each row'),
+  expandRows: t('将每行重复 N 次，给出逐个位置和频率索引；不计算波或投影', 'Repeat each row N times, exposing positions and frequency indices, without computing waves or projections'),
+  sample: t('按连续坐标采样，取值规则与边界假设可设置；自动计算距离、权重与取整', 'Sample continuous coordinates with selectable interpolation and boundary assumptions; arithmetic is supplied'),
+  stencil: t('沿横向或纵向对三格邻域加权，自动滑动计算', 'A three-sample weighted neighbourhood along either image axis'),
+  kernelFilter: t('用给定的二维核计算卷积或互相关', 'Apply a supplied 2D kernel as convolution or correlation'),
+  magnitude: t('两个垂直分量的长度，自动计算平方和与平方根', 'Length of two perpendicular components; arithmetic is supplied'),
+  colourMix: t('按给定权重组合 RGB 通道，自动处理每个像素', 'Mix RGB channels with supplied weights at every pixel'),
   const: t('常数：设定的数', 'Constant: the number it is set to'),
   add: t('相加，逐个值：数和数、图和数、同样大小的两张图', 'Add, value by value: numbers, an image and a number, two images of one size'),
   sub: t('相减，逐个值', 'Subtract, value by value'),
@@ -69,8 +91,9 @@ const COLOUR_ITEMS = Object.fromEntries(Object.entries(COLOURS).map(([k, c]) => 
 const GREY = S.list(S.list(num, { min: 1 }), { min: 1, view: 'grid', about: t('灰度图：每行一列数', 'a grey image: a row of numbers per row') })
 const COLOUR = S.list(S.list(S.list(num, { min: 3 }), { min: 1 }), { min: 1, about: t('彩色图：每行一列 [R, G, B]', 'a colour image: a row of [R, G, B] per row') })
 const IMAGE = S.either(GREY, COLOUR)
-const VALUE = S.either(num, S.oneOf([null]), GREY, COLOUR)
-const VALUES = S.map(VALUE, { about: t('每个输入或输出的值，按名字：数、「—」（null）或图', 'a value for each input or output by name: a number, 「—」 (null) or an image') })
+const POINT = S.obj({ x: num, y: num })
+const VALUE = S.either(num, S.oneOf([null]), GREY, COLOUR, POINT)
+const VALUES = S.map(VALUE, { about: t('每个输入或输出的值，按名字：数、「—」（null）、图或坐标点 {x,y}', 'a value for each input or output by name: a number, 「—」 (null), an image or a point {x,y}') })
 
 const V3 = S.list(num, { min: 3 })
 const SCENE = S.obj({
@@ -86,6 +109,7 @@ const SCENE = S.obj({
 /* ---------- a level ---------- */
 
 const PORT = S.obj({ name: NAME, label: S.text() })
+const INPUT = S.obj({ name: NAME, label: S.text(), type: S.opt(S.oneOf(['point'])) })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
 const ITEM = S.obj({
   prompt: S.text(),
@@ -122,34 +146,44 @@ const ROUND = S.obj({
 // What a level says once; then each task, of one of four kinds, done in turn (../../engine/tasks.js).
 const ONCE = {
   title: S.text(),
-  intro: S.opt(S.list(S.obj({ t: S.text() }))),
+  intro: S.opt(INTRO),
   after: S.opt(S.text()),
   note: S.opt(S.text()),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type（最后一个任务必须是电路）', 'once passed the last task’s board is the part `type` (the last task must be a circuit)') })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), settings: S.opt(S.list(S.oneOf(['outside', 'axis']))), defaults: S.opt(S.obj({ outside: S.oneOf(['zero', 'clamp', 'wrap', 'reflect']) })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type（最后一个任务必须是电路）', 'once passed the last task’s board is the part `type` (the last task must be a circuit)') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 }
 const COMMON = {
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  outside: S.opt(S.list(S.oneOf(['zero', 'clamp', 'wrap', 'reflect']), { section: 'course' })),
   brief: S.text(),
   hint: S.opt(TEXTS),
-  intro: S.opt(S.list(S.obj({ t: S.text() }), { section: 'read', about: t('这个任务自己的引言：第一次做到它时读', 'the task’s own intro: read the first time it is played') })),
+  intro: S.opt({ ...INTRO, section: 'read', about: t('这个任务自己的引言：第一次做到它时读', 'the task’s own intro: read the first time it is played') }),
   after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
 }
 const TASK = S.by('kind', {
   circuit: S.obj({
     kind: S.oneOf(['circuit']), ...COMMON,
-    inputs: S.list(PORT),
+    illustration: S.opt(S.oneOf(['pinhole'], { about: t('测试旁可展开的成像场景，不增加通关步骤', 'an inspectable camera scene beside a test, without another assessment step') })),
+    inputs: S.list(INPUT),
     outputs: S.list(PORT, { min: 1 }),
     tests: S.list(TEST, { min: 1, section: 'tests' }),
     hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开', 'hidden tests: checked with every run and shown once passed') })),
     tolerance: S.opt(S.num({ min: 0, about: t('比较值时的容差（默认 1e-5）', 'the tolerance values are compared with (1e-5 by default)') })),
     solution: BOARD,
+    starter: S.opt(BOARD),
+    naiveWhy: S.opt(S.text()),
     naive: S.opt(S.board({ about: t('直觉上的错解：必须失败', 'the naive answer: it must fail') })),
     carries: S.opt(S.bool({ about: t('从上一个任务的板开始', 'start from the task before’s board') })),
   }),
   grid: S.obj({
     kind: S.oneOf(['grid']), ...COMMON,
     image: IMAGE,
+    calculation: S.opt(S.by('kind', {
+      sampling: S.obj({ kind: S.oneOf(['sampling']), method: S.oneOf(['nearest', 'bilinear']), xs: GREY, ys: GREY }),
+      product: S.obj({ kind: S.oneOf(['product']), column: S.list(num, { min: 1 }) }),
+      magnitude: S.obj({ kind: S.oneOf(['magnitude']) }),
+    }, { about: t('根据给定位置或权重计算中间量，可填入结果格', 'compute intermediate values from declared positions or weights and transfer them to result cells') })),
     window: S.opt(S.obj({ weights: S.list(num, { min: 3 }), axis: S.oneOf(['row', 'column']), padding: S.oneOf(['zero', 'valid']) })),
     ask: S.call('ask'),
     show: S.opt(S.oneOf(['numbers', 'picture', 'both'], { about: t('图怎么给玩家看：数、画面、两样都看（默认两样）', 'how the image is shown: numbers, picture or both (both by default)') })),

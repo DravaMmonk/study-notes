@@ -1,52 +1,104 @@
-# Vision Lab
+# Vision Lab: construction stages 0–2
 
-Status: a playable revision of Chapters 1–2. The blueprint is the executable curriculum authority; content is
-written through the operation set. Definitions live in clickable glossary entries. Copy gives a question,
-experimental conditions, reasoning support and synthesis, without repeating entry definitions.
+## Scope and purpose
 
-## Visual and interaction direction
+The player builds an inspection instrument, a neighbourhood processor/scanner and a frequency analyser. Image
+arithmetic and traversal execute automatically; selecting and composing the visual relationships is the puzzle.
+The long-term plan is [the machine-first outline](../../docs/Unimelb/26S2/CV/vision-game-specs/curriculum-construction-outline.md).
+This specification covers stages 0–2, not later camera, learning or geometry machines.
 
-A quiet optical instrument: one geometric drawing dominates the workspace, with fixed rulers, attached quantity
-marks and readable term tags. Reference and trial states use identical scales; result revelation follows the
-player's prediction, while the reference remains inspectable. Sensor coordinates use a separate labelled strip;
-angles use equal horizontal and vertical scales, never the stretched side-view schematic. On phones the same
-views stack instead of shrinking labels beyond readability. Motion follows state changes and result revelation;
-reduced-motion preferences suppress decorative transitions.
+## Primitive and reuse contracts
 
-## Chapter 1: camera and image coordinates
+Images are immutable floating-point scalar/RGB arrays. Inspection keeps original signed values; display clipping
+never changes computations. Spatial reads use output(x,y)=input(x+dx,y+dy); x grows right and y grows down.
+Known offsets are supplied data, not estimated registration. Comparisons are controlled defect evidence, not
+claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
-Required parallel routes, in either study order:
+A weighted line is built from shifts, multiplication and addition. A separable filter reuses that line along both
+axes through an exposed axis parameter. A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
+the table supplies traversal, not a weighted sum. Convolution reverses the written kernel before correlation.
+Parameterised border rules propagate through the player's actual nested graph. Zero, clamp, wrap and reflect
+are explicit assumptions; a valid interior is a separate cropped output. Reflection includes the edge sample.
 
-- Geometry: 1A1 (predict controlled X/Z/f changes, then build projection), 1A2 (construct a different scene with the
-  same image, then conditional inversion).
-- Arrays: 1A4 (locate and edit cells, then read neighbours). Arithmetic addition is introduced here, so this route
-  needs no parts or explanations from geometry.
+Frequency construction uses cosine in turns, per-row means/sums, transpose and coordinate/repetition helpers.
+No FFT/DFT primitive is supplied. The player's wave feeds a projection, quadrature probe, row spectrum, inverse
+and complex row transform. Two-dimensional analysis reuses row transforms and transposes. Forward coefficients
+are divided by the row length; inverse synthesis is a sum. Frequencies use unshifted array order, with k and N-k
+paired for real signals. Numerical products, sums, phase and amplitude are computed, not handwritten.
 
-Join at 1A3: first convert a signed sensor offset into pixels, then translate the origin on a coordinate strip,
-then compose projection with that translation. The horizontal slice and increasing-right convention are explicit;
-it does not silently reuse the vertical field-of-view drawing. The main route then continues through cropping
-(1A5), nearest sampling (1A6) and bilinear sampling (1A7). The optional framing topic 1F1 hangs after projection: its equal-scale field-of-view experiment is independent
-of pixel-coordinate arithmetic and does not block the camera join. Workshop-only units/library details remain
-optional (1W1, 1W2). These topics have separate blueprint points and entry opening levels.
+The engine's packed parts execute the player's passed circuits. Built parts that expose `outside` forward only
+that declared setting to their internal spatial reads. Input contracts, including weights and complex components,
+remain visible. There are no separate built-in implementations of earned methods.
 
-## Chapter 2: filtering and a combined image processor
+## Course dependency graph
 
-Shared basis: 2B1 local weighted sums, 2B2 boundary handling and the reusable row filter.
+Stage 0 has a shared inspection-station introduction before any branch: signed/absolute comparison -> known-offset
+comparison -> a controlled inspection pipeline. Simple facets are tasks, not padded levels. Its comparator is
+reused in smoothing residuals and reconstruction checks.
 
-Required parallel routes: 2B3 kernel orientation and 2B4 vertical neighbourhoods. Join at 2B5 to reason about a
-separable 2D convolution filter: inputs are kernels in written order and both axes must be flipped before the
-positional row/column parts are called. Asymmetric tests distinguish the roles and reject omitted flips. Sobel
-uses the same written-kernel contract; its outputs retain the declared positive-change convention. After that:
+Stage 1 opens with a weighted three-sample construction, then three independent routes:
 
-- Smoothing: 2B6 builds blur.
-- Changes: 2B7 builds directional responses; 2B8 combines them into a reusable edge-strength part.
+- Direction/composition: two-axis separable processing -> smoothing/detail enhancement with given Gaussian weights.
+- Local kernels: general correlation -> convolution orientation -> boundary/valid-domain upgrade -> signed spatial
+  derivatives -> Sobel and gradient strength.
+- Channels: construct a channel-weighted measurement from RGB samples.
 
-Join at 2B9: produce a weighted blurred colour image and its edge strength. Both branches are actually used by
-the reference and tests; a blueprint-only dependency is insufficient. 2W1 remains an optional Workshop topic.
+The scanner joins these routes because it consumes all three constructions. Kernel/convolution and boundary
+materials include asymmetric impulses, constants, unequal dimensions, narrow images and meaningful failure cases.
+The scanner is a controlled response pipeline, not an implementation of document detection or perspective correction.
 
-## Acceptance and evidence
+Stage 2 opens by constructing a wave, then a single-frequency projection and a quadrature probe. From that basis,
+analysis/synthesis and phase/measurement facets are practiced before the final interference-removal machine:
+row spectrum -> inverse synthesis -> phase-preserving filtering; complex row transforms -> 2D transform using two
+axis passes. Frequency masks are given scientific specifications with selectable contributions, not green-target
+sliders. Low/high/band effects, conjugate pairs, phase loss and ringing are tested through actual reconstructed
+images. Circular spatial convolution is compared only with the corresponding periodic frequency computation. The final
+machine consumes the row-frequency branch as a one-axis comparison, the 2D branch for reconstruction, and the
+earlier convolver as a spatial baseline. Vertical variation appearing as per-row DC exposes the row-only limit.
+Sampling/Nyquist and image compression are not silently claimed as audited L4 requirements.
 
-Validate both route orders, term access on every prerequisite path, wrong strategies, prediction outcomes,
-reference circuits, generated save migration and glossary body references. Check desktop/phone screenshots,
-pre/post-check result visibility, keyboard term activation and fresh-game route choice. Source-based requirements
-and remaining issues are recorded in the chapter review; automated passing is not a claim of novice mastery.
+## Guidance and interaction
+
+Each chapter begins in a concrete apparatus with its purpose, input evidence, output meaning and available tools.
+Intro figures use independent material, never the target circuit. Every task states its conventions and necessary
+mathematical support before use, gives observation-first hints, and includes a characteristic wrong graph with a
+specific explanation. Repeated layout is supplied in incomplete editable starters; they never complete the decisive
+signal path. Changed cases include signed values, colour, rectangular images, phases, frequencies and boundaries.
+
+The workbench retains compact input groups, touch/hover pixel inspection, moving wires and a closed initial result
+drawer. Frequency rows use numeric cell views; complex coefficients retain real and imaginary data. Small images and
+window tables can be inspected without expanding every numeric value. Desktop and phone must be checked in the
+actual browser; headless reference checks do not establish usability or novice understanding.
+
+## Sources and acceptance
+
+L2 original PDF image arrays/value representation; L3 locality, convolution/correlation, common filters,
+separability, colour and borders; L4 waves, complex magnitude/phase, image spectra, convolution theorem,
+frequency filtering and ringing; L5 gradient components/length. Source anchors and assessed facets are recorded
+in the blueprint and the stage coverage review. Task conventions and controlled application assumptions are
+identified separately from lecture facts.
+
+Acceptance: domain mathematical tests against independent reference calculations; every solution and hidden case;
+characteristic wrong circuits; packed reuse with a changed passed circuit; blueprint/content conformance; source
+and prerequisite review; real desktop/phone interaction and screenshots. No claim of measured learning outcomes
+is made. Later whole-course machinery remains a proposal.
+
+Current coverage and release checks: [stage review](../../docs/Unimelb/26S2/CV/vision-game-specs/stages-0-2-review.md).
+
+## Task-scoped tools and numeric interaction
+
+Parts are introduced by the task that first needs them; level-level inventory is the union used by the map and
+audit. A current task sees only its own and preceding introductions. The components book uses stable task keys
+to gate primitives. Absolute value starts with the second comparison task. Arithmetic is one configurable
+add/subtract/multiply/divide component. A one-time node migration preserves IDs, wires, settings, boards and slots;
+old arithmetic types are not offered by this curriculum.
+
+Outside-value settings are introduced with independent numeric examples before use. Zero extension starts at
+known-offset comparison; replicate extension starts on both independent branches that first need it; periodic
+and edge-inclusive reflection have their own boundary tasks. Unintroduced choices stay locked. Valid interior
+has a separate introduction and changes the output domain, rather than pretending to be a padding rule.
+
+Images have one numeric cell view, including original values and coordinates, with touch/hover inspection for
+full precision. No line plot or picture/numbers toggle is used. Small board previews are bounded numeric grids.
+Phone numeric fields use an in-app keypad with signed decimals, fractions, exponent notation, erase, cancel and
+explicit commit. Incomplete or nonfinite values cannot be committed and the system keyboard is not summoned.

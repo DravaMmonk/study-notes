@@ -90,7 +90,11 @@ export function enableDrag(root, handlers) {
     const r = g.scroller.getBoundingClientRect(), top = Math.max(r.top, 0), bottom = Math.min(r.bottom, innerHeight);
     const dy = g.y > top && g.y < top + EDGE ? -9 : g.y < bottom && g.y > bottom - EDGE ? 9 : 0;
     g.dwell = dy ? (g.dwell || 0) + 1 : 0;
-    if (dy && g.dwell > DWELL) { g.scroller.scrollTop += dy; update(); }
+    if (dy && g.dwell > DWELL) {
+      // A translated piece can extend overflow; only scroll through the real drop targets present at drag start.
+      const next = Math.max(0, Math.min(g.scrollMax, g.scroller.scrollTop + dy));
+      if (next !== g.scroller.scrollTop) { g.scroller.scrollTop = next; update(); }
+    }
     requestAnimationFrame(tick);
   }
 
@@ -135,7 +139,7 @@ export function enableDrag(root, handlers) {
     const t = target(e.target);
     if (!t || !root.contains(t.el)) return;
     const touch = e.pointerType !== 'mouse', scroller = h.scroller || scrollParent(t.el);
-    g = { ...t, h, scroller, sc: scaleOf(t.el), dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
+    g = { ...t, h, scroller, sc: scaleOf(t.el), scrollMax: Math.max(0, scroller.scrollHeight - scroller.clientHeight), dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
     if (!touch && t.kind !== 'tray') e.preventDefault();
     if (touch) g.timer = setTimeout(() => { if (g && !g.on) { g.armed = true; root.classList.add('armed'); g.el.classList.add('armed'); buzz(6); } }, HOLD);
     window.addEventListener('pointermove', onMove);

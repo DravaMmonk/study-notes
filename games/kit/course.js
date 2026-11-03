@@ -55,7 +55,8 @@
 //   folds(level) → [part]                  parts the level's spec folds away anyway
 //   showcase(level) → reason | null        why a level shows a new part alone, wired to the goal by itself: only for
 //                                          a part whose use is abstract enough to get wrong from its description
-//                                          (an assumption box), never for one a sentence explains (a block gate). The
+//                                          (an assumption box), or a semantic tool configured against contrasting visual cases.
+//                                          Simply placing a tool a sentence explains is insufficient. The
 //                                          bare-intro rule lets a level with a reason be
 //   declares(level) → [part]               parts whose definition the level's answer works on (a declaration,
 //                                          checking one): that puts them to work (idle-idea)

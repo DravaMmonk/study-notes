@@ -4,12 +4,15 @@
 //
 // Per-pixel work is done a whole image at a time (games/DESIGN.md 6.8): grid gives an image's coordinates as two
 // images, arithmetic acts value by value on numbers and images alike, and lookup reads an image at every coordinate of
-// a coordinate image at once. These are the primitives; cropping, moving, resizing and quantising are built from them.
+// a coordinate image at once. Courses can combine these operations or supply semantic image operators, according
+// to whether low-level implementation or visual reasoning is the learning objective.
 //
 // Fixed cards (the task puts them on the board): in (one of the task's inputs, params.name) and out (an output).
 import { sink, source } from '../../engine/boards.js'
 import { PartError } from '../../engine/circuit.js'
 import { isImage, make } from './image.js'
+import { IMAGE_OPERATORS } from './operators.js'
+import { CONSTRUCTION_PARTS } from './construction.js'
 
 const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => { throw new PartError(T(zh, en)) }
@@ -67,8 +70,25 @@ function lookup({ image, x, y }, node) {
 export const FIXED = ['in', 'out']
 
 export const PARTS = {
-  in: source(),
+  in: source({
+    outputs: (node) => (node.params?.kind === 'point' ? ['x', 'y'] : null),
+    eval: (_, node, ctx, key) => (node.params?.kind === 'point' ? ctx.bind?.[node.params.name]?.[key] : ctx.bind?.[node.params.name]),
+  }),
   out: sink(),
+  ...Object.fromEntries(Object.entries(IMAGE_OPERATORS).map(([key, part]) => [key, { ...part, eval: strict(part.eval) }])),
+  ...Object.fromEntries(Object.entries(CONSTRUCTION_PARTS).map(([key, part]) => [key, { ...part, eval: strict(part.eval) }])),
+  abs: { inputs: ['a'], eval: strict(({ a }) => zip([a], Math.abs)) },
+  cosine: { inputs: ['a'], eval: strict(({ a }) => zip([a], (v) => Math.cos(2 * Math.PI * v))) },
+  arithmetic: { inputs: ['a', 'b'], settings: { op: ['add', 'sub', 'mul', 'div'] }, eval: strict(({ a, b }, node) => zip([a, b], (p, q) => {
+    switch (node.params?.op ?? 'add') {
+      case 'sub': return p - q
+      case 'mul': return p * q
+      case 'div': return q === 0 ? fail('除以 0', 'divided by 0') : p / q
+      case 'add': return p + q
+      default: return fail('未知四则运算设置', 'Unknown arithmetic operation')
+    }
+  })) },
+  magnitude: { inputs: ['x', 'y'], eval: strict(({ x, y }) => zip([x, y], Math.hypot)) },
   const: { inputs: [], eval: (_, node) => Number(node.params?.value ?? 0) },
   add: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => p + q)) },
   sub: { inputs: ['a', 'b'], eval: strict(({ a, b }) => zip([a, b], (p, q) => p - q)) },

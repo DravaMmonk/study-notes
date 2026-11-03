@@ -1,0 +1,171 @@
+{
+  "title": { "zh": "把系数装回图像", "en": "Reassemble an image from coefficients" },
+  "intro": [
+    {
+      "t": {
+        "zh": "频谱仪保留了两路系数，还需要一台合成器才能检查它们是否完整。正向测量与逆向重建共用你造出的波形，但它们的求和方向和归一化职责不同。 <wiki-ref to=\"fourier-synthesis\"></wiki-ref>",
+        "en": "The analyser retains both components. Build a synthesiser to check whether information is complete. Analysis and reconstruction reuse the wave generator but differ in summation roles and normalisation. <wiki-ref to=\"fourier-synthesis\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "完整系数可以还原数值。常量、相位和不同长度的测试分别检查增益、符号与归一化。 <wiki-ref to=\"fourier-synthesis\"></wiki-ref>",
+    "en": "Complete coefficients recover values. Constants, phases and varying lengths test gain, signs and normalisation. <wiki-ref to=\"fourier-synthesis\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_inverse",
+      "kind": "circuit",
+      "step": {
+        "zh": "从系数重建",
+        "en": "Reconstruct"
+      },
+      "brief": {
+        "zh": "前向系数已经除以 N。按所有频率合成每个位置：实部乘 cos，虚部乘 sin 后相减；此处波形器可用 +1/4 周产生 −sin，因此相应调整组合符号。不要再平均。",
+        "en": "Forward coefficients already include 1/N. Synthesis sums real·cos − imaginary·sin across frequencies. The wave generator supplies −sin via +1/4 turn; account for that sign. Do not average again."
+      },
+      "inputs": [
+        { "name": "real", "label": { "zh": "频谱实部", "en": "Spectrum real" } },
+        { "name": "imag", "label": { "zh": "频谱虚部", "en": "Spectrum imaginary" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "重建图", "en": "Reconstruction" } }],
+      "tests": [
+        {
+          "inputs": {
+            "real": [[0.45, -0.025000000000000005, -0.2, -0.024999999999999963]],
+            "imag": [[0, -0.07500000000000002, -5.204748896376251e-17, 0.07499999999999998]]
+          },
+          "expect": { "out": [[0.2, 0.8, 0.3, 0.5]] }
+        },
+        {
+          "inputs": {
+            "real": [
+              [
+                0.3,
+                0.09999999999999999,
+                -9.067390516440166e-18,
+                4.236297372535286e-18,
+                0,
+                -4.880950727606728e-17,
+                -1.1990237921351275e-16,
+                0.10000000000000013
+              ]
+            ],
+            "imag": [
+              [
+                0,
+                1.2346979308880266e-17,
+                -0.05000000000000001,
+                3.530621445066399e-17,
+                -2.4492935982947065e-17,
+                -7.444089631977803e-17,
+                0.04999999999999995,
+                8.382676994819665e-17
+              ]
+            ]
+          },
+          "expect": {
+            "out": [
+              [
+                0.5,
+                0.5414213562373095,
+                0.3,
+                0.05857864376269048,
+                0.09999999999999995,
+                0.25857864376269046,
+                0.3,
+                0.3414213562373095
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "real": [
+              [
+                0.6,
+                -5.551115123125783e-18,
+                -5.551115123125783e-18,
+                2.2204460492503132e-17,
+                7.216449660063518e-17
+              ]
+            ],
+            "imag": [[0, 0, -3.3306690738754695e-17, -2.2204460492503132e-17, -5.551115123125783e-17]]
+          },
+          "expect": { "out": [[0.6, 0.6, 0.6, 0.6, 0.6]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "real": [
+              [0.39999999999999997, -0.1500000000000001, -0.14999999999999988],
+              [0.5, 0.14999999999999994, 0.1500000000000001]
+            ],
+            "imag": [
+              [0, 0.08660254037844378, -0.08660254037844402],
+              [0, 0.0866025403784438, -0.08660254037844396]
+            ]
+          },
+          "expect": { "out": [[0.1, 0.4, 0.7], [0.8, 0.2, 0.5]] }
+        }
+      ],
+      "solution": [
+        "zero = const[value=0]()",
+        "quarter = const[value=0.25]()",
+        "r = expandRows(real)",
+        "i = expandRows(imag)",
+        "c = wave(r.position,r.frequency,zero)",
+        "s = wave(r.position,r.frequency,quarter)",
+        "rc = arithmetic[op=mul](r.values,c)",
+        "is = arithmetic[op=mul](i.values,s)",
+        "v = arithmetic[op=add](rc,is)",
+        "total = reduceRows[mode=sum](v)",
+        "outimage = restore(total,real)",
+        "out <- outimage"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "quarter = const[value=0.25]()",
+        "r = expandRows(real)",
+        "i = expandRows(imag)",
+        "c = wave(r.position,r.frequency,zero)",
+        "s = wave(r.position,r.frequency,quarter)",
+        "rc = arithmetic[op=mul](r.values,c)",
+        "is = arithmetic[op=mul](i.values,s)",
+        "v = arithmetic[op=add](rc,is)",
+        "total = reduceRows[mode=mean](v)",
+        "outimage = restore(total,real)",
+        "out <- outimage"
+      ],
+      "naiveWhy": {
+        "zh": "再次平均会多除一次 N，使重建幅度变小。前向与逆向的归一化必须配套。",
+        "en": "Averaging again divides by N twice and reduces reconstruction amplitude. Forward and inverse normalisation must match."
+      },
+      "hint": [
+        {
+          "zh": "先用只有 DC 的常量图检查总增益，再用有相位的条纹检查虚部符号。所有乘积与累加自动计算。",
+          "en": "Check gain using DC-only constants, then imaginary signs using phased stripes. Arithmetic and accumulation are automatic."
+        }
+      ],
+      "starter": [
+        "zero = const[value=0]()",
+        "quarter = const[value=0.25]()",
+        "r = expandRows(real)",
+        "i = expandRows(imag)",
+        "c = wave(r.position,r.frequency,zero)",
+        "s = wave(r.position,r.frequency,quarter)",
+        "rc = arithmetic[op=mul](r.values,c)"
+      ],
+      "adds": []
+    }
+  ],
+  "builds": {
+    "type": "synthesise",
+    "name": { "zh": "逐行重建器", "en": "Row synthesiser" },
+    "desc": {
+      "zh": "按归一化实部、虚部系数合成图像，复用你的波形电路。",
+      "en": "Reconstruct from normalised real and imaginary coefficients using your wave circuit."
+    }
+  }
+}

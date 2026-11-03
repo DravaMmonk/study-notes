@@ -1,0 +1,96 @@
+{
+  "title": { "zh": "同一个核，方向为何不同", "en": "Why kernel orientation changes" },
+  "intro": [
+    {
+      "t": {
+        "zh": "处理器能处理任意核，但课程公式和一些工具使用不同的核约定。对称平滑核掩盖了差别，现在用非对称核把问题显露出来，再给自己的处理器加上明确的数学接口。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
+        "en": "The processor accepts any kernel, but conventions differ. Symmetric smoothing hides that difference. Expose it with an asymmetric kernel and build an explicit mathematical interface. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "对称核掩盖了方向差别；非对称核能区分数学卷积与互相关。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
+    "en": "Symmetric kernels hide the orientation distinction; asymmetric kernels expose convolution versus correlation. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_convolution",
+      "kind": "circuit",
+      "step": {
+        "zh": "核的方向",
+        "en": "Kernel orientation"
+      },
+      "brief": {
+        "zh": "接口接收数学卷积核。让非对称核的方向与卷积定义一致，保持输出尺寸和零边界。",
+        "en": "The interface receives mathematical convolution kernels. Match their orientation, including asymmetric kernels, with same-size output and zero boundaries."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "数学卷积核", "en": "Convolution kernel" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "卷积结果", "en": "Convolution result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
+            "kernel": [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+          },
+          "expect": { "out": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]] }
+        },
+        {
+          "inputs": {
+            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
+            "kernel": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
+          },
+          "expect": { "out": [[0, 1, 0], [2, 0, -1], [0, 0, 0]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ]
+          },
+          "expect": {
+            "out": [
+              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666],
+              [0.39999999999999997, 0.6, 0.6, 0.39999999999999997],
+              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.1, 0.4, 0.9, 0.3]], "kernel": [[0.5, 0, -0.5]] },
+          "expect": { "out": [[0.2, 0.4, -0.05000000000000002, -0.45]] }
+        }
+      ],
+      "solution": ["k = reverse(kernel)", "v = correlate(image,k)", "out <- v"],
+      "naive": ["v = correlate(image,kernel)", "out <- v"],
+      "naiveWhy": {
+        "zh": "对称核不能区分两种约定；非对称亮点响应会暴露核的方向是否反转。",
+        "en": "Symmetric kernels hide the distinction; asymmetric impulse responses expose orientation."
+      },
+      "hint": [
+        {
+          "zh": "用非对称权重表与单个亮点检查方向。翻转核只调整权重表，不是翻转待处理图。",
+          "en": "Inspect an asymmetric kernel on an impulse. Reverse the weight table, not the image."
+        }
+      ],
+      "adds": ["reverse"]
+    }
+  ],
+  "builds": {
+    "type": "convolve",
+    "name": { "zh": "卷积器", "en": "Convolver" },
+    "desc": {
+      "zh": "翻转书写核后运行自己的互相关器，图外规则可设置。",
+      "en": "Reverse the written kernel and run your correlator with explicit borders."
+    },
+    "settings": ["outside", "axis"],
+    "defaults": { "outside": "zero" }
+  }
+}

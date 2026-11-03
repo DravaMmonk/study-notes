@@ -1,0 +1,110 @@
+{
+  "title": { "zh": "造能换核的处理器", "en": "Build a processor with replaceable kernels" },
+  "intro": [
+    {
+      "t": {
+        "zh": "三点加权能处理一条线，但斜向和其他形状需要更一般的邻域。工具把重复取样展开为表，你把刚才学会的加权关系扩展到整张权重表。工具不会替你加权求和。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+        "en": "A line cannot express every diagonal or local pattern. A helper unfolds repeated sampling into tables. Extend the weighted relation to the entire table; the helper does not calculate a weighted sum. <wiki-ref to=\"local-kernel\"></wiki-ref>"
+      },
+      "fig": "window-table"
+    }
+  ],
+  "after": {
+    "zh": "一台加权处理器能复用不同核。核不翻转、书写位置直接对应邻域时，得到互相关。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+    "en": "One weighted processor reuses different kernels. Written-order weights matched directly to neighbours compute correlation. <wiki-ref to=\"local-kernel\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_kernel",
+      "kind": "circuit",
+      "step": {
+        "zh": "从表到局部规则",
+        "en": "Build a local rule"
+      },
+      "brief": {
+        "zh": "造一个接受任意奇数尺寸权重表的局部处理器。展开邻域只给读数和权重；你负责组合它们，并为每个原位置得到一个结果。",
+        "en": "Build a local processor accepting any odd-sized weight table. Unfold windows supplies samples and weights only; combine them and produce one result per original location."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "位置权重表", "en": "Positional weights" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "局部结果", "en": "Local result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
+            "kernel": [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+          },
+          "expect": { "out": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]] }
+        },
+        {
+          "inputs": {
+            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
+            "kernel": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
+          },
+          "expect": { "out": [[0, 0, 0], [-1, 0, 2], [0, 1, 0]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ]
+          },
+          "expect": {
+            "out": [
+              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666],
+              [0.39999999999999997, 0.6, 0.6, 0.39999999999999997],
+              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.1, 0.4, 0.9, 0.3]], "kernel": [[0.5, 0, -0.5]] },
+          "expect": { "out": [[-0.2, -0.4, 0.05000000000000002, 0.45]] }
+        }
+      ],
+      "solution": [
+        "table = windowTable(image,kernel)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "s = reduceRows[mode=sum](weighted)",
+        "r = restore(s,image)",
+        "out <- r"
+      ],
+      "naive": [
+        "table = windowTable(image,kernel)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "s = reduceRows[mode=mean](weighted)",
+        "r = restore(s,image)",
+        "out <- r"
+      ],
+      "naiveWhy": {
+        "zh": "权重已经给出贡献，额外平均会再除以邻域格数；常量和单位核会揭示错误。",
+        "en": "The weights already specify contributions. Averaging divides again by window size; constant and identity cases expose it."
+      },
+      "hint": [
+        {
+          "zh": "每行是一处输出的邻域。先检查读数与权重的对应，再决定如何把一行变成一个结果。",
+          "en": "Each row is one output neighbourhood. Inspect sample/weight correspondence, then decide how to reduce the row."
+        }
+      ],
+      "starter": ["table = windowTable(image,kernel)"],
+      "adds": ["windowTable", "reduceRows", "restore"]
+    }
+  ],
+  "builds": {
+    "type": "correlate",
+    "name": { "zh": "局部互相关器", "en": "Local correlator" },
+    "desc": {
+      "zh": "将权重表直接对齐邻域并求加权和。运行你自己的电路，图外规则可设置。",
+      "en": "Compute written-order weighted neighbourhood sums using your circuit, with explicit borders."
+    },
+    "settings": ["outside", "axis"],
+    "defaults": { "outside": "zero" }
+  }
+}

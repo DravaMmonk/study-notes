@@ -10,15 +10,18 @@
 // its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
 // found that its schema cannot say (a board that does not read, a pick outside the image, scenes that should look
 // alike and do not).
-import { packed } from '../../engine/boards.js'
+import { packed, withSettings } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { fits, fromText, toText } from './board.js'
 import { PARTS } from './parts.js'
+import { introducedParts } from './tooling.js'
+import { BORDERS } from './construction.js'
 import { readTest } from './run.js'
-import { fromRows } from './image.js'
+import { fromRows, isPoint } from './image.js'
 import { askOf, gridCheck } from './grid.js'
 import { windowResult } from './filter-window.js'
+import { calculationResult } from './calculation.js'
 import { judgeOf, optionsOf, verdictOf } from './judges.js'
 import { revealing, sameImage } from './scene.js'
 import { benchOf } from './benches/index.js'
@@ -31,6 +34,7 @@ const OWN = new Map()
 
 export function visionCourse(content) {
   const { eras, primitives, levels, concept = {} } = content
+  const guidedOutside = levels.some((l) => l.tasks?.some((t) => t.outside))
   const wrong = []
   const say = (level, text) => wrong.push(`${level}: ${text}`)
   const plan = layout(eras)
@@ -51,6 +55,7 @@ export function visionCourse(content) {
     for (const t of [...task.tests, ...(task.hidden ?? [])]) {
       for (const o of names) if (!(o in t.expect)) say(where, `a test expects nothing of the output ${o}`)
       for (const i of task.inputs) if (!(i.name in t.inputs)) say(where, `a test gives nothing on the input ${i.name}`)
+      for (const i of task.inputs) if ((i.type === 'point') !== isPoint(t.inputs[i.name])) say(where, `input ${i.name}: point values require a point input with numeric x and y`)
       for (const [k, v] of [...Object.entries(t.inputs), ...Object.entries(t.expect)]) if (Array.isArray(v) && !fromRows(v)) say(where, `${k}: its rows do not make an image (uneven rows, or not grey or RGB)`)
     }
     Object.assign(out, { tests: task.tests.map(readTest), hidden: (task.hidden ?? []).map(readTest) })
@@ -65,6 +70,7 @@ export function visionCourse(content) {
       }
     }
     out.solution = read(task.solution, 'the answer')
+    if (task.starter) out.starter = read(task.starter, 'the starter')
     if (task.naive) out.naive = read(task.naive, 'the naive answer', true)
   }
 
@@ -72,6 +78,11 @@ export function visionCourse(content) {
     const img = fromRows(task.image)
     if (!img) return say(where, 'its image rows do not make an image')
     const { name, params } = askOf(task)
+    if (task.calculation) {
+      try {
+        if (name !== 'fill' || gridCheck(task, calculationResult(task))) say(where, 'the calculation aid does not produce the requested output')
+      } catch (error) { say(where, `invalid calculation aid: ${error.message}`) }
+    }
     if (task.window) {
       const span = task.window.axis === 'row' ? img.w : img.h
       if (name !== 'fill' || img.c !== 1 || task.window.weights.length !== 3 || (task.window.padding === 'valid' && span < 3)) say(where, 'a filter window needs a greyscale fill task, three weights and at least three samples for valid padding')
@@ -134,7 +145,7 @@ export function visionCourse(content) {
     return given.has(id)
   }).map((id) => {
     const level = given.get(id)
-    const tasks = taskLevels(level)
+    const tasks = taskLevels(level).map((task, k) => ({ ...task, adds: [...new Set([...(level.adds ?? []), ...level.tasks.slice(0,k+1).flatMap((t) => t.adds ?? [])])], fresh: [...(k === 0 ? level.adds ?? [] : []), ...(level.tasks[k].adds ?? [])] }))
     const read = tasks.map((task) => readTask(id, task, tasks.length > 1 ? `${id} task ${task.taskId}` : id))
     played.set(id, read)
     // The part a level builds runs its last task's board: the player's, while it fits, else the reference.
@@ -153,27 +164,29 @@ export function visionCourse(content) {
         inputs: last.inputs.map((i) => i.name),
         outputs: last.outputs.map((o) => o.name),
         built: level.builds,
+        params: level.builds.settings ?? [],
+        settings: Object.fromEntries((level.builds.settings ?? []).map((key) => [key, key === 'axis' ? ['x', 'y'] : BORDERS])),
         // What the part runs, opened on a board: the player's board (or the reference) and the task that builds it.
-        opens: () => ({ circuit: own(), level: last }),
+        opens: (params = {}) => ({ circuit: withSettings(own(), params, partOf), level: last }),
       })
     }
-    return { ...level, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: level.adds ?? [] }
+    return { ...level, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: introducedParts(level) }
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
   const byId = new Map(LEVELS.map((L) => [L.id, L]))
   const builderOf = new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, L]))
-  const solutions = (id) => played.get(id).filter((T) => T.kind === 'circuit').map((T) => T.solution)
+  const solutions = (id, task) => played.get(id).filter((T) => T.kind === 'circuit' && (task === undefined || T.task === task)).map((T) => T.solution)
   const course = defineCourse({
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.builds ? [L.builds.type] : [] })),
     eras,
     primitives,
-    adds: (level) => byId.get(level.id)?.adds ?? [],
+    adds: (level) => level.task === undefined ? byId.get(level.id)?.adds ?? [] : played.get(level.id)?.[level.task]?.adds ?? [],
     needs: (part) => (builderOf.has(part) ? part : null),
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
     concept: (part) => concept[part] ?? part,
     naive: (level) => played.get(level.id)?.some((T) => T.naive) ?? false,
-    needed: (level) => [...new Set(solutions(level.id).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
-    boards: (level) => solutions(level.id),
+    needed: (level) => [...new Set(solutions(level.id, level.task).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
+    boards: (level) => solutions(level.id, level.task),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     abstraction: true,
   })
@@ -188,7 +201,9 @@ export function visionCourse(content) {
     BUILT,
     blueprints,
     wrong,
-    offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
+    outsideIn: (level) => guidedOutside ? [...new Set(LEVELS.filter((l) => course.before(l.id, level.id)).flatMap((l) => l.tasks.flatMap((t) => t.outside ?? [])).concat((byId.get(level.id)?.tasks ?? []).slice(0,(level.task ?? 0)+1).flatMap((t) => t.outside ?? [])))] : ['error', ...BORDERS],
+    introductions: (type, id) => (byId.get(id)?.tasks ?? []).flatMap((t, k) => (t.adds ?? []).includes(type) || k === 0 && (given.get(id)?.adds ?? []).includes(type) ? [t.id] : []),
+    offerIn: (level, flags) => offer(course, level, new Set(flags)),
     syncOwn: (built = {}) => {
       OWN.clear()
       // The shell keeps boards by task (../../shell/progress.js): a level's part runs its last task's.

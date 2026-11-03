@@ -27,7 +27,7 @@ const deg = (rad) => (rad * 180) / Math.PI
  */
 export function pinholeView(setup, values) {
   const v = { ...setup, ...values }
-  const out = project(v)
+  const out = { ...project(v), aim: v.aim ?? 0 }
   const sensor = setup.sensor
   const horizontal = setup.axis === 'horizontal'
   const pixels = sensor && (horizontal ? sensor.pxWidth : sensor.pxHeight)
@@ -39,10 +39,12 @@ export function pinholeView(setup, values) {
     let seen = 0
     for (const o of setup.objects) {
       const Z = o.Z ?? v.Z
-      const [bottom, top] = [(v.f * o.X) / Z, (v.f * (o.X + o.H)) / Z]
+      const [bottom, top] = [(v.f * (o.X - out.aim)) / Z, (v.f * (o.X + o.H - out.aim)) / Z]
       out[`u_${o.id}`] = bottom
       out[`h_${o.id}`] = top - bottom
       out[`in_${o.id}`] = within(bottom, top)
+      // Cropping any part is different from keeping an unwanted object wholly outside the frame.
+      out[`visible_${o.id}`] = Math.max(bottom, top) >= -half - 1e-9 && Math.min(bottom, top) <= half + 1e-9 ? 1 : 0
       seen += out[`in_${o.id}`]
       if (px) Object.assign(out, { [`u_${o.id}_px`]: bottom * px, [`h_${o.id}_px`]: (top - bottom) * px })
     }
@@ -52,7 +54,6 @@ export function pinholeView(setup, values) {
   }
   if (px) Object.assign(out, { u_px: out.u * px, h_px: out.h * px, fpx: v.f * px, fov: deg(2 * Math.atan(sensor.height / 2 / v.f)), fovW: deg(2 * Math.atan(sensor.width / 2 / v.f)) })
   if (sensor) Object.assign(out, { pitch: span / pixels, centre: (pixels - 1) / 2, column: out.u * px + (pixels - 1) / 2 })
-  if (setup.predict) out.predictionError = v.guess - out[setup.predict]
   return out
 }
 
@@ -63,7 +64,6 @@ export const pinhole = {
     axis: S.opt(S.oneOf(['horizontal', 'vertical'])),
     unit: S.opt(S.str()),
     reference: S.opt(S.obj({ X: S.num(), H: S.num(), Z: S.num({ min: 0.001 }), f: S.num({ min: 0.001 }) })),
-    predict: S.opt(S.oneOf(['u', 'h', 'u_px', 'column'])),
     X: S.opt(S.num()), H: S.opt(S.num()), Z: S.opt(S.num({ min: 0.001 })), f: S.opt(S.num({ min: 0.001 })),
     object: S.opt(S.oneOf(['point', 'arrow'], { about: t('画成一个点（看 u）还是一支箭（看 h）', 'drawn as a point (u matters) or an arrow (h matters)') })),
     objects: S.opt(S.list(S.obj({ id: ID, X: S.num(), H: S.num(), Z: S.opt(S.num({ min: 0.001 })), label: S.opt(S.text()) }), { min: 1, about: t('几支竖着的箭，各从 X 到 X + H；不写 Z 的用旋钮 Z', 'several upright arrows, each from X to X + H; one without Z stands at the knob Z') })),
@@ -75,8 +75,6 @@ export const pinhole = {
   },
   verify(model, bench) {
     const { setup } = model
-    if (setup.predict && !bench.knobs?.guess) return 'a prediction needs a guess knob'
-    if (['u_px', 'column'].includes(setup.predict) && !setup.sensor) return 'a pixel prediction needs a sensor'
     if (['Z', 'f'].some((n) => bench.knobs?.[n] && !(bench.knobs[n].min > 0))) return 'the Z and f knobs must stay positive'
     if (setup.target?.of.endsWith('_px') && !setup.sensor) return 'a target in pixels needs a sensor'
     if (setup.objects && new Set(setup.objects.map((o) => o.id)).size !== setup.objects.length) return 'two objects share an id'

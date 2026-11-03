@@ -42,6 +42,7 @@ export const SAVES = S.list(S.obj({
     S.obj({ built: S.list(S.list(S.str(), { min: 2 })) }),
     S.obj({ drop: S.list(S.str()) }),
     S.obj({ retask: S.map(S.str()) }),
+    S.obj({ retype: S.map(S.obj({ type: S.str(), params: S.map(S.any()) })) }),
   )),
 }))
 
@@ -62,7 +63,7 @@ export function checkContent(vocabulary, content) {
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open.
-  const { id, levels, glossary, domain, vocabulary: version, open, blueprint, ...game } = content
+  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, ...game } = content
   const ids = new Set(levels.map((l) => l.id))
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })

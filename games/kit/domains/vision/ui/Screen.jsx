@@ -8,8 +8,16 @@ import { fits, startBoard } from '../board.js'
 import { FIXED, PARTS } from '../parts.js'
 import { runLevel } from '../run.js'
 import { fmt, isImage, show } from '../image.js'
-import { CARDS, CHANNELS, OUTSIDE, PORT_LABELS } from './catalog.js'
+import { builtDefaults, CONSTRUCTION_DEFAULTS } from '../construction.js'
+import { AXIS_FIELD, BORDER_FIELD, CONSTRUCTION_OUTPUTS } from './construction-catalog.js'
+import { OPERATOR_DEFAULTS } from '../operators.js'
+import { CARDS, CHANNELS, OUTSIDE, PORT_LABELS, OPERATOR_FIELDS } from './catalog.js'
 import ImageView from './ImageView.jsx'
+import { ProjectionCase } from './benches/CameraScene.jsx'
+import TestValues from './TestValues.jsx'
+import PartDetail from './PartDetail.jsx'
+import NumberField from '../../../shell/NumberField.jsx'
+import { taskBoard } from '../tooling.js'
 
 // A circuit task of a vision game on the kit's circuit level (../../../shell/CircuitLevel.jsx): the task's inputs down
 // the left, its outputs down the right, the parts between. A value is a number or an image (../image.js): a card shows
@@ -35,7 +43,7 @@ function partsFor(level, game) {
     icon: (node) => (game.BUILT[node.type] ? CircuitBoard : CARDS[node.type]?.icon),
     packed: (node) => Boolean(game.BUILT[node.type]),
     outputs: (node) => {
-      if (PARTS[node.type]?.outputs) return PARTS[node.type].outputs(node).map((key) => ({ key, label: key }))
+      if (PARTS[node.type]?.outputs) return PARTS[node.type].outputs(node)?.map((key) => ({ key, label: CONSTRUCTION_OUTPUTS[node.type]?.[key] ?? key })) ?? null
       const outs = game.BUILT[node.type] && builderOf(node.type).outputs
       return outs && outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
     },
@@ -43,27 +51,17 @@ function partsFor(level, game) {
   }
 }
 
-/** An image small enough to read cell by cell. */
-const small = (img) => img.w * img.h <= 36
-
 /** A value on a card: a number, a small picture of an image, 「—」, or why there is none. */
 function Value({ value, error }) {
   if (value === undefined) return <span className={`vi-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
-  if (isImage(value)) return <span className="vi-thumb"><ImageView value={value} cell={Math.max(2, Math.min(16, Math.floor(110 / Math.max(value.w, value.h))))} /><small>{value.w} × {value.h}</small></span>
+  if (isImage(value)) return <span className="vi-thumb"><span className="vi-numeric-thumb"><ImageView value={value} numbers cell={value.c === 3 ? 58 : value.data.reduce((w,v)=>Math.max(w,Math.min(52,8+fmt(v).length*6)),32)} /></span><small>{value.w} × {value.h}</small></span>
   return <span className="vi-value">{show(value)}</span>
-}
-
-/** A value in the test table: an image with its numbers while it is small, else its picture. */
-function Cell({ value }) {
-  if (value === undefined) return null
-  if (!isImage(value)) return <span className="vi-value">{show(value)}</span>
-  return <ImageView value={value} numbers={small(value)} axes={small(value)} cell={small(value) ? undefined : Math.max(3, Math.floor(160 / Math.max(value.w, value.h)))} />
 }
 
 const NONE = []
 const valueOf = (node, key, view) => view.values.get(key ? `${node.id}#${key}` : node.id)
 // A new card's settings are its defaults written in, so the card shows them.
-const defaults = (type) => (type === 'const' ? { value: '0' } : type === 'lookup' ? { outside: 'error' } : type === 'channel' ? { c: '0' } : {})
+const baseDefaults = (type) => type === 'arithmetic' ? { op: 'add' } : CONSTRUCTION_DEFAULTS[type] ?? OPERATOR_DEFAULTS[type] ?? (type === 'const' ? { value: '0' } : type === 'lookup' ? { outside: 'error' } : type === 'channel' ? { c: '0' } : { outside: 'zero' })
 
 export default function Screen(screen) {
   const { game: shell, level: entry, solved, flags, progress } = screen
@@ -71,7 +69,10 @@ export default function Screen(screen) {
   const game = shell.vision
   game.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, game), [level, game])
-  const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, game.partOf) ? saved : startBoard(level)), fresh: () => startBoard(level) })
+  const { shown: palette, folded } = useMemo(() => game.offerIn(level, flags), [game, level, flags])
+  const outside = game.outsideIn(level)
+  const openBoard = (saved) => taskBoard(saved?.nodes && fits(saved,level,game.partOf) ? saved : startBoard(level), new Set([...palette,...folded]), outside)
+  const board = useLevelBoard(screen, { open: openBoard, fresh: () => startBoard(level) })
   const { circuit, change } = board
   const [revealed] = useState(solved)
   const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
@@ -91,23 +92,40 @@ export default function Screen(screen) {
       },
     },
   })
-  const { shown: palette, folded } = useMemo(() => game.offerIn(level, flags), [game, level, flags])
   const builderOf = game.builtBy
+  const defaults = (type) => game.BUILT[type] ? builtDefaults(builderOf(type).builds) : baseDefaults(type)
 
   // What the board shows: what the engine computes for the test picked.
   const runOf = checked.runs[run.at]
   const view = runOf
   const ended = run.over
 
-  const setParam = (node, key, value) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
+  const setParams = (node, params) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, ...params } } : n)) })
+  const setParam = (node, key, value) => setParams(node, { [key]: value })
   const settings = (node, ctx) => {
     const p = { ...defaults(node.type), ...node.params }
     const stop = (e) => e.stopPropagation()
+    const fields = OPERATOR_FIELDS[node.type] ?? (game.BUILT[node.type] && builderOf(node.type).builds.settings?.map((key) => key === 'axis' ? AXIS_FIELD : BORDER_FIELD))
+    if (fields) return <div className="vi-operator-settings" onPointerDown={stop}>
+      {fields.map(({ key, label, options }) => <label key={key} className={`vi-field ${options ? 'is-option' : 'is-weight'}`}>
+        <span>{L(label)}</span>
+        {options ? <select aria-label={L(label)} value={p[key]} disabled={ctx.readOnly} onChange={(e) => setParam(node, key, e.target.value)}>
+          {options.map(([v, text]) => <option key={v} value={v} disabled={key === 'outside' && !outside.includes(v)}>{L(text)}{key === 'outside' && !outside.includes(v) ? tr('（尚未引入）', ' (not introduced)') : ''}</option>)}
+        </select> : <NumberField label={label} value={p[key]} phone={screen.phone} readOnly={ctx.readOnly} onChange={(v)=>setParam(node,key,v)}/>}
+      </label>)}
+      {node.type === 'stencil' && <div className="vi-operator-gain">
+        <small>{tr('权重和', 'Weight sum')} {fmt(['a', 'b', 'c'].reduce((sum, key) => sum + Number(p[key]), 0))}</small>
+        <button type="button" disabled={ctx.readOnly || !Number.isFinite(Number(p.a) + Number(p.b) + Number(p.c)) || Number(p.a) + Number(p.b) + Number(p.c) === 0} onClick={() => {
+          const sum = Number(p.a) + Number(p.b) + Number(p.c)
+          setParams(node, Object.fromEntries(['a', 'b', 'c'].map((key) => [key, String(Number(p[key]) / sum)])))
+        }}>{tr('使权重和为 1', 'Make weights sum to 1')}</button>
+      </div>}
+    </div>
     if (node.type === 'const') {
       return (
         <label className="vi-field">
           <span>{tr('数值', 'Value')}</span>
-          <input type="number" step="any" value={p.value} readOnly={ctx.readOnly} onPointerDown={stop} onChange={(e) => setParam(node, 'value', e.target.value)} />
+          <NumberField label={tr('常数值','Constant value')} value={p.value} phone={screen.phone} readOnly={ctx.readOnly} onChange={(v)=>setParam(node,'value',v)}/>
         </label>
       )
     }
@@ -152,10 +170,8 @@ export default function Screen(screen) {
   ]
   const strip = (
     <div className="vi-strip">
-      <table className="vi-test">
-        <thead><tr><th /><th>{tr('应当', 'Wanted')}</th><th>{tr('这块板', 'This board')}</th></tr></thead>
-        <tbody>{rows.map(([label, want, got], k) => <tr key={k}><th>{L(label)}</th><td><Cell value={want} /></td><td><Cell value={got} /></td></tr>)}</tbody>
-      </table>
+      <TestValues rows={rows} given={level.inputs.length} phone={screen.phone} />
+      {level.illustration === 'pinhole' && <ProjectionCase test={test} tests={tests} phone={screen.phone} />}
       {ended && runOf.fail && <p className="vi-verdict is-fail">{L(runOf.fail.why)}</p>}
     </div>
   )
@@ -172,6 +188,16 @@ export default function Screen(screen) {
       view={view}
       card={{
         body,
+        tileExtra: (node) => {
+          const p = { ...defaults(node.type), ...node.params }
+          if (node.type === 'arithmetic') return <small>{L(OPERATOR_FIELDS.arithmetic[0].options.find(([key])=>key===p.op)?.[1])}</small>
+          if (node.type === 'reduceRows') return <small>{p.mode === 'sum' ? tr('求和', 'Sum') : tr('平均', 'Mean')}</small>
+          if (node.type === 'shift' || node.type === 'windowTable' || game.BUILT[node.type] && builderOf(node.type).builds.settings?.length) return <small>{(node.type === 'offset' || node.type === 'windowTable' || game.BUILT[node.type] && builderOf(node.type).builds.settings?.includes('axis')) && `${L(AXIS_FIELD.options.find(([key]) => key === p.axis)?.[1])} · `}{L(BORDER_FIELD.options.find(([key]) => key === p.outside)?.[1])}</small>
+          if (node.type === 'stencil') return <small>{p.axis === 'y' ? 'y' : 'x'} [{p.a}, {p.b}, {p.c}]</small>
+          if (node.type === 'sample') return <small>{tr(p.method === 'bilinear' ? '双线性' : '最近邻', p.method === 'bilinear' ? 'Bilinear' : 'Nearest')}</small>
+          if (node.type === 'kernelFilter') return <small>{tr(p.convention === 'convolution' ? '数学卷积' : '互相关', p.convention === 'convolution' ? 'Convolution' : 'Correlation')}</small>
+          return null
+        },
         outNote: (node, key, ctx) => {
           const v = valueOf(node, key, ctx.view)
           return v === undefined ? null : isImage(v) ? `${v.w}×${v.h}` : fmt(v)
@@ -184,9 +210,11 @@ export default function Screen(screen) {
       describe={(n) => (game.BUILT[n.type] ? builderOf(n.type).builds.desc : FIXED.includes(n.type) ? null : CARDS[n.type]?.desc)}
       results={strip}
       resultsTitle={tr(`测试 ${run.at + 1}`, `Test ${run.at + 1}`)}
+      details
+      sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} />}
       packed={{
         open: (node) => {
-          const inside = game.BUILT[node.type]?.opens?.()
+          const inside = game.BUILT[node.type]?.opens?.(node.params)
           return inside && { ...inside, parts: partsFor(inside.level, game) }
         },
         edit: (node) => openRef('level', builderOf(node.type).id),

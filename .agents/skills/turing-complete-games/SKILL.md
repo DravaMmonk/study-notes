@@ -73,9 +73,11 @@ copying the last wording forward.
 
 Every wire placed, knob turned and claim judged must be the player working out a piece of the field; what they
 carry away is knowledge they can state in the field's own terms, not the game's controls (`games/DESIGN.md` §1,
-§4.1). So a course is planned from **knowledge points** taken from the sources (a concept, method, convention or
-fact, with its term and where the course teaches it), never from parts: a part, an operation or a knob is a tool
-that comes in with the point that needs it. **The main path is the lectures' theory and nothing else** (concepts,
+§4.1). For a user-directed construction-led course, plan the machine, capability ladder and reusable parts first, then
+audit coverage of **knowledge points** from the sources (concepts, methods, conventions and facts, with their terms
+and teaching locations). Prefer construction, use, debugging, constraints and upgrades; only important residual
+knowledge that cannot be meaningfully carried there receives an extra lesson. Do not choose parts for their own
+sake or turn the source inventory into lecture-ordered gates. **The main path is the lectures' theory and nothing else** (concepts,
 models, methods and how they relate). Technical content — a library's or a tool's way (OpenCV's channel order,
 `uint8`, function names), a file format, a workshop's recipe — never appears on the main path, not as a task, a
 sentence or a link: it is taught only in optional topics hung after the theory it applies or after the era's main
@@ -157,10 +159,11 @@ shows them at work in 《证明完毕》):
   needed or making the later levels truly use it. A finding a game cannot fix yet goes on its work list (its design
   doc and `game.json` `open`), never away by loosening the rule.
 - **Lead-in.** Every new part or ability has a cause: an earlier level where the player does it by hand or hits
-  the wall it removes. A level whose reference answer is "place the new part, wire it to the goal" is a smell. The
-  one exception is a part whose use is itself abstract enough to get wrong from its description (an assumption box:
+  the wall it removes. A level whose reference answer is "place the new part, wire it to the goal" is a smell. One
+  exception is a part whose use is itself abstract enough to get wrong from its description (an assumption box:
   a region, two dots, results leaving only through its conclusion): one level may just show how it is used, marked
-  `showcase: '<what is abstract about it>'`. A part one sentence explains (a block gate: "yes" gives "—", else it
+  `showcase: '<what is abstract about it>'`. Configuring a semantic operator against contrasting visual cases
+  is another justified use, documented by the theory-tools rule below. A part one sentence explains (a block gate: "yes" gives "—", else it
   passes) gets no level of its own; it first appears inside a real problem.
 - **Motivation on the main path.** A required level's intro must not depend on an optional challenge or topic.
 - **Abstraction keeps rising.** Draw the part dependency graph (§7 step 5: `npm run deps -- <game>`). Every built part is used by later
@@ -169,7 +172,8 @@ shows them at work in 《证明完毕》):
 - **Across eras.** Within an era every part met stays usable. Every era after the first declares `keeps`: `'all'`
   when it continues the previous machine (extends or upgrades it), so earlier work is never dropped; a list (possibly
   `[]`) when it changes topic, leaving the rest behind. Ask: is the new machine a continuation of the last one?
-- **Discovery, not transcription.** No level hands over a formula to wire up; a quantity with several parameters
+- **Discovery, not transcription.** A level must retain a substantive reasoning decision beyond formula transcription.
+  Supply prerequisite formulas when implementation is not the learning objective. A quantity with several parameters
   is a bench that opens one knob per step (every bench is the kernel's parameter bench, written as data: a model
   from the domain, knobs, stages, a goal of limits and a layout of display items; `games/DESIGN.md` §6.4). A hard
   mechanism gets its own intro levels as a named series (§2.2).
@@ -189,6 +193,12 @@ shows them at work in 《证明完毕》):
   hits (in 《证明完毕》 excluded middle comes after the player's own auto fails on it; De Morgan comes with the
   simplifier that pushes negations in; proof terms come just before the chapters built on them). A chapter that
   only looks again at what was done before, in a new light, gathers each point's small tasks into one level.
+- **Theory tools may be supplied.** Primitive minimality is relative to the course's learning objective. When
+  indexing, rounding, arithmetic loops or repeated wiring are not assessed, provide semantic operators, formulas
+  and editable starters. Preserve the assessed visual decomposition: do not provide a complete sampler, filter,
+  attention block, matcher or evaluator before its construction when that is the point of the course. A parameter
+  choice on a supplied box does not replace earning the abstraction. This qualifies the minimality rule below
+  for execution helpers, not for bypassing core constructions.
 - **Primitives stay minimal** (§1). Whatever can be wired from parts already held is built by a builder level, never
   given as a new primitive: ask of every primitive whether the parts in hand make it. A description saying "X and Y in
   one step", "X, then Y" or "tries each of them" names a built part. A setting that hides a combination of parts (a
@@ -214,6 +224,9 @@ shows them at work in 《证明完毕》):
   topics that are one problem growing, challenges that are hard by insight rather than by tedium.
 
 ## Copy checklist
+
+Component descriptions are plain text: use names directly, without HTML or reference markup. They are exempt
+from the reference and terminology-annotation requirements below; those still apply to other learning prose.
 
 The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and part description against them:
 

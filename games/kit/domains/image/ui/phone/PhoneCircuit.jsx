@@ -122,7 +122,6 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
       tests={<TestTabs phone tests={level.tests} states={level.tests.map((_, index) => { const ok = run?.results[index]?.pass; return ok === true ? 'pass' : ok === false ? 'fail' : null })} index={testIndex} onSelect={onTestIndex} />}
       tray={<Tray items={level.palette.filter((type) => !level.folded?.includes(type)).map(trayItem)} folded={(level.folded ?? []).map(trayItem)} onPick={editing.placeFirstFree} />}
       results={testDetails}
-      drawerOpen
       dock={<RunDock go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }} />}
     >
       <SlotBoard

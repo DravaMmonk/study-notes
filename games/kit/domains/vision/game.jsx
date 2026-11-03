@@ -25,6 +25,7 @@ import Screen from './ui/Screen.jsx'
 import GridScreen from './ui/GridScreen.jsx'
 import ChoiceScreen from './ui/ChoiceScreen.jsx'
 import BenchScreen from './ui/BenchScreen.jsx'
+import IntroFigure from './ui/IntroFigure.jsx'
 import { CARDS } from './ui/catalog.js'
 import { visionCourse } from './course.js'
 
@@ -43,7 +44,7 @@ const KINDS = {
 export default function visionGame(content) {
   const vision = visionCourse(content)
   const { LEVELS, CHAPTERS, course } = vision
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at }))
+  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at, atTasks: at.flatMap((id) => vision.introductions(type, id)) }))
   // A part upgraded by later levels is one part in the components box, as its last upgrade names and describes it.
   const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
   const labels = levelLabels(content.eras)
@@ -75,12 +76,13 @@ export default function visionGame(content) {
         note: L.note,
         tasks: tasks.map((T, k) => {
           const { step, brief, hint, intro, after, carries } = L.tasks[k]
-          return { key: T.taskId, kind: T.kind, ...defined({ step, brief, hint, intro, after, carries }), source: T }
+          return { key: T.taskId, kind: T.kind, ...defined({ step, brief, hint, intro, after, carries }), fresh: T.fresh, source: T }
         }),
       }
     }),
     progress: migrations(content.saves),
     intro: (level) => level.intro,
+    IntroFigure,
     kinds: KINDS,
     parts: { all: [...primitives, ...built] },
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),

@@ -28,6 +28,30 @@
 
 下面几条是在各款游戏里落实这五条原则的规矩。
 
+**Construction-led visual learning.**
+
+For a construction-led computer-vision course, plan machine -> capabilities -> parts -> construction and reuse,
+then audit how much lecture knowledge these activities cover. Source knowledge constrains the meaning and scope;
+it does not require lecture order, one gate per concept, or an optics preface before image processing. First try
+to cover a point in construction, application, debugging, a constraint or an upgrade. Only important residual
+knowledge that cannot be meaningfully carried by that path receives an additional lesson.
+
+Supply arithmetic evaluation, index/rounding helpers, traversal, repeated layout and other execution support.
+Preserve the learner's field-relevant decomposition. A complete sampler, Gaussian/Sobel filter, attention block,
+matcher or evaluator is an earned abstraction when constructing that method is the course's purpose. Giving it
+first and grading its mode setting is not an equivalent shortcut. Prerequisite formulas and worked examples are
+legitimate support, but the task must retain a meaningful construction beyond transcription.
+
+A numeric exercise with automatic fill has no assessment value without another learner decision. Use computed
+values as evidence inside construction and debugging. Keep physical-model experiments for knowledge the circuit
+path cannot expose, and place them after their actual prerequisites. Camera projection can support a later
+geometry machine without blocking the opening image processor.
+
+**Task-scoped introductions.** A level may introduce tools in individual tasks. Its aggregate inventory is the
+union for map/audit purposes; the current tray, fresh markers and component-book access follow the stable task
+keys and only preceding/current task introductions. A future tool must not leak through a folded tray or an
+already saved board. Setting choices that need explanation follow the same prerequisite discipline.
+
 **封装与跨章：**
 
 - **封装件跑的是学习者自己的电路。** 和《图灵完备》的元件工坊一样，一个元件由学习者亲手搭出才解锁，解锁后运行的就是他通过搭建关时的那块电路（外壳在通关时记下它，`progress.built`，一关几段任务的每段记一块；关卡的 `keeps` 说哪些关要记，默认是搭出元件的关；没记下板的，比如「全部解锁」开着却没通过的关、通过时还没记板的旧存档，用参考解），而不是一个一步出结果的内置函数。所以运行时能步进到元件里面：每一步写明它在哪块元件里（`auto › 拆目标 · 第 3 步 › 用规则`），展开元件（手机上点开它）就看到那块电路里每个元件此刻的值。元件里面的东西改不了，要改就回到搭它的那一关（升级过的元件：它现在指向的那一关）重新通过，通过后的电路替换旧的。元件上的设置原样传给里面有同一个设置的元件（化简上的「改哪里」传给里面的每一张改写）；电路里接死的一个选择要做成元件的参数时（规则对已知用哪条规则），搭建关把它做成板上的一个输入（「规则」输入元件），学习者把它接进去，搭出的电路就带着这个口。
@@ -301,6 +325,10 @@
 
 **文字纪律：**
 
+Component descriptions are plain text in both languages: write terminology and names directly, without HTML or
+reference chips. They are exempt from the reference and terminology-annotation rules below. Introductions, task
+text and encyclopedia entries retain those rules. The components box, tray and tooltips show the same plain text.
+
 - **题面不替玩家判断。** 目标、题目和选项不用答案里的词：题目写「框出它的位置」、选项写「一个位置框」，就是把答案告诉了玩家。选项用中性的名字，区别要从材料里看出来。
 - **目标只陈述任务。** 每关、每段的目标（`brief`）只说要做成什么：从哪些已知证出哪句、接一台什么样的机器、找出哪一行。背景、动机、新元件的介绍放进引言（关的或段的），做法的点拨放进提示，等价的另一种写法也放进提示。谜题本身的陈述（岛民说了什么、理发师的规矩）是任务的一部分，留在目标里。规格写错、要玩家检验或写出的关（《证明完毕》的声明关），目标先写自然语言的需求（「需求：……」），再写这一段要做的事；引言不再重复需求。界面上有放原话的位置时（填句子板顶上的那句话，《证明完毕》的翻译关和反例板），需求就写在那里，目标只说要做的事。
 - 引言里不能出现做法。"把上面和左边加起来"就是在给解法。
@@ -361,10 +389,16 @@ cannot gate a required route. Serial edges need a knowledge/part dependency, not
 serial chapter for avoidable dependencies without forcing cosmetic branches. The shared `parallel` layout is an
 AND join; do not treat it as an OR-choice feature.
 
+Open each chapter with a shared situation and a usable first task before offering route choices. Establish what
+the player is building, why it matters and how to try it. A fork is justified by learning dependencies, not by
+symmetry on the map; an experiment that only explores a limitation must not gate an unrelated composition.
+
 Review the actual conceptual load of every task, not only its `teaches` field or new-part count. New terminology,
 physical-to-pixel units, coordinate-origin shifts and angular reasoning can be independent learning steps. Establish
 the needed meanings and small observable operations before combining them; group small tasks only when they answer
 one coherent question. Do not replace a missing foundation with the final formula in a hint.
+Deleting a low-value task does not delete its instructional responsibility: move essential conventions and
+observations into the introduction or a smaller meaningful task before the combined challenge.
 
 Guidance includes model assumptions, named objects and conventions, known quantities and a usable observation.
 A discovery hint must point to evidence visible at that moment and to controls available in that task. Afterwards,
@@ -560,6 +594,9 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **界面约定（所有游戏共用，改动时保持）：**
 
+- **手机上的可操作性先于画面完整性。** 核心检查按钮使用共用运行栏；画面不能挤出控件，也不能把不可横向滚动的输入表藏在屏外。需要横向阅读的表明确提供滚动区域；彩色图编辑一次选择一个像素，再显示带通道名称的输入。输入与主要按钮至少有 44px 的触摸范围，并实际检查窄屏、滚动和键盘弹出后的操作。
+- **入门教约定，不考常识。** 指出高亮格的坐标、照抄一个数、按指令改颜色等只需说明的内容，不单独设通关任务。难度递进增加的是推理、组合或约束，每一步都要有新问题；能够用已有元件探索的关系直接放进搭建关。只有实验干预本身不可替代时保留工作台，且用可辨认的具体场景呈现被操作的对象。
+
 - **游戏简介**（地图顶部的 lede）只讲这款游戏教什么、学完能亲手做成什么，不写有多少关：关卡数会变，进度条已经显示。
 - **每一关的版面都一样**（`kit/shell/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`，关卡界面只交出各块内容，不自己排版面）。桌面：左边是任务；中间上方是玩的地方（画布、表、句子条……，可以带一行元件 `parts`）；下方是结果条：头部是测试标签和通过情况（有的话），下面左边是结果区（运行或检查给出的东西：输出、测试棋盘、运行过程、检查的结论），右下角一列是运行栏，检查、运行按钮永远在这里。结果条按内容定高，拖它的上沿可以调高矮。手机：一页，测试标签钉在顶上，中间滚动（任务卡和玩的地方），底下依次是托盘、结果抽屉、运行栏，运行栏固定在最底下。结果抽屉平时收起，电路关一打开就展开（`PhonePage` 的 `drawerOpen`：测试和输出要对着板看），运行栏最左边（步进按钮左边）一个按钮展开、收起它，点运行或检查（或步进）时自动展开；没有结果可看（还没检查过，或这一关根本没有结果区，比如证明板）就没有这个按钮。关卡给 `results` 就有结果区（还没有内容时传 `null`，桌面上留着空的结果区，手机上不显示按钮），不给就没有；运行栏交 `dock`（一个 `RunDock`），版面替它套上 `run-foot`。
 - **关卡导航。** 地图是关卡树（第 2.5 节）。关卡里的关卡列表是从左侧拉出的抽屉，直接画每章的关卡树（紧凑尺寸），标出当前关，不做成列表，也不常驻占用版面。
@@ -583,6 +620,11 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 - **一关可以存多块电路。** 每个拼电路的关卡都能新建（空白或复制当前）、切换、重命名、删除几块电路图（`shell/slots.js`）。正在玩的那块就是这一关的存档（`progress.data`），其余的等在 `progress.slots` 里；切换时外壳让关卡界面从选中的那块重新开始。切换器由外壳经 `SlotsContext` 交给编辑器，不经过各领域的界面：桌面在画布左下角（游戏自己的角落工具，如《视觉完备》的「全部画成」，用 `corner` 放在它右边），手机在撤销、重做那一行的最左端。存档迁移的 `rename`、`data` 也会处理等着的那几块。
 - **电路的文本形式就是蓝图。** 多存档菜单里有「以文本查看 / 复制」和「从文本导入」（`kit/circuit/text.js`、`BlueprintDialog.jsx`）：把当前这块板写成纯 ASCII 文本，可以复制、存成 .txt，在任何记事本里改，再粘贴或打开文件导入；导入替换当前这块板，可以撤销。文本只写电路算什么（元件、设置、接线、框的嵌套），不写版面：同名同类型的元件留在原位，新元件由编辑器排开。写法：`名字 = 类型[设置](输入, …)`，按输入口顺序写来源，`_` 留空，`来源.键` 指多个输出里的一个；框写成按区域分开的代码块，区域给出的值读作 `框.区域`；接到关卡给的节点写 `out <- a`。导入时按编辑器的规则逐条检查（只能用这一关托盘里的元件、不成环、框里的东西不带出框、口的类型相容），出错按行列出。**元件的类型、口名和设置值都要是 ASCII**：新元件的口名和设置值直接用 ASCII 起名，显示用的符号放在标签里（《视觉完备》的平移方向是 `right`、`down`，按钮上画箭头；重参数化的口是 `mu`、`sigma`、`eps`，标签是 μ、σ、ε）。展示用的记号本来就是符号的（《证明完毕》的公式），由领域的 `parts.text` 在写出和读回时换成 ASCII 拼法（`->`、`&`、`|`、`~`、`forall x.`）；关卡给的节点上玩家能改的东西（《状态之图》输入元件读哪几格）由 `parts.text.sets` 列出，随蓝图一起写出。
 - **兼容手机浏览器。** 不用较新的 JavaScript API（例如 `Map.groupBy`），旧版 iOS Safari 上会整页白屏；手机上点开元件也要试一遍。
+  While dragging a phone-board part or frame, redraw connected wires after each visual translation, including
+  edge auto-scroll. Wire endpoints follow the current port positions; dropping or cancelling restores the settled
+  layout without changing any connections during the drag.
+  Auto-scroll stays within the original target area; a translated part or wire overlay must not permanently grow
+  the scrolling canvas.
 
 **现状和待做：**
 
@@ -599,6 +641,12 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 - 代价度量：引擎有 `score` 钩子，《视觉完备》算计算量，证明按步数；《状态之图》还没有。
 - 封装件跑学习者的电路、步进到元件里面：契约测试查每个搭建关的元件是不是真的跑交给它的板，查不出的列在 `contract.test.js` 的 `BUILT_IN`（《视觉完备》不打包电路的那些元件是内置实现；《证明完毕》的门只跑通过了那一关的板，归结是 kit 的卡片）。《视觉完备》、《证明完毕》的机器板和真值电路、《状态之图》和《车在说话》已经跑电路；《证明完毕》的机器板能步进进去，真值电路上搭出的门和《车在说话》搭出的元件能展开（只读，元件上是这一行、这一拍的值），元件箱里也能看门跑的那块电路；《视觉完备》的封装件还不能展开；《状态之图》的封装件在元件箱里能打开，看它跑的那块电路（只读，元件上是试一试最近一次运行的值），关卡里运行时还不能步进进去；证明板上的引理跑证明，但还不能展开看里面。
 - 机体升级的呈现。
+
+Phone play locks the document and scrolls only its internal panels. Visual-viewport offsets are used only while
+an editable field is focused, and are bounded by the space removed from the layout viewport. Elastic scrolling
+must not translate the game root or hide the run bar; map pages retain normal document scrolling.
+Phone result drawers start folded, including circuit levels. The player can expand them manually; Run/Step/Check
+opens them to show the resulting feedback.
 
 ### 6.4 参数台
 
@@ -723,13 +771,13 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **值。** 线上走的是数（`null` 是「—」）或图像 `{ w, h, c, data }`：`c` 为 1 是灰度、3 是 RGB，按行存、同一像素的通道挨着（`vision/image.js`）。内容里一张图写成行：灰度是数的行，彩色是 `[R, G, B]` 的行；坐标零起，x 向右、y 向下，读 `I[y, x]`。值是实数，计算里不偷偷截断；只在画出来时把 [0, 1] 之外的值截到两端（显示和存的数分开，`1F1`）。测试按尺寸、通道数和每个值比，容差默认 `1e-5`（任务可写 `tolerance`），不对时说出第一个不同的格子：哪一格、应当是多少、板给了多少。
 
-**逐像素取样是成片算的。** 不另做「每个像素跑一遍板」的机器：一张图上的每个坐标排成两张坐标图，算术逐元素作用在整张图上，取样按坐标图一次取完。原始元件只有这些，裁剪、平移、两种缩放、量化都由玩家用它们搭出来（`vision/parts.js`）：
+**逐像素取样是成片算的。** 不另做「每个像素跑一遍板」的机器：一张图上的每个坐标排成两张坐标图，算术逐元素作用在整张图上，取样按坐标图一次取完。基础运算和理论工具由课程按学习目标选择；裁剪等坐标关系可以由玩家搭建，采样与邻域计算可直接提供（`vision/parts.js`）：
 
 | 元件 | 做什么 |
 |---|---|
 | 常数 `const` | 设定的数 |
 | `add`、`sub`、`mul`、`div` | 逐元素的加减乘除；数和图、图和图（尺寸相同；单通道可以对上三通道）都行；除以 0 报错 |
-| `floor`、`min`、`max` | 向下取整、取小、取大（四舍五入是 `floor(x + 0.5)`，截断到区间是 `min(max(…))`，由玩家搭） |
+| `floor`、`min`、`max` | 向下取整、取小、取大（用于需要研究这些运算的课程，不要求视觉理论课程考核其实现） |
 | `less` | a < b 为 1，否则为 0 |
 | `select` | 条件不为 0 取「是」一路，否则「否」一路（逐元素） |
 | `size` | 图的宽 `w`、高 `h`（两个输出） |

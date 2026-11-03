@@ -1,0 +1,134 @@
+{
+  "title": { "zh": "让质检台看见变化", "en": "Give the inspection station a comparison" },
+  "intro": [
+    {
+      "fig": "inspection",
+      "t": {
+        "zh": "你接手一台图像质检台。它能拍摄工件，却还不会比较、去干扰或找出轮廓。你将从读数开始造比较仪，再装出扫描器与频率分析仪；每次通过的电路，都会成为后续机器能复用的部件。",
+        "en": "You inherit an image inspection station. It captures items but cannot yet compare them, suppress nuisance or measure contours. Build a comparator, then a scanner and frequency analyser. Each passed circuit becomes a reusable part."
+      }
+    },
+    {
+      "fig": "inspection-samples",
+      "t": {
+        "zh": "先造比较部件：把同一位置、同一通道的观测与参照对应起来。这里光照固定、图像已对齐；点击图格查看位置与原始读数。数值计算由电路完成，不要求手算。 <wiki-ref to=\"image-difference\"></wiki-ref> <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>",
+        "en": "First compare observations and references at matching positions and channels. Lighting is fixed and images are aligned. Select cells to inspect positions and original readings. The circuit does the arithmetic. <wiki-ref to=\"image-difference\"></wiki-ref> <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "差异图保留变化位置；绝对值兼顾变亮和变暗。它仍不能自行区分缺陷、错位与光照变化。 <wiki-ref to=\"image-difference\"></wiki-ref>",
+    "en": "Differences localise change; absolute value retains brightening and darkening. They do not by themselves identify defects, motion or lighting. <wiki-ref to=\"image-difference\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v0_signed",
+      "kind": "circuit",
+      "step": {
+        "zh": "保留方向",
+        "en": "Retain sign"
+      },
+      "brief": {
+        "zh": "先保留变化方向：参照变为观测时，逐格输出观测减参照。",
+        "en": "First retain direction: output observation minus reference at matching cells."
+      },
+      "inputs": [
+        { "name": "a", "label": { "zh": "观测", "en": "Observation" } },
+        { "name": "b", "label": { "zh": "参照", "en": "Reference" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "带正负号的变化", "en": "Signed change" } }],
+      "tests": [
+        {
+          "inputs": { "a": [[0.2, 0.5, 0.8], [0.4, 0.6, 0.3]], "b": [[0.4, 0.5, 0.3], [0.4, 0.8, 0.3]] },
+          "expect": { "out": [[-0.2, 0, 0.5], [0, -0.20000000000000007, 0]] }
+        },
+        {
+          "inputs": { "a": [[0.8, 0.2, 0.4]], "b": [[0.1, 0.7, 0.4]] },
+          "expect": { "out": [[0.7000000000000001, -0.49999999999999994, 0]] }
+        },
+        {
+          "inputs": { "a": [[[0.2, 0.8, 0.3], [0.9, 0.1, 0.5]]], "b": [[[0.4, 0.3, 0.3], [0.2, 0.5, 0.5]]] },
+          "expect": { "out": [[[-0.2, 0.5, 0], [0.7, -0.4, 0]]] }
+        }
+      ],
+      "hidden": [],
+      "solution": ["d = arithmetic[op=sub](a,b)", "out <- d"],
+      "naive": ["d = arithmetic[op=sub](b,a)", "out <- d"],
+      "naiveWhy": {
+        "zh": "正号表示比参照更亮，负号表示更暗。交换两张图会交换方向。",
+        "en": "Positive is brighter than the reference; negative is darker. Swapping images reverses direction."
+      },
+      "hint": [
+        {
+          "zh": "先观察一个变亮和一个变暗的位置。数值计算自动完成。",
+          "en": "Inspect one brighter and one darker location. Arithmetic is automatic."
+        }
+      ],
+      "adds": ["arithmetic"]
+    },
+    {
+      "id": "v0_difference",
+      "kind": "circuit",
+      "step": {
+        "zh": "兼顾亮暗变化",
+        "en": "Retain both changes"
+      },
+      "brief": {
+        "zh": "质检同时关注变亮和变暗。输出每格变化的大小；相同位置输出 0。",
+        "en": "Inspection must retain both brightening and darkening. Output change size at each cell; unchanged cells give 0."
+      },
+      "inputs": [
+        { "name": "a", "label": { "zh": "观测", "en": "Observation" } },
+        { "name": "b", "label": { "zh": "参照", "en": "Reference" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "变化大小", "en": "Change magnitude" } }],
+      "tests": [
+        {
+          "inputs": { "a": [[0.2, 0.5, 0.8], [0.4, 0.6, 0.3]], "b": [[0.4, 0.5, 0.3], [0.4, 0.8, 0.3]] },
+          "expect": { "out": [[0.2, 0, 0.5], [0, 0.20000000000000007, 0]] }
+        },
+        { "inputs": { "a": [[0.8, 0.2, 0.4]], "b": [[0.1, 0.7, 0.4]] }, "expect": { "out": [[0.7, 0.5, 0]] } },
+        {
+          "inputs": { "a": [[[0.2, 0.8, 0.3], [0.9, 0.1, 0.5]]], "b": [[[0.4, 0.3, 0.3], [0.2, 0.5, 0.5]]] },
+          "expect": { "out": [[[0.2, 0.5, 0], [0.7, 0.4, 0]]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "a": [[0.3, 0.9], [0.7, 0.1]], "b": [[0.6, 0.2], [0.5, 0.4]] },
+          "expect": { "out": [[0.3, 0.7], [0.2, 0.3]] }
+        }
+      ],
+      "solution": ["d = arithmetic[op=sub](a,b)", "m = abs(d)", "out <- m"],
+      "naive": ["d = arithmetic[op=sub](a,b)", "out <- d"],
+      "naiveWhy": {
+        "zh": "带符号的差会把变暗显示为负值，不能直接当作变化大小。",
+        "en": "Signed differences retain negative darkening; they are not change magnitudes."
+      },
+      "hint": [
+        {
+          "zh": "沿用刚才的差异电路，考虑怎样保留大小而忽略方向。",
+          "en": "Reuse your signed comparison and consider retaining size without direction."
+        }
+      ],
+      "carries": true,
+      "adds": ["abs"],
+      "intro": [
+        {
+          "t": {
+            "zh": "带正负号的差已经保留了变化方向。现在质检同时关心变亮和变暗；新的绝对值元件保留数值大小，让两类变化都进入比较结果。",
+            "en": "Signed differences retain direction. Inspection now needs both brightening and darkening. The new absolute-value component retains size for both kinds of change."
+          }
+        }
+      ]
+    }
+  ],
+  "builds": {
+    "type": "difference",
+    "name": { "zh": "差异比较器", "en": "Difference comparator" },
+    "desc": {
+      "zh": "比较两张同尺寸图，输出逐位置、逐通道的绝对差。",
+      "en": "Compare equal-size images using per-location, per-channel absolute difference."
+    }
+  }
+}

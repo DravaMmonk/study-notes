@@ -1,0 +1,88 @@
+{
+  "title": { "zh": "让频谱仪接收自己的输出", "en": "Let the analyser receive complex data" },
+  "intro": [
+    {
+      "t": {
+        "zh": "二维处理要把第一条轴的结果送往第二条轴，它已不再只有实数读数。先扩展现有频谱仪的输入契约，避免第二次处理时丢掉一半信息。 <wiki-ref to=\"complex-transform\"></wiki-ref>",
+        "en": "A second image axis receives complex results from the first. Extend the analyser’s input contract before that pass so it does not drop half the information. <wiki-ref to=\"complex-transform\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "复用实数频谱仪处理两分量，再按复数关系组合；第二条轴不能静默丢弃虚部。 <wiki-ref to=\"complex-transform\"></wiki-ref>",
+    "en": "Reuse the real-valued analyser for both components and combine them correctly. The second axis must retain imaginary information. <wiki-ref to=\"complex-transform\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v2_complex",
+      "kind": "circuit",
+      "step": {
+        "zh": "保留复数信息",
+        "en": "Retain complex data"
+      },
+      "brief": {
+        "zh": "中间数据可能已有实部和虚部。分别用自己的频谱仪处理两张实数表，再按 i²=−1 合并，保留完整复数输出。",
+        "en": "Intermediate data may already have real and imaginary parts. Analyse each real-valued table with your analyser, then combine using i²=−1, retaining a complex output."
+      },
+      "inputs": [
+        { "name": "real", "label": { "zh": "输入实部", "en": "Input real" } },
+        { "name": "imag", "label": { "zh": "输入虚部", "en": "Input imaginary" } }
+      ],
+      "outputs": [
+        { "name": "re", "label": { "zh": "输出实部", "en": "Output real" } },
+        { "name": "im", "label": { "zh": "输出虚部", "en": "Output imaginary" } }
+      ],
+      "tests": [
+        {
+          "inputs": { "real": [[0.2, 0.8, 0.3, 0.5]], "imag": [[0.1, 0.2, -0.1, 0.4]] },
+          "expect": {
+            "re": [[0.45, -0.07500000000000001, -0.19999999999999996, 0.02500000000000003]],
+            "im": [[0.15000000000000002, -0.025000000000000033, -0.15000000000000005, 0.12500000000000006]]
+          }
+        },
+        {
+          "inputs": { "real": [[0.1, 0.4, 0.7], [0.8, 0.2, 0.5]], "imag": [[0.1, -0.2, 0.3], [0.4, 0, -0.1]] },
+          "expect": {
+            "re": [
+              [0.39999999999999997, -0.2943375672974065, -0.005662432702593395],
+              [0.5, 0.17886751345948124, 0.12113248654051882]
+            ],
+            "im": [
+              [0.06666666666666667, 0.1032692070451104, -0.06993587371177726],
+              [0.10000000000000002, 0.23660254037844383, 0.06339745962155602]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "a = spectrum(real)",
+        "b = spectrum(imag)",
+        "r = arithmetic[op=sub](a.re,b.im)",
+        "i = arithmetic[op=add](a.im,b.re)",
+        "re <- r",
+        "im <- i"
+      ],
+      "naive": ["a = spectrum(real)", "re <- a.re", "im <- a.im"],
+      "naiveWhy": {
+        "zh": "第二条输入也是信号。二维的第二轴不能丢弃第一轴产生的虚部。",
+        "en": "The imaginary input also carries signal. A second-axis transform must retain first-axis imaginary data."
+      },
+      "hint": [
+        {
+          "zh": "将 (a+ib)(c+id) 的四项贡献分为实部和虚部，i²=−1；算术由元件执行。",
+          "en": "Group the four contributions of (a+ib)(c+id), using i²=−1. Parts do the arithmetic."
+        }
+      ],
+      "adds": []
+    }
+  ],
+  "builds": {
+    "type": "complexSpectrum",
+    "name": { "zh": "复数逐行频谱仪", "en": "Complex row analyser" },
+    "desc": {
+      "zh": "复用两次自己的逐行频谱仪，接收并输出实部、虚部。",
+      "en": "Reuse your row analyser on real/imaginary inputs and retain both outputs."
+    }
+  }
+}
