@@ -1,0 +1,89 @@
+{
+  "title": { "zh": "翻转，还是不翻转", "en": "Flip or not" },
+  "intro": [
+    {
+      "t": {
+        "zh": "行滤波器让左权重乘左邻、右权重乘右邻，权重和位置一一对应。课上的卷积却规定：先把卷积核左右翻转，再滑过去求加权和。",
+        "en": "The row filter multiplies the left weight by the left neighbour and the right by the right: weights match positions. Convolution as the lecture defines it first flips the kernel left to right, then slides it and sums."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：翻不翻转，结果差在哪？用一行只有一个亮点的图（脉冲）来看：先手算不翻转的结果，再用行滤波器接出真正的卷积。",
+        "en": "This level asks: what does flipping change? Look at a row with a single bright cell (an impulse): work out the unflipped result by hand, then wire true convolution from the row filter."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这是<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>：不翻转是互相关，脉冲出来是倒过来的核；卷积先翻转，出来就是核本身。",
+    "en": "This is <wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>: without the flip it is correlation, and an impulse comes out as the kernel reversed; convolution flips first, and an impulse comes out as the kernel itself."
+  },
+  "tasks": [
+    {
+      "id": "2B3",
+      "kind": "grid",
+      "step": { "zh": "脉冲", "en": "An impulse" },
+      "brief": {
+        "zh": "不翻转，权重左 1、中 2、右 3 滑过这一行脉冲，图外补 0：写出结果。",
+        "en": "Without flipping, slide the weights left 1, centre 2, right 3 over this impulse, 0 outside: write the result."
+      },
+      "hint": [
+        {
+          "zh": "亮点左边那一格，算加权和时亮点是它的哪个邻居？",
+          "en": "For the cell left of the bright one, which neighbour is the bright cell?"
+        }
+      ],
+      "image": [[0, 0, 1, 0, 0]],
+      "show": "numbers",
+      "ask": { "fill": { "rows": [[0, 3, 2, 1, 0]], "label": { "zh": "结果", "en": "Result" } } },
+      "naive": {
+        "answer": [[0, 1, 2, 3, 0]],
+        "why": {
+          "zh": "以为脉冲出来的就是核 [1, 2, 3]：亮点在左边那一格的右邻，乘的是右权重 3。不翻转时，出来的是倒过来的 [3, 2, 1]。",
+          "en": "Expecting the kernel [1, 2, 3] back: for the cell to its left, the bright cell is the right neighbour and meets the right weight 3. Without the flip, out comes [3, 2, 1] reversed."
+        }
+      }
+    },
+    {
+      "id": "2B3_2",
+      "kind": "circuit",
+      "step": { "zh": "真正的卷积", "en": "True convolution" },
+      "brief": {
+        "zh": "输入一张图和卷积核 k1、k2、k3（按书写顺序）：交出卷积的结果，图外补 0。",
+        "en": "Given an image and the kernel k1, k2, k3 (in written order), give the convolution, 0 outside."
+      },
+      "hint": [
+        {
+          "zh": "<part-ref to=\"rowFilter\"></part-ref> 不翻转；翻转之后，k1 落到哪一边？",
+          "en": "The <part-ref to=\"rowFilter\"></part-ref> does not flip; flipped, which side does k1 land on?"
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "k1", "label": { "zh": "核 k1", "en": "Kernel k1" } },
+        { "name": "k2", "label": { "zh": "核 k2", "en": "Kernel k2" } },
+        { "name": "k3", "label": { "zh": "核 k3", "en": "Kernel k3" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "卷积", "en": "Convolution" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 0, 1, 0, 0]], "k1": 1, "k2": 2, "k3": 3 },
+          "expect": { "out": [[0, 1, 2, 3, 0]] }
+        },
+        {
+          "inputs": { "image": [[1, 3, 2, 5, 4]], "k1": 1, "k2": 0, "k3": -1 },
+          "expect": { "out": [[3, 1, 2, 2, -5]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 3, 2, 5], [4, 0, 6, 1], [2, 2, 8, 3]], "k1": 2, "k2": 1, "k3": 0 },
+          "expect": { "out": [[7, 7, 12, 5], [4, 12, 8, 1], [6, 18, 14, 3]] }
+        },
+        { "inputs": { "image": [[1, 2, 3]], "k1": 1, "k2": 1, "k3": 1 }, "expect": { "out": [[3, 6, 5]] } }
+      ],
+      "solution": ["r = rowFilter(image, k3, k2, k1)", "out <- r"],
+      "naive": ["r = rowFilter(image, k1, k2, k3)", "out <- r"]
+    }
+  ]
+}

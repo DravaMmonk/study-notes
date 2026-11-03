@@ -59,6 +59,11 @@ test('each rule catches the blueprint that breaks it', () => {
   assert.ok(broken((bp, s) => { s[0].slots[2].dimension = 'direction' }).includes('bp-practice 1-1'))
   assert.ok(broken((bp, s) => { s[0].slots[2].dimension = 'depth' }).includes('bp-practice 1-1'))
   assert.ok(broken((bp, s) => { s[0].slots[0].uses = ['wire', 'reg'] }).includes('bp-first-use 1-1'))
+  // A point not used again soon is reported, not failed: it may come back through a part or a link to its level.
+  const unused = base()
+  unused.eras[0].series[0].slots.splice(1, 2)
+  unused.eras[0].series[1].slots[0].uses = ['reg', 'add', 'count']
+  assert.deepEqual(auditBlueprint(unused).filter((f) => f.rule === 'bp-reuse').map((f) => [f.at, Boolean(f.report)]), [['1-1', true]])
   assert.ok(broken((bp, s) => { delete s[0].slots[0].teaches }).includes('bp-adds-teaches 1-1'))
   // Knowledge: every slot works on a point, every point is taught and comes from a source, parts are no points.
   assert.ok(broken((bp, s) => { s[0].slots[1].uses = ['reg'] }).includes('bp-knowledge 1-2'))

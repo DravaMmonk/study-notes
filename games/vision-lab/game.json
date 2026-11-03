@@ -10,68 +10,78 @@
     "en": "In development"
   },
   "lede": {
-    "zh": "三条梯子，各从一个浅显的起点爬到第 1、2 讲的一个核心：一张图为什么定不了深度，透镜怎样在亮和清晰之间取舍，缩放时新像素怎样从四个邻居算出。",
-    "en": "Three ladders, each climbing from a plain starting point to a core of lectures 1–2: why one image cannot settle depth, how a lens trades light against sharpness, and how resizing works a new pixel out of four neighbours."
+    "zh": "一章一章造出视觉的机器。先造一台相机：把场景投影成像素、在任意位置取值；再造一台卷积器：把邻居加权合起来，搭出模糊器和边缘检测器。每个部件都会在后面直接复用。",
+    "en": "Build the machines of vision chapter by chapter. First a camera: project a scene into pixels and read it at any position; then a convolver: weigh neighbours together into a blur and an edge detector. Every part is reused later."
   },
   "primitives": [
-    "const",
-    "grid",
-    "add",
     "mul",
     "div",
-    "size",
-    "floor",
+    "add",
+    "const",
+    "sub",
     "lookup",
+    "grid",
+    "floor",
+    "size",
+    "sqrt",
     "channel",
     "compose"
   ],
   "concept": {
-    "const": "sampling",
-    "grid": "sampling",
-    "add": "sampling",
-    "mul": "sampling",
-    "div": "sampling",
-    "size": "nearest",
-    "floor": "nearest",
-    "lookup": "nearest",
+    "mul": "projection",
+    "div": "projection",
+    "add": "projection",
+    "const": "pixels",
+    "sub": "pixels",
+    "lookup": "pixels",
+    "grid": "pixels",
+    "floor": "pixels",
+    "size": "filters",
+    "sqrt": "filters",
     "channel": "channels",
     "compose": "channels"
   },
   "eras": [
     {
       "id": 1,
-      "title": { "zh": "从场景到像素", "en": "From scene to pixels" },
+      "title": { "zh": "相机：从场景到像素", "en": "The camera: from scene to pixels" },
       "question": {
-        "zh": "一张图从哪里来、能说明什么，图里的像素又怎样重新采样？",
-        "en": "Where does an image come from, what can it tell, and how are its pixels resampled?"
+        "zh": "场景怎样变成一张数表，数表又怎样在任意位置取值？",
+        "en": "How does a scene become a table of numbers, and how is the table read at any position?"
       },
       "foundation": [
-        {
-          "parallel": [
-            {
-              "id": "projection",
-              "title": { "zh": "一张图定不了深度", "en": "An image does not settle depth" },
-              "levels": ["1P1", "1P2", "1P3", "1P4"]
-            },
-            {
-              "id": "optics",
-              "title": { "zh": "亮和清晰", "en": "Bright and sharp" },
-              "levels": ["1F1", "1F2", "1F3"]
-            },
-            {
-              "id": "resample",
-              "title": { "zh": "重新采样", "en": "Resampling" },
-              "levels": ["1R1", "1R2", "1R3", "1R4"]
-            }
-          ]
-        }
+        "1A1",
+        "1A2",
+        "1A3",
+        "1A4",
+        "1A5",
+        "1A6",
+        "1A7"
       ],
       "topics": [
         {
-          "id": "channels",
-          "title": { "zh": "通道顺序", "en": "Channel order" },
-          "levels": ["1T1"],
-          "after": ["1P4", "1F3", "1R4"]
+          "id": "camera-workshop",
+          "title": { "zh": "Workshop：相机的工程细节", "en": "Workshop: the camera in practice" },
+          "levels": ["1W1", "1W2"],
+          "after": "1A7"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "keeps": "all",
+      "title": { "zh": "卷积器：局部加权", "en": "The convolver: weighted neighbourhoods" },
+      "question": {
+        "zh": "怎样把一个像素和它的邻居合起来算，造出模糊器和边缘检测器？",
+        "en": "How is a pixel combined with its neighbours, to build a blur and an edge detector?"
+      },
+      "foundation": ["2B1", "2B2", "2B3", "2B4", "2B5", "2B6", "2B7", "2B8", "2B9"],
+      "topics": [
+        {
+          "id": "colour-workshop",
+          "title": { "zh": "Workshop：颜色顺序与溢出", "en": "Workshop: channel order and overflow" },
+          "levels": ["2W1"],
+          "after": "2B9"
         }
       ]
     }
@@ -181,6 +191,24 @@
         { "rename": { "0A3": null } },
         { "rename": { "0A2": null } },
         { "rename": { "0A1": null } }
+      ]
+    },
+    {
+      "version": 5,
+      "why": "The first two chapters of the course map: the camera and the convolver",
+      "ops": [
+        { "rename": { "1T1": null } },
+        { "rename": { "1R4": null } },
+        { "rename": { "1R3": null } },
+        { "rename": { "1R2": null } },
+        { "rename": { "1R1": null } },
+        { "rename": { "1P4": null } },
+        { "rename": { "1P3": null } },
+        { "rename": { "1P2": null } },
+        { "rename": { "1P1": null } },
+        { "rename": { "1F3": null } },
+        { "rename": { "1F2": null } },
+        { "rename": { "1F1": null } }
       ]
     }
   ]

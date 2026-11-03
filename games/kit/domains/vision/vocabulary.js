@@ -35,6 +35,7 @@ const PART_ABOUT = {
   mul: t('相乘，逐个值', 'Multiply, value by value'),
   div: t('相除，逐个值；除以 0 报错', 'Divide, value by value; dividing by 0 stops'),
   floor: t('向下取整，逐个值', 'Round down, value by value'),
+  sqrt: t('平方根，逐个值；负数报错', 'Square root, value by value; a negative number stops'),
   min: t('取两者中小的，逐个值', 'The smaller of two, value by value'),
   max: t('取两者中大的，逐个值', 'The larger of two, value by value'),
   less: t('a < b 为 1，否则为 0，逐个值', '1 where a < b, else 0, value by value'),

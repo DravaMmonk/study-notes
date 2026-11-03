@@ -10,173 +10,338 @@
   ],
   "entries": [
     {
-      "id": "central-projection",
+      "id": "image-formation-3d-to-2d",
       "group": "image",
       "title": {
-        "zh": "中心投影",
-        "en": "central projection"
+        "zh": "成像流程与三维信息丢失",
+        "en": "Image formation pipeline and lost depth"
       },
-      "at": "1P1",
+      "at": "1A1",
       "body": [
         {
-          "zh": "针孔相机里，物点发出的光只有穿过小孔的那一条落到像平面上：像点在物点和小孔连成的直线上，横向位置 u = fX/Z。出处：COMP90086 第 2 讲（幻灯片 11）。常见的误解：像就落在和物点同样的横向位置上（u = X）。",
-          "en": "In a pinhole camera only the ray through the hole reaches the image plane: the image of a point lies on the line through the point and the hole, at u = fX/Z. Source: COMP90086 lecture 2 (slide 11). A common mistake: The image lands at the point's own lateral position (u = X)."
+          "zh": "一次拍照可分为：光源 → 表面反射 → 镜头／光学 → 传感器 → 电信号 → 数字值。最重要的困难是现实世界是三维、普通照片只有二维：一个像素通常告诉我们“这里有多亮”，却不能单独告诉我们这个点离相机多远。因此视觉需要相机模型、多视图、深度传感器或学习模型来补回缺失信息。常见的误解：以为知道一个像素的坐标和亮度就能求出对应的三维点。出处：COMP90086 第 2 讲笔记，§1 成像：三维世界怎样变成二维图像 (slide 8)。",
+          "en": "Taking a photo can be broken down into: light source → surface reflection → lens/optics → sensor → electrical signal → digital values. The most important difficulty is that the real world is 3D while an ordinary photo is only 2D: a pixel usually tells us ‘how bright it is here’, but cannot on its own tell us how far that point is from the camera. Vision therefore needs camera models, multiple views, depth sensors or learned models to recover the missing information. A common mistake: Thinking that knowing a pixel's coordinates and brightness is enough to work out the corresponding 3D point. Source: COMP90086 lecture 2 notes, §1 (slide 8)."
         }
       ]
     },
     {
-      "id": "perspective-scaling",
+      "id": "pinhole-projection",
       "group": "image",
-      "title": { "zh": "近大远小", "en": "perspective scaling" },
-      "at": "1P2",
+      "title": { "zh": "针孔相机投影", "en": "Pinhole camera projection" },
+      "at": "1A1",
       "body": [
         {
-          "zh": "物体的像高 h = fH/Z：和距离成反比，距离加倍，像缩成一半。出处：COMP90086 第 2 讲（幻灯片 9–11）。常见的误解：距离每多一点，像就少同样多一点（按差来减）。",
-          "en": "An object's image height is h = fH/Z: inversely proportional to the distance; twice as far, half as tall. Source: COMP90086 lecture 2 (slides 9–11). A common mistake: Each step farther takes the same amount off the image (a difference, not a ratio)."
+          "zh": "针孔相机中，三维点 P=(x,y,z) 投到成像平面上的 (x_i,y_i)，pinhole 到成像平面的距离为 f（焦距）。由相似三角形得 x_i = f·x/z，y_i = f·y/z：同样大小的物体，z 越大投影越小，f 越大投影越大。真实相机还要把世界坐标转成相机坐标，并考虑主点、像素尺寸和镜头畸变，但这个小模型是之后相机几何的基础。常见的误解：以为可以由 (x_i,y_i) 反过来唯一求出 (x,y,z)；一个像素坐标只确定一条视线，深度未知。出处：COMP90086 第 2 讲笔记，§1 针孔相机模型：先学最简单的投影 (slide 11)。",
+          "en": "In a pinhole camera, a 3D point P=(x,y,z) projects to (x_i,y_i) on the image plane, and the distance from the pinhole to the image plane is f (the focal length). By similar triangles, x_i = f·x/z, y_i = f·y/z: for objects of the same size, the larger z, the smaller the projection, and the larger f, the larger the projection. A real camera also has to convert world coordinates into camera coordinates and account for the principal point, pixel size and lens distortion, but this small model is the foundation for the camera geometry that follows. A common mistake: Thinking you can recover (x,y,z) uniquely from (x_i,y_i); a pixel coordinate determines only a line of sight, and the depth is unknown. Source: COMP90086 lecture 2 notes, §1 (slide 11)."
         }
       ]
     },
     {
-      "id": "scale-ambiguity",
+      "id": "vision-task-outputs",
       "group": "image",
-      "title": { "zh": "尺度歧义", "en": "scale ambiguity" },
-      "at": "1P3",
+      "title": {
+        "zh": "视觉任务的输出形式：分类、检测、分割",
+        "en": "Vision task outputs: classification, detection, segmentation"
+      },
+      "at": "1A2",
       "body": [
         {
-          "zh": "物高和距离同比放大，像一点不变：一张像只定下物高和距离的比值 H/Z。出处：COMP90086 第 2 讲（幻灯片 9–11）。常见的误解：物高一样，像就一样高。",
-          "en": "Scale an object's size and distance by the same factor and its image does not change: an image fixes only the ratio H/Z. Source: COMP90086 lecture 2 (slides 9–11). A common mistake: Equal heights give equal images."
+          "zh": "同一张图可以提出不同问题，答案形式也不同：识别／分类回答整张图主要是什么类别（如 dog）；检测回答哪些物体在哪里（类别 + 边界框）；分割回答每个像素属于什么。关键区分是：分类只给一个或少量类别标签，检测还要给位置，分割要把答案细化到像素。常见的误解：以为检测只是“更准的分类”；检测必须同时输出位置（边界框）。也容易以为分类分数高就代表系统理解了场景。出处：COMP90086 第 1 讲笔记，§1 先分清几种常见任务 (slide 7)。",
+          "en": "The same image can be asked different questions, and the answers take different forms: recognition/classification answers what category the whole image mainly shows (e.g. dog); detection answers which objects are where (category + bounding box); segmentation answers what each pixel belongs to. The key distinction is that classification gives only one or a few category labels, detection must also give locations, and segmentation refines the answer down to individual pixels. A common mistake: Thinking detection is just ‘more accurate classification’; detection must also output locations (bounding boxes). It is also easy to assume that a high classification score means the system has understood the scene. Source: COMP90086 lecture 1 notes, §1 (slide 7)."
         }
       ]
     },
     {
-      "id": "graphics-vision",
+      "id": "forward-vs-inverse-problem",
       "group": "image",
-      "title": { "zh": "图形学与视觉", "en": "graphics and vision" },
-      "at": "1P4",
+      "title": { "zh": "正向问题与反向问题：图形学与视觉", "en": "Forward (graphics) vs inverse (vision) problem" },
+      "at": "1A2",
       "body": [
         {
-          "zh": "图形学由场景生成图像；视觉反过来，从图像推回场景。出处：COMP90086 第 1 讲（幻灯片 8）。",
-          "en": "Graphics makes an image from a scene; vision goes the other way, from an image back to a scene. Source: COMP90086 lecture 1 (slide 8)."
+          "zh": "计算机图形学已知物体、材质、灯光和相机，向前生成一张图像，是正向问题；计算机视觉已知图像，反过来推测物体、材质、灯光和相机，是反向问题。反问题通常更难，因为不同的三维场景可能产生很相似的二维图像。常见的误解：以为只要图像足够清晰就能唯一还原三维场景；不同三维场景可能产生相似的二维图像。出处：COMP90086 第 1 讲笔记，§2 计算机视觉和计算机图形学的方向相反 (slide 8)。",
+          "en": "Computer graphics knows the objects, materials, lighting and camera and works forwards to produce an image: a forward problem. Computer vision knows the image and works backwards to infer the objects, materials, lighting and camera: an inverse problem. The inverse problem is usually harder, because different 3D scenes can produce very similar 2D images. A common mistake: Thinking that as long as the image is clear enough, the 3D scene can be recovered uniquely; different 3D scenes can produce similar 2D images. Source: COMP90086 lecture 1 notes, §2 (slide 8)."
         }
       ]
     },
     {
-      "id": "inverse-problem",
+      "id": "angle-of-view-from-pixel-focal-length",
       "group": "image",
-      "title": { "zh": "反问题", "en": "inverse problem" },
-      "at": "1P4",
+      "title": { "zh": "以像素表示的焦距与视野角", "en": "Focal length in pixels and angle of view" },
+      "at": "1A3",
       "body": [
         {
-          "zh": "从图像推回场景时，常有不止一个场景给出同一张图：投影把深度丢掉了。一张图能确定的只是所有相容场景都同意的事；其余要靠另外的线索（已知的物体大小、第二台相机……）。出处：COMP90086 第 1 讲（幻灯片 8）。常见的误解：从像的大小就能读出物体的距离和大小。",
-          "en": "Going from an image back to a scene, more than one scene often gives the same image: projection drops depth. An image settles only what every compatible scene agrees on; the rest needs other cues (a known size, a second camera…). Source: COMP90086 lecture 1 (slide 8). A common mistake: An image's size tells how far and how big the object is."
+          "zh": "在数字图像中焦距常用像素表示：它只是把物理焦距除以像素尺寸，换成图像坐标单位。例如图像宽 2000 像素、主点在中间、焦距 1000 像素时，左右各约 45°，总视野范围约 90°。常见的误解：把以像素为单位的焦距和以毫米为单位的焦距直接比较或混用。出处：COMP90086 第 2 讲笔记，§2 焦距与视野范围 (slide 15)。",
+          "en": "In digital images the focal length is often expressed in pixels: this divides the physical focal length by the pixel size, converting it into image-coordinate units. For example, if the image is 2000 pixels wide, the principal point is in the middle and the focal length is 1000 pixels, each side spans about 45°, giving a total field of view of about 90°. A common mistake: Directly comparing or mixing up a focal length in pixels with a focal length in millimetres. Source: COMP90086 lecture 2 notes, §2 (slide 15)."
         }
       ]
     },
     {
-      "id": "focus",
+      "id": "image-array-checks",
       "group": "image",
-      "title": { "zh": "对焦", "en": "focus" },
-      "at": "1F1",
+      "title": { "zh": "图像张量：形状、通道顺序与数据类型", "en": "Image tensor layout, channel order and dtype" },
+      "at": "1A4",
       "body": [
         {
-          "zh": "透镜把一大片光收拢，可只能把一个距离上的点收成点；别的距离上的点落成一块斑。出处：COMP90086 第 2 讲（幻灯片 12–13）。常见的误解：对焦在两个物体中间，两个都清楚。",
-          "en": "A lens gathers much more light, but brings the points of only one distance to points; points at other distances land as spots. Source: COMP90086 lecture 2 (slides 12–13). A common mistake: Focusing halfway makes both sharp."
+          "zh": "灰度图像可以看成二维数组；颜色图像通常有三个通道，表示成 height × width × channels 的三维张量。RGB 三通道是相机和人类视觉的工程表示（人眼有三类主要视锥细胞），并非自然界只有三种颜色。使用图像前先检查三件事：形状是 H×W×C 还是 C×H×W，通道顺序是 RGB 还是 BGR，数值范围和数据类型是什么；不同程序库的约定可能不同。常见的误解：以为所有库都按 RGB、H×W×C 存储图像。出处：COMP90086 第 2 讲笔记，§3 数字图像是怎样存储的 (slides 22, 25)。",
+          "en": "A greyscale image can be seen as a 2D array; a colour image usually has three channels and is represented as a 3D tensor of height × width × channels. The three RGB channels are an engineering representation for cameras and human vision (the human eye has three main types of cone cell), not because nature has only three colours. Before using an image, check three things: whether the shape is H×W×C or C×H×W, whether the channel order is RGB or BGR, and what the value range and data type are; different libraries may use different conventions. A common mistake: Thinking every library stores images as RGB, H×W×C. Source: COMP90086 lecture 2 notes, §3 (slides 22, 25)."
         }
       ]
     },
     {
-      "id": "blur-circle",
+      "id": "pixel-coordinate-convention",
       "group": "image",
-      "title": { "zh": "模糊圈", "en": "blur circle" },
-      "at": "1F2",
+      "title": { "zh": "像素坐标约定", "en": "Pixel coordinate convention" },
+      "at": "1A4",
       "body": [
         {
-          "zh": "离焦的点在传感器上落成一块圆斑；光圈越大，进光越多，这块斑也越大。出处：COMP90086 第 2 讲（幻灯片 16）。常见的误解：光圈越大越好：只是更亮。",
-          "en": "An out-of-focus point lands on the sensor as a round spot; the wider the aperture, the more light and the bigger the spot. Source: COMP90086 lecture 2 (slide 16). A common mistake: The wider the better: it is only brighter."
+          "zh": "图像数组通常从左上角开始：x 向右增加，y 向下增加，并且通常从 0 开始编号。这和数学课上 y 轴向上的笛卡尔坐标不一样。常见的误解：以为 y 轴向上增大；或以为数组下标先写 x 再写 y。出处：COMP90086 第 2 讲笔记，§3 像素坐标、数据类型和文件格式 (slide 26)。",
+          "en": "Image arrays usually start from the top-left corner: x increases to the right, y increases downwards, and numbering usually starts from 0. This differs from the Cartesian coordinates of maths lessons, where the y-axis points upwards. A common mistake: Thinking y increases upwards; or thinking array indices are written with x first and then y. Source: COMP90086 lecture 2 notes, §3 (slide 26)."
         }
       ]
     },
     {
-      "id": "acceptable-blur",
+      "id": "crop-vs-resize",
       "group": "image",
-      "title": { "zh": "容许模糊圈", "en": "acceptable blur" },
-      "at": "1F2",
+      "title": { "zh": "裁剪与缩放", "en": "Crop vs resize" },
+      "at": "1A5",
       "body": [
         {
-          "zh": "斑小到眼睛（或一个像素）分不出来，就算清楚。出处：COMP90086 第 2 讲（幻灯片 16）。",
-          "en": "A spot too small for the eye (or a pixel) to tell from a point counts as sharp. Source: COMP90086 lecture 2 (slide 16)."
+          "zh": "Crop 从原数组取一个子区域，已有像素数值不变；Resize 改变数组尺寸，必须为新位置计算像素数值。直接把 768×512 压成 512×512 会改变宽高比，物体可能变胖或变瘦；若保持比例，目标尺寸应接近 512×341。常见的误解：以为裁剪也要插值，或以为缩放只是“截掉一部分”。出处：COMP90086 第 2 讲笔记，§4 裁剪与缩放不是一回事 (slide 34)。",
+          "en": "Cropping takes a sub-region of the original array, and the existing pixel values are unchanged; resizing changes the size of the array, so pixel values must be computed for the new positions. Squashing 768×512 straight to 512×512 changes the aspect ratio, so objects may become fatter or thinner; if the proportions are kept, the target size should be about 512×341. A common mistake: Thinking cropping also requires interpolation, or that resizing is just ‘cutting off a part’. Source: COMP90086 lecture 2 notes, §4 (slide 34)."
         }
       ]
     },
     {
-      "id": "depth-of-field",
+      "id": "nearest-neighbour-interpolation",
       "group": "image",
-      "title": { "zh": "景深", "en": "depth of field" },
-      "at": "1F3",
+      "title": { "zh": "最近邻插值", "en": "Nearest-neighbour interpolation" },
+      "at": "1A6",
       "body": [
         {
-          "zh": "对焦距离前后，模糊圈还小于容许模糊圈的那一段距离。光圈越小，斑长得越慢，这一段越长，可进光也越少。出处：COMP90086 第 2 讲（幻灯片 16）。常见的误解：对焦在其中一个物体上、光圈开大，两个都会清晰。",
-          "en": "The range of distances around the focus where the blur circle stays within the acceptable blur. A smaller aperture grows the spot more slowly and lengthens the range, at the cost of light. Source: COMP90086 lecture 2 (slide 16). A common mistake: Focus on one of them and open the aperture, and both will be sharp."
-        }
-      ]
-    },
-    {
-      "id": "sampling-grid",
-      "group": "image",
-      "title": { "zh": "采样网格", "en": "sampling grid" },
-      "at": "1R1",
-      "body": [
-        {
-          "zh": "缩放时，新图每个像素的中心按比例落回原图：新旧两排像素占同样长的一段，新像素中心常落在两个旧像素之间。出处：COMP90086 第 2 讲（幻灯片 34）。常见的误解：新像素的下标就是原图的下标。",
-          "en": "When resizing, each new pixel's centre maps back into the original in proportion: both rows span the same length, so new centres often fall between old pixels. Source: COMP90086 lecture 2 (slide 34). A common mistake: A new pixel's index is its place in the original."
-        }
-      ]
-    },
-    {
-      "id": "nearest-neighbour",
-      "group": "image",
-      "title": { "zh": "最近邻插值", "en": "nearest-neighbour interpolation" },
-      "at": "1R2",
-      "body": [
-        {
-          "zh": "每个新像素照抄离它最近的旧像素：快、边缘硬，放大后成块。出处：COMP90086 第 2 讲（幻灯片 35）。常见的误解：坐标一律向下取整就是最近的那个。",
-          "en": "Each new pixel copies the nearest old pixel: fast and hard-edged, blocky when enlarged. Source: COMP90086 lecture 2 (slide 35). A common mistake: Rounding every coordinate down picks the nearest pixel."
-        }
-      ]
-    },
-    {
-      "id": "linear-interpolation",
-      "group": "image",
-      "title": { "zh": "线性插值", "en": "linear interpolation" },
-      "at": "1R3",
-      "body": [
-        {
-          "zh": "新像素按它到两个邻居的距离加权：离谁近，谁的份量大；正中间就是两者的平均。出处：COMP90086 第 2 讲（幻灯片 36）。常见的误解：新像素只能照抄某一个旧像素。",
-          "en": "A new pixel weighs its two neighbours by distance: the nearer counts more; halfway is their average. Source: COMP90086 lecture 2 (slide 36). A common mistake: A new pixel can only copy an old one."
+          "zh": "最近邻插值对每个新像素，找到原图中最近的像素，直接复制它的值。优点是快、边缘硬；缺点是放大或缩小时容易出现明显的块状感或锯齿。常见的误解：以为最近邻会产生原图中没有的新数值；它只复制已有值。出处：COMP90086 第 2 讲笔记，§4 最近邻插值 (slide 35)。",
+          "en": "For each new pixel, nearest-neighbour interpolation finds the nearest pixel in the original image and copies its value directly. Its advantages are speed and hard edges; its drawback is that enlarging or shrinking easily produces obvious blockiness or jagged edges. A common mistake: Thinking nearest neighbour produces new values not present in the original image; it only copies existing values. Source: COMP90086 lecture 2 notes, §4 (slide 35)."
         }
       ]
     },
     {
       "id": "bilinear-interpolation",
       "group": "image",
-      "title": { "zh": "双线性插值", "en": "bilinear interpolation" },
-      "at": "1R4",
+      "title": { "zh": "双线性插值", "en": "Bilinear interpolation" },
+      "at": "1A7",
       "body": [
         {
-          "zh": "新像素落在四个旧像素之间时，先横着做两次线性插值，再竖着做一次：四个邻居的加权平均，权重 (1−H)(1−V)、H(1−V)、(1−H)V、HV 加起来是 1。比最近邻平滑，会让锐利的边稍微变软。出处：COMP90086 第 2 讲（幻灯片 36）。常见的误解：只横着插一次就够了。",
-          "en": "A new pixel among four old ones is two linear interpolations across, then one down: a weighted average of the four, the weights (1−H)(1−V), H(1−V), (1−H)V, HV adding to 1. Smoother than nearest neighbour; it softens sharp edges a little. Source: COMP90086 lecture 2 (slide 36). A common mistake: Interpolating across once is enough."
+          "zh": "新位置落在四个旧像素之间时，设横向距离为 H、纵向距离为 V，四个权重是 (1−H)(1−V)、H(1−V)、(1−H)V、HV；它们加起来等于 1，所以双线性插值本质上是四个邻居的加权平均。它通常比最近邻平滑，但会让非常锐利的边缘稍微软化，老师说它把模糊并入了采样步骤；缩图时仍要根据采样比例检查是否需要额外抗混叠。常见的误解：把权重配反（让离得远的像素权重更大）；或以为双线性插值不会改变锐利边缘。出处：COMP90086 第 2 讲笔记，§4 双线性插值 (slide 36)。",
+          "en": "When a new position falls between four old pixels, let the horizontal distance be H and the vertical distance be V; the four weights are (1−H)(1−V), H(1−V), (1−H)V and HV. They sum to 1, so bilinear interpolation is essentially a weighted average of the four neighbours. It is usually smoother than nearest neighbour, but slightly softens very sharp edges; the lecturer says it folds blurring into the sampling step. When downsizing, you should still check, based on the sampling ratio, whether extra anti-aliasing is needed. A common mistake: Assigning the weights the wrong way round (giving more distant pixels larger weights); or thinking bilinear interpolation does not alter sharp edges. Source: COMP90086 lecture 2 notes, §4 (slide 36)."
         }
       ]
     },
     {
-      "id": "channel-order",
+      "id": "pixel-vs-local-operator",
       "group": "image",
-      "title": { "zh": "通道顺序", "en": "channel order" },
-      "at": "1T1",
+      "title": { "zh": "逐像素运算与局部运算（邻域）", "en": "Pixel operator vs local operator (neighbourhood)" },
+      "at": "2B1",
       "body": [
         {
-          "zh": "彩色像素的三个数按什么顺序存是约定：OpenCV 读进来的是 B、G、R，Matplotlib 显示时当成 R、G、B，不换就红蓝颠倒。出处：COMP90086 第 2 次 workshop。常见的误解：三个数总是 R、G、B。",
-          "en": "The order a colour pixel's three numbers are stored in is a convention: OpenCV reads B, G, R, Matplotlib shows R, G, B; without a swap red and blue trade places. Source: COMP90086 workshop 2. A common mistake: The three numbers are always R, G, B."
+          "zh": "逐像素运算的输出位置 (i,j) 只看输入同一位置的像素，例如变亮、变暗或 gamma correction，各位置独立计算。局部运算会看 (i,j) 周围的一个小区域（邻域），模糊、锐化和边缘检测都属于这一类。局部运算改变的是邻居之间的关系，例如葡萄图中加强邻域差异会让轮廓更明显，也可能放大颗粒感。常见的误解：以为 gamma correction 这类亮度调整也需要邻域。出处：COMP90086 第 3 讲笔记，§1 三种运算：看一个点、看邻居、做加权和 (slides 6, 8)。",
+          "en": "In a pixel operation, the output at position (i,j) looks only at the input pixel at the same position, e.g. brightening, darkening or gamma correction; each position is computed independently. A local operation looks at a small region (neighbourhood) around (i,j); blurring, sharpening and edge detection all belong to this category. Local operations change the relationships between neighbours: for example, in the grapes image, strengthening the differences within a neighbourhood makes the outlines more visible, but may also amplify graininess. A common mistake: Thinking brightness adjustments such as gamma correction also need a neighbourhood. Source: COMP90086 lecture 3 notes, §1 (slides 6, 8)."
+        }
+      ]
+    },
+    {
+      "id": "linear-filter",
+      "group": "image",
+      "title": { "zh": "线性滤波器与卷积核", "en": "Linear filter and kernel" },
+      "at": "2B1",
+      "body": [
+        {
+          "zh": "线性滤波器是局部运算的一种：把邻域中的像素分别乘以权重再相加。这些权重排成的小矩阵叫卷积核或滤波器。它与一般局部运算的区别在于组合方式固定为加权和。常见的误解：把所有局部运算都当成线性滤波。出处：COMP90086 第 3 讲笔记，§1 线性滤波器。",
+          "en": "A linear filter is one kind of local operation: it multiplies each pixel in the neighbourhood by a weight and then adds them up. The small matrix formed by these weights is called the kernel or filter. What distinguishes it from general local operations is that the way of combining is fixed as a weighted sum. A common mistake: Treating every local operation as linear filtering. Source: COMP90086 lecture 3 notes, §1."
+        }
+      ]
+    },
+    {
+      "id": "convolution",
+      "group": "image",
+      "title": { "zh": "线性滤波公式（滑动加权和）", "en": "Linear filtering / convolution formula (sliding weighted sum)" },
+      "at": "2B1",
+      "body": [
+        {
+          "zh": "把卷积核放在图像的一个位置，对齐后逐项相乘再相加，写作 g(i,j)=Σ_{u,v} h(u,v) f(i−u,j−v)，其中 f 是输入、h 是核权重、g 是输出、(u,v) 是邻域内偏移。式中的 i−u、j−v 表示卷积；按窗口直接对齐相乘的互相关则读作 i+u、j+v。中心权重为 1、其余为 0 时两者都只是复制当前像素。常见的误解：以为公式里的 i−u 与窗口直接对齐相乘是同一件事。出处：COMP90086 第 3 讲笔记，§1 线性滤波到底在算什么 (slide 9)。",
+          "en": "Place the kernel at one position in the image, align it, multiply element by element and then add up, written as g(i,j)=Σ_{u,v} h(u,v) f(i−u,j−v), where f is the input, h the kernel weights, g the output and (u,v) the offset within the neighbourhood. The i−u, j−v in the formula denote convolution; cross-correlation, which multiplies directly with the window aligned, reads i+u, j+v instead. When the centre weight is 1 and all others are 0, both copy the current pixel. A common mistake: Thinking the i−u in the formula is the same thing as multiplying directly with the window aligned. Source: COMP90086 lecture 3 notes, §1 (slide 9)."
+        }
+      ]
+    },
+    {
+      "id": "padding-border-rules",
+      "group": "image",
+      "title": { "zh": "补边与边界规则", "en": "Padding / border handling (constant, wrap, clamp, reflect)" },
+      "at": "2B2",
+      "body": [
+        {
+          "zh": "在图像外补像素可使输出与输入同尺寸。Constant/zero 补固定值，简单但可能制造黑边；Wrap 把左接右、上接下，适合 tileable 纹理而不适合普通照片；Clamp/replicate 把边缘像素向外延伸，普通照片通常较自然；Reflect 镜像延伸，常能减少人工边界。没有一种规则永远最好，要看图像是否周期性、任务是否关心边缘及滤波器性质。常见的误解：以为补零总是最好的默认选择。出处：COMP90086 第 3 讲笔记，§4 四种常见边界规则 (slides 42, 43, 44, 45)。",
+          "en": "Padding pixels outside the image lets the output be the same size as the input. Constant/zero fills with a fixed value, which is simple but may create black borders; Wrap joins left to right and top to bottom, which suits tileable textures but not ordinary photos; Clamp/replicate extends the edge pixels outwards, which usually looks more natural for ordinary photos; Reflect extends by mirroring and often reduces artificial borders. No rule is always best; it depends on whether the image is periodic, whether the task cares about the edges and the properties of the filter. A common mistake: Thinking zero padding is always the best default choice. Source: COMP90086 lecture 3 notes, §4 (slides 42, 43, 44, 45)."
+        }
+      ]
+    },
+    {
+      "id": "convolution-vs-cross-correlation",
+      "group": "image",
+      "title": { "zh": "卷积与互相关（是否翻转卷积核）", "en": "Convolution vs cross-correlation (kernel flip)" },
+      "at": "2B3",
+      "body": [
+        {
+          "zh": "两者都做“滑动、相乘、相加”，唯一关键区别是卷积先把核旋转 180° 再使用，互相关直接使用。核关于中心对称时两者结果相同；核不对称时方向会改变。手算前要先确定是否翻核。常见的误解：以为翻转只是左右翻，或以为任何核卷积与互相关结果都不同。出处：COMP90086 第 3 讲笔记，§1 互相关和卷积 (slide 17)。",
+          "en": "Both do ‘slide, multiply, add’; the only key difference is that convolution first rotates the kernel by 180° before using it, whereas cross-correlation uses it directly. When the kernel is symmetric about its centre the two give the same result; when it is not, the direction changes. Before calculating by hand, first decide whether to flip the kernel. A common mistake: Thinking the flip is only a left–right flip, or thinking convolution and cross-correlation give different results for every kernel. Source: COMP90086 lecture 3 notes, §1 (slide 17)."
+        }
+      ]
+    },
+    {
+      "id": "linear-filter-properties",
+      "group": "image",
+      "title": {
+        "zh": "线性滤波的代数性质",
+        "en": "Linear filter properties (commutative, associative, distributive, scalar)"
+      },
+      "at": "2B5",
+      "body": [
+        {
+          "zh": "线性滤波满足交换律 f*h=h*f、结合律 f*h₁*h₂=f*(h₁*h₂)、分配律（滤波器可分配到相加的图像上）和标量结合律 k(f*h)=(kf)*h=f*(kh)。这些性质帮助重排计算。理论上可以交换或合并操作，但实际还要考虑图像大小、内存访问、是否需要中间结果和程序库实现。常见的误解：以为数学上可交换就一定更快。出处：COMP90086 第 3 讲笔记，§3 线性滤波的四个代数性质 (slide 37)。",
+          "en": "Linear filtering satisfies commutativity f*h=h*f, associativity f*h₁*h₂=f*(h₁*h₂), distributivity (a filter distributes over images that are added together) and scalar associativity k(f*h)=(kf)*h=f*(kh). These properties help rearrange the computation. In theory operations can be swapped or combined, but in practice you also have to consider image size, memory access, whether intermediate results are needed and the library's implementation. A common mistake: Thinking that being mathematically interchangeable necessarily makes it faster. Source: COMP90086 lecture 3 notes, §3 (slide 37)."
+        }
+      ]
+    },
+    {
+      "id": "separable-filter",
+      "group": "image",
+      "title": { "zh": "可分离滤波", "en": "Separable filter" },
+      "at": "2B5",
+      "body": [
+        {
+          "zh": "若二维核可写成一个列向量与一个行向量的外积，就叫可分离，此时可先对每一行做一维滤波，再对每一列做一维滤波。k×k 核每像素约需 k² 次乘法，拆开后约需 2k 次，k 大时差别明显。高斯核常常接近或可以构造成可分离核。常见的误解：以为任何二维核都能拆成两个一维核。出处：COMP90086 第 3 讲笔记，§3 可分离滤波：把二维计算拆成两次一维计算 (slides 39, 40)。",
+          "en": "If a 2D kernel can be written as the outer product of a column vector and a row vector, it is called separable; you can then first apply a 1D filter to each row and then a 1D filter to each column. A k×k kernel needs about k² multiplications per pixel; split up, it needs about 2k, and the difference is significant when k is large. Gaussian kernels are often close to separable or can be constructed to be separable. A common mistake: Thinking any 2D kernel can be split into two 1D kernels. Source: COMP90086 lecture 3 notes, §3 (slides 39, 40)."
+        }
+      ]
+    },
+    {
+      "id": "gaussian-filter",
+      "group": "image",
+      "title": { "zh": "均值滤波与高斯滤波（模糊）", "en": "Box (mean) filter vs Gaussian filter" },
+      "at": "2B6",
+      "body": [
+        {
+          "zh": "均值滤波给邻域每个像素相同权重；高斯滤波离中心越近权重越大，形式为 G_σ(x,y)=1/(2πσ²)·exp(−(x²+y²)/(2σ²))。σ 控制影响范围，σ 越大模糊越强。模糊核通常归一化使权重和为 1，以免改变整体平均亮度；两种核都减少细节，但权重分配不同，保留的细节也不同。常见的误解：以为高斯模糊和均值模糊效果完全一样，或忘记归一化。出处：COMP90086 第 3 讲笔记，§2 模糊：让变化变慢 (slides 27, 28)。",
+          "en": "A mean filter gives every pixel in the neighbourhood the same weight; a Gaussian filter gives larger weights the closer a pixel is to the centre, in the form G_σ(x,y)=1/(2πσ²)·exp(−(x²+y²)/(2σ²)). σ controls the extent of the influence: the larger σ, the stronger the blur. Blur kernels are usually normalised so that the weights sum to 1, so as not to change the overall average brightness; both kernels reduce detail, but they distribute the weights differently, so they preserve different detail. A common mistake: Thinking Gaussian blur and mean blur have exactly the same effect, or forgetting to normalise. Source: COMP90086 lecture 3 notes, §2 (slides 27, 28)."
+        }
+      ]
+    },
+    {
+      "id": "sobel-filter",
+      "group": "image",
+      "title": { "zh": "Sobel 边缘滤波", "en": "Sobel filter (directional derivative)" },
+      "at": "2B7",
+      "body": [
+        {
+          "zh": "Sobel 核近似计算横向和纵向两个方向的导数：S_x=[[1,0,−1],[2,0,−2],[1,0,−1]]，S_y=[[1,2,1],[0,0,0],[−1,−2,−1]]。平坦区域左右或上下差异小，响应接近 0；边缘附近差异大，响应较大。两张图分别找沿相应方向变化快的位置。常见的误解：以为 S_x 找的是水平方向的边缘线（实际找沿 x 方向变化快处）。出处：COMP90086 第 3 讲笔记，§2 Sobel：找变化快的地方 (slides 29, 30)。",
+          "en": "The Sobel kernels approximate the derivatives in the horizontal and vertical directions: S_x=[[1,0,−1],[2,0,−2],[1,0,−1]], S_y=[[1,2,1],[0,0,0],[−1,−2,−1]]. In flat regions the left–right or up–down differences are small and the response is close to 0; near edges the differences are large and the response is larger. The two output images each find where the change along the corresponding direction is fast. A common mistake: Thinking S_x finds horizontal edge lines (it actually finds where the change along the x direction is fast). Source: COMP90086 lecture 3 notes, §2 Sobel (slides 29, 30)."
+        }
+      ]
+    },
+    {
+      "id": "edge-as-rapid-change",
+      "group": "image",
+      "title": { "zh": "边缘：强度快速变化处", "en": "Edges as rapid intensity change" },
+      "at": "2B8",
+      "body": [
+        {
+          "zh": "沿一条水平扫描线看图像强度：平坦区域变化慢，边缘附近变化快。对强度求导数，就能突出这种变化。常见的误解：以为边缘是亮度高的地方。出处：COMP90086 第 5 讲笔记，§3 梯度：把“变化快”写成数字 (slide 39)。",
+          "en": "Look at the image intensity along a horizontal scan line: in flat regions it changes slowly, and near edges it changes quickly. Taking the derivative of the intensity highlights this change. A common mistake: Thinking edges are where the brightness is high. Source: COMP90086 lecture 5 notes, §3 (slide 39)."
+        }
+      ]
+    },
+    {
+      "id": "image-gradient",
+      "group": "image",
+      "title": { "zh": "图像梯度（幅度与方向）", "en": "Image gradient (magnitude and direction)" },
+      "at": "2B8",
+      "body": [
+        {
+          "zh": "二维图像 f(x,y) 的梯度是 ∇f=[∂f/∂x, ∂f/∂y]ᵀ。幅度 ‖∇f‖=√((∂f/∂x)²+(∂f/∂y)²) 表示变化有多强，方向 θ=atan2(∂f/∂y, ∂f/∂x) 表示变化最快的方向。常见的误解：把梯度方向当成边缘的走向。出处：COMP90086 第 5 讲笔记，§3 梯度：把“变化快”写成数字 (slide 40)。",
+          "en": "The gradient of a 2D image f(x,y) is ∇f=[∂f/∂x, ∂f/∂y]ᵀ. The magnitude ‖∇f‖=√((∂f/∂x)²+(∂f/∂y)²) indicates how strong the change is, and the direction θ=atan2(∂f/∂y, ∂f/∂x) indicates the direction of fastest change. A common mistake: Taking the gradient direction to be the direction in which the edge runs. Source: COMP90086 lecture 5 notes, §3 (slide 40)."
+        }
+      ]
+    },
+    {
+      "id": "colour-filtering",
+      "group": "image",
+      "title": { "zh": "彩色图像滤波（多通道卷积核）", "en": "Colour / multi-channel filtering" },
+      "at": "2B9",
+      "body": [
+        {
+          "zh": "RGB 图像除空间维度外还有通道维度，颜色滤波器尺寸可以是 K_h×K_w×3。它同时看同一邻域的 R、G、B，把所有乘积加在一起得到一个输出数值。常见错误是把 height×width×channel 当成普通二维图像，忘记核还要覆盖通道维度。常见的误解：以为彩色滤波得到三个输出值或只对一个通道操作。出处：COMP90086 第 3 讲笔记，§2 彩色图像的滤波核多了一个维度 (slide 31)。",
+          "en": "Besides its spatial dimensions, an RGB image also has a channel dimension, so a colour filter can have size K_h×K_w×3. It looks at R, G and B in the same neighbourhood at once and sums all the products to give a single output value. A common mistake is to treat height×width×channel as an ordinary 2D image and forget that the kernel must also cover the channel dimension. A common mistake: Thinking colour filtering produces three output values, or operates on only one channel. Source: COMP90086 lecture 3 notes, §2 (slide 31)."
+        }
+      ]
+    },
+    {
+      "id": "pixel-to-mm-focal-length",
+      "group": "image",
+      "title": { "zh": "像素换算成传感器毫米再求焦距", "en": "Converting pixels to sensor millimetres to find focal length" },
+      "at": "1W1",
+      "body": [
+        {
+          "zh": "传感器高 20 mm 对应 200 像素，物体在图像中高 100 像素，所以它在传感器上高 h_i = 20 mm × 100/200 = 10 mm。物体实际高 h_o = 120 mm、距离 z = 600 mm，由相似三角形 h_i/f = h_o/z 得 f = h_i·z/h_o = 10×600/120 = 50 mm。重点是先把像素换成传感器上的毫米，不能直接把像素和毫米放进同一个比例式。常见的误解：直接把 100 像素当作 h_i 代入，得到单位混乱的 f = 100×600/120 = 500。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 用传感器尺寸求焦距。",
+          "en": "A sensor height of 20 mm corresponds to 200 pixels, and the object is 100 pixels high in the image, so its height on the sensor is h_i = 20 mm × 100/200 = 10 mm. The object's real height is h_o = 120 mm and its distance is z = 600 mm, so by similar triangles h_i/f = h_o/z, giving f = h_i·z/h_o = 10×600/120 = 50 mm. The key point is to convert pixels into millimetres on the sensor first; you cannot put pixels and millimetres directly into the same proportion. A common mistake: Substituting the 100 pixels directly as h_i, giving f = 100×600/120 = 500 with muddled units. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·."
+        }
+      ]
+    },
+    {
+      "id": "opencv-size-vs-numpy-shape",
+      "group": "image",
+      "title": {
+        "zh": "OpenCV 尺寸 (width, height) 与 NumPy 形状 (height, width, channels)",
+        "en": "OpenCV (width, height) vs NumPy (height, width, channels)"
+      },
+      "at": "1W2",
+      "body": [
+        {
+          "zh": "OpenCV 的大小 tuple 是 (width, height)，NumPy 形状却通常写成 (height, width, channels)。所以不能把 NumPy 的形状原样当作 OpenCV 的缩放尺寸，否则宽和高会对调。常见的误解：把 image.shape[:2] 直接传给 OpenCV 的缩放函数。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 缩放、中心裁剪和深拷贝。",
+          "en": "An OpenCV size tuple is (width, height), whereas a NumPy shape is usually written (height, width, channels). So you cannot use a NumPy shape as-is as an OpenCV resize size, or the width and height will be swapped. A common mistake: Passing image.shape[:2] straight to OpenCV's resize function. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·."
+        }
+      ]
+    },
+    {
+      "id": "center-crop-and-copy",
+      "group": "image",
+      "title": { "zh": "中心裁剪与深拷贝", "en": "Centre crop and copying a NumPy slice" },
+      "at": "1W2",
+      "body": [
+        {
+          "zh": "对 H×W 图像做宽 w_c、高 h_c 的中心裁剪，起点为 x0 = ⌊(W−w_c)/2⌋、y0 = ⌊(H−h_c)/2⌋，然后取 image[y0:y0 + hc, x0:x0 + wc]（行方向 y 在前）。NumPy 切片常返回视图；如果要修改副本而不影响原裁剪，应使用 .copy()。常见的误解：把切片写成 image[x0:..., y0:...]；或以为切片得到的是独立副本，修改它不会影响原数组。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 缩放、中心裁剪和深拷贝。",
+          "en": "To take a centre crop of width w_c and height h_c from an H×W image, the starting point is x0 = ⌊(W−w_c)/2⌋, y0 = ⌊(H−h_c)/2⌋; then take image[y0:y0 + hc, x0:x0 + wc] (the row direction y comes first). NumPy slicing often returns a view; if you want to modify a copy without affecting the original crop, use .copy(). A common mistake: Writing the slice as image[x0:..., y0:...]; or thinking a slice is an independent copy, so modifying it will not affect the original array. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·."
+        }
+      ]
+    },
+    {
+      "id": "opencv-bgr-to-rgb",
+      "group": "image",
+      "title": { "zh": "OpenCV 的 BGR 与 Matplotlib 的 RGB", "en": "OpenCV BGR vs Matplotlib RGB" },
+      "at": "2W1",
+      "body": [
+        {
+          "zh": "cv2.imread 默认读入 BGR，但 matplotlib.pyplot.imshow 按 RGB 显示，所以显示前要用 cv2.cvtColor(image, cv2.COLOR_BGR2RGB) 转换。这只改变通道顺序，不改变图像内容或空间尺寸。常见的误解：显示时红蓝颠倒，却以为图片本身坏了；或以为转换会改变图像尺寸。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · OpenCV 和 Matplotlib 的颜色顺序。",
+          "en": "cv2.imread reads images as BGR by default, but matplotlib.pyplot.imshow displays them as RGB, so convert with cv2.cvtColor(image, cv2.COLOR_BGR2RGB) before displaying. This changes only the channel order, not the image content or spatial size. A common mistake: Seeing red and blue swapped on display and thinking the image itself is broken; or thinking the conversion changes the image size. Source: COMP90086 lecture 2 notes, §4 Workshop 2 · OpenCV Matplotlib."
+        }
+      ]
+    },
+    {
+      "id": "channel-edit-dtype",
+      "group": "image",
+      "title": { "zh": "修改通道值与避免 uint8 溢出", "en": "Editing a channel without uint8 overflow" },
+      "at": "2W1",
+      "body": [
+        {
+          "zh": "Workshop 中对 BGR 图像把红色通道改成蓝色与绿色通道的平均值：R'(x,y) = (G(x,y)+B(x,y))/2。如果原数组是 uint8，要先用较宽或浮点类型做计算，再明确 cast，避免溢出或隐式截断。常见的误解：在 BGR 数组里把第 0 个通道当成红色；或直接用 uint8 相加后再除以 2。出处：COMP90086 第 2 讲笔记，§4 Workshop 2 · 缩放、中心裁剪和深拷贝。",
+          "en": "In the workshop, the red channel of a BGR image is replaced by the average of the blue and green channels: R'(x,y) = (G(x,y)+B(x,y))/2. If the original array is uint8, first do the calculation in a wider or floating-point type, then cast explicitly, to avoid overflow or implicit truncation. A common mistake: Treating channel 0 of a BGR array as red; or adding directly in uint8 and then dividing by 2. Source: COMP90086 lecture 2 notes, §4 Workshop 2 ·."
         }
       ]
     }

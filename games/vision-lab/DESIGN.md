@@ -1,38 +1,44 @@
-# Vision Lab: the demonstration course
+# Vision Lab
 
-Status: a hand-designed demonstration of how the course should be cut (games/DESIGN.md §1: levels go where the
-difficulty is). It replaces the earlier pipeline-made chapters 0–1 wholesale. `blueprint.json` is the authority for
-the knowledge graph, the slots and the order; this note says why the course is cut this way.
+Status: a trial of the first two chapters of the course map in
+`docs/Unimelb/26S2/CV/vision-game-specs/knowledge-map-1-12.md`, laid out the way Turing Complete teaches: each chapter
+builds a machine, each level builds, uses, discovers or judges, and a part built is called directly by later levels.
+`blueprint.json` is the authority for the knowledge points, slots and order; the encyclopedia entries come from the
+entries of the course map.
 
-Sources: COMP90086 lectures 1–2 and workshop 2 (`docs/Unimelb/26S2/CV/01-introduction.md`, `02-basics.md`).
+## Chapter 1, the camera (lectures 1–2)
 
-## The cut
+| Level | Does | Teaches | Part |
+| --- | --- | --- | --- |
+| 1A1 | bench, then circuit | pinhole projection u = fX/Z | project |
+| 1A2 | equal images, then claims over a picture | the forward and inverse problems | |
+| 1A3 | bench (90° field of view), then circuit | focal length in pixels and the field of view | |
+| 1A4 | grid (coordinates, a colour pixel), then circuit | the image as an array, (x, y) | |
+| 1A5 | grid, then circuit | cropping is not resizing | crop |
+| 1A6 | grid, then circuit (positions given) | nearest neighbour | |
+| 1A7 | two grids, then circuit (positions given) | bilinear interpolation | |
+| 1W1, 1W2 | optional, Workshop 2 | pixels to millimetres; shape vs size and the centre crop | |
 
-Each lecture topic is judged by importance, difficulty and value before it gets levels:
+## Chapter 2, the convolver (lecture 3, the gradient of lecture 5)
 
-- **Hard cores** (abstract, far from daily life, what the lectures spend effort on): the inverse problem, depth of
-  field, bilinear interpolation. Each gets a ladder of levels climbing from shallow, concrete origins.
-- **Learnable steps** (need one worked example): central projection, perspective scaling, scale ambiguity, focus,
-  the blur circle, the sampling grid, nearest neighbour, linear interpolation. Each is one rung, and the next rung
-  uses it again.
-- **Intuitive points** (plain from a sentence): graphics and vision run opposite ways, the acceptable blur. Only named
-  in copy and the encyclopedia, never trained.
-- **Technical content** (a library's convention): channel order. An optional topic after the main path ends.
+| Level | Does | Teaches | Part |
+| --- | --- | --- | --- |
+| 2B1 | one pixel or a patch, a row by hand, a valid circuit | the sliding weighted sum | |
+| 2B2 | grid, circuit | padding | rowFilter |
+| 2B3 | an impulse by hand, true convolution from rowFilter | convolution vs correlation | |
+| 2B4 | circuit | the same down the columns | colFilter |
+| 2B5 | the merged kernel by hand, circuit | separable filters | filter2D |
+| 2B6 | a blurred point by hand, circuit | the Gaussian filter | blur |
+| 2B7 | signs of responses, circuit | the Sobel filter | sobel |
+| 2B8 | gradient direction, circuit | the gradient and its size | |
+| 2B9 | circuit | colour filtering, channel by channel | |
+| 2W1 | optional, Workshop 2 | BGR vs RGB; uint8 overflow | |
 
-Left out for now: vision task types (which answer form a task wants: intuitive, not worth a level), quantisation,
-cropping, field of view and pixel units.
+## Where it departs from the course map
 
-## The ladders
-
-One era, three branches of one parallel set, each independent of the others:
-
-| Branch | Rungs | Core it climbs to |
-| --- | --- | --- |
-| Projection | 1P1 a point through the hole (u = fX/Z) → 1P2 smaller with distance (h = fH/Z) → 1P3 equal images from equal H/Z | 1P4 what one image settles (claims over compatible scenes; a known size settles only its own object) |
-| Optics | 1F1 a lens sharpens one distance → 1F2 the blur circle grows with the aperture | 1F3 depth of field (aperture and focus together, focus between the objects) |
-| Resampling | 1R1 where new pixels sit (builds the sampling grid) → 1R2 nearest neighbour → 1R3 linear interpolation along a row | 1R4 bilinear interpolation in 2D |
-
-Optional topic after all three: 1T1 channel order (BGR read, RGB shown).
-
-Every bench is judged on submit (predict, then check); every resampling level starts with a hand-worked grid task
-before its circuit; every rung carries a naive answer that is the misconception its point replaces.
+- Resampling positions are given, not worked out: the pixel-centre convention is a library's, not the lecture's.
+- 2B1 opens with the map's "one pixel or a patch" level as its first task.
+- A column filter (2B4) is built before the separable filter, which is a row pass and a column pass.
+- The row filter becomes a part only once it pads (2B2), so every filter after keeps the image's size.
+- The nearest and bilinear samplers and the gradient are not parts yet: no level in these two chapters calls them.
+  They become parts when the chapters that call them (the panorama stitcher) are built.

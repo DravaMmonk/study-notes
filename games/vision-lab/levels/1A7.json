@@ -1,0 +1,156 @@
+{
+  "title": { "zh": "四个邻居的加权平均", "en": "A weighted average of four" },
+  "intro": [
+    {
+      "t": {
+        "zh": "最近邻只会照抄：落在两个像素之间的位置，不是取左边就是取右边，离得近一点远一点都一样。放大后的图因此成块。",
+        "en": "Nearest neighbour only copies: a position between two pixels reads the left one or the right one, however near it is to either. That is why enlargements come out blocky."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：位置落在像素之间，值能不能按它离各个像素的远近来算？先在一行上手算，再在 2 × 2 的方格里手算，最后接成电路。位置照旧直接给出，落到图外取最近的边。",
+        "en": "This level asks: can a position between pixels take a value by how near it is to each? Work it out on a row by hand, then inside a 2 × 2 square, then wire it. The positions are given as before; outside the image, the nearest edge."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这是<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>：四个邻居按横竖两个距离加权平均，比最近邻平滑。",
+    "en": "This is <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>: four neighbours weighted (1−H)(1−V), H(1−V), (1−H)V, HV; smoother than nearest neighbour, it softens sharp edges a little."
+  },
+  "tasks": [
+    {
+      "id": "1A7",
+      "kind": "grid",
+      "step": { "zh": "一行", "en": "A row" },
+      "brief": {
+        "zh": "[0, 4] 在 x = −0.25、0.25、0.75、1.25 处取值：按到左右两个像素的距离加权，写出每个值。",
+        "en": "Read [0, 4] at x = −0.25, 0.25, 0.75 and 1.25, weighting the pixels either side by distance: write each value."
+      },
+      "hint": [
+        {
+          "zh": "x = 0.25 离 0 有 0.25，离 1 有 0.75：离得近的那边该占几成？",
+          "en": "x = 0.25 is 0.25 from 0 and 0.75 from 1: what share should the nearer side take?"
+        }
+      ],
+      "image": [[0, 4]],
+      "show": "both",
+      "tolerance": 0.01,
+      "ask": { "fill": { "rows": [[0, 1, 3, 4]], "label": { "zh": "取到的值", "en": "Values read" } } },
+      "naive": {
+        "answer": [[0, 0, 4, 4]],
+        "why": {
+          "zh": "这是照抄最近的像素：0.25 和 0.75 位置不同，拿到的却是两端的值。按距离加权，0.25 处是 0.75 × 0 + 0.25 × 4 = 1。",
+          "en": "That copies the nearest pixel: 0.25 and 0.75 sit apart yet read the ends. Weighted by distance, 0.25 reads 0.75 × 0 + 0.25 × 4 = 1."
+        }
+      }
+    },
+    {
+      "id": "1A7_2",
+      "kind": "grid",
+      "step": { "zh": "四个邻居", "en": "Four neighbours" },
+      "brief": {
+        "zh": "这张 2 × 2 的图在 x、y 都取 −1/6、0.5、7/6 的 9 个位置取值：写出 3 × 3 的结果。",
+        "en": "Read this 2 × 2 image at the nine positions where x and y are each −1/6, 0.5 or 7/6: write the 3 × 3 result."
+      },
+      "hint": [
+        {
+          "zh": "中间那一行在 y = 0.5，正好在两行中间：先把上下两行各自横着算好，再竖着取中间。",
+          "en": "The middle row is at y = 0.5, right between the rows: work out the top and bottom rows across first, then take between them."
+        }
+      ],
+      "image": [[0, 4], [8, 12]],
+      "show": "both",
+      "tolerance": 0.01,
+      "ask": {
+        "fill": { "rows": [[0, 2, 4], [4, 6, 8], [8, 10, 12]], "label": { "zh": "取到的值", "en": "Values read" } }
+      },
+      "naive": {
+        "answer": [[0, 2, 4], [8, 10, 12], [8, 10, 12]],
+        "why": {
+          "zh": "这是只横着加权、竖直方向照抄最近的一行：中间一行在两行正中，却整个抄了下面一行。竖着也按距离加权，中心是四个邻居的平均 6。",
+          "en": "That weights across only and copies the nearest row: the middle row, right between two, copies the lower. Weighted by distance downwards too, the centre is the average of the four, 6."
+        }
+      }
+    },
+    {
+      "id": "1A7_3",
+      "kind": "circuit",
+      "step": { "zh": "接成电路", "en": "Wire it" },
+      "brief": {
+        "zh": "输入一张图和两张坐标图 x、y：交出每个位置按四个邻居距离加权的值。",
+        "en": "Given an image and the coordinate images x and y, give each position's value weighted from its four neighbours by distance."
+      },
+      "hint": [
+        {
+          "zh": "先找出左上的邻居：坐标向下取整；位置离它多远，就是右边和下边邻居的权重。",
+          "en": "First find the top-left neighbour: round the coordinates down; how far the position is from it is the weight of the neighbours right and below."
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "xs", "label": { "zh": "位置 x（坐标图）", "en": "Positions x" } },
+        { "name": "ys", "label": { "zh": "位置 y（坐标图）", "en": "Positions y" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "取到的值", "en": "Values read" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 4]], "xs": [[-0.25, 0.25, 0.75, 1.25]], "ys": [[0, 0, 0, 0]] },
+          "expect": { "out": [[0, 1, 3, 4]] }
+        },
+        {
+          "inputs": {
+            "image": [[0, 4], [8, 12]],
+            "xs": [[-0.166667, 0.5, 1.166667], [-0.166667, 0.5, 1.166667], [-0.166667, 0.5, 1.166667]],
+            "ys": [[-0.166667, -0.166667, -0.166667], [0.5, 0.5, 0.5], [1.166667, 1.166667, 1.166667]]
+          },
+          "expect": { "out": [[0, 2, 4], [4, 6, 8], [8, 10, 12]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[1, 2], [3, 4], [5, 6]], "xs": [[0.5, 1.5]], "ys": [[0.5, 1.5]] },
+          "expect": { "out": [[2.5, 5]] }
+        },
+        {
+          "inputs": { "image": [[[1, 0, 0], [0, 0, 1]]], "xs": [[0, 0.5, 1]], "ys": [[0, 0, 0]] },
+          "expect": { "out": [[[1, 0, 0], [0.5, 0, 0.5], [0, 0, 1]]] }
+        }
+      ],
+      "solution": [
+        "one = const[value=1]()",
+        "x0 = floor(xs)",
+        "y0 = floor(ys)",
+        "tx = sub(xs, x0)",
+        "ty = sub(ys, y0)",
+        "x1 = add(x0, one)",
+        "y1 = add(y0, one)",
+        "a = lookup[outside=clamp](image, x0, y0)",
+        "b = lookup[outside=clamp](image, x1, y0)",
+        "c = lookup[outside=clamp](image, x0, y1)",
+        "d = lookup[outside=clamp](image, x1, y1)",
+        "wx = sub(one, tx)",
+        "wy = sub(one, ty)",
+        "aw = mul(a, wx)",
+        "bw = mul(b, tx)",
+        "top = add(aw, bw)",
+        "cw = mul(c, wx)",
+        "dw = mul(d, tx)",
+        "bot = add(cw, dw)",
+        "tw = mul(top, wy)",
+        "lw = mul(bot, ty)",
+        "v = add(tw, lw)",
+        "out <- v"
+      ],
+      "naive": [
+        "half = const[value=0.5]()",
+        "ax = add(xs, half)",
+        "ay = add(ys, half)",
+        "fx = floor(ax)",
+        "fy = floor(ay)",
+        "r = lookup[outside=clamp](image, fx, fy)",
+        "out <- r"
+      ]
+    }
+  ]
+}

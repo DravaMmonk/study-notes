@@ -1,0 +1,119 @@
+{
+  "title": { "zh": "图是一张数表", "en": "A picture is a table of numbers" },
+  "intro": [
+    {
+      "t": {
+        "zh": "传感器的每个像素记下一个亮度，一张灰度图就是一张 h 行、w 列的数表；彩色图的每格是红、绿、蓝三个数。约定：x 向右数、y 向下数，都从 0 开始，第 y 行第 x 列写作 (x, y)。",
+        "en": "Each sensor pixel records a brightness, so a grey picture is a table of h rows and w columns; in a colour one each cell holds three numbers, red, green and blue. The convention: x counts right and y down, both from 0, and row y, column x is written (x, y)."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：一个像素在数表的哪里，怎样读出它的值？先在格子上指出坐标、改一个彩色像素，再接一块读相邻两个像素之差的电路。",
+        "en": "This level asks: where in the table is a pixel, and how is its value read? First give a cell's coordinates and change a colour pixel on the grid, then wire a circuit that reads the difference between two neighbouring pixels."
+      }
+    }
+  ],
+  "adds": ["lookup", "const", "sub"],
+  "after": {
+    "zh": "这是<wiki-ref to=\"image-array-checks\"></wiki-ref>，按<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>读。",
+    "en": "This is how an <wiki-ref to=\"image-array-checks\"></wiki-ref> is laid out: its shape is h × w (× 3 in colour), read at (x, y) by the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>."
+  },
+  "tasks": [
+    {
+      "id": "1A4",
+      "kind": "grid",
+      "step": { "zh": "指坐标", "en": "Name a cell" },
+      "brief": { "zh": "写出高亮那一格的坐标 (x, y)。", "en": "Write the coordinates (x, y) of the highlighted cell." },
+      "hint": [{ "zh": "x 是第几列，y 是第几行，都从 0 数起。", "en": "x is the column and y the row, both counted from 0." }],
+      "image": [[3, 8, 1, 6], [7, 2, 9, 4], [5, 0, 4, 2]],
+      "show": "numbers",
+      "ask": { "locate": { "x": 2, "y": 1 } },
+      "naive": {
+        "answer": { "x": 1, "y": 2 },
+        "why": {
+          "zh": "这是先写行、再写列（矩阵的习惯）：图像坐标先写 x（列），再写 y（行），高亮的格子在第 1 行第 2 列，是 (2, 1)。",
+          "en": "That gives the row first, the matrix way: image coordinates give x, the column, first and y, the row, second; the highlighted cell is in row 1, column 2, so (2, 1)."
+        }
+      }
+    },
+    {
+      "id": "1A4_2",
+      "kind": "grid",
+      "step": { "zh": "改一个彩色像素", "en": "Change a colour pixel" },
+      "brief": {
+        "zh": "把 (1, 0) 的像素改成纯红，其他格子不动。",
+        "en": "Change the pixel at (1, 0) to pure red, leaving every other cell as it is."
+      },
+      "hint": [
+        {
+          "zh": "一个彩色像素是三个数，按红、绿、蓝的顺序。",
+          "en": "A colour pixel is three numbers, in the order red, green, blue."
+        }
+      ],
+      "image": [[[0.2, 0.2, 0.2], [0.9, 0.9, 0.9], [0, 0, 1]], [[0, 1, 0], [0.5, 0.5, 0.5], [1, 1, 1]]],
+      "show": "both",
+      "ask": { "set": { "x": 1, "y": 0, "value": [1, 0, 0] } },
+      "naive": {
+        "answer": [[[0.2, 0.2, 0.2], [0.9, 0.9, 0.9], [0, 0, 1]], [[1, 0, 0], [0.5, 0.5, 0.5], [1, 1, 1]]],
+        "why": {
+          "zh": "改的是 (0, 1)：x 和 y 写反了。(1, 0) 是第 0 行第 1 列。",
+          "en": "That changes (0, 1): x and y swapped. (1, 0) is row 0, column 1."
+        }
+      }
+    },
+    {
+      "id": "1A4_3",
+      "kind": "circuit",
+      "step": { "zh": "读相邻像素", "en": "Read neighbours" },
+      "intro": [
+        {
+          "t": {
+            "zh": "新元件：<part-ref to=\"part:lookup\"></part-ref>按坐标读出一个像素，<part-ref to=\"part:const\"></part-ref>给出一个固定的数，<part-ref to=\"part:sub\"></part-ref>相减。",
+            "en": "New parts: <part-ref to=\"part:lookup\"></part-ref> reads the pixel at coordinates, <part-ref to=\"part:const\"></part-ref> gives a fixed number, <part-ref to=\"part:sub\"></part-ref> subtracts."
+          }
+        }
+      ],
+      "brief": {
+        "zh": "输入一张灰度图和坐标 x、y：交出右边邻居 (x+1, y) 减去 (x, y) 的值。",
+        "en": "Given a grey image and coordinates x and y, give the value at (x+1, y) less the value at (x, y)."
+      },
+      "hint": [
+        {
+          "zh": "取像素的两个坐标口，哪个是列、哪个是行？",
+          "en": "Of the lookup's two coordinate inputs, which is the column and which the row?"
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "x", "label": { "zh": "x", "en": "x" } },
+        { "name": "y", "label": { "zh": "y", "en": "y" } }
+      ],
+      "outputs": [{ "name": "d", "label": { "zh": "右邻减自己", "en": "Right less here" } }],
+      "tests": [
+        { "inputs": { "image": [[1, 4, 9], [2, 3, 5]], "x": 0, "y": 1 }, "expect": { "d": 1 } },
+        { "inputs": { "image": [[1, 4, 9], [2, 3, 5]], "x": 1, "y": 0 }, "expect": { "d": 5 } }
+      ],
+      "hidden": [
+        { "inputs": { "image": [[1, 4, 9], [2, 3, 5]], "x": 0, "y": 0 }, "expect": { "d": 3 } },
+        { "inputs": { "image": [[0, 0], [7, 1]], "x": 0, "y": 1 }, "expect": { "d": -6 } }
+      ],
+      "solution": [
+        "one = const[value=1]()",
+        "xr = add(x, one)",
+        "r = lookup(image, xr, y)",
+        "c = lookup(image, x, y)",
+        "v = sub(r, c)",
+        "d <- v"
+      ],
+      "naive": [
+        "one = const[value=1]()",
+        "yr = add(y, one)",
+        "r = lookup(image, x, yr)",
+        "c = lookup(image, x, y)",
+        "v = sub(r, c)",
+        "d <- v"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "title": { "zh": "拆成两步", "en": "In two passes" },
+  "intro": [
+    {
+      "t": {
+        "zh": "二维的卷积核是一张 3 × 3 的权重表。很多常用的核正好是一列权重乘一行权重：先横着滤一遍、再竖着滤一遍，和直接用 3 × 3 的核一样。这依赖<wiki-ref to=\"linear-filter-properties\"></wiki-ref>：先后次序可以交换、两次滤波可以合成一次。",
+        "en": "A 2D kernel is a 3 × 3 table of weights. Many common kernels are exactly a column of weights times a row: filtering across and then down equals filtering once with the 3 × 3 kernel. That rests on the <wiki-ref to=\"linear-filter-properties\"></wiki-ref>: the order can be swapped, two filters can be merged into one."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：一个 3 × 3 的核，什么时候能拆成横、竖两步？先由一行和一列权重写出合成的 3 × 3 核，再用行滤波器和列滤波器接出二维滤波器。",
+        "en": "This level asks: when can a 3 × 3 kernel be split into an across pass and a down pass? First write the 3 × 3 kernel a row and a column of weights make, then wire a 2D filter from the row and column filters."
+      }
+    }
+  ],
+  "builds": {
+    "type": "filter2D",
+    "name": { "zh": "二维滤波器", "en": "2D filter" },
+    "desc": {
+      "zh": "输入一张图、一行权重 h1、h2、h3 和一列权重 v1、v2、v3：先横着用行权重滤，再竖着用列权重滤，图外补 0",
+      "en": "Takes an image, a row of weights h1, h2, h3 and a column v1, v2, v3: filters across with the row, then down with the column, 0 outside"
+    }
+  },
+  "after": {
+    "zh": "这是<wiki-ref to=\"separable-filter\"></wiki-ref>：3 × 3 的核若是一列乘一行，就拆成两次 3 格的滤波，每个像素少算 3 次乘法。",
+    "en": "This is a <wiki-ref to=\"separable-filter\"></wiki-ref>: a 3 × 3 kernel that is a column times a row splits into two 3-cell passes, three fewer multiplications a pixel."
+  },
+  "tasks": [
+    {
+      "id": "2B5",
+      "kind": "grid",
+      "step": { "zh": "合成的核", "en": "The merged kernel" },
+      "brief": {
+        "zh": "行权重 [1, 2, 1]、列权重 [1, 2, 1]：写出合成的 3 × 3 核，第 y 行第 x 列是列权重第 y 个乘行权重第 x 个。",
+        "en": "Row weights [1, 2, 1], column weights [1, 2, 1]: write the merged 3 × 3 kernel, row y, column x being column weight y times row weight x."
+      },
+      "hint": [{ "zh": "中心那一格是 2 × 2。", "en": "The centre cell is 2 × 2." }],
+      "image": [[1, 2, 1]],
+      "show": "numbers",
+      "ask": {
+        "fill": {
+          "rows": [[1, 2, 1], [2, 4, 2], [1, 2, 1]],
+          "label": { "zh": "3 × 3 的核", "en": "The 3 × 3 kernel" }
+        }
+      },
+      "naive": {
+        "answer": [[1, 2, 1], [1, 2, 1], [1, 2, 1]],
+        "why": {
+          "zh": "这是三行都抄了行权重：竖直方向也要乘上列权重，第 1 行整行乘 2。",
+          "en": "That copies the row weights into all three rows: the column weights multiply too, doubling row 1."
+        }
+      }
+    },
+    {
+      "id": "2B5_2",
+      "kind": "circuit",
+      "step": { "zh": "二维滤波器", "en": "2D filter" },
+      "brief": {
+        "zh": "输入一张图、行权重 h1、h2、h3 和列权重 v1、v2、v3：交出先横后竖两次滤波的结果。",
+        "en": "Given an image, row weights h1, h2, h3 and column weights v1, v2, v3, give the result of filtering across, then down."
+      },
+      "hint": [{ "zh": "第二次滤波的输入，是第一次的输出。", "en": "The second pass takes the first pass's output." }],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "h1", "label": { "zh": "行 h1", "en": "Row h1" } },
+        { "name": "h2", "label": { "zh": "行 h2", "en": "Row h2" } },
+        { "name": "h3", "label": { "zh": "行 h3", "en": "Row h3" } },
+        { "name": "v1", "label": { "zh": "列 v1", "en": "Column v1" } },
+        { "name": "v2", "label": { "zh": "列 v2", "en": "Column v2" } },
+        { "name": "v3", "label": { "zh": "列 v3", "en": "Column v3" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0, 0, 0, 0], [0, 16, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            "h1": 1,
+            "h2": 2,
+            "h3": 1,
+            "v1": 1,
+            "v2": 2,
+            "v3": 1
+          },
+          "expect": { "out": [[16, 32, 16, 0], [32, 64, 32, 0], [16, 32, 16, 0], [0, 0, 0, 0]] }
+        },
+        {
+          "inputs": {
+            "image": [[1, 3, 2, 5], [4, 0, 6, 1], [2, 2, 8, 3]],
+            "h1": 1,
+            "h2": 0,
+            "h3": -1,
+            "v1": 1,
+            "v2": 1,
+            "v3": 1
+          },
+          "expect": { "out": [[-3, -3, -3, 8], [-5, -9, -4, 16], [-2, -8, -2, 14]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "image": [[1, 3, 2, 5], [4, 0, 6, 1], [2, 2, 8, 3]],
+            "h1": 0.25,
+            "h2": 0.5,
+            "h3": 0.25,
+            "v1": 0,
+            "v2": 1,
+            "v3": 0
+          },
+          "expect": { "out": [[1.25, 2.25, 3, 3], [2, 2.5, 3.25, 2], [1.5, 3.5, 5.25, 3.5]] }
+        }
+      ],
+      "solution": ["r = rowFilter(image, h1, h2, h3)", "c = colFilter(r, v1, v2, v3)", "out <- c"],
+      "naive": ["r = rowFilter(image, h1, h2, h3)", "out <- r"]
+    }
+  ]
+}

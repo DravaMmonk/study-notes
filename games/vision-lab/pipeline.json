@@ -343,6 +343,369 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-03T10:29:20.505Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "1A1",
+              "says": "its answer stands only on what it brings (mul, div)",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A2",
+              "says": "no slot after it uses forward-vs-inverse-problem",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A3",
+              "says": "angle-of-view-from-pixel-focal-length comes back first at 1W1, after 1A4, 1A5, 1A6, 1A7 bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A7",
+              "says": "no slot after it uses bilinear-interpolation",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "2B6",
+              "says": "gaussian-filter comes back first at 2B9, after 2B7, 2B8 bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A1",
+              "says": "pinhole-projection has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A2",
+              "says": "forward-vs-inverse-problem has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A3",
+              "says": "angle-of-view-from-pixel-focal-length has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A4",
+              "says": "image-array-checks has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A5",
+              "says": "crop-vs-resize has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A6",
+              "says": "nearest-neighbour-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A7",
+              "says": "bilinear-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B1",
+              "says": "convolution has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B2",
+              "says": "padding-border-rules has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B5",
+              "says": "separable-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B6",
+              "says": "gaussian-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B7",
+              "says": "sobel-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B8",
+              "says": "image-gradient has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B9",
+              "says": "colour-filtering has no practice slot before the next point",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-03T10:30:13.487Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "1A1",
+              "says": "its answer stands only on what it brings (mul, div)",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A2",
+              "says": "no slot after it uses forward-vs-inverse-problem",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A3",
+              "says": "angle-of-view-from-pixel-focal-length comes back first at 1W1, after 1A4, 1A5, 1A6, 1A7 bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A7",
+              "says": "no slot after it uses bilinear-interpolation",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "2B6",
+              "says": "gaussian-filter comes back first at 2B9, after 2B7, 2B8 bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A1",
+              "says": "pinhole-projection has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A2",
+              "says": "forward-vs-inverse-problem has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A3",
+              "says": "angle-of-view-from-pixel-focal-length has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A4",
+              "says": "image-array-checks has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A5",
+              "says": "crop-vs-resize has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A6",
+              "says": "nearest-neighbour-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A7",
+              "says": "bilinear-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B1",
+              "says": "convolution has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B2",
+              "says": "padding-border-rules has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B5",
+              "says": "separable-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B6",
+              "says": "gaussian-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B7",
+              "says": "sobel-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B8",
+              "says": "image-gradient has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B9",
+              "says": "colour-filtering has no practice slot before the next point",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-03T10:38:44.461Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "1A1",
+              "says": "its answer stands only on what it brings (mul, div)",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A2",
+              "says": "no slot after it uses forward-vs-inverse-problem",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A3",
+              "says": "angle-of-view-from-pixel-focal-length comes back first at 1W1, after 1A4, 1A5, 1A6, 1A7 bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "1A7",
+              "says": "no slot after it uses bilinear-interpolation",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "2B6",
+              "says": "gaussian-filter comes back first at 2B9, after 2B7, 2B8 bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A1",
+              "says": "pinhole-projection has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A2",
+              "says": "forward-vs-inverse-problem has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A3",
+              "says": "angle-of-view-from-pixel-focal-length has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A4",
+              "says": "image-array-checks has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A5",
+              "says": "crop-vs-resize has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A6",
+              "says": "nearest-neighbour-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1A7",
+              "says": "bilinear-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B1",
+              "says": "convolution has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B2",
+              "says": "padding-border-rules has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B5",
+              "says": "separable-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B6",
+              "says": "gaussian-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B7",
+              "says": "sobel-filter has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B8",
+              "says": "image-gradient has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "2B9",
+              "says": "colour-filtering has no practice slot before the next point",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -369,6 +732,35 @@
         },
         {
           "at": "2026-11-03T00:54:46.054Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T10:29:25.334Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "pd-repeat-text",
+              "at": "1A4 tasks[2].intro[0].t",
+              "says": "“这一步接一块电路：输入从左边进来，输出从右边出去，测试和隐藏测试都对才算对。” is also 1A1 tasks[1].intro[0].t"
+            },
+            {
+              "rule": "pd-repeat-text",
+              "at": "2B1 tasks[2].intro[0].t",
+              "says": "“这一步接一块电路：输入从左边进来，输出从右边出去，测试和隐藏测试都对才算对。” is also 1A1 tasks[1].intro[0].t"
+            }
+          ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T10:30:02.402Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T10:38:49.194Z",
           "ok": true,
           "failures": [],
           "reports": []
@@ -432,6 +824,55 @@
         },
         {
           "at": "2026-11-03T01:00:59.901Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T10:29:30.425Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "copy-length",
+              "says": "71 characters (zh), 176 (en); at most 70 and 210",
+              "at": "1A3.after"
+            },
+            {
+              "rule": "copy-length",
+              "says": "76 characters (zh), 137 (en); at most 70 and 210",
+              "at": "1A4.after"
+            },
+            {
+              "rule": "copy-length",
+              "says": "71 characters (zh), 156 (en); at most 70 and 210",
+              "at": "1A7.after"
+            },
+            {
+              "rule": "copy-length",
+              "says": "77 characters (zh), 179 (en); at most 70 and 210",
+              "at": "1W2.after"
+            },
+            {
+              "rule": "pd-repeat-text",
+              "at": "1A4 tasks[2].intro[0].t",
+              "says": "“这一步接一块电路：输入从左边进来，输出从右边出去，测试和隐藏测试都对才算对。” is also 1A1 tasks[1].intro[0].t"
+            },
+            {
+              "rule": "pd-repeat-text",
+              "at": "2B1 tasks[2].intro[0].t",
+              "says": "“这一步接一块电路：输入从左边进来，输出从右边出去，测试和隐藏测试都对才算对。” is also 1A1 tasks[1].intro[0].t"
+            }
+          ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T10:30:07.431Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T10:38:53.950Z",
           "ok": true,
           "failures": [],
           "reports": []

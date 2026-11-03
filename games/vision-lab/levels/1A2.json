@@ -1,26 +1,110 @@
 {
-  "title": { "zh": "一张图能说明什么", "en": "What one image settles" },
+  "title": { "zh": "很多场景，同一张图", "en": "Many scenes, one picture" },
   "intro": [
     {
       "t": {
-        "zh": "画一张图是由场景到图像：物体、光照、相机都给定，图就定了，这是<wiki-ref to=\"graphics-vision\"></wiki-ref>里图形学的方向。视觉走反方向，手里只有图，要说出场景是什么样。",
-        "en": "Drawing goes from scene to image: given the objects, the light and the camera, the image is settled; that is the graphics side of <wiki-ref to=\"graphics-vision\"></wiki-ref>. Vision goes the other way: it holds only the image and must say what the scene is like."
+        "zh": "投影把场景变成图，方向是正的：给定场景，图就定了，这是图形学的方向。视觉反过来，手里只有图，要说出场景（<wiki-ref to=\"vision-task-outputs\"></wiki-ref>有类别、位置、每个像素的标签等各种形式）。",
+        "en": "Projection turns a scene into a picture, the forward way: given the scene, the picture is settled, as in graphics. Vision goes back, from the picture to the scene (its <wiki-ref to=\"vision-task-outputs\"></wiki-ref> take many forms: a class, a location, a label per pixel)."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：只看一张图，场景里哪些事能确定，哪些确定不了？每一轮给一张图，图旁写着这一轮已知的事。判断关于场景的每句话：凡是渲得出这张图、又符合已知的场景里它都成立，选「成立」；都不成立，选「不成立」；有的成立、有的不成立，选「无法确定」。",
-        "en": "This level asks: from one image alone, what about the scene can be settled and what cannot? Each round gives an image, with what the round lets you know beside it. Judge each statement about the scene: true in every scene that renders this image and fits what is known, Supported; false in all of them, Contradicted; true in some and false in others, Undetermined."
+        "zh": "这一关的问题是：从一张图倒推回去，场景能定下来吗？先用投影的关系找出成一样大的像的物体，再判断关于一张图里的场景，哪些话一定成立、哪些一定不成立、哪些定不下来。",
+        "en": "This level asks: going back from a picture, is the scene settled? First use the projection relation to find objects that image equally tall; then judge which statements about a pictured scene must hold, must fail, or cannot be settled."
       }
     }
   ],
   "after": {
-    "zh": "从图推回场景是<wiki-ref to=\"inverse-problem\"></wiki-ref>：大而远和小而近渲出同一张图。图只能确定所有相容场景都同意的事，距离要靠别的线索。",
-    "en": "Going from an image back to a scene is an <wiki-ref to=\"inverse-problem\"></wiki-ref>: big-and-far renders like small-and-near. An image settles only what every compatible scene agrees on; distance needs another cue."
+    "zh": "这是<wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>：投影丢了深度，大而远和小而近拍出同一张图，从图推场景常有不止一个答案。",
+    "en": "This is the <wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>: projection drops depth; big-and-far pictures like small-and-near, so a picture often has more than one scene behind it."
   },
   "tasks": [
     {
-      "id": "1P4",
+      "id": "1A2",
+      "kind": "choice",
+      "brief": {
+        "zh": "f = 2：选出像高都是 1、距离各不相同的两组以上。",
+        "en": "f = 2: choose two or more pairs that all image 1 tall, at different distances."
+      },
+      "hint": [
+        {
+          "zh": "像高 h = fH/Z。物高和距离一起翻倍，h 怎样变？",
+          "en": "The image height is h = fH/Z. When height and distance both double, what happens to h?"
+        }
+      ],
+      "judge": { "project": { "f": 2, "target": 1 } },
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "哪几组的像高都是 1、距离又各不相同？",
+                "en": "Which pairs all image 1 tall, at different distances?"
+              }
+            }
+          ],
+          "options": [
+            { "id": "a", "label": { "zh": "红箱：高 1，距离 2", "en": "Red crate: 1 tall, 2 away" }, "H": 1, "Z": 2 },
+            { "id": "b", "label": { "zh": "蓝箱：高 2，距离 4", "en": "Blue crate: 2 tall, 4 away" }, "H": 2, "Z": 4 },
+            {
+              "id": "c",
+              "label": { "zh": "黄箱：高 2，距离 2", "en": "Yellow crate: 2 tall, 2 away" },
+              "H": 2,
+              "Z": 2
+            },
+            {
+              "id": "d",
+              "label": { "zh": "绿箱：高 3，距离 5", "en": "Green crate: 3 tall, 5 away" },
+              "H": 3,
+              "Z": 5
+            },
+            {
+              "id": "e",
+              "label": { "zh": "白箱：高 1.5，距离 3", "en": "White crate: 1.5 tall, 3 away" },
+              "H": 1.5,
+              "Z": 3
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "换一批：哪几组的像高都是 1、距离又各不相同？",
+                "en": "Another set: which pairs all image 1 tall, at different distances?"
+              }
+            }
+          ],
+          "options": [
+            {
+              "id": "a",
+              "label": { "zh": "灯塔模型：高 0.5，距离 1", "en": "Model lighthouse: 0.5 tall, 1 away" },
+              "H": 0.5,
+              "Z": 1
+            },
+            { "id": "b", "label": { "zh": "灯塔：高 4，距离 8", "en": "Lighthouse: 4 tall, 8 away" }, "H": 4, "Z": 8 },
+            {
+              "id": "c",
+              "label": { "zh": "路灯：高 3，距离 9", "en": "Street lamp: 3 tall, 9 away" },
+              "H": 3,
+              "Z": 9
+            },
+            { "id": "d", "label": { "zh": "烟囱：高 5，距离 10", "en": "Chimney: 5 tall, 10 away" }, "H": 5, "Z": 10 },
+            { "id": "e", "label": { "zh": "电线杆：高 3，距离 6", "en": "Pole: 3 tall, 6 away" }, "H": 3, "Z": 6 }
+          ]
+        }
+      ],
+      "naive": {
+        "picks": [[["b", "c"]], [["c", "e"]]],
+        "why": {
+          "zh": "挑了一样高的物体：可像高还取决于距离，高 2 的箱子在距离 2 处成的像高 2。成一样高的像的，是 H/Z 相同的那些。",
+          "en": "That picks objects of one height, but the image also depends on distance: the crate 2 tall at distance 2 images 2 tall. Equal images come from equal H/Z."
+        }
+      },
+      "step": { "zh": "一样高的像", "en": "Equal images" }
+    },
+    {
+      "id": "1A2_2",
       "kind": "choice",
       "brief": {
         "zh": "判断关于场景的每句话：成立、不成立，还是无法确定。",
@@ -214,7 +298,8 @@
           "zh": "把给出的那个场景当成了真实的场景：可放大一倍又推远一倍的场景渲出同一张图，一张图只定下每个物体的 H/Z。知道红色立方体边长 1 米，按 H/Z 定下它离相机 6 米；蓝色立方体的边长不知道，它的距离和大小仍然定不了。",
           "en": "That takes the scene given as the real one, but a scene scaled up and pushed back as much renders the same picture: an image fixes only each object's H/Z. Knowing the red cube is 1 m fixes its distance at 6 m by H/Z; the blue cube's size is unknown, so its distance and size stay open."
         }
-      }
+      },
+      "step": { "zh": "一张图能说明什么", "en": "What a picture settles" }
     }
   ]
 }

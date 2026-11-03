@@ -1,6 +1,6 @@
 // What the vision domain's cards are called and what they do, for the boards, the tray and the components box. A
 // part's description says only what it does (games/DESIGN.md 4).
-import { ArrowDown, ArrowRightFromLine, Blend, ChevronsDown, Divide, Grid3x3, Hash, Layers, Maximize2, Minus, MoveDown, MoveUp, Plus, ScanSearch, Split, X } from 'lucide-react'
+import { ArrowDown, ArrowRightFromLine, Blend, ChevronsDown, Divide, Grid3x3, Hash, Layers, Maximize2, Minus, MoveDown, MoveUp, Plus, Radical, ScanSearch, Split, X } from 'lucide-react'
 
 const T = (zh, en) => ({ zh, en })
 
@@ -16,6 +16,7 @@ export const CARDS = {
   mul: { name: T('相乘', 'Multiply'), icon: X, family: 'value', desc: each('给出两者之积。', 'Gives the product of the two.') },
   div: { name: T('相除', 'Divide'), icon: Divide, family: 'value', desc: each('给出 a 除以 b；除以 0 时停下报错。', 'Gives a divided by b; dividing by 0 stops with an error.') },
   floor: { name: T('向下取整', 'Floor'), icon: ArrowDown, family: 'value', desc: each('给出不大于它的最大整数。', 'Gives the largest whole number not above it.') },
+  sqrt: { name: T('开平方', 'Square root'), icon: Radical, family: 'value', desc: each('给出它的平方根；负数停下报错。', 'Gives its square root; a negative number stops with an error.') },
   min: { name: T('取小', 'Min'), icon: MoveDown, family: 'value', desc: each('给出两者中小的那个。', 'Gives the smaller of the two.') },
   max: { name: T('取大', 'Max'), icon: MoveUp, family: 'value', desc: each('给出两者中大的那个。', 'Gives the larger of the two.') },
   less: { name: T('小于', 'Less'), icon: ChevronsDown, family: 'logic', desc: each('a 小于 b 时给出 1，否则给出 0。', 'Gives 1 where a is less than b, else 0.') },
