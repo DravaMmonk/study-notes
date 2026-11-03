@@ -259,6 +259,7 @@
 - **板上的东西都叫元件。** 文案里不说「卡片」「块」：放在板上的、托盘里的、元件箱里的都是元件。手机上也不报格子的序号：放元件时说「放在这一格」「放下了「① 套用」」，用元件的编号和名字指它。
 - **文案里不手写第几关。** 关卡号会随重排变化：文案里指代前面学过的东西，用元件名，或者链接到那一关；链接自己显示关卡号，重排后跟着变。
 - **引述关卡、元件、百科词条一律用链接。** 关卡写 `<level-ref to="关卡 id"></level-ref>`，元件箱里的元件写 `<part-ref to="元件的 key"></part-ref>`，百科词条写 `<wiki-ref to="词条 id"></wiki-ref>`（`kit/shell/refs.js`），中英两面都写。它们显示成带图标的名字（关卡还带关卡号），显示时从游戏里读，重排、改名都不用改文案。玩家点关卡，确认后跳过去；点元件或词条，直接打开元件箱或百科翻到那一条；还没解锁的，告诉玩家玩到哪一关时打开。不写「名字」，也不写"上一关""前两关""下一关""the last level"这类按位置的说法：顺序会变，按位置的说法会悄悄变错，链接不会。泛指一段经历时（"到这里为止""前面练过的几步"）不算引述，不用链接。被引述的关卡应当是这一关的先修；引述后面的关就是往后透露。`npm run check` 查：引用的东西存在、中英两面引用同一批、没有按位置指关卡、没有用「名字」代替链接；一个名字在某处说的是别的东西时（一句口头禅、一个按钮），在规格的 `quotes` 里列出，引号里的它就照字面用。
+- **Define terms before relying on them (manual review).** For every level and its ordered tasks, read the intro, brief, hints and pass text in both languages. Check each subject-specific term against an actual explanation in the current text or an earlier, guaranteed prerequisite; within a task, a pass-text explanation cannot justify an unexplained term in the intro or hints. A definition on an optional or parallel branch, a later task, a locked glossary entry, or only in the designer's notes does not count. An available glossary definition counts when linked at first use; a name or link without an explanation does not. If the term names something in a diagram, identify the corresponding visible element with a label or an explicit description: an unexplained dashed line is not a definition of “optical axis.” Reviewers record the term, language, level/task and text field, where its definition is available (or that none is), and the required fix. Missing definitions block review; fix copy at first use, or correct prerequisites when an existing explanation is genuinely required. Do not reveal the puzzle's solution to define a term. This is a semantic review requirement, not a guarantee provided by the link checker or copy lint.
 - **专有名词都有词条，并在引入它的地方链接。** 学科的每个专有名词在百科里有自己的一条，标题就是这个词，写成它在句子里的样子（英文小写，人名、专名除外；列表和标题里首字母自动大写），因为链接在正文里显示的就是标题。文案里原来加粗定义一个词的地方，换成 `<wiki-ref>`；中英两面的句子要写成链接放进去读得通（「这叫[逆否]」「This is the [contrapositive]」），英文不要在链接后面加 s。概括性的词条拆成一个词一条，用 `see` 互相连起来。
 - **链接打开的必须是已经解锁的东西。** 词条在 `at` 那一关打开，元件在搭出它（或带来它）的那一关拿到；关卡文案里链接的词条或元件，必须在这一关或它的先修关里解锁，词条正文里链接的词条也不能比它自己晚开，否则点开只得到一句「还没解锁」。并行组里只有一条路经过的关不算先修。`npm run check` 查这一条。点链接时，百科和元件箱直接翻到那一条（手机上也不停在列表），列表滚到它的位置。
 - **改了顺序就重核文案。** 链接到的关卡要仍是先修，"又是一个""新元件「…」"这类说法要在每一条先修路线上都成立（第 2 节）；并行组里先走另一路的学习者，不能读到一句不成立的话。
@@ -271,6 +272,7 @@
 
 | 规则 | 检查 | 状态 |
 |---|---|---|
+| Subject-specific terms are explained by first use, including diagram referents and task timing | Review step and Copy checklist: inspect actual definitions along guaranteed prerequisite paths | Manual review; not detected by `npm run check` or copy lint |
 | 关卡新带来的每个元件，要么是原始元件，要么已被更早的关卡搭出 | `npm run check`（kit/course.js 的 `audit`） | 已实现 |
 | 一个元件不能在"搭出它"的那一关就直接给出 | 同上（`own-level`） | 已实现 |
 | 不由关卡直接发放元件（`grants`） | 同上（`granted`） | 已实现 |

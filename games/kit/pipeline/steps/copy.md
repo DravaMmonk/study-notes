@@ -27,6 +27,12 @@ in Chinese and English, through the operation set. You change no test, board or 
 - References are links: `<level-ref to="id"></level-ref>` (only to a prerequisite), `<part-ref to="key"></part-ref>`
   (`part:<primitive>` or a built part's type), `<wiki-ref to="entry"></wiki-ref>`, on both sides. Every term of the
   field gets an entry (`glossary.put`, `at` the level where it comes in) linked where it is introduced.
+- Define subject-specific terms when they first appear, before relying on them in the intro, brief, hints or
+  pass text (including task-level copy). An explanation must be in the current text or an earlier guaranteed
+  prerequisite; later tasks, optional/parallel branches and pass text shown only after the earlier use do not count.
+  Link an available glossary definition at first use, and identify named diagram elements with labels or explicit
+  descriptions. Do not assume an unexplained dashed line teaches “optical axis.” Check both languages. This needs
+  manual reading even when `./lint` and `./check` pass; fix what the term means without revealing the solution.
 - Both sides real. Chinese: 书面语, no 「进行」「被引入」「搞定」, no 卡片/块 for parts. English: idiomatic, the
   field's own terms.
 

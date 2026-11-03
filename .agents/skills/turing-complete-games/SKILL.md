@@ -153,6 +153,14 @@ shows them at work in 《证明完毕》):
 
 The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and part description against them:
 
+- **Terms are explained by first use** (handbook §4; manual review). For each level and ordered task, inspect
+  intro, brief, every hint and pass text in both languages. Locate an actual explanation in the current text or
+  an earlier guaranteed prerequisite, not a later task, optional/parallel branch or author-only notes. A pass-text
+  definition cannot justify earlier unexplained use; an unlocked glossary entry counts when linked at first use
+  and actually defines the term. Match diagram terms to labelled or explicitly identified visible elements; a
+  bare name, link or unexplained dashed line is insufficient. Record the term, language, level/task, field and
+  definition location (or absence); report missing definitions as blocking findings. Define what the term means
+  without giving the solution. Link checks and copy lint do not perform this semantic check.
 - No spoiler of a core idea of the topic (a recurrence, why a merge operation is right); say what a part does,
   never why it solves the level. Mechanical levels may hand-hold.
 - **Pass texts never touch the answer (hard rule).** A pass text says nothing of the level's answer, wiring or way of
