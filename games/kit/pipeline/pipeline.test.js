@@ -187,3 +187,25 @@ test('serial chapters are review candidates; optional topics do not count as req
   assert.deepEqual(found([{ ...serial, foundation: [{ parallel: [{ id: 'left', levels: ['a'] }, { id: 'right', levels: ['b'] }] }], practice: ['join'] }]), [])
   assert.equal(found([{ ...serial, foundation: [{ parallel: [{ id: 'left', levels: ['a', 'b'] }, { id: 'empty', levels: [] }] }], practice: [] }]).length, 1, 'an empty second branch does not establish a choice of order')
 })
+
+test('terminology review inspects both task overrides and glossary bodies through the schema', async () => {
+  const { S } = await import('../engine/schema.js')
+  const { taskLevel } = await import('../engine/tasks.js')
+  const { reviewTerminology } = await import('./terminology.js')
+  const vocabulary = { game: S.obj({ title: S.text() }), level: taskLevel({ title: S.text() }, { brief: S.text(), hint: S.opt(S.list(S.text())) }) }
+  const content = {
+    id: 'toy', domain: 'toy', vocabulary: 1, title: t('Toy'), eras: [],
+    levels: [{ id: 'a', title: t('A'), tasks: [{ id: 'a', brief: t('Find the point.') }, { id: 'a_2', brief: t('<wiki-ref to="late"></wiki-ref>') }] }],
+    glossary: { groups: [], entries: [
+      { id: 'late', group: 'g', at: 'b', title: { zh: '光轴', en: 'Optical axis' }, aliases: ['OA'], body: [t('A geometric line.')] },
+      { id: 'global', group: 'g', title: t('Camera'), body: [t('Refer to <wiki-ref to="late"></wiki-ref>.')] },
+    ] },
+  }
+  const spec = { course: { before: () => false } }
+  const result = reviewTerminology(content, spec, vocabulary)
+  assert.equal(result.failures.filter((f) => f.rule === 'term-unavailable').length, 4)
+  assert.ok(result.failures.some((f) => f.at === 'levels/a.json:tasks.1.brief.en'))
+  assert.ok(result.failures.some((f) => f.at === 'glossary.json:entries.1.body.0.zh'))
+  assert.equal(result.terms[0].body, content.glossary.entries[0].body)
+  assert.equal(result.reports.length, 0, 'aliases and titles are registry metadata, not bare prose')
+})

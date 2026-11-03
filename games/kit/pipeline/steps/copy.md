@@ -20,6 +20,11 @@ in Chinese and English, through the operation set. You change no test, board or 
 
 ## Rules to hold
 
+- Treat `glossary.json` as the professional-term registry: canonical `title`, optional bilingual `aliases`, the
+  existing `body` as explanation and `at` as opening level. Use term references in prose, and registered names for
+  concise labels. Do not create another definition field. Run `./terminology` for registry/reference errors and
+  known bare-name candidates; independently inventory unregistered terms, including diagram/control vocabulary.
+
 - An intro is complete: where the machine (or the level before it) is stuck, in the field's words; the slot's question;
   what is given; what counts as right. A new part is named only after the need for it is said. A practice level's
   intro says which facet is new. An era's first level says what module the era adds and why the last machine is not

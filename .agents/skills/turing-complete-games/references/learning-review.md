@@ -122,3 +122,18 @@ Run `npm run pipeline -- <game> pedagogy` from `trace-viewer/` (the review agent
 machine-observable risks, including wholly serial chapter topology, without creating a pipeline run, gate or
 changeset. REPORT findings do not fail the command; deterministic FAIL findings do. A clean exit is not semantic
 approval. Complete the worksheet and resolve the learning blockers through the appropriate design/domain step.
+
+## Registered terminology review
+
+`npm run pipeline -- <game> terminology --json` reads the game's existing glossary and schema-declared content,
+without writing content or review state. Titles/aliases form the term names; existing entry bodies are the
+explanations, available at their existing `at` level (or globally when omitted). No task-level opening behaviour is
+introduced. Before adding a new timing field, specify its UI and migration semantics; do not pretend a metadata
+field changes when an explanation can be opened.
+
+Automatic failures cover empty definitions/names, duplicate ids, conflicting names/aliases, unregistered explicit
+references and unavailable explanations. Bare occurrences of registered names are review candidates because the
+same spelling may be ordinary language. Independently extract technical terms missing from the registry and inspect
+domain UI/diagram vocabulary not held in schema-declared content. Every confirmed unregistered or unlinked
+professional use blocks semantic approval. The dictionary and text must be corrected through existing glossary/text
+operations, not by auto-generating definitions or duplicating the registry.

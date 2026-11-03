@@ -327,6 +327,27 @@
 
 ---
 
+### Registered terminology
+
+Each game's `glossary.json` is its sole professional-term registry. An entry's existing `title` is the canonical
+name and its existing `body` is the explanation; do not add a second definition or summary field. Optional
+`aliases` is a list of bilingual text pairs (a language-neutral abbreviation may be a string). Canonical names and
+aliases identify one entry unambiguously within each language. `at` retains its current meaning: the entry is
+available on entering that level and its guaranteed successors; omitted `at` means available from the start.
+
+Use `<wiki-ref>` for professional terms in prose. The referenced entry must exist, contain nonempty explanatory
+text in both languages, and be available where it is referenced. A link opens the explanation, so its mere presence
+does not prove the player has internalised a hard concept. Titles and concise diagram/control labels may use a
+registered name directly; they do not count as explanations or allow a required route to depend on an optional one.
+
+`npm run check` checks registry integrity. `npm run pipeline -- <game> terminology` additionally checks references
+through schema-declared content, reports literal unlinked occurrences of known names/aliases, and supplies the
+registry for semantic review (`--json` for the full record). A literal occurrence can be an ordinary word, so it is a
+candidate, not an automatic semantic failure. Reviewers must also extract professional terms missing from the
+registry, including terms in domain UI/diagram text, and report confirmed unregistered or unlinked technical usage
+as blockers. Automated success is not a proof that all prose uses only registered terms. No closed-word-list regex
+claims to classify arbitrary Chinese or English technical language.
+
 ### 4.3 Learning routes, guidance and bench acceptance
 
 Required parallel routes let the learner choose study order, not skip core knowledge: each route develops an

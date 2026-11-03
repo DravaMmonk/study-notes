@@ -217,6 +217,12 @@ shows them at work in 《证明完毕》):
 
 The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and part description against them:
 
+- **One term registry per game** (handbook §4). Use `glossary.json`: canonical titles, optional bilingual `aliases`,
+  existing entry `body` as explanation and `at` as opening level. No parallel simple-definition field. Prose uses
+  term references; concise labels may use registered names. `./terminology --json` gives registry/reference errors
+  and literal bare-name candidates. Semantic review independently inventories terms absent from the dictionary,
+  including domain UI/diagram labels, then reconciles every candidate. Do not mistake ordinary-language matches
+  for professional usage or infer completeness from a clean lookup.
 - **Terms are explained by first use** (handbook §4; manual review). For each level and ordered task, inspect
   intro, brief, every hint and pass text in both languages. Locate an actual explanation in the current text or
   an earlier guaranteed prerequisite, not a later task, optional/parallel branch or author-only notes. A pass-text

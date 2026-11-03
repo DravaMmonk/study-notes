@@ -20,6 +20,7 @@ import { hubCount } from '../engine/ops/workspace.js'
 import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { lintPedagogy } from './pedagogy.js'
+import { reviewTerminology } from './terminology.js'
 
 export const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const finding = (rule, at, says) => ({ rule, at, says })
@@ -54,6 +55,13 @@ export async function pedagogyOf(id) {
   const domain = await domainOf(content)
   const all = lintPedagogy(content, domain.spec(content))
   return { failures: all.filter((f) => !f.report), reports: all.filter((f) => f.report) }
+}
+
+/** The per-game term dictionary and its usage; this reads no saved review status and writes no content. */
+export async function terminologyOf(id) {
+  const content = readContent(id)
+  const domain = await domainOf(content)
+  return reviewTerminology(content, domain.spec(content), domain.vocabulary)
 }
 
 /** The last run of a step recorded in the game's pipeline state. */
@@ -104,22 +112,24 @@ export const STEPS = [
     id: 'copy',
     who: 'agent',
     role: 'copy writer',
-    commands: ['op', 'check', 'gate', 'lint', 'pedagogy'],
+    commands: ['op', 'check', 'gate', 'lint', 'pedagogy', 'terminology'],
     gate: async (id) => {
       const pedagogy = await pedagogyOf(id)
-      return { failures: [...(await checks(id)), ...(await conformanceOf(id)), ...lintCopy(readContent(id)), ...pedagogy.failures], reports: pedagogy.reports }
+      const terms = await terminologyOf(id)
+      return { failures: [...(await checks(id)), ...(await conformanceOf(id)), ...lintCopy(readContent(id)), ...pedagogy.failures, ...terms.failures], reports: [...pedagogy.reports, ...terms.reports] }
     },
   },
   {
     id: 'review',
     who: 'agent',
     role: 'reviewer',
-    commands: ['check', 'lint', 'deps', 'pedagogy'],
+    commands: ['check', 'lint', 'deps', 'pedagogy', 'terminology'],
     gate: async (id, state) => {
+      const terms = await terminologyOf(id)
       const run = lastRun(state, 'review')
-      if (!run?.findings) return { failures: [finding('review-missing', id, 'no review has run')], reports: [] }
+      if (!run?.findings) return { failures: [...terms.failures, finding('review-missing', id, 'no review has run')], reports: terms.reports }
       const open = run.findings.filter((f) => f.fix && !f.resolved)
-      return { failures: open.map((f) => finding('review', f.at, `${f.owner}: ${f.says}`)), reports: run.findings.filter((f) => !f.fix).map((f) => finding('review-note', f.at, f.says)) }
+      return { failures: [...terms.failures, ...open.map((f) => finding('review', f.at, `${f.owner}: ${f.says}`))], reports: [...terms.reports, ...run.findings.filter((f) => !f.fix).map((f) => finding('review-note', f.at, f.says))] }
     },
   },
   {

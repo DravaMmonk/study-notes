@@ -10,6 +10,7 @@
 //                                  it the last report of a later step that stopped on this one's product
 //   gate <step>                    run the step's gate and record it; exit 1 when it fails
 //   eras                           game.json's eras as the blueprint lays them out (for the level designer)
+//   terminology [--json]           read-only term registry, reference errors and literal-name review candidates
 //   pedagogy                       read-only structural pedagogy findings (no pipeline state written)
 //   lint                           the copy lint
 //   vocab                          the domain's vocabulary and the operations, as JSON
@@ -29,9 +30,9 @@ import { OPERATIONS } from '../engine/ops/operations.js'
 import { knownGames } from '../engine/cli-args.js'
 import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
-import { GAMES_DIR, STEPS, briefOf, pedagogyOf, stepOf } from './steps.js'
+import { GAMES_DIR, STEPS, briefOf, pedagogyOf, stepOf, terminologyOf } from './steps.js'
 
-const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | pedagogy | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
+const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | pedagogy | terminology [--json] | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
 const argv = process.argv.slice(2)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
 const words = argv.filter((a, k) => !a.startsWith('--') && !argv[k - 1]?.startsWith('--'))
@@ -71,6 +72,7 @@ const COMMANDS = {
   eras: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} eras`, about: './eras   game.json\'s eras as the blueprint lays them out' },
   lint: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} lint`, about: './lint   the copy lint' },
   pedagogy: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} pedagogy`, about: './pedagogy   read-only structural pedagogy findings; reports still need semantic review' },
+  terminology: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} terminology "$@"`, about: './terminology [--json]   this game\'s glossary registry, reference checks and literal-name candidates for semantic review' },
 }
 
 function inputs(step, state, scope) {
@@ -189,6 +191,14 @@ if (command === 'status') {
     console.error(`${game} has no blueprint.json`)
     code = 1
   } else console.log(JSON.stringify(erasOf(blueprint), null, 1))
+} else if (command === 'terminology') {
+  const result = await terminologyOf(game)
+  if (argv.includes('--json')) console.log(JSON.stringify(result, null, 2))
+  else {
+    console.log(`${result.terms.length} registered terms; definitions are the existing entry bodies`)
+    show(result, 'no registry/reference errors; terminology completeness still requires semantic review')
+  }
+  code = result.failures.length ? 1 : 0
 } else if (command === 'pedagogy') {
   const result = await pedagogyOf(game)
   show(result, 'no structural failures; reports still require semantic review')

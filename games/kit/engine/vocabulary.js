@@ -17,7 +17,7 @@ import { taskIdProblems } from './tasks.js'
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
   groups: S.list(S.obj({ id: S.str(), title: S.text() })),
-  entries: S.list(S.obj({ id: S.str(), group: S.str(), title: S.text(), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.str())) })),
+  entries: S.list(S.obj({ id: S.str(), group: S.str(), title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.str())) })),
 })
 
 /**

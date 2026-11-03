@@ -16,6 +16,7 @@ import { RULE_TEXT, againstOpen, audit } from '../course.js'
 import { REF, refProblems, untranslated } from './text.js'
 import { gameOf } from './games.mjs'
 import { checkContent } from './vocabulary.js'
+import { termRegistry } from './terminology.js'
 
 /**
  * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
@@ -28,6 +29,7 @@ export async function checkGame(content, { domain, listed }) {
   const wrong = checkContent(domain.vocabulary, content)
   for (const p of wrong) fail(`content: ${p.at}: ${p.says}`)
   if (wrong.length) return lines
+  for (const f of termRegistry(content.glossary).failures) fail(`terminology ${f.rule} ${f.at}: ${f.says}`)
   const spec = domain.spec(content)
 
   for (const { rule, fresh, left, gone } of againstOpen([...audit(spec.course), ...(spec.audit?.() ?? [])], content.open ?? {})) {

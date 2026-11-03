@@ -56,6 +56,17 @@ Use the reference's finding IDs and worksheet to ground every blocker. A missing
 
 ## Required terminology pass
 
+Run `./terminology --json` and use the game's `glossary.json` as the only professional-term registry. Its existing
+entry body is the explanation; no separate simple-definition field is maintained. Inspect canonical titles and
+registered aliases. First independently extract professional terms from all player-facing copy, diagrams, control
+labels and domain UI; then reconcile that inventory with the registry. A lookup of registered names alone cannot
+find unregistered terminology. Report confirmed missing terms as `term-unregistered` blockers, and confirmed
+technical bare-name usage as `term-unlinked` blockers; ordinary-language occurrences are not errors merely because
+the same word names a concept. Titles/concise labels may use a registered name directly, but are not explanations.
+
+Resolve every registry/reference FAIL and judge every literal-name REPORT. Add real entries via the operation set;
+never invent a definition just to silence the checker. Preserve the name/source vocabulary of the field. Then:
+
 Review every level and its tasks in player-visible order, in both languages. Inspect the intro, brief, every hint
 and pass text (`after`), including task overrides. For each subject-specific term:
 
