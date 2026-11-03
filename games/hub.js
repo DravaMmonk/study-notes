@@ -40,7 +40,7 @@ function render() {
 }
 
 function paintPage() {
-  document.title = tr('游戏 — 学习笔记', 'Games — Study Notes');
+  document.title = tr('课程解谜 · Course Puzzles', 'Course Puzzles · 课程解谜');
   document.querySelector('meta[name="description"]').content = tr('把课程做成解谜关卡的学习游戏：视觉完备（计算机视觉）、状态之图（动态规划）、证明完毕（形式化证明）、句法之图（英语语法）。', 'Courses turned into puzzle games: Vision Complete (computer vision), State Graph (dynamic programming), Q.E.D. (formal proof) and Syntax Graph (English grammar).');
 }
 

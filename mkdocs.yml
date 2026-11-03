@@ -1,4 +1,5 @@
 site_name: Drava's Study Notes
+site_url: https://dravammonk.github.io/study-notes/
 
 theme:
   name: material
@@ -37,7 +38,7 @@ markdown_extensions:
       generic: true
 
 hooks:
-  - hooks/games.py
+  - hooks/ui.py
   - hooks/i18n.py
 
 plugins:
@@ -51,11 +52,11 @@ extra_javascript:
   - javascripts/site.js
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
-# The shared kit lives in games/kit and is published at game/kit/ (hooks/games.py).
+# The notes package only their shared UI assets (hooks/ui.py).
 extra_css:
-  - game/kit/tokens.css
-  - game/kit/ui.css
-  - game/kit/prose.css
+  - assets/kit/tokens.css
+  - assets/kit/ui.css
+  - assets/kit/prose.css
   - stylesheets/extra.css
 
 extra:

@@ -42,7 +42,7 @@ languages.
 
 ## Domain requirements and candidate learning routes
 
-The [domain contract](../../../../../games/kit/domains/vision/DESIGN.md) separates numerical validity, explanatory
+The domain contract (`games/kit/domains/vision/DESIGN.md`) separates numerical validity, explanatory
 geometry and visual acceptance. It requires named referents/measurements, explicit units and coordinate frames,
 stable controlled comparisons, a meaningful discovery/assessment distinction and high-quality legible interaction.
 These capabilities are requirements to meet, not claims that new displays have already shipped.

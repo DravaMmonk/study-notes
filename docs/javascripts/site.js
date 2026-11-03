@@ -4,7 +4,7 @@
 //
 // hooks/i18n.py puts window.__i18n on every page: this page's language, every note/translation pair and the
 // Chinese folder titles, and has already sent a reader of the other language to the other version. Here the
-// header gets the kit's Notes/Games links and the language and theme buttons; links to notes are pointed at the
+// header gets the language and theme buttons; links to notes are pointed at the
 // reader's language, with titles to match.
 (function () {
   const LANG_KEY = 'fieldnotes.lang';
@@ -81,9 +81,9 @@
     if (!inner) return;
     const actions = document.createElement('div');
     actions.className = 'kit-actions';
-    // The kit's language and theme menus (games/kit/menu.js, published at game/kit/), as on every other page. A
+    // The kit's language and theme menus are packaged with the notes at assets/kit/. A
     // language is a different page here, so picking one goes to this page's translation.
-    import(root() + 'game/kit/menu.js').then(({ mountBarMenus }) => mountBarMenus(actions, {
+    import(root() + 'assets/kit/menu.js').then(({ mountBarMenus }) => mountBarMenus(actions, {
       onLang: (next) => {
         try { localStorage.setItem(LANG_KEY, next); } catch (e) { /* the switch still happens for this page */ }
         if (here && here[next]) location.href = absolute(here[next].url) + location.hash;

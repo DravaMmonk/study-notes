@@ -17,8 +17,7 @@ import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slot
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { EditContext, same } from './edit.js'
 
-// Every game sits at game/<id>/index.html, under the games hub (game/index.html): on the published site, and on the
-// dev server too (trace-viewer/vite.config.js).
+// Each game links back to its parent hub, on the standalone site and the local dev server.
 const SITE = { games: '../index.html' }
 
 /**

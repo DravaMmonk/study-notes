@@ -1,0 +1,47 @@
+# Publish the standalone games site to /games/; keep source in study-notes.
+name: Deploy games
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'games/**'
+      - 'trace-viewer/**'
+      - '.github/workflows/deploy-games.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-games
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trace-viewer
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Replay tests rebuild content from earlier commits.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: trace-viewer/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run conform
+      - run: npm run check
+      - run: npm run build:games
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.GAMES_DEPLOY_KEY }}
+          external_repository: DravaMmonk/games
+          publish_branch: gh-pages
+          publish_dir: trace-viewer/dist-games
+          commit_message: 'deploy: games'

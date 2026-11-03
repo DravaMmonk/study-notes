@@ -37,7 +37,7 @@ Preview one figure on its own at `/figures.html?fig=conv-press&theme=light` (the
 
 ## Vision Complete (视觉完备)
 
-`game.html` is a puzzle game that turns COMP90086 into levels in the manner of *Turing Complete*: each level gives a goal, a few parts and a set of test images; the player wires an image pipeline on a board and every test runs live. Solving a level unlocks its part for later levels. Open it from the puzzle icon in the Fieldnotes top bar or at `/game.html`; progress is kept in the browser. It is published at `/study-notes/game/vision-complete/`, under the games hub in `../games/`.
+`game.html` is a puzzle game that turns COMP90086 into levels in the manner of *Turing Complete*: each level gives a goal, a few parts and a set of test images; the player wires an image pipeline on a board and every test runs live. Solving a level unlocks its part for later levels. During development, open `/game/vision-complete/index.html`; progress is kept in the browser. Production games belong to the independent Course Puzzles site at `/games/vision-complete/`, with no navigation links to or from the notes. `npm run build:games` builds the complete site into `dist-games/`, and `npm run preview:games` previews that output.
 
 
 - The game is built here on the shared kit (`../games/kit/`): `game.html` is every game's page (`src/game.js` loads `../games/kit/app`), `GAME=vision-complete npm run build:game` builds it into `dist-games/vision-complete/`. Its spec — levels, intros, encyclopedia — is `../games/vision-complete/`; what runs it (images, parts, benches, screens) is `../games/kit/domains/image/`. `npm run check` checks every game's levels.

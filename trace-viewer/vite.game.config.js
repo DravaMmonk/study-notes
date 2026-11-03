@@ -5,8 +5,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { gameApp } from '../games/kit/app/vite.js'
 
-// One game on its own, for GitHub Pages: `GAME=<id> npm run build:game` writes dist-games/<id>/ with the game as
-// index.html and relative paths, so it works from any sub-folder (the site puts it at game/<id>/, hooks/games.py).
+// `GAME=<id> npm run build:game` writes dist-games/<id>/ with relative paths, under the standalone games hub.
 // Every game's page is game.html and its entry games/kit/app; the game itself is games/<id>.
 const game = process.env.GAME
 if (!game) throw new Error('GAME=<id> names the game to build (an id in games/games.js)')
@@ -14,6 +13,7 @@ const outDir = resolve(import.meta.dirname, 'dist-games', game)
 
 export default defineConfig({
   base: './',
+  publicDir: false,
   mode: 'game',
   // The shared kit lives outside this project (games/kit); resolve its React from here.
   resolve: { dedupe: ['react', 'react-dom', 'lucide-react'] },

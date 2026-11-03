@@ -1,12 +1,22 @@
-# Publish the whole site to GitHub Pages at /study-notes/ on every push to main: the notes (MkDocs, from docs/) and,
-# under game/, the games hub and shared kit from games/ with both games built from trace-viewer/ on the shared game
-# shell (Vision Complete into game/vision-complete/, 状态之图 into game/state-graph/). The games are built first;
-# the MkDocs hook hooks/games.py then copies them into the site, so one build holds everything.
-name: Deploy site
+# Publish only the notes to /study-notes/. Games have their own deployment.
+name: Deploy notes
 
 on:
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
+      - 'overrides/**'
+      - 'hooks/**'
+      - 'mkdocs.yml'
+      - 'requirements-docs.txt'
+      - 'games/kit/tokens.css'
+      - 'games/kit/ui.css'
+      - 'games/kit/prose.css'
+      - 'games/kit/menu.js'
+      - 'games/kit/lang.js'
+      - 'games/kit/theme.js'
+      - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
 permissions:
@@ -21,24 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          # The operation set's replay tests rebuild past commits' content (games/kit/engine/ops/replay.test.js).
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: trace-viewer/package-lock.json
-      - run: npm ci
-        working-directory: trace-viewer
-      - run: npm test
-        working-directory: trace-viewer
-      - run: npm run conform
-        working-directory: trace-viewer
-      - run: npm run check
-        working-directory: trace-viewer
-      - run: npm run build:games
-        working-directory: trace-viewer
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -51,4 +43,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: site
-          commit_message: 'deploy: site'
+          commit_message: 'deploy: notes'

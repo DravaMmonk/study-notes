@@ -10,7 +10,7 @@ hide:
 <div class="kit-hero" markdown>
 <p class="kit-kicker">墨尔本大学 · 信息技术硕士</p>
 <h1 class="kit-title">Drava 的学习笔记</h1>
-<p class="kit-lede">每门课的讲义笔记，写来在上课、辅导课和考试前快速重读；另有几款解谜游戏，把一门课的核心想法亲手搭一遍。每一页都有中文和英文两个版本，用顶栏的按钮切换。</p>
+<p class="kit-lede">每门课的讲义笔记，写来在上课、辅导课和考试前快速重读。每一页都有中文和英文两个版本，用顶栏的按钮切换。</p>
 </div>
 
 <h2 class="kit-section">2026 年第二学期</h2>
@@ -34,14 +34,6 @@ hide:
 <a class="kit-card" href="Unimelb/25S2/AIP/01-Search.zh.md"><div class="kit-card-body"><span class="kit-card-topic">COMP90054 · 2025 S2</span><span class="kit-card-title">面向自主系统的 AI 规划</span><span class="kit-card-desc">搜索、经典规划、松弛启发式、探索、马尔可夫决策过程，以及到策略近似为止的强化学习。</span><span class="kit-card-foot"><span>11 讲</span><b>阅读 →</b></span></div></a>
 <a class="kit-card" href="Unimelb/25S2/IML/01-probability.zh.md"><div class="kit-card-body"><span class="kit-card-topic">COMP90049 · 2025 S2</span><span class="kit-card-title">机器学习导论</span><span class="kit-card-desc">概率、k 近邻、决策树、朴素贝叶斯、逻辑回归与支持向量机。</span><span class="kit-card-foot"><span>6 讲</span><b>阅读 →</b></span></div></a>
 <a class="kit-card" href="Unimelb/25S2/MoC/01-introduction.md"><div class="kit-card-body"><span class="kit-card-topic">COMP30026 · 2025 S2</span><span class="kit-card-title">计算模型</span><span class="kit-card-desc">笔记还没写。</span><span class="kit-card-foot"><span>整理中</span><b>打开 →</b></span></div></a>
-</div>
-
-<h2 class="kit-section">游戏</h2>
-
-<div class="kit-cards">
-<a class="kit-card" href="game/index.html"><div class="kit-card-body"><span class="kit-card-topic">游戏</span><span class="kit-card-title">游戏导航</span><span class="kit-card-desc">把课程做成解谜关卡：把几个元件接成一台机器，直到测试全部通过。</span><span class="kit-card-foot"><span>2 款游戏</span><b>打开 →</b></span></div></a>
-<a class="kit-card" href="game/vision-complete/index.html"><div class="kit-card-body"><span class="kit-card-topic">COMP90086 · 计算机视觉</span><span class="kit-card-title">视觉完备</span><span class="kit-card-desc">用元件亲手搭出模糊、边缘、角点和视差，最后让机器学会看。</span><span class="kit-card-foot"><span>58 关</span><b>开始 →</b></span></div></a>
-<a class="kit-card" href="game/state-graph/index.html"><div class="kit-card-body"><span class="kit-card-topic">从零开始 · 动态规划</span><span class="kit-card-title">状态之图</span><span class="kit-card-desc">从格子和箭头出发，拼出数路线、比文字、装背包的电路板，再用到博弈、语言、图片和强化学习上。</span><span class="kit-card-foot"><span>56 关</span><b>开始 →</b></span></div></a>
 </div>
 
 <h2 class="kit-section">自学与参考</h2>

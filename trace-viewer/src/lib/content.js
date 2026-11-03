@@ -160,11 +160,6 @@ export function renderMarkdown(markdown, sourcePath) {
 
   document.body.querySelectorAll('a').forEach((link) => {
     const href = link.getAttribute('href') ?? ''
-    // The games hub and the games sit at game/… here too (vite.config.js serves them where the site puts them).
-    if (/^game\//.test(href)) {
-      link.setAttribute('href', `/${href}`)
-      return
-    }
     if (/^https?:/.test(href)) {
       link.target = '_blank'
       link.rel = 'noreferrer'
