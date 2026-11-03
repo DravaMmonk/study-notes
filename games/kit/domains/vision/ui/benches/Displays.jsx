@@ -38,6 +38,7 @@ export function PinholeRays({ ctx }) {
   return (
     <svg className="vi-bench" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr('针孔相机侧视图', 'The pinhole camera from the side')}>
       <line className="vb-axis" x1={x(0)} x2={x(zMax)} y1={y(0)} y2={y(0)} />
+      <text className="vb-note" x={x(zMax) - 4} y={y(0) + 14} style={{ textAnchor: 'end' }}>{tr('光轴', 'Optical axis')}</text>
       <line className="vb-plane" x1={x(q.f)} x2={x(q.f)} y1={16} y2={H - 16} />
       {sensor && <line className="vb-sensor" x1={x(q.f)} x2={x(q.f)} y1={y(sensor.height / 2)} y2={y(-sensor.height / 2)} />}
       <text className="vb-note" x={x(q.f)} y={12}>{tr('像平面', 'Image plane')} f = {mm(q.f)}</text>

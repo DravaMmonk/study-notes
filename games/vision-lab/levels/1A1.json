@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "一台理想的针孔相机：场景里一点发出的光，只有穿过小孔的那一条落到像平面上。三维的场景就这样被压成一张二维的图（<wiki-ref to=\"image-formation-3d-to-2d\"></wiki-ref>）。",
-        "en": "An ideal pinhole camera: of all the light a scene point sends out, only the ray through the hole reaches the image plane. That is how a 3D scene is pressed into a 2D picture (<wiki-ref to=\"image-formation-3d-to-2d\"></wiki-ref>)."
+        "zh": "一台理想的针孔相机：场景里一点发出的光，只有穿过小孔的那一条落到像平面上。三维的场景就这样被压成一张二维的图（<wiki-ref to=\"image-formation-3d-to-2d\"></wiki-ref>）。穿过小孔、垂直于像平面的那条线叫光轴：点偏离光轴多远记作 X，它的像偏离光轴多远记作 u。",
+        "en": "An ideal pinhole camera: of all the light a scene point sends out, only the ray through the hole reaches the image plane. That is how a 3D scene is pressed into a 2D picture (<wiki-ref to=\"image-formation-3d-to-2d\"></wiki-ref>). The line through the hole square to the image plane is the optical axis: how far a point is off it is X, how far its image is off it is u."
       }
     },
     {
