@@ -1,95 +1,162 @@
 {
-  "title": { "zh": "以像素为单位的焦距", "en": "Focal length in pixels" },
+  "title": { "zh": "把光路接进像素坐标", "en": "Bring projection into pixel coordinates" },
   "intro": [
     {
       "t": {
-        "zh": "真相机的像平面是一块传感器：高 24 mm，分成 1200 行像素，一个像素高 0.02 mm。图里的位置用像素数，焦距也可以换成像素：毫米焦距除以每个像素的大小。",
-        "en": "A real camera's image plane is a sensor: 24 mm high, split into 1200 rows of pixels, each 0.02 mm. Positions in a picture are counted in pixels, and the focal length can be too: the focal length in millimetres over a pixel's size."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：焦距怎样决定拍得下多宽的视野，像素坐标又怎样从投影得出？先调焦距，让竖直视场正好 90°：一根灯杆离相机多远就有多高，杆顶刚好落在画面上沿；再用投影接出一块输出像素坐标的电路。",
-        "en": "This level asks: how does the focal length decide how wide a view fits, and how do pixel coordinates come from the projection? First set the focal length so the vertical field of view is exactly 90°, a pole as tall as it is far away just reaching the frame's top edge; then wire the projection into a circuit that gives pixel coordinates."
+        "zh": "两条路线在这里汇合：<wiki-ref to=\"pinhole-projection\"></wiki-ref>给出相对<wiki-ref to=\"optical-axis\"></wiki-ref>的偏移，<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>让你能在数表中定位。先在横向坐标条上做两步：按<wiki-ref to=\"pixel-pitch\"></wiki-ref>换单位，再用<wiki-ref to=\"principal-point\"></wiki-ref>换原点；最后接成<wiki-ref to=\"pixel\"></wiki-ref>相机。",
+        "en": "The routes meet here: <wiki-ref to=\"pinhole-projection\"></wiki-ref> gives an offset from the axis, while the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> locates cells in the table. On the horizontal strip, first convert units using <wiki-ref to=\"pixel-pitch\"></wiki-ref>, then move the origin using the <wiki-ref to=\"principal-point\"></wiki-ref>; finally compose a <wiki-ref to=\"pixel\"></wiki-ref> camera. (<wiki-ref to=\"optical-axis\"></wiki-ref>)"
       }
     }
   ],
-  "adds": ["add"],
   "after": {
-    "zh": "这是<wiki-ref to=\"angle-of-view-from-pixel-focal-length\"></wiki-ref>：焦距越长视野越窄；画面半高等于像素焦距时视场 90°。",
-    "en": "This is the <wiki-ref to=\"angle-of-view-from-pixel-focal-length\"></wiki-ref>: the longer the focal length, the narrower the view; when half the frame equals the focal length in pixels, the view is 90°."
+    "zh": "这就是<wiki-ref to=\"pixel-camera\"></wiki-ref>。光路没变，变的是用什么单位、从哪里计数。将<wiki-ref to=\"pixel-focal-length\"></wiki-ref>交给已搭好的投影部件，再把结果平移到图像原点，才能与数组里的位置对齐；把这两步混成一次，就容易漏掉负偏移或原点平移。 (<wiki-ref to=\"projection-ray\"></wiki-ref>)",
+    "en": "This is <wiki-ref to=\"pixel-camera\"></wiki-ref>. The <wiki-ref to=\"projection-ray\"></wiki-ref> stays the same; the measurement unit and origin change. Feed the <wiki-ref to=\"pixel-focal-length\"></wiki-ref> to the projection part, then shift into the image frame. Keeping these steps distinct handles negative offsets and the change of origin."
   },
   "tasks": [
     {
-      "id": "1A3",
+      "id": "1A3_scale",
       "kind": "bench",
-      "step": { "zh": "调视野", "en": "Set the view" },
+      "step": { "zh": "只换单位", "en": "Change units" },
       "brief": {
-        "zh": "传感器高 24 mm、1200 像素：调焦距 f，让竖直视场正好 90°，灯杆顶刚好在画面里。",
-        "en": "A 24 mm, 1200-pixel-high sensor: set the focal length f so the vertical field of view is exactly 90°, the pole's top just in the frame."
+        "zh": "横向<wiki-ref to=\"sensor\"></wiki-ref>宽 8 mm、16 <wiki-ref to=\"pixel\"></wiki-ref>，物点 X=−1 mm、Z=4 mm，f=2 mm。预测相对<wiki-ref to=\"optical-axis\"></wiki-ref>的像素偏移。",
+        "en": "Horizontal <wiki-ref to=\"sensor\"></wiki-ref>: 8 mm across 16 <wiki-ref to=\"pixel\"></wiki-ref> samples; X=−1 mm, Z=4 mm, f=2 mm. Predict the signed image offset in pixel units. (<wiki-ref to=\"optical-axis\"></wiki-ref>)"
       },
       "hint": [
         {
-          "zh": "90° 的视场，一半是 45°：从小孔到画面上沿的那条光线，往上走的和往前走的一样多。",
-          "en": "Half of 90° is 45°: the ray from the hole to the frame's top edge rises as far as it goes forward."
+          "zh": "先比较图中的全宽与采样数，再问物理偏移包含多少个<wiki-ref to=\"pixel-pitch\"></wiki-ref>。保留负号。",
+          "en": "Compare the full width in the drawing with the sample count, then ask how many intervals of the <wiki-ref to=\"pixel-pitch\"></wiki-ref> fit the physical offset. Keep the negative sign."
         }
       ],
       "bench": {
         "model": "pinhole",
         "setup": {
-          "objects": [{ "id": "pole", "X": 0, "H": 50, "Z": 50, "label": { "zh": "灯杆", "en": "Pole" } }],
-          "sensor": { "height": 24, "width": 36, "pxHeight": 1200, "pxWidth": 1800 }
+          "X": -1,
+          "Z": 4,
+          "f": 2,
+          "object": "point",
+          "axis": "horizontal",
+          "unit": "mm",
+          "sensor": { "height": 8, "width": 8, "pxHeight": 16, "pxWidth": 16 },
+          "predict": "u_px"
         },
         "knobs": {
-          "f": {
-            "label": { "zh": "焦距 f（mm）", "en": "Focal length f (mm)" },
-            "min": 6,
-            "max": 60,
-            "step": 6,
-            "start": 6
+          "guess": {
+            "label": { "zh": "预测偏移（px）", "en": "Predicted offset (px)" },
+            "min": -4,
+            "max": 16,
+            "step": 0.5,
+            "start": 0
           }
         },
         "goal": [
           {
-            "of": "fov",
-            "label": { "zh": "竖直视场（度）", "en": "Vertical view (degrees)" },
-            "near": 90,
-            "atMost": 0.5,
+            "of": "predictionError",
+            "near": 0,
+            "atMost": 0.001,
+            "label": { "zh": "预测与实测之差", "en": "Prediction minus measurement" },
             "format": "fixed2"
-          },
-          { "of": "in_pole", "label": { "zh": "灯杆顶在画面里", "en": "Pole's top in the frame" }, "is": 1 }
+          }
         ],
         "check": "submit",
         "layout": {
-          "main": ["pinholeRays"],
-          "foot": [
-            { "panel": ["knobs"] },
+          "main": [
             {
-              "stats": {
-                "of": [
-                  {
-                    "of": "fpx",
-                    "label": { "zh": "像素焦距", "en": "Focal length in pixels" },
-                    "format": "int",
-                    "unit": " px"
-                  }
+              "sensorCoordinates": {
+                "terms": [
+                  "<wiki-ref to=\"pixel-pitch\"></wiki-ref>",
+                  "<wiki-ref to=\"pixel\"></wiki-ref>",
+                  "<wiki-ref to=\"optical-axis\"></wiki-ref>"
                 ]
               }
-            },
-            { "row": ["goals"] }
+            }
+          ],
+          "foot": [
+            { "panel": ["knobs"] },
+            "goals"
           ]
         }
       },
       "naive": [
         {
-          "set": { "f": 24 },
+          "set": { "guess": -0.5 },
           "why": {
-            "zh": "以为焦距等于传感器高度时视场是 90°：那时半高 12 mm 只有焦距的一半，视场约 53°，杆顶出了画面。焦距要等于半高 12 mm。",
-            "en": "Taking a focal length equal to the sensor's height for 90°: then the half-height, 12 mm, is half the focal length, the view about 53° and the pole's top out of frame. The focal length must equal the half-height, 12 mm."
+            "zh": "−0.5 是毫米偏移，不能直接当作<wiki-ref to=\"pixel\"></wiki-ref>偏移。检查后比较同一段长度在两种单位下的读数。",
+            "en": "−0.5 is the physical offset in millimetres, not the offset in <wiki-ref to=\"pixel\"></wiki-ref> units. Compare the two readings of the same length after checking."
           }
         }
+      ]
+    },
+    {
+      "id": "1A3_origin",
+      "kind": "bench",
+      "step": { "zh": "再换原点", "en": "Change origin" },
+      "brief": {
+        "zh": "沿用刚验证的偏移 −1 px。图中<wiki-ref to=\"principal-point\"></wiki-ref>位于 c_x=7.5；预测从图像原点读取的列坐标。负偏移仍可能落在画面内。",
+        "en": "Retain the checked offset of −1 px. The <wiki-ref to=\"principal-point\"></wiki-ref> is at c_x=7.5; predict the column from the image origin. A negative offset can still be inside the frame."
+      },
+      "hint": [
+        {
+          "zh": "从<wiki-ref to=\"principal-point\"></wiki-ref>在图中的位置出发，沿着刚验证的偏移向左走；这回要读的是从图像原点计数的位置。",
+          "en": "Start at the <wiki-ref to=\"principal-point\"></wiki-ref> shown on the strip and move left by the checked offset. Read the position from the image origin this time."
+        }
       ],
-      "holds": [{ "of": "f", "near": 12, "atMost": 0.001 }]
+      "bench": {
+        "model": "pinhole",
+        "setup": {
+          "X": -1,
+          "Z": 4,
+          "f": 2,
+          "object": "point",
+          "axis": "horizontal",
+          "unit": "mm",
+          "sensor": { "height": 8, "width": 8, "pxHeight": 16, "pxWidth": 16 },
+          "predict": "column"
+        },
+        "knobs": {
+          "guess": {
+            "label": { "zh": "预测列坐标", "en": "Predicted column" },
+            "min": -4,
+            "max": 16,
+            "step": 0.5,
+            "start": 0
+          }
+        },
+        "goal": [
+          {
+            "of": "predictionError",
+            "near": 0,
+            "atMost": 0.001,
+            "label": { "zh": "预测与实测之差", "en": "Prediction minus measurement" },
+            "format": "fixed2"
+          }
+        ],
+        "check": "submit",
+        "layout": {
+          "main": [
+            {
+              "sensorCoordinates": {
+                "terms": [
+                  "<wiki-ref to=\"principal-point\"></wiki-ref>",
+                  "<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>"
+                ]
+              }
+            }
+          ],
+          "foot": [
+            { "panel": ["knobs"] },
+            "goals"
+          ]
+        }
+      },
+      "naive": [
+        {
+          "set": { "guess": -1 },
+          "why": {
+            "zh": "−1 仍是相对<wiki-ref to=\"optical-axis\"></wiki-ref>的偏移，尚未换成图像原点。回到<wiki-ref to=\"principal-point\"></wiki-ref>的刻度，从那里向左走一格。",
+            "en": "−1 is still relative to the <wiki-ref to=\"optical-axis\"></wiki-ref>, before changing the origin. Return to the <wiki-ref to=\"principal-point\"></wiki-ref> mark and move one unit left from there."
+          }
+        }
+      ]
     },
     {
       "id": "1A3_2",
@@ -98,19 +165,19 @@
       "intro": [
         {
           "t": {
-            "zh": "像素坐标从画面左边数起，光轴穿过的那一点（主点）在画面中间，坐标是 c_x。新元件<part-ref to=\"part:add\"></part-ref>。",
-            "en": "Pixel coordinates count from the frame's left edge; the point the optical axis passes through (the principal point) sits mid-frame at c_x. New part: <part-ref to=\"part:add\"></part-ref>."
+            "zh": "现在要能处理新的<wiki-ref to=\"focal-length\"></wiki-ref>、物点和<wiki-ref to=\"principal-point\"></wiki-ref>位置。坐标条使用居中的<wiki-ref to=\"sensor\"></wiki-ref>作示例，这块电路的输入 c_x 可以不同；不要写死图像中心。",
+            "en": "Now handle new focal lengths, scene points and principal-point positions. The strip used a centred example; this circuit accepts different c_x values, so do not hard-code the centre. (<wiki-ref to=\"focal-length\"></wiki-ref>) (<wiki-ref to=\"principal-point\"></wiki-ref>) (<wiki-ref to=\"sensor\"></wiki-ref>)"
           }
         }
       ],
       "brief": {
-        "zh": "输入 X、Z、像素焦距 f_px 和主点 c_x：交出像点的像素横坐标 u。",
-        "en": "Given X, Z, the focal length in pixels f_px and the principal point c_x, give the image's pixel column u."
+        "zh": "输入 X、Z、<wiki-ref to=\"pixel-focal-length\"></wiki-ref> f_px 和<wiki-ref to=\"principal-point\"></wiki-ref> c_x：交出像点的<wiki-ref to=\"pixel\"></wiki-ref>横坐标 u。",
+        "en": "Given X, Z, the <wiki-ref to=\"pixel-focal-length\"></wiki-ref> f_px and the <wiki-ref to=\"principal-point\"></wiki-ref> c_x, give the image's <wiki-ref to=\"pixel\"></wiki-ref> column u."
       },
       "hint": [
         {
-          "zh": "<part-ref to=\"project\"></part-ref> 已经会算以光轴为原点的位置；像素坐标的原点在哪里？",
-          "en": "The <part-ref to=\"project\"></part-ref> already gives the position measured from the axis; where is the origin of pixel coordinates?"
+          "zh": "先只接带符号的<wiki-ref to=\"pixel\"></wiki-ref>偏移，检查 X=0 与 X<0 两种情况，再决定图像原点要怎样平移。",
+          "en": "First wire only the signed <wiki-ref to=\"pixel\"></wiki-ref> offset. Check X=0 and X<0, then decide how the image origin shifts it."
         }
       ],
       "inputs": [

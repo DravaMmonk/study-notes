@@ -335,7 +335,8 @@ name and its existing `body` is the explanation; do not add a second definition 
 aliases identify one entry unambiguously within each language. `at` retains its current meaning: the entry is
 available on entering that level and its guaranteed successors; omitted `at` means available from the start.
 
-Use `<wiki-ref>` for professional terms in prose. The referenced entry must exist, contain nonempty explanatory
+Use `<wiki-ref>` for professional terms in prose. One tag per term in an independently visible paragraph, hint or
+summary is sufficient; repeated mentions in the same field may stay plain to avoid duplicate chips. The referenced entry must exist, contain nonempty explanatory
 text in both languages, and be available where it is referenced. Clicking the term is the way to learn its meaning;
 no inline definition or proof of prior reading is required. Keep definitions, distinctions and reference detail in
 the entry. Intros, hints and summaries must not repeat or paraphrase that explanation: they establish the situation,

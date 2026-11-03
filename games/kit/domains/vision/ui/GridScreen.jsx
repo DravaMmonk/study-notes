@@ -5,6 +5,7 @@ import { fromRows } from '../image.js'
 import { askOf, gridCheck, gridStart, parseNumber as parse } from '../grid.js'
 import ImageView from './ImageView.jsx'
 import Strips from './Strips.jsx'
+import FilterWindow from './FilterWindow.jsx'
 
 // A grid task (../grid.js): the image, as its numbers, its picture or both (`show`), with its axes; under it what the
 // ask wants — a grid to fill in (copy, fill, set), a cell to click (pick) or the coordinates of the cell marked
@@ -75,7 +76,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
   )
   const asked = {
     copy: () => <>{picture({})}<RowsEditor rows={answer} onChange={update} /></>,
-    fill: () => <>{picture({})}{params.strip && <Strips {...params.strip} marks={answer[0]} />}{params.label && <p className="vi-label">{L(params.label)}</p>}<RowsEditor rows={answer} onChange={update} /></>,
+    fill: () => <>{picture({})}{task.window && <FilterWindow task={task} />}{params.strip && <Strips {...params.strip} marks={answer[0]} />}{params.label && <p className="vi-label">{L(params.label)}</p>}<RowsEditor rows={answer} onChange={update} /></>,
     set: () => (
       <>
         {picture({ mark: { x: params.x, y: params.y } })}

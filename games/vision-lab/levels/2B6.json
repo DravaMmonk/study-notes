@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "把一个像素和它的邻居平均，图就模糊了。均值滤波每个邻居一样重；高斯滤波让中心最重、越远越轻，模糊得更柔和、更自然。",
-        "en": "Averaging a pixel with its neighbours blurs the picture. A mean filter weighs every neighbour equally; a Gaussian weighs the centre most and the farther ones less, a softer, more natural blur."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：一个亮点经过高斯模糊，会变成什么样？先手算，再用二维滤波器接一个高斯模糊器：行和列的权重都是 1/4、1/2、1/4。",
-        "en": "This level asks: what does a single bright point become after a Gaussian blur? Work it out by hand, then wire a Gaussian blur from the 2D filter, the row and column weights both 1/4, 1/2, 1/4."
+        "zh": "这一支用<wiki-ref to=\"gaussian-filter\"></wiki-ref>处理细碎变化。先检查一个亮点向周围传播的结果，再用同样的部件处理一条明暗分界；本关给定行、列权重 [1/4,1/2,1/4]，图外补零。",
+        "en": "This branch uses <wiki-ref to=\"gaussian-filter\"></wiki-ref> for fine-scale variation. Check how one bright sample spreads, then apply the same parts to an intensity step. Row and column weights are [1/4,1/2,1/4], with zero outside."
       }
     }
   ],
@@ -23,8 +17,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"gaussian-filter\"></wiki-ref>：一个亮点变成中间亮、四周渐暗的一团。核越大、σ 越大，模糊越强。",
-    "en": "This is a <wiki-ref to=\"gaussian-filter\"></wiki-ref>: a bright point becomes a blob, bright in the middle and fading out. The larger the kernel and σ, the stronger the blur."
+    "zh": "亮点传播到邻居，分界也随之变缓；减弱细碎变化的同时，定位锐利边界的能力也会损失。内部常值区域可保持亮度，但补零造成的边界不满足相同邻域条件。",
+    "en": "The bright sample spreads and the step becomes gentler. Reducing fine variation also sacrifices sharp boundary localisation. Constant interior regions can keep their intensity; zero-padded boundaries do not have the same neighbourhood conditions."
   },
   "tasks": [
     {

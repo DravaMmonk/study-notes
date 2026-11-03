@@ -17,7 +17,8 @@ import { fits, fromText, toText } from './board.js'
 import { PARTS } from './parts.js'
 import { readTest } from './run.js'
 import { fromRows } from './image.js'
-import { askOf } from './grid.js'
+import { askOf, gridCheck } from './grid.js'
+import { windowResult } from './filter-window.js'
 import { judgeOf, optionsOf, verdictOf } from './judges.js'
 import { revealing, sameImage } from './scene.js'
 import { benchOf } from './benches/index.js'
@@ -71,6 +72,11 @@ export function visionCourse(content) {
     const img = fromRows(task.image)
     if (!img) return say(where, 'its image rows do not make an image')
     const { name, params } = askOf(task)
+    if (task.window) {
+      const span = task.window.axis === 'row' ? img.w : img.h
+      if (name !== 'fill' || img.c !== 1 || task.window.weights.length !== 3 || (task.window.padding === 'valid' && span < 3)) say(where, 'a filter window needs a greyscale fill task, three weights and at least three samples for valid padding')
+      else if (gridCheck(task, windowResult(task.image, task.window))) say(where, 'the displayed window weights do not produce the requested output')
+    }
     if (['pick', 'locate', 'set'].includes(name) && (params.x >= img.w || params.y >= img.h)) say(where, `(${params.x}, ${params.y}) is outside the ${img.w} × ${img.h} image`)
     if (name === 'set' && (Array.isArray(params.value) ? img.c !== 3 || params.value.length !== 3 : img.c !== 1)) say(where, 'the value to set is not a pixel of this image (a number for grey, [R, G, B] for colour)')
     if (name === 'fill' && !fromRows(params.rows)) say(where, 'the rows to fill do not make a grid')

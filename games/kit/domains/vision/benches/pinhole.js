@@ -6,8 +6,8 @@
 // One object (the setup's X, H, or knobs of those names), or several (`objects`: each an upright arrow from X to X + H
 // at its own depth or the knob Z). With a `sensor` (its height and width in millimetres and in pixels, the principal
 // point at its centre), the plane has edges: an object whose image runs past them is out of view, and every image
-// position and height is read in pixels too; the focal length in pixels and the field of view follow. The side view
-// draws the sensor's height; its width gives the horizontal field of view.
+// position and height is read in pixels too; the focal length in pixels uses the chosen axis pitch. The vertical
+// and horizontal fields of view remain tied to sensor height and width respectively.
 import { S } from '../../../engine/schema.js'
 
 const t = (zh, en) => ({ zh, en })
@@ -29,8 +29,11 @@ export function pinholeView(setup, values) {
   const v = { ...setup, ...values }
   const out = project(v)
   const sensor = setup.sensor
-  const px = sensor ? sensor.pxHeight / sensor.height : null
-  const half = sensor ? sensor.height / 2 : Infinity
+  const horizontal = setup.axis === 'horizontal'
+  const pixels = sensor && (horizontal ? sensor.pxWidth : sensor.pxHeight)
+  const span = sensor && (horizontal ? sensor.width : sensor.height)
+  const px = sensor ? pixels / span : null
+  const half = sensor ? span / 2 : Infinity
   const within = (a, b) => (Math.abs(a) <= half + 1e-9 && Math.abs(b) <= half + 1e-9 ? 1 : 0)
   if (setup.objects) {
     let seen = 0
@@ -47,7 +50,9 @@ export function pinholeView(setup, values) {
   } else if (sensor) {
     out.inView = setup.object === 'point' ? within(out.u, out.u) : within(0, out.h)
   }
-  if (px) Object.assign(out, { u_px: out.u * px, h_px: out.h * px, fpx: v.f * px, fov: deg(2 * Math.atan(half / v.f)), fovW: deg(2 * Math.atan(sensor.width / 2 / v.f)) })
+  if (px) Object.assign(out, { u_px: out.u * px, h_px: out.h * px, fpx: v.f * px, fov: deg(2 * Math.atan(sensor.height / 2 / v.f)), fovW: deg(2 * Math.atan(sensor.width / 2 / v.f)) })
+  if (sensor) Object.assign(out, { pitch: span / pixels, centre: (pixels - 1) / 2, column: out.u * px + (pixels - 1) / 2 })
+  if (setup.predict) out.predictionError = v.guess - out[setup.predict]
   return out
 }
 
@@ -55,6 +60,10 @@ export const pinhole = {
   about: t('针孔相机（理想几何模型，虚像平面不倒像）：旋钮 X（横向位置）、H（物高）、Z（距离）、f（像平面距离）；算出投影位置 u、像高 h；可以放几个物体，可以加一块传感器（毫米和像素的尺寸），读出像素值、像素焦距 fpx、视场 fov 和哪些物体在画面里',
     'the pinhole camera (an ideal geometric model, the upright virtual image plane): knobs X (lateral offset), H (object height), Z (depth), f (plane distance); computes the projection u and the image height h; may hold several objects and a sensor (its size in millimetres and pixels), reading pixels, the focal length in pixels fpx, the field of view fov and which objects are in view'),
   setup: S.obj({
+    axis: S.opt(S.oneOf(['horizontal', 'vertical'])),
+    unit: S.opt(S.str()),
+    reference: S.opt(S.obj({ X: S.num(), H: S.num(), Z: S.num({ min: 0.001 }), f: S.num({ min: 0.001 }) })),
+    predict: S.opt(S.oneOf(['u', 'h', 'u_px', 'column'])),
     X: S.opt(S.num()), H: S.opt(S.num()), Z: S.opt(S.num({ min: 0.001 })), f: S.opt(S.num({ min: 0.001 })),
     object: S.opt(S.oneOf(['point', 'arrow'], { about: t('画成一个点（看 u）还是一支箭（看 h）', 'drawn as a point (u matters) or an arrow (h matters)') })),
     objects: S.opt(S.list(S.obj({ id: ID, X: S.num(), H: S.num(), Z: S.opt(S.num({ min: 0.001 })), label: S.opt(S.text()) }), { min: 1, about: t('几支竖着的箭，各从 X 到 X + H；不写 Z 的用旋钮 Z', 'several upright arrows, each from X to X + H; one without Z stands at the knob Z') })),
@@ -66,6 +75,8 @@ export const pinhole = {
   },
   verify(model, bench) {
     const { setup } = model
+    if (setup.predict && !bench.knobs?.guess) return 'a prediction needs a guess knob'
+    if (['u_px', 'column'].includes(setup.predict) && !setup.sensor) return 'a pixel prediction needs a sensor'
     if (['Z', 'f'].some((n) => bench.knobs?.[n] && !(bench.knobs[n].min > 0))) return 'the Z and f knobs must stay positive'
     if (setup.target?.of.endsWith('_px') && !setup.sensor) return 'a target in pixels needs a sensor'
     if (setup.objects && new Set(setup.objects.map((o) => o.id)).size !== setup.objects.length) return 'two objects share an id'

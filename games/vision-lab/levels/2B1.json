@@ -3,21 +3,15 @@
   "intro": [
     {
       "t": {
-        "zh": "到这里，每个新值都只看原图的一个位置。可模糊、找边这样的处理，要看一个像素周围的一片：<wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>。最常用的一种，是把邻域里的像素各乘一个权重再相加，这组权重叫<wiki-ref to=\"linear-filter\"></wiki-ref>的卷积核。",
-        "en": "So far each new value looks at one position of the original. Blurring or finding edges needs the patch around a pixel: <wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>. The commonest kind multiplies each pixel of the neighbourhood by a weight and adds them up; the weights are the kernel of a <wiki-ref to=\"linear-filter\"></wiki-ref>."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：让一组权重沿着一行滑过去，每个位置算一次加权和，结果是什么样？先手算一行，再接成电路：输入一张图和左、中、右三个权重。",
-        "en": "This level asks: sliding three weights along a row and taking the weighted sum at each position, what comes out? First work out a row by hand, then wire it: an image and the left, centre and right weights."
+        "zh": "已经会按坐标读取，现在要让一个输出同时依赖周围的值。打开<wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>和<wiki-ref to=\"linear-filter\"></wiki-ref>，用窗口逐格跟踪<wiki-ref to=\"kernel\"></wiki-ref>。本关只算三个邻居都在图内的位置。",
+        "en": "Coordinate lookup is ready; now one output must depend on surrounding values. Open <wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref> and <wiki-ref to=\"linear-filter\"></wiki-ref>, then follow the <wiki-ref to=\"kernel\"></wiki-ref> with the movable window. Only positions with three neighbours inside the image are used."
       }
     }
   ],
   "adds": ["size"],
   "after": {
-    "zh": "这是<wiki-ref to=\"convolution\"></wiki-ref>：一组权重滑过整张图，每个位置算一次加权和。只算三格都在图里的位置，输出比原图窄 2。",
-    "en": "This is the <wiki-ref to=\"convolution\"></wiki-ref>: a set of weights slides over the image, one weighted sum per position. Taking only positions with all three cells inside, the output is 2 narrower."
+    "zh": "窗口平移时，权重的位置保持固定，读到的<wiki-ref to=\"pixel\"></wiki-ref>随位置改变。边缘缺邻居，所以当前输出更窄；<wiki-ref to=\"convolution\"></wiki-ref>的运算与“在哪些位置计算”是两个不同决定。",
+    "en": "The window moves while weight positions stay fixed and sampled <wiki-ref to=\"pixel\"></wiki-ref> values change. Missing edge neighbours make this output narrower: the <wiki-ref to=\"convolution\"></wiki-ref> and the choice of output positions are separate decisions."
   },
   "tasks": [
     {
@@ -43,7 +37,8 @@
           "zh": "这是右邻减左邻：权重左 1、右 −1，是左邻减右邻。权重跟着位置走，不要颠倒。",
           "en": "That is right less left: with the left weight 1 and the right −1 it is left less right. The weights go with their positions."
         }
-      }
+      },
+      "window": { "weights": [1, 0, -1], "axis": "row", "padding": "valid" }
     },
     {
       "id": "2B1_2",
@@ -63,8 +58,8 @@
       },
       "hint": [
         {
-          "zh": "输出的每格要取原图的三个像素：它们的 x 各是多少？",
-          "en": "Each output cell reads three pixels of the original: what is each one's x?"
+          "zh": "输出的每格要取原图的三个<wiki-ref to=\"pixel\"></wiki-ref>：它们的 x 各是多少？",
+          "en": "Each output cell reads three <wiki-ref to=\"pixel\"></wiki-ref> of the original: what is each one's x?"
         }
       ],
       "inputs": [

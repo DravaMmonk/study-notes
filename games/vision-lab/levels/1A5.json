@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "要一张小一点的图，有两种做法：裁剪是从原图里取一块，每个值都是原图里本来就有的；缩放是把整张图变成别的尺寸，新位置上的值要算出来。",
-        "en": "There are two ways to a smaller picture: cropping takes a part of the original, every value one the original already has; resizing changes the whole picture's size, and the values at the new positions must be worked out."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：裁剪出的图，每个像素来自原图的哪里？先在格子上手裁一块，再接出一块裁剪电路。",
-        "en": "This level asks: where in the original does each pixel of a crop come from? First crop by hand on the grid, then wire a cropping circuit."
+        "zh": "现在只保留画面的一部分，用<wiki-ref to=\"crop-vs-resize\"></wiki-ref>完成。先把选中的区域搬进小图，再追踪新图的每一格来自原图哪里；新图左上角不再对应原图左上角。",
+        "en": "Keep only part of the image using <wiki-ref to=\"crop-vs-resize\"></wiki-ref>. Move the selected region into a smaller image, then track where each new cell comes from. The two top-left corners no longer coincide."
       }
     }
   ],
@@ -24,8 +18,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"crop-vs-resize\"></wiki-ref>：裁剪只是平移坐标去取原值；缩放要在原图里没有像素的位置上算出新值。",
-    "en": "This is <wiki-ref to=\"crop-vs-resize\"></wiki-ref>: a crop only shifts coordinates to read existing values; a resize must work out values where the original has no pixel."
+    "zh": "裁出的数值没有重新估计，变化的是读取位置。沿同一偏移追踪四个角，可以检验<wiki-ref to=\"crop-vs-resize\"></wiki-ref>电路是否保留了整块区域，而不只碰巧取对一格。",
+    "en": "The values were not re-estimated; their read positions changed. Track the same offset at all four corners to check that the <wiki-ref to=\"crop-vs-resize\"></wiki-ref> circuit preserves a whole region rather than one lucky cell."
   },
   "tasks": [
     {
@@ -57,8 +51,8 @@
       "intro": [
         {
           "t": {
-            "zh": "一整张新图的每个像素都要算出它在原图的坐标。新元件<part-ref to=\"part:grid\"></part-ref>：给定宽和高，给出两张坐标图，x 图每格是自己的 x，y 图每格是自己的 y；<part-ref to=\"part:lookup\"></part-ref>接上坐标图，就一次取出整张图。",
-            "en": "Every pixel of a whole new image needs its coordinates in the original. New part <part-ref to=\"part:grid\"></part-ref>: given a width and a height it gives two coordinate images, each cell of x holding its own x and of y its own y; fed coordinate images, <part-ref to=\"part:lookup\"></part-ref> reads a whole image at once."
+            "zh": "一整张新图的每个<wiki-ref to=\"pixel\"></wiki-ref>都要算出它在原图的坐标。新元件<part-ref to=\"part:grid\"></part-ref>：给定宽和高，给出两张<wiki-ref to=\"coordinate-image\"></wiki-ref>，x 图每格是自己的 x，y 图每格是自己的 y；<part-ref to=\"part:lookup\"></part-ref>接上坐标图，就一次取出整张图。",
+            "en": "Every <wiki-ref to=\"pixel\"></wiki-ref> of a whole new image needs its coordinates in the original. New part <part-ref to=\"part:grid\"></part-ref>: given a width and a height it gives two coordinate images, each cell of x holding its own x and of y its own y; fed coordinate images, <part-ref to=\"part:lookup\"></part-ref> reads a whole image at once. (<wiki-ref to=\"coordinate-image\"></wiki-ref>)"
           }
         }
       ],

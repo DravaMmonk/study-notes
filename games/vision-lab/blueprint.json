@@ -138,15 +138,15 @@
     },
     {
       "id": "angle-of-view-from-pixel-focal-length",
-      "term": { "zh": "以像素表示的焦距与视野角", "en": "Focal length in pixels and angle of view" },
+      "term": { "zh": "视野角与焦距", "en": "angle of view and focal length" },
       "about": {
         "zh": "在数字图像中焦距常用像素表示：它只是把物理焦距除以像素尺寸，换成图像坐标单位。例如图像宽 2000 像素、主点在中间、焦距 1000 像素时，左右各约 45°，总视野范围约 90°。",
         "en": "In digital images the focal length is often expressed in pixels: this divides the physical focal length by the pixel size, converting it into image-coordinate units. For example, if the image is 2000 pixels wide, the principal point is in the middle and the focal length is 1000 pixels, each side spans about 45°, giving a total field of view of about 90°."
       },
       "source": "docs/Unimelb/26S2/CV/02-basics.md §2 焦距与视野范围 (slide 15)",
       "wall": {
-        "zh": "宽 2000 像素、主点居中、焦距 1000 像素的图像，水平视野为什么约 90°？",
-        "en": "For an image 2000 pixels wide with a centred principal point and a focal length of 1000 pixels, why is the horizontal field of view about 90°?"
+        "zh": "为什么只取半高会把全视场弄错？",
+        "en": "Why does confusing half-height and full height give the wrong full angle?"
       },
       "difficulty": "learnable",
       "basis": "lecture",
@@ -154,7 +154,7 @@
         "zh": "把以像素为单位的焦距和以毫米为单位的焦距直接比较或混用。",
         "en": "Directly comparing or mixing up a focal length in pixels with a focal length in millimetres."
       },
-      "core": true,
+      "core": false,
       "depends": ["pinhole-projection"]
     },
     {
@@ -417,7 +417,7 @@
         "zh": "直接把 100 像素当作 h_i 代入，得到单位混乱的 f = 100×600/120 = 500。",
         "en": "Substituting the 100 pixels directly as h_i, giving f = 100×600/120 = 500 with muddled units."
       },
-      "depends": ["angle-of-view-from-pixel-focal-length"]
+      "depends": ["pixel-camera"]
     },
     {
       "id": "opencv-size-vs-numpy-shape",
@@ -461,6 +461,24 @@
         "en": "Seeing red and blue swapped on display and thinking the image itself is broken; or thinking the conversion changes the image size."
       },
       "depends": ["image-array-checks"]
+    },
+    {
+      "id": "pixel-camera",
+      "term": { "zh": "像素相机坐标", "en": "pixel camera coordinates" },
+      "about": {
+        "zh": "把投影偏移转换成像素并平移原点。",
+        "en": "Convert projected offset into pixels and translate its origin."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md §1 and §2 (slides 11, 15, 18)",
+      "wall": {
+        "zh": "为什么负投影偏移仍可以对应正的列坐标？",
+        "en": "Why can a negative projected offset have a positive column coordinate?"
+      },
+      "misconception": { "zh": "将像素偏移直接当作图像列坐标。", "en": "Treating signed pixel offset as an image column." },
+      "difficulty": "hard",
+      "basis": "lecture",
+      "core": true,
+      "depends": ["pinhole-projection", "image-array-checks"]
     }
   ],
   "primitives": [
@@ -602,11 +620,19 @@
     },
     {
       "part": "filter2D",
-      "about": { "zh": "二维滤波器：先横后竖", "en": "2D filter: across, then down" },
+      "about": {
+        "zh": "二维卷积：按书写核先横后竖，图外补零",
+        "en": "2D convolution: written kernels across then down, zero padding"
+      },
       "from": ["rowFilter", "colFilter"]
     },
     { "part": "blur", "about": { "zh": "高斯模糊", "en": "Gaussian blur" }, "from": ["filter2D", "const"] },
-    { "part": "sobel", "about": { "zh": "Sobel：gx、gy", "en": "Sobel: gx, gy" }, "from": ["filter2D", "const"] }
+    { "part": "sobel", "about": { "zh": "Sobel：gx、gy", "en": "Sobel: gx, gy" }, "from": ["filter2D", "const"] },
+    {
+      "part": "edgeStrength",
+      "about": { "zh": "用 Sobel 响应计算边缘强度", "en": "Compute edge strength from Sobel responses" },
+      "from": ["sobel", "mul", "add", "sqrt"]
+    }
   ],
   "eras": [
     {
@@ -623,8 +649,8 @@
       },
       "series": [
         {
-          "id": "camera",
-          "title": { "zh": "相机", "en": "The camera" },
+          "id": "camera-geometry",
+          "title": { "zh": "投影与成像几何", "en": "Projection geometry" },
           "kind": "foundation",
           "slots": [
             {
@@ -635,17 +661,17 @@
                 "en": "Given X, Z and f, give the image position u."
               },
               "question": {
-                "zh": "点在哪里，它的像就落在哪里？",
-                "en": "where a point is, where does its image land?"
+                "zh": "先造相机的投影部件。图中 O 是<wiki-ref to=\"camera-centre\"></wiki-ref>，虚线标出<wiki-ref to=\"optical-axis\"></wiki-ref>，f 指向<wiki-ref to=\"virtual-image-plane\"></wiki-ref>。本实验所有长度共用模型单位，采用正像的虚像平面。固定参照一直保留：每次只改变 X、Z、f 中的一个，先预测，再检查。",
+                "en": "Build the projection part of the camera. O marks the <wiki-ref to=\"camera-centre\"></wiki-ref>, the dashed line the <wiki-ref to=\"optical-axis\"></wiki-ref>, and f locates the <wiki-ref to=\"virtual-image-plane\"></wiki-ref>. All lengths share model units and the virtual image is upright. Keep the reference in view: change one of X, Z and f at a time, predict, then check."
               },
               "chain": [
                 {
-                  "zh": "看光线：f = 2，点离小孔 Z = 4：横向移动这一点，让它的像落在 u = 1。",
-                  "en": "Follow the ray: f = 2, the point Z = 4 from the hole: move it sideways so its image lands at u = 1."
+                  "zh": "以固定参照比较 X、Z、f 单独改变时的光路；先预测再检查。",
+                  "en": "Compare each isolated X, Z and f change against a fixed reference; predict before checking."
                 },
                 {
-                  "zh": "接成电路：输入 X、Z、f：交出像点位置 u。",
-                  "en": "Wire it: Given X, Z and f, give the image position u."
+                  "zh": "让一个电路覆盖独立变化的三个输入。",
+                  "en": "Build one circuit covering independently varying inputs."
                 }
               ],
               "role": "foundation",
@@ -666,13 +692,13 @@
                 "en": "Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
               },
               "question": {
-                "zh": "从一张图倒推回去，场景能定下来吗？",
-                "en": "going back from a picture, is the scene settled?"
+                "zh": "<wiki-ref to=\"pinhole-projection\"></wiki-ref>能从场景得到图像，但反过来是否唯一？保留 H=1、Z=4、f=2 的参照，让一支至少高一倍的箭拍出相同的像。之后只在额外给定 Z 的条件下倒推位置。",
+                "en": "<wiki-ref to=\"pinhole-projection\"></wiki-ref> maps a scene to an image. Is the reverse unique? Keep the H=1, Z=4, f=2 reference and construct an arrow at least twice as tall with the same image. Then invert a point position only when Z is supplied."
               },
               "chain": [
                 {
-                  "zh": "另造一个场景：f = 2：调物高 H 和距离 Z，让像高仍是 0.5，箭至少 2 米高。",
-                  "en": "Another scene: f = 2: set the height H and the distance Z so the image is still 0.5 tall, the arrow at least 2 m."
+                  "zh": "另造一个场景：调 H 和 Z：像高仍为 0.5，但 H 至少为 2。所有长度共用模型单位；对照参照图再检查。",
+                  "en": "Another scene: Adjust H and Z: keep image height 0.5 with H at least 2. All lengths share model units. Compare with the reference, then check."
                 },
                 {
                   "zh": "倒推：输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
@@ -686,44 +712,15 @@
                 "zh": "只把箭加高：距离不变，像也跟着加倍成 1。要让像不变，距离得和物高一起加倍。",
                 "en": "Only making the arrow taller: at the same distance its image doubles to 1. For the same image the distance must double with the height."
               }
-            },
-            {
-              "id": "1A3",
-              "title": { "zh": "以像素为单位的焦距", "en": "Focal length in pixels" },
-              "task": {
-                "zh": "输入 X、Z、像素焦距 f_px 和主点 c_x：交出像点的像素横坐标 u。",
-                "en": "Given X, Z, the focal length in pixels f_px and the principal point c_x, give the image's pixel column u."
-              },
-              "question": {
-                "zh": "焦距怎样决定拍得下多宽的视野，像素坐标又怎样从投影得出？",
-                "en": "how does the focal length decide how wide a view fits, and how do pixel coordinates come from the projection?"
-              },
-              "chain": [
-                {
-                  "zh": "调视野：传感器高 24 mm、1200 像素：调焦距 f，让竖直视场正好 90°，灯杆顶刚好在画面里。",
-                  "en": "Set the view: A 24 mm, 1200-pixel-high sensor: set the focal length f so the vertical field of view is exactly 90°, the pole's top just in the frame."
-                },
-                {
-                  "zh": "像素坐标：输入 X、Z、像素焦距 f_px 和主点 c_x：交出像点的像素横坐标 u。",
-                  "en": "Pixel coordinates: Given X, Z, the focal length in pixels f_px and the principal point c_x, give the image's pixel column u."
-                }
-              ],
-              "role": "foundation",
-              "uses": [
-                "optics",
-                "circuit",
-                "pinhole-projection",
-                "angle-of-view-from-pixel-focal-length",
-                "project",
-                "add"
-              ],
-              "teaches": "angle-of-view-from-pixel-focal-length",
-              "adds": ["add"],
-              "naive": {
-                "zh": "以为焦距等于传感器高度时视场是 90°：那时半高 12 mm 只有焦距的一半，视场约 53°，杆顶出了画面。焦距要等于半高 12 mm。",
-                "en": "Taking a focal length equal to the sensor's height for 90°: then the half-height, 12 mm, is half the focal length, the view about 53° and the pole's top out of frame. The focal length must equal the half-height, 12 mm."
-              }
-            },
+            }
+          ],
+          "parallel": "camera-basis"
+        },
+        {
+          "id": "camera-array",
+          "title": { "zh": "数表与定位", "en": "Arrays and positions" },
+          "kind": "foundation",
+          "slots": [
             {
               "id": "1A4",
               "title": { "zh": "图是一张数表", "en": "A picture is a table of numbers" },
@@ -732,8 +729,8 @@
                 "en": "Given a grey image and coordinates x and y, give the value at (x+1, y) less the value at (x, y)."
               },
               "question": {
-                "zh": "一个像素在数表的哪里，怎样读出它的值？",
-                "en": "where in the table is a pixel, and how is its value read?"
+                "zh": "这条路线从数表开始，不需要先会相机几何。通过<wiki-ref to=\"image-array-checks\"></wiki-ref>与<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>查看表示约定：指出位置、改变一格，再让电路读取右邻和当前位置的差。彩色样例约定按 R、G、B 排列，数值在 0 到 1。",
+                "en": "This route starts from tables and needs no camera geometry. Open <wiki-ref to=\"image-array-checks\"></wiki-ref> and the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> for the representation: locate a cell, change one cell, then wire the difference between it and its right neighbour. Colour examples use R, G, B order with values from 0 to 1."
               },
               "chain": [
                 {
@@ -752,10 +749,59 @@
               "role": "foundation",
               "uses": ["pixels", "circuit", "image-array-checks", "lookup", "const", "sub", "add"],
               "teaches": "image-array-checks",
-              "adds": ["lookup", "const", "sub"],
+              "adds": ["lookup", "const", "sub", "add"],
               "naive": {
                 "zh": "这是先写行、再写列（矩阵的习惯）：图像坐标先写 x（列），再写 y（行），高亮的格子在第 1 行第 2 列，是 (2, 1)。",
                 "en": "That gives the row first, the matrix way: image coordinates give x, the column, first and y, the row, second; the highlighted cell is in row 1, column 2, so (2, 1)."
+              }
+            }
+          ],
+          "parallel": "camera-basis"
+        },
+        {
+          "id": "pixel-camera",
+          "title": { "zh": "像素相机与取样", "en": "Pixel camera and sampling" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "1A3",
+              "title": { "zh": "把光路接进像素坐标", "en": "Bring projection into pixel coordinates" },
+              "task": {
+                "zh": "输入 X、Z、像素焦距 f_px 和主点 c_x：交出像点的像素横坐标 u。",
+                "en": "Given X, Z, the focal length in pixels f_px and the principal point c_x, give the image's pixel column u."
+              },
+              "question": {
+                "zh": "两条路线在这里汇合：<wiki-ref to=\"pinhole-projection\"></wiki-ref>给出相对光轴的偏移，<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>让你能在数表中定位。先在横向坐标条上做两步：按<wiki-ref to=\"pixel-pitch\"></wiki-ref>换单位，再用<wiki-ref to=\"principal-point\"></wiki-ref>换原点；最后接成像素相机。",
+                "en": "The routes meet here: <wiki-ref to=\"pinhole-projection\"></wiki-ref> gives an offset from the axis, while the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> locates cells in the table. On the horizontal strip, first convert units using <wiki-ref to=\"pixel-pitch\"></wiki-ref>, then move the origin using the <wiki-ref to=\"principal-point\"></wiki-ref>; finally compose a pixel camera."
+              },
+              "chain": [
+                {
+                  "zh": "在横向坐标条上把毫米偏移换成像素偏移。",
+                  "en": "Convert physical offset into pixel offset on a horizontal strip."
+                },
+                {
+                  "zh": "保留符号，再从主点平移到图像原点。",
+                  "en": "Keep the sign, then shift from principal point to image origin."
+                },
+                {
+                  "zh": "组合投影与坐标平移，并检验不同主点。",
+                  "en": "Compose projection and coordinate translation, testing different principal points."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "optics",
+                "circuit",
+                "pinhole-projection",
+                "project",
+                "add",
+                "pixel-camera",
+                "image-array-checks"
+              ],
+              "teaches": "pixel-camera",
+              "naive": {
+                "zh": "以为焦距等于传感器高度时视场是 90°：那时半高 12 mm 只有焦距的一半，视场约 53°，杆顶出了画面。焦距要等于半高 12 mm。",
+                "en": "Taking a focal length equal to the sensor's height for 90°: then the half-height, 12 mm, is half the focal length, the view about 53° and the pole's top out of frame. The focal length must equal the half-height, 12 mm."
               }
             },
             {
@@ -766,8 +812,8 @@
                 "en": "Given an image and x0, y0, w and h, give the w × h region from (x0, y0)."
               },
               "question": {
-                "zh": "裁剪出的图，每个像素来自原图的哪里？",
-                "en": "where in the original does each pixel of a crop come from?"
+                "zh": "现在只保留画面的一部分，用<wiki-ref to=\"crop-vs-resize\"></wiki-ref>完成。先把选中的区域搬进小图，再追踪新图的每一格来自原图哪里；新图左上角不再对应原图左上角。",
+                "en": "Keep only part of the image using <wiki-ref to=\"crop-vs-resize\"></wiki-ref>. Move the selected region into a smaller image, then track where each new cell comes from. The two top-left corners no longer coincide."
               },
               "chain": [
                 {
@@ -797,8 +843,8 @@
                 "en": "Given an image and the coordinate images x and y, give the value of the pixel nearest each position."
               },
               "question": {
-                "zh": "落在像素之间的位置，最简单的取值办法是什么？",
-                "en": "what is the simplest value for a position between pixels?"
+                "zh": "改过输出尺寸后，题目直接给出原图中的采样位置。用<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>完成这次读取，比较 0.4 和 0.5 附近的结果。本题约定距离相同时取坐标较大的一边，图外取最近边界。",
+                "en": "After changing output size, the task supplies sample positions in the original. Use <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref> and compare positions around 0.4 and 0.5. Ties take the larger coordinate and positions outside use the nearest boundary."
               },
               "chain": [
                 {
@@ -836,8 +882,8 @@
                 "en": "Given an image and the coordinate images x and y, give each position's value weighted from its four neighbours by distance."
               },
               "question": {
-                "zh": "位置落在像素之间，值能不能按它离各个像素的远近来算？",
-                "en": "can a position between pixels take a value by how near it is to each?"
+                "zh": "保持与最近邻相同的采样位置，改用<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>。先看一行上靠左、靠右两点怎样变化，再把这个做法用于四个角；图外仍取最近边界。",
+                "en": "Keep the same sample positions but use <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>. First compare points near either end of a row, then extend that reasoning to four corners. Outside positions still use the nearest boundary."
               },
               "chain": [
                 {
@@ -875,10 +921,9 @@
           ]
         },
         {
-          "id": "camera-workshop",
-          "title": { "zh": "Workshop：相机的工程细节", "en": "Workshop: the camera in practice" },
+          "id": "workshop-camera",
+          "title": { "zh": "Workshop：相机的工程细节", "en": "Workshop: camera practice" },
           "kind": "topic",
-          "after": "1A7",
           "slots": [
             {
               "id": "1W1",
@@ -888,13 +933,13 @@
                 "en": "Given hpx, spx, smm, Z and H, give the focal length f in millimetres."
               },
               "question": {
-                "zh": "像素和毫米怎样换算，才能代进相似三角形？",
-                "en": "how are pixels and millimetres converted before the similar triangles?"
+                "zh": "Workshop 2 的一道题：知道物体多高、多远，从照片里量出它占多少像素，反推镜头的焦距。照片里量的是像素，相似三角形要的是传感器上的毫米。",
+                "en": "A Workshop 2 exercise: knowing how tall and how far an object is, measure how many pixels it covers in the photo and work back to the lens's focal length. The photo gives pixels; similar triangles want millimetres on the sensor."
               },
               "chain": [
                 {
-                  "zh": "这一步：输入 hpx、spx、smm、Z、H：交出焦距 f（毫米）。",
-                  "en": "This step: Given hpx, spx, smm, Z and H, give the focal length f in millimetres."
+                  "zh": "观察与操作：输入 hpx、spx、smm、Z、H：交出焦距 f（毫米）。",
+                  "en": "Observe and act: Given hpx, spx, smm, Z and H, give the focal length f in millimetres."
                 },
                 {
                   "zh": "这是<wiki-ref to=\"pixel-to-mm-focal-length\"></wiki-ref>：先把像素换成传感器上的毫米，再代进 h/f = H/Z。",
@@ -904,7 +949,7 @@
               "role": "intro",
               "uses": [
                 "circuit",
-                "angle-of-view-from-pixel-focal-length",
+                "pixel-camera",
                 "pixel-to-mm-focal-length",
                 "mul",
                 "div"
@@ -923,13 +968,13 @@
                 "en": "Given an image, its shape rows and cols, and the crop width w and height h, give the region at the very centre."
               },
               "question": {
-                "zh": "已知形状 (rows, cols)，正中间那一块的左上角在哪？",
-                "en": "given the shape (rows, cols), where is the centre region's top-left corner?"
+                "zh": "<wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref>：NumPy 给出图的形状时先写行数（高）、再写列数（宽）；OpenCV 要尺寸时却先写宽、再写高。Workshop 2 要从图的正中间裁出一块，两种顺序一混，裁出的位置就偏了。",
+                "en": "<wiki-ref to=\"opencv-size-vs-numpy-shape\"></wiki-ref>: NumPy gives an image's shape as rows (height) first, then columns (width); OpenCV asks for a size as width first, then height. Workshop 2 crops a region from the very centre, and mixing the two orders puts it off-centre."
               },
               "chain": [
                 {
-                  "zh": "这一步：输入一张图、它的形状 rows、cols 和裁剪的宽 w、高 h：交出正中间的那一块。",
-                  "en": "This step: Given an image, its shape rows and cols, and the crop width w and height h, give the region at the very centre."
+                  "zh": "观察与操作：输入一张图、它的形状 rows、cols 和裁剪的宽 w、高 h：交出正中间的那一块。",
+                  "en": "Observe and act: Given an image, its shape rows and cols, and the crop width w and height h, give the region at the very centre."
                 },
                 {
                   "zh": "形状先高后宽，尺寸先宽后高；<wiki-ref to=\"center-crop-and-copy\"></wiki-ref>从余量的一半起。",
@@ -953,6 +998,48 @@
                 "en": "The intuitive board beside the reference; see the level's naive board."
               }
             }
+          ],
+          "after": "1A7"
+        },
+        {
+          "id": "framing",
+          "title": { "zh": "可选：画面与视野", "en": "Optional: framing and field of view" },
+          "kind": "topic",
+          "after": "1A1",
+          "slots": [
+            {
+              "id": "1F1",
+              "title": { "zh": "画面能装下多宽", "en": "How wide a view fits" },
+              "task": {
+                "zh": "传感器高 24 mm；本实验只看竖直方向。调 f，让全视场为 90°；用上下两条边界光线核对，不要只看上半角。",
+                "en": "The sensor is 24 mm tall and this experiment uses a vertical slice. Set f for a full field of view of 90°. Check both boundary rays rather than only the upper half-angle."
+              },
+              "question": {
+                "zh": "固定传感器时，焦距怎样改变全视场？",
+                "en": "How does focal length change the full field of view of a fixed sensor?"
+              },
+              "chain": [
+                {
+                  "zh": "在等比例图里对照上下边界与全角、半角。",
+                  "en": "Compare both edges, full angle and half-angle in an equal-scale construction."
+                },
+                {
+                  "zh": "预测并检查新的焦距；保持传感器尺寸不变。",
+                  "en": "Predict and check a focal length, keeping sensor size fixed."
+                }
+              ],
+              "role": "foundation",
+              "uses": [
+                "optics",
+                "pinhole-projection",
+                "angle-of-view-from-pixel-focal-length"
+              ],
+              "teaches": "angle-of-view-from-pixel-focal-length",
+              "naive": {
+                "zh": "只把箭加高：距离不变，像也跟着加倍成 1。要让像不变，距离得和物高一起加倍。",
+                "en": "Only making the arrow taller: at the same distance its image doubles to 1. For the same image the distance must double with the height."
+              }
+            }
           ]
         }
       ]
@@ -972,8 +1059,8 @@
       },
       "series": [
         {
-          "id": "convolver",
-          "title": { "zh": "卷积器", "en": "The convolver" },
+          "id": "filter-basis",
+          "title": { "zh": "邻域与边界", "en": "Neighbourhoods and boundaries" },
           "kind": "foundation",
           "slots": [
             {
@@ -984,8 +1071,8 @@
                 "en": "Given an image and the weights a, b, c, give a × left + b × here + c × right at each position."
               },
               "question": {
-                "zh": "让一组权重沿着一行滑过去，每个位置算一次加权和，结果是什么样？",
-                "en": "sliding three weights along a row and taking the weighted sum at each position, what comes out?"
+                "zh": "已经会按坐标读取，现在要让一个输出同时依赖周围的值。打开<wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref>和<wiki-ref to=\"linear-filter\"></wiki-ref>，用窗口逐格跟踪<wiki-ref to=\"kernel\"></wiki-ref>。本关只算三个邻居都在图内的位置。",
+                "en": "Coordinate lookup is ready; now one output must depend on surrounding values. Open <wiki-ref to=\"pixel-vs-local-operator\"></wiki-ref> and <wiki-ref to=\"linear-filter\"></wiki-ref>, then follow the <wiki-ref to=\"kernel\"></wiki-ref> with the movable window. Only positions with three neighbours inside the image are used."
               },
               "chain": [
                 {
@@ -1026,8 +1113,8 @@
                 "en": "Given an image and the weights a, b, c, give an output as wide as the image, a × left + b × here + c × right at each position, 0 outside."
               },
               "question": {
-                "zh": "图外面没有像素，邻居缺了怎么办？",
-                "en": "there are no pixels outside the image, so what of the missing neighbours?"
+                "zh": "相邻处理要继续组合，不能每次都悄悄缩小画面。本关选用<wiki-ref to=\"padding-border-rules\"></wiki-ref>中的补零规则，保留所有中心位置；比较边缘和中间同样的输入，看看输出是否还相同。",
+                "en": "To compose local operations, the frame must not silently shrink each time. Use zero <wiki-ref to=\"padding-border-rules\"></wiki-ref> and retain every centre position. Compare equal inputs at the edge and in the interior: do their outputs stay equal?"
               },
               "chain": [
                 {
@@ -1059,7 +1146,14 @@
                 "zh": "这是图外取最近的边：题目约定图外补 0，两端只有两个 3 和一个 0，平均是 2。",
                 "en": "That reads the nearest edge outside: here 0 is padded outside, so each end averages two 3s and a 0, giving 2."
               }
-            },
+            }
+          ]
+        },
+        {
+          "id": "filter-orientation",
+          "title": { "zh": "权重方向", "en": "Weight orientation" },
+          "kind": "foundation",
+          "slots": [
             {
               "id": "2B3",
               "title": { "zh": "翻转，还是不翻转", "en": "Flip or not" },
@@ -1067,7 +1161,10 @@
                 "zh": "输入一张图和卷积核 k1、k2、k3（按书写顺序）：交出卷积的结果，图外补 0。",
                 "en": "Given an image and the kernel k1, k2, k3 (in written order), give the convolution, 0 outside."
               },
-              "question": { "zh": "翻不翻转，结果差在哪？", "en": "what does flipping change?" },
+              "question": {
+                "zh": "这条必修路线研究权重的方向，不必等待列处理。用<wiki-ref to=\"impulse\"></wiki-ref>检查<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>：沿窗口追踪唯一亮点分别遇到哪个权重，再让电路符合题目要求的翻转约定。",
+                "en": "This required route studies weight orientation without waiting for column processing. Use an <wiki-ref to=\"impulse\"></wiki-ref> to inspect <wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>: track which weight meets the single bright sample, then make the circuit obey the requested flip convention."
+              },
               "chain": [
                 {
                   "zh": "脉冲：不翻转，权重左 1、中 2、右 3 滑过这一行脉冲，图外补 0：写出结果。",
@@ -1092,7 +1189,15 @@
                 "zh": "以为脉冲出来的就是核 [1, 2, 3]：亮点在左边那一格的右邻，乘的是右权重 3。不翻转时，出来的是倒过来的 [3, 2, 1]。",
                 "en": "Expecting the kernel [1, 2, 3] back: for the cell to its left, the bright cell is the right neighbour and meets the right weight 3. Without the flip, out comes [3, 2, 1] reversed."
               }
-            },
+            }
+          ],
+          "parallel": "filter-directions"
+        },
+        {
+          "id": "filter-column",
+          "title": { "zh": "竖直邻域", "en": "Vertical neighbourhoods" },
+          "kind": "foundation",
+          "slots": [
             {
               "id": "2B4",
               "title": { "zh": "竖着也来一遍", "en": "Down the columns too" },
@@ -1101,17 +1206,21 @@
                 "en": "Given an image and the weights a, b, c, give a × above + b × here + c × below at each position, 0 outside."
               },
               "question": {
-                "zh": "同一个滑动加权和，换成竖直方向该怎么接？",
-                "en": "how is the same sliding weighted sum wired down the columns?"
+                "zh": "这条必修路线把<wiki-ref to=\"linear-filter\"></wiki-ref>转向上下，不依赖核方向路线。先在窗口里追踪一列：保持 x 不动，只改变 y，再把刚验证的读取方式推广到整张图。",
+                "en": "This required route turns <wiki-ref to=\"linear-filter\"></wiki-ref> vertically, independently of the kernel-orientation route. Track one column in the window: keep x fixed, vary y, then extend the checked addressing to the image."
               },
               "chain": [
                 {
-                  "zh": "这一步：输入一张图和权重 a、b、c：交出每个位置 a × 上邻 + b × 自己 + c × 下邻，图外补 0。",
-                  "en": "This step: Given an image and the weights a, b, c, give a × above + b × here + c × below at each position, 0 outside."
+                  "zh": "在可移动窗口里保持 x 不变，沿 y 追踪三个邻居。",
+                  "en": "Keep x fixed and track three y-neighbours in the movable window."
                 },
                 {
-                  "zh": "同一个<wiki-ref to=\"convolution\"></wiki-ref>，只是邻居换成了上下：方向不同，计算一样。",
-                  "en": "The same <wiki-ref to=\"convolution\"></wiki-ref>, the neighbours now above and below: another direction, the same computation."
+                  "zh": "接出列滤波器：输入一张图和权重 a、b、c：交出每个位置 a × 上邻 + b × 自己 + c × 下邻，图外补 0。",
+                  "en": "Wire the column filter: Given an image and the weights a, b, c, give a × above + b × here + c × below at each position, 0 outside."
+                },
+                {
+                  "zh": "横、竖处理的代数结构一致，差别落在“读哪个邻居”。用非方形图与不对称内容测试，才能让误把 y 改成 x 的接法显出差异。",
+                  "en": "Horizontal and vertical operations share an algebraic structure; the addressed neighbours differ. Non-square images with asymmetric content expose a circuit that changes x where y was intended."
                 }
               ],
               "role": "practice",
@@ -1137,26 +1246,38 @@
                 "en": "The same sliding weighted sum with the neighbours above and below: another direction, the same computation"
               },
               "dimension": "direction"
-            },
+            }
+          ],
+          "parallel": "filter-directions"
+        },
+        {
+          "id": "filter-compose",
+          "title": { "zh": "组合二维处理", "en": "Compose a 2D filter" },
+          "kind": "foundation",
+          "slots": [
             {
               "id": "2B5",
               "title": { "zh": "拆成两步", "en": "In two passes" },
               "task": {
-                "zh": "输入一张图、行权重 h1、h2、h3 和列权重 v1、v2、v3：交出先横后竖两次滤波的结果。",
-                "en": "Given an image, row weights h1, h2, h3 and column weights v1, v2, v3, give the result of filtering across, then down."
+                "zh": "由行、列部件实现书写核的二维卷积。",
+                "en": "Build 2D convolution of written kernels from row and column parts."
               },
               "question": {
-                "zh": "一个 3 × 3 的核，什么时候能拆成横、竖两步？",
-                "en": "when can a 3 × 3 kernel be split into an across pass and a down pass?"
+                "zh": "两条路线在这里汇合：方向约定已经核对，也能分别读行与列。用<wiki-ref to=\"separable-filter\"></wiki-ref>思考两次处理如何组合；先追踪一个输入位置到各输出位置的贡献，再组合已搭好的部件。",
+                "en": "The routes meet here: orientation is checked and both rows and columns can be addressed. Use <wiki-ref to=\"separable-filter\"></wiki-ref> to reason about composition. Track one input contribution across output positions before combining the built parts."
               },
               "chain": [
                 {
-                  "zh": "合成的核：行权重 [1, 2, 1]、列权重 [1, 2, 1]：写出合成的 3 × 3 核，第 y 行第 x 列是列权重第 y 个乘行权重第 x 个。",
-                  "en": "The merged kernel: Row weights [1, 2, 1], column weights [1, 2, 1]: write the merged 3 × 3 kernel, row y, column x being column weight y times row weight x."
+                  "zh": "合成的核：行权重 [1,2,1]、列权重 [1,0,−1]。追踪每个行权重经由列处理的贡献，写出组合后的 3×3 权重表。",
+                  "en": "The merged kernel: Row weights [1,2,1], column weights [1,0,−1]. Track each horizontal contribution through the column pass and fill the combined 3×3 weights."
                 },
                 {
                   "zh": "二维滤波器：输入一张图、行权重 h1、h2、h3 和列权重 v1、v2、v3：交出先横后竖两次滤波的结果。",
                   "en": "2D filter: Given an image, row weights h1, h2, h3 and column weights v1, v2, v3, give the result of filtering across, then down."
+                },
+                {
+                  "zh": "让两个位置权重部件共同执行书写核的翻转，用双向不对称核检验。",
+                  "en": "Make both positional parts reverse the written kernels; check asymmetry in both axes."
                 }
               ],
               "role": "foundation",
@@ -1174,7 +1295,14 @@
                 "zh": "这是三行都抄了行权重：竖直方向也要乘上列权重，第 1 行整行乘 2。",
                 "en": "That copies the row weights into all three rows: the column weights multiply too, doubling row 1."
               }
-            },
+            }
+          ]
+        },
+        {
+          "id": "filter-smooth",
+          "title": { "zh": "平滑路线", "en": "Smoothing" },
+          "kind": "foundation",
+          "slots": [
             {
               "id": "2B6",
               "title": { "zh": "模糊", "en": "Blur" },
@@ -1183,8 +1311,8 @@
                 "en": "Given an image, give it filtered across and down by [1/4, 1/2, 1/4]."
               },
               "question": {
-                "zh": "一个亮点经过高斯模糊，会变成什么样？",
-                "en": "what does a single bright point become after a Gaussian blur?"
+                "zh": "这一支用<wiki-ref to=\"gaussian-filter\"></wiki-ref>处理细碎变化。先检查一个亮点向周围传播的结果，再用同样的部件处理一条明暗分界；本关给定行、列权重 [1/4,1/2,1/4]，图外补零。",
+                "en": "This branch uses <wiki-ref to=\"gaussian-filter\"></wiki-ref> for fine-scale variation. Check how one bright sample spreads, then apply the same parts to an intensity step. Row and column weights are [1/4,1/2,1/4], with zero outside."
               },
               "chain": [
                 {
@@ -1204,17 +1332,25 @@
                 "zh": "这是只横着滤了一遍：竖直方向也要滤，亮点向上下扩散，中心只剩 4。",
                 "en": "That filters across only: down must be filtered too, spreading the point up and down and leaving 4 at the centre."
               }
-            },
+            }
+          ],
+          "parallel": "filter-purpose"
+        },
+        {
+          "id": "filter-edge",
+          "title": { "zh": "变化路线", "en": "Changes" },
+          "kind": "foundation",
+          "slots": [
             {
               "id": "2B7",
               "title": { "zh": "找边", "en": "Find the edges" },
               "task": {
-                "zh": "输入一张图：交出 gx（横向权重 −1、0、1，竖向 1、2、1）和 gy（横向 1、2、1，竖向 −1、0、1）。",
-                "en": "Given an image, give gx (across −1, 0, 1; down 1, 2, 1) and gy (across 1, 2, 1; down −1, 0, 1)."
+                "zh": "由书写核构造正向增亮为正的 gx、gy。",
+                "en": "Construct gx and gy from written kernels, positive for positive-direction brightening."
               },
               "question": {
-                "zh": "Sobel 的两个响应 gx、gy 在不同方向的边上各是什么？",
-                "en": "what are Sobel's two responses gx and gy on edges running different ways?"
+                "zh": "这一支要找变化而不是保留平均值。先比较一行的左右邻居，保留正负，再用<wiki-ref to=\"sobel-filter\"></wiki-ref>同时处理两个方向；使用直接按窗口对齐的权重约定。",
+                "en": "This branch seeks change rather than an average. First compare left and right neighbours, retaining the sign, then use <wiki-ref to=\"sobel-filter\"></wiki-ref> in both directions with weights aligned directly to the window."
               },
               "chain": [
                 {
@@ -1247,21 +1383,25 @@
               "id": "2B8",
               "title": { "zh": "梯度：边有多强、朝哪边", "en": "The gradient: how strong, which way" },
               "task": {
-                "zh": "输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
-                "en": "Given an image, give the gradient's size √(gx² + gy²) at each position."
+                "zh": "输入一张图：输出每个位置的变化强度。大小相同而方向相反的响应，应得到同样的强度。",
+                "en": "Given an image, output change strength at each position. Equal-sized responses pointing in opposite directions must have equal strength."
               },
               "question": {
-                "zh": "怎样不管方向、只量出边有多强？",
-                "en": "how is an edge's strength measured, whatever its direction?"
+                "zh": "<wiki-ref to=\"sobel-filter\"></wiki-ref>已有两个带符号的响应。现在用<wiki-ref to=\"image-gradient\"></wiki-ref>比较不同朝向的变化强度：先在响应表中检验转向和正负是否改变强度，再造一块可复用部件。",
+                "en": "<wiki-ref to=\"sobel-filter\"></wiki-ref> provides two signed responses. Use the <wiki-ref to=\"image-gradient\"></wiki-ref> to compare change strength across orientations: first test rotations and sign changes in a response table, then build a reusable part."
               },
               "chain": [
                 {
-                  "zh": "这一步：输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
-                  "en": "This step: Given an image, give the gradient's size √(gx² + gy²) at each position."
+                  "zh": "比较等长而朝向不同的响应向量，排除直接相加。",
+                  "en": "Compare equal-length response vectors pointing in different directions, rejecting signed addition."
                 },
                 {
-                  "zh": "这是<wiki-ref to=\"image-gradient\"></wiki-ref>：方向由 gx、gy 定，大小是 √(gx² + gy²)。这台边缘检测器后面还会用到。",
-                  "en": "This is the <wiki-ref to=\"image-gradient\"></wiki-ref>: its direction set by gx and gy, its size √(gx² + gy²). This edge detector is used again later."
+                  "zh": "观察与操作：输入一张图：输出每个位置的变化强度。大小相同而方向相反的响应，应得到同样的强度。",
+                  "en": "Observe and act: Given an image, output change strength at each position. Equal-sized responses pointing in opposite directions must have equal strength."
+                },
+                {
+                  "zh": "相同强度的变化可以指向不同方向，两个响应直接相加会相消，无法稳定比较。把响应作为两个互相垂直的分量处理，才可在保留方向信息的同时另取一个非负强度。",
+                  "en": "Equally strong changes can point in different directions. Adding signed responses can cancel them and fails as a stable comparison. Treating them as perpendicular components lets direction remain distinct from nonnegative strength."
                 }
               ],
               "role": "foundation",
@@ -1271,27 +1411,36 @@
               "naive": {
                 "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
                 "en": "The intuitive board beside the reference; see the level's naive board."
-              }
-            },
+              },
+              "builds": "edgeStrength"
+            }
+          ],
+          "parallel": "filter-purpose"
+        },
+        {
+          "id": "filter-finish",
+          "title": { "zh": "组合处理器", "en": "Combined processor" },
+          "kind": "foundation",
+          "slots": [
             {
               "id": "2B9",
               "title": { "zh": "彩色图的卷积", "en": "Convolving a colour picture" },
               "task": {
-                "zh": "输入一张彩色图和权重 wr、wg、wb：把三个通道各自高斯模糊，再按 wr × 红 + wg × 绿 + wb × 蓝 加起来。",
-                "en": "Given a colour image and the weights wr, wg, wb, Gaussian-blur each channel, then add wr × red + wg × green + wb × blue."
+                "zh": "输入彩色图与 wr、wg、wb：out 为各通道模糊后按权重相加的图，mag 为 out 的边缘强度。两路输出均需接出。",
+                "en": "Given a colour image and wr, wg, wb: out is the weighted sum of blurred channels, and mag is its edge strength. Connect both outputs."
               },
               "question": {
-                "zh": "三个通道各自模糊、再按权重加起来，结果是什么？",
-                "en": "blur each channel, then add them up by weights; what comes out?"
+                "zh": "把两条路线装进同一台处理器。先按 wr、wg、wb 选择要观察的颜色组合，用<wiki-ref to=\"gaussian-filter\"></wiki-ref>减弱细碎变化，再调用<wiki-ref to=\"image-gradient\"></wiki-ref>的强度部件检查剩下的分界。输出处理后的图与它的边缘强度，两者都要通过测试。",
+                "en": "Assemble both routes into one processor. Select a colour mixture with wr, wg and wb, reduce fine variation with <wiki-ref to=\"gaussian-filter\"></wiki-ref>, then call the <wiki-ref to=\"image-gradient\"></wiki-ref> strength part to inspect the remaining transitions. Output both the processed image and its edge strength."
               },
               "chain": [
                 {
-                  "zh": "这一步：输入一张彩色图和权重 wr、wg、wb：把三个通道各自高斯模糊，再按 wr × 红 + wg × 绿 + wb × 蓝 加起来。",
-                  "en": "This step: Given a colour image and the weights wr, wg, wb, Gaussian-blur each channel, then add wr × red + wg × green + wb × blue."
+                  "zh": "观察与操作：输入彩色图与 wr、wg、wb：out 为各通道模糊后按权重相加的图，mag 为 out 的边缘强度。两路输出均需接出。",
+                  "en": "Observe and act: Given a colour image and wr, wg, wb: out is the weighted sum of blurred channels, and mag is its edge strength. Connect both outputs."
                 },
                 {
-                  "zh": "这是<wiki-ref to=\"colour-filtering\"></wiki-ref>：核有几层就对应几个通道，各层结果相加成一张图。",
-                  "en": "This is <wiki-ref to=\"colour-filtering\"></wiki-ref>: a kernel has a layer per channel, and the layers' results add up to one picture."
+                  "zh": "这次<wiki-ref to=\"colour-filtering\"></wiki-ref>不只把部件摆在一起：权重决定看哪些通道，平滑改变进入求变化部件的信号。两张输出让你检查“保留了什么”与“哪里变化强”；这仍是局部处理，不等于识别物体。",
+                  "en": "This <wiki-ref to=\"colour-filtering\"></wiki-ref> composes a real signal path: weights select channels and smoothing changes what reaches the change detector. The two outputs show what remains and where it changes strongly. These local operations do not recognise objects."
                 }
               ],
               "role": "foundation",
@@ -1303,7 +1452,8 @@
                 "blur",
                 "channel",
                 "mul",
-                "add"
+                "add",
+                "edgeStrength"
               ],
               "teaches": "colour-filtering",
               "adds": ["channel"],
@@ -1318,7 +1468,6 @@
           "id": "colour-workshop",
           "title": { "zh": "Workshop：颜色顺序与溢出", "en": "Workshop: channel order and overflow" },
           "kind": "topic",
-          "after": "2B9",
           "slots": [
             {
               "id": "2W1",
@@ -1328,8 +1477,8 @@
                 "en": "The input is a photo read with OpenCV: give the same photo in its true colours."
               },
               "question": {
-                "zh": "怎样把颜色换回来？",
-                "en": "how are the colours put back?"
+                "zh": "Workshop 2 里用 OpenCV 读进来的照片，三个数按 B、G、R 存；交给 Matplotlib 按 R、G、B 显示，红蓝就对调了，蓝天变成橙色。另一个坑：照片常用 uint8 存，0 到 255，算出来超出范围会绕回去。",
+                "en": "In Workshop 2 a photo read with OpenCV stores its three numbers as B, G, R; shown by Matplotlib as R, G, B, red and blue trade places and a blue sky turns orange. Another trap: photos are often uint8, 0 to 255, and a result out of range wraps around."
               },
               "chain": [
                 {
@@ -1350,9 +1499,33 @@
                 "en": "The intuitive board beside the reference; see the level's naive board."
               }
             }
-          ]
+          ],
+          "after": "2B9"
         }
       ]
+    }
+  ],
+  "parallel": [
+    {
+      "id": "camera-basis",
+      "why": {
+        "zh": "几何与数组路线互不调用对方的部件，像素相机组合时才共同需要。",
+        "en": "Geometry and arrays do not use each other's parts; the pixel-camera join needs both."
+      }
+    },
+    {
+      "id": "filter-directions",
+      "why": {
+        "zh": "核方向与竖直读取是独立问题，二维处理汇合时同时使用。",
+        "en": "Kernel orientation and vertical addressing are independent; the 2D construction joins them."
+      }
+    },
+    {
+      "id": "filter-purpose",
+      "why": {
+        "zh": "平滑与变化响应从同一个二维滤波器出发，最终处理器实际调用两边部件。",
+        "en": "Smoothing and change responses share the 2D filter; the finale calls parts from both."
+      }
     }
   ]
 }

@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：怎样把颜色换回来？新元件<part-ref to=\"part:compose\"></part-ref>把三张灰度图依次当作 R、G、B 合成彩色图。",
-        "en": "This level asks: how are the colours put back? New part: <part-ref to=\"part:compose\"></part-ref> makes three grey images R, G and B of one colour image."
+        "zh": "这一关的问题是：怎样把颜色换回来？新元件<part-ref to=\"part:compose\"></part-ref>把三张<wiki-ref to=\"greyscale-image\"></wiki-ref>依次当作 R、G、B 合成彩色图。",
+        "en": "This level asks: how are the colours put back? New part: <part-ref to=\"part:compose\"></part-ref> makes three grey images R, G and B of one colour image. (<wiki-ref to=\"greyscale-image\"></wiki-ref>)"
       }
     }
   ],

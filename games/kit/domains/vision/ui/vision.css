@@ -117,3 +117,45 @@
 /* ---- a card's sheet on a phone ---- */
 .cl-sheet .vi-card { padding: 0; }
 .cl-sheet .vi-field :is(select, input) { height: 40px; font-size: 16px; }
+
+/* Learning instruments: a shared geometry, readable rulers and restrained result revelation. */
+.vi-optics { width: 100%; }
+.vi-optics-pair { display: grid; gap: 20px; }
+.vi-optics-pair.has-reference { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.vi-instrument { margin: 0; min-width: 0; }
+.vi-instrument figcaption, .vi-window-head { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
+.vi-instrument figcaption > span { color: var(--muted); font: 11px var(--mono); }
+.vi-instrument.is-reference { opacity: 0.8; }
+.vi-instrument .vi-bench { margin: 12px 0 0; }
+.vi-instrument .vb-note { font-size: 12px; }
+.vi-instrument-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.vi-instrument-terms { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.vi-instrument-terms .ref-chip { min-height: 32px; }
+.vp-dimension { stroke: var(--muted); stroke-width: 1; fill: none; }
+.vp-dimension text { stroke: none; fill: var(--muted); font: 12px var(--mono); text-anchor: middle; }
+.vp-view { fill: color-mix(in srgb, var(--accent) 8%, transparent); stroke: var(--accent); stroke-width: 1.5; }
+.vp-angle { fill: none; stroke: var(--accent); stroke-width: 2; }
+.vp-angle.is-half { stroke: var(--muted); stroke-dasharray: 3 3; }
+.vp-strip { fill: color-mix(in srgb, var(--accent) 8%, var(--canvas)); stroke: var(--line); }
+.vp-result { animation: vi-reveal 180ms ease-out; }
+@keyframes vi-reveal { from { opacity: 0; } to { opacity: 1; } }
+.vi-window { width: min(100%, 480px); padding: 16px 0; border-block: 1px solid var(--line); }
+.vi-window-head > span { color: var(--muted); font: 12px var(--mono); }
+.vi-window-controls { display: flex; align-items: center; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+.vi-window-controls button, .vi-window-controls select { min-height: 36px; min-width: 36px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: var(--r-sm); }
+.vi-window-controls button:disabled { opacity: 0.35; }
+.vi-window-controls label { display: flex; gap: 8px; align-items: center; font: 12px var(--mono); }
+.vi-window-controls input { width: 120px; accent-color: var(--accent); }
+.vi-window-factors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.vi-window-factor { display: grid; justify-items: center; gap: 7px; padding: 12px 6px; background: var(--canvas); border: 1px solid var(--line); border-radius: var(--r-sm); }
+.vi-window-factor.is-centre { border-color: var(--accent); }
+.vi-window-factor small { color: var(--muted); font: 11px var(--mono); }
+.vi-window-factor strong { font: 600 22px var(--mono); }
+.vi-window-factor > span { font: 13px var(--mono); }
+@media (max-width: 700px) {
+  .vi-optics-pair.has-reference { grid-template-columns: minmax(0, 1fr); }
+  .vi-instrument .vb-note { font-size: 12px; }
+  .vi-grid { padding: 14px; }
+  .vi-instrument-terms .ref-chip { min-height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .vp-result { animation: none; } }

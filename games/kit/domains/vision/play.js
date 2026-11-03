@@ -220,6 +220,18 @@ const bench = {
     return {
       sections: [
         { title: T('台上画的', 'What the bench draws'), text: both((lang) => picturesIn(b.layout).map((a) => `- ${pick(a, lang)}`).join('\n')) },
+        ...(b.setup?.reference ? [{ title: T('固定参照', 'Fixed reference'), text: both(() => {
+          const v = b.setup.reference
+          const q = model.view(v)
+          return `X=${v.X}, H=${v.H}, Z=${v.Z}, f=${v.f}; u=${q.u}, h=${q.h}`
+        }) }] : []),
+        ...(b.setup?.sensor ? [{ title: T('传感器坐标', 'Sensor coordinates'), text: both((lang) => {
+          const q = model.view(startValues(b))
+          const sensor = b.setup.sensor
+          return b.setup.axis === 'horizontal'
+            ? `${sensor.width} mm / ${sensor.pxWidth} px; ${lang === 'en' ? 'pitch' : '间距'}=${q.pitch}; c_x=${q.centre}; ${lang === 'en' ? 'positive right; centre indices start at 0' : '向右为正，像素中心从 0 编号'}`
+            : `${lang === 'en' ? 'vertical slice, equal scales, sensor half-height' : '竖直等比例切面，传感器半高'}=${sensor.height / 2} mm`
+        }) }] : []),
         { title: T('旋钮', 'Knobs'), text: both((lang) => Object.entries(b.knobs ?? {}).map(([n, k]) => knobText(n, k, lang)).join('\n')) },
         ...stages.map((stage, k) => ({
           title: stage ? T(`第 ${k + 1} 步：${pick(stage.title, 'zh')}`, `Step ${k + 1}: ${pick(stage.title, 'en')}`) : T('目标', 'The goal'),

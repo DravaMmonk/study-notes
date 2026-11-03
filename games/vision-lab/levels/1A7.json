@@ -3,20 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "最近邻只会照抄：落在两个像素之间的位置，不是取左边就是取右边，离得近一点远一点都一样。放大后的图因此成块。",
-        "en": "Nearest neighbour only copies: a position between two pixels reads the left one or the right one, however near it is to either. That is why enlargements come out blocky."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：位置落在像素之间，值能不能按它离各个像素的远近来算？先在一行上手算，再在 2 × 2 的方格里手算，最后接成电路。位置照旧直接给出，落到图外取最近的边。",
-        "en": "This level asks: can a position between pixels take a value by how near it is to each? Work it out on a row by hand, then inside a 2 × 2 square, then wire it. The positions are given as before; outside the image, the nearest edge."
+        "zh": "保持与<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>相同的采样位置，改用<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>。先看一行上靠左、靠右两点怎样变化，再把这个做法用于四个角；图外仍取最近边界。",
+        "en": "Keep the same sample positions but use <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>. First compare points near either end of a row, then extend that reasoning to four corners. Outside positions still use the nearest boundary. (<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>)"
       }
     }
   ],
   "after": {
-    "zh": "这是<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>：四个邻居按横竖两个距离加权平均，比最近邻平滑。",
-    "en": "This is <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>: four neighbours weighted (1−H)(1−V), H(1−V), (1−H)V, HV; smoother than nearest neighbour, it softens sharp edges a little."
+    "zh": "横向与纵向分别考虑距离，可以在四个邻居之间连续过渡。这减少了阶梯感，却不会补回原图未记录的细节；平滑的结果不等于更多真实信息。",
+    "en": "Considering horizontal and vertical distances separately gives a continuous transition between four neighbours. It reduces stepping without recovering detail absent from the original; a smoother result does not contain more measured information."
   },
   "tasks": [
     {
@@ -24,8 +18,8 @@
       "kind": "grid",
       "step": { "zh": "一行", "en": "A row" },
       "brief": {
-        "zh": "[0, 4] 在 x = −0.25、0.25、0.75、1.25 处取值：按到左右两个像素的距离加权，写出每个值。",
-        "en": "Read [0, 4] at x = −0.25, 0.25, 0.75 and 1.25, weighting the pixels either side by distance: write each value."
+        "zh": "[0, 4] 在 x = −0.25、0.25、0.75、1.25 处取值：按到左右两个<wiki-ref to=\"pixel\"></wiki-ref>的距离加权，写出每个值。",
+        "en": "Read [0, 4] at x = −0.25, 0.25, 0.75 and 1.25, weighting the <wiki-ref to=\"pixel\"></wiki-ref> on each side by distance: write each value."
       },
       "hint": [
         {
@@ -40,8 +34,8 @@
       "naive": {
         "answer": [[0, 0, 4, 4]],
         "why": {
-          "zh": "这是照抄最近的像素：0.25 和 0.75 位置不同，拿到的却是两端的值。按距离加权，0.25 处是 0.75 × 0 + 0.25 × 4 = 1。",
-          "en": "That copies the nearest pixel: 0.25 and 0.75 sit apart yet read the ends. Weighted by distance, 0.25 reads 0.75 × 0 + 0.25 × 4 = 1."
+          "zh": "这是照抄最近的<wiki-ref to=\"pixel\"></wiki-ref>：0.25 和 0.75 位置不同，拿到的却是两端的值。按距离加权，0.25 处是 0.75 × 0 + 0.25 × 4 = 1。",
+          "en": "That copies the nearest <wiki-ref to=\"pixel\"></wiki-ref>: 0.25 and 0.75 sit apart yet read the ends. Weighted by distance, 0.25 reads 0.75 × 0 + 0.25 × 4 = 1."
         }
       }
     },
@@ -78,8 +72,8 @@
       "kind": "circuit",
       "step": { "zh": "接成电路", "en": "Wire it" },
       "brief": {
-        "zh": "输入一张图和两张坐标图 x、y：交出每个位置按四个邻居距离加权的值。",
-        "en": "Given an image and the coordinate images x and y, give each position's value weighted from its four neighbours by distance."
+        "zh": "输入一张图和两张<wiki-ref to=\"coordinate-image\"></wiki-ref> x、y：交出每个位置按四个邻居距离加权的值。",
+        "en": "Given an image and the coordinate images x and y, give each position's value weighted from its four neighbours by distance. (<wiki-ref to=\"coordinate-image\"></wiki-ref>)"
       },
       "hint": [
         {

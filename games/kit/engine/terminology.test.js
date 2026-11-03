@@ -62,6 +62,8 @@ test('bare names are candidates: longest match, Latin boundaries, literal symbol
   assert.equal(use('C and OA').reports.length, 1, 'C++ is literal, not a regex quantifier')
   assert.equal(use('沿光轴移动。', 'zh').reports.length, 1)
   assert.equal(use(ref('axis')).reports.length, 0)
+  assert.equal(use(`${ref('axis')} is the optical axis.`).reports.length, 0, 'one accessible tag serves repeated mentions in the same text field')
+  assert.equal(use(`${ref('axis')} and Net`).reports.length, 1, 'another unlinked term still needs review')
   assert.equal(use('<b title="Optical axis">different</b>').reports.length, 0)
   assert.equal(use('Optical axis', 'en', { entry: 'axis' }).reports.length, 0, 'self definition need not link itself')
   assert.equal(use('Optical axis', 'en', { label: true }).reports.length, 0, 'concise labels may use registered names')

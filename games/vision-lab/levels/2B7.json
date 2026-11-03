@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "边是亮度突然变化的地方。右邻减左邻，在平坦处是 0，在边上不是 0：这就是一个找边的核。再竖着用 [1, 2, 1] 平均一下，抗噪声更好，就是 Sobel 核。",
-        "en": "An edge is where brightness changes suddenly. Right less left is 0 on flat ground and not 0 on an edge: an edge-finding kernel. Averaging down the column with [1, 2, 1] resists noise better: that is the Sobel kernel."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：Sobel 的两个响应 gx、gy 在不同方向的边上各是什么？先在一行上手算横向的差，再接一块同时输出 gx 和 gy 的 Sobel 滤波器。",
-        "en": "This level asks: what are Sobel's two responses gx and gy on edges running different ways? First work out the differences across a row by hand, then wire a Sobel filter giving gx and gy together."
+        "zh": "这一支要找变化而不是保留平均值。先比较一行的左右邻居，保留正负，再用<wiki-ref to=\"sobel-filter\"></wiki-ref>处理两个方向。手算题给窗口位置的权重；电路题沿用二维部件的书写<wiki-ref to=\"kernel\"></wiki-ref>约定，注意核对二者。",
+        "en": "This branch seeks change rather than an average. First compare left and right neighbours, retaining the sign, then use <wiki-ref to=\"sobel-filter\"></wiki-ref> in both directions. The hand calculation gives positional window weights; the circuit uses the 2D part's written <wiki-ref to=\"kernel\"></wiki-ref> convention. Reconcile the two."
       }
     }
   ],
@@ -23,8 +17,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"sobel-filter\"></wiki-ref>：gx 对竖着的边有响应，gy 对横着的边有响应；从暗到亮为正，从亮到暗为负。",
-    "en": "This is the <wiki-ref to=\"sobel-filter\"></wiki-ref>: gx responds to upright edges and gy to level ones; dark to bright is positive, bright to dark negative."
+    "zh": "同一条分界从暗到亮与从亮到暗，响应的符号相反；把符号丢掉，就不能判断增亮方向。平坦区域即使很亮也可以没有响应，图像边界的补零却可能制造额外响应。 (<wiki-ref to=\"padding-border-rules\"></wiki-ref>)",
+    "en": "Reversing a step from dark-to-bright to bright-to-dark reverses the response sign. Losing it loses the brightening direction. A bright flat region can have zero response, while zero <wiki-ref to=\"padding-border-rules\"></wiki-ref> can create extra responses at image boundaries."
   },
   "tasks": [
     {
@@ -52,15 +46,16 @@
           "zh": "这是只看变化有多大：响应带符号，从亮到暗的地方右邻比左邻暗，是负的。",
           "en": "That records only how big the change is: the response is signed, and where it goes bright to dark the right neighbour is darker, so it is negative."
         }
-      }
+      },
+      "window": { "weights": [-1, 0, 1], "axis": "row", "padding": "zero" }
     },
     {
       "id": "2B7_2",
       "kind": "circuit",
       "step": { "zh": "Sobel 滤波器", "en": "Sobel filter" },
       "brief": {
-        "zh": "输入一张图：交出 gx（横向权重 −1、0、1，竖向 1、2、1）和 gy（横向 1、2、1，竖向 −1、0、1）。",
-        "en": "Given an image, give gx (across −1, 0, 1; down 1, 2, 1) and gy (across 1, 2, 1; down −1, 0, 1)."
+        "zh": "输入一张图，输出 gx、gy。书写的<wiki-ref to=\"kernel\"></wiki-ref>：gx 横向 [1,0,−1]、纵向 [1,2,1]；gy 横向 [1,2,1]、纵向 [1,0,−1]。沿坐标正方向从暗到亮，响应应为正。",
+        "en": "Given an image, output gx and gy. Written <wiki-ref to=\"kernel\"></wiki-ref> pairs: gx uses [1,0,−1] across and [1,2,1] down; gy uses [1,2,1] across and [1,0,−1] down. Dark-to-bright along a positive coordinate direction must give a positive response."
       },
       "hint": [{ "zh": "两个响应都是二维滤波器，只是权重不同。", "en": "Both responses are 2D filters with different weights." }],
       "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
@@ -98,8 +93,8 @@
         "z = const[value=0]()",
         "o = const[value=1]()",
         "w = const[value=2]()",
-        "x = filter2D(image, m, z, o, o, w, o)",
-        "y = filter2D(image, o, w, o, m, z, o)",
+        "x = filter2D(image, o, z, m, o, w, o)",
+        "y = filter2D(image, o, w, o, o, z, m)",
         "gx <- x",
         "gy <- y"
       ],
@@ -108,7 +103,7 @@
         "z = const[value=0]()",
         "o = const[value=1]()",
         "w = const[value=2]()",
-        "x = filter2D(image, o, z, m, o, w, o)",
+        "x = filter2D(image, m, z, o, o, w, o)",
         "y = filter2D(image, o, w, o, m, z, o)",
         "gx <- x",
         "gy <- y"

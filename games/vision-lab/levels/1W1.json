@@ -3,30 +3,35 @@
   "intro": [
     {
       "t": {
-        "zh": "Workshop 2 的一道题：知道物体多高、多远，从照片里量出它占多少像素，反推镜头的焦距。照片里量的是像素，相似三角形要的是传感器上的毫米。",
-        "en": "A Workshop 2 exercise: knowing how tall and how far an object is, measure how many pixels it covers in the photo and work back to the lens's focal length. The photo gives pixels; similar triangles want millimetres on the sensor."
+        "zh": "Workshop 2 的一道题：知道物体多高、多远，从照片里量出它占多少<wiki-ref to=\"pixel\"></wiki-ref>，反推镜头的<wiki-ref to=\"focal-length\"></wiki-ref>。照片里量的是像素，<wiki-ref to=\"similar-triangles\"></wiki-ref>要的是<wiki-ref to=\"sensor\"></wiki-ref>上的毫米。",
+        "en": "A Workshop 2 exercise: knowing how tall and how far an object is, measure the span in <wiki-ref to=\"pixel\"></wiki-ref> units in the photo and work back to the lens's <wiki-ref to=\"focal-length\"></wiki-ref>. The photo gives pixel counts; <wiki-ref to=\"similar-triangles\"></wiki-ref> want millimetres on the <wiki-ref to=\"sensor\"></wiki-ref>."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：像素和毫米怎样换算，才能代进相似三角形？传感器高 smm 毫米、spx 像素；物体在图里高 hpx 像素，实际高 H、距离 Z（毫米）。",
-        "en": "This level asks: how are pixels and millimetres converted before the similar triangles? The sensor is smm millimetres and spx pixels high; the object covers hpx pixels and is H tall and Z away, in millimetres."
+        "zh": "这一关的问题是：<wiki-ref to=\"pixel\"></wiki-ref>和毫米怎样换算，才能代进<wiki-ref to=\"similar-triangles\"></wiki-ref>？<wiki-ref to=\"sensor\"></wiki-ref>高 smm 毫米、spx 像素；物体在图里高 hpx 像素，实际高 H、距离 Z（毫米）。",
+        "en": "This level asks: how are <wiki-ref to=\"pixel\"></wiki-ref> and millimetres converted before the <wiki-ref to=\"similar-triangles\"></wiki-ref>? The <wiki-ref to=\"sensor\"></wiki-ref> is smm millimetres and spx samples high; the object covers hpx samples and is H tall and Z away, in millimetres."
       }
     }
   ],
   "after": {
-    "zh": "这是<wiki-ref to=\"pixel-to-mm-focal-length\"></wiki-ref>：先把像素换成传感器上的毫米，再代进 h/f = H/Z。",
-    "en": "This is <wiki-ref to=\"pixel-to-mm-focal-length\"></wiki-ref>: convert pixels to millimetres on the sensor first, then h/f = H/Z; pixels and millimetres never share a proportion."
+    "zh": "这是<wiki-ref to=\"pixel-to-mm-focal-length\"></wiki-ref>：先把<wiki-ref to=\"pixel\"></wiki-ref>换成<wiki-ref to=\"sensor\"></wiki-ref>上的毫米，再代进 h/f = H/Z。",
+    "en": "This is <wiki-ref to=\"pixel-to-mm-focal-length\"></wiki-ref>: convert <wiki-ref to=\"pixel\"></wiki-ref> to millimetres on the <wiki-ref to=\"sensor\"></wiki-ref> first, then h/f = H/Z; pixel counts and millimetres never share a proportion."
   },
   "tasks": [
     {
       "id": "1W1",
       "kind": "circuit",
       "brief": {
-        "zh": "输入 hpx、spx、smm、Z、H：交出焦距 f（毫米）。",
-        "en": "Given hpx, spx, smm, Z and H, give the focal length f in millimetres."
+        "zh": "输入 hpx、spx、smm、Z、H：交出<wiki-ref to=\"focal-length\"></wiki-ref> f（毫米）。",
+        "en": "Given hpx, spx, smm, Z and H, give the <wiki-ref to=\"focal-length\"></wiki-ref> f in millimetres."
       },
-      "hint": [{ "zh": "一个像素在传感器上有多少毫米？", "en": "How many millimetres of sensor is one pixel?" }],
+      "hint": [
+        {
+          "zh": "一个<wiki-ref to=\"pixel\"></wiki-ref>在<wiki-ref to=\"sensor\"></wiki-ref>上有多少毫米？",
+          "en": "How many millimetres of <wiki-ref to=\"sensor\"></wiki-ref> is one <wiki-ref to=\"pixel\"></wiki-ref>?"
+        }
+      ],
       "inputs": [
         { "name": "hpx", "label": { "zh": "物体在图中的高（像素）", "en": "Object in the photo (pixels)" } },
         { "name": "spx", "label": { "zh": "传感器高（像素）", "en": "Sensor height (pixels)" } },

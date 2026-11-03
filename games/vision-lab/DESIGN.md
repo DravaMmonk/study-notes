@@ -1,69 +1,52 @@
 # Vision Lab
 
-Status: a trial of the first two chapters of the course map in
-`docs/Unimelb/26S2/CV/vision-game-specs/knowledge-map-1-12.md`, with two currently serial main paths. Each chapter aims to build a machine, and
-parts built are called by later levels; that structure alone does not establish a successful learning ladder.
-`blueprint.json` is the authority for the knowledge points, slots and order; the encyclopedia entries come from the
-entries of the course map.
+Status: a playable revision of Chapters 1–2. The blueprint is the executable curriculum authority; content is
+written through the operation set. Definitions live in clickable glossary entries. Copy gives a question,
+experimental conditions, reasoning support and synthesis, without repeating entry definitions.
 
-## Chapter 1, the camera (lectures 1–2)
+## Visual and interaction direction
 
-| Level | Does | Teaches | Part |
-| --- | --- | --- | --- |
-| 1A1 | bench, then circuit | pinhole projection u = fX/Z | project |
-| 1A2 | bench (another scene with the same picture), then circuit (work back from u, given a distance) | the forward and inverse problems | |
-| 1A3 | bench (90° field of view), then circuit | focal length in pixels and the field of view | |
-| 1A4 | grid (coordinates, a colour pixel), then circuit | the image as an array, (x, y) | |
-| 1A5 | grid, then circuit | cropping is not resizing | crop |
-| 1A6 | grid, then circuit (positions given) | nearest neighbour | |
-| 1A7 | two grids, then circuit (positions given) | bilinear interpolation | |
-| 1W1, 1W2 | optional, Workshop 2 | pixels to millimetres; shape vs size and the centre crop | |
+A quiet optical instrument: one geometric drawing dominates the workspace, with fixed rulers, attached quantity
+marks and readable term tags. Reference and trial states use identical scales; result revelation follows the
+player's prediction, while the reference remains inspectable. Sensor coordinates use a separate labelled strip;
+angles use equal horizontal and vertical scales, never the stretched side-view schematic. On phones the same
+views stack instead of shrinking labels beyond readability. Motion follows state changes and result revelation;
+reduced-motion preferences suppress decorative transitions.
 
-## Chapter 2, the convolver (lecture 3, the gradient of lecture 5)
+## Chapter 1: camera and image coordinates
 
-| Level | Does | Teaches | Part |
-| --- | --- | --- | --- |
-| 2B1 | a row by hand, a valid circuit | the sliding weighted sum | |
-| 2B2 | grid, circuit | padding | rowFilter |
-| 2B3 | an impulse by hand, true convolution from rowFilter | convolution vs correlation | |
-| 2B4 | circuit | the same down the columns | colFilter |
-| 2B5 | the merged kernel by hand, circuit | separable filters | filter2D |
-| 2B6 | a blurred point by hand, circuit | the Gaussian filter | blur |
-| 2B7 | signed differences across a row by hand, circuit | the Sobel filter | sobel |
-| 2B8 | circuit | the gradient and its size | |
-| 2B9 | circuit | colour filtering, channel by channel | |
-| 2W1 | optional, Workshop 2: circuit | BGR vs RGB (uint8 overflow in the copy) | |
+Required parallel routes, in either study order:
 
-## Where it departs from the course map
+- Geometry: 1A1 (predict controlled X/Z/f changes, then build projection), 1A2 (construct a different scene with the
+  same image, then conditional inversion).
+- Arrays: 1A4 (locate and edit cells, then read neighbours). Arithmetic addition is introduced here, so this route
+  needs no parts or explanations from geometry.
 
-- Resampling positions are given, not worked out: the pixel-centre convention is a library's, not the lecture's.
-- No task is a quiz: what the map's judgement levels would ask (one pixel or a patch, which way the gradient points,
-  uint8 overflow) is said in the intros and pass texts; the inverse problem is practised by building a second scene.
-- A column filter (2B4) is built before the separable filter, which is a row pass and a column pass.
-- The row filter becomes a part only once it pads (2B2), so every filter after keeps the image's size.
-- The nearest and bilinear samplers and the gradient are not parts yet: no level in these two chapters calls them.
-  They become parts when the chapters that call them (the panorama stitcher) are built.
+Join at 1A3: first convert a signed sensor offset into pixels, then translate the origin on a coordinate strip,
+then compose projection with that translation. The horizontal slice and increasing-right convention are explicit;
+it does not silently reuse the vertical field-of-view drawing. The main route then continues through cropping
+(1A5), nearest sampling (1A6) and bilinear sampling (1A7). The optional framing topic 1F1 hangs after projection: its equal-scale field-of-view experiment is independent
+of pixel-coordinate arithmetic and does not block the camera join. Workshop-only units/library details remain
+optional (1W1, 1W2). These topics have separate blueprint points and entry opening levels.
 
-## Required learning-design repairs before content revision
+## Chapter 2: filtering and a combined image processor
 
-The first two chapters are not accepted as pedagogically complete. See the source-based
-[static review](../../docs/Unimelb/26S2/CV/vision-game-specs/trial-chapters-1-2-review.md), handbook §4.3 and the
-[vision domain contract](../kit/domains/vision/DESIGN.md). This work list does not change the current blueprint or levels.
+Shared basis: 2B1 local weighted sums, 2B2 boundary handling and the reusable row filter.
 
-- Establish independent required learning routes and genuine joins; distinguish choice of study order from optional
-  topics. In Chapter 1, geometric projection and image-array coordinates need a justified relationship before their
-  pixel-camera combination. In Chapter 2, inspect kernel orientation versus column processing and the Gaussian versus
-  Sobel/gradient routes after their common filtering basis. Do not impose either full route as the other's prerequisite.
-  These are candidates requiring a fresh dependency audit, not an executable reordered course.
-- Map the foundations of field of view, physical/pixel scale and coordinate origins before combining them in 1A3.
-  Walk the tasks from novice-visible evidence and prior conventions, not from the author-facing formula or `chain`.
-- Make the observations promised by 1A1's hints available in a discovery phase, and support transfer from the bench
-  to its circuit. Distinguish necessary teaching evidence from a numeric answer withheld for assessment.
-- Give 1A1/1A2 principle-level synthesis with model assumptions and the limits of inverse inference; remove unsupported
-  generalisations about what a single image determines.
-- Establish annotated optical/coordinate views and an interaction/visual acceptance plan in the domain before those
-  views are used to repair the content. High-quality presentation remains unverified until the actual screens are
-  inspected at desktop and phone sizes.
+Required parallel routes: 2B3 kernel orientation and 2B4 vertical neighbourhoods. Join at 2B5 to reason about a
+separable 2D convolution filter: inputs are kernels in written order and both axes must be flipped before the
+positional row/column parts are called. Asymmetric tests distinguish the roles and reject omitted flips. Sobel
+uses the same written-kernel contract; its outputs retain the declared positive-change convention. After that:
 
-The present change establishes design rules and static review; it does not close these findings, implement a new
-camera view, reorder levels, or alter player saves.
+- Smoothing: 2B6 builds blur.
+- Changes: 2B7 builds directional responses; 2B8 combines them into a reusable edge-strength part.
+
+Join at 2B9: produce a weighted blurred colour image and its edge strength. Both branches are actually used by
+the reference and tests; a blueprint-only dependency is insufficient. 2W1 remains an optional Workshop topic.
+
+## Acceptance and evidence
+
+Validate both route orders, term access on every prerequisite path, wrong strategies, prediction outcomes,
+reference circuits, generated save migration and glossary body references. Check desktop/phone screenshots,
+pre/post-check result visibility, keyboard term activation and fresh-game route choice. Source-based requirements
+and remaining issues are recorded in the chapter review; automated passing is not a claim of novice mastery.

@@ -10,8 +10,8 @@
     "en": "In development"
   },
   "lede": {
-    "zh": "一章一章造出视觉的机器。先造一台相机：把场景投影成像素、在任意位置取值；再造一台卷积器：把邻居加权合起来，搭出模糊器和边缘检测器。每个部件都会在后面直接复用。",
-    "en": "Build the machines of vision chapter by chapter. First a camera: project a scene into pixels and read it at any position; then a convolver: weigh neighbours together into a blur and an edge detector. Every part is reused later."
+    "zh": "一章一章造出视觉的机器。先造一台相机：把场景投影到<wiki-ref to=\"pixel\"></wiki-ref>坐标、在任意位置取值；再造一台卷积器：把邻居加权合起来，搭出模糊器和边缘检测器。每个部件都会在后面直接复用。",
+    "en": "Build the machines of vision chapter by chapter. First a camera: project a scene into <wiki-ref to=\"pixel\"></wiki-ref> coordinates and read it at any position; then a convolver: weigh neighbours together into a blur and an edge detector. Every part is reused later."
   },
   "primitives": [
     "mul",
@@ -30,7 +30,7 @@
   "concept": {
     "mul": "projection",
     "div": "projection",
-    "add": "projection",
+    "add": "pixels",
     "const": "pixels",
     "sub": "pixels",
     "lookup": "pixels",
@@ -50,20 +50,37 @@
         "en": "How does a scene become a table of numbers, and how is the table read at any position?"
       },
       "foundation": [
-        "1A1",
-        "1A2",
+        {
+          "parallel": [
+            {
+              "id": "camera-geometry",
+              "title": { "zh": "投影与成像几何", "en": "Projection geometry" },
+              "levels": ["1A1", "1A2"]
+            },
+            {
+              "id": "camera-array",
+              "title": { "zh": "数表与定位", "en": "Arrays and positions" },
+              "levels": ["1A4"]
+            }
+          ]
+        },
         "1A3",
-        "1A4",
         "1A5",
         "1A6",
         "1A7"
       ],
       "topics": [
         {
-          "id": "camera-workshop",
-          "title": { "zh": "Workshop：相机的工程细节", "en": "Workshop: the camera in practice" },
+          "id": "workshop-camera",
+          "title": { "zh": "Workshop：相机的工程细节", "en": "Workshop: camera practice" },
           "levels": ["1W1", "1W2"],
           "after": "1A7"
+        },
+        {
+          "id": "framing",
+          "title": { "zh": "可选：画面与视野", "en": "Optional: framing and field of view" },
+          "levels": ["1F1"],
+          "after": "1A1"
         }
       ]
     },
@@ -75,7 +92,32 @@
         "zh": "怎样把一个像素和它的邻居合起来算，造出模糊器和边缘检测器？",
         "en": "How is a pixel combined with its neighbours, to build a blur and an edge detector?"
       },
-      "foundation": ["2B1", "2B2", "2B3", "2B4", "2B5", "2B6", "2B7", "2B8", "2B9"],
+      "foundation": [
+        "2B1",
+        "2B2",
+        {
+          "parallel": [
+            {
+              "id": "filter-orientation",
+              "title": { "zh": "权重方向", "en": "Weight orientation" },
+              "levels": ["2B3"]
+            },
+            {
+              "id": "filter-column",
+              "title": { "zh": "竖直邻域", "en": "Vertical neighbourhoods" },
+              "levels": ["2B4"]
+            }
+          ]
+        },
+        "2B5",
+        {
+          "parallel": [
+            { "id": "filter-smooth", "title": { "zh": "平滑路线", "en": "Smoothing" }, "levels": ["2B6"] },
+            { "id": "filter-edge", "title": { "zh": "变化路线", "en": "Changes" }, "levels": ["2B7", "2B8"] }
+          ]
+        },
+        "2B9"
+      ],
       "topics": [
         {
           "id": "colour-workshop",
@@ -210,6 +252,50 @@
         { "rename": { "1F2": null } },
         { "rename": { "1F1": null } }
       ]
+    },
+    {
+      "version": 6,
+      "why": "Revise Chapters 1–2: independent required routes, controlled experiments and clickable terminology",
+      "ops": [
+        { "retask": { "1A3": "1A8" } },
+        {
+          "drop": [
+            "1A1",
+            "1A1_2",
+            "1A2",
+            "1A2_2",
+            "2B4_window",
+            "2B4",
+            "2B5",
+            "2B5_2",
+            "2B8_vectors",
+            "2B8",
+            "2B9"
+          ]
+        },
+        { "solve": ["1A3", ["1A8"]] },
+        { "built": [["2B8", "2B8"]] }
+      ]
+    },
+    {
+      "version": 7,
+      "why": "Polish term access and prediction controls after visual playthrough",
+      "ops": [{ "rename": { "1A8": "1F1" } }, { "retask": { "1A8": "1F1" } }, { "drop": ["1A1", "1A1_2"] }]
+    },
+    {
+      "version": 8,
+      "why": "Polish bilingual wording, staged coordinates and distinct optional-route labels",
+      "ops": [{ "drop": ["1A3_scale", "1A3_origin", "1A3_2"] }]
+    },
+    {
+      "version": 9,
+      "why": "Make the kernel-direction branch necessary at the 2D convolution join",
+      "ops": [{ "drop": ["1A2", "1A2_2", "2B5", "2B5_2", "2B7", "2B7_2"] }]
+    },
+    {
+      "version": 10,
+      "why": "Keep the equal-scale FOV construction legible across the experimental range",
+      "ops": [{ "drop": ["1F1"] }]
     }
   ]
 }

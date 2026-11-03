@@ -22,4 +22,12 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate, play }
+// Changed puzzle contracts or reference programs invalidate kept answers; wording changes preserve them.
+const contract = (level) => (level.tasks ?? []).map((t) => ({
+  id: t.id, kind: t.kind,
+  ...(t.kind === 'circuit' ? { inputs: t.inputs.map((p) => p.name), outputs: t.outputs.map((p) => p.name), tests: t.tests, hidden: t.hidden, solution: t.solution }
+    : t.kind === 'grid' ? { image: t.image, ask: t.ask } : t.kind === 'bench' ? { bench: t.bench } : { rounds: t.rounds }),
+}))
+const changes = { stale: (before, after) => JSON.stringify(contract(before)) !== JSON.stringify(contract(after)) }
+
+export default { vocabulary, spec, validate, play, changes }

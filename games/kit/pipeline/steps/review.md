@@ -61,7 +61,7 @@ entry body is the explanation; no separate simple-definition field is maintained
 registered aliases. First independently extract professional terms from all player-facing copy, diagrams, control
 labels and domain UI; then reconcile that inventory with the registry. A lookup of registered names alone cannot
 find unregistered terminology. Report confirmed missing terms as `term-unregistered` blockers, and confirmed
-technical bare-name usage as `term-unlinked` blockers; ordinary-language occurrences are not errors merely because
+technical bare-name usage without a tag in that independently visible text field as `term-unlinked` blockers; ordinary-language occurrences are not errors merely because
 the same word names a concept. Titles may use a registered name directly; diagram/control labels must identify
 their visible referents and offer a clickable term or adjacent term tag.
 

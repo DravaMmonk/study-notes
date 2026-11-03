@@ -150,6 +150,7 @@ const TASK = S.by('kind', {
   grid: S.obj({
     kind: S.oneOf(['grid']), ...COMMON,
     image: IMAGE,
+    window: S.opt(S.obj({ weights: S.list(num, { min: 3 }), axis: S.oneOf(['row', 'column']), padding: S.oneOf(['zero', 'valid']) })),
     ask: S.call('ask'),
     show: S.opt(S.oneOf(['numbers', 'picture', 'both'], { about: t('图怎么给玩家看：数、画面、两样都看（默认两样）', 'how the image is shown: numbers, picture or both (both by default)') })),
     tolerance: S.opt(S.num({ min: 0 })),

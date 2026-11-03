@@ -6,6 +6,7 @@
 //     verify(model, bench) → ''       the model's data fit it (what is wrong, else ''), for npm run check }
 // The lesson itself (the start fails, some setting passes, the naive settings fail, what passes holds) is the task's
 // (lesson.js).
+import { S } from '../../../engine/schema.js'
 import { pinhole } from './pinhole.js'
 import { lens } from './lens.js'
 
@@ -13,8 +14,11 @@ const t = (zh, en) => ({ zh, en })
 
 export const BENCH_MODELS = { pinhole, lens }
 
+const terms = S.obj({ terms: S.opt(S.list(S.text())) })
 export const DISPLAYS = {
-  pinholeRays: { about: t('针孔相机的侧视图：物体、相机中心、虚像平面和穿过中心的光线，目标位置画在像平面上', 'the pinhole camera from the side: the object, the camera centre, the virtual image plane and the rays through the centre, the target drawn on the plane') },
+  sensorCoordinates: { about: t('横向传感器坐标条：毫米偏移、像素偏移和列坐标，结果检查后显示', 'horizontal sensor strip: physical offset, pixel offset and column, results revealed after checking'), params: terms },
+  pinholeField: { about: t('等比例的竖直视场构图，标出上下边界和半角', 'an equal-scale vertical field-of-view construction, with both sensor edges and half-angle'), params: terms },
+  pinholeRays: { params: terms, about: t('针孔相机的侧视图：物体、相机中心、虚像平面和穿过中心的光线，目标位置画在像平面上', 'the pinhole camera from the side: the object, the camera centre, the virtual image plane and the rays through the centre, the target drawn on the plane') },
   lensRays: { about: t('薄透镜的侧视图：物体、透镜、传感器和每个物体落在传感器上的光锥', 'the thin lens from the side: the objects, the lens, the sensor and each object’s cone of light on the sensor') },
   blurCurve: { about: t('模糊圈对深度的曲线：清晰门槛、清晰的深度范围和每个物体的位置', 'the blur circle against depth: the sharpness threshold, the sharp range and each object') },
 }

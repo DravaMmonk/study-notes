@@ -3,21 +3,15 @@
   "intro": [
     {
       "t": {
-        "zh": "缩放时，新图的每个像素对应原图里的一个位置，这个位置一般不是整数：原图在那里没有像素。这一关先不管位置怎么算出来，题目直接给出。",
-        "en": "When resizing, each pixel of the new image corresponds to a position in the original, seldom a whole number: the original has no pixel there. This level does not ask how the positions are worked out; they are given."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：落在像素之间的位置，最简单的取值办法是什么？先手算一行，再接一块电路。离两边一样远时，约定取坐标较大的一边；落到图外，取最近的边。",
-        "en": "This level asks: what is the simplest value for a position between pixels? First work out a row by hand, then wire a circuit. When a position is equally far from two pixels, take the larger coordinate; outside the image, the nearest edge."
+        "zh": "改过输出尺寸后，题目直接给出原图中的采样位置。用<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>完成这次读取，比较 0.4 和 0.5 附近的结果。本题约定距离相同时取坐标较大的一边，图外取最近边界。",
+        "en": "After changing output size, the task supplies sample positions in the original. Use <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref> and compare positions around 0.4 and 0.5. Ties take the larger coordinate and positions outside use the nearest boundary."
       }
     }
   ],
   "adds": ["floor"],
   "after": {
-    "zh": "这是<wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>：照抄最近的像素，快、边缘硬，放大后成块，新图里只有原图已有的值。",
-    "en": "This is <wiki-ref to=\"nearest-neighbour-interpolation\"></wiki-ref>: copy the nearest pixel; fast and hard-edged, blocky when enlarged, with only values the original had."
+    "zh": "位置只移动一点，读到的值却可能突然改变；这种不连续来自所选邻居的切换。取样规则决定了新图的结构，坐标正确并不保证放大后平滑。",
+    "en": "A tiny position change can cause a sudden value change when the selected neighbour switches. The sampling rule determines the new image structure; correct coordinates alone do not ensure a smooth enlargement."
   },
   "tasks": [
     {
@@ -25,11 +19,14 @@
       "kind": "grid",
       "step": { "zh": "手算", "en": "By hand" },
       "brief": {
-        "zh": "这一行在 x = −0.25、0.4、0.5、1.6、2.2 处取值：写出每个位置最近的像素的值。",
-        "en": "Read this row at x = −0.25, 0.4, 0.5, 1.6 and 2.2: write the value of the pixel nearest each position."
+        "zh": "这一行在 x = −0.25、0.4、0.5、1.6、2.2 处取值：写出每个位置最近的<wiki-ref to=\"pixel\"></wiki-ref>的值。",
+        "en": "Read this row at x = −0.25, 0.4, 0.5, 1.6 and 2.2: write the value of the <wiki-ref to=\"pixel\"></wiki-ref> nearest each position."
       },
       "hint": [
-        { "zh": "0.5 离 0 和 1 一样近；2.2 最近的像素是哪个？", "en": "0.5 is as near 0 as 1; which pixel is nearest 2.2?" }
+        {
+          "zh": "0.5 离 0 和 1 一样近；2.2 最近的<wiki-ref to=\"pixel\"></wiki-ref>是哪个？",
+          "en": "0.5 is as near 0 as 1; which <wiki-ref to=\"pixel\"></wiki-ref> is nearest 2.2?"
+        }
       ],
       "image": [[0, 4, 8]],
       "show": "both",
@@ -50,14 +47,14 @@
       "intro": [
         {
           "t": {
-            "zh": "位置用两张坐标图给出：x 图每格是要取的横坐标，y 图是纵坐标。新元件<part-ref to=\"part:floor\"></part-ref>把数向下取整；<part-ref to=\"part:lookup\"></part-ref>可以在元件上设成出界取最近的边。",
-            "en": "The positions come as two coordinate images: each cell of x is the column to read, of y the row. New part: <part-ref to=\"part:floor\"></part-ref> rounds down; <part-ref to=\"part:lookup\"></part-ref> can be set on the part to read the nearest edge outside the image."
+            "zh": "位置用两张<wiki-ref to=\"coordinate-image\"></wiki-ref>给出：x 图每格是要取的横坐标，y 图是纵坐标。新元件<part-ref to=\"part:floor\"></part-ref>把数向下取整；<part-ref to=\"part:lookup\"></part-ref>可以在元件上设成出界取最近的边。",
+            "en": "The positions come as two coordinate images: each cell of x is the column to read, of y the row. New part: <part-ref to=\"part:floor\"></part-ref> rounds down; <part-ref to=\"part:lookup\"></part-ref> can be set on the part to read the nearest edge outside the image. (<wiki-ref to=\"coordinate-image\"></wiki-ref>)"
           }
         }
       ],
       "brief": {
-        "zh": "输入一张图和两张坐标图 x、y：交出每个位置最近的像素的值。",
-        "en": "Given an image and the coordinate images x and y, give the value of the pixel nearest each position."
+        "zh": "输入一张图和两张<wiki-ref to=\"coordinate-image\"></wiki-ref> x、y：交出每个位置最近的<wiki-ref to=\"pixel\"></wiki-ref>的值。",
+        "en": "Given an image and the coordinate images x and y, give the value of the <wiki-ref to=\"pixel\"></wiki-ref> nearest each position. (<wiki-ref to=\"coordinate-image\"></wiki-ref>)"
       },
       "hint": [{ "zh": "手算时你是怎样从 1.6 得到 2 的？", "en": "By hand, how did you get from 1.6 to 2?" }],
       "inputs": [

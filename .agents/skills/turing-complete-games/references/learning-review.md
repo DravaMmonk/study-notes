@@ -136,8 +136,9 @@ field changes when an explanation can be opened.
 Automatic failures cover empty definitions/names, duplicate ids, conflicting names/aliases, unregistered explicit
 references and unavailable explanations. Bare occurrences of registered names are review candidates because the
 same spelling may be ordinary language. Independently extract technical terms missing from the registry and inspect
-domain UI/diagram vocabulary not held in schema-declared content. Every confirmed unregistered or unlinked
-professional use blocks semantic approval. The dictionary and text must be corrected through existing glossary/text
+domain UI/diagram vocabulary not held in schema-declared content. Every confirmed unregistered professional term or independently visible text field without access to its
+explanation blocks semantic approval. Repeated mentions in one field share its term tag; do not demand a chip on
+every repetition. The dictionary and text must be corrected through existing glossary/text
 operations, not by auto-generating definitions or duplicating the registry.
 
 Review click access separately from instructional support. Diagram/control labels identify visible referents and

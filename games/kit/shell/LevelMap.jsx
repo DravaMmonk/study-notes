@@ -1,3 +1,4 @@
+import { Text } from './Layout.jsx'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useEscape } from './Dialogs.jsx'
 import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
@@ -395,7 +396,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
         <div className="map-hero-text">
           <p className="map-kicker">{L(game.kicker)}</p>
           <h1>{L(game.title)}</h1>
-          <p className="map-lede">{L(game.lede)}</p>
+          <Text game={game} className="map-lede" text={game.lede} />
           <div className="map-progress" aria-label={tr(`已通过 ${done} / ${levels.length} 关`, `${done} of ${levels.length} levels passed`)}>
             <span className="map-progress-bar"><i style={{ width: `${(done / levels.length) * 100}%` }} /></span>
             <span>{tr(`${done} / ${levels.length} 关`, `${done} / ${levels.length} levels`)}</span>

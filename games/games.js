@@ -91,7 +91,7 @@ export const GAMES = [
   {
     id: 'vision-lab', href: 'vision-lab/index.html', title: 'Vision Lab', en: 'Vision Lab', topic: { zh: 'Vision Lab', en: 'Vision Lab' },
     desc: { zh: '一章一章造出视觉的机器：先造相机，把场景投影成像素、在任意位置取值；再造卷积器，搭出模糊器和边缘检测器。', en: 'Build the machines of vision chapter by chapter: a camera that projects a scene into pixels and reads them anywhere, then a convolver that makes a blur and an edge detector.' },
-    levels: 19, dev: true, hidden: true,
+    levels: 20, dev: true, hidden: true,
     page: { icon: 'M16 32h32M32 16v32', description: 'Vision Lab Vision Lab' },
     progress: () => (read('vision-lab.v1')?.solved || []).length,
   },

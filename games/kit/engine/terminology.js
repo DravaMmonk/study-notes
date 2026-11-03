@@ -67,14 +67,15 @@ export function termUsage(registry, places, before) {
   const available = (entry, level) => !entry.at || entry.at === level || Boolean(level && before(entry.at, level))
   for (const place of places) {
     if (/<\/?wiki-ref\b/.test(place.text.replace(REF, ''))) failures.push(problem('term-reference-format', place.at, 'malformed term reference; use a closed wiki-ref with a registered id'))
-    for (const id of new Set([...place.text.matchAll(REF)].filter((m) => m[1] === 'wiki').map((m) => m[2]))) {
+    const linked = new Set([...place.text.matchAll(REF)].filter((m) => m[1] === 'wiki').map((m) => m[2]))
+    for (const id of linked) {
       const entry = registry.entries.get(id)
       if (!entry) failures.push(problem('term-reference', place.at, `the term ${id} is not registered in this game's glossary`))
       else if (!available(entry, place.level)) failures.push(problem('term-unavailable', place.at, `the explanation for ${id} opens at ${entry.at}, which is not available here`))
     }
     if (place.label) continue
     for (const id of bareNames(place.text, registry.names[place.side])) {
-      if (id === place.entry) continue // An entry may define its own name without linking itself.
+      if (id === place.entry || linked.has(id)) continue // Self-definitions and repeated mentions share the available entry or tag.
       const entry = registry.entries.get(id)
       reports.push({ ...problem('term-unlinked', place.at, `literal name/alias of ${id} without a term reference; check whether this is technical usage${available(entry, place.level) ? '' : ` (its explanation opens at ${entry.at})`}`), report: true })
     }

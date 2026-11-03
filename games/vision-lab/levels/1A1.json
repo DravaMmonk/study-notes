@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "一台理想的针孔相机：场景里一点发出的光，只有穿过小孔的那一条落到像平面上。三维的场景就这样被压成一张二维的图（<wiki-ref to=\"image-formation-3d-to-2d\"></wiki-ref>）。穿过小孔、垂直于像平面的那条线叫光轴：点偏离光轴多远记作 X，它的像偏离光轴多远记作 u。",
-        "en": "An ideal pinhole camera: of all the light a scene point sends out, only the ray through the hole reaches the image plane. That is how a 3D scene is pressed into a 2D picture (<wiki-ref to=\"image-formation-3d-to-2d\"></wiki-ref>). The line through the hole square to the image plane is the optical axis: how far a point is off it is X, how far its image is off it is u."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：点在哪里，它的像就落在哪里？先在相机台上移动一点，让像落进圆圈；再把你找到的关系接成一块电路，以后要投影就直接用它。",
-        "en": "This level asks: where a point is, where does its image land? First move a point on the camera bench until its image lands in the circle; then wire the relation you found into a circuit, to use whenever something must be projected."
+        "zh": "先造相机的投影部件。图中 O 是<wiki-ref to=\"camera-centre\"></wiki-ref>，虚线标出<wiki-ref to=\"optical-axis\"></wiki-ref>，f 指向<wiki-ref to=\"virtual-image-plane\"></wiki-ref>。本实验所有长度共用模型单位，采用正像的虚像平面。固定参照一直保留：每次只改变 X、Z、f 中的一个，先预测，再检查。",
+        "en": "Build the projection part of the camera. O marks the <wiki-ref to=\"camera-centre\"></wiki-ref>, the dashed line the <wiki-ref to=\"optical-axis\"></wiki-ref>, and f locates the <wiki-ref to=\"virtual-image-plane\"></wiki-ref>. All lengths share model units and the virtual image is upright. Keep the reference in view: change one of X, Z and f at a time, predict, then check."
       }
     }
   ],
@@ -19,57 +13,119 @@
     "type": "project",
     "name": { "zh": "投影", "en": "Project" },
     "desc": {
-      "zh": "输入物点的横向位置 X、距离 Z 和像平面距离 f，输出像点位置 u",
-      "en": "Takes a point's sideways position X, its distance Z and the plane distance f; gives the image position u"
+      "zh": "输入物点的横向位置 X、距离 Z 和<wiki-ref to=\"virtual-image-plane\"></wiki-ref>距离 f，输出像点位置 u",
+      "en": "Takes a point's sideways position X, its distance Z and the plane distance f; gives the image position u (<wiki-ref to=\"virtual-image-plane\"></wiki-ref>)"
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"pinhole-projection\"></wiki-ref>：u = fX/Z。距离加倍，像就缩一半；真相机为了进光够多装上镜头，但成像关系不变。",
-    "en": "This is <wiki-ref to=\"pinhole-projection\"></wiki-ref>: u = fX/Z. Twice as far, half the image; real cameras add a lens for light, but the relation holds."
+    "zh": "三个对比都受“<wiki-ref to=\"projection-ray\"></wiki-ref>经过 O”这一约束，而物点与像点的位置会随距离改变。用<wiki-ref to=\"similar-triangles\"></wiki-ref>联系两段距离，才能把不同场景交给同一块<wiki-ref to=\"pinhole-projection\"></wiki-ref>电路；它适用于这里的理想模型，不包含真实镜头的全部影响。",
+    "en": "All three comparisons constrain the <wiki-ref to=\"projection-ray\"></wiki-ref> to pass through O, while scene and image positions vary with distance. Relating the two distances with <wiki-ref to=\"similar-triangles\"></wiki-ref> lets one <wiki-ref to=\"pinhole-projection\"></wiki-ref> circuit handle different scenes. It applies to this ideal model, without all the effects of a real lens."
   },
   "tasks": [
     {
       "id": "1A1",
       "kind": "bench",
-      "step": { "zh": "看光线", "en": "Follow the ray" },
+      "step": { "zh": "对照实验", "en": "Controlled comparisons" },
       "brief": {
-        "zh": "f = 2，点离小孔 Z = 4：横向移动这一点，让它的像落在 u = 1。",
-        "en": "f = 2, the point Z = 4 from the hole: move it sideways so its image lands at u = 1."
+        "zh": "参照 X=2、Z=4、f=2，像点 u=1。按步骤观察哪一个量变了，输入你预测的 u，再检查光路。 (<wiki-ref to=\"projection-ray\"></wiki-ref>)",
+        "en": "Reference: X=2, Z=4, f=2, image u=1. At each step inspect the changed quantity, enter your predicted u, then check the <wiki-ref to=\"projection-ray\"></wiki-ref>."
       },
       "hint": [
         {
-          "zh": "顺着画出的光线看：它从点出发，穿过小孔，停在像平面上。像平面离小孔多远，点又离小孔多远？",
-          "en": "Follow the drawn ray from the point through the hole to the plane. How far is the plane from the hole, and the point?"
+          "zh": "先比较场景与参照的数值；如果只把物点移得更远，像点应当离<wiki-ref to=\"optical-axis\"></wiki-ref>更远，还是更近？",
+          "en": "Compare trial and reference measurements first. If only the scene point moves farther away, should its image move farther from the axis or nearer? (<wiki-ref to=\"optical-axis\"></wiki-ref>)"
+        },
+        {
+          "zh": "需要几何依据时，点开<wiki-ref to=\"similar-triangles\"></wiki-ref>，再比较物点与像点各自相对于 O 的三角形。",
+          "en": "For the geometric relation, open <wiki-ref to=\"similar-triangles\"></wiki-ref> and compare the scene and image triangles about O."
         }
       ],
       "bench": {
         "model": "pinhole",
-        "setup": { "Z": 4, "f": 2, "object": "point", "target": { "of": "u", "value": 1 } },
-        "knobs": {
-          "X": { "label": { "zh": "横向位置 X", "en": "Sideways X" }, "min": -4, "max": 4, "step": 0.5, "start": 0 }
+        "setup": {
+          "X": 2,
+          "Z": 4,
+          "f": 2,
+          "object": "point",
+          "unit": "model units",
+          "reference": { "X": 2, "H": 1, "Z": 4, "f": 2 },
+          "predict": "u"
         },
+        "knobs": {
+          "X": { "min": 0, "max": 4, "step": 1, "start": 2, "fixed": true },
+          "Z": { "min": 2, "max": 8, "step": 2, "start": 4, "fixed": true },
+          "f": { "min": 1, "max": 4, "step": 1, "start": 2, "fixed": true },
+          "guess": {
+            "label": { "zh": "预测像点偏移 u", "en": "Predicted image offset u" },
+            "min": -2,
+            "max": 4,
+            "step": 0.25,
+            "start": 0
+          }
+        },
+        "stages": [
+          {
+            "title": { "zh": "移高物点", "en": "X changes from 2 to 4" },
+            "note": { "zh": "X 从 2 变成 4；Z、f 不变。", "en": "X changes from 2 to 4; Z and f stay fixed." },
+            "opens": ["guess"],
+            "start": { "X": 4 }
+          },
+          {
+            "title": { "zh": "拉远物点", "en": "Z changes from 4 to 8" },
+            "note": {
+              "zh": "Z 从 4 变成 8；X、f 恢复参照值。",
+              "en": "Z changes from 4 to 8; X and f return to the reference."
+            },
+            "opens": ["guess"],
+            "start": { "Z": 8 }
+          },
+          {
+            "title": { "zh": "移动像平面", "en": "f changes from 2 to 4" },
+            "note": {
+              "zh": "f 从 2 变成 4；X、Z 恢复参照值。",
+              "en": "f changes from 2 to 4; X and Z return to the reference."
+            },
+            "opens": ["guess"],
+            "start": { "f": 4 }
+          }
+        ],
         "goal": [
           {
-            "of": "u",
-            "label": { "zh": "像的位置 u", "en": "Image position u" },
-            "near": 1,
+            "of": "predictionError",
+            "near": 0,
             "atMost": 0.001,
+            "label": { "zh": "预测与实测之差", "en": "Prediction minus measurement" },
             "format": "fixed2"
           }
         ],
         "check": "submit",
-        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+        "layout": {
+          "head": ["stages", "step"],
+          "main": [
+            {
+              "pinholeRays": {
+                "terms": [
+                  "<wiki-ref to=\"camera-centre\"></wiki-ref>",
+                  "<wiki-ref to=\"optical-axis\"></wiki-ref>",
+                  "<wiki-ref to=\"virtual-image-plane\"></wiki-ref>",
+                  "<wiki-ref to=\"focal-length\"></wiki-ref>"
+                ]
+              }
+            }
+          ],
+          "foot": [{ "panel": [{ "knobs": { "only": ["guess"] } }] }, "goals", "verdict"]
+        }
       },
       "naive": [
         {
-          "set": { "X": 1 },
+          "step": 1,
+          "set": { "guess": 1 },
           "why": {
-            "zh": "把点放在 X = 1，像却只落到 u = 0.5：光线穿过小孔后，横向位置按 f/Z = 2/4 缩小了一半。",
-            "en": "With the point at X = 1 the image lands at u = 0.5 only: through the hole, the sideways position shrinks by f/Z = 2/4, to half."
+            "zh": "X 已变而 Z、f 未变，参照的像点不能直接照抄。检查后比较两条光路。",
+            "en": "X changed while Z and f did not; do not copy the reference image point. Compare the two rays after checking."
           }
         }
-      ],
-      "holds": [{ "of": "X", "near": 2, "atMost": 0.001 }]
+      ]
     },
     {
       "id": "1A1_2",
@@ -78,22 +134,20 @@
       "intro": [
         {
           "t": {
-            "zh": "这一步接一块电路：输入从左边进来，输出从右边出去，测试和隐藏测试都对才算对。",
-            "en": "This step wires a circuit: inputs come in on the left, outputs leave on the right; it is right when every test and hidden test is."
-          }
-        },
-        {
-          "t": {
-            "zh": "新元件：<part-ref to=\"part:mul\"></part-ref>和<part-ref to=\"part:div\"></part-ref>。",
-            "en": "New parts: <part-ref to=\"part:mul\"></part-ref> and <part-ref to=\"part:div\"></part-ref>."
+            "zh": "现在把三个对照中发现的关系合成一块电路。输入可独立变化，必须同时通过正、负位置和不同深度的测试。使用乘法与除法元件。",
+            "en": "Combine the three comparisons into one circuit. Inputs vary independently: handle positive and negative positions and different depths using multiplication and division parts."
           }
         }
       ],
       "brief": { "zh": "输入 X、Z、f：交出像点位置 u。", "en": "Given X, Z and f, give the image position u." },
       "hint": [
         {
-          "zh": "台子上 Z 加倍时，像离中心近了多少？f 加倍呢？",
-          "en": "On the bench, how much nearer the centre did the image come when Z doubled? And when f doubled?"
+          "zh": "先决定 X 在同一深度下怎样缩放，再比较 Z 和 f 各改变哪一段距离。",
+          "en": "First decide how X is scaled at one depth, then compare which distance changes with Z and f."
+        },
+        {
+          "zh": "回看<wiki-ref to=\"similar-triangles\"></wiki-ref>的比例关系；需要的是能随三个输入一起变化的关系，而不是固定倍数。",
+          "en": "Revisit the proportion in <wiki-ref to=\"similar-triangles\"></wiki-ref>; the scale must respond to all three inputs rather than stay fixed."
         }
       ],
       "inputs": [

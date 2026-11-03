@@ -3,21 +3,15 @@
   "intro": [
     {
       "t": {
-        "zh": "传感器的每个像素记下一个亮度，一张灰度图就是一张 h 行、w 列的数表；彩色图的每格是红、绿、蓝三个数。约定：x 向右数、y 向下数，都从 0 开始，第 y 行第 x 列写作 (x, y)。",
-        "en": "Each sensor pixel records a brightness, so a grey picture is a table of h rows and w columns; in a colour one each cell holds three numbers, red, green and blue. The convention: x counts right and y down, both from 0, and row y, column x is written (x, y)."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：一个像素在数表的哪里，怎样读出它的值？先在格子上指出坐标、改一个彩色像素，再接一块读相邻两个像素之差的电路。",
-        "en": "This level asks: where in the table is a pixel, and how is its value read? First give a cell's coordinates and change a colour pixel on the grid, then wire a circuit that reads the difference between two neighbouring pixels."
+        "zh": "这条路线从数表开始，不需要先会相机几何。通过<wiki-ref to=\"image-array-checks\"></wiki-ref>与<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>查看表示约定：指出位置、改变一格，再让电路读取右邻和当前位置的差。彩色样例约定按 R、G、B 排列，数值在 0 到 1。",
+        "en": "This route starts from tables and needs no camera geometry. Open <wiki-ref to=\"image-array-checks\"></wiki-ref> and the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref> for the representation: locate a cell, change one cell, then wire the difference between it and its right neighbour. Colour examples use R, G, B order with values from 0 to 1."
       }
     }
   ],
-  "adds": ["lookup", "const", "sub"],
+  "adds": ["lookup", "const", "sub", "add"],
   "after": {
-    "zh": "这是<wiki-ref to=\"image-array-checks\"></wiki-ref>，按<wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>读。",
-    "en": "This is how an <wiki-ref to=\"image-array-checks\"></wiki-ref> is laid out: its shape is h × w (× 3 in colour), read at (x, y) by the <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>."
+    "zh": "同一张数表换一个读取位置，得到的值就可能不同；图像运算首先要保证“取到了哪里”。邻居差把这种定位用于比较，为后面的局部处理打下基础。",
+    "en": "Reading another position can change the value obtained from the same table. Before computing, establish where the input comes from. Neighbour differences use that positioning to make a comparison, ready for local processing."
   },
   "tasks": [
     {
@@ -42,13 +36,13 @@
       "kind": "grid",
       "step": { "zh": "改一个彩色像素", "en": "Change a colour pixel" },
       "brief": {
-        "zh": "把 (1, 0) 的像素改成纯红，其他格子不动。",
-        "en": "Change the pixel at (1, 0) to pure red, leaving every other cell as it is."
+        "zh": "把 (1, 0) 的<wiki-ref to=\"pixel\"></wiki-ref>改成纯红，其他格子不动。",
+        "en": "Change the <wiki-ref to=\"pixel\"></wiki-ref> at (1, 0) to pure red, leaving every other cell as it is."
       },
       "hint": [
         {
-          "zh": "一个彩色像素是三个数，按红、绿、蓝的顺序。",
-          "en": "A colour pixel is three numbers, in the order red, green, blue."
+          "zh": "一个彩色<wiki-ref to=\"pixel\"></wiki-ref>是三个数，按红、绿、蓝的顺序。",
+          "en": "A colour <wiki-ref to=\"pixel\"></wiki-ref> is three numbers, in the order red, green, blue."
         }
       ],
       "image": [[[0.2, 0.2, 0.2], [0.9, 0.9, 0.9], [0, 0, 1]], [[0, 1, 0], [0.5, 0.5, 0.5], [1, 1, 1]]],
@@ -69,19 +63,19 @@
       "intro": [
         {
           "t": {
-            "zh": "新元件：<part-ref to=\"part:lookup\"></part-ref>按坐标读出一个像素，<part-ref to=\"part:const\"></part-ref>给出一个固定的数，<part-ref to=\"part:sub\"></part-ref>相减。",
-            "en": "New parts: <part-ref to=\"part:lookup\"></part-ref> reads the pixel at coordinates, <part-ref to=\"part:const\"></part-ref> gives a fixed number, <part-ref to=\"part:sub\"></part-ref> subtracts."
+            "zh": "需要在 x 的右侧再取一次值。使用取<wiki-ref to=\"pixel\"></wiki-ref>、常数、相加和相减元件；坐标口上的 x、y 与前面格子的约定一致。",
+            "en": "Read once more to the right of x. Use lookup, constant, addition and subtraction parts; x and y follow the same grid convention as before. (<wiki-ref to=\"pixel\"></wiki-ref>)"
           }
         }
       ],
       "brief": {
-        "zh": "输入一张灰度图和坐标 x、y：交出右边邻居 (x+1, y) 减去 (x, y) 的值。",
-        "en": "Given a grey image and coordinates x and y, give the value at (x+1, y) less the value at (x, y)."
+        "zh": "输入一张<wiki-ref to=\"greyscale-image\"></wiki-ref>和坐标 x、y：交出右边邻居 (x+1, y) 减去 (x, y) 的值。",
+        "en": "Given a <wiki-ref to=\"greyscale-image\"></wiki-ref> and coordinates x and y, give the value at (x+1, y) less the value at (x, y)."
       },
       "hint": [
         {
-          "zh": "取像素的两个坐标口，哪个是列、哪个是行？",
-          "en": "Of the lookup's two coordinate inputs, which is the column and which the row?"
+          "zh": "取<wiki-ref to=\"pixel\"></wiki-ref>的两个坐标口，哪个是列、哪个是行？",
+          "en": "Of the lookup's two coordinate inputs, which is the column and which the row? (<wiki-ref to=\"pixel\"></wiki-ref>)"
         }
       ],
       "inputs": [

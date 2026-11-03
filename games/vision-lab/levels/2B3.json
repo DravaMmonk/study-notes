@@ -3,20 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "行滤波器让左权重乘左邻、右权重乘右邻，权重和位置一一对应。课上的卷积却规定：先把卷积核左右翻转，再滑过去求加权和。",
-        "en": "The row filter multiplies the left weight by the left neighbour and the right by the right: weights match positions. Convolution as the lecture defines it first flips the kernel left to right, then slides it and sums."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：翻不翻转，结果差在哪？用一行只有一个亮点的图（脉冲）来看：先手算不翻转的结果，再用行滤波器接出真正的卷积。",
-        "en": "This level asks: what does flipping change? Look at a row with a single bright cell (an impulse): work out the unflipped result by hand, then wire true convolution from the row filter."
+        "zh": "这条必修路线研究权重的方向，不必等待列处理。用<wiki-ref to=\"impulse\"></wiki-ref>检查<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>：沿窗口追踪唯一亮点分别遇到哪个权重，再让电路符合题目要求的翻转约定。",
+        "en": "This required route studies weight orientation without waiting for column processing. Use an <wiki-ref to=\"impulse\"></wiki-ref> to inspect <wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>: track which weight meets the single bright sample, then make the circuit obey the requested flip convention."
       }
     }
   ],
   "after": {
-    "zh": "这是<wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>：不翻转是互相关，脉冲出来是倒过来的核；卷积先翻转，出来就是核本身。",
-    "en": "This is <wiki-ref to=\"convolution-vs-cross-correlation\"></wiki-ref>: without the flip it is correlation, and an impulse comes out as the kernel reversed; convolution flips first, and an impulse comes out as the kernel itself."
+    "zh": "亮点把权重方向暴露出来；对称权重会掩盖这个错误，所以还要用不对称权重检查。下一步处理二维方向时，应先确定窗口位置的约定，而不靠输出“看起来差不多”。",
+    "en": "The bright sample exposes weight orientation. Symmetric weights hide this error, so asymmetric tests matter. Before processing two directions, establish positional conventions rather than accepting outputs that look similar."
   },
   "tasks": [
     {
@@ -39,18 +33,19 @@
       "naive": {
         "answer": [[0, 1, 2, 3, 0]],
         "why": {
-          "zh": "以为脉冲出来的就是核 [1, 2, 3]：亮点在左边那一格的右邻，乘的是右权重 3。不翻转时，出来的是倒过来的 [3, 2, 1]。",
-          "en": "Expecting the kernel [1, 2, 3] back: for the cell to its left, the bright cell is the right neighbour and meets the right weight 3. Without the flip, out comes [3, 2, 1] reversed."
+          "zh": "以为脉冲出来的就是核 [1, 2, 3]：亮点在左边那一格的右邻，乘的是右权重 3。不翻转时，出来的是倒过来的 [3, 2, 1]。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
+          "en": "Expecting the <wiki-ref to=\"kernel\"></wiki-ref> [1, 2, 3] back: for the cell to its left, the bright cell is the right neighbour and meets the right weight 3. Without the flip, out comes [3, 2, 1] reversed."
         }
-      }
+      },
+      "window": { "weights": [1, 2, 3], "axis": "row", "padding": "zero" }
     },
     {
       "id": "2B3_2",
       "kind": "circuit",
       "step": { "zh": "真正的卷积", "en": "True convolution" },
       "brief": {
-        "zh": "输入一张图和卷积核 k1、k2、k3（按书写顺序）：交出卷积的结果，图外补 0。",
-        "en": "Given an image and the kernel k1, k2, k3 (in written order), give the convolution, 0 outside."
+        "zh": "输入一张图和<wiki-ref to=\"kernel\"></wiki-ref> k1、k2、k3（按书写顺序）：交出<wiki-ref to=\"mathematical-convolution\"></wiki-ref>的结果，图外补 0。",
+        "en": "Given an image and the <wiki-ref to=\"kernel\"></wiki-ref> k1, k2, k3 (in written order), give the <wiki-ref to=\"mathematical-convolution\"></wiki-ref>, 0 outside."
       },
       "hint": [
         {

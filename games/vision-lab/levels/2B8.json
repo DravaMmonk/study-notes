@@ -3,23 +3,50 @@
   "intro": [
     {
       "t": {
-        "zh": "<wiki-ref to=\"edge-as-rapid-change\"></wiki-ref>：gx 和 gy 合起来是一个箭头，叫梯度，指向亮度增加最快的方向；它的长度说明边有多强，不管边朝哪边。",
-        "en": "An <wiki-ref to=\"edge-as-rapid-change\"></wiki-ref>: gx and gy together make an arrow, the gradient, pointing the way brightness rises fastest; its length says how strong the edge is, whichever way it runs."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：怎样不管方向、只量出边有多强？比如 gx = 4、gy = 0 时它指向右，gx = 0、gy = −4 时指向上（y 向下数）。用 Sobel 接出梯度的大小；新元件开平方。",
-        "en": "This level asks: how is an edge's strength measured, whatever its direction? With gx = 4 and gy = 0 it points right, with gx = 0 and gy = −4 up (y counts down). Wire the gradient's size from the Sobel filter; new part: square root."
+        "zh": "<wiki-ref to=\"sobel-filter\"></wiki-ref>已有两个带符号的响应。现在用<wiki-ref to=\"image-gradient\"></wiki-ref>比较不同朝向的变化强度：先在响应表中检验转向和正负是否改变强度，再造一块可复用部件。",
+        "en": "<wiki-ref to=\"sobel-filter\"></wiki-ref> provides two signed responses. Use the <wiki-ref to=\"image-gradient\"></wiki-ref> to compare change strength across orientations: first test rotations and sign changes in a response table, then build a reusable part."
       }
     }
   ],
   "adds": ["sqrt"],
   "after": {
-    "zh": "这是<wiki-ref to=\"image-gradient\"></wiki-ref>：方向由 gx、gy 定，大小是 √(gx² + gy²)。这台边缘检测器后面还会用到。",
-    "en": "This is the <wiki-ref to=\"image-gradient\"></wiki-ref>: its direction set by gx and gy, its size √(gx² + gy²). This edge detector is used again later."
+    "zh": "相同强度的变化可以指向不同方向，两个响应直接相加会相消，无法稳定比较。把响应作为两个互相垂直的分量处理，才可在保留方向信息的同时另取一个非负强度。",
+    "en": "Equally strong changes can point in different directions. Adding signed responses can cancel them and fails as a stable comparison. Treating them as perpendicular components lets direction remain distinct from nonnegative strength."
+  },
+  "builds": {
+    "type": "edgeStrength",
+    "name": { "zh": "边缘强度", "en": "Edge strength" },
+    "desc": {
+      "zh": "输入一张图，使用已搭好的 <wiki-ref to=\"sobel-filter\"></wiki-ref> 部件输出每个位置的梯度幅度；图外补零。 (<wiki-ref to=\"padding-border-rules\"></wiki-ref>)",
+      "en": "Given an image, uses the built <wiki-ref to=\"sobel-filter\"></wiki-ref> part to output gradient magnitude at each position, with zero <wiki-ref to=\"padding-border-rules\"></wiki-ref>."
+    }
   },
   "tasks": [
+    {
+      "id": "2B8_vectors",
+      "kind": "grid",
+      "step": { "zh": "比较三个方向", "en": "Compare three directions" },
+      "brief": {
+        "zh": "这两行分别是三个位置的 gx 和 gy。填出这三个位置的梯度幅度；把每一列视作同一位置的一对响应。",
+        "en": "These rows give gx and gy at three positions. Fill the three gradient magnitudes, pairing responses within each column."
+      },
+      "hint": [
+        {
+          "zh": "把每一列看作一个箭头；转向和翻转不改变箭头长度。",
+          "en": "Treat each column as an arrow; rotation or reversal does not change its length."
+        }
+      ],
+      "image": [[3, 0, 3], [4, -5, -4]],
+      "show": "numbers",
+      "ask": { "fill": { "rows": [[5, 5, 5]] } },
+      "naive": {
+        "answer": [[7, -5, -1]],
+        "why": {
+          "zh": "直接把两行带符号的响应相加，会因方向不同得到不同甚至为负的值。三个箭头只是转了方向，比较长度时不能让它们互相抵消。",
+          "en": "Adding the signed rows gives different values, including negative ones, depending on direction. These arrows differ only in direction; measuring length must not let their components cancel."
+        }
+      }
+    },
     {
       "id": "2B8",
       "kind": "circuit",
@@ -32,8 +59,8 @@
         }
       ],
       "brief": {
-        "zh": "输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
-        "en": "Given an image, give the gradient's size √(gx² + gy²) at each position."
+        "zh": "输入一张图：输出每个位置的变化强度。大小相同而方向相反的响应，应得到同样的强度。",
+        "en": "Given an image, output change strength at each position. Equal-sized responses pointing in opposite directions must have equal strength."
       },
       "hint": [
         { "zh": "gx、gy 有正有负；直接相加，正负会抵消。", "en": "gx and gy can be negative; added as they are, they cancel." }

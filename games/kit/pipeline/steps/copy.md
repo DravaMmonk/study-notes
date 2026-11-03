@@ -21,7 +21,8 @@ in Chinese and English, through the operation set. You change no test, board or 
 ## Rules to hold
 
 - Treat `glossary.json` as the professional-term registry: canonical `title`, optional bilingual `aliases`, the
-  existing `body` as explanation and `at` as opening level. Use term references in prose, and registered names for
+  existing `body` as explanation and `at` as opening level. One tag per term in an independently visible paragraph
+  or hint is sufficient; repeated mentions share it. Use term references in prose, and registered names for
   titles. Diagram/control labels need a clickable term or adjacent term tag. Do not create another definition field.
   Run `./terminology` for registry/reference errors and known bare-name candidates; independently inventory unregistered terms, including diagram/control vocabulary.
 

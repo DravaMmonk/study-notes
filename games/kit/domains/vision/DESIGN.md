@@ -1,7 +1,7 @@
 # Vision domain: learning and display contract
 
-This contract governs domain capabilities and their acceptance before a level author uses them. It does not modify
-any level, release the trial, or claim that all capabilities below are implemented. The shared rules are in
+This contract governs domain capabilities and their acceptance before a level author uses them. The Chapter 1–2
+trial uses the implemented capabilities listed below; this is not acceptance of every future vision display. The shared rules are in
 `games/DESIGN.md` §4.3; the semantic review procedure is in
 [learning-review.md](../../../../.agents/skills/turing-complete-games/references/learning-review.md).
 
@@ -50,12 +50,12 @@ not a fact about every camera.
 
 ## Discovery versus assessment
 
-A display must support the visibility required by its learning use. Current `Bench` exposes `ctx.revealed` and
-`PinholeRays` hides computed rays and image results until a submit-mode setting is checked. That is an assessment
-mechanism, not sufficient discovery support by itself. A prompt cannot ask a learner to follow a ray that has not
-been drawn. When result withholding is necessary, prior tasks must already establish the relation and feedback
-must explain the observed result after submission. If the needed discovery phase, before/after comparison or
-annotated coordinate view cannot be expressed, it remains an open domain requirement rather than a copy workaround.
+A display must support the visibility required by its learning use. `PinholeRays` keeps a fixed reference state
+visible while `ctx.revealed` withholds the current trial result. Prediction stages isolate X, Z and f; a check
+reveals the trial ray and measurement. An inverse task compares another scene with the retained reference.
+`SensorCoordinates` first shows physical offset and pixel units, then a separate origin task adds c_x. A term
+entry provides its meaning; the task provides observable evidence and a concrete inference. Definitions must not
+be repeated in introductions or summaries merely to satisfy a timing check.
 
 ## Composition and interaction acceptance
 
@@ -74,13 +74,15 @@ annotated coordinate view cannot be expressed, it remains an open domain require
 
 | Capability | Current evidence | Acceptance still required |
 | --- | --- | --- |
-| Pinhole projection and sensor quantities | `benches/pinhole.js`, domain tests | Unit and coordinate conventions matched to the learning view |
-| Stable pinhole comparison scale | `ui/benches/Displays.jsx`, range-corner scale calculation | Legibility and disclosed geometry under both languages/viewports |
-| Optical-axis name | `PinholeRays` explicitly labels the line | Remaining centre/object/measurement referents and angle/coordinate explanations |
-| Submit-mode result withholding | Kernel bench plus `ctx.revealed` in domain displays | Discovery-compatible evidence and a coherent assessment phase |
-| Annotated sensor-coordinate view and inspectable comparison | Not established by the present side-view renderer | Domain design and implementation before a level depends on them |
+| Pinhole projection and sensor quantities | `benches/pinhole.js`, axis-pitch and FOV tests | Keep conventions explicit in future scenes |
+| Stable reference and trial scale | `ui/benches/Pinhole.jsx`, extents include stage states and knob limits | Inspect new ranges rather than assuming old framing fits |
+| Annotated geometric referents | O, plane, scene/image values, f/Z rulers and clickable term tags | New scene types need their own referents |
+| Prediction and result revelation | Three controlled stages; reference visible before Check, trial hidden | Check novel experiments independently |
+| Sensor coordinate strip | Distinct unit and origin tasks; centred pixel-centre convention explicit | Off-centre sensors need a new model/display contract |
+| Equal-scale FOV view | `PinholeField`, both edges, full/half arcs and fixed parameter range | Other sensor sizes/ranges need legibility checks |
+| Local filter window | `filter-window.js`, `FilterWindow.jsx`: samples, positional weights, padding and input/output positions | No answer automatically filled; new dimensions need validation |
 
-For each future display change, retain source/units/assumptions, meaningful geometry tests, pre/post-check states,
-and desktop/phone screenshots of labels and feedback. A renderer review identifies a concrete absent or misleading
-referent; subjective styling is recorded separately. No levels, content JSON, migrations or player saves change as
-part of establishing this contract.
+The revised trial was inspected at the default desktop viewport and 390 × 844, including prediction revelation,
+term activation and moving filter windows. The course review records the task evidence and verification limits.
+Future display changes still need unit/model tests, pre/post-check inspection and desktop/phone review. These
+checks do not establish novice mastery or subjective puzzle quality.

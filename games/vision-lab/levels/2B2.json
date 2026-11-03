@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "只算三格都在图里的位置时，输出比原图窄 2：最左和最右的像素缺一个邻居，没法算。很多时候需要输出和原图一样大。",
-        "en": "Taking only positions with all three cells inside, the output is 2 narrower than the original: the leftmost and rightmost pixels lack a neighbour. Often the output must be as large as the original."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：图外面没有像素，邻居缺了怎么办？约定在图外补 0。先手算一行，再接一块输出和原图一样宽的行滤波器，以后滤波都用它。",
-        "en": "This level asks: there are no pixels outside the image, so what of the missing neighbours? The convention here pads with 0 outside. Work out a row by hand, then wire a row filter whose output is as wide as the original, the one every later filter uses."
+        "zh": "相邻处理要继续组合，不能每次都悄悄缩小画面。本关选用<wiki-ref to=\"padding-border-rules\"></wiki-ref>中的补零规则，保留所有中心位置；比较边缘和中间同样的输入，看看输出是否还相同。",
+        "en": "To compose local operations, the frame must not silently shrink each time. Use zero <wiki-ref to=\"padding-border-rules\"></wiki-ref> and retain every centre position. Compare equal inputs at the edge and in the interior: do their outputs stay equal?"
       }
     }
   ],
@@ -23,8 +17,8 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"padding-border-rules\"></wiki-ref>：在图外补 0，输出就和原图一样大；补的值不同，边上的结果也不同。",
-    "en": "These are the <wiki-ref to=\"padding-border-rules\"></wiki-ref>: pad with 0 outside and the output is as large as the image; pad differently and the edges differ."
+    "zh": "尺寸保住了，边界却加入了人为假设：补零会在边缘引入与内部不同的邻居。输出两端变暗不能直接当成场景中的真实边缘，后面找变化时也必须记得这一点。 (<wiki-ref to=\"padding-border-rules\"></wiki-ref>)",
+    "en": "The size is preserved, but an artificial boundary assumption was added. Zero <wiki-ref to=\"padding-border-rules\"></wiki-ref> introduces neighbours unlike the interior. Darkened ends need not be real scene boundaries; remember this when detecting changes."
   },
   "tasks": [
     {
@@ -48,6 +42,11 @@
           "zh": "这是图外取最近的边：题目约定图外补 0，两端只有两个 3 和一个 0，平均是 2。",
           "en": "That reads the nearest edge outside: here 0 is padded outside, so each end averages two 3s and a 0, giving 2."
         }
+      },
+      "window": {
+        "weights": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333],
+        "axis": "row",
+        "padding": "zero"
       }
     },
     {

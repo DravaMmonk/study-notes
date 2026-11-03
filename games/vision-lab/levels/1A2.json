@@ -3,20 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "投影把场景变成图，方向是正的：给定场景，图就定了，这是图形学的方向。视觉反过来，手里只有图，要说出场景（<wiki-ref to=\"vision-task-outputs\"></wiki-ref>有类别、位置、每个像素的标签等各种形式）。",
-        "en": "Projection turns a scene into a picture, the forward way: given the scene, the picture is settled, as in graphics. Vision goes back, from the picture to the scene (its <wiki-ref to=\"vision-task-outputs\"></wiki-ref> take many forms: a class, a location, a label per pixel)."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：从一张图倒推回去，场景能定下来吗？台上一支 1 米高的箭离相机 4 米，像高 0.5。先另造一个场景：箭至少 2 米高，拍出一模一样的像；再接一块倒推电路，从像的位置算回物点。",
-        "en": "This level asks: going back from a picture, is the scene settled? On the bench an arrow 1 m tall stands 4 m away and images 0.5 tall. First make another scene, the arrow at least 2 m tall, that pictures exactly the same; then wire a circuit that works back from an image position to the point."
+        "zh": "<wiki-ref to=\"pinhole-projection\"></wiki-ref>能从场景得到图像，但反过来是否唯一？保留 H=1、Z=4、f=2 的参照，让一支至少高一倍的箭拍出相同的像。之后只在额外给定 Z 的条件下倒推位置。",
+        "en": "<wiki-ref to=\"pinhole-projection\"></wiki-ref> maps a scene to an image. Is the reverse unique? Keep the H=1, Z=4, f=2 reference and construct an arrow at least twice as tall with the same image. Then invert a point position only when Z is supplied."
       }
     }
   ],
   "after": {
-    "zh": "这是<wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>：大而远和小而近拍出同一张图，倒推得先知道距离；颜色、个数才是一张图定得了的。",
-    "en": "This is the <wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>: big-and-far pictures like small-and-near; working back needs the distance first; colour and count are what a picture settles."
+    "zh": "两个不同场景得到同样的观测，因此单凭这个像不能在它们之间做选择。这是<wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>的困难：假设 Z 后算出的是条件下的位置，不是从图像恢复出的真实深度。这个实验也不能证明颜色或物体总数一定能确定。",
+    "en": "Two different scenes give the same observation, so that image cannot distinguish them. This is the difficulty of the <wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>: supplying Z gives a conditional position, not depth recovered from the image. This experiment does not establish unique colour or object count either."
   },
   "tasks": [
     {
@@ -24,8 +18,8 @@
       "kind": "bench",
       "step": { "zh": "另造一个场景", "en": "Another scene" },
       "brief": {
-        "zh": "f = 2：调物高 H 和距离 Z，让像高仍是 0.5，箭至少 2 米高。",
-        "en": "f = 2: set the height H and the distance Z so the image is still 0.5 tall, the arrow at least 2 m."
+        "zh": "调 H 和 Z：像高仍为 0.5，但 H 至少为 2。所有长度共用模型单位；对照参照图再检查。",
+        "en": "Adjust H and Z: keep image height 0.5 with H at least 2. All lengths share model units. Compare with the reference, then check."
       },
       "hint": [
         {
@@ -35,19 +29,25 @@
       ],
       "bench": {
         "model": "pinhole",
-        "setup": { "f": 2, "object": "arrow", "target": { "of": "h", "value": 0.5 } },
+        "setup": {
+          "f": 2,
+          "object": "arrow",
+          "target": { "of": "h", "value": 0.5 },
+          "unit": "model units",
+          "reference": { "X": 0, "H": 1, "Z": 4, "f": 2 }
+        },
         "knobs": {
           "H": {
-            "label": { "zh": "物高 H（米）", "en": "Height H (m)" },
-            "min": 0.5,
-            "max": 4,
+            "label": { "zh": "H（模型单位）", "en": "H (model units)" },
+            "min": 1,
+            "max": 3,
             "step": 0.5,
             "start": 1
           },
           "Z": {
-            "label": { "zh": "距离 Z（米）", "en": "Distance Z (m)" },
-            "min": 1,
-            "max": 16,
+            "label": { "zh": "Z（模型单位）", "en": "Z (model units)" },
+            "min": 4,
+            "max": 12,
             "step": 1,
             "start": 4
           }
@@ -63,7 +63,20 @@
           { "of": "H", "label": { "zh": "物高 H", "en": "Height H" }, "atLeast": 2, "format": "fixed2" }
         ],
         "check": "submit",
-        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+        "layout": {
+          "main": [
+            {
+              "pinholeRays": {
+                "terms": [
+                  "<wiki-ref to=\"camera-centre\"></wiki-ref>",
+                  "<wiki-ref to=\"optical-axis\"></wiki-ref>",
+                  "<wiki-ref to=\"virtual-image-plane\"></wiki-ref>"
+                ]
+              }
+            }
+          ],
+          "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }]
+        }
       },
       "naive": [
         {
@@ -88,13 +101,13 @@
         }
       ],
       "brief": {
-        "zh": "输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
-        "en": "Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
+        "zh": "输入像点位置 u、<wiki-ref to=\"virtual-image-plane\"></wiki-ref>距离 f 和假设的距离 Z：交出物点的横向位置 X。",
+        "en": "Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X. (<wiki-ref to=\"virtual-image-plane\"></wiki-ref>)"
       },
       "hint": [
         {
-          "zh": "u = fX/Z，把 X 解出来。",
-          "en": "u = fX/Z: solve it for X."
+          "zh": "对比两个测试：像点相同，假设的 Z 不同，X 应怎样变化？哪一步能撤销已做过的投影缩放？",
+          "en": "Compare the two tests: the image point stays fixed but the assumed Z changes. How should X change, and how can the projection scale be undone?"
         }
       ],
       "inputs": [

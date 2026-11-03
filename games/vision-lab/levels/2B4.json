@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "行滤波器只沿着一行滑。图是二维的，上下的邻居同样有用。",
-        "en": "The row filter slides along rows only. A picture is two-dimensional, and the neighbours above and below matter as much."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的问题是：同一个滑动加权和，换成竖直方向该怎么接？接一块列滤波器：输入一张图和上、中、下三个权重，输出和原图一样大，图外补 0。",
-        "en": "This level asks: how is the same sliding weighted sum wired down the columns? Wire a column filter: an image and the above, centre and below weights, an output as large as the image, 0 outside."
+        "zh": "这条必修路线把<wiki-ref to=\"linear-filter\"></wiki-ref>转向上下，不依赖核方向路线。先在窗口里追踪一列：保持 x 不动，只改变 y，再把刚验证的读取方式推广到整张图。 (<wiki-ref to=\"kernel\"></wiki-ref>)",
+        "en": "This required route turns <wiki-ref to=\"linear-filter\"></wiki-ref> vertically, independently of the <wiki-ref to=\"kernel\"></wiki-ref>-orientation route. Track one column in the window: keep x fixed, vary y, then extend the checked addressing to the image."
       }
     }
   ],
@@ -23,10 +17,36 @@
     }
   },
   "after": {
-    "zh": "同一个<wiki-ref to=\"convolution\"></wiki-ref>，只是邻居换成了上下：方向不同，计算一样。",
-    "en": "The same <wiki-ref to=\"convolution\"></wiki-ref>, the neighbours now above and below: another direction, the same computation."
+    "zh": "横、竖处理的代数结构一致，差别落在“读哪个邻居”。用非方形图与不对称内容测试，才能让误把 y 改成 x 的接法显出差异。",
+    "en": "Horizontal and vertical operations share an algebraic structure; the addressed neighbours differ. Non-square images with asymmetric content expose a circuit that changes x where y was intended."
   },
   "tasks": [
+    {
+      "id": "2B4_window",
+      "kind": "grid",
+      "step": { "zh": "跟踪一列", "en": "Track a column" },
+      "brief": {
+        "zh": "使用上、中、下权重 [1,0,−1]，图外补零，写出每格结果。窗口可左右选择列、上下移动中心。 (<wiki-ref to=\"padding-border-rules\"></wiki-ref>)",
+        "en": "Use above/centre/below weights [1,0,−1] with zero <wiki-ref to=\"padding-border-rules\"></wiki-ref>. Write every result. Choose a column and move its centre vertically."
+      },
+      "hint": [
+        {
+          "zh": "比较同一列上、下的值；不能横向取邻居。",
+          "en": "Compare above and below in the same column, not horizontal neighbours."
+        }
+      ],
+      "image": [[1, 3], [4, 0], [2, 8]],
+      "show": "numbers",
+      "ask": { "fill": { "rows": [[-4, 0], [-1, -5], [4, 0]] } },
+      "naive": {
+        "answer": [[0, 0], [0, 0], [0, 0]],
+        "why": {
+          "zh": "这组数把每一对上下差都当成了 0。固定一列上下移动窗口，检查相邻数值并不相等的位置。",
+          "en": "These values treat every above–below difference as zero. Keep one column fixed and move the window vertically to inspect unequal neighbours."
+        }
+      },
+      "window": { "weights": [1, 0, -1], "axis": "column", "padding": "zero" }
+    },
     {
       "id": "2B4",
       "kind": "circuit",
@@ -94,7 +114,8 @@
         "s1 = add(la, mb)",
         "s2 = add(s1, rc)",
         "out <- s2"
-      ]
+      ],
+      "step": { "zh": "接出列滤波器", "en": "Wire the column filter" }
     }
   ]
 }

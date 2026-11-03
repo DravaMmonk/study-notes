@@ -1,0 +1,86 @@
+{
+  "title": { "zh": "画面能装下多宽", "en": "How wide a view fits" },
+  "intro": [
+    {
+      "t": {
+        "zh": "有限大小的<wiki-ref to=\"sensor\"></wiki-ref>只接住部分<wiki-ref to=\"projection-ray\"></wiki-ref>。固定它的高度，只改变<wiki-ref to=\"focal-length\"></wiki-ref>，观察上下两条边界：怎样让<wiki-ref to=\"field-of-view\"></wiki-ref>正好为 90°？这一关不涉及<wiki-ref to=\"pixel\"></wiki-ref>换算。",
+        "en": "A finite <wiki-ref to=\"sensor\"></wiki-ref> captures only some rays. Keep its height fixed and change the <wiki-ref to=\"focal-length\"></wiki-ref>: how can the <wiki-ref to=\"field-of-view\"></wiki-ref> become exactly 90°? No <wiki-ref to=\"pixel\"></wiki-ref> conversion is needed here. (<wiki-ref to=\"projection-ray\"></wiki-ref>)"
+      }
+    }
+  ],
+  "after": {
+    "zh": "图中两条边界同时向<wiki-ref to=\"optical-axis\"></wiki-ref>收拢，说明固定画幅下，放大投影会舍去更多外围场景。这里用<wiki-ref to=\"angle-of-view-from-pixel-focal-length\"></wiki-ref>描述这个取舍；全角必须同时包含上、下两半。",
+    "en": "Both boundary rays close toward the axis: for a fixed frame, enlarging the projection excludes more of the surrounding scene. <wiki-ref to=\"angle-of-view-from-pixel-focal-length\"></wiki-ref> describes that trade-off; the full angle includes both halves. (<wiki-ref to=\"optical-axis\"></wiki-ref>)"
+  },
+  "tasks": [
+    {
+      "id": "1F1",
+      "kind": "bench",
+      "step": { "zh": "调视野", "en": "Set the view" },
+      "brief": {
+        "zh": "<wiki-ref to=\"sensor\"></wiki-ref>高 24 mm；本实验只看竖直方向。调 f，让全视场为 90°；用上下两条边界<wiki-ref to=\"projection-ray\"></wiki-ref>核对，不要只看上半角。",
+        "en": "The <wiki-ref to=\"sensor\"></wiki-ref> is 24 mm tall and this experiment uses a vertical slice. Set f for a full field of view of 90°. Check both boundary rays rather than only the upper half-angle. (<wiki-ref to=\"projection-ray\"></wiki-ref>)"
+      },
+      "hint": [
+        {
+          "zh": "全角是 90° 时，上半角是多少？在等比例图里，f 与<wiki-ref to=\"sensor\"></wiki-ref>半高怎样比较？",
+          "en": "For a full angle of 90°, what is the upper half-angle? In the equal-scale drawing, how does f compare with the <wiki-ref to=\"sensor\"></wiki-ref> half-height?"
+        }
+      ],
+      "bench": {
+        "model": "pinhole",
+        "setup": {
+          "sensor": { "height": 24, "width": 36, "pxHeight": 1200, "pxWidth": 1800 },
+          "object": "point",
+          "X": 0,
+          "Z": 100,
+          "unit": "mm"
+        },
+        "knobs": {
+          "f": {
+            "label": { "zh": "焦距 f（mm）", "en": "Focal length f (mm)" },
+            "min": 6,
+            "max": 24,
+            "step": 6,
+            "start": 6
+          }
+        },
+        "goal": [
+          {
+            "of": "fov",
+            "label": { "zh": "竖直视场（度）", "en": "Vertical view (degrees)" },
+            "near": 90,
+            "atMost": 0.5,
+            "format": "fixed2"
+          }
+        ],
+        "check": "submit",
+        "layout": {
+          "main": [
+            {
+              "pinholeField": {
+                "terms": [
+                  "<wiki-ref to=\"field-of-view\"></wiki-ref>",
+                  "<wiki-ref to=\"sensor\"></wiki-ref>",
+                  "<wiki-ref to=\"focal-length\"></wiki-ref>",
+                  "<wiki-ref to=\"optical-axis\"></wiki-ref>"
+                ]
+              }
+            }
+          ],
+          "foot": [{ "panel": ["knobs"] }, "goals"]
+        }
+      },
+      "naive": [
+        {
+          "set": { "f": 24 },
+          "why": {
+            "zh": "把全高当作半高时，边界<wiki-ref to=\"projection-ray\"></wiki-ref>与<wiki-ref to=\"optical-axis\"></wiki-ref>的夹角不再是 45°。检查后看全角与半角两个读数。",
+            "en": "Using the full height as the half-height does not give a 45° edge <wiki-ref to=\"projection-ray\"></wiki-ref>. After checking compare the full and half-angle readings. (<wiki-ref to=\"optical-axis\"></wiki-ref>)"
+          }
+        }
+      ],
+      "holds": [{ "of": "f", "near": 12, "atMost": 0.001 }]
+    }
+  ]
+}
