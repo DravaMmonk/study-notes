@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "把一张图放大或缩小，新图的每个像素都要有一个值；算值之前，先得知道这个像素落在原图的什么位置。约定是：新旧两排像素占同样长的一段，像素的中心对齐到这段长度上。",
-        "en": "Enlarging or shrinking an image gives every pixel of the new image a value; before any value, each must know where it sits in the original. The convention: the old and the new row span one length, and pixel centres are spread over it."
+        "zh": "把一张图放大或缩小，新图的每个像素都要有一个值；算值之前，先得知道它落在原图的哪里。约定是：原图第 x 个像素是一个宽 1 的格子，中心在 x，占 x − 0.5 到 x + 0.5；新图的像素平分原图这一整段长度。",
+        "en": "Enlarging or shrinking an image gives every pixel of the new image a value; before any value, each must know where it sits in the original. The convention: pixel x of the original is a cell 1 wide, centred on x, spanning x − 0.5 to x + 0.5; the new pixels share the original's whole length equally."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：缩放时，新图的每个像素落在原图的哪里？第一个任务在格子上手算一行；第二个任务接一块电路，交出整张新图的两张源坐标图，测试的坐标都对才算对。",
-        "en": "This level asks: when an image is resized, where in the original does each new pixel sit? The first task works out one row by hand on the grid; the second wires a circuit that gives the whole new image's two source-coordinate images, right when every tested coordinate is."
+        "zh": "这一关的问题是：缩放时，新图的每个像素落在原图的哪里？第一个任务在格子上手算一行，可以填分数（如 −1/6）；第二个任务接一块电路，交出整张新图的两张源坐标图，测试的坐标都对才算对。",
+        "en": "This level asks: when an image is resized, where in the original does each new pixel sit? The first task works out one row by hand on the grid, fractions welcome (−1/6); the second wires a circuit that gives the whole new image's two source-coordinate images, right when every tested coordinate is."
       }
     }
   ],
@@ -32,13 +32,17 @@
       "kind": "grid",
       "step": { "zh": "手算", "en": "By hand" },
       "brief": {
-        "zh": "这一行 2 像素宽，放大成 3 像素：写出每个新像素在原图里的 x。",
-        "en": "This row, 2 pixels wide, is enlarged to 3: write where each new pixel sits in the original, as x."
+        "zh": "原图这一行 2 个像素，占 −0.5 到 1.5，长 2。放大成 3 个像素，三个新像素平分这段长度：写出每个新像素中心的 x。可以填分数，如 1/3。",
+        "en": "This row of 2 pixels spans −0.5 to 1.5, a length of 2. Enlarged to 3 pixels, the three new ones share that length equally: write the x of each new pixel's centre. Fractions are fine, such as 1/3."
       },
       "hint": [
         {
-          "zh": "把新旧两排画成等长的两条，各自的像素中心落在哪里？",
-          "en": "Draw the two rows as two bars of one length: where does each pixel centre fall?"
+          "zh": "每个新像素宽多少？第一个从 −0.5 开始，它的中心在哪里？",
+          "en": "How wide is each new pixel? The first starts at −0.5: where is its centre?"
+        },
+        {
+          "zh": "中间那个新像素的中心，正好在整段的正中。",
+          "en": "The middle new pixel's centre is right in the middle of the whole length."
         }
       ],
       "after": {
@@ -51,7 +55,8 @@
       "ask": {
         "fill": {
           "rows": [[-0.16667, 0.5, 1.16667]],
-          "label": { "zh": "新像素在原图里的 x", "en": "x in the original" }
+          "label": { "zh": "新像素中心在原图里的 x", "en": "x of each new pixel's centre in the original" },
+          "strip": { "old": 2, "new": 3 }
         }
       },
       "naive": {

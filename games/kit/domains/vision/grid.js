@@ -8,6 +8,8 @@
 //   locate   the cell (x, y) is highlighted: write its coordinates            answer: { x, y }
 //   set      change the pixel (x, y) to `value`, leaving every other alone     answer: rows (the image edited)
 //
+// parseNumber(text) reads a number as the player types it (a decimal, a negative, a fraction).
+//
 // start(task) → the answer before the player does anything; reference(task) → one that passes; check(task, answer) →
 // null, or { zh, en } saying what is wrong.
 import { S } from '../../engine/schema.js'
@@ -41,7 +43,7 @@ export const ASKS = {
   },
   fill: {
     about: t('填一张和 rows 一样大的格子，填成 rows（采样位置、显示出来的值……）', 'fill a grid the size of `rows` with them (sample positions, the values shown…)'),
-    params: S.obj({ rows: ROWS, label: S.opt(S.text()) }),
+    params: S.obj({ rows: ROWS, label: S.opt(S.text()), strip: S.opt(S.obj({ old: S.int({ min: 1 }), new: S.int({ min: 1 }) }, { about: t('画出两条等长的条：上面 old 个旧像素（标出中心和边界的 x），下面 new 个新像素平分同一段长度；玩家填的 x 标在旧像素的条上', 'draws two bars of one length: `old` old pixels above (their centres and edges marked in x), `new` new pixels sharing the same length below; the x the player fills in is marked on the old bar') })) }),
     start: (task, { rows }) => blankLike(fromRows(rows)),
     reference: (task, { rows }) => rows,
     check: (task, rows, { rows: want }) => sameRows(fromRows(want), rows, task.tolerance ?? 1e-5),
@@ -94,3 +96,10 @@ export const gridCheck = (task, answer) => { const { ask, params } = askOf(task)
 
 /** The vocabulary's ask kind: the asks with their parameters. */
 export const ASK_ITEMS = Object.fromEntries(Object.entries(ASKS).map(([k, a]) => [k, { about: a.about, ...(a.params ? { params: a.params } : {}) }]))
+
+/** A number as the player types it: a decimal or a fraction (−1/6); null while it is none yet (empty, "-", "1/"). */
+export function parseNumber(text) {
+  const frac = /^\s*(-?\d*\.?\d+)\s*\/\s*(\d*\.?\d+)\s*$/.exec(text)
+  if (frac) return Number(frac[2]) === 0 ? null : Number(frac[1]) / Number(frac[2])
+  return text.trim() === '' || !Number.isFinite(Number(text)) ? null : Number(text)
+}

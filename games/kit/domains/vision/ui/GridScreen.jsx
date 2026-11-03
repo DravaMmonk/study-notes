@@ -2,20 +2,27 @@ import { useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { fromRows } from '../image.js'
-import { askOf, gridCheck, gridStart } from '../grid.js'
+import { askOf, gridCheck, gridStart, parseNumber as parse } from '../grid.js'
 import ImageView from './ImageView.jsx'
+import Strips from './Strips.jsx'
 
 // A grid task (../grid.js): the image, as its numbers, its picture or both (`show`), with its axes; under it what the
 // ask wants — a grid to fill in (copy, fill, set), a cell to click (pick) or the coordinates of the cell marked
 // (locate). The answer is kept as it is typed; Check runs the ask's own check and says what is wrong.
 
-const parse = (text) => (text.trim() === '' || !Number.isFinite(Number(text)) ? null : Number(text))
+/** A number field that keeps what is typed while it is being typed ("-", "0.", "1/"), and shows a value set from
+ *  outside once it differs from what the text reads as. A full keyboard: phones' decimal pads have no minus sign. */
+function NumberField({ value, onChange, ...rest }) {
+  const [text, setText] = useState(value ?? '')
+  const shown = parse(String(text)) === (value ?? null) ? text : value ?? ''
+  return <input {...rest} inputMode="text" autoComplete="off" value={shown} onChange={(e) => { setText(e.target.value); onChange(parse(e.target.value)) }} />
+}
 
 /** A grid of number fields, a colour cell three of them: rows of numbers or nulls, as the ask's answer. */
 function RowsEditor({ rows, onChange }) {
-  const set = (y, x, k, text) => onChange(rows.map((r, py) => (py !== y ? r : r.map((v, px) => (px !== x ? v : Array.isArray(v) ? v.map((c, j) => (j === k ? parse(text) : c)) : parse(text))))))
+  const set = (y, x, k, n) => onChange(rows.map((r, py) => (py !== y ? r : r.map((v, px) => (px !== x ? v : Array.isArray(v) ? v.map((c, j) => (j === k ? n : c)) : n)))))
   const field = (v, y, x, k = null) => (
-    <input key={k ?? 0} inputMode="decimal" value={v ?? ''} aria-label={`(${x}, ${y})${k === null ? '' : ` ${'RGB'[k]}`}`} onChange={(e) => set(y, x, k, e.target.value)} />
+    <NumberField key={k ?? 0} value={v} aria-label={`(${x}, ${y})${k === null ? '' : ` ${'RGB'[k]}`}`} onChange={(n) => set(y, x, k, n)} />
   )
   return (
     <table className="vi-rows">
@@ -63,12 +70,12 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
   const coord = (key) => (
     <label className="vi-field is-inline">
       <span>{key}</span>
-      <input inputMode="numeric" value={answer?.[key] ?? ''} onChange={(e) => update({ ...answer, [key]: parse(e.target.value) })} />
+      <NumberField value={answer?.[key]} onChange={(n) => update({ ...answer, [key]: n })} />
     </label>
   )
   const asked = {
     copy: () => <>{picture({})}<RowsEditor rows={answer} onChange={update} /></>,
-    fill: () => <>{picture({})}{params.label && <p className="vi-label">{L(params.label)}</p>}<RowsEditor rows={answer} onChange={update} /></>,
+    fill: () => <>{picture({})}{params.strip && <Strips {...params.strip} marks={answer[0]} />}{params.label && <p className="vi-label">{L(params.label)}</p>}<RowsEditor rows={answer} onChange={update} /></>,
     set: () => (
       <>
         {picture({ mark: { x: params.x, y: params.y } })}

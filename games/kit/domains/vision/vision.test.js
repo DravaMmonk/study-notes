@@ -11,7 +11,7 @@ import { PARTS } from './parts.js'
 import { fromText, toText } from './board.js'
 import { readTest, runLevel } from './run.js'
 import { differs, fromRows, toRows } from './image.js'
-import { gridCheck, gridReference, gridStart } from './grid.js'
+import { gridCheck, gridReference, gridStart, parseNumber } from './grid.js'
 import { JUDGES, isNaive, verdictOf } from './judges.js'
 import { describe, factsOf, render, revealing, sameImage } from './scene.js'
 import { play } from './play.js'
@@ -381,4 +381,12 @@ test('the domain’s page code calls no method older iOS Safari lacks', () => {
   const files = readdirSync(import.meta.dirname, { recursive: true }).filter((f) => /\.jsx?$/.test(f) && !f.endsWith('.test.js'))
   const used = files.flatMap((f) => [...readFileSync(resolve(import.meta.dirname, f), 'utf8').matchAll(/\.(at|findLast|findLastIndex|toSorted|toReversed|groupBy)\(|structuredClone\(/g)].map((m) => `${f}: ${m[0]}`))
   assert.deepEqual(used, [])
+})
+
+test('a typed number: decimals, negatives and fractions; nothing yet while it is half typed', () => {
+  assert.equal(parseNumber('0.5'), 0.5)
+  assert.equal(parseNumber('-1/6'), -1 / 6)
+  assert.equal(parseNumber(' 7 / 6 '), 7 / 6)
+  assert.equal(parseNumber('0.'), 0)
+  for (const half of ['', '-', '1/', '1/0', '.']) assert.equal(parseNumber(half), null)
 })
