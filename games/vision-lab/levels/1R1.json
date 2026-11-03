@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "工作台能读写每个像素，却只能照原样摆放：一张图要放大或缩小，它没有办法。缩放和取出一部分不同，要给新图的每个像素算出一个值；算值之前，先得知道这个像素落在原图的什么位置。",
-        "en": "The workbench can read and write every pixel, but only where it already is: it cannot enlarge or shrink an image. Unlike taking out a part, resizing computes a value for every pixel of the new image; before any value, it must know where that pixel sits in the original."
+        "zh": "把一张图放大或缩小，新图的每个像素都要有一个值；算值之前，先得知道这个像素落在原图的什么位置。约定是：新旧两排像素占同样长的一段，像素的中心对齐到这段长度上。",
+        "en": "Enlarging or shrinking an image gives every pixel of the new image a value; before any value, each must know where it sits in the original. The convention: the old and the new row span one length, and pixel centres are spread over it."
       }
     },
     {
       "t": {
-        "zh": "这一关的问题是：图像放大或缩小时，新图的每个像素对应原图的什么位置？约定是新旧两排像素一样长、像素中心对齐。第一个任务在格子上手算一行，第二个任务搭一块电路，交出整张新图的两张源坐标图，测试的坐标都对才算对。",
-        "en": "This level asks: when an image is enlarged or shrunk, where in the original does each new pixel sit? The convention: the old and the new row are equally long and pixel centres are aligned. The first task works out one row by hand on the grid; the second wires a circuit that gives the whole new image's two source-coordinate images, right when every tested coordinate is."
+        "zh": "这一关的问题是：缩放时，新图的每个像素落在原图的哪里？第一个任务在格子上手算一行；第二个任务接一块电路，交出整张新图的两张源坐标图，测试的坐标都对才算对。",
+        "en": "This level asks: when an image is resized, where in the original does each new pixel sit? The first task works out one row by hand on the grid; the second wires a circuit that gives the whole new image's two source-coordinate images, right when every tested coordinate is."
       }
     }
   ],
@@ -24,12 +24,11 @@
     }
   },
   "after": {
-    "zh": "这是<wiki-ref to=\"sampling-grid\"></wiki-ref>：每个新像素反向映射回原图，不把旧像素正向搬过去；各个库的对齐约定不同，要写明。",
-    "en": "This is a <wiki-ref to=\"sampling-grid\"></wiki-ref>: each new pixel mapped back into the original, not old pixels pushed forwards; libraries align differently, so the convention must be stated."
+    "zh": "这是<wiki-ref to=\"sampling-grid\"></wiki-ref>：每个新像素反向映射回原图，落点一般不在旧像素的中心上，常在两个旧像素之间。",
+    "en": "This is a <wiki-ref to=\"sampling-grid\"></wiki-ref>: each new pixel mapped back into the original, landing seldom on an old pixel's centre and often between two."
   },
   "tasks": [
     {
-      "id": "1D1",
       "kind": "grid",
       "step": { "zh": "手算", "en": "By hand" },
       "brief": {
@@ -61,17 +60,18 @@
           "zh": "这是把新像素当成旧像素重新编号：原图这一行只有 x = 0 和 x = 1 两个像素，x = 2 落在原图外面。新旧两排一样长，三个新像素中心要分布在两个旧像素占的那段长度上。",
           "en": "That renumbers the new pixels as if they were old ones: the original row has pixels at x = 0 and x = 1 only, so x = 2 lies outside it. The two rows are equally long, so the three new centres spread over the length the two old pixels cover."
         }
-      }
+      },
+      "id": "1R1"
     },
     {
-      "id": "1D1_2",
+      "id": "1R1_2",
       "kind": "circuit",
       "step": { "zh": "搭电路", "en": "Wire it" },
       "intro": [
         {
           "t": {
             "zh": "手算一行可以，一整张图要每个像素各算一遍，就要电路了：输入从左边进来，输出从右边出去。新图的每个像素先要有自己的坐标，而手上没有元件能从两个数造出一整张图。",
-            "en": "One row works by hand; a whole image, every pixel worked out, needs a circuit: inputs come in on the left, outputs leave on the right. Each new pixel first needs its own coordinates, and no part in hand makes a whole image out of two numbers."
+            "en": "One row works by hand; a whole image, every pixel worked out, needs a circuit: inputs come in on the left, outputs leave on the right. Each new pixel first needs its own coordinates, and nothing in hand makes a whole image out of two numbers."
           }
         },
         {

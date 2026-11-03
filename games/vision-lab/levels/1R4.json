@@ -3,63 +3,63 @@
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"resizeLinear\"></part-ref>只沿一行插值，竖直方向照抄离得最近的那一行。放大一张二维的图，新像素在上下方向也落在两行之间。这一关的问题是：在二维图像里，落在四个旧像素中间的新像素，值怎么算？",
-        "en": "The <part-ref to=\"resizeLinear\"></part-ref> interpolates only along a row and copies the nearest row vertically. Enlarging a 2D image, a new pixel also falls between two rows. This level asks: in a 2D image, how is the value of a new pixel among four old ones computed?"
+        "zh": "一行像素之间，新像素按左右两个邻居加权。放大一张二维的图，新像素在上下方向也落在两行之间：它周围有四个旧像素。",
+        "en": "Within a row, a new pixel weighs its left and right neighbours. Enlarging a 2D image, a new pixel also falls between two rows: there are four old pixels around it."
       }
     },
     {
       "t": {
-        "zh": "两个任务：先用手上的线性缩放只改一张图的宽度，看它在每一行上做了什么；再升级这个元件，让新像素的值由周围四个旧像素决定。升级后的元件要通过二维放大和缩小的测试。",
-        "en": "Two tasks: first use the linear resizer in hand to change only an image's width and see what it does on each row; then upgrade the part so a new pixel's value comes from the four old pixels around it. The upgraded part must pass tests that enlarge and shrink in two dimensions."
+        "zh": "这一关的问题是：落在四个旧像素围成的方格里的新像素，值怎么算？先在格子上手算一张 2 × 2 的图放大成 3 × 3，再接一块电路：输入一张图和新的宽、高，交出缩放后的图，二维放大和缩小的测试都对才算对。",
+        "en": "This level asks: how is a new pixel inside the square of four old ones worked out? First work a 2 × 2 image enlarged to 3 × 3 by hand on the grid, then wire a circuit: given an image and a new width and height, give the resized image, right when the tests of enlarging and shrinking in two dimensions all are."
       }
     }
   ],
-  "builds": {
-    "type": "resizeLinear",
-    "name": { "zh": "线性缩放", "en": "Linear resize" },
-    "desc": {
-      "zh": "输入一张图和新的宽 w、高 h，输出缩放后的图：每个新像素由周围四个旧像素按距离加权（双线性）",
-      "en": "Takes an image and a new width w and height h; gives the resized image, each new pixel weighted from the four old pixels around it by distance (bilinear)"
-    }
-  },
   "after": {
-    "zh": "这是<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>：新值是四个邻居的加权平均，比最近邻平滑；OpenCV 里叫 INTER_LINEAR。",
-    "en": "This is <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>: the new value a weighted average of four neighbours, smoother than nearest neighbour; OpenCV calls it INTER_LINEAR."
+    "zh": "这是<wiki-ref to=\"bilinear-interpolation\"></wiki-ref>：上下两行各沿 x 插值，再沿 y 插一次，得到四个邻居的加权平均，比最近邻平滑。",
+    "en": "This is <wiki-ref to=\"bilinear-interpolation\"></wiki-ref>: along x on the rows above and below, then along y, a weighted average of the four neighbours, smoother than nearest neighbour."
   },
   "tasks": [
     {
-      "id": "1D5",
-      "kind": "circuit",
-      "step": { "zh": "只改宽度", "en": "Width only" },
+      "id": "1R4",
+      "kind": "grid",
+      "step": { "zh": "手算", "en": "By hand" },
       "brief": {
-        "zh": "输入一张图和新的宽：交出只改了宽度、高度不变的图。",
-        "en": "Given an image and a new width, give the image with only its width changed, its height as it was."
+        "zh": "这张 2 × 2 的图放大成 3 × 3：新像素的 x、y 都落在 −1/6、0.5、7/6。写出 3 × 3 的值；落在外面的取最近的边。",
+        "en": "This 2 × 2 image is enlarged to 3 × 3: the new pixels' x and y both fall at −1/6, 0.5 and 7/6. Write the 3 × 3 values; positions outside take the nearest edge."
       },
-      "after": {
-        "zh": "每一行各自沿 x 插值，行和行之间没有混合。",
-        "en": "Each row is interpolated along x on its own; rows are never mixed."
+      "hint": [
+        {
+          "zh": "中间那一行落在 y = 0.5，正好在两行中间：它该等于哪一行？",
+          "en": "The middle row falls at y = 0.5, right between the two rows: which row should it equal?"
+        },
+        {
+          "zh": "先把上下两行各自横着放大，再在两行之间竖着取。",
+          "en": "Enlarge the top and bottom rows across first, then take between the two rows downwards."
+        }
+      ],
+      "image": [[0, 4], [8, 12]],
+      "show": "both",
+      "tolerance": 0.01,
+      "ask": {
+        "fill": {
+          "rows": [[0, 2, 4], [4, 6, 8], [8, 10, 12]],
+          "label": { "zh": "放大后的值", "en": "Enlarged values" }
+        }
       },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "w", "label": { "zh": "新宽", "en": "New width" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "改宽后", "en": "Widened" } }],
-      "tests": [
-        { "inputs": { "image": [[0, 1], [1, 0]], "w": 3 }, "expect": { "out": [[0, 0.5, 1], [1, 0.5, 0]] } },
-        { "inputs": { "image": [[0, 4], [4, 0]], "w": 4 }, "expect": { "out": [[0, 1, 3, 4], [4, 3, 1, 0]] } }
-      ],
-      "hidden": [
-        { "inputs": { "image": [[1, 2, 3], [4, 5, 6]], "w": 3 }, "expect": { "out": [[1, 2, 3], [4, 5, 6]] } }
-      ],
-      "solution": ["s = size(image)", "r = resizeLinear(image, w, s.h)", "out <- r"]
+      "naive": {
+        "answer": [[0, 2, 4], [8, 10, 12], [8, 10, 12]],
+        "why": {
+          "zh": "只横着插了一次，竖直方向照抄最近的一行：中间一行落在两行正中，却整个抄了下面那一行。竖着也按距离加权，中心是四个邻居的平均 6。",
+          "en": "That interpolates across only and copies the nearest row downwards: the middle row, right between the two, copies the lower one whole. Weighted by distance downwards too, the centre is the four neighbours' average, 6."
+        }
+      }
     },
     {
-      "id": "1D5_2",
+      "id": "1R4_2",
       "kind": "circuit",
-      "step": { "zh": "升级", "en": "Upgrade" },
       "brief": {
-        "zh": "升级线性缩放：输入一张图和新的宽、高，新像素由周围四个旧像素按距离加权。",
-        "en": "Upgrade the linear resize: given an image and a new width and height, each new pixel weighted from the four old pixels around it by distance."
+        "zh": "输入一张图和新的宽、高：交出缩放后的图，每个新像素由周围四个旧像素按距离加权。",
+        "en": "Given an image and a new width and height, give the resized image, each new pixel weighted from the four old pixels around it by distance."
       },
       "hint": [
         {
@@ -153,7 +153,8 @@
         "vb = mul(b, t)",
         "v = add(va, vb)",
         "out <- v"
-      ]
+      ],
+      "step": { "zh": "搭电路", "en": "Wire it" }
     }
   ]
 }

@@ -2,373 +2,174 @@
   "game": "vision-lab",
   "steps": {
     "blueprint": {
-      "runs": [
-        {
-          "at": "2026-11-02T14:49:26.241Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 0,
-            "seconds": 3,
-            "cost": 0,
-            "turns": 1
-          },
-          "calls": {
-            "op": {
-              "runs": 0,
-              "failed": 0
-            },
-            "check": {
-              "runs": 0,
-              "failed": 0
-            },
-            "gate": {
-              "runs": 0,
-              "failed": 0
-            }
-          },
-          "changes": [],
-          "report": "Not logged in · Please run /login",
-          "transcript": "/var/folders/16/l6ytcvs91vg1_myvbh7zl6bw0000gn/T/pipeline-vision-lab-blueprint-xcgnN4/transcript.jsonl"
-        },
-        {
-          "at": "2026-11-02T16:23:45.504Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 4193490,
-            "seconds": 1345,
-            "cost": 5.5330126,
-            "turns": 36
-          },
-          "calls": {
-            "op": {
-              "runs": 7,
-              "failed": 0
-            },
-            "check": {
-              "runs": 1,
-              "failed": 0
-            },
-            "gate": {
-              "runs": 3,
-              "failed": 2
-            }
-          },
-          "changes": [
-            4,
-            5,
-            6,
-            7,
-            8
-          ],
-          "report": "The gate passes with no failures. The blueprint replaces the old one entirely (`blueprint.put`). It is at `/home/user/study-notes/games/vision-lab/blueprint.json`, and the changeset I ran is `blueprint.json` in my working directory. What's left on the gate is 12 \"no practice after this point\" reports and the one open request, all explained below.\n\n## Knowledge points (21)\n\n**Era 0, \"What is the question?\"** (all cite `01-introduction.md` except robustness, which cites `02-basics.md`):\n- object detection (§1, slide 7)\n- instance segmentation (§1 and §3, slides 7 and 30)\n- intra-class variation (§3, slide 28)\n- robustness (`02-basics.md` §1, adversarial examples)\n- inverse problem (§2, slide 8)\n\n**Era 1, \"From scene to pixels\"** (`02-basics.md` unless noted):\n- image array (§3 and §1)\n- pixel coordinates (§3)\n- pinhole projection (§1 and §2)\n- lens (§2)\n- depth of field (§2)\n- field of view (§2)\n- focal length in pixels (§4 workshop and §2)\n- channel order (§3 and §4 workshop)\n- value range (§3, plus the chapter spec §1F1)\n- sampling grid (§4, plus the chapter spec §1E)\n- nearest-neighbour interpolation (§4)\n- linear interpolation (§4)\n- bilinear interpolation (§4)\n- quantisation (§3 and §1, plus the chapter spec §1F2)\n- cropping (§4)\n- aspect ratio (§4)\n\n## Shape of the course: 30 slots instead of 59\n\n**Era 0 (9 slots).** \"State the output\" (0A1–0A3) comes first, then two parallel series, \"Appearance changes\" (0B1–0B3) and \"What an image can tell\" (0C1–0C2), which join at a final combine slot (0D1). Every slot is a choice task, and the domain works out right and wrong answers from the data.\n\n**Era 1 (21 slots).** \"The digital image\" (1A1–1A3) comes first, then three parallel branches:\n- **Pinhole and lens** (1B1–1B8), on the parameter bench.\n- **Read an image right** (1C1–1C2): channel order, then value range.\n- **Resize, quantise and crop** (1D1–1D10), as circuits. The player builds five parts: `sampleGrid`, `resizeNearest`, `resizeLinear` (built in 1D4, then upgraded to bilinear in 1D5), `quantise` and `crop`. The last slot (1D10) uses `crop` and `resizeLinear`.\n- One optional challenge, 1X1 \"Digital zoom\", hangs after 1D10.\n\n**How many slots each point gets.** Every point is brought in by exactly one slot. The practice slots each show a new facet:\n- detection and instance segmentation: 0A3, what a depth map's values mean\n- robustness: 0B3, designing the test set instead of judging a claim\n- inverse problem: 0C2, occlusion\n- pinhole projection: 1B2, changing the focal length; 1B3, size and distance can't be told apart\n- pixel coordinates: 1A3, array index `I[y, x]` against a `(w, h)` size\n- depth of field: 1B6, aperture and focus traded off together\n- nearest neighbour: 1D3, shrinking drops fine stripes\n- bilinear interpolation: 1D6, no method is always best\n- quantisation: 1D8, it can't be undone\n\nBilinear interpolation is split into two steps, 1D4 (one dimension) then 1D5 (two), as the brief suggests.\n\n**Where I departed from the chapter spec.** Each change is also written into the blueprint's scope:\n- **Translation moved to the filtering chapter.** In chapter 1 only the contrived 1D4 used it.\n- **Lens follows the pinhole in one branch.** It no longer runs as its own parallel series.\n- **No showcase levels for single parts.** Lookup, channel and compose come in with the first point that needs them; the eight old slots that each taught one part (constant, larger value and so on) are gone.\n- **Resizing aligns pixel centres** (as OpenCV's bilinear resize does). A 1-pixel output needs no special case, so the compare and select parts aren't needed.\n- **Subtraction isn't a primitive.** It's wired as adding −1 times b.\n- **Fewer primitives.** There are 12, and none can be wired from the others except `max`; the next section explains why I kept it.\n\n## Request (open)\n\n**`pinhole-sensor`** (for 1B7 and 1B8): give the pinhole bench a sensor of known size in mm and pixels. It should draw the sensor's edges, mark objects that fall outside the frame, show readings in pixels as well as mm, accept targets in pixels, and hold several objects. Field of view and focal length in pixels can't be taught without seeing where the frame ends and converting mm to pixels. Neither can move to a circuit: the camera branch doesn't hold the arithmetic parts.\n\n## REPORT findings left\n\nThe 12 `bp-lonely` reports (a point with no practice slot before the next one), with my reasons:\n- **0A1, 0B1, 1A1, 1B4, 1B7, 1D1, 1D4, 1D9:** the next slot builds on the point, and its edge cases are already rounds or tests of the slot itself.\n- **1B8, 1C1, 1C2, 1D10:** each ends its branch. Its other facets are tasks inside the slot, or (for aspect ratio) the challenge.\n\nI found no further facet that wouldn't be padding.\n\n## What I'm unsure of\n\n- **Two judgement calls on primitives.** I dropped `sub` but kept both `min` and `max`. `max` can be wired as −min(−a, −b), but I judged that sign trick off-topic (handbook §8, primitives too low).\n- **The mechanism label for choice tasks.** They're filed under `audit`, because the catalogue's list of mechanism ids has no entry for them.\n- **Era 1 wants a \"camera meets pixels\" join, but the audit blocks it.** The last series of an era must use a part built in that era, so the resizing pipeline has to come last. That puts the join (focal length in pixels) at the end of the camera branch instead.\n- **1B8 may be too easy to slide through on the bench.** It asks for a computed value. The level designer may need a predict-then-check task, or a choice task with a written answer.\n- **The camera branch doesn't really need \"The digital image\".** It runs after that series only because its last slot uses pixel coordinates.",
-          "transcript": "/tmp/pipeline-vision-lab-blueprint-Srv3EQ/transcript.jsonl"
-        },
-        {
-          "at": "2026-11-02T17:29:04.458Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 270673,
-            "seconds": 53,
-            "cost": 0.29678180000000004,
-            "turns": 16
-          },
-          "calls": {
-            "op": {
-              "runs": 2,
-              "failed": 0
-            },
-            "check": {
-              "runs": 0,
-              "failed": 0
-            },
-            "gate": {
-              "runs": 1,
-              "failed": 0
-            }
-          },
-          "changes": [
-            18
-          ],
-          "report": "I fixed finding [8] and the gate passes. Only the blueprint changed. The encyclopedia still shows the old name, so players will keep seeing \"intra-class variation\" until the copy step updates it.\n\n**What I changed.** The point 0B1 teaches (`knowledge[2]`) was named for something the level doesn't teach. 0B1 shows one object under a different viewpoint and light, and marks a reshaped object as a different one. I renamed the point to fit that instead of adding a \"different instances of one class\" case:\n- **`term`**: was 类内变化 / intra-class variation, now 外观变化（视角与光照）/ appearance variation (viewpoint and illumination).\n- **`about`**: it now says the point is about one object. Its pixels change with viewpoint or light while the object stays the same, and only a change to the object's own shape makes it a different object. It still names the other irrelevant changes the lecture lists: size and distance, background, occlusion.\n- **`source`**: it now lists what slide 28 lists (`docs/Unimelb/26S2/CV/01-introduction.md` §3).\n- **`wall`, `misconception`, and the 0B1–0B3 slots**: unchanged. They already matched the renamed point.\n\nI kept the internal id `intra-class-variation`. `levels/0B1.json` and `glossary.json` both refer to it, and I can't edit either file from this step.\n\n**Still to do in a later step.** Level 0B1 links to the term through the encyclopedia entry `intra-class-variation`, and that entry's title is still 类内变化 / intra-class variation (`glossary.json:43`). The copy step needs to retitle it and could also rename the id across the blueprint, the glossary and the level.\n\n**Requests.** None.\n\n**REPORT findings.** The gate lists 12 `bp-lonely` findings, all left unchanged; this run was limited to the review findings. One is 0B1: the renamed point has no practice slot before 0B2 brings in robustness. It still comes up again: 0B2 and 0B3 both list it in `uses`, and 0B3's test set has to cover a changed viewpoint and a changed light. The other 11 are elsewhere in chapters 0 and 1.\n\n**What I was unsure of.** Whether to rename the point or teach the same-class, different-instance case. I renamed it because the level, its scene and its wrong answer are all built around one object. Teaching different instances would mean a new task and new scene content, which the review didn't ask for.",
-          "transcript": "/tmp/pipeline-vision-lab-blueprint-dj969L/transcript.jsonl"
-        }
-      ],
+      "runs": [],
       "gates": [
         {
-          "at": "2026-11-02T14:49:26.242Z",
-          "ok": false,
-          "failures": [
-            {
-              "rule": "bp-missing",
-              "at": "vision-lab",
-              "says": "the game has no blueprint.json"
-            }
-          ],
-          "reports": []
-        },
-        {
-          "at": "2026-11-02T14:58:38.082Z",
+          "at": "2026-11-03T00:28:56.780Z",
           "ok": true,
           "failures": [],
           "reports": [
             {
-              "rule": "bp-lonely",
-              "at": "1C1",
-              "says": "coordinate has no practice slot before the next idea",
+              "rule": "bp-bare",
+              "at": "1R1",
+              "says": "its answer stands only on what it brings (const, grid, add, mul, div)",
+              "report": true
+            },
+            {
+              "rule": "bp-bare",
+              "at": "1T1",
+              "says": "its answer stands only on what it brings (channel, compose)",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1C3",
-              "says": "channelidea has no practice slot before the next idea",
+              "at": "1P1",
+              "says": "central-projection has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D0",
-              "says": "grididea has no practice slot before the next idea",
+              "at": "1P2",
+              "says": "perspective-scaling has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D0a",
-              "says": "arithidea has no practice slot before the next idea",
+              "at": "1P3",
+              "says": "scale-ambiguity has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D2a",
-              "says": "sizeidea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1D2b",
-              "says": "subidea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E1a",
-              "says": "constidea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E1b",
-              "says": "mulidea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E1c",
-              "says": "dividea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E1d",
-              "says": "flooridea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E1e",
-              "says": "lessidea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E1g",
-              "says": "selectidea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E1f",
-              "says": "largeridea has no practice slot before the next idea",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1E2",
-              "says": "nearestidea has no practice slot before the next idea",
+              "at": "1P4",
+              "says": "inverse-problem has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
               "at": "1F1",
-              "says": "displayidea has no practice slot before the next idea",
+              "says": "focus has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1F1a",
-              "says": "smalleridea has no practice slot before the next idea",
-              "report": true
-            }
-          ]
-        },
-        {
-          "at": "2026-11-02T16:23:45.535Z",
-          "ok": true,
-          "failures": [],
-          "reports": [
-            {
-              "rule": "bp-lonely",
-              "at": "0A1",
-              "says": "detection has no practice slot before the next point",
+              "at": "1F2",
+              "says": "blur-circle has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "0B1",
-              "says": "intra-class-variation has no practice slot before the next point",
+              "at": "1F3",
+              "says": "depth-of-field has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1A1",
-              "says": "image-array has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1B4",
-              "says": "lens has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1B7",
-              "says": "field-of-view has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1B8",
-              "says": "pixel-units has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1C1",
-              "says": "channel-order has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1C2",
-              "says": "value-range has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1D1",
+              "at": "1R1",
               "says": "sampling-grid has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D4",
+              "at": "1R2",
+              "says": "nearest-neighbour has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R3",
               "says": "linear-interpolation has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D9",
-              "says": "cropping has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1D10",
-              "says": "aspect-ratio has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-open",
-              "at": "pinhole-sensor",
-              "says": "domain request open: Give the pinhole bench an optional sensor (height and width in millimetres and in pixels, principal point at its centre): draw its edges on the image plane, mark which objects fall beyond them and are out of view, read image positions and heights in both millimetres and pixels, allow targets in pixels, and allow several objects at different lateral positions.",
+              "at": "1R4",
+              "says": "bilinear-interpolation has no practice slot before the next point",
               "report": true
             }
           ]
         },
         {
-          "at": "2026-11-02T17:29:04.481Z",
+          "at": "2026-11-03T00:30:30.249Z",
           "ok": true,
           "failures": [],
           "reports": [
             {
-              "rule": "bp-lonely",
-              "at": "0A1",
-              "says": "detection has no practice slot before the next point",
+              "rule": "bp-bare",
+              "at": "1R1",
+              "says": "its answer stands only on what it brings (const, grid, add, mul, div)",
+              "report": true
+            },
+            {
+              "rule": "bp-bare",
+              "at": "1T1",
+              "says": "its answer stands only on what it brings (channel, compose)",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "0B1",
-              "says": "intra-class-variation has no practice slot before the next point",
+              "at": "1P1",
+              "says": "central-projection has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1A1",
-              "says": "image-array has no practice slot before the next point",
+              "at": "1P2",
+              "says": "perspective-scaling has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1B4",
-              "says": "lens has no practice slot before the next point",
+              "at": "1P3",
+              "says": "scale-ambiguity has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1B7",
-              "says": "field-of-view has no practice slot before the next point",
+              "at": "1P4",
+              "says": "inverse-problem has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1B8",
-              "says": "pixel-units has no practice slot before the next point",
+              "at": "1F1",
+              "says": "focus has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1C1",
-              "says": "channel-order has no practice slot before the next point",
+              "at": "1F2",
+              "says": "blur-circle has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1C2",
-              "says": "value-range has no practice slot before the next point",
+              "at": "1F3",
+              "says": "depth-of-field has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D1",
+              "at": "1R1",
               "says": "sampling-grid has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D4",
+              "at": "1R2",
+              "says": "nearest-neighbour has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R3",
               "says": "linear-interpolation has no practice slot before the next point",
               "report": true
             },
             {
               "rule": "bp-lonely",
-              "at": "1D9",
-              "says": "cropping has no practice slot before the next point",
-              "report": true
-            },
-            {
-              "rule": "bp-lonely",
-              "at": "1D10",
-              "says": "aspect-ratio has no practice slot before the next point",
+              "at": "1R4",
+              "says": "bilinear-interpolation has no practice slot before the next point",
               "report": true
             }
           ]
@@ -376,293 +177,16 @@
       ]
     },
     "levels": {
-      "runs": [
-        {
-          "at": "2026-11-02T16:54:32.735Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 13690858,
-            "seconds": 1647,
-            "cost": 9.420492800000002,
-            "turns": 88
-          },
-          "calls": {
-            "op": {
-              "runs": 9,
-              "failed": 3
-            },
-            "check": {
-              "runs": 2,
-              "failed": 0
-            },
-            "gate": {
-              "runs": 2,
-              "failed": 2
-            },
-            "deps": {
-              "runs": 0,
-              "failed": 0
-            },
-            "eras": {
-              "runs": 1,
-              "failed": 0
-            }
-          },
-          "changes": [
-            10,
-            11
-          ],
-          "report": "The gate is down to the 8 `bp-naive` failures caused by the vocabulary gap, plus `pd-slide` reports. Done.\n\n## Report: level specs for vision-lab, chapters 0–1\n\n**Result.** All 30 slots have a level, and all 21 knowledge points have a glossary entry that opens at the level that teaches it. `./check` passes: every reference answer, naive answer and built part runs, and the old 59 levels and the `pixel` entry are gone. `./gate` still shows **8 failures, all `bp-naive`**, which the vocabulary can't fix (first point below), and 7 `pd-slide` reports. It took 2 written changesets (chapter 0, then chapter 1) and 3 refused attempts: a probe that confirmed the gap, glossary ops in the wrong order, and wrong `part-ref` keys plus the idle-idea finding.\n\n### Gaps that need a domain or blueprint decision\n1. **Choice and grid tasks can't carry a naive answer.** The schema refuses `naive` on them (\"is not a field here\"). So slots 0A1, 0A2, 0B1, 0B2, 0C1 (choice) and 1A1, 1A2, 1C2 (grid) fail `bp-naive`. Their wrong answers are still caught by the judge's feedback, but nothing records the misconception as a naive that must fail. Request for the domain: add `naive` to choice tasks (wrong picks per round, with a why) and to grid tasks (a wrong answer, with a why), and have `check` confirm each one fails.\n2. **1C1 can't get channel numbers on its own branch.** `channel` takes its index as a wire, and `const` only arrives in 1D1, on another parallel branch. I put 0, 1 and 2 on the board as given inputs. A cleaner fix would be to make `c` a setting on the part, or bring `const` in earlier.\n3. **The colour parts are never used again in chapters 0–1.** No later level in this run uses channel/compose, so the course audit flags them as idle. I recorded this in `game.json`'s `open` as `idle-idea: channels@1C1`. The handbook says the same item also belongs on the work list in the game's own DESIGN.md, which I can't write to, so someone needs to add it there.\n4. **1D5 has to use the part it upgrades.** The slot lists `resizeLinear` in `uses`, but the task that builds it can't contain it. I added a first task (\"change only the width\") that uses `resizeLinear` and gives the same result whether the part is the row-only or the bilinear version. Someone should check in the game shell that the tray actually offers `resizeLinear` on its own upgrade level.\n\n### `pd-slide` reports\n- **1B1 (both tasks), 1B2, 1B7 (both tasks):** single-knob steps by the blueprint's own design (\"only the scene or only the camera moves\").\n- **1B8 task 2:** the bench only checks a value the player has already committed to in the prediction task before it.\n- **1B5:** one knob, but it's an f-number choice the player has to translate into an aperture, and sharpness and light pull against each other, so only f/16 passes.\n\n### Where each chain lands on screen\n- **Chapter 0:**\n  - 0A1, 0A2 and 0A3 judge which outputs answer each question, from the outputs' actual data: neutral map names, numbers in the maps, answers in different places each round.\n  - 0B1 has a turnable scene in two tasks (viewpoint, then light).\n  - 0B2's third round has \"none\" as the right answer.\n  - 0B3 shows its cases as rendered scenes.\n  - In 0C1, 0C2 and 0D1's last task, the candidate scenes really render the same picture (checked). A wrong answer shows them from a view that tells them apart: a scaled box, a hidden ball, a hidden dog or cat.\n- **1A:** reading or writing pictures, picking cells, reading the shape and the OpenCV size.\n- **1B:**\n  - Pinhole benches with naive settings and `holds`.\n  - The lens model in 1B4–1B6: each has exactly one passing setting, and the naive settings are the misconception.\n  - The sensor bench for field of view and pixel units, plus prediction tasks.\n- **1C:** 1C1 is a channel-swap circuit whose naive is the straight pass-through; 1C2 asks for displayed values and the uint8/BGR conversion.\n- **1D:**\n  - Each building level's naive is the misconception and fails its first test: i → i (1D1), always rounding down so the lookup runs outside (1D2), nearest neighbour (1D4), the row-only board (1D5), cutting off the fraction without clipping (1D7), resizing instead of cropping (1D9), squashing to S×S (1D10).\n  - Hidden tests cover shrinking, same size, width 1, colour, non-square images and the borders.\n  - 1D3, 1D6 and 1D8 pair a circuit with a judgement task.\n  - 1X1's naive (enlarge, then crop at (0, 0)) fails.\n\n**Chain steps that don't fully land:**\n- **0A1, step 3:** the fields judge only says an option \"does not answer it\"; it doesn't name the missing class.\n- **1A1, step 1:** the copy grid already has the image's shape, so a transposed copy can't actually be typed in.\n\n### Where the blueprint looks off\n- **1D3 and 1D8:** the circuit task is thin (it mostly places a built part); the real puzzle is the judgement task.\n- **1B2:** step 3 says \"predict, then check on the bench\", but the level has no re-check after the prediction.\n- **1A3:** close to 1A2. It holds up only through its shape and OpenCV-size tasks.\n\nThe changesets are in my directory as `cs1-era0.json` and `cs2-era1.json`.",
-          "transcript": "/tmp/pipeline-vision-lab-levels-zhBT1b/transcript.jsonl"
-        },
-        {
-          "at": "2026-11-02T17:03:32.937Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 3158813,
-            "seconds": 419,
-            "cost": 2.7161914,
-            "turns": 54
-          },
-          "calls": {
-            "op": {
-              "runs": 5,
-              "failed": 0
-            },
-            "check": {
-              "runs": 2,
-              "failed": 1
-            },
-            "gate": {
-              "runs": 3,
-              "failed": 1
-            },
-            "deps": {
-              "runs": 0,
-              "failed": 0
-            },
-            "eras": {
-              "runs": 0,
-              "failed": 0
-            }
-          },
-          "changes": [
-            12,
-            13
-          ],
-          "report": "The gate is clean. All eight `bp-naive` failures are fixed, `./check` passes, and the only items left are 8 `pd-slide` reports. I explain below why each one stays.\n\n**Changesets:** two written, none refused (`cs3-naive.json`, `cs4-thought.json` in my directory).\n\n### 1. Naive answers on the eight slots\n`./check` confirms every one fails, and the player who gives it is told why in the slot's own terms.\n\n| Slot | Naive | Fails |\n|---|---|---|\n| 0A1 | The class label for both questions | round 1 |\n| 0A2 | The semantic map for both questions | round 1 |\n| 0B1 | The candidate with the same view and the most matching pixels, but a reshaped chair (both tasks) | round 1 |\n| 0B2 | The most confident correct case | round 1 |\n| 0C1 | \"Box is 2 m away\" and \"box is 0.5 m tall\" judged as holding | round 1 |\n| 1A1 | The image copied width × height (transposed) | both copy tasks |\n| 1A2 | y counted up from the bottom; x and y swapped in the write-coordinates task | all three tasks |\n| 1C2 | Stored values given as displayed values; the uint8 pixel read as RGB | both tasks |\n\n- **Extra naive on 1A1:** the colour task also has one, raising only the blue number, which gives white.\n- **1A2 bug fixed:** its first image had 2 rows, so \"(0, 1) at the bottom left\", the chain's wrong pick, was actually the right cell. The image now has 4 rows, so counting y upwards lands on a different cell.\n\n### 2. 1C1\nIt now uses `channel[c=B]`, `channel[c=G]` and `channel[c=R]`, with no number inputs on the board. The intro and hint now refer to the setting. The pass-through naive still fails test 1.\n\n### 3. Steps I had flagged as thin\n- **1B2:** I added task 3, which re-checks the prediction from task 2 on the bench (height 2, depth 10, f = 2.5). Its naive, f = 5, forgets the object's height. Chain step 3 (\"estimate, then check\") now has its place on screen.\n- **1B7, task 1:** I added a second goal: arrow B must be at least 40 px tall. It pulls against \"all in view\", so only f = 20 passes. A new naive covers shortening f all the way.\n- **1D3:** the circuit now also enlarges the shrunk image back to full width. On the fine stripes the round trip comes out all 1s; on the wide stripes it gets the original back. The naive treats the round trip as restoring the original, and it fails. Chain steps 1 and 3 now show up as test results, not just a wiring job.\n- **1D8:** the circuit now outputs, for each cell, the range of original values that are stored as that level. That takes half a step, 0.5/(L−1), clipped to [0, 1]. The naive gives a range of zero width (assuming the stored value is the original), and it fails. A hidden test uses L = 5.\n\n### `pd-slide` reports that stay, and why\n- **1B1 (both tasks):** the blueprint opens one variable per step on purpose (\"only sideways\" / \"only in depth\"). This is the first projection, so the player is meant to discover it on the bench. The naive settings and `holds` fix the one passing value.\n- **1B2 task 1 and 1B7 task 2:** the slot locks everything except f. In 1B7 task 2 two goals bound f from both sides (at least 190 px, and still in view).\n- **1B5:** focus is fixed by the slot. The single aperture knob trades sharpness against light, and only f/16 passes.\n- **1B2 task 3 and 1B8 task 2:** these are re-check benches. The player has already committed to the value in the prediction task before.\n\n### Still open\n- **Colour parts unused:** `idle-idea: channels@1C1` is still on the game's work list. Nothing later in chapters 0–1 uses `channel` or `compose`.\n- **1A1, step 1:** whether a transposed copy can be typed in depends on the grid UI. The naive is checked in the text play and by `check`.\n\nI don't think any slot in the blueprint is wrong after this pass. 1D3 and 1D8 now earn their circuit tasks, and the 1B2 gap is closed.",
-          "transcript": "/tmp/pipeline-vision-lab-levels-kkjZC5/transcript.jsonl"
-        },
-        {
-          "at": "2026-11-02T17:36:15.529Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 3087711,
-            "seconds": 431,
-            "cost": 2.5590332,
-            "turns": 55
-          },
-          "calls": {
-            "op": {
-              "runs": 6,
-              "failed": 1
-            },
-            "check": {
-              "runs": 2,
-              "failed": 0
-            },
-            "gate": {
-              "runs": 2,
-              "failed": 0
-            },
-            "deps": {
-              "runs": 0,
-              "failed": 0
-            },
-            "eras": {
-              "runs": 1,
-              "failed": 0
-            }
-          },
-          "changes": [
-            19,
-            20
-          ],
-          "report": "All 12 review findings assigned to the levels step are fixed. `./gate` is clean, and the 8 \"slide until green\" reports from the first loop are gone. `./check` passes: every reference answer passes and every naive answer fails where it should. It took **2 changesets and no refused attempts**; I ran a dry run on each before writing it. The blueprint and eras haven't changed, and `./eras` still matches `game.json`. The 1C1 board already writes channel as a position (`channel[c=2]`, etc.), so the channel change needed no edit.\n\n## Fixes by finding\n\n**Chapter 0**\n- **[1] 0C1:** I dropped \"there is a ball\" from round 2. A hidden ball there would bring in occlusion, which belongs to 0C2. The round now names the cubes by position and adds a third candidate scene in which the left cube is twice as large and twice as far away. The four statements now come out undetermined, contradicted, supported and undetermined, and none of them is about something that could be hidden. I also took \"red\" out of the intro so \"the box is red\" has to be read from the picture.\n- **[2] 0D1_3:** I added a third candidate scene with a person hidden behind the right-hand person and a dog hidden behind the left-hand one; I checked by hand that both are fully covered. \"Exactly two people\" and \"a dog in the scene\" now come out undetermined. I added a contradicted statement and a supported one so the right answers aren't all the same.\n- **[3] 0D1:**\n  - Round 2 now shows a picture of the empty room. The prompt says \"Search this room…\" and the right option reads \"detection list: []\", so no words match between prompt and option.\n  - 0D1_2 now has decoys in the same units: a height and a distance both in metres, a point and a box both in pixel coordinates, a head count beside the class.\n  - I added a naive answer that pairs by unit, with the reason it fails.\n- **[4] 0A3:** The scene now has two pedestrians touching each other, so the class map (one shared label) and the instance map (labels 1 and 2) really differ.\n- **[5] 0A1:** The questions are now \"Is there a dog?\" and \"What is each animal, and where is it?\" Neither names the class, so bare boxes are rightly rejected.\n- **[7] 0C2:** The crate is now \"the crate at the far left\", and \"grey\" is gone from the intro, so both colour statements need the picture.\n\n**Chapter 1**\n- **[9] and [10] 1B1, 1B2, 1B5, 1B7, 1B8_2:** All 8 single-knob benches are now judged on submit. I rewrote the hints so they ask for a prediction after one check. The intros of 1B1 and 1B5 say the rays or the blur curve appear only after Check.\n- **[12] 1B8:**\n  - The 1B8_2 bench now shows the focal length in pixels and the field of view.\n  - 1B8_3 got a hint giving the half-angle relation (tan(fov/2) = half the sensor height / f).\n  - Task 1B8 got the naive answer \"pixels used as mm\" (500, then 400), with the reason in millimetres.\n- **[13] 1A3:** Tasks 2 and 3 are now choices with no image to count. The intro no longer states OpenCV's (width, height) order. Task 3's first round shows it by example (a 640 × 480 photo reported as (640, 480)), and the naive answer's feedback states it. I also added the naive pick (1, 2) to task 1, which was chain step 1.\n- **[18] 1D1:** Added the naive answer [[0, 1, 2]], explaining that x = 2 lies outside the original row.\n- **[20] 1X1:** The brief now says the zoom uses only the pixels inside the 1/k centre window. The hints now point to taking those pixels out first.\n\n## Where each chain step shows on screen\n- **0C1, 0C2, 0D1_3:** Every statement that comes out undetermined shows, when answered wrong, the view that tells two candidate scenes apart. The check confirmed such a view exists for each one.\n- **0D1:** Chain step 1 is round 2's empty list; step 2 is the naive pairing feedback; step 3 is the depth statement in 0D1_3.\n- **1B1, 1B5, 1B7:** Each first step is a naive setting whose result (the rays, the blur curve, the arrows out of frame) appears on Check together with its reason.\n- **1B8:** Step 1 is the new naive answer, step 2 the bench check, step 3 the fov readout plus the hint.\n\n## Hard to express\n- **Picture-only reading in 1A3:** A grid task must carry an image, so the only way to hide the picture was to turn tasks 2 and 3 into choices. As a result the player picks the width and height from options rather than typing them.\n- **Lens bench:** It has no f-number readout. 1B5 chain step 3 (f-number = focal length / aperture) is covered only by the knob labels f/2 … f/32 and the intro.\n\n## Possible blueprint issue\nThe claims judge counts a statement as supported if it holds in every candidate scene listed, not in every scene that would give the same picture. So any count or exists statement is only honest if the level writer adds the hidden-object scenes by hand, which is exactly what findings 1 and 2 caught. It would be worth a domain check, or a blueprint note, that a count or exists statement outside 0C2 must have a candidate scene with something hidden.",
-          "transcript": "/tmp/pipeline-vision-lab-levels-UWzmEj/transcript.jsonl"
-        }
-      ],
-      "gates": [
-        {
-          "at": "2026-11-02T14:59:50.558Z",
-          "ok": false,
-          "failures": [
-            {
-              "rule": "bp-naive",
-              "at": "1X1",
-              "says": "its slot has a naive answer, the level none"
-            }
-          ],
-          "reports": []
-        },
-        {
-          "at": "2026-11-02T16:54:40.273Z",
-          "ok": false,
-          "failures": [
-            {
-              "rule": "bp-naive",
-              "at": "0A1",
-              "says": "its slot has a naive answer, no task of the level has one"
-            },
-            {
-              "rule": "bp-naive",
-              "at": "0A2",
-              "says": "its slot has a naive answer, no task of the level has one"
-            },
-            {
-              "rule": "bp-naive",
-              "at": "0B1",
-              "says": "its slot has a naive answer, no task of the level has one"
-            },
-            {
-              "rule": "bp-naive",
-              "at": "0B2",
-              "says": "its slot has a naive answer, no task of the level has one"
-            },
-            {
-              "rule": "bp-naive",
-              "at": "0C1",
-              "says": "its slot has a naive answer, no task of the level has one"
-            },
-            {
-              "rule": "bp-naive",
-              "at": "1A1",
-              "says": "its slot has a naive answer, no task of the level has one"
-            },
-            {
-              "rule": "bp-naive",
-              "at": "1A2",
-              "says": "its slot has a naive answer, no task of the level has one"
-            },
-            {
-              "rule": "bp-naive",
-              "at": "1C2",
-              "says": "its slot has a naive answer, no task of the level has one"
-            }
-          ],
-          "reports": [
-            {
-              "rule": "pd-slide",
-              "at": "1B1",
-              "says": "only X turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B1 task 1B1_2",
-              "says": "only Z turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B5",
-              "says": "only A turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B7",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B7 task 1B7_2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B8 task 1B8_2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            }
-          ]
-        },
-        {
-          "at": "2026-11-02T17:03:41.521Z",
-          "ok": true,
-          "failures": [],
-          "reports": [
-            {
-              "rule": "pd-slide",
-              "at": "1B1",
-              "says": "only X turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B1 task 1B1_2",
-              "says": "only Z turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B2 task 1B2_3",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B5",
-              "says": "only A turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B7",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B7 task 1B7_2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B8 task 1B8_2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            }
-          ]
-        },
-        {
-          "at": "2026-11-02T17:36:23.621Z",
-          "ok": true,
-          "failures": [],
-          "reports": []
-        }
-      ]
-    },
-    "domain": {
       "runs": [],
       "gates": [
         {
-          "at": "2026-11-02T16:25:48.018Z",
+          "at": "2026-11-03T00:29:03.749Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T00:30:36.890Z",
           "ok": true,
           "failures": [],
           "reports": []
@@ -670,850 +194,47 @@
       ]
     },
     "copy": {
-      "runs": [
-        {
-          "at": "2026-11-02T17:15:38.941Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 7698989,
-            "seconds": 679,
-            "cost": 5.2642153999999985,
-            "turns": 75
-          },
-          "calls": {
-            "op": {
-              "runs": 9,
-              "failed": 0
-            },
-            "check": {
-              "runs": 0,
-              "failed": 0
-            },
-            "gate": {
-              "runs": 3,
-              "failed": 2
-            },
-            "lint": {
-              "runs": 0,
-              "failed": 0
-            }
-          },
-          "changes": [
-            14,
-            15,
-            16
-          ],
-          "report": "The gate is clean: no lint or check failures. The only remaining output is eight `pd-slide` reports, which are about how the bench levels are built, not about the copy.\n\n## What I rewrote\n- **Game:** the lede. It promised circuits that \"move\" images, but translation was moved out of chapter 1, so it now describes what the game actually covers. Title, kicker and era titles and questions are unchanged; they already fit.\n- **Chapter 0 (9 levels) and chapter 1 (21 levels):** every intro now says where the machine is stuck, the level's question, what is given and what counts as right.\n  - The two era openers (0A1, 1A1) say what the machine is and what the new chapter adds.\n  - Practice levels name the facet that is new.\n  - New parts are named only after their need is stated (1C1, 1D1's circuit task, 1D2, 1D7).\n- **Parallel branches:** 1C1 used to claim \"the workbench wires its first circuit\", which is false for a player who does the resizing branch first. Copy that relied on position now uses level links or general phrasing that holds on every path (\"到这里…\").\n- **Pass texts:** each level that brings a knowledge point names it by its term, links its entry, and adds where it sits in the field (OpenCV names, neighbouring terms). I added pass texts to 0A3 (depth map) and 1B3 (the inverse problem as the camera poses it).\n- **Hints and briefs:**\n  - 1D4 now has three hints that start by only pointing, and its brief no longer says \"weighted by distance\".\n  - 1B6's single hint gave the method away; it now has two, from direction to detail.\n  - 1D10 lost the banned word \"simply\" (the gate's one failure).\n  - 0B3's brief says \"something standing in front\" instead of \"occlusion\", because the occlusion entry only opens on the other branch.\n\n## Encyclopedia\n- **New entries (19), each opened at the level where it first appears:** classification, bounding box, semantic segmentation, depth map (lecture 1, slide 7); adversarial example (lecture 2, slides 2–3); computer graphics (lecture 1, slide 8); occlusion (lecture 1, slide 28); pixel, channel (lecture 2, slides 8 and 22); image plane, focal length (lecture 2, slides 11, 13 and 18); aperture, blur circle, f-number (lecture 2, slides 12–16); principal point (lecture 2, slide 15); uint8 (lecture 2, slide 26, and workshop 2); OpenCV, Matplotlib, NumPy (lecture 2 and workshop 2).\n- **Existing entries:** the 19 knowledge-point entries were already in place. I fixed the example in the aspect-ratio entry, which now says \"about 512×341\" as the notes do, and retitled the encyclopedia's group from \"图 / Images\" to \"视觉术语 / Vision terms\".\n\n## Lint findings I hit\n- `copy-banned` \"simply\" in 1D10 (fixed).\n- \"block\" in my draft NumPy entry, caught on a dry run and changed to \"region\".\n- I also dropped a task pass text I had drafted for 0D1 because it restated the answer.\n\n## Problems in the levels themselves\n1. **`pd-slide`:** 1B1 (both tasks), 1B2 (tasks 1 and 3), 1B5, 1B7 (both tasks) and 1B8's bench task each have one knob and a goal that reads out live, so a player can turn it until the reading turns green. The copy no longer says \"until the reading turns green\", but the benches need a second knob that pulls against the first, or a check only on submit.\n2. **1D6 task 3:** the blueprint's counterexample is a sharp black-and-white edge softened by bilinear, but the level uses label maps where in-between values mean nothing. That is a different facet from the one the blueprint names.\n3. **1D10:** with these tests, nearest-neighbour resizing passes as well as bilinear, and the rounding of the scaled size is never exercised. Neither choice is actually tested.\n4. **1X1:** §2.5 says a challenge's pass text should explain the leap, while §4 says pass texts never touch the answer. I followed §2.5 (\"digital zoom is cropping followed by enlarging\"). Please confirm that's the reading you want.\n5. **Channel and compose (1C1)** are never used again; this is already listed as an open `idle-idea` in `game.json`.\n6. **Domain catalog:** the channel part's English description says \"set on the **card**\", a word the copy rules ban. It lives in `kit/domains/vision/ui/catalog.js`, which this step can't edit.\n\nThe changesets are in my working directory: `glossary.json`, `ch0.json` and `ch1.json`.",
-          "transcript": "/tmp/pipeline-vision-lab-copy-mZaOj1/transcript.jsonl"
-        },
-        {
-          "at": "2026-11-02T17:40:03.827Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 2198496,
-            "seconds": 220,
-            "cost": 1.7734948000000004,
-            "turns": 45
-          },
-          "calls": {
-            "op": {
-              "runs": 5,
-              "failed": 0
-            },
-            "check": {
-              "runs": 0,
-              "failed": 0
-            },
-            "gate": {
-              "runs": 3,
-              "failed": 1
-            },
-            "lint": {
-              "runs": 0,
-              "failed": 0
-            }
-          },
-          "changes": [
-            21,
-            22
-          ],
-          "report": "I fixed all six copy findings. The gate was clean at the start of this loop and is clean again after two changesets (`loop2.json`, `loop2b.json`).\n\n## Review findings fixed\n\n- **[6] 0A2 / 0A3, \"read against the picture\":** both intros now say no photo is shown, so the numbers have to be read from the maps alone: in 0A2 from how they spread across each map, in 0A3 from the numbers themselves. 0A3's hint was also about the picture, so I made it two hints. The first only says some maps hold ids, some classes and some lengths. The second asks whether two objects of one class share a number, and which map's numbers fall from top to bottom.\n- **[11] 1B3:** the intro now states the rule the judge applies: choose at least two pairs, each imaging 1 tall, no two at the same depth. The old \"all of them and no others\" is gone.\n- **[14] 1A1_3:** the naive answer's reason now says \"the middle pixel of the second row\" instead of \"(1, 1)\".\n- **[15] 1C1:**\n  - The brief is now \"a photo read with OpenCV: give the same photo in its true colours\".\n  - The input is labelled \"Photo read with OpenCV\" and the output \"Photo in true colours\", so BGR and RGB no longer appear in either label.\n  - Hint 2 now asks in which position's image the sky is brightest, and which colour a blue sky should be bright in.\n- **[17] 1C2:** the intro no longer explains clipping. It only says a circuit can produce values like −0.2 or 1.2, and that how they look on screen hasn't come up yet. The clipping is left to the picture beside the numbers and the naive feedback.\n- **[19] 1D10:**\n  - The brief is now only the spec: an S×S image, centred, in which squares stay square.\n  - The intro gives the remaining requirements without the method. Every pixel must come from the photo, so there are no empty borders. The centre is half a pixel toward the top-left when it can't be exact. I added \"no empty borders\" because otherwise padding would also meet the spec, and the tests reject padding.\n  - \"Removed evenly from both sides\" is gone from the intro, so the plain resize to S×S gets tried and fails first.\n\n## Other copy changes\n\n- **Channel setting:** 1C1's intro now describes `channel` by position (0, 1 or 2, set on the part). No level, hint or encyclopedia entry in the game still calls it R, G or B.\n- **1B5:** the light reading had no reference point (review finding [998], not assigned to me). The intro now says light is measured against a 3 mm aperture, which counts as 1. That matches the naive answer's 0.27 at f/32.\n- **1B7:** \"a whole row of objects\" is now \"several objects\", since the arrows are stacked vertically in the side view (finding [991], not assigned to me).\n- I re-read the other levels the levels step changed this loop (0A1, 0C1, 0C2, 0D1, 1A3, 1B1, 1B2, 1B8, 1D1, 1X1). Their copy still matches their boards, so I left them as they were.\n\n## Lint findings I hit\n- `copy-length`: 1C1's intro[1] was 178 characters in Chinese and 523 in English; I shortened it.\n- `copy-brief-why`: 1C1's brief (\"…so that it shows here in its true colours\") counted as giving a reason; I rewrote it as the task only.\n\n## Entries\nI wrote no new encyclopedia entries this loop; no knowledge point gained or lost a level.\n\n## Problems in the levels and domain that I can't fix from the copy step\n- **The `channel` part's description gives 1C1's answer away.** It says \"in an RGB image 0 is red, in a BGR one blue\", which hands the player the discovery the level is built around. It lives in the domain's part catalog (`games/kit/domains/vision/ui/catalog.js`), not in the game's copy, so it's a domain request. It should only say that the part takes the number at position c.\n- **1C2 still says the answer in two places.** Task 1's naive feedback explains clipping, which is intended. But task 2's naive feedback and hint both say outright that OpenCV stores B, G, R. That's fine only because 1C1 comes first; if the order changes, they would reveal the answer early.\n- **1B8_3's first hint answers the question.** It sends the player to the 1B8_2 bench, which shows the focal length in pixels and the field of view at f = 50 mm. Reading the answer off a display is close to the \"drag until it turns green\" bench the handbook warns against.",
-          "transcript": "/tmp/pipeline-vision-lab-copy-qnTT9L/transcript.jsonl"
-        }
-      ],
+      "runs": [],
       "gates": [
         {
-          "at": "2026-11-02T17:15:47.229Z",
-          "ok": true,
-          "failures": [],
-          "reports": [
+          "at": "2026-11-03T00:29:09.944Z",
+          "ok": false,
+          "failures": [
             {
-              "rule": "pd-slide",
-              "at": "1B1",
-              "says": "only X turns, and the goal reads out live",
-              "report": true
+              "rule": "copy-banned",
+              "says": "「方块」: everything on a board is a 元件",
+              "at": "1P4.tasks[0].hint[0]"
             },
             {
-              "rule": "pd-slide",
-              "at": "1B1 task 1B1_2",
-              "says": "only Z turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B2 task 1B2_3",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B5",
-              "says": "only A turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B7",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B7 task 1B7_2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
-            },
-            {
-              "rule": "pd-slide",
-              "at": "1B8 task 1B8_2",
-              "says": "only f turns, and the goal reads out live",
-              "report": true
+              "rule": "copy-banned",
+              "says": "「方块」: everything on a board is a 元件",
+              "at": "1P4.tasks[0].hint[1]"
             }
-          ]
+          ],
+          "reports": []
         },
         {
-          "at": "2026-11-02T17:40:11.405Z",
+          "at": "2026-11-03T00:29:20.550Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "copy-banned",
+              "says": "「方块」: everything on a board is a 元件",
+              "at": "1P4.tasks[0].hint[0]"
+            },
+            {
+              "rule": "copy-banned",
+              "says": "「方块」: everything on a board is a 元件",
+              "at": "1P4.tasks[0].hint[1]"
+            }
+          ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T00:30:43.060Z",
           "ok": true,
           "failures": [],
           "reports": []
-        }
-      ]
-    },
-    "review": {
-      "runs": [
-        {
-          "at": "2026-11-02T17:23:01.348Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 5167920,
-            "seconds": 410,
-            "cost": 3.7228797999999994,
-            "turns": 57
-          },
-          "calls": {
-            "check": {
-              "runs": 1,
-              "failed": 0
-            },
-            "lint": {
-              "runs": 1,
-              "failed": 0
-            },
-            "deps": {
-              "runs": 1,
-              "failed": 0
-            }
-          },
-          "changes": [],
-          "report": "```json\n{ \"findings\": [\n  { \"at\": \"0B3\", \"owner\": \"levels\", \"rule\": \"Learning checklist: the answer depends on the material\", \"fix\": true, \"says\": \"The `cover` judge only checks that nothing is missing, so ticking every case passes both rounds without reading a single scene. Penalise extra picks (for example, ask for the smallest set or cap how many cases can be chosen) so the player has to work out what each case changes.\" },\n  { \"at\": \"0C1\", \"owner\": \"levels\", \"rule\": \"Domain honesty; §1 one idea a level, consistent across levels\", \"fix\": true, \"says\": \"Round 2 marks 'There is a ball in the scene' as contradicted only because the two listed candidates have no ball. A small ball could sit behind the green cube, and 0C2 then teaches that exactly this kind of claim is undetermined. Add a candidate scene with a hidden ball, or drop the item, so a player who answers 'undetermined' is not marked wrong.\" },\n  { \"at\": \"0D1\", \"owner\": \"levels\", \"rule\": \"Domain honesty; inverse-problem / occlusion facet from 0C2\", \"fix\": true, \"says\": \"In task 0D1_3, 'There is a dog at the site' (the whole collapsed building) is judged contradicted, and 'two people in the scene' is judged supported. Both are claims about things that may be hidden or out of view, which 0C2 has just taught are undetermined. Make the candidate scenes complete (someone hidden behind a person, a dog out of view) so the verdicts match what one image can actually show.\" },\n  { \"at\": \"0D1\", \"owner\": \"levels\", \"rule\": \"Learning checklist: no matching words between prompt and option\", \"fix\": true, \"says\": \"In task 0D1 round 2 the prompt 'In an empty room…' matches the option '(empty)' word for word. In task 0D1_2 every prediction pairs with the reference in the same units (m with m, coordinates with coordinates, '人' with '人'), so the pairing is word matching, not judgement. Make the scene, not the prompt, show that the room is empty, and make at least one pairing turn on what is measured rather than on its unit.\" },\n  { \"at\": \"0A3\", \"owner\": \"levels\", \"rule\": \"Learning checklist: the answer depends on the material\", \"fix\": true, \"says\": \"In round 1, Map 1 (semantic) and Map 3 (instance) are the same partition with renumbered labels, because the scene has one pedestrian and one car, so nothing on screen tells them apart. Yet only Map 3 counts for 'where is each pedestrian'. Put two touching objects of one class in the scene so the two maps differ.\" },\n  { \"at\": \"0A1\", \"owner\": \"levels\", \"rule\": \"§4.1 the misconception fails, with a reason; 'the level asks what it says'\", \"fix\": true, \"says\": \"Round 1 asks 'Where in the picture is each of the two cats?', and the prompt already names the class, so the bare boxes (option c) answer it as worded, yet the judge rejects them for lacking a class. Ask a question that does not supply the class (as round 2 does: 'what kind and where'), so 'boxes without a class are not a detection' is really tested.\" },\n  { \"at\": \"0A2\", \"owner\": \"copy\", \"rule\": \"Copy checklist: complete, not padded (the intro says what is given)\", \"fix\": true, \"says\": \"The intros of 0A2 and 0A3 (and the hint in 0A3) tell the player to read the maps' numbers 'against the picture', but neither level shows a picture: only the maps and the prompts. Either show the scene, or say that the numbers must be read from the maps alone.\" },\n  { \"at\": \"0C2\", \"owner\": \"levels\", \"rule\": \"§4 copy rules: the wording does not answer\", \"fix\": true, \"says\": \"'The yellow crate is green' (round 2) contradicts itself in its own words, and 'The screen is red' contradicts the intro's 'opaque grey screen'. Neither needs the image. Name objects neutrally (by position or id) so their colour has to be read from the picture.\" },\n  { \"at\": \"0B1\", \"owner\": \"blueprint\", \"rule\": \"Knowledge, not tools: a point whose term is not the sources' or the field's; domain honesty\", \"fix\": true, \"says\": \"The level shows one chair under different viewpoints and lights, and it rejects a chair with a moved back as 'not the same object'. It then names what the player learned 'intra-class variation', a term the source (L1 slide 28) does not use and which in the field means different instances of one class looking different. That is exactly what this level marks wrong. Either rename the point (appearance variation: viewpoint and illumination) or teach the same-class-different-instance case.\" },\n  { \"at\": \"1B1\", \"owner\": \"levels\", \"rule\": \"§4.1 no sliding to green (pd-slide)\", \"fix\": true, \"says\": \"Both tasks open a single knob while the goal is read out live, and in 1B1_2 the answer is the knob's maximum (Z = 8), so the level is solved by dragging until the readout turns green. This is the level that introduces pinhole projection. Ask for a prediction first (as 1B2_2 does), or judge only on submit. The same pattern is in 1B2 (task 1), 1B7 (both tasks) and 1B8_2. The blueprint's mechanism note ('lets only the scene or only the camera move') sanctions it, which is why the owner is shared.\" },\n  { \"at\": \"1B5\", \"owner\": \"levels\", \"rule\": \"§4.1 no sliding to green (pd-slide)\", \"fix\": true, \"says\": \"Focus is fixed and the only open knob has five aperture stops, with all goals shown live. Clicking through the five finds f/16 without any thought about depth of field. Open the focus as well, or ask the player to predict which stop keeps both markers sharp before showing the curve.\" },\n  { \"at\": \"1B3\", \"owner\": \"copy\", \"rule\": \"Copy: the intro states what counts as right\", \"fix\": true, \"says\": \"The intro says to choose all pairs that image 1 tall, 'all of them and no others'. But in round 1 the red and blue crates (1, 2) share a depth, so choosing all three valid pairs fails, while the judge accepts any two at distinct depths. State the rule the judge applies: at least two pairs, each at a different depth.\" },\n  { \"at\": \"1B8\", \"owner\": \"levels\", \"rule\": \"§4.1 a step not on screen; the misconception fails with a reason\", \"fix\": true, \"says\": \"Task 1B8_3 asks for the vertical field of view (≈23°)",
-          "transcript": "/tmp/pipeline-vision-lab-review-XDafv2/transcript.jsonl",
-          "findings": [
-            {
-              "at": "0B3",
-              "owner": "levels",
-              "rule": "Learning checklist: the answer depends on the material",
-              "fix": true,
-              "says": "The `cover` judge only checks that nothing is missing, so ticking every case passes both rounds without reading a single scene. Penalise extra picks (for example, ask for the smallest set or cap how many cases can be chosen) so the player has to work out what each case changes.",
-              "resolved": {
-                "why": "Domain: the cover judge now rejects a case the others make spare, so choosing every case fails",
-                "at": "2026-11-02T17:27:57.049Z"
-              }
-            },
-            {
-              "at": "0C1",
-              "owner": "levels",
-              "rule": "Domain honesty; §1 one idea a level, consistent across levels",
-              "fix": true,
-              "says": "Round 2 marks 'There is a ball in the scene' as contradicted only because the two listed candidates have no ball. A small ball could sit behind the green cube, and 0C2 then teaches that exactly this kind of claim is undetermined. Add a candidate scene with a hidden ball, or drop the item, so a player who answers 'undetermined' is not marked wrong."
-            },
-            {
-              "at": "0D1",
-              "owner": "levels",
-              "rule": "Domain honesty; inverse-problem / occlusion facet from 0C2",
-              "fix": true,
-              "says": "In task 0D1_3, 'There is a dog at the site' (the whole collapsed building) is judged contradicted, and 'two people in the scene' is judged supported. Both are claims about things that may be hidden or out of view, which 0C2 has just taught are undetermined. Make the candidate scenes complete (someone hidden behind a person, a dog out of view) so the verdicts match what one image can actually show."
-            },
-            {
-              "at": "0D1",
-              "owner": "levels",
-              "rule": "Learning checklist: no matching words between prompt and option",
-              "fix": true,
-              "says": "In task 0D1 round 2 the prompt 'In an empty room…' matches the option '(empty)' word for word. In task 0D1_2 every prediction pairs with the reference in the same units (m with m, coordinates with coordinates, '人' with '人'), so the pairing is word matching, not judgement. Make the scene, not the prompt, show that the room is empty, and make at least one pairing turn on what is measured rather than on its unit."
-            },
-            {
-              "at": "0A3",
-              "owner": "levels",
-              "rule": "Learning checklist: the answer depends on the material",
-              "fix": true,
-              "says": "In round 1, Map 1 (semantic) and Map 3 (instance) are the same partition with renumbered labels, because the scene has one pedestrian and one car, so nothing on screen tells them apart. Yet only Map 3 counts for 'where is each pedestrian'. Put two touching objects of one class in the scene so the two maps differ."
-            },
-            {
-              "at": "0A1",
-              "owner": "levels",
-              "rule": "§4.1 the misconception fails, with a reason; 'the level asks what it says'",
-              "fix": true,
-              "says": "Round 1 asks 'Where in the picture is each of the two cats?', and the prompt already names the class, so the bare boxes (option c) answer it as worded, yet the judge rejects them for lacking a class. Ask a question that does not supply the class (as round 2 does: 'what kind and where'), so 'boxes without a class are not a detection' is really tested."
-            },
-            {
-              "at": "0A2",
-              "owner": "copy",
-              "rule": "Copy checklist: complete, not padded (the intro says what is given)",
-              "fix": true,
-              "says": "The intros of 0A2 and 0A3 (and the hint in 0A3) tell the player to read the maps' numbers 'against the picture', but neither level shows a picture: only the maps and the prompts. Either show the scene, or say that the numbers must be read from the maps alone."
-            },
-            {
-              "at": "0C2",
-              "owner": "levels",
-              "rule": "§4 copy rules: the wording does not answer",
-              "fix": true,
-              "says": "'The yellow crate is green' (round 2) contradicts itself in its own words, and 'The screen is red' contradicts the intro's 'opaque grey screen'. Neither needs the image. Name objects neutrally (by position or id) so their colour has to be read from the picture."
-            },
-            {
-              "at": "0B1",
-              "owner": "blueprint",
-              "rule": "Knowledge, not tools: a point whose term is not the sources' or the field's; domain honesty",
-              "fix": true,
-              "says": "The level shows one chair under different viewpoints and lights, and it rejects a chair with a moved back as 'not the same object'. It then names what the player learned 'intra-class variation', a term the source (L1 slide 28) does not use and which in the field means different instances of one class looking different. That is exactly what this level marks wrong. Either rename the point (appearance variation: viewpoint and illumination) or teach the same-class-different-instance case."
-            },
-            {
-              "at": "1B1",
-              "owner": "levels",
-              "rule": "§4.1 no sliding to green (pd-slide)",
-              "fix": true,
-              "says": "Both tasks open a single knob while the goal is read out live, and in 1B1_2 the answer is the knob's maximum (Z = 8), so the level is solved by dragging until the readout turns green. This is the level that introduces pinhole projection. Ask for a prediction first (as 1B2_2 does), or judge only on submit. The same pattern is in 1B2 (task 1), 1B7 (both tasks) and 1B8_2. The blueprint's mechanism note ('lets only the scene or only the camera move') sanctions it, which is why the owner is shared."
-            },
-            {
-              "at": "1B5",
-              "owner": "levels",
-              "rule": "§4.1 no sliding to green (pd-slide)",
-              "fix": true,
-              "says": "Focus is fixed and the only open knob has five aperture stops, with all goals shown live. Clicking through the five finds f/16 without any thought about depth of field. Open the focus as well, or ask the player to predict which stop keeps both markers sharp before showing the curve."
-            },
-            {
-              "at": "1B3",
-              "owner": "copy",
-              "rule": "Copy: the intro states what counts as right",
-              "fix": true,
-              "says": "The intro says to choose all pairs that image 1 tall, 'all of them and no others'. But in round 1 the red and blue crates (1, 2) share a depth, so choosing all three valid pairs fails, while the judge accepts any two at distinct depths. State the rule the judge applies: at least two pairs, each at a different depth."
-            },
-            {
-              "at": "1B8",
-              "owner": "levels",
-              "rule": "§4.1 a step not on screen; the misconception fails with a reason",
-              "fix": true,
-              "says": "Task 1B8_3 asks for the vertical field of view (≈23°), but no level shows how field of view follows from focal length and sensor size: 1B7 only shows a readout, and the 1B8_2 bench has none. Show the fov readout on the 1B8_2 bench, or give the half-angle relation. Also, task 1B8 has no naive answer, so choosing 500 mm (pixels used as mm) gets only 'not right'. Add the naive answer with the reason."
-            },
-            {
-              "at": "1A3",
-              "owner": "levels",
-              "rule": "Learning checklist: the answer depends on the material (not answerable without the knowledge)",
-              "fix": true,
-              "says": "Tasks 1A3_2 and 1A3_3 display the image itself, so its width and height can be counted off the screen and the shape convention is never needed. On top of that, the intro states that OpenCV writes (width, height), which is task 3's answer. Hide the image (give only the shape or size), and leave the convention to the feedback."
-            },
-            {
-              "at": "1A1",
-              "owner": "copy",
-              "rule": "Copy checklist: no forward references",
-              "fix": true,
-              "says": "The naive 'why' in task 1A1_3 names the pixel as '(1, 1)', but (x, y) image coordinates are only introduced in 1A2. Refer to it the way the brief does: the middle pixel of the second row."
-            },
-            {
-              "at": "1C1",
-              "owner": "copy",
-              "rule": "Copy checklist: the wording does not answer; intro has no method",
-              "fix": true,
-              "says": "The brief ('a photo stored as BGR… give it as RGB') and the input label 'Photo (BGR)' state the answer to the level's question ('why is the sky orange?'), so chain step 2 (finding that channel 0 holds blue) is never needed. Label the input 'photo read with OpenCV' and leave BGR to be found in the channels."
-            },
-            {
-              "at": "1C1",
-              "owner": "blueprint",
-              "rule": "Domain honesty: a part's description says more than it does",
-              "fix": true,
-              "says": "The `channel` part's setting is named R/G/B, and its description says 'R, G or B', but it actually picks positions 0/1/2. On a BGR image, 'R' gives the blue channel, and the reference reads `r = channel[c=B]`. This presumes the RGB order the level is trying to unteach. Name the setting by index (first/second/third, or 0/1/2); this is a domain request.",
-              "resolved": {
-                "why": "Domain: channel's setting is the position 0, 1, 2, not a colour; 1C1's board renamed to it",
-                "at": "2026-11-02T17:27:57.262Z"
-              }
-            },
-            {
-              "at": "1C2",
-              "owner": "copy",
-              "rule": "§4 copy rules: no method in the intro",
-              "fix": true,
-              "says": "The intro already says the screen shows only 0 to 1 and draws anything beyond as darkest or brightest, so task 1 is a mechanical clip and the 'look equally white, hold different numbers' discovery is handed over. Leave the clipping to the picture against the numbers and the naive feedback."
-            },
-            {
-              "at": "1D1",
-              "owner": "levels",
-              "rule": "§4.1 the misconception fails, with a reason",
-              "fix": true,
-              "says": "The hand-worked grid task has no naive answer, so chain step 1 (writing 0, 1, 2 and being told that 2 lies outside the original) never appears on screen. Add the naive answer [[0, 1, 2]] with that reason."
-            },
-            {
-              "at": "1D10",
-              "owner": "copy",
-              "rule": "§4 copy rules: the brief states the task, not the method",
-              "fix": true,
-              "says": "The brief ('scale by one factor until the short side is S, then crop S×S from the middle') answers the level's question ('can it be resized straight to 512×512?') before the player can try that. Make the brief the spec (an S×S result, shapes kept square, centred) and let the naive squash fail first."
-            },
-            {
-              "at": "1X1",
-              "owner": "levels",
-              "rule": "The level asks what it says; hints do not lead into a wall the tests forbid",
-              "fix": true,
-              "says": "Enlarging k times and then cropping the centre with correctly scaled coordinates is a legitimate digital zoom, but it fails the tests: the border cells differ because bilinear interpolation reads past the window, e.g. 0.5625 against 1 at test 1's corner. The hint ('the old coordinates are enlarged too') points the player straight at that approach. Either state that the zoom uses only the pixels inside the window, or make the hint point at cropping first."
-            },
-            {
-              "at": "1D6",
-              "owner": "levels",
-              "rule": "Learning checklist: a one-step chain is a task or test, not a level",
-              "fix": false,
-              "says": "Task 1D6 just wires the two existing resizers, and task 1D6_2's profiles are copied from the expected outputs task 1 already showed. The blueprint's sharp-edge case (bilinear inventing greys at a hard edge) never appears. Replace tasks 1–2 with that edge so the player sees the trade-off in material."
-            },
-            {
-              "at": "1D5",
-              "owner": "levels",
-              "rule": "One-step task",
-              "fix": false,
-              "says": "Task 1D5 (width only) is a single wire of resizeLinear with no failing case. The row-only failure the chain needs already appears when the upgrade task's tests run, so this task could be dropped."
-            },
-            {
-              "at": "1C1",
-              "owner": "blueprint",
-              "rule": "Curriculum checklist: idle-idea (channels@1C1, on the work list)",
-              "fix": false,
-              "says": "`channel` and `compose` are used only in 1C1. Making 1C2_2 a circuit (uint8 BGR → float RGB: channel, compose, div) would put them to work again and also make the uint8 step a build rather than arithmetic in a grid."
-            },
-            {
-              "at": "0B2",
-              "owner": "copy",
-              "rule": "Named after it is done / blueprint chain step 3",
-              "fix": false,
-              "says": "The round whose answer is 'none' never says that finding no counterexample does not prove the claim, so a learner may leave thinking 'none' means robust. One sentence in that round's feedback or the pass text would close the gap."
-            },
-            {
-              "at": "1B7",
-              "owner": "levels",
-              "rule": "Domain honesty; copy",
-              "fix": false,
-              "says": "The 'row' of arrows is spread along the side view's vertical axis (X and H share it) and fits the 20 mm sensor height, while the 30 mm width plays no part. Players will picture a horizontal row. Call it a column, or use the width and fovW."
-            },
-            {
-              "at": "1B4",
-              "owner": "copy",
-              "rule": "Copy: complete (what counts as right)",
-              "fix": false,
-              "says": "'Light at least 4' (and 'at least 1' in 1B5–1B6) has no unit or reference; it is (A/A0)² relative to a hidden A0. Say what the number is relative to."
-            },
-            {
-              "at": "glossary:nearest-neighbour",
-              "owner": "copy",
-              "rule": "Domain honesty: a simplification the encyclopedia does not admit",
-              "fix": false,
-              "says": "The entry and 1D2's pass text say OpenCV calls this INTER_NEAREST, but OpenCV's INTER_NEAREST maps with floor(x·m/n) without centre alignment (on 1D2 test 2 it gives [1, 3], not [2, 4]). Note that the course's centre-aligned, ties-to-larger convention is closer to INTER_NEAREST_EXACT."
-            },
-            {
-              "at": "1D8",
-              "owner": "levels",
-              "rule": "Domain honesty",
-              "fix": false,
-              "says": "The ranges are given as closed [low, high], but with ties rounding up the upper end belongs to the next level (0.25 at L = 3 is stored as 0.5). Describe the range as half-open, or say that the upper end belongs to the next level."
-            },
-            {
-              "at": "blueprint",
-              "owner": "blueprint",
-              "rule": "Curriculum checklist: practice density (bp-lonely)",
-              "fix": false,
-              "says": "In the camera branch, lens (1B4) is followed directly by depth of field (1B5), and field of view (1B7) by focal length in pixels (1B8), with no practice in between. Lens and field of view each get only their introducing level. Check whether a facet (e.g. focus distance alone, or field of view against sensor size) deserves its own level."
-            },
-            {
-              "at": "1D4",
-              "owner": "copy",
-              "rule": "Copy: complete (what is in hand)",
-              "fix": false,
-              "says": "The circuit needs subtraction (t = x − ⌊x⌋, 1 − t), but subtraction is not a primitive and nothing on screen says it is wired as multiplying by −1 and adding. A learner may stall on arithmetic rather than interpolation; a first-level hint could mention it."
-            }
-          ]
-        },
-        {
-          "at": "2026-11-02T17:45:33.989Z",
-          "by": "agent:claude-opus-5-5",
-          "usage": {
-            "tokens": 4079328,
-            "seconds": 322,
-            "cost": 3.2794968000000004,
-            "turns": 53
-          },
-          "calls": {
-            "check": {
-              "runs": 1,
-              "failed": 0
-            },
-            "lint": {
-              "runs": 1,
-              "failed": 0
-            },
-            "deps": {
-              "runs": 1,
-              "failed": 0
-            }
-          },
-          "changes": [],
-          "report": "The second review finds 21 problems in chapters 0 and 1, 15 of which must be fixed before a person reviews the game. `./check`, `./lint` and `./deps` all pass. One first-review finding (0B1's term) was not fixed on screen. Two others were only partly fixed: 1B1, where the answer is still the knob's last stop, and 1B5, which can still be solved by trying all five settings. Several of the other fixes brought in new problems, listed below.\n\n```json\n{ \"findings\": [\n  { \"at\": \"glossary:intra-class-variation\", \"owner\": \"copy\", \"rule\": \"Learning checklist: Named after it is done; Copy checklist: The field's terms\", \"fix\": true, \"says\": \"The blueprint renamed the point 'appearance variation (viewpoint and illumination)', but the glossary entry is still titled 'intra-class variation / 类内变化' and opens with 'photos of one class'. Since the wiki-ref shows the entry's title, 0B1's pass text still tells the player they learned 'intra-class variation'. The first review's 0B1 finding is not fixed on screen. Retitle the entry and rewrite its body to the blueprint's `about`.\"},\n  { \"at\": \"0C1\", \"owner\": \"copy\", \"rule\": \"Learning checklist: The answer depends on the material; Copy: The wording does not answer\", \"fix\": true, \"says\": \"Round 1, item 1 reads 'The red box is 2 m from the camera'. That answers item 2 ('The box is red') and item 4 ('The box is blue') without looking at the image: the same mistake the first review found in 0C2. Write 'The box is 2 m from the camera'.\"},\n  { \"at\": \"0A3\", \"owner\": \"levels\", \"rule\": \"Learning checklist: The answer depends on the material\", \"fix\": true, \"says\": \"In round 2, 'How many cars are parked?' rejects option c, 'car, car', for lacking instance, yet that label lists two cars and so answers the count. Map 2, the semantic map, is also judged not enough, yet its two cars do not touch (column 2 separates them), so it counts them correctly. Make the label a single 'car' and make the two cars touch in Map 2, so the failure 0A2 taught is on screen.\"},\n  { \"at\": \"0A3\", \"owner\": \"levels\", \"rule\": \"§4.1 Misconception and counterexample; Learning checklist: The misconception fails, with a reason\", \"fix\": true, \"says\": \"There is no naive answer. Chain step 2 (sending 'how far is the car' to the class map and being told its values are class ids, not distances) only gets the judge's generic '“Map 1” does not answer it'. Add the naive picks with that reason.\"},\n  { \"at\": \"0A2\", \"owner\": \"levels\", \"rule\": \"Learning checklist: The answer depends on the material\", \"fix\": true, \"says\": \"In round 2, Map A (pieces numbered 1, 2, 3) is marked wrong for 'Apart from the post, which pixels are dog?' because its `gives` lacks class. But its non-zero cells are exactly the same dog pixels as Map C's, and nothing on screen says Map A lacks a class. Either drop Map A from that item's reach (for example, give one of its pieces a non-dog cell) or let it count for that item.\"},\n  { \"at\": \"0D1\", \"owner\": \"levels\", \"rule\": \"§4.1 Misconception and counterexample; Learning checklist: The misconception fails, with a reason\", \"fix\": true, \"says\": \"Task 0D1 has no naive answer. Chain step 1 (choosing the label 'person' and being told the robot would not know where to go) only gets the generic '“person” does not answer it'. Add naive picks with that reason.\"},\n  { \"at\": \"0D1\", \"owner\": \"levels\", \"rule\": \"Practice combines earlier points without contradicting them (0C2: what is out of view is undetermined)\", \"fix\": true, \"says\": \"Round 1 asks 'Is anyone left on this floor?' and expects the class label from one image. One image cannot settle who is on a whole floor; 0C2 and 0D1_3 teach exactly that. Ask about the picture instead: 'Is there anyone in this picture?'\"},\n  { \"at\": \"0D1\", \"owner\": \"levels\", \"rule\": \"Learning checklist: The answer depends on the material\", \"fix\": false, \"says\": \"Round 2 now shows the room, but the answer (detection list: []) does not depend on it, because the judge checks only fields. A detection list is the only option with location whatever the picture shows. Also, the room image is 8×6 while the distance option is 'a 48 × 36 grid', yet 0A2 said such maps are as large as the photo. Match the sizes, and consider making the picture matter, for example by offering a non-empty detection list as a wrong option.\"},\n  { \"at\": \"0D1\", \"owner\": \"levels\", \"rule\": \"Learning checklist: The answer depends on the material\", \"fix\": true, \"says\": \"In task 0D1_2, round 1, the reference 'annotator: 2 people in view' is judged unable to test 'Predicted: a person is in view' because count ≠ class. But two people in view does confirm a person in view, so a player who reasons correctly is marked wrong. Make the distractor something that really cannot test presence, or turn the item into a count prediction.\"},\n  { \"at\": \"1B1\", \"owner\": \"levels\", \"rule\": \"Learning checklist: No sliding to green\", \"fix\": true, \"says\": \"Task 1B1_2 now judges on submit, but its answer Z = 8 is still the knob's maximum, so 'farther is smaller, go to the end stop' passes without working out the 1/Z relation. Extend the range (for example up to 12) so the answer sits inside it.\"},\n  { \"at\": \"1B5\", \"owner\": \"copy\", \"rule\": \"The domain's honesty\", \"fix\": true, \"says\": \"The hint says 'each stop smaller leaves a quarter of the light', and the intro calls the knob's settings 'stops'. In photography one stop halves the light: f/2 to f/4 is two stops. Call them the knob's settings, or say each step is two stops.\"},\n  { \"at\": \"1B5\", \"owner\": \"levels\", \"rule\": \"Learning checklist: No sliding to green\", \"fix\": false, \"says\": \"Even with submit, the only open knob has five discrete settings, so checking each in turn finds f/16 in at most five tries, with no thought about depth of field needed. Consider a prediction step before the bench (as 1B2_2 does), or opening the focus as well.\"},\n  { \"at\": \"1B8\", \"owner\": \"levels\", \"rule\": \"Learning checklist: The answer depends on the material\", \"fix\": true, \"says\": \"The 1B8_2 bench reads out",
-          "transcript": "/tmp/pipeline-vision-lab-review-QOSe6U/transcript.jsonl",
-          "findings": [
-            {
-              "at": "glossary:intra-class-variation",
-              "owner": "copy",
-              "rule": "Learning checklist: Named after it is done; Copy checklist: The field's terms",
-              "fix": true,
-              "says": "The blueprint renamed the point 'appearance variation (viewpoint and illumination)', but the glossary entry is still titled 'intra-class variation / 类内变化' and opens with 'photos of one class'. Since the wiki-ref shows the entry's title, 0B1's pass text still tells the player they learned 'intra-class variation'. The first review's 0B1 finding is not fixed on screen. Retitle the entry and rewrite its body to the blueprint's `about`."
-            },
-            {
-              "at": "0C1",
-              "owner": "copy",
-              "rule": "Learning checklist: The answer depends on the material; Copy: The wording does not answer",
-              "fix": true,
-              "says": "Round 1, item 1 reads 'The red box is 2 m from the camera'. That answers item 2 ('The box is red') and item 4 ('The box is blue') without looking at the image: the same mistake the first review found in 0C2. Write 'The box is 2 m from the camera'."
-            },
-            {
-              "at": "0A3",
-              "owner": "levels",
-              "rule": "Learning checklist: The answer depends on the material",
-              "fix": true,
-              "says": "In round 2, 'How many cars are parked?' rejects option c, 'car, car', for lacking instance, yet that label lists two cars and so answers the count. Map 2, the semantic map, is also judged not enough, yet its two cars do not touch (column 2 separates them), so it counts them correctly. Make the label a single 'car' and make the two cars touch in Map 2, so the failure 0A2 taught is on screen."
-            },
-            {
-              "at": "0A3",
-              "owner": "levels",
-              "rule": "§4.1 Misconception and counterexample; Learning checklist: The misconception fails, with a reason",
-              "fix": true,
-              "says": "There is no naive answer. Chain step 2 (sending 'how far is the car' to the class map and being told its values are class ids, not distances) only gets the judge's generic '“Map 1” does not answer it'. Add the naive picks with that reason."
-            },
-            {
-              "at": "0A2",
-              "owner": "levels",
-              "rule": "Learning checklist: The answer depends on the material",
-              "fix": true,
-              "says": "In round 2, Map A (pieces numbered 1, 2, 3) is marked wrong for 'Apart from the post, which pixels are dog?' because its `gives` lacks class. But its non-zero cells are exactly the same dog pixels as Map C's, and nothing on screen says Map A lacks a class. Either drop Map A from that item's reach (for example, give one of its pieces a non-dog cell) or let it count for that item."
-            },
-            {
-              "at": "0D1",
-              "owner": "levels",
-              "rule": "§4.1 Misconception and counterexample; Learning checklist: The misconception fails, with a reason",
-              "fix": true,
-              "says": "Task 0D1 has no naive answer. Chain step 1 (choosing the label 'person' and being told the robot would not know where to go) only gets the generic '“person” does not answer it'. Add naive picks with that reason."
-            },
-            {
-              "at": "0D1",
-              "owner": "levels",
-              "rule": "Practice combines earlier points without contradicting them (0C2: what is out of view is undetermined)",
-              "fix": true,
-              "says": "Round 1 asks 'Is anyone left on this floor?' and expects the class label from one image. One image cannot settle who is on a whole floor; 0C2 and 0D1_3 teach exactly that. Ask about the picture instead: 'Is there anyone in this picture?'"
-            },
-            {
-              "at": "0D1",
-              "owner": "levels",
-              "rule": "Learning checklist: The answer depends on the material",
-              "fix": false,
-              "says": "Round 2 now shows the room, but the answer (detection list: []) does not depend on it, because the judge checks only fields. A detection list is the only option with location whatever the picture shows. Also, the room image is 8×6 while the distance option is 'a 48 × 36 grid', yet 0A2 said such maps are as large as the photo. Match the sizes, and consider making the picture matter, for example by offering a non-empty detection list as a wrong option."
-            },
-            {
-              "at": "0D1",
-              "owner": "levels",
-              "rule": "Learning checklist: The answer depends on the material",
-              "fix": true,
-              "says": "In task 0D1_2, round 1, the reference 'annotator: 2 people in view' is judged unable to test 'Predicted: a person is in view' because count ≠ class. But two people in view does confirm a person in view, so a player who reasons correctly is marked wrong. Make the distractor something that really cannot test presence, or turn the item into a count prediction."
-            },
-            {
-              "at": "1B1",
-              "owner": "levels",
-              "rule": "Learning checklist: No sliding to green",
-              "fix": true,
-              "says": "Task 1B1_2 now judges on submit, but its answer Z = 8 is still the knob's maximum, so 'farther is smaller, go to the end stop' passes without working out the 1/Z relation. Extend the range (for example up to 12) so the answer sits inside it."
-            },
-            {
-              "at": "1B5",
-              "owner": "copy",
-              "rule": "The domain's honesty",
-              "fix": true,
-              "says": "The hint says 'each stop smaller leaves a quarter of the light', and the intro calls the knob's settings 'stops'. In photography one stop halves the light: f/2 to f/4 is two stops. Call them the knob's settings, or say each step is two stops."
-            },
-            {
-              "at": "1B5",
-              "owner": "levels",
-              "rule": "Learning checklist: No sliding to green",
-              "fix": false,
-              "says": "Even with submit, the only open knob has five discrete settings, so checking each in turn finds f/16 in at most five tries, with no thought about depth of field needed. Consider a prediction step before the bench (as 1B2_2 does), or opening the focus as well."
-            },
-            {
-              "at": "1B8",
-              "owner": "levels",
-              "rule": "Learning checklist: The answer depends on the material",
-              "fix": true,
-              "says": "The 1B8_2 bench reads out 'focal length in pixels' and the field of view. Checked at f = 50 mm, it shows 500 px and 22.6°, which are exactly the answers to 1B8_3 (f = 50 mm, 0.1 mm pixels); the first hint even tells the player to copy them. So the level's own point (pixel units) is read off a display. Give 1B8_3 a different camera (another f and pixel size), or drop the fpx readout."
-            },
-            {
-              "at": "1C1",
-              "owner": "copy",
-              "rule": "Copy checklist: no spoiler; part descriptions say what a part does, never why it solves the level",
-              "fix": true,
-              "says": "The new channel part's description says 'in an RGB image 0 is red, in a BGR one blue'. Next to an input labelled 'photo read with OpenCV', this hands over chain step 2 (finding that channel 0 holds blue). Keep the description to 'the number at position 0, 1 or 2' and leave the colour order to be found."
-            },
-            {
-              "at": "1X1",
-              "owner": "levels",
-              "rule": "§2.5 Challenge levels: fewer hints, the leap is the player's",
-              "fix": false,
-              "says": "The brief now says 'made from the pixels inside that window only', and hint 1 says 'take those out first'. Between them they spell out the challenge's leap (crop first, then enlarge). Keep the brief's constraint, but drop hint 1 or move it to a last tier."
-            },
-            {
-              "at": "1D6",
-              "owner": "levels",
-              "rule": "Learning checklist: No repeats; one-step chain",
-              "fix": false,
-              "says": "Task 1D6_2's two rounds are exactly task 1D6's two test cases, whose expected outputs the player has just matched, so matching them to profiles is copying. Use a new input, or fold the profiles into 1D6's test view."
-            },
-            {
-              "at": "1D6",
-              "owner": "levels",
-              "rule": "Practice varies the facet named in the slot",
-              "fix": false,
-              "says": "The slot's facet is 'bilinear softens sharp edges', but 1D6_3's counterexamples are label maps, where any value in between is meaningless. The answer follows from the words 'label map' / 'class id' with the same ramp numbers in every option, and the sharp-edge greys of chain step 2 never appear. Either add the edge case, or change the facet to say label maps."
-            },
-            {
-              "at": "1B4",
-              "owner": "copy",
-              "rule": "Copy checklist: Complete, not padded (what counts as right)",
-              "fix": false,
-              "says": "'The light must reach at least 4' gives no unit. 1B5 defines light against a 3 mm aperture and 1B6 silently uses 1.5 mm. State the reference aperture in 1B4 (5 mm), as 1B5 does."
-            },
-            {
-              "at": "blueprint",
-              "owner": "blueprint",
-              "rule": "§4.1 contract kept current with the levels",
-              "fix": false,
-              "says": "The bench mechanism note still sanctions benches where 'only the scene or only the camera moves' and does not mention judging on submit, and the 1D10 slot's `task` still states the recipe ('scale by one factor … then crop S×S from the middle') that the level's brief has since dropped. Update both so the next levels step does not reintroduce them."
-            },
-            {
-              "at": "0A1",
-              "owner": "levels",
-              "rule": "Knowledge, not tools",
-              "fix": false,
-              "says": "The 'exact' judge marks labelled boxes wrong for 'Is there a dog?' (and 0A2 marks the instance map wrong for 'Which pixels are dog?') only because they carry more than needed. 'Just enough' is a rule of the game, not of the field, and is a large part of what these rounds test. Consider 'enough' mode with a missing-field distractor in each round, keeping exact only where the minimum is the point."
-            },
-            {
-              "at": "0B2",
-              "owner": "copy",
-              "rule": "Learning checklist: a step you could not take from the screen",
-              "fix": false,
-              "says": "Chain step 3 ('finding no counterexample does not make the claim true') appears nowhere on screen: round 2's answer 'none' passes silently and the pass text does not say it. Add a task `after` or a line in the pass text that names it."
-            }
-          ]
-        }
-      ],
-      "gates": [
-        {
-          "at": "2026-11-02T17:23:01.367Z",
-          "ok": false,
-          "failures": [
-            {
-              "rule": "review",
-              "at": "0B3",
-              "says": "levels: The `cover` judge only checks that nothing is missing, so ticking every case passes both rounds without reading a single scene. Penalise extra picks (for example, ask for the smallest set or cap how many cases can be chosen) so the player has to work out what each case changes."
-            },
-            {
-              "rule": "review",
-              "at": "0C1",
-              "says": "levels: Round 2 marks 'There is a ball in the scene' as contradicted only because the two listed candidates have no ball. A small ball could sit behind the green cube, and 0C2 then teaches that exactly this kind of claim is undetermined. Add a candidate scene with a hidden ball, or drop the item, so a player who answers 'undetermined' is not marked wrong."
-            },
-            {
-              "rule": "review",
-              "at": "0D1",
-              "says": "levels: In task 0D1_3, 'There is a dog at the site' (the whole collapsed building) is judged contradicted, and 'two people in the scene' is judged supported. Both are claims about things that may be hidden or out of view, which 0C2 has just taught are undetermined. Make the candidate scenes complete (someone hidden behind a person, a dog out of view) so the verdicts match what one image can actually show."
-            },
-            {
-              "rule": "review",
-              "at": "0D1",
-              "says": "levels: In task 0D1 round 2 the prompt 'In an empty room…' matches the option '(empty)' word for word. In task 0D1_2 every prediction pairs with the reference in the same units (m with m, coordinates with coordinates, '人' with '人'), so the pairing is word matching, not judgement. Make the scene, not the prompt, show that the room is empty, and make at least one pairing turn on what is measured rather than on its unit."
-            },
-            {
-              "rule": "review",
-              "at": "0A3",
-              "says": "levels: In round 1, Map 1 (semantic) and Map 3 (instance) are the same partition with renumbered labels, because the scene has one pedestrian and one car, so nothing on screen tells them apart. Yet only Map 3 counts for 'where is each pedestrian'. Put two touching objects of one class in the scene so the two maps differ."
-            },
-            {
-              "rule": "review",
-              "at": "0A1",
-              "says": "levels: Round 1 asks 'Where in the picture is each of the two cats?', and the prompt already names the class, so the bare boxes (option c) answer it as worded, yet the judge rejects them for lacking a class. Ask a question that does not supply the class (as round 2 does: 'what kind and where'), so 'boxes without a class are not a detection' is really tested."
-            },
-            {
-              "rule": "review",
-              "at": "0A2",
-              "says": "copy: The intros of 0A2 and 0A3 (and the hint in 0A3) tell the player to read the maps' numbers 'against the picture', but neither level shows a picture: only the maps and the prompts. Either show the scene, or say that the numbers must be read from the maps alone."
-            },
-            {
-              "rule": "review",
-              "at": "0C2",
-              "says": "levels: 'The yellow crate is green' (round 2) contradicts itself in its own words, and 'The screen is red' contradicts the intro's 'opaque grey screen'. Neither needs the image. Name objects neutrally (by position or id) so their colour has to be read from the picture."
-            },
-            {
-              "rule": "review",
-              "at": "0B1",
-              "says": "blueprint: The level shows one chair under different viewpoints and lights, and it rejects a chair with a moved back as 'not the same object'. It then names what the player learned 'intra-class variation', a term the source (L1 slide 28) does not use and which in the field means different instances of one class looking different. That is exactly what this level marks wrong. Either rename the point (appearance variation: viewpoint and illumination) or teach the same-class-different-instance case."
-            },
-            {
-              "rule": "review",
-              "at": "1B1",
-              "says": "levels: Both tasks open a single knob while the goal is read out live, and in 1B1_2 the answer is the knob's maximum (Z = 8), so the level is solved by dragging until the readout turns green. This is the level that introduces pinhole projection. Ask for a prediction first (as 1B2_2 does), or judge only on submit. The same pattern is in 1B2 (task 1), 1B7 (both tasks) and 1B8_2. The blueprint's mechanism note ('lets only the scene or only the camera move') sanctions it, which is why the owner is shared."
-            },
-            {
-              "rule": "review",
-              "at": "1B5",
-              "says": "levels: Focus is fixed and the only open knob has five aperture stops, with all goals shown live. Clicking through the five finds f/16 without any thought about depth of field. Open the focus as well, or ask the player to predict which stop keeps both markers sharp before showing the curve."
-            },
-            {
-              "rule": "review",
-              "at": "1B3",
-              "says": "copy: The intro says to choose all pairs that image 1 tall, 'all of them and no others'. But in round 1 the red and blue crates (1, 2) share a depth, so choosing all three valid pairs fails, while the judge accepts any two at distinct depths. State the rule the judge applies: at least two pairs, each at a different depth."
-            },
-            {
-              "rule": "review",
-              "at": "1B8",
-              "says": "levels: Task 1B8_3 asks for the vertical field of view (≈23°), but no level shows how field of view follows from focal length and sensor size: 1B7 only shows a readout, and the 1B8_2 bench has none. Show the fov readout on the 1B8_2 bench, or give the half-angle relation. Also, task 1B8 has no naive answer, so choosing 500 mm (pixels used as mm) gets only 'not right'. Add the naive answer with the reason."
-            },
-            {
-              "rule": "review",
-              "at": "1A3",
-              "says": "levels: Tasks 1A3_2 and 1A3_3 display the image itself, so its width and height can be counted off the screen and the shape convention is never needed. On top of that, the intro states that OpenCV writes (width, height), which is task 3's answer. Hide the image (give only the shape or size), and leave the convention to the feedback."
-            },
-            {
-              "rule": "review",
-              "at": "1A1",
-              "says": "copy: The naive 'why' in task 1A1_3 names the pixel as '(1, 1)', but (x, y) image coordinates are only introduced in 1A2. Refer to it the way the brief does: the middle pixel of the second row."
-            },
-            {
-              "rule": "review",
-              "at": "1C1",
-              "says": "copy: The brief ('a photo stored as BGR… give it as RGB') and the input label 'Photo (BGR)' state the answer to the level's question ('why is the sky orange?'), so chain step 2 (finding that channel 0 holds blue) is never needed. Label the input 'photo read with OpenCV' and leave BGR to be found in the channels."
-            },
-            {
-              "rule": "review",
-              "at": "1C1",
-              "says": "blueprint: The `channel` part's setting is named R/G/B, and its description says 'R, G or B', but it actually picks positions 0/1/2. On a BGR image, 'R' gives the blue channel, and the reference reads `r = channel[c=B]`. This presumes the RGB order the level is trying to unteach. Name the setting by index (first/second/third, or 0/1/2); this is a domain request."
-            },
-            {
-              "rule": "review",
-              "at": "1C2",
-              "says": "copy: The intro already says the screen shows only 0 to 1 and draws anything beyond as darkest or brightest, so task 1 is a mechanical clip and the 'look equally white, hold different numbers' discovery is handed over. Leave the clipping to the picture against the numbers and the naive feedback."
-            },
-            {
-              "rule": "review",
-              "at": "1D1",
-              "says": "levels: The hand-worked grid task has no naive answer, so chain step 1 (writing 0, 1, 2 and being told that 2 lies outside the original) never appears on screen. Add the naive answer [[0, 1, 2]] with that reason."
-            },
-            {
-              "rule": "review",
-              "at": "1D10",
-              "says": "copy: The brief ('scale by one factor until the short side is S, then crop S×S from the middle') answers the level's question ('can it be resized straight to 512×512?') before the player can try that. Make the brief the spec (an S×S result, shapes kept square, centred) and let the naive squash fail first."
-            },
-            {
-              "rule": "review",
-              "at": "1X1",
-              "says": "levels: Enlarging k times and then cropping the centre with correctly scaled coordinates is a legitimate digital zoom, but it fails the tests: the border cells differ because bilinear interpolation reads past the window, e.g. 0.5625 against 1 at test 1's corner. The hint ('the old coordinates are enlarged too') points the player straight at that approach. Either state that the zoom uses only the pixels inside the window, or make the hint point at cropping first."
-            }
-          ],
-          "reports": [
-            {
-              "rule": "review-note",
-              "at": "1D6",
-              "says": "Task 1D6 just wires the two existing resizers, and task 1D6_2's profiles are copied from the expected outputs task 1 already showed. The blueprint's sharp-edge case (bilinear inventing greys at a hard edge) never appears. Replace tasks 1–2 with that edge so the player sees the trade-off in material."
-            },
-            {
-              "rule": "review-note",
-              "at": "1D5",
-              "says": "Task 1D5 (width only) is a single wire of resizeLinear with no failing case. The row-only failure the chain needs already appears when the upgrade task's tests run, so this task could be dropped."
-            },
-            {
-              "rule": "review-note",
-              "at": "1C1",
-              "says": "`channel` and `compose` are used only in 1C1. Making 1C2_2 a circuit (uint8 BGR → float RGB: channel, compose, div) would put them to work again and also make the uint8 step a build rather than arithmetic in a grid."
-            },
-            {
-              "rule": "review-note",
-              "at": "0B2",
-              "says": "The round whose answer is 'none' never says that finding no counterexample does not prove the claim, so a learner may leave thinking 'none' means robust. One sentence in that round's feedback or the pass text would close the gap."
-            },
-            {
-              "rule": "review-note",
-              "at": "1B7",
-              "says": "The 'row' of arrows is spread along the side view's vertical axis (X and H share it) and fits the 20 mm sensor height, while the 30 mm width plays no part. Players will picture a horizontal row. Call it a column, or use the width and fovW."
-            },
-            {
-              "rule": "review-note",
-              "at": "1B4",
-              "says": "'Light at least 4' (and 'at least 1' in 1B5–1B6) has no unit or reference; it is (A/A0)² relative to a hidden A0. Say what the number is relative to."
-            },
-            {
-              "rule": "review-note",
-              "at": "glossary:nearest-neighbour",
-              "says": "The entry and 1D2's pass text say OpenCV calls this INTER_NEAREST, but OpenCV's INTER_NEAREST maps with floor(x·m/n) without centre alignment (on 1D2 test 2 it gives [1, 3], not [2, 4]). Note that the course's centre-aligned, ties-to-larger convention is closer to INTER_NEAREST_EXACT."
-            },
-            {
-              "rule": "review-note",
-              "at": "1D8",
-              "says": "The ranges are given as closed [low, high], but with ties rounding up the upper end belongs to the next level (0.25 at L = 3 is stored as 0.5). Describe the range as half-open, or say that the upper end belongs to the next level."
-            },
-            {
-              "rule": "review-note",
-              "at": "blueprint",
-              "says": "In the camera branch, lens (1B4) is followed directly by depth of field (1B5), and field of view (1B7) by focal length in pixels (1B8), with no practice in between. Lens and field of view each get only their introducing level. Check whether a facet (e.g. focus distance alone, or field of view against sensor size) deserves its own level."
-            },
-            {
-              "rule": "review-note",
-              "at": "1D4",
-              "says": "The circuit needs subtraction (t = x − ⌊x⌋, 1 − t), but subtraction is not a primitive and nothing on screen says it is wired as multiplying by −1 and adding. A learner may stall on arithmetic rather than interpolation; a first-level hint could mention it."
-            }
-          ]
-        },
-        {
-          "at": "2026-11-02T17:45:34.003Z",
-          "ok": false,
-          "failures": [
-            {
-              "rule": "review",
-              "at": "glossary:intra-class-variation",
-              "says": "copy: The blueprint renamed the point 'appearance variation (viewpoint and illumination)', but the glossary entry is still titled 'intra-class variation / 类内变化' and opens with 'photos of one class'. Since the wiki-ref shows the entry's title, 0B1's pass text still tells the player they learned 'intra-class variation'. The first review's 0B1 finding is not fixed on screen. Retitle the entry and rewrite its body to the blueprint's `about`."
-            },
-            {
-              "rule": "review",
-              "at": "0C1",
-              "says": "copy: Round 1, item 1 reads 'The red box is 2 m from the camera'. That answers item 2 ('The box is red') and item 4 ('The box is blue') without looking at the image: the same mistake the first review found in 0C2. Write 'The box is 2 m from the camera'."
-            },
-            {
-              "rule": "review",
-              "at": "0A3",
-              "says": "levels: In round 2, 'How many cars are parked?' rejects option c, 'car, car', for lacking instance, yet that label lists two cars and so answers the count. Map 2, the semantic map, is also judged not enough, yet its two cars do not touch (column 2 separates them), so it counts them correctly. Make the label a single 'car' and make the two cars touch in Map 2, so the failure 0A2 taught is on screen."
-            },
-            {
-              "rule": "review",
-              "at": "0A3",
-              "says": "levels: There is no naive answer. Chain step 2 (sending 'how far is the car' to the class map and being told its values are class ids, not distances) only gets the judge's generic '“Map 1” does not answer it'. Add the naive picks with that reason."
-            },
-            {
-              "rule": "review",
-              "at": "0A2",
-              "says": "levels: In round 2, Map A (pieces numbered 1, 2, 3) is marked wrong for 'Apart from the post, which pixels are dog?' because its `gives` lacks class. But its non-zero cells are exactly the same dog pixels as Map C's, and nothing on screen says Map A lacks a class. Either drop Map A from that item's reach (for example, give one of its pieces a non-dog cell) or let it count for that item."
-            },
-            {
-              "rule": "review",
-              "at": "0D1",
-              "says": "levels: Task 0D1 has no naive answer. Chain step 1 (choosing the label 'person' and being told the robot would not know where to go) only gets the generic '“person” does not answer it'. Add naive picks with that reason."
-            },
-            {
-              "rule": "review",
-              "at": "0D1",
-              "says": "levels: Round 1 asks 'Is anyone left on this floor?' and expects the class label from one image. One image cannot settle who is on a whole floor; 0C2 and 0D1_3 teach exactly that. Ask about the picture instead: 'Is there anyone in this picture?'"
-            },
-            {
-              "rule": "review",
-              "at": "0D1",
-              "says": "levels: In task 0D1_2, round 1, the reference 'annotator: 2 people in view' is judged unable to test 'Predicted: a person is in view' because count ≠ class. But two people in view does confirm a person in view, so a player who reasons correctly is marked wrong. Make the distractor something that really cannot test presence, or turn the item into a count prediction."
-            },
-            {
-              "rule": "review",
-              "at": "1B1",
-              "says": "levels: Task 1B1_2 now judges on submit, but its answer Z = 8 is still the knob's maximum, so 'farther is smaller, go to the end stop' passes without working out the 1/Z relation. Extend the range (for example up to 12) so the answer sits inside it."
-            },
-            {
-              "rule": "review",
-              "at": "1B5",
-              "says": "copy: The hint says 'each stop smaller leaves a quarter of the light', and the intro calls the knob's settings 'stops'. In photography one stop halves the light: f/2 to f/4 is two stops. Call them the knob's settings, or say each step is two stops."
-            },
-            {
-              "rule": "review",
-              "at": "1B8",
-              "says": "levels: The 1B8_2 bench reads out 'focal length in pixels' and the field of view. Checked at f = 50 mm, it shows 500 px and 22.6°, which are exactly the answers to 1B8_3 (f = 50 mm, 0.1 mm pixels); the first hint even tells the player to copy them. So the level's own point (pixel units) is read off a display. Give 1B8_3 a different camera (another f and pixel size), or drop the fpx readout."
-            },
-            {
-              "rule": "review",
-              "at": "1C1",
-              "says": "copy: The new channel part's description says 'in an RGB image 0 is red, in a BGR one blue'. Next to an input labelled 'photo read with OpenCV', this hands over chain step 2 (finding that channel 0 holds blue). Keep the description to 'the number at position 0, 1 or 2' and leave the colour order to be found."
-            }
-          ],
-          "reports": [
-            {
-              "rule": "review-note",
-              "at": "0D1",
-              "says": "Round 2 now shows the room, but the answer (detection list: []) does not depend on it, because the judge checks only fields. A detection list is the only option with location whatever the picture shows. Also, the room image is 8×6 while the distance option is 'a 48 × 36 grid', yet 0A2 said such maps are as large as the photo. Match the sizes, and consider making the picture matter, for example by offering a non-empty detection list as a wrong option."
-            },
-            {
-              "rule": "review-note",
-              "at": "1B5",
-              "says": "Even with submit, the only open knob has five discrete settings, so checking each in turn finds f/16 in at most five tries, with no thought about depth of field needed. Consider a prediction step before the bench (as 1B2_2 does), or opening the focus as well."
-            },
-            {
-              "rule": "review-note",
-              "at": "1X1",
-              "says": "The brief now says 'made from the pixels inside that window only', and hint 1 says 'take those out first'. Between them they spell out the challenge's leap (crop first, then enlarge). Keep the brief's constraint, but drop hint 1 or move it to a last tier."
-            },
-            {
-              "rule": "review-note",
-              "at": "1D6",
-              "says": "Task 1D6_2's two rounds are exactly task 1D6's two test cases, whose expected outputs the player has just matched, so matching them to profiles is copying. Use a new input, or fold the profiles into 1D6's test view."
-            },
-            {
-              "rule": "review-note",
-              "at": "1D6",
-              "says": "The slot's facet is 'bilinear softens sharp edges', but 1D6_3's counterexamples are label maps, where any value in between is meaningless. The answer follows from the words 'label map' / 'class id' with the same ramp numbers in every option, and the sharp-edge greys of chain step 2 never appear. Either add the edge case, or change the facet to say label maps."
-            },
-            {
-              "rule": "review-note",
-              "at": "1B4",
-              "says": "'The light must reach at least 4' gives no unit. 1B5 defines light against a 3 mm aperture and 1B6 silently uses 1.5 mm. State the reference aperture in 1B4 (5 mm), as 1B5 does."
-            },
-            {
-              "rule": "review-note",
-              "at": "blueprint",
-              "says": "The bench mechanism note still sanctions benches where 'only the scene or only the camera moves' and does not mention judging on submit, and the 1D10 slot's `task` still states the recipe ('scale by one factor … then crop S×S from the middle') that the level's brief has since dropped. Update both so the next levels step does not reintroduce them."
-            },
-            {
-              "rule": "review-note",
-              "at": "0A1",
-              "says": "The 'exact' judge marks labelled boxes wrong for 'Is there a dog?' (and 0A2 marks the instance map wrong for 'Which pixels are dog?') only because they carry more than needed. 'Just enough' is a rule of the game, not of the field, and is a large part of what these rounds test. Consider 'enough' mode with a missing-field distractor in each round, keeping exact only where the minimum is the point."
-            },
-            {
-              "rule": "review-note",
-              "at": "0B2",
-              "says": "Chain step 3 ('finding no counterexample does not make the claim true') appears nowhere on screen: round 2's answer 'none' passes silently and the pass text does not say it. Add a task `after` or a line in the pass text that names it."
-            }
-          ]
         }
       ]
     }

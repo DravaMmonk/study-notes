@@ -1,0 +1,76 @@
+{
+  "title": { "zh": "对焦", "en": "Focus" },
+  "intro": [
+    {
+      "t": {
+        "zh": "针孔只放进一条光线，图很暗；把孔开大，同一点的光落到传感器上一大片，图就糊。相机在孔的位置装一块焦距 50 mm 的透镜：它把从一点射来的一大束光重新收拢成一点。收拢在哪里，取决于这一点有多远；转动对焦，就是挪动传感器去接住某个距离上收拢的点。",
+        "en": "A pinhole lets in one ray and the image is dark; widen the hole and one point's light spreads over the sensor, and the image blurs. A camera puts a 50 mm lens where the hole was: it gathers a wide beam from a point back into a point. Where that happens depends on how far the point is; turning the focus moves the sensor to catch the points of one distance."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：透镜能让近处和远处同时清晰吗？台上有 1 m 处的花和 4 m 处的门，光圈固定。只调对焦距离，让远处的门清晰：它在传感器上的斑不超过清晰门槛 0.03 mm。先想好再按「检查」，检查之后才画出光线和每个深度的斑。",
+        "en": "This level asks: can a lens make near and far sharp at once? The bench holds a flower at 1 m and a door at 4 m; the aperture is fixed. Turn only the focus distance so the far door is sharp: its spot on the sensor no wider than the 0.03 mm threshold. Decide before you press Check; only then are the rays and each depth's spot drawn."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这是<wiki-ref to=\"focus\"></wiki-ref>：透镜只把对焦距离上的点收成点，别的距离上的点落成一块斑。对焦在两者中间，两个都不清晰。",
+    "en": "This is <wiki-ref to=\"focus\"></wiki-ref>: a lens brings only the points at the focus distance to points; points at other distances land as spots. Focused halfway, neither is sharp."
+  },
+  "tasks": [
+    {
+      "id": "1F1",
+      "kind": "bench",
+      "brief": {
+        "zh": "光圈不动，只调对焦距离：让 4 m 处的门清晰。",
+        "en": "With the aperture fixed, turn only the focus distance: make the door at 4 m sharp."
+      },
+      "hint": [{ "zh": "透镜把哪个距离上的点收成点？", "en": "Which distance does the lens bring to points?" }],
+      "bench": {
+        "model": "lens",
+        "setup": {
+          "F": 50,
+          "A0": 5,
+          "cMax": 0.03,
+          "objects": [
+            { "id": "near", "z": 1000, "label": { "zh": "近处的花", "en": "near flower" } },
+            { "id": "far", "z": 4000, "label": { "zh": "远处的门", "en": "far door" } }
+          ]
+        },
+        "knobs": {
+          "A": {
+            "label": { "zh": "光圈直径 A", "en": "Aperture A" },
+            "min": 5,
+            "max": 5,
+            "step": 1,
+            "start": 5,
+            "unit": " mm",
+            "fixed": true
+          },
+          "focus": {
+            "label": { "zh": "对焦距离", "en": "Focus distance" },
+            "min": 1000,
+            "max": 4000,
+            "step": 500,
+            "start": 1000,
+            "unit": " mm"
+          }
+        },
+        "goal": [{ "of": "sharp_far", "label": { "zh": "远处的门清晰", "en": "Far door sharp" }, "is": 1 }],
+        "check": "submit",
+        "layout": { "main": ["lensRays", "blurCurve"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "focus": 2500 },
+          "why": {
+            "zh": "对焦在两者中间，想两个都照顾到：门的斑有 0.04 mm，花的更大，两个都不清晰。透镜只把一个距离收成点。",
+            "en": "Focusing halfway to favour both: the door's spot is 0.04 mm and the flower's larger, so neither is sharp. A lens brings one distance to points."
+          }
+        }
+      ],
+      "holds": [{ "of": "focus", "atLeast": 3000 }]
+    }
+  ]
+}

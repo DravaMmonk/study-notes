@@ -1,0 +1,109 @@
+{
+  "title": { "zh": "穿过小孔", "en": "Through the hole" },
+  "intro": [
+    {
+      "t": {
+        "zh": "相机台上是一台理想的针孔相机：场景里一点发出的光，只有穿过小孔的那一条落到像平面上。像平面离小孔 f，点离小孔 Z、偏离光轴 X；台上把像平面画在小孔前面，像是正的。",
+        "en": "The bench holds an ideal pinhole camera: of all the light a scene point sends out, only the ray through the hole reaches the image plane. The plane is f from the hole, the point Z away and X off the axis; the bench draws the plane in front of the hole, so the image is upright."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：一点放在哪里，它的像才落在像平面上画圈的位置？两个任务各开一个旋钮：先横向移动这一点，再前后移动它。先想好放在哪里再按「检查」，检查之后才画出光线和像；像落进圆圈才算对。",
+        "en": "This level asks: where must a point be for its image to land on the circled spot of the image plane? Each of the two tasks opens one knob: first move the point sideways, then in depth. Decide where to put it before you press Check; the ray and the image are drawn only once you check. It is right when the image lands in the circle."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这是<wiki-ref to=\"central-projection\"></wiki-ref>：像点在物点和小孔的连线上，u = fX/Z。物点离得越远，同样的横向偏移在像上越小。",
+    "en": "This is <wiki-ref to=\"central-projection\"></wiki-ref>: the image lies on the line through the point and the hole, u = fX/Z. The farther the point, the smaller the same sideways offset becomes in the image."
+  },
+  "tasks": [
+    {
+      "id": "1P1",
+      "kind": "bench",
+      "step": { "zh": "横向移动", "en": "Sideways" },
+      "brief": {
+        "zh": "f = 2，点离小孔 Z = 4：横向移动这一点，让它的像落在 u = 1。",
+        "en": "f = 2, the point Z = 4 from the hole: move it sideways so its image lands at u = 1."
+      },
+      "hint": [
+        {
+          "zh": "顺着画出的光线看：它从点出发，穿过小孔，停在像平面上。像平面离小孔多远，点又离小孔多远？",
+          "en": "Follow the drawn ray from the point through the hole to the plane. How far is the plane from the hole, and the point?"
+        }
+      ],
+      "bench": {
+        "model": "pinhole",
+        "setup": { "Z": 4, "f": 2, "object": "point", "target": { "of": "u", "value": 1 } },
+        "knobs": {
+          "X": { "label": { "zh": "横向位置 X", "en": "Sideways X" }, "min": -4, "max": 4, "step": 0.5, "start": 0 }
+        },
+        "goal": [
+          {
+            "of": "u",
+            "label": { "zh": "像的位置 u", "en": "Image position u" },
+            "near": 1,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
+        "check": "submit",
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "X": 1 },
+          "why": {
+            "zh": "把点放在 X = 1，像却只落到 u = 0.5：光线穿过小孔后，横向位置按 f/Z = 2/4 缩小了一半。",
+            "en": "With the point at X = 1 the image lands at u = 0.5 only: through the hole, the sideways position shrinks by f/Z = 2/4, to half."
+          }
+        }
+      ],
+      "holds": [{ "of": "X", "near": 2, "atMost": 0.001 }]
+    },
+    {
+      "id": "1P1_2",
+      "kind": "bench",
+      "step": { "zh": "前后移动", "en": "In depth" },
+      "brief": {
+        "zh": "f = 2，点偏离光轴 X = 2：只前后移动它，让像落在 u = 0.5。",
+        "en": "f = 2, the point X = 2 off the axis: move it only in depth so its image lands at u = 0.5."
+      },
+      "hint": [
+        {
+          "zh": "Z = 2 时像在 u = 2。退到两倍远，像挪到哪里？要挪到四分之一呢？",
+          "en": "At Z = 2 the image is at u = 2. Twice as far, where does it go? To get a quarter of that?"
+        }
+      ],
+      "bench": {
+        "model": "pinhole",
+        "setup": { "X": 2, "f": 2, "object": "point", "target": { "of": "u", "value": 0.5 } },
+        "knobs": {
+          "Z": { "label": { "zh": "距离 Z", "en": "Distance Z" }, "min": 1, "max": 12, "step": 1, "start": 2 }
+        },
+        "goal": [
+          {
+            "of": "u",
+            "label": { "zh": "像的位置 u", "en": "Image position u" },
+            "near": 0.5,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
+        "check": "submit",
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "Z": 4 },
+          "why": {
+            "zh": "退到两倍远，像只挪到 u = 1：像的位置和距离成反比，要到 u = 0.5，得退到四倍远。",
+            "en": "Twice as far, the image moves only to u = 1: its position is inversely proportional to the distance, so u = 0.5 needs four times as far."
+          }
+        }
+      ],
+      "holds": [{ "of": "Z", "near": 8, "atMost": 0.001 }]
+    }
+  ]
+}

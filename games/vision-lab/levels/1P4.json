@@ -1,0 +1,215 @@
+{
+  "title": { "zh": "一张图能说明什么", "en": "What one image settles" },
+  "intro": [
+    {
+      "t": {
+        "zh": "画一张图是由场景到图像：物体、光照、相机都给定，图就定了，这是<wiki-ref to=\"graphics-vision\"></wiki-ref>里图形学的方向。视觉走反方向，手里只有图，要说出场景是什么样。",
+        "en": "Drawing goes from scene to image: given the objects, the light and the camera, the image is settled; that is the graphics side of <wiki-ref to=\"graphics-vision\"></wiki-ref>. Vision goes the other way: it holds only the image and must say what the scene is like."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：只看一张图，场景里哪些事能确定，哪些确定不了？每一轮给一张图，判断关于场景的每句话：凡是渲得出这张图的场景里它都成立，选「成立」；都不成立，选「不成立」；有的场景成立、有的不成立，选「无法确定」。第二轮多给了一条线索。",
+        "en": "This level asks: from one image alone, what about the scene can be settled and what cannot? Each round gives an image; judge each statement about the scene: true in every scene that renders this image, Supported; false in all of them, Contradicted; true in some and false in others, Undetermined. The second round gives one more cue."
+      }
+    }
+  ],
+  "after": {
+    "zh": "从图推回场景是<wiki-ref to=\"inverse-problem\"></wiki-ref>：大而远和小而近渲出同一张图。图只能确定所有相容场景都同意的事，距离要靠别的线索。",
+    "en": "Going from an image back to a scene is an <wiki-ref to=\"inverse-problem\"></wiki-ref>: big-and-far renders like small-and-near. An image settles only what every compatible scene agrees on; distance needs another cue."
+  },
+  "tasks": [
+    {
+      "id": "1P4",
+      "kind": "choice",
+      "brief": {
+        "zh": "判断关于场景的每句话：成立、不成立，还是无法确定。",
+        "en": "Judge each statement about the scene: supported, contradicted, or undetermined."
+      },
+      "hint": [
+        {
+          "zh": "红色立方体在图里的大小，取决于它有多大，也取决于它有多远。把它放大一倍、再推远一倍，图会变吗？",
+          "en": "The red cube's size in the image depends on how big it is and how far. Double its size and its distance: does the image change?"
+        },
+        {
+          "zh": "第二轮知道了红色立方体的边长：它的距离定下来了；蓝色立方体的呢？",
+          "en": "In the second round the red cube's side is known: that settles its distance; what about the blue one's?"
+        }
+      ],
+      "judge": "claims",
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": { "zh": "红色立方体离相机 6 米。", "en": "The red cube is 6 m from the camera." },
+              "claim": { "depth": { "object": "red", "z": 6, "tol": 0.05 } }
+            },
+            {
+              "prompt": { "zh": "右边的立方体是蓝色的。", "en": "The cube on the right is blue." },
+              "claim": { "colour": { "object": "blue", "is": "blue" } }
+            },
+            {
+              "prompt": { "zh": "场景里有两个立方体。", "en": "The scene has two cubes." },
+              "claim": { "count": { "class": "cube", "n": 2 } }
+            },
+            {
+              "prompt": { "zh": "红色立方体边长 1 米。", "en": "The red cube is 1 m on a side." },
+              "claim": { "height": { "object": "red", "h": 1, "tol": 0.05 } }
+            }
+          ],
+          "scenes": [
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "cube",
+                  "colour": "blue",
+                  "boxes": [{ "at": [0.9, 0.3, -0.5], "size": [0.6, 0.6, 0.6] }]
+                }
+              ]
+            },
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-1.8, 0.5, -6], "size": [2, 2, 2] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "cube",
+                  "colour": "blue",
+                  "boxes": [{ "at": [1.8, 0.1, -7], "size": [1.2, 1.2, 1.2] }]
+                }
+              ]
+            },
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-2.7, 0.5, -12], "size": [3, 3, 3] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "cube",
+                  "colour": "blue",
+                  "boxes": [{ "at": [2.7, -0.1, -13.5], "size": [1.8, 1.8, 1.8] }]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "已知红色立方体边长 1 米。红色立方体离相机 6 米。",
+                "en": "The red cube is known to be 1 m on a side. It is 6 m from the camera."
+              },
+              "claim": { "depth": { "object": "red", "z": 6, "tol": 0.05 } }
+            },
+            {
+              "prompt": { "zh": "蓝色立方体离相机 6.5 米。", "en": "The blue cube is 6.5 m from the camera." },
+              "claim": { "depth": { "object": "blue", "z": 6.5, "tol": 0.05 } }
+            },
+            {
+              "prompt": { "zh": "蓝色立方体边长 0.6 米。", "en": "The blue cube is 0.6 m on a side." },
+              "claim": { "height": { "object": "blue", "h": 0.6, "tol": 0.05 } }
+            },
+            {
+              "prompt": { "zh": "左边的立方体是红色的。", "en": "The cube on the left is red." },
+              "claim": { "colour": { "object": "red", "is": "red" } }
+            }
+          ],
+          "scenes": [
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "cube",
+                  "colour": "blue",
+                  "boxes": [{ "at": [0.9, 0.3, -0.5], "size": [0.6, 0.6, 0.6] }]
+                }
+              ]
+            },
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "cube",
+                  "colour": "blue",
+                  "boxes": [{ "at": [1.8, 0.1, -7], "size": [1.2, 1.2, 1.2] }]
+                }
+              ]
+            },
+            {
+              "size": [32, 24],
+              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
+              "light": { "azimuth": 30, "elevation": 60 },
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "cube",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "cube",
+                  "colour": "blue",
+                  "boxes": [{ "at": [2.7, -0.1, -13.5], "size": [1.8, 1.8, 1.8] }]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "naive": {
+        "picks": [
+          [["supported"], ["supported"], ["supported"], ["supported"]],
+          [["supported"], ["supported"], ["supported"], ["supported"]]
+        ],
+        "why": {
+          "zh": "按立方体在图里的大小读出了距离和大小：可放大一倍又推远一倍的场景渲出同一张图。知道红色立方体有多大，只定下它自己的距离，蓝色立方体仍然可大可小、可远可近。",
+          "en": "That reads distance and size off how big the cubes look, but a scene scaled up and pushed back as much renders the same image. Knowing the red cube's size settles only its own distance; the blue one can still be bigger and farther or smaller and nearer."
+        }
+      }
+    }
+  ]
+}

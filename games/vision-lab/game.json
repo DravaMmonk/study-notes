@@ -10,12 +10,10 @@
     "en": "In development"
   },
   "lede": {
-    "zh": "先弄清一张图能回答什么，再从一格格的数起步，搭出相机模型和读图、缩放、量化、裁剪的电路：场景怎样变成一组数，这组数又怎样被处理。",
-    "en": "First learn what one image can answer; then, starting from cells of numbers, build camera models and circuits that read, resize, quantise and crop images: how a scene becomes an array of numbers, and how that array is handled."
+    "zh": "三条梯子，各从一个浅显的起点爬到第 1、2 讲的一个核心：一张图为什么定不了深度，透镜怎样在亮和清晰之间取舍，缩放时新像素怎样从四个邻居算出。",
+    "en": "Three ladders, each climbing from a plain starting point to a core of lectures 1–2: why one image cannot settle depth, how a lens trades light against sharpness, and how resizing works a new pixel out of four neighbours."
   },
   "primitives": [
-    "channel",
-    "compose",
     "const",
     "grid",
     "add",
@@ -24,12 +22,10 @@
     "size",
     "floor",
     "lookup",
-    "min",
-    "max"
+    "channel",
+    "compose"
   ],
   "concept": {
-    "channel": "channels",
-    "compose": "channels",
     "const": "sampling",
     "grid": "sampling",
     "add": "sampling",
@@ -38,74 +34,46 @@
     "size": "nearest",
     "floor": "nearest",
     "lookup": "nearest",
-    "min": "clip",
-    "max": "clip"
+    "channel": "channels",
+    "compose": "channels"
   },
   "eras": [
     {
-      "id": 0,
-      "title": {
-        "zh": "问题是什么",
-        "en": "What is the question?"
-      },
-      "question": {
-        "zh": "一个视觉系统能被问什么，一张图又能回答什么？",
-        "en": "What can a vision system be asked, and what can one image answer?"
-      },
-      "foundation": [
-        "0A1",
-        "0A2",
-        "0A3",
-        {
-          "parallel": [
-            {
-              "id": "appearance",
-              "title": { "zh": "外观会变", "en": "Appearance changes" },
-              "levels": ["0B1", "0B2", "0B3"]
-            },
-            {
-              "id": "ambiguity",
-              "title": { "zh": "一张图能说明什么", "en": "What an image can tell" },
-              "levels": ["0C1", "0C2"]
-            }
-          ]
-        },
-        "0D1"
-      ]
-    },
-    {
       "id": 1,
-      "keeps": "all",
       "title": { "zh": "从场景到像素", "en": "From scene to pixels" },
       "question": {
-        "zh": "场景怎样变成一组数，这组数又怎样被裁剪、缩放和存下来？",
-        "en": "How does a scene become an array of numbers, and how is that array cropped, resized and stored?"
+        "zh": "一张图从哪里来、能说明什么，图里的像素又怎样重新采样？",
+        "en": "Where does an image come from, what can it tell, and how are its pixels resampled?"
       },
       "foundation": [
-        "1A1",
-        "1A2",
-        "1A3",
         {
           "parallel": [
             {
-              "id": "camera",
-              "title": { "zh": "针孔与透镜", "en": "Pinhole and lens" },
-              "levels": ["1B1", "1B2", "1B3", "1B4", "1B5", "1B6", "1B7", "1B8"]
+              "id": "projection",
+              "title": { "zh": "一张图定不了深度", "en": "An image does not settle depth" },
+              "levels": ["1P1", "1P2", "1P3", "1P4"]
             },
             {
-              "id": "colour",
-              "title": { "zh": "读对一张图", "en": "Read an image right" },
-              "levels": ["1C1", "1C2"]
+              "id": "optics",
+              "title": { "zh": "亮和清晰", "en": "Bright and sharp" },
+              "levels": ["1F1", "1F2", "1F3"]
             },
             {
               "id": "resample",
-              "title": { "zh": "缩放、量化与裁剪", "en": "Resize, quantise and crop" },
-              "levels": ["1D1", "1D2", "1D3", "1D4", "1D5", "1D6", "1D7", "1D8", "1D9", "1D10"]
+              "title": { "zh": "重新采样", "en": "Resampling" },
+              "levels": ["1R1", "1R2", "1R3", "1R4"]
             }
           ]
         }
       ],
-      "challenges": [{ "level": "1X1", "after": "1D10" }]
+      "topics": [
+        {
+          "id": "channels",
+          "title": { "zh": "通道顺序", "en": "Channel order" },
+          "levels": ["1T1"],
+          "after": ["1P4", "1F3", "1R4"]
+        }
+      ]
     }
   ],
   "saves": [
@@ -175,7 +143,45 @@
         { "rename": { "1X1": null } },
         { "rename": { "1Z1": null } }
       ]
+    },
+    {
+      "version": 4,
+      "why": "A demonstration course: three ladders to the cores of lectures 1–2, and one optional technical topic",
+      "ops": [
+        { "rename": { "1X1": null } },
+        { "rename": { "1D9": null } },
+        { "rename": { "1D8": null } },
+        { "rename": { "1D7": null } },
+        { "rename": { "1D6": null } },
+        { "rename": { "1D5": null } },
+        { "rename": { "1D4": null } },
+        { "rename": { "1D3": null } },
+        { "rename": { "1D2": null } },
+        { "rename": { "1D10": null } },
+        { "rename": { "1D1": null } },
+        { "rename": { "1C2": null } },
+        { "rename": { "1C1": null } },
+        { "rename": { "1B8": null } },
+        { "rename": { "1B7": null } },
+        { "rename": { "1B6": null } },
+        { "rename": { "1B5": null } },
+        { "rename": { "1B4": null } },
+        { "rename": { "1B3": null } },
+        { "rename": { "1B2": null } },
+        { "rename": { "1B1": null } },
+        { "rename": { "1A3": null } },
+        { "rename": { "1A2": null } },
+        { "rename": { "1A1": null } },
+        { "rename": { "0D1": null } },
+        { "rename": { "0C2": null } },
+        { "rename": { "0C1": null } },
+        { "rename": { "0B3": null } },
+        { "rename": { "0B2": null } },
+        { "rename": { "0B1": null } },
+        { "rename": { "0A3": null } },
+        { "rename": { "0A2": null } },
+        { "rename": { "0A1": null } }
+      ]
     }
-  ],
-  "open": { "idle-idea": ["channels@1C1"] }
+  ]
 }

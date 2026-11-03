@@ -325,7 +325,8 @@ export function auditBlueprint(bp) {
     const later = order.filter((id) => ancestors(id).has(at))
     const next = later.find((id) => usesPoint(byId.get(id), point))
     if (!next) {
-      if (later.length) say('bp-first-use', at, `no slot after it uses ${point}`)
+      // An optional topic hung after it (an extension once the main path ends) need not use it.
+      if (later.some((id) => !optional(id))) say('bp-first-use', at, `no slot after it uses ${point}`)
       continue
     }
     const between = later.filter((id) => !optional(id) && byId.get(id).teaches && ancestors(next).has(id) && id !== next)

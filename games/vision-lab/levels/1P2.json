@@ -1,0 +1,115 @@
+{
+  "title": { "zh": "近大远小", "en": "Smaller with distance" },
+  "intro": [
+    {
+      "t": {
+        "zh": "一支竖着的箭从光轴立起，高 H。箭的两端各有一条光线穿过小孔，两条线在像平面上截出的那一段，就是箭的像，高 h。",
+        "en": "An upright arrow stands H tall on the axis. A ray from each end passes the hole, and the stretch the two rays cut out of the image plane is the arrow's image, h tall."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关的问题是：物体离得越远，像矮多少？换一支镜头，像又高多少？第一个任务只能前后移动箭，第二个任务箭不动，只能调像平面到小孔的距离 f。像高等于圆圈标出的高度才算对；先想好，再按「检查」。",
+        "en": "This level asks: how much shorter does an image get as the object moves away, and how much taller with another lens? The first task moves only the arrow in depth; in the second the arrow stays and only f, the plane's distance from the hole, turns. It is right when the image is as tall as the circled mark; decide first, then press Check."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这是<wiki-ref to=\"perspective-scaling\"></wiki-ref>：像高 h = fH/Z，和距离成反比、和 f 成正比。距离加倍，像缩成一半。",
+    "en": "This is <wiki-ref to=\"perspective-scaling\"></wiki-ref>: the image height h = fH/Z, inversely proportional to distance and proportional to f. Twice as far, half as tall."
+  },
+  "tasks": [
+    {
+      "id": "1P2",
+      "kind": "bench",
+      "step": { "zh": "退远", "en": "Step back" },
+      "brief": {
+        "zh": "箭高 H = 2，f = 2：只前后移动箭，让像高 h = 1。",
+        "en": "The arrow H = 2 tall, f = 2: move it only in depth so its image is h = 1 tall."
+      },
+      "hint": [
+        {
+          "zh": "Z = 2 时像和箭一样高。像要变成一半，距离要怎样变？",
+          "en": "At Z = 2 the image is as tall as the arrow. For half that, how must the distance change?"
+        }
+      ],
+      "bench": {
+        "model": "pinhole",
+        "setup": { "H": 2, "f": 2, "object": "arrow", "target": { "of": "h", "value": 1 } },
+        "knobs": {
+          "Z": { "label": { "zh": "距离 Z", "en": "Distance Z" }, "min": 1, "max": 12, "step": 1, "start": 2 }
+        },
+        "goal": [
+          {
+            "of": "h",
+            "label": { "zh": "像高 h", "en": "Image height h" },
+            "near": 1,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
+        "check": "submit",
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "Z": 3 },
+          "why": {
+            "zh": "以为距离多 1，像就矮 1：Z = 3 时像高是 1.33。像高按 1/Z 变，要矮一半，距离得加倍。",
+            "en": "Taking one step back for one unit off the image: at Z = 3 it is 1.33 tall. Height goes as 1/Z; half as tall needs twice as far."
+          }
+        }
+      ],
+      "holds": [{ "of": "Z", "near": 4, "atMost": 0.001 }]
+    },
+    {
+      "id": "1P2_2",
+      "kind": "bench",
+      "step": { "zh": "换镜头", "en": "Another lens" },
+      "brief": {
+        "zh": "箭高 H = 2，离小孔 Z = 8：箭不动，只调 f，让像高 h = 0.75。",
+        "en": "The arrow H = 2 tall, Z = 8 away: leave it there and turn only f, so its image is h = 0.75 tall."
+      },
+      "hint": [
+        {
+          "zh": "f = 1 时像高 0.25。要三倍高，f 要怎样变？",
+          "en": "At f = 1 the image is 0.25 tall. Three times as tall needs what f?"
+        }
+      ],
+      "bench": {
+        "model": "pinhole",
+        "setup": { "H": 2, "Z": 8, "object": "arrow", "target": { "of": "h", "value": 0.75 } },
+        "knobs": {
+          "f": {
+            "label": { "zh": "像平面距离 f", "en": "Plane distance f" },
+            "min": 0.5,
+            "max": 6,
+            "step": 0.5,
+            "start": 1
+          }
+        },
+        "goal": [
+          {
+            "of": "h",
+            "label": { "zh": "像高 h", "en": "Image height h" },
+            "near": 0.75,
+            "atMost": 0.001,
+            "format": "fixed2"
+          }
+        ],
+        "check": "submit",
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
+      },
+      "naive": [
+        {
+          "set": { "f": 1.5 },
+          "why": {
+            "zh": "以为差多少补多少：f 加 0.5，像高只到 0.375。像高和 f 成正比，要三倍高，f 也要三倍。",
+            "en": "Adding what is missing: f up by 0.5 brings the image only to 0.375. Height is proportional to f; three times as tall needs three times f."
+          }
+        }
+      ],
+      "holds": [{ "of": "f", "near": 3, "atMost": 0.001 }]
+    }
+  ]
+}
