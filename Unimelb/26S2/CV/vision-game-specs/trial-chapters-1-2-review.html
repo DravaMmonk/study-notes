@@ -3849,7 +3849,7 @@ replaces the findings against the trial at <code>4a1a67de</code>; it is not a no
 <ul>
 <li>Chapter 1 starts with two required routes: geometry (1A1 → 1A2) and arrays (1A4). Neither needs the other's
   parts. Both join at 1A3, then continue through cropping and sampling. Displayed main-path numbers are 1-1 to 1-7;
-  stable content ids are retained. The former overloaded field-of-view experiment is F1 (1F1), an optional topic
+  stable content ids are retained. The constrained framing experiment is F1 (1F1), an optional topic
   after 1A1. It is independent of pixel-coordinate conversion and must not block that join.</li>
 <li>Chapter 2 shares 2B1–2B2, splits kernel orientation (2B3) from column addressing (2B4), and joins at 2B5.
   This join actually flips both written kernels before calling positional row/column parts. Asymmetric tests
@@ -3873,15 +3873,15 @@ replaces the findings against the trial at <code>4a1a67de</code>; it is not a no
 </tr>
 <tr>
 <td>R2: concept jump</td>
-<td>1A3 separately checks signed unit conversion, origin translation and circuit transfer. Task 2 retains the measured −1 px offset rather than asking the learner to rediscover it. Array conventions are acquired on the other required route. Field of view is separate and optional.</td>
+<td>The circuit receives focal length already expressed in pixels; its task is composition with a supplied principal point. Unit conventions are explained, and zero/negative offsets and different principal points are tested. Separate arithmetic prediction gates are removed.</td>
 </tr>
 <tr>
 <td>R3: hidden discovery evidence</td>
-<td>A fixed reference image and ray remain visible before checking a prediction. A submitted trial reveals its ray and measurement; changing the guess hides that trial again. The reference is never hidden by the assessment control.</td>
+<td>The inverse experiment retains a compact reference photograph while the trial result waits for Check. Both photographs use the same image scale. Projection examples remain inspectable in the circuit tests.</td>
 </tr>
 <tr>
 <td>R4: inaccessible X/Z/f comparisons</td>
-<td>1A1 uses three controlled stages changing only X, Z or f from the same reference, then generalises in a circuit with independently varying inputs. Stage initial states and incorrect predictions fail.</td>
+<td>The projection circuit has controlled public examples that independently vary X, Z and f. These are evidence for one general circuit, not three repeated mandatory numeric questions.</td>
 </tr>
 <tr>
 <td>R5: unsupported inverse claims</td>
@@ -3893,11 +3893,11 @@ replaces the findings against the trial at <code>4a1a67de</code>; it is not a no
 </tr>
 <tr>
 <td>R7: missing referents</td>
-<td>Side views label O, the plane, scene/image values and distances. Term tags open meanings. The sensor strip separates a signed offset from an image-origin coordinate; c_x appears in the origin task rather than the unit task.</td>
+<td>A concrete camera, calibration lighthouse/light and virtual screen identify the scene. Code supplies rays, attached quantities and reference photos. Camera height moves the camera relative to fixed objects; the model and photograph share coordinates.</td>
 </tr>
 <tr>
 <td>R8: misleading angles</td>
-<td>Side views explicitly disclose unequal axis scales. F1 uses one scale for both axes, sensor edges and full/half-angle arcs. Its parameter range keeps the construction readable at phone size.</td>
+<td>Main scenes disclose schematic axis compression. Framing retains an optional equal-scale full/half-angle inset. Its assessment concerns whole-subject inclusion, minimum image size and complete exclusion of a nearer bulb. Partial cropping does not count as absence.</td>
 </tr>
 </tbody>
 </table>
@@ -3915,22 +3915,16 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 </thead>
 <tbody>
 <tr>
-<td>1A1</td>
-<td>No prior course knowledge; entries give geometric meanings</td>
-<td>Predict three isolated X/Z/f changes</td>
-<td>Fixed reference ray; trial result only after check; wrong predictions fail</td>
-</tr>
-<tr>
 <td>1A1_2</td>
-<td>Three comparisons</td>
-<td>General projection circuit</td>
-<td>Positive, negative, zero and independently varying distance/focal inputs</td>
+<td>No prior course knowledge; geometric entries and observable test cases</td>
+<td>General projection circuit with two arithmetic parts</td>
+<td>Controlled X/Z/f cases plus negative/zero positions; no numeric bench gate</td>
 </tr>
 <tr>
 <td>1A2</td>
 <td>Projection</td>
-<td>Construct a different scene with one image</td>
-<td>Fixed H=1, Z=4 reference; H/Z construction, not an answer choice</td>
+<td>Construct a different lighthouse scene with the same photograph</td>
+<td>Fixed H=1, Z=4 reference; change height and depth, not an answer choice</td>
 </tr>
 <tr>
 <td>1A2_2</td>
@@ -3939,46 +3933,28 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 <td>Same image with different supplied depths produces different X</td>
 </tr>
 <tr>
-<td>1A4</td>
-<td>Independent starting route</td>
-<td>Locate row/column</td>
-<td>Non-square grid exposes swapped coordinates</td>
-</tr>
-<tr>
-<td>1A4_2</td>
-<td>Located cells</td>
-<td>Change one RGB sample</td>
-<td>Wrong-cell edit fails; other cells must stay unchanged</td>
+<td>1A4_sample</td>
+<td>Independent starting route; coordinate convention is given</td>
+<td>Compare two addressed samples</td>
+<td>Non-square images, coordinate-order errors and signed differences</td>
 </tr>
 <tr>
 <td>1A4_3</td>
-<td>Coordinates and sample values</td>
-<td>Read two positions and subtract</td>
-<td>Different rows, columns and signs; no projection part needed</td>
-</tr>
-<tr>
-<td>1A3_scale</td>
-<td>Both required routes</td>
-<td>Convert signed physical offset</td>
-<td>Horizontal strip; negative offset and explicit sensor size/count</td>
-</tr>
-<tr>
-<td>1A3_origin</td>
-<td>Checked −1 px offset</td>
-<td>Translate to image-origin coordinate</td>
-<td>Supplied c_x=7.5; keep sign; separate task and feedback</td>
+<td>Two reads and subtraction</td>
+<td>Add automatic right-neighbour addressing</td>
+<td>Same comparison, one added addressing dependency; positive and negative differences</td>
 </tr>
 <tr>
 <td>1A3_2</td>
-<td>Both acquired transformations</td>
-<td>Compose projection and origin shift</td>
+<td>Projection, arrays and supplied focal length in pixels</td>
+<td>Compose signed projection and origin shift</td>
 <td>Zero/negative X and different c_x values reject a hard-coded centre</td>
 </tr>
 <tr>
-<td>1A5, 1A5_2</td>
+<td>1A5_2</td>
 <td>Arrays and coordinate composition</td>
-<td>Crop by hand, then map a whole output grid</td>
-<td>Nonzero source origin; varied region sizes</td>
+<td>Map a whole output grid into the source region</td>
+<td>Nonzero source origin and varied region sizes; no copy-the-region gate</td>
 </tr>
 <tr>
 <td>1A6, 1A6_2</td>
@@ -3995,8 +3971,8 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 <tr>
 <td>1F1</td>
 <td>Projection only; optional</td>
-<td>Predict/check full FOV using equal-scale geometry</td>
-<td>Both sensor edges and the half-angle; wrong full-height guess fails</td>
+<td>Frame a large, complete lighthouse while excluding a nearby bulb</td>
+<td>Focal length and camera height interact; zoom-only and partially cropped-lamp strategies fail</td>
 </tr>
 <tr>
 <td>2B1, 2B1_2</td>
@@ -4029,16 +4005,16 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 <td>Unequal row/column weights, zero middle weight and signed rows; both-axis asymmetric hidden case rejects omitted flips</td>
 </tr>
 <tr>
-<td>2B6, 2B6_2</td>
+<td>2B6_2</td>
 <td>2D filter</td>
-<td>Predict a point spread, then build blur</td>
-<td>Point, step and irregular-image tests; boundary caveat in synthesis</td>
+<td>Infer symmetric smoothing weights from target images</td>
+<td>Point-spread shape plus a constant interior constrain weight ratios and gain; varied edge cases</td>
 </tr>
 <tr>
-<td>2B7, 2B7_2</td>
+<td>2B7_2</td>
 <td>2D filter and direction convention</td>
-<td>Signed local differences, then Sobel pair</td>
-<td>Positive/negative transitions and both axes; written kernels match actual part semantics</td>
+<td>Build directional Sobel responses from step targets</td>
+<td>Positive/negative transitions and both axes; no repeated single-row difference worksheet</td>
 </tr>
 <tr>
 <td>2B8_vectors, 2B8</td>
@@ -4061,25 +4037,26 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 </tbody>
 </table>
 <h2 id="interaction-and-visual-acceptance">Interaction and visual acceptance<a class="headerlink" href="#interaction-and-visual-acceptance" title="Permanent link">&para;</a></h2>
-<p>Inspected the implemented local app at its desktop viewport and at 390 × 844. Verified the fresh-game branch
-choice, clicked a workbench optical-axis tag, opened the principal-point entry using Return, exercised all three
-projection stages with an incorrect and corrected prediction, completed unit conversion, inspected the separate
-origin task, moved a filtering window and submitted its hand calculation. The FOV construction was checked at
-phone size and its fixed range tightened for legibility. No claim is made about untested devices or measured
-learning gains. The browser's testing mode opens later levels for inspection; it is not evidence that prerequisites
-work. Required dependencies are checked separately against the actual course graph.</p>
+<p>The phone acceptance matrix covers 320 px and 390 px widths, WebKit touch emulation, a reduced visual viewport,
+scalar answer entry, colour-pixel selection, experiment controls, glossary activation, task progression and the
+fixed Check button. Desktop scenes are checked at 1440 × 1000. A Q.E.D. phone-shell smoke check verifies truth-table taps,
+width containment and the fixed action bar. The matrix records actual actions and screenshots; no claim is made about physical iPhone keyboard behaviour or novice learning gains.</p>
 <h2 id="automated-and-migration-evidence">Automated and migration evidence<a class="headerlink" href="#automated-and-migration-evidence" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Complete kit suite: 315 tests passed, none failed or cancelled. Targeted vision/terminology checks cover route
-  independence, real joins, prediction error, axis-specific pitch, FOV invariance, window samples, aid/answer consistency and save invalidation.</li>
+<li>Complete kit suite: 316 tests passed, none failed or cancelled. Targeted vision/terminology checks cover route
+  independence, real joins, projection examples, partial visibility, axis-specific pitch, FOV invariance, window samples, aid/answer consistency and save invalidation.</li>
 <li>Every game's content/reference-answer checks pass. The revised trial passes blueprint audit and conformance.</li>
-<li>Pedagogy check: no structural failures or serial-chapter report. Terminology: 48 entries, no registry/reference
-  failure. The literal substring “卷积” in the machine name “卷积器” in the overview is a reviewed candidate, not a
-  bare mathematical operation or a missing usable definition in a task. No other literal candidates remain.</li>
-<li>Existing ids remain stable; task moves/renames and prerequisite changes have generated save steps. Changed
+<li>Terminology registry/reference checks have no structural failures. Revised fields retain matching Chinese and
+  English references. Literal-name reports remain in unchanged sampling, introductory filtering and Workshop copy;
+  this release does not claim a complete semantic terminology audit. The overview's machine name “卷积器” remains
+  a reviewed ordinary-name candidate.</li>
+<li>Existing level ids and retained circuit-task ids remain stable. Eight obsolete tasks are removed and one
+  sample-comparison task is added; the game retains twenty levels and two experimental tasks. Save steps remove
+  obsolete answers. The current level-level invalidation policy also resets saved inverse-experiment answers
+  when its bench layout changes; completion records remain. Task moves/renames and prerequisite changes have generated save steps. Changed
   puzzle contracts/reference programs drop incompatible stored boards, including the revised 2D/Sobel programs;
   wording changes preserve answers. Existing completion records are retained by the shared migration contract.</li>
-<li>The game builds successfully. Build outputs are local preview artifacts; nothing has been deployed or pushed.</li>
+<li>The game builds successfully; publication uses the independent games workflow. Release verification includes the published page and assets.</li>
 </ul>
 <p>Remaining evidence limit: this is an implemented, reviewed trial. A learner study has not established the right
 amount of guidance, puzzle enjoyment or long-term transfer. Those require observing fresh players, not adding
