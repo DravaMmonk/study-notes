@@ -173,6 +173,176 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-03T00:53:26.269Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "1R1",
+              "says": "its answer stands only on what it brings (const, grid, add, mul, div)",
+              "report": true
+            },
+            {
+              "rule": "bp-bare",
+              "at": "1T1",
+              "says": "its answer stands only on what it brings (channel, compose)",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P1",
+              "says": "central-projection has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P2",
+              "says": "perspective-scaling has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P3",
+              "says": "scale-ambiguity has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P4",
+              "says": "inverse-problem has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F1",
+              "says": "focus has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F2",
+              "says": "blur-circle has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F3",
+              "says": "depth-of-field has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R1",
+              "says": "sampling-grid has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R2",
+              "says": "nearest-neighbour has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R3",
+              "says": "linear-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R4",
+              "says": "bilinear-interpolation has no practice slot before the next point",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-03T00:54:40.299Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "1R1",
+              "says": "its answer stands only on what it brings (const, grid, add, mul, div)",
+              "report": true
+            },
+            {
+              "rule": "bp-bare",
+              "at": "1T1",
+              "says": "its answer stands only on what it brings (channel, compose)",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P1",
+              "says": "central-projection has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P2",
+              "says": "perspective-scaling has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P3",
+              "says": "scale-ambiguity has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1P4",
+              "says": "inverse-problem has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F1",
+              "says": "focus has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F2",
+              "says": "blur-circle has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1F3",
+              "says": "depth-of-field has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R1",
+              "says": "sampling-grid has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R2",
+              "says": "nearest-neighbour has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R3",
+              "says": "linear-interpolation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "1R4",
+              "says": "bilinear-interpolation has no practice slot before the next point",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -187,6 +357,18 @@
         },
         {
           "at": "2026-11-03T00:30:36.890Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T00:53:32.206Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T00:54:46.054Z",
           "ok": true,
           "failures": [],
           "reports": []
@@ -232,6 +414,18 @@
         },
         {
           "at": "2026-11-03T00:30:43.060Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T00:53:38.089Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-03T00:54:51.470Z",
           "ok": true,
           "failures": [],
           "reports": []

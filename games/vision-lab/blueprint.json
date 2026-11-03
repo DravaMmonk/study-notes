@@ -605,8 +605,8 @@
               "id": "1P4",
               "title": { "zh": "一张图能说明什么", "en": "What one image settles" },
               "task": {
-                "zh": "看一张图，判断关于场景的每句话：成立、不成立，还是无法确定；第二轮多知道一个物体的大小。",
-                "en": "From one image, judge each statement about the scene: supported, contradicted or undetermined; the second round also knows one object's size."
+                "zh": "看一张图和一个渲得出它的场景，判断关于场景的每句话：成立、不成立，还是无法确定；第二轮多知道一个物体的大小。",
+                "en": "From one image and one scene that renders it, judge each statement about the scene: supported, contradicted or undetermined; the second round also knows one object's size."
               },
               "question": {
                 "zh": "一张图能确定场景里的哪些事，哪些不能？",
@@ -614,16 +614,16 @@
               },
               "chain": [
                 {
-                  "zh": "玩家按红色立方体在图里的大小读出它离相机 6 米、边长 1 米，判为成立；判定画出另一个场景：放大一倍、推远一倍的立方体渲出同一张图。",
-                  "en": "Reading off the red cube's size in the image, the player calls it 6 m away and 1 m on a side, supported; the judge draws another scene: a cube twice the size twice as far renders the same image."
+                  "zh": "图旁给出一个渲得出它的场景：红色立方体边长 1 米、离相机 6 米。玩家把它当成真实场景，判「离相机 6 米」成立；判定画出另一个场景：放大一倍、推远一倍的立方体渲出同一张图。",
+                  "en": "Beside the image is one scene that renders it: the red cube 1 m on a side, 6 m away. Taking it as the real scene, the player calls '6 m away' supported; the judge draws another scene: a cube twice the size twice as far renders the same image."
                 },
                 {
-                  "zh": "玩家把尺度歧义用到整个场景上：所有物体同比放大推远，图不变，所以距离和大小都定不了；颜色、个数在每个相容场景里都一样，定得了。",
-                  "en": "The player applies scale ambiguity to the whole scene: every object scaled and pushed back together leaves the image unchanged, so distance and size are undetermined; colour and count are the same in every compatible scene, so settled."
+                  "zh": "玩家把尺度歧义用到整个场景上：每个物体同比放大推远，图不变，所以距离和大小都定不了；颜色、个数在每个相容场景里都一样，定得了。",
+                  "en": "The player applies scale ambiguity to the whole scene: each object scaled and pushed back together leaves the image unchanged, so distance and size are undetermined; colour and count are the same in every compatible scene, so settled."
                 },
                 {
-                  "zh": "第二轮知道红色立方体边长 1 米：它的距离定下来了，蓝色立方体却仍可大可小，一个已知大小只定下它自己。",
-                  "en": "In the second round the red cube is known to be 1 m: its distance is settled, but the blue one can still be bigger or smaller; a known size settles only its own object."
+                  "zh": "第二轮知道红色立方体边长确实是 1 米：图定下 H/Z = 1/6，它离相机 6 米、不是 3 米；蓝色立方体的边长不知道，距离仍定不了。一个已知大小只定下它自己。",
+                  "en": "In the second round the red cube is known to be 1 m: the image fixes H/Z = 1/6, so it is 6 m away, not 3; the blue cube's size is unknown and its distance stays open. A known size settles only its own object."
                 }
               ],
               "role": "foundation",

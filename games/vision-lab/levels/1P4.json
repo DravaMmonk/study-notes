@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：只看一张图，场景里哪些事能确定，哪些确定不了？每一轮给一张图，判断关于场景的每句话：凡是渲得出这张图的场景里它都成立，选「成立」；都不成立，选「不成立」；有的场景成立、有的不成立，选「无法确定」。第二轮多给了一条线索。",
-        "en": "This level asks: from one image alone, what about the scene can be settled and what cannot? Each round gives an image; judge each statement about the scene: true in every scene that renders this image, Supported; false in all of them, Contradicted; true in some and false in others, Undetermined. The second round gives one more cue."
+        "zh": "这一关的问题是：只看一张图，场景里哪些事能确定，哪些确定不了？每一轮给一张图，图旁写着这一轮已知的事。判断关于场景的每句话：凡是渲得出这张图、又符合已知的场景里它都成立，选「成立」；都不成立，选「不成立」；有的成立、有的不成立，选「无法确定」。",
+        "en": "This level asks: from one image alone, what about the scene can be settled and what cannot? Each round gives an image, with what the round lets you know beside it. Judge each statement about the scene: true in every scene that renders this image and fits what is known, Supported; false in all of them, Contradicted; true in some and false in others, Undetermined."
       }
     }
   ],
@@ -28,12 +28,12 @@
       },
       "hint": [
         {
-          "zh": "红色立方体在图里的大小，取决于它有多大，也取决于它有多远。把它放大一倍、再推远一倍，图会变吗？",
-          "en": "The red cube's size in the image depends on how big it is and how far. Double its size and its distance: does the image change?"
+          "zh": "给出的场景只是渲得出这张图的场景之一。把红色立方体放大一倍、再推远一倍，图会变吗？",
+          "en": "The scene given is only one that renders this picture. Double the red cube's size and its distance: does the picture change?"
         },
         {
-          "zh": "第二轮知道了红色立方体的边长：它的距离定下来了；蓝色立方体的呢？",
-          "en": "In the second round the red cube's side is known: that settles its distance; what about the blue one's?"
+          "zh": "一张图只定下每个物体的 H/Z。红色立方体的 H 知道了，它的 Z 呢？蓝色立方体的呢？",
+          "en": "An image fixes only each object's H/Z. With the red cube's H known, what about its Z? And the blue cube's?"
         }
       ],
       "judge": "claims",
@@ -115,15 +115,16 @@
                 }
               ]
             }
-          ]
+          ],
+          "given": {
+            "zh": "渲得出这张图的场景之一：红色立方体边长 1 米、离相机 6 米；蓝色立方体边长 0.6 米、离相机 6.5 米。",
+            "en": "One scene that renders this picture: the red cube 1 m on a side and 6 m from the camera; the blue cube 0.6 m on a side and 6.5 m away."
+          }
         },
         {
           "items": [
             {
-              "prompt": {
-                "zh": "已知红色立方体边长 1 米。红色立方体离相机 6 米。",
-                "en": "The red cube is known to be 1 m on a side. It is 6 m from the camera."
-              },
+              "prompt": { "zh": "红色立方体离相机 6 米。", "en": "The red cube is 6 m from the camera." },
               "claim": { "depth": { "object": "red", "z": 6, "tol": 0.05 } }
             },
             {
@@ -135,8 +136,8 @@
               "claim": { "height": { "object": "blue", "h": 0.6, "tol": 0.05 } }
             },
             {
-              "prompt": { "zh": "左边的立方体是红色的。", "en": "The cube on the left is red." },
-              "claim": { "colour": { "object": "red", "is": "red" } }
+              "prompt": { "zh": "红色立方体离相机 3 米。", "en": "The red cube is 3 m from the camera." },
+              "claim": { "depth": { "object": "red", "z": 3, "tol": 0.05 } }
             }
           ],
           "scenes": [
@@ -197,17 +198,21 @@
                 }
               ]
             }
-          ]
+          ],
+          "given": {
+            "zh": "图和上一轮相同，上一轮给出的场景也渲得出它。这一轮多知道一件事：红色立方体的边长确实是 1 米。",
+            "en": "The picture is the last round's, and the scene given there still renders it. This round you also know: the red cube really is 1 m on a side."
+          }
         }
       ],
       "naive": {
         "picks": [
           [["supported"], ["supported"], ["supported"], ["supported"]],
-          [["supported"], ["supported"], ["supported"], ["supported"]]
+          [["supported"], ["supported"], ["supported"], ["contradicted"]]
         ],
         "why": {
-          "zh": "按立方体在图里的大小读出了距离和大小：可放大一倍又推远一倍的场景渲出同一张图。知道红色立方体有多大，只定下它自己的距离，蓝色立方体仍然可大可小、可远可近。",
-          "en": "That reads distance and size off how big the cubes look, but a scene scaled up and pushed back as much renders the same image. Knowing the red cube's size settles only its own distance; the blue one can still be bigger and farther or smaller and nearer."
+          "zh": "把给出的那个场景当成了真实的场景：可放大一倍又推远一倍的场景渲出同一张图，一张图只定下每个物体的 H/Z。知道红色立方体边长 1 米，按 H/Z 定下它离相机 6 米；蓝色立方体的边长不知道，它的距离和大小仍然定不了。",
+          "en": "That takes the scene given as the real one, but a scene scaled up and pushed back as much renders the same picture: an image fixes only each object's H/Z. Knowing the red cube is 1 m fixes its distance at 6 m by H/Z; the blue cube's size is unknown, so its distance and size stay open."
         }
       }
     }

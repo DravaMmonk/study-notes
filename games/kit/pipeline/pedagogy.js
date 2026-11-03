@@ -17,7 +17,7 @@ export const PEDAGOGY_RULES = {
 }
 
 /** The keys under which a level holds what the player reads as prose. */
-const PROSE = new Set(['t', 'brief', 'hint', 'after', 'note', 'why'])
+const PROSE = new Set(['t', 'brief', 'hint', 'after', 'note', 'why', 'given'])
 const isText = (v) => v && typeof v === 'object' && typeof v.zh === 'string'
 
 /** Every prose text in a level, with where it is: [{ where, zh }]. */
