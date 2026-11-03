@@ -449,9 +449,10 @@
   /* The parts: one row of icons and names; what each does is its tooltip, under it. */
   .wb-toolbar { flex: none; position: relative; z-index: 6; padding: 8px 12px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
   .wb-toolbar .palette { display: flex; flex-wrap: wrap; gap: 4px; }
-  /* As specific as the compact palette's own rules (circuit.css), which load after these and would drop the frame. */
-  .wb-toolbar .palette.is-compact .palette-item, .wb-toolbar .palette .palette-item { width: auto; min-height: 34px; padding: 3px 12px 3px 5px; grid-template-columns: 22px auto; gap: 7px; border-radius: 9px; background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
-  .wb-toolbar .palette.is-compact .palette-item:hover, .wb-toolbar .palette .palette-item:hover { background: var(--hover); box-shadow: inset 0 0 0 1px var(--rule); transform: none; }
+  /* Framed like the phone's tray (circuit.css .pb-part): a hairline and the family's colour along the bottom. As
+     specific as the compact palette's own rules (circuit.css), which load after these and would drop the frame. */
+  .wb-toolbar .palette.is-compact .palette-item, .wb-toolbar .palette .palette-item { width: auto; min-height: 36px; padding: 3px 12px 6px 5px; grid-template-columns: 22px auto; gap: 7px; border-radius: 11px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline), inset 0 -3px 0 var(--fam, var(--rule)); }
+  .wb-toolbar .palette.is-compact .palette-item:hover, .wb-toolbar .palette .palette-item:hover { background: var(--hover); box-shadow: inset 0 0 0 1px var(--rule), inset 0 -3px 0 var(--fam, var(--rule)); transform: none; }
   .wb-toolbar .palette .family-chip { width: 20px; height: 20px; }
   .wb-toolbar .palette .palette-text { display: flex; }
   .wb-toolbar .palette .palette-text span { font-size: 13px; white-space: nowrap; }
