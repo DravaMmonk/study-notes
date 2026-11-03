@@ -395,12 +395,6 @@
       "Sobel"
      ],
      "copy": [
-      "spectral-power-distribution@5",
-      "spectral-channel-response@5",
-      "metamerism@5",
-      "colour-spaces@5",
-      "rgb-to-xyz-transform@5",
-      "lab-colour-manipulation@5",
       "derivative-edge-filters@5"
      ],
      "part": "levels",
@@ -674,6 +668,12 @@
       "投影"
      ],
      "copy": [
+      "spectral-power-distribution@5",
+      "spectral-channel-response@5",
+      "metamerism@5",
+      "colour-spaces@5",
+      "rgb-to-xyz-transform@5",
+      "lab-colour-manipulation@5",
       "checker-shadow-illusion@5",
       "specular-reflection@5",
       "non-lambertian-effects@5"
