@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：怎样不管方向、只量出边有多强？先判断几种情况下梯度指向哪边，再用 Sobel 接出梯度的大小。新元件开平方。",
-        "en": "This level asks: how is an edge's strength measured, whatever its direction? First judge which way the gradient points in a few cases, then wire the gradient's size from the Sobel filter. New part: square root."
+        "zh": "这一关的问题是：怎样不管方向、只量出边有多强？比如 gx = 4、gy = 0 时它指向右，gx = 0、gy = −4 时指向上（y 向下数）。用 Sobel 接出梯度的大小；新元件开平方。",
+        "en": "This level asks: how is an edge's strength measured, whatever its direction? With gx = 4 and gy = 0 it points right, with gx = 0 and gy = −4 up (y counts down). Wire the gradient's size from the Sobel filter; new part: square root."
       }
     }
   ],
@@ -22,41 +22,7 @@
   "tasks": [
     {
       "id": "2B8",
-      "kind": "choice",
-      "step": { "zh": "指向哪边", "en": "Which way" },
-      "brief": {
-        "zh": "梯度指向亮度增加最快的方向（y 向下）：选出每种情况下的方向。",
-        "en": "The gradient points where brightness rises fastest (y down): choose its direction in each case."
-      },
-      "hint": [{ "zh": "gx 是横向的分量，gy 是纵向的分量。", "en": "gx is the across component, gy the down one." }],
-      "judge": "answer",
-      "rounds": [
-        {
-          "items": [
-            { "prompt": { "zh": "gx = 4，gy = 0", "en": "gx = 4, gy = 0" }, "answer": ["right"] },
-            { "prompt": { "zh": "gx = 0，gy = −4", "en": "gx = 0, gy = −4" }, "answer": ["up"] },
-            { "prompt": { "zh": "gx = −3，gy = 0", "en": "gx = −3, gy = 0" }, "answer": ["left"] }
-          ],
-          "options": [
-            { "id": "right", "label": { "zh": "向右", "en": "Right" } },
-            { "id": "left", "label": { "zh": "向左", "en": "Left" } },
-            { "id": "up", "label": { "zh": "向上", "en": "Up" } },
-            { "id": "down", "label": { "zh": "向下", "en": "Down" } }
-          ]
-        }
-      ],
-      "naive": {
-        "picks": [[["right"], ["down"], ["left"]]],
-        "why": {
-          "zh": "gy 为负，说明往下变暗、往上变亮：y 向下数，梯度指向上方。",
-          "en": "A negative gy means darker downwards and brighter upwards: y counts down, so the gradient points up."
-        }
-      }
-    },
-    {
-      "id": "2B8_2",
       "kind": "circuit",
-      "step": { "zh": "梯度大小", "en": "Gradient size" },
       "intro": [
         {
           "t": {

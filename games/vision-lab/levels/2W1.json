@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：怎样把颜色换回来，加亮时又怎样避免绕回？新元件<part-ref to=\"part:compose\"></part-ref>把三张灰度图依次当作 R、G、B 合成彩色图。",
-        "en": "This level asks: how are the colours put back, and how is wrapping avoided when brightening? New part: <part-ref to=\"part:compose\"></part-ref> makes three grey images R, G and B of one colour image."
+        "zh": "这一关的问题是：怎样把颜色换回来？新元件<part-ref to=\"part:compose\"></part-ref>把三张灰度图依次当作 R、G、B 合成彩色图。",
+        "en": "This level asks: how are the colours put back? New part: <part-ref to=\"part:compose\"></part-ref> makes three grey images R, G and B of one colour image."
       }
     }
   ],
@@ -77,36 +77,6 @@
       ],
       "naive": ["out <- image"],
       "step": { "zh": "换回 RGB", "en": "Back to RGB" }
-    },
-    {
-      "id": "2W1_2",
-      "kind": "choice",
-      "step": { "zh": "溢出", "en": "Overflow" },
-      "brief": {
-        "zh": "uint8 只能存 0 到 255：选出 uint8 里算出的结果。",
-        "en": "uint8 holds 0 to 255 only: choose what uint8 arithmetic gives."
-      },
-      "hint": [
-        { "zh": "超过 255 的部分会从 0 重新数起：256 存成 0。", "en": "Past 255 it counts on from 0: 256 is stored as 0." }
-      ],
-      "judge": "answer",
-      "rounds": [
-        {
-          "items": [{ "prompt": { "zh": "200 + 100 =", "en": "200 + 100 =" }, "answer": ["44"] }],
-          "options": [
-            { "id": "300", "label": "300" },
-            { "id": "255", "label": "255" },
-            { "id": "44", "label": "44" }
-          ]
-        }
-      ],
-      "naive": {
-        "picks": [[["300"]]],
-        "why": {
-          "zh": "uint8 存不下 300：超出的部分绕回去，300 − 256 = 44。要先换成更宽的类型再加。",
-          "en": "uint8 cannot hold 300: it wraps, 300 − 256 = 44. Widen the type before adding."
-        }
-      }
     }
   ]
 }

@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：让一组权重沿着一行滑过去，每个位置算一次加权和，结果是什么样？先分清哪些处理只看一个像素，再手算一行，最后接成电路：输入一张图和左、中、右三个权重。",
-        "en": "This level asks: sliding three weights along a row and taking the weighted sum at each position, what comes out? First tell which operations look at one pixel only, then work out a row by hand, then wire it: an image and the left, centre and right weights."
+        "zh": "这一关的问题是：让一组权重沿着一行滑过去，每个位置算一次加权和，结果是什么样？先手算一行，再接成电路：输入一张图和左、中、右三个权重。",
+        "en": "This level asks: sliding three weights along a row and taking the weighted sum at each position, what comes out? First work out a row by hand, then wire it: an image and the left, centre and right weights."
       }
     }
   ],
@@ -22,46 +22,6 @@
   "tasks": [
     {
       "id": "2B1",
-      "kind": "choice",
-      "step": { "zh": "看一个，还是看一片", "en": "One pixel or a patch" },
-      "brief": {
-        "zh": "选出每个输出像素只看原图同一位置那一个像素的处理。",
-        "en": "Choose the operations whose every output pixel looks at the one pixel at the same position only."
-      },
-      "hint": [
-        { "zh": "模糊之后，一个像素的值和它的邻居有没有关系？", "en": "After a blur, does a pixel's value depend on its neighbours?" }
-      ],
-      "judge": "answer",
-      "rounds": [
-        {
-          "items": [
-            {
-              "prompt": { "zh": "哪些处理只看一个像素？", "en": "Which operations look at one pixel only?" },
-              "answer": ["bright", "invert", "grey"]
-            }
-          ],
-          "options": [
-            { "id": "bright", "label": { "zh": "整张图调亮：每个值加 0.1", "en": "Brighten: add 0.1 to every value" } },
-            { "id": "invert", "label": { "zh": "取反：1 减去每个值", "en": "Invert: 1 less every value" } },
-            {
-              "id": "grey",
-              "label": { "zh": "彩色变灰：三个通道取平均", "en": "Colour to grey: average the three channels" }
-            },
-            { "id": "blur", "label": { "zh": "模糊：和左右邻居取平均", "en": "Blur: average with the neighbours" } },
-            { "id": "edge", "label": { "zh": "找边：右邻减左邻", "en": "Edges: right neighbour less left" } }
-          ]
-        }
-      ],
-      "naive": {
-        "picks": [[["bright", "invert", "grey", "blur"]]],
-        "why": {
-          "zh": "模糊要和左右邻居取平均：输出的一个像素用到了原图三个位置，它是局部运算。",
-          "en": "A blur averages with the neighbours: one output pixel uses three positions of the original, a local operation."
-        }
-      }
-    },
-    {
-      "id": "2B1_2",
       "kind": "grid",
       "step": { "zh": "手算", "en": "By hand" },
       "brief": {
@@ -86,7 +46,7 @@
       }
     },
     {
-      "id": "2B1_3",
+      "id": "2B1_2",
       "kind": "circuit",
       "step": { "zh": "接成电路", "en": "Wire it" },
       "intro": [

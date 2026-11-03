@@ -115,7 +115,11 @@ Read every level as a learner who has not taken the course, against its blueprin
   what is given and what counts as right. Walk the chain: can every step be taken from what is on screen (a task,
   a test, a feedback line, a counterexample)? A one-step chain ("do what the brief says") is a task or a test of a
   neighbouring level, not a level.
-- **The answer depends on the material.** For a judgement or choice, cover the picture and the data: if the answer
+- **No quizzes.** A task that only asks the player to pick an answer (`pd-quiz`) builds, tries and works out nothing.
+  What it would ask goes into the intro and the pass text; what must be practised becomes something to do: make a
+  counterexample on a bench, work a cell out by hand, wire a circuit. To teach what one picture cannot settle, have
+  the player build a second scene that pictures the same.
+- **The answer depends on the material.** Where a judgement is kept, cover the picture and the data: if the answer
   still follows from the wording, from matching the prompt's words to an option's label, or from the options'
   order, the level teaches nothing. Options get neutral names; the difference lives in the material.
 - **No sliding to green.** A bench whose single open knob is dragged until the goal's readout turns green is solved

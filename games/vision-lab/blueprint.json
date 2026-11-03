@@ -51,34 +51,9 @@
         "zh": "连续量的关系先预测再检查",
         "en": "Relations between continuous quantities, predicted, then checked"
       }
-    },
-    {
-      "id": "audit",
-      "where": {
-        "zh": "判断：一张图能说明什么、响应的正负、梯度方向",
-        "en": "Judgement: what a picture settles, signs of responses, the gradient's direction"
-      },
-      "why": {
-        "zh": "讲不成部件的概念，用判断来练",
-        "en": "Concepts that are no part are practised as judgement"
-      }
     }
   ],
   "abilities": [
-    {
-      "id": "ask",
-      "about": {
-        "zh": "回答判断题（choice 任务）",
-        "en": "Answer judgement questions (choice tasks)"
-      }
-    },
-    {
-      "id": "scene",
-      "about": {
-        "zh": "受控的三维小场景",
-        "en": "A controlled small 3D scene"
-      }
-    },
     {
       "id": "optics",
       "about": {
@@ -105,7 +80,7 @@
     {
       "id": "camera",
       "title": { "zh": "相机", "en": "The camera" },
-      "can": ["ask", "scene", "optics", "pixels", "circuit"],
+      "can": ["optics", "pixels", "circuit"],
       "lacks": {
         "zh": "它只会把场景拍成数表、按位置取值：不会把一个像素和它的邻居合起来算。",
         "en": "It only pictures a scene as a table and reads values at positions: it cannot combine a pixel with its neighbours."
@@ -114,7 +89,7 @@
     {
       "id": "convolver",
       "title": { "zh": "卷积器", "en": "The convolver" },
-      "can": ["ask", "pixels", "circuit"],
+      "can": ["pixels", "circuit"],
       "lacks": {
         "zh": "每个输出只是邻域的加权和，权重是人定的：它不会自己学出权重，这是卷积网络存在的理由。",
         "en": "Each output is a weighted sum over a neighbourhood with weights set by hand: it cannot learn them, the reason convolutional networks exist."
@@ -687,8 +662,8 @@
               "id": "1A2",
               "title": { "zh": "很多场景，同一张图", "en": "Many scenes, one picture" },
               "task": {
-                "zh": "判断关于场景的每句话：成立、不成立，还是无法确定。",
-                "en": "Judge each statement about the scene: supported, contradicted, or undetermined."
+                "zh": "输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
+                "en": "Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
               },
               "question": {
                 "zh": "从一张图倒推回去，场景能定下来吗？",
@@ -696,20 +671,20 @@
               },
               "chain": [
                 {
-                  "zh": "一样高的像：f = 2：选出像高都是 1、距离各不相同的两组以上。",
-                  "en": "Equal images: f = 2: choose two or more pairs that all image 1 tall, at different distances."
+                  "zh": "另造一个场景：f = 2：调物高 H 和距离 Z，让像高仍是 0.5，箭至少 2 米高。",
+                  "en": "Another scene: f = 2: set the height H and the distance Z so the image is still 0.5 tall, the arrow at least 2 m."
                 },
                 {
-                  "zh": "一张图能说明什么：判断关于场景的每句话：成立、不成立，还是无法确定。",
-                  "en": "What a picture settles: Judge each statement about the scene: supported, contradicted, or undetermined."
+                  "zh": "倒推：输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
+                  "en": "Work back: Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
                 }
               ],
               "role": "foundation",
-              "uses": ["ask", "scene", "pinhole-projection", "forward-vs-inverse-problem"],
+              "uses": ["optics", "circuit", "pinhole-projection", "forward-vs-inverse-problem", "mul", "div"],
               "teaches": "forward-vs-inverse-problem",
               "naive": {
-                "zh": "挑了一样高的物体：可像高还取决于距离，高 2 的箱子在距离 2 处成的像高 2。成一样高的像的，是 H/Z 相同的那些。",
-                "en": "That picks objects of one height, but the image also depends on distance: the crate 2 tall at distance 2 images 2 tall. Equal images come from equal H/Z."
+                "zh": "只把箭加高：距离不变，像也跟着加倍成 1。要让像不变，距离得和物高一起加倍。",
+                "en": "Only making the arrow taller: at the same distance its image doubles to 1. For the same image the distance must double with the height."
               }
             },
             {
@@ -1014,10 +989,6 @@
               },
               "chain": [
                 {
-                  "zh": "看一个，还是看一片：选出每个输出像素只看原图同一位置那一个像素的处理。",
-                  "en": "One pixel or a patch: Choose the operations whose every output pixel looks at the one pixel at the same position only."
-                },
-                {
                   "zh": "手算：权重左 1、中 0、右 −1 滑过这一行：写出三格都在图里的每个位置的加权和。",
                   "en": "By hand: Slide the weights left 1, centre 0, right −1 along this row: write the weighted sum at each position whose three cells are all inside."
                 },
@@ -1028,7 +999,6 @@
               ],
               "role": "foundation",
               "uses": [
-                "ask",
                 "pixels",
                 "circuit",
                 "image-array-checks",
@@ -1044,8 +1014,8 @@
               "teaches": "convolution",
               "adds": ["size"],
               "naive": {
-                "zh": "模糊要和左右邻居取平均：输出的一个像素用到了原图三个位置，它是局部运算。",
-                "en": "A blur averages with the neighbours: one output pixel uses three positions of the original, a local operation."
+                "zh": "这是右邻减左邻：权重左 1、右 −1，是左邻减右邻。权重跟着位置走，不要颠倒。",
+                "en": "That is right less left: with the left weight 1 and the right −1 it is left less right. The weights go with their positions."
               }
             },
             {
@@ -1248,8 +1218,8 @@
               },
               "chain": [
                 {
-                  "zh": "正还是负：gx = 右邻减左邻，gy = 下邻减上邻：判断每种边上的响应。",
-                  "en": "Plus or minus: gx = right less left, gy = below less above: judge the response on each edge."
+                  "zh": "正还是负：只看横向：每格算右邻减左邻（图外补 0），写出结果。",
+                  "en": "Plus or minus: Across only: at each cell take the right neighbour less the left (0 outside) and write the result."
                 },
                 {
                   "zh": "Sobel 滤波器：输入一张图：交出 gx（横向权重 −1、0、1，竖向 1、2、1）和 gy（横向 1、2、1，竖向 −1、0、1）。",
@@ -1258,7 +1228,7 @@
               ],
               "role": "foundation",
               "uses": [
-                "ask",
+                "pixels",
                 "circuit",
                 "separable-filter",
                 "convolution-vs-cross-correlation",
@@ -1269,8 +1239,8 @@
               "teaches": "sobel-filter",
               "builds": "sobel",
               "naive": {
-                "zh": "以为有边就有正的响应：响应带符号，从亮到暗是负；和边平行的方向上没有变化，响应是 0。",
-                "en": "Taking every edge as a positive response: the response is signed, bright to dark negative; along the edge nothing changes, and the response is 0."
+                "zh": "这是只看变化有多大：响应带符号，从亮到暗的地方右邻比左邻暗，是负的。",
+                "en": "That records only how big the change is: the response is signed, and where it goes bright to dark the right neighbour is darker, so it is negative."
               }
             },
             {
@@ -1286,21 +1256,21 @@
               },
               "chain": [
                 {
-                  "zh": "指向哪边：梯度指向亮度增加最快的方向（y 向下）：选出每种情况下的方向。",
-                  "en": "Which way: The gradient points where brightness rises fastest (y down): choose its direction in each case."
+                  "zh": "这一步：输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
+                  "en": "This step: Given an image, give the gradient's size √(gx² + gy²) at each position."
                 },
                 {
-                  "zh": "梯度大小：输入一张图：交出每个位置的梯度大小 √(gx² + gy²)。",
-                  "en": "Gradient size: Given an image, give the gradient's size √(gx² + gy²) at each position."
+                  "zh": "这是<wiki-ref to=\"image-gradient\"></wiki-ref>：方向由 gx、gy 定，大小是 √(gx² + gy²)。这台边缘检测器后面还会用到。",
+                  "en": "This is the <wiki-ref to=\"image-gradient\"></wiki-ref>: its direction set by gx and gy, its size √(gx² + gy²). This edge detector is used again later."
                 }
               ],
               "role": "foundation",
-              "uses": ["ask", "circuit", "sobel-filter", "image-gradient", "sobel", "mul", "add", "sqrt"],
+              "uses": ["circuit", "sobel-filter", "image-gradient", "sobel", "mul", "add", "sqrt"],
               "teaches": "image-gradient",
               "adds": ["sqrt"],
               "naive": {
-                "zh": "gy 为负，说明往下变暗、往上变亮：y 向下数，梯度指向上方。",
-                "en": "A negative gy means darker downwards and brighter upwards: y counts down, so the gradient points up."
+                "zh": "参考解之外的直觉做法，见关卡的 naive 板。",
+                "en": "The intuitive board beside the reference; see the level's naive board."
               }
             },
             {
@@ -1354,12 +1324,12 @@
               "id": "2W1",
               "title": { "zh": "颜色顺序与数值溢出", "en": "Channel order and overflow" },
               "task": {
-                "zh": "uint8 只能存 0 到 255：选出 uint8 里算出的结果。",
-                "en": "uint8 holds 0 to 255 only: choose what uint8 arithmetic gives."
+                "zh": "输入是用 OpenCV 读进来的照片：交出同一张照片，颜色和本来的一样。",
+                "en": "The input is a photo read with OpenCV: give the same photo in its true colours."
               },
               "question": {
-                "zh": "怎样把颜色换回来，加亮时又怎样避免绕回？",
-                "en": "how are the colours put back, and how is wrapping avoided when brightening?"
+                "zh": "怎样把颜色换回来？",
+                "en": "how are the colours put back?"
               },
               "chain": [
                 {
@@ -1367,12 +1337,12 @@
                   "en": "Back to RGB: The input is a photo read with OpenCV: give the same photo in its true colours."
                 },
                 {
-                  "zh": "溢出：uint8 只能存 0 到 255：选出 uint8 里算出的结果。",
-                  "en": "Overflow: uint8 holds 0 to 255 only: choose what uint8 arithmetic gives."
+                  "zh": "这是<wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref>的差别和<wiki-ref to=\"channel-edit-dtype\"></wiki-ref>的坑：先换好顺序，算之前换成更宽的类型。",
+                  "en": "This is the <wiki-ref to=\"opencv-bgr-to-rgb\"></wiki-ref> difference and the <wiki-ref to=\"channel-edit-dtype\"></wiki-ref> trap: swap the order before handing over, widen the type before computing."
                 }
               ],
               "role": "intro",
-              "uses": ["ask", "circuit", "image-array-checks", "opencv-bgr-to-rgb", "channel", "compose"],
+              "uses": ["circuit", "image-array-checks", "opencv-bgr-to-rgb", "channel", "compose"],
               "teaches": "opencv-bgr-to-rgb",
               "adds": ["compose"],
               "naive": {

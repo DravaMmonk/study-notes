@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：Sobel 的两个响应 gx、gy 在不同方向的边上各是什么？先判断正负，再接一块同时输出 gx 和 gy 的 Sobel 滤波器。",
-        "en": "This level asks: what are Sobel's two responses gx and gy on edges running different ways? First judge their signs, then wire a Sobel filter giving gx and gy together."
+        "zh": "这一关的问题是：Sobel 的两个响应 gx、gy 在不同方向的边上各是什么？先在一行上手算横向的差，再接一块同时输出 gx 和 gy 的 Sobel 滤波器。",
+        "en": "This level asks: what are Sobel's two responses gx and gy on edges running different ways? First work out the differences across a row by hand, then wire a Sobel filter giving gx and gy together."
       }
     }
   ],
@@ -29,63 +29,28 @@
   "tasks": [
     {
       "id": "2B7",
-      "kind": "choice",
+      "kind": "grid",
       "step": { "zh": "正还是负", "en": "Plus or minus" },
       "brief": {
-        "zh": "gx = 右邻减左邻，gy = 下邻减上邻：判断每种边上的响应。",
-        "en": "gx = right less left, gy = below less above: judge the response on each edge."
+        "zh": "只看横向：每格算右邻减左邻（图外补 0），写出结果。",
+        "en": "Across only: at each cell take the right neighbour less the left (0 outside) and write the result."
       },
       "hint": [
         {
-          "zh": "左暗右亮：右邻比左邻亮还是暗？",
-          "en": "Dark left, bright right: is the right neighbour brighter or darker than the left?"
+          "zh": "从暗到亮的地方是正，从亮到暗呢？平的地方呢？",
+          "en": "Dark to bright is positive; and bright to dark? And where it is flat?"
         }
       ],
-      "judge": "answer",
-      "rounds": [
-        {
-          "items": [
-            {
-              "prompt": {
-                "zh": "左暗右亮的竖直边上，gx 是？",
-                "en": "On an upright edge, dark left and bright right, gx is?"
-              },
-              "answer": ["pos"]
-            },
-            {
-              "prompt": {
-                "zh": "左亮右暗的竖直边上，gx 是？",
-                "en": "On an upright edge, bright left and dark right, gx is?"
-              },
-              "answer": ["neg"]
-            },
-            {
-              "prompt": {
-                "zh": "上暗下亮的横向边上，gx 是？",
-                "en": "On a level edge, dark above and bright below, gx is?"
-              },
-              "answer": ["zero"]
-            },
-            {
-              "prompt": {
-                "zh": "上暗下亮的横向边上，gy 是？",
-                "en": "On a level edge, dark above and bright below, gy is?"
-              },
-              "answer": ["pos"]
-            }
-          ],
-          "options": [
-            { "id": "pos", "label": { "zh": "正", "en": "Positive" } },
-            { "id": "neg", "label": { "zh": "负", "en": "Negative" } },
-            { "id": "zero", "label": { "zh": "零", "en": "Zero" } }
-          ]
-        }
-      ],
+      "image": [[0, 0, 4, 4, 4, 0]],
+      "show": "both",
+      "ask": {
+        "fill": { "rows": [[0, 4, 4, 0, -4, -4]], "label": { "zh": "右邻减左邻", "en": "Right less left" } }
+      },
       "naive": {
-        "picks": [[["pos"], ["pos"], ["pos"], ["pos"]]],
+        "answer": [[0, 4, 4, 0, 4, 4]],
         "why": {
-          "zh": "以为有边就有正的响应：响应带符号，从亮到暗是负；和边平行的方向上没有变化，响应是 0。",
-          "en": "Taking every edge as a positive response: the response is signed, bright to dark negative; along the edge nothing changes, and the response is 0."
+          "zh": "这是只看变化有多大：响应带符号，从亮到暗的地方右邻比左邻暗，是负的。",
+          "en": "That records only how big the change is: the response is signed, and where it goes bright to dark the right neighbour is darker, so it is negative."
         }
       }
     },

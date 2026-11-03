@@ -143,7 +143,7 @@ test('the copy lint names the rule each text breaks', () => {
   assert.deepEqual(found({ brief: { zh: '交出和，因为后面要用。', en: 'Give the sum, because it is needed.' } }), ['copy-brief-why'])
 })
 
-test('the pedagogy lint: the same board twice whatever its ids, the same prose twice, a bench that slides to green', () => {
+test('the pedagogy lint: the same board twice whatever its ids, the same prose twice, a bench that slides to green, a quiz', () => {
   const board = (id, value) => ({
     nodes: [{ id: 'a', type: 'in', params: { name: 'a' } }, { id, type: 'const', params: { value } }, { id: `${id}s`, type: 'add', params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }],
     wires: [{ from: 'a', to: `${id}s`, port: 'a' }, { from: id, to: `${id}s`, port: 'b' }, { from: `${id}s`, to: 'out', port: 'in' }],
@@ -153,10 +153,10 @@ test('the pedagogy lint: the same board twice whatever its ids, the same prose t
   const text = (s) => ({ zh: s, en: s })
   const level = (id, more) => ({ id, title: text(id), tasks: [{ id, brief: text(`brief of ${id}, long enough`), ...more }], intro: [{ t: text('The pipeline needs new numbers now.') }] })
   const bench = { knobs: { Z: { min: 1, max: 8, step: 1 }, f: { min: 1, max: 4, step: 1, fixed: true } }, layout: { main: ['goals'] } }
-  const content = { levels: [level('1'), level('2'), level('3', { bench }), { id: '4', tasks: [{ id: '4', bench: { ...bench, check: 'submit' } }] }] }
+  const content = { levels: [level('1'), level('2'), level('3', { bench }), { id: '4', tasks: [{ id: '4', bench: { ...bench, check: 'submit' } }, { id: '4_2', kind: 'choice' }] }] }
   const spec = { blueprints: [{ level: '1', board: board('one', '1') }, { level: '2', board: board('k', '1') }, { level: '3', board: board('k', '1'), naive: true }] }
   const found = lintPedagogy(content, spec).map((f) => `${f.rule} ${f.at}${f.report ? ' (report)' : ''}`)
-  assert.deepEqual(found, ['pd-repeat-board 2', 'pd-repeat-text 2 intro[0].t', 'pd-repeat-text 3 intro[0].t', 'pd-slide 3 (report)'])
+  assert.deepEqual(found, ['pd-repeat-board 2', 'pd-repeat-text 2 intro[0].t', 'pd-repeat-text 3 intro[0].t', 'pd-quiz 4 task 4_2 (report)', 'pd-slide 3 (report)'])
 })
 
 test('conformance: the level that brings a point links its entry, opened there', () => {

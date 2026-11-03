@@ -6,6 +6,8 @@
 //                     wrong) is word for word in two places: boilerplate standing in for what this level says
 //   pd-slide          (report) a bench step with one knob open and the goal's readout on screen, judged live: turning
 //                     it until the readout turns green passes, whether or not the player has understood anything
+//   pd-quiz           (report) a task that only asks the player to pick an answer (a choice task): nothing is built,
+//                     tried or worked out; what it asks belongs in the copy (intro, pass text), or in a task to do
 //
 // lintPedagogy(content, spec) → [{ rule, at, says, report? }]; spec is the domain's (its `blueprints`: every board the
 // content writes, by level and task).
@@ -14,6 +16,7 @@ export const PEDAGOGY_RULES = {
   'pd-repeat-board': 'two levels have the same reference board: one of them repeats the other',
   'pd-repeat-text': 'a text the player reads is word for word the same in two places: boilerplate',
   'pd-slide': 'a bench step turns one knob with the goal read out live: it passes by sliding until green (report)',
+  'pd-quiz': 'a task only asks to pick an answer: put what it asks in the copy, or make it something to do (report)',
 }
 
 /** The keys under which a level holds what the player reads as prose. */
@@ -87,6 +90,11 @@ export function lintPedagogy(content, spec) {
       if (first) say('pd-repeat-text', `${level.id} ${where}`, `“${zh.slice(0, 40)}${zh.length > 40 ? '…' : ''}” is also ${first}`)
       else seen.set(zh, `${level.id} ${where}`)
     }
+  }
+
+  // A task that is only a quiz.
+  for (const level of content.levels) {
+    for (const task of level.tasks ?? [level]) if (task.kind === 'choice') say('pd-quiz', `${level.id}${task.id && task.id !== level.id ? ` task ${task.id}` : ''}`, 'it only asks to pick an answer', true)
   }
 
   // A bench step of one knob with its goal read out on screen.

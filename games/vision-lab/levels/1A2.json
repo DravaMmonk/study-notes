@@ -9,297 +9,110 @@
     },
     {
       "t": {
-        "zh": "这一关的问题是：从一张图倒推回去，场景能定下来吗？先用投影的关系找出成一样大的像的物体，再判断关于一张图里的场景，哪些话一定成立、哪些一定不成立、哪些定不下来。",
-        "en": "This level asks: going back from a picture, is the scene settled? First use the projection relation to find objects that image equally tall; then judge which statements about a pictured scene must hold, must fail, or cannot be settled."
+        "zh": "这一关的问题是：从一张图倒推回去，场景能定下来吗？台上一支 1 米高的箭离相机 4 米，像高 0.5。先另造一个场景：箭至少 2 米高，拍出一模一样的像；再接一块倒推电路，从像的位置算回物点。",
+        "en": "This level asks: going back from a picture, is the scene settled? On the bench an arrow 1 m tall stands 4 m away and images 0.5 tall. First make another scene, the arrow at least 2 m tall, that pictures exactly the same; then wire a circuit that works back from an image position to the point."
       }
     }
   ],
   "after": {
-    "zh": "这是<wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>：投影丢了深度，大而远和小而近拍出同一张图，从图推场景常有不止一个答案。",
-    "en": "This is the <wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>: projection drops depth; big-and-far pictures like small-and-near, so a picture often has more than one scene behind it."
+    "zh": "这是<wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>：大而远和小而近拍出同一张图，倒推得先知道距离；颜色、个数才是一张图定得了的。",
+    "en": "This is the <wiki-ref to=\"forward-vs-inverse-problem\"></wiki-ref>: big-and-far pictures like small-and-near; working back needs the distance first; colour and count are what a picture settles."
   },
   "tasks": [
     {
       "id": "1A2",
-      "kind": "choice",
+      "kind": "bench",
+      "step": { "zh": "另造一个场景", "en": "Another scene" },
       "brief": {
-        "zh": "f = 2：选出像高都是 1、距离各不相同的两组以上。",
-        "en": "f = 2: choose two or more pairs that all image 1 tall, at different distances."
+        "zh": "f = 2：调物高 H 和距离 Z，让像高仍是 0.5，箭至少 2 米高。",
+        "en": "f = 2: set the height H and the distance Z so the image is still 0.5 tall, the arrow at least 2 m."
       },
       "hint": [
         {
-          "zh": "像高 h = fH/Z。物高和距离一起翻倍，h 怎样变？",
-          "en": "The image height is h = fH/Z. When height and distance both double, what happens to h?"
+          "zh": "物高加倍、距离不变，像会怎样？距离也加倍呢？",
+          "en": "Double the height and keep the distance: what does the image do? Double the distance too?"
         }
       ],
-      "judge": { "project": { "f": 2, "target": 1 } },
-      "rounds": [
-        {
-          "items": [
-            {
-              "prompt": {
-                "zh": "哪几组的像高都是 1、距离又各不相同？",
-                "en": "Which pairs all image 1 tall, at different distances?"
-              }
-            }
-          ],
-          "options": [
-            { "id": "a", "label": { "zh": "红箱：高 1，距离 2", "en": "Red crate: 1 tall, 2 away" }, "H": 1, "Z": 2 },
-            { "id": "b", "label": { "zh": "蓝箱：高 2，距离 4", "en": "Blue crate: 2 tall, 4 away" }, "H": 2, "Z": 4 },
-            {
-              "id": "c",
-              "label": { "zh": "黄箱：高 2，距离 2", "en": "Yellow crate: 2 tall, 2 away" },
-              "H": 2,
-              "Z": 2
-            },
-            {
-              "id": "d",
-              "label": { "zh": "绿箱：高 3，距离 5", "en": "Green crate: 3 tall, 5 away" },
-              "H": 3,
-              "Z": 5
-            },
-            {
-              "id": "e",
-              "label": { "zh": "白箱：高 1.5，距离 3", "en": "White crate: 1.5 tall, 3 away" },
-              "H": 1.5,
-              "Z": 3
-            }
-          ]
+      "bench": {
+        "model": "pinhole",
+        "setup": { "f": 2, "object": "arrow", "target": { "of": "h", "value": 0.5 } },
+        "knobs": {
+          "H": {
+            "label": { "zh": "物高 H（米）", "en": "Height H (m)" },
+            "min": 0.5,
+            "max": 4,
+            "step": 0.5,
+            "start": 1
+          },
+          "Z": {
+            "label": { "zh": "距离 Z（米）", "en": "Distance Z (m)" },
+            "min": 1,
+            "max": 16,
+            "step": 1,
+            "start": 4
+          }
         },
-        {
-          "items": [
-            {
-              "prompt": {
-                "zh": "换一批：哪几组的像高都是 1、距离又各不相同？",
-                "en": "Another set: which pairs all image 1 tall, at different distances?"
-              }
-            }
-          ],
-          "options": [
-            {
-              "id": "a",
-              "label": { "zh": "灯塔模型：高 0.5，距离 1", "en": "Model lighthouse: 0.5 tall, 1 away" },
-              "H": 0.5,
-              "Z": 1
-            },
-            { "id": "b", "label": { "zh": "灯塔：高 4，距离 8", "en": "Lighthouse: 4 tall, 8 away" }, "H": 4, "Z": 8 },
-            {
-              "id": "c",
-              "label": { "zh": "路灯：高 3，距离 9", "en": "Street lamp: 3 tall, 9 away" },
-              "H": 3,
-              "Z": 9
-            },
-            { "id": "d", "label": { "zh": "烟囱：高 5，距离 10", "en": "Chimney: 5 tall, 10 away" }, "H": 5, "Z": 10 },
-            { "id": "e", "label": { "zh": "电线杆：高 3，距离 6", "en": "Pole: 3 tall, 6 away" }, "H": 3, "Z": 6 }
-          ]
-        }
-      ],
-      "naive": {
-        "picks": [[["b", "c"]], [["c", "e"]]],
-        "why": {
-          "zh": "挑了一样高的物体：可像高还取决于距离，高 2 的箱子在距离 2 处成的像高 2。成一样高的像的，是 H/Z 相同的那些。",
-          "en": "That picks objects of one height, but the image also depends on distance: the crate 2 tall at distance 2 images 2 tall. Equal images come from equal H/Z."
-        }
+        "goal": [
+          {
+            "of": "h",
+            "label": { "zh": "像高 h", "en": "Image height h" },
+            "near": 0.5,
+            "atMost": 0.001,
+            "format": "fixed2"
+          },
+          { "of": "H", "label": { "zh": "物高 H", "en": "Height H" }, "atLeast": 2, "format": "fixed2" }
+        ],
+        "check": "submit",
+        "layout": { "main": ["pinholeRays"], "foot": [{ "panel": ["knobs"] }, { "row": ["goals"] }] }
       },
-      "step": { "zh": "一样高的像", "en": "Equal images" }
+      "naive": [
+        {
+          "set": { "H": 2, "Z": 4 },
+          "why": {
+            "zh": "只把箭加高：距离不变，像也跟着加倍成 1。要让像不变，距离得和物高一起加倍。",
+            "en": "Only making the arrow taller: at the same distance its image doubles to 1. For the same image the distance must double with the height."
+          }
+        }
+      ]
     },
     {
       "id": "1A2_2",
-      "kind": "choice",
+      "kind": "circuit",
+      "step": { "zh": "倒推", "en": "Work back" },
+      "intro": [
+        {
+          "t": {
+            "zh": "倒过来：已知像点的位置 u，物点在哪？只有像不够，还得假设一个距离 Z。",
+            "en": "The other way: given the image position u, where is the point? The image alone is not enough; a distance Z must be assumed."
+          }
+        }
+      ],
       "brief": {
-        "zh": "判断关于场景的每句话：成立、不成立，还是无法确定。",
-        "en": "Judge each statement about the scene: supported, contradicted, or undetermined."
+        "zh": "输入像点位置 u、像平面距离 f 和假设的距离 Z：交出物点的横向位置 X。",
+        "en": "Given the image position u, the plane distance f and an assumed distance Z, give the point's sideways position X."
       },
       "hint": [
         {
-          "zh": "给出的场景只是渲得出这张图的场景之一。把红色立方体放大一倍、再推远一倍，图会变吗？",
-          "en": "The scene given is only one that renders this picture. Double the red cube's size and its distance: does the picture change?"
-        },
-        {
-          "zh": "一张图只定下每个物体的 H/Z。红色立方体的 H 知道了，它的 Z 呢？蓝色立方体的呢？",
-          "en": "An image fixes only each object's H/Z. With the red cube's H known, what about its Z? And the blue cube's?"
+          "zh": "u = fX/Z，把 X 解出来。",
+          "en": "u = fX/Z: solve it for X."
         }
       ],
-      "judge": "claims",
-      "rounds": [
-        {
-          "items": [
-            {
-              "prompt": { "zh": "红色立方体离相机 6 米。", "en": "The red cube is 6 m from the camera." },
-              "claim": { "depth": { "object": "red", "z": 6, "tol": 0.05 } }
-            },
-            {
-              "prompt": { "zh": "右边的立方体是蓝色的。", "en": "The cube on the right is blue." },
-              "claim": { "colour": { "object": "blue", "is": "blue" } }
-            },
-            {
-              "prompt": { "zh": "场景里有两个立方体。", "en": "The scene has two cubes." },
-              "claim": { "count": { "class": "cube", "n": 2 } }
-            },
-            {
-              "prompt": { "zh": "红色立方体边长 1 米。", "en": "The red cube is 1 m on a side." },
-              "claim": { "height": { "object": "red", "h": 1, "tol": 0.05 } }
-            }
-          ],
-          "scenes": [
-            {
-              "size": [32, 24],
-              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
-              "light": { "azimuth": 30, "elevation": 60 },
-              "objects": [
-                {
-                  "id": "red",
-                  "class": "cube",
-                  "colour": "red",
-                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
-                },
-                {
-                  "id": "blue",
-                  "class": "cube",
-                  "colour": "blue",
-                  "boxes": [{ "at": [0.9, 0.3, -0.5], "size": [0.6, 0.6, 0.6] }]
-                }
-              ]
-            },
-            {
-              "size": [32, 24],
-              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
-              "light": { "azimuth": 30, "elevation": 60 },
-              "objects": [
-                {
-                  "id": "red",
-                  "class": "cube",
-                  "colour": "red",
-                  "boxes": [{ "at": [-1.8, 0.5, -6], "size": [2, 2, 2] }]
-                },
-                {
-                  "id": "blue",
-                  "class": "cube",
-                  "colour": "blue",
-                  "boxes": [{ "at": [1.8, 0.1, -7], "size": [1.2, 1.2, 1.2] }]
-                }
-              ]
-            },
-            {
-              "size": [32, 24],
-              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
-              "light": { "azimuth": 30, "elevation": 60 },
-              "objects": [
-                {
-                  "id": "red",
-                  "class": "cube",
-                  "colour": "red",
-                  "boxes": [{ "at": [-2.7, 0.5, -12], "size": [3, 3, 3] }]
-                },
-                {
-                  "id": "blue",
-                  "class": "cube",
-                  "colour": "blue",
-                  "boxes": [{ "at": [2.7, -0.1, -13.5], "size": [1.8, 1.8, 1.8] }]
-                }
-              ]
-            }
-          ],
-          "given": {
-            "zh": "渲得出这张图的场景之一：红色立方体边长 1 米、离相机 6 米；蓝色立方体边长 0.6 米、离相机 6.5 米。",
-            "en": "One scene that renders this picture: the red cube 1 m on a side and 6 m from the camera; the blue cube 0.6 m on a side and 6.5 m away."
-          }
-        },
-        {
-          "items": [
-            {
-              "prompt": { "zh": "红色立方体离相机 6 米。", "en": "The red cube is 6 m from the camera." },
-              "claim": { "depth": { "object": "red", "z": 6, "tol": 0.05 } }
-            },
-            {
-              "prompt": { "zh": "蓝色立方体离相机 6.5 米。", "en": "The blue cube is 6.5 m from the camera." },
-              "claim": { "depth": { "object": "blue", "z": 6.5, "tol": 0.05 } }
-            },
-            {
-              "prompt": { "zh": "蓝色立方体边长 0.6 米。", "en": "The blue cube is 0.6 m on a side." },
-              "claim": { "height": { "object": "blue", "h": 0.6, "tol": 0.05 } }
-            },
-            {
-              "prompt": { "zh": "红色立方体离相机 3 米。", "en": "The red cube is 3 m from the camera." },
-              "claim": { "depth": { "object": "red", "z": 3, "tol": 0.05 } }
-            }
-          ],
-          "scenes": [
-            {
-              "size": [32, 24],
-              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
-              "light": { "azimuth": 30, "elevation": 60 },
-              "objects": [
-                {
-                  "id": "red",
-                  "class": "cube",
-                  "colour": "red",
-                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
-                },
-                {
-                  "id": "blue",
-                  "class": "cube",
-                  "colour": "blue",
-                  "boxes": [{ "at": [0.9, 0.3, -0.5], "size": [0.6, 0.6, 0.6] }]
-                }
-              ]
-            },
-            {
-              "size": [32, 24],
-              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
-              "light": { "azimuth": 30, "elevation": 60 },
-              "objects": [
-                {
-                  "id": "red",
-                  "class": "cube",
-                  "colour": "red",
-                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
-                },
-                {
-                  "id": "blue",
-                  "class": "cube",
-                  "colour": "blue",
-                  "boxes": [{ "at": [1.8, 0.1, -7], "size": [1.2, 1.2, 1.2] }]
-                }
-              ]
-            },
-            {
-              "size": [32, 24],
-              "camera": { "yaw": 0, "pitch": 0, "distance": 6, "f": 1 },
-              "light": { "azimuth": 30, "elevation": 60 },
-              "objects": [
-                {
-                  "id": "red",
-                  "class": "cube",
-                  "colour": "red",
-                  "boxes": [{ "at": [-0.9, 0.5, 0], "size": [1, 1, 1] }]
-                },
-                {
-                  "id": "blue",
-                  "class": "cube",
-                  "colour": "blue",
-                  "boxes": [{ "at": [2.7, -0.1, -13.5], "size": [1.8, 1.8, 1.8] }]
-                }
-              ]
-            }
-          ],
-          "given": {
-            "zh": "图和上一轮相同，上一轮给出的场景也渲得出它。这一轮多知道一件事：红色立方体的边长确实是 1 米。",
-            "en": "The picture is the last round's, and the scene given there still renders it. This round you also know: the red cube really is 1 m on a side."
-          }
-        }
+      "inputs": [
+        { "name": "u", "label": { "zh": "像点位置 u", "en": "Image position u" } },
+        { "name": "f", "label": { "zh": "像平面距离 f", "en": "Plane distance f" } },
+        { "name": "Z", "label": { "zh": "假设的距离 Z", "en": "Assumed distance Z" } }
       ],
-      "naive": {
-        "picks": [
-          [["supported"], ["supported"], ["supported"], ["supported"]],
-          [["supported"], ["supported"], ["supported"], ["contradicted"]]
-        ],
-        "why": {
-          "zh": "把给出的那个场景当成了真实的场景：可放大一倍又推远一倍的场景渲出同一张图，一张图只定下每个物体的 H/Z。知道红色立方体边长 1 米，按 H/Z 定下它离相机 6 米；蓝色立方体的边长不知道，它的距离和大小仍然定不了。",
-          "en": "That takes the scene given as the real one, but a scene scaled up and pushed back as much renders the same picture: an image fixes only each object's H/Z. Knowing the red cube is 1 m fixes its distance at 6 m by H/Z; the blue cube's size is unknown, so its distance and size stay open."
-        }
-      },
-      "step": { "zh": "一张图能说明什么", "en": "What a picture settles" }
+      "outputs": [{ "name": "X", "label": { "zh": "物点位置 X", "en": "Point position X" } }],
+      "tests": [
+        { "inputs": { "u": 0.5, "f": 2, "Z": 4 }, "expect": { "X": 1 } },
+        { "inputs": { "u": 0.5, "f": 2, "Z": 8 }, "expect": { "X": 2 } }
+      ],
+      "hidden": [
+        { "inputs": { "u": -1, "f": 2, "Z": 6 }, "expect": { "X": -3 } },
+        { "inputs": { "u": 0, "f": 3, "Z": 5 }, "expect": { "X": 0 } }
+      ],
+      "solution": ["m = mul(u, Z)", "x = div(m, f)", "X <- x"],
+      "naive": ["X <- u"]
     }
   ]
 }
