@@ -3965,10 +3965,22 @@ independently of whether the copy reads well. Repeated terms in one visible fiel
 <td>Nonzero source origin and varied region sizes; no copy-the-region gate</td>
 </tr>
 <tr>
-<td>1A6, 1A6_2</td>
-<td>Coordinate grids</td>
-<td>Nearest sampling, then circuit</td>
-<td>Supplied positions include ties, fractions and out-of-range values</td>
+<td>1A6</td>
+<td>Coordinate grids; independent source-row observation</td>
+<td>Read nearest samples by distance</td>
+<td>Integer pixel centres, midpoint ties and clamped image boundaries are visible before use</td>
+</tr>
+<tr>
+<td>1A6_snap</td>
+<td>Distance selection; side-by-side nearest/floor switching bands</td>
+<td>Build a single-coordinate mapping before image assembly</td>
+<td>Positive and negative coordinates, both sides of midpoints, exact ties; floor-only fails</td>
+</tr>
+<tr>
+<td>1A6_2</td>
+<td>Single-coordinate mapping; elementwise image arithmetic</td>
+<td>Transfer the mapping to both axes and read with a boundary policy</td>
+<td>Source and output sizes differ; x/y fractions, outside coordinates and RGB values</td>
 </tr>
 <tr>
 <td>1A7, 1A7_2, 1A7_3</td>
@@ -4066,6 +4078,12 @@ values, both coordinate-grid outputs, scalar addition and per-cell addition expr
 on leaving the image; Enter pins a focused pixel. Dimensions, channels and numeric ranges remain separate from
 brightness display. The arithmetic guide distinguishes a cell position from its stored sampling coordinate.
 Component descriptions remain plain text, and phone Move/Delete actions stay in the fixed sheet footer.</p>
+<p>Nearest-sampling scaffolding acceptance covers Chinese WebKit phone views at 320/390 px and the English desktop
+view at 1440 px. The source-row observation distinguishes nearest integer selection from clamping. The paired
+rulers distinguish negative midpoint ties from flooring, and the component/glossary references open with normal
+prerequisite progress. A three-part scalar circuit was placed and wired through actual phone taps, passed all
+three visible and four hidden cases, and progressed into the two-page final-task introduction. The final reference
+board also passes its two visible and two hidden cases in the browser. These checks do not establish novice mastery.</p>
 <h2 id="automated-and-migration-evidence">Automated and migration evidence<a class="headerlink" href="#automated-and-migration-evidence" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Complete kit suite: 318 tests passed, none failed or cancelled. Targeted vision/terminology checks cover route
@@ -4080,12 +4098,13 @@ Component descriptions remain plain text, and phone Move/Delete actions stay in 
   English references. Literal-name reports remain in unchanged sampling, introductory filtering and Workshop copy;
   this release does not claim a complete semantic terminology audit. The overview's machine name “卷积器” remains
   a reviewed ordinary-name candidate.</li>
-<li>The game retains twenty levels, thirty-two tasks and two experimental tasks. The inverse topic and its tasks
+<li>The game retains twenty levels, thirty-three tasks and two experimental tasks. The inverse topic and its tasks
   are renamed to 1I1 / 1I1_2 through generated level/task migrations. Adding origin translation invalidates saved
   pixel-camera answers, while completion records remain. The current level-level invalidation policy also resets
   saved inverse-experiment answers when its bench layout changes. Task moves/renames and prerequisite changes have generated save steps. Changed
   puzzle contracts/reference programs drop incompatible stored boards, including the revised 2D/Sobel programs;
-  wording changes preserve answers. Existing completion records are retained by the shared migration contract.</li>
+  wording changes preserve answers. Adding the nearest-coordinate scaffold invalidates kept answers for
+  1A6 / 1A6_snap / 1A6_2 under the level-wide contract policy. Existing completion records are retained by the shared migration contract.</li>
 <li>The game builds successfully; publication uses the independent games workflow. Release verification includes the published page and assets.</li>
 </ul>
 <p>Remaining evidence limit: this is an implemented, reviewed trial. A learner study has not established the right
