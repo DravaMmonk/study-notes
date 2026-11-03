@@ -35,6 +35,21 @@ level, and a level about a part teaches nothing of the field.
   embody one: cropping, built as crop): "a constant", "rounding down", "the
   larger of two" are tools, and come in with the point that first needs them (a slot may add several primitives
   for its one point; the level designer groups them with `concept`).
+- **Place the knowledge before placing levels.** Covering every point of the sources is not the aim; climbing to
+  their hard core is. For each point decide:
+  - `difficulty`: `intuitive` (a sentence makes it plain; an adult who has not taken the course would not get it
+    wrong — e.g. "different vision tasks give answers of different shapes"), `learnable` (needs an example or a
+    level of practice), `hard` (abstract, far from daily life, its name explains nothing — e.g. depth of field,
+    perspective projection, the inverse problem). Intuitive points get no slot: a slot names them in its intro,
+    summary or entries (`mentions`).
+  - `core`: the few points each chapter is really about — what the lectures spend effort on, what later chapters
+    stand on, what students get wrong. Every era names at least one.
+  - `depends`: the shallower points it is built from. Take every hard point down until you reach origins a
+    learner can grasp by doing one plain thing (a point lands on one point; a bigger hole makes a spot), and order
+    the slots up that graph: a hard point comes only after at least two of the points it stands on have been
+    taught (`bp-shallow`), each step adding one thing (games/DESIGN.md §4.2, "拆一个难点").
+  Spend the levels where the difficulty is: most of an era's main-path slots should be on the ladders to its core
+  points (`bp-ladder`); a learnable point off every ladder is worth asking whether it needs a level at all.
 - **Endpoint and scope.** What the learner can build at the end of the whole course, and what this blueprint covers
   now (the eras named in *Inputs*). Eras left for later go into `deferred` with why.
 - **Mechanisms** from the catalogue, each with where it is used and why it fits (§6.5's questions).
@@ -89,6 +104,8 @@ apply to titles and tasks too). Ids are ASCII.
 
 ## Finish
 
-When the gate is clean, reply with a short report: the knowledge points by era (term and source each), the shape of
+When the gate is clean, reply with a short report: each era's core points and the ladder of points up to each
+(its steps in order), the points you judged intuitive and where they are mentioned, the knowledge points by era
+(term, source and difficulty each), the shape of
 the course (eras, series, slots; how many slots each point takes and why), the requests you made and why, the REPORT
 findings you left and why, and what you were unsure of.

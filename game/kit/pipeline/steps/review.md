@@ -17,6 +17,9 @@ and `./lint` run the checks.
   point's `term`: a step you could not take from the screen, an answer you could give without the material (from the
   wording, from matching words between prompt and option, from the options' order, by sliding one knob to green), a
   level after which you could not name what you learned — each is a finding, owned by whichever step made it.
+- **Worth a level, and climbed.** A level that trains what a sentence makes plain (an adult who has not taken the
+  course would not get it wrong) is a finding for the blueprint; so is a hard point reached without the steps below
+  it, or a chapter whose levels are spent on easy points while its core gets one.
 - **Knowledge, not tools.** A level about a part or an operation rather than a point of the field; a point whose term
   is not the sources' or the field's; a level that repeats another one's puzzle with new numbers.
 - **One new idea a level**, the idea placed where it is first needed (the level is its wall), practice that really

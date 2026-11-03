@@ -9,7 +9,7 @@ import { boardShape, lintPedagogy } from './pedagogy.js'
 const t = (s) => ({ zh: s, en: s })
 const slot = (id, extra = {}) => ({ id, title: t(id), task: t(id), question: t(`why ${id}?`), chain: [t('try'), t('see')], role: 'foundation', uses: [], ...(extra.role === 'practice' ? { facet: t('a new case') } : {}), ...extra })
 const series = (id, slots, extra = {}) => ({ id, title: t(id), kind: 'foundation', slots, ...extra })
-const point = (id, basis = 'lecture') => ({ id, term: t(`the ${id} term`), about: t('x'), source: 'notes/lecture-1.md §2', wall: t('x'), basis })
+const point = (id, basis = 'lecture', more = {}) => ({ id, term: t(`the ${id} term`), about: t('x'), source: 'notes/lecture-1.md §2', wall: t('x'), basis, difficulty: 'learnable', ...more })
 
 // One era: a wire, a register brought and practised, a part built from it and used last.
 const base = () => ({
@@ -17,7 +17,7 @@ const base = () => ({
   mechanisms: [{ id: 'tick-bus', where: t('x'), why: t('x') }],
   abilities: [{ id: 'wire', about: t('x') }],
   machines: [{ id: 'm1', title: t('m'), can: ['wire'], lacks: t('x') }],
-  knowledge: [point('memory'), point('count')],
+  knowledge: [point('memory'), point('count', 'lecture', { core: true, depends: ['memory'] })],
   primitives: [{ part: 'reg', about: t('x'), why: t('x') }, { part: 'add', about: t('x'), why: t('x') }],
   built: [{ part: 'counter', about: t('x'), from: ['reg', 'add'] }],
   eras: [{
@@ -70,6 +70,14 @@ test('each rule catches the blueprint that breaks it', () => {
   assert.ok(broken((bp, s) => { delete s[0].slots[1].facet }).includes('bp-facet 1-2'))
   assert.ok(broken((bp, s) => { s[0].slots[0].chain = [t('one step')] }).some((r) => r.startsWith('bp-schema')))
   assert.ok(broken((bp, s) => { delete s[0].slots[0].question }).includes('bp-question 1-1'))
+  // Levels go where the difficulty is: an intuitive point is mentioned, never trained; a hard one is climbed to.
+  assert.ok(broken((bp) => { bp.knowledge[0].difficulty = 'intuitive' }).includes('bp-trivial 1-1'))
+  assert.ok(broken((bp) => { bp.knowledge.push(point('plain', 'lecture', { difficulty: 'intuitive' })) }).includes('bp-mentioned plain'))
+  assert.deepEqual(broken((bp, s) => { bp.knowledge.push(point('plain', 'lecture', { difficulty: 'intuitive' })); s[0].slots[0].mentions = ['plain'] }), [])
+  assert.ok(broken((bp, s) => { s[0].slots[0].mentions = ['count'] }).includes('bp-mentioned 1-1'))
+  assert.ok(broken((bp) => { bp.knowledge[0].depends = ['count'] }).includes('bp-depends 1-1'))
+  assert.ok(broken((bp) => { bp.knowledge[1].difficulty = 'hard' }).includes('bp-shallow 1-4'))
+  assert.ok(broken((bp) => { delete bp.knowledge[1].core }).includes('bp-core-none era 1'))
   // The main path teaches the lectures' theory only; a technical point lives in an optional topic.
   const library = (bp, s, slotExtra = {}) => {
     bp.knowledge.push(point('library', 'technical'))
