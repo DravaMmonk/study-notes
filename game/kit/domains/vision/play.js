@@ -100,6 +100,11 @@ const grid = {
       sections: [
         { title: T('图', 'The image'), text: showNumbers ? table(L.image) : pictureOf(L.image) },
         ...(highlight ? [{ title: T('高亮', 'Highlighted'), text: highlight }] : []),
+        ...(params.strip ? [{ title: T('两条等长的条', 'Two bars of one length'), text: both((lang) => {
+          const { old, new: n } = params.strip
+          const edges = Array.from({ length: old + 1 }, (_, k) => k - 0.5).join(', ')
+          return lang === 'en' ? `Above, the ${old} original pixels, centres at x = ${Array.from({ length: old }, (_, k) => k).join(', ')}, edges at ${edges}. Below, ${n} new pixels sharing the same length equally.` : `上面是原图的 ${old} 个像素，中心在 x = ${Array.from({ length: old }, (_, k) => k).join('、')}，边界在 ${edges}。下面是 ${n} 个新像素，平分同一段长度。`
+        }) }] : []),
       ],
       write: ask,
     }
