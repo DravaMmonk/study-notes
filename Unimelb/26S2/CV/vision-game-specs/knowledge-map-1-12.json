@@ -5,11 +5,12 @@
    "title": "成像几何：从场景到像",
    "series": [
     {
-     "cores": [
-      "forward-vs-inverse-problem@1"
-     ],
+     "summit": null,
      "levels": [
       "computer-vision-definition@1",
+      "forward-vs-inverse-problem@1"
+     ],
+     "cores": [
       "forward-vs-inverse-problem@1"
      ],
      "side": [],
@@ -17,12 +18,13 @@
      "checkpoint": null
     },
     {
-     "cores": [
-      "angle-of-view-from-pixel-focal-length@2"
-     ],
+     "summit": null,
      "levels": [
       "image-formation-3d-to-2d@2",
       "pinhole-projection@2",
+      "angle-of-view-from-pixel-focal-length@2"
+     ],
+     "cores": [
       "angle-of-view-from-pixel-focal-length@2"
      ],
      "side": [],
@@ -30,12 +32,36 @@
       "pixel-to-mm-focal-length@2"
      ],
      "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
+      "recognition-variation@1",
+      "good-representation@1"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
     }
    ],
+   "breaks": [],
    "needs": [],
-   "chain": {
-    "steps": 3,
-    "breaks": []
+   "metrics": {
+    "levels": 7,
+    "side": 0,
+    "optional": 1,
+    "practice": 0,
+    "steps": 6,
+    "breaks": 0,
+    "recalls": 0,
+    "hard_run": 0
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
    }
   },
   {
@@ -43,38 +69,54 @@
    "title": "像素数组与重采样",
    "series": [
     {
-     "cores": [
-      "bilinear-interpolation@2"
-     ],
+     "summit": "pixel-coordinate-convention@2",
      "levels": [
       "image-array-checks@2",
-      "pixel-coordinate-convention@2",
+      "pixel-coordinate-convention@2"
+     ],
+     "cores": [],
+     "side": [],
+     "optional": [
+      "opencv-bgr-to-rgb@2",
+      "channel-edit-dtype@2"
+     ],
+     "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
       "crop-vs-resize@2",
-      "nearest-neighbour-interpolation@2",
+      "bilinear-interpolation@2"
+     ],
+     "cores": [
       "bilinear-interpolation@2"
      ],
      "side": [],
      "optional": [
-      "opencv-bgr-to-rgb@2",
-      "channel-edit-dtype@2",
       "opencv-size-vs-numpy-shape@2",
       "center-crop-and-copy@2"
      ],
      "checkpoint": null
     }
    ],
+   "breaks": [],
    "needs": [
     "geometry"
    ],
-   "chain": {
-    "steps": 4,
-    "breaks": [
-     [
-      "pixel-coordinate-convention@2",
-      "crop-vs-resize@2",
-      true
-     ]
-    ]
+   "metrics": {
+    "levels": 4,
+    "side": 0,
+    "optional": 4,
+    "practice": 0,
+    "steps": 3,
+    "breaks": 0,
+    "recalls": 0,
+    "hard_run": 0
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
    }
   },
   {
@@ -82,13 +124,14 @@
    "title": "滤波：局部加权",
    "series": [
     {
-     "cores": [
-      "convolution-vs-cross-correlation@3"
-     ],
+     "summit": null,
      "levels": [
       "pixel-vs-local-operator@3",
       "linear-filter@3",
       "convolution@3",
+      "convolution-vs-cross-correlation@3"
+     ],
+     "cores": [
       "convolution-vs-cross-correlation@3"
      ],
      "side": [],
@@ -96,22 +139,93 @@
      "checkpoint": null
     },
     {
-     "cores": [
-      "separable-filter@3"
-     ],
+     "summit": null,
      "levels": [
       "linear-filter-properties@3",
+      "separable-filter@3"
+     ],
+     "cores": [
       "separable-filter@3"
      ],
      "side": [],
      "optional": [],
      "checkpoint": null
+    },
+    {
+     "summit": "padding-border-rules@3",
+     "levels": [
+      "filtering-by-hand@3",
+      "valid-output-size@3",
+      "padding-border-rules@3"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": "gaussian-filter@3",
+     "levels": [
+      "gaussian-filter@3"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": "signed-edge-response@3",
+     "levels": [
+      "sobel-filter@3",
+      "signed-edge-response@3"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
+      "colour-filtering@3"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
     }
    ],
-   "needs": [],
-   "chain": {
-    "steps": 4,
-    "breaks": []
+   "breaks": [
+    [
+     "padding-border-rules@3",
+     "gaussian-filter@3"
+    ],
+    [
+     "signed-edge-response@3",
+     "colour-filtering@3"
+    ]
+   ],
+   "needs": [
+    "pixels"
+   ],
+   "metrics": {
+    "levels": 13,
+    "side": 0,
+    "optional": 0,
+    "practice": 0,
+    "steps": 12,
+    "breaks": 2,
+    "recalls": 1,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
    }
   },
   {
@@ -119,12 +233,13 @@
    "title": "频率：换一种方式看图",
    "series": [
     {
-     "cores": [
-      "phase-carries-structure@4"
-     ],
+     "summit": null,
      "levels": [
       "sinusoid-parameters@4",
       "fourier-magnitude-phase@4",
+      "phase-carries-structure@4"
+     ],
+     "cores": [
       "phase-carries-structure@4"
      ],
      "side": [],
@@ -132,15 +247,15 @@
      "checkpoint": null
     },
     {
-     "cores": [
-      "ringing-artefact@4"
-     ],
+     "summit": null,
      "levels": [
       "convolution-theorem@4",
-      "gaussian-filter@3",
       "fourier-2d-centred-spectrum@4",
       "frequency-domain-mask@4",
       "low-pass-filter@4",
+      "ringing-artefact@4"
+     ],
+     "cores": [
       "ringing-artefact@4"
      ],
      "side": [
@@ -153,58 +268,42 @@
      "checkpoint": null
     }
    ],
+   "breaks": [
+    [
+     "convolution-theorem@4",
+     "fourier-2d-centred-spectrum@4"
+    ]
+   ],
    "needs": [
     "filtering"
    ],
-   "chain": {
+   "metrics": {
+    "levels": 8,
+    "side": 4,
+    "optional": 0,
+    "practice": 0,
     "steps": 7,
-    "breaks": [
-     [
-      "convolution-theorem@4",
-      "gaussian-filter@3",
-      false
-     ],
-     [
-      "gaussian-filter@3",
-      "fourier-2d-centred-spectrum@4",
-      false
-     ]
-    ]
-   }
-  },
-  {
-   "id": "edges",
-   "title": "边缘与不变性",
-   "series": [
-    {
-     "cores": [
-      "invariance-tolerance-equivariance@5"
-     ],
-     "levels": [
-      "edge-as-rapid-change@5",
-      "invariance-tolerance-equivariance@5"
-     ],
-     "side": [],
-     "optional": [],
-     "checkpoint": null
-    }
-   ],
-   "needs": [],
-   "chain": {
-    "steps": 1,
-    "breaks": []
+    "breaks": 1,
+    "recalls": 2,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
    }
   },
   {
    "id": "light",
-   "title": "光照与颜色",
+   "title": "光与边缘",
    "series": [
     {
-     "cores": [
-      "normal-from-shading-ambiguity@5"
-     ],
+     "summit": null,
      "levels": [
       "lambertian-reflectance@5",
+      "normal-from-shading-ambiguity@5"
+     ],
+     "cores": [
       "normal-from-shading-ambiguity@5"
      ],
      "side": [
@@ -212,26 +311,67 @@
      ],
      "optional": [],
      "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
+      "edge-as-rapid-change@5",
+      "invariance-tolerance-equivariance@5"
+     ],
+     "cores": [
+      "invariance-tolerance-equivariance@5"
+     ],
+     "side": [
+      "edge-response-under-transforms@5"
+     ],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
+      "image-gradient@5"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
     }
    ],
-   "needs": [
-    "geometry"
+   "breaks": [
+    [
+     "invariance-tolerance-equivariance@5",
+     "image-gradient@5"
+    ]
    ],
-   "chain": {
-    "steps": 1,
-    "breaks": []
+   "needs": [
+    "geometry",
+    "filtering"
+   ],
+   "metrics": {
+    "levels": 5,
+    "side": 2,
+    "optional": 0,
+    "practice": 0,
+    "steps": 4,
+    "breaks": 1,
+    "recalls": 3,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": false,
+    "length": true,
+    "hard_run": true
    }
   },
   {
    "id": "cnn",
-   "title": "卷积网络",
+   "title": "卷积网络的结构",
    "series": [
     {
-     "cores": [
-      "channels-filters-activation-maps@6"
-     ],
+     "summit": null,
      "levels": [
-      "colour-filtering@3",
       "fully-connected-neuron@6",
       "mlp-flatten-limits@6",
       "local-connectivity@6",
@@ -240,57 +380,184 @@
       "activation-map@6",
       "channels-filters-activation-maps@6"
      ],
+     "cores": [
+      "channels-filters-activation-maps@6"
+     ],
      "side": [],
      "optional": [],
-     "checkpoint": "local-connectivity@6"
+     "checkpoint": null
     },
     {
-     "cores": [
-      "train-validation-test-roles@7"
-     ],
+     "summit": "cnn-feature-hierarchy@6",
      "levels": [
-      "gradient-descent-backprop@6",
-      "overfitting@7",
-      "train-validation-test-roles@7"
+      "nonlinearity-relu@6",
+      "conv-relu-stacking@6",
+      "cnn-feature-hierarchy@6"
      ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": "gradient-descent-backprop@6",
+     "levels": [
+      "gradient-descent-backprop@6"
+     ],
+     "cores": [],
+     "foundation": true,
      "side": [
-      "l1-l2-regularization@7",
-      "dropout@7",
-      "early-stopping-validation@7",
       "minibatch-epoch-learning-rate@7"
      ],
      "optional": [],
      "checkpoint": null
     },
     {
-     "cores": [
-      "residual-learning@8"
-     ],
+     "summit": "conv-parameter-count@6",
      "levels": [
-      "conv-parameter-count@6",
-      "filtering-by-hand@3",
-      "valid-output-size@3",
-      "padding-border-rules@3",
-      "conv-output-size@6",
+      "conv-parameter-count@6"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [
+      "fc-vs-conv-parameter-count@6",
+      "stacked-small-kernels@8"
+     ],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
+      "conv-output-size@6"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    }
+   ],
+   "breaks": [
+    [
+     "cnn-feature-hierarchy@6",
+     "gradient-descent-backprop@6"
+    ],
+    [
+     "gradient-descent-backprop@6",
+     "conv-parameter-count@6"
+    ],
+    [
+     "conv-parameter-count@6",
+     "conv-output-size@6"
+    ]
+   ],
+   "needs": [
+    "pixels",
+    "filtering"
+   ],
+   "metrics": {
+    "levels": 13,
+    "side": 3,
+    "optional": 0,
+    "practice": 0,
+    "steps": 12,
+    "breaks": 3,
+    "recalls": 9,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": false,
+    "length": true,
+    "hard_run": true
+   }
+  },
+  {
+   "id": "training",
+   "title": "训练与评估",
+   "series": [
+    {
+     "summit": null,
+     "levels": [
+      "overfitting@7",
+      "train-validation-test-roles@7"
+     ],
+     "cores": [
+      "train-validation-test-roles@7"
+     ],
+     "side": [
+      "l1-l2-regularization@7",
+      "dropout@7",
+      "early-stopping-validation@7"
+     ],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
       "downsampling-purpose@7",
+      "max-average-pooling@7",
+      "cnn-classifier-pipeline@7",
+      "softmax@7"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    }
+   ],
+   "breaks": [],
+   "needs": [
+    "light",
+    "cnn"
+   ],
+   "metrics": {
+    "levels": 6,
+    "side": 3,
+    "optional": 0,
+    "practice": 0,
+    "steps": 5,
+    "breaks": 0,
+    "recalls": 3,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
+   }
+  },
+  {
+   "id": "deep",
+   "title": "更深、更省的网络",
+   "series": [
+    {
+     "summit": null,
+     "levels": [
       "architecture-tradeoffs@8",
       "depth-degradation@8",
       "residual-learning@8"
      ],
+     "cores": [
+      "residual-learning@8"
+     ],
      "side": [
-      "fc-vs-conv-parameter-count@6",
       "inception-multiscale@8",
       "efficientnet-compound-scaling@8"
      ],
      "optional": [],
-     "checkpoint": "padding-border-rules@3"
+     "checkpoint": null
     },
     {
-     "cores": [
-      "depthwise-separable-convolution@8"
-     ],
+     "summit": null,
      "levels": [
       "one-by-one-convolution@8",
+      "depthwise-separable-convolution@8"
+     ],
+     "cores": [
       "depthwise-separable-convolution@8"
      ],
      "side": [
@@ -298,94 +565,152 @@
      ],
      "optional": [],
      "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
+      "pixel-vs-feature-space@8"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [
+      "transfer-learning-modes@8",
+      "finetuning-depth-choice@8"
+     ],
+     "optional": [],
+     "checkpoint": null
     }
    ],
-   "needs": [
-    "pixels",
-    "filtering",
-    "edges"
-   ],
-   "chain": {
-    "steps": 18,
-    "breaks": [
-     [
-      "colour-filtering@3",
-      "fully-connected-neuron@6",
-      false
-     ],
-     [
-      "conv-parameter-count@6",
-      "filtering-by-hand@3",
-      false
-     ]
+   "breaks": [
+    [
+     "depthwise-separable-convolution@8",
+     "pixel-vs-feature-space@8"
     ]
+   ],
+   "needs": [
+    "geometry",
+    "filtering",
+    "cnn",
+    "training"
+   ],
+   "metrics": {
+    "levels": 6,
+    "side": 5,
+    "optional": 0,
+    "practice": 0,
+    "steps": 5,
+    "breaks": 1,
+    "recalls": 10,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
    }
   },
   {
    "id": "attention",
-   "title": "注意力与表示学习",
+   "title": "注意力",
    "series": [
     {
-     "cores": [
-      "scaled-dot-product-attention@9",
-      "attention-matrix-rows@9"
-     ],
+     "summit": null,
      "levels": [
-      "nonlinearity-relu@6",
-      "conv-relu-stacking@6",
-      "max-average-pooling@7",
-      "cnn-classifier-pipeline@7",
-      "softmax@7",
       "patch-tokenization@9",
       "patch-embedding@9",
       "query-key-value@9",
       "scaled-dot-product-attention@9",
       "attention-matrix-rows@9"
      ],
+     "cores": [
+      "scaled-dot-product-attention@9",
+      "attention-matrix-rows@9"
+     ],
      "side": [
-      "stacked-small-kernels@8",
       "positional-encoding@9"
      ],
      "optional": [],
-     "checkpoint": "softmax@7"
+     "checkpoint": null
     },
     {
-     "cores": [
-      "temperature@10"
+     "summit": null,
+     "levels": [
+      "multi-head-attention@9",
+      "transformer-encoder-block@9",
+      "class-token@9"
      ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [
+      "mean-attention-distance@9"
+     ],
+     "checkpoint": null
+    }
+   ],
+   "breaks": [],
+   "needs": [
+    "pixels",
+    "cnn",
+    "training",
+    "deep"
+   ],
+   "metrics": {
+    "levels": 8,
+    "side": 1,
+    "optional": 1,
+    "practice": 2,
+    "steps": 7,
+    "breaks": 0,
+    "recalls": 6,
+    "hard_run": 2
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
+   }
+  },
+  {
+   "id": "representation",
+   "title": "表示学习",
+   "series": [
+    {
+     "summit": "contrastive-pairing@10",
      "levels": [
       "cross-entropy-loss@7",
       "data-augmentation@7",
-      "recognition-variation@1",
-      "good-representation@1",
-      "sobel-filter@3",
-      "cnn-feature-hierarchy@6",
-      "pixel-vs-feature-space@8",
-      "multi-head-attention@9",
-      "transformer-encoder-block@9",
-      "class-token@9",
       "self-supervised-representation@10",
-      "contrastive-pairing@10",
+      "contrastive-pairing@10"
+     ],
+     "cores": [],
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
       "cosine-similarity@10",
       "contrastive-loss@10",
       "temperature@10"
      ],
+     "cores": [
+      "temperature@10"
+     ],
      "side": [
-      "transfer-learning-modes@8",
-      "finetuning-depth-choice@8",
       "clip-shared-embedding@10",
       "zero-shot-classification@10"
      ],
-     "optional": [
-      "mean-attention-distance@9"
-     ],
-     "checkpoint": "pixel-vs-feature-space@8"
+     "optional": [],
+     "checkpoint": null
     },
     {
-     "cores": [
+     "summit": null,
+     "levels": [
       "simclr-candidate-count@10"
      ],
-     "levels": [
+     "cores": [
       "simclr-candidate-count@10"
      ],
      "side": [],
@@ -393,91 +718,135 @@
      "checkpoint": null
     }
    ],
+   "breaks": [
+    [
+     "cross-entropy-loss@7",
+     "data-augmentation@7"
+    ],
+    [
+     "temperature@10",
+     "simclr-candidate-count@10"
+    ]
+   ],
    "needs": [
     "pixels",
-    "filtering",
-    "cnn"
+    "training"
    ],
-   "chain": {
-    "steps": 23,
-    "breaks": [
-     [
-      "conv-relu-stacking@6",
-      "max-average-pooling@7",
-      false
-     ],
-     [
-      "softmax@7",
-      "patch-tokenization@9",
-      false
-     ],
-     [
-      "cross-entropy-loss@7",
-      "data-augmentation@7",
-      false
-     ],
-     [
-      "data-augmentation@7",
-      "recognition-variation@1",
-      false
-     ],
-     [
-      "good-representation@1",
-      "sobel-filter@3",
-      false
-     ],
-     [
-      "pixel-vs-feature-space@8",
-      "multi-head-attention@9",
-      false
-     ],
-     [
-      "class-token@9",
-      "self-supervised-representation@10",
-      true
-     ],
-     [
-      "contrastive-pairing@10",
-      "cosine-similarity@10",
-      false
-     ]
-    ]
+   "metrics": {
+    "levels": 8,
+    "side": 2,
+    "optional": 0,
+    "practice": 0,
+    "steps": 7,
+    "breaks": 2,
+    "recalls": 2,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": false,
+    "length": true,
+    "hard_run": true
    }
   },
   {
-   "id": "matching",
-   "title": "局部特征与匹配",
+   "id": "corners",
+   "title": "角点与描述子",
    "series": [
     {
-     "cores": [
-      "second-moment-matrix@11",
-      "eigenvalue-corner-test@11"
-     ],
+     "summit": null,
      "levels": [
-      "image-gradient@5",
-      "signed-edge-response@3",
-      "derivative-edge-filters@5",
       "local-feature-spatial-use@11",
       "flat-edge-corner@11",
       "shift-cost-ssd@11",
       "second-moment-matrix@11",
       "eigenvalue-corner-test@11"
      ],
-     "side": [
-      "edge-response-under-transforms@5"
+     "cores": [
+      "second-moment-matrix@11",
+      "eigenvalue-corner-test@11"
      ],
+     "side": [],
      "optional": [],
-     "checkpoint": "local-feature-spatial-use@11"
+     "checkpoint": null
     },
     {
-     "cores": [
-      "ransac-iterations@12"
-     ],
+     "summit": "harris-pipeline-nms@11",
      "levels": [
       "harris-response@11",
-      "harris-pipeline-nms@11",
+      "harris-pipeline-nms@11"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": "harris-invariance@11",
+     "levels": [
+      "harris-invariance@11"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    },
+    {
+     "summit": null,
+     "levels": [
+      "sift-descriptor@11",
+      "sift-scale-orientation@11"
+     ],
+     "cores": [],
+     "foundation": true,
+     "side": [],
+     "optional": [],
+     "checkpoint": null
+    }
+   ],
+   "breaks": [
+    [
+     "local-feature-spatial-use@11",
+     "flat-edge-corner@11"
+    ],
+    [
+     "harris-pipeline-nms@11",
+     "harris-invariance@11"
+    ]
+   ],
+   "needs": [
+    "filtering",
+    "light"
+   ],
+   "metrics": {
+    "levels": 10,
+    "side": 0,
+    "optional": 0,
+    "practice": 1,
+    "steps": 9,
+    "breaks": 2,
+    "recalls": 5,
+    "hard_run": 2
+   },
+   "gates": {
+    "chain": false,
+    "length": true,
+    "hard_run": true
+   }
+  },
+  {
+   "id": "matching",
+   "title": "鲁棒匹配",
+   "series": [
+    {
+     "summit": null,
+     "levels": [
       "least-squares-outlier-sensitivity@12",
       "ransac-loop@12",
+      "ransac-iterations@12"
+     ],
+     "cores": [
       "ransac-iterations@12"
      ],
      "side": [],
@@ -485,13 +854,8 @@
      "checkpoint": null
     },
     {
-     "cores": [
-      "homography-ransac-pipeline@12"
-     ],
+     "summit": null,
      "levels": [
-      "harris-invariance@11",
-      "sift-descriptor@11",
-      "sift-scale-orientation@11",
       "ransac-threshold-refit@12",
       "feature-space-nearest-neighbours@10",
       "ratio-test@12",
@@ -500,71 +864,38 @@
       "homography-four-pairs@12",
       "homography-ransac-pipeline@12"
      ],
+     "cores": [
+      "homography-ransac-pipeline@12"
+     ],
      "side": [],
      "optional": [],
-     "checkpoint": "feature-space-nearest-neighbours@10"
+     "checkpoint": null
     }
    ],
-   "needs": [
-    "filtering",
-    "fourier",
-    "edges",
-    "attention"
-   ],
-   "chain": {
-    "steps": 20,
-    "breaks": [
-     [
-      "image-gradient@5",
-      "signed-edge-response@3",
-      false
-     ],
-     [
-      "derivative-edge-filters@5",
-      "local-feature-spatial-use@11",
-      false
-     ],
-     [
-      "local-feature-spatial-use@11",
-      "flat-edge-corner@11",
-      true
-     ],
-     [
-      "harris-pipeline-nms@11",
-      "least-squares-outlier-sensitivity@12",
-      false
-     ],
-     [
-      "least-squares-outlier-sensitivity@12",
-      "ransac-loop@12",
-      false
-     ],
-     [
-      "harris-invariance@11",
-      "sift-descriptor@11",
-      false
-     ],
-     [
-      "sift-scale-orientation@11",
-      "ransac-threshold-refit@12",
-      false
-     ],
-     [
-      "ransac-threshold-refit@12",
-      "feature-space-nearest-neighbours@10",
-      false
-     ],
-     [
-      "feature-space-nearest-neighbours@10",
-      "ratio-test@12",
-      false
-     ],
-     [
-      "ratio-test@12",
-      "geometric-consistency@12",
-      false
-     ]
+   "breaks": [
+    [
+     "ransac-threshold-refit@12",
+     "feature-space-nearest-neighbours@10"
     ]
+   ],
+   "needs": [
+    "deep",
+    "corners"
+   ],
+   "metrics": {
+    "levels": 10,
+    "side": 0,
+    "optional": 0,
+    "practice": 1,
+    "steps": 9,
+    "breaks": 1,
+    "recalls": 3,
+    "hard_run": 1
+   },
+   "gates": {
+    "chain": true,
+    "length": true,
+    "hard_run": true
    }
   }
  ],
@@ -580,20 +911,23 @@
     "augmented-reality-placement@1",
     "applications-combine-tasks@1",
     "task-output-supports-action@1"
-   ]
+   ],
+   "recall": []
   },
   "forward-vs-inverse-problem@1": {
    "tasks": [],
    "copy": [
     "render-and-compare@1",
     "multi-view-3d-reconstruction@1"
-   ]
+   ],
+   "recall": []
   },
   "image-formation-3d-to-2d@2": {
    "tasks": [],
    "copy": [
     "scene-vs-camera-factors@2"
-   ]
+   ],
+   "recall": []
   },
   "pinhole-projection@2": {
    "tasks": [
@@ -604,15 +938,31 @@
     "f-number-depth-of-field@2",
     "lens-distortion@2",
     "camera-model-conventions@2"
-   ]
+   ],
+   "recall": []
   },
   "angle-of-view-from-pixel-focal-length@2": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
-  "pixel-to-mm-focal-length@2": {
+  "recognition-variation@1": {
    "tasks": [],
-   "copy": []
+   "copy": [
+    "label-set-recognition@6",
+    "accuracy-class-imbalance@6"
+   ],
+   "recall": []
+  },
+  "good-representation@1": {
+   "tasks": [],
+   "copy": [
+    "course-roadmap@1",
+    "fast-guess-then-refine@1",
+    "gan-diffusion-background@1",
+    "adversarial-example@2"
+   ],
+   "recall": []
   },
   "image-array-checks@2": {
    "tasks": [],
@@ -621,89 +971,76 @@
     "jpeg-lossy-compression@2",
     "frequency-domain-compression@4",
     "jpeg-dct-compression@4"
-   ]
+   ],
+   "recall": []
   },
   "pixel-coordinate-convention@2": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "crop-vs-resize@2": {
-   "tasks": [],
-   "copy": []
-  },
-  "nearest-neighbour-interpolation@2": {
-   "tasks": [],
-   "copy": []
+   "tasks": [
+    "nearest-neighbour-interpolation@2"
+   ],
+   "copy": [],
+   "recall": []
   },
   "bilinear-interpolation@2": {
    "tasks": [
     "resampling-methods@2"
    ],
-   "copy": []
-  },
-  "opencv-bgr-to-rgb@2": {
-   "tasks": [],
-   "copy": []
-  },
-  "channel-edit-dtype@2": {
-   "tasks": [],
-   "copy": []
-  },
-  "opencv-size-vs-numpy-shape@2": {
-   "tasks": [],
-   "copy": []
-  },
-  "center-crop-and-copy@2": {
-   "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "pixel-vs-local-operator@3": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "linear-filter@3": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "convolution@3": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "convolution-vs-cross-correlation@3": {
    "tasks": [],
    "copy": [
     "library-convolution-is-correlation@3"
-   ]
+   ],
+   "recall": []
   },
   "linear-filter-properties@3": {
    "tasks": [],
    "copy": [
     "merge-filters-associativity@3"
-   ]
+   ],
+   "recall": []
   },
   "separable-filter@3": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
-  "sinusoid-parameters@4": {
-   "tasks": [
-    "signal-as-sinusoid-sum@4"
-   ],
-   "copy": []
-  },
-  "fourier-magnitude-phase@4": {
-   "tasks": [
-    "spatial-frequency@4"
-   ],
-   "copy": []
-  },
-  "phase-carries-structure@4": {
+  "filtering-by-hand@3": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
-  "convolution-theorem@4": {
+  "valid-output-size@3": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
+  },
+  "padding-border-rules@3": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
   },
   "gaussian-filter@3": {
    "tasks": [
@@ -712,54 +1049,106 @@
    ],
    "copy": [
     "sharpen-and-motion-blur-kernels@3"
+   ],
+   "recall": []
+  },
+  "sobel-filter@3": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "signed-edge-response@3": {
+   "tasks": [],
+   "copy": [
+    "learned-vs-handcrafted-features@6"
+   ],
+   "recall": []
+  },
+  "colour-filtering@3": {
+   "tasks": [],
+   "copy": [
+    "multi-kernel-feature-maps@3"
+   ],
+   "recall": [
+    "image-array-checks@2"
+   ]
+  },
+  "sinusoid-parameters@4": {
+   "tasks": [
+    "signal-as-sinusoid-sum@4"
+   ],
+   "copy": [],
+   "recall": []
+  },
+  "fourier-magnitude-phase@4": {
+   "tasks": [
+    "spatial-frequency@4"
+   ],
+   "copy": [
+    "adversarial-frequency-analysis@4"
+   ],
+   "recall": []
+  },
+  "phase-carries-structure@4": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "convolution-theorem@4": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "convolution-vs-cross-correlation@3"
    ]
   },
   "fourier-2d-centred-spectrum@4": {
    "tasks": [
     "dc-component@4"
    ],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "frequency-domain-mask@4": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "low-pass-filter@4": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": [
+    "gaussian-filter@3"
+   ]
   },
   "ringing-artefact@4": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "spectrum-reading@4": {
    "tasks": [],
    "copy": [
     "gan-frequency-forensics@4"
-   ]
+   ],
+   "recall": []
   },
   "stripe-spectrum-relation@4": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "filtering-route-choice@4": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "high-pass-filter@4": {
    "tasks": [],
    "copy": [
     "highpass-as-one-minus-lowpass@4",
     "band-pass-filter@4"
-   ]
-  },
-  "edge-as-rapid-change@5": {
-   "tasks": [],
-   "copy": []
-  },
-  "invariance-tolerance-equivariance@5": {
-   "tasks": [],
-   "copy": []
+   ],
+   "recall": []
   },
   "lambertian-reflectance@5": {
    "tasks": [],
@@ -767,366 +1156,51 @@
     "checker-shadow-illusion@5",
     "specular-reflection@5",
     "non-lambertian-effects@5"
+   ],
+   "recall": [
+    "image-formation-3d-to-2d@2"
    ]
   },
   "normal-from-shading-ambiguity@5": {
    "tasks": [
     "shape-from-shading@5"
    ],
-   "copy": []
+   "copy": [],
+   "recall": [
+    "forward-vs-inverse-problem@1"
+   ]
   },
   "reflectance-illumination-ambiguity@5": {
    "tasks": [
     "cast-shadow@5"
    ],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
-  "colour-filtering@3": {
+  "edge-as-rapid-change@5": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "invariance-tolerance-equivariance@5": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "edge-response-under-transforms@5": {
    "tasks": [],
    "copy": [
-    "multi-kernel-feature-maps@3"
-   ]
-  },
-  "fully-connected-neuron@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "mlp-flatten-limits@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "local-connectivity@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "weight-sharing@6": {
-   "tasks": [],
-   "copy": [
-    "inductive-bias@9"
-   ]
-  },
-  "cnn-convolution@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "activation-map@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "channels-filters-activation-maps@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "gradient-descent-backprop@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "overfitting@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "train-validation-test-roles@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "l1-l2-regularization@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "dropout@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "early-stopping-validation@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "minibatch-epoch-learning-rate@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "conv-parameter-count@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "filtering-by-hand@3": {
-   "tasks": [],
-   "copy": []
-  },
-  "valid-output-size@3": {
-   "tasks": [],
-   "copy": []
-  },
-  "padding-border-rules@3": {
-   "tasks": [],
-   "copy": []
-  },
-  "conv-output-size@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "downsampling-purpose@7": {
-   "tasks": [
-    "strided-convolution@7"
+    "robust-recognition-strategies@5",
+    "transformation-robustness-checks@10"
    ],
-   "copy": []
-  },
-  "architecture-tradeoffs@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "depth-degradation@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "residual-learning@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "fc-vs-conv-parameter-count@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "inception-multiscale@8": {
-   "tasks": [],
-   "copy": [
-    "auxiliary-classifier@8"
+   "recall": [
+    "signed-edge-response@3"
    ]
-  },
-  "efficientnet-compound-scaling@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "one-by-one-convolution@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "depthwise-separable-convolution@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "separable-vs-depthwise-separable@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "nonlinearity-relu@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "conv-relu-stacking@6": {
-   "tasks": [],
-   "copy": []
-  },
-  "max-average-pooling@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "cnn-classifier-pipeline@7": {
-   "tasks": [
-    "occlusion-sensitivity@10",
-    "class-activation-mapping@10",
-    "grad-cam@10"
-   ],
-   "copy": []
-  },
-  "softmax@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "patch-tokenization@9": {
-   "tasks": [],
-   "copy": []
-  },
-  "patch-embedding@9": {
-   "tasks": [],
-   "copy": []
-  },
-  "query-key-value@9": {
-   "tasks": [],
-   "copy": []
-  },
-  "scaled-dot-product-attention@9": {
-   "tasks": [
-    "patch-size-quadratic-cost@9"
-   ],
-   "copy": [
-    "shifted-window-attention@9"
-   ]
-  },
-  "attention-matrix-rows@9": {
-   "tasks": [],
-   "copy": []
-  },
-  "stacked-small-kernels@8": {
-   "tasks": [
-    "cnn-receptive-field-growth@9",
-    "global-receptive-field-attention@9"
-   ],
-   "copy": [
-    "bagnet-local-evidence@10"
-   ]
-  },
-  "positional-encoding@9": {
-   "tasks": [],
-   "copy": []
-  },
-  "cross-entropy-loss@7": {
-   "tasks": [],
-   "copy": []
-  },
-  "data-augmentation@7": {
-   "tasks": [
-    "alexnet-ingredients@8"
-   ],
-   "copy": []
-  },
-  "recognition-variation@1": {
-   "tasks": [],
-   "copy": [
-    "label-set-recognition@6",
-    "accuracy-class-imbalance@6",
-    "top-n-accuracy@8",
-    "failure-case-analysis@8"
-   ]
-  },
-  "good-representation@1": {
-   "tasks": [],
-   "copy": [
-    "course-roadmap@1",
-    "fast-guess-then-refine@1",
-    "gan-diffusion-background@1",
-    "adversarial-example@2",
-    "adversarial-frequency-analysis@4"
-   ]
-  },
-  "sobel-filter@3": {
-   "tasks": [],
-   "copy": []
-  },
-  "cnn-feature-hierarchy@6": {
-   "tasks": [],
-   "copy": [
-    "deep-learning-enablers@6",
-    "texture-vs-shape@10"
-   ]
-  },
-  "pixel-vs-feature-space@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "multi-head-attention@9": {
-   "tasks": [],
-   "copy": []
-  },
-  "transformer-encoder-block@9": {
-   "tasks": [],
-   "copy": []
-  },
-  "class-token@9": {
-   "tasks": [
-    "representation-embedding@10"
-   ],
-   "copy": [
-    "vit-architecture-pipeline@9"
-   ]
-  },
-  "self-supervised-representation@10": {
-   "tasks": [],
-   "copy": []
-  },
-  "contrastive-pairing@10": {
-   "tasks": [],
-   "copy": []
-  },
-  "cosine-similarity@10": {
-   "tasks": [],
-   "copy": []
-  },
-  "contrastive-loss@10": {
-   "tasks": [],
-   "copy": []
-  },
-  "temperature@10": {
-   "tasks": [],
-   "copy": []
-  },
-  "transfer-learning-modes@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "finetuning-depth-choice@8": {
-   "tasks": [],
-   "copy": []
-  },
-  "clip-shared-embedding@10": {
-   "tasks": [
-    "class-token-decomposition@10"
-   ],
-   "copy": []
-  },
-  "zero-shot-classification@10": {
-   "tasks": [],
-   "copy": [
-    "clip-evaluation-and-uses@10"
-   ]
-  },
-  "mean-attention-distance@9": {
-   "tasks": [
-    "layerwise-shape-param-tracking@7",
-    "weight-initialization-identical-filters@7",
-    "keras-mnist-mlp-vs-cnn@7"
-   ],
-   "copy": []
-  },
-  "simclr-candidate-count@10": {
-   "tasks": [],
-   "copy": []
   },
   "image-gradient@5": {
    "tasks": [
     "edges-not-object-boundaries@5",
     "gradient-brightness-shift-vs-contrast@5"
-   ],
-   "copy": []
-  },
-  "signed-edge-response@3": {
-   "tasks": [],
-   "copy": []
-  },
-  "derivative-edge-filters@5": {
-   "tasks": [],
-   "copy": [
-    "learned-vs-handcrafted-features@6"
-   ]
-  },
-  "local-feature-spatial-use@11": {
-   "tasks": [
-    "dense-vs-sparse-features@11",
-    "keypoint-repeatability@11"
-   ],
-   "copy": [
-    "blob-and-learned-detectors@11"
-   ]
-  },
-  "flat-edge-corner@11": {
-   "tasks": [],
-   "copy": []
-  },
-  "shift-cost-ssd@11": {
-   "tasks": [],
-   "copy": []
-  },
-  "second-moment-matrix@11": {
-   "tasks": [],
-   "copy": []
-  },
-  "eigenvalue-corner-test@11": {
-   "tasks": [],
-   "copy": []
-  },
-  "edge-response-under-transforms@5": {
-   "tasks": [
-    "cnn-equivariance-limits@6"
    ],
    "copy": [
     "spectral-power-distribution@5",
@@ -1135,19 +1209,425 @@
     "colour-spaces@5",
     "rgb-to-xyz-transform@5",
     "lab-colour-manipulation@5",
-    "robust-recognition-strategies@5",
+    "derivative-edge-filters@5"
+   ],
+   "recall": []
+  },
+  "fully-connected-neuron@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "mlp-flatten-limits@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "image-array-checks@2"
+   ]
+  },
+  "local-connectivity@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "pixel-vs-local-operator@3"
+   ]
+  },
+  "weight-sharing@6": {
+   "tasks": [
+    "cnn-equivariance-limits@6"
+   ],
+   "copy": [
+    "inductive-bias@9"
+   ],
+   "recall": [
+    "convolution@3"
+   ]
+  },
+  "cnn-convolution@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "convolution-vs-cross-correlation@3"
+   ]
+  },
+  "activation-map@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "channels-filters-activation-maps@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "colour-filtering@3"
+   ]
+  },
+  "nonlinearity-relu@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "conv-relu-stacking@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "cnn-feature-hierarchy@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "sobel-filter@3"
+   ]
+  },
+  "gradient-descent-backprop@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "minibatch-epoch-learning-rate@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "conv-parameter-count@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "fc-vs-conv-parameter-count@6": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "valid-output-size@3"
+   ]
+  },
+  "stacked-small-kernels@8": {
+   "tasks": [
+    "cnn-receptive-field-growth@9"
+   ],
+   "copy": [
+    "bagnet-local-evidence@10",
+    "texture-vs-shape@10"
+   ],
+   "recall": [
+    "local-connectivity@6"
+   ]
+  },
+  "conv-output-size@6": {
+   "tasks": [],
+   "copy": [
+    "deep-learning-enablers@6"
+   ],
+   "recall": [
+    "padding-border-rules@3"
+   ]
+  },
+  "overfitting@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "train-validation-test-roles@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "l1-l2-regularization@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "dropout@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "early-stopping-validation@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "downsampling-purpose@7": {
+   "tasks": [
+    "strided-convolution@7"
+   ],
+   "copy": [],
+   "recall": [
+    "invariance-tolerance-equivariance@5"
+   ]
+  },
+  "max-average-pooling@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "activation-map@6"
+   ]
+  },
+  "cnn-classifier-pipeline@7": {
+   "tasks": [
+    "occlusion-sensitivity@10",
+    "class-activation-mapping@10",
+    "grad-cam@10"
+   ],
+   "copy": [],
+   "recall": [
+    "conv-relu-stacking@6"
+   ]
+  },
+  "softmax@7": {
+   "tasks": [],
+   "copy": [
+    "top-n-accuracy@8",
+    "failure-case-analysis@8"
+   ],
+   "recall": []
+  },
+  "architecture-tradeoffs@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "conv-parameter-count@6"
+   ]
+  },
+  "depth-degradation@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "residual-learning@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "gradient-descent-backprop@6"
+   ]
+  },
+  "inception-multiscale@8": {
+   "tasks": [],
+   "copy": [
+    "auxiliary-classifier@8"
+   ],
+   "recall": [
+    "channels-filters-activation-maps@6"
+   ]
+  },
+  "efficientnet-compound-scaling@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "one-by-one-convolution@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "depthwise-separable-convolution@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "separable-vs-depthwise-separable@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "separable-filter@3"
+   ]
+  },
+  "pixel-vs-feature-space@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "cnn-feature-hierarchy@6",
+    "good-representation@1",
+    "recognition-variation@1"
+   ]
+  },
+  "transfer-learning-modes@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "cnn-classifier-pipeline@7",
+    "minibatch-epoch-learning-rate@7"
+   ]
+  },
+  "finetuning-depth-choice@8": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "overfitting@7"
+   ]
+  },
+  "patch-tokenization@9": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "image-array-checks@2"
+   ]
+  },
+  "patch-embedding@9": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "fully-connected-neuron@6"
+   ]
+  },
+  "query-key-value@9": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "gradient-descent-backprop@6"
+   ]
+  },
+  "scaled-dot-product-attention@9": {
+   "tasks": [
+    "patch-size-quadratic-cost@9"
+   ],
+   "copy": [
+    "shifted-window-attention@9"
+   ],
+   "recall": [
+    "softmax@7"
+   ]
+  },
+  "attention-matrix-rows@9": {
+   "tasks": [
+    "global-receptive-field-attention@9"
+   ],
+   "copy": [],
+   "recall": []
+  },
+  "positional-encoding@9": {
+   "tasks": [],
+   "copy": [
     "cnn-vs-vit-comparison@9",
-    "vit-vs-cnn-data-scale@9",
-    "transformation-robustness-checks@10",
+    "vit-vs-cnn-data-scale@9"
+   ],
+   "recall": []
+  },
+  "multi-head-attention@9": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "transformer-encoder-block@9": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "nonlinearity-relu@6",
+    "residual-learning@8"
+   ]
+  },
+  "class-token@9": {
+   "tasks": [
+    "representation-embedding@10"
+   ],
+   "copy": [
+    "vit-architecture-pipeline@9"
+   ],
+   "recall": []
+  },
+  "cross-entropy-loss@7": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "data-augmentation@7": {
+   "tasks": [
+    "alexnet-ingredients@8"
+   ],
+   "copy": [
     "distortion-generalization@10",
     "dataset-distribution-bias@10"
+   ],
+   "recall": [
+    "crop-vs-resize@2",
+    "overfitting@7"
    ]
+  },
+  "self-supervised-representation@10": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "contrastive-pairing@10": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "cosine-similarity@10": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "contrastive-loss@10": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "temperature@10": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "clip-shared-embedding@10": {
+   "tasks": [
+    "class-token-decomposition@10"
+   ],
+   "copy": [],
+   "recall": []
+  },
+  "zero-shot-classification@10": {
+   "tasks": [],
+   "copy": [
+    "clip-evaluation-and-uses@10"
+   ],
+   "recall": []
+  },
+  "simclr-candidate-count@10": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "local-feature-spatial-use@11": {
+   "tasks": [
+    "dense-vs-sparse-features@11",
+    "keypoint-repeatability@11"
+   ],
+   "copy": [
+    "blob-and-learned-detectors@11"
+   ],
+   "recall": []
+  },
+  "flat-edge-corner@11": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "shift-cost-ssd@11": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "gaussian-filter@3"
+   ]
+  },
+  "second-moment-matrix@11": {
+   "tasks": [],
+   "copy": [],
+   "recall": [
+    "image-gradient@5",
+    "signed-edge-response@3"
+   ]
+  },
+  "eigenvalue-corner-test@11": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
   },
   "harris-response@11": {
    "tasks": [],
    "copy": [
     "other-corner-scores@11"
-   ]
+   ],
+   "recall": []
   },
   "harris-pipeline-nms@11": {
    "tasks": [
@@ -1155,7 +1635,31 @@
     "descriptor-goals@11",
     "correspondence-matching@12"
    ],
-   "copy": []
+   "copy": [],
+   "recall": [
+    "convolution@3"
+   ]
+  },
+  "harris-invariance@11": {
+   "tasks": [],
+   "copy": [
+    "harris-gain-threshold@11"
+   ],
+   "recall": [
+    "invariance-tolerance-equivariance@5"
+   ]
+  },
+  "sift-descriptor@11": {
+   "tasks": [],
+   "copy": [
+    "sift-normalisation@11"
+   ],
+   "recall": []
+  },
+  "sift-scale-orientation@11": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
   },
   "least-squares-outlier-sensitivity@12": {
    "tasks": [
@@ -1166,35 +1670,23 @@
    "copy": [
     "hough-edge-to-line-pipeline@12",
     "hough-parameters@12"
-   ]
+   ],
+   "recall": []
   },
   "ransac-loop@12": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "ransac-iterations@12": {
    "tasks": [],
-   "copy": []
-  },
-  "harris-invariance@11": {
-   "tasks": [],
-   "copy": [
-    "harris-gain-threshold@11"
-   ]
-  },
-  "sift-descriptor@11": {
-   "tasks": [],
-   "copy": [
-    "sift-normalisation@11"
-   ]
-  },
-  "sift-scale-orientation@11": {
-   "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "ransac-threshold-refit@12": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "feature-space-nearest-neighbours@10": {
    "tasks": [
@@ -1203,17 +1695,24 @@
    ],
    "copy": [
     "pca-tsne@10"
+   ],
+   "recall": [
+    "pixel-vs-feature-space@8"
    ]
   },
   "ratio-test@12": {
    "tasks": [],
    "copy": [
     "ratio-test-book-example@12"
-   ]
+   ],
+   "recall": []
   },
   "geometric-consistency@12": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": [
+    "local-feature-spatial-use@11"
+   ]
   },
   "transformation-dof@12": {
    "tasks": [
@@ -1222,20 +1721,69 @@
    "copy": [
     "hough-dimensionality@12",
     "ransac-limits@12"
-   ]
+   ],
+   "recall": []
   },
   "homography-four-pairs@12": {
    "tasks": [],
-   "copy": []
+   "copy": [],
+   "recall": []
   },
   "homography-ransac-pipeline@12": {
    "tasks": [],
    "copy": [
     "feature-matching-applications@12"
+   ],
+   "recall": [
+    "sift-scale-orientation@11"
    ]
+  },
+  "pixel-to-mm-focal-length@2": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "opencv-bgr-to-rgb@2": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "channel-edit-dtype@2": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "opencv-size-vs-numpy-shape@2": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "center-crop-and-copy@2": {
+   "tasks": [],
+   "copy": [],
+   "recall": []
+  },
+  "mean-attention-distance@9": {
+   "tasks": [
+    "layerwise-shape-param-tracking@7",
+    "weight-initialization-identical-filters@7",
+    "keras-mnist-mlp-vs-cnn@7"
+   ],
+   "copy": [],
+   "recall": []
   }
  },
  "practice": {
+  "harris-pipeline-nms@11": [
+   [
+    "noise-vs-outlier@12"
+   ]
+  ],
+  "least-squares-outlier-sensitivity@12": [
+   [
+    "hough-accumulator@12"
+   ]
+  ],
   "mean-attention-distance@9": [
    [
     "separable-cnn-workshop@8",
@@ -1246,17 +1794,19 @@
     "opencv-cornerharris-params@11",
     "flann-candidates@12"
    ]
-  ],
-  "harris-pipeline-nms@11": [
-   [
-    "noise-vs-outlier@12"
-   ]
-  ],
-  "least-squares-outlier-sensitivity@12": [
-   [
-    "hough-accumulator@12"
-   ]
   ]
+ },
+ "total": {
+  "steps": 86,
+  "breaks": 13,
+  "recalls": 44,
+  "far_max": 79
+ },
+ "gates": {
+  "chain": 0.8,
+  "line_min": 4,
+  "line_max": 20,
+  "hard_run": 2
  },
  "overrides": {
   "cores": {
@@ -1270,7 +1820,165 @@
    "semantic-vs-instance-segmentation@1": "copy"
   },
   "why": {
-   "tiers": "视觉任务交出什么形式的答案是一听就懂的事：只写文案（用户裁定）"
+   "tiers": "视觉任务交出什么形式的答案是一听就懂的事：只写文案（用户裁定）",
+   "merge": "两条词条讲的是同一件事（带符号的导数响应、绝对值与边缘强度）：并入第 3 讲那条"
+  },
+  "deps": [
+   {
+    "op": "add",
+    "a": "crop-vs-resize@2",
+    "b": "bilinear-interpolation@2",
+    "why": "双线性插值的“新位置落在旧像素之间”正是 Resize 需要为新位置计算像素值的情形（已经由最近邻插值间接依赖）"
+   },
+   {
+    "op": "add",
+    "a": "linear-filter@3",
+    "b": "convolution-vs-cross-correlation@3",
+    "why": "卷积与互相关的区别在于是否把卷积核翻转，需要先知道什么是卷积核（已经由滤波公式间接依赖）"
+   },
+   {
+    "op": "add",
+    "a": "fourier-2d-centred-spectrum@4",
+    "b": "low-pass-filter@4",
+    "why": "低通“在中心化频谱上相当于保留中心附近”直接用到中心化频谱（已经由频域掩膜间接依赖）"
+   },
+   {
+    "op": "add",
+    "a": "frequency-domain-mask@4",
+    "b": "ringing-artefact@4",
+    "why": "振铃的定义是“掩膜在某频率处由 1 突变为 0”，直接用到频域掩膜（已经由低通滤波间接依赖）"
+   },
+   {
+    "op": "add",
+    "a": "fully-connected-neuron@6",
+    "b": "local-connectivity@6",
+    "why": "局部连接是“一个神经元只连一个小图块”，相对全连接神经元的限制，需要神经元概念（已经由展平问题间接依赖）"
+   },
+   {
+    "op": "add",
+    "a": "cnn-convolution@6",
+    "b": "channels-filters-activation-maps@6",
+    "why": "输入通道/滤波器个数/输出通道正是 CNN 卷积三重求和中 C_in、C_out 维度的展开（已经由激活图间接依赖）"
+   },
+   {
+    "op": "add",
+    "a": "query-key-value@9",
+    "b": "attention-matrix-rows@9",
+    "why": "注意力矩阵行的解释直接用到查询与键比较、对数值加权组合（已经由缩放点积注意力间接依赖）"
+   },
+   {
+    "op": "add",
+    "a": "shift-cost-ssd@11",
+    "b": "eigenvalue-corner-test@11",
+    "why": "特征值判别把 e_iᵀMe_i 读作沿方向的位移代价，直接用到位移代价 E(u,v)（已经由矩阵 M 间接依赖）"
+   },
+   {
+    "op": "remove",
+    "a": "good-representation@1",
+    "b": "local-feature-spatial-use@11",
+    "why": "条目只讲局部特征提取后保留多少位置（特征袋/空间金字塔/显式空间关系），11-features.md §1 也未用到可区分/容忍的表示标准"
+   },
+   {
+    "op": "remove",
+    "a": "image-gradient@5",
+    "b": "flat-edge-corner@11",
+    "why": "该条目与 11-features.md §1 都只是窗口移动的直觉，没有用梯度；梯度在下一步 Taylor 近似与矩阵 M 中才出现"
+   },
+   {
+    "op": "remove",
+    "a": "resampling-methods@2",
+    "b": "homography-ransac-pipeline@12",
+    "why": "流水线只提到 Warp 映射坐标，12-feature-matching.md 中没有讨论插值或 bicubic/Lanczos，至多是弱相关"
+   }
+  ],
+  "related": [
+   [
+    "pixel-coordinate-convention@2",
+    "nearest-neighbour-interpolation@2"
+   ],
+   [
+    "pixel-vs-local-operator@3",
+    "convolution@3"
+   ],
+   [
+    "sinusoid-parameters@4",
+    "phase-carries-structure@4"
+   ],
+   [
+    "mlp-flatten-limits@6",
+    "weight-sharing@6"
+   ],
+   [
+    "local-connectivity@6",
+    "cnn-convolution@6"
+   ],
+   [
+    "weight-sharing@6",
+    "activation-map@6"
+   ],
+   [
+    "gradient-descent-backprop@6",
+    "train-validation-test-roles@7"
+   ],
+   [
+    "filtering-by-hand@3",
+    "padding-border-rules@3"
+   ],
+   [
+    "conv-output-size@6",
+    "architecture-tradeoffs@8"
+   ],
+   [
+    "architecture-tradeoffs@8",
+    "residual-learning@8"
+   ],
+   [
+    "patch-tokenization@9",
+    "query-key-value@9"
+   ],
+   [
+    "patch-embedding@9",
+    "scaled-dot-product-attention@9"
+   ],
+   [
+    "multi-head-attention@9",
+    "class-token@9"
+   ],
+   [
+    "contrastive-pairing@10",
+    "cosine-similarity@10"
+   ],
+   [
+    "cosine-similarity@10",
+    "temperature@10"
+   ],
+   [
+    "flat-edge-corner@11",
+    "second-moment-matrix@11"
+   ],
+   [
+    "least-squares-outlier-sensitivity@12",
+    "ransac-loop@12"
+   ],
+   [
+    "feature-space-nearest-neighbours@10",
+    "ratio-test@12"
+   ],
+   [
+    "ratio-test@12",
+    "geometric-consistency@12"
+   ],
+   [
+    "geometric-consistency@12",
+    "homography-four-pairs@12"
+   ],
+   [
+    "transformation-dof@12",
+    "homography-ransac-pipeline@12"
+   ]
+  ],
+  "merge": {
+   "derivative-edge-filters@5": "signed-edge-response@3"
   }
  },
  "lectures": {
@@ -2286,10 +2994,8 @@
     "image-array-checks@2"
    ],
    "check": [],
-   "importance": 7.5,
-   "reach_lectures": [
-    12
-   ],
+   "importance": 5.0,
+   "reach_lectures": [],
    "core": false,
    "tier": "level"
   },
@@ -2377,12 +3083,11 @@
    "check": [
     "待核：768×512 与 512×341 的写法未说明是宽×高还是高×宽；按 512×341 推断应是宽×高，但本节其他地方用 H×W 写数组形状，顺序不一致。"
    ],
-   "importance": 10.5,
+   "importance": 9.5,
    "reach_lectures": [
     7,
     8,
-    10,
-    12
+    10
    ],
    "core": false,
    "tier": "level"
@@ -2410,12 +3115,10 @@
     "crop-vs-resize@2"
    ],
    "check": [],
-   "importance": 6.0,
-   "reach_lectures": [
-    12
-   ],
+   "importance": 3.5,
+   "reach_lectures": [],
    "core": false,
-   "tier": "level"
+   "tier": "task"
   },
   {
    "id": "bilinear-interpolation",
@@ -2439,16 +3142,15 @@
    "misconception": "把权重配反（让离得远的像素权重更大）；或以为双线性插值不会改变锐利边缘。",
    "wall": "新像素落在四个旧像素之间时，双线性插值怎样得到它的值？四个权重为什么加起来等于 1？",
    "deps": [
+    "crop-vs-resize@2",
     "nearest-neighbour-interpolation@2",
     "pixel-coordinate-convention@2"
    ],
    "check": [
     "待核：老师原话“it effectively incorporates the blur into that sampling step”在笔记中挂在双线性插值下，需对照 transcript 确认老师说的是双线性还是其他采样／缩图方法。"
    ],
-   "importance": 7.5,
-   "reach_lectures": [
-    12
-   ],
+   "importance": 5.0,
+   "reach_lectures": [],
    "core": true,
    "tier": "level"
   },
@@ -2476,10 +3178,8 @@
     "nearest-neighbour-interpolation@2"
    ],
    "check": [],
-   "importance": 5.0,
-   "reach_lectures": [
-    12
-   ],
+   "importance": 2.5,
+   "reach_lectures": [],
    "core": false,
    "tier": "task"
   },
@@ -2768,7 +3468,8 @@
    "misconception": "以为翻转只是左右翻，或以为任何核卷积与互相关结果都不同。",
    "wall": "同一个非对称核，卷积与互相关为什么会给出不同结果？",
    "deps": [
-    "convolution@3"
+    "convolution@3",
+    "linear-filter@3"
    ],
    "check": [],
    "importance": 15.5,
@@ -2866,14 +3567,11 @@
     "linear-filter@3"
    ],
    "check": [],
-   "importance": 15.0,
+   "importance": 12.0,
    "reach_lectures": [
     4,
     5,
-    6,
     7,
-    9,
-    10,
     11,
     12
    ],
@@ -3593,6 +4291,7 @@
    "misconception": "以为低通会保留边缘。",
    "wall": "低通后的图像为什么看起来更模糊？",
    "deps": [
+    "fourier-2d-centred-spectrum@4",
     "frequency-domain-mask@4",
     "gaussian-filter@3"
    ],
@@ -3703,6 +4402,7 @@
    "wall": "硬低通与高斯低通在边缘附近可能有什么不同？",
    "deps": [
     "convolution-theorem@4",
+    "frequency-domain-mask@4",
     "low-pass-filter@4"
    ],
    "check": [],
@@ -4259,11 +4959,8 @@
     "edge-as-rapid-change@5"
    ],
    "check": [],
-   "importance": 12.5,
+   "importance": 9.5,
    "reach_lectures": [
-    6,
-    9,
-    10,
     11,
     12
    ],
@@ -4297,15 +4994,9 @@
    "check": [
     "待核：笔记提到“高斯导数”核但 L3 只讲了高斯模糊与 Sobel，未给高斯导数的构造，需对照 slide 42。"
    ],
-   "importance": 11.5,
-   "reach_lectures": [
-    6,
-    9,
-    10,
-    11,
-    12
-   ],
-   "tier": "level"
+   "importance": 2.5,
+   "reach_lectures": [],
+   "tier": "copy"
   },
   {
    "id": "edges-not-object-boundaries",
@@ -4428,8 +5119,8 @@
    "wall": "图像旋转 90° 后，S_x 和 S_y 的响应会怎样变化？",
    "deps": [
     "cast-shadow@5",
-    "derivative-edge-filters@5",
-    "invariance-tolerance-equivariance@5"
+    "invariance-tolerance-equivariance@5",
+    "signed-edge-response@3"
    ],
    "check": [],
    "importance": 10.5,
@@ -4511,8 +5202,8 @@
    "misconception": "以为学习特征完全不需要人的设计；网络结构、数据和损失仍由人决定。",
    "wall": "为什么在一个数据集上有效的手工特征，换到另一个数据集可能失效？",
    "deps": [
-    "derivative-edge-filters@5",
-    "good-representation@1"
+    "good-representation@1",
+    "signed-edge-response@3"
    ],
    "check": [],
    "importance": 2.0,
@@ -4726,6 +5417,7 @@
    "misconception": "以为局部连接意味着网络永远只能看到局部；堆叠和下采样会逐渐扩大范围。",
    "wall": "单层卷积看不到整张图，CNN 怎样逐渐看到更大的范围？",
    "deps": [
+    "fully-connected-neuron@6",
     "mlp-flatten-limits@6",
     "pixel-vs-local-operator@3"
    ],
@@ -4864,6 +5556,7 @@
    "wall": "输入有 3 个通道、输出有 10 个通道时，一个滤波器应覆盖多少输入通道？一共有多少个滤波器？",
    "deps": [
     "activation-map@6",
+    "cnn-convolution@6",
     "colour-filtering@3"
    ],
    "check": [],
@@ -6327,6 +7020,7 @@
    "misconception": "把注意力当成硬选择、只复制最匹配的图块；或把行和列的含义对调。",
    "wall": "注意力矩阵的一行在比较什么，又对什么做加权？",
    "deps": [
+    "query-key-value@9",
     "scaled-dot-product-attention@9"
    ],
    "check": [],
@@ -7342,9 +8036,7 @@
    "why": "只是按“保留多少位置”给三种用法分类，没有计算。",
    "misconception": "以为三种方法的区别只在提取哪种特征。",
    "wall": "为什么只用 bag of features 无法把两张照片对齐？",
-   "deps": [
-    "good-representation@1"
-   ],
+   "deps": [],
    "check": [
     "待核：笔记写作“Bag of 词语 / bag of 特征”，疑为 bag of words / bag of features 的替换残留，应对照 PPT 6 原文。"
    ],
@@ -7430,7 +8122,6 @@
    "misconception": "强梯度不等于角点；也以为角点必须是建筑物那样的直角。",
    "wall": "为什么直线边缘上的位置，比角点更难唯一确定？",
    "deps": [
-    "image-gradient@5",
     "keypoint-repeatability@11"
    ],
    "check": [],
@@ -7491,9 +8182,9 @@
    "misconception": "把 I_x² 读成二阶导数；以为近似对任意大位移都精确。",
    "wall": "为什么不用为每个候选位移重新比较整个窗口，只看 M 就能知道各方向的代价？",
    "deps": [
-    "derivative-edge-filters@5",
     "image-gradient@5",
-    "shift-cost-ssd@11"
+    "shift-cost-ssd@11",
+    "signed-edge-response@3"
    ],
    "check": [],
    "importance": 8.0,
@@ -7527,7 +8218,8 @@
    "wall": "Harris 矩阵的两个特征值都大，意味着什么？",
    "deps": [
     "flat-edge-corner@11",
-    "second-moment-matrix@11"
+    "second-moment-matrix@11",
+    "shift-cost-ssd@11"
    ],
    "check": [],
    "importance": 12.0,
@@ -8108,9 +8800,9 @@
    "misconception": "以为边缘检测已经给出了直线。",
    "wall": "为什么有了边缘图还需要 Hough 才能得到直线？",
    "deps": [
-    "derivative-edge-filters@5",
     "edges-not-object-boundaries@5",
-    "hough-accumulator@12"
+    "hough-accumulator@12",
+    "signed-edge-response@3"
    ],
    "check": [],
    "importance": 1.5,
@@ -8442,7 +9134,6 @@
     "homography-four-pairs@12",
     "ransac-threshold-refit@12",
     "ratio-test@12",
-    "resampling-methods@2",
     "sift-scale-orientation@11"
    ],
    "check": [
