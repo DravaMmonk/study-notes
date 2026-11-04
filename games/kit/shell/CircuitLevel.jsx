@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
@@ -13,6 +13,7 @@ import { PickMark } from './EditMarks.jsx'
 import { usePlayback } from './usePlayback.jsx'
 import { useKeptVerdict } from './useKeptVerdict.js'
 import Workbench, { TestStatus } from './Workbench.jsx'
+import { definedFaces, definedParts } from './parts/faces.jsx'
 
 // A circuit level, the same in every game (games/DESIGN.md 6.3): the board the player wires on the shared editor
 // (a desktop's canvas, a phone's slot board), the parts to place (palette, tray), the level's saved boards (the
@@ -139,6 +140,10 @@ const nothing = { values: new Map(), errors: new Map() }
  *
  *   screen          the level screen's props (GameShell)          board, run    useLevelBoard, useLevelRun
  *   parts           the editor's description of the cards (circuit/model.js)
+ *   defined         the parts a game defines as data (games/DESIGN.md 6.9, parts/faces.jsx): { of(type) → the part
+ *                   resolved or null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) };
+ *                   their cards, tiles, details, settings and new nodes are the kernel's, `parts` and `card` only the
+ *                   domain's other nodes'
  *   items, folded   the parts to place [{ type, label, desc, icon, family, packed?, fresh?, tag? }] and those folded away
  *   create?(graph, type, { slot, region }) → { graph, id }   a new card (default: `defaults(type)` its settings, in a free spot)
  *   view            what the board shows now: { values, errors } (the default wire state reads it)
@@ -161,23 +166,31 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, parts, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, dense = true, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, parts: given, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, dense = true, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const { circuit, change } = board
-  const own = useRef(null)
-  const root = rootRef ?? own
+  const ownRoot = useRef(null)
+  const root = rootRef ?? ownRoot
   const edit = useEdit()
   const [target, setTarget] = useState(null) // the frame region a new card goes into (desktop)
   const [detail, setDetail] = useState(null)
-  const card = { wireState: (wire, ctx) => (ctx.view?.values.get(wire.from) !== undefined ? 'live' : 'dead'), ...faces }
+  const parts = useMemo(() => (defined ? definedParts(given, defined.of) : given), [given, defined?.of])
+  // A defined part's settings change on the board it is on (the level's: packed boards are read only).
+  const setNode = (node, params) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params } : n)) })
+  const own = { wireState: (wire, ctx) => (ctx.view?.values.get(wire.from) !== undefined ? 'live' : 'dead'), ...faces }
+  const card = defined ? definedFaces(own, { defined, change: setNode, phone }) : own
+  const isDefined = (node) => Boolean(defined?.of(node.type))
+  const detailOf = (node, c) => (isDefined(node) ? card.detail(node, c) : (sheet ?? card.body)?.(node, c))
 
   const describeOf = (node, c) => {
-    const text = describe?.(node, c)
+    const text = !isDefined(node) && describe?.(node, c)
     return text ? <p className="cl-desc">{String(L(text))}</p> : null
   }
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
   const top = { circuit, parts, top: true }
-  const inside = packed ? insideOf({ top, ...packed, card, dense, describe: describeOf, sheet: sheet ?? card.body }) : null
+  // The boards inside packed parts hold defined parts too.
+  const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of) } } } : packed
+  const inside = packed ? insideOf({ top, ...opened, card, dense, describe: describeOf, sheet: detailOf }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false }
 
@@ -189,7 +202,7 @@ export default function CircuitLevel({ screen, board, run, parts, items = [], fo
     while (taken.has(`${type}${k}`)) k += 1
     const id = `${type}${k}`
     const [x, y] = spotIn(graph, region ?? null)
-    return { id, graph: { ...graph, nodes: [...graph.nodes, { id, type, params: defaults(type), x, y, ...(slot !== undefined ? { slot } : {}), ...(region ? { in: region } : {}) }] } }
+    return { id, graph: { ...graph, nodes: [...graph.nodes, { id, type, params: defined?.of(type) ? defined.defaults(type) : defaults(type), x, y, ...(slot !== undefined ? { slot } : {}), ...(region ? { in: region } : {}) }] } }
   })
   // A new card goes into the region chosen last, while its frame is there and open.
   const into = target && circuit.nodes.some((n) => n.id === target.split('/')[0] && !n.fold) ? target : null
@@ -202,7 +215,7 @@ export default function CircuitLevel({ screen, board, run, parts, items = [], fo
 
   if (phone) {
     return (
-      <PhoneLevel {...{ screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet, addSheet, dense, below, follow, results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, dense, below, follow, results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -227,7 +240,7 @@ export default function CircuitLevel({ screen, board, run, parts, items = [], fo
               overlay={canvas.overlay}
               corner={canvas.corner}
               body={card.body && ((node) => card.body(node, ctx))}
-              head={(node) => <>{card.head?.(node, ctx)}{details && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情', 'Inspect details')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onEdit={() => packed.edit(node, top)} onDetail={() => setDetail(node.id)} />}</>}
+              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情', 'Inspect details')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onEdit={() => packed.edit(node, top)} onDetail={() => setDetail(node.id)} />}</>}
               caption={card.caption && ((node) => card.caption(node, ctx))}
               outNote={card.outNote && ((node, key) => card.outNote(node, key, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}
@@ -250,8 +263,8 @@ export default function CircuitLevel({ screen, board, run, parts, items = [], fo
       dock={dock}
     />
     {detailNode && (isPacked(detailNode, top)
-      ? <PackedDetail inside={inside} node={detailNode} at={top} path={[detailNode.id]} onClose={() => setDetail(null)}>{describeOf(detailNode, ctx)}{(sheet ?? card.body)?.(detailNode, ctx)}</PackedDetail>
-      : <Sheet title={String(L(parts.label(detailNode)))} onClose={() => setDetail(null)}><div className="cl-sheet">{describeOf(detailNode, ctx)}{(sheet ?? card.body)?.(detailNode, ctx)}</div></Sheet>)}
+      ? <PackedDetail inside={inside} node={detailNode} at={top} path={[detailNode.id]} onClose={() => setDetail(null)}>{describeOf(detailNode, ctx)}{detailOf(detailNode, ctx)}</PackedDetail>
+      : <Sheet title={String(L(parts.label(detailNode)))} onClose={() => setDetail(null)}><div className="cl-sheet">{describeOf(detailNode, ctx)}{detailOf(detailNode, ctx)}</div></Sheet>)}
   </>
 }
 
@@ -296,7 +309,7 @@ function PhoneLevel({ screen, board, parts, ctx, card, inside, all, items, folde
   const removable = node && !node.locked && (parts.removable ? parts.removable(node) : role === 'part')
   const packedHere = node && inside?.is(node, ctx.board)
   const desc = node && describeOf(node, ctx)
-  const body = node && (sheetBody ?? card.body)?.(node, ctx)
+  const body = node && sheetBody(node, ctx)
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>

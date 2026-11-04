@@ -5,8 +5,9 @@
 // its model made — the parts the levels build (each running the board the player passed its level's last task with,
 // a packed part) and the course the shared audit checks.
 //
-// Returns { LEVELS, played, builtBy(type), CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built),
-// blueprints, wrong }: LEVELS, the levels as content writes them with their place in the course; played: level id →
+// Returns { LEVELS, played, builtBy(type), CHAPTERS, course, partOf, BUILT, defs, presets, defaultsOf(type),
+// offerIn(level, flags), syncOwn(built), blueprints, wrong }: defs and presets, the game's parts and shared settings as
+// its parts.json defines them (../../engine/parts/define.js); LEVELS, the levels as content writes them with their place in the course; played: level id →
 // its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
 // found that its schema cannot say (a board that does not read, a pick outside the image, scenes that should look
 // alike and do not).
@@ -14,9 +15,10 @@ import { packed, withSettings } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { fits, fromText, toText } from './board.js'
-import { PARTS } from './parts.js'
+import { defineParts, defaultOf, resolveSetting } from '../../engine/parts/define.js'
+import { FIXED_PARTS } from './parts.js'
+import { OPS } from './ops.js'
 import { introducedParts } from './tooling.js'
-import { BORDERS } from './construction.js'
 import { readTest } from './run.js'
 import { configurationPolicy } from './configurations.js'
 import { fromRows, isVector } from './image.js'
@@ -44,7 +46,9 @@ export function visionCourse(content) {
 
   // Each built part runs the board its level was passed with (while it still fits the level), or the level's reference.
   const BUILT = {}
-  const partOf = (type) => PARTS[type] ?? BUILT[type]
+  const { PARTS, defs } = defineParts(content.partDefs, OPS)
+  const presets = content.partDefs?.presets ?? {}
+  const partOf = (type) => FIXED_PARTS[type] ?? PARTS[type] ?? BUILT[type]
   // Every board the content writes as blueprint text, with how it reads back on its task (domain.js blueprints).
   const blueprints = []
   // Each level's tasks, read (../../engine/tasks.js).
@@ -161,7 +165,10 @@ export function visionCourse(content) {
     // The part a level builds runs its last task's board: the player's, while it fits, else the reference.
     const last = read[read.length - 1]
     if (level.builds && last.kind !== 'circuit') say(id, 'it builds a part, and its last task is no circuit')
-    else if (level.builds) {
+    for (const key of level.builds?.settings ?? []) if (!presets[key]) say(id, `its part's setting ${key} is no preset of parts.json`)
+    if (level.builds && last.kind === 'circuit') {
+      // A built part's settings are the presets they name, with the level's defaults over them.
+      const settings = (level.builds.settings ?? []).filter((key) => presets[key]).map((key) => resolveSetting({ key, use: key, ...(level.builds.defaults?.[key] !== undefined ? { default: level.builds.defaults[key] } : {}) }, presets))
       const fitting = new WeakMap()
       const own = () => {
         const b = OWN.get(id)
@@ -174,8 +181,10 @@ export function visionCourse(content) {
         inputs: last.inputs.map((i) => i.name),
         outputs: last.outputs.map((o) => o.name),
         built: level.builds,
-        params: level.builds.settings ?? [],
-        settings: Object.fromEntries((level.builds.settings ?? []).map((key) => [key, key === 'axis' ? ['x', 'y'] : BORDERS])),
+        params: settings.map((s) => s.key),
+        settings: Object.fromEntries(settings.map((s) => [s.key, s.options.map((o) => o.value)])),
+        fields: settings,
+        defaults: Object.fromEntries(settings.map((s) => [s.key, defaultOf(s)])),
         // What the part runs, opened on a board: the player's board (or the reference) and the task that builds it.
         opens: (params = {}) => ({ circuit: withSettings(own(), params, partOf), level: last }),
       })
@@ -195,7 +204,7 @@ export function visionCourse(content) {
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
     concept: (part) => concept[part] ?? part,
     naive: (level) => played.get(level.id)?.some((T) => T.naive) ?? false,
-    needed: (level) => [...new Set(solutions(level.id, level.task).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
+    needed: (level) => [...new Set(solutions(level.id, level.task).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !(FIXED_PARTS[t] || PARTS[t]) || primitives.includes(t)))],
     boards: (level) => solutions(level.id, level.task),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     abstraction: true,
@@ -209,6 +218,10 @@ export function visionCourse(content) {
     course,
     partOf,
     BUILT,
+    defs,
+    presets,
+    /** A new node's settings: a defined part's, or the ones a built part exposes. */
+    defaultsOf: (type) => partOf(type)?.defaults ?? {},
     blueprints,
     wrong,
     settingsIn: configurationPolicy(LEVELS, course, partOf),

@@ -21,6 +21,8 @@ lib/
 lib64/
 parts/
 !games/kit/domains/image/engine/parts/
+!games/kit/engine/parts/
+!games/kit/shell/parts/
 sdist/
 var/
 wheels/

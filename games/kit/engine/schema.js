@@ -21,10 +21,11 @@
 //   view: 'grid'    a list of lists of numbers is a matrix; so is a list of numbers, read row by row, `cols` to a row
 //                   (without cols, a square: a 3 × 3 kernel as nine numbers)
 //   view: 'ticks'   a list of values one a tick, or a string of 0s and 1s, is a waveform; a map of them, one row each
+//   view: 'expr'    a part's expression (parts/expr.js); view: 'icon' a name in the kernel's icon table
 //   step            how far a number goes up or down at a time
 //   section         where a field of a level goes in its form (SECTIONS); without it the studio reads it off the shape
 export const SECTIONS = ['read', 'puzzle', 'tests', 'answers', 'course', 'tasks']
-export const HINTS = { view: ['grid', 'ticks'], section: SECTIONS }
+export const HINTS = { view: ['grid', 'ticks', 'expr', 'icon'], section: SECTIONS }
 
 const make = (type) => (extra = {}) => ({ type, ...extra })
 

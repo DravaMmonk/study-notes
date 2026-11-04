@@ -14,7 +14,9 @@ import { S, shapeAt } from '../schema.js'
 import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
 import { PATHS, describe, locate, putIn, takeOut } from './place.js'
-import { levelRefs, renameRefs } from './refs.js'
+import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
+import { definesParts } from '../parts/define.js'
+import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
 import { TASK_ID, findTask, hasTaskIds, newTaskId } from '../tasks.js'
 
@@ -58,6 +60,12 @@ const indexIn = (tasks, level, { after, first }) => {
 }
 /** The place a task is at in its level, said as task.move and task.add take it. */
 const placeOf = (tasks, k) => (k === 0 ? { first: true } : { after: tasks[k - 1].id })
+/** The game's parts.json, where its domain defines parts as data (one is written the first time it is edited). */
+const partsOf = (ws, vocabulary) => {
+  if (!definesParts(vocabulary)) fail(`the ${vocabulary.domain} domain defines its parts in code`)
+  if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
+  return ws.partDefs
+}
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')
   return /^#\s*blueprint\b/.test(lines[0]) ? lines.slice(1) : lines
@@ -277,23 +285,25 @@ export const OPERATIONS = {
   },
   'text.set': {
     about: t('改一段文字的一面或两面（一关、game.json 或百科里的）', 'change one side or both of a text (in a level, game.json or the encyclopedia)'),
-    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary'])), path: PATH, zh: S.opt(S.str()), en: S.opt(S.str()) }),
+    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'parts'])), path: PATH, zh: S.opt(S.str()), en: S.opt(S.str()) }),
     apply(ws, { level, in: where, path, zh, en }, { vocabulary }) {
-      if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game or glossary')
+      if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game, glossary or parts')
+      if (where === 'parts' && ws.partDefs === undefined) fail('the game has no parts.json')
       if (zh === undefined && en === undefined) fail('give zh, en or both')
-      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : [ws.glossary, null]
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.glossary, null]
       const keys = parsePath(path)
       const shape = schema && shapeAt(schema, value, keys, { vocabulary })
       if (schema && shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
       const old = getAt(value, keys)
-      if (old === undefined && where === 'glossary') fail(`glossary.json has no text at ${showPath(keys)}`)
+      if (old === undefined && (where === 'glossary' || where === 'parts')) fail(`${where}.json has no text at ${showPath(keys)}`)
       const pair = typeof old === 'string' ? { zh: old, en: old } : { ...old }
       const next = { zh: zh ?? pair.zh, en: en ?? pair.en }
       const file = level ?? where
       // The glossary has no field operations: its text goes back as a pair (a string reads the same as a pair of it).
-      const inverse = [where === 'glossary' ? { op: 'text.set', in: where, path: keys, ...(typeof old === 'string' ? { zh: old, en: old } : old) } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      const inverse = [where === 'glossary' || where === 'parts' ? { op: 'text.set', in: where, path: keys, ...(typeof old === 'string' ? { zh: old, en: old } : old) } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, next, vocabulary)
       else if (where === 'game') ws.game = setAt(ws.game, notSaves(keys), next)
+      else if (where === 'parts') ws.partDefs = setAt(ws.partDefs, keys, next, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
       else ws.glossary = setAt(ws.glossary, keys, next)
       return { says: `${file}: ${showPath(keys)} reads ${[zh !== undefined && 'zh', en !== undefined && 'en'].filter(Boolean).join(' and ')} anew`, inverse }
     },
@@ -333,6 +343,69 @@ export const OPERATIONS = {
       const { id: _, ...old } = entries[k]
       ws.glossary = { ...ws.glossary, entries: entries.filter((_, i) => i !== k) }
       return { says: `glossary: removed ${entry}`, inverse: [{ op: 'glossary.put', entry, data: old, at: k }] }
+    },
+  },
+  'part.add': {
+    about: t('加一个元件（parts.json）：它的定义，after 那个元件后面', 'add a part (parts.json): its definition, after part `after`'),
+    params: S.obj({ part: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
+    apply(ws, { part, data, after }, { vocabulary }) {
+      partsOf(ws, vocabulary)
+      if (ws.partDefs.parts[part]) fail(`there is a part ${part} already`)
+      const entries = Object.entries(ws.partDefs.parts)
+      const k = after === undefined ? entries.length : entries.findIndex(([type]) => type === after) + 1
+      if (k === 0) fail(`no part ${after}`)
+      ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries([...entries.slice(0, k), [part, data], ...entries.slice(k)]) }
+      return { says: `parts: added ${part}`, inverse: [{ op: 'part.remove', part }] }
+    },
+  },
+  'part.remove': {
+    about: t('删掉一个元件（parts.json）；课程、关卡、板或文字还提到它时拒绝', 'remove a part (parts.json); refused while the course, a level, a board or a text names it'),
+    params: S.obj({ part: PART_NAME }),
+    apply(ws, { part }, { vocabulary }) {
+      partsOf(ws, vocabulary)
+      const entries = Object.entries(ws.partDefs.parts)
+      const k = entries.findIndex(([type]) => type === part)
+      if (k < 0) fail(`no part ${part}`)
+      const named = partRefs(ws, vocabulary, part)
+      if (named.length) fail(`${part} is still named at ${named.slice(0, 8).map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}${named.length > 8 ? ` and ${named.length - 8} more` : ''}`)
+      ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(entries.filter(([type]) => type !== part)) }
+      return { says: `parts: removed ${part}`, inverse: [{ op: 'part.add', part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
+    },
+  },
+  'part.rename': {
+    about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改', 'give a part a new type name: every place in the course, levels, boards and links, and the saved boards'),
+    params: S.obj({ part: PART_NAME, to: PART_NAME }),
+    apply(ws, { part, to }, { vocabulary }) {
+      partsOf(ws, vocabulary)
+      if (!ws.partDefs.parts[part]) fail(`no part ${part}`)
+      if (ws.partDefs.parts[to]) fail(`there is a part ${to} already`)
+      ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(Object.entries(ws.partDefs.parts).map(([type, def]) => [type === part ? to : type, def])) }
+      const n = renamePartRefs(ws, vocabulary, part, to)
+      return { says: `parts: ${part} → ${to} (${n} reference(s))`, inverse: [{ op: 'part.rename', part: to, to: part }], saves: [{ retype: { [part]: { type: to, params: {} } } }] }
+    },
+  },
+  'parts.set': {
+    about: t('设 parts.json 的一个字段：parts.<元件>.settings[0].default、presets.<预设>.options……', 'set a field of parts.json: parts.<part>.settings[0].default, presets.<preset>.options…'),
+    params: S.obj({ path: PATH, value: S.any() }),
+    apply(ws, { path, value }, { vocabulary }) {
+      partsOf(ws, vocabulary)
+      const keys = parsePath(path)
+      if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is added with part.add, renamed with part.rename')
+      const inverse = [restore('parts', ws.partDefs, keys, {})]
+      ws.partDefs = setAt(ws.partDefs, keys, value, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
+      return { says: `parts.json: set ${showPath(keys)}`, inverse }
+    },
+  },
+  'parts.unset': {
+    about: t('去掉 parts.json 的一个字段，或列表里的一项', 'remove a field of parts.json, or an item from a list'),
+    params: S.obj({ path: PATH }),
+    apply(ws, { path }, { vocabulary }) {
+      partsOf(ws, vocabulary)
+      const keys = parsePath(path)
+      if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is removed with part.remove')
+      const back = typeof keys.at(-1) === 'number' ? { op: 'parts.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'parts.set', path: keys, value: getAt(ws.partDefs, keys) }
+      ws.partDefs = unsetAt(ws.partDefs, keys)
+      return { says: `parts.json: removed ${showPath(keys)}`, inverse: [back] }
     },
   },
   'blueprint.put': {

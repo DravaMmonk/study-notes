@@ -1,0 +1,26 @@
+{
+  "parts": {
+    "add": {
+      "name": { "zh": "相加", "en": "Add" },
+      "desc": {
+        "zh": "给出两个输入之和；只要有一个输入为「—」，就给出「—」。",
+        "en": "Gives the sum of its two inputs; gives 「—」 if either input is 「—」."
+      },
+      "icon": "Plus",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "add(a, b)"
+    },
+    "sub": {
+      "name": { "zh": "相减", "en": "Subtract" },
+      "desc": {
+        "zh": "给出第一个输入减去第二个输入的差；只要有一个输入为「—」，就给出「—」。",
+        "en": "Gives its first input less its second; gives 「—」 if either input is 「—」."
+      },
+      "icon": "Minus",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "sub(a, b)"
+    }
+  }
+}

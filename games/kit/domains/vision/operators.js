@@ -1,4 +1,5 @@
-// Semantic image operators keep indexing and arithmetic outside theory assessments.
+// Semantic image operators keep indexing and arithmetic outside theory assessments: sampling, filtering, a weighted
+// neighbourhood and a colour mixture, each one engine resource of the domain (ops.js).
 import { PartError } from '../../engine/circuit.js'
 import { isImage, make } from './image.js'
 
@@ -55,31 +56,17 @@ export function filterImage(image, kernel, { outside = 'clamp', convention = 'co
   })
 }
 
-export const OPERATOR_DEFAULTS = {
-  sample: { method: 'nearest', outside: 'clamp' },
-  stencil: { axis: 'x', a: '0', b: '1', c: '0', outside: 'clamp' },
-  kernelFilter: { convention: 'correlation', outside: 'clamp' },
+/** Three positional weights a, b, c along one axis (left, centre, right or above, centre, below), as a filter. */
+export function stencilImage(image, [a, b, c], { axis = 'x', outside = 'clamp' } = {}) {
+  const weights = [a, b, c].map(numberOf)
+  const kernel = make(axis === 'x' ? 3 : 1, axis === 'y' ? 3 : 1, 1, (x, y) => weights[axis === 'x' ? x : y])
+  return filterImage(image, kernel, { outside })
 }
 
-export const IMAGE_OPERATORS = {
-  sample: { inputs: ['image', 'x', 'y'], settings: { method: ['nearest', 'bilinear'], outside: ['error', 'zero', 'clamp'] }, eval: ({ image, x, y }, node) => sampleImage(image, x, y, node.params) },
-  stencil: {
-    inputs: ['image'], settings: { axis: ['x', 'y'], outside: ['zero', 'clamp'] },
-    eval: ({ image }, node) => {
-      const p = { ...OPERATOR_DEFAULTS.stencil, ...node.params }
-      const weights = ['a', 'b', 'c'].map((key) => numberOf(p[key]))
-      const kernel = make(p.axis === 'x' ? 3 : 1, p.axis === 'y' ? 3 : 1, 1, (x, y) => weights[p.axis === 'x' ? x : y])
-      return filterImage(image, kernel, p)
-    },
-  },
-  kernelFilter: { inputs: ['image', 'kernel'], settings: { convention: ['correlation', 'convolution'], outside: ['zero', 'clamp'] }, eval: ({ image, kernel }, node) => filterImage(image, kernel, node.params) },
-  colourMix: {
-    inputs: ['image', 'wr', 'wg', 'wb'],
-    eval: ({ image, wr, wg, wb }) => {
-      imageOf(image)
-      if (image.c !== 3) fail('颜色组合需要 RGB 图', 'Colour mixing requires an RGB image')
-      const weights = [wr, wg, wb].map(numberOf)
-      return make(image.w, image.h, 1, (x, y) => weights.reduce((sum, weight, ch) => sum + weight * image.data[(y * image.w + x) * 3 + ch], 0))
-    },
-  },
+/** One channel of an RGB image made by weights wr, wg, wb: no clipping, no normalising. */
+export function colourMix(image, weights) {
+  imageOf(image)
+  if (image.c !== 3) fail('颜色组合需要 RGB 图', 'Colour mixing requires an RGB image')
+  const w = weights.map(numberOf)
+  return make(image.w, image.h, 1, (x, y) => w.reduce((sum, weight, ch) => sum + weight * image.data[(y * image.w + x) * 3 + ch], 0))
 }

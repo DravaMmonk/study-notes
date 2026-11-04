@@ -4,9 +4,9 @@ import { fromRows, make, toRows } from './image.js'
 import { fromText } from './board.js'
 import { readTest, runTest } from './run.js'
 import domain from './domain.js'
-import { builtDefaults, CONSTRUCTION_PARTS, readOutside } from './construction.js'
+import { readOutside } from './construction.js'
 import { filterImage } from './operators.js'
-import { builds, circuit, game, level } from './fixture.js'
+import { PARTS, builds, circuit, game, level } from './fixture.js'
 
 const approx = (a, b, tol = 1e-9) => {
   assert.equal(a.w, b.w); assert.equal(a.h, b.h); assert.equal(a.c, b.c)
@@ -54,13 +54,13 @@ test('window execution does not filter: it exposes RGB samples and positional we
   const image=fromRows([[[.2,.3,.4],[.5,.6,.7]],[[.8,.9,1],[1.1,1.2,1.3]]])
   const kernel=fromRows([[1,2,3]])
   const node={params:{outside:'wrap'}}
-  const samples=CONSTRUCTION_PARTS.windowTable.eval({image,kernel},node,{},'samples')
-  const weights=CONSTRUCTION_PARTS.windowTable.eval({image,kernel},node,{},'weights')
+  const samples=PARTS.windowTable.eval({image,kernel},node,{},'samples')
+  const weights=PARTS.windowTable.eval({image,kernel},node,{},'weights')
   assert.deepEqual([samples.w,samples.h,samples.c],[3,4,3])
   assert.deepEqual(toRows(weights),[[1,2,3],[1,2,3],[1,2,3],[1,2,3]])
   assert.deepEqual(toRows(samples)[0],[[.5,.6,.7],[.2,.3,.4],[.5,.6,.7]])
-  assert.throws(()=>CONSTRUCTION_PARTS.expandRows.eval({image:make(100,100)},{}))
-  assert.throws(()=>CONSTRUCTION_PARTS.restore.eval({values:fromRows([[1,2]]),shape:image}))
+  assert.throws(()=>PARTS.expandRows.eval({image:make(100,100)},{},{},'values'))
+  assert.throws(()=>PARTS.restore.eval({values:fromRows([[1,2]]),shape:image}))
 })
 
 test('earned kernels and direction-input lines match independent direct filtering on rectangular RGB data', () => {
@@ -72,7 +72,7 @@ test('earned kernels and direction-input lines match independent direct filterin
     const line=run(v,'weightedLine',{image:rows,left:.1,centre:.2,right:.4,d:{x:0,y:1}},`[outside=${outside}]`).out
     approx(line,filterImage(fromRows(rows),fromRows([[.1],[.2],[.4]]),{outside}))
   }
-  const valid=CONSTRUCTION_PARTS.trim.eval({image:make(5,4,1,(x,y)=>10*y+x),r:{x:1,y:1}})
+  const valid=PARTS.trim.eval({image:make(5,4,1,(x,y)=>10*y+x),r:{x:1,y:1}})
   assert.deepEqual(toRows(valid),[[11,12,13],[21,22,23]])
 })
 
@@ -118,7 +118,7 @@ test('new packed-node defaults preserve internal axis choices instead of overrid
   const v=course()
   const rows=[[.1,.9,.4,.3],[.8,.2,.6,.5],[.3,.7,.1,.9]],h=[.1,.2,.4]
   const placed=(type)=>{
-    const params=builtDefaults(v.builtBy(type).builds)
+    const params=v.defaultsOf(type)
     assert.deepEqual(Object.keys(params).sort(),[...(v.builtBy(type).builds.settings??[])].sort())
     return '['+Object.entries(params).map(([k,val])=>`${k}=${val}`).join(',')+']'
   }
@@ -133,8 +133,8 @@ test('new packed-node defaults preserve internal axis choices instead of overrid
 test('offset reads preserve channels and signed values for horizontal, vertical and diagonal displacements',()=>{
   const image=make(3,2,3,(x,y,ch)=>10*y+3*x+ch-4)
   for(const outside of ['zero','clamp','wrap','reflect'])for(const [dx,dy] of [[-1,0],[0,1],[1,-1],[0,0]]){
-    const got=CONSTRUCTION_PARTS.shift.eval({image,d:{x:dx,y:dy}},{params:{outside}})
+    const got=PARTS.shift.eval({image,d:{x:dx,y:dy}},{params:{outside}})
     approx(got,make(3,2,3,(x,y,ch)=>readOutside(image,x+dx,y+dy,ch,outside)))
   }
-  for(const [dx,dy] of [[.5,0],[0,.5]])assert.throws(()=>CONSTRUCTION_PARTS.shift.eval({image,d:{x:dx,y:dy}},{}))
+  for(const [dx,dy] of [[.5,0],[0,.5]])assert.throws(()=>PARTS.shift.eval({image,d:{x:dx,y:dy}},{}))
 })

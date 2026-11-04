@@ -1,0 +1,594 @@
+{
+  "presets": {
+    "outside": {
+      "control": "select",
+      "label": { "zh": "图外假设", "en": "Outside" },
+      "options": [
+        { "value": "zero", "label": { "zh": "图外取 0", "en": "Zero" } },
+        { "value": "clamp", "label": { "zh": "延续边缘", "en": "Replicate edge" } },
+        { "value": "wrap", "label": { "zh": "周期延续", "en": "Periodic" } },
+        { "value": "reflect", "label": { "zh": "镜像延续", "en": "Reflect" } }
+      ],
+      "default": "zero"
+    },
+    "axis": {
+      "control": "buttons",
+      "label": { "zh": "空间轴", "en": "Axis" },
+      "options": [
+        { "value": "x", "label": { "zh": "横向", "en": "Horizontal" } },
+        { "value": "y", "label": { "zh": "纵向", "en": "Vertical" } }
+      ],
+      "default": "x"
+    }
+  },
+  "parts": {
+    "arithmetic": {
+      "name": { "zh": "四则运算", "en": "Arithmetic" },
+      "desc": {
+        "zh": "设置为加、减、乘或除。按 a 运算 b，图像按对应格逐值计算；图和数配对时，数用于每格。除数为 0 时报告错误。",
+        "en": "Select addition, subtraction, multiplication or division. Compute a op b elementwise, broadcasting a scalar to image cells. Division by zero reports an error."
+      },
+      "icon": "Plus",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "settings": [
+        {
+          "key": "op",
+          "control": "buttons",
+          "options": [
+            { "value": "add", "label": "+", "about": { "zh": "加", "en": "Add" } },
+            { "value": "sub", "label": "−", "about": { "zh": "减", "en": "Subtract" } },
+            { "value": "mul", "label": "×", "about": { "zh": "乘", "en": "Multiply" } },
+            { "value": "div", "label": "÷", "about": { "zh": "除", "en": "Divide" } }
+          ],
+          "default": "add"
+        }
+      ],
+      "compute": "match $op { add: add(a, b), sub: sub(a, b), mul: mul(a, b), div: div(a, b) }",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }] }
+    },
+    "abs": {
+      "name": { "zh": "绝对值", "en": "Absolute value" },
+      "desc": {
+        "zh": "逐值去掉正负号，保留大小。图像数值不截断。",
+        "en": "Remove the sign of each value, retaining its magnitude without clipping."
+      },
+      "icon": "Radical",
+      "family": "image",
+      "inputs": [{ "name": "a", "label": { "zh": "值", "en": "Value" } }],
+      "compute": "abs(a)"
+    },
+    "cosine": {
+      "name": { "zh": "余弦", "en": "Cosine" },
+      "desc": {
+        "zh": "输入以周为单位的角度。输出 cos(2πa)：0 周为 1，1/4 周为 0，1/2 周为 −1。数或图逐值计算。",
+        "en": "Compute cos(2πa) for an angle in turns: 0 gives 1, 1/4 gives 0, 1/2 gives −1. Applies elementwise."
+      },
+      "icon": "Waves",
+      "family": "image",
+      "inputs": [{ "name": "a", "label": { "zh": "角度（周）", "en": "Angle (turns)" } }],
+      "compute": "cosTurns(a)"
+    },
+    "shift": {
+      "name": { "zh": "偏移取样", "en": "Offset read" },
+      "desc": {
+        "zh": "输出位置 (x,y) 读取输入的 (x+dx,y+dy)。dx 向右、dy 向下为正，须为整数。只改变读取的位置，不改变亮度；图外遵循所选规则。",
+        "en": "Output (x,y) reads input (x+dx,y+dy). Integer dx is positive right, dy down. Values are unchanged; outside reads use the selected rule."
+      },
+      "icon": "Move",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "d", "label": { "zh": "位移 d", "en": "Offset d" } }
+      ],
+      "settings": [{ "key": "outside", "use": "outside" }],
+      "compute": "shift(image, d, outside=$outside)"
+    },
+    "transpose": {
+      "name": { "zh": "行列互换", "en": "Transpose" },
+      "desc": {
+        "zh": "交换图像的行和列。原来的 (x,y) 成为 (y,x)，宽高互换，数值和通道不变。",
+        "en": "Exchange rows and columns: (x,y) becomes (y,x). Width and height swap; values and channels remain unchanged."
+      },
+      "icon": "ArrowLeftRight",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "compute": "transpose(image)"
+    },
+    "reverse": {
+      "name": { "zh": "翻转核", "en": "Reverse table" },
+      "desc": {
+        "zh": "把表旋转 180 度：行序和每行的次序一起反转。不会对图像做滤波。",
+        "en": "Rotate a table 180 degrees, reversing both axes. No filtering is performed."
+      },
+      "icon": "ArrowRightLeft",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "表", "en": "Table" } }],
+      "compute": "reverse(image)"
+    },
+    "windowTable": {
+      "name": { "zh": "展开邻域", "en": "Unfold windows" },
+      "desc": {
+        "zh": "核的中心依次对齐每个输出位置。每个位置展开为一行：读数表与权重表按核的书写顺序一一对应。保留 RGB 通道；不翻核、不相乘、不求和。",
+        "en": "Centre the kernel at each output location. Each location becomes a row of samples and matching written-order weights. RGB is retained. No kernel reversal, multiplication or summation is performed."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "权重表", "en": "Weights" } }
+      ],
+      "outputs": [
+        { "name": "samples", "label": { "zh": "读数", "en": "Samples" } },
+        { "name": "weights", "label": { "zh": "权重", "en": "Weights" } }
+      ],
+      "settings": [{ "key": "axis", "use": "axis" }, { "key": "outside", "use": "outside" }],
+      "compute": {
+        "samples": "windowSamples(image, kernel, axis=$axis, outside=$outside)",
+        "weights": "windowWeights(image, kernel)"
+      }
+    },
+    "reduceRows": {
+      "name": { "zh": "逐行汇总", "en": "Reduce rows" },
+      "desc": {
+        "zh": "每行独立求和或平均，得到一列结果。平均还会除以该行宽度。数值计算自动完成，RGB 各通道分别处理。",
+        "en": "Independently sum or average each row, producing a column. Mean additionally divides by row width. RGB channels are handled separately."
+      },
+      "icon": "Sigma",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "表", "en": "Table" } }],
+      "settings": [
+        {
+          "key": "mode",
+          "control": "buttons",
+          "label": { "zh": "汇总", "en": "Reduction" },
+          "options": [
+            { "value": "mean", "label": { "zh": "平均", "en": "Mean" } },
+            { "value": "sum", "label": { "zh": "求和", "en": "Sum" } }
+          ],
+          "default": "mean"
+        }
+      ],
+      "compute": "reduceRows(image, mode=$mode)"
+    },
+    "restore": {
+      "name": { "zh": "还原形状", "en": "Restore shape" },
+      "desc": {
+        "zh": "输入是一列逐位置结果，按原来的行序还原为“尺寸参照”的宽高。只排布数据，不做计算。",
+        "en": "Arrange a column of per-position results into the reference width and height in row order. No arithmetic is performed."
+      },
+      "icon": "Braces",
+      "family": "image",
+      "inputs": [
+        { "name": "values", "label": { "zh": "逐位置结果", "en": "Per-position results" } },
+        { "name": "shape", "label": { "zh": "尺寸参照", "en": "Shape reference" } }
+      ],
+      "compute": "restoreShape(values, shape)"
+    },
+    "trim": {
+      "name": { "zh": "有效内部", "en": "Valid interior" },
+      "desc": {
+        "zh": "横向两端各去掉 rx 列，纵向两端各去掉 ry 行。用于显示邻域完全位于原图内的输出。宽高由系统计算。",
+        "en": "Remove rx columns at each horizontal edge and ry rows at each vertical edge, exposing outputs whose neighbourhood stays inside. Dimensions are computed automatically."
+      },
+      "icon": "Crop",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "r", "label": { "zh": "半径 r", "en": "Radii r" } }
+      ],
+      "compute": "trim(image, r)"
+    },
+    "positions": {
+      "name": { "zh": "行内位置", "en": "Row positions" },
+      "desc": {
+        "zh": "生成与图同尺寸的位置表：每行依次保存 0/N、1/N…(N−1)/N。保存的是位置，不是亮度。",
+        "en": "Generate a same-size position table containing 0/N, 1/N, …, (N−1)/N in each row. These are positions, not intensities."
+      },
+      "icon": "Ruler",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "尺寸参照", "en": "Shape reference" } }],
+      "compute": "positions(image)"
+    },
+    "expandRows": {
+      "name": { "zh": "展开遍历", "en": "Expand rows" },
+      "desc": {
+        "zh": "宽为 N 时，把原图每行重复 N 次。另给出每格的位置 x/N、当前重复的索引 k。每行计算一个结果后，用还原形状恢复原宽高。不生成波形或频谱。",
+        "en": "Repeat every source row N times, where N is its width. Also expose sample positions x/N and repetition indices k. Compute one result per row and restore shape. No waves or spectra are generated."
+      },
+      "icon": "Repeat",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [
+        { "name": "values", "label": { "zh": "重复读数", "en": "Repeated values" } },
+        { "name": "position", "label": { "zh": "位置 x/N", "en": "Position x/N" } },
+        { "name": "frequency", "label": { "zh": "索引 k", "en": "Index k" } }
+      ],
+      "compute": {
+        "values": "expandValues(image)",
+        "position": "expandPositions(image)",
+        "frequency": "expandIndices(image)"
+      }
+    },
+    "sample": {
+      "name": { "zh": "连续位置采样", "en": "Sample" },
+      "desc": {
+        "zh": "从给定的 x、y 位置读取图像。最近邻保留一个原有读数；双线性按距离混合四个邻居。取整、权重与逐通道计算自动完成。图外按设置处理。",
+        "en": "Read the image at x and y. Nearest copies an original sample; bilinear mixes four neighbours by distance. Rounding, weighting and channel arithmetic are automatic. Outside positions use the selected assumption."
+      },
+      "icon": "ScanSearch",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }, { "name": "x" }, { "name": "y" }],
+      "settings": [
+        {
+          "key": "method",
+          "control": "buttons",
+          "label": { "zh": "取值规则", "en": "Interpolation" },
+          "options": [
+            { "value": "nearest", "label": { "zh": "最近邻", "en": "Nearest" } },
+            { "value": "bilinear", "label": { "zh": "双线性", "en": "Bilinear" } }
+          ],
+          "default": "nearest"
+        },
+        {
+          "key": "outside",
+          "control": "select",
+          "label": { "zh": "图外假设", "en": "Outside" },
+          "options": [
+            { "value": "error", "label": { "zh": "报错", "en": "Stop" } },
+            { "value": "zero", "label": { "zh": "取 0", "en": "Read 0" } },
+            { "value": "clamp", "label": { "zh": "取最近的边", "en": "Nearest edge" } }
+          ],
+          "default": "clamp"
+        }
+      ],
+      "compute": "sample(image, x, y, method=$method, outside=$outside)",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "method", "as": "label" }] }
+    },
+    "stencil": {
+      "name": { "zh": "邻域加权", "en": "Neighbourhood" },
+      "desc": {
+        "zh": "沿选择的方向读取相邻三格，分别乘 a、b、c 后相加。横向按左、中、右，纵向按上、中、下排列；这是位置权重，不额外翻转。边界按设置处理，输出与原图同尺寸。",
+        "en": "Weight three neighbours by a, b and c. Along x the order is left, centre, right; along y it is above, centre, below. These are positional weights with no extra reversal. The output keeps the input dimensions."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "settings": [
+        {
+          "key": "axis",
+          "control": "buttons",
+          "label": { "zh": "方向", "en": "Axis" },
+          "options": [
+            { "value": "x", "label": "x", "about": { "zh": "横向：左、中、右", "en": "Across: left, centre, right" } },
+            { "value": "y", "label": "y", "about": { "zh": "纵向：上、中、下", "en": "Down: above, centre, below" } }
+          ],
+          "default": "x"
+        },
+        { "key": "a", "control": "number", "label": "a", "default": 0 },
+        { "key": "b", "control": "number", "label": "b", "default": 1 },
+        { "key": "c", "control": "number", "label": "c", "default": 0 },
+        {
+          "key": "outside",
+          "control": "select",
+          "label": { "zh": "图外假设", "en": "Outside" },
+          "options": [
+            { "value": "zero", "label": { "zh": "取 0", "en": "Read 0" } },
+            { "value": "clamp", "label": { "zh": "取最近的边", "en": "Nearest edge" } }
+          ],
+          "default": "clamp"
+        }
+      ],
+      "compute": "stencil(image, $a, $b, $c, axis=$axis, outside=$outside)",
+      "views": {
+        "card": [
+          { "show": "settings", "keys": ["axis"] },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "a" },
+              { "show": "setting", "key": "b" },
+              { "show": "setting", "key": "c" }
+            ]
+          },
+          { "show": "settings", "keys": ["outside"] },
+          {
+            "show": "row",
+            "blocks": [
+              {
+                "show": "readout",
+                "label": { "zh": "权重和", "en": "Weight sum" },
+                "expr": "plus(plus($a, $b), $c)"
+              },
+              {
+                "show": "action",
+                "label": { "zh": "使权重和为 1", "en": "Make weights sum to 1" },
+                "when": "ne(plus(plus($a, $b), $c), 0)",
+                "set": {
+                  "a": "over($a, plus(plus($a, $b), $c))",
+                  "b": "over($b, plus(plus($a, $b), $c))",
+                  "c": "over($c, plus(plus($a, $b), $c))"
+                }
+              }
+            ]
+          },
+          { "show": "value" }
+        ],
+        "tile": [{ "show": "value" }, { "show": "summary", "text": "{axis} [{a}, {b}, {c}]" }]
+      }
+    },
+    "kernelFilter": {
+      "name": { "zh": "核作用", "en": "Apply kernel" },
+      "desc": {
+        "zh": "将输入核的中心对齐每个像素并加权求和。互相关直接使用书写顺序；数学卷积将核旋转 180 度。边界按设置处理。",
+        "en": "Centre the supplied kernel at every pixel and compute its weighted sum. Correlation uses written order; mathematical convolution rotates the kernel by 180 degrees. Boundaries use the selected assumption."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+      ],
+      "settings": [
+        {
+          "key": "convention",
+          "control": "buttons",
+          "label": { "zh": "核约定", "en": "Kernel convention" },
+          "options": [
+            {
+              "value": "correlation",
+              "label": { "zh": "互相关", "en": "Correlation" },
+              "about": { "zh": "不翻转", "en": "No reversal" }
+            },
+            {
+              "value": "convolution",
+              "label": { "zh": "数学卷积", "en": "Convolution" },
+              "about": { "zh": "翻转核", "en": "Reverse the kernel" }
+            }
+          ],
+          "default": "correlation"
+        },
+        {
+          "key": "outside",
+          "control": "select",
+          "label": { "zh": "图外假设", "en": "Outside" },
+          "options": [
+            { "value": "zero", "label": { "zh": "取 0", "en": "Read 0" } },
+            { "value": "clamp", "label": { "zh": "取最近的边", "en": "Nearest edge" } }
+          ],
+          "default": "clamp"
+        }
+      ],
+      "compute": "kernelFilter(image, kernel, convention=$convention, outside=$outside)",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "convention", "as": "label" }] }
+    },
+    "magnitude": {
+      "name": { "zh": "向量长度", "en": "Vector length" },
+      "desc": {
+        "zh": "将 x、y 作为两个互相垂直的分量，计算 sqrt(x² + y²)。数值和同尺寸图都可使用。自动计算，不改变方向分量本身。",
+        "en": "Treat x and y as perpendicular components and compute sqrt(x² + y²). Works on numbers and matching images. The arithmetic is automatic; the components themselves remain unchanged."
+      },
+      "icon": "Radical",
+      "family": "value",
+      "inputs": [{ "name": "x" }, { "name": "y" }],
+      "compute": "hypot(x, y)"
+    },
+    "colourMix": {
+      "name": { "zh": "颜色组合", "en": "Colour mixture" },
+      "desc": {
+        "zh": "给 RGB 三个通道分别乘 wr、wg、wb，再相加得到单通道图。输出不自动截断，也不自动归一化权重。",
+        "en": "Multiply RGB by wr, wg and wb, then add into one channel. Values are not clipped and weights are not normalised automatically."
+      },
+      "icon": "Blend",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "wr", "label": "R" },
+        { "name": "wg", "label": "G" },
+        { "name": "wb", "label": "B" }
+      ],
+      "compute": "colourMix(image, wr, wg, wb)"
+    },
+    "const": {
+      "name": { "zh": "常数", "en": "Constant" },
+      "desc": { "zh": "始终给出设定的数。", "en": "Always gives the number it is set to." },
+      "icon": "Hash",
+      "family": "value",
+      "inputs": [],
+      "settings": [
+        { "key": "value", "control": "number", "label": { "zh": "数值", "en": "Value" }, "default": 0 }
+      ],
+      "compute": "$value"
+    },
+    "add": {
+      "name": { "zh": "相加", "en": "Add" },
+      "desc": {
+        "zh": "将两个输入相加。数按数计算；图按对应格子计算，数值输入会用于每一格。坐标图保存的是取样位置，相加不会改变图的宽高。",
+        "en": "Add two inputs. Numbers add directly; images add at matching cells, using a scalar at every cell. Coordinate images store sampling positions. Addition preserves image dimensions."
+      },
+      "icon": "Plus",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "add(a, b)"
+    },
+    "sub": {
+      "name": { "zh": "相减", "en": "Subtract" },
+      "desc": {
+        "zh": "给出 a 减 b。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives a less b. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "Minus",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "sub(a, b)"
+    },
+    "mul": {
+      "name": { "zh": "相乘", "en": "Multiply" },
+      "desc": {
+        "zh": "给出两者之积。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives the product of the two. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "X",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "mul(a, b)"
+    },
+    "div": {
+      "name": { "zh": "相除", "en": "Divide" },
+      "desc": {
+        "zh": "给出 a 除以 b；除以 0 时停下报错。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives a divided by b; dividing by 0 stops with an error. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "Divide",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "div(a, b)"
+    },
+    "floor": {
+      "name": { "zh": "向下取整", "en": "Floor" },
+      "desc": {
+        "zh": "给出不大于它的最大整数。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives the largest whole number not above it. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "ArrowDown",
+      "family": "value",
+      "inputs": [{ "name": "a" }],
+      "compute": "floor(a)"
+    },
+    "sqrt": {
+      "name": { "zh": "开平方", "en": "Square root" },
+      "desc": {
+        "zh": "给出它的平方根；负数停下报错。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives its square root; a negative number stops with an error. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "Radical",
+      "family": "value",
+      "inputs": [{ "name": "a" }],
+      "compute": "sqrt(a)"
+    },
+    "min": {
+      "name": { "zh": "取小", "en": "Min" },
+      "desc": {
+        "zh": "给出两者中小的那个。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives the smaller of the two. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "MoveDown",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "min(a, b)"
+    },
+    "max": {
+      "name": { "zh": "取大", "en": "Max" },
+      "desc": {
+        "zh": "给出两者中大的那个。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives the larger of the two. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "MoveUp",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "max(a, b)"
+    },
+    "less": {
+      "name": { "zh": "小于", "en": "Less" },
+      "desc": {
+        "zh": "a 小于 b 时给出 1，否则给出 0。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives 1 where a is less than b, else 0. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "ChevronsDown",
+      "family": "logic",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "less(a, b)"
+    },
+    "select": {
+      "name": { "zh": "选择", "en": "Select" },
+      "desc": {
+        "zh": "「条件」不为 0 时给出「是」，为 0 时给出「否」。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
+        "en": "Gives Yes where Condition is not 0, No where it is 0. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+      },
+      "icon": "Split",
+      "family": "logic",
+      "inputs": [
+        { "name": "if", "label": { "zh": "条件", "en": "Condition" } },
+        { "name": "yes", "label": { "zh": "是", "en": "Yes" } },
+        { "name": "no", "label": { "zh": "否", "en": "No" } }
+      ],
+      "compute": "select(if, yes, no)"
+    },
+    "size": {
+      "name": { "zh": "尺寸", "en": "Size" },
+      "desc": { "zh": "给出图的宽 w 和高 h。", "en": "Gives an image’s width w and height h." },
+      "icon": "Maximize2",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [{ "name": "w" }, { "name": "h" }],
+      "compute": { "w": "width(image)", "h": "height(image)" }
+    },
+    "grid": {
+      "name": { "zh": "坐标网格", "en": "Grid" },
+      "desc": {
+        "zh": "按宽 w、高 h 生成两张坐标图。在每个位置 (x, y)，x 图存列号 x，y 图存行号 y；保存的是坐标数字，不是照片亮度。w、h 须为正整数。",
+        "en": "Produces two coordinate images of width w and height h. At position (x, y), the x image stores column x and the y image stores row y. These are coordinate numbers, not photographic intensities. w and h must be positive integers."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [{ "name": "w" }, { "name": "h" }],
+      "outputs": [{ "name": "x" }, { "name": "y" }],
+      "compute": { "x": "gridX(w, h)", "y": "gridY(w, h)" }
+    },
+    "lookup": {
+      "name": { "zh": "取像素", "en": "Lookup" },
+      "desc": {
+        "zh": "在图的 (x, y) 处取值。x、y 是数时取一个像素；是同样大小的坐标图时，每格各取一个，拼成一张同样大小的图。坐标须为整数；出界时按设置报错、取 0 或取最近的边。",
+        "en": "Reads the image at (x, y). At numbers it reads one pixel; at coordinate images of one size it reads one per cell, an image of that size. Coordinates must be whole numbers; outside the image it stops, reads 0 or reads the nearest edge, as set."
+      },
+      "icon": "ScanSearch",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }, { "name": "x" }, { "name": "y" }],
+      "settings": [
+        {
+          "key": "outside",
+          "control": "select",
+          "label": { "zh": "出界", "en": "Outside" },
+          "options": [
+            { "value": "error", "label": { "zh": "报错", "en": "Stop" } },
+            { "value": "zero", "label": { "zh": "取 0", "en": "Read 0" } },
+            { "value": "clamp", "label": { "zh": "取最近的边", "en": "Nearest edge" } }
+          ],
+          "default": "error"
+        }
+      ],
+      "compute": "lookup(image, x, y, outside=$outside)"
+    },
+    "channel": {
+      "name": { "zh": "取通道", "en": "Channel" },
+      "desc": {
+        "zh": "给出彩色像素里第 c 个位置（0、1、2，在元件上选）上的数组成的灰度图。哪个位置是哪种颜色，看图按什么顺序存：RGB 图的 0 是红，BGR 图的 0 是蓝。",
+        "en": "Gives the grey image of the numbers at position c (0, 1 or 2, set on the part) of each colour pixel. Which colour sits at a position depends on the image’s channel order: in an RGB image 0 is red, in a BGR one blue."
+      },
+      "icon": "Layers",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "settings": [
+        {
+          "key": "c",
+          "control": "buttons",
+          "label": { "zh": "位置", "en": "Position" },
+          "options": [{ "value": "0" }, { "value": "1" }, { "value": "2" }],
+          "default": "0"
+        }
+      ],
+      "compute": "channel(image, c=$c)"
+    },
+    "compose": {
+      "name": { "zh": "合成彩色", "en": "Compose" },
+      "desc": {
+        "zh": "把三张同样大小的灰度图合成一张彩色图（R、G、B）。",
+        "en": "Makes three grey images of one size one colour image (R, G, B)."
+      },
+      "icon": "Blend",
+      "family": "image",
+      "inputs": [{ "name": "r", "label": "R" }, { "name": "g", "label": "G" }, { "name": "b", "label": "B" }],
+      "compute": "compose(r, g, b)"
+    }
+  }
+}

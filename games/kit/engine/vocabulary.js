@@ -10,9 +10,15 @@
 //   game      the schema of a game's game.json
 //   level     the schema of one level (levels/<id>.json; its id is the file's name)
 // })
+//
+// A domain whose kinds hold engine resources (`op`, run by its ops.js) defines its parts as data: each of its games
+// has a parts.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
+// a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
+// displays the kernel's controls cannot draw.
 import { S, validate } from './schema.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems } from './tasks.js'
+import { definesParts, partProblems, withParts } from './parts/define.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
@@ -58,12 +64,13 @@ export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
  * file and the path in it. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
  * that task ids are unique in a game and never another level's (tasks.js).
  */
-export function checkContent(vocabulary, content) {
+export function checkContent(domainVocabulary, content) {
   const out = []
+  const vocabulary = withParts(domainVocabulary, content.partDefs)
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open.
-  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, ...game } = content
+  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, ...game } = content
   const ids = new Set(levels.map((l) => l.id))
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })
@@ -73,5 +80,9 @@ export function checkContent(vocabulary, content) {
   out.push(...taskIdProblems(levels))
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
+  if (definesParts(domainVocabulary)) {
+    if (parts === undefined) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })
+    else out.push(...partProblems(parts, domainVocabulary))
+  } else if (parts !== undefined) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts in code: parts.json is not read` })
   return out
 }

@@ -1,7 +1,7 @@
 // The Vite plugin that makes trace-viewer/game.html every game's page. `virtual:game` gives the page its game: in a
 // build the one named by GAME, on the dev server whichever /game/<id>/ the address names. `virtual:game/<id>` is one
 // game as the shell takes it: a data game (games/DESIGN.md 6.1: games/<id>/game.json, levels/*.json,
-// glossary.json) assembled (../engine/content.js) and handed to its domain's game.jsx; a game not yet moved to data,
+// glossary.json, parts.json) assembled (../engine/content.js) and handed to its domain's game.jsx; a game not yet moved to data,
 // its games/<id>/game.js(x). The page's title, description and tab icon come from the hub's list (../../games.js).
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -22,13 +22,15 @@ function gameModule(id) {
   const dir = resolve(GAMES_DIR, id)
   const { domain } = JSON.parse(readFileSync(resolve(dir, 'game.json'), 'utf8'))
   const levels = levelFiles(id)
+  const parts = existsSync(resolve(dir, 'parts.json'))
   return [
     `import { assemble } from ${q(resolve(KIT, 'engine/content.js'))}`,
     `import defineGame from ${q(resolve(KIT, 'domains', domain, 'game.jsx'))}`,
     `import game from ${q(resolve(dir, 'game.json'))}`,
     `import glossary from ${q(resolve(dir, 'glossary.json'))}`,
+    ...(parts ? [`import partDefs from ${q(resolve(dir, 'parts.json'))}`] : []),
     ...levels.map(([, file], k) => `import level${k} from ${q(file)}`),
-    `export default defineGame(assemble({ id: ${q(id)}, game, glossary, levels: [${levels.map(([levelId], k) => `[${q(levelId)}, level${k}]`).join(', ')}] }))`,
+    `export default defineGame(assemble({ id: ${q(id)}, game, glossary, ${parts ? 'partDefs, ' : ''}levels: [${levels.map(([levelId], k) => `[${q(levelId)}, level${k}]`).join(', ')}] }))`,
   ].join('\n')
 }
 

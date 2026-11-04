@@ -72,13 +72,18 @@ export function vocabularyProblems(name, v) {
     for (const [item, it] of Object.entries(items)) {
       if (!isText(it.about)) say(`${kind}.${item} says nothing of what it is (about)`)
       if (it.params) schemas.push([`${kind}.${item}`, it.params])
+      if (kind === 'op' && !(Array.isArray(it.args) && it.args.every((a) => typeof a?.name === 'string'))) say(`op.${item} lists no arguments (args: [{ name }])`)
+      if (kind === 'op' && it.params && it.params.type !== 'obj') say(`op.${item}: its named parameters are an S.obj`)
     }
   }
+  if (v.kinds?.op && v.kinds.part) say('it gives engine resources and parts in code: a domain with resources defines its parts in each game’s parts.json')
+  if (v.kinds?.op && !v.kinds.family) say('it gives engine resources but no families to colour parts by')
   for (const [where, schema] of schemas) {
     if (!schema) { say(`no ${where} schema`); continue }
     for (const [s, at] of schemasIn(schema, where)) {
       if (!TYPES.includes(s.type)) say(`${at}: ${JSON.stringify(s.type)} is no schema type`)
-      if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind]) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
+      // A domain with engine resources gives its parts in each game's parts.json: its part kind is the content's.
+      if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind] && !(s.kind === 'part' && v.kinds?.op)) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
       for (const [hint, values] of Object.entries(HINTS)) if (s[hint] !== undefined && !values.includes(s[hint])) say(`${at}: ${hint} ${JSON.stringify(s[hint])} is none of ${values.join(', ')}`)
     }
   }
