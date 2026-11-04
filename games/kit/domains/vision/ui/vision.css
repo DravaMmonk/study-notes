@@ -35,7 +35,6 @@
 /* ---- the test under the board ---- */
 .vi-strip { display: grid; gap: 10px; min-width: 0; }
 .vi-test { --vi-frame-w: 220px; --vi-frame-h: 150px; display: flex; flex-wrap: wrap; align-items: start; gap: 10px 20px; min-width: 0; }
-.vi-test > .vi-inspector { flex: none; max-width: 100%; }
 .vi-test-scalars { margin: 0; display: grid; align-content: start; gap: 2px; padding-top: 3px; }
 .vi-test-scalars > div { display: flex; align-items: baseline; gap: 8px; }
 .vi-test-scalars dt { color: var(--muted); font-size: 12px; }
@@ -69,12 +68,6 @@
 .vi-scalar-results th { color: var(--muted); font-size: 12px; font-weight: 500; }
 .vi-scalar-results td { font: 600 14px var(--mono); }
 .vi-scalar-results [data-different] td:first-of-type { color: var(--fail); }
-.vi-result-inputs { border-top: 1px solid var(--line); }
-.vi-result-inputs > summary { min-height: 44px; align-content: center; color: var(--muted); font-size: 12px; cursor: pointer; }
-.vi-result-inputs summary small { margin-inline-start: 10px; font-size: 11px; line-height: 1.5; }
-.vi-input-summary { min-height: 28px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
-.vi-input-summary small { font-size: 11px; }
-.vi-result-given { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; padding: 4px 0; }
 .vi-pick.is-different rect { stroke: var(--fail); stroke-width: 2; }
 .vi-results { display: grid; gap: 6px; }
 .vi-verdict { margin: 0; font-size: 13px; line-height: 1.55; }

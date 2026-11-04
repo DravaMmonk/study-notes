@@ -11,12 +11,8 @@ const delta = (a,b) => Array.isArray(a) ? a.map((v,k)=>b[k]-v) : b-a
 const changed = (a,b,tolerance) => Array.isArray(a) ? a.some((v,k)=>Math.abs(v-b[k])>tolerance) : Math.abs(a-b)>tolerance
 
 /** Output selection and pixel comparison keep evidence in view without repeating entire test tables. */
-export default function MobileResults({ rows, given, tolerance }) {
+export default function MobileResults({ rows: outputs, tolerance }) {
   const [selected,setSelected] = useState(0)
-  const outputs=rows.slice(given)
-  const inputs=rows.slice(0,given)
-  const pictures=inputs.filter(([,v])=>isImage(v))
-  const parameters=inputs.filter(([,v])=>!isImage(v)).map(([name,v])=>`${L(name)} ${show(v)}`).join(' · ')
   const index=Math.min(selected,outputs.length-1)
   const [label,want,got]=outputs[index]
   const paired=matchingShape(want,got)
@@ -57,10 +53,5 @@ export default function MobileResults({ rows, given, tolerance }) {
         })}
       </div>
     </section></>}
-    {scalarOnly&&pictures.length>0&&<ImageViewSwitch />}
-    {pictures.length>0?<details className="vi-result-inputs">
-      <summary>{tr('输入','Inputs')}<small>{parameters}</small></summary>
-      <div className="vi-result-given">{pictures.map(([name,v],k)=><ImageInspector key={k} value={v} label={L(name)}/>)}</div>
-    </details>:<div className="vi-input-summary"><span>{tr('输入','Inputs')}</span><small>{parameters}</small></div>}
   </div>
 }

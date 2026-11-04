@@ -168,14 +168,11 @@ export default function Screen(screen) {
   const itemOf = (type) => (game.BUILT[type] ? builtItem(type) : { type, label: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, family: CARDS[type].family, fresh: entry.fresh?.includes(type) })
 
   const test = tests[run.at]
-  const rows = [
-    ...level.inputs.map((i) => [i.label, test.inputs[i.name], undefined]),
-    ...level.outputs.map((o) => [o.label, test.expect[o.name], runOf.outputs[o.name]]),
-  ]
+  const rows = level.outputs.map((o) => [o.label, test.expect[o.name], runOf.outputs[o.name]])
   const verdict = ended && runOf.fail && <span className="vi-verdict is-fail">{L(runOf.fail.why)}</span>
   const strip = (
     <div className="vi-strip">
-      <TestValues rows={rows} given={level.inputs.length} phone={screen.phone} tolerance={level.tolerance} />
+      <TestValues rows={rows} phone={screen.phone} tolerance={level.tolerance} />
       {level.illustration === 'pinhole' && <ProjectionCase test={test} tests={tests} phone={screen.phone} />}
       {screen.phone && verdict}
     </div>

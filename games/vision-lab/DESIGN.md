@@ -117,8 +117,8 @@ a note on the target, not an empty frame. Image windows share the row equally, s
 one value behind a switch. Numeric cells start at 36 px (56 px for RGB), expanding for longer values.
 Image dimensions appear once per comparison when the shapes match; scalar labels and values share one line.
 Marked mismatches and
-pixel inspection supply both original values and their difference; input data
-is secondary and collapsed until requested. Image captions carry a meaningful name once, with size/channel metadata
+pixel inspection supply both original values and their difference; inputs are not
+repeated in the results, the board's input cards hold them. Image captions carry a meaningful name once, with size/channel metadata
 on the same line. Avoid generic reading labels, repeated headings and explanatory copy where layout or controls
 already establish the relationship. Component detail sheets show outputs and settings, with descriptions in a compact disclosure; input values are not repeated.
 

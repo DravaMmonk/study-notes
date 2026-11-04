@@ -110,7 +110,7 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
     </figcaption>
     <div ref={frame} className={`vi-frame ${info ? 'is-info' : 'is-overview'}`} style={frameSize ? { height: frameSize.h } : undefined} {...pan}>
       <div className="vi-frame-canvas">
-        <ImageView value={value} numbers={info} axes={info} grid={info} cell={info ? cell : scale} mark={mark ?? active} label={label}
+        <ImageView value={value} numbers={info} axes={info} grid={info || frameSize !== null && scale >= 6} cell={info ? cell : scale} mark={mark ?? active} label={label}
           cellLabel={(x, y, p) => `(${x}, ${y}): ${raw(p)}`} cellClass={cellClass}
           onPick={(x, y, e) => { select(x, y, e, true); onPick?.(x, y) }}
           onHover={(x, y, e) => select(x, y, e, false)}

@@ -28,16 +28,12 @@ function Output({ label, want, got, tolerance }) {
   </section>
 }
 
-/** Desktop lays one test out in a single row: image inputs, the number inputs in one column, then each output's
- * wanted and result. Phones focus on one selectable output. The desktop's image view switch sits in the results
- * header (Screen.jsx); the phone's in its output row. */
-export default function TestValues({ rows, given, phone, tolerance = 1e-5 }) {
-  if (phone) return <MobileResults {...{ rows, given, tolerance }} />
-  const inputs = rows.slice(0, given), outputs = rows.slice(given)
-  const numbers = inputs.filter(([, v]) => !isImage(v))
+/** Desktop lays one test's outputs out in a row, each output's wanted and result side by side; phones focus on one
+ * selectable output. The inputs are on the board's input cards, not repeated here. The desktop's image view switch
+ * sits in the results header (Screen.jsx); the phone's in its output row. */
+export default function TestValues({ rows, phone, tolerance = 1e-5 }) {
+  if (phone) return <MobileResults {...{ rows, tolerance }} />
   return <div className="vi-test">
-    {inputs.filter(([, v]) => isImage(v)).map(([label, v], k) => <ImageInspector key={k} value={v} label={L(label)} fit dense />)}
-    {numbers.length > 0 && <dl className="vi-test-scalars">{numbers.map(([label, v], k) => <div key={k}><dt>{L(label)}</dt><dd>{show(v)}</dd></div>)}</dl>}
-    {outputs.map(([label, want, got], k) => <Output key={k} label={L(label)} want={want} got={got} tolerance={tolerance} />)}
+    {rows.map(([label, want, got], k) => <Output key={k} label={L(label)} want={want} got={got} tolerance={tolerance} />)}
   </div>
 }
