@@ -3,6 +3,7 @@ import { Check, CircleAlert } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { differs, isImage, pixel, show } from '../image.js'
 import ImageInspector from './ImageInspector.jsx'
+import ImageViewSwitch from './ImageViewSwitch.jsx'
 
 const sampleText = (value) => Array.isArray(value) ? value.map((v,k)=>`${'RGB'[k]} ${v}`).join(' · ') : String(value)
 const matchingShape = (a,b) => isImage(a) && isImage(b) && a.w===b.w && a.h===b.h && a.c===b.c
@@ -30,7 +31,7 @@ export default function MobileResults({ rows, given, tolerance }) {
       <tbody>{outputs.map(([name,target,result],k)=><tr key={k} data-different={result!==undefined&&Boolean(differs(target,result,tolerance))||undefined}>
         <th scope="row">{L(name)}</th><td>{result===undefined?'—':show(result)}</td><td>{show(target)}</td>
       </tr>)}</tbody>
-    </table> : <>{outputs.length>1 ? <div className="vi-output-tabs" role="tablist" aria-label={tr('输出','Outputs')}>
+    </table> : <><div className="vi-result-head">{outputs.length>1 ? <div className="vi-output-tabs" role="tablist" aria-label={tr('输出','Outputs')}>
       {outputs.map(([name,target,result],k)=>{
         const checked=result!==undefined
         const wrong=checked&&Boolean(differs(target,result,tolerance))
@@ -42,7 +43,7 @@ export default function MobileResults({ rows, given, tolerance }) {
           <span>{L(name)}</span>{checked&&(wrong?<CircleAlert size={14} aria-label={tr('有差异','Different')}/>:<Check size={14} aria-label={tr('一致','Matches')}/>)}
         </button>
       })}
-    </div> : <h3 className="vi-result-title">{L(label)}</h3>}
+    </div> : <h3 className="vi-result-title">{L(label)}</h3>}<ImageViewSwitch /></div>
     <section id="vi-result-panel" role={outputs.length>1?'tabpanel':undefined} aria-labelledby={outputs.length>1?`vi-output-tab-${index}`:undefined}>
       <div className="vi-result-pair">
         {(got===undefined?[want]:[got,want]).map((value,k,shown)=>{
@@ -56,6 +57,7 @@ export default function MobileResults({ rows, given, tolerance }) {
         })}
       </div>
     </section></>}
+    {scalarOnly&&pictures.length>0&&<ImageViewSwitch />}
     {pictures.length>0?<details className="vi-result-inputs">
       <summary>{tr('输入','Inputs')}<small>{parameters}</small></summary>
       <div className="vi-result-given">{pictures.map(([name,v],k)=><ImageInspector key={k} value={v} label={L(name)}/>)}</div>

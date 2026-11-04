@@ -23,7 +23,8 @@ A compact disclosure holds the plain-text component description. Pixel inspectio
 Every inspected image (tests, results, part details, figures) sits in one fixed display window sized by the screen,
 whatever its dimensions. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
 only; information keeps intrinsic cells of at least 36 px with numbers and axes, unscaled, every cell selectable on
-touch. Dragging pans the window. The view starts at information when the whole image fits, otherwise overview.
+touch. Dragging pans the window. One switch in the results (the desktop pane header, the phone's output row)
+changes the view of every image on screen at once; it starts at information and is remembered per viewer.
 Cell numbers use up to two decimal places; mouse hover, touch selection and keyboard activation expose original
 precision and coordinates. Computation and comparison retain original values. Small board matrices fit their
 complete rows within the component. Coordinate-grid values remain distinct from their cell positions.

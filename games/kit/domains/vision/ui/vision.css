@@ -47,6 +47,10 @@
 .vi-output-tabs button svg { color: var(--muted); }
 .vi-output-tabs button[data-different] svg { color: var(--fail); }
 .vi-result-title { margin: 0; font-size: 13px; font-weight: 600; }
+.vi-result-head { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
+.vi-result-head > .vi-output-tabs { min-width: 0; flex: 1 1 auto; border-bottom: 0; }
+.vi-result-head > .vi-result-title { min-height: 36px; align-content: center; }
+.vi-mobile-results > .vi-view-switch { justify-self: end; }
 .vi-result-pair { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; align-items: start; padding-block: 2px; }
 .vi-result-value { min-width: 0; display: grid; align-content: start; gap: 3px; }
 .vi-result-label { min-height: 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 6px; }
@@ -88,8 +92,8 @@
 .vi-frame.is-info:has(.vi-frame-canvas:hover) { cursor: grab; }
 .vi-frame-canvas { flex: none; margin: auto; line-height: 0; }
 .vi-frame-canvas .vi-image { max-width: none; height: auto; border-radius: 0; }
-.vi-frame-view { flex: none; width: 24px; height: 22px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); background: var(--paper); cursor: pointer; }
-.vi-frame-view:hover { color: var(--ink); }
+.vi-view-switch { flex: none; height: 26px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--paper); font: 12px var(--sans, inherit); cursor: pointer; }
+.vi-view-switch:hover { color: var(--ink); }
 .vi-pixel-popover { position: fixed; z-index: 100; box-sizing: border-box; display: grid; gap: 4px; padding: 8px 10px; margin-top: 8px; border: 1px solid var(--accent); border-radius: 10px; color: var(--ink); background: var(--paper); box-shadow: var(--lift); font: 12px/1.5 var(--mono); pointer-events: none; overflow-wrap: anywhere; }
 .vi-pixel-popover.is-above { margin-top: -8px; transform: translateY(-100%); }
 .vi-pixel-calculation { border-top: 1px solid var(--line); padding-top: 5px; white-space: pre-line; }

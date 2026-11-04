@@ -1,10 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Hash, Image as Pixels } from 'lucide-react'
 import { tr } from '../../../shell/i18n.js'
 import { fmt, pixel } from '../image.js'
 import ImageView from './ImageView.jsx'
-import { AXIS, inspectorCell } from './image-layout.js'
+import { inspectorCell } from './image-layout.js'
+import { useImageView } from './image-view.js'
 
 const raw = (value) => Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${v}`).join(' · ') : String(value)
 
@@ -49,16 +49,15 @@ function usePan(frame) {
 }
 
 /**
- * An image in a fixed frame sized by the screen, whatever its dimensions, in one of two views: overview scales the
- * whole image to fit, pixels only; information draws numbered cells at their readable size, unscaled, every cell
- * selectable. The frame pans by dragging. It opens on information when the whole image fits, else on overview.
+ * An image in a fixed frame sized by the screen, whatever its dimensions, in the view every image shares
+ * (image-view.js): overview scales the whole image to fit, pixels only; information draws numbered cells at their
+ * readable size, unscaled, every cell selectable. The frame pans by dragging.
  */
 export default function ImageInspector({ value, label, note, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel }) {
   const root = useRef(null)
   const frame = useRef(null)
   const size = useFrameSize(frame)
   const pan = usePan(frame)
-  const [chosen, setChosen] = useState(null)
   const [point, setPoint] = useState(null)
   useEffect(()=>{
     if(!point)return
@@ -70,9 +69,7 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
     return ()=>{window.removeEventListener('scroll',dismiss,true);window.removeEventListener('resize',dismiss);document.removeEventListener('pointerdown',outside,true)}
   },[point])
   const cell = inspectorCell(value)
-  const fits = !size || (AXIS + value.w * cell + 2 <= size.w && AXIS + value.h * cell + 2 <= size.h)
-  const view = chosen ?? (fits ? 'info' : 'overview')
-  const info = view === 'info'
+  const info = useImageView() === 'info'
   const scale = size ? Math.min((size.w - 2) / value.w, (size.h - 2) / value.h) : 1
   const range = value.data.reduce(([lo, hi], v) => [Math.min(lo, v), Math.max(hi, v)], [Infinity, -Infinity])
   const select = (x, y, event, pinned) => {
@@ -88,11 +85,6 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
     <figcaption>
       <strong>{label}</strong>
       <span className="vi-inspect-meta" title={tr(`数值范围 ${fmt(range[0])} … ${fmt(range[1])}`, `Value range ${fmt(range[0])} … ${fmt(range[1])}`)}>{meta}</span>
-      <button type="button" className="vi-frame-view" onClick={() => setChosen(info ? 'overview' : 'info')}
-        aria-label={info ? tr('切换到简略视图', 'Switch to overview') : tr('切换到信息视图', 'Switch to information view')}
-        title={info ? tr('简略：整张图缩放进窗口', 'Overview: the whole image scaled to fit') : tr('信息：每格写出数值', 'Information: values in every cell')}>
-        {info ? <Pixels size={13} /> : <Hash size={13} />}
-      </button>
     </figcaption>
     <div ref={frame} className={`vi-frame ${info ? 'is-info' : 'is-overview'}`} {...pan}>
       <div className="vi-frame-canvas">

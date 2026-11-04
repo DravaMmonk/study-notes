@@ -16,6 +16,7 @@ import ImageView from './ImageView.jsx'
 import { imageNumber } from './image-layout.js'
 import { ProjectionCase } from './benches/CameraScene.jsx'
 import TestValues from './TestValues.jsx'
+import ImageViewSwitch from './ImageViewSwitch.jsx'
 import PartDetail from './PartDetail.jsx'
 import NumberField from '../../../shell/NumberField.jsx'
 import { taskBoard } from '../tooling.js'
@@ -214,6 +215,7 @@ export default function Screen(screen) {
       defaults={defaults}
       brief={{ hint: level.hint }}
       results={strip}
+      resultsAside={!screen.phone && rows.some(([, want]) => isImage(want)) && <ImageViewSwitch />}
       details
       sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} description={descriptionOf(node)} />}
       packed={{

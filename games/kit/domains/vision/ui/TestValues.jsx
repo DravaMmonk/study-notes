@@ -16,7 +16,8 @@ function Item({ label, value, like }) {
 
 const Group = ({ title, children }) => <section className="vi-test-group"><h4>{title}</h4><div>{children}</div></section>
 
-/** Desktop lays one test out in a single row — inputs, wanted, result; phones focus on one selectable output. */
+/** Desktop lays one test out in a single row — inputs, wanted, result; phones focus on one selectable output. The
+ * desktop's image view switch sits in the results header (Screen.jsx); the phone's in its output row. */
 export default function TestValues({ rows, given, phone, tolerance = 1e-5 }) {
   if (phone) return <MobileResults {...{ rows, given, tolerance }} />
   const inputs = rows.slice(0, given), outputs = rows.slice(given)
