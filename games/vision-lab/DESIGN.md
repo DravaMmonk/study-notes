@@ -15,10 +15,15 @@ An offset and the valid-interior radii are each one supplied integer vector, not
 Known offsets are supplied data, not estimated registration. Comparisons are controlled defect evidence, not
 claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
-A weighted line is built from shifts, multiplication and addition. A separable filter reuses that line along both
-axes through an explicit direction vector d, earned through separate horizontal and vertical tasks.
+The weighted-line preset receives an image, one three-element weight vector [first, centre, last] and an
+integer direction vector d. It reads at -d, zero and +d, retains signed values and channels, and applies the chosen
+border rule without normalising weights. The weight vector is carried as one single-channel row, using the existing
+numeric-array representation and one wire. It executes domain code, never a saved learner circuit. The introductory
+horizontal and vertical tasks explain the weighted sum without building a reusable component; the preset is introduced
+in the vertical transfer task before the processing routes diverge. Only assembled components with substantively different passing implementations
+and resulting complexity or execution-cost tradeoffs should retain learner circuits. Wiring order alone is not such a choice.
 All spatial neighbour reads use the single shift primitive; horizontal reads use d=(1,0) and vertical reads use d=(0,1).
-The vertical task generalises the line to a supplied direction using asymmetric weights and rectangular images. A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
+A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
 the table supplies traversal, not a weighted sum. Convolution reverses the written kernel before correlation.
 Parameterised border rules propagate through the player's actual nested graph. Zero, clamp, wrap and reflect
 are explicit assumptions; a valid interior is a separate cropped output. Reflection includes the edge sample.
@@ -31,7 +36,7 @@ paired for real signals. Numerical products, sums, phase and amplitude are compu
 
 The engine's packed parts execute the player's passed circuits. Built parts that expose `outside` forward only
 that declared setting to their internal spatial reads. Input contracts, including weights and complex components,
-remain visible. There are no separate built-in implementations of earned methods.
+remain visible. Presets execute their domain implementation; assembled components execute the learner circuit.
 
 ## Course dependency graph
 
@@ -39,7 +44,7 @@ Stage 0 has a shared inspection-station introduction before any branch: signed/a
 comparison -> a controlled inspection pipeline. Simple facets are tasks, not padded levels. Its comparator is
 reused in smoothing residuals and reconstruction checks.
 
-Stage 1 opens with horizontal three-sample construction followed by vertical transfer on the same graph, then
+Stage 1 opens with horizontal three-sample reasoning followed by vertical transfer on the same graph, then
 three independent routes. All routes therefore have both directions before reusing the line:
 
 - Direction/composition: two-axis separable processing -> smoothing with replicated edges -> signed removed detail

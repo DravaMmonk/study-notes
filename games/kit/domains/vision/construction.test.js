@@ -19,9 +19,8 @@ const COURSE = [
   ['difference', ['a', 'b'], ['out'], ['d = arithmetic[op=sub](a,b)', 'm = abs(d)', 'out <- m']],
   ['alignedDifference', ['observed', 'reference', { name: 'd', type: 'vector' }], ['out'], ['s = shift(observed,d)', 'c = difference(s,reference)', 'out <- c'], {
     tests: [{ inputs: { observed: [[0.1, 0.4, 0.8, 0.3]], reference: [[0.55, 0.8, 0.3, 0]], d: { x: 1, y: 0 } }, expect: { out: [[0.15000000000000002, 0, 0, 0]] } }] }],
-  ['weightedLine', ['image', 'left', 'centre', 'right', { name: 'd', type: 'vector' }], ['out'], ['minus = const[value=-1]()', 'negative = arithmetic[op=mul](d,minus)', 'l = shift(image,negative)', 'r = shift(image,d)', 'a = arithmetic[op=mul](l,left)', 'b = arithmetic[op=mul](image,centre)', 'c = arithmetic[op=mul](r,right)', 'ab = arithmetic[op=add](a,b)', 'total = arithmetic[op=add](ab,c)', 'out <- total'], {}, { settings: ['outside'], defaults: { outside: 'zero' } }],
   // A two-pass wrapper that exposes only its boundary: its internal axes must survive a new node's defaults.
-  ['separable3', ['image', 'left', 'centre', 'right', { name: 'horizontal', type: 'vector' }, { name: 'vertical', type: 'vector' }], ['out'], ['h = weightedLine(image,left,centre,right,horizontal)', 'v = weightedLine(h,left,centre,right,vertical)', 'out <- v'], {}, { settings: ['outside'] }],
+  ['separable3', ['image', 'weights', { name: 'horizontal', type: 'vector' }, { name: 'vertical', type: 'vector' }], ['out'], ['h = weightedLine(image,weights,horizontal)', 'v = weightedLine(h,weights,vertical)', 'out <- v'], {}, { settings: ['outside'] }],
   ['correlate', ['image', 'kernel'], ['out'], ['t = windowTable(image,kernel)', 'p = arithmetic[op=mul](t.samples,t.weights)', 's = reduceRows[mode=sum](p)', 'r = restore(s,image)', 'out <- r'], {}, { settings: spatial }],
   ['convolve', ['image', 'kernel'], ['out'], ['k = reverse(kernel)', 'v = correlate(image,k)', 'out <- v'], {}, { settings: spatial }],
   // One complex row transform per row with 1/N normalisation, from expanded rows; then both axes; then its inverse.
@@ -69,7 +68,7 @@ test('earned kernels and direction-input lines match independent direct filterin
   for(const outside of ['zero','clamp']) {
     const out=run(v,'convolve',{image:rows,kernel:[[.1,.2,.4]]},`[outside=${outside}]`).out
     approx(out,filterImage(fromRows(rows),fromRows([[.1,.2,.4]]),{outside,convention:'convolution'}))
-    const line=run(v,'weightedLine',{image:rows,left:.1,centre:.2,right:.4,d:{x:0,y:1}},`[outside=${outside}]`).out
+    const line=CONSTRUCTION_PARTS.weightedLine.eval({image:fromRows(rows),weights:fromRows([[.1,.2,.4]]),d:{x:0,y:1}},{params:{outside}})
     approx(line,filterImage(fromRows(rows),fromRows([[.1],[.2],[.4]]),{outside}))
   }
   const valid=CONSTRUCTION_PARTS.trim.eval({image:make(5,4,1,(x,y)=>10*y+x),r:{x:1,y:1}})
@@ -123,9 +122,8 @@ test('new packed-node defaults preserve internal axis choices instead of overrid
     return '['+Object.entries(params).map(([k,val])=>`${k}=${val}`).join(',')+']'
   }
   assert.equal(placed('separable3'),'[outside=zero]')
-  approx(run(v,'separable3',{image:rows,left:h[0],centre:h[1],right:h[2],horizontal:{x:1,y:0},vertical:{x:0,y:1}},placed('separable3')).out,filterImage(fromRows(rows),fromRows(h.map(a=>h.map(b=>a*b))),{outside:'zero'}))
-  assert.equal(placed('weightedLine'),'[outside=zero]','direction is an explicit input')
-  approx(run(v,'weightedLine',{image:rows,left:h[0],centre:h[1],right:h[2],d:{x:0,y:1}},placed('weightedLine')).out,filterImage(fromRows(rows),fromRows(h.map(x=>[x])),{outside:'zero'}))
+  approx(run(v,'separable3',{image:rows,weights:[h],horizontal:{x:1,y:0},vertical:{x:0,y:1}},placed('separable3')).out,filterImage(fromRows(rows),fromRows(h.map(a=>h.map(b=>a*b))),{outside:'zero'}))
+  approx(CONSTRUCTION_PARTS.weightedLine.eval({image:fromRows(rows),weights:fromRows([h]),d:{x:0,y:1}},{params:{outside:'zero'}}),filterImage(fromRows(rows),fromRows(h.map(x=>[x])),{outside:'zero'}))
   approx(run(v,'convolve',{image:rows,kernel:[h]},placed('convolve')).out,filterImage(fromRows(rows),fromRows([h]),{outside:'zero',convention:'convolution'}))
 })
 
@@ -137,4 +135,39 @@ test('offset reads preserve channels and signed values for horizontal, vertical 
     approx(got,make(3,2,3,(x,y,ch)=>readOutside(image,x+dx,y+dy,ch,outside)))
   }
   for(const [dx,dy] of [[.5,0],[0,.5]])assert.throws(()=>CONSTRUCTION_PARTS.shift.eval({image,d:{x:dx,y:dy}},{}))
+})
+
+
+test('weighted-line preset accepts one weight vector and matches direct filtering across borders and directions',()=>{
+  const image=make(4,3,3,(x,y,ch)=>(x-2)*.3+y+ch*.2)
+  for(const outside of ['zero','clamp'])for(const d of [{x:1,y:0},{x:0,y:1},{x:-1,y:0}]){
+    const weights=fromRows([[-1,.5,2]])
+    const got=CONSTRUCTION_PARTS.weightedLine.eval({image,weights,d},{params:{outside}})
+    const row=d.x<0?[[2,.5,-1]]:[[-1,.5,2]]
+    const kernel=fromRows(d.y?row[0].map(v=>[v]):row)
+    approx(got,filterImage(image,kernel,{outside}))
+  }
+  for(const [outside,want] of [['wrap',[[9,2,5]]],['reflect',[[2,2,5]]]]){
+    const out=CONSTRUCTION_PARTS.weightedLine.eval({image:fromRows([[2,5,9]]),weights:fromRows([[1,0,0]]),d:{x:1,y:0}},{params:{outside}})
+    assert.deepEqual(toRows(out),want)
+  }
+  const run=weights=>CONSTRUCTION_PARTS.weightedLine.eval({image,weights,d:{x:1,y:0}}, {})
+  for(const rows of [[[1,2]],[[1],[2],[3]],[[[1,2,3]]]])assert.throws(()=>run(fromRows(rows)))
+  assert.throws(()=>run(1))
+  assert.deepEqual(CONSTRUCTION_PARTS.weightedLine.inputs,['image','weights','d'])
+  assert.equal(CONSTRUCTION_PARTS.weightedLine.opens,undefined)
+})
+
+
+test('weighted-line preset never reads a saved learner implementation',()=>{
+  const task=circuit('preset_use',{inputs:['image','weights',{name:'d',type:'vector'}],adds:['weightedLine'],configurations:{'*.outside':['zero']},solution:['p = weightedLine(image,weights,d)','out <- p'],tests:[{inputs:{image:[[2,5,9]],weights:[[1,0,0]],d:{x:1,y:0}},expect:{out:[[0,2,5]]}}]})
+  const v=domain.spec(game({levels:[level('P',task)]})).vision
+  assert.equal(v.BUILT.weightedLine,undefined)
+  v.syncOwn({preset_use:{nodes:[],wires:[]}})
+  const source=v.played.get('P')[0]
+  const result=runTest(source,source.solution,source.tests[0],v.partOf)
+  assert.equal(result.fail,undefined)
+  assert.deepEqual(toRows(result.outputs.out),[[0,2,5]])
+  assert.equal(v.partOf('weightedLine').opens,undefined)
+  v.syncOwn()
 })

@@ -33,6 +33,7 @@ const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符�
 /* ---------- what content names ---------- */
 
 const PART_ABOUT = {
+  weightedLine: t('按前、中、后权重向量汇合方向 d 上的三格读数，使用代码预设', 'A code preset combining three readings along d using a first/centre/last weight vector'),
   arithmetic: t('可设置为加、减、乘、除：数与图逐值计算，向量与向量、向量与数逐分量计算', 'Configurable addition, subtraction, multiplication or division: elementwise over numbers and images, componentwise over vectors'),
   abs: t('逐值取绝对值', 'Absolute value, elementwise'),
   cosine: t('以周为单位计算余弦：1 周是 2π 弧度', 'Cosine in turns: one turn is 2π radians'),

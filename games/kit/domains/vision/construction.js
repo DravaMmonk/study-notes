@@ -1,4 +1,4 @@
-// Execution helpers expose samples and repetitions; learner circuits supply the visual algorithms.
+// Execution services and fixed presets; assembled algorithms run learner circuits.
 import { PartError } from '../../engine/circuit.js'
 import { isImage, isVector, make } from './image.js'
 
@@ -32,9 +32,18 @@ const integerVector = (v) => {
 const allocated = (w, h) => {
   if (w * h > 262144) fail('展开后的表过大，请缩小实验图像', 'The expanded table is too large; use a smaller experimental image')
 }
-export const CONSTRUCTION_DEFAULTS = { shift: { outside: 'zero' }, windowTable: { outside: 'zero', axis: 'x' }, reduceRows: { mode: 'mean' } }
+export const CONSTRUCTION_DEFAULTS = { weightedLine: { outside: 'zero' }, shift: { outside: 'zero' }, windowTable: { outside: 'zero', axis: 'x' }, reduceRows: { mode: 'mean' } }
 const spatial = (inputs, evalFn, { outputs, axis = false } = {}) => ({ inputs, params: ['outside', ...(axis ? ['axis'] : [])], settings: { outside: BORDERS, ...(axis ? { axis: ['x', 'y'] } : {}) }, ...(outputs ? { outputs } : {}), eval: evalFn })
 export const CONSTRUCTION_PARTS = {
+  weightedLine: spatial(['image', 'weights', 'd'], ({ image, weights, d }, node) => {
+    imageOf(image); imageOf(weights); integerVector(d)
+    if (weights.w !== 3 || weights.h !== 1 || weights.c !== 1) fail('权重向量需要按前、中、后排列的三个数', 'Weights must be a three-element row in first/centre/last order')
+    const [first, centre, last] = weights.data
+    return make(image.w, image.h, image.c, (x, y, ch) =>
+      first * readOutside(image, x - d.x, y - d.y, ch, node.params?.outside) +
+      centre * image.data[(y * image.w + x) * image.c + ch] +
+      last * readOutside(image, x + d.x, y + d.y, ch, node.params?.outside))
+  }),
   shift: spatial(['image', 'd'], ({ image, d }, node) => {
     imageOf(image); integerVector(d)
     return make(image.w, image.h, image.c, (x, y, ch) => readOutside(image, x + d.x, y + d.y, ch, node.params?.outside))

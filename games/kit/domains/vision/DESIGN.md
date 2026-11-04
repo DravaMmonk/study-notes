@@ -175,3 +175,11 @@ negative values hidden by grayscale clipping. Pixel details remain opt-in; compl
 coefficient length and phase in turns, with undefined phase stated for zero coefficients. On a phone the results sit
 below the board. Actual viewport and interaction checks are recorded in the stage review, not inferred
 from a build.
+
+
+## Preset and assembled components
+
+Use learner-built components only when distinct correct implementations can produce substantive complexity or
+execution-cost tradeoffs. A fixed weighted sum is a code preset: weightedLine(image, weights, d) consumes one
+three-element single-channel row in first/centre/last order. It preserves source shape and channels, uses explicit
+border rules and never loads a learner board. Introductory decomposition tasks do not imply a `builds` contract.

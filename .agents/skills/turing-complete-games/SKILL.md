@@ -56,7 +56,9 @@ copying the last wording forward.
   and a gate, each product written through the operation set, every run and gate recorded in `pipeline.json`. When a
   later step stops on an earlier one's product, hand its report back (`run <step> --from <later step>`); do not work
   around it in the later step.
-- A built part runs the board the player passed its level with; that board must read exactly the part's ports.
+- Choose a learner-built part only when substantively different passing implementations can differ in complexity
+  or execution cost. Fixed computations use code presets; wiring order and equivalent expansions do not qualify.
+  A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
 - Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …`, the MCP
   server's `modify`, or the studio (`npm run studio`, §6.7: the same tools over HTTP; a level edited on the
@@ -208,13 +210,12 @@ shows them at work in 《证明完毕》):
   attention block, matcher or evaluator before its construction when that is the point of the course. A parameter
   choice on a supplied box does not replace earning the abstraction. This qualifies the minimality rule below
   for execution helpers, not for bypassing core constructions.
-- **Primitives stay minimal** (§1). Whatever can be wired from parts already held is built by a builder level, never
-  given as a new primitive: ask of every primitive whether the parts in hand make it. A description saying "X and Y in
-  one step", "X, then Y" or "tries each of them" names a built part. A setting that hides a combination of parts (a
-  card offering "a set of rules") is a primitive in disguise too. The built part's implementation does exactly what
-  its circuit does, side effects included (the circuit keeps a hypothesis, so the part keeps it); a choice made in the
-  circuit (which rule, a constant) may stay as a setting on the built part. A builder level of a one-step transform
-  states what the step makes (`becomes` in 《证明完毕》), so the built-in alone can pass it.
+- **Choose presets versus assembled parts by implementation choice** (§1). Keep a learner-built component only
+  when multiple correct implementations can differ substantively in algorithmic complexity or execution cost.
+  Equivalent rewiring, reordered arithmetic and a fixed composition alone do not justify storing a learner board.
+  Supply fixed computations as code presets at the task that needs them; explain their mathematical relationships
+  without promising that the preset runs a learner implementation. Assembled parts run exactly the passed circuit,
+  including side effects, and expose choices through explicit inputs.
 - **Parts that stay where they are brought.** A go-between soon wrapped into a built part (one round of resolution,
   inside the saturator) or a part made for one level's scene (someone else's wrong prover) is `local`: never unlocked,
   never carried; a later level that needs it brings it again. A level whose puzzle turns around something ready-made

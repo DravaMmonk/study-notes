@@ -139,8 +139,8 @@
         "en": "Compose responses"
       },
       "brief": {
-        "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。",
-        "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components."
+        "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。 平滑权重向量 [1,2,1] 按前、中、后排列，整组接入三点加权器。",
+        "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components. The smoothing weight vector [1,2,1] is ordered first/centre/last and connects to the weighted-line preset as one input."
       },
       "intro": [
         {
@@ -154,7 +154,8 @@
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
         { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } },
         { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
-        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
+        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } },
+        { "name": "sobelWeights", "label": { "zh": "Sobel 平滑权重", "en": "Sobel smoothing weights" } }
       ],
       "outputs": [
         { "name": "gx", "label": { "zh": "Sobel gx", "en": "Sobel gx" } },
@@ -184,7 +185,8 @@
             ],
             "kernel": [[1, 0, -1]],
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "sobelWeights": [[1, 2, 1]]
           },
           "expect": {
             "gx": [
@@ -235,7 +237,8 @@
             ],
             "kernel": [[1, 0, -1]],
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "sobelWeights": [[1, 2, 1]]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -258,7 +261,8 @@
             "image": [[0.8, 0.4, 0.1], [0.7, 0.3, 0]],
             "kernel": [[1, 0, -1]],
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "sobelWeights": [[1, 2, 1]]
           },
           "expect": {
             "gx": [[-1.6, -2.8, -1.2000000000000002], [-1.5999999999999999, -2.8, -1.2]],
@@ -279,7 +283,8 @@
             "image": [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]],
             "kernel": [[1, 0, -1]],
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "sobelWeights": [[1, 2, 1]]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -289,22 +294,18 @@
         }
       ],
       "solution": [
-        "one = const[value=1]()",
-        "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp](g.gx,one,two,one,vertical)",
-        "y = weightedLine[outside=clamp](g.gy,one,two,one,horizontal)",
+        "x = weightedLine[outside=clamp](g.gx,sobelWeights,vertical)",
+        "y = weightedLine[outside=clamp](g.gy,sobelWeights,horizontal)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",
         "strength <- m"
       ],
       "naive": [
-        "one = const[value=1]()",
-        "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp](g.gx,one,two,one,horizontal)",
-        "y = weightedLine[outside=clamp](g.gy,one,two,one,vertical)",
+        "x = weightedLine[outside=clamp](g.gx,sobelWeights,horizontal)",
+        "y = weightedLine[outside=clamp](g.gy,sobelWeights,vertical)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",
@@ -321,8 +322,6 @@
         }
       ],
       "starter": [
-        "one = const[value=1]()",
-        "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)"
       ],
       "adds": [],

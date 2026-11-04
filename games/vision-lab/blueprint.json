@@ -635,6 +635,14 @@
         "zh": "数值、取样、形状或遍历的基础执行服务；不封装待学习的视觉算法。",
         "en": "A numeric, sampling, shape or traversal execution service; it does not encapsulate the assessed visual method."
       }
+    },
+    {
+      "part": "weightedLine",
+      "about": { "zh": "三点加权预设", "en": "Weighted-line preset" },
+      "why": {
+        "zh": "三格加权的实现只有等价的接线变化，没有实质性的算法复杂度或效率选择；用固定代码执行，权重向量只接一根线。",
+        "en": "Three-sample weighting offers equivalent wiring variations without substantive algorithmic complexity or efficiency choices; fixed code consumes one weight-vector wire."
+      }
     }
   ],
   "built": [
@@ -655,18 +663,10 @@
       "from": ["difference", "shift"]
     },
     {
-      "part": "weightedLine",
-      "about": {
-        "zh": "沿给定方向向量 d，按前侧、中心、后侧权重汇合三格读数。d=(1,0) 横向，(0,1) 纵向；图外规则可设置。",
-        "en": "Combine first/centre/last readings along direction vector d: (1,0) horizontally or (0,1) vertically, with explicit borders."
-      },
-      "from": ["arithmetic", "const", "shift"]
-    },
-    {
       "part": "separable3",
       "about": {
-        "zh": "把同一组三点权重沿两轴先后应用，运行你的三点加权电路。",
-        "en": "Apply the same three weights consecutively along both axes using your weighted-line circuit."
+        "zh": "将同一权重向量先后用于两轴，运行你搭建的双轴处理电路。",
+        "en": "Apply one weight vector consecutively along both axes using your two-axis circuit."
       },
       "from": ["weightedLine"]
     },
@@ -700,7 +700,7 @@
         "zh": "运行你的差分、垂直平滑与长度电路，输出 gx、gy 和强度；核和图外规则显式给出。",
         "en": "Run your derivative, perpendicular-smoothing and length circuit; expose gx, gy and strength with explicit kernel/borders."
       },
-      "from": ["const", "derivatives", "magnitude", "weightedLine"]
+      "from": ["derivatives", "magnitude", "weightedLine"]
     },
     {
       "part": "channelMeasure",
@@ -968,10 +968,10 @@
                 "image-difference",
                 "imageCircuit",
                 "shift",
-                "weighted-neighbourhood"
+                "weighted-neighbourhood",
+                "weightedLine"
               ],
-              "adds": ["const"],
-              "builds": "weightedLine",
+              "adds": ["const", "weightedLine"],
               "naive": {
                 "zh": "交换左右权重不会改变结果，或者所有权重都必须为正并且总和为 1。",
                 "en": "Swapping side weights has no effect, or all filters must have positive unit-sum weights."
@@ -1256,7 +1256,6 @@
               ],
               "role": "foundation",
               "uses": [
-                "const",
                 "derivatives",
                 "gradient-components",
                 "imageCircuit",

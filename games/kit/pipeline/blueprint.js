@@ -11,7 +11,7 @@
 //   its basis: the lectures' theory (the main path: concepts, models, methods) or technical (a library's or a tool's
 //   way, a file format, a workshop's recipe: OpenCV's channel order, uint8): taught only off the main path, in an
 //   optional topic hung after the theory it applies or after the era's main path ends;
-//   the primitives, each with why it cannot be wired from what is held; the parts the player builds, each with what
+//   the presets and primitives, each with why a code implementation is appropriate; the parts the player builds, each with what
 //   it is built from. A primitive is a tool, never a knowledge point: it comes in with the point that needs it (a part
 //   the player builds may embody a point: cropping, built as crop).
 //   the eras, each a run of series (foundation, practice, topic, challenge; series sharing `parallel` are one parallel
@@ -94,7 +94,7 @@ export const BLUEPRINT = S.obj({
     depends: S.opt(S.list(ID, { about: t('它由哪些更浅的知识点搭成：自下而上的知识图，难点拆到最浅的原点', 'the shallower points it is built from: the knowledge graph bottom up, a hard point taken down to its origins') })),
     basis: S.opt(S.oneOf(['lecture', 'technical'], { about: t('lecture：讲义里的理论（概念、模型、方法），主线只教它；technical：技术内容（库和工具的做法、文件格式、实验课的做法：OpenCV 的通道顺序、uint8），只在主线之外的可选专题里教：挂在它要用的理论之后，或这一章主线走完之后', 'lecture: the lectures’ theory (a concept, model or method), all the main path teaches; technical: a library’s or a tool’s way, a file format, a workshop’s recipe (OpenCV’s channel order, uint8), taught only off the main path, in an optional topic hung after the theory it applies or after the era’s main path ends') })),
   }), { min: 1, about: t('课程要教的本领域知识；元件是工具，不是知识点', 'the field knowledge the course teaches; a primitive is a tool, not a knowledge point') }),
-  primitives: S.list(S.obj({ part: ID, about: S.text(), why: S.text({ about: t('为什么不能用已有的元件接出来', 'why it cannot be wired from the parts held') }) })),
+  primitives: S.list(S.obj({ part: ID, about: S.text(), why: S.text({ about: t('为什么使用代码预设或基础元件，而不是保存玩家的实现', 'why a code preset or primitive is appropriate instead of a learner implementation') }) })),
   built: S.list(S.obj({ part: ID, about: S.text(), from: S.list(ID) })),
   eras: S.list(S.obj({
     id: S.int(),

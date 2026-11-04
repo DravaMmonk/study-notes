@@ -3,6 +3,7 @@ import { ArrowLeftRight, ArrowRightLeft, Braces, Grid3x3, Move, Radical, Sigma, 
 const T = (zh, en) => ({ zh, en })
 const card = (zh, en, icon, descZh, descEn) => ({ name: T(zh, en), icon, family: 'image', desc: T(descZh, descEn) })
 export const CONSTRUCTION_CARDS = {
+  weightedLine: card('三点加权器', 'Weighted line', Sigma, '权重向量按 [前, 中, 后] 排列，读取 -d、当前位置、+d。d=(1,0) 横向，(0,1) 纵向。权重不自动归一化，保留符号和通道；图外遵循所选规则。', 'Read at -d, the current position and +d with weights [first, centre, last]. d=(1,0) is horizontal and (0,1) vertical. Preserve signs and channels without normalising weights; use the selected border rule.'),
   abs: card('绝对值', 'Absolute value', Radical, '逐值去掉正负号，保留大小。图像数值不截断。', 'Remove the sign of each value, retaining its magnitude without clipping.'),
   cosine: card('余弦', 'Cosine', Waves, '输入以周为单位的角度。输出 cos(2πa)：0 周为 1，1/4 周为 0，1/2 周为 −1。数或图逐值计算。', 'Compute cos(2πa) for an angle in turns: 0 gives 1, 1/4 gives 0, 1/2 gives −1. Applies elementwise.'),
   shift: card('偏移取样', 'Offset read', Move, '输出位置 (x,y) 读取输入的 (x+dx,y+dy)。dx 向右、dy 向下为正，须为整数。只改变读取的位置，不改变亮度；图外遵循所选规则。', 'Output (x,y) reads input (x+dx,y+dy). Integer dx is positive right, dy down. Values are unchanged; outside reads use the selected rule.'),
@@ -18,8 +19,9 @@ export const CONSTRUCTION_CARDS = {
 export const BORDER_OPTIONS = [['zero', T('图外取 0', 'Zero')], ['clamp', T('延续边缘', 'Replicate edge')], ['wrap', T('周期延续', 'Periodic')], ['reflect', T('镜像延续', 'Reflect')]]
 export const BORDER_FIELD = { key: 'outside', label: T('图外假设', 'Outside'), options: BORDER_OPTIONS }
 export const AXIS_FIELD = { key: 'axis', label: T('空间轴', 'Axis'), options: [['x', T('横向', 'Horizontal')], ['y', T('纵向', 'Vertical')]] }
-export const CONSTRUCTION_FIELDS = { shift: [BORDER_FIELD], windowTable: [AXIS_FIELD, BORDER_FIELD], reduceRows: [{ key: 'mode', label: T('汇总', 'Reduction'), options: [['mean', T('平均', 'Mean')], ['sum', T('求和', 'Sum')]] }] }
+export const CONSTRUCTION_FIELDS = { weightedLine: [BORDER_FIELD], shift: [BORDER_FIELD], windowTable: [AXIS_FIELD, BORDER_FIELD], reduceRows: [{ key: 'mode', label: T('汇总', 'Reduction'), options: [['mean', T('平均', 'Mean')], ['sum', T('求和', 'Sum')]] }] }
 export const CONSTRUCTION_PORTS = {
+  weightedLine: { image: T('图', 'Image'), weights: T('权重向量', 'Weight vector'), d: T('方向 d', 'Direction d') },
   abs: { a: T('值', 'Value') }, cosine: { a: T('角度（周）', 'Angle (turns)') },
   shift: { image: T('图', 'Image'), d: T('位移 d', 'Offset d') },
   transpose: { image: T('图', 'Image') }, reverse: { image: T('表', 'Table') },

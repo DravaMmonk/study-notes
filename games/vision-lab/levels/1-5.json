@@ -28,10 +28,9 @@
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
-        { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } },
         { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
-        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
+        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } },
+        { "name": "weights", "label": { "zh": "高斯权重", "en": "Weight vector" } }
       ],
       "outputs": [
         { "name": "out", "label": { "zh": "平滑读数", "en": "Smoothed readings" } }
@@ -43,10 +42,9 @@
               [0.6, 0.6, 0.6],
               [0.6, 0.6, 0.6]
             ],
-            "side": 0.25,
-            "centre": 0.5,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
             "out": [[0.6, 0.6, 0.6], [0.6, 0.6, 0.6]]
@@ -55,10 +53,9 @@
         {
           "inputs": {
             "image": [[1, 0, 0], [0, 0, 0]],
-            "side": 0.25,
-            "centre": 0.5,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
             "out": [[0.5625, 0.1875, 0], [0.1875, 0.0625, 0]]
@@ -67,10 +64,9 @@
         {
           "inputs": {
             "image": [[0.2], [0.8], [0.4]],
-            "side": 0.25,
-            "centre": 0.5,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
             "out": [[0.35000000000000003], [0.55], [0.5]]
@@ -79,11 +75,11 @@
       ],
       "hidden": [],
       "solution": [
-        "s = separable3[outside=clamp](image,side,centre,side,horizontal,vertical)",
+        "s = separable3[outside=clamp](image,weights,horizontal,vertical)",
         "out <- s"
       ],
       "naive": [
-        "s = separable3[outside=zero](image,side,centre,side,horizontal,vertical)",
+        "s = separable3[outside=zero](image,weights,horizontal,vertical)",
         "out <- s"
       ],
       "naiveWhy": {
@@ -120,10 +116,9 @@
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
-        { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } },
         { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
-        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
+        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } },
+        { "name": "weights", "label": { "zh": "高斯权重", "en": "Weight vector" } }
       ],
       "outputs": [
         { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
@@ -137,10 +132,9 @@
               [0.8, 0.8, 0.8],
               [0.2, 0.2, 0.2]
             ],
-            "side": 0.25,
-            "centre": 0.5,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
             "smooth": [
@@ -166,10 +160,9 @@
         {
           "inputs": {
             "image": [[0.7, 0.7, 0.7], [0.7, 0.1, 0.7], [0.7, 0.7, 0.7]],
-            "side": 0.25,
-            "centre": 0.5,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
             "smooth": [
@@ -183,10 +176,9 @@
         {
           "inputs": {
             "image": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
-            "side": 0.25,
-            "centre": 0.5,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
             "smooth": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
@@ -196,14 +188,14 @@
       ],
       "hidden": [],
       "solution": [
-        "s = separable3[outside=clamp](image,side,centre,side,horizontal,vertical)",
+        "s = separable3[outside=clamp](image,weights,horizontal,vertical)",
         "r = arithmetic[op=sub](image,s)",
         "smooth <- s",
         "detail <- r"
       ],
-      "starter": ["s = separable3[outside=clamp](image,side,centre,side,horizontal,vertical)", "smooth <- s"],
+      "starter": ["s = separable3[outside=clamp](image,weights,horizontal,vertical)", "smooth <- s"],
       "naive": [
-        "s = separable3[outside=clamp](image,side,centre,side,horizontal,vertical)",
+        "s = separable3[outside=clamp](image,weights,horizontal,vertical)",
         "r = difference(image,s)",
         "smooth <- s",
         "detail <- r"
@@ -240,11 +232,10 @@
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
-        { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } },
         { "name": "amount", "label": { "zh": "细节强度", "en": "Detail strength" } },
         { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
-        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
+        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } },
+        { "name": "weights", "label": { "zh": "高斯权重", "en": "Weight vector" } }
       ],
       "outputs": [
         { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
@@ -259,11 +250,10 @@
               [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2],
               [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2]
             ],
-            "side": 0.274068619061197,
-            "centre": 0.45186276187760605,
             "amount": 1,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]]
           },
           "expect": {
             "smooth": [
@@ -340,11 +330,10 @@
         {
           "inputs": {
             "image": [[0.1, 0.1, 0.8, 0.8], [0.1, 0.9, 0.8, 0.8], [0.1, 0.1, 0.8, 0.8]],
-            "side": 0.274068619061197,
-            "centre": 0.45186276187760605,
             "amount": 0.6,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]]
           },
           "expect": {
             "smooth": [
@@ -367,11 +356,10 @@
         {
           "inputs": {
             "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
-            "side": 0.274068619061197,
-            "centre": 0.45186276187760605,
             "amount": 1.4,
             "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 }
+            "vertical": { "x": 0, "y": 1 },
+            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]]
           },
           "expect": {
             "smooth": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
@@ -382,7 +370,7 @@
       ],
       "hidden": [],
       "solution": [
-        "s = separable3[outside=clamp](image,side,centre,side,horizontal,vertical)",
+        "s = separable3[outside=clamp](image,weights,horizontal,vertical)",
         "detail = arithmetic[op=sub](image,s)",
         "scaled = arithmetic[op=mul](detail,amount)",
         "e = arithmetic[op=add](image,scaled)",
@@ -392,12 +380,12 @@
         "change <- d"
       ],
       "starter": [
-        "s = separable3[outside=clamp](image,side,centre,side,horizontal,vertical)",
+        "s = separable3[outside=clamp](image,weights,horizontal,vertical)",
         "detail = arithmetic[op=sub](image,s)",
         "smooth <- s"
       ],
       "naive": [
-        "s = separable3[outside=clamp](image,side,centre,side,horizontal,vertical)",
+        "s = separable3[outside=clamp](image,weights,horizontal,vertical)",
         "detail = arithmetic[op=sub](image,s)",
         "scaled = arithmetic[op=mul](detail,amount)",
         "e = arithmetic[op=add](s,scaled)",

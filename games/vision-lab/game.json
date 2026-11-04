@@ -31,6 +31,7 @@
     "size",
     "transpose",
     "trim",
+    "weightedLine",
     "windowTable"
   ],
   "concept": {
@@ -51,7 +52,8 @@
     "positions": "coordinates",
     "expandRows": "traversal",
     "size": "localTraversal",
-    "arithmetic": "arithmetic"
+    "arithmetic": "arithmetic",
+    "weightedLine": "weighted-neighbourhood"
   },
   "eras": [
     {
@@ -514,6 +516,11 @@
     {
       "version": 36,
       "why": "Keep unified sampling compatible with the main branch vector input contract",
+      "ops": [{"drop": ["v1_line", "v1_vertical", "v1_scanner", "v1_separable", "v1_smooth_border", "v1_residual", "v1_detail", "v1_strength", "v1_sobel"]}]
+    },
+    {
+      "version": 37,
+      "why": "Provide weightedLine as a code preset with one first/centre/last weight-vector input",
       "ops": [{"drop": ["v1_line", "v1_vertical", "v1_scanner", "v1_separable", "v1_smooth_border", "v1_residual", "v1_detail", "v1_strength", "v1_sobel"]}]
     }
   ]

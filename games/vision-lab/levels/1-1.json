@@ -141,52 +141,37 @@
       "step": { "zh": "把邻居换到上下", "en": "Move the neighbourhood to columns" },
       "configurations": {},
       "brief": {
-        "zh": "按给定方向 d 组合前侧、当前、后侧的读数，分别使用三项权重。d=(0,1) 时读取上、中、下；(1,0) 时读取左、中、右。前侧使用 -d，后侧使用 d，图外取 0，保持原图尺寸。",
-        "en": "Combine first, current and last readings along the supplied direction d using the three weights. d=(0,1) reads above/centre/below; (1,0) reads left/centre/right. Read the first at -d and the last at d, using zero outside and preserving image size."
+        "zh": "用预设三点加权器，将给定 [前, 中, 后] 权重向量沿方向 d 用于读数图。d=(0,1) 对应上、中、下，(1,0) 对应左、中、右；保持尺寸，图外取 0。权重向量整组接入一个口。",
+        "en": "Use the weighted-line preset with the supplied [first, centre, last] weight vector and direction d. d=(0,1) reads above/centre/below and (1,0) reads left/centre/right. Preserve size and use zero outside. Connect the whole weight vector to one port."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
-        { "name": "left", "label": { "zh": "前侧", "en": "First" } },
-        { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
-        { "name": "right", "label": { "zh": "后侧", "en": "Last" } },
+        { "name": "weights", "label": { "zh": "权重向量 [前,中,后]", "en": "Weights [first,centre,last]" } },
         { "name": "d", "type": "vector", "label": { "zh": "取样方向 d", "en": "Sampling direction d" } }
-      ],
-      "inputGroups": [
-        {
-          "name": "weights",
-          "label": { "zh": "邻域权重", "en": "Neighbourhood weights" },
-          "inputs": ["left", "centre", "right"]
-        }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "方向加权结果", "en": "Directional weighted result" } }],
       "tests": [
         {
           "inputs": {
             "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-            "left": 0.25,
-            "centre": 0.5,
-            "right": 0.25,
-            "d": { "x": 0, "y": 1 }
+            "d": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": { "out": [[0, 0.25, 0], [0, 0.5, 0], [0, 0.25, 0]] }
         },
         {
           "inputs": {
             "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "left": -1,
-            "centre": 0,
-            "right": 1,
-            "d": { "x": 0, "y": 1 }
+            "d": { "x": 0, "y": 1 },
+            "weights": [[-1, 0, 1]]
           },
           "expect": { "out": [[0.7, 0.1, 0.5], [-0.2, -0.8, -0.4]] }
         },
         {
           "inputs": {
             "image": [[0.6, 0.6], [0.6, 0.6], [0.6, 0.6], [0.6, 0.6]],
-            "left": 0.25,
-            "centre": 0.5,
-            "right": 0.25,
-            "d": { "x": 0, "y": 1 }
+            "d": { "x": 0, "y": 1 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
             "out": [
@@ -202,67 +187,45 @@
         {
           "inputs": {
             "image": [[0.2, 0.8, 0.4]],
-            "left": 0.2,
-            "centre": 0.6,
-            "right": 0.2,
-            "d": { "x": 0, "y": 1 }
+            "d": { "x": 0, "y": 1 },
+            "weights": [[0.2, 0.6, 0.2]]
           },
           "expect": { "out": [[0.12, 0.48, 0.24]] }
         },
         {
           "inputs": {
             "image": [[0, 0, 1, 0, 0]],
-            "left": 0.25,
-            "centre": 0.5,
-            "right": 0.25,
-            "d": { "x": 1, "y": 0 }
+            "d": { "x": 1, "y": 0 },
+            "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": { "out": [[0, 0.25, 0.5, 0.25, 0]] }
         },
         {
           "inputs": {
             "image": [[0.6, 0.6, 0.6, 0.6, 0.6]],
-            "left": 0.3333333333333333,
-            "centre": 0.3333333333333333,
-            "right": 0.3333333333333333,
-            "d": { "x": 1, "y": 0 }
+            "d": { "x": 1, "y": 0 },
+            "weights": [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333]]
           },
           "expect": { "out": [[0.39999999999999997, 0.6, 0.6, 0.6, 0.39999999999999997]] }
         },
         {
           "inputs": {
             "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "left": -1,
-            "centre": 0,
-            "right": 1,
-            "d": { "x": 1, "y": 0 }
+            "d": { "x": 1, "y": 0 },
+            "weights": [[-1, 0, 1]]
           },
           "expect": { "out": [[0.8, 0.2, -0.8], [0.1, -0.19999999999999996, -0.1]] }
         }
       ],
       "solution": [
-        "minus = const[value=-1]()",
-        "negative = arithmetic[op=mul](d,minus)",
-        "l = shift(image,negative)",
-        "r = shift(image,d)",
-        "a = arithmetic[op=mul](l,left)",
-        "b = arithmetic[op=mul](image,centre)",
-        "c = arithmetic[op=mul](r,right)",
-        "ab = arithmetic[op=add](a,b)",
-        "total = arithmetic[op=add](ab,c)",
-        "out <- total"
+        "line = weightedLine(image,weights,d)",
+        "out <- line"
       ],
       "naive": [
         "minus = const[value=-1]()",
         "negative = arithmetic[op=mul](d,minus)",
-        "l = shift(image,d)",
-        "r = shift(image,negative)",
-        "a = arithmetic[op=mul](l,left)",
-        "b = arithmetic[op=mul](image,centre)",
-        "c = arithmetic[op=mul](r,right)",
-        "ab = arithmetic[op=add](a,b)",
-        "total = arithmetic[op=add](ab,c)",
-        "out <- total"
+        "line = weightedLine(image,weights,negative)",
+        "out <- line"
       ],
       "naiveWhy": {
         "zh": "交换前后读取方向会反转非对称权重的响应。用不对称权重检查上、下是否交换。",
@@ -274,31 +237,17 @@
           "en": "Use one impulse to see whether support spreads along its row or column, then asymmetric weights to check above/below order. Numerical calculation is automatic."
         }
       ],
-      "starter": [
-        "minus = const[value=-1]()",
-        "negative = arithmetic[op=mul](d,minus)",
-        "b = arithmetic[op=mul](image,centre)"
-      ],
-      "adds": [],
+      "starter": [],
+      "adds": ["weightedLine"],
       "carries": true,
       "intro": [
         {
           "t": {
-            "zh": "同一列的上、下读数也会影响中心。继续使用偏移取样，把方向改为 d=(0,1)。封装时将方向向量 d 留作输入，让后续电路选择横向或纵向。先观察一列的响应，再处理整张图。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-            "en": "Readings above and below also contribute to a centre. Reuse offset read with direction d=(0,1). Expose the direction vector d as an input so later circuits can select rows or columns. Inspect a column before processing the full image. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+            "zh": "横向三格的加权关系已经验证。现在用三点加权器复用这个固定计算：权重按 [前, 中, 后] 排成一个向量，整组接入；改变方向 d 就能处理一列。预设执行固定计算，不使用之前的电路。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+            "en": "The horizontal three-sample relationship is established. Reuse it with the weighted-line preset: connect the entire [first, centre, last] weight vector, then change direction d to process columns. This preset executes a fixed computation independently of the earlier circuit. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
           }
         }
       ]
     }
-  ],
-  "builds": {
-    "type": "weightedLine",
-    "name": { "zh": "三点加权器", "en": "Weighted line" },
-    "desc": {
-      "zh": "沿给定方向向量 d，按前侧、中心、后侧权重汇合三格读数。d=(1,0) 横向，(0,1) 纵向；图外规则可设置。",
-      "en": "Combine first/centre/last readings along direction vector d: (1,0) horizontally or (0,1) vertically, with explicit borders."
-    },
-    "settings": ["outside"],
-    "defaults": { "outside": "zero" }
-  }
+  ]
 }

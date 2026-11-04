@@ -16,11 +16,11 @@ const grouped = () => game({ levels: [
     tests: [{ inputs: { image: [[0, 0, 1, 0, 0]], ...weights, d: {x:1,y:0} }, expect: { out: [[0, 0.25, 0.5, 0.25, 0]] } }],
     hidden: [{ inputs: { image: [[1, 3]], left: 1, centre: 0, right: -1, d: {x:1,y:0} }, expect: { out: [[-3, 1]] } }],
     solution: ['minus = const[value=-1]()', 'negative = arithmetic[op=mul](d,minus)', 'l = shift(image,negative)', 'r = shift(image,d)', 'a = arithmetic[op=mul](l,left)', 'b = arithmetic[op=mul](image,centre)', 'c = arithmetic[op=mul](r,right)', 'ab = arithmetic[op=add](a,b)', 'total = arithmetic[op=add](ab,c)', 'out <- total'],
-  }), { builds: builds('weightedLine') }),
+  }), { builds: builds('groupedLine') }),
   level('H', circuit('h_twice', {
     inputs: ['image', 'left', 'centre', 'right', { name: 'd', type: 'vector' }],
     tests: [{ inputs: { image: [[0, 0, 1, 0, 0]], ...weights, d: {x:1,y:0} }, expect: { out: [[0.0625, 0.25, 0.375, 0.25, 0.0625]] } }],
-    solution: ['p = weightedLine(image,left,centre,right,d)', 'q = weightedLine(p,left,centre,right,d)', 'out <- q'],
+    solution: ['p = groupedLine(image,left,centre,right,d)', 'q = groupedLine(p,left,centre,right,d)', 'out <- q'],
   })),
 ] })
 
@@ -28,7 +28,7 @@ test('grouped weights retain saved wiring, alternate boards and reusable packed 
   const content = grouped()
   const vision = domain.spec(content).vision
   assert.deepEqual(vision.wrong, [])
-  const task = vision.builtBy('weightedLine')
+  const task = vision.builtBy('groupedLine')
   const raw = content.levels[0].tasks[0]
   const old = fromText(raw.solution, { ...task, inputGroups: undefined }, vision.partOf)
   assert.equal(old.nodes.filter((node) => node.type === 'in').length, 5, 'a board saved before grouping has one source an input')
