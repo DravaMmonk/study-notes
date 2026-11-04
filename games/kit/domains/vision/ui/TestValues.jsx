@@ -1,6 +1,5 @@
 import { L, tr } from '../../../shell/i18n.js'
 import { differs, isImage, pixel, show } from '../image.js'
-import { denseCell } from './image-layout.js'
 import ImageInspector from './ImageInspector.jsx'
 import MobileResults from './MobileResults.jsx'
 
@@ -13,13 +12,12 @@ function Output({ label, want, got, tolerance }) {
   const paired = sameShape(want, got)
   const different = paired ? (x, y) => changed(pixel(want, x, y), pixel(got, x, y), tolerance) ? 'is-different' : '' : undefined
   const inspectPixel = paired ? (x, y) => <><span>{tr('预期', 'Wanted')} {sampleText(pixel(want, x, y))}</span><span>{tr('结果', 'Result')} {sampleText(pixel(got, x, y))}</span></> : undefined
-  const cell = isImage(want) ? Math.max(denseCell(want), isImage(got) ? denseCell(got) : 0) : undefined
   const wrong = got !== undefined && Boolean(differs(want, got, tolerance))
   return <section className="vi-test-output" data-different={wrong || undefined}>
     <h4>{label}</h4>
     {isImage(want) ? <div className="vi-test-pair">
-      <ImageInspector value={want} label={tr('预期', 'Wanted')} fit dense cell={cell} inspectPixel={inspectPixel} />
-      {isImage(got) && <ImageInspector value={got} label={tr('结果', 'Result')} showSize={!paired} fit dense cell={cell} cellClass={different} inspectPixel={inspectPixel} />}
+      <ImageInspector value={want} label={tr('预期', 'Wanted')} fit dense inspectPixel={inspectPixel} />
+      {isImage(got) && <ImageInspector value={got} label={tr('结果', 'Result')} showSize={!paired} fit dense cellClass={different} inspectPixel={inspectPixel} />}
       {got !== undefined && !isImage(got) && <figure className="vi-inspector vi-test-missing"><figcaption><strong>{tr('结果', 'Result')}</strong></figcaption><span className="vi-value">{show(got)}</span></figure>}
     </div> : <dl className="vi-test-scalars">
       <div><dt>{tr('预期', 'Wanted')}</dt><dd>{show(want)}</dd></div>

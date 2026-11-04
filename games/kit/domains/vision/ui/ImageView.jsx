@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { display, pixel } from '../image.js'
-import { AXIS, imageNumber } from './image-layout.js'
+import { AXIS, imageNumber, numberSize } from './image-layout.js'
 
 // An image value drawn as its grid (../image.js): each cell its grey or colour (values clipped to [0, 1] for the eye,
 // the numbers written as they are), optionally its numbers in the cells and the x and y axes along the top and left.
@@ -27,7 +27,7 @@ export default function ImageView({ value, numbers = false, axes = false, grid =
       cells.push(
         <g key={`${x},${y}`} transform={`translate(${off + x * cell} ${off + y * cell})`} onClick={onPick ? (e) => onPick(x, y, e) : undefined} onPointerEnter={onHover ? (e) => { if (e.pointerType === 'mouse') onHover(x, y, e) } : undefined} role={onPick ? 'button' : undefined} tabIndex={onPick ? 0 : undefined} aria-label={onPick ? cellLabel?.(x, y, p) ?? `(${x}, ${y})` : undefined} onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(x, y, e) } } : undefined} className={[onPick ? 'vi-pick' : '',cellClass?.(x,y) ?? ''].filter(Boolean).join(' ') || undefined}>
           <rect width={cell} height={cell} fill={fill} />
-          {numbers && <text x={cell / 2} y={cell / 2} className={`vi-num ${light ? 'is-dark' : 'is-light'}`}>{Array.isArray(p) ? p.map((v, k) => <tspan key={k} x={cell / 2} y={cell / 2 + (k - 1) * 14}>{'RGB'[k]} {imageNumber(v)}</tspan>) : imageNumber(p)}</text>}
+          {numbers && <text x={cell / 2} y={cell / 2} className={`vi-num ${light ? 'is-dark' : 'is-light'}`} style={{ fontSize: numberSize(Array.isArray(p) ? `R ${p.map(imageNumber).reduce((a, b) => (b.length > a.length ? b : a))}` : imageNumber(p), cell) }}>{Array.isArray(p) ? p.map((v, k) => <tspan key={k} x={cell / 2} y={cell / 2 + (k - 1) * 14}>{'RGB'[k]} {imageNumber(v)}</tspan>) : imageNumber(p)}</text>}
         </g>,
       )
     }

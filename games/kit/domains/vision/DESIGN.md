@@ -25,10 +25,11 @@ The plain-text component description sits under the title, unfolded. Pixel inspe
 Every inspected image (tests, results, part details, figures) sits in one fixed display window sized by the screen,
 whatever its dimensions. The desktop result row is the exception, for density: one test's outputs in one row, each output's
 wanted and result side by side with the differing cells marked; its windows shrink to their image (at most 220 × 150 px):
-information cells just wide enough for their numbers, one width for a compared pair, and overview a thumbnail just
+narrower information cells (28 px), and overview a thumbnail just
 large enough to tell its pixels apart; the verdict sits in the results header beside the view switch. Results on
 either screen show no inputs: the board's input cards hold them. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
-only; information keeps intrinsic cells of at least 36 px with numbers and axes, unscaled, every cell selectable on
+only; information keeps intrinsic cells of 36 px with numbers and axes (a number too long for its cell, such as a
+negative one, is written smaller, never widening the cell), unscaled, every cell selectable on
 touch. Dragging pans the window. One switch in the results (the desktop pane header, the phone's output row)
 changes the view of every image on screen at once; it starts at information and is remembered per viewer.
 Cell numbers use up to two decimal places; mouse hover, touch selection and keyboard activation expose original
