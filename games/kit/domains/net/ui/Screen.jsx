@@ -175,7 +175,6 @@ export default function Screen(screen) {
       brief={{ hint: level.hint }}
       describe={(n) => (own.BUILT[n.type] ? builderOf(n.type).builds.desc : game.textAt(CARDS[n.type], level.id)?.desc)}
       results={strip}
-      resultsTitle={tr(`测试 ${run.at + 1}`, `Test ${run.at + 1}`)}
       packed={{
         open: (node) => {
           const inside = own.BUILT[node.type]?.opens?.()

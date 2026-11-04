@@ -202,7 +202,6 @@ function BoardScreen({ board, screen }) {
           <p className={`lg-verdict ${result ? (result.pass ? 'is-pass' : 'is-fail') : ''}`}>{verdictText ?? L(board.words.idle)}</p>
         </div>
       )}
-      resultsTitle={tr('这组测试', 'This test')}
       below={below}
       follow={stepped && { began, key: run.run ? `${run.run.test}:${run.run.step}:${run.run.results.length}` : '' }}
       words={{ go: L(board.words.go), done: L(board.words.passed) }}
