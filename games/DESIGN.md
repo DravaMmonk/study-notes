@@ -595,6 +595,8 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **内容可以：** 在词汇表里选项、填参数；写测试数据、参考解和 naive 解（蓝图文本）、文案和百科。**不可以：** 写任何函数；定义新元件的求值、新世界、新的参数台模型或显示项、新界面。需要新东西时，加到领域的词汇表和实现里。
 
+**单元测试不认识关卡。** 测试跟着三层分开：`npm test` 只测内核和领域的机制，用的内容是测试里现写的小内容，或领域的 `starter/`（契约测试和 `new-game` 共用的最小样例），不读任何一款游戏的关卡，也不写死某一关、某个任务或一款游戏有几关。对每款游戏都成立的性质（契约、文件的写法）可以逐款机械地查，但不点名任何一关；要列例外时，例外由领域或内容自己声明，不写在测试里。一款游戏的关卡对不对（参考解、naive 解、审计、文案）只由 `npm run check` 查。所以改关卡不用改测试；改了关卡测试就失败，说明那条测试写错了层。
+
 **命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款）；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run pipeline -- <游戏> <命令>` 跑 agent 流水线的一步、它的闸门、它的记录（第 7.2 节）；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
 
 **界面约定（所有游戏共用，改动时保持）：**

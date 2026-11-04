@@ -44,6 +44,10 @@ copying the last wording forward.
   `task.move`, `task.remove`, `task.rename` (two levels made one: move the tasks, remove the emptied level in the same
   changeset). A new domain writes its level schema with `taskLevel(once, task)` and reads levels task by task
   (`taskLevels`); the prototype domains keep `kind` plus optional `tasks` without ids until they are redone.
+- Unit tests (`npm test`) never know a level: they test the kernel and domains on content written in the test or on
+  the domain's `starter/`, never a game's levels, a level or task id, or a level count. A property of every game is
+  checked game by game without naming a level; exceptions are declared by the domain or the content, not listed in a
+  test. Whether a game's levels are right is `npm run check`'s job alone, so changing levels never changes a test.
 - A domain keeps the domain contract (`games/DESIGN.md` §6.3, `kit/engine/contract.js`, checked by `npm test`). A new
   topic picks its mechanisms from the catalogue (§6.5) and starts from `npm run new-domain -- <name> --mechanism
   <m>`; a new game on an existing domain from `npm run new-game -- <id> --domain <d>`.
