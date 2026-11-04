@@ -5,7 +5,7 @@ import { EntriesSize, SHEET } from './Entries.jsx'
 
 // A bottom sheet: slides up over a dimmed page, closes on the backdrop, on Escape, on the close
 // button, or by dragging its handle down. What it holds knows it is in a sheet (Entries.jsx: longer lists).
-export default function Sheet({ title, onClose, children, footer }) {
+export default function Sheet({ title, onClose, children, footer, actions }) {
   const [drag, setDrag] = useState(0)
   const start = useRef(null)
 
@@ -43,6 +43,7 @@ export default function Sheet({ title, onClose, children, footer }) {
         </div>
         <header className="ph-sheet-head">
           <h2>{title}</h2>
+          {actions && <div className="ph-sheet-actions">{actions}</div>}
           <button className="ph-icon" onClick={onClose} aria-label={tr('关闭', 'Close')}><X size={18} /></button>
         </header>
         <div className="ph-sheet-body"><EntriesSize.Provider value={SHEET}>{children}</EntriesSize.Provider></div>

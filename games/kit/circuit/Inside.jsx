@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom'
 import { Info, Pencil } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import Sheet from '../shell/Sheet.jsx'
-import PartActions from './PartActions.jsx'
 import SlotBoard from './SlotBoard.jsx'
 import { insideAt } from '../engine/trace.js'
 
@@ -78,11 +77,14 @@ export function PackedTools({ onEdit, onDetail }) {
   )
 }
 
-/** On a desktop: a packed part's detail window, its description and body, the board it runs and its edit button. */
+/** Edit (go to the level that builds the part) beside a read-only detail window's close button. */
+const EditAction = ({ onEdit }) => <button type="button" className="ph-head-action" onClick={onEdit} title={tr('在搭出它的关卡中编辑', 'Edit in the level that builds it')}><Pencil size={13} />{tr('编辑', 'Edit')}</button>
+
+/** On a desktop: a packed part's detail window, its description and body and the board it runs; edit beside close. */
 export function PackedDetail({ inside, node, at, path, onClose, children }) {
   const ctx = ctxOf(at, path.slice(0, -1))
   return (
-    <Sheet title={L(at.parts.label(node))} onClose={onClose} footer={<PartActions onEdit={() => { onClose(); inside.edit(node, at) }} />}>
+    <Sheet title={L(at.parts.label(node))} onClose={onClose} actions={<EditAction onEdit={() => { onClose(); inside.edit(node, at) }} />}>
       <div className="cl-sheet">
         {children ?? <>{inside.describe(node, ctx)}{inside.sheet(node, ctx)}</>}
         <InsideBoard inside={inside} path={path} />
@@ -94,7 +96,7 @@ export function PackedDetail({ inside, node, at, path, onClose, children }) {
 /**
  * In the part's detail window or sheet: the board inside the part at `path` on the phone's slot board, read only, in a
  * window of a fixed height that scrolls, the block the current step is in lit and scrolled to. Tapping a block opens its
- * own sheet over this one (its description and value; a packed part's board in turn, and its edit button).
+ * own sheet over this one (its description and value; a packed part's board in turn, edit beside close).
  */
 export function InsideBoard({ inside, path }) {
   const [detail, setDetail] = useState(null)
@@ -136,12 +138,11 @@ export function InsideBoard({ inside, path }) {
         />
       </div>
       {node && createPortal(
-        <Sheet title={L(parts.label(node))} onClose={() => setDetail(null)}>
+        <Sheet title={L(parts.label(node))} onClose={() => setDetail(null)} actions={inside.is(node, at) && <EditAction onEdit={() => { setDetail(null); inside.edit(node, at) }} />}>
           <div className="cl-sheet cl-readonly">
             {inside.describe(node, ctx)}
             {inside.sheet(node, ctx)}
             {inside.is(node, at) && <InsideBoard inside={inside} path={[...path, node.id]} />}
-            {inside.is(node, at) && <PartActions onEdit={() => { setDetail(null); inside.edit(node, at) }} />}
           </div>
         </Sheet>,
         // Beside the sheet it opens from, so it is drawn in the game's own styles.
