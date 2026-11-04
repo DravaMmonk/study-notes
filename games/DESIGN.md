@@ -819,10 +819,47 @@ opens them to show the resulting feedback.
 6. **关卡花在难的地方**：一章的关卡大多在通往核心的阶梯上；每个知识点练它的侧面：列出它前面没露出来的侧面（约定、边界、失效、易混的近亲），一个侧面一关，按 2.3 的维度变化，排在下一个知识点之前；同一侧面的几组数据写成测试或任务。
 7. **定专题（如果有）**：这一章有没有值得做成专题的业务问题或长线拓展？有的话，先写终极谜题，再倒推出引入关和递进关；没有就不设。
 8. **写规格**：先写这一关的问题和思维链（第 4.1 节），再写参考解和 naive 解（naive 解就是知识点要纠正的那个错误），再写测试：每一步思维链都要有一条测试或一次反馈落在它上面。都用下面的操作写进内容。
-9. **跑检查**：每个变更集写盘前已经整款游戏检查过；改完再跑一遍 `npm run check`，清零。
+9. **Scope verification**: follow §7.0. Reuse the operation set's successful check for unchanged content; name affected games and test files when additional verification is needed.
 10. **核对文案**：按第 4 节的文字纪律逐条看引言、提示、过关点题和元件说明（studio 的文案表：一章或整款游戏的每段文字一行、中英并排、就地改，可以只看有问题的行；一个说法要全游戏统一时用搜索替换）；改过顺序的，按先修关系重核引述的关卡和"又是一个"之类的说法。
-11. **在浏览器里看**：桌面和手机各看几种典型的关（多层、扫描臂、区间、大表）。要看运行过程时，把参考解写进存档再运行（studio 的试玩里「载入参考解」），单步和连续运行都看一遍。
+11. **Review affected UI**: inspect changed visual or interaction flows on desktop and phone. Shared UI changes add representative consumers; documentation and pure model edits do not automatically require browser review. To inspect execution, load the reference board and exercise the changed run behaviour.
 12. **最后写挑战关**：从每一代能力的边界上找题。
+
+### 7.0 Verification by impact
+
+Start with the smallest meaningful check of the changed behaviour and its direct consumers. File count alone
+does not determine impact: a shared evaluator can affect many games, while a long copy edit may affect no execution.
+
+| Changed scope | Required verification | Broaden when |
+| --- | --- | --- |
+| Documentation or process instructions | Diff/format review and changed references | An executable command or contract is also changed |
+| Game copy or curriculum data | Operation-set validation of that game; copy or topology gates only for the changed concern | New dependencies, references, task contracts or built-part consumers are affected |
+| Game UI, CSS or interaction | Changed-JS lint, that game's build, and the changed desktop/phone flow | Shared widgets or layouts have additional consumers |
+| Domain calculation or evaluation | Relevant domain test files, affected-game checks, and direct packed-part/consumer cases | Evaluation or representation contracts change across domains |
+| Shared shell, circuit or engine module | That module's tests and affected consumer checks; representative UI flows for interaction changes | The shared API changes or affected consumers cannot be bounded confidently |
+| Save/schema migration, registry or dependencies | Relevant migration/schema/replay/contract tests and all identified consumers | A repository-wide contract or dependency is affected; then run the full relevant suite |
+
+Commands use existing entry points; no new validation runner is needed:
+
+```sh
+# From the repository root: run only the relevant test file(s).
+node --test games/kit/domains/vision/calculation.test.js
+
+# From trace-viewer/: name the game for checks and builds.
+npm run check -- vision-lab
+GAME=vision-lab npm run build:game
+```
+
+A successful operation-set check counts as the affected game's content check until relevant content or validation
+code changes. Reuse passed results for an unchanged scope; committing, amending or pushing alone does not invalidate
+them. A failure expands verification along the failing dependency, rather than automatically selecting every suite.
+Linux syscall conformance belongs to Unix model changes, not unrelated vision or interface edits.
+
+Finish implementation and necessary review before submitting one release. Add late changes only when they block
+correctness or the requested behaviour. Report the selected checks and any unverified boundary accurately.
+
+Local verification and deployment are separate scopes. The current `deploy-games.yml` still performs full checks
+and builds a complete site; this policy does not claim that CI already selects checks or publishes games incrementally.
+A documentation-only local change does not require a deployment.
 
 ### 7.1 内容只经操作修改
 

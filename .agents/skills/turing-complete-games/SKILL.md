@@ -64,8 +64,9 @@ copying the last wording forward.
   does not say how a value reads, the vocabulary adds a declarative hint to the schema (`view: 'grid' | 'ticks'`,
   `step`, `section`; `games/DESIGN.md` §6.7), and a domain may only add a headless display (`scene` in domain.js),
   never an editor.
-- `npm run check` (in `trace-viewer/`) must be clean before committing curriculum changes; `npm test` for kit
-  changes.
+- Validate the changed scope using `games/DESIGN.md` §7.0. Curriculum checks name the affected game
+  (`npm run check -- <game>`); module changes run relevant test files. Do not default to the full kit suite,
+  all-game checks or all-game builds for a local edit. Reuse a successful operation-set check for unchanged content.
 - Part types, port names and setting values are ASCII, so every board prints as a blueprint (`kit/circuit/text.js`,
   `games/DESIGN.md` §6): symbols go in labels; a notation that is symbolic by nature gets a `parts.text` spelling.
 
@@ -287,9 +288,12 @@ iOS Safari.
 Before calling a change done (`games/DESIGN.md` §7, steps 9–11):
 
 1. The design docs say what the change did (docs first, see above), with nothing outdated left in them.
-2. `npm run check` and `npm test` in `trace-viewer/` are clean; build the touched games.
-3. Look in a browser on desktop and phone at a few typical levels per game (layers, sweeps, intervals, big tables),
-   not only the one you changed. To watch a run, write the reference solution into the save, then step and run.
+2. Select tests, content checks and builds from the impact matrix in handbook §7.0. Documentation-only edits need
+   no executable checks. Name the affected game and test files explicitly; broaden only for demonstrated dependency
+   effects, failures or changes whose consumers cannot be bounded. Do not repeat a passed check without a relevant change.
+3. For visual or interaction changes, inspect the changed flow on desktop and phone; add representative consumers
+   only when shared UI is affected. Pure model changes need browser review only if their displayed behaviour changes.
+   To watch a run, write the reference solution into the save, then step and run.
 4. A new domain gives its `play` hook in `domain.js` (a circuit domain through `kit/engine/play/circuit.js`): the
    level in words and an attempt judged, which `run_tests` uses; its play tests run in `npm test`. Blind play is
    paused (`games/DESIGN.md` §6.6).
