@@ -502,6 +502,11 @@
           ]
         }
       ]
+    },
+    {
+      "version": 34,
+      "why": "Separate the signed removed detail before enhancement, so 1-5 no longer jumps from smoothing to a three-output enhancer",
+      "ops": [{ "drop": ["v1_smooth_border", "v1_residual", "v1_detail"] }]
     }
   ]
 }

@@ -99,6 +99,119 @@
       ]
     },
     {
+      "id": "v1_residual",
+      "kind": "circuit",
+      "step": {
+        "zh": "取出被抹掉的细节",
+        "en": "Separate the removed detail"
+      },
+      "adds": [],
+      "brief": {
+        "zh": "用给定的归一化权重做双轴平滑，图外延续最近边缘；另输出原图相对平滑图的带符号细节，使平滑图加上细节恰好回到原图。",
+        "en": "Smooth along both axes with the supplied normalised weights, extending nearest edge values outside; also output the signed detail of the original relative to the smoothed image, so that smooth plus detail restores the original exactly."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
+        { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } }
+      ],
+      "outputs": [
+        { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
+        { "name": "detail", "label": { "zh": "细节", "en": "Detail" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0.2, 0.2, 0.2],
+              [0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.2]
+            ],
+            "side": 0.25,
+            "centre": 0.5
+          },
+          "expect": {
+            "smooth": [
+              [
+                0.35,
+                0.35,
+                0.35
+              ],
+              [
+                0.5,
+                0.5,
+                0.5
+              ],
+              [
+                0.35,
+                0.35,
+                0.35
+              ]
+            ],
+            "detail": [[-0.15, -0.15, -0.15], [0.3, 0.3, 0.3], [-0.15, -0.15, -0.15]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.7, 0.7, 0.7], [0.7, 0.1, 0.7], [0.7, 0.7, 0.7]],
+            "side": 0.25,
+            "centre": 0.5
+          },
+          "expect": {
+            "smooth": [
+              [0.6625, 0.625, 0.6625],
+              [0.625, 0.55, 0.625],
+              [0.6625, 0.625, 0.6625]
+            ],
+            "detail": [[0.0375, 0.075, 0.0375], [0.075, -0.45, 0.075], [0.0375, 0.075, 0.0375]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
+            "side": 0.25,
+            "centre": 0.5
+          },
+          "expect": {
+            "smooth": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
+            "detail": [[0, 0, 0, 0], [0, 0, 0, 0]]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "s = separable3[outside=clamp](image,side,centre,side)",
+        "r = arithmetic[op=sub](image,s)",
+        "smooth <- s",
+        "detail <- r"
+      ],
+      "starter": ["s = separable3[outside=clamp](image,side,centre,side)", "smooth <- s"],
+      "naive": [
+        "s = separable3[outside=clamp](image,side,centre,side)",
+        "r = difference(image,s)",
+        "smooth <- s",
+        "detail <- r"
+      ],
+      "naiveWhy": {
+        "zh": "绝对差只记下改动有多大，丢掉了方向：暗点中心的细节变成正数，平滑图加上它也回不到原图。",
+        "en": "Absolute difference keeps only how much changed and drops the direction: the dark dot’s centre turns positive, and smooth plus it no longer restores the original."
+      },
+      "intro": [
+        {
+          "t": {
+            "zh": "边缘读数已经稳定。平滑图比原图少了一部分变化：先把这部分单独取出，保留成一张图。比较亮线和暗点，确认它记下的不只是改动有多大。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+            "en": "Boundary readings are now stable. The smoothed image lacks part of the original’s variation: separate that part and keep it as an image. Compare a bright line with a dark dot to confirm it records more than how much changed. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "看暗点图的中心：原图在那里比平滑图暗还是亮？细节在那里应当是什么符号？",
+          "en": "Look at the centre of the dark dot: is the original darker or brighter there than the smoothed image? What sign should the detail have there?"
+        }
+      ]
+    },
+    {
       "id": "v1_detail",
       "kind": "circuit",
       "step": {
@@ -254,20 +367,24 @@
         "enhanced <- e",
         "change <- d"
       ],
-      "starter": ["s = separable3[outside=clamp](image,side,centre,side)", "smooth <- s"],
+      "starter": [
+        "s = separable3[outside=clamp](image,side,centre,side)",
+        "detail = arithmetic[op=sub](image,s)",
+        "smooth <- s"
+      ],
       "naive": [
         "s = separable3[outside=clamp](image,side,centre,side)",
-        "detail = difference(image,s)",
+        "detail = arithmetic[op=sub](image,s)",
         "scaled = arithmetic[op=mul](detail,amount)",
-        "e = arithmetic[op=add](image,scaled)",
+        "e = arithmetic[op=add](s,scaled)",
         "d = difference(image,s)",
         "smooth <- s",
         "enhanced <- e",
         "change <- d"
       ],
       "naiveWhy": {
-        "zh": "增强需要有正有负的细节；绝对差适合观察改动大小，但会让暗侧细节也被加亮。",
-        "en": "Enhancement needs signed detail. Absolute difference measures change but would brighten dark-side detail too."
+        "zh": "加到平滑图上只是把抹掉的部分补回来：强度为 1 时得到的正是原图，没有任何增强。",
+        "en": "Adding to the smoothed image only restores what was removed: at strength 1 it gives back the original, with no enhancement."
       },
       "hint": [
         {
@@ -279,8 +396,8 @@
       "intro": [
         {
           "t": {
-            "zh": "边界处理和平滑已验证。现在把原图相对平滑图的带符号差异作为细节，再按给定强度组合，区分“平滑后的图”和“被移除的变化”。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-            "en": "Boundary handling and smoothing are verified. Treat the signed difference from the smoothed image as detail and combine it at the supplied strength, distinguishing the smooth image from the removed variation. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+            "zh": "带符号的细节已经取出。现在按给定强度用它增强图像，并另外输出平滑改动的大小，区分“被移除的变化”和“改动有多大”。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+            "en": "The signed detail is now separated. Use it to enhance the image at the supplied strength, and also report the magnitude of the smoothing change, distinguishing the removed variation from how much changed. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
           }
         }
       ]
