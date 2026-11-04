@@ -33,17 +33,17 @@ const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符�
 /* ---------- what content names ---------- */
 
 const PART_ABOUT = {
-  arithmetic: t('可设置为加、减、乘、除，数与图逐值计算', 'Configurable elementwise addition, subtraction, multiplication or division'),
+  arithmetic: t('可设置为加、减、乘、除：数与图逐值计算，向量与向量、向量与数逐分量计算', 'Configurable addition, subtraction, multiplication or division: elementwise over numbers and images, componentwise over vectors'),
   abs: t('逐值取绝对值', 'Absolute value, elementwise'),
   cosine: t('以周为单位计算余弦：1 周是 2π 弧度', 'Cosine in turns: one turn is 2π radians'),
   offset: t('沿指定轴读取偏移邻居', 'Read an offset neighbour along a selected axis'),
-  shift: t('按给定整数位移读取邻居，边界规则显式可选', 'Read an integer-offset neighbour with explicit boundary handling'),
+  shift: t('按整数位移向量 d 读取邻居：输出 (x, y) 读输入 (x, y) + d；边界规则显式可选', 'Read the neighbour at an integer offset vector d: output (x, y) reads input (x, y) + d, with explicit boundary handling'),
   transpose: t('交换行与列，保留原值', 'Exchange rows and columns without changing values'),
   reverse: t('将表旋转 180 度', 'Rotate a table by 180 degrees'),
   windowTable: t('展开每个邻域的读数和权重，不相乘、不求和', 'Expose each window’s samples and weights without multiplying or summing'),
   reduceRows: t('逐行求和或平均，自动完成数值计算', 'Sum or average each row automatically'),
   restore: t('将每个位置的单个结果还原为给定图像的尺寸', 'Restore one result per position to an image’s dimensions'),
-  trim: t('仅保留不接触图外的内部区域', 'Retain the interior that does not reach outside'),
+  trim: t('按每轴半径向量 r 去掉四边，仅保留不接触图外的内部区域', 'Remove borders of per-axis radii r, retaining the interior that does not reach outside'),
   positions: t('生成每行的归一化位置 x/N', 'Generate the normalised position x/N along each row'),
   expandRows: t('将每行重复 N 次，给出逐个位置和频率索引；不计算波或投影', 'Repeat each row N times, exposing positions and frequency indices, without computing waves or projections'),
   sample: t('按连续坐标采样，取值规则与边界假设可设置；自动计算距离、权重与取整', 'Sample continuous coordinates with selectable interpolation and boundary assumptions; arithmetic is supplied'),
@@ -109,7 +109,7 @@ const SCENE = S.obj({
 /* ---------- a level ---------- */
 
 const PORT = S.obj({ name: NAME, label: S.text() })
-const INPUT = S.obj({ name: NAME, label: S.text(), type: S.opt(S.oneOf(['point'])) })
+const INPUT = S.obj({ name: NAME, label: S.text(), type: S.opt(S.oneOf(['vector'], { about: t('二维向量 { x, y }：成对的坐标量是一个输入', 'a two-dimensional vector { x, y }: a paired coordinate quantity is one input') })) })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
 const ITEM = S.obj({
   prompt: S.text(),

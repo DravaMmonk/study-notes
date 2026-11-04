@@ -38,6 +38,7 @@
 .vi-test-group { display: grid; gap: 6px; min-width: 0; }
 .vi-test-group > h4 { margin: 0; color: var(--muted); font: 500 11px var(--sans, inherit); }
 .vi-test-group > div { display: flex; flex-wrap: wrap; align-items: start; gap: 10px 16px; }
+.vi-test-group > div > .vi-inspector { flex: none; width: var(--vi-frame-w); max-width: 100%; }
 .vi-mobile-results { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; }
 .vi-mobile-results > section { min-width: 0; }
 .vi-output-tabs { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: thin; border-bottom: 1px solid var(--line); }
@@ -46,12 +47,16 @@
 .vi-output-tabs button svg { color: var(--muted); }
 .vi-output-tabs button[data-different] svg { color: var(--fail); }
 .vi-result-title { margin: 0; font-size: 13px; font-weight: 600; }
-.vi-result-pair { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: start; padding-block: 2px; }
+.vi-result-head { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
+.vi-result-head > .vi-output-tabs { min-width: 0; flex: 1 1 auto; border-bottom: 0; }
+.vi-result-head > .vi-result-title { min-height: 36px; align-content: center; }
+.vi-mobile-results > .vi-view-switch { justify-self: end; }
+.vi-result-pair { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; align-items: start; padding-block: 2px; }
 .vi-result-value { min-width: 0; display: grid; align-content: start; gap: 3px; }
 .vi-result-label { min-height: 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 6px; }
 .vi-result-label strong { font-size: 12px; font-weight: 500; color: var(--muted); }
 .vi-result-label small { color: var(--muted); font: 10px var(--mono); }
-.vi-empty-value { box-sizing: border-box; width: 100%; display: grid; place-items: center; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); background: var(--canvas); font-size: 12px; }
+.vi-empty-value { box-sizing: border-box; width: var(--vi-frame-w); max-width: 100%; height: var(--vi-frame-h); display: grid; place-items: center; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); background: var(--canvas); font-size: 12px; }
 .vi-scalar-results { width: max-content; max-width: 100%; border-collapse: collapse; text-align: left; }
 .vi-scalar-results th, .vi-scalar-results td { padding: 4px 16px 4px 0; overflow-wrap: anywhere; }
 .vi-scalar-results th { color: var(--muted); font-size: 12px; font-weight: 500; }
@@ -76,12 +81,19 @@
 .vi-detail-scalar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .vi-detail-scalar strong { font: 600 14px var(--mono); overflow-wrap: anywhere; }
 .vi-detail-settings .vi-field :is(input, select) { min-height: 44px; font-size: 16px; }
-.vi-inspector { grid-template-columns: minmax(0, 1fr); position: relative; min-width: 0; margin: 0; display: grid; align-content: start; justify-items: start; gap: 4px; }
-.vi-inspector figcaption { width: 100%; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; color: var(--muted); font-size: 12px; }
+/* Every inspected image sits in one fixed frame sized by the screen (ImageInspector). */
+:root { --vi-frame-w: 240px; --vi-frame-h: 180px; }
+.vi-inspector { width: min(100%, var(--vi-frame-w)); grid-template-columns: minmax(0, 1fr); position: relative; min-width: 0; margin: 0; display: grid; align-content: start; justify-items: start; gap: 4px; }
+.vi-inspector figcaption { width: 100%; min-height: 22px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.vi-inspect-meta { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: end; font-family: var(--mono); font-size: 11px; }
 .vi-inspector figcaption strong { color: var(--ink); font-size: 13px; }
-.vi-inspect-scroll { width: max-content; max-width: 100%; max-height: 176px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 8px; }
-.vi-inspect-canvas { width: max-content; }
-.vi-inspect-canvas .vi-image { max-width: none; height: auto; border-radius: 0; }
+.vi-frame { box-sizing: border-box; width: 100%; height: var(--vi-frame-h); display: flex; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y; border: 1px solid var(--line); border-radius: 8px; background: var(--canvas); scrollbar-width: thin; }
+.vi-frame.is-overview { overflow: hidden; }
+.vi-frame.is-info:has(.vi-frame-canvas:hover) { cursor: grab; }
+.vi-frame-canvas { flex: none; margin: auto; line-height: 0; }
+.vi-frame-canvas .vi-image { max-width: none; height: auto; border-radius: 0; }
+.vi-view-switch { flex: none; height: 26px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--paper); font: 12px var(--sans, inherit); cursor: pointer; }
+.vi-view-switch:hover { color: var(--ink); }
 .vi-pixel-popover { position: fixed; z-index: 100; box-sizing: border-box; display: grid; gap: 4px; padding: 8px 10px; margin-top: 8px; border: 1px solid var(--accent); border-radius: 10px; color: var(--ink); background: var(--paper); box-shadow: var(--lift); font: 12px/1.5 var(--mono); pointer-events: none; overflow-wrap: anywhere; }
 .vi-pixel-popover.is-above { margin-top: -8px; transform: translateY(-100%); }
 .vi-pixel-calculation { border-top: 1px solid var(--line); padding-top: 5px; white-space: pre-line; }
@@ -90,17 +102,22 @@
 
 /* Phone density belongs to the vision workspace; shared editors keep their own spacing contracts. */
 @media (max-width: 760px) {
+  :root { --vi-frame-w: 360px; --vi-frame-h: 168px; }
   .vi-level .pl-scroll { padding: 8px 10px 16px; gap: 8px; --pb-sticky-top: -8px; }
   .vi-level .task-card { position: relative; }
   .vi-level .task-card.is-open .task-toggle { position: absolute; top: 0; right: 0; z-index: 1; width: 44px; min-height: 44px; padding: 0; justify-content: center; font-size: 0; }
   .vi-level .task-body { padding: 10px 12px 8px; gap: 6px; }
   .vi-level .task-body .brief-text { padding-inline-end: 24px; font-size: 14px; line-height: 1.55; }
   .vi-level .task-body .task-steps { padding-inline-end: 24px; }
-  .vi-level .hint-block { justify-self: end; }
-  .vi-level .hint-block:has(.hint) { justify-self: stretch; }
+  /* A closed hint sits beside the brief's last line instead of taking a row of its own. */
+  .vi-level .task-body { grid-template-columns: minmax(0,1fr) auto; }
+  .vi-level .task-body > * { grid-column: 1 / -1; }
+  .vi-level .task-body:not(:has(.hint)) > .brief-text:has(+ .hint-block) { grid-column: 1; padding-inline-end: 0; }
+  .vi-level .task-body:not(:has(.hint)) > .brief-text + .hint-block { grid-column: 2; align-self: end; }
+  .vi-level .task-body:not(:has(.hint, .task-steps)) > .brief-text + .hint-block { align-self: start; margin-inline-end: 32px; }
   .vi-level .hint-toggle { padding-block: 0; font-size: 12px; }
   .vi-level .pb-board.is-dense { gap: 36px; }
-  .vi-level .pb-terms.is-sources > .pb-term { min-width: min(100px,100%); }
+  .vi-level .pb-terms.is-sources > .pb-term { min-width: min(100px,100%); align-self: start; }
   .vi-level .is-dense .pb-grid { gap: 36px 10px; }
   .vi-level .is-dense .pb-tile, .vi-level .is-dense .pb-term { padding-inline: 10px; padding-top: 9px; }
   .vi-level .pb-tray { padding: 6px 10px; gap: 6px; }
@@ -145,7 +162,7 @@
 
 /* ---- grid tasks ---- */
 .vi-grid { box-sizing: border-box; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: start; padding: 12px; }
-.vi-grid > .vi-inspector { width: 100%; max-width: 560px; }
+.vi-grid > .vi-inspector { --vi-frame-w: 560px; --vi-frame-h: 320px; }
 .vi-calculation { box-sizing: border-box; width: 100%; max-width: 620px; display: grid; gap: 6px; padding: 8px 0; border-block: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
 .vi-calculation > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .vi-calculation h3, .vi-calculation p { margin: 0; font-size: 13px; }

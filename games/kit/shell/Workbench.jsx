@@ -9,7 +9,7 @@ import { L, tr } from './i18n.js'
  *   middle     what the level is played on (stage): a board that fills it (a circuit), or one that scrolls (`scroll`: a
  *              table, a sentence, rows to fill in); over a board, the parts as one row of icons (parts)
  *   strip      a header with the tests and how they stand (tests, status), when the level has them; then the results
- *              (what a run or check gives: outputs, the test board, the verdict; `resultsTitle`, `resultsAside` head
+ *              (what a run or check gives: outputs, the test board, the verdict; no "Test N" heading, the tabs name the test; `resultsTitle`, `resultsAside` head
  *              it) and, in a narrow column at the bottom right, the run bar (dock)
  *
  * `results` left out: the level has no results pane (the run bar alone, at the right); null: the pane is there, empty

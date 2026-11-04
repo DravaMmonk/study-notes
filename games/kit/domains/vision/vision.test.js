@@ -7,7 +7,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 import { readContent } from '../../engine/content-node.js'
-import { PARTS } from './parts.js'
+import { PARTS, zip } from './parts.js'
 import { fits, fromText, startBoard, toText } from './board.js'
 import { readTest, runLevel } from './run.js'
 import { differs, fromRows, toRows } from './image.js'
@@ -34,24 +34,24 @@ const passes = (lines, inputs, cases) => {
 }
 const allPass = (lines, inputs, cases) => assert.deepEqual(passes(lines, inputs, cases), cases.map(() => null))
 
-test('coordinate sources expose independent x/y outputs and retain them through blueprint round trips', () => {
+test('vector sources carry one { x, y } value that arithmetic combines componentwise', () => {
   const t = {
-    inputs: ['A', 'B'].map((name) => ({ ...port(name), type: 'point' })),
-    outputs: [port('sumX'), port('deltaY')],
-    tests: [readTest({ inputs: { A: { x: -3, y: 7 }, B: { x: 4, y: -2 } }, expect: { sumX: 1, deltaY: 9 } })],
+    inputs: ['A', 'B'].map((name) => ({ ...port(name), type: 'vector' })),
+    outputs: [port('sum'), port('scaled')],
+    tests: [readTest({ inputs: { A: { x: -3, y: 7 }, B: { x: 4, y: -2 } }, expect: { sum: { x: 1, y: 5 }, scaled: { x: -6, y: 14 } } })],
   }
-  const board = fromText(['xs = add(A.x, B.x)', 'ys = sub(A.y, B.y)', 'sumX <- xs', 'deltaY <- ys'], t, partOf)
-  assert.deepEqual(PARTS.in.outputs(board.nodes[0]), ['x', 'y'])
-  assert.deepEqual(runLevel(t, board, partOf).runs[0].outputs, { sumX: 1, deltaY: 9 })
+  const board = fromText(['two = const[value=2]()', 's = arithmetic[op=add](A, B)', 'm = arithmetic[op=mul](A, two)', 'sum <- s', 'scaled <- m'], t, partOf)
+  assert.equal(PARTS.in.outputs(board.nodes.find((n) => n.id === 'A')), null)
+  assert.deepEqual(runLevel(t, board, partOf).runs[0].outputs, { sum: { x: 1, y: 5 }, scaled: { x: -6, y: 14 } })
   assert.equal(runLevel(t, board, partOf).pass, true)
   assert.deepEqual(fromText(toText(board, partOf), t, partOf), board)
-  const wrong = structuredClone(board)
-  wrong.wires.find((w) => w.from === 'A#x').from = 'A#y'
-  assert.equal(runLevel(t, wrong, partOf).pass, false)
+  const wrong = fromText(['s = arithmetic[op=sub](A, B)', 'two = const[value=2]()', 'm = arithmetic[op=mul](A, two)', 'sum <- s', 'scaled <- m'], t, partOf)
+  assert.match(runLevel(t, wrong, partOf).runs[0].fail.why.en, /vector/)
+  assert.throws(() => zip([{ x: 1, y: 0 }, fromRows([[1]])], (p, q) => p + q), /vector/)
   const saved = startBoard(t)
   assert.equal(fits(saved, t, partOf), true)
   delete saved.nodes[0].params.kind
-  assert.equal(fits(saved, t, partOf), false, 'a scalar source cannot reopen as a two-output point')
+  assert.equal(fits(saved, t, partOf), false, 'a scalar source cannot reopen as a vector')
 })
 
 test('values: rows read into images and back; a difference names the first cell', () => {

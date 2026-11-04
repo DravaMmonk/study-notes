@@ -458,7 +458,6 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
         tests={testTabs}
         status={<TestStatus states={st.status.map((x) => (['pass', 'fail', 'run'].includes(x) ? x : null))} />}
         results={<section className="bcard" aria-label={tr('棋盘', 'Board')}>{testBoard}{after}</section>}
-        resultsTitle={tr('测试棋盘', 'Test board')}
         resultsAside={<p className="bnote">{note}</p>}
         dock={dock}
       />

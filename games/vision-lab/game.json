@@ -486,6 +486,22 @@
       "version": 32,
       "why": "Carry established smoothing and single-cycle constructions into their combined tasks without completing the new relation",
       "ops": [{ "drop": ["v1_smooth_border", "v1_detail", "v2_cycle", "v2_wave"] }]
+    },
+    {
+      "version": 33,
+      "why": "Merge paired coordinate inputs into one vector input (offset d, radii r)",
+      "ops": [
+        {
+          "drop": [
+            "v0_alignment",
+            "v0_inspection",
+            "v1_border_clamp",
+            "v1_border_wrap",
+            "v1_border_reflect",
+            "v1_valid"
+          ]
+        }
+      ]
     }
   ]
 }
