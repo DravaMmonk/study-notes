@@ -48,3 +48,30 @@
 .pf-setting.is-roomy .pf-toggle i::after { width: 20px; height: 20px; }
 .pf-setting.is-roomy .pf-toggle[aria-checked='true'] i::after { transform: translateX(16px); }
 .choice.is-column { flex-direction: column; align-items: stretch; }
+
+/* The studio's part page (PartPreview.jsx): the three faces side by side, the part's logic under them. */
+.pp { display: grid; gap: 14px; padding: 16px; min-width: 0; }
+.pp-faces { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; align-items: start; }
+.pp-pane { position: relative; min-width: 0; border-radius: 10px; background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); overflow: hidden; }
+.pp-pane > header { display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; color: var(--faint); }
+.pp-add { margin-left: auto; width: 20px; height: 20px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 5px; color: var(--muted); background: none; cursor: pointer; }
+.pp-add:hover { color: var(--ink); background: var(--canvas); }
+.pp-canvas { height: 260px; }
+.pp-slots { width: min(100%, 360px); margin: 0 auto; padding: 0 8px 8px; }
+.pp-slots .pb-tools { display: none; }
+.pp-detail { padding: 4px 14px 14px; display: grid; gap: 8px; }
+.pp-detail h3 { margin: 0; font-size: 15px; }
+.pp-value { display: inline-block; padding: 1px 8px; border-radius: 5px; color: var(--faint); box-shadow: inset 0 0 0 1px var(--line); font: 11px var(--mono); }
+.pp-logic { display: grid; gap: 4px; }
+.pp-code { display: grid; grid-template-columns: minmax(5em, auto) minmax(0, 1fr) auto; align-items: baseline; gap: 10px; padding: 5px 10px; border-radius: 6px; background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); }
+.pp-code-label { color: var(--muted); font: 11px var(--mono); }
+.pp-code code { font: 12px/1.5 var(--mono); overflow-wrap: anywhere; }
+.pp-code-now { width: 8px; height: 8px; border-radius: 50%; }
+.pp-code-now.is-ok { background: var(--w3); }
+.pp-code-now.is-no { background: var(--fail); }
+.pp-adds { display: flex; gap: 6px; }
+.pp-adds button { padding: 3px 8px; border: 1px dashed var(--line); border-radius: 5px; color: var(--muted); background: none; font: 11px var(--mono); cursor: pointer; }
+.pp-none { padding: 24px; color: var(--muted); }
+.pp.is-editing [data-pf] { cursor: pointer; }
+.pp.is-editing [data-pf]:hover { outline: 1px dashed var(--accent); outline-offset: 2px; }
+.pp [data-picked], .pp .is-picked { outline: 2px solid var(--accent); outline-offset: 2px; }

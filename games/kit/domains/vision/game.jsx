@@ -29,6 +29,7 @@ import BenchScreen from './ui/BenchScreen.jsx'
 import IntroFigure from './ui/IntroFigure.jsx'
 import { iconOf } from '../../shell/parts/icons.js'
 import { visionCourse } from './course.js'
+import { OPS } from './ops.js'
 
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
@@ -90,5 +91,7 @@ export default function visionGame(content) {
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
   })
   game.vision = vision
+  // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
+  game.defined = { of: (type) => vision.defs[type] ?? null, defaults: vision.defaultsOf, ops: OPS }
   return game
 }

@@ -7,7 +7,7 @@
 // it. Picking another field, or another level, changes what it shows.
 //
 //   <Inspector content base vocab at field ctx onEdit onOps onPick onClose onLevel />
-//   at: the file shown ({ level } | { game: true }); field: { path } | { missing: text } | null
+//   at: the file shown ({ level } | { game: true } | { parts: true }: parts.json); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -20,7 +20,7 @@ import { Picker } from './Picker.jsx'
 export default function Inspector({ content, vocab, at, field, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
   const { vocabulary } = vocab
   const order = ctx.levels
-  const file = at?.level ? { level: at.level } : { game: true }
+  const file = at?.level ? { level: at.level } : at?.parts ? { parts: true } : { game: true }
   const shown = field?.path && fileForm(content, vocabulary, at, order)
   const hit = shown ? fieldAt(shown.form, field.path) : null
   const tasked = Boolean(at?.level) && hasTaskIds(vocabulary)
@@ -29,7 +29,7 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
     if (tasked && path.length === 3 && path[0] === 'tasks' && path[2] === 'id' && change.set !== undefined) return onEdit({ op: 'task.rename', task: getAt(shown.value, path), to: change.set })
     return onEdit(opFor(file, path, change, type))
   }
-  const { at: findings } = shown ? placeFindings(shown.form, places.filter((p) => (at?.level ? p.level === at.level : !p.level))) : { at: new Map() }
+  const { at: findings } = shown ? placeFindings(shown.form, places.filter((p) => (at?.level ? p.level === at.level : at?.parts ? p.file === 'parts' : !p.level && !p.file))) : { at: new Map() }
   const body = useRef(null)
   // A field picked by a finding, the palette or a search takes the caret.
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
   const isTask = tasked && path.length === 2 && path[0] === 'tasks'
   const list = typeof last === 'number' && !isTask ? getAt(shown.value, parent) : null
   const optional = !list && hit.entry?.optional
-  const ctxHere = { ...ctx, findings }
+  const ctxHere = { ...ctx, findings, partDefs: content.partDefs }
   return (
     <div className="insp">
       <Head path={path} file={file} onPick={onPick} onClose={onClose} />
@@ -135,7 +135,7 @@ function Head({ path, file, onPick, onClose }) {
   return (
     <header className="insp-head">
       <nav className="insp-path" aria-label={tr('字段的位置', 'Where the field is')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{file.level ?? 'game.json'}</button>
+        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{file.level ?? (file.parts ? 'parts.json' : 'game.json')}</button>
         {steps.map(({ k, at }) => (
           <span key={showPath(at)} className="insp-step">
             <ChevronRight size={11} aria-hidden="true" />

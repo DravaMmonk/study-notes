@@ -18,6 +18,7 @@ import { migrations } from '../../shell/saves.js'
 import Screen from './ui/Screen.jsx'
 import { iconOf } from '../../shell/parts/icons.js'
 import { __name__Course } from './course.js'
+import { OPS } from './ops.js'
 
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
@@ -64,5 +65,7 @@ export default function __name__Game(content) {
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
   })
   game.__name__ = __name__
+  // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
+  game.defined = { of: (type) => __name__.defs[type] ?? null, defaults: __name__.defaultsOf, ops: OPS }
   return game
 }

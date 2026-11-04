@@ -735,7 +735,7 @@ opens them to show the resulting feedback.
 | 搜索 | 左栏的另一个页签（Ctrl/⌘+Shift+F）：在整款游戏里搜一个词或正则（区分大小写、整词），范围是文字的中文面、英文面、板的每一行、关卡和词条的 id（四个开关）；链接标签里面永远不算（替换不会弄坏链接）。结果按关分组，每处一行，前后带一段上下文（链接显示成它指向的 id），点一下跳到那个字段。写了替换的词，每处显示换成什么，可以逐处去掉；「替换」把剩下的写成操作加进待定的变更集（一段文字一个 `text.set`，只带改了的那一面；一块板一个 `level.blueprint`），「为什么改」空着时填上「把 X 换成 Y」——之后和别的修改一样在审计里查、在评审里看、应用或放弃。id 只搜不换（换 id 是 `level.rename`，会改到每一处提到它的地方） | `text.set`、`level.blueprint`；工具 `search`、`replace` |
 | 画面 | 主区的第一个页签，选中一关时的样子：一个 iframe（`studio.html?play`，`kit/studio/play.jsx`、`GameFrame.jsx`），把变更集留下的内容交给领域的 `game.jsx`，在外壳里玩这一关，和游戏自己的页面一样；改了只换内容，这一关、这个任务、板和运行都留着。存档单独存（`studio.<游戏>.v1`），所有关都打开。**编辑模式**（默认；上方一个开关切到「试玩」，只剩游戏本身）下，外壳把画面上是内容字段的那几块标出来（`kit/shell/edit.js`：标题、目标的每段、每条提示、引言的每页、任务条上这个任务的名字、每个测试页签、带来的元件），悬停描一圈虚线，点一下就在侧栏打开它（不再当玩的点击；测试页签照样切到那个测试）；侧栏里选中的字段在画面上描实线。一个标记说的是它在画面上的位置（`at`，比如 `hint[1]`、`tests[2]`）和它属于这一关还是这个任务（`scope`），`kit/studio/marks.js` 照内容找到它是哪个字段：这个任务有就是任务的（`tasks[1].hint[1]`），否则是关的；画面拆成几段的一段文字是整段；内容里没有的（领域生成的字）侧栏说清楚。能加东西的地方有个「+」：加一条提示、一页引言（接在这一页后面）、一个测试（照最后一个复制）、一个任务（`task.add`，照正在做的这个任务复制、插在它后面，不带 id、名字和它自己的引言，所以马上能玩，画面跳到它）、没有引言的关上的「+ 引言」；只有字的新项是空的，等人写。编辑模式下引言不自己弹出，从顶栏打开；任务条一直在，所有任务都能点开。点树上的关就在画面打开它；「载入参考解」把参考板写进存档再打开（工具 `seed`）；Ctrl/⌘+Enter 一步做完 | `text.set`；`level.set`（加项是整张列表的一个 `level.set`）；`task.add`；工具 `seed` |
 | 字段 | 主区的第二个页签：一关、一章（`game.json` 的那一项）、`game.json` 的每个字段一行（`kit/studio/Rows.jsx`）：字段名、一行摘要（列表是几项和前几项）、改过的点、检查说到它的条数；一关的任务每个一组（头上是任务的 id 和名字），组里是这个任务的字段。点一行就在侧栏打开它。没有画面位置的字段（课程、答案、`game.json`）在这里改，画面上有的也能在这里一眼看全。一关分成几段：玩家读到的（文案）、谜题、测试、答案、课程（带来和搭出的元件、沿用）、任务；每段可以折起来（记住，对每一关都一样），Alt+1… 跳到第几段。头上一行是 id、标题、形状（`S.by`，几层就几个，切换时保留两种形状共有的字段；`S.either` 的写法按各自独有的字段起名）、各段的跳转和几个图标：试玩、载入参考解试玩、移动、复制成新的一关（`level.add`，放在它后面）、删除（`level.remove`）；能改 id（`level.rename`）。可选字段缺着时是一排「+ 字段名」，点了加上空的并在侧栏打开。选中一章时，这一章自己的字段在上（关卡放在哪里的那几个字段收起来，那是树的事），下面是这一章的文案表 | `level.rename`、`level.add`、`level.remove`、`level.set` |
-| 元件 | 左栏的第三个页签：这款游戏 `parts.json` 里的每个元件（图标、名字、类型）和每份设置预设，一行一个；「+」加一个空元件，选中一个时「复制」「删除」。选中一个元件，画面页签是它的样子（`kit/shell/parts/PartPreview.jsx`，在游戏自己的页面里画，所以值、图标、配色和玩家看到的一样）：桌面卡片、手机格位、详情三面并排，设置能当场拨动；点名字、说明、一个口、一个设置、一个块，侧栏打开那个字段，每面下面的「+」加一个块。字段页签是这个元件的全部字段 | `part.add`、`part.remove`、`part.rename`、`parts.set`、`parts.unset`、`text.set`（`in: parts`） |
+| 元件 | 左栏的第三个页签：这款游戏 `parts.json` 里的每个元件（图标、名字、类型）和每份设置预设，一行一个；「+」加一个空元件，选中一个时「复制」「删除」。选中一个元件，画面页签是它的样子（`kit/shell/parts/PartPreview.jsx`，在游戏自己的页面里画，所以值、图标、配色和玩家看到的一样）：桌面卡片、手机格位、详情三面并排，设置能当场拨动；三面下面是它的运算、交互规则和检查，照 `parts.json` 写的式子一行一个（检查旁边一个点：此刻成立没有）。点一个设置、一个块、一面、一个式子，侧栏打开那个字段（还用默认的一面第一次点开时，写成它的默认块）；每面右上的「+」加一个块，`+ rule`、`+ check` 加一条规则、一条检查。字段页签是这个元件的全部字段，头上能改类型名（`part.rename`）、复制、删除 | `part.add`、`part.remove`、`part.rename`、`parts.set`、`parts.unset`、`text.set`（`in: parts`） |
 | 侧栏 | 右边，选中的一个字段：从画面上点的、字段里点的、检查结果（F8）、命令面板、搜索结果跳过去的，都在这里打开（跳过去的光标落进它的控件）；一个任务的字段在别的任务上时画面跟着换到那个任务。头上是它的路径（`1-1 › tasks › 2 › brief`），每一步都能点，回到外层的字段（点关的 id 是整关的全部字段）；下面是词汇表的 `about` 和按 schema 生成的控件（下表，和以前表单的同一套）、检查说到它的话、改回去的 ↶。列表里的一项能上移、下移、复制、去掉，可选的字段能去掉，还没有的可选字段能加上。一个有 id 的任务的工具是任务操作：上移、下移、复制成新的任务、去掉（不是这一关唯一的任务时）、挪进另一关（排在那一关的任务最后；这一关只有这一个任务时是「并进」，同时删掉这一关）；改它的 `id` 是 `task.rename`。什么都没选时，侧栏说怎样选 | 控件的操作（下表）；`task.move`、`task.add`、`task.remove`、`task.rename`、`level.remove` |
 | 批量修改 | 树上选了几关时表单换成它：对这几关都有的一个字段，用 schema 给的同一种控件写一个值，「全部设成这样」或「全部去掉」；按 JSON merge patch 改几个字段；给带来的元件（`adds`）加上、拿掉几样；一起移动（再点树上的槽位）。先列出要加的操作（一关一个）和跳过的关、为什么跳过（没有这个字段、已经是这个值、不带元件……），再加进变更集（`kit/studio/bulk.js`） | 一关一个 `level.set` / `text.set` / `level.blueprint`、`level.unset`、`level.patch`、`level.adds`、`level.move` |
 | 文案表 | 中间栏的「文案」页签，也是一章的表单下面那一块：一章（这一章自己的文字和它每一关的全部文字，按课程顺序）、整款游戏（再加 `game.json` 的文字）或百科（每个词条的标题和正文）的每一段文字一行，左边是关和字段、右边中英两栏，直接改；`check` 和文案 lint 查出的问题在这一段的角上标个数，光标进去就列出来。可以只看某个字段（目标、提示、点题……）、只看有问题的行、按词筛选：一遍读完一章的文案并改好（`kit/studio/copy.js`） | `text.set`（关、`game.json`、百科） |
@@ -835,7 +835,7 @@ opens them to show the resulting feedback.
 }
 ```
 
-**一个元件**：`name`、`desc`（只写功能，第 4 节）、`icon`（内核图标表 `kit/shell/parts/icons.js` 里的名字）、`family`（类别的颜色：`value`、`logic`、`image`、`given`、`end`……）、`inputs`（每个 `{ name, label?, about? }`，`name` 是 ASCII）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`views`、`width`（桌面卡片宽，像素）。
+**一个元件**：`name`、`desc`（只写功能，第 4 节）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about? }`，`name` 是 ASCII）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
 
 **设置的控件只有六种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 
@@ -848,7 +848,7 @@ opens them to show the resulting feedback.
 | `toggle` | 开关 | `on`、`off`（两端的字） | 真假 |
 | `custom` | 自定义 | `widget`（领域 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
 
-每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`default`、`when`（`{ 设置: [值…] }`：只在别的设置是这些值时出现）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的封装件用（关卡的 `builds.settings` 列出预设的名字）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
+每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的封装件用（关卡的 `builds.settings` 列出预设的名字）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
 
 **运算是一行 ASCII 表达式**（`kit/engine/parts/expr.js`），只能调用领域的引擎资源：
 
@@ -860,13 +860,19 @@ add(a, b)             一个引擎资源，先按位置写参数，再写有名�
 match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分开；_ 是其余的值
 ```
 
-几个输出时 `compute` 写成 `{ 输出: 表达式 }`。`npm run check` 查：调用的资源存在、位置参数的个数对、有名字的参数是这个资源的、字面值和每个选项都合资源参数的 schema；输入和设置都存在；`match` 覆盖了那个设置的每个选项（或者有 `_`）；默认值在选项或范围之内；预设、自定义控件、图标、`when` 指的东西都存在；视图里的块指的设置和输出都存在。运算出错时（除以 0、图的大小不合）是资源报的错，写在卡片上。
+几个输出时 `compute` 写成 `{ 输出: 表达式 }`。每个式子除了领域的资源，还能调用内核的几个**内建资源**（`kit/engine/parts/builtins.js`，在纯数、字和真假上：`eq`、`ne`、`lt`、`le`、`gt`、`ge`、`and`、`or`、`not`、`if`、`plus`、`minus`、`times`、`over`、`round`、`clamp`），交互逻辑多半只用它们；领域的资源不能和它们同名。`npm run check` 查：调用的资源存在、位置参数的个数对、有名字的参数是这个资源的、字面值和每个选项都合资源参数的 schema；输入和设置都存在；`match` 覆盖了那个设置的每个选项（或者有 `_`）；默认值在选项或范围之内；预设、自定义控件、图标、`when` 指的东西都存在；视图里的块指的设置和输出都存在。运算出错时（除以 0、图的大小不合）是资源报的错，写在卡片上。
 
-**三面视图**（`views`）：`card` 是桌面画布上卡片的主体，`tile` 是手机格位上的简略视图，`detail` 是两边共用的详情（桌面卡片头上的 ⓘ、手机点开元件的单子）。每一面是一列块，不写就用默认：卡片是全部设置加值，格位是一行设置摘要，详情是说明、全部设置和值。块（`show`）：
+**交互逻辑也是式子**，只调用引擎已有的资源，写法和运算一样（studio 里按同一个检查边写边查）：
+
+- `rules`：一个设置改了以后，另几个跟着改。每条 `{ on?, when?, set: { 设置: 式子 } }`：玩家改了 `on`（不写就是改了任何一个）、`when` 为真时，`set` 里的设置换成算出的值，按列出的顺序，每条读前一条留下的设置（`kit/engine/parts/define.js` 的 `applyRules`）。
+- `checks`：设置必须满足的条件。每条 `{ holds, say }`：`holds` 为假时元件不计算，报出 `say`（卡片上写出它，`failedCheck`）。
+- 块 `action` 的 `set`、`when` 和块 `readout` 的 `expr`、设置的 `when` 也是只读设置的式子。
+
+**三面视图**（`views`）：`card` 是桌面画布上卡片的主体，`tile` 是手机格位上的简略视图（`value` 块画在元件名上面，其余的块画在下面），`detail` 是两边共用的详情（桌面卡片头上的 ⓘ、手机点开元件的单子，控件加大）。每一面是一列块，不写就用默认：卡片是全部设置加值，格位是值加一行设置摘要，详情是说明、全部设置和值。只剩一个可选值的设置不画（课程只放出了一个）。块（`show`）：
 
 | 块 | 画什么 | 字段 |
 |---|---|---|
-| `value` | 输出上的值（领域画：数、小图……） | `output`（几个输出时选一个） |
+| `value` | 输出上的值，领域画（`defined.value(node, ctx, output, face)`：卡片上一个数、一张小图，详情里逐个输出细看） | `output`（几个输出时选一个） |
 | `settings` | 设置的控件 | `keys`（只画这几个，默认全部） |
 | `setting` | 一个设置：控件，或它此刻的值的字（`as: 'label'`） | `key`、`as` |
 | `summary` | 一行设置摘要 | `text`：带 `{设置}` 的一句话；不写就是各设置的值的字，用「·」隔开 |
@@ -876,13 +882,15 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 | `desc` | 元件的说明 | |
 | `ports` | 输入口和输出口，带名字 | |
 | `widget` | 领域的显示项 | `widget`、`params` |
-| `row` | 几个块排成一行 | `row: [块…]` |
+| `row` | 几个块排成一行 | `blocks: [块…]` |
 
-例：vision 的「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`add(add($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: div($a, add(add($a, $b), $c)), … }`，`when: less(0, abs(add(add($a, $b), $c)))`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
+例：vision 的「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`plus(plus($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: over($a, plus(plus($a, $b), $c)), … }`，`when: ne(plus(plus($a, $b), $c), 0)`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
 
-**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, value(node, ctx, output?), widgets, allowed?(type, key) }`，定义了的元件的卡片、格位、详情和设置都由内核画，领域只画关卡给的节点和封装件。领域的词汇表有 `op` 种类时，内容里的 `S.ref('part')` 指 `parts.json` 的元件（`kit/engine/parts/define.js` 的 `withParts` 把它们放进词汇表的 `part` 种类，检查和 studio 都用它）。
+**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（vision 关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.jsx` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，内容里的 `S.ref('part')` 指 `parts.json` 的元件（`kit/engine/parts/define.js` 的 `withParts` 把它们放进词汇表的 `part` 种类，检查和 studio 都用它）。
 
 **操作**：`part.add`（新元件，或复制一个）、`part.remove`（还有关卡、课程或板用到它时拒绝）、`part.rename`（改到课程、关卡、板和 `configurations` 里的每一处，加一版存档迁移 `retype`）、`parts.set` / `parts.unset`（`parts.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`），`text.set` 的 `in: 'parts'`。
+
+**内容的形状**：`kit/engine/content.js` 把 `parts.json` 组装成内容的 `partDefs`（不叫 `parts`：原型游戏的 `game.json` 有自己的 `parts` 字段）。
 
 **现状**：数据流电路的脚手架（`kit/scaffold/circuit/`）和 vision 领域的元件定义成数据，《视觉实验室》和两个 `starter/` 各有 `parts.json`。逐拍总线的脚手架和 `net`、`can` 领域的寄存卡、说话卡是有状态的元件，要等内核给出「有状态的引擎资源」（寄存、跨拍保存）再搬；原型领域（`table`、`image`、`logic`、`agent`、`syntax`）的元件仍在领域代码里，随阶段 6.5 按专题重做时换成 `parts.json`。自定义控件的机制已在内核（`widget` 种类、`SettingField` 的 `custom`），还没有领域用到它。
 

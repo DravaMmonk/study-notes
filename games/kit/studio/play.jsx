@@ -9,9 +9,11 @@
 //   studio → page  { type: 'load', content, level, task, seed?: { data, task }, take?: { path, label }, theme, lang }
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
-//                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task
+//                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
+//                  { type: 'part', content, part } a part of parts.json shown (../shell/parts/PartPreview.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
-//                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task }
+//                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
+//                  { type: 'pick' | 'add', part, path } a field of a part picked, an item added to one
 import '../wires.css'
 import '../shell/shell.css'
 import '../circuit/circuit.css'
@@ -20,6 +22,7 @@ import { GameShell } from '../shell/index.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { applyLang } from '../lang.js'
 import { DOMAINS } from 'virtual:studio-domains'
+import PartPreview from '../shell/parts/PartPreview.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
 
@@ -51,6 +54,7 @@ export default function Play() {
   const [shown, setShown] = useState(null) // { game, level, take, no }
   const [edit, setEdit] = useState({ on: false, picked: null })
   const [go, setGo] = useState(null) // { task, n }
+  const [part, setPart] = useState(null) // { game, type }: a part shown instead of a level
   useEffect(() => {
     let no = 0
     let stamp = 0
@@ -62,12 +66,19 @@ export default function Play() {
       if (m?.type === 'look') return look(m)
       if (m?.type === 'content') {
         const game = await gameOf(m.content, ++stamp)
+        setPart((p) => (p ? { ...p, game } : p))
         return setShown((s) => (s ? { ...s, game } : s))
+      }
+      if (m?.type === 'part') {
+        const game = await gameOf(m.content, ++stamp)
+        look(m)
+        return setPart({ game, type: m.part })
       }
       if (m?.type !== 'load') return
       const { content, level, task = 0, seed = null, take = null } = m
       const game = await gameOf(content, ++stamp)
       look(m)
+      setPart(null)
       if (level) seeded(game, level, seed)
       const url = new URL(window.location.href)
       if (level) url.searchParams.set('level', level)
@@ -95,6 +106,10 @@ export default function Play() {
     edit: editing,
     go,
   }), [level, take, editing, go])
+  if (part) {
+    const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', part: part.type, path }), add: (path) => say({ type: 'add', part: part.type, path }) } : null
+    return part.game.defined ? <PartPreview game={part.game} type={part.type} edit={parts} /> : null
+  }
   if (!shown) return null
   return <GameShell key={shown.no} game={shown.game} author={author} />
 }

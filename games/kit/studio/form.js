@@ -8,6 +8,7 @@
 //   text      { zh, en } (a string reads as both sides)
 //   num       min?, max?, step, int                       a slider too when both ends are known
 //   bool, str (pattern?), any (JSON), board (blueprint lines)
+//   expr      a part's expression (view: 'expr', ../engine/parts/expr.js)     icon   a name of the kernel's icon table
 //   choice    options: [{ value, about? }], of?       oneOf; ref (the items of a vocabulary kind); level (the game's levels)
 //   call      item, options (the kind's items), params: field | null       { item: params } or 'item'
 //   list      items: [field], of (the items' schema), tests (the list is a level's tests: section 'tests')
@@ -25,6 +26,7 @@
 // (their schemas) and `shape` (the one it has now).
 import { SECTIONS, callOf, find, validate } from '../engine/schema.js'
 import { parsePath, showPath } from '../engine/ops/edit.js'
+import { PARTS_FILE } from '../engine/parts/schema.js'
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const fits = (schema, value, vocabulary) => validate(schema, value, { vocabulary }).length === 0
@@ -66,7 +68,8 @@ function listControl(schema, ctx) {
   if (schema.type === 'str') return schema.view === 'ticks' ? { kind: 'ticks', cell: { type: 'oneOf', values: [0, 1] }, bits: true } : null
   if (schema.type === 'map') {
     if (schema.view === 'ticks' && of.type === 'list') return { kind: 'wave', cell: of.of }
-    if (SCALAR.includes(of.type)) return { kind: 'table', keyed: true, columns: [{ key: 'value', schema: of }] }
+    // A map of expressions or icons keeps each value's own control.
+    if (SCALAR.includes(of.type) && !of.view) return { kind: 'table', keyed: true, columns: [{ key: 'value', schema: of }] }
     return null
   }
   if (schema.view === 'grid' && of.type === 'list' && NUM.includes(of.of.type)) return { kind: 'grid', cell: of.of, cols: null }
@@ -93,6 +96,7 @@ export function formOf(schema, value, ctx, path = []) {
     case 'board':
       return { ...base, kind: schema.type }
     case 'str':
+      if (schema.view === 'expr' || schema.view === 'icon') return { ...base, kind: schema.view }
       return listControl(schema, ctx) ? { ...base, ...listControl(schema, ctx) } : { ...base, kind: 'str', ...(schema.pattern && { pattern: schema.pattern }) }
     case 'oneOf':
     case 'ref':
@@ -350,6 +354,8 @@ export function placesOf(lines, order) {
     if (!line.fail) continue
     const content = /^content: levels\/(.+?)\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
     if (content) { out.push({ level: content[1], path: keysOf(content[2]), says: content[3] }); continue }
+    const parts = /^content: parts\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
+    if (parts) { out.push({ file: 'parts', path: keysOf(parts[1]), says: parts[2] }); continue }
     const copy = /^text levels\.(\d+)((?:\.[^\s.]+)*) (.*)$/.exec(line.text)
     if (copy && order[Number(copy[1])]) { out.push({ level: order[Number(copy[1])], path: keysOf(copy[2]), says: copy[3] }); continue }
     for (const level of line.levels ?? []) out.push({ level, path: null, says: line.text })
@@ -394,6 +400,12 @@ export function placeFindings(form, findings) {
  */
 export function opFor(file, path, edit, type = null) {
   const keys = parsePath(path)
+  // parts.json: a field of it (a whole part is added, removed and renamed by the part operations).
+  if (file.parts) {
+    if (edit.unset) return { op: 'parts.unset', path: keys }
+    if (type === 'text' && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'parts', path: keys, ...Object.fromEntries(['zh', 'en'].filter((k) => edit.set[k] !== undefined).map((k) => [k, edit.set[k]])) }
+    return { op: 'parts.set', path: keys, value: edit.set }
+  }
   const where = file.level !== undefined ? { level: file.level } : {}
   const op = (name) => (file.level !== undefined ? `level.${name}` : `game.${name}`)
   if (edit.unset) return { op: op('unset'), ...where, path: keys }
@@ -484,11 +496,15 @@ export function fieldAt(form, path) {
 /* ---------- a file as a form ---------- */
 
 // What game.json's form leaves out: what is not its own schema, and the save migrations (written by the operation set).
-const NOT_FORM = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'saves']
+const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open', 'saves']
 export const gameFields = (content) => Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_FORM.includes(k)))
 
 /** The form of the file `at` holds, as the content has it now. */
 export function fileForm(content, vocabulary, at, order) {
+  if (at?.parts) {
+    const value = content.partDefs ?? { parts: {} }
+    return { value, form: formOf(PARTS_FILE, value, { vocabulary, levels: order }) }
+  }
   if (at?.level) {
     const level = content.levels.find((l) => l.id === at.level)
     if (!level) return null

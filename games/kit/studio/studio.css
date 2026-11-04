@@ -596,3 +596,37 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .insp-move { flex-basis: 100%; display: flex; align-items: center; gap: 6px; }
 .insp-move small { font: var(--fs-mini)/1 var(--mono); }
 .insp-move .pick-button { flex: 1; min-width: 0; }
+
+/* ---- parts (PartsList.jsx, PartFields.jsx) ---- */
+.parts-list { display: grid; gap: 1px; padding: 6px; }
+.parts-row { min-height: var(--row); display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 2px 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; text-align: left; font-size: var(--fs); cursor: pointer; }
+.parts-row:hover { background: var(--hover); }
+.parts-row.is-on { background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 2px 0 0 var(--accent); }
+.parts-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.parts-row code { color: var(--faint); font: 11px var(--mono); }
+.parts-row .family-chip { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 4px; color: var(--muted); background: var(--canvas); }
+.parts-row.is-preset { grid-template-columns: minmax(0, 1fr) auto; }
+.parts-add { height: var(--row); display: grid; place-items: center; border: 1px dashed var(--line); border-radius: 4px; color: var(--faint); background: none; cursor: pointer; }
+.parts-add:hover { color: var(--ink); }
+.parts-presets { display: grid; gap: 1px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--hairline); }
+.field-expr { display: grid; gap: 4px; min-width: 0; }
+.expr-line { display: flex; gap: 4px; }
+.expr-line input { flex: 1 1 auto; min-width: 0; font-family: var(--mono); }
+.expr-toggle { width: var(--row); padding: 0; font: italic 13px var(--mono); }
+.expr-toggle.is-on { color: var(--accent-ink); }
+.expr-caret { margin: 0 0 0 8px; color: var(--fail); font: 12px/1 var(--mono); }
+.expr-menu { display: grid; gap: 6px; max-height: 320px; overflow: auto; padding: 6px; border-radius: 6px; background: var(--canvas); }
+.expr-group { display: flex; flex-wrap: wrap; gap: 3px; }
+.expr-group button, .expr-ops button { border: 0; border-radius: 4px; background: var(--paper); color: var(--ink); cursor: pointer; }
+.expr-group button { padding: 2px 6px; font: 11px var(--mono); }
+.expr-ops { display: grid; gap: 1px; }
+.expr-ops button { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 3px 6px; text-align: left; }
+.expr-ops button.is-builtin code { color: var(--muted); }
+.expr-ops code { font: 11px var(--mono); white-space: nowrap; }
+.expr-ops small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.field-icon { display: grid; gap: 4px; }
+.field-icon input { height: var(--row); padding: 0 7px; border: 1px solid var(--line); border-radius: 4px; background: var(--canvas); font: var(--fs) var(--mono); }
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(28px, 1fr)); gap: 2px; max-height: 200px; overflow: auto; }
+.icon-grid button { height: 28px; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
+.icon-grid button:hover { color: var(--ink); background: var(--hover); }
+.icon-grid button.is-on { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 18%, transparent); }
