@@ -1,6 +1,6 @@
 import './parts.css'
 import { L } from '../i18n.js'
-import { evalSettings, failedCheck, shows } from '../../engine/parts/define.js'
+import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/define.js'
 import SettingField, { valueWords } from './SettingField.jsx'
 
 // One face of a defined part (games/DESIGN.md 6.9): the desktop card's body, the phone tile, or the detail both
@@ -75,7 +75,7 @@ export default function PartFace({ def, face, node, ctx, set, defined, phone = f
       case 'text':
         return <p key={key} className="pf-text" {...at}>{L(b.text)}</p>
       case 'desc':
-        return <p key={key} className="pf-desc" {...at}>{L(def.desc)}</p>
+        return <p key={key} className="pf-desc" {...at}>{L(partDesc(def, (k) => defined.allowed?.(def.type, k) ?? null))}</p>
       case 'ports':
         return (
           <dl key={key} className="pf-ports" {...at}>

@@ -623,6 +623,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 - **多条目的值是一个能滚动的窗口。** 一个值有很多条（子句集、证明状态的目标、等式、模型的上下文……）时，一律用 kit 的 `shell/Entries.jsx` 显示：条目在一个能滚动的窗口里，一条一行，窗口下面固定一行写共有多少条，不跟着滚；不到这么多行时窗口跟着变矮。窗口多少行（含共计那一行）、最多列多少条，按用的地方配：默认板上（桌面画布、手机格位、运行过程）5 行、20 条，单子里（`Sheet` 经 `EntriesSize` 给出）13 行、50 条；别的地方用 `EntriesSize` 给它里面的一切另定，单个列表也可以直接写 `lines`、`max`。行高默认是 12px 字一行，领域的行更高时在样式里设 `--entry-row`。
 - **读数放在预览里。** 指针在图上时，数值显示在输入输出的预览里，不在元件上浮出坐标。
 - **文本随课程更新。** 元件的介绍可以随关卡推进改写：文本带 `revisions: [{ at: 关卡 id, …字段 }]`，从 `at` 那一关起（以及它之后的关）用新写法；元件箱按玩家已打开的关显示（`defineGame` 的 `textAt` / `textFor`）。一个元件在某一关得到新用法时（《证明完毕》「矛盾」一关起，套用也能接 ¬A 和 A 得到 ⊥），就在那一关更新它的介绍，不在一开始把后面的用法写进去。`at` 必须是主线上的关，而且是新用法第一次在任务里出现的那一关：挂在可选专题或挑战上，跳过它的玩家就永远看不到新写法（《证明完毕》的「消去 ∧ 也能拆 ↔」原先挂在可选的骑士与无赖上，后来在主线补了一关「两个方向」，改挂在那里）。
+- **元件说明随开放的选项一起长。** 一个可配置的元件，说明只写所有选项共有的功能，每个选项特有的作用写在选项的 `about` 里；说明显示时接上此刻开放的那几个选项的 `about`（`kit/engine/parts/define.js` 的 `partDesc`）：详情、托盘按这一关这个任务开放的选项，元件箱按玩家已打开的关开放过的选项。还没开放的选项不出现在任何文案里。
 - **元件升级与形状。** 元件可以随关卡升级，文字和能力一起长：`revisions` 里的一条可以写 `by: 关卡 id`（过了那一关才算，玩家挣来的升级），除了 `desc` 还能带 `forms`，给元件添新的形状（累加，`shell/index.js` 的 `textAt` / `textFor` 按关卡和进度读出）。一个元件可以有几种形状（`engine/forms.js` 的 `formed`：每种形状是一个完整的元件，有自己的输入口、设置和计算），元件上用和其他设置同一种选择框切换（`node.params.form`，默认第一种）；只给出这一关已经挣到的形状（`kit/course.js` 的 `formsAt`，`npm run check` 查参考答案用的形状这一关有没有）。同一条规律的几个方向、几种推广做成一个元件的几种形状，不拆成几个元件（《证明完毕》的德摩根：命题的四个方向证完后一次解锁，量词的四个方向各由证出它的那一关添上）。几个方向一起解锁时，元件由证出最后一个方向的那一关造出，其余形状用一条 `by` 这一关的升级一次给齐；每种形状的证明项取自证出那个形状的关。
 - **点一个按钮填一样东西**（一句话、一个值）用 `kit/shell/Popover.jsx`：桌面上在按钮旁弹出一个指着它的框，像装着编辑器的提示框，点框外或按 Esc 关掉；手机上是底部单子。改了立即生效，没有保存按钮。整关就是填这一样东西的（翻译关）不用它，编辑器直接摆在台面上。
 - **撤销和重做**在桌面画布和手机格位上都有。**清空**也是画布自己的工具（`onClear`：桌面在右下角工具条最前面，手机在撤销、重做左侧），点了先弹窗确认，清空后仍可撤销；不放在运行栏里。手机格位和词序条上的清空按钮一直在，板上没有可清空的东西时变灰、不能点（kit 的 `ClearButton` 不给 `onClear` 就是这样）。
@@ -835,7 +836,7 @@ opens them to show the resulting feedback.
 }
 ```
 
-**一个元件**：`name`、`desc`（只写功能，第 4 节）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about? }`，`name` 是 ASCII）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
+**一个元件**：`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about? }`，`name` 是 ASCII）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
 
 **设置的控件只有六种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 
@@ -848,7 +849,7 @@ opens them to show the resulting feedback.
 | `toggle` | 开关 | `on`、`off`（两端的字） | 真假 |
 | `custom` | 自定义 | `widget`（领域 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
 
-每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的封装件用（关卡的 `builds.settings` 列出预设的名字）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
+每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的封装件用（关卡的 `builds.settings` 列出预设的名字）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
 
 **运算是一行 ASCII 表达式**（`kit/engine/parts/expr.js`），只能调用领域的引擎资源：
 

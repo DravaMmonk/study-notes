@@ -136,7 +136,7 @@ export default function Screen(screen) {
     const b = builderOf(type).builds
     return { type, label: b.name, desc: b.desc, icon: CircuitBoard, family: 'built', packed: true }
   }
-  const itemOf = (type) => (game.BUILT[type] ? builtItem(type) : definedItem(type, game.defs[type], { fresh: entry.fresh?.includes(type) }))
+  const itemOf = (type) => (game.BUILT[type] ? builtItem(type) : definedItem(type, game.defs[type], { fresh: entry.fresh?.includes(type) }, settingsIn))
 
   const test = tests[run.at]
   const rows = level.outputs.map((o) => [o.label, test.expect[o.name], runOf.outputs[o.name]])

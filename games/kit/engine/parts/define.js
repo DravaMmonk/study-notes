@@ -8,6 +8,7 @@
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
 //   applyRules(def, params, changed, ops)  a node's settings once the player changed one: the part's rules followed
 //   failedCheck(def, params, ops)          what the first check its settings fail says, or null
+//   partDesc(def, allowed)                 its description with the open options' abouts
 // Every expression may call the kernel's builtins (builtins.js) besides the domain's resources.
 import { PartError } from '../circuit.js'
 import { validate } from '../schema.js'
@@ -152,6 +153,20 @@ export function defineParts(file, ops) {
     /** A new node's settings. */
     defaultsOf: (type) => ({ ...(PARTS[type]?.defaults ?? {}) }),
   }
+}
+
+/**
+ * A part's description as far as its options are open: `desc`, then the `about` of every option `allowed(key)` lets
+ * through (a list of values; null or undefined: every option), each side of the text joined on its own.
+ */
+export function partDesc(def, allowed = () => null) {
+  const extra = (def.settings ?? []).flatMap((s) => {
+    const open = allowed(s.key)
+    return (s.options ?? []).filter((o) => o.about && (!open || open.includes(o.value))).map((o) => o.about)
+  })
+  if (!extra.length) return def.desc
+  const side = (lang) => [def.desc, ...extra].map((t) => (typeof t === 'string' ? t : t?.[lang] ?? '')).filter(Boolean).join(lang === 'zh' ? '' : ' ')
+  return { zh: side('zh'), en: side('en') }
 }
 
 /** The vocabulary with a parts.json's parts as its `part` kind: what content's S.ref('part') names. */
