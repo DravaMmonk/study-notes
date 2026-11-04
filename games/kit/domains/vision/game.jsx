@@ -21,6 +21,7 @@ import './ui/vision.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore, levelLabels } from '../../course.js'
 import { migrations } from '../../shell/saves.js'
+import { migrateInputGroups } from './input-groups.js'
 import Screen from './ui/Screen.jsx'
 import GridScreen from './ui/GridScreen.jsx'
 import ChoiceScreen from './ui/ChoiceScreen.jsx'
@@ -44,6 +45,7 @@ const KINDS = {
 export default function visionGame(content) {
   const vision = visionCourse(content)
   const { LEVELS, CHAPTERS, course } = vision
+  const saves = migrations(content.saves)
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at, atTasks: at.flatMap((id) => vision.introductions(type, id)) }))
   // A part upgraded by later levels is one part in the components box, as its last upgrade names and describes it.
   const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
@@ -80,7 +82,7 @@ export default function visionGame(content) {
         }),
       }
     }),
-    progress: migrations(content.saves),
+    progress: { ...saves, migrate: (saved) => migrateInputGroups(saves.migrate(saved), [...vision.played.values()].flat()) },
     intro: (level) => level.intro,
     IntroFigure,
     kinds: KINDS,

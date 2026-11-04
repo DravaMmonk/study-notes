@@ -10,8 +10,8 @@
     }
   ],
   "after": {
-    "zh": "权重的位置、符号与总和分别影响方向、响应与增益。负权重和非单位增益也有用途。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-    "en": "Weight positions, signs and sum affect direction, response and gain. Negative weights and non-unit gain can be useful. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+    "zh": "同一套位置权重可以沿行或列使用；读取方向决定哪些邻居参与，权重的位置与符号决定各自的贡献。每次处理仍然只覆盖一条线。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+    "en": "One positional weighting rule can act along rows or columns. Direction selects the neighbours; weight position and sign determine their contributions. Each pass still covers one line. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -21,15 +21,27 @@
         "zh": "三路贡献",
         "en": "Three contributions"
       },
+      "axes": ["x"],
       "brief": {
         "zh": "用给定的位置权重组合左、中、右三个读数。输出与输入同尺寸，图外取 0；权重不必总为正，也不自动归一化。",
         "en": "Combine left, centre and right readings with the supplied positional weights. Keep image size, read zero outside, and do not automatically normalise or discard negative weights."
       },
+      "after": {
+        "zh": "权重的位置、符号与总和分别影响方向、响应与增益。负权重和非单位增益也有用途。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+        "en": "Weight positions, signs and sum affect direction, response and gain. Negative weights and non-unit gain can be useful. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+      },
       "inputs": [
         { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
-        { "name": "left", "label": { "zh": "前侧权重", "en": "First weight" } },
-        { "name": "centre", "label": { "zh": "中心权重", "en": "Centre weight" } },
-        { "name": "right", "label": { "zh": "后侧权重", "en": "Last weight" } }
+        { "name": "left", "label": { "zh": "前侧", "en": "First" } },
+        { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
+        { "name": "right", "label": { "zh": "后侧", "en": "Last" } }
+      ],
+      "inputGroups": [
+        {
+          "name": "weights",
+          "label": { "zh": "邻域权重", "en": "Neighbourhood weights" },
+          "inputs": ["left", "centre", "right"]
+        }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "加权结果", "en": "Weighted result" } }],
       "tests": [
@@ -102,6 +114,123 @@
         "r = offset(image,plus)"
       ],
       "adds": ["const", "offset"]
+    },
+    {
+      "id": "v1_vertical",
+      "kind": "circuit",
+      "step": { "zh": "把邻居换到上下", "en": "Move the neighbourhood to columns" },
+      "brief": {
+        "zh": "组合上、当前、下三个位置的读数，分别对应前侧、中心、后侧权重。坐标向下增加，图外取 0；保持原图尺寸，不混入左右邻居。",
+        "en": "Combine the readings above, at and below each position using the first, centre and last weights respectively. Coordinates increase downward; read zero outside and preserve image size without mixing left/right neighbours."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
+        { "name": "left", "label": { "zh": "前侧", "en": "First" } },
+        { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
+        { "name": "right", "label": { "zh": "后侧", "en": "Last" } }
+      ],
+      "inputGroups": [
+        {
+          "name": "weights",
+          "label": { "zh": "邻域权重", "en": "Neighbourhood weights" },
+          "inputs": ["left", "centre", "right"]
+        }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "纵向加权结果", "en": "Vertical weighted result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
+            "left": 0.25,
+            "centre": 0.5,
+            "right": 0.25
+          },
+          "expect": { "out": [[0, 0.25, 0], [0, 0.5, 0], [0, 0.25, 0]] }
+        },
+        {
+          "inputs": { "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]], "left": -1, "centre": 0, "right": 1 },
+          "expect": { "out": [[0.7, 0.1, 0.5], [-0.2, -0.8, -0.4]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.6, 0.6], [0.6, 0.6], [0.6, 0.6], [0.6, 0.6]],
+            "left": 0.25,
+            "centre": 0.5,
+            "right": 0.25
+          },
+          "expect": {
+            "out": [
+              [0.44999999999999996, 0.44999999999999996],
+              [0.6, 0.6],
+              [0.6, 0.6],
+              [0.44999999999999996, 0.44999999999999996]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.2, 0.8, 0.4]], "left": 0.2, "centre": 0.6, "right": 0.2 },
+          "expect": { "out": [[0.12, 0.48, 0.24]] }
+        }
+      ],
+      "solution": [
+        "minus = const[value=-1]()",
+        "plus = const[value=1]()",
+        "l = offset[axis=y](image,minus)",
+        "r = offset[axis=y](image,plus)",
+        "a = arithmetic[op=mul](l,left)",
+        "b = arithmetic[op=mul](image,centre)",
+        "c = arithmetic[op=mul](r,right)",
+        "ab = arithmetic[op=add](a,b)",
+        "total = arithmetic[op=add](ab,c)",
+        "out <- total"
+      ],
+      "naive": [
+        "minus = const[value=-1]()",
+        "plus = const[value=1]()",
+        "l = offset(image,minus)",
+        "r = offset(image,plus)",
+        "a = arithmetic[op=mul](l,left)",
+        "b = arithmetic[op=mul](image,centre)",
+        "c = arithmetic[op=mul](r,right)",
+        "ab = arithmetic[op=add](a,b)",
+        "total = arithmetic[op=add](ab,c)",
+        "out <- total"
+      ],
+      "naiveWhy": {
+        "zh": "横向读取会让左右邻居参与，不能代表上下贡献。用非方形图和不对称权重分别检查方向与位置顺序。",
+        "en": "Horizontal reads mix left/right neighbours rather than above/below contributions. Rectangular data test direction; asymmetric weights test positional order."
+      },
+      "hint": [
+        {
+          "zh": "先用单个亮点观察响应是在同一行还是同一列展开；再用不对称权重检查上、下是否交换。无需手算数值。",
+          "en": "Use one impulse to see whether support spreads along its row or column, then asymmetric weights to check above/below order. Numerical calculation is automatic."
+        }
+      ],
+      "starter": [
+        "minus = const[value=-1]()",
+        "plus = const[value=1]()",
+        "l = offset(image,minus)",
+        "r = offset(image,plus)",
+        "a = arithmetic[op=mul](l,left)",
+        "b = arithmetic[op=mul](image,centre)",
+        "c = arithmetic[op=mul](r,right)",
+        "ab = arithmetic[op=add](a,b)",
+        "total = arithmetic[op=add](ab,c)",
+        "out <- total"
+      ],
+      "adds": [],
+      "axes": ["y"],
+      "carries": true,
+      "intro": [
+        {
+          "t": {
+            "zh": "同一列的上、下读数也会影响中心。把已经搭好的位置规则迁移到纵向，区分“换读取方向”和“换权重顺序”。这次先观察一列的响应，再处理整张图。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+            "en": "Readings above and below also contribute to a centre. Transfer the constructed positional rule to columns, distinguishing a change of direction from a reversal of weights. Inspect a column before processing the full image. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+          }
+        }
+      ]
     }
   ],
   "builds": {
@@ -112,6 +241,6 @@
       "en": "Combine three readings along the selected axis: left/centre/right for x, above/centre/below for y, with explicit borders."
     },
     "settings": ["outside", "axis"],
-    "defaults": { "outside": "zero" }
+    "defaults": { "outside": "zero", "axis": "y" }
   }
 }

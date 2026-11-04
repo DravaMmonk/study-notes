@@ -19,11 +19,14 @@ import { lessonProblems } from './benches/lesson.js'
 /** A task with its hidden tests after the others. */
 const all = (task) => ({ ...task, tests: [...task.tests, ...task.hidden] })
 
-function circuitSaid(task, { held, partOf, builds, outside }) {
+function circuitSaid(task, { held, partOf, builds, outside, axes }) {
   const problems = []
   const strays = (board, what) => board.nodes.filter((n) => !FIXED.includes(n.type) && !held.has(n.type)).forEach((n) => problems.push(`${what} uses ${n.type}, which the level does not hold`))
   strays(task.solution, 'the answer')
-  for (const [name, board] of [['answer',task.solution],['starter',task.starter],['naive',task.naive]]) for (const node of board?.nodes ?? []) if (node.params?.outside && !outside.includes(node.params.outside)) problems.push(`${name} uses outside=${node.params.outside} before its task introduction`)
+  for (const [name, board] of [['answer',task.solution],['starter',task.starter],['naive',task.naive]]) for (const node of board?.nodes ?? []) {
+    if (node.params?.outside && !outside.includes(node.params.outside)) problems.push(`${name} uses outside=${node.params.outside} before its task introduction`)
+    if (node.params?.axis && !axes.includes(node.params.axis)) problems.push(`${name} uses axis=${node.params.axis} before its task introduction`)
+  }
   if (task.starter) strays(task.starter, 'the starter')
   const where = (j) => (j < task.tests.length ? `test ${j + 1}` : `hidden test ${j - task.tests.length + 1}`)
   runLevel(all(task), task.solution, partOf).runs.forEach((r, j) => {
@@ -87,7 +90,7 @@ export function validate({ vision }) {
 
     const said = tasks.map((task, k) => {
       const held = new Set(usable(course, task, built))
-      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, outside: vision.outsideIn(task), builds: k === tasks.length - 1 ? level.builds : null })
+      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, outside: vision.outsideIn(task), axes: vision.axesIn(task), builds: k === tasks.length - 1 ? level.builds : null })
         : task.kind === 'grid' ? gridSaid(task)
           : task.kind === 'choice' ? choiceSaid(task)
             : benchSaid(task)

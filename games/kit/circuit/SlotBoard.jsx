@@ -202,7 +202,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   const inputs = (node) => {
     const ports = parts.inputs(node).filter((p) => !own(node).has(p))
     return ports.map((port) => {
-      const from = graph.nodes.find((n) => n.id === feeding(graph, node.id, port))
+      const from = graph.nodes.find((n) => n.id === srcNode(feeding(graph, node.id, port)))
       const tag = ports.length > 1 ? L(parts.portLabel?.(node, port) ?? port) : ''
       // Beside a wired input, where it reads from: a part's number, or a source's name. A wire between two parts
       // stacked in one column is short, so this says what it connects even where the wire is hard to see.

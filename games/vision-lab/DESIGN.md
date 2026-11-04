@@ -15,7 +15,8 @@ Known offsets are supplied data, not estimated registration. Comparisons are con
 claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
 A weighted line is built from shifts, multiplication and addition. A separable filter reuses that line along both
-axes through an exposed axis parameter. A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
+axes through an exposed axis parameter, earned through separate horizontal and vertical tasks. The horizontal
+task permits only x; the vertical task introduces y through asymmetric weights and rectangular images. A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
 the table supplies traversal, not a weighted sum. Convolution reverses the written kernel before correlation.
 Parameterised border rules propagate through the player's actual nested graph. Zero, clamp, wrap and reflect
 are explicit assumptions; a valid interior is a separate cropped output. Reflection includes the edge sample.
@@ -36,7 +37,8 @@ Stage 0 has a shared inspection-station introduction before any branch: signed/a
 comparison -> a controlled inspection pipeline. Simple facets are tasks, not padded levels. Its comparator is
 reused in smoothing residuals and reconstruction checks.
 
-Stage 1 opens with a weighted three-sample construction, then three independent routes:
+Stage 1 opens with horizontal three-sample construction followed by vertical transfer on the same graph, then
+three independent routes. All routes therefore have both directions before reusing the line:
 
 - Direction/composition: two-axis separable processing -> smoothing/detail enhancement with given Gaussian weights.
 - Local kernels: general correlation -> convolution orientation -> boundary/valid-domain upgrade -> signed spatial
@@ -102,3 +104,21 @@ Images have one numeric cell view, including original values and coordinates, wi
 full precision. No line plot or picture/numbers toggle is used. Small board previews are bounded numeric grids.
 Phone numeric fields use an in-app keypad with signed decimals, fractions, exponent notation, erase, cancel and
 explicit commit. Incomplete or nonfinite values cannot be committed and the system keyboard is not summoned.
+
+## Mobile information hierarchy
+
+The circuit remains the primary workspace. Task text, the tray and result panels use compact spacing while ports
+and actions retain usable touch targets. Image outputs use one selected output at a time; scalar-only outputs
+share a compact comparison table. Current and target always remain visible, including mixed scalar/image values
+and missing results. Comparisons wrap only when their intrinsic widths exceed the container, rather than hiding
+one value behind a view switch. Numeric cells start at 36 px (56 px for RGB), expanding for longer values.
+Image dimensions appear once per comparison when the shapes match; scalar labels and values share one line.
+Marked mismatches and
+pixel inspection supply both original values and their difference; input data
+is secondary and collapsed until requested. Image captions carry a meaningful name once, with size/channel metadata
+on the same line. Avoid generic reading labels, repeated headings and explanatory copy where layout or controls
+already establish the relationship. Component detail sheets show outputs and settings, with descriptions in a compact disclosure; input values are not repeated.
+
+Neighbourhood weights in the first two filtering tasks share one three-output source (first, centre, last),
+while packed components retain separate weight inputs. Numeric image previews use up to two decimal places
+and smaller text; inspection exposes full precision. Small component matrices show every row without clipping.

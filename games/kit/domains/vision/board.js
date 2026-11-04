@@ -12,10 +12,15 @@
 import { parse, print } from '../../circuit/text.js'
 import { portsOf } from '../../engine/circuit.js'
 import { FIXED } from './parts.js'
+import { groupOf, groupedSource } from './input-groups.js'
 
 /** The fixed cards of a level: its inputs down the left, its outputs down the right. */
 export function fixedOf(level) {
-  const left = level.inputs.map((i, k) => ({ id: i.name, type: 'in', params: { name: i.name, ...(i.type ? { kind: i.type } : {}) }, x: 20, y: 40 + k * 120 }))
+  const left = level.inputs.flatMap((input) => {
+    const group = groupOf(level, input.name)
+    if (group && group.inputs[0] !== input.name) return []
+    return [{ id: group?.name ?? input.name, type: 'in', params: group ? { name: group.name, members: group.inputs.join(',') } : { name: input.name, ...(input.type ? { kind: input.type } : {}) } }]
+  }).map((node,k) => ({ ...node, x: 20, y: 40 + k*120 }))
   const right = level.outputs.map((o, k) => ({ id: o.name, type: 'out', params: { name: o.name }, x: 900, y: 40 + k * 120 }))
   return [...left, ...right]
 }
@@ -25,7 +30,7 @@ export const startBoard = (level) => level.starter?.nodes ? { nodes: level.start
 
 /** Whether a saved board still fits its level: the level's fixed cards, and every card one the domain knows. */
 export function fits(circuit, level, partOf) {
-  const fixed = (c) => c.nodes.filter((n) => FIXED.includes(n.type)).map((n) => `${n.id}:${n.params?.kind ?? ''}`).sort().join()
+  const fixed = (c) => c.nodes.filter((n) => FIXED.includes(n.type)).map((n) => `${n.id}:${n.params?.kind ?? ''}:${n.params?.members ?? ''}`).sort().join()
   return fixed(circuit) === fixed(startBoard(level)) && circuit.nodes.every((n) => partOf(n.type))
 }
 
@@ -46,7 +51,8 @@ export function fromText(lines, level, partOf) {
     const k = all.length - fixed.length
     all.push({ id: st.id, type: st.type, params: Object.fromEntries(Object.entries(st.settings).map(([key, v]) => [key, String(v)])), x: 240 + (k % 3) * 220, y: 40 + Math.floor(k / 3) * 150 })
   }
-  const out = wires.map((w) => {
+  const out = wires.map((original) => {
+    const w = { ...original, from: groupedSource(level, original.from) }
     const from = all.find((n) => n.id === w.from.split('#')[0])
     const to = all.find((n) => n.id === w.to)
     if (!from) fail(w.line, `这一关没有叫「${w.from.split('#')[0]}」的元件。`, `This level has no node called “${w.from.split('#')[0]}”.`)

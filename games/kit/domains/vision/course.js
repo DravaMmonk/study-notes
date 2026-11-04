@@ -34,6 +34,7 @@ const OWN = new Map()
 
 export function visionCourse(content) {
   const { eras, primitives, levels, concept = {} } = content
+  const guidedAxes = levels.some((l) => l.tasks?.some((t) => t.axes))
   const guidedOutside = levels.some((l) => l.tasks?.some((t) => t.outside))
   const wrong = []
   const say = (level, text) => wrong.push(`${level}: ${text}`)
@@ -52,6 +53,16 @@ export function visionCourse(content) {
 
   const readCircuit = (id, task, out, where) => {
     const names = task.outputs.map((o) => o.name)
+    const grouped = new Set()
+    const sourceNames = new Set([...task.inputs, ...task.outputs].map((p) => p.name))
+    for (const group of task.inputGroups ?? []) {
+      if (sourceNames.has(group.name)) say(where, `duplicate input group name ${group.name}`)
+      sourceNames.add(group.name)
+      for (const name of group.inputs) {
+        if (!task.inputs.some((input) => input.name === name) || grouped.has(name)) say(where, `invalid or repeated grouped input ${name}`)
+        grouped.add(name)
+      }
+    }
     for (const t of [...task.tests, ...(task.hidden ?? [])]) {
       for (const o of names) if (!(o in t.expect)) say(where, `a test expects nothing of the output ${o}`)
       for (const i of task.inputs) if (!(i.name in t.inputs)) say(where, `a test gives nothing on the input ${i.name}`)
@@ -201,6 +212,7 @@ export function visionCourse(content) {
     BUILT,
     blueprints,
     wrong,
+    axesIn: (level) => guidedAxes ? [...new Set(['x', ...LEVELS.filter((l) => course.before(l.id, level.id)).flatMap((l) => l.tasks.flatMap((t) => t.axes ?? [])), ...(byId.get(level.id)?.tasks ?? []).slice(0,(level.task ?? 0)+1).flatMap((t) => t.axes ?? [])])] : ['x', 'y'],
     outsideIn: (level) => guidedOutside ? [...new Set(LEVELS.filter((l) => course.before(l.id, level.id)).flatMap((l) => l.tasks.flatMap((t) => t.outside ?? [])).concat((byId.get(level.id)?.tasks ?? []).slice(0,(level.task ?? 0)+1).flatMap((t) => t.outside ?? [])))] : ['error', ...BORDERS],
     introductions: (type, id) => (byId.get(id)?.tasks ?? []).flatMap((t, k) => (t.adds ?? []).includes(type) || k === 0 && (given.get(id)?.adds ?? []).includes(type) ? [t.id] : []),
     offerIn: (level, flags) => offer(course, level, new Set(flags)),

@@ -13,6 +13,7 @@ import { AXIS_FIELD, BORDER_FIELD, CONSTRUCTION_OUTPUTS } from './construction-c
 import { OPERATOR_DEFAULTS } from '../operators.js'
 import { CARDS, CHANNELS, OUTSIDE, PORT_LABELS, OPERATOR_FIELDS } from './catalog.js'
 import ImageView from './ImageView.jsx'
+import { imageNumber } from './image-layout.js'
 import { ProjectionCase } from './benches/CameraScene.jsx'
 import TestValues from './TestValues.jsx'
 import PartDetail from './PartDetail.jsx'
@@ -34,7 +35,7 @@ function partsFor(level, game) {
     inputs: (node) => (game.BUILT[node.type] ? builderOf(node.type).inputs.map((i) => i.name) : PARTS[node.type] ? portsOf(PARTS[node.type], node) : []),
     role: (node) => (node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
     label: (node) => {
-      if (node.type === 'in') return labelOf(level.inputs, node.params?.name)
+      if (node.type === 'in') return labelOf([...(level.inputGroups ?? []), ...level.inputs], node.params?.name)
       if (node.type === 'out') return labelOf(level.outputs, node.params?.name)
       return game.BUILT[node.type] ? builderOf(node.type).builds.name : CARDS[node.type]?.name ?? node.type
     },
@@ -43,7 +44,7 @@ function partsFor(level, game) {
     icon: (node) => (game.BUILT[node.type] ? CircuitBoard : CARDS[node.type]?.icon),
     packed: (node) => Boolean(game.BUILT[node.type]),
     outputs: (node) => {
-      if (PARTS[node.type]?.outputs) return PARTS[node.type].outputs(node)?.map((key) => ({ key, label: CONSTRUCTION_OUTPUTS[node.type]?.[key] ?? key })) ?? null
+      if (PARTS[node.type]?.outputs) return PARTS[node.type].outputs(node)?.map((key) => ({ key, label: node.params?.members ? labelOf(level.inputs, key) : CONSTRUCTION_OUTPUTS[node.type]?.[key] ?? key })) ?? null
       const outs = game.BUILT[node.type] && builderOf(node.type).outputs
       return outs && outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
     },
@@ -54,7 +55,10 @@ function partsFor(level, game) {
 /** A value on a card: a number, a small picture of an image, 「—」, or why there is none. */
 function Value({ value, error }) {
   if (value === undefined) return <span className={`vi-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
-  if (isImage(value)) return <span className="vi-thumb"><span className="vi-numeric-thumb"><ImageView value={value} numbers cell={value.c === 3 ? 58 : value.data.reduce((w,v)=>Math.max(w,Math.min(52,8+fmt(v).length*6)),32)} /></span><small>{value.w} × {value.h}</small></span>
+  if (isImage(value)) {
+    const cell=value.c === 3 ? 58 : value.data.reduce((w,v)=>Math.max(w,Math.min(52,8+imageNumber(v).length*6)),32)
+    return <span className="vi-thumb"><span className={`vi-numeric-thumb ${value.w<=4&&value.h<=3?'is-small':''}`}><ImageView value={value} numbers cell={cell}/></span>{(value.w>4||value.h>3)&&<small>{value.w} × {value.h}</small>}</span>
+  }
   return <span className="vi-value">{show(value)}</span>
 }
 
@@ -71,7 +75,8 @@ export default function Screen(screen) {
   const parts = useMemo(() => partsFor(level, game), [level, game])
   const { shown: palette, folded } = useMemo(() => game.offerIn(level, flags), [game, level, flags])
   const outside = game.outsideIn(level)
-  const openBoard = (saved) => taskBoard(saved?.nodes && fits(saved,level,game.partOf) ? saved : startBoard(level), new Set([...palette,...folded]), outside)
+  const axes = game.axesIn(level)
+  const openBoard = (saved) => taskBoard(saved?.nodes && fits(saved,level,game.partOf) ? saved : startBoard(level), new Set([...palette,...folded]), outside, axes)
   const board = useLevelBoard(screen, { open: openBoard, fresh: () => startBoard(level) })
   const { circuit, change } = board
   const [revealed] = useState(solved)
@@ -110,7 +115,7 @@ export default function Screen(screen) {
       {fields.map(({ key, label, options }) => <label key={key} className={`vi-field ${options ? 'is-option' : 'is-weight'}`}>
         <span>{L(label)}</span>
         {options ? <select aria-label={L(label)} value={p[key]} disabled={ctx.readOnly} onChange={(e) => setParam(node, key, e.target.value)}>
-          {options.map(([v, text]) => <option key={v} value={v} disabled={key === 'outside' && !outside.includes(v)}>{L(text)}{key === 'outside' && !outside.includes(v) ? tr('（尚未引入）', ' (not introduced)') : ''}</option>)}
+          {options.map(([v, text]) => <option key={v} value={v} disabled={key === 'outside' && !outside.includes(v) || key === 'axis' && !axes.includes(v)}>{L(text)}{(key === 'outside' && !outside.includes(v) || key === 'axis' && !axes.includes(v)) ? tr('（尚未引入）', ' (not introduced)') : ''}</option>)}
         </select> : <NumberField label={label} value={p[key]} phone={screen.phone} readOnly={ctx.readOnly} onChange={(v)=>setParam(node,key,v)}/>}
       </label>)}
       {node.type === 'stencil' && <div className="vi-operator-gain">
@@ -170,12 +175,13 @@ export default function Screen(screen) {
   ]
   const strip = (
     <div className="vi-strip">
-      <TestValues rows={rows} given={level.inputs.length} phone={screen.phone} />
+      <TestValues rows={rows} given={level.inputs.length} phone={screen.phone} tolerance={level.tolerance} />
       {level.illustration === 'pinhole' && <ProjectionCase test={test} tests={tests} phone={screen.phone} />}
       {ended && runOf.fail && <p className="vi-verdict is-fail">{L(runOf.fail.why)}</p>}
     </div>
   )
 
+  const descriptionOf = (n) => game.BUILT[n.type] ? builderOf(n.type).builds.desc : FIXED.includes(n.type) ? null : CARDS[n.type]?.desc
   return (
     <CircuitLevel
       screen={screen}
@@ -207,11 +213,10 @@ export default function Screen(screen) {
       canvas={{ width: 150, height: 110 }}
       defaults={defaults}
       brief={{ hint: level.hint }}
-      describe={(n) => (game.BUILT[n.type] ? builderOf(n.type).builds.desc : FIXED.includes(n.type) ? null : CARDS[n.type]?.desc)}
       results={strip}
       resultsTitle={tr(`测试 ${run.at + 1}`, `Test ${run.at + 1}`)}
       details
-      sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} />}
+      sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} description={descriptionOf(node)} />}
       packed={{
         open: (node) => {
           const inside = game.BUILT[node.type]?.opens?.(node.params)

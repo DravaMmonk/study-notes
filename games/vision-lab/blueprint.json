@@ -962,6 +962,10 @@
                 {
                   "zh": "邻域处理将多个位置的信息汇合。权重的位置、正负与总和分别影响方向、响应和恒定区域增益；不是所有权重都应归一化。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
                   "en": "Neighbourhood processing combines locations. Position, sign and total weight affect direction, response and constant gain. Not every rule should be normalised. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+                },
+                {
+                  "zh": "先验证横向位置权重，再将同一电路迁移到纵向；非方形图和非对称权重分别检查读取方向与上下位置顺序。",
+                  "en": "Validate horizontal positional weights, then transfer the same circuit to columns; rectangular images and asymmetric weights distinguish direction from above/below order."
                 }
               ],
               "role": "foundation",
@@ -1001,12 +1005,12 @@
               },
               "chain": [
                 {
-                  "zh": "横向加权器只能看一条线。二维平均还需要另一条轴的邻居；行列互换提供方向转换，你决定两次处理怎样连接。对比亮点的十字和方块响应。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
-                  "en": "The line sees only one axis. A 2D average also needs neighbours along the other; transpose supplies the axis change. Decide how to connect the two passes by comparing cross and square impulse responses. <wiki-ref to=\"filter-separability\"></wiki-ref>"
+                  "zh": "横向与纵向的位置规则已经分别验证，但一次处理仍只覆盖一条线。现在让两次处理共同覆盖二维邻域。你决定两次处理怎样连接，对比亮点的十字和矩形响应。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
+                  "en": "The horizontal and vertical positional rules have been tested separately, but each pass still covers one line. Make two passes cover a 2D neighbourhood. Decide how they connect by comparing cross and rectangular impulse responses. <wiki-ref to=\"filter-separability\"></wiki-ref>"
                 },
                 {
-                  "zh": "用单个亮点观察角上的贡献从哪里来。行列互换只换方向，不改变数值。",
-                  "en": "Use an impulse to inspect corner contributions. Transpose changes the axis, not values."
+                  "zh": "用单个亮点观察角上的贡献从哪里来；两次处理各沿一条已经掌握的方向。",
+                  "en": "Use an impulse to inspect corner contributions; each pass follows a direction already practised."
                 },
                 {
                   "zh": "可分离核允许把二维加权分成连续的一维处理，权重形成外积。相加与前后组合不同；只有可分解的核能这样替代。 <wiki-ref to=\"filter-separability\"></wiki-ref>",

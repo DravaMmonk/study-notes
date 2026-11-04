@@ -10,13 +10,19 @@ construction course uses the execution and inspection capabilities below; this i
 Circuit inputs can carry a coordinate point `{ x, y }`. A point source exposes x and y as separately labelled,
 independently connectable outputs on the existing shared editors; tests display the point as one coordinate pair.
 
-Part details show live inputs and outputs separately. Images use intrinsic cells of at least 44 px in a bounded preview, with compact size/channel metadata. Per-cell numbers
-and coordinate axes are always shown in the single numeric image view. Value ranges and
-display clipping are secondary information. Mouse hover, touch selection and keyboard activation reveal the selected cell's
-position and original scalar/RGB value. Large grids scroll without shrinking touch targets. Coordinate-grid
-values remain distinct from the positions of their cells; adding a scalar changes stored values, not grid shape.
-Addition details compare actual operands with the output and offer independent examples of number, image and
-coordinate arithmetic. Descriptions remain plain text. Desktop cards offer the same detail content as phone sheets.
+Tasks may declare `inputGroups`: related logical inputs share one source with independently labelled outputs.
+Tests and packed-part signatures retain their original logical inputs. Spatial directions are introduced at task
+boundaries through `axes`, using prerequisite paths and the current task; unavailable directions are disabled
+and removed from reopened boards. Saved source nodes are merged on load,
+including alternate slots and built boards, with outgoing wires and player work retained.
+
+Part details show settings and live outputs, or the received value for a sink; they do not repeat input values.
+A compact disclosure holds the plain-text component description. Pixel inspection retains operand calculations.
+Images use intrinsic cells of at least 36 px in a bounded preview. Cell numbers use up to two decimal places;
+mouse hover, touch selection and keyboard activation expose original precision and coordinates. Computation and
+comparison retain original values. Small board matrices fit their complete rows within the component; large
+previews remain bounded and scrollable. Coordinate-grid values remain distinct from their cell positions.
+Desktop cards offer the same detail content as phone sheets.
 
 - The kernel owns task progression, controls and general bench state. The vision domain owns camera/image
   semantics, explanatory marks, quantity names and presentation of its model. Content chooses supported scenes

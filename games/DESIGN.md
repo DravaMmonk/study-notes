@@ -16,6 +16,11 @@
 4. **用规格定义目标，而不是给解法。** 目标以输入输出要求、样例或测试集给出，不规定实现路径。满足规格的任何方案都算对。失败时展示具体的反例，让调试本身成为学习。
 5. **把关键设计权交给学习者。** 在某些层只给接口约定，内部完全由学习者决定；这个决定的后果在后面的层里显现。
 
+**Interface density.** Let layout and controls establish context before adding labels or descriptions. Name data
+once; avoid generic reading labels and repeated metadata. Keep the working surface primary, use direct selection
+for sibling results, and disclose supporting inputs or explanations on demand. Preserve readable values and usable
+touch targets when reducing space.
+
 **玩的过程就是学的过程。** 这一条压过下面所有的规矩。玩家拼一块板、转一个旋钮、判一句话，做的每一步都应当是在弄懂本领域的一样东西；通关时他学会的，是能用本领域的话讲出来的知识，不是这款游戏的操作。所以：
 
 - **主线只讲讲义的理论，技术内容全部放到主线外。** 主线（地基关和练习关）的骨架是讲义（lecture）讲的理论：概念、模型、方法和它们之间的关系（针孔投影、景深、最近邻和双线性插值、语义分割和实例分割的区别）。主线上不放任何技术内容：库和工具的做法（OpenCV 按 BGR 读图、`uint8` 存像素、函数叫什么）、文件格式、实验课（workshop）的操作步骤——不做成任务，不写进引言、点题，也不链接它们的词条。它们只出现在可选的拓展专题里：挂在它要用到的那块理论之后，或挂在这一章主线最后一关之后（第 2.4 节的专题，`after`）。判断时问：讲义讲它是在讲原理，还是在讲某个工具怎么用？

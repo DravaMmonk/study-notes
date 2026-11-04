@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "横向加权器只能看一条线。二维平均还需要另一条轴的邻居；自己的三点加权器已开放空间轴设置。你决定两次处理怎样连接，对比亮点的十字和矩形响应。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
-        "en": "The line sees one axis. A 2D average also needs the other; your weighted-line part exposes an axis setting. Decide how to connect two passes by comparing cross and square impulse responses. <wiki-ref to=\"filter-separability\"></wiki-ref>"
+        "zh": "横向与纵向的位置规则已经分别验证，但一次处理仍只覆盖一条线。现在让两次处理共同覆盖二维邻域。你决定两次处理怎样连接，对比亮点的十字和矩形响应。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
+        "en": "The horizontal and vertical positional rules have been tested separately, but each pass still covers one line. Make two passes cover a 2D neighbourhood. Decide how they connect by comparing cross and rectangular impulse responses. <wiki-ref to=\"filter-separability\"></wiki-ref>"
       },
       "fig": "separable"
     }
@@ -27,9 +27,16 @@
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "left", "label": { "zh": "前侧权重", "en": "First weight" } },
-        { "name": "centre", "label": { "zh": "中心权重", "en": "Centre weight" } },
-        { "name": "right", "label": { "zh": "后侧权重", "en": "Last weight" } }
+        { "name": "left", "label": { "zh": "前侧", "en": "First" } },
+        { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
+        { "name": "right", "label": { "zh": "后侧", "en": "Last" } }
+      ],
+      "inputGroups": [
+        {
+          "name": "weights",
+          "label": { "zh": "邻域权重", "en": "Neighbourhood weights" },
+          "inputs": ["left", "centre", "right"]
+        }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "二维处理", "en": "2D result" } }],
       "tests": [
@@ -63,12 +70,12 @@
       ],
       "hidden": [],
       "solution": [
-        "h = weightedLine(image,left,centre,right)",
+        "h = weightedLine[axis=x](image,left,centre,right)",
         "v = weightedLine[axis=y](h,left,centre,right)",
         "out <- v"
       ],
       "naive": [
-        "h = weightedLine(image,left,centre,right)",
+        "h = weightedLine[axis=x](image,left,centre,right)",
         "v = weightedLine[axis=y](image,left,centre,right)",
         "s = arithmetic[op=add](h,v)",
         "out <- s"

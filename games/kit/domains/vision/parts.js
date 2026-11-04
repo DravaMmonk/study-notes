@@ -71,8 +71,8 @@ export const FIXED = ['in', 'out']
 
 export const PARTS = {
   in: source({
-    outputs: (node) => (node.params?.kind === 'point' ? ['x', 'y'] : null),
-    eval: (_, node, ctx, key) => (node.params?.kind === 'point' ? ctx.bind?.[node.params.name]?.[key] : ctx.bind?.[node.params.name]),
+    outputs: (node) => (node.params?.members ? node.params.members.split(',') : node.params?.kind === 'point' ? ['x', 'y'] : null),
+    eval: (_, node, ctx, key) => (node.params?.members ? ctx.bind?.[key] : node.params?.kind === 'point' ? ctx.bind?.[node.params.name]?.[key] : ctx.bind?.[node.params.name]),
   }),
   out: sink(),
   ...Object.fromEntries(Object.entries(IMAGE_OPERATORS).map(([key, part]) => [key, { ...part, eval: strict(part.eval) }])),

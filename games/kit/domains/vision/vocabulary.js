@@ -150,12 +150,13 @@ const ONCE = {
   after: S.opt(S.text()),
   note: S.opt(S.text()),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), settings: S.opt(S.list(S.oneOf(['outside', 'axis']))), defaults: S.opt(S.obj({ outside: S.oneOf(['zero', 'clamp', 'wrap', 'reflect']) })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type（最后一个任务必须是电路）', 'once passed the last task’s board is the part `type` (the last task must be a circuit)') })),
+  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), settings: S.opt(S.list(S.oneOf(['outside', 'axis']))), defaults: S.opt(S.obj({ outside: S.oneOf(['zero', 'clamp', 'wrap', 'reflect']), axis: S.opt(S.oneOf(['x', 'y'])) })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type（最后一个任务必须是电路）', 'once passed the last task’s board is the part `type` (the last task must be a circuit)') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 }
 const COMMON = {
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   outside: S.opt(S.list(S.oneOf(['zero', 'clamp', 'wrap', 'reflect']), { section: 'course' })),
+  axes: S.opt(S.list(S.oneOf(['x', 'y']), { section: 'course' })),
   brief: S.text(),
   hint: S.opt(TEXTS),
   intro: S.opt({ ...INTRO, section: 'read', about: t('这个任务自己的引言：第一次做到它时读', 'the task’s own intro: read the first time it is played') }),
@@ -166,6 +167,7 @@ const TASK = S.by('kind', {
     kind: S.oneOf(['circuit']), ...COMMON,
     illustration: S.opt(S.oneOf(['pinhole'], { about: t('测试旁可展开的成像场景，不增加通关步骤', 'an inspectable camera scene beside a test, without another assessment step') })),
     inputs: S.list(INPUT),
+    inputGroups: S.opt(S.list(S.obj({ name: NAME, label: S.text(), inputs: S.list(NAME, { min: 2 }) }))),
     outputs: S.list(PORT, { min: 1 }),
     tests: S.list(TEST, { min: 1, section: 'tests' }),
     hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开', 'hidden tests: checked with every run and shown once passed') })),

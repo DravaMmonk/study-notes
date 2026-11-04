@@ -432,6 +432,16 @@
           }
         }
       ]
+    },
+    {
+      "version": 28,
+      "why": "Teach vertical positional weighting before granting two-axis reuse; gate axis settings by task introduction",
+      "ops": [{ "drop": ["v1_line", "v1_vertical", "v1_separable", "v1_sobel"] }]
+    },
+    {
+      "version": 29,
+      "why": "Keep the introductory impulse fully visible as a 3x3 matrix on phones; rectangular transfer cases remain",
+      "ops": [{ "drop": ["v1_line", "v1_vertical"] }]
     }
   ]
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { display, fmt, pixel } from '../image.js'
+import { display, pixel } from '../image.js'
+import { AXIS, imageNumber } from './image-layout.js'
 
 // An image value drawn as its grid (../image.js): each cell its grey or colour (values clipped to [0, 1] for the eye,
 // the numbers written as they are), optionally its numbers in the cells and the x and y axes along the top and left.
@@ -9,14 +10,12 @@ import { display, fmt, pixel } from '../image.js'
 //
 // A larger image (a rendered scene) is a Picture: its pixels on a canvas, scaled up without smoothing.
 
-const AXIS = 18
-
 const rgb = (p) => {
   const [r, g, b] = (Array.isArray(p) ? p : [p, p, p]).map((v) => Math.round(display(v) * 255))
   return { fill: `rgb(${r}, ${g}, ${b})`, light: 0.299 * r + 0.587 * g + 0.114 * b > 140 }
 }
 
-export default function ImageView({ value, numbers = false, axes = false, grid = false, mark = null, onPick = null, onHover, onLeave, cell: given, className = '', label, cellLabel }) {
+export default function ImageView({ value, numbers = false, axes = false, grid = false, mark = null, onPick = null, onHover, onLeave, cell: given, className = '', label, cellLabel, cellClass }) {
   const { w, h } = value
   const cell = given ?? (numbers ? (value.c === 3 ? 58 : 36) : Math.max(4, Math.floor(220 / Math.max(w, h))))
   const off = axes ? AXIS : 0
@@ -26,9 +25,9 @@ export default function ImageView({ value, numbers = false, axes = false, grid =
       const p = pixel(value, x, y)
       const { fill, light } = rgb(p)
       cells.push(
-        <g key={`${x},${y}`} transform={`translate(${off + x * cell} ${off + y * cell})`} onClick={onPick ? (e) => onPick(x, y, e) : undefined} onPointerEnter={onHover ? (e) => { if (e.pointerType === 'mouse') onHover(x, y, e) } : undefined} role={onPick ? 'button' : undefined} tabIndex={onPick ? 0 : undefined} aria-label={onPick ? cellLabel?.(x, y, p) ?? `(${x}, ${y})` : undefined} onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(x, y, e) } } : undefined} className={onPick ? 'vi-pick' : undefined}>
+        <g key={`${x},${y}`} transform={`translate(${off + x * cell} ${off + y * cell})`} onClick={onPick ? (e) => onPick(x, y, e) : undefined} onPointerEnter={onHover ? (e) => { if (e.pointerType === 'mouse') onHover(x, y, e) } : undefined} role={onPick ? 'button' : undefined} tabIndex={onPick ? 0 : undefined} aria-label={onPick ? cellLabel?.(x, y, p) ?? `(${x}, ${y})` : undefined} onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(x, y, e) } } : undefined} className={[onPick ? 'vi-pick' : '',cellClass?.(x,y) ?? ''].filter(Boolean).join(' ') || undefined}>
           <rect width={cell} height={cell} fill={fill} />
-          {numbers && <text x={cell / 2} y={cell / 2} className={`vi-num ${light ? 'is-dark' : 'is-light'}`}>{Array.isArray(p) ? p.map((v, k) => <tspan key={k} x={cell / 2} y={cell / 2 + (k - 1) * 14}>{'RGB'[k]} {fmt(v)}</tspan>) : fmt(p)}</text>}
+          {numbers && <text x={cell / 2} y={cell / 2} className={`vi-num ${light ? 'is-dark' : 'is-light'}`}>{Array.isArray(p) ? p.map((v, k) => <tspan key={k} x={cell / 2} y={cell / 2 + (k - 1) * 14}>{'RGB'[k]} {imageNumber(v)}</tspan>) : imageNumber(p)}</text>}
         </g>,
       )
     }
