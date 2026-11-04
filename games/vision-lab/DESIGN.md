@@ -15,6 +15,15 @@ An offset and the valid-interior radii are each one supplied integer vector, not
 Known offsets are supplied data, not estimated registration. Comparisons are controlled defect evidence, not
 claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
+The constant preset can produce a scalar, a two-dimensional direction vector (x,y), or a three-element
+weight vector [first,centre,last], always on one output. Its type selects the visible numeric fields; scalar is the
+default so existing constant nodes retain their values. Weight vectors use the same single-row representation as
+weightedLine. Numeric entry reuses the shared desktop fields and phone keypad. Scalar and two-dimensional modes
+open when the first horizontal neighbourhood task needs a fixed direction. Three-weight mode opens only when Sobel
+needs the fixed [1,2,1] smoothing vector. Fixed horizontal and vertical directions live in constant nodes in editable
+starters and reference circuits, not in task inputs or the signatures of assembled two-axis/Sobel components.
+Measured alignment offsets remain supplied variable inputs.
+
 The weighted-line preset receives an image, one three-element weight vector [first, centre, last] and an
 integer direction vector d. It reads at -d, zero and +d, retains signed values and channels, and applies the chosen
 border rule without normalising weights. The weight vector is carried as one single-channel row, using the existing

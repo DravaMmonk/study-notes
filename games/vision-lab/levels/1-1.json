@@ -21,7 +21,7 @@
         "zh": "三路贡献",
         "en": "Three contributions"
       },
-      "configurations": { "arithmetic.op": ["add", "mul"] },
+      "configurations": { "arithmetic.op": ["add", "mul"], "const.kind": ["scalar", "direction"] },
       "brief": {
         "zh": "用给定的位置权重组合左、中、右三个读数。取样方向 d=(1,0)，前侧读 -d，后侧读 d。输出与输入同尺寸，图外取 0；权重不必总为正，也不自动归一化。",
         "en": "Combine left, centre and right readings with the supplied positional weights. The direction is d=(1,0): read the first at -d and the last at d. Preserve image size, read zero outside, and do not automatically normalise or discard negative weights."
@@ -34,8 +34,7 @@
         { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
         { "name": "left", "label": { "zh": "前侧", "en": "First" } },
         { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
-        { "name": "right", "label": { "zh": "后侧", "en": "Last" } },
-        { "name": "d", "type": "vector", "label": { "zh": "取样方向 d", "en": "Sampling direction d" } }
+        { "name": "right", "label": { "zh": "后侧", "en": "Last" } }
       ],
       "inputGroups": [
         {
@@ -51,8 +50,7 @@
             "image": [[0, 0, 1, 0, 0]],
             "left": 0.25,
             "centre": 0.5,
-            "right": 0.25,
-            "d": { "x": 1, "y": 0 }
+            "right": 0.25
           },
           "expect": { "out": [[0, 0.25, 0.5, 0.25, 0]] }
         },
@@ -61,8 +59,7 @@
             "image": [[0.6, 0.6, 0.6, 0.6, 0.6]],
             "left": 0.3333333333333333,
             "centre": 0.3333333333333333,
-            "right": 0.3333333333333333,
-            "d": { "x": 1, "y": 0 }
+            "right": 0.3333333333333333
           },
           "expect": { "out": [[0.39999999999999997, 0.6, 0.6, 0.6, 0.39999999999999997]] }
         },
@@ -71,8 +68,7 @@
             "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
             "left": -1,
             "centre": 0,
-            "right": 1,
-            "d": { "x": 1, "y": 0 }
+            "right": 1
           },
           "expect": { "out": [[0.8, 0.2, -0.8], [0.1, -0.19999999999999996, -0.1]] }
         }
@@ -83,13 +79,13 @@
             "image": [[0.7], [0.2]],
             "left": 0.2,
             "centre": 0.6,
-            "right": 0.2,
-            "d": { "x": 1, "y": 0 }
+            "right": 0.2
           },
           "expect": { "out": [[0.42], [0.12]] }
         }
       ],
       "solution": [
+        "d = const[kind=direction,x=1,y=0]()",
         "minus = const[value=-1]()",
         "negative = arithmetic[op=mul](d,minus)",
         "l = shift(image,negative)",
@@ -102,6 +98,7 @@
         "out <- total"
       ],
       "naive": [
+        "d = const[kind=direction,x=1,y=0]()",
         "minus = const[value=-1]()",
         "negative = arithmetic[op=mul](d,minus)",
         "l = shift(image,negative)",
@@ -128,12 +125,21 @@
         }
       ],
       "starter": [
+        "d = const[kind=direction,x=1,y=0]()",
         "minus = const[value=-1]()",
         "negative = arithmetic[op=mul](d,minus)",
         "l = shift(image,negative)",
         "r = shift(image,d)"
       ],
-      "adds": ["const"]
+      "adds": ["const"],
+      "intro": [
+        {
+          "t": {
+            "zh": "常数元件在这里解锁二维向量：选择“二维向量”，填写 x、y，就能从一个口输出固定方向。预设电路已放入横向方向 (1,0)；标量常数仍用于数值运算。题目给定且随测试变化的读数和权重仍从输入元件读取。",
+            "en": "The constant now supports 2D vectors: choose 2D vector and enter x/y to output one fixed direction. The starter supplies horizontal direction (1,0); scalar constants still serve arithmetic. Read test-dependent readings and weights from their supplied inputs."
+          }
+        }
+      ]
     },
     {
       "id": "v1_vertical",
@@ -141,20 +147,18 @@
       "step": { "zh": "把邻居换到上下", "en": "Move the neighbourhood to columns" },
       "configurations": {},
       "brief": {
-        "zh": "用预设三点加权器，将给定 [前, 中, 后] 权重向量沿方向 d 用于读数图。d=(0,1) 对应上、中、下，(1,0) 对应左、中、右；保持尺寸，图外取 0。权重向量整组接入一个口。",
-        "en": "Use the weighted-line preset with the supplied [first, centre, last] weight vector and direction d. d=(0,1) reads above/centre/below and (1,0) reads left/centre/right. Preserve size and use zero outside. Connect the whole weight vector to one port."
+        "zh": "用三点加权器，将给定 [前, 中, 后] 权重向量用于每列。预设电路里的方向常数 d=(0,1) 对应上、中、下；保持尺寸，图外取 0。",
+        "en": "Apply the supplied [first, centre, last] weight vector down each column with the weighted-line preset. The starter direction constant d=(0,1) reads above/centre/below. Preserve size and use zero outside."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
-        { "name": "weights", "label": { "zh": "权重向量 [前,中,后]", "en": "Weights [first,centre,last]" } },
-        { "name": "d", "type": "vector", "label": { "zh": "取样方向 d", "en": "Sampling direction d" } }
+        { "name": "weights", "label": { "zh": "权重向量 [前,中,后]", "en": "Weights [first,centre,last]" } }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "方向加权结果", "en": "Directional weighted result" } }],
       "tests": [
         {
           "inputs": {
             "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-            "d": { "x": 0, "y": 1 },
             "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": { "out": [[0, 0.25, 0], [0, 0.5, 0], [0, 0.25, 0]] }
@@ -162,7 +166,6 @@
         {
           "inputs": {
             "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "d": { "x": 0, "y": 1 },
             "weights": [[-1, 0, 1]]
           },
           "expect": { "out": [[0.7, 0.1, 0.5], [-0.2, -0.8, -0.4]] }
@@ -170,7 +173,6 @@
         {
           "inputs": {
             "image": [[0.6, 0.6], [0.6, 0.6], [0.6, 0.6], [0.6, 0.6]],
-            "d": { "x": 0, "y": 1 },
             "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": {
@@ -187,41 +189,18 @@
         {
           "inputs": {
             "image": [[0.2, 0.8, 0.4]],
-            "d": { "x": 0, "y": 1 },
             "weights": [[0.2, 0.6, 0.2]]
           },
           "expect": { "out": [[0.12, 0.48, 0.24]] }
-        },
-        {
-          "inputs": {
-            "image": [[0, 0, 1, 0, 0]],
-            "d": { "x": 1, "y": 0 },
-            "weights": [[0.25, 0.5, 0.25]]
-          },
-          "expect": { "out": [[0, 0.25, 0.5, 0.25, 0]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6, 0.6]],
-            "d": { "x": 1, "y": 0 },
-            "weights": [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333]]
-          },
-          "expect": { "out": [[0.39999999999999997, 0.6, 0.6, 0.6, 0.39999999999999997]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "d": { "x": 1, "y": 0 },
-            "weights": [[-1, 0, 1]]
-          },
-          "expect": { "out": [[0.8, 0.2, -0.8], [0.1, -0.19999999999999996, -0.1]] }
         }
       ],
       "solution": [
+        "d = const[kind=direction,x=0,y=1]()",
         "line = weightedLine(image,weights,d)",
         "out <- line"
       ],
       "naive": [
+        "d = const[kind=direction,x=0,y=1]()",
         "minus = const[value=-1]()",
         "negative = arithmetic[op=mul](d,minus)",
         "line = weightedLine(image,weights,negative)",
@@ -237,14 +216,14 @@
           "en": "Use one impulse to see whether support spreads along its row or column, then asymmetric weights to check above/below order. Numerical calculation is automatic."
         }
       ],
-      "starter": [],
+      "starter": ["d = const[kind=direction,x=0,y=1]()"],
       "adds": ["weightedLine"],
       "carries": true,
       "intro": [
         {
           "t": {
-            "zh": "横向三格的加权关系已经验证。现在用三点加权器复用这个固定计算：权重按 [前, 中, 后] 排成一个向量，整组接入；改变方向 d 就能处理一列。预设执行固定计算，不使用之前的电路。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-            "en": "The horizontal three-sample relationship is established. Reuse it with the weighted-line preset: connect the entire [first, centre, last] weight vector, then change direction d to process columns. This preset executes a fixed computation independently of the earlier circuit. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+            "zh": "横向三格的加权关系已经验证。现在用三点加权器复用固定计算：权重整组接入，用电路里的方向常数 (0,1) 处理一列。预设元件不使用之前的电路。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+            "en": "The horizontal three-sample relationship is established. Reuse the fixed computation with the weighted-line preset: connect the whole weight vector and use direction constant (0,1) for columns. The preset does not use the earlier circuit. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
           }
         }
       ]

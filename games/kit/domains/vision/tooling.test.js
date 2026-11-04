@@ -20,7 +20,7 @@ const tools=()=>game({levels:[
     circuit('a_size',{adds:['abs'],tests:[{inputs:pair,expect:{out:[[2,3]]}}],solution:['d = arithmetic[op=sub](a,b)','m = abs(d)','out <- m']}),
   ],{builds:builds('difference')}),
   level('B',[
-    circuit('b_scale',{configurations:{'arithmetic.op':['mul']},tests:[{inputs:pair,expect:{out:[[4,6]]}}],solution:['two = const[value=2]()','d = difference(a,b)','m = arithmetic[op=mul](d,two)','out <- m']}),
+    circuit('b_scale',{configurations:{'arithmetic.op':['mul'],'const.kind':['scalar']},tests:[{inputs:pair,expect:{out:[[4,6]]}}],solution:['two = const[value=2]()','d = difference(a,b)','m = arithmetic[op=mul](d,two)','out <- m']}),
     circuit('b_add',{configurations:{'arithmetic.op':['add']},tests:[{inputs:pair,expect:{out:[[3,7]]}}],solution:['d = difference(a,b)','m = arithmetic[op=add](d,a)','out <- m']}),
   ],{adds:['const']}),
 ]})

@@ -522,6 +522,16 @@
       "version": 37,
       "why": "Provide weightedLine as a code preset with one first/centre/last weight-vector input",
       "ops": [{"drop": ["v1_line", "v1_vertical", "v1_scanner", "v1_separable", "v1_smooth_border", "v1_residual", "v1_detail", "v1_strength", "v1_sobel"]}]
+    },
+    {
+      "version": 38,
+      "why": "Allow one constant part to output scalars, direction vectors and weight vectors",
+      "ops": [{ "drop": ["v1_line", "v1_vertical"] }]
+    },
+    {
+      "version": 39,
+      "why": "Provide fixed spatial directions in starter constants and unlock vector modes only at first use",
+      "ops": [{"drop": ["v1_line", "v1_vertical", "v1_scanner", "v1_separable", "v1_smooth_border", "v1_residual", "v1_detail", "v1_strength", "v1_sobel"]}]
     }
   ]
 }

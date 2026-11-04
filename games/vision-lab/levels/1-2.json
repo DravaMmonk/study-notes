@@ -22,22 +22,18 @@
         "en": "Compose axis passes"
       },
       "brief": {
-        "zh": "使用三点加权器，把给定的 [前, 中, 后] 权重向量先后用于两轴。输出应符合二维外积权重，而不是两张单轴结果相加。方向 d 使用给定的横向 (1,0) 或纵向 (0,1)。",
-        "en": "Use the weighted-line preset to apply the supplied [first, centre, last] weight vector along both axes consecutively. Match the 2D outer-product rule rather than adding two single-axis outputs. Use the supplied horizontal (1,0) or vertical (0,1) direction d."
+        "zh": "使用三点加权器，把给定的 [前, 中, 后] 权重向量先后用于两轴。输出应符合二维外积权重，而不是两张单轴结果相加。横向 (1,0) 和纵向 (0,1) 已由预设电路中的两个常数元件提供。",
+        "en": "Use the weighted-line preset to apply the supplied [first, centre, last] weight vector along both axes consecutively. Match the 2D outer-product rule rather than adding two single-axis outputs. The starter supplies horizontal (1,0) and vertical (0,1) direction constants."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "weights", "label": { "zh": "邻域权重", "en": "Weight vector" } },
-        { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
-        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
+        { "name": "weights", "label": { "zh": "邻域权重", "en": "Weight vector" } }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "二维处理", "en": "2D result" } }],
       "tests": [
         {
           "inputs": {
             "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
             "weights": [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333]]
           },
           "expect": {
@@ -50,8 +46,6 @@
         {
           "inputs": {
             "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
             "weights": [[0.25, 0.5, 0.25]]
           },
           "expect": { "out": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]] }
@@ -59,8 +53,6 @@
         {
           "inputs": {
             "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
             "weights": [[0.2, 0.6, 0.2]]
           },
           "expect": { "out": [[0.384, 0.48, 0.48, 0.384], [0.48, 0.6, 0.6, 0.48], [0.384, 0.48, 0.48, 0.384]] }
@@ -68,11 +60,15 @@
       ],
       "hidden": [],
       "solution": [
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
         "h = weightedLine(image,weights,horizontal)",
         "v = weightedLine(h,weights,vertical)",
         "out <- v"
       ],
       "naive": [
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
         "h = weightedLine(image,weights,horizontal)",
         "v = weightedLine(image,weights,vertical)",
         "s = arithmetic[op=add](h,v)",
@@ -84,11 +80,12 @@
       },
       "hint": [
         {
-          "zh": "用单个亮点观察角上的贡献从哪里来。元件的空间轴设置只改变取样方向，不改权重。",
-          "en": "Use an impulse to inspect corner contributions. The direction input changes sample direction, not weights."
+          "zh": "用单个亮点观察角上的贡献从哪里来。两个方向常数只决定取样方向，不改变权重。",
+          "en": "Use an impulse to inspect corner contributions. The two direction constants select sample directions without changing the weights."
         }
       ],
-      "adds": []
+      "adds": [],
+      "starter": ["horizontal = const[kind=direction,x=1,y=0]()", "vertical = const[kind=direction,x=0,y=1]()"]
     }
   ],
   "builds": {

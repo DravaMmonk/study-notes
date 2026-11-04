@@ -28,10 +28,7 @@
         { "name": "image", "label": { "zh": "待扫描 RGB 图", "en": "Scanner RGB input" } },
         { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } },
         { "name": "threshold", "label": { "zh": "响应阈值", "en": "Response threshold" } },
-        { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
-        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } },
-        { "name": "weights", "label": { "zh": "高斯权重", "en": "Weight vector" } },
-        { "name": "sobelWeights", "label": { "zh": "Sobel 平滑权重", "en": "Sobel smoothing weights" } }
+        { "name": "weights", "label": { "zh": "高斯权重", "en": "Weight vector" } }
       ],
       "outputs": [
         { "name": "strength", "label": { "zh": "扫描响应", "en": "Scanner response" } },
@@ -48,10 +45,7 @@
             ],
             "kernel": [[1, 0, -1]],
             "threshold": 0.7,
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
-            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
-            "sobelWeights": [[1, 2, 1]]
+            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]]
           },
           "expect": {
             "strength": [
@@ -98,10 +92,7 @@
             ],
             "kernel": [[1, 0, -1]],
             "threshold": 0.7,
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
-            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
-            "sobelWeights": [[1, 2, 1]]
+            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]]
           },
           "expect": {
             "strength": [
@@ -125,10 +116,7 @@
             ],
             "kernel": [[1, 0, -1]],
             "threshold": 0.7,
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
-            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
-            "sobelWeights": [[1, 2, 1]]
+            "weights": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]]
           },
           "expect": {
             "strength": [
@@ -144,8 +132,8 @@
         "quarter = const[value=0.25]()",
         "half = const[value=0.5]()",
         "gray = channelMeasure(image,quarter,half,quarter)",
-        "smooth = separable3[outside=clamp](gray,weights,horizontal,vertical)",
-        "edge = sobel[outside=clamp](smooth,kernel,horizontal,vertical,sobelWeights)",
+        "smooth = separable3[outside=clamp](gray,weights)",
+        "edge = sobel[outside=clamp](smooth,kernel)",
         "mark = less(threshold,edge.strength)",
         "strength <- edge.strength",
         "mask <- mark"
@@ -154,7 +142,7 @@
         "quarter = const[value=0.25]()",
         "half = const[value=0.5]()",
         "gray = channelMeasure(image,quarter,half,quarter)",
-        "edge = sobel[outside=clamp](gray,kernel,horizontal,vertical,sobelWeights)",
+        "edge = sobel[outside=clamp](gray,kernel)",
         "mark = less(threshold,edge.strength)",
         "strength <- edge.strength",
         "mask <- mark"

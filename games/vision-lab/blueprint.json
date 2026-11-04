@@ -668,7 +668,7 @@
         "zh": "将同一权重向量先后用于两轴，运行你搭建的双轴处理电路。",
         "en": "Apply one weight vector consecutively along both axes using your two-axis circuit."
       },
-      "from": ["weightedLine"]
+      "from": ["weightedLine", "const"]
     },
     {
       "part": "correlate",
@@ -700,7 +700,7 @@
         "zh": "运行你的差分、垂直平滑与长度电路，输出 gx、gy 和强度；核和图外规则显式给出。",
         "en": "Run your derivative, perpendicular-smoothing and length circuit; expose gx, gy and strength with explicit kernel/borders."
       },
-      "from": ["derivatives", "magnitude", "weightedLine"]
+      "from": ["derivatives", "magnitude", "weightedLine", "const"]
     },
     {
       "part": "channelMeasure",
@@ -1015,7 +1015,8 @@
                 "filter-separability",
                 "imageCircuit",
                 "weighted-neighbourhood",
-                "weightedLine"
+                "weightedLine",
+                "const"
               ],
               "adds": [],
               "builds": "separable3",
@@ -1262,7 +1263,8 @@
                 "magnitude",
                 "weighted-neighbourhood",
                 "weightedLine",
-                "sobel-measurement"
+                "sobel-measurement",
+                "const"
               ],
               "adds": ["magnitude"],
               "builds": "sobel",

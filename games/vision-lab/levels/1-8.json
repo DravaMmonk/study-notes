@@ -139,23 +139,20 @@
         "en": "Compose responses"
       },
       "brief": {
-        "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。 平滑权重向量 [1,2,1] 按前、中、后排列，整组接入三点加权器。",
-        "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components. The smoothing weight vector [1,2,1] is ordered first/centre/last and connects to the weighted-line preset as one input."
+        "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。 预设电路中的常数元件提供两个方向和 [前,中,后]=[1,2,1] 平滑权重。",
+        "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components. Starter constants supply the two directions and smoothing weights [first,centre,last]=[1,2,1]."
       },
       "intro": [
         {
           "t": {
-            "zh": "强度测量已经能合并两方向，但差分仍会响应细碎干扰。现在引入垂直于求导方向的平滑，让方向分量先更稳定，再送入已验证的长度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
-            "en": "The strength measurement combines both directions, but raw derivatives still respond to fine nuisance. Stabilise each derivative by smoothing perpendicular to its direction before the verified length measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+            "zh": "强度测量已经能合并两方向，但差分仍会响应细碎干扰。现在引入垂直于求导方向的平滑，让方向分量先更稳定，再送入已验证的长度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref> 常数元件在这里解锁“三项权重”，按前、中、后填写 [1,2,1]；方向和这组固定权重已放在预设电路中。",
+            "en": "The strength measurement combines both directions, but raw derivatives still respond to fine nuisance. Stabilise each derivative by smoothing perpendicular to its direction before the verified length measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref> The constant now supports three weights in first/centre/last order. The starter includes [1,2,1] and the direction constants."
           }
         }
       ],
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } },
-        { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
-        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } },
-        { "name": "sobelWeights", "label": { "zh": "Sobel 平滑权重", "en": "Sobel smoothing weights" } }
+        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } }
       ],
       "outputs": [
         { "name": "gx", "label": { "zh": "Sobel gx", "en": "Sobel gx" } },
@@ -183,10 +180,7 @@
                 0.8500000000000001
               ]
             ],
-            "kernel": [[1, 0, -1]],
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
-            "sobelWeights": [[1, 2, 1]]
+            "kernel": [[1, 0, -1]]
           },
           "expect": {
             "gx": [
@@ -235,10 +229,7 @@
               [0.2, 0.2, 0.2],
               [0.30000000000000004, 0.30000000000000004, 0.30000000000000004]
             ],
-            "kernel": [[1, 0, -1]],
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
-            "sobelWeights": [[1, 2, 1]]
+            "kernel": [[1, 0, -1]]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -259,10 +250,7 @@
         {
           "inputs": {
             "image": [[0.8, 0.4, 0.1], [0.7, 0.3, 0]],
-            "kernel": [[1, 0, -1]],
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
-            "sobelWeights": [[1, 2, 1]]
+            "kernel": [[1, 0, -1]]
           },
           "expect": {
             "gx": [[-1.6, -2.8, -1.2000000000000002], [-1.5999999999999999, -2.8, -1.2]],
@@ -281,10 +269,7 @@
         {
           "inputs": {
             "image": [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]],
-            "kernel": [[1, 0, -1]],
-            "horizontal": { "x": 1, "y": 0 },
-            "vertical": { "x": 0, "y": 1 },
-            "sobelWeights": [[1, 2, 1]]
+            "kernel": [[1, 0, -1]]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -294,6 +279,9 @@
         }
       ],
       "solution": [
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
         "g = derivatives[outside=clamp](image,kernel)",
         "x = weightedLine[outside=clamp](g.gx,sobelWeights,vertical)",
         "y = weightedLine[outside=clamp](g.gy,sobelWeights,horizontal)",
@@ -303,6 +291,9 @@
         "strength <- m"
       ],
       "naive": [
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
         "g = derivatives[outside=clamp](image,kernel)",
         "x = weightedLine[outside=clamp](g.gx,sobelWeights,horizontal)",
         "y = weightedLine[outside=clamp](g.gy,sobelWeights,vertical)",
@@ -322,10 +313,14 @@
         }
       ],
       "starter": [
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
         "g = derivatives[outside=clamp](image,kernel)"
       ],
       "adds": [],
-      "carries": true
+      "carries": true,
+      "configurations": { "const.kind": ["weights"] }
     }
   ],
   "builds": {

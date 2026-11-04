@@ -390,15 +390,112 @@
       "compute": "colourMix(image, wr, wg, wb)"
     },
     "const": {
-      "name": { "zh": "常数", "en": "Constant" },
-      "desc": { "zh": "始终给出设定的数。", "en": "Always gives the number it is set to." },
+      "name": {
+        "zh": "常数",
+        "en": "Constant"
+      },
+      "desc": {
+        "zh": "输出一个固定数值、二维方向向量 (x,y)，或按 [前,中,后] 排列的三项权重向量。选择类型后填写分量，整组从一个口输出。",
+        "en": "Output a fixed scalar, a direction vector (x,y), or a three-element weight vector [first,centre,last]. Choose the type and enter its components; the whole value leaves one port."
+      },
       "icon": "Hash",
       "family": "value",
       "inputs": [],
       "settings": [
-        { "key": "value", "control": "number", "label": { "zh": "数值", "en": "Value" }, "default": 0 }
+        {
+          "key": "kind",
+          "control": "select",
+          "label": {
+            "zh": "类型",
+            "en": "Type"
+          },
+          "options": [
+            {
+              "value": "scalar",
+              "label": {
+                "zh": "数值",
+                "en": "Scalar"
+              }
+            },
+            {
+              "value": "direction",
+              "label": {
+                "zh": "二维向量",
+                "en": "2D vector"
+              }
+            },
+            {
+              "value": "weights",
+              "label": {
+                "zh": "三项权重",
+                "en": "Three weights"
+              }
+            }
+          ],
+          "default": "scalar"
+        },
+        {
+          "key": "value",
+          "control": "number",
+          "label": {
+            "zh": "数值",
+            "en": "Value"
+          },
+          "default": 0,
+          "when": "eq($kind, 'scalar')"
+        },
+        {
+          "key": "x",
+          "control": "number",
+          "label": {
+            "zh": "x",
+            "en": "x"
+          },
+          "default": 1,
+          "when": "eq($kind, 'direction')"
+        },
+        {
+          "key": "y",
+          "control": "number",
+          "label": {
+            "zh": "y",
+            "en": "y"
+          },
+          "default": 0,
+          "when": "eq($kind, 'direction')"
+        },
+        {
+          "key": "first",
+          "control": "number",
+          "label": {
+            "zh": "前",
+            "en": "First"
+          },
+          "default": 0.25,
+          "when": "eq($kind, 'weights')"
+        },
+        {
+          "key": "centre",
+          "control": "number",
+          "label": {
+            "zh": "中",
+            "en": "Centre"
+          },
+          "default": 0.5,
+          "when": "eq($kind, 'weights')"
+        },
+        {
+          "key": "last",
+          "control": "number",
+          "label": {
+            "zh": "后",
+            "en": "Last"
+          },
+          "default": 0.25,
+          "when": "eq($kind, 'weights')"
+        }
       ],
-      "compute": "$value"
+      "compute": "match $kind { scalar: $value, direction: vector2($x, $y), weights: weightVector($first, $centre, $last) }"
     },
     "add": {
       "name": { "zh": "相加", "en": "Add" },
