@@ -96,11 +96,14 @@
   .vi-level .task-body { padding: 10px 12px 8px; gap: 6px; }
   .vi-level .task-body .brief-text { padding-inline-end: 24px; font-size: 14px; line-height: 1.55; }
   .vi-level .task-body .task-steps { padding-inline-end: 24px; }
-  .vi-level .hint-block { justify-self: end; }
-  .vi-level .hint-block:has(.hint) { justify-self: stretch; }
+  /* A closed hint sits beside the brief's last line instead of taking a row of its own. */
+  .vi-level .task-body { grid-template-columns: minmax(0,1fr) auto; }
+  .vi-level .task-body > * { grid-column: 1 / -1; }
+  .vi-level .task-body:not(:has(.hint)) > .brief-text:has(+ .hint-block) { grid-column: 1; padding-inline-end: 0; }
+  .vi-level .task-body:not(:has(.hint)) > .brief-text + .hint-block { grid-column: 2; align-self: end; }
   .vi-level .hint-toggle { padding-block: 0; font-size: 12px; }
   .vi-level .pb-board.is-dense { gap: 36px; }
-  .vi-level .pb-terms.is-sources > .pb-term { min-width: min(100px,100%); }
+  .vi-level .pb-terms.is-sources > .pb-term { min-width: min(100px,100%); align-self: start; }
   .vi-level .is-dense .pb-grid { gap: 36px 10px; }
   .vi-level .is-dense .pb-tile, .vi-level .is-dense .pb-term { padding-inline: 10px; padding-top: 9px; }
   .vi-level .pb-tray { padding: 6px 10px; gap: 6px; }

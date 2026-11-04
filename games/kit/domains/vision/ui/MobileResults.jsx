@@ -3,7 +3,7 @@ import { Check, CircleAlert } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { differs, isImage, pixel, show } from '../image.js'
 import ImageInspector from './ImageInspector.jsx'
-import { AXIS, inspectorCell, inspectorWidth } from './image-layout.js'
+import { inspectorWidth } from './image-layout.js'
 
 const sampleText = (value) => Array.isArray(value) ? value.map((v,k)=>`${'RGB'[k]} ${v}`).join(' · ') : String(value)
 const matchingShape = (a,b) => isImage(a) && isImage(b) && a.w===b.w && a.h===b.h && a.c===b.c
@@ -47,13 +47,13 @@ export default function MobileResults({ rows, given, tolerance }) {
     </div> : <h3 className="vi-result-title">{L(label)}</h3>}
     <section id="vi-result-panel" role={outputs.length>1?'tabpanel':undefined} aria-labelledby={outputs.length>1?`vi-output-tab-${index}`:undefined}>
       <div className="vi-result-pair">
-        {[got,want].map((value,k)=>{
-          const name=k===0?tr('当前','Current'):tr('目标','Target')
-          const width=valueWidth(value===undefined?want:value)
-          return <div key={`${index}-${k}`} className="vi-result-value" style={{width:`min(100%, ${width}px)`}}>
-            <div className="vi-result-label"><strong>{name}</strong>{isImage(value)&&(!paired||k===1)&&<small>{value.w} × {value.h}{value.c===3?' · RGB':''}</small>}</div>
-            {value===undefined?<div className="vi-empty-value" style={{height:isImage(want)?Math.min(176,AXIS+want.h*inspectorCell(want)+2):28}}>{tr('暂无结果','No result yet')}</div>
-              :isImage(value)?<ImageInspector value={value} label={name} caption={false}
+        {(got===undefined?[want]:[got,want]).map((value,k,shown)=>{
+          const target=k===shown.length-1
+          const name=target?tr('目标','Target'):tr('当前','Current')
+          const note=[isImage(value)&&(!paired||target)&&`${value.w} × ${value.h}${value.c===3?' · RGB':''}`,got===undefined&&tr('当前暂无结果','No result yet')].filter(Boolean).join(' · ')
+          return <div key={`${index}-${k}`} className="vi-result-value" style={{width:`min(100%, ${valueWidth(value)}px)`}}>
+            <div className="vi-result-label"><strong>{name}</strong>{note&&<small>{note}</small>}</div>
+            {isImage(value)?<ImageInspector value={value} label={name} caption={false}
                 cellClass={paired?(x,y)=>changed(pixel(want,x,y),pixel(got,x,y),tolerance)?'is-different':'':undefined} inspectPixel={inspectPixel}/>
               :<strong className="vi-value">{show(value)}</strong>}
           </div>
