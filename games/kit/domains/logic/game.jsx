@@ -124,11 +124,11 @@ export default function logicGame(content) {
         ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
       // A gate the player built shows the board it runs: the one the player passed its level with.
-      demo: (part, { phone, progress }) => {
+      demo: (part, { progress }) => {
         const type = part.key.slice('lemma:'.length)
         if (!gates[type]?.built) return null
         syncOwn(progress.built)
-        return <GateInside key={part.key} type={type} gates={gates} phone={phone} />
+        return <GateInside key={part.key} type={type} gates={gates} />
       },
     },
     // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).

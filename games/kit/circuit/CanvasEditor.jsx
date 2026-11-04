@@ -56,11 +56,10 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * left corner switches between the level's saved boards and shows the board as text (SaveSlots); `types`, the parts
  * this level offers, lets text be imported onto it; `corner` is whatever the game puts beside it. `minFit` is the smallest zoom a fit may
  * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. `scope` names the
- * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (the inside of a part the
- * player built, opened while a run steps through it) only shows: it pans, zooms and fits, and nothing on it moves;
- * `focus` names a card kept in the middle of the board at a zoom it reads at (the card computing).
+ * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (a part's demonstration)
+ * only shows: it pans, zooms and fits, and nothing on it moves.
  */
-export default function CanvasEditor({ graph, onChange: given, readOnly = false, focus = null, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   // A change never takes off what the level locked on the board (model.js keepLocked).
   const onChange = readOnly ? () => {} : (next, opt) => given(keepLocked(graph, next), opt)
   const history = useHistory(graph, onChange, scope)
@@ -183,40 +182,23 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
   const fitted = useRef(false)
   const fitRef = useRef(fit)
   const refitRef = useRef(refit)
-  // The focused card in the middle of the board, at the zoom shown or one it reads at.
-  const centreOn = (id) => {
-    const el = id && ownIn(layer.current, `[data-node="${CSS.escape(id)}"]`)[0]
-    const box = surface.current?.getBoundingClientRect()
-    if (!el || !box?.width) return
-    const r = el.getBoundingClientRect()
-    const [x, y] = pointIn(layer.current, r.left + r.width / 2, r.top + r.height / 2)
-    setView((v) => {
-      const zoom = Math.max(v.zoom, 0.8)
-      return { zoom, x: box.width / 2 - x * zoom, y: box.height / 2 - y * zoom }
-    })
-  }
-  const focusRef = useRef(focus)
   useLayoutEffect(() => {
     fitRef.current = fit
     refitRef.current = refit
-    focusRef.current = focus
   })
-  useLayoutEffect(() => centreOn(focus), [focus])
   // A board that already has its size (one opened in place of another: a level's next task) is fitted before it is
   // first painted, once its cards are measured, so the circuit never shows unfitted for a frame.
   useLayoutEffect(() => {
     if (fitted.current || !surface.current?.getBoundingClientRect().width) return
     if (top.length && !top.every((n) => geo.sizes[n.id])) return
     fitted.current = true
-    if (focus) centreOn(focus)
-    else fit()
+    fit()
   })
   useEffect(() => {
     const observer = new ResizeObserver(([entry]) => {
       if ((fitted.current && !refitRef.current) || !entry.contentRect.width) return
       fitted.current = true
-      if (focusRef.current) centreOn(focusRef.current)
-      else fitRef.current()
+      fitRef.current()
     })
     observer.observe(surface.current)
     return () => observer.disconnect()

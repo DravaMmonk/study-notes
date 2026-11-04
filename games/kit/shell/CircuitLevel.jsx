@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
-import { InsidePhone, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
+import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
 import { L, tr } from './i18n.js'
 import { Brief, PhonePage, Text } from './Layout.jsx'
 import RunDock from './RunDock.jsx'
@@ -177,7 +177,7 @@ export default function CircuitLevel({ screen, board, run, parts, items = [], fo
   }
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
   const top = { circuit, parts, top: true }
-  const inside = packed ? insideOf({ top, ...packed, card, width: canvas.width ?? 140, height: canvas.height, dense, describe: describeOf, sheet: sheet ?? card.body }) : null
+  const inside = packed ? insideOf({ top, ...packed, card, dense, describe: describeOf, sheet: sheet ?? card.body }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false }
 
@@ -332,7 +332,7 @@ function PhoneLevel({ screen, board, parts, ctx, card, inside, all, items, folde
           <div className="cl-sheet">
             {desc}
             {body}
-            {packedHere && <InsidePhone inside={inside} path={[node.id]} />}
+            {packedHere && <InsideBoard inside={inside} path={[node.id]} />}
           </div>
         </Sheet>
       )}

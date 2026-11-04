@@ -165,11 +165,11 @@ function CardValue({ value, error }) {
 }
 
 /**
- * The board a gate the player built runs (gates.js builtGates opens), read only, in the components box: on a desktop
- * the circuit editor with the gate's ports on its edges, on a phone the slot board; it shows how the board is wired.
+ * The board a gate the player built runs (gates.js builtGates opens), read only, in the components box, on the slot
+ * board on every screen; it shows how the board is wired.
  */
-export function GateInside({ type, gates, phone }) {
+export function GateInside({ type, gates }) {
   const { circuit, level } = gates[type].opens()
   const top = { circuit, level, parts: insideParts(level.gates) }
-  return <PackedBoard phone={phone} top={top} {...packedOf(level.gates)} card={card} width={140} height={110} describe={(node) => (top.parts.role(node) === 'part' ? gatesOf(level.gates)[node.type]?.desc : null)} sheet={card.body} />
+  return <PackedBoard top={top} {...packedOf(level.gates)} card={card} describe={(node) => (top.parts.role(node) === 'part' ? gatesOf(level.gates)[node.type]?.desc : null)} sheet={card.body} />
 }
