@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { tr } from '../../../shell/i18n.js'
 import { fmt, pixel } from '../image.js'
 import ImageView from './ImageView.jsx'
-import { inspectorCell } from './image-layout.js'
+import { denseCell, fitFrame, inspectorCell } from './image-layout.js'
 import { useImageView } from './image-view.js'
 
 const raw = (value) => Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${v}`).join(' · ') : String(value)
@@ -20,6 +20,23 @@ function useFrameSize(frame) {
     return () => observer.disconnect()
   }, [frame])
   return size
+}
+
+/** The largest frame the screen allows (--vi-frame-w, --vi-frame-h on the figure), kept current as it changes. */
+function useFrameMax(root, on) {
+  const [max, setMax] = useState(null)
+  useLayoutEffect(() => {
+    if (!on) return
+    const measure = () => {
+      const css = getComputedStyle(root.current)
+      const w = parseFloat(css.getPropertyValue('--vi-frame-w')), h = parseFloat(css.getPropertyValue('--vi-frame-h'))
+      setMax((m) => m?.w === w && m?.h === h ? m : { w, h })
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [root, on])
+  return max
 }
 
 /** Mouse drags pan the frame; a drag never ends as a cell click. Touch pans by native scrolling. */
@@ -51,9 +68,11 @@ function usePan(frame) {
 /**
  * An image in a fixed frame sized by the screen, whatever its dimensions, in the view every image shares
  * (image-view.js): overview scales the whole image to fit, pixels only; information draws numbered cells at their
- * readable size, unscaled, every cell selectable. The frame pans by dragging.
+ * readable size, unscaled, every cell selectable. The frame pans by dragging. With `fit` the frame shrinks to what
+ * the image needs (fitFrame), the screen's frame its largest; `dense` (with `fit`) draws information cells just wide
+ * enough for their numbers, or `cell` wide (a pair of images compared cell by cell shares one width).
  */
-export default function ImageInspector({ value, label, note, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel }) {
+export default function ImageInspector({ value, label, note, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel, fit = false, dense = false, cell: shared }) {
   const root = useRef(null)
   const frame = useRef(null)
   const size = useFrameSize(frame)
@@ -68,8 +87,11 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
     document.addEventListener('pointerdown',outside,true)
     return ()=>{window.removeEventListener('scroll',dismiss,true);window.removeEventListener('resize',dismiss);document.removeEventListener('pointerdown',outside,true)}
   },[point])
-  const cell = inspectorCell(value)
+  const cellOf = shared ? () => shared : fit && dense ? denseCell : inspectorCell
+  const cell = cellOf(value)
   const info = useImageView() === 'info'
+  const max = useFrameMax(root, fit)
+  const frameSize = fit && max ? fitFrame(value, info, max, cellOf) : null
   const scale = size ? Math.min((size.w - 2) / value.w, (size.h - 2) / value.h) : 1
   const range = value.data.reduce(([lo, hi], v) => [Math.min(lo, v), Math.max(hi, v)], [Infinity, -Infinity])
   const select = (x, y, event, pinned) => {
@@ -81,12 +103,12 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
   }
   const active = point && point.x < value.w && point.y < value.h ? point : null
   const meta = [showSize && `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`, note].filter(Boolean).join(' · ')
-  return <figure className="vi-inspector" ref={root}>
+  return <figure className="vi-inspector" ref={root} style={frameSize ? { width: frameSize.w } : undefined}>
     <figcaption>
       <strong>{label}</strong>
       <span className="vi-inspect-meta" title={tr(`数值范围 ${fmt(range[0])} … ${fmt(range[1])}`, `Value range ${fmt(range[0])} … ${fmt(range[1])}`)}>{meta}</span>
     </figcaption>
-    <div ref={frame} className={`vi-frame ${info ? 'is-info' : 'is-overview'}`} {...pan}>
+    <div ref={frame} className={`vi-frame ${info ? 'is-info' : 'is-overview'}`} style={frameSize ? { height: frameSize.h } : undefined} {...pan}>
       <div className="vi-frame-canvas">
         <ImageView value={value} numbers={info} axes={info} grid={info} cell={info ? cell : scale} mark={mark ?? active} label={label}
           cellLabel={(x, y, p) => `(${x}, ${y}): ${raw(p)}`} cellClass={cellClass}

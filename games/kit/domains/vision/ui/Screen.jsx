@@ -172,11 +172,12 @@ export default function Screen(screen) {
     ...level.inputs.map((i) => [i.label, test.inputs[i.name], undefined]),
     ...level.outputs.map((o) => [o.label, test.expect[o.name], runOf.outputs[o.name]]),
   ]
+  const verdict = ended && runOf.fail && <span className="vi-verdict is-fail">{L(runOf.fail.why)}</span>
   const strip = (
     <div className="vi-strip">
       <TestValues rows={rows} given={level.inputs.length} phone={screen.phone} tolerance={level.tolerance} />
       {level.illustration === 'pinhole' && <ProjectionCase test={test} tests={tests} phone={screen.phone} />}
-      {ended && runOf.fail && <p className="vi-verdict is-fail">{L(runOf.fail.why)}</p>}
+      {screen.phone && verdict}
     </div>
   )
 
@@ -213,6 +214,7 @@ export default function Screen(screen) {
       defaults={defaults}
       brief={{ hint: level.hint }}
       results={strip}
+      resultsTitle={!screen.phone && verdict}
       resultsAside={!screen.phone && rows.some(([, want]) => isImage(want)) && <ImageViewSwitch />}
       details
       sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} description={descriptionOf(node)} />}

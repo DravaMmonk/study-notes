@@ -23,7 +23,10 @@ including alternate slots and built boards, with outgoing wires and player work 
 Part details show settings and live outputs, or the received value for a sink; they do not repeat input values.
 A compact disclosure holds the plain-text component description. Pixel inspection retains operand calculations.
 Every inspected image (tests, results, part details, figures) sits in one fixed display window sized by the screen,
-whatever its dimensions. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
+whatever its dimensions. The desktop result row is the exception, for density: one test in one row, image inputs,
+the number inputs in one column, then each output's wanted and result side by side with the differing cells marked;
+its windows shrink to their image (at most 220 × 150 px) and draw information cells just wide enough for their
+numbers, one width for a compared pair; the verdict sits in the results header beside the view switch. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
 only; information keeps intrinsic cells of at least 36 px with numbers and axes, unscaled, every cell selectable on
 touch. Dragging pans the window. One switch in the results (the desktop pane header, the phone's output row)
 changes the view of every image on screen at once; it starts at information and is remembered per viewer.

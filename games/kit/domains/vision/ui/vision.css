@@ -34,11 +34,19 @@
 
 /* ---- the test under the board ---- */
 .vi-strip { display: grid; gap: 10px; min-width: 0; }
-.vi-test { display: flex; flex-wrap: wrap; align-items: start; gap: 12px 28px; min-width: 0; }
-.vi-test-group { display: grid; gap: 6px; min-width: 0; }
-.vi-test-group > h4 { margin: 0; color: var(--muted); font: 500 11px var(--sans, inherit); }
-.vi-test-group > div { display: flex; flex-wrap: wrap; align-items: start; gap: 10px 16px; }
-.vi-test-group > div > .vi-inspector { flex: none; width: var(--vi-frame-w); max-width: 100%; }
+.vi-test { --vi-frame-w: 220px; --vi-frame-h: 150px; display: flex; flex-wrap: wrap; align-items: start; gap: 10px 20px; min-width: 0; }
+.vi-test > .vi-inspector { flex: none; max-width: 100%; }
+.vi-test-scalars { margin: 0; display: grid; align-content: start; gap: 2px; padding-top: 3px; }
+.vi-test-scalars > div { display: flex; align-items: baseline; gap: 8px; }
+.vi-test-scalars dt { color: var(--muted); font-size: 12px; }
+.vi-test-scalars dd { margin: 0; font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.vi-test-output { display: grid; gap: 2px; min-width: 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
+.vi-test-output[data-different] { border-inline-start-color: var(--fail); }
+.vi-test-output > h4 { margin: 0; color: var(--ink); font: 600 13px var(--sans, inherit); }
+.vi-test-pair { display: flex; align-items: start; gap: 8px; }
+.vi-test-pair > .vi-inspector { flex: none; }
+.vi-test-pair .vi-inspector figcaption strong { color: var(--muted); font-weight: 500; font-size: 12px; }
+.vi-test-missing { min-width: 88px; }
 .vi-mobile-results { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; }
 .vi-mobile-results > section { min-width: 0; }
 .vi-output-tabs { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: thin; border-bottom: 1px solid var(--line); }
@@ -56,7 +64,6 @@
 .vi-result-label { min-height: 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 6px; }
 .vi-result-label strong { font-size: 12px; font-weight: 500; color: var(--muted); }
 .vi-result-label small { color: var(--muted); font: 10px var(--mono); }
-.vi-empty-value { box-sizing: border-box; width: var(--vi-frame-w); max-width: 100%; height: var(--vi-frame-h); display: grid; place-items: center; border: 1px dashed var(--line); border-radius: 8px; color: var(--muted); background: var(--canvas); font-size: 12px; }
 .vi-scalar-results { width: max-content; max-width: 100%; border-collapse: collapse; text-align: left; }
 .vi-scalar-results th, .vi-scalar-results td { padding: 4px 16px 4px 0; overflow-wrap: anywhere; }
 .vi-scalar-results th { color: var(--muted); font-size: 12px; font-weight: 500; }
