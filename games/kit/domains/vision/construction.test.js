@@ -52,7 +52,7 @@ test('earned kernels and axis-parameterised lines match independent direct filte
     const line=run(v,'weightedLine',{image:rows,left:.1,centre:.2,right:.4},`[outside=${outside},axis=y]`).out
     approx(line,filterImage(fromRows(rows),fromRows([[.1],[.2],[.4]]),{outside}))
   }
-  const valid=CONSTRUCTION_PARTS.trim.eval({image:make(5,4,1,(x,y)=>10*y+x),rx:1,ry:1})
+  const valid=CONSTRUCTION_PARTS.trim.eval({image:make(5,4,1,(x,y)=>10*y+x),r:{x:1,y:1}})
   assert.deepEqual(toRows(valid),[[11,12,13],[21,22,23]])
 })
 

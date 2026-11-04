@@ -223,14 +223,13 @@
       },
       "adds": ["trim"],
       "brief": {
-        "zh": "另一个接口只接受邻域完全在原图内的结果。rx、ry 已给出，保留有效内部；不用猜测图外读数。",
-        "en": "Another interface accepts only results whose neighbourhood is fully inside. Supplied rx and ry identify the valid interior; no outside readings are assumed."
+        "zh": "另一个接口只接受邻域完全在原图内的结果。每轴半径 r = (rx, ry) 已给出，保留有效内部；不用猜测图外读数。",
+        "en": "Another interface accepts only results whose neighbourhood is fully inside. The supplied per-axis radii r = (rx, ry) identify the valid interior; no outside readings are assumed."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
         { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } },
-        { "name": "rx", "label": { "zh": "横向半径", "en": "Horizontal radius" } },
-        { "name": "ry", "label": { "zh": "纵向半径", "en": "Vertical radius" } }
+        { "name": "r", "type": "vector", "label": { "zh": "有效半径 r", "en": "Valid radii r" } }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "有效结果", "en": "Valid result" } }],
       "tests": [
@@ -242,8 +241,7 @@
               [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
               [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
             ],
-            "rx": 1,
-            "ry": 1
+            "r": { "x": 1, "y": 1 }
           },
           "expect": { "out": [[0.6, 0.6]] }
         },
@@ -251,14 +249,13 @@
           "inputs": {
             "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
             "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]],
-            "rx": 1,
-            "ry": 1
+            "r": { "x": 1, "y": 1 }
           },
           "expect": { "out": [[0.44999999999999996]] }
         }
       ],
       "hidden": [],
-      "solution": ["v = convolve(image,kernel)", "t = trim(v,rx,ry)", "out <- t"],
+      "solution": ["v = convolve(image,kernel)", "t = trim(v,r)", "out <- t"],
       "naive": ["v = convolve(image,kernel)", "out <- v"],
       "naiveWhy": {
         "zh": "有效输出的尺寸会缩小。换一种补边规则并不能产生这个更小的输出域。",
@@ -266,8 +263,8 @@
       },
       "hint": [
         {
-          "zh": "系统按 rx、ry 自动计算宽高，只保留不触及图外的位置。",
-          "en": "The helper computes the dimensions from rx and ry and retains only interior locations."
+          "zh": "系统按 r 的两个分量自动计算宽高，只保留不触及图外的位置。",
+          "en": "The helper computes the dimensions from the two components of r and retains only interior locations."
         }
       ],
       "intro": [

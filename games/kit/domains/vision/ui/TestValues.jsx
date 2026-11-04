@@ -2,12 +2,9 @@ import { L, tr } from '../../../shell/i18n.js'
 import { isImage, show } from '../image.js'
 import ImageInspector from './ImageInspector.jsx'
 import MobileResults from './MobileResults.jsx'
-import { AXIS, inspectorCell, inspectorWidth } from './image-layout.js'
 
-/** A missing result keeps the wanted value's footprint so the row does not jump when a run lands. */
-const Empty = ({ like }) => <div className="vi-empty-value" style={isImage(like)
-  ? { width: inspectorWidth(like), height: AXIS + like.h * inspectorCell(like) + 2 }
-  : { width: 96, height: 28 }}>{tr('暂无结果', 'No result yet')}</div>
+/** A missing result keeps the wanted value's footprint (an image's frame) so the row does not jump when a run lands. */
+const Empty = ({ like }) => <div className="vi-empty-value" style={isImage(like) ? undefined : { width: 96, height: 28 }}>{tr('暂无结果', 'No result yet')}</div>
 
 function Item({ label, value, like }) {
   if (isImage(value)) return <ImageInspector value={value} label={label} />

@@ -3,12 +3,10 @@ import { Check, CircleAlert } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
 import { differs, isImage, pixel, show } from '../image.js'
 import ImageInspector from './ImageInspector.jsx'
-import { inspectorWidth } from './image-layout.js'
 
 const sampleText = (value) => Array.isArray(value) ? value.map((v,k)=>`${'RGB'[k]} ${v}`).join(' · ') : String(value)
 const matchingShape = (a,b) => isImage(a) && isImage(b) && a.w===b.w && a.h===b.h && a.c===b.c
 const delta = (a,b) => Array.isArray(a) ? a.map((v,k)=>b[k]-v) : b-a
-const valueWidth = (value) => isImage(value) ? inspectorWidth(value) : Math.max(72,show(value).length*8+8)
 const changed = (a,b,tolerance) => Array.isArray(a) ? a.some((v,k)=>Math.abs(v-b[k])>tolerance) : Math.abs(a-b)>tolerance
 
 /** Output selection and pixel comparison keep evidence in view without repeating entire test tables. */
@@ -50,12 +48,10 @@ export default function MobileResults({ rows, given, tolerance }) {
         {(got===undefined?[want]:[got,want]).map((value,k,shown)=>{
           const target=k===shown.length-1
           const name=target?tr('目标','Target'):tr('当前','Current')
-          const note=[isImage(value)&&(!paired||target)&&`${value.w} × ${value.h}${value.c===3?' · RGB':''}`,got===undefined&&tr('当前暂无结果','No result yet')].filter(Boolean).join(' · ')
-          return <div key={`${index}-${k}`} className="vi-result-value" style={{width:`min(100%, ${valueWidth(value)}px)`}}>
-            <div className="vi-result-label"><strong>{name}</strong>{note&&<small>{note}</small>}</div>
-            {isImage(value)?<ImageInspector value={value} label={name} caption={false}
+          return <div key={`${index}-${k}`} className="vi-result-value">
+            {isImage(value)?<ImageInspector value={value} label={name} note={got===undefined?tr('当前暂无结果','No result yet'):undefined} showSize={!paired||target}
                 cellClass={paired?(x,y)=>changed(pixel(want,x,y),pixel(got,x,y),tolerance)?'is-different':'':undefined} inspectPixel={inspectPixel}/>
-              :<strong className="vi-value">{show(value)}</strong>}
+              :<><div className="vi-result-label"><strong>{name}</strong>{got===undefined&&<small>{tr('当前暂无结果','No result yet')}</small>}</div><strong className="vi-value">{show(value)}</strong></>}
           </div>
         })}
       </div>

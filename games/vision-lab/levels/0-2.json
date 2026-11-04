@@ -21,14 +21,13 @@
         "en": "Align locations"
       },
       "brief": {
-        "zh": "夹具给出了取样偏移 dx、dy。先按它读取观测图，再与参照比较；图外取 0。",
-        "en": "The fixture supplies sampling offsets dx and dy. Read the observation at those offsets before comparing with the reference; outside reads are zero."
+        "zh": "夹具给出了取样偏移向量 d = (dx, dy)。先按它读取观测图，再与参照比较；图外取 0。",
+        "en": "The fixture supplies a sampling offset vector d = (dx, dy). Read the observation at that offset before comparing with the reference; outside reads are zero."
       },
       "inputs": [
         { "name": "observed", "label": { "zh": "观测", "en": "Observation" } },
         { "name": "reference", "label": { "zh": "参照", "en": "Reference" } },
-        { "name": "dx", "label": { "zh": "取样偏移 dx", "en": "Read offset dx" } },
-        { "name": "dy", "label": { "zh": "取样偏移 dy", "en": "Read offset dy" } }
+        { "name": "d", "type": "vector", "label": { "zh": "取样偏移 d", "en": "Read offset d" } }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "对齐后的变化", "en": "Aligned change" } }],
       "tests": [
@@ -36,8 +35,7 @@
           "inputs": {
             "observed": [[0.1, 0.4, 0.8, 0.3]],
             "reference": [[0.55, 0.8, 0.3, 0]],
-            "dx": 1,
-            "dy": 0
+            "d": { "x": 1, "y": 0 }
           },
           "expect": { "out": [[0.15000000000000002, 0, 0, 0]] }
         },
@@ -45,8 +43,7 @@
           "inputs": {
             "observed": [[0.2, 0.6], [0.8, 0.1], [0.4, 0.5]],
             "reference": [[0.15, 0], [0.2, 0.6], [0.8, 0.1]],
-            "dx": 0,
-            "dy": -1
+            "d": { "x": 0, "y": -1 }
           },
           "expect": { "out": [[0.15, 0], [0, 0], [0, 0]] }
         }
@@ -56,22 +53,21 @@
           "inputs": {
             "observed": [[0.3, 0.7, 0.1], [0.2, 0.9, 0.5]],
             "reference": [[0.15, 0.3, 0.7], [0, 0.2, 0.9]],
-            "dx": -1,
-            "dy": 0
+            "d": { "x": -1, "y": 0 }
           },
           "expect": { "out": [[0.15, 0, 0], [0, 0, 0]] }
         }
       ],
-      "solution": ["s = shift(observed,dx,dy)", "d = difference(s,reference)", "out <- d"],
-      "naive": ["d = difference(observed,reference)", "out <- d"],
+      "solution": ["s = shift(observed,d)", "c = difference(s,reference)", "out <- c"],
+      "naive": ["c = difference(observed,reference)", "out <- c"],
       "naiveWhy": {
         "zh": "错位让原本相同的结构落在不同位置。调整亮度不能修复位置对应。",
         "en": "Misalignment compares different structures; changing intensity cannot repair correspondence."
       },
       "hint": [
         {
-          "zh": "正 dx 表示输出 (x,y) 读取观测的 (x+dx,y+dy)，不表示把亮度加上 dx。",
-          "en": "Positive dx means output (x,y) reads observation (x+dx,y+dy); it does not add dx to brightness."
+          "zh": "d 的分量为正，表示输出 (x,y) 读取观测的 (x+dx,y+dy)，不表示把亮度加上 dx。",
+          "en": "A positive component of d means output (x,y) reads observation (x+dx,y+dy); it does not add dx to brightness."
         }
       ],
       "adds": ["shift"],
@@ -91,8 +87,8 @@
     "type": "alignedDifference",
     "name": { "zh": "对齐比较器", "en": "Aligned comparator" },
     "desc": {
-      "zh": "按给定 dx、dy 读取观测，再与参照逐位置比较；图外取 0。",
-      "en": "Read an observation at dx,dy offsets and compare with the reference, using zero outside."
+      "zh": "按给定偏移向量 d 读取观测，再与参照逐位置比较；图外取 0。",
+      "en": "Read an observation at an offset vector d and compare with the reference, using zero outside."
     }
   }
 }

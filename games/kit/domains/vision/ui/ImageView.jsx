@@ -40,7 +40,7 @@ export default function ImageView({ value, numbers = false, axes = false, grid =
       {axes && Array.from({ length: h }, (_, y) => <text key={`y${y}`} className="vi-axis" x={AXIS / 2} y={off + y * cell + cell / 2}>{y}</text>)}
       {cells}
       {(numbers || grid) && <g className="vi-lines" pointerEvents="none">{Array.from({ length: w + 1 }, (_, x) => <line key={`v${x}`} x1={off + x * cell} x2={off + x * cell} y1={off} y2={H} />)}{Array.from({ length: h + 1 }, (_, y) => <line key={`h${y}`} y1={off + y * cell} y2={off + y * cell} x1={off} x2={W} />)}</g>}
-      {mark && <rect className="vi-mark" pointerEvents="none" x={off + mark.x * cell + 1.5} y={off + mark.y * cell + 1.5} width={cell - 3} height={cell - 3} />}
+      {mark && <rect className="vi-mark" pointerEvents="none" x={off + mark.x * cell + 1.5} y={off + mark.y * cell + 1.5} width={Math.max(1, cell - 3)} height={Math.max(1, cell - 3)} />}
     </svg>
   )
 }

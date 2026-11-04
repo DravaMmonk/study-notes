@@ -7,8 +7,10 @@ construction course uses the execution and inspection capabilities below; this i
 
 ## Boundaries
 
-Circuit inputs can carry a coordinate point `{ x, y }`. A point source exposes x and y as separately labelled,
-independently connectable outputs on the existing shared editors; tests display the point as one coordinate pair.
+Circuit values include a two-dimensional vector `{ x, y }`. Paired coordinate quantities (an offset dx, dy; per-axis
+radii) are one vector input with one output, never two input components; tests and cards show it as one pair.
+Arithmetic parts work componentwise on vectors, with numbers spread over both components; a vector never mixes
+with an image. Spatial parts that need an offset or radii take one integer vector input.
 
 Tasks may declare `inputGroups`: related logical inputs share one source with independently labelled outputs.
 Tests and packed-part signatures retain their original logical inputs. Spatial directions are introduced at task
@@ -18,10 +20,13 @@ including alternate slots and built boards, with outgoing wires and player work 
 
 Part details show settings and live outputs, or the received value for a sink; they do not repeat input values.
 A compact disclosure holds the plain-text component description. Pixel inspection retains operand calculations.
-Images use intrinsic cells of at least 36 px in a bounded preview. Cell numbers use up to two decimal places;
-mouse hover, touch selection and keyboard activation expose original precision and coordinates. Computation and
-comparison retain original values. Small board matrices fit their complete rows within the component; large
-previews remain bounded and scrollable. Coordinate-grid values remain distinct from their cell positions.
+Every inspected image (tests, results, part details, figures) sits in one fixed display window sized by the screen,
+whatever its dimensions. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
+only; information keeps intrinsic cells of at least 36 px with numbers and axes, unscaled, every cell selectable on
+touch. Dragging pans the window. The view starts at information when the whole image fits, otherwise overview.
+Cell numbers use up to two decimal places; mouse hover, touch selection and keyboard activation expose original
+precision and coordinates. Computation and comparison retain original values. Small board matrices fit their
+complete rows within the component. Coordinate-grid values remain distinct from their cell positions.
 Desktop cards offer the same detail content as phone sheets.
 
 - The kernel owns task progression, controls and general bench state. The vision domain owns camera/image

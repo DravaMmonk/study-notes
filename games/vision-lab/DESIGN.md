@@ -10,7 +10,8 @@ This specification covers stages 0–2, not later camera, learning or geometry m
 ## Primitive and reuse contracts
 
 Images are immutable floating-point scalar/RGB arrays. Inspection keeps original signed values; display clipping
-never changes computations. Spatial reads use output(x,y)=input(x+dx,y+dy); x grows right and y grows down.
+never changes computations. Spatial reads use output(x,y)=input(x+dx,y+dy) for an offset vector d=(dx,dy); x grows right and y grows down.
+An offset and the valid-interior radii are each one supplied integer vector, not separate x and y inputs.
 Known offsets are supplied data, not estimated registration. Comparisons are controlled defect evidence, not
 claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
@@ -100,8 +101,9 @@ known-offset comparison; replicate extension starts on both independent branches
 and edge-inclusive reflection have their own boundary tasks. Unintroduced choices stay locked. Valid interior
 has a separate introduction and changes the output domain, rather than pretending to be a padding rule.
 
-Images have one numeric cell view, including original values and coordinates, with touch/hover inspection for
-full precision. No line plot or picture/numbers toggle is used. Small board previews are bounded numeric grids.
+Inspected images use the domain's fixed display window with its overview and information views; information
+shows original values and coordinates, with touch/hover inspection for full precision. No line plot is used.
+Small board previews are bounded numeric grids.
 Phone numeric fields use an in-app keypad with signed decimals, fractions, exponent notation, erase, cancel and
 explicit commit. Incomplete or nonfinite values cannot be committed and the system keyboard is not summoned.
 
@@ -109,9 +111,9 @@ explicit commit. Incomplete or nonfinite values cannot be committed and the syst
 
 The circuit remains the primary workspace. Task text, the tray and result panels use compact spacing while ports
 and actions retain usable touch targets. Image outputs use one selected output at a time; scalar-only outputs
-share a compact comparison table. Current and target always remain visible, including mixed scalar/image values
-and missing results. Comparisons wrap only when their intrinsic widths exceed the container, rather than hiding
-one value behind a view switch. Numeric cells start at 36 px (56 px for RGB), expanding for longer values.
+share a compact comparison table. Current and target always remain visible side by side, including mixed scalar/image values; a missing result is
+a note on the target, not an empty frame. Image windows share the row equally, so the pair never wraps or hides
+one value behind a switch. Numeric cells start at 36 px (56 px for RGB), expanding for longer values.
 Image dimensions appear once per comparison when the shapes match; scalar labels and values share one line.
 Marked mismatches and
 pixel inspection supply both original values and their difference; input data

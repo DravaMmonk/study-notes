@@ -18,7 +18,7 @@ import { PARTS } from './parts.js'
 import { introducedParts } from './tooling.js'
 import { BORDERS } from './construction.js'
 import { readTest } from './run.js'
-import { fromRows, isPoint } from './image.js'
+import { fromRows, isVector } from './image.js'
 import { askOf, gridCheck } from './grid.js'
 import { windowResult } from './filter-window.js'
 import { calculationResult } from './calculation.js'
@@ -66,7 +66,7 @@ export function visionCourse(content) {
     for (const t of [...task.tests, ...(task.hidden ?? [])]) {
       for (const o of names) if (!(o in t.expect)) say(where, `a test expects nothing of the output ${o}`)
       for (const i of task.inputs) if (!(i.name in t.inputs)) say(where, `a test gives nothing on the input ${i.name}`)
-      for (const i of task.inputs) if ((i.type === 'point') !== isPoint(t.inputs[i.name])) say(where, `input ${i.name}: point values require a point input with numeric x and y`)
+      for (const i of task.inputs) if ((i.type === 'vector') !== isVector(t.inputs[i.name])) say(where, `input ${i.name}: vector values { x, y } go with a vector input, and only there`)
       for (const [k, v] of [...Object.entries(t.inputs), ...Object.entries(t.expect)]) if (Array.isArray(v) && !fromRows(v)) say(where, `${k}: its rows do not make an image (uneven rows, or not grey or RGB)`)
     }
     Object.assign(out, { tests: task.tests.map(readTest), hidden: (task.hidden ?? []).map(readTest) })

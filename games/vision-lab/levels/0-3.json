@@ -27,8 +27,7 @@
       "inputs": [
         { "name": "observed", "label": { "zh": "观测", "en": "Observation" } },
         { "name": "reference", "label": { "zh": "参照", "en": "Reference" } },
-        { "name": "dx", "label": { "zh": "取样 dx", "en": "Read dx" } },
-        { "name": "dy", "label": { "zh": "取样 dy", "en": "Read dy" } },
+        { "name": "d", "type": "vector", "label": { "zh": "取样偏移 d", "en": "Read offset d" } },
         { "name": "tolerance", "label": { "zh": "允许变化", "en": "Tolerance" } }
       ],
       "outputs": [
@@ -40,8 +39,7 @@
           "inputs": {
             "observed": [[0.1, 0.4, 0.8, 0.3]],
             "reference": [[0.55, 0.8, 0.3, 0]],
-            "dx": 1,
-            "dy": 0,
+            "d": { "x": 1, "y": 0 },
             "tolerance": 0.1
           },
           "expect": { "changes": [[0.15000000000000002, 0, 0, 0]], "mask": [[1, 0, 0, 0]] }
@@ -50,8 +48,7 @@
           "inputs": {
             "observed": [[0.2, 0.6], [0.8, 0.1], [0.4, 0.5]],
             "reference": [[0.15, 0], [0.2, 0.6], [0.8, 0.1]],
-            "dx": 0,
-            "dy": -1,
+            "d": { "x": 0, "y": -1 },
             "tolerance": 0.1
           },
           "expect": { "changes": [[0.15, 0], [0, 0], [0, 0]], "mask": [[1, 0], [0, 0], [0, 0]] }
@@ -62,23 +59,22 @@
           "inputs": {
             "observed": [[0.3, 0.7, 0.1], [0.2, 0.9, 0.5]],
             "reference": [[0.15, 0.3, 0.7], [0, 0.2, 0.9]],
-            "dx": -1,
-            "dy": 0,
+            "d": { "x": -1, "y": 0 },
             "tolerance": 0.1
           },
           "expect": { "changes": [[0.15, 0, 0], [0, 0, 0]], "mask": [[1, 0, 0], [0, 0, 0]] }
         }
       ],
       "solution": [
-        "d = alignedDifference(observed,reference,dx,dy)",
-        "m = less(tolerance,d)",
-        "changes <- d",
+        "c = alignedDifference(observed,reference,d)",
+        "m = less(tolerance,c)",
+        "changes <- c",
         "mask <- m"
       ],
       "naive": [
-        "d = alignedDifference(observed,reference,dx,dy)",
-        "m = less(d,tolerance)",
-        "changes <- d",
+        "c = alignedDifference(observed,reference,d)",
+        "m = less(c,tolerance)",
+        "changes <- c",
         "mask <- m"
       ],
       "naiveWhy": {

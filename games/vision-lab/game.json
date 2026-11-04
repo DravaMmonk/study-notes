@@ -442,6 +442,22 @@
       "version": 29,
       "why": "Keep the introductory impulse fully visible as a 3x3 matrix on phones; rectangular transfer cases remain",
       "ops": [{ "drop": ["v1_line", "v1_vertical"] }]
+    },
+    {
+      "version": 30,
+      "why": "Merge paired coordinate inputs into one vector input (offset d, radii r)",
+      "ops": [
+        {
+          "drop": [
+            "v0_alignment",
+            "v0_inspection",
+            "v1_border_clamp",
+            "v1_border_wrap",
+            "v1_border_reflect",
+            "v1_valid"
+          ]
+        }
+      ]
     }
   ]
 }
