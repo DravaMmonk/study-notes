@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { tr } from '../../../shell/i18n.js'
 import { fmt, pixel } from '../image.js'
 import ImageView from './ImageView.jsx'
-import { denseCell, fitFrame, inspectorCell } from './image-layout.js'
+import { denseCell, fitFrame, inspectorCell, thumbCell } from './image-layout.js'
 import { useImageView } from './image-view.js'
 
 const raw = (value) => Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${v}`).join(' · ') : String(value)
@@ -15,9 +15,11 @@ function useFrameSize(frame) {
     const el = frame.current
     const measure = () => setSize((s) => s?.w === el.clientWidth && s?.h === el.clientHeight ? s : { w: el.clientWidth, h: el.clientHeight })
     measure()
+    // A frame inside a dialog that is still opening can measure 0 at first; measure again once it is laid out.
+    const later = requestAnimationFrame(measure)
     const observer = new ResizeObserver(measure)
     observer.observe(el)
-    return () => observer.disconnect()
+    return () => { cancelAnimationFrame(later); observer.disconnect() }
   }, [frame])
   return size
 }
@@ -92,7 +94,8 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
   const info = useImageView() === 'info'
   const max = useFrameMax(root, fit)
   const frameSize = fit && max ? fitFrame(value, info, max, cellOf) : null
-  const scale = size ? Math.min((size.w - 2) / value.w, (size.h - 2) / value.h) : 1
+  // A frame not laid out yet (measured inside something still hidden or opening) draws the thumbnail size meanwhile.
+  const scale = size && size.w > 2 && size.h > 2 ? Math.min((size.w - 2) / value.w, (size.h - 2) / value.h) : thumbCell(value)
   const range = value.data.reduce(([lo, hi], v) => [Math.min(lo, v), Math.max(hi, v)], [Infinity, -Infinity])
   const select = (x, y, event, pinned) => {
     const cell = event.currentTarget.getBoundingClientRect()

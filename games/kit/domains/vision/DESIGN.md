@@ -21,7 +21,7 @@ Saved source nodes are merged on load,
 including alternate slots and built boards, with outgoing wires and player work retained.
 
 Part details show settings and live outputs, or the received value for a sink; they do not repeat input values.
-A compact disclosure holds the plain-text component description. Pixel inspection retains operand calculations.
+The plain-text component description sits under the title, unfolded. Pixel inspection retains operand calculations.
 Every inspected image (tests, results, part details, figures) sits in one fixed display window sized by the screen,
 whatever its dimensions. The desktop result row is the exception, for density: one test's outputs in one row, each output's
 wanted and result side by side with the differing cells marked; its windows shrink to their image (at most 220 × 150 px):
@@ -172,6 +172,6 @@ checks do not establish novice mastery or subjective puzzle quality.
 The inspection opening introduces the growing machine before a separate pixel-evidence page. Window examples
 identify one output location, its samples/weights, computed contributions and output. Numeric cells retain
 negative values hidden by grayscale clipping. Pixel details remain opt-in; complex output inspection also gives
-coefficient length and phase in turns, with undefined phase stated for zero coefficients. Result drawers start
-closed on phone tasks. Actual viewport and interaction checks are recorded in the stage review, not inferred
+coefficient length and phase in turns, with undefined phase stated for zero coefficients. On a phone the results sit
+below the board. Actual viewport and interaction checks are recorded in the stage review, not inferred
 from a build.

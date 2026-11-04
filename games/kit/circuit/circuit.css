@@ -492,8 +492,8 @@
 .cl-add small { color: var(--muted); font-size: 12px; line-height: 1.45; }
 
 /* ---- the board inside a packed part (circuit/Inside.jsx), opened read only ---- */
-.cl-inside { margin: 14px 10px 0; }
-.cl-inside .kit-board { position: relative; height: 300px; border-radius: 10px; }
+.cl-inside { margin-top: 10px; }
+.cl-inside .kit-board { position: relative; height: 340px; border-radius: 10px; }
 .cl-inside .board-zoom { transform: scale(.9); transform-origin: bottom right; }
 /* On a phone, in the part's sheet: a window of a fixed height that scrolls; a block on it opens its own sheet, whose
    settings only show. */

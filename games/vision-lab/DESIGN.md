@@ -69,8 +69,8 @@ mathematical support before use, gives observation-first hints, and includes a c
 specific explanation. Repeated layout is supplied in incomplete editable starters; they never complete the decisive
 signal path. Changed cases include signed values, colour, rectangular images, phases, frequencies and boundaries.
 
-The workbench retains compact input groups, touch/hover pixel inspection, moving wires and a closed initial result
-drawer. Frequency rows use numeric cell views; complex coefficients retain real and imaginary data. Small images and
+The workbench retains compact input groups, touch/hover pixel inspection, moving wires, and on a phone the results
+below the board. Frequency rows use numeric cell views; complex coefficients retain real and imaginary data. Small images and
 window tables can be inspected without expanding every numeric value. Desktop and phone must be checked in the
 actual browser; headless reference checks do not establish usability or novice understanding.
 
@@ -120,7 +120,7 @@ Marked mismatches and
 pixel inspection supply both original values and their difference; inputs are not
 repeated in the results, the board's input cards hold them. Image captions carry a meaningful name once, with size/channel metadata
 on the same line. Avoid generic reading labels, repeated headings and explanatory copy where layout or controls
-already establish the relationship. Component detail sheets show outputs and settings, with descriptions in a compact disclosure; input values are not repeated.
+already establish the relationship. Component detail sheets show outputs and settings, with the description under the title, unfolded; input values are not repeated.
 
 Neighbourhood weights in the first two filtering tasks share one three-output source (first, centre, last),
 while packed components retain separate weight inputs. Numeric image previews use up to two decimal places

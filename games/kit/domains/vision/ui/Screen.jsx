@@ -214,7 +214,7 @@ export default function Screen(screen) {
       resultsTitle={!screen.phone && verdict}
       resultsAside={!screen.phone && rows.some(([, want]) => isImage(want)) && <ImageViewSwitch />}
       details
-      sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} description={descriptionOf(node)} />}
+      sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} description={descriptionOf(node)} phone={screen.phone} />}
       packed={{
         open: (node) => {
           const inside = game.BUILT[node.type]?.opens?.(node.params)

@@ -34,6 +34,7 @@
 
 /* ---- the test under the board ---- */
 .vi-strip { display: grid; gap: 10px; min-width: 0; }
+@media (min-width: 761px) { .vi-detail-values { --vi-frame-w: 220px; --vi-frame-h: 150px; } }
 .vi-test { --vi-frame-w: 220px; --vi-frame-h: 150px; display: flex; flex-wrap: wrap; align-items: start; gap: 10px 20px; min-width: 0; }
 .vi-test-scalars { margin: 0; display: grid; align-content: start; gap: 2px; padding-top: 3px; }
 .vi-test-scalars > div { display: flex; align-items: baseline; gap: 8px; }
@@ -97,8 +98,7 @@
 .vi-pixel-popover { position: fixed; z-index: 100; box-sizing: border-box; display: grid; gap: 4px; padding: 8px 10px; margin-top: 8px; border: 1px solid var(--accent); border-radius: 10px; color: var(--ink); background: var(--paper); box-shadow: var(--lift); font: 12px/1.5 var(--mono); pointer-events: none; overflow-wrap: anywhere; }
 .vi-pixel-popover.is-above { margin-top: -8px; transform: translateY(-100%); }
 .vi-pixel-calculation { border-top: 1px solid var(--line); padding-top: 5px; white-space: pre-line; }
-.vi-part-notes summary { min-height: 28px; align-content: center; color: var(--muted); font-size: 12px; cursor: pointer; }
-.vi-part-notes p { margin: 2px 0 4px; color: var(--body); font-size: 12px; line-height: 1.5; }
+.vi-part-notes { margin: 0; color: var(--body); font-size: 13px; line-height: 1.55; }
 
 /* Phone density belongs to the vision workspace; shared editors keep their own spacing contracts. */
 @media (max-width: 760px) {
@@ -124,8 +124,7 @@
   .vi-level .pb-part { padding-inline: 8px; gap: 5px; font-size: 12.5px; }
   .vi-level > .run-foot { padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
   .vi-level .run-go { min-height: 48px; }
-  .vi-level .pl-drawer-body { max-height: 38dvh; }
-  .vi-level .pl-drawer.is-open .pl-drawer-body { padding: 6px 10px; }
+  .vi-level .pl-results { padding-top: 8px; gap: 6px; }
   .vi-level .vi-strip { gap: 6px; }
   .vi-level .vi-verdict { font-size: 12px; line-height: 1.45; }
 }

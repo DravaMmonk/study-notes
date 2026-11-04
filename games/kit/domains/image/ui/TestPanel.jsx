@@ -17,7 +17,7 @@ import { kindOf, rowOf } from './views/views.js'
 // `part` splits it for a desktop circuit (games/kit/shell/Workbench.jsx): 'tests' is the chips in the strip's
 // header, 'verdict' (once run) and 'views' the strip pane's head, and 'row' the inputs, then expected / yours / error for each
 // output, side by side; 'readout' reads the spot under the pointer (probe / onProbe, shared by all the parts). With no
-// `part`, the hidden tests' note and the chosen test laid out for a phone's results drawer.
+// `part`, the hidden tests' note and the chosen test laid out for a phone's results.
 export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, testIndex, onSelect, sensors, inView, outView, onView, scan, onScan, theme, part, probe: sharedProbe, onProbe }) {
   const [ownProbe, setOwnProbe] = useState(null)
   const probe = onProbe ? sharedProbe : ownProbe
@@ -143,7 +143,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
       </div>
     )
   }
-  // The whole of it, for a phone's results drawer (the tests themselves are pinned at the top of the page).
+  // The whole of it, for a phone's results (the tests themselves are pinned at the top of the page).
   return (
     <section className="test-detail" key={testIndex}>
       {hiddenNote}

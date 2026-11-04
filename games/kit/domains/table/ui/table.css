@@ -371,7 +371,7 @@ img{max-width:100%}
   .sg-level .pcard{padding:0;border:0;border-radius:0;background:none}
   .sg-level .pl-scroll>.panel:has(.pcard){padding-top:16px;border-top:1px solid var(--hairline)}
   .sg-level.is-circuit .pl-scroll>.sg-slots{padding-inline:0}
-  .sg-level .pl-drawer .bcard{padding:0}
+  .sg-level .pl-results .bcard{padding:0}
 }
 
 /* ---------- chapters 12–20: yes/no tables, segments, scan orders, rounds ---------- */

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
-import { InsideBoard, InsidePhone, PackedTools, insideOf } from '../circuit/Inside.jsx'
+import { InsidePhone, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
 import { L, tr } from './i18n.js'
 import { Brief, PhonePage, Text } from './Layout.jsx'
 import RunDock from './RunDock.jsx'
@@ -148,7 +148,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   canvas          more for the desktop editor: width, height, emptyNote, corner, minFit, overlay
  *   dense           the phone board is a board of text (SlotBoard dense)
  *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it
- *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, the drawer on a phone)
+ *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, below the board on a phone)
  *   below           on a phone, under the board (what a run shows as it goes, the level's own panels)
  *   follow          on a phone, { began, key }: while a run shows under the board, the page keeps to its bottom
  *   describe(node, ctx), sheet(node, ctx)   a card's detail content: description and body (default: card.body)
@@ -161,7 +161,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, parts: given, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, dense = true, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, parts, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, dense = true, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const { circuit, change } = board
   const own = useRef(null)
@@ -176,10 +176,9 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
     return text ? <p className="cl-desc">{String(L(text))}</p> : null
   }
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
-  const top = { circuit, parts: given, top: true }
+  const top = { circuit, parts, top: true }
   const inside = packed ? insideOf({ top, ...packed, card, width: canvas.width ?? 140, height: canvas.height, dense, describe: describeOf, sheet: sheet ?? card.body }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
-  const parts = inside ? inside.widen(given, top) : given
   const ctx = { view, board: top, path: [], readOnly: false }
 
   const all = [...items, ...folded]
@@ -196,7 +195,6 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
   const into = target && circuit.nodes.some((n) => n.id === target.split('/')[0] && !n.fold) ? target : null
   const add = (type) => change(make(circuit, type, { region: into }).graph)
   const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !n.locked) || board.clearable?.(circuit) ? board.clear : null
-  const toggle = (node) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, open: !n.open } : n)) }, { keep: true })
 
   const briefEl = <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
   const dock = pad ?? <RunDock meta={meta} {...run.dock(words ?? { go: tr('运行', 'Run'), done: tr('全部通过', 'All passed') })} />
@@ -207,7 +205,7 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
       <PhoneLevel {...{ screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet, addSheet, dense, below, follow, results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
-  const detailNode = details && circuit.nodes.find((node) => node.id === detail)
+  const detailNode = circuit.nodes.find((node) => node.id === detail)
   return <>
     <Workbench
       rootRef={root}
@@ -228,8 +226,8 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
               minFit={canvas.minFit}
               overlay={canvas.overlay}
               corner={canvas.corner}
-              body={(node) => <>{card.body?.(node, ctx)}{inside && node.open && isPacked(node, top) && <InsideBoard inside={inside} path={[node.id]} />}</>}
-              head={(node) => <>{card.head?.(node, ctx)}{details && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情', 'Inspect details')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools node={node} onEdit={() => packed.edit(node, top)} onToggle={() => toggle(node)} />}</>}
+              body={card.body && ((node) => card.body(node, ctx))}
+              head={(node) => <>{card.head?.(node, ctx)}{details && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情', 'Inspect details')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onEdit={() => packed.edit(node, top)} onDetail={() => setDetail(node.id)} />}</>}
               caption={card.caption && ((node) => card.caption(node, ctx))}
               outNote={card.outNote && ((node, key) => card.outNote(node, key, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}
@@ -251,11 +249,13 @@ export default function CircuitLevel({ screen, board, run, parts: given, items =
       resultsAside={resultsAside}
       dock={dock}
     />
-    {detailNode && <Sheet title={String(L(parts.label(detailNode)))} onClose={() => setDetail(null)}><div className="cl-sheet">{describeOf(detailNode, ctx)}{(sheet ?? card.body)?.(detailNode, ctx)}</div></Sheet>}
+    {detailNode && (isPacked(detailNode, top)
+      ? <PackedDetail inside={inside} node={detailNode} at={top} path={[detailNode.id]} onClose={() => setDetail(null)}>{describeOf(detailNode, ctx)}{(sheet ?? card.body)?.(detailNode, ctx)}</PackedDetail>
+      : <Sheet title={String(L(parts.label(detailNode)))} onClose={() => setDetail(null)}><div className="cl-sheet">{describeOf(detailNode, ctx)}{(sheet ?? card.body)?.(detailNode, ctx)}</div></Sheet>)}
   </>
 }
 
-// The level on a phone: the shared slot board, the tests pinned at the top, the tray, the results drawer and the run
+// The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
 function PhoneLevel({ screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
