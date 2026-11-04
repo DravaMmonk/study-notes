@@ -23,8 +23,8 @@
       },
       "configurations": { "arithmetic.op": ["add", "mul"] },
       "brief": {
-        "zh": "用给定的位置权重组合左、中、右三个读数。输出与输入同尺寸，图外取 0；权重不必总为正，也不自动归一化。 偏移取样沿横向读取时令 dy=0，dx=-1、0、1 分别表示左、当前、右。",
-        "en": "Combine left, centre and right readings with the supplied positional weights. Keep image size, read zero outside, and do not automatically normalise or discard negative weights. For horizontal offset reads set dy=0; dx=-1,0,1 selects left, current and right."
+        "zh": "用给定的位置权重组合左、中、右三个读数。取样方向 d=(1,0)，前侧读 -d，后侧读 d。输出与输入同尺寸，图外取 0；权重不必总为正，也不自动归一化。",
+        "en": "Combine left, centre and right readings with the supplied positional weights. The direction is d=(1,0): read the first at -d and the last at d. Preserve image size, read zero outside, and do not automatically normalise or discard negative weights."
       },
       "after": {
         "zh": "权重的位置、符号与总和分别影响方向、响应与增益。负权重和非单位增益也有用途。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
@@ -34,7 +34,8 @@
         { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
         { "name": "left", "label": { "zh": "前侧", "en": "First" } },
         { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
-        { "name": "right", "label": { "zh": "后侧", "en": "Last" } }
+        { "name": "right", "label": { "zh": "后侧", "en": "Last" } },
+        { "name": "d", "type": "vector", "label": { "zh": "取样方向 d", "en": "Sampling direction d" } }
       ],
       "inputGroups": [
         {
@@ -46,7 +47,13 @@
       "outputs": [{ "name": "out", "label": { "zh": "加权结果", "en": "Weighted result" } }],
       "tests": [
         {
-          "inputs": { "image": [[0, 0, 1, 0, 0]], "left": 0.25, "centre": 0.5, "right": 0.25 },
+          "inputs": {
+            "image": [[0, 0, 1, 0, 0]],
+            "left": 0.25,
+            "centre": 0.5,
+            "right": 0.25,
+            "d": { "x": 1, "y": 0 }
+          },
           "expect": { "out": [[0, 0.25, 0.5, 0.25, 0]] }
         },
         {
@@ -54,27 +61,39 @@
             "image": [[0.6, 0.6, 0.6, 0.6, 0.6]],
             "left": 0.3333333333333333,
             "centre": 0.3333333333333333,
-            "right": 0.3333333333333333
+            "right": 0.3333333333333333,
+            "d": { "x": 1, "y": 0 }
           },
           "expect": { "out": [[0.39999999999999997, 0.6, 0.6, 0.6, 0.39999999999999997]] }
         },
         {
-          "inputs": { "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]], "left": -1, "centre": 0, "right": 1 },
+          "inputs": {
+            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
+            "left": -1,
+            "centre": 0,
+            "right": 1,
+            "d": { "x": 1, "y": 0 }
+          },
           "expect": { "out": [[0.8, 0.2, -0.8], [0.1, -0.19999999999999996, -0.1]] }
         }
       ],
       "hidden": [
         {
-          "inputs": { "image": [[0.7], [0.2]], "left": 0.2, "centre": 0.6, "right": 0.2 },
+          "inputs": {
+            "image": [[0.7], [0.2]],
+            "left": 0.2,
+            "centre": 0.6,
+            "right": 0.2,
+            "d": { "x": 1, "y": 0 }
+          },
           "expect": { "out": [[0.42], [0.12]] }
         }
       ],
       "solution": [
-        "zero = const[value=0]()",
         "minus = const[value=-1]()",
-        "plus = const[value=1]()",
-        "l = shift(image,minus,zero)",
-        "r = shift(image,plus,zero)",
+        "negative = arithmetic[op=mul](d,minus)",
+        "l = shift(image,negative)",
+        "r = shift(image,d)",
         "a = arithmetic[op=mul](l,left)",
         "b = arithmetic[op=mul](image,centre)",
         "c = arithmetic[op=mul](r,right)",
@@ -83,11 +102,10 @@
         "out <- total"
       ],
       "naive": [
-        "zero = const[value=0]()",
         "minus = const[value=-1]()",
-        "plus = const[value=1]()",
-        "l = shift(image,minus,zero)",
-        "r = shift(image,plus,zero)",
+        "negative = arithmetic[op=mul](d,minus)",
+        "l = shift(image,negative)",
+        "r = shift(image,d)",
         "a = arithmetic[op=mul](l,right)",
         "b = arithmetic[op=mul](image,centre)",
         "c = arithmetic[op=mul](r,left)",
@@ -110,11 +128,10 @@
         }
       ],
       "starter": [
-        "zero = const[value=0]()",
         "minus = const[value=-1]()",
-        "plus = const[value=1]()",
-        "l = shift(image,minus,zero)",
-        "r = shift(image,plus,zero)"
+        "negative = arithmetic[op=mul](d,minus)",
+        "l = shift(image,negative)",
+        "r = shift(image,d)"
       ],
       "adds": ["const"]
     },
@@ -124,24 +141,22 @@
       "step": { "zh": "把邻居换到上下", "en": "Move the neighbourhood to columns" },
       "configurations": {},
       "brief": {
-        "zh": "按给定方向组合前侧、当前、后侧的读数，分别使用三项权重。(dx,dy)=(0,1) 时读取上、中、下；(1,0) 时读取左、中、右。前侧使用 (-dx,-dy)，后侧使用 (dx,dy)，图外取 0，保持原图尺寸。",
-        "en": "Combine first, current and last readings along the supplied direction using the three weights. (dx,dy)=(0,1) reads above/centre/below; (1,0) reads left/centre/right. Read the first at (-dx,-dy) and the last at (dx,dy), using zero outside and preserving image size."
+        "zh": "按给定方向 d 组合前侧、当前、后侧的读数，分别使用三项权重。d=(0,1) 时读取上、中、下；(1,0) 时读取左、中、右。前侧使用 -d，后侧使用 d，图外取 0，保持原图尺寸。",
+        "en": "Combine first, current and last readings along the supplied direction d using the three weights. d=(0,1) reads above/centre/below; (1,0) reads left/centre/right. Read the first at -d and the last at d, using zero outside and preserving image size."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
         { "name": "left", "label": { "zh": "前侧", "en": "First" } },
         { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
         { "name": "right", "label": { "zh": "后侧", "en": "Last" } },
-        { "name": "dx", "label": { "zh": "方向 dx", "en": "Direction dx" } },
-        { "name": "dy", "label": { "zh": "方向 dy", "en": "Direction dy" } }
+        { "name": "d", "type": "vector", "label": { "zh": "取样方向 d", "en": "Sampling direction d" } }
       ],
       "inputGroups": [
         {
           "name": "weights",
           "label": { "zh": "邻域权重", "en": "Neighbourhood weights" },
           "inputs": ["left", "centre", "right"]
-        },
-        { "name": "direction", "label": { "zh": "取样方向", "en": "Sampling direction" }, "inputs": ["dx", "dy"] }
+        }
       ],
       "outputs": [{ "name": "out", "label": { "zh": "方向加权结果", "en": "Directional weighted result" } }],
       "tests": [
@@ -151,8 +166,7 @@
             "left": 0.25,
             "centre": 0.5,
             "right": 0.25,
-            "dx": 0,
-            "dy": 1
+            "d": { "x": 0, "y": 1 }
           },
           "expect": { "out": [[0, 0.25, 0], [0, 0.5, 0], [0, 0.25, 0]] }
         },
@@ -162,8 +176,7 @@
             "left": -1,
             "centre": 0,
             "right": 1,
-            "dx": 0,
-            "dy": 1
+            "d": { "x": 0, "y": 1 }
           },
           "expect": { "out": [[0.7, 0.1, 0.5], [-0.2, -0.8, -0.4]] }
         },
@@ -173,8 +186,7 @@
             "left": 0.25,
             "centre": 0.5,
             "right": 0.25,
-            "dx": 0,
-            "dy": 1
+            "d": { "x": 0, "y": 1 }
           },
           "expect": {
             "out": [
@@ -188,7 +200,13 @@
       ],
       "hidden": [
         {
-          "inputs": { "image": [[0.2, 0.8, 0.4]], "left": 0.2, "centre": 0.6, "right": 0.2, "dx": 0, "dy": 1 },
+          "inputs": {
+            "image": [[0.2, 0.8, 0.4]],
+            "left": 0.2,
+            "centre": 0.6,
+            "right": 0.2,
+            "d": { "x": 0, "y": 1 }
+          },
           "expect": { "out": [[0.12, 0.48, 0.24]] }
         },
         {
@@ -197,8 +215,7 @@
             "left": 0.25,
             "centre": 0.5,
             "right": 0.25,
-            "dx": 1,
-            "dy": 0
+            "d": { "x": 1, "y": 0 }
           },
           "expect": { "out": [[0, 0.25, 0.5, 0.25, 0]] }
         },
@@ -208,8 +225,7 @@
             "left": 0.3333333333333333,
             "centre": 0.3333333333333333,
             "right": 0.3333333333333333,
-            "dx": 1,
-            "dy": 0
+            "d": { "x": 1, "y": 0 }
           },
           "expect": { "out": [[0.39999999999999997, 0.6, 0.6, 0.6, 0.39999999999999997]] }
         },
@@ -219,18 +235,16 @@
             "left": -1,
             "centre": 0,
             "right": 1,
-            "dx": 1,
-            "dy": 0
+            "d": { "x": 1, "y": 0 }
           },
           "expect": { "out": [[0.8, 0.2, -0.8], [0.1, -0.19999999999999996, -0.1]] }
         }
       ],
       "solution": [
         "minus = const[value=-1]()",
-        "nx = arithmetic[op=mul](dx,minus)",
-        "ny = arithmetic[op=mul](dy,minus)",
-        "l = shift(image,nx,ny)",
-        "r = shift(image,dx,dy)",
+        "negative = arithmetic[op=mul](d,minus)",
+        "l = shift(image,negative)",
+        "r = shift(image,d)",
         "a = arithmetic[op=mul](l,left)",
         "b = arithmetic[op=mul](image,centre)",
         "c = arithmetic[op=mul](r,right)",
@@ -239,11 +253,10 @@
         "out <- total"
       ],
       "naive": [
-        "zero = const[value=0]()",
         "minus = const[value=-1]()",
-        "plus = const[value=1]()",
-        "l = shift(image,minus,zero)",
-        "r = shift(image,plus,zero)",
+        "negative = arithmetic[op=mul](d,minus)",
+        "l = shift(image,d)",
+        "r = shift(image,negative)",
         "a = arithmetic[op=mul](l,left)",
         "b = arithmetic[op=mul](image,centre)",
         "c = arithmetic[op=mul](r,right)",
@@ -252,8 +265,8 @@
         "out <- total"
       ],
       "naiveWhy": {
-        "zh": "横向读取会让左右邻居参与，不能代表上下贡献。用非方形图和不对称权重分别检查方向与位置顺序。",
-        "en": "Horizontal reads mix left/right neighbours rather than above/below contributions. Rectangular data test direction; asymmetric weights test positional order."
+        "zh": "交换前后读取方向会反转非对称权重的响应。用不对称权重检查上、下是否交换。",
+        "en": "Reversing the read direction reverses the response of asymmetric weights. Use unequal side weights to distinguish above and below."
       },
       "hint": [
         {
@@ -262,25 +275,17 @@
         }
       ],
       "starter": [
-        "zero = const[value=0]()",
         "minus = const[value=-1]()",
-        "plus = const[value=1]()",
-        "l = shift(image,minus,zero)",
-        "r = shift(image,plus,zero)",
-        "a = arithmetic[op=mul](l,left)",
-        "b = arithmetic[op=mul](image,centre)",
-        "c = arithmetic[op=mul](r,right)",
-        "ab = arithmetic[op=add](a,b)",
-        "total = arithmetic[op=add](ab,c)",
-        "out <- total"
+        "negative = arithmetic[op=mul](d,minus)",
+        "b = arithmetic[op=mul](image,centre)"
       ],
       "adds": [],
       "carries": true,
       "intro": [
         {
           "t": {
-            "zh": "同一列的上、下读数也会影响中心。把已经搭好的位置规则迁移到纵向，区分“换读取方向”和“换权重顺序”。这次先观察一列的响应，再处理整张图。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref> 偏移取样仍用同一个元件；把另一方向设为 0。封装时将方向 dx、dy 留作输入，让后续电路选择横向或纵向。",
-            "en": "Readings above and below also contribute to a centre. Transfer the constructed positional rule to columns, distinguishing a change of direction from a reversal of weights. Inspect a column before processing the full image. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref> Reuse offset read with zero displacement in the other direction. Expose dx and dy as inputs so later circuits can select rows or columns."
+            "zh": "同一列的上、下读数也会影响中心。继续使用偏移取样，把方向改为 d=(0,1)。封装时将方向向量 d 留作输入，让后续电路选择横向或纵向。先观察一列的响应，再处理整张图。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+            "en": "Readings above and below also contribute to a centre. Reuse offset read with direction d=(0,1). Expose the direction vector d as an input so later circuits can select rows or columns. Inspect a column before processing the full image. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
           }
         }
       ]
@@ -290,8 +295,8 @@
     "type": "weightedLine",
     "name": { "zh": "三点加权器", "en": "Weighted line" },
     "desc": {
-      "zh": "沿给定方向 (dx,dy)，按前侧、中心、后侧权重汇合三格读数。(1,0) 横向，(0,1) 纵向；图外规则可设置。",
-      "en": "Combine first/centre/last readings along (dx,dy): (1,0) horizontally or (0,1) vertically, with explicit borders."
+      "zh": "沿给定方向向量 d，按前侧、中心、后侧权重汇合三格读数。d=(1,0) 横向，(0,1) 纵向；图外规则可设置。",
+      "en": "Combine first/centre/last readings along direction vector d: (1,0) horizontally or (0,1) vertically, with explicit borders."
     },
     "settings": ["outside"],
     "defaults": { "outside": "zero" }

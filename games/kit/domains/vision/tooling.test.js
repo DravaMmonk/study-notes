@@ -1,6 +1,5 @@
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readContent } from '../../engine/content-node.js'
 import { closeGames, gameOf } from '../../engine/games.mjs'
 import { fresh } from '../../shell/progress.js'
 import domain from './domain.js'
@@ -8,40 +7,84 @@ import { taskBoard, taskDefaults } from './tooling.js'
 import { PARTS } from './parts.js'
 import { play } from './play.js'
 import { fromRows,toRows } from './image.js'
-const read=()=>domain.spec(readContent('vision-lab')).vision
+import { builds, circuit, game, level } from './fixture.js'
 after(closeGames)
 
+const failures=(content)=>domain.validate(domain.spec(content)).filter(r=>r.fail).map(r=>r.text)
+const pair={a:[[1,4]],b:[[3,1]]}
+
+// A: two tasks, each bringing one tool, and a built comparator. B: brings const at level scope and widens arithmetic.op.
+const tools=()=>game({levels:[
+  level('A',[
+    circuit('a_signed',{adds:['arithmetic'],configurations:{'arithmetic.op':['sub']},tests:[{inputs:pair,expect:{out:[[-2,3]]}}],solution:['d = arithmetic[op=sub](a,b)','out <- d']}),
+    circuit('a_size',{adds:['abs'],tests:[{inputs:pair,expect:{out:[[2,3]]}}],solution:['d = arithmetic[op=sub](a,b)','m = abs(d)','out <- m']}),
+  ],{builds:builds('difference')}),
+  level('B',[
+    circuit('b_scale',{configurations:{'arithmetic.op':['mul']},tests:[{inputs:pair,expect:{out:[[4,6]]}}],solution:['two = const[value=2]()','d = difference(a,b)','m = arithmetic[op=mul](d,two)','out <- m']}),
+    circuit('b_add',{configurations:{'arithmetic.op':['add']},tests:[{inputs:pair,expect:{out:[[3,7]]}}],solution:['d = difference(a,b)','m = arithmetic[op=add](d,a)','out <- m']}),
+  ],{adds:['const']}),
+]})
+
+// S1, then two sibling branches (S2 widens the boundary choice, Q does not), then S3, which widens it task by task.
+const shiftTask=(id,outside,dx,out,more={})=>circuit(id,{inputs:['image',{name:'d',type:'vector'}],tests:[{inputs:{image:[[1,2,3]],d:{x:dx,y:0}},expect:{out}}],solution:[`s = shift[outside=${outside}](image,d)`,'out <- s'],...more})
+const borders=()=>game({
+  levels:[
+    level('S1',shiftTask('s1','zero',1,[[2,3,0]],{adds:['shift'],configurations:{'*.outside':['zero']}})),
+    level('S2',shiftTask('s2','clamp',1,[[2,3,3]],{configurations:{'*.outside':['clamp']}})),
+    level('Q',shiftTask('q','zero',1,[[2,3,0]])),
+    level('S3',[shiftTask('s3_clamp','clamp',1,[[2,3,3]]),shiftTask('s3_wrap','wrap',1,[[2,3,1]],{configurations:{'*.outside':['wrap']}}),shiftTask('s3_reflect','reflect',2,[[3,3,2]],{configurations:{'*.outside':['reflect']}})]),
+  ],
+  eras:[{id:0,title:{zh:'E',en:'E'},question:{zh:'Q',en:'Q'},foundation:['S1',{parallel:[{id:'p',levels:['S2']},{id:'q',levels:['Q']}]},'S3']}],
+})
+
+// W introduces a direction input, then reuses the same read circuit for rows and columns.
+const lines=()=>game({levels:[
+  level('W',[
+    shiftTask('w_line','zero',1,[[2,3,0]],{adds:['shift'],configurations:{'*.outside':['zero']}}),
+    circuit('w_vertical',{inputs:['image',{name:'d',type:'vector'}],tests:[{inputs:{image:[[1,2],[3,4]],d:{x:0,y:1}},expect:{out:[[3,4],[0,0]]}}],solution:['r = shift(image,d)','out <- r']}),
+  ],{builds:builds('nextCell',{settings:['outside']})}),
+  level('W2',circuit('w2',{inputs:['image',{name:'d',type:'vector'}],tests:[{inputs:{image:[[1,2],[3,4]],d:{x:0,y:1}},expect:{out:[[3,4],[0,0]]}}],solution:['p = nextCell(image,d)','out <- p']})),
+]})
+
 test('the components book earns primitives at stable task introductions',async()=>{
-  const game=await gameOf(readContent('vision-lab')),p=fresh()
-  assert.ok(game.parts.earned(p).includes('part:arithmetic'))
-  assert.ok(!game.parts.earned(p).includes('part:abs'))
-  assert.ok(game.parts.earned({...p,passed:['v0_signed']}).includes('part:abs'))
-  assert.ok(game.parts.earned({...p,solved:['0-1']}).includes('part:abs'))
+  const g=await gameOf(tools()),p=fresh()
+  assert.ok(g.parts.earned(p).includes('part:arithmetic'))
+  assert.ok(!g.parts.earned(p).includes('part:abs'))
+  assert.ok(!g.parts.earned(p).includes('part:const'))
+  assert.ok(g.parts.earned({...p,passed:['a_signed']}).includes('part:abs'))
+  assert.ok(g.parts.earned({...p,solved:['A']}).includes('part:abs'))
 })
 
 test('tools appear in their introducing task, including the folded tray, even in all-unlocked mode',()=>{
-  const v=read(),[first,second]=v.played.get('0-1')
+  const content=tools(),v=domain.spec(content).vision,[first,second]=v.played.get('A')
   const flags=new Set(v.LEVELS.filter(l=>l.builds).map(l=>l.builds.type))
-  const tools=t=>{const p=v.offerIn(t,flags);return [...p.shown,...p.folded]}
-  assert.deepEqual(tools(first),['arithmetic'])
-  assert.ok(tools(second).includes('abs'))
-  assert.ok(!tools(first).includes('const'))
-  assert.deepEqual(v.introductions('abs','0-1'),['v0_difference'])
-  assert.deepEqual(v.introductions('trim','1-6'),['v1_valid'])
-  const wrong=structuredClone(readContent('vision-lab'))
-  wrong.levels.find(l=>l.id==='0-1').tasks[0].solution=['x = abs(a)','out <- x']
-  assert.ok(domain.validate(domain.spec(wrong)).some(r=>r.fail&&r.text.includes('does not hold')))
+  const held=t=>{const p=v.offerIn(t,flags);return [...p.shown,...p.folded]}
+  assert.deepEqual(held(first),['arithmetic'])
+  assert.ok(held(second).includes('abs'))
+  assert.ok(!held(first).includes('const'))
+  assert.deepEqual(v.introductions('abs','A'),['a_size'])
+  assert.deepEqual(v.introductions('const','B'),['b_scale'],'a level-scoped tool is introduced by its first task')
+  assert.deepEqual(failures(content),[])
+  content.levels[0].tasks[0].solution=['x = abs(a)','out <- x']
+  assert.ok(failures(content).some(text=>text.includes('does not hold')))
+  const idle=tools()
+  idle.levels[1].tasks[0].solution=['d = difference(a,b)','m = arithmetic[op=mul](d,a)','out <- m']
+  assert.ok(failures(idle).some(text=>text.includes('introduces const, which its answer does not use')))
 })
 
 test('boundary configurations open only after the current path has introduced them',()=>{
-  const v=read(),at=(id,k=0)=>v.settingsIn(v.played.get(id)[k],'shift','outside')
-  assert.deepEqual(at('0-2'),['zero'])
-  assert.deepEqual(at('1-5'),['zero','clamp'])
-  assert.deepEqual(at('1-6',0),['zero','clamp'])
-  assert.deepEqual(at('1-6',1),['zero','clamp','wrap'])
-  assert.deepEqual(at('1-6',2),['zero','clamp','wrap','reflect'])
+  const v=domain.spec(borders()).vision,at=(id,k=0)=>v.settingsIn(v.played.get(id)[k],'shift','outside')
+  assert.deepEqual(at('S1'),['zero'])
+  assert.deepEqual(at('S2'),['zero','clamp'])
+  assert.deepEqual(at('Q'),['zero'],'a sibling branch does not open its choices here')
+  assert.deepEqual(at('S3',0),['zero','clamp'])
+  assert.deepEqual(at('S3',1),['zero','clamp','wrap'])
+  assert.deepEqual(at('S3',2),['zero','clamp','wrap','reflect'])
+  assert.deepEqual(failures(borders()),[])
+  const none=borders();delete none.levels[0].tasks[0].configurations
+  assert.ok(failures(none).some(text=>text.includes('holds shift with no shift.outside introduced')))
   const board={nodes:[{id:'s',type:'shift',params:{outside:'reflect'}},{id:'x',type:'abs'}],wires:[{from:'x',to:'s',port:'image'}]}
-  const ready=taskBoard(board,new Set(['shift']),(type,key)=>v.settingsIn(v.played.get('0-2')[0],type,key))
+  const ready=taskBoard(board,new Set(['shift']),(type,key)=>v.settingsIn(v.played.get('S1')[0],type,key))
   assert.equal(ready.nodes.length,1);assert.equal(ready.nodes[0].params.outside,'zero');assert.equal(ready.wires.length,0)
 })
 
@@ -52,52 +95,38 @@ test('configurable arithmetic preserves broadcasting, signed values and division
   assert.throws(()=>run('div',1,0));assert.throws(()=>run('unknown',1,2))
 })
 
-
-test('one offset-read primitive supports both weighting directions before packed reuse',()=>{
-  const v=read(),[horizontal,vertical]=v.played.get('1-1')
-  assert.equal(vertical.taskId,'v1_vertical')
+test('one offset-read primitive supports direction inputs through packed reuse',()=>{
+  const content=lines(),v=domain.spec(content).vision,[horizontal,vertical]=v.played.get('W')
   assert.equal(PARTS.offset,undefined)
-  assert.equal(v.builtBy('weightedLine').taskId,vertical.taskId)
-  assert.deepEqual(v.partOf('weightedLine').inputs,['image','left','centre','right','dx','dy'])
-  assert.deepEqual(Object.keys(v.partOf('weightedLine').settings),['outside'])
+  assert.equal(v.builtBy('nextCell').taskId,vertical.taskId)
+  assert.deepEqual(v.partOf('nextCell').inputs,['image','d'])
+  assert.deepEqual(Object.keys(v.partOf('nextCell').settings),['outside'])
   for(const task of [horizontal,vertical])assert.ok(task.solution.nodes.some(n=>n.type==='shift'))
-  assert.ok(vertical.tests.every(t=>t.inputs.dx===0&&t.inputs.dy===1))
-  assert.ok(vertical.hidden.some(t=>t.inputs.dx===1&&t.inputs.dy===0))
+  assert.deepEqual(failures(content),[])
 })
 
 
-test('enum configurations and helper components appear only where their prerequisite tasks need them',()=>{
-  const v=read(),task=(id,k=0)=>v.played.get(id)[k],values=(id,type,key,k=0)=>v.settingsIn(task(id,k),type,key)
-  assert.deepEqual(values('0-1','arithmetic','op'),['sub'])
-  assert.deepEqual(values('1-1','arithmetic','op'),['add','sub','mul'])
-  assert.deepEqual(values('2-6','arithmetic','op'),['add','sub','mul','div'])
-  assert.deepEqual(values('1-3','reduceRows','mode',1),['sum'])
-  assert.deepEqual(values('2-2','reduceRows','mode'),['mean','sum'])
-  assert.deepEqual(values('1-4','convolve','axis'),['x'])
-  assert.deepEqual(values('1-7','convolve','axis'),['x','y'])
-  const flags=new Set(v.LEVELS.filter(level=>level.builds).map(level=>level.builds.type))
-  const held=t=>{const tools=v.offerIn(t,flags);return [...tools.shown,...tools.folded]}
-  assert.ok(!held(task('1-3')).includes('reduceRows'))
-  assert.ok(held(task('1-3',1)).includes('reduceRows'))
-  assert.ok(!held(task('2-4')).includes('size'))
-  assert.ok(held(task('2-11')).includes('size'))
-  assert.ok(held(task('2-12')).includes('size'))
-  for(const [id,pre,combined] of [['1-5','v1_smooth_border','v1_detail'],['2-1','v2_cycle','v2_wave'],['1-3','v1_contributions','v1_kernel'],['1-8','v1_strength','v1_sobel'],['2-4','v2_probe_scan','v2_spectrum'],['2-6','v2_rescale','v2_phase'],['2-8','v2_columns','v2_two_axes']])assert.deepEqual(v.played.get(id).map(t=>t.taskId),[pre,combined])
+test('enum choices accumulate along the path in the part’s own order, and defaults fall to an available choice',()=>{
+  const v=domain.spec(tools()).vision,task=(id,k=0)=>v.played.get(id)[k],ops=(id,k)=>v.settingsIn(task(id,k),'arithmetic','op')
+  assert.deepEqual(ops('A',0),['sub'])
+  assert.deepEqual(ops('A',1),['sub'])
+  assert.deepEqual(ops('B',0),['sub','mul'])
+  assert.deepEqual(ops('B',1),['add','sub','mul'],'declared after mul, listed in the part’s order')
   const original={nodes:[{id:'op',type:'arithmetic',params:{op:'div'}}],wires:[]}
-  assert.equal(taskBoard(original,new Set(['arithmetic']),(type,key)=>v.settingsIn(task('0-1'),type,key)).nodes[0].params.op,'sub')
-  assert.equal(original.nodes[0].params.op,'div')
+  assert.equal(taskBoard(original,new Set(['arithmetic']),(type,key)=>v.settingsIn(task('A'),type,key)).nodes[0].params.op,'sub')
+  assert.equal(original.nodes[0].params.op,'div','the saved board is not changed')
+  const flags=new Set(v.LEVELS.filter(l=>l.builds).map(l=>l.builds.type))
   for(const level of v.LEVELS)for(const t of v.played.get(level.id)){
-    for(const type of held(t)){
+    const tools=v.offerIn(t,flags)
+    for(const type of [...tools.shown,...tools.folded]){
       const params=taskDefaults(type,v.partOf,(type,key)=>v.settingsIn(t,type,key))
       for(const key of Object.keys(v.partOf(type)?.settings??{}))assert.ok(v.settingsIn(t,type,key).includes(params[key]),`${t.taskId}: unavailable default ${type}.${key}`)
     }
   }
-  for(const level of v.LEVELS)for(const t of v.played.get(level.id))for(const introduced of t.fresh)assert.ok(t.solution.nodes.some(node=>node.type===introduced),`${t.taskId} introduces unused ${introduced}`)
 })
 
-
 test('headless attempts share task defaults and refuse explicitly unavailable settings',()=>{
-  const v=read(),source=v.played.get('0-1')[0],ctx={game:{vision:v},level:{source},flags:new Set(),progress:{built:{}},solved:false}
+  const v=domain.spec(tools()).vision,source=v.played.get('A')[0],ctx={game:{vision:v},level:{source},flags:new Set(),progress:{built:{}},solved:false}
   const implicit=play.attempt(ctx,'d = arithmetic(a,b)\nout <- d')
   assert.equal(implicit.pass,true)
   assert.equal(implicit.board.nodes.find(n=>n.id==='d').params.op,'sub')

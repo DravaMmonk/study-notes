@@ -152,7 +152,9 @@
       ],
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } }
+        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } },
+        { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
+        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
       ],
       "outputs": [
         { "name": "gx", "label": { "zh": "Sobel gx", "en": "Sobel gx" } },
@@ -180,7 +182,9 @@
                 0.8500000000000001
               ]
             ],
-            "kernel": [[1, 0, -1]]
+            "kernel": [[1, 0, -1]],
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
           },
           "expect": {
             "gx": [
@@ -229,7 +233,9 @@
               [0.2, 0.2, 0.2],
               [0.30000000000000004, 0.30000000000000004, 0.30000000000000004]
             ],
-            "kernel": [[1, 0, -1]]
+            "kernel": [[1, 0, -1]],
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -248,7 +254,12 @@
           }
         },
         {
-          "inputs": { "image": [[0.8, 0.4, 0.1], [0.7, 0.3, 0]], "kernel": [[1, 0, -1]] },
+          "inputs": {
+            "image": [[0.8, 0.4, 0.1], [0.7, 0.3, 0]],
+            "kernel": [[1, 0, -1]],
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
+          },
           "expect": {
             "gx": [[-1.6, -2.8, -1.2000000000000002], [-1.5999999999999999, -2.8, -1.2]],
             "gy": [
@@ -264,7 +275,12 @@
       ],
       "hidden": [
         {
-          "inputs": { "image": [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]], "kernel": [[1, 0, -1]] },
+          "inputs": {
+            "image": [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]],
+            "kernel": [[1, 0, -1]],
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
+          },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
             "gy": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -273,26 +289,22 @@
         }
       ],
       "solution": [
-        "dirZero = const[value=0]()",
-        "dirOne = const[value=1]()",
         "one = const[value=1]()",
         "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp](g.gx,one,two,one,dirZero,dirOne)",
-        "y = weightedLine[outside=clamp](g.gy,one,two,one,dirOne,dirZero)",
+        "x = weightedLine[outside=clamp](g.gx,one,two,one,vertical)",
+        "y = weightedLine[outside=clamp](g.gy,one,two,one,horizontal)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",
         "strength <- m"
       ],
       "naive": [
-        "dirZero = const[value=0]()",
-        "dirOne = const[value=1]()",
         "one = const[value=1]()",
         "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp](g.gx,one,two,one,dirOne,dirZero)",
-        "y = weightedLine[outside=clamp](g.gy,one,two,one,dirZero,dirOne)",
+        "x = weightedLine[outside=clamp](g.gx,one,two,one,horizontal)",
+        "y = weightedLine[outside=clamp](g.gy,one,two,one,vertical)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",

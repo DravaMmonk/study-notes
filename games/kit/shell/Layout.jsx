@@ -2,7 +2,7 @@ import { Fragment, createElement, useEffect, useMemo, useRef, useState } from 'r
 import { Check, ChevronDown, Lightbulb, Lock } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { refParts } from './refs.js'
-import { RunDrawer } from './RunDock.jsx'
+import { RunResults } from './RunDock.jsx'
 import { useEdit, useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
 import Workbench from './Workbench.jsx'
@@ -30,30 +30,23 @@ export function Level({ phone, stage, ...props }) {
 
 /**
  * A level on a phone, the same in every game: one page. The tests (their tabs) pinned at the top; in between, what
- * scrolls: the task in its foldable 任务 card, then the play area; at the bottom the tray (parts to place), the results
- * drawer and the run bar, pinned. The drawer holds what a run or check gives (`results`): folded away until the run
- * bar's first button opens it, or a run or check does (RunDock). With nothing in it (null), there is no such button.
- * `results` left out: the level has no drawer.
+ * scrolls: the task in its foldable 任务 card, the play area, and below it what a run or check gives (`results`); at the
+ * bottom the tray (parts to place) and the run bar, pinned. A run, a step or a check brings the results into view
+ * (RunDock). `results` null or left out: nothing below the play area.
  */
 export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief, tests, children, tray, results, dock }) {
-  const [open, setOpen] = useState(false)
-  const has = Boolean(results)
-  const drawer = useMemo(() => ({ has, open: has && open, toggle: () => setOpen((o) => !o), show: () => setOpen(true) }), [has, open])
+  const box = useRef(null)
+  const shown = useMemo(() => ({ show: () => requestAnimationFrame(() => box.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' })) }), [])
   return (
     <div ref={rootRef} className={`level-phone ${className}`}>
       {tests}
       <div ref={scrollRef} className="pl-scroll" onScroll={onScroll}>
         <TaskCard>{brief}</TaskCard>
         {children}
+        {results && <section ref={box} className="pl-results" aria-label={tr('结果', 'Results')}>{results}</section>}
       </div>
       {tray}
-      {/* Kept in the page while folded, so what a game paints into it stays painted. */}
-      {results !== undefined && (
-        <section className={`pl-drawer ${drawer.open ? 'is-open' : ''}`} inert={!drawer.open} aria-label={tr('结果', 'Results')}>
-          <div className="pl-drawer-body">{results}</div>
-        </section>
-      )}
-      {dock && <footer className="run-foot"><RunDrawer.Provider value={drawer}>{dock}</RunDrawer.Provider></footer>}
+      {dock && <footer className="run-foot"><RunResults.Provider value={shown}>{dock}</RunResults.Provider></footer>}
     </div>
   )
 }

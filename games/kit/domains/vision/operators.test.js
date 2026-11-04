@@ -3,10 +3,10 @@ import assert from 'node:assert/strict'
 import { fromRows, toRows } from './image.js'
 import { filterImage, sampleImage } from './operators.js'
 import { PARTS } from './parts.js'
-import { readContent } from '../../engine/content-node.js'
 import domain from './domain.js'
-import { startBoard } from './board.js'
+import { fromText, startBoard } from './board.js'
 import { runLevel } from './run.js'
+import { circuit, game, level } from './fixture.js'
 
 const rows = toRows
 const img = fromRows
@@ -57,34 +57,39 @@ test('vector length and colour mixture preserve raw numerical meaning', () => {
   assert.throws(() => PARTS.colourMix.eval({ image: img([[1]]), wr: 1, wg: 0, wb: 0 }))
 })
 
+// One circuit task with a starter and a characteristic wrong program with its explanation.
+const doubled = () => game({ levels: [level('D', circuit('d_double', {
+  inputs: ['image'], adds: ['const', 'arithmetic'], configurations: { 'arithmetic.op': ['add', 'mul'] },
+  tests: [{ inputs: { image: [[1, 2]] }, expect: { out: [[2, 4]] } }],
+  hidden: [{ inputs: { image: [[3]] }, expect: { out: [[6]] } }],
+  solution: ['two = const[value=2]()', 'p = arithmetic[op=mul](image,two)', 'out <- p'],
+  starter: ['two = const[value=2]()'],
+  naive: ['two = const[value=2]()', 'p = arithmetic[op=add](image,two)', 'out <- p'],
+  naiveWhy: { zh: 'adding the gain', en: 'Adding the gain shifts brightness instead of scaling it.' },
+}))] })
+
 test('starters leave real decisions and wrong methods explain observed visual causes', () => {
-  const { vision } = domain.spec(readContent('vision-lab'))
-  let starters = 0, explanations = 0
-  for (const tasks of vision.played.values()) for (const task of tasks) {
-    if (task.kind !== 'circuit') continue
-    if (task.starter) {
-      const board = startBoard(task)
-      assert.equal(runLevel(task, board, vision.partOf).pass, false, task.taskId)
-      board.nodes[0].params.name = 'changed'
-      assert.notEqual(task.starter.nodes[0].params.name, 'changed')
-      starters++
-    }
-    if (task.naiveWhy) {
-      const result = runLevel({ ...task, tests: [...task.tests, ...task.hidden] }, task.naive, vision.partOf)
-      assert.ok(result.runs.some((r) => r.fail?.why.en.includes(task.naiveWhy.en)), task.taskId)
-      explanations++
-    }
-  }
-  const tasks = [...vision.played.values()].flat().filter(t=>t.kind==='circuit')
-  assert.equal(starters,tasks.filter(t=>t.starter).length)
-  assert.ok(starters>0)
-  assert.equal(explanations,tasks.length)
+  const content = doubled()
+  const { vision } = domain.spec(content)
+  assert.deepEqual(domain.validate(domain.spec(content)).filter((r) => r.fail), [])
+  const task = vision.played.get('D')[0], all = { ...task, tests: [...task.tests, ...task.hidden] }
+  const board = startBoard(task)
+  assert.equal(runLevel(task, board, vision.partOf).pass, false)
+  board.nodes[0].params.name = 'changed'
+  board.wires.push({ from: 'image', to: 'out', port: 'in' })
+  assert.notEqual(task.starter.nodes[0].params.name, 'changed', 'each opening gets its own starter')
+  assert.equal(startBoard(task).wires.length, task.starter.wires.length)
+  const naive = runLevel(all, task.naive, vision.partOf)
+  assert.ok(naive.runs.some((r) => r.fail?.why.en.includes(task.naiveWhy.en)))
+  const other = fromText(['out <- image'], task, vision.partOf)
+  assert.ok(runLevel(all, other, vision.partOf).runs.every((r) => !r.fail?.why.en.includes(task.naiveWhy.en)), 'another mistake keeps its own mismatch')
+  content.levels[0].tasks[0].starter = content.levels[0].tasks[0].solution
+  assert.ok(domain.validate(domain.spec(content)).some((r) => r.fail && r.text.includes('the starting board already passes')))
 })
 
-
 test('malformed starter blueprints are reported as content errors without crashing validation', () => {
-  const content = readContent('vision-lab')
-  content.levels.find((l) => l.id === '1-1').tasks[0].starter = ['p = unknownOperator()']
+  const content = doubled()
+  content.levels[0].tasks[0].starter = ['p = unknownOperator()']
   const spec = domain.spec(content)
   assert.ok(spec.vision.wrong.some((s) => s.includes('the starter')))
   assert.ok(domain.validate(spec).some((result) => result.fail))

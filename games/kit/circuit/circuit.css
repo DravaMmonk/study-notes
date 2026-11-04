@@ -492,9 +492,6 @@
 .cl-add small { color: var(--muted); font-size: 12px; line-height: 1.45; }
 
 /* ---- the board inside a packed part (circuit/Inside.jsx), opened read only ---- */
-.cl-inside { margin: 14px 10px 0; }
-.cl-inside .kit-board { position: relative; height: 300px; border-radius: 10px; }
-.cl-inside .board-zoom { transform: scale(.9); transform-origin: bottom right; }
 /* On a phone, in the part's sheet: a window of a fixed height that scrolls; a block on it opens its own sheet, whose
    settings only show. */
 .cl-inside-phone { margin-top: 8px; }
@@ -502,11 +499,6 @@
 .cl-readonly :is(select, input) { pointer-events: none; }
 /* Its inputs and its result are the part's own ports: on a desktop, small terminals at the board's left and right edges
    (their name and dot, no card); on a phone, the slot board's top and bottom rows, as thin. */
-.cl-inside .node.cl-edge { padding-bottom: 0; background: none; box-shadow: none; animation: none; }
-.cl-inside .node.cl-edge::before, .cl-inside .node.cl-edge::after { display: none; }
-.cl-inside .node.cl-edge .node-head { min-height: 0; padding: 0 6px; border: 0; color: var(--muted); font-size: 11.5px; }
-.cl-inside .node.cl-edge .family-chip { display: none; }
-.cl-inside .node.cl-edge .node-ports { min-height: 0 !important; }
 .cl-inside-scroll .pb-term { min-height: 0; padding: 6px 8px; background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
 .cl-inside-scroll .pb-term::after, .cl-inside-scroll .pb-term .pb-thumb { display: none; }
 .cl-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }

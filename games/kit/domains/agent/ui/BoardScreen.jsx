@@ -53,7 +53,7 @@ function SinkValue({ node, value, turn }) {
 }
 
 export default function BoardScreen(screen) {
-  const { game, level: entry, flags, phone } = screen
+  const { game, level: entry, flags } = screen
   const level = entry.source
   const parts = useMemo(() => partsFor(level.machine.mode), [level])
   const files = useMemo(() => game.agent.filesIn(level), [game, level])
@@ -163,7 +163,6 @@ export default function BoardScreen(screen) {
       brief={{ hint: level.hint, children: score }}
       describe={(node) => game.textAt(CARDS[node.type], level.id).desc}
       results={strip}
-      resultsTitle={!phone && L(test.issue.title)}
     />
   )
 }

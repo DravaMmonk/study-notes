@@ -487,8 +487,34 @@
     },
     {
       "version": 33,
-      "why": "Unify spatial reads as shift and expose weighted-line direction through explicit inputs",
-      "ops": [{ "drop": ["v1_line", "v1_vertical", "v1_separable", "v1_strength", "v1_sobel"] }]
+      "why": "Merge paired coordinate inputs into one vector input (offset d, radii r)",
+      "ops": [
+        {
+          "drop": [
+            "v0_alignment",
+            "v0_inspection",
+            "v1_border_clamp",
+            "v1_border_wrap",
+            "v1_border_reflect",
+            "v1_valid"
+          ]
+        }
+      ]
+    },
+    {
+      "version": 34,
+      "why": "Separate the signed removed detail before enhancement, so 1-5 no longer jumps from smoothing to a three-output enhancer",
+      "ops": [{ "drop": ["v1_smooth_border", "v1_residual", "v1_detail"] }]
+    },
+    {
+      "version": 35,
+      "why": "Unify spatial reads as shift and expose weighted-line direction inputs",
+      "ops": [{"drop": ["v1_line", "v1_vertical", "v1_separable", "v1_strength", "v1_sobel"]}]
+    },
+    {
+      "version": 36,
+      "why": "Keep unified sampling compatible with the main branch vector input contract",
+      "ops": [{"drop": ["v1_line", "v1_vertical", "v1_scanner", "v1_separable", "v1_smooth_border", "v1_residual", "v1_detail", "v1_strength", "v1_sobel"]}]
     }
   ]
 }

@@ -29,6 +29,9 @@ function circuitSaid(task, { held, partOf, builds, settingsIn, availableParts })
     const supported = candidates.flatMap((part) => part?.settings?.[key] ?? [])
     if (rest.length || !supported.length || values.some((value) => !supported.includes(value))) problems.push(`invalid configuration introduction ${setting}`)
   }
+  // A task introduces only what its answer uses, and every part it holds has some introduced value of each setting.
+  for (const type of task.fresh ?? []) if (!task.solution.nodes.some((n) => n.type === type)) problems.push(`introduces ${type}, which its answer does not use`)
+  for (const type of held) for (const key of Object.keys(partOf(type)?.settings ?? {})) if (!settingsIn(task, type, key)?.length) problems.push(`holds ${type} with no ${type}.${key} introduced`)
   for (const [name, board] of [['answer',task.solution],['starter',task.starter],['naive',task.naive]]) for (const node of board?.nodes ?? []) {
     for (const key of Object.keys(partOf(node.type)?.settings ?? {})) {
       const allowed = settingsIn(task,node.type,key)

@@ -22,14 +22,16 @@
         "en": "Compose axis passes"
       },
       "brief": {
-        "zh": "复用三点加权器，先沿一条轴处理，再沿另一条轴使用同一组权重。目标是二维外积权重，不是两张处理图相加。 三点加权器的方向输入用 (dx,dy)=(1,0) 表示横向，(0,1) 表示纵向。",
-        "en": "Reuse the weighted line along both axes using the same weights. Match the 2D outer-product rule, not the sum of two processed images. For the weighted line direction inputs use (dx,dy)=(1,0) horizontally and (0,1) vertically."
+        "zh": "复用三点加权器，先沿一条轴处理，再沿另一条轴使用同一组权重。目标是二维外积权重，不是两张处理图相加。 三点加权器的方向向量 d 用给定的横向 (1,0) 或纵向 (0,1)。",
+        "en": "Reuse the weighted line along both axes using the same weights. Match the 2D outer-product rule, not the sum of two processed images. For the weighted line direction vector d use the supplied horizontal (1,0) or vertical (0,1) input."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
         { "name": "left", "label": { "zh": "前侧", "en": "First" } },
         { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
-        { "name": "right", "label": { "zh": "后侧", "en": "Last" } }
+        { "name": "right", "label": { "zh": "后侧", "en": "Last" } },
+        { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
+        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
       ],
       "inputGroups": [
         {
@@ -45,7 +47,9 @@
             "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
             "left": 0.3333333333333333,
             "centre": 0.3333333333333333,
-            "right": 0.3333333333333333
+            "right": 0.3333333333333333,
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
           },
           "expect": {
             "out": [
@@ -55,7 +59,14 @@
           }
         },
         {
-          "inputs": { "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]], "left": 0.25, "centre": 0.5, "right": 0.25 },
+          "inputs": {
+            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
+            "left": 0.25,
+            "centre": 0.5,
+            "right": 0.25,
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
+          },
           "expect": { "out": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]] }
         },
         {
@@ -63,24 +74,22 @@
             "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
             "left": 0.2,
             "centre": 0.6,
-            "right": 0.2
+            "right": 0.2,
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
           },
           "expect": { "out": [[0.384, 0.48, 0.48, 0.384], [0.48, 0.6, 0.6, 0.48], [0.384, 0.48, 0.48, 0.384]] }
         }
       ],
       "hidden": [],
       "solution": [
-        "dirZero = const[value=0]()",
-        "dirOne = const[value=1]()",
-        "h = weightedLine(image,left,centre,right,dirOne,dirZero)",
-        "v = weightedLine(h,left,centre,right,dirZero,dirOne)",
+        "h = weightedLine(image,left,centre,right,horizontal)",
+        "v = weightedLine(h,left,centre,right,vertical)",
         "out <- v"
       ],
       "naive": [
-        "dirZero = const[value=0]()",
-        "dirOne = const[value=1]()",
-        "h = weightedLine(image,left,centre,right,dirOne,dirZero)",
-        "v = weightedLine(image,left,centre,right,dirZero,dirOne)",
+        "h = weightedLine(image,left,centre,right,horizontal)",
+        "v = weightedLine(image,left,centre,right,vertical)",
         "s = arithmetic[op=add](h,v)",
         "out <- s"
       ],

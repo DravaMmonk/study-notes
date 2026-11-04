@@ -304,7 +304,7 @@ function machinePartsFor(level) {
     // A part the player built runs the board that built it: a packed part.
     packed: (node) => Boolean(MACHINE_PARTS[node.type]?.built),
     // A built part has room for its tools beside its name; unfolded, it shows the board it runs inside its card.
-    cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : MACHINE_PARTS[node.type]?.built ? (node.open ? 480 : 210) : 170),
+    cardWidth: (node) => (MACHINE_PARTS[node.type]?.frames ? 260 : node.type === 'in' || node.type === 'out' ? 190 : MACHINE_PARTS[node.type]?.built ? 210 : 170),
     frames: (node) => (MACHINE_PARTS[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: MACHINE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
     rules: { ...Object.fromEntries(Object.entries(MACHINE_PARTS).filter(([type]) => type !== 'in' && type !== 'out')), ...Object.fromEntries([...ruleParts.keys()].map((type) => [type, RULE_PART])) },
   }

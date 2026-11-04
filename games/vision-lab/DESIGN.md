@@ -10,13 +10,14 @@ This specification covers stages 0–2, not later camera, learning or geometry m
 ## Primitive and reuse contracts
 
 Images are immutable floating-point scalar/RGB arrays. Inspection keeps original signed values; display clipping
-never changes computations. Spatial reads use output(x,y)=input(x+dx,y+dy); x grows right and y grows down.
+never changes computations. Spatial reads use output(x,y)=input(x+dx,y+dy) for an offset vector d=(dx,dy); x grows right and y grows down.
+An offset and the valid-interior radii are each one supplied integer vector, not separate x and y inputs.
 Known offsets are supplied data, not estimated registration. Comparisons are controlled defect evidence, not
 claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
 A weighted line is built from shifts, multiplication and addition. A separable filter reuses that line along both
-axes through explicit direction inputs dx and dy, earned through separate horizontal and vertical tasks.
-All spatial neighbour reads use the single shift primitive; horizontal reads set dy=0 and vertical reads set dx=0.
+axes through an explicit direction vector d, earned through separate horizontal and vertical tasks.
+All spatial neighbour reads use the single shift primitive; horizontal reads use d=(1,0) and vertical reads use d=(0,1).
 The vertical task generalises the line to a supplied direction using asymmetric weights and rectangular images. A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
 the table supplies traversal, not a weighted sum. Convolution reverses the written kernel before correlation.
 Parameterised border rules propagate through the player's actual nested graph. Zero, clamp, wrap and reflect
@@ -41,7 +42,8 @@ reused in smoothing residuals and reconstruction checks.
 Stage 1 opens with horizontal three-sample construction followed by vertical transfer on the same graph, then
 three independent routes. All routes therefore have both directions before reusing the line:
 
-- Direction/composition: two-axis separable processing -> smoothing/detail enhancement with given Gaussian weights.
+- Direction/composition: two-axis separable processing -> smoothing with replicated edges -> signed removed detail
+  -> detail enhancement with given Gaussian weights.
 - Local kernels: general correlation -> convolution orientation -> boundary/valid-domain upgrade -> signed spatial
   derivatives -> Sobel and gradient strength.
 - Channels: construct a channel-weighted measurement from RGB samples.
@@ -68,8 +70,8 @@ mathematical support before use, gives observation-first hints, and includes a c
 specific explanation. Repeated layout is supplied in incomplete editable starters; they never complete the decisive
 signal path. Changed cases include signed values, colour, rectangular images, phases, frequencies and boundaries.
 
-The workbench retains compact input groups, touch/hover pixel inspection, moving wires and a closed initial result
-drawer. Frequency rows use numeric cell views; complex coefficients retain real and imaginary data. Small images and
+The workbench retains compact input groups, touch/hover pixel inspection, moving wires, and on a phone the results
+below the board. Frequency rows use numeric cell views; complex coefficients retain real and imaginary data. Small images and
 window tables can be inspected without expanding every numeric value. Desktop and phone must be checked in the
 actual browser; headless reference checks do not establish usability or novice understanding.
 
@@ -101,8 +103,9 @@ known-offset comparison; replicate extension starts on both independent branches
 and edge-inclusive reflection have their own boundary tasks. Unintroduced choices stay locked. Valid interior
 has a separate introduction and changes the output domain, rather than pretending to be a padding rule.
 
-Images have one numeric cell view, including original values and coordinates, with touch/hover inspection for
-full precision. No line plot or picture/numbers toggle is used. Small board previews are bounded numeric grids.
+Inspected images use the domain's fixed display window with its overview and information views; information
+shows original values and coordinates, with touch/hover inspection for full precision. No line plot is used.
+Small board previews are bounded numeric grids.
 Phone numeric fields use an in-app keypad with signed decimals, fractions, exponent notation, erase, cancel and
 explicit commit. Incomplete or nonfinite values cannot be committed and the system keyboard is not summoned.
 
@@ -110,15 +113,15 @@ explicit commit. Incomplete or nonfinite values cannot be committed and the syst
 
 The circuit remains the primary workspace. Task text, the tray and result panels use compact spacing while ports
 and actions retain usable touch targets. Image outputs use one selected output at a time; scalar-only outputs
-share a compact comparison table. Current and target always remain visible, including mixed scalar/image values
-and missing results. Comparisons wrap only when their intrinsic widths exceed the container, rather than hiding
-one value behind a view switch. Numeric cells start at 36 px (56 px for RGB), expanding for longer values.
+share a compact comparison table. Current and target always remain visible side by side, including mixed scalar/image values; a missing result is
+a note on the target, not an empty frame. Image windows share the row equally, so the pair never wraps or hides
+one value behind a switch. Numeric cells start at 36 px (56 px for RGB), expanding for longer values.
 Image dimensions appear once per comparison when the shapes match; scalar labels and values share one line.
 Marked mismatches and
-pixel inspection supply both original values and their difference; input data
-is secondary and collapsed until requested. Image captions carry a meaningful name once, with size/channel metadata
+pixel inspection supply both original values and their difference; inputs are not
+repeated in the results, the board's input cards hold them. Image captions carry a meaningful name once, with size/channel metadata
 on the same line. Avoid generic reading labels, repeated headings and explanatory copy where layout or controls
-already establish the relationship. Component detail sheets show outputs and settings, with descriptions in a compact disclosure; input values are not repeated.
+already establish the relationship. Component detail sheets show outputs and settings, with the description under the title, unfolded; input values are not repeated.
 
 Neighbourhood weights in the first two filtering tasks share one three-output source (first, centre, last),
 while packed components retain separate weight inputs. Numeric image previews use up to two decimal places
@@ -134,7 +137,7 @@ introduces, including all-unlocked review. Defaults, restored boards, selectors 
 | Construction | Prerequisite task | Combined task | Newly available capability |
 | --- | --- | --- | --- |
 | Replaceable local kernel | Inspect per-position weighted contributions | Sum and restore a local result | Window unfolding first; row sum and shape restoration next |
-| Detail enhancement | Preserve constant edges under replication | Smooth/detail enhancement | Boundary assumption before residual composition |
+| Detail enhancement | Preserve constant edges under replication; separate the signed removed detail | Smooth/detail enhancement | Boundary assumption, then the signed residual, before enhancement |
 | Frequency wave | Shift one cycle without changing its spacing | Add variable cycles per row | Cosine and phase before frequency control |
 | Stable gradient | Measure the length of raw signed directional responses | Perpendicular smoothing and strength | Magnitude before Sobel composition |
 | Row spectrum | Scan the earned probe into one coefficient column | Restore all three coefficient channels | Repeated rows and frequency indices before full spectrum assembly |

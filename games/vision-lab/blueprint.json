@@ -657,8 +657,8 @@
     {
       "part": "weightedLine",
       "about": {
-        "zh": "沿给定方向 (dx,dy)，按前侧、中心、后侧权重汇合三格读数。(1,0) 横向，(0,1) 纵向；图外规则可设置。",
-        "en": "Combine first/centre/last readings along (dx,dy): (1,0) horizontally or (0,1) vertically, with explicit borders."
+        "zh": "沿给定方向向量 d，按前侧、中心、后侧权重汇合三格读数。d=(1,0) 横向，(0,1) 纵向；图外规则可设置。",
+        "en": "Combine first/centre/last readings along direction vector d: (1,0) horizontally or (0,1) vertically, with explicit borders."
       },
       "from": ["arithmetic", "const", "shift"]
     },

@@ -1,6 +1,6 @@
 // Execution helpers expose samples and repetitions; learner circuits supply the visual algorithms.
 import { PartError } from '../../engine/circuit.js'
-import { isImage, make } from './image.js'
+import { isImage, isVector, make } from './image.js'
 
 const fail = (zh, en) => { throw new PartError({ zh, en }) }
 const imageOf = (v) => {
@@ -24,15 +24,20 @@ export function readOutside(image, x, y, ch, mode = 'zero') {
   if (mode === 'zero' && (x < 0 || y < 0 || x >= image.w || y >= image.h)) return 0
   return image.data[(boundary(y, image.h, mode) * image.w + boundary(x, image.w, mode)) * image.c + ch]
 }
+const integerVector = (v) => {
+  if (!isVector(v)) fail('需要一个整数向量 (x, y)', 'An integer vector (x, y) is required')
+  integer(v.x); integer(v.y)
+  return v
+}
 const allocated = (w, h) => {
   if (w * h > 262144) fail('展开后的表过大，请缩小实验图像', 'The expanded table is too large; use a smaller experimental image')
 }
 export const CONSTRUCTION_DEFAULTS = { shift: { outside: 'zero' }, windowTable: { outside: 'zero', axis: 'x' }, reduceRows: { mode: 'mean' } }
 const spatial = (inputs, evalFn, { outputs, axis = false } = {}) => ({ inputs, params: ['outside', ...(axis ? ['axis'] : [])], settings: { outside: BORDERS, ...(axis ? { axis: ['x', 'y'] } : {}) }, ...(outputs ? { outputs } : {}), eval: evalFn })
 export const CONSTRUCTION_PARTS = {
-  shift: spatial(['image', 'dx', 'dy'], ({ image, dx, dy }, node) => {
-    imageOf(image); integer(dx); integer(dy)
-    return make(image.w, image.h, image.c, (x, y, ch) => readOutside(image, x + dx, y + dy, ch, node.params?.outside))
+  shift: spatial(['image', 'd'], ({ image, d }, node) => {
+    imageOf(image); integerVector(d)
+    return make(image.w, image.h, image.c, (x, y, ch) => readOutside(image, x + d.x, y + d.y, ch, node.params?.outside))
   }),
   transpose: { inputs: ['image'], eval: ({ image }) => {
     imageOf(image)
@@ -66,10 +71,10 @@ export const CONSTRUCTION_PARTS = {
     if (values.w !== 1 || values.h !== shape.w * shape.h) fail('需要每个输出位置一个结果，再还原为原图宽高', 'Provide one result per output position, then restore the original dimensions')
     return make(shape.w, shape.h, values.c, (x, y, ch) => values.data[(y * shape.w + x) * values.c + ch])
   } },
-  trim: { inputs: ['image', 'rx', 'ry'], eval: ({ image, rx, ry }) => {
-    imageOf(image); integer(rx); integer(ry)
-    if (rx < 0 || ry < 0 || 2 * rx >= image.w || 2 * ry >= image.h) fail('有效内部必须至少保留一行一列', 'The valid interior must retain at least one row and column')
-    return make(image.w - 2 * rx, image.h - 2 * ry, image.c, (x, y, ch) => image.data[((y + ry) * image.w + x + rx) * image.c + ch])
+  trim: { inputs: ['image', 'r'], eval: ({ image, r }) => {
+    imageOf(image); integerVector(r)
+    if (r.x < 0 || r.y < 0 || 2 * r.x >= image.w || 2 * r.y >= image.h) fail('有效内部必须至少保留一行一列', 'The valid interior must retain at least one row and column')
+    return make(image.w - 2 * r.x, image.h - 2 * r.y, image.c, (x, y, ch) => image.data[((y + r.y) * image.w + x + r.x) * image.c + ch])
   } },
   positions: { inputs: ['image'], eval: ({ image }) => {
     imageOf(image)

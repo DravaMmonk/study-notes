@@ -273,12 +273,8 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .pl-scroll { --pb-sticky-top: -12px; flex: 1; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scroll-padding-block: 16px; padding: 12px 12px 24px; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 12px; }
 .pl-scroll > * { min-width: 0; }
 /* The results drawer: folded to nothing, it opens upward over the run bar to at most a little under half the screen. */
-.pl-drawer { flex: none; display: grid; grid-template-rows: 0fr; border-top: 1px solid transparent; background: var(--paper); transition: grid-template-rows 220ms cubic-bezier(.2, .8, .2, 1), border-color 220ms ease; }
-.pl-drawer.is-open { grid-template-rows: 1fr; border-top-color: var(--hairline); box-shadow: 0 -16px 28px -22px rgba(30, 26, 18, .5); }
-.pl-drawer-body { min-height: 0; max-height: 46dvh; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 0 12px; display: grid; align-content: start; gap: 10px; }
-.pl-drawer.is-open .pl-drawer-body { padding: 12px; }
-.pl-drawer-body > * { min-width: 0; margin: 0; }
-.run-drawer[aria-expanded='true'] { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 10%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
+.pl-results { min-width: 0; display: grid; align-content: start; gap: 10px; padding: 12px 2px 4px; border-top: 1px solid var(--hairline); }
+.pl-results > * { min-width: 0; margin: 0; }
 /* The task card (Layout.jsx TaskCard), the same in every game on a phone: 任务, folding away to the level. */
 .task-card { border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .task-toggle { width: 100%; min-height: 40px; padding: 0 12px 0 14px; display: flex; align-items: center; justify-content: space-between; border: 0; color: var(--muted); background: transparent; font: 400 11px var(--mono); letter-spacing: .14em; cursor: pointer; }

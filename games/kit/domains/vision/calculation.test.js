@@ -1,8 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { calculationAt, calculationResult } from './calculation.js'
-import { readContent } from '../../engine/content-node.js'
 import domain from './domain.js'
+import { T, game, level } from './fixture.js'
 
 test('nearest arithmetic distinguishes midpoint selection from finite-image clamping', () => {
   const task = { image: [[10, 20, 30]], calculation: { kind: 'sampling', method: 'nearest', xs: [[-0.6, -0.5, 0.49, 0.5, 2.8]], ys: [[0, 0, 0, 0, 0]] } }
@@ -28,9 +28,10 @@ test('calculation aids remain independent of expected answers', () => {
 })
 
 test('misleading or malformed calculation observations block content validation', () => {
-  const content = readContent('vision-lab')
-  const task = { id: 'observation', kind: 'grid', image: [[0, 4]], calculation: { kind: 'sampling', method: 'bilinear', xs: [[0.5]], ys: [[0]] }, ask: { fill: { rows: [[1]] } } }
-  content.levels.find((l) => l.id === '0-1').tasks.unshift(task)
+  const task = { id: 'observation', kind: 'grid', brief: T('Fill'), image: [[0, 4]], calculation: { kind: 'sampling', method: 'bilinear', xs: [[0.5]], ys: [[0]] }, ask: { fill: { rows: [[2]] } } }
+  const content = game({ levels: [level('O', task)] })
+  assert.deepEqual(domain.spec(content).vision.wrong, [])
+  task.ask.fill.rows = [[1]]
   assert.ok(domain.spec(content).vision.wrong.some((s) => s.includes('calculation aid does not produce')))
   task.calculation.ys = [[0, 0]]
   assert.ok(domain.spec(content).vision.wrong.some((s) => s.includes('matching rectangular shapes')))

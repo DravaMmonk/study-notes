@@ -21,10 +21,10 @@ export const AXIS_FIELD = { key: 'axis', label: T('空间轴', 'Axis'), options:
 export const CONSTRUCTION_FIELDS = { shift: [BORDER_FIELD], windowTable: [AXIS_FIELD, BORDER_FIELD], reduceRows: [{ key: 'mode', label: T('汇总', 'Reduction'), options: [['mean', T('平均', 'Mean')], ['sum', T('求和', 'Sum')]] }] }
 export const CONSTRUCTION_PORTS = {
   abs: { a: T('值', 'Value') }, cosine: { a: T('角度（周）', 'Angle (turns)') },
-  shift: { image: T('图', 'Image'), dx: 'dx', dy: 'dy' },
+  shift: { image: T('图', 'Image'), d: T('位移 d', 'Offset d') },
   transpose: { image: T('图', 'Image') }, reverse: { image: T('表', 'Table') },
   windowTable: { image: T('图', 'Image'), kernel: T('权重表', 'Weights') },
   reduceRows: { image: T('表', 'Table') }, restore: { values: T('逐位置结果', 'Per-position results'), shape: T('尺寸参照', 'Shape reference') },
-  trim: { image: T('图', 'Image'), rx: 'rx', ry: 'ry' }, positions: { image: T('尺寸参照', 'Shape reference') }, expandRows: { image: T('图', 'Image') },
+  trim: { image: T('图', 'Image'), r: T('半径 r', 'Radii r') }, positions: { image: T('尺寸参照', 'Shape reference') }, expandRows: { image: T('图', 'Image') },
 }
 export const CONSTRUCTION_OUTPUTS = { windowTable: { samples: T('读数', 'Samples'), weights: T('权重', 'Weights') }, expandRows: { values: T('重复读数', 'Repeated values'), position: T('位置 x/N', 'Position x/N'), frequency: T('索引 k', 'Index k') } }

@@ -41,26 +41,42 @@ test('a board that becomes a part reads exactly its ports', () => {
   assert.match(String(portsProblem(fromText(['m = mmin(view.up, view.left, way3, facts.rock)', 'cell <- m'], g), ports)), /rock/);
 });
 
+// A course of two levels written here: the first builds a route counter, the second runs it behind a block gate.
+const t = s => ({ zh: s, en: s });
+const twoLevels = () => ({
+  id: 't', title: t('t'), primitives: ['msum', 'const', 'pass', 'block'],
+  parts: { counter: { name: t('counter'), desc: t('d') } },
+  eras: [{ id: 'e', machine: 'scout', foundation: ['build', 'reuse'], chapter: { title: t('e'), desc: t('e') } }],
+  levels: [
+    { id: 'build', mode: 'circuit', intro: [], robot: 'scout', world: 'grid', facts: ['start'], adds: ['msum', 'const', 'pass'], unlock: 'counter',
+      builds: { ports: [{ way: { n: 1, sensor: 'up' } }, { way: { n: 2, sensor: 'left' } }, { start: { sensor: 'start' } }] },
+      tests: [{ R: 3, C: 4 }], solution: ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'] },
+    { id: 'reuse', mode: 'circuit', intro: [], robot: 'scout', world: 'grid', facts: ['start', 'rock'], adds: ['block'],
+      tests: [{ R: 4, C: 4, rocks: [[1, 1]] }, { R: 4, C: 5, rocks: [[1, 2], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 3], [2, 1], [3, 3]] }],
+      solution: ['c = counter(view.up, view.left, facts.start)', 'b = block(facts.rock, c)', 'cell <- b'] },
+  ],
+});
+
 test('a built part runs the board its level was passed with, when that board reads exactly the part’s ports', async () => {
-  const { readContent } = await import('../../engine/content-node.js');
   const { tableCourse, syncOwn, run } = await import('./course.js');
   const { WORLDS } = await import('./model/worlds.js');
-  const { LEVELS } = tableCourse(readContent('state-graph'));
-  const stamp = LEVELS.find(L => L.id === 'stamp').stages.at(-1), rocks = LEVELS.find(L => L.id === 'rocks').stages.at(-1);
-  const V = WORLDS[rocks.world], answers = () => rocks.tests.map(t => run(V, t, rocks.solution, rocks).value);
-  const offByOne = { ...stamp.solution, nodes: stamp.solution.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) };
-  const noStart = { ...stamp.solution, wires: stamp.solution.wires.filter(w => w.from !== 'facts#start') };
+  const { LEVELS, wrong } = tableCourse(twoLevels());
+  assert.deepEqual(wrong, []);
+  const builder = LEVELS.find(L => L.id === 'build').stages.at(-1), user = LEVELS.find(L => L.id === 'reuse').stages.at(-1);
+  const V = WORLDS[user.world], answers = () => user.tests.map(t => run(V, t, user.solution, user).value);
+  const offByOne = { ...builder.solution, nodes: builder.solution.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) };
+  const noStart = { ...builder.solution, wires: builder.solution.wires.filter(w => w.from !== 'facts#start') };
   try {
-    syncOwn({ stamp: { stage: 0, boards: [offByOne] } });
-    assert.notDeepEqual(answers(), rocks.expected);
+    syncOwn({ build: { stage: 0, boards: [offByOne] } });
+    assert.notDeepEqual(answers(), user.expected);
     // As an older save keeps it: no output node, every sensor on the view card.
-    const unfitted = { nodes: stamp.solution.nodes.filter(n => n.type !== 'out').map(n => (n.type === 'facts' ? null : n.type === 'view' ? { ...n, params: { picks: ['up', 'left', 'start'] } } : n)).filter(Boolean), wires: stamp.solution.wires.map(w => (w.from === 'facts#start' ? { ...w, from: 'view#start' } : w)) };
-    syncOwn({ stamp: { stage: 0, boards: [{ ...unfitted, nodes: unfitted.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) }] } });
-    assert.notDeepEqual(answers(), rocks.expected);
-    syncOwn({ stamp: { stage: 0, boards: [unfitted] } });
-    assert.deepEqual(answers(), rocks.expected);
-    syncOwn({ stamp: { stage: 0, boards: [noStart] } });
-    assert.deepEqual(answers(), rocks.expected);
+    const unfitted = { nodes: builder.solution.nodes.filter(n => n.type !== 'out').map(n => (n.type === 'facts' ? null : n.type === 'view' ? { ...n, params: { picks: ['up', 'left', 'start'] } } : n)).filter(Boolean), wires: builder.solution.wires.map(w => (w.from === 'facts#start' ? { ...w, from: 'view#start' } : w)) };
+    syncOwn({ build: { stage: 0, boards: [{ ...unfitted, nodes: unfitted.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) }] } });
+    assert.notDeepEqual(answers(), user.expected);
+    syncOwn({ build: { stage: 0, boards: [unfitted] } });
+    assert.deepEqual(answers(), user.expected);
+    syncOwn({ build: { stage: 0, boards: [noStart] } });
+    assert.deepEqual(answers(), user.expected);
   } finally {
     syncOwn({});
   }

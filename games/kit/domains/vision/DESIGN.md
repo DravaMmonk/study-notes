@@ -7,8 +7,10 @@ construction course uses the execution and inspection capabilities below; this i
 
 ## Boundaries
 
-Circuit inputs can carry a coordinate point `{ x, y }`. A point source exposes x and y as separately labelled,
-independently connectable outputs on the existing shared editors; tests display the point as one coordinate pair.
+Circuit values include a two-dimensional vector `{ x, y }`. Paired coordinate quantities (an offset dx, dy; per-axis
+radii) are one vector input with one output, never two input components; tests and cards show it as one pair.
+Arithmetic parts work componentwise on vectors, with numbers spread over both components; a vector never mixes
+with an image. Spatial parts that need an offset or radii take one integer vector input.
 
 Tasks may declare `inputGroups`: related logical inputs share one source with independently labelled outputs.
 Tests and packed-part signatures retain their original logical inputs. Task-scoped `configurations` declares
@@ -19,11 +21,19 @@ Saved source nodes are merged on load,
 including alternate slots and built boards, with outgoing wires and player work retained.
 
 Part details show settings and live outputs, or the received value for a sink; they do not repeat input values.
-A compact disclosure holds the plain-text component description. Pixel inspection retains operand calculations.
-Images use intrinsic cells of at least 36 px in a bounded preview. Cell numbers use up to two decimal places;
-mouse hover, touch selection and keyboard activation expose original precision and coordinates. Computation and
-comparison retain original values. Small board matrices fit their complete rows within the component; large
-previews remain bounded and scrollable. Coordinate-grid values remain distinct from their cell positions.
+The plain-text component description sits under the title, unfolded. Pixel inspection retains operand calculations.
+Every inspected image (tests, results, part details, figures) sits in one fixed display window sized by the screen,
+whatever its dimensions. The desktop result row is the exception, for density: one test's outputs in one row, each output's
+wanted and result side by side with the differing cells marked; its windows shrink to their image (at most 220 × 150 px):
+information cells just wide enough for their numbers, one width for a compared pair, and overview a thumbnail just
+large enough to tell its pixels apart; the verdict sits in the results header beside the view switch. Results on
+either screen show no inputs: the board's input cards hold them. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
+only; information keeps intrinsic cells of at least 36 px with numbers and axes, unscaled, every cell selectable on
+touch. Dragging pans the window. One switch in the results (the desktop pane header, the phone's output row)
+changes the view of every image on screen at once; it starts at information and is remembered per viewer.
+Cell numbers use up to two decimal places; mouse hover, touch selection and keyboard activation expose original
+precision and coordinates. Computation and comparison retain original values. Small board matrices fit their
+complete rows within the component. Coordinate-grid values remain distinct from their cell positions.
 Desktop cards offer the same detail content as phone sheets.
 
 - The kernel owns task progression, controls and general bench state. The vision domain owns camera/image
@@ -162,6 +172,6 @@ checks do not establish novice mastery or subjective puzzle quality.
 The inspection opening introduces the growing machine before a separate pixel-evidence page. Window examples
 identify one output location, its samples/weights, computed contributions and output. Numeric cells retain
 negative values hidden by grayscale clipping. Pixel details remain opt-in; complex output inspection also gives
-coefficient length and phase in turns, with undefined phase stated for zero coefficients. Result drawers start
-closed on phone tasks. Actual viewport and interaction checks are recorded in the stage review, not inferred
+coefficient length and phase in turns, with undefined phase stated for zero coefficients. On a phone the results sit
+below the board. Actual viewport and interaction checks are recorded in the stage review, not inferred
 from a build.

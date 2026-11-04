@@ -29,7 +29,9 @@
         { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
         { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } },
         { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } },
-        { "name": "threshold", "label": { "zh": "响应阈值", "en": "Response threshold" } }
+        { "name": "threshold", "label": { "zh": "响应阈值", "en": "Response threshold" } },
+        { "name": "horizontal", "type": "vector", "label": { "zh": "横向方向", "en": "Horizontal" } },
+        { "name": "vertical", "type": "vector", "label": { "zh": "纵向方向", "en": "Vertical" } }
       ],
       "outputs": [
         { "name": "strength", "label": { "zh": "扫描响应", "en": "Scanner response" } },
@@ -47,7 +49,9 @@
             "side": 0.274068619061197,
             "centre": 0.45186276187760605,
             "kernel": [[1, 0, -1]],
-            "threshold": 0.7
+            "threshold": 0.7,
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
           },
           "expect": {
             "strength": [
@@ -95,7 +99,9 @@
             "side": 0.274068619061197,
             "centre": 0.45186276187760605,
             "kernel": [[1, 0, -1]],
-            "threshold": 0.7
+            "threshold": 0.7,
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
           },
           "expect": {
             "strength": [
@@ -120,7 +126,9 @@
             "side": 0.274068619061197,
             "centre": 0.45186276187760605,
             "kernel": [[1, 0, -1]],
-            "threshold": 0.7
+            "threshold": 0.7,
+            "horizontal": { "x": 1, "y": 0 },
+            "vertical": { "x": 0, "y": 1 }
           },
           "expect": {
             "strength": [
@@ -136,8 +144,8 @@
         "quarter = const[value=0.25]()",
         "half = const[value=0.5]()",
         "gray = channelMeasure(image,quarter,half,quarter)",
-        "smooth = separable3[outside=clamp](gray,side,centre,side)",
-        "edge = sobel[outside=clamp](smooth,kernel)",
+        "smooth = separable3[outside=clamp](gray,side,centre,side,horizontal,vertical)",
+        "edge = sobel[outside=clamp](smooth,kernel,horizontal,vertical)",
         "mark = less(threshold,edge.strength)",
         "strength <- edge.strength",
         "mask <- mark"
@@ -146,7 +154,7 @@
         "quarter = const[value=0.25]()",
         "half = const[value=0.5]()",
         "gray = channelMeasure(image,quarter,half,quarter)",
-        "edge = sobel[outside=clamp](gray,kernel)",
+        "edge = sobel[outside=clamp](gray,kernel,horizontal,vertical)",
         "mark = less(threshold,edge.strength)",
         "strength <- edge.strength",
         "mask <- mark"

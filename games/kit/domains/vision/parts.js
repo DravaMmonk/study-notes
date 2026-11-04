@@ -1,5 +1,5 @@
 // The parts of a vision board, for the shared engine (../../engine/circuit.js): the values on its wires are numbers,
-// images (image.js) and 「—」 (null). A part handed 「—」 gives 「—」; one handed what it cannot work on stops with why
+// vectors { x, y }, images (image.js) and 「—」 (null). A part handed 「—」 gives 「—」; one handed what it cannot work on stops with why
 // (a PartError, shown on its card).
 //
 // Per-pixel work is done a whole image at a time (games/DESIGN.md 6.8): grid gives an image's coordinates as two
@@ -10,7 +10,7 @@
 // Fixed cards (the task puts them on the board): in (one of the task's inputs, params.name) and out (an output).
 import { sink, source } from '../../engine/boards.js'
 import { PartError } from '../../engine/circuit.js'
-import { isImage, make } from './image.js'
+import { isImage, isVector, make } from './image.js'
 import { IMAGE_OPERATORS } from './operators.js'
 import { CONSTRUCTION_PARTS } from './construction.js'
 
@@ -21,10 +21,16 @@ const fail = (zh, en) => { throw new PartError(T(zh, en)) }
 const strict = (f) => (ins, node, ctx, key) => (Object.values(ins).some((v) => v === null || v === undefined) ? null : f(ins, node, ctx, key))
 
 /**
- * f applied value by value over its arguments: numbers give a number; images (with numbers spread over them) give an
- * image of their size. Two images must be the same size; a grey one goes with each channel of a colour one.
+ * f applied value by value over its arguments: numbers give a number; vectors (with numbers spread over them) give a
+ * vector, component by component; images (with numbers spread over them) give an image of their size. Two images
+ * must be the same size; a grey one goes with each channel of a colour one. A vector never mixes with an image.
  */
 export function zip(args, f) {
+  if (args.some(isVector)) {
+    if (args.some(isImage)) fail('向量不能和图逐值计算', 'a vector does not combine with an image')
+    const at = (a, k) => (isVector(a) ? a[k] : a)
+    return { x: f(...args.map((a) => at(a, 'x'))), y: f(...args.map((a) => at(a, 'y'))) }
+  }
   const images = args.filter(isImage)
   if (!images.length) return f(...args)
   const [{ w, h }] = images
@@ -71,8 +77,8 @@ export const FIXED = ['in', 'out']
 
 export const PARTS = {
   in: source({
-    outputs: (node) => (node.params?.members ? node.params.members.split(',') : node.params?.kind === 'point' ? ['x', 'y'] : null),
-    eval: (_, node, ctx, key) => (node.params?.members ? ctx.bind?.[key] : node.params?.kind === 'point' ? ctx.bind?.[node.params.name]?.[key] : ctx.bind?.[node.params.name]),
+    outputs: (node) => (node.params?.members ? node.params.members.split(',') : null),
+    eval: (_, node, ctx, key) => (node.params?.members ? ctx.bind?.[key] : ctx.bind?.[node.params.name]),
   }),
   out: sink(),
   ...Object.fromEntries(Object.entries(IMAGE_OPERATORS).map(([key, part]) => [key, { ...part, eval: strict(part.eval) }])),
