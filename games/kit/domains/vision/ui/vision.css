@@ -34,10 +34,10 @@
 
 /* ---- the test under the board ---- */
 .vi-strip { display: grid; gap: 10px; min-width: 0; }
-.vi-test { border-collapse: collapse; font: 13px var(--mono); }
-.vi-test th, .vi-test td { padding: 4px 14px 4px 0; text-align: left; vertical-align: top; }
-.vi-test thead th { color: var(--muted); font: 500 11px var(--sans, inherit); }
-.vi-test tbody th { color: var(--muted); font-weight: 500; }
+.vi-test { display: flex; flex-wrap: wrap; align-items: start; gap: 12px 28px; min-width: 0; }
+.vi-test-group { display: grid; gap: 6px; min-width: 0; }
+.vi-test-group > h4 { margin: 0; color: var(--muted); font: 500 11px var(--sans, inherit); }
+.vi-test-group > div { display: flex; flex-wrap: wrap; align-items: start; gap: 10px 16px; }
 .vi-mobile-results { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; }
 .vi-mobile-results > section { min-width: 0; }
 .vi-output-tabs { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: thin; border-bottom: 1px solid var(--line); }

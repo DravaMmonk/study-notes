@@ -2,18 +2,30 @@ import { L, tr } from '../../../shell/i18n.js'
 import { isImage, show } from '../image.js'
 import ImageInspector from './ImageInspector.jsx'
 import MobileResults from './MobileResults.jsx'
+import { AXIS, inspectorCell, inspectorWidth } from './image-layout.js'
 
-function Cell({ value, label }) {
-  if (value === undefined) return null
-  if (!isImage(value)) return <span className="vi-value">{show(value)}</span>
-  return <ImageInspector value={value} label={label} caption={false} />
+/** A missing result keeps the wanted value's footprint so the row does not jump when a run lands. */
+const Empty = ({ like }) => <div className="vi-empty-value" style={isImage(like)
+  ? { width: inspectorWidth(like), height: AXIS + like.h * inspectorCell(like) + 2 }
+  : { width: 96, height: 28 }}>{tr('暂无结果', 'No result yet')}</div>
+
+function Item({ label, value, like }) {
+  if (isImage(value)) return <ImageInspector value={value} label={label} />
+  return <figure className="vi-inspector">
+    <figcaption><strong>{label}</strong></figcaption>
+    {value === undefined ? <Empty like={like} /> : <span className="vi-value">{show(value)}</span>}
+  </figure>
 }
 
-/** Desktop reference table; phones focus on one selectable output and disclose supporting inputs. */
+const Group = ({ title, children }) => <section className="vi-test-group"><h4>{title}</h4><div>{children}</div></section>
+
+/** Desktop lays one test out in a single row — inputs, wanted, result; phones focus on one selectable output. */
 export default function TestValues({ rows, given, phone, tolerance = 1e-5 }) {
-  if (!phone) return <table className="vi-test">
-    <thead><tr><th /><th>{tr('应当', 'Wanted')}</th><th>{tr('这块板', 'This board')}</th></tr></thead>
-    <tbody>{rows.map(([label, want, got], k) => <tr key={k}><th>{L(label)}</th><td><Cell value={want} label={L(label)} /></td><td><Cell value={got} label={L(label)} /></td></tr>)}</tbody>
-  </table>
-  return <MobileResults {...{rows,given,tolerance}} />
+  if (phone) return <MobileResults {...{ rows, given, tolerance }} />
+  const inputs = rows.slice(0, given), outputs = rows.slice(given)
+  return <div className="vi-test">
+    <Group title={tr('输入', 'Inputs')}>{inputs.map(([label, v], k) => <Item key={k} label={L(label)} value={v} />)}</Group>
+    <Group title={tr('预期', 'Wanted')}>{outputs.map(([label, want], k) => <Item key={k} label={L(label)} value={want} />)}</Group>
+    <Group title={tr('结果', 'Result')}>{outputs.map(([label, want, got], k) => <Item key={k} label={L(label)} value={got} like={want} />)}</Group>
+  </div>
 }
