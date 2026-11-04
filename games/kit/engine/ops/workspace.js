@@ -1,4 +1,5 @@
-// A data game's files opened for operations (./operations.js): game.json, glossary.json, levels/<id>.json and the
+// A data game's files opened for operations (./operations.js): game.json, glossary.json, levels/<id>.json, parts.json
+// (when the game has one; a domain that defines parts as data always gives one) and the
 // course blueprint (blueprint.json, when the game has one or an operation writes one) as values an operation replaces
 // (never mutates), the text each file had, and the hub's level count for the game
 // (games/games.js). Nothing reaches the disk until write(); diff() previews it.
@@ -40,6 +41,7 @@ export function openGame(id, root = GAMES_DIR) {
     game: load('game.json'),
     glossary: load('glossary.json'),
     blueprint: existsSync(resolve(dir, 'blueprint.json')) ? load('blueprint.json') : undefined,
+    partDefs: existsSync(resolve(dir, 'parts.json')) ? load('parts.json') : undefined,
     levels: new Map(levelFiles(id, root).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([levelId]) => [levelId, load(`levels/${levelId}.json`)])),
     original,
     // A file that takes over another's content (a level renamed) is laid out like the text it came from.
@@ -48,10 +50,10 @@ export function openGame(id, root = GAMES_DIR) {
   }
   return Object.assign(ws, {
     /** The game as one content (../content.js). */
-    content: () => assemble({ id, game: ws.game, glossary: ws.glossary, levels: [...ws.levels], blueprint: ws.blueprint }),
+    content: () => assemble({ id, game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, levels: [...ws.levels], blueprint: ws.blueprint }),
     /** What the files hold now, by name; a removed level file is null. */
-    snapshot: () => ({ game: ws.game, glossary: ws.glossary, blueprint: ws.blueprint, levels: new Map(ws.levels), basis: new Map(ws.basis) }),
-    restore: (s) => Object.assign(ws, { game: s.game, glossary: s.glossary, blueprint: s.blueprint, levels: new Map(s.levels), basis: new Map(s.basis) }),
+    snapshot: () => ({ game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, blueprint: ws.blueprint, levels: new Map(ws.levels), basis: new Map(ws.basis) }),
+    restore: (s) => Object.assign(ws, { game: s.game, glossary: s.glossary, partDefs: s.partDefs, blueprint: s.blueprint, levels: new Map(s.levels), basis: new Map(s.basis) }),
     /** Every file whose text changes: [{ file, before, after }] (before null: a new file; after null: removed). */
     changes: () => changes(ws),
     /** The changes as a unified diff. */
@@ -60,11 +62,11 @@ export function openGame(id, root = GAMES_DIR) {
   })
 }
 
-const fileNames = (ws) => ['game.json', 'glossary.json', 'blueprint.json', ...[...ws.levels.keys()].map((id) => `levels/${id}.json`)]
+const fileNames = (ws) => ['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...[...ws.levels.keys()].map((id) => `levels/${id}.json`)]
 
 function changes(ws) {
   const out = []
-  const now = new Map([['game.json', ws.game], ['glossary.json', ws.glossary], ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
+  const now = new Map([['game.json', ws.game], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['parts.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
   for (const [file, value] of now) {
     const before = ws.original.get(file) ?? null
     const after = writeJson(value, before ?? ws.basis.get(file) ?? null)

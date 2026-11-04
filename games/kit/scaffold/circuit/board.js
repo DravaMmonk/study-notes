@@ -4,8 +4,9 @@
 //   { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }
 //
 // The level gives the board its fixed cards, named by what they stand for: each of its inputs by name down the left,
-// each of its outputs by name down the right. Every other node is a part the player placed (parts.js PARTS, or a part
-// a level builds). As text, a part is `id = type[settings](its inputs in order)` and a wire into an output `sum <- s`:
+// each of its outputs by name down the right. Every other node is a part the player placed (one of the game's
+// parts.json, or a part a level builds). As text, a part is `id = type[settings](its inputs in order)` and a wire
+// into an output `sum <- s`:
 //
 //   s = add(a, b)
 //   sum <- s

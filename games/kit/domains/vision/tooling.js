@@ -1,15 +1,11 @@
-import { PARTS } from './parts.js'
-import { builtDefaults, CONSTRUCTION_DEFAULTS } from './construction.js'
-import { OPERATOR_DEFAULTS } from './operators.js'
-
 // Content conversion and saved-node migration are explicit; the curriculum uses one arithmetic component.
 export const arithmeticBlueprint = (lines) => lines?.map((line)=>line.replace(/(=\s*)(add|sub|mul|div)(?=\s*\()/g,(_match,start,op)=>`${start}arithmetic[op=${op}]`))
 export const introducedParts = (level) => [...new Set([...(level.adds??[]),...(level.tasks??[]).flatMap((t)=>t.adds??[])])]
 
-/** New, restored and imported nodes use the same task-scoped defaults. */
+/** New, restored and imported nodes use the same task-scoped defaults: the part's own, held to what the task offers. */
 export function taskDefaults(type, partOf, settingsIn) {
   const part=partOf(type)
-  const params={...(part?.built ? builtDefaults(part.built) : type==='arithmetic' ? {op:'add'} : CONSTRUCTION_DEFAULTS[type] ?? OPERATOR_DEFAULTS[type] ?? (type==='const'?{value:'0'}:{}))}
+  const params={...(part?.defaults ?? {})}
   for(const [key,supported] of Object.entries(part?.settings??{})){
     const allowed=settingsIn(type,key)??supported
     if(allowed.length&&!allowed.includes(params[key]))params[key]=allowed[0]
@@ -18,7 +14,7 @@ export function taskDefaults(type, partOf, settingsIn) {
 }
 
 /** Restore only tools and settings available at the task's point in the course. */
-export function taskBoard(board, held, settingsIn, partOf = (type) => PARTS[type]) {
+export function taskBoard(board, held, settingsIn, partOf) {
   if(!board?.nodes)return board
   const nodes=board.nodes.filter((n)=>['in','out'].includes(n.type)||held.has(n.type)).map((node)=>{
     const params={...taskDefaults(node.type,partOf,settingsIn),...node.params}

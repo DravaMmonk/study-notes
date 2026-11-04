@@ -2,11 +2,13 @@
 // it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The parts are implemented in parts.js, drawn as ui/catalog.js says.
+// A game's parts are its own, defined as data in its parts.json (games/DESIGN.md 6.9) over the engine resources here
+// (`op`, implemented in ops.js) and coloured by family (`family`, ui/__name__.css).
 
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
+import { OP_ITEMS } from './ops.js'
 
 const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -17,11 +19,10 @@ const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** Blueprint text (board.js), one line a string: a reference board, a naive one. */
 const BOARD = S.list(S.str(), { about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 
-/* ---------- the parts ---------- */
+/* ---------- what parts are made of ---------- */
 
-const PARTS = {
-  add: item(t('相加：两个输入之和', 'Add: the sum of its two inputs')),
-  sub: item(t('相减：第一个输入减去第二个', 'Subtract: its first input less its second')),
+const FAMILIES = {
+  value: item(t('算数的元件', 'parts that work on numbers')),
 }
 
 /* ---------- a level ---------- */
@@ -79,7 +80,7 @@ const GAME = S.obj({
 export const vocabulary = defineVocabulary({
   domain: '__name__',
   version: 1,
-  kinds: { part: PARTS },
+  kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: taskLevel(ONCE, TASK),
 })

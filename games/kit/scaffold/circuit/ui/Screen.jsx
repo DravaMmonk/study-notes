@@ -3,31 +3,35 @@ import { CircuitBoard } from 'lucide-react'
 import { CircuitLevel, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
-import { MISSING, portsOf } from '../../../engine/circuit.js'
+import { MISSING } from '../../../engine/circuit.js'
 import { viewAt } from '../../../engine/trace.js'
+import { definedItem } from '../../../shell/parts/faces.jsx'
 import { fits, startBoard } from '../board.js'
-import { FIXED, PARTS } from '../parts.js'
+import { FIXED } from '../parts.js'
+import { OPS } from '../ops.js'
 import { runLevel, show } from '../run.js'
-import { CARDS, PORT_LABELS } from './catalog.js'
+import { CARDS } from './catalog.js'
 
 // A __name__ level on the kit's circuit level (../../../shell/CircuitLevel.jsx): the level's inputs down the left, its
 // outputs down the right, the parts it holds between. A run steps through every card the engine computes, test after
 // test, and stops on the first test whose outputs are wrong. Hidden tests run with every run but say only how many
-// fail; once the level is solved they join the list. A part the player built opens to show the board it runs.
+// fail; once the level is solved they join the list. A part the player built opens to show the board it runs. The
+// game's own parts (parts.json) are the kernel's to draw (`defined`); this screen draws the level's cards and the built
+// parts.
 
-/** The editor's description of this level's cards (../../../circuit/model.js). */
+/** The editor's description of this level's own cards and its built parts (../../../circuit/model.js). */
 function partsFor(level, game) {
   const builderOf = game.builtBy
   const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
   return {
-    inputs: (node) => (game.BUILT[node.type] ? builderOf(node.type).inputs.map((i) => i.name) : PARTS[node.type] ? portsOf(PARTS[node.type], node) : []),
+    inputs: (node) => (game.BUILT[node.type] ? builderOf(node.type).inputs.map((i) => i.name) : node.type === 'out' ? ['in'] : []),
     role: (node) => (node.type === 'in' ? 'source' : node.type === 'out' ? 'sink' : 'part'),
     label: (node) => {
       if (node.type === 'in') return labelOf(level.inputs, node.params?.name)
       if (node.type === 'out') return labelOf(level.outputs, node.params?.name)
       return game.BUILT[node.type] ? builderOf(node.type).builds.name : CARDS[node.type]?.name ?? node.type
     },
-    portLabel: (node, port) => (game.BUILT[node.type] ? labelOf(builderOf(node.type).inputs, port) : PORT_LABELS[node.type]?.[port] ?? ''),
+    portLabel: (node, port) => (game.BUILT[node.type] ? labelOf(builderOf(node.type).inputs, port) : ''),
     family: (node) => (game.BUILT[node.type] ? 'built' : CARDS[node.type]?.family),
     icon: (node) => (game.BUILT[node.type] ? CircuitBoard : CARDS[node.type]?.icon),
     packed: (node) => Boolean(game.BUILT[node.type]),
@@ -74,6 +78,12 @@ export default function Screen(screen) {
   })
   const { shown: palette, folded } = useMemo(() => game.offerIn(level, flags), [game, level, flags])
   const builderOf = game.builtBy
+  const defined = useMemo(() => ({
+    of: (type) => game.defs[type] ?? null,
+    defaults: game.defaultsOf,
+    ops: OPS,
+    value: (node, ctx, output) => (output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} /> : value(node, ctx)),
+  }), [game]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // What the board shows: during a run, what the engine had computed by the step shown; before one, the test picked.
   const runOf = checked.runs[run.at]
@@ -91,7 +101,7 @@ export default function Screen(screen) {
     const b = builderOf(type).builds
     return { type, label: b.name, desc: b.desc, icon: CircuitBoard, family: 'built', packed: true }
   }
-  const itemOf = (type) => (game.BUILT[type] ? builtItem(type) : { type, label: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, family: CARDS[type].family, fresh: entry.fresh?.includes(type) })
+  const itemOf = (type) => (game.BUILT[type] ? builtItem(type) : definedItem(type, game.defs[type], { fresh: entry.fresh?.includes(type) }))
 
   const test = tests[run.at]
   const rows = [
@@ -116,6 +126,7 @@ export default function Screen(screen) {
       run={run}
       className="__name__-level"
       parts={parts}
+      defined={defined}
       items={palette.map(itemOf)}
       folded={folded.map(itemOf)}
       view={view}

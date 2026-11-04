@@ -2,7 +2,7 @@
 // becomes the shell's game description, with the domain's circuit level (ui/Screen.jsx) and its parts box.
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
-//   parts.js      the cards of a board and what each computes
+//   parts.js      the cards a level puts on a board; ops.js the engine resources a game's parts.json calls
 //   board.js      a board, and a board read from and written as blueprint text
 //   run.js        a board on a test, traced card by card
 //   course.js     content read into levels, play order, the parts the levels build and the course the audit checks
@@ -16,18 +16,18 @@ import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
 import { migrations } from '../../shell/saves.js'
 import Screen from './ui/Screen.jsx'
-import { CARDS } from './ui/catalog.js'
+import { iconOf } from '../../shell/parts/icons.js'
 import { __name__Course } from './course.js'
 
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
- *  (../../shell/saves.js), levels, glossary }. */
+ *  (../../shell/saves.js), levels, glossary, partDefs }. */
 export default function __name__Game(content) {
   const __name__ = __name__Course(content)
-  const { LEVELS, CHAPTERS, course } = __name__
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at }))
+  const { LEVELS, CHAPTERS, course, defs } = __name__
+  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: defs[type].name, desc: defs[type].desc, icon: iconOf(defs[type].icon), at }))
   const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
   const game = defineGame({
     id: content.id,

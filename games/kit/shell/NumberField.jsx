@@ -28,11 +28,11 @@ function NumberPad({ label, value, onCancel, onCommit }) {
 }
 
 /** Native desktop editing, explicit touch keypad on phones; neither path changes read-only inspection. */
-export default function NumberField({ label, value, onChange, phone, readOnly }) {
+export default function NumberField({ label, value, onChange, phone, readOnly, min, max, step = 'any' }) {
   const [open,setOpen] = useState(false)
   const trigger = useRef(null)
   const close=()=>{setOpen(false);trigger.current?.focus()}
-  if(!phone)return <input aria-label={L(label)} type="number" step="any" value={value} readOnly={readOnly} onPointerDown={(e)=>e.stopPropagation()} onChange={(e)=>onChange(e.target.value)}/>
+  if(!phone)return <input aria-label={L(label)} type="number" step={step} min={min} max={max} value={value} readOnly={readOnly} onPointerDown={(e)=>e.stopPropagation()} onChange={(e)=>onChange(e.target.value)}/>
   return <><button type="button" ref={trigger} className="number-field" aria-label={tr(`编辑${L(label)}`,`Edit ${L(label)}`)} disabled={readOnly} onPointerDown={(e)=>e.stopPropagation()} onClick={()=>setOpen(true)}>{value===''?'—':value}</button>
     {open&&<NumberPad label={label} value={value} onCancel={close} onCommit={(v)=>{onChange(String(v));close()}}/>}</>
 }

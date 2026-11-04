@@ -10,7 +10,7 @@
 import { keyOf } from '../../shell/i18n.js'
 import { usable } from '../../course.js'
 import { fromText, startBoard } from './board.js'
-import { FIXED, PARTS } from './parts.js'
+import { FIXED } from './parts.js'
 import { runLevel } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { judgeOf, naiveRound } from './judges.js'
@@ -101,7 +101,7 @@ export function validate({ vision }) {
 
     const said = tasks.map((task, k) => {
       const held = new Set(usable(course, task, built))
-      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, settingsIn: vision.settingsIn, availableParts: { ...PARTS, ...vision.BUILT }, builds: k === tasks.length - 1 ? level.builds : null })
+      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, settingsIn: vision.settingsIn, availableParts: Object.fromEntries([...Object.keys(vision.defs), ...Object.keys(vision.BUILT)].map((type) => [type, partOf(type)])), builds: k === tasks.length - 1 ? level.builds : null })
         : task.kind === 'grid' ? gridSaid(task)
           : task.kind === 'choice' ? choiceSaid(task)
             : benchSaid(task)

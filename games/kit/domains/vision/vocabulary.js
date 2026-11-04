@@ -2,14 +2,16 @@
 // what it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items
 // and their parameters, and nothing else: whatever a level needs that is not here is a new item, written here.
 //
-// The items are implemented next to them: the parts in parts.js, the grid asks in grid.js, the judges and claims in
+// A game's parts are its own, defined as data in its parts.json (games/DESIGN.md 6.9) over the engine resources here
+// (`op`, ops.js), coloured by family (`family`, ui/vision.css). The other items are implemented next to them: the grid
+// asks in grid.js, the judges and claims in
 // judges.js, the scenes and their colours in scene.js, the bench models in benches/ and their displays in ui/benches/.
 
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { LIMIT, benchSchema, displayItems } from '../../engine/bench.js'
-import { PRIMITIVES } from './parts.js'
+import { OP_ITEMS } from './ops.js'
 import { ASK_ITEMS } from './grid.js'
 import { CLAIMS, JUDGES } from './judges.js'
 import { COLOURS } from './scene.js'
@@ -32,43 +34,11 @@ const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符�
 
 /* ---------- what content names ---------- */
 
-const PART_ABOUT = {
-  weightedLine: t('按前、中、后权重向量汇合方向 d 上的三格读数，使用代码预设', 'A code preset combining three readings along d using a first/centre/last weight vector'),
-  arithmetic: t('可设置为加、减、乘、除：数与图逐值计算，向量与向量、向量与数逐分量计算', 'Configurable addition, subtraction, multiplication or division: elementwise over numbers and images, componentwise over vectors'),
-  abs: t('逐值取绝对值', 'Absolute value, elementwise'),
-  cosine: t('以周为单位计算余弦：1 周是 2π 弧度', 'Cosine in turns: one turn is 2π radians'),
-  shift: t('按整数位移向量 d 读取邻居：输出 (x, y) 读输入 (x, y) + d；边界规则显式可选', 'Read the neighbour at an integer offset vector d: output (x, y) reads input (x, y) + d, with explicit boundary handling'),
-  transpose: t('交换行与列，保留原值', 'Exchange rows and columns without changing values'),
-  reverse: t('将表旋转 180 度', 'Rotate a table by 180 degrees'),
-  windowTable: t('展开每个邻域的读数和权重，不相乘、不求和', 'Expose each window’s samples and weights without multiplying or summing'),
-  reduceRows: t('逐行求和或平均，自动完成数值计算', 'Sum or average each row automatically'),
-  restore: t('将每个位置的单个结果还原为给定图像的尺寸', 'Restore one result per position to an image’s dimensions'),
-  trim: t('按每轴半径向量 r 去掉四边，仅保留不接触图外的内部区域', 'Remove borders of per-axis radii r, retaining the interior that does not reach outside'),
-  positions: t('生成每行的归一化位置 x/N', 'Generate the normalised position x/N along each row'),
-  expandRows: t('将每行重复 N 次，给出逐个位置和频率索引；不计算波或投影', 'Repeat each row N times, exposing positions and frequency indices, without computing waves or projections'),
-  sample: t('按连续坐标采样，取值规则与边界假设可设置；自动计算距离、权重与取整', 'Sample continuous coordinates with selectable interpolation and boundary assumptions; arithmetic is supplied'),
-  stencil: t('沿横向或纵向对三格邻域加权，自动滑动计算', 'A three-sample weighted neighbourhood along either image axis'),
-  kernelFilter: t('用给定的二维核计算卷积或互相关', 'Apply a supplied 2D kernel as convolution or correlation'),
-  magnitude: t('两个垂直分量的长度，自动计算平方和与平方根', 'Length of two perpendicular components; arithmetic is supplied'),
-  colourMix: t('按给定权重组合 RGB 通道，自动处理每个像素', 'Mix RGB channels with supplied weights at every pixel'),
-  const: t('常数：设定的数', 'Constant: the number it is set to'),
-  add: t('相加，逐个值：数和数、图和数、同样大小的两张图', 'Add, value by value: numbers, an image and a number, two images of one size'),
-  sub: t('相减，逐个值', 'Subtract, value by value'),
-  mul: t('相乘，逐个值', 'Multiply, value by value'),
-  div: t('相除，逐个值；除以 0 报错', 'Divide, value by value; dividing by 0 stops'),
-  floor: t('向下取整，逐个值', 'Round down, value by value'),
-  sqrt: t('平方根，逐个值；负数报错', 'Square root, value by value; a negative number stops'),
-  min: t('取两者中小的，逐个值', 'The smaller of two, value by value'),
-  max: t('取两者中大的，逐个值', 'The larger of two, value by value'),
-  less: t('a < b 为 1，否则为 0，逐个值', '1 where a < b, else 0, value by value'),
-  select: t('条件不为 0 取「是」一路，否则「否」一路，逐个值', 'Where the condition is not 0 its Yes input, else its No input, value by value'),
-  size: t('图的宽 w 和高 h', 'An image’s width w and height h'),
-  grid: t('给定宽高的两张坐标图：x 图每格是它的 x，y 图每格是它的 y', 'The two coordinate images of a size: in x each cell holds its x, in y its y'),
-  lookup: t('按坐标在图上取值：坐标是数取一个值，是坐标图取出同样大小的一张图；坐标须为整数；出界按设置报错、取 0 或取最近的边', 'An image read at coordinates: at numbers one value, at coordinate images an image of their size; whole numbers only; outside it stops, reads 0 or reads the nearest edge, as set'),
-  channel: t('彩色像素里第 c 个位置（设置 c：0、1、2）组成的灰度图；哪个位置是哪种颜色看图的通道顺序', 'The grey image of position c (setting c: 0, 1 or 2) of each colour pixel; which colour that is depends on the image’s channel order'),
-  compose: t('三张同样大小的灰度图拼成彩色图（R、G、B）', 'Three grey images of one size made one colour image (R, G, B)'),
+const FAMILIES = {
+  value: item(t('算数和向量的元件', 'parts that work on numbers and vectors')),
+  logic: item(t('比较和选择的元件', 'parts that compare and choose')),
+  image: item(t('读、排、变换图的元件', 'parts that read, lay out and transform images')),
 }
-const PARTS = Object.fromEntries(PRIMITIVES.map((k) => [k, item(PART_ABOUT[k])]))
 
 const FIELDS = {
   class: item(t('物体的类别（是什么）', 'the object’s class (what it is)')),
@@ -150,7 +120,11 @@ const ONCE = {
   after: S.opt(S.text()),
   note: S.opt(S.text()),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), settings: S.opt(S.list(S.oneOf(['outside', 'axis']))), defaults: S.opt(S.obj({ outside: S.oneOf(['zero', 'clamp', 'wrap', 'reflect']), axis: S.opt(S.oneOf(['x', 'y'])) })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type（最后一个任务必须是电路）', 'once passed the last task’s board is the part `type` (the last task must be a circuit)') })),
+  builds: S.opt(S.obj({
+    type: NAME, name: S.text(), desc: S.text(),
+    settings: S.opt(S.list(NAME, { about: t('元件上的设置：parts.json 里同名的预设，传给板里有同一个设置的元件', 'settings on the part: the presets of these names in parts.json, passed to every card inside with the same setting') })),
+    defaults: S.opt(S.map(S.any(), { about: t('这些设置的起始值（不写用预设的）', 'what those settings start as (the preset’s where left out)') })),
+  }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type（最后一个任务必须是电路）', 'once passed the last task’s board is the part `type` (the last task must be a circuit)') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 }
 const COMMON = {
@@ -233,7 +207,8 @@ export const vocabulary = defineVocabulary({
   domain: 'vision',
   version: 1,
   kinds: {
-    part: PARTS,
+    op: OP_ITEMS,
+    family: FAMILIES,
     ask: ASK_ITEMS,
     judge: items(JUDGES),
     claim: items(CLAIMS),

@@ -4,15 +4,17 @@
 // (each running the board the player passed its level's last task with, a packed part) and the course the shared audit
 // checks.
 //
-// Returns { LEVELS, played, builtBy(type), CHAPTERS, course, partOf, BUILT, offerIn(level, flags), syncOwn(built),
-// blueprints, wrong }: LEVELS, the levels as content writes them with their place in the course; played: level id →
+// Returns { LEVELS, played, builtBy(type), CHAPTERS, course, partOf, BUILT, defs, defaultsOf, offerIn(level, flags),
+// syncOwn(built), blueprints, wrong }: defs, the game's parts as parts.json defines them (../../engine/parts/define.js); LEVELS, the levels as content writes them with their place in the course; played: level id →
 // its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
 // found that its schema cannot say (a board that does not read, an output no test expects).
 import { packed } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { fits, fromText, toText } from './board.js'
-import { PARTS } from './parts.js'
+import { defineParts } from '../../engine/parts/define.js'
+import { FIXED_PARTS } from './parts.js'
+import { OPS } from './ops.js'
 
 /** The boards the player passed the building levels with, by level id (the shell's progress.built). */
 const OWN = new Map()
@@ -28,7 +30,8 @@ export function __name__Course(content) {
 
   // Each built part runs the board its level was passed with (while it still fits the level), or the level's reference.
   const BUILT = {}
-  const partOf = (type) => PARTS[type] ?? BUILT[type]
+  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, OPS)
+  const partOf = (type) => FIXED_PARTS[type] ?? PARTS[type] ?? BUILT[type]
   // Every board the content writes as blueprint text, with how it reads back on its task (domain.js blueprints).
   const blueprints = []
   // Each level's tasks, read (../../engine/tasks.js).
@@ -96,7 +99,7 @@ export function __name__Course(content) {
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
     concept: (part) => concept[part] ?? part,
     naive: (level) => played.get(level.id)?.some((T) => T.naive) ?? false,
-    needed: (level) => [...new Set(solutions(level.id).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !PARTS[t] || primitives.includes(t)))],
+    needed: (level) => [...new Set(solutions(level.id).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !(FIXED_PARTS[t] || PARTS[t]) || primitives.includes(t)))],
     boards: (level) => solutions(level.id),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     abstraction: true,
@@ -110,6 +113,8 @@ export function __name__Course(content) {
     course,
     partOf,
     BUILT,
+    defs,
+    defaultsOf,
     blueprints,
     wrong,
     offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),

@@ -4,7 +4,7 @@ import { closeGames, gameOf } from '../../engine/games.mjs'
 import { fresh } from '../../shell/progress.js'
 import domain from './domain.js'
 import { taskBoard, taskDefaults } from './tooling.js'
-import { PARTS } from './parts.js'
+import { PARTS } from './fixture.js'
 import { play } from './play.js'
 import { fromRows,toRows } from './image.js'
 import { builds, circuit, game, level } from './fixture.js'
@@ -84,7 +84,7 @@ test('boundary configurations open only after the current path has introduced th
   const none=borders();delete none.levels[0].tasks[0].configurations
   assert.ok(failures(none).some(text=>text.includes('holds shift with no shift.outside introduced')))
   const board={nodes:[{id:'s',type:'shift',params:{outside:'reflect'}},{id:'x',type:'abs'}],wires:[{from:'x',to:'s',port:'image'}]}
-  const ready=taskBoard(board,new Set(['shift']),(type,key)=>v.settingsIn(v.played.get('S1')[0],type,key))
+  const ready=taskBoard(board,new Set(['shift']),(type,key)=>v.settingsIn(v.played.get('S1')[0],type,key),v.partOf)
   assert.equal(ready.nodes.length,1);assert.equal(ready.nodes[0].params.outside,'zero');assert.equal(ready.wires.length,0)
 })
 
@@ -113,7 +113,7 @@ test('enum choices accumulate along the path in the part’s own order, and defa
   assert.deepEqual(ops('B',0),['sub','mul'])
   assert.deepEqual(ops('B',1),['add','sub','mul'],'declared after mul, listed in the part’s order')
   const original={nodes:[{id:'op',type:'arithmetic',params:{op:'div'}}],wires:[]}
-  assert.equal(taskBoard(original,new Set(['arithmetic']),(type,key)=>v.settingsIn(task('A'),type,key)).nodes[0].params.op,'sub')
+  assert.equal(taskBoard(original,new Set(['arithmetic']),(type,key)=>v.settingsIn(task('A'),type,key),v.partOf).nodes[0].params.op,'sub')
   assert.equal(original.nodes[0].params.op,'div','the saved board is not changed')
   const flags=new Set(v.LEVELS.filter(l=>l.builds).map(l=>l.builds.type))
   for(const level of v.LEVELS)for(const t of v.played.get(level.id)){

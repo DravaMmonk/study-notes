@@ -13,6 +13,7 @@ import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { validate } from '../schema.js'
 import { checkContent } from '../vocabulary.js'
+import { withParts } from '../parts/define.js'
 import { checkGame } from '../checks.js'
 import { domainOf } from '../content-node.js'
 import { OPERATIONS } from './operations.js'
@@ -45,7 +46,6 @@ function courseOf(domain, content) {
 export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, domain: given = null } = {}) {
   const content0 = ws.content()
   const domain = given ?? (await domainOf(content0))
-  const { vocabulary } = domain
   const start = ws.snapshot()
   const says = []
   const inverse = []
@@ -58,6 +58,8 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   }
   for (const [k, { op: name, ...args }] of (changeset.ops ?? []).entries()) {
     const op = OPERATIONS[name]
+    // A domain that defines its parts as data names them by the game's parts.json as each operation finds it.
+    const vocabulary = withParts(domain.vocabulary, ws.partDefs)
     const where = `op ${k + 1} (${name})`
     if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(OPERATIONS).join(', ')}`], k)
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
@@ -98,7 +100,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     if (ops.length) {
       const saves = ws.game.saves ?? []
       // A step says why it was written where the game's schema has room for it.
-      const why = changeset.why && vocabulary.game.fields?.saves?.of?.fields?.why ? { why: changeset.why } : {}
+      const why = changeset.why && domain.vocabulary.game.fields?.saves?.of?.fields?.why ? { why: changeset.why } : {}
       step = { version: Math.max(1, ...saves.map((s) => s.version)) + 1, ...why, ops }
       ws.game = { ...ws.game, saves: [...saves, step] }
     }
@@ -109,7 +111,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   const content = ws.content()
   // The hub's count goes with the change (workspace.js), so it is checked against the levels there are now.
   const listed = hubCount(ws.hub, ws.id) === null ? null : ws.levels.size
-  const lines = check ? await checkGame(content, { domain, listed }) : checkContent(vocabulary, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
+  const lines = check ? await checkGame(content, { domain, listed }) : checkContent(domain.vocabulary, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
   const changes = ws.changes()
   const diff = ws.diff()
