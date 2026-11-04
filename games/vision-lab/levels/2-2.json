@@ -21,10 +21,19 @@
         "zh": "测一个频率",
         "en": "Project a frequency"
       },
+      "configurations": { "reduceRows.mode": ["mean"] },
       "brief": {
         "zh": "让图像读数与指定频率、相位的波形逐格比较，输出每行的平均乘积。不同频率会在整行中互相抵消。",
         "en": "Compare readings with a specified basis frequency/phase through their mean product per row. Different frequencies cancel over the row."
       },
+      "intro": [
+        {
+          "t": {
+            "zh": "波形使用每行的归一化位置 x/N；行内位置元件直接给出这张刻度表。投影采用平均乘积而不是总和，使同一周期的读数数量改变时，系数不随行长成倍放大。逐行汇总在这里新增“平均”。 <wiki-ref to=\"frequency-projection\"></wiki-ref>",
+            "en": "The wave uses normalised positions x/N, supplied by the row-position component. Projection uses mean products rather than sums so changing the number of samples does not multiply coefficient scale. Row reduction now introduces mean. <wiki-ref to=\"frequency-projection\"></wiki-ref>"
+          }
+        }
+      ],
       "inputs": [
         { "name": "image", "label": { "zh": "行信号", "en": "Row signal" } },
         { "name": "frequency", "label": { "zh": "探测周期数", "en": "Probe frequency" } },

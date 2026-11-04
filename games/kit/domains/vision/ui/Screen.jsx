@@ -8,9 +8,7 @@ import { fits, startBoard } from '../board.js'
 import { FIXED, PARTS } from '../parts.js'
 import { runLevel } from '../run.js'
 import { fmt, isImage, show } from '../image.js'
-import { builtDefaults, CONSTRUCTION_DEFAULTS } from '../construction.js'
 import { AXIS_FIELD, BORDER_FIELD, CONSTRUCTION_OUTPUTS } from './construction-catalog.js'
-import { OPERATOR_DEFAULTS } from '../operators.js'
 import { CARDS, CHANNELS, OUTSIDE, PORT_LABELS, OPERATOR_FIELDS } from './catalog.js'
 import ImageView from './ImageView.jsx'
 import { imageNumber } from './image-layout.js'
@@ -18,7 +16,7 @@ import { ProjectionCase } from './benches/CameraScene.jsx'
 import TestValues from './TestValues.jsx'
 import PartDetail from './PartDetail.jsx'
 import NumberField from '../../../shell/NumberField.jsx'
-import { taskBoard } from '../tooling.js'
+import { taskBoard, taskDefaults } from '../tooling.js'
 
 // A circuit task of a vision game on the kit's circuit level (../../../shell/CircuitLevel.jsx): the task's inputs down
 // the left, its outputs down the right, the parts between. A value is a number or an image (../image.js): a card shows
@@ -64,8 +62,6 @@ function Value({ value, error }) {
 
 const NONE = []
 const valueOf = (node, key, view) => view.values.get(key ? `${node.id}#${key}` : node.id)
-// A new card's settings are its defaults written in, so the card shows them.
-const baseDefaults = (type) => type === 'arithmetic' ? { op: 'add' } : CONSTRUCTION_DEFAULTS[type] ?? OPERATOR_DEFAULTS[type] ?? (type === 'const' ? { value: '0' } : type === 'lookup' ? { outside: 'error' } : type === 'channel' ? { c: '0' } : { outside: 'zero' })
 
 export default function Screen(screen) {
   const { game: shell, level: entry, solved, flags, progress } = screen
@@ -74,10 +70,10 @@ export default function Screen(screen) {
   game.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, game), [level, game])
   const { shown: palette, folded } = useMemo(() => game.offerIn(level, flags), [game, level, flags])
-  const outside = game.outsideIn(level)
-  const axes = game.axesIn(level)
-  const openBoard = (saved) => taskBoard(saved?.nodes && fits(saved,level,game.partOf) ? saved : startBoard(level), new Set([...palette,...folded]), outside, axes)
-  const board = useLevelBoard(screen, { open: openBoard, fresh: () => startBoard(level) })
+  const settingsIn = (type, key) => game.settingsIn(level, type, key)
+  const openBoard = (saved) => taskBoard(saved?.nodes && fits(saved,level,game.partOf) ? saved : startBoard(level), new Set([...palette,...folded]), settingsIn, game.partOf)
+  const state = useLevelBoard(screen, { open: openBoard, fresh: () => openBoard(null) })
+  const board = { ...state, change: (next, options) => state.change(taskBoard(next, new Set([...palette,...folded]), settingsIn, game.partOf), options) }
   const { circuit, change } = board
   const [revealed] = useState(solved)
   const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
@@ -98,7 +94,7 @@ export default function Screen(screen) {
     },
   })
   const builderOf = game.builtBy
-  const defaults = (type) => game.BUILT[type] ? builtDefaults(builderOf(type).builds) : baseDefaults(type)
+  const defaults = (type) => taskDefaults(type, game.partOf, settingsIn)
 
   // What the board shows: what the engine computes for the test picked.
   const runOf = checked.runs[run.at]
@@ -110,12 +106,12 @@ export default function Screen(screen) {
   const settings = (node, ctx) => {
     const p = { ...defaults(node.type), ...node.params }
     const stop = (e) => e.stopPropagation()
-    const fields = OPERATOR_FIELDS[node.type] ?? (game.BUILT[node.type] && builderOf(node.type).builds.settings?.map((key) => key === 'axis' ? AXIS_FIELD : BORDER_FIELD))
-    if (fields) return <div className="vi-operator-settings" onPointerDown={stop}>
+    const fields = (OPERATOR_FIELDS[node.type] ?? (game.BUILT[node.type] && builderOf(node.type).builds.settings?.map((key) => key === 'axis' ? AXIS_FIELD : BORDER_FIELD)))?.map((field) => field.options ? { ...field, options: field.options.filter(([value]) => settingsIn(node.type,field.key)?.includes(value)) } : field).filter((field) => !field.options || field.options.length > 1)
+    if (fields) return fields.length ? <div className="vi-operator-settings" onPointerDown={stop}>
       {fields.map(({ key, label, options }) => <label key={key} className={`vi-field ${options ? 'is-option' : 'is-weight'}`}>
         <span>{L(label)}</span>
         {options ? <select aria-label={L(label)} value={p[key]} disabled={ctx.readOnly} onChange={(e) => setParam(node, key, e.target.value)}>
-          {options.map(([v, text]) => <option key={v} value={v} disabled={key === 'outside' && !outside.includes(v) || key === 'axis' && !axes.includes(v)}>{L(text)}{(key === 'outside' && !outside.includes(v) || key === 'axis' && !axes.includes(v)) ? tr('（尚未引入）', ' (not introduced)') : ''}</option>)}
+          {options.map(([v, text]) => <option key={v} value={v}>{L(text)}</option>)}
         </select> : <NumberField label={label} value={p[key]} phone={screen.phone} readOnly={ctx.readOnly} onChange={(v)=>setParam(node,key,v)}/>}
       </label>)}
       {node.type === 'stencil' && <div className="vi-operator-gain">
@@ -125,7 +121,7 @@ export default function Screen(screen) {
           setParams(node, Object.fromEntries(['a', 'b', 'c'].map((key) => [key, String(Number(p[key]) / sum)])))
         }}>{tr('使权重和为 1', 'Make weights sum to 1')}</button>
       </div>}
-    </div>
+    </div> : null
     if (node.type === 'const') {
       return (
         <label className="vi-field">
@@ -135,21 +131,23 @@ export default function Screen(screen) {
       )
     }
     if (node.type === 'lookup') {
+      if (settingsIn(node.type,'outside')?.length < 2) return null
       return (
         <label className="vi-field">
           <span>{tr('出界', 'Outside')}</span>
           <select value={p.outside} disabled={ctx.readOnly} onPointerDown={stop} onChange={(e) => setParam(node, 'outside', e.target.value)}>
-            {OUTSIDE.map(([v, text]) => <option key={v} value={v}>{L(text)}</option>)}
+            {OUTSIDE.filter(([value])=>settingsIn(node.type,'outside')?.includes(value)).map(([v, text]) => <option key={v} value={v}>{L(text)}</option>)}
           </select>
         </label>
       )
     }
     if (node.type === 'channel') {
+      if (settingsIn(node.type,'c')?.length < 2) return null
       return (
         <label className="vi-field">
           <span>{tr('位置', 'Position')}</span>
           <select value={p.c} disabled={ctx.readOnly} onPointerDown={stop} onChange={(e) => setParam(node, 'c', e.target.value)}>
-            {CHANNELS.map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+            {CHANNELS.filter(([value])=>settingsIn(node.type,'c')?.includes(value)).map(([v, text]) => <option key={v} value={v}>{text}</option>)}
           </select>
         </label>
       )

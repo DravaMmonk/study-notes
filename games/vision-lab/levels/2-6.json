@@ -14,6 +14,88 @@
   },
   "tasks": [
     {
+      "id": "v2_rescale",
+      "kind": "circuit",
+      "step": {
+        "zh": "只改长度，保留方向",
+        "en": "Change length, retain direction"
+      },
+      "brief": {
+        "zh": "把每对频率系数缩放到给定长度，保持实部与虚部的比例和符号。两分量同为 0 时仍输出 0；用给定下限保护除数。",
+        "en": "Rescale each coefficient pair to the supplied length while retaining its component ratio and signs. A zero pair stays zero; use the supplied floor to protect division."
+      },
+      "inputs": [
+        { "name": "real", "label": { "zh": "系数实部", "en": "Coefficient real" } },
+        { "name": "imag", "label": { "zh": "系数虚部", "en": "Coefficient imaginary" } },
+        { "name": "target", "label": { "zh": "目标长度", "en": "Target length" } },
+        { "name": "floor", "label": { "zh": "除数下限", "en": "Divisor floor" } }
+      ],
+      "outputs": [
+        { "name": "re", "label": { "zh": "缩放实部", "en": "Scaled real" } },
+        { "name": "im", "label": { "zh": "缩放虚部", "en": "Scaled imaginary" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "real": [[3, 0], [0, -3]],
+            "imag": [[4, -2], [0, 4]],
+            "target": [[10, 1], [2, 2.5]],
+            "floor": 1e-12
+          },
+          "expect": { "re": [[6, 0], [0, -1.5]], "im": [[8, -1], [0, 2]] }
+        },
+        {
+          "inputs": {
+            "real": [[-1, 1, 0]],
+            "imag": [[1, -1, 0]],
+            "target": [[2, 3, 0]],
+            "floor": 1e-12
+          },
+          "expect": {
+            "re": [[-1.414213562373095, 2.1213203435596424, 0]],
+            "im": [[1.414213562373095, -2.1213203435596424, 0]]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "m = magnitude(real,imag)",
+        "safe = max(m,floor)",
+        "scale = arithmetic[op=div](target,safe)",
+        "r = arithmetic[op=mul](real,scale)",
+        "i = arithmetic[op=mul](imag,scale)",
+        "re <- r",
+        "im <- i"
+      ],
+      "naive": [
+        "re <- target",
+        "zero = const[value=0]()",
+        "z = arithmetic[op=mul](imag,zero)",
+        "im <- z"
+      ],
+      "naiveWhy": {
+        "zh": "长度由向量长度元件计算。比例取决于目标长度与当前长度；把两个分量一起改变，观察负号是否保留。",
+        "en": "The length component supplies current magnitude. Scaling depends on desired versus current length; change both components together and inspect retained signs."
+      },
+      "intro": [
+        {
+          "t": {
+            "zh": "频率系数的两分量共同确定长度与方向。同一个正比例同时作用于实部和虚部，会改变长度而保留方向；零系数没有可保留的方向。先在系数表上验证，再交换图像的幅度和相位。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+            "en": "A coefficient pair determines length and direction together. One positive scale changes length while retaining direction; a zero pair has no direction to preserve. Verify coefficient rescaling before exchanging image magnitudes and phases. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "长度由向量长度元件计算。比例取决于目标长度与当前长度；把两个分量一起改变，观察负号是否保留。",
+          "en": "The length component supplies current magnitude. Scaling depends on desired versus current length; change both components together and inspect retained signs."
+        }
+      ],
+      "adds": ["max"],
+      "configurations": { "arithmetic.op": ["div"] },
+      "starter": ["m = magnitude(real,imag)"]
+    },
+    {
       "id": "v2_phase",
       "kind": "circuit",
       "step": {
@@ -24,6 +106,14 @@
         "zh": "重建时保留 B 的相位关系，使用 A 的频谱幅度。把 B 的两分量一起缩放到 A 的系数长度；零长度使用给定安全下限 10⁻¹²。 B 中的零系数保留为零。",
         "en": "Reconstruct using B’s phase relationships and A’s magnitudes. Scale both B components together to A’s coefficient lengths; use the supplied 10⁻¹² floor for zero lengths. Zero coefficients in B remain zero."
       },
+      "intro": [
+        {
+          "t": {
+            "zh": "系数缩放已能保留方向。现在把它接在两台频谱仪之后：从一张图取得目标幅度，从另一张图保留相位关系，再交给已验证的重建器。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+            "en": "Coefficient rescaling now retains direction. Apply it after two spectrum analysers: take desired magnitudes from one image, preserve phase relationships from the other, and use the earned synthesiser. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+          }
+        }
+      ],
       "inputs": [
         { "name": "amplitudeImage", "label": { "zh": "幅度来源 A", "en": "Magnitude source A" } },
         { "name": "phaseImage", "label": { "zh": "相位来源 B", "en": "Phase source B" } }
@@ -107,7 +197,7 @@
         }
       ],
       "starter": ["epsilon = const[value=1e-12]()", "a = spectrum(amplitudeImage)", "b = spectrum(phaseImage)"],
-      "adds": ["max"]
+      "adds": []
     }
   ]
 }

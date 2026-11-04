@@ -14,6 +14,91 @@
   },
   "tasks": [
     {
+      "id": "v1_smooth_border",
+      "kind": "circuit",
+      "step": {
+        "zh": "先稳定边缘读数",
+        "en": "Stabilise boundary readings"
+      },
+      "configurations": { "*.outside": ["clamp"] },
+      "adds": [],
+      "brief": {
+        "zh": "使用给定的归一化权重做双轴平滑，图外延续最近边缘。恒定图的边缘必须仍是同一个读数；变化图仍应发生平滑。",
+        "en": "Smooth along both axes with the supplied normalised weights, extending nearest edge values outside. Constant-image edges must stay constant; varying images must still be smoothed."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "side", "label": { "zh": "高斯侧权重", "en": "Gaussian side weight" } },
+        { "name": "centre", "label": { "zh": "高斯中心权重", "en": "Gaussian centre weight" } }
+      ],
+      "outputs": [
+        { "name": "out", "label": { "zh": "平滑读数", "en": "Smoothed readings" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0.6, 0.6, 0.6],
+              [0.6, 0.6, 0.6]
+            ],
+            "side": 0.25,
+            "centre": 0.5
+          },
+          "expect": {
+            "out": [[0.6, 0.6, 0.6], [0.6, 0.6, 0.6]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[1, 0, 0], [0, 0, 0]],
+            "side": 0.25,
+            "centre": 0.5
+          },
+          "expect": {
+            "out": [[0.5625, 0.1875, 0], [0.1875, 0.0625, 0]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.2], [0.8], [0.4]],
+            "side": 0.25,
+            "centre": 0.5
+          },
+          "expect": {
+            "out": [[0.35000000000000003], [0.55], [0.5]]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "s = separable3[outside=clamp](image,side,centre,side)",
+        "out <- s"
+      ],
+      "naive": [
+        "s = separable3[outside=zero](image,side,centre,side)",
+        "out <- s"
+      ],
+      "naiveWhy": {
+        "zh": "补 0 会在恒定图边缘引入不存在的暗读数。延续边缘只改变图外取值，不能跳过图内平滑。",
+        "en": "Zero extension invents dark samples at constant-image edges. Edge replication changes outside reads without skipping interior smoothing."
+      },
+      "intro": [
+        {
+          "fig": "outside-clamp",
+          "t": {
+            "zh": "双轴加权已经可用，但补 0 会让恒定图的边缘变暗。先单独更换边界假设：图外维持最近边缘的读数。用恒定图和变化图区分边界效果与平滑效果。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+            "en": "The two-axis filter works, but zero extension darkens constant-image edges. First change only the boundary assumption: outside reads retain the nearest edge value. Contrast constant and varying images to separate boundary effects from smoothing. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "先比较角落与内部，再检查亮点是否仍会扩散；恒定图不变并不等于直接输出原图。",
+          "en": "Compare corners with the interior, then check whether an impulse still spreads. Preserving a constant image is not the same as passing every image through unchanged."
+        }
+      ]
+    },
+    {
       "id": "v1_detail",
       "kind": "circuit",
       "step": {
@@ -169,6 +254,7 @@
         "enhanced <- e",
         "change <- d"
       ],
+      "starter": ["s = separable3[outside=clamp](image,side,centre,side)", "smooth <- s"],
       "naive": [
         "s = separable3[outside=clamp](image,side,centre,side)",
         "detail = difference(image,s)",
@@ -190,14 +276,12 @@
         }
       ],
       "adds": [],
-      "outside": ["clamp"],
       "intro": [
         {
           "t": {
-            "zh": "把图外补成 0 会让恒定图的边缘变暗。本任务假设图像在边缘之外维持最近的边缘读数。检查角落与内部有什么区别，再调整自己的处理器。",
-            "en": "Zero extension can darken constant-image edges. This task assumes the nearest edge reading continues outside. Inspect corners and interior before adjusting your processor."
-          },
-          "fig": "outside-clamp"
+            "zh": "边界处理和平滑已验证。现在把原图相对平滑图的带符号差异作为细节，再按给定强度组合，区分“平滑后的图”和“被移除的变化”。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+            "en": "Boundary handling and smoothing are verified. Treat the signed difference from the smoothed image as detail and combine it at the supplied strength, distinguishing the smooth image from the removed variation. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+          }
         }
       ]
     }

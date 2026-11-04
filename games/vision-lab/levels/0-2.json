@@ -20,6 +20,7 @@
         "zh": "修复位置对应",
         "en": "Align locations"
       },
+      "configurations": { "*.outside": ["zero"] },
       "brief": {
         "zh": "夹具给出了取样偏移 dx、dy。先按它读取观测图，再与参照比较；图外取 0。",
         "en": "The fixture supplies sampling offsets dx and dy. Read the observation at those offsets before comparing with the reference; outside reads are zero."
@@ -75,7 +76,6 @@
         }
       ],
       "adds": ["shift"],
-      "outside": ["zero"],
       "intro": [
         {
           "t": {

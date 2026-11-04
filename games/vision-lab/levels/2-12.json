@@ -129,7 +129,7 @@
         }
       ],
       "starter": ["zero = const[value=0]()", "s = size(real)", "count = arithmetic[op=mul](s.w,s.h)"],
-      "adds": []
+      "adds": ["size"]
     }
   ],
   "builds": {

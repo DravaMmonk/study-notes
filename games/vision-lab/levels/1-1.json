@@ -21,7 +21,7 @@
         "zh": "三路贡献",
         "en": "Three contributions"
       },
-      "axes": ["x"],
+      "configurations": { "arithmetic.op": ["add", "mul"], "offset.axis": ["x"] },
       "brief": {
         "zh": "用给定的位置权重组合左、中、右三个读数。输出与输入同尺寸，图外取 0；权重不必总为正，也不自动归一化。",
         "en": "Combine left, centre and right readings with the supplied positional weights. Keep image size, read zero outside, and do not automatically normalise or discard negative weights."
@@ -119,6 +119,7 @@
       "id": "v1_vertical",
       "kind": "circuit",
       "step": { "zh": "把邻居换到上下", "en": "Move the neighbourhood to columns" },
+      "configurations": { "offset.axis": ["y"], "weightedLine.axis": ["x", "y"] },
       "brief": {
         "zh": "组合上、当前、下三个位置的读数，分别对应前侧、中心、后侧权重。坐标向下增加，图外取 0；保持原图尺寸，不混入左右邻居。",
         "en": "Combine the readings above, at and below each position using the first, centre and last weights respectively. Coordinates increase downward; read zero outside and preserve image size without mixing left/right neighbours."
@@ -221,7 +222,6 @@
         "out <- total"
       ],
       "adds": [],
-      "axes": ["y"],
       "carries": true,
       "intro": [
         {

@@ -155,8 +155,7 @@ const ONCE = {
 }
 const COMMON = {
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  outside: S.opt(S.list(S.oneOf(['zero', 'clamp', 'wrap', 'reflect']), { section: 'course' })),
-  axes: S.opt(S.list(S.oneOf(['x', 'y']), { section: 'course' })),
+  configurations: S.opt(S.map(S.list(S.str()), { section: 'course', about: t('本任务引入的配置：元件.设置 → 取值列表；*.outside 表示共同的边界假设', 'Introduced enum values by part.setting; *.outside is a shared boundary assumption') })),
   brief: S.text(),
   hint: S.opt(TEXTS),
   intro: S.opt({ ...INTRO, section: 'read', about: t('这个任务自己的引言：第一次做到它时读', 'the task’s own intro: read the first time it is played') }),

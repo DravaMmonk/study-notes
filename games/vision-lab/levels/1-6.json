@@ -20,6 +20,7 @@
         "zh": "延续边缘",
         "en": "Replicate edges"
       },
+      "configurations": { "*.outside": ["clamp"] },
       "brief": {
         "zh": "本任务假设图外延续最近边缘读数。保持卷积规则，修复边界输出。",
         "en": "This task assumes replicated edge readings. Keep the convolution rule and adapt its boundary output."
@@ -69,7 +70,6 @@
         }
       ],
       "adds": [],
-      "outside": ["clamp"],
       "intro": [
         {
           "t": {
@@ -87,6 +87,7 @@
         "zh": "周期延续",
         "en": "Periodic borders"
       },
+      "configurations": { "*.outside": ["wrap"] },
       "brief": {
         "zh": "本任务假设图外周期相接。保持卷积规则，修复边界输出。",
         "en": "This task assumes periodic continuation. Keep the convolution rule and adapt its boundary output."
@@ -136,7 +137,6 @@
         }
       ],
       "carries": true,
-      "outside": ["wrap"],
       "intro": [
         {
           "t": {
@@ -154,6 +154,7 @@
         "zh": "镜像延续",
         "en": "Reflect borders"
       },
+      "configurations": { "*.outside": ["reflect"] },
       "brief": {
         "zh": "本任务假设图外镜像延续（含边缘格）。保持卷积规则，修复边界输出。",
         "en": "This task assumes reflection including the edge sample. Keep the convolution rule and adapt its boundary output."
@@ -203,7 +204,6 @@
         }
       ],
       "carries": true,
-      "outside": ["reflect"],
       "intro": [
         {
           "t": {

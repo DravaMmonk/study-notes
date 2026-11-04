@@ -179,7 +179,7 @@
       "id": "finite-boundaries",
       "group": "image",
       "title": { "zh": "边界规则与有效输出", "en": "Boundary rules and valid outputs" },
-      "at": "1-6",
+      "at": "0-2",
       "body": [
         {
           "zh": "有限图像没有图外观测。零、复制、周期和镜像代表不同延续模型；valid 只保留完整邻域，因此输出尺寸依核支持缩小。",

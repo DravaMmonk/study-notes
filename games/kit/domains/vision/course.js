@@ -18,6 +18,7 @@ import { PARTS } from './parts.js'
 import { introducedParts } from './tooling.js'
 import { BORDERS } from './construction.js'
 import { readTest } from './run.js'
+import { configurationPolicy } from './configurations.js'
 import { fromRows, isPoint } from './image.js'
 import { askOf, gridCheck } from './grid.js'
 import { windowResult } from './filter-window.js'
@@ -34,8 +35,6 @@ const OWN = new Map()
 
 export function visionCourse(content) {
   const { eras, primitives, levels, concept = {} } = content
-  const guidedAxes = levels.some((l) => l.tasks?.some((t) => t.axes))
-  const guidedOutside = levels.some((l) => l.tasks?.some((t) => t.outside))
   const wrong = []
   const say = (level, text) => wrong.push(`${level}: ${text}`)
   const plan = layout(eras)
@@ -212,8 +211,7 @@ export function visionCourse(content) {
     BUILT,
     blueprints,
     wrong,
-    axesIn: (level) => guidedAxes ? [...new Set(['x', ...LEVELS.filter((l) => course.before(l.id, level.id)).flatMap((l) => l.tasks.flatMap((t) => t.axes ?? [])), ...(byId.get(level.id)?.tasks ?? []).slice(0,(level.task ?? 0)+1).flatMap((t) => t.axes ?? [])])] : ['x', 'y'],
-    outsideIn: (level) => guidedOutside ? [...new Set(LEVELS.filter((l) => course.before(l.id, level.id)).flatMap((l) => l.tasks.flatMap((t) => t.outside ?? [])).concat((byId.get(level.id)?.tasks ?? []).slice(0,(level.task ?? 0)+1).flatMap((t) => t.outside ?? [])))] : ['error', ...BORDERS],
+    settingsIn: configurationPolicy(LEVELS, course, partOf),
     introductions: (type, id) => (byId.get(id)?.tasks ?? []).flatMap((t, k) => (t.adds ?? []).includes(type) || k === 0 && (given.get(id)?.adds ?? []).includes(type) ? [t.id] : []),
     offerIn: (level, flags) => offer(course, level, new Set(flags)),
     syncOwn: (built = {}) => {

@@ -14,6 +14,116 @@
   },
   "tasks": [
     {
+      "id": "v2_columns",
+      "kind": "circuit",
+      "step": {
+        "zh": "先让机器读取列",
+        "en": "Let the machine read columns"
+      },
+      "brief": {
+        "zh": "只分析列方向的频率：让逐行复数频谱仪处理原图的每列，再把输出恢复为原来的宽高。保留两分量及幅度，横向此时仍代表原来的列。",
+        "en": "Analyse column frequencies only: use the row complex analyser on each original column, then restore the original dimensions. Retain both components and magnitude; columns still identify original spatial columns."
+      },
+      "inputs": [
+        { "name": "real", "label": { "zh": "图像实部", "en": "Image real" } },
+        { "name": "imag", "label": { "zh": "图像虚部", "en": "Image imaginary" } }
+      ],
+      "outputs": [
+        { "name": "re", "label": { "zh": "列方向实部", "en": "Column-frequency real" } },
+        { "name": "im", "label": { "zh": "列方向虚部", "en": "Column-frequency imaginary" } },
+        { "name": "mag", "label": { "zh": "列方向幅度", "en": "Column-frequency magnitude" } }
+      ],
+      "tests": [
+        {
+          "inputs": { "real": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]], "imag": [[0, 0, 0], [0, 0, 0]] },
+          "expect": {
+            "re": [
+              [0.44999999999999996, 0.45, 0.45],
+              [-0.24999999999999997, 0.35000000000000003, -0.04999999999999999]
+            ],
+            "im": [
+              [0, 0, 0],
+              [-4.286263797015736e-17, -6.123233995736766e-18, -3.061616997868383e-17]
+            ],
+            "mag": [
+              [0.44999999999999996, 0.45, 0.45],
+              [0.24999999999999997, 0.35000000000000003, 0.04999999999999999]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "real": [
+              [1, 0],
+              [0, 1],
+              [0.5, 0.2]
+            ],
+            "imag": [[0, 0.1], [0.2, 0], [0, 0]]
+          },
+          "expect": {
+            "re": [
+              [0.5, 0.39999999999999997],
+              [
+                0.30773502691896254,
+                -0.19999999999999996
+              ],
+              [0.1922649730810376, -0.2000000000000001]
+            ],
+            "im": [
+              [0.06666666666666667, 0.03333333333333333],
+              [0.11100423396407307, -0.19760677434251703],
+              [-0.1776709006307399, 0.26427344100918354]
+            ],
+            "mag": [
+              [0.5044248650140518, 0.4013864859597432],
+              [0.3271433733866013, 0.2811555392768466],
+              [0.2617876406647005, 0.33142186352568]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "r = transpose(real)",
+        "i = transpose(imag)",
+        "b = complexSpectrum(r,i)",
+        "br = transpose(b.re)",
+        "bi = transpose(b.im)",
+        "re <- br",
+        "im <- bi",
+        "m = magnitude(br,bi)",
+        "mag <- m"
+      ],
+      "naive": [
+        "r = transpose(real)",
+        "i = transpose(imag)",
+        "b = complexSpectrum(r,i)",
+        "re <- b.re",
+        "im <- b.im",
+        "m = magnitude(b.re,b.im)",
+        "mag <- m"
+      ],
+      "naiveWhy": {
+        "zh": "横向仍应保留原图各列的对应。只在机器入口交换，会让结果接口的宽高仍是交换后的形状。",
+        "en": "The output must retain correspondence with original spatial columns. Swapping only at the input leaves dimensions reversed at the interface."
+      },
+      "intro": [
+        {
+          "t": {
+            "zh": "逐行机器不能直接把一列当作一行。行列互换会交换宽高并把 (x,y) 放到 (y,x)，数值不变；复数两分量必须一起交换。用非方形图追踪进入机器和返回接口时的形状。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
+            "en": "A row machine cannot directly consume columns. Transpose swaps dimensions and moves (x,y) to (y,x) without changing values; both complex components must move together. Track rectangular shapes into the machine and back to the interface. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "横向仍应保留原图各列的对应。只在机器入口交换，会让结果接口的宽高仍是交换后的形状。",
+          "en": "The output must retain correspondence with original spatial columns. Swapping only at the input leaves dimensions reversed at the interface."
+        }
+      ],
+      "adds": ["transpose"]
+    },
+    {
       "id": "v2_two_axes",
       "kind": "circuit",
       "step": {
@@ -24,6 +134,14 @@
         "zh": "先处理每行，再沿另一条轴处理完整复数结果，最后恢复原来的轴顺序。输入可能是长方形，输出也必须保持相同宽高。",
         "en": "Transform rows, then the other axis using complete complex results, and restore the original axis order. Rectangular inputs must retain their width and height."
       },
+      "intro": [
+        {
+          "t": {
+            "zh": "列方向处理已经能往返保持形状。现在让同一台机器沿两方向连续工作，使横向和纵向都成为频率刻度，而不是只把逐行结果换一个摆放方向。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
+            "en": "The column transform now preserves interface shape. Compose both directions so horizontal and vertical coordinates both become frequency indices, rather than merely rearranging a row spectrum. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
+          }
+        }
+      ],
       "inputs": [
         { "name": "real", "label": { "zh": "图像实部", "en": "Image real" } },
         { "name": "imag", "label": { "zh": "图像虚部", "en": "Image imaginary" } }
@@ -142,7 +260,8 @@
           "en": "Track dimensions through the rectangular case and retain both complex components."
         }
       ],
-      "adds": ["transpose"]
+      "adds": [],
+      "carries": true
     }
   ],
   "builds": {

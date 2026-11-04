@@ -15,6 +15,99 @@
   },
   "tasks": [
     {
+      "id": "v2_cycle",
+      "kind": "circuit",
+      "step": {
+        "zh": "先保持一个周期",
+        "en": "Keep one cycle first"
+      },
+      "adds": ["cosine"],
+      "brief": {
+        "zh": "整行长度表示 1 周，先只产生一个周期。按照给定相位改变起点，不改变周期数；保留波形的正负读数。余弦元件自动计算角度对应的读数。",
+        "en": "The row length represents one turn. Produce one cycle while changing its starting phase, without changing cycle count. Retain signed values; cosine computes the readings automatically."
+      },
+      "inputs": [
+        { "name": "position", "label": { "zh": "归一化位置", "en": "Normalised position" } },
+        { "name": "phase", "label": { "zh": "相位（周）", "en": "Phase (turns)" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "单周期读数", "en": "Single-cycle readings" } }],
+      "tests": [
+        {
+          "inputs": {
+            "position": [[0, 0.25, 0.5, 0.75]],
+            "phase": 0
+          },
+          "expect": {
+            "out": [
+              [
+                1,
+                6.123233995736766e-17,
+                -1,
+                -1.8369701987210297e-16
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "position": [[0, 0.25, 0.5, 0.75]],
+            "phase": 0.25
+          },
+          "expect": {
+            "out": [
+              [
+                6.123233995736766e-17,
+                -1,
+                -1.8369701987210297e-16,
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": { "position": [[0, 0.25, 0.5, 0.75]], "phase": 1 },
+          "expect": {
+            "out": [
+              [
+                1,
+                3.061616997868383e-16,
+                -1,
+                -4.286263797015736e-16
+              ]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "a = arithmetic[op=add](position,phase)",
+        "v = cosine(a)",
+        "out <- v"
+      ],
+      "naive": [
+        "v = cosine(position)",
+        "out <- v"
+      ],
+      "naiveWhy": {
+        "zh": "相位改变同一周期的起点。完全忽略相位会让不同起点得到同一张表；增加整整一周则应回到原来的读数。",
+        "en": "Phase changes where a cycle starts. Ignoring it makes different starting phases identical; adding one complete turn should restore the original readings."
+      },
+      "intro": [
+        {
+          "t": {
+            "zh": "频率分析先需要一把可重复的刻度。余弦元件以“周”为角度单位，1 周回到同一读数，四分之一周与半周落在不同位置；数值由元件计算。先只改变起点，观察波形在周期内怎样排列。 <wiki-ref to=\"wave-parameters\"></wiki-ref>",
+            "en": "Frequency analysis needs a repeatable basis. Cosine takes turns: one turn returns to the same reading, while quarter and half turns occupy different positions. The component computes values. First change the starting phase and inspect arrangement within one cycle. <wiki-ref to=\"wave-parameters\"></wiki-ref>"
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "相位是所有位置共同的角度偏移；比较四分之一周和整整一周，不需要手算三角函数。",
+          "en": "Phase is a shared angular offset. Compare a quarter turn with a full turn; no trigonometric calculation is required."
+        }
+      ]
+    },
+    {
       "id": "v2_wave",
       "kind": "circuit",
       "step": {
@@ -25,6 +118,14 @@
         "zh": "位置以整行长度为 1，频率是整行的周期数，相位以周计。造一个能够随频率和相位变化的单位幅度余弦波。",
         "en": "Positions span one row length; frequency is cycles per row and phase is in turns. Build a unit-amplitude cosine wave that responds to frequency and phase."
       },
+      "intro": [
+        {
+          "t": {
+            "zh": "单周期的相位变化已经验证。现在把整行的周期数也作为输入：它改变位置刻度走过的圈数，相位仍负责共同的角度偏移。用 0、1 和多个周期区分间距与起点。 <wiki-ref to=\"wave-parameters\"></wiki-ref>",
+            "en": "Single-cycle phase shifts are verified. Now accept cycles per row as an input: it changes how many turns the position scale traverses, while phase remains a shared offset. Compare zero, one and multiple cycles to distinguish spacing from starting phase. <wiki-ref to=\"wave-parameters\"></wiki-ref>"
+          }
+        }
+      ],
       "inputs": [
         { "name": "position", "label": { "zh": "归一化位置", "en": "Normalised position" } },
         { "name": "frequency", "label": { "zh": "周期数", "en": "Cycles per row" } },
@@ -118,6 +219,11 @@
         "v = cosine(angle)",
         "out <- v"
       ],
+      "starter": [
+        "a = arithmetic[op=add](position,phase)",
+        "v = cosine(a)",
+        "out <- v"
+      ],
       "naive": [
         "speed = arithmetic[op=add](position,frequency)",
         "angle = arithmetic[op=add](speed,phase)",
@@ -134,7 +240,7 @@
           "en": "Hold phase fixed to compare cycle counts, then hold frequency fixed to compare phases. Cosine supplies the arithmetic."
         }
       ],
-      "adds": ["cosine"]
+      "adds": []
     }
   ],
   "builds": {

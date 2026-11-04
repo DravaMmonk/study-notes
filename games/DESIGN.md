@@ -829,6 +829,15 @@ opens them to show the resulting feedback.
 11. **Review affected UI**: inspect changed visual or interaction flows on desktop and phone. Shared UI changes add representative consumers; documentation and pure model edits do not automatically require browser review. To inspect execution, load the reference board and exercise the changed run behaviour.
 12. **最后写挑战关**：从每一代能力的边界上找题。
 
+### Task-scoped capability introduction
+
+Introduce a component or configuration at the first task that uses it, including folded trays, detail sheets and
+headless play. A prerequisite must establish unfamiliar representation changes or model assumptions before a
+combined construction assesses them. Use meaningful partial constructions and contrasting cases; familiar
+arithmetic and simple controls need concise guidance rather than filler tasks. A newly earned component must
+execute the player's passed circuit. A chapter number, all-unlocked mode or unrelated sibling route does not
+supply missing prerequisites. Unavailable settings are omitted, and a single available choice needs no selector.
+
 ### 7.0 Verification by impact
 
 Start with the smallest meaningful check of the changed behaviour and its direct consumers. File count alone

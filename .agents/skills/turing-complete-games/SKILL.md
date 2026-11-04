@@ -112,6 +112,10 @@ request, record the current findings and domain requirements without changing co
 Read every level as a learner who has not taken the course, against its blueprint slot (`question`, `chain`,
 `teaches`/`facet`, the point's `term`, `source`, `wall`, `misconception`):
 
+- **Give capabilities when needed.** Introduce components and configurations at task-level first use, including
+  folded trays, detail sheets and review mode. Before a combined construction, establish unfamiliar model
+  assumptions and representation changes through meaningful prerequisite tasks. Familiar arithmetic and simple
+  controls need concise guidance, not filler exercises. Omit unavailable options and singleton selectors.
 - **Worth training.** Would an adult who has not taken the course get it wrong without this level? If a sentence
   makes it plain ("different vision tasks give answers of different shapes"), it is not a level (`bp-trivial`):
   mention it in an intro, a summary or an entry.

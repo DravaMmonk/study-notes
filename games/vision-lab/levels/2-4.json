@@ -15,6 +15,85 @@
   },
   "tasks": [
     {
+      "id": "v2_probe_scan",
+      "kind": "circuit",
+      "step": {
+        "zh": "先逐频率探测",
+        "en": "Scan the probe first"
+      },
+      "brief": {
+        "zh": "对每行的每个离散频率运行已有探针，按原行次序、再按 k 从 0 开始的次序输出一列幅度，暂不恢复为频谱图。",
+        "en": "Run the earned probe at every frequency of each row. Output one magnitude column ordered by source row, then k from zero; do not yet restore a spectrum image."
+      },
+      "inputs": [{ "name": "image", "label": { "zh": "图像行", "en": "Image rows" } }],
+      "outputs": [
+        { "name": "mag", "label": { "zh": "逐频率幅度列", "en": "Scanned magnitude column" } }
+      ],
+      "tests": [
+        {
+          "inputs": { "image": [[1, 0, 1, 0]] },
+          "expect": {
+            "mag": [[0.5], [3.061616997868383e-17], [0.5], [9.184850993605148e-17]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [
+                0.2,
+                0.8,
+                0.4
+              ],
+              [0.7, 0.1, 0.5]
+            ]
+          },
+          "expect": {
+            "mag": [
+              [
+                0.46666666666666673
+              ],
+              [0.17638342073763946],
+              [0.17638342073763927],
+              [0.43333333333333335],
+              [0.17638342073763927],
+              [0.17638342073763952]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "t = expandRows(image)",
+        "p = frequencyProbe(t.values,t.frequency)",
+        "mag <- p.mag"
+      ],
+      "naive": [
+        "t = expandRows(image)",
+        "p = frequencyProbe(t.values,t.position)",
+        "mag <- p.mag"
+      ],
+      "naiveWhy": {
+        "zh": "检查每行恒定的频率索引与行内变化的位置表。原行读数保持不变，改变的是探测频率。",
+        "en": "Distinguish the row-constant frequency index from positions varying within a row. Source readings repeat unchanged; probe frequency varies."
+      },
+      "intro": [
+        {
+          "t": {
+            "zh": "单频探针已经能测给定的 k。展开遍历把原行重复 N 次，并让 k 在重复行间变化；每行内的位置仍随列变化。两种刻度含义不同，先让探针逐频率工作。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+            "en": "The probe measures a supplied k. Expansion repeats each source row N times and changes k between repetitions; sample position still varies within each row. These indices have different meanings. First run the probe across frequencies. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "检查每行恒定的频率索引与行内变化的位置表。原行读数保持不变，改变的是探测频率。",
+          "en": "Distinguish the row-constant frequency index from positions varying within a row. Source readings repeat unchanged; probe frequency varies."
+        }
+      ],
+      "adds": ["expandRows"],
+      "starter": ["t = expandRows(image)"]
+    },
+    {
       "id": "v2_spectrum",
       "kind": "circuit",
       "step": {
@@ -25,6 +104,14 @@
         "zh": "让自己的探针对每行的 k=0…N−1 全部工作，保留实部、虚部、幅度。展开遍历替你重复读数和生成索引，不替你算系数。",
         "en": "Run your probe at k=0…N−1 for every row, retaining real, imaginary and magnitude outputs. Expansion supplies repetitions and indices, not coefficients."
       },
+      "intro": [
+        {
+          "t": {
+            "zh": "逐频率探测已经通过。现在把每行的三路系数分别还原为原图宽高，保持同一行、同一频率的实部、虚部和幅度对应。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+            "en": "The frequency scan works. Restore each of its three coefficient channels to the original dimensions, retaining correspondence between real, imaginary and magnitude values at each row/frequency. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+          }
+        }
+      ],
       "inputs": [{ "name": "image", "label": { "zh": "图像行", "en": "Image rows" } }],
       "outputs": [
         { "name": "re", "label": { "zh": "频谱实部", "en": "Spectrum real" } },
@@ -142,6 +229,7 @@
         "im <- i",
         "mag <- m"
       ],
+      "starter": ["t = expandRows(image)", "p = frequencyProbe(t.values,t.frequency)"],
       "naive": [
         "t = expandRows(image)",
         "p = frequencyProbe(t.values,t.position)",
@@ -162,7 +250,7 @@
           "en": "Inspect which table varies by row and which by column. The k=0 coefficient equals the original row mean."
         }
       ],
-      "adds": ["expandRows", "size"]
+      "adds": []
     }
   ],
   "builds": {

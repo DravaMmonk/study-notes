@@ -442,6 +442,50 @@
       "version": 29,
       "why": "Keep the introductory impulse fully visible as a 3x3 matrix on phones; rectangular transfer cases remain",
       "ops": [{ "drop": ["v1_line", "v1_vertical"] }]
+    },
+    {
+      "version": 30,
+      "why": "Introduce components and enum configurations only in the task that needs them; scaffold unfamiliar representations before combined machines",
+      "ops": [
+        {
+          "drop": [
+            "v0_signed",
+            "v0_difference",
+            "v0_alignment",
+            "v1_line",
+            "v1_vertical",
+            "v1_contributions",
+            "v1_kernel",
+            "v1_convolution",
+            "v1_detail",
+            "v1_border_clamp",
+            "v1_border_wrap",
+            "v1_border_reflect",
+            "v1_valid",
+            "v1_derivatives",
+            "v1_strength",
+            "v1_sobel",
+            "v1_channels",
+            "v2_projection",
+            "v2_probe_scan",
+            "v2_spectrum",
+            "v2_rescale",
+            "v2_phase",
+            "v2_columns",
+            "v2_two_axes"
+          ]
+        }
+      ]
+    },
+    {
+      "version": 31,
+      "why": "Establish edge replication before enhancement and single-cycle phase before variable-frequency wave construction",
+      "ops": [{ "drop": ["v1_smooth_border", "v1_detail", "v2_cycle", "v2_wave"] }]
+    },
+    {
+      "version": 32,
+      "why": "Carry established smoothing and single-cycle constructions into their combined tasks without completing the new relation",
+      "ops": [{ "drop": ["v1_smooth_border", "v1_detail", "v2_cycle", "v2_wave"] }]
     }
   ]
 }

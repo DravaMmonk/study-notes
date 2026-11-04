@@ -1045,6 +1045,10 @@
               },
               "chain": [
                 {
+                  "zh": "双轴加权已经可用，但补 0 会让恒定图的边缘变暗。先单独更换边界假设：图外维持最近边缘的读数。用恒定图和变化图区分边界效果与平滑效果。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+                  "en": "The two-axis filter works, but zero extension darkens constant-image edges. First change only the boundary assumption: outside reads retain the nearest edge value. Contrast constant and varying images to separate boundary effects from smoothing. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+                },
+                {
                   "zh": "双轴处理器已经能汇合邻居。现在用课程给出的高斯权重处理细碎变化，再把被抑制的细节用于另一种任务。权重和与小数由系统计算，你决定图像之间的关系。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
                   "en": "The two-axis processor combines neighbours. Use supplied Gaussian weights to suppress fine variation, then reuse the removed detail for another purpose. Weight arithmetic is supplied; decide the image relationships. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
                 },
@@ -1090,6 +1094,10 @@
                 "en": "How can one circuit implement different local rules?"
               },
               "chain": [
+                {
+                  "zh": "三点加权已经把位置与权重分开。现在邻域可以有多行：展开工具为每个输出位置保留一行读数，并给出一一对应的权重；先检查每一路的贡献，再汇合结果。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+                  "en": "The line separated sample positions from weights. A neighbourhood can now have several rows: unfolding gives one sample row per output location and matching weights. Inspect contributions before combining them. <wiki-ref to=\"local-kernel\"></wiki-ref>"
+                },
                 {
                   "zh": "三点加权能处理一条线，但斜向和其他形状需要更一般的邻域。工具把重复取样展开为表，你把刚才学会的加权关系扩展到整张权重表。工具不会替你加权求和。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
                   "en": "A line cannot express every diagonal or local pattern. A helper unfolds repeated sampling into tables. Extend the weighted relation to the entire table; the helper does not calculate a weighted sum. <wiki-ref to=\"local-kernel\"></wiki-ref>"
@@ -1237,6 +1245,10 @@
                 "en": "How can directional measurements form a stable response without sign cancellation?"
               },
               "chain": [
+                {
+                  "zh": "差分器分别测出横向和纵向变化。两分量有正负号，直接相加会互相抵消；向量长度元件自动计算平方和与平方根。先建立强度测量，再处理干扰。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
+                  "en": "The derivative measures horizontal and vertical change separately. Signed components can cancel in a sum; the length component supplies the squared sum and square root. Establish strength before suppressing nuisance. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+                },
                 {
                   "zh": "单纯差分也会响应细碎干扰。三点加权器可以沿另一条轴汇合读数；将它接到双轴差分器，再把两种方向统一到强度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
                   "en": "Raw differences also respond to fine nuisance. Use the weighted-line part along the other axis, then combine both directional responses into a strength measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
@@ -1412,6 +1424,10 @@
               },
               "chain": [
                 {
+                  "zh": "频率分析先需要一把可重复的刻度。余弦元件以“周”为角度单位，1 周回到同一读数，四分之一周与半周落在不同位置；数值由元件计算。先只改变起点，观察波形在周期内怎样排列。 <wiki-ref to=\"wave-parameters\"></wiki-ref>",
+                  "en": "Frequency analysis needs a repeatable basis. Cosine takes turns: one turn returns to the same reading, while quarter and half turns occupy different positions. The component computes values. First change the starting phase and inspect arrangement within one cycle. <wiki-ref to=\"wave-parameters\"></wiki-ref>"
+                },
+                {
                   "zh": "扫描器已经能处理局部变化，但规则条纹可能遍布整幅图，靠局部平滑还会损失有用细节。这章要造频率分析仪，先构造能与条纹比较的波形。负值表示围绕零变化，不是坏像素。 <wiki-ref to=\"wave-parameters\"></wiki-ref>",
                   "en": "The scanner handles local changes, but periodic stripes span the image and local smoothing may remove useful detail. Build a frequency analyser, beginning with waves to compare against stripes. Negative readings represent variation around zero, not invalid pixels. <wiki-ref to=\"wave-parameters\"></wiki-ref>"
                 },
@@ -1530,6 +1546,10 @@
               },
               "chain": [
                 {
+                  "zh": "单频探针已经能测给定的 k。展开遍历把原行重复 N 次，并让 k 在重复行间变化；每行内的位置仍随列变化。两种刻度含义不同，先让探针逐频率工作。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+                  "en": "The probe measures a supplied k. Expansion repeats each source row N times and changes k between repetitions; sample position still varies within each row. These indices have different meanings. First run the probe across frequencies. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+                },
+                {
                   "zh": "单频探针已经可靠。现在由工具展开重复工作，让同一个部件扫描所有离散频率；你负责把读数、频率和输出形状对应起来。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
                   "en": "The single-frequency probe works. Expand repeated execution to every discrete frequency using the same part, while keeping observations, frequencies and output shape correctly associated. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
                 },
@@ -1552,7 +1572,7 @@
                 "restore",
                 "discrete-spectrum"
               ],
-              "adds": ["expandRows", "size"],
+              "adds": ["expandRows"],
               "builds": "spectrum",
               "naive": {
                 "zh": "把取样位置当作频率索引，或只保留一半而不说明如何恢复。",
@@ -1625,6 +1645,10 @@
                 "en": "Why do equal magnitudes not uniquely determine an image?"
               },
               "chain": [
+                {
+                  "zh": "频率系数的两分量共同确定长度与方向。同一个正比例同时作用于实部和虚部，会改变长度而保留方向；零系数没有可保留的方向。先在系数表上验证，再交换图像的幅度和相位。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+                  "en": "A coefficient pair determines length and direction together. One positive scale changes length while retaining direction; a zero pair has no direction to preserve. Verify coefficient rescaling before exchanging image magnitudes and phases. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+                },
                 {
                   "zh": "重建器可以检验“频率有多少”是否足够。现在交换两张图的幅度来源和相位来源，检查空间结构跟随哪一部分。只在非零系数上讨论相位，零系数的方向没有意义。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
                   "en": "Use the synthesiser to test whether frequency amounts alone suffice. Mix magnitude and phase sources and inspect spatial structure. Phase is meaningful for nonzero coefficients; zero coefficients have no direction. <wiki-ref to=\"phase-structure\"></wiki-ref>"
@@ -1781,7 +1805,7 @@
                 "synthesise",
                 "finite-boundaries"
               ],
-              "adds": [],
+              "adds": ["size"],
               "naive": {
                 "zh": "把周期频域结果与零边界卷积比较，认为差异就是算法错误。",
                 "en": "Comparing periodic frequency processing with zero-boundary convolution as if they were the same problem."
@@ -1846,6 +1870,10 @@
                 "en": "How can a row analyser become a true 2D analyser?"
               },
               "chain": [
+                {
+                  "zh": "逐行机器不能直接把一列当作一行。行列互换会交换宽高并把 (x,y) 放到 (y,x)，数值不变；复数两分量必须一起交换。用非方形图追踪进入机器和返回接口时的形状。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
+                  "en": "A row machine cannot directly consume columns. Transpose swaps dimensions and moves (x,y) to (y,x) without changing values; both complex components must move together. Track rectangular shapes into the machine and back to the interface. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
+                },
                 {
                   "zh": "复数频谱仪可以处理上一轮的输出，现在把同一台机器沿两条轴复用。用横纹、竖纹与长方形输入检查频率轴是否对应正确。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
                   "en": "The complex analyser can process its own output. Reuse it along both axes and check frequency axes with horizontal stripes, vertical stripes and rectangular inputs. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
@@ -1912,7 +1940,7 @@
                 "spectrum2D",
                 "two-dimensional-spectrum"
               ],
-              "adds": [],
+              "adds": ["size"],
               "builds": "synthesise2D",
               "naive": {
                 "zh": "前向归一化重复使用不影响幅度，或可以静默丢弃非零虚部。",

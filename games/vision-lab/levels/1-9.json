@@ -20,6 +20,7 @@
         "zh": "跨通道贡献",
         "en": "Channel contributions"
       },
+      "configurations": { "channel.c": ["0", "1", "2"] },
       "brief": {
         "zh": "输入为 RGB 读数。按给定通道贡献输出单通道测量；保留空间位置，权重已给定且无需手算。",
         "en": "The input contains RGB readings. Combine the supplied channel contributions into one-channel measurements, preserving positions; weights and arithmetic are supplied."

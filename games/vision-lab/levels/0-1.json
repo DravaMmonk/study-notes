@@ -28,6 +28,7 @@
         "zh": "保留方向",
         "en": "Retain sign"
       },
+      "configurations": { "arithmetic.op": ["sub"] },
       "brief": {
         "zh": "先保留变化方向：参照变为观测时，逐格输出观测减参照。",
         "en": "First retain direction: output observation minus reference at matching cells."

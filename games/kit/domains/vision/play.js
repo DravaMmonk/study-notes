@@ -16,6 +16,7 @@
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { display, fmt, fromRows, pixel, show } from './image.js'
 import { startBoard } from './board.js'
+import { taskBoard } from './tooling.js'
 import { runLevel } from './run.js'
 import { askOf, gridCheck } from './grid.js'
 import { isNaive, judgeOf } from './judges.js'
@@ -31,6 +32,8 @@ const both = (f) => T(f('zh'), f('en'))
 /** The tests the strip lists: a solved task's hidden tests join them. */
 const testsOf = (task, solved) => (solved ? [...task.tests, ...task.hidden] : task.tests)
 
+const readyCircuit = (game, task, board) => taskBoard(board, new Set(board.nodes.map((node) => node.type)), (type,key) => game.vision.settingsIn(task,type,key), game.vision.partOf)
+
 const circuit = circuitPlay({
   board: ({ game, level, flags, progress }) => {
     const vision = game.vision
@@ -43,8 +46,9 @@ const circuit = circuitPlay({
       types: [...shown, ...folded],
     }
   },
+  keep: ({game,level},board) => readyCircuit(game,level.source,board),
   key: ({ game }, type) => (game.vision.BUILT[type] ? type : `part:${type}`),
-  settings: ({ game, level }, type) => type === 'const' ? [{ key: 'value', values: ['…'] }] : Object.entries(game.vision.partOf(type)?.settings ?? {}).map(([key,values]) => ({ key, values: key === 'outside' ? values.filter((v) => game.vision.outsideIn(level.source).includes(v)) : values })),
+  settings: ({ game, level }, type) => type === 'const' ? [{ key: 'value', values: ['…'] }] : Object.keys(game.vision.partOf(type)?.settings ?? {}).map((key) => ({ key, values: game.vision.settingsIn(level.source,type,key) })),
   given: ({ level: { source: L } }) => both((lang) => [...L.inputs.map((i) => `${i.name}: ${lang === 'en' ? 'input' : '输入'} “${pick(i.label, lang)}”`), ...L.outputs.map((o) => `${o.name}: ${lang === 'en' ? 'output' : '输出'} “${pick(o.label, lang)}”`)].join('\n')),
   tests: ({ level: { source: L }, solved }) => testsOf(L, solved).map((test, k) => ({
     label: T(`测试 ${k + 1}`, `Test ${k + 1}`),
@@ -52,6 +56,11 @@ const circuit = circuitPlay({
   })),
   notes: ({ level: { source: L }, solved }) => (!solved && L.hidden.length ? [T(`另有 ${L.hidden.length} 个隐藏测试，每次运行一并检查。`, `${L.hidden.length} more hidden test(s) are checked with every run.`)] : []),
   run: ({ game, level: { source: L }, solved }, board) => {
+    for (const node of board.nodes) for (const [key,value] of Object.entries(node.params ?? {})) {
+      const allowed=game.vision.settingsIn(L,node.type,key)
+      if(allowed&&!allowed.includes(value))return {pass:false,tests:[],hidden:null,refused:[T(`尚未引入 ${node.type}.${key}=${value}`,`Not introduced: ${node.type}.${key}=${value}`)]}
+    }
+    board=readyCircuit(game,L,board)
     const runs = runLevel({ ...L, tests: testsOf(L, solved) }, board, game.vision.partOf).runs
     const tests = untilFail(runs.map((r, k) => ({ label: T(`测试 ${k + 1}`, `Test ${k + 1}`), pass: !r.fail, says: r.fail?.why ?? null })))
     const hidden = solved || !L.hidden.length ? null : runLevel({ ...L, tests: L.hidden }, board, game.vision.partOf).runs.filter((r) => r.fail).length

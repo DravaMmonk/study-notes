@@ -11,9 +11,11 @@ Circuit inputs can carry a coordinate point `{ x, y }`. A point source exposes x
 independently connectable outputs on the existing shared editors; tests display the point as one coordinate pair.
 
 Tasks may declare `inputGroups`: related logical inputs share one source with independently labelled outputs.
-Tests and packed-part signatures retain their original logical inputs. Spatial directions are introduced at task
-boundaries through `axes`, using prerequisite paths and the current task; unavailable directions are disabled
-and removed from reopened boards. Saved source nodes are merged on load,
+Tests and packed-part signatures retain their original logical inputs. Task-scoped `configurations` declares
+introduced enum values by `part.setting`, with `*.outside` for a boundary assumption shared by spatial operators.
+Prerequisite paths and the current task determine availability; selectors, defaults, saved boards, validation and
+headless play use the same policy. Unavailable choices are omitted and singleton selectors are hidden.
+Saved source nodes are merged on load,
 including alternate slots and built boards, with outgoing wires and player work retained.
 
 Part details show settings and live outputs, or the received value for a sink; they do not repeat input values.

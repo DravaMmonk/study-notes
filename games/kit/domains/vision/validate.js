@@ -10,7 +10,7 @@
 import { keyOf } from '../../shell/i18n.js'
 import { usable } from '../../course.js'
 import { fromText, startBoard } from './board.js'
-import { FIXED } from './parts.js'
+import { FIXED, PARTS } from './parts.js'
 import { runLevel } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { judgeOf, naiveRound } from './judges.js'
@@ -19,13 +19,21 @@ import { lessonProblems } from './benches/lesson.js'
 /** A task with its hidden tests after the others. */
 const all = (task) => ({ ...task, tests: [...task.tests, ...task.hidden] })
 
-function circuitSaid(task, { held, partOf, builds, outside, axes }) {
+function circuitSaid(task, { held, partOf, builds, settingsIn, availableParts }) {
   const problems = []
   const strays = (board, what) => board.nodes.filter((n) => !FIXED.includes(n.type) && !held.has(n.type)).forEach((n) => problems.push(`${what} uses ${n.type}, which the level does not hold`))
   strays(task.solution, 'the answer')
+  for (const [setting, values] of Object.entries(task.configurations ?? {})) {
+    const [type,key,...rest] = setting.split('.')
+    const candidates = type === '*' ? Object.values(availableParts) : [availableParts[type]]
+    const supported = candidates.flatMap((part) => part?.settings?.[key] ?? [])
+    if (rest.length || !supported.length || values.some((value) => !supported.includes(value))) problems.push(`invalid configuration introduction ${setting}`)
+  }
   for (const [name, board] of [['answer',task.solution],['starter',task.starter],['naive',task.naive]]) for (const node of board?.nodes ?? []) {
-    if (node.params?.outside && !outside.includes(node.params.outside)) problems.push(`${name} uses outside=${node.params.outside} before its task introduction`)
-    if (node.params?.axis && !axes.includes(node.params.axis)) problems.push(`${name} uses axis=${node.params.axis} before its task introduction`)
+    for (const key of Object.keys(partOf(node.type)?.settings ?? {})) {
+      const allowed = settingsIn(task,node.type,key)
+      if (!allowed?.length || node.params?.[key] !== undefined && !allowed.includes(node.params[key])) problems.push(`${name} uses ${node.type}.${key}=${node.params?.[key] ?? 'default'} before its task introduction`)
+    }
   }
   if (task.starter) strays(task.starter, 'the starter')
   const where = (j) => (j < task.tests.length ? `test ${j + 1}` : `hidden test ${j - task.tests.length + 1}`)
@@ -90,7 +98,7 @@ export function validate({ vision }) {
 
     const said = tasks.map((task, k) => {
       const held = new Set(usable(course, task, built))
-      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, outside: vision.outsideIn(task), axes: vision.axesIn(task), builds: k === tasks.length - 1 ? level.builds : null })
+      const one = task.kind === 'circuit' ? circuitSaid(task, { held, partOf, settingsIn: vision.settingsIn, availableParts: { ...PARTS, ...vision.BUILT }, builds: k === tasks.length - 1 ? level.builds : null })
         : task.kind === 'grid' ? gridSaid(task)
           : task.kind === 'choice' ? choiceSaid(task)
             : benchSaid(task)

@@ -122,3 +122,26 @@ already establish the relationship. Component detail sheets show outputs and set
 Neighbourhood weights in the first two filtering tasks share one three-output source (first, centre, last),
 while packed components retain separate weight inputs. Numeric image previews use up to two decimal places
 and smaller text; inspection exposes full precision. Small component matrices show every row without clipping.
+
+## Capability introduction ledger
+
+Components and enumerated settings open at task boundaries through `adds` and `configurations`. The latter
+maps `part.setting` to introduced values; `*.outside` records a shared boundary assumption. Only prerequisite
+routes and completed earlier tasks in the current level supply capabilities. The current task opens what it
+introduces, including all-unlocked review. Defaults, restored boards, selectors and headless play share this policy.
+
+| Construction | Prerequisite task | Combined task | Newly available capability |
+| --- | --- | --- | --- |
+| Replaceable local kernel | Inspect per-position weighted contributions | Sum and restore a local result | Window unfolding first; row sum and shape restoration next |
+| Detail enhancement | Preserve constant edges under replication | Smooth/detail enhancement | Boundary assumption before residual composition |
+| Frequency wave | Shift one cycle without changing its spacing | Add variable cycles per row | Cosine and phase before frequency control |
+| Stable gradient | Measure the length of raw signed directional responses | Perpendicular smoothing and strength | Magnitude before Sobel composition |
+| Row spectrum | Scan the earned probe into one coefficient column | Restore all three coefficient channels | Repeated rows and frequency indices before full spectrum assembly |
+| Magnitude/phase exchange | Rescale coefficient pairs without changing direction | Exchange sources and reconstruct | Safe division and length control before image-level synthesis |
+| Two-dimensional spectrum | Apply the row machine to columns and restore orientation | Compose both spatial directions | Transpose through a real column-transform task |
+
+Arithmetic starts with subtraction, adds addition/multiplication for spatial weights, and introduces division
+when coefficient rescaling needs it. Row reduction starts with sum and adds mean for the normalised projection.
+The size component first appears at frequency/spatial normalisation. Simple scalar constants, channel selectors
+and row-position services reuse established arithmetic, RGB and normalised-position knowledge; they receive
+concise task guidance rather than unrelated tool exercises.

@@ -14,6 +14,124 @@
   },
   "tasks": [
     {
+      "id": "v1_strength",
+      "kind": "circuit",
+      "step": {
+        "zh": "先合并方向强度",
+        "en": "Measure directional strength"
+      },
+      "brief": {
+        "zh": "保留差分器给出的两个带符号分量，并输出它们作为垂直方向分量时的长度。长度只表示变化有多强，不能被正负抵消。",
+        "en": "Retain both signed derivative components and output their length as perpendicular components. Strength measures change size without cancellation."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } }
+      ],
+      "outputs": [
+        { "name": "gx", "label": { "zh": "横向响应", "en": "Horizontal response" } },
+        { "name": "gy", "label": { "zh": "纵向响应", "en": "Vertical response" } },
+        { "name": "strength", "label": { "zh": "变化强度", "en": "Gradient strength" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0, 0, 1],
+              [
+                0,
+                1,
+                1
+              ]
+            ],
+            "kernel": [[-1, 0, 1]]
+          },
+          "expect": {
+            "gx": [
+              [0, -1, -1],
+              [-1, -1, 0]
+            ],
+            "gy": [
+              [
+                0,
+                -1,
+                0
+              ],
+              [0, -1, 0]
+            ],
+            "strength": [
+              [0, 1.4142135623730951, 1],
+              [1, 1.4142135623730951, 0]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [
+              [0.8, 0.1],
+              [0.2, 0.7],
+              [0.9, 0.4]
+            ],
+            "kernel": [[-1, 0, 1]]
+          },
+          "expect": {
+            "gx": [
+              [0.7000000000000001, 0.7000000000000001],
+              [-0.49999999999999994, -0.49999999999999994],
+              [0.5, 0.5]
+            ],
+            "gy": [
+              [0.6000000000000001, -0.6],
+              [-0.09999999999999998, -0.30000000000000004],
+              [-0.7, 0.29999999999999993]
+            ],
+            "strength": [
+              [0.9219544457292889, 0.9219544457292888],
+              [0.5099019513592784, 0.58309518948453],
+              [0.8602325267042626, 0.58309518948453]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "g = derivatives[outside=clamp](image,kernel)",
+        "m = magnitude(g.gx,g.gy)",
+        "gx <- g.gx",
+        "gy <- g.gy",
+        "strength <- m"
+      ],
+      "naive": [
+        "g = derivatives[outside=clamp](image,kernel)",
+        "m = arithmetic[op=add](g.gx,g.gy)",
+        "gx <- g.gx",
+        "gy <- g.gy",
+        "strength <- m"
+      ],
+      "naiveWhy": {
+        "zh": "同时看两个方向都有变化的位置，以及符号相反的位置。保留分量是为了区分方向，长度负责合并强度。",
+        "en": "Inspect locations changing in both directions and with opposite signs. Components retain direction; length combines strength."
+      },
+      "intro": [
+        {
+          "t": {
+            "zh": "差分器分别测出横向和纵向变化。两分量有正负号，直接相加会互相抵消；向量长度元件自动计算平方和与平方根。先建立强度测量，再处理干扰。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
+            "en": "The derivative measures horizontal and vertical change separately. Signed components can cancel in a sum; the length component supplies the squared sum and square root. Establish strength before suppressing nuisance. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+          }
+        }
+      ],
+      "hint": [
+        {
+          "zh": "同时看两个方向都有变化的位置，以及符号相反的位置。保留分量是为了区分方向，长度负责合并强度。",
+          "en": "Inspect locations changing in both directions and with opposite signs. Components retain direction; length combines strength."
+        }
+      ],
+      "adds": ["magnitude"],
+      "starter": [
+        "g = derivatives[outside=clamp](image,kernel)"
+      ]
+    },
+    {
       "id": "v1_sobel",
       "kind": "circuit",
       "step": {
@@ -24,6 +142,14 @@
         "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。",
         "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components."
       },
+      "intro": [
+        {
+          "t": {
+            "zh": "强度测量已经能合并两方向，但差分仍会响应细碎干扰。现在引入垂直于求导方向的平滑，让方向分量先更稳定，再送入已验证的长度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
+            "en": "The strength measurement combines both directions, but raw derivatives still respond to fine nuisance. Stabilise each derivative by smoothing perpendicular to its direction before the verified length measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+          }
+        }
+      ],
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
         { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } }
@@ -183,7 +309,8 @@
         "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)"
       ],
-      "adds": ["magnitude"]
+      "adds": [],
+      "carries": true
     }
   ],
   "builds": {
