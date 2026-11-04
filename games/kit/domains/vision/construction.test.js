@@ -1,18 +1,38 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readContent } from '../../engine/content-node.js'
 import { fromRows, make, toRows } from './image.js'
 import { fromText } from './board.js'
 import { readTest, runTest } from './run.js'
 import domain from './domain.js'
 import { builtDefaults, CONSTRUCTION_PARTS, readOutside } from './construction.js'
 import { filterImage } from './operators.js'
+import { builds, circuit, game, level } from './fixture.js'
 
 const approx = (a, b, tol = 1e-9) => {
   assert.equal(a.w, b.w); assert.equal(a.h, b.h); assert.equal(a.c, b.c)
   a.data.forEach((v,k) => assert.ok(Math.abs(v-b.data[k]) < tol, `${k}: ${v} versus ${b.data[k]}`))
 }
-const course = () => domain.spec(readContent('vision-lab')).vision
+// A small construction course: each part is a learner circuit over the execution services, later parts reuse
+// earlier ones. The levels carry no tests; these tests run the parts on independent references instead.
+const spatial = ['outside', 'axis']
+const COURSE = [
+  ['difference', ['a', 'b'], ['out'], ['d = arithmetic[op=sub](a,b)', 'm = abs(d)', 'out <- m']],
+  ['alignedDifference', ['observed', 'reference', { name: 'd', type: 'vector' }], ['out'], ['s = shift(observed,d)', 'c = difference(s,reference)', 'out <- c'], {
+    tests: [{ inputs: { observed: [[0.1, 0.4, 0.8, 0.3]], reference: [[0.55, 0.8, 0.3, 0]], d: { x: 1, y: 0 } }, expect: { out: [[0.15000000000000002, 0, 0, 0]] } }] }],
+  ['weightedLine', ['image', 'left', 'centre', 'right'], ['out'], ['minus = const[value=-1]()', 'plus = const[value=1]()', 'l = offset(image,minus)', 'r = offset(image,plus)', 'a = arithmetic[op=mul](l,left)', 'b = arithmetic[op=mul](image,centre)', 'c = arithmetic[op=mul](r,right)', 'ab = arithmetic[op=add](a,b)', 'total = arithmetic[op=add](ab,c)', 'out <- total'], {}, { settings: spatial, defaults: { outside: 'zero', axis: 'y' } }],
+  // A two-pass wrapper that exposes only its boundary: its internal axes must survive a new node's defaults.
+  ['separable3', ['image', 'left', 'centre', 'right'], ['out'], ['h = weightedLine[axis=x](image,left,centre,right)', 'v = weightedLine[axis=y](h,left,centre,right)', 'out <- v'], {}, { settings: ['outside'] }],
+  ['correlate', ['image', 'kernel'], ['out'], ['t = windowTable(image,kernel)', 'p = arithmetic[op=mul](t.samples,t.weights)', 's = reduceRows[mode=sum](p)', 'r = restore(s,image)', 'out <- r'], {}, { settings: spatial }],
+  ['convolve', ['image', 'kernel'], ['out'], ['k = reverse(kernel)', 'v = correlate(image,k)', 'out <- v'], {}, { settings: spatial }],
+  // One complex row transform per row with 1/N normalisation, from expanded rows; then both axes; then its inverse.
+  ['rowSpectrum', ['real', 'imag'], ['re', 'im'], ['r = expandRows(real)', 'i = expandRows(imag)', 't = arithmetic[op=mul](r.position,r.frequency)', 'quarter = const[value=0.25]()', 'ts = arithmetic[op=sub](t,quarter)', 'c = cosine(t)', 's = cosine(ts)',
+    'ac = arithmetic[op=mul](r.values,c)', 'bs = arithmetic[op=mul](i.values,s)', 'bc = arithmetic[op=mul](i.values,c)', 'an = arithmetic[op=mul](r.values,s)', 'pre = arithmetic[op=add](ac,bs)', 'pim = arithmetic[op=sub](bc,an)',
+    'mre = reduceRows[mode=mean](pre)', 'mim = reduceRows[mode=mean](pim)', 'ore = restore(mre,real)', 'oim = restore(mim,real)', 're <- ore', 'im <- oim']],
+  ['spectrum2D', ['real', 'imag'], ['re', 'im'], ['a = rowSpectrum(real,imag)', 'tr = transpose(a.re)', 'ti = transpose(a.im)', 'b = rowSpectrum(tr,ti)', 'br = transpose(b.re)', 'bi = transpose(b.im)', 're <- br', 'im <- bi']],
+  ['synthesise2D', ['real', 'imag'], ['out', 'imaginary'], ['zero = const[value=0]()', 'negative = arithmetic[op=sub](zero,imag)', 'p = spectrum2D(real,negative)', 's = size(real)', 'count = arithmetic[op=mul](s.w,s.h)', 'r = arithmetic[op=mul](p.re,count)', 'i = arithmetic[op=mul](p.im,count)', 'ni = arithmetic[op=sub](zero,i)', 'out <- r', 'imaginary <- ni']],
+]
+const course = () => domain.spec(game({ levels: COURSE.map(([type, inputs, outputs, solution, more = {}, build = {}]) =>
+  level(type, circuit(`t_${type}`, { inputs, outputs, solution, ...more }), { builds: builds(type, build) })) })).vision
 function run(vision, type, bind, settings = '') {
   const task = vision.builtBy(type)
   const board = fromText([`p = ${type}${settings}(${task.inputs.map(i => i.name).join(',')})`, ...task.outputs.map(o=>`${o.name} <- p${task.outputs.length>1?`.${o.name}`:''}`)],task,vision.partOf)
@@ -96,14 +116,15 @@ test('nested packed reuse runs the actual passed circuit and forwards only decla
 
 test('new packed-node defaults preserve internal axis choices instead of overriding hidden settings',()=>{
   const v=course()
-  for(const type of ['separable3','sobel','convolve','weightedLine']) {
-    const task=v.builtBy(type),params=builtDefaults(task.builds)
-    assert.deepEqual(Object.keys(params).sort(),[...(task.builds.settings??[])].sort())
-    const settings='['+Object.entries(params).map(([k,val])=>`${k}=${val}`).join(',')+']'
-    for(const example of task.tests) {
-      const raw=Object.fromEntries(Object.entries(example.inputs).map(([key,value])=>[key,typeof value==='number'?value:toRows(value)]))
-      const out=run(v,type,raw,settings)
-      for(const port of task.outputs)approx(out[port.name],example.expect[port.name])
-    }
+  const rows=[[.1,.9,.4,.3],[.8,.2,.6,.5],[.3,.7,.1,.9]],h=[.1,.2,.4]
+  const placed=(type)=>{
+    const params=builtDefaults(v.builtBy(type).builds)
+    assert.deepEqual(Object.keys(params).sort(),[...(v.builtBy(type).builds.settings??[])].sort())
+    return '['+Object.entries(params).map(([k,val])=>`${k}=${val}`).join(',')+']'
   }
+  assert.equal(placed('separable3'),'[outside=zero]')
+  approx(run(v,'separable3',{image:rows,left:h[0],centre:h[1],right:h[2]},placed('separable3')).out,filterImage(fromRows(rows),fromRows(h.map(a=>h.map(b=>a*b))),{outside:'zero'}))
+  assert.equal(placed('weightedLine'),'[outside=zero,axis=y]','a declared default wins over the generic one')
+  approx(run(v,'weightedLine',{image:rows,left:h[0],centre:h[1],right:h[2]},placed('weightedLine')).out,filterImage(fromRows(rows),fromRows(h.map(x=>[x])),{outside:'zero'}))
+  approx(run(v,'convolve',{image:rows,kernel:[h]},placed('convolve')).out,filterImage(fromRows(rows),fromRows([h]),{outside:'zero',convention:'convolution'}))
 })
