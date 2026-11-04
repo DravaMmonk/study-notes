@@ -22,7 +22,7 @@
 /* ---- cards ---- */
 .vi-card { padding: 4px 10px 0; display: grid; gap: 5px; min-width: 0; }
 .vi-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.vi-thumb { display: grid; justify-items: start; gap: 4px; max-width: 100%; }
+.vi-thumb { display: grid; justify-items: center; gap: 4px; max-width: 100%; }
 .vi-thumb small { color: var(--muted); font: 11px var(--mono); }
 .vi-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 .vi-error.is-missing { color: var(--faint); }
@@ -117,7 +117,6 @@
   .vi-level .task-body:not(:has(.hint, .task-steps)) > .brief-text + .hint-block { align-self: start; margin-inline-end: 32px; }
   .vi-level .hint-toggle { padding-block: 0; font-size: 12px; }
   .vi-level .pb-board.is-dense { gap: 36px; }
-  .vi-level .pb-terms.is-sources > .pb-term { min-width: min(100px,100%); align-self: start; }
   .vi-level .is-dense .pb-grid { gap: 36px 10px; }
   .vi-level .is-dense .pb-tile, .vi-level .is-dense .pb-term { padding-inline: 10px; padding-top: 9px; }
   .vi-level .pb-tray { padding: 6px 10px; gap: 6px; }

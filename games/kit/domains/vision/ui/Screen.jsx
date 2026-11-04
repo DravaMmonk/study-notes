@@ -12,7 +12,6 @@ import { OPS } from '../ops.js'
 import { runLevel } from '../run.js'
 import { fmt, isImage, show } from '../image.js'
 import ImageView from './ImageView.jsx'
-import { imageNumber } from './image-layout.js'
 import { ProjectionCase } from './benches/CameraScene.jsx'
 import TestValues from './TestValues.jsx'
 import ImageViewSwitch from './ImageViewSwitch.jsx'
@@ -62,7 +61,7 @@ function partsFor(level, game) {
 function Value({ value, error }) {
   if (value === undefined) return <span className={`vi-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
   if (isImage(value)) {
-    const cell=value.c === 3 ? 58 : value.data.reduce((w,v)=>Math.max(w,Math.min(52,8+imageNumber(v).length*6)),32)
+    const cell = value.c === 3 ? 58 : 32
     return <span className="vi-thumb"><span className={`vi-numeric-thumb ${value.w<=4&&value.h<=3?'is-small':''}`}><ImageView value={value} numbers cell={cell}/></span>{(value.w>4||value.h>3)&&<small>{value.w} × {value.h}</small>}</span>
   }
   return <span className="vi-value">{show(value)}</span>
