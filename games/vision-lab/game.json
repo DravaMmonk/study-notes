@@ -23,7 +23,6 @@
     "less",
     "magnitude",
     "max",
-    "offset",
     "positions",
     "reduceRows",
     "restore",
@@ -39,7 +38,6 @@
     "const": "arithmetic",
     "less": "arithmetic",
     "shift": "sampling",
-    "offset": "sampling",
     "max": "arithmetic",
     "transpose": "localTraversal",
     "reverse": "kernelOrientation",
@@ -486,6 +484,11 @@
       "version": 32,
       "why": "Carry established smoothing and single-cycle constructions into their combined tasks without completing the new relation",
       "ops": [{ "drop": ["v1_smooth_border", "v1_detail", "v2_cycle", "v2_wave"] }]
+    },
+    {
+      "version": 33,
+      "why": "Unify spatial reads as shift and expose weighted-line direction through explicit inputs",
+      "ops": [{ "drop": ["v1_line", "v1_vertical", "v1_separable", "v1_strength", "v1_sobel"] }]
     }
   ]
 }

@@ -27,13 +27,9 @@ export function readOutside(image, x, y, ch, mode = 'zero') {
 const allocated = (w, h) => {
   if (w * h > 262144) fail('展开后的表过大，请缩小实验图像', 'The expanded table is too large; use a smaller experimental image')
 }
-export const CONSTRUCTION_DEFAULTS = { offset: { axis: 'x', outside: 'zero' }, shift: { outside: 'zero' }, windowTable: { outside: 'zero', axis: 'x' }, reduceRows: { mode: 'mean' } }
+export const CONSTRUCTION_DEFAULTS = { shift: { outside: 'zero' }, windowTable: { outside: 'zero', axis: 'x' }, reduceRows: { mode: 'mean' } }
 const spatial = (inputs, evalFn, { outputs, axis = false } = {}) => ({ inputs, params: ['outside', ...(axis ? ['axis'] : [])], settings: { outside: BORDERS, ...(axis ? { axis: ['x', 'y'] } : {}) }, ...(outputs ? { outputs } : {}), eval: evalFn })
 export const CONSTRUCTION_PARTS = {
-  offset: { inputs: ['image', 'delta'], params: ['outside', 'axis'], settings: { outside: BORDERS, axis: ['x', 'y'] }, eval: ({ image, delta }, node) => {
-    imageOf(image); integer(delta)
-    return make(image.w, image.h, image.c, (x, y, ch) => readOutside(image, x + (node.params?.axis === 'y' ? 0 : delta), y + (node.params?.axis === 'y' ? delta : 0), ch, node.params?.outside))
-  } },
   shift: spatial(['image', 'dx', 'dy'], ({ image, dx, dy }, node) => {
     imageOf(image); integer(dx); integer(dy)
     return make(image.w, image.h, image.c, (x, y, ch) => readOutside(image, x + dx, y + dy, ch, node.params?.outside))

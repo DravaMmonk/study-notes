@@ -22,8 +22,8 @@
         "en": "Compose axis passes"
       },
       "brief": {
-        "zh": "复用三点加权器，先沿一条轴处理，再沿另一条轴使用同一组权重。目标是二维外积权重，不是两张处理图相加。",
-        "en": "Reuse the weighted line along both axes using the same weights. Match the 2D outer-product rule, not the sum of two processed images."
+        "zh": "复用三点加权器，先沿一条轴处理，再沿另一条轴使用同一组权重。目标是二维外积权重，不是两张处理图相加。 三点加权器的方向输入用 (dx,dy)=(1,0) 表示横向，(0,1) 表示纵向。",
+        "en": "Reuse the weighted line along both axes using the same weights. Match the 2D outer-product rule, not the sum of two processed images. For the weighted line direction inputs use (dx,dy)=(1,0) horizontally and (0,1) vertically."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
@@ -70,13 +70,17 @@
       ],
       "hidden": [],
       "solution": [
-        "h = weightedLine[axis=x](image,left,centre,right)",
-        "v = weightedLine[axis=y](h,left,centre,right)",
+        "dirZero = const[value=0]()",
+        "dirOne = const[value=1]()",
+        "h = weightedLine(image,left,centre,right,dirOne,dirZero)",
+        "v = weightedLine(h,left,centre,right,dirZero,dirOne)",
         "out <- v"
       ],
       "naive": [
-        "h = weightedLine[axis=x](image,left,centre,right)",
-        "v = weightedLine[axis=y](image,left,centre,right)",
+        "dirZero = const[value=0]()",
+        "dirOne = const[value=1]()",
+        "h = weightedLine(image,left,centre,right,dirOne,dirZero)",
+        "v = weightedLine(image,left,centre,right,dirZero,dirOne)",
         "s = arithmetic[op=add](h,v)",
         "out <- s"
       ],

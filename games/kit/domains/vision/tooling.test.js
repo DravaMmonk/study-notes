@@ -53,20 +53,16 @@ test('configurable arithmetic preserves broadcasting, signed values and division
 })
 
 
-test('vertical weighting is introduced on the shared prerequisite before two-axis reuse',()=>{
+test('one offset-read primitive supports both weighting directions before packed reuse',()=>{
   const v=read(),[horizontal,vertical]=v.played.get('1-1')
   assert.equal(vertical.taskId,'v1_vertical')
-  assert.deepEqual(v.settingsIn(horizontal,'offset','axis'),['x'])
-  assert.deepEqual(v.settingsIn(vertical,'offset','axis'),['x','y'])
-  for(const id of ['1-2','1-3','1-8'])assert.deepEqual(v.settingsIn(v.played.get(id)[0],'offset','axis'),['x','y'])
+  assert.equal(PARTS.offset,undefined)
   assert.equal(v.builtBy('weightedLine').taskId,vertical.taskId)
-  const board={nodes:[{id:'s',type:'offset',params:{axis:'y'}}],wires:[]}
-  assert.equal(taskBoard(board,new Set(['offset']),(type,key)=>v.settingsIn(horizontal,type,key)).nodes[0].params.axis,'x')
-  assert.equal(taskBoard(board,new Set(['offset']),(type,key)=>v.settingsIn(vertical,type,key)).nodes[0].params.axis,'y')
-  const wrong=structuredClone(readContent('vision-lab'))
-  const first=wrong.levels.find(l=>l.id==='1-1').tasks[0]
-  first.solution=first.solution.map(line=>line.replace('offset(', 'offset[axis=y]('))
-  assert.ok(domain.validate(domain.spec(wrong)).some(result=>result.fail&&result.text.includes('offset.axis=y before its task introduction')))
+  assert.deepEqual(v.partOf('weightedLine').inputs,['image','left','centre','right','dx','dy'])
+  assert.deepEqual(Object.keys(v.partOf('weightedLine').settings),['outside'])
+  for(const task of [horizontal,vertical])assert.ok(task.solution.nodes.some(n=>n.type==='shift'))
+  assert.ok(vertical.tests.every(t=>t.inputs.dx===0&&t.inputs.dy===1))
+  assert.ok(vertical.hidden.some(t=>t.inputs.dx===1&&t.inputs.dy===0))
 })
 
 

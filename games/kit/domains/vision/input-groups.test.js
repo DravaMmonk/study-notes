@@ -16,7 +16,7 @@ test('grouped weights retain saved wiring, alternate boards and reusable packed 
   const migrated = migrateInputGroups(saved, [task])
   for (const board of [migrated.data[task.taskId], migrated.built[task.taskId], ...migrated.slots[task.taskId].boards]) {
     assert.equal(board.wires.length, old.wires.length)
-    assert.equal(board.nodes.filter((node) => node.type === 'in').length, 2)
+    assert.equal(board.nodes.filter((node) => node.type === 'in').length, 3)
     assert.ok(fits(board, task, vision.partOf))
     assert.ok(runLevel({ ...task, tests: [...task.tests, ...task.hidden] }, board, vision.partOf).pass)
     const edges = (value) => value.wires.map((wire) => JSON.stringify(wire)).sort()

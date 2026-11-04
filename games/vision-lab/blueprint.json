@@ -565,14 +565,6 @@
       }
     },
     {
-      "part": "offset",
-      "about": { "zh": "offset", "en": "offset" },
-      "why": {
-        "zh": "数值、取样、形状或遍历的基础执行服务；不封装待学习的视觉算法。",
-        "en": "A numeric, sampling, shape or traversal execution service; it does not encapsulate the assessed visual method."
-      }
-    },
-    {
       "part": "positions",
       "about": { "zh": "positions", "en": "positions" },
       "why": {
@@ -665,10 +657,10 @@
     {
       "part": "weightedLine",
       "about": {
-        "zh": "沿所选空间轴，按前侧、中心、后侧权重汇合三格读数。横向对应左中右，纵向对应上中下；图外规则可设置。",
-        "en": "Combine three readings along the selected axis: left/centre/right for x, above/centre/below for y, with explicit borders."
+        "zh": "沿给定方向 (dx,dy)，按前侧、中心、后侧权重汇合三格读数。(1,0) 横向，(0,1) 纵向；图外规则可设置。",
+        "en": "Combine first/centre/last readings along (dx,dy): (1,0) horizontally or (0,1) vertically, with explicit borders."
       },
-      "from": ["arithmetic", "const", "offset"]
+      "from": ["arithmetic", "const", "shift"]
     },
     {
       "part": "separable3",
@@ -975,10 +967,10 @@
                 "const",
                 "image-difference",
                 "imageCircuit",
-                "offset",
+                "shift",
                 "weighted-neighbourhood"
               ],
-              "adds": ["const", "offset"],
+              "adds": ["const"],
               "builds": "weightedLine",
               "naive": {
                 "zh": "交换左右权重不会改变结果，或者所有权重都必须为正并且总和为 1。",

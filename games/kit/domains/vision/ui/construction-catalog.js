@@ -5,7 +5,6 @@ const card = (zh, en, icon, descZh, descEn) => ({ name: T(zh, en), icon, family:
 export const CONSTRUCTION_CARDS = {
   abs: card('绝对值', 'Absolute value', Radical, '逐值去掉正负号，保留大小。图像数值不截断。', 'Remove the sign of each value, retaining its magnitude without clipping.'),
   cosine: card('余弦', 'Cosine', Waves, '输入以周为单位的角度。输出 cos(2πa)：0 周为 1，1/4 周为 0，1/2 周为 −1。数或图逐值计算。', 'Compute cos(2πa) for an angle in turns: 0 gives 1, 1/4 gives 0, 1/2 gives −1. Applies elementwise.'),
-  offset: card('轴向取样', 'Axis offset read', Move, '沿所选空间轴读取相隔 delta 格的邻居。正方向为向右或向下；边界规则可设置。', 'Read a neighbour delta samples along the selected axis, positive right or down, with explicit borders.'),
   shift: card('偏移取样', 'Offset read', Move, '输出位置 (x,y) 读取输入的 (x+dx,y+dy)。dx 向右、dy 向下为正，须为整数。只改变读取的位置，不改变亮度；图外遵循所选规则。', 'Output (x,y) reads input (x+dx,y+dy). Integer dx is positive right, dy down. Values are unchanged; outside reads use the selected rule.'),
   transpose: card('行列互换', 'Transpose', ArrowLeftRight, '交换图像的行和列。原来的 (x,y) 成为 (y,x)，宽高互换，数值和通道不变。', 'Exchange rows and columns: (x,y) becomes (y,x). Width and height swap; values and channels remain unchanged.'),
   reverse: card('翻转核', 'Reverse table', ArrowRightLeft, '把表旋转 180 度：行序和每行的次序一起反转。不会对图像做滤波。', 'Rotate a table 180 degrees, reversing both axes. No filtering is performed.'),
@@ -19,10 +18,9 @@ export const CONSTRUCTION_CARDS = {
 export const BORDER_OPTIONS = [['zero', T('图外取 0', 'Zero')], ['clamp', T('延续边缘', 'Replicate edge')], ['wrap', T('周期延续', 'Periodic')], ['reflect', T('镜像延续', 'Reflect')]]
 export const BORDER_FIELD = { key: 'outside', label: T('图外假设', 'Outside'), options: BORDER_OPTIONS }
 export const AXIS_FIELD = { key: 'axis', label: T('空间轴', 'Axis'), options: [['x', T('横向', 'Horizontal')], ['y', T('纵向', 'Vertical')]] }
-export const CONSTRUCTION_FIELDS = { offset: [AXIS_FIELD, BORDER_FIELD], shift: [BORDER_FIELD], windowTable: [AXIS_FIELD, BORDER_FIELD], reduceRows: [{ key: 'mode', label: T('汇总', 'Reduction'), options: [['mean', T('平均', 'Mean')], ['sum', T('求和', 'Sum')]] }] }
+export const CONSTRUCTION_FIELDS = { shift: [BORDER_FIELD], windowTable: [AXIS_FIELD, BORDER_FIELD], reduceRows: [{ key: 'mode', label: T('汇总', 'Reduction'), options: [['mean', T('平均', 'Mean')], ['sum', T('求和', 'Sum')]] }] }
 export const CONSTRUCTION_PORTS = {
   abs: { a: T('值', 'Value') }, cosine: { a: T('角度（周）', 'Angle (turns)') },
-  offset: { image: T('图', 'Image'), delta: T('偏移', 'Offset') },
   shift: { image: T('图', 'Image'), dx: 'dx', dy: 'dy' },
   transpose: { image: T('图', 'Image') }, reverse: { image: T('表', 'Table') },
   windowTable: { image: T('图', 'Image'), kernel: T('权重表', 'Weights') },

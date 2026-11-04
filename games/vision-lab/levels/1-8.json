@@ -21,8 +21,8 @@
         "en": "Measure directional strength"
       },
       "brief": {
-        "zh": "保留差分器给出的两个带符号分量，并输出它们作为垂直方向分量时的长度。长度只表示变化有多强，不能被正负抵消。",
-        "en": "Retain both signed derivative components and output their length as perpendicular components. Strength measures change size without cancellation."
+        "zh": "保留差分器给出的两个带符号分量，并输出它们作为垂直方向分量时的长度。长度只表示变化有多强，不能被正负抵消。 三点加权器的方向输入用 (dx,dy)=(1,0) 表示横向，(0,1) 表示纵向。",
+        "en": "Retain both signed derivative components and output their length as perpendicular components. Strength measures change size without cancellation. For the weighted line direction inputs use (dx,dy)=(1,0) horizontally and (0,1) vertically."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
@@ -273,22 +273,26 @@
         }
       ],
       "solution": [
+        "dirZero = const[value=0]()",
+        "dirOne = const[value=1]()",
         "one = const[value=1]()",
         "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp,axis=y](g.gx,one,two,one)",
-        "y = weightedLine[outside=clamp,axis=x](g.gy,one,two,one)",
+        "x = weightedLine[outside=clamp](g.gx,one,two,one,dirZero,dirOne)",
+        "y = weightedLine[outside=clamp](g.gy,one,two,one,dirOne,dirZero)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",
         "strength <- m"
       ],
       "naive": [
+        "dirZero = const[value=0]()",
+        "dirOne = const[value=1]()",
         "one = const[value=1]()",
         "two = const[value=2]()",
         "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp,axis=x](g.gx,one,two,one)",
-        "y = weightedLine[outside=clamp,axis=y](g.gy,one,two,one)",
+        "x = weightedLine[outside=clamp](g.gx,one,two,one,dirOne,dirZero)",
+        "y = weightedLine[outside=clamp](g.gy,one,two,one,dirZero,dirOne)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",

@@ -43,13 +43,13 @@ test('window execution does not filter: it exposes RGB samples and positional we
   assert.throws(()=>CONSTRUCTION_PARTS.restore.eval({values:fromRows([[1,2]]),shape:image}))
 })
 
-test('earned kernels and axis-parameterised lines match independent direct filtering on rectangular RGB data', () => {
+test('earned kernels and direction-input lines match independent direct filtering on rectangular RGB data', () => {
   const v=course()
   const rows=[[[.1,.2,.3],[.9,.5,.6],[.4,.7,.2]],[[.8,.3,.2],[.2,.4,.5],[.6,.1,.9]]]
   for(const outside of ['zero','clamp']) {
     const out=run(v,'convolve',{image:rows,kernel:[[.1,.2,.4]]},`[outside=${outside}]`).out
     approx(out,filterImage(fromRows(rows),fromRows([[.1,.2,.4]]),{outside,convention:'convolution'}))
-    const line=run(v,'weightedLine',{image:rows,left:.1,centre:.2,right:.4},`[outside=${outside},axis=y]`).out
+    const line=run(v,'weightedLine',{image:rows,left:.1,centre:.2,right:.4,dx:0,dy:1},`[outside=${outside}]`).out
     approx(line,filterImage(fromRows(rows),fromRows([[.1],[.2],[.4]]),{outside}))
   }
   const valid=CONSTRUCTION_PARTS.trim.eval({image:make(5,4,1,(x,y)=>10*y+x),rx:1,ry:1})
@@ -106,4 +106,14 @@ test('new packed-node defaults preserve internal axis choices instead of overrid
       for(const port of task.outputs)approx(out[port.name],example.expect[port.name])
     }
   }
+})
+
+
+test('offset reads preserve channels and signed values for horizontal, vertical and diagonal displacements',()=>{
+  const image=make(3,2,3,(x,y,ch)=>10*y+3*x+ch-4)
+  for(const outside of ['zero','clamp','wrap','reflect'])for(const [dx,dy] of [[-1,0],[0,1],[1,-1],[0,0]]){
+    const got=CONSTRUCTION_PARTS.shift.eval({image,dx,dy},{params:{outside}})
+    approx(got,make(3,2,3,(x,y,ch)=>readOutside(image,x+dx,y+dy,ch,outside)))
+  }
+  for(const [dx,dy] of [[.5,0],[0,.5]])assert.throws(()=>CONSTRUCTION_PARTS.shift.eval({image,dx,dy},{}))
 })

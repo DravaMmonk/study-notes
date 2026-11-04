@@ -15,8 +15,9 @@ Known offsets are supplied data, not estimated registration. Comparisons are con
 claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
 A weighted line is built from shifts, multiplication and addition. A separable filter reuses that line along both
-axes through an exposed axis parameter, earned through separate horizontal and vertical tasks. The horizontal
-task permits only x; the vertical task introduces y through asymmetric weights and rectangular images. A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
+axes through explicit direction inputs dx and dy, earned through separate horizontal and vertical tasks.
+All spatial neighbour reads use the single shift primitive; horizontal reads set dy=0 and vertical reads set dx=0.
+The vertical task generalises the line to a supplied direction using asymmetric weights and rectangular images. A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
 the table supplies traversal, not a weighted sum. Convolution reverses the written kernel before correlation.
 Parameterised border rules propagate through the player's actual nested graph. Zero, clamp, wrap and reflect
 are explicit assumptions; a valid interior is a separate cropped output. Reflection includes the edge sample.

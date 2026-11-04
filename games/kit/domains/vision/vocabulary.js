@@ -36,7 +36,6 @@ const PART_ABOUT = {
   arithmetic: t('可设置为加、减、乘、除，数与图逐值计算', 'Configurable elementwise addition, subtraction, multiplication or division'),
   abs: t('逐值取绝对值', 'Absolute value, elementwise'),
   cosine: t('以周为单位计算余弦：1 周是 2π 弧度', 'Cosine in turns: one turn is 2π radians'),
-  offset: t('沿指定轴读取偏移邻居', 'Read an offset neighbour along a selected axis'),
   shift: t('按给定整数位移读取邻居，边界规则显式可选', 'Read an integer-offset neighbour with explicit boundary handling'),
   transpose: t('交换行与列，保留原值', 'Exchange rows and columns without changing values'),
   reverse: t('将表旋转 180 度', 'Rotate a table by 180 degrees'),

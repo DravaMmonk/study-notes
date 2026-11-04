@@ -196,7 +196,7 @@ export default function Screen(screen) {
           const p = { ...defaults(node.type), ...node.params }
           if (node.type === 'arithmetic') return <small>{L(OPERATOR_FIELDS.arithmetic[0].options.find(([key])=>key===p.op)?.[1])}</small>
           if (node.type === 'reduceRows') return <small>{p.mode === 'sum' ? tr('求和', 'Sum') : tr('平均', 'Mean')}</small>
-          if (node.type === 'shift' || node.type === 'windowTable' || game.BUILT[node.type] && builderOf(node.type).builds.settings?.length) return <small>{(node.type === 'offset' || node.type === 'windowTable' || game.BUILT[node.type] && builderOf(node.type).builds.settings?.includes('axis')) && `${L(AXIS_FIELD.options.find(([key]) => key === p.axis)?.[1])} · `}{L(BORDER_FIELD.options.find(([key]) => key === p.outside)?.[1])}</small>
+          if (node.type === 'shift' || node.type === 'windowTable' || game.BUILT[node.type] && builderOf(node.type).builds.settings?.length) return <small>{(node.type === 'windowTable' || game.BUILT[node.type] && builderOf(node.type).builds.settings?.includes('axis')) && `${L(AXIS_FIELD.options.find(([key]) => key === p.axis)?.[1])} · `}{L(BORDER_FIELD.options.find(([key]) => key === p.outside)?.[1])}</small>
           if (node.type === 'stencil') return <small>{p.axis === 'y' ? 'y' : 'x'} [{p.a}, {p.b}, {p.c}]</small>
           if (node.type === 'sample') return <small>{tr(p.method === 'bilinear' ? '双线性' : '最近邻', p.method === 'bilinear' ? 'Bilinear' : 'Nearest')}</small>
           if (node.type === 'kernelFilter') return <small>{tr(p.convention === 'convolution' ? '数学卷积' : '互相关', p.convention === 'convolution' ? 'Convolution' : 'Correlation')}</small>
