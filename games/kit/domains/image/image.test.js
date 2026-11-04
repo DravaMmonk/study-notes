@@ -1,15 +1,26 @@
-// The image board as content and saves hold it: blueprint text both ways (every level's reference too), how a board
-// read from text is laid out, and a packed part running the player's own circuit.
+// The image board as content and saves hold it: blueprint text both ways (a course's references too), how a board
+// read from text is laid out, and a packed part running the player's own circuit, on a course written here.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readContent } from '../../engine/content-node.js'
 import { fromText, toText } from './engine/board.js'
 import { evaluate, outputImages } from './engine/graph.js'
 import { OWN } from './engine/own.js'
 import { picture } from './items/pictures.js'
 import { imageCourse } from './course.js'
 
-const content = readContent('vision-complete')
+// A course of three levels: one packs its circuit, one holds that part, one is two tasks.
+const L = (s) => ({ zh: s, en: s })
+const square = { square: { x0: 4, y0: 4, s: 8 } }
+const filter = (rest) => ({ scene: 'filter', setup: { target: 'same' }, tests: [{ label: L('t'), in: square }], ...rest })
+const content = {
+  primitives: ['const', 'add', 'sub', 'mul', 'arith', 'merge'],
+  eras: [{ id: 0, foundation: ['wide', 'use', 'two'], chapter: { title: L('c'), lecture: L('l'), question: L('q') } }],
+  levels: [
+    { id: 'wide', kind: 'graph', packs: { name: L('p'), desc: L('d') }, ...filter({ solution: ['l = shift[dir=left](in)', 'r = shift[dir=right](in)', 'h = max(l, r)', 'out <- h'] }) },
+    { id: 'use', kind: 'graph', ...filter({ solution: ['k = const[c="pi/8"]()', 'm = arith[op=mul](in, k)', 'p = own-wide(m)', 'out <- p'], naive: ['out <- in'] }) },
+    { id: 'two', kind: 'graph', tasks: [filter({ solution: ['s = shift[dir=up, n=2](in)', 'out <- s'] }), filter({ solution: ['t = threshold[t=0.3](in)', 'out <- t'] })] },
+  ],
+}
 const image = imageCourse(content)
 
 test('blueprint text reads into a board and writes back the same', () => {
@@ -35,7 +46,7 @@ test('a board read from text has each part a column after what it reads, and its
   assert.equal(new Set(cards).size, cards.length)
 })
 
-test('every level’s reference boards read back to the lines content wrote', () => {
+test('a course’s reference boards, a packed part’s and a task’s too, read back to the lines content wrote', () => {
   for (const raw of content.levels) {
     const played = image.levelById[raw.id]
     for (const [k, task] of (raw.tasks ?? [raw]).entries()) {
@@ -46,14 +57,14 @@ test('every level’s reference boards read back to the lines content wrote', ()
 })
 
 test('a packed part runs the circuit the player passed its level with', () => {
-  const level = image.levelById['6-3']
+  const level = image.levelById.use
   const input = { in: picture('square') }
   const run = () => Array.from(outputImages(level.solution, evaluate(level.solution, input).values).out.data)
   const reference = run()
   try {
-    OWN.set('6-2', fromText(['out <- in']))
+    OWN.set('wide', fromText(['out <- in']))
     assert.notDeepEqual(run(), reference)
-    image.syncOwn({ solved: ['6-2'], data: { '6-2': { ...image.levelById['6-2'].solution, passed: image.levelById['6-2'].solution } }, slots: {} })
+    image.syncOwn({ solved: ['wide'], data: { wide: { ...image.levelById.wide.solution, passed: image.levelById.wide.solution } }, slots: {} })
     assert.deepEqual(run(), reference)
   } finally {
     OWN.clear()

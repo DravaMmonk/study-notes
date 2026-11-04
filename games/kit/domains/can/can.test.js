@@ -1,6 +1,6 @@
 // node --test games/kit/domains/can — the bus: frames, stuffing and CRC as ISO 11898-1 has them; what a level's
-// outputs must be (wants.js); boards as blueprint text (board.js); what the hidden tests of 《车在说话》 catch; a
-// level drawn headlessly (scene.js).
+// outputs must be (wants.js); boards as blueprint text (board.js); what hidden tests catch, on a course written here;
+// a level of the starter game (starter/) drawn headlessly (scene.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { bitsOf, busOf, crc15, frameBits, stuff, wiredAnd } from './bus.js'
@@ -9,8 +9,9 @@ import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { busCourse } from './course.js'
 import { runLevel } from './run.js'
-import { readContent } from '../../engine/content-node.js'
+import { assemble } from '../../engine/content.js'
 import domain from './domain.js'
+import { readFileSync, readdirSync } from 'node:fs'
 
 // The longest run of equal bits in a stretch.
 const longestRun = (bits) => bits.reduce((acc, b, k) => {
@@ -96,25 +97,59 @@ test('blueprint text reads into a board: settings as the cards keep them, ports 
   assert.throws(() => fromText(['x = counter(go)'], level, (t) => PARTS[t]), (e) => e.line === 1)
 })
 
+// A course written here: a counter built and then used to wait out the quiet before a frame, and a number gathered
+// bit by bit while Go on holds.
+const L = (s) => ({ zh: s, en: s })
+const sof = (quiet) => ['c = counter(line)', `q = const[value=${quiet - 1}]()`, 'lt = compare[form=lt](q, c)', 'z = const[value=0]()', 'e = compare[form=eq](line, z)', 's = select(lt, e, lt)', 'sof <- s']
+const gather = (restart) => ['r = reg[reg=A, start=0]()', 'd = arith[form=add](r, r)', 'a = arith[form=add](d, bit)', ...(restart === 'z' ? ['z = const[value=0]()'] : []), `s = select(go, a, ${restart})`, 'k = keep[reg=A](s)', 'n <- s']
+const COURSE = {
+  primitives: ['reg', 'keep', 'compare', 'arith', 'select', 'const'],
+  eras: [{ id: 1, foundation: ['count', 'start', 'gather'] }],
+  levels: [
+    { id: 'count', inputs: [{ name: 'go', label: L('go') }], outputs: [{ name: 'n', label: L('n') }], want: { n: { streak: { input: 'go' } } },
+      tests: [{ bus: { idle: 6, frames: [], tail: 0 }, inputs: { go: [1, 1, 0, 1, 1, 1] } }],
+      solution: ['r = reg[reg=A, start=0]()', 'i = arith[form=inc](r)', 'z = const[value=0]()', 's = select(go, i, z)', 'k = keep[reg=A](s)', 'n <- r'], builds: { type: 'counter' } },
+    // The visible buses start after eleven quiet bits or more; the hidden one is plugged in after ten.
+    { id: 'start', listens: true, outputs: [{ name: 'sof', label: L('sof') }], want: { sof: 'startOfFrame' },
+      tests: [{ bus: { frames: [{ id: '0x123', data: ['0x01'] }] } }, { bus: { idle: 11, frames: [{ id: '0x0f3', data: ['0x55', '0xaa'] }, { id: '0x2a5', data: [] }] } }],
+      hidden: [{ bus: { idle: 10, frames: [{ id: '0x123', data: ['0x01'] }, { id: '0x0f3', data: [] }] } }],
+      solution: sof(11) },
+    // Go on drops to 0 only where the bit is 0 in the visible test, and where it is 1 in the hidden one.
+    { id: 'gather', inputs: [{ name: 'bit', label: L('bit') }, { name: 'go', label: L('go') }], outputs: [{ name: 'n', label: L('n') }], want: { n: { gathered: { bit: 'bit', go: 'go' } } },
+      tests: [{ bus: { idle: 6, frames: [], tail: 0 }, inputs: { bit: [1, 0, 1, 0, 1, 1], go: [1, 1, 1, 0, 1, 1] } }],
+      hidden: [{ bus: { idle: 4, frames: [], tail: 0 }, inputs: { bit: [1, 1, 1, 1], go: [1, 0, 1, 1] } }],
+      solution: gather('z'), naive: gather('bit') },
+  ],
+}
+
 test('a hidden test catches a board that only fits the visible ones', () => {
-  const { LEVELS, partOf } = busCourse(readContent('bus'))
+  const { LEVELS, partOf, wrong } = busCourse(COURSE)
+  assert.deepEqual(wrong, [])
   const level = (id) => LEVELS.find((L) => L.id === id)
   const fits = (L, board) => [runLevel(L, board, partOf).pass, runLevel({ ...L, tests: L.hidden }, board, partOf).pass]
   // A start of frame after seven quiet bits: inside a frame no run is that long, so only the bus plugged in mid-wait
-  // tells it from eleven.
-  const sof = (quiet) => ['c = counter(line)', `q = const[value=${quiet - 1}]()`, 'lt = compare[form=lt](q, c)', 'z = const[value=0]()', 'e = compare[form=eq](line, z)', 's = select(lt, e, lt)', 'sof <- s']
-  assert.deepEqual(fits(level('1-7'), fromText(sof(7), level('1-7'), partOf)), [true, false])
-  assert.deepEqual(fits(level('1-7'), fromText(sof(11), level('1-7'), partOf)), [true, true])
+  // tells it from eleven. The counter it waits with is the one the course built.
+  assert.deepEqual(fits(level('start'), fromText(sof(7), level('start'), partOf)), [true, false])
+  assert.deepEqual(fits(level('start'), level('start').solution), [true, true])
   // Starting again from the bit that came with Go on 0 (the naive board) is right only while that bit is 0.
-  assert.deepEqual(fits(level('1-8'), level('1-8').naive), [true, false])
-  assert.deepEqual(fits(level('1-8'), level('1-8').solution), [true, true])
+  assert.deepEqual(fits(level('gather'), level('gather').naive), [true, false])
+  assert.deepEqual(fits(level('gather'), level('gather').solution), [true, true])
 })
 
+// The starter game (what npm run new-game copies), as content.js assembles it.
+const starter = () => {
+  const dir = new URL('./starter/', import.meta.url)
+  const json = (f) => JSON.parse(readFileSync(new URL(f, dir), 'utf8'))
+  return assemble({ id: 'starter', game: json('game.json'), levels: readdirSync(new URL('levels/', dir)).map((f) => [f.slice(0, -5), json(`levels/${f}`)]), glossary: json('glossary.json') })
+}
+
 test('a level drawn headlessly: each test’s bus as a waveform, every frame marked by its identifier', () => {
-  const spec = domain.spec(readContent('bus'))
-  const svg = domain.scene(spec, '1-2')
+  const spec = domain.spec(starter())
+  const level = spec.levels.find((l) => l.tests.some((t) => t.bus.frames.length))
+  const svg = domain.scene(spec, level.id)
   assert.match(svg, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg"/)
-  assert.equal(svg.match(/class="bus-line"/g).length, spec.levels.find((l) => l.id === '1-2').tests.length)
-  assert.ok(svg.includes('>0x123<') && svg.includes('>0x2a5<'))
+  assert.equal(svg.match(/class="bus-line"/g).length, level.tests.length)
+  for (const f of level.tests.flatMap((t) => t.bus.frames)) assert.ok(svg.includes(`>0x${f.id.toString(16)}<`))
+  assert.equal(svg.match(/class="bus-sof"/g).length, level.tests.flatMap((t) => t.bus.frames).length)
   assert.equal(domain.scene(spec, 'nope'), null)
 })
