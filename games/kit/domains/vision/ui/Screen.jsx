@@ -214,7 +214,6 @@ export default function Screen(screen) {
       defaults={defaults}
       brief={{ hint: level.hint }}
       results={strip}
-      resultsTitle={tr(`测试 ${run.at + 1}`, `Test ${run.at + 1}`)}
       details
       sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx)} description={descriptionOf(node)} />}
       packed={{
