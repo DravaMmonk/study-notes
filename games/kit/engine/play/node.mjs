@@ -16,8 +16,9 @@ export const recordFile = (game, session, dir = GAMES_DIR) => resolve(dir, game,
 let loadedLang = null
 
 /**
- * Game `game` ready to play in `lang`: { shell (defineGame's result), hook (its domain's play hook), course (the course
- * the audit checks), content }. The language is the shell's, chosen before the first game loads: one language a process.
+ * Game `game` (its id, or a content as content.js assembles one) ready to play in `lang`: { shell (defineGame's
+ * result), hook (its domain's play hook), course (the course the audit checks), content }. The language is the shell's,
+ * chosen before the first game loads: one language a process.
  */
 export async function loadPlay(game, lang = 'en') {
   if (loadedLang && loadedLang !== lang) throw new Error(`this process plays in ${loadedLang}, not ${lang}`)
@@ -25,7 +26,7 @@ export async function loadPlay(game, lang = 'en') {
     globalThis.localStorage.setItem('fieldnotes.lang', lang)
     loadedLang = lang
   }
-  const content = readContent(game)
+  const content = typeof game === 'string' ? readContent(game) : game
   const shell = await gameOf(content)
   const domain = (await loadModule(resolve(KIT, 'domains', content.domain, 'domain.js'))).default
   if (!domain.play) throw new Error(`the ${content.domain} domain has no play hook`)

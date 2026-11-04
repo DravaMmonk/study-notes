@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { relative, resolve } from 'node:path'
-import { GAMES } from '../../../games.js'
+import { pathToFileURL } from 'node:url'
 import { find } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
@@ -23,8 +23,10 @@ import { replaceOps, searchContent } from './search.js'
 /** The arguments a call to `tool` lacks. */
 export const lacking = (tool, args) => Object.entries(tool.params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k)
 
-// The games folder the tools work on: the repository's, or GAMES_ROOT (a copy, for trying changes out).
+// The games folder the tools work on: the repository's, or GAMES_ROOT (a copy, for trying changes out), and the games
+// its hub list (games.js) names.
 const ROOT = process.env.GAMES_ROOT ?? GAMES_DIR
+const { GAMES } = await import(pathToFileURL(resolve(ROOT, 'games.js')).href)
 const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games.js'), 'utf8'), id)
 const known = (game) => {
   if (!GAMES.some((g) => g.id === game)) throw new Error(`no game ${game}; the games are ${GAMES.map((g) => g.id).join(', ')}`)

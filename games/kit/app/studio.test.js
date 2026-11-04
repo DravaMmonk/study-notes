@@ -1,25 +1,21 @@
 // node --test games/kit/app — the studio's HTTP bridge (studio.js) end to end: the tools of ../engine/ops/tools.js
-// over HTTP, on a copy of a game (GAMES_ROOT) so its writes land in a temp folder. A studio session in miniature:
+// over HTTP, on a small game written for the test into a temp games folder (GAMES_ROOT, ../engine/ops/fixture.js) so
+// its writes land there. A studio session in miniature:
 // preview a pending changeset (nothing written; the content, the check's lines by level, the migration and the files
 // it would change), seed a level’s board, apply, read the log, undo; and the second lane the slow reads take.
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { createServer } from 'node:http'
-import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
+import { proofsRoot } from '../engine/ops/fixture.js'
 
-const REPO = resolve(import.meta.dirname, '../../..')
-let root
+const { root, id: GAME } = proofsRoot()
 let server
 let base
 let closeGames
 
 before(async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'studio-bridge-'))
-  execFileSync('tar', ['-x', '-C', dir], { input: execFileSync('git', ['-C', REPO, 'archive', 'HEAD', 'games/games.js', 'games/qed-lab'], { maxBuffer: 1 << 28 }) })
-  root = join(dir, 'games')
   process.env.GAMES_ROOT = root
   const { TOOLS, lacking } = await import('../engine/ops/tools.js')
   ;({ closeGames } = await import('../engine/games.mjs'))
@@ -38,7 +34,7 @@ const post = async (tool, args, raw = null) => {
   const res = await fetch(`${base}/studio/api/${tool}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: raw ?? JSON.stringify(args) })
   return { status: res.status, body: await res.json() }
 }
-const onDisk = (file) => readFileSync(join(root, 'qed-lab', file), 'utf8')
+const onDisk = (file) => readFileSync(join(root, GAME, file), 'utf8')
 
 test('the bridge lists the tools, and says what is wrong with a call', async () => {
   const list = await (await fetch(`${base}/studio/api/`)).json()
@@ -54,53 +50,53 @@ test('the bridge lists the tools, and says what is wrong with a call', async () 
 })
 
 test('a pending changeset previewed: its content, lines by level, migration and files, nothing written', async () => {
-  const before = onDisk('levels/box.json')
+  const before = onDisk('levels/suppose.json')
   const ops = [
-    { op: 'text.set', level: 'box', path: 'brief', en: 'Prove it with a box.' },
-    { op: 'level.move', level: 'chain', to: { before: 'box', on: 'path' } },
+    { op: 'text.set', level: 'suppose', path: 'brief', en: 'Prove it with a box.' },
+    { op: 'level.move', level: 'suppose', to: { before: 'apply', on: 'path' } },
   ]
-  const { status, body } = await post('preview', { game: 'qed-lab', changeset: { ops } })
+  const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
   assert.equal(status, 200)
   assert.equal(body.failed, null)
-  assert.equal(body.content.levels.find((l) => l.id === 'box').brief.en, 'Prove it with a box.')
-  assert.ok(body.order.includes('box') && body.lines.every((l) => Array.isArray(l.levels)))
-  assert.ok(body.lines.some((l) => l.levels.includes('box') && /^box /.test(l.text)), 'a domain line is about its level')
-  assert.deepEqual(body.changes.map((c) => c.file).sort(), ['qed-lab/game.json', 'qed-lab/levels/box.json'])
-  assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('box.json')).after).brief.en, 'Prove it with a box.')
+  assert.equal(body.content.levels.find((l) => l.id === 'suppose').brief.en, 'Prove it with a box.')
+  assert.ok(body.order.includes('suppose') && body.lines.every((l) => Array.isArray(l.levels)))
+  assert.ok(body.lines.some((l) => l.levels.includes('suppose') && /^suppose /.test(l.text)), 'a domain line is about its level')
+  assert.deepEqual(body.changes.map((c) => c.file).sort(), [`${GAME}/game.json`, `${GAME}/levels/suppose.json`])
+  assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).brief.en, 'Prove it with a box.')
   assert.ok(body.migration === null || body.migration.version >= 2)
-  assert.equal(onDisk('levels/box.json'), before, 'a preview writes nothing')
+  assert.equal(onDisk('levels/suppose.json'), before, 'a preview writes nothing')
 
-  const bad = (await post('preview', { game: 'qed-lab', changeset: { ops: [ops[0], { op: 'level.set', level: 'nope', path: 'x', value: 1 }] } })).body
+  const bad = (await post('preview', { game: GAME, changeset: { ops: [ops[0], { op: 'level.set', level: 'nope', path: 'x', value: 1 }] } })).body
   assert.equal(bad.failed, 1)
   assert.equal(bad.content, null)
   assert.match(bad.problems[0], /^op 2 \(level.set\)/)
 })
 
 test('a board seeded for the game, drawn as SVG', async () => {
-  const seed = (await post('seed', { game: 'qed-lab', level: 'box' })).body
+  const seed = (await post('seed', { game: GAME, level: 'suppose' })).body
   assert.equal(seed.task, null)
   assert.ok(Array.isArray(seed.data.nodes) && seed.data.nodes.some((n) => n.type === 'impI'), JSON.stringify(seed).slice(0, 300))
-  const text = ['# blueprint 1 qed-lab box', 'f = impI[A="A & B"](body: z) {', '  body {', '    e = andE(f.body)', '    m1 = mp(p, e.left)', '    z = mp(m1, e.right)', '  }', '}', 'goal <- f'].join('\n')
-  const changed = (await post('seed', { game: 'qed-lab', level: 'box', changeset: { ops: [{ op: 'level.blueprint', level: 'box', text }] } })).body
+  const text = [`# blueprint 1 ${GAME} suppose`, 'f = impI[A=A](body: z) {', '  body {', '    m1 = mp(p, f.body)', '    z = mp(q, m1)', '  }', '}', 'goal <- f'].join('\n')
+  const changed = (await post('seed', { game: GAME, level: 'suppose', changeset: { ops: [{ op: 'level.blueprint', level: 'suppose', text }] } })).body
   assert.ok(changed.data.nodes.some((n) => n.id === 'z'), 'seeded from the content as the changeset leaves it')
-  const { boards } = (await post('render', { game: 'qed-lab', level: 'box', format: 'svg' })).body
+  const { boards } = (await post('render', { game: GAME, level: 'suppose', format: 'svg' })).body
   assert.match(boards[0].svg, /^<svg/)
 })
 
 test('apply, read the log, undo: the content comes back as it was', async () => {
-  const before = onDisk('levels/copy.json')
-  const ops = [{ op: 'text.set', level: 'copy', path: 'brief', en: 'Given that “it rains”, prove “it rains”.' }]
-  const done = (await post('modify', { game: 'qed-lab', changeset: { why: 'a shorter brief', ops } })).body
+  const before = onDisk('levels/given.json')
+  const ops = [{ op: 'text.set', level: 'given', path: 'brief', en: 'Given that “today is Saturday”, prove it.' }]
+  const done = (await post('modify', { game: GAME, changeset: { why: 'a shorter brief', ops } })).body
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.notEqual(onDisk('levels/copy.json'), before)
-  const { log, undoable } = (await post('log', { game: 'qed-lab' })).body
+  assert.notEqual(onDisk('levels/given.json'), before)
+  const { log, undoable } = (await post('log', { game: GAME })).body
   assert.equal(log.at(-1).why, 'a shorter brief')
   assert.equal(undoable, log.at(-1).seq)
-  const undone = (await post('undo', { game: 'qed-lab' })).body
+  const undone = (await post('undo', { game: GAME })).body
   assert.equal(undone.written, true, undone.problems.join('\n'))
   // The same content; a line the change rewrote keeps the file format (../engine/ops/json.js), as every write does.
-  assert.deepEqual(JSON.parse(onDisk('levels/copy.json')), JSON.parse(before))
-  assert.equal((await post('log', { game: 'qed-lab' })).body.undoable, null, 'an undo is not itself undone')
+  assert.deepEqual(JSON.parse(onDisk('levels/given.json')), JSON.parse(before))
+  assert.equal((await post('log', { game: GAME })).body.undoable, null, 'an undo is not itself undone')
 })
 
 test('the slow reads go to the second lane: a quick preview is not held up by a whole check, a write waits for both', async () => {

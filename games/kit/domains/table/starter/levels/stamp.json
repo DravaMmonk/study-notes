@@ -1,0 +1,98 @@
+{
+  "mode": "circuit",
+  "title": {
+    "zh": "数路线",
+    "en": "Count the routes"
+  },
+  "short": {
+    "zh": "汇合两条来路，认出起点",
+    "en": "Merge two ways in, spot the start"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "街道只能往右或往下走。每个路口的路线数 = 上面 + 左边，起点是 1。",
+        "en": "Streets only go right or down. The routes to a crossing = up + left, and the start is 1."
+      }
+    }
+  ],
+  "mission": {
+    "goal": {
+      "zh": "让机器人在起点写 1，其余每个路口 = 上面 + 左边。",
+      "en": "Have the robot write 1 on the start and up + left on every other crossing."
+    },
+    "how": {
+      "zh": "汇合器收上面和左边；放行闸只在起点放一个 1 进去。",
+      "en": "A Merger takes up and left; a Pass gate lets a 1 in at the start only."
+    }
+  },
+  "robot": "scout",
+  "adds": [
+    "const",
+    "pass"
+  ],
+  "unlock": "counter",
+  "builds": {
+    "ports": [
+      {
+        "way": {
+          "n": 1,
+          "sensor": "up"
+        }
+      },
+      {
+        "way": {
+          "n": 2,
+          "sensor": "left"
+        }
+      },
+      {
+        "start": {
+          "sensor": "start"
+        }
+      }
+    ]
+  },
+  "hints": [
+    {
+      "zh": "「是起点」接放行闸的条件口，常数 1 接数口，再把放行闸接进汇合器。",
+      "en": "Wire “is start” to the Pass gate’s condition and a Constant 1 to its number, then the gate into the Merger."
+    }
+  ],
+  "world": "grid",
+  "facts": [
+    "start"
+  ],
+  "tests": [
+    {
+      "R": 3,
+      "C": 4
+    },
+    {
+      "R": 4,
+      "C": 4
+    }
+  ],
+  "solution": [
+    "k = const[value=1]()",
+    "g = pass(facts.start, k)",
+    "m = msum(view.up, view.left, g)",
+    "cell <- m"
+  ],
+  "naive": [
+    "m = msum(view.up, view.left)",
+    "cell <- m"
+  ],
+  "debrief": {
+    "title": {
+      "zh": "板成了元件",
+      "en": "The board is a part"
+    },
+    "body": [
+      {
+        "zh": "这块板从此是一个元件：路线计数器。",
+        "en": "From now on this board is a part: the Route Counter."
+      }
+    ]
+  }
+}

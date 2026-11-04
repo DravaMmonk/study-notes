@@ -1,14 +1,16 @@
 // node --test games/kit/studio — the studio's pure parts: forms from schemas (form.js), the control each value takes by
 // its shape and hints, cells typed and read back, a level's sections, the check's findings on their fields, each edit as
 // its operation and a pending changeset's coalescing, the course tree and its drop slots (tree.js), a changed file read
-// field by field (diff.js), the game page's marks as the fields they show (marks.js); and on the real games, that every level reads as a form with no field left to raw JSON that
-// the schema could say more about, the hinted values get their controls, and every cell control gives back the value
-// it shows.
+// field by field (diff.js), the game page's marks as the fields they show (marks.js); and on every domain's starter game
+// (kit/domains/<d>/starter), that every level reads as a form with no field left to raw JSON that the schema could say
+// more about, every value a schema hint names gets its control, and every cell control gives back the value it shows.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { S } from '../engine/schema.js'
+import { S, find } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
 import { putIn, takeOut } from '../engine/ops/place.js'
+import { existsSync, readdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { domainOf, readContent } from '../engine/content-node.js'
 import {
   blank, boardsOf, cellText, cellValue, formOf, gridRows, gridValue, holdsLevels, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
@@ -41,6 +43,11 @@ const VOCAB = defineVocabulary({
   }),
 })
 const ctx = { vocabulary: VOCAB, levels: ['a', 'b'] }
+
+// Every domain's starter game, as content.js assembles it: the studio's forms on content no real game owns.
+const DOMAINS = resolve(import.meta.dirname, '../domains')
+const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
+const starter = (d) => readContent('starter', resolve(DOMAINS, d))
 const LEVEL = { kind: 'board', title: { zh: '甲', en: 'A' }, adds: ['add'], tests: [{ input: 3 }], gen: { rows: { n: 2 } }, pick: ['x'], solution: ['s = add(in)', 'out <- s'], extra: { any: 1 } }
 
 test('a level reads as fields by its schema: its shape (by), texts, choices from the vocabulary, calls, boards', () => {
@@ -165,9 +172,10 @@ test('a list that grew or shrank shows only the items added or removed, and item
   ])
 })
 
-test('every level of the prototypes reads as a form: each text a text pair, each board a board, where the schema has it', async () => {
-  for (const game of ['factory', 'bus', 'qed-lab', 'qed', 'syntax-graph', 'state-graph', 'vision-complete', 'network']) {
-    const content = readContent(game)
+test('every level of every starter reads as a form: each text a text pair, each board a board, where the schema has it', async () => {
+  assert.ok(STARTERS.length > 0)
+  for (const game of STARTERS) {
+    const content = starter(game)
     const { vocabulary } = await domainOf(content)
     const levels = content.levels.map((l) => l.id)
     for (const { id, ...level } of content.levels) {
@@ -291,17 +299,14 @@ function* fieldsIn(f) {
   if (f.params) yield* fieldsIn(f.params)
 }
 
-test('on the real games: the hinted values get their controls, and each cell control gives back the value it shows', async () => {
-  const want = {
-    bus: [['1-6', 'tests.0.inputs', 'wave']],
-    network: [['1-12', 'tasks.0.tests.0.inputs', 'wave'], ['1-12', 'tasks.0.tests.3.expect', 'wave'], ['1-1', 'tasks.0.tests.0.wires.left.send.0.bits', 'ticks']],
-    'state-graph': [['cheapest', 'tests.0.costs', 'grid'], ['carve', 'img', 'grid']],
-    'vision-complete': [['1-1', 'setup.target.correlate.kernel', 'grid'], ['10-3', 'tests.0.flags', 'ticks']],
-    qed: [['and', 'tasks.0.cases', 'table'], ['and', 'tasks.0.tests.0.premises', 'table']],
-  }
+/** The control a hinted schema asks for (form.js), or null: a grid, ticks (a string of bits too), a wave of ticks. */
+const hinted = (s) => (s.view === 'grid' ? 'grid' : s.view === 'ticks' ? (s.type === 'map' ? 'wave' : 'ticks') : null)
+
+test('on every starter: each value a schema hint names gets its control, and each cell control gives back the value it shows', async () => {
   const counts = {}
-  for (const game of ['factory', 'bus', 'qed-lab', 'qed', 'syntax-graph', 'state-graph', 'vision-complete', 'network']) {
-    const content = readContent(game)
+  let hints = 0
+  for (const game of STARTERS) {
+    const content = starter(game)
     const { vocabulary } = await domainOf(content)
     const levels = content.levels.map((l) => l.id)
     for (const { id, ...level } of content.levels) {
@@ -321,10 +326,41 @@ test('on the real games: the hinted values get their controls, and each cell con
         const cells = f.kind === 'grid' ? gridRows(f).flat() : f.kind === 'ticks' ? tickValues(f) : f.kind === 'numbers' ? f.value : f.kind === 'wave' ? Object.values(f.value).flat() : []
         for (const v of cells) assert.deepEqual(cellValue(f.cell, cellText(v)), v, `${where} cell ${v}`)
       }
-      for (const [at, path, kind] of want[game] ?? []) if (at === id) assert.equal(kinds.get(path), kind, `${game} ${id} ${path}`)
+      // Every value whose schema carries a view hint (found through the schema, whatever its type) gets that control.
+      for (const type of ['list', 'map', 'str']) {
+        for (const { path, schema } of find(vocabulary.level, level, type, { vocabulary })) {
+          const want = hinted(schema)
+          if (!want) continue
+          hints++
+          assert.equal(kinds.get(path.join('.')), want, `${game} ${id} ${path.join('.')}`)
+        }
+      }
     }
   }
-  for (const k of ['grid', 'ticks', 'wave', 'table', 'numbers', 'chips', 'text', 'board', 'choice', 'call', 'list']) assert.ok(counts[k] > 0, `some field is ${k}`)
+  assert.ok(hints > 0, 'no starter holds a hinted value')
+  for (const k of ['text', 'board', 'choice', 'call', 'list', 'chips']) assert.ok(counts[k] > 0, `some field is ${k}`)
+})
+
+test('each control on content written here: a grid, ticks, a wave, a table read back as the value they show', () => {
+  const LEVEL_HINTS = S.obj({
+    kernel: S.list(S.list(S.num()), { view: 'grid' }),
+    flags: S.list(S.oneOf([0, 1])),
+    bits: S.str({ pattern: '^[01]+$', view: 'ticks' }),
+    inputs: S.map(S.list(S.either(S.int(), S.oneOf([null]))), { view: 'ticks' }),
+    cases: S.list(S.map(S.str())),
+    costs: S.list(S.num()),
+  })
+  const value = { kernel: [[1, 2], [3, 4]], flags: [0, 1, 1], bits: '0110', inputs: { go: [1, null, 0] }, cases: [{ A: 'Rain' }, { A: 'Bus' }], costs: [1, 2.5] }
+  const form = formOf(LEVEL_HINTS, value, ctx)
+  const kinds = Object.fromEntries(form.fields.map((f) => [f.key, f.field.kind]))
+  assert.deepEqual(kinds, { kernel: 'grid', flags: 'ticks', bits: 'ticks', inputs: 'wave', cases: 'table', costs: 'numbers' })
+  const field = (key) => form.fields.find((f) => f.key === key).field
+  assert.deepEqual(gridValue(field('kernel'), gridRows(field('kernel'))), value.kernel)
+  assert.deepEqual(tickValue(field('flags'), tickValues(field('flags'))), value.flags)
+  assert.deepEqual(tickValue(field('bits'), tickValues(field('bits'))), value.bits)
+  const t = tableOf(field('cases'))
+  assert.deepEqual(tableValue(field('cases'), t, t.rows), value.cases)
+  for (const v of Object.values(field('inputs').value).flat()) assert.deepEqual(cellValue(field('inputs').cell, cellText(v)), v)
 })
 
 test('the link picker offers first the links the other language has more of than this one', () => {

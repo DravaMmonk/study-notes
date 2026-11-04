@@ -1,0 +1,12 @@
+{
+  "groups": [{ "id": "logic", "title": { "zh": "逻辑", "en": "Logic" } }],
+  "entries": [
+    {
+      "id": "circuit",
+      "group": "logic",
+      "title": { "zh": "真值电路", "en": "truth circuit" },
+      "at": "g-not",
+      "body": [{ "zh": "接一次、在真值表的每一行上运行的电路：输出这句话在那一行的真值。", "en": "A circuit wired once and run on every row of a truth table: it outputs the sentence’s value on that row." }]
+    }
+  ]
+}
