@@ -218,6 +218,10 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .ph-handle i { width: 40px; height: 5px; border-radius: 3px; background: var(--rule); }
 .ph-sheet-head { padding: 0 8px 6px 18px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .ph-sheet-head h2 { margin: 0; font-family: var(--serif); font-size: 18px; font-weight: 500; }
+.ph-sheet-head h2 + .ph-sheet-actions { margin-inline-start: auto; }
+.ph-sheet-actions { display: flex; align-items: center; gap: 4px; }
+.ph-head-action { height: 30px; display: inline-flex; align-items: center; gap: 5px; padding: 0 10px; border: 1px solid var(--hairline); border-radius: 999px; color: var(--body); background: none; font: 500 12.5px var(--sans); cursor: pointer; }
+.ph-head-action:hover { color: var(--ink); background: var(--canvas); }
 .ph-icon { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--muted); background: transparent; }
 .ph-sheet-body { padding: 4px 16px 16px; overflow-y: auto; overscroll-behavior: contain; }
 .ph-sheet-foot { padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline); }
