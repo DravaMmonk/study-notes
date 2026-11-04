@@ -41,7 +41,8 @@ reused in smoothing residuals and reconstruction checks.
 Stage 1 opens with horizontal three-sample construction followed by vertical transfer on the same graph, then
 three independent routes. All routes therefore have both directions before reusing the line:
 
-- Direction/composition: two-axis separable processing -> smoothing/detail enhancement with given Gaussian weights.
+- Direction/composition: two-axis separable processing -> smoothing with replicated edges -> signed removed detail
+  -> detail enhancement with given Gaussian weights.
 - Local kernels: general correlation -> convolution orientation -> boundary/valid-domain upgrade -> signed spatial
   derivatives -> Sobel and gradient strength.
 - Channels: construct a channel-weighted measurement from RGB samples.
@@ -135,7 +136,7 @@ introduces, including all-unlocked review. Defaults, restored boards, selectors 
 | Construction | Prerequisite task | Combined task | Newly available capability |
 | --- | --- | --- | --- |
 | Replaceable local kernel | Inspect per-position weighted contributions | Sum and restore a local result | Window unfolding first; row sum and shape restoration next |
-| Detail enhancement | Preserve constant edges under replication | Smooth/detail enhancement | Boundary assumption before residual composition |
+| Detail enhancement | Preserve constant edges under replication; separate the signed removed detail | Smooth/detail enhancement | Boundary assumption, then the signed residual, before enhancement |
 | Frequency wave | Shift one cycle without changing its spacing | Add variable cycles per row | Cosine and phase before frequency control |
 | Stable gradient | Measure the length of raw signed directional responses | Perpendicular smoothing and strength | Magnitude before Sobel composition |
 | Row spectrum | Scan the earned probe into one coefficient column | Restore all three coefficient channels | Repeated rows and frequency indices before full spectrum assembly |
