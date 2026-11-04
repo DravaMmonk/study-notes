@@ -86,7 +86,7 @@ test('enum configurations and helper components appear only where their prerequi
   assert.ok(!held(task('2-4')).includes('size'))
   assert.ok(held(task('2-11')).includes('size'))
   assert.ok(held(task('2-12')).includes('size'))
-  for(const [id,pre,combined] of [['1-5','v1_smooth_border','v1_detail'],['2-1','v2_cycle','v2_wave'],['1-3','v1_contributions','v1_kernel'],['1-8','v1_strength','v1_sobel'],['2-4','v2_probe_scan','v2_spectrum'],['2-6','v2_rescale','v2_phase'],['2-8','v2_columns','v2_two_axes']])assert.deepEqual(v.played.get(id).map(t=>t.taskId),[pre,combined])
+  for(const [id,pre,combined] of [['1-5',['v1_smooth_border','v1_residual'],'v1_detail'],['2-1','v2_cycle','v2_wave'],['1-3','v1_contributions','v1_kernel'],['1-8','v1_strength','v1_sobel'],['2-4','v2_probe_scan','v2_spectrum'],['2-6','v2_rescale','v2_phase'],['2-8','v2_columns','v2_two_axes']])assert.deepEqual(v.played.get(id).map(t=>t.taskId),[pre,combined].flat())
   const original={nodes:[{id:'op',type:'arithmetic',params:{op:'div'}}],wires:[]}
   assert.equal(taskBoard(original,new Set(['arithmetic']),(type,key)=>v.settingsIn(task('0-1'),type,key)).nodes[0].params.op,'sub')
   assert.equal(original.nodes[0].params.op,'div')
