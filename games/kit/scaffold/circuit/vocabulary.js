@@ -55,8 +55,9 @@ const TASK = {
 
 /* ---------- game.json ---------- */
 
-const ITEM = S.either(S.str(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels: ids })) }))
-const AFTER = S.either(S.str(), ids)
+const levels = S.list(S.level())
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels })) }))
+const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int(),
   keeps: S.opt(S.either(S.oneOf(['all']), ids)),
@@ -64,8 +65,8 @@ const ERA = S.obj({
   question: S.text(),
   foundation: S.list(ITEM),
   practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels: ids, title: S.opt(S.text()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.str(), after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
+  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
 })
 const GAME = S.obj({
   title: S.text(),

@@ -3,7 +3,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { migrations } from '../../shell/saves.js'
-import { ancestors, idMoves, saveOps } from './migrate.js'
+import { ancestors, idMoves, placedBy, saveOps } from './migrate.js'
 
 /** A course of one path: each level requires the one before it; `builds`: { level: [part] }. */
 const path = (ids, builds = {}) => ({ levels: ids.map((id, k) => ({ id, requires: k ? [ids[k - 1]] : [] })), builds: (id) => builds[id] ?? [] })
@@ -15,23 +15,30 @@ test('ancestors and id moves', () => {
 })
 
 test('a level put earlier is counted solved for whoever solved the level now after it', () => {
-  const ops = saveOps({ before: path(['a', 'b', 'c', 'd']), after: path(['a', 'd', 'b', 'c']), idOps: [], placed: new Set(['d']) })
+  const ops = saveOps({ before: path(['a', 'b', 'c', 'd']), after: path(['a', 'd', 'b', 'c']), idOps: [] })
   assert.deepEqual(ops, [{ solve: ['b', ['d']] }])
   assert.deepEqual(migrate(ops, { solved: ['a', 'b', 'c'] }).solved, ['a', 'b', 'c', 'd'])
   assert.deepEqual(migrate(ops, { solved: ['a'] }).solved, ['a'])
 })
 
+test('the levels put somewhere are read off the orders: the fewest whose moving explains the new one', () => {
+  assert.deepEqual([...placedBy(['a', 'b', 'c', 'd'], ['a', 'd', 'b', 'c'])], ['d'])
+  assert.deepEqual([...placedBy(['a', 'b', 'c', 'd'], ['a', 'c', 'd', 'b'])], ['b'])
+  assert.deepEqual([...placedBy(['a', 'b', 'c'], ['a', 'c', 'b'])], ['c'], 'two swapped: the one now first was put there')
+  assert.deepEqual([...placedBy(['a', 'b'], ['a', 'n', 'b'])], ['n'])
+})
+
 test('a level put later hands nobody the levels it passed over', () => {
-  assert.deepEqual(saveOps({ before: path(['a', 'b', 'c', 'd']), after: path(['a', 'c', 'd', 'b']), idOps: [], placed: new Set(['b']) }), [])
+  assert.deepEqual(saveOps({ before: path(['a', 'b', 'c', 'd']), after: path(['a', 'c', 'd', 'b']), idOps: [] }), [])
 })
 
 test('a new level before others is counted solved for whoever solved them', () => {
-  assert.deepEqual(saveOps({ before: path(['a', 'b']), after: path(['a', 'n', 'b']), idOps: [], placed: new Set(['n']) }), [{ solve: ['b', ['n']] }])
+  assert.deepEqual(saveOps({ before: path(['a', 'b']), after: path(['a', 'n', 'b']), idOps: [] }), [{ solve: ['b', ['n']] }])
 })
 
 test('a renamed level keeps its state; a removed one loses it; the step speaks of the new ids after them', () => {
   const idOps = [{ rename: { b: 'bee' } }, { rename: { c: null } }]
-  const ops = saveOps({ before: path(['a', 'b', 'c', 'd']), after: path(['a', 'd', 'bee']), idOps, placed: new Set(['bee', 'd']) })
+  const ops = saveOps({ before: path(['a', 'b', 'c', 'd']), after: path(['a', 'd', 'bee']), idOps })
   assert.deepEqual(ops, [...idOps, { solve: ['bee', ['d']] }])
   const out = migrate(ops, { solved: ['a', 'b', 'c'], data: { b: 'board b', c: 'board c' } })
   assert.deepEqual(out.solved, ['a', 'bee', 'd'])
@@ -45,11 +52,15 @@ test('a level that now builds a part makes the board kept on its last task the p
   assert.deepEqual(migrate(ops, { solved: ['a', 'b'], data: { b2: 'board' } }).built, { b2: 'board' })
 })
 
+test('a part whose building moves to another level is built from the new builder’s kept board', () => {
+  assert.deepEqual(saveOps({ before: path(['a', 'b'], { a: ['adder'] }), after: path(['a', 'b'], { b: ['adder'] }), idOps: [] }), [{ built: [['b', 'b']] }])
+})
+
 test('a level whose puzzle changed drops the boards kept on each of its tasks', () => {
   const keys = (id) => [`${id}_1`, `${id}_2`]
   assert.deepEqual(saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a'], keys }), [{ drop: ['a_1', 'a_2'] }])
 })
 
 test('with no course before (content that did not fit), only the ops’ own and the stale boards', () => {
-  assert.deepEqual(saveOps({ before: null, after: path(['a']), idOps: [{ rename: { x: 'a' } }], placed: new Set(['a']) }), [{ rename: { x: 'a' } }])
+  assert.deepEqual(saveOps({ before: null, after: path(['a']), idOps: [{ rename: { x: 'a' } }] }), [{ rename: { x: 'a' } }])
 })

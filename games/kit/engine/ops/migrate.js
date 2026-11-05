@@ -9,7 +9,8 @@
 //   new prerequisites  a level put in the course (added, or moved) where it is now required, all the way back, by a
 //               level a player solved without it: counted solved for them ({ solve }), from the first such level they
 //               solved, so nobody is sent back. Only the level put there: a level moved later now comes after the
-//               levels it passed over, and they are not handed to whoever solved it early
+//               levels it passed over, and they are not handed to whoever solved it early. Which levels were put
+//               somewhere is read off the course before and after, whatever operation did it (placedBy)
 //   new builds  a level that now builds a part: for whoever solved it, the board they kept on its last task becomes the
 //               part's ({ built })
 //
@@ -40,12 +41,31 @@ export function idMoves(oldIds, ops) {
 }
 
 /**
+ * The levels a change put somewhere (new ids): the new ones, and those off a longest run of levels the play orders
+ * before and after share — the fewest levels whose moving explains the new order. Where two runs are as long (two
+ * levels swapped), the one that keeps the earlier level of the old order wins, so the level now first is the one put
+ * there.
+ */
+export function placedBy(oldOrder, newOrder) {
+  const n = oldOrder.length
+  const m = newOrder.length
+  const len = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0))
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) len[i][j] = oldOrder[i] === newOrder[j] ? len[i + 1][j + 1] + 1 : Math.max(len[i + 1][j], len[i][j + 1])
+  const kept = new Set()
+  for (let i = 0, j = 0; i < n && j < m;) {
+    if (oldOrder[i] === newOrder[j]) { kept.add(oldOrder[i]); i++; j++ } else if (len[i][j + 1] >= len[i + 1][j]) j++
+    else i++
+  }
+  return new Set(newOrder.filter((id) => !kept.has(id)))
+}
+
+/**
  * The ops of the save step a changeset needs, in order. before, after: { levels: [{ id, requires }], builds(id) →
  * [part] } (before null when the content before did not fit its vocabulary: only the ops' own and the stale boards
- * are given); idOps: the operations' own save ops; placed: the levels (new ids) the changeset put somewhere in the
- * course; stale: levels (new ids) whose kept boards no longer apply; keys(id): a level's task keys, now.
+ * are given); idOps: the operations' own save ops; stale: levels (new ids) whose kept boards no longer apply;
+ * keys(id): a level's task keys, now.
  */
-export function saveOps({ before, after, idOps, placed = new Set(), stale = [], keys = (id) => [id] }) {
+export function saveOps({ before, after, idOps, stale = [], keys = (id) => [id] }) {
   const out = [...idOps]
   if (stale.length) out.push({ drop: stale.flatMap(keys) })
   if (!before) return out
@@ -54,6 +74,7 @@ export function saveOps({ before, after, idOps, placed = new Set(), stale = [], 
   const was = new Map()
   for (const [old, ids] of moves) for (const id of ids) was.set(id, [...(was.get(id) ?? []), old])
   const order = new Map(after.levels.map((l, k) => [l.id, k]))
+  const placed = placedBy(before.levels.flatMap((l) => now(l.id)), after.levels.map((l) => l.id))
   const byOrder = (a, b) => order.get(a) - order.get(b)
 
   // New prerequisites: P now before Q, and Q could be solved without P.

@@ -56,7 +56,7 @@
 
 ### 1.2 先修与解锁迁移改由前后内容推导
 
-- `migrate.js` 不再按 op 类型分支：对每个 op 比较组装前后的课程布局，统一推导 `solve`。`game.set path=eras`、`level.move`、`builds` / `unlocks` 跨关移动都走同一条路。
+- `migrate.js` 不再依赖操作报告「放到了哪里」：比较前后两份课程的游玩顺序，取最长公共子序列之外的关作为被放置的关（最少的移动解释新顺序；两关对调时算前移的那一关），统一推导 `solve`。`game.set path=eras`、`level.move`、`builds` 跨关移动都走同一条路。
 - 修 `scaffold/circuit/vocabulary.js:57-67`：`eras` 用 `S.level()`，使 `level.rename` 能跟到 game.json 的 eras。
 - 验收：同一重排分别用 `game.set eras` 和 `level.move` 完成，产出的迁移相同；把一个元件的 `builds` 从 A 挪到 B，产出对应 `solve`；rename 后 eras 中无旧名。
 

@@ -2,11 +2,10 @@
 // (cli.js), the MCP server (mcp.js) and later the studio only ever run them, through a changeset (changeset.js).
 //
 // An operation is { about, params (schema.js: its arguments as data), apply(ws, args, ctx) }. apply edits the
-// workspace (workspace.js) and returns { says, inverse, saves?, placed?, own? }: what it did, in words; the operations
+// workspace (workspace.js) and returns { says, inverse, saves?, own? }: what it did, in words; the operations
 // that undo it; the save migration ops (../../shell/saves.js) it alone knows it needs (a level renamed or removed, a
-// task removed or renamed); the levels it put somewhere in the course (added or moved there); and the levels whose kept
-// state its own save ops carry, which no other migration touches. ctx: { vocabulary, domain }. In a domain whose
-// levels are lists of tasks with ids (../tasks.js), tasks are added, removed, moved (in a level or to another: two
+// task removed or renamed); and the levels whose kept state its own save ops carry, which no other migration touches.
+// ctx: { vocabulary, domain }. In a domain whose levels have tasks (../tasks.js), tasks are added, removed, moved (in a level or to another: two
 // levels made one, or one split) and renamed by id; the saves keep a task by its id, so a move needs no step. What a change
 // means for the saves beyond that (a new prerequisite, a puzzle whose kept boards no longer apply) is read off the
 // content before and after the whole changeset (migrate.js).
@@ -156,7 +155,7 @@ export const OPERATIONS = {
       if (ws.levels.has(level)) fail(`there is a level ${level} already`)
       ws.levels.set(level, data)
       if (to) ws.game = { ...ws.game, eras: putIn(ws.game.eras, level, to) }
-      return { says: `${level}: added${to ? ` at ${describe(ws.game.eras, locate(ws.game.eras, level))}` : ''}`, inverse: [{ op: 'level.remove', level }], placed: to ? [level] : [] }
+      return { says: `${level}: added${to ? ` at ${describe(ws.game.eras, locate(ws.game.eras, level))}` : ''}`, inverse: [{ op: 'level.remove', level }] }
     },
   },
   'level.remove': {
@@ -203,7 +202,6 @@ export const OPERATIONS = {
       return {
         says: `${level}: ${describe(eras, was)} → ${describe(ws.game.eras, locate(ws.game.eras, level))}${pruned.length ? ` (the ${pruned.join(', ')} it emptied went with it)` : ''}`,
         inverse: [{ op: 'game.set', path: ['eras'], value: eras }],
-        placed: [level],
       }
     },
   },

@@ -49,7 +49,6 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   const says = []
   const inverse = []
   const idOps = []
-  const placed = new Set()
   const own = new Set()
   const fail = (problems, op = null) => {
     ws.restore(start)
@@ -68,8 +67,6 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
       says.push(done.says)
       inverse.unshift(...done.inverse)
       idOps.push(...(done.saves ?? []))
-      for (const op of done.saves ?? []) for (const [from, to] of Object.entries(op.rename ?? {})) if (placed.delete(from) && to !== null) placed.add(to)
-      for (const id of done.placed ?? []) placed.add(id)
       for (const id of done.own ?? []) own.add(id)
     } catch (error) {
       return fail([`${where}: ${error.message}`], k)
@@ -78,7 +75,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 
   // Whatever throws from here on (a domain's spec or checks) leaves the workspace as it was found.
   try {
-    return await settle({ ws, changeset, domain, content0, start, says, inverse, idOps, placed, own, fail, write, check, undoes })
+    return await settle({ ws, changeset, domain, content0, start, says, inverse, idOps, own, fail, write, check, undoes })
   } catch (error) {
     ws.restore(start)
     throw error
@@ -86,7 +83,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 }
 
 // The save step, the whole game's check, and the write or the restore, after every operation of a changeset has run.
-async function settle({ ws, changeset, domain, content0, start, says, inverse, idOps, placed, own, fail, write, check, undoes }) {
+async function settle({ ws, changeset, domain, content0, start, says, inverse, idOps, own, fail, write, check, undoes }) {
   // The save step: the operations' own ops, the boards that no longer apply, new prerequisites, new builds.
   const notes = []
   const before = courseOf(domain, content0)
@@ -106,7 +103,7 @@ async function settle({ ws, changeset, domain, content0, start, says, inverse, i
       const level = ws.levels.get(id)
       return Array.isArray(level?.tasks) ? level.tasks.map((task) => task.id) : [id]
     }
-    const ops = saveOps({ before: after && before, after, idOps, placed, stale, keys })
+    const ops = saveOps({ before: after && before, after, idOps, stale, keys })
     if (ops.length) {
       const saves = ws.game.saves ?? []
       // A step says why it was written where the game's schema has room for it.

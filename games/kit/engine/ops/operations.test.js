@@ -105,7 +105,6 @@ test('level.blueprint writes a board as blueprint text, and only a board', () =>
 test('level.move takes a level out of a branch and puts it anywhere', () => {
   const { ws } = toy()
   const done = roundTrip(ws, 'level.move', { level: 'a3', to: { before: 'b2' } })
-  assert.deepEqual(done.placed, ['a3'])
   assert.deepEqual(ws.game.eras[1].foundation, ['b1', 'a3', 'b2'])
   assert.match(done.says, /era one, branch side #2 → era two, foundation path #2/)
   roundTrip(ws, 'level.move', { level: 'a2', to: { era: 'two', path: 'foundation', at: 0 } })
@@ -134,7 +133,6 @@ test('level.rename renames the file and every reference, and asks for a rename i
 test('level.add puts a new level in; level.remove refuses while anything names the level', () => {
   const { ws } = toy()
   const added = roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' }, to: { after: 'a1' } })
-  assert.deepEqual(added.placed, ['n1'])
   assert.deepEqual(ws.game.eras[0].foundation, ['a1', 'n1', { parallel: [{ id: 'side', levels: ['a2', 'a3'] }] }])
   const removed = roundTrip(ws, 'level.remove', { level: 'n1' })
   assert.deepEqual(removed.saves, [{ rename: { n1: null } }])
@@ -170,6 +168,17 @@ test('glossary.put, glossary.set and glossary.remove edit the encyclopedia', () 
   assert.deepEqual(ws.glossary.entries[0], { id: 'e', group: 'g', title: 'E2', body: ['see <level-ref to="a2"></level-ref>'] })
   roundTrip(ws, 'glossary.remove', { entry: 'e' })
   assert.deepEqual(ws.glossary.entries.map((e) => e.id), ['f'])
+})
+
+test('a reorder writes the same save step whichever operation made it', async () => {
+  const viaMove = toy().ws
+  const moved = await runChangeset(viaMove, { ops: [{ op: 'level.move', level: 'b2', to: { before: 'b1' } }] }, { check: false, domain: DOMAIN })
+  const viaEras = toy().ws
+  const eras = viaEras.game.eras.map((e) => (e.id === 'two' ? { ...e, foundation: ['b2', 'b1'] } : e))
+  const set = await runChangeset(viaEras, { ops: [{ op: 'game.set', path: 'eras', value: eras }] }, { check: false, domain: DOMAIN })
+  assert.equal(moved.ok && set.ok, true, [...moved.problems, ...set.problems].join('\n'))
+  assert.deepEqual(set.step, moved.step)
+  assert.deepEqual(moved.step.ops, [{ solve: ['b1', ['b2']] }])
 })
 
 test('a changeset whose domain throws while it is settled leaves the workspace as it was', async () => {
