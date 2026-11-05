@@ -211,7 +211,7 @@ test('countermodels: Peirce has none classically, (A → B) → A has one, the q
 test('the domain check runs reference and naive proofs', () => {
   const s = proof({ m: ['mp'] }, ['p>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] })
   const level = { id: 'mp', kind: 'proof', title: 'mp', tests: [{ premises: { p: 'A → B', q: 'A' }, goal: 'B' }], solution: s }
-  const lines = (naive) => validate({ levels: [{ ...level, naive }], logic: { wrong: [] } })
+  const lines = (naive) => validate({ levels: [{ id: 'mp', tasks: [{ ...level, task: 0, naive }] }], logic: { wrong: [] } })
   assert.deepEqual(lines(proof({}, ['q>goal'], { premises: ['p', 'q'] })).filter((l) => l.fail), [])
   assert.equal(lines(s).filter((l) => l.fail).length, 1)
 })

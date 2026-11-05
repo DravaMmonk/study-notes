@@ -1,13 +1,5 @@
 {
-  "kind": "iso",
-  "words": ["everyday", "terms"],
   "title": { "zh": "声明真假", "en": "Declaring true and false" },
-  "declare": { "zh": "真假值", "en": "a truth value" },
-  "target": "Bool",
-  "sentences": ["Bool"],
-  "datatype": { "type": "bool", "ctors": ["tt", "ff"], "args": {} },
-  "ways": [[], []],
-  "tests": [{ "given": [], "make": true }],
   "intro": [
     {
       "t": {
@@ -16,15 +8,28 @@
       }
     }
   ],
-  "brief": {
-    "zh": "需求：真什么都不要，假也什么都不要，是两样不同的东西。写出真假值的声明。",
-    "en": "Requirement: true needs nothing, false needs nothing, and they are two different things. Write the declaration of truth values."
-  },
-  "hint": [{ "zh": "真和假各要几样？", "en": "How much does each of true and false need?" }],
-  "solution": [{ "binds": [], "needs": [] }, { "binds": [], "needs": [] }],
-  "naive": [{ "binds": [], "needs": [] }],
   "after": {
     "zh": "程序里的每一个「如果」，在证明里就是对真假值分一次情况。",
     "en": "Every “if” in a program is, in a proof, a split into cases on a truth value."
-  }
+  },
+  "tasks": [
+    {
+      "id": "decl-bool",
+      "kind": "iso",
+      "words": ["everyday", "terms"],
+      "declare": { "zh": "真假值", "en": "a truth value" },
+      "target": "Bool",
+      "sentences": ["Bool"],
+      "datatype": { "type": "bool", "ctors": ["tt", "ff"], "args": {} },
+      "ways": [[], []],
+      "tests": [{ "given": [], "make": true }],
+      "brief": {
+        "zh": "需求：真什么都不要，假也什么都不要，是两样不同的东西。写出真假值的声明。",
+        "en": "Requirement: true needs nothing, false needs nothing, and they are two different things. Write the declaration of truth values."
+      },
+      "hint": [{ "zh": "真和假各要几样？", "en": "How much does each of true and false need?" }],
+      "solution": [{ "binds": [], "needs": [] }, { "binds": [], "needs": [] }],
+      "naive": [{ "binds": [], "needs": [] }]
+    }
+  ]
 }

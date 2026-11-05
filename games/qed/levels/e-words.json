@@ -1,12 +1,5 @@
 {
-  "kind": "gates",
   "title": { "zh": "翻译成与或非", "en": "Into and, or, not" },
-  "target": "¬(KA ∧ KB)",
-  "blind": true,
-  "brief": {
-    "zh": "「a 和 b 不都是骑士。」把这句话译成与、或、非，接成电路，算出它在每一行的真值。",
-    "en": "“a and b are not both knights.” Translate the sentence into and, or and not, and wire a board that works out its value on every row."
-  },
   "intro": [
     {
       "t": {
@@ -21,10 +14,22 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "「不都是」和「都不是」意思一样吗？", "en": "Do “not both” and “neither” mean the same?" },
-    { "zh": "否定管的是哪一部分？", "en": "Which part does the negation cover?" }
-  ],
-  "solution": ["a = gAnd(KA, KB)", "n = gNot(a)", "out <- n"],
-  "naive": ["na = gNot(KA)", "nb = gNot(KB)", "a = gAnd(na, nb)", "out <- a"]
+  "tasks": [
+    {
+      "id": "e-words",
+      "kind": "gates",
+      "target": "¬(KA ∧ KB)",
+      "blind": true,
+      "brief": {
+        "zh": "「a 和 b 不都是骑士。」把这句话译成与、或、非，接成电路，算出它在每一行的真值。",
+        "en": "“a and b are not both knights.” Translate the sentence into and, or and not, and wire a board that works out its value on every row."
+      },
+      "hint": [
+        { "zh": "「不都是」和「都不是」意思一样吗？", "en": "Do “not both” and “neither” mean the same?" },
+        { "zh": "否定管的是哪一部分？", "en": "Which part does the negation cover?" }
+      ],
+      "solution": ["a = gAnd(KA, KB)", "n = gNot(a)", "out <- n"],
+      "naive": ["na = gNot(KA)", "nb = gNot(KB)", "a = gAnd(na, nb)", "out <- a"]
+    }
+  ]
 }

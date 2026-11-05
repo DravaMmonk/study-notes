@@ -1,38 +1,5 @@
 {
-  "kind": "script",
   "title": { "zh": "by 后面是一个证明助手", "en": "A proof assistant after by" },
-  "locked": true,
-  "premises": { "s": "Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "c": "Carry ↔ InA ∧ InB" },
-  "goal": "¬(Sum ∧ Carry)",
-  "given": [
-    { "k": "show", "stmt": "¬(Sum ∧ Carry)", "by": "proof" },
-    { "k": "assume", "stmt": "Sum ∧ Carry" },
-    { "k": "have", "stmt": "Carry", "using": ["a1"], "by": "" },
-    { "k": "have", "stmt": "InA ∧ InB", "using": ["c", "h1"], "by": "" },
-    { "k": "show", "stmt": "⊥", "using": ["s", "a1", "h2"], "by": "" }
-  ],
-  "answer": [
-    { "k": "show", "stmt": "¬(Sum ∧ Carry)", "by": "proof" },
-    { "k": "assume", "stmt": "Sum ∧ Carry" },
-    { "k": "have", "stmt": "Carry", "using": ["a1"], "by": "rule:conjunct2" },
-    { "k": "have", "stmt": "InA ∧ InB", "using": ["c", "h1"], "by": "auto" },
-    { "k": "show", "stmt": "⊥", "using": ["s", "a1", "h2"], "by": "metis" }
-  ],
-  "naive": [
-    { "k": "show", "stmt": "¬(Sum ∧ Carry)", "by": "proof" },
-    { "k": "assume", "stmt": "Sum ∧ Carry" },
-    { "k": "have", "stmt": "Carry", "using": ["a1"], "by": "rule:conjunct2" },
-    { "k": "have", "stmt": "InA ∧ InB", "using": ["c", "h1"], "by": "rule:mp" },
-    { "k": "show", "stmt": "⊥", "using": ["s", "a1", "h2"], "by": "rule:mp" }
-  ],
-  "brief": { "zh": "选出每一句的 by。", "en": "Choose each row’s by." },
-  "hint": [
-    {
-      "zh": "由等价和「进位是 1」得出两个输入都是 1，一个元件不够。",
-      "en": "From the equivalence and “the carry is 1” to both inputs being 1: one part is not enough."
-    },
-    { "zh": "最后一句要在三句话里找出矛盾。", "en": "The last row looks for a contradiction among three sentences." }
-  ],
   "intro": [
     {
       "t": {
@@ -44,5 +11,43 @@
   "after": {
     "zh": "人写结构，证明助手补小步：真正的证明大多这样分工。",
     "en": "People write the structure and proof assistants fill in the small steps: most real proofs are shared out this way."
-  }
+  },
+  "tasks": [
+    {
+      "id": "sc-tactic",
+      "kind": "script",
+      "locked": true,
+      "premises": { "s": "Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "c": "Carry ↔ InA ∧ InB" },
+      "goal": "¬(Sum ∧ Carry)",
+      "given": [
+        { "k": "show", "stmt": "¬(Sum ∧ Carry)", "by": "proof" },
+        { "k": "assume", "stmt": "Sum ∧ Carry" },
+        { "k": "have", "stmt": "Carry", "using": ["a1"], "by": "" },
+        { "k": "have", "stmt": "InA ∧ InB", "using": ["c", "h1"], "by": "" },
+        { "k": "show", "stmt": "⊥", "using": ["s", "a1", "h2"], "by": "" }
+      ],
+      "answer": [
+        { "k": "show", "stmt": "¬(Sum ∧ Carry)", "by": "proof" },
+        { "k": "assume", "stmt": "Sum ∧ Carry" },
+        { "k": "have", "stmt": "Carry", "using": ["a1"], "by": "rule:conjunct2" },
+        { "k": "have", "stmt": "InA ∧ InB", "using": ["c", "h1"], "by": "auto" },
+        { "k": "show", "stmt": "⊥", "using": ["s", "a1", "h2"], "by": "metis" }
+      ],
+      "naive": [
+        { "k": "show", "stmt": "¬(Sum ∧ Carry)", "by": "proof" },
+        { "k": "assume", "stmt": "Sum ∧ Carry" },
+        { "k": "have", "stmt": "Carry", "using": ["a1"], "by": "rule:conjunct2" },
+        { "k": "have", "stmt": "InA ∧ InB", "using": ["c", "h1"], "by": "rule:mp" },
+        { "k": "show", "stmt": "⊥", "using": ["s", "a1", "h2"], "by": "rule:mp" }
+      ],
+      "brief": { "zh": "选出每一句的 by。", "en": "Choose each row’s by." },
+      "hint": [
+        {
+          "zh": "由等价和「进位是 1」得出两个输入都是 1，一个元件不够。",
+          "en": "From the equivalence and “the carry is 1” to both inputs being 1: one part is not enough."
+        },
+        { "zh": "最后一句要在三句话里找出矛盾。", "en": "The last row looks for a contradiction among three sentences." }
+      ]
+    }
+  ]
 }

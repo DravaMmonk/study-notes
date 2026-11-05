@@ -1,37 +1,6 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "title": { "zh": "按形状分解假设", "en": "The givens by their shape" },
   "builds": "elimRules",
-  "tests": [
-    { "goal": "Wet", "hyps": ["Rain ∧ Wind"], "becomes": [["Rain ∧ Wind; Rain; Wind ⊢ Wet"]] },
-    { "goal": "Wet", "hyps": ["Rain ∨ Wind"], "becomes": [["Rain ∨ Wind; Rain ⊢ Wet", "Rain ∨ Wind; Wind ⊢ Wet"]] },
-    {
-      "goal": "Wet",
-      "hyps": ["Rain → Wet", "Rain"],
-      "becomes": [["Rain → Wet; Rain ⊢ Rain", "Rain → Wet; Rain; Wet ⊢ Wet"]]
-    },
-    { "goal": "Wet", "hyps": ["⊥"], "becomes": [[]] },
-    { "goal": "Wet", "hyps": ["∃x. Human(x)"], "becomes": [["⋀a. ∃x. Human(x); Human(a) ⊢ Wet"]] },
-    { "goal": "Wet", "hyps": ["∀x. Human(x)"], "becomes": [["∀x. Human(x); Human(?t) ⊢ Wet"]] },
-    { "goal": "Wet", "hyps": ["Rain"], "becomes": [] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：每一条消去规则都拿去对已知，每一种对法都留下；一条都对不上的，失败。",
-    "en": "Design a proof assistant that tries every elimination rule on the givens, keeping every fit; when none fits, it fails."
-  },
-  "hint": [
-    {
-      "zh": "消去规则有六条：拆解、分类讨论、套用、爆炸、实例框、选定一例。",
-      "en": "There are six elimination rules: Split, Case analysis, Apply, Explosion, the instance box, choose an instance."
-    },
-    {
-      "zh": "每条一个框，框里是<part-ref to=\"lemma:erule\"></part-ref>。",
-      "en": "One region each, with <part-ref to=\"lemma:erule\"></part-ref> in it."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -40,33 +9,69 @@
       }
     }
   ],
-  "solution": [
-    "c0 = append[ways=\"6\"](in, first: c1, second: c2, third: c3, fourth: c4, fifth: c5, sixth: c6) {",
-    "  first {",
-    "    c1r0 = andE[use=[conjE]]()",
-    "    c1 = erule(c0.first, c1r0)",
-    "  }",
-    "  second {",
-    "    c2r0 = orE()",
-    "    c2 = erule(c0.second, c2r0)",
-    "  }",
-    "  third {",
-    "    c3r0 = mp[use=[impE]]()",
-    "    c3 = erule(c0.third, c3r0)",
-    "  }",
-    "  fourth {",
-    "    c4r0 = botE()",
-    "    c4 = erule(c0.fourth, c4r0)",
-    "  }",
-    "  fifth {",
-    "    c5r0 = exE()",
-    "    c5 = erule(c0.fifth, c5r0)",
-    "  }",
-    "  sixth {",
-    "    c6r0 = allE[use=[allE]]()",
-    "    c6 = erule(c0.sixth, c6r0)",
-    "  }",
-    "}",
-    "out <- c0"
+  "tasks": [
+    {
+      "id": "s-elim",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "Wet", "hyps": ["Rain ∧ Wind"], "becomes": [["Rain ∧ Wind; Rain; Wind ⊢ Wet"]] },
+        { "goal": "Wet", "hyps": ["Rain ∨ Wind"], "becomes": [["Rain ∨ Wind; Rain ⊢ Wet", "Rain ∨ Wind; Wind ⊢ Wet"]] },
+        {
+          "goal": "Wet",
+          "hyps": ["Rain → Wet", "Rain"],
+          "becomes": [["Rain → Wet; Rain ⊢ Rain", "Rain → Wet; Rain; Wet ⊢ Wet"]]
+        },
+        { "goal": "Wet", "hyps": ["⊥"], "becomes": [[]] },
+        { "goal": "Wet", "hyps": ["∃x. Human(x)"], "becomes": [["⋀a. ∃x. Human(x); Human(a) ⊢ Wet"]] },
+        { "goal": "Wet", "hyps": ["∀x. Human(x)"], "becomes": [["∀x. Human(x); Human(?t) ⊢ Wet"]] },
+        { "goal": "Wet", "hyps": ["Rain"], "becomes": [] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：每一条消去规则都拿去对已知，每一种对法都留下；一条都对不上的，失败。",
+        "en": "Design a proof assistant that tries every elimination rule on the givens, keeping every fit; when none fits, it fails."
+      },
+      "hint": [
+        {
+          "zh": "消去规则有六条：拆解、分类讨论、套用、爆炸、实例框、选定一例。",
+          "en": "There are six elimination rules: Split, Case analysis, Apply, Explosion, the instance box, choose an instance."
+        },
+        {
+          "zh": "每条一个框，框里是<part-ref to=\"lemma:erule\"></part-ref>。",
+          "en": "One region each, with <part-ref to=\"lemma:erule\"></part-ref> in it."
+        }
+      ],
+      "solution": [
+        "c0 = append[ways=\"6\"](in, first: c1, second: c2, third: c3, fourth: c4, fifth: c5, sixth: c6) {",
+        "  first {",
+        "    c1r0 = andE[use=[conjE]]()",
+        "    c1 = erule(c0.first, c1r0)",
+        "  }",
+        "  second {",
+        "    c2r0 = orE()",
+        "    c2 = erule(c0.second, c2r0)",
+        "  }",
+        "  third {",
+        "    c3r0 = mp[use=[impE]]()",
+        "    c3 = erule(c0.third, c3r0)",
+        "  }",
+        "  fourth {",
+        "    c4r0 = botE()",
+        "    c4 = erule(c0.fourth, c4r0)",
+        "  }",
+        "  fifth {",
+        "    c5r0 = exE()",
+        "    c5 = erule(c0.fifth, c5r0)",
+        "  }",
+        "  sixth {",
+        "    c6r0 = allE[use=[allE]]()",
+        "    c6 = erule(c0.sixth, c6r0)",
+        "  }",
+        "}",
+        "out <- c0"
+      ]
+    }
   ]
 }

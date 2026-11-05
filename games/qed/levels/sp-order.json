@@ -1,18 +1,5 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "title": { "zh": "先后", "en": "Which first" },
-  "tests": [
-    { "goal": "¬(Rain ∨ (Wind ∧ Wet))", "becomes": [["¬Rain ∧ (¬Wind ∨ ¬Wet)"]] },
-    { "goal": "¬(Rain → (Wind ∧ Wet))", "becomes": [["Rain ∧ (¬Wind ∨ ¬Wet)"]] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手，把每个目标化成最短的合取范式。",
-    "en": "Design a proof assistant that brings each goal to its shortest conjunctive normal form."
-  },
-  "hint": [{ "zh": "否定还在外面时就分配，会发生什么？", "en": "What happens if you distribute while a negation is still outside?" }],
   "intro": [
     {
       "t": {
@@ -21,20 +8,38 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = arrow[use=[\"arrow.elim\"]]()",
-    "c0r1 = dneg[use=[\"dneg.elim\"]](c0r0)",
-    "c0r2 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r1)",
-    "c0r6 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c0r2)",
-    "c0 = simp(in, c0r6)",
-    "out <- c0"
-  ],
-  "naive": [
-    "c0r0 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]]()",
-    "c0r2 = arrow[use=[\"arrow.elim\"]](c0r0)",
-    "c0r3 = dneg[use=[\"dneg.elim\"]](c0r2)",
-    "c0r4 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r3)",
-    "c0 = simp(in, c0r4)",
-    "out <- c0"
+  "tasks": [
+    {
+      "id": "sp-order",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "¬(Rain ∨ (Wind ∧ Wet))", "becomes": [["¬Rain ∧ (¬Wind ∨ ¬Wet)"]] },
+        { "goal": "¬(Rain → (Wind ∧ Wet))", "becomes": [["Rain ∧ (¬Wind ∨ ¬Wet)"]] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手，把每个目标化成最短的合取范式。",
+        "en": "Design a proof assistant that brings each goal to its shortest conjunctive normal form."
+      },
+      "hint": [{ "zh": "否定还在外面时就分配，会发生什么？", "en": "What happens if you distribute while a negation is still outside?" }],
+      "solution": [
+        "c0r0 = arrow[use=[\"arrow.elim\"]]()",
+        "c0r1 = dneg[use=[\"dneg.elim\"]](c0r0)",
+        "c0r2 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r1)",
+        "c0r6 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c0r2)",
+        "c0 = simp(in, c0r6)",
+        "out <- c0"
+      ],
+      "naive": [
+        "c0r0 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]]()",
+        "c0r2 = arrow[use=[\"arrow.elim\"]](c0r0)",
+        "c0r3 = dneg[use=[\"dneg.elim\"]](c0r2)",
+        "c0r4 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c0r3)",
+        "c0 = simp(in, c0r4)",
+        "out <- c0"
+      ]
+    }
   ]
 }

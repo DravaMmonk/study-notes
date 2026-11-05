@@ -1,11 +1,5 @@
 {
-  "kind": "gates",
   "title": { "zh": "「非」管到哪里", "en": "How far Not reaches" },
-  "target": "¬(Rain ∧ Wind)",
-  "brief": {
-    "zh": "接一块电路，算出「不是『又下雨又刮风』」在每一行的真值。",
-    "en": "Wire a board that works out the value of “it is not the case that it both rains and is windy” on every row."
-  },
   "intro": [
     {
       "t": {
@@ -14,8 +8,19 @@
       }
     }
   ],
-  "hint": [{ "zh": "否定管的是哪一部分？", "en": "Which part does the negation cover?" }],
-  "solution": ["a = gAnd(Rain, Wind)", "n = gNot(a)", "out <- n"],
-  "naive": ["n = gNot(Rain)", "a = gAnd(n, Wind)", "out <- a"],
-  "after": { "zh": "一句话一层层的结构，叫它的<b>语法树</b>。", "en": "The layered structure of a sentence is its <b>syntax tree</b>." }
+  "after": { "zh": "一句话一层层的结构，叫它的<b>语法树</b>。", "en": "The layered structure of a sentence is its <b>syntax tree</b>." },
+  "tasks": [
+    {
+      "id": "g-tree",
+      "kind": "gates",
+      "target": "¬(Rain ∧ Wind)",
+      "brief": {
+        "zh": "接一块电路，算出「不是『又下雨又刮风』」在每一行的真值。",
+        "en": "Wire a board that works out the value of “it is not the case that it both rains and is windy” on every row."
+      },
+      "hint": [{ "zh": "否定管的是哪一部分？", "en": "Which part does the negation cover?" }],
+      "solution": ["a = gAnd(Rain, Wind)", "n = gNot(a)", "out <- n"],
+      "naive": ["n = gNot(Rain)", "a = gAnd(n, Wind)", "out <- a"]
+    }
+  ]
 }

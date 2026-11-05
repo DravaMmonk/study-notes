@@ -1,15 +1,5 @@
 {
-  "kind": "model",
   "title": { "zh": "代进去别撞名", "en": "No clashing names" },
-  "say": { "zh": "每样东西都喜欢某样东西，所以有一样东西喜欢自己。", "en": "Everything likes something, so something likes itself." },
-  "given": ["∀x. ∃y. Likes(x, y)"],
-  "goal": "∃y. Likes(y, y)",
-  "answer": { "size": 2, "preds": { "Likes": ["0,1", "1,0"] } },
-  "brief": {
-    "zh": "这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。",
-    "en": "Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails."
-  },
-  "hint": [{ "zh": "两样东西，互相喜欢，都不喜欢自己。", "en": "Two things that like each other and not themselves." }],
   "intro": [
     {
       "t": {
@@ -21,5 +11,20 @@
   "after": {
     "zh": "所以代入前要先给量词的变量改名；证明器的<part-ref to=\"part:allE\"></part-ref>会自动这样做。",
     "en": "So the quantifier’s variable is renamed before substituting; the prover’s <part-ref to=\"part:allE\"></part-ref> does this by itself."
-  }
+  },
+  "tasks": [
+    {
+      "id": "q-capture",
+      "kind": "model",
+      "say": { "zh": "每样东西都喜欢某样东西，所以有一样东西喜欢自己。", "en": "Everything likes something, so something likes itself." },
+      "given": ["∀x. ∃y. Likes(x, y)"],
+      "goal": "∃y. Likes(y, y)",
+      "answer": { "size": 2, "preds": { "Likes": ["0,1", "1,0"] } },
+      "brief": {
+        "zh": "这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。",
+        "en": "Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails."
+      },
+      "hint": [{ "zh": "两样东西，互相喜欢，都不喜欢自己。", "en": "Two things that like each other and not themselves." }]
+    }
+  ]
 }

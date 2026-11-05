@@ -1,12 +1,5 @@
 {
-  "kind": "gates",
   "title": { "zh": "a 说的话", "en": "What a says" },
-  "target": "KA ↔ KB",
-  "blind": true,
-  "brief": {
-    "zh": "a 说：「b 是骑士。」把「a 说」译成逻辑，接成电路：a 的话和他的身份相符的行，输出真。",
-    "en": "a says: “b is a knight.” Translate “a says” into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is."
-  },
   "intro": [
     {
       "t": {
@@ -15,10 +8,22 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "a 是骑士时，他的话怎样？a 不是骑士时呢？", "en": "If a is a knight, what about what he says? And if he is not?" },
-    { "zh": "「a 是骑士」和 a 的话之间是什么关系？", "en": "How do “a is a knight” and what a says relate?" }
-  ],
-  "solution": ["e = gIff(KA, KB)", "out <- e"],
-  "naive": ["i = gImp(KA, KB)", "out <- i"]
+  "tasks": [
+    {
+      "id": "e-says",
+      "kind": "gates",
+      "target": "KA ↔ KB",
+      "blind": true,
+      "brief": {
+        "zh": "a 说：「b 是骑士。」把「a 说」译成逻辑，接成电路：a 的话和他的身份相符的行，输出真。",
+        "en": "a says: “b is a knight.” Translate “a says” into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is."
+      },
+      "hint": [
+        { "zh": "a 是骑士时，他的话怎样？a 不是骑士时呢？", "en": "If a is a knight, what about what he says? And if he is not?" },
+        { "zh": "「a 是骑士」和 a 的话之间是什么关系？", "en": "How do “a is a knight” and what a says relate?" }
+      ],
+      "solution": ["e = gIff(KA, KB)", "out <- e"],
+      "naive": ["i = gImp(KA, KB)", "out <- i"]
+    }
+  ]
 }

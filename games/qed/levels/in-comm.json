@@ -1,52 +1,57 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms"],
   "title": { "zh": "交换", "en": "Commutativity" },
   "fact": "addComm",
-  "types": ["nat"],
-  "defs": ["plus"],
-  "tests": [{ "goal": "∀x. ∀y. plus(x, y) = plus(y, x)" }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "对 x 归纳，看两种情况各卡在哪里。", "en": "Induct on x, and see where each case gets stuck." },
+  "tasks": [
     {
-      "zh": "卡住的地方，「数理规则书」里已有证出的等式。",
-      "en": "Where they get stuck, the “Rule book of numbers” already has equations proved."
+      "id": "in-comm",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "types": ["nat"],
+      "defs": ["plus"],
+      "tests": [{ "goal": "∀x. ∀y. plus(x, y) = plus(y, x)" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "对 x 归纳，看两种情况各卡在哪里。", "en": "Induct on x, and see where each case gets stuck." },
+        {
+          "zh": "卡住的地方，「数理规则书」里已有证出的等式。",
+          "en": "Where they get stuck, the “Rule book of numbers” already has equations proved."
+        }
+      ],
+      "solution": [
+        "c0r0 = math[use=[\"nat.induct\"]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = each(c0, body: c4) {",
+        "  body {",
+        "    c2r0 = allI()",
+        "    c3r0 = math[use=[\"def.0\", \"def.1\", addZero, addSucc]]()",
+        "    c4r0 = refl()",
+        "    c3r4 = hyp(c3r0)",
+        "    c2 = rule(c1.body, c2r0)",
+        "    c3 = simp(c2, c3r4)",
+        "    c4 = rule(c3, c4r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ],
+      "naive": [
+        "c0r0 = math[use=[\"nat.induct\"]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = each(c0, body: c4) {",
+        "  body {",
+        "    c2r0 = allI()",
+        "    c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
+        "    c4r0 = refl()",
+        "    c3r2 = hyp(c3r0)",
+        "    c2 = rule(c1.body, c2r0)",
+        "    c3 = simp(c2, c3r2)",
+        "    c4 = rule(c3, c4r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ]
     }
-  ],
-  "solution": [
-    "c0r0 = math[use=[\"nat.induct\"]]()",
-    "c0 = rule(in, c0r0)",
-    "c1 = each(c0, body: c4) {",
-    "  body {",
-    "    c2r0 = allI()",
-    "    c3r0 = math[use=[\"def.0\", \"def.1\", addZero, addSucc]]()",
-    "    c4r0 = refl()",
-    "    c3r4 = hyp(c3r0)",
-    "    c2 = rule(c1.body, c2r0)",
-    "    c3 = simp(c2, c3r4)",
-    "    c4 = rule(c3, c4r0)",
-    "  }",
-    "}",
-    "out <- c1"
-  ],
-  "naive": [
-    "c0r0 = math[use=[\"nat.induct\"]]()",
-    "c0 = rule(in, c0r0)",
-    "c1 = each(c0, body: c4) {",
-    "  body {",
-    "    c2r0 = allI()",
-    "    c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
-    "    c4r0 = refl()",
-    "    c3r2 = hyp(c3r0)",
-    "    c2 = rule(c1.body, c2r0)",
-    "    c3 = simp(c2, c3r2)",
-    "    c4 = rule(c3, c4r0)",
-    "  }",
-    "}",
-    "out <- c1"
   ]
 }

@@ -1,20 +1,10 @@
 {
-  "kind": "proof",
   "title": { "zh": "任取", "en": "For any" },
   "adds": ["allI"],
   "showcase": {
     "zh": "任取框不开出假设，它管的是一个变量：框里的变量必须是新的，不能出现在还开着的假设里；光看说明，容易把它当成又一个假设框",
     "en": "the for-any box opens no assumption but a variable, which must be new: it may not occur in any hypothesis still open; from its description alone it is easy to take it for another assumption box"
   },
-  "tests": [{ "goal": "∀x. P(x) → P(x)" }],
-  "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-  "hint": [
-    { "zh": "框里要证的，是把 x 换成 a 的那句话。", "en": "Inside the box, prove the sentence with a in place of x." },
-    {
-      "zh": "框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。",
-      "en": "Inside the box take any thing, call it a, and prove “a is human → a is human”; holding for any one at all, outside it is “for all x”."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -29,16 +19,31 @@
       }
     }
   ],
-  "solution": [
-    "g = allI[x=a](body: h) {",
-    "  body {",
-    "    h = impI[A=\"P(a)\"](body: h.body)",
-    "  }",
-    "}",
-    "goal <- g"
-  ],
   "after": {
     "zh": "「任取一个 a，……，所以对所有 x 成立」：数学证明里最常见的这句话，说的就是这个框。",
     "en": "“Take any a …, so it holds for all x”: the commonest phrase in mathematical proofs means just this box."
-  }
+  },
+  "tasks": [
+    {
+      "id": "q-allI",
+      "kind": "proof",
+      "tests": [{ "goal": "∀x. P(x) → P(x)" }],
+      "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+      "hint": [
+        { "zh": "框里要证的，是把 x 换成 a 的那句话。", "en": "Inside the box, prove the sentence with a in place of x." },
+        {
+          "zh": "框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。",
+          "en": "Inside the box take any thing, call it a, and prove “a is human → a is human”; holding for any one at all, outside it is “for all x”."
+        }
+      ],
+      "solution": [
+        "g = allI[x=a](body: h) {",
+        "  body {",
+        "    h = impI[A=\"P(a)\"](body: h.body)",
+        "  }",
+        "}",
+        "goal <- g"
+      ]
+    }
+  ]
 }

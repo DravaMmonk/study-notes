@@ -1,20 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "我证不出", "en": "I cannot be proved" },
-  "consts": ["g", "d"],
-  "words": ["goedel"],
-  "cases": [],
-  "tests": [
-    {
-      "premises": { "diag": "G ↔ ¬Prov(diag(d))", "calc": "diag(d) = g", "sound": "Prov(g) → G" },
-      "goal": "G ∧ ¬Prov(g)"
-    }
-  ],
-  "brief": { "zh": "从这三句已知证出：G 成立，而且 G 证不出。", "en": "From these three givens, prove: G holds, and G cannot be proved." },
-  "hint": [
-    { "zh": "头两句合起来，说的是 G 和「⌜G⌝ 证不出」的关系。", "en": "The first two givens together relate G to “⌜G⌝ cannot be proved”." },
-    { "zh": "先证 G 证不出；G 成立随后就有。", "en": "Prove first that G cannot be proved; that G holds follows." }
-  ],
   "intro": [
     {
       "t": {
@@ -23,22 +8,42 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=\"Prov(g)\"](body: m3) {",
-    "  body {",
-    "    m1 = mp(sound, f.body)",
-    "    m2 = mp(e.left, m1)",
-    "    m3 = mp(m2, f.body)",
-    "  }",
-    "}",
-    "w = rewrite[at=[0]](calc, diag)",
-    "e = andE(w)",
-    "m4 = mp(e.right, f)",
-    "j = andI(m4, f)",
-    "goal <- j"
-  ],
   "after": {
     "zh": "这是哥德尔第一<wiki-ref to=\"incompleteness\"></wiki-ref>的核心。<level-ref to=\"kk-one\"></level-ref>的说谎者谈真假，推出矛盾；G 谈证不证得出，得到的是一句证不出的真话。",
     "en": "This is the heart of Gödel’s first <wiki-ref to=\"incompleteness\"></wiki-ref>. The liar of <level-ref to=\"kk-one\"></level-ref> speaks of truth and yields a contradiction; G speaks of proof and yields a truth that cannot be proved."
-  }
+  },
+  "tasks": [
+    {
+      "id": "gd-true",
+      "kind": "proof",
+      "consts": ["g", "d"],
+      "words": ["goedel"],
+      "cases": [],
+      "tests": [
+        {
+          "premises": { "diag": "G ↔ ¬Prov(diag(d))", "calc": "diag(d) = g", "sound": "Prov(g) → G" },
+          "goal": "G ∧ ¬Prov(g)"
+        }
+      ],
+      "brief": { "zh": "从这三句已知证出：G 成立，而且 G 证不出。", "en": "From these three givens, prove: G holds, and G cannot be proved." },
+      "hint": [
+        { "zh": "头两句合起来，说的是 G 和「⌜G⌝ 证不出」的关系。", "en": "The first two givens together relate G to “⌜G⌝ cannot be proved”." },
+        { "zh": "先证 G 证不出；G 成立随后就有。", "en": "Prove first that G cannot be proved; that G holds follows." }
+      ],
+      "solution": [
+        "f = impI[A=\"Prov(g)\"](body: m3) {",
+        "  body {",
+        "    m1 = mp(sound, f.body)",
+        "    m2 = mp(e.left, m1)",
+        "    m3 = mp(m2, f.body)",
+        "  }",
+        "}",
+        "w = rewrite[at=[0]](calc, diag)",
+        "e = andE(w)",
+        "m4 = mp(e.right, f)",
+        "j = andI(m4, f)",
+        "goal <- j"
+      ]
+    }
+  ]
 }

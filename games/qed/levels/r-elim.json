@@ -1,38 +1,6 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [
-    { "name": "in", "label": { "zh": "目标", "en": "Goal" } },
-    { "name": "rules", "label": { "zh": "规则", "en": "Rules" } }
-  ],
   "title": { "zh": "规则作用于假设", "en": "A rule, then a given" },
   "builds": "erule",
-  "tests": [
-    {
-      "goal": "Wind ∧ Rain",
-      "hyps": ["Rain ∧ Wind"],
-      "rules": ["conjE"],
-      "becomes": [["Rain ∧ Wind; Rain; Wind ⊢ Wind ∧ Rain"]]
-    },
-    { "goal": "Slip", "hyps": ["Wet ∧ Slip"], "rules": ["conjE"], "becomes": [["Wet ∧ Slip; Wet; Slip ⊢ Slip"]] },
-    {
-      "goal": "Wind ∧ Wet",
-      "hyps": ["Rain", "Wet ∧ Wind"],
-      "rules": ["conjE"],
-      "becomes": [["Rain; Wet ∧ Wind; Wet; Wind ⊢ Wind ∧ Wet"]]
-    }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：拆开「并且」那条已知，把每个目标变成要的样子。",
-    "en": "Design a proof assistant that takes the “and” given apart, turning each goal into the one wanted."
-  },
-  "hint": [
-    { "zh": "全是 ? 的目标，什么能确定它？", "en": "What can settle a goal made of ?-letters?" },
-    {
-      "zh": "倒着用规则之后，紧接着用<part-ref to=\"part:assumption\"></part-ref>。",
-      "en": "Right after the rule used backwards, <part-ref to=\"part:assumption\"></part-ref>."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -47,5 +15,42 @@
       }
     }
   ],
-  "solution": ["c0 = rule(in, rules)", "c1 = assumption(c0)", "out <- c1"]
+  "tasks": [
+    {
+      "id": "r-elim",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [
+        { "name": "in", "label": { "zh": "目标", "en": "Goal" } },
+        { "name": "rules", "label": { "zh": "规则", "en": "Rules" } }
+      ],
+      "tests": [
+        {
+          "goal": "Wind ∧ Rain",
+          "hyps": ["Rain ∧ Wind"],
+          "rules": ["conjE"],
+          "becomes": [["Rain ∧ Wind; Rain; Wind ⊢ Wind ∧ Rain"]]
+        },
+        { "goal": "Slip", "hyps": ["Wet ∧ Slip"], "rules": ["conjE"], "becomes": [["Wet ∧ Slip; Wet; Slip ⊢ Slip"]] },
+        {
+          "goal": "Wind ∧ Wet",
+          "hyps": ["Rain", "Wet ∧ Wind"],
+          "rules": ["conjE"],
+          "becomes": [["Rain; Wet ∧ Wind; Wet; Wind ⊢ Wind ∧ Wet"]]
+        }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：拆开「并且」那条已知，把每个目标变成要的样子。",
+        "en": "Design a proof assistant that takes the “and” given apart, turning each goal into the one wanted."
+      },
+      "hint": [
+        { "zh": "全是 ? 的目标，什么能确定它？", "en": "What can settle a goal made of ?-letters?" },
+        {
+          "zh": "倒着用规则之后，紧接着用<part-ref to=\"part:assumption\"></part-ref>。",
+          "en": "Right after the rule used backwards, <part-ref to=\"part:assumption\"></part-ref>."
+        }
+      ],
+      "solution": ["c0 = rule(in, rules)", "c1 = assumption(c0)", "out <- c1"]
+    }
+  ]
 }

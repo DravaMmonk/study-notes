@@ -1,11 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "做到做不动", "en": "Until it cannot" },
-  "tests": [{ "goal": "Rain → (Wind → (Wet → Rain))" }, { "goal": "Rain → Rain" }, { "goal": "Slip → (Rain → Slip)" }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "「若…则…」有几层，事先不知道。", "en": "How many levels of “if … then …” there are is not known beforehand." }],
   "intro": [
     {
       "t": {
@@ -20,14 +14,25 @@
       }
     }
   ],
-  "solution": [
-    "c0 = repeat(in, body: c1) {",
-    "  body {",
-    "    c1r0 = impI()",
-    "    c1 = rule(c0.body, c1r0)",
-    "  }",
-    "}",
-    "c2 = assumption(c0)",
-    "out <- c2"
+  "tasks": [
+    {
+      "id": "s-repeat",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [{ "goal": "Rain → (Wind → (Wet → Rain))" }, { "goal": "Rain → Rain" }, { "goal": "Slip → (Rain → Slip)" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "「若…则…」有几层，事先不知道。", "en": "How many levels of “if … then …” there are is not known beforehand." }],
+      "solution": [
+        "c0 = repeat(in, body: c1) {",
+        "  body {",
+        "    c1r0 = impI()",
+        "    c1 = rule(c0.body, c1r0)",
+        "  }",
+        "}",
+        "c2 = assumption(c0)",
+        "out <- c2"
+      ]
+    }
   ]
 }

@@ -1,14 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "自相矛盾的已知", "en": "Givens that contradict" },
-  "tests": [{ "goal": "Pigs", "hyps": ["Rain", "¬Rain"] }, { "goal": "Moon", "hyps": ["¬Wet", "Wet"] }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "倒着走，第一步该把目标换成什么？", "en": "Going backwards, what should the goal become first?" },
-    { "zh": "套用当消去规则用，对得上哪一条已知？", "en": "Apply as an elimination rule: which given does it fit?" }
-  ],
   "intro": [
     {
       "t": {
@@ -17,12 +8,26 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = botE()",
-    "c1r0 = mp[use=[mp]]()",
-    "c0 = rule(in, c0r0)",
-    "c1 = erule(c0, c1r0)",
-    "c2 = assumption(c1)",
-    "out <- c2"
+  "tasks": [
+    {
+      "id": "r-false",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [{ "goal": "Pigs", "hyps": ["Rain", "¬Rain"] }, { "goal": "Moon", "hyps": ["¬Wet", "Wet"] }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "倒着走，第一步该把目标换成什么？", "en": "Going backwards, what should the goal become first?" },
+        { "zh": "套用当消去规则用，对得上哪一条已知？", "en": "Apply as an elimination rule: which given does it fit?" }
+      ],
+      "solution": [
+        "c0r0 = botE()",
+        "c1r0 = mp[use=[mp]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = erule(c0, c1r0)",
+        "c2 = assumption(c1)",
+        "out <- c2"
+      ]
+    }
   ]
 }

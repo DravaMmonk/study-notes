@@ -1,30 +1,35 @@
 {
-  "kind": "proof",
   "title": { "zh": "分配律", "en": "Distribute" },
-  "tests": [{ "premises": { "p": "A ∧ (B ∨ C)" }, "goal": "(A ∧ B) ∨ (A ∧ C)" }],
-  "cases": [{ "A": "Sat", "B": "Rain", "C": "Wind" }, { "A": "Exam", "B": "Coffee", "C": "Tea" }],
-  "hint": [
+  "tasks": [
     {
-      "zh": "先拆解，再对拆出来的「下雨 ∨ 刮风」分情况。",
-      "en": "Split the ∧ first, then take cases on the “it rains ∨ it is windy” it gives."
-    },
-    {
-      "zh": "每种情况里，把「今天是周六」和这一情况的假设拼起来，再放进 ∨ 的对应一边。",
-      "en": "In each case, join “today is Saturday” with that case’s assumption, then put it on the matching side of the ∨."
+      "id": "dist",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A ∧ (B ∨ C)" }, "goal": "(A ∧ B) ∨ (A ∧ C)" }],
+      "cases": [{ "A": "Sat", "B": "Rain", "C": "Wind" }, { "A": "Exam", "B": "Coffee", "C": "Tea" }],
+      "hint": [
+        {
+          "zh": "先拆解，再对拆出来的「下雨 ∨ 刮风」分情况。",
+          "en": "Split the ∧ first, then take cases on the “it rains ∨ it is windy” it gives."
+        },
+        {
+          "zh": "每种情况里，把「今天是周六」和这一情况的假设拼起来，再放进 ∨ 的对应一边。",
+          "en": "In each case, join “today is Saturday” with that case’s assumption, then put it on the matching side of the ∨."
+        }
+      ],
+      "solution": [
+        "s = andE(p)",
+        "e = orE(s.right, left: o1, right: o2) {",
+        "  left {",
+        "    l1 = andI(s.left, e.left)",
+        "    o1 = orI[other=\"A & C\", side=right](l1)",
+        "  }",
+        "  right {",
+        "    l2 = andI(s.left, e.right)",
+        "    o2 = orI[other=\"A & B\", side=left](l2)",
+        "  }",
+        "}",
+        "goal <- e"
+      ]
     }
-  ],
-  "solution": [
-    "s = andE(p)",
-    "e = orE(s.right, left: o1, right: o2) {",
-    "  left {",
-    "    l1 = andI(s.left, e.left)",
-    "    o1 = orI[other=\"A & C\", side=right](l1)",
-    "  }",
-    "  right {",
-    "    l2 = andI(s.left, e.right)",
-    "    o2 = orI[other=\"A & B\", side=left](l2)",
-    "  }",
-    "}",
-    "goal <- e"
   ]
 }

@@ -1,31 +1,36 @@
 {
-  "kind": "gates",
   "title": { "zh": "三个人说话", "en": "Three islanders speak" },
-  "target": "(KA ↔ ¬KB) ∧ (KB ↔ ¬KC) ∧ (KC ↔ ¬KA ∧ ¬KB)",
-  "blind": true,
-  "brief": {
-    "zh": "a 说：「b 是无赖。」b 说：「c 是无赖。」c 说：「a 和 b 都是无赖。」把三人的话译成逻辑，接成电路：三人的话都和身份相符的行，输出真。",
-    "en": "a says: “b is a knave.” b says: “c is a knave.” c says: “a and b are both knaves.” Translate what the three say into logic and wire it: the board outputs true on exactly the rows where what each says fits what they are."
-  },
   "intro": [{ "t": { "zh": "三个人，表有八行。", "en": "Three people, and the table has eight rows." } }],
-  "hint": [
-    { "zh": "c 的话里，否定管的是哪一部分？", "en": "In what c says, which part does the negation cover?" },
-    { "zh": "三个人的话各译一句，三句要同时成立。", "en": "Translate each person’s words on their own; all three must hold at once." }
-  ],
-  "solution": [
-    "na = gNot(KA)",
-    "nb = gNot(KB)",
-    "nc = gNot(KC)",
-    "e1 = gIff(KA, nb)",
-    "e2 = gIff(KB, nc)",
-    "c = gAnd(na, nb)",
-    "e3 = gIff(KC, c)",
-    "b12 = gAnd(e1, e2)",
-    "all = gAnd(b12, e3)",
-    "out <- all"
-  ],
   "after": {
     "zh": "找一行使几句话同时为真，这类问题叫<wiki-ref to=\"satisfiable\"></wiki-ref>问题（SAT）。",
     "en": "Finding a row on which several sentences are all true is the <wiki-ref to=\"satisfiable\"></wiki-ref> problem (SAT)."
-  }
+  },
+  "tasks": [
+    {
+      "id": "e-three",
+      "kind": "gates",
+      "target": "(KA ↔ ¬KB) ∧ (KB ↔ ¬KC) ∧ (KC ↔ ¬KA ∧ ¬KB)",
+      "blind": true,
+      "brief": {
+        "zh": "a 说：「b 是无赖。」b 说：「c 是无赖。」c 说：「a 和 b 都是无赖。」把三人的话译成逻辑，接成电路：三人的话都和身份相符的行，输出真。",
+        "en": "a says: “b is a knave.” b says: “c is a knave.” c says: “a and b are both knaves.” Translate what the three say into logic and wire it: the board outputs true on exactly the rows where what each says fits what they are."
+      },
+      "hint": [
+        { "zh": "c 的话里，否定管的是哪一部分？", "en": "In what c says, which part does the negation cover?" },
+        { "zh": "三个人的话各译一句，三句要同时成立。", "en": "Translate each person’s words on their own; all three must hold at once." }
+      ],
+      "solution": [
+        "na = gNot(KA)",
+        "nb = gNot(KB)",
+        "nc = gNot(KC)",
+        "e1 = gIff(KA, nb)",
+        "e2 = gIff(KB, nc)",
+        "c = gAnd(na, nb)",
+        "e3 = gIff(KC, c)",
+        "b12 = gAnd(e1, e2)",
+        "all = gAnd(b12, e3)",
+        "out <- all"
+      ]
+    }
+  ]
 }

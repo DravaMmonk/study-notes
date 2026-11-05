@@ -1,26 +1,31 @@
 {
-  "kind": "proof",
   "title": { "zh": "先假设，再套用", "en": "Assume, then apply" },
-  "tests": [{ "premises": { "p": "A → (B → C)", "q": "B" }, "goal": "A → C" }],
-  "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
-  "briefNote": { "zh": "用假设框。", "en": "With the assumption box." },
-  "hint": [
-    { "zh": "目标「若」后面的是什么？", "en": "What follows the “if” in the goal?" },
-    {
-      "zh": "先点一下框里的空白，再放元件，元件就落在框里。",
-      "en": "Click the empty space inside the box first, and the parts you place next land in it."
-    }
-  ],
   "intro": [
     { "t": { "zh": "周六的话，下雨我就在家休息。今天下雨了。", "en": "On a Saturday, if it rains I rest at home. It is raining." } }
   ],
-  "solution": [
-    "f = impI[A=A](body: m2) {",
-    "  body {",
-    "    m1 = mp(p, f.body)",
-    "    m2 = mp(m1, q)",
-    "  }",
-    "}",
-    "goal <- f"
+  "tasks": [
+    {
+      "id": "box",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A → (B → C)", "q": "B" }, "goal": "A → C" }],
+      "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
+      "briefNote": { "zh": "用假设框。", "en": "With the assumption box." },
+      "hint": [
+        { "zh": "目标「若」后面的是什么？", "en": "What follows the “if” in the goal?" },
+        {
+          "zh": "先点一下框里的空白，再放元件，元件就落在框里。",
+          "en": "Click the empty space inside the box first, and the parts you place next land in it."
+        }
+      ],
+      "solution": [
+        "f = impI[A=A](body: m2) {",
+        "  body {",
+        "    m1 = mp(p, f.body)",
+        "    m2 = mp(m1, q)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
   ]
 }

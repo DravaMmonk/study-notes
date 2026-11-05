@@ -1,33 +1,38 @@
 {
-  "kind": "script",
   "title": { "zh": "毕业：理发师", "en": "Graduation: the barber" },
-  "brief": {
-    "zh": "「有一个人，给且只给不给自己刮胡子的人刮胡子。」写一段脚本，证明没有这样的人。",
-    "en": "“There is someone who shaves exactly those who do not shave themselves.” Write a script that proves there is no such person."
-  },
-  "premises": {},
-  "goal": "¬∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)",
-  "things": ["b"],
-  "sentences": ["∀y. Shaves(b, y) ↔ ¬Shaves(y, y)", "Shaves(b, b) ↔ ¬Shaves(b, b)"],
-  "answer": [
-    { "k": "show", "stmt": "¬∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)", "by": "proof" },
-    { "k": "assume", "stmt": "∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)" },
-    { "k": "obtain", "thing": "b", "stmt": "∀y. Shaves(b, y) ↔ ¬Shaves(y, y)", "using": ["a1"] },
-    { "k": "have", "stmt": "Shaves(b, b) ↔ ¬Shaves(b, b)", "using": ["o1"], "by": "auto" },
-    { "k": "show", "stmt": "⊥", "using": ["h1"], "by": "metis" }
-  ],
-  "naive": [
-    { "k": "show", "stmt": "¬∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)", "by": "proof" },
-    { "k": "assume", "stmt": "∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)" },
-    { "k": "show", "stmt": "⊥", "using": ["a1"], "by": "metis" }
-  ],
-  "hint": [
-    { "zh": "假设有这么一个人，把他拿出来，叫他 b。", "en": "Suppose there is such a person; take him out and call him b." },
-    { "zh": "b 给不给自己刮？", "en": "Does b shave himself?" }
-  ],
   "intro": [{ "t": { "zh": "最后一段脚本，用上这台证明器的每一层。", "en": "A last script, using every layer of this prover." } }],
   "after": {
     "zh": "证明器从两个元件长到这里，没有一步是核不认的。",
     "en": "The prover grew from two parts to this, and not one step was one the kernel would not take."
-  }
+  },
+  "tasks": [
+    {
+      "id": "sc-barber",
+      "kind": "script",
+      "brief": {
+        "zh": "「有一个人，给且只给不给自己刮胡子的人刮胡子。」写一段脚本，证明没有这样的人。",
+        "en": "“There is someone who shaves exactly those who do not shave themselves.” Write a script that proves there is no such person."
+      },
+      "premises": {},
+      "goal": "¬∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)",
+      "things": ["b"],
+      "sentences": ["∀y. Shaves(b, y) ↔ ¬Shaves(y, y)", "Shaves(b, b) ↔ ¬Shaves(b, b)"],
+      "answer": [
+        { "k": "show", "stmt": "¬∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)", "by": "proof" },
+        { "k": "assume", "stmt": "∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)" },
+        { "k": "obtain", "thing": "b", "stmt": "∀y. Shaves(b, y) ↔ ¬Shaves(y, y)", "using": ["a1"] },
+        { "k": "have", "stmt": "Shaves(b, b) ↔ ¬Shaves(b, b)", "using": ["o1"], "by": "auto" },
+        { "k": "show", "stmt": "⊥", "using": ["h1"], "by": "metis" }
+      ],
+      "naive": [
+        { "k": "show", "stmt": "¬∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)", "by": "proof" },
+        { "k": "assume", "stmt": "∃x. ∀y. Shaves(x, y) ↔ ¬Shaves(y, y)" },
+        { "k": "show", "stmt": "⊥", "using": ["a1"], "by": "metis" }
+      ],
+      "hint": [
+        { "zh": "假设有这么一个人，把他拿出来，叫他 b。", "en": "Suppose there is such a person; take him out and call him b." },
+        { "zh": "b 给不给自己刮？", "en": "Does b shave himself?" }
+      ]
+    }
+  ]
 }

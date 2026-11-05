@@ -1,27 +1,32 @@
 {
-  "kind": "proof",
   "title": { "zh": "不用框合并", "en": "Merging without a box" },
-  "sentences": ["A → A"],
-  "tests": [{ "premises": { "p": "A → (A → B)" }, "goal": "A → B" }],
-  "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Hungry", "B": "Eat" }],
   "without": ["impI", "chain", "swap", "merge"],
-  "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
-  "hint": [
-    { "zh": "已知能接进哪一种 S？", "en": "Which S can the given go into?" },
+  "tasks": [
     {
-      "zh": "S 和已知套用以后，还差什么？它在<level-ref to=\"x-self\"></level-ref>里拼过。",
-      "en": "After S is applied to the given, what is still missing? You pieced it together in <level-ref to=\"x-self\"></level-ref>."
+      "id": "x-merge",
+      "kind": "proof",
+      "sentences": ["A → A"],
+      "tests": [{ "premises": { "p": "A → (A → B)" }, "goal": "A → B" }],
+      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Hungry", "B": "Eat" }],
+      "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+      "hint": [
+        { "zh": "已知能接进哪一种 S？", "en": "Which S can the given go into?" },
+        {
+          "zh": "S 和已知套用以后，还差什么？它在<level-ref to=\"x-self\"></level-ref>里拼过。",
+          "en": "After S is applied to the given, what is still missing? You pieced it together in <level-ref to=\"x-self\"></level-ref>."
+        }
+      ],
+      "solution": [
+        "s = axS[A=A, B=A, C=B]()",
+        "s2 = axS[A=A, B=\"A -> A\", C=A]()",
+        "k1 = axK[A=A, B=\"A -> A\"]()",
+        "k2 = axK[A=A, B=A]()",
+        "m = mp(s, p)",
+        "m1 = mp(s2, k1)",
+        "m2 = mp(m1, k2)",
+        "m3 = mp(m, m2)",
+        "goal <- m3"
+      ]
     }
-  ],
-  "solution": [
-    "s = axS[A=A, B=A, C=B]()",
-    "s2 = axS[A=A, B=\"A -> A\", C=A]()",
-    "k1 = axK[A=A, B=\"A -> A\"]()",
-    "k2 = axK[A=A, B=A]()",
-    "m = mp(s, p)",
-    "m1 = mp(s2, k1)",
-    "m2 = mp(m1, k2)",
-    "m3 = mp(m, m2)",
-    "goal <- m3"
   ]
 }

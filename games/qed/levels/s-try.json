@@ -1,17 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "可做可不做", "en": "A step that may not apply" },
-  "tests": [{ "goal": "Rain ∧ Wind → Rain" }, { "goal": "Rain → Rain" }, { "goal": "Wet ∧ Slip → Wet" }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "有的目标要拆开一条已知，有的不用。", "en": "Some goals need a given taken apart, some do not." },
-    {
-      "zh": "<part-ref to=\"part:append\"></part-ref>的框可以空着。",
-      "en": "A region of <part-ref to=\"part:append\"></part-ref> may be left empty."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -20,20 +8,37 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = impI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = append(c0, first: c2, second: c1.second) {",
-    "  first {",
-    "    c2r0 = andE[use=[conjE]]()",
-    "    c2 = erule(c1.first, c2r0)",
-    "  }",
-    "}",
-    "c3 = assumption(c1)",
-    "out <- c3"
-  ],
   "after": {
     "zh": "可做可不做的一步，在策略语言里叫 TRY。",
     "en": "A step that may or may not apply is called TRY in tactic languages."
-  }
+  },
+  "tasks": [
+    {
+      "id": "s-try",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [{ "goal": "Rain ∧ Wind → Rain" }, { "goal": "Rain → Rain" }, { "goal": "Wet ∧ Slip → Wet" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "有的目标要拆开一条已知，有的不用。", "en": "Some goals need a given taken apart, some do not." },
+        {
+          "zh": "<part-ref to=\"part:append\"></part-ref>的框可以空着。",
+          "en": "A region of <part-ref to=\"part:append\"></part-ref> may be left empty."
+        }
+      ],
+      "solution": [
+        "c0r0 = impI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = append(c0, first: c2, second: c1.second) {",
+        "  first {",
+        "    c2r0 = andE[use=[conjE]]()",
+        "    c2 = erule(c1.first, c2r0)",
+        "  }",
+        "}",
+        "c3 = assumption(c1)",
+        "out <- c3"
+      ]
+    }
+  ]
 }

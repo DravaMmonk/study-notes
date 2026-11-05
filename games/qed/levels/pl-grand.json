@@ -1,38 +1,5 @@
 {
-  "kind": "machine",
-  "want": "answers",
-  "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
-  "backtrack": true,
   "title": { "zh": "谁是祖父母", "en": "Who is a grandparent" },
-  "rules": {
-    "grand": {
-      "name": { "zh": "祖父母", "en": "Grandparent" },
-      "premises": ["Parent(?x, ?y)", "Parent(?y, ?z)"],
-      "conclusion": "Grand(?x, ?z)"
-    }
-  },
-  "tests": [
-    {
-      "goal": "Grand(?w, k)",
-      "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-      "answers": ["i"]
-    },
-    {
-      "goal": "Grand(j, ?w)",
-      "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-      "answers": ["m"]
-    },
-    {
-      "goal": "Grand(i, ?w)",
-      "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-      "answers": ["k", "l"]
-    }
-  ],
-  "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
-  "hint": [
-    { "zh": "倒着用规则「祖父母」。", "en": "Use the rule Grandparent backwards." },
-    { "zh": "每一种对法都是一个答案。", "en": "Every way of fitting is an answer." }
-  ],
   "intro": [
     {
       "t": {
@@ -47,9 +14,47 @@
       }
     }
   ],
-  "solution": ["c0r0 = grand()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "c2 = assumption(c1)", "out <- c2"],
   "after": {
     "zh": "这就是 Prolog：程序是一组规则，提问是证明一个带 ? 的目标。",
     "en": "This is Prolog: a program is a set of rules, and a question is a goal with ?-letters to prove."
-  }
+  },
+  "tasks": [
+    {
+      "id": "pl-grand",
+      "kind": "machine",
+      "want": "answers",
+      "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
+      "backtrack": true,
+      "rules": {
+        "grand": {
+          "name": { "zh": "祖父母", "en": "Grandparent" },
+          "premises": ["Parent(?x, ?y)", "Parent(?y, ?z)"],
+          "conclusion": "Grand(?x, ?z)"
+        }
+      },
+      "tests": [
+        {
+          "goal": "Grand(?w, k)",
+          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
+          "answers": ["i"]
+        },
+        {
+          "goal": "Grand(j, ?w)",
+          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
+          "answers": ["m"]
+        },
+        {
+          "goal": "Grand(i, ?w)",
+          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
+          "answers": ["k", "l"]
+        }
+      ],
+      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
+      "hint": [
+        { "zh": "倒着用规则「祖父母」。", "en": "Use the rule Grandparent backwards." },
+        { "zh": "每一种对法都是一个答案。", "en": "Every way of fitting is an answer." }
+      ],
+      "solution": ["c0r0 = grand()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "c2 = assumption(c1)", "out <- c2"]
+    }
+  ]
 }

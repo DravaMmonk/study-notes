@@ -27,10 +27,10 @@ import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
 
 // A level's declaration task, if it has one: a declaration on the rule board (iso.js).
-const isoOf = (level) => (level.kind === 'iso' ? level : level.tasks?.find((t) => t.kind === 'iso') ?? null)
+const isoOf = (level) => level.tasks.find((t) => t.kind === 'iso') ?? null
 // A level that gives proof-board rules by passing it (a declaration, a generator), rather than by playing on the proof
 // board.
-const givesRules = (level) => !(level.source.tasks ?? [level.source]).some((t) => t.kind === 'proof')
+const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof')
 
 /**
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), saves:
@@ -39,8 +39,8 @@ const givesRules = (level) => !(level.source.tasks ?? [level.source]).some((t) =
 export default function logicGame(content) {
   const logic = logicCourse(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
-  const lemmas = LEVELS[0]?.lemmas ?? {}
-  const gates = LEVELS[0]?.gates ?? {}
+  const lemmas = content.lemmas ?? {}
+  const { gates } = logic
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…).
@@ -75,8 +75,9 @@ export default function logicGame(content) {
     keeps: L.unlocks.length > 0 || logic.provers.has(L.id),
     brief: L.brief,
     after: L.after,
-    // A level of several tasks (../../shell/GameShell.jsx): what each changes of the level.
-    tasks: L.tasks?.map((t) => ({ key: t.key, kind: t.kind, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
+    // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
+    // its screen reading the task as the course read it (`source`).
+    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
   }))
   const game = defineGame({
     id: content.id,

@@ -1,53 +1,58 @@
 {
-  "kind": "proof",
   "title": { "zh": "康托尔", "en": "Cantor" },
-  "tests": [
-    { "premises": { "s": "∀z. ∃x. ∀y. P(y, f(x)) ↔ P(y, z)", "d": "∃z. ∀y. P(y, z) ↔ ¬P(y, f(y))" }, "goal": "⊥" }
-  ],
-  "cases": [{ "P": "In" }],
-  "brief": {
-    "zh": "f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。推出矛盾 ⊥。",
-    "en": "f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Get the contradiction ⊥."
-  },
-  "hint": [
-    { "zh": "先取出 z，再取出 f(x) 等于 z 的那个 x。", "en": "Take out z first, then the x whose f(x) is z." },
-    { "zh": "两句都取 y = x，会得到 X ↔ Y 和 Y ↔ ¬X。", "en": "Taking y = x in both gives X ↔ Y and Y ↔ ¬X." },
-    {
-      "zh": "由这两句凑出<part-ref to=\"lemma:liar\"></part-ref>要的那句。",
-      "en": "From these two, build what <part-ref to=\"lemma:liar\"></part-ref> needs."
-    }
-  ],
-  "solution": [
-    "e1 = exE[x=a](d, body: e2) {",
-    "  body {",
-    "    a1 = allE[t=a](s)",
-    "    e2 = exE[x=b](a1, body: l) {",
-    "      body {",
-    "        a3 = allE[t=b](e1.body)",
-    "        a2 = allE[t=b](e2.body)",
-    "        s2 = andE(a3)",
-    "        s1 = andE(a2)",
-    "        c1 = chain(s1.left, s2.left)",
-    "        c2 = chain(s2.right, s1.right)",
-    "        j = andI(c1, c2)",
-    "        l = liar(j)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "goal <- e1"
-  ],
-  "naive": [
-    "e1 = exE[x=a](d, body: l) {",
-    "  body {",
-    "    a3 = allE[t=a](e1.body)",
-    "    l = liar(a3)",
-    "  }",
-    "}",
-    "goal <- e1"
-  ],
   "after": {
     "zh": "这是<b>康托尔定理</b>：一个集合的子集，总比它的元素多。",
     "en": "This is <b>Cantor’s theorem</b>: a set always has more subsets than elements."
-  }
+  },
+  "tasks": [
+    {
+      "id": "u-cantor",
+      "kind": "proof",
+      "tests": [
+        { "premises": { "s": "∀z. ∃x. ∀y. P(y, f(x)) ↔ P(y, z)", "d": "∃z. ∀y. P(y, z) ↔ ¬P(y, f(y))" }, "goal": "⊥" }
+      ],
+      "cases": [{ "P": "In" }],
+      "brief": {
+        "zh": "f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。推出矛盾 ⊥。",
+        "en": "f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Get the contradiction ⊥."
+      },
+      "hint": [
+        { "zh": "先取出 z，再取出 f(x) 等于 z 的那个 x。", "en": "Take out z first, then the x whose f(x) is z." },
+        { "zh": "两句都取 y = x，会得到 X ↔ Y 和 Y ↔ ¬X。", "en": "Taking y = x in both gives X ↔ Y and Y ↔ ¬X." },
+        {
+          "zh": "由这两句凑出<part-ref to=\"lemma:liar\"></part-ref>要的那句。",
+          "en": "From these two, build what <part-ref to=\"lemma:liar\"></part-ref> needs."
+        }
+      ],
+      "solution": [
+        "e1 = exE[x=a](d, body: e2) {",
+        "  body {",
+        "    a1 = allE[t=a](s)",
+        "    e2 = exE[x=b](a1, body: l) {",
+        "      body {",
+        "        a3 = allE[t=b](e1.body)",
+        "        a2 = allE[t=b](e2.body)",
+        "        s2 = andE(a3)",
+        "        s1 = andE(a2)",
+        "        c1 = chain(s1.left, s2.left)",
+        "        c2 = chain(s2.right, s1.right)",
+        "        j = andI(c1, c2)",
+        "        l = liar(j)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- e1"
+      ],
+      "naive": [
+        "e1 = exE[x=a](d, body: l) {",
+        "  body {",
+        "    a3 = allE[t=a](e1.body)",
+        "    l = liar(a3)",
+        "  }",
+        "}",
+        "goal <- e1"
+      ]
+    }
+  ]
 }

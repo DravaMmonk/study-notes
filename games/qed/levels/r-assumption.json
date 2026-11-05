@@ -1,12 +1,6 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "由假设得证", "en": "Among the givens" },
   "adds": ["assumption"],
-  "tests": [{ "goal": "Rain → (Wind → Rain)" }, { "goal": "Wet → (Slip → Wet)" }, { "goal": "¬Rain → (Rain → ¬Rain)" }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "剥掉所有的「若」之后，剩下的目标在哪里？", "en": "With every “if” peeled off, where is the goal that is left?" }],
   "intro": [
     {
       "t": {
@@ -21,12 +15,23 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = impI()",
-    "c1r0 = impI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = assumption(c1)",
-    "out <- c2"
+  "tasks": [
+    {
+      "id": "r-assumption",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [{ "goal": "Rain → (Wind → Rain)" }, { "goal": "Wet → (Slip → Wet)" }, { "goal": "¬Rain → (Rain → ¬Rain)" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "剥掉所有的「若」之后，剩下的目标在哪里？", "en": "With every “if” peeled off, where is the goal that is left?" }],
+      "solution": [
+        "c0r0 = impI()",
+        "c1r0 = impI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = assumption(c1)",
+        "out <- c2"
+      ]
+    }
   ]
 }

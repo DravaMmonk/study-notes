@@ -1,35 +1,5 @@
 {
-  "kind": "machine",
-  "want": "answers",
-  "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
-  "backtrack": true,
   "title": { "zh": "隔多少代都行", "en": "Any number of generations" },
-  "rules": {
-    "anc1": {
-      "name": { "zh": "祖先·一代", "en": "Ancestor: one generation" },
-      "premises": ["Parent(?x, ?y)"],
-      "conclusion": "Anc(?x, ?y)"
-    },
-    "anc2": {
-      "name": { "zh": "祖先·多代", "en": "Ancestor: more" },
-      "premises": ["Parent(?x, ?y)", "Anc(?y, ?z)"],
-      "conclusion": "Anc(?x, ?z)"
-    }
-  },
-  "tests": [
-    {
-      "goal": "Anc(i, ?w)",
-      "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-      "answers": ["j", "k", "l", "m"]
-    },
-    {
-      "goal": "Anc(?w, m)",
-      "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
-      "answers": ["i", "j", "l", "n"]
-    }
-  ],
-  "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
-  "hint": [{ "zh": "隔几代，证明就有多长。", "en": "As many generations, so long is the proof." }],
   "intro": [
     {
       "t": {
@@ -38,24 +8,59 @@
       }
     }
   ],
-  "solution": [
-    "c0 = search(in, body: c1) {",
-    "  body {",
-    "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
-    "      first {",
-    "        c2 = assumption(c1.first)",
-    "      }",
-    "      second {",
-    "        c3r0 = anc1()",
-    "        c3 = rule(c1.second, c3r0)",
-    "      }",
-    "      third {",
-    "        c4r0 = anc2()",
-    "        c4 = rule(c1.third, c4r0)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "out <- c0"
+  "tasks": [
+    {
+      "id": "pl-anc",
+      "kind": "machine",
+      "want": "answers",
+      "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
+      "backtrack": true,
+      "rules": {
+        "anc1": {
+          "name": { "zh": "祖先·一代", "en": "Ancestor: one generation" },
+          "premises": ["Parent(?x, ?y)"],
+          "conclusion": "Anc(?x, ?y)"
+        },
+        "anc2": {
+          "name": { "zh": "祖先·多代", "en": "Ancestor: more" },
+          "premises": ["Parent(?x, ?y)", "Anc(?y, ?z)"],
+          "conclusion": "Anc(?x, ?z)"
+        }
+      },
+      "tests": [
+        {
+          "goal": "Anc(i, ?w)",
+          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
+          "answers": ["j", "k", "l", "m"]
+        },
+        {
+          "goal": "Anc(?w, m)",
+          "hyps": ["Parent(i, j)", "Parent(j, k)", "Parent(j, l)", "Parent(l, m)", "Parent(n, m)"],
+          "answers": ["i", "j", "l", "n"]
+        }
+      ],
+      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
+      "hint": [{ "zh": "隔几代，证明就有多长。", "en": "As many generations, so long is the proof." }],
+      "solution": [
+        "c0 = search(in, body: c1) {",
+        "  body {",
+        "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
+        "      first {",
+        "        c2 = assumption(c1.first)",
+        "      }",
+        "      second {",
+        "        c3r0 = anc1()",
+        "        c3 = rule(c1.second, c3r0)",
+        "      }",
+        "      third {",
+        "        c4r0 = anc2()",
+        "        c4 = rule(c1.third, c4r0)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "out <- c0"
+      ]
+    }
   ]
 }

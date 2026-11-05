@@ -1,30 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "定义相等：自反", "en": "Defining equality: reflexivity" },
-  "consts": ["i", "j"],
-  "propertyWords": true,
-  "words": ["everyday", "stars", "properties"],
-  "tests": [{ "premises": {}, "goal": "∀P. P(i) → P(i)" }],
-  "cases": [],
-  "brief": {
-    "zh": "不用任何已知，证明：对于任意性质，如果晨星具有该性质，那么晨星具有该性质。",
-    "en": "From nothing, prove: for every property, if the Morning Star has that property, then the Morning Star has it."
-  },
-  "hint": [
-    { "zh": "任取框取的名字选 P：框里 P 是任意一种性质。", "en": "Take the name P in the for-any box: inside, P is any property at all." },
-    {
-      "zh": "框里是一个假设框：它的假设就是它要的结论。",
-      "en": "Inside goes an assumption box whose assumption is just the conclusion it wants."
-    }
-  ],
-  "solution": [
-    "s = allI[x=P](body: f) {",
-    "  body {",
-    "    f = impI[A=\"P(i)\"](body: f.body)",
-    "  }",
-    "}",
-    "goal <- s"
-  ],
   "intro": [
     {
       "t": {
@@ -42,5 +17,35 @@
   "after": {
     "zh": "声明给出的自反律，在定义下是一条证出来的结论。",
     "en": "The reflexivity a declaration gives is, under the definition, a conclusion proved."
-  }
+  },
+  "tasks": [
+    {
+      "id": "h-eq-refl",
+      "kind": "proof",
+      "consts": ["i", "j"],
+      "propertyWords": true,
+      "words": ["everyday", "stars", "properties"],
+      "tests": [{ "premises": {}, "goal": "∀P. P(i) → P(i)" }],
+      "cases": [],
+      "brief": {
+        "zh": "不用任何已知，证明：对于任意性质，如果晨星具有该性质，那么晨星具有该性质。",
+        "en": "From nothing, prove: for every property, if the Morning Star has that property, then the Morning Star has it."
+      },
+      "hint": [
+        { "zh": "任取框取的名字选 P：框里 P 是任意一种性质。", "en": "Take the name P in the for-any box: inside, P is any property at all." },
+        {
+          "zh": "框里是一个假设框：它的假设就是它要的结论。",
+          "en": "Inside goes an assumption box whose assumption is just the conclusion it wants."
+        }
+      ],
+      "solution": [
+        "s = allI[x=P](body: f) {",
+        "  body {",
+        "    f = impI[A=\"P(i)\"](body: f.body)",
+        "  }",
+        "}",
+        "goal <- s"
+      ]
+    }
+  ]
 }

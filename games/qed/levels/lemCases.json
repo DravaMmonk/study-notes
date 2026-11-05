@@ -1,12 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "两边都讨论", "en": "Take both sides" },
-  "tests": [{ "premises": { "p": "A → B", "q": "¬A → B" }, "goal": "B" }],
-  "cases": [{ "A": "Rain", "B": "Coffee" }, { "A": "Bus", "B": "OnTime" }],
-  "hint": [
-    { "zh": "下雨和不下雨，两种情况都讨论。", "en": "Rain and no rain: take both cases." },
-    { "zh": "分情况要一句「或者」，已知里没有。", "en": "Taking cases needs an “or”, and none is given." }
-  ],
   "intro": [
     {
       "t": {
@@ -15,16 +8,28 @@
       }
     }
   ],
-  "solution": [
-    "l = lem[A=A]()",
-    "e = orE(l, left: m1, right: m2) {",
-    "  left {",
-    "    m1 = mp(p, e.left)",
-    "  }",
-    "  right {",
-    "    m2 = mp(q, e.right)",
-    "  }",
-    "}",
-    "goal <- e"
+  "tasks": [
+    {
+      "id": "lemCases",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A → B", "q": "¬A → B" }, "goal": "B" }],
+      "cases": [{ "A": "Rain", "B": "Coffee" }, { "A": "Bus", "B": "OnTime" }],
+      "hint": [
+        { "zh": "下雨和不下雨，两种情况都讨论。", "en": "Rain and no rain: take both cases." },
+        { "zh": "分情况要一句「或者」，已知里没有。", "en": "Taking cases needs an “or”, and none is given." }
+      ],
+      "solution": [
+        "l = lem[A=A]()",
+        "e = orE(l, left: m1, right: m2) {",
+        "  left {",
+        "    m1 = mp(p, e.left)",
+        "  }",
+        "  right {",
+        "    m2 = mp(q, e.right)",
+        "  }",
+        "}",
+        "goal <- e"
+      ]
+    }
   ]
 }

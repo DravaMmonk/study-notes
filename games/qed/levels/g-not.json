@@ -1,13 +1,7 @@
 {
-  "kind": "gates",
   "symbols": ["¬"],
   "title": { "zh": "不是不下雨", "en": "Not not raining" },
-  "target": "¬¬Rain",
   "adds": ["gNot"],
-  "brief": {
-    "zh": "接一块电路，算出「不是『不下雨』」在每一行的真值。",
-    "en": "Wire a board that works out the value of “it is not the case that it is not raining” on every row."
-  },
   "intro": [
     {
       "t": {
@@ -34,6 +28,17 @@
       }
     }
   ],
-  "hint": [{ "zh": "「不下雨」怎样接？再否定一次呢？", "en": "How is “it is not raining” wired? And negated once more?" }],
-  "solution": ["n1 = gNot(Rain)", "n2 = gNot(n1)", "out <- n2"]
+  "tasks": [
+    {
+      "id": "g-not",
+      "kind": "gates",
+      "target": "¬¬Rain",
+      "brief": {
+        "zh": "接一块电路，算出「不是『不下雨』」在每一行的真值。",
+        "en": "Wire a board that works out the value of “it is not the case that it is not raining” on every row."
+      },
+      "hint": [{ "zh": "「不下雨」怎样接？再否定一次呢？", "en": "How is “it is not raining” wired? And negated once more?" }],
+      "solution": ["n1 = gNot(Rain)", "n2 = gNot(n1)", "out <- n2"]
+    }
+  ]
 }

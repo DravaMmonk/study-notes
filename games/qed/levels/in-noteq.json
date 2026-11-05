@@ -1,33 +1,38 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms"],
   "title": { "zh": "不等于自己的后一个", "en": "Never the one after itself" },
   "fact": "succNeq",
-  "types": ["nat"],
-  "tests": [{ "goal": "∀x. ¬(x = s(x))" }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "归纳。", "en": "Induction." },
-    { "zh": "两种情况要用到声明给的规则和证出的一对一。", "en": "The two cases need the declaration’s rules and the one-to-one proved." }
-  ],
   "intro": [{ "t": { "zh": "没有哪个数等于它自己的后一个：x ≠ S x。", "en": "No number is the one after itself: x ≠ S x." } }],
-  "solution": [
-    "c0r0 = math[use=[\"nat.induct\"]]()",
-    "c1r0 = impI()",
-    "c2r0 = math[use=[\"nat.distinct1\"]]()",
-    "c3r0 = impI()",
-    "c4r0 = math[use=[inject]]()",
-    "c5r0 = mp[use=[mp]]()",
-    "c0 = rule(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = erule(c1, c2r0)",
-    "c3 = rule(c2, c3r0)",
-    "c4 = erule(c3, c4r0)",
-    "c5 = erule(c4, c5r0)",
-    "c6 = assumption(c5)",
-    "out <- c6"
+  "tasks": [
+    {
+      "id": "in-noteq",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "types": ["nat"],
+      "tests": [{ "goal": "∀x. ¬(x = s(x))" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "归纳。", "en": "Induction." },
+        { "zh": "两种情况要用到声明给的规则和证出的一对一。", "en": "The two cases need the declaration’s rules and the one-to-one proved." }
+      ],
+      "solution": [
+        "c0r0 = math[use=[\"nat.induct\"]]()",
+        "c1r0 = impI()",
+        "c2r0 = math[use=[\"nat.distinct1\"]]()",
+        "c3r0 = impI()",
+        "c4r0 = math[use=[inject]]()",
+        "c5r0 = mp[use=[mp]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = erule(c1, c2r0)",
+        "c3 = rule(c2, c3r0)",
+        "c4 = erule(c3, c4r0)",
+        "c5 = erule(c4, c5r0)",
+        "c6 = assumption(c5)",
+        "out <- c6"
+      ]
+    }
   ]
 }

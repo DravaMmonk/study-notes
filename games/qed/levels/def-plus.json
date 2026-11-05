@@ -1,22 +1,5 @@
 {
-  "kind": "define",
-  "words": ["everyday", "terms"],
   "title": { "zh": "定义加法", "en": "Defining addition" },
-  "fn": "plus",
-  "on": 0,
-  "rows": [
-    { "lhs": "plus(zero, y)", "choices": ["y", "zero", "s(y)"] },
-    { "lhs": "plus(s(x), y)", "choices": ["s(plus(x, y))", "plus(x, y)", "s(plus(s(x), y))", "s(y)"] }
-  ],
-  "tests": [
-    { "term": "plus(s(zero), s(zero))", "value": "s(s(zero))" },
-    { "term": "plus(s(s(zero)), s(zero))", "value": "s(s(s(zero)))" },
-    { "term": "plus(zero, s(zero))", "value": "s(zero)" }
-  ],
-  "solution": ["y", "s(plus(x, y))"],
-  "naive": ["y", "s(plus(s(x), y))"],
-  "brief": { "zh": "给每一行选一个右边，让每个测试都算对。", "en": "Pick a right side for every row so that every test works out right." },
-  "hint": [{ "zh": "S x + y 比 x + y 多一。", "en": "S x + y is one more than x + y." }],
   "intro": [
     {
       "t": {
@@ -28,5 +11,27 @@
   "after": {
     "zh": "Lean 把这样的定义编译成自然数的递推子 Nat.rec。",
     "en": "Lean compiles such a definition into the recursor of the numbers, Nat.rec."
-  }
+  },
+  "tasks": [
+    {
+      "id": "def-plus",
+      "kind": "define",
+      "words": ["everyday", "terms"],
+      "fn": "plus",
+      "on": 0,
+      "rows": [
+        { "lhs": "plus(zero, y)", "choices": ["y", "zero", "s(y)"] },
+        { "lhs": "plus(s(x), y)", "choices": ["s(plus(x, y))", "plus(x, y)", "s(plus(s(x), y))", "s(y)"] }
+      ],
+      "tests": [
+        { "term": "plus(s(zero), s(zero))", "value": "s(s(zero))" },
+        { "term": "plus(s(s(zero)), s(zero))", "value": "s(s(s(zero)))" },
+        { "term": "plus(zero, s(zero))", "value": "s(zero)" }
+      ],
+      "solution": ["y", "s(plus(x, y))"],
+      "naive": ["y", "s(plus(s(x), y))"],
+      "brief": { "zh": "给每一行选一个右边，让每个测试都算对。", "en": "Pick a right side for every row so that every test works out right." },
+      "hint": [{ "zh": "S x + y 比 x + y 多一。", "en": "S x + y is one more than x + y." }]
+    }
+  ]
 }

@@ -1,26 +1,6 @@
 {
-  "kind": "machine",
-  "want": "unify",
-  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
   "title": { "zh": "模式合一", "en": "Pattern unification" },
   "adds": ["uPattern", "unifier"],
-  "tests": [
-    { "eqs": ["∀x. ?P(x) ≐ ∀x. Human(x) → Mortal(x)"] },
-    { "eqs": ["∃y. ?P(y) ∧ ?A ≐ ∃x. Likes(x, i) ∧ Rain"] },
-    { "eqs": ["∀x. ?A ≐ ∀x. Human(x)"] },
-    { "eqs": ["∀x. ?P(x) ∧ ?P(i) ≐ ∀x. Likes(x, x) ∧ Likes(i, j)"] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：把每组等式解到底；对不上或者没有解的，说「失败」。",
-    "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit or have no solution."
-  },
-  "hint": [
-    {
-      "zh": "合一器先做它能做的，剩下 ?P(x) 这样的等式交给新元件。",
-      "en": "Let the unifier do what it can, and pass an equation like ?P(x) that is left to the new part."
-    },
-    { "zh": "解出 ?P 以后，可能还要再合一一遍。", "en": "Once ?P is solved, there may be more unifying to do." }
-  ],
   "intro": [
     {
       "t": {
@@ -35,17 +15,42 @@
       }
     }
   ],
-  "solution": [
-    "r = repeat(in, body: c1) {",
-    "  body {",
-    "    c0 = unifier(r.body)",
-    "    c1 = uPattern(c0)",
-    "  }",
-    "}",
-    "out <- r"
-  ],
   "after": {
     "zh": "元变量只跟着互不相同的约束变量时，解是唯一的，这叫<wiki-ref to=\"pattern\"></wiki-ref>（Miller 模式）。",
     "en": "When a metavariable is followed only by distinct bound variables, the solution is unique: a <wiki-ref to=\"pattern\"></wiki-ref> (Miller’s patterns)."
-  }
+  },
+  "tasks": [
+    {
+      "id": "r-pattern",
+      "kind": "machine",
+      "want": "unify",
+      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "tests": [
+        { "eqs": ["∀x. ?P(x) ≐ ∀x. Human(x) → Mortal(x)"] },
+        { "eqs": ["∃y. ?P(y) ∧ ?A ≐ ∃x. Likes(x, i) ∧ Rain"] },
+        { "eqs": ["∀x. ?A ≐ ∀x. Human(x)"] },
+        { "eqs": ["∀x. ?P(x) ∧ ?P(i) ≐ ∀x. Likes(x, x) ∧ Likes(i, j)"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：把每组等式解到底；对不上或者没有解的，说「失败」。",
+        "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit or have no solution."
+      },
+      "hint": [
+        {
+          "zh": "合一器先做它能做的，剩下 ?P(x) 这样的等式交给新元件。",
+          "en": "Let the unifier do what it can, and pass an equation like ?P(x) that is left to the new part."
+        },
+        { "zh": "解出 ?P 以后，可能还要再合一一遍。", "en": "Once ?P is solved, there may be more unifying to do." }
+      ],
+      "solution": [
+        "r = repeat(in, body: c1) {",
+        "  body {",
+        "    c0 = unifier(r.body)",
+        "    c1 = uPattern(c0)",
+        "  }",
+        "}",
+        "out <- r"
+      ]
+    }
+  ]
 }

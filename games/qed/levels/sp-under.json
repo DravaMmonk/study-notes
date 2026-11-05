@@ -1,17 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms"],
   "title": { "zh": "在「对所有」底下", "en": "Under “for all”" },
-  "defs": ["plus"],
-  "tests": [
-    { "goal": "∀x. plus(zero, plus(zero, x)) = x" },
-    { "goal": "∀x. ∀y. plus(s(zero), plus(x, y)) = s(plus(x, y))" }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "化简之后还剩几层「对所有」。", "en": "After Simp, some “for all”s are still there." }],
   "intro": [
     {
       "t": {
@@ -20,17 +8,34 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = math[use=[\"def.0\", \"def.1\"]]()",
-    "c3r0 = refl()",
-    "c0 = simp(in, c0r0)",
-    "c1 = repeat(c0, body: c2) {",
-    "  body {",
-    "    c2r0 = allI()",
-    "    c2 = rule(c1.body, c2r0)",
-    "  }",
-    "}",
-    "c3 = rule(c1, c3r0)",
-    "out <- c3"
+  "tasks": [
+    {
+      "id": "sp-under",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "defs": ["plus"],
+      "tests": [
+        { "goal": "∀x. plus(zero, plus(zero, x)) = x" },
+        { "goal": "∀x. ∀y. plus(s(zero), plus(x, y)) = s(plus(x, y))" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "化简之后还剩几层「对所有」。", "en": "After Simp, some “for all”s are still there." }],
+      "solution": [
+        "c0r0 = math[use=[\"def.0\", \"def.1\"]]()",
+        "c3r0 = refl()",
+        "c0 = simp(in, c0r0)",
+        "c1 = repeat(c0, body: c2) {",
+        "  body {",
+        "    c2r0 = allI()",
+        "    c2 = rule(c1.body, c2r0)",
+        "  }",
+        "}",
+        "c3 = rule(c1, c3r0)",
+        "out <- c3"
+      ]
+    }
   ]
 }

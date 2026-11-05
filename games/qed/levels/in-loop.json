@@ -1,21 +1,6 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms"],
   "adds": ["frule"],
   "title": { "zh": "停不下来的定义", "en": "A definition that never stops" },
-  "types": ["nat"],
-  "tests": [{ "goal": "⊥", "hyps": ["∀x. f(x) = s(f(x))"] }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    {
-      "zh": "「数理规则书」里有一条证出的等式和这句定义正好相冲。",
-      "en": "The “Rule book of numbers” holds an equation proved that is at odds with this definition."
-    },
-    { "zh": "两句「对所有」各取出一句具体的。", "en": "Take one particular sentence out of each “for all”." }
-  ],
   "intro": [
     {
       "t": {
@@ -24,22 +9,42 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = mp[use=[cut]]()",
-    "c1r0 = math[use=[succNeq]]()",
-    "c2r0 = allE[use=[spec]]()",
-    "c3r0 = allE[use=[spec]]()",
-    "c4r0 = mp[use=[mp]]()",
-    "c0 = rule(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = frule(c1, c2r0)",
-    "c3 = frule(c2, c3r0)",
-    "c4 = erule(c3, c4r0)",
-    "c5 = assumption(c4)",
-    "out <- c5"
-  ],
   "after": {
     "zh": "Isabelle 的 fun、Lean 的 def 收下递归定义之前，都要先证明它终止。",
     "en": "Isabelle’s fun and Lean’s def both accept a recursive definition only once it is proved to terminate."
-  }
+  },
+  "tasks": [
+    {
+      "id": "in-loop",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "types": ["nat"],
+      "tests": [{ "goal": "⊥", "hyps": ["∀x. f(x) = s(f(x))"] }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        {
+          "zh": "「数理规则书」里有一条证出的等式和这句定义正好相冲。",
+          "en": "The “Rule book of numbers” holds an equation proved that is at odds with this definition."
+        },
+        { "zh": "两句「对所有」各取出一句具体的。", "en": "Take one particular sentence out of each “for all”." }
+      ],
+      "solution": [
+        "c0r0 = mp[use=[cut]]()",
+        "c1r0 = math[use=[succNeq]]()",
+        "c2r0 = allE[use=[spec]]()",
+        "c3r0 = allE[use=[spec]]()",
+        "c4r0 = mp[use=[mp]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = frule(c1, c2r0)",
+        "c3 = frule(c2, c3r0)",
+        "c4 = erule(c3, c4r0)",
+        "c5 = assumption(c4)",
+        "out <- c5"
+      ]
+    }
+  ]
 }

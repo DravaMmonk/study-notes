@@ -1,20 +1,6 @@
 {
-  "kind": "iso",
   "adds": ["andI", "andE"],
   "title": { "zh": "声明「并且」", "en": "Declaring “and”" },
-  "declare": { "zh": "并且", "en": "and" },
-  "target": "Rain ∧ Wind",
-  "sentences": ["Rain", "Wind"],
-  "tests": [
-    { "given": ["Rain", "Wind"], "make": true },
-    { "given": ["Rain"], "make": false },
-    { "given": ["Wind"], "make": false },
-    { "given": [], "make": false },
-    { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true },
-    { "given": ["Rain ∧ Wind"], "goal": "Wind", "make": true },
-    { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false },
-    { "given": ["Rain ∧ Wind", "Rain → (Wind → Wet)"], "goal": "Wet", "make": true }
-  ],
   "intro": [
     {
       "t": {
@@ -41,18 +27,37 @@
       }
     }
   ],
-  "brief": {
-    "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。写出它的声明。",
-    "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write its declaration."
-  },
-  "hint": [
-    { "zh": "只有一条引入规则，它同时要两样。", "en": "There is one introduction rule, and it needs both at once." },
-    { "zh": "在成立条件 1 这一行添加两个前提：「下雨」和「刮风」。", "en": "Give condition 1 two premises: “it rains” and “it is windy”." }
-  ],
-  "solution": [{ "binds": [], "needs": ["Rain", "Wind"] }],
-  "naive": [{ "binds": [], "needs": ["Rain"] }, { "binds": [], "needs": ["Wind"] }],
   "after": {
     "zh": "「并且」原本不在证明核里，声明让证明核从此认得它。你可能已经注意到，规则表下面写出了由引入规则生成的<wiki-ref to=\"elim-rule\"></wiki-ref>：声明列出了构建该命题的全部方式，要使用它，就可以逐一考虑这些方式。Lean 走的就是声明这条路：「并且」「或者」「存在」「相等」都用一条声明（inductive）引入证明核，规则由声明生成；只有「若…则…」在 Lean 里是证明核自带的。",
     "en": "“And” was not in the kernel before; the declaration is what makes the kernel know it. You may have noticed the <wiki-ref to=\"elim-rule\"></wiki-ref> written under the rule table, generated from the introduction rules: the declaration lists all the ways to construct the statement, so using it means considering each of those ways. Lean takes this road of declaring: “and”, “or”, “there is” and equality each come into its kernel by a declaration (inductive), and their rules are generated from it; only “if … then …” is built into Lean’s kernel."
-  }
+  },
+  "tasks": [
+    {
+      "id": "decl-and",
+      "kind": "iso",
+      "declare": { "zh": "并且", "en": "and" },
+      "target": "Rain ∧ Wind",
+      "sentences": ["Rain", "Wind"],
+      "tests": [
+        { "given": ["Rain", "Wind"], "make": true },
+        { "given": ["Rain"], "make": false },
+        { "given": ["Wind"], "make": false },
+        { "given": [], "make": false },
+        { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true },
+        { "given": ["Rain ∧ Wind"], "goal": "Wind", "make": true },
+        { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false },
+        { "given": ["Rain ∧ Wind", "Rain → (Wind → Wet)"], "goal": "Wet", "make": true }
+      ],
+      "brief": {
+        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。写出它的声明。",
+        "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write its declaration."
+      },
+      "hint": [
+        { "zh": "只有一条引入规则，它同时要两样。", "en": "There is one introduction rule, and it needs both at once." },
+        { "zh": "在成立条件 1 这一行添加两个前提：「下雨」和「刮风」。", "en": "Give condition 1 two premises: “it rains” and “it is windy”." }
+      ],
+      "solution": [{ "binds": [], "needs": ["Rain", "Wind"] }],
+      "naive": [{ "binds": [], "needs": ["Rain"] }, { "binds": [], "needs": ["Wind"] }]
+    }
+  ]
 }

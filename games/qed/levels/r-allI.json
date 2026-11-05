@@ -1,16 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "逆用任取框", "en": "For-any box, backwards" },
-  "tests": [
-    { "goal": "∀x. Student(x) ∧ Human(x) → Human(x) ∧ Student(x)" },
-    { "goal": "∀y. Bird(y) ∧ Flies(y) → Flies(y) ∧ Bird(y)" }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "去掉 ∀ 以后，剩下的是熟悉的拆开与拼成。", "en": "With the ∀ gone, what remains is the familiar splitting and joining." }
-  ],
   "intro": [
     {
       "t": {
@@ -19,17 +8,33 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = allI()",
-    "c1r0 = impI()",
-    "c2r0 = andE[use=[conjE]]()",
-    "c3r0 = andI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = erule(c1, c2r0)",
-    "c3 = rule(c2, c3r0)",
-    "c4 = assumption(c3)",
-    "c5 = assumption(c4)",
-    "out <- c5"
+  "tasks": [
+    {
+      "id": "r-allI",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [
+        { "goal": "∀x. Student(x) ∧ Human(x) → Human(x) ∧ Student(x)" },
+        { "goal": "∀y. Bird(y) ∧ Flies(y) → Flies(y) ∧ Bird(y)" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "去掉 ∀ 以后，剩下的是熟悉的拆开与拼成。", "en": "With the ∀ gone, what remains is the familiar splitting and joining." }
+      ],
+      "solution": [
+        "c0r0 = allI()",
+        "c1r0 = impI()",
+        "c2r0 = andE[use=[conjE]]()",
+        "c3r0 = andI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = erule(c1, c2r0)",
+        "c3 = rule(c2, c3r0)",
+        "c4 = assumption(c3)",
+        "c5 = assumption(c4)",
+        "out <- c5"
+      ]
+    }
   ]
 }

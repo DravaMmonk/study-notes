@@ -1,14 +1,19 @@
 {
-  "words": ["everyday", "stars"],
-  "kind": "proof",
   "title": { "zh": "一路相等", "en": "Equal all along" },
-  "consts": ["i", "k", "j"],
-  "tests": [{ "premises": { "p": "i = k", "q": "k = j" }, "goal": "i = j" }],
-  "cases": [],
-  "brief": {
-    "zh": "已知「晨星 = 金星」和「金星 = 昏星」，证明「晨星 = 昏星」。",
-    "en": "Given “the Morning Star = Venus” and “Venus = the Evening Star”, prove “the Morning Star = the Evening Star”."
-  },
-  "hint": [{ "zh": "把第一句里的金星换掉。", "en": "Replace Venus in the first." }],
-  "solution": ["w = rewrite[at=[0]](q, p)", "goal <- w"]
+  "tasks": [
+    {
+      "id": "q-trans",
+      "words": ["everyday", "stars"],
+      "kind": "proof",
+      "consts": ["i", "k", "j"],
+      "tests": [{ "premises": { "p": "i = k", "q": "k = j" }, "goal": "i = j" }],
+      "cases": [],
+      "brief": {
+        "zh": "已知「晨星 = 金星」和「金星 = 昏星」，证明「晨星 = 昏星」。",
+        "en": "Given “the Morning Star = Venus” and “Venus = the Evening Star”, prove “the Morning Star = the Evening Star”."
+      },
+      "hint": [{ "zh": "把第一句里的金星换掉。", "en": "Replace Venus in the first." }],
+      "solution": ["w = rewrite[at=[0]](q, p)", "goal <- w"]
+    }
+  ]
 }

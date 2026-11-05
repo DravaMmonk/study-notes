@@ -412,7 +412,7 @@ function byProof({ type, key, name, bind, binders }, givens, want, ctx) {
   const got = run.outputs.goal
   const problem = (!got && [...run.errors.values()].find((e) => e !== MISSING)) || closes(got, want, names, ctx.notation)
   if (!problem) return got.formula
-  // A level of tasks names the task too, unless it is named as the level.
+  // A task with a name (in a level of several) is named too, unless its name is the level's.
   const from = level.step && level.step.zh !== level.title.zh ? { zh: `${level.title.zh} · ${level.step.zh}`, en: `${level.title.en} · ${level.step.en}` } : level.title
   throw fail(`「${name.zh}」照「${from.zh}」一关的证明来证，在这里证不出：${problem.zh}`, `“${name.en}” runs the proof from “${from.en}”, which does not prove it here: ${problem.en}`)
 }

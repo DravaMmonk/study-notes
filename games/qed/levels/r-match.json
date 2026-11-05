@@ -1,19 +1,6 @@
 {
-  "kind": "machine",
-  "want": "unify",
-  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
   "title": { "zh": "对上一条规则", "en": "Fitting a rule" },
   "adds": ["uDecompose"],
-  "tests": [
-    { "eqs": ["?A ∧ ?B ≐ Rain ∧ Wind"] },
-    { "eqs": ["?A → ?B ≐ Rain → Wet ∧ Slip"] },
-    { "eqs": ["(?A → ?B) ∧ ?C ≐ (Rain → Wet) ∧ Wind"] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：把规则的结论和目标对上，拆到每个等式左边都只剩一个 ?-字母。",
-    "en": "Design a proof assistant that fits a rule’s conclusion to a goal, splitting until each equation has a single ?-letter on its left."
-  },
-  "hint": [{ "zh": "一个「分解」只拆一层。第三组测试有两层。", "en": "One Decompose splits one level. The third test has two." }],
   "intro": [
     {
       "t": {
@@ -34,5 +21,23 @@
       }
     }
   ],
-  "solution": ["c0 = uDecompose(in)", "c1 = uDecompose(c0)", "out <- c1"]
+  "tasks": [
+    {
+      "id": "r-match",
+      "kind": "machine",
+      "want": "unify",
+      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "tests": [
+        { "eqs": ["?A ∧ ?B ≐ Rain ∧ Wind"] },
+        { "eqs": ["?A → ?B ≐ Rain → Wet ∧ Slip"] },
+        { "eqs": ["(?A → ?B) ∧ ?C ≐ (Rain → Wet) ∧ Wind"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：把规则的结论和目标对上，拆到每个等式左边都只剩一个 ?-字母。",
+        "en": "Design a proof assistant that fits a rule’s conclusion to a goal, splitting until each equation has a single ?-letter on its left."
+      },
+      "hint": [{ "zh": "一个「分解」只拆一层。第三组测试有两层。", "en": "One Decompose splits one level. The third test has two." }],
+      "solution": ["c0 = uDecompose(in)", "c1 = uDecompose(c0)", "out <- c1"]
+    }
+  ]
 }

@@ -1,25 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms", "codes"],
   "title": { "zh": "对角线是一次计算", "en": "The diagonal is a computation" },
-  "stated": [
-    "diag(x) = sub(x, qt(x))",
-    "sub(nprov(x), y) = nprov(subt(x, y))",
-    "subt(vx, y) = y",
-    "subt(dg(x), y) = dg(subt(x, y))",
-    "subt(qt(x), y) = qt(x)",
-    "val(qt(x)) = x",
-    "val(dg(x)) = diag(val(x))"
-  ],
-  "tests": [
-    { "goal": "diag(nprov(dg(vx))) = nprov(dg(qt(nprov(dg(vx)))))" },
-    { "goal": "val(dg(qt(nprov(dg(vx))))) = nprov(dg(qt(nprov(dg(vx)))))" }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "七条定义都要用。", "en": "All seven definitions are needed." }],
   "intro": [
     {
       "t": {
@@ -34,15 +14,40 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\"]]()",
-    "c1r0 = refl()",
-    "c0 = simp(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "out <- c1"
-  ],
   "after": {
     "zh": "这就是<b>对角线引理</b>：对任何说法 P(□)，都有一句 G 和 P(⌜G⌝) 等价。",
     "en": "This is the <b>diagonal lemma</b>: for any property P(□) there is a sentence G equivalent to P(⌜G⌝)."
-  }
+  },
+  "tasks": [
+    {
+      "id": "gd-diag",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms", "codes"],
+      "stated": [
+        "diag(x) = sub(x, qt(x))",
+        "sub(nprov(x), y) = nprov(subt(x, y))",
+        "subt(vx, y) = y",
+        "subt(dg(x), y) = dg(subt(x, y))",
+        "subt(qt(x), y) = qt(x)",
+        "val(qt(x)) = x",
+        "val(dg(x)) = diag(val(x))"
+      ],
+      "tests": [
+        { "goal": "diag(nprov(dg(vx))) = nprov(dg(qt(nprov(dg(vx)))))" },
+        { "goal": "val(dg(qt(nprov(dg(vx))))) = nprov(dg(qt(nprov(dg(vx)))))" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "七条定义都要用。", "en": "All seven definitions are needed." }],
+      "solution": [
+        "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\"]]()",
+        "c1r0 = refl()",
+        "c0 = simp(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "out <- c1"
+      ]
+    }
+  ]
 }

@@ -1,16 +1,5 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "title": { "zh": "第一处", "en": "The first place" },
-  "tests": [
-    { "goal": "¬¬Rain ∧ ¬¬Wind", "becomes": [["Rain ∧ Wind"]] },
-    { "goal": "¬¬(¬¬Rain → Wet)", "becomes": [["Rain → Wet"]] },
-    { "goal": "¬¬¬¬Wind", "becomes": [["Wind"]] }
-  ],
-  "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。", "en": "Design a proof assistant that turns each goal into the one wanted." },
-  "hint": [{ "zh": "每个目标里有两处 ¬¬。", "en": "Each goal has two ¬¬s." }],
   "intro": [
     {
       "t": {
@@ -19,11 +8,27 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = dneg[use=[\"dneg.elim\"]]()",
-    "c1r0 = dneg[use=[\"dneg.elim\"]]()",
-    "c0 = rw(in, c0r0)",
-    "c1 = rw(c0, c1r0)",
-    "out <- c1"
+  "tasks": [
+    {
+      "id": "sp-where",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "¬¬Rain ∧ ¬¬Wind", "becomes": [["Rain ∧ Wind"]] },
+        { "goal": "¬¬(¬¬Rain → Wet)", "becomes": [["Rain → Wet"]] },
+        { "goal": "¬¬¬¬Wind", "becomes": [["Wind"]] }
+      ],
+      "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。", "en": "Design a proof assistant that turns each goal into the one wanted." },
+      "hint": [{ "zh": "每个目标里有两处 ¬¬。", "en": "Each goal has two ¬¬s." }],
+      "solution": [
+        "c0r0 = dneg[use=[\"dneg.elim\"]]()",
+        "c1r0 = dneg[use=[\"dneg.elim\"]]()",
+        "c0 = rw(in, c0r0)",
+        "c1 = rw(c0, c1r0)",
+        "out <- c1"
+      ]
+    }
   ]
 }

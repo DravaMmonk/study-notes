@@ -660,8 +660,8 @@ const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
  */
 export function builtParts(chains, ownBoard) {
   return Object.fromEntries(chains.map((chain) => {
-    const builder = () => chain.findLast((b) => ownBoard(b.key)) ?? chain.at(-1)
-    const circuit = () => ownBoard(builder().key) ?? builder().solution
+    const builder = () => chain.findLast((b) => ownBoard(b.taskId)) ?? chain.at(-1)
+    const circuit = () => ownBoard(builder().taskId) ?? builder().solution
     const last = chain.at(-1)
     const part = packed({
       circuit,

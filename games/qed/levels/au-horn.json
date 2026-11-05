@@ -1,48 +1,5 @@
 {
-  "kind": "machine",
-  "want": "refuted",
-  "inputs": [{ "name": "in", "label": { "zh": "子句", "en": "Clauses" } }],
-  "backtrack": true,
   "title": { "zh": "只标被迫的", "en": "Only what is forced" },
-  "tests": [
-    {
-      "clauses": [
-        "Alarm",
-        "¬Alarm ∨ Up",
-        "¬Up ∨ Coffee",
-        "¬Coffee ∨ Awake",
-        "¬Awake ∨ OnTime",
-        "¬OnTime",
-        "¬Rain ∨ Wet",
-        "¬Wet ∨ Slip",
-        "¬Slip ∨ Late",
-        "¬Bus ∨ ¬Bike ∨ Late"
-      ],
-      "budget": 17
-    },
-    {
-      "clauses": [
-        "Exam",
-        "¬Exam ∨ Study",
-        "¬Study ∨ Pass",
-        "¬Pass ∨ Happy",
-        "¬Happy",
-        "¬Hungry ∨ Eat",
-        "¬Eat ∨ Full",
-        "¬Full ∨ Rest",
-        "¬Rest ∨ Sat"
-      ],
-      "budget": 16
-    }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手推出 ⊥，子句的条数不能超过每组测试的限额。",
-    "en": "Design a proof assistant that reaches ⊥ without making more clauses than each test allows."
-  },
-  "hint": [
-    { "zh": "有几条子句一开始就只有一个文字。", "en": "Some clauses have a single literal from the start." },
-    { "zh": "只有一个文字的子句，就是已经被迫的事。", "en": "A one-literal clause is something already forced." }
-  ],
   "intro": [
     {
       "t": {
@@ -52,17 +9,65 @@
     }
   ],
   "adds": ["resolve"],
-  "solution": [
-    "c0 = repeat(in, body: c1) {",
-    "  body {",
-    "    c1 = resolve[unit=unit](c0.body)",
-    "  }",
-    "}",
-    "out <- c0"
-  ],
-  "naive": ["c0 = saturate(in)", "out <- c0"],
   "after": {
     "zh": "SAT 求解器里，这叫<wiki-ref to=\"unit\"></wiki-ref>。",
     "en": "In a SAT solver this is called <wiki-ref to=\"unit\"></wiki-ref>."
-  }
+  },
+  "tasks": [
+    {
+      "id": "au-horn",
+      "kind": "machine",
+      "want": "refuted",
+      "inputs": [{ "name": "in", "label": { "zh": "子句", "en": "Clauses" } }],
+      "backtrack": true,
+      "tests": [
+        {
+          "clauses": [
+            "Alarm",
+            "¬Alarm ∨ Up",
+            "¬Up ∨ Coffee",
+            "¬Coffee ∨ Awake",
+            "¬Awake ∨ OnTime",
+            "¬OnTime",
+            "¬Rain ∨ Wet",
+            "¬Wet ∨ Slip",
+            "¬Slip ∨ Late",
+            "¬Bus ∨ ¬Bike ∨ Late"
+          ],
+          "budget": 17
+        },
+        {
+          "clauses": [
+            "Exam",
+            "¬Exam ∨ Study",
+            "¬Study ∨ Pass",
+            "¬Pass ∨ Happy",
+            "¬Happy",
+            "¬Hungry ∨ Eat",
+            "¬Eat ∨ Full",
+            "¬Full ∨ Rest",
+            "¬Rest ∨ Sat"
+          ],
+          "budget": 16
+        }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手推出 ⊥，子句的条数不能超过每组测试的限额。",
+        "en": "Design a proof assistant that reaches ⊥ without making more clauses than each test allows."
+      },
+      "hint": [
+        { "zh": "有几条子句一开始就只有一个文字。", "en": "Some clauses have a single literal from the start." },
+        { "zh": "只有一个文字的子句，就是已经被迫的事。", "en": "A one-literal clause is something already forced." }
+      ],
+      "solution": [
+        "c0 = repeat(in, body: c1) {",
+        "  body {",
+        "    c1 = resolve[unit=unit](c0.body)",
+        "  }",
+        "}",
+        "out <- c0"
+      ],
+      "naive": ["c0 = saturate(in)", "out <- c0"]
+    }
+  ]
 }

@@ -1,20 +1,6 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "title": { "zh": "回溯搜索", "en": "Search until done" },
   "adds": ["search"],
-  "tests": [
-    { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wet"] },
-    { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wind"] },
-    { "goal": "(Rain ∨ Wind) ∨ Wet", "hyps": ["Wind"] }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "每一步有哪几种做法？", "en": "What can each step do?" },
-    { "zh": "走几步，交给搜索。", "en": "How many steps is the search’s business." }
-  ],
   "intro": [
     {
       "t": {
@@ -29,24 +15,43 @@
       }
     }
   ],
-  "solution": [
-    "c0 = search(in, body: c1) {",
-    "  body {",
-    "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
-    "      first {",
-    "        c2 = assumption(c1.first)",
-    "      }",
-    "      second {",
-    "        c3r0 = orI[use=[disjI1]]()",
-    "        c3 = rule(c1.second, c3r0)",
-    "      }",
-    "      third {",
-    "        c4r0 = orI[use=[disjI2]]()",
-    "        c4 = rule(c1.third, c4r0)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "out <- c0"
+  "tasks": [
+    {
+      "id": "s-search",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wet"] },
+        { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wind"] },
+        { "goal": "(Rain ∨ Wind) ∨ Wet", "hyps": ["Wind"] }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "每一步有哪几种做法？", "en": "What can each step do?" },
+        { "zh": "走几步，交给搜索。", "en": "How many steps is the search’s business." }
+      ],
+      "solution": [
+        "c0 = search(in, body: c1) {",
+        "  body {",
+        "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
+        "      first {",
+        "        c2 = assumption(c1.first)",
+        "      }",
+        "      second {",
+        "        c3r0 = orI[use=[disjI1]]()",
+        "        c3 = rule(c1.second, c3r0)",
+        "      }",
+        "      third {",
+        "        c4r0 = orI[use=[disjI2]]()",
+        "        c4 = rule(c1.third, c4r0)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "out <- c0"
+      ]
+    }
   ]
 }

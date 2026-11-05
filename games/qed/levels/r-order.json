@@ -1,14 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "先拿出来", "en": "Take it out first" },
-  "tests": [
-    { "goal": "∃x. Likes(x, i) ∧ Human(x)", "hyps": ["∃x. Human(x) ∧ Likes(x, i)"] },
-    { "goal": "∃y. Flies(y) ∧ Bird(y)", "hyps": ["∃x. Bird(x) ∧ Flies(x)"] }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "?t 能变成什么，取决于它是什么时候留下的。", "en": "What ?t may become depends on when it was left." }],
   "intro": [
     {
       "t": {
@@ -17,30 +8,44 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = exE()",
-    "c1r0 = andE[use=[conjE]]()",
-    "c2r0 = exI()",
-    "c3r0 = andI()",
-    "c0 = erule(in, c0r0)",
-    "c1 = erule(c0, c1r0)",
-    "c2 = rule(c1, c2r0)",
-    "c3 = rule(c2, c3r0)",
-    "c4 = assumption(c3)",
-    "c5 = assumption(c4)",
-    "out <- c5"
-  ],
-  "naive": [
-    "c0r0 = exI()",
-    "c1r0 = exE()",
-    "c2r0 = andE[use=[conjE]]()",
-    "c3r0 = andI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = erule(c0, c1r0)",
-    "c2 = erule(c1, c2r0)",
-    "c3 = rule(c2, c3r0)",
-    "c4 = assumption(c3)",
-    "c5 = assumption(c4)",
-    "out <- c5"
+  "tasks": [
+    {
+      "id": "r-order",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [
+        { "goal": "∃x. Likes(x, i) ∧ Human(x)", "hyps": ["∃x. Human(x) ∧ Likes(x, i)"] },
+        { "goal": "∃y. Flies(y) ∧ Bird(y)", "hyps": ["∃x. Bird(x) ∧ Flies(x)"] }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "?t 能变成什么，取决于它是什么时候留下的。", "en": "What ?t may become depends on when it was left." }],
+      "solution": [
+        "c0r0 = exE()",
+        "c1r0 = andE[use=[conjE]]()",
+        "c2r0 = exI()",
+        "c3r0 = andI()",
+        "c0 = erule(in, c0r0)",
+        "c1 = erule(c0, c1r0)",
+        "c2 = rule(c1, c2r0)",
+        "c3 = rule(c2, c3r0)",
+        "c4 = assumption(c3)",
+        "c5 = assumption(c4)",
+        "out <- c5"
+      ],
+      "naive": [
+        "c0r0 = exI()",
+        "c1r0 = exE()",
+        "c2r0 = andE[use=[conjE]]()",
+        "c3r0 = andI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = erule(c0, c1r0)",
+        "c2 = erule(c1, c2r0)",
+        "c3 = rule(c2, c3r0)",
+        "c4 = assumption(c3)",
+        "c5 = assumption(c4)",
+        "out <- c5"
+      ]
+    }
   ]
 }

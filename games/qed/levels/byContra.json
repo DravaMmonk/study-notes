@@ -1,18 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "反证", "en": "Proof by contradiction" },
-  "tests": [{ "premises": { "p": "¬A → B", "q": "¬A → ¬B" }, "goal": "A" }],
-  "cases": [{ "A": "Locked", "B": "Moon" }, { "A": "Rain", "B": "Wet" }],
-  "hint": [
-    {
-      "zh": "要证的「门锁着」里没有 ¬。先想想怎样得到「¬¬门锁着」。",
-      "en": "The goal, “the door is locked”, has no ¬ in it. First think how to get “¬¬the door is locked”."
-    },
-    {
-      "zh": "和<level-ref to=\"notI\"></level-ref>一样用框，只是这次假设「¬门锁着」。",
-      "en": "Use a box as in <level-ref to=\"notI\"></level-ref>, only this time assume “¬the door is locked”."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -21,15 +8,33 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=\"~A\"](body: m3) {",
-    "  body {",
-    "    m1 = mp(p, f.body)",
-    "    m2 = mp(q, f.body)",
-    "    m3 = mp(m2, m1)",
-    "  }",
-    "}",
-    "r = raa(f)",
-    "goal <- r"
+  "tasks": [
+    {
+      "id": "byContra",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "¬A → B", "q": "¬A → ¬B" }, "goal": "A" }],
+      "cases": [{ "A": "Locked", "B": "Moon" }, { "A": "Rain", "B": "Wet" }],
+      "hint": [
+        {
+          "zh": "要证的「门锁着」里没有 ¬。先想想怎样得到「¬¬门锁着」。",
+          "en": "The goal, “the door is locked”, has no ¬ in it. First think how to get “¬¬the door is locked”."
+        },
+        {
+          "zh": "和<level-ref to=\"notI\"></level-ref>一样用框，只是这次假设「¬门锁着」。",
+          "en": "Use a box as in <level-ref to=\"notI\"></level-ref>, only this time assume “¬the door is locked”."
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"~A\"](body: m3) {",
+        "  body {",
+        "    m1 = mp(p, f.body)",
+        "    m2 = mp(q, f.body)",
+        "    m3 = mp(m2, m1)",
+        "  }",
+        "}",
+        "r = raa(f)",
+        "goal <- r"
+      ]
+    }
   ]
 }

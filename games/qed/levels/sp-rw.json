@@ -1,15 +1,6 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "title": { "zh": "改写", "en": "Rewrite" },
   "adds": ["rw"],
-  "tests": [
-    { "goal": "Wind ∧ ¬¬Rain", "becomes": [["Wind ∧ Rain"]] },
-    { "goal": "¬¬Wet → Slip", "becomes": [["Wet → Slip"]] },
-    { "goal": "(Rain ∨ ¬¬Wind) ∧ Wet", "becomes": [["(Rain ∨ Wind) ∧ Wet"]] }
-  ],
   "intro": [
     {
       "t": {
@@ -24,16 +15,30 @@
       }
     }
   ],
-  "brief": { "zh": "设计一个证明助手，去掉每个目标里的 ¬¬。", "en": "Design a proof assistant that takes the ¬¬ out of each goal." },
-  "hint": [
-    {
-      "zh": "<part-ref to=\"lemma:dneg\"></part-ref>的两个形状都可以当改写规则。",
-      "en": "Both shapes of <part-ref to=\"lemma:dneg\"></part-ref> can serve as rewrite rules."
-    }
-  ],
-  "solution": ["c0r0 = dneg[use=[\"dneg.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"],
   "after": {
     "zh": "这是<wiki-ref to=\"simplifier\"></wiki-ref>的基本动作。",
     "en": "This is the basic move of a <wiki-ref to=\"simplifier\"></wiki-ref>."
-  }
+  },
+  "tasks": [
+    {
+      "id": "sp-rw",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "Wind ∧ ¬¬Rain", "becomes": [["Wind ∧ Rain"]] },
+        { "goal": "¬¬Wet → Slip", "becomes": [["Wet → Slip"]] },
+        { "goal": "(Rain ∨ ¬¬Wind) ∧ Wet", "becomes": [["(Rain ∨ Wind) ∧ Wet"]] }
+      ],
+      "brief": { "zh": "设计一个证明助手，去掉每个目标里的 ¬¬。", "en": "Design a proof assistant that takes the ¬¬ out of each goal." },
+      "hint": [
+        {
+          "zh": "<part-ref to=\"lemma:dneg\"></part-ref>的两个形状都可以当改写规则。",
+          "en": "Both shapes of <part-ref to=\"lemma:dneg\"></part-ref> can serve as rewrite rules."
+        }
+      ],
+      "solution": ["c0r0 = dneg[use=[\"dneg.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]
+    }
+  ]
 }

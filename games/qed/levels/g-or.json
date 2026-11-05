@@ -1,13 +1,7 @@
 {
-  "kind": "gates",
   "symbols": ["∨"],
   "title": { "zh": "下雨或者刮风", "en": "Rain or wind" },
-  "target": "Rain ∨ Wind",
   "builds": "gOr",
-  "brief": {
-    "zh": "只用与门和非门，接一块电路，算出「下雨，或者刮风」在每一行的真值。",
-    "en": "Using only And and Not gates, wire a board that works out the value of “it rains or it is windy” on every row."
-  },
   "intro": [
     {
       "t": {
@@ -16,9 +10,20 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "先看它什么时候为假：四行里只有一行。", "en": "Look first at when it is false: only one row of the four." },
-    { "zh": "那一行能用与门和非门描述出来吗？", "en": "Can that row be described with And and Not?" }
-  ],
-  "solution": ["n1 = gNot(Rain)", "n2 = gNot(Wind)", "a = gAnd(n1, n2)", "n3 = gNot(a)", "out <- n3"]
+  "tasks": [
+    {
+      "id": "g-or",
+      "kind": "gates",
+      "target": "Rain ∨ Wind",
+      "brief": {
+        "zh": "只用与门和非门，接一块电路，算出「下雨，或者刮风」在每一行的真值。",
+        "en": "Using only And and Not gates, wire a board that works out the value of “it rains or it is windy” on every row."
+      },
+      "hint": [
+        { "zh": "先看它什么时候为假：四行里只有一行。", "en": "Look first at when it is false: only one row of the four." },
+        { "zh": "那一行能用与门和非门描述出来吗？", "en": "Can that row be described with And and Not?" }
+      ],
+      "solution": ["n1 = gNot(Rain)", "n2 = gNot(Wind)", "a = gAnd(n1, n2)", "n3 = gNot(a)", "out <- n3"]
+    }
+  ]
 }

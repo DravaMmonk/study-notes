@@ -80,7 +80,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
           ))}
         </div>
       )}
-      <SentenceEditor tree={tree} onChange={change} chips={chips} notation={notation} scope={`${entry.id}:${level.task ?? 0}`} ref={editor} />
+      <SentenceEditor tree={tree} onChange={change} chips={chips} notation={notation} scope={`${entry.id}:${level.task}`} ref={editor} />
     </div>
   )
   const results = verdict ? (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界中，真假都与原句一致。', 'In every small world it has the same truth value as the original.')}</p> : verdict.body) : null

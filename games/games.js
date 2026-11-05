@@ -34,15 +34,6 @@ export const GAMES = [
     page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 Q.E.D.：把形式化证明做成一套解谜关卡。Formal proof as a set of puzzle levels.' },
   },
   {
-    id: 'qed-lab', href: 'qed-lab/index.html', title: '证明完毕 · 试做', en: 'Q.E.D. · Trial', topic: { zh: '形式化证明', en: 'Formal Proof' },
-    desc: {
-      zh: '从套用和假设框搭起证明器，加上与、或的规则，用框证出公理 K 和 S，再拿掉框，只靠公理证明。',
-      en: 'Build a prover from Apply and the assumption box, add the rules of and and or, prove the axioms K and S with boxes, then take the box away and prove with the axioms alone.',
-    },
-    levels: 12, art: 'detach', dev: true, hidden: true,
-    page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 试做：从两块元件搭起证明器。Q.E.D. trial: a prover built from two parts.' },
-  },
-  {
     id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '计算机论文长难句', en: 'Long Sentences in Computer Science Papers' },
     desc: {
       zh: '把计算机论文里的长难句拆开：每个修饰成分折成一块，挂到它修饰的词上，直到主干露出来。从三个词的主干起步，一路拆到母语读者也要读两遍的句子。',

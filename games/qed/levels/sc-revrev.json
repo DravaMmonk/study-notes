@@ -1,22 +1,27 @@
 {
-  "kind": "script",
   "title": { "zh": "倒两次，写成脚本", "en": "Reversed twice, as a script" },
-  "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
-  "premises": {},
-  "goal": "∀xs. rev(rev(xs)) = xs",
-  "types": ["list"],
-  "defs": ["app", "rev"],
-  "words": ["everyday", "terms"],
-  "simp": ["def.0", "def.1", "def.2", "def.3", "revApp"],
-  "answer": [{ "k": "show", "stmt": "∀xs. rev(rev(xs)) = xs", "by": "induct" }],
-  "naive": [{ "k": "show", "stmt": "∀xs. rev(rev(xs)) = xs", "by": "simp" }],
-  "hint": [{ "zh": "对 xs 归纳，每种情况化简。", "en": "Induction on xs, and Simp on each case." }],
   "intro": [
     {
       "t": {
         "zh": "这一关的化简集合里有列表的定义和<level-ref to=\"in-revapp\"></level-ref>证出的那条等式。",
         "en": "This level’s simp set holds the definitions of lists and the equation proved in <level-ref to=\"in-revapp\"></level-ref>."
       }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "sc-revrev",
+      "kind": "script",
+      "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
+      "premises": {},
+      "goal": "∀xs. rev(rev(xs)) = xs",
+      "types": ["list"],
+      "defs": ["app", "rev"],
+      "words": ["everyday", "terms"],
+      "simp": ["def.0", "def.1", "def.2", "def.3", "revApp"],
+      "answer": [{ "k": "show", "stmt": "∀xs. rev(rev(xs)) = xs", "by": "induct" }],
+      "naive": [{ "k": "show", "stmt": "∀xs. rev(rev(xs)) = xs", "by": "simp" }],
+      "hint": [{ "zh": "对 xs 归纳，每种情况化简。", "en": "Induction on xs, and Simp on each case." }]
     }
   ]
 }
