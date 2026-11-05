@@ -35,9 +35,9 @@ import { presetIds } from './course.js'
 /** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ levels: given, course, logic }) {
   const out = logic.wrong.map((text) => ({ fail: true, text }))
-  // Every task of a level is checked as a level of its own (course.js tasks).
+  // Every task of a level is checked as a level of its own (course.js readTasks), named by its step where it has one.
   const builder = new Map(given.map((l) => [l.id, l.builds]))
-  const levels = given.flatMap((l) => l.tasks?.map((t) => ({ ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } })) ?? [l])
+  const levels = given.flatMap((l) => l.tasks.map((t) => (t.step ? { ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } } : t)))
   // A preset names cards of the level's reference answer (course.js).
   for (const level of levels.filter((l) => l.preset)) {
     const lost = presetIds(level).filter((id) => !level.solution?.nodes.some((n) => n.id === id))

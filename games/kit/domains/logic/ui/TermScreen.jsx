@@ -48,7 +48,7 @@ export default function TermScreen({ game, level: entry, saved, save, solve, las
         {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(([name, f]) => <span key={name} className="tm-premise"><code>{name}</code>：{text(f)}</span>)}</p>}
         <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{text(level.goal)}</b></p>
       </section>
-      <TermEditor tree={tree} onChange={change} scope={[...Object.keys(level.premises ?? {}), ...(level.uses ?? []), ...consts]} forms={level.forms} history={`${entry.id}:${level.task ?? 0}`} />
+      <TermEditor tree={tree} onChange={change} scope={[...Object.keys(level.premises ?? {}), ...(level.uses ?? []), ...consts]} forms={level.forms} history={`${entry.id}:${level.task}`} />
     </div>
   )
   const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型相符：这个证明项证明的正是这句话。', 'The type checks: this proof term proves exactly this sentence.') : L(verdict.reason)}</p> : null

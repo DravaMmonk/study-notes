@@ -1,18 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "分情况", "en": "Case by case" },
-  "tests": [
-    { "goal": "Wind ∨ Rain", "hyps": ["Rain ∨ Wind"] },
-    { "goal": "Slip ∨ Wet", "hyps": ["Wet ∨ Slip"] },
-    { "goal": "Bike ∨ Bus", "hyps": ["Bus ∨ Bike"] }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "先拆「或者」那条已知。", "en": "Take the “or” given apart first." },
-    { "zh": "每种情况里，目标的哪一边在已知里？", "en": "In each case, which side of the goal is among the givens?" }
-  ],
   "intro": [
     {
       "t": {
@@ -21,15 +8,33 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = orE()",
-    "c1r0 = orI[use=[disjI2]]()",
-    "c3r0 = orI[use=[disjI1]]()",
-    "c0 = erule(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = assumption(c1)",
-    "c3 = rule(c2, c3r0)",
-    "c4 = assumption(c3)",
-    "out <- c4"
+  "tasks": [
+    {
+      "id": "r-cases",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [
+        { "goal": "Wind ∨ Rain", "hyps": ["Rain ∨ Wind"] },
+        { "goal": "Slip ∨ Wet", "hyps": ["Wet ∨ Slip"] },
+        { "goal": "Bike ∨ Bus", "hyps": ["Bus ∨ Bike"] }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "先拆「或者」那条已知。", "en": "Take the “or” given apart first." },
+        { "zh": "每种情况里，目标的哪一边在已知里？", "en": "In each case, which side of the goal is among the givens?" }
+      ],
+      "solution": [
+        "c0r0 = orE()",
+        "c1r0 = orI[use=[disjI2]]()",
+        "c3r0 = orI[use=[disjI1]]()",
+        "c0 = erule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = assumption(c1)",
+        "c3 = rule(c2, c3r0)",
+        "c4 = assumption(c3)",
+        "out <- c4"
+      ]
+    }
   ]
 }

@@ -1,22 +1,7 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "adds": ["introRules", "elimRules"],
   "title": { "zh": "自建 auto", "en": "Your own auto" },
   "builds": "auto",
-  "tests": [
-    { "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" },
-    { "goal": "(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))" },
-    { "goal": "(∃x. Human(x) ∧ Likes(x, i)) → ∃x. Likes(x, i)" },
-    { "goal": "(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)" }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "一步里能做的事有哪几样？", "en": "What can one step do?" },
-    { "zh": "要走几步，事先不知道。", "en": "How many steps it takes is not known beforehand." }
-  ],
   "intro": [
     {
       "t": {
@@ -25,22 +10,42 @@
       }
     }
   ],
-  "solution": [
-    "c0 = search(in, body: c1) {",
-    "  body {",
-    "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
-    "      first {",
-    "        c2 = assumption(c1.first)",
-    "      }",
-    "      second {",
-    "        c3 = introRules(c1.second)",
-    "      }",
-    "      third {",
-    "        c4 = elimRules(c1.third)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "out <- c0"
+  "tasks": [
+    {
+      "id": "s-auto",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" },
+        { "goal": "(Rain → Wet) → ((Wet → Slip) → (Rain → Slip))" },
+        { "goal": "(∃x. Human(x) ∧ Likes(x, i)) → ∃x. Likes(x, i)" },
+        { "goal": "(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "一步里能做的事有哪几样？", "en": "What can one step do?" },
+        { "zh": "要走几步，事先不知道。", "en": "How many steps it takes is not known beforehand." }
+      ],
+      "solution": [
+        "c0 = search(in, body: c1) {",
+        "  body {",
+        "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
+        "      first {",
+        "        c2 = assumption(c1.first)",
+        "      }",
+        "      second {",
+        "        c3 = introRules(c1.second)",
+        "      }",
+        "      third {",
+        "        c4 = elimRules(c1.third)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "out <- c0"
+      ]
+    }
   ]
 }

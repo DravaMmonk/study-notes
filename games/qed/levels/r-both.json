@@ -1,20 +1,6 @@
 {
-  "kind": "machine",
-  "want": "unify",
-  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
   "title": { "zh": "两边都有 ?", "en": "? on both sides" },
   "adds": ["uSwap", "uDecompose", "uConflict", "uEliminate"],
-  "tests": [
-    { "eqs": ["?A ∧ Wind ≐ Rain ∧ ?B"] },
-    { "eqs": ["Rain → ?B ≐ ?A"] },
-    { "eqs": ["?A → ?A ≐ ?B → Rain"] },
-    { "eqs": ["Rain ∧ ?B ≐ ?A ∨ Wind"] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：把每组等式解到底；对不上的，说「失败」。",
-    "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit."
-  },
-  "hint": [{ "zh": "?-字母在右边的等式，先翻过来。", "en": "Turn round any equation with its ?-letter on the right." }],
   "intro": [
     {
       "t": {
@@ -23,15 +9,34 @@
       }
     }
   ],
-  "solution": [
-    "r = repeat(in, body: c3) {",
-    "  body {",
-    "    c0 = uDecompose(r.body)",
-    "    c1 = uSwap(c0)",
-    "    c2 = uEliminate(c1)",
-    "    c3 = uConflict(c2)",
-    "  }",
-    "}",
-    "out <- r"
+  "tasks": [
+    {
+      "id": "r-both",
+      "kind": "machine",
+      "want": "unify",
+      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "tests": [
+        { "eqs": ["?A ∧ Wind ≐ Rain ∧ ?B"] },
+        { "eqs": ["Rain → ?B ≐ ?A"] },
+        { "eqs": ["?A → ?A ≐ ?B → Rain"] },
+        { "eqs": ["Rain ∧ ?B ≐ ?A ∨ Wind"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：把每组等式解到底；对不上的，说「失败」。",
+        "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit."
+      },
+      "hint": [{ "zh": "?-字母在右边的等式，先翻过来。", "en": "Turn round any equation with its ?-letter on the right." }],
+      "solution": [
+        "r = repeat(in, body: c3) {",
+        "  body {",
+        "    c0 = uDecompose(r.body)",
+        "    c1 = uSwap(c0)",
+        "    c2 = uEliminate(c1)",
+        "    c3 = uConflict(c2)",
+        "  }",
+        "}",
+        "out <- r"
+      ]
+    }
   ]
 }

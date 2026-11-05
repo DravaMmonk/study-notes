@@ -9,6 +9,7 @@ import { play } from './play.js'
 import { parse } from './formula.js'
 import { parseS, parseSide } from './schematic.js'
 import { parseTerm } from './pterm.js'
+import { taskLevels } from '../../engine/tasks.js'
 
 // The readers of the vocabulary's languages: why a text cannot be read, or null.
 const reads = (parser) => (text) => {
@@ -32,10 +33,8 @@ const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.par
 const NOT_PUZZLE = ['title', 'step', 'brief', 'briefNote', 'hint', 'intro', 'after', 'showcase', 'symbolicWords', 'propertyWords', 'words',
   'solution', 'naive', 'script', 'answer', 'adds', 'fold', 'without', 'parts', 'cases', 'builds', 'fact', 'unlockToast']
 const MACHINE_PUZZLE = ['kind', 'want', 'inputs', 'single']
-const puzzle = (level) => {
-  const keep = level.kind === 'machine' ? ([k]) => MACHINE_PUZZLE.includes(k) : ([k]) => !NOT_PUZZLE.includes(k) && k !== 'tasks'
-  return { ...Object.fromEntries(Object.entries(level).filter(keep)), ...(level.tasks && { tasks: level.tasks.map(puzzle) }) }
-}
+// A level's puzzle is its tasks', each read as the level under the task (../../engine/tasks.js taskLevels).
+const puzzle = (level) => taskLevels(level).map(({ task: _k, ...one }) => Object.fromEntries(Object.entries(one).filter(one.kind === 'machine' ? ([k]) => MACHINE_PUZZLE.includes(k) : ([k]) => !NOT_PUZZLE.includes(k))))
 const changes = {
   stale: (before, after) => JSON.stringify(puzzle(before)) !== JSON.stringify(puzzle(after)),
 }

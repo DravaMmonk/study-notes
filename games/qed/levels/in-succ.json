@@ -1,45 +1,50 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms"],
   "title": { "zh": "S 加在右边", "en": "S on the right" },
   "fact": "addSucc",
-  "types": ["nat"],
-  "defs": ["plus"],
-  "tests": [{ "goal": "∀x. ∀y. plus(x, s(y)) = s(plus(x, y))" }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "两个变量：对哪一个归纳？", "en": "Two variables: which one to induct on?" },
-    { "zh": "归纳假设要对所有 y 成立才用得上。", "en": "The induction hypothesis is only of use if it holds for every y." }
-  ],
-  "solution": [
-    "c0r0 = math[use=[\"nat.induct\"]]()",
-    "c0 = rule(in, c0r0)",
-    "c1 = each(c0, body: c4) {",
-    "  body {",
-    "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
-    "    c3r0 = allI()",
-    "    c4r0 = refl()",
-    "    c2r2 = hyp(c2r0)",
-    "    c2 = simp(c1.body, c2r2)",
-    "    c3 = rule(c2, c3r0)",
-    "    c4 = rule(c3, c4r0)",
-    "  }",
-    "}",
-    "out <- c1"
-  ],
-  "naive": [
-    "c0r0 = allI()",
-    "c1r0 = allI()",
-    "c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
-    "c3r0 = refl()",
-    "c0 = rule(in, c0r0)",
-    "c2r2 = hyp(c2r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = simp(c1, c2r2)",
-    "c3 = rule(c2, c3r0)",
-    "out <- c3"
+  "tasks": [
+    {
+      "id": "in-succ",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "types": ["nat"],
+      "defs": ["plus"],
+      "tests": [{ "goal": "∀x. ∀y. plus(x, s(y)) = s(plus(x, y))" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "两个变量：对哪一个归纳？", "en": "Two variables: which one to induct on?" },
+        { "zh": "归纳假设要对所有 y 成立才用得上。", "en": "The induction hypothesis is only of use if it holds for every y." }
+      ],
+      "solution": [
+        "c0r0 = math[use=[\"nat.induct\"]]()",
+        "c0 = rule(in, c0r0)",
+        "c1 = each(c0, body: c4) {",
+        "  body {",
+        "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
+        "    c3r0 = allI()",
+        "    c4r0 = refl()",
+        "    c2r2 = hyp(c2r0)",
+        "    c2 = simp(c1.body, c2r2)",
+        "    c3 = rule(c2, c3r0)",
+        "    c4 = rule(c3, c4r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ],
+      "naive": [
+        "c0r0 = allI()",
+        "c1r0 = allI()",
+        "c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
+        "c3r0 = refl()",
+        "c0 = rule(in, c0r0)",
+        "c2r2 = hyp(c2r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = simp(c1, c2r2)",
+        "c3 = rule(c2, c3r0)",
+        "out <- c3"
+      ]
+    }
   ]
 }

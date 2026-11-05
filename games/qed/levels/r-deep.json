@@ -1,23 +1,10 @@
 {
-  "kind": "machine",
-  "want": "unify",
-  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
   "title": { "zh": "拆到底", "en": "All the way down" },
   "adds": ["repeat", "uDecompose"],
   "showcase": {
     "zh": "重复框把框里接出的东西再送回框里，一圈一圈地做，直到不再变化或者失败：框开出的是上一圈的结果，不是一开始的输入；光看说明，容易以为它只做一遍",
     "en": "the repeat frame feeds what is made inside back in, round after round, until nothing changes or it fails: what the frame opens with is the last round’s result, not the first input; from its description alone it is easy to think it runs once"
   },
-  "tests": [
-    { "eqs": ["?A ∧ ?B ≐ Rain ∧ Wind"] },
-    { "eqs": ["((?A ∨ ?B) → ?C) ∧ ?D ≐ ((Rain ∨ Wind) → Wet) ∧ Slip"] },
-    { "eqs": ["(?A → ?B) ∧ ((?C ∨ ?D) ∧ ?E) ≐ (Rain → Wet) ∧ ((Wind ∨ Slip) ∧ Moon)"] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：不管要拆几层，都拆到每个等式左边只剩一个 ?-字母。",
-    "en": "Design a proof assistant that splits until each equation has a single ?-letter on its left, however many levels it takes."
-  },
-  "hint": [{ "zh": "框里放一个「分解」，其余交给框。", "en": "One Decompose in the frame; the frame does the rest." }],
   "intro": [
     {
       "t": {
@@ -32,6 +19,24 @@
       }
     }
   ],
-  "solution": ["r = repeat(in, body: c0) {", "  body {", "    c0 = uDecompose(r.body)", "  }", "}", "out <- r"],
-  "naive": ["c0 = uDecompose(in)", "c1 = uDecompose(c0)", "c2 = uDecompose(c1)", "out <- c2"]
+  "tasks": [
+    {
+      "id": "r-deep",
+      "kind": "machine",
+      "want": "unify",
+      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "tests": [
+        { "eqs": ["?A ∧ ?B ≐ Rain ∧ Wind"] },
+        { "eqs": ["((?A ∨ ?B) → ?C) ∧ ?D ≐ ((Rain ∨ Wind) → Wet) ∧ Slip"] },
+        { "eqs": ["(?A → ?B) ∧ ((?C ∨ ?D) ∧ ?E) ≐ (Rain → Wet) ∧ ((Wind ∨ Slip) ∧ Moon)"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：不管要拆几层，都拆到每个等式左边只剩一个 ?-字母。",
+        "en": "Design a proof assistant that splits until each equation has a single ?-letter on its left, however many levels it takes."
+      },
+      "hint": [{ "zh": "框里放一个「分解」，其余交给框。", "en": "One Decompose in the frame; the frame does the rest." }],
+      "solution": ["r = repeat(in, body: c0) {", "  body {", "    c0 = uDecompose(r.body)", "  }", "}", "out <- r"],
+      "naive": ["c0 = uDecompose(in)", "c1 = uDecompose(c0)", "c2 = uDecompose(c1)", "out <- c2"]
+    }
+  ]
 }

@@ -1,23 +1,28 @@
 {
-  "kind": "proof",
   "title": { "zh": "∀ 拆到两边", "en": "∀ over both sides" },
-  "tests": [{ "premises": { "p": "∀x. P(x) ∧ Q(x)" }, "goal": "(∀x. P(x)) ∧ ∀x. Q(x)" }],
-  "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-  "hint": [{ "zh": "用两个任取框，各证一半，再拼起来。", "en": "Two for-any boxes, each proving one half, then join them." }],
-  "solution": [
-    "g1 = allI[x=a](body: s1.left) {",
-    "  body {",
-    "    e1 = allE[t=a](p)",
-    "    s1 = andE(e1)",
-    "  }",
-    "}",
-    "g2 = allI[x=a](body: s2.right) {",
-    "  body {",
-    "    e2 = allE[t=a](p)",
-    "    s2 = andE(e2)",
-    "  }",
-    "}",
-    "c = andI(g1, g2)",
-    "goal <- c"
+  "tasks": [
+    {
+      "id": "q-allAnd",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "∀x. P(x) ∧ Q(x)" }, "goal": "(∀x. P(x)) ∧ ∀x. Q(x)" }],
+      "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+      "hint": [{ "zh": "用两个任取框，各证一半，再拼起来。", "en": "Two for-any boxes, each proving one half, then join them." }],
+      "solution": [
+        "g1 = allI[x=a](body: s1.left) {",
+        "  body {",
+        "    e1 = allE[t=a](p)",
+        "    s1 = andE(e1)",
+        "  }",
+        "}",
+        "g2 = allI[x=a](body: s2.right) {",
+        "  body {",
+        "    e2 = allE[t=a](p)",
+        "    s2 = andE(e2)",
+        "  }",
+        "}",
+        "c = andI(g1, g2)",
+        "goal <- c"
+      ]
+    }
   ]
 }

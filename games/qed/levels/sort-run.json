@@ -1,20 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms"],
   "title": { "zh": "排一排", "en": "Sorting" },
-  "types": ["list"],
-  "defs": ["le", "if", "ins", "sort", "len"],
-  "tests": [
-    {
-      "goal": "sort(cons(s(s(zero)), cons(zero, cons(s(zero), nil)))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))"
-    },
-    { "goal": "sort(cons(s(zero), cons(s(zero), cons(zero, nil)))) = cons(zero, cons(s(zero), cons(s(zero), nil)))" }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "还是化简。", "en": "Simp again." }],
   "intro": [
     {
       "t": {
@@ -23,15 +8,35 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
-    "c1r0 = refl()",
-    "c0 = simp(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "out <- c1"
-  ],
   "after": {
     "zh": "测试只说明这几个例子排对了；要说每个列表都排得对，需要证明。",
     "en": "Tests show only that these examples come out right; to say every list does takes a proof."
-  }
+  },
+  "tasks": [
+    {
+      "id": "sort-run",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "types": ["list"],
+      "defs": ["le", "if", "ins", "sort", "len"],
+      "tests": [
+        {
+          "goal": "sort(cons(s(s(zero)), cons(zero, cons(s(zero), nil)))) = cons(zero, cons(s(zero), cons(s(s(zero)), nil)))"
+        },
+        { "goal": "sort(cons(s(zero), cons(s(zero), cons(zero, nil)))) = cons(zero, cons(s(zero), cons(s(zero), nil)))" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "还是化简。", "en": "Simp again." }],
+      "solution": [
+        "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+        "c1r0 = refl()",
+        "c0 = simp(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "out <- c1"
+      ]
+    }
+  ]
 }

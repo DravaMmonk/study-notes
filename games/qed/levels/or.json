@@ -1,16 +1,6 @@
 {
-  "kind": "proof",
   "fold": ["axK", "axS"],
   "title": { "zh": "二选一", "en": "One of two" },
-  "tests": [{ "premises": { "p": "A" }, "goal": "B ∨ (A ∨ B)" }],
-  "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Bus", "B": "Bike" }],
-  "hint": [
-    { "zh": "从里往外拼。", "en": "Build it from the inside out." },
-    {
-      "zh": "先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。",
-      "en": "First bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -25,5 +15,20 @@
       }
     }
   ],
-  "solution": ["i = orI[other=B, side=right](p)", "j = orI[other=B, side=left](i)", "goal <- j"]
+  "tasks": [
+    {
+      "id": "or",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A" }, "goal": "B ∨ (A ∨ B)" }],
+      "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Bus", "B": "Bike" }],
+      "hint": [
+        { "zh": "从里往外拼。", "en": "Build it from the inside out." },
+        {
+          "zh": "先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。",
+          "en": "First bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨."
+        }
+      ],
+      "solution": ["i = orI[other=B, side=right](p)", "j = orI[other=B, side=left](i)", "goal <- j"]
+    }
+  ]
 }

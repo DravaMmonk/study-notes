@@ -1,22 +1,27 @@
 {
-  "kind": "gates",
   "title": { "zh": "两个人说话", "en": "Two islanders speak" },
-  "target": "(KA ↔ ¬KB) ∧ (KB ↔ KA ∧ KB)",
-  "blind": true,
-  "brief": {
-    "zh": "a 说：「b 是无赖。」b 说：「我们俩都是骑士。」把两人的话译成逻辑，接成电路：两人的话都和身份相符的行，输出真。",
-    "en": "a says: “b is a knave.” b says: “We are both knights.” Translate what both say into logic and wire it: the board outputs true on exactly the rows where what each says fits what they are."
-  },
-  "hint": [
-    { "zh": "每个人的话各译一句。", "en": "Translate what each person says on its own." },
-    { "zh": "两句要同时成立。", "en": "Both must hold at once." }
-  ],
-  "solution": [
-    "nb = gNot(KB)",
-    "ab = gAnd(KA, KB)",
-    "e1 = gIff(KA, nb)",
-    "e2 = gIff(KB, ab)",
-    "all = gAnd(e1, e2)",
-    "out <- all"
+  "tasks": [
+    {
+      "id": "e-two",
+      "kind": "gates",
+      "target": "(KA ↔ ¬KB) ∧ (KB ↔ KA ∧ KB)",
+      "blind": true,
+      "brief": {
+        "zh": "a 说：「b 是无赖。」b 说：「我们俩都是骑士。」把两人的话译成逻辑，接成电路：两人的话都和身份相符的行，输出真。",
+        "en": "a says: “b is a knave.” b says: “We are both knights.” Translate what both say into logic and wire it: the board outputs true on exactly the rows where what each says fits what they are."
+      },
+      "hint": [
+        { "zh": "每个人的话各译一句。", "en": "Translate what each person says on its own." },
+        { "zh": "两句要同时成立。", "en": "Both must hold at once." }
+      ],
+      "solution": [
+        "nb = gNot(KB)",
+        "ab = gAnd(KA, KB)",
+        "e1 = gIff(KA, nb)",
+        "e2 = gIff(KB, ab)",
+        "all = gAnd(e1, e2)",
+        "out <- all"
+      ]
+    }
   ]
 }

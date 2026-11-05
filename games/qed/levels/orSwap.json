@@ -1,23 +1,28 @@
 {
   "title": { "zh": "或者，换个顺序", "en": "Or, the other way round" },
-  "kind": "proof",
-  "tests": [{ "premises": { "p": "A ∨ B" }, "goal": "B ∨ A" }],
-  "cases": [{ "A": "Bus", "B": "Bike" }, { "A": "Coffee", "B": "Tea" }],
-  "hint": [
+  "tasks": [
     {
-      "zh": "不知道是哪一边，就分情况。每种情况里，用补充换到对的位置。",
-      "en": "Not knowing which side, split into cases. In each, Add alternative puts it in the right place."
+      "id": "orSwap",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A ∨ B" }, "goal": "B ∨ A" }],
+      "cases": [{ "A": "Bus", "B": "Bike" }, { "A": "Coffee", "B": "Tea" }],
+      "hint": [
+        {
+          "zh": "不知道是哪一边，就分情况。每种情况里，用补充换到对的位置。",
+          "en": "Not knowing which side, split into cases. In each, Add alternative puts it in the right place."
+        }
+      ],
+      "solution": [
+        "e = orE(p, left: l, right: r) {",
+        "  left {",
+        "    l = orI[other=B, side=left](e.left)",
+        "  }",
+        "  right {",
+        "    r = orI[other=A, side=right](e.right)",
+        "  }",
+        "}",
+        "goal <- e"
+      ]
     }
-  ],
-  "solution": [
-    "e = orE(p, left: l, right: r) {",
-    "  left {",
-    "    l = orI[other=B, side=left](e.left)",
-    "  }",
-    "  right {",
-    "    r = orI[other=A, side=right](e.right)",
-    "  }",
-    "}",
-    "goal <- e"
   ]
 }

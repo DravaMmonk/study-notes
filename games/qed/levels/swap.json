@@ -1,13 +1,6 @@
 {
-  "kind": "proof",
   "title": { "zh": "换一换条件的顺序", "en": "Swap the conditions" },
-  "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "B → (A → C)" }],
-  "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
   "builds": "swap",
-  "hint": [
-    { "zh": "目标里有几个 →？", "en": "How many →s are in the goal?" },
-    { "zh": "最里面的框里，两个条件都看得见。", "en": "Inside the innermost box, both conditions are visible." }
-  ],
   "intro": [
     {
       "t": {
@@ -16,17 +9,29 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=B](body: g) {",
-    "  body {",
-    "    g = impI[A=A](body: m2) {",
-    "      body {",
-    "        m1 = mp(p, g.body)",
-    "        m2 = mp(m1, f.body)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "goal <- f"
+  "tasks": [
+    {
+      "id": "swap",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "B → (A → C)" }],
+      "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+      "hint": [
+        { "zh": "目标里有几个 →？", "en": "How many →s are in the goal?" },
+        { "zh": "最里面的框里，两个条件都看得见。", "en": "Inside the innermost box, both conditions are visible." }
+      ],
+      "solution": [
+        "f = impI[A=B](body: g) {",
+        "  body {",
+        "    g = impI[A=A](body: m2) {",
+        "      body {",
+        "        m1 = mp(p, g.body)",
+        "        m2 = mp(m1, f.body)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
   ]
 }

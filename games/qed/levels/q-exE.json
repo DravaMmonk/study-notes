@@ -1,15 +1,9 @@
 {
-  "kind": "proof",
   "title": { "zh": "拿出那一个", "en": "Take the one there is" },
   "showcase": {
     "zh": "实例框是一个框：它开出的那一样东西只在框里有名字，框里证出的结论不能再提到它；光看说明，容易把它当成<part-ref to=\"part:exI\"></part-ref>的反面、一步就完",
     "en": "take the one there is is a box: the thing it opens has a name only inside it, and what is proved there may not mention it; from its description alone it is easy to take it for the reverse of <part-ref to=\"part:exI\"></part-ref>, done in a step"
   },
-  "tests": [{ "premises": { "p": "∃x. P(x) ∧ Q(x)" }, "goal": "∃x. P(x)" }],
-  "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-  "hint": [
-    { "zh": "框里给那一样东西起名 a，拆开，再拿它举例。", "en": "Inside the box, name the thing a, split, and use it as the example." }
-  ],
   "intro": [
     {
       "t": {
@@ -18,17 +12,28 @@
       }
     }
   ],
-  "solution": [
-    "f = exE[x=a](p, body: i) {",
-    "  body {",
-    "    s = andE(f.body)",
-    "    i = exI(s.left)",
-    "  }",
-    "}",
-    "goal <- f"
-  ],
   "after": {
     "zh": "「有这么一个，不妨叫它 a」：数学证明里也常这么说。",
     "en": "“There is one; call it a”: mathematical proofs say this often too."
-  }
+  },
+  "tasks": [
+    {
+      "id": "q-exE",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "∃x. P(x) ∧ Q(x)" }, "goal": "∃x. P(x)" }],
+      "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+      "hint": [
+        { "zh": "框里给那一样东西起名 a，拆开，再拿它举例。", "en": "Inside the box, name the thing a, split, and use it as the example." }
+      ],
+      "solution": [
+        "f = exE[x=a](p, body: i) {",
+        "  body {",
+        "    s = andE(f.body)",
+        "    i = exI(s.left)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
 }

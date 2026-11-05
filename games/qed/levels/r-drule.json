@@ -1,43 +1,6 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [
-    { "name": "in", "label": { "zh": "目标", "en": "Goal" } },
-    { "name": "rules", "label": { "zh": "规则", "en": "Rules" } }
-  ],
   "title": { "zh": "前向推理", "en": "One step forward" },
   "builds": "frule",
-  "tests": [
-    {
-      "goal": "Mortal(h)",
-      "hyps": ["∀x. Human(x) → Mortal(x)", "Human(h)"],
-      "rules": ["spec"],
-      "becomes": [["∀x. Human(x) → Mortal(x); Human(h); Human(?t) → Mortal(?t) ⊢ Mortal(h)"]]
-    },
-    {
-      "goal": "Flies(k)",
-      "hyps": ["∀x. Bird(x) → Flies(x)", "Bird(k)"],
-      "rules": ["spec"],
-      "becomes": [["∀x. Bird(x) → Flies(x); Bird(k); Bird(?t) → Flies(?t) ⊢ Flies(k)"]]
-    },
-    {
-      "goal": "Likes(i, j)",
-      "hyps": ["Human(j)", "∀y. Human(y) → Likes(i, y)"],
-      "rules": ["spec"],
-      "becomes": [["Human(j); ∀y. Human(y) → Likes(i, y); Human(?t) → Likes(i, ?t) ⊢ Likes(i, j)"]]
-    }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：从「对所有」那条已知取一个，加进已知，把每个目标变成要的样子。",
-    "en": "Design a proof assistant that takes one from the “for all” given and adds it to the givens, turning each goal into the one wanted."
-  },
-  "hint": [
-    { "zh": "先证一句倒着用，第一个目标是一个光秃秃的 ?A。", "en": "Have used backwards leaves a bare ?A as the first goal." },
-    {
-      "zh": "?A 由「对所有」那条已知来定：<part-ref to=\"lemma:erule\"></part-ref>接上<part-ref to=\"part:allE\"></part-ref>。",
-      "en": "?A is settled from the “for all” given: <part-ref to=\"lemma:erule\"></part-ref> with <part-ref to=\"part:allE\"></part-ref>."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -52,9 +15,51 @@
       }
     }
   ],
-  "solution": ["c0r0 = mp[use=[cut]]()", "c0 = rule(in, c0r0)", "c1 = erule(c0, rules)", "out <- c1"],
   "after": {
     "zh": "像这样从已知往前推，叫<wiki-ref to=\"forward\"></wiki-ref>。",
     "en": "Reasoning on from a given like this is <wiki-ref to=\"forward\"></wiki-ref>."
-  }
+  },
+  "tasks": [
+    {
+      "id": "r-drule",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [
+        { "name": "in", "label": { "zh": "目标", "en": "Goal" } },
+        { "name": "rules", "label": { "zh": "规则", "en": "Rules" } }
+      ],
+      "tests": [
+        {
+          "goal": "Mortal(h)",
+          "hyps": ["∀x. Human(x) → Mortal(x)", "Human(h)"],
+          "rules": ["spec"],
+          "becomes": [["∀x. Human(x) → Mortal(x); Human(h); Human(?t) → Mortal(?t) ⊢ Mortal(h)"]]
+        },
+        {
+          "goal": "Flies(k)",
+          "hyps": ["∀x. Bird(x) → Flies(x)", "Bird(k)"],
+          "rules": ["spec"],
+          "becomes": [["∀x. Bird(x) → Flies(x); Bird(k); Bird(?t) → Flies(?t) ⊢ Flies(k)"]]
+        },
+        {
+          "goal": "Likes(i, j)",
+          "hyps": ["Human(j)", "∀y. Human(y) → Likes(i, y)"],
+          "rules": ["spec"],
+          "becomes": [["Human(j); ∀y. Human(y) → Likes(i, y); Human(?t) → Likes(i, ?t) ⊢ Likes(i, j)"]]
+        }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：从「对所有」那条已知取一个，加进已知，把每个目标变成要的样子。",
+        "en": "Design a proof assistant that takes one from the “for all” given and adds it to the givens, turning each goal into the one wanted."
+      },
+      "hint": [
+        { "zh": "先证一句倒着用，第一个目标是一个光秃秃的 ?A。", "en": "Have used backwards leaves a bare ?A as the first goal." },
+        {
+          "zh": "?A 由「对所有」那条已知来定：<part-ref to=\"lemma:erule\"></part-ref>接上<part-ref to=\"part:allE\"></part-ref>。",
+          "en": "?A is settled from the “for all” given: <part-ref to=\"lemma:erule\"></part-ref> with <part-ref to=\"part:allE\"></part-ref>."
+        }
+      ],
+      "solution": ["c0r0 = mp[use=[cut]]()", "c0 = rule(in, c0r0)", "c1 = erule(c0, rules)", "out <- c1"]
+    }
+  ]
 }

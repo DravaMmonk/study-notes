@@ -1,24 +1,7 @@
 {
-  "kind": "machine",
-  "want": "elim",
-  "inputs": [
-    { "name": "it", "label": { "zh": "它", "en": "It" } },
-    { "name": "ways", "label": { "zh": "引入规则", "en": "Intro rule" } }
-  ],
-  "single": true,
   "builds": "elimGen",
   "title": { "zh": "拆开它", "en": "Taking it apart" },
   "adds": ["anyR", "swapConcl", "consFront", "mkRule"],
-  "tests": [
-    { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
-    {
-      "it": "?A ∧ (?B ∧ ?C)",
-      "ways": ["⟦?A; ?B; ?C⟧ ⟹ ?A ∧ (?B ∧ ?C)"],
-      "elim": ["?A ∧ (?B ∧ ?C)", "⟦?A; ?B; ?C⟧ ⟹ ?R"]
-    },
-    { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
-    { "it": "Truth", "ways": ["Truth"], "elim": ["Truth", "?R"] }
-  ],
   "intro": [
     {
       "t": {
@@ -33,15 +16,37 @@
       }
     }
   ],
-  "brief": {
-    "zh": "设计一个证明助手：由只有一条引入规则的声明，生成它的消去规则。",
-    "en": "Design a proof assistant that makes the elimination rule of a declaration with one introduction rule."
-  },
-  "hint": [
+  "tasks": [
     {
-      "zh": "比一比引入规则和要生成的消去规则：哪一部分原样搬过去了，哪一部分换掉了？",
-      "en": "Compare the way in with the elimination rule to make: which part carries over as it is, and which is replaced?"
+      "id": "gen-one",
+      "kind": "machine",
+      "want": "elim",
+      "inputs": [
+        { "name": "it", "label": { "zh": "它", "en": "It" } },
+        { "name": "ways", "label": { "zh": "引入规则", "en": "Intro rule" } }
+      ],
+      "single": true,
+      "tests": [
+        { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
+        {
+          "it": "?A ∧ (?B ∧ ?C)",
+          "ways": ["⟦?A; ?B; ?C⟧ ⟹ ?A ∧ (?B ∧ ?C)"],
+          "elim": ["?A ∧ (?B ∧ ?C)", "⟦?A; ?B; ?C⟧ ⟹ ?R"]
+        },
+        { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
+        { "it": "Truth", "ways": ["Truth"], "elim": ["Truth", "?R"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：由只有一条引入规则的声明，生成它的消去规则。",
+        "en": "Design a proof assistant that makes the elimination rule of a declaration with one introduction rule."
+      },
+      "hint": [
+        {
+          "zh": "比一比引入规则和要生成的消去规则：哪一部分原样搬过去了，哪一部分换掉了？",
+          "en": "Compare the way in with the elimination rule to make: which part carries over as it is, and which is replaced?"
+        }
+      ],
+      "solution": ["r = anyR()", "s = swapConcl(ways, r)", "c = consFront(it, s)", "m = mkRule(c, r)", "out <- m"]
     }
-  ],
-  "solution": ["r = anyR()", "s = swapConcl(ways, r)", "c = consFront(it, s)", "m = mkRule(c, r)", "out <- m"]
+  ]
 }

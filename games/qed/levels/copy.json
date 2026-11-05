@@ -1,10 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "照抄", "en": "Copy" },
-  "tests": [{ "premises": { "p": "A" }, "goal": "A" }],
-  "cases": [{ "A": "Rain" }, { "A": "Bus" }],
-  "solution": ["goal <- p"],
-  "hint": [{ "zh": "已知的圆点在右边，目标的圆点在左边。", "en": "A given’s dot is on its right; the goal’s dot is on its left." }],
   "intro": [
     {
       "t": {
@@ -23,6 +18,16 @@
         "zh": "下方的<b>测试</b>把同一个命题模式里的字母换成不同的句子，最后一个就是字母本身。同一块电路要通过每一个测试。",
         "en": "The <b>tests</b> below put different sentences in place of the letters of one pattern, the last being the letters themselves. One board must pass them all."
       }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "copy",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A" }, "goal": "A" }],
+      "cases": [{ "A": "Rain" }, { "A": "Bus" }],
+      "solution": ["goal <- p"],
+      "hint": [{ "zh": "已知的圆点在右边，目标的圆点在左边。", "en": "A given’s dot is on its right; the goal’s dot is on its left." }]
     }
   ]
 }

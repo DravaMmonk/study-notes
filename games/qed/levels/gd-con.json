@@ -1,17 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "只要不矛盾", "en": "Consistency is enough" },
-  "consts": ["g", "gn", "gp"],
-  "words": ["goedel"],
-  "cases": [],
-  "tests": [
-    {
-      "premises": { "d": "Prov(g) → Prov(gn)", "r": "Prov(g) → Prov(gp)", "con": "¬(Prov(gn) ∧ Prov(gp))" },
-      "goal": "¬Prov(g)"
-    }
-  ],
-  "brief": { "zh": "从这三句已知证出：G 证不出。", "en": "From these three givens, prove: G cannot be proved." },
-  "hint": [{ "zh": "假设 G 证得出。", "en": "Assume G can be proved." }],
   "intro": [
     {
       "t": {
@@ -26,19 +14,36 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=\"Prov(g)\"](body: m3) {",
-    "  body {",
-    "    m1 = mp(d, f.body)",
-    "    m2 = mp(r, f.body)",
-    "    j = andI(m1, m2)",
-    "    m3 = mp(con, j)",
-    "  }",
-    "}",
-    "goal <- f"
-  ],
   "after": {
     "zh": "这就是第一不完备性定理：一个不矛盾、规则能逐条列出、又能做加法和乘法的证明器，总有一句真话证不出。要连 ¬G 也证不出，哥德尔还需要更强的条件；罗瑟在 1936 年换了一句话，只用不矛盾就够了。",
     "en": "That is the first incompleteness theorem: a consistent prover whose rules can be listed one by one and which can do addition and multiplication has a true sentence it cannot prove. To show ¬G cannot be proved either, Gödel needed a stronger condition; Rosser, in 1936, changed the sentence so that consistency alone is enough."
-  }
+  },
+  "tasks": [
+    {
+      "id": "gd-con",
+      "kind": "proof",
+      "consts": ["g", "gn", "gp"],
+      "words": ["goedel"],
+      "cases": [],
+      "tests": [
+        {
+          "premises": { "d": "Prov(g) → Prov(gn)", "r": "Prov(g) → Prov(gp)", "con": "¬(Prov(gn) ∧ Prov(gp))" },
+          "goal": "¬Prov(g)"
+        }
+      ],
+      "brief": { "zh": "从这三句已知证出：G 证不出。", "en": "From these three givens, prove: G cannot be proved." },
+      "hint": [{ "zh": "假设 G 证得出。", "en": "Assume G can be proved." }],
+      "solution": [
+        "f = impI[A=\"Prov(g)\"](body: m3) {",
+        "  body {",
+        "    m1 = mp(d, f.body)",
+        "    m2 = mp(r, f.body)",
+        "    j = andI(m1, m2)",
+        "    m3 = mp(con, j)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
 }

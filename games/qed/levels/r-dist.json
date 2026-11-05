@@ -1,17 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "分配律", "en": "Distribution" },
-  "tests": [
-    { "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" },
-    { "goal": "Sat ∧ (Bus ∨ Bike) → (Sat ∧ Bus) ∨ (Sat ∧ Bike)" }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "先拆开能拆的已知。", "en": "First take apart every given that comes apart." },
-    { "zh": "再分两种情况，每种情况各选「或者」的一边。", "en": "Then split into two cases, and in each choose a side of the “or”." }
-  ],
   "intro": [
     {
       "t": {
@@ -20,26 +8,43 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = impI()",
-    "c1r0 = andE[use=[conjE]]()",
-    "c2r0 = orE()",
-    "c3r0 = orI[use=[disjI1]]()",
-    "c4r0 = andI()",
-    "c7r0 = orI[use=[disjI2]]()",
-    "c8r0 = andI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = erule(c0, c1r0)",
-    "c2 = erule(c1, c2r0)",
-    "c3 = rule(c2, c3r0)",
-    "c4 = rule(c3, c4r0)",
-    "c5 = assumption(c4)",
-    "c6 = assumption(c5)",
-    "c7 = rule(c6, c7r0)",
-    "c8 = rule(c7, c8r0)",
-    "c9 = assumption(c8)",
-    "c10 = assumption(c9)",
-    "out <- c10"
-  ],
-  "after": { "zh": "这样一串元件就是一段证明脚本，每个元件一行。", "en": "A row of parts like this is a proof script, one part to a line." }
+  "after": { "zh": "这样一串元件就是一段证明脚本，每个元件一行。", "en": "A row of parts like this is a proof script, one part to a line." },
+  "tasks": [
+    {
+      "id": "r-dist",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [
+        { "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" },
+        { "goal": "Sat ∧ (Bus ∨ Bike) → (Sat ∧ Bus) ∨ (Sat ∧ Bike)" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "先拆开能拆的已知。", "en": "First take apart every given that comes apart." },
+        { "zh": "再分两种情况，每种情况各选「或者」的一边。", "en": "Then split into two cases, and in each choose a side of the “or”." }
+      ],
+      "solution": [
+        "c0r0 = impI()",
+        "c1r0 = andE[use=[conjE]]()",
+        "c2r0 = orE()",
+        "c3r0 = orI[use=[disjI1]]()",
+        "c4r0 = andI()",
+        "c7r0 = orI[use=[disjI2]]()",
+        "c8r0 = andI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = erule(c0, c1r0)",
+        "c2 = erule(c1, c2r0)",
+        "c3 = rule(c2, c3r0)",
+        "c4 = rule(c3, c4r0)",
+        "c5 = assumption(c4)",
+        "c6 = assumption(c5)",
+        "c7 = rule(c6, c7r0)",
+        "c8 = rule(c7, c8r0)",
+        "c9 = assumption(c8)",
+        "c10 = assumption(c9)",
+        "out <- c10"
+      ]
+    }
+  ]
 }

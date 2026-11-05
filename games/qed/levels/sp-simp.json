@@ -1,37 +1,6 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [
-    { "name": "in", "label": { "zh": "目标", "en": "Goal" } },
-    { "name": "rules", "label": { "zh": "规则", "en": "Rules" } }
-  ],
-  "backtrack": true,
   "title": { "zh": "几条一起", "en": "Several at once" },
   "builds": "simp",
-  "tests": [
-    { "goal": "¬(Rain ∨ ¬Wind)", "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"], "becomes": [["¬Rain ∧ Wind"]] },
-    { "goal": "¬¬¬(Rain ∧ Wind)", "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"], "becomes": [["¬Rain ∨ ¬Wind"]] },
-    {
-      "goal": "¬(¬Rain ∨ ¬¬Wind) ∧ Wet",
-      "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"],
-      "becomes": [["(Rain ∧ ¬Wind) ∧ Wet"]]
-    },
-    { "goal": "Rain ∧ Wet", "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"], "becomes": [["Rain ∧ Wet"]] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手，用「规则」输入的改写规则把每个目标一直改下去，直到哪一条都对不上。",
-    "en": "Design a proof assistant that rewrites each goal with the rules from the input Rules until none of them fits."
-  },
-  "hint": [
-    {
-      "zh": "和<level-ref to=\"sp-repeat\"></level-ref>一样，要改到改不动为止。",
-      "en": "As in <level-ref to=\"sp-repeat\"></level-ref>, the rewriting goes on until nothing fits."
-    },
-    {
-      "zh": "<part-ref to=\"part:rw\"></part-ref>也能接一串规则，用其中第一条对得上的。",
-      "en": "<part-ref to=\"part:rw\"></part-ref> can take a list of rules too, and uses the first that fits."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -40,6 +9,42 @@
       }
     }
   ],
-  "solution": ["c0 = repeat(in, body: c1) {", "  body {", "    c1 = rw(c0.body, rules)", "  }", "}", "out <- c0"],
-  "after": { "zh": "Isabelle 和 Lean 的 simp 做的也是这件事。", "en": "This is what simp does in Isabelle and Lean too." }
+  "after": { "zh": "Isabelle 和 Lean 的 simp 做的也是这件事。", "en": "This is what simp does in Isabelle and Lean too." },
+  "tasks": [
+    {
+      "id": "sp-simp",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [
+        { "name": "in", "label": { "zh": "目标", "en": "Goal" } },
+        { "name": "rules", "label": { "zh": "规则", "en": "Rules" } }
+      ],
+      "backtrack": true,
+      "tests": [
+        { "goal": "¬(Rain ∨ ¬Wind)", "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"], "becomes": [["¬Rain ∧ Wind"]] },
+        { "goal": "¬¬¬(Rain ∧ Wind)", "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"], "becomes": [["¬Rain ∨ ¬Wind"]] },
+        {
+          "goal": "¬(¬Rain ∨ ¬¬Wind) ∧ Wet",
+          "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"],
+          "becomes": [["(Rain ∧ ¬Wind) ∧ Wet"]]
+        },
+        { "goal": "Rain ∧ Wet", "rules": ["dneg.elim", "dm.notOr", "dm.notAnd"], "becomes": [["Rain ∧ Wet"]] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手，用「规则」输入的改写规则把每个目标一直改下去，直到哪一条都对不上。",
+        "en": "Design a proof assistant that rewrites each goal with the rules from the input Rules until none of them fits."
+      },
+      "hint": [
+        {
+          "zh": "和<level-ref to=\"sp-repeat\"></level-ref>一样，要改到改不动为止。",
+          "en": "As in <level-ref to=\"sp-repeat\"></level-ref>, the rewriting goes on until nothing fits."
+        },
+        {
+          "zh": "<part-ref to=\"part:rw\"></part-ref>也能接一串规则，用其中第一条对得上的。",
+          "en": "<part-ref to=\"part:rw\"></part-ref> can take a list of rules too, and uses the first that fits."
+        }
+      ],
+      "solution": ["c0 = repeat(in, body: c1) {", "  body {", "    c1 = rw(c0.body, rules)", "  }", "}", "out <- c0"]
+    }
+  ]
 }

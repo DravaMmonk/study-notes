@@ -1,16 +1,6 @@
 {
-  "kind": "proof",
   "title": { "zh": "取一个", "en": "Take one" },
-  "consts": ["i"],
   "adds": ["allE"],
-  "tests": [{ "premises": { "p": "∀x. P(x) → Q(x)", "q": "P(i)" }, "goal": "Q(i)" }],
-  "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-  "hint": [
-    {
-      "zh": "「对所有 x」说的话，对安也成立：在元件上把 x 换成安。",
-      "en": "What holds for every x holds for Ann: on the part, put Ann in for x."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -19,5 +9,20 @@
       }
     }
   ],
-  "solution": ["e = allE[t=i](p)", "m = mp(e, q)", "goal <- m"]
+  "tasks": [
+    {
+      "id": "q-allE",
+      "kind": "proof",
+      "consts": ["i"],
+      "tests": [{ "premises": { "p": "∀x. P(x) → Q(x)", "q": "P(i)" }, "goal": "Q(i)" }],
+      "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
+      "hint": [
+        {
+          "zh": "「对所有 x」说的话，对安也成立：在元件上把 x 换成安。",
+          "en": "What holds for every x holds for Ann: on the part, put Ann in for x."
+        }
+      ],
+      "solution": ["e = allE[t=i](p)", "m = mp(e, q)", "goal <- m"]
+    }
+  ]
 }

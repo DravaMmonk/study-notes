@@ -1,25 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms", "codes"],
   "title": { "zh": "句子变成数", "en": "Sentences become numbers" },
-  "stated": [
-    "code(rain) = cons(one, nil)",
-    "code(wet) = cons(two, nil)",
-    "code(neg(x)) = cons(three, code(x))",
-    "code(imp(x, y)) = cons(four, app(code(x), code(y)))",
-    "app(nil, ys) = ys",
-    "app(cons(x, xs), ys) = cons(x, app(xs, ys))"
-  ],
-  "tests": [
-    { "goal": "code(neg(rain)) = cons(three, cons(one, nil))" },
-    { "goal": "code(imp(rain, wet)) = cons(four, cons(one, cons(two, nil)))" },
-    { "goal": "code(neg(imp(rain, neg(wet)))) = cons(three, cons(four, cons(one, cons(three, cons(two, nil)))))" }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "六条定义都要用。", "en": "All six definitions are needed." }],
   "intro": [
     {
       "t": {
@@ -34,15 +14,40 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\"]]()",
-    "c1r0 = refl()",
-    "c0 = simp(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "out <- c1"
-  ],
   "after": {
     "zh": "一串数还能并成一个数（哥德尔把每一位放进一个质数的指数：2^a·3^b·5^c…）。关于句子的事，于是成了关于数的事。",
     "en": "A list of numbers can be packed into one number (Gödel put each place in the exponent of a prime: 2^a·3^b·5^c …). Facts about sentences thus become facts about numbers."
-  }
+  },
+  "tasks": [
+    {
+      "id": "gd-code",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms", "codes"],
+      "stated": [
+        "code(rain) = cons(one, nil)",
+        "code(wet) = cons(two, nil)",
+        "code(neg(x)) = cons(three, code(x))",
+        "code(imp(x, y)) = cons(four, app(code(x), code(y)))",
+        "app(nil, ys) = ys",
+        "app(cons(x, xs), ys) = cons(x, app(xs, ys))"
+      ],
+      "tests": [
+        { "goal": "code(neg(rain)) = cons(three, cons(one, nil))" },
+        { "goal": "code(imp(rain, wet)) = cons(four, cons(one, cons(two, nil)))" },
+        { "goal": "code(neg(imp(rain, neg(wet)))) = cons(three, cons(four, cons(one, cons(three, cons(two, nil)))))" }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "六条定义都要用。", "en": "All six definitions are needed." }],
+      "solution": [
+        "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\"]]()",
+        "c1r0 = refl()",
+        "c0 = simp(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "out <- c1"
+      ]
+    }
+  ]
 }

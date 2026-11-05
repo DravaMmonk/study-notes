@@ -1,20 +1,6 @@
 {
-  "kind": "machine",
-  "want": "unify",
-  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
   "title": { "zh": "对不上", "en": "They do not fit" },
   "adds": ["uConflict", "uDecompose"],
-  "tests": [
-    { "eqs": ["?A ∧ ?B ≐ Rain ∨ Wind"] },
-    { "eqs": ["?A → ⊥ ≐ Rain → Wet"] },
-    { "eqs": ["?A ∨ ?B ≐ Rain ∨ (Wind ∧ Wet)"] },
-    { "eqs": ["(?A ∧ ?B) → ?C ≐ (Rain ∨ Wind) → Wet"] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：能对上的解到底；对不上的，说「失败」。",
-    "en": "Design a proof assistant that solves what can be fitted to the end, and says “failed” of what cannot."
-  },
-  "hint": [{ "zh": "先拆开，再找两边结构不同的等式。", "en": "Split first, then look for an equation whose sides differ in shape." }],
   "intro": [
     {
       "t": {
@@ -23,13 +9,32 @@
       }
     }
   ],
-  "solution": [
-    "r = repeat(in, body: c1) {",
-    "  body {",
-    "    c0 = uDecompose(r.body)",
-    "    c1 = uConflict(c0)",
-    "  }",
-    "}",
-    "out <- r"
+  "tasks": [
+    {
+      "id": "r-clash",
+      "kind": "machine",
+      "want": "unify",
+      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "tests": [
+        { "eqs": ["?A ∧ ?B ≐ Rain ∨ Wind"] },
+        { "eqs": ["?A → ⊥ ≐ Rain → Wet"] },
+        { "eqs": ["?A ∨ ?B ≐ Rain ∨ (Wind ∧ Wet)"] },
+        { "eqs": ["(?A ∧ ?B) → ?C ≐ (Rain ∨ Wind) → Wet"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：能对上的解到底；对不上的，说「失败」。",
+        "en": "Design a proof assistant that solves what can be fitted to the end, and says “failed” of what cannot."
+      },
+      "hint": [{ "zh": "先拆开，再找两边结构不同的等式。", "en": "Split first, then look for an equation whose sides differ in shape." }],
+      "solution": [
+        "r = repeat(in, body: c1) {",
+        "  body {",
+        "    c0 = uDecompose(r.body)",
+        "    c1 = uConflict(c0)",
+        "  }",
+        "}",
+        "out <- r"
+      ]
+    }
   ]
 }

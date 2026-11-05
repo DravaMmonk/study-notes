@@ -10,9 +10,20 @@ import { fromLines, gateShape, machineShape, proofShape, toLines } from './bluep
 import { LOGIC_TESTS, startProof } from './proof.js'
 import { runLevel } from '../../engine/tests.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
+import { deepFreeze } from '../../engine/content.js'
+import { isDataGame, readContent } from '../../engine/content-node.js'
+import { GAMES } from '../../../games.js'
+import domain from './domain.js'
 
 const L = (zh, en = zh) => ({ zh, en })
-const proofLevel = (id, fields) => ({ id, kind: 'proof', title: L(id), ...fields })
+// A level of one task (its id the level's): what it says once, then the task.
+const ONCE = ['title', 'intro', 'after', 'adds', 'fold', 'without', 'showcase', 'builds', 'fact', 'symbols']
+const one = ({ id, ...fields }) => ({
+  id,
+  ...Object.fromEntries(Object.entries(fields).filter(([k]) => ONCE.includes(k))),
+  tasks: [{ id, ...Object.fromEntries(Object.entries(fields).filter(([k]) => !ONCE.includes(k))) }],
+})
+const proofLevel = (id, fields) => one({ id, kind: 'proof', title: L(id), ...fields })
 const box = (head, body, out) => [`${head} {`, '  body {', ...body.map((l) => `    ${l}`), '  }', '}', `goal <- ${out}`]
 // A course of every shape this file reads: a gate built on a truth circuit, a lemma built and used, a lemma of two
 // shapes built by a level of two tasks and used by another, first-order levels with names and properties, a proposition
@@ -36,7 +47,7 @@ const CONTENT = {
   revisions: { half: [{ by: 'half', forms: ['right'] }] },
   eras: [{ id: 'one', machine: null, foundation: ['or', 'chain', 'useChain', 'half', 'useHalf', 'eqSym', 'andDef', 'eqUse', 'eqTerm', 'rows', 'negate'], chapter: { title: L('c'), question: L('q') } }],
   levels: [
-    { id: 'or', kind: 'gates', symbols: ['∨'], title: L('or'), target: 'Rain ∨ Wind', builds: 'gOr', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] },
+    one({ id: 'or', kind: 'gates', symbols: ['∨'], title: L('or'), target: 'Rain ∨ Wind', builds: 'gOr', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
     proofLevel('chain', { title: L('接起来', 'Join them'), symbols: ['→', '∧', '∀'], builds: 'chain', tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
       solution: box('f = impI[A=A](body: m2)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)'], 'f') }),
     proofLevel('useChain', { tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Wind', B: 'Wet', C: 'Slip' }], solution: ['c = chain(p, q)', 'goal <- c'] }),
@@ -63,14 +74,16 @@ const CONTENT = {
     ] },
     proofLevel('rows', { symbolicWords: { Rain: L('A'), Wet: L('B'), Slip: L('C') }, cases: [], brief: L('b'), tests: [{ premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Wet ∧ Slip' }],
       solution: box('f = impI[A=Rain](body: c)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)', 'c = andI(m1, m2)'], 'f') }),
-    { id: 'negate', kind: 'machine', title: L('negate'), adds: ['raa', 'impI', 'rule'], want: 'becomes', inputs: [{ name: 'in', label: L('目标', 'Goal') }], backtrack: true, brief: L('b'),
+    one({ id: 'negate', kind: 'machine', title: L('negate'), adds: ['raa', 'impI', 'rule'], want: 'becomes', inputs: [{ name: 'in', label: L('目标', 'Goal') }], backtrack: true, brief: L('b'),
       tests: [{ goal: 'Wet', hyps: ['Rain → Wet', 'Rain'], becomes: [['Rain → Wet; Rain; ¬Wet ⊢ ⊥']] }],
-      solution: ['c0r0 = raa()', 'c1r0 = impI()', 'c0 = rule(in, c0r0)', 'c1 = rule(c0, c1r0)', 'out <- c1'] },
+      solution: ['c0r0 = raa()', 'c1r0 = impI()', 'c0 = rule(in, c0r0)', 'c1 = rule(c0, c1r0)', 'out <- c1'] }),
   ],
 }
 const course = logicCourse(CONTENT)
 const syncOwn = course.syncOwn
 const level = (id) => course.LEVELS.find((l) => l.id === id)
+// A level of one task, as read.
+const only = (id) => level(id).tasks[0]
 
 test('the course written here reads without fault', () => {
   assert.deepEqual(course.wrong, [])
@@ -97,28 +110,28 @@ test('blueprint text that does not fit the board says which line', () => {
 test('every reference answer prints back as the text it was read from: proofs, a lemma used, a gate, a machine', () => {
   const kinds = new Set()
   for (const l of course.LEVELS) {
-    for (const one of l.tasks ?? [l]) {
-      const raw = (CONTENT.levels.find((x) => x.id === l.id).tasks?.[one.task] ?? CONTENT.levels.find((x) => x.id === l.id)).solution
-      kinds.add(one.kind)
-      const shape = one.kind === 'proof' ? proofShape(one.lemmas) : one.kind === 'machine' ? machineShape(one) : one.kind === 'gates' ? gateShape(one.gates) : null
-      if (shape) assert.deepEqual(toLines(one.solution, shape), raw, `${l.id} ${one.task ?? ''}`)
+    for (const t of l.tasks) {
+      const raw = CONTENT.levels.find((x) => x.id === l.id).tasks[t.task].solution
+      kinds.add(t.kind)
+      const shape = t.kind === 'proof' ? proofShape(t.lemmas) : t.kind === 'machine' ? machineShape(t) : t.kind === 'gates' ? gateShape(t.gates) : null
+      if (shape) assert.deepEqual(toLines(t.solution, shape), raw, `${l.id} ${t.task}`)
     }
   }
   assert.deepEqual([...kinds].sort(), ['gates', 'machine', 'proof'])
 })
 
 test('proof tasks offer a concrete default and a symbolic final case', () => {
-  for (const entry of course.LEVELS) for (const one of entry.tasks ?? [entry]) {
-    if (one.kind !== 'proof') continue
-    assert.ok(one.tests.length >= 2, entry.id)
-    assert.notEqual(one.tests[0].symbolic, true, entry.id)
-    assert.equal(one.tests.at(-1).symbolic, true, entry.id)
-    assert.equal(one.tests.at(-1).label.zh, '字母', entry.id)
+  for (const entry of course.LEVELS) for (const t of entry.tasks) {
+    if (t.kind !== 'proof') continue
+    assert.ok(t.tests.length >= 2, entry.id)
+    assert.notEqual(t.tests[0].symbolic, true, entry.id)
+    assert.equal(t.tests.at(-1).symbolic, true, entry.id)
+    assert.equal(t.tests.at(-1).label.zh, '字母', entry.id)
   }
 })
 
 test('equality cases use object names by default and letters in the symbolic case', () => {
-  const l = level('eqSym')
+  const l = only('eqSym')
   const [concrete, symbolic] = l.tests
   const formula = (one) => parse(one.goal, { consts: l.consts })
   assert.match(render(formula(concrete), l.notation, 'zh'), /任意性质.*昏星.*晨星/)
@@ -129,30 +142,30 @@ test('equality cases use object names by default and letters in the symbolic cas
 })
 
 test('higher-order propositions use words only in the concrete case', () => {
-  const one = level('andDef').tasks[0]
-  assert.match(render(parse(one.tests[0].goal), one.notation, 'zh'), /任意命题.*该命题/)
-  assert.match(render(parse(one.tests.at(-1).goal), { ...one.notation, words: null }, 'zh'), /∀R/)
+  const t = level('andDef').tasks[0]
+  assert.match(render(parse(t.tests[0].goal), t.notation, 'zh'), /任意命题.*该命题/)
+  assert.match(render(parse(t.tests.at(-1).goal), { ...t.notation, words: null }, 'zh'), /∀R/)
 })
 
 test('the task brief is symbolic while concrete cases remain concrete', () => {
-  const l = level('eqUse')
+  const l = only('eqUse')
   assert.match(l.tests.at(-1).caseBrief.zh, /a = b.*P\(a\).*Q\(b\)/)
   assert.doesNotMatch(l.tests.at(-1).caseBrief.zh, /晨星|昏星/)
   assert.match(render(parse(l.tests[0].goal, { consts: l.consts }), l.notation, 'zh'), /昏星/)
   assert.match(level('eqTerm').tasks[0].tests.at(-1).caseBrief.zh, /P\(i\).*P\(j\)/)
-  assert.match(level('rows').tests.at(-1).caseBrief.zh, /A → B.*B → C/)
+  assert.match(only('rows').tests.at(-1).caseBrief.zh, /A → B.*B → C/)
 })
 
 test('a level reads its letters in the word sets it names, merged in order', () => {
   // The everyday words, the stars' names over the people's, and the properties P, Q.
-  const words = level('eqSym').notation.words
+  const words = only('eqSym').notation.words
   assert.equal(words.Rain.zh, '下雨')
   assert.equal(words.i.zh, '晨星')
   assert.match(words.P.zh, /具有该性质/)
 })
 
 test('a gate the player built runs the board it passed with; one that no longer passes leaves the reference', () => {
-  const builder = level('or')
+  const builder = only('or')
   const gates = builder.gates
   const or = (board) => {
     syncOwn(board ? { or: board } : {})
@@ -175,10 +188,10 @@ test('a gate the player built runs the board it passed with; one that no longer 
 
 test('a lemma runs the proof the player passed its level with, a level of tasks one shape a task', () => {
   const run = (id, task) => {
-    const one = task === undefined ? level(id) : level(id).tasks[task]
-    return runLevel(LOGIC_TESTS, one, one.solution)
+    const t = level(id).tasks[task]
+    return runLevel(LOGIC_TESTS, t, t.solution)
   }
-  const chain = level('chain')
+  const chain = only('chain')
   const shape = proofShape(chain.lemmas)
   const read = (lines, one) => fromLines(lines, startProof(one), shape, Object.keys(shape.rules))
   // The player's own proof of chain, a detour through ∧: the lemma runs it, and the level built on chain still passes.
@@ -189,10 +202,10 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   // Another read of the same content (another game of the domain in this process) keeps its own boards.
   const other = logicCourse(CONTENT)
   assert.notEqual(other.proofs.chain[''].board(), own)
-  assert.equal(run('useChain').pass, true)
+  assert.equal(run('useChain', 0).pass, true)
   // A kept proof that does not prove chain's statement: the level built on it cannot pass, and says why.
   syncOwn({ chain: read(['f = impI[A=A](body: m1) {', '  body {', '    m1 = mp(p, f.body)', '  }', '}', 'goal <- f'], chain) })
-  const broken = run('useChain')
+  const broken = run('useChain', 0)
   assert.equal(broken.pass, false)
   assert.match(broken.results[0].errors.get('c').zh, /^「串联」照「接起来」一关的证明来证，在这里证不出/)
   // Half's two shapes are the two tasks of the level that builds it: useHalf's first task runs the first one's board
@@ -207,4 +220,17 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   assert.equal(run('useHalf', 0).pass, false)
   assert.equal(run('useHalf', 1).pass, true)
   syncOwn({})
+})
+
+test('reading a game on the domain never writes into its content', () => {
+  const games = GAMES.map((g) => g.id).filter((id) => isDataGame(id)).map((id) => readContent(id)).filter((c) => c.domain === 'logic')
+  assert.ok(games.length)
+  for (const content of games) {
+    const spec = domain.spec(deepFreeze(content))
+    assert.deepEqual(spec.logic.wrong, [], content.id)
+    // The parts the player builds run the boards kept for them, or their levels' reference boards.
+    spec.syncOwn({})
+    for (const shapes of Object.values(spec.logic.proofs)) for (const { board } of Object.values(shapes)) assert.ok(board().nodes)
+    for (const gate of Object.values(spec.logic.gates)) assert.ok(gate.opens().circuit.nodes)
+  }
 })

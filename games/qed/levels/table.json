@@ -1,16 +1,5 @@
 {
-  "kind": "truth",
   "title": { "zh": "一句承诺", "en": "A promise" },
-  "ask": "fill",
-  "formulas": ["Rain → Wet"],
-  "brief": {
-    "zh": "天气预报说：「若下雨，则地湿。」判断这句话在每一行是真是假，点单元格填写。",
-    "en": "The forecast says, “If it rains, then the ground is wet.” Decide whether it is true or false on each row, and fill in the cells."
-  },
-  "hint": [
-    { "zh": "在哪一种情况下，这句预报算是说错了？", "en": "In which case has the forecast got it wrong?" },
-    { "zh": "没有下雨的两行，预报说错了吗？", "en": "On the two rows where it does not rain, has the forecast got it wrong?" }
-  ],
   "intro": [
     { "t": { "zh": "能判断真假的陈述叫<b>命题</b>。", "en": "A statement that is either true or false is a <b>proposition</b>." } },
     {
@@ -29,5 +18,21 @@
   "after": {
     "zh": "逻辑学把这样理解的「若…则…」称为<b>实质蕴涵</b>。",
     "en": "Logicians call this reading of “if … then …” <b>material implication</b>."
-  }
+  },
+  "tasks": [
+    {
+      "id": "table",
+      "kind": "truth",
+      "ask": "fill",
+      "formulas": ["Rain → Wet"],
+      "brief": {
+        "zh": "天气预报说：「若下雨，则地湿。」判断这句话在每一行是真是假，点单元格填写。",
+        "en": "The forecast says, “If it rains, then the ground is wet.” Decide whether it is true or false on each row, and fill in the cells."
+      },
+      "hint": [
+        { "zh": "在哪一种情况下，这句预报算是说错了？", "en": "In which case has the forecast got it wrong?" },
+        { "zh": "没有下雨的两行，预报说错了吗？", "en": "On the two rows where it does not rain, has the forecast got it wrong?" }
+      ]
+    }
+  ]
 }

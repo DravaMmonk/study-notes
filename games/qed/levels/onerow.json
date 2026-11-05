@@ -1,19 +1,5 @@
 {
-  "kind": "truth",
   "title": { "zh": "地湿了，就下过雨？", "en": "Wet, so it rained?" },
-  "ask": "counter",
-  "formulas": ["(Rain → Wet) → (Wet → Rain)"],
-  "brief": {
-    "zh": "找出一行，让「(下雨 → 地湿) → (地湿 → 下雨)」为假。",
-    "en": "Find a row that makes “(it rains → the ground is wet) → (the ground is wet → it rains)” false."
-  },
-  "hint": [
-    { "zh": "地湿了，却没下雨，可能吗？", "en": "Could the ground be wet without rain?" },
-    {
-      "zh": "要使最外层的 → 为假，它的前件必须为真，后件必须为假。",
-      "en": "For the outermost → to be false, its antecedent must be true and its consequent false."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -29,5 +15,24 @@
     },
     { "t": { "zh": "点「试一试」，查看一行的结果。", "en": "Select “Try” to evaluate a row." } }
   ],
-  "after": { "zh": "这种推理错误叫<b>肯定后件</b>。", "en": "This mistake is known as <b>affirming the consequent</b>." }
+  "after": { "zh": "这种推理错误叫<b>肯定后件</b>。", "en": "This mistake is known as <b>affirming the consequent</b>." },
+  "tasks": [
+    {
+      "id": "onerow",
+      "kind": "truth",
+      "ask": "counter",
+      "formulas": ["(Rain → Wet) → (Wet → Rain)"],
+      "brief": {
+        "zh": "找出一行，让「(下雨 → 地湿) → (地湿 → 下雨)」为假。",
+        "en": "Find a row that makes “(it rains → the ground is wet) → (the ground is wet → it rains)” false."
+      },
+      "hint": [
+        { "zh": "地湿了，却没下雨，可能吗？", "en": "Could the ground be wet without rain?" },
+        {
+          "zh": "要使最外层的 → 为假，它的前件必须为真，后件必须为假。",
+          "en": "For the outermost → to be false, its antecedent must be true and its consequent false."
+        }
+      ]
+    }
+  ]
 }

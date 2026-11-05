@@ -1,26 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "手算 1 + 1", "en": "One plus one by hand" },
-  "consts": ["zero"],
-  "words": ["everyday", "terms"],
-  "cases": [],
-  "tests": [
-    {
-      "premises": { "d0": "∀y. plus(zero, y) = y", "d1": "∀x. ∀y. plus(s(x), y) = s(plus(x, y))" },
-      "goal": "plus(s(zero), s(zero)) = s(s(zero))"
-    }
-  ],
-  "brief": { "zh": "从加法的两条定义证出 1 + 1 = 2。", "en": "From the two definitions of addition, prove 1 + 1 = 2." },
-  "hint": [
-    {
-      "zh": "先用<part-ref to=\"part:allE\"></part-ref>，把定义里的 x、y 换成具体的数。",
-      "en": "Start with <part-ref to=\"part:allE\"></part-ref>, putting particular numbers for the x and y of a definition."
-    },
-    {
-      "zh": "第二条定义给出 S (0 + S 0)；第一条算出 0 + S 0，再用等量代换换进去。",
-      "en": "The second definition gives S (0 + S 0); the first works out 0 + S 0, which Rewrite then puts in."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -29,11 +8,37 @@
       }
     }
   ],
-  "solution": [
-    "e1 = allE[t=zero](d1)",
-    "e3 = allE[t=\"s(zero)\"](d0)",
-    "e2 = allE[t=\"s(zero)\"](e1)",
-    "w = rewrite[at=[0]](e3, e2)",
-    "goal <- w"
+  "tasks": [
+    {
+      "id": "nl-plus",
+      "kind": "proof",
+      "consts": ["zero"],
+      "words": ["everyday", "terms"],
+      "cases": [],
+      "tests": [
+        {
+          "premises": { "d0": "∀y. plus(zero, y) = y", "d1": "∀x. ∀y. plus(s(x), y) = s(plus(x, y))" },
+          "goal": "plus(s(zero), s(zero)) = s(s(zero))"
+        }
+      ],
+      "brief": { "zh": "从加法的两条定义证出 1 + 1 = 2。", "en": "From the two definitions of addition, prove 1 + 1 = 2." },
+      "hint": [
+        {
+          "zh": "先用<part-ref to=\"part:allE\"></part-ref>，把定义里的 x、y 换成具体的数。",
+          "en": "Start with <part-ref to=\"part:allE\"></part-ref>, putting particular numbers for the x and y of a definition."
+        },
+        {
+          "zh": "第二条定义给出 S (0 + S 0)；第一条算出 0 + S 0，再用等量代换换进去。",
+          "en": "The second definition gives S (0 + S 0); the first works out 0 + S 0, which Rewrite then puts in."
+        }
+      ],
+      "solution": [
+        "e1 = allE[t=zero](d1)",
+        "e3 = allE[t=\"s(zero)\"](d0)",
+        "e2 = allE[t=\"s(zero)\"](e1)",
+        "w = rewrite[at=[0]](e3, e2)",
+        "goal <- w"
+      ]
+    }
   ]
 }

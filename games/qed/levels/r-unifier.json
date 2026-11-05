@@ -1,21 +1,7 @@
 {
-  "kind": "machine",
-  "want": "unify",
-  "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
   "adds": ["uDecompose", "uDelete", "uConflict", "uEliminate", "uSwap", "uCheck"],
   "title": { "zh": "六个元件一个框", "en": "Six parts, one frame" },
   "builds": "unifier",
-  "tests": [
-    { "eqs": ["(?A → ?B) ∧ (?B → ?C) ≐ (Rain → Wet) ∧ (?D → Slip)"] },
-    { "eqs": ["?A ∧ (?B ∨ ?A) ≐ Rain ∧ (Wind ∨ Wet)"] },
-    { "eqs": ["?A → ?B ≐ ?B → ¬?A"] },
-    { "eqs": ["¬¬?A ≐ ¬?B"] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：不管要拆几层、代几次，都把等式解到底；对不上或者没有解的，说「失败」。",
-    "en": "Design a proof assistant that solves any set of equations to the end, however many levels and substitutions it takes, or says “failed” when they do not fit or have no solution."
-  },
-  "hint": [{ "zh": "每种元件都要进重复框。", "en": "Every kind of part belongs in the repeat frame." }],
   "intro": [
     {
       "t": {
@@ -24,21 +10,40 @@
       }
     }
   ],
-  "solution": [
-    "r = repeat(in, body: c5) {",
-    "  body {",
-    "    c0 = uDecompose(r.body)",
-    "    c1 = uDelete(c0)",
-    "    c2 = uSwap(c1)",
-    "    c3 = uEliminate(c2)",
-    "    c4 = uCheck(c3)",
-    "    c5 = uConflict(c4)",
-    "  }",
-    "}",
-    "out <- r"
-  ],
   "after": {
     "zh": "合一器求出的是<wiki-ref to=\"mgu\"></wiki-ref>：只确定非确定不可的部分。",
     "en": "What the unifier finds is the <wiki-ref to=\"mgu\"></wiki-ref>: it settles only what must be settled."
-  }
+  },
+  "tasks": [
+    {
+      "id": "r-unifier",
+      "kind": "machine",
+      "want": "unify",
+      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "tests": [
+        { "eqs": ["(?A → ?B) ∧ (?B → ?C) ≐ (Rain → Wet) ∧ (?D → Slip)"] },
+        { "eqs": ["?A ∧ (?B ∨ ?A) ≐ Rain ∧ (Wind ∨ Wet)"] },
+        { "eqs": ["?A → ?B ≐ ?B → ¬?A"] },
+        { "eqs": ["¬¬?A ≐ ¬?B"] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：不管要拆几层、代几次，都把等式解到底；对不上或者没有解的，说「失败」。",
+        "en": "Design a proof assistant that solves any set of equations to the end, however many levels and substitutions it takes, or says “failed” when they do not fit or have no solution."
+      },
+      "hint": [{ "zh": "每种元件都要进重复框。", "en": "Every kind of part belongs in the repeat frame." }],
+      "solution": [
+        "r = repeat(in, body: c5) {",
+        "  body {",
+        "    c0 = uDecompose(r.body)",
+        "    c1 = uDelete(c0)",
+        "    c2 = uSwap(c1)",
+        "    c3 = uEliminate(c2)",
+        "    c4 = uCheck(c3)",
+        "    c5 = uConflict(c4)",
+        "  }",
+        "}",
+        "out <- r"
+      ]
+    }
+  ]
 }

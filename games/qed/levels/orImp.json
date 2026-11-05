@@ -1,14 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "不管哪一种", "en": "Whichever it is" },
-  "tests": [{ "premises": { "p": "A → C", "q": "B → C" }, "goal": "A ∨ B → C" }],
-  "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
-  "hint": [
-    {
-      "zh": "目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。",
-      "en": "The goal is an “if … then …”: open an assumption box first; with an ∨ inside it, split into cases."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -17,19 +8,33 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=\"A | B\"](body: e) {",
-    "  body {",
-    "    e = orE(f.body, left: m1, right: m2) {",
-    "      left {",
-    "        m1 = mp(p, e.left)",
-    "      }",
-    "      right {",
-    "        m2 = mp(q, e.right)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "goal <- f"
+  "tasks": [
+    {
+      "id": "orImp",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A → C", "q": "B → C" }, "goal": "A ∨ B → C" }],
+      "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
+      "hint": [
+        {
+          "zh": "目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。",
+          "en": "The goal is an “if … then …”: open an assumption box first; with an ∨ inside it, split into cases."
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"A | B\"](body: e) {",
+        "  body {",
+        "    e = orE(f.body, left: m1, right: m2) {",
+        "      left {",
+        "        m1 = mp(p, e.left)",
+        "      }",
+        "      right {",
+        "        m2 = mp(q, e.right)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
   ]
 }

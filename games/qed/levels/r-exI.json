@@ -1,15 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "逆用概括", "en": "Generalise, backwards" },
-  "tests": [
-    { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(j)", "Likes(j, i)"] },
-    { "goal": "∃x. Bird(x) ∧ Flies(x)", "hyps": ["Flies(k)", "Bird(k)"] },
-    { "goal": "∃y. Student(y) ∧ School(y)", "hyps": ["Student(l)", "School(l)"] }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "例子是谁，交给已知去定。", "en": "Who the example is, leave to a given." }],
   "intro": [
     {
       "t": {
@@ -18,13 +8,28 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = exI()",
-    "c1r0 = andI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = assumption(c1)",
-    "c3 = assumption(c2)",
-    "out <- c3"
+  "tasks": [
+    {
+      "id": "r-exI",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [
+        { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(j)", "Likes(j, i)"] },
+        { "goal": "∃x. Bird(x) ∧ Flies(x)", "hyps": ["Flies(k)", "Bird(k)"] },
+        { "goal": "∃y. Student(y) ∧ School(y)", "hyps": ["Student(l)", "School(l)"] }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "例子是谁，交给已知去定。", "en": "Who the example is, leave to a given." }],
+      "solution": [
+        "c0r0 = exI()",
+        "c1r0 = andI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = assumption(c1)",
+        "c3 = assumption(c2)",
+        "out <- c3"
+      ]
+    }
   ]
 }

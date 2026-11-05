@@ -53,7 +53,7 @@ export function builtGates(gates, builders, ownBoard) {
       return fits.get(board)
     }
     const circuit = () => {
-      const own = ownBoard(level.key)
+      const own = ownBoard(level.taskId)
       return portsOn(own && passes(own) ? own : level.solution)
     }
     all[type] = { ...g, ...packed({ circuit, inputs: g.ports, outputs: ['out'] }), built: true, opens: () => ({ circuit: circuit(), level }) }

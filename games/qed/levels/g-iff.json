@@ -1,8 +1,5 @@
 {
-  "kind": "gates",
   "title": { "zh": "两个方向都对", "en": "Both ways round" },
-  "target": "(Rain → Wet) ∧ (Wet → Rain)",
-  "hideTarget": true,
   "builds": "gIff",
   "symbols": ["↔"],
   "intro": [
@@ -13,10 +10,18 @@
       }
     }
   ],
-  "brief": {
-    "zh": "接一块电路，算出「（若下雨，则地湿）并且（若地湿，则下雨）」在每一行的真值。",
-    "en": "Wire a board that works out the value of “(if it rains, the ground is wet) and (if the ground is wet, it rains)” on every row."
-  },
-  "hint": [{ "zh": "这句话由哪几部分组成？", "en": "What parts is the sentence made of?" }],
-  "solution": ["i1 = gImp(Rain, Wet)", "i2 = gImp(Wet, Rain)", "a = gAnd(i1, i2)", "out <- a"]
+  "tasks": [
+    {
+      "id": "g-iff",
+      "kind": "gates",
+      "target": "(Rain → Wet) ∧ (Wet → Rain)",
+      "hideTarget": true,
+      "brief": {
+        "zh": "接一块电路，算出「（若下雨，则地湿）并且（若地湿，则下雨）」在每一行的真值。",
+        "en": "Wire a board that works out the value of “(if it rains, the ground is wet) and (if the ground is wet, it rains)” on every row."
+      },
+      "hint": [{ "zh": "这句话由哪几部分组成？", "en": "What parts is the sentence made of?" }],
+      "solution": ["i1 = gImp(Rain, Wet)", "i2 = gImp(Wet, Rain)", "a = gAnd(i1, i2)", "out <- a"]
+    }
+  ]
 }

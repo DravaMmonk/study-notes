@@ -1,20 +1,5 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
-  "words": ["everyday", "terms"],
   "title": { "zh": "0 不等于 1", "en": "0 is not 1" },
-  "types": ["nat"],
-  "tests": [{ "goal": "¬(zero = s(zero))" }, { "goal": "¬(s(s(zero)) = zero)" }, { "goal": "¬(zero = s(a))" }],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [
-    { "zh": "¬A 就是 A → ⊥。", "en": "¬A is A → ⊥." },
-    {
-      "zh": "「数理规则书」里有 0 = S … 的规则；有一组测试的等式方向相反。",
-      "en": "The “Rule book of numbers” has rules for 0 = S …; one test has its equation the other way round."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -23,19 +8,39 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = impI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = append(c0, first: c2, second: c3) {",
-    "  first {",
-    "    c2r0 = math[use=[\"nat.distinct1\"]]()",
-    "    c2 = erule(c1.first, c2r0)",
-    "  }",
-    "  second {",
-    "    c3r0 = math[use=[\"nat.distinct2\"]]()",
-    "    c3 = erule(c1.second, c3r0)",
-    "  }",
-    "}",
-    "out <- c1"
+  "tasks": [
+    {
+      "id": "in-distinct",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "words": ["everyday", "terms"],
+      "types": ["nat"],
+      "tests": [{ "goal": "¬(zero = s(zero))" }, { "goal": "¬(s(s(zero)) = zero)" }, { "goal": "¬(zero = s(a))" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [
+        { "zh": "¬A 就是 A → ⊥。", "en": "¬A is A → ⊥." },
+        {
+          "zh": "「数理规则书」里有 0 = S … 的规则；有一组测试的等式方向相反。",
+          "en": "The “Rule book of numbers” has rules for 0 = S …; one test has its equation the other way round."
+        }
+      ],
+      "solution": [
+        "c0r0 = impI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = append(c0, first: c2, second: c3) {",
+        "  first {",
+        "    c2r0 = math[use=[\"nat.distinct1\"]]()",
+        "    c2 = erule(c1.first, c2r0)",
+        "  }",
+        "  second {",
+        "    c3r0 = math[use=[\"nat.distinct2\"]]()",
+        "    c3 = erule(c1.second, c3r0)",
+        "  }",
+        "}",
+        "out <- c1"
+      ]
+    }
   ]
 }

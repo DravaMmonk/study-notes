@@ -82,7 +82,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
   }
   const stage = (
     <div className="fo-stage">
-      <RuleTable level={level} rules={rules} onChange={change} scope={`${entry.id}:${level.task ?? 0}`} />
+      <RuleTable level={level} rules={rules} onChange={change} scope={`${entry.id}:${level.task}`} />
       <DeclRules level={level} ways={waysIn(board)} />
     </div>
   )

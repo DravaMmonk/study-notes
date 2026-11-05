@@ -9,7 +9,7 @@
 
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
-import { TASK_ID_FIELD } from '../../engine/tasks.js'
+import { taskLevel } from '../../engine/tasks.js'
 import { RULES } from './proof.js'
 import { PRIMITIVE_GATES } from './gates.js'
 import { MACHINE_PARTS } from './machine.js'
@@ -96,24 +96,37 @@ const FORMS = {
 const TEXTS = S.list(S.text())
 const INTRO = S.list(S.obj({ t: S.text() }))
 const PREMISES = S.map(SENTENCE, { about: t('已知：名字 → 句子', 'the givens: name → sentence') })
-// What a level or a task may say whatever it is.
-const ANY = {
-  brief: S.opt(S.text()),
-  hint: S.opt(TEXTS),
-  intro: S.opt(INTRO),
-  after: S.opt(S.text({ about: t('通关后的一句（只说这一关，不剧透做法）', 'the pass text (this level only, never the way it is solved)') })),
+const AFTER_TEXT = S.opt(S.text({ about: t('通关后的一句（只说这一关，不剧透做法）', 'the pass text (this level only, never the way it is solved)') }))
+// A level's place in the course.
+const COURSE = {
   adds: S.opt(S.list(PART, { section: 'course', about: t('这一关新带来的元件', 'the parts this level brings in') })),
   fold: S.opt(S.list(PART, { section: 'course' })),
   without: S.opt(S.list(PART, { section: 'course', about: t('这一关不给的元件（一段证明不许用框）', 'parts the level holds back (a proof without boxes)') })),
-  parts: S.opt(S.list(PART, { about: t('换了一种板的任务手里有的元件', 'the parts a task on another kind of board holds') })),
-  words: S.opt(WORDS),
-  consts: S.opt(S.list(S.str(), { about: t('这一关的名字（特定的东西）', 'the names (particular things) the level reads') })),
   symbols: S.opt(S.list(S.oneOf(['¬', '∧', '∨', '→', '↔', '⊥', '∀', '∃']), { about: t('从这一关起在公式里出现的连接词', 'the connectives formulas write from this level on') })),
-  propertyWords: S.opt(S.bool()),
-  symbolicWords: S.opt(S.map(S.text(), { about: t('最后一个测试（字母）里，这些词怎么读', 'how these words read in the last test, the letters') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
   builds: S.opt(S.str({ section: 'course', about: t('通过后做成元件：game.json 的引理、门，或机器板上的元件', 'once passed it is a part: a lemma or gate of game.json, or a machine part') })),
   fact: S.opt(S.str({ section: 'course', about: t('这一关证出的等式（game.json facts）', 'the equation this level proves (game.json facts)') })),
+}
+// How a task's sentences read and what it asks, said by the task or, for all its tasks, by its level.
+const READING = {
+  brief: S.opt(S.text()),
+  words: S.opt(WORDS),
+  consts: S.opt(S.list(S.str(), { about: t('这一关的名字（特定的东西）', 'the names (particular things) the level reads') })),
+  propertyWords: S.opt(S.bool()),
+  symbolicWords: S.opt(S.map(S.text(), { about: t('最后一个测试（字母）里，这些词怎么读', 'how these words read in the last test, the letters') })),
+}
+// What a task may say whatever its kind: how it reads, its hints, its own introduction and pass text (a task before
+// the last), the parts it brings in, holds back or names (a task on another kind of board than the level's), the
+// equation it proves.
+const ANY = {
+  ...READING,
+  hint: S.opt(TEXTS),
+  intro: S.opt(INTRO),
+  after: AFTER_TEXT,
+  adds: COURSE.adds,
+  without: COURSE.without,
+  fact: COURSE.fact,
+  parts: S.opt(S.list(PART, { about: t('换了一种板的任务手里有的元件', 'the parts a task on another kind of board holds') })),
 }
 const RULE_ROWS = S.list(S.obj({ binds: ids, needs: SENTENCES }), { about: t('一份声明：每条引入规则一行，取的东西和前提（规则表的写法）', 'a declaration: one introduction rule a row, the things it takes and its premises (as the rule table writes it)') })
 const CASE = S.obj({ given: SENTENCES, goal: S.opt(SENTENCE), make: S.bool(), uses: S.opt(SENTENCES) })
@@ -166,13 +179,13 @@ const BY_KIND = {
   },
 }
 const opts = (fields) => Object.fromEntries(Object.entries(fields).map(([k, s]) => [k, s.optional ? s : S.opt(s)]))
-const byKind = (own) => S.by('kind', Object.fromEntries(Object.entries(BY_KIND).map(([kind, fields]) => [kind, S.obj({ kind: S.ref('kind'), ...ANY, ...own, ...fields })])))
-const TASK = byKind({ id: TASK_ID_FIELD, step: S.text(), carries: S.opt(S.bool({ about: t('接着上一个任务的电路往下做', 'goes on from the last task’s board') })) })
-const LEVEL = S.either(
-  byKind({ title: S.text() }),
-  // A level of several tasks: what it says for all of them (a declaration's sentence and cases too), then each task.
-  S.obj({ title: S.text(), ...ANY, ...opts(ISO), tasks: S.list(TASK, { min: 1, section: 'tasks' }) }),
-)
+// A task: the puzzle of its kind.
+const TASK = S.by('kind', Object.fromEntries(Object.entries(BY_KIND).map(([kind, fields]) => [kind, S.obj({
+  kind: S.ref('kind'), ...ANY, carries: S.opt(S.bool({ about: t('接着上一个任务的电路往下做', 'goes on from the last task’s board') })), ...fields,
+})])))
+// A level: its title, introduction and pass text, its place in the course, what its tasks share (how they read, a
+// declaration's sentence and cases), then its tasks.
+const LEVEL = taskLevel({ title: S.text(), intro: S.opt(INTRO), after: AFTER_TEXT, ...COURSE, ...READING, ...opts(ISO) }, TASK)
 
 /* ---------- game.json ---------- */
 

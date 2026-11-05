@@ -1,28 +1,5 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "title": { "zh": "反过来证", "en": "Proving it backwards" },
-  "tests": [
-    { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"], "becomes": [["Rain → Wet; Rain; ¬Wet ⊢ ⊥"]] },
-    { "goal": "Rain ∨ ¬Rain", "becomes": [["¬(Rain ∨ ¬Rain) ⊢ ⊥"]] },
-    {
-      "goal": "Bus → OnTime",
-      "hyps": ["Bus → Up", "Up → OnTime"],
-      "becomes": [["Bus → Up; Up → OnTime; ¬(Bus → OnTime) ⊢ ⊥"]]
-    }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手：每个目标都变成 ⊥，要证的那句的否定放进已知。",
-    "en": "Design a proof assistant that turns each goal into ⊥, with the negation of what was to be proved among the hypotheses."
-  },
-  "hint": [
-    {
-      "zh": "<part-ref to=\"part:raa\"></part-ref>把要证的 C 变成 ¬¬C，也就是 ¬C → ⊥。",
-      "en": "<part-ref to=\"part:raa\"></part-ref> turns C into ¬¬C, that is, ¬C → ⊥."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -31,6 +8,34 @@
       }
     }
   ],
-  "solution": ["c0r0 = raa()", "c1r0 = impI()", "c0 = rule(in, c0r0)", "c1 = rule(c0, c1r0)", "out <- c1"],
-  "naive": ["c0r0 = raa()", "c0 = rule(in, c0r0)", "out <- c0"]
+  "tasks": [
+    {
+      "id": "au-negate",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"], "becomes": [["Rain → Wet; Rain; ¬Wet ⊢ ⊥"]] },
+        { "goal": "Rain ∨ ¬Rain", "becomes": [["¬(Rain ∨ ¬Rain) ⊢ ⊥"]] },
+        {
+          "goal": "Bus → OnTime",
+          "hyps": ["Bus → Up", "Up → OnTime"],
+          "becomes": [["Bus → Up; Up → OnTime; ¬(Bus → OnTime) ⊢ ⊥"]]
+        }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手：每个目标都变成 ⊥，要证的那句的否定放进已知。",
+        "en": "Design a proof assistant that turns each goal into ⊥, with the negation of what was to be proved among the hypotheses."
+      },
+      "hint": [
+        {
+          "zh": "<part-ref to=\"part:raa\"></part-ref>把要证的 C 变成 ¬¬C，也就是 ¬C → ⊥。",
+          "en": "<part-ref to=\"part:raa\"></part-ref> turns C into ¬¬C, that is, ¬C → ⊥."
+        }
+      ],
+      "solution": ["c0r0 = raa()", "c1r0 = impI()", "c0 = rule(in, c0r0)", "c1 = rule(c0, c1r0)", "out <- c1"],
+      "naive": ["c0r0 = raa()", "c0 = rule(in, c0r0)", "out <- c0"]
+    }
+  ]
 }

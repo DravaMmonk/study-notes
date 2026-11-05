@@ -61,12 +61,12 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
   assert.deepEqual(reference, { ok: true, lines: ['apply 套用: solution PASS [2 steps]'] })
 
   const { boards } = (await call('blueprint', { game: GAME, level: 'suppose' })).data
-  assert.deepEqual(boards.map((b) => b.path), ['solution'])
+  assert.deepEqual(boards.map((b) => b.path), ['tasks[0].solution'])
   assert.match(boards[0].text, /^f = impI\[A=A\]\(body: m2\) \{/)
 
-  assert.match((await call('render', { game: GAME, level: 'suppose' })).data.text, /^suppose · Suppose\nkind: "proof"[\s\S]*solution:\n {2}f = impI/)
+  assert.match((await call('render', { game: GAME, level: 'suppose' })).data.text, /^suppose · Suppose\n[\s\S]*tasks\[0\]\.solution:\n {2}f = impI/)
   const svg = (await call('render', { game: GAME, level: 'suppose', format: 'svg' })).data
-  assert.deepEqual(svg.boards.map((b) => b.path), ['solution'])
+  assert.deepEqual(svg.boards.map((b) => b.path), ['tasks[0].solution'])
   assert.match(svg.boards[0].svg, /^<svg [^>]*viewBox[\s\S]*impI[\s\S]*<\/svg>$/)
   assert.equal((await call('render', { game: GAME, level: 'suppose', format: 'png' })).data.rendered, false)
   assert.match((await call('deps', { game: GAME })).data.text, /^flowchart LR/)
@@ -74,7 +74,7 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
 })
 
 test('changing tools: migrate_diff previews, modify refuses a failing changeset and writes a passing one', async () => {
-  const goal = { op: 'level.set', level: 'suppose', path: 'tests[0].goal', value: 'A → (B → C)' }
+  const goal = { op: 'level.set', level: 'suppose', path: 'tasks[0].tests[0].goal', value: 'A → (B → C)' }
   const diff = (await call('migrate_diff', { game: GAME, changeset: { ops: [goal] } })).data
   assert.deepEqual(diff.migration, { version: 2, ops: [{ drop: ['suppose'] }] })
 
@@ -84,14 +84,14 @@ test('changing tools: migrate_diff previews, modify refuses a failing changeset 
   assert.ok(refused.problems.some((p) => p.startsWith('suppose')), refused.problems.join('\n'))
   assert.equal(existsSync(join(root, GAME, 'changes.jsonl')), false)
 
-  const hint = { op: 'text.set', level: 'suppose', path: 'hint[0]', en: 'Set the box’s “Assume” to “today is Saturday”, its first half.' }
+  const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', en: 'Set the box’s “Assume” to “today is Saturday”, its first half.' }
   const preview = (await call('modify', { game: GAME, changeset: { ops: [hint] }, dryRun: true })).data
   assert.equal(preview.ok && !preview.written, true)
   assert.match(preview.diff, new RegExp(`^--- a/${GAME}/levels/suppose.json`))
   const done = (await call('modify', { game: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
   assert.equal(done.written, true, done.problems.join('\n'))
   assert.equal(done.migration, null)
-  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).hint[0].en, hint.en)
+  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.en)
   assert.equal(JSON.parse(readFileSync(join(root, GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
 })
 

@@ -1,21 +1,26 @@
 {
-  "kind": "proof",
   "title": { "zh": "祖先的祖先", "en": "An ancestor’s ancestor" },
-  "consts": ["i", "j", "k"],
-  "tests": [
+  "tasks": [
     {
-      "premises": { "t": "∀x. ∀y. ∀z. R(x, y) ∧ R(y, z) → R(x, z)", "a": "R(i, j)", "b": "R(j, k)" },
-      "goal": "R(i, k)"
+      "id": "q-ancestor",
+      "kind": "proof",
+      "consts": ["i", "j", "k"],
+      "tests": [
+        {
+          "premises": { "t": "∀x. ∀y. ∀z. R(x, y) ∧ R(y, z) → R(x, z)", "a": "R(i, j)", "b": "R(j, k)" },
+          "goal": "R(i, k)"
+        }
+      ],
+      "cases": [{ "R": "Anc" }, { "R": "Older" }],
+      "hint": [{ "zh": "三个 ∀，一个一个取：x 是安，y 是博，z 是茜。", "en": "Three ∀s, taken one at a time: x is Ann, y is Bo, z is Cy." }],
+      "solution": [
+        "e1 = allE[t=i](t)",
+        "c = andI(a, b)",
+        "e2 = allE[t=j](e1)",
+        "e3 = allE[t=k](e2)",
+        "m = mp(e3, c)",
+        "goal <- m"
+      ]
     }
-  ],
-  "cases": [{ "R": "Anc" }, { "R": "Older" }],
-  "hint": [{ "zh": "三个 ∀，一个一个取：x 是安，y 是博，z 是茜。", "en": "Three ∀s, taken one at a time: x is Ann, y is Bo, z is Cy." }],
-  "solution": [
-    "e1 = allE[t=i](t)",
-    "c = andI(a, b)",
-    "e2 = allE[t=j](e1)",
-    "e3 = allE[t=k](e2)",
-    "m = mp(e3, c)",
-    "goal <- m"
   ]
 }

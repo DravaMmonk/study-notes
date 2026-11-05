@@ -1,27 +1,7 @@
 {
-  "kind": "machine",
-  "want": "elim",
-  "inputs": [
-    { "name": "it", "label": { "zh": "它", "en": "It" } },
-    { "name": "ways", "label": { "zh": "引入规则（一串）", "en": "Intro rules (a list)" } }
-  ],
   "title": { "zh": "生成器遇上任取", "en": "The generator meets “any”" },
   "builds": "elimGen",
   "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf", "keepBound"],
-  "tests": [
-    { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
-    { "it": "?A ∨ ?B", "ways": ["⟦?A⟧ ⟹ ?A ∨ ?B", "⟦?B⟧ ⟹ ?A ∨ ?B"], "elim": ["?A ∨ ?B", "⟦?A⟧ ⟹ ?R", "⟦?B⟧ ⟹ ?R"] },
-    { "it": "⊥", "ways": [], "elim": ["⊥"] },
-    { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
-    { "it": "∃y. ?P(y)", "ways": ["⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)"], "elim": ["∃y. ?P(y)", "⋀x. ⟦?P(x)⟧ ⟹ ?R"] }
-  ],
-  "hidden": [
-    {
-      "it": "∃u. ∃v. ?P(u, v)",
-      "ways": ["⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)"],
-      "elim": ["∃u. ∃v. ?P(u, v)", "⋀x y. ⟦?P(x, y)⟧ ⟹ ?R"]
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -36,44 +16,69 @@
       }
     }
   ],
-  "brief": {
-    "zh": "升级消去规则生成器，使引入规则带约束变量时也能生成消去规则。",
-    "en": "Upgrade the elimination rule generator so that it also works when an intro rule has bound variables."
-  },
-  "hint": [
-    {
-      "zh": "比一比「存在」的引入规则和要生成的那种情况：哪一部分没有变？",
-      "en": "Compare the intro rule of “there is” with the case to make: which part stays the same?"
-    }
-  ],
-  "solution": [
-    "r = anyR()",
-    "e = eachOf(ways, body: a) {",
-    "  body {",
-    "    a = keepBound(e.body, body: s) {",
-    "      body {",
-    "        s = swapConcl(a.body, r)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "c = consFront(it, e)",
-    "m = mkRule(c, r)",
-    "out <- m"
-  ],
-  "naive": [
-    "r = anyR()",
-    "e = eachOf(ways, body: s) {",
-    "  body {",
-    "    s = swapConcl(e.body, r)",
-    "  }",
-    "}",
-    "c = consFront(it, e)",
-    "m = mkRule(c, r)",
-    "out <- m"
-  ],
   "after": {
     "zh": "<part-ref to=\"part:exE\"></part-ref>要给那样东西起一个新名字，原因就在这里。",
     "en": "This is why <part-ref to=\"part:exE\"></part-ref> gives that thing a new name."
-  }
+  },
+  "tasks": [
+    {
+      "id": "gen-ex",
+      "kind": "machine",
+      "want": "elim",
+      "inputs": [
+        { "name": "it", "label": { "zh": "它", "en": "It" } },
+        { "name": "ways", "label": { "zh": "引入规则（一串）", "en": "Intro rules (a list)" } }
+      ],
+      "tests": [
+        { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
+        { "it": "?A ∨ ?B", "ways": ["⟦?A⟧ ⟹ ?A ∨ ?B", "⟦?B⟧ ⟹ ?A ∨ ?B"], "elim": ["?A ∨ ?B", "⟦?A⟧ ⟹ ?R", "⟦?B⟧ ⟹ ?R"] },
+        { "it": "⊥", "ways": [], "elim": ["⊥"] },
+        { "it": "?A ↔ ?B", "ways": ["⟦?A → ?B; ?B → ?A⟧ ⟹ ?A ↔ ?B"], "elim": ["?A ↔ ?B", "⟦?A → ?B; ?B → ?A⟧ ⟹ ?R"] },
+        { "it": "∃y. ?P(y)", "ways": ["⋀x. ⟦?P(x)⟧ ⟹ ∃y. ?P(y)"], "elim": ["∃y. ?P(y)", "⋀x. ⟦?P(x)⟧ ⟹ ?R"] }
+      ],
+      "hidden": [
+        {
+          "it": "∃u. ∃v. ?P(u, v)",
+          "ways": ["⋀x y. ⟦?P(x, y)⟧ ⟹ ∃u. ∃v. ?P(u, v)"],
+          "elim": ["∃u. ∃v. ?P(u, v)", "⋀x y. ⟦?P(x, y)⟧ ⟹ ?R"]
+        }
+      ],
+      "brief": {
+        "zh": "升级消去规则生成器，使引入规则带约束变量时也能生成消去规则。",
+        "en": "Upgrade the elimination rule generator so that it also works when an intro rule has bound variables."
+      },
+      "hint": [
+        {
+          "zh": "比一比「存在」的引入规则和要生成的那种情况：哪一部分没有变？",
+          "en": "Compare the intro rule of “there is” with the case to make: which part stays the same?"
+        }
+      ],
+      "solution": [
+        "r = anyR()",
+        "e = eachOf(ways, body: a) {",
+        "  body {",
+        "    a = keepBound(e.body, body: s) {",
+        "      body {",
+        "        s = swapConcl(a.body, r)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "c = consFront(it, e)",
+        "m = mkRule(c, r)",
+        "out <- m"
+      ],
+      "naive": [
+        "r = anyR()",
+        "e = eachOf(ways, body: s) {",
+        "  body {",
+        "    s = swapConcl(e.body, r)",
+        "  }",
+        "}",
+        "c = consFront(it, e)",
+        "m = mkRule(c, r)",
+        "out <- m"
+      ]
+    }
+  ]
 }

@@ -52,17 +52,17 @@ test('the bridge lists the tools, and says what is wrong with a call', async () 
 test('a pending changeset previewed: its content, lines by level, migration and files, nothing written', async () => {
   const before = onDisk('levels/suppose.json')
   const ops = [
-    { op: 'text.set', level: 'suppose', path: 'brief', en: 'Prove it with a box.' },
+    { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', en: 'Prove it with a box.' },
     { op: 'level.move', level: 'suppose', to: { before: 'apply', on: 'path' } },
   ]
   const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
   assert.equal(status, 200)
   assert.equal(body.failed, null)
-  assert.equal(body.content.levels.find((l) => l.id === 'suppose').brief.en, 'Prove it with a box.')
+  assert.equal(body.content.levels.find((l) => l.id === 'suppose').tasks[0].brief.en, 'Prove it with a box.')
   assert.ok(body.order.includes('suppose') && body.lines.every((l) => Array.isArray(l.levels)))
   assert.ok(body.lines.some((l) => l.levels.includes('suppose') && /^suppose /.test(l.text)), 'a domain line is about its level')
   assert.deepEqual(body.changes.map((c) => c.file).sort(), [`${GAME}/game.json`, `${GAME}/levels/suppose.json`])
-  assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).brief.en, 'Prove it with a box.')
+  assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).tasks[0].brief.en, 'Prove it with a box.')
   assert.ok(body.migration === null || body.migration.version >= 2)
   assert.equal(onDisk('levels/suppose.json'), before, 'a preview writes nothing')
 
@@ -73,11 +73,11 @@ test('a pending changeset previewed: its content, lines by level, migration and 
 })
 
 test('a board seeded for the game, drawn as SVG', async () => {
-  const seed = (await post('seed', { game: GAME, level: 'suppose' })).body
-  assert.equal(seed.task, null)
+  const seed = (await post('seed', { game: GAME, level: 'suppose', path: 'tasks[0].solution' })).body
+  assert.equal(seed.task, 0)
   assert.ok(Array.isArray(seed.data.nodes) && seed.data.nodes.some((n) => n.type === 'impI'), JSON.stringify(seed).slice(0, 300))
   const text = [`# blueprint 1 ${GAME} suppose`, 'f = impI[A=A](body: z) {', '  body {', '    m1 = mp(p, f.body)', '    z = mp(q, m1)', '  }', '}', 'goal <- f'].join('\n')
-  const changed = (await post('seed', { game: GAME, level: 'suppose', changeset: { ops: [{ op: 'level.blueprint', level: 'suppose', text }] } })).body
+  const changed = (await post('seed', { game: GAME, level: 'suppose', path: 'tasks[0].solution', changeset: { ops: [{ op: 'level.blueprint', level: 'suppose', path: 'tasks[0].solution', text }] } })).body
   assert.ok(changed.data.nodes.some((n) => n.id === 'z'), 'seeded from the content as the changeset leaves it')
   const { boards } = (await post('render', { game: GAME, level: 'suppose', format: 'svg' })).body
   assert.match(boards[0].svg, /^<svg/)
@@ -85,7 +85,7 @@ test('a board seeded for the game, drawn as SVG', async () => {
 
 test('apply, read the log, undo: the content comes back as it was', async () => {
   const before = onDisk('levels/given.json')
-  const ops = [{ op: 'text.set', level: 'given', path: 'brief', en: 'Given that “today is Saturday”, prove it.' }]
+  const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', en: 'Given that “today is Saturday”, prove it.' }]
   const done = (await post('modify', { game: GAME, changeset: { why: 'a shorter brief', ops } })).body
   assert.equal(done.written, true, done.problems.join('\n'))
   assert.notEqual(onDisk('levels/given.json'), before)

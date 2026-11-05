@@ -1,10 +1,6 @@
 {
-  "kind": "proof",
   "title": { "zh": "接起来", "en": "Join them" },
-  "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
-  "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
   "builds": "chain",
-  "hint": [{ "zh": "目标是一句「若下雨，则…」。", "en": "The goal is “if it rains, then …”." }],
   "intro": [
     {
       "t": {
@@ -19,17 +15,26 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=A](body: m2) {",
-    "  body {",
-    "    m1 = mp(p, f.body)",
-    "    m2 = mp(q, m1)",
-    "  }",
-    "}",
-    "goal <- f"
-  ],
   "after": {
     "zh": "证出来、留着再用的结论叫<wiki-ref to=\"lemma\"></wiki-ref>。这样的元件只是给一段证明起的名字，即<wiki-ref to=\"definition\"></wiki-ref>，不增加能证的东西。",
     "en": "A proved result kept for reuse is a <wiki-ref to=\"lemma\"></wiki-ref>. Such a part is only a name for a proof, a <wiki-ref to=\"definition\"></wiki-ref>, and adds nothing to what can be proved."
-  }
+  },
+  "tasks": [
+    {
+      "id": "chain",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
+      "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
+      "hint": [{ "zh": "目标是一句「若下雨，则…」。", "en": "The goal is “if it rains, then …”." }],
+      "solution": [
+        "f = impI[A=A](body: m2) {",
+        "  body {",
+        "    m1 = mp(p, f.body)",
+        "    m2 = mp(q, m1)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
 }

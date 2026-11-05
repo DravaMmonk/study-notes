@@ -1,15 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "逆否", "en": "Contrapositive" },
-  "tests": [{ "goal": "(A → B) → (¬B → ¬A)" }],
-  "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
-  "hint": [
-    { "zh": "两个 →，两个框，一个套一个。", "en": "Two →s, two boxes, one inside the other." },
-    {
-      "zh": "里面的框看得见「下雨 → 地湿」和「¬地湿」，也就是「地湿 → ⊥」。",
-      "en": "The inner box sees “it rains → the ground is wet” and “¬the ground is wet”, that is “wet → ⊥”."
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -18,16 +8,31 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=\"A -> B\"](body: g) {",
-    "  body {",
-    "    g = impI[A=\"~B\"](body: t) {",
-    "      body {",
-    "        t = chain(f.body, g.body)",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "goal <- f"
+  "tasks": [
+    {
+      "id": "contra",
+      "kind": "proof",
+      "tests": [{ "goal": "(A → B) → (¬B → ¬A)" }],
+      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
+      "hint": [
+        { "zh": "两个 →，两个框，一个套一个。", "en": "Two →s, two boxes, one inside the other." },
+        {
+          "zh": "里面的框看得见「下雨 → 地湿」和「¬地湿」，也就是「地湿 → ⊥」。",
+          "en": "The inner box sees “it rains → the ground is wet” and “¬the ground is wet”, that is “wet → ⊥”."
+        }
+      ],
+      "solution": [
+        "f = impI[A=\"A -> B\"](body: g) {",
+        "  body {",
+        "    g = impI[A=\"~B\"](body: t) {",
+        "      body {",
+        "        t = chain(f.body, g.body)",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
   ]
 }

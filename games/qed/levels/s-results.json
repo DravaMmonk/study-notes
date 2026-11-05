@@ -1,19 +1,9 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
-  "backtrack": true,
   "title": { "zh": "一串结果", "en": "A run of results" },
   "showcase": {
     "zh": "一个元件现在给出所有对得上的结果，按顺序排成一串；后面的元件对每一种都做一遍，走不通的那几种自己消失：这就是回溯，光看说明想不到后面的元件会替前面的元件收拾残局",
     "en": "a part now gives every result that fits, in order; each later part works on each of them, and those that lead nowhere drop out: this is backtracking, and from the description alone one does not guess that later parts clear up after earlier ones"
   },
-  "tests": [
-    { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(k)", "Human(j)", "Likes(j, i)"] },
-    { "goal": "∃x. Likes(x, i) ∧ Likes(x, j)", "hyps": ["Likes(k, i)", "Likes(m, j)", "Likes(l, j)", "Likes(l, i)"] }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "不必再用目标后移。", "en": "There is no need to defer." }],
   "intro": [
     {
       "t": {
@@ -28,17 +18,32 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = exI()",
-    "c1r0 = andI()",
-    "c0 = rule(in, c0r0)",
-    "c1 = rule(c0, c1r0)",
-    "c2 = assumption(c1)",
-    "c3 = assumption(c2)",
-    "out <- c3"
-  ],
   "after": {
     "zh": "这叫<wiki-ref to=\"backtracking\"></wiki-ref>。",
     "en": "This is <wiki-ref to=\"backtracking\"></wiki-ref>."
-  }
+  },
+  "tasks": [
+    {
+      "id": "s-results",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "backtrack": true,
+      "tests": [
+        { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(k)", "Human(j)", "Likes(j, i)"] },
+        { "goal": "∃x. Likes(x, i) ∧ Likes(x, j)", "hyps": ["Likes(k, i)", "Likes(m, j)", "Likes(l, j)", "Likes(l, i)"] }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "不必再用目标后移。", "en": "There is no need to defer." }],
+      "solution": [
+        "c0r0 = exI()",
+        "c1r0 = andI()",
+        "c0 = rule(in, c0r0)",
+        "c1 = rule(c0, c1r0)",
+        "c2 = assumption(c1)",
+        "c3 = assumption(c2)",
+        "out <- c3"
+      ]
+    }
+  ]
 }

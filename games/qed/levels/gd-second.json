@@ -1,20 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "证不了自己不矛盾", "en": "It cannot prove itself consistent" },
-  "consts": ["g", "gn", "cs"],
-  "words": ["goedel"],
-  "cases": [],
-  "tests": [
-    {
-      "premises": { "f1": "Prov(cs) → Prov(gn)", "f2": "Prov(gn) → Prov(g)", "first": "¬Prov(g)" },
-      "goal": "¬Prov(cs)"
-    }
-  ],
-  "brief": {
-    "zh": "从这三句已知证出：「证明器不矛盾」证不出。",
-    "en": "From these three givens, prove: “the prover is consistent” cannot be proved."
-  },
-  "hint": [{ "zh": "假设它证得出。", "en": "Assume it can be proved." }],
   "intro": [
     {
       "t": {
@@ -23,18 +8,38 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=\"Prov(cs)\"](body: m3) {",
-    "  body {",
-    "    m1 = mp(f1, f.body)",
-    "    m2 = mp(f2, m1)",
-    "    m3 = mp(first, m2)",
-    "  }",
-    "}",
-    "goal <- f"
-  ],
   "after": {
     "zh": "这是第二不完备性定理，它让希尔伯特「用有限的方法证明数学不矛盾」的计划落了空。所以 Lean、Isabelle 这样的证明助手不去证自己可靠，而是把要信任的东西压到最小：一个很小的核和几条公理。",
     "en": "This is the second incompleteness theorem, which ended Hilbert’s programme of proving mathematics consistent by finite means. So proof assistants such as Lean and Isabelle do not prove themselves sound; they keep what must be trusted as small as can be: a little kernel and a few axioms."
-  }
+  },
+  "tasks": [
+    {
+      "id": "gd-second",
+      "kind": "proof",
+      "consts": ["g", "gn", "cs"],
+      "words": ["goedel"],
+      "cases": [],
+      "tests": [
+        {
+          "premises": { "f1": "Prov(cs) → Prov(gn)", "f2": "Prov(gn) → Prov(g)", "first": "¬Prov(g)" },
+          "goal": "¬Prov(cs)"
+        }
+      ],
+      "brief": {
+        "zh": "从这三句已知证出：「证明器不矛盾」证不出。",
+        "en": "From these three givens, prove: “the prover is consistent” cannot be proved."
+      },
+      "hint": [{ "zh": "假设它证得出。", "en": "Assume it can be proved." }],
+      "solution": [
+        "f = impI[A=\"Prov(cs)\"](body: m3) {",
+        "  body {",
+        "    m1 = mp(f1, f.body)",
+        "    m2 = mp(f2, m1)",
+        "    m3 = mp(first, m2)",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
+  ]
 }

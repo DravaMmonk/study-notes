@@ -1,15 +1,6 @@
 {
-  "kind": "machine",
-  "want": "proved",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "adds": ["frule"],
   "title": { "zh": "同一条用两次", "en": "The same given twice" },
-  "tests": [
-    { "goal": "Even(s(s(s(s(zero)))))", "hyps": ["∀x. Even(x) → Even(s(s(x)))", "Even(zero)"] },
-    { "goal": "Odd(s(s(s(s(s(zero))))))", "hyps": ["∀x. Odd(x) → Odd(s(s(x)))", "Odd(s(zero))"] }
-  ],
-  "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-  "hint": [{ "zh": "「对所有」那一句，用一次够吗？", "en": "Is one use of the “for all” given enough?" }],
   "intro": [
     {
       "t": {
@@ -18,16 +9,30 @@
       }
     }
   ],
-  "solution": [
-    "c0r0 = allE[use=[spec]]()",
-    "c1r0 = allE[use=[spec]]()",
-    "c2r0 = mp[use=[mp]]()",
-    "c3r0 = mp[use=[mp]]()",
-    "c0 = frule(in, c0r0)",
-    "c1 = frule(c0, c1r0)",
-    "c2 = erule(c1, c2r0)",
-    "c3 = erule(c2, c3r0)",
-    "c4 = assumption(c3)",
-    "out <- c4"
+  "tasks": [
+    {
+      "id": "r-frule",
+      "kind": "machine",
+      "want": "proved",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [
+        { "goal": "Even(s(s(s(s(zero)))))", "hyps": ["∀x. Even(x) → Even(s(s(x)))", "Even(zero)"] },
+        { "goal": "Odd(s(s(s(s(s(zero))))))", "hyps": ["∀x. Odd(x) → Odd(s(s(x)))", "Odd(s(zero))"] }
+      ],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "zh": "「对所有」那一句，用一次够吗？", "en": "Is one use of the “for all” given enough?" }],
+      "solution": [
+        "c0r0 = allE[use=[spec]]()",
+        "c1r0 = allE[use=[spec]]()",
+        "c2r0 = mp[use=[mp]]()",
+        "c3r0 = mp[use=[mp]]()",
+        "c0 = frule(in, c0r0)",
+        "c1 = frule(c0, c1r0)",
+        "c2 = erule(c1, c2r0)",
+        "c3 = erule(c2, c3r0)",
+        "c4 = assumption(c3)",
+        "out <- c4"
+      ]
+    }
   ]
 }

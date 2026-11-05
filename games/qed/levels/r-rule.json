@@ -1,28 +1,10 @@
 {
-  "kind": "machine",
-  "want": "becomes",
-  "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
   "title": { "zh": "逆用规则", "en": "A rule backwards" },
   "adds": ["rule"],
   "showcase": {
     "zh": "逆用规则不是从已知往下推，而是对着目标往回推：目标和规则的结论合一，换成规则的前提",
     "en": "the rule part does not reason down from what is known but back from the goal: the goal is unified with the rule’s conclusion and replaced by its premises"
   },
-  "tests": [
-    { "goal": "Rain → (Wind → Rain)", "becomes": [["Rain ⊢ Wind → Rain"]] },
-    { "goal": "Wet → Slip", "becomes": [["Wet ⊢ Slip"]] },
-    { "goal": "Rain ∧ Wet → Slip", "becomes": [["Rain ∧ Wet ⊢ Slip"]] }
-  ],
-  "brief": {
-    "zh": "设计一个证明助手，把每一个目标变成要的样子。",
-    "en": "Design a proof assistant that turns each goal into the one wanted."
-  },
-  "hint": [
-    {
-      "zh": "三个目标都是「若…则…」。证明核里，哪条规则造出「若…则…」？",
-      "en": "The three goals are all “if … then …”. Which of the kernel’s rules makes an “if … then …”?"
-    }
-  ],
   "intro": [
     {
       "t": {
@@ -37,5 +19,28 @@
       }
     }
   ],
-  "solution": ["c0r0 = impI()", "c0 = rule(in, c0r0)", "out <- c0"]
+  "tasks": [
+    {
+      "id": "r-rule",
+      "kind": "machine",
+      "want": "becomes",
+      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "tests": [
+        { "goal": "Rain → (Wind → Rain)", "becomes": [["Rain ⊢ Wind → Rain"]] },
+        { "goal": "Wet → Slip", "becomes": [["Wet ⊢ Slip"]] },
+        { "goal": "Rain ∧ Wet → Slip", "becomes": [["Rain ∧ Wet ⊢ Slip"]] }
+      ],
+      "brief": {
+        "zh": "设计一个证明助手，把每一个目标变成要的样子。",
+        "en": "Design a proof assistant that turns each goal into the one wanted."
+      },
+      "hint": [
+        {
+          "zh": "三个目标都是「若…则…」。证明核里，哪条规则造出「若…则…」？",
+          "en": "The three goals are all “if … then …”. Which of the kernel’s rules makes an “if … then …”?"
+        }
+      ],
+      "solution": ["c0r0 = impI()", "c0 = rule(in, c0r0)", "out <- c0"]
+    }
+  ]
 }

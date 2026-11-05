@@ -1,12 +1,5 @@
 {
-  "kind": "proof",
   "title": { "zh": "同一个条件说两遍", "en": "The same condition twice" },
-  "tests": [{ "premises": { "p": "A → (A → B)" }, "goal": "A → B" }],
-  "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Hungry", "B": "Eat" }],
-  "hint": [
-    { "zh": "目标是一句「若下雨，则…」。", "en": "The goal is “if it rains, then …”." },
-    { "zh": "框里的一句假设能用几次？", "en": "How many times can an assumption in a box be used?" }
-  ],
   "intro": [
     {
       "t": {
@@ -16,14 +9,26 @@
     }
   ],
   "builds": "merge",
-  "solution": [
-    "f = impI[A=A](body: m2) {",
-    "  body {",
-    "    m1 = mp(p, f.body)",
-    "    m2 = mp(m1, f.body)",
-    "  }",
-    "}",
-    "goal <- f"
-  ],
-  "naive": ["m = mp(p, p)", "goal <- m"]
+  "tasks": [
+    {
+      "id": "twice",
+      "kind": "proof",
+      "tests": [{ "premises": { "p": "A → (A → B)" }, "goal": "A → B" }],
+      "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Hungry", "B": "Eat" }],
+      "hint": [
+        { "zh": "目标是一句「若下雨，则…」。", "en": "The goal is “if it rains, then …”." },
+        { "zh": "框里的一句假设能用几次？", "en": "How many times can an assumption in a box be used?" }
+      ],
+      "solution": [
+        "f = impI[A=A](body: m2) {",
+        "  body {",
+        "    m1 = mp(p, f.body)",
+        "    m2 = mp(m1, f.body)",
+        "  }",
+        "}",
+        "goal <- f"
+      ],
+      "naive": ["m = mp(p, p)", "goal <- m"]
+    }
+  ]
 }

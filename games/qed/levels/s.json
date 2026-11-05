@@ -1,13 +1,6 @@
 {
-  "kind": "proof",
   "title": { "zh": "在条件下套用", "en": "Apply under a condition" },
-  "tests": [{ "goal": "(A → (B → C)) → ((A → B) → (A → C))" }],
-  "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
   "builds": "axS",
-  "hint": [
-    { "zh": "数一数最外层有几个 →。", "en": "Count the outermost →s." },
-    { "zh": "最里面的框里，三个假设都看得见。", "en": "Inside the innermost box, all three assumptions are visible." }
-  ],
   "intro": [
     {
       "t": {
@@ -16,22 +9,34 @@
       }
     }
   ],
-  "solution": [
-    "f = impI[A=\"A -> (B -> C)\"](body: g) {",
-    "  body {",
-    "    g = impI[A=\"A -> B\"](body: h) {",
-    "      body {",
-    "        h = impI[A=A](body: m3) {",
-    "          body {",
-    "            m1 = mp(f.body, h.body)",
-    "            m2 = mp(g.body, h.body)",
-    "            m3 = mp(m1, m2)",
-    "          }",
-    "        }",
-    "      }",
-    "    }",
-    "  }",
-    "}",
-    "goal <- f"
+  "tasks": [
+    {
+      "id": "s",
+      "kind": "proof",
+      "tests": [{ "goal": "(A → (B → C)) → ((A → B) → (A → C))" }],
+      "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
+      "hint": [
+        { "zh": "数一数最外层有几个 →。", "en": "Count the outermost →s." },
+        { "zh": "最里面的框里，三个假设都看得见。", "en": "Inside the innermost box, all three assumptions are visible." }
+      ],
+      "solution": [
+        "f = impI[A=\"A -> (B -> C)\"](body: g) {",
+        "  body {",
+        "    g = impI[A=\"A -> B\"](body: h) {",
+        "      body {",
+        "        h = impI[A=A](body: m3) {",
+        "          body {",
+        "            m1 = mp(f.body, h.body)",
+        "            m2 = mp(g.body, h.body)",
+        "            m3 = mp(m1, m2)",
+        "          }",
+        "        }",
+        "      }",
+        "    }",
+        "  }",
+        "}",
+        "goal <- f"
+      ]
+    }
   ]
 }

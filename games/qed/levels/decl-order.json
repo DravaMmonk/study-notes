@@ -1,16 +1,5 @@
 {
-  "kind": "iso",
   "title": { "zh": "换个顺序", "en": "The other order" },
-  "declare": { "zh": "并且", "en": "and" },
-  "target": "Rain ∧ Wind",
-  "sentences": ["Rain", "Wind"],
-  "tests": [
-    { "given": ["Rain", "Wind"], "make": true },
-    { "given": ["Rain"], "make": false },
-    { "given": ["Wind"], "make": false },
-    { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true },
-    { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false }
-  ],
   "intro": [
     {
       "t": {
@@ -25,28 +14,44 @@
       }
     }
   ],
-  "play": "audit",
-  "want": "agree",
-  "boards": [
-    { "rules": [{ "binds": [], "needs": ["Rain", "Wind"] }] },
-    { "rules": [{ "binds": [], "needs": ["Wind", "Rain"] }] }
-  ],
-  "slots": [
-    { "make": true, "fixed": ["goal", "make"] },
-    { "given": ["Rain ∧ Wind"], "keep": ["Rain ∧ Wind"], "make": true, "fixed": ["make"] }
-  ],
-  "answer": [{ "given": ["Rain", "Wind"], "make": true }, { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true }],
-  "naive": [{ "given": ["Rain"], "make": true }, { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true }],
-  "brief": {
-    "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，两份声明的结果都和预期相符。",
-    "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write two test cases whose expectations meet the requirement and with which both declarations’ results agree."
-  },
-  "hint": [
-    { "zh": "引入「并且」要哪几样？有了「并且」，能拆出哪几句？", "en": "What does introducing “and” need? What can be taken out of an “and”?" }
-  ],
-  "solution": [{ "binds": [], "needs": ["Rain", "Wind"] }],
   "after": {
     "zh": "检验条例只看推得出什么，看不出规则的写法；证明核却只认写下来的那一条。",
     "en": "Test cases see only what can be derived, not how a rule is written; the kernel keeps to the rule written down."
-  }
+  },
+  "tasks": [
+    {
+      "id": "decl-order",
+      "kind": "iso",
+      "declare": { "zh": "并且", "en": "and" },
+      "target": "Rain ∧ Wind",
+      "sentences": ["Rain", "Wind"],
+      "tests": [
+        { "given": ["Rain", "Wind"], "make": true },
+        { "given": ["Rain"], "make": false },
+        { "given": ["Wind"], "make": false },
+        { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true },
+        { "given": ["Rain ∧ Wind"], "goal": "Wet", "make": false }
+      ],
+      "play": "audit",
+      "want": "agree",
+      "boards": [
+        { "rules": [{ "binds": [], "needs": ["Rain", "Wind"] }] },
+        { "rules": [{ "binds": [], "needs": ["Wind", "Rain"] }] }
+      ],
+      "slots": [
+        { "make": true, "fixed": ["goal", "make"] },
+        { "given": ["Rain ∧ Wind"], "keep": ["Rain ∧ Wind"], "make": true, "fixed": ["make"] }
+      ],
+      "answer": [{ "given": ["Rain", "Wind"], "make": true }, { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true }],
+      "naive": [{ "given": ["Rain"], "make": true }, { "given": ["Rain ∧ Wind"], "goal": "Rain", "make": true }],
+      "brief": {
+        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，两份声明的结果都和预期相符。",
+        "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write two test cases whose expectations meet the requirement and with which both declarations’ results agree."
+      },
+      "hint": [
+        { "zh": "引入「并且」要哪几样？有了「并且」，能拆出哪几句？", "en": "What does introducing “and” need? What can be taken out of an “and”?" }
+      ],
+      "solution": [{ "binds": [], "needs": ["Rain", "Wind"] }]
+    }
+  ]
 }

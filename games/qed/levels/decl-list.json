@@ -1,15 +1,5 @@
 {
-  "kind": "iso",
-  "words": ["everyday", "terms"],
   "title": { "zh": "声明列表", "en": "Declaring lists" },
-  "declare": { "zh": "列表", "en": "a list" },
-  "target": "List",
-  "sentences": ["List"],
-  "things": ["i", "j"],
-  "thing": true,
-  "datatype": { "type": "list", "ctors": ["nil", "cons"], "args": { "List": "list" } },
-  "ways": [[], ["⋀x", "List"]],
-  "tests": [{ "given": [], "make": true }, { "given": ["List"], "make": true, "uses": ["List"] }],
   "intro": [
     {
       "t": {
@@ -18,11 +8,26 @@
       }
     }
   ],
-  "brief": {
-    "zh": "需求：什么都没有，也造得出一个列表（空列表）；任取一样东西，再有一个列表，就造得出把它放在前面的列表。写出列表的声明。",
-    "en": "Requirement: a list can be made from nothing (the empty list); taking any thing and a list, the list with that thing in front can be made. Write the declaration of lists."
-  },
-  "hint": [{ "zh": "第二种造法要两样：一样东西，和一个列表。", "en": "The second way needs two things: a thing, and a list." }],
-  "solution": [{ "binds": [], "needs": [] }, { "binds": ["x"], "needs": ["List"] }],
-  "naive": [{ "binds": [], "needs": [] }, { "binds": [], "needs": ["List"] }]
+  "tasks": [
+    {
+      "id": "decl-list",
+      "kind": "iso",
+      "words": ["everyday", "terms"],
+      "declare": { "zh": "列表", "en": "a list" },
+      "target": "List",
+      "sentences": ["List"],
+      "things": ["i", "j"],
+      "thing": true,
+      "datatype": { "type": "list", "ctors": ["nil", "cons"], "args": { "List": "list" } },
+      "ways": [[], ["⋀x", "List"]],
+      "tests": [{ "given": [], "make": true }, { "given": ["List"], "make": true, "uses": ["List"] }],
+      "brief": {
+        "zh": "需求：什么都没有，也造得出一个列表（空列表）；任取一样东西，再有一个列表，就造得出把它放在前面的列表。写出列表的声明。",
+        "en": "Requirement: a list can be made from nothing (the empty list); taking any thing and a list, the list with that thing in front can be made. Write the declaration of lists."
+      },
+      "hint": [{ "zh": "第二种造法要两样：一样东西，和一个列表。", "en": "The second way needs two things: a thing, and a list." }],
+      "solution": [{ "binds": [], "needs": [] }, { "binds": ["x"], "needs": ["List"] }],
+      "naive": [{ "binds": [], "needs": [] }, { "binds": [], "needs": ["List"] }]
+    }
+  ]
 }
