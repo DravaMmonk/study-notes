@@ -29,7 +29,7 @@ export const LOG = 'changes.jsonl'
  * level after the one before it), and what each builds.
  */
 function courseOf(domain, content) {
-  if (checkContent(domain.vocabulary, content).length) return null
+  if (checkContent(domain, content).length) return null
   const { course } = domain.spec(content)
   const levels = course.levels.map((l, k) => ({ id: l.id, requires: course.plan ? course.plan.requires.get(l.id) ?? [] : k ? [course.levels[k - 1].id] : [] }))
   return { levels, builds: (id) => (course.index.has(id) ? course.builds(course.levels[course.index.get(id)]) : []) }
@@ -77,6 +77,17 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     }
   }
 
+  // Whatever throws from here on (a domain's spec or checks) leaves the workspace as it was found.
+  try {
+    return await settle({ ws, changeset, domain, content0, start, says, inverse, idOps, placed, own, fail, write, check, undoes })
+  } catch (error) {
+    ws.restore(start)
+    throw error
+  }
+}
+
+// The save step, the whole game's check, and the write or the restore, after every operation of a changeset has run.
+async function settle({ ws, changeset, domain, content0, start, says, inverse, idOps, placed, own, fail, write, check, undoes }) {
   // The save step: the operations' own ops, the boards that no longer apply, new prerequisites, new builds.
   const notes = []
   const before = courseOf(domain, content0)
@@ -111,7 +122,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   const content = ws.content()
   // The hub's count goes with the change (workspace.js), so it is checked against the levels there are now.
   const listed = hubCount(ws.hub, ws.id) === null ? null : ws.levels.size
-  const lines = check ? await checkGame(content, { domain, listed }) : checkContent(domain.vocabulary, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
+  const lines = check ? await checkGame(content, { domain, listed }) : checkContent(domain, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
   const changes = ws.changes()
   const diff = ws.diff()

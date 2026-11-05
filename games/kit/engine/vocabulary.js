@@ -9,6 +9,8 @@
 //             (schema.js), absent for an item that takes none
 //   game      the schema of a game's game.json
 //   level     the schema of one level (levels/<id>.json; its id is the file's name)
+//   languages { lang: { about } }   the small languages content writes in (S.syntax(lang)); the domain module reads
+//             them (its `languages`: { lang: (text) → why it cannot be read, or null }, never throwing on bad text)
 // })
 //
 // A domain whose kinds hold engine resources (`op`, run by its ops.js) defines its parts as data: each of its games
@@ -52,8 +54,8 @@ export const SAVES = S.list(S.obj({
   )),
 }))
 
-export function defineVocabulary({ domain, version, kinds, game, level }) {
-  return { domain, version, kinds, game, level }
+export function defineVocabulary({ domain, version, kinds, game, level, languages = {} }) {
+  return { domain, version, kinds, game, level, languages }
 }
 
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
@@ -61,10 +63,10 @@ export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
 
 /**
  * Every place a game's content (content.js assemble) does not fit its domain's vocabulary, as [{ at, says }]: the
- * file and the path in it. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
+ * file and the path in it. `domain`: the domain module, its vocabulary and the readers of its languages. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
  * that task ids are unique in a game and never another level's (tasks.js).
  */
-export function checkContent(domainVocabulary, content) {
+export function checkContent({ vocabulary: domainVocabulary, languages = {} }, content) {
   const out = []
   const vocabulary = withParts(domainVocabulary, content.partDefs)
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
@@ -74,9 +76,9 @@ export function checkContent(domainVocabulary, content) {
   const ids = new Set(levels.map((l) => l.id))
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })
-  add(validate(vocabulary.game, game, { vocabulary, levels: ids }), 'game.json')
+  add(validate(vocabulary.game, game, { vocabulary, levels: ids, languages }), 'game.json')
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
-  for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids }), `levels/${levelId}.json`)
+  for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids, languages }), `levels/${levelId}.json`)
   out.push(...taskIdProblems(levels))
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')

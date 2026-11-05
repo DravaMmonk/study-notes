@@ -44,7 +44,7 @@ for (const mechanism of mechanisms()) {
       assert.deepEqual(contract.domainProblems(name, domain), [])
       for (const id of [name, `${name}-two`, `${name}-docs`]) {
         const content = readContent(id, root)
-        assert.deepEqual(checkContent(domain.vocabulary, content), [])
+        assert.deepEqual(checkContent(domain, content), [])
         const spec = domain.spec(content)
         assert.deepEqual(audit(spec.course), [])
         assert.deepEqual(contract.specProblems(domain, content, spec), [])

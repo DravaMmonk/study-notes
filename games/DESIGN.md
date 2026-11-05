@@ -542,7 +542,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 每个领域给出一份**词汇表**（`kit/domains/<领域>/vocabulary.js`，用内核的 `defineVocabulary`）：领域里能被内容引用的每一样东西是一个**项**，按种类（原始元件、世界、机体、玩法、引言图、诊断条件、倒推路线、通关面板、存档迁移……）分组，每一项带一句说明和参数的 schema；再加上 `game.json` 和一关的 schema（一关的字段按它的玩法分开，`S.by('mode', …)`）。
 
-- **schema 是数据**（`kit/engine/schema.js`），可以带给编辑者看的提示（`view`、`step`、`section`，第 6.7 节）：`S.text()`、`S.num()`、`S.list()`、`S.obj()`、`S.ref('world')`（某一种的一个项的名字）、`S.call('condition')`（一个项和它的参数）、`S.level()`（这款游戏的一关的 id）、`S.board()`（一块板的蓝图文本）……所以整份词汇表能打印成 JSON（`describe`），给写内容的 agent 和以后的 studio 看，它们不需要读领域代码就知道能写什么。
+- **schema 是数据**（`kit/engine/schema.js`），可以带给编辑者看的提示（`view`、`step`、`section`，第 6.7 节）：`S.text()`、`S.num()`、`S.list()`、`S.obj()`、`S.ref('world')`（某一种的一个项的名字）、`S.call('condition')`（一个项和它的参数）、`S.level()`（这款游戏的一关的 id）、`S.board()`（一块板的蓝图文本）、`S.syntax('formula')`（领域小语言里的一段文字：公式、证明项……，领域在 `domain.js` 的 `languages` 里给出读它的函数，读不进时按文件和字段路径报告，不抛出）……所以整份词汇表能打印成 JSON（`describe`），给写内容的 agent 和以后的 studio 看，它们不需要读领域代码就知道能写什么。
 - **提到一关的地方都写成 `S.level()`**：课程的各项（`eras` 里的关、`after`、挑战）、`carry`、百科的 `at`、元件说明的 `at`/`by`……检查时它必须是这款游戏的一关；操作集按它找出一关被提到的每一处（再加文字里的 `<level-ref>` 和 `open` 的 `元件@关卡`），改名、删关才不漏。存档迁移里写的是旧版本的 id，不用它。一块板写成 `S.board()`，操作集和 MCP 按它找出一关的每块板。
 - **封闭**：内容只能由词汇表里的项组合出来。要一样词汇表里没有的东西，就加一个项（领域代码，走代码审查），不在内容里绕路。
 - **粒度**：一个项是玩家在屏幕上能指着说「那个东西」的一个概念：一种元件、一种世界、一种玩法、一种图。只有实现细节能区分的，合成一项加参数。
@@ -556,7 +556,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | 给出 | 形状 | 契约测试查什么 |
 |---|---|---|
 | `domain.js` 默认导出 | `{ vocabulary, spec, validate }`，node 下能跑，不碰界面；工具加的钩子也挂在这里，登记在 `contract.js` 的 `EXTENSIONS`（连同每个钩子要的形状）：操作集的 `changes`（`stale(旧关, 新关)`：这次改动让玩家存下的板不再适用，内核去掉这一关每个任务的板）、文字里的一关 `play`、无头画一关的 `scene(spec, 关卡)`（返回 SVG 文本或 `null`，MCP 的 `render` 和 studio 用，第 6.7 节） | 三个入口都在，没有不认识的键 |
-| `vocabulary` | `defineVocabulary`（第 6.2 节）：种类 → 项（`about` 说明它是什么，`params` 参数的 schema），加 `game`、`level` 两个 schema | `domain` 就是文件夹名，版本从 1 起；每一项有说明；schema 只用 `schema.js` 的类型，`ref`、`call` 指向存在的种类；整份是数据（没有函数），`describe` 打印出来就是它自己；游戏的内容合它（`checkContent`） |
+| `vocabulary` | `defineVocabulary`（第 6.2 节）：种类 → 项（`about` 说明它是什么，`params` 参数的 schema），加 `game`、`level` 两个 schema | `domain` 就是文件夹名，版本从 1 起；每一项有说明；schema 只用 `schema.js` 的类型，`ref`、`call` 指向存在的种类；整份是数据（没有函数），`describe` 打印出来就是它自己；`languages` 列出领域的小语言（每种一句 `about`），`domain.js` 的 `languages` 给出每种的读法，两边一一对应；游戏的内容合它（`checkContent`） |
 | `spec(content)` | `{ id, domain, title, course, levels, texts?, quotes?, audit?(), blueprints?, syncOwn?, builtIn? }`：`course` 是 `defineCourse` 的结果，`levels` 按游玩顺序，每关有 `id`、`title`、`requires` | id、标题、关卡集合和内容一致，课程的关卡就是 `levels` 的顺序；`audit()` 报 `{ rule, level, part }` |
 | 课程钩子（`kit/course.js` 的 `defineCourse`） | `adds`、`builds`、`granted`、`uses`、`folds`、`declares` 给名字的列表；`needed` 给列表或 `null`；`boards` 给板的列表；`machine`、`world`、`concept`、`needs` 给名字或 `null`；`can` 给列表或 `null`；`naive`、`local` 给真假；`showcase` 给理由或 `null`；`replaces` 给列表 | 每一关、每个元件上都按形状调用一遍，审计只报认识的规则 |
 | `spec.blueprints` | 内容里写成蓝图文本的每一块板：`{ level, task?, key?, board, write(board) → 行, read(行) → board, naive?, save?(board) }`（`task`：一串任务的关里是第几个任务的板，`key`：那个任务在存档里的 key，默认是关的 id），`save` 说这一关的界面怎样把这块板存进 `progress.built`（默认就是板本身；《状态之图》存 `{ stage, boards }`） | 关卡有参考板（`course.boards`）时必须给；每一块写出来再读回，算的东西不变，再写一遍文本不变 |

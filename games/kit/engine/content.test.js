@@ -60,6 +60,19 @@ test('references and calls go by the vocabulary', () => {
   assert.deepEqual(callOf({ uses: 'up' }), ['uses', 'up'])
 })
 
+test('a small language reports what it cannot read, by the path, without throwing', () => {
+  const brackets = (text) => { let d = 0; for (const c of text) { d += c === '(' ? 1 : c === ')' ? -1 : 0; if (d < 0) return `unexpected ) in ${text}` } return d ? 'unclosed (' : null }
+  const vocabulary = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({ goal: S.syntax('brackets') }), languages: { brackets: { about: 'balanced brackets' } } })
+  const languages = { brackets }
+  assert.deepEqual(validate(vocabulary.level, { goal: '(a)' }, { vocabulary, languages }), [])
+  assert.deepEqual(validate(vocabulary.level, { goal: ')))not a formula' }, { vocabulary, languages }), [{ at: '.goal', says: '")))not a formula" is no brackets: unexpected ) in )))not a formula' }])
+  assert.deepEqual(validate(vocabulary.level, { goal: ')))' }, { vocabulary }), [], 'without the readers only the type is checked')
+  assert.match(validate(vocabulary.level, { goal: 3 }, { vocabulary })[0].says, /expected brackets text/)
+  assert.match(validate(S.syntax('nope'), 'x', { languages })[0].says, /reads no nope/)
+  const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [{ id: 'one', goal: '(()' }], glossary: { groups: [], entries: [] } }
+  assert.deepEqual(checkContent({ vocabulary, languages }, content), [{ at: 'levels/one.json.goal', says: '"(()" is no brackets: unclosed (' }])
+})
+
 test('a vocabulary prints as plain data', () => {
   const printed = describe(VOCAB)
   assert.equal(printed.kinds.world.line.params.fields.n.type, 'int')
@@ -74,7 +87,7 @@ test('content is checked file by file', () => {
     glossary: { groups: [], entries: [{ id: 'e', group: 'g', title: 'E', body: [] }] },
   })
   assert.deepEqual(content.levels.map((l) => l.id), ['a', 'b'])
-  assert.deepEqual(checkContent(VOCAB, content).map((p) => `${p.at}: ${p.says}`), [
+  assert.deepEqual(checkContent({ vocabulary: VOCAB }, content).map((p) => `${p.at}: ${p.says}`), [
     "game.json.vocabulary: written for version 3; the domain's vocabulary is version 2",
     'game.json.extra: is not a field here',
     'levels/a.json.world: "nowhere" is no world of the vocabulary',
@@ -91,5 +104,5 @@ test('a data game is read from its folder', () => {
   assert.equal(isDataGame('none', dir), false)
   const content = readContent('toy', dir)
   assert.deepEqual(content.levels, [{ id: 'one', mode: 'read', text: 'hello' }])
-  assert.deepEqual(checkContent(VOCAB, content), [])
+  assert.deepEqual(checkContent({ vocabulary: VOCAB }, content), [])
 })

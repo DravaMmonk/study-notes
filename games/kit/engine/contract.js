@@ -27,7 +27,10 @@ const isFn = (f) => typeof f === 'function'
 //   play                { open(ctx), attempt(ctx, text) }: the blind-play harness's hook (games/DESIGN.md 6.6)
 //   scene               scene(spec, level) → an SVG string or null: a level drawn headlessly (the MCP's render, the
 //                       studio; games/DESIGN.md 6.7)
+//   languages           { lang: (text) → why it cannot be read, or null }: the readers of the vocabulary's languages
+//                       (schema.js syntax), one for each it names
 export const EXTENSIONS = {
+  languages: (l) => Boolean(l) && typeof l === 'object' && Object.values(l).every(isFn),
   changes: (c) => Boolean(c) && isFn(c.stale),
   play: (p) => Boolean(p) && isFn(p.open) && isFn(p.attempt),
   scene: isFn,
@@ -46,6 +49,10 @@ export function domainProblems(name, domain) {
   for (const key of Object.keys(domain)) if (!ENTRIES.includes(key) && !(key in EXTENSIONS)) out.push(`${name}: domain.js gives ${key}, which is no entry of the contract`)
   for (const [key, fits] of Object.entries(EXTENSIONS)) if (key in domain && !fits(domain[key])) out.push(`${name}: ${key} has not the shape its extension point asks for`)
   if (domain.vocabulary) out.push(...vocabularyProblems(name, domain.vocabulary))
+  const named = Object.keys(domain.vocabulary?.languages ?? {})
+  const read = Object.keys(domain.languages ?? {})
+  for (const lang of named) if (!read.includes(lang)) out.push(`${name}: the vocabulary names the language ${lang}, which domain.js does not read`)
+  for (const lang of read) if (!named.includes(lang)) out.push(`${name}: domain.js reads ${lang}, which the vocabulary does not name`)
   return out
 }
 
@@ -77,6 +84,7 @@ export function vocabularyProblems(name, v) {
       if (kind === 'op' && it.params && it.params.type !== 'obj') say(`op.${item}: its named parameters are an S.obj`)
     }
   }
+  for (const [lang, it] of Object.entries(v.languages ?? {})) if (!isText(it?.about)) say(`the language ${lang} says nothing of what it is (about)`)
   if (v.kinds?.op && v.kinds.part) say('it gives engine resources and parts in code: a domain with resources defines its parts in each game’s parts.json')
   if (v.kinds?.op && !v.kinds.family) say('it gives engine resources but no families to colour parts by')
   for (const [where, schema] of schemas) {
@@ -84,6 +92,7 @@ export function vocabularyProblems(name, v) {
     for (const [s, at] of schemasIn(schema, where)) {
       if (!TYPES.includes(s.type)) say(`${at}: ${JSON.stringify(s.type)} is no schema type`)
       // A domain with engine resources gives its parts in each game's parts.json: its part kind is the content's.
+      if (s.type === 'syntax' && !v.languages?.[s.lang]) say(`${at}: names the language ${s.lang}, which the vocabulary has not`)
       if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind] && !(s.kind === 'part' && v.kinds?.op)) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
       for (const [hint, values] of Object.entries(HINTS)) if (s[hint] !== undefined && !values.includes(s[hint])) say(`${at}: ${hint} ${JSON.stringify(s[hint])} is none of ${values.join(', ')}`)
     }

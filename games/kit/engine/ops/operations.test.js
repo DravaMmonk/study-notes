@@ -172,6 +172,15 @@ test('glossary.put, glossary.set and glossary.remove edit the encyclopedia', () 
   assert.deepEqual(ws.glossary.entries.map((e) => e.id), ['f'])
 })
 
+test('a changeset whose domain throws while it is settled leaves the workspace as it was', async () => {
+  const { ws } = toy()
+  const before = JSON.stringify(ws.content())
+  const throws = { ...DOMAIN, spec: () => { throw new Error('the domain broke') } }
+  await assert.rejects(runChangeset(ws, { ops: [{ op: 'level.set', level: 'a1', path: 'tests', value: [9] }] }, { write: true, domain: throws }), /the domain broke/)
+  assert.equal(JSON.stringify(ws.content()), before)
+  assert.deepEqual(readLog(ws), [])
+})
+
 test('a changeset is checked as a whole, writes only when it passes, logs, and undoes', async () => {
   const { root, ws } = toy()
   const refused = await runChangeset(ws, { ops: [{ op: 'level.move', level: 'b2', to: { before: 'a1' } }, { op: 'level.set', level: 'a1', path: 'from', value: 'gone' }] }, { write: true, check: false, domain: DOMAIN })

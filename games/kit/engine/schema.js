@@ -14,6 +14,9 @@
 //                                   item whose parameters may all be left out
 //   level                           the id of a level of this game (renaming or removing a level follows these)
 //   board                           a board as blueprint text (../circuit/text.js), one string a line
+//   syntax(lang)                    a string in one of the domain's small languages (a formula, a proof term),
+//                                   named in its vocabulary's `languages`; given the domain's readers (`languages`),
+//                                   what one cannot read is reported here
 //
 // A schema may carry `about` ({ zh, en } or a string): what the field means, for whoever writes it. It may also carry
 // hints for whoever edits the value (the studio picks a control by them, games/DESIGN.md 6.7); they change nothing a
@@ -47,6 +50,7 @@ export const S = {
   call: (kind, extra = {}) => ({ type: 'call', kind, ...extra }),
   level: make('level'),
   board: make('board'),
+  syntax: (lang, extra = {}) => ({ type: 'syntax', lang, ...extra }),
 }
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
@@ -57,9 +61,10 @@ const bare = (params) => !params || (params.type === 'obj' && Object.values(para
 
 /**
  * Every place `value` does not fit `schema`, as [{ at, says }]. `vocabulary` (vocabulary.js) resolves ref and call;
- * `levels` (a Set of the game's level ids) the levels a level names; `at` is the path of `value`.
+ * `levels` (a Set of the game's level ids) the levels a level names; `languages` (a domain's readers, { lang: (text)
+ * → why it cannot be read, or null }) reads syntax; `at` is the path of `value`.
  */
-export function validate(schema, value, { vocabulary = null, levels = null, at = '' } = {}) {
+export function validate(schema, value, { vocabulary = null, levels = null, languages = null, at = '' } = {}) {
   const out = []
   // `shape`: the value is not the shape asked for at all (a by's field names no case), not just wrong inside.
   const say = (where, says, shape = false) => out.push({ at: where || '(root)', says, ...(shape ? { shape } : {}) })
@@ -110,7 +115,7 @@ export function validate(schema, value, { vocabulary = null, levels = null, at =
         return
       }
       case 'either': {
-        const tries = s.of.map((x) => validate(x, v, { vocabulary, levels, at: where }))
+        const tries = s.of.map((x) => validate(x, v, { vocabulary, levels, languages, at: where }))
         if (tries.every((t) => t.length)) {
           // The closest fit says what is wrong: a shape the value has (no problem with the value itself, only inside it),
           // then the fewest problems.
@@ -137,6 +142,14 @@ export function validate(schema, value, { vocabulary = null, levels = null, at =
       case 'board':
         if (!Array.isArray(v) || v.some((line) => typeof line !== 'string')) say(where, `expected a board as blueprint text, a list of lines, found ${show(v)}`)
         return
+      case 'syntax': {
+        if (typeof v !== 'string') return say(where, `expected ${s.lang} text, found ${show(v)}`)
+        if (!languages) return
+        if (!languages[s.lang]) return say(where, `the domain reads no ${s.lang}`)
+        const why = languages[s.lang](v)
+        if (why) say(where, `${show(v)} is no ${s.lang}: ${why}`)
+        return
+      }
       case 'call': {
         if (typeof v === 'string') {
           const it = item(s.kind, v)

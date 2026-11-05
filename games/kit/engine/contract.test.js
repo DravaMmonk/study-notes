@@ -30,7 +30,7 @@ for (const name of names.filter((d) => existsSync(resolve(DOMAINS, d, 'starter')
   test(`${name}: its starter game fits the vocabulary, passes the audit and the contract`, async () => {
     const domain = await load(name)
     const content = readContent('starter', resolve(DOMAINS, name))
-    assert.deepEqual(checkContent(domain.vocabulary, content), [])
+    assert.deepEqual(checkContent(domain, content), [])
     const spec = domain.spec(content)
     assert.deepEqual(audit(spec.course), [])
     assert.deepEqual(specProblems(domain, content, spec), [])

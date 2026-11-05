@@ -7,6 +7,20 @@ import { logicCourse } from './course.js'
 import { validate } from './validate.js'
 import { syncOwn } from './built.js'
 import { play } from './play.js'
+import { parse } from './formula.js'
+import { parseS, parseSide } from './schematic.js'
+import { parseTerm } from './pterm.js'
+
+// The readers of the vocabulary's languages: why a text cannot be read, or null.
+const reads = (parser) => (text) => {
+  try {
+    parser(text)
+    return null
+  } catch (error) {
+    return error.message
+  }
+}
+const languages = { formula: reads(parse), side: reads(parseSide), condition: reads(parseS), term: reads(parseTerm) }
 
 // What players keep on a level answers its puzzle (../../engine/ops/migrate.js): a proof proves its goal from its
 // givens, a table fills its formulas, a world satisfies its sentences. A level whose puzzle changed keeps state that
@@ -44,4 +58,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate, play, changes }
+export default { vocabulary, languages, spec, validate, play, changes }

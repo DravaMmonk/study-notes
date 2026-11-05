@@ -18,8 +18,18 @@ const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const ids = S.list(S.str())
 const NONE = S.oneOf([null])
-const SENTENCE = S.str({ about: t('一句话，按 formula.js 的写法：Rain → Wet、∀x. Human(x)、?A ∧ ?B', 'a sentence as formula.js reads it: Rain → Wet, ∀x. Human(x), ?A ∧ ?B') })
+// The small languages content writes in, read by the domain (domain.js languages).
+const LANGUAGES = {
+  formula: { about: t('一句话（formula.js）', 'a sentence (formula.js)') },
+  side: { about: t('等式的一边：一样东西或一句话（schematic.js）', 'a side of an equation: a thing or a sentence (schematic.js)') },
+  condition: { about: t('一行定义的条件：一个等式（schematic.js）', 'a row’s condition: an equation (schematic.js)') },
+  term: { about: t('一个证明项（pterm.js）', 'a proof term (pterm.js)') },
+}
+const SENTENCE = S.syntax('formula', { about: t('一句话，按 formula.js 的写法：Rain → Wet、∀x. Human(x)、?A ∧ ?B', 'a sentence as formula.js reads it: Rain → Wet, ∀x. Human(x), ?A ∧ ?B') })
 const SENTENCES = S.list(SENTENCE)
+const SIDE = S.syntax('side')
+const SIDES = S.list(SIDE)
+const TERM = S.syntax('term')
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one. */
 const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 const PART = S.str({ about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式', 'a part: one of the vocabulary’s, or a lemma, gate or equation of game.json') })
@@ -132,8 +142,8 @@ const BY_KIND = {
   gates: { target: SENTENCE, hideTarget: S.opt(S.bool()), blind: S.opt(S.bool()), budget: S.opt(S.int({ min: 1 })), solution: BOARD, naive: S.opt(BOARD) },
   iso: ISO,
   define: {
-    fn: S.str(), on: S.opt(S.either(S.int({ min: 0 }), NONE)), rows: S.list(S.obj({ lhs: S.str(), when: S.opt(S.str()), choices: ids })),
-    tests: S.list(S.obj({ term: S.str(), value: S.str() }), { section: 'tests' }), solution: S.list(S.str(), { section: 'answers' }), naive: S.opt(ids), defs: S.opt(ids),
+    fn: S.str(), on: S.opt(S.either(S.int({ min: 0 }), NONE)), rows: S.list(S.obj({ lhs: SIDE, when: S.opt(S.syntax('condition')), choices: SIDES })),
+    tests: S.list(S.obj({ term: SIDE, value: SIDE }), { section: 'tests' }), solution: S.list(SIDE, { section: 'answers' }), naive: S.opt(SIDES), defs: S.opt(ids),
   },
   translate: { say: S.text(), target: SENTENCE, decoys: S.opt(SENTENCES) },
   query: { say: S.text(), target: SENTENCE, decoys: S.opt(SENTENCES), worlds: S.list(S.obj({ title: S.text(), things: ids, preds: S.map(S.list(S.either(S.str(), ids)), { about: t('每个谓词对哪些东西成立（一样东西，或几样一组）', 'what each predicate holds of (a thing, or a tuple of things)') }) })) },
@@ -146,7 +156,7 @@ const BY_KIND = {
     defs: S.opt(ids), types: S.opt(ids), stated: S.opt(S.list(S.str())),
   },
   term: {
-    premises: S.opt(PREMISES), goal: SENTENCE, answer: S.str(), naive: S.opt(S.str()), given: S.opt(S.str()), forms: S.opt(S.list(S.ref('form'), { about: t('块里有哪些写法（不写：除 rfl、subst 外的全部）', 'the forms the pieces offer (left out: all but rfl and subst)') })),
+    premises: S.opt(PREMISES), goal: SENTENCE, answer: TERM, naive: S.opt(TERM), given: S.opt(TERM), forms: S.opt(S.list(S.ref('form'), { about: t('块里有哪些写法（不写：除 rfl、subst 外的全部）', 'the forms the pieces offer (left out: all but rfl and subst)') })),
     uses: S.opt(ids), stated: S.opt(S.list(S.str())), defs: S.opt(ids),
   },
   script: {
@@ -217,4 +227,5 @@ export const vocabulary = defineVocabulary({
   },
   game: GAME,
   level: LEVEL,
+  languages: LANGUAGES,
 })

@@ -26,7 +26,7 @@ import { termRegistry } from './terminology.js'
 export async function checkGame(content, { domain, listed }) {
   const lines = []
   const fail = (text) => lines.push({ fail: true, text })
-  const wrong = checkContent(domain.vocabulary, content)
+  const wrong = checkContent(domain, content)
   for (const p of wrong) fail(`content: ${p.at}: ${p.says}`)
   if (wrong.length) return lines
   for (const f of termRegistry(content.glossary).failures) fail(`terminology ${f.rule} ${f.at}: ${f.says}`)

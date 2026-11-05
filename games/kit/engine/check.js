@@ -8,11 +8,19 @@ import { ALL_GAMES, knownGames } from './cli-args.js'
 
 let problems = 0
 const asked = process.argv.slice(2)
+// One game whose domain throws is reported as such; the others are still checked.
 for (const id of knownGames(asked.length ? asked : ALL_GAMES, 'npm run check [-- <game>…]')) {
-  const content = readContent(id)
-  const lines = await checkGame(content, { domain: await domainOf(content), listed: GAMES.find((game) => game.id === id).levels })
+  let lines
+  let head = id
+  try {
+    const content = readContent(id)
+    head = `${content.title.zh} ${content.title.en}`
+    lines = await checkGame(content, { domain: await domainOf(content), listed: GAMES.find((game) => game.id === id).levels })
+  } catch (error) {
+    lines = [{ fail: true, text: `the check threw: ${error.stack}` }]
+  }
   problems += lines.filter((l) => l.fail).length
-  console.log(`\n${content.title.zh} ${content.title.en}`)
+  console.log(`\n${head}`)
   for (const line of lines) console.log(`  ${line.fail ? 'FAIL ' : ''}${line.text}`)
 }
 

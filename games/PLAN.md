@@ -16,8 +16,8 @@
 
 ### 0.1 领域小语言解析失败改为报告
 
-- 新增「解析型」schema 类型契约，照 `S.board` 的做法：在 spec 阶段解析，解析器返回 `{value}` 或 `{error: {at, message}}`；解析器抛异常视为领域 bug，不由内核兜住。
-- logic 的公式、qed 的证明脚本、`define` 的 `lhs` / `when` 全部改用该类型；解析结果随 spec 缓存，运行时不再二次解析。
+- 新增 schema 类型 `S.syntax(lang)`：词汇表的 `languages` 列出领域的小语言（纯数据），`domain.js` 的 `languages` 给出读法（返回读不进的原因或 null，不抛出）；`checkContent` 按文件和字段路径报告。契约检查两边一一对应。
+- logic 的公式、证明项、`define` 的 `lhs` / `when` / 两边全部改用该类型。
 - `check.js`：逐游戏检查，一款失败不中断其余，最终以非零码退出。
 - `changeset.js:114`：`checkGame` 移进 `try`，任何失败都在 `finally` 中执行 `ws.restore(start)`。
 - 验收：合成领域里把公式字段写成 `)))not a formula`，`checkGame` 报出文件与字段路径而不抛出；changeset 失败后工作区与起点逐字节一致。
