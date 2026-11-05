@@ -6,7 +6,7 @@
 // targets, budgets, bench models and bench displays in items/.
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
-import { TASK_ID_FIELD } from '../../engine/tasks.js'
+import { taskLevel } from '../../engine/tasks.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { PICTURES } from './items/pictures.js'
@@ -59,22 +59,35 @@ const FIGURE = S.either(
 )
 const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', about: t('引言：进关前读的几页，每页一段话和一张可选的图', 'the intro: pages read before playing, each a paragraph and maybe a figure') })
 
-const COMMON = {
+// What a level says once: its title, its intro, its pass text and its place in the course.
+const ONCE = {
   title: TEXT,
-  brief: TEXT,
-  hint: S.opt(TEXT),
-  after: TEXT,
+  after: S.text({ about: t('通过这一关时说的话（最后一个任务的点题）', 'what passing the level says (its last task’s pass text)') }),
   intro: INTRO,
   unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  fold: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件', 'setting options the level gives for its own play (it builds a part with one); never a part') })),
+  packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { section: 'course', about: t('通关的电路成为一个元件：它的名字和说明', 'the passing circuit becomes a part: its name and description') })),
+  showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
 }
-/** What a circuit level, or one task of one, says about its board. */
+// What every task says: what it asks, how to start, and what passing it says before the next (the last task's is the
+// level's); what it opens for the tasks after it, and what it keeps from a player who holds it already.
+const TASK = {
+  brief: TEXT,
+  hint: S.opt(TEXT),
+  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
+  unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段搭出的能力：后面的任务马上能用，整关通过时解锁', 'what this task builds: the tasks after it hold it at once, and passing the level unlocks it') })),
+  withhold: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段亲手搭的东西：玩家已有也先收起', 'what this task builds by hand: kept from a player who holds it already') })),
+  carries: S.opt(S.bool({ about: t('从上一段的电路开始', 'start from the task before’s board') })),
+}
+/** What a circuit task says about its board. */
 const BOARD_FIELDS = {
   inputs: S.opt(ids),
   inputLabels: S.opt(S.map(TEXT)),
   outputs: S.opt(ids),
   outputLabels: S.opt(S.map(TEXT)),
   views: S.opt(VIEWS_OF),
-  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   check: S.opt(CHECK),
   constraint: S.opt(S.call('constraint')),
   trainRate: S.opt(S.num({ about: t('训练一步走多远', 'how far one training step goes') })),
@@ -83,37 +96,15 @@ const BOARD_FIELDS = {
   naive: S.opt(BOARD),
   alsoFails: S.opt(S.list(BOARD, { about: t('也必须失败的电路', 'boards that must fail too') })),
 }
-const LEVEL_FIELDS = {
-  ...COMMON,
-  ...BOARD_FIELDS,
-  kind: S.oneOf(['graph']),
-  fold: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件', 'setting options the level gives for its own play (it builds a part with one); never a part') })),
-  packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { section: 'course', about: t('通关的电路成为一个元件：它的名字和说明', 'the passing circuit becomes a part: its name and description') })),
-  showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
-}
-const TASK_FIELDS = {
-  ...BOARD_FIELDS,
-  id: TASK_ID_FIELD,
-  step: TEXT,
-  brief: TEXT,
-  hint: S.opt(TEXT),
-  after: S.opt(TEXT),
-  unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
-  withhold: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段亲手搭的东西：玩家已有也先收起', 'what this task builds by hand: kept from a player who holds it already') })),
-  carries: S.opt(S.bool({ about: t('从上一段的电路开始', 'start from the task before’s board') })),
-}
-// A circuit level (or task) by its scene: the scene's setup, and its tests in the scene's shape.
-const byScene = (fields) => S.by('scene', Object.fromEntries(Object.entries(SCENES).map(([name, scene]) => {
+// A circuit task by its scene: the scene's setup, and its tests in the scene's shape.
+const GRAPH = S.by('scene', Object.fromEntries(Object.entries(SCENES).map(([name, scene]) => {
   const test = S.obj({ label: TEXT, train: S.opt(S.bool({ about: t('false：不拿来训练，只用来检查训练（新样本）', 'false: not trained on, only checking the training (a new sample)') })), ...scene.test.fields })
   const setup = scene.setup && (Object.values(scene.setup.fields).every((f) => f.optional) ? S.opt(scene.setup) : scene.setup)
-  return [name, S.obj({ ...fields, scene: S.oneOf([name]), ...(setup ? { setup } : {}), tests: S.list(test, { min: 1, section: 'tests' }), hidden: S.opt(S.list(test, { section: 'tests' })) })]
+  return [name, S.obj({ kind: S.oneOf(['graph']), ...TASK, ...BOARD_FIELDS, scene: S.oneOf([name]), ...(setup ? { setup } : {}), tests: S.list(test, { min: 1, section: 'tests' }), hidden: S.opt(S.list(test, { section: 'tests' })) })]
 })))
-// A level of several tasks: each task has its own brief and pass text.
-const GRAPH = S.either(byScene(LEVEL_FIELDS), S.obj({ ...LEVEL_FIELDS, brief: S.opt(TEXT), after: S.opt(TEXT), tasks: S.list(byScene(TASK_FIELDS), { min: 2, section: 'tasks' }) }))
 const PROBE = S.obj({
-  ...COMMON,
   kind: S.oneOf(['probe']),
+  ...TASK,
   part: S.ref('part', { about: t('台上的黑箱', 'the black box on the bench') }),
   question: TEXT,
   answers: S.list(S.str()),
@@ -121,7 +112,7 @@ const PROBE = S.obj({
   wrong: TEXT,
   probes: S.list(S.obj({ label: TEXT, picture: S.call('picture') })),
 })
-const BENCH = S.obj({ ...COMMON, kind: S.oneOf(['board']), bench: benchSchema(BENCH_MODELS) })
+const BENCH = S.obj({ kind: S.oneOf(['board']), ...TASK, bench: benchSchema(BENCH_MODELS) })
 
 /* ---------- game.json ---------- */
 
@@ -170,5 +161,6 @@ export const vocabulary = defineVocabulary({
     display: displayItems(DISPLAYS),
   },
   game: GAME,
-  level: S.by('kind', { graph: GRAPH, probe: PROBE, board: BENCH }),
+  // A level is a list of tasks (../../engine/tasks.js), each by its kind, and a circuit task by its scene too.
+  level: taskLevel(ONCE, S.by('kind', { graph: GRAPH, probe: PROBE, board: BENCH })),
 })

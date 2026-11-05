@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "书封面", "en": "Book cover" },
-  "brief": {
-    "zh": "手机斜着拍了桌上的书。匹配器给出了封面和照片之间的点对，其中有几对是桌面花纹造成的错配。把清楚的封面贴回照片里书的位置。",
-    "en": "A phone photographed the book on the desk at an angle. The matcher has given pairs of points between the cover and the photo, and a few are wrong matches caused by the desk pattern. Paste the crisp cover back over the book in the photo."
-  },
-  "hint": {
-    "zh": "错配只要混进一对，用全部点对解出的 H 就会歪。",
-    "en": "Let a single wrong match in, and an H solved from all the pairs comes out crooked."
-  },
   "after": {
     "zh": "匹配、RANSAC 选内点、解单应、变形贴图：这条流水线就是 AR 书封面、全景拼接和文档扫描 App 的核心。每一步你都亲手做过一遍。",
     "en": "Match, choose inliers with RANSAC, solve the homography, warp and paste: this pipeline is the core of AR book covers, panorama stitching and document-scanning apps, and you have built every step of it yourself."
@@ -28,65 +19,79 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：两对错配", "en": "Set 1: two wrong matches" } }
     }
   ],
-  "inputs": ["photo", "cover", "pairs"],
-  "inputLabels": {
-    "photo": { "zh": "照片", "en": "Photo" },
-    "cover": { "zh": "封面", "en": "Cover" },
-    "pairs": { "zh": "匹配的点对（每 4 个数一对）", "en": "Matched pairs (4 numbers each)" }
-  },
-  "scene": "coverPairs",
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "两对错配", "en": "Two wrong matches" },
-      "quad": [[9, 5], [21, 7], [23, 27], [7, 25]],
-      "seed": 51,
-      "wrong": 2
-    },
-    {
-      "label": { "zh": "四对错配", "en": "Four wrong matches" },
-      "quad": [[11, 6], [20, 6], [25, 26], [5, 26]],
-      "seed": 52,
-      "wrong": 4
-    },
-    {
-      "label": { "zh": "转了一下", "en": "Turned a little" },
-      "quad": [[6, 9], [18, 4], [25, 21], [12, 27]],
-      "seed": 53,
-      "wrong": 3
+      "id": "6-13",
+      "kind": "graph",
+      "brief": {
+        "zh": "手机斜着拍了桌上的书。匹配器给出了封面和照片之间的点对，其中有几对是桌面花纹造成的错配。把清楚的封面贴回照片里书的位置。",
+        "en": "A phone photographed the book on the desk at an angle. The matcher has given pairs of points between the cover and the photo, and a few are wrong matches caused by the desk pattern. Paste the crisp cover back over the book in the photo."
+      },
+      "hint": {
+        "zh": "错配只要混进一对，用全部点对解出的 H 就会歪。",
+        "en": "Let a single wrong match in, and an H solved from all the pairs comes out crooked."
+      },
+      "inputs": ["photo", "cover", "pairs"],
+      "inputLabels": {
+        "photo": { "zh": "照片", "en": "Photo" },
+        "cover": { "zh": "封面", "en": "Cover" },
+        "pairs": { "zh": "匹配的点对（每 4 个数一对）", "en": "Matched pairs (4 numbers each)" }
+      },
+      "scene": "coverPairs",
+      "tests": [
+        {
+          "label": { "zh": "两对错配", "en": "Two wrong matches" },
+          "quad": [[9, 5], [21, 7], [23, 27], [7, 25]],
+          "seed": 51,
+          "wrong": 2
+        },
+        {
+          "label": { "zh": "四对错配", "en": "Four wrong matches" },
+          "quad": [[11, 6], [20, 6], [25, 26], [5, 26]],
+          "seed": 52,
+          "wrong": 4
+        },
+        {
+          "label": { "zh": "转了一下", "en": "Turned a little" },
+          "quad": [[6, 9], [18, 4], [25, 21], [12, 27]],
+          "seed": 53,
+          "wrong": 3
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "小一点、错配多", "en": "Smaller, many wrong" },
+          "quad": [[13, 10], [21, 11], [21, 22], [12, 21]],
+          "seed": 54,
+          "wrong": 5
+        }
+      ],
+      "solution": [
+        "zk = const[c=0]()",
+        "ok = const()",
+        "hs = homography[k=100](pairs)",
+        "z = arith[op=mul](cover, zk)",
+        "w = warp(cover, hs, photo)",
+        "one = arith[op=add](z, ok)",
+        "m = warp(one, hs, photo)",
+        "inv = invert(m)",
+        "keep = arith[op=mul](photo, inv)",
+        "sum = arith[op=add](keep, w)",
+        "out <- sum"
+      ],
+      "naive": [
+        "zk = const[c=0]()",
+        "ok = const()",
+        "hs = homography(pairs)",
+        "z = arith[op=mul](cover, zk)",
+        "w = warp(cover, hs, photo)",
+        "one = arith[op=add](z, ok)",
+        "m = warp(one, hs, photo)",
+        "inv = invert(m)",
+        "keep = arith[op=mul](photo, inv)",
+        "sum = arith[op=add](keep, w)",
+        "out <- sum"
+      ]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "小一点、错配多", "en": "Smaller, many wrong" },
-      "quad": [[13, 10], [21, 11], [21, 22], [12, 21]],
-      "seed": 54,
-      "wrong": 5
-    }
-  ],
-  "solution": [
-    "zk = const[c=0]()",
-    "ok = const()",
-    "hs = homography[k=100](pairs)",
-    "z = arith[op=mul](cover, zk)",
-    "w = warp(cover, hs, photo)",
-    "one = arith[op=add](z, ok)",
-    "m = warp(one, hs, photo)",
-    "inv = invert(m)",
-    "keep = arith[op=mul](photo, inv)",
-    "sum = arith[op=add](keep, w)",
-    "out <- sum"
-  ],
-  "naive": [
-    "zk = const[c=0]()",
-    "ok = const()",
-    "hs = homography(pairs)",
-    "z = arith[op=mul](cover, zk)",
-    "w = warp(cover, hs, photo)",
-    "one = arith[op=add](z, ok)",
-    "m = warp(one, hs, photo)",
-    "inv = invert(m)",
-    "keep = arith[op=mul](photo, inv)",
-    "sum = arith[op=add](keep, w)",
-    "out <- sum"
   ]
 }

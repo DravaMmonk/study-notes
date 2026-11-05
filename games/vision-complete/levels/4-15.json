@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "红灯在哪", "en": "Where is the red light?" },
-  "brief": {
-    "zh": "街景的 R、G、B 三张图。只标出红灯：又亮又红的地方。暗处的红车、白色的路灯、绿灯都不算。",
-    "en": "The R, G and B images of a street scene. Mark only the red lights: places both bright and red. Red cars in the shade, white street lamps and green lights do not count."
-  },
-  "hint": {
-    "zh": "一个通道只能回答一个问题。「红」和「亮」各要看哪些通道？",
-    "en": "One channel can only answer one question. Which channels does \"red\" need, and which does \"bright\"?"
-  },
   "after": {
     "zh": "「亮」看 R 本身，「红」看 R 比 G、B 多出多少，两个条件都满足才是红灯。只看一个通道，路灯和红车总有一个会混进来。网络的第一层要同时看所有通道，就是这个原因。",
     "en": "\"Bright\" looks at R itself; \"red\" looks at how much R exceeds G and B; a red light needs both. Looking at a single channel, either the street lamps or the red cars always get in. That is why a network's first layer looks at every channel at once."
@@ -28,37 +19,51 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：路口", "en": "Set 1: a crossing" } }
     }
   ],
-  "inputs": ["r", "g", "b"],
-  "inputLabels": { "r": { "zh": "红 R", "en": "Red R" }, "g": { "zh": "绿 G", "en": "Green G" }, "b": { "zh": "蓝 B", "en": "Blue B" } },
-  "scene": "street",
-  "tests": [
-    { "label": { "zh": "路口", "en": "A crossing" }, "layout": "crossing" },
-    { "label": { "zh": "夜里的路灯", "en": "Street lamps at night" }, "layout": "lamps" },
-    { "label": { "zh": "两盏红灯", "en": "Two red lights" }, "layout": "twoLights" }
-  ],
-  "hidden": [
-    { "label": { "zh": "车流", "en": "Traffic" }, "layout": "traffic" },
-    { "label": { "zh": "绿灯", "en": "Green light" }, "layout": "greenLight" }
-  ],
-  "solution": [
-    "hN = const[c=0.5]()",
-    "s = arith[op=add](g, b)",
-    "lit = threshold[t=0.7](r)",
-    "h = arith[op=mul](s, hN)",
-    "d = arith[op=sub](r, h)",
-    "red = threshold[t=0.4](d)",
-    "m = arith[op=mul](red, lit)",
-    "out <- m"
-  ],
-  "naive": ["lit = threshold[t=0.7](r)", "out <- lit"],
-  "alsoFails": [
-    [
-      "hN = const[c=0.5]()",
-      "s = arith[op=add](g, b)",
-      "h = arith[op=mul](s, hN)",
-      "d = arith[op=sub](r, h)",
-      "red = threshold[t=0.25](d)",
-      "out <- red"
-    ]
+  "tasks": [
+    {
+      "id": "4-15",
+      "kind": "graph",
+      "brief": {
+        "zh": "街景的 R、G、B 三张图。只标出红灯：又亮又红的地方。暗处的红车、白色的路灯、绿灯都不算。",
+        "en": "The R, G and B images of a street scene. Mark only the red lights: places both bright and red. Red cars in the shade, white street lamps and green lights do not count."
+      },
+      "hint": {
+        "zh": "一个通道只能回答一个问题。「红」和「亮」各要看哪些通道？",
+        "en": "One channel can only answer one question. Which channels does \"red\" need, and which does \"bright\"?"
+      },
+      "inputs": ["r", "g", "b"],
+      "inputLabels": { "r": { "zh": "红 R", "en": "Red R" }, "g": { "zh": "绿 G", "en": "Green G" }, "b": { "zh": "蓝 B", "en": "Blue B" } },
+      "scene": "street",
+      "tests": [
+        { "label": { "zh": "路口", "en": "A crossing" }, "layout": "crossing" },
+        { "label": { "zh": "夜里的路灯", "en": "Street lamps at night" }, "layout": "lamps" },
+        { "label": { "zh": "两盏红灯", "en": "Two red lights" }, "layout": "twoLights" }
+      ],
+      "hidden": [
+        { "label": { "zh": "车流", "en": "Traffic" }, "layout": "traffic" },
+        { "label": { "zh": "绿灯", "en": "Green light" }, "layout": "greenLight" }
+      ],
+      "solution": [
+        "hN = const[c=0.5]()",
+        "s = arith[op=add](g, b)",
+        "lit = threshold[t=0.7](r)",
+        "h = arith[op=mul](s, hN)",
+        "d = arith[op=sub](r, h)",
+        "red = threshold[t=0.4](d)",
+        "m = arith[op=mul](red, lit)",
+        "out <- m"
+      ],
+      "naive": ["lit = threshold[t=0.7](r)", "out <- lit"],
+      "alsoFails": [
+        [
+          "hN = const[c=0.5]()",
+          "s = arith[op=add](g, b)",
+          "h = arith[op=mul](s, hN)",
+          "d = arith[op=sub](r, h)",
+          "red = threshold[t=0.25](d)",
+          "out <- red"
+        ]
+      ]
+    }
   ]
 }

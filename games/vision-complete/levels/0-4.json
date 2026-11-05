@@ -1,8 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "底片", "en": "Negative" },
-  "brief": { "zh": "黑变白、白变黑：输出 = 1 − 输入。", "en": "Black becomes white, white becomes black: output = 1 − input." },
-  "hint": { "zh": "先把所有数乘 −1，再整体加上一个数。", "en": "First multiply every number by −1, then add one number to all of them." },
   "after": {
     "zh": "每个像素各算各的，互不打扰。这叫逐像素运算：它改变亮度，却永远不知道邻居是谁。",
     "en": "Each pixel is worked out on its own, leaving the others alone. This is a per-pixel operation: it changes brightness, but never knows who its neighbours are."
@@ -42,19 +39,27 @@
   ],
   "adds": ["mul", "const", "add"],
   "unlocks": ["invert"],
-  "scene": "filter",
-  "setup": { "target": "negative" },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
-    { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
-  ],
-  "hidden": [
-    { "label": { "zh": "斜坡", "en": "Ramp" }, "in": "rampX" },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 3 } } }
-  ],
-  "solution": ["kN = const[c=-1]()", "cN = const()", "k = mul(in, kN)", "c = add(k, cN)", "out <- c"],
-  "naive": ["kN = const[c=-1]()", "k = mul(in, kN)", "out <- k"]
+  "tasks": [
+    {
+      "id": "0-4",
+      "kind": "graph",
+      "brief": { "zh": "黑变白、白变黑：输出 = 1 − 输入。", "en": "Black becomes white, white becomes black: output = 1 − input." },
+      "hint": { "zh": "先把所有数乘 −1，再整体加上一个数。", "en": "First multiply every number by −1, then add one number to all of them." },
+      "scene": "filter",
+      "setup": { "target": "negative" },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+      ],
+      "hidden": [
+        { "label": { "zh": "斜坡", "en": "Ramp" }, "in": "rampX" },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 3 } } }
+      ],
+      "solution": ["kN = const[c=-1]()", "cN = const()", "k = mul(in, kN)", "c = add(k, cN)", "out <- c"],
+      "naive": ["kN = const[c=-1]()", "k = mul(in, kN)", "out <- k"]
+    }
+  ]
 }

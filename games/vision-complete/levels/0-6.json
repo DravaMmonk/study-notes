@@ -1,10 +1,5 @@
 {
-  "kind": "probe",
   "title": { "zh": "门槛", "en": "The gate" },
-  "brief": {
-    "zh": "又一个黑箱。它只会输出 0 和 1。用测试图喂它，找出它在多亮的地方从 0 变成 1。",
-    "en": "Another black box. It only ever outputs 0 or 1. Feed it test images and find how bright a cell must be before it turns from 0 to 1."
-  },
   "after": {
     "zh": "正确。你得到了<part-ref to=\"threshold\"></part-ref>：大于门槛 t 的格子变 1，其余变 0，t 由你来定。只有 0 和 1 的图叫掩膜，用来标出图里的某块区域。",
     "en": "Correct. You now have <part-ref to=\"threshold\"></part-ref>: cells above the threshold t become 1 and the rest 0, and you choose t. An image of only 0s and 1s is called a mask; it marks out a region of the picture."
@@ -30,21 +25,31 @@
     }
   ],
   "unlocks": ["threshold"],
-  "part": "mysteryGate",
-  "question": { "zh": "亮度要超过多少，它才输出 1？", "en": "How bright must a cell be before it outputs 1?" },
-  "answers": ["0.2", "0.4", "0.6", "0.8"],
-  "answer": "0.6",
-  "wrong": {
-    "zh": "用斜坡试：点一下从 0 变 1 的那两格，读出它们原来的亮度。",
-    "en": "Try the ramp: tap the two cells where 0 turns into 1 and read their original brightness."
-  },
-  "probes": [
-    { "label": { "zh": "横向斜坡", "en": "Horizontal ramp" }, "picture": "rampX" },
-    { "label": { "zh": "纵向斜坡", "en": "Vertical ramp" }, "picture": "rampY" },
+  "tasks": [
     {
-      "label": { "zh": "圆盘", "en": "Disc" },
-      "picture": { "disk": { "cx": 7.5, "cy": 7.5, "r": 5, "lo": 0.3, "hi": 0.7 } }
-    },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "picture": { "noise": { "seed": 4 } } }
+      "id": "0-6",
+      "kind": "probe",
+      "brief": {
+        "zh": "又一个黑箱。它只会输出 0 和 1。用测试图喂它，找出它在多亮的地方从 0 变成 1。",
+        "en": "Another black box. It only ever outputs 0 or 1. Feed it test images and find how bright a cell must be before it turns from 0 to 1."
+      },
+      "part": "mysteryGate",
+      "question": { "zh": "亮度要超过多少，它才输出 1？", "en": "How bright must a cell be before it outputs 1?" },
+      "answers": ["0.2", "0.4", "0.6", "0.8"],
+      "answer": "0.6",
+      "wrong": {
+        "zh": "用斜坡试：点一下从 0 变 1 的那两格，读出它们原来的亮度。",
+        "en": "Try the ramp: tap the two cells where 0 turns into 1 and read their original brightness."
+      },
+      "probes": [
+        { "label": { "zh": "横向斜坡", "en": "Horizontal ramp" }, "picture": "rampX" },
+        { "label": { "zh": "纵向斜坡", "en": "Vertical ramp" }, "picture": "rampY" },
+        {
+          "label": { "zh": "圆盘", "en": "Disc" },
+          "picture": { "disk": { "cx": 7.5, "cy": 7.5, "r": 5, "lo": 0.3, "hi": 0.7 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "picture": { "noise": { "seed": 4 } } }
+      ]
+    }
   ]
 }

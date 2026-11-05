@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "随机也能求导", "en": "Differentiating through randomness" },
-  "brief": {
-    "zh": "老师用每组的噪声 ε 画出了右边的斑点（z 从 N(μ, σ²) 中采样）。学出 μ 和 σ，用同样的 ε 画出同样的图。",
-    "en": "The teacher drew the blob on the right from each set's noise ε (z sampled from N(μ, σ²)). Learn μ and σ, and draw the same image from the same ε."
-  },
-  "hint": {
-    "zh": "采样器每算一次都换一个随机数，训练看到的只是噪声。老师用的那组 ε 就在输入里。",
-    "en": "The sampler draws a new random number every time it runs, so all training sees is noise. The teacher's ε is right there in the input."
-  },
   "after": {
     "zh": "采样这一步没法求导：每次重抽，训练分不清结果变好是因为改了 μ、σ 还是运气。把它写成 z = μ + σ·ε，随机全部来自输入 ε，z 对 μ、σ 就只是乘和加，梯度清清楚楚。这叫重参数化，VAE 的编码器就是这样训练的。",
     "en": "You cannot differentiate through the sampling step: with a fresh draw each time, training cannot tell whether a better result came from changing μ and σ or from luck. Write it as z = μ + σ·ε instead: all the randomness comes from the input ε, z is just a multiply and an add of μ and σ, and the gradient is perfectly clear. This is called reparameterization, and it is how a VAE's encoder is trained."
@@ -43,43 +34,57 @@
       }
     }
   ],
-  "inputs": ["eps"],
-  "inputLabels": { "eps": { "zh": "噪声 ε", "en": "Noise ε" } },
   "adds": ["dg_mu", "dg_sigma", "dg_sample"],
   "unlocks": ["dg-reparam"],
-  "check": { "tolerance": 0.05, "mismatches": 2 },
-  "trainRate": 5,
-  "scene": "latent",
-  "setup": { "mu": [0.4, -0.3], "sigma": [0.5, 0.25] },
-  "tests": [
-    { "label": { "zh": "噪声 1", "en": "Noise 1" }, "eps": [-0.15738025902594666, -0.3665433102133928] },
-    { "label": { "zh": "噪声 2", "en": "Noise 2" }, "eps": [-0.5793135698148925, 0.7747426907692732] },
-    { "label": { "zh": "噪声 3", "en": "Noise 3" }, "eps": [-0.36846678756550255, 0.2665129891924992] },
-    { "label": { "zh": "噪声 4", "en": "Noise 4" }, "eps": [1.0402741069865438, -1.1488194373201288] },
-    { "label": { "zh": "噪声 5", "en": "Noise 5" }, "eps": [0.2077102301028476, -2.861436591880299] }
-  ],
-  "hidden": [
-    { "label": { "zh": "新噪声 1", "en": "New noise 1" }, "eps": [-0.9863590502434351, 0.8134585891904641] },
-    { "label": { "zh": "新噪声 2", "en": "New noise 2" }, "eps": [0.8000895947544758, -1.605486916577271] },
-    { "label": { "zh": "新噪声 3", "en": "New noise 3" }, "eps": [-0.5342398439291406, -0.09229389826413596] }
-  ],
-  "solution": [
-    "m = dg_mu[w=[0.4, -0.3]]()",
-    "s = dg_sigma[w=[0.5, 0.25]]()",
-    "x = arith[op=mul](s, eps)",
-    "a = arith[op=add](m, x)",
-    "d = dg_decoder(a)",
-    "out <- d"
-  ],
-  "naive": [
-    "m = dg_mu[w=[0.4, -0.3]]()",
-    "s = dg_sigma[w=[0.5, 0.25]]()",
-    "z = dg_sample(m, s)",
-    "d = dg_decoder(z)",
-    "out <- d"
-  ],
-  "alsoFails": [
-    ["m = dg_mu[w=[0.4, -0.3]]()", "d = dg_decoder(m)", "out <- d"],
-    ["m = dg_mu[w=[0.4, -0.3]]()", "a = arith[op=add](m, eps)", "d = dg_decoder(a)", "out <- d"]
+  "tasks": [
+    {
+      "id": "8-4",
+      "kind": "graph",
+      "brief": {
+        "zh": "老师用每组的噪声 ε 画出了右边的斑点（z 从 N(μ, σ²) 中采样）。学出 μ 和 σ，用同样的 ε 画出同样的图。",
+        "en": "The teacher drew the blob on the right from each set's noise ε (z sampled from N(μ, σ²)). Learn μ and σ, and draw the same image from the same ε."
+      },
+      "hint": {
+        "zh": "采样器每算一次都换一个随机数，训练看到的只是噪声。老师用的那组 ε 就在输入里。",
+        "en": "The sampler draws a new random number every time it runs, so all training sees is noise. The teacher's ε is right there in the input."
+      },
+      "inputs": ["eps"],
+      "inputLabels": { "eps": { "zh": "噪声 ε", "en": "Noise ε" } },
+      "check": { "tolerance": 0.05, "mismatches": 2 },
+      "trainRate": 5,
+      "scene": "latent",
+      "setup": { "mu": [0.4, -0.3], "sigma": [0.5, 0.25] },
+      "tests": [
+        { "label": { "zh": "噪声 1", "en": "Noise 1" }, "eps": [-0.15738025902594666, -0.3665433102133928] },
+        { "label": { "zh": "噪声 2", "en": "Noise 2" }, "eps": [-0.5793135698148925, 0.7747426907692732] },
+        { "label": { "zh": "噪声 3", "en": "Noise 3" }, "eps": [-0.36846678756550255, 0.2665129891924992] },
+        { "label": { "zh": "噪声 4", "en": "Noise 4" }, "eps": [1.0402741069865438, -1.1488194373201288] },
+        { "label": { "zh": "噪声 5", "en": "Noise 5" }, "eps": [0.2077102301028476, -2.861436591880299] }
+      ],
+      "hidden": [
+        { "label": { "zh": "新噪声 1", "en": "New noise 1" }, "eps": [-0.9863590502434351, 0.8134585891904641] },
+        { "label": { "zh": "新噪声 2", "en": "New noise 2" }, "eps": [0.8000895947544758, -1.605486916577271] },
+        { "label": { "zh": "新噪声 3", "en": "New noise 3" }, "eps": [-0.5342398439291406, -0.09229389826413596] }
+      ],
+      "solution": [
+        "m = dg_mu[w=[0.4, -0.3]]()",
+        "s = dg_sigma[w=[0.5, 0.25]]()",
+        "x = arith[op=mul](s, eps)",
+        "a = arith[op=add](m, x)",
+        "d = dg_decoder(a)",
+        "out <- d"
+      ],
+      "naive": [
+        "m = dg_mu[w=[0.4, -0.3]]()",
+        "s = dg_sigma[w=[0.5, 0.25]]()",
+        "z = dg_sample(m, s)",
+        "d = dg_decoder(z)",
+        "out <- d"
+      ],
+      "alsoFails": [
+        ["m = dg_mu[w=[0.4, -0.3]]()", "d = dg_decoder(m)", "out <- d"],
+        ["m = dg_mu[w=[0.4, -0.3]]()", "a = arith[op=add](m, eps)", "d = dg_decoder(a)", "out <- d"]
+      ]
+    }
   ]
 }

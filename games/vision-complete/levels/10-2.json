@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "合格的框", "en": "A box that counts" },
-  "brief": {
-    "zh": "检测出的框和标注的框 IoU 大于 0.5 时输出 1，否则 0。",
-    "en": "Output 1 when the IoU of the detected box and the labelled box is above 0.5, otherwise 0."
-  },
-  "hint": {
-    "zh": "<level-ref to=\"10-1\"></level-ref>的<part-ref to=\"own-10-1\"></part-ref>接一个门槛。",
-    "en": "<level-ref to=\"10-1\"></level-ref>'s <part-ref to=\"own-10-1\"></part-ref>, then a threshold."
-  },
   "after": {
     "zh": "0.5 是 PASCAL VOC 的标准；COCO 把 0.5 到 0.95 的十个门槛都算一遍再平均，框要画得更准才拿得到分。",
     "en": "0.5 is the PASCAL VOC standard; COCO computes ten thresholds from 0.5 to 0.95 and averages them, so boxes have to be drawn more precisely to score."
@@ -28,22 +19,36 @@
       "fig": { "test": 3, "caption": { "zh": "差不多", "en": "Nearly the same" } }
     }
   ],
-  "inputs": ["a", "b"],
-  "inputLabels": { "a": { "zh": "检测出的框", "en": "Detected box" }, "b": { "zh": "标注的框", "en": "Labelled box" } },
-  "outputs": ["ok"],
-  "outputLabels": { "ok": { "zh": "算找对", "en": "Counts as right" } },
-  "scene": "boxPair",
-  "setup": { "expect": "good" },
-  "tests": [
-    { "label": { "zh": "错开一点", "en": "Slightly off" }, "a": [2, 2, 10, 10], "b": [4, 3, 12, 11] },
-    { "label": { "zh": "大框套小框", "en": "A big box round a small one" }, "a": [1, 1, 15, 15], "b": [5, 5, 10, 10] },
-    { "label": { "zh": "只碰到边", "en": "Barely touching" }, "a": [0, 0, 8, 8], "b": [6, 6, 14, 14] },
-    { "label": { "zh": "差不多", "en": "Nearly the same" }, "a": [2, 2, 12, 12], "b": [3, 3, 13, 13] }
-  ],
-  "hidden": [
-    { "label": { "zh": "一模一样", "en": "Identical" }, "a": [3, 4, 9, 12], "b": [3, 4, 9, 12] },
-    { "label": { "zh": "不重叠", "en": "Not overlapping" }, "a": [0, 0, 5, 5], "b": [8, 8, 14, 14] }
-  ],
-  "solution": ["i = own-10-1(a, b)", "t = threshold(i)", "ok <- t"],
-  "naive": ["i = own-10-1(a, b)", "ok <- i"]
+  "tasks": [
+    {
+      "id": "10-2",
+      "kind": "graph",
+      "brief": {
+        "zh": "检测出的框和标注的框 IoU 大于 0.5 时输出 1，否则 0。",
+        "en": "Output 1 when the IoU of the detected box and the labelled box is above 0.5, otherwise 0."
+      },
+      "hint": {
+        "zh": "<level-ref to=\"10-1\"></level-ref>的<part-ref to=\"own-10-1\"></part-ref>接一个门槛。",
+        "en": "<level-ref to=\"10-1\"></level-ref>'s <part-ref to=\"own-10-1\"></part-ref>, then a threshold."
+      },
+      "inputs": ["a", "b"],
+      "inputLabels": { "a": { "zh": "检测出的框", "en": "Detected box" }, "b": { "zh": "标注的框", "en": "Labelled box" } },
+      "outputs": ["ok"],
+      "outputLabels": { "ok": { "zh": "算找对", "en": "Counts as right" } },
+      "scene": "boxPair",
+      "setup": { "expect": "good" },
+      "tests": [
+        { "label": { "zh": "错开一点", "en": "Slightly off" }, "a": [2, 2, 10, 10], "b": [4, 3, 12, 11] },
+        { "label": { "zh": "大框套小框", "en": "A big box round a small one" }, "a": [1, 1, 15, 15], "b": [5, 5, 10, 10] },
+        { "label": { "zh": "只碰到边", "en": "Barely touching" }, "a": [0, 0, 8, 8], "b": [6, 6, 14, 14] },
+        { "label": { "zh": "差不多", "en": "Nearly the same" }, "a": [2, 2, 12, 12], "b": [3, 3, 13, 13] }
+      ],
+      "hidden": [
+        { "label": { "zh": "一模一样", "en": "Identical" }, "a": [3, 4, 9, 12], "b": [3, 4, 9, 12] },
+        { "label": { "zh": "不重叠", "en": "Not overlapping" }, "a": [0, 0, 5, 5], "b": [8, 8, 14, 14] }
+      ],
+      "solution": ["i = own-10-1(a, b)", "t = threshold(i)", "ok <- t"],
+      "naive": ["i = own-10-1(a, b)", "ok <- i"]
+    }
+  ]
 }

@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "方向直方图", "en": "Orientation histogram" },
-  "brief": {
-    "zh": "把每一格的梯度幅值分给它最接近的方向：横向分量更大时，往右变亮算「→」，往左算「←」；纵向分量更大时，往下变亮算「↓」，往上算「↑」。四个输出是四个方向各自的幅值总和除以格数。",
-    "en": "Give each cell's gradient magnitude to the direction it is closest to: when the across part is larger, brightening to the right counts as \"→\" and to the left as \"←\"; when the down part is larger, brightening downwards counts as \"↓\" and upwards as \"↑\". The four outputs are the magnitude summed per direction, divided by the number of cells."
-  },
-  "hint": {
-    "zh": "|gx| 是 gx 和 −gx 里较大的那个。每个方向是两个条件同时成立：哪个分量大，它的正负号。",
-    "en": "|gx| is the larger of gx and −gx. Each direction needs two conditions at once: which part is larger, and its sign."
-  },
   "after": {
     "zh": "SIFT 描述子把关键点周围分成 4×4 个小格，每格做一个 8 个方向的直方图，一共 128 个数。方向按梯度分，幅值当票数：边往哪个方向变亮，这一格就往那个方向投票。",
     "en": "A SIFT descriptor divides the area round a keypoint into 4×4 small cells and makes an 8-direction histogram in each, 128 numbers in all. Directions follow the gradient and the magnitude is the vote: whichever way an edge brightens, the cell votes that way."
@@ -28,56 +19,70 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：竖边", "en": "Set 1: a vertical edge" } }
     }
   ],
-  "outputs": ["e", "n", "w", "s"],
-  "outputLabels": {
-    "e": { "zh": "向右 →", "en": "Right →" },
-    "n": { "zh": "向上 ↑", "en": "Up ↑" },
-    "w": { "zh": "向左 ←", "en": "Left ←" },
-    "s": { "zh": "向下 ↓", "en": "Down ↓" }
-  },
-  "check": { "tolerance": 0.005 },
-  "scene": "orientations",
-  "tests": [
-    { "label": { "zh": "竖边", "en": "A vertical edge" }, "in": { "stepX": { "edge": 8 } } },
-    { "label": { "zh": "横边", "en": "A horizontal edge" }, "in": { "stepY": { "edge": 6, "lo": 0.8, "hi": 0.2 } } },
-    { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 3, "y0": 5, "s": 7 } } },
-    { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
-  ],
-  "hidden": [
-    { "label": { "zh": "斜坡", "en": "A ramp" }, "in": "rampX" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" }
-  ],
-  "solution": [
-    "neg = const[c=-1]()",
-    "gx = sobelx(in)",
-    "gy = sobely(in)",
-    "m = gradmag(in)",
-    "nx = arith[op=mul](gx, neg)",
-    "ny = arith[op=mul](gy, neg)",
-    "px = threshold[t=0](gx)",
-    "py = threshold[t=0](gy)",
-    "ax = max(gx, nx)",
-    "ay = max(gy, ny)",
-    "qx = threshold[t=0](nx)",
-    "qy = threshold[t=0](ny)",
-    "dxy = arith[op=sub](ax, ay)",
-    "dyx = arith[op=sub](ay, ax)",
-    "hx = threshold[t=0](dxy)",
-    "hy = threshold[t=0](dyx)",
-    "mx = arith[op=mul](m, hx)",
-    "my = arith[op=mul](m, hy)",
-    "be = arith[op=mul](mx, px)",
-    "bw = arith[op=mul](mx, qx)",
-    "bs = arith[op=mul](my, py)",
-    "bn = arith[op=mul](my, qy)",
-    "ae = fqMean(be)",
-    "aw = fqMean(bw)",
-    "as = fqMean(bs)",
-    "an = fqMean(bn)",
-    "e <- ae",
-    "n <- an",
-    "w <- aw",
-    "s <- as"
-  ],
-  "naive": ["m = gradmag(in)", "a = fqMean(m)", "e <- a", "n <- a", "w <- a", "s <- a"]
+  "tasks": [
+    {
+      "id": "6-10",
+      "kind": "graph",
+      "brief": {
+        "zh": "把每一格的梯度幅值分给它最接近的方向：横向分量更大时，往右变亮算「→」，往左算「←」；纵向分量更大时，往下变亮算「↓」，往上算「↑」。四个输出是四个方向各自的幅值总和除以格数。",
+        "en": "Give each cell's gradient magnitude to the direction it is closest to: when the across part is larger, brightening to the right counts as \"→\" and to the left as \"←\"; when the down part is larger, brightening downwards counts as \"↓\" and upwards as \"↑\". The four outputs are the magnitude summed per direction, divided by the number of cells."
+      },
+      "hint": {
+        "zh": "|gx| 是 gx 和 −gx 里较大的那个。每个方向是两个条件同时成立：哪个分量大，它的正负号。",
+        "en": "|gx| is the larger of gx and −gx. Each direction needs two conditions at once: which part is larger, and its sign."
+      },
+      "outputs": ["e", "n", "w", "s"],
+      "outputLabels": {
+        "e": { "zh": "向右 →", "en": "Right →" },
+        "n": { "zh": "向上 ↑", "en": "Up ↑" },
+        "w": { "zh": "向左 ←", "en": "Left ←" },
+        "s": { "zh": "向下 ↓", "en": "Down ↓" }
+      },
+      "check": { "tolerance": 0.005 },
+      "scene": "orientations",
+      "tests": [
+        { "label": { "zh": "竖边", "en": "A vertical edge" }, "in": { "stepX": { "edge": 8 } } },
+        { "label": { "zh": "横边", "en": "A horizontal edge" }, "in": { "stepY": { "edge": 6, "lo": 0.8, "hi": 0.2 } } },
+        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 3, "y0": 5, "s": 7 } } },
+        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
+      ],
+      "hidden": [
+        { "label": { "zh": "斜坡", "en": "A ramp" }, "in": "rampX" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" }
+      ],
+      "solution": [
+        "neg = const[c=-1]()",
+        "gx = sobelx(in)",
+        "gy = sobely(in)",
+        "m = gradmag(in)",
+        "nx = arith[op=mul](gx, neg)",
+        "ny = arith[op=mul](gy, neg)",
+        "px = threshold[t=0](gx)",
+        "py = threshold[t=0](gy)",
+        "ax = max(gx, nx)",
+        "ay = max(gy, ny)",
+        "qx = threshold[t=0](nx)",
+        "qy = threshold[t=0](ny)",
+        "dxy = arith[op=sub](ax, ay)",
+        "dyx = arith[op=sub](ay, ax)",
+        "hx = threshold[t=0](dxy)",
+        "hy = threshold[t=0](dyx)",
+        "mx = arith[op=mul](m, hx)",
+        "my = arith[op=mul](m, hy)",
+        "be = arith[op=mul](mx, px)",
+        "bw = arith[op=mul](mx, qx)",
+        "bs = arith[op=mul](my, py)",
+        "bn = arith[op=mul](my, qy)",
+        "ae = fqMean(be)",
+        "aw = fqMean(bw)",
+        "as = fqMean(bs)",
+        "an = fqMean(bn)",
+        "e <- ae",
+        "n <- an",
+        "w <- aw",
+        "s <- as"
+      ],
+      "naive": ["m = gradmag(in)", "a = fqMean(m)", "e <- a", "n <- a", "w <- a", "s <- a"]
+    }
+  ]
 }

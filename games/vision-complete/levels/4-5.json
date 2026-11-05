@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "一个神经元", "en": "One neuron" },
-  "brief": {
-    "zh": "每组测试是一张字母图，已经缩成两个数：斜笔画多少、弯笔画多少。搭一个神经元：两个数各乘一个可学习的权重，加起来再加一个可学习的偏置 z，最后用 1 / (1 + e^(−z)) 把它压到 0 和 1 之间。训练它：X 输出大于 0.6，O 小于 0.4。",
-    "en": "Each test is a letter picture already reduced to two numbers: how much diagonal stroke and how much curved stroke. Build a neuron: multiply each number by a learnable weight, add them up and add a learnable bias z, then squash it between 0 and 1 with 1 / (1 + e^(−z)). Train it: above 0.6 for X, below 0.4 for O."
-  },
-  "hint": { "zh": "新元件 exp 算 e 的几次方。", "en": "The new part exp raises e to a power." },
   "after": {
     "zh": "加权和再压一下，就是一个神经元。w1·斜 + w2·弯 + b = 0 是平面上的一条直线，神经元在它的一侧说「是」，另一侧说「不是」：一个神经元就是一条分界线。1 / (1 + e^(−z)) 这道压缩叫 Sigmoid。",
     "en": "A weighted sum and then a squash: that is a neuron. w1·diagonal + w2·curved + b = 0 is a straight line in the plane, and the neuron says \"yes\" on one side and \"no\" on the other: one neuron is one dividing line. The squash 1 / (1 + e^(−z)) is called the sigmoid."
@@ -41,57 +35,68 @@
       }
     }
   ],
-  "inputs": ["f1", "f2"],
-  "inputLabels": { "f1": { "zh": "斜笔画", "en": "Diagonal strokes" }, "f2": { "zh": "弯笔画", "en": "Curved strokes" } },
   "adds": ["exp"],
   "unlocks": ["sigmoid"],
-  "check": { "tolerance": 0.4 },
-  "trainRate": 4,
-  "scene": "strokes",
-  "tests": [
-    { "label": { "zh": "X (0.8, 0.2)", "en": "X (0.8, 0.2)" }, "letter": "X", "f1": 0.8, "f2": 0.2 },
-    { "label": { "zh": "X (0.7, 0.35)", "en": "X (0.7, 0.35)" }, "letter": "X", "f1": 0.7, "f2": 0.35 },
-    { "label": { "zh": "X (0.9, 0.4)", "en": "X (0.9, 0.4)" }, "letter": "X", "f1": 0.9, "f2": 0.4 },
-    { "label": { "zh": "X (0.6, 0.15)", "en": "X (0.6, 0.15)" }, "letter": "X", "f1": 0.6, "f2": 0.15 },
-    { "label": { "zh": "X (0.75, 0.05)", "en": "X (0.75, 0.05)" }, "letter": "X", "f1": 0.75, "f2": 0.05 },
-    { "label": { "zh": "O (0.2, 0.8)", "en": "O (0.2, 0.8)" }, "letter": "O", "f1": 0.2, "f2": 0.8 },
-    { "label": { "zh": "O (0.3, 0.65)", "en": "O (0.3, 0.65)" }, "letter": "O", "f1": 0.3, "f2": 0.65 },
-    { "label": { "zh": "O (0.15, 0.5)", "en": "O (0.15, 0.5)" }, "letter": "O", "f1": 0.15, "f2": 0.5 }
-  ],
-  "hidden": [
-    { "label": { "zh": "O (0.4, 0.9)", "en": "O (0.4, 0.9)" }, "letter": "O", "f1": 0.4, "f2": 0.9 },
-    { "label": { "zh": "O (0.35, 0.7)", "en": "O (0.35, 0.7)" }, "letter": "O", "f1": 0.35, "f2": 0.7 }
-  ],
-  "solution": [
-    "nw1 = lrnConst[p=[2.5611]]()",
-    "nw2 = lrnConst[p=[-1.3987]]()",
-    "nc = lrnConst[p=[-0.3669]]()",
-    "nm = const[c=-1]()",
-    "nu = const()",
-    "n1 = arith[op=mul](f1, nw1)",
-    "n2 = arith[op=mul](f2, nw2)",
-    "ns = arith[op=add](n1, n2)",
-    "nb = arith[op=add](ns, nc)",
-    "nn = arith[op=mul](nb, nm)",
-    "ne = exp(nn)",
-    "nd = arith[op=add](ne, nu)",
-    "nq = arith[op=div](nu, nd)",
-    "out <- nq"
-  ],
-  "naive": [
-    "nw1 = lrnConst()",
-    "nw2 = lrnConst()",
-    "nc = lrnConst[p=[0]]()",
-    "nm = const[c=-1]()",
-    "nu = const()",
-    "n1 = arith[op=mul](f1, nw1)",
-    "n2 = arith[op=mul](f2, nw2)",
-    "ns = arith[op=add](n1, n2)",
-    "nb = arith[op=add](ns, nc)",
-    "nn = arith[op=mul](nb, nm)",
-    "ne = exp(nn)",
-    "nd = arith[op=add](ne, nu)",
-    "nq = arith[op=div](nu, nd)",
-    "out <- nq"
+  "tasks": [
+    {
+      "id": "4-5",
+      "kind": "graph",
+      "brief": {
+        "zh": "每组测试是一张字母图，已经缩成两个数：斜笔画多少、弯笔画多少。搭一个神经元：两个数各乘一个可学习的权重，加起来再加一个可学习的偏置 z，最后用 1 / (1 + e^(−z)) 把它压到 0 和 1 之间。训练它：X 输出大于 0.6，O 小于 0.4。",
+        "en": "Each test is a letter picture already reduced to two numbers: how much diagonal stroke and how much curved stroke. Build a neuron: multiply each number by a learnable weight, add them up and add a learnable bias z, then squash it between 0 and 1 with 1 / (1 + e^(−z)). Train it: above 0.6 for X, below 0.4 for O."
+      },
+      "hint": { "zh": "新元件 exp 算 e 的几次方。", "en": "The new part exp raises e to a power." },
+      "inputs": ["f1", "f2"],
+      "inputLabels": { "f1": { "zh": "斜笔画", "en": "Diagonal strokes" }, "f2": { "zh": "弯笔画", "en": "Curved strokes" } },
+      "check": { "tolerance": 0.4 },
+      "trainRate": 4,
+      "scene": "strokes",
+      "tests": [
+        { "label": { "zh": "X (0.8, 0.2)", "en": "X (0.8, 0.2)" }, "letter": "X", "f1": 0.8, "f2": 0.2 },
+        { "label": { "zh": "X (0.7, 0.35)", "en": "X (0.7, 0.35)" }, "letter": "X", "f1": 0.7, "f2": 0.35 },
+        { "label": { "zh": "X (0.9, 0.4)", "en": "X (0.9, 0.4)" }, "letter": "X", "f1": 0.9, "f2": 0.4 },
+        { "label": { "zh": "X (0.6, 0.15)", "en": "X (0.6, 0.15)" }, "letter": "X", "f1": 0.6, "f2": 0.15 },
+        { "label": { "zh": "X (0.75, 0.05)", "en": "X (0.75, 0.05)" }, "letter": "X", "f1": 0.75, "f2": 0.05 },
+        { "label": { "zh": "O (0.2, 0.8)", "en": "O (0.2, 0.8)" }, "letter": "O", "f1": 0.2, "f2": 0.8 },
+        { "label": { "zh": "O (0.3, 0.65)", "en": "O (0.3, 0.65)" }, "letter": "O", "f1": 0.3, "f2": 0.65 },
+        { "label": { "zh": "O (0.15, 0.5)", "en": "O (0.15, 0.5)" }, "letter": "O", "f1": 0.15, "f2": 0.5 }
+      ],
+      "hidden": [
+        { "label": { "zh": "O (0.4, 0.9)", "en": "O (0.4, 0.9)" }, "letter": "O", "f1": 0.4, "f2": 0.9 },
+        { "label": { "zh": "O (0.35, 0.7)", "en": "O (0.35, 0.7)" }, "letter": "O", "f1": 0.35, "f2": 0.7 }
+      ],
+      "solution": [
+        "nw1 = lrnConst[p=[2.5611]]()",
+        "nw2 = lrnConst[p=[-1.3987]]()",
+        "nc = lrnConst[p=[-0.3669]]()",
+        "nm = const[c=-1]()",
+        "nu = const()",
+        "n1 = arith[op=mul](f1, nw1)",
+        "n2 = arith[op=mul](f2, nw2)",
+        "ns = arith[op=add](n1, n2)",
+        "nb = arith[op=add](ns, nc)",
+        "nn = arith[op=mul](nb, nm)",
+        "ne = exp(nn)",
+        "nd = arith[op=add](ne, nu)",
+        "nq = arith[op=div](nu, nd)",
+        "out <- nq"
+      ],
+      "naive": [
+        "nw1 = lrnConst()",
+        "nw2 = lrnConst()",
+        "nc = lrnConst[p=[0]]()",
+        "nm = const[c=-1]()",
+        "nu = const()",
+        "n1 = arith[op=mul](f1, nw1)",
+        "n2 = arith[op=mul](f2, nw2)",
+        "ns = arith[op=add](n1, n2)",
+        "nb = arith[op=add](ns, nc)",
+        "nn = arith[op=mul](nb, nm)",
+        "ne = exp(nn)",
+        "nd = arith[op=add](ne, nu)",
+        "nq = arith[op=div](nu, nd)",
+        "out <- nq"
+      ]
+    }
   ]
 }

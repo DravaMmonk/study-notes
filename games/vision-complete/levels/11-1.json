@@ -1,6 +1,9 @@
 {
-  "kind": "graph",
   "title": { "zh": "遮住一块", "en": "Cover a block" },
+  "after": {
+    "zh": "这就是遮挡实验：拿一块挡板在图上逐格移动，看分数掉多少，掉得多的地方就是模型在看的地方。它不用知道模型里面是什么，对 CNN、ViT 都能做，只是每个位置都要把模型重跑一遍。",
+    "en": "This is the occlusion experiment: slide a patch over the picture cell by cell and watch how far the score drops; where it drops most is where the model is looking. It needs nothing from inside the model and works on a CNN or a ViT alike, at the price of running the model again for every position."
+  },
   "intro": [
     {
       "t": {
@@ -32,17 +35,11 @@
       }
     }
   ],
-  "inputs": ["in", "w"],
-  "inputLabels": {
-    "in": { "zh": "照片", "en": "Photo" },
-    "w": { "zh": "权重", "en": "Weights" },
-    "m": { "zh": "车的掩膜", "en": "Car mask" }
-  },
-  "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
   "unlocks": [],
   "tasks": [
     {
       "id": "11-1_1",
+      "kind": "graph",
       "brief": {
         "zh": "分类器的分数，是每一格的亮度乘它的权重，全部加起来。输出每一格给分数加了多少。",
         "en": "The classifier's score is every cell's brightness times its weight, all added up. Output how much each cell adds to the score."
@@ -52,6 +49,13 @@
         "en": "This is a contribution map: the bright cells are where the score comes from. For a classifier with one weight a cell like this one, it is also the gradient of the score with respect to each cell's brightness, times that brightness (gradient × input)."
       },
       "step": { "zh": "每格出了多少分", "en": "What each cell adds" },
+      "inputs": ["in", "w"],
+      "inputLabels": {
+        "in": { "zh": "照片", "en": "Photo" },
+        "w": { "zh": "权重", "en": "Weights" },
+        "m": { "zh": "车的掩膜", "en": "Car mask" }
+      },
+      "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
       "scene": "classifier",
       "setup": { "check": "contribution" },
       "tests": [
@@ -86,6 +90,7 @@
     },
     {
       "id": "11-1_2",
+      "kind": "graph",
       "brief": {
         "zh": "把一格周围 3×3 的一块涂黑（亮度变 0），分数会掉一些。在每一格输出：涂黑以它为中心的那一块，分数掉多少。",
         "en": "Black out the 3×3 block round a cell (brightness 0) and the score drops a little. At every cell, output how much the score drops when the block centred on it is blacked out."
@@ -94,12 +99,15 @@
         "zh": "涂黑一块，分数丢掉的正是那一块里每一格原来出的分。",
         "en": "Blacking out a block loses exactly what each cell in the block used to add."
       },
-      "after": {
-        "zh": "这就是遮挡实验：拿一块挡板在图上逐格移动，看分数掉多少，掉得多的地方就是模型在看的地方。它不用知道模型里面是什么，对 CNN、ViT 都能做，只是每个位置都要把模型重跑一遍。",
-        "en": "This is the occlusion experiment: slide a patch over the picture cell by cell and watch how far the score drops; where it drops most is where the model is looking. It needs nothing from inside the model and works on a CNN or a ViT alike, at the price of running the model again for every position."
-      },
       "step": { "zh": "遮住一块", "en": "Cover a block" },
       "carries": true,
+      "inputs": ["in", "w"],
+      "inputLabels": {
+        "in": { "zh": "照片", "en": "Photo" },
+        "w": { "zh": "权重", "en": "Weights" },
+        "m": { "zh": "车的掩膜", "en": "Car mask" }
+      },
+      "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
       "scene": "classifier",
       "setup": { "check": "occlusion" },
       "tests": [

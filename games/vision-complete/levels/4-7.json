@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "两种边都要", "en": "Both kinds of edge" },
-  "brief": {
-    "zh": "暗→亮的边和亮→暗的边都要输出正的强度（输出 = |右边 − 自己|）。",
-    "en": "Both dark→light and light→dark edges must give a positive strength (output = |right − self|)."
-  },
-  "hint": {
-    "zh": "只用加、减和乘常数，无论怎么组合，暗→亮和亮→暗都会得到相反的符号。有没有办法只留下正的部分？",
-    "en": "With only adding, subtracting and multiplying by constants, however you combine them, dark→light and light→dark get opposite signs. Is there a way to keep only the positive part?"
-  },
   "after": {
     "zh": "任何只含加、减和乘常数的组合都是线性的，正负号必然对称。「负数变 0、正数不变」叫 ReLU。中间插一个非线性，网络才能表达「两种都要」。这就是神经网络需要激活函数的原因。",
     "en": "Any combination of adding, subtracting and multiplying by constants is linear, so the signs are bound to be symmetric. \"Negatives become 0, positives stay\" is called ReLU. Only with a nonlinearity in between can a network express \"I want both\". This is why neural networks need activation functions."
@@ -43,38 +34,52 @@
     }
   ],
   "unlocks": ["relu"],
-  "scene": "filter",
-  "setup": { "target": "absdiff" },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+  "tasks": [
     {
-      "label": { "zh": "亮底暗块", "en": "Dark square on light" },
-      "in": { "square": { "x0": 4, "y0": 4, "s": 8, "lo": 0.9, "hi": 0.1 } }
-    },
-    { "label": { "zh": "字母 O", "en": "Letter O" }, "in": { "glyph": { "letter": "O" } } },
-    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
-  ],
-  "hidden": [
-    { "label": { "zh": "往右变暗的坡", "en": "Ramp darkening to the right" }, "in": { "ramp": { "c": 0.85, "dx": -0.04 } } },
-    {
-      "label": { "zh": "挪开的低对比圆盘", "en": "Shifted low-contrast disc" },
-      "in": { "disk": { "cx": 10, "cy": 6, "r": 3.5, "lo": 0.35, "hi": 0.6 } }
-    },
-    {
-      "label": { "zh": "字母 X", "en": "Letter X" },
-      "in": { "glyph": { "letter": "X", "lo": 0.8, "hi": 0.2, "ox": 4, "oy": 4 } }
+      "id": "4-7",
+      "kind": "graph",
+      "brief": {
+        "zh": "暗→亮的边和亮→暗的边都要输出正的强度（输出 = |右边 − 自己|）。",
+        "en": "Both dark→light and light→dark edges must give a positive strength (output = |right − self|)."
+      },
+      "hint": {
+        "zh": "只用加、减和乘常数，无论怎么组合，暗→亮和亮→暗都会得到相反的符号。有没有办法只留下正的部分？",
+        "en": "With only adding, subtracting and multiplying by constants, however you combine them, dark→light and light→dark get opposite signs. Is there a way to keep only the positive part?"
+      },
+      "scene": "filter",
+      "setup": { "target": "absdiff" },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        {
+          "label": { "zh": "亮底暗块", "en": "Dark square on light" },
+          "in": { "square": { "x0": 4, "y0": 4, "s": 8, "lo": 0.9, "hi": 0.1 } }
+        },
+        { "label": { "zh": "字母 O", "en": "Letter O" }, "in": { "glyph": { "letter": "O" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+      ],
+      "hidden": [
+        { "label": { "zh": "往右变暗的坡", "en": "Ramp darkening to the right" }, "in": { "ramp": { "c": 0.85, "dx": -0.04 } } },
+        {
+          "label": { "zh": "挪开的低对比圆盘", "en": "Shifted low-contrast disc" },
+          "in": { "disk": { "cx": 10, "cy": 6, "r": 3.5, "lo": 0.35, "hi": 0.6 } }
+        },
+        {
+          "label": { "zh": "字母 X", "en": "Letter X" },
+          "in": { "glyph": { "letter": "X", "lo": 0.8, "hi": 0.2, "ox": 4, "oy": 4 } }
+        }
+      ],
+      "solution": [
+        "nN = const[c=-1]()",
+        "d = diffx(in)",
+        "n = arith[op=mul](d, nN)",
+        "pt = threshold[t=0](d)",
+        "pm = arith[op=mul](d, pt)",
+        "qt = threshold[t=0](n)",
+        "qm = arith[op=mul](n, qt)",
+        "a = arith[op=add](pm, qm)",
+        "out <- a"
+      ],
+      "naive": ["d = diffx(in)", "out <- d"]
     }
-  ],
-  "solution": [
-    "nN = const[c=-1]()",
-    "d = diffx(in)",
-    "n = arith[op=mul](d, nN)",
-    "pt = threshold[t=0](d)",
-    "pm = arith[op=mul](d, pt)",
-    "qt = threshold[t=0](n)",
-    "qm = arith[op=mul](n, qt)",
-    "a = arith[op=add](pm, qm)",
-    "out <- a"
-  ],
-  "naive": ["d = diffx(in)", "out <- d"]
+  ]
 }

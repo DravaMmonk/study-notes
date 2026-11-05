@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "梯度大小", "en": "Gradient magnitude" },
-  "brief": {
-    "zh": "坡度有两个分量：Sobel x 量往右走亮度变多少（gx），Sobel y 量往下走（gy）。两个合成一个箭头，在每个像素输出箭头有多长：√(gx² + gy²)。不管边是横的、竖的还是斜的，越陡的地方越亮。",
-    "en": "A slope has two components: Sobel x measures how much the brightness changes going right (gx), and Sobel y going down (gy). Together they make an arrow; at every pixel, output how long that arrow is: √(gx² + gy²). Whether an edge is horizontal, vertical or diagonal, the steeper it is, the brighter."
-  },
-  "hint": {
-    "zh": "箭头的长度怎么从两个分量算出来？想想勾股定理。",
-    "en": "How do you get the arrow's length from its two components? Think of Pythagoras."
-  },
   "after": {
     "zh": "两个方向的坡度合成一个长度，边缘强度就和边的方向无关了：横边、竖边、斜边一样亮。方向本身是 atan2(gy, gx)，箭头总指向变亮最快的方向，在边上和边垂直。切到「坡度」画法看输入：箭头就画在每个像素上。",
     "en": "Combining the slopes in two directions into one length makes edge strength independent of edge direction: horizontal, vertical and diagonal edges are equally bright. The direction itself is atan2(gy, gx); the arrow always points where the brightness rises fastest, and on an edge it is perpendicular to the edge. Draw the input in the \"Slope\" view: the arrows are drawn at every pixel."
@@ -55,35 +46,49 @@
       "fig": { "test": 0, "caption": { "zh": "第一组测试：方块 → 期望", "en": "Set 1: square → expected" } }
     }
   ],
-  "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
   "unlocks": ["gradmag"],
-  "scene": "filter",
-  "setup": { "target": "gradmag" },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-    { "label": { "zh": "字母 X", "en": "Letter X" }, "in": { "glyph": { "letter": "X" } } },
-    { "label": { "zh": "角", "en": "Corner" }, "in": "corner" }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "label": { "zh": "低对比圆盘", "en": "Low-contrast disc" },
-      "in": { "disk": { "cx": 9, "cy": 6, "r": 4, "lo": 0.4, "hi": 0.65 } }
-    },
-    {
-      "label": { "zh": "挪开的字母 T", "en": "Shifted letter T" },
-      "in": { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.75, "ox": 5, "oy": 4 } }
-    },
-    { "label": { "zh": "斜坡", "en": "Ramp" }, "in": { "ramp": { "c": 0.1, "dx": 0.03, "dy": 0.02 } } }
-  ],
-  "solution": [
-    "x = sobelx(in)",
-    "y = sobely(in)",
-    "xx = arith[op=mul](x, x)",
-    "yy = arith[op=mul](y, y)",
-    "a = arith[op=add](xx, yy)",
-    "r = sqrt(a)",
-    "out <- r"
-  ],
-  "naive": ["x = sobelx(in)", "y = sobely(in)", "a = arith[op=add](x, y)", "out <- a"]
+      "id": "3-7",
+      "kind": "graph",
+      "brief": {
+        "zh": "坡度有两个分量：Sobel x 量往右走亮度变多少（gx），Sobel y 量往下走（gy）。两个合成一个箭头，在每个像素输出箭头有多长：√(gx² + gy²)。不管边是横的、竖的还是斜的，越陡的地方越亮。",
+        "en": "A slope has two components: Sobel x measures how much the brightness changes going right (gx), and Sobel y going down (gy). Together they make an arrow; at every pixel, output how long that arrow is: √(gx² + gy²). Whether an edge is horizontal, vertical or diagonal, the steeper it is, the brighter."
+      },
+      "hint": {
+        "zh": "箭头的长度怎么从两个分量算出来？想想勾股定理。",
+        "en": "How do you get the arrow's length from its two components? Think of Pythagoras."
+      },
+      "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
+      "scene": "filter",
+      "setup": { "target": "gradmag" },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 X", "en": "Letter X" }, "in": { "glyph": { "letter": "X" } } },
+        { "label": { "zh": "角", "en": "Corner" }, "in": "corner" }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "低对比圆盘", "en": "Low-contrast disc" },
+          "in": { "disk": { "cx": 9, "cy": 6, "r": 4, "lo": 0.4, "hi": 0.65 } }
+        },
+        {
+          "label": { "zh": "挪开的字母 T", "en": "Shifted letter T" },
+          "in": { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.75, "ox": 5, "oy": 4 } }
+        },
+        { "label": { "zh": "斜坡", "en": "Ramp" }, "in": { "ramp": { "c": 0.1, "dx": 0.03, "dy": 0.02 } } }
+      ],
+      "solution": [
+        "x = sobelx(in)",
+        "y = sobely(in)",
+        "xx = arith[op=mul](x, x)",
+        "yy = arith[op=mul](y, y)",
+        "a = arith[op=add](xx, yy)",
+        "r = sqrt(a)",
+        "out <- r"
+      ],
+      "naive": ["x = sobelx(in)", "y = sobely(in)", "a = arith[op=add](x, y)", "out <- a"]
+    }
+  ]
 }

@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "多通道", "en": "Multiple channels" },
-  "brief": {
-    "zh": "输入把红、绿、蓝分成三张图送来（都已减去 0.5）。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。",
-    "en": "The input arrives as three images, red, green and blue (each with 0.5 already subtracted). Trace only the edges where red meets green; output 0 where things only get brighter or darker, or where only blue changes."
-  },
-  "hint": {
-    "zh": "加成灰度图试试：红和绿一样亮时，交界就消失了。那三个通道该怎样处理，才不会丢掉这条边？",
-    "en": "Try adding them into a greyscale image: when red and green are equally bright, the border disappears. So how should the three channels be handled so this edge is not lost?"
-  },
   "after": {
     "zh": "一个卷积核要同时覆盖所有输入通道：这里是 3×3×3 = 27 个权重，三份乘积加成一张激活图。训练出的红通道核和绿通道核正好相反，蓝通道的是 0，于是同时变亮的部分互相抵消，只剩颜色对比。CNN 第一层学到的颜色对比滤波器就是这样来的。",
     "en": "A convolution kernel has to cover all the input channels at once: here that is 3×3×3 = 27 weights, and the three sets of products add up to one activation map. The trained red-channel and green-channel kernels come out exactly opposite and the blue one is 0, so whatever brightens in every channel cancels out and only the colour contrast is left. This is where the colour-contrast filters in a CNN's first layer come from."
@@ -34,49 +25,63 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：红绿对半，一样亮", "en": "Set 1: half red, half green, equally bright" } }
     }
   ],
-  "inputs": ["r", "g", "b"],
-  "inputLabels": { "r": { "zh": "红 R", "en": "Red R" }, "g": { "zh": "绿 G", "en": "Green G" }, "b": { "zh": "蓝 B", "en": "Blue B" } },
   "unlocks": ["lrn-rgb"],
-  "trainRate": 8,
-  "scene": "colour",
-  "setup": { "mix": "redGreen" },
-  "tests": [
-    { "label": { "zh": "红绿对半，一样亮", "en": "Half red, half green, equally bright" }, "paint": "halves" },
-    { "label": { "zh": "只有明暗", "en": "Only light and dark" }, "paint": "greyBlock" },
-    { "label": { "zh": "绿底红点，旁边一块蓝", "en": "Red spot on green, with a blue patch beside it" }, "paint": "redSpot" },
-    { "label": { "zh": "彩色噪点 A", "en": "Colour noise A" }, "noise": 9 },
-    { "label": { "zh": "彩色噪点 B", "en": "Colour noise B" }, "noise": 11 }
-  ],
-  "hidden": [
-    { "label": { "zh": "红绿斜分，上暗下亮", "en": "Red and green split diagonally, darker at the top" }, "paint": "slanted" },
-    { "label": { "zh": "彩色噪点 C", "en": "Colour noise C" }, "noise": 13 },
-    { "label": { "zh": "灰色渐变上的蓝条", "en": "Blue bar on a grey gradient" }, "paint": "blueBar" }
-  ],
-  "solution": [
-    "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)",
-    "g3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](g)",
-    "b3 = learn3(b)",
-    "s1 = arith[op=add](r3, g3)",
-    "s2 = arith[op=add](s1, b3)",
-    "out <- s2"
-  ],
-  "naive": [
-    "kN = const[c=0.33]()",
-    "s1 = arith[op=add](r, g)",
-    "s2 = arith[op=add](s1, b)",
-    "k = arith[op=mul](s2, kN)",
-    "l = learn3[w=[0, -0.75, 0, -0.75, 3, -0.75, 0, -0.75, 0]](k)",
-    "out <- l"
-  ],
-  "alsoFails": [
-    ["l = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)", "out <- l"],
-    [
-      "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)",
-      "g3 = learn3(g)",
-      "b3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](b)",
-      "s1 = arith[op=add](r3, g3)",
-      "s2 = arith[op=add](s1, b3)",
-      "out <- s2"
-    ]
+  "tasks": [
+    {
+      "id": "4-13",
+      "kind": "graph",
+      "brief": {
+        "zh": "输入把红、绿、蓝分成三张图送来（都已减去 0.5）。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。",
+        "en": "The input arrives as three images, red, green and blue (each with 0.5 already subtracted). Trace only the edges where red meets green; output 0 where things only get brighter or darker, or where only blue changes."
+      },
+      "hint": {
+        "zh": "加成灰度图试试：红和绿一样亮时，交界就消失了。那三个通道该怎样处理，才不会丢掉这条边？",
+        "en": "Try adding them into a greyscale image: when red and green are equally bright, the border disappears. So how should the three channels be handled so this edge is not lost?"
+      },
+      "inputs": ["r", "g", "b"],
+      "inputLabels": { "r": { "zh": "红 R", "en": "Red R" }, "g": { "zh": "绿 G", "en": "Green G" }, "b": { "zh": "蓝 B", "en": "Blue B" } },
+      "trainRate": 8,
+      "scene": "colour",
+      "setup": { "mix": "redGreen" },
+      "tests": [
+        { "label": { "zh": "红绿对半，一样亮", "en": "Half red, half green, equally bright" }, "paint": "halves" },
+        { "label": { "zh": "只有明暗", "en": "Only light and dark" }, "paint": "greyBlock" },
+        { "label": { "zh": "绿底红点，旁边一块蓝", "en": "Red spot on green, with a blue patch beside it" }, "paint": "redSpot" },
+        { "label": { "zh": "彩色噪点 A", "en": "Colour noise A" }, "noise": 9 },
+        { "label": { "zh": "彩色噪点 B", "en": "Colour noise B" }, "noise": 11 }
+      ],
+      "hidden": [
+        { "label": { "zh": "红绿斜分，上暗下亮", "en": "Red and green split diagonally, darker at the top" }, "paint": "slanted" },
+        { "label": { "zh": "彩色噪点 C", "en": "Colour noise C" }, "noise": 13 },
+        { "label": { "zh": "灰色渐变上的蓝条", "en": "Blue bar on a grey gradient" }, "paint": "blueBar" }
+      ],
+      "solution": [
+        "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)",
+        "g3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](g)",
+        "b3 = learn3(b)",
+        "s1 = arith[op=add](r3, g3)",
+        "s2 = arith[op=add](s1, b3)",
+        "out <- s2"
+      ],
+      "naive": [
+        "kN = const[c=0.33]()",
+        "s1 = arith[op=add](r, g)",
+        "s2 = arith[op=add](s1, b)",
+        "k = arith[op=mul](s2, kN)",
+        "l = learn3[w=[0, -0.75, 0, -0.75, 3, -0.75, 0, -0.75, 0]](k)",
+        "out <- l"
+      ],
+      "alsoFails": [
+        ["l = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)", "out <- l"],
+        [
+          "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)",
+          "g3 = learn3(g)",
+          "b3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](b)",
+          "s1 = arith[op=add](r3, g3)",
+          "s2 = arith[op=add](s1, b3)",
+          "out <- s2"
+        ]
+      ]
+    }
   ]
 }

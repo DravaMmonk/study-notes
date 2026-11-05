@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "只认颜色", "en": "Colour, not brightness" },
-  "brief": {
-    "zh": "三张输入是同一个场景的 R、G、B。标出红色的东西：亮处的、阴影里的都要；白纸、黄花不算。",
-    "en": "The three inputs are the R, G and B of one scene. Mark the red things, in the light and in the shade alike; white paper and yellow flowers do not count."
-  },
-  "hint": {
-    "zh": "阴影里的红苹果，R 并不大；阳光下的白纸，R 却很大。光照把三个数一起放大缩小，什么量不受它影响？",
-    "en": "A red apple in the shade has a small R; white paper in the sun has a big one. Lighting scales all three numbers together, so what stays the same?"
-  },
   "after": {
     "zh": "光照让 R、G、B 一起变大变小，三者的比例却不变。r = R ÷ (R + G + B) 只看颜色、不看明暗，是一种色度。HSV、Lab 这些颜色空间也是同一个想法：把「什么颜色」和「多亮」分开放。",
     "en": "Lighting scales R, G and B together, but their proportions stay the same. r = R ÷ (R + G + B) sees the colour and not the brightness: it is a chromaticity. Colour spaces such as HSV and Lab follow the same idea: they keep \"which colour\" apart from \"how bright\"."
@@ -34,25 +25,39 @@
       }
     }
   ],
-  "inputs": ["r", "g", "b"],
-  "inputLabels": { "r": "R", "g": "G", "b": "B" },
-  "scene": "redObjects",
-  "tests": [
-    { "label": { "zh": "苹果", "en": "Apples" }, "layout": "apples", "light": "window" },
-    { "label": { "zh": "旗子", "en": "Flags" }, "layout": "flags", "light": "shade" },
-    { "label": { "zh": "花丛", "en": "Flowers" }, "layout": "flowers", "light": "dusk" }
-  ],
-  "hidden": [
-    { "label": { "zh": "水果摊", "en": "A fruit stall" }, "layout": "stall", "light": "patchy" },
-    { "label": { "zh": "街道", "en": "A street" }, "layout": "street", "light": "noon" }
-  ],
-  "solution": [
-    "s1 = arith[op=add](r, g)",
-    "s2 = arith[op=add](s1, b)",
-    "q = arith[op=div](r, s2)",
-    "t = threshold(q)",
-    "out <- t"
-  ],
-  "naive": ["t = threshold[t=0.4](r)", "out <- t"],
-  "alsoFails": [["d = arith[op=sub](r, g)", "t = threshold[t=0.25](d)", "out <- t"]]
+  "tasks": [
+    {
+      "id": "3-6",
+      "kind": "graph",
+      "brief": {
+        "zh": "三张输入是同一个场景的 R、G、B。标出红色的东西：亮处的、阴影里的都要；白纸、黄花不算。",
+        "en": "The three inputs are the R, G and B of one scene. Mark the red things, in the light and in the shade alike; white paper and yellow flowers do not count."
+      },
+      "hint": {
+        "zh": "阴影里的红苹果，R 并不大；阳光下的白纸，R 却很大。光照把三个数一起放大缩小，什么量不受它影响？",
+        "en": "A red apple in the shade has a small R; white paper in the sun has a big one. Lighting scales all three numbers together, so what stays the same?"
+      },
+      "inputs": ["r", "g", "b"],
+      "inputLabels": { "r": "R", "g": "G", "b": "B" },
+      "scene": "redObjects",
+      "tests": [
+        { "label": { "zh": "苹果", "en": "Apples" }, "layout": "apples", "light": "window" },
+        { "label": { "zh": "旗子", "en": "Flags" }, "layout": "flags", "light": "shade" },
+        { "label": { "zh": "花丛", "en": "Flowers" }, "layout": "flowers", "light": "dusk" }
+      ],
+      "hidden": [
+        { "label": { "zh": "水果摊", "en": "A fruit stall" }, "layout": "stall", "light": "patchy" },
+        { "label": { "zh": "街道", "en": "A street" }, "layout": "street", "light": "noon" }
+      ],
+      "solution": [
+        "s1 = arith[op=add](r, g)",
+        "s2 = arith[op=add](s1, b)",
+        "q = arith[op=div](r, s2)",
+        "t = threshold(q)",
+        "out <- t"
+      ],
+      "naive": ["t = threshold[t=0.4](r)", "out <- t"],
+      "alsoFails": [["d = arith[op=sub](r, g)", "t = threshold[t=0.25](d)", "out <- t"]]
+    }
+  ]
 }

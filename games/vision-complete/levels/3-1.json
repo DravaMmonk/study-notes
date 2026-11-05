@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "画一个球", "en": "Draw a ball" },
-  "brief": {
-    "zh": "输入是一块表面每一点的朝向（法线的 x、y、z 三个分量）和它的反射率。灯从右上方照来，方向是 (0.48, −0.36, 0.8)（x 向右，y 向下，z 朝着相机）。画出相机拍到的样子：亮度 = 反射率 × cos θ，θ 是法线和灯的方向的夹角。",
-    "en": "The inputs are which way each point of a surface faces (the x, y and z of its normal) and its reflectance. The lamp shines from the upper right, from direction (0.48, −0.36, 0.8) (x to the right, y down, z towards the camera). Draw what the camera sees: brightness = reflectance × cos θ, where θ is the angle between the normal and the lamp direction."
-  },
-  "hint": {
-    "zh": "两个单位长度的方向，夹角的 cos 等于它们的分量两两相乘再相加。",
-    "en": "For two directions of unit length, the cos of the angle between them is their components multiplied pairwise and added."
-  },
   "after": {
     "zh": "这就是朗伯模型：哑光表面的亮度 = 灯 × 反射率 × cos θ。正对着灯最亮，越斜越暗，因为同一束光铺到了更大的面积上；背着灯的地方是 0。",
     "en": "This is the Lambertian model: the brightness of a matte surface = lamp × reflectance × cos θ. Facing the lamp is brightest, and the more it turns away the darker it gets, because the same beam spreads over a larger area; where the surface faces away it is 0."
@@ -40,57 +31,71 @@
       "fig": { "test": 0, "caption": { "zh": "第一组测试：一个白球", "en": "Set 1: a white ball" } }
     }
   ],
-  "inputs": ["nx", "ny", "nz", "albedo"],
-  "inputLabels": {
-    "nx": { "zh": "法线 x", "en": "Normal x" },
-    "ny": { "zh": "法线 y", "en": "Normal y" },
-    "nz": { "zh": "法线 z", "en": "Normal z" },
-    "albedo": { "zh": "反射率", "en": "Reflectance" }
-  },
-  "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
   "unlocks": ["lambert"],
-  "scene": "surface",
-  "setup": { "lamp": [0.48, -0.36, 0.8] },
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "白球", "en": "White ball" },
-      "height": [{ "dome": [7.5, 7.5, 7, 3] }],
-      "paint": { "blank": { "v": 0.9 } }
-    },
-    {
-      "label": { "zh": "两个鼓包", "en": "Two bumps" },
-      "height": [{ "dome": [4.5, 5, 4, 1.5] }, { "dome": [11, 10, 4.5, 2] }],
-      "paint": { "stripes": { "period": 8, "lo": 0.4, "hi": 0.9 } }
-    },
-    {
-      "label": { "zh": "横梁", "en": "A ridge" },
-      "height": [{ "ridge": [8, 5, 2.5] }],
-      "paint": { "glyph": { "letter": "T", "lo": 0.85, "hi": 0.35 } }
+      "id": "3-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "输入是一块表面每一点的朝向（法线的 x、y、z 三个分量）和它的反射率。灯从右上方照来，方向是 (0.48, −0.36, 0.8)（x 向右，y 向下，z 朝着相机）。画出相机拍到的样子：亮度 = 反射率 × cos θ，θ 是法线和灯的方向的夹角。",
+        "en": "The inputs are which way each point of a surface faces (the x, y and z of its normal) and its reflectance. The lamp shines from the upper right, from direction (0.48, −0.36, 0.8) (x to the right, y down, z towards the camera). Draw what the camera sees: brightness = reflectance × cos θ, where θ is the angle between the normal and the lamp direction."
+      },
+      "hint": {
+        "zh": "两个单位长度的方向，夹角的 cos 等于它们的分量两两相乘再相加。",
+        "en": "For two directions of unit length, the cos of the angle between them is their components multiplied pairwise and added."
+      },
+      "inputs": ["nx", "ny", "nz", "albedo"],
+      "inputLabels": {
+        "nx": { "zh": "法线 x", "en": "Normal x" },
+        "ny": { "zh": "法线 y", "en": "Normal y" },
+        "nz": { "zh": "法线 z", "en": "Normal z" },
+        "albedo": { "zh": "反射率", "en": "Reflectance" }
+      },
+      "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
+      "scene": "surface",
+      "setup": { "lamp": [0.48, -0.36, 0.8] },
+      "tests": [
+        {
+          "label": { "zh": "白球", "en": "White ball" },
+          "height": [{ "dome": [7.5, 7.5, 7, 3] }],
+          "paint": { "blank": { "v": 0.9 } }
+        },
+        {
+          "label": { "zh": "两个鼓包", "en": "Two bumps" },
+          "height": [{ "dome": [4.5, 5, 4, 1.5] }, { "dome": [11, 10, 4.5, 2] }],
+          "paint": { "stripes": { "period": 8, "lo": 0.4, "hi": 0.9 } }
+        },
+        {
+          "label": { "zh": "横梁", "en": "A ridge" },
+          "height": [{ "ridge": [8, 5, 2.5] }],
+          "paint": { "glyph": { "letter": "T", "lo": 0.85, "hi": 0.35 } }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "斜板", "en": "Tilted board" },
+          "height": [{ "tilt": [0.3, -0.2] }],
+          "paint": { "checker": { "cell": 4, "lo": 0.45, "hi": 0.85 } }
+        },
+        {
+          "label": { "zh": "一对鼓包", "en": "A pair of bumps" },
+          "height": [{ "dome": [5, 8, 4, 2.5] }, { "dome": [11, 8, 4, 2.5] }],
+          "paint": { "blank": { "v": 0.9 } }
+        }
+      ],
+      "solution": [
+        "xN = const[c=0.48]()",
+        "yN = const[c=-0.36]()",
+        "zN = const[c=0.8]()",
+        "x = arith[op=mul](nx, xN)",
+        "y = arith[op=mul](ny, yN)",
+        "z = arith[op=mul](nz, zN)",
+        "a = arith[op=add](x, y)",
+        "b = arith[op=add](a, z)",
+        "m = arith[op=mul](b, albedo)",
+        "out <- m"
+      ],
+      "naive": ["m = arith[op=mul](nz, albedo)", "out <- m"]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "斜板", "en": "Tilted board" },
-      "height": [{ "tilt": [0.3, -0.2] }],
-      "paint": { "checker": { "cell": 4, "lo": 0.45, "hi": 0.85 } }
-    },
-    {
-      "label": { "zh": "一对鼓包", "en": "A pair of bumps" },
-      "height": [{ "dome": [5, 8, 4, 2.5] }, { "dome": [11, 8, 4, 2.5] }],
-      "paint": { "blank": { "v": 0.9 } }
-    }
-  ],
-  "solution": [
-    "xN = const[c=0.48]()",
-    "yN = const[c=-0.36]()",
-    "zN = const[c=0.8]()",
-    "x = arith[op=mul](nx, xN)",
-    "y = arith[op=mul](ny, yN)",
-    "z = arith[op=mul](nz, zN)",
-    "a = arith[op=add](x, y)",
-    "b = arith[op=add](a, z)",
-    "m = arith[op=mul](b, albedo)",
-    "out <- m"
-  ],
-  "naive": ["m = arith[op=mul](nz, albedo)", "out <- m"]
+  ]
 }

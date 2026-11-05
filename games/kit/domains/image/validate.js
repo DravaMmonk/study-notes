@@ -1,8 +1,8 @@
 // The image domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): every level
 // has an intro whose figures exist, every bench proves its lesson (its item's verify, items/benches.js), and every
-// circuit level keeps hidden tests, cannot be met by a constant, passes with its reference circuit and fails with its
-// naive ones (every task of a level, too); a level that packs its circuit is passed by that part alone, wired to the
-// level's inputs. The parts' own text has English too.
+// circuit task keeps hidden tests, cannot be met by a constant, passes with its reference circuit and fails with its
+// naive ones; a level that packs its circuit is passed by that part alone, wired to its last task's inputs. The parts'
+// own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
 import { keyOf } from '../../shell/i18n.js'
 import { untranslated } from '../../engine/text.js'
@@ -29,11 +29,12 @@ export function validate({ levels, intros, kit }) {
 
   for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) failAt(`${level.id}: 引言：${problem}`, level.id)
 
-  // A level of several tasks is checked task by task, each as a level of its own (`1-11/1`).
-  const played = levels.flatMap((level) => (level.tasks ? level.tasks.map((task, k) => ({ ...task, id: `${level.id}/${k + 1}`, home: level.id })) : [level]))
+  // Every task is checked as a level of its own, a task of a level of several named by its place (`1-11/1`); `home` is
+  // its level, `last` whether it is the level's last task (the one a packed part runs).
+  const played = levels.flatMap((level) => level.tasks.map((task, k) => ({ ...task, id: level.tasks.length > 1 ? `${level.id}/${k + 1}` : level.id, home: level.id, last: k === level.tasks.length - 1 })))
   for (const level of played) {
-    const fail = (text) => failAt(text, level.home ?? level.id)
-    const say = (text) => sayAt(text, level.home ?? level.id)
+    const fail = (text) => failAt(text, level.home)
+    const say = (text) => sayAt(text, level.home)
     if (level.kind !== 'graph') {
       // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.
       const problem = level.verify ? level.verify() : ''
@@ -73,10 +74,10 @@ export function validate({ levels, intros, kit }) {
       if (bad.run.pass) fail(text)
       else say(text)
     }
-    // The part a level packs, alone between the level's inputs and its output, passes the level's tests.
-    if (level.packs) {
+    // The part a level packs, alone between its last task's inputs and its output, passes that task's tests.
+    if (level.packs && level.last) {
       const board = startBoard(level)
-      board.nodes.push({ id: 'part', type: `own-${level.id}`, x: 300, y: 60, params: {} })
+      board.nodes.push({ id: 'part', type: `own-${level.home}`, x: 300, y: 60, params: {} })
       board.wires.push(...level.inputs.map((name) => ({ from: name, to: 'part', port: name })), { from: 'part', to: level.outputs[0], port: 'in' })
       const run = runLevel({ ...withHidden(level), constraint: undefined }, board)
       if (run.pass) say(`  its part alone passes`)

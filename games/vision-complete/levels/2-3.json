@@ -1,14 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "乘了再平均", "en": "Multiply, then average" },
-  "brief": {
-    "zh": "输入是一条曲线，探针是一道你选频率的波。两条曲线逐点相乘，台上画出乘积和它的平均。先找出让平均不为 0 的探针，再从一条混合的曲线里读出一道波的振幅。",
-    "en": "The input is a curve and the probe is a wave whose frequency you choose. The two are multiplied point by point, and the bench draws the product and its average. First find the probe whose average is not 0, then read one wave's amplitude out of a mixed curve."
-  },
-  "hint": {
-    "zh": "乘积整体偏在 0 的上面还是下面？什么时候正负刚好抵消？",
-    "en": "Does the product sit above or below 0 overall? When do plus and minus cancel exactly?"
-  },
   "after": {
     "zh": "探针波和曲线逐点相乘再平均，别的频率互相抵消，只留下同一频率那道波振幅的一半，乘 2 就是它的振幅。换一个探针频率，就量另一道波。",
     "en": "Multiply a probe wave with the curve point by point and average: the other frequencies cancel, leaving half the amplitude of the wave at the probe's frequency, and twice that is its amplitude. Change the probe's frequency to measure another wave."
@@ -27,79 +18,93 @@
       }
     }
   ],
-  "bench": {
-    "model": "probe",
-    "setup": { "N": 32, "wave": { "k": 3, "A": 0.3 } },
-    "knobs": {
-      "j": { "min": 1, "max": 8, "step": 1, "label": { "zh": "探针频率", "en": "Probe frequency" } },
-      "m": { "min": 0.5, "max": 4, "step": 0.5, "label": { "zh": "读数乘以", "en": "Reading times" } },
-      "shift": { "min": 0, "max": 345, "step": 15, "label": { "zh": "输入错开", "en": "Input shifted by" }, "unit": "°" },
-      "pick": {
-        "choices": [
-          { "value": "cos", "label": { "zh": "只看 a", "en": "Only a" } },
-          { "value": "sin", "label": { "zh": "只看 b", "en": "Only b" } },
-          { "value": "sum", "label": "a + b" },
-          { "value": "mag", "label": "√(a² + b²)" }
-        ],
-        "start": null
-      }
-    },
-    "stages": [
-      {
-        "title": { "zh": "找频率", "en": "Find the frequency" },
-        "note": {
-          "zh": "输入是一道频率不知道的波。转动探针的频率，看下面两条曲线逐点相乘的结果和它的平均。",
-          "en": "The input is a wave of unknown frequency. Turn the probe's frequency and watch the two curves multiplied point by point below, and the product's average."
-        },
-        "win": {
-          "zh": "只有探针和输入的频率相同，乘积才整体偏到一边，平均不为 0；频率对不上时正负抵消，平均是 0。",
-          "en": "Only when the probe has the input's frequency does the product lean to one side, so its average is not 0; when they differ, plus and minus cancel and the average is 0."
-        },
-        "status": { "zh": "平均还是 0。", "en": "The average is still 0." },
-        "opens": ["j"],
-        "start": { "j": 1 },
-        "goal": [{ "of": "average", "abs": true, "above": 0.05 }],
-        "kind": "find",
-        "input": { "c": 0.5, "waves": [{ "k": 5, "A": 0.3 }] },
-        "answers": "5"
+  "tasks": [
+    {
+      "id": "2-3",
+      "kind": "board",
+      "brief": {
+        "zh": "输入是一条曲线，探针是一道你选频率的波。两条曲线逐点相乘，台上画出乘积和它的平均。先找出让平均不为 0 的探针，再从一条混合的曲线里读出一道波的振幅。",
+        "en": "The input is a curve and the probe is a wave whose frequency you choose. The two are multiplied point by point, and the bench draws the product and its average. First find the probe whose average is not 0, then read one wave's amplitude out of a mixed curve."
       },
-      {
-        "title": { "zh": "读振幅", "en": "Read the amplitude" },
-        "note": {
-          "zh": "输入是几道波混在一起，其中频率 5 那道的振幅是 0.30。用探针读出它：读数是乘积的平均再乘一个数。",
-          "en": "The input is several waves mixed together; the one at frequency 5 has amplitude 0.30. Read it with the probe: the reading is the product's average times a number."
-        },
-        "win": {
-          "zh": "别的频率在平均里都抵消了，只剩频率 5 那道波振幅的一半：cos 自己乘自己，平均是 ½，所以要乘 2。",
-          "en": "The other frequencies all cancel in the average, leaving half the amplitude of the frequency-5 wave: a cos times itself averages ½, so the reading takes a factor of 2."
-        },
-        "status": { "zh": "读数还不是 0.30。", "en": "The reading is not 0.30 yet." },
-        "opens": ["j", "m"],
-        "start": { "j": 1, "m": 1 },
-        "goal": [{ "of": "j", "is": 5 }, { "of": "reading", "near": 0.3, "below": 0.005 }],
-        "kind": "read",
-        "input": { "c": 0.5, "waves": [{ "k": 2, "A": 0.2 }, { "k": 5, "A": 0.3 }, { "k": 7, "A": 0.1 }] },
-        "answers": "5×2"
-      }
-    ],
-    "layout": {
-      "main": [
-        {
-          "plot": { "of": "signal", "lo": -1, "hi": 1, "ticks": [-1, 0, 1], "height": [170, 150], "legend": true }
-        },
-        {
-          "plot": {
-            "of": "product",
-            "lo": -0.6,
-            "hi": 0.6,
-            "ticks": [-0.5, 0, 0.5],
-            "height": [170, 150],
-            "legend": true
+      "hint": {
+        "zh": "乘积整体偏在 0 的上面还是下面？什么时候正负刚好抵消？",
+        "en": "Does the product sit above or below 0 overall? When do plus and minus cancel exactly?"
+      },
+      "bench": {
+        "model": "probe",
+        "setup": { "N": 32, "wave": { "k": 3, "A": 0.3 } },
+        "knobs": {
+          "j": { "min": 1, "max": 8, "step": 1, "label": { "zh": "探针频率", "en": "Probe frequency" } },
+          "m": { "min": 0.5, "max": 4, "step": 0.5, "label": { "zh": "读数乘以", "en": "Reading times" } },
+          "shift": { "min": 0, "max": 345, "step": 15, "label": { "zh": "输入错开", "en": "Input shifted by" }, "unit": "°" },
+          "pick": {
+            "choices": [
+              { "value": "cos", "label": { "zh": "只看 a", "en": "Only a" } },
+              { "value": "sin", "label": { "zh": "只看 b", "en": "Only b" } },
+              { "value": "sum", "label": "a + b" },
+              { "value": "mag", "label": "√(a² + b²)" }
+            ],
+            "start": null
           }
         },
-        { "text": { "of": "formula" } }
-      ],
-      "side": [{ "panel": ["step", "knobs", { "text": { "of": "tries", "look": "small" } }, "verdict"] }, "stages"]
+        "stages": [
+          {
+            "title": { "zh": "找频率", "en": "Find the frequency" },
+            "note": {
+              "zh": "输入是一道频率不知道的波。转动探针的频率，看下面两条曲线逐点相乘的结果和它的平均。",
+              "en": "The input is a wave of unknown frequency. Turn the probe's frequency and watch the two curves multiplied point by point below, and the product's average."
+            },
+            "win": {
+              "zh": "只有探针和输入的频率相同，乘积才整体偏到一边，平均不为 0；频率对不上时正负抵消，平均是 0。",
+              "en": "Only when the probe has the input's frequency does the product lean to one side, so its average is not 0; when they differ, plus and minus cancel and the average is 0."
+            },
+            "status": { "zh": "平均还是 0。", "en": "The average is still 0." },
+            "opens": ["j"],
+            "start": { "j": 1 },
+            "goal": [{ "of": "average", "abs": true, "above": 0.05 }],
+            "kind": "find",
+            "input": { "c": 0.5, "waves": [{ "k": 5, "A": 0.3 }] },
+            "answers": "5"
+          },
+          {
+            "title": { "zh": "读振幅", "en": "Read the amplitude" },
+            "note": {
+              "zh": "输入是几道波混在一起，其中频率 5 那道的振幅是 0.30。用探针读出它：读数是乘积的平均再乘一个数。",
+              "en": "The input is several waves mixed together; the one at frequency 5 has amplitude 0.30. Read it with the probe: the reading is the product's average times a number."
+            },
+            "win": {
+              "zh": "别的频率在平均里都抵消了，只剩频率 5 那道波振幅的一半：cos 自己乘自己，平均是 ½，所以要乘 2。",
+              "en": "The other frequencies all cancel in the average, leaving half the amplitude of the frequency-5 wave: a cos times itself averages ½, so the reading takes a factor of 2."
+            },
+            "status": { "zh": "读数还不是 0.30。", "en": "The reading is not 0.30 yet." },
+            "opens": ["j", "m"],
+            "start": { "j": 1, "m": 1 },
+            "goal": [{ "of": "j", "is": 5 }, { "of": "reading", "near": 0.3, "below": 0.005 }],
+            "kind": "read",
+            "input": { "c": 0.5, "waves": [{ "k": 2, "A": 0.2 }, { "k": 5, "A": 0.3 }, { "k": 7, "A": 0.1 }] },
+            "answers": "5×2"
+          }
+        ],
+        "layout": {
+          "main": [
+            {
+              "plot": { "of": "signal", "lo": -1, "hi": 1, "ticks": [-1, 0, 1], "height": [170, 150], "legend": true }
+            },
+            {
+              "plot": {
+                "of": "product",
+                "lo": -0.6,
+                "hi": 0.6,
+                "ticks": [-0.5, 0, 0.5],
+                "height": [170, 150],
+                "legend": true
+              }
+            },
+            { "text": { "of": "formula" } }
+          ],
+          "side": [{ "panel": ["step", "knobs", { "text": { "of": "tries", "look": "small" } }, "verdict"] }, "stages"]
+        }
+      }
     }
-  }
+  ]
 }

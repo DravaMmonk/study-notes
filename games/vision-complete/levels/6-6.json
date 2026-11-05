@@ -1,14 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "投票", "en": "Voting" },
-  "brief": {
-    "zh": "每个边缘点给所有经过它的直线 (θ, ρ) 各投一票。调分箱大小，让三张图里票数最高的两个峰正好是那两条线。",
-    "en": "Each edge point casts one vote for every line (θ, ρ) that passes through it. Adjust the bin size so that in all three images the two peaks with the most votes are exactly the two lines."
-  },
-  "hint": {
-    "zh": "格子太细，同一条线带噪声的票落不进同一格；太粗，两条相近的线挤进同一个峰。",
-    "en": "With cells too fine, one line's noisy votes do not land in the same cell; too coarse, and two nearby lines squeeze into one peak."
-  },
   "after": {
     "zh": "Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。",
     "en": "Hough turns \"find a line\" into \"find a peak in the accumulator\". With bins too fine, noise splits one line's votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are."
@@ -40,82 +31,96 @@
     }
   ],
   "unlocks": ["hough"],
-  "bench": {
-    "model": "hough",
-    "setup": { "rhoMax": 34, "tol": { "theta": 4, "rho": 1.5 } },
-    "knobs": {
-      "bin": {
-        "label": { "zh": "分箱大小", "en": "Bin size" },
-        "values": [[1, 0.25], [1.5, 0.5], [2, 0.75], [3, 1], [4.5, 1.5], [6, 2], [9, 3], [12, 4], [18, 6]],
-        "start": 1,
-        "ends": [{ "zh": "细", "en": "Fine" }, { "zh": "粗", "en": "Coarse" }]
-      }
-    },
-    "cases": [
-      {
-        "label": { "zh": "两条轨道", "en": "Two rails" },
-        "seed": 6,
-        "lines": [{ "theta": 60, "rho": -2, "n": 32 }, { "theta": 63, "rho": 3, "n": 24 }],
-        "outliers": 16
+  "tasks": [
+    {
+      "id": "6-6",
+      "kind": "board",
+      "brief": {
+        "zh": "每个边缘点给所有经过它的直线 (θ, ρ) 各投一票。调分箱大小，让三张图里票数最高的两个峰正好是那两条线。",
+        "en": "Each edge point casts one vote for every line (θ, ρ) that passes through it. Adjust the bin size so that in all three images the two peaks with the most votes are exactly the two lines."
       },
-      {
-        "label": { "zh": "一长一短", "en": "One long, one short" },
-        "seed": 22,
-        "lines": [{ "theta": 150, "rho": 9, "n": 34 }, { "theta": 100, "rho": -15, "n": 20, "from": -14, "to": 14 }],
-        "outliers": 16
+      "hint": {
+        "zh": "格子太细，同一条线带噪声的票落不进同一格；太粗，两条相近的线挤进同一个峰。",
+        "en": "With cells too fine, one line's noisy votes do not land in the same cell; too coarse, and two nearby lines squeeze into one peak."
       },
-      {
-        "label": { "zh": "挨得很近", "en": "Close together" },
-        "seed": 4,
-        "lines": [{ "theta": 15, "rho": 4, "n": 30 }, { "theta": 10, "rho": 13, "n": 22 }],
-        "outliers": 18
-      }
-    ],
-    "goal": [{ "of": "matched", "label": { "zh": "已匹配", "en": "matched" }, "atLeast": 2, "format": "outOf" }],
-    "layout": {
-      "head": [{ "cases": { "passed": { "zh": "张图通过", "en": "images passed" } } }],
-      "main": ["houghPlanes"],
-      "foot": [
-        {
-          "row": [
+      "bench": {
+        "model": "hough",
+        "setup": { "rhoMax": 34, "tol": { "theta": 4, "rho": 1.5 } },
+        "knobs": {
+          "bin": {
+            "label": { "zh": "分箱大小", "en": "Bin size" },
+            "values": [[1, 0.25], [1.5, 0.5], [2, 0.75], [3, 1], [4.5, 1.5], [6, 2], [9, 3], [12, 4], [18, 6]],
+            "start": 1,
+            "ends": [{ "zh": "细", "en": "Fine" }, { "zh": "粗", "en": "Coarse" }]
+          }
+        },
+        "cases": [
+          {
+            "label": { "zh": "两条轨道", "en": "Two rails" },
+            "seed": 6,
+            "lines": [{ "theta": 60, "rho": -2, "n": 32 }, { "theta": 63, "rho": 3, "n": 24 }],
+            "outliers": 16
+          },
+          {
+            "label": { "zh": "一长一短", "en": "One long, one short" },
+            "seed": 22,
+            "lines": [{ "theta": 150, "rho": 9, "n": 34 }, { "theta": 100, "rho": -15, "n": 20, "from": -14, "to": 14 }],
+            "outliers": 16
+          },
+          {
+            "label": { "zh": "挨得很近", "en": "Close together" },
+            "seed": 4,
+            "lines": [{ "theta": 15, "rho": 4, "n": 30 }, { "theta": 10, "rho": 13, "n": 22 }],
+            "outliers": 18
+          }
+        ],
+        "goal": [{ "of": "matched", "label": { "zh": "已匹配", "en": "matched" }, "atLeast": 2, "format": "outOf" }],
+        "layout": {
+          "head": [{ "cases": { "passed": { "zh": "张图通过", "en": "images passed" } } }],
+          "main": ["houghPlanes"],
+          "foot": [
             {
-              "panel": [
-                { "text": { "text": { "zh": "分箱大小", "en": "Bin size" }, "look": "label" } },
-                "knobs",
+              "row": [
                 {
-                  "stats": {
-                    "of": [
-                      { "of": "dTheta", "label": "Δθ" },
-                      { "of": "dRho", "label": "Δρ" },
-                      { "of": "cells", "label": { "zh": "格", "en": "cells" } }
-                    ],
-                    "phone": "line"
-                  }
-                }
-              ],
-              "dock": true
-            },
-            {
-              "panel": [
-                {
-                  "text": {
-                    "text": { "zh": "目标 · 前两个峰分别匹配 A 和 B", "en": "Goal · the top two peaks match A and B" },
-                    "look": "label"
-                  }
+                  "panel": [
+                    { "text": { "text": { "zh": "分箱大小", "en": "Bin size" }, "look": "label" } },
+                    "knobs",
+                    {
+                      "stats": {
+                        "of": [
+                          { "of": "dTheta", "label": "Δθ" },
+                          { "of": "dRho", "label": "Δρ" },
+                          { "of": "cells", "label": { "zh": "格", "en": "cells" } }
+                        ],
+                        "phone": "line"
+                      }
+                    }
+                  ],
+                  "dock": true
                 },
-                "goals"
-              ]
-            },
-            {
-              "panel": [
-                { "text": { "of": "peaksTitle", "look": "label" } },
-                { "table": { "of": "peaks" } },
-                { "text": { "of": "tolerance", "look": "note" } }
+                {
+                  "panel": [
+                    {
+                      "text": {
+                        "text": { "zh": "目标 · 前两个峰分别匹配 A 和 B", "en": "Goal · the top two peaks match A and B" },
+                        "look": "label"
+                      }
+                    },
+                    "goals"
+                  ]
+                },
+                {
+                  "panel": [
+                    { "text": { "of": "peaksTitle", "look": "label" } },
+                    { "table": { "of": "peaks" } },
+                    { "text": { "of": "tolerance", "look": "note" } }
+                  ]
+                }
               ]
             }
           ]
         }
-      ]
+      }
     }
-  }
+  ]
 }

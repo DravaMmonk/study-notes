@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "挪一格也不变", "en": "Unchanged by a one-pixel shift" },
-  "brief": {
-    "zh": "同一组特征点有时会偏一格。把 16×16 缩成 8×8，偏一格时结果必须完全一样。",
-    "en": "The same set of keypoints is sometimes off by one pixel. Shrink 16×16 to 8×8; when they shift by one pixel, the result must be exactly the same."
-  },
-  "hint": {
-    "zh": "隔点取样会因为偏一格而错过亮点。能不能在扔掉点之前，让每个点先「知道」它旁边有没有亮点？",
-    "en": "Downsampling misses bright points when they shift by one pixel. Before throwing pixels away, can each one first \"know\" whether there is a bright point beside it?"
-  },
   "after": {
     "zh": "先让每格和右边、下边的邻居比一比，留下最大的，再隔点取样：每个 2×2 块只留下块里最强的那个数，点在块内挪动，答案不变。这就是最大池化。代价是丢掉了块内的精确位置。",
     "en": "First let each pixel compare itself with its neighbours to the right and below and keep the largest, then downsample: each 2×2 block keeps only its strongest value, and a point moving within its block does not change the answer. This is max pooling. The price is losing the exact position inside the block."
@@ -42,53 +33,67 @@
     }
   ],
   "unlocks": ["maxpool"],
-  "scene": "movedDots",
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "原位", "en": "In place" },
-      "dots": [[4, 4], [10, 6], [6, 12]],
-      "home": [[4, 4], [10, 6], [6, 12]]
-    },
-    {
-      "label": { "zh": "偏右下", "en": "Shifted down-right" },
-      "dots": [[5, 5], [11, 7], [7, 13]],
-      "home": [[4, 4], [10, 6], [6, 12]]
-    },
-    {
-      "label": { "zh": "偏右", "en": "Shifted right" },
-      "dots": [[5, 4], [11, 6], [7, 12]],
-      "home": [[4, 4], [10, 6], [6, 12]]
-    },
-    {
-      "label": { "zh": "偏下", "en": "Shifted down" },
-      "dots": [[4, 5], [10, 7], [6, 13]],
-      "home": [[4, 4], [10, 6], [6, 12]]
+      "id": "4-11",
+      "kind": "graph",
+      "brief": {
+        "zh": "同一组特征点有时会偏一格。把 16×16 缩成 8×8，偏一格时结果必须完全一样。",
+        "en": "The same set of keypoints is sometimes off by one pixel. Shrink 16×16 to 8×8; when they shift by one pixel, the result must be exactly the same."
+      },
+      "hint": {
+        "zh": "隔点取样会因为偏一格而错过亮点。能不能在扔掉点之前，让每个点先「知道」它旁边有没有亮点？",
+        "en": "Downsampling misses bright points when they shift by one pixel. Before throwing pixels away, can each one first \"know\" whether there is a bright point beside it?"
+      },
+      "scene": "movedDots",
+      "tests": [
+        {
+          "label": { "zh": "原位", "en": "In place" },
+          "dots": [[4, 4], [10, 6], [6, 12]],
+          "home": [[4, 4], [10, 6], [6, 12]]
+        },
+        {
+          "label": { "zh": "偏右下", "en": "Shifted down-right" },
+          "dots": [[5, 5], [11, 7], [7, 13]],
+          "home": [[4, 4], [10, 6], [6, 12]]
+        },
+        {
+          "label": { "zh": "偏右", "en": "Shifted right" },
+          "dots": [[5, 4], [11, 6], [7, 12]],
+          "home": [[4, 4], [10, 6], [6, 12]]
+        },
+        {
+          "label": { "zh": "偏下", "en": "Shifted down" },
+          "dots": [[4, 5], [10, 7], [6, 13]],
+          "home": [[4, 4], [10, 6], [6, 12]]
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "另一组 · 原位", "en": "Another set · in place" },
+          "dots": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]],
+          "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
+        },
+        {
+          "label": { "zh": "另一组 · 偏右下", "en": "Another set · shifted down-right" },
+          "dots": [[3, 3], [13, 5], [9, 9], [15, 11], [5, 15]],
+          "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
+        },
+        {
+          "label": { "zh": "另一组 · 偏下", "en": "Another set · shifted down" },
+          "dots": [[2, 3], [12, 5], [8, 9], [14, 11], [4, 15]],
+          "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
+        }
+      ],
+      "solution": [
+        "l = shift[dir=left](in)",
+        "m1 = max(in, l)",
+        "u = shift[dir=up](m1)",
+        "m2 = max(m1, u)",
+        "d = downsample(m2)",
+        "out <- d"
+      ],
+      "naive": ["d = downsample(in)", "out <- d"]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "另一组 · 原位", "en": "Another set · in place" },
-      "dots": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]],
-      "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
-    },
-    {
-      "label": { "zh": "另一组 · 偏右下", "en": "Another set · shifted down-right" },
-      "dots": [[3, 3], [13, 5], [9, 9], [15, 11], [5, 15]],
-      "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
-    },
-    {
-      "label": { "zh": "另一组 · 偏下", "en": "Another set · shifted down" },
-      "dots": [[2, 3], [12, 5], [8, 9], [14, 11], [4, 15]],
-      "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
-    }
-  ],
-  "solution": [
-    "l = shift[dir=left](in)",
-    "m1 = max(in, l)",
-    "u = shift[dir=up](m1)",
-    "m2 = max(m1, u)",
-    "d = downsample(m2)",
-    "out <- d"
-  ],
-  "naive": ["d = downsample(in)", "out <- d"]
+  ]
 }

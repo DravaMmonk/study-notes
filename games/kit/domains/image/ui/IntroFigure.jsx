@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { NODE_TYPES } from '../engine/nodes.js'
-import { figureTest, partFigure } from '../intros.js'
+import { figureTask, figureTest, partFigure } from '../intros.js'
 import { L, tr } from '../../../shell/i18n.js'
 import FigureStage from './FigureStage.jsx'
 import ValueView from './views/ValueView.jsx'
@@ -28,12 +28,13 @@ export default function IntroFigure({ fig, level, theme }) {
   if (fig.test !== undefined) {
     const test = figureTest(fig, level)
     if (!test) return null
+    const task = figureTask(fig, level)
     return (
       <figure className="intro-figure">
         <div className="intro-flow">
-          <Values items={Object.entries(test.inputs).map(([name, img]) => [L(level.inputLabels?.[name] ?? INPUT_NAMES[name]) ?? tr('输入', 'Input'), img])} view={fig.view} theme={theme} />
+          <Values items={Object.entries(test.inputs).map(([name, img]) => [L(task.inputLabels?.[name] ?? INPUT_NAMES[name]) ?? tr('输入', 'Input'), img])} view={fig.view} theme={theme} />
           <ArrowRight size={18} className="intro-arrow" />
-          <Values items={Object.entries(test.expected).map(([name, img]) => [L(level.outputLabels?.[name]) ?? tr('期望', 'Expected'), img])} view={fig.view} theme={theme} />
+          <Values items={Object.entries(test.expected).map(([name, img]) => [L(task.outputLabels?.[name]) ?? tr('期望', 'Expected'), img])} view={fig.view} theme={theme} />
         </div>
         {caption}
       </figure>

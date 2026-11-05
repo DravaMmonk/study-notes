@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "方块模糊", "en": "Box blur" },
-  "brief": {
-    "zh": "每个像素换成它周围 3×3 九个格子的平均。计算量不能超过 6。",
-    "en": "Replace each pixel with the average of the nine cells in the 3×3 block around it. The cost must not exceed 6."
-  },
-  "hint": {
-    "zh": "九个格子挨个加要 8 次加法。3×3 的方块，能不能拆成几步更小的平均？",
-    "en": "Adding up nine cells one by one takes 8 additions. Can the 3×3 block be split into a few smaller averages?"
-  },
   "after": {
     "zh": "先横后竖，九次乘加变成六次。核能拆成一行乘一列时就能这样省，这叫可分离滤波；核越大省得越多。",
     "en": "Horizontal first, then vertical: nine multiply-adds become six. You can save like this whenever a kernel splits into a row times a column. This is separable filtering; the bigger the kernel, the more you save."
@@ -38,55 +29,69 @@
     }
   ],
   "unlocks": ["box3"],
-  "constraint": { "cost": { "max": 6 } },
-  "scene": "filter",
-  "setup": { "target": { "box": { "size": 3 } } },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
-    { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
-      "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 2, "oy": 5 } }
-    },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 13 } } }
-  ],
-  "solution": [
-    "kN = const[c=0.33]()",
-    "h = blur3h(in)",
-    "u = shift[dir=up](h)",
-    "d = shift[dir=down](h)",
-    "m = merge(u, h, d)",
-    "k = arith[op=mul](m, kN)",
-    "out <- k"
-  ],
-  "naive": [
-    "kN = const[c=0.11]()",
-    "s0 = shift[dir=left](in)",
-    "s1 = shift[dir=right](in)",
-    "s2 = shift[dir=up](in)",
-    "s3 = shift[dir=down](in)",
-    "s4 = shift[dir=left](in)",
-    "s5 = shift[dir=left](in)",
-    "s6 = shift[dir=right](in)",
-    "s7 = shift[dir=right](in)",
-    "t4 = shift[dir=up](s4)",
-    "t5 = shift[dir=down](s5)",
-    "t6 = shift[dir=up](s6)",
-    "t7 = shift[dir=down](s7)",
-    "a0 = arith[op=add](in, s0)",
-    "a1 = arith[op=add](a0, s1)",
-    "a2 = arith[op=add](a1, s2)",
-    "a3 = arith[op=add](a2, s3)",
-    "a4 = arith[op=add](a3, t4)",
-    "a5 = arith[op=add](a4, t5)",
-    "a6 = arith[op=add](a5, t6)",
-    "a7 = arith[op=add](a6, t7)",
-    "k = arith[op=mul](a7, kN)",
-    "out <- k"
+      "id": "1-3",
+      "kind": "graph",
+      "brief": {
+        "zh": "每个像素换成它周围 3×3 九个格子的平均。计算量不能超过 6。",
+        "en": "Replace each pixel with the average of the nine cells in the 3×3 block around it. The cost must not exceed 6."
+      },
+      "hint": {
+        "zh": "九个格子挨个加要 8 次加法。3×3 的方块，能不能拆成几步更小的平均？",
+        "en": "Adding up nine cells one by one takes 8 additions. Can the 3×3 block be split into a few smaller averages?"
+      },
+      "constraint": { "cost": { "max": 6 } },
+      "scene": "filter",
+      "setup": { "target": { "box": { "size": 3 } } },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 2, "oy": 5 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 13 } } }
+      ],
+      "solution": [
+        "kN = const[c=0.33]()",
+        "h = blur3h(in)",
+        "u = shift[dir=up](h)",
+        "d = shift[dir=down](h)",
+        "m = merge(u, h, d)",
+        "k = arith[op=mul](m, kN)",
+        "out <- k"
+      ],
+      "naive": [
+        "kN = const[c=0.11]()",
+        "s0 = shift[dir=left](in)",
+        "s1 = shift[dir=right](in)",
+        "s2 = shift[dir=up](in)",
+        "s3 = shift[dir=down](in)",
+        "s4 = shift[dir=left](in)",
+        "s5 = shift[dir=left](in)",
+        "s6 = shift[dir=right](in)",
+        "s7 = shift[dir=right](in)",
+        "t4 = shift[dir=up](s4)",
+        "t5 = shift[dir=down](s5)",
+        "t6 = shift[dir=up](s6)",
+        "t7 = shift[dir=down](s7)",
+        "a0 = arith[op=add](in, s0)",
+        "a1 = arith[op=add](a0, s1)",
+        "a2 = arith[op=add](a1, s2)",
+        "a3 = arith[op=add](a2, s3)",
+        "a4 = arith[op=add](a3, t4)",
+        "a5 = arith[op=add](a4, t5)",
+        "a6 = arith[op=add](a5, t6)",
+        "a7 = arith[op=add](a6, t7)",
+        "k = arith[op=mul](a7, kN)",
+        "out <- k"
+      ]
+    }
   ]
 }

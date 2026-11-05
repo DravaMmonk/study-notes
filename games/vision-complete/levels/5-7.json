@@ -1,14 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "拉近与推开", "en": "Pull close, push apart" },
-  "brief": {
-    "zh": "没有标签，只有每张图的两个变形版本。训练编码器，让测验里的每个视图都以 ≥ 50% 的概率认出自己的搭档。",
-    "en": "No labels, only two altered versions of each image. Train the encoder so that every view in the quiz picks out its partner with probability ≥ 50%."
-  },
-  "hint": {
-    "zh": "只拉近搭档，最省事的办法是什么？看看所有点最后去了哪里。",
-    "en": "If you only pull partners together, what is the laziest way to do it? Watch where all the dots end up."
-  },
   "after": {
     "zh": "只拉近正对时，把所有图都放到同一点就能让损失最小，却什么也分不出：这叫坍缩。InfoNCE 的分母把同一批里的其他视图当作负对推开，点才在圆上散开。变形本身提供了答案，不需要人工标签：这就是自监督的对比学习（SimCLR）。",
     "en": "When only positive pairs are pulled together, putting every image at the same point minimises the loss but tells nothing apart: this is called collapse. InfoNCE's denominator treats the other views in the batch as negative pairs and pushes them away, so the dots spread out round the circle. The alterations themselves supply the answer, with no human labels: this is self-supervised contrastive learning (SimCLR)."
@@ -40,85 +31,99 @@
     }
   ],
   "unlocks": ["embed"],
-  "bench": {
-    "model": "contrast",
-    "setup": {
-      "names": ["T", "L", "X", "O", "F"],
-      "base": [
-        { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9 } },
-        { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9 } },
-        { "glyph": { "letter": "X", "lo": 0.1, "hi": 0.9 } },
-        { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9 } },
-        { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9 } }
-      ],
-      "tau": 0.2,
-      "rate": 0.5,
-      "testSeeds": [901, 902, 903]
-    },
-    "knobs": {
-      "pull": {
-        "toggle": true,
-        "fixed": true,
-        "start": true,
-        "label": { "zh": "拉近搭档（分子）", "en": "Pull partners close (numerator)" }
+  "tasks": [
+    {
+      "id": "5-7",
+      "kind": "board",
+      "brief": {
+        "zh": "没有标签，只有每张图的两个变形版本。训练编码器，让测验里的每个视图都以 ≥ 50% 的概率认出自己的搭档。",
+        "en": "No labels, only two altered versions of each image. Train the encoder so that every view in the quiz picks out its partner with probability ≥ 50%."
       },
-      "push": { "toggle": true, "label": { "zh": "推开其他视图（分母）", "en": "Push other views away (denominator)" } }
-    },
-    "actions": [
-      { "act": "train", "arg": 1, "label": { "zh": "训练 1 步", "en": "Train 1 step" } },
-      { "act": "train", "arg": 20, "label": { "zh": "训练 20 步", "en": "Train 20 steps" }, "primary": true },
-      { "act": "reset", "label": { "zh": "重置编码器", "en": "Reset encoder" }, "icon": "reset" }
-    ],
-    "goal": [
-      {
-        "of": "worst",
-        "label": { "zh": "认对搭档的最低概率", "en": "Lowest chance of picking the partner" },
-        "atLeast": 0.5,
-        "format": "pct"
+      "hint": {
+        "zh": "只拉近搭档，最省事的办法是什么？看看所有点最后去了哪里。",
+        "en": "If you only pull partners together, what is the laziest way to do it? Watch where all the dots end up."
       },
-      {
-        "of": "negative",
-        "label": { "zh": "负对平均 sim，不坍缩", "en": "Mean sim of negative pairs, no collapse" },
-        "atMost": 0.9,
-        "format": "fixed2"
-      }
-    ],
-    "layout": {
-      "main": [
-        {
-          "embedding": {
-            "with": [
-              {
-                "text": { "text": { "zh": "嵌入平面 · 测验视图", "en": "Embedding plane · quiz views" }, "look": "label" }
-              },
-              { "chips": { "of": "steps" } }
-            ]
-          }
+      "bench": {
+        "model": "contrast",
+        "setup": {
+          "names": ["T", "L", "X", "O", "F"],
+          "base": [
+            { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9 } },
+            { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9 } },
+            { "glyph": { "letter": "X", "lo": 0.1, "hi": 0.9 } },
+            { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9 } },
+            { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9 } }
+          ],
+          "tau": 0.2,
+          "rate": 0.5,
+          "testSeeds": [901, 902, 903]
         },
-        { "verdict": { "center": true } },
-        {
-          "text": {
-            "text": {
-              "zh": "● 第 1 个视图　○ 第 2 个视图　— 连线连接同一张图的两个视图",
-              "en": "● First view  ○ Second view  — A line joins the two views of the same image"
+        "knobs": {
+          "pull": {
+            "toggle": true,
+            "fixed": true,
+            "start": true,
+            "label": { "zh": "拉近搭档（分子）", "en": "Pull partners close (numerator)" }
+          },
+          "push": { "toggle": true, "label": { "zh": "推开其他视图（分母）", "en": "Push other views away (denominator)" } }
+        },
+        "actions": [
+          { "act": "train", "arg": 1, "label": { "zh": "训练 1 步", "en": "Train 1 step" } },
+          { "act": "train", "arg": 20, "label": { "zh": "训练 20 步", "en": "Train 20 steps" }, "primary": true },
+          { "act": "reset", "label": { "zh": "重置编码器", "en": "Reset encoder" }, "icon": "reset" }
+        ],
+        "goal": [
+          {
+            "of": "worst",
+            "label": { "zh": "认对搭档的最低概率", "en": "Lowest chance of picking the partner" },
+            "atLeast": 0.5,
+            "format": "pct"
+          },
+          {
+            "of": "negative",
+            "label": { "zh": "负对平均 sim，不坍缩", "en": "Mean sim of negative pairs, no collapse" },
+            "atMost": 0.9,
+            "format": "fixed2"
+          }
+        ],
+        "layout": {
+          "main": [
+            {
+              "embedding": {
+                "with": [
+                  {
+                    "text": { "text": { "zh": "嵌入平面 · 测验视图", "en": "Embedding plane · quiz views" }, "look": "label" }
+                  },
+                  { "chips": { "of": "steps" } }
+                ]
+              }
             },
-            "look": "legend"
-          }
-        }
-      ],
-      "split": "wide",
-      "side": [
-        { "panel": [{ "text": { "text": { "zh": "目标", "en": "Goals" }, "look": "label" } }, "goals"] },
-        {
-          "panel": [
-            { "text": { "of": "formula", "look": "serif" } },
-            "knobs",
-            "actions",
-            { "curve": { "of": "losses", "caption": "lossNote" } }
+            { "verdict": { "center": true } },
+            {
+              "text": {
+                "text": {
+                  "zh": "● 第 1 个视图　○ 第 2 个视图　— 连线连接同一张图的两个视图",
+                  "en": "● First view  ○ Second view  — A line joins the two views of the same image"
+                },
+                "look": "legend"
+              }
+            }
+          ],
+          "split": "wide",
+          "side": [
+            { "panel": [{ "text": { "text": { "zh": "目标", "en": "Goals" }, "look": "label" } }, "goals"] },
+            {
+              "panel": [
+                { "text": { "of": "formula", "look": "serif" } },
+                "knobs",
+                "actions",
+                { "curve": { "of": "losses", "caption": "lossNote" } }
+              ]
+            },
+            "choiceMatrix"
           ]
-        },
-        "choiceMatrix"
-      ]
+        }
+      }
     }
-  }
+  ]
 }

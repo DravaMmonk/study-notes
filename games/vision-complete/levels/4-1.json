@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "一个旋钮", "en": "One knob" },
-  "brief": {
-    "zh": "每组测试是一个样本：输入一个亮度，期望一个亮度，规律是 输出 = w × 输入，w 不知道。用<part-ref to=\"part:lrnConst\"></part-ref>当 w，按训练让机器自己找它。选一个学习率。",
-    "en": "Each test is one sample: a brightness in, a brightness expected out, following output = w × input with w unknown. Use a <part-ref to=\"part:lrnConst\"></part-ref> as w and press Train to let the machine find it. Choose a learning rate."
-  },
-  "hint": {
-    "zh": "学习率是每一步迈多大。太小要走很多步；太大会怎样？看误差曲线。",
-    "en": "The learning rate is how big each step is. Too small takes many steps; what happens if it is too big? Watch the error curve."
-  },
   "after": {
     "zh": "训练就是下山：把误差（差的平方的平均）看成地形，w 是你站的位置。每一步沿坡往下挪「学习率 × 坡度」。学习率太小，要走很多步；太大，会冲过谷底，越冲越远。一个网络有上百万个旋钮，原理完全一样。",
     "en": "Training is walking downhill: think of the error (the mean of the squared differences) as a landscape, with w as where you stand. Each step moves down the slope by \"learning rate × slope\". Too small a learning rate takes many steps; too large overshoots the bottom and flies further away each time. A network has millions of knobs, and the principle is exactly the same."
@@ -40,26 +31,40 @@
       "fig": { "test": 0, "caption": { "zh": "第一个样本：x = 0.2", "en": "The first sample: x = 0.2" } }
     }
   ],
-  "inputLabels": { "in": { "zh": "输入亮度", "en": "Input brightness" } },
   "adds": ["lrnConst"],
-  "check": { "tolerance": 0.01 },
-  "trainRates": [0.3, 1, 3],
-  "scene": "samples",
-  "setup": { "scale": 0.6 },
-  "tests": [
-    { "label": { "zh": "x = 0.2", "en": "x = 0.2" }, "x": 0.2 },
-    { "label": { "zh": "x = 0.3", "en": "x = 0.3" }, "x": 0.30000000000000004 },
-    { "label": { "zh": "x = 0.4", "en": "x = 0.4" }, "x": 0.4 },
-    { "label": { "zh": "x = 0.5", "en": "x = 0.5" }, "x": 0.5 },
-    { "label": { "zh": "x = 0.6", "en": "x = 0.6" }, "x": 0.6000000000000001 },
-    { "label": { "zh": "x = 0.7", "en": "x = 0.7" }, "x": 0.7 },
-    { "label": { "zh": "x = 0.8", "en": "x = 0.8" }, "x": 0.8 },
-    { "label": { "zh": "x = 0.9", "en": "x = 0.9" }, "x": 0.9000000000000001 }
-  ],
-  "hidden": [
-    { "label": { "zh": "新样本 x = 0.15", "en": "New sample x = 0.15" }, "x": 0.15 },
-    { "label": { "zh": "新样本 x = 1.1", "en": "New sample x = 1.1" }, "x": 1.1 }
-  ],
-  "solution": ["w = lrnConst[p=[0.6]]()", "s = arith[op=mul](in, w)", "out <- s"],
-  "naive": ["w = lrnConst()", "s = arith[op=mul](in, w)", "out <- s"]
+  "tasks": [
+    {
+      "id": "4-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "每组测试是一个样本：输入一个亮度，期望一个亮度，规律是 输出 = w × 输入，w 不知道。用<part-ref to=\"part:lrnConst\"></part-ref>当 w，按训练让机器自己找它。选一个学习率。",
+        "en": "Each test is one sample: a brightness in, a brightness expected out, following output = w × input with w unknown. Use a <part-ref to=\"part:lrnConst\"></part-ref> as w and press Train to let the machine find it. Choose a learning rate."
+      },
+      "hint": {
+        "zh": "学习率是每一步迈多大。太小要走很多步；太大会怎样？看误差曲线。",
+        "en": "The learning rate is how big each step is. Too small takes many steps; what happens if it is too big? Watch the error curve."
+      },
+      "inputLabels": { "in": { "zh": "输入亮度", "en": "Input brightness" } },
+      "check": { "tolerance": 0.01 },
+      "trainRates": [0.3, 1, 3],
+      "scene": "samples",
+      "setup": { "scale": 0.6 },
+      "tests": [
+        { "label": { "zh": "x = 0.2", "en": "x = 0.2" }, "x": 0.2 },
+        { "label": { "zh": "x = 0.3", "en": "x = 0.3" }, "x": 0.30000000000000004 },
+        { "label": { "zh": "x = 0.4", "en": "x = 0.4" }, "x": 0.4 },
+        { "label": { "zh": "x = 0.5", "en": "x = 0.5" }, "x": 0.5 },
+        { "label": { "zh": "x = 0.6", "en": "x = 0.6" }, "x": 0.6000000000000001 },
+        { "label": { "zh": "x = 0.7", "en": "x = 0.7" }, "x": 0.7 },
+        { "label": { "zh": "x = 0.8", "en": "x = 0.8" }, "x": 0.8 },
+        { "label": { "zh": "x = 0.9", "en": "x = 0.9" }, "x": 0.9000000000000001 }
+      ],
+      "hidden": [
+        { "label": { "zh": "新样本 x = 0.15", "en": "New sample x = 0.15" }, "x": 0.15 },
+        { "label": { "zh": "新样本 x = 1.1", "en": "New sample x = 1.1" }, "x": 1.1 }
+      ],
+      "solution": ["w = lrnConst[p=[0.6]]()", "s = arith[op=mul](in, w)", "out <- s"],
+      "naive": ["w = lrnConst()", "s = arith[op=mul](in, w)", "out <- s"]
+    }
+  ]
 }

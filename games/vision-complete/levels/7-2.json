@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "窗口多大", "en": "How big a window?" },
-  "brief": {
-    "zh": "用视差搜索元件。噪声图和细柱图都要算对（与真实视差相差不超过 1、错的像素不多）。",
-    "en": "Use the Disparity search part. Get both the noisy images and the thin-bar image right (within 1 of the true disparity, with few wrong pixels)."
-  },
-  "hint": {
-    "zh": "窗口小，噪声会骗过匹配；窗口大，细东西会被周围的背景淹没。",
-    "en": "With a small window, noise fools the matching; with a large one, thin things drown in the surrounding background."
-  },
   "after": {
     "zh": "没有对所有图都最好的窗口：大窗口抗噪但抹掉细节，小窗口保细节但怕噪声。很多视觉问题都是这种权衡。",
     "en": "No window is best for every image: a large window resists noise but wipes out detail; a small one keeps detail but is vulnerable to noise. Many vision problems involve this kind of trade-off."
@@ -44,36 +35,50 @@
       "fig": { "test": 0, "caption": { "zh": "有噪声的方块", "en": "The noisy square" } }
     }
   ],
-  "inputs": ["left", "right"],
-  "inputLabels": { "left": { "zh": "左相机", "en": "Left camera" }, "right": { "zh": "右相机", "en": "Right camera" } },
-  "views": { "out": "terrain" },
-  "check": { "tolerance": 1.01, "mismatches": 28 },
-  "scene": "stereo",
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "有噪声的方块", "en": "Noisy square" },
-      "seed": 21,
-      "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
-      "noise": 0.3
-    },
-    { "label": { "zh": "细柱", "en": "Thin bar" }, "seed": 22, "layers": [{ "box": [7, 2, 10, 14], "d": 3 }] },
-    {
-      "label": { "zh": "更近的噪声方块", "en": "Nearer noisy square" },
-      "seed": 24,
-      "layers": [{ "box": [5, 4, 11, 12], "d": 3 }],
-      "noise": 0.3
+      "id": "7-2",
+      "kind": "graph",
+      "brief": {
+        "zh": "用视差搜索元件。噪声图和细柱图都要算对（与真实视差相差不超过 1、错的像素不多）。",
+        "en": "Use the Disparity search part. Get both the noisy images and the thin-bar image right (within 1 of the true disparity, with few wrong pixels)."
+      },
+      "hint": {
+        "zh": "窗口小，噪声会骗过匹配；窗口大，细东西会被周围的背景淹没。",
+        "en": "With a small window, noise fools the matching; with a large one, thin things drown in the surrounding background."
+      },
+      "inputs": ["left", "right"],
+      "inputLabels": { "left": { "zh": "左相机", "en": "Left camera" }, "right": { "zh": "右相机", "en": "Right camera" } },
+      "views": { "out": "terrain" },
+      "check": { "tolerance": 1.01, "mismatches": 28 },
+      "scene": "stereo",
+      "tests": [
+        {
+          "label": { "zh": "有噪声的方块", "en": "Noisy square" },
+          "seed": 21,
+          "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
+          "noise": 0.3
+        },
+        { "label": { "zh": "细柱", "en": "Thin bar" }, "seed": 22, "layers": [{ "box": [7, 2, 10, 14], "d": 3 }] },
+        {
+          "label": { "zh": "更近的噪声方块", "en": "Nearer noisy square" },
+          "seed": 24,
+          "layers": [{ "box": [5, 4, 11, 12], "d": 3 }],
+          "noise": 0.3
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "换个位置的噪声块", "en": "Noisy block, moved" },
+          "seed": 25,
+          "layers": [{ "box": [6, 7, 13, 14], "d": 2 }],
+          "noise": 0.3
+        },
+        { "label": { "zh": "另一根细柱", "en": "Another thin bar" }, "seed": 26, "layers": [{ "box": [4, 1, 7, 13], "d": 2 }] }
+      ],
+      "solution": ["d = disparity[window=5](left, right)", "out <- d"],
+      "naive": ["d = disparity[window=1](left, right)", "out <- d"],
+      "alsoFails": [["d = disparity(left, right)", "out <- d"], ["d = disparity[window=7](left, right)", "out <- d"]]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "换个位置的噪声块", "en": "Noisy block, moved" },
-      "seed": 25,
-      "layers": [{ "box": [6, 7, 13, 14], "d": 2 }],
-      "noise": 0.3
-    },
-    { "label": { "zh": "另一根细柱", "en": "Another thin bar" }, "seed": 26, "layers": [{ "box": [4, 1, 7, 13], "d": 2 }] }
-  ],
-  "solution": ["d = disparity[window=5](left, right)", "out <- d"],
-  "naive": ["d = disparity[window=1](left, right)", "out <- d"],
-  "alsoFails": [["d = disparity(left, right)", "out <- d"], ["d = disparity[window=7](left, right)", "out <- d"]]
+  ]
 }

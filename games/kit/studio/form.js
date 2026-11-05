@@ -190,9 +190,12 @@ export function shapeName(shape, shapes) {
 
 /** A by's value (`tag` of its field) recast as its shape `to`: the fields the two shapes share kept, the rest blank. */
 export function recast(tag, value, to, ctx) {
-  const shape = tag.cases[to]
+  const fresh = blank(tag.cases[to], ctx)
+  // A shape that is a by of its own (a task's kind, then its scene) is read as the case its blank value takes.
+  let shape = tag.cases[to]
+  while (shape.type === 'by') shape = shape.cases[fresh[shape.field]]
   const kept = Object.fromEntries(Object.entries(value ?? {}).filter(([k]) => k in shape.fields && validate(shape.fields[k], value[k], { vocabulary: ctx.vocabulary, levels: null }).length === 0))
-  return { ...blank(shape, ctx), ...kept, [tag.key]: to }
+  return { ...fresh, ...kept, [tag.key]: to }
 }
 
 /* ---------- cells: what a grid, a table or a tick strip holds, typed and read back ---------- */

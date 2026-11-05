@@ -28,9 +28,10 @@ function benchFor(kit, levels, box, flag, type, home, sample = false) {
   const nodeType = flag === 'edge-filter' ? 'box3' : type
   const spec = types[nodeType]
   if (!spec) return null
-  const own = levels.find((l) => (l.unlocks ?? []).includes(flag) || l.id === home)
-  const level = box.inLevel[flag] ? levels.find((l) => l.id === box.inLevel[flag]) : own
-  const source = !sample && level?.kind === 'graph' && level.tests?.length ? level : levels.find((l) => l.id === box.sample)
+  // A level is tried as its last task.
+  const own = levels.find((l) => l.unlocks.includes(flag) || l.id === home)
+  const level = (box.inLevel[flag] ? levels.find((l) => l.id === box.inLevel[flag]) : own)?.tasks.at(-1)
+  const source = !sample && level?.kind === 'graph' && level.tests?.length ? level : levels.find((l) => l.id === box.sample).tasks.at(-1)
   const tests = source.tests.slice(0, 3).map((t) => ({ label: t.label, inputs: t.inputs, expected: {} }))
   const names = Object.keys(tests[0]?.inputs ?? {})
   const ports = spec.inputs ?? []

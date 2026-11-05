@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "一次就够", "en": "Once is enough" },
-  "brief": {
-    "zh": "还是混合图像：A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。这次频域的元件（频域低通、频域相乘）一共只准用一个。",
-    "en": "A hybrid image again: the low frequencies of A + the high frequencies of B, both with a Gaussian mask of radius 3. This time you may use only one frequency-domain part (Frequency low-pass or Multiply in frequency) in all."
-  },
-  "hint": { "zh": "把混合图像写成式子看看。", "en": "Write the hybrid image out as a formula." },
   "after": {
     "zh": "滤波是线性的：低通(A) − 低通(B) = 低通(A − B)。先合起来再滤，和分别滤完再合，结果一样，变换只做一次就够了。很多看起来要算两遍的事，都能这样合成一遍。",
     "en": "Filtering is linear: low-pass(A) − low-pass(B) = low-pass(A − B). Combining first and then filtering gives the same as filtering each and then combining, so one transform is enough. Many things that look as if they need computing twice can be merged into once like this."
@@ -25,64 +19,75 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：圆盘 + X", "en": "Set 1: disc + X" } }
     }
   ],
-  "inputs": ["a", "b"],
-  "inputLabels": { "a": "A", "b": "B" },
-  "check": { "tolerance": 0.02 },
-  "constraint": { "transforms": { "max": 1 } },
-  "scene": "filter",
-  "setup": { "target": { "hybrid": { "R": 3 } } },
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "圆盘 + X", "en": "Disk + X" },
-      "inputs": {
-        "a": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.15, "hi": 0.85, "size": 32 } },
-        "b": { "glyph": { "letter": "X", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "方块 + T", "en": "Square + T" },
-      "inputs": {
-        "a": { "rect": { "x0": 6, "y0": 6, "w": 20, "h": 20, "lo": 0.15, "hi": 0.85, "size": 32 } },
-        "b": { "glyph": { "letter": "T", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "小圆 + 棋盘", "en": "Small disk + checkerboard" },
-      "inputs": {
-        "a": { "disk": { "cx": 11, "cy": 12, "r": 7, "lo": 0.15, "hi": 0.85, "size": 32 } },
-        "b": { "checker": { "cell": 2, "lo": 0.4, "hi": 0.6, "size": 32 } }
-      }
+      "id": "2-12",
+      "kind": "graph",
+      "brief": {
+        "zh": "还是混合图像：A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。这次频域的元件（频域低通、频域相乘）一共只准用一个。",
+        "en": "A hybrid image again: the low frequencies of A + the high frequencies of B, both with a Gaussian mask of radius 3. This time you may use only one frequency-domain part (Frequency low-pass or Multiply in frequency) in all."
+      },
+      "hint": { "zh": "把混合图像写成式子看看。", "en": "Write the hybrid image out as a formula." },
+      "inputs": ["a", "b"],
+      "inputLabels": { "a": "A", "b": "B" },
+      "check": { "tolerance": 0.02 },
+      "constraint": { "transforms": { "max": 1 } },
+      "scene": "filter",
+      "setup": { "target": { "hybrid": { "R": 3 } } },
+      "tests": [
+        {
+          "label": { "zh": "圆盘 + X", "en": "Disk + X" },
+          "inputs": {
+            "a": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.15, "hi": 0.85, "size": 32 } },
+            "b": { "glyph": { "letter": "X", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "方块 + T", "en": "Square + T" },
+          "inputs": {
+            "a": { "rect": { "x0": 6, "y0": 6, "w": 20, "h": 20, "lo": 0.15, "hi": 0.85, "size": 32 } },
+            "b": { "glyph": { "letter": "T", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "小圆 + 棋盘", "en": "Small disk + checkerboard" },
+          "inputs": {
+            "a": { "disk": { "cx": 11, "cy": 12, "r": 7, "lo": 0.15, "hi": 0.85, "size": 32 } },
+            "b": { "checker": { "cell": 2, "lo": 0.4, "hi": 0.6, "size": 32 } }
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "横条 + O", "en": "Horizontal bar + O" },
+          "inputs": {
+            "a": { "rect": { "x0": 4, "y0": 10, "w": 24, "h": 12, "lo": 0.2, "hi": 0.8, "size": 32 } },
+            "b": { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "X + 圆盘", "en": "X + disk" },
+          "inputs": {
+            "a": { "glyph": { "letter": "X", "lo": 0.15, "hi": 0.85, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
+            "b": { "disk": { "cx": 18, "cy": 14, "r": 8, "lo": 0.2, "hi": 0.8, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "暗圆 + 粗棋盘", "en": "Dark disk + coarse checkerboard" },
+          "inputs": {
+            "a": { "disk": { "cx": 19, "cy": 17, "r": 8, "lo": 0.85, "hi": 0.15, "size": 32 } },
+            "b": { "checker": { "cell": 4, "lo": 0.25, "hi": 0.75, "size": 32 } }
+          }
+        }
+      ],
+      "solution": ["d = arith[op=sub](a, b)", "l = fqLowpass[shape=gauss, R=3](d)", "s = arith[op=add](l, b)", "out <- s"],
+      "naive": [
+        "la = fqLowpass[shape=gauss, R=3](a)",
+        "lb = fqLowpass[shape=gauss, R=3](b)",
+        "hb = arith[op=sub](b, lb)",
+        "sum = arith[op=add](la, hb)",
+        "out <- sum"
+      ]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "横条 + O", "en": "Horizontal bar + O" },
-      "inputs": {
-        "a": { "rect": { "x0": 4, "y0": 10, "w": 24, "h": 12, "lo": 0.2, "hi": 0.8, "size": 32 } },
-        "b": { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "X + 圆盘", "en": "X + disk" },
-      "inputs": {
-        "a": { "glyph": { "letter": "X", "lo": 0.15, "hi": 0.85, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
-        "b": { "disk": { "cx": 18, "cy": 14, "r": 8, "lo": 0.2, "hi": 0.8, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "暗圆 + 粗棋盘", "en": "Dark disk + coarse checkerboard" },
-      "inputs": {
-        "a": { "disk": { "cx": 19, "cy": 17, "r": 8, "lo": 0.85, "hi": 0.15, "size": 32 } },
-        "b": { "checker": { "cell": 4, "lo": 0.25, "hi": 0.75, "size": 32 } }
-      }
-    }
-  ],
-  "solution": ["d = arith[op=sub](a, b)", "l = fqLowpass[shape=gauss, R=3](d)", "s = arith[op=add](l, b)", "out <- s"],
-  "naive": [
-    "la = fqLowpass[shape=gauss, R=3](a)",
-    "lb = fqLowpass[shape=gauss, R=3](b)",
-    "hb = arith[op=sub](b, lb)",
-    "sum = arith[op=add](la, hb)",
-    "out <- sum"
   ]
 }

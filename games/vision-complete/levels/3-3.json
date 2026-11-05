@@ -1,10 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "相机的三个数", "en": "A camera's three numbers" },
-  "brief": {
-    "zh": "「光谱」是从紫（400 nm）到红（700 nm）的 10 个波段各有多少光。相机有三种感光元件，各有一条灵敏度曲线。每种的读数 = 光谱乘上它的灵敏度曲线，再求平均。输出 R、G、B 三个读数。",
-    "en": "The \"Spectrum\" is how much light there is in each of 10 bands from violet (400 nm) to red (700 nm). The camera has three kinds of sensor, each with a sensitivity curve. Each sensor reads the spectrum times its sensitivity curve, averaged. Output the three readings, R, G and B."
-  },
   "after": {
     "zh": "一整条光谱，被三种感光元件压成三个数，这就是相机（和人眼）看到的颜色。",
     "en": "A whole spectrum, squeezed by three kinds of sensor into three numbers: that is the colour a camera (and an eye) sees."
@@ -39,41 +34,51 @@
       }
     }
   ],
-  "inputs": ["in", "sr", "sg", "sb"],
-  "inputLabels": {
-    "in": { "zh": "光谱", "en": "Spectrum" },
-    "sr": { "zh": "R 灵敏度", "en": "R sensitivity" },
-    "sg": { "zh": "G 灵敏度", "en": "G sensitivity" },
-    "sb": { "zh": "B 灵敏度", "en": "B sensitivity" }
-  },
-  "outputs": ["ro", "go", "bo"],
-  "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
   "unlocks": ["sense"],
-  "check": { "tolerance": 0.01 },
-  "scene": "spectrum",
-  "tests": [
-    { "label": { "zh": "日光", "en": "Daylight" }, "light": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+  "tasks": [
     {
-      "label": { "zh": "苹果", "en": "An apple" },
-      "light": [0.095, 0.076, 0.056999999999999995, 0.076, 0.095, 0.19, 0.57, 0.8075, 0.855, 0.855]
-    },
-    { "label": { "zh": "树叶", "en": "A leaf" }, "light": [0.05, 0.08, 0.15, 0.45, 0.6, 0.4, 0.15, 0.1, 0.1, 0.15] },
-    { "label": { "zh": "天空", "en": "The sky" }, "light": [0.9, 0.85, 0.75, 0.6, 0.45, 0.35, 0.3, 0.25, 0.2, 0.2] }
-  ],
-  "hidden": [
-    { "label": { "zh": "钠灯", "en": "A sodium lamp" }, "light": [0, 0, 0, 0, 0.1, 0.4, 1, 0.3, 0, 0] },
-    { "label": { "zh": "紫色", "en": "Purple" }, "light": [0.8, 0.5, 0.1, 0, 0, 0, 0.1, 0.4, 0.7, 0.6] }
-  ],
-  "solution": [
-    "mr = arith[op=mul](in, sr)",
-    "mg = arith[op=mul](in, sg)",
-    "mb = arith[op=mul](in, sb)",
-    "ar = fqMean(mr)",
-    "ag = fqMean(mg)",
-    "ab = fqMean(mb)",
-    "ro <- ar",
-    "go <- ag",
-    "bo <- ab"
-  ],
-  "naive": ["m = fqMean(in)", "ro <- m", "go <- m", "bo <- m"]
+      "id": "3-3",
+      "kind": "graph",
+      "brief": {
+        "zh": "「光谱」是从紫（400 nm）到红（700 nm）的 10 个波段各有多少光。相机有三种感光元件，各有一条灵敏度曲线。每种的读数 = 光谱乘上它的灵敏度曲线，再求平均。输出 R、G、B 三个读数。",
+        "en": "The \"Spectrum\" is how much light there is in each of 10 bands from violet (400 nm) to red (700 nm). The camera has three kinds of sensor, each with a sensitivity curve. Each sensor reads the spectrum times its sensitivity curve, averaged. Output the three readings, R, G and B."
+      },
+      "inputs": ["in", "sr", "sg", "sb"],
+      "inputLabels": {
+        "in": { "zh": "光谱", "en": "Spectrum" },
+        "sr": { "zh": "R 灵敏度", "en": "R sensitivity" },
+        "sg": { "zh": "G 灵敏度", "en": "G sensitivity" },
+        "sb": { "zh": "B 灵敏度", "en": "B sensitivity" }
+      },
+      "outputs": ["ro", "go", "bo"],
+      "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
+      "check": { "tolerance": 0.01 },
+      "scene": "spectrum",
+      "tests": [
+        { "label": { "zh": "日光", "en": "Daylight" }, "light": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+        {
+          "label": { "zh": "苹果", "en": "An apple" },
+          "light": [0.095, 0.076, 0.056999999999999995, 0.076, 0.095, 0.19, 0.57, 0.8075, 0.855, 0.855]
+        },
+        { "label": { "zh": "树叶", "en": "A leaf" }, "light": [0.05, 0.08, 0.15, 0.45, 0.6, 0.4, 0.15, 0.1, 0.1, 0.15] },
+        { "label": { "zh": "天空", "en": "The sky" }, "light": [0.9, 0.85, 0.75, 0.6, 0.45, 0.35, 0.3, 0.25, 0.2, 0.2] }
+      ],
+      "hidden": [
+        { "label": { "zh": "钠灯", "en": "A sodium lamp" }, "light": [0, 0, 0, 0, 0.1, 0.4, 1, 0.3, 0, 0] },
+        { "label": { "zh": "紫色", "en": "Purple" }, "light": [0.8, 0.5, 0.1, 0, 0, 0, 0.1, 0.4, 0.7, 0.6] }
+      ],
+      "solution": [
+        "mr = arith[op=mul](in, sr)",
+        "mg = arith[op=mul](in, sg)",
+        "mb = arith[op=mul](in, sb)",
+        "ar = fqMean(mr)",
+        "ag = fqMean(mg)",
+        "ab = fqMean(mb)",
+        "ro <- ar",
+        "go <- ag",
+        "bo <- ab"
+      ],
+      "naive": ["m = fqMean(in)", "ro <- m", "go <- m", "bo <- m"]
+    }
+  ]
 }
