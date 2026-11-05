@@ -12,6 +12,7 @@
     "preview:games": "vite preview --config vite.games.config.js",
     "check": "node ../games/kit/engine/check.js",
     "deps": "node ../games/kit/engine/deps.js",
+    "duplication": "node ../games/kit/engine/duplication.js",
     "versions": "node ../games/kit/engine/versions.js",
     "new-domain": "node ../games/kit/engine/scaffold.js domain",
     "new-game": "node ../games/kit/engine/scaffold.js game",
