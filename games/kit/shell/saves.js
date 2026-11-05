@@ -11,6 +11,9 @@
 //   { drop: [task key…] }                         the boards kept on these tasks, every slot's and the part's, dropped:
 //                                                 their puzzle changed, or they are gone (whether they are passed stays)
 //   { retask: { old task key: new key } }         task ids renamed
+//   { split: { key: [task key…] } }               a record that held a level's boards in order ({ stage, boards }: the
+//                                                 stages a level was before it was tasks) becomes each task's own, its
+//                                                 slots' too; the tasks before `stage` count passed
 //   { dropWith: [part type…] }                     every kept board placing a part of these types dropped (a slot's,
 //                                                 the part's, a task's whole record holding one): the part's ports or
 //                                                 settings changed
@@ -63,6 +66,23 @@ const OPS = {
     return out
   },
   retask: (save, to) => rekey(save, (k) => to[k] ?? k, (id) => id),
+  split: (save, by) => {
+    const out = { ...save, data: { ...save.data }, slots: { ...save.slots }, passed: [...(save.passed ?? [])] }
+    const boards = (record) => (record && Array.isArray(record.boards) ? record.boards : null)
+    for (const [key, tasks] of Object.entries(by)) {
+      const record = boards(save.data?.[key]) ? save.data[key] : null
+      const slots = save.slots?.[key]
+      if (!record && !slots) continue
+      delete out.data[key]
+      delete out.slots[key]
+      tasks.forEach((task, k) => {
+        if (record?.boards[k]) out.data[task] = record.boards[k]
+        if (slots) out.slots[task] = { ...slots, list: slots.list.map((slot) => ({ ...slot, ...(slot.data ? { data: boards(slot.data)?.[k] ?? undefined } : {}) })) }
+      })
+      if (record) out.passed.push(...tasks.slice(0, record.stage ?? 0).filter((task) => !out.passed.includes(task)))
+    }
+    return out
+  },
   dropWith: (save, types) => {
     const out = { ...save }
     for (const field of ['data', 'slots', 'built']) if (save[field]) out[field] = Object.fromEntries(Object.entries(save[field]).filter(([, v]) => !places(v, types)))

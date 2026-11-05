@@ -52,6 +52,7 @@ export const SAVES = S.list(S.obj({
     S.obj({ built: S.list(S.list(S.str(), { min: 2 })) }),
     S.obj({ drop: S.list(S.str()) }),
     S.obj({ retask: S.map(S.str()) }),
+    S.obj({ split: S.map(S.list(S.str(), { min: 1 })) }),
     S.obj({ dropWith: S.list(S.str(), { min: 1 }) }),
     S.obj({ retype: S.map(S.obj({ type: S.str(), params: S.map(S.any()) })) }),
   )),

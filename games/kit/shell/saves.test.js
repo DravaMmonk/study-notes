@@ -53,6 +53,15 @@ test('solve, built, drop and retask', () => {
   assert.deepEqual([renamed.passed, Object.keys(renamed.data), Object.keys(renamed.slots)], [['one'], ['one', 't2', 'u'], ['one']])
 })
 
+test('split: a record of a level’s boards in order becomes each task’s, the tasks before its stage passed', () => {
+  const save = { version: 1, solved: [], passed: [], data: { s: { stage: 1, boards: [board(1), board(2)] }, t: board(5) }, slots: { s: { at: 0, list: [{ no: 1, name: '' }, { no: 2, name: 'B', data: { stage: 0, boards: [board(3)] } }] } } }
+  const out = step({ split: { s: ['s', 's_2'], q: ['q', 'q_2'] } })(save)
+  assert.deepEqual(out.data, { t: board(5), s: board(1), s_2: board(2) })
+  assert.deepEqual(out.passed, ['s'])
+  assert.deepEqual(out.slots.s.list[1].data, board(3))
+  assert.equal(out.slots.s_2.list[1].data, undefined)
+})
+
 test('a step naming an operation the shell does not know is refused when the game loads', () => {
   assert.throws(() => migrations([{ version: 2, ops: [{ merge: ['a', ['a', 'b']] }] }]), /unknown operation merge/)
 })

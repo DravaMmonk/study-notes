@@ -11,3 +11,13 @@ export function assemble({ id, game, levels, glossary, partDefs, blueprint }) {
   const sorted = [...levels].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
   return { id, ...game, levels: sorted.map(([levelId, level]) => ({ id: levelId, ...level })), glossary, ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}) }
 }
+
+/** The content frozen all the way down, so nothing that reads it can write into it (the checks and the dev page read
+ *  it so: a domain's course read makes what it derives, never writes it onto the content). */
+export function deepFreeze(value) {
+  if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value)
+    for (const v of Object.values(value)) deepFreeze(v)
+  }
+  return value
+}
