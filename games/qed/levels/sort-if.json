@@ -11,6 +11,7 @@
   "after": { "zh": "两条规则进了「数理规则书」。", "en": "The two rules go into the “Rule book of numbers”." },
   "tasks": [
     {
+      "id": "sort-if_1",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -59,6 +60,7 @@
       ]
     },
     {
+      "id": "sort-if_2",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],

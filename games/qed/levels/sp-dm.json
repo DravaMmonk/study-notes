@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "sp-dm_1",
       "kind": "machine",
       "want": "becomes",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -45,6 +46,7 @@
       ]
     },
     {
+      "id": "sp-dm_2",
       "kind": "machine",
       "want": "becomes",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],

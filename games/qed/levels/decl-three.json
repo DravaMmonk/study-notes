@@ -5,6 +5,7 @@
   ],
   "tasks": [
     {
+      "id": "decl-three_1",
       "kind": "iso",
       "declare": { "zh": "三样都要", "en": "all three" },
       "target": "Rain ∧ (Wind ∧ Wet)",
@@ -59,6 +60,7 @@
       ]
     },
     {
+      "id": "decl-three_2",
       "kind": "iso",
       "declare": { "zh": "三选一", "en": "one of three" },
       "target": "Sat ∨ (Sun ∨ Holiday)",

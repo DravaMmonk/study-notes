@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "def-max_1",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "比大小", "en": "Comparing" },
@@ -42,6 +43,7 @@
       ]
     },
     {
+      "id": "def-max_2",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "取大的", "en": "The larger" },

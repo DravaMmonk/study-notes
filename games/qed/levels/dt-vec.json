@@ -21,6 +21,7 @@
   },
   "tasks": [
     {
+      "id": "dt-vec_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -33,6 +34,7 @@
       "hint": [{ "zh": "vnil 长 0，每用一次 vcons 长一格。", "en": "vnil is 0 long, and each vcons makes it one longer." }]
     },
     {
+      "id": "dt-vec_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -46,6 +48,7 @@
       ]
     },
     {
+      "id": "dt-vec_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "rf-false_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -37,6 +38,7 @@
       "hint": [{ "zh": "先点检查，看核把 taut 算成了什么。", "en": "Check first and see what the kernel works taut out to." }]
     },
     {
+      "id": "rf-false_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -64,6 +66,7 @@
       "hint": [{ "zh": "p 和 q 都假的那一行呢？", "en": "What of the row where p and q are both false?" }]
     },
     {
+      "id": "rf-false_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

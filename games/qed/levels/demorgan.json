@@ -11,6 +11,7 @@
   ],
   "tasks": [
     {
+      "id": "demorgan_1",
       "kind": "proof",
       "step": { "zh": "并非或者", "en": "Not either" },
       "tests": [{ "premises": { "p": "¬(A ∨ B)" }, "goal": "¬A ∧ ¬B" }],
@@ -37,6 +38,7 @@
       ]
     },
     {
+      "id": "demorgan_2",
       "kind": "proof",
       "step": { "zh": "两个都不", "en": "Neither" },
       "tests": [{ "premises": { "p": "¬A ∧ ¬B" }, "goal": "¬(A ∨ B)" }],
@@ -66,6 +68,7 @@
       ]
     },
     {
+      "id": "demorgan_3",
       "kind": "proof",
       "step": { "zh": "有一个不", "en": "One fails" },
       "tests": [{ "premises": { "p": "¬A ∨ ¬B" }, "goal": "¬(A ∧ B)" }],
@@ -95,6 +98,7 @@
       ]
     },
     {
+      "id": "demorgan_4",
       "kind": "proof",
       "step": { "zh": "并非两个都", "en": "Not both" },
       "tests": [{ "premises": { "p": "¬(A ∧ B)" }, "goal": "¬A ∨ ¬B" }],

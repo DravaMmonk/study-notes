@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "dt-transport_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -33,6 +34,7 @@
       ]
     },
     {
+      "id": "dt-transport_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -45,6 +47,7 @@
       "hint": [{ "zh": "倒过来也是同一个等式。", "en": "The other way round is the same equation." }]
     },
     {
+      "id": "dt-transport_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

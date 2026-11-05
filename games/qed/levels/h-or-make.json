@@ -14,6 +14,7 @@
   },
   "tasks": [
     {
+      "id": "h-or-make_1",
       "kind": "proof",
       "step": { "zh": "造", "en": "Making it" },
       "tests": [{ "premises": { "p": "A" }, "goal": "∀R. (A → R) → ((B → R) → R)" }],
@@ -42,6 +43,7 @@
       ]
     },
     {
+      "id": "h-or-make_2",
       "kind": "proof",
       "step": { "zh": "用", "en": "Using it" },
       "tests": [{ "premises": { "p": "∀R. (A → R) → ((B → R) → R)", "q": "A → C", "r": "B → C" }, "goal": "C" }],

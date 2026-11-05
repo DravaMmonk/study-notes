@@ -20,6 +20,7 @@
   },
   "tasks": [
     {
+      "id": "h-and-make_1",
       "kind": "proof",
       "step": { "zh": "造", "en": "Making it" },
       "tests": [{ "premises": { "p": "A", "q": "B" }, "goal": "∀R. (A → (B → R)) → R" }],
@@ -49,6 +50,7 @@
       ]
     },
     {
+      "id": "h-and-make_2",
       "kind": "proof",
       "step": { "zh": "拆", "en": "Taking it apart" },
       "tests": [{ "premises": { "p": "∀R. (A → (B → R)) → R" }, "goal": "A" }],

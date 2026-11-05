@@ -19,6 +19,7 @@
   },
   "tasks": [
     {
+      "id": "in-zero_1",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -42,6 +43,7 @@
       ]
     },
     {
+      "id": "in-zero_2",
       "kind": "proof",
       "step": { "zh": "在证明板上", "en": "On the proof board" },
       "adds": ["natInd"],
@@ -88,6 +90,7 @@
       ]
     },
     {
+      "id": "in-zero_3",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],

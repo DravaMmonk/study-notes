@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "eq-trans_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -32,6 +33,7 @@
       ]
     },
     {
+      "id": "eq-trans_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -43,6 +45,7 @@
       "hint": [{ "zh": "q 倒着也一样用：核两边都试。", "en": "q works the other way round too: the kernel tries both sides." }]
     },
     {
+      "id": "eq-trans_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

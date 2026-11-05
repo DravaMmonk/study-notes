@@ -23,6 +23,7 @@
   ],
   "tasks": [
     {
+      "id": "assume_1",
       "kind": "proof",
       "step": { "zh": "加一个假设", "en": "One assumption" },
       "tests": [{ "premises": { "p": "A" }, "goal": "B → A" }],
@@ -37,6 +38,7 @@
       "naive": ["f = impI[A=B]()", "goal <- p"]
     },
     {
+      "id": "assume_2",
       "kind": "proof",
       "step": { "zh": "再加一个假设", "en": "One more assumption" },
       "tests": [{ "premises": { "p": "A" }, "goal": "B → (C → A)" }],

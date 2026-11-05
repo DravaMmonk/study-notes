@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "eq-propeq_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -28,6 +29,7 @@
       "hint": [{ "zh": "先试 fun a => rfl，看核怎么说。", "en": "Try fun a => rfl first and see what the kernel says." }]
     },
     {
+      "id": "eq-propeq_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -41,6 +43,7 @@
       "hint": [{ "zh": "addZero 用在 m 上，得到 m + 0 = m。", "en": "addZero used on m gives m + 0 = m." }]
     },
     {
+      "id": "eq-propeq_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

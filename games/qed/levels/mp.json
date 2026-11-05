@@ -17,6 +17,7 @@
   "after": { "zh": "这条规则在逻辑学里叫<b>肯定前件式</b>（modus ponens）。", "en": "Logicians call this rule <b>modus ponens</b>." },
   "tasks": [
     {
+      "id": "mp_1",
       "kind": "proof",
       "step": { "zh": "套用", "en": "Apply" },
       "tests": [{ "premises": { "p": "A → B", "q": "B → C", "r": "A" }, "goal": "C" }],
@@ -29,6 +30,7 @@
       "solution": ["m1 = mp(p, r)", "m2 = mp(q, m1)", "goal <- m2"]
     },
     {
+      "id": "mp_2",
       "kind": "proof",
       "step": { "zh": "用不着的已知", "en": "A given you do not need" },
       "tests": [{ "premises": { "p": "A → B", "q": "C → B", "r": "C", "s": "B → D" }, "goal": "D" }],

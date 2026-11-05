@@ -40,6 +40,7 @@
   },
   "tasks": [
     {
+      "id": "decl-check_1",
       "kind": "iso",
       "step": { "zh": "正确的声明", "en": "A right declaration" },
       "play": "audit",
@@ -69,6 +70,7 @@
       ]
     },
     {
+      "id": "decl-check_2",
       "kind": "iso",
       "step": { "zh": "错误的声明", "en": "A wrong declaration" },
       "play": "audit",
@@ -91,6 +93,7 @@
       "hint": [{ "zh": "这份声明要的前提和需求一样吗？", "en": "Does this declaration ask for the same premises as the requirement?" }]
     },
     {
+      "id": "decl-check_3",
       "kind": "iso",
       "step": { "zh": "两个方向", "en": "Two directions" },
       "play": "audit",

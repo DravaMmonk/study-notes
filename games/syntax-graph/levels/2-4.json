@@ -17,6 +17,7 @@
   ],
   "tasks": [
     {
+      "id": "2-4_1",
       "step": {
         "zh": "不同深度",
         "en": "Different depths"
@@ -58,6 +59,7 @@
       ]
     },
     {
+      "id": "2-4_2",
       "step": {
         "zh": "和基线比",
         "en": "Against the baseline"

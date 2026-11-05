@@ -21,6 +21,7 @@
   },
   "tasks": [
     {
+      "id": "and_1",
       "kind": "proof",
       "step": { "zh": "两个都要", "en": "Both of them" },
       "tests": [{ "premises": { "p": "A ∧ B" }, "goal": "B ∧ A" }],
@@ -29,6 +30,7 @@
       "solution": ["e = andE(p)", "i = andI(e.right, e.left)", "goal <- i"]
     },
     {
+      "id": "and_2",
       "kind": "proof",
       "step": { "zh": "搬进框里", "en": "Into a box" },
       "tests": [{ "goal": "A ∧ B → B ∧ A" }],

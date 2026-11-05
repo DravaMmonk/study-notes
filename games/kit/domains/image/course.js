@@ -104,7 +104,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
     const level = byIdAll[id]
     if (!level.tasks) return read(id, level)
     const { tasks, ...base } = level
-    const all = tasks.map((task, k) => ({ ...read(id, { ...base, ...task }), opens: task.unlocks ?? [], task: k }))
+    const all = tasks.map(({ id: key, ...task }, k) => ({ ...read(id, { ...base, ...task }), opens: task.unlocks ?? [], task: k, key }))
     return { ...all.at(-1), unlocks: [...new Set([...unlocksOf(base), ...all.flatMap((t) => t.unlocks)])], adds: [...new Set(all.flatMap((t) => t.adds))], tasks: all }
   })
   for (const level of levels) if (!LEVELS.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)

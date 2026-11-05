@@ -13,6 +13,7 @@
   ],
   "tasks": [
     {
+      "id": "eq-motive_1",
       "kind": "proof",
       "step": { "zh": "只换一处", "en": "Only one place" },
       "tests": [{ "premises": { "p": "i = j", "q": "Bright(i) ∧ Seen(i)" }, "goal": "Bright(j) ∧ Seen(i)" }],
@@ -26,6 +27,7 @@
       "naive": ["w = rewrite[at=[0, 1]](p, q)", "goal <- w"]
     },
     {
+      "id": "eq-motive_2",
       "kind": "proof",
       "step": { "zh": "两个方向", "en": "Both ways" },
       "tests": [{ "premises": { "p": "i = j", "q": "Bright(i) ∧ Seen(j)" }, "goal": "Bright(j) ∧ Seen(i)" }],

@@ -3,6 +3,7 @@
   "intro": [{ "t": { "zh": "为列表定义两个函数：拼接和长度。", "en": "Define two functions on lists: append and length." } }],
   "tasks": [
     {
+      "id": "def-list_1",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "拼接", "en": "Append" },
@@ -36,6 +37,7 @@
       ]
     },
     {
+      "id": "def-list_2",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "长度", "en": "Length" },

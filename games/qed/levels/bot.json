@@ -28,6 +28,7 @@
   },
   "tasks": [
     {
+      "id": "bot_1",
       "kind": "proof",
       "step": { "zh": "矛盾", "en": "Contradiction" },
       "tests": [{ "premises": { "p": "A", "q": "¬A" }, "goal": "B" }],
@@ -45,6 +46,7 @@
       "solution": ["m = mp(q, p)", "b = botE[C=B](m)", "goal <- b"]
     },
     {
+      "id": "bot_2",
       "kind": "proof",
       "step": { "zh": "假前提推出一切", "en": "A false premise gives anything" },
       "tests": [{ "premises": { "p": "¬A" }, "goal": "A → B" }],

@@ -14,6 +14,7 @@
   },
   "tasks": [
     {
+      "id": "notI_1",
       "kind": "proof",
       "step": { "zh": "推出矛盾，就不成立", "en": "A contradiction means no" },
       "tests": [{ "premises": { "p": "A → B", "q": "A → ¬B" }, "goal": "¬A" }],
@@ -36,6 +37,7 @@
       ]
     },
     {
+      "id": "notI_2",
       "kind": "proof",
       "step": { "zh": "不可能不", "en": "It cannot be not" },
       "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],

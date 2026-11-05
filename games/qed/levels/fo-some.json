@@ -18,6 +18,7 @@
   ],
   "tasks": [
     {
+      "id": "fo-some_1",
       "kind": "translate",
       "step": { "zh": "翻译", "en": "Translate" },
       "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
@@ -36,6 +37,7 @@
       "decoys": ["∃x. Bird(x) → Flies(x)"]
     },
     {
+      "id": "fo-some_2",
       "kind": "model",
       "step": { "zh": "一个也没有", "en": "Not a single one" },
       "say": { "zh": "有会飞的鸟。", "en": "Some bird flies." },

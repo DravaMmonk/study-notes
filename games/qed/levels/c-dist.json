@@ -11,6 +11,7 @@
   ],
   "tasks": [
     {
+      "id": "c-dist_1",
       "kind": "proof",
       "step": { "zh": "分到右边", "en": "Out over the right" },
       "tests": [{ "premises": { "p": "A ∨ (B ∧ C)" }, "goal": "(A ∨ B) ∧ (A ∨ C)" }],
@@ -34,6 +35,7 @@
       ]
     },
     {
+      "id": "c-dist_2",
       "kind": "proof",
       "step": { "zh": "合回来", "en": "Back together" },
       "tests": [{ "premises": { "p": "(A ∨ B) ∧ (A ∨ C)" }, "goal": "A ∨ (B ∧ C)" }],
@@ -67,6 +69,7 @@
       ]
     },
     {
+      "id": "c-dist_3",
       "kind": "proof",
       "step": { "zh": "分到左边", "en": "Out over the left" },
       "tests": [{ "premises": { "p": "(A ∧ B) ∨ C" }, "goal": "(A ∨ C) ∧ (B ∨ C)" }],
@@ -90,6 +93,7 @@
       ]
     },
     {
+      "id": "c-dist_4",
       "kind": "proof",
       "step": { "zh": "合回来（左边）", "en": "Back together, on the left" },
       "tests": [{ "premises": { "p": "(A ∨ C) ∧ (B ∨ C)" }, "goal": "(A ∧ B) ∨ C" }],

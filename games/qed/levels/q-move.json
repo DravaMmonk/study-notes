@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "q-move_1",
       "kind": "proof",
       "step": { "zh": "一个方向", "en": "One way" },
       "tests": [{ "premises": { "p": "∀x. P(x) → Q" }, "goal": "(∃x. P(x)) → Q" }],
@@ -32,6 +33,7 @@
       ]
     },
     {
+      "id": "q-move_2",
       "kind": "proof",
       "step": { "zh": "另一个方向", "en": "The other way" },
       "tests": [{ "premises": { "p": "(∃x. P(x)) → Q" }, "goal": "∀x. P(x) → Q" }],

@@ -56,6 +56,7 @@
   ],
   "tasks": [
     {
+      "id": "1-11_1",
       "brief": {
         "zh": "向右平移一格，但最左一列不补 0，而是照抄原图最左一列。",
         "en": "Shift right by one pixel, but instead of padding the leftmost column with 0, copy the original image's leftmost column."
@@ -107,6 +108,7 @@
       "alsoFails": [["r = shift[dir=right](in)", "a = arith[op=add](r, in)", "out <- a"]]
     },
     {
+      "id": "1-11_2",
       "brief": {
         "zh": "在亮背景上做 3×3 平均，边缘不能发黑。",
         "en": "Take a 3×3 average on a bright background without the border going dark."

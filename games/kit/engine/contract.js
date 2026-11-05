@@ -17,6 +17,7 @@
 import { RULE_TEXT, audit } from '../course.js'
 import { HINTS, S, validate as fits } from './schema.js'
 import { describe } from './vocabulary.js'
+import { taskShapes, tasksSchema } from './tasks.js'
 
 /** What domain.js exports: the three entries, and the extension points tools add (each optional). */
 export const ENTRIES = ['vocabulary', 'spec', 'validate']
@@ -84,6 +85,9 @@ export function vocabularyProblems(name, v) {
       if (kind === 'op' && it.params && it.params.type !== 'obj') say(`op.${item}: its named parameters are an S.obj`)
     }
   }
+  // What a player keeps of a task goes by its id (tasks.js): a level's tasks, whatever their shape, each have one.
+  const tasks = v.level ? tasksSchema(v) : null
+  if (tasks && taskShapes(tasks).some((shape) => !shape.fields?.id || shape.fields.id.optional)) say('a level’s tasks need an id each (tasks.js TASK_ID_FIELD)')
   for (const [lang, it] of Object.entries(v.languages ?? {})) if (!isText(it?.about)) say(`the language ${lang} says nothing of what it is (about)`)
   if (v.kinds?.op && v.kinds.part) say('it gives engine resources and parts in code: a domain with resources defines its parts in each game’s parts.json')
   if (v.kinds?.op && !v.kinds.family) say('it gives engine resources but no families to colour parts by')

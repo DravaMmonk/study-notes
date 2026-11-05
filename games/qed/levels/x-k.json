@@ -11,6 +11,7 @@
   ],
   "tasks": [
     {
+      "id": "x-k_1",
       "kind": "proof",
       "step": { "zh": "不用框加条件", "en": "A condition without a box" },
       "tests": [{ "premises": { "p": "A" }, "goal": "B → A" }],
@@ -20,6 +21,7 @@
       "solution": ["k = axK[A=A, B=B]()", "m = mp(k, p)", "goal <- m"]
     },
     {
+      "id": "x-k_2",
       "kind": "proof",
       "step": { "zh": "不用框在条件下套用", "en": "Under a condition without a box" },
       "tests": [{ "premises": { "p": "A → (B → (C → D))", "q": "A → B" }, "goal": "A → (C → D)" }],

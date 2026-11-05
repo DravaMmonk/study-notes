@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "sc-show_1",
       "kind": "script",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
@@ -22,6 +23,7 @@
       ]
     },
     {
+      "id": "sc-show_2",
       "kind": "script",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
@@ -37,6 +39,7 @@
       ]
     },
     {
+      "id": "sc-show_3",
       "kind": "script",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },

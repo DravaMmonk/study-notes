@@ -16,6 +16,7 @@
   "after": { "zh": "脚本和证明电路是同一个证明的两种写法。", "en": "A script and a proof circuit are two ways of writing one proof." },
   "tasks": [
     {
+      "id": "sc-rows_1",
       "kind": "script",
       "step": { "zh": "读", "en": "Read" },
       "locked": true,
@@ -54,6 +55,7 @@
       ]
     },
     {
+      "id": "sc-rows_2",
       "kind": "proof",
       "step": { "zh": "接线", "en": "Wire" },
       "cases": [],

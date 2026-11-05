@@ -16,6 +16,7 @@
   ],
   "tasks": [
     {
+      "id": "t-app_1",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "两次应用", "en": "Two applications" },
@@ -31,6 +32,7 @@
       "solution": ["m1 = mp(p, q)", "m2 = mp(m1, r)", "goal <- m2"]
     },
     {
+      "id": "t-app_2",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "括号", "en": "Brackets" },

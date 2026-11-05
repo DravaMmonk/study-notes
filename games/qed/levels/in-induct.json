@@ -22,6 +22,7 @@
   },
   "tasks": [
     {
+      "id": "in-induct_1",
       "kind": "proof",
       "step": { "zh": "用它", "en": "Using it" },
       "cases": [],
@@ -52,6 +53,7 @@
       "solution": ["i = allE[t=\"plus(x, zero) = x\"](ind)", "m1 = mp(i, z)", "m2 = mp(m1, st)", "goal <- m2"]
     },
     {
+      "id": "in-induct_2",
       "kind": "proof",
       "step": { "zh": "挑对性质", "en": "Picking the property" },
       "cases": [],

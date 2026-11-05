@@ -27,6 +27,7 @@
 import { SECTIONS, callOf, find, validate } from '../engine/schema.js'
 import { parsePath, showPath } from '../engine/ops/edit.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
+import { newTaskId } from '../engine/tasks.js'
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const fits = (schema, value, vocabulary) => validate(schema, value, { vocabulary }).length === 0
@@ -420,6 +421,45 @@ export function opFor(file, path, edit, type = null) {
   }
   if (type === 'board' && file.level !== undefined) return { op: 'level.blueprint', level: file.level, path: keys, text: edit.set.join('\n') }
   return { op: op('set'), ...where, path: keys, value: edit.set }
+}
+
+/**
+ * The task operations that turn level `level`'s tasks `before` into `after` (a list edited as a whole): a task is known
+ * by its id, so one moved goes by task.move and its board with it; one without an id is new (task.add, its id made up
+ * among `levels`, the game's); one gone is task.remove; a task kept but changed is set where it ends up.
+ */
+export function taskListOps(level, before, after, levels) {
+  const all = [...levels]
+  const ids = after.map((x) => {
+    if (x.id) return x.id
+    const id = newTaskId(all, level)
+    all.push({ id: level, tasks: [{ id }] })
+    return id
+  })
+  // Tasks gone are removed first, unless none is kept (a level keeps a task): then after the new ones are in.
+  const removes = before.filter((x) => !ids.includes(x.id)).map((x) => ({ op: 'task.remove', task: x.id }))
+  const kept = before.some((x) => ids.includes(x.id))
+  const ops = kept ? [...removes] : []
+  const now = before.map((x) => x.id).filter((id) => ids.includes(id))
+  const put = (id, k) => now.splice(k === 0 ? 0 : now.indexOf(ids[k - 1]) + 1, 0, id)
+  ids.forEach((id, k) => {
+    const place = k === 0 ? { first: true } : { after: ids[k - 1] }
+    const at = now.indexOf(id)
+    if (at < 0) {
+      ops.push({ op: 'task.add', level, data: { ...after[k], id }, ...place })
+      put(id, k)
+    } else if (k === 0 ? at !== 0 : now[at - 1] !== ids[k - 1]) {
+      ops.push({ op: 'task.move', task: id, to: { level, ...place } })
+      now.splice(at, 1)
+      put(id, k)
+    }
+  })
+  if (!kept) ops.push(...removes)
+  const was = new Map(before.map((x) => [x.id, x]))
+  after.forEach((x) => {
+    if (x.id && was.has(x.id) && JSON.stringify(was.get(x.id)) !== JSON.stringify(x)) ops.push({ op: 'level.set', level, path: ['tasks', now.indexOf(x.id)], value: x })
+  })
+  return ops
 }
 
 // Two operations edit the same thing when they are the same operation on the same file and path; the later then

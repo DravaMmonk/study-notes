@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "curry_1",
       "kind": "proof",
       "step": { "zh": "拆成两个条件", "en": "Two conditions from one" },
       "tests": [{ "premises": { "p": "A ∧ B → C" }, "goal": "A → (B → C)" }],
@@ -36,6 +37,7 @@
       ]
     },
     {
+      "id": "curry_2",
       "kind": "proof",
       "step": { "zh": "合成一个条件", "en": "One condition from two" },
       "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "A ∧ B → C" }],

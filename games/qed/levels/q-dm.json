@@ -16,6 +16,7 @@
   ],
   "tasks": [
     {
+      "id": "q-dm_1",
       "kind": "proof",
       "step": { "zh": "一个都没有", "en": "Not a single one" },
       "tests": [{ "premises": { "p": "¬∃x. P(x)" }, "goal": "∀x. ¬P(x)" }],
@@ -42,6 +43,7 @@
       ]
     },
     {
+      "id": "q-dm_2",
       "kind": "proof",
       "step": { "zh": "都不，就是没有", "en": "All not is none" },
       "tests": [{ "premises": { "p": "∀x. ¬P(x)" }, "goal": "¬∃x. P(x)" }],
@@ -65,6 +67,7 @@
       ]
     },
     {
+      "id": "q-dm_3",
       "kind": "proof",
       "step": { "zh": "有一个不", "en": "One who does not" },
       "tests": [{ "premises": { "p": "∃x. ¬P(x)" }, "goal": "¬∀x. P(x)" }],
@@ -88,6 +91,7 @@
       ]
     },
     {
+      "id": "q-dm_4",
       "kind": "proof",
       "step": { "zh": "并非人人", "en": "Not everyone" },
       "sentences": ["¬∃x. ¬P(x)"],

@@ -17,6 +17,7 @@
   ],
   "tasks": [
     {
+      "id": "c-dneg_1",
       "kind": "proof",
       "step": { "zh": "去掉两个 ¬", "en": "Two ¬s off" },
       "tests": [{ "premises": { "p": "¬¬A" }, "goal": "A" }],
@@ -25,6 +26,7 @@
       "solution": ["r = raa(p)", "goal <- r"]
     },
     {
+      "id": "c-dneg_2",
       "kind": "proof",
       "step": { "zh": "加上两个 ¬", "en": "Two ¬s on" },
       "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],

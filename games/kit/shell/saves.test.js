@@ -22,17 +22,17 @@ test('a level whose tasks have ids keeps their boards and passing by id: a task 
   assert.deepEqual([p.solved, taskPassed(game, p, 'p', 0)], [['p'], true])
 })
 
-test('tasks without ids are keyed by their place, a level without tasks by its id', () => {
-  assert.equal(taskKey({ id: 'q', tasks: [{}, {}] }, 1), 'q#1')
+test('a task is keyed by its id, a level without tasks by its own', () => {
+  assert.equal(taskKey({ id: 'q', tasks: [{ key: 'q_1' }, { key: 'q_2' }] }, 1), 'q_2')
   assert.equal(taskKey({ id: 'q' }), 'q')
 })
 
-test('rename moves a level’s state and the keys of its tasks written after it; null drops them', () => {
-  const save = { version: 1, solved: ['a'], passed: ['a#0', 'x'], data: { a: 1, 'a#1': 2, x: 3 }, slots: { 'a#1': { at: 0, list: [] } }, built: { a: 4 }, best: { a: 5 }, introSeen: { a: true, 'a#1': true } }
+test('rename moves a level’s state, kept under its id; null drops it', () => {
+  const save = { version: 1, solved: ['a'], passed: ['a', 'x'], data: { a: 1, t: 2, x: 3 }, slots: { a: { at: 0, list: [] } }, built: { a: 4 }, best: { a: 5 }, introSeen: { a: true, t: true } }
   const out = step({ rename: { a: 'b' } })(save)
-  assert.deepEqual([out.solved, out.passed, out.data, Object.keys(out.slots), out.built, out.best, out.introSeen], [['b'], ['b#0', 'x'], { b: 1, 'b#1': 2, x: 3 }, ['b#1'], { b: 4 }, { b: 5 }, { b: true, 'b#1': true }])
+  assert.deepEqual([out.solved, out.passed, out.data, Object.keys(out.slots), out.built, out.best, out.introSeen], [['b'], ['b', 'x'], { b: 1, t: 2, x: 3 }, ['b'], { b: 4 }, { b: 5 }, { b: true, t: true }])
   const gone = step({ rename: { a: null } })(save)
-  assert.deepEqual([gone.solved, gone.passed, gone.data, gone.best], [[], ['x'], { x: 3 }, {}])
+  assert.deepEqual([gone.solved, gone.passed, gone.data, gone.best], [[], ['x'], { t: 2, x: 3 }, {}])
 })
 
 test('solve, built, drop and retask', () => {

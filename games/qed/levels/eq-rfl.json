@@ -17,6 +17,7 @@
   ],
   "tasks": [
     {
+      "id": "eq-rfl_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -28,6 +29,7 @@
       "hint": [{ "zh": "新块 rfl 证的是两边一样的等式。", "en": "The new piece rfl proves an equation whose two sides are alike." }]
     },
     {
+      "id": "eq-rfl_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -44,6 +46,7 @@
       ]
     },
     {
+      "id": "eq-rfl_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

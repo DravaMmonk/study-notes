@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "in-itsum_1",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "求和", "en": "Sum" },
@@ -34,6 +35,7 @@
       "intro": [{ "t": { "zh": "sum 从后往前加。", "en": "sum adds from the back." } }]
     },
     {
+      "id": "in-itsum_2",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "累加器", "en": "The accumulator" },
@@ -68,6 +70,7 @@
       ]
     },
     {
+      "id": "in-itsum_3",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],

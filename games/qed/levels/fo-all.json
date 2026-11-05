@@ -22,6 +22,7 @@
   },
   "tasks": [
     {
+      "id": "fo-all_1",
       "kind": "translate",
       "step": { "zh": "翻译", "en": "Translate" },
       "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
@@ -40,6 +41,7 @@
       "decoys": ["∀x. Human(x) ∧ Mortal(x)", "∀x. Mortal(x) → Human(x)"]
     },
     {
+      "id": "fo-all_2",
       "kind": "model",
       "step": { "zh": "用了「并且」", "en": "With “and”" },
       "say": { "zh": "人都会死。", "en": "Every human is mortal." },
@@ -73,6 +75,7 @@
       ]
     },
     {
+      "id": "fo-all_3",
       "kind": "model",
       "step": { "zh": "条件写反了", "en": "The condition reversed" },
       "say": { "zh": "人都会死。", "en": "Every human is mortal." },

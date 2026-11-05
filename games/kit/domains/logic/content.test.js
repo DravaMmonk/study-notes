@@ -42,25 +42,25 @@ const CONTENT = {
       solution: box('f = impI[A=A](body: m2)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)'], 'f') }),
     proofLevel('useChain', { tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Wind', B: 'Wet', C: 'Slip' }], solution: ['c = chain(p, q)', 'goal <- c'] }),
     { id: 'half', title: L('half'), builds: 'half', tasks: [
-      { kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.left'] },
-      { kind: 'proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.right'] },
+      { id: 'half_l', kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.left'] },
+      { id: 'half_r', kind: 'proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.right'] },
     ] },
     { id: 'useHalf', title: L('useHalf'), tasks: [
-      { kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A ∧ A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['h = half(p)', 'c = andI(h, h)', 'goal <- c'] },
-      { kind: 'proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['h = half[form=right](p)', 'c = andI(h, h)', 'goal <- c'] },
+      { id: 'useHalf_l', kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A ∧ A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['h = half(p)', 'c = andI(h, h)', 'goal <- c'] },
+      { id: 'useHalf_r', kind: 'proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B ∧ B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['h = half[form=right](p)', 'c = andI(h, h)', 'goal <- c'] },
     ] },
     proofLevel('eqSym', { consts: ['i', 'j'], propertyWords: true, words: ['everyday', 'stars', 'properties'], tests: [{ premises: { e: '∀P. P(i) → P(j)' }, goal: '∀Q. Q(j) → Q(i)' }], cases: [], brief: L('b'),
       solution: ['s = allI[x=Q](body: m) {', '  body {', '    f = impI[A="Q(i)"](body: f.body)', '    i = allE[t="Q(x) -> Q(i)"](e)', '    m = mp(i, f)', '  }', '}', 'goal <- s'] }),
     { id: 'andDef', title: L('andDef'), tasks: [
-      { kind: 'proof', step: L('s'), tests: [{ premises: { p: 'A', q: 'B' }, goal: '∀R. (A → (B → R)) → R' }], cases: [{ A: 'Rain', B: 'Wind' }],
+      { id: 'andDef_s', kind: 'proof', step: L('s'), tests: [{ premises: { p: 'A', q: 'B' }, goal: '∀R. (A → (B → R)) → R' }], cases: [{ A: 'Rain', B: 'Wind' }],
         solution: ['s = allI[x=R](body: f) {', '  body {', '    f = impI[A="A -> B -> R"](body: m2) {', '      body {', '        m1 = mp(f.body, p)', '        m2 = mp(m1, q)', '      }', '    }', '  }', '}', 'goal <- s'] },
-      { kind: 'proof', step: L('t'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wind' }], solution: ['e = andE(p)', 'goal <- e.left'] },
+      { id: 'andDef_t', kind: 'proof', step: L('t'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wind' }], solution: ['e = andE(p)', 'goal <- e.left'] },
     ] },
     proofLevel('eqUse', { words: ['everyday', 'stars'], consts: ['a', 'b'], tests: [{ premises: { p: 'a = b', q: 'P(a)', t: '∀x. P(x) → Q(x)' }, goal: 'Q(b)' }], cases: [{ P: 'Bright', Q: 'Seen' }],
       solution: ['r = rewrite[at=[0]](p, q)', 'e = allE[t=b](t)', 'm = mp(e, r)', 'goal <- m'] }),
     { id: 'eqTerm', title: L('eqTerm'), words: ['everyday', 'stars'], symbolicWords: { Bright: L('P({0})') }, consts: ['i', 'j'], tasks: [
-      { kind: 'proof', step: L('w'), tests: [{ premises: { p: 'i = j', q: 'Bright(i)' }, goal: 'Bright(j)' }], cases: [], brief: L('b'), solution: ['w = rewrite[at=[0]](p, q)', 'goal <- w'] },
-      { kind: 'proof', step: L('x'), tests: [{ premises: { p: 'i = j', q: 'Bright(i)' }, goal: 'Bright(j)' }], cases: [], brief: L('b'), solution: ['w = rewrite[at=[0]](p, q)', 'goal <- w'] },
+      { id: 'eqTerm_w', kind: 'proof', step: L('w'), tests: [{ premises: { p: 'i = j', q: 'Bright(i)' }, goal: 'Bright(j)' }], cases: [], brief: L('b'), solution: ['w = rewrite[at=[0]](p, q)', 'goal <- w'] },
+      { id: 'eqTerm_x', kind: 'proof', step: L('x'), tests: [{ premises: { p: 'i = j', q: 'Bright(i)' }, goal: 'Bright(j)' }], cases: [], brief: L('b'), solution: ['w = rewrite[at=[0]](p, q)', 'goal <- w'] },
     ] },
     proofLevel('rows', { symbolicWords: { Rain: L('A'), Wet: L('B'), Slip: L('C') }, cases: [], brief: L('b'), tests: [{ premises: { p: 'Rain → Wet', q: 'Wet → Slip' }, goal: 'Rain → Wet ∧ Slip' }],
       solution: box('f = impI[A=Rain](body: c)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)', 'c = andI(m1, m2)'], 'f') }),
@@ -196,11 +196,11 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   // alone.
   const empty = (one) => ({ nodes: startProof(one).nodes, wires: [] })
   const [left, right] = level('half').tasks
-  syncOwn({ 'half#1': empty(right) })
+  syncOwn({ half_r: empty(right) })
   assert.equal(course.proofs.half.left.board(), left.solution)
   assert.equal(run('useHalf', 0).pass, true)
   assert.equal(run('useHalf', 1).pass, false)
-  syncOwn({ 'half#0': empty(left) })
+  syncOwn({ half_l: empty(left) })
   assert.equal(run('useHalf', 0).pass, false)
   assert.equal(run('useHalf', 1).pass, true)
   syncOwn({})

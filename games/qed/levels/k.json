@@ -8,6 +8,7 @@
   },
   "tasks": [
     {
+      "id": "k_1",
       "kind": "proof",
       "step": { "zh": "假设什么，就得到什么", "en": "What you assume, you have" },
       "tests": [{ "goal": "A → A" }],
@@ -16,6 +17,7 @@
       "solution": ["f = impI[A=A](body: f.body)", "goal <- f"]
     },
     {
+      "id": "k_2",
       "kind": "proof",
       "step": { "zh": "多一个条件也无妨", "en": "An extra condition" },
       "tests": [{ "goal": "A → (B → A)" }],

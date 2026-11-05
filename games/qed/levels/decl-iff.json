@@ -24,6 +24,7 @@
   "naive": [{ "binds": [], "needs": ["Rain → Wet"] }, { "binds": [], "needs": ["Wet → Rain"] }],
   "tasks": [
     {
+      "id": "decl-iff_1",
       "kind": "iso",
       "step": { "zh": "找出错误", "en": "Find the fault" },
       "play": "audit",
@@ -65,6 +66,7 @@
       ]
     },
     {
+      "id": "decl-iff_2",
       "kind": "iso",
       "step": { "zh": "编写声明", "en": "Write the declaration" },
       "intro": [

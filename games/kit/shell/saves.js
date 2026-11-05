@@ -4,8 +4,7 @@
 // nothing else does. A save keeps a level's state by its id and a task's by its key (progress.js), so only these
 // change what it holds:
 //
-//   { rename: { old level id: new id | null } }   level ids move (null drops the level's state), and with them the keys
-//                                                 of its tasks that are written after it (`<level>#<k>`)
+//   { rename: { old level id: new id | null } }   level ids move (null drops the level's state, and a level's own key)
 //   { solve: [level id, [level id…]] }            levels counted solved for whoever solved that one
 //   { built: [[level id, task key]…] }            for each of these levels solved, the board kept on that task (its
 //                                                 last) becomes the board its part runs
@@ -41,13 +40,7 @@ const OPS = {
   retype: (save, types) => ({ ...save, ...Object.fromEntries(['data','built','slots'].filter((key) => save[key]).map((key) => [key,retypeBoards(save[key],types)])) }),
   rename: (save, to) => {
     const level = (id) => (id in to ? to[id] : id)
-    // A task key written after its level (`<level>#<k>`) moves with it; a level's own key is its id.
-    const key = (k) => {
-      const [id, ...rest] = String(k).split('#')
-      if (!(id in to)) return k
-      return to[id] === null ? null : [to[id], ...rest].join('#')
-    }
-    return rekey(save, key, level)
+    return rekey(save, level, level)
   },
   solve: (save, [level, ids]) => ((save.solved ?? []).includes(level) ? { ...save, solved: [...new Set([...save.solved, ...ids])] } : save),
   built: (save, pairs) => {

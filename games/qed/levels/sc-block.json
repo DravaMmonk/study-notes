@@ -8,6 +8,7 @@
   "intro": [{ "t": { "zh": "块里还可以套块。", "en": "A block can hold another block." } }],
   "tasks": [
     {
+      "id": "sc-block_1",
       "kind": "script",
       "step": { "zh": "读", "en": "Read" },
       "locked": true,
@@ -49,6 +50,7 @@
       ]
     },
     {
+      "id": "sc-block_2",
       "kind": "proof",
       "step": { "zh": "接线", "en": "Wire" },
       "cases": [],

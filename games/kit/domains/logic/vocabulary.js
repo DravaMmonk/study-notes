@@ -9,6 +9,7 @@
 
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { TASK_ID_FIELD } from '../../engine/tasks.js'
 import { RULES } from './proof.js'
 import { PRIMITIVE_GATES } from './gates.js'
 import { MACHINE_PARTS } from './machine.js'
@@ -166,7 +167,7 @@ const BY_KIND = {
 }
 const opts = (fields) => Object.fromEntries(Object.entries(fields).map(([k, s]) => [k, s.optional ? s : S.opt(s)]))
 const byKind = (own) => S.by('kind', Object.fromEntries(Object.entries(BY_KIND).map(([kind, fields]) => [kind, S.obj({ kind: S.ref('kind'), ...ANY, ...own, ...fields })])))
-const TASK = byKind({ step: S.text(), carries: S.opt(S.bool({ about: t('接着上一个任务的电路往下做', 'goes on from the last task’s board') })) })
+const TASK = byKind({ id: TASK_ID_FIELD, step: S.text(), carries: S.opt(S.bool({ about: t('接着上一个任务的电路往下做', 'goes on from the last task’s board') })) })
 const LEVEL = S.either(
   byKind({ title: S.text() }),
   // A level of several tasks: what it says for all of them (a declaration's sentence and cases too), then each task.

@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "eq-defeq_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -27,6 +28,7 @@
       "hint": [{ "zh": "按加法的定义把左边算出来。", "en": "Work the left side out by the definition of addition." }]
     },
     {
+      "id": "eq-defeq_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -39,6 +41,7 @@
       "hint": [{ "zh": "0 + a 按定义算出来是什么？", "en": "What does 0 + a work out to by the definition?" }]
     },
     {
+      "id": "eq-defeq_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -52,6 +55,7 @@
       "hint": [{ "zh": "定义算两步。", "en": "Two steps of the definition." }]
     },
     {
+      "id": "eq-defeq_4",
       "kind": "term",
       "step": { "zh": "第四题", "en": "Problem 4" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

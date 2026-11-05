@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "in-inject_1",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "前一个数", "en": "The one before" },
@@ -38,6 +39,7 @@
       "hint": [{ "zh": "0 前面没有数，就取 0。", "en": "Nothing comes before 0, so take 0." }]
     },
     {
+      "id": "in-inject_2",
       "kind": "proof",
       "step": { "zh": "S 一对一", "en": "S is one-to-one" },
       "consts": ["zero"],

@@ -20,6 +20,7 @@
   },
   "tasks": [
     {
+      "id": "t-pair_1",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "∧ 是一对", "en": "∧ is a pair" },
@@ -35,6 +36,7 @@
       "solution": ["e = andE(p)", "i = andI(e.right, e.left)", "goal <- i"]
     },
     {
+      "id": "t-pair_2",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "∨ 带着标签", "en": "∨ carries a tag" },
@@ -65,6 +67,7 @@
       ]
     },
     {
+      "id": "t-pair_3",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "⊥ 是空的", "en": "⊥ is empty" },

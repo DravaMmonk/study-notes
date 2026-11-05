@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "t-lemma_1",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "用串联", "en": "With Chain" },
@@ -25,6 +26,7 @@
       "solution": ["c = chain(p, q)", "goal <- c"]
     },
     {
+      "id": "t-lemma_2",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "不用串联", "en": "Without Chain" },

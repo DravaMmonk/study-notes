@@ -12,6 +12,7 @@
   "after": { "zh": "→ 就是不依赖参数的 ∀。", "en": "→ is just a ∀ that does not depend on its argument." },
   "tasks": [
     {
+      "id": "t-all_1",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "∀ 是函数", "en": "∀ is a function" },
@@ -22,6 +23,7 @@
       "solution": ["e = allE[t=i](p)", "m = mp(e, q)", "goal <- m"]
     },
     {
+      "id": "t-all_2",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "任取框是 fun", "en": "The for-any box is fun" },
@@ -44,6 +46,7 @@
       ]
     },
     {
+      "id": "t-all_3",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "∃ 是一对", "en": "∃ is a pair" },
@@ -59,6 +62,7 @@
       "solution": ["i = exI(p)", "goal <- i"]
     },
     {
+      "id": "t-all_4",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "实例框", "en": "Instance box" },

@@ -20,6 +20,7 @@
   },
   "tasks": [
     {
+      "id": "t-lam_1",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "一个框", "en": "One box" },
@@ -43,6 +44,7 @@
       ]
     },
     {
+      "id": "t-lam_2",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "外层的假设", "en": "The outer assumption" },
@@ -58,6 +60,7 @@
       "solution": ["f = impI[A=A](body: g) {", "  body {", "    g = impI[A=A](body: f.body)", "  }", "}", "goal <- f"]
     },
     {
+      "id": "t-lam_3",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "里层的假设", "en": "The inner assumption" },

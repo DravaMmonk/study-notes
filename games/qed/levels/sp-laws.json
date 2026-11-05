@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "sp-laws_1",
       "kind": "machine",
       "want": "becomes",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -33,6 +34,7 @@
       "solution": ["c0r0 = arrow[use=[\"arrow.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]
     },
     {
+      "id": "sp-laws_2",
       "kind": "machine",
       "want": "becomes",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],

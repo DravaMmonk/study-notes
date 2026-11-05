@@ -29,6 +29,7 @@
   },
   "tasks": [
     {
+      "id": "decl-or_1",
       "kind": "iso",
       "step": { "zh": "找出错误", "en": "Find the fault" },
       "play": "audit",
@@ -49,6 +50,7 @@
       ]
     },
     {
+      "id": "decl-or_2",
       "kind": "iso",
       "step": { "zh": "以「我休息」为目标", "en": "With “I rest” as the goal" },
       "play": "audit",
@@ -73,6 +75,7 @@
       }
     },
     {
+      "id": "decl-or_3",
       "kind": "iso",
       "step": { "zh": "编写声明", "en": "Write the declaration" },
       "brief": {

@@ -21,6 +21,7 @@
   },
   "tasks": [
     {
+      "id": "kk-one_1",
       "kind": "gates",
       "step": { "zh": "翻译", "en": "Translate" },
       "blind": true,
@@ -34,6 +35,7 @@
       "solution": ["n = gNot(KA)", "e = gIff(KA, n)", "out <- e"]
     },
     {
+      "id": "kk-one_2",
       "kind": "proof",
       "step": { "zh": "证明", "en": "Prove" },
       "tests": [{ "premises": { "p": "A ↔ ¬A" }, "goal": "⊥" }],

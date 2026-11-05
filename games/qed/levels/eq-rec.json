@@ -23,6 +23,7 @@
   ],
   "tasks": [
     {
+      "id": "eq-rec_1",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "接线", "en": "Wire" },
@@ -39,6 +40,7 @@
       "solution": ["w = rewrite[at=[0]](p, q)", "goal <- w"]
     },
     {
+      "id": "eq-rec_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -55,6 +57,7 @@
       ]
     },
     {
+      "id": "eq-rec_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -71,6 +74,7 @@
       ]
     },
     {
+      "id": "eq-rec_4",
       "kind": "term",
       "step": { "zh": "第四题", "en": "Problem 4" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

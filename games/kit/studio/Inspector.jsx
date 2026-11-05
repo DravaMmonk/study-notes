@@ -12,8 +12,8 @@ import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
-import { hasTaskIds } from '../engine/tasks.js'
-import { blank, fieldAt, fileForm, moved, opFor, placeFindings } from './form.js'
+import { hasTasks } from '../engine/tasks.js'
+import { blank, fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
 import { Field } from './Fields.jsx'
 import { Picker } from './Picker.jsx'
 
@@ -23,10 +23,12 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
   const file = at?.level ? { level: at.level } : at?.parts ? { parts: true } : { game: true }
   const shown = field?.path && fileForm(content, vocabulary, at, order)
   const hit = shown ? fieldAt(shown.form, field.path) : null
-  const tasked = Boolean(at?.level) && hasTaskIds(vocabulary)
+  const tasked = Boolean(at?.level) && hasTasks(vocabulary)
   const edit = (path, change, type) => {
     // A task's id changes by task.rename, so what players kept of it follows.
     if (tasked && path.length === 3 && path[0] === 'tasks' && path[2] === 'id' && change.set !== undefined) return onEdit({ op: 'task.rename', task: getAt(shown.value, path), to: change.set })
+    // The task list edited as a whole goes task by task, so each task's board stays with it.
+    if (tasked && path.length === 1 && path[0] === 'tasks' && Array.isArray(change.set)) return onOps(taskListOps(at.level, getAt(shown.value, path) ?? [], change.set, content.levels))
     return onEdit(opFor(file, path, change, type))
   }
   const { at: findings } = shown ? placeFindings(shown.form, places.filter((p) => (at?.level ? p.level === at.level : at?.parts ? p.file === 'parts' : !p.level && !p.file))) : { at: new Map() }

@@ -2,6 +2,7 @@
   "title": { "zh": "骑士与无赖", "en": "Knights and knaves" },
   "tasks": [
     {
+      "id": "kk-three_1",
       "kind": "gates",
       "step": { "zh": "翻译", "en": "Translate" },
       "blind": true,
@@ -15,6 +16,7 @@
       "solution": ["na = gNot(KA)", "o = gOr(na, KB)", "e = gIff(KA, o)", "out <- e"]
     },
     {
+      "id": "kk-three_2",
       "kind": "proof",
       "step": { "zh": "证明", "en": "Prove" },
       "tests": [{ "premises": { "p": "A ↔ ¬A ∨ B" }, "goal": "A ∧ B" }],

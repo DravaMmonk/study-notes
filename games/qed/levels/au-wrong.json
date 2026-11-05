@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "au-wrong_1",
       "kind": "machine",
       "want": "fails",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -37,6 +38,7 @@
       "solution": ["c0 = clausify(in)", "c1 = oracle(c0)", "c2 = replay(c1)", "out <- c2"]
     },
     {
+      "id": "au-wrong_2",
       "kind": "truth",
       "step": { "zh": "找出那一行", "en": "Find the row" },
       "ask": "counter",

@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "raa_1",
       "kind": "proof",
       "step": { "zh": "不可否定", "en": "Undeniable" },
       "tests": [{ "goal": "¬¬(A ∨ ¬A)" }],
@@ -48,6 +49,7 @@
       ]
     },
     {
+      "id": "raa_2",
       "kind": "proof",
       "step": { "zh": "双重否定消去", "en": "Double-negation elimination" },
       "carries": true,

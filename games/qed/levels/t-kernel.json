@@ -14,6 +14,7 @@
   },
   "tasks": [
     {
+      "id": "t-kernel_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -29,6 +30,7 @@
       ]
     },
     {
+      "id": "t-kernel_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -39,6 +41,7 @@
       "hint": [{ "zh": "要证的这一对，左边该是哪一半？", "en": "In the pair to prove, which half goes on the left?" }]
     },
     {
+      "id": "t-kernel_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -54,6 +57,7 @@
       ]
     },
     {
+      "id": "t-kernel_4",
       "kind": "term",
       "step": { "zh": "第四题", "en": "Problem 4" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

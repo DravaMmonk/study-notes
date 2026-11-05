@@ -11,6 +11,7 @@
   ],
   "tasks": [
     {
+      "id": "c-arrow_1",
       "kind": "proof",
       "step": { "zh": "箭头变成或者", "en": "Arrow to or" },
       "tests": [{ "premises": { "p": "A → B" }, "goal": "¬A ∨ B" }],
@@ -31,6 +32,7 @@
       ]
     },
     {
+      "id": "c-arrow_2",
       "kind": "proof",
       "step": { "zh": "或者变回箭头", "en": "Or back to an arrow" },
       "tests": [{ "premises": { "p": "¬A ∨ B" }, "goal": "A → B" }],

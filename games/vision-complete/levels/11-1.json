@@ -42,6 +42,7 @@
   "unlocks": [],
   "tasks": [
     {
+      "id": "11-1_1",
       "brief": {
         "zh": "分类器的分数，是每一格的亮度乘它的权重，全部加起来。输出每一格给分数加了多少。",
         "en": "The classifier's score is every cell's brightness times its weight, all added up. Output how much each cell adds to the score."
@@ -84,6 +85,7 @@
       "alsoFails": [["out <- w"]]
     },
     {
+      "id": "11-1_2",
       "brief": {
         "zh": "把一格周围 3×3 的一块涂黑（亮度变 0），分数会掉一些。在每一格输出：涂黑以它为中心的那一块，分数掉多少。",
         "en": "Black out the 3×3 block round a cell (brightness 0) and the score drops a little. At every cell, output how much the score drops when the block centred on it is blacked out."

@@ -46,8 +46,8 @@ test('a level that now builds a part makes the board kept on its last task the p
 })
 
 test('a level whose puzzle changed drops the boards kept on each of its tasks', () => {
-  const keys = (id) => [`${id}#0`, `${id}#1`]
-  assert.deepEqual(saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a'], keys }), [{ drop: ['a#0', 'a#1'] }])
+  const keys = (id) => [`${id}_1`, `${id}_2`]
+  assert.deepEqual(saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a'], keys }), [{ drop: ['a_1', 'a_2'] }])
 })
 
 test('with no course before (content that did not fit), only the ops’ own and the stale boards', () => {

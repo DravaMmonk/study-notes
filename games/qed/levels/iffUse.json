@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "iffUse_1",
       "kind": "proof",
       "step": { "zh": "一个方向", "en": "One direction" },
       "tests": [{ "premises": { "p": "A ↔ B", "q": "A" }, "goal": "B" }],
@@ -23,6 +24,7 @@
       "solution": ["e = andE(p)", "m = mp(e.left, q)", "goal <- m"]
     },
     {
+      "id": "iffUse_2",
       "kind": "proof",
       "step": { "zh": "另一个方向", "en": "The other direction" },
       "tests": [{ "premises": { "p": "A ↔ B", "q": "¬A" }, "goal": "¬B" }],

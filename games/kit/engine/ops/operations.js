@@ -18,7 +18,7 @@ import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
 import { definesParts } from '../parts/define.js'
 import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
-import { TASK_ID, findTask, hasTaskIds, newTaskId } from '../tasks.js'
+import { TASK_ID, findTask, hasTasks, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal', 'a field’s path: tests[0].goal') })
@@ -48,7 +48,7 @@ const notSaves = (path) => (parsePath(path)[0] === 'saves' ? fail('game.json sav
 // Tasks by id (../tasks.js): the levels as a list, a task found, where a task goes in a level.
 const TASK = S.str({ pattern: TASK_ID, about: t('任务的 id', 'a task’s id') })
 const TASK_PLACE = S.obj({ level: S.level(), after: S.opt(TASK), first: S.opt(S.bool()) }, { about: t('一关里的一个位置：after 那个任务后面，first 时最前，都不给就在最后', 'a place in a level: after that task, first, or else last') })
-const tasked = (vocabulary) => hasTaskIds(vocabulary) || fail(`the ${vocabulary.domain} domain’s levels are no lists of tasks with ids`)
+const tasked = (vocabulary) => hasTasks(vocabulary) || fail(`the ${vocabulary.domain} domain’s levels have no tasks`)
 const levelsOf = (ws) => [...ws.levels].map(([id, l]) => ({ id, ...l }))
 const taskOf = (ws, id) => findTask(levelsOf(ws), id) ?? fail(`no task ${id}`)
 /** Where in level `level`'s tasks (without task `except`) a task goes: its index. */
@@ -178,11 +178,13 @@ export const OPERATIONS = {
     },
   },
   'level.rename': {
-    about: t('给一关换 id：文件名和所有提到它的地方一起改', 'give a level a new id: its file and every place naming it'),
+    about: t('给一关换 id：文件名和所有提到它的地方一起改；和关同名的任务一起换（玩家存下的东西按 id 跟着走）', 'give a level a new id: its file and every place naming it, and its task of the same id (what players kept follows the id)'),
     params: S.obj({ level: S.level(), to: NEW_ID }),
     apply(ws, { level, to }, { vocabulary }) {
       if (ws.levels.has(to)) fail(`there is a level ${to} already`)
-      const data = levelOf(ws, level)
+      if (findTask(levelsOf(ws), to)) fail(`there is a task ${to} already`)
+      const old = levelOf(ws, level)
+      const data = old.tasks?.some((x) => x.id === level) ? { ...old, tasks: old.tasks.map((x) => (x.id === level ? { ...x, id: to } : x)) } : old
       ws.levels = new Map([...ws.levels].map(([id, l]) => (id === level ? [to, data] : [id, l])))
       ws.basis.set(`levels/${to}.json`, ws.original.get(`levels/${level}.json`) ?? ws.basis.get(`levels/${level}.json`))
       const n = renameRefs(ws, vocabulary, level, to)

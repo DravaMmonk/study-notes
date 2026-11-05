@@ -11,6 +11,7 @@
   ],
   "tasks": [
     {
+      "id": "au-refute_1",
       "kind": "proof",
       "step": { "zh": "两步", "en": "Two steps" },
       "parts": ["res"],
@@ -21,6 +22,7 @@
       "solution": ["r1 = res(q, p)", "r2 = res(r1, r)", "goal <- r2"]
     },
     {
+      "id": "au-refute_2",
       "kind": "proof",
       "step": { "zh": "三步", "en": "Three steps" },
       "parts": ["res"],

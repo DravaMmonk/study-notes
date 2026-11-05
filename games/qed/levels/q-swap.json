@@ -6,6 +6,7 @@
   },
   "tasks": [
     {
+      "id": "q-swap_1",
       "kind": "model",
       "step": { "zh": "找反例", "en": "Counterexample" },
       "say": {
@@ -22,6 +23,7 @@
       "hint": [{ "zh": "每样东西只喜欢自己。", "en": "Each thing likes only itself." }]
     },
     {
+      "id": "q-swap_2",
       "kind": "proof",
       "step": { "zh": "证明", "en": "Prove" },
       "tests": [{ "premises": { "p": "∃x. ∀y. R(x, y)" }, "goal": "∀y. ∃x. R(x, y)" }],

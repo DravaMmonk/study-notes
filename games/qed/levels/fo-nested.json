@@ -11,6 +11,7 @@
   ],
   "tasks": [
     {
+      "id": "fo-nested_1",
       "kind": "translate",
       "step": { "zh": "第一句", "en": "Sentence 1" },
       "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
@@ -25,6 +26,7 @@
       "decoys": ["∀x. Human(x) → ∃y. Parent(y, x)", "∃y. ∀x. Likes(x, y)"]
     },
     {
+      "id": "fo-nested_2",
       "kind": "translate",
       "step": { "zh": "第二句", "en": "Sentence 2" },
       "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
@@ -36,6 +38,7 @@
       "decoys": ["∀x. ∃y. Likes(x, y)", "∃y. ∀x. Likes(x, y)"]
     },
     {
+      "id": "fo-nested_3",
       "kind": "model",
       "step": { "zh": "先说谁", "en": "Which comes first" },
       "say": { "zh": "每样东西都喜欢某样东西。", "en": "Everything likes something." },

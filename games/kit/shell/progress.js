@@ -10,7 +10,6 @@
 // when it gains a task. `version` is the game's save version: its steps (saves.js, game.json `saves`) bring a save
 // written before the content changed up to date. A save of any other shape (an older key) is not read: the player
 // starts afresh.
-import { keyOf } from '../engine/tasks.js'
 
 /** The key a game's progress is saved under in this browser. */
 export const saveKey = (id) => `${id}.v2`
@@ -55,8 +54,8 @@ export function createProgress({ id, version = 1, migrate = (saved) => saved }) 
 /** A fresh progress, as a new save starts. */
 export const fresh = (version = 1) => blank(version)
 
-/** Task k's key: the task's id (the shell level's task `key`), `<level>#<k>` without one, the level's id without tasks. */
-export const taskKey = (level, k = 0) => (level.tasks ? keyOf(level.id, level.tasks[k].key, k) : level.id)
+/** Task k's key: the task's id (the shell level's task `key`), the level's id for a level without tasks. */
+export const taskKey = (level, k = 0) => (level.tasks ? level.tasks[k].key : level.id)
 
 /** Whether task k of level `id` is passed (all of them once it is solved). */
 export const taskPassed = (game, p, id, k) => p.solved.includes(id) || p.passed.includes(taskKey(game.byId[id], k))

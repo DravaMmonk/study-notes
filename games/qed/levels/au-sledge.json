@@ -7,6 +7,7 @@
   },
   "tasks": [
     {
+      "id": "au-sledge_1",
       "kind": "machine",
       "want": "decide",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -27,6 +28,7 @@
       "naive": ["c0 = clausify(in)", "c1 = resolve(c0)", "out <- c1"]
     },
     {
+      "id": "au-sledge_2",
       "kind": "truth",
       "step": { "zh": "读出那一行", "en": "Read the row" },
       "ask": "counter",

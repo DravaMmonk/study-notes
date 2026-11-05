@@ -24,6 +24,7 @@
   ],
   "tasks": [
     {
+      "id": "decl-strength_1",
       "kind": "iso",
       "step": { "zh": "过强的声明", "en": "A declaration too strong" },
       "play": "audit",
@@ -61,6 +62,7 @@
       ]
     },
     {
+      "id": "decl-strength_2",
       "kind": "iso",
       "step": { "zh": "过弱的声明", "en": "A declaration too weak" },
       "play": "audit",

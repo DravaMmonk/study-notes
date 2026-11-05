@@ -15,6 +15,7 @@
   },
   "tasks": [
     {
+      "id": "m-counter_1",
       "kind": "translate",
       "step": { "zh": "翻译", "en": "Translate" },
       "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
@@ -32,6 +33,7 @@
       "decoys": []
     },
     {
+      "id": "m-counter_2",
       "kind": "model",
       "step": { "zh": "造反例", "en": "Counterexample" },
       "say": {

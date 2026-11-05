@@ -11,6 +11,7 @@
   "after": { "zh": "定义函数就是写程序，化简就是运行程序。", "en": "Defining a function is writing a program; Simp runs it." },
   "tasks": [
     {
+      "id": "sort-ins_1",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "如果", "en": "If" },
@@ -40,6 +41,7 @@
       ]
     },
     {
+      "id": "sort-ins_2",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "插进去", "en": "Insert" },
@@ -82,6 +84,7 @@
       ]
     },
     {
+      "id": "sort-ins_3",
       "kind": "define",
       "words": ["everyday", "terms"],
       "step": { "zh": "排序", "en": "Sort" },
@@ -111,6 +114,7 @@
       "hint": [{ "zh": "ins 要的是一个排好的列表。", "en": "ins wants a sorted list." }]
     },
     {
+      "id": "sort-ins_4",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],

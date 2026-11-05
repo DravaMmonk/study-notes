@@ -3,7 +3,7 @@
 // its hints, its board's ports, its tests, its answers. A level of one task is a plain level.
 //
 // Every task has an id, unique in the game and never another level's id (a level's one task usually has the level's
-// own). What a player keeps of a task — its board, whether it is passed — is kept by that id (keyOf), so a task moves
+// own). What a player keeps of a task — its board, whether it is passed — is kept by that id, so a task moves
 // within its level or to another level and its board goes with it, with no save migration (the operations task.add,
 // task.remove, task.move, task.rename, ops/operations.js). The shell plays each task as the level with the task's fields over it
 // (../shell/GameShell.jsx), and so does every domain reading one (taskLevels).
@@ -12,8 +12,11 @@ import { T as t } from '../shell/i18n.js'
 
 export const TASK_ID = '^[A-Za-z0-9][A-Za-z0-9_-]*$'
 
+/** A task's id, which every task has (a domain writing its own task schema puts this in it). */
+export const TASK_ID_FIELD = S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）', 'the task’s id, unique in the game; what a player keeps of it goes by it (a level’s one task usually has the level’s id)') })
+
 const OWN = {
-  id: S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）', 'the task’s id, unique in the game; what a player keeps of it goes by it (a level’s one task usually has the level’s id)') }),
+  id: TASK_ID_FIELD,
   step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）', 'the task’s name on the strip of tasks (not shown when the level has one task)') })),
 }
 
@@ -28,17 +31,22 @@ export const taskLevel = (once, task) => S.obj({
     : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关', 'the tasks done in turn; passing the last passes the level') }),
 })
 
-/** Whether a vocabulary's levels are lists of tasks with ids. */
-export const hasTaskIds = (vocabulary) => {
-  const of = vocabulary.level.fields?.tasks?.of
-  return Boolean(of?.fields?.id ?? (of?.type === 'by' && Object.values(of.cases).every((c) => c.fields?.id)))
+/** The schema of a level's tasks in a vocabulary (looked for in every shape a level may have), or null. */
+export function tasksSchema(vocabulary) {
+  const look = (s) => {
+    if (!s) return null
+    if (s.type === 'obj') return s.fields.tasks?.of ?? null
+    if (s.type === 'either') return s.of.map(look).find(Boolean) ?? null
+    return null
+  }
+  return look(vocabulary.level)
 }
 
-/**
- * A task's key in a player's saves (../shell/progress.js): its id; in a level whose tasks have none (a prototype
- * domain's) `<level>#<k>`; a level without tasks is its own one task, keyed by the level's id.
- */
-export const keyOf = (level, id, k) => id ?? (k === undefined || k === null ? level : `${level}#${k}`)
+/** Whether a vocabulary's levels may be lists of tasks. */
+export const hasTasks = (vocabulary) => tasksSchema(vocabulary) !== null
+
+/** The task schemas of every shape a task may have (the cases of a by-schema). */
+export const taskShapes = (task) => (task.type === 'by' ? Object.values(task.cases) : [task])
 
 /** Each task of a level as a level of its own: the level's fields under the task's, its index `task`, its id `taskId`. */
 export const taskLevels = ({ tasks, ...level }) => tasks.map((task, k) => {

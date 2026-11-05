@@ -4,6 +4,7 @@
   "intro": [{ "t": { "zh": "安这样表示东西的名字，也在下面的块里。", "en": "Names of things, such as Ann, are among the pieces below." } }],
   "tasks": [
     {
+      "id": "t-wquant_1",
       "kind": "term",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -18,6 +19,7 @@
       ]
     },
     {
+      "id": "t-wquant_2",
       "kind": "term",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -32,6 +34,7 @@
       ]
     },
     {
+      "id": "t-wquant_3",
       "kind": "term",
       "step": { "zh": "第三题", "en": "Problem 3" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
@@ -46,6 +49,7 @@
       ]
     },
     {
+      "id": "t-wquant_4",
       "kind": "term",
       "step": { "zh": "第四题", "en": "Problem 4" },
       "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },

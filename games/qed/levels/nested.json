@@ -16,6 +16,7 @@
   ],
   "tasks": [
     {
+      "id": "nested_1",
       "kind": "proof",
       "step": { "zh": "一句里套着一句", "en": "A sentence inside a sentence" },
       "tests": [{ "premises": { "p": "A", "q": "A → (B → C)", "r": "B" }, "goal": "C" }],
@@ -24,6 +25,7 @@
       "solution": ["m1 = mp(q, p)", "m2 = mp(m1, r)", "goal <- m2"]
     },
     {
+      "id": "nested_2",
       "kind": "proof",
       "step": { "zh": "推出来的规则", "en": "A rule you proved" },
       "tests": [{ "premises": { "p": "A", "q": "A → (B → C)", "r": "(B → C) → D" }, "goal": "D" }],

@@ -27,7 +27,7 @@ import { parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { boardsOf, placesOf, pushOp, referenceFor } from './form.js'
 import { addFor, markOf, markPath } from './marks.js'
-import { hasTaskIds } from '../engine/tasks.js'
+import { hasTasks } from '../engine/tasks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
 import PartsList from './PartsList.jsx'
@@ -602,7 +602,7 @@ export default function Studio() {
               ? <PartsList content={content} vocabulary={vocab.vocabulary} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
-              : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} tasked={hasTaskIds(vocab.vocabulary)} onTask={(lvl, k) => { select({ level: lvl }); pickField(['tasks', k]) }} onTaskMove={moveTask} />}
+              : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} tasked={hasTasks(vocab.vocabulary)} onTask={(lvl, k) => { select({ level: lvl }); pickField(['tasks', k]) }} onTaskMove={moveTask} />}
           </aside>
           <Resizer side="tree" size={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
           <main className="studio-main">

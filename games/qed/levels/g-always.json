@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "g-always_1",
       "kind": "gates",
       "step": { "zh": "怎样都对", "en": "Always true" },
       "target": "(Rain → Wet) ∨ (Wet → Rain)",
@@ -22,6 +23,7 @@
       "solution": ["i1 = gImp(Rain, Wet)", "i2 = gImp(Wet, Rain)", "o = gOr(i1, i2)", "out <- o"]
     },
     {
+      "id": "g-always_2",
       "kind": "gates",
       "step": { "zh": "怎样都错", "en": "Always false" },
       "target": "(Rain → Wet) ∧ (Rain ∧ ¬Wet)",

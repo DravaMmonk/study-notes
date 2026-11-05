@@ -14,7 +14,6 @@ import { typeOf } from './iso.js'
 import { equations } from './define.js'
 import { provesShape, startProof } from './proof.js'
 import { ownBoard } from './built.js'
-import { keyOf } from '../../engine/tasks.js'
 import { PRIMITIVE_GATES, builtGates, startGates } from './gates.js'
 import { boardOf } from './ruleLines.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -228,13 +227,13 @@ export function logicCourse(content) {
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
       return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter: eraOf.get(id), requires: plan.requires.get(id) ?? [], unlocks: level.builds ? [`lemma:${level.builds}`] : [], lemmas, proofs, facts, gates: builtG, revisions, notation })
     }
-    if (!level.tasks) return read(level)
+    if (!level.tasks) return { ...read(level), key: id }
     // What the level builds or proves comes of its last task, the level itself.
     // The level's pass text is the level's, shown when its last task is done: a task has only its own.
     // A task's intro is its own (the level's is the level's).
     const { tasks, builds, fact, after, intro, ...base } = level
     const last = (index) => index === tasks.length - 1
-    const all = tasks.map((task, index) => ({ ...read({ ...base, ...(last(index) && builds ? { builds } : {}), ...(last(index) && fact ? { fact } : {}), ...task }), task: index }))
+    const all = tasks.map(({ id: key, ...task }, index) => ({ ...read({ ...base, ...(last(index) && builds ? { builds } : {}), ...(last(index) && fact ? { fact } : {}), ...task }), task: index, key }))
     // A part the level or any task brings in is new to the level, whichever task it is.
     return { ...all.at(-1), intro, after, adds: [...new Set([...(base.adds ?? []), ...all.flatMap((t) => t.adds)])], tasks: all }
   })
@@ -319,10 +318,10 @@ export function logicCourse(content) {
     const types = [...Object.keys(MACHINE_PARTS), ...shape.ruleParts.keys()]
     for (const field of ['solution', 'naive']) if (one[field]) one[field] = board(one, field, startMachine(one), shape, types)
   }
-  // A board's place in the saves (built.js): its level's id, or in a level of tasks its task's key.
+  // A board's place in the saves (built.js): its level's id, or in a level of tasks its task's id.
   for (const bp of blueprints) {
-    const task = byId.get(bp.level).tasks?.findIndex((t) => t.solution === bp.board || t.naive === bp.board) ?? -1
-    if (task >= 0) bp.key = keyOf(bp.level, undefined, task)
+    const task = byId.get(bp.level).tasks?.find((t) => t.solution === bp.board || t.naive === bp.board)
+    if (task) bp.key = task.key
   }
   // A lemma runs the proof of each of its shapes (proof.js lemma).
   const provers = lemmaProofs(lemmas, revisions, LEVELS, wrong)
@@ -394,7 +393,7 @@ function lemmaProofs(lemmas, revisions, LEVELS, wrong) {
       if (tasks.length !== 1) return wrong.push(`the lemma ${type}${shape.key ? ` (${shape.key})` : ''} is proved by ${tasks.length} proof tasks, not one`)
       const [task] = tasks
       levels.add(task.id)
-      proofs[type][shape.key] = { level: task, board: () => ownBoard(task.id, task.task) ?? task.solution }
+      proofs[type][shape.key] = { level: task, board: () => ownBoard(task.key) ?? task.solution }
     })
   }
   return { proofs, levels }

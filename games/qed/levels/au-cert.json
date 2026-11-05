@@ -12,6 +12,7 @@
   "after": { "zh": "找证明难，查证明容易。", "en": "Finding a proof is hard; checking one is easy." },
   "tasks": [
     {
+      "id": "au-cert_1",
       "kind": "machine",
       "want": "refuted",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -31,6 +32,7 @@
       "solution": ["c0 = clausify(in)", "c1 = saturate(c0)", "out <- c1"]
     },
     {
+      "id": "au-cert_2",
       "kind": "proof",
       "step": { "zh": "照着重放", "en": "Replay it" },
       "parts": ["res"],

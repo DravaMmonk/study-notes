@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "r-lemma_1",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -31,6 +32,7 @@
       "solution": ["c0r0 = chain()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "c2 = assumption(c1)", "out <- c2"]
     },
     {
+      "id": "r-lemma_2",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
@@ -52,6 +54,7 @@
       "solution": ["c0r0 = swap()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "out <- c1"]
     },
     {
+      "id": "r-lemma_3",
       "kind": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],

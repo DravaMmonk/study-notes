@@ -117,7 +117,7 @@ test('a level as content: the vocabulary’s schema takes a sentence or tasks, a
   const says = (v) => fits(vocabulary.level, v, { vocabulary }).map((p) => `${p.at}: ${p.says}`)
   assert.deepEqual(says(level), [])
   const { sentence, folds, roles, misrole, ...common } = level
-  assert.deepEqual(says({ ...common, tasks: [{ step: T('一', 'One'), brief: T('做', 'Do'), sentence, folds, roles }, { step: T('二', 'Two'), brief: T('做', 'Do'), sentence, roles }] }), [])
+  assert.deepEqual(says({ ...common, tasks: [{ id: 'one', step: T('一', 'One'), brief: T('做', 'Do'), sentence, folds, roles }, { id: 'two', step: T('二', 'Two'), brief: T('做', 'Do'), sentence, roles }] }), [])
   assert.ok(says({ ...level, adds: ['role:who'] }).some((p) => /role:who.*no part/.test(p)))
   assert.ok(says({ ...level, folds: [{ ...folds[0], type: 'np' }] }).some((p) => /folds\[0\]\.type/.test(p)))
   assert.ok(says({ ...level, roles: { subj: 'A small change' } }).some((p) => /roles\.verb: is missing/.test(p)))

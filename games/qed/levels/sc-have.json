@@ -10,6 +10,7 @@
   ],
   "tasks": [
     {
+      "id": "sc-have_1",
       "kind": "script",
       "step": { "zh": "第一题", "en": "Problem 1" },
       "brief": { "zh": "这段脚本少了一句。补上它。", "en": "This script is a row short. Put it in." },
@@ -28,6 +29,7 @@
       ]
     },
     {
+      "id": "sc-have_2",
       "kind": "script",
       "step": { "zh": "第二题", "en": "Problem 2" },
       "brief": { "zh": "这段脚本少了两句。补上它们。", "en": "This script is two rows short. Put them in." },

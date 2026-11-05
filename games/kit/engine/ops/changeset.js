@@ -19,7 +19,6 @@ import { domainOf } from '../content-node.js'
 import { OPERATIONS } from './operations.js'
 import { saveOps } from './migrate.js'
 import { hubCount } from './workspace.js'
-import { keyOf } from '../tasks.js'
 
 export const LOG = 'changes.jsonl'
 
@@ -102,10 +101,10 @@ async function settle({ ws, changeset, domain, content0, start, says, inverse, i
   }) : []
   let step = null
   try {
-    // A level's task keys in the saves (../tasks.js keyOf), as the changeset leaves it.
+    // A level's task keys in the saves (its tasks' ids, or its own), as the changeset leaves it.
     const keys = (id) => {
       const level = ws.levels.get(id)
-      return Array.isArray(level?.tasks) ? level.tasks.map((task, k) => keyOf(id, task.id, k)) : [id]
+      return Array.isArray(level?.tasks) ? level.tasks.map((task) => task.id) : [id]
     }
     const ops = saveOps({ before: after && before, after, idOps, placed, stale, keys })
     if (ops.length) {

@@ -6,6 +6,7 @@
 // targets, budgets, bench models and bench displays in items/.
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { TASK_ID_FIELD } from '../../engine/tasks.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { PICTURES } from './items/pictures.js'
@@ -93,6 +94,7 @@ const LEVEL_FIELDS = {
 }
 const TASK_FIELDS = {
   ...BOARD_FIELDS,
+  id: TASK_ID_FIELD,
   step: TEXT,
   brief: TEXT,
   hint: S.opt(TEXT),

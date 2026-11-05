@@ -56,7 +56,7 @@ export default function syntaxGame(content) {
       afterTitle: L.debrief.title,
       after: L.debrief.body,
       note: L.debrief.note,
-      tasks: L.tasks?.map((t) => ({ kind: 'analyze', step: t.step, source: t, brief: t.brief, after: t.after, intro: t.intro })),
+      tasks: L.tasks?.map((t) => ({ key: t.id, kind: 'analyze', step: t.step, source: t, brief: t.brief, after: t.after, intro: t.intro })),
     })),
     progress: migrations(content.saves),
     intro: (level) => level.source.intro,

@@ -3,6 +3,7 @@
   "intro": [{ "t": { "zh": "b 什么也没说，可 a 的话提到了他。", "en": "b says nothing, but what a says mentions him." } }],
   "tasks": [
     {
+      "id": "kk-two_1",
       "kind": "gates",
       "step": { "zh": "翻译", "en": "Translate" },
       "blind": true,
@@ -18,6 +19,7 @@
       "solution": ["na = gNot(KA)", "nb = gNot(KB)", "both = gAnd(na, nb)", "e = gIff(KA, both)", "out <- e"]
     },
     {
+      "id": "kk-two_2",
       "kind": "proof",
       "step": { "zh": "证明", "en": "Prove" },
       "tests": [{ "premises": { "p": "A ↔ ¬A ∧ ¬B" }, "goal": "¬A ∧ B" }],

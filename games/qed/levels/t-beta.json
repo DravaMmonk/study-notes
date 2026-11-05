@@ -20,6 +20,7 @@
   },
   "tasks": [
     {
+      "id": "t-beta_1",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "套用一个框", "en": "Applying a box" },
@@ -38,6 +39,7 @@
       ]
     },
     {
+      "id": "t-beta_2",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "标签刚贴上就拆", "en": "A tag read at once" },
@@ -73,6 +75,7 @@
       ]
     },
     {
+      "id": "t-beta_3",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "没有弯路的那一个", "en": "The one with no detour" },
@@ -92,6 +95,7 @@
       ]
     },
     {
+      "id": "t-beta_4",
       "kind": "proof",
       "terms": true,
       "step": { "zh": "只走标签那一支", "en": "Only the tagged branch" },

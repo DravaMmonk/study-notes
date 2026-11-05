@@ -49,8 +49,9 @@
 ### 1.1 任务一律带 id
 
 - 内核任务 schema 要求 `id`（关内唯一）；不再有位置键 `<level>#<k>`。
-- 一次性脚本为 logic / image / table / agent / can / syntax / qed 的无 id 任务补 id，同时在各游戏 `saves` 写一步 `retask`（位置键 → id），已有存档无损迁过来。
-- studio 通用列表控件对 tasks 改发 `task.add / task.remove / task.move / task.set`（按 id），换序不再产生迁移。
+- 实际缺 id 的只有 qed（217 个任务）、syntax-graph（2）、vision-complete（4）：补成 `<关>_<序号>`，各游戏 `saves` 写一步 `retask`（位置键 → id），已有存档无损迁过来。logic / image / syntax 的任务 schema 加必填 `id`，契约检查任何领域的任务都有 id。
+- studio 整体编辑任务列表时改发 `task.add / task.remove / task.move`（按 id），改了内容的任务在最终位置 `level.set`；换序不再产生迁移。
+- `level.rename` 同时改掉和关同名的任务，存档里的 rename 与内容保持一致。
 - 验收：合成内容中交换两个任务顺序，迁移为空；删除一个任务，只 drop 该任务的板。
 
 ### 1.2 先修与解锁迁移改由前后内容推导

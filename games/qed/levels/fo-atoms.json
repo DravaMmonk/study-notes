@@ -24,6 +24,7 @@
   ],
   "tasks": [
     {
+      "id": "fo-atoms_1",
       "kind": "translate",
       "step": { "zh": "第一句", "en": "Sentence 1" },
       "decoys": ["Bird(h) ∨ Human(h)", "Likes(i, j) → Human(j)", "Mortal(h)"],
@@ -38,6 +39,7 @@
       ]
     },
     {
+      "id": "fo-atoms_2",
       "kind": "translate",
       "step": { "zh": "第二句", "en": "Sentence 2" },
       "decoys": ["Parent(i, j) ∧ ¬Likes(j, i)", "Likes(i, j) → Human(j)", "Mortal(h)"],
@@ -51,6 +53,7 @@
       ]
     },
     {
+      "id": "fo-atoms_3",
       "kind": "translate",
       "step": { "zh": "第三句", "en": "Sentence 3" },
       "decoys": ["Parent(i, j) ∧ ¬Likes(j, i)", "Bird(h) ∨ Human(h)", "Mortal(h)"],
