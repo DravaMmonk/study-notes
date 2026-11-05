@@ -4,6 +4,7 @@
 import { GAMES } from './games.js';
 import { currentLang, tr } from './kit/lang.js';
 import { wireBar } from './kit/bar.js';
+import { solvedCount } from './kit/shell/progress.js';
 import { mountBoxy } from './boxy/boxy.js';
 import { mountPress } from './press/press.js';
 import { mountDetach } from './detach/detach.js';
@@ -21,7 +22,7 @@ let unmount = [];
 function render() {
   const en = currentLang() === 'en', pick = x => (typeof x === 'string' ? x : en ? x.en : x.zh);
   document.querySelector('#games').innerHTML = GAMES.filter(g => !g.hidden).map((g, i) => {
-    const done = Math.min(g.progress(), g.levels), started = done > 0;
+    const done = Math.min(solvedCount(g.id), g.levels), started = done > 0;
     return `<a class="game" href="${g.href}">
       <div class="game-art" data-art="${g.art}"></div>
       <div class="game-body">

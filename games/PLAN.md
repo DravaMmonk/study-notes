@@ -24,7 +24,7 @@
 
 ### 0.2 首页进度键
 
-- `shell/progress.js` 导出 `key(id)`；`games.js`、`scaffold.js` 改为调用它，仓库中不再出现字面量 `.v1` / `.v2` 进度键。
+- `shell/progress.js` 导出 `saveKey(id)` 与 `solvedCount(id)`；首页直接用 `solvedCount`，`games.js` 与脚手架不再各写一个 `progress()`，仓库中只有 `saveKey` 一处写出进度键。
 - 验收：通一关后首页进度非 0；grep 无字面量进度键。
 
 ### 0.3 state-graph 同义反复的测试

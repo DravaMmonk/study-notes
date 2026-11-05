@@ -1,4 +1,4 @@
-// Saved progress for a game on the shared shell. It lives in this browser only, under `<game id>.v2`:
+// Saved progress for a game on the shared shell. It lives in this browser only, under saveKey(<game id>):
 //
 //   { version, solved: [level id], flags: [flag], passed: [task key], data: { [task key]: what its screen keeps },
 //     slots: { [task key]: its other saved boards (slots.js) }, built: { [task key]: the board a part runs },
@@ -12,10 +12,22 @@
 // starts afresh.
 import { keyOf } from '../engine/tasks.js'
 
+/** The key a game's progress is saved under in this browser. */
+export const saveKey = (id) => `${id}.v2`
+
+/** How many levels of game `id` this browser has solved (the hub reads it; all games share the site's origin). */
+export function solvedCount(id) {
+  try {
+    return JSON.parse(window.localStorage.getItem(saveKey(id)))?.solved?.length ?? 0
+  } catch {
+    return 0
+  }
+}
+
 const blank = (version) => ({ version, solved: [], flags: [], passed: [], data: {}, slots: {}, built: {}, best: {}, seenPower: false, introSeen: {}, all: false })
 
 export function createProgress({ id, version = 1, migrate = (saved) => saved }) {
-  const key = `${id}.v2`
+  const key = saveKey(id)
   return {
     key,
     load() {

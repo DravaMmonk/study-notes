@@ -50,7 +50,6 @@ function register(root, id, content) {
     `    desc: { zh: ${q(content.lede.zh)}, en: ${q(content.lede.en)} },`,
     `    levels: ${content.levels}, dev: true, hidden: true,`,
     `    page: { icon: 'M16 32h32M32 16v32', description: ${q(`${title} ${en}`)} },`,
-    `    progress: () => (read(${q(`${id}.v1`)})?.solved || []).length,`,
     '  },',
     '',
   ].join('\n')
