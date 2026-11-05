@@ -11,7 +11,8 @@
 // problemsOf checks it against what it may name; evaluate runs it.
 //
 // A tree is { in }, { set }, { num }, { str }, { call, args: [tree], named: { name: tree } }, or
-// { match: tree, cases: { value: tree }, other?: tree }.
+// { match: tree, cases: { value: tree }, other?: tree }. The builtin if (builtins.js) works out only the branch it
+// takes; every other call works out all its arguments first.
 
 export class ExprError extends Error {
   constructor(message, at) {
@@ -158,6 +159,12 @@ export function problemsOf(t, { ops, inputs, settings, fits }) {
       for (const a of [...x.args, ...Object.values(x.named)]) walk(a)
       if (!op) return out.push(`${x.call} is no engine resource of the domain`)
       if (x.args.length !== op.args.length) out.push(`${x.call} takes ${op.args.length} argument${op.args.length === 1 ? '' : 's'} (${op.args.map((a) => a.name).join(', ')}), given ${x.args.length}`)
+      // A plain number is a literal, a setting or a number a builtin works out: never an input or a domain value.
+      x.args.forEach((a, k) => {
+        if (op.args[k]?.type !== 'num') return
+        const what = 'in' in a ? `the input ${a.in}` : 'str' in a ? `the word ${a.str}` : 'call' in a && ops[a.call] && ops[a.call].returns !== 'num' ? `what ${a.call} gives` : null
+        if (what) out.push(`${x.call}(${op.args[k].name}): ${what} is no plain number`)
+      })
       for (const [key, arg] of Object.entries(x.named)) {
         const schema = op.params?.fields?.[key]
         if (!schema) { out.push(`${x.call} has no parameter ${key}${op.params ? ` (its parameters: ${Object.keys(op.params.fields).join(', ')})` : ''}`); continue }
@@ -190,6 +197,8 @@ export function evaluate(t, env) {
   if ('set' in t) return env.settings[t.set]
   if ('num' in t) return t.num
   if ('str' in t) return t.str
+  // if works out only the branch it takes (if(eq($b, 0), $a, over($a, $b)) never divides by 0).
+  if (t.call === 'if' && t.args.length === 3) return evaluate(evaluate(t.args[0], env) ? t.args[1] : t.args[2], env)
   if ('match' in t) {
     const v = evaluate(t.match, env)
     const then = t.cases[String(v)] ?? t.other

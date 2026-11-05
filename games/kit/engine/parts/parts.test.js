@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { parse, print, problemsOf } from './expr.js'
+import { evaluate, parse, print, problemsOf } from './expr.js'
+import { BUILTIN_ITEMS, BUILTINS } from './builtins.js'
 import { applyRules, defineParts, evalSettings, failedCheck, partDesc, partProblems, withParts } from './define.js'
 import { S } from '../schema.js'
 import { evaluate as run } from '../circuit.js'
@@ -39,6 +40,16 @@ test('an expression reads, prints back, and says what it names wrong', () => {
   const settings = { op: { control: 'select', options: [{ value: 'add' }, { value: 'sub' }] } }
   const said = problemsOf(parse('match $op { add: add(a), mul: c }'), { ops: vocabulary.kinds.op, inputs: ['a', 'b'], settings, fits: () => true })
   assert.deepEqual(said, ['add takes 2 arguments (a, b), given 1', 'c is no input of the part (its inputs: a, b)', 'match $op has no case for sub', 'match $op: mul is none of its options'])
+})
+
+test('if works out only the branch it takes; a builtin’s numbers are plain numbers', () => {
+  const env = { ins: {}, settings: { a: 6, b: 0 }, run: (name, args, named) => BUILTINS[name].run(args, named) }
+  assert.equal(evaluate(parse('if(eq($b, 0), $a, over($a, $b))'), env), 6, 'no division by 0 on the branch not taken')
+  const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
+  const said = (text) => problemsOf(parse(text), { ops, inputs: ['a'], settings: { k: { control: 'slider' } }, fits: () => true })
+  assert.deepEqual(said('round(a)'), ['round(a): the input a is no plain number'])
+  assert.deepEqual(said('plus(add(a, a), 1)'), ['plus(a): what add gives is no plain number'])
+  assert.deepEqual(said('times(plus($k, 1), 2)'), [])
 })
 
 test('parts.json becomes engine parts: settings with their presets, one or several outputs, 「—」 given on', () => {
