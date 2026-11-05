@@ -2,8 +2,8 @@
 // every circuit level gets. A domain says what is particular to it — the cards a level gives its board, its parts,
 // how a task's tests read and run — and gets the rest:
 //
-//   circuitBoard({ cards, ticks, right, gap }) → { FIXED, FIXED_PARTS, portsIn, portsOut, fixedOf, startBoard, fits,
-//     carriedOnto, wiring, fromText, toText }
+//   circuitBoard({ cards, ticks, right, gap }) → { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, fixedOf,
+//     startBoard, fits, carriedOnto, wiring, fromText, toText }
 //       cards  [{ type, side: 'left' | 'right', of(task) → [{ name, label }], params?(port), part? }] in board order:
 //              the cards a level gives (its inputs, outputs, wires…), each a source on the left or a sink on the right
 //              unless it gives its own part (a line heard, a line driven)
@@ -12,6 +12,8 @@
 //     course, partOf, BUILT, types, blueprints, wrong, offerIn, carried, opening, syncOwn }
 //       parts  { type: part } the game's primitives; read(task, say) → the task's own fields read (its tests…), after
 //              checking what its schema cannot say; holds: a built part keeps its own registers
+//   circuitSpec(domain, courseOf) → spec(content), the game's spec as npm run check reads one (../engine/check.js),
+//     the course read as `circuit` (validate({ circuit }), the screen's game.circuit: ../shell/circuit-game.js)
 //   checkCircuitTasks(circuit, { run, failure?, more?, note? }) → the domain's lines for npm run check
 //       run(task, board) → { runs: [{ fail?, error? }], pass }; failure(run) the words for a run that fails
 //
@@ -88,7 +90,7 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
   /** A board as blueprint lines, as content writes it (no header): what fromText reads back on the task. */
   const toText = (board, task, circuit) => print(board, wiring(task, circuit)).split('\n').filter((line) => line && !line.startsWith('#'))
 
-  return { FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
+  return { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
 }
 
 /** A circuit of the game's primitives alone, no part built: what a board reads on outside a course (a test, a tool). */
@@ -213,6 +215,23 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
         if (b?.nodes) own.set(L.id, b)
       }
     },
+  }
+}
+
+/* ---------- the spec ---------- */
+
+export const circuitSpec = (domain, courseOf) => (content) => {
+  const circuit = courseOf(content)
+  return {
+    id: content.id,
+    domain,
+    title: content.title,
+    course: circuit.course,
+    levels: circuit.LEVELS,
+    circuit,
+    blueprints: circuit.blueprints,
+    syncOwn: circuit.syncOwn,
+    texts: { chapters: circuit.CHAPTERS, glossary: content.glossary.entries },
   }
 }
 

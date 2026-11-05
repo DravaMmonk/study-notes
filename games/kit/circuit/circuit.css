@@ -491,6 +491,24 @@
 .cl-add .family-chip { width: 20px; height: 20px; border-radius: 5px; }
 .cl-add small { color: var(--muted); font-size: 12px; line-height: 1.45; }
 
+/* ---- a level on the circuit base (shell/CircuitScreen.jsx): a card's settings and value, the strip under the board ---- */
+.cs-card { padding: 4px 10px 0; display: grid; gap: 5px; min-width: 0; }
+.cs-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.cs-value.is-none { color: var(--faint); font-weight: 500; }
+.cs-value.is-true { color: var(--status); }
+.cs-value.is-false { color: var(--muted); }
+.cs-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
+.cs-error.is-missing { color: var(--faint); }
+.cs-field { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }
+.cs-field > span { color: var(--muted); font-size: 11px; }
+.cs-field select { min-width: 0; height: 26px; padding: 0 6px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12px var(--mono); }
+.cs-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
+.cs-strip { display: grid; gap: 10px; min-width: 0; }
+.cs-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
+.cs-verdict.is-fail { color: var(--fail); }
+.cl-sheet .cs-card { padding: 0; }
+.cl-sheet .cs-field select { height: 40px; font-size: 16px; }
+
 /* ---- the board inside a packed part (circuit/Inside.jsx), opened read only ---- */
 /* On a phone, in the part's sheet: a window of a fixed height that scrolls; a block on it opens its own sheet, whose
    settings only show. */

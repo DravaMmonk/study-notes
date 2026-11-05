@@ -12,7 +12,7 @@ const name = (x) => esc(x.label?.en ?? x.name)
 
 /** The SVG of level `id` of a game's spec on the net domain, or null when it has no such level. */
 export function scene(spec, id) {
-  const tasks = spec.net.played.get(id)
+  const tasks = spec.circuit.played.get(id)
   if (!tasks) return null
   const blocks = tasks.flatMap((task) => task.tests.map((test) => {
     const want = task.want(test)

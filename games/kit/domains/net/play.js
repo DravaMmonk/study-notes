@@ -43,13 +43,13 @@ function lanes(level, test, lang) {
 
 export const play = circuitPlay({
   board: ({ game, level, flags, progress }) => {
-    const net = game.net
+    const net = game.circuit
     net.syncOwn(progress.built)
     const { shown, folded } = net.offerIn(level.source, flags)
     return { start: net.opening(level.source, progress.built), parts: wiring(level.source, net), types: [...shown, ...folded] }
   },
-  key: ({ game }, type) => (game.net.BUILT[type] ? type : `part:${type}`),
-  settings: ({ game }, type) => (game.net.BUILT[type] ? [] : SETTINGS[type] ?? []),
+  key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
+  settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : SETTINGS[type] ?? []),
   given: ({ level: { source: L } }) => T(
     [
       ...(L.wires?.in ?? []).map((w) => `${w.name}：进线「${w.label.zh}」，这一拍到达的位`),
@@ -70,7 +70,7 @@ export const play = circuitPlay({
   })),
   notes: ({ level: { source: L }, solved }) => (!solved && L.hidden.length ? [T(`另有 ${L.hidden.length} 个隐藏测试，每次运行一并检查，通关后公开。`, `${L.hidden.length} more hidden ${L.hidden.length === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)] : []),
   run: ({ game, level: { source: L }, solved }, board) => {
-    const net = game.net
+    const net = game.circuit
     const shown = runLevel({ ...L, tests: testsOf(L, solved) }, board, net.partOf)
     const tests = untilFail(shown.runs.map((r, k) => ({
       label: T(`测试 ${k + 1}`, `Test ${k + 1}`),
