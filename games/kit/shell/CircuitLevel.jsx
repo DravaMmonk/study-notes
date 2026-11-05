@@ -51,7 +51,8 @@ export function useLevelBoard(screen, { open, fresh, clearable }) {
  * How a circuit level runs and is judged: either step by step (`steps`, usePlayback.jsx) or in one go (`judge`,
  * useKeptVerdict.js); either way the last run stands on the board until it changes, and the level opens on it again.
  *
- *   tests     [{ label, hidden? }] the tests shown (a hidden test is listed once the level is solved)
+ *   tests     [{ label, hidden?, sample? }] the tests shown (a hidden test is listed once the level is solved; a sample,
+ *             after the tests, is a larger picture the board also runs on, never judged; judge levels only)
  *   steps     { of(k) → test k's steps, check(k) → why test k is wrong or '', final?() → why the whole run fails }
  *   judge()   → { pass, results: [{ pass, reason }], score? }: every test checked at once
  *   hidden    { count, fails() → how many fail, words: { note, failed(n) } } hidden tests run with every run and
@@ -97,7 +98,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     if (v.pass && !v.hiddenFailed) solve(v.score ?? score?.())
     else if (!v.pass) setAt(Math.max(0, v.results.findIndex((r) => !r.pass)))
   }
-  const states = steps ? playback.states : tests.map((_, k) => (verdict ? (verdict.results[k]?.pass ? 'pass' : 'fail') : null))
+  const states = steps ? playback.states : tests.map((t, k) => (verdict && !t.sample ? (verdict.results[k]?.pass ? 'pass' : 'fail') : null))
   const passed = steps ? playback.passed : Boolean(verdict?.pass && !verdict.hiddenFailed)
   const live = Boolean(playback.run && !playback.run.over)
   const shownAt = Math.min(at, tests.length - 1)
@@ -256,7 +257,7 @@ export default function CircuitLevel({ screen, board, run, parts: given, defined
         </div>
       }
       tests={testTabs}
-      status={<TestStatus states={run.states} hidden={run.hidden} />}
+      status={<TestStatus states={run.states.filter((_, k) => !run.tests[k].sample)} hidden={run.hidden} />}
       results={results}
       resultsTitle={resultsTitle}
       resultsAside={resultsAside}

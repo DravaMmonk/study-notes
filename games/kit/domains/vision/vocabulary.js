@@ -15,6 +15,7 @@ import { OP_ITEMS } from './ops.js'
 import { ASK_ITEMS } from './grid.js'
 import { CLAIMS, JUDGES } from './judges.js'
 import { COLOURS } from './scene.js'
+import { PICTURE } from './sample.js'
 import { BENCH_MODELS, DISPLAYS } from './benches/index.js'
 
 const t = (zh, en) => ({ zh, en })
@@ -150,6 +151,7 @@ const TASK = S.by('kind', {
     naiveWhy: S.opt(S.text()),
     naive: S.opt(S.board({ about: t('直觉上的错解：必须失败', 'the naive answer: it must fail') })),
     carries: S.opt(S.bool({ about: t('从上一个任务的板开始', 'start from the task before’s board') })),
+    sample: S.opt(S.obj({ inputs: S.map(S.either(VALUE, PICTURE), { about: t('按输入名给的值；没给的取第一个测试的', 'values by input name; the rest are the first test’s') }) }, { section: 'tests', about: t('样张：一张较大的图，玩家的板和参考解都在上面跑，只看效果、不判定', 'the sample: a larger picture the player’s board and the reference both run on, to see the effect, never judged') })),
   }),
   grid: S.obj({
     kind: S.oneOf(['grid']), ...COMMON,

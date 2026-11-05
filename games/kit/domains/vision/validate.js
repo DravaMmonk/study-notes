@@ -1,7 +1,7 @@
 // The vision domain's checks for `npm run check` (../../engine/checks.js): what reading the content found wrong
 // (course.js), then level by level, task by task, by its kind —
 //   circuit  the reference board passes every test and hidden test and uses only the parts the level holds and its
-//            fixed cards; the starting board fails; the naive board, where there is one, is one the level could hold and
+//            fixed cards, and gives every output on its sample, where there is one; the starting board fails; the naive board, where there is one, is one the level could hold and
 //            fails; a part a level builds, placed alone on that task's board and wired to its ports, passes
 //   grid     the answer the ask works out passes; the answer the player starts from does not; the naive answer fails
 //   choice   in every round the judge's own answer passes and an empty answer fails; the naive picks fail a round
@@ -11,7 +11,7 @@ import { keyOf } from '../../shell/i18n.js'
 import { usable } from '../../course.js'
 import { fromText, startBoard } from './board.js'
 import { FIXED } from './parts.js'
-import { runLevel } from './run.js'
+import { runLevel, runTest } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { judgeOf, naiveRound } from './judges.js'
 import { lessonProblems } from './benches/lesson.js'
@@ -44,6 +44,10 @@ function circuitSaid(task, { held, partOf, builds, settingsIn, availableParts })
     if (r.fail) problems.push(`the answer fails ${where(j)}: ${r.fail.why.en}`)
   })
   if (runLevel(task, startBoard(task), partOf).pass) problems.push('the starting board already passes')
+  if (task.sample) {
+    const { outputs, errors } = runTest({ ...task, outputs: [] }, task.solution, { ...task.sample, expect: {} }, partOf)
+    for (const o of task.outputs) if (outputs[o.name] === undefined) problems.push(`the answer gives no ${o.name} on the sample${[...errors.values()].find((e) => e?.en) ? `: ${[...errors.values()].find((e) => e?.en).en}` : ''}`)
+  }
   let naive = ''
   if (task.naive) {
     strays(task.naive, 'the naive answer')

@@ -9,11 +9,12 @@ import SettingField, { valueWords } from '../../../shell/parts/SettingField.jsx'
 import { fits, startBoard } from '../board.js'
 import { FIXED_PARTS } from '../parts.js'
 import { OPS } from '../ops.js'
-import { runLevel } from '../run.js'
+import { runLevel, runTest } from '../run.js'
 import { fmt, isImage, show } from '../image.js'
-import ImageView from './ImageView.jsx'
+import ImageView, { Picture } from './ImageView.jsx'
 import { ProjectionCase } from './benches/CameraScene.jsx'
 import TestValues from './TestValues.jsx'
+import SampleValues from './SampleValues.jsx'
 import ImageViewSwitch from './ImageViewSwitch.jsx'
 import PartDetail, { PartValues } from './PartDetail.jsx'
 import { taskBoard, taskDefaults } from '../tooling.js'
@@ -60,6 +61,8 @@ function partsFor(level, game) {
 /** A value on a card: a number, a small picture of an image, 「—」, or why there is none. */
 function Value({ value, error }) {
   if (value === undefined) return <span className={`vi-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
+  // A large image (a sample's) is a picture on a card, too many cells to number.
+  if (isImage(value) && value.w * value.h > 64) return <span className="vi-thumb"><Picture value={value} scale={Math.max(1, Math.floor(96 / Math.max(value.w, value.h)))} /><small>{value.w} × {value.h}</small></span>
   if (isImage(value)) {
     const cell = value.c === 3 ? 58 : 32
     return <span className="vi-thumb"><span className={`vi-numeric-thumb ${value.w<=4&&value.h<=3?'is-small':''}`}><ImageView value={value} numbers cell={cell}/></span>{(value.w>4||value.h>3)&&<small>{value.w} × {value.h}</small>}</span>
@@ -87,8 +90,9 @@ export default function Screen(screen) {
   const checked = useMemo(() => runLevel({ ...level, tests }, circuit, game.partOf), [level, tests, circuit, game])
   const hidden = revealed ? NONE : level.hidden
   const hiddenFailed = useMemo(() => (hidden.length ? runLevel({ ...level, tests: hidden }, circuit, game.partOf).runs.filter((r) => r.fail).length : 0), [level, hidden, circuit, game])
+  const sample = level.sample
   const run = useLevelRun(screen, board, {
-    tests: tests.map((t, k) => ({ label: tr(`测试 ${k + 1}`, `Test ${k + 1}`), hidden: t.hidden })),
+    tests: [...tests.map((t, k) => ({ label: tr(`测试 ${k + 1}`, `Test ${k + 1}`), hidden: t.hidden })), ...(sample ? [{ label: tr('样张', 'Sample'), sample: true }] : [])],
     // A run checks every test at once and shows its result: an image circuit has nothing to step through.
     judge: () => ({ pass: checked.runs.every((r) => !r.fail), results: checked.runs.map((r) => ({ pass: !r.fail, reason: r.fail ? L(r.fail.why) : '' })) }),
     hidden: {
@@ -103,8 +107,12 @@ export default function Screen(screen) {
   const builderOf = game.builtBy
   const defaults = (type) => taskDefaults(type, game.partOf, settingsIn)
 
-  // What the board shows: what the engine computes for the test picked.
-  const runOf = checked.runs[run.at]
+  // What the board shows: what the engine computes for the test picked, or on the sample (the reference's outputs on
+  // it beside the board's, never judged).
+  const onSample = Boolean(sample) && run.at === tests.length
+  const sampleRun = useMemo(() => (onSample ? runTest({ ...level, outputs: [] }, circuit, { ...sample, expect: {} }, game.partOf) : null), [onSample, level, sample, circuit, game])
+  const sampleWant = useMemo(() => (onSample ? runTest({ ...level, outputs: [] }, level.solution, { ...sample, expect: {} }, game.partOf).outputs : null), [onSample, level, sample, game])
+  const runOf = onSample ? sampleRun : checked.runs[run.at]
   const view = runOf
   const ended = run.over
 
@@ -138,13 +146,15 @@ export default function Screen(screen) {
   }
   const itemOf = (type) => (game.BUILT[type] ? builtItem(type) : definedItem(type, game.defs[type], { fresh: entry.fresh?.includes(type) }, settingsIn))
 
-  const test = tests[run.at]
-  const rows = level.outputs.map((o) => [o.label, test.expect[o.name], runOf.outputs[o.name]])
-  const verdict = ended && runOf.fail && <span className="vi-verdict is-fail">{L(runOf.fail.why)}</span>
+  const test = onSample ? null : tests[run.at]
+  const rows = level.outputs.map((o) => [o.label, onSample ? sampleWant[o.name] : test.expect[o.name], runOf.outputs[o.name]])
+  const verdict = !onSample && ended && runOf.fail && <span className="vi-verdict is-fail">{L(runOf.fail.why)}</span>
   const strip = (
     <div className="vi-strip">
-      <TestValues rows={rows} phone={screen.phone} tolerance={level.tolerance} />
-      {level.illustration === 'pinhole' && <ProjectionCase test={test} tests={tests} phone={screen.phone} />}
+      {onSample
+        ? <SampleValues rows={rows} />
+        : <TestValues rows={rows} phone={screen.phone} tolerance={level.tolerance} />}
+      {test && level.illustration === 'pinhole' && <ProjectionCase test={test} tests={tests} phone={screen.phone} />}
       {screen.phone && verdict}
     </div>
   )
@@ -179,7 +189,7 @@ export default function Screen(screen) {
       brief={{ hint: level.hint }}
       results={strip}
       resultsTitle={!screen.phone && verdict}
-      resultsAside={!screen.phone && rows.some(([, want]) => isImage(want)) && <ImageViewSwitch />}
+      resultsAside={!screen.phone && !onSample && rows.some(([, want]) => isImage(want)) && <ImageViewSwitch />}
       details
       sheet={(node, ctx) => <PartDetail node={node} ctx={ctx} settings={settings(node, ctx, true)} description={descriptionOf(node)} phone={screen.phone} />}
       packed={{

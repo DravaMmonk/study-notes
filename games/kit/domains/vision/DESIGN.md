@@ -27,7 +27,13 @@ whatever its dimensions. The desktop result row is the exception, for density: o
 wanted and result side by side with the differing cells marked; its windows shrink to their image (at most 220 × 150 px):
 narrower information cells (28 px), and overview a thumbnail just
 large enough to tell its pixels apart; the verdict sits in the results header beside the view switch. Results on
-either screen show no inputs: the board's input cards hold them. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
+either screen show no inputs: the board's input cards hold them. A circuit task may add a sample (`sample`, sample.js): a larger
+painted picture (up to 128 px a side) the player's board and the reference both run on, as a tab after the tests.
+It is never judged: the small tests judge cell by cell, the sample shows the effect on a whole picture. Its results
+are each output's target and the player's as pictures side by side; picking a cell marks it on every picture and
+reads both values; the board's cards show the sample's values (large images as pictures), so a part's detail
+inspects them cell by cell. The player's own circuit runs on it: spatial filters on 64–128 px samples take tens of
+milliseconds, the frequency machines built from row transforms about 2 s at 64 px, so their samples stay near 32 px. Two views switch in the window: overview scales the whole image uniformly to fit, pixels
 only; information keeps intrinsic cells of 36 px with numbers and axes (a number too long for its cell, such as a
 negative one, is written smaller, never widening the cell; card thumbnails likewise keep 32 px cells, centred), unscaled, every cell selectable on
 touch. Dragging pans the window. One switch in the results (the desktop pane header, the phone's output row)

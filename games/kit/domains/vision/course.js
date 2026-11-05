@@ -14,6 +14,7 @@
 import { packed, withSettings } from '../../engine/boards.js'
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
+import { readSample } from './sample.js'
 import { fits, fromText, toText } from './board.js'
 import { defineParts, defaultOf, resolveSetting } from '../../engine/parts/define.js'
 import { FIXED_PARTS } from './parts.js'
@@ -73,6 +74,10 @@ export function visionCourse(content) {
       for (const [k, v] of [...Object.entries(t.inputs), ...Object.entries(t.expect)]) if (Array.isArray(v) && !fromRows(v)) say(where, `${k}: its rows do not make an image (uneven rows, or not grey or RGB)`)
     }
     Object.assign(out, { tests: task.tests.map(readTest), hidden: (task.hidden ?? []).map(readTest) })
+    if (task.sample) {
+      for (const k of Object.keys(task.sample.inputs)) if (!task.inputs.some((i) => i.name === k)) say(where, `the sample gives ${k}, which is no input`)
+      out.sample = readSample(task, task.sample)
+    }
     const read = (lines, what, naive = false) => {
       try {
         const board = fromText(lines, out, partOf)

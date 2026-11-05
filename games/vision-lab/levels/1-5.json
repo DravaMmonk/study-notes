@@ -100,7 +100,22 @@
           "zh": "先比较角落与内部，再检查亮点是否仍会扩散；恒定图不变并不等于直接输出原图。",
           "en": "Compare corners with the interior, then check whether an impulse still spreads. Preserving a constant image is not the same as passing every image through unchanged."
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [64, 64],
+            "base": 0.25,
+            "layers": [
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      }
     },
     {
       "id": "v1_residual",
@@ -217,7 +232,22 @@
           "zh": "看暗点图的中心：原图在那里比平滑图暗还是亮？细节在那里应当是什么符号？",
           "en": "Look at the centre of the dark dot: is the original darker or brighter there than the smoothed image? What sign should the detail have there?"
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [64, 64],
+            "base": 0.25,
+            "layers": [
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      }
     },
     {
       "id": "v1_detail",
@@ -412,7 +442,22 @@
             "en": "The signed detail is now separated. Use it to enhance the image at the supplied strength, and also report the magnitude of the smoothing change, distinguishing the removed variation from how much changed. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
           }
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [64, 64],
+            "base": 0.25,
+            "layers": [
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      }
     }
   ]
 }
