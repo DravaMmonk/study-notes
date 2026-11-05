@@ -247,6 +247,38 @@ export function shapeAt(schema, value, path, { vocabulary = null } = {}) {
   return s
 }
 
+const leaves = (s, out = new Set()) => {
+  if (!s || typeof s !== 'object') return out
+  if (['list', 'map'].includes(s.type)) return leaves(s.of, out)
+  if (s.type === 'either') { s.of.forEach((x) => leaves(x, out)); return out }
+  if (s.type === 'obj') { Object.values(s.fields).forEach((x) => leaves(x, out)); return out }
+  if (s.type === 'by') { Object.values(s.cases).forEach((x) => leaves(x, out)); return out }
+  out.add(s.type)
+  return out
+}
+
+/**
+ * Where a field of a level goes in its form (SECTIONS): its schema's `section`, else read off its shape — a board is an
+ * answer; a field naming a level is the course's; words alone (and the figures beside them) are what the player
+ * reads; anything else is the puzzle.
+ */
+export function sectionOf(schema) {
+  if (schema.section) return schema.section
+  const types = leaves(schema)
+  if (types.has('board')) return 'answers'
+  if (holdsLevels(schema)) return 'course'
+  if (types.has('text') && [...types].every((t) => t === 'text' || t === 'call')) return 'read'
+  return 'puzzle'
+}
+
+/** Whether a schema holds a level anywhere inside it (a place in the course, which the tree edits). */
+export function holdsLevels(schema) {
+  if (!schema || typeof schema !== 'object') return false
+  if (schema.type === 'level') return true
+  const inner = [...(Array.isArray(schema.of) ? schema.of : [schema.of]), ...Object.values(schema.fields ?? {}), ...Object.values(schema.cases ?? {})]
+  return inner.some(holdsLevels)
+}
+
 /** A call's item and parameters: 'item' → ['item', {}], { item: params } → ['item', params] (true reads as {}). */
 export const callOf = (v) => {
   if (typeof v === 'string') return [v, {}]

@@ -35,6 +35,13 @@ test('rename moves a level’s state, kept under its id; null drops it', () => {
   assert.deepEqual([gone.solved, gone.passed, gone.data, gone.best], [[], ['x'], { t: 2, x: 3 }, {}])
 })
 
+test('dropWith drops every kept board placing a part of those types', () => {
+  const uses = (type) => ({ nodes: [{ id: 'n', type }], wires: [] })
+  const save = { version: 1, solved: ['q'], data: { t1: uses('sum'), t2: { stage: 0, boards: [uses('twice')] }, t3: uses('sum') }, slots: { t1: { at: 0, list: [uses('twice')] } }, built: { t2: uses('twice') } }
+  const out = step({ dropWith: ['twice'] })(save)
+  assert.deepEqual([Object.keys(out.data), Object.keys(out.slots), Object.keys(out.built), out.solved], [['t1', 't3'], [], [], ['q']])
+})
+
 test('solve, built, drop and retask', () => {
   const save = { version: 1, solved: ['q'], passed: ['t1'], data: { t1: board(1), t2: board(2), u: board(3) }, slots: { t1: { at: 0, list: [] } }, built: { u: board(9) } }
   assert.deepEqual(step({ solve: ['q', ['p']] })(save).solved, ['q', 'p'])

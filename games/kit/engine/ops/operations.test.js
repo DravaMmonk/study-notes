@@ -170,6 +170,13 @@ test('glossary.put, glossary.set and glossary.remove edit the encyclopedia', () 
   assert.deepEqual(ws.glossary.entries.map((e) => e.id), ['f'])
 })
 
+test('without a domain rule, a level whose tests changed drops its kept boards', async () => {
+  const { ws } = toy()
+  const { changes: _rule, ...plain } = DOMAIN
+  const done = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'a2', path: 'tests', value: [5] }, { op: 'level.set', level: 'a3', path: 'brief', value: 'b' }] }, { check: false, domain: plain })
+  assert.deepEqual(done.step.ops, [{ drop: ['a2'] }])
+})
+
 test('a reorder writes the same save step whichever operation made it', async () => {
   const viaMove = toy().ws
   const moved = await runChangeset(viaMove, { ops: [{ op: 'level.move', level: 'b2', to: { before: 'b1' } }] }, { check: false, domain: DOMAIN })
@@ -277,6 +284,7 @@ test('the part operations edit parts.json, refuse to remove a part still used, a
   const added = prun(ws, 'part.add', { part: 'twice', data: { ...sum, inputs: [{ name: 'a' }], compute: 'add(a, a)' }, after: 'sum' })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum', 'twice'])
   const set = prun(ws, 'parts.set', { path: 'parts.twice.settings', value: [{ key: 'k', control: 'slider', min: 0, max: 4 }] })
+  assert.deepEqual(set.saves, [{ dropWith: ['twice'] }], 'boards placing the part with its old settings are dropped')
   const said = prun(ws, 'text.set', { in: 'parts', path: 'parts.twice.name', en: 'Twice' })
   assert.deepEqual(ws.partDefs.parts.twice.name, { zh: '和', en: 'Twice' })
   for (const done of [said, set, added]) for (const { op, ...args } of done.inverse) prun(ws, op, args)

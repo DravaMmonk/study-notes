@@ -17,7 +17,7 @@ import { withParts } from '../parts/define.js'
 import { checkGame } from '../checks.js'
 import { domainOf } from '../content-node.js'
 import { OPERATIONS } from './operations.js'
-import { saveOps } from './migrate.js'
+import { saveOps, staleKeys } from './migrate.js'
 import { hubCount } from './workspace.js'
 
 export const LOG = 'changes.jsonl'
@@ -92,17 +92,19 @@ async function settle({ ws, changeset, domain, content0, start, says, inverse, i
   if (!before || !after) notes.push(`the content ${before ? 'after' : 'before'} the changeset does not fit its vocabulary: the save step has only the operations’ own ops and the domain’s`)
   const renamed = new Map()
   for (const op of idOps) for (const [from, to] of Object.entries(op.rename ?? {})) renamed.set(to, renamed.get(from) ?? from)
-  const stale = domain.changes ? [...ws.levels.keys()].filter((id) => !own.has(id)).filter((id) => {
+  // A level's task keys in the saves: its tasks' ids, or its own.
+  const levelKeys = (level, id) => (Array.isArray(level?.tasks) ? level.tasks.map((task) => task.id) : [id])
+  const vocabulary = withParts(domain.vocabulary, ws.partDefs)
+  const stale = [...ws.levels.keys()].filter((id) => !own.has(id)).flatMap((id) => {
     const old = start.levels.get(renamed.get(id) ?? id)
-    return old !== undefined && domain.changes.stale(old, ws.levels.get(id))
-  }) : []
+    const now = ws.levels.get(id)
+    if (old === undefined) return []
+    if (domain.changes) return domain.changes.stale(old, now) ? levelKeys(now, id) : []
+    return staleKeys(vocabulary.level, old, now, id, { vocabulary })
+  })
   let step = null
   try {
-    // A level's task keys in the saves (its tasks' ids, or its own), as the changeset leaves it.
-    const keys = (id) => {
-      const level = ws.levels.get(id)
-      return Array.isArray(level?.tasks) ? level.tasks.map((task) => task.id) : [id]
-    }
+    const keys = (id) => levelKeys(ws.levels.get(id), id)
     const ops = saveOps({ before: after && before, after, idOps, stale, keys })
     if (ops.length) {
       const saves = ws.game.saves ?? []

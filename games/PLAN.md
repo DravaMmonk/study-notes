@@ -62,9 +62,8 @@
 
 ### 1.3 失效（stale）改为内核默认
 
-- 词汇表字段标注所属 section；内核默认比较每个关/任务中 section 为 tests / puzzle 的字段，有变化即 drop 该键的板。领域只能把判定收窄，不能退回缺省不迁。
-- logic / syntax / vision 现有实现中与默认等价的部分删除。
-- `parts.set` 改元件端口或设置时产出新迁移步 `part.changed`，加载存档时 drop 含该元件的板。
+- 内核默认比较每个关、每个任务中分区为谜题 / 测试的字段（`sectionOf`，从 studio 移进 `schema.js`）：关自己的变了 drop 全部任务的板，某个任务的变了只 drop 那个任务的。没有 `changes.stale` 的领域（can / agent / image / table / net）从此不再缺省不迁；logic / syntax / vision 的规则与默认不等价（逻辑的机器板、视觉的参考程序），保留为领域改写。
+- `parts.set` / `parts.unset` 改元件的端口、设置或它用的预设时产出迁移步 `dropWith: [元件]`，加载存档时 drop 放着该元件的板。
 - 验收：在 can / agent / image / table / net 的合成等价内容上改测试、端口、预设板，旧板均被 drop；改元件端口只 drop 用到它的板。
 
 ### 1.4 删除 `save.retype`

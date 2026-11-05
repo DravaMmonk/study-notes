@@ -4,8 +4,10 @@
 //
 //   ids         a level renamed or removed, a task renamed or removed: the operation says so itself (operations.js
 //               `saves`), first in the step, so everything after it speaks of the new ids
-//   kept state  a level whose puzzle changed, so the boards players kept on its tasks answer the old one: the domain
-//               says which changes do that (domain.js `changes.stale`), and they are dropped ({ drop })
+//   kept state  a level whose puzzle changed, so the boards players kept on its tasks answer the old one: by default
+//               a field of its puzzle or its tests (schema.js sectionOf) changed — the level's own, which drops every
+//               task's boards, or one task's, which drops that task's (staleKeys); a domain may say instead which
+//               changes do that (domain.js `changes.stale`). They are dropped ({ drop })
 //   new prerequisites  a level put in the course (added, or moved) where it is now required, all the way back, by a
 //               level a player solved without it: counted solved for them ({ solve }), from the first such level they
 //               solved, so nobody is sent back. Only the level put there: a level moved later now comes after the
@@ -16,6 +18,30 @@
 //
 // A course is read through its spec (domain.js spec(content)): its levels with what each requires, and the course's
 // builds(level); the task keys of a level come from the content (keys(id), its last task's last).
+
+import { sectionOf, shapeAt } from '../schema.js'
+
+const PUZZLE = ['puzzle', 'tests']
+// The fields of a level or a task (its tasks aside) that make its puzzle, read by the shape the schema gives it.
+const puzzleOf = (schema, value, vocabulary) => {
+  const shape = shapeAt(schema, value, [], { vocabulary })
+  if (shape?.type !== 'obj') return value
+  return Object.fromEntries(Object.entries(value).filter(([k]) => k !== 'tasks' && shape.fields[k] && PUZZLE.includes(sectionOf(shape.fields[k]))))
+}
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
+
+/**
+ * The task keys of level `id` whose kept boards no longer apply, its file having gone from `before` to `after` (a
+ * level of the `schema`): every task's (or the level's own key) when the level's own puzzle changed, else the tasks
+ * whose puzzle did. A task new to the level has nothing kept.
+ */
+export function staleKeys(schema, before, after, id, { vocabulary = null } = {}) {
+  if (!same(puzzleOf(schema, before, vocabulary), puzzleOf(schema, after, vocabulary))) return Array.isArray(after.tasks) ? after.tasks.map((task) => task.id) : [id]
+  if (!Array.isArray(after.tasks)) return []
+  const task = shapeAt(schema, after, ['tasks', 0], { vocabulary })
+  const was = new Map((before.tasks ?? []).map((x) => [x.id, x]))
+  return after.tasks.filter((x) => was.has(x.id) && !same(puzzleOf(task, was.get(x.id), vocabulary), puzzleOf(task, x, vocabulary))).map((x) => x.id)
+}
 
 /** Every level's prerequisites all the way back: Map id → Set. */
 export function ancestors(levels) {
@@ -62,12 +88,12 @@ export function placedBy(oldOrder, newOrder) {
 /**
  * The ops of the save step a changeset needs, in order. before, after: { levels: [{ id, requires }], builds(id) →
  * [part] } (before null when the content before did not fit its vocabulary: only the ops' own and the stale boards
- * are given); idOps: the operations' own save ops; stale: levels (new ids) whose kept boards no longer apply;
+ * are given); idOps: the operations' own save ops; stale: the task keys (new) whose kept boards no longer apply;
  * keys(id): a level's task keys, now.
  */
 export function saveOps({ before, after, idOps, stale = [], keys = (id) => [id] }) {
   const out = [...idOps]
-  if (stale.length) out.push({ drop: stale.flatMap(keys) })
+  if (stale.length) out.push({ drop: stale })
   if (!before) return out
   const moves = idMoves(before.levels.map((l) => l.id), idOps)
   const now = (old) => moves.get(old) ?? []

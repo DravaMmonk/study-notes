@@ -24,7 +24,7 @@
 // A field of a by (one shape a field names: a level by its kind) has `tags`: [{ key, value, options, cases }], the outer
 // by first when bys nest (a level by its mode, then by its world); a field of an either (several shapes) has `shapes`
 // (their schemas) and `shape` (the one it has now).
-import { SECTIONS, callOf, find, validate } from '../engine/schema.js'
+import { SECTIONS, callOf, find, holdsLevels, sectionOf, validate } from '../engine/schema.js'
 import { parsePath, showPath } from '../engine/ops/edit.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { newTaskId } from '../engine/tasks.js'
@@ -312,29 +312,6 @@ export function summaryOf(value, width = 90) {
 
 /* ---------- a level's sections ---------- */
 
-const leaves = (s, out = new Set()) => {
-  if (!s || typeof s !== 'object') return out
-  if (['list', 'map'].includes(s.type)) return leaves(s.of, out)
-  if (s.type === 'either') { s.of.forEach((x) => leaves(x, out)); return out }
-  if (s.type === 'obj') { Object.values(s.fields).forEach((x) => leaves(x, out)); return out }
-  if (s.type === 'by') { Object.values(s.cases).forEach((x) => leaves(x, out)); return out }
-  out.add(s.type)
-  return out
-}
-
-/**
- * Where a field of a level goes in its form (SECTIONS): its schema's `section`, else read off its shape — a board is an
- * answer; a field naming a level is the course's; words alone (and the figures beside them) are what the player
- * reads; anything else is the puzzle.
- */
-export function sectionOf(schema) {
-  if (schema.section) return schema.section
-  const types = leaves(schema)
-  if (types.has('board')) return 'answers'
-  if (holdsLevels(schema)) return 'course'
-  if (types.has('text') && [...types].every((t) => t === 'text' || t === 'call')) return 'read'
-  return 'puzzle'
-}
 
 /** A level's fields (the obj form of its top) in sections, in SECTIONS order: [{ section, fields }]. */
 export function sectionsOf(form) {
@@ -502,13 +479,6 @@ export function referenceFor(vocabulary, level, path) {
   return near.at(-1) ?? reference
 }
 
-/** Whether a schema holds a level anywhere inside it (a place in the course, which the tree edits). */
-export function holdsLevels(schema) {
-  if (!schema || typeof schema !== 'object') return false
-  if (schema.type === 'level') return true
-  const inner = [...(Array.isArray(schema.of) ? schema.of : [schema.of]), ...Object.values(schema.fields ?? {}), ...Object.values(schema.cases ?? {})]
-  return inner.some(holdsLevels)
-}
 
 /** Every text a value holds under its schema: [{ path, value }], in the schema's order. */
 export const textsOf = (schema, value, vocabulary) => find(schema, value, 'text', { vocabulary })

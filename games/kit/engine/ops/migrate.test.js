@@ -3,7 +3,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { migrations } from '../../shell/saves.js'
-import { ancestors, idMoves, placedBy, saveOps } from './migrate.js'
+import { S } from '../schema.js'
+import { ancestors, idMoves, placedBy, saveOps, staleKeys } from './migrate.js'
 
 /** A course of one path: each level requires the one before it; `builds`: { level: [part] }. */
 const path = (ids, builds = {}) => ({ levels: ids.map((id, k) => ({ id, requires: k ? [ids[k - 1]] : [] })), builds: (id) => builds[id] ?? [] })
@@ -57,10 +58,22 @@ test('a part whose building moves to another level is built from the new builder
 })
 
 test('a level whose puzzle changed drops the boards kept on each of its tasks', () => {
-  const keys = (id) => [`${id}_1`, `${id}_2`]
-  assert.deepEqual(saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a'], keys }), [{ drop: ['a_1', 'a_2'] }])
+  assert.deepEqual(saveOps({ before: path(['a']), after: path(['a']), idOps: [], stale: ['a_1', 'a_2'] }), [{ drop: ['a_1', 'a_2'] }])
 })
 
 test('with no course before (content that did not fit), only the ops’ own and the stale boards', () => {
   assert.deepEqual(saveOps({ before: null, after: path(['a']), idOps: [{ rename: { x: 'a' } }] }), [{ rename: { x: 'a' } }])
+})
+
+test('by default a level’s kept boards are stale when a field of its puzzle or tests changed: its own, or one task’s', () => {
+  const task = S.obj({ id: S.str(), brief: S.text(), tests: S.list(S.any(), { section: 'tests' }), solution: S.opt(S.board()) })
+  const level = S.obj({ title: S.text(), world: S.opt(S.str()), tests: S.opt(S.list(S.any(), { section: 'tests' })), solution: S.opt(S.board()), tasks: S.opt(S.list(task)) })
+  const one = { title: 'L', world: 'w', tests: [1], solution: ['a'] }
+  assert.deepEqual(staleKeys(level, one, { ...one, tests: [2] }, 'l'), ['l'])
+  assert.deepEqual(staleKeys(level, one, { ...one, world: 'v' }, 'l'), ['l'])
+  assert.deepEqual(staleKeys(level, one, { ...one, title: 'M', solution: ['b'] }, 'l'), [], 'words and answers are no part of the puzzle')
+  const tasks = { title: 'T', tasks: [{ id: 't1', brief: 'x', tests: [1] }, { id: 't2', brief: 'y', tests: [1] }] }
+  assert.deepEqual(staleKeys(level, tasks, { ...tasks, tasks: [tasks.tasks[0], { ...tasks.tasks[1], tests: [2] }] }, 'l'), ['t2'])
+  assert.deepEqual(staleKeys(level, tasks, { ...tasks, world: 'v' }, 'l'), ['t1', 't2'])
+  assert.deepEqual(staleKeys(level, tasks, { ...tasks, tasks: [...tasks.tasks, { id: 't3', brief: 'z', tests: [3] }] }, 'l'), [])
 })

@@ -65,6 +65,15 @@ const partsOf = (ws, vocabulary) => {
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
 }
+/**
+ * The part types whose kept boards an edit of parts.json at `keys` invalidates: a part's ports or settings, or a
+ * preset's, for every part whose settings use it.
+ */
+const changedParts = (file, [top, name, field]) => {
+  if (top === 'parts' && ['inputs', 'outputs', 'settings'].includes(field)) return [name]
+  if (top === 'presets') return Object.entries(file?.parts ?? {}).filter(([, part]) => (part.settings ?? []).some((s) => s.use === name)).map(([type]) => type)
+  return []
+}
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')
   return /^#\s*blueprint\b/.test(lines[0]) ? lines.slice(1) : lines
@@ -392,8 +401,9 @@ export const OPERATIONS = {
       const keys = parsePath(path)
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is added with part.add, renamed with part.rename')
       const inverse = [restore('parts', ws.partDefs, keys, {})]
+      const changed = changedParts(ws.partDefs, keys)
       ws.partDefs = setAt(ws.partDefs, keys, value, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-      return { says: `parts.json: set ${showPath(keys)}`, inverse }
+      return { says: `parts.json: set ${showPath(keys)}`, inverse, ...(changed.length && { saves: [{ dropWith: changed }] }) }
     },
   },
   'parts.unset': {
@@ -404,8 +414,9 @@ export const OPERATIONS = {
       const keys = parsePath(path)
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is removed with part.remove')
       const back = typeof keys.at(-1) === 'number' ? { op: 'parts.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'parts.set', path: keys, value: getAt(ws.partDefs, keys) }
+      const changed = changedParts(ws.partDefs, keys)
       ws.partDefs = unsetAt(ws.partDefs, keys)
-      return { says: `parts.json: removed ${showPath(keys)}`, inverse: [back] }
+      return { says: `parts.json: removed ${showPath(keys)}`, inverse: [back], ...(changed.length && { saves: [{ dropWith: changed }] }) }
     },
   },
   'blueprint.put': {

@@ -6,15 +6,15 @@
 // more about, every value a schema hint names gets its control, and every cell control gives back the value it shows.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { S, find } from '../engine/schema.js'
+import { S, find, holdsLevels, sectionOf } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
 import { putIn, takeOut } from '../engine/ops/place.js'
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { domainOf, readContent } from '../engine/content-node.js'
 import {
-  blank, boardsOf, cellText, cellValue, formOf, gridRows, gridValue, holdsLevels, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
-  referenceFor, revertOf, sectionOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, tickValue, tickValues, toggled,
+  blank, boardsOf, cellText, cellValue, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
+  referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
 import { courseTree, stays } from './tree.js'

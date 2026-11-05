@@ -4,9 +4,9 @@
 // (../engine/tasks.js) a task's field is under `tasks[task]` and a field all its tasks share is on the level; a level
 // that is no list of tasks has them all on itself. Domain-free: only the content and its schema are read.
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
-import { shapeAt } from '../engine/schema.js'
+import { sectionOf, shapeAt } from '../engine/schema.js'
 import { hasTasks } from '../engine/tasks.js'
-import { blank, opFor, sectionOf } from './form.js'
+import { blank, opFor } from './form.js'
 
 const copy = (v) => JSON.parse(JSON.stringify(v))
 

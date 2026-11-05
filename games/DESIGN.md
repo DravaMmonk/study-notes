@@ -118,11 +118,12 @@ already saved board. Setting choices that need explanation follow the same prere
 
 **存档按任务记。** 外壳存下的（`kit/shell/progress.js`，浏览器里 `<游戏 id>.v2`）分两层：关卡层面的是通过的关（`solved`，一关通过了就一直算通过，后来多了任务也不收回）、得分（`best`）；谜题层面的全部按**任务 key** 记：每个任务的板和它的几块存档（`data`、`slots`）、通过了哪些任务（`passed`）、元件跑的那块板（`built`）。任务 key 就是任务的 id（第 4 节），每个领域的任务都必须有 id（契约检查）；没有任务的关是关自己的 id。所以任务在关内换位置、插进新任务、挪进别的关、几关合成一关，都不用迁移存档。这个形状之前的存档不读，玩家从空白开始。
 
-**改编号或谜题，存档迁移由操作集生成**（第 7 节），不手写。一次修改（变更集）需要的那一版迁移（`kit/engine/ops/migrate.js`，接进 `kit/shell/saves.js`），只有五种操作：
+**改编号或谜题，存档迁移由操作集生成**（第 7 节），不手写。一次修改（变更集）需要的那一版迁移（`kit/engine/ops/migrate.js`，接进 `kit/shell/saves.js`），只有这几种操作：
 - 关卡改了 id 是 `rename`（和关同名的任务随 `level.rename` 一起改名），删掉的关是 `rename` 成 `null`；任务换了 id 是 `retask`。
-- 一关被放到（新加或挪到）课程里的一个位置，从此成了某些关的先修（`requires` 一路往上），而玩家没打它就通过了那些关：从他通过的最早那一关起，把它记为通过（`solve`），谁都不会被赶回去。只记被放过去的那一关：一关往后挪，它越过的那些关不因此记给早先通过它的人。
+- 一关被放到（新加或挪到）课程里的一个位置，从此成了某些关的先修（`requires` 一路往上），而玩家没打它就通过了那些关：从他通过的最早那一关起，把它记为通过（`solve`），谁都不会被赶回去。只记被放过去的那一关：一关往后挪，它越过的那些关不因此记给早先通过它的人。哪些关是「被放过去的」从前后两份课程的游玩顺序读出（最长公共子序列之外的关，`placedBy`），不管是哪个操作改的（`level.move`、改 `eras`……）。
 - 一关从此搭出一个元件：通过它的人在它最后一个任务上存下的板成为元件跑的板（`built: [[关, 任务 key]]`）。
-- 一关的谜题变了，玩家存下的板答的是旧谜题：领域说哪些改动算（`domain.js` 的 `changes.stale(旧关, 新关)`），这一关每个任务的板就去掉（`drop: [任务 key]`，通过与否留着）。电路关的板是程序，测试变了照样跑，领域不说算；托盘（`adds`）变了也不算。删掉的任务同样 `drop`。
+- 一关的谜题变了，玩家存下的板答的是旧谜题，这些板就去掉（`drop: [任务 key]`，通过与否留着）。内核默认按字段的分区判断（schema 的 `section`，没写时按形状推断）：谜题区或测试区的字段变了——关自己的，去掉每个任务的板；某个任务的，只去掉那个任务的。文字、参考答案、课程位置变了都不算。领域可以用 `domain.js` 的 `changes.stale(旧关, 新关)` 改写这个判断（逻辑领域：机器板是程序，测试变了照样跑）。删掉的任务同样 `drop`。
+- 一个元件的端口或设置变了（`parts.set`、`parts.unset` 改 `parts.json` 的 `inputs`、`outputs`、`settings`，或它用的预设）：放着这个元件的板都去掉（`dropWith: [元件]`）。
 
 数据写法（`games/kit/course.js` 的 `layout(eras)`）：
 
@@ -972,7 +973,7 @@ A documentation-only local change does not require a deployment.
 
 | 操作 | 做什么 | 自带的存档迁移 |
 |---|---|---|
-| `level.set`、`level.unset`、`level.patch`、`level.replace` | 改一关的一个字段（路径 `tests[0].goal`）、去掉一个字段或列表的一项、按 JSON merge patch 改几个字段、整关换掉；新字段按 schema 的字段顺序放 | 谜题变了（领域的 `changes.stale` 说算）：`drop` |
+| `level.set`、`level.unset`、`level.patch`、`level.replace` | 改一关的一个字段（路径 `tests[0].goal`）、去掉一个字段或列表的一项、按 JSON merge patch 改几个字段、整关换掉；新字段按 schema 的字段顺序放 | 谜题变了（谜题区、测试区的字段，或领域的 `changes.stale`）：`drop` |
 | `level.blueprint` | 把一关的一块板（参考解、naive 解……，schema 里的 `S.board()`）写成蓝图文本，先按蓝图语法读一遍 | 同上 |
 | `level.adds` | 一关新带来的元件里加上、拿掉几样 | — |
 | `level.add`、`level.remove` | 加一关（内容和课程里的位置）；删一关（文件和位置，掏空的分支、专题一起去掉），别处还提到它时拒绝并列出在哪里 | 新放进来的关成了先修：`solve`；删：`rename` 成 `null` |

@@ -11,6 +11,9 @@
 //   { drop: [task key…] }                         the boards kept on these tasks, every slot's and the part's, dropped:
 //                                                 their puzzle changed, or they are gone (whether they are passed stays)
 //   { retask: { old task key: new key } }         task ids renamed
+//   { dropWith: [part type…] }                     every kept board placing a part of these types dropped (a slot's,
+//                                                 the part's, a task's whole record holding one): the part's ports or
+//                                                 settings changed
 //
 // migrations(steps) gives the shell's { version, migrate } (progress.js): version is the newest step's.
 
@@ -36,6 +39,13 @@ function retypeBoards(value, types) {
   if (Array.isArray(value.nodes)) out.nodes = out.nodes.map((node) => types[node?.type] ? { ...node, type: types[node.type].type, params: { ...node.params, ...types[node.type].params } } : node)
   return out
 }
+// Whether a saved value holds a board (anything with `nodes`) placing a part of one of `types`.
+const places = (value, types) => {
+  if (Array.isArray(value)) return value.some((v) => places(v, types))
+  if (!value || typeof value !== 'object') return false
+  if (Array.isArray(value.nodes) && value.nodes.some((n) => types.includes(n?.type))) return true
+  return Object.values(value).some((v) => places(v, types))
+}
 const OPS = {
   retype: (save, types) => ({ ...save, ...Object.fromEntries(['data','built','slots'].filter((key) => save[key]).map((key) => [key,retypeBoards(save[key],types)])) }),
   rename: (save, to) => {
@@ -53,6 +63,11 @@ const OPS = {
     return out
   },
   retask: (save, to) => rekey(save, (k) => to[k] ?? k, (id) => id),
+  dropWith: (save, types) => {
+    const out = { ...save }
+    for (const field of ['data', 'slots', 'built']) if (save[field]) out[field] = Object.fromEntries(Object.entries(save[field]).filter(([, v]) => !places(v, types)))
+    return out
+  },
 }
 
 /** steps: [{ version, ops: [op] }] in version order. */
