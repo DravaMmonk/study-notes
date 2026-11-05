@@ -5,7 +5,7 @@
 // (games/games.js). Nothing reaches the disk until write(); diff() previews it.
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { assemble } from '../content.js'
+import { assemble, deepFreeze } from '../content.js'
 import { GAMES_DIR, levelFiles } from '../content-node.js'
 import { writeJson } from './json.js'
 import { unified } from './diff.js'
@@ -49,8 +49,8 @@ export function openGame(id, root = GAMES_DIR) {
     hub: read(resolve(root, HUB)),
   }
   return Object.assign(ws, {
-    /** The game as one content (../content.js). */
-    content: () => assemble({ id, game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, levels: [...ws.levels], blueprint: ws.blueprint }),
+    /** The game as one content (../content.js), frozen: the operations put new values in, nothing writes into one. */
+    content: () => deepFreeze(assemble({ id, game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, levels: [...ws.levels], blueprint: ws.blueprint })),
     /** What the files hold now, by name; a removed level file is null. */
     snapshot: () => ({ game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, blueprint: ws.blueprint, levels: new Map(ws.levels), basis: new Map(ws.basis) }),
     restore: (s) => Object.assign(ws, { game: s.game, glossary: s.glossary, partDefs: s.partDefs, blueprint: s.blueprint, levels: new Map(s.levels), basis: new Map(s.basis) }),

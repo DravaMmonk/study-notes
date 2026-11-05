@@ -5,7 +5,6 @@
 // that is no list of tasks has them all on itself. Domain-free: only the content and its schema are read.
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { sectionOf, shapeAt } from '../engine/schema.js'
-import { hasTasks } from '../engine/tasks.js'
 import { blank, opFor } from './form.js'
 
 const copy = (v) => JSON.parse(JSON.stringify(v))
@@ -38,8 +37,7 @@ export function markPath(value, vocabulary, mark) {
  * { op, at } — `at` the new item's path (to pick it). A new item of words alone (a hint, a page) starts blank, to be
  * written; any other copies its neighbour (a test), so it is whole at once; a list not there yet starts with the one
  * item. A new task copies the task played, without its id, its name and its own introduction, so the level plays on
- * at once, and goes after it (task.add, where tasks have ids; else at the end of the list). Null when the level has no
- * room for it.
+ * at once, and goes after it (task.add). Null when the level has no room for it.
  */
 export function addFor(level, value, vocabulary, mark) {
   const path = markPath(value, vocabulary, mark)
@@ -50,12 +48,11 @@ export function addFor(level, value, vocabulary, mark) {
   const list = getAt(value, path) ?? []
   const at = mark.index === null || mark.index === undefined ? list.length : Math.min(list.length, mark.index + 1)
   const near = list[Math.min(at, list.length) - 1] ?? list[0]
-  let item
   if (path.length === 1 && path[0] === 'tasks') {
     const { id, step: _step, intro: _intro, ...task } = copy(list[mark.task] ?? near)
-    if (hasTasks(vocabulary)) return { op: { op: 'task.add', level, data: task, after: id }, at: ['tasks', mark.task + 1] }
-    item = task
-  } else item = near !== undefined && sectionOf(schema.of) !== 'read' ? copy(near) : blank(schema.of, ctx)
+    return { op: { op: 'task.add', level, data: task, after: id }, at: ['tasks', mark.task + 1] }
+  }
+  const item = near !== undefined && sectionOf(schema.of) !== 'read' ? copy(near) : blank(schema.of, ctx)
   return { op: opFor({ level }, path, { set: [...list.slice(0, at), item, ...list.slice(at)] }, 'list'), at: [...path, at] }
 }
 

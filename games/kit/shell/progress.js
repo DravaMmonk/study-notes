@@ -54,15 +54,15 @@ export function createProgress({ id, version = 1, migrate = (saved) => saved }) 
 /** A fresh progress, as a new save starts. */
 export const fresh = (version = 1) => blank(version)
 
-/** Task k's key: the task's id (the shell level's task `key`), the level's id for a level without tasks. */
-export const taskKey = (level, k = 0) => (level.tasks ? level.tasks[k].key : level.id)
+/** Task k's key: the task's id (the shell level's task `key`). */
+export const taskKey = (level, k = 0) => level.tasks[k].key
 
 /** Whether task k of level `id` is passed (all of them once it is solved). */
 export const taskPassed = (game, p, id, k) => p.solved.includes(id) || p.passed.includes(taskKey(game.byId[id], k))
 
 /** The task a level opens at: the first not yet passed (the last, once all are). */
 export function firstTask(game, p, id) {
-  const n = game.byId[id]?.tasks?.length ?? 1
+  const n = game.byId[id].tasks.length
   for (let k = 0; k < n; k += 1) if (!taskPassed(game, p, id, k)) return k
   return n - 1
 }
@@ -70,7 +70,7 @@ export function firstTask(game, p, id) {
 /** Progress with level `id` opened at task k: the tasks before it passed, it and the level not. */
 export function openAt(game, p, id, k) {
   const level = game.byId[id]
-  const keys = (level.tasks ?? [null]).map((_, j) => taskKey(level, j))
+  const keys = level.tasks.map((task) => task.key)
   return { ...p, solved: p.solved.filter((x) => x !== id), passed: [...new Set([...p.passed.filter((x) => !keys.includes(x)), ...keys.slice(0, k)])] }
 }
 
@@ -88,13 +88,13 @@ function kept(p, level, taskAt) {
 
 /**
  * Progress once task `taskAt` of `level` passes with what the screen saved for it: a task before the last counts as
- * passed; the last (or a level without tasks) solves the level and unlocks what it unlocks. `score` is kept when the
+ * passed; the last solves the level and unlocks what it unlocks. `score` is kept when the
  * game finds it better than the best so far.
  */
 export function passed(game, p, level, taskAt, score = null) {
   const built = kept(p, level, taskAt)
   const now = { ...p, built, passed: [...new Set([...p.passed, taskKey(level, taskAt)])] }
-  if (level.tasks && taskAt < level.tasks.length - 1) return now
+  if (taskAt < level.tasks.length - 1) return now
   const best = p.best[level.id]
   return {
     ...now,
@@ -109,9 +109,9 @@ export function passed(game, p, level, taskAt, score = null) {
  * before it opened (with every level open, everything before it too), less what the level or the task withholds.
  */
 export function flagsIn(game, p, level, taskAt) {
-  const tasks = level.tasks
-  const opened = tasks ? tasks.slice(0, taskAt).flatMap((t) => t.opens ?? []) : []
+  const { tasks } = level
+  const opened = tasks.slice(0, taskAt).flatMap((t) => t.opens ?? [])
   const set = new Set([...game.flagsOf(p), ...(level.grants ?? []), ...opened, ...(p.all ? game.unlocksBefore(level) : [])])
-  for (const flag of (tasks?.[taskAt] ?? level).withhold ?? []) set.delete(flag)
+  for (const flag of tasks[taskAt].withhold ?? []) set.delete(flag)
   return set
 }

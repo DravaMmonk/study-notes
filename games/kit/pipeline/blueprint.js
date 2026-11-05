@@ -475,14 +475,14 @@ export function conformance(bp, content, spec) {
   for (const s of slots) {
     const level = levels.get(s.id)
     if (!level) continue
-    const adds = [...new Set([...(level.adds ?? []), ...(level.tasks ?? []).flatMap((t) => t.adds ?? [])])].sort()
+    const adds = [...new Set([...(level.adds ?? []), ...level.tasks.flatMap((t) => t.adds ?? [])])].sort()
     if (plain(adds) !== plain([...(s.adds ?? [])].sort())) say('bp-adds', s.id, `adds ${adds.join(', ') || 'nothing'}, its slot ${(s.adds ?? []).join(', ') || 'nothing'}`)
     const builds = level.builds?.type ?? null
     if (builds !== (s.builds ?? null)) say('bp-builds', s.id, `builds ${builds ?? 'nothing'}, its slot ${s.builds ?? 'nothing'}`)
     const at = course.index.get(s.id)
     const needed = new Set(at === undefined ? [] : course.needed(course.levels[at]) ?? [])
     for (const u of s.uses) if (parts.has(u) && !needed.has(u)) say('bp-uses', s.id, `its answer does not use ${u}`)
-    if (s.naive && !(level.tasks ?? [level]).some((task) => task.naive)) say('bp-naive', s.id, 'its slot has a naive answer, no task of the level has one')
+    if (s.naive && !level.tasks.some((task) => task.naive)) say('bp-naive', s.id, 'its slot has a naive answer, no task of the level has one')
     // The point a level brings is named by the field's term, linked to its entry, where the player reads it; a level on
     // the main path links no technical point's entry.
     const { title, intro, after, note, tasks, brief, hint } = level

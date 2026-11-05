@@ -17,7 +17,7 @@ import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
 import { definesParts } from '../parts/define.js'
 import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
-import { TASK_ID, findTask, hasTasks, newTaskId } from '../tasks.js'
+import { TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal', 'a field’s path: tests[0].goal') })
@@ -47,7 +47,6 @@ const notSaves = (path) => (parsePath(path)[0] === 'saves' ? fail('game.json sav
 // Tasks by id (../tasks.js): the levels as a list, a task found, where a task goes in a level.
 const TASK = S.str({ pattern: TASK_ID, about: t('任务的 id', 'a task’s id') })
 const TASK_PLACE = S.obj({ level: S.level(), after: S.opt(TASK), first: S.opt(S.bool()) }, { about: t('一关里的一个位置：after 那个任务后面，first 时最前，都不给就在最后', 'a place in a level: after that task, first, or else last') })
-const tasked = (vocabulary) => hasTasks(vocabulary) || fail(`the ${vocabulary.domain} domain’s levels have no tasks`)
 const levelsOf = (ws) => [...ws.levels].map(([id, l]) => ({ id, ...l }))
 const taskOf = (ws, id) => findTask(levelsOf(ws), id) ?? fail(`no task ${id}`)
 /** Where in level `level`'s tasks (without task `except`) a task goes: its index. */
@@ -123,7 +122,7 @@ export const OPERATIONS = {
   'level.blueprint': {
     about: t('把一关的一块板（参考解、naive 解……）写成蓝图文本', 'write one of a level’s boards (its reference answer, its naive one…) as blueprint text'),
     params: S.obj({ level: S.level(), path: S.opt(PATH), text: S.str({ about: t('蓝图文本（可以带 # blueprint 那一行）', 'the blueprint text (its # blueprint line may stay)') }) }),
-    apply(ws, { level, path = 'solution', text }, { vocabulary }) {
+    apply(ws, { level, path = 'tasks[0].solution', text }, { vocabulary }) {
       const base = levelOf(ws, level)
       if (shapeAt(vocabulary.level, base, parsePath(path), { vocabulary })?.type !== 'board') fail(`${level}: ${showPath(path)} is not a board`)
       const lines = blueprintLines(text)
@@ -213,7 +212,6 @@ export const OPERATIONS = {
     about: t('给一关加一个任务：它的字段（id 不给就生成一个），排在 after 那个任务后面（first 时最前，都不给就在最后）', 'add a task to a level: its fields (an id made up when none is given), after the task `after` (first, or else last)'),
     params: S.obj({ level: S.level(), data: S.map(S.any()), after: S.opt(TASK), first: S.opt(S.bool()) }),
     apply(ws, { level, data, after, first }, { vocabulary }) {
-      tasked(vocabulary)
       const base = levelOf(ws, level)
       const id = data.id ?? newTaskId(levelsOf(ws), level)
       if (findTask(levelsOf(ws), id)) fail(`there is a task ${id} already`)
@@ -228,7 +226,6 @@ export const OPERATIONS = {
     about: t('去掉一个任务；一关至少留一个任务（整关不要了用 level.remove）', 'remove a task; a level keeps at least one (level.remove removes the whole level)'),
     params: S.obj({ task: TASK }),
     apply(ws, { task }, { vocabulary }) {
-      tasked(vocabulary)
       const { level, at } = taskOf(ws, task)
       const base = levelOf(ws, level)
       if (base.tasks.length === 1) fail(`${task} is ${level}’s only task: remove the level instead`)
@@ -240,7 +237,6 @@ export const OPERATIONS = {
     about: t('把一个任务挪到一关里的另一个位置，或挪进另一关；玩家存下的板和通过与否跟着它走。挪走一关唯一的任务时，同一个变更集里删掉那一关（合成两关）', 'move a task within its level or into another; what players kept of it goes with it. Moving a level’s only task out, remove that level in the same changeset (two levels made one)'),
     params: S.obj({ task: TASK, to: TASK_PLACE }),
     apply(ws, { task, to }, { vocabulary }) {
-      tasked(vocabulary)
       const { level: from, at } = taskOf(ws, task)
       const source = levelOf(ws, from)
       levelOf(ws, to.level)
@@ -258,7 +254,6 @@ export const OPERATIONS = {
     about: t('给一个任务换 id；玩家存下的东西跟着换', 'give a task a new id; what players kept of it follows'),
     params: S.obj({ task: TASK, to: TASK }),
     apply(ws, { task, to }, { vocabulary }) {
-      tasked(vocabulary)
       const { level, at } = taskOf(ws, task)
       if (findTask(levelsOf(ws), to)) fail(`there is a task ${to} already`)
       if (to !== level && ws.levels.has(to)) fail(`${to} is a level’s id`)

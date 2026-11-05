@@ -59,7 +59,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
   /** What the shell hands the level's screen. */
   const ctxOf = ({ level, task }) => ({
     game,
-    level: level.tasks ? { ...level, ...level.tasks[task] } : level,
+    level: { ...level, ...level.tasks[task] },
     flags: flagsIn(game, record.progress, level, task),
     progress: record.progress,
     solved: solved().has(level.id) || taskPassed(game, record.progress, level.id, task),
@@ -84,7 +84,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
       const entry = outcomeOf(record, at.level.id, at.task, required(at.level.id), now())
       if (opened.covered !== false) return { at, ctx, opened, entry, skipped }
       close(entry, 'skipped', now(), { why: side(opened.why, 'en') })
-      skipped.push(`${names('level', at.level.id)}${at.level.tasks?.length > 1 ? ` (${at.task + 1}/${at.level.tasks.length})` : ''}: ${say(opened.why)}`)
+      skipped.push(`${names('level', at.level.id)}${at.level.tasks.length > 1 ? ` (${at.task + 1}/${at.level.tasks.length})` : ''}: ${say(opened.why)}`)
       pass(at)
       asked = null
     }
@@ -92,7 +92,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
 
   const heading = (at) => {
     const chapter = game.chapters?.find((c) => c.id === at.level.chapter)
-    const steps = at.level.tasks?.length > 1 ? ` · ${lang === 'en' ? 'task' : '任务'} ${at.task + 1}/${at.level.tasks.length}${at.level.tasks[at.task].step ? ` ${say(at.level.tasks[at.task].step)}` : ''}` : ''
+    const steps = at.level.tasks.length > 1 ? ` · ${lang === 'en' ? 'task' : '任务'} ${at.task + 1}/${at.level.tasks.length}${at.level.tasks[at.task].step ? ` ${say(at.level.tasks[at.task].step)}` : ''}` : ''
     return `${chapter ? `[${say(chapter.title)}] ` : ''}${names('level', at.level.id)}${steps}`
   }
   // The brief and hints a screen shows: the hook's, else the level's (the shell's entry, or the domain's level under it).
@@ -112,7 +112,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
       return { text: out.join('\n\n'), level: null }
     }
     const brief = briefOf(ctx, opened)
-    const intro = [...(at.task === 0 ? game.intro(at.level) ?? [] : []), ...(at.level.tasks?.[at.task]?.intro ?? [])]
+    const intro = [...(at.task === 0 ? game.intro(at.level) ?? [] : []), ...(at.level.tasks[at.task].intro ?? [])]
     const sections = [`# ${heading(at)}`]
     if (intro.length) sections.push(`## ${lang === 'en' ? 'Introduction' : '引言'}\n${intro.map((page) => say(page.t) + (page.fig ? (lang === 'en' ? '\n[a figure is drawn here]' : '\n[此处有一张图]') : '')).join('\n\n')}`)
     sections.push(`## ${lang === 'en' ? 'Task' : '任务'}\n${[say(brief.text), brief.tip ? say(brief.tip) : ''].filter(Boolean).join('\n')}`)
@@ -201,8 +201,9 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     if (r.pass) {
       close(entry, 'solved', now())
       pass(at, r.board, r.score ?? null)
-      const after = (at.level.tasks ? at.level.tasks[at.task].after : null) ?? (at.level.tasks && at.task < at.level.tasks.length - 1 ? null : at.level.after)
-      return { pass: true, text: `${says}\n\n${at.level.tasks && at.task < at.level.tasks.length - 1 ? (en ? 'Task passed.' : '这一段通过了。') : en ? 'Level passed.' : '通关。'}${after ? `\n${say(after)}` : ''}\n\n${EXPLAIN[lang]}` }
+      const last = at.task === at.level.tasks.length - 1
+      const after = at.level.tasks[at.task].after ?? (last ? at.level.after : null)
+      return { pass: true, text: `${says}\n\n${!last ? (en ? 'Task passed.' : '这一段通过了。') : en ? 'Level passed.' : '通关。'}${after ? `\n${say(after)}` : ''}\n\n${EXPLAIN[lang]}` }
     }
     if (entry.attempts >= record.limits.attempts) {
       close(entry, 'gave-up', now())

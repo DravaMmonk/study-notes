@@ -4,6 +4,7 @@ import { GAMES } from '../../games.js'
 import { checkGame } from './checks.js'
 import { closeGames } from './games.mjs'
 import { domainOf, readContent } from './content-node.js'
+import { deepFreeze } from './content.js'
 import { ALL_GAMES, knownGames } from './cli-args.js'
 import { openGame } from './ops/workspace.js'
 import { driftOf } from './ops/log.js'
@@ -15,7 +16,8 @@ for (const id of knownGames(asked.length ? asked : ALL_GAMES, 'npm run check [--
   let lines
   let head = id
   try {
-    const content = readContent(id)
+    // Read frozen: nothing that checks a game may write into its content.
+    const content = deepFreeze(readContent(id))
     head = `${content.title.zh} ${content.title.en}`
     lines = await checkGame(content, { domain: await domainOf(content), listed: GAMES.find((game) => game.id === id).levels })
     // Files changed outside the operation set since its log last says: noted, not failed (adopt takes them).

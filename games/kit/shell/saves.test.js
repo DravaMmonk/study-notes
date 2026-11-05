@@ -22,9 +22,9 @@ test('a level whose tasks have ids keeps their boards and passing by id: a task 
   assert.deepEqual([p.solved, taskPassed(game, p, 'p', 0)], [['p'], true])
 })
 
-test('a task is keyed by its id, a level without tasks by its own', () => {
+test('a task is keyed by its id; a level of one task usually by the level’s', () => {
   assert.equal(taskKey({ id: 'q', tasks: [{ key: 'q_1' }, { key: 'q_2' }] }, 1), 'q_2')
-  assert.equal(taskKey({ id: 'q' }), 'q')
+  assert.equal(taskKey({ id: 'q', tasks: [{ key: 'q' }] }), 'q')
 })
 
 test('rename moves a level’s state, kept under its id; null drops it', () => {

@@ -31,15 +31,14 @@ const puzzleOf = (schema, value, vocabulary) => {
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 /**
- * The task keys of level `id` whose kept boards no longer apply, its file having gone from `before` to `after` (a
- * level of the `schema`): every task's (or the level's own key) when the level's own puzzle changed, else the tasks
- * whose puzzle did. A task new to the level has nothing kept.
+ * The task keys of a level whose kept boards no longer apply, its file having gone from `before` to `after` (a level
+ * of the `schema`): every task's when the puzzle fields the level says once changed, else the tasks whose puzzle did.
+ * A task new to the level has nothing kept.
  */
-export function staleKeys(schema, before, after, id, { vocabulary = null } = {}) {
-  if (!same(puzzleOf(schema, before, vocabulary), puzzleOf(schema, after, vocabulary))) return Array.isArray(after.tasks) ? after.tasks.map((task) => task.id) : [id]
-  if (!Array.isArray(after.tasks)) return []
+export function staleKeys(schema, before, after, { vocabulary = null } = {}) {
+  if (!same(puzzleOf(schema, before, vocabulary), puzzleOf(schema, after, vocabulary))) return after.tasks.map((task) => task.id)
   const task = shapeAt(schema, after, ['tasks', 0], { vocabulary })
-  const was = new Map((before.tasks ?? []).map((x) => [x.id, x]))
+  const was = new Map(before.tasks.map((x) => [x.id, x]))
   return after.tasks.filter((x) => was.has(x.id) && !same(puzzleOf(task, was.get(x.id), vocabulary), puzzleOf(task, x, vocabulary))).map((x) => x.id)
 }
 

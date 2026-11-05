@@ -1,7 +1,7 @@
 // Every game's page: the shared kit's styles and shell, around the game the page is for. The page is its domain's
 // code (virtual:game, from ./vite.js); the content it plays is read when the page opens (content.json beside it) and
 // checked against the domain's vocabulary first: content that does not fit is shown as what is wrong with it, never
-// handed to the domain.
+// handed to the domain. A domain never writes into its content: on the dev server the page reads it frozen.
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../tokens.css'
@@ -11,6 +11,7 @@ import '../shell/shell.css'
 import '../circuit/circuit.css'
 import { GameShell } from '../shell/index.js'
 import { checkContent } from '../engine/vocabulary.js'
+import { deepFreeze } from '../engine/content.js'
 import { tr } from '../shell/i18n.js'
 import { loadDomain } from 'virtual:game'
 
@@ -27,7 +28,8 @@ function Unreadable({ problems }) {
 async function open() {
   const [{ define, vocabulary }, response] = await Promise.all([loadDomain(), fetch(new URL('content.json', window.location.href), { cache: 'no-store' })])
   if (!response.ok) return <Unreadable problems={[`content.json: ${response.status} ${response.statusText}`]} />
-  const content = await response.json()
+  // On the dev server the content is frozen, so a domain that writes into it fails at once (its checks read it so too).
+  const content = import.meta.env.DEV ? deepFreeze(await response.json()) : await response.json()
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   return problems.length ? <Unreadable problems={problems} /> : <GameShell game={define(content)} />
 }

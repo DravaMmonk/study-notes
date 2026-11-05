@@ -67,10 +67,10 @@ export function lintCopy(content) {
     ['title', level.title],
   ].filter(([, v]) => v)
   for (const level of content.levels) {
-    // A level's own texts, then each of its tasks' (a level of tasks: ../engine/tasks.js).
-    const own = [[level, level.id], ...(level.tasks ?? []).map((task, k) => [task, `${level.id}.tasks[${k}]`])]
+    // A level's own texts, then each of its tasks' (../engine/tasks.js).
+    const own = [[level, level.id], ...level.tasks.map((task, k) => [task, `${level.id}.tasks[${k}]`])]
     for (const [o, at] of own) for (const [field, text] of texts(o)) add(`${at}.${field}`, field.replace(/\[\d+\]$/, ''), text)
-    const first = level.intro?.[0]?.t ?? level.tasks?.[0]?.intro?.[0]?.t
+    const first = level.intro?.[0]?.t ?? level.tasks[0].intro?.[0]?.t
     if (first && (/^\s*新元件/.test(plain(sides(first).zh)) || /^\s*A new part/i.test(plain(sides(first).en)))) out.push({ rule: 'copy-intro-part', at: `${level.id}.intro[0]`, says: 'the intro opens on the new part' })
   }
   for (const [k, entry] of (content.glossary?.entries ?? []).entries()) for (const [j, p] of (entry.body ?? []).entries()) add(`glossary.${entry.id ?? k}.body[${j}]`, 'body', p)

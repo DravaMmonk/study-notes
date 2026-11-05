@@ -150,7 +150,7 @@ export const TOOLS = {
         ...(value.brief ? [`brief: ${pick(value.brief)}`] : []),
         ...(value.adds ? [`brings in: ${value.adds.join(', ')}`] : []),
         ...(value.tests ? [`tests: ${JSON.stringify(value.tests).slice(0, 600)}`] : []),
-        ...(value.tasks ? value.tasks.map((task, k) => `task ${k + 1}: ${pick(task.step) ?? ''} ${task.brief ? `— ${pick(task.brief)}` : ''}`) : []),
+        ...value.tasks.map((task, k) => `task ${k + 1} (${task.id}): ${pick(task.step) ?? ''} ${task.brief ? `— ${pick(task.brief)}` : ''}`),
         ...boards.flatMap((b) => ['', `${b.path}:`, ...b.text.split('\n').map((l) => `  ${l}`)]),
       ]
       return { text: rows.join('\n') }
@@ -203,9 +203,9 @@ export const TOOLS = {
     },
   },
   run_tests: {
-    about: 'Run one of a level’s boards (path, default its reference) on its visible and hidden tests as the level’s screen runs them, through its domain’s play hook (as a changeset would leave it): each test as the screen shows it (what it gives and expects), whether it passes and what the screen says. A level whose play the hook does not cover says why.',
+    about: 'Run one of a level’s boards (path, default its first task’s reference) on its visible and hidden tests as the level’s screen runs them, through its domain’s play hook (as a changeset would leave it): each test as the screen shows it (what it gives and expects), whether it passes and what the screen says. A level whose play the hook does not cover says why.',
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
-    async run({ game, level, path = 'solution', changeset = null }) {
+    async run({ game, level, path = 'tasks[0].solution', changeset = null }) {
       const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
       const lines = getAt(levelIn(content, level), path)
       const domain = await domainOf(content)
@@ -214,10 +214,10 @@ export const TOOLS = {
       const shown = await gameOf(content)
       const at = shown.byId[level]
       const keys = parsePath(path)
-      const task = keys[0] === 'tasks' && at.tasks ? keys[1] : 0
+      const task = keys[0] === 'tasks' ? keys[1] : 0
       // Every part met before the level is in the tray, as the studio's game plays it (unlock all).
       const progress = { ...fresh(), all: true }
-      const ctx = { game: shown, level: at.tasks ? { ...at, ...at.tasks[task] } : at, flags: flagsIn(shown, progress, at, task), progress, solved: false, task, fails: 0 }
+      const ctx = { game: shown, level: { ...at, ...at.tasks[task] }, flags: flagsIn(shown, progress, at, task), progress, solved: false, task, fails: 0 }
       // A hook that cannot open the level without the boards a played session would have built says so.
       let opened
       let r
@@ -235,9 +235,9 @@ export const TOOLS = {
     },
   },
   seed: {
-    about: 'What a level’s screen keeps of one of its boards (path, default solution), as a changeset would leave it: put data in a save’s progress.data[level] (a level of tasks: at index task) and the level opens on that board.',
+    about: 'What a level’s screen keeps of one of its boards (path, default its first task’s solution), as a changeset would leave it: put data in a save’s progress.data under that task’s id (task: its index in the level) and the level opens on that board.',
     params: { game: 'string', level: 'string', path: 'string?', changeset: 'object?' },
-    async run({ game, level, path = 'solution', changeset = { ops: [] } }) {
+    async run({ game, level, path = 'tasks[0].solution', changeset = { ops: [] } }) {
       const content = await contentAfter(game, changeset)
       const keys = parsePath(path)
       const lines = getAt(levelIn(content, level), keys)
@@ -250,7 +250,7 @@ export const TOOLS = {
       const reference = read.filter((b) => !b.naive && (task === null || b.task === undefined || b.task === task)).at(-1)
       if (!bp && !reference) return { note: `${level} has no board its domain reads` }
       const board = bp ? bp.board : reference.read(lines)
-      return { data: ((bp ?? reference).save ?? ((b) => b))(board), task }
+      return { data: board, task }
     },
   },
   search: {

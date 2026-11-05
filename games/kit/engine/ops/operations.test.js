@@ -12,6 +12,7 @@ import { openGame } from './workspace.js'
 import { adopt, runChangeset, readLog, undo } from './changeset.js'
 import { driftOf } from './log.js'
 import { withParts } from '../parts/define.js'
+import { taskLevel } from '../tasks.js'
 
 const levels = S.list(S.level())
 const ERA = S.obj({
@@ -26,7 +27,8 @@ const VOCAB = defineVocabulary({
   version: 1,
   kinds: { part: { a: { about: 'a' }, b: { about: 'b' }, c: { about: 'c' } } },
   game: S.obj({ title: S.text(), eras: S.list(ERA), carry: S.opt(S.map(S.level())), saves: S.list(S.any()) }),
-  level: S.obj({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), from: S.opt(S.level()), tasks: S.opt(S.list(S.map(S.any()))) }),
+  // What a toy level says once is its whole puzzle; its one task is only its id.
+  level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}),
 })
 // The toy's course: the main path in order, every level requiring the one before; a level's tests are its puzzle.
 const DOMAIN = {
@@ -50,7 +52,7 @@ function toy() {
     saves: [],
   })
   put('glossary.json', { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: 'E', body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] })
-  for (const id of ['a1', 'a2', 'a3', 'b1', 'b2', 'c1']) put(`levels/${id}.json`, { title: { zh: id, en: id }, tests: [1], ...(id === 'b1' && { from: 'a2', brief: { zh: '接着 <level-ref to="a2"></level-ref>', en: 'after <level-ref to="a2"></level-ref>' } }) })
+  for (const id of ['a1', 'a2', 'a3', 'b1', 'b2', 'c1']) put(`levels/${id}.json`, { title: { zh: id, en: id }, tests: [1], ...(id === 'b1' && { from: 'a2', brief: { zh: '接着 <level-ref to="a2"></level-ref>', en: 'after <level-ref to="a2"></level-ref>' } }), tasks: [{ id }] })
   writeFileSync(join(root, 'games.js'), "export const GAMES = [{ id: 'toy', levels: 6 }]\n")
   return { root, ws: openGame('toy', root) }
 }
@@ -74,13 +76,13 @@ test('level.set, level.unset, level.patch and level.replace edit one level', () 
   assert.deepEqual(level(ws, 'a1').tests, [1, 2])
   roundTrip(ws, 'level.set', { level: 'a1', path: 'brief', value: { zh: '甲', en: 'A' } })
   // A new field goes where the schema lists it: brief after title, before tests.
-  assert.deepEqual(Object.keys(level(ws, 'a1')), ['title', 'brief', 'tests'])
+  assert.deepEqual(Object.keys(level(ws, 'a1')), ['title', 'brief', 'tests', 'tasks'])
   roundTrip(ws, 'level.unset', { level: 'a1', path: 'tests[0]' })
   assert.deepEqual(level(ws, 'a1').tests, [2])
   roundTrip(ws, 'level.patch', { level: 'a1', fields: { brief: null, adds: ['a'] } })
-  assert.deepEqual(level(ws, 'a1'), { title: { zh: 'a1', en: 'a1' }, tests: [2], adds: ['a'] })
-  roundTrip(ws, 'level.replace', { level: 'a1', data: { title: 'A' } })
-  assert.deepEqual(level(ws, 'a1'), { title: 'A' })
+  assert.deepEqual(level(ws, 'a1'), { title: { zh: 'a1', en: 'a1' }, tests: [2], adds: ['a'], tasks: [{ id: 'a1' }] })
+  roundTrip(ws, 'level.replace', { level: 'a1', data: { title: 'A', tasks: [{ id: 'a1' }] } })
+  assert.deepEqual(level(ws, 'a1'), { title: 'A', tasks: [{ id: 'a1' }] })
   assert.throws(() => run(ws, 'level.set', { level: 'a1', path: 'x.y', value: 1 }), /no such field/)
   assert.throws(() => run(ws, 'level.unset', { level: 'a1', path: 'brief' }), /nothing there/)
 })
@@ -97,9 +99,9 @@ test('level.adds adds and takes parts, and drops an empty list', () => {
 
 test('level.blueprint writes a board as blueprint text, and only a board', () => {
   const { ws } = toy()
-  roundTrip(ws, 'level.blueprint', { level: 'a1', text: '# blueprint 1 toy a1\nm = mp(p, q)\ngoal <- m\n' })
+  roundTrip(ws, 'level.blueprint', { level: 'a1', path: 'solution', text: '# blueprint 1 toy a1\nm = mp(p, q)\ngoal <- m\n' })
   assert.deepEqual(level(ws, 'a1').solution, ['m = mp(p, q)', 'goal <- m'])
-  assert.throws(() => run(ws, 'level.blueprint', { level: 'a1', text: 'm = mp(p' }), /line 1/)
+  assert.throws(() => run(ws, 'level.blueprint', { level: 'a1', path: 'solution', text: 'm = mp(p' }), /line 1/)
   assert.throws(() => run(ws, 'level.blueprint', { level: 'a1', path: 'brief', text: 'goal <- p' }), /not a board/)
 })
 
@@ -247,7 +249,7 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
     { op: 'level.move', level: 'b2', to: { before: 'a1' } },
     { op: 'level.set', level: 'a3', path: 'tests', value: [2] },
     { op: 'level.rename', level: 'b2', to: 'first' },
-    { op: 'level.add', level: 'n1', data: { title: 'N' }, to: { after: 'first' } },
+    { op: 'level.add', level: 'n1', data: { title: 'N', tasks: [{ id: 'n1' }] }, to: { after: 'first' } },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(done.ok, true, done.problems.join('\n'))
   assert.deepEqual(done.step, { version: 2, ops: [{ rename: { b2: 'first' } }, { drop: ['a3'] }, { solve: ['a1', ['first', 'n1']] }] })
@@ -264,7 +266,6 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
 })
 
 test('tasks by id: task.add, task.move in a level and across levels, task.rename, task.remove, each undone', async () => {
-  const { taskLevel } = await import('../tasks.js')
   const T = defineVocabulary({ domain: 'tasked', version: 1, kinds: {}, game: VOCAB.game, level: taskLevel({ title: S.text() }, { brief: S.text() }) })
   const tx = (s) => ({ zh: s, en: s })
   const levels = new Map([['p', { title: tx('p'), tasks: [{ id: 'p', brief: tx('p1') }, { id: 'p2', brief: tx('p2') }] }], ['q', { title: tx('q'), tasks: [{ id: 'q', brief: tx('q1') }] }], ['r', { title: tx('r'), tasks: [{ id: 'r1', brief: tx('r1') }] }]])

@@ -37,15 +37,10 @@ function answer(lines) {
 /** Whether content wrote a reference the player can type: blueprint lines, or a hand level's moves. */
 const typed = (lines) => Array.isArray(lines) && lines.every((m) => typeof m === 'string' || (m && typeof m === 'object' && Object.keys(m).length === 1 && typeof Object.values(m)[0] !== 'object'))
 
-/** The content's answers for where the level stands: its task, or (a table level) its stage. */
-function answers(content, record, id, task) {
+/** The content's answers for the task the level stands at. */
+function answers(content, id, task) {
   const level = content.levels.find((l) => l.id === id)
-  const played = level.tasks ? { ...level, ...level.tasks[task] } : level
-  if (played.stages) {
-    const stage = record.progress.data[id]?.stage ?? 0
-    const s = played.stages[stage]
-    return { ref: s.solution ?? played.stages.at(-1).solution, naive: stage === played.stages.length - 1 ? played.naive : null, hidden: [] }
-  }
+  const played = { ...level, ...level.tasks[task] }
   return { ref: played.solution, naive: played.naive, hidden: (played.hidden ?? []).map((t) => t.label?.en).filter(Boolean), visible: (played.tests ?? []).map((t) => t.label?.en) }
 }
 
@@ -62,12 +57,12 @@ for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, d, 'starte
     const record = newSession({ game: content.id, session: 'test', player: { kind: 'script' }, attempts: 50, progress: shell.store.blank() })
     const play = createPlay({ game: shell, course, hook, record })
     let solved = 0
-    // Each attempt passes a stage, a task or a level, or gives one up: the course has fewer of them than this.
-    const bound = 10 * content.levels.reduce((n, l) => n + (l.tasks?.length ?? 1) * (l.stages?.length ?? 1), 0)
+    // Each attempt passes a task or a level, or gives one up: the course has fewer of them than this.
+    const bound = 10 * content.levels.reduce((n, l) => n + l.tasks.length, 0)
     for (let guard = 0; guard < bound; guard++) {
       const view = play.view()
       if (!view.level) break
-      const { ref, naive, hidden, visible } = answers(content, record, view.level, view.task)
+      const { ref, naive, hidden, visible } = answers(content, view.level, view.task)
       if (!typed(ref)) {
         play.giveUp()
         continue
@@ -82,15 +77,12 @@ for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, d, 'starte
         naives++
       }
       const r = play.attempt(refText)
-      // A stage of a table level passes without the level passing: the next view is the next stage of it.
-      if (!r.pass) assert.match(r.text, /On to stage/, `${view.level}: the reference fails: ${r.text}`)
-      if (r.pass) {
-        // A pass asks what the player worked out; the answer is kept on the level's outcome.
-        assert.match(r.text, /--explain/)
-        play.explain(`worked out ${view.level}`)
-        assert.equal(record.levels.filter((e) => e.outcome === 'solved').at(-1).learned, `worked out ${view.level}`)
-        solved++
-      }
+      assert.ok(r.pass, `${view.level}: the reference fails: ${r.text}`)
+      // A pass asks what the player worked out; the answer is kept on the level's outcome.
+      assert.match(r.text, /--explain/)
+      play.explain(`worked out ${view.level}`)
+      assert.equal(record.levels.filter((e) => e.outcome === 'solved').at(-1).learned, `worked out ${view.level}`)
+      solved++
     }
     // The course is done: every level passed, given up or skipped, and the starter's references solved some.
     assert.equal(play.view().level, null, `${name}: the course is not done`)

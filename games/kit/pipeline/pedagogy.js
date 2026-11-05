@@ -106,12 +106,12 @@ export function lintPedagogy(content, spec) {
 
   // A task that is only a quiz.
   for (const level of content.levels) {
-    for (const task of level.tasks ?? [level]) if (task.kind === 'choice') say('pd-quiz', `${level.id}${task.id && task.id !== level.id ? ` task ${task.id}` : ''}`, 'it only asks to pick an answer', true)
+    for (const task of level.tasks) if (task.kind === 'choice') say('pd-quiz', `${level.id}${task.id && task.id !== level.id ? ` task ${task.id}` : ''}`, 'it only asks to pick an answer', true)
   }
 
   // A bench step of one knob with its goal read out on screen.
   for (const level of content.levels) {
-    for (const task of level.tasks ?? [level]) {
+    for (const task of level.tasks) {
       const bench = task.bench
       if (!bench?.knobs || bench.check === 'submit' || !JSON.stringify(bench.layout ?? {}).includes(KERNEL_GOALS)) continue
       for (const [k, stage] of (bench.stages ?? [null]).entries()) {

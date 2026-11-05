@@ -37,8 +37,8 @@
       "en": "Make each amount from the given coins. First work out the fewest coins needed, then how many ways there are to pay (paying the coins in a different order counts as a different way). An amount that can’t be made is “—”."
     },
     "how": {
-      "zh": "这一关有两个阶段，电路板会留到第二阶段。",
-      "en": "This level has two stages, and the circuit board carries over to the second."
+      "zh": "这一关有两个任务，电路板会留到第二个任务。",
+      "en": "This level has two tasks, and the circuit board carries over to the second."
     }
   },
   "robot": "broom",

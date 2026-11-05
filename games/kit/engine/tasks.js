@@ -35,19 +35,8 @@ export const taskLevel = (once, task) => S.obj({
   tasks: S.list(task.type === 'by' ? owned(task) : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关', 'the tasks done in turn; passing the last passes the level') }),
 })
 
-/** The schema of a level's tasks in a vocabulary (looked for in every shape a level may have), or null. */
-export function tasksSchema(vocabulary) {
-  const look = (s) => {
-    if (!s) return null
-    if (s.type === 'obj') return s.fields.tasks?.of ?? null
-    if (s.type === 'either') return s.of.map(look).find(Boolean) ?? null
-    return null
-  }
-  return look(vocabulary.level)
-}
-
-/** Whether a vocabulary's levels may be lists of tasks. */
-export const hasTasks = (vocabulary) => tasksSchema(vocabulary) !== null
+/** The schema of a level's tasks in a vocabulary (its level a taskLevel), or null. */
+export const tasksSchema = (vocabulary) => vocabulary.level?.fields?.tasks?.of ?? null
 
 /** The task schemas of every shape a task may have (the cases of a by-schema, and theirs, and an either's shapes). */
 export const taskShapes = (task) => (task.type === 'by' ? Object.values(task.cases).flatMap(taskShapes) : task.type === 'either' ? task.of.flatMap(taskShapes) : [task])

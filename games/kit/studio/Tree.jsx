@@ -43,7 +43,7 @@ function Marks({ mark }) {
   )
 }
 
-export default function Tree({ game, content, marks, at, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, tasked = false, onTask, onTaskMove }) {
+export default function Tree({ game, content, marks, at, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => courseTree(content.eras ?? []), [content])
@@ -136,7 +136,7 @@ export default function Tree({ game, content, marks, at, picked, setPicked, onSe
   // The tasks of a level of several, under it.
   const tasksOf = (id) => {
     const tasks = byId.get(id)?.tasks
-    if (!tasked || !Array.isArray(tasks) || tasks.length < 2) return null
+    if (!tasks || tasks.length < 2) return null
     return (
       <div className="tree-tasks">
         {tasks.map((task, k) => (

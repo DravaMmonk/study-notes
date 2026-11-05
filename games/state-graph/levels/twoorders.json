@@ -10,8 +10,8 @@
     },
     {
       "t": {
-        "zh": "这一关有两个阶段，用的是同一块电路板：阶段 1 机器人按长度扫；阶段 2 换成<b>逐行，从下往上</b>。两种顺序下都要算对。",
-        "en": "This level has two stages on the same circuit board: in stage 1 the robot scans by length; in stage 2 it switches to <b>row by row, from the bottom up</b>. Both orders have to come out right."
+        "zh": "这一关有两个任务，用的是同一块电路板：任务 1 机器人按长度扫；任务 2 换成<b>逐行，从下往上</b>。两种顺序下都要算对。",
+        "en": "This level has two tasks on the same circuit board: in task 1 the robot scans by length; in task 2 it switches to <b>row by row, from the bottom up</b>. Both orders have to come out right."
       }
     },
     {
@@ -27,8 +27,8 @@
       "en": "Merge the stones as cheaply as possible. Pass once under each of two scan orders, with the same circuit board."
     },
     "how": {
-      "zh": "阶段 1 机器人按长度扫；阶段 2 电路板留着，机器人换成逐行从下往上扫。",
-      "en": "In stage 1 the robot scans by length; in stage 2 the board stays and the robot switches to row by row from the bottom up."
+      "zh": "任务 1 机器人按长度扫；任务 2 电路板留着，机器人换成逐行从下往上扫。",
+      "en": "In task 1 the robot scans by length; in task 2 the board stays and the robot switches to row by row from the bottom up."
     }
   },
   "robot": "broom",

@@ -91,19 +91,19 @@ async function settle({ ws, changeset, domain, content0, start, says, inverse, i
   if (!before || !after) notes.push(`the content ${before ? 'after' : 'before'} the changeset does not fit its vocabulary: the save step has only the operations’ own ops and the domain’s`)
   const renamed = new Map()
   for (const op of idOps) for (const [from, to] of Object.entries(op.rename ?? {})) renamed.set(to, renamed.get(from) ?? from)
-  // A level's task keys in the saves: its tasks' ids, or its own.
-  const levelKeys = (level, id) => (Array.isArray(level?.tasks) ? level.tasks.map((task) => task.id) : [id])
+  // A level's task keys in the saves: its tasks' ids.
+  const levelKeys = (level) => level?.tasks.map((task) => task.id) ?? []
   const vocabulary = withParts(domain.vocabulary, ws.partDefs)
   const stale = [...ws.levels.keys()].filter((id) => !own.has(id)).flatMap((id) => {
     const old = start.levels.get(renamed.get(id) ?? id)
     const now = ws.levels.get(id)
     if (old === undefined) return []
-    if (domain.changes) return domain.changes.stale(old, now) ? levelKeys(now, id) : []
-    return staleKeys(vocabulary.level, old, now, id, { vocabulary })
+    if (domain.changes) return domain.changes.stale(old, now) ? levelKeys(now) : []
+    return staleKeys(vocabulary.level, old, now, { vocabulary })
   })
   let step = null
   try {
-    const keys = (id) => levelKeys(ws.levels.get(id), id)
+    const keys = (id) => levelKeys(ws.levels.get(id))
     const ops = saveOps({ before: after && before, after, idOps, stale, keys })
     if (ops.length) {
       const saves = ws.game.saves ?? []

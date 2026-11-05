@@ -131,7 +131,7 @@ test('a slot renamed with its level, wherever the blueprint names it', () => {
 })
 
 test('the copy lint names the rule each text breaks', () => {
-  const level = (fields) => ({ levels: [{ id: '1-1', title: t('a'), brief: t('do it'), ...fields }], glossary: { entries: [] } })
+  const level = (fields) => ({ levels: [{ id: '1-1', title: t('a'), tasks: [{ id: '1-1', brief: t('do it'), ...fields }] }], glossary: { entries: [] } })
   const found = (fields) => lintCopy(level(fields)).map((f) => f.rule)
   assert.deepEqual(found({}), [])
   assert.deepEqual(found({ brief: { zh: '对输入进行比较。', en: 'Compare the inputs.' } }), ['copy-banned'])

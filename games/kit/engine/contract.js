@@ -87,8 +87,10 @@ export function vocabularyProblems(name, v) {
       if (kind === 'op' && it.params && it.params.type !== 'obj') say(`op.${item}: its named parameters are an S.obj`)
     }
   }
-  // What a player keeps of a task goes by its id (tasks.js): a level's tasks, whatever their shape, each have one.
+  // A level is a list of tasks (tasks.js taskLevel), and what a player keeps of a task goes by its id: a level's tasks,
+  // whatever their shape, each have one.
   const tasks = v.level ? tasksSchema(v) : null
+  if (v.level && !tasks) say('a level is a list of tasks (tasks.js taskLevel)')
   if (tasks && taskShapes(tasks).some((shape) => !shape.fields?.id || shape.fields.id.optional)) say('a level’s tasks need an id each (tasks.js TASK_ID_FIELD)')
   for (const [lang, it] of Object.entries(v.languages ?? {})) if (!isText(it?.about)) say(`the language ${lang} says nothing of what it is (about)`)
   if (v.kinds?.op && v.kinds.part) say('it gives engine resources and parts in code: a domain with resources defines its parts in each game’s parts.json')
@@ -206,10 +208,10 @@ export function specProblems(domain, content, spec) {
 }
 
 /**
- * spec.blueprints: [{ level, task?, key?, board, write(board) → lines, read(lines) → board, naive?, save?(board) → the level's save }]
+ * spec.blueprints: [{ level, task, key, board, write(board) → lines, read(lines) → board, naive? }]
  * every board the content writes as blueprint text (`naive` for a naive answer; `task`, the index of the task it is a
- * board of, `key` that task's key in the saves, ../shell/progress.js, by default the level's id), how the domain writes it and reads
- * it back on its level, and what the level's screen keeps of it in progress.built (by default the board itself).
+ * board of, `key` that task's id, its key in the saves, ../shell/progress.js), and how the domain writes it and reads
+ * it back on its task; the level's screen keeps the board itself.
  * A course whose levels hold boards (course.boards) lists them; every one reads back as itself: written (the domain's
  * `write`) and read again on its level (`read`), it computes the same, and writing it again gives the same text.
  */
@@ -217,9 +219,9 @@ export function blueprintProblems(spec) {
   const out = []
   if (!spec.course.levels.some((l) => spec.course.boards(l).length)) return out
   if (!Array.isArray(spec.blueprints) || !spec.blueprints.length) return ['spec: levels hold boards, but the spec lists no blueprints']
-  for (const [k, { level, board, write, read }] of spec.blueprints.entries()) {
+  for (const [k, { level, task, key, board, write, read }] of spec.blueprints.entries()) {
     const at = `blueprint ${k + 1} (${level})`
-    if (!isBoard(board) || !isFn(write) || !isFn(read)) { out.push(`${at}: not { level, board, write, read }`); continue }
+    if (!isBoard(board) || !isFn(write) || !isFn(read) || !Number.isInteger(task) || typeof key !== 'string') { out.push(`${at}: not { level, task, key, board, write, read }`); continue }
     let text, back
     try {
       text = write(board)
@@ -245,7 +247,7 @@ function naiveInPlace(domain, content, keep) {
   }
   const levels = content.levels.map((level) => {
     if (!keep(level.id)) return level
-    const next = level.tasks ? { ...swap(level), tasks: level.tasks.map(swap) } : swap(level)
+    const next = { ...swap(level), tasks: level.tasks.map(swap) }
     const { id, ...fields } = next
     if (same(next, level) || fits(domain.vocabulary.level, fields, { vocabulary: domain.vocabulary }).length) return level
     changed.push(id)
@@ -288,7 +290,7 @@ export async function validateProblems(domain, content, spec) {
   // saves, makes that level fail.
   const unplugged = builders.flatMap((id) => {
     const bp = spec.blueprints?.filter((b) => b.level === id && !b.naive).at(-1)
-    return bp ? [{ id, key: bp.key ?? id, board: (bp.save ?? ((b) => b))(bp.read(bp.write(bp.board).filter((line) => !line.includes('<-')))) }] : []
+    return bp ? [{ id, key: bp.key, board: bp.read(bp.write(bp.board).filter((line) => !line.includes('<-'))) }] : []
   })
   const runsOwn = []
   if (unplugged.length) {

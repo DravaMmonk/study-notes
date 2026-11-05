@@ -83,6 +83,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
     played.set(id, tasks)
     // The part a level packs runs its last task's board.
     const last = tasks.at(-1)
+    if (content[id].packs && last.kind !== 'graph') throw new Error(`level ${id} packs its circuit, but its last task is a ${last.kind}, no circuit`)
     if (content[id].packs) types[`own-${id}`] = ownPart(last, () => own.get(id) ?? last.solution, types)
   }
   const intros = Object.fromEntries(levels.map((level) => [level.id, level.intro]))

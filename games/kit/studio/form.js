@@ -191,9 +191,10 @@ export function shapeName(shape, shapes) {
 /** A by's value (`tag` of its field) recast as its shape `to`: the fields the two shapes share kept, the rest blank. */
 export function recast(tag, value, to, ctx) {
   const fresh = blank(tag.cases[to], ctx)
-  // A shape that is a by of its own (a task's kind, then its scene) is read as the case its blank value takes.
+  // A shape that is a by of its own (a task's kind, then its scene) is read as the case its blank value takes; an either
+  // as its first shape, the one blank makes.
   let shape = tag.cases[to]
-  while (shape.type === 'by') shape = shape.cases[fresh[shape.field]]
+  while (shape.type === 'by' || shape.type === 'either') shape = shape.type === 'by' ? shape.cases[fresh[shape.field]] : shape.of[0]
   const kept = Object.fromEntries(Object.entries(value ?? {}).filter(([k]) => k in shape.fields && validate(shape.fields[k], value[k], { vocabulary: ctx.vocabulary, levels: null }).length === 0))
   return { ...fresh, ...kept, [tag.key]: to }
 }
