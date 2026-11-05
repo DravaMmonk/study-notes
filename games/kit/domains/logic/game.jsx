@@ -8,7 +8,6 @@ import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import { migrations } from '../../shell/saves.js'
 import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
-import { syncOwn } from './built.js'
 import IsoScreen, { DeclaredRules } from './ui/IsoScreen.jsx'
 import DefineScreen from './ui/DefineScreen.jsx'
 import Hero from './ui/Hero.jsx'
@@ -126,7 +125,7 @@ export default function logicGame(content) {
       demo: (part, { progress }) => {
         const type = part.key.slice('lemma:'.length)
         if (!gates[type]?.built) return null
-        syncOwn(progress.built)
+        logic.syncOwn(progress.built)
         return <GateInside key={part.key} type={type} gates={gates} />
       },
     },

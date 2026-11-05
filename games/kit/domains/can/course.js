@@ -14,14 +14,13 @@ import { fits, fromText, toText } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
-/** The boards the player passed the building levels with, by level id (the shell's progress.built). */
-const OWN = new Map()
-
 // An identifier or a byte as content writes it: a number, or hexadecimal.
 const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
 const busFrom = ({ frames, ...rest }) => busOf({ ...rest, frames: frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
 
 export function busCourse(content) {
+  // The boards the player passed the building levels with, by level id (the shell's progress.built): this content's.
+  const OWN = new Map()
   const { eras, primitives, levels, concept = {} } = content
   const wrong = []
   const say = (level, text) => wrong.push(`${level}: ${text}`)

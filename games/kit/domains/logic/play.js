@@ -10,7 +10,6 @@
 // terms and scripts (each a screen of its own).
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { gateShape } from './blueprint.js'
-import { syncOwn } from './built.js'
 import { parse } from './formula.js'
 import { checkGates, gatesOf, rowsFor, startGates } from './gates.js'
 import { say } from './notation.js'
@@ -30,7 +29,7 @@ function table(level, lang) {
 
 const gates = circuitPlay({
   board: ({ game, level, flags, progress }) => {
-    syncOwn(progress.built)
+    game.logic.syncOwn(progress.built)
     const L = level.source
     const shape = gateShape(L.gates)
     const all = gatesOf(L.gates)

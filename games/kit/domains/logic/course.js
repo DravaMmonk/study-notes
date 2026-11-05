@@ -13,7 +13,7 @@ import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
 import { provesShape, startProof } from './proof.js'
-import { ownBoard } from './built.js'
+import { keptBoards } from './built.js'
 import { PRIMITIVE_GATES, builtGates, startGates } from './gates.js'
 import { boardOf } from './ruleLines.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -144,6 +144,8 @@ function declaredBoards(one) {
 }
 
 export function logicCourse(content) {
+  // The boards the player passed the building levels with: this content's (built.js).
+  const kept = keptBoards()
   const { eras, wordSets = {}, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, local = [], revisions = {} } = content
   const words = wordsOf(content.words, wordSets)
   // A level as the course reads it: its words, and a declaration's answers as boards (a level of several tasks says
@@ -324,10 +326,10 @@ export function logicCourse(content) {
     if (task) bp.key = task.key
   }
   // A lemma runs the proof of each of its shapes (proof.js lemma).
-  const provers = lemmaProofs(lemmas, revisions, LEVELS, wrong)
+  const provers = lemmaProofs(lemmas, revisions, LEVELS, wrong, kept.board)
   Object.assign(proofs, provers.proofs)
   // The gates the levels build run their boards (gates.js builtGates).
-  Object.assign(builtG, builtGates(gates, Object.fromEntries(LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'gates' && gates[t.builds]).map((t) => [t.builds, t]))))
+  Object.assign(builtG, builtGates(gates, Object.fromEntries(LEVELS.flatMap((l) => [l, ...(l.tasks ?? [])]).filter((t) => t.kind === 'gates' && gates[t.builds]).map((t) => [t.builds, t])), kept.board))
   // The machine parts the player builds run the boards that built them (machine.js builtParts), on every machine
   // board and in every script.
   // A part built by several levels is a chain of upgrades (games/DESIGN.md): a level holds it as the levels of the chain
@@ -344,7 +346,7 @@ export function logicCourse(content) {
   const runs = new Map()
   const running = (chainsHere) => {
     const key = chainsHere.map((c) => c.map((b) => b.id).join()).join('|')
-    if (!runs.has(key)) runs.set(key, builtParts(chainsHere))
+    if (!runs.has(key)) runs.set(key, builtParts(chainsHere, kept.board))
     return runs.get(key)
   }
   for (const level of LEVELS) {
@@ -369,7 +371,7 @@ export function logicCourse(content) {
     const { shown, folded, ...rest } = offer(course, { id: level.id }, flags, proved(level))
     return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
   }
-  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions, proofs, provers: provers.levels, blueprints, wrong }
+  return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions, proofs, provers: provers.levels, blueprints, wrong, syncOwn: kept.sync }
 }
 
 /**
@@ -381,7 +383,7 @@ export function logicCourse(content) {
  * kept (a level opened by "unlock all"). `levels` are the ids of the levels whose boards a lemma runs (the shell keeps
  * their boards: game.jsx `keeps`). A shape no task or several tasks prove is what is `wrong`.
  */
-function lemmaProofs(lemmas, revisions, LEVELS, wrong) {
+function lemmaProofs(lemmas, revisions, LEVELS, wrong, ownBoard) {
   const proofs = {}
   const levels = new Set()
   for (const [type, l] of Object.entries(lemmas)) {

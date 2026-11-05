@@ -33,10 +33,9 @@ import { benchOf } from './benches/index.js'
 /** A list's last item (no Array.prototype.at: older iOS Safari lacks it). */
 const lastOf = (list) => list[list.length - 1]
 
-/** The boards the player passed the building levels with, by level id (the shell's progress.built). */
-const OWN = new Map()
-
 export function visionCourse(content) {
+  // The boards the player passed the building levels with, by level id (the shell's progress.built): this content's.
+  const OWN = new Map()
   const { eras, primitives, levels, concept = {} } = content
   const wrong = []
   const say = (level, text) => wrong.push(`${level}: ${text}`)

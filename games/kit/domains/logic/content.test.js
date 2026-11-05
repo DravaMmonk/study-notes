@@ -10,7 +10,6 @@ import { fromLines, gateShape, machineShape, proofShape, toLines } from './bluep
 import { LOGIC_TESTS, startProof } from './proof.js'
 import { runLevel } from '../../engine/tests.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
-import { syncOwn } from './built.js'
 
 const L = (zh, en = zh) => ({ zh, en })
 const proofLevel = (id, fields) => ({ id, kind: 'proof', title: L(id), ...fields })
@@ -70,6 +69,7 @@ const CONTENT = {
   ],
 }
 const course = logicCourse(CONTENT)
+const syncOwn = course.syncOwn
 const level = (id) => course.LEVELS.find((l) => l.id === id)
 
 test('the course written here reads without fault', () => {
@@ -186,6 +186,9 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   assert.equal(runLevel(LOGIC_TESTS, chain, own).pass, true)
   syncOwn({ chain: own })
   assert.equal(course.proofs.chain[''].board(), own)
+  // Another read of the same content (another game of the domain in this process) keeps its own boards.
+  const other = logicCourse(CONTENT)
+  assert.notEqual(other.proofs.chain[''].board(), own)
   assert.equal(run('useChain').pass, true)
   // A kept proof that does not prove chain's statement: the level built on it cannot pass, and says why.
   syncOwn({ chain: read(['f = impI[A=A](body: m1) {', '  body {', '    m1 = mp(p, f.body)', '  }', '}', 'goal <- f'], chain) })

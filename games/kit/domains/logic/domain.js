@@ -5,7 +5,6 @@
 import { vocabulary } from './vocabulary.js'
 import { logicCourse } from './course.js'
 import { validate } from './validate.js'
-import { syncOwn } from './built.js'
 import { play } from './play.js'
 import { parse } from './formula.js'
 import { parseS, parseSide } from './schematic.js'
@@ -52,7 +51,7 @@ function spec(content) {
     levels: logic.LEVELS,
     logic,
     blueprints: logic.blueprints,
-    syncOwn,
+    syncOwn: logic.syncOwn,
     // The built parts that do not run a board syncOwn hands them unchecked: a gate runs the board kept for it only when
     // that board passes its level (gates.js builtGates), and a lemma with a card runs as the kit's card (proof.js).
     builtIn: [...new Set(logic.course.levels.flatMap((l) => logic.course.builds(l)))].filter((p) => content.gates?.[p] || content.lemmas?.[p]?.card),

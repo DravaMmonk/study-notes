@@ -45,7 +45,6 @@ import { KERNEL, answerOf, asValue, assumption, defer, depthFirst, resultsOf, ru
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
 import { rewrite, rewriteBookOf, simplify } from './rewrite.js'
 import { datatypesRules } from './datatype.js'
-import { ownBoard } from './built.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
 import { GEN_PARTS, anyValue, elimInputs, judgeElim, listValue } from './elimgen.js'
 import { T } from '../../shell/i18n.js'
@@ -659,7 +658,7 @@ const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
  * built it, and backtrack where either does. `opens()` gives what a board shows of the part opened: { circuit, level }
  * (the level that built it, whose parts and words it is drawn in).
  */
-export function builtParts(chains) {
+export function builtParts(chains, ownBoard) {
   return Object.fromEntries(chains.map((chain) => {
     const builder = () => chain.findLast((b) => ownBoard(b.key)) ?? chain.at(-1)
     const circuit = () => ownBoard(builder().key) ?? builder().solution

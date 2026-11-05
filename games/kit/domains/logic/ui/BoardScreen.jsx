@@ -15,7 +15,6 @@ import { machineSteps, machineViewAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
 import { X } from 'lucide-react'
 import { MACHINE_PARTS } from '../machine.js'
-import { syncOwn } from '../built.js'
 
 // A level of the logic domain played on the kit's circuit level (../../../shell/CircuitLevel.jsx, 《证明完毕》): a
 // proof, whose wires carry proved judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says
@@ -37,7 +36,7 @@ function BoardScreen({ board, screen }) {
   const { game, level: entry, flags, progress, phone } = screen
   const level = entry.source
   // The parts the player built run the boards that last passed their levels.
-  syncOwn(progress.built)
+  game.logic.syncOwn(progress.built)
   const parts = useMemo(() => board.parts(level), [board, level])
   // A saved board that no longer fits the level or the game starts fresh: an upgrade from the board its part runs now.
   const lb = useLevelBoard(screen, {

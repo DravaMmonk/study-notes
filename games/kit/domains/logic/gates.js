@@ -10,7 +10,6 @@
 import { packed, runBoard, sink, source } from '../../engine/boards.js'
 import { parse } from './formula.js'
 import { lettersOf, rowsOf, valueOn } from './truth.js'
-import { ownBoard } from './built.js'
 import { T } from '../../shell/i18n.js'
 
 
@@ -38,7 +37,7 @@ export function gateParts(built = {}) {
  * board: its ports are the board's letters, in order. A kept board that no longer gives its sentence on every row (the
  * player changed it after passing) leaves the gate on the reference board until the level is passed again.
  */
-export function builtGates(gates, builders) {
+export function builtGates(gates, builders, ownBoard) {
   const all = {}
   for (const [type, g] of Object.entries(gates)) {
     const level = builders[type]

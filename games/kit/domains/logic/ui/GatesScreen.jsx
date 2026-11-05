@@ -9,7 +9,6 @@ import { say } from '../notation.js'
 import { openRef } from '../../../shell/refs.js'
 import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
 import { gateShape } from '../blueprint.js'
-import { syncOwn } from '../built.js'
 
 // A truth-circuit level (《证明完毕》, gates.js) on the kit's circuit level (../../../shell/CircuitLevel.jsx): a card for
 // each letter on the left, the sentence's output on the right, gates as parts. The tests are the rows of the sentence's
@@ -68,7 +67,7 @@ export default function GatesScreen(screen) {
   const { game, level: entry, flags, progress } = screen
   const level = entry.source
   // The gates the player built run the boards that last passed their levels.
-  syncOwn(progress.built)
+  game.logic.syncOwn(progress.built)
   const word = (letter) => say(parse(letter), level.notation)
   const parts = useMemo(() => gatePartsFor(level.gates, word), [level])
   const board = useLevelBoard(screen, { open: (saved) => (saved?.nodes && fits(saved, level, parts) ? saved : startGates(level)), fresh: () => startGates(level) })
