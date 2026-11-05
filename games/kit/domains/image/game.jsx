@@ -9,8 +9,6 @@ import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
 import { migrations } from '../../shell/saves.js'
-import { NODE_TYPES } from './engine/nodes.js'
-import { fromText } from './engine/board.js'
 import { imageCourse } from './course.js'
 import LevelScreen from './ui/LevelScreen.jsx'
 import PartDemo from './ui/PartDemo.jsx'
@@ -19,9 +17,9 @@ import IntroFigure from './ui/IntroFigure.jsx'
 import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
 
-// Unlock flags → the part (or option) they give, for the passed dialog and the parts box.
-const partOfFlag = () => {
-  const map = Object.fromEntries(Object.entries(NODE_TYPES).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
+// Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
+const partOfFlag = (types) => {
+  const map = Object.fromEntries(Object.entries(types).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
   return { ...map, shift: 'shift', invert: 'invert' }
 }
 // What a setting (not a part of its own) does, for the parts box.
@@ -41,11 +39,12 @@ const OPTION_NAMES = {
  */
 export default function imageGame(content) {
   const image = imageCourse(content)
-  const { CHAPTERS, LEVELS, course } = image
-  const PART_OF_FLAG = partOfFlag()
+  const { CHAPTERS, LEVELS, course, kit } = image
+  const { types } = kit
+  const PART_OF_FLAG = partOfFlag(types)
   const unlockOf = (flag) => {
     const type = PART_OF_FLAG[flag]
-    if (type && NODE_TYPES[type]) return { key: flag, label: NODE_TYPES[type].label, name: NODE_TYPES[type].label, desc: descriptionOf(type), family: familyOf(type), icon: iconOf(type) }
+    if (type && types[type]) return { key: flag, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type), icon: iconOf(type) }
     return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
   }
   // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's
@@ -53,14 +52,14 @@ export default function imageGame(content) {
   const shownUnlocks = (level) => (level.unlocks ?? []).filter((flag) => !level.tasks?.slice(0, -1).some((task) => task.opens.includes(flag)))
   const allFlags = [...new Set(LEVELS.flatMap(shownUnlocks))]
   // The primitives, each from the levels that bring it in.
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: NODE_TYPES[type].label, name: NODE_TYPES[type].label, desc: descriptionOf(type), family: familyOf(type), icon: iconOf(type), at }))
+  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type), icon: iconOf(type), at }))
   // A part on a bench in the parts box shows every setting, whatever the player has unlocked so far.
   const allFlagSet = new Set(allFlags)
   // The boards the parts box tries a part on, where a level's own reference spells it out in smaller parts.
   const box = {
     sample: content.box.sample,
     inLevel: content.box.inLevel,
-    boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, fromText(lines, image.levelById[content.box.inLevel[flag]])])),
+    boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, kit.fromText(lines, image.levelById[content.box.inLevel[flag]])])),
   }
   const game = defineGame({
     id: content.id,
@@ -82,7 +81,7 @@ export default function imageGame(content) {
     },
     unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
-    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], flags: allFlagSet, phone, levels: LEVELS, box }) },
+    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, kit, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], flags: allFlagSet, phone, levels: LEVELS, box }) },
     // A better circuit costs less, or as much with fewer parts.
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,

@@ -2,9 +2,7 @@
 // read from text is laid out, and a packed part running the player's own circuit, on a course written here.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { fromText, toText } from './engine/board.js'
-import { evaluate, outputImages } from './engine/graph.js'
-import { OWN } from './engine/own.js'
+import { outputImages } from './engine/graph.js'
 import { picture } from './items/pictures.js'
 import { imageCourse } from './course.js'
 
@@ -22,6 +20,7 @@ const content = {
   ],
 }
 const image = imageCourse(content)
+const { fromText, toText } = image.kit
 
 test('blueprint text reads into a board and writes back the same', () => {
   const lines = ['k = const[c="pi/8"]()', 's = shift[dir=left, n=2](in)', 'm = arith[op=mul](s, k)', 'out <- m']
@@ -56,17 +55,20 @@ test('a course’s reference boards, a packed part’s and a task’s too, read 
   }
 })
 
-test('a packed part runs the circuit the player passed its level with', () => {
-  const level = image.levelById.use
+test('a packed part runs the circuit the player passed its level with, in its own course only', () => {
   const input = { in: picture('square') }
-  const run = () => Array.from(outputImages(level.solution, evaluate(level.solution, input).values).out.data)
-  const reference = run()
-  try {
-    OWN.set('wide', fromText(['out <- in']))
-    assert.notDeepEqual(run(), reference)
-    image.syncOwn({ solved: ['wide'], data: { wide: { ...image.levelById.wide.solution, passed: image.levelById.wide.solution } }, slots: {} })
-    assert.deepEqual(run(), reference)
-  } finally {
-    OWN.clear()
+  const runOf = (course) => {
+    const { solution } = course.levelById.use
+    return () => Array.from(outputImages(solution, course.kit.evaluate(solution, input).values).out.data)
   }
+  const run = runOf(image)
+  const reference = run()
+  const passed = (board) => ({ solved: ['wide'], data: { wide: { ...board, passed: board } }, slots: {} })
+  image.syncOwn(passed(fromText(['out <- in'])))
+  assert.notDeepEqual(run(), reference)
+  // Another read of the same content keeps circuits of its own: the first read's is not its part.
+  assert.deepEqual(runOf(imageCourse(content))(), reference)
+  assert.notDeepEqual(run(), reference)
+  image.syncOwn(passed(image.levelById.wide.solution))
+  assert.deepEqual(run(), reference)
 })

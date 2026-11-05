@@ -1,6 +1,5 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDownToLine, Check, X } from 'lucide-react'
-import { NODE_TYPES, inputsOf, settingsOf } from '../../engine/nodes.js'
 import { L, tr } from '../../../../shell/i18n.js'
 import { Notice, PartActions, SlotBoard, Tray, feeding, useSlotEditing } from '../../../../circuit/index.js'
 import { PhonePage, RunDock, TestTabs } from '../../../../shell/index.js'
@@ -25,7 +24,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // An output and its expected value can only be compared cell by cell when they are the same size.
 const fits = (img, expected) => img.w === expected.w && img.h === expected.h
 
-export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
@@ -33,7 +32,8 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
   const tolerance = (level.tests[testIndex]?.check ?? level.check)?.tolerance ?? 0.02
   const all = level.tests.length
   const byId = (id) => graph.nodes.find((n) => n.id === id)
-  const parts = useMemo(() => partsFor({ sensors, outputLabels }), [sensors, outputLabels])
+  const { types, inputsOf } = kit
+  const parts = useMemo(() => partsFor(kit, { sensors, outputLabels }), [kit, sensors, outputLabels])
   const root = useRef(null)
   const scroller = useRef(null)
   const editing = useSlotEditing({
@@ -42,7 +42,7 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
     graph,
     onChange,
     parts,
-    create: placeAt,
+    create: (g, type, at) => placeAt(kit, g, type, at),
     label: parts.label,
     openNode: (id) => setSheet({ kind: 'part', node: id }),
     openSlot: (at) => level.palette.length && setSheet({ kind: 'add', at }),
@@ -90,10 +90,10 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
     )
   }
   const tileExtra = (node) => {
-    const param = (NODE_TYPES[node.type].params ?? [])[0]
+    const param = (types[node.type].params ?? [])[0]
     return param ? <ParamChip param={param} value={node.params[param.key]} /> : null
   }
-  const trayItem = (type) => ({ type, label: NODE_TYPES[type].label, icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
+  const trayItem = (type) => ({ type, label: types[type].label, icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
   const remove = (id) => {
     editing.remove(id)
     setSheet(null)
@@ -155,13 +155,14 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
       <Notice editing={editing} />
 
       {sheet?.kind === 'add' && (
-        <AddSheet level={level} graph={graph} previewFrom={sources[0]?.id} test={level.tests[testIndex]} title={tr('放在这一格', 'Place in this slot')} theme={theme} onAdd={(type) => place(type, sheet.at)} onClose={() => setSheet(null)} />
+        <AddSheet kit={kit} level={level} graph={graph} previewFrom={sources[0]?.id} test={level.tests[testIndex]} title={tr('放在这一格', 'Place in this slot')} theme={theme} onAdd={(type) => place(type, sheet.at)} onClose={() => setSheet(null)} />
       )}
       {sheet?.kind === 'part' && byId(sheet.node) && (() => {
         const node = byId(sheet.node)
         return (
           <Sheet title={nameOf(node)} onClose={() => setSheet(null)}>
             <PartPanel
+              kit={kit}
               node={node}
               flags={flags}
               ioKinds={ioKinds}
@@ -175,9 +176,9 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
               scan={scan}
               onScan={onScan}
               onParam={(key, cell) => setSheet({ kind: 'param', node: node.id, key, cell })}
-              onSetParam={(key, v) => onChange(setParam(graph, node.id, key, v))}
+              onSetParam={(key, v) => onChange(setParam(kit, graph, node.id, key, v))}
               onView={(v) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, view: v } : n)) }, { keep: true })}
-              onRemove={NODE_TYPES[node.type].fixed ? null : () => remove(node.id)}
+              onRemove={types[node.type].fixed ? null : () => remove(node.id)}
               onMove={parts.role(node) === 'part' ? () => { editing.startMove(node.id); setSheet(null) } : null}
             />
           </Sheet>
@@ -185,8 +186,8 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
       })()}
       {sheet?.kind === 'param' && (() => {
         const target = byId(sheet.node)
-        const param = NODE_TYPES[target.type].params.find((p) => p.key === sheet.key)
-        const change = (v) => onChange(setParam(graph, target.id, param.key, v))
+        const param = types[target.type].params.find((p) => p.key === sheet.key)
+        const change = (v) => onChange(setParam(kit, graph, target.id, param.key, v))
         const close = () => setSheet({ kind: 'part', node: target.id })
         return (
           <Sheet title={`${nameOf(target)} · ${L(param.label)}`} onClose={close} footer={<div className="ph-live"><span>{tr('这一步的当前结果', 'Current result of this step')}</span>{thumb(target, 96)}</div>}>
@@ -199,14 +200,14 @@ export default function PhoneCircuit({ level, hiddenMiss, graph, onChange, onCle
 }
 
 // One block in a sheet: what it is, its settings, and what it makes on this test (its wires are on the board).
-function PartPanel({ node, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
-  const params = settingsOf(node.type, flags)
+function PartPanel({ kit, node, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
+  const params = kit.settingsOf(node.type, flags)
   const shown = nodeView(node, views)
   return (
     <div className="pc-inspect" data-family={familyOf(node.type)}>
       <header className="pc-inspect-head">
         <span className="ph-node">{node.type === 'output' ? <ArrowDownToLine size={15} /> : createElement(iconOf(node.type), { size: 15, strokeWidth: 1.8 })}</span>
-        <small>{node.type === 'input' || node.type === 'output' ? L(KIND_NAMES[ioKinds?.[node.params.name]]) : describe(node.type)}</small>
+        <small>{node.type === 'input' || node.type === 'output' ? L(KIND_NAMES[ioKinds?.[node.params.name]]) : describe(kit.types, node.type)}</small>
       </header>
 
       {params.length > 0 && (

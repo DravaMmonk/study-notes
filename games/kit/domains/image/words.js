@@ -2,7 +2,6 @@
 // and the names of a level's input cards: for the parts list, the components box and the cards (ui/), and for a blind
 // session (play.js).
 import { L } from '../../shell/i18n.js'
-import { NODE_TYPES } from './engine/nodes.js'
 
 /** Names for the cards of a level with several inputs, unless the level names them itself. */
 export const INPUT_LABELS = {
@@ -43,7 +42,7 @@ const DESCRIPTIONS = {
   disparity: { zh: '左右图逐行匹配，输出视差，窗口可选', en: 'Matches the left and right images row by row and outputs disparity; window size selectable' },
 }
 
-// Resolved in the current language.
-export const describe = (type) => L(DESCRIPTIONS[type] ?? NODE_TYPES[type]?.description ?? '')
-/** The same, as a { zh, en } pair, for text resolved later (the parts box). */
-export const descriptionOf = (type) => DESCRIPTIONS[type] ?? NODE_TYPES[type]?.description
+/** What a part of a course's part table (`types`, engine/kit.js) does, as a { zh, en } pair (the parts box). */
+export const descriptionOf = (types, type) => DESCRIPTIONS[type] ?? types[type]?.description
+// The same, resolved in the current language.
+export const describe = (types, type) => L(descriptionOf(types, type) ?? '')

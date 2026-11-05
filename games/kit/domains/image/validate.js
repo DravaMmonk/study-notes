@@ -7,8 +7,6 @@ import { existsSync, readdirSync } from 'node:fs'
 import { keyOf } from '../../shell/i18n.js'
 import { untranslated } from '../../engine/text.js'
 import { withHidden } from '../../engine/tests.js'
-import { runLevel } from './engine/graph.js'
-import { NODE_TYPES } from './engine/nodes.js'
 import { startBoard } from './engine/board.js'
 import { introProblems } from './intros.js'
 
@@ -18,13 +16,15 @@ const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: '
 const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.url)
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
-/** spec: { levels, intros }. Returns [{ text, fail?, level? }]: a line about one level names it. */
-export function validate({ levels, intros }) {
+/** spec: { levels, intros, kit } (kit: the course's, engine/kit.js). Returns [{ text, fail?, level? }]: a line about one
+ *  level names it. */
+export function validate({ levels, intros, kit }) {
+  const { runLevel } = kit
   const out = []
   const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
   const sayAt = (text, level) => out.push({ text, ...(level ? { level } : {}) })
 
-  const parts = Object.fromEntries(Object.entries(NODE_TYPES).map(([type, spec]) => [type, { label: spec.label, description: spec.description, params: spec.params }]))
+  const parts = Object.fromEntries(Object.entries(kit.types).map(([type, spec]) => [type, { label: spec.label, description: spec.description, params: spec.params }]))
   for (const problem of untranslated(parts, 'parts')) failAt(`text ${problem}`)
 
   for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) failAt(`${level.id}: 引言：${problem}`, level.id)

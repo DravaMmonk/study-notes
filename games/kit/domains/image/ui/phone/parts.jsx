@@ -1,6 +1,4 @@
 import { createElement } from 'react'
-import { evaluate } from '../../engine/graph.js'
-import { NODE_TYPES, inputsOf } from '../../engine/nodes.js'
 import { FAMILIES, familyOf, iconOf } from '../catalog.js'
 import { describe } from '../../words.js'
 import { L, keyOf, tr } from '../../../../shell/i18n.js'
@@ -25,11 +23,12 @@ export function ParamChip({ param, value }) {
 }
 
 // Every part, grouped by family, each previewed reading `previewFrom` on the current test.
-export function AddSheet({ level, graph, previewFrom, test, title, theme, onAdd, onClose }) {
+export function AddSheet({ kit, level, graph, previewFrom, test, title, theme, onAdd, onClose }) {
+  const { types, inputsOf } = kit
   const groups = Object.entries(FAMILIES).map(([key, family]) => [family, level.palette.filter((type) => familyOf(type) === key)]).filter(([, types]) => types.length)
   const previewOf = (type) => {
-    const { graph: trial, id } = insertAfter(graph, previewFrom, type, null)
-    const { values, errors } = evaluate(trial, test.inputs)
+    const { graph: trial, id } = insertAfter(kit, graph, previewFrom, type, null)
+    const { values, errors } = kit.evaluate(trial, test.inputs)
     return errors.get(id) ? null : values.get(id)
   }
   return (
@@ -46,8 +45,8 @@ export function AddSheet({ level, graph, previewFrom, test, title, theme, onAdd,
                     {value ? <ValueView img={value} size={kindOf(value) === 'signal' ? 92 : 64} theme={theme} /> : <span className="ph-part-need">{inputsOf(type).length > 1 ? tr(`${inputsOf(type).length} 个输入`, `${inputsOf(type).length} inputs`) : tr('添加后预览', 'Add to preview')}</span>}
                   </span>
                   <span className="ph-part-text">
-                    <b><i className="family-chip">{createElement(iconOf(type), { size: 12, strokeWidth: 1.8 })}</i>{L(NODE_TYPES[type].label)}{level.fresh?.includes(type) && <em className="pb-new">{tr('新', 'new')}</em>}</b>
-                    <small>{describe(type)}</small>
+                    <b><i className="family-chip">{createElement(iconOf(type), { size: 12, strokeWidth: 1.8 })}</i>{L(types[type].label)}{level.fresh?.includes(type) && <em className="pb-new">{tr('新', 'new')}</em>}</b>
+                    <small>{describe(types, type)}</small>
                   </span>
                 </button>
               )

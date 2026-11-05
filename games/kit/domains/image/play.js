@@ -8,9 +8,7 @@
 // parameter benches are not covered: neither takes a board.
 import { circuitPlay } from '../../engine/play/circuit.js'
 import { withHidden } from '../../engine/tests.js'
-import { BOARD_PARTS, startBoard } from './engine/board.js'
-import { runLevel } from './engine/graph.js'
-import { NODE_TYPES, settingsOf } from './engine/nodes.js'
+import { startBoard } from './engine/board.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
 import { T } from '../../shell/i18n.js'
 
@@ -32,10 +30,10 @@ const picture = (img) => {
 }
 
 /** The board a level opens on: the player's circuit from the level before it in a series, else its inputs and outputs. */
-function opening({ level, progress }) {
+function opening({ game, level, progress }) {
   const L = level
   const names = (board, type) => board.nodes.filter((n) => n.type === type).map((n) => n.params.name).sort().join()
-  const fits = (board) => board?.nodes && names(board, 'input') === [...L.inputs].sort().join() && names(board, 'output') === [...L.outputs].sort().join() && board.nodes.every((n) => NODE_TYPES[n.type])
+  const fits = (board) => board?.nodes && names(board, 'input') === [...L.inputs].sort().join() && names(board, 'output') === [...L.outputs].sort().join() && board.nodes.every((n) => game.image.kit.types[n.type])
   const carried = L.carry && progress.solved.includes(L.carry) && progress.data[L.carry]
   const offers = (board) => board.nodes.every((n) => n.type === 'input' || n.type === 'output' || L.palette.includes(n.type))
   return fits(carried) && offers(carried) ? carried : startBoard(L)
@@ -47,16 +45,17 @@ const circuit = circuitPlay({
   board: (ctx) => {
     ctx.game.image.syncOwn(ctx.progress)
     const { shown, folded } = ctx.game.image.offerIn(ctx.level, ctx.flags)
-    return { start: opening(ctx), parts: BOARD_PARTS, types: [...shown, ...folded] }
+    return { start: opening(ctx), parts: ctx.game.image.kit.BOARD_PARTS, types: [...shown, ...folded] }
   },
   // The score under the board reads a circuit's cost live as parts go on it, so a part's own cost is something the
   // player sees: it is written beside what the part does.
-  part: (_, type) => {
-    const cost = NODE_TYPES[type].cost
-    const desc = descriptionOf(type) ?? ''
-    return { name: NODE_TYPES[type].label, desc: typeof cost === 'number' ? T(`${pick(desc, 'zh')}（计算量 ${cost}）`, `${pick(desc, 'en')} (cost ${cost})`) : desc }
+  part: ({ game }, type) => {
+    const { types } = game.image.kit
+    const cost = types[type].cost
+    const desc = descriptionOf(types, type) ?? ''
+    return { name: types[type].label, desc: typeof cost === 'number' ? T(`${pick(desc, 'zh')}（计算量 ${cost}）`, `${pick(desc, 'en')} (cost ${cost})`) : desc }
   },
-  settings: ({ flags }, type) => settingsOf(type, flags).filter((p) => !p.hidden).map((p) => ({
+  settings: ({ game, flags }, type) => game.image.kit.settingsOf(type, flags).filter((p) => !p.hidden).map((p) => ({
     key: p.key,
     values: p.options ? p.options.map((o) => String(o[0])) : p.kind === 'number' ? [`${p.min}…${p.max}${p.step ? ` (${p.step})` : ''}`] : p.kind === 'kernel' ? ['[9 numbers]'] : null,
     about: p.label,
@@ -80,6 +79,7 @@ const circuit = circuitPlay({
     const L = ctx.level
     const { shown, folded } = ctx.game.image.offerIn(L, ctx.flags)
     const play = { ...(ctx.solved ? withHidden(L) : L), palette: [...shown, ...folded], folded }
+    const { runLevel } = ctx.game.image.kit
     const run = runLevel(play, graph)
     // A failed test says, output by output, how far its picture is from the target.
     const why = (r, lang) => r.checks.filter((c) => !c.pass).map((c) => `${c.name}: ${pick(c.reason, lang)}`).join(lang === 'en' ? '; ' : '；')

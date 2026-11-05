@@ -5,7 +5,6 @@ import { vocabulary } from './vocabulary.js'
 import { imageCourse } from './course.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
-import { NODE_TYPES } from './engine/nodes.js'
 
 /** An image game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
@@ -18,11 +17,12 @@ function spec(content) {
     levels: image.LEVELS,
     intros: image.intros,
     blueprints: image.blueprints,
+    kit: image.kit,
     // The board each packing level's part runs, by level id: the screens keep it as the level's passed board.
     syncOwn: (built) => image.syncOwn({ solved: Object.keys(built), data: built }),
     // The built parts that run no circuit (games/DIRECTION.md §2, 4): a part a level unlocks is the engine's own
     // implementation; only a level that packs its circuit (own-<level>) runs the player's board.
-    builtIn: [...new Set(image.course.levels.flatMap((l) => image.course.builds(l)))].filter((p) => !NODE_TYPES[p]?.kit),
+    builtIn: [...new Set(image.course.levels.flatMap((l) => image.course.builds(l)))].filter((p) => !image.kit.types[p]?.kit),
     texts: { chapters: image.CHAPTERS, intros: image.intros, glossary: content.glossary.entries },
     quotes: content.quotes ?? [],
   }

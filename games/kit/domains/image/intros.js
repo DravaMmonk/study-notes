@@ -9,7 +9,7 @@
 //   { figure: 'conv-press' }               one of the notes' figures (trace-viewer/src/figures)
 // Any figure may add caption: { zh, en }; test and part figures may add view: 'terrain' and so on.
 import { isPair } from '../../shell/i18n.js'
-import { NODE_TYPES, defaultParams, inputsOf } from './engine/nodes.js'
+import { NODE_TYPES, specsOf } from './engine/nodes.js'
 import { picture } from './items/pictures.js'
 
 /** The picture an intro's part figure is fed: a picture, or 'test', the level's own first test input. */
@@ -24,6 +24,9 @@ export function source(spec, level) {
 
 /** The test a { test } figure shows: of the level, or of one of its tasks ({ task }). */
 export const figureTest = (fig, level) => (fig.task === undefined ? level : level.tasks?.[fig.task])?.tests?.[fig.test] ?? null
+
+// A part figure shows a part every course starts from.
+const { defaultParams, inputsOf } = specsOf(NODE_TYPES)
 
 // What a part makes of its inputs, for a { part } figure. Throws on anything the figure cannot draw.
 export function partFigure(fig, level) {

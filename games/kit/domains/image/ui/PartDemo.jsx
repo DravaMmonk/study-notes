@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Choice, DemoBench, SlotBoard } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { runLevel } from '../engine/graph.js'
-import { NODE_TYPES, defaultParams, settingsOf } from '../engine/nodes.js'
 import Editor from './Editor.jsx'
 import { describe } from '../words.js'
 import { partsFor } from './parts.js'
@@ -22,11 +20,13 @@ import './phone/phone.css'
 // box: { sample, inLevel, boards } from the game's content: the level whose pictures a part from a level without tests
 // is tried on, parts tried inside a level's own circuit (what feeds them is more than its inputs), and the board such a
 // part is tried on where that circuit spells the part out from smaller ones.
-// home: for a primitive, the level that brings it in, tried like the level that unlocks a part.
-function benchFor(levels, box, flag, type, home, sample = false) {
+// home: for a primitive, the level that brings it in, tried like the level that unlocks a part. kit: the course's engine
+// (../engine/kit.js).
+function benchFor(kit, levels, box, flag, type, home, sample = false) {
+  const { types, defaultParams, runLevel } = kit
   // A setting rather than a part is tried on the part it belongs to.
   const nodeType = flag === 'edge-filter' ? 'box3' : type
-  const spec = NODE_TYPES[nodeType]
+  const spec = types[nodeType]
   if (!spec) return null
   const own = levels.find((l) => (l.unlocks ?? []).includes(flag) || l.id === home)
   const level = box.inLevel[flag] ? levels.find((l) => l.id === box.inLevel[flag]) : own
@@ -56,21 +56,22 @@ function benchFor(levels, box, flag, type, home, sample = false) {
   // A part its level's own tests do not suit (the spectrum, met on a 1-D signal, is a 2-D part) is tried on the
   // sample pictures instead.
   const broken = !first || first.errors.size > 0 || Object.values(first.outputs).some((img) => !img || Array.from(img.data).some(Number.isNaN))
-  if (broken && !sample && source.id !== box.sample && !box.inLevel[flag]) return benchFor(levels, box, flag, type, home, true)
+  if (broken && !sample && source.id !== box.sample && !box.inLevel[flag]) return benchFor(kit, levels, box, flag, type, home, true)
   const ioKinds = Object.fromEntries([...Object.entries(tests[0]?.inputs ?? {}), ...outputs.map((name) => [name, first?.outputs[name]])].map(([name, value]) => [name, kindOf(value)]))
   return { bench, graph, nodeType, ioKinds, sensors: levelSensors(bench), views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
 }
 
-export default function PartDemo({ flag, type, home, flags, phone, levels, box }) {
-  const made = useMemo(() => benchFor(levels, box, flag, type, home), [levels, box, flag, type, home])
+export default function PartDemo({ kit, flag, type, home, flags, phone, levels, box }) {
+  const made = useMemo(() => benchFor(kit, levels, box, flag, type, home), [kit, levels, box, flag, type, home])
   const [graph, setGraph] = useState(() => made?.graph)
   const [test, setTest] = useState(0)
   const [run, setRun] = useState(null)
   const [stale, setStale] = useState(false)
   const [scan, setScan] = useState(0.5)
   const [sel, setSel] = useState(null) // the block tapped on a phone
-  const parts = useMemo(() => made && partsFor({ sensors: made.sensors, outputLabels: made.bench.outputLabels }), [made])
+  const parts = useMemo(() => made && partsFor(kit, { sensors: made.sensors, outputLabels: made.bench.outputLabels }), [kit, made])
   if (!made) return null
+  const { types, runLevel, settingsOf } = kit
 
   // Cards move freely and settings change; the circuit itself stays as it is.
   const onChange = (next, { keep } = {}) => {
@@ -100,7 +101,7 @@ export default function PartDemo({ flag, type, home, flags, phone, levels, box }
   if (!phone) {
     return (
       <DemoBench {...common} note={{ zh: '更换测试图或修改元件设置，然后点击运行，查看每个元件的输出。', en: "Pick another test picture or change a part's settings, then run to see what each part outputs." }}>
-        <Editor graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
+        <Editor kit={kit} graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
       </DemoBench>
     )
   }
@@ -118,17 +119,17 @@ export default function PartDemo({ flag, type, home, flags, phone, levels, box }
   }
   const nameOf = (node) => (node ? L(parts.label(node)) : '')
   const tileExtra = (node) => {
-    const param = (NODE_TYPES[node.type].params ?? [])[0]
+    const param = (types[node.type].params ?? [])[0]
     return param ? <ParamChip param={param} value={node.params?.[param.key]} /> : null
   }
   const node = graph.nodes.find((n) => n.id === sel)
   const params = node ? settingsOf(node.type, flags) : []
-  const change = (key, v) => onChange(setParam(graph, node.id, key, v))
+  const change = (key, v) => onChange(setParam(kit, graph, node.id, key, v))
   const panel = !node ? (
     <p className="panel-note">{tr('点击一个元件，在此修改它的设置；然后运行，查看每个元件的输出。', 'Tap a part to change its settings here, then run to see what each part outputs.')}</p>
   ) : (
     <>
-      <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'input' ? tr('输入', 'Input') : node.type === 'output' ? tr('输出', 'Output') : describe(node.type)}</small></div>
+      <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'input' ? tr('输入', 'Input') : node.type === 'output' ? tr('输出', 'Output') : describe(types, node.type)}</small></div>
       {params.map((param) => (
         <div key={param.key} className="demo-param">
           <span className="panel-label">{L(param.label)}</span>

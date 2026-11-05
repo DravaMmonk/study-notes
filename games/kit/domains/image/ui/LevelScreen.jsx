@@ -2,8 +2,7 @@ import { Suspense, lazy, useMemo, useState } from 'react'
 import { Brief, Level, PinnedPlay, RunDock, TestStatus, Workbench } from '../../../shell/index.js'
 import { Palette, freeSpot } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
-import { checkingTests, hasLearnable, lossOn, runLevel, trainStep } from '../engine/graph.js'
-import { NODE_TYPES, defaultParams } from '../engine/nodes.js'
+import { checkingTests } from '../engine/graph.js'
 import { withHidden } from '../../../engine/tests.js'
 import { startBoard } from '../engine/board.js'
 import Editor from './Editor.jsx'
@@ -33,13 +32,16 @@ const untested = (run) => ({
 export default function LevelScreen({ game, level, saved, save, solved, solve, flags, progress, theme, phone }) {
   // The circuits the player has packed into parts are theirs as they last passed (engine/own.js).
   game.image.syncOwn(progress)
+  // The engine over the course's part table (engine/kit.js): its own packed parts among the rest.
+  const { kit } = game.image
+  const { types, defaultParams, runLevel, trainStep, lossOn, hasLearnable } = kit
   // The board and its test results change together: tests re-run whenever the wiring or a parameter
   // changes, but not while a card is only being dragged around.
   const [{ board, run }, setState] = useState(() => {
     // A saved circuit whose inputs and outputs no longer match the level (it was saved for a level
     // that has since moved), or that uses a part the game no longer has, starts fresh instead.
     const names = (board, type) => board.nodes.filter((n) => n.type === type).map((n) => n.params.name).sort().join()
-    const fits = (board) => board?.nodes && names(board, 'input') === [...level.inputs].sort().join() && names(board, 'output') === [...level.outputs].sort().join() && board.nodes.every((n) => NODE_TYPES[n.type])
+    const fits = (board) => board?.nodes && names(board, 'input') === [...level.inputs].sort().join() && names(board, 'output') === [...level.outputs].sort().join() && board.nodes.every((n) => types[n.type])
     // A new series level starts from the player's solved circuit for the level before it, if this level offers its parts.
     const carried = level.carry && progress.solved.includes(level.carry) && progress.data[level.carry]
     const offers = (board) => board.nodes.every((n) => n.type === 'input' || n.type === 'output' || level.palette.includes(n.type))
@@ -144,7 +146,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const passed = shown?.results.filter((r) => r.pass).length ?? 0
 
   // Only a circuit level has parts to place; a board or probe level has no palette at all.
-  const itemOf = (type) => ({ type, label: NODE_TYPES[type].label, desc: describe(type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
+  const itemOf = (type) => ({ type, label: types[type].label, desc: describe(types, type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
   const compactParts = level.kind === 'graph' && <Palette compact items={ownParts.map(itemOf)} folded={folded.map(itemOf)} onAdd={addNode} />
   const brief = <Brief game={game} level={level} hint={level.hint} phone={phone} />
   const training = level.kind === 'graph' && hasLearnable(board) && (
@@ -180,7 +182,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     </section>
   )
   // Clearing is the board's own tool (it asks first); it takes the training curve with it.
-  const clearCircuit = board.nodes.some((n) => !NODE_TYPES[n.type].fixed) ? () => { change(startBoard(level)); setLosses([]) } : null
+  const clearCircuit = board.nodes.some((n) => !types[n.type].fixed) ? () => { change(startBoard(level)); setLosses([]) } : null
   const play = level.kind === 'board' ? (
     <Suspense fallback={<div className="board-loading">{tr('载入中…', 'Loading…')}</div>}>
       <BenchLevel level={level} onSolve={() => solve(null)} theme={theme} />
@@ -192,7 +194,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // A circuit level on a phone: the phone board, the tests pinned over it (PhoneCircuit.jsx).
   if (phone && graphLevel) {
     return (
-      <PhoneCircuit level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onClear={clearCircuit} brief={brief} training={training} footer={score} testDetails={testPanel} />
+      <PhoneCircuit kit={kit} level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onClear={clearCircuit} brief={brief} training={training} footer={score} testDetails={testPanel} />
     )
   }
   // A bench or probe level runs itself: its stage is all it has, on a phone with its main visual pinned.
@@ -215,7 +217,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
         </>
       }
       parts={palette.length > 0 && compactParts}
-      stage={<Editor graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} types={palette} onClear={clearCircuit} />}
+      stage={<Editor kit={kit} graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} types={palette} onClear={clearCircuit} />}
       tests={<TestPanel {...half} part="tests" />}
       status={<TestStatus states={states} hidden={hidden} />}
       results={<TestPanel {...half} part="row" />}

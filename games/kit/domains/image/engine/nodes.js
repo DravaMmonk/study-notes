@@ -201,6 +201,8 @@ export const NODE_TYPES = {
 
 // The parts each chapter brings, written with the maths they need (parts/).
 Object.assign(NODE_TYPES, FREQUENCY, LIGHT, LEARNING, GLOBAL, MATCHING, GENERATIVE, SEGMENT)
+// The parts every course starts from; a course's own table adds the parts its levels pack (../course.js).
+Object.freeze(NODE_TYPES)
 
 export function harrisResponse(a, k = 0.05) {
   const gx = correlate(a, SOBEL_X)
@@ -226,32 +228,40 @@ export function disparityMap(left, right, window = 3, maxD = 4) {
   })
 }
 
-export const outputsOf = (type) => NODE_TYPES[type].outputs ?? ['out']
-export const inputsOf = (type) => NODE_TYPES[type].inputs ?? []
-
 // Every number a player sets lands on its setting's step (typed, slid or nudged), so a level's answer is a value the
 // player can actually reach and never needs finer tuning than the step. Hand-set kernel weights go in hundredths.
 const decimalsOf = (step) => (String(step).split('.')[1] ?? '').length
-export function snapSetting(type, key, value) {
-  const param = (NODE_TYPES[type]?.params ?? []).find((p) => p.key === key)
-  if (!param || typeof value === 'object' && !Array.isArray(value)) return value
-  if (param.kind === 'number') {
-    // A setting that takes π (the Constant) keeps an exact multiple of π as it is.
-    if (param.pi && piText(value)) return value
-    const step = param.step ?? 0.1
-    const v = Math.min(param.max ?? Infinity, Math.max(param.min ?? -Infinity, Math.round(value / step) * step))
-    return Number(v.toFixed(decimalsOf(step)))
+
+/**
+ * What a course's part table says of each part (the course's table: NODE_TYPES and the parts its levels pack, own.js).
+ *   inputsOf / outputsOf(type)       its ports
+ *   snapSetting(type, key, value)    a setting on its step
+ *   settingsOf(type, flags)          the settings a player holding `flags` can see, each choice cut to the options they hold
+ *   defaultParams(type)              its settings as it is placed
+ */
+export function specsOf(types) {
+  const paramsOf = (type) => types[type]?.params ?? []
+  const snapSetting = (type, key, value) => {
+    const param = paramsOf(type).find((p) => p.key === key)
+    if (!param || typeof value === 'object' && !Array.isArray(value)) return value
+    if (param.kind === 'number') {
+      // A setting that takes π (the Constant) keeps an exact multiple of π as it is.
+      if (param.pi && piText(value)) return value
+      const step = param.step ?? 0.1
+      const v = Math.min(param.max ?? Infinity, Math.max(param.min ?? -Infinity, Math.round(value / step) * step))
+      return Number(v.toFixed(decimalsOf(step)))
+    }
+    if (param.kind === 'kernel' && !param.learnable && Array.isArray(value)) return value.map((w) => Math.round(w * 100) / 100)
+    return value
   }
-  if (param.kind === 'kernel' && !param.learnable && Array.isArray(value)) return value.map((w) => Math.round(w * 100) / 100)
-  return value
-}
-
-/** A part's settings a player holding `flags` can see, each choice cut to the options they hold. */
-export const settingsOf = (type, flags) =>
-  (NODE_TYPES[type].params ?? [])
-    .filter((p) => !p.unlock || flags.has(p.unlock))
-    .map((p) => (p.options?.some((o) => o[2]) ? { ...p, options: p.options.filter((o) => !o[2] || flags.has(o[2])) } : p))
-
-export function defaultParams(type) {
-  return Object.fromEntries((NODE_TYPES[type]?.params ?? []).map((param) => [param.key, Array.isArray(param.default) ? [...param.default] : param.default]))
+  return {
+    types,
+    outputsOf: (type) => types[type].outputs ?? ['out'],
+    inputsOf: (type) => types[type].inputs ?? [],
+    snapSetting,
+    settingsOf: (type, flags) => paramsOf(type)
+      .filter((p) => !p.unlock || flags.has(p.unlock))
+      .map((p) => (p.options?.some((o) => o[2]) ? { ...p, options: p.options.filter((o) => !o[2] || flags.has(o[2])) } : p)),
+    defaultParams: (type) => Object.fromEntries(paramsOf(type).map((param) => [param.key, Array.isArray(param.default) ? [...param.default] : param.default])),
+  }
 }

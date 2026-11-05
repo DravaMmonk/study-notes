@@ -1,17 +1,13 @@
 import { packed } from '../../../engine/boards.js'
-import { NODE_TYPES } from './nodes.js'
 
 // A circuit the player has solved, used again as a part of its own, as in Turing Complete: the level's inputs are
 // its ports and the level's output is what it gives (the shared engine's packed part). A level with
-// `packs: { name, desc }` makes one. The game fills OWN with each solved level's passing circuit (syncOwn); until
-// then, and when the levels are checked, the level's reference circuit stands in.
-export const OWN = new Map()
-
-const circuitOf = (level) => OWN.get(level.id) ?? level.solution
-
-export function ownPart(level) {
+// `packs: { name, desc }` makes one, in its course's part table (`types`, ../course.js). `circuitOf()` is the circuit it
+// runs: the player's passing circuit once the course has it (syncOwn), until then, and when the levels are checked,
+// the level's reference circuit.
+export function ownPart(level, circuitOf, types) {
   return {
-    ...packed({ circuit: () => circuitOf(level), inputs: level.inputs ?? ['in'], outputs: [level.outputs?.[0] ?? 'out'] }),
+    ...packed({ circuit: circuitOf, inputs: level.inputs ?? ['in'], outputs: [level.outputs?.[0] ?? 'out'] }),
     kit: true,
     label: level.packs.name,
     description: level.packs.desc,
@@ -19,8 +15,8 @@ export function ownPart(level) {
     anySize: true,
     unlock: `own-${level.id}`,
     // What the circuit inside costs per pixel, as if each of its parts ran at full size.
-    cost: () => circuitOf(level).nodes.reduce((sum, n) => {
-      const cost = NODE_TYPES[n.type]?.cost ?? 0
+    cost: () => circuitOf().nodes.reduce((sum, n) => {
+      const cost = types[n.type]?.cost ?? 0
       return sum + (typeof cost === 'function' ? cost(n.params ?? {}) : cost)
     }, 0),
   }

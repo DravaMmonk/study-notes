@@ -1,6 +1,4 @@
 import { ArrowRightFromLine, ArrowRightToLine } from 'lucide-react'
-import { NODE_TYPES } from '../engine/nodes.js'
-import { BOARD_PARTS } from '../engine/board.js'
 import { tr } from '../../../shell/i18n.js'
 import { familyOf, iconOf } from './catalog.js'
 
@@ -9,14 +7,15 @@ import { familyOf, iconOf } from './catalog.js'
 
 export const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'left' }, right: { zh: '右', en: 'right' }, c0: 'd=0', c1: 'd=1', c2: 'd=2', c3: 'd=3', mu: 'μ', sigma: 'σ', eps: 'ε' }
 
-/** The parts of one level: its input cards are its sensors (ui/sensors.js), its output cards named by the level (or Output). */
-export function partsFor({ sensors, outputLabels } = {}) {
+/** The parts of one level, by the course's engine (kit, ../engine/kit.js): its input cards are its sensors
+ *  (ui/sensors.js), its output cards named by the level (or Output). */
+export function partsFor(kit, { sensors, outputLabels } = {}) {
   return {
-    ...BOARD_PARTS,
+    ...kit.BOARD_PARTS,
     label: (node) => {
       if (node.type === 'input') return sensors?.[node.params.name]?.label ?? tr('输入', 'Input')
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')
-      return NODE_TYPES[node.type].label
+      return kit.types[node.type].label
     },
     portLabel: (node, port) => PORT_LABELS[port] ?? port,
     family: (node) => familyOf(node.type ?? 'input'),
