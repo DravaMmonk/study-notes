@@ -43,6 +43,7 @@
     { "energy": [[9, 1, 9, 9], [9, 9, 1, 9], [1, 9, 9, 9], [9, 1, 9, 2]], "R": 4, "C": 4 },
     { "energy": [[2, 8, 3, 7, 1], [6, 4, 9, 2, 5], [1, 7, 3, 8, 6], [5, 2, 6, 1, 9]], "R": 4, "C": 5 }
   ],
+  "expected": [7, 12, 7],
   "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"],
   "debrief": {
     "title": { "zh": "三条来路", "en": "Three ways in" },

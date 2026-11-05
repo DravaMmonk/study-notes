@@ -91,6 +91,7 @@
   "world": "strip",
   "facts": ["ground"],
   "tests": [{ "n": 4 }, { "n": 6 }, { "n": 9 }],
+  "expected": [5, 13, 55],
   "solution": ["c = counter(view.m1, view.m2, facts.ground)", "cell <- c"],
   "debrief": {
     "title": { "zh": "5 种、13 种、55 种", "en": "5, 13 and 55 ways" },

@@ -50,11 +50,24 @@ const twoLevels = () => ({
   levels: [
     { id: 'build', mode: 'circuit', intro: [], robot: 'scout', world: 'grid', facts: ['start'], adds: ['msum', 'const', 'pass'], unlock: 'counter',
       builds: { ports: [{ way: { n: 1, sensor: 'up' } }, { way: { n: 2, sensor: 'left' } }, { start: { sensor: 'start' } }] },
-      tests: [{ R: 3, C: 4 }], solution: ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'] },
+      tests: [{ R: 3, C: 4 }], expected: [10], solution: ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'] },
     { id: 'reuse', mode: 'circuit', intro: [], robot: 'scout', world: 'grid', facts: ['start', 'rock'], adds: ['block'],
-      tests: [{ R: 4, C: 4, rocks: [[1, 1]] }, { R: 4, C: 5, rocks: [[1, 2], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 3], [2, 1], [3, 3]] }],
+      tests: [{ R: 4, C: 4, rocks: [[1, 1]] }, { R: 4, C: 5, rocks: [[1, 2], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 3], [2, 1], [3, 3]] }], expected: [8, 12, 10],
       solution: ['c = counter(view.up, view.left, facts.start)', 'b = block(facts.rock, c)', 'cell <- b'] },
   ],
+});
+
+test('a level’s answers are written, and the reference board is checked against them', async () => {
+  const { tableCourse } = await import('./course.js');
+  const { validate } = await import('./validate.js');
+  const course = twoLevels();
+  course.levels[1].expected = [8, 12, 11];
+  const { LEVELS, wrong } = tableCourse(course);
+  assert.deepEqual(wrong, []);
+  const lines = validate({ levels: LEVELS, table: { wrong } }).filter(l => l.fail).map(l => l.text);
+  assert.deepEqual(lines, ['reuse stage 1 test 3: the reference gives 10, expected 11']);
+  course.levels[1].expected = [8, 12];
+  assert.match(tableCourse(course).wrong[0], /reuse: stage 1 gives 2 expected answers for 3 tests/);
 });
 
 test('a built part runs the board its level was passed with, when that board reads exactly the part’s ports', async () => {
@@ -66,6 +79,7 @@ test('a built part runs the board its level was passed with, when that board rea
   const V = WORLDS[user.world], answers = () => user.tests.map(t => run(V, t, user.solution, user).value);
   const offByOne = { ...builder.solution, nodes: builder.solution.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) };
   const noStart = { ...builder.solution, wires: builder.solution.wires.filter(w => w.from !== 'facts#start') };
+  assert.deepEqual(answers(), user.expected, 'the written answers are the routes around the rocks');
   try {
     syncOwn({ build: { stage: 0, boards: [offByOne] } });
     assert.notDeepEqual(answers(), user.expected);

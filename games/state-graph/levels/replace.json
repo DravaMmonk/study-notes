@@ -43,6 +43,7 @@
   "world": "align",
   "facts": ["same", "start"],
   "tests": [{ "left": "CAT", "top": "CUT" }, { "left": "GLOVE", "top": "GRAVE" }, { "left": "PAPER", "top": "TAPES" }],
+  "expected": [1, 2, 2],
   "solution": [
     "k = const[value=1]()",
     "g = pass(facts.same, view.ul)",

@@ -16,6 +16,7 @@
   "hints": [{ "zh": "两个输入都接进同一个汇合器。", "en": "Wire both inputs into the same Merger." }],
   "world": "grid",
   "tests": [{ "R": 3, "C": 4, "given": { "0,0": 1 } }, { "R": 4, "C": 5, "given": { "0,0": 1 } }],
+  "expected": [10, 35],
   "solution": ["m = msum(view.up, view.left)", "cell <- m"],
   "debrief": {
     "title": { "zh": "城市交给了机器人", "en": "The robot runs the city" },

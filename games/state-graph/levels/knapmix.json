@@ -68,6 +68,7 @@
       ]
     }
   ],
+  "expected": [25, 25, 21],
   "solution": [
     "p = pass(facts.many, view.rowk)",
     "b = block(facts.many, view.upk)",

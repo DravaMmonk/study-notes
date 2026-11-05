@@ -45,6 +45,7 @@
     { "k": [0, null, 2, 2, 3, null, 4, 2] },
     { "k": [0, null, 2, 3, 4, 2, 5, 3, 2] }
   ],
+  "expected": [9, 10, 20],
   "solution": ["c = counter(view.m1, view.back, facts.bank)", "cell <- c"],
   "debrief": {
     "title": { "zh": "又是爬楼梯", "en": "Climbing stairs again" },

@@ -93,6 +93,7 @@
   "world": "pile",
   "facts": ["ground"],
   "tests": [{ "n": 5 }, { "n": 9 }, { "n": 10 }],
+  "expected": [true, false, true],
   "solution": ["a = not(view.m1)", "b = not(view.m2)", "m = many(a, b)", "cell <- m"],
   "debrief": {
     "title": { "zh": "输赢也能填表", "en": "Winning and losing fill a table too" },

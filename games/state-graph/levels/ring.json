@@ -38,6 +38,7 @@
   "world": "ring",
   "facts": ["money", "first", "last", "sideA"],
   "tests": [{ "a": [2, 3, 2] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }, { "a": [6, 2, 3, 7, 1, 5] }],
+  "expected": [3, 6, 18, 14],
   "solution": [
     "n = mmax(view.pn, view.pr)",
     "a = add(view.pn, facts.money)",

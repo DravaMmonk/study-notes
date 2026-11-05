@@ -40,6 +40,7 @@
   "world": "strip",
   "facts": ["ground", "broken"],
   "tests": [{ "n": 6, "broken": [3] }, { "n": 8, "broken": [2, 5] }, { "n": 10, "broken": [4, 7] }],
+  "expected": [4, 2, 6],
   "solution": ["c = counter(view.m1, view.m2, facts.ground)", "b = block(facts.broken, c)", "cell <- b"],
   "debrief": {
     "title": { "zh": "和落石一样", "en": "Just like the rockfall" },

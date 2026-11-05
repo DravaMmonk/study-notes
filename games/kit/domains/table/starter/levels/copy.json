@@ -18,6 +18,7 @@
   "hints": [{ "zh": "在视野里点「左边」，再连到「本格」。", "en": "Click “left” in the view, then wire it to “this cell”." }],
   "world": "grid",
   "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
+  "expected": [7, 3],
   "solution": ["cell <- view.left"],
   "debrief": {
     "title": { "zh": "机器人学会了抄", "en": "The robot learned to copy" },

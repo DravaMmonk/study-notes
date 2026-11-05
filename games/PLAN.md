@@ -29,9 +29,10 @@
 
 ### 0.3 state-graph 同义反复的测试
 
-- table 领域的关级 `tests` 改为必须带显式 `expected`；删除 `table/course.js:173` 用参考解生成 expected 的逻辑。
-- 为 change / prefix / robber / twoorders 四关逐条填写 expected（人工核对，不从参考解导出）。
-- 验收：把任一关 tests 改成 `[{R:'x'}]`，check 报 FAIL。
+- table 领域所有电路关（不止四关）的 expected 都由参考解生成，判定对参考解恒真。改为每个阶段必须写 `expected`（与测试一一对应）；删除 `table/course.js` 用参考解生成 expected 的逻辑，参考解反过来按 expected 检查。
+- 多阶段关共用的关级 `tests` 按各阶段的世界校验，不再是 `S.any`。
+- 现有 61 关的 expected 取自改动前参考解的输出（回归基线，非独立核对）；change / prefix / robber / twoorders 四关另用独立实现逐条核对一致。
+- 验收：把任一关 tests 改成 `[{R:'x'}]`，check 报 FAIL；把一个 expected 改错，check 报出参考解与 expected 的差异。
 
 ### 0.4 残留清理
 

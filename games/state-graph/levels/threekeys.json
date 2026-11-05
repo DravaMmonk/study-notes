@@ -40,6 +40,7 @@
       ]
     }
   ],
+  "expected": [10, 7],
   "solution": [
     "c = counter(view.up, view.left, facts.start)",
     "p = msum(view.upPrev, view.leftPrev)",

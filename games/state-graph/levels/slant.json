@@ -93,6 +93,7 @@
   "world": "grid",
   "facts": ["start"],
   "tests": [{ "R": 3, "C": 5 }, { "R": 4, "C": 6 }],
+  "expected": [6, 10],
   "solution": ["c = counter(view.left, view.ul, facts.start)", "cell <- c"],
   "debrief": {
     "title": { "zh": "零件不在乎方向", "en": "Parts don’t care about direction" },

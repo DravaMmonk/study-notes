@@ -103,6 +103,7 @@
       ]
     }
   ],
+  "expected": [11, 20, 15],
   "solution": ["c = choose(view.up, view.rowk, facts.value)", "cell <- c"],
   "debrief": {
     "title": { "zh": "完全背包", "en": "Unbounded knapsack" },

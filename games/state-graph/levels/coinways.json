@@ -38,6 +38,7 @@
     { "W": 10, "ways": true, "items": [{ "w": 2 }, { "w": 3 }, { "w": 5 }] },
     { "W": 8, "ways": true, "items": [{ "w": 1 }, { "w": 2 }, { "w": 3 }] }
   ],
+  "expected": [4, 4, 10],
   "solution": ["m = msum(view.up, view.rowk)", "cell <- m"],
   "debrief": {
     "title": { "zh": "一行一种硬币", "en": "One coin to a row" },

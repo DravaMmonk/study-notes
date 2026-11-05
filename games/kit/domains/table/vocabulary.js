@@ -18,6 +18,8 @@ const pt = S.list(S.int(), { min: 2 });
 const matrix = S.list(S.list(S.num()), { view: 'grid' });
 const ids = S.list(S.str());
 const NONE = S.oneOf([null]);
+/** What a board answers on a test: a number, yes or no, or nothing (null: no answer, shown as —). */
+const ANSWER = S.either(S.num(), S.bool(), NONE);
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one, a preset. */
 const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') });
 const scanOf = (...orders) => S.oneOf(orders);
@@ -211,6 +213,7 @@ const stageOf = (name, w, shared = false) => ({
   world: S.oneOf([name]),
   facts: S.opt(ids),
   tests: shared ? S.opt(S.list(w.test, { min: 1, section: 'tests' })) : S.list(w.test, { min: 1, section: 'tests' }),
+  expected: S.list(ANSWER, { min: 1, section: 'tests', about: t('每个测试的正确答案，按测试的顺序（没有答案写 null）', 'each test’s right answer, in the tests’ order (null where there is none)') }),
   solution: S.opt(BOARD),
   ...Object.fromEntries(Object.entries(w.params.fields)),
 });
@@ -226,8 +229,11 @@ const STAGE_ONLY = {
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   onFail: S.opt(S.obj({ head: S.text(), body: S.text({ about: t('{test}、{want}、{got} 换成失败的测试', '{test}, {want}, {got} filled in from the failed test') }), show: S.call('panel'), next: S.text() }, { about: t('这一阶段的失败是要讲的道理：说完进下一阶段', 'failing this stage is its lesson: then on to the next') })),
 };
-// A stage of several may leave its tests to the level's own (tests every stage shares).
+// A stage of several may leave its tests to the level's own (tests every stage shares); course.js checks those against
+// each such stage's world (worldTest).
 const byWorld = (fields, shared) => S.by('world', Object.fromEntries(Object.entries(WORLDS).map(([name, w]) => [name, S.obj({ ...fields, ...stageOf(name, w, shared) })])));
+/** The shape of one test of world `name`. */
+export const worldTest = name => WORLDS[name].test;
 const CIRCUIT_LEVEL = S.either(
   byWorld(CIRCUIT, false),
   S.obj({ ...CIRCUIT, tests: S.opt(S.list(S.any(), { section: 'tests' })), stages: S.list(byWorld(STAGE_ONLY, true), { min: 2 }) }),

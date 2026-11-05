@@ -89,6 +89,7 @@
       }
     }
   ],
+  "expected": [0.01584, 0.00033408],
   "solution": [
     "a = mul(view.pN, facts.tN)",
     "b = mul(view.pV, facts.tV)",

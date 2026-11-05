@@ -43,6 +43,7 @@
       "rocks": [[1, 1], [2, 3]]
     }
   ],
+  "expected": [8, 13, 11],
   "solution": ["c = min(view.up, view.left, facts.start, facts.cost)", "b = block(facts.rock, c)", "cell <- b"],
   "debrief": {
     "title": { "zh": "零件叠零件", "en": "Parts on parts" },

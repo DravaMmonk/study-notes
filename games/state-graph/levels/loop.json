@@ -59,6 +59,7 @@
     },
     { "R": 5, "C": 3, "costs": [[1, 1, 1], [9, 9, 1], [1, 1, 1], [1, 9, 9], [1, 1, 1]] }
   ],
+  "expected": [17, 11],
   "solution": [
     "a = mmin(view.up, view.down, view.left)",
     "z = const[value=0]()",

@@ -43,6 +43,7 @@
   "world": "tri",
   "facts": ["start"],
   "tests": [{ "R": 5, "k": 2 }, { "R": 7, "k": 3 }, { "R": 6, "k": 1 }],
+  "expected": [6, 20, 5],
   "solution": ["c = counter(view.up, view.ul, facts.start)", "cell <- c"],
   "debrief": {
     "title": { "zh": "杨辉三角", "en": "Pascal’s triangle" },

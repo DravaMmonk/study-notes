@@ -73,6 +73,7 @@
     { "s": "penpineapple", "dict": ["pen", "pine", "apple", "pineapple"] },
     { "s": "wordbreaking", "dict": ["word", "break", "breaking", "wordbreak", "king", "in", "g"] }
   ],
+  "expected": [3, 2, 2],
   "solution": [
     "a = add(view.seg, view.cost)",
     "z = const[value=0]()",

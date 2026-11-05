@@ -97,6 +97,7 @@
     {
       "world": "prefix",
       "facts": ["money"],
+      "expected": [14, 28],
       "solution": ["m = msum(view.seg)", "cell <- m"],
       "hints": [
         {
@@ -130,6 +131,7 @@
     {
       "world": "prefix",
       "facts": ["money"],
+      "expected": [14, 28],
       "solution": ["a = add(view.prev, facts.money)", "cell <- a"],
       "hints": [
         {

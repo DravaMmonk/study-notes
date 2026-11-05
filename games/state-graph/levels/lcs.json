@@ -286,6 +286,7 @@
     { "top": "ABCBDAB", "left": "BDCABA" },
     { "top": "GATTACA", "left": "CATTAG" }
   ],
+  "expected": [3, 4, 4],
   "solution": [
     "k = const[value=1]()",
     "a = add(view.ul, k)",

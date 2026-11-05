@@ -35,6 +35,7 @@
       "doors": [{ "at": [3, 3], "color": "red" }, { "at": [0, 3], "color": "blue" }, { "at": [2, 4], "color": "red" }]
     }
   ],
+  "expected": [20, 47],
   "solution": [
     "c = counter(view.up, view.left, facts.start)",
     "p = msum(view.upPrev, view.leftPrev)",

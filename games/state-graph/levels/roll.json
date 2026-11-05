@@ -137,6 +137,7 @@
       ]
     }
   ],
+  "expected": [6, 11, 9, 15],
   "solution": ["a = add(view.src, facts.value)", "m = mmax(view.old, a)", "cell <- m"],
   "dirs": { "01": "desc", "inf": "asc" },
   "debrief": {

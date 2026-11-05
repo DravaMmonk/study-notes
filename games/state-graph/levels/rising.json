@@ -140,6 +140,7 @@
   "world": "heights",
   "facts": ["money"],
   "tests": [{ "a": [3, 1, 4, 1, 5, 9, 2, 6] }, { "a": [5, 4, 3, 2, 1] }, { "a": [2, 6, 3, 4, 1, 7, 5] }],
+  "expected": [4, 1, 4],
   "solution": ["m = mmax(view.seg)", "k = const[value=1]()", "a = add(m, k)", "cell <- a"],
   "filter": "lower",
   "debrief": {

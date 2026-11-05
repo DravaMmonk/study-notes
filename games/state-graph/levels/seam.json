@@ -4061,6 +4061,7 @@
       "C": 10
     }
   ],
+  "expected": [2, 2],
   "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"],
   "debrief": {
     "title": { "zh": "缝也是一条最省的路线", "en": "A seam is a cheapest route too" },

@@ -44,6 +44,7 @@
       "letter": 3
     }
   ],
+  "expected": [18, 4, 15],
   "solution": [
     "a = add(view.seg, view.cost)",
     "z = const[value=0]()",

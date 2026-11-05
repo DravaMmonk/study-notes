@@ -113,6 +113,7 @@
     },
     { "R": 4, "C": 5, "gold": [3, 4], "traps": [[2, 3]], "walls": [[1, 1], [1, 2], [3, 2]] }
   ],
+  "expected": [5.9049, 4.782969],
   "solution": [
     "a = mmax(view.up, view.down, view.left)",
     "k = const[value=0.9]()",

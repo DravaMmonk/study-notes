@@ -13,6 +13,7 @@
   "world": "grid",
   "facts": ["start", "rock"],
   "tests": [{ "R": 4, "C": 4, "rocks": [[1, 1]] }, { "R": 4, "C": 5, "rocks": [[1, 2], [2, 0]] }],
+  "expected": [8, 12],
   "solution": ["c = counter(view.up, view.left, facts.start)", "b = block(facts.rock, c)", "cell <- b"],
   "naive": ["c = counter(view.up, view.left, facts.start)", "cell <- c"],
   "debrief": {

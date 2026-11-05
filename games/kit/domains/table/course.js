@@ -11,6 +11,8 @@ import { fitted, fromText, portsProblem, splitSrc, toText } from './model/board.
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { runCircuit } from './model/run.js';
+import { S, validate } from '../../engine/schema.js';
+import { worldTest } from './vocabulary.js';
 import { gridScene, visionFig } from './model/scene.js';
 import { figure } from './items/figures.js';
 
@@ -170,13 +172,11 @@ export function tableCourse(content) {
       if (last && L.naive) L.naiveBoard = board(L.naive, true);
       return stage;
     });
-    for (const s of L.stages) if (s.solution) s.expected = s.tests.map(t => runCircuit(WORLDS[s.world], t, s.solution, s).value);
-    // A stage with no reference board (one every board fails, robber's first) wants the level's answers on its tests.
-    const final = L.stages.at(-1);
-    for (const s of L.stages.filter(x => !x.solution)) {
-      if (s.tests !== final.tests) say(L.id, 'a stage with no solution must share the level’s tests');
-      s.expected = final.expected;
-    }
+    // The answers are written out; the reference board is checked against them (validate.js), never the source of them.
+    L.stages.forEach((s, k) => {
+      if (!written[k].tests) for (const p of validate(S.list(worldTest(s.world), { min: 1 }), L.tests)) say(L.id, `tests${p.at === '(root)' ? '' : p.at}: ${p.says} (a test of the ${s.world} world, stage ${k + 1})`);
+      if (s.expected.length !== s.tests?.length) say(L.id, `stage ${k + 1} gives ${s.expected.length} expected answers for ${s.tests?.length ?? 0} tests`);
+    });
     if (L.builds) registerBuilt(L);
   }
 

@@ -37,6 +37,7 @@
     { "p": [1, 2, 4, 1, 7, 8, 3], "cool": true },
     { "p": [6, 1, 6, 4, 3, 0, 2], "cool": true }
   ],
+  "expected": [3, 8, 7],
   "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"],
   "debrief": {
     "title": { "zh": "同一块电路板", "en": "The same board" },

@@ -31,6 +31,7 @@
     { "s": "catsanddog", "dict": { "cat": 1, "cats": 3, "and": 1, "sand": 2, "dog": 1 } },
     { "s": "icecreamcone", "dict": { "ice": 1, "cream": 1, "icecream": 3, "cone": 1, "creamcone": 1 } }
   ],
+  "expected": [4, 4, 2],
   "solution": [
     "a = add(view.seg, view.cost)",
     "z = const[value=0]()",

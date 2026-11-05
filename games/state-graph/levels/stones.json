@@ -77,6 +77,7 @@
   "world": "interval",
   "facts": ["weight"],
   "tests": [{ "w": [3, 1, 2] }, { "w": [4, 1, 1, 4] }, { "w": [2, 3, 1, 5, 2] }],
+  "expected": [9, 18, 30],
   "solution": ["a = add(view.segL, view.segR)", "m = mmin(a)", "b = add(m, facts.weight)", "cell <- b"],
   "scan": "len",
   "diag": 0,

@@ -84,6 +84,7 @@
   "world": "interval",
   "facts": ["same"],
   "tests": [{ "s": "ABCA" }, { "s": "CHARACTER" }, { "s": "BBABCBCAB" }],
+  "expected": [3, 5, 7],
   "solution": [
     "k = const[value=2]()",
     "a = add(view.dl, k)",

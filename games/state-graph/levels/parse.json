@@ -68,6 +68,7 @@
       ]
     }
   ],
+  "expected": [2, 5, 14],
   "solution": ["x = mul(view.segL, view.segR)", "s = msum(x)", "cell <- s"],
   "diag": 1,
   "debrief": {

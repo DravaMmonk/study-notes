@@ -42,6 +42,7 @@
     { "a": [3, -4, 5, -1, 2, -6, 3] },
     { "a": [-1, 2, 3, -7, 4, 1, -2, 5] }
   ],
+  "expected": [6, 6, 8],
   "solution": ["a = add(view.prev, facts.money)", "m = mmax(facts.money, a)", "cell <- m"],
   "debrief": {
     "title": { "zh": "根本不用扫描臂", "en": "No sweep arm needed" },

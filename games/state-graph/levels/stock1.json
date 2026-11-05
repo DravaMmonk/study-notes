@@ -55,6 +55,7 @@
   "world": "stock",
   "facts": ["gain"],
   "tests": [{ "p": [7, 1, 5, 3, 6, 4] }, { "p": [7, 6, 4, 3, 1] }, { "p": [3, 2, 6, 5, 0, 3] }],
+  "expected": [5, 0, 4],
   "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"],
   "debrief": {
     "title": { "zh": "状态写成了层", "en": "The state became layers" },

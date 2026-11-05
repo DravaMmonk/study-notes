@@ -48,6 +48,7 @@
     { "left": "ACROS", "top": "CROSS" },
     { "left": "ACROS", "top": "MACRO" }
   ],
+  "expected": [1, 2, 2],
   "solution": ["e = cost(view.ul, view.up, view.left, facts.same, facts.start)", "cell <- e"],
   "border0": false,
   "debrief": {

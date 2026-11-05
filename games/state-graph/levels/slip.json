@@ -75,6 +75,7 @@
       "slip": 0.2
     }
   ],
+  "expected": [0.883233464, 3.003619968],
   "solution": [
     "k8 = const[value=0.8]()",
     "k2 = const[value=0.2]()",

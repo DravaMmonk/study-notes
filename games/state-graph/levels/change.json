@@ -49,6 +49,7 @@
     {
       "world": "coins",
       "facts": ["ground"],
+      "expected": [2, 3, null],
       "solution": [
         "k = const[value=1]()",
         "z = const[value=0]()",
@@ -82,6 +83,7 @@
     {
       "world": "coins",
       "facts": ["ground"],
+      "expected": [26, 218, null],
       "solution": ["k = const[value=1]()", "g = pass(facts.ground, k)", "m = msum(view.seg, g)", "cell <- m"],
       "hints": [
         { "zh": "最后一枚是哪一种都行，每种都算。", "en": "The last coin can be any kind, and each kind counts." },

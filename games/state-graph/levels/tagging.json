@@ -142,6 +142,7 @@
       "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } }
     }
   ],
+  "expected": [1, 8, 6],
   "solution": [
     "a = add(view.pN, facts.tN)",
     "b = add(view.pV, facts.tV)",

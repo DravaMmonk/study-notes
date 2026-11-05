@@ -60,6 +60,7 @@
       "rd": true
     }
   ],
+  "expected": [4.782969, 5.9049],
   "solution": ["d = value[value=0.9](view.right, view.down)", "cell <- d"],
   "rounds": true,
   "arrows": true,

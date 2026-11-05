@@ -54,6 +54,7 @@
   ],
   "world": "piles",
   "tests": [{ "R": 4, "C": 5 }, { "R": 5, "C": 5 }, { "R": 6, "C": 7 }],
+  "expected": [true, false, true],
   "solution": ["a = not(view.up)", "b = not(view.left)", "c = not(view.ul)", "m = many(a, b, c)", "cell <- m"],
   "debrief": {
     "title": { "zh": "棋盘上的花纹", "en": "A pattern on the board" },

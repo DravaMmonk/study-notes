@@ -73,6 +73,7 @@
       "C": 4
     }
   ],
+  "expected": [10, 20],
   "solution": [
     "k = const[value=1]()",
     "g = pass(facts.start, k)",

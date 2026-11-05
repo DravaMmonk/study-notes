@@ -74,6 +74,7 @@
   "world": "local",
   "facts": ["score"],
   "tests": [{ "top": "AGTACGCA", "left": "TATGC" }, { "top": "GGTTGACTA", "left": "TGTTACGG" }],
+  "expected": [7, 9],
   "solution": [
     "a = add(view.ul, facts.score)",
     "k = const[value=-1]()",

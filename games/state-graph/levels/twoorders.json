@@ -39,6 +39,7 @@
     {
       "world": "interval",
       "facts": ["weight"],
+      "expected": [34, 80],
       "solution": ["c = interval(view.segL, view.segR, facts.weight)", "cell <- c"],
       "scan": "len",
       "diag": 0,
@@ -66,6 +67,7 @@
     {
       "world": "interval",
       "facts": ["weight"],
+      "expected": [34, 80],
       "solution": ["c = interval(view.segL, view.segR, facts.weight)", "cell <- c"],
       "scan": "rowBR",
       "diag": 0,
