@@ -3,10 +3,6 @@
     "zh": "挂哪都有",
     "en": "Hanging everywhere"
   },
-  "brief": {
-    "zh": "标出主干，把所有修饰成分折起来，挂到它们修饰的词上。",
-    "en": "Mark the skeleton and fold every modifier onto the word it modifies."
-  },
   "intro": [
     {
       "t": {
@@ -15,47 +11,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "谓语是 <i>has grown</i>。从 2019 年起、增长了多少倍，说的都是什么？",
-      "en": "The verb is <i>has grown</i>. Since 2019, by how much: what do they tell about?"
-    }
-  ],
-  "sentence": "Since 2019, the size of language models has grown by a factor of a thousand.",
-  "folds": [
-    {
-      "span": "Since 2019",
-      "type": "pp",
-      "to": "grown"
-    },
-    {
-      "span": "of language models",
-      "type": "pp",
-      "to": "size"
-    },
-    {
-      "span": "of a thousand",
-      "type": "pp",
-      "to": "factor"
-    },
-    {
-      "span": "by a factor of a thousand",
-      "type": "pp",
-      "to": "grown"
-    }
-  ],
-  "roles": {
-    "subj": "the size",
-    "verb": "has grown"
-  },
-  "misrole": {
-    "subj": {
-      "language models": {
-        "zh": "主语若是 <i>language models</i>，谓语该是 <i>have grown</i>。<i>has</i> 是单数：增长的是规模。",
-        "en": "With <i>language models</i> as the subject, the verb would be <i>have grown</i>. <i>has</i> is singular: what has grown is the size."
-      }
-    }
-  },
   "debrief": {
     "title": {
       "zh": "Since 2019, the size of language models has grown by a factor of a thousand.",
@@ -71,5 +26,55 @@
       "zh": "一个动词可以挂好几个状语，一个名词也可以挂好几个定语。",
       "en": "A verb can take several adverbials, and a noun several attributives."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "2-6",
+      "brief": {
+        "zh": "标出主干，把所有修饰成分折起来，挂到它们修饰的词上。",
+        "en": "Mark the skeleton and fold every modifier onto the word it modifies."
+      },
+      "hint": [
+        {
+          "zh": "谓语是 <i>has grown</i>。从 2019 年起、增长了多少倍，说的都是什么？",
+          "en": "The verb is <i>has grown</i>. Since 2019, by how much: what do they tell about?"
+        }
+      ],
+      "sentence": "Since 2019, the size of language models has grown by a factor of a thousand.",
+      "folds": [
+        {
+          "span": "Since 2019",
+          "type": "pp",
+          "to": "grown"
+        },
+        {
+          "span": "of language models",
+          "type": "pp",
+          "to": "size"
+        },
+        {
+          "span": "of a thousand",
+          "type": "pp",
+          "to": "factor"
+        },
+        {
+          "span": "by a factor of a thousand",
+          "type": "pp",
+          "to": "grown"
+        }
+      ],
+      "roles": {
+        "subj": "the size",
+        "verb": "has grown"
+      },
+      "misrole": {
+        "subj": {
+          "language models": {
+            "zh": "主语若是 <i>language models</i>，谓语该是 <i>have grown</i>。<i>has</i> 是单数：增长的是规模。",
+            "en": "With <i>language models</i> as the subject, the verb would be <i>have grown</i>. <i>has</i> is singular: what has grown is the size."
+          }
+        }
+      }
+    }
+  ]
 }

@@ -3,10 +3,6 @@
     "zh": "两个动词",
     "en": "Two verbs"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分折起来。",
-    "en": "Mark the skeleton, folding the modifier away."
-  },
   "adds": [
     "rel"
   ],
@@ -24,39 +20,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "<i>that</i> 后面的 <i>we propose</i> 说的是哪个名词？",
-      "en": "Which noun is <i>we propose</i>, after <i>that</i>, about?"
-    }
-  ],
-  "sentence": "The method that we propose requires no labeled data.",
-  "folds": [
-    {
-      "span": "that we propose",
-      "type": "rel",
-      "to": "method"
-    }
-  ],
-  "roles": {
-    "subj": "The method",
-    "verb": "requires",
-    "obj": "no labeled data"
-  },
-  "misrole": {
-    "verb": {
-      "propose": {
-        "zh": "<i>propose</i> 是从句里的动词：<i>that we propose</i> 只说明是哪种方法。主干的谓语在从句后面。",
-        "en": "<i>propose</i> is the clause’s verb: <i>that we propose</i> only says which method. The skeleton’s verb comes after the clause."
-      }
-    },
-    "subj": {
-      "we": {
-        "zh": "<i>we</i> 是从句的主语。主干说的是方法。",
-        "en": "<i>we</i> is the clause’s subject. The skeleton is about the method."
-      }
-    }
-  },
   "debrief": {
     "title": {
       "zh": "The method that we propose requires no labeled data.",
@@ -72,5 +35,47 @@
       "zh": "两个动词时，一个在定语从句里；折掉它，剩下的才是谓语。",
       "en": "With two verbs, one is in a relative clause; fold it, and the other is the verb."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "3-1",
+      "brief": {
+        "zh": "标出主干，把修饰成分折起来。",
+        "en": "Mark the skeleton, folding the modifier away."
+      },
+      "hint": [
+        {
+          "zh": "<i>that</i> 后面的 <i>we propose</i> 说的是哪个名词？",
+          "en": "Which noun is <i>we propose</i>, after <i>that</i>, about?"
+        }
+      ],
+      "sentence": "The method that we propose requires no labeled data.",
+      "folds": [
+        {
+          "span": "that we propose",
+          "type": "rel",
+          "to": "method"
+        }
+      ],
+      "roles": {
+        "subj": "The method",
+        "verb": "requires",
+        "obj": "no labeled data"
+      },
+      "misrole": {
+        "verb": {
+          "propose": {
+            "zh": "<i>propose</i> 是从句里的动词：<i>that we propose</i> 只说明是哪种方法。主干的谓语在从句后面。",
+            "en": "<i>propose</i> is the clause’s verb: <i>that we propose</i> only says which method. The skeleton’s verb comes after the clause."
+          }
+        },
+        "subj": {
+          "we": {
+            "zh": "<i>we</i> 是从句的主语。主干说的是方法。",
+            "en": "<i>we</i> is the clause’s subject. The skeleton is about the method."
+          }
+        }
+      }
+    }
+  ]
 }

@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
-import { TASK_ID_FIELD } from '../../engine/tasks.js'
+import { taskLevel } from '../../engine/tasks.js'
 import { PARTS, ROLES, TYPES } from './model/parts.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -50,20 +50,17 @@ const SENTENCE = {
   given: S.opt(S.list(PHRASE, { about: t('已经折好、拆不开的块（答案里的折）', 'folds already made and fixed in place (folds of the answer)') })),
 }
 const INTRO = S.list(S.obj({ t: S.text() }))
-const COMMON = {
+/** What a level says once: its title, its place in the course, its introduction, its pass text. */
+const ONCE = {
   title: S.text(),
-  brief: S.text(),
-  intro: S.opt(INTRO),
-  hint: S.opt(TEXTS),
   adds: S.opt(S.list(S.ref('part'), { section: 'course', about: t('这一关带来的成分或结构', 'the roles and constructions the level brings in') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新东西第一次出现时只用它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only uses it: what is abstract about its use') })),
+  intro: S.opt(INTRO),
   debrief: S.obj({ title: S.text(), body: TEXTS, note: S.opt(S.text()) }),
 }
-const TASK = S.obj({ id: TASK_ID_FIELD, step: S.text(), brief: S.text(), hint: S.opt(TEXTS), intro: S.opt(INTRO), after: S.opt(TEXTS), ...SENTENCE })
-const LEVEL = S.either(
-  S.obj({ ...COMMON, ...SENTENCE }),
-  S.obj({ ...COMMON, tasks: S.list(TASK, { min: 2, section: 'tasks', about: t('几句话依次做，最后一句就是这一关', 'several sentences done in turn, the last one the level itself') }) }),
-)
+/** A task: one sentence to take apart, its brief and hints; several are done in turn, the last one the level itself. */
+const TASK = { brief: S.text(), hint: S.opt(TEXTS), intro: S.opt(INTRO), after: S.opt(TEXTS), ...SENTENCE }
+const LEVEL = taskLevel(ONCE, TASK)
 
 /* ---------- game.json ---------- */
 

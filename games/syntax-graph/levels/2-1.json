@@ -3,10 +3,6 @@
     "zh": "修饰动作",
     "en": "Telling about the action"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
-    "en": "Mark the skeleton and fold the modifier onto the word it modifies."
-  },
   "intro": [
     {
       "t": {
@@ -21,31 +17,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "在一块 GPU 上的，是模型，还是训练这件事？",
-      "en": "What is on a single GPU: the model, or the training?"
-    }
-  ],
-  "sentence": "We train the model on a single GPU.",
-  "folds": [
-    {
-      "span": "on a single GPU",
-      "type": "pp",
-      "to": "train",
-      "misread": {
-        "model": {
-          "zh": "挂在 <i>model</i> 上，意思是“装在一块 GPU 上的那个模型”。这里说的是训练在一块 GPU 上进行。",
-          "en": "Hung on <i>model</i>, it means the model that sits on one GPU. What happens on one GPU here is the training."
-        }
-      }
-    }
-  ],
-  "roles": {
-    "subj": "We",
-    "verb": "train",
-    "obj": "the model"
-  },
   "debrief": {
     "title": {
       "zh": "We train the model on a single GPU.",
@@ -61,5 +32,39 @@
       "zh": "说明“什么样的”挂名词，说明“在哪、怎么做”挂动词。",
       "en": "What kind: on the noun. Where or how: on the verb."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "2-1",
+      "brief": {
+        "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
+        "en": "Mark the skeleton and fold the modifier onto the word it modifies."
+      },
+      "hint": [
+        {
+          "zh": "在一块 GPU 上的，是模型，还是训练这件事？",
+          "en": "What is on a single GPU: the model, or the training?"
+        }
+      ],
+      "sentence": "We train the model on a single GPU.",
+      "folds": [
+        {
+          "span": "on a single GPU",
+          "type": "pp",
+          "to": "train",
+          "misread": {
+            "model": {
+              "zh": "挂在 <i>model</i> 上，意思是“装在一块 GPU 上的那个模型”。这里说的是训练在一块 GPU 上进行。",
+              "en": "Hung on <i>model</i>, it means the model that sits on one GPU. What happens on one GPU here is the training."
+            }
+          }
+        }
+      ],
+      "roles": {
+        "subj": "We",
+        "verb": "train",
+        "obj": "the model"
+      }
+    }
+  ]
 }

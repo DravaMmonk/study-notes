@@ -25,6 +25,8 @@ import { ROLES, TYPES } from './model/parts.js'
 import { syntaxCourse } from './course.js'
 
 const ICON = { 'role:subj': Rows3, 'role:verb': Rows3, 'role:obj': Rows3, 'role:comp': Rows3, pp: CornerDownRight, rel: Quote }
+/** The fields of an object that hold something. */
+const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 const textOf = (key) => (key.startsWith('role:') ? ROLES[key.slice(5)] : TYPES[key])
 
 /** content (../../engine/content.js): { id, title, kicker, lede, eras, saves: migration steps
@@ -42,6 +44,8 @@ export default function syntaxGame(content) {
     glossary: content.glossary,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
+    // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
+    // the screen reading the task as the course read it (`source`).
     levels: LEVELS.map((L, index) => ({
       id: L.id,
       index,
@@ -49,23 +53,19 @@ export default function syntaxGame(content) {
       chapter: L.era,
       requires: L.requires,
       title: L.title,
-      brief: L.brief,
       kind: 'analyze',
       palette: L.palette,
       afterTitle: L.debrief.title,
       after: L.debrief.body,
       note: L.debrief.note,
-      tasks: L.tasks?.map((t) => ({ key: t.id, kind: 'analyze', step: t.step, source: t, brief: t.brief, after: t.after, intro: t.intro })),
+      tasks: L.tasks.map((t) => ({ key: t.id, ...defined({ step: t.step, brief: t.brief, hint: t.hint, intro: t.intro, after: t.after }), source: t })),
     })),
     progress: migrations(content.saves),
     intro: (level) => level.source.intro,
     // What a level brings in: the roles and constructions it adds, named once it is passed.
     unlocked: (level) => (level.source.adds ?? []).map((key) => named.get(key)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon })),
     // The skeleton the sentence leaves once every modifier is folded.
-    passed: (level) => {
-      const last = level.source.tasks ? level.source.tasks[level.source.tasks.length - 1] : level.source
-      return <p className="sx-skeleton"><small>{tr('主干', 'Skeleton')}</small>{skeleton(last.gold)}</p>
-    },
+    passed: (level) => <p className="sx-skeleton"><small>{tr('主干', 'Skeleton')}</small>{skeleton(level.source.tasks.at(-1).gold)}</p>,
     parts: { all: parts },
     kinds: { analyze: { Screen: Analyze, icon: BookOpenText, label: { zh: '拆句', en: 'Take apart' } } },
     // Fewer checks is better; right the first time earns the ★.

@@ -3,10 +3,6 @@
     "zh": "从句里也有修饰",
     "en": "Modifiers inside"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分一层层折起来。",
-    "en": "Mark the skeleton, folding the modifiers layer by layer."
-  },
   "intro": [
     {
       "t": {
@@ -15,35 +11,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "<i>in Section 4</i> 说明的是从句里的哪个词？",
-      "en": "Which word inside the clause does <i>in Section 4</i> tell about?"
-    }
-  ],
-  "sentence": "The approach that we describe in Section 4 reduces the memory that the attention layer requires.",
-  "folds": [
-    {
-      "span": "in Section 4",
-      "type": "pp",
-      "to": "describe"
-    },
-    {
-      "span": "that we describe in Section 4",
-      "type": "rel",
-      "to": "approach"
-    },
-    {
-      "span": "that the attention layer requires",
-      "type": "rel",
-      "to": "memory"
-    }
-  ],
-  "roles": {
-    "subj": "The approach",
-    "verb": "reduces",
-    "obj": "the memory"
-  },
   "debrief": {
     "title": {
       "zh": "The approach that we describe in Section 4 reduces the memory that the attention layer requires.",
@@ -59,5 +26,43 @@
       "zh": "从句里的修饰成分挂在从句里的词上，先折。",
       "en": "A modifier inside a clause hangs on a word inside it; fold it first."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "3-4",
+      "brief": {
+        "zh": "标出主干，把修饰成分一层层折起来。",
+        "en": "Mark the skeleton, folding the modifiers layer by layer."
+      },
+      "hint": [
+        {
+          "zh": "<i>in Section 4</i> 说明的是从句里的哪个词？",
+          "en": "Which word inside the clause does <i>in Section 4</i> tell about?"
+        }
+      ],
+      "sentence": "The approach that we describe in Section 4 reduces the memory that the attention layer requires.",
+      "folds": [
+        {
+          "span": "in Section 4",
+          "type": "pp",
+          "to": "describe"
+        },
+        {
+          "span": "that we describe in Section 4",
+          "type": "rel",
+          "to": "approach"
+        },
+        {
+          "span": "that the attention layer requires",
+          "type": "rel",
+          "to": "memory"
+        }
+      ],
+      "roles": {
+        "subj": "The approach",
+        "verb": "reduces",
+        "obj": "the memory"
+      }
+    }
+  ]
 }

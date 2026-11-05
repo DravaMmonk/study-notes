@@ -3,10 +3,6 @@
     "zh": "挂哪个名词",
     "en": "Which noun"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分一层层折起来。",
-    "en": "Mark the skeleton, folding the modifiers layer by layer."
-  },
   "intro": [
     {
       "t": {
@@ -15,41 +11,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "从句里是 <i>were</i>：和它一致的是单数名词，还是复数名词？",
-      "en": "The clause has <i>were</i>: does it agree with a singular noun or a plural one?"
-    }
-  ],
-  "sentence": "We report the accuracy of the models that were trained on ImageNet.",
-  "folds": [
-    {
-      "span": "on ImageNet",
-      "type": "pp",
-      "to": "trained"
-    },
-    {
-      "span": "that were trained on ImageNet",
-      "type": "rel",
-      "to": "models",
-      "misread": {
-        "accuracy": {
-          "zh": "从句里是 <i>were</i>，复数；<i>accuracy</i> 是单数。和 <i>were</i> 一致的是 <i>models</i>：在 ImageNet 上训练的是模型。",
-          "en": "The clause has <i>were</i>, plural; <i>accuracy</i> is singular. <i>were</i> agrees with <i>models</i>: what was trained on ImageNet is the models."
-        }
-      }
-    },
-    {
-      "span": "of the models that were trained on ImageNet",
-      "type": "pp",
-      "to": "accuracy"
-    }
-  ],
-  "roles": {
-    "subj": "We",
-    "verb": "report",
-    "obj": "the accuracy"
-  },
   "debrief": {
     "title": {
       "zh": "We report the accuracy of the models that were trained on ImageNet.",
@@ -65,5 +26,49 @@
       "zh": "修饰成分跟着它修饰的词走：词折进哪一块，它也折进哪一块。",
       "en": "A modifier goes with its word: wherever the word is folded, so is it."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "3-5",
+      "brief": {
+        "zh": "标出主干，把修饰成分一层层折起来。",
+        "en": "Mark the skeleton, folding the modifiers layer by layer."
+      },
+      "hint": [
+        {
+          "zh": "从句里是 <i>were</i>：和它一致的是单数名词，还是复数名词？",
+          "en": "The clause has <i>were</i>: does it agree with a singular noun or a plural one?"
+        }
+      ],
+      "sentence": "We report the accuracy of the models that were trained on ImageNet.",
+      "folds": [
+        {
+          "span": "on ImageNet",
+          "type": "pp",
+          "to": "trained"
+        },
+        {
+          "span": "that were trained on ImageNet",
+          "type": "rel",
+          "to": "models",
+          "misread": {
+            "accuracy": {
+              "zh": "从句里是 <i>were</i>，复数；<i>accuracy</i> 是单数。和 <i>were</i> 一致的是 <i>models</i>：在 ImageNet 上训练的是模型。",
+              "en": "The clause has <i>were</i>, plural; <i>accuracy</i> is singular. <i>were</i> agrees with <i>models</i>: what was trained on ImageNet is the models."
+            }
+          }
+        },
+        {
+          "span": "of the models that were trained on ImageNet",
+          "type": "pp",
+          "to": "accuracy"
+        }
+      ],
+      "roles": {
+        "subj": "We",
+        "verb": "report",
+        "obj": "the accuracy"
+      }
+    }
+  ]
 }

@@ -3,10 +3,6 @@
     "zh": "没有 that",
     "en": "No that"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分折起来。",
-    "en": "Mark the skeleton, folding the modifiers away."
-  },
   "intro": [
     {
       "t": {
@@ -15,44 +11,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "<i>features</i> 后面紧跟着 <i>we extract</i>：中间省掉了什么？",
-      "en": "<i>features</i> is followed straight away by <i>we extract</i>: what has been left out?"
-    }
-  ],
-  "sentence": "The features we extract are invariant to rotation.",
-  "folds": [
-    {
-      "span": "we extract",
-      "type": "rel",
-      "to": "features"
-    },
-    {
-      "span": "to rotation",
-      "type": "pp",
-      "to": "invariant"
-    }
-  ],
-  "roles": {
-    "subj": "The features",
-    "verb": "are",
-    "comp": "invariant"
-  },
-  "misrole": {
-    "subj": {
-      "we": {
-        "zh": "<i>we</i> 是被省掉 <i>that</i> 的从句的主语。谓语 <i>are</i> 说的是特征。",
-        "en": "<i>we</i> is the subject of the clause whose <i>that</i> is left out. The verb <i>are</i> is about the features."
-      }
-    },
-    "verb": {
-      "extract": {
-        "zh": "<i>extract</i> 是从句的动词：<i>(that) we extract</i> 说明是哪些特征。",
-        "en": "<i>extract</i> is the clause’s verb: <i>(that) we extract</i> says which features."
-      }
-    }
-  },
   "debrief": {
     "title": {
       "zh": "The features we extract are invariant to rotation.",
@@ -68,5 +26,52 @@
       "zh": "名词后面直接跟着“主语 + 动词”，多半是省了关系词的定语从句。",
       "en": "A noun followed straight away by a subject and verb is mostly a relative clause without its relative word."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "3-3",
+      "brief": {
+        "zh": "标出主干，把修饰成分折起来。",
+        "en": "Mark the skeleton, folding the modifiers away."
+      },
+      "hint": [
+        {
+          "zh": "<i>features</i> 后面紧跟着 <i>we extract</i>：中间省掉了什么？",
+          "en": "<i>features</i> is followed straight away by <i>we extract</i>: what has been left out?"
+        }
+      ],
+      "sentence": "The features we extract are invariant to rotation.",
+      "folds": [
+        {
+          "span": "we extract",
+          "type": "rel",
+          "to": "features"
+        },
+        {
+          "span": "to rotation",
+          "type": "pp",
+          "to": "invariant"
+        }
+      ],
+      "roles": {
+        "subj": "The features",
+        "verb": "are",
+        "comp": "invariant"
+      },
+      "misrole": {
+        "subj": {
+          "we": {
+            "zh": "<i>we</i> 是被省掉 <i>that</i> 的从句的主语。谓语 <i>are</i> 说的是特征。",
+            "en": "<i>we</i> is the subject of the clause whose <i>that</i> is left out. The verb <i>are</i> is about the features."
+          }
+        },
+        "verb": {
+          "extract": {
+            "zh": "<i>extract</i> 是从句的动词：<i>(that) we extract</i> 说明是哪些特征。",
+            "en": "<i>extract</i> is the clause’s verb: <i>(that) we extract</i> says which features."
+          }
+        }
+      }
+    }
+  ]
 }

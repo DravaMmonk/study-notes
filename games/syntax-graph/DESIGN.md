@@ -80,20 +80,27 @@ syntax.test.js       npm test：折、拒绝、对照，词汇表的 schema 和�
 ```json
 {
   "title": { "zh": "两个动词", "en": "Two verbs" },
-  "brief": { "zh": "…", "en": "…" },
-  "intro": [{ "t": { "zh": "…", "en": "…" } }],
-  "hint": [{ "zh": "…", "en": "…" }],
   "adds": ["rel"],
-  "sentence": "The method that we propose requires no labeled data.",
-  "folds": [{ "span": "that we propose", "type": "rel", "to": "method", "misread": { "词": { "zh": "…", "en": "…" } } }],
-  "roles": { "subj": "The method", "verb": "requires", "obj": "no labeled data" },
-  "misrole": { "verb": { "propose": { "zh": "…", "en": "…" } }, "obj": { "*": { "zh": "…", "en": "…" } } },
-  "given": ["…"],
-  "debrief": { "title": { "zh": "…", "en": "…" }, "body": [{ "zh": "…", "en": "…" }], "note": { "zh": "…", "en": "…" } }
+  "intro": [{ "t": { "zh": "…", "en": "…" } }],
+  "debrief": { "title": { "zh": "…", "en": "…" }, "body": [{ "zh": "…", "en": "…" }], "note": { "zh": "…", "en": "…" } },
+  "tasks": [
+    {
+      "id": "3-1",
+      "brief": { "zh": "…", "en": "…" },
+      "hint": [{ "zh": "…", "en": "…" }],
+      "sentence": "The method that we propose requires no labeled data.",
+      "folds": [{ "span": "that we propose", "type": "rel", "to": "method", "misread": { "词": { "zh": "…", "en": "…" } } }],
+      "roles": { "subj": "The method", "verb": "requires", "obj": "no labeled data" },
+      "misrole": { "verb": { "propose": { "zh": "…", "en": "…" } }, "obj": { "*": { "zh": "…", "en": "…" } } },
+      "given": ["…"]
+    }
+  ]
 }
 ```
 
-`intro`、`hint`、`adds`、`misread`、`misrole`、`given`、`showcase` 可以不写。`adds` 是这一关带来的元件（`role:subj` 这样的成分，或 `pp`、`rel` 这样的结构）；`given` 是已经折好、拆不开的块（给后面的长句做支架）。答案用词写，不用下标：`span` 和 `to` 在句子里出现不止一次时，写 `change#2`。`misread` 的键是另一个可挂的词，`misrole` 的键是玩家标出的、还立着的那几个词（小写），`*` 表示这句话根本没有这个成分时说什么。几句话一起练的一关写成 `tasks: [{ step, brief, hint?, intro?, after?, …句子和答案 }]`，最后一句就是这一关本身。文案里的链接直接写 `<wiki-ref to="…"></wiki-ref>`。
+一关是一列任务（`kit/engine/tasks.js`）：关上写只说一次的（标题、带来的元件、`showcase`、引言、通关的话），每个任务是一句话和它的答案，连同它的说明和提示。只有一句的关就是一个任务，任务 id 用关的 id；几句话一起练的一关有几个任务，各带 `step`（任务条上的名字）和可选的 `intro`、`after`，依次做，最后一句就是这一关本身。玩家存下的分析按任务 id 存。
+
+`intro`、`hint`、`adds`、`misread`、`misrole`、`given`、`showcase` 可以不写。`adds` 是这一关带来的元件（`role:subj` 这样的成分，或 `pp`、`rel` 这样的结构）；`given` 是已经折好、拆不开的块（给后面的长句做支架）。答案用词写，不用下标：`span` 和 `to` 在句子里出现不止一次时，写 `change#2`。`misread` 的键是另一个可挂的词，`misrole` 的键是玩家标出的、还立着的那几个词（小写），`*` 表示这句话根本没有这个成分时说什么。文案里的链接直接写 `<wiki-ref to="…"></wiki-ref>`。
 
 **写句子的纪律：**
 

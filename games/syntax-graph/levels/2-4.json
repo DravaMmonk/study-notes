@@ -3,10 +3,6 @@
     "zh": "看意思挂",
     "en": "Hang it by the meaning"
   },
-  "brief": {
-    "zh": "两句话，同一个 <i>with</i>。每句标出主干，把修饰成分挂到它修饰的词上。",
-    "en": "Two sentences, the same <i>with</i>. In each, mark the skeleton and hang the modifier on the word it modifies."
-  },
   "intro": [
     {
       "t": {
@@ -15,6 +11,22 @@
       }
     }
   ],
+  "debrief": {
+    "title": {
+      "zh": "We compare our model with the baseline.",
+      "en": "We compare our model with the baseline."
+    },
+    "body": [
+      {
+        "zh": "同一个 <i>with</i>：<i>models with different depths</i> 是“深度不同的模型”，挂名词；<i>compare our model with the baseline</i> 是“拿我们的模型和基线比”，挂动词。动词自己要什么（<i>compare … with …</i>），常常决定了介词短语挂在哪。",
+        "en": "The same <i>with</i>: <i>models with different depths</i> are models that differ in depth, on the noun; <i>compare our model with the baseline</i> sets the model against the baseline, on the verb. What a verb asks for (<i>compare … with …</i>) often decides where a phrase hangs."
+      }
+    ],
+    "note": {
+      "zh": "形状一样，挂法不一样：看动词要什么，再看意思。",
+      "en": "Same shape, different hanging: see what the verb asks for, then the meaning."
+    }
+  },
   "tasks": [
     {
       "id": "2-4_1",
@@ -94,21 +106,5 @@
         "obj": "our model"
       }
     }
-  ],
-  "debrief": {
-    "title": {
-      "zh": "We compare our model with the baseline.",
-      "en": "We compare our model with the baseline."
-    },
-    "body": [
-      {
-        "zh": "同一个 <i>with</i>：<i>models with different depths</i> 是“深度不同的模型”，挂名词；<i>compare our model with the baseline</i> 是“拿我们的模型和基线比”，挂动词。动词自己要什么（<i>compare … with …</i>），常常决定了介词短语挂在哪。",
-        "en": "The same <i>with</i>: <i>models with different depths</i> are models that differ in depth, on the noun; <i>compare our model with the baseline</i> sets the model against the baseline, on the verb. What a verb asks for (<i>compare … with …</i>) often decides where a phrase hangs."
-      }
-    ],
-    "note": {
-      "zh": "形状一样，挂法不一样：看动词要什么，再看意思。",
-      "en": "Same shape, different hanging: see what the verb asks for, then the meaning."
-    }
-  }
+  ]
 }

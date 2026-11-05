@@ -3,10 +3,6 @@
     "zh": "折起来",
     "en": "Fold it away"
   },
-  "brief": {
-    "zh": "标出主干。挡在中间的修饰成分，先折起来。",
-    "en": "Mark the skeleton. Fold away the modifier that stands in the way first."
-  },
   "adds": [
     "pp"
   ],
@@ -30,36 +26,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "动词是哪个？在它前面，是什么在变？",
-      "en": "Which word is the verb? Before it, what is it that changes?"
-    },
-    {
-      "zh": "“of …”这一串说明的是前面哪个名词？",
-      "en": "Which noun before it does the run “of …” tell about?"
-    }
-  ],
-  "sentence": "The running time of the algorithm grows quadratically.",
-  "folds": [
-    {
-      "span": "of the algorithm",
-      "type": "pp",
-      "to": "time"
-    }
-  ],
-  "roles": {
-    "subj": "The running time",
-    "verb": "grows"
-  },
-  "misrole": {
-    "subj": {
-      "the algorithm": {
-        "zh": "主语若是 <i>the algorithm</i>，句子说的就是“算法在长大”。按平方增长的是运行时间；<i>of the algorithm</i> 只说明是谁的运行时间。",
-        "en": "With <i>the algorithm</i> as the subject, the sentence says the algorithm grows. What grows quadratically is the running time; <i>of the algorithm</i> only says whose."
-      }
-    }
-  },
   "debrief": {
     "title": {
       "zh": "The running time of the algorithm grows quadratically.",
@@ -75,5 +41,44 @@
       "zh": "先把修饰成分折到它的中心词上，主干就露出来了。",
       "en": "Fold each modifier onto its head, and the skeleton shows."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-2",
+      "brief": {
+        "zh": "标出主干。挡在中间的修饰成分，先折起来。",
+        "en": "Mark the skeleton. Fold away the modifier that stands in the way first."
+      },
+      "hint": [
+        {
+          "zh": "动词是哪个？在它前面，是什么在变？",
+          "en": "Which word is the verb? Before it, what is it that changes?"
+        },
+        {
+          "zh": "“of …”这一串说明的是前面哪个名词？",
+          "en": "Which noun before it does the run “of …” tell about?"
+        }
+      ],
+      "sentence": "The running time of the algorithm grows quadratically.",
+      "folds": [
+        {
+          "span": "of the algorithm",
+          "type": "pp",
+          "to": "time"
+        }
+      ],
+      "roles": {
+        "subj": "The running time",
+        "verb": "grows"
+      },
+      "misrole": {
+        "subj": {
+          "the algorithm": {
+            "zh": "主语若是 <i>the algorithm</i>，句子说的就是“算法在长大”。按平方增长的是运行时间；<i>of the algorithm</i> 只说明是谁的运行时间。",
+            "en": "With <i>the algorithm</i> as the subject, the sentence says the algorithm grows. What grows quadratically is the running time; <i>of the algorithm</i> only says whose."
+          }
+        }
+      }
+    }
+  ]
 }

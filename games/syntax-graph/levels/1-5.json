@@ -3,10 +3,6 @@
     "zh": "是什么",
     "en": "What it is"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分折起来。",
-    "en": "Mark the skeleton, folding the modifiers away."
-  },
   "adds": [
     "role:comp"
   ],
@@ -24,38 +20,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "<i>is</i> 后面那一块，是在说主语是什么吗？",
-      "en": "Is what follows <i>is</i> saying what the subject is?"
-    }
-  ],
-  "sentence": "The main contribution of this paper is a new loss function for imbalanced data.",
-  "folds": [
-    {
-      "span": "of this paper",
-      "type": "pp",
-      "to": "contribution"
-    },
-    {
-      "span": "for imbalanced data",
-      "type": "pp",
-      "to": "function"
-    }
-  ],
-  "roles": {
-    "subj": "The main contribution",
-    "verb": "is",
-    "comp": "a new loss function"
-  },
-  "misrole": {
-    "obj": {
-      "*": {
-        "zh": "<i>is</i> 后面跟的不是宾语：它不说动作落在什么上，而是说主语是什么。",
-        "en": "What follows <i>is</i> is no object: it does not say what is acted on, but what the subject is."
-      }
-    }
-  },
   "debrief": {
     "title": {
       "zh": "The main contribution of this paper is a new loss function for imbalanced data.",
@@ -71,5 +35,46 @@
       "zh": "系动词后面是表语，说明主语是什么。",
       "en": "After a linking verb comes a complement: what the subject is."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-5",
+      "brief": {
+        "zh": "标出主干，把修饰成分折起来。",
+        "en": "Mark the skeleton, folding the modifiers away."
+      },
+      "hint": [
+        {
+          "zh": "<i>is</i> 后面那一块，是在说主语是什么吗？",
+          "en": "Is what follows <i>is</i> saying what the subject is?"
+        }
+      ],
+      "sentence": "The main contribution of this paper is a new loss function for imbalanced data.",
+      "folds": [
+        {
+          "span": "of this paper",
+          "type": "pp",
+          "to": "contribution"
+        },
+        {
+          "span": "for imbalanced data",
+          "type": "pp",
+          "to": "function"
+        }
+      ],
+      "roles": {
+        "subj": "The main contribution",
+        "verb": "is",
+        "comp": "a new loss function"
+      },
+      "misrole": {
+        "obj": {
+          "*": {
+            "zh": "<i>is</i> 后面跟的不是宾语：它不说动作落在什么上，而是说主语是什么。",
+            "en": "What follows <i>is</i> is no object: it does not say what is acted on, but what the subject is."
+          }
+        }
+      }
+    }
+  ]
 }

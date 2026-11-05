@@ -1,6 +1,6 @@
 // node --test games/kit/domains/syntax — sentence analysis: tokens and spans, folding and its refusals, the check of an
-// analysis against the answer, the order folds can be made in, the level checks, and the content contract (the
-// vocabulary's schemas).
+// analysis against the answer, the order folds can be made in, the level checks, the content contract (the
+// vocabulary's schemas), and a course read that leaves the content as it was.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { check, fold, foldRefusal, mark, order, resolve, say, skeleton, standing, targetRefusal, tokenize, units, unfold } from './model/sentence.js'
@@ -8,6 +8,10 @@ import { sentenceProblems } from './validate.js'
 import { validate as fits } from '../../engine/schema.js'
 import { vocabulary } from './vocabulary.js'
 import { T } from '../../shell/i18n.js'
+import { deepFreeze } from '../../engine/content.js'
+import { GAMES_DIR, isDataGame, readContent } from '../../engine/content-node.js'
+import domain from './domain.js'
+import { readdirSync } from 'node:fs'
 
 const spec = {
   sentence: 'A small change in the weights of the first layer causes a large change in the output.',
@@ -112,14 +116,26 @@ test('the level checks catch a bad answer', () => {
   assert.ok(sentenceProblems(crossed, ok).some((p) => /cross/.test(p)))
 })
 
-test('a level as content: the vocabulary’s schema takes a sentence or tasks, and names what does not fit', () => {
-  const level = { title: T('题', 'Title'), brief: T('做', 'Do'), adds: ['pp'], debrief: { title: T('句', 'Sentence'), body: [T('体', 'Body')] }, ...spec }
+test('a level as content: the vocabulary’s schema takes a list of tasks, and names what does not fit', () => {
+  const { sentence, folds, roles, misrole } = spec
+  const task = { id: 'one', brief: T('做', 'Do'), sentence, folds, roles, misrole }
+  const level = { title: T('题', 'Title'), adds: ['pp'], debrief: { title: T('句', 'Sentence'), body: [T('体', 'Body')] }, tasks: [task] }
   const says = (v) => fits(vocabulary.level, v, { vocabulary }).map((p) => `${p.at}: ${p.says}`)
   assert.deepEqual(says(level), [])
-  const { sentence, folds, roles, misrole, ...common } = level
-  assert.deepEqual(says({ ...common, tasks: [{ id: 'one', step: T('一', 'One'), brief: T('做', 'Do'), sentence, folds, roles }, { id: 'two', step: T('二', 'Two'), brief: T('做', 'Do'), sentence, roles }] }), [])
+  assert.deepEqual(says({ ...level, tasks: [{ ...task, step: T('一', 'One') }, { id: 'two', step: T('二', 'Two'), brief: T('做', 'Do'), sentence, roles }] }), [])
   assert.ok(says({ ...level, adds: ['role:who'] }).some((p) => /role:who.*no part/.test(p)))
-  assert.ok(says({ ...level, folds: [{ ...folds[0], type: 'np' }] }).some((p) => /folds\[0\]\.type/.test(p)))
-  assert.ok(says({ ...level, roles: { subj: 'A small change' } }).some((p) => /roles\.verb: is missing/.test(p)))
+  assert.ok(says({ ...level, tasks: [{ ...task, folds: [{ ...folds[0], type: 'np' }] }] }).some((p) => /tasks\[0\]\.folds\[0\]\.type/.test(p)))
+  assert.ok(says({ ...level, tasks: [{ ...task, roles: { subj: 'A small change' } }] }).some((p) => /roles\.verb: is missing/.test(p)))
+  assert.ok(says({ ...level, tasks: undefined, ...task }).length > 0)
 })
 
+test('reading a game’s course writes nothing into its content', () => {
+  const games = readdirSync(GAMES_DIR).filter((id) => isDataGame(id) && readContent(id).domain === 'syntax')
+  assert.ok(games.length > 0)
+  for (const id of games) {
+    const content = deepFreeze(readContent(id))
+    const read = domain.spec(content)
+    assert.equal(read.levels.length, content.levels.length)
+    assert.ok(domain.validate(read).every((line) => !line.fail))
+  }
+})

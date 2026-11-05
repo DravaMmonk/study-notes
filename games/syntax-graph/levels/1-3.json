@@ -3,10 +3,6 @@
     "zh": "宾语后面",
     "en": "After the object"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分折起来。",
-    "en": "Mark the skeleton, folding the modifier away."
-  },
   "intro": [
     {
       "t": {
@@ -15,31 +11,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "<i>with linear running time</i> 说的是什么东西的性质？",
-      "en": "What is <i>with linear running time</i> a property of?"
-    }
-  ],
-  "sentence": "We describe an algorithm with linear running time.",
-  "folds": [
-    {
-      "span": "with linear running time",
-      "type": "pp",
-      "to": "algorithm",
-      "misread": {
-        "describe": {
-          "zh": "挂在 <i>describe</i> 上，意思就成了“用线性的运行时间去描述”。<i>with</i> 在这里说的是算法本身的性质。",
-          "en": "Hung on <i>describe</i>, it would mean describing by means of linear running time. Here <i>with</i> gives a property of the algorithm itself."
-        }
-      }
-    }
-  ],
-  "roles": {
-    "subj": "We",
-    "verb": "describe",
-    "obj": "an algorithm"
-  },
   "debrief": {
     "title": {
       "zh": "We describe an algorithm with linear running time.",
@@ -55,5 +26,39 @@
       "zh": "宾语的修饰成分也折到宾语的中心词上。",
       "en": "An object’s modifiers fold onto the object’s head too."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-3",
+      "brief": {
+        "zh": "标出主干，把修饰成分折起来。",
+        "en": "Mark the skeleton, folding the modifier away."
+      },
+      "hint": [
+        {
+          "zh": "<i>with linear running time</i> 说的是什么东西的性质？",
+          "en": "What is <i>with linear running time</i> a property of?"
+        }
+      ],
+      "sentence": "We describe an algorithm with linear running time.",
+      "folds": [
+        {
+          "span": "with linear running time",
+          "type": "pp",
+          "to": "algorithm",
+          "misread": {
+            "describe": {
+              "zh": "挂在 <i>describe</i> 上，意思就成了“用线性的运行时间去描述”。<i>with</i> 在这里说的是算法本身的性质。",
+              "en": "Hung on <i>describe</i>, it would mean describing by means of linear running time. Here <i>with</i> gives a property of the algorithm itself."
+            }
+          }
+        }
+      ],
+      "roles": {
+        "subj": "We",
+        "verb": "describe",
+        "obj": "an algorithm"
+      }
+    }
+  ]
 }

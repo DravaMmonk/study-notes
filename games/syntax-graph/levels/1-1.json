@@ -3,10 +3,6 @@
     "zh": "主干",
     "en": "The skeleton"
   },
-  "brief": {
-    "zh": "标出这句话的主语、谓语和宾语。",
-    "en": "Mark the subject, the verb and the object of this sentence."
-  },
   "adds": [
     "role:subj",
     "role:verb",
@@ -33,18 +29,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "先找动词：哪个词说的是“做了什么”？",
-      "en": "Find the verb first: which word says what is done?"
-    }
-  ],
-  "sentence": "Our method outperforms all existing baselines.",
-  "roles": {
-    "subj": "Our method",
-    "verb": "outperforms",
-    "obj": "all existing baselines"
-  },
   "debrief": {
     "title": {
       "zh": "Our method outperforms all existing baselines.",
@@ -60,5 +44,26 @@
       "zh": "主干 = 谁 + 做什么 + 对什么。",
       "en": "Skeleton = who + does what + to what."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-1",
+      "brief": {
+        "zh": "标出这句话的主语、谓语和宾语。",
+        "en": "Mark the subject, the verb and the object of this sentence."
+      },
+      "hint": [
+        {
+          "zh": "先找动词：哪个词说的是“做了什么”？",
+          "en": "Find the verb first: which word says what is done?"
+        }
+      ],
+      "sentence": "Our method outperforms all existing baselines.",
+      "roles": {
+        "subj": "Our method",
+        "verb": "outperforms",
+        "obj": "all existing baselines"
+      }
+    }
+  ]
 }

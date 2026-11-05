@@ -3,10 +3,6 @@
     "zh": "一句里两个方向",
     "en": "Both ways in one sentence"
   },
-  "brief": {
-    "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
-    "en": "Mark the skeleton and fold each modifier onto the word it modifies."
-  },
   "intro": [
     {
       "t": {
@@ -15,46 +11,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "“用于图像分类”说的是什么样的东西？",
-      "en": "“For image classification” tells what kind of thing?"
-    },
-    {
-      "zh": "在三个基准上做的是什么？",
-      "en": "What is done on three benchmarks?"
-    }
-  ],
-  "sentence": "We evaluate the method on three benchmarks for image classification.",
-  "folds": [
-    {
-      "span": "for image classification",
-      "type": "pp",
-      "to": "benchmarks",
-      "misread": {
-        "evaluate": {
-          "zh": "挂在 <i>evaluate</i> 上，就成了“为了图像分类去评估”。这里 <i>for</i> 说明的是哪一类基准。",
-          "en": "Hung on <i>evaluate</i>, it means evaluating for the sake of image classification. Here <i>for</i> says which kind of benchmarks."
-        }
-      }
-    },
-    {
-      "span": "on three benchmarks for image classification",
-      "type": "pp",
-      "to": "evaluate",
-      "misread": {
-        "method": {
-          "zh": "“在三个基准上的方法”说不通：在基准上进行的是评估。",
-          "en": "“The method on three benchmarks” makes no sense: what happens on the benchmarks is the evaluation."
-        }
-      }
-    }
-  ],
-  "roles": {
-    "subj": "We",
-    "verb": "evaluate",
-    "obj": "the method"
-  },
   "debrief": {
     "title": {
       "zh": "We evaluate the method on three benchmarks for image classification.",
@@ -70,5 +26,54 @@
       "zh": "里面那块挂名词，外面那块挂动词：一层层看意思。",
       "en": "The inner piece on a noun, the outer on the verb: read the meaning layer by layer."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "2-3",
+      "brief": {
+        "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
+        "en": "Mark the skeleton and fold each modifier onto the word it modifies."
+      },
+      "hint": [
+        {
+          "zh": "“用于图像分类”说的是什么样的东西？",
+          "en": "“For image classification” tells what kind of thing?"
+        },
+        {
+          "zh": "在三个基准上做的是什么？",
+          "en": "What is done on three benchmarks?"
+        }
+      ],
+      "sentence": "We evaluate the method on three benchmarks for image classification.",
+      "folds": [
+        {
+          "span": "for image classification",
+          "type": "pp",
+          "to": "benchmarks",
+          "misread": {
+            "evaluate": {
+              "zh": "挂在 <i>evaluate</i> 上，就成了“为了图像分类去评估”。这里 <i>for</i> 说明的是哪一类基准。",
+              "en": "Hung on <i>evaluate</i>, it means evaluating for the sake of image classification. Here <i>for</i> says which kind of benchmarks."
+            }
+          }
+        },
+        {
+          "span": "on three benchmarks for image classification",
+          "type": "pp",
+          "to": "evaluate",
+          "misread": {
+            "method": {
+              "zh": "“在三个基准上的方法”说不通：在基准上进行的是评估。",
+              "en": "“The method on three benchmarks” makes no sense: what happens on the benchmarks is the evaluation."
+            }
+          }
+        }
+      ],
+      "roles": {
+        "subj": "We",
+        "verb": "evaluate",
+        "obj": "the method"
+      }
+    }
+  ]
 }

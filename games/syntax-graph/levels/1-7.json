@@ -3,10 +3,6 @@
     "zh": "两头都长",
     "en": "Long at both ends"
   },
-  "brief": {
-    "zh": "标出主干，把所有修饰成分折起来。",
-    "en": "Mark the skeleton, folding every modifier away."
-  },
   "intro": [
     {
       "t": {
@@ -15,40 +11,6 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "句子里有两个 <i>change</i>。各自后面的修饰成分，分别挂在哪一个上？",
-      "en": "The sentence has two <i>change</i>s. Which one does each chain hang on?"
-    }
-  ],
-  "sentence": "A small change in the weights of the first layer causes a large change in the output of the network.",
-  "folds": [
-    {
-      "span": "of the first layer",
-      "type": "pp",
-      "to": "weights"
-    },
-    {
-      "span": "in the weights of the first layer",
-      "type": "pp",
-      "to": "change#1"
-    },
-    {
-      "span": "of the network",
-      "type": "pp",
-      "to": "output"
-    },
-    {
-      "span": "in the output of the network",
-      "type": "pp",
-      "to": "change#2"
-    }
-  ],
-  "roles": {
-    "subj": "A small change",
-    "verb": "causes",
-    "obj": "a large change"
-  },
   "debrief": {
     "title": {
       "zh": "A small change in the weights of the first layer causes a large change in the output of the network.",
@@ -64,5 +26,48 @@
       "zh": "先折修饰成分，再读主干。",
       "en": "Fold the modifiers first, then read the skeleton."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-7",
+      "brief": {
+        "zh": "标出主干，把所有修饰成分折起来。",
+        "en": "Mark the skeleton, folding every modifier away."
+      },
+      "hint": [
+        {
+          "zh": "句子里有两个 <i>change</i>。各自后面的修饰成分，分别挂在哪一个上？",
+          "en": "The sentence has two <i>change</i>s. Which one does each chain hang on?"
+        }
+      ],
+      "sentence": "A small change in the weights of the first layer causes a large change in the output of the network.",
+      "folds": [
+        {
+          "span": "of the first layer",
+          "type": "pp",
+          "to": "weights"
+        },
+        {
+          "span": "in the weights of the first layer",
+          "type": "pp",
+          "to": "change#1"
+        },
+        {
+          "span": "of the network",
+          "type": "pp",
+          "to": "output"
+        },
+        {
+          "span": "in the output of the network",
+          "type": "pp",
+          "to": "change#2"
+        }
+      ],
+      "roles": {
+        "subj": "A small change",
+        "verb": "causes",
+        "obj": "a large change"
+      }
+    }
+  ]
 }
