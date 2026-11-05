@@ -9,7 +9,8 @@
 //                                           boards round-trip through blueprint text
 //   validateProblems(domain, content, spec) validate(spec) on the content with every naive answer in its reference's
 //                                           place (each such level fails, none but those after it), and with every built part
-//                                           running its board unplugged (syncOwn: each builder level fails)
+//                                           running its board unplugged (syncOwn: each builder level fails, but one whose
+//                                           parts the spec lists as builtIn, which must not)
 //   gameProblems(content, spec, game)       game.jsx's game (the shell's description) plays the same levels
 //
 // Each returns what is wrong as [string], empty when the contract holds (validateProblems: { problems, … }).
@@ -176,6 +177,11 @@ export function specProblems(domain, content, spec) {
   out.push(...blueprintProblems(spec))
   const builds = spec.course.levels.some((l) => spec.course.builds(l).length)
   if (builds && !isFn(spec.syncOwn)) say('the course builds parts, but the spec has no syncOwn(built)')
+  if (spec.builtIn !== undefined) {
+    const built = new Set(spec.course.levels.flatMap((l) => spec.course.builds(l)))
+    if (!strings(spec.builtIn)) say('builtIn is not a list of parts')
+    else for (const p of spec.builtIn.filter((x) => !built.has(x))) say(`builtIn lists ${p}, which no level builds`)
+  }
   return out
 }
 
@@ -233,9 +239,10 @@ const named = (lines) => [...new Set(lines.map((l) => l.level))]
 
 /**
  * validate(spec) against the contract, on changed content: every level's naive answer in its reference's place (each
- * such level fails, and no other level but one after it), then every builder level's part running its board unplugged. Returns { problems,
- * builders, runsOwn }: the levels that build parts, and those whose part runs the board syncOwn hands it (a level
- * missing there builds a part that is a built-in implementation, not the player's board).
+ * such level fails, and no other level but one after it), then every builder level's part running its board unplugged:
+ * each such level fails, but one whose every part the spec lists as builtIn (a built-in implementation, not the
+ * player's board), which must pass, so the list only shrinks. Returns { problems, builders, runsOwn }: the levels that
+ * build parts, and those whose part runs the board syncOwn hands it.
  */
 export async function validateProblems(domain, content, spec) {
   const out = []
@@ -269,6 +276,12 @@ export async function validateProblems(domain, content, spec) {
     const fails = failing(await domain.validate(spec))
     spec.syncOwn({})
     for (const { id } of unplugged) if (fails.some((l) => l.level === id)) runsOwn.push(id)
+  }
+  const builtIn = new Set(spec.builtIn ?? [])
+  for (const id of builders) {
+    const own = !course.builds(course.levels.find((l) => l.id === id)).every((p) => builtIn.has(p))
+    if (own && !runsOwn.includes(id)) out.push(`syncOwn: ${id} passes with its board unplugged: its part does not run the board syncOwn hands it (a built-in implementation goes in spec.builtIn)`)
+    if (!own && runsOwn.includes(id)) out.push(`syncOwn: ${id} builds only parts the spec lists as builtIn, but its part runs the board syncOwn hands it: drop them from builtIn`)
   }
   return { problems: out, runsOwn, builders }
 }

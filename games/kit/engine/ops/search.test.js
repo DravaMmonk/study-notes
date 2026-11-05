@@ -1,6 +1,7 @@
 // node --test games/kit/engine/ops — search across a game and replace as operations (search.js): texts side by side,
 // never inside a link tag; board lines; ids found and left alone; a replace as text.set and level.blueprint operations
-// that a changeset runs; and on a real game, a replace that the operation set takes and that leaves nothing to find.
+// that a changeset runs; and on a small game on a real domain (./fixture.js), a replace that the operation set takes and
+// that leaves nothing to find.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S } from '../schema.js'
@@ -8,6 +9,7 @@ import { defineVocabulary } from '../vocabulary.js'
 import { hitKey, patternOf, replaceOps, replaced, searchContent } from './search.js'
 import { openGame } from './workspace.js'
 import { runChangeset } from './changeset.js'
+import { proofsRoot } from './fixture.js'
 
 const VOCAB = defineVocabulary({
   domain: 'toy',
@@ -72,16 +74,17 @@ test('replace: one text.set a text with the sides it changes, one level.blueprin
   assert.deepEqual(replaceOps(CONTENT, VOCAB, { find: 'nothing here' }, 'x'), { ops: [], changes: [], skipped: [] })
 })
 
-test('on a real game: a replace runs as a changeset, and afterwards there is nothing left to find', async () => {
-  const ws = openGame('network')
+test('on a game of a real domain: a replace runs as a changeset, and afterwards there is nothing left to find', async () => {
+  const { root, id } = proofsRoot()
+  const ws = openGame(id, root)
   const content = ws.content()
-  const { vocabulary } = (await import('../../domains/net/domain.js')).default
-  const query = { find: 'flag', word: true, kinds: ['text'], sides: ['en'] }
+  const { vocabulary } = (await import('../../domains/logic/domain.js')).default
+  const query = { find: 'Saturday', word: true, kinds: ['text'], sides: ['en'] }
   const before = searchContent(content, vocabulary, query)
-  assert.ok(before.length > 5)
-  const { ops } = replaceOps(content, vocabulary, query, 'banner')
+  assert.ok(before.length > 1 && new Set(before.map((h) => h.file)).size > 1, 'hits in more than one file')
+  const { ops } = replaceOps(content, vocabulary, query, 'Sunday')
   const r = await runChangeset(ws, { ops }, { write: false, check: false })
   assert.equal(r.failed, null, r.problems.join('\n'))
   assert.deepEqual(searchContent(r.content, vocabulary, query), [])
-  assert.ok(searchContent(r.content, vocabulary, { ...query, find: 'banner' }).length >= before.length)
+  assert.ok(searchContent(r.content, vocabulary, { ...query, find: 'Sunday' }).length >= before.length)
 })

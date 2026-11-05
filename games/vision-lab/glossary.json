@@ -182,8 +182,8 @@
       "at": "0-2",
       "body": [
         {
-          "zh": "有限图像没有图外观测。零、复制、周期和镜像代表不同延续模型；valid 只保留完整邻域，因此输出尺寸依核支持缩小。",
-          "en": "Finite images have no outside observations. Zero, replicate, periodic and reflected extension are different models. Valid output keeps full neighbourhoods and shrinks with support."
+          "zh": "有限图像没有图外观测，补边只是对图外的一种猜测，各适合不同的材料：补 0 最简单，但可能造出黑边；复制最近边缘对普通照片通常较自然；周期延续把左右、上下相接，适合可以无缝平铺的纹理，不适合普通照片；镜像延续让边缘两侧对称，常能减少人工边界。没有一种规则永远最好。valid 只保留完整邻域，因此输出尺寸依核支持缩小。",
+          "en": "Finite images have no outside observations, so padding is a guess about the outside, each suiting different material: zero is simplest but can create dark borders; replicating the nearest edge is usually natural for ordinary photographs; periodic continuation joins left to right and top to bottom, suiting seamlessly tileable textures but not ordinary photographs; reflection mirrors the edge and often reduces artificial borders. No rule is always best. Valid output keeps full neighbourhoods and shrinks with support."
         },
         {
           "zh": "常见误解：所有补边只影响外观，或保持原宽高的补边等于 valid。",

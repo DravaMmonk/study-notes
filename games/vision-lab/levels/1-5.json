@@ -82,8 +82,8 @@
         {
           "fig": "outside-clamp",
           "t": {
-            "zh": "双轴加权已经可用，但补 0 会让恒定图的边缘变暗。先单独更换边界假设：图外维持最近边缘的读数。用恒定图和变化图区分边界效果与平滑效果。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-            "en": "The two-axis filter works, but zero extension darkens constant-image edges. First change only the boundary assumption: outside reads retain the nearest edge value. Contrast constant and varying images to separate boundary effects from smoothing. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+            "zh": "双轴加权已经可用，但补 0 会让恒定图的边缘变暗。先单独更换边界假设：普通照片在边缘之外多半还是相近的景物，所以让图外维持最近边缘的读数。用恒定图和变化图区分边界效果与平滑效果。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+            "en": "The two-axis filter works, but zero extension darkens constant-image edges. First change only the boundary assumption: in an ordinary photograph the scene just beyond the edge usually resembles the edge, so outside reads retain the nearest edge value. Contrast constant and varying images to separate boundary effects from smoothing. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
           }
         }
       ],
@@ -93,7 +93,22 @@
           "en": "Compare corners with the interior, then check whether an impulse still spreads. Preserving a constant image is not the same as passing every image through unchanged."
         }
       ],
-      "starter": []
+      "starter": [],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [64, 64],
+            "base": 0.25,
+            "layers": [
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      }
     },
     {
       "id": "v1_residual",
@@ -202,7 +217,22 @@
           "zh": "看暗点图的中心：原图在那里比平滑图暗还是亮？细节在那里应当是什么符号？",
           "en": "Look at the centre of the dark dot: is the original darker or brighter there than the smoothed image? What sign should the detail have there?"
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [64, 64],
+            "base": 0.25,
+            "layers": [
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      }
     },
     {
       "id": "v1_detail",
@@ -389,7 +419,22 @@
             "en": "The signed detail is now separated. Use it to enhance the image at the supplied strength, and also report the magnitude of the smoothing change, distinguishing the removed variation from how much changed. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
           }
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [64, 64],
+            "base": 0.25,
+            "layers": [
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      }
     }
   ]
 }

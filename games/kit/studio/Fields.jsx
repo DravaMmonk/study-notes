@@ -19,18 +19,9 @@ import { blank, moved, recast, revertOf, shapeName, summaryOf } from './form.js'
 import { Chips, Choice, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
+import { ExprField, IconField } from './PartFields.jsx'
+import { useDraft } from './draft.js'
 
-/** A value typed into a control, kept while the control has focus, so a preview coming back never undoes typing. */
-function useDraft(value) {
-  const [draft, setDraft] = useState(value)
-  const focused = useRef(false)
-  const text = JSON.stringify(value)
-  useEffect(() => {
-    if (!focused.current) setDraft(JSON.parse(text ?? 'null') ?? undefined)
-  }, [text])
-  const bind = { onFocus: () => { focused.current = true }, onBlur: () => { focused.current = false } }
-  return [draft, setDraft, bind]
-}
 
 /** Grows with what it holds. */
 function Area({ value, onChange, bind, className = '', ...rest }) {
@@ -140,6 +131,8 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       case 'num': return <NumberField field={field} onSet={set} label={name} />
       case 'bool': return <input type="checkbox" className="field-check" checked={Boolean(field.value)} onChange={(e) => set(e.target.checked)} aria-label={name} />
       case 'str': return <StringField field={field} onSet={set} label={name} />
+      case 'expr': return <ExprField field={field} onSet={set} ctx={ctx} label={name} />
+      case 'icon': return <IconField field={field} onSet={set} label={name} />
       case 'choice': return <Choice options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} value={field.value} onPick={set} label={name} />
       case 'chips': return <Chips options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} values={Array.isArray(field.value) ? field.value : []} onSet={set} label={name} />
       case 'board': return <BoardField field={field} onSet={set} ctx={ctx} label={name} />

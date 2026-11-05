@@ -1,0 +1,18 @@
+{
+  "kind": "hand",
+  "mode": "once",
+  "title": { "zh": "它只知道你给它的", "en": "It knows what you give it" },
+  "brief": { "zh": "让模型修好这个 issue，再跑一次测试确认。", "en": "Get the model to fix this issue, then run the tests to make sure." },
+  "intro": [
+    {
+      "t": {
+        "zh": "你自己决定<wiki-ref to=\"context\"></wiki-ref>里放什么，按下「调用」，看模型做了什么，再自己跑测试。",
+        "en": "You decide what goes into the <wiki-ref to=\"context\"></wiki-ref>, press Call, see what the model did, and run the tests yourself."
+      }
+    }
+  ],
+  "hint": [{ "zh": "issue 里写了要改的文件名。", "en": "The issue names the file to change." }],
+  "test": { "issue": "qty-zero" },
+  "solution": [{ "add": "src/cart.js" }, "call", "test"],
+  "after": { "zh": "模型只知道上下文里的东西；上下文外面的，它会编。", "en": "The model knows only what is in its context; what is outside, it makes up." }
+}

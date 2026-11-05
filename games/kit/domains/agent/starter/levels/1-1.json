@@ -1,0 +1,22 @@
+{
+  "kind": "board",
+  "title": { "zh": "第一次调用", "en": "The first call" },
+  "brief": { "zh": "搭一块板：把 issue 交给模型，它写出的修改落进仓库。", "en": "Build a board: hand the issue to the model, and what it writes lands in the repository." },
+  "intro": [
+    {
+      "t": {
+        "zh": "机器每次运行这块板一次：左边是它拿到的东西，右边是结果去的地方，中间由你接。这一关的 issue 自带了代码。",
+        "en": "The machine runs this board once: on the left what it is given, on the right where the results go; the middle is yours to wire. This level’s issue comes with its code."
+      }
+    }
+  ],
+  "hint": [{ "zh": "从 issue 连到模型，再从模型连到仓库。", "en": "Wire the issue to the model, and the model to the repository." }],
+  "adds": ["model"],
+  "tests": [{ "issue": "total-shipping" }],
+  "solution": ["m = model(issue)", "repo <- m"],
+  "showcase": {
+    "zh": "第一块板：机器跑一遍板，左边是它拿到的，右边是结果去的地方，中间由玩家接",
+    "en": "the first board: the machine runs it once, what it is given on the left, where the results go on the right, the middle wired by the player"
+  },
+  "after": { "zh": "issue 里贴了代码，模型就看得到要改的函数，一次写对。", "en": "With the code pasted into the issue, the model sees the function to change and writes it right in one go." }
+}

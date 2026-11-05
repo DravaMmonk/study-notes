@@ -1,4 +1,4 @@
-import { applyRules } from '../../engine/parts/define.js'
+import { applyRules, partDesc } from '../../engine/parts/define.js'
 import PartFace, { blocksOf } from './PartFace.jsx'
 import { iconOf } from './icons.js'
 
@@ -44,8 +44,8 @@ export function definedParts(base, of) {
   }
 }
 
-/** A defined part as the palette, the tray and an empty slot's sheet list it. */
-export const definedItem = (type, def, extra = {}) => ({ type, label: def.name, desc: def.desc, icon: iconOf(def.icon), family: def.family, ...extra })
+/** A defined part as the palette, the tray and an empty slot's sheet list it; `allowed(type, key)` the options open here. */
+export const definedItem = (type, def, extra = {}, allowed = () => null) => ({ type, label: def.name, desc: partDesc(def, (key) => allowed(type, key)), icon: iconOf(def.icon), family: def.family, ...extra })
 
 /** The settings a node is left with once the player set `patch` (changed: the key set, null for an action). */
 export const nextParams = (def, params, patch, changed, ops) => applyRules(def, { ...params, ...patch }, changed, ops)

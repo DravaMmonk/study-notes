@@ -75,8 +75,8 @@
       "intro": [
         {
           "t": {
-            "zh": "相机只观测了图内的格子，位移取样会碰到缺少的邻居。本任务假设图外读数为 0；先查看独立示例，区分已有读数与补入的值。",
-            "en": "The camera observed only cells inside the image. Offset sampling can reach missing neighbours. This task assumes zero outside; compare observed and supplied values in the independent example."
+            "zh": "相机只观测了图内的格子，位移取样会碰到缺少的邻居。本任务假设图外读数为 0：这是最简单的约定，不猜测图外有什么。先查看独立示例，区分已有读数与补入的值。",
+            "en": "The camera observed only the cells inside the image, so an offset read meets missing neighbours. This task assumes 0 outside: the simplest convention, guessing nothing about what lies beyond. Inspect the independent example first to tell observed readings from filled-in values."
           },
           "fig": "outside-zero"
         }

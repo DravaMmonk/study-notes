@@ -29,6 +29,8 @@ import BenchScreen from './ui/BenchScreen.jsx'
 import IntroFigure from './ui/IntroFigure.jsx'
 import { iconOf } from '../../shell/parts/icons.js'
 import { visionCourse } from './course.js'
+import { optionText } from './configurations.js'
+import { OPS } from './ops.js'
 
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
@@ -46,7 +48,7 @@ export default function visionGame(content) {
   const vision = visionCourse(content)
   const { LEVELS, CHAPTERS, course, defs } = vision
   const saves = migrations(content.saves)
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: defs[type].name, desc: defs[type].desc, icon: iconOf(defs[type].icon), at, atTasks: at.flatMap((id) => vision.introductions(type, id)) }))
+  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: defs[type].name, ...optionText(LEVELS, defs[type]), icon: iconOf(defs[type].icon), at, atTasks: at.flatMap((id) => vision.introductions(type, id)) }))
   // A part upgraded by later levels is one part in the components box, as its last upgrade names and describes it.
   const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
   const labels = levelLabels(content.eras)
@@ -90,5 +92,7 @@ export default function visionGame(content) {
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
   })
   game.vision = vision
+  // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
+  game.defined = { of: (type) => vision.defs[type] ?? null, defaults: vision.defaultsOf, ops: OPS }
   return game
 }

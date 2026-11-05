@@ -1,12 +1,17 @@
 // node --test games/kit/studio — the studio's tools, pure parts: bulk edits as operations (bulk.js), the command
 // palette's index and ranking (palette.js), the check's lines as a worklist and the tree's marks (worklist.js), the copy
-// table's rows (copy.js); and on real games, that bulk operations, the palette's index and the copy rows hold up.
+// table's rows (copy.js); and on every domain's starter game (kit/domains/<d>/starter, copied to a temp folder), that
+// bulk operations, the palette's index and the copy rows hold up.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
 import { putIn, takeOut } from '../engine/ops/place.js'
+import { cpSync, existsSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { domainOf, readContent } from '../engine/content-node.js'
+import { eraLevels } from '../course.js'
 import { openGame } from '../engine/ops/workspace.js'
 import { runChangeset } from '../engine/ops/changeset.js'
 import { bulkAdds, bulkMove, bulkPatch, bulkSet, bulkUnset, commonFields } from './bulk.js'
@@ -54,18 +59,34 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
   assert.deepEqual(eras[0].foundation, ['a', 'y', 'x', 'b', 'c'])
 })
 
-test('on a real game: a bulk edit of three levels runs as a changeset', async () => {
-  const ws = openGame('network')
-  const content = ws.content()
-  const { vocabulary } = await domainOf(content)
-  const levels = content.levels.filter((l) => ['1-1', '1-2', '1-3'].includes(l.id))
-  const { ops, skipped } = bulkSet(vocabulary, levels, ['note'], { zh: '三关都有的注。', en: 'A note on all three.' })
-  assert.equal(ops.length + skipped.length, 3)
-  const moved = bulkMove(['1-3', '1-2'], { era: 1, path: 'foundation', at: 0 })
-  const r = await runChangeset(ws, { ops: [...ops, ...moved] }, { write: false, check: false })
-  assert.equal(r.failed, null, r.problems.join('\n'))
-  assert.deepEqual(r.content.eras[0].foundation.slice(0, 3), ['1-3', '1-2', '1-1'])
-  assert.ok(['1-1', '1-2', '1-3'].every((id) => r.content.levels.find((l) => l.id === id).note.en === 'A note on all three.'))
+// Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
+const DOMAINS = resolve(import.meta.dirname, '../domains')
+const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
+const starter = (d) => readContent('starter', resolve(DOMAINS, d))
+function openStarter(d) {
+  const root = mkdtempSync(join(tmpdir(), 'studio-tools-'))
+  cpSync(resolve(DOMAINS, d, 'starter'), join(root, d), { recursive: true })
+  writeFileSync(join(root, 'games.js'), `export const GAMES = [{ id: '${d}', levels: ${readdirSync(join(root, d, 'levels')).length} }]\n`)
+  return openGame(d, root)
+}
+
+test('on every starter: a bulk edit of its first era’s levels runs as a changeset, and a move lands where it says', async () => {
+  for (const d of STARTERS) {
+    const ws = openStarter(d)
+    const content = ws.content()
+    const { vocabulary } = await domainOf(content)
+    const ids = eraLevels(content.eras[0])
+    const levels = ids.map((id) => content.levels.find((l) => l.id === id))
+    // A text every level of the era holds: the title, which every vocabulary gives a level.
+    const { ops, skipped } = bulkSet(vocabulary, levels, ['title'], { zh: '同一个标题', en: 'One title' })
+    assert.deepEqual([ops.length, skipped], [ids.length, []], d)
+    // The era's levels backwards, from the top of its main path: they end up together, in that order.
+    const moved = bulkMove([...ids].reverse(), { era: content.eras[0].id, path: 'foundation', at: 0 })
+    const r = await runChangeset(ws, { ops: [...ops, ...moved] }, { write: false, check: false })
+    assert.equal(r.failed, null, `${d}: ${r.problems.join('\n')}`)
+    assert.deepEqual(eraLevels(r.content.eras[0]), [...ids].reverse(), d)
+    assert.ok(ids.every((id) => r.content.levels.find((l) => l.id === id).title.en === 'One title'), d)
+  }
 })
 
 const CONTENT = {
@@ -123,29 +144,42 @@ test('the check’s lines as a worklist: severity, rule, levels; filtered, stepp
   assert.equal(marksOf(CONTENT, VOCAB, [], false).get('c').domain, null, 'not checked yet')
 })
 
-test('on the real games: the palette indexes every level and the tree’s marks count every test', async () => {
-  for (const game of ['network', 'qed', 'state-graph', 'vision-complete']) {
-    const content = readContent(game)
+test('on every starter: the palette indexes every level and entry, and the tree’s marks count every test', async () => {
+  assert.ok(STARTERS.length > 0)
+  let tests = 0
+  for (const game of STARTERS) {
+    const content = starter(game)
     const { vocabulary } = await domainOf(content)
     const items = paletteIndex({ content })
     assert.equal(items.filter((it) => it.kind === 'level').length, content.levels.length, game)
     assert.equal(items.filter((it) => it.kind === 'entry').length, content.glossary.entries.length, game)
     const marks = marksOf(content, vocabulary, [], false)
-    assert.ok([...marks.values()].some((m) => m.tests > 0), game)
+    for (const { id, ...level } of content.levels) assert.equal(marks.get(id).tests, testsOf(vocabulary.level, level, vocabulary), `${game} ${id}`)
+    tests += [...marks.values()].reduce((n, m) => n + m.tests, 0)
   }
+  // A truth circuit's rows are its tests, which no field lists; the starters together hold some.
+  assert.ok(tests > 0)
 })
 
-test('the copy table’s rows: an era’s own texts and its levels’, the whole game, the encyclopedia; each with its copy rule', async () => {
-  const content = readContent('network')
-  const { vocabulary } = await domainOf(content)
-  const order = content.levels.map((l) => l.id)
-  const era = copyRows(content, vocabulary, 0, order)
-  assert.deepEqual(era[0], { key: '1|eras[0].title', file: { game: true }, name: '1', path: ['eras', 0, 'title'], value: content.eras[0].title, field: 'title' })
-  assert.ok(era.some((r) => r.file.level === '1-12' && r.field === 'brief'))
-  const all = copyRows(content, vocabulary, 'all', order)
-  assert.ok(all.length > era.length && all[0].file.game && all.some((r) => r.name === '1-41'))
-  assert.equal(new Set(all.map((r) => r.key)).size, all.length, 'every row its own key')
-  const glossary = copyRows(content, vocabulary, 'glossary', order)
-  assert.deepEqual(glossary.find((r) => r.name === 'tick' && r.field === 'body').path, ['entries', 0, 'body', 0])
-  assert.ok(glossary.every((r) => r.file.glossary))
+test('on every starter: the copy table’s rows: an era’s own texts and its levels’, the whole game, the encyclopedia; each with its copy rule', async () => {
+  for (const game of STARTERS) {
+    const content = starter(game)
+    const { vocabulary } = await domainOf(content)
+    const order = content.levels.map((l) => l.id)
+    const era = copyRows(content, vocabulary, 0, order)
+    const own = eraLevels(content.eras[0])
+    // The era's own texts first, under its id in game.json; then only its levels' texts, each under its level.
+    const head = era.findIndex((r) => !r.file.game)
+    assert.ok(head > 0 && era.slice(0, head).every((r) => r.file.game && r.path[0] === 'eras' && r.path[1] === 0 && r.name === String(content.eras[0].id)), game)
+    assert.ok(era.slice(head).every((r) => own.includes(r.file.level) && r.name === r.file.level), game)
+    assert.ok(own.every((id) => era.some((r) => r.file.level === id && r.field === 'title')), game)
+    const all = copyRows(content, vocabulary, 'all', order)
+    assert.ok(all.length >= era.length && all[0].file.game, game)
+    assert.ok(order.every((id) => all.some((r) => r.file.level === id)), game)
+    assert.equal(new Set(all.map((r) => r.key)).size, all.length, `${game}: every row its own key`)
+    const glossary = copyRows(content, vocabulary, 'glossary', order)
+    const first = content.glossary.entries[0]
+    assert.deepEqual(glossary.find((r) => r.name === first.id && r.field === 'body').path, ['entries', 0, 'body', 0], game)
+    assert.ok(glossary.every((r) => r.file.glossary), game)
+  }
 })

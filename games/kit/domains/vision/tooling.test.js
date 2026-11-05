@@ -8,6 +8,7 @@ import { PARTS } from './fixture.js'
 import { play } from './play.js'
 import { fromRows,toRows } from './image.js'
 import { builds, circuit, game, level } from './fixture.js'
+import { optionText } from './configurations.js'
 after(closeGames)
 
 const failures=(content)=>domain.validate(domain.spec(content)).filter(r=>r.fail).map(r=>r.text)
@@ -133,4 +134,11 @@ test('headless attempts share task defaults and refuse explicitly unavailable se
   const unavailable=play.attempt(ctx,'d = arithmetic[op=div](a,b)\nout <- d')
   assert.equal(unavailable.pass,false)
   assert.match(unavailable.refused[0].en,/Not introduced/)
+})
+
+test('the components box describes an option from the level that opens it',()=>{
+  const def={type:'reduce',desc:{zh:'汇总。',en:'Reduce.'},settings:[{key:'mode',options:[{value:'mean',about:{zh:'平均。',en:'Mean.'}},{value:'sum',about:{zh:'求和。',en:'Sum.'}}]}]}
+  const levels=[{id:'a',tasks:[{configurations:{'reduce.mode':['sum']}}]},{id:'b',tasks:[{}]},{id:'c',tasks:[{configurations:{'*.mode':['mean']}}]}]
+  assert.deepEqual(optionText(levels,def),{desc:{zh:'汇总。',en:'Reduce.'},revisions:[{at:'a',desc:{zh:'汇总。求和。',en:'Reduce. Sum.'}},{at:'c',desc:{zh:'汇总。平均。求和。',en:'Reduce. Mean. Sum.'}}]})
+  assert.deepEqual(optionText([{id:'a',tasks:[{}]}],def),{desc:{zh:'汇总。平均。求和。',en:'Reduce. Mean. Sum.'}})
 })

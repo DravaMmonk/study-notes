@@ -10,6 +10,7 @@ import { defineVocabulary } from '../vocabulary.js'
 import { OPERATIONS } from './operations.js'
 import { openGame } from './workspace.js'
 import { runChangeset, readLog, undo } from './changeset.js'
+import { withParts } from '../parts/define.js'
 
 const levels = S.list(S.level())
 const ERA = S.obj({
@@ -229,4 +230,47 @@ test('tasks by id: task.add, task.move in a level and across levels, task.rename
   assert.deepEqual(removed.saves, [{ drop: ['two'] }])
   for (const done of [removed, renamed, across, inLevel, added]) for (const { op, ...args } of done.inverse) go(op, args)
   assert.equal(JSON.stringify([...ws.levels]), before)
+})
+
+// A toy whose parts are data (games/DESIGN.md 6.9): engine resources in its vocabulary, its parts in parts.json.
+const PVOCAB = defineVocabulary({
+  domain: 'ptoy',
+  version: 1,
+  kinds: { op: { add: { about: 'a + b', args: [{ name: 'a' }, { name: 'b' }] } }, family: { value: { about: 'numbers' } } },
+  game: S.obj({ title: S.text(), primitives: S.list(S.ref('part')), eras: S.list(ERA), saves: S.list(S.any()) }),
+  level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()) }),
+})
+const sum = { name: { zh: '和', en: 'Sum' }, desc: { zh: 'a + b', en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' }
+function partsToy() {
+  const root = mkdtempSync(join(tmpdir(), 'ops-ptoy-'))
+  mkdirSync(join(root, 'ptoy', 'levels'), { recursive: true })
+  const put = (file, value) => writeFileSync(join(root, 'ptoy', file), `${JSON.stringify(value, null, 2)}\n`)
+  put('game.json', { domain: 'ptoy', vocabulary: 1, title: 'Toy', primitives: ['sum'], eras: [{ id: 'one', foundation: ['a1'] }], saves: [] })
+  put('glossary.json', { groups: [], entries: [] })
+  put('parts.json', { parts: { sum } })
+  put('levels/a1.json', { title: 'A', brief: { zh: '用 <part-ref to="sum"></part-ref>', en: 'use <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] })
+  return openGame('ptoy', root)
+}
+const prun = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: withParts(PVOCAB, ws.partDefs), domain: { vocabulary: PVOCAB } })
+
+test('the part operations edit parts.json, refuse to remove a part still used, and rename it everywhere', () => {
+  const ws = partsToy()
+  const before = JSON.stringify(ws.content())
+  const added = prun(ws, 'part.add', { part: 'twice', data: { ...sum, inputs: [{ name: 'a' }], compute: 'add(a, a)' }, after: 'sum' })
+  assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum', 'twice'])
+  const set = prun(ws, 'parts.set', { path: 'parts.twice.settings', value: [{ key: 'k', control: 'slider', min: 0, max: 4 }] })
+  const said = prun(ws, 'text.set', { in: 'parts', path: 'parts.twice.name', en: 'Twice' })
+  assert.deepEqual(ws.partDefs.parts.twice.name, { zh: '和', en: 'Twice' })
+  for (const done of [said, set, added]) for (const { op, ...args } of done.inverse) prun(ws, op, args)
+  assert.equal(JSON.stringify(ws.content()), before, 'the inverses put parts.json back')
+  assert.throws(() => prun(ws, 'part.remove', { part: 'sum' }), /still named at game.json primitives\[0\], levels\/a1.json adds\[0\], levels\/a1.json brief.zh, levels\/a1.json brief.en, levels\/a1.json solution\[0\]/)
+  assert.throws(() => prun(ws, 'parts.set', { path: 'parts.sum', value: {} }), /part.add/)
+  const renamed = prun(ws, 'part.rename', { part: 'sum', to: 'plus' })
+  assert.deepEqual(renamed.saves, [{ retype: { sum: { type: 'plus', params: {} } } }])
+  assert.deepEqual(ws.game.primitives, ['plus'])
+  assert.deepEqual(ws.levels.get('a1').adds, ['plus'])
+  assert.deepEqual(ws.levels.get('a1').solution, ['s = plus(a, b)', 'out <- s'])
+  assert.match(ws.levels.get('a1').brief.en, /<part-ref to="plus">/)
+  for (const { op, ...args } of renamed.inverse) prun(ws, op, args)
+  assert.equal(JSON.stringify(ws.content()), before)
 })

@@ -35,8 +35,12 @@ copying the last wording forward.
 
 - Three layers: kernel (`games/kit/engine`, `circuit`, `shell`), domain (`games/kit/domains/<domain>`: vocabulary,
   model, items, ui), content (`games/<game>/`). Content is data only: it picks vocabulary items `{ item: params }`
-  and writes tests, copy and reference / naive boards as blueprint text, never a function. Anything new (a part's
-  evaluation, a world, a check, a panel) goes into the domain's vocabulary and implementation.
+  and writes tests, copy and reference / naive boards as blueprint text, never a function. Anything new (an engine
+  resource, a world, a check, a panel) goes into the domain's vocabulary and implementation.
+- Where the domain gives engine resources (`op` kind), a game's primitive parts are content: `games/<game>/parts.json`
+  (`games/DESIGN.md` §6.9) — ports, settings in the six kernel controls, an ASCII expression calling only resources
+  and kernel builtins, interaction rules and checks, and the card / tile / detail views. Change a part there (studio's
+  parts tab, or `part.*`, `parts.set`), never in domain code; a computation no resource can express is a new resource.
 - A level is a list of tasks (`games/DESIGN.md` §4, `kit/engine/tasks.js`): what it says once (title, intro, pass
   text, parts brought and built) on the level, each puzzle (brief, hints, ports, tests, answers) a task; a level of one
   task is a plain level. Every task has an id unique in the game (a level's one task usually has the level's id); what

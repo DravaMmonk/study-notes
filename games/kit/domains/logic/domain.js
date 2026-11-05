@@ -36,6 +36,9 @@ function spec(content) {
     logic,
     blueprints: logic.blueprints,
     syncOwn,
+    // The built parts that do not run a board syncOwn hands them unchecked: a gate runs the board kept for it only when
+    // that board passes its level (gates.js builtGates), and a lemma with a card runs as the kit's card (proof.js).
+    builtIn: [...new Set(logic.course.levels.flatMap((l) => logic.course.builds(l)))].filter((p) => content.gates?.[p] || content.lemmas?.[p]?.card),
     quotes: content.quotes ?? [],
     texts: { chapters: logic.CHAPTERS, lemmas: content.lemmas, facts: content.facts ?? {}, gates: content.gates ?? {}, revisions: content.revisions ?? {}, glossary: content.glossary.entries },
   }

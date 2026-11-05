@@ -1,9 +1,12 @@
 export const imageNumber = (value) => Number.isFinite(value) ? String(Number(value.toFixed(2))) : String(value)
 
 export const AXIS = 18
-export const inspectorCell = (image) => image.c===3 ? 56 : image.data.reduce((width,value)=>Math.max(width,Math.min(64,8+imageNumber(value).length*7)),36)
-// Dense cells for a desktop result row, read by pointer rather than touch: just wide enough for their numbers.
-export const denseCell = (image) => image.c===3 ? 46 : image.data.reduce((width,value)=>Math.max(width,Math.min(56,6+imageNumber(value).length*6)),26)
+// Cells keep one width whatever their numbers; a longer number is written smaller (numberSize), never a wider cell.
+export const inspectorCell = (image) => image.c===3 ? 56 : 36
+// Dense cells for a desktop result row, read by pointer rather than touch.
+export const denseCell = (image) => image.c===3 ? 46 : 28
+// A cell number's font size: 10 px, smaller when its text would not fit the cell.
+export const numberSize = (text, cell) => Math.min(10, (cell - 4) / (String(text).length * 0.62))
 
 // An overview thumbnail's cell: about 96 px for the whole image, between 3 and 14 px a pixel.
 export const thumbCell = (image) => Math.max(3, Math.min(14, Math.floor(96 / Math.max(image.w, image.h))))

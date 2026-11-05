@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "卷积器在内部工作正常，常量图的边缘却可能变暗。现在明确每项任务的图外模型，再比较同尺寸延续与只保留有效内部这两种接口。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "The convolver works inside but may darken constant-image edges. Specify each outside model and distinguish same-size continuation from retaining only valid interior outputs. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+        "zh": "卷积器在内部工作正常，常量图的边缘却可能变暗。图外没有观测，每种延续都是一种猜测，适合不同的材料。现在逐项明确图外模型，再比较同尺寸延续与只保留有效内部这两种接口。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+        "en": "The convolver works inside the image, yet a constant image may darken at its edges. Nothing is observed outside, so every extension is a guess that suits different material. Now fix the outside model task by task, then compare same-size extension with keeping only the valid interior. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
       }
     }
   ],
@@ -73,8 +73,8 @@
       "intro": [
         {
           "t": {
-            "zh": "这里把同一卷积器放到边界问题中检验。图内读数不变，图外延续最近边缘；对照恒定图与变化边缘，检查这种假设影响哪些输出。",
-            "en": "Test the same convolver at image boundaries. Observed values stay fixed; the nearest edge continues outside. Compare constant and varied edges to locate the affected outputs."
+            "zh": "这里把同一卷积器放到边界问题中检验。先用最常见的假设：普通照片的边缘之外通常是相近的景物，图外就延续最近边缘的读数。对照恒定图与变化边缘，检查这种假设影响哪些输出。",
+            "en": "This puts the same convolver to a boundary problem. Start with the most common assumption: beyond the edge of an ordinary photograph the scene is usually similar, so outside reads continue the nearest edge value. Contrast constant images with varied edges to see which outputs the assumption affects."
           },
           "fig": "outside-clamp"
         }
@@ -140,8 +140,8 @@
       "intro": [
         {
           "t": {
-            "zh": "现在处理周期材料：图像一端离开后，从另一端继续读取。检查示例中负列号和超过宽度的位置，别把周期延续当作复制最近边缘。",
-            "en": "Now the material is periodic: reads leaving one end continue at the other. Inspect negative and out-of-range columns; periodic continuation differs from replicating an edge."
+            "zh": "现在处理周期材料，例如可以无缝平铺的纹理：右边缘之外本来就接着左边缘，所以图像一端离开后，从另一端继续读取。普通照片的两端互不相关，这样补会把另一侧的内容带进边缘。检查示例中负列号和超过宽度的位置。",
+            "en": "Now the material is periodic, such as a seamlessly tileable texture: beyond its right edge the left edge truly continues, so reads leaving one end resume at the other. The two ends of an ordinary photograph are unrelated, and this would carry the far side's content into the edge. Inspect the negative and out-of-range columns in the example."
           },
           "fig": "outside-wrap"
         }
@@ -207,8 +207,8 @@
       "intro": [
         {
           "t": {
-            "zh": "这次图像以边缘为界镜像延续，并包含边缘格。示例在列号 2、3、4 读到 0.9、0.9、0.5：边缘格重复一次，再反向延续。观察这与周期相接有什么不同。",
-            "en": "This task reflects at the border, including the edge sample. Example columns 2, 3, 4 read 0.9, 0.9, 0.5: the edge repeats, then readings continue in reverse. Compare this with periodic continuation."
+            "zh": "这次图像以边缘为界镜像延续，并包含边缘格：两侧对称，边缘处不出现突变，常用来减少补边造出的人工边界。示例在列号 2、3、4 读到 0.9、0.9、0.5：边缘格重复一次，再反向延续。观察这与周期相接有什么不同。",
+            "en": "This time the image is mirrored at its edge, including the edge sample: both sides match, so no jump appears at the edge, and this often reduces the artificial borders padding creates. The example reads 0.9, 0.9, 0.5 at columns 2, 3, 4: the edge sample repeats once, then continues backwards. Note how this differs from periodic continuation."
           },
           "fig": "outside-reflect"
         }

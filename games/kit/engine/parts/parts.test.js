@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { parse, print, problemsOf } from './expr.js'
-import { applyRules, defineParts, evalSettings, failedCheck, partProblems, withParts } from './define.js'
+import { applyRules, defineParts, evalSettings, failedCheck, partDesc, partProblems, withParts } from './define.js'
 import { S } from '../schema.js'
 import { evaluate as run } from '../circuit.js'
 
@@ -83,4 +83,15 @@ test('a parts.json that holds together has no problems; one that does not says w
     'parts.json.parts.split.compute: nothing computes the output lo',
   ])
   assert.deepEqual(Object.keys(withParts(vocabulary, file).kinds.part), ['sum', 'scaled', 'split'])
+})
+
+test('a description names only the options that are open', () => {
+  const def = {
+    desc: { zh: '按 a 运算 b。', en: 'a op b.' },
+    settings: [{ key: 'op', options: [{ value: 'add', about: { zh: '加。', en: 'Add.' } }, { value: 'div', about: { zh: '除，除数为 0 报错。', en: 'Divide; zero errs.' } }, { value: 'sub' }] }],
+  }
+  assert.deepEqual(partDesc(def, () => ['add']), { zh: '按 a 运算 b。加。', en: 'a op b. Add.' })
+  assert.deepEqual(partDesc(def), { zh: '按 a 运算 b。加。除，除数为 0 报错。', en: 'a op b. Add. Divide; zero errs.' })
+  assert.deepEqual(partDesc(def, () => ['sub']), def.desc)
+  assert.equal(partDesc({ desc: 'plain', settings: [] }), 'plain')
 })

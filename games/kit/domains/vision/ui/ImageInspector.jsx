@@ -71,10 +71,9 @@ function usePan(frame) {
  * An image in a fixed frame sized by the screen, whatever its dimensions, in the view every image shares
  * (image-view.js): overview scales the whole image to fit, pixels only; information draws numbered cells at their
  * readable size, unscaled, every cell selectable. The frame pans by dragging. With `fit` the frame shrinks to what
- * the image needs (fitFrame), the screen's frame its largest; `dense` (with `fit`) draws information cells just wide
- * enough for their numbers, or `cell` wide (a pair of images compared cell by cell shares one width).
+ * the image needs (fitFrame), the screen's frame its largest; `dense` (with `fit`) draws narrower information cells.
  */
-export default function ImageInspector({ value, label, note, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel, fit = false, dense = false, cell: shared }) {
+export default function ImageInspector({ value, label, note, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel, fit = false, dense = false }) {
   const root = useRef(null)
   const frame = useRef(null)
   const size = useFrameSize(frame)
@@ -89,7 +88,7 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
     document.addEventListener('pointerdown',outside,true)
     return ()=>{window.removeEventListener('scroll',dismiss,true);window.removeEventListener('resize',dismiss);document.removeEventListener('pointerdown',outside,true)}
   },[point])
-  const cellOf = shared ? () => shared : fit && dense ? denseCell : inspectorCell
+  const cellOf = fit && dense ? denseCell : inspectorCell
   const cell = cellOf(value)
   const info = useImageView() === 'info'
   const max = useFrameMax(root, fit)

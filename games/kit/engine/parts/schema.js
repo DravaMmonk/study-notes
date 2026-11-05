@@ -17,7 +17,7 @@ export const CONTROLS = ['select', 'buttons', 'number', 'slider', 'toggle', 'cus
 /** The layouts of a group of small buttons. */
 export const LAYOUTS = ['row', 'column', 'grid', 'pad']
 
-const OPTION = S.obj({ value: WORD, label: S.opt(S.text()), icon: S.opt(ICON), about: S.opt(S.text()) })
+const OPTION = S.obj({ value: WORD, label: S.opt(S.text()), icon: S.opt(ICON), about: S.opt(S.text({ about: t('这个选项做什么，一句完整的话：选项开放后接在元件说明后面', 'what the option does, one whole sentence: added to the part’s description once the option opens') })) })
 const OPTIONS = S.list(OPTION, { min: 1 })
 const COMMON = {
   label: S.opt(S.text()),

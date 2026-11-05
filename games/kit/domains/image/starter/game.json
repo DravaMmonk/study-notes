@@ -1,0 +1,31 @@
+{
+  "domain": "image",
+  "vocabulary": 2,
+  "title": { "zh": "__title__", "en": "__title__" },
+  "kicker": { "zh": "开发中", "en": "In development" },
+  "lede": {
+    "zh": "只有元件、测试和一组输入输出。从“把图接到输出”开始，自己搭出处理图像的电路。",
+    "en": "Just parts, tests and a set of inputs and outputs. Start from “wire the picture to the output” and build the circuits that process images yourself."
+  },
+  "power": {
+    "title": { "zh": "上电", "en": "Power on" },
+    "lines": [{ "zh": "视觉芯片已上电。", "en": "Vision chip powered on." }]
+  },
+  "primitives": [],
+  "concept": {},
+  "replaces": {},
+  "views": {},
+  "eras": [
+    {
+      "id": 0,
+      "foundation": ["0-1", "0-2", "0-3"],
+      "chapter": {
+        "title": { "zh": "睁眼", "en": "Opening eyes" },
+        "lecture": { "zh": "第 1 讲", "en": "Lecture 1" },
+        "question": { "zh": "图像是什么", "en": "What is an image?" }
+      }
+    }
+  ],
+  "saves": [],
+  "box": { "sample": "0-1", "inLevel": {} }
+}

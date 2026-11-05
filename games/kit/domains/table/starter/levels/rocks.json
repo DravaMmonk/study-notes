@@ -1,0 +1,22 @@
+{
+  "mode": "circuit",
+  "title": { "zh": "落石", "en": "Rockfall" },
+  "short": { "zh": "在元件外面加一道闸", "en": "Add a gate outside the part" },
+  "intro": [{ "t": { "zh": "路线不能经过石头：石头格的路线数是「—」。", "en": "Routes can’t pass through rocks: a rock cell has “—” routes." } }],
+  "mission": {
+    "goal": { "zh": "数出每个路口的路线数，石头格不算。", "en": "Count the routes to every crossing, rock cells left out." },
+    "how": { "zh": "用路线计数器数，拦截闸在石头格拦下结果。", "en": "Count with the Route Counter, and block the result on rock cells." }
+  },
+  "robot": "scout",
+  "adds": ["block"],
+  "hints": [{ "zh": "「是石头」接拦截闸的条件口，路线计数器接数口。", "en": "Wire “is rock” to the Block gate’s condition and the Route Counter into its number." }],
+  "world": "grid",
+  "facts": ["start", "rock"],
+  "tests": [{ "R": 4, "C": 4, "rocks": [[1, 1]] }, { "R": 4, "C": 5, "rocks": [[1, 2], [2, 0]] }],
+  "solution": ["c = counter(view.up, view.left, facts.start)", "b = block(facts.rock, c)", "cell <- b"],
+  "naive": ["c = counter(view.up, view.left, facts.start)", "cell <- c"],
+  "debrief": {
+    "title": { "zh": "闸在元件外面", "en": "The gate outside the part" },
+    "body": [{ "zh": "元件不用改，外面加一道闸就够了。", "en": "The part stays as it is; a gate outside it is enough." }]
+  }
+}
