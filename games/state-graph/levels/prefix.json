@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "前面所有的", "en": "Everything before" },
   "short": { "zh": "扫描臂一次读一整段", "en": "A sweep arm reads a whole run at once" },
   "intro": [
@@ -91,10 +90,29 @@
   },
   "robot": "broom",
   "unlock": "sweep",
-  "testLabel": { "zh": "{a.length} 户人家", "en": "{a.length} houses" },
-  "tests": [{ "a": [3, 1, 4, 1, 5] }, { "a": [2, 7, 1, 8, 2, 8] }],
-  "stages": [
+  "debrief": {
+    "title": { "zh": "能用上一格，就别重扫", "en": "If the last cell will do, don’t sweep again" },
+    "body": [
+      {
+        "zh": "两种做法答案一样。可扫描臂在第 n 家要读 n 格，100 户人家一共要读 5050 格；用左边一格，每家只读 1 格，一共 100 格。",
+        "en": "Both ways give the same answers. But the sweep arm reads n cells at house n, so 100 houses take 5,050 reads in all; using the cell on the left, each house reads just 1 cell, 100 in all."
+      },
+      {
+        "zh": "<b>能用上一格存好的答案，就别从头再扫一遍</b>：这是动态规划的老规矩。",
+        "en": "<b>If the previous cell has already stored the answer, don’t sweep again from the start</b>: that is an old rule of dynamic programming."
+      }
+    ],
+    "note": {
+      "zh": "前缀和：到这一家一共 = 到上一家一共 + 这家。能用上一格，就别重扫。",
+      "en": "Prefix sums: total up to this house = total up to the previous one + this house. If the last cell will do, don’t sweep again."
+    }
+  },
+  "tasks": [
     {
+      "id": "prefix",
+      "mode": "circuit",
+      "testLabel": { "zh": "{a.length} 户人家", "en": "{a.length} houses" },
+      "tests": [{ "a": [3, 1, 4, 1, 5] }, { "a": [2, 7, 1, 8, 2, 8] }],
       "world": "prefix",
       "facts": ["money"],
       "expected": [14, 28],
@@ -129,6 +147,10 @@
       "checkAll": true
     },
     {
+      "id": "prefix_2",
+      "mode": "circuit",
+      "testLabel": { "zh": "{a.length} 户人家", "en": "{a.length} houses" },
+      "tests": [{ "a": [3, 1, 4, 1, 5] }, { "a": [2, 7, 1, 8, 2, 8] }],
       "world": "prefix",
       "facts": ["money"],
       "expected": [14, 28],
@@ -150,22 +172,5 @@
       "noArm": true,
       "checkAll": true
     }
-  ],
-  "debrief": {
-    "title": { "zh": "能用上一格，就别重扫", "en": "If the last cell will do, don’t sweep again" },
-    "body": [
-      {
-        "zh": "两种做法答案一样。可扫描臂在第 n 家要读 n 格，100 户人家一共要读 5050 格；用左边一格，每家只读 1 格，一共 100 格。",
-        "en": "Both ways give the same answers. But the sweep arm reads n cells at house n, so 100 houses take 5,050 reads in all; using the cell on the left, each house reads just 1 cell, 100 in all."
-      },
-      {
-        "zh": "<b>能用上一格存好的答案，就别从头再扫一遍</b>：这是动态规划的老规矩。",
-        "en": "<b>If the previous cell has already stored the answer, don’t sweep again from the start</b>: that is an old rule of dynamic programming."
-      }
-    ],
-    "note": {
-      "zh": "前缀和：到这一家一共 = 到上一家一共 + 这家。能用上一格，就别重扫。",
-      "en": "Prefix sums: total up to this house = total up to the previous one + this house. If the last cell will do, don’t sweep again."
-    }
-  }
+  ]
 }

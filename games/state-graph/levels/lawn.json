@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "最大的正方形", "en": "The biggest square" },
   "short": { "zh": "一格存什么？", "en": "What should a cell hold?" },
   "intro": [
@@ -21,42 +20,6 @@
     "how": { "zh": "答案是整张表里最大的数。", "en": "The answer is the largest number anywhere in the table." }
   },
   "robot": "scout",
-  "naive": [
-    "m = mmax(view.up, view.left)",
-    "k = const[value=1]()",
-    "z = const[value=0]()",
-    "a = add(m, k)",
-    "g = pass(facts.open, a)",
-    "s = msum(g, z)",
-    "cell <- s"
-  ],
-  "hints": [
-    {
-      "zh": "答案是整张表里最大的数。每一格里的数，该描述一个什么样的正方形？",
-      "en": "The answer is the largest number in the table. What square should the number in each cell describe?"
-    },
-    {
-      "zh": "让每一格只回答一个问题：以它为右下角的正方形，最大能有多大？",
-      "en": "Let each cell answer one question only: how big can a square be whose bottom-right corner it is?"
-    }
-  ],
-  "world": "lawn",
-  "facts": ["open"],
-  "tests": [
-    { "R": 4, "C": 4, "trees": [[1, 3], [4, 1]] },
-    { "R": 4, "C": 5, "trees": [[2, 2], [1, 5], [4, 4]] },
-    { "R": 5, "C": 5, "trees": [[1, 1], [3, 5], [5, 2]] }
-  ],
-  "expected": [3, 2, 3],
-  "solution": [
-    "m = mmin(view.up, view.left, view.ul)",
-    "k = const[value=1]()",
-    "z = const[value=0]()",
-    "a = add(m, k)",
-    "g = pass(facts.open, a)",
-    "s = msum(g, z)",
-    "cell <- s"
-  ],
   "debrief": {
     "title": { "zh": "一格存什么", "en": "What a cell holds" },
     "body": [
@@ -73,5 +36,47 @@
         "en": "The hard part was not the wiring but deciding what a cell should hold."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "lawn",
+      "mode": "circuit",
+      "naive": [
+        "m = mmax(view.up, view.left)",
+        "k = const[value=1]()",
+        "z = const[value=0]()",
+        "a = add(m, k)",
+        "g = pass(facts.open, a)",
+        "s = msum(g, z)",
+        "cell <- s"
+      ],
+      "hints": [
+        {
+          "zh": "答案是整张表里最大的数。每一格里的数，该描述一个什么样的正方形？",
+          "en": "The answer is the largest number in the table. What square should the number in each cell describe?"
+        },
+        {
+          "zh": "让每一格只回答一个问题：以它为右下角的正方形，最大能有多大？",
+          "en": "Let each cell answer one question only: how big can a square be whose bottom-right corner it is?"
+        }
+      ],
+      "world": "lawn",
+      "facts": ["open"],
+      "tests": [
+        { "R": 4, "C": 4, "trees": [[1, 3], [4, 1]] },
+        { "R": 4, "C": 5, "trees": [[2, 2], [1, 5], [4, 4]] },
+        { "R": 5, "C": 5, "trees": [[1, 1], [3, 5], [5, 2]] }
+      ],
+      "expected": [3, 2, 3],
+      "solution": [
+        "m = mmin(view.up, view.left, view.ul)",
+        "k = const[value=1]()",
+        "z = const[value=0]()",
+        "a = add(m, k)",
+        "g = pass(facts.open, a)",
+        "s = msum(g, z)",
+        "cell <- s"
+      ]
+    }
+  ]
 }

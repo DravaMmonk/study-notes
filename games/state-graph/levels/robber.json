@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "不能连着偷", "en": "No two in a row" },
   "short": { "zh": "一个数记不住全部", "en": "One number can’t remember it all" },
   "intro": [
@@ -169,9 +168,32 @@
   },
   "robot": "stack",
   "unlock": "layer",
-  "tests": [{ "a": [2, 7, 9, 3, 1] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }],
-  "stages": [
+  "debrief": {
+    "title": { "zh": "多记一件事，问题就解开了", "en": "Remember one more thing, and it’s solved" },
+    "body": [
+      {
+        "zh": "每家只有一个格子时，这个格子要同时代表「这家偷了」和「这家没偷」，可它们的未来不一样：前者不能偷下一家，后者可以。",
+        "en": "With one cell per house, that cell has to stand for both “this house was robbed” and “this house was skipped”, but their futures differ: the first can’t rob the next house, the second can."
+      },
+      {
+        "zh": "加了一层之后，每种情况<b>各有自己的格子</b>，机器就不会再混淆了。",
+        "en": "With an extra layer, each case <b>gets a cell of its own</b>, and the machine no longer mixes them up."
+      },
+      {
+        "zh": "<strong>好的状态，要记住所有会影响未来的信息。</strong>这是设计动态规划时最难、也最重要的一步。",
+        "en": "<strong>A good state remembers everything that can affect the future.</strong> This is the hardest, and the most important, step in designing a dynamic program."
+      }
+    ],
+    "note": {
+      "zh": "状态要记住所有会影响未来的信息。不够，就加一层。",
+      "en": "A state must remember everything that affects the future. If it falls short, add a layer."
+    }
+  },
+  "tasks": [
     {
+      "id": "robber",
+      "mode": "circuit",
+      "tests": [{ "a": [2, 7, 9, 3, 1] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }],
       "world": "rob1",
       "facts": ["money"],
       "expected": [12, 10, 18],
@@ -186,6 +208,9 @@
       }
     },
     {
+      "id": "robber_2",
+      "mode": "circuit",
+      "tests": [{ "a": [2, 7, 9, 3, 1] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }],
       "world": "rob2",
       "facts": ["money"],
       "expected": [12, 10, 18],
@@ -220,26 +245,5 @@
         "en": "Unlocked <part-ref to=\"layer\"></part-ref>: each house now has three cells"
       }
     }
-  ],
-  "debrief": {
-    "title": { "zh": "多记一件事，问题就解开了", "en": "Remember one more thing, and it’s solved" },
-    "body": [
-      {
-        "zh": "每家只有一个格子时，这个格子要同时代表「这家偷了」和「这家没偷」，可它们的未来不一样：前者不能偷下一家，后者可以。",
-        "en": "With one cell per house, that cell has to stand for both “this house was robbed” and “this house was skipped”, but their futures differ: the first can’t rob the next house, the second can."
-      },
-      {
-        "zh": "加了一层之后，每种情况<b>各有自己的格子</b>，机器就不会再混淆了。",
-        "en": "With an extra layer, each case <b>gets a cell of its own</b>, and the machine no longer mixes them up."
-      },
-      {
-        "zh": "<strong>好的状态，要记住所有会影响未来的信息。</strong>这是设计动态规划时最难、也最重要的一步。",
-        "en": "<strong>A good state remembers everything that can affect the future.</strong> This is the hardest, and the most important, step in designing a dynamic program."
-      }
-    ],
-    "note": {
-      "zh": "状态要记住所有会影响未来的信息。不够，就加一层。",
-      "en": "A state must remember everything that affects the future. If it falls short, add a layer."
-    }
-  }
+  ]
 }

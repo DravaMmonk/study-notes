@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "机器人传话", "en": "Robot relay" },
   "short": { "zh": "点一格，接一根线", "en": "Click a cell, wire it in" },
   "intro": [
@@ -53,47 +52,6 @@
     }
   },
   "robot": "scout",
-  "guide": [
-    {
-      "until": { "reads": "left" },
-      "say": {
-        "zh": "第 1 步：在视野里点「左边」那一格，「视野」元件上就多一个输出口。",
-        "en": "Step 1: click the “left” cell in the view, and the “View” part gains an output."
-      }
-    },
-    {
-      "until": "wired",
-      "say": {
-        "zh": "第 2 步：从「视野」元件右边的圆点拖一根线，接到「本格」。",
-        "en": "Step 2: drag a wire from the dot on the “View” part’s right to “this cell”."
-      }
-    },
-    {
-      "say": {
-        "zh": "第 3 步：点「运行测试」，看机器人一格一格地抄过去。",
-        "en": "Step 3: click “Run tests” and watch the robot copy its way along, cell by cell."
-      }
-    }
-  ],
-  "diagnose": [
-    {
-      "when": { "uses": "right" },
-      "say": {
-        "zh": "机器人从左往右走，到一格时它右边的格子还空着，不能读。",
-        "en": "The robot walks from left to right, so when it reaches a cell, the cell to its right is still empty and can’t be read."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "在视野里点「左边」，再把「视野」元件上多出来的输出口连到「本格」。",
-      "en": "Click “left” in the view, then wire the new output on the “View” part to “this cell”."
-    }
-  ],
-  "world": "grid",
-  "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
-  "expected": [7, 3],
-  "solution": ["cell <- view.left"],
   "debrief": {
     "title": { "zh": "机器人学会了抄", "en": "The robot learned to copy" },
     "body": [
@@ -106,5 +64,52 @@
       "zh": "电路板描述一格的规则，机器人在每一格上运行它。",
       "en": "A circuit board describes the rule for one cell; the robot runs it on every cell."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "copy",
+      "mode": "circuit",
+      "guide": [
+        {
+          "until": { "reads": "left" },
+          "say": {
+            "zh": "第 1 步：在视野里点「左边」那一格，「视野」元件上就多一个输出口。",
+            "en": "Step 1: click the “left” cell in the view, and the “View” part gains an output."
+          }
+        },
+        {
+          "until": "wired",
+          "say": {
+            "zh": "第 2 步：从「视野」元件右边的圆点拖一根线，接到「本格」。",
+            "en": "Step 2: drag a wire from the dot on the “View” part’s right to “this cell”."
+          }
+        },
+        {
+          "say": {
+            "zh": "第 3 步：点「运行测试」，看机器人一格一格地抄过去。",
+            "en": "Step 3: click “Run tests” and watch the robot copy its way along, cell by cell."
+          }
+        }
+      ],
+      "diagnose": [
+        {
+          "when": { "uses": "right" },
+          "say": {
+            "zh": "机器人从左往右走，到一格时它右边的格子还空着，不能读。",
+            "en": "The robot walks from left to right, so when it reaches a cell, the cell to its right is still empty and can’t be read."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "在视野里点「左边」，再把「视野」元件上多出来的输出口连到「本格」。",
+          "en": "Click “left” in the view, then wire the new output on the “View” part to “this cell”."
+        }
+      ],
+      "world": "grid",
+      "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
+      "expected": [7, 3],
+      "solution": ["cell <- view.left"]
+    }
+  ]
 }

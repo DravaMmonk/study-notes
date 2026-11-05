@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "有坏台阶的楼梯", "en": "Broken stairs" },
   "short": { "zh": "路线计数器加一道闸", "en": "The route counter behind a gate" },
   "intro": [
@@ -18,30 +17,6 @@
     "how": { "zh": "从地面一级一级往上算。", "en": "Work up from the ground, one step at a time." }
   },
   "robot": "ranger",
-  "diagnose": [
-    {
-      "when": { "not": { "uses": "broken" } },
-      "say": {
-        "zh": "有的台阶坏了，踩不得。读一读「是坏台阶」。",
-        "en": "Some steps are broken and can’t be stepped on. Read “is broken”."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "元件箱里的<part-ref to=\"counter\"></part-ref>也会数走法：前 1 级、前 2 级就是它的两条来路，是地面就是它的起点。",
-      "en": "The <part-ref to=\"counter\"></part-ref> in your components box counts ways too: 1 step down and 2 steps down are its two ways in, and the ground is its start."
-    },
-    {
-      "zh": "坏台阶上要掐断：拦截闸在条件是「是」时输出「—」。",
-      "en": "Cut off the broken steps: a Block gate outputs “—” when its condition is “yes”."
-    }
-  ],
-  "world": "strip",
-  "facts": ["ground", "broken"],
-  "tests": [{ "n": 6, "broken": [3] }, { "n": 8, "broken": [2, 5] }, { "n": 10, "broken": [4, 7] }],
-  "expected": [4, 2, 6],
-  "solution": ["c = counter(view.m1, view.m2, facts.ground)", "b = block(facts.broken, c)", "cell <- b"],
   "debrief": {
     "title": { "zh": "和落石一样", "en": "Just like the rockfall" },
     "body": [
@@ -54,5 +29,35 @@
         "en": "<level-ref to=\"rocks\"></level-ref> did the same thing in the grid city: parts care about structure, not whether they count crossings or steps."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "brokenstairs",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "uses": "broken" } },
+          "say": {
+            "zh": "有的台阶坏了，踩不得。读一读「是坏台阶」。",
+            "en": "Some steps are broken and can’t be stepped on. Read “is broken”."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "元件箱里的<part-ref to=\"counter\"></part-ref>也会数走法：前 1 级、前 2 级就是它的两条来路，是地面就是它的起点。",
+          "en": "The <part-ref to=\"counter\"></part-ref> in your components box counts ways too: 1 step down and 2 steps down are its two ways in, and the ground is its start."
+        },
+        {
+          "zh": "坏台阶上要掐断：拦截闸在条件是「是」时输出「—」。",
+          "en": "Cut off the broken steps: a Block gate outputs “—” when its condition is “yes”."
+        }
+      ],
+      "world": "strip",
+      "facts": ["ground", "broken"],
+      "tests": [{ "n": 6, "broken": [3] }, { "n": 8, "broken": [2, 5] }, { "n": 10, "broken": [4, 7] }],
+      "expected": [4, 2, 6],
+      "solution": ["c = counter(view.m1, view.m2, facts.ground)", "b = block(facts.broken, c)", "cell <- b"]
+    }
+  ]
 }

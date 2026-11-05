@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "拿石子", "en": "Take the stones" },
   "short": { "zh": "对手的输，就是你的赢", "en": "Their loss is your win" },
   "intro": [
@@ -70,31 +69,6 @@
   },
   "robot": "ranger",
   "adds": ["not"],
-  "diagnose": [
-    {
-      "when": { "not": { "has": "not" } },
-      "say": {
-        "zh": "你拿完之后，轮到谁走？格子里记的是「轮到的人能不能赢」，对手的「是」对你来说是「否」。用取反翻过来。",
-        "en": "After your move, whose turn is it? Each cell records “can the player to move win”, so your opponent’s “yes” is a “no” for you. Flip it with Not."
-      }
-    }
-  ],
-  "checkAll": true,
-  "hints": [
-    {
-      "zh": "你拿完之后，轮到谁走？对手那一格是「是」，对你来说意味着什么？",
-      "en": "After your move, whose turn is it? If the opponent’s cell is “yes”, what does that mean for you?"
-    },
-    {
-      "zh": "两种拿法，只要有一种让对手输，你就赢：两个取反都接进「任一是」。",
-      "en": "Of the two ways to take, if either leaves the opponent losing, you win: wire both Nots into “any yes”."
-    }
-  ],
-  "world": "pile",
-  "facts": ["ground"],
-  "tests": [{ "n": 5 }, { "n": 9 }, { "n": 10 }],
-  "expected": [true, false, true],
-  "solution": ["a = not(view.m1)", "b = not(view.m2)", "m = many(a, b)", "cell <- m"],
   "debrief": {
     "title": { "zh": "输赢也能填表", "en": "Winning and losing fill a table too" },
     "body": [
@@ -111,5 +85,36 @@
       "zh": "轮流走的游戏：只要有一步能让对手落进「输」，这一格就「赢」。",
       "en": "In a game of taking turns: if any move drops the opponent into a “lose”, this cell is a “win”."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "nim",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "has": "not" } },
+          "say": {
+            "zh": "你拿完之后，轮到谁走？格子里记的是「轮到的人能不能赢」，对手的「是」对你来说是「否」。用取反翻过来。",
+            "en": "After your move, whose turn is it? Each cell records “can the player to move win”, so your opponent’s “yes” is a “no” for you. Flip it with Not."
+          }
+        }
+      ],
+      "checkAll": true,
+      "hints": [
+        {
+          "zh": "你拿完之后，轮到谁走？对手那一格是「是」，对你来说意味着什么？",
+          "en": "After your move, whose turn is it? If the opponent’s cell is “yes”, what does that mean for you?"
+        },
+        {
+          "zh": "两种拿法，只要有一种让对手输，你就赢：两个取反都接进「任一是」。",
+          "en": "Of the two ways to take, if either leaves the opponent losing, you win: wire both Nots into “any yes”."
+        }
+      ],
+      "world": "pile",
+      "facts": ["ground"],
+      "tests": [{ "n": 5 }, { "n": 9 }, { "n": 10 }],
+      "expected": [true, false, true],
+      "solution": ["a = not(view.m1)", "b = not(view.m2)", "m = many(a, b)", "cell <- m"]
+    }
+  ]
 }

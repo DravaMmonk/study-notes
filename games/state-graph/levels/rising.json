@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "越来越高", "en": "Ever taller" },
   "short": { "zh": "在一整段里挑", "en": "Pick from a whole run" },
   "intro": [
@@ -126,23 +125,6 @@
     }
   },
   "robot": "broom",
-  "checkAll": true,
-  "hints": [
-    {
-      "zh": "这一根前面可以接任何一根，只要比它矮：点扫描臂，它只会送来比这一根矮的柱子。",
-      "en": "This post can follow any post shorter than it: click the sweep arm, and it brings in only the posts shorter than this one."
-    },
-    {
-      "zh": "在留下的格子里挑最大的，再算上这一根自己：取较大，然后 + 1。",
-      "en": "Pick the largest of the cells that remain, then count this post itself: max, then + 1."
-    }
-  ],
-  "world": "heights",
-  "facts": ["money"],
-  "tests": [{ "a": [3, 1, 4, 1, 5, 9, 2, 6] }, { "a": [5, 4, 3, 2, 1] }, { "a": [2, 6, 3, 4, 1, 7, 5] }],
-  "expected": [4, 1, 4],
-  "solution": ["m = mmax(view.seg)", "k = const[value=1]()", "a = add(m, k)", "cell <- a"],
-  "filter": "lower",
   "debrief": {
     "title": { "zh": "最长上升子序列", "en": "Longest increasing subsequence" },
     "body": [
@@ -159,5 +141,28 @@
       "zh": "来路可以是一整段：在所有比我矮的格子里取最大，再 + 1。",
       "en": "The way in can be a whole run: take the max over the cells of every shorter post, then + 1."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "rising",
+      "mode": "circuit",
+      "checkAll": true,
+      "hints": [
+        {
+          "zh": "这一根前面可以接任何一根，只要比它矮：点扫描臂，它只会送来比这一根矮的柱子。",
+          "en": "This post can follow any post shorter than it: click the sweep arm, and it brings in only the posts shorter than this one."
+        },
+        {
+          "zh": "在留下的格子里挑最大的，再算上这一根自己：取较大，然后 + 1。",
+          "en": "Pick the largest of the cells that remain, then count this post itself: max, then + 1."
+        }
+      ],
+      "world": "heights",
+      "facts": ["money"],
+      "tests": [{ "a": [3, 1, 4, 1, 5, 9, 2, 6] }, { "a": [5, 4, 3, 2, 1] }, { "a": [2, 6, 3, 4, 1, 7, 5] }],
+      "expected": [4, 1, 4],
+      "solution": ["m = mmax(view.seg)", "k = const[value=1]()", "a = add(m, k)", "cell <- a"],
+      "filter": "lower"
+    }
+  ]
 }

@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "记得够不够", "en": "Just enough?" },
   "short": { "zh": "只记会影响未来的事", "en": "Remember only what affects the future" },
   "intro": [
@@ -18,34 +17,6 @@
     "how": { "zh": "每一格把两层都算一遍。", "en": "Every cell works out both layers." }
   },
   "robot": "stack",
-  "noTrace": true,
-  "world": "keys",
-  "facts": ["start", "gain", "lose", "shut"],
-  "tests": [
-    {
-      "R": 4,
-      "C": 5,
-      "keys": { "red": [2, 0], "blue": [0, 1], "green": [1, 3] },
-      "doors": [{ "at": [2, 2], "color": "red" }, { "at": [0, 2], "color": "blue" }]
-    },
-    {
-      "R": 5,
-      "C": 5,
-      "keys": { "red": [1, 1], "blue": [0, 2], "green": [3, 0] },
-      "doors": [{ "at": [3, 3], "color": "red" }, { "at": [0, 3], "color": "blue" }, { "at": [2, 4], "color": "red" }]
-    }
-  ],
-  "expected": [20, 47],
-  "solution": [
-    "c = counter(view.up, view.left, facts.start)",
-    "p = msum(view.upPrev, view.leftPrev)",
-    "b1 = block(facts.shut, c)",
-    "g = pass(facts.gain, p)",
-    "b2 = block(facts.lose, b1)",
-    "m = msum(b2, g)",
-    "cell <- m"
-  ],
-  "remember": ["red"],
   "debrief": {
     "title": { "zh": "刚好够用", "en": "Just enough" },
     "body": [
@@ -54,5 +25,39 @@
         "en": "The green key has no door; the blue door always comes after the blue key. These two things <b>don’t affect the future</b>, so there’s no need to remember them. Remembering only the red key, 2 layers are enough."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "enough",
+      "mode": "circuit",
+      "noTrace": true,
+      "world": "keys",
+      "facts": ["start", "gain", "lose", "shut"],
+      "tests": [
+        {
+          "R": 4,
+          "C": 5,
+          "keys": { "red": [2, 0], "blue": [0, 1], "green": [1, 3] },
+          "doors": [{ "at": [2, 2], "color": "red" }, { "at": [0, 2], "color": "blue" }]
+        },
+        {
+          "R": 5,
+          "C": 5,
+          "keys": { "red": [1, 1], "blue": [0, 2], "green": [3, 0] },
+          "doors": [{ "at": [3, 3], "color": "red" }, { "at": [0, 3], "color": "blue" }, { "at": [2, 4], "color": "red" }]
+        }
+      ],
+      "expected": [20, 47],
+      "solution": [
+        "c = counter(view.up, view.left, facts.start)",
+        "p = msum(view.upPrev, view.leftPrev)",
+        "b1 = block(facts.shut, c)",
+        "g = pass(facts.gain, p)",
+        "b2 = block(facts.lose, b1)",
+        "m = msum(b2, g)",
+        "cell <- m"
+      ],
+      "remember": ["red"]
+    }
+  ]
 }

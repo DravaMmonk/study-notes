@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "跳得更远", "en": "A longer leap" },
   "short": { "zh": "视野和伸缩臂一起用", "en": "The view and the arm together" },
   "intro": [
@@ -18,35 +17,6 @@
     "how": { "zh": "岸边算 1 种：已经站在那里了。", "en": "The bank counts as 1 way: the frog is already there." }
   },
   "robot": "reach",
-  "diagnose": [
-    {
-      "when": { "not": { "uses": "m1" } },
-      "say": {
-        "zh": "青蛙也能从前一块跳来：前一块在视野里。",
-        "en": "The frog can also come from the stone before, which is in the view."
-      }
-    },
-    {
-      "when": { "not": { "uses": "back" } },
-      "say": { "zh": "长跳的来处要用伸缩臂去读。", "en": "Where the long jump comes from is read with the arm." }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "最后一跳从哪来？前一块，或者伸缩臂够到的那块。两种都算上：加起来。",
-      "en": "Where does the last jump come from? The stone before, or the one the arm reaches. Count both: add them up."
-    },
-    { "zh": "岸边算 1 种：放行闸放过一个 1。", "en": "The bank counts as 1 way: let a 1 through a Pass gate." }
-  ],
-  "world": "river",
-  "facts": ["bank"],
-  "tests": [
-    { "k": [0, null, 2, 3, 2, 4, 3] },
-    { "k": [0, null, 2, 2, 3, null, 4, 2] },
-    { "k": [0, null, 2, 3, 4, 2, 5, 3, 2] }
-  ],
-  "expected": [9, 10, 20],
-  "solution": ["c = counter(view.m1, view.back, facts.bank)", "cell <- c"],
   "debrief": {
     "title": { "zh": "又是爬楼梯", "en": "Climbing stairs again" },
     "body": [
@@ -55,5 +25,40 @@
         "en": "It is climbing stairs, with “2 steps down” swapped for the stone the arm reads. A way in can be any distance away; the structure stays the same."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "frogfar",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "uses": "m1" } },
+          "say": {
+            "zh": "青蛙也能从前一块跳来：前一块在视野里。",
+            "en": "The frog can also come from the stone before, which is in the view."
+          }
+        },
+        {
+          "when": { "not": { "uses": "back" } },
+          "say": { "zh": "长跳的来处要用伸缩臂去读。", "en": "Where the long jump comes from is read with the arm." }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "最后一跳从哪来？前一块，或者伸缩臂够到的那块。两种都算上：加起来。",
+          "en": "Where does the last jump come from? The stone before, or the one the arm reaches. Count both: add them up."
+        },
+        { "zh": "岸边算 1 种：放行闸放过一个 1。", "en": "The bank counts as 1 way: let a 1 through a Pass gate." }
+      ],
+      "world": "river",
+      "facts": ["bank"],
+      "tests": [
+        { "k": [0, null, 2, 3, 2, 4, 3] },
+        { "k": [0, null, 2, 2, 3, null, 4, 2] },
+        { "k": [0, null, 2, 3, 4, 2, 5, 3, 2] }
+      ],
+      "expected": [9, 10, 20],
+      "solution": ["c = counter(view.m1, view.back, facts.bank)", "cell <- c"]
+    }
+  ]
 }

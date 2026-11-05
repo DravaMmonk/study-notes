@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "这句话有多可能", "en": "How likely is this sentence" },
   "short": { "zh": "取较小换成加起来，加换成乘", "en": "Min becomes sum, add becomes multiply" },
   "intro": [
@@ -40,65 +39,6 @@
   },
   "robot": "reach",
   "adds": ["mul"],
-  "diagnose": [
-    {
-      "when": { "any": [{ "has": "mmin" }, { "has": "mmax" }] },
-      "say": {
-        "zh": "这次不挑最好的一条：所有标法都算数，用「加起来」。",
-        "en": "This time you don’t pick the best one: every tagging counts, so use “sum”."
-      }
-    }
-  ],
-  "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
-  "hints": [
-    {
-      "zh": "从<level-ref to=\"tagging\"></level-ref>的电路出发：哪个元件把一条标法上的各项合起来，哪个元件在几种可能里挑？",
-      "en": "Start from <level-ref to=\"tagging\"></level-ref>’s circuit: which component joins the parts of one tagging, and which one chooses among the possibilities?"
-    },
-    {
-      "zh": "三种加起来，再乘上「这个词这么标」的可能性。",
-      "en": "Add the three together, then multiply by the “this word, this tag” probability."
-    }
-  ],
-  "world": "tags",
-  "facts": ["tN", "tV", "tA", "emit"],
-  "tests": [
-    {
-      "words": [{ "zh": "他", "en": "he" }, { "zh": "研究", "en": "studies" }, { "zh": "历史", "en": "history" }],
-      "emit": [{ "N": 0.5 }, { "N": 0.2, "V": 0.4 }, { "N": 0.3 }],
-      "start": { "N": 0.6, "V": 0.3, "A": 0.1 },
-      "trans": {
-        "N": { "N": 0.2, "V": 0.6, "A": 0.2 },
-        "V": { "N": 0.7, "V": 0.1, "A": 0.2 },
-        "A": { "N": 0.8, "V": 0.1, "A": 0.1 }
-      }
-    },
-    {
-      "words": [
-        { "zh": "进口", "en": "imports" },
-        { "zh": "彩电", "en": "TV" },
-        { "zh": "质量", "en": "quality" },
-        { "zh": "好", "en": "fine" }
-      ],
-      "emit": [{ "N": 0.2, "V": 0.3 }, { "N": 0.4 }, { "N": 0.3 }, { "A": 0.5, "V": 0.1 }],
-      "start": { "N": 0.6, "V": 0.3, "A": 0.1 },
-      "trans": {
-        "N": { "N": 0.2, "V": 0.6, "A": 0.2 },
-        "V": { "N": 0.7, "V": 0.1, "A": 0.2 },
-        "A": { "N": 0.8, "V": 0.1, "A": 0.1 }
-      }
-    }
-  ],
-  "expected": [0.01584, 0.00033408],
-  "solution": [
-    "a = mul(view.pN, facts.tN)",
-    "b = mul(view.pV, facts.tV)",
-    "c = mul(view.pA, facts.tA)",
-    "s = msum(a, b, c)",
-    "e = mul(s, facts.emit)",
-    "cell <- e"
-  ],
-  "prob": true,
   "debrief": {
     "title": { "zh": "前向算法", "en": "The forward algorithm" },
     "body": [
@@ -115,5 +55,70 @@
       "zh": "前向算法：把维特比的「取较小、加」换成「加起来、乘」。",
       "en": "Forward algorithm: Viterbi’s “min and add” becomes “sum and multiply”."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "forward",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "any": [{ "has": "mmin" }, { "has": "mmax" }] },
+          "say": {
+            "zh": "这次不挑最好的一条：所有标法都算数，用「加起来」。",
+            "en": "This time you don’t pick the best one: every tagging counts, so use “sum”."
+          }
+        }
+      ],
+      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+      "hints": [
+        {
+          "zh": "从<level-ref to=\"tagging\"></level-ref>的电路出发：哪个元件把一条标法上的各项合起来，哪个元件在几种可能里挑？",
+          "en": "Start from <level-ref to=\"tagging\"></level-ref>’s circuit: which component joins the parts of one tagging, and which one chooses among the possibilities?"
+        },
+        {
+          "zh": "三种加起来，再乘上「这个词这么标」的可能性。",
+          "en": "Add the three together, then multiply by the “this word, this tag” probability."
+        }
+      ],
+      "world": "tags",
+      "facts": ["tN", "tV", "tA", "emit"],
+      "tests": [
+        {
+          "words": [{ "zh": "他", "en": "he" }, { "zh": "研究", "en": "studies" }, { "zh": "历史", "en": "history" }],
+          "emit": [{ "N": 0.5 }, { "N": 0.2, "V": 0.4 }, { "N": 0.3 }],
+          "start": { "N": 0.6, "V": 0.3, "A": 0.1 },
+          "trans": {
+            "N": { "N": 0.2, "V": 0.6, "A": 0.2 },
+            "V": { "N": 0.7, "V": 0.1, "A": 0.2 },
+            "A": { "N": 0.8, "V": 0.1, "A": 0.1 }
+          }
+        },
+        {
+          "words": [
+            { "zh": "进口", "en": "imports" },
+            { "zh": "彩电", "en": "TV" },
+            { "zh": "质量", "en": "quality" },
+            { "zh": "好", "en": "fine" }
+          ],
+          "emit": [{ "N": 0.2, "V": 0.3 }, { "N": 0.4 }, { "N": 0.3 }, { "A": 0.5, "V": 0.1 }],
+          "start": { "N": 0.6, "V": 0.3, "A": 0.1 },
+          "trans": {
+            "N": { "N": 0.2, "V": 0.6, "A": 0.2 },
+            "V": { "N": 0.7, "V": 0.1, "A": 0.2 },
+            "A": { "N": 0.8, "V": 0.1, "A": 0.1 }
+          }
+        }
+      ],
+      "expected": [0.01584, 0.00033408],
+      "solution": [
+        "a = mul(view.pN, facts.tN)",
+        "b = mul(view.pV, facts.tV)",
+        "c = mul(view.pA, facts.tA)",
+        "s = msum(a, b, c)",
+        "e = mul(s, facts.emit)",
+        "cell <- e"
+      ],
+      "prob": true
+    }
+  ]
 }

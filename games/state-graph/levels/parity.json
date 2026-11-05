@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "奇还是偶", "en": "Odd or even" },
   "short": { "zh": "只用「是」和「否」数数", "en": "Counting with only yes and no" },
   "intro": [
@@ -24,32 +23,6 @@
     "how": { "zh": "这一关检查每一格。", "en": "This level checks every cell." }
   },
   "robot": "ranger",
-  "naive": ["m = many(view.up, view.left, facts.start)", "cell <- m"],
-  "checkAll": true,
-  "hints": [
-    {
-      "zh": "奇 + 奇 = 偶，奇 + 偶 = 奇：上面和左边怎样搭配时，这里才是奇数？",
-      "en": "Odd + odd = even, odd + even = odd: which mix of up and left makes a crossing odd?"
-    },
-    {
-      "zh": "城外送来的是「—」，可在这里它应该算偶数（0 条路线）。只接一个输入的「任一是」，会把「—」变成「否」。",
-      "en": "Outside the city you get “—”, but here it should count as even (0 routes). An any-yes with a single input turns “—” into “no”."
-    }
-  ],
-  "world": "gridYes",
-  "facts": ["start"],
-  "tests": [{ "R": 4, "C": 5 }, { "R": 5, "C": 6 }, { "R": 6, "C": 6 }],
-  "expected": [true, false, false],
-  "solution": [
-    "a = many(view.up)",
-    "b = many(view.left)",
-    "na = not(a)",
-    "nb = not(b)",
-    "p = pass(a, nb)",
-    "q = pass(b, na)",
-    "m = many(p, q, facts.start)",
-    "cell <- m"
-  ],
   "debrief": {
     "title": { "zh": "你拼出了「异或」", "en": "You built XOR" },
     "body": [
@@ -62,5 +35,37 @@
         "en": "A cell need not hold the whole number, only the part the question needs. Odd or even takes a single bit."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "parity",
+      "mode": "circuit",
+      "naive": ["m = many(view.up, view.left, facts.start)", "cell <- m"],
+      "checkAll": true,
+      "hints": [
+        {
+          "zh": "奇 + 奇 = 偶，奇 + 偶 = 奇：上面和左边怎样搭配时，这里才是奇数？",
+          "en": "Odd + odd = even, odd + even = odd: which mix of up and left makes a crossing odd?"
+        },
+        {
+          "zh": "城外送来的是「—」，可在这里它应该算偶数（0 条路线）。只接一个输入的「任一是」，会把「—」变成「否」。",
+          "en": "Outside the city you get “—”, but here it should count as even (0 routes). An any-yes with a single input turns “—” into “no”."
+        }
+      ],
+      "world": "gridYes",
+      "facts": ["start"],
+      "tests": [{ "R": 4, "C": 5 }, { "R": 5, "C": 6 }, { "R": 6, "C": 6 }],
+      "expected": [true, false, false],
+      "solution": [
+        "a = many(view.up)",
+        "b = many(view.left)",
+        "na = not(a)",
+        "nb = not(b)",
+        "p = pass(a, nb)",
+        "q = pass(b, na)",
+        "m = many(p, q, facts.start)",
+        "cell <- m"
+      ]
+    }
+  ]
 }

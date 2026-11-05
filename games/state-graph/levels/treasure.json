@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "往右往下找宝藏", "en": "Treasure, right or down" },
   "short": { "zh": "两个方向，打个九折", "en": "Two directions, then a discount" },
   "intro": [
@@ -27,45 +26,51 @@
     }
   },
   "robot": "loop",
-  "diagnose": [
-    {
-      "when": { "any": [{ "uses": "up" }, { "uses": "left" }] },
-      "say": {
-        "zh": "这张地图上只能往右或往下走：上面和左边走不过去。",
-        "en": "On this map you only move right or down: up and left can’t be reached."
-      }
-    }
-  ],
-  "consts": [0, 0.5, 0.8, 0.9, 1],
-  "hints": [
-    {
-      "zh": "只能往右或往下：右边、下面接进「取较大」，再乘 0.9。",
-      "en": "Right or down only: wire right and down into a max, then multiply by 0.9."
-    }
-  ],
-  "world": "vgrid",
-  "tests": [
-    {
-      "R": 5,
-      "C": 6,
-      "gold": [3, 4],
-      "cliffs": [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [0, 5], [1, 5], [2, 5], [3, 5], [1, 2]],
-      "rd": true
-    },
-    {
-      "R": 4,
-      "C": 5,
-      "gold": [2, 3],
-      "cliffs": [[3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [0, 4], [1, 4], [2, 4]],
-      "rd": true
-    }
-  ],
-  "expected": [4.782969, 5.9049],
-  "solution": ["d = value[value=0.9](view.right, view.down)", "cell <- d"],
-  "rounds": true,
-  "arrows": true,
   "debrief": {
     "title": { "zh": "格子世界的简化版", "en": "The grid world, simplified" },
     "body": [{ "zh": "只有两个方向，每一格都只看右边和下面。", "en": "With two directions, every cell looks only right and down." }]
-  }
+  },
+  "tasks": [
+    {
+      "id": "treasure",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "any": [{ "uses": "up" }, { "uses": "left" }] },
+          "say": {
+            "zh": "这张地图上只能往右或往下走：上面和左边走不过去。",
+            "en": "On this map you only move right or down: up and left can’t be reached."
+          }
+        }
+      ],
+      "consts": [0, 0.5, 0.8, 0.9, 1],
+      "hints": [
+        {
+          "zh": "只能往右或往下：右边、下面接进「取较大」，再乘 0.9。",
+          "en": "Right or down only: wire right and down into a max, then multiply by 0.9."
+        }
+      ],
+      "world": "vgrid",
+      "tests": [
+        {
+          "R": 5,
+          "C": 6,
+          "gold": [3, 4],
+          "cliffs": [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [0, 5], [1, 5], [2, 5], [3, 5], [1, 2]],
+          "rd": true
+        },
+        {
+          "R": 4,
+          "C": 5,
+          "gold": [2, 3],
+          "cliffs": [[3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [0, 4], [1, 4], [2, 4]],
+          "rd": true
+        }
+      ],
+      "expected": [4.782969, 5.9049],
+      "solution": ["d = value[value=0.9](view.right, view.down)", "cell <- d"],
+      "rounds": true,
+      "arrows": true
+    }
+  ]
 }

@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "两路汇合", "en": "Two roads meet" },
   "short": { "zh": "把两个数汇进一个元件", "en": "Merge two numbers in one component" },
   "intro": [
@@ -74,39 +73,6 @@
     "en": "the first part ever placed on a board: a part sits between the inputs and the output, wires go into its ports and out of its output; a Merger gathers several ways in into one number"
   },
   "adds": ["msum"],
-  "guide": [
-    {
-      "until": { "all": [{ "reads": "up" }, { "reads": "left" }] },
-      "say": {
-        "zh": "第 1 步：在视野里点「上面」和「左边」，「视野」元件就有了两个输出口。",
-        "en": "Step 1: click “up” and “left” in the view: the “View” part then has two outputs."
-      }
-    },
-    {
-      "until": "placed",
-      "say": {
-        "zh": "第 2 步：把托盘里的<part-ref to=\"part:msum\"></part-ref>拖到电路板的空格上，点一下也行。",
-        "en": "Step 2: drag the <part-ref to=\"part:msum\"></part-ref> from the tray onto an empty slot of the board, or just click it."
-      }
-    },
-    {
-      "until": "wiredOut",
-      "say": {
-        "zh": "第 3 步：把视野的两个输出口各接到汇合器左边的一个圆点，再把汇合器右边的圆点接到「本格」。",
-        "en": "Step 3: wire each of the View’s two outputs into a dot on the Merger’s left, then wire the Merger’s right-hand dot to “this cell”."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "每个路口 = 上面 + 左边：两个输入都接进同一个汇合器，汇合器再接到「本格」。",
-      "en": "Each crossing = up + left: wire both inputs into the same Merger, and the Merger into “this cell”."
-    }
-  ],
-  "world": "grid",
-  "tests": [{ "R": 3, "C": 4, "given": { "0,0": 1 } }, { "R": 4, "C": 5, "given": { "0,0": 1 } }],
-  "expected": [10, 35],
-  "solution": ["m = msum(view.up, view.left)", "cell <- m"],
   "debrief": {
     "title": { "zh": "城市交给了机器人", "en": "The robot runs the city" },
     "body": [
@@ -117,5 +83,44 @@
       { "zh": "起点那个 1，是替机器人写好的。", "en": "The 1 at the start was written in for the robot." }
     ],
     "note": { "zh": "汇合器把几根线送来的数加起来，「—」不参与。", "en": "A Merger adds up the numbers its wires bring; “—” is left out." }
-  }
+  },
+  "tasks": [
+    {
+      "id": "confluence",
+      "mode": "circuit",
+      "guide": [
+        {
+          "until": { "all": [{ "reads": "up" }, { "reads": "left" }] },
+          "say": {
+            "zh": "第 1 步：在视野里点「上面」和「左边」，「视野」元件就有了两个输出口。",
+            "en": "Step 1: click “up” and “left” in the view: the “View” part then has two outputs."
+          }
+        },
+        {
+          "until": "placed",
+          "say": {
+            "zh": "第 2 步：把托盘里的<part-ref to=\"part:msum\"></part-ref>拖到电路板的空格上，点一下也行。",
+            "en": "Step 2: drag the <part-ref to=\"part:msum\"></part-ref> from the tray onto an empty slot of the board, or just click it."
+          }
+        },
+        {
+          "until": "wiredOut",
+          "say": {
+            "zh": "第 3 步：把视野的两个输出口各接到汇合器左边的一个圆点，再把汇合器右边的圆点接到「本格」。",
+            "en": "Step 3: wire each of the View’s two outputs into a dot on the Merger’s left, then wire the Merger’s right-hand dot to “this cell”."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "每个路口 = 上面 + 左边：两个输入都接进同一个汇合器，汇合器再接到「本格」。",
+          "en": "Each crossing = up + left: wire both inputs into the same Merger, and the Merger into “this cell”."
+        }
+      ],
+      "world": "grid",
+      "tests": [{ "R": 3, "C": 4, "given": { "0,0": 1 } }, { "R": 4, "C": 5, "given": { "0,0": 1 } }],
+      "expected": [10, 35],
+      "solution": ["m = msum(view.up, view.left)", "cell <- m"]
+    }
+  ]
 }

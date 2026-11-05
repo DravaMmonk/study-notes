@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "钥匙与门", "en": "Keys and doors" },
   "short": { "zh": "把表叠成两层", "en": "Stack the table in two layers" },
   "intro": [
@@ -36,36 +35,6 @@
     "how": { "zh": "每一格把两层都算一遍。", "en": "Every cell works out both layers." }
   },
   "robot": "stack",
-  "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
-  "noTrace": true,
-  "hints": [
-    {
-      "zh": "先用路线计数器数路线，再把不该留在这一层的路线拦下：门关着，或者路线被带走。",
-      "en": "Count the routes with the Route Counter first, then block the ones that can’t stay on this layer: the door is shut, or the routes move on."
-    },
-    {
-      "zh": "捡到钥匙的格子上，还要接住从另一层搬来的路线：探针探到的上面和左边，加起来。",
-      "en": "On the cell where the key is picked up, also take in the routes moving over from the other layer: up and left as the probe reaches them, added up."
-    }
-  ],
-  "world": "keys",
-  "facts": ["start", "gain", "lose", "shut"],
-  "tests": [
-    { "R": 3, "C": 4, "key": [1, 0], "doors": [[1, 2]] },
-    { "R": 4, "C": 4, "key": [2, 0], "doors": [[1, 1], [3, 2]] },
-    { "R": 4, "C": 5, "key": [1, 0], "doors": [[0, 3], [2, 2], [3, 1]] }
-  ],
-  "expected": [6, 7, 21],
-  "solution": [
-    "c = counter(view.up, view.left, facts.start)",
-    "p = msum(view.upPrev, view.leftPrev)",
-    "b1 = block(facts.shut, c)",
-    "g = pass(facts.gain, p)",
-    "b2 = block(facts.lose, b1)",
-    "m = msum(b2, g)",
-    "cell <- m"
-  ],
-  "remember": ["red"],
   "debrief": {
     "title": { "zh": "两层，各管各的", "en": "Two layers, each minding its own" },
     "body": [
@@ -78,5 +47,41 @@
         "en": "The state went from “which cell” to “which cell, and whether you have the key”: one more thing to remember, one more layer."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "keydoor",
+      "mode": "circuit",
+      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+      "noTrace": true,
+      "hints": [
+        {
+          "zh": "先用路线计数器数路线，再把不该留在这一层的路线拦下：门关着，或者路线被带走。",
+          "en": "Count the routes with the Route Counter first, then block the ones that can’t stay on this layer: the door is shut, or the routes move on."
+        },
+        {
+          "zh": "捡到钥匙的格子上，还要接住从另一层搬来的路线：探针探到的上面和左边，加起来。",
+          "en": "On the cell where the key is picked up, also take in the routes moving over from the other layer: up and left as the probe reaches them, added up."
+        }
+      ],
+      "world": "keys",
+      "facts": ["start", "gain", "lose", "shut"],
+      "tests": [
+        { "R": 3, "C": 4, "key": [1, 0], "doors": [[1, 2]] },
+        { "R": 4, "C": 4, "key": [2, 0], "doors": [[1, 1], [3, 2]] },
+        { "R": 4, "C": 5, "key": [1, 0], "doors": [[0, 3], [2, 2], [3, 1]] }
+      ],
+      "expected": [6, 7, 21],
+      "solution": [
+        "c = counter(view.up, view.left, facts.start)",
+        "p = msum(view.upPrev, view.leftPrev)",
+        "b1 = block(facts.shut, c)",
+        "g = pass(facts.gain, p)",
+        "b2 = block(facts.lose, b1)",
+        "m = msum(b2, g)",
+        "cell <- m"
+      ],
+      "remember": ["red"]
+    }
+  ]
 }

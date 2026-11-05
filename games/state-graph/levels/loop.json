@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "绕一圈", "en": "Going round" },
   "short": { "zh": "一轮一轮地扫", "en": "Scan round after round" },
   "intro": [
@@ -39,36 +38,6 @@
     }
   },
   "robot": "loop",
-  "hints": [
-    {
-      "zh": "四个方向都可能是来路：上、下、左、右都接进「取较小」。一个汇合器只有三个口，就用两个串起来。",
-      "en": "Any of the four directions can be a way in: wire up, down, left and right into “min”. A Merger has only three inputs, so chain two of them."
-    },
-    {
-      "zh": "最后加上本格体力。起点的邻居一开始都是「—」，用放行闸在起点送一个 0 进去。",
-      "en": "Finally add the cell energy. The start’s neighbours all begin as “—”, so use a Pass gate to let a 0 in at the start."
-    }
-  ],
-  "world": "grid",
-  "facts": ["start", "cost"],
-  "tests": [
-    {
-      "R": 5,
-      "C": 5,
-      "costs": [[1, 1, 1, 1, 1], [9, 9, 9, 9, 1], [1, 1, 1, 1, 1], [1, 9, 9, 9, 9], [1, 1, 1, 1, 1]]
-    },
-    { "R": 5, "C": 3, "costs": [[1, 1, 1], [9, 9, 1], [1, 1, 1], [1, 9, 9], [1, 1, 1]] }
-  ],
-  "expected": [17, 11],
-  "solution": [
-    "a = mmin(view.up, view.down, view.left)",
-    "z = const[value=0]()",
-    "g = pass(facts.start, z)",
-    "b = mmin(a, view.right, g)",
-    "p = add(b, facts.cost)",
-    "cell <- p"
-  ],
-  "rounds": true,
   "debrief": {
     "title": { "zh": "扫到不再变", "en": "Scan until it settles" },
     "body": [
@@ -85,5 +54,41 @@
       "zh": "有环时扫一遍不够：一轮一轮地扫，直到表不再变。",
       "en": "With loops, one scan isn’t enough: scan round after round until the table stops changing."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "loop",
+      "mode": "circuit",
+      "hints": [
+        {
+          "zh": "四个方向都可能是来路：上、下、左、右都接进「取较小」。一个汇合器只有三个口，就用两个串起来。",
+          "en": "Any of the four directions can be a way in: wire up, down, left and right into “min”. A Merger has only three inputs, so chain two of them."
+        },
+        {
+          "zh": "最后加上本格体力。起点的邻居一开始都是「—」，用放行闸在起点送一个 0 进去。",
+          "en": "Finally add the cell energy. The start’s neighbours all begin as “—”, so use a Pass gate to let a 0 in at the start."
+        }
+      ],
+      "world": "grid",
+      "facts": ["start", "cost"],
+      "tests": [
+        {
+          "R": 5,
+          "C": 5,
+          "costs": [[1, 1, 1, 1, 1], [9, 9, 9, 9, 1], [1, 1, 1, 1, 1], [1, 9, 9, 9, 9], [1, 1, 1, 1, 1]]
+        },
+        { "R": 5, "C": 3, "costs": [[1, 1, 1], [9, 9, 1], [1, 1, 1], [1, 9, 9], [1, 1, 1]] }
+      ],
+      "expected": [17, 11],
+      "solution": [
+        "a = mmin(view.up, view.down, view.left)",
+        "z = const[value=0]()",
+        "g = pass(facts.start, z)",
+        "b = mmin(a, view.right, g)",
+        "p = add(b, facts.cost)",
+        "cell <- p"
+      ],
+      "rounds": true
+    }
+  ]
 }

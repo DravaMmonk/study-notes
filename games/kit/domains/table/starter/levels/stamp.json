@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": {
     "zh": "数路线",
     "en": "Count the routes"
@@ -53,37 +52,6 @@
       }
     ]
   },
-  "hints": [
-    {
-      "zh": "「是起点」接放行闸的条件口，常数 1 接数口，再把放行闸接进汇合器。",
-      "en": "Wire “is start” to the Pass gate’s condition and a Constant 1 to its number, then the gate into the Merger."
-    }
-  ],
-  "world": "grid",
-  "facts": [
-    "start"
-  ],
-  "tests": [
-    {
-      "R": 3,
-      "C": 4
-    },
-    {
-      "R": 4,
-      "C": 4
-    }
-  ],
-  "expected": [10, 20],
-  "solution": [
-    "k = const[value=1]()",
-    "g = pass(facts.start, k)",
-    "m = msum(view.up, view.left, g)",
-    "cell <- m"
-  ],
-  "naive": [
-    "m = msum(view.up, view.left)",
-    "cell <- m"
-  ],
   "debrief": {
     "title": {
       "zh": "板成了元件",
@@ -95,5 +63,42 @@
         "en": "From now on this board is a part: the Route Counter."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "stamp",
+      "mode": "circuit",
+      "hints": [
+        {
+          "zh": "「是起点」接放行闸的条件口，常数 1 接数口，再把放行闸接进汇合器。",
+          "en": "Wire “is start” to the Pass gate’s condition and a Constant 1 to its number, then the gate into the Merger."
+        }
+      ],
+      "world": "grid",
+      "facts": [
+        "start"
+      ],
+      "tests": [
+        {
+          "R": 3,
+          "C": 4
+        },
+        {
+          "R": 4,
+          "C": 4
+        }
+      ],
+      "expected": [10, 20],
+      "solution": [
+        "k = const[value=1]()",
+        "g = pass(facts.start, k)",
+        "m = msum(view.up, view.left, g)",
+        "cell <- m"
+      ],
+      "naive": [
+        "m = msum(view.up, view.left)",
+        "cell <- m"
+      ]
+    }
+  ]
 }

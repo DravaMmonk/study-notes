@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "认出起点", "en": "Spot the start" },
   "short": { "zh": "在汇合器上接出起点", "en": "Give the merger a start" },
   "intro": [
@@ -59,50 +58,6 @@
       { "start": { "sensor": "start" } }
     ]
   },
-  "guide": [
-    {
-      "until": { "reads": "start" },
-      "say": { "zh": "第 1 步：在本格信息里点「是起点」。", "en": "Step 1: click “is start” under This cell." }
-    },
-    {
-      "until": { "has": "pass" },
-      "say": {
-        "zh": "第 2 步：把托盘里的<part-ref to=\"part:const\"></part-ref>和<part-ref to=\"part:pass\"></part-ref>拖到电路板上。",
-        "en": "Step 2: drag a <part-ref to=\"part:const\"></part-ref> and a <part-ref to=\"part:pass\"></part-ref> from the tray onto the board."
-      }
-    }
-  ],
-  "diagnose": [
-    {
-      "when": { "any": [{ "uses": "right" }, { "uses": "down" }, { "uses": "ur" }, { "uses": "dl" }, { "uses": "dr" }] },
-      "say": {
-        "zh": "机器人从左上往右下走，到一个格子时，它右边和下面的格子还空着，不能读。",
-        "en": "The robot walks from the top left to the bottom right, so when it reaches a cell, the cells to its right and below are still empty and can’t be read."
-      }
-    },
-    {
-      "when": { "feeds": { "from": "const", "to": "msum" } },
-      "say": {
-        "zh": "常数直接接进汇合器，每个路口都会多加 1。用放行闸，只在起点放行。",
-        "en": "With the Constant wired straight into the Merger, every crossing gets an extra 1. Use a Pass gate so it only goes through at the start."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "起点应该是几？要让这个数只出现在起点，别的路口照旧是上面 + 左边。",
-      "en": "What should the start hold? That number must appear only on the start, while every other crossing stays up + left."
-    },
-    {
-      "zh": "「是起点」接放行闸的「条件」口，常数 1 接「数」口，再把放行闸接进汇合器空着的那个圆点。",
-      "en": "Wire “is start” into a Pass gate’s “if” port and a Constant 1 into its “num” port, then wire the Pass gate into the Merger’s free dot."
-    }
-  ],
-  "world": "grid",
-  "facts": ["start"],
-  "tests": [{ "R": 3, "C": 4 }, { "R": 4, "C": 4 }, { "R": 5, "C": 6 }],
-  "expected": [10, 20, 126],
-  "solution": ["k = const[value=1]()", "g = pass(facts.start, k)", "m = msum(view.up, view.left, g)", "cell <- m"],
   "debrief": {
     "title": { "zh": "你拼出了第一台机器", "en": "Your first machine" },
     "body": [
@@ -123,5 +78,55 @@
       "zh": "把规则拼成电路，机器就能填满任意大的表。这就是动态规划。",
       "en": "Wire the rule into a circuit and the machine can fill a table of any size. That is dynamic programming."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "stamp",
+      "mode": "circuit",
+      "guide": [
+        {
+          "until": { "reads": "start" },
+          "say": { "zh": "第 1 步：在本格信息里点「是起点」。", "en": "Step 1: click “is start” under This cell." }
+        },
+        {
+          "until": { "has": "pass" },
+          "say": {
+            "zh": "第 2 步：把托盘里的<part-ref to=\"part:const\"></part-ref>和<part-ref to=\"part:pass\"></part-ref>拖到电路板上。",
+            "en": "Step 2: drag a <part-ref to=\"part:const\"></part-ref> and a <part-ref to=\"part:pass\"></part-ref> from the tray onto the board."
+          }
+        }
+      ],
+      "diagnose": [
+        {
+          "when": { "any": [{ "uses": "right" }, { "uses": "down" }, { "uses": "ur" }, { "uses": "dl" }, { "uses": "dr" }] },
+          "say": {
+            "zh": "机器人从左上往右下走，到一个格子时，它右边和下面的格子还空着，不能读。",
+            "en": "The robot walks from the top left to the bottom right, so when it reaches a cell, the cells to its right and below are still empty and can’t be read."
+          }
+        },
+        {
+          "when": { "feeds": { "from": "const", "to": "msum" } },
+          "say": {
+            "zh": "常数直接接进汇合器，每个路口都会多加 1。用放行闸，只在起点放行。",
+            "en": "With the Constant wired straight into the Merger, every crossing gets an extra 1. Use a Pass gate so it only goes through at the start."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "起点应该是几？要让这个数只出现在起点，别的路口照旧是上面 + 左边。",
+          "en": "What should the start hold? That number must appear only on the start, while every other crossing stays up + left."
+        },
+        {
+          "zh": "「是起点」接放行闸的「条件」口，常数 1 接「数」口，再把放行闸接进汇合器空着的那个圆点。",
+          "en": "Wire “is start” into a Pass gate’s “if” port and a Constant 1 into its “num” port, then wire the Pass gate into the Merger’s free dot."
+        }
+      ],
+      "world": "grid",
+      "facts": ["start"],
+      "tests": [{ "R": 3, "C": 4 }, { "R": 4, "C": 4 }, { "R": 5, "C": 6 }],
+      "expected": [10, 20, 126],
+      "solution": ["k = const[value=1]()", "g = pass(facts.start, k)", "m = msum(view.up, view.left, g)", "cell <- m"]
+    }
+  ]
 }

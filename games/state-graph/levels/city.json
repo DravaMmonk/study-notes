@@ -1,5 +1,4 @@
 {
-  "mode": "fill",
   "title": { "zh": "棋盘城市", "en": "Grid city" },
   "short": { "zh": "每个路口都在重复同一件事", "en": "Every crossing does the same thing" },
   "intro": [
@@ -38,7 +37,6 @@
     },
     "how": { "zh": "点一个路口，用数字键盘填数。", "en": "Click a crossing and type its number on the keypad." }
   },
-  "grid": { "R": 3, "C": 4 },
   "debrief": {
     "title": { "zh": "右下角是 10", "en": "The bottom right is 10" },
     "body": [
@@ -59,5 +57,12 @@
       "zh": "棋盘城市里，每个路口 = 上面的路口 + 左边的路口。",
       "en": "In a grid city, each crossing = the crossing above + the crossing to the left."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "city",
+      "mode": "fill",
+      "grid": { "R": 3, "C": 4 }
+    }
+  ]
 }

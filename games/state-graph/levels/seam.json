@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "最不起眼的一条缝", "en": "The least noticeable seam" },
   "short": { "zh": "图片上的最省路线", "en": "The cheapest route through a picture" },
   "intro": [
@@ -4013,56 +4012,6 @@
     }
   },
   "robot": "scout",
-  "diagnose": [
-    {
-      "when": { "all": [{ "uses": "up" }, { "not": { "uses": "ul" } }, { "not": { "uses": "ur" } }] },
-      "say": {
-        "zh": "只看正上方，缝就只能是一根笔直的竖线，剪掉时会从字母中间切过去。缝每一步可以往左下或右下斜一格：左上、右上也是来路。",
-        "en": "Looking only straight up, a seam can only be a dead-straight vertical line, and cutting it out would slice through the middle of a letter. At each step a seam may slant one cell down-left or down-right, so up-left and up-right are ways in too."
-      }
-    }
-  ],
-  "trace": "seam",
-  "boardOpt": { "minScale": 0.5, "maxScale": 1.05 },
-  "checkAll": true,
-  "hints": [
-    { "zh": "三条来路：左上、正上、右上，取较小。", "en": "Three ways in: up-left, up and up-right. Take the min." },
-    {
-      "zh": "再加上这个像素自己的能量。顶行上面什么都没有：用放行闸在顶行送一个 0 进去（和<level-ref to=\"cheapest\"></level-ref>的起点一样）。",
-      "en": "Then add this pixel’s own energy. There is nothing above the top row: use a Pass gate to let a 0 in on the top row (just like the start in <level-ref to=\"cheapest\"></level-ref>)."
-    }
-  ],
-  "world": "pic",
-  "facts": ["energy", "top"],
-  "tests": [
-    {
-      "img": [
-        [1, 1, 8, 8, 8, 8, 8, 1, 1],
-        [1, 1, 2, 1, 8, 1, 1, 1, 1],
-        [1, 2, 2, 1, 8, 1, 2, 1, 1],
-        [1, 1, 2, 1, 8, 1, 1, 1, 1],
-        [1, 1, 2, 1, 8, 1, 1, 2, 1],
-        [2, 1, 1, 1, 1, 1, 1, 2, 2]
-      ],
-      "R": 6,
-      "C": 9
-    },
-    {
-      "img": [
-        [2, 1, 2, 2, 1, 1, 1, 1, 2, 1],
-        [2, 2, 2, 1, 2, 8, 8, 8, 1, 1],
-        [1, 1, 1, 1, 8, 1, 2, 1, 8, 1],
-        [1, 1, 1, 1, 8, 1, 1, 1, 8, 1],
-        [1, 1, 1, 1, 8, 1, 2, 1, 8, 1],
-        [1, 1, 1, 1, 1, 8, 8, 8, 1, 1],
-        [1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
-      ],
-      "R": 7,
-      "C": 10
-    }
-  ],
-  "expected": [2, 2],
-  "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"],
   "debrief": {
     "title": { "zh": "缝也是一条最省的路线", "en": "A seam is a cheapest route too" },
     "body": [
@@ -4079,5 +4028,61 @@
       "zh": "缝：每一格 = 本格能量 + 左上、正上、右上三格里最小的。",
       "en": "Seam: each cell = its own energy + the smallest of up-left, up and up-right."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "seam",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "all": [{ "uses": "up" }, { "not": { "uses": "ul" } }, { "not": { "uses": "ur" } }] },
+          "say": {
+            "zh": "只看正上方，缝就只能是一根笔直的竖线，剪掉时会从字母中间切过去。缝每一步可以往左下或右下斜一格：左上、右上也是来路。",
+            "en": "Looking only straight up, a seam can only be a dead-straight vertical line, and cutting it out would slice through the middle of a letter. At each step a seam may slant one cell down-left or down-right, so up-left and up-right are ways in too."
+          }
+        }
+      ],
+      "trace": "seam",
+      "boardOpt": { "minScale": 0.5, "maxScale": 1.05 },
+      "checkAll": true,
+      "hints": [
+        { "zh": "三条来路：左上、正上、右上，取较小。", "en": "Three ways in: up-left, up and up-right. Take the min." },
+        {
+          "zh": "再加上这个像素自己的能量。顶行上面什么都没有：用放行闸在顶行送一个 0 进去（和<level-ref to=\"cheapest\"></level-ref>的起点一样）。",
+          "en": "Then add this pixel’s own energy. There is nothing above the top row: use a Pass gate to let a 0 in on the top row (just like the start in <level-ref to=\"cheapest\"></level-ref>)."
+        }
+      ],
+      "world": "pic",
+      "facts": ["energy", "top"],
+      "tests": [
+        {
+          "img": [
+            [1, 1, 8, 8, 8, 8, 8, 1, 1],
+            [1, 1, 2, 1, 8, 1, 1, 1, 1],
+            [1, 2, 2, 1, 8, 1, 2, 1, 1],
+            [1, 1, 2, 1, 8, 1, 1, 1, 1],
+            [1, 1, 2, 1, 8, 1, 1, 2, 1],
+            [2, 1, 1, 1, 1, 1, 1, 2, 2]
+          ],
+          "R": 6,
+          "C": 9
+        },
+        {
+          "img": [
+            [2, 1, 2, 2, 1, 1, 1, 1, 2, 1],
+            [2, 2, 2, 1, 2, 8, 8, 8, 1, 1],
+            [1, 1, 1, 1, 8, 1, 2, 1, 8, 1],
+            [1, 1, 1, 1, 8, 1, 1, 1, 8, 1],
+            [1, 1, 1, 1, 8, 1, 2, 1, 8, 1],
+            [1, 1, 1, 1, 1, 8, 8, 8, 1, 1],
+            [1, 1, 2, 1, 1, 1, 1, 1, 1, 1]
+          ],
+          "R": 7,
+          "C": 10
+        }
+      ],
+      "expected": [2, 2],
+      "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"]
+    }
+  ]
 }

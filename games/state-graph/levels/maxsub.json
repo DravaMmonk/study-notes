@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "最大的一段", "en": "The best stretch" },
   "short": { "zh": "一格存什么？", "en": "What should a cell hold?" },
   "intro": [
@@ -15,35 +14,6 @@
     "how": { "zh": "答案是表里最大的那一格。", "en": "The answer is the largest cell in the table." }
   },
   "robot": "broom",
-  "naive": ["m = msum(view.seg)", "cell <- m"],
-  "diagnose": [
-    {
-      "when": { "uses": "seg" },
-      "say": {
-        "zh": "扫描臂加起来的，总是从第 1 天开始的那一段。可最好的一段不一定从第 1 天开始。",
-        "en": "What the sweep arm adds up always starts on day 1, but the best run need not."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "一格不一定要存「到今天为止最好的一段」。它还能存什么？",
-      "en": "A cell need not hold “the best run up to today”. What else could it hold?"
-    },
-    {
-      "zh": "以今天结尾的最好一段，要么只有今天，要么是昨天结尾的最好一段再加上今天。",
-      "en": "The best run ending today is either today alone, or the best run ending yesterday with today added."
-    }
-  ],
-  "world": "gains",
-  "facts": ["money"],
-  "tests": [
-    { "a": [-2, 1, -3, 4, -1, 2, 1, -5, 4] },
-    { "a": [3, -4, 5, -1, 2, -6, 3] },
-    { "a": [-1, 2, 3, -7, 4, 1, -2, 5] }
-  ],
-  "expected": [6, 6, 8],
-  "solution": ["a = add(view.prev, facts.money)", "m = mmax(facts.money, a)", "cell <- m"],
   "debrief": {
     "title": { "zh": "根本不用扫描臂", "en": "No sweep arm needed" },
     "body": [
@@ -56,5 +26,40 @@
         "en": "Choose the right thing for a cell to hold, and the cell to the left is all you need."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "maxsub",
+      "mode": "circuit",
+      "naive": ["m = msum(view.seg)", "cell <- m"],
+      "diagnose": [
+        {
+          "when": { "uses": "seg" },
+          "say": {
+            "zh": "扫描臂加起来的，总是从第 1 天开始的那一段。可最好的一段不一定从第 1 天开始。",
+            "en": "What the sweep arm adds up always starts on day 1, but the best run need not."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "一格不一定要存「到今天为止最好的一段」。它还能存什么？",
+          "en": "A cell need not hold “the best run up to today”. What else could it hold?"
+        },
+        {
+          "zh": "以今天结尾的最好一段，要么只有今天，要么是昨天结尾的最好一段再加上今天。",
+          "en": "The best run ending today is either today alone, or the best run ending yesterday with today added."
+        }
+      ],
+      "world": "gains",
+      "facts": ["money"],
+      "tests": [
+        { "a": [-2, 1, -3, 4, -1, 2, 1, -5, 4] },
+        { "a": [3, -4, 5, -1, 2, -6, 3] },
+        { "a": [-1, 2, 3, -7, 4, 1, -2, 5] }
+      ],
+      "expected": [6, 6, 8],
+      "solution": ["a = add(view.prev, facts.money)", "m = mmax(facts.money, a)", "cell <- m"]
+    }
+  ]
 }

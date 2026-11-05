@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "机器人传话", "en": "Robot relay" },
   "short": { "zh": "点一格，接一根线", "en": "Click a cell, wire it in" },
   "intro": [
@@ -15,13 +14,19 @@
     "how": { "zh": "在视野里点「左边」，把它连到「本格」。", "en": "Click “left” in the view and wire it to “this cell”." }
   },
   "robot": "scout",
-  "hints": [{ "zh": "在视野里点「左边」，再连到「本格」。", "en": "Click “left” in the view, then wire it to “this cell”." }],
-  "world": "grid",
-  "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
-  "expected": [7, 3],
-  "solution": ["cell <- view.left"],
   "debrief": {
     "title": { "zh": "机器人学会了抄", "en": "The robot learned to copy" },
     "body": [{ "zh": "电路板就是规则：只写一次，机器人在每一格上都用它。", "en": "The circuit board is the rule: you write it once, and the robot uses it on every cell." }]
-  }
+  },
+  "tasks": [
+    {
+      "id": "copy",
+      "mode": "circuit",
+      "hints": [{ "zh": "在视野里点「左边」，再连到「本格」。", "en": "Click “left” in the view, then wire it to “this cell”." }],
+      "world": "grid",
+      "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
+      "expected": [7, 3],
+      "solution": ["cell <- view.left"]
+    }
+  ]
 }

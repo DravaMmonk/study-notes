@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "两把钥匙", "en": "Two keys" },
   "short": { "zh": "四种可能，四层", "en": "Four possibilities, four layers" },
   "intro": [
@@ -24,40 +23,6 @@
     "how": { "zh": "每一格把四层都算一遍。", "en": "Every cell works out all four layers." }
   },
   "robot": "stack",
-  "noTrace": true,
-  "hints": [
-    {
-      "zh": "先试试<level-ref to=\"keydoor\"></level-ref>的电路板。",
-      "en": "Try the board from <level-ref to=\"keydoor\"></level-ref> first."
-    }
-  ],
-  "world": "keys",
-  "facts": ["start", "gain", "lose", "shut"],
-  "tests": [
-    {
-      "R": 3,
-      "C": 4,
-      "keys": { "red": [1, 0], "blue": [0, 2] },
-      "doors": [{ "at": [1, 3], "color": "blue" }, { "at": [2, 2], "color": "red" }]
-    },
-    {
-      "R": 4,
-      "C": 4,
-      "keys": { "red": [0, 1], "blue": [2, 0] },
-      "doors": [{ "at": [2, 2], "color": "red" }, { "at": [1, 3], "color": "blue" }, { "at": [3, 1], "color": "blue" }]
-    }
-  ],
-  "expected": [5, 8],
-  "solution": [
-    "c = counter(view.up, view.left, facts.start)",
-    "p = msum(view.upPrev, view.leftPrev)",
-    "b1 = block(facts.shut, c)",
-    "g = pass(facts.gain, p)",
-    "b2 = block(facts.lose, b1)",
-    "m = msum(b2, g)",
-    "cell <- m"
-  ],
-  "remember": ["red", "blue"],
   "debrief": {
     "title": { "zh": "状态决定了表的形状", "en": "The state shapes the table" },
     "body": [
@@ -66,5 +31,45 @@
         "en": "Two keys, four possibilities: none, only red, only blue, both. One layer for each, so the table has 4 layers, yet the circuit board didn’t change at all."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "twokeys",
+      "mode": "circuit",
+      "noTrace": true,
+      "hints": [
+        {
+          "zh": "先试试<level-ref to=\"keydoor\"></level-ref>的电路板。",
+          "en": "Try the board from <level-ref to=\"keydoor\"></level-ref> first."
+        }
+      ],
+      "world": "keys",
+      "facts": ["start", "gain", "lose", "shut"],
+      "tests": [
+        {
+          "R": 3,
+          "C": 4,
+          "keys": { "red": [1, 0], "blue": [0, 2] },
+          "doors": [{ "at": [1, 3], "color": "blue" }, { "at": [2, 2], "color": "red" }]
+        },
+        {
+          "R": 4,
+          "C": 4,
+          "keys": { "red": [0, 1], "blue": [2, 0] },
+          "doors": [{ "at": [2, 2], "color": "red" }, { "at": [1, 3], "color": "blue" }, { "at": [3, 1], "color": "blue" }]
+        }
+      ],
+      "expected": [5, 8],
+      "solution": [
+        "c = counter(view.up, view.left, facts.start)",
+        "p = msum(view.upPrev, view.leftPrev)",
+        "b1 = block(facts.shut, c)",
+        "g = pass(facts.gain, p)",
+        "b2 = block(facts.lose, b1)",
+        "m = msum(b2, g)",
+        "cell <- m"
+      ],
+      "remember": ["red", "blue"]
+    }
+  ]
 }

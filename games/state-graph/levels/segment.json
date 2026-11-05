@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "分词", "en": "Word segmentation" },
   "short": { "zh": "不认识的词也得切开", "en": "Even unknown words get cut" },
   "intro": [
@@ -21,37 +20,6 @@
     "how": { "zh": "单个字母的代价写在词典最后。", "en": "What a single letter costs is shown at the end of the dictionary." }
   },
   "robot": "broom",
-  "testLabel": "{s}",
-  "after": "dictionary",
-  "hints": [
-    {
-      "zh": "单个字母也是一块，代价在词典里写着。",
-      "en": "A single letter is just another piece, with its cost in the dictionary."
-    }
-  ],
-  "world": "pieces",
-  "facts": ["ground"],
-  "tests": [
-    {
-      "s": "mycatzedsleeps",
-      "dict": { "my": 1, "cat": 1, "cats": 2, "sleep": 1, "sleeps": 1, "eps": 2 },
-      "letter": 5
-    },
-    { "s": "thedogranhome", "dict": { "the": 1, "dog": 1, "ran": 1, "home": 1, "ho": 2, "me": 1 }, "letter": 4 },
-    {
-      "s": "ilovebobsbikes",
-      "dict": { "i": 1, "love": 1, "bike": 1, "bikes": 1, "lo": 2, "ve": 2 },
-      "letter": 3
-    }
-  ],
-  "expected": [18, 4, 15],
-  "solution": [
-    "a = add(view.seg, view.cost)",
-    "z = const[value=0]()",
-    "g = pass(facts.ground, z)",
-    "m = mmin(a, g)",
-    "cell <- m"
-  ],
   "debrief": {
     "title": { "zh": "分词", "en": "Word segmentation" },
     "body": [
@@ -64,5 +32,42 @@
         "en": "“The fewest pieces” and <level-ref to=\"wordcost\"></level-ref> are its special cases: every cost 1, or no single letters to fall back on."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "segment",
+      "mode": "circuit",
+      "testLabel": "{s}",
+      "after": "dictionary",
+      "hints": [
+        {
+          "zh": "单个字母也是一块，代价在词典里写着。",
+          "en": "A single letter is just another piece, with its cost in the dictionary."
+        }
+      ],
+      "world": "pieces",
+      "facts": ["ground"],
+      "tests": [
+        {
+          "s": "mycatzedsleeps",
+          "dict": { "my": 1, "cat": 1, "cats": 2, "sleep": 1, "sleeps": 1, "eps": 2 },
+          "letter": 5
+        },
+        { "s": "thedogranhome", "dict": { "the": 1, "dog": 1, "ran": 1, "home": 1, "ho": 2, "me": 1 }, "letter": 4 },
+        {
+          "s": "ilovebobsbikes",
+          "dict": { "i": 1, "love": 1, "bike": 1, "bikes": 1, "lo": 2, "ve": 2 },
+          "letter": 3
+        }
+      ],
+      "expected": [18, 4, 15],
+      "solution": [
+        "a = add(view.seg, view.cost)",
+        "z = const[value=0]()",
+        "g = pass(facts.ground, z)",
+        "m = mmin(a, g)",
+        "cell <- m"
+      ]
+    }
+  ]
 }

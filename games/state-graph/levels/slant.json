@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "斜街", "en": "Slanted streets" },
   "short": { "zh": "往右，或往右下", "en": "Right, or diagonally down-right" },
   "intro": [
@@ -71,30 +70,6 @@
     }
   },
   "robot": "scout",
-  "diagnose": [
-    {
-      "when": { "uses": "up" },
-      "say": {
-        "zh": "这座城市不能往下直走，从上面是走不过来的。",
-        "en": "In this city you can’t go straight down, so nothing arrives from above."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "到一个路口的最后一步：从左边来（往右走了一格），或者从左上来（斜着走了一格）。",
-      "en": "The last step into a crossing comes either from the left (one cell right) or from the up-left (one cell diagonally)."
-    },
-    {
-      "zh": "把「左边」接到路线计数器的「上」口，「左上」接到「左」口，「是起点」接「起」口。口的名字不要紧，它只管把两个数加起来。",
-      "en": "Wire “left” into the Route Counter’s “up” port, “up-left” into its “left” port, and “is start” into its “start” port. The port names don’t matter; it just adds two numbers."
-    }
-  ],
-  "world": "grid",
-  "facts": ["start"],
-  "tests": [{ "R": 3, "C": 5 }, { "R": 4, "C": 6 }],
-  "expected": [6, 10],
-  "solution": ["c = counter(view.left, view.ul, facts.start)", "cell <- c"],
   "debrief": {
     "title": { "zh": "零件不在乎方向", "en": "Parts don’t care about direction" },
     "body": [
@@ -111,5 +86,35 @@
       "zh": "零件只认结构：两个来源相加、起点算 1，换个方向照样能用。",
       "en": "A part cares only about structure: two sources added, 1 at the start. It works in any direction."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "slant",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "uses": "up" },
+          "say": {
+            "zh": "这座城市不能往下直走，从上面是走不过来的。",
+            "en": "In this city you can’t go straight down, so nothing arrives from above."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "到一个路口的最后一步：从左边来（往右走了一格），或者从左上来（斜着走了一格）。",
+          "en": "The last step into a crossing comes either from the left (one cell right) or from the up-left (one cell diagonally)."
+        },
+        {
+          "zh": "把「左边」接到路线计数器的「上」口，「左上」接到「左」口，「是起点」接「起」口。口的名字不要紧，它只管把两个数加起来。",
+          "en": "Wire “left” into the Route Counter’s “up” port, “up-left” into its “left” port, and “is start” into its “start” port. The port names don’t matter; it just adds two numbers."
+        }
+      ],
+      "world": "grid",
+      "facts": ["start"],
+      "tests": [{ "R": 3, "C": 5 }, { "R": 4, "C": 6 }],
+      "expected": [6, 10],
+      "solution": ["c = counter(view.left, view.ul, facts.start)", "cell <- c"]
+    }
+  ]
 }

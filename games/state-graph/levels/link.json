@@ -1,5 +1,4 @@
 {
-  "mode": "link",
   "title": { "zh": "连线不交叉", "en": "Lines that never cross" },
   "short": { "zh": "找出两串字共同的部分", "en": "Find what two strings share" },
   "intro": [
@@ -75,17 +74,6 @@
       "en": "Click a letter, then the same letter in the other row, to draw a line. Click a letter that already has a line to remove it."
     }
   },
-  "tests": [{ "a": "CABD", "b": "ABCD" }, { "a": "ABCBDAB", "b": "BDCABA" }],
-  "hints": [
-    {
-      "zh": "先别连 C。C 在上面排第一，在下面排第三，连了它，A 和 B 就都连不上了。",
-      "en": "Leave C alone for now. C is first on top but third below, so linking it blocks both A and B."
-    },
-    {
-      "zh": "目标是 4 根。B、C、B、A 是一种连法，B、D、A、B 是另一种。",
-      "en": "The target is 4 lines. B, C, B, A is one way; B, D, A, B is another."
-    }
-  ],
   "debrief": {
     "title": { "zh": "最长公共子序列", "en": "Longest common subsequence" },
     "body": [
@@ -102,5 +90,22 @@
       "zh": "公共子序列：两串字里，按顺序都出现的一串。连线不能交叉。",
       "en": "Common subsequence: letters that appear in order in both strings. The lines can’t cross."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "link",
+      "mode": "link",
+      "tests": [{ "a": "CABD", "b": "ABCD" }, { "a": "ABCBDAB", "b": "BDCABA" }],
+      "hints": [
+        {
+          "zh": "先别连 C。C 在上面排第一，在下面排第三，连了它，A 和 B 就都连不上了。",
+          "en": "Leave C alone for now. C is first on top but third below, so linking it blocks both A and B."
+        },
+        {
+          "zh": "目标是 4 根。B、C、B、A 是一种连法，B、D、A、B 是另一种。",
+          "en": "The target is 4 lines. B, C, B, A is one way; B, D, A, B is another."
+        }
+      ]
+    }
+  ]
 }

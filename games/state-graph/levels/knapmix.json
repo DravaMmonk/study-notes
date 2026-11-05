@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "混合背包", "en": "A mixed backpack" },
   "short": { "zh": "有的只有一件", "en": "Some come only once" },
   "intro": [
@@ -19,63 +18,6 @@
     "how": { "zh": "物品栏里标 ×n 的可以拿很多件。", "en": "Items marked ×n can be taken many times." }
   },
   "robot": "reach",
-  "diagnose": [
-    {
-      "when": { "not": { "uses": "many" } },
-      "say": {
-        "zh": "这一关有的东西只能拿一件，有的可以拿很多件。读一读「这件能拿多次」。",
-        "en": "In this level some things can be taken only once and some many times. Read “can take many”."
-      }
-    }
-  ],
-  "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
-  "hints": [
-    {
-      "zh": "两种东西的拿法只差一处：腾地方的那一格，在上一行，还是在本行。",
-      "en": "The two kinds of thing differ in one place only: whether the cell that makes room is on the row above or on this row."
-    },
-    {
-      "zh": "让「这件能拿多次」来挑那一格：一个闸门放行本行那格，另一个闸门放行上一行那格。",
-      "en": "Let “can take many” pick that cell: one gate lets this row’s cell through, another lets the row above’s through."
-    }
-  ],
-  "world": "knap",
-  "facts": ["value", "many"],
-  "tests": [
-    {
-      "W": 11,
-      "items": [
-        { "n": { "zh": "帐篷", "en": "tent" }, "w": 5, "v": 12 },
-        { "n": { "zh": "矿泉水", "en": "water" }, "w": 4, "v": 9, "many": true },
-        { "n": { "zh": "相机", "en": "camera" }, "w": 3, "v": 7 },
-        { "n": { "zh": "饼干", "en": "biscuits" }, "w": 2, "v": 3, "many": true }
-      ]
-    },
-    {
-      "W": 8,
-      "items": [
-        { "n": { "zh": "指南针", "en": "compass" }, "w": 3, "v": 10 },
-        { "n": { "zh": "罐头", "en": "cans" }, "w": 4, "v": 9, "many": true },
-        { "n": { "zh": "能量棒", "en": "energy bars" }, "w": 1, "v": 3, "many": true }
-      ]
-    },
-    {
-      "W": 8,
-      "items": [
-        { "n": { "zh": "木柴", "en": "firewood" }, "w": 4, "v": 4, "many": true },
-        { "n": { "zh": "绳子", "en": "rope" }, "w": 2, "v": 4, "many": true },
-        { "n": { "zh": "药箱", "en": "medical kit" }, "w": 3, "v": 13 }
-      ]
-    }
-  ],
-  "expected": [25, 25, 21],
-  "solution": [
-    "p = pass(facts.many, view.rowk)",
-    "b = block(facts.many, view.upk)",
-    "s = msum(p, b)",
-    "c = choose(view.up, s, facts.value)",
-    "cell <- c"
-  ],
   "debrief": {
     "title": { "zh": "混合背包", "en": "Mixed knapsack" },
     "body": [
@@ -88,5 +30,68 @@
         "en": "The two earlier backpacks are special cases of it: everything at most once is the 0/1 knapsack, everything many times is the unbounded knapsack. This circuit board solves <level-ref to=\"knapmany\"></level-ref> as it is."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "knapmix",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "uses": "many" } },
+          "say": {
+            "zh": "这一关有的东西只能拿一件，有的可以拿很多件。读一读「这件能拿多次」。",
+            "en": "In this level some things can be taken only once and some many times. Read “can take many”."
+          }
+        }
+      ],
+      "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
+      "hints": [
+        {
+          "zh": "两种东西的拿法只差一处：腾地方的那一格，在上一行，还是在本行。",
+          "en": "The two kinds of thing differ in one place only: whether the cell that makes room is on the row above or on this row."
+        },
+        {
+          "zh": "让「这件能拿多次」来挑那一格：一个闸门放行本行那格，另一个闸门放行上一行那格。",
+          "en": "Let “can take many” pick that cell: one gate lets this row’s cell through, another lets the row above’s through."
+        }
+      ],
+      "world": "knap",
+      "facts": ["value", "many"],
+      "tests": [
+        {
+          "W": 11,
+          "items": [
+            { "n": { "zh": "帐篷", "en": "tent" }, "w": 5, "v": 12 },
+            { "n": { "zh": "矿泉水", "en": "water" }, "w": 4, "v": 9, "many": true },
+            { "n": { "zh": "相机", "en": "camera" }, "w": 3, "v": 7 },
+            { "n": { "zh": "饼干", "en": "biscuits" }, "w": 2, "v": 3, "many": true }
+          ]
+        },
+        {
+          "W": 8,
+          "items": [
+            { "n": { "zh": "指南针", "en": "compass" }, "w": 3, "v": 10 },
+            { "n": { "zh": "罐头", "en": "cans" }, "w": 4, "v": 9, "many": true },
+            { "n": { "zh": "能量棒", "en": "energy bars" }, "w": 1, "v": 3, "many": true }
+          ]
+        },
+        {
+          "W": 8,
+          "items": [
+            { "n": { "zh": "木柴", "en": "firewood" }, "w": 4, "v": 4, "many": true },
+            { "n": { "zh": "绳子", "en": "rope" }, "w": 2, "v": 4, "many": true },
+            { "n": { "zh": "药箱", "en": "medical kit" }, "w": 3, "v": 13 }
+          ]
+        }
+      ],
+      "expected": [25, 25, 21],
+      "solution": [
+        "p = pass(facts.many, view.rowk)",
+        "b = block(facts.many, view.upk)",
+        "s = msum(p, b)",
+        "c = choose(view.up, s, facts.value)",
+        "cell <- c"
+      ]
+    }
+  ]
 }

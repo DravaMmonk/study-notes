@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "顺序不止一种", "en": "More than one order" },
   "short": { "zh": "同一块电路板，换个顺序", "en": "Same board, another order" },
   "intro": [
@@ -34,9 +33,25 @@
   },
   "robot": "broom",
   "unlock": "anyorder",
-  "tests": [{ "w": [5, 2, 4, 1, 3] }, { "w": [1, 9, 1, 9, 1, 9] }],
-  "stages": [
+  "debrief": {
+    "title": { "zh": "合法的顺序不止一种", "en": "More than one valid order" },
+    "body": [
+      {
+        "zh": "按长度、逐行从下往上、逐列每列从下往上，都行。它们只有一个共同点：<b>每一格都排在它要读的格子之后</b>。",
+        "en": "By length, row by row from the bottom up, column by column from the bottom up: they all work. They have just one thing in common: <b>every cell comes after the cells it reads</b>."
+      },
+      {
+        "zh": "顺序不是答案的一部分，只是「先算谁」的安排。",
+        "en": "The order is not part of the answer, just an arrangement of “who goes first”."
+      }
+    ],
+    "note": { "zh": "只要被读的格子先算好，什么顺序都行。", "en": "Any order works, as long as the cells being read are computed first." }
+  },
+  "tasks": [
     {
+      "id": "twoorders",
+      "mode": "circuit",
+      "tests": [{ "w": [5, 2, 4, 1, 3] }, { "w": [1, 9, 1, 9, 1, 9] }],
       "world": "interval",
       "facts": ["weight"],
       "expected": [34, 80],
@@ -65,6 +80,9 @@
       }
     },
     {
+      "id": "twoorders_2",
+      "mode": "circuit",
+      "tests": [{ "w": [5, 2, 4, 1, 3] }, { "w": [1, 9, 1, 9, 1, 9] }],
       "world": "interval",
       "facts": ["weight"],
       "expected": [34, 80],
@@ -85,21 +103,7 @@
         "zh": "电路板不变，机器人换成逐行从下往上扫。再通过一次。",
         "en": "Same board; the robot now scans row by row from the bottom up. Pass again."
       },
-      "carry": true
+      "carries": true
     }
-  ],
-  "debrief": {
-    "title": { "zh": "合法的顺序不止一种", "en": "More than one valid order" },
-    "body": [
-      {
-        "zh": "按长度、逐行从下往上、逐列每列从下往上，都行。它们只有一个共同点：<b>每一格都排在它要读的格子之后</b>。",
-        "en": "By length, row by row from the bottom up, column by column from the bottom up: they all work. They have just one thing in common: <b>every cell comes after the cells it reads</b>."
-      },
-      {
-        "zh": "顺序不是答案的一部分，只是「先算谁」的安排。",
-        "en": "The order is not part of the answer, just an arrangement of “who goes first”."
-      }
-    ],
-    "note": { "zh": "只要被读的格子先算好，什么顺序都行。", "en": "Any order works, as long as the cells being read are computed first." }
-  }
+  ]
 }

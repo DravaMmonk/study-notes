@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "最长回文子序列", "en": "The longest palindrome inside" },
   "short": { "zh": "跳着挑也算", "en": "Skipping letters is allowed" },
   "intro": [
@@ -24,38 +23,6 @@
     "how": { "zh": "按长度从短到长扫。", "en": "Scan by length, shortest first." }
   },
   "robot": "ranger",
-  "diagnose": [
-    {
-      "when": { "all": [{ "not": { "uses": "dl" } }, { "uses": "same" }] },
-      "say": {
-        "zh": "两头都挑上时，剩下的是去掉两头之后的那一段：左下那一格。",
-        "en": "When both ends are picked, what is left is the run without both ends: the cell down-left."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "两头的字母相同时，两头都能挑上。剩下要挑的是哪一段，在哪一格？",
-      "en": "If the two end letters match, both can be picked. Which run is left to pick from, and which cell holds it?"
-    },
-    {
-      "zh": "两头不同：至少有一头用不上。扔掉左头是下面一格，扔掉右头是左边一格，取较大。",
-      "en": "If they differ, at least one end goes unused. Dropping the left end is the cell below, dropping the right end the cell to the left: take the larger."
-    }
-  ],
-  "world": "interval",
-  "facts": ["same"],
-  "tests": [{ "s": "CHARACTER" }, { "s": "AGBDBA" }, { "s": "BBABCBCAB" }],
-  "expected": [5, 5, 7],
-  "solution": [
-    "k = const[value=2]()",
-    "a = add(view.dl, k)",
-    "g = pass(facts.same, a)",
-    "m = mmax(view.down, view.left, g)",
-    "cell <- m"
-  ],
-  "diag": 1,
-  "empty0": true,
   "debrief": {
     "title": { "zh": "又是同一副骨架", "en": "The same skeleton again" },
     "body": [
@@ -68,5 +35,43 @@
         "en": "The alignment table compares two words; here you compare the two ends of one word. The table changed shape; the skeleton did not."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "lps",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "all": [{ "not": { "uses": "dl" } }, { "uses": "same" }] },
+          "say": {
+            "zh": "两头都挑上时，剩下的是去掉两头之后的那一段：左下那一格。",
+            "en": "When both ends are picked, what is left is the run without both ends: the cell down-left."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "两头的字母相同时，两头都能挑上。剩下要挑的是哪一段，在哪一格？",
+          "en": "If the two end letters match, both can be picked. Which run is left to pick from, and which cell holds it?"
+        },
+        {
+          "zh": "两头不同：至少有一头用不上。扔掉左头是下面一格，扔掉右头是左边一格，取较大。",
+          "en": "If they differ, at least one end goes unused. Dropping the left end is the cell below, dropping the right end the cell to the left: take the larger."
+        }
+      ],
+      "world": "interval",
+      "facts": ["same"],
+      "tests": [{ "s": "CHARACTER" }, { "s": "AGBDBA" }, { "s": "BBABCBCAB" }],
+      "expected": [5, 5, 7],
+      "solution": [
+        "k = const[value=2]()",
+        "a = add(view.dl, k)",
+        "g = pass(facts.same, a)",
+        "m = mmax(view.down, view.left, g)",
+        "cell <- m"
+      ],
+      "diag": 1,
+      "empty0": true
+    }
+  ]
 }

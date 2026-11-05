@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "猜词性", "en": "Guess the part of speech" },
   "short": { "zh": "每个词是名词还是动词", "en": "Is each word a noun or a verb?" },
   "intro": [
@@ -98,59 +97,6 @@
   },
   "robot": "reach",
   "unlock": "viterbi",
-  "trace": "tags",
-  "after": "tags",
-  "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
-  "hints": [
-    {
-      "zh": "上一个词是名词的话：到它为止最少的代价在「前词是名词」那一格。从它接到这个词，还要加上哪一项代价？",
-      "en": "If the previous word is a noun, the least cost up to it is in the “previous word as a noun” cell. Going on from there to this word, which cost do you add?"
-    },
-    {
-      "zh": "三种可能取较小，再加上「这个词这么标」的代价。",
-      "en": "Take the min of the three, then add the “this word, this tag” cost."
-    }
-  ],
-  "world": "tags",
-  "facts": ["tN", "tV", "tA", "emit"],
-  "tests": [
-    {
-      "words": [{ "zh": "他", "en": "he" }, { "zh": "研究", "en": "studies" }, { "zh": "历史", "en": "history" }],
-      "emit": [{ "N": 0 }, { "N": 2, "V": 1 }, { "N": 0 }],
-      "start": { "N": 0, "V": 2, "A": 2 },
-      "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } }
-    },
-    {
-      "words": [
-        { "zh": "进口", "en": "imports" },
-        { "zh": "彩电", "en": "TV" },
-        { "zh": "质量", "en": "quality" },
-        { "zh": "好", "en": "fine" }
-      ],
-      "emit": [{ "N": 1, "V": 1 }, { "N": 0 }, { "N": 0 }, { "A": 0, "V": 3 }],
-      "start": { "N": 0, "V": 2, "A": 2 },
-      "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } },
-      "note": {
-        "zh": "「进口」当成了动词：只看这个词，名词和动词一样便宜；是后面的词让动词胜出了。",
-        "en": "“imports” was tagged as a verb: on its own, noun and verb cost the same; it was the words after it that made the verb win."
-      }
-    },
-    {
-      "words": [{ "zh": "研究", "en": "study" }, { "zh": "生命", "en": "life" }, { "zh": "起源", "en": "roots" }],
-      "emit": [{ "N": 2, "V": 1 }, { "N": 0 }, { "N": 0, "V": 4 }],
-      "start": { "N": 0, "V": 2, "A": 2 },
-      "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } }
-    }
-  ],
-  "expected": [1, 8, 6],
-  "solution": [
-    "a = add(view.pN, facts.tN)",
-    "b = add(view.pV, facts.tV)",
-    "c = add(view.pA, facts.tA)",
-    "m = mmin(a, b, c)",
-    "e = add(m, facts.emit)",
-    "cell <- e"
-  ],
   "debrief": {
     "title": { "zh": "维特比算法", "en": "The Viterbi algorithm" },
     "body": [
@@ -167,5 +113,64 @@
       "zh": "维特比：上一列每一行 + 跟在它后面的代价，取较小，再加这个词这么标的代价。",
       "en": "Viterbi: each row of the previous column + the cost of following it, take the min, then add the cost of tagging this word this way."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "tagging",
+      "mode": "circuit",
+      "trace": "tags",
+      "after": "tags",
+      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+      "hints": [
+        {
+          "zh": "上一个词是名词的话：到它为止最少的代价在「前词是名词」那一格。从它接到这个词，还要加上哪一项代价？",
+          "en": "If the previous word is a noun, the least cost up to it is in the “previous word as a noun” cell. Going on from there to this word, which cost do you add?"
+        },
+        {
+          "zh": "三种可能取较小，再加上「这个词这么标」的代价。",
+          "en": "Take the min of the three, then add the “this word, this tag” cost."
+        }
+      ],
+      "world": "tags",
+      "facts": ["tN", "tV", "tA", "emit"],
+      "tests": [
+        {
+          "words": [{ "zh": "他", "en": "he" }, { "zh": "研究", "en": "studies" }, { "zh": "历史", "en": "history" }],
+          "emit": [{ "N": 0 }, { "N": 2, "V": 1 }, { "N": 0 }],
+          "start": { "N": 0, "V": 2, "A": 2 },
+          "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } }
+        },
+        {
+          "words": [
+            { "zh": "进口", "en": "imports" },
+            { "zh": "彩电", "en": "TV" },
+            { "zh": "质量", "en": "quality" },
+            { "zh": "好", "en": "fine" }
+          ],
+          "emit": [{ "N": 1, "V": 1 }, { "N": 0 }, { "N": 0 }, { "A": 0, "V": 3 }],
+          "start": { "N": 0, "V": 2, "A": 2 },
+          "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } },
+          "note": {
+            "zh": "「进口」当成了动词：只看这个词，名词和动词一样便宜；是后面的词让动词胜出了。",
+            "en": "“imports” was tagged as a verb: on its own, noun and verb cost the same; it was the words after it that made the verb win."
+          }
+        },
+        {
+          "words": [{ "zh": "研究", "en": "study" }, { "zh": "生命", "en": "life" }, { "zh": "起源", "en": "roots" }],
+          "emit": [{ "N": 2, "V": 1 }, { "N": 0 }, { "N": 0, "V": 4 }],
+          "start": { "N": 0, "V": 2, "A": 2 },
+          "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } }
+        }
+      ],
+      "expected": [1, 8, 6],
+      "solution": [
+        "a = add(view.pN, facts.tN)",
+        "b = add(view.pV, facts.tV)",
+        "c = add(view.pA, facts.tA)",
+        "m = mmin(a, b, c)",
+        "e = add(m, facts.emit)",
+        "cell <- e"
+      ]
+    }
+  ]
 }

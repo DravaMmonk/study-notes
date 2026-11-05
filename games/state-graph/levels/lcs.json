@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "对齐表", "en": "Alignment table" },
   "short": { "zh": "让表格替你连线", "en": "Let the table draw the lines" },
   "intro": [
@@ -262,39 +261,6 @@
   },
   "robot": "ranger",
   "unlock": "align",
-  "trace": "lcs",
-  "after": "lcs",
-  "boardOpt": { "minScale": 0.66, "maxScale": 1.2 },
-  "hints": [
-    {
-      "zh": "两个字相同时，这两个字可以连成一根线。连上以后剩下的字，对应问号的哪个邻居？只在相同时走这条路：用放行闸，条件接「两字相同」。",
-      "en": "When the letters match, those two can be linked by a line. Once they are, which neighbour of the question mark matches the letters that remain? Take that way only when they match: use a Pass gate with “letters match” as its condition."
-    },
-    {
-      "zh": "两个字不同时，至少有一个连不上：要么丢掉这一行的字（看上面），要么丢掉这一列的字（看左边）。",
-      "en": "When the letters differ, at least one of them gets no line: either drop this row’s letter (look up) or drop this column’s letter (look left)."
-    },
-    {
-      "zh": "要连得最多：把上面、左边和放行闸都接进「取较大」汇合器。",
-      "en": "To get the most lines: wire up, left and the Pass gate all into a “max” Merger."
-    }
-  ],
-  "world": "align",
-  "facts": ["same"],
-  "tests": [
-    { "top": "CABD", "left": "ABCD" },
-    { "top": "ABCBDAB", "left": "BDCABA" },
-    { "top": "GATTACA", "left": "CATTAG" }
-  ],
-  "expected": [3, 4, 4],
-  "solution": [
-    "k = const[value=1]()",
-    "a = add(view.ul, k)",
-    "g = pass(facts.same, a)",
-    "m = mmax(view.up, view.left, g)",
-    "cell <- m"
-  ],
-  "border0": true,
   "debrief": {
     "title": { "zh": "表格替你连好了线", "en": "The table drew the lines for you" },
     "body": [
@@ -311,5 +277,44 @@
       "zh": "对齐表：字相同，左上 + 1；不同，取上面和左边中较大的。",
       "en": "Alignment table: if the letters match, up-left + 1; if not, the larger of up and left."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "lcs",
+      "mode": "circuit",
+      "trace": "lcs",
+      "after": "lcs",
+      "boardOpt": { "minScale": 0.66, "maxScale": 1.2 },
+      "hints": [
+        {
+          "zh": "两个字相同时，这两个字可以连成一根线。连上以后剩下的字，对应问号的哪个邻居？只在相同时走这条路：用放行闸，条件接「两字相同」。",
+          "en": "When the letters match, those two can be linked by a line. Once they are, which neighbour of the question mark matches the letters that remain? Take that way only when they match: use a Pass gate with “letters match” as its condition."
+        },
+        {
+          "zh": "两个字不同时，至少有一个连不上：要么丢掉这一行的字（看上面），要么丢掉这一列的字（看左边）。",
+          "en": "When the letters differ, at least one of them gets no line: either drop this row’s letter (look up) or drop this column’s letter (look left)."
+        },
+        {
+          "zh": "要连得最多：把上面、左边和放行闸都接进「取较大」汇合器。",
+          "en": "To get the most lines: wire up, left and the Pass gate all into a “max” Merger."
+        }
+      ],
+      "world": "align",
+      "facts": ["same"],
+      "tests": [
+        { "top": "CABD", "left": "ABCD" },
+        { "top": "ABCBDAB", "left": "BDCABA" },
+        { "top": "GATTACA", "left": "CATTAG" }
+      ],
+      "expected": [3, 4, 4],
+      "solution": [
+        "k = const[value=1]()",
+        "a = add(view.ul, k)",
+        "g = pass(facts.same, a)",
+        "m = mmax(view.up, view.left, g)",
+        "cell <- m"
+      ],
+      "border0": true
+    }
+  ]
 }

@@ -20,15 +20,19 @@ const OWN = {
   step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）', 'the task’s name on the strip of tasks (not shown when the level has one task)') })),
 }
 
+/** A task shape with the fields every task has: an object's own, or each shape of a by- or either-schema's. */
+const owned = (s) => (s.type === 'by' ? { ...s, cases: Object.fromEntries(Object.entries(s.cases).map(([k, c]) => [k, owned(c)])) }
+  : s.type === 'either' ? { ...s, of: s.of.map(owned) }
+    : { ...s, fields: { ...OWN, ...s.fields } })
+
 /**
  * A level's schema: the fields it says once (`once`) and its tasks, each an id, an optional name and `task`'s fields;
- * `task` may instead be a by-schema (S.by('kind', { … })), tasks of several shapes, each case an object of its fields.
+ * `task` may instead be a by-schema (S.by('kind', { … })), tasks of several shapes, each case an object of its fields
+ * (or itself a by- or either-schema of such objects).
  */
 export const taskLevel = (once, task) => S.obj({
   ...once,
-  tasks: S.list(task.type === 'by'
-    ? { ...task, cases: Object.fromEntries(Object.entries(task.cases).map(([k, c]) => [k, { ...c, fields: { ...OWN, ...c.fields } }])) }
-    : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关', 'the tasks done in turn; passing the last passes the level') }),
+  tasks: S.list(task.type === 'by' ? owned(task) : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关', 'the tasks done in turn; passing the last passes the level') }),
 })
 
 /** The schema of a level's tasks in a vocabulary (looked for in every shape a level may have), or null. */
@@ -45,8 +49,8 @@ export function tasksSchema(vocabulary) {
 /** Whether a vocabulary's levels may be lists of tasks. */
 export const hasTasks = (vocabulary) => tasksSchema(vocabulary) !== null
 
-/** The task schemas of every shape a task may have (the cases of a by-schema). */
-export const taskShapes = (task) => (task.type === 'by' ? Object.values(task.cases) : [task])
+/** The task schemas of every shape a task may have (the cases of a by-schema, and theirs, and an either's shapes). */
+export const taskShapes = (task) => (task.type === 'by' ? Object.values(task.cases).flatMap(taskShapes) : task.type === 'either' ? task.of.flatMap(taskShapes) : [task])
 
 /** Each task of a level as a level of its own: the level's fields under the task's, its index `task`, its id `taskId`. */
 export const taskLevels = ({ tasks, ...level }) => tasks.map((task, k) => {

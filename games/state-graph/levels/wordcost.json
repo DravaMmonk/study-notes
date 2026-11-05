@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "有的词更贵", "en": "Some words cost more" },
   "short": { "zh": "每一块的代价不同", "en": "Every piece has its own cost" },
   "intro": [
@@ -16,29 +15,6 @@
     "how": { "zh": "词典和代价写在测试旁边。", "en": "The dictionary and its costs are shown next to the tests." }
   },
   "robot": "broom",
-  "testLabel": "{s}",
-  "after": "dictionary",
-  "hints": [
-    {
-      "zh": "和<level-ref to=\"wordbreak\"></level-ref>比，变的只有每一块的代价。",
-      "en": "Compared with <level-ref to=\"wordbreak\"></level-ref>, only each piece’s cost has changed."
-    }
-  ],
-  "world": "pieces",
-  "facts": ["ground"],
-  "tests": [
-    { "s": "pineapplepen", "dict": { "pine": 2, "apple": 1, "pineapple": 4, "pen": 1 } },
-    { "s": "catsanddog", "dict": { "cat": 1, "cats": 3, "and": 1, "sand": 2, "dog": 1 } },
-    { "s": "icecreamcone", "dict": { "ice": 1, "cream": 1, "icecream": 3, "cone": 1, "creamcone": 1 } }
-  ],
-  "expected": [4, 4, 2],
-  "solution": [
-    "a = add(view.seg, view.cost)",
-    "z = const[value=0]()",
-    "g = pass(facts.ground, z)",
-    "m = mmin(a, g)",
-    "cell <- m"
-  ],
   "debrief": {
     "title": { "zh": "代价换了，电路没换", "en": "New costs, the same circuit" },
     "body": [
@@ -47,5 +23,34 @@
         "en": "In <level-ref to=\"wordbreak\"></level-ref> every piece cost 1, so it counted pieces. Change the costs, and the same board finds the cheapest cut."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "wordcost",
+      "mode": "circuit",
+      "testLabel": "{s}",
+      "after": "dictionary",
+      "hints": [
+        {
+          "zh": "和<level-ref to=\"wordbreak\"></level-ref>比，变的只有每一块的代价。",
+          "en": "Compared with <level-ref to=\"wordbreak\"></level-ref>, only each piece’s cost has changed."
+        }
+      ],
+      "world": "pieces",
+      "facts": ["ground"],
+      "tests": [
+        { "s": "pineapplepen", "dict": { "pine": 2, "apple": 1, "pineapple": 4, "pen": 1 } },
+        { "s": "catsanddog", "dict": { "cat": 1, "cats": 3, "and": 1, "sand": 2, "dog": 1 } },
+        { "s": "icecreamcone", "dict": { "ice": 1, "cream": 1, "icecream": 3, "cone": 1, "creamcone": 1 } }
+      ],
+      "expected": [4, 4, 2],
+      "solution": [
+        "a = add(view.seg, view.cost)",
+        "z = const[value=0]()",
+        "g = pass(facts.ground, z)",
+        "m = mmin(a, g)",
+        "cell <- m"
+      ]
+    }
+  ]
 }
