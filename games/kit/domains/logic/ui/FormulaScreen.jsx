@@ -6,6 +6,7 @@ import { difference, extent, structureOf } from '../fol.js'
 import { chipsOf, complete, straysOf } from '../formulaTree.js'
 import { WorldText, thingName } from './WorldScreens.jsx'
 import SentenceEditor, { STRAY } from './SentenceEditor.jsx'
+import { Markup } from '../../../shell/Markup.jsx'
 
 // Translate and query tasks (《证明完毕》 chapter 5): one sentence said in words, built as a formula from chips
 // (SentenceEditor.jsx). A translation passes when it means the same as the sentence in every small world, and shows a world where it does
@@ -68,7 +69,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
 
   const stage = (
     <div className="fo-stage">
-      <p className="fo-say fo-prompt" dangerouslySetInnerHTML={{ __html: String(L(level.say)) }} />
+      <p className="fo-say fo-prompt"><Markup text={level.say} /></p>
       {level.kind === 'query' && (
         <div className="fo-worlds">
           {level.worlds.map((world, k) => (

@@ -3,7 +3,8 @@
 // place a value does not fit, by its path.
 //
 //   any, bool, num, int, str        a value of that kind (num and int may carry min / max)
-//   text                            words a player reads: { zh, en }, or one string for both (a symbol, 'a + b')
+//   text                            words a player reads: { zh, en }, or one string for both (a symbol, 'a + b'),
+//                                   carrying only the kernel's markup (markup.js)
 //   oneOf(values)                   one of these values
 //   list(of), map(of)               a list, or an object with keys of the author's choosing, every value of `of`
 //   obj(fields)                     an object with these fields and no others; opt(schema) marks a field optional
@@ -27,6 +28,8 @@
 //   view: 'expr'    a part's expression (parts/expr.js); view: 'icon' a name in the kernel's icon table
 //   step            how far a number goes up or down at a time
 //   section         where a field of a level goes in its form (SECTIONS); without it the studio reads it off the shape
+import { markupOf } from './markup.js'
+
 export const SECTIONS = ['read', 'puzzle', 'tests', 'answers', 'course', 'tasks']
 export const HINTS = { view: ['grid', 'ticks', 'expr', 'icon'], section: SECTIONS }
 
@@ -87,8 +90,12 @@ export function validate(schema, value, { vocabulary = null, levels = null, lang
         else if (s.pattern && !new RegExp(s.pattern).test(v)) say(where, `${show(v)} does not match ${s.pattern}`)
         return
       case 'text':
-        if (typeof v === 'string') return
-        if (!isObj(v) || typeof v.zh !== 'string' || typeof v.en !== 'string' || Object.keys(v).length !== 2) say(where, `expected text, { zh, en } or a string, found ${show(v)}`)
+        if (typeof v === 'string') {
+          for (const p of markupOf(v).problems) say(where, p)
+          return
+        }
+        if (!isObj(v) || typeof v.zh !== 'string' || typeof v.en !== 'string' || Object.keys(v).length !== 2) return say(where, `expected text, { zh, en } or a string, found ${show(v)}`)
+        for (const side of ['zh', 'en']) for (const p of markupOf(v[side]).problems) say(`${where}.${side}`, p)
         return
       case 'oneOf':
         if (!s.values.includes(v)) say(where, `expected one of ${s.values.map(show).join(', ')}, found ${show(v)}`)

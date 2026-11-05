@@ -5,6 +5,7 @@ import { StripTools } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
 import { check, fold, foldRefusal, mark, say, targetRefusal, unfold, units } from '../model/sentence.js'
 import { ROLES, TYPES, roleKey } from '../model/parts.js'
+import { Markup } from '../../../shell/Markup.jsx'
 
 // A sentence-analysis level (model/sentence.js), the same on every screen: the sentence as it stands, each folded
 // modifier one piece hung on its word; a tray to mark what is selected as a role of the skeleton or to fold it; the
@@ -160,7 +161,7 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
     <div className={`sx-result ${result.pass ? 'is-pass' : 'is-fail'}`} role="status">
       {result.pass
         ? <p>{tr('分析正确。', 'Correct analysis.')}</p>
-        : <ul>{result.findings.map((f, k) => <li key={k} dangerouslySetInnerHTML={{ __html: L(f) }} />)}</ul>}
+        : <ul>{result.findings.map((f, k) => <li key={k}><Markup text={f} /></li>)}</ul>}
     </div>
   ) : null
   const dock = <RunDock go={{ label: result?.pass ? tr('分析正确', 'Correct') : tr('对照', 'Check'), pass: Boolean(result?.pass), onClick: go }} />

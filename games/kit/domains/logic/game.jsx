@@ -86,7 +86,6 @@ export default function logicGame(content) {
     kicker: content.kicker,
     lede: content.lede,
     Hero,
-    html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, title: chapter.title, question: chapter.question, track: chapter.track })),
     levels,
     progress: migrations(content.saves),

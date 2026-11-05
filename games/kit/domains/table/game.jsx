@@ -75,7 +75,6 @@ export default function tableGame(content) {
     kicker: content.kicker,
     lede: content.lede,
     Hero,
-    html: true,
     chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),
     levels,
     progress: migrations(content.saves),

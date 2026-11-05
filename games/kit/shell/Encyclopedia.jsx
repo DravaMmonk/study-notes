@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { L, tr } from './i18n.js'
 import Library, { store, useSeen } from './Library.jsx'
+import { Markup } from './Markup.jsx'
 
 // The encyclopedia (百科), the same in every game, after the one in Turing Complete: not one level's walkthrough but
 // the game's big ideas, grouped: how the game is played, then the terms of the subject it teaches. A game brings
@@ -66,7 +67,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
         {back}
         {group && <span className="panel-label">{L(group.title)}</span>}
         <h2>{L(entry.title)}</h2>
-        {entry.body.map((paragraph, k) => <p key={k} dangerouslySetInnerHTML={{ __html: String(L(paragraph)) }} />)}
+        {entry.body.map((paragraph, k) => <p key={k}><Markup text={paragraph} /></p>)}
         {entry.see?.length > 0 && (
           <footer className="wiki-see">
             <span className="panel-label">{tr('相关词条', 'See also')}</span>

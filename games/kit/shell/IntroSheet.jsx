@@ -1,7 +1,7 @@
 import { createElement, useEffect, useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
-import { Plain } from './Layout.jsx'
+import { Markup } from './Markup.jsx'
 import { useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
 
@@ -38,7 +38,7 @@ export default function IntroSheet({ game, level, pages, marks = [], step, theme
         <h2 id="intro-title">{L(level.title)}{step && <small className="intro-step">{L(step)}</small>}</h2>
         <div className="intro-body" key={page}>
           {current.fig && game.IntroFigure && createElement(game.IntroFigure, { fig: current.fig, level, theme })}
-          {game.html ? <p className="intro-text" {...(at ? mark(`${at.at}.t`, at.scope) : {})} dangerouslySetInnerHTML={{ __html: String(L(current.t)) }} /> : <p className="intro-text" {...(at ? mark(`${at.at}.t`, at.scope) : {})}><Rich text={L(current.t)} /></p>}
+          <p className="intro-text" {...(at ? mark(`${at.at}.t`, at.scope) : {})}><Markup text={current.t} /></p>
         </div>
         <footer className="intro-foot">
           <span className="intro-dots" aria-hidden="true">{pages.map((_, i) => <i key={i} className={i === page ? 'is-on' : ''} />)}</span>
@@ -49,9 +49,4 @@ export default function IntroSheet({ game, level, pages, marks = [], step, theme
       </section>
     </div>
   )
-}
-
-// Text with <b>…</b> for emphasis and references to other levels, nothing else.
-function Rich({ text }) {
-  return text.split(/(<b>.*?<\/b>)/).map((part, i) => (part.startsWith('<b>') ? <b key={i}>{part.slice(3, -4)}</b> : <Plain key={i} text={part} />))
 }

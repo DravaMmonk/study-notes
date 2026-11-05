@@ -109,8 +109,9 @@
 
 - schema 的 text 类型在 check 时解析标记，只允许 `<b> <i> <code> <strong>` 与现有三种 `-ref`，属性同样按白名单；其他一律报错。
 - 内核新增共享富文本组件，把解析结果渲染成 React 元素；删除 `Layout.jsx:17`、`Dialogs.jsx`、`Encyclopedia.jsx:69`、`IntroSheet.jsx:41` 的 `dangerouslySetInnerHTML`，以及各 game.jsx 的 `html: true` 开关。
-- image 的 `figure` 改为引用领域清单中注册的图（封闭集合），不再是指向 trace-viewer 源码的路径字符串。
-- `widget: custom` 的 params 由组件声明 schema，组件只收到 params，不再拿到整个 node。
+- image 的 `figure` 限定为登记 id 的写法（`^[a-z0-9-]+$`），是否存在仍由领域检查核对；kit 对 trace-viewer 插图的依赖保留。
+- widget：没声明 params 的 widget 不许写 params；部件面板上的 widget 不再拿到整个 node。
+- table 场景 SVG 里拼进的文字（标签、数值、角标）统一转义，堵住属性注入。
 - 验收：brief 中写入 `<script>` 或 `onerror=`，check 报错；外壳源码中无 `dangerouslySetInnerHTML`。
 
 ### 3.2 引用与文案字段由 schema 驱动

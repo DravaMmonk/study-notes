@@ -543,6 +543,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 每个领域给出一份**词汇表**（`kit/domains/<领域>/vocabulary.js`，用内核的 `defineVocabulary`）：领域里能被内容引用的每一样东西是一个**项**，按种类（原始元件、世界、机体、玩法、引言图、诊断条件、倒推路线、通关面板、存档迁移……）分组，每一项带一句说明和参数的 schema；再加上 `game.json` 和一关的 schema（一关的字段按它的玩法分开，`S.by('mode', …)`）。
 
+- **文字只带内核的标记**（`kit/engine/markup.js`）：`<b>`、`<i>`、`<strong>`、`<code>` 和三种引用（`<level-ref>` 等），不带属性；外壳按它画成元素（`kit/shell/Markup.jsx`），从不把内容当 HTML 插进页面。别的标签、属性、没配对的标签，`npm run check` 在 schema 的 `text` 上就拦下。领域自己把文字拼进 SVG 时要转义。
 - **schema 是数据**（`kit/engine/schema.js`），可以带给编辑者看的提示（`view`、`step`、`section`，第 6.7 节）：`S.text()`、`S.num()`、`S.list()`、`S.obj()`、`S.ref('world')`（某一种的一个项的名字）、`S.call('condition')`（一个项和它的参数）、`S.level()`（这款游戏的一关的 id）、`S.board()`（一块板的蓝图文本）、`S.syntax('formula')`（领域小语言里的一段文字：公式、证明项……，领域在 `domain.js` 的 `languages` 里给出读它的函数，读不进时按文件和字段路径报告，不抛出）……所以整份词汇表能打印成 JSON（`describe`），给写内容的 agent 和以后的 studio 看，它们不需要读领域代码就知道能写什么。
 - **提到一关的地方都写成 `S.level()`**：课程的各项（`eras` 里的关、`after`、挑战）、`carry`、百科的 `at`、元件说明的 `at`/`by`……检查时它必须是这款游戏的一关；操作集按它找出一关被提到的每一处（再加文字里的 `<level-ref>` 和 `open` 的 `元件@关卡`），改名、删关才不漏。存档迁移里写的是旧版本的 id，不用它。一块板写成 `S.board()`，操作集和 MCP 按它找出一关的每块板。
 - **封闭**：内容只能由词汇表里的项组合出来。要一样词汇表里没有的东西，就加一个项（领域代码，走代码审查），不在内容里绕路。

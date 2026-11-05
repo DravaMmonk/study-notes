@@ -5,6 +5,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { S, callOf, validate } from './schema.js'
+import { markupOf } from './markup.js'
 import { checkContent, defineVocabulary, describe } from './vocabulary.js'
 import { assemble } from './content.js'
 import { isDataGame, readContent } from './content-node.js'
@@ -71,6 +72,16 @@ test('a small language reports what it cannot read, by the path, without throwin
   assert.match(validate(S.syntax('nope'), 'x', { languages })[0].says, /reads no nope/)
   const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [{ id: 'one', goal: '(()' }], glossary: { groups: [], entries: [] } }
   assert.deepEqual(checkContent({ vocabulary, languages }, content), [{ at: 'levels/one.json.goal', says: '"(()" is no brackets: unclosed (' }])
+})
+
+test('text carries only the kernel’s markup: a few tags and references, nothing set as HTML', () => {
+  assert.deepEqual(markupOf('a <b>bold <i>and</i></b> <level-ref to="x"></level-ref>, a < b').nodes, ['a ', { tag: 'b', kids: ['bold ', { tag: 'i', kids: ['and'] }] }, ' ', { ref: 'level', to: 'x' }, ', a < b'])
+  assert.match(markupOf('<script>alert(1)</script>').problems[0], /<script> is no markup/)
+  assert.deepEqual(markupOf('<img src=x onerror=alert(1)>').nodes, ['<img src=x onerror=alert(1)>'], 'drawn as the characters it is')
+  assert.match(markupOf('<b onclick="x">hi</b>').problems[0], /takes no attributes/)
+  assert.match(markupOf('<b>open').problems[0], /never closed/)
+  assert.match(says(S.text(), { zh: '<script>x</script>', en: 'ok' })[0], /^\.zh: <script> is no markup/)
+  assert.deepEqual(says(S.text(), { zh: '<b>粗</b> <code>x</code>', en: '<strong>bold</strong> a <- b' }), [])
 })
 
 test('a vocabulary prints as plain data', () => {

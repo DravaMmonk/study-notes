@@ -34,7 +34,6 @@ export default function busGame(content) {
     kicker: content.kicker,
     lede: content.lede,
     Hero,
-    html: true,
     glossary: content.glossary,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),

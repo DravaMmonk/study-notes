@@ -355,7 +355,7 @@ function PhoneLevel({ screen, board, parts, ctx, card, inside, all, items, folde
             {all.map((item) => (
               <button key={item.type} type="button" data-family={item.family} className={item.packed ? 'is-packed' : ''} onClick={() => place(item.type)}>
                 <b>{item.icon && <i className="family-chip"><Glyph icon={item.icon} size={12} /></i>}{L(item.label)}{item.fresh && <em className="pb-new">{tr('新', 'new')}</em>}</b>
-                {item.desc && <Text game={game} as="small" text={item.desc} />}
+                {item.desc && <Text as="small" text={item.desc} />}
               </button>
             ))}
           </div>

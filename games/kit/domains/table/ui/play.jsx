@@ -6,6 +6,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { Brief, RunDock } from '../../../shell/index.js'
 import { L } from '../../../shell/i18n.js'
 import { tr } from '../lang.js'
+import { Markup } from '../../../shell/Markup.jsx'
 
 export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches
 export const buzz = (pattern) => {
@@ -16,9 +17,9 @@ export const buzz = (pattern) => {
   }
 }
 
-/** A level's own text (its content, or a message assembled from it), which may hold inline markup. */
+/** A level's own text (its content, or a message assembled from it), with its markup (../../../shell/Markup.jsx). */
 export function Html({ as: Tag = 'span', className, html }) {
-  return <Tag className={className} dangerouslySetInnerHTML={{ __html: String(html ?? '') }} />
+  return <Tag className={className}><Markup text={String(html ?? '')} /></Tag>
 }
 
 /** A message that shows at the top of the page for a moment: [show(msg), the element to put on the page]. */
@@ -34,7 +35,7 @@ export function useToast() {
     timer.current = setTimeout(() => setShown(false), 2400)
   }
   // A message may name a part (<part-ref>), drawn by the shell as a link.
-  return [show, <div key="toast" className={`toast ${shown ? 'show' : ''}`} role="status" dangerouslySetInnerHTML={{ __html: String(msg ?? '') }} />]
+  return [show, <div key="toast" className={`toast ${shown ? 'show' : ''}`} role="status"><Markup text={String(msg ?? '')} /></div>]
 }
 
 /**

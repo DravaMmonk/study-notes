@@ -55,7 +55,7 @@ const SOURCE = S.either(S.oneOf(['test']), S.call('picture'))
 const FIGURE = S.either(
   S.obj({ test: S.int({ min: 0 }), task: S.opt(S.int({ min: 0 })), view: S.opt(VIEW), caption: S.opt(TEXT) }),
   S.obj({ part: S.ref('part'), params: S.opt(S.map(S.any())), input: S.opt(SOURCE), inputs: S.opt(S.list(SOURCE)), view: S.opt(VIEW), caption: S.opt(TEXT) }),
-  S.obj({ figure: S.str({ about: t('笔记插图的名字（trace-viewer/src/figures）', 'the name of one of the notes’ figures (trace-viewer/src/figures)') }), caption: S.opt(TEXT) }),
+  S.obj({ figure: S.str({ pattern: '^[a-z0-9-]+$', about: t('笔记插图的名字（trace-viewer/src/figures 登记的 id，检查时核对）', 'the id of one of the notes’ figures (as trace-viewer/src/figures registers it, checked)') }), caption: S.opt(TEXT) }),
 )
 const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', about: t('引言：进关前读的几页，每页一段话和一张可选的图', 'the intro: pages read before playing, each a paragraph and maybe a figure') })
 

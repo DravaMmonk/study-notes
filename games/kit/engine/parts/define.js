@@ -203,7 +203,7 @@ export function partProblems(file, vocabulary) {
     if (s.control === 'toggle' && s.default !== undefined && typeof s.default !== 'boolean') say(`${at}.default`, 'a toggle starts true or false')
     if (s.control === 'custom') {
       const w = vocabulary.kinds.widget?.[s.widget]
-      if (w?.params && !fits(w.params, s.params)) say(`${at}.params`, `the parameters do not fit the widget ${s.widget}`)
+      if (w && (w.params ? !fits(w.params, s.params) : s.params !== undefined)) say(`${at}.params`, w.params ? `the parameters do not fit the widget ${s.widget}` : `the widget ${s.widget} takes no parameters`)
     }
   }
   for (const [name, s] of Object.entries(presets)) settingProblems(s, `.presets.${name}`)
@@ -270,7 +270,7 @@ export function partProblems(file, vocabulary) {
         }
         if (b.show === 'widget') {
           const w = vocabulary.kinds.widget?.[b.widget]
-          if (w?.params && !fits(w.params, b.params)) say(`${here}.params`, `the parameters do not fit the widget ${b.widget}`)
+          if (w && (w.params ? !fits(w.params, b.params) : b.params !== undefined)) say(`${here}.params`, w.params ? `the parameters do not fit the widget ${b.widget}` : `the widget ${b.widget} takes no parameters`)
         }
         return undefined
       })

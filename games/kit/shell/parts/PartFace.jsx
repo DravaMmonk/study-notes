@@ -85,7 +85,7 @@ export default function PartFace({ def, face, node, ctx, set, defined, phone = f
         )
       case 'widget': {
         const Widget = defined.widgets?.[b.widget]
-        return Widget ? <div key={key} {...at}><Widget node={node} ctx={ctx} params={b.params} settings={params} /></div> : null
+        return Widget ? <div key={key} {...at}><Widget ctx={ctx} params={b.params} settings={params} /></div> : null
       }
       case 'row':
         return <div key={key} className="pf-row" {...at}>{b.blocks.map((x, k) => block(x, path ? [...path, 'blocks', k] : null, k))}</div>

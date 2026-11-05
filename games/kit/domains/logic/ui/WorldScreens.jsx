@@ -6,6 +6,7 @@ import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { MAX_WORLD, builtWorld, claimIn } from '../fol.js'
 import { fixedLine } from './SentenceEditor.jsx'
+import { Markup } from '../../../shell/Markup.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
 // FormulaScreen.jsx), and the counterexample level (ModelScreen): on top, as a translation level has it, the
@@ -170,7 +171,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
     : failed
   const stage = (
     <div className="fo-stage">
-      {level.say && <p className="fo-say fo-prompt" dangerouslySetInnerHTML={{ __html: String(L(level.say)) }} />}
+      {level.say && <p className="fo-say fo-prompt"><Markup text={level.say} /></p>}
       {claim}
       {builder}
     </div>

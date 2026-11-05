@@ -1,5 +1,6 @@
 import { createElement, isValidElement, useEffect } from 'react'
 import { L, keyOf, tr } from './i18n.js'
+import { Markup } from './Markup.jsx'
 
 // Escape closes the dialog or sheet on top. Every overlay of the shell uses it, so the key does the same thing in
 // every game.
@@ -12,13 +13,10 @@ export function useEscape(onClose) {
   }, [onClose])
 }
 
-// Content text: a { zh, en } pair, a list of them (one paragraph each), or authored HTML (a level's own markup).
+// Content text: a { zh, en } pair or a list of them (one paragraph each), with its markup.
 function Paragraphs({ text }) {
   const list = Array.isArray(text) ? text : [text]
-  return list.filter(Boolean).map((part, i) => {
-    const value = String(L(part) ?? '')
-    return /<[a-z][\s\S]*>/i.test(value) ? <p key={i} dangerouslySetInnerHTML={{ __html: value }} /> : <p key={i}>{value}</p>
-  })
+  return list.filter(Boolean).map((part, i) => <p key={i}><Markup text={part} /></p>)
 }
 
 /** A plain dialog: a mono title, lines of text, buttons; the last button is the primary one. `top`: over every other
@@ -68,9 +66,9 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
       <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('通过', 'Passed')}>
         <div className="solved-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" /><path d="M12 20.5l5.5 5.5L28.5 14" /></svg></div>
         <h2>{tr('通过', 'Passed')} · {game.levelLabel(level)} {L(level.title)}</h2>
-        {level.afterTitle && <h3 className="dialog-title" dangerouslySetInnerHTML={{ __html: String(L(level.afterTitle)) }} />}
+        {level.afterTitle && <h3 className="dialog-title"><Markup text={level.afterTitle} /></h3>}
         <Paragraphs text={level.after} />
-        {note && note !== level.after && <p className="dialog-note"><span className="panel-label">{tr('要点', 'Key idea')}</span><span dangerouslySetInnerHTML={{ __html: String(L(note)) }} /></p>}
+        {note && note !== level.after && <p className="dialog-note"><span className="panel-label">{tr('要点', 'Key idea')}</span><span><Markup text={note} /></span></p>}
         {game.passed(level)}
         {unlocked.length > 0 && (
           <div className="unlocked">
@@ -103,11 +101,11 @@ export function FailDialog({ fail, fails, onClose }) {
     <div className="dialog-scrim">
       <div className="dialog is-failed" role="dialog" aria-modal="true" aria-label={tr('未通过', 'Not passed')}>
         <h2>{tr('未通过', 'Not passed')}</h2>
-        {fail.head && <h3 className="dialog-title" dangerouslySetInnerHTML={{ __html: String(L(fail.head)) }} />}
+        {fail.head && <h3 className="dialog-title"><Markup text={fail.head} /></h3>}
         <Paragraphs text={fail.body} />
-        {fail.extra && (isValidElement(fail.extra) ? <div className="dialog-extra">{fail.extra}</div> : <div className="dialog-extra" dangerouslySetInnerHTML={{ __html: String(L(fail.extra)) }} />)}
+        {fail.extra && (isValidElement(fail.extra) ? <div className="dialog-extra">{fail.extra}</div> : <div className="dialog-extra"><Markup text={fail.extra} /></div>)}
         {hint && (fails >= 2
-          ? <p className="dialog-note"><span className="panel-label">{tr('提示', 'Hint')}</span><span dangerouslySetInnerHTML={{ __html: String(L(hint)) }} /></p>
+          ? <p className="dialog-note"><span className="panel-label">{tr('提示', 'Hint')}</span><span><Markup text={hint} /></span></p>
           : <p className="dialog-quiet">{tr('再失败一次后，这里将给出提示。', 'One more failed attempt and a hint will appear here.')}</p>)}
         <div className="dialog-actions">
           {fail.cta && <button onClick={() => { onClose(); fail.cta.fn() }}>{L(fail.cta.label)}</button>}

@@ -126,7 +126,7 @@ export default function BoardScreen(screen) {
   const strip = (
     <div className="ag-strip">
       <section className="ag-col">
-        <Text game={game} className="ag-issue" text={test.issue.text} />
+        <Text className="ag-issue" text={test.issue.text} />
         <RepoView repo={test.repo} state={turn?.state ?? {}} />
         {ended && <Report report={runOf.report} />}
         {ended && <p className={`ag-verdict ${verdict ? 'is-fail' : 'is-pass'}`}>{verdict ? L(verdict) : tr('通过：所有测试均正确，机器已停止。', 'Passed: all tests are green and the machine has stopped.')}</p>}

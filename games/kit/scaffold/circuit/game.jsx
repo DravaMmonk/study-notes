@@ -35,7 +35,6 @@ export default function __name__Game(content) {
     title: content.title,
     kicker: content.kicker,
     lede: content.lede,
-    html: true,
     glossary: content.glossary,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),

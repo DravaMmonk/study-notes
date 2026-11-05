@@ -1,7 +1,7 @@
-import { Fragment, createElement, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Check, ChevronDown, Lightbulb, Lock } from 'lucide-react'
 import { L, tr } from './i18n.js'
-import { refParts } from './refs.js'
+import { Markup } from './Markup.jsx'
 import { RunResults } from './RunDock.jsx'
 import { useEdit, useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
@@ -10,16 +10,10 @@ import Workbench from './Workbench.jsx'
 // The level screen's frame on a phone (PhonePage; on a desktop, Workbench.jsx), and what goes in it in every game:
 // the brief, the text it is written in.
 
-/** A level's text: plain, or the game's own markup when the game says its text is HTML (defineGame `html`). `mark`:
- *  the props marking it as a field of the content while the studio edits (edit.js). */
-export function Text({ game, as: Tag = 'p', className, text, onClick, mark = {} }) {
-  const value = String(L(text) ?? '')
-  return game?.html ? <Tag className={className} onClick={onClick} {...mark} dangerouslySetInnerHTML={{ __html: value }} /> : <Tag className={className} onClick={onClick} {...mark}><Plain text={value} /></Tag>
-}
-
-/** Plain text, with its references to levels, parts and encyclopedia entries (refs.js) as links. */
-export function Plain({ text }) {
-  return refParts(text).map((part, i) => (typeof part === 'string' ? <Fragment key={i}>{part}</Fragment> : createElement(`${part.kind}-ref`, { key: i, to: part.ref })))
+/** A level's text with its markup (Markup.jsx). `mark`: the props marking it as a field of the content while the
+ *  studio edits (edit.js). */
+export function Text({ as: Tag = 'p', className, text, onClick, mark = {} }) {
+  return <Tag className={className} onClick={onClick} {...mark}><Markup text={text ?? ''} /></Tag>
 }
 
 /** A level whose stage is the same on both: the phone page or the desktop workbench (a stage that scrolls), each given
@@ -90,11 +84,11 @@ export function Brief({ game, level, text, tip, hint, children }) {
         <h1 {...mark('title', 'level')}>{L(level.title)}</h1>
       </header>
       {level.steps && (edit || level.steps.names.length > 1) && <TaskSteps steps={level.steps} />}
-      {paragraphs.map((p, k) => <Text key={k} game={game} className="brief-text" text={p} mark={mark(many ? `brief[${k}]` : 'brief')} />)}
-      {tip && <Text game={game} className="brief-tip" text={tip} mark={mark('tip')} />}
+      {paragraphs.map((p, k) => <Text key={k} className="brief-text" text={p} mark={mark(many ? `brief[${k}]` : 'brief')} />)}
+      {tip && <Text className="brief-tip" text={tip} mark={mark('tip')} />}
       {(hints.length > 0 || edit) && (
         <div className="hint-block">
-          {hints.slice(0, open).map((h, k) => <Text key={k} game={game} className="hint" text={h} mark={mark(hintAt(k))} />)}
+          {hints.slice(0, open).map((h, k) => <Text key={k} className="hint" text={h} mark={mark(hintAt(k))} />)}
           {edit ? <AddMark at="hint" label={{ zh: '提示', en: 'a hint' }} /> : (
             <button className="hint-toggle" onClick={() => setShown(more ? shown + 1 : 0)} aria-expanded={shown > 0}>
               <Lightbulb size={14} />

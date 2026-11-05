@@ -67,7 +67,7 @@ export default function HandScreen({ game, level: entry, saved, save, solve, pho
       </section>
       <section className="ag-panel">
         <h3 className="ag-head">{L(issue.title)}</h3>
-        <Text game={game} className="ag-issue" text={issue.text} />
+        <Text className="ag-issue" text={issue.text} />
         <h3 className="ag-head">{tr('仓库', 'Repository')}</h3>
         <RepoView repo={repo} state={session.state} onAdd={(file) => act(['add', file])} added={files} />
       </section>
