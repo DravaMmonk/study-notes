@@ -1,9 +1,5 @@
 {
   "title": { "zh": "有人开口了", "en": "Someone speaks" },
-  "brief": {
-    "zh": "总线连着至少 11 拍隐性之后的第一个显性，回答「是」；其余每一拍回答「否」。",
-    "en": "Answer yes on the first dominant bit after at least 11 recessive ones in a row, and no on every other tick."
-  },
   "intro": [
     {
       "t": {
@@ -18,36 +14,45 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "数出这一拍之前隐性连着多长。", "en": "Count how long the recessive run before this tick is." },
-    { "zh": "显性是 0，可以拿它和常数 0 比。", "en": "Dominant is 0, and can be compared with a constant 0." }
-  ],
-  "listens": true,
-  "outputs": [{ "name": "sof", "label": { "zh": "帧起始", "en": "Start of frame" } }],
-  "tests": [
-    { "bus": { "frames": [{ "id": "0x123", "data": ["0x01"] }] } },
-    { "bus": { "idle": 11, "frames": [{ "id": "0x0f3", "data": ["0x55", "0xaa"] }, { "id": "0x2a5", "data": [] }] } }
-  ],
-  "hidden": [
-    {"bus": {"idle": 10, "frames": [{"id": "0x123", "data": ["0x01"]}, {"id": "0x0f3", "data": []}]}}
-  ],
-  "want": { "sof": "startOfFrame" },
-  "solution": [
-    "c = counter(line)",
-    "ten = const[value=10]()",
-    "lt = compare[form=lt](ten, c)",
-    "z = const[value=0]()",
-    "e = compare[form=eq](line, z)",
-    "s = select(lt, e, lt)",
-    "sof <- s"
-  ],
-  "naive": [
-    "z = const[value=0]()",
-    "e = compare[form=eq](line, z)",
-    "sof <- e"
-  ],
   "after": {
     "zh": "一帧的最后是 11 位隐性：应答界定位、7 位帧结束、3 位帧间间隔。所以两帧紧挨着时，这条规则照样认得出下一帧。",
     "en": "A frame ends with 11 recessive bits: the ACK delimiter, 7 bits of end of frame and 3 of intermission. So even with frames back to back, this rule still finds the next one."
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-7",
+      "brief": {
+        "zh": "总线连着至少 11 拍隐性之后的第一个显性，回答「是」；其余每一拍回答「否」。",
+        "en": "Answer yes on the first dominant bit after at least 11 recessive ones in a row, and no on every other tick."
+      },
+      "hint": [
+        { "zh": "数出这一拍之前隐性连着多长。", "en": "Count how long the recessive run before this tick is." },
+        { "zh": "显性是 0，可以拿它和常数 0 比。", "en": "Dominant is 0, and can be compared with a constant 0." }
+      ],
+      "listens": true,
+      "outputs": [{ "name": "sof", "label": { "zh": "帧起始", "en": "Start of frame" } }],
+      "tests": [
+        { "bus": { "frames": [{ "id": "0x123", "data": ["0x01"] }] } },
+        { "bus": { "idle": 11, "frames": [{ "id": "0x0f3", "data": ["0x55", "0xaa"] }, { "id": "0x2a5", "data": [] }] } }
+      ],
+      "hidden": [
+        {"bus": {"idle": 10, "frames": [{"id": "0x123", "data": ["0x01"]}, {"id": "0x0f3", "data": []}]}}
+      ],
+      "want": { "sof": "startOfFrame" },
+      "solution": [
+        "c = counter(line)",
+        "ten = const[value=10]()",
+        "lt = compare[form=lt](ten, c)",
+        "z = const[value=0]()",
+        "e = compare[form=eq](line, z)",
+        "s = select(lt, e, lt)",
+        "sof <- s"
+      ],
+      "naive": [
+        "z = const[value=0]()",
+        "e = compare[form=eq](line, z)",
+        "sof <- e"
+      ]
+    }
+  ]
 }

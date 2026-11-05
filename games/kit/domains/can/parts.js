@@ -2,10 +2,10 @@
 // bus (../../engine/ticks.js). Values on the wires are bits (0 dominant, 1 recessive), whole numbers, yes or no
 // (true / false), and 「—」 (null): nothing this tick. A part handed 「—」 gives 「—」.
 //
-// Fixed cards (the level puts them on the board):
+// Fixed cards (a task puts them on the board, board.js):
 //   line     the bus this tick (a board that says something from it in the same tick has a loop)
-//   in       one of the level's inputs this tick, by params.name
-//   out      one of the level's outputs, by params.name
+//   in       one of the task's inputs this tick, by params.name
+//   out      one of the task's outputs, by params.name
 // The parts a course may start from (game.json primitives, vocabulary.js part):
 //   reg      what register params.reg holds (params.start until something is kept in it)
 //   keep     keeps what reaches it in register params.reg, from the next tick on
@@ -15,9 +15,8 @@
 //   arith    forms inc (in + 1) and add (a + b)
 // Built parts are the boards of the levels that build them (course.js), each run as a packed part that keeps its own
 // registers.
-import { source, sink } from '../../engine/boards.js'
 import { formed } from '../../engine/forms.js'
-import { hearing, register, store } from '../../engine/ticks.js'
+import { register, store } from '../../engine/ticks.js'
 
 /** The registers a card may name. */
 export const REGISTERS = ['A', 'B', 'C', 'D']
@@ -27,12 +26,7 @@ const strict = (f) => (ins, node) => (Object.values(ins).some((v) => v === null)
 const num = (v) => (typeof v === 'boolean' ? Number(v) : v)
 const truth = (v) => (v === null ? null : v === true || v === 1)
 
-export const FIXED = ['line', 'in', 'out']
-
 export const PARTS = {
-  line: hearing(),
-  in: source(),
-  out: sink(),
   reg: register({ start: (node) => (node.params?.start === undefined || node.params.start === '' ? null : Number(node.params.start)), params: ['reg', 'start'] }),
   keep: store({ params: ['reg'] }),
   const: { inputs: [], params: ['value'], eval: (_, node) => Number(node.params?.value ?? 0) },

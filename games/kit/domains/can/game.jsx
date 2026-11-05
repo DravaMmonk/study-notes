@@ -1,63 +1,32 @@
-// A bus game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js) becomes
-// the shell's game description, with the can domain's board screen, its parts box and its map art.
+// A bus game (《车在说话》) on the circuit base's game (../../shell/circuit-game.js), its levels played tick by tick on
+// the domain's screen (ui/Screen.jsx), its map drawn with controllers on one bus (ui/Hero.jsx).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
-//   bus.js      the bus: wired-AND, CAN frames (stuffing, CRC-15), the world's nodes
-//   parts.js    the cards of a board and what each computes
-//   board.js    a board, and a board read from blueprint text
-//   wants.js    what a level's outputs must be, tick by tick
-//   run.js      a board on the bus tick by tick (../../engine/ticks.js), checked tick by tick
-//   course.js   content read into levels, play order, the parts the levels build and the course the audit checks
-//   ui/         the board screen and the card catalog
-//   validate.js every level's reference board and built part (npm run check); can.test.js the bus, the wants and
-//               boards as text (npm test)
-import { Activity, CircuitBoard } from 'lucide-react'
+//   bus.js        the bus: wired-AND, CAN frames (stuffing, CRC-15), the world's nodes
+//   parts.js      the cards of a board and what each computes
+//   board.js      a board, and a board read from and written as blueprint text
+//   wants.js      what a task's outputs must be, tick by tick
+//   run.js        a board on the bus tick by tick (../../engine/ticks.js), checked tick by tick
+//   course.js     content read into levels, play order, the parts the levels build and the course the audit checks
+//   play.js       a level and an attempt as a blind player meets them (../../engine/play/)
+//   scene.js      a level's buses drawn without a browser
+//   ui/           the board screen, the card catalog and the map's illustration
+//   validate.js   every level's reference board and built part (npm run check); can.test.js the bus, the wants and
+//                 boards as text (npm test)
+//   starter/      the smallest game on the domain (npm run new-game copies it)
+import { Activity } from 'lucide-react'
 import './ui/can.css'
-import { defineGame } from '../../shell/index.js'
-import { introductions, isCore } from '../../course.js'
-import { migrations } from '../../shell/saves.js'
-import BusScreen from './ui/BusScreen.jsx'
+import { circuitGame } from '../../shell/circuit-game.js'
+import Screen from './ui/Screen.jsx'
 import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
-import { busCourse } from './course.js'
+import { canCourse } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
  *  (../../shell/saves.js), levels, glossary }. */
-export default function busGame(content) {
-  const bus = busCourse(content)
-  const { LEVELS, CHAPTERS, course } = bus
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, icon: CARDS[type].icon, at }))
-  const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
-  const game = defineGame({
-    id: content.id,
-    title: content.title,
-    kicker: content.kicker,
-    lede: content.lede,
-    Hero,
-    glossary: content.glossary,
-    chapters: CHAPTERS,
-    core: (level) => isCore(course, level),
-    levels: LEVELS.map((L, index) => ({
-      id: L.id,
-      index,
-      source: L,
-      fresh: L.adds,
-      chapter: L.era,
-      requires: L.requires,
-      title: L.title,
-      kind: 'bus',
-      unlocks: L.builds ? [L.builds.type] : [],
-      brief: L.brief,
-      hint: L.hint,
-      after: L.after,
-      note: L.note,
-    })),
-    progress: migrations(content.saves),
-    intro: (level) => level.source.intro,
-    kinds: { bus: { Screen: BusScreen, icon: Activity, label: { zh: '总线', en: 'Bus' } } },
-    parts: { all: [...primitives, ...built] },
-    unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
-  })
-  game.bus = bus
+export default function canGame(content) {
+  const game = circuitGame(content, canCourse(content), { kind: { id: 'bus', icon: Activity, label: { zh: '总线', en: 'Bus' } }, Screen, cards: CARDS })
+  // The map's illustration, which the base's game does not draw.
+  game.Hero = Hero
   return game
 }

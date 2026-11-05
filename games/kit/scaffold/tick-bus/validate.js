@@ -9,6 +9,5 @@ export function validate({ circuit }) {
   return checkCircuitTasks(circuit, {
     run: runLevel,
     failure: (r) => (r.error ? '(a loop)' : r.fail ? `at tick ${r.fail.tick} (${r.fail.name}: want ${r.fail.want}, got ${r.fail.got})` : ''),
-    note: (ref) => `, ${ref.runs.reduce((n, r) => n + r.ticks.length, 0)} ticks`,
   })
 }

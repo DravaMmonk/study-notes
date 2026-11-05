@@ -27,6 +27,7 @@
 
 import { print, read } from '../../circuit/text.js'
 import { outputsOf } from '../../circuit/model.js'
+import { showValue } from '../circuit-domain.js'
 import { T } from '../../shell/i18n.js'
 
 
@@ -113,4 +114,77 @@ export function circuitPlay(hook) {
       return { ...hook.run(ctx, graph), board: hook.keep ? hook.keep(ctx, graph) : graph, parts: [...new Set(graph.nodes.filter(placed).map((n) => n.type))].sort() }
     },
   }
+}
+
+/**
+ * The play hook of a domain on the circuit base whose boards run tick by tick (../circuit-domain.js, the course read as
+ * `game.circuit`; ../../shell/CircuitScreen.jsx its screen): the board a task opens on, the tray's parts with their
+ * components-box keys and settings, every test as the waveform draws it — a lane a row, a tick a column, 「—」 nothing,
+ * · anything — and an attempt judged as the screen judges a run: test by test, stopping at the first that fails, the
+ * hidden tests run with it.
+ *
+ *   run(task, board, partOf) → { runs: [{ fail?, error?, final?, ticks }], pass }   the domain's run
+ *   given(task) → text   what the task's fixed cards stand for
+ *   lanes(task, test) → [{ name, ticks: [value per tick], wanted?, text?(value) }]   a test's lanes (a wanted lane
+ *                        holds what an output should be, undefined where anything will do); `text` a value in words,
+ *                        by default `show`'s
+ *   more?(task, test, lang) → [line]   what the waveform says besides it (what is wanted in order, say)
+ *   registers? { names, top }   the cards that keep registers and constants, as the screen offers them
+ *                               (../../shell/CircuitScreen.jsx registerCards): reg and keep name one of `names`, reg
+ *                               starts as 「—」, 0 or 1, const is a number from 0 to `top`
+ *   settings   { type: [{ key, values, about? }] } what can be set on the game's other primitives
+ */
+export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = showValue }) {
+  const offered = {
+    ...(registers ? {
+      reg: [{ key: 'reg', values: registers.names }, { key: 'start', values: ['0', '1'], about: T('不写时初值为「—」', 'left out, it starts as 「—」') }],
+      keep: [{ key: 'reg', values: registers.names }],
+      const: [{ key: 'value', values: ['0', '…', String(registers.top)] }],
+    } : {}),
+    ...settings,
+  }
+  const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v))
+  const testsOf = (task, solved) => (solved ? [...task.tests, ...task.hidden] : task.tests)
+  const label = (k) => T(`测试 ${k + 1}`, `Test ${k + 1}`)
+  const failed = (r) => Boolean(r.fail || r.error)
+  const text = (task, test, lang) => {
+    const rows = [
+      [lang === 'en' ? 'tick' : '拍', Array.from({ length: test.ticks }, (_, t) => String(t))],
+      ...lanes(task, test).map((lane) => [
+        lane.wanted ? `${lane.name} (${lang === 'en' ? 'wanted' : '应当'})` : lane.name,
+        lane.ticks.map((v) => (lane.wanted && v === undefined ? '·' : lane.text ? lane.text(v) : word(v, lang))),
+      ]),
+    ]
+    const width = Math.max(...rows.flatMap(([, cells]) => cells.map((c) => c.length)))
+    const head = Math.max(...rows.map(([name]) => name.length))
+    return [...rows.map(([name, cells]) => `${name.padEnd(head)}  ${cells.map((c) => c.padStart(width)).join(' ')}`), ...more(task, test, lang)].join('\n')
+  }
+  return circuitPlay({
+    board: ({ game, level, flags, progress }) => {
+      const own = game.circuit
+      own.syncOwn(progress.built)
+      const { shown, folded } = own.offerIn(level.source, flags)
+      return { start: own.opening(level.source, progress.built), parts: own.board.wiring(level.source, own), types: [...shown, ...folded] }
+    },
+    key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
+    settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : offered[type] ?? []),
+    given: ({ level }) => given(level.source),
+    tests: ({ level: { source: task }, solved }) => testsOf(task, solved).map((test, k) => ({ label: label(k), text: T(text(task, test, 'zh'), text(task, test, 'en')) })),
+    notes: ({ level: { source: task }, solved }) => {
+      const n = task.hidden.length
+      return !solved && n ? [T(`另有 ${n} 个隐藏测试，每次运行一并检查，通关后公开。`, `${n} more hidden ${n === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)] : []
+    },
+    run: ({ game, level: { source: task }, solved }, board) => {
+      const { partOf } = game.circuit
+      const shown = run({ ...task, tests: testsOf(task, solved) }, board, partOf)
+      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failed(r), says: r.error ?? r.final ?? r.ticks.find((t) => t.failed)?.failed ?? null })))
+      const n = task.hidden.length
+      const hidden = solved || !n ? null : run({ ...task, tests: task.hidden }, board, partOf).runs.filter(failed).length
+      return {
+        tests,
+        hidden: hidden === null ? null : { count: n, failed: hidden, says: T(`可见的测试全部通过，但 ${n} 个隐藏测试中有 ${hidden} 个没有通过：这块板可能只是恰好合上了这几个测试。`, `Every test shown passes, but ${hidden} of ${n} hidden ${n === 1 ? 'test fails' : 'tests fail'}: the board may only happen to fit these.`) },
+        pass: shown.pass && !hidden,
+      }
+    },
+  })
 }

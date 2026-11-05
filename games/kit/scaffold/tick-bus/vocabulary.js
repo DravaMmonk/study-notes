@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, NAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
+import { GAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -37,7 +37,6 @@ const TEST = S.obj({
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的输入口和结果口就是那个任务的输入和输出', 'once passed the last task’s board is the part `type`: its ports are that task’s inputs and outputs') })),
   test: TEST,
   ports: {
     listens: S.opt(S.bool({ about: t('板上有线元件', 'the board has the line card') })),

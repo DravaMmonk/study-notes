@@ -12,7 +12,7 @@
 // found that its schema cannot say.
 import { circuitCourse } from '../../engine/circuit-domain.js'
 import { arrived, said } from './wire.js'
-import { board, portsIn, portsOut } from './board.js'
+import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
@@ -29,14 +29,11 @@ function testOf(level, t) {
 export function netCourse(content) {
   // A task read: what reading it finds that its schema cannot say, then its tests run out and its wants.
   const read = (task, say) => {
-    const names = portsOut(task).map((o) => o.name)
     const pulled = task.pulls ? [task.pulls.input, task.pulls.last].filter(Boolean) : []
     if (task.pulls) {
       for (const name of pulled) if (!(task.inputs ?? []).some((i) => i.name === name)) say(`it pulls into ${name}, which is no input`)
       if (!(task.outputs ?? []).some((o) => o.name === task.pulls.next)) say(`it asks for the next byte on ${task.pulls.next}, which is no output`)
     }
-    for (const name of names) if (!task.want[name] && name !== task.pulls?.next) say(`nothing is wanted of ${name}`)
-    for (const name of Object.keys(task.want)) if (!names.includes(name)) say(`wants ${name}, which is no output and no wire out`)
     for (const t of [...task.tests, ...(task.hidden ?? [])]) {
       for (const i of task.inputs ?? []) if (!pulled.includes(i.name) && !t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
       for (const name of Object.keys(t.wires ?? {})) if (!(task.wires?.in ?? []).some((w) => w.name === name)) say(`a test sends on ${name}, which is no wire in`)
@@ -44,7 +41,8 @@ export function netCourse(content) {
     }
     return { ...task, tests: task.tests.map((t) => testOf(task, t)), hidden: (task.hidden ?? []).map((t) => testOf(task, t)), want: wantOf(task.want) }
   }
-  // A built part keeps its own registers; a part may replace the ones its level makes redundant.
+  // A built part keeps its own registers; a part may replace the ones its level makes redundant. The output that asks
+  // for the next byte of the queue is wanted of nothing.
   const builders = new Map(content.levels.filter((L) => L.builds).map((L) => [L.builds.type, L]))
-  return circuitCourse(content, { board, parts: PARTS, read, holds: true, replaces: (part) => builders.get(part)?.builds.replaces ?? [] })
+  return circuitCourse(content, { board, parts: PARTS, read, holds: true, replaces: (part) => builders.get(part)?.builds.replaces ?? [], unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
 }

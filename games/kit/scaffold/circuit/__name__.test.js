@@ -7,7 +7,7 @@ import { readContent } from '../../engine/content-node.js'
 import { defineParts, partProblems } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 import { vocabulary } from './vocabulary.js'
-import { board, fromText, toText } from './board.js'
+import { board } from './board.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { runLevel } from './run.js'
 import domain from './domain.js'
@@ -16,6 +16,7 @@ const level = { inputs: [{ name: 'a', label: 'a' }, { name: 'b', label: 'b' }], 
 const content = readContent('starter', import.meta.dirname)
 const { PARTS } = defineParts(content.partDefs, OPS)
 const plain = primitivesOnly(board, PARTS)
+const { fromText, toText } = board
 const { partOf } = plain
 
 test('the resources compute; a part made of them gives 「—」 when an input is 「—」', () => {

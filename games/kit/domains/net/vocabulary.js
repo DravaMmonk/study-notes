@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, NAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
+import { BUILT_PART, GAME, NAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
 import { FORMATS } from './wire.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -77,7 +77,7 @@ const TEST = S.obj({
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text(), replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些', 'the built parts it supersedes: from this level on the tray offers it instead of them') })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的口就是那个任务的进线、输入、出线和输出', 'once passed the last task’s board is the part `type`: its ports are that task’s wires in, inputs, wires out and outputs') })),
+  builds: S.opt(S.obj({ ...BUILT_PART, replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些', 'the built parts it supersedes: from this level on the tray offers it instead of them') })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的口就是那个任务的进线、输入、出线和输出', 'once passed the last task’s board is the part `type`: its ports are that task’s wires in, inputs, wires out and outputs') })),
   test: TEST,
   ports: {
     wires: S.opt(S.obj({ in: S.opt(S.list(WIRE)), out: S.opt(S.list(WIRE)) }, { about: t('板听的进线、板说的出线；它们和输入输出一样是板的口', 'the wires the board hears and the wires it says on; like inputs and outputs, they are the board’s ports') })),

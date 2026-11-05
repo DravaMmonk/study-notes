@@ -1,5 +1,5 @@
-import CircuitScreen, { CardField, WANTED } from '../../../shell/CircuitScreen.jsx'
-import { L, T } from '../../../shell/i18n.js'
+import CircuitScreen, { WANTED, registerCards } from '../../../shell/CircuitScreen.jsx'
+import { L } from '../../../shell/i18n.js'
 import { REGISTERS } from '../parts.js'
 import { checked, runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
@@ -9,20 +9,7 @@ import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 // arrives on each wire and input, what the board gives against what it should, and what the level wants in order,
 // timing aside.
 
-const NAMES = REGISTERS.map((r) => [r, r])
-const STARTS = [['', '—'], ['0', '0'], ['1', '1']]
-const NUMBERS = Array.from({ length: 256 }, (_, k) => [String(k), String(k)])
-// Registers start named A; a new card's settings are its defaults written in, so the card shows them.
-const defaults = (type) => (type === 'reg' || type === 'keep' ? { reg: 'A' } : type === 'const' ? { value: '0' } : FORMS[type] ? { form: Object.keys(FORMS[type])[0] } : {})
-
-function settings(node, set) {
-  const p = node.params ?? {}
-  if (node.type === 'reg') return <><CardField label={T('名字', 'Name')} value={p.reg ?? 'A'} options={NAMES} onChange={set('reg')} /><CardField label={T('初值', 'Start')} value={p.start ?? ''} options={STARTS} onChange={set('start')} /></>
-  if (node.type === 'keep') return <CardField label={T('名字', 'Name')} value={p.reg ?? 'A'} options={NAMES} onChange={set('reg')} />
-  if (node.type === 'const') return <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={NUMBERS} onChange={set('value')} />
-  if (FORMS[node.type]) return <CardField label={T('形状', 'Form')} value={p.form ?? Object.keys(FORMS[node.type])[0]} options={Object.entries(FORMS[node.type])} onChange={set('form')} />
-  return null
-}
+const { settings, defaults } = registerCards({ registers: REGISTERS, top: 255, forms: FORMS })
 
 const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
 const text = (v) => L(show(v))
