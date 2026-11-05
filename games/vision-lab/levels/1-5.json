@@ -90,8 +90,8 @@
         {
           "fig": "outside-clamp",
           "t": {
-            "zh": "双轴加权已经可用，但补 0 会让恒定图的边缘变暗。先单独更换边界假设：图外维持最近边缘的读数。用恒定图和变化图区分边界效果与平滑效果。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-            "en": "The two-axis filter works, but zero extension darkens constant-image edges. First change only the boundary assumption: outside reads retain the nearest edge value. Contrast constant and varying images to separate boundary effects from smoothing. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+            "zh": "双轴加权已经可用，但补 0 会让恒定图的边缘变暗。先单独更换边界假设：普通照片在边缘之外多半还是相近的景物，所以让图外维持最近边缘的读数。用恒定图和变化图区分边界效果与平滑效果。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+            "en": "The two-axis filter works, but zero extension darkens constant-image edges. First change only the boundary assumption: in an ordinary photograph the scene just beyond the edge usually resembles the edge, so outside reads retain the nearest edge value. Contrast constant and varying images to separate boundary effects from smoothing. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
           }
         }
       ],
