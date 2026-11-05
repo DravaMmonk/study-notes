@@ -60,6 +60,11 @@
 //                                          bare-intro rule lets a level with a reason be
 //   declares(level) → [part]               parts whose definition the level's answer works on (a declaration,
 //                                          checking one): that puts them to work (idle-idea)
+//   carries(level) → [level]               the levels whose boards the level starts from: each must be one of its
+//                                          prerequisites (carry-unseen)
+//   finale(topic) → { level, solves(level) → null | why } | null   a topic's finale and whether its board solves
+//                                          an earlier level of the topic (topic-finale: the topic is one problem
+//                                          growing); without it, topics are not checked so
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
 // })
@@ -213,7 +218,7 @@ export function layout(eras) {
 // A showcase's reason, written plainly or in each language.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], folds = () => [], showcase = () => null, declares = () => [], abstraction = false }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], folds = () => [], showcase = () => null, declares = () => [], carries = () => [], finale = null, abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -235,7 +240,7 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, folds, showcase, declares, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, folds, showcase, declares, carries, finale, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -391,7 +396,17 @@ export function audit(course) {
   }
   idle(course, say)
   bypass(course, say)
+  for (const level of levels) for (const from of course.carries(level)) if (!course.before(from, level.id)) say('carry-unseen', level.id, from)
   if (!plan) return out
+  // A topic is one problem growing: its finale's board solves every level of it before the finale.
+  for (const topic of (course.eras ?? []).flatMap((era) => era.topics ?? [])) {
+    const end = course.finale?.(topic)
+    if (!end) continue
+    for (const id of topic.levels.slice(0, topic.levels.indexOf(end.level))) {
+      const why = end.solves(id)
+      if (why) say('topic-finale', id, end.level, why)
+    }
+  }
 
   // The era rules.
   const placed = new Set(plan.order)

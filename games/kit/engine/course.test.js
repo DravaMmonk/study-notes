@@ -77,6 +77,16 @@ const wire = (text) => text.split(' ').map((s) => { const [from, to] = s.split('
 const isPart = (t) => !['in', 'out'].includes(t)
 const TRIPLE = board([{ id: 'x', type: 'a' }, { id: 'y', type: 'b', params: { k: 1 } }, { id: 'z', type: 'c' }], wire('in>x.p x>y.p in>y.q y>z.p z>out.p'))
 
+test('a level starts only from a board it has seen; a topic’s finale solves the levels before it', () => {
+  const rules = (course, rule) => audit(course).filter((f) => f.rule === rule).map((f) => `${f.part}@${f.level}`)
+  const eras = [{ foundation: ['a1', 'a2', 'a3'], topics: [{ id: 't', after: 'a1', levels: ['t1', 't2', 't3'] }] }]
+  const carries = (l) => ({ a3: ['a1'], t2: ['a3'] })[l.id] ?? []
+  assert.deepEqual(rules(sketch(eras, {}, { carries }), 'carry-unseen'), ['a3@t2'])
+  const finale = (topic) => ({ level: topic.levels.at(-1), solves: (id) => (id === 't2' ? 'its board fails test 1' : null) })
+  assert.deepEqual(rules(sketch(eras, {}, { finale }), 'topic-finale'), ['t3@t2'])
+  assert.deepEqual(rules(sketch(eras, {}), 'topic-finale'), [], 'a course with no finale hook checks no topic')
+})
+
 test('a board is found inside another, wired alike, whatever its inputs read', () => {
   const host = board([{ id: 'u', type: 'd' }, { id: 'x1', type: 'a' }, { id: 'y1', type: 'b', params: { k: 1 } }, { id: 'z1', type: 'c' }],
     wire('in2>u.p u>x1.p x1>y1.p u>y1.q y1>z1.p z1>out.p'))

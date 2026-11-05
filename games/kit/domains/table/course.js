@@ -95,7 +95,7 @@ const asPacked = b => {
 
 /**
  * The course of a table game's content (content.js assemble). Returns { LEVELS, REQUIRES, PLACE, TRACKS, CHAPTERS,
- * LABELS, PARTS, PRIMITIVES, course, usableIn(L, flags), offerIn(L, flags), problems(), blueprints, wrong }.
+ * LABELS, PARTS, PRIMITIVES, course, usableIn(L, flags), offerIn(L, flags), blueprints, wrong }.
  */
 export function tableCourse(content) {
   const { eras, levels, parts: PARTS, primitives: PRIMITIVES } = hydrate(content);
@@ -233,6 +233,30 @@ export function tableCourse(content) {
     boards: l => stagesFlat(byId.get(l.id)).map(s => s.solution).filter(Boolean),
     folds: l => byId.get(l.id).fold || [],
     showcase: l => byId.get(l.id).showcase ?? null,
+    // A level that starts from an earlier level's board (`carry`) requires that level.
+    carries: l => (byId.get(l.id).carry ? [byId.get(l.id).carry] : []),
+    // A topic's finale is its last circuit level (a board level may follow it, like cutting the seam out). An earlier
+    // circuit level of the topic, run in the same world (or one of its family, with the same outputs), is solved by the
+    // finale's board; one that instead builds a core mechanism alone is, when its part is on the finale's board.
+    finale: topic => {
+      const end = [...topic.levels].reverse().map(id => byId.get(id)).find(L => L?.mode === 'circuit'), fs = end?.stages.at(-1);
+      if (!fs?.solution) return null;
+      return {
+        level: end.id,
+        solves: id => {
+          const L = byId.get(id);
+          if (L?.mode !== 'circuit' || (L.builds && fs.solution.nodes.some(n => n.type === L.unlock))) return null;
+          for (const [k, s] of L.stages.entries()) {
+            const V = WORLDS[s.world];
+            const same = s.world === fs.world || (V.outs.map(o => o[0]).join() === WORLDS[fs.world].outs.map(o => o[0]).join() && FAMILY[s.world] && FAMILY[s.world] === FAMILY[fs.world]);
+            if (!same) return `the finale ${end.id} plays in another world`;
+            const bad = s.tests.findIndex((t, i) => { const r = run(V, t, fs.solution, s); return r.error || r.value !== s.expected[i]; });
+            if (bad >= 0) return `the finale's board fails stage ${k + 1}, test ${bad + 1}`;
+          }
+          return null;
+        },
+      };
+    },
     abstraction: true,
   });
 
@@ -249,39 +273,7 @@ export function tableCourse(content) {
   /** Everything the player has for level L: what it shows, and what it folds away ({ shown, folded }). */
   const offerIn = (L, flags) => offer(course, { id: L.id }, flags);
 
-  /**
-   * The table's own rules, as the course audit reports them. A level that starts from an earlier level's board (`carry`) requires that level. A topic grows from a small
-   * version of its finale: the finale's reference board, run on each earlier circuit level of the topic (same world,
-   * same outputs), passes that level's tests; an earlier level that instead builds one core mechanism alone passes when
-   * the part it builds is on the finale's board.
-   */
-  function audit() {
-    const out = [];
-    const before = id => { const seen = new Set(), todo = [...(plan.requires.get(id) ?? [])]; while (todo.length) { const x = todo.pop(); if (!seen.has(x)) { seen.add(x); todo.push(...(plan.requires.get(x) ?? [])); } } return seen; };
-    for (const L of LEVELS.filter(x => x.carry)) if (!before(L.id).has(L.carry)) out.push({ rule: 'carry-unseen', level: L.id, part: L.carry });
-    for (const era of eras) {
-      for (const topic of era.topics ?? []) {
-        // The finale is the topic's last circuit level (a board level may follow it, like cutting the seam out).
-        const finale = [...topic.levels].reverse().map(id => byId.get(id)).find(L => L?.mode === 'circuit'), fs = finale?.stages.at(-1);
-        if (!fs?.solution) continue;
-        for (const id of topic.levels.slice(0, topic.levels.indexOf(finale.id))) {
-          const L = byId.get(id);
-          if (L?.mode !== 'circuit') continue;
-          if (L.builds && fs.solution.nodes.some(n => n.type === L.unlock)) continue;
-          for (const [k, s] of L.stages.entries()) {
-            const V = WORLDS[s.world];
-            const same = s.world === fs.world || (V.outs.map(o => o[0]).join() === WORLDS[fs.world].outs.map(o => o[0]).join() && FAMILY[s.world] && FAMILY[s.world] === FAMILY[fs.world]);
-            if (!same) { out.push({ rule: 'topic-finale', level: id, part: finale.id, text: `the finale ${finale.id} plays in another world` }); break; }
-            const bad = s.tests.findIndex((t, i) => { const r = run(V, t, fs.solution, s); return r.error || r.value !== s.expected[i]; });
-            if (bad >= 0) { out.push({ rule: 'topic-finale', level: id, part: finale.id, text: `the finale's board fails stage ${k + 1}, test ${bad + 1}` }); break; }
-          }
-        }
-      }
-    }
-    return out;
-  }
-
-  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, usableIn, offerIn, problems: audit, blueprints, wrong };
+  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, usableIn, offerIn, blueprints, wrong };
 }
 
 /** A run that reports a broken board instead of throwing (the checks). */

@@ -1,5 +1,5 @@
 // The table domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the course,
-// its levels in play order, the texts a player reads and the table's own audit), the domain's checks, and its play
+// its levels in play order and the texts a player reads), the domain's checks, and its play
 // hook for blind sessions (play.js). Nothing here draws: the page's side is game.jsx.
 
 import { vocabulary } from './vocabulary.js';
@@ -23,7 +23,6 @@ function spec(content) {
     blueprints: table.blueprints,
     syncOwn,
     texts: { chapters: table.CHAPTERS, parts: table.PARTS, glossary: content.glossary.entries },
-    audit: table.problems,
   };
 }
 

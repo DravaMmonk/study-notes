@@ -137,6 +137,7 @@ export function netCourse(content) {
     boards: (level) => solutions(level.id),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     replaces: (part) => builderOf.get(part)?.builds.replaces ?? [],
+    carries: (level) => played.get(level.id)?.map((T) => T.carry).filter(Boolean) ?? [],
     abstraction: true,
   })
   return {
@@ -161,8 +162,6 @@ export function netCourse(content) {
       const board = built[last?.taskId]?.nodes ? built[last.taskId] : last?.solution
       return board ? carriedOnto(task, board) : startBoard(task)
     },
-    // The table's rule in this domain: a task that carries on from a board requires the level it comes from.
-    audit: () => LEVELS.flatMap((L) => played.get(L.id).filter((T) => T.carry && !course.before(T.carry, L.id)).map((T) => ({ rule: 'carry-unseen', level: L.id, part: T.carry }))),
     syncOwn: (built = {}) => {
       OWN.clear()
       // The shell keeps boards by task (../../shell/progress.js): a level's part runs its last task's.

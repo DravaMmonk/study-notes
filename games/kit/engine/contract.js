@@ -137,6 +137,7 @@ function hookProblems(course) {
     list('uses', course.uses(level))
     list('folds', course.folds(level))
     list('declares', course.declares(level))
+    list('carries', course.carries(level))
     const needed = course.needed(level)
     if (needed !== null) list('needed', needed)
     const boards = course.boards(level)
