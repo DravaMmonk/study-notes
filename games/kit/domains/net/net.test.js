@@ -7,14 +7,16 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { FLAG, FORMATS, arrived, bitsOf, checkOf, decode, encode, remainder, said, stuff, unstuff } from './wire.js'
 import { PARTS } from './parts.js'
-import { carriedOnto, fromText, toText } from './board.js'
+import { board, carriedOnto, fromText, toText } from './board.js'
+import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import { netCourse } from './course.js'
 import { assemble } from '../../engine/content.js'
 import domain from './domain.js'
 
-const partOf = (type) => PARTS[type]
+const plain = primitivesOnly(board, PARTS)
+const { partOf } = plain
 const W = (ins, outs) => ({ in: ins.map((name) => ({ name, label: name })), out: outs.map((name) => ({ name, label: name })) })
 
 test('every format decodes what it encodes', () => {
@@ -79,14 +81,14 @@ test('what a level wants, tick by tick and in order', () => {
 
 test('a board on its wires: registers carry, the queue is pulled, the far end decodes what it says', () => {
   const late = { wires: W(['a'], ['b']), want: wantOf({ b: { late: { wire: 'a', first: 0 } } }), tests: [{ ticks: 4, wires: { a: [1, 0, 1, 1] }, inputs: {}, queue: [] }] }
-  const board = fromText(['r = reg[reg=A, start=0]()', 'k = keep[reg=A](a)', 'b <- r'], late, partOf)
-  assert.equal(runLevel(late, board, partOf).pass, true)
-  const text = toText(board, partOf)
-  assert.deepEqual(toText(fromText(text, late, partOf), partOf), text)
-  assert.throws(() => fromText(['x = counter(a)'], late, partOf), (e) => e.line === 1)
+  const made = fromText(['r = reg[reg=A, start=0]()', 'k = keep[reg=A](a)', 'b <- r'], late, plain)
+  assert.equal(runLevel(late, made, partOf).pass, true)
+  const text = toText(made, late, plain)
+  assert.deepEqual(toText(fromText(text, late, plain), late, plain), text)
+  assert.throws(() => fromText(['x = counter(a)'], late, plain), (e) => e.line === 1)
   // A queue pulled one byte a tick, said as raw bits: the far end decoding bytes gets nothing it can use.
   const send = { wires: W([], ['out']), inputs: [{ name: 'byte', label: 'byte' }], outputs: [{ name: 'next', label: 'next' }], pulls: { input: 'byte', next: 'next' }, want: wantOf({ out: { sent: { format: 'bytes' } } }), tests: [{ ticks: 10, wires: {}, inputs: {}, queue: [[255]] }] }
-  const once = fromText(['one = const[value=1]()', 'next <- one', 'out <- one'], send, partOf)
+  const once = fromText(['one = const[value=1]()', 'next <- one', 'out <- one'], send, plain)
   const run = runLevel(send, once, partOf).runs[0]
   assert.deepEqual(run.ticks.map((t) => t.bind.byte), [255, null, null, null, null, null, null, null, null, null])
   assert.ok(!run.fail, 'ten 1s decode as 255 and a stray bit: exactly the queue')
@@ -96,7 +98,7 @@ test('a built part takes its level’s wires as ports', () => {
   const lv = (id, { builds, adds, ...task }) => ({ id, title: id, ...(adds && { adds }), ...(builds && { builds }), tasks: [{ brief: id, ...task }] })
   const content = assemble({
     id: 't',
-    game: { domain: 'net', vocabulary: 2, title: 't', kicker: 'k', lede: 'l', primitives: ['reg', 'keep'], eras: [{ id: 1, title: 'e', question: 'q', foundation: ['1-1', '1-2'] }], saves: [] },
+    game: { domain: 'net', vocabulary: 1, title: 't', kicker: 'k', lede: 'l', primitives: ['reg', 'keep'], eras: [{ id: 1, title: 'e', question: 'q', foundation: ['1-1', '1-2'] }], saves: [] },
     levels: [
       ['1-1', lv('1-1', { adds: ['reg', 'keep'], wires: W(['a'], ['b']), tests: [{ wires: { a: { send: [{ bits: '1011' }] } } }], want: { b: { late: { wire: 'a', first: 0 } } }, solution: ['r = reg[reg=A, start=0]()', 'k = keep[reg=A](a)', 'b <- r'], builds: { type: 'delay', name: 'delay', desc: 'd' } })],
       ['1-2', lv('1-2', { wires: W(['x'], ['y']), tests: [{ wires: { x: { send: [{ bits: '1101' }] } } }], want: { y: { late: { wire: 'x', first: 0 } } }, solution: ['d = delay(x)', 'y <- d'] })],
@@ -109,14 +111,14 @@ test('a built part takes its level’s wires as ports', () => {
   assert.equal(runLevel(L, L.solution, net.partOf).pass, true)
   // Two of them on one board keep their own registers: a delay of two ticks.
   const two = { ...L, want: wantOf({ y: 'given' }), tests: [{ ticks: 4, wires: { x: [1, 1, 0, 1] }, inputs: {}, queue: [], expect: { y: [0, 0, 1, 1] } }] }
-  assert.equal(runLevel(two, fromText(['d = delay(x)', 'e = delay(d)', 'y <- e'], two, net.partOf), net.partOf).pass, true)
+  assert.equal(runLevel(two, fromText(['d = delay(x)', 'e = delay(d)', 'y <- e'], two, net), net.partOf).pass, true)
 })
 
 test('a board carried onto another level keeps its parts and the wires its new fixed cards still take', () => {
   const from = { wires: W(['a'], ['b']), inputs: [{ name: 'r', label: 'r' }] }
   const onto = { wires: W(['a'], ['b']), inputs: [{ name: 'h', label: 'h' }] }
-  const board = fromText(['s = select(r, a, a)', 'b <- s'], from, partOf)
-  const carried = carriedOnto(onto, board)
+  const made = fromText(['s = select(r, a, a)', 'b <- s'], from, plain)
+  const carried = carriedOnto(onto, made)
   assert.deepEqual(carried.nodes.map((n) => n.id).sort(), ['a', 'b', 'h', 's'])
   assert.deepEqual(carried.wires.map((w) => `${w.from}>${w.to}.${w.port}`).sort(), ['a>s.no', 'a>s.yes', 's>b.in'])
 })
@@ -125,7 +127,7 @@ test('a reply a frame, and yes standing for 1', () => {
   const t = { ticks: 1, wires: { a: arrived([...encode('flagbyte', [[1], [2]]), ...arrived(encode('flagbyte', [[3]]), { flips: [12] })]) }, inputs: {}, queue: [] }
   assert.deepEqual(wantOf({ x: { answers: { wire: 'a', format: 'flagbyte' } } })(t).x.order, [1, 'end', 1, 'end', 0, 'end'])
   const level = { outputs: [{ name: 'o', label: 'o' }], want: wantOf({ o: 'given' }), tests: [{ ticks: 2, wires: {}, inputs: {}, queue: [], expect: { o: [1, 0] } }] }
-  const eq = fromText(['z = const[value=0]()', 'e = equal(z, z)', 'o <- e'], level, partOf)
+  const eq = fromText(['z = const[value=0]()', 'e = equal(z, z)', 'o <- e'], level, plain)
   assert.equal(runLevel(level, eq, partOf).runs[0].fail.tick, 1)
 })
 

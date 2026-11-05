@@ -2,7 +2,7 @@
 // of ../../engine/ticks.js). Values on the wires are bits (0, 1), whole numbers, yes or no (true / false), and 「—」
 // (null): nothing this tick. A part handed 「—」 gives 「—」 (select reads only the input it picks).
 //
-// Fixed cards (the level puts them on the board), each named by params.name:
+// Fixed cards (the level puts them on the board, board.js), each named by params.name:
 //   rx       the bit arriving this tick on one of the wires into the board
 //   tx       what the board says this tick on one of the wires out of it (nothing wired: 0)
 //   in       one of the level's inputs this tick
@@ -17,7 +17,6 @@
 //   add      a + b
 //   equal    whether a and b are the same number (a bit is the number 0 or 1, yes is 1 and no 0)
 //   bit      bit i of the 8-bit number n, counted from the top (i = 0 is the highest); 「—」 for i outside 0–7
-import { sink, source } from '../../engine/boards.js'
 import { register, store } from '../../engine/ticks.js'
 
 /** The registers a card may name. */
@@ -28,13 +27,7 @@ const strict = (f) => (ins, node) => (Object.values(ins).some((v) => v === null 
 const num = (v) => (typeof v === 'boolean' ? Number(v) : v)
 const truth = (v) => (v === null || v === undefined ? null : v === true || v === 1)
 
-export const FIXED = ['rx', 'tx', 'in', 'out']
-
 export const PARTS = {
-  rx: source(),
-  tx: sink(),
-  in: source(),
-  out: sink(),
   reg: register({ start: (node) => (node.params?.start === undefined || node.params.start === '' ? null : Number(node.params.start)), params: ['reg', 'start'] }),
   keep: store({ params: ['reg'] }),
   const: { inputs: [], params: ['value'], eval: (_, node) => Number(node.params?.value ?? 0) },
