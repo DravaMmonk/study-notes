@@ -24,7 +24,7 @@ const CONTENT = {
     { id: 'flag', title: { zh: '旗标', en: 'A flag' }, hint: [{ zh: '看<level-ref to="flag"></level-ref>的旗标', en: 'See <level-ref to="flag"></level-ref>: flags and a flagpole' }], solution: ['f = flag()', 'out <- f'], name: 'flag' },
     { id: 'other', title: { zh: '别的', en: 'Other' }, solution: ['x = const[value=1]()'] },
   ],
-  glossary: { groups: [], entries: [{ id: 'flag', group: 'g', title: { zh: '旗标', en: 'flag' }, body: [{ zh: '一个旗标', en: 'A flag is 01111110.' }] }] },
+  glossary: { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'flag', group: 'g', title: { zh: '旗标', en: 'flag' }, body: [{ zh: '一个旗标', en: 'A flag is 01111110.' }] }] },
 }
 
 test('search: each side of every text, never inside a link tag; board lines; ids', () => {

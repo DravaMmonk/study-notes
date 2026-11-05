@@ -8,6 +8,9 @@ import { validate } from './validate.js';
 import { play } from './play.js';
 
 /** A table game's spec, as the checks read one (../../engine/checks.js). */
+// What a level may unlock or fold (vocabulary.js): the parts and ideas game.json names.
+const names = content => ({ part: new Set(Object.keys(content.parts ?? {})) });
+
 function spec(content) {
   const table = tableCourse(content);
   return {
@@ -24,4 +27,4 @@ function spec(content) {
   };
 }
 
-export default { vocabulary, spec, validate, play };
+export default { vocabulary, names, spec, validate, play };

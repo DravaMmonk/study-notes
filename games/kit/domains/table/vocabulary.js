@@ -172,7 +172,7 @@ const COMMON = {
   intro: S.list(S.obj({ t: S.text(), fig: S.opt(S.call('figure')) })),
   mission: S.obj({ goal: S.text(), how: S.text() }),
   debrief: S.obj({ title: S.text(), body: TEXTS, note: S.opt(S.text()) }),
-  unlock: S.opt(S.str({ section: 'course', about: t('通过它解锁的元件或想法（game.json 的 parts）', 'the part or idea solving it unlocks (game.json parts)') })),
+  unlock: S.opt(S.name('part', { section: 'course', about: t('通过它解锁的元件或想法（game.json 的 parts）', 'the part or idea solving it unlocks (game.json parts)') })),
   hints: S.opt(TEXTS),
 };
 const PLACE = S.obj({ id: S.str(), x: S.num(), y: S.num(), label: S.text(), fixed: S.opt(S.num()), goal: S.opt(S.num()) });
@@ -192,7 +192,7 @@ const CIRCUIT = {
   ...COMMON,
   robot: S.ref('robot'),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  fold: S.opt(S.list(S.str(), { section: 'course' })),
+  fold: S.opt(S.list(S.name('part'), { section: 'course' })),
   carry: S.opt(S.level({ about: t('从这一关玩家留下的电路板开始（必须是先修）', 'start from the board left on this level (a prerequisite)') })),
   builds: S.opt(S.obj({ ports: S.list(S.call('port')), setting: S.opt(S.num()) }, { section: 'course', about: t('通过后电路板成为元件 unlock：它的口，和它带的一个数', 'once solved the board is the part `unlock`: its ports, and a number it carries') })),
   naive: S.opt(BOARD),

@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { find } from '../schema.js'
+import { find, shapeAt } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
 import { GAMES_DIR, domainOf, readContent } from '../content-node.js'
@@ -139,9 +139,13 @@ export const TOOLS = {
         return board ? { text: board.text } : { text: JSON.stringify(getAt(value, path), null, 2) }
       }
       const pick = (v) => (v && typeof v === 'object' && 'en' in v ? v.en : v)
+      // What sort of level it is: its fields that pick one of a few (its kind or mode, its world, its robot…), by its schema.
+      const { vocabulary } = await domainOf(content)
+      const shape = shapeAt(vocabulary.level, value, [], { vocabulary })
+      const picks = Object.entries(shape?.fields ?? {}).filter(([k, s]) => ['oneOf', 'ref'].includes(s.type) && value[k] !== undefined).map(([k]) => k)
       const rows = [
         `${level} · ${pick(value.title)}`,
-        ...['kind', 'mode', 'world', 'robot'].filter((k) => value[k] !== undefined).map((k) => `${k}: ${JSON.stringify(value[k])}`),
+        ...picks.map((k) => `${k}: ${JSON.stringify(value[k])}`),
         ...(value.brief ? [`brief: ${pick(value.brief)}`] : []),
         ...(value.adds ? [`brings in: ${value.adds.join(', ')}`] : []),
         ...(value.tests ? [`tests: ${JSON.stringify(value.tests).slice(0, 600)}`] : []),

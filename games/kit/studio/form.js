@@ -57,7 +57,7 @@ function choicesOf(schema, ctx) {
 export function shapeOf(schema, value, vocabulary) {
   const at = schema.of.findIndex((s) => fits(s, value, vocabulary))
   if (at >= 0) return { schema: schema.of[at], at }
-  const kind = (s) => (['obj', 'by', 'map'].includes(s.type) ? 'object' : s.type === 'list' || s.type === 'board' ? 'list' : ['str', 'syntax', 'text', 'ref', 'level', 'oneOf', 'call'].includes(s.type) ? 'string' : s.type)
+  const kind = (s) => (['obj', 'by', 'map'].includes(s.type) ? 'object' : s.type === 'list' || s.type === 'board' ? 'list' : ['str', 'syntax', 'name', 'text', 'ref', 'level', 'oneOf', 'call'].includes(s.type) ? 'string' : s.type)
   const mine = isObj(value) ? 'object' : Array.isArray(value) ? 'list' : typeof value === 'string' ? 'string' : null
   const k = Math.max(0, schema.of.findIndex((s) => kind(s) === mine || (mine === 'object' && s.type === 'text')))
   return { schema: schema.of[k], at: k }
@@ -97,6 +97,7 @@ export function formOf(schema, value, ctx, path = []) {
     case 'board':
       return { ...base, kind: schema.type }
     case 'syntax':
+    case 'name':
       return { ...base, kind: 'str' }
     case 'str':
       if (schema.view === 'expr' || schema.view === 'icon') return { ...base, kind: schema.view }
@@ -153,7 +154,8 @@ export function blank(schema, ctx) {
     case 'int': return schema.min ?? 0
     case 'bool': return false
     case 'str':
-    case 'syntax': return ''
+    case 'syntax':
+    case 'name': return ''
     case 'oneOf': return schema.values[0]
     case 'ref': return Object.keys(vocabulary?.kinds[schema.kind] ?? {})[0] ?? ''
     case 'level': return levels[0] ?? ''
@@ -215,6 +217,7 @@ export function cellValue(schema, text) {
     case 'oneOf': return schema.values.find((v) => String(v) === t)
     case 'str':
     case 'syntax':
+    case 'name':
     case 'ref':
     case 'level': return t === '' ? undefined : t
     case 'either': {

@@ -116,7 +116,7 @@
 
 ### 3.2 引用与文案字段由 schema 驱动
 
-- 新增 `S.ref(kind)`，check 时验证目标存在；替换 logic 的 `PART`（`adds`）、table 的 `unlock` / `fold`、glossary 的 `see` / `group`。
+- `S.ref` 只指词汇表里的项；内容自己定义的东西用新类型 `S.name(kind)`，check 时核对存在：百科的条目和分组由内核给出，领域用 `domain.js` 的 `names(content)` 给出其余的（logic 的元件 = 词汇表元件 ∪ 引理 ∪ 门 ∪ 等式；table 的 game.json `parts`）。替换 logic 的 `PART`、table 的 `unlock` / `fold`、glossary 的 `see` / `group`。
 - `checks.js:95` 的「词条只在已开放处链接」改为遍历 schema 中所有 text 类型字段，删除写死的字段名表。
 - `ops/tools.js:144` 的摘要字段、`PartsBook.jsx:133` 的筛选维度改由词汇表声明。
 - 验收：合成领域用新字段名写文案，链接检查照样生效；`adds: ['nonexistent']` 在 schema 阶段报错。

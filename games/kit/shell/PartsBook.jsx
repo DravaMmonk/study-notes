@@ -130,7 +130,7 @@ function Filters({ filters, current, onPick }) {
     </button>
   )
   return (
-    <div className="parts-filters" role="group" aria-label={tr('按机器人筛选', 'Filter by robot')}>
+    <div className="parts-filters" role="group" aria-label={tr('筛选元件', 'Filter the parts')}>
       {chip(null, { zh: '全部', en: 'All' })}
       {filters.map((f) => chip(f.key, f.name, f.icon, f.lock))}
     </div>

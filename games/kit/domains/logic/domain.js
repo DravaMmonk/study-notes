@@ -22,6 +22,9 @@ const reads = (parser) => (text) => {
 }
 const languages = { formula: reads(parse), side: reads(parseSide), condition: reads(parseS), term: reads(parseTerm) }
 
+// What a part's name may be (vocabulary.js PART): the vocabulary's parts, and the game's lemmas, gates and equations.
+const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.lemmas ?? {}), ...Object.keys(content.gates ?? {}), ...Object.keys(content.facts ?? {})]) })
+
 // What players keep on a level answers its puzzle (../../engine/ops/migrate.js): a proof proves its goal from its
 // givens, a table fills its formulas, a world satisfies its sentences. A level whose puzzle changed keeps state that
 // answers the old one, so its boards start afresh. A machine is the exception: its board is a program run on the tests, and
@@ -58,4 +61,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, languages, spec, validate, play, changes }
+export default { vocabulary, languages, names, spec, validate, play, changes }

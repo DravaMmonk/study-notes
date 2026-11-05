@@ -25,7 +25,7 @@ import { definesParts, partProblems, withParts } from './parts/define.js'
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
   groups: S.list(S.obj({ id: S.str(), title: S.text() })),
-  entries: S.list(S.obj({ id: S.str(), group: S.str(), title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.str())) })),
+  entries: S.list(S.obj({ id: S.str(), group: S.name('group'), title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.name('entry'))) })),
 })
 
 /**
@@ -67,7 +67,7 @@ export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
  * file and the path in it. `domain`: the domain module, its vocabulary and the readers of its languages. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
  * that task ids are unique in a game and never another level's (tasks.js).
  */
-export function checkContent({ vocabulary: domainVocabulary, languages = {} }, content) {
+export function checkContent({ vocabulary: domainVocabulary, languages = {}, names: domainNames = () => ({}) }, content) {
   const out = []
   const vocabulary = withParts(domainVocabulary, content.partDefs)
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
@@ -75,13 +75,15 @@ export function checkContent({ vocabulary: domainVocabulary, languages = {} }, c
   // the one it may have: the audit findings it leaves open.
   const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, ...game } = content
   const ids = new Set(levels.map((l) => l.id))
+  // What the content itself names (S.name): the encyclopedia's entries and groups, and what the domain says.
+  const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), ...domainNames(content) }
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })
-  add(validate(vocabulary.game, game, { vocabulary, levels: ids, languages }), 'game.json')
+  add(validate(vocabulary.game, game, { vocabulary, levels: ids, languages, names }), 'game.json')
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
-  for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids, languages }), `levels/${levelId}.json`)
+  for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids, languages, names }), `levels/${levelId}.json`)
   out.push(...taskIdProblems(levels))
-  add(validate(GLOSSARY, glossary, { vocabulary, levels: ids }), 'glossary.json')
+  add(validate(GLOSSARY, glossary, { vocabulary, levels: ids, names }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   if (definesParts(domainVocabulary)) {
     if (parts === undefined) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })

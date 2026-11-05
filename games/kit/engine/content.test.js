@@ -84,6 +84,16 @@ test('text carries only the kernel’s markup: a few tags and references, nothin
   assert.deepEqual(says(S.text(), { zh: '<b>粗</b> <code>x</code>', en: '<strong>bold</strong> a <- b' }), [])
 })
 
+test('a name the content defines must be one it defines', () => {
+  const names = { lemma: new Set(['swap']) }
+  assert.deepEqual(validate(S.name('lemma'), 'swap', { names }), [])
+  assert.match(validate(S.name('lemma'), 'nonexistent', { names })[0].says, /"nonexistent" is no lemma of this game/)
+  assert.match(validate(S.name('gate'), 'x', { names })[0].says, /defines no gates/)
+  const vocabulary = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({}) })
+  const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [], glossary: { groups: [{ id: 'a', title: 'A' }], entries: [{ id: 'e', group: 'b', title: 'E', body: [], see: ['f'] }] } }
+  assert.deepEqual(checkContent({ vocabulary }, content).map((p) => p.at), ['glossary.json.entries[0].group', 'glossary.json.entries[0].see[0]'])
+})
+
 test('a vocabulary prints as plain data', () => {
   const printed = describe(VOCAB)
   assert.equal(printed.kinds.world.line.params.fields.n.type, 'int')
@@ -95,7 +105,7 @@ test('content is checked file by file', () => {
     id: 'toy',
     game: { domain: 'toy', vocabulary: 3, title: { zh: '玩具', en: 'Toy' }, extra: 1 },
     levels: [['b', { mode: 'read', text: 'x' }], ['a', { mode: 'run', world: 'nowhere' }]],
-    glossary: { groups: [], entries: [{ id: 'e', group: 'g', title: 'E', body: [] }] },
+    glossary: { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: 'E', body: [] }] },
   })
   assert.deepEqual(content.levels.map((l) => l.id), ['a', 'b'])
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, content).map((p) => `${p.at}: ${p.says}`), [

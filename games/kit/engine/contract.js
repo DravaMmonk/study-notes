@@ -28,9 +28,11 @@ const isFn = (f) => typeof f === 'function'
 //   play                { open(ctx), attempt(ctx, text) }: the blind-play harness's hook (games/DESIGN.md 6.6)
 //   scene               scene(spec, level) → an SVG string or null: a level drawn headlessly (the MCP's render, the
 //                       studio; games/DESIGN.md 6.7)
+//   names               names(content) → { kind: Set }: what the content defines that its schema names (S.name)
 //   languages           { lang: (text) → why it cannot be read, or null }: the readers of the vocabulary's languages
 //                       (schema.js syntax), one for each it names
 export const EXTENSIONS = {
+  names: isFn,
   languages: (l) => Boolean(l) && typeof l === 'object' && Object.values(l).every(isFn),
   changes: (c) => Boolean(c) && isFn(c.stale),
   play: (p) => Boolean(p) && isFn(p.open) && isFn(p.attempt),

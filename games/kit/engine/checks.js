@@ -15,7 +15,9 @@
 import { RULE_TEXT, againstOpen, audit } from '../course.js'
 import { REF, refProblems, untranslated } from './text.js'
 import { gameOf } from './games.mjs'
-import { checkContent } from './vocabulary.js'
+import { GLOSSARY, checkContent } from './vocabulary.js'
+import { find } from './schema.js'
+import { withParts } from './parts/define.js'
 import { termRegistry } from './terminology.js'
 
 /**
@@ -61,20 +63,20 @@ export async function checkGame(content, { domain, listed }) {
   for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}), parts })) for (const problem of refProblems(value, name, names, spec.quotes)) fail(`text ${problem}`)
 
   // An entry is linked only where it is open already: in a level it opens at or after, in an entry opening no earlier.
+  // The links are read off every text of the content, by its schema, whatever its fields are called.
+  const vocabulary = withParts(domain.vocabulary, content.partDefs)
   const entries = new Map((game.glossary?.entries ?? []).map((e) => [e.id, e]))
   const opensBy = (at, where) => !at || at === where || (where && spec.course.before(at, where))
-  const linked = (v, out = [], kind = 'wiki') => {
-    if (typeof v === 'string') out.push(...[...v.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))
-    else if (Array.isArray(v)) v.forEach((x) => linked(x, out, kind))
-    else if (v && typeof v === 'object') for (const key of ['zh', 'intro', 'after', 'brief', 'hint', 'tasks', 't', 'body']) linked(v[key], out, kind)
-    return out
-  }
-  for (const level of spec.levels) for (const id of linked(level)) if (entries.has(id) && !opensBy(entries.get(id).at, level.id)) fail(`${level.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
+  const linked = (schema, value, kind) => find(schema, value, 'text', { vocabulary })
+    .flatMap(({ value: v }) => (typeof v === 'string' ? [v] : [v.zh, v.en]))
+    .flatMap((s) => [...s.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))
+  const levelLinks = (kind) => content.levels.map(({ id, ...level }) => [id, [...new Set(linked(vocabulary.level, level, kind))]])
+  for (const [id, links] of levelLinks('wiki')) for (const entry of links) if (entries.has(entry) && !opensBy(entries.get(entry).at, id)) fail(`${id} links the entry ${entry}, which opens later (at ${entries.get(entry).at})`)
   // A part likewise: linked in the level that earns it or one after (that level's own intro may name what it builds).
   const earnedAt = (part) => game.levels.find((l) => l.unlocks?.includes(part.key) || part.at?.includes(l.id))?.id
   const partsByKey = new Map((game.parts?.all ?? []).map((p) => [p.key, p]))
-  for (const level of spec.levels) for (const key of linked(level, [], 'part')) if (partsByKey.has(key) && !opensBy(earnedAt(partsByKey.get(key)), level.id)) fail(`${level.id} links the part ${key}, earned later (at ${earnedAt(partsByKey.get(key))})`)
-  for (const entry of entries.values()) for (const id of linked(entry)) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
+  for (const [id, links] of levelLinks('part')) for (const key of links) if (partsByKey.has(key) && !opensBy(earnedAt(partsByKey.get(key)), id)) fail(`${id} links the part ${key}, earned later (at ${earnedAt(partsByKey.get(key))})`)
+  for (const entry of content.glossary.entries) for (const id of new Set(linked(GLOSSARY.fields.entries.of, entry, 'wiki'))) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
 
   lines.push(...(await domain.validate(spec)))
   return lines

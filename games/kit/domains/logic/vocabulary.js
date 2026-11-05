@@ -33,7 +33,7 @@ const SIDES = S.list(SIDE)
 const TERM = S.syntax('term')
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one. */
 const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
-const PART = S.str({ about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式', 'a part: one of the vocabulary’s, or a lemma, gate or equation of game.json') })
+const PART = S.name('part', { about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式', 'a part: one of the vocabulary’s, or a lemma, gate or equation of game.json') })
 const PARTS = S.list(PART)
 const WORDS = S.list(S.either(S.str(), S.map(S.text())), { about: t('用哪几套词（game.json wordSets 的名字，或直接写出），按顺序合并', 'the word sets read in (names of game.json wordSets, or written out), merged in order') })
 
