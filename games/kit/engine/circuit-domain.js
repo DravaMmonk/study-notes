@@ -2,33 +2,44 @@
 // every circuit level gets. A domain says what is particular to it — the cards a level gives its board, its parts,
 // how a task's tests read and run — and gets the rest:
 //
-//   circuitBoard({ cards, ticks, right, gap }) → { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, fixedOf,
-//     startBoard, fits, carriedOnto, wiring, fromText, toText }
-//       cards  [{ type, side: 'left' | 'right', of(task) → [{ name, label }], params?(port), part? }] in board order:
-//              the cards a level gives (its inputs, outputs, wires…), each a source on the left or a sink on the right
-//              unless it gives its own part (a line heard, a line driven)
+//   circuitBoard({ cards, ticks, right, gap }) → { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf,
+//     sourceOf, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
+//       cards  [{ type, side: 'left' | 'right', of(task) → [{ name, label }], params?(port), part?, group?(task) }]
+//              in board order: the cards a level gives (its inputs, outputs, wires…), each a source on the left or a sink
+//              on the right unless it gives its own part (a line heard, a line driven); group(task) → [{ name, label,
+//              members: [port name] }] ports of a left card that stand on one card together, one output a member (a
+//              board reads it as `group.member`), while the task's ports, and a part its board becomes, stay one each
 //       ticks  the board runs tick by tick (../engine/ticks.js), so its wires may feed back
+//     A task that gives the board it opens on (`starter`, blueprint text read like its answer) starts on a copy of it.
 //   INPUTS, OUTPUTS   the cards most boards are given: a task's inputs down the left, its outputs down the right
-//   circuitCourse(content, { board, parts, read?, holds?, replaces?, unwanted? }) → { LEVELS, played, builtBy,
-//     CHAPTERS, course, partOf, BUILT, types, blueprints, wrong, offerIn, carried, opening, syncOwn }
-//       parts  { type: part } the game's primitives; read(task, say) → the task's own fields read (its tests…), after
-//              checking what its schema cannot say; holds: a built part keeps its own registers; a task that says
-//              what its board's right must give (`want`) names each port there once, but those unwanted(task) names
+//   circuitCourse(content, { board, parts, read?, test?, kinds?, pack?, holds?, replaces?, unwanted? }) → { LEVELS,
+//     played, builtBy, CHAPTERS, course, partOf, BUILT, types, blueprints, wrong, offerIn, introductions, carried,
+//     opening, syncOwn }
+//       parts  { type: part } the game's primitives; read(task, say) → the task's own fields read (what it wants…),
+//              test(test, task, say) → each of its tests and hidden tests read (its values…), each after checking what
+//              its schema cannot say; holds: a built part keeps its own registers; a task that says what its board's
+//              right must give (`want`) names each port there once, but those unwanted(task) names
+//       kinds  { kind: read(task, say) → the task read } the tasks that are no board (a grid to fill in, a choice), by
+//              their `kind`: the domain reads them and plays them on screens of its own; every other task is a board
+//       pack(builds, say) → what else the part a level builds is (settings a player sets on it: params, fields…)
+//     A task holds the parts its level adds and those its own tasks up to it add (`adds`), and brings in (`fresh`)
+//     those it adds itself, the first task its level's too; its tray offers by them and by its own answer.
 //   circuitSpec(domain, courseOf) → spec(content), the game's spec as npm run check reads one (../engine/check.js),
 //     the course read as `circuit` (validate({ circuit }), the screen's game.circuit: ../shell/circuit-game.js)
-//   GAME, levelSchema({ builds, ports, test, checks?, more? }), NAME, PORT   the schemas of game.json and of a level,
-//     and of a card's name and a port, for the domain's vocabulary
+//   GAME, levelSchema({ builds, page?, ports, test, checks?, more?, shared?, kinds? }), NAME, PORT   the schemas of
+//     game.json and of a level, and of a card's name and a port, for the domain's vocabulary
 //   runTests(runTest) → run(task, board, parts), every test of a task run by the domain's runTest: { runs, pass }
 //   judgeTicks(ticks, { checked, want, got?, same?, show? }) → { ticks, fail? }   a tick board's run judged tick by
 //     tick against what the task wants of its outputs; showValue(v) a value in words
-//   checkCircuitTasks(circuit, { run, failure?, more? }) → the domain's lines for npm run check
-//       run(task, board) → { runs: [{ fail?, error? }], pass }; failure(run) the words for a run that fails
+//   checkCircuitTasks(circuit, { run, failure?, more?, kinds? }) → the domain's lines for npm run check
+//       run(task, board) → { runs: [{ fail?, error? }], pass }; failure(run) the words for a run that fails;
+//       kinds { kind: check(task) → { problems, ok } } the domain's checks of a task that is no board
 //
 // A board is { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }; as text it is the kernel's
 // blueprint (../circuit/text.js), read and checked there. The boards the player passed the building levels with live
 // in the course read (syncOwn), one per content: two games of a domain in one process never share them.
 import { print, read } from '../circuit/text.js'
-import { packed, sink, source } from './boards.js'
+import { packed, sink, source, withSettings } from './boards.js'
 import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
 import { taskLevel, taskLevels } from './tasks.js'
@@ -41,20 +52,34 @@ import { T as t, keyOf } from '../shell/i18n.js'
 
 export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
   const FIXED = cards.map((c) => c.type)
-  const FIXED_PARTS = Object.fromEntries(cards.map((c) => [c.type, c.part ?? (c.side === 'left' ? source() : sink())]))
+  // A left card that groups ports gives each member as an output of its own.
+  const grouping = source({ outputs: (node) => node.params?.members?.split(',') ?? null, eval: (_, node, ctx, key) => ctx.bind?.[node.params.members ? key : node.params.name] })
+  const FIXED_PARTS = Object.fromEntries(cards.map((c) => [c.type, c.part ?? (c.side === 'left' ? (c.group ? grouping : source()) : sink())]))
   const side = (task, s) => cards.filter((c) => c.side === s).flatMap((c) => c.of(task).map((p) => ({ card: c, port: p })))
   const portsIn = (task) => side(task, 'left').map((x) => x.port)
   const portsOut = (task) => side(task, 'right').map((x) => x.port)
-  const node = ({ card, port }) => ({ id: port.name, type: card.type, params: card.params ? card.params(port) : { name: port.name } })
-  const fixedOf = (task) => [...side(task, 'left').map((x, k) => ({ ...node(x), x: 20, y: 40 + k * gap })), ...side(task, 'right').map((x, k) => ({ ...node(x), x: right, y: 40 + k * gap }))]
-  const startBoard = (task) => ({ nodes: fixedOf(task), wires: [] })
+  const groupsOf = (task) => cards.flatMap((c) => c.group?.(task) ?? [])
+  const groupOf = (task, name) => groupsOf(task).find((g) => g.members.includes(name))
+  /** What a task's port, or a group of its ports, is called. */
+  const labelOf = (task, name) => [...portsIn(task), ...portsOut(task), ...groupsOf(task)].find((p) => p.name === name)?.label ?? name
+  /** Where a wire from one of a task's ports on the left starts: its card, or its output on its group's card. */
+  const sourceOf = (task, name) => (groupOf(task, name) ? `${groupOf(task, name).name}#${name}` : name)
+  // A side's cards: a port's own, or its group's, where the group's first member stands.
+  const placed = (task, s) => side(task, s).flatMap(({ card, port }) => {
+    const group = card.group && groupOf(task, port.name)
+    if (!group) return [{ id: port.name, type: card.type, params: card.params ? card.params(port) : { name: port.name } }]
+    return group.members[0] === port.name ? [{ id: group.name, type: card.type, params: { name: group.name, members: group.members.join(',') } }] : []
+  })
+  const fixedOf = (task) => [...placed(task, 'left').map((n, k) => ({ ...n, x: 20, y: 40 + k * gap })), ...placed(task, 'right').map((n, k) => ({ ...n, x: right, y: 40 + k * gap }))]
+  const copy = (b) => ({ nodes: b.nodes.map((n) => ({ ...n, params: { ...n.params } })), wires: b.wires.map((w) => ({ ...w })) })
+  const startBoard = (task) => (task.starter ? copy(task.starter) : { nodes: fixedOf(task), wires: [] })
   const isFixed = (type) => FIXED.includes(type)
   const sinks = new Set(cards.filter((c) => c.side === 'right').map((c) => c.type))
 
-  /** Whether a saved board still fits its task: the task's fixed cards, and every card one the domain knows. */
+  /** Whether a saved board still fits its task: the task's fixed cards as they are set, and every card one the domain knows. */
   const fits = (board, task, partOf) => {
-    const ids = (b) => b.nodes.filter((n) => isFixed(n.type)).map((n) => n.id).sort().join()
-    return ids(board) === ids(startBoard(task)) && board.nodes.every((n) => partOf(n.type))
+    const given = (nodes) => nodes.filter((n) => isFixed(n.type)).map((n) => JSON.stringify([n.id, n.type, Object.entries(n.params ?? {}).sort()])).sort().join()
+    return given(board.nodes) === given(fixedOf(task)) && board.nodes.every((n) => partOf(n.type))
   }
 
   /** A board from another level brought onto `task`: its placed parts and their wires, and its wires to the fixed cards this task has too. */
@@ -84,22 +109,26 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
     },
     role: (n) => (sinks.has(n.type) ? 'sink' : isFixed(n.type) ? 'source' : 'part'),
     packed: (n) => Boolean(circuit.BUILT[n.type]),
+    // A built part's outputs are its board's; a part's (a group card's members, a game's part of several), its own.
     outputs: (n) => {
-      const outs = circuit.BUILT[n.type] && portsOut(circuit.builtBy(n.type))
-      return outs && outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
+      if (circuit.BUILT[n.type]) {
+        const outs = portsOut(circuit.builtBy(n.type))
+        return outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
+      }
+      return circuit.partOf(n.type)?.outputs?.(n)?.map((key) => ({ key, label: isFixed(n.type) ? labelOf(task, key) : key })) ?? null
     },
   })
 
   /** The board blueprint lines describe on `task` (the kernel's reader); throws the first { line, zh, en } it cannot read. */
   const fromText = (lines, task, circuit) => {
-    const got = read(lines.join('\n'), startBoard(task), wiring(task, circuit), circuit.types())
+    const got = read(lines.join('\n'), { nodes: fixedOf(task), wires: [] }, wiring(task, circuit), circuit.types())
     if (got.errors) throw got.errors[0]
     return got.graph
   }
   /** A board as blueprint lines, as content writes it (no header): what fromText reads back on the task. */
   const toText = (board, task, circuit) => print(board, wiring(task, circuit)).split('\n').filter((line) => line && !line.startsWith('#'))
 
-  return { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
+  return { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf, sourceOf, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
 }
 
 /** A task's inputs down the left of its board, and its outputs down the right. */
@@ -111,7 +140,7 @@ export const primitivesOnly = (board, parts) => ({ BUILT: {}, partOf: (t) => boa
 
 /* ---------- the course ---------- */
 
-export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, holds = false, replaces = () => [], unwanted = () => [] }) {
+export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, pack = () => ({}), holds = false, replaces = () => [], unwanted = () => [] }) {
   const { eras, primitives, levels, concept = {} } = content
   const wrong = []
   const say = (where, text) => wrong.push(`${where}: ${text}`)
@@ -128,7 +157,9 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const builderOf = new Map(levels.filter((L) => L.builds).map((L) => [L.builds.type, L]))
   const circuit = { BUILT, partOf, types: () => [...Object.keys(parts), ...Object.keys(BUILT)].filter((t) => !board.isFixed(t)), builtBy: (type) => (builderOf.has(type) ? played.get(builderOf.get(type).id)?.at(-1) ?? null : null) }
 
+  const placeOf = (id, task) => ({ id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: task.adds ?? [] })
   const readTask = (id, task, where) => {
+    if (kinds[task.kind]) return { ...kinds[task.kind](task, (text) => say(where, text)), ...placeOf(id, task) }
     const names = [...board.portsIn(task), ...board.portsOut(task)].map((p) => p.name)
     for (const name of new Set(names)) if (names.indexOf(name) !== names.lastIndexOf(name)) say(where, `two of its cards are called ${name}`)
     if (!board.portsOut(task).length) say(where, 'it has nothing on the right: nothing is checked')
@@ -137,8 +168,10 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       for (const name of outs) if (!task.want[name] && !unwanted(task).includes(name)) say(where, `nothing is wanted of ${name}`)
       for (const name of Object.keys(task.want)) if (!outs.includes(name)) say(where, `wants ${name}, which is nothing on the board’s right`)
     }
-    const out = { ...readOwn(task, (text) => say(where, text)), id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: task.adds ?? [] }
-    out.hidden = out.hidden ?? []
+    const sayHere = (text) => say(where, text)
+    const read = readOwn(task, sayHere)
+    const test = (t) => readTest(t, read, sayHere)
+    const out = { ...read, ...placeOf(id, task), tests: task.tests.map(test), hidden: (task.hidden ?? []).map(test) }
     const boardOf = (lines, what, naive = false) => {
       try {
         const b = board.fromText(lines, out, circuit)
@@ -150,21 +183,25 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       }
     }
     out.solution = boardOf(task.solution, 'the answer')
+    if (task.starter) out.starter = boardOf(task.starter, 'the starter')
     if (task.naive) out.naive = boardOf(task.naive, 'the naive answer', true)
     return out
   }
+  const isBoard = (task) => !kinds[task.kind]
 
   const LEVELS = plan.order.filter((id) => {
     if (!given.has(id)) say(id, 'an era names a level that does not exist')
     return given.has(id)
   }).map((id) => {
     const level = given.get(id)
-    const tasks = taskLevels(level)
+    // A task holds what the level adds and what its tasks up to it add; it brings in (`fresh`) its own, the first the level's too.
+    const tasks = taskLevels(level).map((task, k) => ({ ...task, adds: [...new Set([...(level.adds ?? []), ...level.tasks.slice(0, k + 1).flatMap((T) => T.adds ?? [])])], fresh: [...(k === 0 ? level.adds ?? [] : []), ...(level.tasks[k].adds ?? [])] }))
     const read = tasks.map((task) => readTask(id, task, tasks.length > 1 ? `${id} task ${task.taskId}` : id))
     played.set(id, read)
     // The part a level builds runs its last task's board: the player's, while it fits, else the reference.
     const last = read.at(-1)
-    if (level.builds) {
+    if (level.builds && !isBoard(last)) say(id, 'it builds a part, and its last task is no board')
+    else if (level.builds) {
       const fitting = new WeakMap()
       const running = () => {
         const b = own.get(id)
@@ -178,25 +215,29 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
         outputs: board.portsOut(last).map((p) => p.name),
         ...(holds ? { holds: true } : {}),
         built: level.builds,
-        opens: () => ({ circuit: running(), level: last }),
+        ...pack(level.builds, (text) => say(id, text)),
+        // What the part runs, opened on a board: its board with the part's settings put on it, and the task it is.
+        opens: (params) => ({ circuit: withSettings(running(), params, partOf), level: last }),
       })
     }
-    return { ...level, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: level.adds ?? [] }
+    return { ...level, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: tasks.at(-1).adds }
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
   const byId = new Map(LEVELS.map((L) => [L.id, L]))
-  const solutions = (id) => played.get(id).map((T) => T.solution)
+  // A course level is a level, or one of its tasks (`task`, its index): what that task holds and its answer.
+  const taskOf = (level) => (level.task === undefined ? null : played.get(level.id)?.[level.task] ?? null)
+  const solutions = (level) => (taskOf(level) ? [taskOf(level)] : played.get(level.id)).filter(isBoard).map((T) => T.solution)
   const course = defineCourse({
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.builds ? [L.builds.type] : [] })),
     eras,
     primitives,
-    adds: (level) => byId.get(level.id)?.adds ?? [],
+    adds: (level) => (taskOf(level) ?? byId.get(level.id))?.adds ?? [],
     needs: (part) => (builderOf.has(part) ? part : null),
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
     concept: (part) => concept[part] ?? part,
     naive: (level) => played.get(level.id)?.some((T) => T.naive) ?? false,
-    needed: (level) => [...new Set(solutions(level.id).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))],
-    boards: (level) => solutions(level.id),
+    needed: (level) => [...new Set(solutions(level).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))],
+    boards: (level) => solutions(level),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     replaces,
     carries: (level) => played.get(level.id)?.map((T) => T.carry).filter(Boolean) ?? [],
@@ -214,7 +255,10 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     board,
     blueprints,
     wrong,
-    offerIn: (level, flags) => offer(course, { id: level.id }, new Set(flags)),
+    // What a task's tray holds and shows: by its own parts and its own answer.
+    offerIn: (task, flags) => offer(course, { id: task.id, task: task.task }, new Set(flags)),
+    // The tasks of level `id` that bring in part `type`.
+    introductions: (type, id) => (played.get(id) ?? []).filter((T) => T.fresh.includes(type)).map((T) => T.taskId),
     // The levels a task carries on from: passing them keeps the board (progress.built).
     carried: new Set(LEVELS.flatMap((L) => played.get(L.id).map((T) => T.carry)).filter(Boolean)),
     // The board a task opens on: the board of the level it carries on from (the player's, else its last task's
@@ -250,30 +294,42 @@ const BUILDS = S.opt(S.obj(BUILT_PART, { section: 'course', about: t('通过后�
 /**
  * The schema of a level (./tasks.js taskLevel): what it says once, then its tasks, each a puzzle on its own board. The
  * domain gives what is its own: `builds` the schema of the part a level's last board becomes (S.opt; by default
- * BUILT_PART), `ports` a task's fixed cards ({ inputs, outputs, … }), `test` one test, `checks` what a task's outputs
- * must be beyond what its tests say ({ want }), `more` the task's other fields.
+ * BUILT_PART), `ports` a task's fixed cards ({ inputs, outputs, … }; outputs by default one or more PORTs), `test` one
+ * test, `checks` what a task's outputs must be beyond what its tests say ({ want }), `more` the task's other fields,
+ * `page` one page of an introduction ({ t } by default). A domain whose levels also hold tasks of other kinds
+ * (circuitCourse kinds) gives `kinds` ({ kind: fields }): every task then says its `kind`, a board's being 'circuit',
+ * and every task has `shared`'s fields too.
  */
-export const levelSchema = ({ builds = BUILDS, ports, test, checks = {}, more = {} }) => taskLevel({
-  title: S.text(),
-  intro: S.opt(S.list(S.obj({ t: S.text() }))),
-  after: S.opt(S.text()),
-  note: S.opt(S.text()),
-  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  builds,
-  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
-}, {
-  brief: S.text(),
-  hint: S.opt(S.list(S.text())),
-  intro: S.opt(S.list(S.obj({ t: S.text() }), { section: 'read', about: t('这个任务自己的引言：第一次做到它时读（第一个任务的接在这一关的后面）', 'the task’s own intro: read the first time it is played (the first task’s after the level’s)') })),
-  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
-  ...ports,
-  tests: S.list(test, { min: 1, section: 'tests' }),
-  hidden: S.opt(S.list(test, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
-  ...checks,
-  solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') }),
-  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  ...more,
-})
+export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text() }), ports, test, checks = {}, more = {}, shared = {}, kinds = null }) => {
+  const own = {
+    ...shared,
+    brief: S.text(),
+    hint: S.opt(S.list(S.text())),
+    intro: S.opt(S.list(page, { section: 'read', about: t('这个任务自己的引言：第一次做到它时读（第一个任务的接在这一关的后面）', 'the task’s own intro: read the first time it is played (the first task’s after the level’s)') })),
+    after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
+  }
+  const board = {
+    ...own,
+    ...ports,
+    outputs: ports.outputs ?? S.list(PORT, { min: 1 }),
+    tests: S.list(test, { min: 1, section: 'tests' }),
+    hidden: S.opt(S.list(test, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
+    ...checks,
+    solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') }),
+    naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
+    ...more,
+  }
+  const kind = (k, fields) => S.obj({ kind: S.oneOf([k]), ...fields })
+  return taskLevel({
+    title: S.text(),
+    intro: S.opt(S.list(page)),
+    after: S.opt(S.text()),
+    note: S.opt(S.text()),
+    adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+    builds,
+    showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+  }, kinds ? S.by('kind', { circuit: kind('circuit', board), ...Object.fromEntries(Object.entries(kinds).map(([k, fields]) => [k, kind(k, { ...own, ...fields })])) }) : board)
+}
 
 /* ---------- game.json ---------- */
 
@@ -369,38 +425,46 @@ export const runTests = (runTest) => (task, board, parts) => {
  * Level by level, task by task: the reference board passes every test and hidden test and uses only the parts the
  * level holds; the empty board fails them; so does the board a task carries on from, and every board that only wires
  * one card on the left straight to everything on the right; the naive board, where there is one, fails; and a part a
- * level builds, placed alone and wired to the task's cards, passes them. `more(task, k, tasks)` adds a domain's own
- * problems. A tick board's line says how many ticks the reference ran.
+ * level builds, placed alone and wired to the task's cards, passes them. `more(task, k, tasks, held)` adds a domain's
+ * own problems (held: the parts the task holds); a task of another kind is the domain's to check (`kinds`). A tick
+ * board's line says how many ticks the reference ran.
  */
-export function checkCircuitTasks(circuit, { run, failure = () => '', more = () => [] }) {
+export function checkCircuitTasks(circuit, { run, failure = () => '', more = () => [], kinds = {} }) {
   const { LEVELS, course, partOf, board } = circuit
   const noted = (ref) => (board.ticks ? `, ${ref.runs.reduce((n, r) => n + r.ticks.length, 0)} ticks` : '')
   const built = new Set(LEVELS.filter((L) => L.builds).map((L) => L.builds.type))
   const out = circuit.wrong.map((text) => ({ text, fail: true }))
   for (const level of LEVELS) {
     const tasks = circuit.played.get(level.id)
-    const held = new Set(usable(course, { id: level.id }, built))
     const said = tasks.map((task, k) => {
+      const head = tasks.length > 1 ? `task ${task.taskId}: ` : ''
+      if (kinds[task.kind]) {
+        const own = kinds[task.kind](task)
+        return { problems: own.problems, text: `${head}${own.problems.length ? own.problems.join('; ') : own.ok}` }
+      }
+      const held = new Set(usable(course, { id: level.id, task: k }, built))
       const problems = []
       const all = withHidden(task)
       const where = (j) => (j < task.tests.length ? `test ${j + 1}` : `hidden test ${j - task.tests.length + 1}`)
       const strays = (b, what) => b.nodes.filter((n) => !board.isFixed(n.type) && !held.has(n.type)).forEach((n) => problems.push(`${what} uses ${n.type}, which the level does not hold`))
       const passes = (b) => run(all, b, partOf).pass
       strays(task.solution, 'the answer')
+      if (task.starter) strays(task.starter, 'the starter')
       const ref = run(all, task.solution, partOf)
       ref.runs.forEach((r, j) => {
         if (r.error || r.fail) problems.push(`the answer fails ${where(j)}${failure(r) ? ` ${failure(r)}` : ''}`)
       })
-      if (passes(board.startBoard(task))) problems.push('the empty board passes')
+      if (passes(board.startBoard(task))) problems.push(task.starter ? 'the board it opens on passes' : 'the empty board passes')
       if (task.carry && passes(circuit.opening(task))) problems.push(`the board it carries on from (${task.carry}) passes as it is`)
-      if (task.carries && k > 0 && passes(board.carriedOnto(task, tasks[k - 1].solution))) problems.push('the task before’s board passes as it is')
+      if (task.carries && tasks[k - 1]?.solution && passes(board.carriedOnto(task, tasks[k - 1].solution))) problems.push('the task before’s board passes as it is')
       if (task.solution.nodes.some((n) => !board.isFixed(n.type))) {
         const outs = board.portsOut(task).map((o) => o.name)
-        for (const from of board.portsIn(task).map((i) => i.name)) {
-          if (passes({ nodes: board.startBoard(task).nodes, wires: outs.map((to) => ({ from, to, port: 'in' })) })) problems.push(`the board that only wires ${from} straight through passes`)
+        for (const name of board.portsIn(task).map((i) => i.name)) {
+          const from = board.sourceOf(task, name)
+          if (passes({ nodes: board.fixedOf(task), wires: outs.map((to) => ({ from, to, port: 'in' })) })) problems.push(`the board that only wires ${name} straight through passes`)
         }
       }
-      problems.push(...more(task, k, tasks))
+      problems.push(...more(task, k, tasks, held))
       let naive = ''
       if (task.naive) {
         strays(task.naive, 'the naive answer')
@@ -411,13 +475,12 @@ export function checkCircuitTasks(circuit, { run, failure = () => '', more = () 
       const builds = level.builds && k === tasks.length - 1
       if (builds) {
         const outs = board.portsOut(task).map((o) => o.name)
-        const box = board.fromText([`p = ${level.builds.type}(${board.portsIn(task).map((i) => i.name).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, circuit)
+        const box = board.fromText([`p = ${level.builds.type}(${board.portsIn(task).map((i) => board.sourceOf(task, i.name).replace('#', '.')).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, circuit)
         run(all, box, partOf).runs.forEach((r, j) => {
           if (r.fail || r.error) problems.push(`its part ${level.builds.type} alone fails ${where(j)}`)
         })
       }
       const hidden = task.hidden.length ? ` + ${task.hidden.length} hidden` : ''
-      const head = tasks.length > 1 ? `task ${task.taskId}: ` : ''
       return { problems, text: `${head}${problems.length ? problems.join('; ') : `answer PASS (${task.tests.length} tests${hidden}${noted(ref)})${naive}${builds ? `, part ${level.builds.type} PASS` : ''}`}` }
     })
     out.push({ level: level.id, fail: said.some((x) => x.problems.length > 0), text: `${level.id} ${keyOf(level.title)}: ${said.map((x) => x.text).join(' · ')}` })

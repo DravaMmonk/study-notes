@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { fromRows, make, toRows } from './image.js'
-import { fromText } from './board.js'
+import { board as cards } from './board.js'
 import { readTest, runTest } from './run.js'
 import domain from './domain.js'
 import { readOutside } from './construction.js'
@@ -31,10 +31,10 @@ const COURSE = [
   ['synthesise2D', ['real', 'imag'], ['out', 'imaginary'], ['zero = const[value=0]()', 'negative = arithmetic[op=sub](zero,imag)', 'p = spectrum2D(real,negative)', 's = size(real)', 'count = arithmetic[op=mul](s.w,s.h)', 'r = arithmetic[op=mul](p.re,count)', 'i = arithmetic[op=mul](p.im,count)', 'ni = arithmetic[op=sub](zero,i)', 'out <- r', 'imaginary <- ni']],
 ]
 const course = () => domain.spec(game({ levels: COURSE.map(([type, inputs, outputs, solution, more = {}, build = {}]) =>
-  level(type, circuit(`t_${type}`, { inputs, outputs, solution, ...more }), { builds: builds(type, build) })) })).vision
+  level(type, circuit(`t_${type}`, { inputs, outputs, solution, ...more }), { builds: builds(type, build) })) })).circuit
 function run(vision, type, bind, settings = '') {
   const task = vision.builtBy(type)
-  const board = fromText([`p = ${type}${settings}(${task.inputs.map(i => i.name).join(',')})`, ...task.outputs.map(o=>`${o.name} <- p${task.outputs.length>1?`.${o.name}`:''}`)],task,vision.partOf)
+  const board = cards.fromText([`p = ${type}${settings}(${task.inputs.map(i => i.name).join(',')})`, ...task.outputs.map(o=>`${o.name} <- p${task.outputs.length>1?`.${o.name}`:''}`)],task,vision)
   const given = readTest({inputs:bind,expect:Object.fromEntries(task.outputs.map(o=>[o.name,0]))})
   return runTest(task,board,given,vision.partOf).outputs
 }
@@ -101,7 +101,7 @@ test('learner Fourier circuits match an independent complex 2D transform includi
 
 test('nested packed reuse runs the actual passed circuit and forwards only declared spatial settings',()=>{
   const v=course(),task=v.builtBy('difference')
-  const owned=fromText(['ownReverse = sub(b,a)','ownAbs = abs(ownReverse)','out <- ownAbs'],task,v.partOf)
+  const owned=cards.fromText(['ownReverse = sub(b,a)','ownAbs = abs(ownReverse)','out <- ownAbs'],task,v)
   v.syncOwn({[task.taskId]:owned})
   const aligned=v.builtBy('alignedDifference'),example=aligned.tests[0]
   const result=runTest(aligned,aligned.solution,example,v.partOf)
@@ -161,7 +161,7 @@ test('weighted-line preset accepts one weight vector and matches direct filterin
 
 test('weighted-line preset never reads a saved learner implementation',()=>{
   const task=circuit('preset_use',{inputs:['image','weights',{name:'d',type:'vector'}],adds:['weightedLine'],configurations:{'*.outside':['zero']},solution:['p = weightedLine(image,weights,d)','out <- p'],tests:[{inputs:{image:[[2,5,9]],weights:[[1,0,0]],d:{x:1,y:0}},expect:{out:[[0,2,5]]}}]})
-  const v=domain.spec(game({levels:[level('P',task)]})).vision
+  const v=domain.spec(game({levels:[level('P',task)]})).circuit
   assert.equal(v.BUILT.weightedLine,undefined)
   v.syncOwn({preset_use:{nodes:[],wires:[]}})
   const source=v.played.get('P')[0]

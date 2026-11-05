@@ -23,11 +23,11 @@ const testOf = (t) => {
 }
 
 export function __name__Course(content) {
-  // A task read: what reading it finds that its schema cannot say, then its line and wants.
-  const read = (task, say) => {
-    for (const t of [...task.tests, ...(task.hidden ?? [])]) for (const i of task.inputs ?? []) if (!t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
-    return { ...task, tests: task.tests.map(testOf), hidden: (task.hidden ?? []).map(testOf), want: wantOf(task.want) }
+  // A test read: what reading it finds that its schema cannot say, then its line.
+  const test = (t, task, say) => {
+    for (const i of task.inputs ?? []) if (!t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
+    return testOf(t)
   }
-  // A built part keeps its own registers.
-  return circuitCourse(content, { board, parts: PARTS, read, holds: true })
+  // A task's wants read; a built part keeps its own registers.
+  return circuitCourse(content, { board, parts: PARTS, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
 }

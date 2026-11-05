@@ -6,10 +6,11 @@ import { test } from 'node:test'
 import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
-import { readContent } from '../../engine/content-node.js'
+import { deepFreeze } from '../../engine/content.js'
+import { GAMES_DIR, isDataGame, readContent } from '../../engine/content-node.js'
 import { zip } from './ops.js'
-import { PARTS } from './fixture.js'
-import { fits, fromText, startBoard, toText } from './board.js'
+import { PARTS, PRIMITIVES } from './fixture.js'
+import { board as cards } from './board.js'
 import { readTest, runLevel } from './run.js'
 import { differs, fromRows, toRows } from './image.js'
 import { gridCheck, gridReference, gridStart, parseNumber } from './grid.js'
@@ -27,10 +28,10 @@ const port = (n) => ({ name: n, label: n })
 const task = (inputs, tests) => ({ inputs: inputs.map(port), outputs: [port('out')], tests: tests.map(readTest) })
 const passes = (lines, inputs, cases) => {
   const t = task(inputs, cases.map(([ins, out]) => ({ inputs: ins, expect: { out } })))
-  const board = fromText(lines, t, partOf)
+  const board = cards.fromText(lines, t, PRIMITIVES)
   const byId = (a, b) => (a.id ?? a.to + a.port).localeCompare(b.id ?? b.to + b.port)
   const strip = (b) => ({ nodes: b.nodes.map(({ id, type, params }) => ({ id, type, params })).sort(byId), wires: [...b.wires].sort(byId) })
-  assert.deepEqual(strip(fromText(toText(board, partOf), t, partOf)), strip(board), 'the board writes as text that reads back as it')
+  assert.deepEqual(strip(cards.fromText(cards.toText(board, t, PRIMITIVES), t, PRIMITIVES)), strip(board), 'the board writes as text that reads back as it')
   return runLevel(t, board, partOf).runs.map((r) => r.fail?.why.en ?? null)
 }
 const allPass = (lines, inputs, cases) => assert.deepEqual(passes(lines, inputs, cases), cases.map(() => null))
@@ -41,18 +42,18 @@ test('vector sources carry one { x, y } value that arithmetic combines component
     outputs: [port('sum'), port('scaled')],
     tests: [readTest({ inputs: { A: { x: -3, y: 7 }, B: { x: 4, y: -2 } }, expect: { sum: { x: 1, y: 5 }, scaled: { x: -6, y: 14 } } })],
   }
-  const board = fromText(['two = const[value=2]()', 's = arithmetic[op=add](A, B)', 'm = arithmetic[op=mul](A, two)', 'sum <- s', 'scaled <- m'], t, partOf)
+  const board = cards.fromText(['two = const[value=2]()', 's = arithmetic[op=add](A, B)', 'm = arithmetic[op=mul](A, two)', 'sum <- s', 'scaled <- m'], t, PRIMITIVES)
   assert.equal(PARTS.in.outputs(board.nodes.find((n) => n.id === 'A')), null)
   assert.deepEqual(runLevel(t, board, partOf).runs[0].outputs, { sum: { x: 1, y: 5 }, scaled: { x: -6, y: 14 } })
   assert.equal(runLevel(t, board, partOf).pass, true)
-  assert.deepEqual(fromText(toText(board, partOf), t, partOf), board)
-  const wrong = fromText(['s = arithmetic[op=sub](A, B)', 'two = const[value=2]()', 'm = arithmetic[op=mul](A, two)', 'sum <- s', 'scaled <- m'], t, partOf)
+  assert.deepEqual(cards.fromText(cards.toText(board, t, PRIMITIVES), t, PRIMITIVES), board)
+  const wrong = cards.fromText(['s = arithmetic[op=sub](A, B)', 'two = const[value=2]()', 'm = arithmetic[op=mul](A, two)', 'sum <- s', 'scaled <- m'], t, PRIMITIVES)
   assert.match(runLevel(t, wrong, partOf).runs[0].fail.why.en, /vector/)
   assert.throws(() => zip([{ x: 1, y: 0 }, fromRows([[1]])], (p, q) => p + q), /vector/)
-  const saved = startBoard(t)
-  assert.equal(fits(saved, t, partOf), true)
+  const saved = cards.startBoard(t)
+  assert.equal(cards.fits(saved, t, partOf), true)
   delete saved.nodes[0].params.kind
-  assert.equal(fits(saved, t, partOf), false, 'a scalar source cannot reopen as a vector')
+  assert.equal(cards.fits(saved, t, partOf), false, 'a scalar source cannot reopen as a vector')
 })
 
 test('values: rows read into images and back; a difference names the first cell', () => {
@@ -234,7 +235,7 @@ test('claims over candidate scenes: supported, contradicted, undetermined (0B3, 
 const claimsGame = (scenes, more = {}) => {
   const content = readContent('starter', import.meta.dirname)
   const levels = content.levels.map((l) => (l.id !== '1-2' ? l : { ...l, tasks: [{ ...l.tasks[0], judge: 'claims', rounds: [{ scenes, items: [{ prompt: 'red', claim: { colour: { object: 'cube', is: 'red' } } }, { prompt: 'blue', claim: { colour: { object: 'ball', is: 'blue' } } }], ...more }] }] }))
-  return domain.spec({ ...content, levels }).vision
+  return domain.spec({ ...content, levels }).circuit
 }
 
 test('a claims round: its scenes give one picture, a claim they split is shown from a view that tells them apart', () => {
@@ -259,7 +260,7 @@ test('a grid or choice task names its naive answer: the check makes sure it fail
   const picks = [[['detect'], ['detect']]]
   assert.match(said(withNaive('1-2', { picks, why }), '1-2').text, /naive fails round 1/)
   assert.match(said(withNaive('1-2', { picks: [[['classify'], ['detect']]], why }), '1-2').text, /the naive answer passes every round/)
-  const task = domain.spec(withNaive('1-2', { picks, why })).vision.played.get('1-2')[0]
+  const task = domain.spec(withNaive('1-2', { picks, why })).circuit.played.get('1-2')[0]
   assert.ok(isNaive(task, 0, [['detect'], ['detect']]))
   assert.match(play.attempt({ level: { source: task } }, 'detect;detect').says.at(-1).en, /x and y swapped/)
 })
@@ -396,6 +397,16 @@ test('the starter game fits the vocabulary and passes its checks, every kind of 
   assert.deepEqual(lines.filter((l) => l.fail), [])
   const kinds = new Set(content.levels.flatMap((l) => l.tasks.map((t) => t.kind)))
   assert.deepEqual([...kinds].sort(), ['bench', 'choice', 'circuit', 'grid'])
+})
+
+test('a course read never writes into content: every game on the domain, and its starter, read frozen', () => {
+  const games = readdirSync(GAMES_DIR).filter((id) => isDataGame(id) && readContent(id).domain === 'vision')
+  assert.ok(games.length > 0)
+  for (const content of [readContent('starter', import.meta.dirname), ...games.map((id) => readContent(id))]) {
+    const spec = domain.spec(deepFreeze(content))
+    assert.deepEqual(spec.circuit.wrong, [], content.id)
+    assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [], content.id)
+  }
 })
 
 test('the domain’s page code calls no method older iOS Safari lacks', () => {

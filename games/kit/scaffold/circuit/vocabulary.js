@@ -28,7 +28,6 @@ const LEVEL = levelSchema({
   test: TEST,
   ports: {
     inputs: S.list(PORT),
-    outputs: S.list(PORT, { min: 1 }),
   },
 })
 

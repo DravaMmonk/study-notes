@@ -25,14 +25,12 @@ const testOf = (t) => {
 }
 
 export function canCourse(content) {
-  // A task read: what reading it finds that its schema cannot say, then its buses and wants.
-  const read = (task, say) => {
-    for (const t of [...task.tests, ...(task.hidden ?? [])]) {
-      for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say('a frame carries at most 8 bytes')
-      for (const i of task.inputs ?? []) if (!t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
-    }
-    return { ...task, tests: task.tests.map(testOf), hidden: (task.hidden ?? []).map(testOf), want: wantOf(task.want) }
+  // A test read: what reading it finds that its schema cannot say, then its bus.
+  const test = (t, task, say) => {
+    for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say('a frame carries at most 8 bytes')
+    for (const i of task.inputs ?? []) if (!t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
+    return testOf(t)
   }
-  // A built part keeps its own registers.
-  return circuitCourse(content, { board, parts: PARTS, read, holds: true })
+  // A task's wants read; a built part keeps its own registers.
+  return circuitCourse(content, { board, parts: PARTS, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
 }

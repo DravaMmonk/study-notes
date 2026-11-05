@@ -56,7 +56,6 @@ const LEVEL = levelSchema({
   ports: {
     listens: S.opt(S.bool({ about: t('板上有总线元件', 'the board has the bus card') })),
     inputs: S.opt(S.list(PORT)),
-    outputs: S.list(PORT, { min: 1 }),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么', 'what each output must be, tick by tick') }) },
 })

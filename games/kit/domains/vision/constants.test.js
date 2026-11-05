@@ -36,9 +36,9 @@ test('constant directions and weights wire straight into the weighted-line prese
     solution: ['d = const[kind=direction,x=1,y=0]()', 'w = const[kind=weights,first=1,centre=0,last=-1]()', 'p = weightedLine(image,w,d)', 'out <- p'],
     tests: [{ inputs: { image: [[2, 5, 9]] }, expect: { out: [[-5, -7, 5]] } }],
   })
-  const v = domain.spec(game({ levels: [level('C', source)] })).vision
+  const v = domain.spec(game({ levels: [level('C', source)] })).circuit
   const task = v.played.get('C')[0]
-  const ctx = { game: { vision: v }, level: { source: task }, flags: new Set(), progress: { built: {} }, solved: false }
+  const ctx = { game: { circuit: v }, level: { source: task }, flags: new Set(), progress: { built: {} }, solved: false }
   assert.equal(play.attempt(ctx, source.solution.join('\n')).pass, true)
   const weights = run({ kind: 'weights', first: 1, centre: 2, last: 1 })
   const result = PARTS.weightedLine.eval({ image: fromRows([[2, 5, 9]]), weights, d: run({ kind: 'direction', x: 1, y: 0 }) }, {})
@@ -51,12 +51,12 @@ test('constant vector types unlock only on their introducing task and restored b
     circuit('direction_use', { inputs: [], configurations: { 'const.kind': ['direction'] }, solution: ['c = const[kind=direction,x=1,y=0]()', 'out <- c'], tests: [{ inputs: {}, expect: { out: { x: 1, y: 0 } } }] }),
     circuit('weights_use', { inputs: [], configurations: { 'const.kind': ['weights'] }, solution: ['c = const[kind=weights,first=1,centre=2,last=1]()', 'out <- c'], tests: [{ inputs: {}, expect: { out: [[1, 2, 1]] } }] }),
   ]
-  const v = domain.spec(game({ levels: [level('V', tasks)] })).vision
+  const v = domain.spec(game({ levels: [level('V', tasks)] })).circuit
   const [scalar, direction, weights] = v.played.get('V')
   assert.deepEqual(v.settingsIn(scalar, 'const', 'kind'), ['scalar'])
   assert.deepEqual(v.settingsIn(direction, 'const', 'kind'), ['scalar', 'direction'])
   assert.deepEqual(v.settingsIn(weights, 'const', 'kind'), ['scalar', 'direction', 'weights'])
-  const context = (source) => ({ game: { vision: v }, level: { source }, flags: new Set(), progress: { built: {}, all: true }, solved: false })
+  const context = (source) => ({ game: { circuit: v }, level: { source }, flags: new Set(), progress: { built: {}, all: true }, solved: false })
   assert.equal(play.attempt(context(scalar), tasks[1].solution.join('\n')).pass, false)
   assert.equal(play.attempt(context(direction), tasks[2].solution.join('\n')).pass, false)
   assert.equal(play.attempt(context(direction), tasks[1].solution.join('\n')).pass, true)
