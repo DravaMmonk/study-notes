@@ -4,6 +4,7 @@
 // someone heard it), the ACK delimiter, 7 bits of end of frame and 3 of intermission. Bit stuffing runs from the start
 // of frame to the end of the CRC: after five equal bits comes one of the other value, and that bit counts in the next
 // run.
+import { T } from '../../shell/i18n.js'
 
 /** The line made of what the nodes said: dominant (0) when anyone says it, recessive (1) when nobody does. */
 export const wiredAnd = (said) => (said.some((v) => v === 0) ? 0 : 1)
@@ -65,3 +66,10 @@ export function busOf({ idle = 12, frames = [], tail = 4 }) {
 
 /** A node of the world saying a run of bits, one a tick (recessive once they run out: it says nothing). */
 export const sayer = (id, bits) => ({ id, say: (tick) => (tick < bits.length ? bits[tick] : undefined), hear: () => null })
+
+/** What a bus game calls its tests: each is a bus, its frames on the line (../../engine/circuit-domain.js TEST_WORDS). */
+export const BUS_WORDS = {
+  label: (k) => T(`总线 ${k + 1}`, `Bus ${k + 1}`),
+  note: (n) => T(`另有 ${n} 条隐藏的总线，每次运行一并检查，通关后公开。`, `${n} more hidden ${n === 1 ? 'bus is' : 'buses are'} checked with every run and shown once you pass.`),
+  failed: (fails, n) => T(`可见的总线全部通过，但 ${n} 条隐藏的总线中有 ${fails} 条没有通过：这块板可能只是恰好合上了这几条总线。`, `Every bus shown passes, but ${fails} of ${n} hidden ${n === 1 ? 'bus fails' : 'buses fail'}: the board may only happen to fit these.`),
+}

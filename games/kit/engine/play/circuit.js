@@ -27,7 +27,7 @@
 
 import { print, read } from '../../circuit/text.js'
 import { outputsOf } from '../../circuit/model.js'
-import { showValue } from '../circuit-domain.js'
+import { TEST_WORDS, showValue } from '../circuit-domain.js'
 import { T } from '../../shell/i18n.js'
 
 
@@ -133,8 +133,9 @@ export function circuitPlay(hook) {
  *                               (../../shell/CircuitScreen.jsx registerCards): reg and keep name one of `names`, reg
  *                               starts as 「—」, 0 or 1, const is a number from 0 to `top`
  *   settings   { type: [{ key, values, about? }] } what can be set on the game's other primitives
+ *   words      what the game calls its tests (../circuit-domain.js TEST_WORDS)
  */
-export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = showValue }) {
+export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = showValue, words = TEST_WORDS }) {
   const offered = {
     ...(registers ? {
       reg: [{ key: 'reg', values: registers.names }, { key: 'start', values: ['0', '1'], about: T('不写时初值为「—」', 'left out, it starts as 「—」') }],
@@ -145,7 +146,7 @@ export function tickPlay({ run, given, lanes, more = () => [], registers = null,
   }
   const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v))
   const testsOf = (task, solved) => (solved ? [...task.tests, ...task.hidden] : task.tests)
-  const label = (k) => T(`测试 ${k + 1}`, `Test ${k + 1}`)
+  const label = words.label
   const failed = (r) => Boolean(r.fail || r.error)
   const text = (task, test, lang) => {
     const rows = [
@@ -172,7 +173,7 @@ export function tickPlay({ run, given, lanes, more = () => [], registers = null,
     tests: ({ level: { source: task }, solved }) => testsOf(task, solved).map((test, k) => ({ label: label(k), text: T(text(task, test, 'zh'), text(task, test, 'en')) })),
     notes: ({ level: { source: task }, solved }) => {
       const n = task.hidden.length
-      return !solved && n ? [T(`另有 ${n} 个隐藏测试，每次运行一并检查，通关后公开。`, `${n} more hidden ${n === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)] : []
+      return !solved && n ? [words.note(n)] : []
     },
     run: ({ game, level: { source: task }, solved }, board) => {
       const { partOf } = game.circuit
@@ -182,7 +183,7 @@ export function tickPlay({ run, given, lanes, more = () => [], registers = null,
       const hidden = solved || !n ? null : run({ ...task, tests: task.hidden }, board, partOf).runs.filter(failed).length
       return {
         tests,
-        hidden: hidden === null ? null : { count: n, failed: hidden, says: T(`可见的测试全部通过，但 ${n} 个隐藏测试中有 ${hidden} 个没有通过：这块板可能只是恰好合上了这几个测试。`, `Every test shown passes, but ${hidden} of ${n} hidden ${n === 1 ? 'test fails' : 'tests fail'}: the board may only happen to fit these.`) },
+        hidden: hidden === null ? null : { count: n, failed: hidden, says: words.failed(hidden, n) },
         pass: shown.pass && !hidden,
       }
     },

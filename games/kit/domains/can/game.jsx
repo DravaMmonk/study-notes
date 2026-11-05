@@ -24,9 +24,4 @@ import { canCourse } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
  *  (../../shell/saves.js), levels, glossary }. */
-export default function canGame(content) {
-  const game = circuitGame(content, canCourse(content), { kind: { id: 'bus', icon: Activity, label: { zh: '总线', en: 'Bus' } }, Screen, cards: CARDS })
-  // The map's illustration, which the base's game does not draw.
-  game.Hero = Hero
-  return game
-}
+export default (content) => circuitGame(content, canCourse(content), { kind: { id: 'bus', icon: Activity, label: { zh: '总线', en: 'Bus' } }, Screen, cards: CARDS, Hero })

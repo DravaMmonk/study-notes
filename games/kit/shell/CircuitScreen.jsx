@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { viewAt } from '../engine/trace.js'
+import { TEST_WORDS } from '../engine/circuit-domain.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import Timeline from './Timeline.jsx'
 import { L, tr, T } from './i18n.js'
@@ -30,6 +31,7 @@ import { definedItem } from './parts/faces.jsx'
 //   defaults?(type)       a new card's settings
 //   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
 //   canvas                { width, height } of a part's card on the desktop board
+//   words                 what the game calls its tests (../engine/circuit-domain.js TEST_WORDS)
 
 const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
 
@@ -96,7 +98,7 @@ function partsFor(level, circuit, { cards, portLabels, width }) {
   }
 }
 
-export default function CircuitScreen({ screen, cards, run: runOn, says, show, lanes, notes, results, settings, defaults, portLabels = {}, defined = null, canvas = { width: 156, height: 120 } }) {
+export default function CircuitScreen({ screen, cards, run: runOn, says, show, lanes, notes, results, settings, defaults, portLabels = {}, defined = null, canvas = { width: 156, height: 120 }, words = TEST_WORDS }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = game.circuit
@@ -114,14 +116,14 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, l
   const hiddenFailed = useMemo(() => (hidden.length ? runOn({ ...level, tests: hidden }, drawn, circuit.partOf).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, board.version, circuit])
   const stepsOf = (r) => (kind.ticks ? r.ticks : r.trace)
   const run = useLevelRun(screen, board, {
-    tests: tests.map((t, k) => ({ label: tr(`测试 ${k + 1}`, `Test ${k + 1}`), hidden: t.hidden })),
+    tests: tests.map((t, k) => ({ label: L(words.label(k)), hidden: t.hidden })),
     steps: { of: (k) => stepsOf(checked.runs[k]), check: (k) => says(checked.runs[k]) ?? '' },
     hidden: {
       count: hidden.length,
       fails: () => hiddenFailed,
       words: {
-        note: tr(`另有 ${hidden.length} 个隐藏测试，每次运行一并检查，通关后公开。`, `${hidden.length} more hidden ${hidden.length === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`),
-        failed: (n) => tr(`可见的测试全部通过，但 ${hidden.length} 个隐藏测试中有 ${n} 个没有通过：这块板可能只是恰好合上了这几个测试。`, `Every test shown passes, but ${n} of ${hidden.length} hidden ${hidden.length === 1 ? 'test fails' : 'tests fail'}: the board may only happen to fit these.`),
+        note: L(words.note(hidden.length)),
+        failed: (n) => L(words.failed(n, hidden.length)),
       },
     },
   })

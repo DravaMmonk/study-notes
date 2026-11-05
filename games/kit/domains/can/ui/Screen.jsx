@@ -2,6 +2,7 @@ import CircuitScreen, { WANTED, registerCards } from '../../../shell/CircuitScre
 import { showValue } from '../../../engine/circuit-domain.js'
 import { REGISTERS } from '../parts.js'
 import { runLevel } from '../run.js'
+import { BUS_WORDS } from '../bus.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 
 // A task of 《车在说话》 on the circuit base's screen (../../../shell/CircuitScreen.jsx), run tick by tick: the bus and
@@ -20,5 +21,5 @@ const lanes = ({ level, test, run, upTo }) => [
 ]
 
 export default function Screen(screen) {
-  return <CircuitScreen screen={screen} cards={CARDS} portLabels={PORT_LABELS} run={runLevel} says={(r) => r.error} show={showValue} lanes={lanes} settings={settings} defaults={defaults} />
+  return <CircuitScreen screen={screen} cards={CARDS} portLabels={PORT_LABELS} run={runLevel} says={(r) => r.error} show={showValue} lanes={lanes} settings={settings} defaults={defaults} words={BUS_WORDS} />
 }

@@ -5,10 +5,12 @@
 import { tickPlay } from '../../engine/play/circuit.js'
 import { REGISTERS } from './parts.js'
 import { runLevel } from './run.js'
+import { BUS_WORDS } from './bus.js'
 import { T } from '../../shell/i18n.js'
 
 export const play = tickPlay({
   run: runLevel,
+  words: BUS_WORDS,
   registers: { names: REGISTERS, top: 32 },
   settings: { compare: [{ key: 'form', values: ['eq', 'lt'] }], arith: [{ key: 'form', values: ['inc', 'add'] }] },
   given: (task) => T(

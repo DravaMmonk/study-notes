@@ -2,8 +2,9 @@
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
 // and the parts box holding the game's primitives and the parts its levels build. The course read is `game.circuit`.
 //
-//   circuitGame(content, circuit, { kind: { id, icon, label }, Screen, cards })
+//   circuitGame(content, circuit, { kind: { id, icon, label }, Screen, cards, Hero? })
 //     cards  { type: { name, desc, icon } } the domain's cards, as the parts box shows a primitive
+//     Hero   the map's illustration, when the game draws one
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'
 import { defineGame } from './index.js'
@@ -12,7 +13,7 @@ import { migrations } from './saves.js'
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
-export function circuitGame(content, circuit, { kind, Screen, cards }) {
+export function circuitGame(content, circuit, { kind, Screen, cards, Hero }) {
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: cards[type].name, desc: cards[type].desc, icon: cards[type].icon, at }))
   const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
@@ -23,6 +24,7 @@ export function circuitGame(content, circuit, { kind, Screen, cards }) {
     kicker: content.kicker,
     lede: content.lede,
     glossary: content.glossary,
+    Hero,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,
