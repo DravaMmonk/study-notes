@@ -60,6 +60,8 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
   /** How the editor and the blueprint reader wire a task's cards (../circuit/model.js parts): `circuit` is the course read. */
   const wiring = (task, circuit) => ({
     loops: ticks,
+    // What keeps a value for the next tick: a card that stores a register, or a built part that holds its own.
+    holds: (n) => Boolean(circuit.partOf(n.type)?.store || circuit.partOf(n.type)?.holds),
     // A setting is kept as the words it is written in ({ reg: 'A', start: '1' }); the parts read them.
     text: { read: (_node, _key, v) => String(v) },
     inputs: (n) => {

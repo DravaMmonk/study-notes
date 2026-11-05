@@ -126,6 +126,19 @@ const settingsOf = (preset, at) => {
 /** Whether a wire is one a level put in. */
 export const isLocked = (graph, wire) => graph.wires.some((w) => w.locked && w.to === wire.to && w.port === wire.port)
 
+// Whether a wire from → to closes a loop that runs through no part holding its value (holds(id)).
+function openLoop(edges, from, to, holds) {
+  if (holds(from) || holds(to)) return false
+  const seen = new Set([to])
+  const todo = [to]
+  while (todo.length) {
+    const at = todo.pop()
+    if (at === from) return true
+    for (const [a, b] of edges) if (a === at && !seen.has(b) && !holds(b)) { seen.add(b); todo.push(b) }
+  }
+  return false
+}
+
 /**
  * The reasons every game shares for refusing a wire; a game's `refuse` adds its own (types, say) after these. On a
  * board with frames (`parts.frames`, frames.js) a wire also has to run inward, and a region's own output stands
@@ -136,8 +149,9 @@ export function baseRefusal(graph, from, to, port, parts = {}) {
   if (locked) return locked
   const { edges, from: start } = parts.frames ? frameEdges(graph, parts) : { edges: graph.wires.map((w) => [srcNode(w.from), w.to]), from: srcNode }
   if (start(from) === to) return { zh: '一个元件不能读它自己。', en: 'A part cannot read itself.' }
-  // A board run tick by tick may feed back (parts.loops): what a card says this tick reaches it again the next.
-  if (!parts.loops && wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }
+  // A board run tick by tick may feed back (parts.loops), but only through a part that keeps what it is given for the
+  // next tick (parts.holds): a loop of parts that each answer at once has no tick to wait on.
+  if (parts.loops ? openLoop(edges, start(from), to, (id) => parts.holds?.(byId(graph, id) ?? {})) : wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }
   return parts.frames ? scopeRefusal(graph, parts, from, to, port) : null
 }
 

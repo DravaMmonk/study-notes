@@ -46,3 +46,11 @@ test('a preset may fix a part\'s settings, all of them or some', () => {
   const mine = { ...free, nodes: free.nodes.map((n) => (n.id === 'r' ? { ...n, params: { rule: 'S' } } : n)) }
   assert.deepEqual(keepLocked(free, mine).nodes.find((n) => n.id === 'r').params, { rule: 'S' })
 })
+
+test('a board run by ticks may loop only through a part that holds its value', () => {
+  const board = { nodes: [{ id: 'a', type: 'not' }, { id: 'b', type: 'not' }, { id: 'h', type: 'held' }], wires: [{ from: 'a', to: 'b', port: 'in' }, { from: 'h', to: 'a', port: 'in' }] }
+  const parts = { loops: true, holds: (n) => n.type === 'held' }
+  assert.ok(baseRefusal(board, 'b', 'a', 'in', parts), 'a loop of parts that answer at once')
+  assert.equal(baseRefusal(board, 'b', 'h', 'in', parts), null, 'a loop through a held part')
+  assert.ok(baseRefusal(board, 'b', 'h', 'in', {}), 'no loops on a board without ticks')
+})
