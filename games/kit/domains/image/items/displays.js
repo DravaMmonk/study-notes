@@ -1,7 +1,7 @@
 // The image domain's own display items for a bench's layout (vocabulary.js display), beside the kernel's
 // (games/kit/engine/bench.js KERNEL_DISPLAYS). Each is a picture or an interaction the kernel's plots, strips and knobs
 // cannot draw; the components are in ../ui/benches/.
-const t = (zh, en) => ({ zh, en })
+import { T as t } from '../../../shell/i18n.js'
 
 export const DISPLAYS = {
   obscura: { about: t('暗箱的侧视图：拖动孔板和屏幕（旋钮 Z、s）', 'the camera obscura from the side: drag the plate and the screen (knobs Z, s)') },

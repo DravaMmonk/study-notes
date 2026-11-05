@@ -8,8 +8,8 @@
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
 import { PARTS, ROLES, TYPES } from './model/parts.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const ids = S.list(S.str())
 const TEXTS = S.list(S.text())

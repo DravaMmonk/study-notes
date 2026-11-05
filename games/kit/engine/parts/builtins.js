@@ -3,8 +3,8 @@
 // false. A domain's own resources (its vocabulary's `op` kind) work on its values (images, frames…); no domain resource
 // may take one of these names.
 import { PartError } from '../circuit.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const args = (...names) => names.map((name) => ({ name }))
 const num = (v) => {
   const n = Number(v)

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { ArrowRightFromLine, CircleDot, CircuitBoard, ToggleLeft } from 'lucide-react'
 import { CircuitLevel, useLevelBoard, useLevelRun } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { PackedBoard } from '../../../circuit/Inside.jsx'
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
@@ -21,7 +21,6 @@ import { syncOwn } from '../built.js'
 // each card's value on the row picked), and the components box shows it too (GateInside).
 
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
-const T = (zh, en) => ({ zh, en })
 const WRONG_ROW = T('这一行的结果错误', 'This row is wrong')
 const SOURCE = T('输入', 'Input')
 /** The editor's description of a board of gates (../../circuit/model.js), with a level's words for its letters. */

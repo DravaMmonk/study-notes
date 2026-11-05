@@ -9,8 +9,8 @@ import { S } from '../../../engine/schema.js'
 import { limitOf } from '../../../engine/bench.js'
 import { correlate, downsample, gaussianKernel, map, random, shift } from '../engine/image.js'
 import { picture } from '../items/pictures.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 /**
  * The bench's model. names, base: the base images and their names; tau: the temperature; rate: the step size; goal:

@@ -3,8 +3,8 @@
 // them on its inputs and settings; a resource handed what it cannot work on stops with why (a PartError). The kernel's
 // builtins (../../engine/parts/builtins.js) come with every domain.
 import { PartError } from '../../engine/circuit.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const args = (...names) => names.map((name) => ({ name }))
 const number = (v) => {
   if (typeof v !== 'number' || !Number.isFinite(v)) throw new PartError(t(`${v} 不是数`, `${v} is not a number`))

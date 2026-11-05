@@ -9,8 +9,8 @@
 import { S } from '../../../engine/schema.js'
 import { pinhole } from './pinhole.js'
 import { lens } from './lens.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 export const BENCH_MODELS = { pinhole, lens }
 

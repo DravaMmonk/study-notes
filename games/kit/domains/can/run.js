@@ -9,8 +9,8 @@
 //   `error` a board that says what it hears in the same tick
 import { boardNode, runTicks } from '../../engine/ticks.js'
 import { sayer, wiredAnd } from './bus.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const show = (v) => (v === null || v === undefined ? '—' : v === true ? T('是', 'yes') : v === false ? T('否', 'no') : String(v))
 const L2 = (v, lang) => (typeof v === 'object' ? v[lang] : v)
 

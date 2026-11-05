@@ -8,8 +8,8 @@
 // task.remove, task.move, task.rename, ops/operations.js). The shell plays each task as the level with the task's fields over it
 // (../shell/GameShell.jsx), and so does every domain reading one (taskLevels).
 import { S } from './schema.js'
+import { T as t } from '../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 export const TASK_ID = '^[A-Za-z0-9][A-Za-z0-9_-]*$'
 
 const OWN = {

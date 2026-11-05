@@ -10,8 +10,8 @@
 //   readSample(task, sample)      { inputs }: the first test's inputs with the sample's in their place, read
 import { S } from '../../engine/schema.js'
 import { make, valueOf } from './image.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 /** The longest side a sample may have: its board runs on every change, the player's own circuit cell by cell. */
 export const SAMPLE_MAX = 128
 const num = S.num()

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { parseTerm } from '../pterm.js'
@@ -18,7 +18,6 @@ import TermEditor from './TermEditor.jsx'
 //            key] (the forms the strip offers, termTree.js; the first ten by default), defs?: [equation] (two sentences
 //            are one when these work them out alike) }
 
-const T = (zh, en) => ({ zh, en })
 
 export default function TermScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source

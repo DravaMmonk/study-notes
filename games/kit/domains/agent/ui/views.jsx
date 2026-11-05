@@ -1,11 +1,10 @@
 // What the agent domain shows besides its boards: a context as a bar of its entries against the window, the repository
 // with what has been done to it, and a test report.
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import Entries from '../../../shell/Entries.jsx'
 import { fileOf, segOf, tokensOf } from '../world.js'
 import { entryText, whyText } from '../words.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** A context's value on a card: its entries in order (the kit's Entries), then how many and how many tokens. */
 export function ContextValue({ value }) {

@@ -12,8 +12,8 @@
 import { S } from '../../engine/schema.js'
 import { differences, factsOf } from './scene.js'
 import { project } from './benches/pinhole.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const item = (about, params, more = {}) => ({ about, ...(params ? { params } : {}), ...more })
 const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x))
 const ids = (options) => options.map((o) => o.id)

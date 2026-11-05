@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useMemo } from 'react'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
 import { complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf } from '../formulaTree.js'
@@ -12,7 +12,6 @@ import { complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf }
 //   tree  the sentence (formulaTree.js; null: nothing yet)      onChange(tree)      chips  formulaTree.js chipsOf
 //   notation  the level's words      scope  the history's
 
-const T = (zh, en) => ({ zh, en })
 const PLACES = ['①', '②', '③']
 export const STRAY = T('还不是完整的句子', 'Not a complete sentence yet')
 const GROUPS = [['pred', T('谓词', 'Predicates')], ['name', T('名字', 'Names')], ['var', T('变量', 'Variables')], ['quant', T('量词', 'Quantifiers')], ['conn', T('连接词', 'Connectives')]]

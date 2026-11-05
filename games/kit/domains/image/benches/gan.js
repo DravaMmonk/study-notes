@@ -5,8 +5,8 @@
 // with u = x/2. D climbs log D(real) + log(1 − D(fake)); G climbs log D(fake) (the non-saturating form).
 import { S } from '../../../engine/schema.js'
 import { judge, limitOf, startValues } from '../../../engine/bench.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 
 /**

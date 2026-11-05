@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { CircuitLevel, StepLog, useLevelBoard, useLevelRun } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { isFixed, outputsOf, srcOf, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
@@ -29,7 +29,6 @@ import { syncOwn } from '../built.js'
 // steps of the run: opened (the kit's packed parts), that board shows its cards' values in the part's latest run so
 // far, with the card computing lit. Either way the board's last run is kept: the level, or a task of it, opens on it.
 
-const T = (zh, en) => ({ zh, en })
 
 /** The screen for one board (boards.jsx), as a level kind's Screen. */
 export const boardScreen = (board) => function LogicBoard(props) { return <BoardScreen board={board} screen={props} /> }

@@ -11,6 +11,7 @@
 import { evaluate } from '../../engine/circuit.js'
 import { PARTS } from './parts.js'
 import { actEntry, applyWrite, fileEntry, freshState, issueEntry, runTests } from './world.js'
+import { T } from '../../shell/i18n.js'
 
 const nodeOf = (circuit, type) => circuit.nodes.find((n) => n.type === type)
 
@@ -38,7 +39,6 @@ export function runEpisode(level, circuit, test) {
   return { turns, state, report: runTests(test.issue, state), stopped: mode === 'once' || stopped, tokens: calls.reduce((n, c) => n + c.tokens, 0), calls: calls.length }
 }
 
-const T = (zh, en) => ({ zh, en })
 
 /**
  * Why a run fails its test, or null: the tests must pass, a loop must have stopped by itself, and the level's budgets

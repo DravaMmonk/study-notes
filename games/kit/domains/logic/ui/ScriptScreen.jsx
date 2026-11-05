@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { parse, show } from '../formula.js'
 import { say } from '../notation.js'
 import { syncOwn } from '../built.js'
@@ -16,7 +16,6 @@ import { checkScript, depthsOf, methodText, methodsOf, namesOf, sentencesOf } fr
 //            (rows to start from), locked?: true (only each row's by may change), answer: [row], naive?: [row],
 //            simp?: [rewrite key] (the simp set) }
 
-const T = (zh, en) => ({ zh, en })
 const KINDS = ['have', 'show', 'assume', 'fix', 'obtain']
 
 /** A script read only, as Isar prints it (proof … qed around a block), in the level's notation. */

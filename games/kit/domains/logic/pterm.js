@@ -17,8 +17,8 @@
 import { PartError } from '../../engine/circuit.js'
 import { BOT, atom, bin, freeVars, occurrences, replaceTerm, same, showTerm, subst, tvar } from './formula.js'
 import { say } from './notation.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 export const pvar = (name) => ({ k: 'var', name })
 export const lam = (x, body) => ({ k: 'lam', x, body })
 export const papp = (f, a) => ({ k: 'app', f, a })

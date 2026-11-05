@@ -4,8 +4,8 @@
 // D·(Z + f)/Z wide; the screen's brightness goes as (D / f)².
 import { S } from '../../../engine/schema.js'
 import { goalOf, judge, knobValues, startValues } from '../../../engine/bench.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 
 /**

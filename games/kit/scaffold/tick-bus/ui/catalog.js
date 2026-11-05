@@ -1,8 +1,8 @@
 // What the __name__ domain's cards are called and what they do, for the boards, the tray and the components box. A
 // part's description says only what it does (games/DESIGN.md 4).
 import { Activity, ArrowDownToLine, ArrowRightFromLine, ArrowUpFromLine, Hash, Megaphone } from 'lucide-react'
+import { T } from '../../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 export const CARDS = {
   line: { name: T('线', 'Line'), icon: Activity, family: 'given', desc: T('这一拍线上的位。', 'The bit on the line this tick.') },

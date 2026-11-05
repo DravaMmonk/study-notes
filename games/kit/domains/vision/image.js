@@ -8,8 +8,8 @@
 // Coordinates are zero-based, x to the right and y down; content writes an image as its rows, numbers for grey and
 // [R, G, B] triples for colour. Values are real numbers and nothing here clips them: only drawing an image maps [0, 1]
 // onto black to white (display). Every function returns a new image and leaves its inputs as they were.
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 export const isImage = (v) => v !== null && typeof v === 'object' && Number.isInteger(v.w) && Number.isInteger(v.h) && Array.isArray(v.data)
 export const isVector = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && Number.isFinite(v.x) && Number.isFinite(v.y)

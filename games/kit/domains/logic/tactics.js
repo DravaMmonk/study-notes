@@ -14,8 +14,8 @@
 // not stop (schematic.js does the unifying).
 import { fn, subst } from './formula.js'
 import { KERNEL_RULES, instantiate, metasIn, unify } from './schematic.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const NO_GOALS = T('已经没有目标了', 'No goals left')
 // The names a fixed thing gets, in order.
 const FIXED = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'k', 'm', 'n']

@@ -14,8 +14,8 @@
 // Some things are fixed (a, b … that a for-any box or Take the one there is took): a metavariable left by a rule may
 // only become a thing that was fixed before it was left (`scopes`: { name: [fixed name] }, `fixed`: every fixed name).
 import { BOT, all, and, atom, bin, ex, fn, imp, meta, parse, same, show, showTerm, subst, tvar } from './formula.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 export const isMetaName = (name) => name.startsWith('?')
 const isTerm = (x) => 't' in x
 const VARS = ['x', 'y', 'z', 'u', 'v', 'w']

@@ -1,7 +1,7 @@
 // The rules every course follows, the same in every game. A course starts from a few primitives; every other part is
-// built: a level asks the player to build it, and solving that level unlocks it. From then on it is a black box (a
-// built-in implementation, for speed) that the validator checks against that level's tests, so the box is exactly
-// what the player built. The design behind these rules is games/DESIGN.md.
+// built: a level asks the player to build it, and solving that level unlocks it. From then on it runs the board the
+// player passed that level with, so a run can step inside it, and the validator checks that level's reference board
+// as that part against the level's tests. The design behind these rules is games/DESIGN.md.
 //
 // A course is a run of eras, one per machine (a robot, a camera…). Its levels make a tree:
 //   main path   the foundation (the machine's outside abilities, each level unlocking one part), then the practice

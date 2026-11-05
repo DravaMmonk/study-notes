@@ -17,8 +17,8 @@ import { CLAIMS, JUDGES } from './judges.js'
 import { COLOURS } from './scene.js'
 import { PICTURE } from './sample.js'
 import { BENCH_MODELS, DISPLAYS } from './benches/index.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const items = (all) => Object.fromEntries(Object.entries(all).map(([k, v]) => [k, item(v.about, v.params)]))
 

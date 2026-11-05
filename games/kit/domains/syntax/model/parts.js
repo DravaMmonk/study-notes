@@ -1,8 +1,8 @@
 // The syntax domain's parts (vocabulary.js part): what a reader marks in a sentence, the same in every game on the
 // domain. The roles of the skeleton, and the constructions a modifier can be folded as. A game's levels bring them in
 // (`adds`: 'role:subj', 'pp', …); their names and descriptions are the components box's.
+import { T } from '../../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** The skeleton's roles, in the order a clause says them. */
 export const ROLES = {

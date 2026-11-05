@@ -48,8 +48,8 @@ import { datatypesRules } from './datatype.js'
 import { ownBoard } from './built.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
 import { GEN_PARTS, anyValue, elimInputs, judgeElim, listValue } from './elimgen.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => new PartError({ zh, en })
 export const clausesValue = (set, extra = {}) => ({ kind: 'clauses', set, ...extra })
 export const eqsValue = (eqs, fail = null) => ({ kind: 'eqs', eqs, fail })

@@ -3,7 +3,7 @@ import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
 import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
-import { L, tr } from './i18n.js'
+import { L, tr, T } from './i18n.js'
 import { Brief, PhonePage, Text } from './Layout.jsx'
 import RunDock from './RunDock.jsx'
 import Sheet from './Sheet.jsx'
@@ -132,7 +132,6 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
   }
 }
 
-const T = (zh, en) => ({ zh, en })
 const EMPTY = T('从上方元件栏选择元件放到板上，再从元件右侧的圆点连线到另一元件左侧的圆点。', 'Add a part from the row above, then drag from a dot on its right side to a dot on another part’s left side.')
 const nothing = { values: new Map(), errors: new Map() }
 

@@ -4,8 +4,8 @@ import { S } from '../../../../engine/schema.js'
 import { correlate, fromFn, gaussianKernel, image, map, random, zip } from '../../engine/image.js'
 import { highpass } from '../../engine/fourier.js'
 import { picture } from '../pictures.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const N = 32
 const TAU = 2 * Math.PI
 

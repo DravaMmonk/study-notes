@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { usePlayback } from './usePlayback.jsx'
+import { T } from './i18n.js'
 
 // A level whose test cases are circuits it gives (the play of checking or correcting a circuit by its diagram), the
 // same in every game. Each case is one of the level's boards (`boards: [{ label?, board }]`): picking its tab puts it
@@ -22,7 +23,6 @@ import { usePlayback } from './usePlayback.jsx'
 //   cases.setBoard(board) (repair), cases.work,
 //   cases.setWork(work) (audit), cases.tests (TestTabs' tests: [{ label }]), cases.playback (usePlayback)
 
-const T = (zh, en) => ({ zh, en })
 
 /** A case's label: the level's, or its number. */
 export const caseLabel = (level, k) => level.boards[k].label ?? T(`电路 ${k + 1}`, `Board ${k + 1}`)

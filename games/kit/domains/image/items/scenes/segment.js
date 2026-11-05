@@ -3,8 +3,8 @@
 import { S } from '../../../../engine/schema.js'
 import { fromFn, image, maxPool, random } from '../../engine/image.js'
 import { picture } from '../pictures.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 // 2 × 2 blocks, one cell of each clearly the brightest.
 function blocky(seed) {

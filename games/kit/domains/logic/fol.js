@@ -82,5 +82,7 @@ export function claimIn(level, world) {
   return { rows, counter: rows.every((r) => r.right) }
 }
 
+/** The most things a world a player builds may have. */
+export const MAX_WORLD = 3
 /** Whether a world is a counterexample to the level's sentence. */
-export const counters = (level, world) => world.size <= (level.maxSize ?? 3) && claimIn(level, world).counter
+export const counters = (level, world) => world.size <= MAX_WORLD && claimIn(level, world).counter

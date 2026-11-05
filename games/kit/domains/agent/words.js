@@ -2,10 +2,9 @@
 // words: for the boards, the tray and the components box (ui/catalog.js adds how each card looks) and for a blind
 // session (play.js). A part's description says only what it does (games/DESIGN.md 4); the model's grows with the course
 // (`revisions`): what it does in a loop is written in once the loop is there.
-import { L } from '../../shell/i18n.js'
+import { L, T } from '../../shell/i18n.js'
 import { segOf } from './world.js'
 
-const T = (zh, en) => ({ zh, en })
 
 export const WORDS = {
   model: {

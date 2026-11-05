@@ -12,8 +12,8 @@ import { BOARD_PARTS, startBoard } from './engine/board.js'
 import { runLevel } from './engine/graph.js'
 import { NODE_TYPES, settingsOf } from './engine/nodes.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.zh : v)
 
 /** A number as short as it reads: 0, 1, .5, -.25. */

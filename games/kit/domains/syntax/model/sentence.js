@@ -23,8 +23,8 @@
 // made and fixed in place.
 
 import { ROLES, TYPES } from './parts.js'
+import { T as pair } from '../../../shell/i18n.js'
 
-const pair = (zh, en) => ({ zh, en })
 const WORD = /[A-Za-z0-9]/
 
 /** The tokens of a sentence: [{ text, word }], punctuation apart from the words. */

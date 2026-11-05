@@ -1,8 +1,7 @@
 // The Vite plugin that makes trace-viewer/game.html every game's page. `virtual:game` gives the page its game: in a
 // build the one named by GAME, on the dev server whichever /game/<id>/ the address names. `virtual:game/<id>` is one
 // game as the shell takes it: a data game (games/DESIGN.md 6.1: games/<id>/game.json, levels/*.json,
-// glossary.json, parts.json) assembled (../engine/content.js) and handed to its domain's game.jsx; a game not yet moved to data,
-// its games/<id>/game.js(x). The page's title, description and tab icon come from the hub's list (../../games.js).
+// glossary.json, parts.json) assembled (../engine/content.js) and handed to its domain's game.jsx. The page's title, description and tab icon come from the hub's list (../../games.js).
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { GAMES } from '../../games.js'
@@ -10,15 +9,12 @@ import { isDataGame, levelFiles } from '../engine/content-node.js'
 
 const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const KIT = resolve(import.meta.dirname, '..')
-const legacyEntry = (id) => ['game.jsx', 'game.js'].map((f) => resolve(GAMES_DIR, id, f)).find(existsSync)
-const playable = (id) => isDataGame(id) || Boolean(legacyEntry(id))
 const idOfUrl = (url = '') => url.match(/\/game\/([^/?#]+)\//)?.[1]
 const PREFIX = 'virtual:game/'
 const q = JSON.stringify
 
 /** The module that is game `id` as the shell takes it. */
 function gameModule(id) {
-  if (!isDataGame(id)) return `export { default } from ${q(legacyEntry(id))}`
   const dir = resolve(GAMES_DIR, id)
   const { domain } = JSON.parse(readFileSync(resolve(dir, 'game.json'), 'utf8'))
   const levels = levelFiles(id)
@@ -42,7 +38,7 @@ export function gameApp({ game = null } = {}) {
       if (id.startsWith(`\0${PREFIX}`)) return gameModule(id.slice(PREFIX.length + 1))
       if (id !== '\0virtual:game') return null
       if (game) return `export const loadGame = async () => (await import(${q(PREFIX + game)})).default`
-      const loaders = GAMES.filter((g) => playable(g.id)).map((g) => `${q(g.id)}: () => import(${q(PREFIX + g.id)})`)
+      const loaders = GAMES.filter((g) => isDataGame(g.id)).map((g) => `${q(g.id)}: () => import(${q(PREFIX + g.id)})`)
       return `const GAMES = { ${loaders.join(', ')} }
 export const loadGame = async () => (await GAMES[location.pathname.match(/\\/game\\/([^/]+)\\//)?.[1] ?? ${q(GAMES[0].id)}]()).default`
     },

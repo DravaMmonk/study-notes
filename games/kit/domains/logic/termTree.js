@@ -6,8 +6,8 @@
 // the term, so a name is never bound twice.
 import { holeTree } from '../../strip/tree.js'
 import { absurd, cases, fst, inl, inr, lam, open, pair, papp, psubst, pvar, rfl, snd } from './pterm.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const LETTERS = 'abcdefgjk'.split('')
 const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], absurd: ['p'], open: ['p', 'body'], subst: ['h', 'p'] }
 

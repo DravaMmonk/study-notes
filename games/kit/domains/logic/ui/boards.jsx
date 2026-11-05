@@ -5,7 +5,7 @@
 //            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, level), extra?(node, setParam),
 //            nameOf, iconOf, familyOf (level, type), textOf (level, type, revisions): a part's text, words }
 import { ArrowRightFromLine, Box, CircuitBoard, Flag, GitFork, Repeat, Rows3, Search, Sigma } from 'lucide-react'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import Entries from '../../../shell/Entries.jsx'
 import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
 import { startProof } from '../proof.js'
@@ -27,7 +27,6 @@ import { printTerm } from '../pterm.js'
 import { familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
 import { MACHINE_TEXT } from '../partText.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /* ---------- proofs ---------- */
 

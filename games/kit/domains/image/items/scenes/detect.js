@@ -2,8 +2,8 @@
 // anchor boxes and their corrections, X- and O-marked boxes on a shelf, and dogs as solid blobs.
 import { S } from '../../../../engine/schema.js'
 import { correlate, fromFn, gaussianKernel, image, random, zip } from '../../engine/image.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = (v) => image(1, 1, v)
 const row = (values) => ({ w: values.length, h: 1, data: Float32Array.from(values) })
 const BOX = S.list(S.int(), { min: 4, about: t('一个框：x0, y0, x1, y1（不含 x1、y1）', 'a box: x0, y0, x1, y1 (x1, y1 excluded)') })

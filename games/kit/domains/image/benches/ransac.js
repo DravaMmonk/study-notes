@@ -2,11 +2,10 @@
 // the player picks δ, and k per outlier ratio, and is judged over many seeded trials.
 import { S } from '../../../engine/schema.js'
 import { judge } from '../../../engine/bench.js'
-import { keyOf } from '../../../shell/i18n.js'
+import { keyOf, T as t } from '../../../shell/i18n.js'
 import { random } from '../engine/image.js'
 import { lineGap, lineThrough, ransacLine } from '../engine/match.js'
 
-const t = (zh, en) => ({ zh, en })
 
 const gauss = (next) => {
   let s = 0

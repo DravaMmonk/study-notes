@@ -12,8 +12,8 @@
 //   or the far end); `fail` the first of them
 import { boardNode } from '../../engine/ticks.js'
 import { farEnd } from './wants.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const show = (v) => (v === null || v === undefined ? '—' : v === true ? T('是', 'yes') : v === false ? T('否', 'no') : v === 'end' ? T('帧尾', 'end') : String(v))
 const L2 = (v, lang) => (typeof v === 'object' ? v[lang] : v)
 const list = (values, lang) => (values.length ? values.map((v) => L2(show(v), lang)).join(' ') : lang === 'zh' ? '（什么也没有）' : '(nothing)')

@@ -22,6 +22,9 @@ if (typeof window !== 'undefined') window.addEventListener('langchange', (event)
 
 export const getLang = () => lang
 
+/** A text pair for level data and part specs: T('中文', 'English'). */
+export const T = (zh, en) => ({ zh, en })
+
 /** Pick the string for the current language: tr('中文', 'English'). */
 export const tr = (zh, en) => (lang === 'en' ? en : zh)
 

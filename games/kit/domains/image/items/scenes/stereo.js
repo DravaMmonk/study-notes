@@ -2,8 +2,8 @@
 // distance, epipolar geometry of one camera pair, and a robot vacuum's view of a room with obstacles.
 import { S } from '../../../../engine/schema.js'
 import { addNoise, fromFn, image, map, random, zip } from '../../engine/image.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 
 // Layers painted back to front, each with its own random texture and disparity d: the right camera sees a surface d

@@ -24,8 +24,8 @@ import { COLOURS, describe } from './scene.js'
 import { DISPLAYS } from './benches/index.js'
 import { callOf } from '../../engine/schema.js'
 import { goalOf, judge, knobKind, knobStart, knobValues, needText, openKnobs, rowValue, startValues } from '../../engine/bench.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const pick = (text, lang) => (typeof text === 'string' ? text : text?.[lang] ?? '')
 const both = (f) => T(f('zh'), f('en'))
 

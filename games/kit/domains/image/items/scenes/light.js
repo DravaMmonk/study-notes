@@ -6,8 +6,8 @@ import { correlate, fromFn, image, map, random, zip } from '../../engine/image.j
 import { NODE_TYPES } from '../../engine/nodes.js'
 import { CURVES } from '../../engine/parts/light.js'
 import { picture } from '../pictures.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const N = 16
 const num = S.num()
 const vec3 = S.list(num, { min: 3 })

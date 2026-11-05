@@ -1,8 +1,8 @@
 // What the logic domain's parts are called and what they do (《证明完毕》), as a player reads them: each rule's name,
 // what it does and its ports, written with letters for any sentence (a part is a pattern), the settings on its card and
 // a box's regions; the same for the machine board's parts. The vocabulary's items (vocabulary.js) are named by them.
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** Every rule: name, what it does, port labels, setting labels and the regions of a box (`frames`). */
 export const RULE_TEXT = {

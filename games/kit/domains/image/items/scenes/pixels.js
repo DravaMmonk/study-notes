@@ -3,8 +3,8 @@
 import { S } from '../../../../engine/schema.js'
 import { fromFn, map } from '../../engine/image.js'
 import { picture } from '../pictures.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const RECT = S.list(S.int(), { min: 4, about: t('一个矩形：x0, y0, 宽, 高', 'a rectangle: x0, y0, width, height') })
 const box = (x0, y0, w, h) => (x, y) => x >= x0 && x < x0 + w && y >= y0 && y < y0 + h
 const inRects = (rects) => (x, y) => rects.some(([x0, y0, w, h]) => box(x0, y0, w, h)(x, y))

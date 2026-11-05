@@ -1,8 +1,8 @@
 // Scenes of filters (scenes/index.js): a noisy step whose true edge is wanted, and the document scanner's scans.
 import { S } from '../../../../engine/schema.js'
 import { addNoise, correlate, fromFn, gaussianKernel, map, patterns, shift, zip } from '../../engine/image.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const BOX3 = Array(9).fill(1 / 9)
 const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
 const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)

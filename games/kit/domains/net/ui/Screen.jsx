@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { CircuitBoard } from 'lucide-react'
 import { CircuitLevel, Timeline, useLevelBoard, useLevelRun } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { carriedOnto, fits, portsIn, wiring } from '../board.js'
@@ -16,7 +16,6 @@ import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 // only how many fail; once the level is solved they join the list when it opens again. A part the player built opens
 // to show the board it runs, each card on it at the tick shown.
 
-const T = (zh, en) => ({ zh, en })
 
 /** The label of the port called `name` in a list of ports. */
 const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name

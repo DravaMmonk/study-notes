@@ -27,8 +27,8 @@
 // a game's levels against its blueprint once they exist. erasOf(bp) is game.json's eras as the blueprint lays them out.
 import { S, validate } from '../engine/schema.js'
 import { layout } from '../course.js'
+import { T as t } from '../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const ID = S.str({ pattern: '^[A-Za-z][A-Za-z0-9_-]*$' })
 const SLOT_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('关卡 id（也是将来的文件名）', 'the level id (its file name to be)') })
 

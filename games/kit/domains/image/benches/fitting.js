@@ -4,8 +4,8 @@
 // other way to stop it.
 import { S } from '../../../engine/schema.js'
 import { goalOf, judge } from '../../../engine/bench.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 // Solve A·x = b by Gauss–Jordan elimination with partial pivoting.
 const solve = (A, b) => {

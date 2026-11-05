@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import { Brief, Level, RunDock, usePlayback } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { Strip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { builtWorld, claimIn } from '../fol.js'
+import { MAX_WORLD, builtWorld, claimIn } from '../fol.js'
 import { fixedLine } from './SentenceEditor.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
@@ -14,7 +14,6 @@ import { fixedLine } from './SentenceEditor.jsx'
 // for, what holds of each; a relation of two as a grid). A run goes through the sentences, marking each one's truth in
 // the world, and passes when the world is a counterexample.
 
-const T = (zh, en) => ({ zh, en })
 const MARKS = ['①', '②', '③', '④']
 
 /** What a thing is called: a named world's thing by its words, a built world's by its mark. */
@@ -51,8 +50,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   const { notation } = level
   const read = (f) => parse(f, { consts: level.vocab.names })
   const preds = level.vocab.preds
-  const max = level.maxSize ?? 3
-  const [world, setWorld] = useState(() => saved?.work ?? { size: Math.min(2, max), preds: {}, consts: {} })
+  const [world, setWorld] = useState(() => saved?.work ?? { size: Math.min(2, MAX_WORLD), preds: {}, consts: {} })
   const update = (next) => {
     setWorld(next)
     save({ work: next })
@@ -135,7 +133,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
     <section className="fo-build">
       <div className="fo-size" role="group" aria-label={tr('东西的数目', 'Number of things')}>
         <span>{tr('这个世界有', 'This world has')}</span>
-        {Array.from({ length: max }, (_, k) => k + 1).map((n) => <button key={n} type="button" aria-pressed={world.size === n} onClick={() => update({ ...world, size: n })}>{n}</button>)}
+        {Array.from({ length: MAX_WORLD }, (_, k) => k + 1).map((n) => <button key={n} type="button" aria-pressed={world.size === n} onClick={() => update({ ...world, size: n })}>{n}</button>)}
         <span>{tr('样东西', 'things')}</span>
       </div>
       {level.vocab.consts.map((c) => (

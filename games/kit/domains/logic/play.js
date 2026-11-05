@@ -14,8 +14,8 @@ import { syncOwn } from './built.js'
 import { parse } from './formula.js'
 import { checkGates, gatesOf, rowsFor, startGates } from './gates.js'
 import { say } from './notation.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const TF = (v, lang) => (v === undefined ? '—' : v ? (lang === 'en' ? 'T' : '真') : (lang === 'en' ? 'F' : '假'))
 const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] : v)
 

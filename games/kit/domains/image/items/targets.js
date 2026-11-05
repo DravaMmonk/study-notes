@@ -7,8 +7,8 @@ import { attentionWeights } from '../engine/attention.js'
 import { harrisResponse } from '../engine/nodes.js'
 import { zeroUp } from '../engine/parts/segment.js'
 import { peaksOf } from './scenes/matching.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const SHAPE = S.oneOf(['disk', 'gauss'])
 const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
 const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)

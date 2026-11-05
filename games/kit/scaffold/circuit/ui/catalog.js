@@ -1,8 +1,8 @@
 // What the cards a __name__ level puts on its board are called and what they do. A game's own parts are described in
 // its parts.json (games/DESIGN.md 6.9).
 import { ArrowRightFromLine } from 'lucide-react'
+import { T } from '../../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 export const CARDS = {
   in: { name: T('输入', 'Input'), icon: ArrowRightFromLine, family: 'given', desc: T('这个测试给的值。', 'The value this test gives.') },

@@ -1,8 +1,8 @@
 // What the can domain's cards are called and what they do, for the boards, the tray and the components box. A part's
 // description says only what it does (games/DESIGN.md 4).
 import { Activity, ArrowDownToLine, ArrowRightFromLine, ArrowUpFromLine, Calculator, Equal, Hash, Split } from 'lucide-react'
+import { T } from '../../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 export const CARDS = {
   line: { name: T('总线', 'Bus'), icon: Activity, family: 'given', desc: T('这一拍总线上的位：0 为显性，1 为隐性。', 'The bit on the bus this tick: 0 is dominant, 1 is recessive.') },

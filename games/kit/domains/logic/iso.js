@@ -42,8 +42,8 @@
 import { runBoard } from '../../engine/boards.js'
 import { meta, parse, show, subst as substF } from './formula.js'
 import { ruleOf, ruleText } from './schematic.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 export const DECL = 'decl'
 const MOST = 3
 const wayPort = (k) => `c${k}`

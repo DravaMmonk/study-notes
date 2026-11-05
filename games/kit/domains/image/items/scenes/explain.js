@@ -3,8 +3,8 @@
 import { S } from '../../../../engine/schema.js'
 import { attention } from '../../engine/attention.js'
 import { fromFn, image } from '../../engine/image.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = (v) => image(1, 1, v)
 const at = (img, x, y) => (x < 0 || y < 0 || x >= img.w || y >= img.h ? null : img.data[y * img.w + x])
 const sum = (img) => img.data.reduce((s, v) => s + v, 0)

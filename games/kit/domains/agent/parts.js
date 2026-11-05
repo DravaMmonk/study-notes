@@ -17,8 +17,8 @@ import { source, sink } from '../../engine/boards.js'
 import { PartError } from '../../engine/circuit.js'
 import { call } from './model.js'
 import { fileEntry, listEntry, runTests } from './world.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** The value kind each part's output carries, and each input wants. */
 export const KIND = { context: 'context', action: 'action', flag: 'flag' }

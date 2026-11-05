@@ -4,8 +4,8 @@
 //
 // runTest(level, circuit, test, partOf) → { values, errors, outputs, trace, fail? }   fail: { name, want, got, why }
 import { runBoard } from '../../engine/boards.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** What a card shows of a value: a number, or 「—」. */
 export const show = (v) => (v === null || v === undefined ? '—' : String(v))

@@ -14,8 +14,8 @@
 import { fn, parse, same, show, subst } from './formula.js'
 import { KERNEL, assumption, depthFirst, rule } from './tactics.js'
 import { ruleBookOf, runTactic } from './machine.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** The names of a script's facts, by row: h1 … for have, a1 … for assume, o1 … for obtain (a show ends its block). */
 export function namesOf(rows) {

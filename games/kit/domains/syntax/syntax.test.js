@@ -7,8 +7,8 @@ import { check, fold, foldRefusal, mark, order, resolve, say, skeleton, standing
 import { sentenceProblems } from './validate.js'
 import { validate as fits } from '../../engine/schema.js'
 import { vocabulary } from './vocabulary.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const spec = {
   sentence: 'A small change in the weights of the first layer causes a large change in the output.',
   folds: [

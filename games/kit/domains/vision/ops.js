@@ -11,8 +11,8 @@ import { S } from '../../engine/schema.js'
 import { isImage, isVector, make } from './image.js'
 import { colourMix, filterImage, sampleImage, stencilImage } from './operators.js'
 import { BORDERS, expandRows, positions, reduceRows, restoreShape, reverse, shiftRead, transpose, trim, windowSamples, windowWeights, weightedLine } from './construction.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const fail = (zh, en) => { throw new PartError(t(zh, en)) }
 const args = (...names) => names.map((name) => ({ name }))
 const named = (fields) => S.obj(fields)

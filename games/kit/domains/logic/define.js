@@ -10,8 +10,8 @@
 // as everywhere (u … z, xs, ys, zs variables; schematic.js). The equations (`equations`) are what later levels get by
 // the function's name (course.js).
 import { parseS, parseSide } from './schematic.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 /** Most rewrites one test may take before it counts as never stopping. */
 export const BUDGET = 200
 

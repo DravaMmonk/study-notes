@@ -27,8 +27,8 @@
 
 import { print, read } from '../../circuit/text.js'
 import { outputsOf } from '../../circuit/model.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** How to write a board as text, in the words of the blueprint dialog, for any circuit level. */
 export const GRAMMAR = T(

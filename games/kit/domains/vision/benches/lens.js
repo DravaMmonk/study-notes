@@ -5,8 +5,8 @@
 // scene held fixed). The depth range judged sharp runs from `near` to `far` (far may be infinite). Valid for depths
 // beyond F; the image inversion of a real lens is drawn, not hidden.
 import { S } from '../../../engine/schema.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 /** Where a depth images behind the lens (Infinity at the focal plane, negative inside it). */
 export const imageAt = (F, z) => 1 / (1 / F - 1 / z)

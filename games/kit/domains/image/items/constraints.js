@@ -3,8 +3,8 @@
 // constraint (../../../engine/tests.js).
 import { S, callOf } from '../../../engine/schema.js'
 import { order } from '../engine/graph.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 // The trainable layers a path through a network counts (the deep-network levels need a long one).
 const LAYERS = new Set(['lrnConv', 'lrnRes', 'learn3', 'kernel3'])

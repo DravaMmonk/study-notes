@@ -22,8 +22,8 @@ import { GENERATIVE } from './generative.js'
 import { SEGMENT } from './segment.js'
 import { DETECT } from './detect.js'
 import { EXPLAIN } from './explain.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 const pictures = (calls) => Object.fromEntries(Object.entries(calls).map(([name, call]) => [name, picture(call)]))
 const FILTER = {

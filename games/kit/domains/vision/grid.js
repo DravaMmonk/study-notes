@@ -14,8 +14,8 @@
 // null, or { zh, en } saying what is wrong.
 import { S } from '../../engine/schema.js'
 import { differs, fromRows, make, pixel, toRows } from './image.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const callOf = (v) => (typeof v === 'string' ? [v, {}] : Object.entries(v)[0])
 const VALUE = S.either(S.num(), S.list(S.num(), { min: 3 }))
 const ROWS = S.list(S.list(S.either(S.num(), S.list(S.num(), { min: 3 }))), { min: 1 })

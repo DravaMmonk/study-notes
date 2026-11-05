@@ -10,10 +10,10 @@
 // An item gives { ticks: [value per tick] } or { order: [value…], words: { zh, en } (what the list is) }.
 import { callOf } from '../../engine/schema.js'
 import { decode } from './wire.js'
+import { T } from '../../shell/i18n.js'
 
 const each = (test, f) => Array.from({ length: test.ticks }, (_, t) => f(t))
 const wire = (test, name) => test.wires[name] ?? []
-const T = (zh, en) => ({ zh, en })
 // A run of decoded events laid out tick by tick: the value of an event on its tick, 「—」 on every other.
 const laid = (test, events, value) => {
   const out = each(test, () => null)

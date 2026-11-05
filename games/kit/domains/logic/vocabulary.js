@@ -13,8 +13,8 @@ import { RULES } from './proof.js'
 import { PRIMITIVE_GATES } from './gates.js'
 import { MACHINE_PARTS } from './machine.js'
 import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const ids = S.list(S.str())
 const NONE = S.oneOf([null])

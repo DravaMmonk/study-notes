@@ -5,8 +5,8 @@
 import { S, callOf } from '../../../engine/schema.js'
 import { GLYPHS, SIZE, addNoise, correlate, fromFn, gaussianKernel, map, patterns, random, zip } from '../engine/image.js'
 import { blob } from '../engine/parts/generative.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const TAU = 2 * Math.PI
 const num = S.opt(S.num())
 const int = S.opt(S.int())

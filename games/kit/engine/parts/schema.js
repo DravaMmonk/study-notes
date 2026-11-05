@@ -4,8 +4,8 @@
 // same in every domain whose vocabulary has engine resources (the `op` kind); what it names (resources, families,
 // widgets) the domain's vocabulary gives.
 import { S } from '../schema.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$', about: t('ASCII 名字：字母或下划线开头', 'an ASCII name, starting with a letter or underscore') })
 const WORD = S.str({ pattern: '^[A-Za-z0-9_][A-Za-z0-9_.-]*$', about: t('ASCII 值：写进蓝图文本', 'an ASCII value, as blueprint text writes it') })

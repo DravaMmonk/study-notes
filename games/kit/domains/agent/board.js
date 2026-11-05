@@ -16,11 +16,10 @@
 //   repo <- m
 import { parse, print } from '../../circuit/text.js'
 import { srcKey, srcNode } from '../../circuit/model.js'
-import { L } from '../../shell/i18n.js'
+import { L, T } from '../../shell/i18n.js'
 import { FIXED, KIND, PARTS, kindOf, wantsOf } from './parts.js'
 import { OUT_LABELS } from './words.js'
 
-const T = (zh, en) => ({ zh, en })
 const KIND_NAME = { [KIND.context]: T('上下文', 'a context'), [KIND.action]: T('动作', 'an action'), [KIND.flag]: T('是否通过', 'a pass flag') }
 
 /**

@@ -11,8 +11,8 @@ import { packed, runBoard, sink, source } from '../../engine/boards.js'
 import { parse } from './formula.js'
 import { lettersOf, rowsOf, valueOn } from './truth.js'
 import { ownBoard } from './built.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** The gates the course starts from. */
 export const PRIMITIVE_GATES = {

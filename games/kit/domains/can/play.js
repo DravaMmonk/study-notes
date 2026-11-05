@@ -7,8 +7,8 @@ import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { startBoard, wiring } from './board.js'
 import { REGISTERS } from './parts.js'
 import { runLevel, show } from './run.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const word = (v, lang) => {
   const s = show(v)
   return typeof s === 'object' ? s[lang] : s

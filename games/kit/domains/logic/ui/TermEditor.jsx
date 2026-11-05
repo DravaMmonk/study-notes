@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
 import { chipsOf, complete, holesOf, joinsOnto, nodeAt, segmentOf, setAt } from '../termTree.js'
@@ -7,7 +7,6 @@ import { chipsOf, complete, holesOf, joinsOnto, nodeAt, segmentOf, setAt } from 
 // Building a proof term from chips on the shared strip (games/kit/strip), written out as it reads with a box for each
 // empty place: the term tasks' board (TermScreen.jsx). `scope` is the names the term may use (premises, assumptions); `history` names whose undo it is.
 
-const T = (zh, en) => ({ zh, en })
 const GROUPS = [['name', T('名字', 'Names')], ['form', T('写法', 'Forms')]]
 const pathOf = (key) => key.split('.').slice(1).map(Number)
 

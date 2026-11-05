@@ -8,8 +8,8 @@
 
 import { S } from '../../engine/schema.js';
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js';
+import { T as t } from '../../shell/i18n.js';
 
-const t = (zh, en) => ({ zh, en });
 const item = (about, params) => ({ about, ...(params ? { params } : {}) });
 
 const int = (extra) => S.int(extra);

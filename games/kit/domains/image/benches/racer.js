@@ -5,8 +5,8 @@ import { S } from '../../../engine/schema.js'
 import { limitOf } from '../../../engine/bench.js'
 import { correlate, random } from '../engine/image.js'
 import { picture } from '../items/pictures.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 
 export const maxAbsDiff = (a, b) => a.data.reduce((worst, v, i) => Math.max(worst, Math.abs(v - b.data[i])), 0)

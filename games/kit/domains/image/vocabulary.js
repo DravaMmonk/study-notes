@@ -14,8 +14,8 @@ import { TARGETS } from './items/targets.js'
 import { CONSTRAINTS } from './items/constraints.js'
 import { BENCH_MODELS } from './items/benches.js'
 import { DISPLAYS } from './items/displays.js'
+import { T as t } from '../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 /** A kind's items as the vocabulary prints them: what each is, and its parameters. */
 const items = (all) => Object.fromEntries(Object.entries(all).map(([name, it]) => [name, { about: it.about, ...(it.params ? { params: it.params } : {}) }]))
 

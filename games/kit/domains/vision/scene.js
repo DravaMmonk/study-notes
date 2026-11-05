@@ -10,8 +10,8 @@
 // Degrees for angles; y is up; a box is axis-aligned, `at` its centre. The camera sits `distance` from `at` (default
 // [0, 0.5, 0]) at its yaw and pitch, looking at it; its image plane is f in front of it and one unit tall.
 import { make } from './image.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** The named colours a scene paints with, and what each is called. */
 export const COLOURS = {

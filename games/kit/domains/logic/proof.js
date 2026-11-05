@@ -20,6 +20,7 @@ import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
 import { cancelOne, disjunction, literalsIn } from './resolution.js'
 import { absurd, alphaEq, cases, fst, inl, inr, lam, obj, open as unpack, pair, papp, parseTerm, pconst, printTerm, psubst, pvar, raa, rfl, snd } from './pterm.js'
+import { T } from '../../shell/i18n.js'
 
 // The variables a quantifier binds; a particular thing is named a, b or c (choices.js).
 const BOUND = ['x', 'y', 'z', 'u', 'v', 'w']
@@ -32,7 +33,6 @@ const need = (ctx, what, got) => {
   const [w, g] = [what.op ? say(what, ctx.notation) : what, say(got, ctx.notation)]
   return new PartError({ zh: `这里要 ${w.zh}，接进来的是 ${g.zh}`, en: `This needs ${w.en}; it got ${g.en}` })
 }
-const T = (zh, en) => ({ zh, en })
 const SHAPE = {
   imp: T('一句「若…则…」', 'an “if … then …”'),
   and: T('一句「…并且…」', 'an “… and …”'),

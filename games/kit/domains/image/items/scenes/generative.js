@@ -6,8 +6,8 @@ import { GLYPHS, fromFn, image, patterns, random, zip } from '../../engine/image
 import { NODE_TYPES } from '../../engine/nodes.js'
 import { blob, blobAt, code, gaussian } from '../../engine/parts/generative.js'
 import { LETTER } from '../pictures.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 const XY = S.list(num, { min: 2, about: t('斑点的中心 (x, y)', 'the blob’s centre (x, y)') })
 const Z = S.list(num, { min: 2, about: t('潜空间里的两个数', 'two numbers in latent space') })

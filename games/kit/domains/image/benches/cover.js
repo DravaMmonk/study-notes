@@ -5,6 +5,7 @@ import { S } from '../../../engine/schema.js'
 import { limitOf } from '../../../engine/bench.js'
 import { random } from '../engine/image.js'
 import { affineFit, homographyDLT, invert3, project } from '../engine/match.js'
+import { T as t } from '../../../shell/i18n.js'
 
 const rectCorners = ([x0, y0, x1, y1]) => [[x0, y0], [x1, y0], [x1, y1], [x0, y1]]
 
@@ -124,7 +125,6 @@ export function coverBench({ cover, photo, title, logo, quad, clutter, seed, tol
   return { COVER: cover, PHOTO: photo, coverPoints, photoPoints, fit, tol, renderPhoto, renderCover, project, trueQuad: quad, trueH, overlayError, photoIndexOf }
 }
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 const pt = S.list(num, { min: 2 })
 const QUAD = S.list(pt, { min: 4 })

@@ -18,8 +18,8 @@
 import { PartError } from '../../engine/circuit.js'
 import { meta } from './formula.js'
 import { parseS, premiseOf, ruleText } from './schematic.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const fail = (zh, en) => new PartError({ zh, en })
 
 export const sentenceValue = (f) => ({ kind: 'sentence', f })

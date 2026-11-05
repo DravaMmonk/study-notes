@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { ChoiceField, Field, InlineChoice, RowTable } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { show } from '../formula.js'
 import { chipsFrom } from '../formulaTree.js'
 import { propositionsOf, sentenceOf } from '../iso.js'
@@ -19,7 +19,6 @@ import { SentenceButton, SentenceList } from './SentencePick.jsx'
 // as a run steps to it. `result(k)` is case k's result on the board on view, { derived, wrong } or null before a run
 // reaches it.
 
-const T = (zh, en) => ({ zh, en })
 const MOST = 8
 
 /** An empty case: no premises, and the goal and expectation left for the player ('' and null) unless the level fixes them. */

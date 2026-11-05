@@ -7,8 +7,8 @@
 // card inside a frame or a built part may fail: that is how the frame knows to stop, switch or go back, and how the
 // part says it cannot go on).
 import { MISSING, sourceOf } from '../../../engine/circuit.js'
+import { T } from '../../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const join = (a, b, mark = '·') => T(`${a.zh} ${mark} ${b.zh}`, `${a.en} ${mark} ${b.en}`)
 const ROUND = { repeat: (k) => T(`第 ${k} 轮`, `round ${k}`), search: (k) => T(`第 ${k} 步`, `step ${k}`) }
 const samePath = (a = [], b = []) => a.length === b.length && a.every((id, k) => id === b[k])

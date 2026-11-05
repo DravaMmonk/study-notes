@@ -1,8 +1,8 @@
 // What the net domain's cards are called and what they do, for the boards, the tray and the components box. A part's
 // description says only what it does (games/DESIGN.md 4).
 import { ArrowDownToLine, ArrowRightFromLine, ArrowUpFromLine, Binary, Equal, Hash, Plus, Split } from 'lucide-react'
+import { T } from '../../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 export const CARDS = {
   rx: { name: T('进线', 'Wire in'), icon: ArrowRightFromLine, family: 'given', desc: T('这一拍从线上到达的位。', 'The bit arriving on the wire this tick.') },

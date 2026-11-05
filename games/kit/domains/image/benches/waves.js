@@ -5,9 +5,9 @@ import { S } from '../../../engine/schema.js'
 import { goalOf, judge, limitOf, openKnobs, passingSettings, startValues } from '../../../engine/bench.js'
 import { piText } from '../engine/pi.js'
 import { aliasOf, cosine, maxDiff, sampleAt, throughSamples } from '../engine/waves.js'
+import { T as t } from '../../../shell/i18n.js'
 
 const TAU = 2 * Math.PI
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 const rowOf = (N, f) => Array.from({ length: N }, (_, x) => f(x))
 const largestGap = (a, b) => Math.max(...a.map((v, x) => Math.abs(v - b[x])))

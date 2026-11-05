@@ -7,8 +7,8 @@ import { homographyDLT, project } from '../../engine/match.js'
 import { NODE_TYPES } from '../../engine/nodes.js'
 import { pairsOf, row, warp } from '../../engine/parts/matching.js'
 import { picture } from '../pictures.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 const PT = S.list(S.num(), { min: 2 })
 const SEGMENT = S.list(S.num(), { min: 4, about: t('一条线经过的两点：x1, y1, x2, y2', 'two points on a line: x1, y1, x2, y2') })

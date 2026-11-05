@@ -33,7 +33,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   Hero          the map's illustration ({ theme })
  *   power         a first-run dialog { title, lines }
  *   intro(level)  a level's introduction pages [{ t, fig? }]; IntroFigure draws a page's fig ({ fig, level, theme })
- *   progress      { version, migrate(saved), legacy() } for saves from older versions or keys
+ *   progress      { version, migrate(saved) }: the save version, and the steps bringing a save written before it up to it
  *   parts         the components box (元件箱) { all: [{ key, name, desc?, icon?, family?, at? }] (a built part's key is
  *                 the flag earning it; a primitive has `at`, the levels that bring it in, and is earned once one is open),
  *                 demo?(part, { phone, progress }) → the part on a bench to try (React; games/kit/circuit DemoBench),

@@ -8,8 +8,8 @@
 import { runBoard } from '../../engine/boards.js'
 import { MISSING } from '../../engine/circuit.js'
 import { differs, valueOf } from './image.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /** A test as content writes it, its values read: { inputs, expect } of numbers, images, points and 「—」. */
 export const readTest = (t) => ({

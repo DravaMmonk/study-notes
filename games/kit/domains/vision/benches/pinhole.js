@@ -9,8 +9,8 @@
 // position and height is read in pixels too; the focal length in pixels uses the chosen axis pitch. The vertical
 // and horizontal fields of view remain tied to sensor height and width respectively.
 import { S } from '../../../engine/schema.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const ID = S.str({ pattern: '^[A-Za-z][A-Za-z0-9]*$' })
 
 /** u and h for knob values over the setup's fixed ones (a quantity the bench does not use is still computed). */

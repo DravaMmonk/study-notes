@@ -7,8 +7,8 @@ import { proofShape } from '../blueprint.js'
 import { formOf, paramsOf } from '../../../engine/forms.js'
 import { SETTING_KINDS } from '../choices.js'
 import { RULE_TEXT } from '../partText.js'
+import { T } from '../../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 // What a box's region gives at its left edge, and what goes into the dot at its right.
 const OPENS = T('假设', 'Assume')

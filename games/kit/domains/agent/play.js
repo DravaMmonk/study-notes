@@ -16,8 +16,8 @@ import { stepHand, startHand } from './hand.js'
 import { runLevel } from './run.js'
 import { segOf } from './world.js'
 import { PORT_LABELS, WORDS, actionText, entryText, whyText } from './words.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 /** A text built in both languages from one function of the language's L. */
 const both = (f) => {
   const pick = (lang) => (v) => (v && typeof v === 'object' && typeof v.zh === 'string' ? v[lang] : v)

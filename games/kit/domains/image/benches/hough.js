@@ -4,8 +4,8 @@ import { S } from '../../../engine/schema.js'
 import { judge } from '../../../engine/bench.js'
 import { random } from '../engine/image.js'
 import { houghAccumulate, houghPeaks, lineGap } from '../engine/match.js'
+import { T as t } from '../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 
 const gauss = (next) => {
   let s = 0

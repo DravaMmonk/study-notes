@@ -3,8 +3,8 @@
 // scenes with red lights, scores into probabilities, and the parts on a sorting belt.
 import { S } from '../../../../engine/schema.js'
 import { GLYPHS, addNoise, correlate, fromFn, image, map, maxPool, patterns, random, zip } from '../../engine/image.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = (v) => image(1, 1, v)
 const PT = S.list(S.int(), { min: 2 })
 const RECT = S.list(S.int(), { min: 4, about: t('一个矩形：x0, y0, 宽, 高', 'a rectangle: x0, y0, width, height') })

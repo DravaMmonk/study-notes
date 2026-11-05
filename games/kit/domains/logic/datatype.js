@@ -8,8 +8,8 @@
 //   declarations  { type: 'c1 | c2(t1, t2) | …' }   a level's `datatypes`, each constructor a name and its arguments'
 //                                                    types (a type of the level, or any name for the things inside)
 import { ruleOf } from './schematic.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 const VARS = ['x', 'y', 'z', 'u', 'v', 'w']
 
 /** A declaration's constructors: [{ f, args: [type] }]. */

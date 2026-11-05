@@ -7,6 +7,7 @@
 // A region that `opens` gives a value of its own, read inside it from the frame's output `<frame>#<region>` (the
 // assumption it makes), and what is made inside a region comes back out through the frame's input named after it.
 // So a value is seen where it is made and in every region inside that: a wire may run inward, never outward.
+import { T } from '../shell/i18n.js'
 
 // Any game can use frames: a domain makes a frame part with framePart (its eval gets the region's name as `key` for
 // what that region opens, and null for the frame's own result), the editors (CanvasEditor, SlotBoard) draw and edit
@@ -38,7 +39,6 @@ export function regionsFit(graph, parts) {
 
 const nodeOf = (src) => String(src).split('#')[0]
 const keyOf = (src) => (String(src).includes('#') ? String(src).slice(String(src).indexOf('#') + 1) : null)
-const T = (zh, en) => ({ zh, en })
 
 /** The regions a node is inside, outermost first ('<frame>/<region>' each). */
 export function scopeOf(graph, id) {

@@ -13,6 +13,7 @@ import { genRuleText } from './elimgen.js'
 import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
 import { printTerm } from './pterm.js'
 import { validate } from './validate.js'
+import { T } from '../../shell/i18n.js'
 
 const run = (level, circuit) => runLevel(LOGIC_TESTS, level, circuit)
 
@@ -406,7 +407,6 @@ test('a rewrite changes the first place its left side fits, under quantifiers to
   const { rewrite, simplify, rewriteBookOf } = await import('./rewrite.js')
   const { startState } = await import('./tactics.js')
   const { parseS } = await import('./schematic.js')
-  const T = (zh, en) => ({ zh, en })
   const lemmas = {
     dneg: { name: T('', ''), metas: ['A'], forms: [{ key: 'elim', label: '', statement: 'A', premises: ['¬¬A'] }, { key: 'intro', label: '', statement: '¬¬A', premises: ['A'] }] },
     dm: { name: T('', ''), metas: ['A', 'B', 'P'], forms: [

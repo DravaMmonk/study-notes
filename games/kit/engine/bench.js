@@ -16,8 +16,8 @@
 // This module is node-safe: the schema, the judge and the number formats, shared by `npm run check` and the bench
 // screen (../shell/bench/).
 import { S } from './schema.js'
+import { T as t } from '../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const num = S.num()
 
 /** How a number is written: on a knob, in a goal row, in a table. */

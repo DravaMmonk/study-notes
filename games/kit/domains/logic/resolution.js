@@ -10,8 +10,8 @@
 //            its parents, `inst`: what each parent's variables became in it
 //   value    { kind: 'clauses', set: [clause], from?: state, endless? }   `from`: the state it was split from
 import { BOT, all, atom, fn, not, or, show, tvar } from './formula.js'
+import { T } from '../../shell/i18n.js'
 
-const T = (zh, en) => ({ zh, en })
 
 /* ---------- literals and clauses ---------- */
 

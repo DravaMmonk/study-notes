@@ -4,8 +4,8 @@
 import { S } from '../../../../engine/schema.js'
 import { fromFn, image } from '../../engine/image.js'
 import { TILES, picture } from '../pictures.js'
+import { T as t } from '../../../../shell/i18n.js'
 
-const t = (zh, en) => ({ zh, en })
 const TILE = S.oneOf(Object.keys(TILES))
 const AT = S.list(S.int({ min: 0 }), { min: 2, about: t('第几行、第几列的图块', 'the row and column of its patch') })
 // Patterns placed on a 16 × 16 picture, each pattern pixel `scale` cells wide (4 patterns to a row at scale 1, 2 at

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { CircuitLevel, StepLog, Text, useLevelBoard, useLevelRun } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { startBoard, wiring } from '../board.js'
 import { FIXED, PARTS } from '../parts.js'
@@ -15,7 +15,6 @@ import { ContextBar, ContextValue, Report, RepoView } from './views.jsx'
 // the cards, the turn log, the context the model read and the repository follow along, and a test fails when its run
 // ends with the tests failing, without stopping, or over the level's budget.
 
-const T = (zh, en) => ({ zh, en })
 
 /** The editor's description of this level's cards (../../../circuit/model.js): the wiring (../board.js), drawn. */
 function partsFor(mode) {
