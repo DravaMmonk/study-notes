@@ -33,7 +33,7 @@ export const partsOfType = (b, type, value) => b.nodes.filter(n => n.type === ty
 export const placed = b => b.nodes.filter(n => !isGiven(n.type));
 
 /**
- * What a stage's board is given (course.js stages): the cards with what they may read ({ view: [sensor], facts:
+ * What a task's board is given (course.js played): the cards with what they may read ({ view: [sensor], facts:
  * [sensor] }; a card with nothing to offer is left off), the port inputs of the part it builds ([id]) and the world's
  * outputs ([id]).
  */
@@ -44,9 +44,9 @@ export const givenOf = ({ offers, inputs = [], outs }) => [
 ];
 
 /**
- * The board fitted to what its stage gives: each given node there once (keeping where it sat), no given node the stage
+ * The board fitted to what its task gives: each given node there once (keeping where it sat), no given node the task
  * lacks, each sensor read on the card that offers it (in the order the card offers them, its wires moving with it),
- * none the stage does not offer, and no wire to or from something gone.
+ * none the task does not offer, and no wire to or from something gone.
  */
 export function fitted(b, given) {
   const want = givenOf(given);
@@ -75,7 +75,7 @@ export function fitted(b, given) {
 
 /**
  * Why a board cannot become the part its level builds: it must read exactly the part's ports, each sensor and port
- * input once, so the part does what the board did. `ports` as a stage has them (course.js). null when it can.
+ * input once, so the part does what the board did. `ports` as a task has them (course.js). null when it can.
  */
 export function portsProblem(board, ports) {
   const want = new Set(ports.map(p => p.sensor ?? p.input));
@@ -133,7 +133,7 @@ export function toText(b) {
 }
 
 /**
- * The board blueprint lines describe, on what its stage gives (`given`, as for fitted): a statement with a type is a
+ * The board blueprint lines describe, on what its task gives (`given`, as for fitted): a statement with a type is a
  * part (its settings its params, its inputs by position); a wire into a given node is written `cell <- m`. Each card
  * reads the sensors wired from it (and any it names: `view[picks=[up]]()`). Throws a { line, zh, en } on text it cannot
  * read or a source it does not know.

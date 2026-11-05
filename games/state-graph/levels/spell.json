@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "你是想打这个词吗", "en": "Did you mean…?" },
   "short": { "zh": "编辑距离，用在纠错上", "en": "Edit distance, put to work on typos" },
   "intro": [
@@ -33,24 +32,6 @@
     }
   },
   "robot": "ranger",
-  "testLabel": "{left} → {top}",
-  "after": { "spell": { "candidates": ["ACROSS", "CROSS", "MACRO"] } },
-  "hints": [
-    {
-      "zh": "编辑距离器的五个口：左上、上面、左边、两字相同、是起点，照着接。",
-      "en": "The Edit Distance Meter’s five inputs: up-left, up, left, letters match, is start. Wire them up to match."
-    }
-  ],
-  "world": "align",
-  "facts": ["same", "start"],
-  "tests": [
-    { "left": "ACROS", "top": "ACROSS" },
-    { "left": "ACROS", "top": "CROSS" },
-    { "left": "ACROS", "top": "MACRO" }
-  ],
-  "expected": [1, 2, 2],
-  "solution": ["e = cost(view.ul, view.up, view.left, facts.same, facts.start)", "cell <- e"],
-  "border0": false,
   "debrief": {
     "title": { "zh": "纠错", "en": "Spelling correction" },
     "body": [
@@ -67,5 +48,29 @@
       "zh": "纠错：和每个候选词算编辑距离，挑最小的。",
       "en": "Spelling correction: work out the edit distance to each candidate and pick the smallest."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "spell",
+      "mode": "circuit",
+      "testLabel": "{left} → {top}",
+      "after": { "spell": { "candidates": ["ACROSS", "CROSS", "MACRO"] } },
+      "hints": [
+        {
+          "zh": "编辑距离器的五个口：左上、上面、左边、两字相同、是起点，照着接。",
+          "en": "The Edit Distance Meter’s five inputs: up-left, up, left, letters match, is start. Wire them up to match."
+        }
+      ],
+      "world": "align",
+      "facts": ["same", "start"],
+      "tests": [
+        { "left": "ACROS", "top": "ACROSS" },
+        { "left": "ACROS", "top": "CROSS" },
+        { "left": "ACROS", "top": "MACRO" }
+      ],
+      "expected": [1, 2, 2],
+      "solution": ["e = cost(view.ul, view.up, view.left, facts.same, facts.start)", "cell <- e"],
+      "border0": false
+    }
+  ]
 }

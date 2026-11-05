@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "爬楼梯", "en": "Climbing stairs" },
   "short": { "zh": "换一种视野，同样的结构", "en": "A different view, the same structure" },
   "intro": [
@@ -74,25 +73,6 @@
     }
   },
   "robot": "ranger",
-  "hints": [
-    {
-      "zh": "最后一步可能迈 1 级，也可能迈 2 级：把「前 1 级」和「前 2 级」加起来。",
-      "en": "The last stride might be 1 step or 2 steps: add up “1 step down” and “2 steps down”."
-    },
-    {
-      "zh": "地面要算 1 种走法：「是地面」接放行闸的条件口，常数 1 接数口。",
-      "en": "The ground counts as 1 way: wire “is ground” into a Pass gate’s condition port and a Constant 1 into its number port."
-    },
-    {
-      "zh": "也可以直接用路线计数器：前 1 级接它的「上」，前 2 级接「左」，是地面接「起」。",
-      "en": "You can also use the Route Counter directly: 1 step down into its “up”, 2 steps down into “left”, and is ground into “start”."
-    }
-  ],
-  "world": "strip",
-  "facts": ["ground"],
-  "tests": [{ "n": 4 }, { "n": 6 }, { "n": 9 }],
-  "expected": [5, 13, 55],
-  "solution": ["c = counter(view.m1, view.m2, facts.ground)", "cell <- c"],
   "debrief": {
     "title": { "zh": "5 种、13 种、55 种", "en": "5, 13 and 55 ways" },
     "body": [
@@ -109,5 +89,30 @@
       "zh": "爬楼梯：第 i 级 = 第 i − 1 级 + 第 i − 2 级，地面算 1 种。",
       "en": "Climbing stairs: step i = step i − 1 + step i − 2, with the ground counting as 1 way."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "stairs",
+      "mode": "circuit",
+      "hints": [
+        {
+          "zh": "最后一步可能迈 1 级，也可能迈 2 级：把「前 1 级」和「前 2 级」加起来。",
+          "en": "The last stride might be 1 step or 2 steps: add up “1 step down” and “2 steps down”."
+        },
+        {
+          "zh": "地面要算 1 种走法：「是地面」接放行闸的条件口，常数 1 接数口。",
+          "en": "The ground counts as 1 way: wire “is ground” into a Pass gate’s condition port and a Constant 1 into its number port."
+        },
+        {
+          "zh": "也可以直接用路线计数器：前 1 级接它的「上」，前 2 级接「左」，是地面接「起」。",
+          "en": "You can also use the Route Counter directly: 1 step down into its “up”, 2 steps down into “left”, and is ground into “start”."
+        }
+      ],
+      "world": "strip",
+      "facts": ["ground"],
+      "tests": [{ "n": 4 }, { "n": 6 }, { "n": 9 }],
+      "expected": [5, 13, 55],
+      "solution": ["c = counter(view.m1, view.m2, facts.ground)", "cell <- c"]
+    }
+  ]
 }

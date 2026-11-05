@@ -1,5 +1,4 @@
 {
-  "mode": "fill",
   "title": { "zh": "只看最后一步", "en": "Just look at the last step" },
   "short": { "zh": "不找路线，也能数出路线", "en": "Count routes without tracing them" },
   "intro": [
@@ -168,33 +167,6 @@
       "en": "Click a place and type its number on the keypad below. The selected place’s “previous stops” get a dashed yellow frame."
     }
   },
-  "cells": [
-    { "id": "H", "x": 0, "y": 0, "label": { "zh": "家", "en": "Home" } },
-    { "id": "A", "x": -75, "y": 105, "label": { "zh": "书店", "en": "Books" } },
-    { "id": "B", "x": 75, "y": 105, "label": { "zh": "公园", "en": "Park" } },
-    { "id": "C", "x": -130, "y": 210, "label": { "zh": "邮局", "en": "Post" } },
-    { "id": "D", "x": 0, "y": 210, "label": { "zh": "广场", "en": "Square" } },
-    { "id": "E", "x": 130, "y": 210, "label": { "zh": "菜场", "en": "Market" } },
-    { "id": "F", "x": -65, "y": 315, "label": { "zh": "车站", "en": "Station" } },
-    { "id": "G", "x": 65, "y": 315, "label": { "zh": "图书馆", "en": "Library" } },
-    { "id": "T", "x": 0, "y": 420, "label": { "zh": "学校", "en": "School" } }
-  ],
-  "edges": [
-    ["H", "A"],
-    ["H", "B"],
-    ["A", "C"],
-    ["A", "D"],
-    ["B", "D"],
-    ["B", "E"],
-    ["C", "F"],
-    ["D", "F"],
-    ["D", "G"],
-    ["E", "G"],
-    ["F", "T"],
-    ["G", "T"]
-  ],
-  "start": "H",
-  "end": "T",
   "debrief": {
     "title": { "zh": "一共 6 条路线", "en": "6 routes in all" },
     "body": [
@@ -215,5 +187,38 @@
       "zh": "到某地的路线数 = 到它所有「上一站」的路线数之和。",
       "en": "Routes to a place = the sum of the routes to all of its “previous stops”."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "lastStep",
+      "mode": "fill",
+      "cells": [
+        { "id": "H", "x": 0, "y": 0, "label": { "zh": "家", "en": "Home" } },
+        { "id": "A", "x": -75, "y": 105, "label": { "zh": "书店", "en": "Books" } },
+        { "id": "B", "x": 75, "y": 105, "label": { "zh": "公园", "en": "Park" } },
+        { "id": "C", "x": -130, "y": 210, "label": { "zh": "邮局", "en": "Post" } },
+        { "id": "D", "x": 0, "y": 210, "label": { "zh": "广场", "en": "Square" } },
+        { "id": "E", "x": 130, "y": 210, "label": { "zh": "菜场", "en": "Market" } },
+        { "id": "F", "x": -65, "y": 315, "label": { "zh": "车站", "en": "Station" } },
+        { "id": "G", "x": 65, "y": 315, "label": { "zh": "图书馆", "en": "Library" } },
+        { "id": "T", "x": 0, "y": 420, "label": { "zh": "学校", "en": "School" } }
+      ],
+      "edges": [
+        ["H", "A"],
+        ["H", "B"],
+        ["A", "C"],
+        ["A", "D"],
+        ["B", "D"],
+        ["B", "E"],
+        ["C", "F"],
+        ["D", "F"],
+        ["D", "G"],
+        ["E", "G"],
+        ["F", "T"],
+        ["G", "T"]
+      ],
+      "start": "H",
+      "end": "T"
+    }
+  ]
 }

@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "两堆石子", "en": "Two piles" },
   "short": { "zh": "输赢的花纹", "en": "A pattern of wins and losses" },
   "intro": [
@@ -42,20 +41,6 @@
   },
   "robot": "ranger",
   "unlock": "judge",
-  "naive": ["m = many(view.up, view.left, view.ul)", "cell <- m"],
-  "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
-  "checkAll": true,
-  "hints": [
-    {
-      "zh": "三种拿法：「A 堆少 1 颗」「B 堆少 1 颗」「两堆各少 1 颗」，三格都要读。",
-      "en": "Three moves: “one fewer in A”, “one fewer in B” and “one fewer in each”. All three cells need reading."
-    },
-    { "zh": "每种拿法都取反，再一起接进「任一是」。", "en": "Put a Not on each move, then wire them all into “any yes”." }
-  ],
-  "world": "piles",
-  "tests": [{ "R": 4, "C": 5 }, { "R": 5, "C": 5 }, { "R": 6, "C": 7 }],
-  "expected": [true, false, true],
-  "solution": ["a = not(view.up)", "b = not(view.left)", "c = not(view.ul)", "m = many(a, b, c)", "cell <- m"],
   "debrief": {
     "title": { "zh": "棋盘上的花纹", "en": "A pattern on the board" },
     "body": [
@@ -69,5 +54,25 @@
       }
     ],
     "note": { "zh": "两堆石子：每个局面 = 任一（对手局面取反）。", "en": "Two piles: each position = any (opponent’s position, negated)." }
-  }
+  },
+  "tasks": [
+    {
+      "id": "piles",
+      "mode": "circuit",
+      "naive": ["m = many(view.up, view.left, view.ul)", "cell <- m"],
+      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+      "checkAll": true,
+      "hints": [
+        {
+          "zh": "三种拿法：「A 堆少 1 颗」「B 堆少 1 颗」「两堆各少 1 颗」，三格都要读。",
+          "en": "Three moves: “one fewer in A”, “one fewer in B” and “one fewer in each”. All three cells need reading."
+        },
+        { "zh": "每种拿法都取反，再一起接进「任一是」。", "en": "Put a Not on each move, then wire them all into “any yes”." }
+      ],
+      "world": "piles",
+      "tests": [{ "R": 4, "C": 5 }, { "R": 5, "C": 5 }, { "R": 6, "C": 7 }],
+      "expected": [true, false, true],
+      "solution": ["a = not(view.up)", "b = not(view.left)", "c = not(view.ul)", "m = many(a, b, c)", "cell <- m"]
+    }
+  ]
 }

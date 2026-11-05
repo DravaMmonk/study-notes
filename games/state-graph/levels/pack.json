@@ -1,5 +1,4 @@
 {
-  "mode": "pack",
   "title": { "zh": "装背包", "en": "Pack the backpack" },
   "short": { "zh": "聪明的捷径不总是对的", "en": "Clever shortcuts aren’t always right" },
   "intro": [
@@ -32,27 +31,6 @@
       "en": "Click items to put them in or take them out. The two buttons in the side panel auto-pack using the shortcuts; give them a try."
     }
   },
-  "tests": [
-    {
-      "W": 5,
-      "items": [
-        { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 5 },
-        { "n": { "zh": "相机", "en": "camera" }, "w": 2, "v": 3 },
-        { "n": { "zh": "水壶", "en": "bottle" }, "w": 3, "v": 4 },
-        { "n": { "zh": "零食", "en": "snacks" }, "w": 1, "v": 1 }
-      ]
-    },
-    {
-      "W": 10,
-      "items": [
-        { "n": { "zh": "睡袋", "en": "sleeping bag" }, "w": 6, "v": 30 },
-        { "n": { "zh": "炉具", "en": "stove" }, "w": 3, "v": 14 },
-        { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 16 },
-        { "n": { "zh": "急救包", "en": "first aid kit" }, "w": 2, "v": 9 },
-        { "n": { "zh": "书", "en": "book" }, "w": 1, "v": 1 }
-      ]
-    }
-  ],
   "debrief": {
     "title": { "zh": "没有简单的捷径", "en": "No easy shortcut" },
     "body": [
@@ -69,5 +47,32 @@
       "zh": "贪心（每一步挑眼前最好的）不一定得到最好的结果。",
       "en": "Greedy (always picking what looks best right now) doesn’t necessarily give the best result."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "pack",
+      "mode": "pack",
+      "tests": [
+        {
+          "W": 5,
+          "items": [
+            { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 5 },
+            { "n": { "zh": "相机", "en": "camera" }, "w": 2, "v": 3 },
+            { "n": { "zh": "水壶", "en": "bottle" }, "w": 3, "v": 4 },
+            { "n": { "zh": "零食", "en": "snacks" }, "w": 1, "v": 1 }
+          ]
+        },
+        {
+          "W": 10,
+          "items": [
+            { "n": { "zh": "睡袋", "en": "sleeping bag" }, "w": 6, "v": 30 },
+            { "n": { "zh": "炉具", "en": "stove" }, "w": 3, "v": 14 },
+            { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 16 },
+            { "n": { "zh": "急救包", "en": "first aid kit" }, "w": 2, "v": 9 },
+            { "n": { "zh": "书", "en": "book" }, "w": 1, "v": 1 }
+          ]
+        }
+      ]
+    }
+  ]
 }

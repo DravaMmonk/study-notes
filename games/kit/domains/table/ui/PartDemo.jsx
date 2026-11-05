@@ -31,15 +31,15 @@ function asTaps(b) {
   }
 }
 
-/** The bench for a part: its level, world, robot, board and, per test, the table that board fills. */
-// borrow: { part: level id } parts that are an idea rather than a board show the board of the level that puts the idea
-// to work (the game's content). model: the course's board model (../model/run.js modelOf).
-function benchFor(model, levels, borrow, key) {
-  const own = levels.find((L) => L.unlock === key)
-  const L = borrow[key] ? levels.find((x) => x.id === borrow[key]) : own
-  if (!L || L.mode !== 'circuit') return null
-  const s = L.stages.at(-1)
-  if (!s.solution) return null
+/** The bench for a part: its level's last task (its world, robot, board) and, per test, the table that board fills. */
+// tasks: every level's last task as the course plays it (../course.js played). borrow: { part: level id } parts that
+// are an idea rather than a board show the board of the level that puts the idea to work (the game's content). model:
+// the course's board model (../model/run.js modelOf).
+function benchFor(model, tasks, borrow, key) {
+  const own = tasks.find((T) => T.unlock === key)
+  const L = borrow[key] ? tasks.find((T) => T.id === borrow[key]) : own
+  if (!L || L.mode !== 'circuit' || !L.solution) return null
+  const s = L
   const V = WORLDS[s.world]
   const robot = ROBOTS[L.robot] || ROBOTS.scout
   const runs = []
@@ -60,9 +60,9 @@ function benchFor(model, levels, borrow, key) {
     ? { nodes: [...b.sensors.filter(Boolean).map((p) => ({ id: p, type: 'tap', params: { sensor: p } })), ...b.inputs.filter(Boolean).map((id) => ({ id, type: 'port' })), { id: 'p', type: key, ...(b.setting !== undefined ? { params: { value: b.setting } } : {}) }, { id: b.out, type: 'out' }], wires: [...b.sensors.map((p, k) => ({ from: p ?? b.inputs[k], to: 'p', port: String(k) })), { from: 'p', to: b.out, port: 'in' }] }
     : asTaps(s.solution)
   const lit = circuit.nodes.filter((n) => n.type === 'tap').map((n) => n.params.sensor)
-  const focus = new Set(b ? [key] : [...(L.adds ?? []), ...L.stages.flatMap((x) => x.adds ?? [])])
+  const focus = new Set(b ? [key] : L.adds ?? [])
   const avail = [...s.given.offers.view, ...s.given.offers.facts]
-  const ports = Object.fromEntries((s.ports ?? []).filter((p) => p.input).map((p) => [p.input, { label: p.label, short: p.short }]))
+  const ports = Object.fromEntries(s.ports.filter((p) => p.input).map((p) => [p.input, { label: p.label, short: p.short }]))
   const { tallest, ...xy } = columns(circuit)
   return { L, s, V, o: s, robot, runs, circuit: place(circuit, xy), lit, avail, ports, focus, built: b ? key : null, height: Math.round(Math.min(440, Math.max(260, tallest * 0.6 + 40))) }
 }
@@ -135,8 +135,8 @@ const wireStateOf = (probe) => (wire) => {
   return v === null || v === false ? 'dead' : 'live'
 }
 
-export default function PartDemo({ model, partKey, phone, levels, borrow }) {
-  const bench = useMemo(() => benchFor(model, levels, borrow, partKey), [model, levels, borrow, partKey])
+export default function PartDemo({ model, partKey, phone, tasks, borrow }) {
+  const bench = useMemo(() => benchFor(model, tasks, borrow, partKey), [model, tasks, borrow, partKey])
   const [ti, setTi] = useState(0)
   const [cell, setCell] = useState(() => bench?.runs[0].start)
   const [table, setTable] = useState(() => new Map(bench?.runs[0].table ?? []))

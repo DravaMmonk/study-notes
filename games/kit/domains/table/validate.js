@@ -1,7 +1,7 @@
 // The table domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): what building
-// its course found wrong with the content, every reference board runs its tests, every challenge's naive board fails
-// one, and every part a level builds is that level's board: it reads exactly the part's ports, and the part alone,
-// wired to the level's sensors, passes the level's tests and fills the same table, cell by cell.
+// its course found wrong with the content, every reference board runs its task's tests, every challenge's naive board
+// fails one, and every part a level builds is that level's last board: it reads exactly the part's ports, and the part
+// alone, wired to the level's sensors, passes the task's tests and fills the same table, cell by cell.
 
 import { WORLDS } from './model/worlds.js';
 import { fitted, fromText, portsProblem } from './model/board.js';
@@ -13,28 +13,29 @@ export function validate({ levels, table }) {
   let runs = 0;
   const bad = (level, msg) => out.push({ level, text: msg, fail: true });
 
-  for (const L of levels.filter(x => x.mode === 'circuit')) {
-    L.stages.forEach((s, k) => {
-      if (!s.solution) return;
-      const V = WORLDS[s.world];
-      s.tests.forEach((t, i) => {
+  for (const L of levels) {
+    const tasks = table.played.get(L.id);
+    for (const s of tasks.filter(x => x.mode === 'circuit')) {
+      const where = tasks.length > 1 ? `${L.id} task ${s.taskId}` : L.id, V = WORLDS[s.world];
+      if (s.solution) {
+        s.tests.forEach((t, i) => {
+          runs++;
+          const r = run(V, t, s.solution, s);
+          if (r.error || r.value !== s.expected[i]) bad(L.id, `${where} test ${i + 1}: the reference gives ${r.error ? JSON.stringify(r.error) : r.value}, expected ${s.expected[i]}`);
+        });
+      }
+      // A challenge's naive board must fail somewhere: the challenge is what it takes beyond the obvious.
+      if (s.naive) {
         runs++;
-        const r = run(V, t, s.solution, s);
-        if (r.error || r.value !== s.expected[i]) bad(L.id, `${L.id} stage ${k + 1} test ${i + 1}: the reference gives ${r.error ? JSON.stringify(r.error) : r.value}, expected ${s.expected[i]}`);
-      });
-    });
-    // A challenge's naive board must fail somewhere: the challenge is what it takes beyond the obvious.
-    if (L.naiveBoard) {
-      const s = L.stages.at(-1), V = WORLDS[s.world];
-      runs++;
-      if (s.tests.every((t, i) => { const r = run(V, t, L.naiveBoard, s); return !r.error && r.value === s.expected[i]; })) bad(L.id, `${L.id}: its naive board passes every test`);
+        if (s.tests.every((t, i) => { const r = run(V, t, s.naive, s); return !r.error && r.value === s.expected[i]; })) bad(L.id, `${where}: its naive board passes every test`);
+      }
     }
-    if (L.builds) checkBuilt(L);
+    if (L.builds && tasks.at(-1).mode === 'circuit') checkBuilt(L, tasks.at(-1));
   }
 
-  /** The part a level builds against the board it stands for. */
-  function checkBuilt(L) {
-    const s = L.stages.at(-1), V = WORLDS[s.world], b = table.model.built[L.unlock];
+  /** The part a level builds against the board it stands for, its last task's. */
+  function checkBuilt(L, s) {
+    const V = WORLDS[s.world], b = table.model.built[L.unlock];
     const why = portsProblem(s.solution, s.ports);
     if (why) bad(L.id, `${L.id}: ${String(why)}`);
     const consts = s.solution.nodes.filter(n => n.type === 'const');

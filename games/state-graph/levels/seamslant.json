@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "可以斜着走", "en": "It may slant" },
   "short": { "zh": "从顶行任意一格出发", "en": "Start anywhere on the top row" },
   "intro": [
@@ -19,32 +18,6 @@
   },
   "robot": "scout",
   "adds": ["block"],
-  "diagnose": [
-    {
-      "when": { "any": [{ "not": { "uses": "ul" } }, { "not": { "uses": "ur" } }] },
-      "say": {
-        "zh": "缝每一步可以往左下、正下、右下走：上一行的左上、正上、右上都是来路。",
-        "en": "Each step of a seam may go below-left, straight down or below-right: up-left, up and up-right on the row above are all ways in."
-      }
-    }
-  ],
-  "checkAll": true,
-  "hints": [
-    {
-      "zh": "到这一格之前，缝在上一行的哪几个像素上？",
-      "en": "Before reaching this cell, which pixels of the row above could the seam be on?"
-    },
-    { "zh": "挑能量最低的那一个，再加上这一格自己的能量。", "en": "Pick the lowest of them, then add this cell’s own energy." }
-  ],
-  "world": "pic",
-  "facts": ["energy", "top"],
-  "tests": [
-    { "energy": [[3, 1, 4], [1, 5, 9], [2, 6, 5], [3, 5, 8]], "R": 4, "C": 3 },
-    { "energy": [[9, 1, 9, 9], [9, 9, 1, 9], [1, 9, 9, 9], [9, 1, 9, 2]], "R": 4, "C": 4 },
-    { "energy": [[2, 8, 3, 7, 1], [6, 4, 9, 2, 5], [1, 7, 3, 8, 6], [5, 2, 6, 1, 9]], "R": 4, "C": 5 }
-  ],
-  "expected": [7, 12, 7],
-  "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"],
   "debrief": {
     "title": { "zh": "三条来路", "en": "Three ways in" },
     "body": [
@@ -53,5 +26,37 @@
         "en": "The same skeleton as <level-ref to=\"cheapest\"></level-ref>: take the min, then add this cell. Only the ways in grew from two to three on the row above, and the start from one cell to the whole top row."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "seamslant",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "any": [{ "not": { "uses": "ul" } }, { "not": { "uses": "ur" } }] },
+          "say": {
+            "zh": "缝每一步可以往左下、正下、右下走：上一行的左上、正上、右上都是来路。",
+            "en": "Each step of a seam may go below-left, straight down or below-right: up-left, up and up-right on the row above are all ways in."
+          }
+        }
+      ],
+      "checkAll": true,
+      "hints": [
+        {
+          "zh": "到这一格之前，缝在上一行的哪几个像素上？",
+          "en": "Before reaching this cell, which pixels of the row above could the seam be on?"
+        },
+        { "zh": "挑能量最低的那一个，再加上这一格自己的能量。", "en": "Pick the lowest of them, then add this cell’s own energy." }
+      ],
+      "world": "pic",
+      "facts": ["energy", "top"],
+      "tests": [
+        { "energy": [[3, 1, 4], [1, 5, 9], [2, 6, 5], [3, 5, 8]], "R": 4, "C": 3 },
+        { "energy": [[9, 1, 9, 9], [9, 9, 1, 9], [1, 9, 9, 9], [9, 1, 9, 2]], "R": 4, "C": 4 },
+        { "energy": [[2, 8, 3, 7, 1], [6, 4, 9, 2, 5], [1, 7, 3, 8, 6], [5, 2, 6, 1, 9]], "R": 4, "C": 5 }
+      ],
+      "expected": [7, 12, 7],
+      "solution": ["c = min(view.ul, view.up, facts.top, facts.energy, view.ur)", "cell <- c"]
+    }
+  ]
 }

@@ -72,7 +72,6 @@ export function SgCanvas({ board, overlay }) {
         height={170}
         minFit={0.62}
         overlay={overlay}
-        scope={board.stage()}
         onClear={board.clearable() ? board.reset : null}
         types={board.types()}
       />
@@ -109,7 +108,6 @@ export function SgPhone({ board, rootRef, brief, tests, results, dock, children 
     label: parts.label,
     openNode: (id) => board.openNode(id, parts.role(graph.nodes.find((n) => n.id === id) ?? {}) === 'part' ? { move: () => editing.startMove(id) } : {}),
     openSlot: (at) => board.openSlot(at, { place: (kind) => editing.place(kind, at) }),
-    scope: board.stage(),
   })
   const reading = board.reading?.()
   const thumb = (node) => {

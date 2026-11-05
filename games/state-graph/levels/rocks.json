@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "落石", "en": "Rockfall" },
   "short": { "zh": "在零件外面加一道闸", "en": "Add a gate outside the part" },
   "intro": [
@@ -72,25 +71,6 @@
   },
   "robot": "scout",
   "adds": ["block"],
-  "hints": [
-    {
-      "zh": "路线不能经过石头。从起点走到石头格，有几条走得通的路线？",
-      "en": "Routes can’t pass through rocks. How many routes from the start can actually get to a rock cell?"
-    },
-    {
-      "zh": "放一个路线计数器和一个拦截闸：本格信息的「是石头」接拦截闸的条件口，数口接路线计数器，再把拦截闸接到「本格」。",
-      "en": "Place a Route Counter and a Block gate: wire This cell’s “is rock” to the gate’s condition port and the Route Counter into its number port, then wire the Block gate to “this cell”."
-    }
-  ],
-  "world": "grid",
-  "facts": ["start", "rock"],
-  "tests": [
-    { "R": 4, "C": 4, "rocks": [[1, 1]] },
-    { "R": 4, "C": 5, "rocks": [[1, 2], [2, 0]] },
-    { "R": 5, "C": 5, "rocks": [[1, 3], [2, 1], [3, 3]] }
-  ],
-  "expected": [8, 12, 10],
-  "solution": ["c = counter(view.up, view.left, facts.start)", "b = block(facts.rock, c)", "cell <- b"],
   "debrief": {
     "title": { "zh": "石头掐断了路线", "en": "The rocks cut the routes" },
     "body": [
@@ -107,5 +87,30 @@
       "zh": "走不通的格子输出「—」，经过它的路线就全被排除了。",
       "en": "A cell that can’t be passed outputs “—”, which rules out every route through it."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "rocks",
+      "mode": "circuit",
+      "hints": [
+        {
+          "zh": "路线不能经过石头。从起点走到石头格，有几条走得通的路线？",
+          "en": "Routes can’t pass through rocks. How many routes from the start can actually get to a rock cell?"
+        },
+        {
+          "zh": "放一个路线计数器和一个拦截闸：本格信息的「是石头」接拦截闸的条件口，数口接路线计数器，再把拦截闸接到「本格」。",
+          "en": "Place a Route Counter and a Block gate: wire This cell’s “is rock” to the gate’s condition port and the Route Counter into its number port, then wire the Block gate to “this cell”."
+        }
+      ],
+      "world": "grid",
+      "facts": ["start", "rock"],
+      "tests": [
+        { "R": 4, "C": 4, "rocks": [[1, 1]] },
+        { "R": 4, "C": 5, "rocks": [[1, 2], [2, 0]] },
+        { "R": 5, "C": 5, "rocks": [[1, 3], [2, 1], [3, 3]] }
+      ],
+      "expected": [8, 12, 10],
+      "solution": ["c = counter(view.up, view.left, facts.start)", "b = block(facts.rock, c)", "cell <- b"]
+    }
+  ]
 }

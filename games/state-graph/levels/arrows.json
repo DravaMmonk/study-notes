@@ -1,5 +1,4 @@
 {
-  "mode": "policy",
   "title": { "zh": "箭头自己长出来", "en": "The arrows grow by themselves" },
   "short": { "zh": "顺着价值走", "en": "Follow the values" },
   "intro": [
@@ -26,14 +25,6 @@
     },
     "how": { "zh": "点虚线框里的邻居，机器人就走过去。", "en": "Click a neighbour in a dashed frame and the robot moves there." }
   },
-  "map": {
-    "R": 5,
-    "C": 6,
-    "gold": [4, 5],
-    "traps": [[3, 4], [1, 2]],
-    "walls": [[0, 3], [1, 3], [2, 3], [3, 1], [4, 1]]
-  },
-  "starts": [[0, 0], [4, 0], [0, 5]],
   "debrief": {
     "title": { "zh": "价值表就是导航", "en": "The value table is a satnav" },
     "body": [
@@ -50,5 +41,19 @@
       "zh": "策略 = 每一格都走向价值最大的邻居。",
       "en": "Policy = from every cell, head for the neighbour with the largest value."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "arrows",
+      "mode": "policy",
+      "map": {
+        "R": 5,
+        "C": 6,
+        "gold": [4, 5],
+        "traps": [[3, 4], [1, 2]],
+        "walls": [[0, 3], [1, 3], [2, 3], [3, 1], [4, 1]]
+      },
+      "starts": [[0, 0], [4, 0], [0, 5]]
+    }
+  ]
 }

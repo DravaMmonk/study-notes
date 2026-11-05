@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "每件可以拿多次", "en": "As many as you like" },
   "short": { "zh": "同一种还能再拿", "en": "The same kind, again" },
   "intro": [
@@ -59,52 +58,6 @@
     "how": { "zh": "还是逐行、从左往右算。", "en": "Still row by row, left to right." }
   },
   "robot": "reach",
-  "diagnose": [
-    {
-      "when": { "all": [{ "uses": "upk" }, { "not": { "uses": "rowk" } }] },
-      "say": {
-        "zh": "从上一行腾地方，每种东西就只拿了一件。这一关，同一种可以拿好几件。",
-        "en": "Making room on the row above takes each kind only once. In this level, you can take several of the same kind."
-      }
-    }
-  ],
-  "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
-  "hints": [
-    { "zh": "这一种一件也不拿：答案还是正上方。", "en": "Taking none of this kind: the answer is still right above." },
-    {
-      "zh": "拿了一件，还能再拿：要找的是「已经考虑过这一种」的那一格。上一行还没考虑过它，本行已经考虑过了。",
-      "en": "After taking one, you may take another: you want the cell that has “already considered this kind”. The row above hasn’t considered it yet; this row has."
-    }
-  ],
-  "world": "knap",
-  "facts": ["value"],
-  "tests": [
-    {
-      "W": 7,
-      "items": [
-        { "n": { "zh": "苹果", "en": "apples" }, "w": 2, "v": 3, "many": true },
-        { "n": { "zh": "西瓜", "en": "melons" }, "w": 3, "v": 5, "many": true }
-      ]
-    },
-    {
-      "W": 10,
-      "items": [
-        { "n": { "zh": "腊肉", "en": "bacon" }, "w": 6, "v": 13, "many": true },
-        { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 10, "many": true },
-        { "n": { "zh": "盐", "en": "salt" }, "w": 1, "v": 1, "many": true }
-      ]
-    },
-    {
-      "W": 9,
-      "items": [
-        { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 9, "many": true },
-        { "n": { "zh": "大米", "en": "rice" }, "w": 3, "v": 5, "many": true },
-        { "n": { "zh": "白糖", "en": "sugar" }, "w": 2, "v": 3, "many": true }
-      ]
-    }
-  ],
-  "expected": [11, 20, 15],
-  "solution": ["c = choose(view.up, view.rowk, facts.value)", "cell <- c"],
   "debrief": {
     "title": { "zh": "完全背包", "en": "Unbounded knapsack" },
     "body": [
@@ -117,5 +70,57 @@
         "en": "It differs from the 0/1 knapsack in one place only: the cell that makes room moves from the row above to this row. This problem is called the <b>unbounded knapsack</b> (unlimited copies of each item)."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "knapmany",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "all": [{ "uses": "upk" }, { "not": { "uses": "rowk" } }] },
+          "say": {
+            "zh": "从上一行腾地方，每种东西就只拿了一件。这一关，同一种可以拿好几件。",
+            "en": "Making room on the row above takes each kind only once. In this level, you can take several of the same kind."
+          }
+        }
+      ],
+      "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
+      "hints": [
+        { "zh": "这一种一件也不拿：答案还是正上方。", "en": "Taking none of this kind: the answer is still right above." },
+        {
+          "zh": "拿了一件，还能再拿：要找的是「已经考虑过这一种」的那一格。上一行还没考虑过它，本行已经考虑过了。",
+          "en": "After taking one, you may take another: you want the cell that has “already considered this kind”. The row above hasn’t considered it yet; this row has."
+        }
+      ],
+      "world": "knap",
+      "facts": ["value"],
+      "tests": [
+        {
+          "W": 7,
+          "items": [
+            { "n": { "zh": "苹果", "en": "apples" }, "w": 2, "v": 3, "many": true },
+            { "n": { "zh": "西瓜", "en": "melons" }, "w": 3, "v": 5, "many": true }
+          ]
+        },
+        {
+          "W": 10,
+          "items": [
+            { "n": { "zh": "腊肉", "en": "bacon" }, "w": 6, "v": 13, "many": true },
+            { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 10, "many": true },
+            { "n": { "zh": "盐", "en": "salt" }, "w": 1, "v": 1, "many": true }
+          ]
+        },
+        {
+          "W": 9,
+          "items": [
+            { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 9, "many": true },
+            { "n": { "zh": "大米", "en": "rice" }, "w": 3, "v": 5, "many": true },
+            { "n": { "zh": "白糖", "en": "sugar" }, "w": 2, "v": 3, "many": true }
+          ]
+        }
+      ],
+      "expected": [11, 20, 15],
+      "solution": ["c = choose(view.up, view.rowk, facts.value)", "cell <- c"]
+    }
+  ]
 }

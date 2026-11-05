@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "冷冻期", "en": "A day’s rest" },
   "short": { "zh": "卖掉后要歇一天", "en": "Rest a day after selling" },
   "intro": [
@@ -24,21 +23,6 @@
     }
   },
   "robot": "stack",
-  "hints": [
-    {
-      "zh": "先试试<level-ref to=\"stock1\"></level-ref>的电路板。",
-      "en": "Try <level-ref to=\"stock1\"></level-ref>’s board first."
-    }
-  ],
-  "world": "stock",
-  "facts": ["gain"],
-  "tests": [
-    { "p": [1, 2, 3, 0, 2], "cool": true },
-    { "p": [1, 2, 4, 1, 7, 8, 3], "cool": true },
-    { "p": [6, 1, 6, 4, 3, 0, 2], "cool": true }
-  ],
-  "expected": [3, 8, 7],
-  "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"],
   "debrief": {
     "title": { "zh": "同一块电路板", "en": "The same board" },
     "body": [
@@ -51,5 +35,26 @@
         "en": "<level-ref to=\"stock1\"></level-ref> is this one with an arrow cut: once sold, there is no going back."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "cooldown",
+      "mode": "circuit",
+      "hints": [
+        {
+          "zh": "先试试<level-ref to=\"stock1\"></level-ref>的电路板。",
+          "en": "Try <level-ref to=\"stock1\"></level-ref>’s board first."
+        }
+      ],
+      "world": "stock",
+      "facts": ["gain"],
+      "tests": [
+        { "p": [1, 2, 3, 0, 2], "cool": true },
+        { "p": [1, 2, 4, 1, 7, 8, 3], "cool": true },
+        { "p": [6, 1, 6, 4, 3, 0, 2], "cool": true }
+      ],
+      "expected": [3, 8, 7],
+      "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"]
+    }
+  ]
 }

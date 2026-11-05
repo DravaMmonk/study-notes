@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "改一个字母", "en": "Change a letter" },
   "short": { "zh": "只许替换", "en": "Replacements only" },
   "intro": [
@@ -24,36 +23,6 @@
     "how": { "zh": "左上那一格是「前面的字母都改好了」。", "en": "The cell up-left means “all the letters before are already fixed”." }
   },
   "robot": "ranger",
-  "diagnose": [
-    {
-      "when": { "any": [{ "uses": "up" }, { "uses": "left" }] },
-      "say": {
-        "zh": "这一关只许换字母，用不上上面和左边：只看左上。",
-        "en": "This level only allows swaps, so up and left are no use: look only at up-left."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "字母相同就不用换：左上原样留下。不同就换一个：左上 + 1。取较小。",
-      "en": "If the letters match, nothing to swap: keep up-left as it is. If they differ, swap one: up-left + 1. Take the smaller."
-    },
-    { "zh": "起点是两个空词，0 步。", "en": "The start is two empty words: 0 steps." }
-  ],
-  "world": "align",
-  "facts": ["same", "start"],
-  "tests": [{ "left": "CAT", "top": "CUT" }, { "left": "GLOVE", "top": "GRAVE" }, { "left": "PAPER", "top": "TAPES" }],
-  "expected": [1, 2, 2],
-  "solution": [
-    "k = const[value=1]()",
-    "g = pass(facts.same, view.ul)",
-    "z = const[value=0]()",
-    "a = add(view.ul, k)",
-    "h = pass(facts.start, z)",
-    "m = mmin(a, g, h)",
-    "cell <- m"
-  ],
-  "border0": false,
   "debrief": {
     "title": { "zh": "沿着对角线", "en": "Down the diagonal" },
     "body": [
@@ -62,5 +31,41 @@
         "en": "Up-left only: everything before is fixed, and this letter either stays or is swapped."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "replace",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "any": [{ "uses": "up" }, { "uses": "left" }] },
+          "say": {
+            "zh": "这一关只许换字母，用不上上面和左边：只看左上。",
+            "en": "This level only allows swaps, so up and left are no use: look only at up-left."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "字母相同就不用换：左上原样留下。不同就换一个：左上 + 1。取较小。",
+          "en": "If the letters match, nothing to swap: keep up-left as it is. If they differ, swap one: up-left + 1. Take the smaller."
+        },
+        { "zh": "起点是两个空词，0 步。", "en": "The start is two empty words: 0 steps." }
+      ],
+      "world": "align",
+      "facts": ["same", "start"],
+      "tests": [{ "left": "CAT", "top": "CUT" }, { "left": "GLOVE", "top": "GRAVE" }, { "left": "PAPER", "top": "TAPES" }],
+      "expected": [1, 2, 2],
+      "solution": [
+        "k = const[value=1]()",
+        "g = pass(facts.same, view.ul)",
+        "z = const[value=0]()",
+        "a = add(view.ul, k)",
+        "h = pass(facts.start, z)",
+        "m = mmin(a, g, h)",
+        "cell <- m"
+      ],
+      "border0": false
+    }
+  ]
 }

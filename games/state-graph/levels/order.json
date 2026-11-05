@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "倒着算", "en": "Work backwards" },
   "short": { "zh": "机器换了方向，电路也得跟着换", "en": "The machine turns round, so must the circuit" },
   "intro": [
@@ -74,43 +73,6 @@
   },
   "robot": "ranger",
   "unlock": "order",
-  "diagnose": [
-    {
-      "when": { "any": [{ "uses": "up" }, { "uses": "left" }, { "uses": "ul" }, { "uses": "ur" }, { "uses": "dl" }] },
-      "say": {
-        "zh": "机器人从右下往左上走，到一个格子时，它上面和左边的格子还空着，不能读。",
-        "en": "The robot walks from the bottom right to the top left, so when it reaches a cell, the cells above and to its left are still empty and can’t be read."
-      }
-    },
-    {
-      "when": { "uses": "start" },
-      "say": {
-        "zh": "从这里数到终点的话，路线是从终点「数回来」的。该放行 1 的是终点，不是起点。",
-        "en": "Counting from here to the end means counting back from the end. The 1 belongs on the end, not on the start."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "这台机器上，能读的只有右边和下面。从这一格出发，第一步能往哪走？",
-      "en": "On this machine, only right and down can be read. Leaving this cell, where can the first step go?"
-    },
-    {
-      "zh": "终点到终点，算 1 条路线：「是终点」放行一个 1。",
-      "en": "From the end to the end counts as 1 route: let a 1 through on “is end”."
-    },
-    {
-      "zh": "路线计数器也能用：右边接「上」，下面接「左」，是终点接「起」。",
-      "en": "The Route Counter works too: right into “up”, down into “left”, and is end into “start”."
-    }
-  ],
-  "world": "grid",
-  "facts": ["start", "end"],
-  "tests": [{ "R": 4, "C": 5 }, { "R": 3, "C": 6 }],
-  "expected": [35, 21],
-  "solution": ["c = counter(view.right, view.down, facts.end)", "cell <- c"],
-  "scan": "rowBR",
-  "answerAt": "start",
   "debrief": {
     "title": { "zh": "顺序决定了能读谁", "en": "The order decides what can be read" },
     "body": [
@@ -128,5 +90,48 @@
       }
     ],
     "note": { "zh": "合法的顺序：每个格子都排在它要读的格子之后。", "en": "A valid order: every cell comes after the cells it reads." }
-  }
+  },
+  "tasks": [
+    {
+      "id": "order",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "any": [{ "uses": "up" }, { "uses": "left" }, { "uses": "ul" }, { "uses": "ur" }, { "uses": "dl" }] },
+          "say": {
+            "zh": "机器人从右下往左上走，到一个格子时，它上面和左边的格子还空着，不能读。",
+            "en": "The robot walks from the bottom right to the top left, so when it reaches a cell, the cells above and to its left are still empty and can’t be read."
+          }
+        },
+        {
+          "when": { "uses": "start" },
+          "say": {
+            "zh": "从这里数到终点的话，路线是从终点「数回来」的。该放行 1 的是终点，不是起点。",
+            "en": "Counting from here to the end means counting back from the end. The 1 belongs on the end, not on the start."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "这台机器上，能读的只有右边和下面。从这一格出发，第一步能往哪走？",
+          "en": "On this machine, only right and down can be read. Leaving this cell, where can the first step go?"
+        },
+        {
+          "zh": "终点到终点，算 1 条路线：「是终点」放行一个 1。",
+          "en": "From the end to the end counts as 1 route: let a 1 through on “is end”."
+        },
+        {
+          "zh": "路线计数器也能用：右边接「上」，下面接「左」，是终点接「起」。",
+          "en": "The Route Counter works too: right into “up”, down into “left”, and is end into “start”."
+        }
+      ],
+      "world": "grid",
+      "facts": ["start", "end"],
+      "tests": [{ "R": 4, "C": 5 }, { "R": 3, "C": 6 }],
+      "expected": [35, 21],
+      "solution": ["c = counter(view.right, view.down, facts.end)", "cell <- c"],
+      "scan": "rowBR",
+      "answerAt": "start"
+    }
+  ]
 }

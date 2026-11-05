@@ -13,8 +13,8 @@ import { lazy, tr } from '../lang.js';
 export const testLabel = (L, V, t) => (L.testLabel ? fill(L.testLabel, t) : V.label(t));
 
 /** First step whose outputs differ from the reference board's; scanning in rounds, the first cell that settled wrong. */
-function firstMismatch(model, L, s, t, res, o) {
-  if (!s.solution || L.noTrace) return null
+function firstMismatch(model, s, t, res, o) {
+  if (!s.solution || s.noTrace) return null
   const ref = model.runCircuit(WORLDS[s.world], t, s.solution, o)
   if (s.rounds) {
     const key = [...ref.table.keys()].find((x) => res.table.get(x) !== ref.table.get(x))
@@ -29,20 +29,20 @@ function firstMismatch(model, L, s, t, res, o) {
   return null
 }
 
-/** Test k of stage `s` run on board `b` (by the course's board model, run.js modelOf): its result, the first step gone
- *  wrong (or cell settled wrong), the view of its end. */
-export function judge(model, L, s, b, k, o) {
+/** Test k of circuit task `s` (course.js played) run on board `b` (by the course's board model, run.js modelOf): its
+ *  result, the first step gone wrong (or cell settled wrong), the view of its end. */
+export function judge(model, s, b, k, o) {
   const t = s.tests[k], res = model.runCircuit(WORLDS[s.world], t, b, o), want = s.expected[k]
   // A level that grades every cell (checkAll) compares the whole table, not just the answer.
-  const mm = res.error || s.onFail || (!s.checkAll && res.value === want) ? null : firstMismatch(model, L, s, t, res, o)
+  const mm = res.error || s.onFail || (!s.checkAll && res.value === want) ? null : firstMismatch(model, s, t, res, o)
   const ok = !res.error && res.value === want && !mm
   const stop = mm && mm.key === undefined ? mm.q + 1 : res.steps.length
   return { t, res, mm, ok, stop, view: { res, k: 0, pass: ok, end: false, halt: Boolean(res.error && !res.error.diverge) || (Boolean(mm) && mm.key === undefined), focus: null, badKey: mm ? mm.key : undefined } }
 }
 
 /**
- * Why test k of a stage failed, as the fail dialog says it: { head, body }, each worded again in the current language
- * when shown. ctx: { L, V (the stage's world), opt (the stage's settings), label(test), expected }.
+ * Why test k of a task failed, as the fail dialog says it: { head, body }, each worded again in the current language
+ * when shown. ctx: { L (the task as played), V (its world), opt (its settings), label(test), expected }.
  */
 export function whyFailed({ L, V, opt, label, expected }, k, test, res, mm) {
   const failed = lazy(() => tr(`测试 ${k + 1} 没通过`, `Test ${k + 1} failed`))

@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "回文", "en": "Palindromes" },
   "short": { "zh": "一张三角形的表", "en": "A triangular table" },
   "intro": [
@@ -66,35 +65,6 @@
     }
   },
   "robot": "ranger",
-  "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
-  "hints": [
-    {
-      "zh": "两端相同时，两端都能留下。剩下的是哪一段，答案又要加几？用放行闸，条件接「两端相同」。",
-      "en": "When the ends match, both can stay. Which stretch is left, and how much do you add? Use a Pass gate with “ends match” as its condition."
-    },
-    {
-      "zh": "两端不同时，至少丢掉一端：去掉右端（左边）或去掉左端（下面），取较大。三路都接进「取较大」。",
-      "en": "When the ends differ, at least one has to go: drop the right end (left) or the left end (down), and take the larger. Wire all three into “max”."
-    },
-    {
-      "zh": "不用担心顺序：每格读的左边、下面、左下都是更短的段，机器人按长度扫，它们一定先算好了。",
-      "en": "No need to worry about the order: left, down and down-left are all shorter stretches, and since the robot scans by length they are always computed first."
-    }
-  ],
-  "world": "interval",
-  "facts": ["same"],
-  "tests": [{ "s": "ABCA" }, { "s": "CHARACTER" }, { "s": "BBABCBCAB" }],
-  "expected": [3, 5, 7],
-  "solution": [
-    "k = const[value=2]()",
-    "a = add(view.dl, k)",
-    "g = pass(facts.same, a)",
-    "m = mmax(view.left, view.down, g)",
-    "cell <- m"
-  ],
-  "scan": "len",
-  "diag": 1,
-  "empty0": true,
   "debrief": {
     "title": { "zh": "区间表", "en": "The interval table" },
     "body": [
@@ -111,5 +81,40 @@
       "zh": "区间表：(i, j) 记一段的答案，靠更短的段算出来。",
       "en": "Interval table: (i, j) holds the answer for a stretch, computed from shorter stretches."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "palin",
+      "mode": "circuit",
+      "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
+      "hints": [
+        {
+          "zh": "两端相同时，两端都能留下。剩下的是哪一段，答案又要加几？用放行闸，条件接「两端相同」。",
+          "en": "When the ends match, both can stay. Which stretch is left, and how much do you add? Use a Pass gate with “ends match” as its condition."
+        },
+        {
+          "zh": "两端不同时，至少丢掉一端：去掉右端（左边）或去掉左端（下面），取较大。三路都接进「取较大」。",
+          "en": "When the ends differ, at least one has to go: drop the right end (left) or the left end (down), and take the larger. Wire all three into “max”."
+        },
+        {
+          "zh": "不用担心顺序：每格读的左边、下面、左下都是更短的段，机器人按长度扫，它们一定先算好了。",
+          "en": "No need to worry about the order: left, down and down-left are all shorter stretches, and since the robot scans by length they are always computed first."
+        }
+      ],
+      "world": "interval",
+      "facts": ["same"],
+      "tests": [{ "s": "ABCA" }, { "s": "CHARACTER" }, { "s": "BBABCBCAB" }],
+      "expected": [3, 5, 7],
+      "solution": [
+        "k = const[value=2]()",
+        "a = add(view.dl, k)",
+        "g = pass(facts.same, a)",
+        "m = mmax(view.left, view.down, g)",
+        "cell <- m"
+      ],
+      "scan": "len",
+      "diag": 1,
+      "empty0": true
+    }
+  ]
 }

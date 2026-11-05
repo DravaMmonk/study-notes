@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "安全过河", "en": "A safe crossing" },
   "short": { "zh": "可能性要连乘", "en": "Chances multiply" },
   "intro": [
@@ -28,34 +27,6 @@
   },
   "robot": "reach",
   "adds": ["mul"],
-  "diagnose": [
-    {
-      "when": { "not": { "has": "mul" } },
-      "say": { "zh": "可能性要乘起来：用乘法器。", "en": "Chances multiply: use the Multiplier." }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "到这块最稳的路线 = 来处最稳的路线 × 这块站稳的可能。",
-      "en": "The steadiest route to this stone = the steadiest route to where it came from × this stone’s chance of holding."
-    },
-    { "zh": "两个来处，挑更稳的：取较大。", "en": "Of the two places it can come from, pick the steadier: take the max." }
-  ],
-  "world": "river",
-  "facts": ["bank", "hold"],
-  "tests": [
-    { "k": [0, null, 2, 3, 2, 4, 3], "p": [1, 0.9, 0.5, 0.8, 0.9, 0.6, 0.9] },
-    { "k": [0, null, 2, 2, 3, null, 4, 2], "p": [1, 0.8, 0.9, 0.5, 0.9, 0.7, 0.9, 0.8] },
-    { "k": [0, null, 2, 3, 4, 2, 5, 3, 2], "p": [1, 0.6, 0.9, 0.8, 0.5, 0.9, 0.9, 0.7, 0.9] }
-  ],
-  "expected": [0.72, 0.648, 0.5832],
-  "solution": [
-    "k = const[value=1]()",
-    "g = pass(facts.bank, k)",
-    "m = mmax(view.m1, view.back, g)",
-    "x = mul(m, facts.hold)",
-    "cell <- x"
-  ],
   "debrief": {
     "title": { "zh": "乘起来，取较大", "en": "Multiply, then take the max" },
     "body": [
@@ -64,5 +35,39 @@
         "en": "<level-ref to=\"cheapest\"></level-ref> added and took the min; here you multiply and take the max. The operations changed; the skeleton did not."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "safefrog",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "has": "mul" } },
+          "say": { "zh": "可能性要乘起来：用乘法器。", "en": "Chances multiply: use the Multiplier." }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "到这块最稳的路线 = 来处最稳的路线 × 这块站稳的可能。",
+          "en": "The steadiest route to this stone = the steadiest route to where it came from × this stone’s chance of holding."
+        },
+        { "zh": "两个来处，挑更稳的：取较大。", "en": "Of the two places it can come from, pick the steadier: take the max." }
+      ],
+      "world": "river",
+      "facts": ["bank", "hold"],
+      "tests": [
+        { "k": [0, null, 2, 3, 2, 4, 3], "p": [1, 0.9, 0.5, 0.8, 0.9, 0.6, 0.9] },
+        { "k": [0, null, 2, 2, 3, null, 4, 2], "p": [1, 0.8, 0.9, 0.5, 0.9, 0.7, 0.9, 0.8] },
+        { "k": [0, null, 2, 3, 4, 2, 5, 3, 2], "p": [1, 0.6, 0.9, 0.8, 0.5, 0.9, 0.9, 0.7, 0.9] }
+      ],
+      "expected": [0.72, 0.648, 0.5832],
+      "solution": [
+        "k = const[value=1]()",
+        "g = pass(facts.bank, k)",
+        "m = mmax(view.m1, view.back, g)",
+        "x = mul(m, facts.hold)",
+        "cell <- x"
+      ]
+    }
+  ]
 }

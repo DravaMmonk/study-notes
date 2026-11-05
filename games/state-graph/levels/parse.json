@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "句子的骨架", "en": "The skeleton of a sentence" },
   "short": { "zh": "一句话有几种读法", "en": "How many ways can a sentence be read?" },
   "intro": [
@@ -39,38 +38,6 @@
     }
   },
   "robot": "broom",
-  "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
-  "hints": [
-    {
-      "zh": "先只看一个切分点：左边的每一种方式，都能和右边的每一种搭配。这样一共有几种？",
-      "en": "Look at a single split point first: every way on the left can go with every way on the right. How many is that in all?"
-    },
-    { "zh": "所有切分点的结果都算数：接进「加起来」。", "en": "Every split point’s result counts: wire them into “sum”." }
-  ],
-  "world": "interval",
-  "tests": [
-    { "words": [{ "zh": "咬死了", "en": "old" }, { "zh": "猎人的", "en": "men and" }, { "zh": "狗", "en": "women" }] },
-    {
-      "words": [
-        { "zh": "我", "en": "I" },
-        { "zh": "看见", "en": "saw" },
-        { "zh": "他", "en": "him" },
-        { "zh": "笑", "en": "laugh" }
-      ]
-    },
-    {
-      "words": [
-        { "zh": "白", "en": "big" },
-        { "zh": "天", "en": "white" },
-        { "zh": "鹅", "en": "swans" },
-        { "zh": "飞", "en": "flew" },
-        { "zh": "过", "en": "by" }
-      ]
-    }
-  ],
-  "expected": [2, 5, 14],
-  "solution": ["x = mul(view.segL, view.segR)", "s = msum(x)", "cell <- s"],
-  "diag": 1,
   "debrief": {
     "title": { "zh": "句法分析", "en": "Parsing" },
     "body": [
@@ -87,5 +54,43 @@
       "zh": "句法树：每个切分点「左 × 右」，再加起来。",
       "en": "Parse trees: “left × right” at each split point, then add them up."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "parse",
+      "mode": "circuit",
+      "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
+      "hints": [
+        {
+          "zh": "先只看一个切分点：左边的每一种方式，都能和右边的每一种搭配。这样一共有几种？",
+          "en": "Look at a single split point first: every way on the left can go with every way on the right. How many is that in all?"
+        },
+        { "zh": "所有切分点的结果都算数：接进「加起来」。", "en": "Every split point’s result counts: wire them into “sum”." }
+      ],
+      "world": "interval",
+      "tests": [
+        { "words": [{ "zh": "咬死了", "en": "old" }, { "zh": "猎人的", "en": "men and" }, { "zh": "狗", "en": "women" }] },
+        {
+          "words": [
+            { "zh": "我", "en": "I" },
+            { "zh": "看见", "en": "saw" },
+            { "zh": "他", "en": "him" },
+            { "zh": "笑", "en": "laugh" }
+          ]
+        },
+        {
+          "words": [
+            { "zh": "白", "en": "big" },
+            { "zh": "天", "en": "white" },
+            { "zh": "鹅", "en": "swans" },
+            { "zh": "飞", "en": "flew" },
+            { "zh": "过", "en": "by" }
+          ]
+        }
+      ],
+      "expected": [2, 5, 14],
+      "solution": ["x = mul(view.segL, view.segR)", "s = msum(x)", "cell <- s"],
+      "diag": 1
+    }
+  ]
 }

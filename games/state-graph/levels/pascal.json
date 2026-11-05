@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "杨辉三角", "en": "Pascal’s triangle" },
   "short": { "zh": "表换了形状", "en": "A table of another shape" },
   "intro": [
@@ -21,30 +20,6 @@
     "how": { "zh": "一层一层、从左往右算。", "en": "Row by row, left to right." }
   },
   "robot": "scout",
-  "diagnose": [
-    {
-      "when": { "uses": "left" },
-      "say": {
-        "zh": "往下走只会到正下方或右下方，所以来路在上一层：正上方和左上方。",
-        "en": "Moving down only reaches the brick below or below-right, so the ways in are on the row above: right above and up-left."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "只看最后一步：走到这块砖之前，你在哪一块上？",
-      "en": "Look only at the last step: before reaching this brick, which brick were you on?"
-    },
-    {
-      "zh": "三角形左边缘和右边缘的砖，只有一块砖能走过来，另一边是「—」。",
-      "en": "Bricks on the triangle’s left and right edges can be reached from one brick only; the other side is “—”."
-    }
-  ],
-  "world": "tri",
-  "facts": ["start"],
-  "tests": [{ "R": 5, "k": 2 }, { "R": 7, "k": 3 }, { "R": 6, "k": 1 }],
-  "expected": [6, 20, 5],
-  "solution": ["c = counter(view.up, view.ul, facts.start)", "cell <- c"],
   "debrief": {
     "title": { "zh": "杨辉三角", "en": "Pascal’s triangle" },
     "body": [
@@ -57,5 +32,35 @@
         "en": "A table need not be square: any shape can be filled, as long as each cell knows its ways in."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "pascal",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "uses": "left" },
+          "say": {
+            "zh": "往下走只会到正下方或右下方，所以来路在上一层：正上方和左上方。",
+            "en": "Moving down only reaches the brick below or below-right, so the ways in are on the row above: right above and up-left."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "只看最后一步：走到这块砖之前，你在哪一块上？",
+          "en": "Look only at the last step: before reaching this brick, which brick were you on?"
+        },
+        {
+          "zh": "三角形左边缘和右边缘的砖，只有一块砖能走过来，另一边是「—」。",
+          "en": "Bricks on the triangle’s left and right edges can be reached from one brick only; the other side is “—”."
+        }
+      ],
+      "world": "tri",
+      "facts": ["start"],
+      "tests": [{ "R": 5, "k": 2 }, { "R": 7, "k": 3 }, { "R": 6, "k": 1 }],
+      "expected": [6, 20, 5],
+      "solution": ["c = counter(view.up, view.ul, facts.start)", "cell <- c"]
+    }
+  ]
 }

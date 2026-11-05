@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "买卖一次股票", "en": "Buy once, sell once" },
   "short": { "zh": "每天在哪一层", "en": "Which layer you are on each day" },
   "intro": [
@@ -33,30 +32,6 @@
     }
   },
   "robot": "stack",
-  "diagnose": [
-    {
-      "when": { "not": { "uses": "leftPrev" } },
-      "say": {
-        "zh": "买和卖都是换一层：探针读来处那层的前一天。",
-        "en": "Buying and selling both change layer: the probe reads the layer you come from, the day before."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "维持原样，还是从来处走过来？取较大。",
-      "en": "Stay as you were, or step over from where you come from? Take the larger."
-    },
-    {
-      "zh": "从来处走过来 = 探针读到的 + 这一步的进账。",
-      "en": "Stepping over = what the probe reads + what the step brings in."
-    }
-  ],
-  "world": "stock",
-  "facts": ["gain"],
-  "tests": [{ "p": [7, 1, 5, 3, 6, 4] }, { "p": [7, 6, 4, 3, 1] }, { "p": [3, 2, 6, 5, 0, 3] }],
-  "expected": [5, 0, 4],
-  "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"],
   "debrief": {
     "title": { "zh": "状态写成了层", "en": "The state became layers" },
     "body": [
@@ -65,5 +40,35 @@
         "en": "Each layer holds “the most money you can have today, ending today in this state”. Buying and selling just move you from one layer to another."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "stock1",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "uses": "leftPrev" } },
+          "say": {
+            "zh": "买和卖都是换一层：探针读来处那层的前一天。",
+            "en": "Buying and selling both change layer: the probe reads the layer you come from, the day before."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "维持原样，还是从来处走过来？取较大。",
+          "en": "Stay as you were, or step over from where you come from? Take the larger."
+        },
+        {
+          "zh": "从来处走过来 = 探针读到的 + 这一步的进账。",
+          "en": "Stepping over = what the probe reads + what the step brings in."
+        }
+      ],
+      "world": "stock",
+      "facts": ["gain"],
+      "tests": [{ "p": [7, 1, 5, 3, 6, 4] }, { "p": [7, 6, 4, 3, 1] }, { "p": [3, 2, 6, 5, 0, 3] }],
+      "expected": [5, 0, 4],
+      "solution": ["a = add(view.leftPrev, facts.gain)", "m = mmax(view.left, a)", "cell <- m"]
+    }
+  ]
 }

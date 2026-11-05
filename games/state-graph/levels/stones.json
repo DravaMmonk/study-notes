@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "合并石子", "en": "Merging stones" },
   "short": { "zh": "在每个切分点上合并", "en": "Merge at every split point" },
   "intro": [
@@ -63,24 +62,6 @@
   "robot": "broom",
   "unlock": "interval",
   "builds": { "ports": [{ "reads": "segL" }, { "reads": "segR" }, { "reads": "weight" }] },
-  "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
-  "hints": [
-    {
-      "zh": "先只看一个切分点：最后一次合并之前，左段和右段各自合成一堆的花费在哪里？它们该怎么合起来？",
-      "en": "Look at a single split point first: before the last merge, where are the costs of merging the left part and the right part each into one pile? How should they be combined?"
-    },
-    {
-      "zh": "所有切分点里挑最省的（取较小），再加上这一段的总重。",
-      "en": "Pick the cheapest of all the split points (min), then add this run’s total weight."
-    }
-  ],
-  "world": "interval",
-  "facts": ["weight"],
-  "tests": [{ "w": [3, 1, 2] }, { "w": [4, 1, 1, 4] }, { "w": [2, 3, 1, 5, 2] }],
-  "expected": [9, 18, 30],
-  "solution": ["a = add(view.segL, view.segR)", "m = mmin(a)", "b = add(m, facts.weight)", "cell <- b"],
-  "scan": "len",
-  "diag": 0,
   "debrief": {
     "title": { "zh": "区间合并", "en": "Interval merging" },
     "body": [
@@ -97,5 +78,29 @@
       "zh": "区间合并：最后一步合并左段和右段；在所有切分点里挑最省的，再加整段的代价。",
       "en": "Interval merging: the last step joins a left part and a right part; pick the cheapest split point, then add the cost of the whole run."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "stones",
+      "mode": "circuit",
+      "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
+      "hints": [
+        {
+          "zh": "先只看一个切分点：最后一次合并之前，左段和右段各自合成一堆的花费在哪里？它们该怎么合起来？",
+          "en": "Look at a single split point first: before the last merge, where are the costs of merging the left part and the right part each into one pile? How should they be combined?"
+        },
+        {
+          "zh": "所有切分点里挑最省的（取较小），再加上这一段的总重。",
+          "en": "Pick the cheapest of all the split points (min), then add this run’s total weight."
+        }
+      ],
+      "world": "interval",
+      "facts": ["weight"],
+      "tests": [{ "w": [3, 1, 2] }, { "w": [4, 1, 1, 4] }, { "w": [2, 3, 1, 5, 2] }],
+      "expected": [9, 18, 30],
+      "solution": ["a = add(view.segL, view.segR)", "m = mmin(a)", "b = add(m, facts.weight)", "cell <- b"],
+      "scan": "len",
+      "diag": 0
+    }
+  ]
 }

@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "走不到的路口", "en": "Out of reach" },
   "short": { "zh": "斜街上最省力", "en": "Least effort on slanted streets" },
   "intro": [
@@ -85,53 +84,6 @@
       { "way": { "n": 3, "input": "way3" } }
     ]
   },
-  "diagnose": [
-    {
-      "when": { "uses": "up" },
-      "say": {
-        "zh": "这座城市不能往下直走，从上面是走不过来的。",
-        "en": "In this city you can’t go straight down, so nothing arrives from above."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "从左上出发，只往右和往右下走，能走到左下角吗？那里该写什么？",
-      "en": "Leaving the top left and going only right or down-right, can you ever reach the bottom-left corner? What should be written there?"
-    },
-    {
-      "zh": "「加起来」汇合器会跳过「—」，所以走不到的路口加上体力，也成了一个数。用加法器加体力。",
-      "en": "The “sum” Merger skips “—”, so a crossing out of reach still turns into a number once its energy is added. Add the energy with an Adder."
-    },
-    {
-      "zh": "起点的来路全是「—」，加法器也会得出「—」。用放行闸在起点往取较小里送一个 0（常数放上去后，点它可以改成 0）。",
-      "en": "At the start every way in is “—”, so the Adder gives “—” too. Use a Pass gate to send a 0 into the min at the start (once the Constant is on the board, click it to change it to 0)."
-    },
-    {
-      "zh": "「来路三」这一关一直是「—」，可它也是元件的一个口：和左边、左上一起接进取较小。",
-      "en": "“Way in 3” is always “—” in this level, but it is one of the part’s ports too: wire it into the min together with left and up-left."
-    }
-  ],
-  "world": "grid",
-  "facts": ["start", "cost"],
-  "tests": [
-    { "R": 3, "C": 3, "costs": [[2, 1, 3], [1, 4, 1], [1, 1, 2]] },
-    { "R": 3, "C": 4, "costs": [[2, 1, 1, 1], [1, 4, 9, 9], [1, 1, 5, 1]] },
-    {
-      "R": 4,
-      "C": 6,
-      "costs": [[1, 2, 4, 3, 1, 2], [1, 3, 1, 5, 4, 1], [1, 1, 6, 2, 1, 3], [1, 1, 1, 4, 2, 1]]
-    }
-  ],
-  "expected": [8, 12, 8],
-  "solution": [
-    "m = mmin(view.left, view.ul, way3)",
-    "k = const[value=0]()",
-    "g = pass(facts.start, k)",
-    "s = mmin(m, g)",
-    "a = add(s, facts.cost)",
-    "cell <- a"
-  ],
   "debrief": {
     "title": { "zh": "走不到，就一直走不到", "en": "Out of reach stays out of reach" },
     "body": [
@@ -148,5 +100,58 @@
       "zh": "加法器：有一边是「—」，结果就是「—」。「加起来」汇合器会跳过「—」。",
       "en": "Adder: if either side is “—”, so is the result. The “sum” Merger skips “—”."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "slantcost",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "uses": "up" },
+          "say": {
+            "zh": "这座城市不能往下直走，从上面是走不过来的。",
+            "en": "In this city you can’t go straight down, so nothing arrives from above."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "从左上出发，只往右和往右下走，能走到左下角吗？那里该写什么？",
+          "en": "Leaving the top left and going only right or down-right, can you ever reach the bottom-left corner? What should be written there?"
+        },
+        {
+          "zh": "「加起来」汇合器会跳过「—」，所以走不到的路口加上体力，也成了一个数。用加法器加体力。",
+          "en": "The “sum” Merger skips “—”, so a crossing out of reach still turns into a number once its energy is added. Add the energy with an Adder."
+        },
+        {
+          "zh": "起点的来路全是「—」，加法器也会得出「—」。用放行闸在起点往取较小里送一个 0（常数放上去后，点它可以改成 0）。",
+          "en": "At the start every way in is “—”, so the Adder gives “—” too. Use a Pass gate to send a 0 into the min at the start (once the Constant is on the board, click it to change it to 0)."
+        },
+        {
+          "zh": "「来路三」这一关一直是「—」，可它也是元件的一个口：和左边、左上一起接进取较小。",
+          "en": "“Way in 3” is always “—” in this level, but it is one of the part’s ports too: wire it into the min together with left and up-left."
+        }
+      ],
+      "world": "grid",
+      "facts": ["start", "cost"],
+      "tests": [
+        { "R": 3, "C": 3, "costs": [[2, 1, 3], [1, 4, 1], [1, 1, 2]] },
+        { "R": 3, "C": 4, "costs": [[2, 1, 1, 1], [1, 4, 9, 9], [1, 1, 5, 1]] },
+        {
+          "R": 4,
+          "C": 6,
+          "costs": [[1, 2, 4, 3, 1, 2], [1, 3, 1, 5, 4, 1], [1, 1, 6, 2, 1, 3], [1, 1, 1, 4, 2, 1]]
+        }
+      ],
+      "expected": [8, 12, 8],
+      "solution": [
+        "m = mmin(view.left, view.ul, way3)",
+        "k = const[value=0]()",
+        "g = pass(facts.start, k)",
+        "s = mmin(m, g)",
+        "a = add(s, facts.cost)",
+        "cell <- a"
+      ]
+    }
+  ]
 }

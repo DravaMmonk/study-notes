@@ -1,5 +1,5 @@
-// What content shows under a test board (vocabulary.js panel), and in the dialog of a failure that is a stage's lesson
-// (a stage's onFail `show`): each panel item drawn for a test, in the current language.
+// What content shows under a test board (vocabulary.js panel), and in the dialog of a failure that is a task's lesson
+// (a task's onFail `show`): each panel item drawn for a test, in the current language.
 
 import { callOf } from '../../../engine/schema.js'
 import { L } from '../../../shell/i18n.js'

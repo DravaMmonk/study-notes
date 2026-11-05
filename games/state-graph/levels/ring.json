@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "环形街道", "en": "A ring of houses" },
   "short": { "zh": "首尾也挨着", "en": "The ends are neighbours too" },
   "intro": [
@@ -24,31 +23,6 @@
     "how": { "zh": "答案是两层最后一列里最大的那一格。", "en": "The answer is the largest cell in the last column of either layer." }
   },
   "robot": "stack",
-  "naive": ["n = mmax(view.pn, view.pr)", "a = add(view.pn, facts.money)", "no <- n", "yes <- a"],
-  "hints": [
-    {
-      "zh": "首尾不能都偷，所以每种偷法至少放过其中一家。那两层可以各管一种情况吗？",
-      "en": "The ends can’t both be robbed, so every plan leaves at least one of them alone. Could each layer take one of those cases?"
-    },
-    {
-      "zh": "哪一层、哪一家的「偷了」要拦下？「是甲层」可以当放行闸和拦截闸的条件。",
-      "en": "On which layer is “robbed” stopped, and at which house? “Is layer A” can be a gate’s condition."
-    }
-  ],
-  "world": "ring",
-  "facts": ["money", "first", "last", "sideA"],
-  "tests": [{ "a": [2, 3, 2] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }, { "a": [6, 2, 3, 7, 1, 5] }],
-  "expected": [3, 6, 18, 14],
-  "solution": [
-    "n = mmax(view.pn, view.pr)",
-    "a = add(view.pn, facts.money)",
-    "f = pass(facts.sideA, facts.first)",
-    "l = block(facts.sideA, facts.last)",
-    "x = many(f, l)",
-    "k = block(x, a)",
-    "no <- n",
-    "yes <- k"
-  ],
   "debrief": {
     "title": { "zh": "拆成两种情况", "en": "Split into two cases" },
     "body": [
@@ -61,5 +35,36 @@
         "en": "Splitting into cases is remembering one more thing too: which case you are in."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "ring",
+      "mode": "circuit",
+      "naive": ["n = mmax(view.pn, view.pr)", "a = add(view.pn, facts.money)", "no <- n", "yes <- a"],
+      "hints": [
+        {
+          "zh": "首尾不能都偷，所以每种偷法至少放过其中一家。那两层可以各管一种情况吗？",
+          "en": "The ends can’t both be robbed, so every plan leaves at least one of them alone. Could each layer take one of those cases?"
+        },
+        {
+          "zh": "哪一层、哪一家的「偷了」要拦下？「是甲层」可以当放行闸和拦截闸的条件。",
+          "en": "On which layer is “robbed” stopped, and at which house? “Is layer A” can be a gate’s condition."
+        }
+      ],
+      "world": "ring",
+      "facts": ["money", "first", "last", "sideA"],
+      "tests": [{ "a": [2, 3, 2] }, { "a": [5, 1, 1, 5] }, { "a": [4, 10, 3, 1, 8, 6] }, { "a": [6, 2, 3, 7, 1, 5] }],
+      "expected": [3, 6, 18, 14],
+      "solution": [
+        "n = mmax(view.pn, view.pr)",
+        "a = add(view.pn, facts.money)",
+        "f = pass(facts.sideA, facts.first)",
+        "l = block(facts.sideA, facts.last)",
+        "x = many(f, l)",
+        "k = block(x, a)",
+        "no <- n",
+        "yes <- k"
+      ]
+    }
+  ]
 }

@@ -3,11 +3,13 @@
 // output of its own), wires parts on the shared circuit editor (../BoardView.jsx), and the board writes the robot's
 // cell. Before a run the test board is a sandbox: the player types numbers into cells and puts the robot anywhere, and
 // the robot's cell shows the board's answer at once. Running clears the board and the robot starts from its usual cell.
-// A level may have several stages (course.js): a new world with new inputs (when a run fails on purpose, the stage's
-// onFail), or a new question on the same board (when every test passes; `carry` keeps the board). A level may also
-// start from the board the player left on an earlier level it requires (the level's `carry`). A level that builds a
-// part passes only on a board that reads exactly the part's ports. A run that ends (every test passed, or the one that
-// failed) is kept as { stage, test } (the shell's lastRun): the level opens on it again, replayed on the board.
+// The screen plays one task of a level (course.js played): its board is the one the shell keeps for the task, and
+// passing it is the shell's solve. A task may be a new world with new inputs after one whose failure is its lesson
+// (that task's onFail: the lesson passes it, and the level goes on to the next task), or a new question on the same
+// board (`carries`: the shell opens it on the task before's board). A level's first task may also start from the board
+// the player left on an earlier level it requires (the level's `carry`). A level that builds a part passes only on a
+// board that reads exactly the part's ports. A run that ends (every test passed, or the one that failed) is kept as
+// { test } (the shell's lastRun): the task opens on it again, replayed on the board.
 import { createElement, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { Pause, Play, StepForward } from 'lucide-react'
 import { Sheet, TestStatus, Workbench } from '../../../../shell/index.js'
@@ -16,7 +18,7 @@ import { paceOf } from '../../../../engine/trace.js'
 import { WORLDS, windowOf } from '../../model/worlds.js'
 import { ROBOTS } from '../../model/robots.js'
 import { CARDS, isCard, isGiven, modelsOf } from '../../model/parts.js'
-import { blank, clone, fitted, picksOf, placed, portsProblem, readsOf, removeNode, splitSrc, withPicks } from '../../model/board.js'
+import { blank, fitted, picksOf, placed, portsProblem, readsOf, removeNode, splitSrc, withPicks } from '../../model/board.js'
 import { judge, testLabel, whyFailed } from '../../model/verdict.js'
 import { signal } from '../../model/format.js'
 import { diagnosisOf, guideAt } from '../../items/conditions.js'
@@ -58,18 +60,14 @@ const itemsOf = (def, all) => {
   })
 }
 
-/** The level as it opens: its stage and boards as saved (a level that grows an earlier one's board starts from the
- *  player's last board there), and the run kept from the last visit, replayed as it ended. */
-function opening(model, L, saved, progress, lastRun) {
-  const carried = L.carry && progress?.data[L.carry]?.boards
-  const startOf = (k) => (k === 0 && carried ? clone(carried.at(-1)) : blank())
-  const stage = saved?.stage ?? 0
-  const boards = L.stages.map((s, k) => fitted(saved?.boards?.[k] ?? startOf(k), s.given))
-  const s = L.stages[stage]
-  const st = { stage, boards, ti: 0, status: s.tests.map(() => null), view: null, typed: {}, robot: null, sel: null, input: '' }
-  if (lastRun && lastRun.stage === stage && lastRun.test < s.tests.length) {
+/** The task as it opens: its board as saved (else as course.js opening starts it), and the run kept from the last
+ *  visit, replayed as it ended. */
+function opening(table, L, saved, progress, lastRun) {
+  const board = saved?.nodes ? fitted(saved, L.given) : table.opening(L, progress.data)
+  const st = { board, ti: 0, status: L.tests.map(() => null), view: null, typed: {}, robot: null, sel: null, input: '' }
+  if (lastRun && lastRun.test < L.tests.length) {
     for (let k = 0; k <= lastRun.test; k++) {
-      const { ok, stop, view } = judge(model, L, s, boards[stage], k, { ...s, boardWidth: 0 })
+      const { ok, stop, view } = judge(table.model, L, board, k, { ...L, boardWidth: 0 })
       st.status[k] = ok ? 'pass' : 'fail'
       if (k === lastRun.test) Object.assign(st, { ti: k, view: { ...view, k: stop, end: true } })
     }
@@ -79,7 +77,6 @@ function opening(model, L, saved, progress, lastRun) {
 
 export default function Circuit({ game, level, saved, save, solve, fail, lastRun, keepRun, flags, progress, phone }) {
   const L = level.source
-  const stages = L.stages
   const robot = ROBOTS[L.robot]
   const model = game.table.model
   const player = usePlayer()
@@ -87,9 +84,9 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   const [toast, toastEl] = useToast()
   const shell = useRef(null)
   shell.current = { save, keepRun }
-  // The level's state: { stage, boards, ti, status, view, typed, robot, sel, input }. `put` applies a change at once to
+  // The task's state: { board, ti, status, view, typed, robot, sel, input }. `put` applies a change at once to
   // the latest state, so a run under way and the handlers it outlives never work on an old one.
-  const [st, setSt] = useState(() => opening(model, L, saved, progress, lastRun))
+  const [st, setSt] = useState(() => opening(game.table, L, saved, progress, lastRun))
   const latest = useRef(st)
   latest.current = st
   const put = (change) => {
@@ -97,28 +94,32 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     latest.current = next
     setSt(next)
   }
-  const [sheet, setSheet] = useState(null) // { kind: 'node', id, move? } | { kind: 'slot', at, place } | { kind: 'stage' }
+  const [sheet, setSheet] = useState(null) // { kind: 'node', id, move? } | { kind: 'slot', at, place }
   const [boardWidth, setBoardWidth] = useState(0) // px the test board may take across (a board of several layers lays them out to it)
   const root = useRef(null)
   const running = player.running
+  // A task that brings something new says so the first time it opens.
+  useEffect(() => {
+    if (L.unlockToast && !progress.data[L.taskId]) toast(L.unlockToast)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // A part is in the palette once the level that builds it is solved, and stays in every level after it; what the
   // level's puzzle does not need is folded away (../../../../course.js offer).
   const allowed = useMemo(() => game.table.usableIn(L, flags), [game, L, flags])
   const shownSet = useMemo(() => new Set(game.table.offerIn(L, flags).shown), [game, L, flags])
-  const s = stages[st.stage], V = WORLDS[s.world], board = st.boards[st.stage], tests = s.tests, expected = s.expected
+  const s = L, V = WORLDS[s.world], board = st.board, tests = s.tests, expected = s.expected
   const opt = { ...s, boardWidth }
-  /** The parts this player can use on this stage (its palette holds the carried ones too), in its order; of those,
-   *  the ones the stage shows, and the folded rest. */
+  /** The parts this player can use on this task (its palette holds the carried ones too), in its order; of those, the
+   *  ones the task shows, and the folded rest. */
   const offeredParts = s.palette.filter((k) => allowed.has(k))
   const shownParts = offeredParts.filter((k) => shownSet.has(k))
   const foldedParts = offeredParts.filter((k) => !shownSet.has(k))
   const label = (t) => testLabel(L, V, t)
-  /** The sensors a card may read on this stage, in the order it offers them. */
+  /** The sensors a card may read on this task, in the order it offers them. */
   const offered = (card) => s.given.offers[card]
   const avail = [...offered('view'), ...offered('facts')]
-  /** The port inputs of the part this stage builds, by id, for the editor's labels. */
-  const terms = { sensors: V.sensors, outs: V.outs, ports: Object.fromEntries((s.ports ?? []).filter((p) => p.input).map((p) => [p.input, { label: p.label, short: p.short }])) }
+  /** The port inputs of the part this task builds, by id, for the editor's labels. */
+  const terms = { sensors: V.sensors, outs: V.outs, ports: Object.fromEntries(s.ports.filter((p) => p.input).map((p) => [p.input, { label: p.label, short: p.short }])) }
 
   // What is on the test board now: the sandbox (typed numbers, the robot where the player put it, its answer computed
   // live), or the step of the run being shown.
@@ -157,13 +158,12 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     return w
   })()
 
-  /** A change of board or stage: the tests start over, the board is kept, and the last run is gone. */
-  const commit = (change) => {
-    put((x) => ({ ...change, status: stages[change.stage ?? x.stage].tests.map(() => null), view: null }))
-    shell.current.save({ stage: latest.current.stage, boards: latest.current.boards })
+  /** A change of board: the tests start over, the board is kept, and the last run is gone. */
+  const setBoard = (b) => {
+    put({ board: b, status: tests.map(() => null), view: null })
+    shell.current.save(b)
     shell.current.keepRun(null)
   }
-  const setBoard = (b) => commit({ boards: latest.current.boards.map((x, k) => (k === latest.current.stage ? b : x)) })
   const fresh = () => fitted(blank(), s.given)
   /** A card reads one more sensor, or one fewer: each is an output of its own, in the order the card offers them, and
    *  the wires from a sensor taken off come off with it. */
@@ -191,34 +191,28 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   /** The hint for this failure (the misses before it pick which), worded again in the current language whenever the
    *  fail dialog is redrawn. */
   const hintFor = () => {
-    const b = board, at = { stage: st.stage }, before = verdict.fails.current
-    const pick = () => diagnosisOf(L.diagnose, b, at) || (s.hints ? s.hints[Math.min(Math.max(before - 1, 0), s.hints.length - 1)] : null)
+    const b = board, before = verdict.fails.current
+    const pick = () => diagnosisOf(L.diagnose, b) || (s.hints ? s.hints[Math.min(Math.max(before - 1, 0), s.hints.length - 1)] : null)
     return pick() ? lazy(pick) : null
   }
   /** Why test k failed (model/verdict.js), worded again whenever the fail dialog is redrawn. */
   const explain = (k, test, res, mm) => whyFailed({ L, V, opt, label, expected }, k, test, res, mm)
-  /** On to the next stage: a stage that goes on with this board (`carry`) gets it, minus what it does not give. */
-  const advance = () => {
-    const x = latest.current, next = x.stage + 1, ns = stages[next]
-    const boards = ns.carry && !placed(x.boards[next]).length ? x.boards.map((b, k) => (k === next ? fitted(clone(x.boards[x.stage]), ns.given) : b)) : x.boards
-    commit({ stage: next, boards, ti: 0 })
-    if (ns.unlockToast) toast(ns.unlockToast)
-  }
-  /** A stage whose failure is its lesson (its onFail): what went wrong, why no board could do better, and on. */
+  /** A task whose failure is its lesson (its onFail): what went wrong, why no board could do better, and on: the lesson
+   *  passes the task, and the level goes straight on to the next. */
   const lesson = (k, res) => {
     const at = { test: k + 1, want: signal(expected[k]), got: signal(res.value) }
     return {
       head: s.onFail.head,
       body: lazy(() => String(s.onFail.body).replace(/\{(test|want|got)\}/g, (_, f) => at[f])),
       extra: <Panel call={s.onFail.show} t={tests[0]} />,
-      cta: { label: s.onFail.next, fn: advance },
+      cta: { label: s.onFail.next, fn: () => { solve(null); level.steps.go(L.task + 1) } },
       hint: null,
     }
   }
 
   /** Run every test; `step` starts the run paused, so the player steps through it. */
   const run = async ({ step: held = false } = {}) => {
-    const b = board, at = st.stage
+    const b = board
     const miss = V.outs.find(([id]) => !b.wires.some((w) => w.to === id))
     if (miss) {
       toast(tr(`输出口「${text(miss[1])}」还没接线`, `The output “${text(miss[1])}” is not wired yet`))
@@ -229,7 +223,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     player.begin(held)
     const mark = (k, state) => (x) => ({ status: x.status.map((y, j) => (j === k ? state : y)) })
     for (let k = 0; k < tests.length; k++) {
-      const { t: test, res, mm, ok, stop, view } = judge(model, L, s, b, k, opt)
+      const { t: test, res, mm, ok, stop, view } = judge(model, s, b, k, opt)
       put((x) => ({ ti: k, view, ...mark(k, 'run')(x) }))
       // The kit's pace (several steps a frame on a long run); a paused run goes one step at a time.
       const { per, stride } = paceOf(k, stop)
@@ -242,7 +236,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
       }
       put((x) => ({ view: { ...x.view, end: true }, ...mark(k, ok ? 'pass' : 'fail')(x) }))
       if (!ok) {
-        shell.current.keepRun({ stage: at, test: k })
+        shell.current.keepRun({ test: k })
         player.end()
         verdict.fail(s.onFail ? lesson(k, res) : { ...explain(k, test, res, mm), hint: hintFor() })
         return
@@ -250,15 +244,10 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
       await player.wait(per)
       if (!player.alive) return
     }
-    shell.current.keepRun({ stage: at, test: tests.length - 1 })
+    shell.current.keepRun({ test: tests.length - 1 })
     player.end()
-    if (at < stages.length - 1) {
-      buzz([15, 40, 15])
-      setSheet({ kind: 'stage' })
-      return
-    }
     // A board that becomes a part must read exactly the part's ports, or the part would not do what the board did.
-    const why = s.ports?.length ? portsProblem(b, s.ports) : null
+    const why = s.ports.length ? portsProblem(b, s.ports) : null
     if (why) {
       verdict.fail({ head: lazy(() => tr('还不能做成元件', 'Not a part yet')), body: why, hint: null })
       return
@@ -339,8 +328,6 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   /** The board, played on the shared circuit editor: the graph it shows, how a change comes back, new parts, sheets. */
   const bridge = {
     graph: () => toGraph(board),
-    // Each stage's board has its own undo history.
-    stage: () => st.stage,
     parts: () => partsFor(model, board, terms),
     model,
     probe: () => win.probe,
@@ -354,15 +341,15 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
         setBoard(b)
         return
       }
-      put((x) => ({ boards: x.boards.map((y, k) => (k === x.stage ? b : y)) }))
-      shell.current.save({ stage: latest.current.stage, boards: latest.current.boards })
+      put({ board: b })
+      shell.current.save(b)
     },
     create: (graph, type, at) => create(model, graph, type, at),
     reset: () => setBoard(fresh()),
     /** Whether clearing would take anything away: a part, a wire, or something a card reads. */
     clearable: () => board.wires.length > 0 || placed(board).length > 0 || readsOf(board).length > 0,
     palette: () => itemsOf(model.def, shownParts),
-    /** Every part the player may place on this stage, shown or folded (a board read from text may use any). */
+    /** Every part the player may place on this task, shown or folded (a board read from text may use any). */
     types: () => offeredParts,
     folded: () => itemsOf(model.def, foldedParts),
     consts: () => L.consts || CONSTS,
@@ -400,12 +387,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
       {L.after && <Panel call={L.after} t={t} view={v} st={st} />}
     </div>
   )
-  const tip = (() => {
-    const g = guideAt(L.guide, board, { stage: st.stage })
-    if (g) return g
-    const said = [stages.length > 1 && s.ask ? `<b>${tr(`阶段 ${st.stage + 1}/${stages.length}`, `Stage ${st.stage + 1}/${stages.length}: `)}</b>${s.ask}` : '', s.tip || ''].filter(Boolean).join(' ')
-    return said || null
-  })()
+  const tip = guideAt(L.guide, board) ?? ([s.ask, s.tip].filter(Boolean).join(' ') || null)
   const brief = <LevelBrief game={game} level={level} tip={tip} hint={s.hints || null} />
   const testTabs = <TestChips tests={tests.map((x, k) => ({ label: `${tr('测试', 'Test')} ${k + 1} · ${label(x)}`, status: st.status[k] }))} ti={st.ti} onTest={selectTest} />
   // The run bar: 单步, then Run, or during a run pause / go on and skip; while a number is typed, the keypad.
@@ -414,7 +396,6 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   const dock = (
     <Dock
       pad={st.sel && { title: tr(`${V.name(st.sel)}：填一个数（不填 = 清空这一格）`, `${V.name(st.sel)}: type a number (leave blank to clear the cell)`), value: st.input, extra: padExtra, onKey: key }}
-      meta={stages.length > 1 ? tr(`阶段 ${st.stage + 1}/${stages.length}`, `Stage ${st.stage + 1}/${stages.length}`) : null}
       controls={running ? [stepCtl, player.paused ? { key: 'resume', label: tr('继续', 'Continue'), icon: <Play size={16} />, onClick: player.resume } : { key: 'pause', label: tr('暂停', 'Pause'), icon: <Pause size={16} />, onClick: player.pause }] : [stepCtl]}
       go={running ? { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } : { label: tr('运行测试', 'Run tests'), onClick: () => run() }}
     />
@@ -426,7 +407,6 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
         {sheet.kind === 'node' && <NodeSheet model={model} node={board.nodes.find((n) => n.id === sheet.id)} move={sheet.move} offered={offered} V={V} robot={robot} swaps={(type) => swapsOf(type, offeredParts)} consts={L.consts || CONSTS} close={close}
           on={{ pick: (pick) => { togglePick(sheet.id, pick); buzz(6) }, value: (x) => { setValue(sheet.id, x); close() }, swap: (type) => { swap(sheet.id, type); close() }, remove: () => { setBoard(removeNode(board, sheet.id)); close() } }} />}
         {sheet.kind === 'slot' && <SlotSheet items={itemsOf(model.def, shownParts)} close={close} place={(type) => { close(); sheet.place(type) }} />}
-        {sheet.kind === 'stage' && <StageSheet stage={st.stage} count={stages.length} done={s.done || {}} next={() => { advance(); close() }} />}
       </div>
     </Sheet>
   )
@@ -544,17 +524,6 @@ function SlotSheet({ items, place, close }) {
         ))}
       </div>
       <div className="acts"><button className="btn sec" type="button" onClick={close}>{tr('取消', 'Cancel')}</button></div>
-    </>
-  )
-}
-
-/** Every test of a stage passed and another stage follows: what it showed, and on (keeping the board). */
-function StageSheet({ stage, count, done, next }) {
-  return (
-    <>
-      <div><div className="kicker good">{tr(`阶段 ${stage + 1}/${count} · 完成`, `Stage ${stage + 1}/${count} · done`)}</div><Html as="h3" className="sh" html={done.head || tr('这一阶段通过了', 'This stage is cleared')} /></div>
-      <div className="prose">{(done.body || []).map((p, k) => <Html key={k} as="p" html={p} />)}</div>
-      <div className="acts"><button className="btn pri" type="button" onClick={next}>{tr(`进入阶段 ${stage + 2}`, `On to stage ${stage + 2}`)}</button></div>
     </>
   )
 }

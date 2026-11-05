@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "青蛙过河", "en": "The frog crosses" },
   "short": { "zh": "伸缩臂", "en": "The telescopic arm" },
   "intro": [
@@ -27,34 +26,6 @@
     }
   },
   "robot": "reach",
-  "diagnose": [
-    {
-      "when": { "not": { "uses": "back" } },
-      "say": {
-        "zh": "青蛙是从往回数第 k 块跳来的，那块要用伸缩臂去读。",
-        "en": "The frog jumps from the stone k back, and that stone is read with the arm."
-      }
-    }
-  ],
-  "hints": [
-    {
-      "zh": "跳到这块之前，青蛙在伸缩臂够到的那块上：那里的次数 + 1。",
-      "en": "Before this jump the frog was on the stone the arm reaches: its count + 1."
-    },
-    { "zh": "岸边还没跳：放行闸放过一个 0。", "en": "On the bank there are no jumps yet: let a 0 through a Pass gate." }
-  ],
-  "world": "river",
-  "facts": ["bank"],
-  "tests": [{ "k": [0, 1, 2, 1, 3, 2, 4] }, { "k": [0, 1, 1, 2, 2, 3, 1, 4] }, { "k": [0, 1, 2, 3, 1, 4, 2, 3, 5] }],
-  "expected": [2, 3, 2],
-  "solution": [
-    "k = const[value=1]()",
-    "z = const[value=0]()",
-    "a = add(view.back, k)",
-    "g = pass(facts.bank, z)",
-    "m = msum(a, g)",
-    "cell <- m"
-  ],
   "debrief": {
     "title": { "zh": "够得到任意远", "en": "Reaching however far" },
     "body": [
@@ -63,5 +34,39 @@
         "en": "The view only sees what is nearby. The arm lets a cell read a cell however far away, and how far is decided by the number written on the cell itself."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "frog",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "uses": "back" } },
+          "say": {
+            "zh": "青蛙是从往回数第 k 块跳来的，那块要用伸缩臂去读。",
+            "en": "The frog jumps from the stone k back, and that stone is read with the arm."
+          }
+        }
+      ],
+      "hints": [
+        {
+          "zh": "跳到这块之前，青蛙在伸缩臂够到的那块上：那里的次数 + 1。",
+          "en": "Before this jump the frog was on the stone the arm reaches: its count + 1."
+        },
+        { "zh": "岸边还没跳：放行闸放过一个 0。", "en": "On the bank there are no jumps yet: let a 0 through a Pass gate." }
+      ],
+      "world": "river",
+      "facts": ["bank"],
+      "tests": [{ "k": [0, 1, 2, 1, 3, 2, 4] }, { "k": [0, 1, 1, 2, 2, 3, 1, 4] }, { "k": [0, 1, 2, 3, 1, 4, 2, 3, 5] }],
+      "expected": [2, 3, 2],
+      "solution": [
+        "k = const[value=1]()",
+        "z = const[value=0]()",
+        "a = add(view.back, k)",
+        "g = pass(facts.bank, z)",
+        "m = msum(a, g)",
+        "cell <- m"
+      ]
+    }
+  ]
 }

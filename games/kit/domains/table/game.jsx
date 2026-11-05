@@ -16,6 +16,9 @@ import { ROBOTS } from './model/robots.js'
 import { T, lazy, tr } from './lang.js'
 import { tableCourse } from './course.js'
 
+/** A task's `done` as the shell's pass text of a task: its head in bold, then its paragraphs. */
+const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh}</b>`, `<b>${head.en}</b>`)] : []), ...body]
+
 function IntroFigure({ fig }) {
   return <div className="fig" dangerouslySetInnerHTML={{ __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) }} />
 }
@@ -27,22 +30,28 @@ function IntroFigure({ fig }) {
  */
 export default function tableGame(content) {
   const table = tableCourse(content)
-  const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS, course } = table
+  const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS, course, played } = table
   const ERAS = content.eras
   const borrow = content.borrow ?? {}
+  const kindOf = (task) => (task.mode === 'circuit' ? 'circuit' : 'board')
+  // Every level's last task: the one whose board a part it builds runs, shown on the part's bench.
+  const lastTasks = LEVELS.map((L) => played.get(L.id).at(-1))
   const levels = LEVELS.map((L, index) => ({
     id: L.id,
     index,
-    source: L,
     chapter: L.ch,
     // Opens once these are solved: the era's foundation in order, then its topics side by side (levels/eras.js).
     requires: REQUIRES.get(L.id) ?? [],
     title: L.title,
-    kind: L.mode === 'circuit' ? 'circuit' : 'board',
+    kind: kindOf(played.get(L.id)[0]),
     unlocks: L.unlock ? [L.unlock] : [],
+    intro: L.intro,
     afterTitle: L.debrief.title,
     after: L.debrief.body,
     note: L.debrief.note,
+    // A level is its tasks (../../engine/tasks.js), each played by its mode's screen on the task as the course read it
+    // (`source`); what passing a task says before the next (`done`) is its `after`.
+    tasks: played.get(L.id).map((s) => ({ key: s.taskId, kind: kindOf(s), ...(s.done ? { after: doneText(s.done) } : {}), ...(s.carries ? { carries: true } : {}), source: s })),
   }))
 
   // The primitives in the components box, one card each (a merger's models are one card), from the level that brings
@@ -80,7 +89,7 @@ export default function tableGame(content) {
     progress: migrations(content.saves),
     // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
-    intro: (level) => level.source.intro,
+    intro: (level) => level.intro,
     IntroFigure,
     kinds: {
       circuit: { Screen: LevelScreen, icon: Cable, label: { zh: '电路板', en: 'Circuit board' } },
@@ -96,7 +105,7 @@ export default function tableGame(content) {
       demo: (part, { phone, progress }) => {
         table.syncOwn(progress.built)
         const key = part.key.replace(/^part:/, '')
-        return <PartDemo key={part.key} model={table.model} partKey={key} phone={phone} levels={LEVELS} borrow={part.at ? { [key]: part.at[0] } : borrow} />
+        return <PartDemo key={part.key} model={table.model} partKey={key} phone={phone} tasks={lastTasks} borrow={part.at ? { [key]: part.at[0] } : borrow} />
       },
       filters: robotFilters,
     },

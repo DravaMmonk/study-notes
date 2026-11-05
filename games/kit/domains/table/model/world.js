@@ -28,7 +28,7 @@
 //   answer(t, table, o)   where(cell) / name(key) / label(t) / orderText(o)   inspect?: false when cells cannot be tapped
 //   sample(t, o) → cell   where the robot waits before a run   cellOf(t, key, o) → cell the robot can stand on
 //   scene(t, view, o) → board scene (with `robot` on the cell being computed)
-// o: the stage's settings (course.js): dirs, scan, filter (the sweeping arm's filter), rounds (scan again and again
+// o: the task's settings (course.js): dirs, scan, filter (the sweeping arm's filter), rounds (scan again and again
 //   until the table stops changing), remember (the keys a maze's layers keep), and its world's other parameters.
 
 import { E } from './scene.js';

@@ -4,7 +4,7 @@
 import { callOf } from '../../../engine/schema.js';
 import { tr } from '../lang.js';
 
-/** Explains: (t, res, o) → text or ''. `res` is the run, `o` the stage's settings. */
+/** Explains: (t, res, o) → text or ''. `res` is the run, `o` the task's settings. */
 const EXPLAINS = {
   roll(t, res, o) {
     let item = -1, touched = new Set();

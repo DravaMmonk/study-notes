@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "压成一行", "en": "Squash it into one row" },
   "short": { "zh": "改写的方向决定含义", "en": "The rewrite direction is the meaning" },
   "intro": [
@@ -84,62 +83,6 @@
   },
   "robot": "reach",
   "unlock": "roll",
-  "naive": ["a = add(view.src, facts.value)", "cell <- a"],
-  "diagnose": [
-    {
-      "when": { "not": { "all": [{ "uses": "old" }, { "uses": "src" }, { "uses": "value" }] } },
-      "say": {
-        "zh": "电路板：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。三样都要读进来：旧的 dp[w]、dp[w − 重量] 和物品价值。",
-        "en": "The circuit board: new dp[w] = max(old dp[w], dp[w − weight] + value). All three need reading in: the old dp[w], dp[w − weight] and the item value."
-      }
-    }
-  ],
-  "after": "roll",
-  "explain": "roll",
-  "boardOpt": { "minScale": 0.66, "maxScale": 1.15 },
-  "noTrace": true,
-  "world": "roll",
-  "facts": ["value"],
-  "tests": [
-    {
-      "kind": "01",
-      "W": 6,
-      "items": [
-        { "n": { "zh": "罐头", "en": "can" }, "w": 1, "v": 1 },
-        { "n": { "zh": "雨衣", "en": "raincoat" }, "w": 3, "v": 4 },
-        { "n": { "zh": "毯子", "en": "blanket" }, "w": 4, "v": 5 }
-      ]
-    },
-    {
-      "kind": "inf",
-      "W": 7,
-      "items": [
-        { "n": { "zh": "苹果", "en": "apple" }, "w": 2, "v": 3 },
-        { "n": { "zh": "西瓜", "en": "melon" }, "w": 3, "v": 5 }
-      ]
-    },
-    {
-      "kind": "01",
-      "W": 7,
-      "items": [
-        { "n": { "zh": "相机", "en": "camera" }, "w": 3, "v": 4 },
-        { "n": { "zh": "水壶", "en": "bottle" }, "w": 4, "v": 5 },
-        { "n": { "zh": "零食", "en": "snacks" }, "w": 2, "v": 3 }
-      ]
-    },
-    {
-      "kind": "inf",
-      "W": 9,
-      "items": [
-        { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 9 },
-        { "n": { "zh": "大米", "en": "rice" }, "w": 3, "v": 5 },
-        { "n": { "zh": "白糖", "en": "sugar" }, "w": 2, "v": 3 }
-      ]
-    }
-  ],
-  "expected": [6, 11, 9, 15],
-  "solution": ["a = add(view.src, facts.value)", "m = mmax(view.old, a)", "cell <- m"],
-  "dirs": { "01": "desc", "inf": "asc" },
   "debrief": {
     "title": { "zh": "方向就是含义", "en": "Direction is meaning" },
     "body": [
@@ -160,5 +103,67 @@
       "zh": "一行原地改写：从右往左，每件一次；从左往右，每件无限次。",
       "en": "One row rewritten in place: right to left, once each; left to right, unlimited."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "roll",
+      "mode": "circuit",
+      "naive": ["a = add(view.src, facts.value)", "cell <- a"],
+      "diagnose": [
+        {
+          "when": { "not": { "all": [{ "uses": "old" }, { "uses": "src" }, { "uses": "value" }] } },
+          "say": {
+            "zh": "电路板：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。三样都要读进来：旧的 dp[w]、dp[w − 重量] 和物品价值。",
+            "en": "The circuit board: new dp[w] = max(old dp[w], dp[w − weight] + value). All three need reading in: the old dp[w], dp[w − weight] and the item value."
+          }
+        }
+      ],
+      "after": "roll",
+      "explain": "roll",
+      "boardOpt": { "minScale": 0.66, "maxScale": 1.15 },
+      "noTrace": true,
+      "world": "roll",
+      "facts": ["value"],
+      "tests": [
+        {
+          "kind": "01",
+          "W": 6,
+          "items": [
+            { "n": { "zh": "罐头", "en": "can" }, "w": 1, "v": 1 },
+            { "n": { "zh": "雨衣", "en": "raincoat" }, "w": 3, "v": 4 },
+            { "n": { "zh": "毯子", "en": "blanket" }, "w": 4, "v": 5 }
+          ]
+        },
+        {
+          "kind": "inf",
+          "W": 7,
+          "items": [
+            { "n": { "zh": "苹果", "en": "apple" }, "w": 2, "v": 3 },
+            { "n": { "zh": "西瓜", "en": "melon" }, "w": 3, "v": 5 }
+          ]
+        },
+        {
+          "kind": "01",
+          "W": 7,
+          "items": [
+            { "n": { "zh": "相机", "en": "camera" }, "w": 3, "v": 4 },
+            { "n": { "zh": "水壶", "en": "bottle" }, "w": 4, "v": 5 },
+            { "n": { "zh": "零食", "en": "snacks" }, "w": 2, "v": 3 }
+          ]
+        },
+        {
+          "kind": "inf",
+          "W": 9,
+          "items": [
+            { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 9 },
+            { "n": { "zh": "大米", "en": "rice" }, "w": 3, "v": 5 },
+            { "n": { "zh": "白糖", "en": "sugar" }, "w": 2, "v": 3 }
+          ]
+        }
+      ],
+      "expected": [6, 11, 9, 15],
+      "solution": ["a = add(view.src, facts.value)", "m = mmax(view.old, a)", "cell <- m"],
+      "dirs": { "01": "desc", "inf": "asc" }
+    }
+  ]
 }

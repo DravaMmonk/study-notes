@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "有坑也有价", "en": "Pits and prices" },
   "short": { "zh": "又要体力，又有坑", "en": "Energy costs and pits" },
   "intro": [
@@ -18,33 +17,6 @@
     "how": { "zh": "坑画成石头的样子。", "en": "Pits are drawn like rocks." }
   },
   "robot": "scout",
-  "diagnose": [
-    {
-      "when": { "not": { "uses": "rock" } },
-      "say": { "zh": "有的路口是坑，过不去。读一读「是石头」。", "en": "Some crossings are pits and can’t be passed. Read “is rock”." }
-    }
-  ],
-  "hints": [
-    { "zh": "体力和坑，这两件事你以前分别处理过吗？", "en": "Energy and pits: have you handled each of them before?" },
-    {
-      "zh": "坑上要掐断：拦截闸在条件是「是」时输出「—」。",
-      "en": "Cut off the pits: a Block gate outputs “—” when its condition is “yes”."
-    }
-  ],
-  "world": "grid",
-  "facts": ["start", "cost", "rock"],
-  "tests": [
-    { "R": 3, "C": 3, "costs": [[1, 1, 4], [5, 2, 1], [3, 1, 1]], "rocks": [[1, 1]] },
-    { "R": 3, "C": 4, "costs": [[2, 1, 1, 3], [1, 6, 2, 1], [4, 1, 2, 1]], "rocks": [[0, 2], [2, 1]] },
-    {
-      "R": 4,
-      "C": 4,
-      "costs": [[1, 2, 2, 1], [3, 1, 4, 2], [1, 5, 1, 3], [2, 1, 2, 1]],
-      "rocks": [[1, 1], [2, 3]]
-    }
-  ],
-  "expected": [8, 13, 11],
-  "solution": ["c = min(view.up, view.left, facts.start, facts.cost)", "b = block(facts.rock, c)", "cell <- b"],
   "debrief": {
     "title": { "zh": "零件叠零件", "en": "Parts on parts" },
     "body": [
@@ -57,5 +29,38 @@
         "en": "A pit holds “—”, and “min” skips it, so routes through a pit drop out by themselves."
       }
     ]
-  }
+  },
+  "tasks": [
+    {
+      "id": "pits",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "uses": "rock" } },
+          "say": { "zh": "有的路口是坑，过不去。读一读「是石头」。", "en": "Some crossings are pits and can’t be passed. Read “is rock”." }
+        }
+      ],
+      "hints": [
+        { "zh": "体力和坑，这两件事你以前分别处理过吗？", "en": "Energy and pits: have you handled each of them before?" },
+        {
+          "zh": "坑上要掐断：拦截闸在条件是「是」时输出「—」。",
+          "en": "Cut off the pits: a Block gate outputs “—” when its condition is “yes”."
+        }
+      ],
+      "world": "grid",
+      "facts": ["start", "cost", "rock"],
+      "tests": [
+        { "R": 3, "C": 3, "costs": [[1, 1, 4], [5, 2, 1], [3, 1, 1]], "rocks": [[1, 1]] },
+        { "R": 3, "C": 4, "costs": [[2, 1, 1, 3], [1, 6, 2, 1], [4, 1, 2, 1]], "rocks": [[0, 2], [2, 1]] },
+        {
+          "R": 4,
+          "C": 4,
+          "costs": [[1, 2, 2, 1], [3, 1, 4, 2], [1, 5, 1, 3], [2, 1, 2, 1]],
+          "rocks": [[1, 1], [2, 3]]
+        }
+      ],
+      "expected": [8, 13, 11],
+      "solution": ["c = min(view.up, view.left, facts.start, facts.cost)", "b = block(facts.rock, c)", "cell <- b"]
+    }
+  ]
 }

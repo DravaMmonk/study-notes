@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "格子世界", "en": "Grid world" },
   "short": { "zh": "站在这里有多好", "en": "How good is it to stand here" },
   "intro": [
@@ -81,48 +80,6 @@
     ],
     "setting": 0.9
   },
-  "diagnose": [
-    {
-      "when": { "not": { "has": "mul" } },
-      "say": {
-        "zh": "每远一步要打个九折：用乘法器把最大的邻居乘上 0.9。",
-        "en": "Each step further away is discounted by 10%: use a Multiplier to multiply the best neighbour by 0.9."
-      }
-    }
-  ],
-  "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
-  "consts": [0, 0.5, 0.8, 0.9, 1],
-  "hints": [
-    {
-      "zh": "四个邻居都接进「取较大」：一个汇合器只有三个口，就用两个串起来。",
-      "en": "Wire all four neighbours into “max”: a Merger has only three inputs, so chain two of them."
-    },
-    {
-      "zh": "最大的那个再乘 0.9：乘法器一边接最大值，一边接常数 0.9。",
-      "en": "Then multiply the largest by 0.9: wire the max into one side of a Multiplier and a Constant 0.9 into the other."
-    }
-  ],
-  "world": "vgrid",
-  "tests": [
-    {
-      "R": 5,
-      "C": 6,
-      "gold": [0, 5],
-      "traps": [[1, 4], [3, 2]],
-      "walls": [[1, 1], [2, 1], [2, 3], [2, 4], [4, 4]]
-    },
-    { "R": 4, "C": 5, "gold": [3, 4], "traps": [[2, 3]], "walls": [[1, 1], [1, 2], [3, 2]] }
-  ],
-  "expected": [5.9049, 4.782969],
-  "solution": [
-    "a = mmax(view.up, view.down, view.left)",
-    "k = const[value=0.9]()",
-    "b = mmax(a, view.right)",
-    "x = mul(b, k)",
-    "cell <- x"
-  ],
-  "rounds": true,
-  "arrows": true,
   "debrief": {
     "title": { "zh": "价值迭代", "en": "Value iteration" },
     "body": [
@@ -139,5 +96,53 @@
       "zh": "价值迭代：每格 = 邻居里最好的 × 折扣，扫到不再变。",
       "en": "Value iteration: each cell = the best neighbour × a discount, scanned until nothing changes."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "value",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "not": { "has": "mul" } },
+          "say": {
+            "zh": "每远一步要打个九折：用乘法器把最大的邻居乘上 0.9。",
+            "en": "Each step further away is discounted by 10%: use a Multiplier to multiply the best neighbour by 0.9."
+          }
+        }
+      ],
+      "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
+      "consts": [0, 0.5, 0.8, 0.9, 1],
+      "hints": [
+        {
+          "zh": "四个邻居都接进「取较大」：一个汇合器只有三个口，就用两个串起来。",
+          "en": "Wire all four neighbours into “max”: a Merger has only three inputs, so chain two of them."
+        },
+        {
+          "zh": "最大的那个再乘 0.9：乘法器一边接最大值，一边接常数 0.9。",
+          "en": "Then multiply the largest by 0.9: wire the max into one side of a Multiplier and a Constant 0.9 into the other."
+        }
+      ],
+      "world": "vgrid",
+      "tests": [
+        {
+          "R": 5,
+          "C": 6,
+          "gold": [0, 5],
+          "traps": [[1, 4], [3, 2]],
+          "walls": [[1, 1], [2, 1], [2, 3], [2, 4], [4, 4]]
+        },
+        { "R": 4, "C": 5, "gold": [3, 4], "traps": [[2, 3]], "walls": [[1, 1], [1, 2], [3, 2]] }
+      ],
+      "expected": [5.9049, 4.782969],
+      "solution": [
+        "a = mmax(view.up, view.down, view.left)",
+        "k = const[value=0.9]()",
+        "b = mmax(a, view.right)",
+        "x = mul(b, k)",
+        "cell <- x"
+      ],
+      "rounds": true,
+      "arrows": true
+    }
+  ]
 }

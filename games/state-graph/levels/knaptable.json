@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "背包表", "en": "Knapsack table" },
   "short": { "zh": "会伸缩的来路", "en": "A reach that stretches" },
   "intro": [
@@ -169,61 +168,6 @@
       { "named": { "label": { "zh": "加上", "en": "plus" }, "short": "+", "sensor": "value" } }
     ]
   },
-  "diagnose": [
-    {
-      "when": { "uses": "rowk" },
-      "say": {
-        "zh": "同一行的格子已经考虑过这件物品了，从那里再拿，就把它拿了两次。要拿这件，得从上一行腾地方。",
-        "en": "Cells on the same row have already considered this item, so taking it again from there takes it twice. To take this item, make room on the row above."
-      }
-    }
-  ],
-  "trace": "knap",
-  "after": "knap",
-  "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
-  "hints": [
-    {
-      "zh": "每件物品都可以不拿：不拿的话，答案就是「正上方」。",
-      "en": "Any item can be left out: then the answer is just “right above”."
-    },
-    {
-      "zh": "拿这件物品：先在上一行腾出它的重量，再加上它的价值。两种选择接进「取较大」汇合器。",
-      "en": "Taking this item: make room for its weight on the row above, then add its value. Wire both choices into a “max” Merger."
-    }
-  ],
-  "world": "knap",
-  "facts": ["value"],
-  "tests": [
-    {
-      "W": 5,
-      "items": [
-        { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 5 },
-        { "n": { "zh": "相机", "en": "camera" }, "w": 2, "v": 3 },
-        { "n": { "zh": "水壶", "en": "bottle" }, "w": 3, "v": 4 },
-        { "n": { "zh": "零食", "en": "snacks" }, "w": 1, "v": 1 }
-      ]
-    },
-    {
-      "W": 10,
-      "items": [
-        { "n": { "zh": "睡袋", "en": "sleeping bag" }, "w": 6, "v": 30 },
-        { "n": { "zh": "炉具", "en": "stove" }, "w": 3, "v": 14 },
-        { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 16 },
-        { "n": { "zh": "急救包", "en": "first aid kit" }, "w": 2, "v": 9 },
-        { "n": { "zh": "书", "en": "book" }, "w": 1, "v": 1 }
-      ]
-    },
-    {
-      "W": 7,
-      "items": [
-        { "n": { "zh": "相机", "en": "camera" }, "w": 3, "v": 4 },
-        { "n": { "zh": "水壶", "en": "bottle" }, "w": 4, "v": 5 },
-        { "n": { "zh": "零食", "en": "snacks" }, "w": 2, "v": 3 }
-      ]
-    }
-  ],
-  "expected": [7, 46, 9],
-  "solution": ["a = add(view.upk, facts.value)", "m = mmax(view.up, a)", "cell <- m"],
   "debrief": {
     "title": { "zh": "0/1 背包", "en": "0/1 knapsack" },
     "body": [
@@ -244,5 +188,66 @@
       "zh": "0/1 背包：不拿看正上方；拿就从上一行腾出重量，再加价值。",
       "en": "0/1 knapsack: leave it out, look right above; take it, make room for its weight on the row above and add its value."
     }
-  }
+  },
+  "tasks": [
+    {
+      "id": "knaptable",
+      "mode": "circuit",
+      "diagnose": [
+        {
+          "when": { "uses": "rowk" },
+          "say": {
+            "zh": "同一行的格子已经考虑过这件物品了，从那里再拿，就把它拿了两次。要拿这件，得从上一行腾地方。",
+            "en": "Cells on the same row have already considered this item, so taking it again from there takes it twice. To take this item, make room on the row above."
+          }
+        }
+      ],
+      "trace": "knap",
+      "after": "knap",
+      "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
+      "hints": [
+        {
+          "zh": "每件物品都可以不拿：不拿的话，答案就是「正上方」。",
+          "en": "Any item can be left out: then the answer is just “right above”."
+        },
+        {
+          "zh": "拿这件物品：先在上一行腾出它的重量，再加上它的价值。两种选择接进「取较大」汇合器。",
+          "en": "Taking this item: make room for its weight on the row above, then add its value. Wire both choices into a “max” Merger."
+        }
+      ],
+      "world": "knap",
+      "facts": ["value"],
+      "tests": [
+        {
+          "W": 5,
+          "items": [
+            { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 5 },
+            { "n": { "zh": "相机", "en": "camera" }, "w": 2, "v": 3 },
+            { "n": { "zh": "水壶", "en": "bottle" }, "w": 3, "v": 4 },
+            { "n": { "zh": "零食", "en": "snacks" }, "w": 1, "v": 1 }
+          ]
+        },
+        {
+          "W": 10,
+          "items": [
+            { "n": { "zh": "睡袋", "en": "sleeping bag" }, "w": 6, "v": 30 },
+            { "n": { "zh": "炉具", "en": "stove" }, "w": 3, "v": 14 },
+            { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 16 },
+            { "n": { "zh": "急救包", "en": "first aid kit" }, "w": 2, "v": 9 },
+            { "n": { "zh": "书", "en": "book" }, "w": 1, "v": 1 }
+          ]
+        },
+        {
+          "W": 7,
+          "items": [
+            { "n": { "zh": "相机", "en": "camera" }, "w": 3, "v": 4 },
+            { "n": { "zh": "水壶", "en": "bottle" }, "w": 4, "v": 5 },
+            { "n": { "zh": "零食", "en": "snacks" }, "w": 2, "v": 3 }
+          ]
+        }
+      ],
+      "expected": [7, 46, 9],
+      "solution": ["a = add(view.upk, facts.value)", "m = mmax(view.up, a)", "cell <- m"]
+    }
+  ]
 }

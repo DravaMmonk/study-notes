@@ -1,5 +1,4 @@
 {
-  "mode": "circuit",
   "title": { "zh": "两路汇合", "en": "Two roads meet" },
   "short": { "zh": "把两个数汇进一个元件", "en": "Merge two numbers in one component" },
   "intro": [{ "t": { "zh": "汇合器把几根线送来的数加起来，「—」不参与。", "en": "A Merger adds up the numbers its wires bring; “—” is left out." } }],
@@ -13,13 +12,19 @@
     "en": "the first part placed on a board: it sits between the inputs and the output and gathers several ways in into one number"
   },
   "adds": ["msum"],
-  "hints": [{ "zh": "两个输入都接进同一个汇合器。", "en": "Wire both inputs into the same Merger." }],
-  "world": "grid",
-  "tests": [{ "R": 3, "C": 4, "given": { "0,0": 1 } }, { "R": 4, "C": 5, "given": { "0,0": 1 } }],
-  "expected": [10, 35],
-  "solution": ["m = msum(view.up, view.left)", "cell <- m"],
   "debrief": {
     "title": { "zh": "城市交给了机器人", "en": "The robot runs the city" },
     "body": [{ "zh": "你只接了三根线，机器人就把整座城市填满了。", "en": "You drew three wires and the robot filled in the whole city." }]
-  }
+  },
+  "tasks": [
+    {
+      "id": "merge",
+      "mode": "circuit",
+      "hints": [{ "zh": "两个输入都接进同一个汇合器。", "en": "Wire both inputs into the same Merger." }],
+      "world": "grid",
+      "tests": [{ "R": 3, "C": 4, "given": { "0,0": 1 } }, { "R": 4, "C": 5, "given": { "0,0": 1 } }],
+      "expected": [10, 35],
+      "solution": ["m = msum(view.up, view.left)", "cell <- m"]
+    }
+  ]
 }
