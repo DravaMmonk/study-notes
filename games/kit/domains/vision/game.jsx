@@ -22,7 +22,6 @@ import { CircuitBoard, Grid3x3, ListChecks, SlidersHorizontal } from 'lucide-rea
 import './ui/vision.css'
 import { circuitGame } from '../../shell/circuit-game.js'
 import { iconOf } from '../../shell/parts/icons.js'
-import { migrateInputGroups } from './input-groups.js'
 import Screen from './ui/Screen.jsx'
 import GridScreen from './ui/GridScreen.jsx'
 import ChoiceScreen from './ui/ChoiceScreen.jsx'
@@ -44,7 +43,7 @@ export default function visionGame(content) {
   const vision = visionCourse(content)
   // A part's description grows with the options its settings open, level by level.
   const cards = Object.fromEntries(Object.entries(vision.defs).map(([type, d]) => [type, { name: d.name, ...optionText(vision.LEVELS, d), icon: iconOf(d.icon) }]))
-  const game = circuitGame(content, vision, { kind: { id: 'circuit', icon: CircuitBoard, label: { zh: '电路', en: 'Circuit' } }, Screen, cards, kinds: KINDS, IntroFigure, migrate: migrateInputGroups })
+  const game = circuitGame(content, vision, { kind: { id: 'circuit', icon: CircuitBoard, label: { zh: '电路', en: 'Circuit' } }, Screen, cards, kinds: KINDS, IntroFigure })
   // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
   game.defined = { of: (type) => vision.defs[type] ?? null, defaults: vision.defaultsOf, ops: OPS }
   return game

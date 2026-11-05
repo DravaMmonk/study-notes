@@ -2,13 +2,12 @@
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
 // and the parts box holding the game's primitives and the parts its levels build. The course read is `game.circuit`.
 //
-//   circuitGame(content, circuit, { kind: { id, icon, label }, Screen, cards, Hero?, kinds?, IntroFigure?, migrate? })
+//   circuitGame(content, circuit, { kind: { id, icon, label }, Screen, cards, Hero?, kinds?, IntroFigure? })
 //     cards        { type: { name, desc, icon, revisions? } } the domain's cards, as the parts box shows a primitive
 //     Hero         the map's illustration, when the game draws one
 //     kinds        { kind: { Screen, icon, label } } the screens of the tasks that are no board (the course read's
 //                  kinds); a level's kind is its last task's
 //     IntroFigure  what draws an introduction page's figure (index.js)
-//     migrate(save, tasks) → the save brought up to date beyond the content's own steps (saves), given every task read
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'
 import { defineGame } from './index.js'
@@ -17,7 +16,7 @@ import { migrations } from './saves.js'
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
-export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds = {}, IntroFigure, migrate }) {
+export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds = {}, IntroFigure }) {
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
     const { name, desc, icon, revisions } = cards[type]
@@ -26,7 +25,6 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
   const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
   const labels = levelLabels(content.eras)
   const kindOf = (T) => (kinds[T.kind] ? T.kind : kind.id)
-  const saves = migrations(content.saves)
   const game = defineGame({
     id: content.id,
     title: content.title,
@@ -60,7 +58,7 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
         }),
       }
     }),
-    progress: migrate ? { ...saves, migrate: (save) => migrate(saves.migrate(save), [...circuit.played.values()].flat()) } : saves,
+    progress: migrations(content.saves),
     intro: (level) => level.intro,
     IntroFigure,
     kinds: { [kind.id]: { Screen, icon: kind.icon, label: kind.label }, ...kinds },
