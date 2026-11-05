@@ -566,7 +566,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `validate(spec)` | `[{ text, fail?, level? }]`：参考解通过、naive 解失败、封装件单独放在搭它的那一关上通过；说某一关的行写明 `level` | 把内容里每关的 naive 解放到参考解的位置（不动搭建关），这些关都要查不过，别的关只有排在它们后面的可以跟着不过（后面的关可以建在前面的答案上：声明的类型、定义的函数） |
 | `game.jsx` | `default (content) → defineGame(…)`：外壳的游戏描述，关卡界面放在 `kinds` | 在 node 下经 vite 载入（`kit/engine/games.mjs`，和 `check` 一样）：关卡就是 `spec` 的关卡、同样的顺序，每关的 `kind` 有 `Screen`，章、元件箱、百科、存档都在 |
 
-**关卡界面不在契约里，但有共用的件：** 电路关用 `kit/shell/CircuitLevel.jsx`（下面的界面约定），领域只写一个适配器：给出元件描述、元件的几面、结果区、封装件怎么打开（脚手架生成的 `ui/Screen.jsx` 是最小的样子）；参数台用 `kit/shell/bench/`（第 6.4 节），领域只给模型项和画不出来的显示项。其余玩法（词序条、填表、纠错与修正、手动关）现在各领域自己接，见第 6.5 节的机制目录。
+**关卡界面不在契约里，但有共用的件：** 电路关用 `kit/shell/CircuitLevel.jsx`（下面的界面约定），领域只写一个适配器：给出元件描述、元件的几面、结果区、封装件怎么打开；建在电路底座上的领域连适配器也不写，用 `kit/shell/CircuitScreen.jsx`，只交卡片目录、怎么跑、值怎么显示、卡片自己的设置和结果区（逐拍的板交波形的几条线，跑一次的板交一个测试的结果；脚手架生成的 `ui/Screen.jsx` 是最小的样子）；参数台用 `kit/shell/bench/`（第 6.4 节），领域只给模型项和画不出来的显示项。其余玩法（词序条、填表、纠错与修正、手动关）现在各领域自己接，见第 6.5 节的机制目录。
 
 **领域模块**给出：值和比较、原始元件（engine 的注册表）、世界、画法、关卡界面、参数台的模型和领域自己的显示项、词汇表和它的解释（每一项怎么算、怎么画），以及上面的契约。领域之间不互相依赖，也不读任何一款游戏的文件。**元件严格按游戏隔离，机制可以共用。** 两款游戏里意思一样的元件（加法、常数、放行闸、重复框……）也各自在自己的领域里定义，不抽成跨游戏的元件库：元件的名字、说明、口、碰到「—」怎么办、出现在哪一关，都是这款游戏课程的一部分，改一款不能牵动另一款。能共用的是元件底下的机制：求值、封装件、形状、框的区域与作用域、逐步运行的机器、内容的 schema，这些放在 `kit/engine`、`kit/circuit`，领域在上面定义自己的元件（比如用 `framePart` 造自己的框）。
 
@@ -593,7 +593,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `deps.js` | `npm run deps -- <游戏>`：从课程数据画出元件依赖图（第 7 节第 5 步） |
 | `contract.js` | 领域的契约（第 6.3 节），`contract.test.js` 对每个领域和每款数据游戏跑它 |
 | `scaffold.js` | `npm run new-domain`、`npm run new-game`：从 `kit/scaffold/<机制>/` 生成领域，从领域的 `starter/` 开新游戏（第 6.3 节） |
-| `circuit-domain.js` | 电路领域的底座：`circuitBoard`（领域只列出关卡给板的几种固定卡）、`circuitCourse`（从内容读出课程、每个任务、搭出的元件；玩家的板存在这份课程里，不是模块级单例）、`checkCircuitTasks`（每个电路关都要过的检查）。领域只写任务怎么读、怎么跑、结果区和文案；`net` 和两个脚手架模板建在它上面 |
+| `circuit-domain.js` | 电路领域的底座：`circuitBoard`（领域只列出关卡给板的几种固定卡）、`circuitCourse`（从内容读出课程、每个任务、搭出的元件；玩家的板存在这份课程里，不是模块级单例）、`checkCircuitTasks`（每个电路关都要过的检查）、`circuitSpec`（检查读的 spec，课程读出挂在 `circuit` 上）、`GAME` 和 `levelSchema`（词汇表里 game.json 和一关的 schema，领域只交板的口、测试和要求）；页面一侧是 `shell/circuit-game.js` 的 `circuitGame`（外壳的游戏描述，`game.circuit`）和 `shell/CircuitScreen.jsx`。领域只写任务怎么读、怎么跑、结果区和文案；`net` 和两个脚手架模板建在它上面，`npm run duplication`（`duplication.js`，`npm test` 里按文件类别设上限）量它们还逐字写着多少一样的代码 |
 | `ops/` | 操作集（第 7 节）：`operations.js` 每种修改一个操作，`changeset.js` 把几个操作当一次修改跑完、生成存档迁移（`migrate.js`）、整款游戏检查、写盘和记日志；`workspace.js` 打开一款游戏的文件，`place.js` 在课程里取出、放进一关，`refs.js` 找出提到一关的每一处，`search.js` 在整款游戏里搜索、把替换写成操作，`json.js` 按统一格式写文件；`cli.js` 是 `npm run op`，`mcp.js` 是 MCP 服务器，`tools.js` 是它和 studio 共用的工具 |
 | `play/` | 一关在文字里的样子和对一次尝试的判定（`play.js`，电路关的公共部分在 `circuit.js`），`run_tests` 用它；盲玩 harness 的其余部分（一局的记录、统计、CLI、盲玩 agent）暂停，见第 6.6 节 |
 
