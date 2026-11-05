@@ -5,17 +5,18 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readContent } from '../../engine/content-node.js'
 import { defineParts, partProblems } from '../../engine/parts/define.js'
-import { FIXED_PARTS } from './parts.js'
 import { OPS } from './ops.js'
 import { vocabulary } from './vocabulary.js'
-import { fromText, toText } from './board.js'
+import { board, fromText, toText } from './board.js'
+import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { runLevel } from './run.js'
 import domain from './domain.js'
 
 const level = { inputs: [{ name: 'a', label: 'a' }, { name: 'b', label: 'b' }], outputs: [{ name: 'sum', label: 'Sum' }], tests: [{ inputs: { a: 2, b: 3 }, expect: { sum: 5 } }] }
 const content = readContent('starter', import.meta.dirname)
 const { PARTS } = defineParts(content.partDefs, OPS)
-const partOf = (type) => FIXED_PARTS[type] ?? PARTS[type]
+const plain = primitivesOnly(board, PARTS)
+const { partOf } = plain
 
 test('the resources compute; a part made of them gives 「—」 when an input is 「—」', () => {
   assert.equal(OPS.add.run([2, 3]), 5)
@@ -27,10 +28,10 @@ test('the resources compute; a part made of them gives 「—」 when an input i
 
 test('a board reads from blueprint text, runs, and writes back as the same text', () => {
   const lines = ['s = add(a, b)', 'sum <- s']
-  const board = fromText(lines, level, partOf)
-  assert.equal(runLevel(level, board, partOf).pass, true)
-  assert.deepEqual(toText(board, partOf), lines)
-  assert.throws(() => fromText(['s = mul(a, b)'], level, partOf), (e) => e.line === 1)
+  const made = fromText(lines, level, plain)
+  assert.equal(runLevel(level, made, partOf).pass, true)
+  assert.deepEqual(toText(made, level, plain), lines)
+  assert.throws(() => fromText(['s = mul(a, b)'], level, plain), (e) => e.line === 1)
 })
 
 test('the starter game passes its checks', () => {

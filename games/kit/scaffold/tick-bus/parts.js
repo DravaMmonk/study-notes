@@ -13,19 +13,12 @@
 //   const    a number (params.value)
 // Built parts are the boards of the levels that build them (course.js), each run as a packed part that keeps its own
 // registers.
-import { sink, source } from '../../engine/boards.js'
-import { drive, hearing, register, store } from '../../engine/ticks.js'
+import { register, store } from '../../engine/ticks.js'
 
 /** The registers a card may name. */
 export const REGISTERS = ['A', 'B', 'C', 'D']
 
-export const FIXED = ['line', 'say', 'in', 'out']
-
 export const PARTS = {
-  line: hearing(),
-  say: drive(),
-  in: source(),
-  out: sink(),
   reg: register({ start: (node) => (node.params?.start === undefined || node.params.start === '' ? null : Number(node.params.start)), params: ['reg', 'start'] }),
   keep: store({ params: ['reg'] }),
   const: { inputs: [], params: ['value'], eval: (_, node) => Number(node.params?.value ?? 0) },

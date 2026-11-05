@@ -4,8 +4,9 @@
 //
 //   circuitBoard({ cards, ticks, right, gap }) → { FIXED, FIXED_PARTS, portsIn, portsOut, fixedOf, startBoard, fits,
 //     carriedOnto, wiring, fromText, toText }
-//       cards  [{ type, side: 'left' | 'right', of(task) → [{ name, label }], params?(port) }] in board order: the
-//              cards a level gives (its inputs, outputs, wires…), each a source on the left or a sink on the right
+//       cards  [{ type, side: 'left' | 'right', of(task) → [{ name, label }], params?(port), part? }] in board order:
+//              the cards a level gives (its inputs, outputs, wires…), each a source on the left or a sink on the right
+//              unless it gives its own part (a line heard, a line driven)
 //       ticks  the board runs tick by tick (../engine/ticks.js), so its wires may feed back
 //   circuitCourse(content, { board, parts, read?, holds?, replaces? }) → { LEVELS, played, builtBy, CHAPTERS,
 //     course, partOf, BUILT, types, blueprints, wrong, offerIn, carried, opening, syncOwn }
@@ -29,7 +30,7 @@ import { keyOf } from '../shell/i18n.js'
 
 export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
   const FIXED = cards.map((c) => c.type)
-  const FIXED_PARTS = Object.fromEntries(cards.map((c) => [c.type, c.side === 'left' ? source() : sink()]))
+  const FIXED_PARTS = Object.fromEntries(cards.map((c) => [c.type, c.part ?? (c.side === 'left' ? source() : sink())]))
   const side = (task, s) => cards.filter((c) => c.side === s).flatMap((c) => c.of(task).map((p) => ({ card: c, port: p })))
   const portsIn = (task) => side(task, 'left').map((x) => x.port)
   const portsOut = (task) => side(task, 'right').map((x) => x.port)

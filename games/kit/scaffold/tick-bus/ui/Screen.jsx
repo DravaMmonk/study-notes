@@ -4,8 +4,8 @@ import { CircuitLevel, Timeline, useLevelBoard, useLevelRun } from '../../../she
 import { L, tr, T } from '../../../shell/i18n.js'
 import { openRef } from '../../../shell/refs.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { fits, startBoard, wiring } from '../board.js'
-import { FIXED, REGISTERS } from '../parts.js'
+import { FIXED, fits, startBoard, wiring } from '../board.js'
+import { REGISTERS } from '../parts.js'
 import { checked as checkedOf, runLevel, show } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 
