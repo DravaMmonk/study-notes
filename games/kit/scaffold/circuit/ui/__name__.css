@@ -5,7 +5,10 @@
 [data-family='built'] { --fam: var(--w5); }
 [data-family='end'] { --fam: var(--accent); }
 
-.__name__-test { border-collapse: collapse; font: 13px var(--mono); font-variant-numeric: tabular-nums; }
-.__name__-test th, .__name__-test td { padding: 3px 12px 3px 0; text-align: left; }
-.__name__-test thead th { color: var(--muted); font: 500 11px var(--sans, inherit); }
-.__name__-test tbody th { color: var(--muted); font-weight: 500; }
+.__name__-test { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; margin: 0; font: 15px var(--mono); font-variant-numeric: tabular-nums; }
+.__name__-pair { display: inline-flex; align-items: baseline; gap: 8px; }
+.__name__-pair b { color: var(--muted); font: 500 12px var(--sans, inherit); }
+.__name__-to { color: var(--faint); }
+.__name__-pair .is-pass { color: var(--status); font-weight: 600; }
+.__name__-pair .is-fail { color: var(--fail); font-weight: 600; }
+.__name__-want { color: var(--muted); font-style: normal; font-size: 13px; }

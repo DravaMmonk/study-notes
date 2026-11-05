@@ -22,7 +22,8 @@ import { definedItem } from './parts/faces.jsx'
 //   says(run)             what a failed run says
 //   show(value)           a value as a card shows it
 //   lanes?({ level, test, run, upTo }) → the waveform's lanes (a tick board), notes? → lines under it
-//   results?({ level, test, run, ended, ran }) → what a test shows under a board run once
+//   results?({ level, test, run, ended, ran, verdict }) → what a test shows under a board run once (verdict: what a
+//                         failed run says, for results that do not show it already)
 //   settings?(node, set)  a card's own settings (CardField)       defaults?(type)  a new card's settings
 //   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
 //   canvas                { width, height } of a part's card on the desktop board
@@ -139,9 +140,9 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, l
         <>
           <Timeline lanes={lanes({ level, test, run: runOf, upTo })} count={test.ticks} at={run.run ? at : -1} marks={ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
           {notes?.({ level, run: runOf })}
+          {verdict && <p className="cs-verdict is-fail">{L(verdict)}</p>}
         </>
-      ) : results({ level, test, run: runOf, ended, ran: ended || !run.run })}
-      {verdict && <p className="cs-verdict is-fail">{L(verdict)}</p>}
+      ) : results({ level, test, run: runOf, ended, ran: ended || !run.run, verdict })}
       {run.run?.over && run.run.final && <p className="cs-verdict is-fail">{run.run.final}</p>}
     </div>
   )
