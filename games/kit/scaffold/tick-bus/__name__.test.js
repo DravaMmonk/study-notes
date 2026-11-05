@@ -5,13 +5,14 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { bitsOf, lineOf } from './line.js'
 import { PARTS } from './parts.js'
-import { board, fromText, toText } from './board.js'
+import { board } from './board.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import domain from './domain.js'
 
 const plain = primitivesOnly(board, PARTS)
+const { fromText, toText } = board
 const { partOf } = plain
 
 test('the line is 1 when anyone says 1', () => {

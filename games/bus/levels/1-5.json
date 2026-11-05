@@ -1,9 +1,5 @@
 {
   "title": { "zh": "等够 11 拍", "en": "Wait eleven ticks" },
-  "brief": {
-    "zh": "从第 11 拍（从 0 数起）开始一直回答「是」，在那之前回答「否」。",
-    "en": "Answer yes from tick 11 on (counting from 0), and no before it."
-  },
   "intro": [
     {
       "t": {
@@ -19,24 +15,33 @@
     }
   ],
   "adds": ["const"],
-  "outputs": [{ "name": "ready", "label": { "zh": "够了", "en": "Enough" } }],
-  "tests": [{ "bus": { "idle": 16, "frames": [], "tail": 0 } }, { "bus": { "idle": 24, "frames": [], "tail": 0 } }],
-  "want": { "ready": { "since": { "tick": 11 } } },
-  "solution": [
-    "r = reg[reg=A, start=0]()",
-    "i = arith[form=inc](r)",
-    "k = keep[reg=A](i)",
-    "ten = const[value=10]()",
-    "lt = compare[form=lt](ten, r)",
-    "ready <- lt"
-  ],
-  "naive": [
-    "r = reg[reg=A, start=0]()",
-    "i = arith[form=inc](r)",
-    "k = keep[reg=A](i)",
-    "e = const[value=11]()",
-    "q = compare[form=eq](r, e)",
-    "ready <- q"
-  ],
-  "after": { "zh": "计数加上一个比较，就是\"等到第几拍\"。", "en": "A count and a comparison make “wait until tick so-and-so”." }
+  "after": { "zh": "计数加上一个比较，就是\"等到第几拍\"。", "en": "A count and a comparison make “wait until tick so-and-so”." },
+  "tasks": [
+    {
+      "id": "1-5",
+      "brief": {
+        "zh": "从第 11 拍（从 0 数起）开始一直回答「是」，在那之前回答「否」。",
+        "en": "Answer yes from tick 11 on (counting from 0), and no before it."
+      },
+      "outputs": [{ "name": "ready", "label": { "zh": "够了", "en": "Enough" } }],
+      "tests": [{ "bus": { "idle": 16, "frames": [], "tail": 0 } }, { "bus": { "idle": 24, "frames": [], "tail": 0 } }],
+      "want": { "ready": { "since": { "tick": 11 } } },
+      "solution": [
+        "r = reg[reg=A, start=0]()",
+        "i = arith[form=inc](r)",
+        "k = keep[reg=A](i)",
+        "ten = const[value=10]()",
+        "lt = compare[form=lt](ten, r)",
+        "ready <- lt"
+      ],
+      "naive": [
+        "r = reg[reg=A, start=0]()",
+        "i = arith[form=inc](r)",
+        "k = keep[reg=A](i)",
+        "e = const[value=11]()",
+        "q = compare[form=eq](r, e)",
+        "ready <- q"
+      ]
+    }
+  ]
 }

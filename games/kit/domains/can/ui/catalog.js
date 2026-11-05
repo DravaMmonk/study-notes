@@ -1,13 +1,11 @@
-// What the can domain's cards are called and what they do, for the boards, the tray and the components box. A part's
-// description says only what it does (games/DESIGN.md 4).
-import { Activity, ArrowDownToLine, ArrowRightFromLine, ArrowUpFromLine, Calculator, Equal, Hash, Split } from 'lucide-react'
+// What the can domain's cards are called and what they do, for the boards, the tray and the components box (a task's
+// inputs and outputs are the base's own cards). A part's description says only what it does (games/DESIGN.md 4).
+import { Activity, ArrowDownToLine, ArrowUpFromLine, Calculator, Equal, Hash, Split } from 'lucide-react'
 import { T } from '../../../shell/i18n.js'
 
 
 export const CARDS = {
   line: { name: T('总线', 'Bus'), icon: Activity, family: 'given', desc: T('这一拍总线上的位：0 为显性，1 为隐性。', 'The bit on the bus this tick: 0 is dominant, 1 is recessive.') },
-  in: { name: T('输入', 'Input'), icon: ArrowRightFromLine, family: 'given', desc: T('这一拍关卡给的值。', 'The value the level gives this tick.') },
-  out: { name: T('输出', 'Output'), icon: ArrowRightFromLine, family: 'end', desc: T('接到这里的值，就是电路这一拍的输出。', 'The value wired here is the circuit’s output this tick.') },
   reg: {
     name: T('读寄存卡', 'Register'), icon: ArrowUpFromLine, family: 'memory',
     desc: T('给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。', 'Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set).'),

@@ -1,6 +1,6 @@
-// A bus level drawn without a browser (domain.js `scene`, for the MCP's render and the studio): each test's bus as a
-// waveform, one bit a tick — up for recessive (1), down for dominant (0) — with every frame's start marked by its
-// identifier. Colours are the kit's tokens where the SVG sits in a page that has them.
+// A bus level drawn without a browser (domain.js `scene`, for the MCP's render and the studio): each test's bus, task
+// by task, as a waveform, one bit a tick — up for recessive (1), down for dominant (0) — with every frame's start
+// marked by its identifier. Colours are the kit's tokens where the SVG sits in a page that has them.
 
 const TICK = 3
 const ROW = 34
@@ -9,9 +9,9 @@ const hex = (n) => `0x${n.toString(16)}`
 
 /** The SVG of level `id` of a bus game's spec, or null when it has no such level. */
 export function scene(spec, id) {
-  const level = spec.levels.find((l) => l.id === id)
-  if (!level) return null
-  const tests = level.tests
+  const tasks = spec.circuit.played.get(id)
+  if (!tasks) return null
+  const tests = tasks.flatMap((task) => task.tests)
   const width = Math.max(...tests.map((t) => t.bus.bits.length)) * TICK + 70
   const height = tests.length * ROW + 10
   const rows = tests.map((t, k) => {

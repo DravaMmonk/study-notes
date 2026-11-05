@@ -14,16 +14,15 @@
 //   k = keep[reg=A](line)
 //   bit <- r
 //   say <- r
-import { circuitBoard } from '../../engine/circuit-domain.js'
+import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/circuit-domain.js'
 import { drive, hearing } from '../../engine/ticks.js'
 
 export const board = circuitBoard({
   ticks: true,
   cards: [
     { type: 'line', side: 'left', of: (task) => (task.listens ? [{ name: 'line', label: { zh: '线', en: 'Line' } }] : []), params: () => ({}), part: hearing() },
-    { type: 'in', side: 'left', of: (task) => task.inputs ?? [] },
+    INPUTS,
     { type: 'say', side: 'right', of: (task) => (task.talks ? [{ name: 'say', label: { zh: '说', en: 'Say' } }] : []), part: drive() },
-    { type: 'out', side: 'right', of: (task) => task.outputs ?? [] },
+    OUTPUTS,
   ],
 })
-export const { FIXED, portsIn, portsOut, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText } = board

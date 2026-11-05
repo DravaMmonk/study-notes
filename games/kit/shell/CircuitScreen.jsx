@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CircuitBoard } from 'lucide-react'
+import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { viewAt } from '../engine/trace.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
@@ -17,14 +17,17 @@ import { definedItem } from './parts/faces.jsx'
 // board (`lanes`) following along; a board run once plays every card the engine computes, a step each.
 //
 // A domain brings only what is its own:
-//   cards                 { type: { name, desc, icon, family } } its cards (fixed and parts) as the tray and boards show them
+//   cards                 { type: { name, desc, icon, family } } its cards as the tray and boards show them (a fixed
+//                         card it leaves out is drawn as a source in the family 'given', or a sink in 'end')
 //   run(task, board, partOf) → { runs: [{ fail?, error?, ticks? | trace?, … }] }   its run.js
 //   says(run)             what a failed run says
 //   show(value)           a value as a card shows it
-//   lanes?({ level, test, run, upTo }) → the waveform's lanes (a tick board), notes? → lines under it
+//   lanes?({ level, test, run, upTo }) → the waveform's lanes (a tick board; a lane's text by default `show`'s),
+//                         notes? → lines under it
 //   results?({ level, test, run, ended, ran, verdict }) → what a test shows under a board run once (verdict: what a
 //                         failed run says, for results that do not show it already)
-//   settings?(node, set)  a card's own settings (CardField)       defaults?(type)  a new card's settings
+//   settings?(node, set)  a card's own settings (CardField; registerCards for registers, constants and forms)
+//   defaults?(type)       a new card's settings
 //   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
 //   canvas                { width, height } of a part's card on the desktop board
 
@@ -45,6 +48,31 @@ export function CardField({ label, value, options, onChange }) {
   )
 }
 
+/**
+ * The settings of the cards a tick board keeps registers with (../engine/ticks.js register, store), as a domain's
+ * screen gives them: `reg` and `keep` name one of `registers`, `reg` has a start value (「—」, 0 or 1), `const` a number
+ * from 0 to `top`, and a part with forms (`forms`: { type: { form: label } }) one of them. A new card's settings are
+ * its defaults written in (the first register, 0, the first form), so the card shows them.
+ */
+export function registerCards({ registers, top, forms = {} }) {
+  const names = registers.map((r) => [r, r])
+  const starts = [['', '—'], ['0', '0'], ['1', '1']]
+  const numbers = Array.from({ length: top + 1 }, (_, k) => [String(k), String(k)])
+  const first = (type) => Object.keys(forms[type])[0]
+  return {
+    defaults: (type) => (type === 'reg' || type === 'keep' ? { reg: registers[0] } : type === 'const' ? { value: '0' } : forms[type] ? { form: first(type) } : {}),
+    settings: (node, set) => {
+      const p = node.params ?? {}
+      const reg = <CardField label={T('名字', 'Name')} value={p.reg ?? registers[0]} options={names} onChange={set('reg')} />
+      if (node.type === 'reg') return <>{reg}<CardField label={T('初值', 'Start')} value={p.start ?? ''} options={starts} onChange={set('start')} /></>
+      if (node.type === 'keep') return reg
+      if (node.type === 'const') return <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={numbers} onChange={set('value')} />
+      if (forms[node.type]) return <CardField label={T('形状', 'Form')} value={p.form ?? first(node.type)} options={Object.entries(forms[node.type])} onChange={set('form')} />
+      return null
+    },
+  }
+}
+
 /** What a card shows of a value, or why it has none. */
 function Value({ value, error, show }) {
   if (value === undefined) return <span className={`cs-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
@@ -55,12 +83,15 @@ function Value({ value, error, show }) {
 function partsFor(level, circuit, { cards, portLabels, width }) {
   const { board, BUILT, builtBy } = circuit
   const fixed = [...board.portsIn(level), ...board.portsOut(level)]
+  const wiring = board.wiring(level, circuit)
+  // A fixed card the domain does not draw its own way: a source on the left, a sink on the right.
+  const given = (node) => board.isFixed(node.type) && !cards[node.type]
   return {
-    ...board.wiring(level, circuit),
+    ...wiring,
     label: (node) => (board.isFixed(node.type) ? labelOf(fixed, node.id) : BUILT[node.type] ? builtBy(node.type).builds.name : cards[node.type]?.name ?? node.type),
     portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type)), port) : portLabels[node.type]?.[port] ?? ''),
-    family: (node) => (BUILT[node.type] ? 'built' : cards[node.type]?.family),
-    icon: (node) => (BUILT[node.type] ? CircuitBoard : cards[node.type]?.icon),
+    family: (node) => (BUILT[node.type] ? 'built' : given(node) ? (wiring.role(node) === 'sink' ? 'end' : 'given') : cards[node.type]?.family),
+    icon: (node) => (BUILT[node.type] ? CircuitBoard : given(node) ? ArrowRightFromLine : cards[node.type]?.icon),
     cardWidth: (node) => (board.isFixed(node.type) ? 140 : BUILT[node.type] ? Math.max(176, width) : width),
   }
 }
@@ -138,7 +169,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, l
     <div className="cs-strip">
       {kind.ticks ? (
         <>
-          <Timeline lanes={lanes({ level, test, run: runOf, upTo })} count={test.ticks} at={run.run ? at : -1} marks={ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
+          <Timeline lanes={lanes({ level, test, run: runOf, upTo }).map((lane) => ({ text: (v) => L(show(v)), ...lane }))} count={test.ticks} at={run.run ? at : -1} marks={ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
           {notes?.({ level, run: runOf })}
           {verdict && <p className="cs-verdict is-fail">{L(verdict)}</p>}
         </>

@@ -7,7 +7,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { FLAG, FORMATS, arrived, bitsOf, checkOf, decode, encode, remainder, said, stuff, unstuff } from './wire.js'
 import { PARTS } from './parts.js'
-import { board, carriedOnto, fromText, toText } from './board.js'
+import { board } from './board.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
@@ -16,6 +16,7 @@ import { assemble } from '../../engine/content.js'
 import domain from './domain.js'
 
 const plain = primitivesOnly(board, PARTS)
+const { carriedOnto, fromText, toText } = board
 const { partOf } = plain
 const W = (ins, outs) => ({ in: ins.map((name) => ({ name, label: name })), out: outs.map((name) => ({ name, label: name })) })
 

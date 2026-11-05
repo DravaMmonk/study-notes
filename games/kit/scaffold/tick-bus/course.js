@@ -12,7 +12,7 @@
 // found that its schema cannot say (a board that does not read, an output with nothing wanted).
 import { circuitCourse } from '../../engine/circuit-domain.js'
 import { bitsOf } from './line.js'
-import { board, portsOut } from './board.js'
+import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
@@ -25,9 +25,6 @@ const testOf = (t) => {
 export function __name__Course(content) {
   // A task read: what reading it finds that its schema cannot say, then its line and wants.
   const read = (task, say) => {
-    const names = portsOut(task).map((o) => o.name)
-    for (const name of names) if (!task.want[name]) say(`nothing is wanted of ${name}`)
-    for (const name of Object.keys(task.want)) if (!names.includes(name)) say(`wants ${name}, which is no output`)
     for (const t of [...task.tests, ...(task.hidden ?? [])]) for (const i of task.inputs ?? []) if (!t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
     return { ...task, tests: task.tests.map(testOf), hidden: (task.hidden ?? []).map(testOf), want: wantOf(task.want) }
   }

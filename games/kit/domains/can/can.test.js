@@ -1,17 +1,22 @@
-// node --test games/kit/domains/can — the bus: frames, stuffing and CRC as ISO 11898-1 has them; what a level's
+// node --test games/kit/domains/can — the bus: frames, stuffing and CRC as ISO 11898-1 has them; what a task's
 // outputs must be (wants.js); boards as blueprint text (board.js); what hidden tests catch, on a course written here;
-// a level of the starter game (starter/) drawn headlessly (scene.js).
+// a level of the starter game (starter/) drawn headlessly (scene.js); every game on the domain read frozen.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { bitsOf, busOf, crc15, frameBits, stuff, wiredAnd } from './bus.js'
-import { fromText } from './board.js'
+import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
-import { busCourse } from './course.js'
+import { canCourse } from './course.js'
 import { runLevel } from './run.js'
-import { assemble } from '../../engine/content.js'
+import { primitivesOnly } from '../../engine/circuit-domain.js'
+import { assemble, deepFreeze } from '../../engine/content.js'
+import { GAMES_DIR, isDataGame, readContent } from '../../engine/content-node.js'
 import domain from './domain.js'
 import { readFileSync, readdirSync } from 'node:fs'
+
+const plain = primitivesOnly(board, PARTS)
+const { fromText, toText } = board
 
 // The longest run of equal bits in a stretch.
 const longestRun = (bits) => bits.reduce((acc, b, k) => {
@@ -89,12 +94,15 @@ test('the signals a level wants, tick by tick', () => {
 })
 
 test('blueprint text reads into a board: settings as the cards keep them, ports by position and form', () => {
-  const level = { listens: true, inputs: [{ name: 'go' }], outputs: [{ name: 'n' }] }
-  const b = fromText(['r = reg[reg=A, start=1]()', 'c = compare[form=lt](r, go)', 'k = keep[reg=A](line)', 'n <- c'], level, (t) => PARTS[t])
+  const task = { listens: true, inputs: [{ name: 'go', label: 'go' }], outputs: [{ name: 'n', label: 'n' }] }
+  const b = fromText(['r = reg[reg=A, start=1]()', 'c = compare[form=lt](r, go)', 'k = keep[reg=A](line)', 'n <- c'], task, plain)
   assert.deepEqual(b.nodes.map((n) => n.id), ['line', 'go', 'n', 'r', 'c', 'k'])
   assert.deepEqual(b.nodes.find((n) => n.id === 'r').params, { reg: 'A', start: '1' })
   assert.deepEqual(b.wires, [{ from: 'r', to: 'c', port: 'a' }, { from: 'go', to: 'c', port: 'b' }, { from: 'line', to: 'k', port: 'in' }, { from: 'c', to: 'n', port: 'in' }])
-  assert.throws(() => fromText(['x = counter(go)'], level, (t) => PARTS[t]), (e) => e.line === 1)
+  // Written out and read back, a board writes the same text again.
+  const text = toText(b, task, plain)
+  assert.deepEqual(toText(fromText(text, task, plain), task, plain), text)
+  assert.throws(() => fromText(['x = counter(go)'], task, plain), (e) => e.line === 1)
 })
 
 // A course written here: a counter built and then used to wait out the quiet before a frame, and a number gathered
@@ -102,38 +110,41 @@ test('blueprint text reads into a board: settings as the cards keep them, ports 
 const L = (s) => ({ zh: s, en: s })
 const sof = (quiet) => ['c = counter(line)', `q = const[value=${quiet - 1}]()`, 'lt = compare[form=lt](q, c)', 'z = const[value=0]()', 'e = compare[form=eq](line, z)', 's = select(lt, e, lt)', 'sof <- s']
 const gather = (restart) => ['r = reg[reg=A, start=0]()', 'd = arith[form=add](r, r)', 'a = arith[form=add](d, bit)', ...(restart === 'z' ? ['z = const[value=0]()'] : []), `s = select(go, a, ${restart})`, 'k = keep[reg=A](s)', 'n <- s']
+// A level of one task, the level's id its task's.
+const level = (id, task, once = {}) => ({ id, ...once, tasks: [{ id, ...task }] })
 const COURSE = {
   primitives: ['reg', 'keep', 'compare', 'arith', 'select', 'const'],
   eras: [{ id: 1, foundation: ['count', 'start', 'gather'] }],
   levels: [
-    { id: 'count', inputs: [{ name: 'go', label: L('go') }], outputs: [{ name: 'n', label: L('n') }], want: { n: { streak: { input: 'go' } } },
+    level('count', { inputs: [{ name: 'go', label: L('go') }], outputs: [{ name: 'n', label: L('n') }], want: { n: { streak: { input: 'go' } } },
       tests: [{ bus: { idle: 6, frames: [], tail: 0 }, inputs: { go: [1, 1, 0, 1, 1, 1] } }],
-      solution: ['r = reg[reg=A, start=0]()', 'i = arith[form=inc](r)', 'z = const[value=0]()', 's = select(go, i, z)', 'k = keep[reg=A](s)', 'n <- r'], builds: { type: 'counter' } },
+      solution: ['r = reg[reg=A, start=0]()', 'i = arith[form=inc](r)', 'z = const[value=0]()', 's = select(go, i, z)', 'k = keep[reg=A](s)', 'n <- r'] }, { builds: { type: 'counter' } }),
     // The visible buses start after eleven quiet bits or more; the hidden one is plugged in after ten.
-    { id: 'start', listens: true, outputs: [{ name: 'sof', label: L('sof') }], want: { sof: 'startOfFrame' },
+    level('start', { listens: true, outputs: [{ name: 'sof', label: L('sof') }], want: { sof: 'startOfFrame' },
       tests: [{ bus: { frames: [{ id: '0x123', data: ['0x01'] }] } }, { bus: { idle: 11, frames: [{ id: '0x0f3', data: ['0x55', '0xaa'] }, { id: '0x2a5', data: [] }] } }],
       hidden: [{ bus: { idle: 10, frames: [{ id: '0x123', data: ['0x01'] }, { id: '0x0f3', data: [] }] } }],
-      solution: sof(11) },
+      solution: sof(11) }),
     // Go on drops to 0 only where the bit is 0 in the visible test, and where it is 1 in the hidden one.
-    { id: 'gather', inputs: [{ name: 'bit', label: L('bit') }, { name: 'go', label: L('go') }], outputs: [{ name: 'n', label: L('n') }], want: { n: { gathered: { bit: 'bit', go: 'go' } } },
+    level('gather', { inputs: [{ name: 'bit', label: L('bit') }, { name: 'go', label: L('go') }], outputs: [{ name: 'n', label: L('n') }], want: { n: { gathered: { bit: 'bit', go: 'go' } } },
       tests: [{ bus: { idle: 6, frames: [], tail: 0 }, inputs: { bit: [1, 0, 1, 0, 1, 1], go: [1, 1, 1, 0, 1, 1] } }],
       hidden: [{ bus: { idle: 4, frames: [], tail: 0 }, inputs: { bit: [1, 1, 1, 1], go: [1, 0, 1, 1] } }],
-      solution: gather('z'), naive: gather('bit') },
+      solution: gather('z'), naive: gather('bit') }),
   ],
 }
 
 test('a hidden test catches a board that only fits the visible ones', () => {
-  const { LEVELS, partOf, wrong } = busCourse(COURSE)
-  assert.deepEqual(wrong, [])
-  const level = (id) => LEVELS.find((L) => L.id === id)
-  const fits = (L, board) => [runLevel(L, board, partOf).pass, runLevel({ ...L, tests: L.hidden }, board, partOf).pass]
+  const circuit = canCourse(COURSE)
+  assert.deepEqual(circuit.wrong, [])
+  const { partOf } = circuit
+  const task = (id) => circuit.played.get(id)[0]
+  const fits = (T, b) => [runLevel(T, b, partOf).pass, runLevel({ ...T, tests: T.hidden }, b, partOf).pass]
   // A start of frame after seven quiet bits: inside a frame no run is that long, so only the bus plugged in mid-wait
   // tells it from eleven. The counter it waits with is the one the course built.
-  assert.deepEqual(fits(level('start'), fromText(sof(7), level('start'), partOf)), [true, false])
-  assert.deepEqual(fits(level('start'), level('start').solution), [true, true])
+  assert.deepEqual(fits(task('start'), fromText(sof(7), task('start'), circuit)), [true, false])
+  assert.deepEqual(fits(task('start'), task('start').solution), [true, true])
   // Starting again from the bit that came with Go on 0 (the naive board) is right only while that bit is 0.
-  assert.deepEqual(fits(level('gather'), level('gather').naive), [true, false])
-  assert.deepEqual(fits(level('gather'), level('gather').solution), [true, true])
+  assert.deepEqual(fits(task('gather'), task('gather').naive), [true, false])
+  assert.deepEqual(fits(task('gather'), task('gather').solution), [true, true])
 })
 
 // The starter game (what npm run new-game copies), as content.js assembles it.
@@ -145,11 +156,22 @@ const starter = () => {
 
 test('a level drawn headlessly: each test’s bus as a waveform, every frame marked by its identifier', () => {
   const spec = domain.spec(starter())
-  const level = spec.levels.find((l) => l.tests.some((t) => t.bus.frames.length))
-  const svg = domain.scene(spec, level.id)
+  const [id, tasks] = [...spec.circuit.played].find(([, read]) => read.some((T) => T.tests.some((t) => t.bus.frames.length)))
+  const tests = tasks.flatMap((T) => T.tests)
+  const svg = domain.scene(spec, id)
   assert.match(svg, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg"/)
-  assert.equal(svg.match(/class="bus-line"/g).length, level.tests.length)
-  for (const f of level.tests.flatMap((t) => t.bus.frames)) assert.ok(svg.includes(`>0x${f.id.toString(16)}<`))
-  assert.equal(svg.match(/class="bus-sof"/g).length, level.tests.flatMap((t) => t.bus.frames).length)
+  assert.equal(svg.match(/class="bus-line"/g).length, tests.length)
+  for (const f of tests.flatMap((t) => t.bus.frames)) assert.ok(svg.includes(`>0x${f.id.toString(16)}<`))
+  assert.equal(svg.match(/class="bus-sof"/g).length, tests.flatMap((t) => t.bus.frames).length)
   assert.equal(domain.scene(spec, 'nope'), null)
+})
+
+test('a course read never writes into content: every game on the domain, and its starter, read frozen', () => {
+  const games = readdirSync(GAMES_DIR).filter((id) => isDataGame(id) && readContent(id).domain === 'can')
+  assert.ok(games.length > 0)
+  for (const content of [starter(), ...games.map((id) => readContent(id))]) {
+    const spec = domain.spec(deepFreeze(content))
+    assert.deepEqual(spec.circuit.wrong, [], content.id)
+    assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [], content.id)
+  }
 })

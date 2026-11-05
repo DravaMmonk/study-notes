@@ -6,17 +6,13 @@
 // plays on in bus.js.
 
 import { S } from '../../engine/schema.js'
-import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { defineVocabulary } from '../../engine/vocabulary.js'
+import { GAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 
 const nat = S.int({ min: 0 })
-const ids = S.list(S.str())
-const TEXTS = S.list(S.text())
-const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
-/** Blueprint text (board.js), one line a string: a reference board. */
-const BOARD = S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
 /** A number written as a number or in hexadecimal ('0x123'), as CAN identifiers and bytes are. */
 const hex = (max, digits) => S.either(S.int({ min: 0, max }), S.str({ pattern: `^0x[0-9a-fA-F]{1,${digits}}$` }))
 
@@ -49,55 +45,20 @@ const WANTS = {
 
 /* ---------- a level ---------- */
 
-const PORT = S.obj({ name: NAME, label: S.text() })
 const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat) })
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍', 'the bus: idle quiet bits, then each frame (gap more quiet bits before it), then tail quiet bits') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值', 'each input’s value tick by tick') })),
 })
-const LEVEL = S.obj({
-  title: S.text(),
-  brief: S.text(),
-  intro: S.opt(S.list(S.obj({ t: S.text() }))),
-  hint: S.opt(TEXTS),
-  after: S.opt(S.text()),
-  note: S.opt(S.text()),
-  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  listens: S.opt(S.bool({ about: t('板上有总线元件', 'the board has the bus card') })),
-  inputs: S.opt(S.list(PORT)),
-  outputs: S.list(PORT, { min: 1 }),
-  tests: S.list(TEST, { min: 1, section: 'tests' }),
-  hidden: S.opt(S.list(TEST, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
-  want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么', 'what each output must be, tick by tick') }),
-  solution: BOARD,
-  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这一关的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
-  builds: S.opt(S.obj({ type: NAME, name: S.text(), desc: S.text() }, { section: 'course', about: t('通过后这块板成为元件 type：它的输入口和结果口就是关卡的输入和输出', 'once passed the board is the part `type`: its ports are the level’s inputs and outputs') })),
-  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
-})
-
-/* ---------- game.json ---------- */
-
-const levels = S.list(S.level())
-const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels })) }))
-const AFTER = S.either(S.level(), levels)
-const ERA = S.obj({
-  id: S.int(),
-  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
-  title: S.text(),
-  question: S.text(),
-  foundation: S.list(ITEM),
-  practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
-})
-const GAME = S.obj({
-  title: S.text(),
-  kicker: S.text(),
-  lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
-  primitives: S.list(S.ref('part')),
-  concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
-  eras: S.list(ERA, { min: 1 }),
-  saves: SAVES,
+// What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
+const LEVEL = levelSchema({
+  test: TEST,
+  ports: {
+    listens: S.opt(S.bool({ about: t('板上有总线元件', 'the board has the bus card') })),
+    inputs: S.opt(S.list(PORT)),
+    outputs: S.list(PORT, { min: 1 }),
+  },
+  checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么', 'what each output must be, tick by tick') }) },
 })
 
 export const vocabulary = defineVocabulary({
