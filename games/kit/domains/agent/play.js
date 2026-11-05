@@ -1,14 +1,14 @@
 // The agent domain's play hook for a blind session (../../engine/play/): a level of 《软件工厂》 as its screen shows it,
 // in words.
 //
-//   board level (ui/BoardScreen.jsx)  the machine's fixed cards and the parts it holds; every test an issue on a
+//   board task (ui/BoardScreen.jsx)   the machine's fixed cards and the parts it holds; every test an issue on a
 //       repository; a run turn by turn, stopping at the first test that fails, which shows its turn log (each turn's
 //       action, what was kept for the next turn, what the model saw), the test report and the verdict
-//   hand level (ui/HandScreen.jsx)    the player is the loop: an attempt is a list of moves, one a line, played from a
+//   hand task (ui/HandScreen.jsx)     the player is the loop: an attempt is a list of moves, one a line, played from a
 //       fresh start (the screen's Start over, then each button in turn) —
 //         add FILE     put a file of the repository into the context        list   put the file list in (a loop only)
 //         drop K       take entry K out of the context (0 is the issue)     call   call the model
-//         test         run the tests: the level passes once a run comes back green
+//         test         run the tests: the task passes once a run comes back green
 //       the feedback is the screen's log, the context and the repository after the last move
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { startBoard, wiring } from './board.js'
@@ -70,7 +70,7 @@ const MOVES = T(
   'One move a line, played in order from a fresh start (as after Start over):\n  add FILE     put a file of the repository into the context\n  list         put the file list into the context (a loop only)\n  drop K       take entry K out of the context (entry 0, the issue, stays)\n  call         call the model\n  test         run the tests: the level passes when they all pass',
 )
 
-/** A hand level's moves as text, or why a line cannot be read. */
+/** A hand task's moves as text, or why a line cannot be read. */
 function movesOf(text, level) {
   const ops = []
   const lines = text.split('\n').map((l) => l.replace(/#.*/, '').trim())

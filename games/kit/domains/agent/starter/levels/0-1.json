@@ -1,8 +1,5 @@
 {
-  "kind": "hand",
-  "mode": "once",
   "title": { "zh": "它只知道你给它的", "en": "It knows what you give it" },
-  "brief": { "zh": "让模型修好这个 issue，再跑一次测试确认。", "en": "Get the model to fix this issue, then run the tests to make sure." },
   "intro": [
     {
       "t": {
@@ -11,8 +8,16 @@
       }
     }
   ],
-  "hint": [{ "zh": "issue 里写了要改的文件名。", "en": "The issue names the file to change." }],
-  "test": { "issue": "qty-zero" },
-  "solution": [{ "add": "src/cart.js" }, "call", "test"],
-  "after": { "zh": "模型只知道上下文里的东西；上下文外面的，它会编。", "en": "The model knows only what is in its context; what is outside, it makes up." }
+  "after": { "zh": "模型只知道上下文里的东西；上下文外面的，它会编。", "en": "The model knows only what is in its context; what is outside, it makes up." },
+  "tasks": [
+    {
+      "id": "0-1",
+      "kind": "hand",
+      "mode": "once",
+      "brief": { "zh": "让模型修好这个 issue，再跑一次测试确认。", "en": "Get the model to fix this issue, then run the tests to make sure." },
+      "hint": [{ "zh": "issue 里写了要改的文件名。", "en": "The issue names the file to change." }],
+      "test": { "issue": "qty-zero" },
+      "solution": [{ "add": "src/cart.js" }, "call", "test"]
+    }
+  ]
 }

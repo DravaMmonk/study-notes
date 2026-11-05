@@ -1,10 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "让它自己找", "en": "Let it look" },
-  "brief": {
-    "zh": "这些 issue 只写了函数名。让模型自己找到它在哪个文件里。",
-    "en": "These issues name only the function. Let the model find which file it is in."
-  },
   "intro": [
     {
       "t": {
@@ -14,19 +9,29 @@
     }
   ],
   "adds": ["list"],
-  "tests": [{ "issue": "logout-session" }, { "issue": "login-case" }],
-  "solution": [
-    "k = concat(issue, history)",
-    "m = model(k)",
-    "r = read(m)",
-    "l = list(m)",
-    "keep = concat(r, l)",
-    "repo <- m",
-    "out <- keep",
-    "stop <- m"
-  ],
   "after": {
     "zh": "模型先看目录，再读文件，再改：它用的工具越多，你要事先知道的越少。每个工具的结果都要接回去，它才看得到。",
     "en": "The model looked at the list, read the file, then changed it: the more tools it has, the less you need to know beforehand. Every tool’s result has to be fed back for it to see."
-  }
+  },
+  "tasks": [
+    {
+      "id": "2-2",
+      "kind": "board",
+      "brief": {
+        "zh": "这些 issue 只写了函数名。让模型自己找到它在哪个文件里。",
+        "en": "These issues name only the function. Let the model find which file it is in."
+      },
+      "tests": [{ "issue": "logout-session" }, { "issue": "login-case" }],
+      "solution": [
+        "k = concat(issue, history)",
+        "m = model(k)",
+        "r = read(m)",
+        "l = list(m)",
+        "keep = concat(r, l)",
+        "repo <- m",
+        "out <- keep",
+        "stop <- m"
+      ]
+    }
+  ]
 }

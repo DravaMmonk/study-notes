@@ -1,7 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "两处陷阱", "en": "Two traps" },
-  "brief": { "zh": "一个 issue，两处容易写错的修改，在两个文件里。", "en": "One issue, two easy-to-get-wrong changes, in two files." },
   "intro": [
     {
       "t": {
@@ -10,20 +8,27 @@
       }
     }
   ],
-  "tests": [{ "issue": "two-traps" }],
-  "solution": [
-    "k = concat(issue, history)",
-    "m = model(k)",
-    "r = read(m)",
-    "l = list(m)",
-    "t = test(m)",
-    "keep = concat(r, l, t.out)",
-    "repo <- m",
-    "out <- keep",
-    "stop <- t.green"
-  ],
   "after": {
     "zh": "一份报告列出所有失败，模型每一轮修它看得到的那些。轮数多了，历史也跟着变长。",
     "en": "One report lists every failure, and each turn the model fixes the ones it can see. More turns, and a longer history."
-  }
+  },
+  "tasks": [
+    {
+      "id": "2-4",
+      "kind": "board",
+      "brief": { "zh": "一个 issue，两处容易写错的修改，在两个文件里。", "en": "One issue, two easy-to-get-wrong changes, in two files." },
+      "tests": [{ "issue": "two-traps" }],
+      "solution": [
+        "k = concat(issue, history)",
+        "m = model(k)",
+        "r = read(m)",
+        "l = list(m)",
+        "t = test(m)",
+        "keep = concat(r, l, t.out)",
+        "repo <- m",
+        "out <- keep",
+        "stop <- t.green"
+      ]
+    }
+  ]
 }

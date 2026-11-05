@@ -1,10 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "第一次调用", "en": "The first call" },
-  "brief": {
-    "zh": "搭一块板：把 issue 交给模型，它写出的修改落进仓库。",
-    "en": "Build a board: hand the issue to the model, and what it writes lands in the repository."
-  },
   "intro": [
     {
       "t": {
@@ -19,15 +14,7 @@
       }
     }
   ],
-  "hint": [
-    {
-      "zh": "从 issue 右边的圆点连到模型，再从模型连到仓库。",
-      "en": "Wire the dot on the right of the issue to the model, and the model to the repository."
-    }
-  ],
   "adds": ["model"],
-  "tests": [{ "issue": "pasted-total" }, { "issue": "pasted-tax" }],
-  "solution": ["m = model(issue)", "repo <- m"],
   "showcase": {
     "zh": "第一块板：机器跑一遍板，左边是它拿到的，右边是结果去的地方，中间由玩家接；模型本身在纸笔一章里已经亲手调用过",
     "en": "the first board: the machine runs it once, what it is given on the left, where the results go on the right, the middle wired by the player; the model itself was called by hand in Pen and paper"
@@ -35,5 +22,23 @@
   "after": {
     "zh": "issue 里贴了代码，模型就看得到要改的函数，一次写对。板上线里流的是上下文：一组条目，每条占一些 token；模型读进一段上下文，给出一个动作。",
     "en": "With the code pasted into the issue, the model can see the function to change and writes it right in one go. What runs on these wires is context: a list of entries, each taking some tokens; the model reads a context and gives one action."
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-1",
+      "kind": "board",
+      "brief": {
+        "zh": "搭一块板：把 issue 交给模型，它写出的修改落进仓库。",
+        "en": "Build a board: hand the issue to the model, and what it writes lands in the repository."
+      },
+      "hint": [
+        {
+          "zh": "从 issue 右边的圆点连到模型，再从模型连到仓库。",
+          "en": "Wire the dot on the right of the issue to the model, and the model to the repository."
+        }
+      ],
+      "tests": [{ "issue": "pasted-total" }, { "issue": "pasted-tax" }],
+      "solution": ["m = model(issue)", "repo <- m"]
+    }
+  ]
 }

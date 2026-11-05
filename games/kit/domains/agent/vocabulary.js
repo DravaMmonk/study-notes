@@ -1,12 +1,14 @@
 // The agent domain's vocabulary (games/DESIGN.md 6.2): every thing an agent game's content may name, each with what it
-// is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and their
-// parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
+// is and the schema of its parameters, and the schemas of game.json and of one level (a list of tasks). Content is these
+// items and their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this
+// domain.
 //
 // The items are implemented next to them: parts in parts.js (the model's rules in model.js), machines in course.js and
 // run.js, plays in ui/, the moves of a hand session in hand.js, the repositories and issues in world.js.
 
 import { S } from '../../engine/schema.js'
 import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { taskLevel } from '../../engine/tasks.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -65,17 +67,23 @@ const TEST = S.obj({ issue: S.str(), code: S.opt(S.str({ about: t('和 issue 一
 
 /* ---------- a level ---------- */
 
-const COMMON = {
-  kind: S.ref('play'),
+// What a level says once: its title, its introduction, its pass text, its place in the course.
+const ONCE = {
   title: S.text(),
-  brief: S.text(),
   intro: S.opt(S.list(S.obj({ t: S.text() }))),
-  hint: S.opt(TEXTS),
   after: S.text(),
   note: S.opt(S.text()),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+}
+// A task: a hand session or a board, with its brief, its hints and the window of its machine.
+const COMMON = {
+  kind: S.ref('play'),
+  brief: S.text(),
+  hint: S.opt(TEXTS),
   window: S.opt(WINDOW),
 }
-const LEVEL = S.by('kind', {
+const TASK = S.by('kind', {
   hand: S.obj({
     ...COMMON,
     mode: S.oneOf(['once', 'loop'], { about: t('模型一次写完所有它知道的（once），还是会回头要东西（loop）', 'whether the model writes all it knows at once (once) or asks back (loop)') }),
@@ -85,13 +93,11 @@ const LEVEL = S.by('kind', {
   board: S.obj({
     ...COMMON,
     turns: S.opt(S.int({ min: 1 })),
-    adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
     tests: S.list(TEST, { min: 1, section: 'tests' }),
     hidden: S.opt(S.list(TEST, { section: 'tests' })),
     solution: BOARD,
     naive: S.opt(BOARD),
     budget: S.opt(S.obj({ tokens: S.opt(S.int({ min: 1 })), turns: S.opt(S.int({ min: 1 })) })),
-    showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
   }),
 })
 
@@ -128,5 +134,5 @@ export const vocabulary = defineVocabulary({
   version: 1,
   kinds: { part: PARTS, machine: MACHINES, play: PLAYS, move: MOVES },
   game: GAME,
-  level: LEVEL,
+  level: taskLevel(ONCE, TASK),
 })

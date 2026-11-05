@@ -1,8 +1,8 @@
 // Chapter 0 of 《软件工厂》: no machine yet. The player is the loop: puts files into the model's context, calls it, does
-// what it asks, runs the tests and puts the report back. A hand level holds one issue on one repository, and is passed
+// what it asks, runs the tests and puts the report back. A hand task holds one issue on one repository, and is passed
 // when a test run the player starts comes back green.
 //
-//   level { machine: { mode, window }, test: { repo, issue }, solution: [op] }
+//   task  { machine: { mode, window }, test: { repo, issue }, solution: [op] }
 //   op    ['add', file] | ['list'] | ['drop', k] | ['call'] | ['test']   (the save keeps a session as its ops; content
 //         writes each as a move of the vocabulary, { add: file } or 'call', which opOf reads)
 // A session is { context, state, log, tokens, green }: the context the model will read (the issue first), the
