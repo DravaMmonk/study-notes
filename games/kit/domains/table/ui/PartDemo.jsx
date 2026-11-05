@@ -5,9 +5,8 @@ import { L, tr } from '../../../shell/i18n.js'
 import { signal } from '../model/format.js'
 import { WORLDS, windowOf } from '../model/worlds.js'
 import { ROBOTS } from '../model/robots.js'
-import { BUILT, def, hasValue, isCard, isGiven, valueDefault } from '../model/parts.js'
+import { isCard, isGiven } from '../model/parts.js'
 import { picksOf, splitSrc } from '../model/board.js'
-import { evaluate, runCircuit } from '../model/run.js'
 import { fill } from '../items/labels.js'
 import { CARD_W, partsFor, toGraph } from './board.js'
 import RobotView from './RobotView.jsx'
@@ -34,8 +33,8 @@ function asTaps(b) {
 
 /** The bench for a part: its level, world, robot, board and, per test, the table that board fills. */
 // borrow: { part: level id } parts that are an idea rather than a board show the board of the level that puts the idea
-// to work (the game's content).
-function benchFor(levels, borrow, key) {
+// to work (the game's content). model: the course's board model (../model/run.js modelOf).
+function benchFor(model, levels, borrow, key) {
   const own = levels.find((L) => L.unlock === key)
   const L = borrow[key] ? levels.find((x) => x.id === borrow[key]) : own
   if (!L || L.mode !== 'circuit') return null
@@ -46,7 +45,7 @@ function benchFor(levels, borrow, key) {
   const runs = []
   for (const t of s.tests.slice(0, 3)) {
     try {
-      const res = runCircuit(V, t, s.solution, s)
+      const res = model.runCircuit(V, t, s.solution, s)
       // The robot starts two thirds of the way through the scan, where its inputs are already worked out.
       const steps = res.steps.filter((step) => step.writes)
       runs.push({ t, table: res.table, start: steps[Math.floor((steps.length * 2) / 3)]?.cell ?? V.sample(t, s) })
@@ -56,7 +55,7 @@ function benchFor(levels, borrow, key) {
   }
   if (!runs.length) return null
   // A board that became a part of its own is tried as that one part, fed by the same inputs.
-  const b = BUILT[key]?.level === L.id ? BUILT[key] : null
+  const b = model.built[key]?.level === L.id ? model.built[key] : null
   const circuit = b
     ? { nodes: [...b.sensors.filter(Boolean).map((p) => ({ id: p, type: 'tap', params: { sensor: p } })), ...b.inputs.filter(Boolean).map((id) => ({ id, type: 'port' })), { id: 'p', type: key, ...(b.setting !== undefined ? { params: { value: b.setting } } : {}) }, { id: b.out, type: 'out' }], wires: [...b.sensors.map((p, k) => ({ from: p ?? b.inputs[k], to: 'p', port: String(k) })), { from: 'p', to: b.out, port: 'in' }] }
     : asTaps(s.solution)
@@ -136,8 +135,8 @@ const wireStateOf = (probe) => (wire) => {
   return v === null || v === false ? 'dead' : 'live'
 }
 
-export default function PartDemo({ partKey, phone, levels, borrow }) {
-  const bench = useMemo(() => benchFor(levels, borrow, partKey), [levels, borrow, partKey])
+export default function PartDemo({ model, partKey, phone, levels, borrow }) {
+  const bench = useMemo(() => benchFor(model, levels, borrow, partKey), [model, levels, borrow, partKey])
   const [ti, setTi] = useState(0)
   const [cell, setCell] = useState(() => bench?.runs[0].start)
   const [table, setTable] = useState(() => new Map(bench?.runs[0].table ?? []))
@@ -150,6 +149,7 @@ export default function PartDemo({ partKey, phone, levels, borrow }) {
   const [inside, setInside] = useState(false) // a built part opened to the board it runs
   if (!bench) return null
 
+  const { def, hasValue, valueDefault } = model
   const { V, o, robot, s } = bench
   const t = bench.runs[ti].t
   const keys = V.keys(t, cell)
@@ -188,7 +188,7 @@ export default function PartDemo({ partKey, phone, levels, borrow }) {
   }
   const run = () => {
     const out = {}
-    const { out: answer } = evaluate(circ, (id) => inputs[id] ?? null, V.outs.map((x) => x[0]), out)
+    const { out: answer } = model.evaluate(circ, (id) => inputs[id] ?? null, V.outs.map((x) => x[0]), out)
     setTable((tb) => {
       const next = new Map(tb)
       Object.entries(keys).forEach(([id, key]) => next.set(key, answer[id]))
@@ -241,7 +241,7 @@ export default function PartDemo({ partKey, phone, levels, borrow }) {
   )
 
   const graph = circ
-  const parts = partsFor(circ, { sensors: V.sensors, outs: V.outs, ports: bench.ports })
+  const parts = partsFor(model, circ, { sensors: V.sensors, outs: V.outs, ports: bench.ports })
   const valueOf = (id) => (probe && id in probe ? signal(probe[id]) : '')
   const tests = bench.runs.map((r) => ({ label: bench.L.testLabel ? fill(bench.L.testLabel, r.t) : V.label(r.t) }))
   const common = { tests, test: ti, onTest: pickTest, onRun: run, onReset: reset, state: stale ? 'stale' : probe ? 'ran' : 'idle' }
@@ -254,12 +254,13 @@ export default function PartDemo({ partKey, phone, levels, borrow }) {
   // Inside a built part: the board it runs, fed what the bench feeds the part, with the part's own setting.
   const opened = inside && (
     <Inside
-      board={BUILT[bench.built].board()}
+      model={model}
+      board={model.built[bench.built].board()}
       setting={circ.nodes.find(isBuilt)?.params?.value}
       sense={(id) => inputs[id] ?? null}
       ran={Boolean(probe)}
       terms={{ sensors: V.sensors, outs: V.outs, ports: bench.ports }}
-      name={L(BUILT[bench.built].name)}
+      name={L(model.built[bench.built].name)}
       phone={phone}
       height={bench.height}
       onBack={() => setInside(false)}
@@ -358,16 +359,17 @@ export default function PartDemo({ partKey, phone, levels, borrow }) {
  * `sense` (what the bench feeds the part, by sensor), its numbers set to the part's own `setting`. The way back out
  * names the part.
  */
-function Inside({ board, setting, sense, ran, terms, name, phone, height, onBack }) {
+function Inside({ model, board, setting, sense, ran, terms, name, phone, height, onBack }) {
+  const { def, hasValue, valueDefault } = model
   const inner = setting === undefined ? board : { ...board, nodes: board.nodes.map((n) => (hasValue(n.type) ? { ...n, params: { ...n.params, value: setting } } : n)) }
   const probe = {}
   try {
-    evaluate(inner, (id) => sense(id), terms.outs.map((x) => x[0]), probe)
+    model.evaluate(inner, (id) => sense(id), terms.outs.map((x) => x[0]), probe)
   } catch {
     // A board that cannot compute on these inputs shows what it reached.
   }
   const graph = toGraph(inner)
-  const parts = partsFor(inner, terms)
+  const parts = partsFor(model, inner, terms)
   const valueOf = (id) => (ran && id in probe ? signal(probe[id]) : '')
   const outNote = (node, key) => (isCard(node.type) ? <b className="sg-oval">{signal(sense(key))}</b> : null)
   const back = <button type="button" className="sg-inside-back" onClick={onBack}><ArrowLeft size={14} />{name}</button>

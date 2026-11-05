@@ -3,13 +3,14 @@ import { CanvasEditor, Choice, Notice, Palette, SlotBoard, Tray, placement, useS
 import { L, tr } from '../../../shell/i18n.js'
 import { PhonePage } from '../../../shell/index.js'
 import { signal } from '../model/format.js'
-import { def, hasValue, valueDefault, isCard } from '../model/parts.js'
+import { isCard } from '../model/parts.js'
 import { CARD_W } from './board.js'
 
 // A table board on the shared circuit editor (../../../circuit), the one Vision Complete uses: the same cards, dots,
 // wires, keys and gestures. `board` is the circuit level's bridge to it (modes/Circuit.jsx); what a card shows here is
 // the value its output carries at the robot's cell, an input card what it reads (board.cardView), and a constant's or
-// a merger's setting, chosen with buttons (the kit's Choice) as on the phone's sheet.
+// a merger's setting, chosen with buttons (the kit's Choice) as on the phone's sheet. What a part is comes from the
+// course's board model (board.model, ../model/run.js modelOf).
 
 const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
 // What a part's card shows: what it computed, or 未算到 when a stopped run never got to it. (A reader shows what it
@@ -26,6 +27,7 @@ export function SgCanvas({ board, overlay }) {
   const parts = board.parts()
   const probe = board.probe()
   const reading = board.reading?.()
+  const { def, hasValue, valueDefault } = board.model
   const body = (node) => {
     const { text: value, cls } = shownOf(node, probe, reading)
     const swaps = parts.role(node) === 'part' ? board.swaps(node.type) : []
@@ -96,6 +98,7 @@ export function SgPhone({ board, rootRef, brief, tests, results, dock, children 
   const graph = board.graph()
   const parts = board.parts()
   const probe = board.probe()
+  const { def, hasValue, valueDefault } = board.model
   const editing = useSlotEditing({
     root: rootRef,
     scroller,

@@ -61,19 +61,22 @@ export const isCard = type => type === 'view' || type === 'facts';
 export const isGiven = type => isCard(type) || type === 'port' || type === 'tap' || type === 'out';
 
 /**
- * The parts the player builds, by part key ('counter'), registered by course.js from the levels that build them:
- * { name, desc, ins: [port type], labels: [short], sensors: [sensor | null], inputs: [port input id | null], out,
- * outType, setting?: default number, board(), part } — board() the board it runs (the player's, or its level's
- * reference board), `part` the engine part that runs it.
+ * A course's parts: the primitives, and `built`, the parts its player builds, by part key ('counter'), registered by
+ * course.js from the levels that build them: { name, desc, ins: [port type], labels: [short], sensors: [sensor | null],
+ * inputs: [port input id | null], out, outType, setting?: default number, board(), part } — board() the board it runs
+ * (the player's, or its level's reference board), `part` the engine part that runs it. Each course holds its own, so
+ * two courses read in one process never see each other's boards.
+ *   def(type)          what a part is (null: no such part)
+ *   hasValue(type)     whether it carries a number set on its card: a constant, or a built part with a setting
+ *   valueDefault(type) the number it starts with when it is placed
  */
-export const BUILT = {};
-export function def(type) {
-  if (PRIMITIVES[type]) return PRIMITIVES[type];
-  const b = BUILT[type];
-  return b ? { name: b.name, tag: T('零件', 'part'), ins: b.ins, labels: b.labels, desc: b.desc, built: true, out: b.outType, params: b.setting !== undefined ? ['value'] : [] } : null;
+export function partsOf(built) {
+  const def = type => {
+    if (PRIMITIVES[type]) return PRIMITIVES[type];
+    const b = built[type];
+    return b ? { name: b.name, tag: T('零件', 'part'), ins: b.ins, labels: b.labels, desc: b.desc, built: true, out: b.outType, params: b.setting !== undefined ? ['value'] : [] } : null;
+  };
+  const hasValue = type => type === 'const' || built[type]?.setting !== undefined;
+  const valueDefault = type => (type === 'const' ? 1 : built[type]?.setting);
+  return { built, def, hasValue, valueDefault };
 }
-
-/** Whether a part carries a number set on its card: a constant, or a built part with a setting. */
-export const hasValue = type => type === 'const' || BUILT[type]?.setting !== undefined;
-/** The number such a part starts with when it is placed. */
-export const valueDefault = type => (type === 'const' ? 1 : BUILT[type]?.setting);

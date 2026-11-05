@@ -62,36 +62,36 @@ test('a level’s answers are written, and the reference board is checked agains
   const { validate } = await import('./validate.js');
   const course = twoLevels();
   course.levels[1].expected = [8, 12, 11];
-  const { LEVELS, wrong } = tableCourse(course);
-  assert.deepEqual(wrong, []);
-  const lines = validate({ levels: LEVELS, table: { wrong } }).filter(l => l.fail).map(l => l.text);
+  const table = tableCourse(course);
+  assert.deepEqual(table.wrong, []);
+  const lines = validate({ levels: table.LEVELS, table }).filter(l => l.fail).map(l => l.text);
   assert.deepEqual(lines, ['reuse stage 1 test 3: the reference gives 10, expected 11']);
   course.levels[1].expected = [8, 12];
   assert.match(tableCourse(course).wrong[0], /reuse: stage 1 gives 2 expected answers for 3 tests/);
 });
 
 test('a built part runs the board its level was passed with, when that board reads exactly the part’s ports', async () => {
-  const { tableCourse, syncOwn, run } = await import('./course.js');
+  const { tableCourse } = await import('./course.js');
   const { WORLDS } = await import('./model/worlds.js');
-  const { LEVELS, wrong } = tableCourse(twoLevels());
+  const { LEVELS, wrong, syncOwn, run } = tableCourse(twoLevels());
   assert.deepEqual(wrong, []);
   const builder = LEVELS.find(L => L.id === 'build').stages.at(-1), user = LEVELS.find(L => L.id === 'reuse').stages.at(-1);
   const V = WORLDS[user.world], answers = () => user.tests.map(t => run(V, t, user.solution, user).value);
   const offByOne = { ...builder.solution, nodes: builder.solution.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) };
   const noStart = { ...builder.solution, wires: builder.solution.wires.filter(w => w.from !== 'facts#start') };
   assert.deepEqual(answers(), user.expected, 'the written answers are the routes around the rocks');
-  try {
-    syncOwn({ build: { stage: 0, boards: [offByOne] } });
-    assert.notDeepEqual(answers(), user.expected);
-    // As an older save keeps it: no output node, every sensor on the view card.
-    const unfitted = { nodes: builder.solution.nodes.filter(n => n.type !== 'out').map(n => (n.type === 'facts' ? null : n.type === 'view' ? { ...n, params: { picks: ['up', 'left', 'start'] } } : n)).filter(Boolean), wires: builder.solution.wires.map(w => (w.from === 'facts#start' ? { ...w, from: 'view#start' } : w)) };
-    syncOwn({ build: { stage: 0, boards: [{ ...unfitted, nodes: unfitted.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) }] } });
-    assert.notDeepEqual(answers(), user.expected);
-    syncOwn({ build: { stage: 0, boards: [unfitted] } });
-    assert.deepEqual(answers(), user.expected);
-    syncOwn({ build: { stage: 0, boards: [noStart] } });
-    assert.deepEqual(answers(), user.expected);
-  } finally {
-    syncOwn({});
-  }
+  syncOwn({ build: { stage: 0, boards: [offByOne] } });
+  assert.notDeepEqual(answers(), user.expected);
+  // Another read of the same content keeps boards of its own: the first read's kept board is not its part.
+  const other = tableCourse(twoLevels()), otherUser = other.LEVELS.find(L => L.id === 'reuse').stages.at(-1);
+  assert.deepEqual(otherUser.tests.map(t => other.run(V, t, otherUser.solution, otherUser).value), otherUser.expected);
+  assert.notDeepEqual(answers(), user.expected);
+  // As an older save keeps it: no output node, every sensor on the view card.
+  const unfitted = { nodes: builder.solution.nodes.filter(n => n.type !== 'out').map(n => (n.type === 'facts' ? null : n.type === 'view' ? { ...n, params: { picks: ['up', 'left', 'start'] } } : n)).filter(Boolean), wires: builder.solution.wires.map(w => (w.from === 'facts#start' ? { ...w, from: 'view#start' } : w)) };
+  syncOwn({ build: { stage: 0, boards: [{ ...unfitted, nodes: unfitted.nodes.map(n => (n.type === 'const' ? { ...n, params: { value: 2 } } : n)) }] } });
+  assert.notDeepEqual(answers(), user.expected);
+  syncOwn({ build: { stage: 0, boards: [unfitted] } });
+  assert.deepEqual(answers(), user.expected);
+  syncOwn({ build: { stage: 0, boards: [noStart] } });
+  assert.deepEqual(answers(), user.expected);
 });

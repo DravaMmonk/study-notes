@@ -15,9 +15,8 @@ import { L as text } from '../../../../shell/i18n.js'
 import { paceOf } from '../../../../engine/trace.js'
 import { WORLDS, windowOf } from '../../model/worlds.js'
 import { ROBOTS } from '../../model/robots.js'
-import { CARDS, def, hasValue, isCard, isGiven, modelsOf } from '../../model/parts.js'
+import { CARDS, isCard, isGiven, modelsOf } from '../../model/parts.js'
 import { blank, clone, fitted, picksOf, placed, portsProblem, readsOf, removeNode, splitSrc, withPicks } from '../../model/board.js'
-import { evaluate } from '../../model/run.js'
 import { judge, testLabel, whyFailed } from '../../model/verdict.js'
 import { signal } from '../../model/format.js'
 import { diagnosisOf, guideAt } from '../../items/conditions.js'
@@ -39,8 +38,8 @@ const CONSTS = [0, 1, 2, 3, 4, 5]
 const shelf = (palette) => palette.filter((k) => { const m = modelsOf(k); return !m || k === palette.find((x) => m.includes(x)) })
 /** The models a part can swap to in place, keeping its wires (a merger's), within the level's palette. */
 const swapsOf = (type, palette) => { const m = modelsOf(type); return m ? m.filter((k) => k === type || palette.includes(k)) : [] }
-/** How that one merger entry reads, when the level has more than one model of it. */
-const mergerEntry = (models) => ({
+/** How that one merger entry reads, when the level has more than one model of it (def: the course's, ../../model/parts.js). */
+const mergerEntry = (def, models) => ({
   label: lazy(() => def(models[0]).name),
   tag: lazy(() => models.map((k) => def(k).tag).join(' / ')),
   icon: lookIcon('merger'),
@@ -48,20 +47,20 @@ const mergerEntry = (models) => ({
   desc: lazy(() => tr(`把接进来的几个数汇成一个。放上后在元件上选操作：${models.map((k) => def(k).tag).join('、')}；换操作时连线不变。`, `Merges the numbers wired into it into one. Pick its operation on the part once placed: ${models.map((k) => def(k).tag).join(', ')}; the wires stay when you swap.`)),
 })
 /** Palette entries for some parts: a merger's models as one entry (when there are several), each with what it does. */
-const itemsOf = (all) => {
+const itemsOf = (def, all) => {
   const models = all.filter((k) => MERGES.includes(k))
   return shelf(all).map((type) => {
     const d = def(type)
     // A part that shares its name with a family shown as one entry (「任一是」 beside the mergers) says its model.
     const twin = !modelsOf(type) && all.some((k) => k !== type && modelsOf(k) && String(def(k).name) === String(d.name))
     const item = { type, name: twin ? lazy(() => `${d.name} · ${d.tag}`) : d.name, label: d.tag && type !== 'const' && !d.built ? lazy(() => `${d.name} · ${d.tag}`) : d.name, desc: d.desc, icon: lookIcon(type), tag: type === 'const' ? tr('一个数', 'a number') : d.tag }
-    return MERGES.includes(type) && models.length > 1 ? { ...item, ...mergerEntry(models), name: mergerEntry(models).label } : item
+    return MERGES.includes(type) && models.length > 1 ? { ...item, ...mergerEntry(def, models), name: mergerEntry(def, models).label } : item
   })
 }
 
 /** The level as it opens: its stage and boards as saved (a level that grows an earlier one's board starts from the
  *  player's last board there), and the run kept from the last visit, replayed as it ended. */
-function opening(L, saved, progress, lastRun) {
+function opening(model, L, saved, progress, lastRun) {
   const carried = L.carry && progress?.data[L.carry]?.boards
   const startOf = (k) => (k === 0 && carried ? clone(carried.at(-1)) : blank())
   const stage = saved?.stage ?? 0
@@ -70,7 +69,7 @@ function opening(L, saved, progress, lastRun) {
   const st = { stage, boards, ti: 0, status: s.tests.map(() => null), view: null, typed: {}, robot: null, sel: null, input: '' }
   if (lastRun && lastRun.stage === stage && lastRun.test < s.tests.length) {
     for (let k = 0; k <= lastRun.test; k++) {
-      const { ok, stop, view } = judge(L, s, boards[stage], k, { ...s, boardWidth: 0 })
+      const { ok, stop, view } = judge(model, L, s, boards[stage], k, { ...s, boardWidth: 0 })
       st.status[k] = ok ? 'pass' : 'fail'
       if (k === lastRun.test) Object.assign(st, { ti: k, view: { ...view, k: stop, end: true } })
     }
@@ -82,6 +81,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   const L = level.source
   const stages = L.stages
   const robot = ROBOTS[L.robot]
+  const model = game.table.model
   const player = usePlayer()
   const verdict = useVerdict({ level, solve, fail })
   const [toast, toastEl] = useToast()
@@ -89,7 +89,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   shell.current = { save, keepRun }
   // The level's state: { stage, boards, ti, status, view, typed, robot, sel, input }. `put` applies a change at once to
   // the latest state, so a run under way and the handlers it outlives never work on an old one.
-  const [st, setSt] = useState(() => opening(L, saved, progress, lastRun))
+  const [st, setSt] = useState(() => opening(model, L, saved, progress, lastRun))
   const latest = useRef(st)
   latest.current = st
   const put = (change) => {
@@ -129,7 +129,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     const shown = new Map(V.base ? V.base(t, opt) : []), reads = new Set(), empty = new Set(), probe = {}
     Object.entries(st.typed).forEach(([k, x]) => shown.set(k, x))
     const get = (key) => { reads.add(key); if (shown.has(key)) return shown.get(key); empty.add(key); return null }
-    const { out } = evaluate(board, (id, layer) => V.read(t, cell, id, get, opt, layer), V.outs.map((x) => x[0]), probe)
+    const { out } = model.evaluate(board, (id, layer) => V.read(t, cell, id, get, opt, layer), V.outs.map((x) => x[0]), probe)
     Object.entries(keys).forEach(([id, key]) => shown.set(key, out[id]))
     return { cell, at: Object.values(keys), shown, reads, empty, probe, typed: new Set(Object.keys(st.typed)), sel: st.sel }
   })()
@@ -229,7 +229,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     player.begin(held)
     const mark = (k, state) => (x) => ({ status: x.status.map((y, j) => (j === k ? state : y)) })
     for (let k = 0; k < tests.length; k++) {
-      const { t: test, res, mm, ok, stop, view } = judge(L, s, b, k, opt)
+      const { t: test, res, mm, ok, stop, view } = judge(model, L, s, b, k, opt)
       put((x) => ({ ti: k, view, ...mark(k, 'run')(x) }))
       // The kit's pace (several steps a frame on a long run); a paused run goes one step at a time.
       const { per, stride } = paceOf(k, stop)
@@ -341,7 +341,8 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     graph: () => toGraph(board),
     // Each stage's board has its own undo history.
     stage: () => st.stage,
-    parts: () => partsFor(board, terms),
+    parts: () => partsFor(model, board, terms),
+    model,
     probe: () => win.probe,
     /** Whether the run stopped on a cell not computed yet, before computing the rest. */
     reading: () => ({ halted: win.halted }),
@@ -356,14 +357,14 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
       put((x) => ({ boards: x.boards.map((y, k) => (k === x.stage ? b : y)) }))
       shell.current.save({ stage: latest.current.stage, boards: latest.current.boards })
     },
-    create,
+    create: (graph, type, at) => create(model, graph, type, at),
     reset: () => setBoard(fresh()),
     /** Whether clearing would take anything away: a part, a wire, or something a card reads. */
     clearable: () => board.wires.length > 0 || placed(board).length > 0 || readsOf(board).length > 0,
-    palette: () => itemsOf(shownParts),
+    palette: () => itemsOf(model.def, shownParts),
     /** Every part the player may place on this stage, shown or folded (a board read from text may use any). */
     types: () => offeredParts,
-    folded: () => itemsOf(foldedParts),
+    folded: () => itemsOf(model.def, foldedParts),
     consts: () => L.consts || CONSTS,
     /** The models a merger can swap to in place (its wires stay). */
     swaps: (type) => swapsOf(type, offeredParts),
@@ -422,9 +423,9 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   const sheets = sheet && (
     <Sheet onClose={close}>
       <div className="sg-sheet">
-        {sheet.kind === 'node' && <NodeSheet node={board.nodes.find((n) => n.id === sheet.id)} move={sheet.move} offered={offered} V={V} robot={robot} swaps={(type) => swapsOf(type, offeredParts)} consts={L.consts || CONSTS} close={close}
+        {sheet.kind === 'node' && <NodeSheet model={model} node={board.nodes.find((n) => n.id === sheet.id)} move={sheet.move} offered={offered} V={V} robot={robot} swaps={(type) => swapsOf(type, offeredParts)} consts={L.consts || CONSTS} close={close}
           on={{ pick: (pick) => { togglePick(sheet.id, pick); buzz(6) }, value: (x) => { setValue(sheet.id, x); close() }, swap: (type) => { swap(sheet.id, type); close() }, remove: () => { setBoard(removeNode(board, sheet.id)); close() } }} />}
-        {sheet.kind === 'slot' && <SlotSheet items={itemsOf(shownParts)} close={close} place={(type) => { close(); sheet.place(type) }} />}
+        {sheet.kind === 'slot' && <SlotSheet items={itemsOf(model.def, shownParts)} close={close} place={(type) => { close(); sheet.place(type) }} />}
         {sheet.kind === 'stage' && <StageSheet stage={st.stage} count={stages.length} done={s.done || {}} next={() => { advance(); close() }} />}
       </div>
     </Sheet>
@@ -469,8 +470,9 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
 
 /** A part's sheet on a phone: what it does, what it reads (视野's box and arm, 本格信息's facts), its number or model,
  *  and moving or deleting it. */
-function NodeSheet({ node: n, move, offered, V, robot, swaps, consts, close, on }) {
+function NodeSheet({ model, node: n, move, offered, V, robot, swaps, consts, close, on }) {
   if (!n) return null
+  const { def, hasValue } = model
   const d = isCard(n.type) ? CARDS[n.type] : def(n.type)
   const picks = picksOf(n)
   const fixed = isGiven(n.type)

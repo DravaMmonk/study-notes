@@ -6,11 +6,11 @@
 import { packed } from '../../engine/boards.js';
 import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } from '../../course.js';
 import { T, hydrate, lazy, tr } from './lang.js';
-import { BUILT, isGiven, modelsOf } from './model/parts.js';
+import { isGiven, modelsOf, partsOf } from './model/parts.js';
 import { fitted, fromText, portsProblem, splitSrc, toText } from './model/board.js';
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
-import { runCircuit } from './model/run.js';
+import { modelOf } from './model/run.js';
 import { S, validate } from '../../engine/schema.js';
 import { worldTest } from './vocabulary.js';
 import { gridScene, visionFig } from './model/scene.js';
@@ -69,23 +69,6 @@ export function usesOf(L) {
   return [...out];
 }
 
-/** The boards the player passed the building levels with, by level id (the shell's progress.built: a level's
- *  { stage, boards }, the last stage's board the one its part runs). */
-const OWN = new Map();
-export function syncOwn(built = {}) {
-  OWN.clear();
-  for (const [id, kept] of Object.entries(built)) { const b = kept?.boards?.at(-1); if (b?.nodes) OWN.set(id, b); }
-}
-// A kept board is fitted to its stage first (a board kept by an older save may lack what the stage gives, its output
-// among them). One that does not read exactly the part's ports then (kept from before the part had them) cannot be
-// the part: the part runs the level's reference board until the level is passed again.
-const fits = new WeakMap();
-const ownBoard = (id, s) => {
-  const b = OWN.get(id);
-  if (!b) return s.solution;
-  if (!fits.has(b)) { const f = fitted(b, s.given); fits.set(b, portsProblem(f, s.ports) ? null : f); }
-  return fits.get(b) ?? s.solution;
-};
 // The engine finds a packed board's output by its name (params.name): an output node's is its id.
 const named = new WeakMap();
 const asPacked = b => {
@@ -95,7 +78,10 @@ const asPacked = b => {
 
 /**
  * The course of a table game's content (content.js assemble). Returns { LEVELS, REQUIRES, PLACE, TRACKS, CHAPTERS,
- * LABELS, PARTS, PRIMITIVES, course, usableIn(L, flags), offerIn(L, flags), blueprints, wrong }.
+ * LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, usableIn(L, flags), offerIn(L, flags), blueprints, wrong }:
+ * model the board model of its parts (model/run.js modelOf: the primitives and the parts its levels build), run a test
+ * run that reports a broken board instead of throwing, syncOwn(built) the boards the player passed its building
+ * levels with. Everything is the course's own: two courses read in one process never see each other's boards.
  */
 export function tableCourse(content) {
   const { eras, levels, parts: PARTS, primitives: PRIMITIVES } = hydrate(content);
@@ -105,6 +91,29 @@ export function tableCourse(content) {
   // Every board the content writes as blueprint text, with how it reads back on its stage (domain.js blueprints); a
   // stage's board is kept in the level's save as { stage, boards }.
   const blueprints = [];
+  // The parts the levels build (registerBuilt), and the board model over them.
+  const built = {};
+  const model = modelOf(partsOf(built));
+  /** A run that reports a broken board instead of throwing (the checks). */
+  const run = (V, t, board, o) => { try { return model.runCircuit(V, t, board, o); } catch (e) { return { error: String(e) }; } };
+
+  // The boards the player passed the building levels with, by level id (the shell's progress.built: a level's
+  // { stage, boards }, the last stage's board the one its part runs).
+  const own = new Map();
+  const syncOwn = (kept = {}) => {
+    own.clear();
+    for (const [id, k] of Object.entries(kept)) { const b = k?.boards?.at(-1); if (b?.nodes) own.set(id, b); }
+  };
+  // A kept board is fitted to its stage first (a board kept by an older save may lack what the stage gives, its output
+  // among them). One that does not read exactly the part's ports then (kept from before the part had them) cannot be
+  // the part: the part runs the level's reference board until the level is passed again.
+  const fits = new WeakMap();
+  const ownBoard = (id, s) => {
+    const b = own.get(id);
+    if (!b) return s.solution;
+    if (!fits.has(b)) { const f = fitted(b, s.given); fits.set(b, portsProblem(f, s.ports) ? null : f); }
+    return fits.get(b) ?? s.solution;
+  };
 
   /** A level's number, as in CURRICULUM.md: on an era's main path the era and its place ('1-4'), in a topic its letter
    *  and place ('S2'), and C1, C2… for an era's challenges. */
@@ -186,7 +195,7 @@ export function tableCourse(content) {
     if (!PARTS[L.unlock]) say(L.id, `builds ${L.unlock}, which game.json parts does not name`);
     const index = Object.fromEntries(ports.map((p, k) => [p.sensor ?? p.input, String(k)]));
     const idle = type => (type.startsWith('bool') ? false : null);
-    BUILT[L.unlock] = {
+    built[L.unlock] = {
       name: PARTS[L.unlock]?.name ?? L.unlock, desc: PARTS[L.unlock]?.desc ?? '', level: L.id,
       ins: ports.map(p => p.type), labels: ports.map(p => p.short), portLabels: ports.map(p => p.label), sensors: ports.map(p => p.sensor), inputs: ports.map(p => p.input),
       out: out[0], outType: out[3], setting: L.builds.setting,
@@ -218,7 +227,7 @@ export function tableCourse(content) {
     eras,
     primitives: PRIMITIVES,
     adds: l => [...new Set([...(byId.get(l.id).adds ?? []), ...stagesFlat(byId.get(l.id)).flatMap(s => s.adds ?? [])])],
-    needs: p => (BUILT[p] ? p : null),
+    needs: p => (built[p] ? p : null),
     builds: l => (byId.get(l.id).builds ? [byId.get(l.id).unlock] : []),
     // A merger's models are one part with a setting.
     concept: p => content.concept?.[p] ?? (modelsOf(p) || [p])[0],
@@ -273,8 +282,5 @@ export function tableCourse(content) {
   /** Everything the player has for level L: what it shows, and what it folds away ({ shown, folded }). */
   const offerIn = (L, flags) => offer(course, { id: L.id }, flags);
 
-  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, usableIn, offerIn, blueprints, wrong };
+  return { LEVELS, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, usableIn, offerIn, blueprints, wrong };
 }
-
-/** A run that reports a broken board instead of throwing (the checks). */
-export const run = (V, t, board, o) => { try { return runCircuit(V, t, board, o); } catch (e) { return { error: String(e) }; } };

@@ -1,4 +1,3 @@
-import { syncOwn } from '../course.js'
 import Circuit from './modes/Circuit.jsx'
 import Fill from './modes/Fill.jsx'
 import Trace from './modes/Trace.jsx'
@@ -14,7 +13,7 @@ const MODES = { circuit: Circuit, fill: Fill, trace: Trace, link: Link, pack: Pa
 
 export default function LevelScreen(props) {
   // A built part runs the board the player passed its level with.
-  syncOwn(props.progress.built)
+  props.game.table.syncOwn(props.progress.built)
   const Mode = MODES[props.level.source.mode]
   return <Mode {...props} />
 }

@@ -3,7 +3,7 @@
 // step (or, scanning in rounds, the first settled cell) where the board's writes differ from it.
 
 import { WORLDS } from './worlds.js';
-import { MAX_ROUNDS, runCircuit } from './run.js';
+import { MAX_ROUNDS } from './run.js';
 import { signal } from './format.js';
 import { explain } from '../items/explains.js';
 import { fill } from '../items/labels.js';
@@ -13,9 +13,9 @@ import { lazy, tr } from '../lang.js';
 export const testLabel = (L, V, t) => (L.testLabel ? fill(L.testLabel, t) : V.label(t));
 
 /** First step whose outputs differ from the reference board's; scanning in rounds, the first cell that settled wrong. */
-function firstMismatch(L, s, t, res, o) {
+function firstMismatch(model, L, s, t, res, o) {
   if (!s.solution || L.noTrace) return null
-  const ref = runCircuit(WORLDS[s.world], t, s.solution, o)
+  const ref = model.runCircuit(WORLDS[s.world], t, s.solution, o)
   if (s.rounds) {
     const key = [...ref.table.keys()].find((x) => res.table.get(x) !== ref.table.get(x))
     if (key === undefined) return null
@@ -29,11 +29,12 @@ function firstMismatch(L, s, t, res, o) {
   return null
 }
 
-/** Test k of stage `s` run on board `b`: its result, the first step gone wrong (or cell settled wrong), the view of its end. */
-export function judge(L, s, b, k, o) {
-  const t = s.tests[k], res = runCircuit(WORLDS[s.world], t, b, o), want = s.expected[k]
+/** Test k of stage `s` run on board `b` (by the course's board model, run.js modelOf): its result, the first step gone
+ *  wrong (or cell settled wrong), the view of its end. */
+export function judge(model, L, s, b, k, o) {
+  const t = s.tests[k], res = model.runCircuit(WORLDS[s.world], t, b, o), want = s.expected[k]
   // A level that grades every cell (checkAll) compares the whole table, not just the answer.
-  const mm = res.error || s.onFail || (!s.checkAll && res.value === want) ? null : firstMismatch(L, s, t, res, o)
+  const mm = res.error || s.onFail || (!s.checkAll && res.value === want) ? null : firstMismatch(model, L, s, t, res, o)
   const ok = !res.error && res.value === want && !mm
   const stop = mm && mm.key === undefined ? mm.q + 1 : res.steps.length
   return { t, res, mm, ok, stop, view: { res, k: 0, pass: ok, end: false, halt: Boolean(res.error && !res.error.diverge) || (Boolean(mm) && mm.key === undefined), focus: null, badKey: mm ? mm.key : undefined } }

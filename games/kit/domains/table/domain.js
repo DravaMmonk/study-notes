@@ -3,7 +3,7 @@
 // hook for blind sessions (play.js). Nothing here draws: the page's side is game.jsx.
 
 import { vocabulary } from './vocabulary.js';
-import { syncOwn, tableCourse } from './course.js';
+import { tableCourse } from './course.js';
 import { validate } from './validate.js';
 import { play } from './play.js';
 
@@ -21,7 +21,7 @@ function spec(content) {
     levels: table.LEVELS,
     table,
     blueprints: table.blueprints,
-    syncOwn,
+    syncOwn: table.syncOwn,
     texts: { chapters: table.CHAPTERS, parts: table.PARTS, glossary: content.glossary.entries },
   };
 }

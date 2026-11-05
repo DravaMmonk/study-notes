@@ -11,9 +11,7 @@
 //
 // Text here is in the shell's language (lang.js tr), which a blind session chooses before the game loads.
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
-import { syncOwn } from './course.js'
 import { blank, clone, fitted, portsProblem } from './model/board.js'
-import { def } from './model/parts.js'
 import { WORLDS } from './model/worlds.js'
 import { judge, testLabel, whyFailed } from './model/verdict.js'
 import { fromGraph, wiring } from './model/wiring.js'
@@ -54,20 +52,20 @@ export const play = {
 
 const circuit = circuitPlay({
   board: (ctx) => {
-    syncOwn(ctx.progress.built)
+    ctx.game.table.syncOwn(ctx.progress.built)
     const { stage, boards } = stateOf(ctx)
     const L = ctx.level.source
     const s = L.stages[stage]
     const V = worldOf(s)
     const allowed = ctx.game.table.usableIn(L, ctx.flags)
-    return { start: opening(ctx, stage, boards), parts: wiring({ sensors: V.sensors, outs: V.outs }), types: s.palette.filter((k) => allowed.has(k)) }
+    return { start: opening(ctx, stage, boards), parts: wiring(ctx.game.table.model, { sensors: V.sensors, outs: V.outs }), types: s.palette.filter((k) => allowed.has(k)) }
   },
-  part: (_, type) => {
-    const d = def(type)
+  part: (ctx, type) => {
+    const d = ctx.game.table.model.def(type)
     return { name: d.tag && type !== 'const' && !d.built ? `${str(d.name)} · ${str(d.tag)}` : str(d.name), desc: str(d.desc) }
   },
-  portLabel: (_, type, port) => (def(type).labels?.[+port] ? str(def(type).labels[+port]) : null),
-  settings: (ctx, type) => (def(type).params?.includes('value') ? [{ key: 'value', values: (ctx.level.source.consts ?? CONSTS).map(String) }] : []),
+  portLabel: (ctx, type, port) => str(ctx.game.table.model.def(type).labels?.[+port]) || null,
+  settings: (ctx, type) => (ctx.game.table.model.def(type).params?.includes('value') ? [{ key: 'value', values: (ctx.level.source.consts ?? CONSTS).map(String) }] : []),
   given: (ctx) => {
     const { stage } = stateOf(ctx)
     const L = ctx.level.source
@@ -109,7 +107,7 @@ const circuit = circuitPlay({
     const results = []
     let failed = null
     for (let k = 0; k < s.tests.length && !failed; k++) {
-      const j = judge(L, s, b, k, s)
+      const j = judge(ctx.game.table.model, L, s, b, k, s)
       results.push({ label: `${tr('测试', 'Test')} ${k + 1} · ${str(label(j.t))}`, pass: j.ok })
       if (!j.ok) failed = { k, ...j }
     }

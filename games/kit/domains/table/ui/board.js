@@ -3,9 +3,8 @@
 // phone) and change() keeps what the board stores; the editor's description of the nodes (partsFor) refuses a wire the
 // engine would refuse, with the engine's own reason.
 
-import { CARDS, def, hasValue, isCard, isGiven, valueDefault } from '../model/parts.js';
+import { CARDS, isCard, isGiven } from '../model/parts.js';
 import { picksOf, placement, splitSrc } from '../model/board.js';
-import { srcType } from '../model/run.js';
 import { wiring } from '../model/wiring.js';
 import { lookIcon } from './looks.js';
 import { ICONS } from './glyphs.js';
@@ -45,14 +44,15 @@ export function toGraph(b) {
   };
 }
 
-/** A new part of `type` in phone slot `at` (and the first free spot on the desktop board). */
-export function create(graph, type, at) {
+/** A new part of `type` in phone slot `at` (and the first free spot on the desktop board); model: the course's board
+ *  model (../model/run.js modelOf). */
+export function create(model, graph, type, at) {
   const used = graph.nodes.map(n => /^n(\d+)$/.exec(n.id)).filter(Boolean).map(m => +m[1]);
   const id = `n${Math.max(0, ...used) + 1}`;
   const taken = (x, y) => graph.nodes.some(n => Math.abs(n.x - x) < 170 && Math.abs(n.y - y) < 140);
   let [x, y] = home('part', 0, at);
   for (let tries = 0; tries < 30 && taken(x, y); tries++) y += 150;
-  return { graph: { ...graph, nodes: [...graph.nodes, { id, type, x, y, slot: at, ...(hasValue(type) ? { params: { value: valueDefault(type) } } : {}) }] }, id };
+  return { graph: { ...graph, nodes: [...graph.nodes, { id, type, x, y, slot: at, ...(model.hasValue(type) ? { params: { value: model.valueDefault(type) } } : {}) }] }, id };
 }
 
 /** A card's outputs, one per sensor it reads, by the sensor's name; a fact goes by its symbol (glyphs.js). */
@@ -63,10 +63,12 @@ export function outputsOf(node, sensors) {
 }
 
 /**
- * The editor's description of this board's nodes (../../../circuit/model.js). `b` is the board and `u` = { sensors,
- * outs, ports? } of the world the board runs in (ports: the built part's port inputs, by id: { label, short }).
+ * The editor's description of this board's nodes (../../../circuit/model.js). `model` is the course's board model,
+ * `b` the board and `u` = { sensors, outs, ports? } of the world the board runs in (ports: the built part's port
+ * inputs, by id: { label, short }).
  */
-export function partsFor(b, u) {
+export function partsFor(model, b, u) {
+  const { def } = model;
   const io = { sensors: u.sensors, outs: u.outs };
   const label = node => (isCard(node.type) ? CARDS[node.type].name : node.type === 'tap' ? u.sensors[node.params.sensor].label : node.type === 'port' ? u.ports?.[node.id]?.label ?? node.id : node.type === 'out' ? u.outs.find(o => o[0] === node.id)?.[1] : def(node.type).name);
   const colour = node => {
@@ -78,7 +80,7 @@ export function partsFor(b, u) {
   const look = (node, port, key = null) => {
     if (port === null) {
       if (node.type === 'out') return '';
-      const t = srcType(b, io, key === null ? node.id : `${node.id}#${key}`);
+      const t = model.srcType(b, io, key === null ? node.id : `${node.id}#${key}`);
       return t.endsWith('s') ? 'list' : t;
     }
     const t = node.type === 'out' ? (u.outs.find(o => o[0] === node.id)?.[3] || 'num') : def(node.type).ins[+port];
@@ -86,7 +88,7 @@ export function partsFor(b, u) {
   };
   const byId = (graph, id) => graph.nodes.find(n => n.id === id);
   return {
-    ...wiring(u),
+    ...wiring(model, u),
     label,
     portLabel: (node, port) => (isGiven(node.type) ? '' : def(node.type).labels?.[+port] ?? ''),
     family: () => 'sg',

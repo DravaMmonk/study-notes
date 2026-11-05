@@ -5,11 +5,10 @@
 
 import { WORLDS } from './model/worlds.js';
 import { fitted, fromText, portsProblem } from './model/board.js';
-import { BUILT } from './model/parts.js';
-import { run } from './course.js';
 
 /** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ levels, table }) {
+  const { run } = table;
   const out = table.wrong.map(text => ({ text, fail: true }));
   let runs = 0;
   const bad = (level, msg) => out.push({ level, text: msg, fail: true });
@@ -35,7 +34,7 @@ export function validate({ levels, table }) {
 
   /** The part a level builds against the board it stands for. */
   function checkBuilt(L) {
-    const s = L.stages.at(-1), V = WORLDS[s.world], b = BUILT[L.unlock];
+    const s = L.stages.at(-1), V = WORLDS[s.world], b = table.model.built[L.unlock];
     const why = portsProblem(s.solution, s.ports);
     if (why) bad(L.id, `${L.id}: ${String(why)}`);
     const consts = s.solution.nodes.filter(n => n.type === 'const');
