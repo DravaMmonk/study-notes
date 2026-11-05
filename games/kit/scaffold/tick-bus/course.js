@@ -16,8 +16,11 @@ import { board, portsOut } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
-/** A test as content writes it, its line read into values. */
-const testOf = (t) => ({ ...t, line: bitsOf(t.line) })
+/** A test as content writes it, its line read into values; it runs as many ticks as its line is long. */
+const testOf = (t) => {
+  const line = bitsOf(t.line)
+  return { ...t, line, ticks: line.length }
+}
 
 export function __name__Course(content) {
   // A task read: what reading it finds that its schema cannot say, then its line and wants.

@@ -14,6 +14,8 @@
 //              checking what its schema cannot say; holds: a built part keeps its own registers
 //   circuitSpec(domain, courseOf) → spec(content), the game's spec as npm run check reads one (../engine/check.js),
 //     the course read as `circuit` (validate({ circuit }), the screen's game.circuit: ../shell/circuit-game.js)
+//   GAME, levelSchema({ builds, ports, test, checks?, more? }), NAME, PORT   the schemas of game.json and of a level,
+//     and of a card's name and a port, for the domain's vocabulary
 //   checkCircuitTasks(circuit, { run, failure?, more?, note? }) → the domain's lines for npm run check
 //       run(task, board) → { runs: [{ fail?, error? }], pass }; failure(run) the words for a run that fails
 //
@@ -24,9 +26,11 @@ import { print, read } from '../circuit/text.js'
 import { packed, sink, source } from './boards.js'
 import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
-import { taskLevels } from './tasks.js'
+import { taskLevel, taskLevels } from './tasks.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
-import { keyOf } from '../shell/i18n.js'
+import { SAVES } from './vocabulary.js'
+import { S } from './schema.js'
+import { T as t, keyOf } from '../shell/i18n.js'
 
 /* ---------- the board ---------- */
 
@@ -217,6 +221,69 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     },
   }
 }
+
+/* ---------- a level ---------- */
+
+/** A card's name: a port's, a register's, a part's a level builds. */
+export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
+/** A port of a task's board: one of its fixed cards, named and labelled. */
+export const PORT = S.obj({ name: NAME, label: S.text() })
+
+/**
+ * The schema of a level (./tasks.js taskLevel): what it says once, then its tasks, each a puzzle on its own board. The
+ * domain gives what is its own: `builds` the schema of the part a level's last board becomes (S.opt), `ports` a task's
+ * fixed cards ({ inputs, outputs, … }), `test` one test, `checks` what a task's outputs must be beyond what its tests
+ * say ({ want }), `more` the task's other fields.
+ */
+export const levelSchema = ({ builds, ports, test, checks = {}, more = {} }) => taskLevel({
+  title: S.text(),
+  intro: S.opt(S.list(S.obj({ t: S.text() }))),
+  after: S.opt(S.text()),
+  note: S.opt(S.text()),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  builds,
+  showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
+}, {
+  brief: S.text(),
+  hint: S.opt(S.list(S.text())),
+  intro: S.opt(S.list(S.obj({ t: S.text() }), { section: 'read', about: t('这个任务自己的引言：第一次做到它时读（第一个任务的接在这一关的后面）', 'the task’s own intro: read the first time it is played (the first task’s after the level’s)') })),
+  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
+  ...ports,
+  tests: S.list(test, { min: 1, section: 'tests' }),
+  hidden: S.opt(S.list(test, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它', 'hidden tests: checked with every run and shown once passed; a board that only fits the visible tests fails them') })),
+  ...checks,
+  solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') }),
+  naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
+  ...more,
+})
+
+/* ---------- game.json ---------- */
+
+// The schema of a game.json on the base (a domain's vocabulary game): its eras laid out as ../course.js layout reads
+// them, the primitives it starts from, and its save migrations.
+const ids = S.list(S.str())
+const levels = S.list(S.level())
+const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels })) }))
+const AFTER = S.either(S.level(), levels)
+const ERA = S.obj({
+  id: S.int(),
+  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
+  title: S.text(),
+  question: S.text(),
+  foundation: S.list(ITEM),
+  practice: S.opt(S.list(ITEM)),
+  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
+  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
+})
+export const GAME = S.obj({
+  title: S.text(),
+  kicker: S.text(),
+  lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
+  primitives: S.list(S.ref('part')),
+  concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
+  eras: S.list(ERA, { min: 1 }),
+  saves: SAVES,
+})
 
 /* ---------- the spec ---------- */
 

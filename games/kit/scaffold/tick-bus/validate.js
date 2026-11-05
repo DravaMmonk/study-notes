@@ -5,8 +5,8 @@ import { checkCircuitTasks } from '../../engine/circuit-domain.js'
 import { runLevel } from './run.js'
 
 /** spec: domain.js spec(content). Returns [{ text, fail?, level? }]. */
-export function validate({ __name__ }) {
-  return checkCircuitTasks(__name__, {
+export function validate({ circuit }) {
+  return checkCircuitTasks(circuit, {
     run: runLevel,
     failure: (r) => (r.error ? '(a loop)' : r.fail ? `at tick ${r.fail.tick} (${r.fail.name}: want ${r.fail.want}, got ${r.fail.got})` : ''),
     note: (ref) => `, ${ref.runs.reduce((n, r) => n + r.ticks.length, 0)} ticks`,

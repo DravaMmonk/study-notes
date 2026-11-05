@@ -1,21 +1,11 @@
-/* The __name__ domain's screen: cards on the shared circuit editor, and the test under the board. Colours come from
-   the kit's tokens. */
+/* The __name__ domain's screen: its cards' families, and the test under the board. The rest is the circuit base's
+   (circuit/circuit.css .cs-). Colours come from the kit's tokens. */
 [data-family='given'] { --fam: var(--w0); }
 [data-family='value'] { --fam: var(--w3); }
 [data-family='built'] { --fam: var(--w5); }
 [data-family='end'] { --fam: var(--accent); }
 
-.__name__-card { padding: 4px 10px 0; display: grid; gap: 5px; min-width: 0; }
-.__name__-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
-.__name__-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
-.__name__-error.is-missing { color: var(--faint); }
-
-.__name__-strip { display: grid; gap: 10px; min-width: 0; }
 .__name__-test { border-collapse: collapse; font: 13px var(--mono); font-variant-numeric: tabular-nums; }
 .__name__-test th, .__name__-test td { padding: 3px 12px 3px 0; text-align: left; }
 .__name__-test thead th { color: var(--muted); font: 500 11px var(--sans, inherit); }
 .__name__-test tbody th { color: var(--muted); font-weight: 500; }
-.__name__-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
-.__name__-verdict.is-fail { color: var(--fail); }
-
-.cl-sheet .__name__-card { padding: 0; }

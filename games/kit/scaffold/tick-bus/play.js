@@ -39,13 +39,13 @@ function lanes(level, test, lang) {
 
 export const play = circuitPlay({
   board: ({ game, level, flags, progress }) => {
-    const own = game.__name__
+    const own = game.circuit
     own.syncOwn(progress.built)
     const { shown, folded } = own.offerIn(level.source, flags)
     return { start: startBoard(level.source), parts: wiring(level.source, own), types: [...shown, ...folded] }
   },
-  key: ({ game }, type) => (game.__name__.BUILT[type] ? type : `part:${type}`),
-  settings: ({ game }, type) => (game.__name__.BUILT[type] ? [] : SETTINGS[type] ?? []),
+  key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
+  settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : SETTINGS[type] ?? []),
   given: ({ level: { source: L } }) => T(
     [...(L.listens ? ['line：这一拍线上的位'] : []), ...(L.inputs ?? []).map((i) => `${i.name}：输入「${i.label.zh}」`), ...(L.talks ? ['say：接到这里的位这一拍说到线上，每一拍检查'] : []), ...(L.outputs ?? []).map((o) => `${o.name}：输出「${o.label.zh}」，每一拍检查`)].join('\n'),
     [...(L.listens ? ['line: the bit on the line this tick'] : []), ...(L.inputs ?? []).map((i) => `${i.name}: input “${i.label.en}”`), ...(L.talks ? ['say: the bit wired here goes on the line this tick, checked every tick'] : []), ...(L.outputs ?? []).map((o) => `${o.name}: output “${o.label.en}”, checked every tick`)].join('\n'),
@@ -56,7 +56,7 @@ export const play = circuitPlay({
   })),
   notes: ({ level: { source: L }, solved }) => (!solved && L.hidden.length ? [T(`另有 ${L.hidden.length} 个隐藏测试，每次运行一并检查，通关后公开。`, `${L.hidden.length} more hidden ${L.hidden.length === 1 ? 'test is' : 'tests are'} checked with every run and shown once you pass.`)] : []),
   run: ({ game, level: { source: L }, solved }, board) => {
-    const own = game.__name__
+    const own = game.circuit
     const shown = runLevel({ ...L, tests: testsOf(L, solved) }, board, own.partOf)
     const tests = untilFail(shown.runs.map((r, k) => ({
       label: T(`测试 ${k + 1}`, `Test ${k + 1}`),
