@@ -172,6 +172,10 @@ export function specProblems(domain, content, spec) {
   const say = (text) => out.push(`spec: ${text}`)
   if (spec.id !== content.id) say(`id ${spec.id}, the content's is ${content.id}`)
   if (spec.domain !== domain.vocabulary.domain) say(`domain ${spec.domain}, not ${domain.vocabulary.domain}`)
+  // Every kind of name the vocabulary's schemas take (S.name) is given: the encyclopedia's by the kernel, the rest by names(content).
+  const given = new Set(['entry', 'group', ...Object.keys(domain.names?.(content) ?? {})])
+  const kinds = new Set([domain.vocabulary.game, domain.vocabulary.level].flatMap((s) => [...schemasIn(s, '')].filter(([x]) => x.type === 'name').map(([x]) => x.kind)))
+  for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor domain.js names(content) gives`)
   if (!same(spec.title, content.title)) say('its title is not the content’s')
   if (!spec.course?.levels || !isFn(spec.course.before)) return [...out, 'spec: no course (../course.js defineCourse)']
   if (!Array.isArray(spec.levels)) return [...out, 'spec: levels is no list']

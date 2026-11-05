@@ -121,7 +121,7 @@ export function additionProblems(before, after, at = 'vocabulary') {
  * file and the path in it. `domain`: the domain module, its vocabulary and the readers of its languages. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
  * that task ids are unique in a game and never another level's (tasks.js).
  */
-export function checkContent({ vocabulary: domainVocabulary, languages = {}, names: domainNames = () => ({}) }, content) {
+export function checkContent({ vocabulary: domainVocabulary, languages = null, names: domainNames = () => ({}) }, content) {
   const out = []
   const vocabulary = withParts(domainVocabulary, content.partDefs)
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))

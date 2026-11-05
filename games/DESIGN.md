@@ -537,7 +537,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 - 存档迁移是数据，由操作集生成（第 2 节、第 7 节）：`game.json` 的 `saves`，每一版是 `kit/shell/saves.js` 的几个操作和一句可选的 `why`，schema 是内核的（`kit/engine/vocabulary.js` 的 `SAVES`），领域不加自己的迁移项。已有的各版是历史，操作集不改它们。
 - 文件按统一的格式写：两格缩进，一个对象或列表连同键和后面的逗号不超过 112 列就写在一行，否则展开（`kit/engine/ops/json.js`）。早先写成的文件不全是这个格式；操作集改一个文件时，没变的部分照原文留下，只有新写的部分用这个格式，所以 diff 只有改了的那几行。
 - 课程的形状都是数据：代际、并行组、专题和挑战的挂靠（`eras`）、原始元件（`primitives`）、哪几块元件合起来是一个想法（`concept`）、合并与升级（`replaces`）、留在原地的元件（`local`）、跨章带走什么（`keeps`）。领域代码只从关卡和参考解里读出事实（用到哪些元件、依赖哪些能力），不替课程做决定。
-- 内核的 `kit/engine/content.js` 把这几个文件组装成一份内容（`assemble`）；构建时 `kit/app/vite.js` 生成入口，`npm run check` 在 node 下读盘（`readContent`），两条路组装出同一份内容。
+- 内核的 `kit/engine/content.js` 把这几个文件组装成一份内容（`assemble`）；`npm run check` 在 node 下读盘（`readContent`）。游戏页面只打包领域的代码（`kit/app/vite.js`），内容在页面打开时读进来（页面旁边的 `content.json`：构建时写一份，开发服务器每次从文件现读），先按词汇表查一遍，读不进的内容显示问题清单，不交给领域；所以改内容不用重新构建，`npm run publish:content [-- <游戏>]` 查过之后把它写到已构建的页面旁边就上线了。
 
 ### 6.2 词汇表与 schema
 
@@ -602,7 +602,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **单元测试不认识关卡。** 测试跟着三层分开：`npm test` 只测内核和领域的机制，用的内容是测试里现写的小内容，或领域的 `starter/`（契约测试和 `new-game` 共用的最小样例），不读任何一款游戏的关卡，也不写死某一关、某个任务或一款游戏有几关。对每款游戏都成立的性质（契约、文件的写法）可以逐款机械地查，但不点名任何一关；要列例外时，例外由领域或内容自己声明，不写在测试里。一款游戏的关卡对不对（参考解、naive 解、审计、文案）只由 `npm run check` 查。所以改关卡不用改测试；改了关卡测试就失败，说明那条测试写错了层。
 
-**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款）；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run pipeline -- <游戏> <命令>` 跑 agent 流水线的一步、它的闸门、它的记录（第 7.2 节）；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
+**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款）；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run pipeline -- <游戏> <命令>` 跑 agent 流水线的一步、它的闸门、它的记录（第 7.2 节）；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`；`npm run publish:content` 只换内容不重建代码；`npm run versions` 存下词汇表的新版本。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
 
 **界面约定（所有游戏共用，改动时保持）：**
 

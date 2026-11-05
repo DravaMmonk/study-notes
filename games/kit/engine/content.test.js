@@ -69,7 +69,7 @@ test('a small language reports what it cannot read, by the path, without throwin
   assert.deepEqual(validate(vocabulary.level, { goal: ')))not a formula' }, { vocabulary, languages }), [{ at: '.goal', says: '")))not a formula" is no brackets: unexpected ) in )))not a formula' }])
   assert.deepEqual(validate(vocabulary.level, { goal: ')))' }, { vocabulary }), [], 'without the readers only the type is checked')
   assert.match(validate(vocabulary.level, { goal: 3 }, { vocabulary })[0].says, /expected brackets text/)
-  assert.match(validate(S.syntax('nope'), 'x', { languages })[0].says, /reads no nope/)
+  assert.deepEqual(validate(S.syntax('nope'), 'x', { languages }), [], 'a language the domain does not read is the contract’s to refuse')
   const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [{ id: 'one', goal: '(()' }], glossary: { groups: [], entries: [] } }
   assert.deepEqual(checkContent({ vocabulary, languages }, content), [{ at: 'levels/one.json.goal', says: '"(()" is no brackets: unclosed (' }])
 })
@@ -88,7 +88,7 @@ test('a name the content defines must be one it defines', () => {
   const names = { lemma: new Set(['swap']) }
   assert.deepEqual(validate(S.name('lemma'), 'swap', { names }), [])
   assert.match(validate(S.name('lemma'), 'nonexistent', { names })[0].says, /"nonexistent" is no lemma of this game/)
-  assert.match(validate(S.name('gate'), 'x', { names })[0].says, /defines no gates/)
+  assert.deepEqual(validate(S.name('gate'), 'x', { names }), [], 'a kind of name the domain does not give is the contract’s to refuse')
   const vocabulary = defineVocabulary({ domain: 'toy', version: 1, kinds: {}, game: S.obj({}), level: S.obj({}) })
   const content = { id: 'g', domain: 'toy', vocabulary: 1, levels: [], glossary: { groups: [{ id: 'a', title: 'A' }], entries: [{ id: 'e', group: 'b', title: 'E', body: [], see: ['f'] }] } }
   assert.deepEqual(checkContent({ vocabulary }, content).map((p) => p.at), ['glossary.json.entries[0].group', 'glossary.json.entries[0].see[0]'])

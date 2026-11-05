@@ -638,3 +638,9 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .number-pad footer button { font: 15px var(--sans); }
 .number-pad footer button:last-child { background: var(--accent); color: #2a1d05; border-color: var(--accent); font-weight: 600; }
 .number-pad button:disabled { opacity: .4; }
+
+/* A game whose content cannot be read (app/main.jsx): what is wrong with it. */
+.content-problems { max-width: 72ch; margin: 48px auto; padding: 0 16px; }
+.content-problems h1 { font-size: 1.25rem; margin: 0 0 16px; }
+.content-problems ul { margin: 0; padding-left: 1.2em; line-height: 1.7; }
+.content-problems code { font-size: 0.85rem; overflow-wrap: anywhere; }

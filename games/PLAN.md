@@ -156,8 +156,9 @@
 
 在决定阶段 7 的发布形态之前完成。
 
-- 构建只打包领域代码；`app/vite.js` 的 gameModule 不再在模块顶层 import game.json。
-- 外壳运行时取回组装好的 content，经 spec 校验后调用 `defineGame`。
+- 构建只打包领域代码；`app/vite.js` 的 gameModule 不再 import game.json，构建时把组装好的内容写成页面旁的 `content.json`，开发服务器每次现读。
+- 页面打开时取回 content，按词汇表校验（浏览器里没有领域的小语言读法和 names，这两项只查类型；契约保证它们齐全，完整检查在 check / changeset / 发布时做）后调用 `defineGame`。
+- `npm run publish:content`：先跑完整检查，再把内容写到已构建页面旁边。
 - 验收：生产构建下改 game.json 并刷新即生效，无需重建；校验失败时外壳显示报告而非白屏。
 
 ---

@@ -152,16 +152,16 @@ export function validate(schema, value, { vocabulary = null, levels = null, lang
         return
       case 'name':
         if (typeof v !== 'string') say(where, `expected the name of a ${s.kind}, found ${show(v)}`)
-        else if (names && !names[s.kind]) say(where, `the content defines no ${s.kind}s`)
-        else if (names && !names[s.kind].has(v)) say(where, `${show(v)} is no ${s.kind} of this game`)
+        // Without the names of that kind (a page checking content without its domain's names) only the type is checked.
+        else if (names?.[s.kind] && !names[s.kind].has(v)) say(where, `${show(v)} is no ${s.kind} of this game`)
         return
       case 'board':
         if (!Array.isArray(v) || v.some((line) => typeof line !== 'string')) say(where, `expected a board as blueprint text, a list of lines, found ${show(v)}`)
         return
       case 'syntax': {
         if (typeof v !== 'string') return say(where, `expected ${s.lang} text, found ${show(v)}`)
-        if (!languages) return
-        if (!languages[s.lang]) return say(where, `the domain reads no ${s.lang}`)
+        // Without the domain's readers (a page checking content it read) only the type is checked.
+        if (!languages?.[s.lang]) return
         const why = languages[s.lang](v)
         if (why) say(where, `${show(v)} is no ${s.lang}: ${why}`)
         return
