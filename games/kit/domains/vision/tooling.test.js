@@ -57,7 +57,7 @@ test('the components book earns primitives at stable task introductions',async()
 })
 
 test('tools appear in their introducing task, including the folded tray, even in all-unlocked mode',()=>{
-  const content=tools(),v=domain.spec(content).vision,[first,second]=v.played.get('A')
+  const content=tools(),v=domain.spec(content).circuit,[first,second]=v.played.get('A')
   const flags=new Set(v.LEVELS.filter(l=>l.builds).map(l=>l.builds.type))
   const held=t=>{const p=v.offerIn(t,flags);return [...p.shown,...p.folded]}
   assert.deepEqual(held(first),['arithmetic'])
@@ -74,7 +74,7 @@ test('tools appear in their introducing task, including the folded tray, even in
 })
 
 test('boundary configurations open only after the current path has introduced them',()=>{
-  const v=domain.spec(borders()).vision,at=(id,k=0)=>v.settingsIn(v.played.get(id)[k],'shift','outside')
+  const v=domain.spec(borders()).circuit,at=(id,k=0)=>v.settingsIn(v.played.get(id)[k],'shift','outside')
   assert.deepEqual(at('S1'),['zero'])
   assert.deepEqual(at('S2'),['zero','clamp'])
   assert.deepEqual(at('Q'),['zero'],'a sibling branch does not open its choices here')
@@ -97,7 +97,7 @@ test('configurable arithmetic preserves broadcasting, signed values and division
 })
 
 test('one offset-read primitive supports direction inputs through packed reuse',()=>{
-  const content=lines(),v=domain.spec(content).vision,[horizontal,vertical]=v.played.get('W')
+  const content=lines(),v=domain.spec(content).circuit,[horizontal,vertical]=v.played.get('W')
   assert.equal(PARTS.offset,undefined)
   assert.equal(v.builtBy('nextCell').taskId,vertical.taskId)
   assert.deepEqual(v.partOf('nextCell').inputs,['image','d'])
@@ -108,7 +108,7 @@ test('one offset-read primitive supports direction inputs through packed reuse',
 
 
 test('enum choices accumulate along the path in the part’s own order, and defaults fall to an available choice',()=>{
-  const v=domain.spec(tools()).vision,task=(id,k=0)=>v.played.get(id)[k],ops=(id,k)=>v.settingsIn(task(id,k),'arithmetic','op')
+  const v=domain.spec(tools()).circuit,task=(id,k=0)=>v.played.get(id)[k],ops=(id,k)=>v.settingsIn(task(id,k),'arithmetic','op')
   assert.deepEqual(ops('A',0),['sub'])
   assert.deepEqual(ops('A',1),['sub'])
   assert.deepEqual(ops('B',0),['sub','mul'])
@@ -127,7 +127,7 @@ test('enum choices accumulate along the path in the part’s own order, and defa
 })
 
 test('headless attempts share task defaults and refuse explicitly unavailable settings',()=>{
-  const v=domain.spec(tools()).vision,source=v.played.get('A')[0],ctx={game:{vision:v},level:{source},flags:new Set(),progress:{built:{}},solved:false}
+  const v=domain.spec(tools()).circuit,source=v.played.get('A')[0],ctx={game:{circuit:v},level:{source},flags:new Set(),progress:{built:{}},solved:false}
   const implicit=play.attempt(ctx,'d = arithmetic(a,b)\nout <- d')
   assert.equal(implicit.pass,true)
   assert.equal(implicit.board.nodes.find(n=>n.id==='d').params.op,'sub')

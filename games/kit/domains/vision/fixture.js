@@ -8,13 +8,18 @@
 //   builds(type, more?)                             what a level builds
 //   FIXTURE_PARTS, PARTS                            a parts.json defining a part on every engine resource (every
 //                                                   fixture game has it), and those parts with the fixed cards
+//   PRIMITIVES                                      those parts as a course read gives them to a board (no part
+//                                                   built): what board.fromText reads on outside a course
 import { readFileSync } from 'node:fs'
+import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { defineParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
-import { FIXED_PARTS } from './parts.js'
+import { board } from './board.js'
 
 export const FIXTURE_PARTS = JSON.parse(readFileSync(new URL('./fixture-parts.json', import.meta.url), 'utf8'))
-export const PARTS = { ...FIXED_PARTS, ...defineParts(FIXTURE_PARTS, OPS).PARTS }
+const defined = defineParts(FIXTURE_PARTS, OPS).PARTS
+export const PARTS = { ...board.FIXED_PARTS, ...defined }
+export const PRIMITIVES = primitivesOnly(board, defined)
 
 /** One text in both languages. */
 export const T = (en) => ({ zh: en, en })

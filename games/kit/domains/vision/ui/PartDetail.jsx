@@ -34,11 +34,10 @@ export function PartValues({ node, ctx, phone = false }) {
       explainPixel={operation ? (x, y) => `${text(sample(a, x, y))} + ${text(sample(b, x, y))} = ${text(pixel(out.value, x, y))}` : arithmetic ? (x,y)=>`${text(sample(a,x,y))} ${symbol} ${text(sample(b,x,y))} = ${text(pixel(out.value,x,y))}` : complexNote} />)}</section>
 }
 
-/** The detail of a node the game does not define (the level's inputs and outputs, a built part): what it does, its
- * settings, its values. A defined part's detail is its parts.json view (../../../shell/parts/PartFace.jsx). */
-export default function PartDetail({ node, ctx, settings, description, phone = false }) {
+/** The detail of a node the game does not define (the level's inputs and outputs, a built part), under what it does:
+ * its settings, its values. A defined part's detail is its parts.json view (../../../shell/parts/PartFace.jsx). */
+export default function PartDetail({ node, ctx, settings, phone = false }) {
   return <div className="vi-part-detail">
-    {description && <p className="vi-part-notes">{L(description)}</p>}
     {settings && <div className="vi-detail-settings">{settings}</div>}
     <PartValues node={node} ctx={ctx} phone={phone} />
   </div>

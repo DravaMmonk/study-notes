@@ -7,6 +7,7 @@
 // runTest(task, circuit, test, partOf) → { values, errors, outputs, trace, fail? }   fail: { name, want, got, why }
 import { runBoard } from '../../engine/boards.js'
 import { MISSING } from '../../engine/circuit.js'
+import { runTests } from '../../engine/circuit-domain.js'
 import { differs, valueOf } from './image.js'
 import { T } from '../../shell/i18n.js'
 
@@ -59,17 +60,14 @@ export function runTest(task, circuit, test, partOf) {
   return { values, errors, outputs, trace }
 }
 
-/** Every test of a task on a board: { runs, pass }. */
-export function runLevel(task, circuit, partOf) {
-  const runs = task.tests.map((test) => {
-    const result = runTest(task, circuit, test, partOf)
-    if (result.fail && task.naive && task.naiveWhy) {
-      const mistaken = runTest(task, task.naive, test, partOf)
-      const same = task.outputs.every(({ name }) => result.outputs[name] !== undefined && mistaken.outputs[name] !== undefined && !differs(mistaken.outputs[name], result.outputs[name], task.tolerance ?? 1e-5))
-      const reason = typeof task.naiveWhy === 'string' ? T(task.naiveWhy, task.naiveWhy) : task.naiveWhy
-      if (same) result.fail.why = { zh: `${result.fail.why.zh} ${reason.zh}`, en: `${result.fail.why.en} ${reason.en}` }
-    }
-    return result
-  })
-  return { runs, pass: runs.every((r) => !r.fail) }
-}
+/** Every test of a task on a board: { runs, pass }. A board that gives what the naive board gives fails for its reason. */
+export const runLevel = runTests((task, circuit, test, partOf) => {
+  const result = runTest(task, circuit, test, partOf)
+  if (result.fail && task.naive && task.naiveWhy) {
+    const mistaken = runTest(task, task.naive, test, partOf)
+    const same = task.outputs.every(({ name }) => result.outputs[name] !== undefined && mistaken.outputs[name] !== undefined && !differs(mistaken.outputs[name], result.outputs[name], task.tolerance ?? 1e-5))
+    const reason = typeof task.naiveWhy === 'string' ? T(task.naiveWhy, task.naiveWhy) : task.naiveWhy
+    if (same) result.fail.why = { zh: `${result.fail.why.zh} ${reason.zh}`, en: `${result.fail.why.en} ${reason.en}` }
+  }
+  return result
+})

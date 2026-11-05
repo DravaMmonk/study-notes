@@ -4,7 +4,7 @@ import { fromRows, toRows } from './image.js'
 import { filterImage, sampleImage } from './operators.js'
 import { PARTS } from './fixture.js'
 import domain from './domain.js'
-import { fromText, startBoard } from './board.js'
+import { board as cards } from './board.js'
 import { runLevel } from './run.js'
 import { circuit, game, level } from './fixture.js'
 
@@ -70,27 +70,27 @@ const doubled = () => game({ levels: [level('D', circuit('d_double', {
 
 test('starters leave real decisions and wrong methods explain observed visual causes', () => {
   const content = doubled()
-  const { vision } = domain.spec(content)
+  const { circuit: vision } = domain.spec(content)
   assert.deepEqual(domain.validate(domain.spec(content)).filter((r) => r.fail), [])
   const task = vision.played.get('D')[0], all = { ...task, tests: [...task.tests, ...task.hidden] }
-  const board = startBoard(task)
+  const board = cards.startBoard(task)
   assert.equal(runLevel(task, board, vision.partOf).pass, false)
   board.nodes[0].params.name = 'changed'
   board.wires.push({ from: 'image', to: 'out', port: 'in' })
   assert.notEqual(task.starter.nodes[0].params.name, 'changed', 'each opening gets its own starter')
-  assert.equal(startBoard(task).wires.length, task.starter.wires.length)
+  assert.equal(cards.startBoard(task).wires.length, task.starter.wires.length)
   const naive = runLevel(all, task.naive, vision.partOf)
   assert.ok(naive.runs.some((r) => r.fail?.why.en.includes(task.naiveWhy.en)))
-  const other = fromText(['out <- image'], task, vision.partOf)
+  const other = cards.fromText(['out <- image'], task, vision)
   assert.ok(runLevel(all, other, vision.partOf).runs.every((r) => !r.fail?.why.en.includes(task.naiveWhy.en)), 'another mistake keeps its own mismatch')
   content.levels[0].tasks[0].starter = content.levels[0].tasks[0].solution
-  assert.ok(domain.validate(domain.spec(content)).some((r) => r.fail && r.text.includes('the starting board already passes')))
+  assert.ok(domain.validate(domain.spec(content)).some((r) => r.fail && r.text.includes('the board it opens on passes')))
 })
 
 test('malformed starter blueprints are reported as content errors without crashing validation', () => {
   const content = doubled()
   content.levels[0].tasks[0].starter = ['p = unknownOperator()']
   const spec = domain.spec(content)
-  assert.ok(spec.vision.wrong.some((s) => s.includes('the starter')))
+  assert.ok(spec.circuit.wrong.some((s) => s.includes('the starter')))
   assert.ok(domain.validate(spec).some((result) => result.fail))
 })

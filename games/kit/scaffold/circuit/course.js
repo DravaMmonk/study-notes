@@ -16,14 +16,11 @@ import { OPS } from './ops.js'
 export function __name__Course(content) {
   // The game's parts, as its parts.json defines them over the domain's engine resources.
   const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, OPS)
-  // A task read: what its tests give and expect of every input and output.
-  const read = (task, say) => {
-    const hidden = task.hidden ?? []
-    for (const t of [...task.tests, ...hidden]) {
-      for (const o of task.outputs) if (t.expect[o.name] === undefined) say(`a test expects nothing of the output ${o.name}`)
-      for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(`a test gives nothing on the input ${i.name}`)
-    }
-    return { ...task, hidden }
+  // A test read: what it gives and expects of every input and output.
+  const test = (t, task, say) => {
+    for (const o of task.outputs) if (t.expect[o.name] === undefined) say(`a test expects nothing of the output ${o.name}`)
+    for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(`a test gives nothing on the input ${i.name}`)
+    return t
   }
-  return { ...circuitCourse(content, { board, parts: PARTS, read }), defs, defaultsOf }
+  return { ...circuitCourse(content, { board, parts: PARTS, test }), defs, defaultsOf }
 }

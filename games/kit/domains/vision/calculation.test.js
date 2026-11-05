@@ -30,9 +30,9 @@ test('calculation aids remain independent of expected answers', () => {
 test('misleading or malformed calculation observations block content validation', () => {
   const task = { id: 'observation', kind: 'grid', brief: T('Fill'), image: [[0, 4]], calculation: { kind: 'sampling', method: 'bilinear', xs: [[0.5]], ys: [[0]] }, ask: { fill: { rows: [[2]] } } }
   const content = game({ levels: [level('O', task)] })
-  assert.deepEqual(domain.spec(content).vision.wrong, [])
+  assert.deepEqual(domain.spec(content).circuit.wrong, [])
   task.ask.fill.rows = [[1]]
-  assert.ok(domain.spec(content).vision.wrong.some((s) => s.includes('calculation aid does not produce')))
+  assert.ok(domain.spec(content).circuit.wrong.some((s) => s.includes('calculation aid does not produce')))
   task.calculation.ys = [[0, 0]]
-  assert.ok(domain.spec(content).vision.wrong.some((s) => s.includes('matching rectangular shapes')))
+  assert.ok(domain.spec(content).circuit.wrong.some((s) => s.includes('matching rectangular shapes')))
 })

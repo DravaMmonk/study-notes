@@ -20,7 +20,6 @@
 .vi-picture { display: block; image-rendering: pixelated; border-radius: var(--r-sm); }
 
 /* ---- cards ---- */
-.vi-card { padding: 4px 10px 0; display: grid; gap: 5px; min-width: 0; }
 .vi-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .vi-thumb { display: grid; justify-items: center; gap: 4px; max-width: 100%; }
 .vi-thumb small { color: var(--muted); font: 11px var(--mono); }
@@ -110,7 +109,6 @@
 .vi-pixel-popover { position: fixed; z-index: 100; box-sizing: border-box; display: grid; gap: 4px; padding: 8px 10px; margin-top: 8px; border: 1px solid var(--accent); border-radius: 10px; color: var(--ink); background: var(--paper); box-shadow: var(--lift); font: 12px/1.5 var(--mono); pointer-events: none; overflow-wrap: anywhere; }
 .vi-pixel-popover.is-above { margin-top: -8px; transform: translateY(-100%); }
 .vi-pixel-calculation { border-top: 1px solid var(--line); padding-top: 5px; white-space: pre-line; }
-.vi-part-notes { margin: 0; color: var(--body); font-size: 13px; line-height: 1.55; }
 
 /* Phone density belongs to the vision workspace; shared editors keep their own spacing contracts. */
 @media (max-width: 760px) {
@@ -283,7 +281,6 @@
 .vi-bench .vb-note.is-left { text-anchor: start; }
 
 /* ---- a card's sheet on a phone ---- */
-.cl-sheet .vi-card { padding: 0; }
 .cl-sheet .vi-field :is(select, input) { height: 40px; font-size: 16px; }
 
 /* Learning instruments: a shared geometry, readable rulers and restrained result revelation. */

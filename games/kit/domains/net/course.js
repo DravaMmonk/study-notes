@@ -26,23 +26,27 @@ function testOf(level, t) {
   return { ...t, ticks, wires, inputs: t.inputs ?? {}, queue: t.queue ?? [] }
 }
 
+/** The inputs a task's queue fills, which no test gives. */
+const pulledOf = (task) => (task.pulls ? [task.pulls.input, task.pulls.last].filter(Boolean) : [])
+
 export function netCourse(content) {
-  // A task read: what reading it finds that its schema cannot say, then its tests run out and its wants.
+  // A task read: what reading it finds that its schema cannot say, then its wants.
   const read = (task, say) => {
-    const pulled = task.pulls ? [task.pulls.input, task.pulls.last].filter(Boolean) : []
     if (task.pulls) {
-      for (const name of pulled) if (!(task.inputs ?? []).some((i) => i.name === name)) say(`it pulls into ${name}, which is no input`)
+      for (const name of pulledOf(task)) if (!(task.inputs ?? []).some((i) => i.name === name)) say(`it pulls into ${name}, which is no input`)
       if (!(task.outputs ?? []).some((o) => o.name === task.pulls.next)) say(`it asks for the next byte on ${task.pulls.next}, which is no output`)
     }
-    for (const t of [...task.tests, ...(task.hidden ?? [])]) {
-      for (const i of task.inputs ?? []) if (!pulled.includes(i.name) && !t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
-      for (const name of Object.keys(t.wires ?? {})) if (!(task.wires?.in ?? []).some((w) => w.name === name)) say(`a test sends on ${name}, which is no wire in`)
-      if (task.pulls && !t.queue) say('a test gives the board no queue to pull from')
-    }
-    return { ...task, tests: task.tests.map((t) => testOf(task, t)), hidden: (task.hidden ?? []).map((t) => testOf(task, t)), want: wantOf(task.want) }
+    return { ...task, want: wantOf(task.want) }
+  }
+  // A test read: what reading it finds that its schema cannot say, then the test run out.
+  const test = (t, task, say) => {
+    for (const i of task.inputs ?? []) if (!pulledOf(task).includes(i.name) && !t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
+    for (const name of Object.keys(t.wires ?? {})) if (!(task.wires?.in ?? []).some((w) => w.name === name)) say(`a test sends on ${name}, which is no wire in`)
+    if (task.pulls && !t.queue) say('a test gives the board no queue to pull from')
+    return testOf(task, t)
   }
   // A built part keeps its own registers; a part may replace the ones its level makes redundant. The output that asks
   // for the next byte of the queue is wanted of nothing.
   const builders = new Map(content.levels.filter((L) => L.builds).map((L) => [L.builds.type, L]))
-  return circuitCourse(content, { board, parts: PARTS, read, holds: true, replaces: (part) => builders.get(part)?.builds.replaces ?? [], unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
+  return circuitCourse(content, { board, parts: PARTS, read, test, holds: true, replaces: (part) => builders.get(part)?.builds.replaces ?? [], unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
 }
