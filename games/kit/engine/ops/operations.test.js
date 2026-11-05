@@ -216,13 +216,21 @@ test('a reorder writes the same save step whichever operation made it', async ()
   assert.deepEqual(moved.step.ops, [{ solve: ['b1', ['b2']] }])
 })
 
-test('a changeset whose domain throws while it is settled leaves the workspace as it was', async () => {
-  const { ws } = toy()
-  const before = JSON.stringify(ws.content())
-  const throws = { ...DOMAIN, spec: () => { throw new Error('the domain broke') } }
-  await assert.rejects(runChangeset(ws, { ops: [{ op: 'level.set', level: 'a1', path: 'tests', value: [9] }] }, { write: true, domain: throws }), /the domain broke/)
-  assert.equal(JSON.stringify(ws.content()), before)
-  assert.deepEqual(readLog(ws), [])
+test('a changeset whose domain throws while it is settled is refused and leaves the workspace as it was', async () => {
+  const op = { ops: [{ op: 'level.set', level: 'a1', path: 'tests', value: [9] }] }
+  // The domain's spec throws (the save step), and the whole game's check throws on it (the toy's course is no full course).
+  for (const broken of [{ ...DOMAIN, spec: () => { throw new Error('the domain broke') } }, { ...DOMAIN, validate: () => { throw new Error('the checks broke') } }]) {
+    const { root, ws } = toy()
+    const before = JSON.stringify(ws.content())
+    const files = () => ['game.json', 'levels/a1.json'].map((f) => readFileSync(join(root, 'toy', f), 'utf8')).join()
+    const disk = files()
+    const r = await runChangeset(ws, op, { write: true, check: true, domain: broken })
+    assert.equal(r.ok, false)
+    assert.match(r.problems[0], /^the changeset could not be settled: /)
+    assert.equal(JSON.stringify(ws.content()), before)
+    assert.equal(files(), disk, 'nothing on disk changed')
+    assert.deepEqual(readLog(ws), [])
+  }
 })
 
 test('a changeset is checked as a whole, writes only when it passes, logs, and undoes', async () => {

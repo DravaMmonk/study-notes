@@ -72,12 +72,12 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     }
   }
 
-  // Whatever throws from here on (a domain's spec or checks) leaves the workspace as it was found.
+  // Whatever throws from here on (a domain's spec, its checks, the whole game's check) refuses the changeset and
+  // leaves the workspace as it was found: fail restores it.
   try {
     return await settle({ ws, changeset, domain, content0, start, says, inverse, idOps, own, fail, write, check, undoes, base })
   } catch (error) {
-    ws.restore(start)
-    throw error
+    return fail([`the changeset could not be settled: ${error.message}`])
   }
 }
 
