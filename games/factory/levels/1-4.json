@@ -1,7 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "两个文件", "en": "Two files" },
-  "brief": { "zh": "这次一个 issue 要改两个文件。", "en": "This time one issue changes two files." },
   "intro": [
     {
       "t": {
@@ -10,16 +8,23 @@
       }
     }
   ],
-  "tests": [{ "issue": "member-discount" }, { "issue": "coupon" }],
-  "solution": [
-    "a = read[file=\"src/cart.js\"]()",
-    "b = read[file=\"src/price.js\"]()",
-    "k = concat(issue, a, b)",
-    "m = model(k)",
-    "repo <- m"
-  ],
   "after": {
     "zh": "每处修改的代码都要在上下文里。少了一个文件，那一处就是编的。",
     "en": "Every change needs its code in the context. One file short, and that change is made up."
-  }
+  },
+  "tasks": [
+    {
+      "id": "1-4",
+      "kind": "board",
+      "brief": { "zh": "这次一个 issue 要改两个文件。", "en": "This time one issue changes two files." },
+      "tests": [{ "issue": "member-discount" }, { "issue": "coupon" }],
+      "solution": [
+        "a = read[file=\"src/cart.js\"]()",
+        "b = read[file=\"src/price.js\"]()",
+        "k = concat(issue, a, b)",
+        "m = model(k)",
+        "repo <- m"
+      ]
+    }
+  ]
 }

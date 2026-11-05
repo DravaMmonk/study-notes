@@ -1,10 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "只说坏了", "en": "Only the symptom" },
-  "brief": {
-    "zh": "这些 issue 只写了用户看到的问题，没说改哪里。",
-    "en": "These issues describe only what users see, not what to change."
-  },
   "intro": [
     {
       "t": {
@@ -13,23 +8,33 @@
       }
     }
   ],
-  "hint": [
-    { "zh": "模型不知道从哪改的时候，会先要求跑测试。", "en": "When the model does not know where to start, it asks for the tests first." }
-  ],
-  "tests": [{ "issue": "negative-total" }, { "issue": "stuck-session" }],
-  "solution": [
-    "k = concat(issue, history)",
-    "m = model(k)",
-    "r = read(m)",
-    "l = list(m)",
-    "t = test(m)",
-    "keep = concat(r, l, t.out)",
-    "repo <- m",
-    "out <- keep",
-    "stop <- t.green"
-  ],
   "after": {
     "zh": "只有症状时，失败的测试就是线索：报告里写着哪里不对。同一块板，issue 写得越少，越靠工具把信息找回来。",
     "en": "With only a symptom, a failing test is the lead: the report says what is wrong where. On the same board, the less the issue says, the more the tools have to find."
-  }
+  },
+  "tasks": [
+    {
+      "id": "2-5",
+      "kind": "board",
+      "brief": {
+        "zh": "这些 issue 只写了用户看到的问题，没说改哪里。",
+        "en": "These issues describe only what users see, not what to change."
+      },
+      "hint": [
+        { "zh": "模型不知道从哪改的时候，会先要求跑测试。", "en": "When the model does not know where to start, it asks for the tests first." }
+      ],
+      "tests": [{ "issue": "negative-total" }, { "issue": "stuck-session" }],
+      "solution": [
+        "k = concat(issue, history)",
+        "m = model(k)",
+        "r = read(m)",
+        "l = list(m)",
+        "t = test(m)",
+        "keep = concat(r, l, t.out)",
+        "repo <- m",
+        "out <- keep",
+        "stop <- t.green"
+      ]
+    }
+  ]
 }

@@ -25,11 +25,14 @@ import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
 import { agentCourse } from './course.js'
 
+/** The fields of an object that hold something. */
+const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
+
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, machines, eras, repos, issues, saves:
  *  migration steps (../../shell/saves.js), levels, glossary }. */
 export default function agentGame(content) {
   const agent = agentCourse(content)
-  const { LEVELS, CHAPTERS, course } = agent
+  const { LEVELS, played, CHAPTERS, course } = agent
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, revisions: CARDS[type].revisions, icon: CARDS[type].icon, at }))
   const game = defineGame({
     id: content.id,
@@ -40,22 +43,31 @@ export default function agentGame(content) {
     glossary: content.glossary,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
-    levels: LEVELS.map((L, index) => ({
-      id: L.id,
-      index,
-      source: L,
-      fresh: L.adds,
-      chapter: L.era,
-      requires: L.requires,
-      title: L.title,
-      kind: L.kind,
-      unlocks: [],
-      brief: L.brief,
-      after: L.after,
-      note: L.note,
-    })),
+    // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
+    // on the screen of the task's kind, which reads the task as the course read it (`source`). The map shows the
+    // first task's kind.
+    levels: LEVELS.map((L, index) => {
+      const tasks = played.get(L.id)
+      return {
+        id: L.id,
+        index,
+        fresh: L.adds,
+        chapter: L.era,
+        requires: L.requires,
+        title: L.title,
+        kind: tasks[0].kind,
+        unlocks: [],
+        intro: L.intro,
+        after: L.after,
+        note: L.note,
+        tasks: tasks.map((T, k) => {
+          const { step, brief, hint } = L.tasks[k]
+          return { key: T.taskId, kind: T.kind, ...defined({ step, brief, hint }), source: T }
+        }),
+      }
+    }),
     progress: migrations(content.saves),
-    intro: (level) => level.source.intro,
+    intro: (level) => level.intro,
     kinds: {
       hand: { Screen: HandScreen, icon: Hand, label: { zh: '手动', en: 'By hand' } },
       board: { Screen: BoardScreen, icon: Cog, label: { zh: '机器', en: 'Machine' } },
