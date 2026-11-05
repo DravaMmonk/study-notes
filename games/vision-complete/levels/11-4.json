@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "看车还是看路", "en": "The car or the road" },
-  "brief": {
-    "zh": "第三个输入是车的掩膜（车上是 1）。输出一个数：分类器的分数里，有多大比例来自车上的格子。",
-    "en": "The third input is the car's mask (1 on the car). Output one number: what fraction of the classifier's score comes from the cells on the car."
-  },
-  "hint": {
-    "zh": "<part-ref to=\"mean\"></part-ref>算出的平均都差同一个倍数，两个相除，倍数就消掉了。",
-    "en": "Averages from <part-ref to=\"mean\"></part-ref> are all off by the same factor; divide one by another and the factor cancels."
-  },
   "after": {
     "zh": "比例接近 1，分类器认的是车；接近 0，它认的是路。训练集里每辆车都停在路上，只看路也能把训练集分对，这种捷径要这样查出来。比例是负数时，车上的格子在给分数扣分。",
     "en": "Near 1, the classifier recognises the car; near 0, the road. Every car in the training set stood on a road, so looking at the road alone sorts the training set correctly; a shortcut like that is found this way. A negative fraction means the car's cells are pulling the score down."
@@ -28,54 +19,68 @@
       "fig": { "test": 1, "caption": { "zh": "第二组：只看路的分类器", "en": "Set 2: a classifier that looks at the road" } }
     }
   ],
-  "inputs": ["in", "w", "m"],
-  "inputLabels": {
-    "in": { "zh": "照片", "en": "Photo" },
-    "w": { "zh": "权重", "en": "Weights" },
-    "m": { "zh": "车的掩膜", "en": "Car mask" }
-  },
-  "check": { "tolerance": 0.01 },
-  "scene": "classifier",
-  "setup": { "check": "share" },
-  "tests": [
-    { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+  "tasks": [
     {
-      "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
-      "street": { "cx": 5 },
-      "weights": "road"
-    },
-    {
-      "label": { "zh": "车和路都看", "en": "Looking at the car and the road" },
-      "street": { "cx": 4, "house": 12 },
-      "weights": "both"
-    },
-    {
-      "label": { "zh": "看车底下的分类器", "en": "A classifier that looks under the car" },
-      "street": { "cx": 5 },
-      "weights": "shadow"
+      "id": "11-4",
+      "kind": "graph",
+      "brief": {
+        "zh": "第三个输入是车的掩膜（车上是 1）。输出一个数：分类器的分数里，有多大比例来自车上的格子。",
+        "en": "The third input is the car's mask (1 on the car). Output one number: what fraction of the classifier's score comes from the cells on the car."
+      },
+      "hint": {
+        "zh": "<part-ref to=\"mean\"></part-ref>算出的平均都差同一个倍数，两个相除，倍数就消掉了。",
+        "en": "Averages from <part-ref to=\"mean\"></part-ref> are all off by the same factor; divide one by another and the factor cancels."
+      },
+      "inputs": ["in", "w", "m"],
+      "inputLabels": {
+        "in": { "zh": "照片", "en": "Photo" },
+        "w": { "zh": "权重", "en": "Weights" },
+        "m": { "zh": "车的掩膜", "en": "Car mask" }
+      },
+      "check": { "tolerance": 0.01 },
+      "scene": "classifier",
+      "setup": { "check": "share" },
+      "tests": [
+        { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        {
+          "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
+          "street": { "cx": 5 },
+          "weights": "road"
+        },
+        {
+          "label": { "zh": "车和路都看", "en": "Looking at the car and the road" },
+          "street": { "cx": 4, "house": 12 },
+          "weights": "both"
+        },
+        {
+          "label": { "zh": "看车底下的分类器", "en": "A classifier that looks under the car" },
+          "street": { "cx": 5 },
+          "weights": "shadow"
+        }
+      ],
+      "hidden": [
+        { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
+        { "label": { "zh": "看得宽一点", "en": "A wider look" }, "street": { "cx": 6, "house": 0 }, "weights": "wide" }
+      ],
+      "solution": [
+        "c = arith[op=mul](in, w)",
+        "cm = arith[op=mul](c, m)",
+        "b = fqMean(c)",
+        "a = fqMean(cm)",
+        "q = arith[op=div](a, b)",
+        "out <- q"
+      ],
+      "naive": ["a = fqMean(m)", "out <- a"],
+      "alsoFails": [
+        [
+          "c = arith[op=mul](in, in)",
+          "cm = arith[op=mul](in, m)",
+          "b = fqMean(in)",
+          "a = fqMean(cm)",
+          "q = arith[op=div](a, b)",
+          "out <- q"
+        ]
+      ]
     }
-  ],
-  "hidden": [
-    { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
-    { "label": { "zh": "看得宽一点", "en": "A wider look" }, "street": { "cx": 6, "house": 0 }, "weights": "wide" }
-  ],
-  "solution": [
-    "c = arith[op=mul](in, w)",
-    "cm = arith[op=mul](c, m)",
-    "b = fqMean(c)",
-    "a = fqMean(cm)",
-    "q = arith[op=div](a, b)",
-    "out <- q"
-  ],
-  "naive": ["a = fqMean(m)", "out <- a"],
-  "alsoFails": [
-    [
-      "c = arith[op=mul](in, in)",
-      "cm = arith[op=mul](in, m)",
-      "b = fqMean(in)",
-      "a = fqMean(cm)",
-      "q = arith[op=div](a, b)",
-      "out <- q"
-    ]
   ]
 }

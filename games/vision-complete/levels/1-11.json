@@ -1,6 +1,9 @@
 {
-  "kind": "graph",
   "title": { "zh": "补边", "en": "Padding" },
+  "after": {
+    "zh": "补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。复制边缘的平移拼出的平均就不会发黑。",
+    "en": "Padding with 0 draws a black frame round the image, and averaging mixes that black in. Built from shifts that replicate the edge, the average does not darken."
+  },
   "intro": [
     {
       "t": {
@@ -57,6 +60,7 @@
   "tasks": [
     {
       "id": "1-11_1",
+      "kind": "graph",
       "brief": {
         "zh": "向右平移一格，但最左一列不补 0，而是照抄原图最左一列。",
         "en": "Shift right by one pixel, but instead of padding the leftmost column with 0, copy the original image's leftmost column."
@@ -109,6 +113,7 @@
     },
     {
       "id": "1-11_2",
+      "kind": "graph",
       "brief": {
         "zh": "在亮背景上做 3×3 平均，边缘不能发黑。",
         "en": "Take a 3×3 average on a bright background without the border going dark."
@@ -116,10 +121,6 @@
       "hint": {
         "zh": "3×3 平均元件只会在图外补 0。哪个元件已经会另一种补法？",
         "en": "The 3×3 average part can only pad with 0 outside the image. Which part already knows another way to pad?"
-      },
-      "after": {
-        "zh": "补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。复制边缘的平移拼出的平均就不会发黑。",
-        "en": "Padding with 0 draws a black frame round the image, and averaging mixes that black in. Built from shifts that replicate the edge, the average does not darken."
       },
       "step": { "zh": "平均", "en": "Average" },
       "unlocks": ["edge-filter"],

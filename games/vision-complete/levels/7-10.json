@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "前方多远", "en": "How far ahead" },
-  "brief": {
-    "zh": "扫地机器人的双目相机（f·b = 3）。输出地面以上每个像素的距离（米），地面那几行输出 0。",
-    "en": "A robot vacuum's stereo camera (f·b = 3). Output the distance in metres of every pixel above the floor, and 0 on the floor rows."
-  },
-  "hint": { "zh": "前面练过的几步，接起来。", "en": "The steps you have practised, joined up." },
   "after": {
     "zh": "搜视差、换成距离、只留地面以上：每一步都是前面单独练过的，接起来就是一台测距仪。",
     "en": "Search the disparity, convert to distance, keep only what is above the floor: each step was practised on its own earlier, and joined up they make a rangefinder."
@@ -25,38 +19,49 @@
       "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：一个箱子", "en": "Set 1: a box" } }
     }
   ],
-  "inputs": ["left", "right", "region"],
-  "inputLabels": {
-    "left": { "zh": "左相机", "en": "Left camera" },
-    "right": { "zh": "右相机", "en": "Right camera" },
-    "region": { "zh": "地面以上", "en": "Above the floor" }
-  },
-  "views": { "out": "terrain" },
-  "check": { "tolerance": 0.05, "mismatches": 40 },
-  "scene": "room",
-  "setup": { "expect": "distance" },
-  "tests": [
-    { "label": { "zh": "一个箱子", "en": "A box" }, "seed": 61, "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }] },
-    { "label": { "zh": "远的箱子", "en": "A far box" }, "seed": 62, "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }] },
+  "tasks": [
     {
-      "label": { "zh": "一远一近", "en": "One far, one near" },
-      "seed": 63,
-      "obstacles": [{ "box": [1, 4, 7, 12], "d": 2 }, { "box": [9, 5, 14, 12], "d": 3 }]
+      "id": "7-10",
+      "kind": "graph",
+      "brief": {
+        "zh": "扫地机器人的双目相机（f·b = 3）。输出地面以上每个像素的距离（米），地面那几行输出 0。",
+        "en": "A robot vacuum's stereo camera (f·b = 3). Output the distance in metres of every pixel above the floor, and 0 on the floor rows."
+      },
+      "hint": { "zh": "前面练过的几步，接起来。", "en": "The steps you have practised, joined up." },
+      "inputs": ["left", "right", "region"],
+      "inputLabels": {
+        "left": { "zh": "左相机", "en": "Left camera" },
+        "right": { "zh": "右相机", "en": "Right camera" },
+        "region": { "zh": "地面以上", "en": "Above the floor" }
+      },
+      "views": { "out": "terrain" },
+      "check": { "tolerance": 0.05, "mismatches": 40 },
+      "scene": "room",
+      "setup": { "expect": "distance" },
+      "tests": [
+        { "label": { "zh": "一个箱子", "en": "A box" }, "seed": 61, "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }] },
+        { "label": { "zh": "远的箱子", "en": "A far box" }, "seed": 62, "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }] },
+        {
+          "label": { "zh": "一远一近", "en": "One far, one near" },
+          "seed": 63,
+          "obstacles": [{ "box": [1, 4, 7, 12], "d": 2 }, { "box": [9, 5, 14, 12], "d": 3 }]
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "细的椅腿", "en": "A thin chair leg" },
+          "seed": 64,
+          "obstacles": [{ "box": [7, 1, 10, 12], "d": 3 }]
+        }
+      ],
+      "solution": [
+        "k = const[c=3]()",
+        "d = disparity(left, right)",
+        "z = arith[op=div](k, d)",
+        "m = arith[op=mul](z, region)",
+        "out <- m"
+      ],
+      "naive": ["d = disparity(left, right)", "m = arith[op=mul](d, region)", "out <- m"]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "细的椅腿", "en": "A thin chair leg" },
-      "seed": 64,
-      "obstacles": [{ "box": [7, 1, 10, 12], "d": 3 }]
-    }
-  ],
-  "solution": [
-    "k = const[c=3]()",
-    "d = disparity(left, right)",
-    "z = arith[op=div](k, d)",
-    "m = arith[op=mul](z, region)",
-    "out <- m"
-  ],
-  "naive": ["d = disparity(left, right)", "m = arith[op=mul](d, region)", "out <- m"]
+  ]
 }

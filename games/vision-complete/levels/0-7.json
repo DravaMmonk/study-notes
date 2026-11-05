@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "谁闯进来了", "en": "Who came in?" },
-  "brief": {
-    "zh": "「现场」比「空场」多了一个东西。只在它所在的格子输出 1，其余输出 0。",
-    "en": "The \"Scene\" has one thing more than the \"Empty scene\". Output 1 only in the cells it covers, and 0 everywhere else."
-  },
-  "hint": {
-    "zh": "光照不均时，单看亮不亮会误判。先比一比两张图哪里不一样。",
-    "en": "With uneven lighting, judging by brightness alone goes wrong. First compare where the two images differ."
-  },
   "after": {
     "zh": "和参照比差异，比看绝对亮度可靠得多。这就是背景减除。",
     "en": "Comparing against a reference is far more reliable than looking at absolute brightness. This is background subtraction."
@@ -40,20 +31,34 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：现场、空场和期望的掩膜", "en": "Set 1: scene, empty scene and the expected mask" } }
     }
   ],
-  "inputs": ["scene", "empty"],
   "adds": ["sub"],
-  "scene": "intruder",
-  "tests": [
-    { "label": { "zh": "第 1 组", "en": "Set 1" }, "x": 2, "y": 3, "seed": 1 },
-    { "label": { "zh": "第 2 组", "en": "Set 2" }, "x": 9, "y": 9, "seed": 2 },
-    { "label": { "zh": "第 3 组", "en": "Set 3" }, "x": 10, "y": 2, "seed": 3 },
-    { "label": { "zh": "第 4 组", "en": "Set 4" }, "x": 3, "y": 10, "seed": 4 }
-  ],
-  "hidden": [
-    { "label": { "zh": "左下角", "en": "Bottom-left corner" }, "x": 0, "y": 12, "seed": 5 },
-    { "label": { "zh": "右边亮处", "en": "Bright right side" }, "x": 12, "y": 6, "seed": 6 },
-    { "label": { "zh": "正中", "en": "Dead centre" }, "x": 6, "y": 6, "seed": 7 }
-  ],
-  "solution": ["d = sub(scene, empty)", "t = threshold[t=0.15](d)", "out <- t"],
-  "naive": ["t = threshold[t=0.6](scene)", "out <- t"]
+  "tasks": [
+    {
+      "id": "0-7",
+      "kind": "graph",
+      "brief": {
+        "zh": "「现场」比「空场」多了一个东西。只在它所在的格子输出 1，其余输出 0。",
+        "en": "The \"Scene\" has one thing more than the \"Empty scene\". Output 1 only in the cells it covers, and 0 everywhere else."
+      },
+      "hint": {
+        "zh": "光照不均时，单看亮不亮会误判。先比一比两张图哪里不一样。",
+        "en": "With uneven lighting, judging by brightness alone goes wrong. First compare where the two images differ."
+      },
+      "inputs": ["scene", "empty"],
+      "scene": "intruder",
+      "tests": [
+        { "label": { "zh": "第 1 组", "en": "Set 1" }, "x": 2, "y": 3, "seed": 1 },
+        { "label": { "zh": "第 2 组", "en": "Set 2" }, "x": 9, "y": 9, "seed": 2 },
+        { "label": { "zh": "第 3 组", "en": "Set 3" }, "x": 10, "y": 2, "seed": 3 },
+        { "label": { "zh": "第 4 组", "en": "Set 4" }, "x": 3, "y": 10, "seed": 4 }
+      ],
+      "hidden": [
+        { "label": { "zh": "左下角", "en": "Bottom-left corner" }, "x": 0, "y": 12, "seed": 5 },
+        { "label": { "zh": "右边亮处", "en": "Bright right side" }, "x": 12, "y": 6, "seed": 6 },
+        { "label": { "zh": "正中", "en": "Dead centre" }, "x": 6, "y": 6, "seed": 7 }
+      ],
+      "solution": ["d = sub(scene, empty)", "t = threshold[t=0.15](d)", "out <- t"],
+      "naive": ["t = threshold[t=0.6](scene)", "out <- t"]
+    }
+  ]
 }

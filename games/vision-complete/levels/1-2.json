@@ -1,10 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "竖着也来", "en": "Up and down too" },
-  "brief": {
-    "zh": "每个像素换成它和上下两个邻居的平均。",
-    "en": "Replace each pixel with the average of itself and its neighbours above and below."
-  },
   "after": {
     "zh": "同一个想法换一个方向。横着平均抹平左右的毛刺，竖着平均抹平上下的。",
     "en": "The same idea in another direction. Averaging across smooths out spikes from side to side; averaging down smooths them from top to bottom."
@@ -27,27 +22,37 @@
       }
     }
   ],
-  "scene": "filter",
-  "setup": {
-    "target": { "correlate": { "kernel": [0, 0.3333333333333333, 0, 0, 0.3333333333333333, 0, 0, 0.3333333333333333, 0] } }
-  },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
-  ],
-  "hidden": [
-    { "label": { "zh": "横条", "en": "Horizontal bar" }, "in": { "stepY": { "edge": 9 } } },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 12 } } }
-  ],
-  "solution": [
-    "kN = const[c=0.33]()",
-    "u = shift[dir=up](in)",
-    "d = shift[dir=down](in)",
-    "m = merge(u, in, d)",
-    "k = arith[op=mul](m, kN)",
-    "out <- k"
-  ],
-  "naive": ["h = blur3h(in)", "out <- h"]
+  "tasks": [
+    {
+      "id": "1-2",
+      "kind": "graph",
+      "brief": {
+        "zh": "每个像素换成它和上下两个邻居的平均。",
+        "en": "Replace each pixel with the average of itself and its neighbours above and below."
+      },
+      "scene": "filter",
+      "setup": {
+        "target": { "correlate": { "kernel": [0, 0.3333333333333333, 0, 0, 0.3333333333333333, 0, 0, 0.3333333333333333, 0] } }
+      },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+      ],
+      "hidden": [
+        { "label": { "zh": "横条", "en": "Horizontal bar" }, "in": { "stepY": { "edge": 9 } } },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 12 } } }
+      ],
+      "solution": [
+        "kN = const[c=0.33]()",
+        "u = shift[dir=up](in)",
+        "d = shift[dir=down](in)",
+        "m = merge(u, in, d)",
+        "k = arith[op=mul](m, kN)",
+        "out <- k"
+      ],
+      "naive": ["h = blur3h(in)", "out <- h"]
+    }
+  ]
 }

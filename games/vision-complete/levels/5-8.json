@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "找近邻", "en": "Nearest neighbour" },
-  "brief": {
-    "zh": "三张候选里有一张和要找的是同一张照片，只是挪了一点、调了颜色或加了噪声。是它的那一路输出 1，其余输出 0。",
-    "en": "One of the three candidates is the same photo as the one to find, only shifted a little, recoloured or noisy. Output 1 on its line and 0 on the others."
-  },
-  "hint": {
-    "zh": "逐像素比，亮的陌生人反而显得近。先把每张照片换成编码器的特征再比。",
-    "en": "Compared pixel by pixel, a bright stranger looks closer. Turn every photo into the encoder's features before comparing."
-  },
   "after": {
     "zh": "编码器把同一张图的各种变形放到特征空间里相近的地方，再按余弦相似度找最近的一个：这就是以图搜图。对比学习练出来的编码器，正好适合这件事。",
     "en": "The encoder puts the different versions of one picture close together in feature space; then the nearest one by cosine similarity is found. This is image search, and an encoder trained by contrastive learning is just right for it."
@@ -34,102 +25,116 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：T 找 T", "en": "Set 1: T finds T" } }
     }
   ],
-  "inputs": ["q", "a", "b", "c"],
-  "inputLabels": {
-    "q": { "zh": "要找的照片", "en": "Photo to find" },
-    "a": { "zh": "候选 a", "en": "Candidate a" },
-    "b": { "zh": "候选 b", "en": "Candidate b" },
-    "c": { "zh": "候选 c", "en": "Candidate c" }
-  },
-  "outputs": ["pa", "pb", "pc"],
-  "outputLabels": { "pa": { "zh": "是 a", "en": "Is a" }, "pb": { "zh": "是 b", "en": "Is b" }, "pc": { "zh": "是 c", "en": "Is c" } },
-  "scene": "nearest",
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "T 找 T", "en": "T finds T" },
-      "q": { "glyph": { "letter": "T" } },
-      "candidates": [
-        { "glyph": { "letter": "L", "lo": 0.3, "hi": 1 } },
-        { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.7, "ox": 4 } },
-        { "glyph": { "letter": "F" } }
+      "id": "5-8",
+      "kind": "graph",
+      "brief": {
+        "zh": "三张候选里有一张和要找的是同一张照片，只是挪了一点、调了颜色或加了噪声。是它的那一路输出 1，其余输出 0。",
+        "en": "One of the three candidates is the same photo as the one to find, only shifted a little, recoloured or noisy. Output 1 on its line and 0 on the others."
+      },
+      "hint": {
+        "zh": "逐像素比，亮的陌生人反而显得近。先把每张照片换成编码器的特征再比。",
+        "en": "Compared pixel by pixel, a bright stranger looks closer. Turn every photo into the encoder's features before comparing."
+      },
+      "inputs": ["q", "a", "b", "c"],
+      "inputLabels": {
+        "q": { "zh": "要找的照片", "en": "Photo to find" },
+        "a": { "zh": "候选 a", "en": "Candidate a" },
+        "b": { "zh": "候选 b", "en": "Candidate b" },
+        "c": { "zh": "候选 c", "en": "Candidate c" }
+      },
+      "outputs": ["pa", "pb", "pc"],
+      "outputLabels": { "pa": { "zh": "是 a", "en": "Is a" }, "pb": { "zh": "是 b", "en": "Is b" }, "pc": { "zh": "是 c", "en": "Is c" } },
+      "scene": "nearest",
+      "tests": [
+        {
+          "label": { "zh": "T 找 T", "en": "T finds T" },
+          "q": { "glyph": { "letter": "T" } },
+          "candidates": [
+            { "glyph": { "letter": "L", "lo": 0.3, "hi": 1 } },
+            { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.7, "ox": 4 } },
+            { "glyph": { "letter": "F" } }
+          ],
+          "which": 1
+        },
+        {
+          "label": { "zh": "X 找 X", "en": "X finds X" },
+          "q": { "noisy": { "of": { "glyph": { "letter": "X" } }, "seed": 3, "amp": 0.1 } },
+          "candidates": [
+            { "glyph": { "letter": "X", "hi": 0.6, "oy": 4 } },
+            { "glyph": { "letter": "O", "lo": 0.2, "hi": 1 } },
+            { "glyph": { "letter": "T" } }
+          ],
+          "which": 0
+        },
+        {
+          "label": { "zh": "O 找 O", "en": "O finds O" },
+          "q": { "glyph": { "letter": "O", "ox": 2 } },
+          "candidates": [
+            { "glyph": { "letter": "F", "lo": 0.3, "hi": 1 } },
+            { "glyph": { "letter": "L" } },
+            { "noisy": { "of": { "glyph": { "letter": "O", "lo": 0.3, "hi": 0.6 } }, "seed": 5, "amp": 0.08 } }
+          ],
+          "which": 2
+        }
       ],
-      "which": 1
-    },
-    {
-      "label": { "zh": "X 找 X", "en": "X finds X" },
-      "q": { "noisy": { "of": { "glyph": { "letter": "X" } }, "seed": 3, "amp": 0.1 } },
-      "candidates": [
-        { "glyph": { "letter": "X", "hi": 0.6, "oy": 4 } },
-        { "glyph": { "letter": "O", "lo": 0.2, "hi": 1 } },
-        { "glyph": { "letter": "T" } }
+      "hidden": [
+        {
+          "label": { "zh": "F 找 F", "en": "F finds F" },
+          "q": { "glyph": { "letter": "F", "lo": 0.2 } },
+          "candidates": [
+            { "glyph": { "letter": "T", "lo": 0.3, "hi": 1 } },
+            { "glyph": { "letter": "F", "hi": 0.7, "ox": 4, "oy": 4 } },
+            { "glyph": { "letter": "X" } }
+          ],
+          "which": 1
+        }
       ],
-      "which": 0
-    },
-    {
-      "label": { "zh": "O 找 O", "en": "O finds O" },
-      "q": { "glyph": { "letter": "O", "ox": 2 } },
-      "candidates": [
-        { "glyph": { "letter": "F", "lo": 0.3, "hi": 1 } },
-        { "glyph": { "letter": "L" } },
-        { "noisy": { "of": { "glyph": { "letter": "O", "lo": 0.3, "hi": 0.6 } }, "seed": 5, "amp": 0.08 } }
+      "solution": [
+        "eq = embed(q)",
+        "ea = embed(a)",
+        "eb = embed(b)",
+        "ec = embed(c)",
+        "ma = arith[op=mul](eq, ea)",
+        "mb = arith[op=mul](eq, eb)",
+        "mc = arith[op=mul](eq, ec)",
+        "sa = fqMean(ma)",
+        "sb = fqMean(mb)",
+        "sc = fqMean(mc)",
+        "xa = max(sb, sc)",
+        "xb = max(sa, sc)",
+        "xc = max(sa, sb)",
+        "da = arith[op=sub](sa, xa)",
+        "db = arith[op=sub](sb, xb)",
+        "dc = arith[op=sub](sc, xc)",
+        "ta = threshold[t=0](da)",
+        "tb = threshold[t=0](db)",
+        "tc = threshold[t=0](dc)",
+        "pa <- ta",
+        "pb <- tb",
+        "pc <- tc"
       ],
-      "which": 2
+      "naive": [
+        "ma = arith[op=mul](q, a)",
+        "mb = arith[op=mul](q, b)",
+        "mc = arith[op=mul](q, c)",
+        "sa = fqMean(ma)",
+        "sb = fqMean(mb)",
+        "sc = fqMean(mc)",
+        "xa = max(sb, sc)",
+        "xb = max(sa, sc)",
+        "xc = max(sa, sb)",
+        "da = arith[op=sub](sa, xa)",
+        "db = arith[op=sub](sb, xb)",
+        "dc = arith[op=sub](sc, xc)",
+        "ta = threshold[t=0](da)",
+        "tb = threshold[t=0](db)",
+        "tc = threshold[t=0](dc)",
+        "pa <- ta",
+        "pb <- tb",
+        "pc <- tc"
+      ]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "F 找 F", "en": "F finds F" },
-      "q": { "glyph": { "letter": "F", "lo": 0.2 } },
-      "candidates": [
-        { "glyph": { "letter": "T", "lo": 0.3, "hi": 1 } },
-        { "glyph": { "letter": "F", "hi": 0.7, "ox": 4, "oy": 4 } },
-        { "glyph": { "letter": "X" } }
-      ],
-      "which": 1
-    }
-  ],
-  "solution": [
-    "eq = embed(q)",
-    "ea = embed(a)",
-    "eb = embed(b)",
-    "ec = embed(c)",
-    "ma = arith[op=mul](eq, ea)",
-    "mb = arith[op=mul](eq, eb)",
-    "mc = arith[op=mul](eq, ec)",
-    "sa = fqMean(ma)",
-    "sb = fqMean(mb)",
-    "sc = fqMean(mc)",
-    "xa = max(sb, sc)",
-    "xb = max(sa, sc)",
-    "xc = max(sa, sb)",
-    "da = arith[op=sub](sa, xa)",
-    "db = arith[op=sub](sb, xb)",
-    "dc = arith[op=sub](sc, xc)",
-    "ta = threshold[t=0](da)",
-    "tb = threshold[t=0](db)",
-    "tc = threshold[t=0](dc)",
-    "pa <- ta",
-    "pb <- tb",
-    "pc <- tc"
-  ],
-  "naive": [
-    "ma = arith[op=mul](q, a)",
-    "mb = arith[op=mul](q, b)",
-    "mc = arith[op=mul](q, c)",
-    "sa = fqMean(ma)",
-    "sb = fqMean(mb)",
-    "sc = fqMean(mc)",
-    "xa = max(sb, sc)",
-    "xb = max(sa, sc)",
-    "xc = max(sa, sb)",
-    "da = arith[op=sub](sa, xa)",
-    "db = arith[op=sub](sb, xb)",
-    "dc = arith[op=sub](sc, xc)",
-    "ta = threshold[t=0](da)",
-    "tb = threshold[t=0](db)",
-    "tc = threshold[t=0](dc)",
-    "pa <- ta",
-    "pb <- tb",
-    "pc <- tc"
   ]
 }

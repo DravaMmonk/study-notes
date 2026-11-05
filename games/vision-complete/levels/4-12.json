@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "分辨 X 和 O", "en": "Tell X from O" },
-  "brief": {
-    "zh": "输出一个数：是 X 就大于 0.6，是 O 就小于 0.4。字母会挪位置、变深浅、带噪点。",
-    "en": "Output one number: above 0.6 for an X, below 0.4 for an O. The letters move around, vary in strength and carry noise."
-  },
-  "hint": {
-    "zh": "最后的全连接加 Sigmoid 就是<level-ref to=\"4-5\"></level-ref>里那个神经元，把特征变成分数。字母会挪位置、会变深浅，前面要怎样把图变成这样的特征？搭好后按训练。",
-    "en": "The final dense layer plus sigmoid is the neuron from <level-ref to=\"4-5\"></level-ref>, turning features into a score. The letters move around and vary in strength: how should the parts before it turn the image into such features? Once it is built, press Train."
-  },
   "after": {
     "zh": "这是一个最小的卷积网络：卷积找局部笔画，ReLU 把“有”和“没有”分开，池化和全局平均让答案不管字母在哪，全连接加 Sigmoid 把特征变成分数。要是一路全是线性运算（没有 ReLU，也没有最大池化），最后只剩“整张图有多亮”，而淡的 X 和浓的 O 一样亮。",
     "en": "This is the smallest convolutional network: the convolution finds local strokes, ReLU separates \"there\" from \"not there\", pooling and global average make the answer the same wherever the letter is, and the dense layer plus sigmoid turns features into a score. If every operation along the way were linear (no ReLU and no max pooling), all that would be left is \"how bright the whole image is\", and a faint X is as bright as a strong O."
@@ -42,66 +33,80 @@
     }
   ],
   "adds": ["lrnConv"],
-  "check": { "tolerance": 0.4 },
-  "trainRate": 80,
-  "scene": "xo",
-  "tests": [
-    { "label": { "zh": "O 1", "en": "O 1" }, "letter": "O", "ox": 1, "oy": 4, "ink": 0.89, "seed": 0 },
-    { "label": { "zh": "X 1", "en": "X 1" }, "letter": "X", "ox": 4, "oy": 1, "ink": 0.76, "seed": 0 },
-    { "label": { "zh": "O 2 噪点", "en": "O 2 noisy" }, "letter": "O", "ox": 2, "oy": 4, "ink": 0.85, "seed": 239 },
-    { "label": { "zh": "X 2", "en": "X 2" }, "letter": "X", "ox": 1, "oy": 2, "ink": 0.86, "seed": 0 },
-    { "label": { "zh": "O 3", "en": "O 3" }, "letter": "O", "ox": 1, "oy": 5, "ink": 0.78, "seed": 0 },
-    { "label": { "zh": "X 3", "en": "X 3" }, "letter": "X", "ox": 3, "oy": 5, "ink": 0.86, "seed": 0 },
-    { "label": { "zh": "O 4", "en": "O 4" }, "letter": "O", "ox": 4, "oy": 3, "ink": 0.7, "seed": 0 },
-    { "label": { "zh": "X 4", "en": "X 4" }, "letter": "X", "ox": 3, "oy": 3, "ink": 0.9, "seed": 0 },
-    { "label": { "zh": "O 5", "en": "O 5" }, "letter": "O", "ox": 2, "oy": 4, "ink": 0.86, "seed": 0 },
-    { "label": { "zh": "X 5", "en": "X 5" }, "letter": "X", "ox": 4, "oy": 5, "ink": 0.91, "seed": 0 },
-    { "label": { "zh": "O 6", "en": "O 6" }, "letter": "O", "ox": 5, "oy": 4, "ink": 0.89, "seed": 0 },
-    { "label": { "zh": "X 6", "en": "X 6" }, "letter": "X", "ox": 2, "oy": 1, "ink": 0.81, "seed": 0 },
-    { "label": { "zh": "O 7", "en": "O 7" }, "letter": "O", "ox": 1, "oy": 5, "ink": 0.8, "seed": 0 },
-    { "label": { "zh": "X 7", "en": "X 7" }, "letter": "X", "ox": 2, "oy": 4, "ink": 0.95, "seed": 0 },
-    { "label": { "zh": "O 8 噪点", "en": "O 8 noisy" }, "letter": "O", "ox": 3, "oy": 3, "ink": 0.78, "seed": 570 },
-    { "label": { "zh": "X 8", "en": "X 8" }, "letter": "X", "ox": 3, "oy": 3, "ink": 0.93, "seed": 0 }
-  ],
-  "hidden": [
-    { "label": { "zh": "新的 X", "en": "New X" }, "letter": "X", "ox": 3, "oy": 2, "ink": 0.85, "seed": 0 },
-    { "label": { "zh": "新的 O", "en": "New O" }, "letter": "O", "ox": 4, "oy": 1, "ink": 0.78, "seed": 0 },
+  "tasks": [
     {
-      "label": { "zh": "新的 X 带噪点", "en": "New X with noise" },
-      "letter": "X",
-      "ox": 5,
-      "oy": 4,
-      "ink": 0.89,
-      "seed": 160
+      "id": "4-12",
+      "kind": "graph",
+      "brief": {
+        "zh": "输出一个数：是 X 就大于 0.6，是 O 就小于 0.4。字母会挪位置、变深浅、带噪点。",
+        "en": "Output one number: above 0.6 for an X, below 0.4 for an O. The letters move around, vary in strength and carry noise."
+      },
+      "hint": {
+        "zh": "最后的全连接加 Sigmoid 就是<level-ref to=\"4-5\"></level-ref>里那个神经元，把特征变成分数。字母会挪位置、会变深浅，前面要怎样把图变成这样的特征？搭好后按训练。",
+        "en": "The final dense layer plus sigmoid is the neuron from <level-ref to=\"4-5\"></level-ref>, turning features into a score. The letters move around and vary in strength: how should the parts before it turn the image into such features? Once it is built, press Train."
+      },
+      "check": { "tolerance": 0.4 },
+      "trainRate": 80,
+      "scene": "xo",
+      "tests": [
+        { "label": { "zh": "O 1", "en": "O 1" }, "letter": "O", "ox": 1, "oy": 4, "ink": 0.89, "seed": 0 },
+        { "label": { "zh": "X 1", "en": "X 1" }, "letter": "X", "ox": 4, "oy": 1, "ink": 0.76, "seed": 0 },
+        { "label": { "zh": "O 2 噪点", "en": "O 2 noisy" }, "letter": "O", "ox": 2, "oy": 4, "ink": 0.85, "seed": 239 },
+        { "label": { "zh": "X 2", "en": "X 2" }, "letter": "X", "ox": 1, "oy": 2, "ink": 0.86, "seed": 0 },
+        { "label": { "zh": "O 3", "en": "O 3" }, "letter": "O", "ox": 1, "oy": 5, "ink": 0.78, "seed": 0 },
+        { "label": { "zh": "X 3", "en": "X 3" }, "letter": "X", "ox": 3, "oy": 5, "ink": 0.86, "seed": 0 },
+        { "label": { "zh": "O 4", "en": "O 4" }, "letter": "O", "ox": 4, "oy": 3, "ink": 0.7, "seed": 0 },
+        { "label": { "zh": "X 4", "en": "X 4" }, "letter": "X", "ox": 3, "oy": 3, "ink": 0.9, "seed": 0 },
+        { "label": { "zh": "O 5", "en": "O 5" }, "letter": "O", "ox": 2, "oy": 4, "ink": 0.86, "seed": 0 },
+        { "label": { "zh": "X 5", "en": "X 5" }, "letter": "X", "ox": 4, "oy": 5, "ink": 0.91, "seed": 0 },
+        { "label": { "zh": "O 6", "en": "O 6" }, "letter": "O", "ox": 5, "oy": 4, "ink": 0.89, "seed": 0 },
+        { "label": { "zh": "X 6", "en": "X 6" }, "letter": "X", "ox": 2, "oy": 1, "ink": 0.81, "seed": 0 },
+        { "label": { "zh": "O 7", "en": "O 7" }, "letter": "O", "ox": 1, "oy": 5, "ink": 0.8, "seed": 0 },
+        { "label": { "zh": "X 7", "en": "X 7" }, "letter": "X", "ox": 2, "oy": 4, "ink": 0.95, "seed": 0 },
+        { "label": { "zh": "O 8 噪点", "en": "O 8 noisy" }, "letter": "O", "ox": 3, "oy": 3, "ink": 0.78, "seed": 570 },
+        { "label": { "zh": "X 8", "en": "X 8" }, "letter": "X", "ox": 3, "oy": 3, "ink": 0.93, "seed": 0 }
+      ],
+      "hidden": [
+        { "label": { "zh": "新的 X", "en": "New X" }, "letter": "X", "ox": 3, "oy": 2, "ink": 0.85, "seed": 0 },
+        { "label": { "zh": "新的 O", "en": "New O" }, "letter": "O", "ox": 4, "oy": 1, "ink": 0.78, "seed": 0 },
+        {
+          "label": { "zh": "新的 X 带噪点", "en": "New X with noise" },
+          "letter": "X",
+          "ox": 5,
+          "oy": 4,
+          "ink": 0.89,
+          "seed": 160
+        }
+      ],
+      "solution": [
+        "c = lrnConv[w=[2.1414, 1.9876, -3.8059, -2.6066, -1.9976, 2.9058, -0.944, -1.5222, 0.9997]](in)",
+        "r = relu(c)",
+        "m = maxpool(r)",
+        "g = fqMean(m)",
+        "d = lrnDense[p=[6.6784, -4.1486]](g)",
+        "s = lrnSigmoid(d)",
+        "out <- s"
+      ],
+      "naive": [
+        "c = lrnConv[w=[1.4764, 1.5599, 1.4452, 1.5596, 1.7468, 1.5528, 1.4841, 1.5482, 1.4974]](in)",
+        "g = fqMean(c)",
+        "d = lrnDense[p=[-4.8973, 14.4896]](g)",
+        "s = lrnSigmoid(d)",
+        "out <- s"
+      ],
+      "alsoFails": [
+        [
+          "c = lrnConv[w=[2.1414, 1.9876, -3.8059, -2.6066, -1.9976, 2.9058, -0.944, -1.5222, 0.9997]](in)",
+          "r = relu(c)",
+          "s0 = downsample(r)",
+          "s1 = downsample(s0)",
+          "s2 = downsample(s1)",
+          "s3 = downsample(s2)",
+          "d = lrnDense[p=[6.6784, -4.1486]](s3)",
+          "s = lrnSigmoid(d)",
+          "out <- s"
+        ]
+      ]
     }
-  ],
-  "solution": [
-    "c = lrnConv[w=[2.1414, 1.9876, -3.8059, -2.6066, -1.9976, 2.9058, -0.944, -1.5222, 0.9997]](in)",
-    "r = relu(c)",
-    "m = maxpool(r)",
-    "g = fqMean(m)",
-    "d = lrnDense[p=[6.6784, -4.1486]](g)",
-    "s = lrnSigmoid(d)",
-    "out <- s"
-  ],
-  "naive": [
-    "c = lrnConv[w=[1.4764, 1.5599, 1.4452, 1.5596, 1.7468, 1.5528, 1.4841, 1.5482, 1.4974]](in)",
-    "g = fqMean(c)",
-    "d = lrnDense[p=[-4.8973, 14.4896]](g)",
-    "s = lrnSigmoid(d)",
-    "out <- s"
-  ],
-  "alsoFails": [
-    [
-      "c = lrnConv[w=[2.1414, 1.9876, -3.8059, -2.6066, -1.9976, 2.9058, -0.944, -1.5222, 0.9997]](in)",
-      "r = relu(c)",
-      "s0 = downsample(r)",
-      "s1 = downsample(s0)",
-      "s2 = downsample(s1)",
-      "s3 = downsample(s2)",
-      "d = lrnDense[p=[6.6784, -4.1486]](s3)",
-      "s = lrnSigmoid(d)",
-      "out <- s"
-    ]
   ]
 }

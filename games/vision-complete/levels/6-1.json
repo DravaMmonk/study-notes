@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "角点", "en": "Corners" },
-  "brief": { "zh": "只在角上输出 1。直边、平坦处都是 0。", "en": "Output 1 only at corners. Straight edges and flat areas are 0." },
-  "hint": {
-    "zh": "在角上，往哪个方向挪都会变；在直边上，沿着边挪不会变。分别统计 Gx²、Gy²、Gx·Gy 在 3×3 窗口里的和，再算 det − 0.05·trace²。",
-    "en": "At a corner, moving in any direction changes what you see; on a straight edge, moving along the edge changes nothing. Sum Gx², Gy² and Gx·Gy over a 3×3 window, then compute det − 0.05·trace²."
-  },
   "after": {
     "zh": "你搭出了 Harris 角点检测：两个方向的变化都大，才是角。直边只有一个方向大，所以 det 小、R 为负。",
     "en": "You have built the Harris corner detector: it is a corner only when the change is large in both directions. A straight edge is large in only one direction, so det is small and R is negative."
@@ -38,56 +32,67 @@
       "fig": { "test": 0, "caption": { "zh": "一个角：只有拐角处是 1", "en": "A corner: only the corner itself is 1" } }
     }
   ],
-  "views": { "in": "slope", "out": "pixels", "mid": "terrain" },
   "unlocks": ["harris"],
-  "check": { "tolerance": 0.5, "mismatches": 2 },
-  "scene": "filter",
-  "setup": { "target": { "corners": { "threshold": 0.22 } } },
-  "tests": [
-    { "label": { "zh": "一个角", "en": "One corner" }, "in": "corner" },
-    { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
-    { "label": { "zh": "直边", "en": "Straight edge" }, "in": { "stepX": { "edge": 8 } } },
-    { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "label": { "zh": "字母 T", "en": "Letter T" },
-      "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 3 } }
-    },
-    { "label": { "zh": "挪开的小方块", "en": "Shifted small square" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
-    { "label": { "zh": "横边", "en": "Horizontal edge" }, "in": { "stepY": { "edge": 9 } } }
-  ],
-  "solution": [
-    "ktN = const[c=0.05]()",
-    "sN = const[c=100]()",
-    "x = sobelx(in)",
-    "y = sobely(in)",
-    "xx = arith[op=mul](x, x)",
-    "yy = arith[op=mul](y, y)",
-    "xy = arith[op=mul](x, y)",
-    "sxx = box3(xx)",
-    "syy = box3(yy)",
-    "sxy = box3(xy)",
-    "p = arith[op=mul](sxx, syy)",
-    "q = arith[op=mul](sxy, sxy)",
-    "tr = arith[op=add](sxx, syy)",
-    "det = arith[op=sub](p, q)",
-    "tt = arith[op=mul](tr, tr)",
-    "kt = arith[op=mul](tt, ktN)",
-    "r = arith[op=sub](det, kt)",
-    "s = arith[op=mul](r, sN)",
-    "t = threshold[t=0.22](s)",
-    "out <- t"
-  ],
-  "naive": [
-    "sN = const[c=100]()",
-    "x = sobelx(in)",
-    "y = sobely(in)",
-    "xx = arith[op=mul](x, x)",
-    "yy = arith[op=mul](y, y)",
-    "a = arith[op=add](xx, yy)",
-    "s = arith[op=mul](a, sN)",
-    "t = threshold[t=0.22](s)",
-    "out <- t"
+      "id": "6-1",
+      "kind": "graph",
+      "brief": { "zh": "只在角上输出 1。直边、平坦处都是 0。", "en": "Output 1 only at corners. Straight edges and flat areas are 0." },
+      "hint": {
+        "zh": "在角上，往哪个方向挪都会变；在直边上，沿着边挪不会变。分别统计 Gx²、Gy²、Gx·Gy 在 3×3 窗口里的和，再算 det − 0.05·trace²。",
+        "en": "At a corner, moving in any direction changes what you see; on a straight edge, moving along the edge changes nothing. Sum Gx², Gy² and Gx·Gy over a 3×3 window, then compute det − 0.05·trace²."
+      },
+      "views": { "in": "slope", "out": "pixels", "mid": "terrain" },
+      "check": { "tolerance": 0.5, "mismatches": 2 },
+      "scene": "filter",
+      "setup": { "target": { "corners": { "threshold": 0.22 } } },
+      "tests": [
+        { "label": { "zh": "一个角", "en": "One corner" }, "in": "corner" },
+        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
+        { "label": { "zh": "直边", "en": "Straight edge" }, "in": { "stepX": { "edge": 8 } } },
+        { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "字母 T", "en": "Letter T" },
+          "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 3 } }
+        },
+        { "label": { "zh": "挪开的小方块", "en": "Shifted small square" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
+        { "label": { "zh": "横边", "en": "Horizontal edge" }, "in": { "stepY": { "edge": 9 } } }
+      ],
+      "solution": [
+        "ktN = const[c=0.05]()",
+        "sN = const[c=100]()",
+        "x = sobelx(in)",
+        "y = sobely(in)",
+        "xx = arith[op=mul](x, x)",
+        "yy = arith[op=mul](y, y)",
+        "xy = arith[op=mul](x, y)",
+        "sxx = box3(xx)",
+        "syy = box3(yy)",
+        "sxy = box3(xy)",
+        "p = arith[op=mul](sxx, syy)",
+        "q = arith[op=mul](sxy, sxy)",
+        "tr = arith[op=add](sxx, syy)",
+        "det = arith[op=sub](p, q)",
+        "tt = arith[op=mul](tr, tr)",
+        "kt = arith[op=mul](tt, ktN)",
+        "r = arith[op=sub](det, kt)",
+        "s = arith[op=mul](r, sN)",
+        "t = threshold[t=0.22](s)",
+        "out <- t"
+      ],
+      "naive": [
+        "sN = const[c=100]()",
+        "x = sobelx(in)",
+        "y = sobely(in)",
+        "xx = arith[op=mul](x, x)",
+        "yy = arith[op=mul](y, y)",
+        "a = arith[op=add](xx, yy)",
+        "s = arith[op=mul](a, sN)",
+        "t = threshold[t=0.22](s)",
+        "out <- t"
+      ]
+    }
   ]
 }

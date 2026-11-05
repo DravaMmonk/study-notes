@@ -1,9 +1,10 @@
 // An image game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be
-// in it): every level made playable from its data (tests from its scene, boards from their blueprints, a bench's
-// model, a budget's check), the play order and the tree from its eras (../../course.js layout), each level with the
-// image domain's defaults, its palette in the order the player meets parts, the ways of drawing a picture it has met
-// so far, and the packed parts its solved circuits become (engine/own.js).
+// in it): every task of every level made playable from its data (tests from its scene, boards from their blueprints, a
+// bench's model, a budget's check), the play order and the tree from its eras (../../course.js layout), each task with
+// the image domain's defaults, its level's palette in the order the player meets parts, the ways of drawing a picture
+// it has met so far, and the packed parts its solved circuits become (engine/own.js).
 import { defineCourse, eraLevels, layout, offer, reach, usable } from '../../course.js'
+import { taskLevels } from '../../engine/tasks.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { ownPart } from './engine/own.js'
 import { imageKit } from './engine/kit.js'
@@ -17,7 +18,7 @@ import { benchOf } from './items/benches.js'
 const ARITHMETIC = ['const', 'add', 'sub', 'mul', 'arith', 'merge']
 
 /**
- * A circuit level (or one task of one) as the level runs take it: its tests, boards and budget made from their data.
+ * A circuit task as the level runs take it: its tests, boards and budget made from their data.
  * kit: the course's (engine/kit.js); keep({ board, write, read, naive? }) hears of every board read from blueprint text
  * (domain.js blueprints).
  */
@@ -41,15 +42,12 @@ function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, cons
   }
 }
 
-/** A level as its screen and the checks take it (`intro` stays with the content); keep as for circuit. */
-function playable({ intro, ...level }, kit, keep) {
-  if (level.kind === 'probe') return { ...level, probes: level.probes.map((p) => [p.label, picture(p.picture)]) }
-  if (level.kind === 'board') return { ...level, board: level.bench.model, ...benchOf(level.bench) }
-  if (!level.tasks) return circuit(level, kit, keep)
-  // A task's board has the level's inputs and outputs unless it says otherwise.
-  const { tasks, ...base } = level
-  const io = Object.fromEntries(['inputs', 'outputs'].filter((k) => base[k]).map((k) => [k, base[k]]))
-  return { ...base, tasks: tasks.map((task) => circuit({ ...io, ...task }, kit, keep)) }
+/** A task as its screen and the checks take it, its level's fields under its own (`intro` stays with the content);
+ *  keep as for circuit. */
+function playable({ intro: _, ...task }, kit, keep) {
+  if (task.kind === 'probe') return { ...task, probes: task.probes.map((p) => [p.label, picture(p.picture)]) }
+  if (task.kind === 'board') return { ...task, board: task.bench.model, ...benchOf(task.bench) }
+  return circuit(task, kit, keep)
 }
 
 /**
@@ -57,30 +55,35 @@ function playable({ intro, ...level }, kit, keep) {
  * eras give the order), views: { view: level id } the level each way of drawing a picture comes with (pixels is there
  * from the start), primitives (the parts no circuit builds), concept: { part: idea } parts that are one new idea
  * together, replaces: { part: [part] } the parts a part supersedes once met }.
- * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, and what it
- * folds away (`fold`); see ../../course.js reach and offer.
- * A level may be several tasks in order (`tasks: [{ step, brief, tests, hidden, solution, unlocks?, withhold?, … }]`):
- * each task is the level with what it changes, and a level that shows a new part alone says why (`showcase`).
+ * A level is a list of tasks (../../engine/tasks.js), each read as the level with the task's fields over it. A level
+ * names only the parts it brings in (`adds`): every part met or built before it carries into it, and what it folds away
+ * (`fold`); see ../../course.js reach and offer. What a task unlocks, the tasks after it hold at once (`opens`); a
+ * level that shows a new part alone says why (`showcase`).
  * Returns { CHAPTERS, LEVELS, levelById, course, kit, intros, usableIn(level, flags), offerIn(level, flags),
- * syncOwn(progress), blueprints }: kit the image engine over the course's own part table (engine/kit.js: NODE_TYPES and
- * the parts its levels pack), so two courses read in one process never run each other's packed parts.
+ * syncOwn(progress), blueprints }: each of LEVELS the fields its level says once, its place in the course and its
+ * tasks as they play (`tasks`, each with its key); kit the image engine over the course's own part table
+ * (engine/kit.js: NODE_TYPES and the parts its levels pack), so two courses read in one process never run each other's
+ * packed parts. All of it is built anew: nothing that came from the content is written to.
  */
 export function imageCourse({ eras, levels, views = {}, primitives, concept = {}, replaces = {} }) {
   const plan = layout(eras)
-  // Levels are made playable in play order: a level that packs its circuit is a part (engine/own.js) before the levels
-  // after it, whose boards may hold it, are read.
+  // Levels are read in play order: a level that packs its circuit is a part (engine/own.js) before the levels after
+  // it, whose boards may hold it, are read.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
   const types = { ...NODE_TYPES }
   const kit = imageKit(types)
   // The circuits the player passed the packing levels with, by level id (syncOwn).
   const own = new Map()
-  const byIdAll = {}
+  // Every level's tasks made playable, by level id.
+  const played = new Map()
   const blueprints = []
   for (const id of plan.order) {
     if (!content[id]) throw new Error(`route names a level that does not exist: ${id}`)
-    const level = playable(content[id], kit, (bp) => blueprints.push({ level: id, ...bp }))
-    byIdAll[id] = level
-    if (level.packs) types[`own-${id}`] = ownPart(level, () => own.get(id) ?? level.solution, types)
+    const tasks = taskLevels(content[id]).map((task) => playable(task, kit, (bp) => blueprints.push({ level: id, task: task.task, key: task.taskId, ...bp })))
+    played.set(id, tasks)
+    // The part a level packs runs its last task's board.
+    const last = tasks.at(-1)
+    if (content[id].packs) types[`own-${id}`] = ownPart(last, () => own.get(id) ?? last.solution, types)
   }
   const intros = Object.fromEntries(levels.map((level) => [level.id, level.intro]))
   const chapterOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era.id])))
@@ -94,7 +97,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
   }
   // A topic level after the first starts from the player's own circuit for the level before it, when that level is a
   // circuit too.
-  const carry = new Map(eras.flatMap((era) => (era.topics ?? []).flatMap((t) => t.levels.slice(1).map((id, i) => [id, t.levels[i]]))).filter(([, from]) => byIdAll[from]?.kind !== 'board'))
+  const carry = new Map(eras.flatMap((era) => (era.topics ?? []).flatMap((t) => t.levels.slice(1).map((id, i) => [id, t.levels[i]]))).filter(([, from]) => played.get(from)?.at(-1).kind !== 'board'))
   // Pictures start out drawn as pixels; every other way of drawing them comes in with a level, as parts do.
   const viewsAt = (id) => ({
     shows: ['pixels', ...Object.keys(views).filter((view) => views[view] === id || before(id).has(views[view]))],
@@ -102,28 +105,27 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
   })
 
   const unlocksOf = (level) => [...(level.unlocks ?? []), ...(level.packs ? [`own-${level.id}`] : [])]
-  const read = (id, level) => ({ kind: 'graph', inputs: ['in'], outputs: ['out'], adds: [], check: { tolerance: 0.02 }, ...level, chapter: chapterOf.get(id), ...viewsAt(id), unlocks: unlocksOf(level), requires: requires.get(id) ?? [], carry: carry.get(id) })
-  // A level of several tasks (`tasks`, ../../shell/GameShell.jsx) is read task by task, each the level with what the
-  // task changes; the last is the level itself. What a task unlocks, the tasks after it hold at once (`opens`); the
-  // level unlocks all of it, and brings in every part any task brings in.
-  const LEVELS = plan.order.map((id) => {
-    const level = byIdAll[id]
-    if (!level.tasks) return read(id, level)
-    const { tasks, ...base } = level
-    const all = tasks.map(({ id: key, ...task }, k) => ({ ...read(id, { ...base, ...task }), opens: task.unlocks ?? [], task: k, key }))
-    return { ...all.at(-1), unlocks: [...new Set([...unlocksOf(base), ...all.flatMap((t) => t.unlocks)])], adds: [...new Set(all.flatMap((t) => t.adds))], tasks: all }
+  // A task as the shell plays it (../../shell/GameShell.jsx): the domain's defaults under it, its level's place in the
+  // course, its key and name (`step`, from the content's task `given`), and what it opens for the tasks after it. A level
+  // unlocks what any of its tasks does, and is of its last task's kind.
+  const read = (id, task, given) => ({ inputs: ['in'], outputs: ['out'], adds: [], check: { tolerance: 0.02 }, ...task, chapter: chapterOf.get(id), ...viewsAt(id), unlocks: unlocksOf(task), requires: requires.get(id) ?? [], carry: carry.get(id), step: given.step, opens: given.unlocks ?? [], key: task.taskId })
+  const placed = plan.order.map((id) => {
+    const { tasks, intro: _, ...once } = content[id]
+    const all = played.get(id).map((task, k) => read(id, task, tasks[k]))
+    return { ...once, id, kind: all.at(-1).kind, chapter: chapterOf.get(id), requires: requires.get(id) ?? [], adds: once.adds ?? [], unlocks: [...new Set([...unlocksOf({ ...once, id }), ...all.flatMap((t) => t.unlocks)])], tasks: all }
   })
-  for (const level of levels) if (!LEVELS.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
-  const levelById = Object.fromEntries(LEVELS.map((level) => [level.id, level]))
+  for (const level of levels) if (!placed.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
+  const placedById = Object.fromEntries(placed.map((level) => [level.id, level]))
   const CHAPTERS = eras.map((era) => ({ id: era.id, ...era.chapter, track: plan.tracks.get(era.id) }))
 
   // A level that packs its circuit offers it as a part once solved: the player's own passing circuit, from the board
-  // played on that level or, when that one has not passed, from one of its other saved boards (shell/slots.js).
+  // played on its last task or, when that one has not passed, from one of the task's other saved boards (shell/slots.js).
   const syncOwn = (progress) => {
-    for (const level of LEVELS) {
+    for (const level of placed) {
       if (!level.packs) continue
-      const data = progress.solved.includes(level.id) ? progress.data[level.id] : null
-      const waiting = progress.slots?.[level.id]?.list.find((slot) => slot.data?.passed)?.data
+      const { key } = level.tasks.at(-1)
+      const data = progress.solved.includes(level.id) ? progress.data[key] : null
+      const waiting = progress.slots?.[key]?.list.find((slot) => slot.data?.passed)?.data
       const circuit = data?.passed ?? waiting?.passed ?? data
       if (circuit?.nodes) own.set(level.id, circuit)
       else own.delete(level.id)
@@ -132,36 +134,34 @@ export function imageCourse({ eras, levels, views = {}, primitives, concept = {}
 
   // A node that names an `unlock` flag is built by the first level whose `unlocks` set it.
   const partsFor = (flags) => Object.keys(types).filter((t) => flags.includes(types[t].unlock))
+  // Every task's answer counts: a part only the first task of a level uses is used.
+  const answers = (l) => placedById[l.id].tasks.map((t) => t.solution).filter((s) => s?.nodes)
   const course = defineCourse({
-    levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks ?? [] })),
+    levels: placed.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
     concept: (p) => concept[p] ?? p,
-    naive: (l) => (levelById[l.id].tasks ?? [levelById[l.id]]).some((t) => t.naive),
+    naive: (l) => placedById[l.id].tasks.some((t) => t.naive),
     primitives,
-    adds: (l) => levelById[l.id].adds,
+    adds: (l) => placedById[l.id].adds,
     needs: (p) => types[p]?.unlock ?? null,
     builds: (l) => partsFor(l.unlocks),
-    granted: (l) => partsFor(levelById[l.id].grants ?? []),
+    granted: (l) => partsFor(placedById[l.id].grants ?? []),
     replaces: (p) => replaces[p] ?? [],
-    // Every task's answer counts: a part only the first task of a level uses is used.
-    needed: (l) => {
-      const answers = (levelById[l.id].tasks ?? [levelById[l.id]]).map((t) => t.solution).filter((s) => s?.nodes)
-      return answers.length ? answers.flatMap((s) => s.nodes.map((n) => n.type)) : null
-    },
-    boards: (l) => (levelById[l.id].tasks ?? [levelById[l.id]]).map((t) => t.solution).filter((s) => s?.nodes),
-    folds: (l) => levelById[l.id].fold ?? [],
-    showcase: (l) => levelById[l.id].showcase ?? null,
+    needed: (l) => (answers(l).length ? answers(l).flatMap((s) => s.nodes.map((n) => n.type)) : null),
+    boards: answers,
+    folds: (l) => placedById[l.id].fold ?? [],
+    showcase: (l) => placedById[l.id].showcase ?? null,
     abstraction: true,
   })
   // A circuit level's palette is everything it can hold (../../course.js reach): the parts it brings in, then the
-  // carried ones; a board or probe level has only what it brings in.
+  // carried ones; a board or probe level has only what it brings in. Its tasks hold the same.
   const arithmeticFirst = (list) => [...ARITHMETIC.filter((type) => list.includes(type)), ...list.filter((type) => !ARITHMETIC.includes(type))]
-  for (const level of LEVELS) {
+  const LEVELS = placed.map((level) => {
     const carried = level.kind === 'graph' ? reach(course, level).filter((type) => !level.adds.includes(type)) : []
-    level.fresh = level.adds
-    level.palette = [...arithmeticFirst(level.adds), ...arithmeticFirst(carried)]
-    for (const task of level.tasks ?? []) Object.assign(task, { fresh: level.fresh, palette: level.palette })
-  }
+    const tray = { fresh: level.adds, palette: [...arithmeticFirst(level.adds), ...arithmeticFirst(carried)] }
+    return { ...level, ...tray, tasks: level.tasks.map((task) => ({ ...task, ...tray })) }
+  })
+  const levelById = Object.fromEntries(LEVELS.map((level) => [level.id, level]))
   /** The parts a level can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */
   const usableIn = (level, flags) => usable(course, { id: level.id }, flags)
   /** Everything the player has for a level: what it shows, and what it folds away ({ shown, folded }). */

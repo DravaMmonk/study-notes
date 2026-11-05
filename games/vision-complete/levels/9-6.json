@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "颜色分割", "en": "Segmenting by brightness" },
-  "brief": {
-    "zh": "从给定的起始分界出发做三步 k 均值，再按最后的分界把每个像素分成两类：亮的一类输出 1。",
-    "en": "Starting from the given boundary, take three k-means steps, then split every pixel into two classes by the final boundary: output 1 for the bright class."
-  },
-  "hint": { "zh": "起始的分界可能离得很远。", "en": "The starting boundary may be a long way off." },
   "after": {
     "zh": "不用告诉它什么是前景，k 均值自己把像素分成两堆。可它只看亮度：亮度一样的两样东西，它分不开。",
     "en": "Without being told what the foreground is, k-means splits the pixels into two heaps by itself. But it looks only at brightness: two things of the same brightness, it cannot tell apart."
@@ -25,41 +19,52 @@
       "fig": { "test": 1, "caption": { "zh": "第二组：右边一条", "en": "Set 2: a strip on the right" } }
     }
   ],
-  "inputs": ["img", "m"],
-  "inputLabels": { "img": { "zh": "图", "en": "Picture" }, "m": { "zh": "起始的分界", "en": "Starting boundary" } },
-  "scene": "kmeans",
-  "setup": { "expect": "segment" },
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "圆斑", "en": "A round patch" },
-      "img": { "twoTone": { "seed": 51, "dark": 0.25, "bright": 0.75, "disc": [5, 6, 16] } },
-      "m": 0.28
-    },
-    {
-      "label": { "zh": "右边一条", "en": "A strip on the right" },
-      "img": { "twoTone": { "seed": 52, "dark": 0.2, "bright": 0.6, "rightOf": 10 } },
-      "m": 0.55
-    },
-    {
-      "label": { "zh": "斜纹", "en": "Slanted stripes" },
-      "img": { "twoTone": { "seed": 53, "dark": 0.4, "bright": 0.9, "stripes": [7, 3] } },
-      "m": 0.45
+      "id": "9-6",
+      "kind": "graph",
+      "brief": {
+        "zh": "从给定的起始分界出发做三步 k 均值，再按最后的分界把每个像素分成两类：亮的一类输出 1。",
+        "en": "Starting from the given boundary, take three k-means steps, then split every pixel into two classes by the final boundary: output 1 for the bright class."
+      },
+      "hint": { "zh": "起始的分界可能离得很远。", "en": "The starting boundary may be a long way off." },
+      "inputs": ["img", "m"],
+      "inputLabels": { "img": { "zh": "图", "en": "Picture" }, "m": { "zh": "起始的分界", "en": "Starting boundary" } },
+      "scene": "kmeans",
+      "setup": { "expect": "segment" },
+      "tests": [
+        {
+          "label": { "zh": "圆斑", "en": "A round patch" },
+          "img": { "twoTone": { "seed": 51, "dark": 0.25, "bright": 0.75, "disc": [5, 6, 16] } },
+          "m": 0.28
+        },
+        {
+          "label": { "zh": "右边一条", "en": "A strip on the right" },
+          "img": { "twoTone": { "seed": 52, "dark": 0.2, "bright": 0.6, "rightOf": 10 } },
+          "m": 0.55
+        },
+        {
+          "label": { "zh": "斜纹", "en": "Slanted stripes" },
+          "img": { "twoTone": { "seed": 53, "dark": 0.4, "bright": 0.9, "stripes": [7, 3] } },
+          "m": 0.45
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "暗一些的圆斑", "en": "A darker round patch" },
+          "img": { "twoTone": { "seed": 54, "dark": 0.15, "bright": 0.5, "disc": [10, 9, 20] } },
+          "m": 0.2
+        }
+      ],
+      "solution": [
+        "a = own-9-5(img, m)",
+        "b = own-9-5(img, a)",
+        "c = own-9-5(img, b)",
+        "d = arith[op=sub](img, c)",
+        "t = threshold[t=0](d)",
+        "out <- t"
+      ],
+      "naive": ["d = arith[op=sub](img, m)", "t = threshold[t=0](d)", "out <- t"]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "暗一些的圆斑", "en": "A darker round patch" },
-      "img": { "twoTone": { "seed": 54, "dark": 0.15, "bright": 0.5, "disc": [10, 9, 20] } },
-      "m": 0.2
-    }
-  ],
-  "solution": [
-    "a = own-9-5(img, m)",
-    "b = own-9-5(img, a)",
-    "c = own-9-5(img, b)",
-    "d = arith[op=sub](img, c)",
-    "t = threshold[t=0](d)",
-    "out <- t"
-  ],
-  "naive": ["d = arith[op=sub](img, m)", "t = threshold[t=0](d)", "out <- t"]
+  ]
 }

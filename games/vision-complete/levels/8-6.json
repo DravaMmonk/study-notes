@@ -1,14 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "骗过鉴定员", "en": "Fool the judge" },
-  "brief": {
-    "zh": "生成器有两支笔，要画出和真实数据一样的两堆点。轮流训练鉴定员和生成器，直到两堆都画到、鉴定员只能瞎猜。",
-    "en": "The generator has two pens and must draw two clusters of points just like the real data. Take turns training the judge and the generator until both clusters are covered and the judge can only guess."
-  },
-  "hint": {
-    "zh": "生成器一回合走太远，就会一起冲向鉴定员此刻最相信的那一处。",
-    "en": "If the generator moves too far in one round, both pens rush together to the spot the judge trusts most right now."
-  },
   "after": {
     "zh": "鉴定员不动、生成器猛练，生成器就把所有样本都放到鉴定员最相信的那一点：两支笔重合，只画一堆，这就是模式坍塌；鉴定员一反应，它们又一起跳到另一堆。让鉴定员跟上、生成器小步走，两支笔才会各占一堆，最后鉴定员的准确率回到 50%。",
     "en": "If the judge stands still while the generator trains hard, the generator puts every sample on the one spot the judge trusts most: the two pens merge and draw only one cluster. This is mode collapse; as soon as the judge reacts, they jump together to the other cluster. Let the judge keep up and the generator take small steps, and the pens settle on one cluster each, until the judge's accuracy is back to 50%."
@@ -39,81 +30,95 @@
       }
     }
   ],
-  "bench": {
-    "model": "gan",
-    "setup": {
-      "n": 64,
-      "mode": 2,
-      "width": 0.35,
-      "rateD": 2,
-      "start": [0.4, 0.9],
-      "good": { "dSteps": 3, "gSteps": 1, "gRate": 0.5 }
-    },
-    "knobs": {
-      "dSteps": {
-        "label": { "zh": "鉴定员每回合训练", "en": "Judge steps per round" },
-        "choices": [
-          { "value": 1, "label": { "zh": "1 步", "en": "1 step" } },
-          { "value": 3, "label": { "zh": "3 步", "en": "3 steps" } },
-          { "value": 10, "label": { "zh": "10 步", "en": "10 steps" } }
-        ],
-        "start": 1
+  "tasks": [
+    {
+      "id": "8-6",
+      "kind": "board",
+      "brief": {
+        "zh": "生成器有两支笔，要画出和真实数据一样的两堆点。轮流训练鉴定员和生成器，直到两堆都画到、鉴定员只能瞎猜。",
+        "en": "The generator has two pens and must draw two clusters of points just like the real data. Take turns training the judge and the generator until both clusters are covered and the judge can only guess."
       },
-      "gSteps": {
-        "label": { "zh": "生成器每回合训练", "en": "Generator steps per round" },
-        "choices": [
-          { "value": 1, "label": { "zh": "1 步", "en": "1 step" } },
-          { "value": 3, "label": { "zh": "3 步", "en": "3 steps" } },
-          { "value": 10, "label": { "zh": "10 步", "en": "10 steps" } }
-        ],
-        "start": 10
+      "hint": {
+        "zh": "生成器一回合走太远，就会一起冲向鉴定员此刻最相信的那一处。",
+        "en": "If the generator moves too far in one round, both pens rush together to the spot the judge trusts most right now."
       },
-      "gRate": {
-        "label": { "zh": "生成器步长", "en": "Generator step size" },
-        "choices": [{ "value": 0.2 }, { "value": 0.5 }, { "value": 1 }, { "value": 2 }],
-        "start": 1
-      }
-    },
-    "actions": [
-      { "act": "turn", "label": { "zh": "运行 1 回合", "en": "Play 1 round" }, "primary": true },
-      {
-        "id": "turn10",
-        "act": "turn",
-        "repeat": 10,
-        "every": 110,
-        "label": { "zh": "运行 10 回合", "en": "Play 10 rounds" }
-      },
-      { "act": "reset", "label": { "zh": "重新开始", "en": "Start over" }, "icon": "reset", "always": true }
-    ],
-    "goal": [
-      { "of": "left", "label": { "zh": "左堆", "en": "Left cluster" }, "atLeast": 0.4, "format": "pct" },
-      { "of": "right", "label": { "zh": "右堆", "en": "Right cluster" }, "atLeast": 0.4, "format": "pct" },
-      {
-        "of": "accuracy",
-        "label": { "zh": "准确率", "en": "Accuracy" },
-        "near": 0.5,
-        "atMost": 0.05,
-        "format": "pct1"
-      },
-      { "of": "streak", "label": { "zh": "连续达标", "en": "Streak" }, "atLeast": 3, "format": "outOf" }
-    ],
-    "layout": {
-      "main": ["ganChart", "verdict"],
-      "split": "narrow",
-      "side": [
-        {
-          "panel": [
-            {
-              "text": {
-                "text": { "zh": "目标 · 同时满足，连续 3 回合", "en": "Goals · all at once, 3 rounds in a row" },
-                "look": "label"
-              }
-            },
-            { "goals": { "phoneCols": 2 } }
-          ]
+      "bench": {
+        "model": "gan",
+        "setup": {
+          "n": 64,
+          "mode": 2,
+          "width": 0.35,
+          "rateD": 2,
+          "start": [0.4, 0.9],
+          "good": { "dSteps": 3, "gSteps": 1, "gRate": 0.5 }
         },
-        { "panel": ["knobs", "actions"] }
-      ]
+        "knobs": {
+          "dSteps": {
+            "label": { "zh": "鉴定员每回合训练", "en": "Judge steps per round" },
+            "choices": [
+              { "value": 1, "label": { "zh": "1 步", "en": "1 step" } },
+              { "value": 3, "label": { "zh": "3 步", "en": "3 steps" } },
+              { "value": 10, "label": { "zh": "10 步", "en": "10 steps" } }
+            ],
+            "start": 1
+          },
+          "gSteps": {
+            "label": { "zh": "生成器每回合训练", "en": "Generator steps per round" },
+            "choices": [
+              { "value": 1, "label": { "zh": "1 步", "en": "1 step" } },
+              { "value": 3, "label": { "zh": "3 步", "en": "3 steps" } },
+              { "value": 10, "label": { "zh": "10 步", "en": "10 steps" } }
+            ],
+            "start": 10
+          },
+          "gRate": {
+            "label": { "zh": "生成器步长", "en": "Generator step size" },
+            "choices": [{ "value": 0.2 }, { "value": 0.5 }, { "value": 1 }, { "value": 2 }],
+            "start": 1
+          }
+        },
+        "actions": [
+          { "act": "turn", "label": { "zh": "运行 1 回合", "en": "Play 1 round" }, "primary": true },
+          {
+            "id": "turn10",
+            "act": "turn",
+            "repeat": 10,
+            "every": 110,
+            "label": { "zh": "运行 10 回合", "en": "Play 10 rounds" }
+          },
+          { "act": "reset", "label": { "zh": "重新开始", "en": "Start over" }, "icon": "reset", "always": true }
+        ],
+        "goal": [
+          { "of": "left", "label": { "zh": "左堆", "en": "Left cluster" }, "atLeast": 0.4, "format": "pct" },
+          { "of": "right", "label": { "zh": "右堆", "en": "Right cluster" }, "atLeast": 0.4, "format": "pct" },
+          {
+            "of": "accuracy",
+            "label": { "zh": "准确率", "en": "Accuracy" },
+            "near": 0.5,
+            "atMost": 0.05,
+            "format": "pct1"
+          },
+          { "of": "streak", "label": { "zh": "连续达标", "en": "Streak" }, "atLeast": 3, "format": "outOf" }
+        ],
+        "layout": {
+          "main": ["ganChart", "verdict"],
+          "split": "narrow",
+          "side": [
+            {
+              "panel": [
+                {
+                  "text": {
+                    "text": { "zh": "目标 · 同时满足，连续 3 回合", "en": "Goals · all at once, 3 rounds in a row" },
+                    "look": "label"
+                  }
+                },
+                { "goals": { "phoneCols": 2 } }
+              ]
+            },
+            { "panel": ["knobs", "actions"] }
+          ]
+        }
+      }
     }
-  }
+  ]
 }

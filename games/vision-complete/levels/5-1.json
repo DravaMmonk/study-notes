@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "两块谁更像", "en": "Which patch is more alike" },
-  "brief": {
-    "zh": "图块 a 向 a、b 两块提问。每块的分数 = 4 × 平均(a × 这一块)；权重 = e^分数 ÷ 两个 e^分数之和；输出 = 两块按权重的加权平均。",
-    "en": "Patch a asks patches a and b. Each patch scores 4 × average(a × that patch); its weight is e^score ÷ the sum of both e^score; the output is the two patches averaged with those weights."
-  },
-  "hint": {
-    "zh": "一个数和一整块相乘时，这个数用在每一格上。先把两个分数算出来。",
-    "en": "When a single number multiplies a whole patch, it applies to every cell. Work out the two scores first."
-  },
   "after": {
     "zh": "分数是点积 q·k 除以 √d（这里 d = 16）；取 e 的指数再归一化叫 softmax，权重都是正的，加起来是 1，最像的那块分得最多。让图里的每个图块都向所有图块这样提问，就是注意力。",
     "en": "The score is the dot product q·k divided by √d (here d = 16); taking e to the power and normalising is called softmax, so the weights are positive, add up to 1, and the most alike patch gets the most. Let every patch of a picture ask every patch like this and you have attention."
@@ -40,72 +31,86 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：X 问 C", "en": "Set 1: X asks C" } }
     }
   ],
-  "inputs": ["a", "b"],
-  "inputLabels": { "a": { "zh": "图块 a（提问）", "en": "Patch a (asking)" }, "b": { "zh": "图块 b", "en": "Patch b" } },
   "unlocks": ["attention"],
-  "scene": "filter",
-  "setup": { "target": "ask" },
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "X 问 C", "en": "X asks C" },
-      "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "C" } } }
-    },
-    {
-      "label": { "zh": "P 问 K", "en": "P asks K" },
-      "inputs": { "a": { "tile": { "name": "P" } }, "b": { "tile": { "name": "K" } } }
-    },
-    {
-      "label": { "zh": "R 问 S", "en": "R asks S" },
-      "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "S" } } }
-    },
-    {
-      "label": { "zh": "淡的 S 问 X", "en": "A faint S asks X" },
-      "inputs": { "a": { "tile": { "name": "S", "hi": 0.5 } }, "b": { "tile": { "name": "X" } } }
+      "id": "5-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "图块 a 向 a、b 两块提问。每块的分数 = 4 × 平均(a × 这一块)；权重 = e^分数 ÷ 两个 e^分数之和；输出 = 两块按权重的加权平均。",
+        "en": "Patch a asks patches a and b. Each patch scores 4 × average(a × that patch); its weight is e^score ÷ the sum of both e^score; the output is the two patches averaged with those weights."
+      },
+      "hint": {
+        "zh": "一个数和一整块相乘时，这个数用在每一格上。先把两个分数算出来。",
+        "en": "When a single number multiplies a whole patch, it applies to every cell. Work out the two scores first."
+      },
+      "inputs": ["a", "b"],
+      "inputLabels": { "a": { "zh": "图块 a（提问）", "en": "Patch a (asking)" }, "b": { "zh": "图块 b", "en": "Patch b" } },
+      "scene": "filter",
+      "setup": { "target": "ask" },
+      "tests": [
+        {
+          "label": { "zh": "X 问 C", "en": "X asks C" },
+          "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "C" } } }
+        },
+        {
+          "label": { "zh": "P 问 K", "en": "P asks K" },
+          "inputs": { "a": { "tile": { "name": "P" } }, "b": { "tile": { "name": "K" } } }
+        },
+        {
+          "label": { "zh": "R 问 S", "en": "R asks S" },
+          "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "S" } } }
+        },
+        {
+          "label": { "zh": "淡的 S 问 X", "en": "A faint S asks X" },
+          "inputs": { "a": { "tile": { "name": "S", "hi": 0.5 } }, "b": { "tile": { "name": "X" } } }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "K 问 R", "en": "K asks R" },
+          "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "R" } } }
+        },
+        {
+          "label": { "zh": "C 问淡的 P", "en": "C asks a faint P" },
+          "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P", "hi": 0.6 } } }
+        }
+      ],
+      "solution": [
+        "k = const[c=4]()",
+        "aa = arith[op=mul](a, a)",
+        "ab = arith[op=mul](a, b)",
+        "ma = fqMean(aa)",
+        "mb = fqMean(ab)",
+        "sa = arith[op=mul](ma, k)",
+        "sb = arith[op=mul](mb, k)",
+        "ea = exp(sa)",
+        "eb = exp(sb)",
+        "wa = arith[op=mul](ea, a)",
+        "wb = arith[op=mul](eb, b)",
+        "den = merge(ea, eb)",
+        "num = merge(wa, wb)",
+        "q = arith[op=div](num, den)",
+        "out <- q"
+      ],
+      "naive": ["out <- a"],
+      "alsoFails": [
+        [
+          "k = const[c=4]()",
+          "aa = arith[op=mul](a, a)",
+          "ab = arith[op=mul](a, b)",
+          "ma = fqMean(aa)",
+          "mb = fqMean(ab)",
+          "sa = arith[op=mul](ma, k)",
+          "sb = arith[op=mul](mb, k)",
+          "wa = arith[op=mul](sa, a)",
+          "wb = arith[op=mul](sb, b)",
+          "den = merge(sa, sb)",
+          "num = merge(wa, wb)",
+          "q = arith[op=div](num, den)",
+          "out <- q"
+        ]
+      ]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "K 问 R", "en": "K asks R" },
-      "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "R" } } }
-    },
-    {
-      "label": { "zh": "C 问淡的 P", "en": "C asks a faint P" },
-      "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P", "hi": 0.6 } } }
-    }
-  ],
-  "solution": [
-    "k = const[c=4]()",
-    "aa = arith[op=mul](a, a)",
-    "ab = arith[op=mul](a, b)",
-    "ma = fqMean(aa)",
-    "mb = fqMean(ab)",
-    "sa = arith[op=mul](ma, k)",
-    "sb = arith[op=mul](mb, k)",
-    "ea = exp(sa)",
-    "eb = exp(sb)",
-    "wa = arith[op=mul](ea, a)",
-    "wb = arith[op=mul](eb, b)",
-    "den = merge(ea, eb)",
-    "num = merge(wa, wb)",
-    "q = arith[op=div](num, den)",
-    "out <- q"
-  ],
-  "naive": ["out <- a"],
-  "alsoFails": [
-    [
-      "k = const[c=4]()",
-      "aa = arith[op=mul](a, a)",
-      "ab = arith[op=mul](a, b)",
-      "ma = fqMean(aa)",
-      "mb = fqMean(ab)",
-      "sa = arith[op=mul](ma, k)",
-      "sb = arith[op=mul](mb, k)",
-      "wa = arith[op=mul](sa, a)",
-      "wb = arith[op=mul](sb, b)",
-      "den = merge(sa, sb)",
-      "num = merge(wa, wb)",
-      "q = arith[op=div](num, den)",
-      "out <- q"
-    ]
   ]
 }

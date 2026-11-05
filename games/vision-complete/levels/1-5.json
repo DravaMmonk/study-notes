@@ -1,10 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "锐化", "en": "Sharpen" },
-  "brief": {
-    "zh": "让细节更清楚：输出 = 原图 + 1.5 ×（原图 − 模糊图）。模糊用 σ = 1 的高斯。",
-    "en": "Make the details clearer: output = original + 1.5 × (original − blurred). Blur with a Gaussian of σ = 1."
-  },
   "after": {
     "zh": "原图减去模糊图，剩下的正是细节（高频）。把细节加回去，图就变“锐”了。",
     "en": "The original minus the blurred image leaves exactly the detail (the high frequencies). Add the detail back and the image becomes \"sharper\"."
@@ -42,36 +37,46 @@
       "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组测试：方块，用地形画法看", "en": "Set 1: square, in terrain view" } }
     }
   ],
-  "views": { "in": "terrain", "out": "terrain", "mid": "terrain" },
-  "scene": "filter",
-  "setup": { "target": { "sharpen": { "sigma": 1, "amount": 1.5 } } },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
-      "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 4 } }
-    },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 21 } } }
-  ],
-  "solution": [
-    "kN = const[c=1.5]()",
-    "g = gauss(in)",
-    "d = arith[op=sub](in, g)",
-    "k = arith[op=mul](d, kN)",
-    "a = arith[op=add](in, k)",
-    "out <- a"
-  ],
-  "naive": [
-    "kN = const[c=1.5]()",
-    "g = gauss(in)",
-    "d = arith[op=sub](g, in)",
-    "k = arith[op=mul](d, kN)",
-    "a = arith[op=add](in, k)",
-    "out <- a"
+      "id": "1-5",
+      "kind": "graph",
+      "brief": {
+        "zh": "让细节更清楚：输出 = 原图 + 1.5 ×（原图 − 模糊图）。模糊用 σ = 1 的高斯。",
+        "en": "Make the details clearer: output = original + 1.5 × (original − blurred). Blur with a Gaussian of σ = 1."
+      },
+      "views": { "in": "terrain", "out": "terrain", "mid": "terrain" },
+      "scene": "filter",
+      "setup": { "target": { "sharpen": { "sigma": 1, "amount": 1.5 } } },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 4 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 21 } } }
+      ],
+      "solution": [
+        "kN = const[c=1.5]()",
+        "g = gauss(in)",
+        "d = arith[op=sub](in, g)",
+        "k = arith[op=mul](d, kN)",
+        "a = arith[op=add](in, k)",
+        "out <- a"
+      ],
+      "naive": [
+        "kN = const[c=1.5]()",
+        "g = gauss(in)",
+        "d = arith[op=sub](g, in)",
+        "k = arith[op=mul](d, kN)",
+        "a = arith[op=add](in, k)",
+        "out <- a"
+      ]
+    }
   ]
 }

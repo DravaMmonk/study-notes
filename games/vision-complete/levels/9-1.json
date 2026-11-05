@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "放大一倍", "en": "Twice the size" },
-  "brief": {
-    "zh": "把 8×8 的图放大成 16×16：每个像素变成 2×2 的一小块，四格都一样。",
-    "en": "Enlarge an 8×8 picture to 16×16: every pixel becomes a 2×2 block, all four cells the same."
-  },
-  "hint": {
-    "zh": "<part-ref to=\"part:zeroUp\"></part-ref>把每个像素放在 2×2 的左上角。剩下三格从哪里取数？",
-    "en": "<part-ref to=\"part:zeroUp\"></part-ref> puts each pixel in the top left of its 2×2. Where do the other three cells get their number?"
-  },
   "after": {
     "zh": "先补零放大、再用一个核走一遍，就是步幅为 2 的转置卷积：核决定空出来的格子从哪些邻居、按什么比例取数。分割网络的解码器靠它把小特征图一层层放大回原图大小。",
     "en": "Zero-upsample first, then run a kernel over it: that is a transposed convolution with stride 2, and the kernel decides which neighbours, in what proportion, fill the empty cells. The decoder of a segmentation network uses it to enlarge small feature maps layer by layer back to the size of the picture."
@@ -37,14 +28,28 @@
   ],
   "adds": ["zeroUp"],
   "unlocks": ["tconv"],
-  "scene": "filter",
-  "setup": { "target": { "upsample": { "kernel": [1, 1, 0, 1, 1, 0, 0, 0, 0] } } },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": { "rect": { "x0": 2, "y0": 2, "w": 4, "h": 4, "size": 8 } } },
-    { "label": { "zh": "对角", "en": "Diagonal" }, "in": { "diagonal": { "size": 8 } } },
-    { "label": { "zh": "斜坡", "en": "Ramp" }, "in": { "rampX": { "size": 8 } } }
-  ],
-  "hidden": [{ "label": { "zh": "一个亮点", "en": "One bright dot" }, "in": { "impulse": { "x": 3, "y": 5, "size": 8 } } }],
-  "solution": ["z = zeroUp(in)", "k = kernel3[w=[1, 1, 0, 1, 1, 0, 0, 0, 0]](z)", "out <- k"],
-  "naive": ["z = zeroUp(in)", "out <- z"]
+  "tasks": [
+    {
+      "id": "9-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "把 8×8 的图放大成 16×16：每个像素变成 2×2 的一小块，四格都一样。",
+        "en": "Enlarge an 8×8 picture to 16×16: every pixel becomes a 2×2 block, all four cells the same."
+      },
+      "hint": {
+        "zh": "<part-ref to=\"part:zeroUp\"></part-ref>把每个像素放在 2×2 的左上角。剩下三格从哪里取数？",
+        "en": "<part-ref to=\"part:zeroUp\"></part-ref> puts each pixel in the top left of its 2×2. Where do the other three cells get their number?"
+      },
+      "scene": "filter",
+      "setup": { "target": { "upsample": { "kernel": [1, 1, 0, 1, 1, 0, 0, 0, 0] } } },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": { "rect": { "x0": 2, "y0": 2, "w": 4, "h": 4, "size": 8 } } },
+        { "label": { "zh": "对角", "en": "Diagonal" }, "in": { "diagonal": { "size": 8 } } },
+        { "label": { "zh": "斜坡", "en": "Ramp" }, "in": { "rampX": { "size": 8 } } }
+      ],
+      "hidden": [{ "label": { "zh": "一个亮点", "en": "One bright dot" }, "in": { "impulse": { "x": 3, "y": 5, "size": 8 } } }],
+      "solution": ["z = zeroUp(in)", "k = kernel3[w=[1, 1, 0, 1, 1, 0, 0, 0, 0]](z)", "out <- k"],
+      "naive": ["z = zeroUp(in)", "out <- z"]
+    }
+  ]
 }

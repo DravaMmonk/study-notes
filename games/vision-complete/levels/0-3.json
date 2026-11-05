@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "斜着挪两格", "en": "Two steps diagonally" },
-  "brief": { "zh": "把整张图往右挪两格，再往下挪两格。", "en": "Move the whole image two pixels right and two pixels down." },
-  "hint": {
-    "zh": "一个平移元件只挪一格。它的输出可以接到另一个元件的输入。",
-    "en": "One shift part moves the image by one pixel. Its output can feed another part's input."
-  },
   "after": {
     "zh": "元件可以一个接一个地串起来：前一个的输出就是后一个的输入。几个简单的元件串在一起，能做到单个元件做不到的事，这就是电路。",
     "en": "Parts can be chained one after another: the output of one is the input of the next. A few simple parts in a row can do what no single part can. That is a circuit."
@@ -31,27 +25,38 @@
       "fig": { "test": 0, "caption": { "zh": "第一组测试：方块和挪过的方块", "en": "Set 1: a square and the square moved" } }
     }
   ],
-  "scene": "filter",
-  "setup": { "target": { "shift": { "dx": 2, "dy": 2 } } },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
-      "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
-    },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 5 } } }
-  ],
-  "solution": [
-    "a = shift[dir=right](in)",
-    "b = shift[dir=right](a)",
-    "c = shift[dir=down](b)",
-    "d = shift[dir=down](c)",
-    "out <- d"
-  ],
-  "naive": ["a = shift[dir=right](in)", "c = shift[dir=down](a)", "out <- c"]
+      "id": "0-3",
+      "kind": "graph",
+      "brief": { "zh": "把整张图往右挪两格，再往下挪两格。", "en": "Move the whole image two pixels right and two pixels down." },
+      "hint": {
+        "zh": "一个平移元件只挪一格。它的输出可以接到另一个元件的输入。",
+        "en": "One shift part moves the image by one pixel. Its output can feed another part's input."
+      },
+      "scene": "filter",
+      "setup": { "target": { "shift": { "dx": 2, "dy": 2 } } },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 5 } } }
+      ],
+      "solution": [
+        "a = shift[dir=right](in)",
+        "b = shift[dir=right](a)",
+        "c = shift[dir=down](b)",
+        "d = shift[dir=down](c)",
+        "out <- d"
+      ],
+      "naive": ["a = shift[dir=right](in)", "c = shift[dir=down](a)", "out <- c"]
+    }
+  ]
 }

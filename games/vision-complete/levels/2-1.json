@@ -1,14 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "一道波", "en": "One wave" },
-  "brief": {
-    "zh": "一道波由四个数决定：c、A、k、φ。每一步只开放一个旋钮，把你的波调到和目标重合；最后一步四个一起。",
-    "en": "A wave is set by four numbers: c, A, k and φ. Each step opens one knob: lay your wave on the target. In the last step all four are open."
-  },
-  "hint": {
-    "zh": "先比较两条线差在哪：是整体高低、起伏大小、起伏的次数，还是起伏的位置？",
-    "en": "Compare the two lines first: do they differ in overall height, in the size of the swing, in how many swings there are, or in where the swings sit?"
-  },
   "after": {
     "zh": "c 定中线，也就是平均亮度；A 定起伏的高度，也就是明暗差；k 定一行里有几个周期，也就是条纹的疏密；φ 定条纹往哪边挪。写成式子就是 c + A·cos(2π·k·x/32 + φ)。",
     "en": "c sets the middle line, the average brightness; A sets the height of the swing, the contrast; k sets how many cycles fit in the row, the density of the stripes; and φ sets which way the stripes are shifted. As a formula: c + A·cos(2π·k·x/32 + φ)."
@@ -34,113 +25,127 @@
     }
   ],
   "unlocks": ["wave"],
-  "bench": {
-    "model": "wave",
-    "setup": { "N": 32 },
-    "knobs": {
-      "c": { "label": { "zh": "平均亮度 c", "en": "Average c" }, "min": 0, "max": 1, "step": 0.05, "format": "auto" },
-      "A": { "label": { "zh": "振幅 A", "en": "Amplitude A" }, "min": 0, "max": 0.5, "step": 0.05, "format": "auto" },
-      "k": { "label": { "zh": "频率 k", "en": "Frequency k" }, "min": 0, "max": 12, "step": 1, "format": "auto" },
-      "phi": { "label": { "zh": "相位 φ", "en": "Phase φ" }, "min": -4, "max": 4, "step": 1, "format": "quarterPi" }
-    },
-    "stages": [
-      {
-        "title": { "zh": "平均亮度 c", "en": "Average c" },
-        "note": {
-          "zh": "这一步只能转 c。把你的波（实线）调到和目标（虚线）重合，同时看下面两行像素怎么变。",
-          "en": "Only c turns in this step. Lay your wave (solid) on the target (dashed), and watch how the two rows of pixels below change."
-        },
-        "win": {
-          "zh": "c 把整道波上下平移：整行一起变亮或变暗，明暗差不变。",
-          "en": "c moves the whole wave up or down: the row gets lighter or darker all at once, and the contrast stays the same."
-        },
-        "opens": ["c"],
-        "start": { "c": 0.3, "A": 0.25, "k": 2, "phi": 0 },
-        "target": { "c": 0.65, "A": 0.25, "k": 2, "phi": 0 }
+  "tasks": [
+    {
+      "id": "2-1",
+      "kind": "board",
+      "brief": {
+        "zh": "一道波由四个数决定：c、A、k、φ。每一步只开放一个旋钮，把你的波调到和目标重合；最后一步四个一起。",
+        "en": "A wave is set by four numbers: c, A, k and φ. Each step opens one knob: lay your wave on the target. In the last step all four are open."
       },
-      {
-        "title": { "zh": "振幅 A", "en": "Amplitude A" },
-        "note": { "zh": "这一步只能转 A。", "en": "Only A turns in this step." },
-        "win": {
-          "zh": "A 是起伏的高度：A 越大，亮处越亮、暗处越暗，条纹越分明；A = 0 时只剩一片灰。",
-          "en": "A is the height of the swing: the bigger A, the lighter the light parts and the darker the dark ones, and the clearer the stripes. At A = 0 only a flat grey is left."
-        },
-        "opens": ["A"],
-        "start": { "c": 0.5, "A": 0.05, "k": 2, "phi": 0 },
-        "target": { "c": 0.5, "A": 0.35, "k": 2, "phi": 0 }
+      "hint": {
+        "zh": "先比较两条线差在哪：是整体高低、起伏大小、起伏的次数，还是起伏的位置？",
+        "en": "Compare the two lines first: do they differ in overall height, in the size of the swing, in how many swings there are, or in where the swings sit?"
       },
-      {
-        "title": { "zh": "频率 k", "en": "Frequency k" },
-        "note": { "zh": "这一步只能转 k。", "en": "Only k turns in this step." },
-        "win": {
-          "zh": "k 是这一行里走了几个完整的周期：k = 5 就是五道亮条。k 越大，条纹越密。",
-          "en": "k is how many whole cycles the row goes through: k = 5 makes five bright stripes. The bigger k, the denser the stripes."
+      "bench": {
+        "model": "wave",
+        "setup": { "N": 32 },
+        "knobs": {
+          "c": { "label": { "zh": "平均亮度 c", "en": "Average c" }, "min": 0, "max": 1, "step": 0.05, "format": "auto" },
+          "A": { "label": { "zh": "振幅 A", "en": "Amplitude A" }, "min": 0, "max": 0.5, "step": 0.05, "format": "auto" },
+          "k": { "label": { "zh": "频率 k", "en": "Frequency k" }, "min": 0, "max": 12, "step": 1, "format": "auto" },
+          "phi": { "label": { "zh": "相位 φ", "en": "Phase φ" }, "min": -4, "max": 4, "step": 1, "format": "quarterPi" }
         },
-        "opens": ["k"],
-        "start": { "c": 0.5, "A": 0.3, "k": 1, "phi": 0 },
-        "target": { "c": 0.5, "A": 0.3, "k": 5, "phi": 0 }
-      },
-      {
-        "title": { "zh": "相位 φ", "en": "Phase φ" },
-        "note": { "zh": "这一步只能转 φ。", "en": "Only φ turns in this step." },
-        "win": {
-          "zh": "φ 把整道波左右挪动：条纹换了位置，疏密和明暗都不变。挪满 2π 又回到原样。",
-          "en": "φ slides the whole wave sideways: the stripes move, while their density and contrast stay the same. A shift of 2π brings it back to where it was."
-        },
-        "opens": ["phi"],
-        "start": { "c": 0.5, "A": 0.3, "k": 1, "phi": 0 },
-        "target": { "c": 0.5, "A": 0.3, "k": 1, "phi": 2 }
-      },
-      {
-        "title": { "zh": "四个一起", "en": "All four" },
-        "note": {
-          "zh": "四个旋钮都开放了。先看两条线差在哪，再转对应的那个。",
-          "en": "All four knobs are open. First see where the two lines differ, then turn the knob that matches."
-        },
-        "win": {
-          "zh": "四个数刚好定下一道波：c + A·cos(2π·k·x/32 + φ)。",
-          "en": "Four numbers settle a wave exactly: c + A·cos(2π·k·x/32 + φ)."
-        },
-        "opens": ["c", "A", "k", "phi"],
-        "start": { "c": 0.5, "A": 0.1, "k": 1, "phi": 0 },
-        "target": { "c": 0.4, "A": 0.3, "k": 3, "phi": -1 }
-      }
-    ],
-    "goal": [{ "of": "gap", "below": 0.000001 }],
-    "status": { "zh": "尚未与目标重合。", "en": "Not on the target yet." },
-    "layout": {
-      "main": [
-        {
-          "plot": {
-            "lines": [
-              {
-                "of": "target",
-                "kind": "target",
-                "label": { "zh": "目标", "en": "target" },
-                "legend": { "zh": "目标", "en": "Target" }
-              },
-              {
-                "of": "yours",
-                "kind": "yours",
-                "label": { "zh": "你的", "en": "yours" },
-                "legend": { "zh": "你的波", "en": "Your wave" }
+        "stages": [
+          {
+            "title": { "zh": "平均亮度 c", "en": "Average c" },
+            "note": {
+              "zh": "这一步只能转 c。把你的波（实线）调到和目标（虚线）重合，同时看下面两行像素怎么变。",
+              "en": "Only c turns in this step. Lay your wave (solid) on the target (dashed), and watch how the two rows of pixels below change."
+            },
+            "win": {
+              "zh": "c 把整道波上下平移：整行一起变亮或变暗，明暗差不变。",
+              "en": "c moves the whole wave up or down: the row gets lighter or darker all at once, and the contrast stays the same."
+            },
+            "opens": ["c"],
+            "start": { "c": 0.3, "A": 0.25, "k": 2, "phi": 0 },
+            "target": { "c": 0.65, "A": 0.25, "k": 2, "phi": 0 }
+          },
+          {
+            "title": { "zh": "振幅 A", "en": "Amplitude A" },
+            "note": { "zh": "这一步只能转 A。", "en": "Only A turns in this step." },
+            "win": {
+              "zh": "A 是起伏的高度：A 越大，亮处越亮、暗处越暗，条纹越分明；A = 0 时只剩一片灰。",
+              "en": "A is the height of the swing: the bigger A, the lighter the light parts and the darker the dark ones, and the clearer the stripes. At A = 0 only a flat grey is left."
+            },
+            "opens": ["A"],
+            "start": { "c": 0.5, "A": 0.05, "k": 2, "phi": 0 },
+            "target": { "c": 0.5, "A": 0.35, "k": 2, "phi": 0 }
+          },
+          {
+            "title": { "zh": "频率 k", "en": "Frequency k" },
+            "note": { "zh": "这一步只能转 k。", "en": "Only k turns in this step." },
+            "win": {
+              "zh": "k 是这一行里走了几个完整的周期：k = 5 就是五道亮条。k 越大，条纹越密。",
+              "en": "k is how many whole cycles the row goes through: k = 5 makes five bright stripes. The bigger k, the denser the stripes."
+            },
+            "opens": ["k"],
+            "start": { "c": 0.5, "A": 0.3, "k": 1, "phi": 0 },
+            "target": { "c": 0.5, "A": 0.3, "k": 5, "phi": 0 }
+          },
+          {
+            "title": { "zh": "相位 φ", "en": "Phase φ" },
+            "note": { "zh": "这一步只能转 φ。", "en": "Only φ turns in this step." },
+            "win": {
+              "zh": "φ 把整道波左右挪动：条纹换了位置，疏密和明暗都不变。挪满 2π 又回到原样。",
+              "en": "φ slides the whole wave sideways: the stripes move, while their density and contrast stay the same. A shift of 2π brings it back to where it was."
+            },
+            "opens": ["phi"],
+            "start": { "c": 0.5, "A": 0.3, "k": 1, "phi": 0 },
+            "target": { "c": 0.5, "A": 0.3, "k": 1, "phi": 2 }
+          },
+          {
+            "title": { "zh": "四个一起", "en": "All four" },
+            "note": {
+              "zh": "四个旋钮都开放了。先看两条线差在哪，再转对应的那个。",
+              "en": "All four knobs are open. First see where the two lines differ, then turn the knob that matches."
+            },
+            "win": {
+              "zh": "四个数刚好定下一道波：c + A·cos(2π·k·x/32 + φ)。",
+              "en": "Four numbers settle a wave exactly: c + A·cos(2π·k·x/32 + φ)."
+            },
+            "opens": ["c", "A", "k", "phi"],
+            "start": { "c": 0.5, "A": 0.1, "k": 1, "phi": 0 },
+            "target": { "c": 0.4, "A": 0.3, "k": 3, "phi": -1 }
+          }
+        ],
+        "goal": [{ "of": "gap", "below": 0.000001 }],
+        "status": { "zh": "尚未与目标重合。", "en": "Not on the target yet." },
+        "layout": {
+          "main": [
+            {
+              "plot": {
+                "lines": [
+                  {
+                    "of": "target",
+                    "kind": "target",
+                    "label": { "zh": "目标", "en": "target" },
+                    "legend": { "zh": "目标", "en": "Target" }
+                  },
+                  {
+                    "of": "yours",
+                    "kind": "yours",
+                    "label": { "zh": "你的", "en": "yours" },
+                    "legend": { "zh": "你的波", "en": "Your wave" }
+                  }
+                ],
+                "height": [240, 200],
+                "legend": true
               }
-            ],
-            "height": [240, 200],
-            "legend": true
-          }
-        },
-        {
-          "strips": {
-            "rows": [
-              { "of": "targetRow", "label": { "zh": "目标", "en": "Target" } },
-              { "of": "row", "label": { "zh": "你的", "en": "Yours" } }
-            ]
-          }
-        },
-        { "text": { "of": "formula" } }
-      ],
-      "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+            },
+            {
+              "strips": {
+                "rows": [
+                  { "of": "targetRow", "label": { "zh": "目标", "en": "Target" } },
+                  { "of": "row", "label": { "zh": "你的", "en": "Yours" } }
+                ]
+              }
+            },
+            { "text": { "of": "formula" } }
+          ],
+          "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+        }
+      }
     }
-  }
+  ]
 }

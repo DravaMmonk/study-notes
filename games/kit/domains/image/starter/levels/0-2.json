@@ -1,17 +1,22 @@
 {
-  "kind": "probe",
   "title": { "zh": "未知算子", "en": "Unknown operator" },
-  "brief": { "zh": "它对图像做了什么？用测试图喂它，然后回答。", "en": "What does it do to an image? Feed it test images, then answer." },
   "after": { "zh": "正确。它把图往右挪一格。", "en": "Correct. It moves the image one pixel to the right." },
   "intro": [{ "t": { "zh": "这是一个黑箱：只能喂图、看结果。", "en": "This is a black box: you can only feed it pictures and look at what comes out." } }],
   "unlocks": ["shift"],
-  "part": "mystery",
-  "question": { "zh": "它把图像往哪个方向挪了一格？", "en": "Which way does it move the image by one pixel?" },
-  "answers": ["→", "←", "↓", "↑"],
-  "answer": "→",
-  "wrong": { "zh": "盯住一个亮点，看它去了哪里。", "en": "Follow one bright spot and see where it goes." },
-  "probes": [
-    { "label": { "zh": "亮点", "en": "Bright dot" }, "picture": { "impulse": { "x": 7, "y": 7 } } },
-    { "label": { "zh": "竖条", "en": "Vertical bar" }, "picture": { "bar": { "x": 4 } } }
+  "tasks": [
+    {
+      "id": "0-2",
+      "kind": "probe",
+      "brief": { "zh": "它对图像做了什么？用测试图喂它，然后回答。", "en": "What does it do to an image? Feed it test images, then answer." },
+      "part": "mystery",
+      "question": { "zh": "它把图像往哪个方向挪了一格？", "en": "Which way does it move the image by one pixel?" },
+      "answers": ["→", "←", "↓", "↑"],
+      "answer": "→",
+      "wrong": { "zh": "盯住一个亮点，看它去了哪里。", "en": "Follow one bright spot and see where it goes." },
+      "probes": [
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "picture": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "竖条", "en": "Vertical bar" }, "picture": { "bar": { "x": 4 } } }
+      ]
+    }
   ]
 }

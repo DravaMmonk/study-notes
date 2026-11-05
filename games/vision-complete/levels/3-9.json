@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "白平衡", "en": "White balance" },
-  "brief": {
-    "zh": "这些照片是在偏黄的灯下拍的，白纸看上去发黄。每张照片里都有一块白纸，而且它在 R、G、B 里都是最亮的。把三个通道各自调整，让白纸变成纯白 (1, 1, 1)，其余颜色跟着一起还原。",
-    "en": "These photos were taken under a yellowish lamp, so white paper looks yellow. Every photo has a patch of white paper in it, the brightest thing in each of R, G and B. Adjust each channel so the paper becomes pure white (1, 1, 1), and every other colour is restored along with it."
-  },
-  "hint": { "zh": "白纸本来应该是什么颜色？", "en": "What colour should the white paper really be?" },
   "after": {
     "zh": "每个通道除以白纸在这个通道的读数，灯的颜色就抵消了。相机的「白平衡」做的就是这件事：找一个应该是白色的东西，按它把三个通道拉齐。照片里最亮的东西当白色，叫「白块假设」；照片里没有白东西时，它就会出错。",
     "en": "Divide each channel by the white paper's reading in that channel, and the colour of the lamp cancels out. A camera's \"white balance\" does exactly this: find something that ought to be white and even up the three channels by it. Taking the brightest thing as white is called the \"white patch\" assumption; it fails when nothing in the photo is white."
@@ -31,38 +25,49 @@
       }
     }
   ],
-  "inputs": ["r", "g", "b"],
-  "inputLabels": { "r": "R", "g": "G", "b": "B" },
-  "outputs": ["ro", "go", "bo"],
-  "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
-  "scene": "whiteBalance",
-  "tests": [
-    { "label": { "zh": "书桌", "en": "A desk" }, "layout": "desk", "strength": 1 },
-    { "label": { "zh": "集市", "en": "A market" }, "layout": "market", "strength": 0.8 },
-    { "label": { "zh": "海报", "en": "A poster" }, "layout": "poster", "strength": 0.6 }
-  ],
-  "hidden": [
-    { "label": { "zh": "花园", "en": "A garden" }, "layout": "garden", "strength": 0.9 },
-    { "label": { "zh": "厨房", "en": "A kitchen" }, "layout": "kitchen", "strength": 0.5 }
-  ],
-  "solution": [
-    "mr = globalMax(r)",
-    "mg = globalMax(g)",
-    "mb = globalMax(b)",
-    "dr = arith[op=div](r, mr)",
-    "dg = arith[op=div](g, mg)",
-    "db = arith[op=div](b, mb)",
-    "ro <- dr",
-    "go <- dg",
-    "bo <- db"
-  ],
-  "naive": [
-    "m = globalMax(r)",
-    "dr = arith[op=div](r, m)",
-    "dg = arith[op=div](g, m)",
-    "db = arith[op=div](b, m)",
-    "ro <- dr",
-    "go <- dg",
-    "bo <- db"
+  "tasks": [
+    {
+      "id": "3-9",
+      "kind": "graph",
+      "brief": {
+        "zh": "这些照片是在偏黄的灯下拍的，白纸看上去发黄。每张照片里都有一块白纸，而且它在 R、G、B 里都是最亮的。把三个通道各自调整，让白纸变成纯白 (1, 1, 1)，其余颜色跟着一起还原。",
+        "en": "These photos were taken under a yellowish lamp, so white paper looks yellow. Every photo has a patch of white paper in it, the brightest thing in each of R, G and B. Adjust each channel so the paper becomes pure white (1, 1, 1), and every other colour is restored along with it."
+      },
+      "hint": { "zh": "白纸本来应该是什么颜色？", "en": "What colour should the white paper really be?" },
+      "inputs": ["r", "g", "b"],
+      "inputLabels": { "r": "R", "g": "G", "b": "B" },
+      "outputs": ["ro", "go", "bo"],
+      "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
+      "scene": "whiteBalance",
+      "tests": [
+        { "label": { "zh": "书桌", "en": "A desk" }, "layout": "desk", "strength": 1 },
+        { "label": { "zh": "集市", "en": "A market" }, "layout": "market", "strength": 0.8 },
+        { "label": { "zh": "海报", "en": "A poster" }, "layout": "poster", "strength": 0.6 }
+      ],
+      "hidden": [
+        { "label": { "zh": "花园", "en": "A garden" }, "layout": "garden", "strength": 0.9 },
+        { "label": { "zh": "厨房", "en": "A kitchen" }, "layout": "kitchen", "strength": 0.5 }
+      ],
+      "solution": [
+        "mr = globalMax(r)",
+        "mg = globalMax(g)",
+        "mb = globalMax(b)",
+        "dr = arith[op=div](r, mr)",
+        "dg = arith[op=div](g, mg)",
+        "db = arith[op=div](b, mb)",
+        "ro <- dr",
+        "go <- dg",
+        "bo <- db"
+      ],
+      "naive": [
+        "m = globalMax(r)",
+        "dr = arith[op=div](r, m)",
+        "dg = arith[op=div](g, m)",
+        "db = arith[op=div](b, m)",
+        "ro <- dr",
+        "go <- dg",
+        "bo <- db"
+      ]
+    }
   ]
 }

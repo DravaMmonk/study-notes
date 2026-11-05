@@ -1,20 +1,24 @@
 // A level's introduction (its content's `intro`): the pages read before playing it, each { t, fig? }. t is a { zh, en }
 // paragraph (either side may use <b>…</b>); fig is an optional picture, one of three (vocabulary.js INTRO):
-//   { test: 0 }                            the level's test 0: input → expected (circuit levels only); on a level
-//                                          of several tasks, { task: 0, test: 0 } is a test of that task
+//   { test: 0 }                            the level's test 0: input → expected (circuit tasks only); { task: 0,
+//                                          test: 0 } is a test of the level's task 0, and without `task` of its last
 //   { part: 'shift', params: { dir: 'right' }, input: 'square' }
 //                                          one part working on a picture: input → part → output. A part with two
 //                                          inputs takes inputs: ['square', 'disk']. Each is a picture
-//                                          (items/pictures.js), or 'test': the level's own first test input.
+//                                          (items/pictures.js), or 'test': the first test input of the figure's task.
 //   { figure: 'conv-press' }               one of the notes' figures (trace-viewer/src/figures)
 // Any figure may add caption: { zh, en }; test and part figures may add view: 'terrain' and so on.
+// `level` is a level as the course reads it (course.js), its tasks read.
 import { isPair } from '../../shell/i18n.js'
 import { NODE_TYPES, specsOf } from './engine/nodes.js'
 import { picture } from './items/pictures.js'
 
-/** The picture an intro's part figure is fed: a picture, or 'test', the level's own first test input. */
-export function source(spec, level) {
-  if (spec === 'test') return Object.values(level.tests?.[0]?.inputs ?? {})[0] ?? null
+/** The task of the level a figure is drawn from: its `task`, else the level's last. */
+export const figureTask = (fig, level) => level.tasks[fig.task ?? level.tasks.length - 1] ?? null
+
+/** The picture an intro's part figure is fed: a picture, or 'test', the first test input of `task`. */
+export function source(spec, task) {
+  if (spec === 'test') return Object.values(task?.tests?.[0]?.inputs ?? {})[0] ?? null
   try {
     return picture(spec)
   } catch {
@@ -22,8 +26,8 @@ export function source(spec, level) {
   }
 }
 
-/** The test a { test } figure shows: of the level, or of one of its tasks ({ task }). */
-export const figureTest = (fig, level) => (fig.task === undefined ? level : level.tasks?.[fig.task])?.tests?.[fig.test] ?? null
+/** The test a { test } figure shows. */
+export const figureTest = (fig, level) => figureTask(fig, level)?.tests?.[fig.test] ?? null
 
 // A part figure shows a part every course starts from.
 const { defaultParams, inputsOf } = specsOf(NODE_TYPES)
@@ -36,7 +40,7 @@ export function partFigure(fig, level) {
   const specs = fig.inputs ?? [fig.input ?? 'square']
   if (specs.length !== ports.length) throw new Error(`${fig.part} 要 ${ports.length} 个输入，给了 ${specs.length} 个`)
   const ins = Object.fromEntries(ports.map((port, i) => {
-    const img = source(specs[i], level)
+    const img = source(specs[i], figureTask(fig, level))
     if (!img) throw new Error(`没有图案 ${JSON.stringify(specs[i])}`)
     return [port, img]
   }))

@@ -1,16 +1,21 @@
 {
-  "kind": "graph",
   "title": { "zh": "挪两格", "en": "Two steps" },
-  "brief": { "zh": "把整张图往右挪两格。", "en": "Move the whole image two pixels right." },
   "after": { "zh": "一个元件只做一步，几步接起来就是更大的事。", "en": "A part does one step; wire steps in a row and they do something bigger." },
   "intro": [{ "t": { "zh": "挪一格的元件现在归你了。", "en": "The part that moves a picture by one pixel is yours now." } }],
-  "scene": "filter",
-  "setup": { "target": { "shift": { "dx": 2, "dy": 0 } } },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } }
-  ],
-  "hidden": [{ "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 5 } } }],
-  "solution": ["a = shift[dir=right](in)", "b = shift[dir=right](a)", "out <- b"],
-  "naive": ["a = shift[dir=right](in)", "out <- a"]
+  "tasks": [
+    {
+      "id": "0-3",
+      "kind": "graph",
+      "brief": { "zh": "把整张图往右挪两格。", "en": "Move the whole image two pixels right." },
+      "scene": "filter",
+      "setup": { "target": { "shift": { "dx": 2, "dy": 0 } } },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } }
+      ],
+      "hidden": [{ "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 5 } } }],
+      "solution": ["a = shift[dir=right](in)", "b = shift[dir=right](a)", "out <- b"],
+      "naive": ["a = shift[dir=right](in)", "out <- a"]
+    }
+  ]
 }

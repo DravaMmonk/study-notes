@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "混合图像", "en": "Hybrid images" },
-  "brief": {
-    "zh": "输出 = A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。近看是 B，远看是 A。",
-    "en": "Output = the low frequencies of A + the high frequencies of B, both with a Gaussian mask of radius 3. Up close you see B; from afar, A."
-  },
-  "hint": {
-    "zh": "你只有低通。原图里去掉低频，还剩下什么？",
-    "en": "You only have a low-pass. Take the low frequencies out of an image: what is left?"
-  },
   "after": {
     "zh": "高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。",
     "en": "High-pass = image − low-pass, that is, the mask 1 − H. A keeps only its broad outline and B only its edges and fine texture. Added together, the detail wins up close; from afar, or with squinted eyes, the detail disappears and only A is left. Filtering is linear, so low-pass(A − B) + B gives the same result with a single transform."
@@ -40,86 +31,100 @@
       "fig": { "test": 0, "caption": { "zh": "圆盘 + X：两个输入和期望", "en": "Disc + X: the two inputs and the expected output" } }
     }
   ],
-  "inputs": ["a", "b"],
-  "inputLabels": { "a": "A", "b": "B" },
-  "check": { "tolerance": 0.02 },
-  "scene": "filter",
-  "setup": { "target": { "hybrid": { "R": 3 } } },
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "圆盘 + X", "en": "Disk + X" },
-      "inputs": {
-        "a": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.15, "hi": 0.85, "size": 32 } },
-        "b": { "glyph": { "letter": "X", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "方块 + T", "en": "Square + T" },
-      "inputs": {
-        "a": { "rect": { "x0": 6, "y0": 6, "w": 20, "h": 20, "lo": 0.15, "hi": 0.85, "size": 32 } },
-        "b": { "glyph": { "letter": "T", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "小圆 + 棋盘", "en": "Small disk + checkerboard" },
-      "inputs": {
-        "a": { "disk": { "cx": 11, "cy": 12, "r": 7, "lo": 0.15, "hi": 0.85, "size": 32 } },
-        "b": { "checker": { "cell": 2, "lo": 0.4, "hi": 0.6, "size": 32 } }
-      }
+      "id": "2-10",
+      "kind": "graph",
+      "brief": {
+        "zh": "输出 = A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。近看是 B，远看是 A。",
+        "en": "Output = the low frequencies of A + the high frequencies of B, both with a Gaussian mask of radius 3. Up close you see B; from afar, A."
+      },
+      "hint": {
+        "zh": "你只有低通。原图里去掉低频，还剩下什么？",
+        "en": "You only have a low-pass. Take the low frequencies out of an image: what is left?"
+      },
+      "inputs": ["a", "b"],
+      "inputLabels": { "a": "A", "b": "B" },
+      "check": { "tolerance": 0.02 },
+      "scene": "filter",
+      "setup": { "target": { "hybrid": { "R": 3 } } },
+      "tests": [
+        {
+          "label": { "zh": "圆盘 + X", "en": "Disk + X" },
+          "inputs": {
+            "a": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.15, "hi": 0.85, "size": 32 } },
+            "b": { "glyph": { "letter": "X", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "方块 + T", "en": "Square + T" },
+          "inputs": {
+            "a": { "rect": { "x0": 6, "y0": 6, "w": 20, "h": 20, "lo": 0.15, "hi": 0.85, "size": 32 } },
+            "b": { "glyph": { "letter": "T", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "小圆 + 棋盘", "en": "Small disk + checkerboard" },
+          "inputs": {
+            "a": { "disk": { "cx": 11, "cy": 12, "r": 7, "lo": 0.15, "hi": 0.85, "size": 32 } },
+            "b": { "checker": { "cell": 2, "lo": 0.4, "hi": 0.6, "size": 32 } }
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "横条 + O", "en": "Horizontal bar + O" },
+          "inputs": {
+            "a": { "rect": { "x0": 4, "y0": 10, "w": 24, "h": 12, "lo": 0.2, "hi": 0.8, "size": 32 } },
+            "b": { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "X + 圆盘", "en": "X + disk" },
+          "inputs": {
+            "a": { "glyph": { "letter": "X", "lo": 0.15, "hi": 0.85, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
+            "b": { "disk": { "cx": 18, "cy": 14, "r": 8, "lo": 0.2, "hi": 0.8, "size": 32 } }
+          }
+        },
+        {
+          "label": { "zh": "暗圆 + 粗棋盘", "en": "Dark disk + coarse checkerboard" },
+          "inputs": {
+            "a": { "disk": { "cx": 19, "cy": 17, "r": 8, "lo": 0.85, "hi": 0.15, "size": 32 } },
+            "b": { "checker": { "cell": 4, "lo": 0.25, "hi": 0.75, "size": 32 } }
+          }
+        }
+      ],
+      "solution": [
+        "la = fqLowpass[shape=gauss, R=3](a)",
+        "lb = fqLowpass[shape=gauss, R=3](b)",
+        "hb = arith[op=sub](b, lb)",
+        "sum = arith[op=add](la, hb)",
+        "out <- sum"
+      ],
+      "naive": ["sum = arith[op=add](a, b)", "out <- sum"],
+      "alsoFails": [
+        ["la = fqLowpass[shape=gauss, R=3](a)", "sum = arith[op=add](la, b)", "out <- sum"],
+        [
+          "la = fqLowpass[shape=gauss, R=3](a)",
+          "lb = fqLowpass[shape=gauss, R=3](b)",
+          "sum = arith[op=add](la, lb)",
+          "out <- sum"
+        ],
+        [
+          "la = fqLowpass[R=3](a)",
+          "lb = fqLowpass[R=3](b)",
+          "hb = arith[op=sub](b, lb)",
+          "sum = arith[op=add](la, hb)",
+          "out <- sum"
+        ],
+        [
+          "lb = fqLowpass[shape=gauss, R=3](b)",
+          "la = fqLowpass[shape=gauss, R=3](a)",
+          "ha = arith[op=sub](a, la)",
+          "sum = arith[op=add](lb, ha)",
+          "out <- sum"
+        ]
+      ]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "横条 + O", "en": "Horizontal bar + O" },
-      "inputs": {
-        "a": { "rect": { "x0": 4, "y0": 10, "w": 24, "h": 12, "lo": 0.2, "hi": 0.8, "size": 32 } },
-        "b": { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "X + 圆盘", "en": "X + disk" },
-      "inputs": {
-        "a": { "glyph": { "letter": "X", "lo": 0.15, "hi": 0.85, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
-        "b": { "disk": { "cx": 18, "cy": 14, "r": 8, "lo": 0.2, "hi": 0.8, "size": 32 } }
-      }
-    },
-    {
-      "label": { "zh": "暗圆 + 粗棋盘", "en": "Dark disk + coarse checkerboard" },
-      "inputs": {
-        "a": { "disk": { "cx": 19, "cy": 17, "r": 8, "lo": 0.85, "hi": 0.15, "size": 32 } },
-        "b": { "checker": { "cell": 4, "lo": 0.25, "hi": 0.75, "size": 32 } }
-      }
-    }
-  ],
-  "solution": [
-    "la = fqLowpass[shape=gauss, R=3](a)",
-    "lb = fqLowpass[shape=gauss, R=3](b)",
-    "hb = arith[op=sub](b, lb)",
-    "sum = arith[op=add](la, hb)",
-    "out <- sum"
-  ],
-  "naive": ["sum = arith[op=add](a, b)", "out <- sum"],
-  "alsoFails": [
-    ["la = fqLowpass[shape=gauss, R=3](a)", "sum = arith[op=add](la, b)", "out <- sum"],
-    [
-      "la = fqLowpass[shape=gauss, R=3](a)",
-      "lb = fqLowpass[shape=gauss, R=3](b)",
-      "sum = arith[op=add](la, lb)",
-      "out <- sum"
-    ],
-    [
-      "la = fqLowpass[R=3](a)",
-      "lb = fqLowpass[R=3](b)",
-      "hb = arith[op=sub](b, lb)",
-      "sum = arith[op=add](la, hb)",
-      "out <- sum"
-    ],
-    [
-      "lb = fqLowpass[shape=gauss, R=3](b)",
-      "la = fqLowpass[shape=gauss, R=3](a)",
-      "ha = arith[op=sub](a, la)",
-      "sum = arith[op=add](lb, ha)",
-      "out <- sum"
-    ]
   ]
 }

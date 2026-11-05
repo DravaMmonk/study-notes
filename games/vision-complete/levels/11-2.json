@@ -1,11 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "灰色挡板", "en": "A grey patch" },
-  "brief": {
-    "zh": "这次挡板是灰的：被挡住的格子亮度变成 0.5。在每一格输出：用灰块挡住以它为中心的 3×3，分数掉多少。",
-    "en": "This time the patch is grey: the cells it covers become 0.5. At every cell, output how much the score drops when a grey block covers the 3×3 centred on it."
-  },
-  "hint": { "zh": "一格被换成 0.5 以后，它出的分变了多少？", "en": "Once a cell is replaced by 0.5, how much does what it adds change?" },
   "after": {
     "zh": "黑挡板本身就是一种很强的信号：在亮的路上，一块黑斑也会改变分数。灰挡板（常用整个数据集的平均色）离「什么也没有」更近，比暗的地方能看出负数：挡住它反而让分数变高，说明模型把那里当作反面证据。",
     "en": "A black patch is a strong signal in itself: on a bright road, a dark blotch changes the score too. A grey one (often the average colour of the whole dataset) is closer to \"nothing there\", and it shows negative values where things are darker: covering them raises the score, so the model takes them as evidence against."
@@ -29,13 +23,6 @@
       }
     }
   ],
-  "inputs": ["in", "w"],
-  "inputLabels": {
-    "in": { "zh": "照片", "en": "Photo" },
-    "w": { "zh": "权重", "en": "Weights" },
-    "m": { "zh": "车的掩膜", "en": "Car mask" }
-  },
-  "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
   "packs": {
     "name": { "zh": "遮挡图", "en": "Occlusion map" },
     "desc": {
@@ -43,42 +30,60 @@
       "en": "Covers the 3×3 round every cell with a grey (0.5) block and outputs how far the classifier's score drops. The photo goes into in, the weights into w."
     }
   },
-  "scene": "classifier",
-  "setup": { "check": "occlusion", "cover": { "v": 0.5 } },
-  "tests": [
-    { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+  "tasks": [
     {
-      "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
-      "street": { "cx": 5 },
-      "weights": "road"
-    },
-    {
-      "label": { "zh": "车停在路边的房子旁", "en": "A car by a house" },
-      "street": { "cx": 3, "house": 11 },
-      "weights": "both"
-    },
-    {
-      "label": { "zh": "看车轮的分类器", "en": "A classifier that looks at the wheels" },
-      "street": { "cx": 6 },
-      "weights": "wheels"
+      "id": "11-2",
+      "kind": "graph",
+      "brief": {
+        "zh": "这次挡板是灰的：被挡住的格子亮度变成 0.5。在每一格输出：用灰块挡住以它为中心的 3×3，分数掉多少。",
+        "en": "This time the patch is grey: the cells it covers become 0.5. At every cell, output how much the score drops when a grey block covers the 3×3 centred on it."
+      },
+      "hint": { "zh": "一格被换成 0.5 以后，它出的分变了多少？", "en": "Once a cell is replaced by 0.5, how much does what it adds change?" },
+      "inputs": ["in", "w"],
+      "inputLabels": {
+        "in": { "zh": "照片", "en": "Photo" },
+        "w": { "zh": "权重", "en": "Weights" },
+        "m": { "zh": "车的掩膜", "en": "Car mask" }
+      },
+      "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
+      "scene": "classifier",
+      "setup": { "check": "occlusion", "cover": { "v": 0.5 } },
+      "tests": [
+        { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        {
+          "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
+          "street": { "cx": 5 },
+          "weights": "road"
+        },
+        {
+          "label": { "zh": "车停在路边的房子旁", "en": "A car by a house" },
+          "street": { "cx": 3, "house": 11 },
+          "weights": "both"
+        },
+        {
+          "label": { "zh": "看车轮的分类器", "en": "A classifier that looks at the wheels" },
+          "street": { "cx": 6 },
+          "weights": "wheels"
+        }
+      ],
+      "hidden": [
+        { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
+        {
+          "label": { "zh": "黑天也扣分的分类器", "en": "A classifier that marks down a dark sky" },
+          "street": { "cx": 5, "house": 0 },
+          "weights": "sky"
+        }
+      ],
+      "solution": [
+        "g = const[c=0.5]()",
+        "n = const[c=9]()",
+        "d = arith[op=sub](in, g)",
+        "c = arith[op=mul](d, w)",
+        "b = box3(c)",
+        "k = arith[op=mul](b, n)",
+        "out <- k"
+      ],
+      "naive": ["n = const[c=9]()", "c = arith[op=mul](in, w)", "b = box3(c)", "k = arith[op=mul](b, n)", "out <- k"]
     }
-  ],
-  "hidden": [
-    { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
-    {
-      "label": { "zh": "黑天也扣分的分类器", "en": "A classifier that marks down a dark sky" },
-      "street": { "cx": 5, "house": 0 },
-      "weights": "sky"
-    }
-  ],
-  "solution": [
-    "g = const[c=0.5]()",
-    "n = const[c=9]()",
-    "d = arith[op=sub](in, g)",
-    "c = arith[op=mul](d, w)",
-    "b = box3(c)",
-    "k = arith[op=mul](b, n)",
-    "out <- k"
-  ],
-  "naive": ["n = const[c=9]()", "c = arith[op=mul](in, w)", "b = box3(c)", "k = arith[op=mul](b, n)", "out <- k"]
+  ]
 }

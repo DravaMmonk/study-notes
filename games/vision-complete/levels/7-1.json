@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "找视差", "en": "Find the disparity" },
-  "brief": {
-    "zh": "左右两台相机拍同一个场景。输出每个像素的视差 d（0 … 3）：右图里同一个点比左图往左挪了几格。",
-    "en": "Two cameras, left and right, photograph the same scene. Output each pixel's disparity d (0 … 3): how many pixels further left the same point is in the right image."
-  },
-  "hint": {
-    "zh": "对每个可能的 d，把右图挪一挪再和左图比。单个像素比不准时，看看它周围。",
-    "en": "For each possible d, shift the right image and compare it with the left one. When single pixels do not compare reliably, look at what is around them."
-  },
   "after": {
     "zh": "形状只在「匹配」里出现：每张图单看都只是杂点。对应点只需在同一行里找，视差越大，物体越近。",
     "en": "The shape only appears through matching: each image on its own is just speckle. Corresponding points only need to be searched for along the same row, and the larger the disparity, the nearer the object."
@@ -40,85 +31,99 @@
       "fig": { "test": 0, "caption": { "zh": "左图、右图 → 每格的视差", "en": "Left image, right image → disparity at each pixel" } }
     }
   ],
-  "inputs": ["left", "right"],
-  "inputLabels": { "left": { "zh": "左相机", "en": "Left camera" }, "right": { "zh": "右相机", "en": "Right camera" } },
-  "views": { "out": "terrain" },
   "adds": ["argmin4"],
   "unlocks": ["disparity"],
-  "check": { "tolerance": 0.1, "mismatches": 34 },
-  "scene": "stereo",
-  "tests": [
+  "tasks": [
     {
-      "label": { "zh": "第 1 对", "en": "Pair 1" },
-      "seed": 11,
-      "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
-      "noise": 0.1
-    },
-    {
-      "label": { "zh": "第 2 对", "en": "Pair 2" },
-      "seed": 12,
-      "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
-      "noise": 0.1
-    },
-    {
-      "label": { "zh": "第 3 对", "en": "Pair 3" },
-      "seed": 13,
-      "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
-      "noise": 0.1
+      "id": "7-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "左右两台相机拍同一个场景。输出每个像素的视差 d（0 … 3）：右图里同一个点比左图往左挪了几格。",
+        "en": "Two cameras, left and right, photograph the same scene. Output each pixel's disparity d (0 … 3): how many pixels further left the same point is in the right image."
+      },
+      "hint": {
+        "zh": "对每个可能的 d，把右图挪一挪再和左图比。单个像素比不准时，看看它周围。",
+        "en": "For each possible d, shift the right image and compare it with the left one. When single pixels do not compare reliably, look at what is around them."
+      },
+      "inputs": ["left", "right"],
+      "inputLabels": { "left": { "zh": "左相机", "en": "Left camera" }, "right": { "zh": "右相机", "en": "Right camera" } },
+      "views": { "out": "terrain" },
+      "check": { "tolerance": 0.1, "mismatches": 34 },
+      "scene": "stereo",
+      "tests": [
+        {
+          "label": { "zh": "第 1 对", "en": "Pair 1" },
+          "seed": 11,
+          "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
+          "noise": 0.1
+        },
+        {
+          "label": { "zh": "第 2 对", "en": "Pair 2" },
+          "seed": 12,
+          "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
+          "noise": 0.1
+        },
+        {
+          "label": { "zh": "第 3 对", "en": "Pair 3" },
+          "seed": 13,
+          "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
+          "noise": 0.1
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "远一点的块", "en": "A farther block" },
+          "seed": 14,
+          "layers": [{ "box": [3, 3, 10, 10], "d": 1 }],
+          "noise": 0.1
+        },
+        {
+          "label": { "zh": "近一点的块", "en": "A nearer block" },
+          "seed": 15,
+          "layers": [{ "box": [6, 7, 13, 14], "d": 3 }],
+          "noise": 0.1
+        }
+      ],
+      "solution": [
+        "e0 = arith[op=sub](left, right)",
+        "r10 = shift[dir=right](right)",
+        "r20 = shift[dir=right](right)",
+        "r30 = shift[dir=right](right)",
+        "q0 = arith[op=mul](e0, e0)",
+        "e1 = arith[op=sub](left, r10)",
+        "r21 = shift[dir=right](r20)",
+        "r31 = shift[dir=right](r30)",
+        "b0 = box3(q0)",
+        "q1 = arith[op=mul](e1, e1)",
+        "e2 = arith[op=sub](left, r21)",
+        "r32 = shift[dir=right](r31)",
+        "b1 = box3(q1)",
+        "q2 = arith[op=mul](e2, e2)",
+        "e3 = arith[op=sub](left, r32)",
+        "b2 = box3(q2)",
+        "q3 = arith[op=mul](e3, e3)",
+        "b3 = box3(q3)",
+        "argmin = argmin4(b0, b1, b2, b3)",
+        "out <- argmin"
+      ],
+      "naive": [
+        "e0 = arith[op=sub](left, right)",
+        "r10 = shift[dir=right](right)",
+        "r20 = shift[dir=right](right)",
+        "r30 = shift[dir=right](right)",
+        "q0 = arith[op=mul](e0, e0)",
+        "e1 = arith[op=sub](left, r10)",
+        "r21 = shift[dir=right](r20)",
+        "r31 = shift[dir=right](r30)",
+        "q1 = arith[op=mul](e1, e1)",
+        "e2 = arith[op=sub](left, r21)",
+        "r32 = shift[dir=right](r31)",
+        "q2 = arith[op=mul](e2, e2)",
+        "e3 = arith[op=sub](left, r32)",
+        "q3 = arith[op=mul](e3, e3)",
+        "argmin = argmin4(q0, q1, q2, q3)",
+        "out <- argmin"
+      ]
     }
-  ],
-  "hidden": [
-    {
-      "label": { "zh": "远一点的块", "en": "A farther block" },
-      "seed": 14,
-      "layers": [{ "box": [3, 3, 10, 10], "d": 1 }],
-      "noise": 0.1
-    },
-    {
-      "label": { "zh": "近一点的块", "en": "A nearer block" },
-      "seed": 15,
-      "layers": [{ "box": [6, 7, 13, 14], "d": 3 }],
-      "noise": 0.1
-    }
-  ],
-  "solution": [
-    "e0 = arith[op=sub](left, right)",
-    "r10 = shift[dir=right](right)",
-    "r20 = shift[dir=right](right)",
-    "r30 = shift[dir=right](right)",
-    "q0 = arith[op=mul](e0, e0)",
-    "e1 = arith[op=sub](left, r10)",
-    "r21 = shift[dir=right](r20)",
-    "r31 = shift[dir=right](r30)",
-    "b0 = box3(q0)",
-    "q1 = arith[op=mul](e1, e1)",
-    "e2 = arith[op=sub](left, r21)",
-    "r32 = shift[dir=right](r31)",
-    "b1 = box3(q1)",
-    "q2 = arith[op=mul](e2, e2)",
-    "e3 = arith[op=sub](left, r32)",
-    "b2 = box3(q2)",
-    "q3 = arith[op=mul](e3, e3)",
-    "b3 = box3(q3)",
-    "argmin = argmin4(b0, b1, b2, b3)",
-    "out <- argmin"
-  ],
-  "naive": [
-    "e0 = arith[op=sub](left, right)",
-    "r10 = shift[dir=right](right)",
-    "r20 = shift[dir=right](right)",
-    "r30 = shift[dir=right](right)",
-    "q0 = arith[op=mul](e0, e0)",
-    "e1 = arith[op=sub](left, r10)",
-    "r21 = shift[dir=right](r20)",
-    "r31 = shift[dir=right](r30)",
-    "q1 = arith[op=mul](e1, e1)",
-    "e2 = arith[op=sub](left, r21)",
-    "r32 = shift[dir=right](r31)",
-    "q2 = arith[op=mul](e2, e2)",
-    "e3 = arith[op=sub](left, r32)",
-    "q3 = arith[op=mul](e3, e3)",
-    "argmin = argmin4(q0, q1, q2, q3)",
-    "out <- argmin"
   ]
 }

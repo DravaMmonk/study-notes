@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "极线计算器", "en": "Epipolar line calculator" },
-  "brief": {
-    "zh": "左图的点 p = (x, y, 1)。输出它在右图的极线 l′ = F·p，三个数。F 按列给出。",
-    "en": "A point in the left image is p = (x, y, 1). Output its epipolar line in the right image, l′ = F·p, three numbers. F is given column by column."
-  },
-  "hint": {
-    "zh": "矩阵乘一个向量，就是把矩阵的列按向量的数加权相加。",
-    "en": "A matrix times a vector is the matrix's columns added up, weighted by the vector's numbers."
-  },
   "after": {
     "zh": "左图的一个点，在右图里只可能落在一条线上：这条线就是极线 l′ = F·p。匹配时只沿这条线搜，就从整张图缩成了一条线；两台相机平行时，极线正好是同一行，所以之前只在同一行里找。",
     "en": "A point in the left image can only land on one line in the right image: the epipolar line l′ = F·p. Searching only along it shrinks the search from a whole image to a line; when the two cameras are parallel the epipolar lines are exactly the rows, which is why the search so far stayed within one row."
@@ -34,14 +25,6 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：点 (2, 3)", "en": "Set 1: point (2, 3)" } }
     }
   ],
-  "inputs": ["c1", "c2", "c3", "px", "py"],
-  "inputLabels": {
-    "c1": { "zh": "F 的第一列", "en": "Column 1 of F" },
-    "c2": { "zh": "F 的第二列", "en": "Column 2 of F" },
-    "c3": { "zh": "F 的第三列", "en": "Column 3 of F" },
-    "px": { "zh": "左图点的 x", "en": "x of the left point" },
-    "py": { "zh": "左图点的 y", "en": "y of the left point" }
-  },
   "packs": {
     "name": { "zh": "极线", "en": "Epipolar line" },
     "desc": {
@@ -49,13 +32,35 @@
       "en": "Reads the three columns of F and a point (x, y), and outputs the epipolar line F·p."
     }
   },
-  "scene": "epiline",
-  "tests": [
-    { "label": { "zh": "点 (2, 3)", "en": "Point (2, 3)" }, "x": 2, "y": 3 },
-    { "label": { "zh": "点 (10, 4)", "en": "Point (10, 4)" }, "x": 10, "y": 4 },
-    { "label": { "zh": "点 (6, 12)", "en": "Point (6, 12)" }, "x": 6, "y": 12 }
-  ],
-  "hidden": [{ "label": { "zh": "点 (14, 1)", "en": "Point (14, 1)" }, "x": 14, "y": 1 }],
-  "solution": ["a = arith[op=mul](c1, px)", "b = arith[op=mul](c2, py)", "s = merge(a, b, c3)", "out <- s"],
-  "naive": ["a = arith[op=mul](c1, px)", "b = arith[op=mul](c2, py)", "s = merge(a, b)", "out <- s"]
+  "tasks": [
+    {
+      "id": "7-7",
+      "kind": "graph",
+      "brief": {
+        "zh": "左图的点 p = (x, y, 1)。输出它在右图的极线 l′ = F·p，三个数。F 按列给出。",
+        "en": "A point in the left image is p = (x, y, 1). Output its epipolar line in the right image, l′ = F·p, three numbers. F is given column by column."
+      },
+      "hint": {
+        "zh": "矩阵乘一个向量，就是把矩阵的列按向量的数加权相加。",
+        "en": "A matrix times a vector is the matrix's columns added up, weighted by the vector's numbers."
+      },
+      "inputs": ["c1", "c2", "c3", "px", "py"],
+      "inputLabels": {
+        "c1": { "zh": "F 的第一列", "en": "Column 1 of F" },
+        "c2": { "zh": "F 的第二列", "en": "Column 2 of F" },
+        "c3": { "zh": "F 的第三列", "en": "Column 3 of F" },
+        "px": { "zh": "左图点的 x", "en": "x of the left point" },
+        "py": { "zh": "左图点的 y", "en": "y of the left point" }
+      },
+      "scene": "epiline",
+      "tests": [
+        { "label": { "zh": "点 (2, 3)", "en": "Point (2, 3)" }, "x": 2, "y": 3 },
+        { "label": { "zh": "点 (10, 4)", "en": "Point (10, 4)" }, "x": 10, "y": 4 },
+        { "label": { "zh": "点 (6, 12)", "en": "Point (6, 12)" }, "x": 6, "y": 12 }
+      ],
+      "hidden": [{ "label": { "zh": "点 (14, 1)", "en": "Point (14, 1)" }, "x": 14, "y": 1 }],
+      "solution": ["a = arith[op=mul](c1, px)", "b = arith[op=mul](c2, py)", "s = merge(a, b, c3)", "out <- s"],
+      "naive": ["a = arith[op=mul](c1, px)", "b = arith[op=mul](c2, py)", "s = merge(a, b)", "out <- s"]
+    }
+  ]
 }

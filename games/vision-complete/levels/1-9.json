@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "猜核", "en": "Guess the kernel" },
-  "brief": {
-    "zh": "有人用一个 3×3 核处理了这些图。把你的核拧成和它一样。",
-    "en": "Someone processed these images with a 3×3 kernel. Dial your kernel in until it matches."
-  },
-  "hint": {
-    "zh": "亮点会变成核的样子。可你的元件是怎样读核的？把你填的核喂一个亮点，看看出来的是什么。",
-    "en": "A bright dot turns into the shape of the kernel. But how does your part read its kernel? Feed a bright dot to the kernel you entered and see what comes out."
-  },
   "after": {
     "zh": "亮点的输出就是核本身（冲激响应）。但它是“卷积”的结果，而你的元件做的是“互相关”：要把核旋转 180° 才对得上。",
     "en": "The output for a bright dot is the kernel itself (the impulse response). But that is the result of a \"convolution\", while your part does \"cross-correlation\": you have to rotate the kernel by 180° to make them match."
@@ -39,20 +30,34 @@
       "fig": { "test": 2, "caption": { "zh": "第三组测试：字母 F", "en": "Set 3: letter F" } }
     }
   ],
-  "scene": "filter",
-  "setup": { "target": { "convolve": { "kernel": [0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25] } } },
-  "tests": [
-    { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
-      "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 2 } }
-    },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 23 } } }
-  ],
-  "solution": ["k = kernel3[w=[0.25, 0, 0.25, 0, 0, 0, 0.5, 0, 0]](in)", "out <- k"],
-  "naive": ["k = kernel3[w=[0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25]](in)", "out <- k"]
+      "id": "1-9",
+      "kind": "graph",
+      "brief": {
+        "zh": "有人用一个 3×3 核处理了这些图。把你的核拧成和它一样。",
+        "en": "Someone processed these images with a 3×3 kernel. Dial your kernel in until it matches."
+      },
+      "hint": {
+        "zh": "亮点会变成核的样子。可你的元件是怎样读核的？把你填的核喂一个亮点，看看出来的是什么。",
+        "en": "A bright dot turns into the shape of the kernel. But how does your part read its kernel? Feed a bright dot to the kernel you entered and see what comes out."
+      },
+      "scene": "filter",
+      "setup": { "target": { "convolve": { "kernel": [0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25] } } },
+      "tests": [
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 2 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 23 } } }
+      ],
+      "solution": ["k = kernel3[w=[0.25, 0, 0.25, 0, 0, 0, 0.5, 0, 0]](in)", "out <- k"],
+      "naive": ["k = kernel3[w=[0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25]](in)", "out <- k"]
+    }
+  ]
 }

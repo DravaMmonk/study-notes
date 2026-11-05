@@ -1,14 +1,5 @@
 {
-  "kind": "board",
   "title": { "zh": "共识", "en": "Consensus" },
-  "brief": {
-    "zh": "每轮随机抽 2 个点连成直线，数离它不到 δ 的点，k 轮后留下支持最多的一条。三种外点比例下，各用不超过预算的 k，让 200 次试验的成功率都 ≥ 99%。",
-    "en": "Each round draws 2 random points, joins them into a line and counts the points closer than δ to it; after k rounds the line with the most support is kept. For each of the three outlier ratios, use a k within the budget so that the success rate over 200 trials is ≥ 99%."
-  },
-  "hint": {
-    "zh": "外点越多，一轮抽中两个内点的机会越小。δ 只和噪声有关：太小漏掉真内点，太大把外点也算进来。",
-    "en": "The more outliers, the smaller the chance that a round draws two inliers. δ depends only on the noise: too small misses true inliers, too large counts outliers in as well."
-  },
   "after": {
     "zh": "一轮两点都是内点的概率是 p²，k 轮全落空的概率是 (1 − p²)ᵏ。要成功率达到 P，就要 k ≥ log(1 − P) / log(1 − pⁿ)：p = 0.5、n = 2、P = 0.99 时是 17 轮，内点只剩 30% 时要 49 轮。轮数由内点比例决定，δ 由噪声决定，两者不能互相代替。",
     "en": "The chance that both points of a round are inliers is p², and the chance that all k rounds miss is (1 − p²)ᵏ. To reach a success rate P you need k ≥ log(1 − P) / log(1 − pⁿ): with p = 0.5, n = 2 and P = 0.99 that is 17 rounds, and with only 30% inliers it takes 49. The number of rounds is set by the inlier ratio and δ by the noise; neither can stand in for the other."
@@ -47,42 +38,56 @@
     }
   ],
   "unlocks": ["ransac"],
-  "bench": {
-    "model": "ransac",
-    "setup": {
-      "n": 80,
-      "sigma": 0.5,
-      "trials": 200,
-      "tol": { "theta": 5, "rho": 2 },
-      "solution": { "delta": 1, "k": [10, 25, 66] }
-    },
-    "knobs": {
-      "delta": { "label": "δ", "min": 0.1, "max": 6, "step": 0.05, "start": 3, "format": "fixed2", "unit": " px" },
-      "k": { "label": "k", "min": 1, "max": 120, "step": 1, "start": 5, "perCase": true, "drawn": true }
-    },
-    "cases": [
-      { "label": { "zh": "外点 25%", "en": "Outliers 25%" }, "outliers": 0.25, "budget": 10 },
-      { "label": { "zh": "外点 50%", "en": "Outliers 50%" }, "outliers": 0.5, "budget": 25 },
-      { "label": { "zh": "外点 70%", "en": "Outliers 70%" }, "outliers": 0.7, "budget": 66 }
-    ],
-    "goal": [{ "of": "rate", "atLeast": 0.99 }, { "of": "overBudget", "atMost": 0 }],
-    "layout": {
-      "head": [{ "cases": { "passed": { "zh": "种比例通过", "en": "ratios passed" } } }],
-      "main": [
-        "ransacTrial",
-        "knobs",
-        {
-          "text": {
-            "text": {
-              "zh": "δ 由三种比例共用。色带是与直线距离小于 δ 的范围；虚线是真实直线，圆圈标出抽中的两点",
-              "en": "δ is shared by all three ratios. The band covers everything closer than δ to the line; the dashed line is the true line, and the circled points are the two drawn"
-            },
-            "look": "caption"
-          }
+  "tasks": [
+    {
+      "id": "6-8",
+      "kind": "board",
+      "brief": {
+        "zh": "每轮随机抽 2 个点连成直线，数离它不到 δ 的点，k 轮后留下支持最多的一条。三种外点比例下，各用不超过预算的 k，让 200 次试验的成功率都 ≥ 99%。",
+        "en": "Each round draws 2 random points, joins them into a line and counts the points closer than δ to it; after k rounds the line with the most support is kept. For each of the three outlier ratios, use a k within the budget so that the success rate over 200 trials is ≥ 99%."
+      },
+      "hint": {
+        "zh": "外点越多，一轮抽中两个内点的机会越小。δ 只和噪声有关：太小漏掉真内点，太大把外点也算进来。",
+        "en": "The more outliers, the smaller the chance that a round draws two inliers. δ depends only on the noise: too small misses true inliers, too large counts outliers in as well."
+      },
+      "bench": {
+        "model": "ransac",
+        "setup": {
+          "n": 80,
+          "sigma": 0.5,
+          "trials": 200,
+          "tol": { "theta": 5, "rho": 2 },
+          "solution": { "delta": 1, "k": [10, 25, 66] }
+        },
+        "knobs": {
+          "delta": { "label": "δ", "min": 0.1, "max": 6, "step": 0.05, "start": 3, "format": "fixed2", "unit": " px" },
+          "k": { "label": "k", "min": 1, "max": 120, "step": 1, "start": 5, "perCase": true, "drawn": true }
+        },
+        "cases": [
+          { "label": { "zh": "外点 25%", "en": "Outliers 25%" }, "outliers": 0.25, "budget": 10 },
+          { "label": { "zh": "外点 50%", "en": "Outliers 50%" }, "outliers": 0.5, "budget": 25 },
+          { "label": { "zh": "外点 70%", "en": "Outliers 70%" }, "outliers": 0.7, "budget": 66 }
+        ],
+        "goal": [{ "of": "rate", "atLeast": 0.99 }, { "of": "overBudget", "atMost": 0 }],
+        "layout": {
+          "head": [{ "cases": { "passed": { "zh": "种比例通过", "en": "ratios passed" } } }],
+          "main": [
+            "ransacTrial",
+            "knobs",
+            {
+              "text": {
+                "text": {
+                  "zh": "δ 由三种比例共用。色带是与直线距离小于 δ 的范围；虚线是真实直线，圆圈标出抽中的两点",
+                  "en": "δ is shared by all three ratios. The band covers everything closer than δ to the line; the dashed line is the true line, and the circled points are the two drawn"
+                },
+                "look": "caption"
+              }
+            }
+          ],
+          "side": ["ransacCases"],
+          "split": "even"
         }
-      ],
-      "side": ["ransacCases"],
-      "split": "even"
+      }
     }
-  }
+  ]
 }

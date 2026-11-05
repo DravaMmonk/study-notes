@@ -49,17 +49,18 @@ export default function imageGame(content) {
   }
   // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's
   // replicate edge, before the filters') is part of what the level unlocks, not an item of its own.
-  const shownUnlocks = (level) => (level.unlocks ?? []).filter((flag) => !level.tasks?.slice(0, -1).some((task) => task.opens.includes(flag)))
+  const shownUnlocks = (level) => level.unlocks.filter((flag) => !level.tasks.slice(0, -1).some((task) => task.opens.includes(flag)))
   const allFlags = [...new Set(LEVELS.flatMap(shownUnlocks))]
   // The primitives, each from the levels that bring it in.
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type), icon: iconOf(type), at }))
   // A part on a bench in the parts box shows every setting, whatever the player has unlocked so far.
   const allFlagSet = new Set(allFlags)
-  // The boards the parts box tries a part on, where a level's own reference spells it out in smaller parts.
+  // The boards the parts box tries a part on, where a level's own reference (its last task's) spells it out in smaller
+  // parts.
   const box = {
     sample: content.box.sample,
     inLevel: content.box.inLevel,
-    boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, kit.fromText(lines, image.levelById[content.box.inLevel[flag]])])),
+    boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, kit.fromText(lines, image.levelById[content.box.inLevel[flag]].tasks.at(-1))])),
   }
   const game = defineGame({
     id: content.id,

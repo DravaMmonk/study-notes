@@ -18,8 +18,8 @@ function spec(content) {
     intros: image.intros,
     blueprints: image.blueprints,
     kit: image.kit,
-    // The board each packing level's part runs, by level id: the screens keep it as the level's passed board.
-    syncOwn: (built) => image.syncOwn({ solved: Object.keys(built), data: built }),
+    // The board each packing level's part runs, by its last task's key: the screens keep it as that task's passed board.
+    syncOwn: (built) => image.syncOwn({ solved: image.LEVELS.filter((l) => built[l.tasks.at(-1).key]).map((l) => l.id), data: built }),
     // The built parts that run no circuit (games/DIRECTION.md §2, 4): a part a level unlocks is the engine's own
     // implementation; only a level that packs its circuit (own-<level>) runs the player's board.
     builtIn: [...new Set(image.course.levels.flatMap((l) => image.course.builds(l)))].filter((p) => !image.kit.types[p]?.kit),

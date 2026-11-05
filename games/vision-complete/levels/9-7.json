@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "先缩小再放大", "en": "Shrink, then enlarge" },
-  "brief": {
-    "zh": "显微镜下的细胞，噪点很重。标出细胞（1）和背景（0）。",
-    "en": "Cells under a microscope, with heavy grain. Mark the cells (1) and the background (0)."
-  },
-  "hint": {
-    "zh": "一格一格看，噪点会骗过门槛。几格一起看呢？",
-    "en": "Looked at cell by cell, the grain fools the threshold. What about several cells at once?"
-  },
   "after": {
     "zh": "缩小时几格平均，噪点互相抵消；判断完再放大回来：这就是编码器—解码器。代价是边界只能对齐到块：比块还细的东西，缩小时就丢了。",
     "en": "Shrinking averages several cells so the grain cancels out; decide, then enlarge back: this is an encoder–decoder. The price is that boundaries can only line up with the blocks: anything finer than a block is lost in the shrinking."
@@ -25,24 +16,38 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：两个细胞", "en": "Set 1: two cells" } }
     }
   ],
-  "check": { "tolerance": 0.1, "mismatches": 4 },
-  "scene": "cells",
-  "tests": [
-    { "label": { "zh": "两个细胞", "en": "Two cells" }, "rects": [[2, 2, 8, 8], [10, 6, 14, 14]], "seed": 61 },
-    { "label": { "zh": "长条", "en": "A long cell" }, "rects": [[2, 10, 14, 14]], "seed": 62 },
+  "tasks": [
     {
-      "label": { "zh": "三个细胞", "en": "Three cells" },
-      "rects": [[0, 0, 4, 6], [6, 2, 12, 8], [4, 10, 10, 16]],
-      "seed": 63
+      "id": "9-7",
+      "kind": "graph",
+      "brief": {
+        "zh": "显微镜下的细胞，噪点很重。标出细胞（1）和背景（0）。",
+        "en": "Cells under a microscope, with heavy grain. Mark the cells (1) and the background (0)."
+      },
+      "hint": {
+        "zh": "一格一格看，噪点会骗过门槛。几格一起看呢？",
+        "en": "Looked at cell by cell, the grain fools the threshold. What about several cells at once?"
+      },
+      "check": { "tolerance": 0.1, "mismatches": 4 },
+      "scene": "cells",
+      "tests": [
+        { "label": { "zh": "两个细胞", "en": "Two cells" }, "rects": [[2, 2, 8, 8], [10, 6, 14, 14]], "seed": 61 },
+        { "label": { "zh": "长条", "en": "A long cell" }, "rects": [[2, 10, 14, 14]], "seed": 62 },
+        {
+          "label": { "zh": "三个细胞", "en": "Three cells" },
+          "rects": [[0, 0, 4, 6], [6, 2, 12, 8], [4, 10, 10, 16]],
+          "seed": 63
+        }
+      ],
+      "hidden": [{ "label": { "zh": "一大一小", "en": "One big, one small" }, "rects": [[2, 2, 12, 10], [12, 12, 16, 16]], "seed": 64 }],
+      "solution": [
+        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
+        "s = downsample(a)",
+        "c = threshold(s)",
+        "u = tconv(c)",
+        "out <- u"
+      ],
+      "naive": ["t = threshold(in)", "out <- t"]
     }
-  ],
-  "hidden": [{ "label": { "zh": "一大一小", "en": "One big, one small" }, "rects": [[2, 2, 12, 10], [12, 12, 16, 16]], "seed": 64 }],
-  "solution": [
-    "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
-    "s = downsample(a)",
-    "c = threshold(s)",
-    "u = tconv(c)",
-    "out <- u"
-  ],
-  "naive": ["t = threshold(in)", "out <- t"]
+  ]
 }

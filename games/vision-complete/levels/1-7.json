@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "有噪声的边", "en": "A noisy edge" },
-  "brief": {
-    "zh": "照片里有噪声。只在真正的台阶处输出 1（台阶都是左暗右亮）。",
-    "en": "The photo is noisy. Output 1 only at the real step (every step is dark on the left, bright on the right)."
-  },
-  "hint": {
-    "zh": "差分会把噪声一起放大。在求差之前，能不能先让噪声安静下来？",
-    "en": "Taking a difference amplifies the noise too. Before you take the difference, can you quieten the noise first?"
-  },
   "after": {
     "zh": "先平滑、再求导，噪声被压下去，真正的边留下来。这正是 Sobel 算子：一个方向求导，另一个方向平滑。",
     "en": "Smooth first, then differentiate: the noise is pushed down and the real edge stays. This is exactly the Sobel operator: differentiate in one direction, smooth in the other."
@@ -40,21 +31,35 @@
       "fig": { "test": 0, "caption": { "zh": "第一组测试：带噪声的台阶", "en": "Set 1: a noisy step" } }
     }
   ],
-  "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
   "unlocks": ["sobel"],
-  "check": { "tolerance": 0.5, "mismatches": 4 },
-  "scene": "noisyStep",
-  "tests": [
-    { "label": { "zh": "台阶 x=5", "en": "Step x=5" }, "edge": 5, "seed": 1 },
-    { "label": { "zh": "台阶 x=8", "en": "Step x=8" }, "edge": 8, "seed": 2 },
-    { "label": { "zh": "台阶 x=11", "en": "Step x=11" }, "edge": 11, "seed": 3 },
-    { "label": { "zh": "台阶 x=7", "en": "Step x=7" }, "edge": 7, "seed": 4 }
-  ],
-  "hidden": [
-    { "label": { "zh": "新台阶 x=6", "en": "New step x=6" }, "edge": 6, "seed": 5 },
-    { "label": { "zh": "新台阶 x=9", "en": "New step x=9" }, "edge": 9, "seed": 7 },
-    { "label": { "zh": "新台阶 x=10", "en": "New step x=10" }, "edge": 10, "seed": 19 }
-  ],
-  "solution": ["b = box3(in)", "d = diffx(b)", "t = threshold[t=0.15](d)", "out <- t"],
-  "naive": ["d = diffx(in)", "t = threshold[t=0.15](d)", "out <- t"]
+  "tasks": [
+    {
+      "id": "1-7",
+      "kind": "graph",
+      "brief": {
+        "zh": "照片里有噪声。只在真正的台阶处输出 1（台阶都是左暗右亮）。",
+        "en": "The photo is noisy. Output 1 only at the real step (every step is dark on the left, bright on the right)."
+      },
+      "hint": {
+        "zh": "差分会把噪声一起放大。在求差之前，能不能先让噪声安静下来？",
+        "en": "Taking a difference amplifies the noise too. Before you take the difference, can you quieten the noise first?"
+      },
+      "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
+      "check": { "tolerance": 0.5, "mismatches": 4 },
+      "scene": "noisyStep",
+      "tests": [
+        { "label": { "zh": "台阶 x=5", "en": "Step x=5" }, "edge": 5, "seed": 1 },
+        { "label": { "zh": "台阶 x=8", "en": "Step x=8" }, "edge": 8, "seed": 2 },
+        { "label": { "zh": "台阶 x=11", "en": "Step x=11" }, "edge": 11, "seed": 3 },
+        { "label": { "zh": "台阶 x=7", "en": "Step x=7" }, "edge": 7, "seed": 4 }
+      ],
+      "hidden": [
+        { "label": { "zh": "新台阶 x=6", "en": "New step x=6" }, "edge": 6, "seed": 5 },
+        { "label": { "zh": "新台阶 x=9", "en": "New step x=9" }, "edge": 9, "seed": 7 },
+        { "label": { "zh": "新台阶 x=10", "en": "New step x=10" }, "edge": 10, "seed": 19 }
+      ],
+      "solution": ["b = box3(in)", "d = diffx(b)", "t = threshold[t=0.15](d)", "out <- t"],
+      "naive": ["d = diffx(in)", "t = threshold[t=0.15](d)", "out <- t"]
+    }
+  ]
 }

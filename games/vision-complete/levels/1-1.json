@@ -1,14 +1,5 @@
 {
-  "kind": "graph",
   "title": { "zh": "三点平均", "en": "Three-point average" },
-  "brief": {
-    "zh": "每个像素换成它和左右两个邻居的平均。",
-    "en": "Replace each pixel with the average of itself and its left and right neighbours."
-  },
-  "hint": {
-    "zh": "你需要「往左挪一格」的图、「往右挪一格」的图和原图。",
-    "en": "You need the image shifted one pixel left, the image shifted one pixel right, and the original."
-  },
   "after": {
     "zh": "输出不再只看自己，而是看邻居的加权和。这就是滤波。",
     "en": "The output no longer looks only at its own pixel, but at a weighted sum of its neighbours. This is filtering."
@@ -48,30 +39,44 @@
   ],
   "adds": ["arith", "merge"],
   "unlocks": ["blur3h"],
-  "scene": "filter",
-  "setup": {
-    "target": { "correlate": { "kernel": [0, 0, 0, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0, 0, 0] } }
-  },
-  "tests": [
-    { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-    { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-    { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-    { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
-    { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
-  ],
-  "hidden": [
+  "tasks": [
     {
-      "label": { "zh": "挪开的字母 F", "en": "Shifted letter F" },
-      "in": { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
-    },
-    { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 11 } } }
-  ],
-  "solution": [
-    "kN = const[c=0.33]()",
-    "l = shift[dir=left](in)",
-    "r = shift[dir=right](in)",
-    "m = merge(l, in, r)",
-    "k = arith[op=mul](m, kN)",
-    "out <- k"
+      "id": "1-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "每个像素换成它和左右两个邻居的平均。",
+        "en": "Replace each pixel with the average of itself and its left and right neighbours."
+      },
+      "hint": {
+        "zh": "你需要「往左挪一格」的图、「往右挪一格」的图和原图。",
+        "en": "You need the image shifted one pixel left, the image shifted one pixel right, and the original."
+      },
+      "scene": "filter",
+      "setup": {
+        "target": { "correlate": { "kernel": [0, 0, 0, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0, 0, 0] } }
+      },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "挪开的字母 F", "en": "Shifted letter F" },
+          "in": { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 11 } } }
+      ],
+      "solution": [
+        "kN = const[c=0.33]()",
+        "l = shift[dir=left](in)",
+        "r = shift[dir=right](in)",
+        "m = merge(l, in, r)",
+        "k = arith[op=mul](m, kN)",
+        "out <- k"
+      ]
+    }
   ]
 }
