@@ -5,7 +5,8 @@
 //   npm run op -- <game> <op> key=value…                   one operation (a value is read as JSON when it is JSON)
 //   npm run op -- <game> --file changeset.json             a changeset { why?, ops: [{ op, …args }] }
 //   npm run op -- <game> undo                              undo the last change in the game's change log
-//   npm run op -- <game> log                               the change log
+//   npm run op -- <game> log                               the change log, and the files changed outside it
+//   npm run op -- <game> adopt --why <text>                take the files as they are into the log
 //
 // --dry-run prints the diff and the save migration and writes nothing; --why "…" says why (a save step keeps it where
 // the game's schema has room for it); --json prints the result as JSON. A changeset that fails any check is never
@@ -14,7 +15,8 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { OPERATIONS } from './operations.js'
 import { openGame } from './workspace.js'
-import { readLog, runChangeset, undo } from './changeset.js'
+import { adopt, readLog, runChangeset, undo } from './changeset.js'
+import { driftOf } from './log.js'
 import { knownGames } from '../cli-args.js'
 import { GAMES_DIR } from '../content-node.js'
 import { closeGames } from '../games.mjs'
@@ -41,7 +43,17 @@ const [game] = knownGames(words.slice(0, 1), USAGE)
 const ws = openGame(game, process.env.GAMES_ROOT ?? GAMES_DIR)
 const [what, ...rest] = words.slice(1)
 if (what === 'log') {
-  for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.ops.map((o) => o.op).join(', ')}  →  ${e.files.join(', ')}${e.step ? `  ·  save version ${e.step.version}` : ''}`)
+  for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}${e.step ? `  ·  save version ${e.step.version}` : ''}`)
+  const drift = driftOf(ws, ws.onDisk())
+  if (drift.length) console.log(`changed outside the log: ${drift.join(', ')} (adopt --why "…" takes them as they are)`)
+  process.exit(0)
+}
+if (what === 'adopt') {
+  if (!option('--why')) {
+    console.error('usage: … <game> adopt --why "what changed outside the operation set"')
+    process.exit(1)
+  }
+  console.log(`#${adopt(ws, option('--why'))}: the files of ${game} taken as they are`)
   process.exit(0)
 }
 // A changeset file is read from where the command was started (npm sets INIT_CWD there), not from trace-viewer.

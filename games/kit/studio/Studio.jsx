@@ -125,6 +125,8 @@ export default function Studio() {
   const [last, setLast] = useState(null) // the last quick preview (an operation may have failed)
   const [checked, setChecked] = useState(null) // the last whole check: { key, ok, lines, problems }
   const [base, setBase] = useState(null) // the content as written, before the pending changes
+  // The seq of the change log's last entry when the game was loaded: a change is written only onto it.
+  const [head, setHead] = useState(null)
   const [rawNames, setRawNames] = useState(null)
   const [busy, setBusy] = useState(false)
   const [rev, setRev] = useState(0) // bumped when the files change (apply, undo)
@@ -168,7 +170,7 @@ export default function Studio() {
     call('vocabulary', { game }).then(setVocab)
   }, [game])
   useEffect(() => {
-    call('preview', { game, check: false }).then((r) => setBase(r.content)).catch(() => setBase(null))
+    call('preview', { game, check: false }).then((r) => { setBase(r.content); setHead(r.head) }).catch(() => setBase(null))
   }, [game, rev])
 
   const changeset = useMemo(() => ({ ...(why && { why }), ops }), [why, ops])
@@ -423,7 +425,7 @@ export default function Studio() {
     return pickField([...base, key, list.length], true)
   }
   const apply = async () => {
-    const r = await call('modify', { game, changeset })
+    const r = await call('modify', { game, changeset, base: head })
     setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
     if (r.ok) {
       setOps([])

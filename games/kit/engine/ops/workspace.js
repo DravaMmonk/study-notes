@@ -59,6 +59,8 @@ export function openGame(id, root = GAMES_DIR) {
     /** The changes as a unified diff. */
     diff: () => ws.changes().map((c) => unified(c.file, c.before, c.after)).join('\n'),
     write: () => write(ws),
+    /** Every file of the game as it is on disk now, by its path under the games folder (`<id>/levels/x.json`). */
+    onDisk: () => new Map(['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...levelFiles(id, root).map(([levelId]) => `levels/${levelId}.json`)].map((file) => [`${id}/${file}`, read(resolve(dir, file))]).filter(([file, text]) => text !== null || ws.original.has(file.slice(id.length + 1)))),
   })
 }
 
@@ -80,6 +82,9 @@ function changes(ws) {
 
 function write(ws) {
   const done = ws.changes()
+  // A file changed on disk since it was opened is not written over: the change was made against another text.
+  const moved = done.filter(({ file, before }) => read(resolve(ws.root, file)) !== before).map(({ file }) => file)
+  if (moved.length) throw new Error(`changed on disk since the game was opened: ${moved.join(', ')}; open it again`)
   for (const { file, after } of done) {
     const path = resolve(ws.root, file)
     if (after === null) rmSync(path)

@@ -202,3 +202,6 @@ docs/**/exam/
 
 # Slide screenshots rendered page-by-page from lecture PDFs
 docs/Unimelb/26S2/CV/assets/
+
+# Held while an operation writes a game (games/kit/engine/ops/log.js)
+games/*/changes.lock

@@ -9,7 +9,8 @@ import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
 import { OPERATIONS } from './operations.js'
 import { openGame } from './workspace.js'
-import { runChangeset, readLog, undo } from './changeset.js'
+import { adopt, runChangeset, readLog, undo } from './changeset.js'
+import { driftOf } from './log.js'
 import { withParts } from '../parts/define.js'
 
 const levels = S.list(S.level())
@@ -175,6 +176,33 @@ test('without a domain rule, a level whose tests changed drops its kept boards',
   const { changes: _rule, ...plain } = DOMAIN
   const done = await runChangeset(ws, { ops: [{ op: 'level.set', level: 'a2', path: 'tests', value: [5] }, { op: 'level.set', level: 'a3', path: 'brief', value: 'b' }] }, { check: false, domain: plain })
   assert.deepEqual(done.step.ops, [{ drop: ['a2'] }])
+})
+
+test('the log keeps each file’s hashes; a write lands only on the files and the log it was made on', async () => {
+  const { root, ws } = toy()
+  const one = { ops: [{ op: 'level.set', level: 'a1', path: 'brief', value: 'one' }] }
+  const done = await runChangeset(ws, one, { write: true, check: false, domain: DOMAIN })
+  assert.equal(done.ok, true, done.problems.join('\n'))
+  const [entry] = readLog(ws)
+  assert.deepEqual(entry.files.map((f) => [f.file, typeof f.before, typeof f.after]), [['toy/levels/a1.json', 'string', 'string']])
+  // Two writers that opened the game at once: the second is refused, the first's change stands.
+  const a = openGame('toy', root)
+  const b = openGame('toy', root)
+  assert.equal((await runChangeset(a, { ops: [{ op: 'level.set', level: 'a2', path: 'brief', value: 'a' }] }, { write: true, check: false, domain: DOMAIN })).ok, true)
+  const late = await runChangeset(b, { ops: [{ op: 'level.set', level: 'a2', path: 'brief', value: 'b' }] }, { write: true, check: false, domain: DOMAIN })
+  assert.match(late.problems[0], /changed on disk since the game was opened: toy\/levels\/a2.json/)
+  assert.equal(JSON.parse(readFileSync(join(root, 'toy', 'levels', 'a2.json'), 'utf8')).brief, 'a')
+  // A base that is not the log's last entry is refused.
+  const stale = await runChangeset(openGame('toy', root), one, { write: true, check: false, base: 1, domain: DOMAIN })
+  assert.match(stale.problems[0], /changed since you saw it \(its log is at #2, not #1\)/)
+  assert.deepEqual(readLog(ws).map((e) => e.seq), [1, 2])
+  // A file changed by hand: drift, and the change before it cannot be undone over it; adopting takes it.
+  writeFileSync(join(root, 'toy', 'levels', 'a2.json'), `${JSON.stringify({ title: { zh: 'a2', en: 'a2' }, tests: [1], brief: 'hand' }, null, 2)}\n`)
+  const now = openGame('toy', root)
+  assert.deepEqual(driftOf(now, now.onDisk()), ['toy/levels/a2.json'])
+  assert.match((await undo(now, { write: true, check: false, domain: DOMAIN })).problems[0], /#2 cannot be undone: changed since it was made: toy\/levels\/a2.json/)
+  adopt(now, 'edited by hand')
+  assert.deepEqual(driftOf(now, now.onDisk()), [])
 })
 
 test('a reorder writes the same save step whichever operation made it', async () => {

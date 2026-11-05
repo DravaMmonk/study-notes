@@ -527,7 +527,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `levels/<id>.json` | 一关一个文件，文件名就是关卡 id；字段由领域按玩法给出 schema |
 | `glossary.json` | 百科：`{ groups, entries }` |
 | `parts.json` | 这款游戏的元件（第 6.9 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和三面视图，加上几个元件共用的设置预设；元件定义成数据的领域才有 |
-| `changes.jsonl` | 修改日志（操作集写，只追加）：每次修改一行，记下它跑了哪些操作、为什么、加的那一版存档迁移、改了哪些文件、撤销它的变更集（第 7 节） |
+| `changes.jsonl` | 修改日志（操作集写，只追加，`kit/engine/ops/log.js`）：每次修改一行，记下它跑了哪些操作、为什么、加的那一版存档迁移、改了的每个文件改前改后的哈希、撤销它的变更集（第 7 节）；`adopt` 一行把游戏的全部文件照现状收进日志（手改、git 改过之后） |
 | `blueprint.json` | 课程蓝图（第 7.2 节，流水线做出的游戏才有）：机体阶梯、要教的知识点（术语、出处、撞上的墙）、原始元件和搭出的元件、每章的系列和每关的位置（slot：问题、思维链、带来的知识点），向领域提的需求；schema 是内核的 `BLUEPRINT`（`kit/pipeline/blueprint.js`），经操作集写（`blueprint.put`、`blueprint.set`）；`check` 按 schema 查它，页面不读它 |
 | `pipeline.json` | 流水线的记录（第 7.2 节）：每一步跑过的 agent（模型、用量、调用了几次命令、写下的变更集）、每次闸门的结果、评审队列里的那一项；只由 `npm run pipeline` 写 |
 
@@ -985,7 +985,7 @@ A documentation-only local change does not require a deployment.
 | `text.set` | 改一段文字的一面或两面（一关、`game.json`、百科里的） | — |
 | `glossary.put`、`glossary.set`、`glossary.remove` | 写一条百科、改几个字段、删一条 | — |
 
-**一个变更集怎么跑**（`ops/changeset.js`）：每个操作先按它参数的 schema 查（提到的关必须存在），再依次改内存里的内容，哪一个失败整个变更集作废；然后生成这次修改要的那一版存档迁移（第 2 节），加进 `game.json` 的 `saves`；再把整款游戏按 `npm run check` 的规则查一遍（词汇表、课程审计、文案和链接、领域检查：参考解跑测试、naive 解失败）。全部清零才写盘，否则什么都不写，并列出每一处问题。写盘时只动改了的行（第 6.1 节的格式），游戏 `games.js` 里的关卡数跟着改，修改日志 `changes.jsonl` 加一行，记下撤销它的变更集。
+**一个变更集怎么跑**（`ops/changeset.js`）：每个操作先按它参数的 schema 查（提到的关必须存在），再依次改内存里的内容，哪一个失败整个变更集作废；然后生成这次修改要的那一版存档迁移（第 2 节），加进 `game.json` 的 `saves`；再把整款游戏按 `npm run check` 的规则查一遍（词汇表、课程审计、文案和链接、领域检查：参考解跑测试、naive 解失败）。全部清零才写盘，否则什么都不写，并列出每一处问题。写盘时只动改了的行（第 6.1 节的格式），游戏 `games.js` 里的关卡数跟着改，修改日志 `changes.jsonl` 加一行，记下撤销它的变更集。写盘、记日志在游戏的锁里做（`changes.lock`，写着持有它的进程；进程死了留下的锁会被接手）：盘上的文件和打开游戏时读到的不一样就拒绝（另一个写者先改了）；调用方给了 `base`（它看到的日志最后一条的序号，`preview`、`log` 给出 `head`；studio 总是给）而日志已经往前走了，也拒绝。撤销只从那一条留下的状态往回改：它改过的文件此后又变了（手改、后来的修改），就拒绝。文件在操作集之外被改过，`log`、`npm run check` 报出来（不算失败），`npm run op -- <游戏> adopt --why …` 把现状收进日志。
 
 **命令行**（`trace-viewer` 目录下）：
 

@@ -17,7 +17,8 @@ import { boardSvg } from '../../circuit/svg.js'
 import { getAt, parsePath, showPath } from './edit.js'
 import { OPERATIONS } from './operations.js'
 import { hubCount, openGame } from './workspace.js'
-import { lastUndoable, readLog, runChangeset, undo } from './changeset.js'
+import { adopt, lastUndoable, readLog, runChangeset, undo } from './changeset.js'
+import { driftOf, headOf } from './log.js'
 import { replaceOps, searchContent } from './search.js'
 
 /** The arguments a call to `tool` lacks. */
@@ -56,10 +57,10 @@ export function levelsOfLine(line, ids) {
   return head ? [head] : []
 }
 
-/** A game opened under ROOT, with the change its log would undo next. */
+/** A game opened under ROOT: its log, the seq of its last entry (what modify's base names), the change undo would undo next, and the files changed outside the log. */
 const logOf = (game) => {
   const ws = openGame(known(game), ROOT)
-  return { log: readLog(ws), undoable: lastUndoable(ws)?.seq ?? null }
+  return { log: readLog(ws), head: headOf(ws), undoable: lastUndoable(ws)?.seq ?? null, drift: driftOf(ws, ws.onDisk()) }
 }
 
 /** A game's content as a changeset would leave it (nothing written; an operation that fails throws its problem). */
@@ -87,10 +88,10 @@ export const TOOLS = {
     },
   },
   modify: {
-    about: 'Apply a changeset { why?, ops: [{ op, …args }] } to a game: every op checked and run, the save migration generated, the whole game checked; written only when nothing fails (dryRun: preview only). The operations and their arguments: the vocabulary tool.',
-    params: { game: 'string', changeset: 'object', dryRun: 'boolean?' },
-    async run({ game, changeset, dryRun = false }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: !dryRun })
+    about: 'Apply a changeset { why?, ops: [{ op, …args }] } to a game: every op checked and run, the save migration generated, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
+    params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?' },
+    async run({ game, changeset, dryRun = false, base = null }) {
+      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: !dryRun, base })
       return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, migration: r.step, files: r.files, diff: r.diff, undo: r.inverse, notes: r.notes }
     },
   },
@@ -292,6 +293,14 @@ export const TOOLS = {
     params: { game: 'string' },
     async run({ game }) {
       return logOf(game)
+    },
+  },
+  adopt: {
+    about: 'Take a game’s files as they are now into its change log, after they were changed outside the operation set (by hand, by git): the log stops reporting them as drift, and an undo goes back no further than this.',
+    params: { game: 'string', why: 'string' },
+    async run({ game, why }) {
+      const ws = openGame(known(game), ROOT)
+      return { seq: adopt(ws, why), ...logOf(game) }
     },
   },
   undo: {

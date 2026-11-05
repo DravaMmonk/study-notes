@@ -9,8 +9,6 @@
 // rules (../checks.js). Only a changeset with no failure is written, with an entry in the game's change log
 // (<game>/changes.jsonl, append only): what ran, the save step, the files and the changeset that undoes it. One that
 // is refused, or only previewed, leaves the workspace as it found it.
-import { appendFileSync, existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { validate } from '../schema.js'
 import { checkContent } from '../vocabulary.js'
 import { withParts } from '../parts/define.js'
@@ -19,8 +17,9 @@ import { domainOf } from '../content-node.js'
 import { OPERATIONS } from './operations.js'
 import { saveOps, staleKeys } from './migrate.js'
 import { hubCount } from './workspace.js'
+import { append, hashOf, headOf, readLog, withLock } from './log.js'
 
-export const LOG = 'changes.jsonl'
+export { LOG, readLog } from './log.js'
 
 /**
  * A course as the migration generator reads it (migrate.js), or null when the content does not fit its vocabulary:
@@ -42,7 +41,7 @@ function courseOf(domain, content) {
  * file, before, after }] texts), content (the game as the changeset leaves it, null when an operation failed),
  * inverse (the changeset undoing it), notes }.
  */
-export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, domain: given = null } = {}) {
+export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null } = {}) {
   const content0 = ws.content()
   const domain = given ?? (await domainOf(content0))
   const start = ws.snapshot()
@@ -75,7 +74,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 
   // Whatever throws from here on (a domain's spec or checks) leaves the workspace as it was found.
   try {
-    return await settle({ ws, changeset, domain, content0, start, says, inverse, idOps, own, fail, write, check, undoes })
+    return await settle({ ws, changeset, domain, content0, start, says, inverse, idOps, own, fail, write, check, undoes, base })
   } catch (error) {
     ws.restore(start)
     throw error
@@ -83,7 +82,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 }
 
 // The save step, the whole game's check, and the write or the restore, after every operation of a changeset has run.
-async function settle({ ws, changeset, domain, content0, start, says, inverse, idOps, own, fail, write, check, undoes }) {
+async function settle({ ws, changeset, domain, content0, start, says, inverse, idOps, own, fail, write, check, undoes, base }) {
   // The save step: the operations' own ops, the boards that no longer apply, new prerequisites, new builds.
   const notes = []
   const before = courseOf(domain, content0)
@@ -126,34 +125,48 @@ async function settle({ ws, changeset, domain, content0, start, says, inverse, i
   const diff = ws.diff()
   const files = changes.map((c) => c.file)
   const ok = problems.length === 0
+  let refused = null
   if (ok && write) {
-    ws.write()
-    log(ws, { why: changeset.why, ops: changeset.ops, step, files, inverse, ...(undoes !== null && { undoes }) })
-  } else ws.restore(start)
+    // Written only onto the log the caller saw (`base`, the seq of its last entry, when given) and onto the files as
+    // they were opened; the files' hashes go in the entry.
+    refused = withLock(ws, () => {
+      if (base !== null && headOf(ws) !== base) return `the game changed since you saw it (its log is at #${headOf(ws)}, not #${base}): load it again`
+      try {
+        ws.write()
+      } catch (error) {
+        return error.message
+      }
+      append(ws, { why: changeset.why, ops: changeset.ops, step, files: changes.map((c) => ({ file: c.file, before: hashOf(c.before), after: hashOf(c.after) })), inverse, ...(undoes !== null && { undoes }) })
+      return null
+    })
+  }
+  if (!ok || !write || refused) ws.restore(start)
+  if (refused) return { ok: false, says, problems: [refused], failed: null, lines, step, diff, files, changes, content, inverse: null, notes }
   return { ok, says, problems, failed: null, lines, step, diff, files, changes, content, inverse: { why: `undo: ${changeset.why ?? says.join('; ')}`, ops: inverse }, notes }
-}
-
-/** The game's change log, oldest first. */
-export function readLog(ws) {
-  const file = resolve(ws.dir, LOG)
-  return existsSync(file) ? readFileSync(file, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line)) : []
-}
-
-function log(ws, entry) {
-  const seq = (readLog(ws).at(-1)?.seq ?? 0) + 1
-  appendFileSync(resolve(ws.dir, LOG), `${JSON.stringify({ seq, at: new Date().toISOString(), ...entry })}\n`)
 }
 
 /** The last change of the log not undone yet (an undo is never itself undone this way: apply the change again). */
 export function lastUndoable(ws) {
   const entries = readLog(ws)
   const undone = new Set(entries.map((e) => e.undoes).filter((x) => x !== undefined))
-  return entries.filter((e) => e.undoes === undefined && !undone.has(e.seq)).at(-1) ?? null
+  return entries.filter((e) => !e.adopt && e.undoes === undefined && !undone.has(e.seq)).at(-1) ?? null
 }
 
-/** Undo the last change of the log (write: put it on disk). */
+/**
+ * Undo the last change of the log (write: put it on disk): only from the files as that change left them, so a file
+ * changed since (by hand, or by a later change) is never written back over.
+ */
 export async function undo(ws, options = {}) {
   const entry = lastUndoable(ws)
-  if (!entry) return { ok: false, says: [], problems: ['nothing to undo'], failed: null, lines: [], step: null, diff: '', files: [], changes: [], content: null, inverse: null, notes: [] }
+  const refused = (problem) => ({ ok: false, says: [], problems: [problem], failed: null, lines: [], step: null, diff: '', files: [], changes: [], content: null, inverse: null, notes: [] })
+  if (!entry) return refused('nothing to undo')
+  const disk = ws.onDisk()
+  const moved = entry.files.filter((f) => disk.has(f.file) && hashOf(disk.get(f.file)) !== f.after).map((f) => f.file)
+  if (moved.length) return refused(`#${entry.seq} cannot be undone: changed since it was made: ${moved.join(', ')}`)
   return runChangeset(ws, { why: `undo #${entry.seq}${entry.why ? `: ${entry.why}` : ''}`, ops: entry.inverse }, { ...options, undoes: entry.seq })
+}
+
+/** Take the game's files as they are now into the log (after a change outside the operation set): the entry's seq. */
+export function adopt(ws, why) {
+  return withLock(ws, () => append(ws, { why, adopt: true, files: [...ws.onDisk()].map(([file, text]) => ({ file, after: hashOf(text) })) }))
 }
