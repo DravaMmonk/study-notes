@@ -88,7 +88,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'syntax',
-  version: 2,
+  version: 1,
   kinds: { part: PART_ITEMS, machine: MACHINES },
   game: GAME,
   level: LEVEL,

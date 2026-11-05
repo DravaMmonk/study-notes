@@ -109,7 +109,7 @@ test('content is checked file by file', () => {
   })
   assert.deepEqual(content.levels.map((l) => l.id), ['a', 'b'])
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, content).map((p) => `${p.at}: ${p.says}`), [
-    "game.json.vocabulary: written for version 3; the domain's vocabulary is version 2",
+    "game.json.vocabulary: written for version 3; the domain's vocabulary has versions 1 to 2",
     'game.json.extra: is not a field here',
     'levels/a.json.world: "nowhere" is no world of the vocabulary',
   ])

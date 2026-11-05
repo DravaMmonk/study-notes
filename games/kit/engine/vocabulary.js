@@ -4,7 +4,9 @@
 //
 // defineVocabulary({
 //   domain    the domain's id ('table')
-//   version   raised whenever an item is added; an item never goes away without a save and content migration
+//   version   raised whenever something is added; each version's printing (describe) is kept beside the domain as
+//             versions/<n>.json, and a version only adds to the one before (additionProblems: nothing goes or
+//             changes, a field added to an object is optional), so content written for an older version still fits
 //   kinds     { kind: { item: { about, params? } } }   about: what the item is, { zh, en }; params: its schema
 //             (schema.js), absent for an item that takes none
 //   game      the schema of a game's game.json
@@ -62,6 +64,58 @@ export function defineVocabulary({ domain, version, kinds, game, level, language
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
 export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
 
+// A canonical text of a value: its keys sorted, so the same subtree reads the same wherever it is.
+const canonical = (v) => (Array.isArray(v) ? `[${v.map(canonical).join(',')}]` : v && typeof v === 'object' ? `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonical(v[k])}`).join(',')}}` : JSON.stringify(v))
+
+/**
+ * A version's printing as it is kept (versions/<n>.json): describe(vocabulary) with every subtree that recurs (the
+ * same field schema under many cases) written once in `shared` and named { $: index } where it stands. Text, one
+ * shared subtree a line.
+ */
+export function snapshotText(vocabulary) {
+  const shared = []
+  const index = new Map()
+  const pack = (v) => {
+    if (!v || typeof v !== 'object') return v
+    const out = Array.isArray(v) ? v.map(pack) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, pack(x)]))
+    const key = canonical(out)
+    if (key.length <= 80) return out
+    if (!index.has(key)) { index.set(key, shared.length); shared.push(out) }
+    return { $: index.get(key) }
+  }
+  const root = pack(describe(vocabulary))
+  return `{"root": ${JSON.stringify(root)},\n"shared": [\n${shared.map((x) => JSON.stringify(x)).join(',\n')}\n]}\n`
+}
+
+/** A kept version (snapshotText, parsed) as describe printed it. */
+export function fromSnapshot({ root, shared }) {
+  const open = (v) => (Array.isArray(v) ? v.map(open) : v && typeof v === 'object' ? ('$' in v && Object.keys(v).length === 1 ? open(shared[v.$]) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, open(x)]))) : v)
+  return open(root)
+}
+
+/**
+ * Where vocabulary `after` (printed, describe) does more than add to `before`: something gone or changed, or a new
+ * field of an object that content written for `before` would lack (not optional). [string], each with its path.
+ */
+export function additionProblems(before, after, at = 'vocabulary') {
+  if (Array.isArray(before)) {
+    if (!Array.isArray(after)) return [`${at}: was a list`]
+    const has = (x) => after.some((y) => additionProblems(x, y).length === 0)
+    return before.flatMap((x, k) => (has(x) ? [] : [`${at}[${k}]: ${JSON.stringify(x).slice(0, 60)} is gone`]))
+  }
+  if (before && typeof before === 'object') {
+    if (!after || typeof after !== 'object' || Array.isArray(after)) return [`${at}: was an object`]
+    // The number of the version itself is what changes.
+    const out = Object.entries(before).filter(([k]) => !(at === 'vocabulary' && k === 'version')).flatMap(([k, v]) => (k in after ? additionProblems(v, after[k], `${at}.${k}`) : [`${at}.${k} is gone`]))
+    // A schema object's new field is one old content lacks: it must be optional.
+    if (before.type === 'obj' && after.type === 'obj') for (const [k, f] of Object.entries(after.fields ?? {})) if (!(k in (before.fields ?? {})) && !f.optional) out.push(`${at}.fields.${k} is new and not optional`)
+    // A bound a schema gains narrows what old content may be.
+    if ('type' in before) for (const k of ['min', 'max', 'pattern', 'keys']) if (k in after && !(k in before)) out.push(`${at}.${k} is a new bound`)
+    return out
+  }
+  return before === after ? [] : [`${at}: ${JSON.stringify(before)} became ${JSON.stringify(after)}`]
+}
+
 /**
  * Every place a game's content (content.js assemble) does not fit its domain's vocabulary, as [{ at, says }]: the
  * file and the path in it. `domain`: the domain module, its vocabulary and the readers of its languages. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
@@ -78,7 +132,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = {}, nam
   // What the content itself names (S.name): the encyclopedia's entries and groups, and what the domain says.
   const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), ...domainNames(content) }
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
-  if (!Number.isInteger(version) || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary is version ${vocabulary.version}` })
+  if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary has versions 1 to ${vocabulary.version}` })
   add(validate(vocabulary.game, game, { vocabulary, levels: ids, languages, names }), 'game.json')
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
   for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids, languages, names }), `levels/${levelId}.json`)
