@@ -80,11 +80,6 @@ const blueprintLines = (text) => {
 }
 
 export const OPERATIONS = {
-  'save.retype': {
-    about: t('迁移所有存档板中的元件类型和固定设置，保留接线与布局', 'Migrate saved node types/settings while retaining wires and layout'),
-    params: S.obj({ types: S.map(S.obj({ type: S.ref('part'), params: S.map(S.any()) })) }),
-    apply(_ws, { types }) { return { says: `save: retype ${Object.keys(types).join(', ')}`, inverse: [], saves: [{ retype: types }] } },
-  },
   'level.set': {
     about: t('设一关的一个字段（路径可以深入）', 'set a field of a level (the path may go deep)'),
     params: S.obj({ level: S.level(), path: PATH, value: S.any() }),
@@ -368,7 +363,7 @@ export const OPERATIONS = {
     },
   },
   'part.remove': {
-    about: t('删掉一个元件（parts.json）；课程、关卡、板或文字还提到它时拒绝', 'remove a part (parts.json); refused while the course, a level, a board or a text names it'),
+    about: t('删掉一个元件（parts.json）；课程、关卡、板或文字还提到它时拒绝；玩家存下的放着它的板去掉', 'remove a part (parts.json); refused while the course, a level, a board or a text names it; kept boards placing it are dropped'),
     params: S.obj({ part: PART_NAME }),
     apply(ws, { part }, { vocabulary }) {
       partsOf(ws, vocabulary)
@@ -378,7 +373,7 @@ export const OPERATIONS = {
       const named = partRefs(ws, vocabulary, part)
       if (named.length) fail(`${part} is still named at ${named.slice(0, 8).map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}${named.length > 8 ? ` and ${named.length - 8} more` : ''}`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(entries.filter(([type]) => type !== part)) }
-      return { says: `parts: removed ${part}`, inverse: [{ op: 'part.add', part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
+      return { says: `parts: removed ${part}`, inverse: [{ op: 'part.add', part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }], saves: [{ dropWith: [part] }] }
     },
   },
   'part.rename': {
