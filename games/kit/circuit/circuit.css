@@ -503,10 +503,6 @@
 
 /* ---- a level on the circuit base (shell/CircuitScreen.jsx): a card's settings and value, the strip under the board ---- */
 .cs-card { padding: 4px 10px 0; display: grid; gap: 5px; min-width: 0; }
-.cs-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
-.cs-value.is-none { color: var(--faint); font-weight: 500; }
-.cs-value.is-true { color: var(--status); }
-.cs-value.is-false { color: var(--muted); }
 .cs-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 .cs-error.is-missing { color: var(--faint); }
 .cs-field { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }

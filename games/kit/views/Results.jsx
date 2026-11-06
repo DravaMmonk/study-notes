@@ -1,7 +1,8 @@
-import { cellNumber, isGrid, pixel } from '../../engine/grid.js'
-import { L } from '../i18n.js'
-import Timeline from '../Timeline.jsx'
-import { WORDS } from '../words.js'
+import { isGrid, pixel } from '../engine/grid.js'
+import { numberText } from '../engine/number.js'
+import { L } from '../shell/i18n.js'
+import Timeline from '../shell/Timeline.jsx'
+import { WORDS } from '../shell/words.js'
 import { useViewPicks } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
 import ViewSwitch from './ViewSwitch.jsx'
@@ -60,21 +61,24 @@ function Chip({ entry, text }) {
   return <span className="rv-chip"><b>{L(label)}</b>{shown}</span>
 }
 
-const cellText = (p) => (Array.isArray(p) ? p.map((v, k) => `${'RGB'[k]} ${cellNumber(v)}`).join(' · ') : cellNumber(p))
+const cellText = (p) => (Array.isArray(p) ? p.map((v, k) => `${'RGB'[k]} ${numberText(v)}`).join(' · ') : numberText(p))
 
 /** A grid: the value given, or the result beside the value wanted, the cells that differ marked on the result. */
 function GridRow({ entry, view, text, tool }) {
   const { label, given, got, want, tolerance = 0 } = entry
   const shown = !isOutput(entry) ? [[null, given]] : got === undefined ? [[WORDS.wanted, want]] : [[WORDS.result, got], [WORDS.wanted, want]]
   const paired = isGrid(got) && isGrid(want) && got.w === want.w && got.h === want.h && (got.c ?? 1) === (want.c ?? 1)
+  // One size for the row when its grids share it, written once beside its label.
+  const grids = shown.map(([, v]) => v).filter(isGrid)
+  const size = grids.length && grids.every((g) => g.w === grids[0].w && g.h === grids[0].h && (g.c ?? 1) === (grids[0].c ?? 1)) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
   const differs = paired ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
   const read = paired ? (x, y) => <><span>{L(WORDS.result)} {cellText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {cellText(pixel(want, x, y))}</span></> : undefined
   return (
     <section className="rv-row" data-fail={wrong(entry) || undefined}>
-      <h4>{L(label)}{tool}</h4>
+      <h4>{L(label)}{size && <small>{size}</small>}{tool}</h4>
       <div className="rv-pair">
         {shown.map(([word, v], k) => (isGrid(v)
-          ? <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!paired || k === shown.length - 1} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read} />
+          ? <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read} />
           : <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>))}
       </div>
     </section>

@@ -30,7 +30,7 @@
 //     game.json and of a level, and of a card's name and a port, for the domain's vocabulary
 //   runTests(runTest) → run(task, board, parts), every test of a task run by the domain's runTest: { runs, pass }
 //   judgeTicks(ticks, { checked, want, got?, same?, show? }) → { ticks, fail? }   a tick board's run judged tick by
-//     tick against what the task wants of its outputs; showValue(v) a value in words
+//     tick against what the task wants of its outputs
 //   checkCircuitTasks(circuit, { run, entries, failure?, more?, kinds? }) → the domain's lines for npm run check
 //       run(task, board) → { runs: [{ fail?, error? }], pass }; entries({ task, test, run, sample }) what the results
 //       area can show of a test (../shell/CircuitScreen.jsx); failure(run) the words for a run that fails;
@@ -47,7 +47,7 @@ import { withHidden } from './tests.js'
 import { taskLevel, taskLevels } from './tasks.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
-import { GAME_VIEWS, RESULTS, rowProblems, viewsProblems } from './views.js'
+import { GAME_VIEWS, RESULTS, SHOW, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
 import { T as t, keyOf } from '../shell/i18n.js'
 
 /* ---------- the board ---------- */
@@ -335,9 +335,10 @@ const BUILDS = S.opt(S.obj(BUILT_PART, { section: 'course', about: t('通过后�
  * test, `checks` what a task's outputs must be beyond what its tests say ({ want }), `more` the task's other fields,
  * `page` one page of an introduction ({ t } by default). A domain whose levels also hold tasks of other kinds
  * (circuitCourse kinds) gives `kinds` ({ kind: fields }): every task then says its `kind`, a board's being 'circuit',
- * and every task has `shared`'s fields too.
+ * and every task has `shared`'s fields too. An introduction page and the pass text may each show a value (./views.js
+ * SHOW), drawn by the kit as a figure.
  */
-export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text() }), ports, test, checks = {}, more = {}, shared = {}, kinds = null }) => {
+export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show: S.opt(SHOW) }), ports, test, checks = {}, more = {}, shared = {}, kinds = null }) => {
   const own = {
     ...shared,
     brief: S.text(),
@@ -362,6 +363,7 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text() }), po
     title: S.text(),
     intro: S.opt(S.list(page)),
     after: S.opt(S.text()),
+    afterShow: S.opt({ ...SHOW, about: t('点题旁显示的一个值', 'a value shown beside the pass text') }),
     note: S.opt(S.text()),
     adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
     builds,
@@ -416,7 +418,6 @@ export const circuitSpec = (domain, courseOf) => (content) => {
 
 /* ---------- a run ---------- */
 
-/** A value as a card and a lane show it: 「—」 for nothing, yes or no, a number or a bit written out. */
 /**
  * What a game calls its tests, in each place the screen and a blind session say it: a test's tab (`label(k)`), the note
  * on how many are hidden (`note(n)`) and what it says when some hidden ones fail (`failed(fails, n)`). A test is a test
@@ -428,7 +429,6 @@ export const TEST_WORDS = {
   failed: (fails, n) => t(`可见的测试全部通过，但 ${n} 个隐藏测试中有 ${fails} 个没有通过：这块板可能只是恰好合上了这几个测试。`, `Every test shown passes, but ${fails} of ${n} hidden ${n === 1 ? 'test fails' : 'tests fail'}: the board may only happen to fit these.`),
 }
 
-export const showValue = (v) => (v === null || v === undefined ? '—' : v === true ? t('是', 'yes') : v === false ? t('否', 'no') : String(v))
 
 /**
  * A run's ticks ([{ tick, outputs, … }]) judged against what a task wants: the first tick on which a port of `checked`
@@ -437,7 +437,7 @@ export const showValue = (v) => (v === null || v === undefined ? '—' : v === t
  * there (its output by default), `same(want, got)` whether that is what is wanted, `show` a value in words.
  * Returns { ticks, fail? }.
  */
-export function judgeTicks(ticks, { checked, want, got = (tick, name) => tick.outputs[name] ?? null, same = (a, b) => a === b, show = showValue }) {
+export function judgeTicks(ticks, { checked, want, got = (tick, name) => tick.outputs[name] ?? null, same = (a, b) => a === b, show = valueText }) {
   const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v))
   for (const tick of ticks) {
     for (const { name, label } of checked) {
@@ -473,6 +473,11 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
   const noted = (ref) => (board.ticks ? `, ${ref.runs.reduce((n, r) => n + r.ticks.length, 0)} ticks` : '')
   const built = new Set(LEVELS.filter((L) => L.builds).map((L) => L.builds.type))
   const out = [...circuit.wrong, ...viewsProblems(circuit.views)].map((text) => ({ text, fail: true }))
+  // The values a level's introduction pages and pass text show, its own and its tasks'.
+  for (const level of LEVELS) {
+    const shows = [...(level.intro ?? []).map((p, k) => [p.show, `intro[${k}].show`]), [level.afterShow, 'afterShow'], ...level.tasks.flatMap((task, j) => (task.intro ?? []).map((p, k) => [p.show, `tasks[${j}].intro[${k}].show`]))]
+    for (const [show, where] of shows) if (show) out.push(...showProblems(show, `${level.id} ${where}`).map((text) => ({ level: level.id, text, fail: true })))
+  }
   for (const level of LEVELS) {
     const tasks = circuit.played.get(level.id)
     const said = tasks.map((task, k) => {

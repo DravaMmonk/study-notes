@@ -1,4 +1,4 @@
-/* The kit's views and results area (shell/views/, games/DESIGN.md 6.10). Colours and sizes come from the tokens. */
+/* The kit's views and results area (views/, games/DESIGN.md 6.10). Colours and sizes come from the tokens. */
 
 /* ---- a grid ---- */
 .gv-image { display: block; max-width: 100%; height: auto; }
@@ -29,6 +29,27 @@
 .gv-popover.is-above { margin-top: -8px; transform: translateY(-100%); }
 .gv-popover-calc { border-top: 1px solid var(--line); padding-top: 5px; white-space: pre-line; }
 
+/* ---- a value in a scene (Show.jsx) ---- */
+.vw-value { font: 600 var(--fs-ui) var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.vw-value.is-none { color: var(--faint); font-weight: 500; }
+.vw-value.is-true { color: var(--status); }
+.vw-value.is-false { color: var(--muted); }
+.vw-inline { font: 600 1em var(--mono); font-variant-numeric: tabular-nums; }
+.vw-thumb { display: grid; justify-items: center; gap: 4px; max-width: 100%; }
+.vw-thumb small { color: var(--muted); font: var(--fs-label) var(--mono); }
+.vw-numbers { display: block; min-width: 0; max-width: 100%; max-height: 96px; overflow: auto; overscroll-behavior: contain; }
+.vw-numbers .gv-image { max-width: none; height: auto; }
+.vw-numbers.is-small { max-height: none; overflow: visible; }
+.vw-numbers.is-small .gv-image { max-width: 100%; height: auto; }
+.vw-detail, .vw-figure { display: grid; gap: 4px; min-width: 0; }
+.vw-detail { --gv-frame-w: 220px; --gv-frame-h: 150px; }
+.vw-figure { --gv-frame-w: 560px; --gv-frame-h: 320px; justify-items: center; }
+.vw-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: var(--fs-ui); }
+.vw-figure > .vw-head { justify-self: stretch; justify-content: flex-end; }
+.vw-scalar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: var(--fs-ui); }
+.vw-scalar .vw-value { font-size: var(--fs-small); }
+.vw-seq { margin: 0; font: var(--fs-ui) var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+
 /* ---- the switch between views ---- */
 .view-pick { display: inline-flex; flex: none; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
 .view-pick button { height: 22px; display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; border: 0; border-radius: 999px; color: var(--muted); background: none; font: var(--fs-label) var(--sans); cursor: pointer; }
@@ -53,18 +74,21 @@
 .rv-rows { display: flex; flex-wrap: wrap; align-items: start; gap: 10px 20px; min-width: 0; }
 .rv-row { display: grid; gap: 4px; min-width: 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
 .rv-row[data-fail] { border-inline-start-color: var(--fail); }
-.rv-row > h4 { margin: 0; display: flex; align-items: center; gap: 8px; }
+.rv-row > h4 { margin: 0; display: flex; align-items: baseline; gap: 8px; }
+.rv-row > h4 small { color: var(--faint); font: var(--fs-label) var(--mono); }
 .rv-pair { display: flex; align-items: start; gap: 8px; }
 .rv-pair > .gv-inspector { flex: none; }
 .rv-plain { margin: 0; min-width: 88px; display: grid; gap: 4px; }
-.rv-plain figcaption { color: var(--muted); font-size: var(--fs-ui); }
+.rv-plain figcaption { min-height: 22px; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-ui); }
 .rv-plain b { font: 600 var(--fs-ui) var(--mono); }
 .rv-seq, .rv-order { margin: 0; font: var(--fs-ui) var(--mono); color: var(--ink); overflow-wrap: anywhere; }
 .rv-order { color: var(--muted); }
 
 @media (max-width: 760px) {
   :root { --gv-frame-w: 360px; --gv-frame-h: 168px; }
-  .rv { --gv-frame-w: 100%; --gv-frame-h: 168px; gap: 6px; }
+  .rv { --gv-frame-w: 360px; --gv-frame-h: 168px; gap: 6px; }
+  .vw-detail { --gv-frame-w: 360px; --gv-frame-h: 168px; }
+  .vw-figure { --gv-frame-w: 360px; --gv-frame-h: 240px; }
   .rv-rows, .rv-row { width: 100%; }
   .rv-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
   .rv-pair > .gv-inspector { width: 100%; }

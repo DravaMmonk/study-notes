@@ -2,7 +2,7 @@
 // that offers it and by the values on the board's cards, kept on this device as a per-viewer convenience. The game's
 // own defaults (game.json `views`) come in through ViewsContext, which the shell provides (GameShell.jsx).
 import { createContext, useContext, useSyncExternalStore } from 'react'
-import { viewsFor } from '../../engine/views.js'
+import { viewsFor } from '../engine/views.js'
 
 export const ViewsContext = createContext({ game: '', defaults: null })
 

@@ -9,6 +9,7 @@
 // onto black to white (display). Every function returns a new image and leaves its inputs as they were.
 import { T } from '../../shell/i18n.js'
 import { isGrid, pixel } from '../../engine/grid.js'
+import { numberText } from '../../engine/number.js'
 
 export const isImage = isGrid
 export { pixel, display } from '../../engine/grid.js'
@@ -67,12 +68,8 @@ export function differs(want, got, tol = 1e-5) {
   return null
 }
 
-/** A number as a card or a grid writes it: up to four decimals, trailing zeros dropped. */
-export function fmt(v) {
-  if (v === null || v === undefined) return '—'
-  if (!Number.isFinite(v)) return String(v)
-  return String(Number(v.toFixed(4)))
-}
+/** A number as a card writes it (../../engine/number.js), 「—」 for none. */
+export const fmt = (v) => (v === null || v === undefined ? '—' : numberText(v))
 
 /** A value in a line of text: a number, or an image's rows. */
 export const show = (v) => (isVector(v) ? `(${fmt(v.x)}, ${fmt(v.y)})` : isImage(v) ? `[${toRows(v).map((r) => `[${r.map((p) => (Array.isArray(p) ? `(${p.map(fmt).join(',')})` : fmt(p))).join(', ')}]`).join(', ')}]` : fmt(v))

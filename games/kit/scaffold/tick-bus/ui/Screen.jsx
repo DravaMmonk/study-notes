@@ -1,5 +1,5 @@
 import CircuitScreen, { registerCards } from '../../../shell/CircuitScreen.jsx'
-import { showValue } from '../../../engine/circuit-domain.js'
+import { valueText } from '../../../engine/views.js'
 import { REGISTERS } from '../parts.js'
 import { entries, runLevel } from '../run.js'
 import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
@@ -11,5 +11,5 @@ import { CARDS, FORMS, PORT_LABELS } from './catalog.js'
 const { settings, defaults } = registerCards({ registers: REGISTERS, top: 32, forms: FORMS })
 
 export default function Screen(screen) {
-  return <CircuitScreen screen={screen} cards={CARDS} portLabels={PORT_LABELS} run={runLevel} says={(r) => r.error} show={showValue} entries={entries} settings={settings} defaults={defaults} />
+  return <CircuitScreen screen={screen} cards={CARDS} portLabels={PORT_LABELS} run={runLevel} says={(r) => r.error} show={valueText} entries={entries} settings={settings} defaults={defaults} />
 }

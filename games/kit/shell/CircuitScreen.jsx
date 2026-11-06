@@ -5,7 +5,8 @@ import { viewAt } from '../engine/trace.js'
 import { TEST_WORDS } from '../engine/circuit-domain.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
-import Results, { ResultsSwitch, sharedViews } from './views/Results.jsx'
+import Results, { ResultsSwitch, sharedViews } from '../views/Results.jsx'
+import Show from '../views/Show.jsx'
 import { L, tr, T } from './i18n.js'
 import { WORDS } from './words.js'
 import { openRef } from './refs.js'
@@ -26,8 +27,7 @@ import { definedItem } from './parts/faces.jsx'
 //                         card it leaves out is drawn as a source in the family 'given', or a sink in 'end')
 //   run(task, board, partOf) → { runs: [{ fail?, error?, ticks? | trace?, … }] }   its run.js
 //   says(run)             what a failed run says
-//   show(value)           a value in words, as a card and the results show it; draw?(value) → the value drawn on a card
-//                         instead (a picture), or null
+//   show(value)           a value in words, as a card and the results show it (a grid is drawn: ../views/Show.jsx)
 //   entries({ task, test, run, sample }) → what the results area can show of a test (../engine/views.js: an entry a
 //                         port, with its shape and the values given, got and wanted; on the sample, test is null and
 //                         `sample` the reference board's run on it)
@@ -85,12 +85,10 @@ export function registerCards({ registers, top, forms = {} }) {
   }
 }
 
-/** What a card shows of a value, or why it has none. */
-function Value({ value, error, show, draw }) {
+/** What a card shows of a value (the kit's card scene, ../views/Show.jsx), or why it has none. */
+function Value({ value, error, show }) {
   if (value === undefined) return <span className={`cs-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? L(WORDS.notWired) : L(error)}</span>
-  const drawn = draw?.(value)
-  if (drawn) return drawn
-  return <span className={`cs-value ${value === null ? 'is-none' : typeof value === 'boolean' ? `is-${value}` : ''}`}>{L(show(value))}</span>
+  return <Show value={value} scene="card" text={show} />
 }
 
 /** The editor's description of a task's cards (../circuit/model.js): the board's wiring, drawn. */
@@ -109,7 +107,7 @@ function partsFor(level, circuit, { cards, portLabels, width }) {
   }
 }
 
-export default function CircuitScreen({ screen, cards, run: runOn, says, show, draw, entries, figure, judged = false, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
+export default function CircuitScreen({ screen, cards, run: runOn, says, show, entries, figure, judged = false, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = game.circuit.forTask(level)
@@ -168,7 +166,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, d
   const valueOf = (node, key, v) => v.values.get(key ? `${node.id}#${key}` : node.id)
   const value = (node, ctx) => {
     const into = valueOf(node, null, ctx.view) === undefined && ctx.board.parts.role(node) === 'sink' && ctx.board.circuit.wires.find((w) => w.to === node.id)
-    return into ? <Value value={ctx.view.values.get(into.from)} error={ctx.view.errors.get(into.from.split('#')[0])} show={show} draw={draw} /> : <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} draw={draw} />
+    return into ? <Value value={ctx.view.values.get(into.from)} error={ctx.view.errors.get(into.from.split('#')[0])} show={show} /> : <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} />
   }
   const body = (node, ctx) => (
     <div className="cs-card">
@@ -179,7 +177,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, d
   // A defined part shows each output's value; with several, none of its own (its detail, `inspect`'s).
   const definedFaces = useMemo(() => defined && {
     ...defined,
-    value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} draw={draw} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
+    value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
   }, [defined, inspect])
 
   const itemOf = (type) => {

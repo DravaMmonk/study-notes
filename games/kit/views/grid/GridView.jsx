@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { cellNumber, display, pixel } from '../../../engine/grid.js'
+import { cellNumber, display, pixel } from '../../engine/grid.js'
 import { AXIS, numberSize } from './layout.js'
 
 // A grid value (../../../engine/grid.js) drawn cell by cell: each cell its grey or colour (values clipped to [0, 1] for

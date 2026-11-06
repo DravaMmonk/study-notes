@@ -11,8 +11,6 @@
 
 /* ---- cards ---- */
 .vi-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.vi-thumb { display: grid; justify-items: center; gap: 4px; max-width: 100%; }
-.vi-thumb small { color: var(--muted); font: 11px var(--mono); }
 .vi-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 .vi-error.is-missing { color: var(--faint); }
 .vi-field { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }
@@ -26,10 +24,7 @@
 
 /* Part details expose data at readable scale while board thumbnails stay compact. */
 .vi-part-detail { min-width: 0; display: grid; gap: 8px; }
-@media (min-width: 761px) { .vi-detail-values { --gv-frame-w: 220px; --gv-frame-h: 150px; } }
 .vi-detail-values { min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr)); gap: 8px 12px; }
-.vi-detail-scalar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-.vi-detail-scalar strong { font: 600 14px var(--mono); overflow-wrap: anywhere; }
 .vi-detail-settings .vi-field :is(input, select) { min-height: 44px; font-size: 16px; }
 
 /* Phone density belongs to the vision workspace; shared editors keep their own spacing contracts. */
@@ -89,7 +84,6 @@
 
 /* ---- grid tasks ---- */
 .vi-grid { box-sizing: border-box; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: start; padding: 12px; }
-.vi-grid > .gv-inspector { --gv-frame-w: 560px; --gv-frame-h: 320px; }
 .vi-calculation { box-sizing: border-box; width: 100%; max-width: 620px; display: grid; gap: 6px; padding: 8px 0; border-block: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
 .vi-calculation > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .vi-calculation h3, .vi-calculation p { margin: 0; font-size: 13px; }
@@ -305,10 +299,6 @@
 .vi-window-products > div { display: grid; gap: 2px; padding: 6px; border-bottom: 1px solid var(--line); font: 12px/1.5 var(--mono); }
 .vi-window-products strong { color: var(--accent-ink); }
 
-.vi-numeric-thumb { display: block; min-width: 0; max-width: 100%; max-height: 96px; overflow: auto; overscroll-behavior: contain; }
-.vi-numeric-thumb .gv-image { max-width: none; height: auto; }
-.vi-numeric-thumb.is-small { max-height: none; overflow: visible; }
-.vi-numeric-thumb.is-small .gv-image { max-width: 100%; height: auto; }
 .vi-outside-figure { width: 100%; }
 .vi-outside-scroll { width: 100%; max-width: 100%; overflow-x: auto; }
 .vi-outside-scroll table { border-spacing: 4px; margin-inline: auto; font: 13px var(--mono); }

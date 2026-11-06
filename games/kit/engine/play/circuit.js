@@ -27,7 +27,8 @@
 
 import { print, read } from '../../circuit/text.js'
 import { outputsOf } from '../../circuit/model.js'
-import { TEST_WORDS, showValue } from '../circuit-domain.js'
+import { TEST_WORDS } from '../circuit-domain.js'
+import { valueText } from '../views.js'
 import { T } from '../../shell/i18n.js'
 
 
@@ -135,7 +136,7 @@ export function circuitPlay(hook) {
  *   settings   { type: [{ key, values, about? }] } what can be set on the game's other primitives
  *   words      what the game calls its tests (../circuit-domain.js TEST_WORDS)
  */
-export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = showValue, words = TEST_WORDS }) {
+export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = valueText, words = TEST_WORDS }) {
   const offered = {
     ...(registers ? {
       reg: [{ key: 'reg', values: registers.names }, { key: 'start', values: ['0', '1'], about: T('不写时初值为「—」', 'left out, it starts as 「—」') }],

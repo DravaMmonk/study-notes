@@ -15,6 +15,7 @@
 //
 // This module is node-safe: the schema, the judge and the number formats, shared by `npm run check` and the bench
 // screen (../shell/bench/).
+import { numberText } from './number.js'
 import { S } from './schema.js'
 import { T as t } from '../shell/i18n.js'
 
@@ -240,8 +241,8 @@ export function formatValue(v, format = 'raw', unit = '', of = null) {
       const q = Math.round(v)
       return q === 0 ? '0' : `${q < 0 ? '−' : ''}${QUARTERS[Math.abs(q)] ?? `${Math.abs(q) / 4}π`}`
     }
-    case 'outOf': return `${of === null ? v : Math.min(v, of)} / ${of}`
-    default: return `${v}${tail}`
+    case 'outOf': return `${numberText(of === null ? v : Math.min(v, of))} / ${of}`
+    default: return `${numberText(v)}${tail}`
   }
 }
 

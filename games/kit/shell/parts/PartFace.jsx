@@ -1,5 +1,6 @@
 import './parts.css'
 import { L } from '../i18n.js'
+import { numberText } from '../../engine/number.js'
 import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/define.js'
 import SettingField, { valueWords } from './SettingField.jsx'
 
@@ -30,7 +31,7 @@ export function visibleSettings(def, params, defined) {
   return def.settings.map((s, k) => [s, k]).filter(([s]) => shows(s, def, params, defined.ops) && optionCount(s, defined.allowed?.(def.type, s.key)) > 1)
 }
 
-const fmt = (v, digits) => (typeof v === 'number' ? (digits === undefined ? String(Number(v.toFixed(6))) : v.toFixed(digits)) : v === true ? '✓' : v === false ? '✗' : String(v ?? '—'))
+const fmt = (v, digits) => (typeof v === 'number' ? (digits === undefined ? numberText(v) : v.toFixed(digits)) : v === true ? '✓' : v === false ? '✗' : String(v ?? '—'))
 
 export default function PartFace({ def, face, node, ctx, set, defined, phone = false, roomy = false, blocks: given, mark = () => ({}) }) {
   const params = node.params ?? {}

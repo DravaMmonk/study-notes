@@ -4,9 +4,8 @@ import { L, tr } from '../../../shell/i18n.js'
 import { WORDS } from '../../../shell/words.js'
 import { fromRows } from '../image.js'
 import { askOf, gridCheck, gridStart } from '../grid.js'
-import GridView from '../../../shell/views/grid/GridView.jsx'
 import Strips from './Strips.jsx'
-import GridInspector from '../../../shell/views/grid/GridInspector.jsx'
+import Show from '../../../views/Show.jsx'
 import CalculationAid from './CalculationAid.jsx'
 import RowsEditor, { NumberField } from './RowsEditor.jsx'
 
@@ -39,7 +38,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
   }
 
   const picture = (props) => (
-    <GridInspector value={img} label={sourceLabel} {...props} />
+    <Show value={img} scene="figure" label={sourceLabel} {...props} />
   )
   const coord = (key) => (
     <label className="vi-field is-inline">
@@ -55,7 +54,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
         {picture({ mark: { x: params.x, y: params.y } })}
         <p className="vi-label">{tr('改过之后的图', 'The image once changed')}</p>
         <RowsEditor rows={answer} onChange={update} />
-        {fromRows(answer) && <GridView value={fromRows(answer)} cell={Math.max(8, Math.floor(200 / Math.max(img.w, img.h)))} />}
+        {fromRows(answer) && <Show value={fromRows(answer)} scene="card" views={['pixels']} />}
       </>
     ),
     pick: () => (

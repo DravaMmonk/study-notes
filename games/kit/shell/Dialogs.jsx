@@ -1,6 +1,8 @@
 import { createElement, isValidElement, useEffect } from 'react'
 import { L, keyOf, tr } from './i18n.js'
 import { Markup } from './Markup.jsx'
+import { readShow } from '../engine/views.js'
+import Show from '../views/Show.jsx'
 
 // Escape closes the dialog or sheet on top. Every overlay of the shell uses it, so the key does the same thing in
 // every game.
@@ -68,6 +70,7 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
         <h2>{tr('通过', 'Passed')} · {game.levelLabel(level)} {L(level.title)}</h2>
         {level.afterTitle && <h3 className="dialog-title"><Markup text={level.afterTitle} /></h3>}
         <Paragraphs text={level.after} />
+        {level.afterShow && <Show {...readShow(level.afterShow)} scene="figure" />}
         {note && note !== level.after && <p className="dialog-note"><span className="panel-label">{tr('要点', 'Key idea')}</span><span><Markup text={note} /></span></p>}
         {game.passed(level)}
         {unlocked.length > 0 && (
