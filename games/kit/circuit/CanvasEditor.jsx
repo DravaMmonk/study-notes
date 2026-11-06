@@ -28,7 +28,6 @@ import { alignTerminals, spaceNodes } from './spacing.js'
 // a dot at its right edge. A card dragged onto a region moves into it, or out of it onto the board; clicking a region
 // (or a card in it, or the frame) makes it where the next new card goes (`onTarget`). A frame folds to its card.
 
-const ROW = 20
 // The elements of this board's own layer that match a selector: not those of a board drawn inside one of its cards
 // (a built part unfolded), whose ids may be the same.
 const ownIn = (layer, selector) => [...(layer?.querySelectorAll(selector) ?? [])].filter((el) => el.closest('.board-layer') === layer)
@@ -520,26 +519,31 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
             )}
           </div>
         </div>
-        {/* Several outputs run down the card's right edge; the body starts on the row below the lowest port on
-            either side, so nothing it shows runs under an output's name. */}
-        <div className="node-ports" style={{ minHeight: (outs ? Math.max(ports.length, outs.length) : Math.max(1, ports.length)) * ROW }}>
-          {caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
-          {ports.map((port, index) => (
-            <span key={port} className="node-port-label" style={{ top: index * ROW }}>
-              {inDot(port, parts.portClass?.(node, port) ?? '')}
-              {L(parts.portLabel?.(node, port)) ?? ''}
-            </span>
-          ))}
+        {/* Port rails flank the body so settings and values start beside the first port row. */}
+        <div className="node-ports">
+          <div className="node-inputs">
+            {ports.map((port) => (
+              <span key={port} className="node-port-label">
+                {inDot(port, parts.portClass?.(node, port) ?? '')}
+                {L(parts.portLabel?.(node, port)) ?? ''}
+              </span>
+            ))}
+          </div>
+          <div className="node-body">
+            {caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
+            {body?.(node)}
+          </div>
+          <div className="node-outputs">
+            {role !== 'sink' && outs?.map((o) => (
+              <span key={o.key} className="node-port-out">
+                {o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
+                {outNote?.(node, o.key)}
+                {outDot(srcOf(node, o.key), parts.portClass?.(node, null, o.key) ?? '')}
+              </span>
+            ))}
+          </div>
           {role !== 'sink' && !outs && outDot(node.id, parts.portClass?.(node, null) ?? '')}
-          {role !== 'sink' && outs?.map((o, index) => (
-            <span key={o.key} className="node-port-out" style={{ top: index * ROW }}>
-              {o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
-              {outNote?.(node, o.key)}
-              {outDot(srcOf(node, o.key), parts.portClass?.(node, null, o.key) ?? '')}
-            </span>
-          ))}
         </div>
-        {body?.(node)}
         {regions.length > 0 && !node.fold && (
           <div className="frame-regions">
             {regions.map((r) => {

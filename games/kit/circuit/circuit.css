@@ -17,7 +17,7 @@
 .board-empty { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(320px, 80%); margin: 0; padding: 16px 18px; color: var(--muted); border-radius: 14px; background: color-mix(in srgb, var(--paper) 80%, transparent); box-shadow: 0 0 0 1px var(--hairline); font-size: 13px; line-height: 1.6; text-align: center; transform: translate(-50%, 40px); pointer-events: none; }
 .kw { --kw: color-mix(in srgb, var(--fam, var(--muted)) 55%, var(--rule)); --kw-halo: var(--canvas); }
 .kw.is-live { --kw: color-mix(in srgb, var(--fam, var(--muted)) 75%, var(--ink) 10%); }
-.node { position: absolute; padding-bottom: 10px; border-radius: 12px; background: var(--paper); box-shadow: var(--card); cursor: default; animation: card-in 240ms cubic-bezier(.2, .8, .2, 1); transition: box-shadow 180ms ease; }
+.node { position: absolute; min-width: min-content; padding-bottom: 10px; border-radius: 12px; background: var(--paper); box-shadow: var(--card); cursor: default; animation: card-in 240ms cubic-bezier(.2, .8, .2, 1); transition: box-shadow 180ms ease; }
 .node::before { content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 2px; border-radius: 0 0 2px 2px; background: var(--fam, var(--muted)); opacity: .85; }
 .node.is-selected { box-shadow: var(--card-lift); }
 /* A card being dragged rides over every other one. */
@@ -30,8 +30,14 @@
 .node-title { min-width: 0; flex: 1; padding-top: 2px; line-height: 1.3; white-space: normal; overflow-wrap: anywhere; }
 .node-delete { flex: none; width: 22px; height: 22px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 6px; color: var(--faint); background: none; cursor: pointer; }
 .node-delete:hover { color: var(--fail); background: var(--hover); }
-.node-ports { position: relative; margin-top: 6px; }
-.node-port-label { position: absolute; left: 12px; height: 20px; display: flex; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.node-ports { position: relative; margin-top: 6px; min-height: 20px; padding: 0 12px; display: grid; grid-template-columns: max-content minmax(min-content, 1fr) max-content; align-items: start; }
+.node-inputs, .node-outputs { display: grid; grid-auto-rows: 20px; }
+.node-inputs:not(:empty) { padding-right: 8px; }
+.node-outputs:not(:empty) { padding-left: 8px; }
+.node-body { min-width: 120px; }
+.node-body:empty { min-width: 0; }
+.node-body > :is(.cs-card, .pf-face.is-card) { padding: 0; }
+.node-port-label { position: relative; height: 20px; display: flex; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 10px; white-space: nowrap; }
 .port { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); box-shadow: 0 0 0 1.5px var(--fam, var(--ink)); transition: background 160ms ease, transform 160ms ease; }
 .port.is-wired { background: var(--fam, var(--ink)); }
 .port-in { left: -18px; top: 4px; }
@@ -43,7 +49,8 @@
 .kit-board.is-picking .node { cursor: pointer; }
 @keyframes port-pulse { 50% { box-shadow: 0 0 0 2px var(--accent-ink), 0 0 0 9px color-mix(in srgb, var(--accent) 12%, transparent); } }
 /* One of a card's several outputs: its name (and what it carries) at the right edge, the dot past it. */
-.node-port-out { position: absolute; z-index: 1; right: 0; height: 20px; max-width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-right: 14px; font-family: var(--mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+.node-port-out { position: relative; z-index: 1; height: 20px; max-width: 100%; display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-family: var(--mono); font-size: 10px; color: var(--muted); white-space: nowrap; }
+.node-outputs .port-out { right: -18px; }
 .node-port-out .node-out-name { max-width: 12em; overflow: hidden; text-overflow: ellipsis; }
 /* An output that goes by its symbol (parts.outputs glyph). */
 .node-out-name.is-glyph, .pb-o em.is-glyph { display: inline-flex; line-height: 0; }
@@ -77,8 +84,8 @@
 .choice.is-roomy.is-pad { grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(3, 44px); justify-content: start; gap: 6px; }
 .choice.is-roomy.is-grid { grid-template-columns: repeat(4, 52px); grid-template-rows: none; justify-content: start; gap: 6px; }
 .choice.is-roomy.is-pad button, .choice.is-roomy.is-grid button { padding: 0; font-size: 20px; }
-.node-carries { position: absolute; top: 0; left: 26px; right: 10px; height: 20px; display: flex; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .04em; pointer-events: none; }
-.node-carries.is-input { left: 10px; right: 26px; justify-content: flex-end; }
+.node-carries { position: relative; height: 20px; display: flex; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .04em; pointer-events: none; }
+.node-carries.is-input { justify-content: flex-end; }
 @keyframes card-in { from { opacity: 0; transform: translateY(6px) scale(.97); } }
 .board-zoom { position: absolute; z-index: 5; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 1px; padding: 2px; border-radius: 10px; background: color-mix(in srgb, var(--paper) 88%, transparent); box-shadow: 0 0 0 1px var(--hairline), 0 6px 18px -12px rgba(0, 0, 0, .4); backdrop-filter: blur(10px); }
 .board-zoom button, .board-zoom output { min-width: 30px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font-family: var(--mono); font-size: 11px; }
