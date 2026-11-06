@@ -562,3 +562,14 @@
 .phone-stage-values > span { max-width: var(--stage-preview); max-height: var(--stage-preview); overflow: hidden; }
 .phone-stage.is-expanded .phone-stage-values { display: none; }
 .phone-stage > .pb-grid { margin-block: var(--stage-gap); }
+.wire-tags { pointer-events: auto; cursor: pointer; }
+.wire-tags path { stroke: var(--muted); fill: none; }
+.wire-tags rect { fill: var(--paper); stroke: var(--rule); }
+.wire-tags text { fill: var(--ink); font: var(--fs-mini) var(--sans); pointer-events: none; }
+.wire-tags.is-linked rect { stroke: var(--accent); stroke-width: 2; }
+.phone-wire-tags { display: flex; flex-wrap: wrap; gap: calc(var(--stage-gap) / 2); padding-block: calc(var(--stage-gap) / 2); position: relative; z-index: 2; }
+.phone-wire-tags:empty { display: none; }
+.phone-wire-tags button { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid var(--rule); border-radius: var(--r-sm); background: var(--paper); color: var(--muted); padding: calc(var(--stage-gap) / 3); font: var(--fs-mini)/var(--lh-ui) var(--sans); cursor: pointer; }
+.phone-wire-tags button.is-linked { border-color: var(--accent); color: var(--ink); }
+
+.board-labels { z-index: 3; }

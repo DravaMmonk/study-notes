@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronRight, Columns2, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
+import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
 import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { L, tr } from '../shell/i18n.js'
@@ -19,6 +20,7 @@ export function drawWires(el, graph, parts, live) {
   const svg = el.querySelector('.pb-wires')
   if (!svg) return
   const mode = el.dataset.wires ?? 'all'
+  const tagged = new Set(JSON.parse(el.dataset.labelled ?? '[]'))
   const picked = el.dataset.picked ? srcNode(parsePort(el.dataset.picked).id) : null
   const isSource = (id) => parts.role(graph.nodes.find((n) => n.id === id) ?? {}) === 'source'
   const shown = (w) => mode === 'all' || srcNode(w.from) === picked || w.to === picked || (mode === 'parts' && !isSource(srcNode(w.from)))
@@ -54,7 +56,7 @@ export function drawWires(el, graph, parts, live) {
   const kind = (w) => (parts.wireKind ? ` kind-${parts.wireKind(w, graph)}` : '')
   let markup = ''
   for (const w of graph.wires) {
-    if (!shown(w)) continue
+    if (!shown(w) || tagged.has(wireKey(w))) continue
     const a = at(outPort(w.from))
     const b = at(inPort(w.to, w.port))
     if (!a || !b) continue
@@ -127,9 +129,37 @@ const WIDE = 8
 
 export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
   const board = useRef(null)
+  const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
+  const [linkedSource, setLinkedSource] = useState(null)
   const [openStage, setOpenStage] = useState(null)
   const groups = stages?.stages ?? []
-  const owner = new Map(groups.flatMap((s) => s.nodes.map((id) => [id, s.id])))
+  const owner = stageOwners(groups)
+  const labels = labelledConnections(graph, groups, parts, (w) => {
+    const a = graph.nodes.find((n) => n.id === srcNode(w.from)), b = graph.nodes.find((n) => n.id === w.to)
+    return [[a.x ?? 0, a.y ?? 0], [b.x ?? 0, b.y ?? 0]]
+  })
+  const jump = (w, id) => {
+    setLinkedSource(w.from)
+    if (id === w.to) {
+      const targets = labels.filter((wire) => wire.from === w.from)
+      const index = linkCursor.from === w.from ? (linkCursor.at + 1) % targets.length : 0
+      setLinkCursor({ from: w.from, at: index })
+      id = targets[index].to
+    }
+    const stage = owner.get(id)
+    if (stage) setOpenStage(stage)
+    requestAnimationFrame(() => board.current?.querySelector(`[data-piece="${CSS.escape(id)}"], [data-terminal="${CSS.escape(id)}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
+  }
+  const tags = (ids) => {
+    const incoming = new Set(), outgoing = new Set()
+    return <span className="phone-wire-tags">{labels.flatMap((w) => {
+      const src = srcNode(w.from), key = wireKey(w), name = sourceLabel(w, graph, parts)
+      const out = ids.has(src) && !outgoing.has(w.from), into = ids.has(w.to) && !incoming.has(w.from)
+      if (out) outgoing.add(w.from)
+      if (into) incoming.add(w.from)
+      return [out && <button key={`${key}:out`} type="button" data-wire-tag={key} className={linkedSource === w.from ? 'is-linked' : ''} onClick={(e) => { e.stopPropagation(); jump(w, w.to) }}>{name} →</button>, into && <button key={`${key}:in`} type="button" data-wire-tag={key} className={linkedSource === w.from ? 'is-linked' : ''} onClick={(e) => { e.stopPropagation(); jump(w, src) }}>← {name}</button>].filter(Boolean)
+    })}</span>
+  }
   useEffect(() => {
     if (!stages?.active) return
     const id = owner.get(stages.active)
@@ -253,6 +283,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
             {extra && <span className="pb-param">{extra}</span>}
             {outDots(node)}
           </div>
+          {tags(new Set([node.id]))}
         </div>,
       )
     }
@@ -319,7 +350,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
     )
   }
   return (
-    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires}>
+    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}
@@ -338,13 +369,14 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
       <svg className="pb-wires" aria-hidden="true" />
       <div className="pb-terms is-sources">
         {sources.map((node) => (
-          <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+          <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             {/* A source may take an input too (a reader told which layer to read). */}
             {parts.inputs(node).length > 0 && <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>}
             <span className="pb-thumb">{thumb(node, 64)}</span>
             <span className="pb-name">{nameOf(node)}</span>
             {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
             {outDots(node)}
+            {tags(new Set([node.id]))}
           </div>
         ))}
       </div>
@@ -356,15 +388,17 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
         return <section key={s.id} className={`phone-stage ${expanded ? 'is-expanded' : ''}`} data-stage={s.id}>
           {k > 0 && <span className="phone-stage-arrow" aria-hidden="true">↓</span>}
           <button type="button" className="phone-stage-head" aria-expanded={expanded} onClick={() => setOpenStage(expanded ? null : s.id)}><Icon size={16} /><b>{L(s.label)}</b><span className="phone-stage-chain">{s.nodes.map((id) => L(parts.label(graph.nodes.find((n) => n.id === id)))).join(' → ')}</span><span className="phone-stage-values">{outputs.map((src) => <span key={src}>{stages.value?.(src, 'card')}</span>)}</span></button>
+          {!expanded && tags(new Set(s.nodes))}
           {expanded && grid(null, null, new Set(s.nodes), true)}
         </section>
       })}{grid(null, null, new Set(stages.loose))}</div> : grid(null)}
 
       <div className="pb-terms is-outputs" style={cols(sinks.length)}>
         {sinks.map((node) => (
-          <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+          <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             {sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>}
+            {tags(new Set([node.id]))}
             <span className="pb-name">{nameOf(node)}</span>
           </div>
         ))}

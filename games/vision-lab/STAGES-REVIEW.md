@@ -33,3 +33,10 @@ continue receiving that complete graph. SVG layout tests pass after extracting t
 At 390 × 844, two successive stage-header taps leave exactly one stage expanded and the page has no horizontal
 overflow. The scanner passes all tests from this view. Existing nodes retain their global slot identifiers while
 stage grids compact their visual placement; opening a stage does not write grouping or fold state to progress.
+
+## Connection labels
+
+Desktop and phone use the same crossing/fanout/length policy. Phone labels were followed from a folded kernel
+stage to its presmoothing source and back, opening the kernel stage and highlighting its paired labels. Desktop
+labels highlight the pair and pan to the destination. Multiple consumers are cycled from the single source tag.
+Tags are an interaction layer above cards; long cross-stage strokes are omitted, while intra-stage wires remain.

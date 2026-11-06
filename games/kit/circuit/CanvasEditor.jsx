@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import ClearButton from './ClearButton.jsx'
+import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
 import StageDiagram, { diagramOf } from './StageDiagram.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { ChevronDown, ChevronRight, Maximize, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
@@ -67,6 +68,9 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
   const removable = (node) => !node.locked && (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
+  const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
+  const [linkedSource, setLinkedSource] = useState(null)
+  const [focus, setFocus] = useState(null)
   const [expandedStages, setExpandedStages] = useState(new Set())
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
@@ -614,6 +618,33 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     return <section key={stage.id} data-stage={stage.id} className="pipeline-stage is-expanded" style={{ left: x, top: y, width: right - x, height: bottom - y }}><header><button type="button" aria-expanded="true" onClick={() => toggleStage(stage.id)}><ChevronDown size={14} />{L(stage.label)}</button></header></section>
   }
 
+  const labels = new Set(labelledConnections(graph, groups, parts, (w) => [at(outPort(w.from)), at(inPort(w.to, w.port))]).map(wireKey))
+  const jump = (wire, toward) => {
+    setLinkedSource(wire.from)
+    const targets = graph.wires.filter((w) => w.from === wire.from && labels.has(wireKey(w)))
+    const index = linkCursor.from === wire.from ? (linkCursor.at + 1) % targets.length : 0
+    if (toward === 'to') setLinkCursor({ from: wire.from, at: index })
+    const id = toward === 'to' ? targets[index].to : srcNode(wire.from)
+    const owner = stageOwners(groups).get(id)
+    if (owner) setExpandedStages((current) => new Set([...current, owner]))
+    setSelected({ node: id })
+    setFocus(id)
+  }
+  useEffect(() => {
+    if (!focus) return
+    const n = byId.get(focus), el = surface.current
+    if (n && el) setView((v) => ({ ...v, x: el.clientWidth / 2 - ((n.x ?? 0) + sizeOf(n)[0] / 2) * v.zoom, y: el.clientHeight / 2 - ((n.y ?? 0) + sizeOf(n)[1] / 2) * v.zoom }))
+    setFocus(null)
+  }, [focus])
+  const wireTags = (wire, a, b) => {
+    const name = sourceLabel(wire, graph, parts)
+    const length = Math.min(220, Math.max(76, [...name].reduce((n, c) => n + (c.charCodeAt(0) > 255 ? 11 : 6.5), 20)))
+    return <g key={wireKey(wire)} className={`wire-tags ${linkedSource === wire.from ? 'is-linked' : ''}`}>
+      {[...(graph.wires.find((w) => w.from === wire.from && labels.has(wireKey(w))) === wire ? [[a, 'to', 12]] : []), [b, 'from', -length - 12]].map(([p, toward, dx]) => <g key={toward} role="button" tabIndex={0} aria-label={tr(`沿 ${name} 跳转`, `Follow ${name}`)} data-wire-tag={wireKey(wire)} onPointerDown={(e) => e.stopPropagation()} onClick={() => jump(wire, toward)} onKeyDown={(e) => e.key === 'Enter' && jump(wire, toward)}>
+        <path d={`M${p[0]},${p[1]}h${toward === 'to' ? 12 : -12}`} /><rect x={p[0] + dx} y={p[1] - 10} width={length} height={20} rx={4} /><text x={p[0] + dx + 6} y={p[1] + 4}>{name}</text><title>{name}</title>
+      </g>)}
+    </g>
+  }
   const centre = () => {
     const box = surface.current.getBoundingClientRect()
     return [box.width / 2, box.height / 2]
@@ -632,6 +663,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
             const [a, b] = [at(outPort(wire.from)), at(inPort(wire.to, wire.port))]
             const from = byId.get(srcNode(wire.from))
             if (!a || !b || !from) return null
+            if (labels.has(wireKey(wire))) return null
             const d = curve(a, b)
             const active = selected?.wire?.to === wire.to && selected?.wire?.port === wire.port
             const state = wireState?.(wire)
@@ -657,6 +689,10 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
           {picking && pointer && at(picking) && <path className="kw-draft" d={parsePort(picking).side === 'out' ? curve(at(picking), pointer) : curve(pointer, at(picking))} />}
         </svg>
         {top.map((n) => n.stage ? stageCard(n) : card(n))}
+        {labels.size > 0 && <svg className="board-wires board-labels" width="4000" height="3000">{graph.wires.filter((w) => labels.has(wireKey(w))).map((w) => {
+          const a = at(outPort(w.from)), b = at(inPort(w.to, w.port))
+          return a && b ? wireTags(w, a, b) : null
+        })}</svg>}
       </div>
 
       {canDelete && (
