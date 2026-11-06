@@ -526,11 +526,9 @@
 .cl-inside-scroll .pb-term { min-height: 0; padding: 6px 8px; background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
 .cl-inside-scroll .pb-term::after, .cl-inside-scroll .pb-term .pb-thumb { display: none; }
 .cl-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }
-/* Pipeline stages are presentation only. Boundary pins retain the real circuit port identifiers. */
-.pipeline-stage { position: absolute; box-sizing: border-box; border: 1px solid var(--rule); border-radius: var(--r-lg); background: var(--paper); color: var(--ink); padding: var(--stage-pad); pointer-events: auto; }
-.pipeline-stage > header button { display: flex; align-items: center; gap: calc(var(--stage-gap) / 2); padding: 0; border: 0; background: none; color: var(--ink); font: var(--fs-ui)/var(--lh-ui) var(--sans); text-align: left; cursor: pointer; }
-.pipeline-stage.is-expanded { background: var(--hover); pointer-events: none; }
-.pipeline-stage.is-expanded > header { pointer-events: auto; }
+/* Sections are passive backdrops under real cards and wires, with one fold control. */
+.circuit-section { position: absolute; box-sizing: content-box; padding: calc(var(--group-pad) + var(--group-title)) var(--group-pad) var(--group-pad); transform: translate(calc(-1 * var(--group-pad)), calc(-1 * (var(--group-pad) + var(--group-title)))); border-radius: var(--r-md); background: var(--group); pointer-events: none; }
+.section-label { position: absolute; left: var(--group-pad); top: var(--group-pad); display: flex; align-items: center; gap: calc(var(--stage-gap) / 2); padding: 0; border: 0; background: none; color: var(--muted); font: var(--fs-ui)/var(--lh-ui) var(--sans); text-align: left; pointer-events: auto; cursor: pointer; }
 .wire-tags { pointer-events: auto; cursor: pointer; }
 .wire-tags path { stroke: var(--muted); fill: none; }
 .wire-tags rect { fill: var(--paper); stroke: var(--rule); }
@@ -544,9 +542,10 @@
 .board-labels { z-index: 3; }
 .pb-arrange { display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); color: var(--muted); padding: calc(var(--stage-gap) / 2); cursor: pointer; }
 /* Dividers stay in the slot grid; folded intervals reduce to a line rather than a second kind of card. */
-.pb-grid.is-sectioned { margin-inline-start: var(--section-gutter); row-gap: var(--stage-gap); }
+.pb-grid.is-sectioned { margin-inline-start: var(--section-gutter); row-gap: var(--stage-gap); isolation: isolate; }
+.pb-section-back { z-index: -1; margin: 0 calc(-1 * var(--stage-gap) / 2); border-radius: var(--r-md); background: var(--group); pointer-events: none; }
 .section-gap { position: relative; min-width: 0; align-self: stretch; }
-.section-divider { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: calc(var(--stage-gap) / 2); min-height: var(--section-line-height); border-top: 1px solid var(--rule); color: var(--muted); font: var(--fs-label)/var(--lh-ui) var(--sans); }
+.section-divider { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: calc(var(--stage-gap) / 2); min-height: var(--section-line-height); color: var(--muted); font: var(--fs-label)/var(--lh-ui) var(--sans); }
 .section-divider > button, .section-menu summary { padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
 .section-divider .section-note { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
 .section-note-input { flex: 1; min-width: 0; width: 0; border: 1px solid var(--accent); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); font: var(--fs-ui)/var(--lh-ui) var(--sans); }
@@ -554,7 +553,6 @@
 .section-handle { cursor: ns-resize; }
 .section-add { height: 100%; border: 0; background: none; color: var(--faint); opacity: .55; cursor: pointer; }
 .section-gap.is-drop { outline: 1px solid var(--accent); }
-.section-divider small { font-size: var(--fs-label); white-space: nowrap; }
 .section-menu { position: relative; }
 .section-menu summary { display: grid; place-items: center; list-style: none; }
 .section-menu > button { position: absolute; z-index: 8; right: 0; display: flex; align-items: center; gap: calc(var(--stage-gap) / 2); padding: var(--stage-pad); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--paper); color: var(--fail); white-space: nowrap; font: var(--fs-ui)/var(--lh-ui) var(--sans); }
@@ -569,5 +567,11 @@
 .pb-board.is-compact.is-dense .pb-terms > .pb-term:not(.is-wide) { flex: 1 1 calc((100% - var(--stage-gap)) / 2); padding: var(--stage-pad); }
 
 .node.is-body-folded .node-body { min-width: 0; }
-.pb-tile.is-body-folded { min-height: var(--compact-slot-height); }
 .pb-tile.is-body-folded .pb-param { display: none; }
+
+.pb-tile > .pb-name { align-self: start; }
+.pb-tile.is-body-folded { min-height: var(--compact-slot-height); box-sizing: border-box; padding-block: var(--stage-pad); }
+.pb-cell.is-body-folded .pb-slot { min-height: var(--compact-slot-height); }
+
+.pb-grid.is-region.is-body-folded { grid-auto-rows: minmax(var(--compact-slot-height), auto); }
+.pb-cell.is-body-folded:not(.is-frame) { align-content: start; }

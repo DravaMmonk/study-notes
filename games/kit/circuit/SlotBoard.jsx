@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Columns2, LayoutGrid, Maximize2, Minimize2, Info, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import { arrangeSections, sectionGaps, sectionsOf } from './sections.js'
+import { foldedPartsOf } from './folding.js'
 import SectionLine from './SectionLine.jsx'
 import { useSetting } from '../shell/useSetting.js'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
@@ -140,6 +141,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
   const [compact, setCompact] = useState(startCompact)
   const [dropRow, setDropRow] = useState(null)
   const groups = stages?.stages ?? []
+  const foldedParts = foldedPartsOf(graph, groups)
   const owner = stageOwners(groups)
   const labels = connectionLabels ? labelledConnections(graph, groups, parts, (w) => {
     const a = graph.nodes.find((n) => n.id === srcNode(w.from)), b = graph.nodes.find((n) => n.id === w.to)
@@ -234,7 +236,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
   const used = (src) => graph.wires.some((w) => w.from === src)
   // A block's output dot, or (parts.outputs) a row of them, each under its short name and what it carries (outNote).
   // They wrap onto more rows inside the block; more than WIDE of them and the block takes a row of its own.
-  const outDots = (node) => {
+  const outDots = (node, folded = false) => {
     // A frame's regions give their values inside it; its own output is the one under the block.
     const listed = parts.outputs?.(node)?.filter((o) => !own(node).has(o.key)) ?? null
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
@@ -243,7 +245,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
       <span className="pb-out is-many">
         {outs.map((o) => {
           const src = srcOf(node, o.key)
-          const note = outNote?.(node, o.key)
+          const note = !folded && outNote?.(node, o.key)
           return (
             <span key={o.key} className={`pb-o ${note ? 'has-note' : ''}`}>
               {(outs.length > 1 || note) && (o.glyph ? <em className="is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <em>{L(o.short ?? o.label)}</em>)}
@@ -310,20 +312,24 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
       const row = Math.floor(slot / cols)
       return { gridRow: `${region === null ? rowTrack.get(row) : row + 1} / span ${h}`, gridColumn: `${slot % cols + 1} / span ${w}` }
     }
-    const out = []
+    const out = sections.filter((s) => !s.implicit).map((section) => {
+      const start = gapTrack.get(section.row) ?? rowTrack.get(section.row)
+      const end = gapTrack.get(section.end) ?? rowTrack.get(section.end) ?? tracks.length + 1
+      return <div key={`section-${section.row}`} className="pb-section-back" aria-hidden="true" style={{ gridRow: `${start} / ${end}`, gridColumn: `1 / span ${cols}` }} />
+    })
     for (const [id, slot] of cell) {
       const node = graph.nodes.find((n) => n.id === id)
       if ((parts.frames?.(node) ?? []).length) { out.push(frameBlock(node, slot, region, at(slot, span.get(id)))); continue }
-      const isFolded = compact || (region === null && folded.has(Math.floor(slot / cols)))
+      const isFolded = compact || foldedParts.has(node.id)
       const extra = !isFolded && tileExtra?.(node)
       out.push(
-        <div key={node.id} className="pb-cell" data-slot={slot} data-region={region ?? ''} style={at(slot)}>
+        <div key={node.id} className={`pb-cell ${compact || folded.has(Math.floor(slot / cols)) ? 'is-body-folded' : ''}`} data-slot={slot} data-region={region ?? ''} style={at(slot)}>
           <div className={`pb-tile ${isFolded ? 'is-body-folded' : ''} ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
             {!isFolded && <span className="pb-thumb">{thumb(node, 84)}</span>}
             {extra && <span className="pb-param">{extra}</span>}
-            {outDots(node)}
+            {outDots(node, isFolded)}
           </div>
           {tags(new Set([node.id]))}
         </div>,
@@ -333,7 +339,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
       out.push(fixed
         ? <div key={`slot-${slot}`} className="pb-cell is-blank" style={at(slot)} />
         : (
-          <div key={`slot-${slot}`} className="pb-cell" data-slot={slot} data-region={region ?? ''} style={at(slot)}>
+          <div key={`slot-${slot}`} className={`pb-cell ${compact || folded.has(Math.floor(slot / cols)) ? 'is-body-folded' : ''}`} data-slot={slot} data-region={region ?? ''} style={at(slot)}>
             <button type="button" className="pb-slot" onClick={() => onSlot(slot, region)} aria-label={tr('在这一格放置元件', 'Place a part in this slot')}><Plus size={20} /></button>
           </div>
         ))
@@ -341,17 +347,16 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
     for (const [row, track] of gapTrack) {
       const section = sections.find((s) => s.row === row && !s.implicit)
       out.push(<div key={`gap-${row}`} className={`section-gap ${dropRow === row ? 'is-drop' : ''}`} data-section-gap={row} style={{ gridRow: track, gridColumn: `1 / span ${cols}` }}>
-        {section ? <SectionLine editable={compact && manualSections} section={section} count={section.nodes.length} onEdit={(patch) => stages.edit(row, patch)} onDrag={(event) => dragDivider(row, event)}>
-
-        </SectionLine> : compact && manualSections && <button type="button" className="section-add" aria-label={tr(`在第 ${row + 1} 行前插入分割线`, `Insert divider before row ${row + 1}`)} onClick={() => stages.edit(row, { note: '' })}><Plus size={14} /></button>}
+        {section ? <SectionLine editable={compact && manualSections} section={section} onEdit={(patch) => stages.edit(row, patch)} onDrag={(event) => dragDivider(row, event)} /> : compact && manualSections && <button type="button" className="section-add" aria-label={tr(`在第 ${row + 1} 行前插入分割线`, `Insert divider before row ${row + 1}`)} onClick={() => stages.edit(row, { note: '' })}><Plus size={14} /></button>}
       </div>)
     }
-    return <div className={`pb-grid ${region ? 'is-region' : 'is-sectioned'}`} data-cols={cols} data-size={size} style={{ ...style, ...(region === null ? { gridTemplateRows: tracks.join(' ') } : {}) }}>{out}</div>
+    return <div className={`pb-grid ${region ? 'is-region' : 'is-sectioned'} ${compact || (region && foldedParts.has(region.split('/')[0])) ? 'is-body-folded' : ''}`} data-cols={cols} data-size={size} style={{ ...style, ...(region === null ? { gridTemplateRows: tracks.join(' ') } : {}) }}>{out}</div>
   }
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
   // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
   function frameBlock(node, slot, region, style) {
+    const isFolded = compact || foldedParts.has(node.id)
     const ports = inputs(node)
     let row = 1
     const sections = regionsOf(node).map((r) => {
@@ -362,7 +367,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
           <header className="pb-region-head">
             {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
             {r.opens && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
-            {regionNote?.(node, r.name)}
+            {!isFolded && regionNote?.(node, r.name)}
             {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
           </header>
           {grid(`${node.id}/${r.name}`, { gridRow: `2 / span ${rows}` })}
@@ -372,7 +377,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
               <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
             </span>
             <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>
-            {resultNote?.(node, r.name)}
+            {!isFolded && resultNote?.(node, r.name)}
           </footer>
         </section>
       )
@@ -386,15 +391,15 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
-            {!compact && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
+            {!isFolded && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
-          {width && (
+          {width && !isFolded && (
             <button type="button" className="pb-frame-width" onClick={() => width.set(!width.narrow)} aria-label={width.narrow ? tr('单列，点击切换为双列', 'One column; tap for two') : tr('双列，点击切换为单列', 'Two columns; tap for one')} title={width.narrow ? tr('单列', 'One column') : tr('双列', 'Two columns')}>
               {width.narrow ? <Square size={14} aria-hidden="true" /> : <Columns2 size={14} aria-hidden="true" />}
             </button>
           )}
           {sections}
-          {outDots(node)}
+          {outDots(node, isFolded)}
         </div>
       </div>
     )
@@ -427,7 +432,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
             {!compact && <span className="pb-thumb">{thumb(node, 64)}</span>}
             <span className="pb-name">{nameOf(node)}</span>
             {!compact && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
-            {outDots(node)}
+            {outDots(node, compact)}
             {tags(new Set([node.id]))}
           </div>
         ))}

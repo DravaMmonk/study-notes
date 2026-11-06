@@ -106,4 +106,3 @@ test('a description names only the options that are open', () => {
   assert.deepEqual(partDesc(def, () => ['sub']), def.desc)
   assert.equal(partDesc({ desc: 'plain', settings: [] }), 'plain')
 })
-

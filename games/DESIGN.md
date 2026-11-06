@@ -892,6 +892,11 @@ that slot-grid row; its members extend to the next divider. Adding, moving or de
 or changing its fold state saves the dividers together with ordinary slot positions. An explicit empty list stays
 empty. Dividers affect layout only: blueprint text, circuit execution and judging ignore them.
 
+Groups are passive, faint backdrops computed from their real components' bounds plus token-defined padding.
+They sit under cards and wires, with a name and fold control at the upper left. They have no card border, title
+bar, proxy ports or drag handle. Phone sections use the same faint backdrop across their original grid rows,
+with the divider note and fold control at the top.
+
 Folding a section keeps every original component at its existing desktop coordinates or phone slot. The same
 card head and real ports remain; only configuration, readings, summaries and value previews are omitted. The kit
 owns this fixed presentation: parts define only card, tile and detail views. Folding does not replace or hide

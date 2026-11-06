@@ -1,5 +1,6 @@
 import { useSetting } from '../shell/useSetting.js'
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
+import { foldedPartsOf } from './folding.js'
 import ClearButton from './ClearButton.jsx'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
 import { arrangedBoard, pipelineLayout } from './layout.js'
@@ -83,7 +84,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [focus, setFocus] = useState(null)
-  const foldedNodes = new Set((stages?.stages ?? []).filter((s) => s.folded).flatMap((s) => s.nodes))
+  const foldedNodes = foldedPartsOf(graph, stages?.stages ?? [])
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
@@ -575,7 +576,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
           </div>
           {role !== 'sink' && !outs && outDot(node.id, parts.portClass?.(node, null) ?? '')}
         </div>
-        {regions.length > 0 && !node.fold && !folded && (
+        {regions.length > 0 && !node.fold && (
           <div className="frame-regions">
             {regions.map((r) => {
               const key = `${node.id}/${r.name}`
@@ -605,10 +606,10 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const toggleStage = (id) => stages.toggle(id)
   const stageFrame = (stage) => {
     const nodes = stageNodes(stage).map((n) => ({ ...n, ...painting?.nodes.get(n.id) }))
-    const x = Math.min(...nodes.map((n) => n.x ?? 0)) - 16, y = Math.min(...nodes.map((n) => n.y ?? 0)) - 36
-    const right = Math.max(...nodes.map((n) => (n.x ?? 0) + sizeOf(n)[0])) + 16
-    const bottom = Math.max(...nodes.map((n) => (n.y ?? 0) + sizeOf(n)[1])) + 16
-    return <section key={stage.id} data-stage={stage.id} className="pipeline-stage is-expanded" style={{ left: x, top: y, width: right - x, height: bottom - y }}><header><button type="button" aria-expanded={!stage.folded} onClick={() => toggleStage(stage.id)}>{stage.folded ? <ChevronRight size={14} /> : <ChevronDown size={14} />}{L(stage.label)}</button></header></section>
+    const x = Math.min(...nodes.map((n) => n.x ?? 0)), y = Math.min(...nodes.map((n) => n.y ?? 0))
+    const right = Math.max(...nodes.map((n) => (n.x ?? 0) + sizeOf(n)[0]))
+    const bottom = Math.max(...nodes.map((n) => (n.y ?? 0) + sizeOf(n)[1]))
+    return <section key={stage.id} data-stage={stage.id} className="circuit-section" style={{ left: x, top: y, width: right - x, height: bottom - y }}><button className="section-label" type="button" aria-expanded={!stage.folded} onClick={() => toggleStage(stage.id)}>{stage.folded ? <ChevronRight size={14} /> : <ChevronDown size={14} />}{L(stage.label)}</button></section>
   }
 
   const labels = new Set((connectionLabels ? labelledConnections(graph, groups, parts, (w) => [at(outPort(w.from)), at(inPort(w.to, w.port))]) : []).map(wireKey))
