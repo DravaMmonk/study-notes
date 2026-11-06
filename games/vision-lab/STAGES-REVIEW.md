@@ -48,3 +48,24 @@ The complete game audit reports one staged task over the limit: From One Wire (`
 10 loose parts against the limit of 8. It is recorded as `open-crowded: 1-40@1-40` in that game's work list;
 no puzzle, reference circuit or dependency was changed. Vision Lab has no over-limit staged tasks. Vision
 Complete, State Graph, Q.E.D., Syntax Graph, Software Factory and The Car Talks also have no findings.
+
+## Player settings and final browser checks
+
+The gear is available on maps and in levels. Language and theme now live inside that panel, using the existing
+site-wide preference keys. Language choices are exactly 简体中文 and English. Other preferences use the single
+per-game `games.settings` key; grid choices are shared with results and cycle through one button.
+
+On the scanner at 390 × 844, manual section editing starts hidden. Enabling it exposes insertion, handles, notes
+and deletion; disabling it removes every editing control while retaining saved dividers. A temporary divider was
+inserted at row 11, renamed, dragged to row 12 and deleted: all 27 nodes remained. Compact initial mode survives
+reload. The custom “取样与汇总” note and fold state survive reload and appear on desktop too. Desktop Arrange
+changes coordinates, preserves wires and section membership, and Undo restores the exact previous graph.
+New parts skip holes inside folded sections; if all sections are folded, adding a part reveals its section.
+
+The scanner still passes all cases. Label preferences remove and restore paired tags. Setting Picture changes the
+results preference immediately, and its single view button changes it back to Numbers. English phone settings
+have no horizontal overflow. Settings were inspected in light and dark themes on phone and 1440 × 900 desktop.
+Q.E.D.'s map offers language and theme without the irrelevant manual-section option. Registry tests cover
+per-game isolation, defaults, malformed/unavailable storage, validation, filtering, reset and subscriptions.
+
+Final verification: 416 tests passed; course checks, vocabulary snapshots, duplication, styles and all-game builds passed. The completed implementation plan was consolidated into DESIGN and PLAN.

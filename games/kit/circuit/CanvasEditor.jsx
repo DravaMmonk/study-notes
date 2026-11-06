@@ -1,3 +1,4 @@
+import { useSetting } from '../shell/useSetting.js'
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import ClearButton from './ClearButton.jsx'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
@@ -63,6 +64,7 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * only shows: it pans, zooms and fits, and nothing on it moves.
  */
 export default function CanvasEditor({ stages = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+  const [connectionLabels] = useSetting('connectionLabels')
   // A change never takes off what the level locked on the board (model.js keepLocked).
   const onChange = readOnly ? () => {} : (next, opt) => {
     const moved = next.nodes.filter((n) => { const before = graph.nodes.find((x) => x.id === n.id); return before && (n.x !== before.x || n.y !== before.y) })
@@ -644,7 +646,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     return <section key={stage.id} data-stage={stage.id} className="pipeline-stage is-expanded" style={{ left: x, top: y, width: right - x, height: bottom - y }}><header><button type="button" aria-expanded="true" onClick={() => toggleStage(stage.id)}><ChevronDown size={14} />{L(stage.label)}</button></header></section>
   }
 
-  const labels = new Set(labelledConnections(graph, groups, parts, (w) => [at(outPort(w.from)), at(inPort(w.to, w.port))]).map(wireKey))
+  const labels = new Set((connectionLabels ? labelledConnections(graph, groups, parts, (w) => [at(outPort(w.from)), at(inPort(w.to, w.port))]) : []).map(wireKey))
   const jump = (wire, toward) => {
     setLinkedSource(wire.from)
     const targets = graph.wires.filter((w) => w.from === wire.from && labels.has(wireKey(w)))
@@ -673,7 +675,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   }
   const organize = () => {
     const planned = arrange()
-    const next = arrangedBoard(graph, planned, parts.role)
+    const next = arrangedBoard(graph, planned)
     onChange(next, { keep: true })
     setPresentation(planned)
   }

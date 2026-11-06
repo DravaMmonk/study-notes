@@ -653,3 +653,19 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .content-problems h1 { font-size: 1.25rem; margin: 0 0 16px; }
 .content-problems ul { margin: 0; padding-left: 1.2em; line-height: 1.7; }
 .content-problems code { font-size: 0.85rem; overflow-wrap: anywhere; }
+
+.player-settings { min-width: min(300px, 100%); color: var(--ink); }
+.player-settings section + section { border-top: 1px solid var(--line); }
+.player-setting { display: flex; align-items: center; justify-content: space-between; gap: var(--stage-gap); padding: var(--stage-pad) 0; font: var(--fs-small) var(--sans); }
+.player-setting > span:first-child { min-width: 0; }
+.player-setting button { color: var(--ink); cursor: pointer; }
+.player-setting [role='switch'] { flex: none; width: 36px; height: 22px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--hover); }
+.player-setting [role='switch'] i { display: block; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: transform 120ms ease; }
+.player-setting [role='switch'][aria-checked='true'] { background: var(--accent); }
+.player-setting [role='switch'][aria-checked='true'] i { transform: translateX(12px); background: var(--paper); }
+.setting-options { display: flex; flex: none; gap: var(--stage-gap); }
+.setting-options button, .settings-reset { padding: var(--stage-pad); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--paper); font: var(--fs-label) var(--sans); }
+.setting-options button[aria-pressed='true'] { border-color: var(--accent); color: var(--accent); }
+.settings-reset { width: 100%; color: var(--muted); cursor: pointer; }
+
+.player-settings-popover { width: min(var(--settings-width), calc(100vw - 2 * var(--stage-pad))); }

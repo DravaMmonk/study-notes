@@ -62,10 +62,7 @@ export function pipelineLayout(graph, stages, expanded, { sizeOf, roleOf, stageS
   return { nodes, groups }
 }
 
-/** Save an explicit arrangement as ordinary coordinates and slots; grouping remains absent from the graph. */
-export function arrangedBoard(graph, planned, roleOf) {
-  const order = graph.nodes.filter((n) => !n.in && roleOf(n) === 'part' && planned.nodes.has(n.id))
-    .sort((a, b) => planned.nodes.get(a.id).x - planned.nodes.get(b.id).x || planned.nodes.get(a.id).y - planned.nodes.get(b.id).y)
-  const slots = new Map(order.map((n, k) => [n.id, k]))
-  return { ...graph, nodes: graph.nodes.map((n) => planned.nodes.has(n.id) ? { ...n, ...planned.nodes.get(n.id), ...(slots.has(n.id) ? { slot: slots.get(n.id) } : {}) } : n) }
+/** Save desktop coordinates without changing slot membership or divider boundaries. */
+export function arrangedBoard(graph, planned) {
+  return { ...graph, nodes: graph.nodes.map((n) => planned.nodes.has(n.id) ? { ...n, ...planned.nodes.get(n.id) } : n) }
 }

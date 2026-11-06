@@ -3,6 +3,7 @@ import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, moveToSlot, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
+import { firstOpenSlot } from './sections.js'
 import { useHistory } from './useHistory.js'
 
 const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
@@ -183,7 +184,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     buzz()
     edit(next, note)
   }
-  const placeFirstFree = (type) => place(type, placement(graph, parts).free[0])
+  const placeFirstFree = (type) => place(type, firstOpenSlot(graph, parts))
   const remove = (id) => {
     if (byId(graph, id)?.locked) return
     buzz([6, 40, 6])

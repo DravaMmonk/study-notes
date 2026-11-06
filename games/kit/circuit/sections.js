@@ -84,3 +84,9 @@ export function arrangeSections(board, parts) {
   }
   return { ...board, nodes: board.nodes.map((n) => slots.has(n.id) ? { ...n, slot: slots.get(n.id) } : n) }
 }
+
+/** Tray additions use visible free work slots rather than holes inside folded sections. */
+export function firstOpenSlot(board, parts) {
+  const placed = placement(board, parts), sections = sectionsOf(board, placed)
+  return placed.free.find((slot) => !sections.find((s) => slot >= s.row * placed.cols && slot < s.end * placed.cols)?.folded) ?? placed.free.at(-1)
+}

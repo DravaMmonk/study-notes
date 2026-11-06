@@ -188,3 +188,5 @@
 ## 顺序与依赖
 
 阶段 0 → 1 → 2 → 3 → 4。阶段内依赖：1.1 先于 1.3；2.1 先于 2.2；3.2 的 `S.ref` 可提前到阶段 2 之前，不影响其他条目。
+
+- 2026-11-06: Completed pipeline miniatures, shared slot dividers and notes, undoable data-flow arrangement, and per-game device settings with advanced section editing hidden by default.

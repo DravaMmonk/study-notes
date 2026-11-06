@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Columns2, LayoutGrid, Minimize2, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
+import { Columns2, LayoutGrid, Maximize2, Minimize2, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import { arrangeSections, sectionGaps, sectionsOf } from './sections.js'
 import SectionLine from './SectionLine.jsx'
+import { useSetting } from '../shell/useSetting.js'
 import MiniFace from '../shell/parts/MiniFace.jsx'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
 import ClearButton from './ClearButton.jsx'
@@ -130,20 +131,21 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ stages = null, gameId = '', graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
+export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
   const board = useRef(null)
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
-  const [compact, setCompact] = useState(() => {
-    try { return localStorage.getItem(`kit.compact.${gameId}`) === 'true' } catch { return false }
-  })
+  const [startCompact] = useSetting('compact')
+  const [manualSections] = useSetting('manualSections')
+  const [connectionLabels] = useSetting('connectionLabels')
+  const [compact, setCompact] = useState(startCompact)
   const [dropRow, setDropRow] = useState(null)
   const groups = stages?.stages ?? []
   const owner = stageOwners(groups)
-  const labels = labelledConnections(graph, groups, parts, (w) => {
+  const labels = connectionLabels ? labelledConnections(graph, groups, parts, (w) => {
     const a = graph.nodes.find((n) => n.id === srcNode(w.from)), b = graph.nodes.find((n) => n.id === w.to)
     return [[a.x ?? 0, a.y ?? 0], [b.x ?? 0, b.y ?? 0]]
-  })
+  }) : []
   const jump = (w, id) => {
     setLinkedSource(w.from)
     if (id === w.to) {
@@ -302,7 +304,7 @@ export default function SlotBoard({ stages = null, gameId = '', graph, parts, na
     const rowTrack = new Map(), gapTrack = new Map(), tracks = []
     for (let row = 0; row <= rows; row++) {
       const line = sections.find((s) => s.row === row && !s.implicit)
-      if (gaps.includes(row) && (line || compact) && (!folded.has(row) || line)) { gapTrack.set(row, tracks.length + 1); tracks.push('minmax(var(--section-line-height), auto)') }
+      if (gaps.includes(row) && (line || (compact && manualSections)) && (!folded.has(row) || line)) { gapTrack.set(row, tracks.length + 1); tracks.push('minmax(var(--section-line-height), auto)') }
       if (row < rows && !folded.has(row)) { rowTrack.set(row, tracks.length + 1); tracks.push(compact ? 'minmax(var(--compact-slot-height), auto)' : 'minmax(var(--slot-height), auto)') }
     }
     const at = (slot, [w, h] = [1, 1]) => {
@@ -339,9 +341,9 @@ export default function SlotBoard({ stages = null, gameId = '', graph, parts, na
     for (const [row, track] of gapTrack) {
       const section = sections.find((s) => s.row === row && !s.implicit)
       out.push(<div key={`gap-${row}`} className={`section-gap ${dropRow === row ? 'is-drop' : ''}`} data-section-gap={row} style={{ gridRow: track, gridColumn: `1 / span ${cols}` }}>
-        {section ? <SectionLine section={section} count={section.nodes.length} onEdit={(patch) => stages.edit(row, patch)} onDrag={(event) => dragDivider(row, event)}>
+        {section ? <SectionLine editable={compact && manualSections} section={section} count={section.nodes.length} onEdit={(patch) => stages.edit(row, patch)} onDrag={(event) => dragDivider(row, event)}>
           {section.folded && <><span className="section-pins">{section.ins.map((w) => <i key={`${w.to}.${w.port}`} data-p={inPort(w.to, w.port)} className="section-port is-in" />)}{[...new Set(section.outs.map((w) => w.from))].map((src) => <i key={src} data-p={outPort(src)} className="section-port is-out" />)}</span>{tags(new Set(section.nodes))}</>}
-        </SectionLine> : compact && <button type="button" className="section-add" aria-label={tr(`在第 ${row + 1} 行前插入分割线`, `Insert divider before row ${row + 1}`)} onClick={() => stages.edit(row, { note: '' })}><Plus size={14} /></button>}
+        </SectionLine> : compact && manualSections && <button type="button" className="section-add" aria-label={tr(`在第 ${row + 1} 行前插入分割线`, `Insert divider before row ${row + 1}`)} onClick={() => stages.edit(row, { note: '' })}><Plus size={14} /></button>}
       </div>)
     }
     return <div className={`pb-grid ${region ? 'is-region' : 'is-sectioned'}`} data-cols={cols} data-size={size} style={{ ...style, ...(region === null ? { gridTemplateRows: tracks.join(' ') } : {}) }}>{out}</div>
@@ -403,7 +405,7 @@ export default function SlotBoard({ stages = null, gameId = '', graph, parts, na
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}
         {!fixed && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
-        {!fixed && <button type="button" className="pb-compact" aria-pressed={compact} aria-label={tr('全部折叠', 'Collapse all parts')} onClick={() => { const next = !compact; setCompact(next); try { localStorage.setItem(`kit.compact.${gameId}`, String(next)) } catch { /* The preference lasts this visit. */ } }}><Minimize2 size={16} /></button>}
+        {!fixed && <button type="button" className="pb-compact" aria-pressed={compact} aria-label={tr(compact ? '切换完整视图' : '切换紧凑视图', compact ? 'Switch to full view' : 'Switch to compact view')} onClick={() => setCompact(!compact)}>{compact ? <Maximize2 size={16} /> : <Minimize2 size={16} />}</button>}
         {!fixed && onChange && <button type="button" className="pb-arrange" onClick={organize} aria-label={tr('整理', 'Arrange')} title={tr('按数据流整理，可撤销', 'Arrange by data flow; undoable')}><LayoutGrid size={16} /></button>}
         {history && (
           <span className="pb-steps">

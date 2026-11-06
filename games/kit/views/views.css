@@ -54,7 +54,6 @@
 .view-pick { display: inline-flex; flex: none; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
 .view-pick button { height: 22px; display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; border: 0; border-radius: 999px; color: var(--muted); background: none; font: var(--fs-label) var(--sans); cursor: pointer; }
 .view-pick button:hover { color: var(--ink); }
-.view-pick button[aria-pressed='true'] { color: var(--ink); background: var(--hover); }
 
 /* In a waveform's label column, a lane is 26 px high. */
 .tl-labels span { gap: 6px; }

@@ -1,8 +1,7 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
+import { ArrowLeft, BookMarked, BookOpen, PanelLeft, Settings } from 'lucide-react'
 import { applyTheme } from '../theme.js'
 import { currentLang } from '../lang.js'
-import { mountBarMenus } from '../menu.js'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 import { Dialog, FailDialog, SolvedDialog, TaskDoneDialog } from './Dialogs.jsx'
@@ -17,7 +16,9 @@ import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slot
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
 import { EditContext, same } from './edit.js'
-import { ViewsContext } from '../views/choice.js'
+import { SettingsContext } from './useSetting.js'
+import SettingsPanel from './SettingsPanel.jsx'
+import { settings } from './settings.js'
 
 // Each game links back to its parent hub, on the standalone site and the local dev server.
 const SITE = { games: '../index.html' }
@@ -116,13 +117,6 @@ export default function GameShell({ game, store, author = null }) {
 
   useEffect(() => store.save(progress), [store, progress])
   useEffect(() => applyTheme(theme), [theme])
-  // The kit's language and theme menus (menu.js), the same as on every other page; a theme picked there comes back
-  // here so the level screens redraw in it.
-  const actions = useRef(null)
-  useEffect(() => {
-    const menus = mountBarMenus(actions.current, { onTheme: setTheme })
-    return () => menus.destroy()
-  }, [])
   useEffect(() => {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
     document.title = tr(`${game.title.zh} — ${game.title.en}`, `${game.title.en} — ${game.title.zh}`)
@@ -287,11 +281,12 @@ export default function GameShell({ game, store, author = null }) {
     setGone(wanted.n)
     if (wanted.task !== taskAt) goTask(wanted.task)
   }
-  const views = useMemo(() => ({ game: game.id, defaults: game.views ?? null }), [game])
+  const [settingsAnchor, setSettingsAnchor] = useState(null)
+  useEffect(() => { window.addEventListener('storage', settings.notify); return () => window.removeEventListener('storage', settings.notify) }, [])
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (
-    <ViewsContext.Provider value={views}>
+    <SettingsContext.Provider value={game}>
       <div ref={viewportRoot} className={`game ${level ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
         {/* The kit's top bar (games/kit/ui.css), the same on every page of the notes and games. */}
         <header className="kit-bar game-bar">
@@ -318,8 +313,7 @@ export default function GameShell({ game, store, author = null }) {
               <BookMarked size={16} /><span>{tr('百科', 'Encyclopedia')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
             </button>
           )}
-          {/* Filled by menu.js: React leaves it empty. */}
-          <div className="kit-actions" ref={actions} />
+          <button type="button" className="kit-btn" aria-label={tr('设置', 'Settings')} aria-expanded={Boolean(settingsAnchor)} onClick={(e) => setSettingsAnchor(settingsAnchor ? null : e.currentTarget)}><Settings size={16} /></button>
         </header>
 
         {!level && (
@@ -385,6 +379,7 @@ export default function GameShell({ game, store, author = null }) {
           <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
         )}
         {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
+        {settingsAnchor && <SettingsPanel game={game} theme={theme} onTheme={setTheme} anchor={settingsAnchor} onClose={() => setSettingsAnchor(null)} />}
         {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
         {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
         {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。', 'Unlocked by passing this level.') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。', 'Unlocks later in the game.')]} actions={[[tr('确定', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
@@ -395,7 +390,7 @@ export default function GameShell({ game, store, author = null }) {
           <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
         )}
       </div>
-    </ViewsContext.Provider>
+    </SettingsContext.Provider>
   )
 }
 

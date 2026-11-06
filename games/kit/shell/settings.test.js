@@ -1,0 +1,38 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { createSettings, settingsFor } from './settings.js'
+
+const game = { id: 'a', views: { grid: ['numbers', 'pixels'] }, circuit: { played: new Map([['level', [{ carry: 'before' }]]]) } }
+const memory = () => { let text = null; return { getItem: () => text, setItem: (_, value) => { text = value } } }
+test('device settings use defaults, validate choices and separate games', () => {
+  const storage = memory(), prefs = createSettings(() => storage)
+  assert.equal(prefs.get(game, 'manualSections'), false)
+  assert.equal(prefs.get(game, 'connectionLabels'), true)
+  assert.equal(prefs.get(game, 'view.grid'), 'numbers')
+  prefs.set(game, 'manualSections', true)
+  prefs.set(game, 'view.grid', 'pixels')
+  prefs.set(game, 'view.grid', 'wave')
+  assert.equal(prefs.get(game, 'view.grid'), 'pixels')
+  assert.equal(prefs.get({ ...game, id: 'b' }, 'manualSections'), false)
+  assert.equal(createSettings(() => storage).get(game, 'manualSections'), true)
+  prefs.reset(game)
+  assert.equal(prefs.get(game, 'manualSections'), false)
+})
+test('unavailable or malformed storage falls back to defaults', () => {
+  for (const storage of [{ getItem() { throw Error('denied') }, setItem() { throw Error('denied') } }, { getItem: () => '{', setItem() {} }]) {
+    const prefs = createSettings(() => storage)
+    prefs.set(game, 'compact', true)
+    assert.equal(prefs.get(game, 'compact'), false)
+  }
+})
+test('only meaningful settings are listed and changes notify subscribers', () => {
+  assert(settingsFor(game).some((s) => s.key === 'manualSections'))
+  assert(!settingsFor({ id: 'table' }).some((s) => s.key === 'manualSections'))
+  assert(!settingsFor({ id: 'single', views: { grid: ['pixels'] } }).some((s) => s.key === 'view.grid'))
+  const prefs = createSettings(memory), seen = []
+  const stop = prefs.subscribe(() => seen.push(prefs.snapshot()))
+  prefs.set(game, 'compact', true)
+  stop()
+  prefs.reset(game)
+  assert.deepEqual(seen, [1])
+})

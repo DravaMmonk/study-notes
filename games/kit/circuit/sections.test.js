@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { placement } from './model.js'
-import { arrangeSections, editSection, sectionPreset, sectionsOf } from './sections.js'
+import { arrangeSections, editSection, firstOpenSlot, sectionPreset, sectionsOf } from './sections.js'
 import { print } from './text.js'
 const parts={role:n=>n.type==='in'?'source':n.type==='out'?'sink':'part',inputs:n=>n.type==='in'?[]:['in'],outputs:()=>null}
 const board={nodes:[{id:'input',type:'in'},{id:'a',type:'part'},{id:'b',type:'part'},{id:'c',type:'part'},{id:'d',type:'part'},{id:'out',type:'out'}],wires:[{from:'input',to:'a',port:'in'},{from:'a',to:'b',port:'in'},{from:'b',to:'c',port:'in'},{from:'c',to:'d',port:'in'},{from:'d',to:'out',port:'in'}]}
@@ -36,4 +36,10 @@ test('a trailing divider retains a visible empty insertion row',()=>{
  const b={...board,sections:[{row:4,note:'New work'}]}
  assert.ok(placement(b,parts).rows>=5)
  assert.ok(placement(b,parts).free.includes(8))
+})
+
+test('new parts skip free holes in folded sections', () => {
+ const preset=sectionPreset(board,[{label:'Read',nodes:['a','b','c']}],parts)
+ assert.equal(firstOpenSlot(preset,parts),5)
+ assert.equal(firstOpenSlot({...preset,sections:preset.sections.map(s=>({...s,folded:true}))},parts),placement(preset,parts).free.at(-1))
 })

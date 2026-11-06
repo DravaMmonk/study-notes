@@ -892,12 +892,12 @@ that slot-grid row; its members extend to the next divider. Adding, moving or de
 or changing its fold state saves the dividers together with ordinary slot positions. An explicit empty list stays
 empty. Dividers affect layout only: blueprint text, circuit execution and judging ignore them.
 
-On phones, the existing slot board remains the only component surface. A per-game device preference in the tools
-row switches every part to its name and one `mini` line, hiding matrices and controls; sources and sinks show an
-inline value. Compact grids reserve a narrow left gutter. Divider notes are editable in place; a fold toggle reduces
+On phones, the existing slot board remains the only component surface. One tools-row button switches every part to its name and one `mini` line, hiding matrices and controls; sources and sinks show an
+inline value. The initial mode follows the device setting; the tools-row button changes the current visit.
+Compact grids reserve a narrow left gutter. With manual section editing enabled, notes are editable in place; a fold toggle reduces
 the rows to the divider, its note and a part count. Gap + controls insert dividers, handles move them between valid
 row gaps, and a menu deletes them without removing components. Connections into folded sections end at divider
-pins and use paired source labels; no stroke crosses a folded interval. Stepping or following a label unfolds the
+pins and use paired source labels when enabled; no labelled stroke crosses a folded interval. Stepping or following a label unfolds the
 section containing its destination and scrolls it into view.
 
 Desktop uses the same sections, notes and fold state: folded dependency diagrams or expanded component outlines.
@@ -911,6 +911,21 @@ changing divider rows or section order; adding a part never rearranges existing 
 scene. `circuit/connections.js` shares the tag rules: internal stage wires remain; crossings, a source fanning into
 at least two sections, and remaining connections over 320 board units use tags. Clicking a source tag cycles its
 consumers, highlights matching ends and reveals the destination. All styling uses the kit tokens.
+
+**Player settings.** A gear in the shared game bar opens a desktop popover or phone bottom sheet on both maps
+and levels. Language and theme are choices inside this panel, retaining the site-wide `fieldnotes.lang` and
+`fieldnotes.theme` preferences. Their separate top-bar menus are removed from games. The kit alone registers presentation/editing
+preferences in `shell/settings.js`; `useSetting` supplies reactive reads and writes. `when(game)` hides irrelevant
+options. Device preferences share one `games.settings` localStorage key, partitioned by game, outside puzzle
+progress and stamps. Storage access is guarded; unavailable or invalid preferences use defaults.
+
+The panel separates display and editing with a rule, uses one short name and control per row, and ends with
+Restore defaults. Manual section editing starts off: handles, insertion, deletion and note editing are hidden;
+existing notes and dividers remain, and folding always works. Compact slots initially start off. Connection labels
+start on. Grid display offers the game's available choices only when there is more than one, sharing its stored
+choice with every value and results row through `views/choice.js`. Results view switches use a single button that
+cycles the available views. Defaults give the simplest experience. New settings may alter presentation or editing,
+never the puzzle, judging or amount of hints. Content and domains cannot register settings.
 
 **原则**
 

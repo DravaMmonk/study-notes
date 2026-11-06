@@ -12,13 +12,13 @@ import { PHONE, useMedia } from './useMedia.js'
 const GAP = 10
 const EDGE = 12
 
-export default function Popover({ anchor, title, onClose, children }) {
+export default function Popover({ anchor, title, onClose, children, className = '' }) {
   const phone = useMedia(PHONE)
   if (phone) return <Sheet title={title} onClose={onClose}>{children}</Sheet>
-  return <Box anchor={anchor} label={title} onClose={onClose}>{children}</Box>
+  return <Box className={className} anchor={anchor} label={title} onClose={onClose}>{children}</Box>
 }
 
-function Box({ anchor, label, onClose, children }) {
+function Box({ anchor, label, onClose, children, className }) {
   const box = useRef(null)
   const [at, setAt] = useState(null) // { left, top, below, arrow, room }
   // Under the button when it fits there, else over it; never past the window's edges. It follows the button as the
@@ -63,7 +63,7 @@ function Box({ anchor, label, onClose, children }) {
   return createPortal(
     <div
       ref={box}
-      className={`kit-pop ${at && !at.below ? 'is-above' : ''}`}
+      className={`kit-pop ${className} ${at && !at.below ? 'is-above' : ''}`}
       role="dialog"
       aria-label={label}
       style={at ? { left: at.left, top: at.top, maxHeight: at.room, '--arrow': `${at.arrow}px` } : { visibility: 'hidden' }}

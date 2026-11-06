@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import MiniFace from './parts/MiniFace.jsx'
 import Show from '../views/Show.jsx'
-import { editSection, sectionPreset, sectionsOf } from '../circuit/sections.js'
+import { editSection, firstOpenSlot, sectionPreset, sectionsOf } from '../circuit/sections.js'
 import { placement } from '../circuit/model.js'
 import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
@@ -182,6 +182,11 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const parts = useMemo(() => (defined ? definedParts(given, defined.of) : given), [given, defined?.of])
   const circuit = useMemo(() => sectionPreset(stored, stages?.stages ?? [], parts), [stored, stages, parts])
   const change = (next, options = {}) => {
+    const added = new Set(next.nodes.filter((n) => !circuit.nodes.some((old) => old.id === n.id)).map((n) => n.id))
+    if (added.size && next.sections) {
+      const opened = new Set(sectionsOf(next, placement(next, parts)).filter((s) => s.nodes.some((id) => added.has(id))).map((s) => s.row))
+      next = { ...next, sections: next.sections.map((s) => opened.has(s.row) ? { ...s, folded: false } : s) }
+    }
     const { sectionsEdited, ...mode } = options
     const moved = next.nodes.some((n) => { const old = circuit.nodes.find((x) => x.id === n.id); return old && (n.slot !== old.slot || n.narrow !== old.narrow) })
     if (stored.sections === undefined && !sectionsEdited && !moved) {
@@ -231,7 +236,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   })
   // A new card goes into the region chosen last, while its frame is there and open.
   const into = target && circuit.nodes.some((n) => n.id === target.split('/')[0] && !n.fold) ? target : null
-  const add = (type) => change(make(circuit, type, { region: into }).graph)
+  const add = (type) => change(make(circuit, type, { region: into, ...(!into ? { slot: firstOpenSlot(circuit, parts) } : {}) }).graph)
   const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !n.locked) || board.clearable?.(circuit) ? board.clear : null
 
   const briefEl = <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
@@ -341,7 +346,6 @@ function PhoneLevel({ stages, screen, board, parts, ctx, card, inside, all, item
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
         stages={stages}
-        gameId={game.id}
         dense={dense}
         graph={circuit}
         parts={parts}

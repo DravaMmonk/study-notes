@@ -10,7 +10,7 @@ test('stages are layout units, terminals have outer columns and explicit arrange
   assert.ok(plan.nodes.get('image').x<plan.groups.get('read').x)
   assert.ok(plan.groups.get('read').x<plan.nodes.get('c').x)
   assert.ok(plan.nodes.get('out').x>plan.nodes.get('c').x)
-  const next=arrangedBoard(graph,plan,roleOf)
+  const next=arrangedBoard(graph,plan)
   assert.equal(next.wires,graph.wires)
   assert.equal(next.nodes[1].params,graph.nodes[1].params)
   assert.deepEqual(next.nodes.map(n=>[n.id,n.type]),graph.nodes.map(n=>[n.id,n.type]))
@@ -20,4 +20,12 @@ test('expanding a stage reserves room for its dependency-ordered internal cards'
   const plan=pipelineLayout(graph,[{id:'read',nodes:['a','b']}],new Set(['read']),options)
   assert.ok(plan.nodes.get('a').x<plan.nodes.get('b').x)
   assert.ok(plan.nodes.get('b').x+100<plan.nodes.get('c').x)
+})
+
+test('desktop arrangement preserves saved section membership and nested coordinates', () => {
+  const board = { ...graph, sections: [{row:0,note:'first'}, {row:2,folded:true}], nodes: [...graph.nodes.map((n,k)=>({...n,slot:k+4})), {id:'nested',type:'part',in:'a/body',x:9,y:12}] }
+  const next = arrangedBoard(board, pipelineLayout(board, [{id:'first',nodes:['a','b']}], new Set(), options))
+  assert.equal(next.sections, board.sections)
+  assert.deepEqual(next.nodes.map((n)=>[n.id,n.slot,n.in]),board.nodes.map((n)=>[n.id,n.slot,n.in]))
+  assert.equal(next.nodes.at(-1),board.nodes.at(-1))
 })
