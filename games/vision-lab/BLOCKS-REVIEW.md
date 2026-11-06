@@ -41,8 +41,8 @@ exactly the two selected component centres, preserving stored x/y coordinates an
 replaced the selected block's cards with a narrow header and real endpoint stubs; pressing a stub restored the
 prior visible mode. A saved `lastView` also preserves restoration through reload.
 
-On phones, default presentation has full-size cards, no backdrop, and edge-to-edge block rules. Manual
-partitioning plus compact view supplies backdrops and the Partition button. Selecting rows 0 and 1 created the
+On phones, blocks use edge-to-edge rules without backdrops or container padding. Each block
+selects full cards, ports only or a hidden header. Manual partitioning supplies the Partition button. Selecting rows 0 and 1 created the
 expected inclusive member list without changing the 27-node circuit. Hidden phone stubs restored the hidden
 members. The header component is shared with desktop. Desktop settings omit Manual partitioning; Arrange is
 absent on both devices. Settings remain device preferences, separate from puzzle progress.
@@ -69,9 +69,23 @@ remained unchanged. Container projection preserves stored desktop coordinates an
 
 With Manual partitioning off, preset members have no drag handle or Move action. Move validation also rejects
 swaps that would indirectly move a protected member. Manual partitioning restores these actions. Hidden phone
-headers retain the shared grey group background and padding around the title row.
+headers retain the shared grey group background without padding around the title row.
 The existing ordinary port controls and cubic wire renderer are unchanged.
 
 426 tests pass, including six new container tests for holes, insertion, detachment, cross-container swaps,
 protected members and empty-container removal. Course checks, vocabulary checks, duplication, styles and
 all-game builds also pass.
+
+
+## Unified phone rules and renaming
+
+The separate compact view, its switch, setting and backdrop styles are removed. At 390 × 844 every block
+header spans x=0 through x=390 with zero padding. Full/ports/hidden remain independent block choices.
+The Partition button works whenever Manual partitioning is on; its shared bottom feedback banner changes
+from selecting the first row to selecting the last row. Cancel clears the selection. A completed two-row
+selection created the expected block and preserved all 17 wires of the level 1-5 reference circuit exactly.
+
+Phone title buttons open the shared sheet with Save and Cancel/close, rather than focusing an inline title
+input. The input uses a 16 px touch-input token. Browser review saved a new title and observed viewport scale 1;
+physical iOS keyboard behaviour still requires device confirmation. Desktop title editing remains inline.
+Targeted model/folding/settings tests, vocabulary/style checks and all-game builds pass.

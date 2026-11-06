@@ -538,17 +538,6 @@
 .phone-wire-tags button.is-linked { border-color: var(--accent); color: var(--ink); }
 
 .board-labels { z-index: 3; }
-/* Dividers stay in the slot grid; folded intervals reduce to a line rather than a second kind of card. */
-.pb-compact { display: grid; place-items: center; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); color: var(--muted); padding: calc(var(--stage-gap) / 2); cursor: pointer; }
-.pb-compact[aria-pressed='true'] { color: var(--accent-ink); border-color: var(--accent); }
-.pb-board.is-compact { gap: var(--stage-gap); }
-.pb-board.is-compact .pb-tools { flex-wrap: wrap; margin: 0; padding-block: calc(var(--stage-gap) / 2); }
-.pb-board.is-compact .pb-tile { min-height: var(--compact-slot-height); box-sizing: border-box; padding: var(--stage-pad) calc(var(--stage-pad) / 2); }
-.pb-board.is-compact .pb-terms { gap: var(--stage-gap); }
-.pb-board.is-compact .pb-term { padding: var(--stage-pad); min-height: var(--compact-slot-height); }
-.pb-board.is-compact .pb-param, .pb-board.is-compact .pb-wiremode span { display: none; }
-.pb-board.is-compact.is-dense .pb-terms > .pb-term:not(.is-wide) { flex: 1 1 calc((100% - var(--stage-gap)) / 2); padding: var(--stage-pad); }
-
 .node.is-body-folded .node-body { min-width: 0; }
 .pb-tile.is-body-folded .pb-param { display: none; }
 
@@ -584,9 +573,7 @@
 .board-zoom button[aria-pressed='true'], .pb-partition[aria-pressed='true'] { color: var(--accent); background: var(--hover); }
 .pb-partition { display: grid; place-items: center; border: var(--block-rule-width) solid var(--line); border-radius: var(--r-md); padding: calc(var(--stage-gap) / 2); background: var(--paper); color: var(--muted); cursor: pointer; }
 .pb-grid.is-blocks { isolation: isolate; row-gap: var(--board-gap-y); }
-.pb-grid.is-block-editor { padding-inline: var(--block-pad); }
-.pb-block-back { z-index: -1; margin: 0 calc(-1 * var(--block-pad)); background: var(--group); border-radius: var(--r-md); pointer-events: none; }
-.pb-block-head { position: relative; padding-block: var(--block-pad); }
+.pb-block-head { position: relative; padding: 0; }
 .pb-block-head.is-rule, .pb-block-end { width: 100vw; margin-inline-start: calc((100% - 100vw) / 2); border-top: var(--block-rule-width) solid var(--block-rule); }
 .pb-block-head.is-rule > .block-header { padding-inline: var(--gutter); }
 .pb-block-end { align-self: end; pointer-events: none; }
@@ -596,4 +583,7 @@
 .pb-block-head.is-hidden .phone-wire-tags { flex-wrap: nowrap; max-height: var(--block-head-height); overflow-x: auto; }
 .pb-block-head .block-stubs .pb-dot { position: relative; inset: auto; flex: none; }
 
-.pb-block-head.is-hidden { padding: var(--block-pad); background: var(--group); border-radius: var(--r-md); }
+.pb-block-head.is-hidden { background: var(--group); }
+.block-rename { display: grid; gap: var(--stage-gap); }
+.block-rename input { min-width: 0; padding: var(--stage-pad); border: var(--block-rule-width) solid var(--line); border-radius: var(--r-md); background: var(--paper); color: var(--ink); font: var(--fs-touch-input) var(--sans); }
+.block-rename button { padding: var(--stage-pad); border: 0; border-radius: var(--r-md); background: var(--accent); color: var(--accent-ink); font: var(--fs-touch-input) var(--sans); cursor: pointer; }

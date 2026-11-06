@@ -24,17 +24,18 @@ test('device settings use defaults, validate choices and separate games', () => 
 test('unavailable or malformed storage falls back to defaults', () => {
   for (const storage of [{ getItem() { throw Error('denied') }, setItem() { throw Error('denied') } }, { getItem: () => '{', setItem() {} }]) {
     const prefs = createSettings(() => storage)
-    prefs.set(game, 'compact', true)
-    assert.equal(prefs.get(game, 'compact'), false)
+    prefs.set(game, 'manualBlocks', true)
+    assert.equal(prefs.get(game, 'manualBlocks'), false)
   }
 })
 test('only meaningful settings are listed and changes notify subscribers', () => {
   assert(settingsFor(game,{phone:true}).some((s) => s.key === 'manualBlocks'))
+  assert(!settingsFor(game,{phone:true}).some((s) => s.key === 'compact'))
   assert(!settingsFor({ id: 'table' }).some((s) => s.key === 'manualBlocks'))
   assert(!settingsFor({ id: 'single', views: { grid: ['pixels'] } }).some((s) => s.key === 'view.grid'))
   const prefs = createSettings(memory), seen = []
   const stop = prefs.subscribe(() => seen.push(prefs.snapshot()))
-  prefs.set(game, 'compact', true)
+  prefs.set(game, 'manualBlocks', true)
   stop()
   prefs.reset(game)
   assert.deepEqual(seen, [1])

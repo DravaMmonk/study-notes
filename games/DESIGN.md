@@ -901,11 +901,14 @@ the stored mode. Notes, modes and deletion use the same header on both devices. 
 
 Desktop Partition is always available in the canvas tools. A dragged rectangle selects component centres; Escape
 or a second press cancels. Passive token-based backdrops follow member bounds, with no independent block drag
-surface. Phone Partition appears only with Manual partitioning enabled and compact view selected: pick a start
-row then an end row, both inclusive. In that state blocks use faint backdrops and compact tiles. In other states
-cards retain their default size and blocks use two edge-to-edge horizontal rules, with the header on the first.
-Ports renders as full in the default phone view. Hidden collapses either presentation to its header line; its
-actual endpoint stubs use the upper/lower edges on phones and left/right edges on desktop.
+surface. Phone Partition appears with Manual partitioning enabled: pick a start row then an end row, both
+inclusive. A bottom instruction banner names the current step and offers Cancel; choosing the start row changes
+the prompt to the end row. Phones always use two edge-to-edge horizontal rules with the header on the first,
+without block backdrops or container padding. There is no separate compact-view switch or device preference.
+Full shows complete cards; ports shows heads and actual ports in place. Hidden reduces a block to its header,
+retaining the grey header background with no padding. Actual endpoint stubs use the upper/lower edges on phones
+and left/right edges on desktop. Phone title buttons open a rename sheet with an explicit Save action. Its input uses the touch-input type
+token (at least 16 px) to avoid Safari focus zoom while preserving browser zoom controls.
 
 Compact placement has two layers in `circuit/layout.js`: dependency columns within a block, upstream barycentre
 ordering and actual-port alignment; then block/loose units wrap by viewport width, with independent branches
@@ -914,7 +917,7 @@ hole is an add/drop slot and one complete empty row follows the last occupied ro
 `rows` records the container origin and reserved extent. Dropping or adding inside a container assigns membership;
 dropping outside detaches it rather than extending the old block. Swaps transfer both memberships with their
 positions. Preset-block members cannot be moved on phones while Manual partitioning is off, including moves
-from the detail sheet; their ports remain operable. Hidden phone headers retain the shared grey group background and padding around their title row.
+from the detail sheet; their ports remain operable. Hidden phone headers retain the shared grey group background without container padding.
 Phone members occupy contiguous two-column rows.
 Gaps, padding and header sizes use shared tokens. Initial layout and newly carried/added components may be
 placed; existing saved coordinates are retained. View changes make temporary room after the changed unit while
@@ -935,8 +938,8 @@ progress and stamps. Storage access is guarded; unavailable or invalid preferenc
 
 The panel separates display and editing with a rule, uses one short name and control per row, and ends with
 Restore defaults. Manual partitioning starts off and appears only on phones where circuit grouping is meaningful. The phone
-Partition button also requires compact view; desktop Partition is independent of this setting. Existing blocks
-and their view controls remain available. Compact slots initially start off. Connection labels
+Partition button follows this setting; desktop Partition is independent of it. Existing blocks
+and their view controls remain available. Connection labels
 default off on desktop, where the real ports and continuous wires preserve the data flow without duplicate name
 tags, and on on phones, where long wires cross many scrolling rows. An explicit device preference overrides both
 defaults. Grid display offers the game's available choices only when there is more than one, sharing its stored

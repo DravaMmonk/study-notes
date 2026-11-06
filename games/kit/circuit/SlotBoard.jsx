@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Columns2, Group, Maximize2, Minimize2, Info, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
+import { Columns2, Group, Info, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import { blockRows, rowMembers } from './blocks.js'
 import { foldedPartsOf } from './folding.js'
 import BlockHeader from './BlockHeader.jsx'
@@ -132,18 +132,15 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ blocks = null, canMove = () => true, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
+export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
   const board = useRef(null)
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
-  const [startCompact] = useSetting('compact')
   const [manualBlocks] = useSetting('manualBlocks')
   const [connectionLabels] = useSetting('connectionLabels')
-  const [compact, setCompact] = useState(startCompact)
   const [partitioning,setPartitioning]=useState(false)
   const [startRow,setStartRow]=useState(null)
   const [hoverRow,setHoverRow]=useState(null)
-  const tight=compact&&manualBlocks
   const groups = blocks?.items ?? []
   const foldedParts = foldedPartsOf(graph, groups)
   const owner = blockOwners(groups)
@@ -193,7 +190,13 @@ export default function SlotBoard({ blocks = null, canMove = () => true, graph, 
     if(startRow===null){setStartRow(row);setHoverRow(row)}
     else{blocks.create(rowMembers(graph,parts,startRow,row,placed));setStartRow(null);setPartitioning(false)}
   }
-  useEffect(()=>{if(!tight){setPartitioning(false);setStartRow(null)}},[tight])
+  useEffect(()=>{if(!manualBlocks){setPartitioning(false);setStartRow(null)}},[manualBlocks])
+  useEffect(()=>{
+    onPartitionHint?.(partitioning ? {
+      text: L(startRow===null ? WORDS.partitionStart : WORDS.partitionEnd),
+      cancel: ()=>{setPartitioning(false);setStartRow(null)},
+    } : null)
+  },[partitioning,startRow,onPartitionHint])
   // Up to four sinks to a row, the rows as even as they can be: five go 3 + 2, eight 4 + 4.
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
   const regionsOf = (node) => parts.frames?.(node) ?? []
@@ -285,7 +288,7 @@ export default function SlotBoard({ blocks = null, canMove = () => true, graph, 
     const rowTrack=new Map(),headTrack=new Map(),tracks=[]
     for(let row=0;row<rows;row++){
       for(const b of ranges.filter(b=>b.start===row)){headTrack.set(b.id,tracks.length+1);tracks.push('auto')}
-      if(!hidden.has(row)){rowTrack.set(row,tracks.length+1);tracks.push(tight?'minmax(var(--compact-slot-height),auto)':'minmax(var(--slot-height),auto)')}
+      if(!hidden.has(row)){rowTrack.set(row,tracks.length+1);tracks.push(ranges.some(b=>b.view==='ports'&&row>=b.start&&row<b.end)?'minmax(var(--compact-slot-height),auto)':'minmax(var(--slot-height),auto)')}
     }
     const at=(slot,[w,h]=[1,1])=>({gridRow:`${region===null?rowTrack.get(Math.floor(slot/cols)):Math.floor(slot/cols)+1} / span ${h}`,gridColumn:`${slot%cols+1} / span ${w}`})
     const selected=(row)=>partitioning&&startRow!==null&&row>=Math.min(startRow,hoverRow??startRow)&&row<=Math.max(startRow,hoverRow??startRow)
@@ -293,17 +296,16 @@ export default function SlotBoard({ blocks = null, canMove = () => true, graph, 
     const reveal=(b,id)=>{blocks.open(b.id);requestAnimationFrame(()=>board.current?.querySelector(`[data-piece="${CSS.escape(id)}"]`)?.scrollIntoView({block:'center'}))}
     for(const block of ranges){
       const first=headTrack.get(block.id),last=rowTrack.get(block.end-1)??first
-      if(tight&&block.view!=='hidden')out.push(<div key={`back-${block.id}`} className="pb-block-back" aria-hidden="true" style={{gridRow:`${first} / ${last+1}`,gridColumn:`1 / span ${cols}`}} />)
-      out.push(<div key={`head-${block.id}`} data-block={block.id} data-pick-row={block.start} className={`pb-block-head ${tight?'is-backdrop':'is-rule'} ${block.view==='hidden'?'is-hidden':''}`} style={{gridRow:first,gridColumn:`1 / span ${cols}`}}>
+      out.push(<div key={`head-${block.id}`} data-block={block.id} data-pick-row={block.start} className={`pb-block-head is-rule ${block.view==='hidden'?'is-hidden':''}`} style={{gridRow:first,gridColumn:`1 / span ${cols}`}}>
         <BlockHeader block={block} editable={!fixed} onEdit={(patch)=>blocks.edit(block.id,patch)} />
         {block.view==='hidden'&&<><span className="block-stubs is-input">{block.ins.map(w=><button key={`${w.to}.${w.port}`} className="pb-dot is-in is-wired" data-p={inPort(w.to,w.port)} aria-label={nameOf(graph.nodes.find(n=>n.id===w.to))} onClick={()=>reveal(block,w.to)}><i /></button>)}</span><span className="block-stubs is-output">{[...new Set(block.outs.map(w=>w.from))].map(src=><button key={src} className="pb-dot is-out is-wired" data-p={outPort(src)} aria-label={nameOf(graph.nodes.find(n=>n.id===srcNode(src)))} onClick={()=>reveal(block,srcNode(src))}><i /></button>)}</span>{tags(new Set(block.nodes))}</>}
       </div>)
-      if(!tight&&block.view!=='hidden')out.push(<div key={`end-${block.id}`} className="pb-block-end" aria-hidden="true" style={{gridRow:last,gridColumn:`1 / span ${cols}`}} />)
+      if(block.view!=='hidden')out.push(<div key={`end-${block.id}`} className="pb-block-end" aria-hidden="true" style={{gridRow:last,gridColumn:`1 / span ${cols}`}} />)
     }
     for(const [id,slot]of cell){
       const row=Math.floor(slot/cols)
       if(region===null&&hidden.has(row))continue
-      const node=graph.nodes.find(n=>n.id===id),isFolded=tight&&(!owner.has(id)||foldedParts.has(id))
+      const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
       if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id))));continue}
       const extra=!isFolded&&tileExtra?.(node)
       out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>
@@ -317,15 +319,15 @@ export default function SlotBoard({ blocks = null, canMove = () => true, graph, 
     for(const slot of free){
       const row=Math.floor(slot/cols)
       if(region===null&&hidden.has(row))continue
-      out.push(<div key={`slot-${slot}`} className={`pb-cell ${tight?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>{fixed?<div className="pb-cell is-blank" />:<button type="button" className="pb-slot" onClick={()=>onSlot(slot,region)} aria-label={tr('在这一格放置元件','Place a part in this slot')}><Plus size={20} /></button>}</div>)
+      out.push(<div key={`slot-${slot}`} className={`pb-cell ${ranges.some(b=>b.view==='ports'&&row>=b.start&&row<b.end)?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>{fixed?<div className="pb-cell is-blank" />:<button type="button" className="pb-slot" onClick={()=>onSlot(slot,region)} aria-label={tr('在这一格放置元件','Place a part in this slot')}><Plus size={20} /></button>}</div>)
     }
-    return <div className={`pb-grid ${region?'is-region':'is-blocks'} ${tight?'is-block-editor':''}`} data-cols={cols} data-size={size} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' ')}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
+    return <div className={`pb-grid ${region?'is-region':'is-blocks'}`} data-cols={cols} data-size={size} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' ')}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
   }
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
   // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
   function frameBlock(node, slot, region, style) {
-    const isFolded = tight && (!owner.has(node.id) || foldedParts.has(node.id))
+    const isFolded = foldedParts.has(node.id)
     const ports = inputs(node)
     let row = 1
     const regions = regionsOf(node).map((r) => {
@@ -374,13 +376,12 @@ export default function SlotBoard({ blocks = null, canMove = () => true, graph, 
     )
   }
   return (
-    <div className={`pb-board ${dense ? 'is-dense' : ''} ${tight ? 'is-compact' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
+    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}
         {!fixed && <span className="pb-steps pb-clear"><ClearButton onClear={onClear} size={16} /></span>}
-        {!fixed && <button type="button" className="pb-compact" aria-pressed={compact} aria-label={tr(compact ? '切换完整视图' : '切换紧凑视图', compact ? 'Switch to full view' : 'Switch to compact view')} onClick={() => setCompact(!compact)}>{compact ? <Maximize2 size={16} /> : <Minimize2 size={16} />}</button>}
-        {!fixed&&tight&&blocks&&<button type="button" className="pb-partition" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{setPartitioning(!partitioning);setStartRow(null)}}><Group size={16} /></button>}
+        {!fixed&&manualBlocks&&blocks&&<button type="button" className="pb-partition" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{setPartitioning(!partitioning);setStartRow(null)}}><Group size={16} /></button>}
         {history && (
           <span className="pb-steps">
             <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销', 'Undo')}><Undo2 size={16} /></button>
@@ -398,10 +399,10 @@ export default function SlotBoard({ blocks = null, canMove = () => true, graph, 
           <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             {/* A source may take an input too (a reader told which layer to read). */}
             {parts.inputs(node).length > 0 && <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>}
-            {!tight && <span className="pb-thumb">{thumb(node, 64)}</span>}
+            <span className="pb-thumb">{thumb(node, 64)}</span>
             <span className="pb-name">{nameOf(node)}</span>
-            {!tight && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
-            {outDots(node, tight)}
+            {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
+            {outDots(node)}
             {tags(new Set([node.id]))}
           </div>
         ))}
@@ -413,7 +414,7 @@ export default function SlotBoard({ blocks = null, canMove = () => true, graph, 
         {sinks.map((node) => (
           <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
-            {!tight && (sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>)}
+            {(sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>)}
             {tags(new Set([node.id]))}
             <span className="pb-name">{nameOf(node)}</span>
           </div>

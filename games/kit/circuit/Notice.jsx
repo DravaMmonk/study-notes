@@ -1,13 +1,13 @@
 import { L, tr } from '../shell/i18n.js'
 
 // The phone board's one line of feedback, the same in every game: while a dot is picked, what to tap next (with
-// Cancel); otherwise the last change's note (with Undo).
-export default function Notice({ editing }) {
-  if (editing.pickNote) {
+// Cancel). Partition prompts use the same banner; otherwise show the last change's note (with Undo).
+export default function Notice({ editing, prompt = null }) {
+  if (prompt || editing.pickNote) {
     return (
       <div className="pb-banner" role="status">
-        <span>{editing.pickNote}</span>
-        <button onClick={editing.unpick}>{tr('取消', 'Cancel')}</button>
+        <span>{prompt?.text ?? editing.pickNote}</span>
+        <button onClick={prompt?.cancel ?? editing.unpick}>{tr('取消', 'Cancel')}</button>
       </div>
     )
   }

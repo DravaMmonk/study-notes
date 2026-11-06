@@ -48,7 +48,6 @@ export function createSettings(storage = () => globalThis.localStorage) {
 export const settings = createSettings()
 const staged = (game) => [...(game.circuit?.played?.values() ?? [])].some((tasks) => tasks.some((t) => t.carry || t.carries))
 defineSetting({ key: 'manualBlocks', group: 'edit', label: WORDS.manualBlocks, kind: 'toggle', default: false, when: (game,{phone=false}={})=>phone&&staged(game) })
-defineSetting({ key: 'compact', group: 'display', label: { zh: '打开关卡时紧凑格位', en: 'Start with compact slots' }, kind: 'toggle', default: false, when: (g) => Boolean(g.circuit) })
 defineSetting({ key: 'connectionLabels', group: 'display', label: { zh: '跨段连线画成标签', en: 'Label cross-section wires' }, kind: 'toggle', default: (_game, { phone = false } = {}) => phone, when: staged })
 for (const shape of SHAPES) defineSetting({
   key: `view.${shape}`, group: 'display', label: { zh: '网格默认显示', en: 'Grid display' }, kind: 'choice',

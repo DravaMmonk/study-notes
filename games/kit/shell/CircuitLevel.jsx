@@ -295,6 +295,7 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
   const [manualBlocks] = useSetting('manualBlocks')
   const canMove = (id) => manualBlocks || !blockOfPart(circuit,id)?.startsWith('course:')
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
+  const [partitionHint, setPartitionHint] = useState(null)
   const scroller = useRef(null)
   const editing = useSlotEditing({
     graph: circuit,
@@ -336,6 +337,7 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
         blocks={blocks}
+        onPartitionHint={setPartitionHint}
         canMove={canMove}
         dense={dense}
         graph={circuit}
@@ -362,7 +364,7 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
         types={types}
       />
       {below}
-      <Notice editing={editing} />
+      <Notice editing={editing} prompt={partitionHint} />
       {node && (desc || body || packedHere || removable) && (
         <Sheet title={editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions onEdit={packedHere ? () => { close(); inside.edit(node, ctx.board) } : null} onMove={role === 'part' && canMove(node.id) ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
           <div className="cl-sheet">

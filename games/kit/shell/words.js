@@ -4,6 +4,8 @@ import { T } from './i18n.js'
 
 export const WORDS = {
   partition: T('分区', 'Partition'),
+  partitionStart: T('点击分区的起始行，再点击结束行。', 'Tap the first row, then the last row of the block.'),
+  partitionEnd: T('已选起始行，请点击结束行（包含两端）。', 'First row selected. Tap the last row; both rows are included.'),
   manualBlocks: T('手动分区', 'Manual partitioning'),
   block: T('区块', 'Block'),
   blockFull: T('全部显示', 'Show all'),
