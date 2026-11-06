@@ -28,6 +28,7 @@
         "en": "Two-axis differences"
       },
       "configurations": { "windowTable.axis": ["y"] },
+      "stage": { "zh": "纵向响应", "en": "Vertical response" },
       "brief": {
         "zh": "给定横向数学差分核，造出横向和纵向的带符号响应。x 向右、y 向下为正，图外延续边缘。",
         "en": "Use the supplied horizontal mathematical derivative kernel to produce signed x and y responses. Positive axes are right and down; extend edge readings."

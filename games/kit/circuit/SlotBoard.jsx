@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef, useState } from 'react'
-import { Columns2, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ChevronDown, ChevronRight, Columns2, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { L, tr } from '../shell/i18n.js'
@@ -125,8 +125,17 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
+export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
   const board = useRef(null)
+  const [openStage, setOpenStage] = useState(null)
+  const groups = stages?.stages ?? []
+  const owner = new Map(groups.flatMap((s) => s.nodes.map((id) => [id, s.id])))
+  useEffect(() => {
+    if (!stages?.active) return
+    const id = owner.get(stages.active)
+    setOpenStage(id ?? null)
+    requestAnimationFrame(() => board.current?.querySelector(`[data-piece="${CSS.escape(stages.active)}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }))
+  }, [stages?.active])
   const [wires, setWires] = useState(readMode)
   const mode = WIRE_MODES.find((m) => m.id === wires)
   const next = WIRE_MODES[(WIRE_MODES.indexOf(mode) + 1) % WIRE_MODES.length]
@@ -148,7 +157,8 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   useLayoutEffect(() => {
     const el = board.current
     if (!el) return undefined
-    const draw = () => drawWires(el, graph, parts)
+    const inside = groups.length ? { ...graph, wires: graph.wires.filter((w) => owner.get(srcNode(w.from)) === owner.get(w.to)) } : graph
+    const draw = () => drawWires(el, inside, parts)
     draw()
     const observer = new ResizeObserver(draw)
     observer.observe(el)
@@ -223,8 +233,11 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
   }
 
   // A grid of slots: the board's, or a region's inside a frame (`region`, rows of the frame's own grid: placement).
-  function grid(region, style) {
-    const { cell, span, cols, size, free } = placement(graph, parts, region, { fixed })
+  function grid(region, style, members = null, stage = false) {
+    const whole = placement(graph, parts, region, { fixed })
+    const subset = members ? { ...graph, nodes: graph.nodes.filter((n) => members.has(n.id)).sort((a, b) => (a.slot ?? Infinity) - (b.slot ?? Infinity)).map((n) => ({ ...n, slot: undefined })) } : graph
+    const { cell, span, cols, size, free } = placement(subset, parts, region, { fixed: fixed || stage })
+    const original = (slot, id) => members ? id ? whole.cell.get(id) : whole.free[free.indexOf(slot)] ?? whole.size + free.indexOf(slot) : slot
     const at = (slot, [w, h] = [1, 1]) => ({ gridRow: `${Math.floor(slot / cols) + 1} / span ${h}`, gridColumn: `${(slot % cols) + 1} / span ${w}` })
     const out = []
     for (const [id, slot] of cell) {
@@ -232,7 +245,7 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       if ((parts.frames?.(node) ?? []).length) { out.push(frameBlock(node, slot, region, at(slot, span.get(id)))); continue }
       const extra = tileExtra?.(node)
       out.push(
-        <div key={node.id} className="pb-cell" data-slot={slot} data-region={region ?? ''} style={at(slot)}>
+        <div key={node.id} className="pb-cell" data-slot={original(slot)} data-region={region ?? ''} style={at(slot)}>
           <div className={`pb-tile ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             <span className="pb-thumb">{thumb(node, 84)}</span>
@@ -244,11 +257,11 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
       )
     }
     for (const slot of free) {
-      out.push(fixed
+      out.push(fixed || stage
         ? <div key={`slot-${slot}`} className="pb-cell is-blank" style={at(slot)} />
         : (
           <div key={`slot-${slot}`} className="pb-cell" data-slot={slot} data-region={region ?? ''} style={at(slot)}>
-            <button type="button" className="pb-slot" onClick={() => onSlot(slot, region)} aria-label={tr('在这一格放置元件', 'Place a part in this slot')}><Plus size={20} /></button>
+            <button type="button" className="pb-slot" onClick={() => onSlot(original(slot), region)} aria-label={tr('在这一格放置元件', 'Place a part in this slot')}><Plus size={20} /></button>
           </div>
         ))
     }
@@ -336,7 +349,16 @@ export default function SlotBoard({ graph, parts, nameOf, thumb, tileExtra, sink
         ))}
       </div>
 
-      {grid(null)}
+      {groups.length > 0 ? <div className="phone-stages">{groups.map((s, k) => {
+        const expanded = openStage === s.id
+        const outputs = [...new Set(s.outs.map((w) => w.from))]
+        const Icon = expanded ? ChevronDown : ChevronRight
+        return <section key={s.id} className={`phone-stage ${expanded ? 'is-expanded' : ''}`} data-stage={s.id}>
+          {k > 0 && <span className="phone-stage-arrow" aria-hidden="true">↓</span>}
+          <button type="button" className="phone-stage-head" aria-expanded={expanded} onClick={() => setOpenStage(expanded ? null : s.id)}><Icon size={16} /><b>{L(s.label)}</b><span className="phone-stage-chain">{s.nodes.map((id) => L(parts.label(graph.nodes.find((n) => n.id === id)))).join(' → ')}</span><span className="phone-stage-values">{outputs.map((src) => <span key={src}>{stages.value?.(src, 'card')}</span>)}</span></button>
+          {expanded && grid(null, null, new Set(s.nodes), true)}
+        </section>
+      })}{grid(null, null, new Set(stages.loose))}</div> : grid(null)}
 
       <div className="pb-terms is-outputs" style={cols(sinks.length)}>
         {sinks.map((node) => (

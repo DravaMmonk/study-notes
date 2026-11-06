@@ -93,6 +93,7 @@
         "en": "Build a local rule"
       },
       "configurations": { "reduceRows.mode": ["sum"] },
+      "stage": { "zh": "邻域加权", "en": "Neighbourhood weighting" },
       "brief": {
         "zh": "造一个接受任意奇数尺寸权重表的局部处理器。展开邻域只给读数和权重；你负责组合它们，并为每个原位置得到一个结果。",
         "en": "Build a local processor accepting any odd-sized weight table. Unfold windows supplies samples and weights only; combine them and produce one result per original location."

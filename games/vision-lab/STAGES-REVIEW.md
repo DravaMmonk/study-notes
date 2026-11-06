@@ -27,3 +27,9 @@ The scanner opens as five prior stages plus the current loose parts. Light and d
 Expanding the kernel stage, changing its border setting and restoring it, then folding and checking still passes
 all scanner cases. The saved graph is identical before and after a fold toggle; the runner and blueprint APIs
 continue receiving that complete graph. SVG layout tests pass after extracting the shared column layout.
+
+## Phone accordion
+
+At 390 × 844, two successive stage-header taps leave exactly one stage expanded and the page has no horizontal
+overflow. The scanner passes all tests from this view. Existing nodes retain their global slot identifiers while
+stage grids compact their visual placement; opening a stage does not write grouping or fold state to progress.

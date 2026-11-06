@@ -26,6 +26,7 @@
         "zh": "先合并方向强度",
         "en": "Measure directional strength"
       },
+      "stage": { "zh": "梯度强度", "en": "Gradient strength" },
       "brief": {
         "zh": "保留差分器给出的两个带符号分量，并输出它们作为垂直方向分量时的长度。长度只表示变化有多强，不能被正负抵消。 三点加权器的方向输入用 (dx,dy)=(1,0) 表示横向，(0,1) 表示纵向。",
         "en": "Retain both signed derivative components and output their length as perpendicular components. Strength measures change size without cancellation. For the weighted line direction inputs use (dx,dy)=(1,0) horizontally and (0,1) vertically."
@@ -160,6 +161,7 @@
         "zh": "组合方向与强度",
         "en": "Compose responses"
       },
+      "stage": { "zh": "垂直平滑", "en": "Perpendicular smoothing" },
       "brief": {
         "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。 预设电路中的常数元件提供两个方向和 [前,中,后]=[1,2,1] 平滑权重。",
         "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components. Starter constants supply the two directions and smoothing weights [first,centre,last]=[1,2,1]."

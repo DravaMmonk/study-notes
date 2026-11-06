@@ -27,6 +27,7 @@
         "en": "Kernel orientation"
       },
       "configurations": {},
+      "stage": { "zh": "核方向", "en": "Kernel orientation" },
       "brief": {
         "zh": "接口接收数学卷积核。让非对称核的方向与卷积定义一致，保持输出尺寸和零边界。",
         "en": "The interface receives mathematical convolution kernels. Match their orientation, including asymmetric kernels, with same-size output and zero boundaries."
