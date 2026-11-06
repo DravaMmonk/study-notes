@@ -31,18 +31,21 @@ const both = (f) => T(f('zh'), f('en'))
 /** The tests the strip lists: a solved task's hidden tests join them. */
 const testsOf = (task, solved) => (solved ? [...task.tests, ...task.hidden] : task.tests)
 
-const readyCircuit = (game, task, board) => taskBoard(board, new Set(board.nodes.map((node) => node.type)), (type,key) => game.circuit.settingsIn(task,type,key), game.circuit.partOf)
+const readyCircuit = (game, task, board) => {
+  const own = game.circuit.forTask(task)
+  return taskBoard(board, new Set(board.nodes.map((node) => node.type)), (type, key) => own.settingsIn(task, type, key), own.partOf)
+}
 
 const circuit = circuitPlay({
   board: ({ game, level, flags, progress }) => {
-    const own = game.circuit
+    const own = game.circuit.forTask(level.source)
     own.syncOwn(progress.built)
     const { shown, folded } = own.offerIn(level.source, flags)
     return { start: own.opening(level.source, progress.built), parts: own.board.wiring(level.source, own), types: [...shown, ...folded] }
   },
   keep: ({game,level},board) => readyCircuit(game,level.source,board),
   key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
-  settings: ({ game, level }, type) => type === 'const' ? [{ key: 'value', values: ['…'] }] : Object.keys(game.circuit.partOf(type)?.settings ?? {}).map((key) => ({ key, values: game.circuit.settingsIn(level.source,type,key) })),
+  settings: ({ game, level }, type) => type === 'const' ? [{ key: 'value', values: ['…'] }] : Object.keys(game.circuit.forTask(level.source).partOf(type)?.settings ?? {}).map((key) => ({ key, values: game.circuit.forTask(level.source).settingsIn(level.source,type,key) })),
   given: ({ level: { source: L } }) => both((lang) => [...L.inputs.map((i) => `${i.name}: ${lang === 'en' ? 'input' : '输入'} “${pick(i.label, lang)}”`), ...L.outputs.map((o) => `${o.name}: ${lang === 'en' ? 'output' : '输出'} “${pick(o.label, lang)}”`)].join('\n')),
   tests: ({ level: { source: L }, solved }) => testsOf(L, solved).map((test, k) => ({
     label: T(`测试 ${k + 1}`, `Test ${k + 1}`),
@@ -51,13 +54,13 @@ const circuit = circuitPlay({
   notes: ({ level: { source: L }, solved }) => (!solved && L.hidden.length ? [T(`另有 ${L.hidden.length} 个隐藏测试，每次运行一并检查。`, `${L.hidden.length} more hidden test(s) are checked with every run.`)] : []),
   run: ({ game, level: { source: L }, solved }, board) => {
     for (const node of board.nodes) for (const [key,value] of Object.entries(node.params ?? {})) {
-      const allowed=game.circuit.settingsIn(L,node.type,key)
+      const allowed=game.circuit.forTask(L).settingsIn(L,node.type,key)
       if(allowed&&!allowed.includes(value))return {pass:false,tests:[],hidden:null,refused:[T(`尚未引入 ${node.type}.${key}=${value}`,`Not introduced: ${node.type}.${key}=${value}`)]}
     }
     board=readyCircuit(game,L,board)
-    const runs = runLevel({ ...L, tests: testsOf(L, solved) }, board, game.circuit.partOf).runs
+    const runs = runLevel({ ...L, tests: testsOf(L, solved) }, board, game.circuit.forTask(L).partOf).runs
     const tests = untilFail(runs.map((r, k) => ({ label: T(`测试 ${k + 1}`, `Test ${k + 1}`), pass: !r.fail, says: r.fail?.why ?? null })))
-    const hidden = solved || !L.hidden.length ? null : runLevel({ ...L, tests: L.hidden }, board, game.circuit.partOf).runs.filter((r) => r.fail).length
+    const hidden = solved || !L.hidden.length ? null : runLevel({ ...L, tests: L.hidden }, board, game.circuit.forTask(L).partOf).runs.filter((r) => r.fail).length
     return { tests, hidden: hidden === null ? null : { count: L.hidden.length, failed: hidden, says: T(`可见的测试都通过了，但 ${hidden} 个隐藏测试没有通过。`, `Every test shown passes, but ${hidden} hidden test(s) fail.`) }, pass: runs.every((r) => !r.fail) && !hidden }
   },
 })

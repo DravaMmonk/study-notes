@@ -21,7 +21,7 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
     const { name, desc, icon, revisions } = cards[type]
     return { key: `part:${type}`, name, desc, ...defined({ revisions }), icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
   })
-  const built = LEVELS.filter((L) => L.builds).map((L) => ({ key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }))
+  const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
   const labels = levelLabels(content.eras)
   const kindOf = (T) => (kinds[T.kind] ? T.kind : kind.id)
   const game = defineGame({

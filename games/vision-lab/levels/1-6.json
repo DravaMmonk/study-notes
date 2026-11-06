@@ -3,6 +3,12 @@
   "intro": [
     {
       "t": {
+        "zh": "在 <level-ref to=\"1-4\"></level-ref> 留下的电路上修改邻域表的图外设置，并增加有效内部输出。保留已有计算路径，不调用处理器自身。",
+        "en": "Modify the window table’s border setting on the circuit passed in <level-ref to=\"1-4\"></level-ref>, then add a valid-interior output. Keep the existing computation path without calling the processor inside itself."
+      }
+    },
+    {
+      "t": {
         "zh": "卷积器在内部工作正常，常量图的边缘却可能变暗。图外没有观测，每种延续都是一种猜测，适合不同的材料。现在逐项明确图外模型，再比较同尺寸延续与只保留有效内部这两种接口。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
         "en": "The convolver works inside the image, yet a constant image may darken at its edges. Nothing is observed outside, so every extension is a guess that suits different material. Now fix the outside model task by task, then compare same-size extension with keeping only the valid interior. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
       }
@@ -57,8 +63,22 @@
         }
       ],
       "hidden": [],
-      "solution": ["v = convolve[outside=clamp](image,kernel)", "out <- v"],
-      "naive": ["v = convolve[outside=zero](image,kernel)", "out <- v"],
+      "solution": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
+      "naive": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=zero,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
       "naiveWhy": {
         "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
         "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
@@ -78,7 +98,8 @@
           },
           "fig": "outside-clamp"
         }
-      ]
+      ],
+      "carry": "1-4"
     },
     {
       "id": "v1_border_wrap",
@@ -124,8 +145,22 @@
         }
       ],
       "hidden": [],
-      "solution": ["v = convolve[outside=wrap](image,kernel)", "out <- v"],
-      "naive": ["v = convolve[outside=zero](image,kernel)", "out <- v"],
+      "solution": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=wrap,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
+      "naive": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=zero,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
       "naiveWhy": {
         "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
         "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
@@ -191,8 +226,22 @@
         }
       ],
       "hidden": [],
-      "solution": ["v = convolve[outside=reflect](image,kernel)", "out <- v"],
-      "naive": ["v = convolve[outside=zero](image,kernel)", "out <- v"],
+      "solution": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=reflect,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
+      "naive": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=zero,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
       "naiveWhy": {
         "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
         "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
@@ -255,8 +304,23 @@
         }
       ],
       "hidden": [],
-      "solution": ["v = convolve(image,kernel)", "t = trim(v,r)", "out <- t"],
-      "naive": ["v = convolve(image,kernel)", "out <- v"],
+      "solution": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=zero,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "t = trim(v,r)",
+        "out <- t"
+      ],
+      "naive": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=zero,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
       "naiveWhy": {
         "zh": "有效输出的尺寸会缩小。换一种补边规则并不能产生这个更小的输出域。",
         "en": "Valid output is smaller. Changing padding alone does not produce that output domain."
@@ -275,7 +339,18 @@
           },
           "fig": "outside-valid"
         }
-      ]
+      ],
+      "carries": true
     }
-  ]
+  ],
+  "builds": {
+    "type": "spatialProcessor",
+    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
+    "desc": {
+      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
+      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
+    },
+    "settings": ["outside"],
+    "defaults": { "outside": "zero" }
+  }
 }

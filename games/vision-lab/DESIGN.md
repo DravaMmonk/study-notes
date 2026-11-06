@@ -34,7 +34,7 @@ and resulting complexity or execution-cost tradeoffs should retain learner circu
 All spatial neighbour reads use the single shift primitive; horizontal reads use d=(1,0) and vertical reads use d=(0,1).
 A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
 the table supplies traversal, not a weighted sum. Convolution reverses the written kernel before correlation.
-Parameterised border rules propagate through the player's actual nested graph. Zero, clamp, wrap and reflect
+Parameterised border rules propagate through the player’s actual circuit. Zero, clamp, wrap and reflect
 are explicit assumptions; a valid interior is a separate cropped output. Reflection includes the edge sample.
 
 Frequency construction uses cosine in turns, per-row means/sums, transpose and coordinate/repetition helpers.
@@ -53,18 +53,27 @@ Stage 0 has a shared inspection-station introduction before any branch: signed/a
 comparison -> a controlled inspection pipeline. Simple facets are tasks, not padded levels. Its comparator is
 reused in smoothing residuals and reconstruction checks.
 
-Stage 1 opens with horizontal three-sample reasoning followed by vertical transfer on the same graph, then
-three independent routes. All routes therefore have both directions before reusing the line:
+Stage 1 grows circuits in place. The two-axis/detail route carries the player's weighted-line circuit into
+separable smoothing and then residual/enhancement outputs. The kernel route carries one neighbourhood processor
+through weighted contributions, correlation, convolution orientation, border assumptions, signed directional
+responses and perpendicular smoothing. Each step opens the preceding passed board, preserving its internal
+parts, settings, positions and wires; new task ports replace only the external terminals. The scanner continues
+the signed-response board and adds channel measurement, preprocessing and thresholding.
 
-- Direction/composition: two-axis separable processing -> smoothing with replicated edges -> signed removed detail
-  -> detail enhancement with given Gaussian weights.
-- Local kernels: general correlation -> convolution orientation -> boundary/valid-domain upgrade -> signed spatial
-  derivatives -> Sobel and gradient strength.
-- Channels: construct a channel-weighted measurement from RGB samples.
+Only the kernel/scanner route publishes a learner-built part, `spatialProcessor`. Its upgrade levels all publish
+the same part key. Passing an upgrade switches the part to that version's passed board and interface. A later
+consumer uses the deepest passed revision available on its prerequisite path; replaying an earlier builder uses
+that revision's interface, never a future one. Unsaved edits do not replace a passed implementation. Builders
+cannot place their own family inside itself. Detail/edit actions open the actual revision being called.
+The implementation is the evolving flat circuit, not a wrapper around the preceding revision. General local
+processing admits different implementations and costs; separable weighting and RGB weighted measurement are
+fixed code presets, not additional player-built parts. The preset is introduced after its relationship has been
+worked out on the board. Convolution is also available as a code preset for later frequency/spatial comparisons;
+the kernel upgrade route itself keeps the player's unfolding, multiply, reduce and restore implementation.
 
-The scanner joins these routes because it consumes all three constructions. Kernel/convolution and boundary
-materials include asymmetric impulses, constants, unequal dimensions, narrow images and meaningful failure cases.
-The scanner is a controlled response pipeline, not an implementation of document detection or perspective correction.
+The routes remain parallel until the scanner joins them. Kernel/convolution and boundary materials include
+asymmetric impulses, constants, unequal dimensions, narrow images and meaningful failure cases. The scanner is a
+controlled response pipeline, not an implementation of document detection or perspective correction.
 
 Stage 2 opens by constructing a wave, then a single-frequency projection and a quadrature probe. From that basis,
 analysis/synthesis and phase/measurement facets are practiced before the final interference-removal machine:
@@ -137,8 +146,7 @@ repeated in the results, the board's input cards hold them. Image captions carry
 on the same line. Avoid generic reading labels, repeated headings and explanatory copy where layout or controls
 already establish the relationship. Component detail sheets show outputs and settings, with the description under the title, unfolded; input values are not repeated.
 
-Neighbourhood weights in the first two filtering tasks share one three-output source (first, centre, last),
-while packed components retain separate weight inputs. Numeric image previews use up to two decimal places
+The first weighting task groups first, centre and last on one source. Subsequent tasks and presets use one three-element weight-vector input. Numeric image previews use up to two decimal places
 and smaller text; inspection exposes full precision. Small component matrices show every row without clipping.
 
 ## Capability introduction ledger

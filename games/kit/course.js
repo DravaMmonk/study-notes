@@ -379,7 +379,7 @@ export function audit(course) {
       const used = course.needed(level)?.filter((p) => course.primitives.has(p) || course.needs(p))
       for (const p of ideas) if (used?.length === 1 && course.concept(used[0]) === p && !shown(course.showcase(level))) say('bare-intro', level.id, p, 'its first level is that part alone, wired to the goal')
       // A later task of the level itself counts: it may put to work what its earlier task proved.
-      for (const b of course.builds(level)) if (!course.needed(level)?.includes(b) && !levels.some((l) => course.before(level.id, l.id) && course.needed(l)?.includes(b))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
+      for (const b of course.builds(level)) if (!shown(course.showcase(level)) && !course.needed(level)?.includes(b) && !levels.some((l) => course.before(level.id, l.id) && (course.needed(l)?.includes(b) || course.builds(l).includes(b) && course.carries(l).includes(level.id)))) say('unused', level.id, b, 'built here, and no later reference answer uses it')
     }
     // A part built on an optional level is for the levels that require it alone: anyone else may not have it.
     for (const p of course.needed(level) ?? []) {
@@ -547,7 +547,7 @@ function bypass(course, say) {
     const used = course.needed(level)
     if (!used?.length || used.some(built)) continue
     for (const part of usable(course, level, flags)) {
-      if (!built(part) || !course.before(course.builder(part), level.id)) continue
+      if (!built(part) || course.builds(level).includes(part) || !course.before(course.builder(part), level.id)) continue
       const by = course.levels.filter((l) => course.builds(l).includes(part) && course.before(l.id, level.id)).at(-1)
       const own = course.boards(by).at(-1)
       const hit = own && course.boards(level).map((b) => rebuilt(own, b, isPart)).find((phi) => phi?.size >= 3)

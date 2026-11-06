@@ -101,7 +101,7 @@ already saved board. Setting choices that need explanation follow the same prere
 课程
 └── 第 1 代机体 …… 第 n 代机体（每一代 = 一个时代）
     ├── 主线（必修）
-    │   ├── 地基关     教这一代的外部能力，每关解锁一个中层元件
+    │   ├── 地基关     教这一代的外部能力，逐步扩展同一电路或搭出可复用元件
     │   ├── 练习关     用这一代机体解的各种问题，按难度曲线排
     │   └── 并行组     主线分成几路系列，先后随意，全部通过才继续
     ├── 专题系列       可选；引入关 → 递进关 → 终极谜题，挂在它需要的那一关之后
@@ -122,6 +122,15 @@ already saved board. Setting choices that need explanation follow the same prere
 - 文案里引述的关卡（必须是先修）和"又是一个""新元件"这类说法（见第 4 节）。
 
 专题的关沿用上一关的电路（专题是同一个问题在长大）；主线上一关若是在前一关的电路上升级（比如两路汇合 → 认出起点），也可以写明 `carry: '<那一关>'`，从玩家在那一关留下的电路开始，那一关必须是它的先修（审计 `carry-unseen`）。其余主线的系列和并行组，每关从空板开始。
+
+An assembly upgrade series publishes one part key across its builders. Each upgrade starts from the preceding
+passed circuit and edits its internal parts directly. Passing publishes that revision's circuit and interface;
+unsaved edits do not change callers. Callers select the deepest passed revision on their prerequisite path,
+while replay and checks use the interface available there. An upgrade never calls its own assembled part.
+Fixed intermediate computations are code presets; a new level does not imply a new assembled part.
+Carrying a published board into the next upgrade counts as reuse, and editing that board is not an abstraction
+bypass. A terminal assembled instrument may state its standalone purpose in `showcase` when it has no later
+consumer in the current course.
 
 **存档按任务记。** 外壳存下的（`kit/shell/progress.js`，浏览器里 `<游戏 id>.v2`）分两层：关卡层面的是通过的关（`solved`，一关通过了就一直算通过，后来多了任务也不收回）、得分（`best`）；谜题层面的全部按**任务 key** 记：每个任务的板和它的几块存档（`data`、`slots`）、通过了哪些任务（`passed`）、元件跑的那块板（`built`）。任务 key 就是任务的 id（第 4 节），每个领域的关都是一串任务、每个任务都必须有 id（契约检查）；只有一个任务的关，任务 id 通常就是关的 id。所以任务在关内换位置、插进新任务、挪进别的关、几关合成一关，存下的都跟着任务走。
 

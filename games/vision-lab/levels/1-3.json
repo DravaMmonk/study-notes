@@ -92,7 +92,7 @@
         "zh": "从表到局部规则",
         "en": "Build a local rule"
       },
-      "configurations": { "reduceRows.mode": ["sum"], "correlate.axis": ["x"] },
+      "configurations": { "reduceRows.mode": ["sum"] },
       "brief": {
         "zh": "造一个接受任意奇数尺寸权重表的局部处理器。展开邻域只给读数和权重；你负责组合它们，并为每个原位置得到一个结果。",
         "en": "Build a local processor accepting any odd-sized weight table. Unfold windows supplies samples and weights only; combine them and produce one result per original location."
@@ -150,11 +150,11 @@
         }
       ],
       "solution": [
-        "table = windowTable(image,kernel)",
+        "table = windowTable[outside=zero,axis=x](image,kernel)",
         "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "s = reduceRows[mode=sum](weighted)",
-        "r = restore(s,image)",
-        "out <- r"
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
       ],
       "naive": [
         "table = windowTable(image,kernel)",
@@ -178,13 +178,11 @@
     }
   ],
   "builds": {
-    "type": "correlate",
-    "name": { "zh": "局部互相关器", "en": "Local correlator" },
+    "type": "spatialProcessor",
+    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
     "desc": {
-      "zh": "将权重表直接对齐邻域并求加权和。运行你自己的电路，图外规则可设置。",
-      "en": "Compute written-order weighted neighbourhood sums using your circuit, with explicit borders."
-    },
-    "settings": ["outside", "axis"],
-    "defaults": { "outside": "zero" }
+      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
+      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
+    }
   }
 }

@@ -3,6 +3,12 @@
   "intro": [
     {
       "t": {
+        "zh": "从 <level-ref to=\"1-1\"></level-ref> 通关时的电路继续：保留一条轴的三点加权，增加另一条轴的加权路径。方向由常数元件提供，不需要把原电路包成元件。",
+        "en": "Continue the circuit passed in <level-ref to=\"1-1\"></level-ref>: retain one weighted axis pass and add the other. Constants provide the directions; extend the board directly."
+      }
+    },
+    {
+      "t": {
         "zh": "横向与纵向的位置规则已经分别验证，但一次处理仍只覆盖一条线。现在让两次处理共同覆盖二维邻域。你决定两次处理怎样连接，对比亮点的十字和矩形响应。 <wiki-ref to=\"filter-separability\"></wiki-ref> 三点加权器是固定计算的预设元件：接入一根权重向量线，顺序为 [前, 中, 后]。你决定两次处理怎样连接。",
         "en": "The horizontal and vertical positional rules have been tested separately, but each pass still covers one line. Make two passes cover a 2D neighbourhood. Decide how they connect by comparing cross and rectangular impulse responses. <wiki-ref to=\"filter-separability\"></wiki-ref> The weighted-line preset accepts one weight-vector wire in [first, centre, last] order. Decide how to connect the two passes."
       },
@@ -74,6 +80,7 @@
         "s = arithmetic[op=add](h,v)",
         "out <- s"
       ],
+      "starter": ["horizontal = const[kind=direction,x=1,y=0]()", "vertical = const[kind=direction,x=0,y=1]()"],
       "naiveWhy": {
         "zh": "独立处理两轴后相加只覆盖十字形贡献；前后组合才会让角上的邻居参与。",
         "en": "Adding independent passes gives cross-shaped support; serial passes include corner contributions."
@@ -85,17 +92,7 @@
         }
       ],
       "adds": [],
-      "starter": ["horizontal = const[kind=direction,x=1,y=0]()", "vertical = const[kind=direction,x=0,y=1]()"]
+      "carry": "1-1"
     }
-  ],
-  "builds": {
-    "type": "separable3",
-    "name": { "zh": "双轴加权器", "en": "Two-axis weighted filter" },
-    "desc": {
-      "zh": "将同一权重向量先后用于两轴，运行你搭建的双轴处理电路。",
-      "en": "Apply one weight vector consecutively along both axes using your two-axis circuit."
-    },
-    "settings": ["outside"],
-    "defaults": { "outside": "zero" }
-  }
+  ]
 }

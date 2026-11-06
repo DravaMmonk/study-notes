@@ -37,8 +37,8 @@ const written = (v) => (isImage(v) ? `${v.w}×${v.h}` : show(v))
 const onSample = (task, board, partOf) => runTest({ ...task, outputs: [] }, board, { ...task.sample, expect: {} }, partOf)
 
 export default function Screen(screen) {
-  const own = screen.game.circuit
   const task = screen.level.source
+  const own = screen.game.circuit.forTask(task)
   const { phone } = screen
   const settingsIn = (type, key) => own.settingsIn(task, type, key)
   const defaults = (type) => taskDefaults(type, own.partOf, settingsIn)

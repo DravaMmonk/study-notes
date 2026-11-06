@@ -144,3 +144,13 @@ test('findings a game leaves open are listed, new ones and ones met since are no
   ])
   assert.deepEqual(againstOpen([], { nothing: ['x@1'] }), [{ rule: 'nothing', fresh: [], left: [], gone: ['x@1'] }])
 })
+
+test('carrying a published board into its next revision is reuse, not an abstraction bypass', () => {
+  const spec = { first: { builds: 'P', uses: ['a', 'b', 'c'] }, next: { builds: 'P', uses: ['a', 'b', 'c'] }, use: { uses: ['P'] } }
+  const c = sketch([{ foundation: ['first', 'next', 'use'] }], spec, { abstraction: true, carries: (l) => l.id === 'next' ? ['first'] : [] })
+  assert.deepEqual(audit(c).filter((f) => ['unused', 'bypass'].includes(f.rule)), [])
+  const end = sketch([{ foundation: ['first'] }], { first: spec.first }, { abstraction: true })
+  assert.ok(audit(end).some((f) => f.rule === 'unused'))
+  const instrument = { ...end, showcase: () => 'A terminal instrument callable from the parts book.' }
+  assert.ok(!audit(instrument).some((f) => f.rule === 'unused'))
+})

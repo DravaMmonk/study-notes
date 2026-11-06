@@ -3,8 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "单纯差分也会响应细碎干扰。三点加权器可以沿另一条轴汇合读数；将它接到双轴差分器，再把两种方向统一到强度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
-        "en": "Raw differences also respond to fine nuisance. Use the weighted-line part along the other axis, then combine both directional responses into a strength measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+        "zh": "继续 <level-ref to=\"1-7\"></level-ref> 的双轴响应电路，先接出长度，再在两个分量上增加垂直方向平滑。直接修改已有路径，通关后更新同一个邻域处理器。",
+        "en": "Continue the two signed-response paths from <level-ref to=\"1-7\"></level-ref>. Add their length, then perpendicular smoothing. Extend the existing paths; passing updates the same spatial processor."
+      }
+    },
+    {
+      "t": {
+        "zh": "单纯差分也会响应细碎干扰。三点加权器可以沿另一条轴汇合读数；将它接到已有的双轴差分路径，再把两种方向统一到强度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
+        "en": "Raw differences also respond to fine nuisance. Extend the existing derivative paths with weighted-line smoothing along the other axis, then combine both directional responses into a strength measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
       }
     }
   ],
@@ -95,17 +101,35 @@
       ],
       "hidden": [],
       "solution": [
-        "g = derivatives[outside=clamp](image,kernel)",
-        "m = magnitude(g.gx,g.gy)",
-        "gx <- g.gx",
-        "gy <- g.gy",
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "kY = reverse(kernel)",
+        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
+        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
+        "summedY = reduceRows[mode=sum](weightedY)",
+        "vY = restore(summedY,image)",
+        "m = magnitude(v,vY)",
+        "gx <- v",
+        "gy <- vY",
         "strength <- m"
       ],
       "naive": [
-        "g = derivatives[outside=clamp](image,kernel)",
-        "m = arithmetic[op=add](g.gx,g.gy)",
-        "gx <- g.gx",
-        "gy <- g.gy",
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "kY = reverse(kernel)",
+        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
+        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
+        "summedY = reduceRows[mode=sum](weightedY)",
+        "vY = restore(summedY,image)",
+        "m = arithmetic[op=add](v,vY)",
+        "gx <- v",
+        "gy <- vY",
         "strength <- m"
       ],
       "naiveWhy": {
@@ -127,9 +151,7 @@
         }
       ],
       "adds": ["magnitude"],
-      "starter": [
-        "g = derivatives[outside=clamp](image,kernel)"
-      ]
+      "carry": "1-7"
     },
     {
       "id": "v1_sobel",
@@ -279,28 +301,51 @@
         }
       ],
       "solution": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "kY = reverse(kernel)",
+        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
+        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
+        "summedY = reduceRows[mode=sum](weightedY)",
+        "vY = restore(summedY,image)",
         "horizontal = const[kind=direction,x=1,y=0]()",
         "vertical = const[kind=direction,x=0,y=1]()",
         "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
-        "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp](g.gx,sobelWeights,vertical)",
-        "y = weightedLine[outside=clamp](g.gy,sobelWeights,horizontal)",
+        "x = weightedLine[outside=clamp](v,sobelWeights,vertical)",
+        "y = weightedLine[outside=clamp](vY,sobelWeights,horizontal)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",
         "strength <- m"
       ],
       "naive": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "kY = reverse(kernel)",
+        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
+        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
+        "summedY = reduceRows[mode=sum](weightedY)",
+        "vY = restore(summedY,image)",
         "horizontal = const[kind=direction,x=1,y=0]()",
         "vertical = const[kind=direction,x=0,y=1]()",
         "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
-        "g = derivatives[outside=clamp](image,kernel)",
-        "x = weightedLine[outside=clamp](g.gx,sobelWeights,horizontal)",
-        "y = weightedLine[outside=clamp](g.gy,sobelWeights,vertical)",
+        "x = weightedLine[outside=clamp](v,sobelWeights,horizontal)",
+        "y = weightedLine[outside=clamp](vY,sobelWeights,vertical)",
         "m = magnitude(x,y)",
         "gx <- x",
         "gy <- y",
         "strength <- m"
+      ],
+      "starter": [
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()"
       ],
       "naiveWhy": {
         "zh": "Sobel 在求导的垂直方向平滑。沿求导方向再次平滑会改变你要测量的响应。",
@@ -312,25 +357,17 @@
           "en": "Separate the derivative axis from the smoothing axis. Vector length supplies squaring, addition and square root."
         }
       ],
-      "starter": [
-        "horizontal = const[kind=direction,x=1,y=0]()",
-        "vertical = const[kind=direction,x=0,y=1]()",
-        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
-        "g = derivatives[outside=clamp](image,kernel)"
-      ],
       "adds": [],
       "carries": true,
       "configurations": { "const.kind": ["weights"] }
     }
   ],
   "builds": {
-    "type": "sobel",
-    "name": { "zh": "Sobel 响应器", "en": "Sobel response" },
+    "type": "spatialProcessor",
+    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
     "desc": {
-      "zh": "运行你的差分、垂直平滑与长度电路，输出 gx、gy 和强度；核和图外规则显式给出。",
-      "en": "Run your derivative, perpendicular-smoothing and length circuit; expose gx, gy and strength with explicit kernel/borders."
-    },
-    "settings": ["outside"],
-    "defaults": { "outside": "clamp" }
+      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
+      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
+    }
   }
 }

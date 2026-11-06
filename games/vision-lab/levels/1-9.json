@@ -77,13 +77,5 @@
       ],
       "adds": ["channel"]
     }
-  ],
-  "builds": {
-    "type": "channelMeasure",
-    "name": { "zh": "通道测量器", "en": "Channel measurement" },
-    "desc": {
-      "zh": "按输入 wr、wg、wb 汇合 RGB，运行你自己的跨通道加权电路。",
-      "en": "Combine RGB with wr,wg,wb using your passed channel-weighting circuit."
-    }
-  }
+  ]
 }

@@ -3,6 +3,12 @@
   "intro": [
     {
       "t": {
+        "zh": "继续 <level-ref to=\"1-6\"></level-ref> 的邻域电路，保留横向路径，再增加纵向路径。两条路径都保留响应的正负；有效内部的裁剪不适用于这里要求的同尺寸输出。",
+        "en": "Continue the neighbourhood circuit from <level-ref to=\"1-6\"></level-ref>, retaining the horizontal path and adding a vertical one. Preserve signs on both paths; the valid-interior crop does not apply to these same-size outputs."
+      }
+    },
+    {
+      "t": {
         "zh": "卷积器已经有明确的核与边界约定。扫描器还需要知道变化沿哪条轴发生，以及亮度在增大还是减小。用两种单轴斜坡区分这两件事。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
         "en": "The convolver now has explicit kernel and boundary conventions. The scanner needs the axis and sign of change. Distinguish them using single-axis ramps. <wiki-ref to=\"gradient-components\"></wiki-ref>"
       },
@@ -21,7 +27,7 @@
         "zh": "双轴差分",
         "en": "Two-axis differences"
       },
-      "configurations": { "windowTable.axis": ["y"], "correlate.axis": ["y"], "convolve.axis": ["y"] },
+      "configurations": { "windowTable.axis": ["y"] },
       "brief": {
         "zh": "给定横向数学差分核，造出横向和纵向的带符号响应。x 向右、y 向下为正，图外延续边缘。",
         "en": "Use the supplied horizontal mathematical derivative kernel to produce signed x and y responses. Positive axes are right and down; extend edge readings."
@@ -97,12 +103,28 @@
         }
       ],
       "solution": [
-        "x = convolve[outside=clamp](image,kernel)",
-        "y = convolve[outside=clamp,axis=y](image,kernel)",
-        "gx <- x",
-        "gy <- y"
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "kY = reverse(kernel)",
+        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
+        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
+        "summedY = reduceRows[mode=sum](weightedY)",
+        "vY = restore(summedY,image)",
+        "gx <- v",
+        "gy <- vY"
       ],
-      "naive": ["x = convolve[outside=clamp](image,kernel)", "gx <- x", "gy <- x"],
+      "naive": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "gx <- v",
+        "gy <- v"
+      ],
       "naiveWhy": {
         "zh": "另一条轴的响应需要另一方向的邻域，不能复制同一张响应图。",
         "en": "The other component needs a differently oriented neighbourhood, not a duplicate response."
@@ -113,17 +135,16 @@
           "en": "Start with ramps changing along only one axis. Match kernel and component directions."
         }
       ],
-      "adds": []
+      "adds": [],
+      "carry": "1-6"
     }
   ],
   "builds": {
-    "type": "derivatives",
-    "name": { "zh": "双轴差分器", "en": "Two-axis differences" },
+    "type": "spatialProcessor",
+    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
     "desc": {
-      "zh": "用给定横向数学差分核及其转置，给出 gx、gy；图外规则可设置。",
-      "en": "Apply a supplied derivative kernel and its transpose to obtain gx and gy, with explicit borders."
-    },
-    "settings": ["outside"],
-    "defaults": { "outside": "clamp" }
+      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
+      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
+    }
   }
 }

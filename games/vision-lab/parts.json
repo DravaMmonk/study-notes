@@ -386,6 +386,52 @@
       ],
       "settings": [{ "key": "outside", "use": "outside" }],
       "compute": "weightedLine(image, weights, d, outside=$outside)"
+    },
+    "separable3": {
+      "name": { "zh": "双轴加权", "en": "Two-axis weighting" },
+      "desc": {
+        "zh": "代码预设：将同一三点权重向量依次用于横轴和纵轴，保留符号和通道。",
+        "en": "Code preset: apply one three-sample weight vector along x and then y, preserving signs and channels."
+      },
+      "icon": "Sigma",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "weights", "label": { "zh": "权重向量", "en": "Weights" } }
+      ],
+      "settings": [{ "key": "outside", "use": "outside" }],
+      "compute": "weightedLine(weightedLine(image, weights, vector2(1, 0), outside=$outside), weights, vector2(0, 1), outside=$outside)"
+    },
+    "channelMeasure": {
+      "name": { "zh": "通道加权", "en": "Channel weighting" },
+      "desc": {
+        "zh": "代码预设：按 wr、wg、wb 将 RGB 三个通道加权相加。",
+        "en": "Code preset: combine RGB channels with weights wr, wg and wb."
+      },
+      "icon": "Layers",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "image", "en": "image" } },
+        { "name": "wr", "label": { "zh": "wr", "en": "wr" } },
+        { "name": "wg", "label": { "zh": "wg", "en": "wg" } },
+        { "name": "wb", "label": { "zh": "wb", "en": "wb" } }
+      ],
+      "compute": "colourMix(image, wr, wg, wb)"
+    },
+    "convolve": {
+      "name": { "zh": "卷积预设", "en": "Convolution" },
+      "desc": {
+        "zh": "代码预设：翻转核后对邻域加权求和，保留符号和通道。用于空间与频率计算的对照。",
+        "en": "Code preset: reverse the kernel and sum weighted neighbourhoods, preserving signs and channels. Used for spatial/frequency comparisons."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+      ],
+      "settings": [{ "key": "outside", "use": "outside" }, { "key": "axis", "use": "axis" }],
+      "compute": "restoreShape(reduceRows(mul(windowSamples(image, reverse(kernel), axis=$axis, outside=$outside), windowWeights(image, reverse(kernel))), mode='sum'), image)"
     }
   }
 }

@@ -643,6 +643,30 @@
         "zh": "三格加权的实现只有等价的接线变化，没有实质性的算法复杂度或效率选择；用固定代码执行，权重向量只接一根线。",
         "en": "Three-sample weighting offers equivalent wiring variations without substantive algorithmic complexity or efficiency choices; fixed code consumes one weight-vector wire."
       }
+    },
+    {
+      "part": "separable3",
+      "about": { "zh": "双轴加权", "en": "Two-axis weighting" },
+      "why": {
+        "zh": "固定计算由代码提供；关卡考核原理和组合，不为等价接线增设组装元件。",
+        "en": "Fixed computation supplied as code; tasks assess relationships and composition without publishing equivalent wiring as extra assemblies."
+      }
+    },
+    {
+      "part": "channelMeasure",
+      "about": { "zh": "通道加权", "en": "Channel weighting" },
+      "why": {
+        "zh": "固定计算由代码提供；关卡考核原理和组合，不为等价接线增设组装元件。",
+        "en": "Fixed computation supplied as code; tasks assess relationships and composition without publishing equivalent wiring as extra assemblies."
+      }
+    },
+    {
+      "part": "convolve",
+      "about": { "zh": "卷积预设", "en": "Convolution" },
+      "why": {
+        "zh": "固定计算由代码提供；关卡考核原理和组合，不为等价接线增设组装元件。",
+        "en": "Fixed computation supplied as code; tasks assess relationships and composition without publishing equivalent wiring as extra assemblies."
+      }
     }
   ],
   "built": [
@@ -661,54 +685,6 @@
         "en": "Read an observation at dx,dy offsets and compare with the reference, using zero outside."
       },
       "from": ["difference", "shift"]
-    },
-    {
-      "part": "separable3",
-      "about": {
-        "zh": "将同一权重向量先后用于两轴，运行你搭建的双轴处理电路。",
-        "en": "Apply one weight vector consecutively along both axes using your two-axis circuit."
-      },
-      "from": ["weightedLine", "const"]
-    },
-    {
-      "part": "correlate",
-      "about": {
-        "zh": "将权重表直接对齐邻域并求加权和。运行你自己的电路，图外规则可设置。",
-        "en": "Compute written-order weighted neighbourhood sums using your circuit, with explicit borders."
-      },
-      "from": ["arithmetic", "reduceRows", "restore", "windowTable"]
-    },
-    {
-      "part": "convolve",
-      "about": {
-        "zh": "翻转书写核后运行自己的互相关器，图外规则可设置。",
-        "en": "Reverse the written kernel and run your correlator with explicit borders."
-      },
-      "from": ["correlate", "reverse"]
-    },
-    {
-      "part": "derivatives",
-      "about": {
-        "zh": "用给定横向数学差分核及其转置，给出 gx、gy；图外规则可设置。",
-        "en": "Apply a supplied derivative kernel and its transpose to obtain gx and gy, with explicit borders."
-      },
-      "from": ["convolve"]
-    },
-    {
-      "part": "sobel",
-      "about": {
-        "zh": "运行你的差分、垂直平滑与长度电路，输出 gx、gy 和强度；核和图外规则显式给出。",
-        "en": "Run your derivative, perpendicular-smoothing and length circuit; expose gx, gy and strength with explicit kernel/borders."
-      },
-      "from": ["derivatives", "magnitude", "weightedLine", "const"]
-    },
-    {
-      "part": "channelMeasure",
-      "about": {
-        "zh": "按输入 wr、wg、wb 汇合 RGB，运行你自己的跨通道加权电路。",
-        "en": "Combine RGB with wr,wg,wb using your passed channel-weighting circuit."
-      },
-      "from": ["arithmetic", "channel"]
     },
     {
       "part": "wave",
@@ -781,6 +757,25 @@
         "en": "Reuse your 2D analyser through conjugation and WH scaling; retain real output and imaginary residual."
       },
       "from": ["const", "arithmetic", "size", "spectrum2D"]
+    },
+    {
+      "part": "spatialProcessor",
+      "about": {
+        "zh": "同一邻域处理器逐关扩展，运行已通关的最新版本。",
+        "en": "One spatial processor grows across upgrades and runs its latest passed revision."
+      },
+      "from": [
+        "windowTable",
+        "arithmetic",
+        "reduceRows",
+        "restore",
+        "reverse",
+        "weightedLine",
+        "magnitude",
+        "separable3",
+        "channelMeasure",
+        "less"
+      ]
     }
   ],
   "eras": [
@@ -1019,7 +1014,6 @@
                 "const"
               ],
               "adds": [],
-              "builds": "separable3",
               "naive": {
                 "zh": "两条轴各处理一次再相加就等于二维平均。",
                 "en": "Adding independent axis outputs is a 2D average."
@@ -1055,7 +1049,7 @@
                 }
               ],
               "role": "practice",
-              "uses": ["arithmetic", "difference", "filter-separability", "imageCircuit", "separable3"],
+              "uses": ["arithmetic", "difference", "filter-separability", "imageCircuit"],
               "adds": [],
               "naive": {
                 "zh": "平滑只删除噪声，或增强可以用绝对差代替带符号差。",
@@ -1116,7 +1110,7 @@
                 "windowTable"
               ],
               "adds": ["windowTable", "reduceRows", "restore"],
-              "builds": "correlate",
+              "builds": "spatialProcessor",
               "naive": {
                 "zh": "权重乘完之后还要再平均一次，或表中每行是一整张新图。",
                 "en": "Averaging after weighting, or treating each table row as a separate full image."
@@ -1148,9 +1142,9 @@
                 }
               ],
               "role": "foundation",
-              "uses": ["correlate", "imageCircuit", "local-kernel", "reverse", "convolution-orientation"],
+              "uses": ["imageCircuit", "local-kernel", "reverse", "convolution-orientation"],
               "adds": ["reverse"],
-              "builds": "convolve",
+              "builds": "spatialProcessor",
               "naive": {
                 "zh": "对称模糊结果一致，就认为卷积和互相关没有区别。",
                 "en": "Assuming convolution and correlation are identical because symmetric blurs agree."
@@ -1183,13 +1177,14 @@
                 }
               ],
               "role": "foundation",
-              "uses": ["convolve", "imageCircuit", "local-kernel", "trim", "finite-boundaries"],
+              "uses": ["imageCircuit", "local-kernel", "trim", "finite-boundaries"],
               "adds": ["trim"],
               "naive": {
                 "zh": "所有补边只影响外观，或保持原宽高的补边等于 valid。",
                 "en": "Padding only affects appearance, or same-size padding is equivalent to valid output."
               },
-              "teaches": "finite-boundaries"
+              "teaches": "finite-boundaries",
+              "builds": "spatialProcessor"
             },
             {
               "id": "1-7",
@@ -1218,9 +1213,9 @@
               ],
               "role": "foundation",
               "teaches": "gradient-components",
-              "uses": ["convolve", "gradient-components", "imageCircuit", "local-kernel"],
+              "uses": ["gradient-components", "imageCircuit", "local-kernel"],
               "adds": [],
-              "builds": "derivatives",
+              "builds": "spatialProcessor",
               "naive": {
                 "zh": "把同一张变化图当作两个方向，或者忽略负响应。",
                 "en": "Using one response for both axes, or discarding negative responses."
@@ -1257,7 +1252,6 @@
               ],
               "role": "foundation",
               "uses": [
-                "derivatives",
                 "gradient-components",
                 "imageCircuit",
                 "magnitude",
@@ -1267,7 +1261,7 @@
                 "const"
               ],
               "adds": ["magnitude"],
-              "builds": "sobel",
+              "builds": "spatialProcessor",
               "naive": {
                 "zh": "应沿求导轴再次平均，或用 gx+gy 代替长度。",
                 "en": "Smoothing along the derivative axis, or replacing length with gx+gy."
@@ -1317,7 +1311,6 @@
                 "weighted-neighbourhood"
               ],
               "adds": ["channel"],
-              "builds": "channelMeasure",
               "naive": {
                 "zh": "只取某一通道总能代替颜色组合，或通道混合会移动像素。",
                 "en": "One channel always suffices, or mixing channels moves pixels."
@@ -1359,16 +1352,15 @@
               "role": "practice",
               "uses": [
                 "channel-aggregation",
-                "channelMeasure",
                 "const",
                 "filter-separability",
                 "gradient-components",
                 "imageCircuit",
                 "less",
-                "separable3",
-                "sobel",
                 "decision-evidence",
-                "finite-boundaries"
+                "finite-boundaries",
+                "separable3",
+                "channelMeasure"
               ],
               "adds": [],
               "naive": {
@@ -1379,7 +1371,8 @@
                 "zh": "汇合通道、平滑、梯度与阈值，定位处理顺序失误",
                 "en": "Combine channels, smoothing, gradients and thresholds; diagnose order"
               },
-              "dimension": "combine"
+              "dimension": "combine",
+              "builds": "spatialProcessor"
             }
           ]
         }

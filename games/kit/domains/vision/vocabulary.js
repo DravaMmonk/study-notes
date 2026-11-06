@@ -133,6 +133,7 @@ const LEVEL = levelSchema({
     tolerance: S.opt(S.num({ min: 0, about: t('比较值时的容差（默认 1e-5）', 'the tolerance values are compared with (1e-5 by default)') })),
     starter: S.opt(S.board({ about: t('任务开始时的板，蓝图文本，每行一个字符串', 'the board the task opens on, as blueprint text, one string a line') })),
     naiveWhy: S.opt(S.text()),
+    carry: S.opt(S.level({ about: t('沿用指定先修关卡最后通关的电路，直接扩展其内部元件', 'extend the last passed board of the named prerequisite directly') })),
     carries: S.opt(S.bool({ about: t('从上一个任务的板开始', 'start from the task before’s board') })),
     sample: S.opt(S.obj({ inputs: S.map(S.either(VALUE, PICTURE), { about: t('按输入名给的值；没给的取第一个测试的', 'values by input name; the rest are the first test’s') }) }, { section: 'tests', about: t('样张：一张较大的图，玩家的板和参考解都在上面跑，只看效果、不判定', 'the sample: a larger picture the player’s board and the reference both run on, to see the effect, never judged') })),
   },

@@ -3,6 +3,12 @@
   "intro": [
     {
       "t": {
+        "zh": "打开的是 <level-ref to=\"1-3\"></level-ref> 通关时的邻域计算电路。保留展开、乘权重、求和与还原，在核进入邻域表之前增加翻转。通关后仍更新同一个邻域处理器。",
+        "en": "The board continues the neighbourhood circuit passed in <level-ref to=\"1-3\"></level-ref>. Keep unfolding, weighting, reduction and restoration; add kernel reversal before the window table. Passing updates the same spatial processor."
+      }
+    },
+    {
+      "t": {
         "zh": "处理器能处理任意核，但课程公式和一些工具使用不同的核约定。对称平滑核掩盖了差别，现在用非对称核把问题显露出来，再给自己的处理器加上明确的数学接口。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
         "en": "The processor accepts any kernel, but conventions differ. Symmetric smoothing hides that difference. Expose it with an asymmetric kernel and build an explicit mathematical interface. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
       }
@@ -20,7 +26,7 @@
         "zh": "核的方向",
         "en": "Kernel orientation"
       },
-      "configurations": { "convolve.axis": ["x"] },
+      "configurations": {},
       "brief": {
         "zh": "接口接收数学卷积核。让非对称核的方向与卷积定义一致，保持输出尺寸和零边界。",
         "en": "The interface receives mathematical convolution kernels. Match their orientation, including asymmetric kernels, with same-size output and zero boundaries."
@@ -69,8 +75,21 @@
           "expect": { "out": [[0.2, 0.4, -0.05000000000000002, -0.45]] }
         }
       ],
-      "solution": ["k = reverse(kernel)", "v = correlate(image,k)", "out <- v"],
-      "naive": ["v = correlate(image,kernel)", "out <- v"],
+      "solution": [
+        "k = reverse(kernel)",
+        "table = windowTable[outside=zero,axis=x](image,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
+      "naive": [
+        "table = windowTable[outside=zero,axis=x](image,kernel)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
       "naiveWhy": {
         "zh": "对称核不能区分两种约定；非对称亮点响应会暴露核的方向是否反转。",
         "en": "Symmetric kernels hide the distinction; asymmetric impulse responses expose orientation."
@@ -81,17 +100,16 @@
           "en": "Inspect an asymmetric kernel on an impulse. Reverse the weight table, not the image."
         }
       ],
-      "adds": ["reverse"]
+      "adds": ["reverse"],
+      "carry": "1-3"
     }
   ],
   "builds": {
-    "type": "convolve",
-    "name": { "zh": "卷积器", "en": "Convolver" },
+    "type": "spatialProcessor",
+    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
     "desc": {
-      "zh": "翻转书写核后运行自己的互相关器，图外规则可设置。",
-      "en": "Reverse the written kernel and run your correlator with explicit borders."
-    },
-    "settings": ["outside", "axis"],
-    "defaults": { "outside": "zero" }
+      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
+      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
+    }
   }
 }

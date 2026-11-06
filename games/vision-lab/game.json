@@ -32,7 +32,10 @@
     "transpose",
     "trim",
     "weightedLine",
-    "windowTable"
+    "windowTable",
+    "separable3",
+    "channelMeasure",
+    "convolve"
   ],
   "concept": {
     "abs": "arithmetic",
@@ -53,7 +56,10 @@
     "expandRows": "traversal",
     "size": "localTraversal",
     "arithmetic": "arithmetic",
-    "weightedLine": "weighted-neighbourhood"
+    "weightedLine": "weighted-neighbourhood",
+    "separable3": "weighted-neighbourhood",
+    "channelMeasure": "channel",
+    "convolve": "kernelOrientation"
   },
   "eras": [
     {

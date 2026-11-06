@@ -3,6 +3,12 @@
   "intro": [
     {
       "t": {
+        "zh": "打开的是 <level-ref to=\"1-8\"></level-ref> 通关时的响应电路。在它前面增加通道测量与预平滑，在强度后面增加阈值支路。双轴加权和通道加权现在由代码预设提供；邻域处理器仍运行你扩展后的完整电路。",
+        "en": "The board opens on the response circuit passed in <level-ref to=\"1-8\"></level-ref>. Add channel measurement and presmoothing before it, then threshold its strength. Two-axis and channel weighting are code presets; the spatial processor runs your extended complete board."
+      }
+    },
+    {
+      "t": {
         "zh": "彩色测量、邻域处理和方向响应都已经由你造出。现在给扫描台装上整条路径：先控制读数与尺度，再测变化，最后按已知规范输出标记。这里不要求检测完整纸张或做透视矫正。 <wiki-ref to=\"scanner-composition\"></wiki-ref>",
         "en": "You have built channel measurement, neighbourhood processing and directional responses. Assemble the scanner path: control readings and scale, measure change, then mark according to the specification. Full document detection and perspective correction are outside this task. <wiki-ref to=\"scanner-composition\"></wiki-ref>"
       }
@@ -133,20 +139,52 @@
         "half = const[value=0.5]()",
         "gray = channelMeasure(image,quarter,half,quarter)",
         "smooth = separable3[outside=clamp](gray,weights)",
-        "edge = sobel[outside=clamp](smooth,kernel)",
-        "mark = less(threshold,edge.strength)",
-        "strength <- edge.strength",
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](smooth,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,smooth)",
+        "kY = reverse(kernel)",
+        "tableY = windowTable[outside=clamp,axis=y](smooth,kY)",
+        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
+        "summedY = reduceRows[mode=sum](weightedY)",
+        "vY = restore(summedY,smooth)",
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
+        "x = weightedLine[outside=clamp](v,sobelWeights,vertical)",
+        "y = weightedLine[outside=clamp](vY,sobelWeights,horizontal)",
+        "m = magnitude(x,y)",
+        "mark = less(threshold,m)",
+        "strength <- m",
         "mask <- mark"
       ],
       "naive": [
         "quarter = const[value=0.25]()",
         "half = const[value=0.5]()",
         "gray = channelMeasure(image,quarter,half,quarter)",
-        "edge = sobel[outside=clamp](gray,kernel)",
-        "mark = less(threshold,edge.strength)",
-        "strength <- edge.strength",
+        "smooth = separable3[outside=clamp](gray,weights)",
+        "k = reverse(kernel)",
+        "table = windowTable[outside=clamp,axis=x](gray,k)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,gray)",
+        "kY = reverse(kernel)",
+        "tableY = windowTable[outside=clamp,axis=y](gray,kY)",
+        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
+        "summedY = reduceRows[mode=sum](weightedY)",
+        "vY = restore(summedY,gray)",
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
+        "x = weightedLine[outside=clamp](v,sobelWeights,vertical)",
+        "y = weightedLine[outside=clamp](vY,sobelWeights,horizontal)",
+        "m = magnitude(x,y)",
+        "mark = less(threshold,m)",
+        "strength <- m",
         "mask <- mark"
       ],
+      "starter": ["quarter = const[value=0.25]()", "half = const[value=0.5]()"],
       "naiveWhy": {
         "zh": "阈值不能代替输入尺度的控制。没有前置平滑时，细碎变化也会进入方向响应。",
         "en": "Thresholding does not replace scale control: fine variation reaches the directional response without preprocessing."
@@ -157,8 +195,20 @@
           "en": "Inspect channel measurement, smoothing and directional responses to locate where nuisance is suppressed."
         }
       ],
-      "starter": ["quarter = const[value=0.25]()", "half = const[value=0.5]()"],
-      "adds": []
+      "adds": ["channelMeasure", "separable3"],
+      "carry": "1-8"
     }
-  ]
+  ],
+  "builds": {
+    "type": "spatialProcessor",
+    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
+    "desc": {
+      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
+      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
+    }
+  },
+  "showcase": {
+    "zh": "本章终端扫描仪，作为可调用的邻域处理器保留；本课程没有更晚的扫描应用。",
+    "en": "The chapter’s terminal scanner remains callable as the spatial processor; this course has no later scanner application."
+  }
 }

@@ -132,12 +132,18 @@ export function visionCourse(content) {
     }
   }
   const circuit = circuitCourse(content, { board, parts: PARTS, read: readBoard, test: readBoardTest, kinds: { grid: readGrid, choice: readChoice, bench: readBench }, pack })
-  return {
-    ...circuit,
+  const decorate = (view) => ({
+    ...view,
     defs,
     presets,
-    /** A new node's settings: a defined part's, or the ones a built part exposes. */
-    defaultsOf: (type) => circuit.partOf(type)?.defaults ?? {},
-    settingsIn: configurationPolicy(circuit.LEVELS, circuit.course, circuit.partOf),
+    defaultsOf: (type) => view.partOf(type)?.defaults ?? {},
+    settingsIn: configurationPolicy(view.LEVELS, view.course, view.partOf),
+  })
+  const result = decorate(circuit)
+  const scopes = new Map()
+  result.forTask = (task) => {
+    if (!scopes.has(task.taskId)) scopes.set(task.taskId, decorate(circuit.forTask(task)))
+    return scopes.get(task.taskId)
   }
+  return result
 }

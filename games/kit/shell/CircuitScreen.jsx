@@ -112,7 +112,7 @@ function partsFor(level, circuit, { cards, portLabels, width }) {
 export default function CircuitScreen({ screen, cards, run: runOn, says, show, draw, entries, figure, judged = false, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
-  const circuit = game.circuit
+  const circuit = game.circuit.forTask(level)
   const { board: kind, BUILT, builtBy } = circuit
   circuit.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels, width: canvas.width }), [level, circuit, cards, portLabels, canvas.width])
@@ -120,9 +120,12 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, d
   const held = useMemo(() => new Set([...palette, ...folded]), [palette, folded])
   const hold = (b) => (ready ? ready(b, held) : b)
   // A task that goes on from the task before (`carries`) opens on that board, its ports swapped for its own, unless
-  // it gives a start of its own.
+  // its new starter parts are added without replacing the inherited work.
   const opening = () => circuit.opening(level, progress.built)
-  const fitted = (saved) => (saved?.nodes && kind.fits(saved, level, circuit.partOf) ? saved : saved?.nodes && level.carries && !level.starter ? kind.carriedOnto(level, saved) : opening())
+  const fitted = (saved) => {
+    if (saved?.nodes && level.carries && !progress.data[entry.key]) return circuit.opening(level, progress.built, saved)
+    return saved?.nodes && kind.fits(saved, level, circuit.partOf) ? saved : opening()
+  }
   const state = useLevelBoard(screen, { open: (saved) => hold(fitted(saved)), fresh: () => hold(opening()) })
   const board = ready ? { ...state, change: (next, options) => state.change(hold(next), options) } : state
   const { circuit: drawn, change } = board

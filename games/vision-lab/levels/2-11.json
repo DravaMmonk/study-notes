@@ -154,7 +154,8 @@
         "ir = arithmetic[op=mul](x.im,k.re)",
         "r = arithmetic[op=sub](rr,ii)"
       ],
-      "adds": ["size"]
+      "adds": ["size", "convolve"],
+      "configurations": { "convolve.axis": ["x"] }
     }
   ]
 }

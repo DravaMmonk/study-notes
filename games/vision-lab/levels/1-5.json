@@ -3,6 +3,12 @@
   "intro": [
     {
       "t": {
+        "zh": "继续 <level-ref to=\"1-2\"></level-ref> 的两次轴向加权电路，先指定边缘延续，再增加带符号细节与增强支路。",
+        "en": "Continue the two axis passes from <level-ref to=\"1-2\"></level-ref>, specify edge replication, then add signed-detail and enhancement branches."
+      }
+    },
+    {
+      "t": {
         "zh": "双轴处理器已经能汇合邻居。现在用课程给出的高斯权重处理细碎变化，再把被抑制的细节用于另一种任务。权重和与小数由系统计算，你决定图像之间的关系。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
         "en": "The two-axis processor combines neighbours. Use supplied Gaussian weights to suppress fine variation, then reuse the removed detail for another purpose. Weight arithmetic is supplied; decide the image relationships. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
       }
@@ -67,12 +73,18 @@
       ],
       "hidden": [],
       "solution": [
-        "s = separable3[outside=clamp](image,weights)",
-        "out <- s"
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "h = weightedLine[outside=clamp](image,weights,horizontal)",
+        "v = weightedLine[outside=clamp](h,weights,vertical)",
+        "out <- v"
       ],
       "naive": [
-        "s = separable3[outside=zero](image,weights)",
-        "out <- s"
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "h = weightedLine[outside=zero](image,weights,horizontal)",
+        "v = weightedLine[outside=zero](h,weights,vertical)",
+        "out <- v"
       ],
       "naiveWhy": {
         "zh": "补 0 会在恒定图边缘引入不存在的暗读数。延续边缘只改变图外取值，不能跳过图内平滑。",
@@ -93,7 +105,6 @@
           "en": "Compare corners with the interior, then check whether an impulse still spreads. Preserving a constant image is not the same as passing every image through unchanged."
         }
       ],
-      "starter": [],
       "sample": {
         "inputs": {
           "image": {
@@ -108,7 +119,8 @@
             "noise": { "seed": 7, "amp": 0.06 }
           }
         }
-      }
+      },
+      "carry": "1-2"
     },
     {
       "id": "v1_residual",
@@ -188,16 +200,21 @@
       ],
       "hidden": [],
       "solution": [
-        "s = separable3[outside=clamp](image,weights)",
-        "r = arithmetic[op=sub](image,s)",
-        "smooth <- s",
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "h = weightedLine[outside=clamp](image,weights,horizontal)",
+        "v = weightedLine[outside=clamp](h,weights,vertical)",
+        "r = arithmetic[op=sub](image,v)",
+        "smooth <- v",
         "detail <- r"
       ],
-      "starter": ["s = separable3[outside=clamp](image,weights)", "smooth <- s"],
       "naive": [
-        "s = separable3[outside=clamp](image,weights)",
-        "r = difference(image,s)",
-        "smooth <- s",
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "h = weightedLine[outside=clamp](image,weights,horizontal)",
+        "v = weightedLine[outside=clamp](h,weights,vertical)",
+        "r = difference(image,v)",
+        "smooth <- v",
         "detail <- r"
       ],
       "naiveWhy": {
@@ -232,7 +249,8 @@
             "noise": { "seed": 7, "amp": 0.06 }
           }
         }
-      }
+      },
+      "carries": true
     },
     {
       "id": "v1_detail",
@@ -377,27 +395,28 @@
       ],
       "hidden": [],
       "solution": [
-        "s = separable3[outside=clamp](image,weights)",
-        "detail = arithmetic[op=sub](image,s)",
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "h = weightedLine[outside=clamp](image,weights,horizontal)",
+        "v = weightedLine[outside=clamp](h,weights,vertical)",
+        "detail = arithmetic[op=sub](image,v)",
         "scaled = arithmetic[op=mul](detail,amount)",
         "e = arithmetic[op=add](image,scaled)",
-        "d = difference(image,s)",
-        "smooth <- s",
+        "d = difference(image,v)",
+        "smooth <- v",
         "enhanced <- e",
         "change <- d"
       ],
-      "starter": [
-        "s = separable3[outside=clamp](image,weights)",
-        "detail = arithmetic[op=sub](image,s)",
-        "smooth <- s"
-      ],
       "naive": [
-        "s = separable3[outside=clamp](image,weights)",
-        "detail = arithmetic[op=sub](image,s)",
+        "horizontal = const[kind=direction,x=1,y=0]()",
+        "vertical = const[kind=direction,x=0,y=1]()",
+        "h = weightedLine[outside=clamp](image,weights,horizontal)",
+        "v = weightedLine[outside=clamp](h,weights,vertical)",
+        "detail = arithmetic[op=sub](image,v)",
         "scaled = arithmetic[op=mul](detail,amount)",
-        "e = arithmetic[op=add](s,scaled)",
-        "d = difference(image,s)",
-        "smooth <- s",
+        "e = arithmetic[op=add](v,scaled)",
+        "d = difference(image,v)",
+        "smooth <- v",
         "enhanced <- e",
         "change <- d"
       ],
@@ -434,7 +453,8 @@
             "noise": { "seed": 7, "amp": 0.06 }
           }
         }
-      }
+      },
+      "carries": true
     }
   ]
 }
