@@ -138,6 +138,7 @@
         "outimage = restore(total,real)",
         "out <- outimage"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "再次平均会多除一次 N，使重建幅度变小。前向与逆向的归一化必须配套。",
         "en": "Averaging again divides by N twice and reduces reconstruction amplitude. Forward and inverse normalisation must match."

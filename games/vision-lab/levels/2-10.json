@@ -143,6 +143,7 @@
         "taperResult <- s",
         "changed <- d"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "平滑形状取决于增益形状，重复硬截止不会得到渐变处理。检查突变附近的振荡与细节损失。",
         "en": "Filter shape follows gain shape; repeating a hard cutoff does not produce tapered filtering. Inspect oscillation and detail loss near discontinuities."

@@ -23,7 +23,9 @@
 //                                                              shown by default; each with the views it may be drawn in,
 //                                                              the first the one it starts in
 //   rowProblems(results, entries, defaults) → [text]           what a task's rows get wrong
-//   viewsProblems(defaults) → [text]                           what a game's default views get wrong
+//   viewsProblems(defaults) → [text]                           what a game's (or a task's) views get wrong
+//   usable(views, value)    the views among `views` that can draw `value` (a view may draw only some values of its
+//                           shape: `fits`, e.g. a plot only a grid of one or two rows)
 //   shapeOf(value)          a value's shape where nothing says it: a grid, else a scalar (a card's value, one tick's)
 //   valueText(value)        a value in words: 「—」 for none, yes or no, a number (./number.js), else as it is
 //   SHOW, readShow(show), showProblems(show)   a value content writes for a figure, read, and what it gets wrong
@@ -35,10 +37,16 @@ import { T as t } from '../shell/i18n.js'
 export const SHAPES = ['scalar', 'grid', 'bits', 'ticks', 'list']
 export const SCENES = ['card', 'detail', 'results', 'figure', 'inline']
 
+// A grey grid of one or two rows reads as functions; one of several rows and columns as a surface.
+const grey = (g) => isGrid(g) && (g.c ?? 1) === 1
+
 export const VIEWS = {
   value: { shapes: ['scalar'], label: t('数值', 'Value') },
   numbers: { shapes: ['grid'], label: t('数值', 'Numbers') },
   pixels: { shapes: ['grid'], label: t('图像', 'Picture') },
+  plot: { shapes: ['grid'], label: t('函数图像', 'Plot'), fits: (g) => grey(g) && g.h <= 2 && g.w >= 2 },
+  profile: { shapes: ['grid'], label: t('剖面', 'Profile'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
+  surface: { shapes: ['grid'], label: t('地形', 'Terrain'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
   wave: { shapes: ['bits'], label: t('波形', 'Wave') },
   bands: { shapes: ['bits', 'ticks'], label: t('数值', 'Values') },
   sequence: { shapes: ['list'], label: t('序列', 'Sequence') },
@@ -47,8 +55,13 @@ export const VIEWS = {
 const VIEW = S.oneOf(Object.keys(VIEWS))
 const LIST = S.list(VIEW, { min: 1, about: t('能用的显示方式，第一种是起始；只有一种时玩家不能切换', 'the views it may be drawn in, the first to start in; with one, the player cannot switch') })
 
+const BY_SHAPE = (about, more = {}) => S.obj(Object.fromEntries(SHAPES.map((shape) => [shape, S.opt(LIST)])), { about, ...more })
+
 /** game.json `views`: the views each shape is drawn in where a row names none. */
-export const GAME_VIEWS = S.opt(S.obj(Object.fromEntries(SHAPES.map((shape) => [shape, S.opt(LIST)])), { about: t('每种形状默认的显示方式（没写的用库里的第一种）', 'the views each shape is drawn in by default (the library’s first where none is given)') }))
+export const GAME_VIEWS = S.opt(BY_SHAPE(t('每种形状默认的显示方式（没写的用库里的第一种）', 'the views each shape is drawn in by default (the library’s first where none is given)')))
+
+/** A task's `views`: the game's, changed for the shapes it names, on its cards and in its results. */
+export const TASK_VIEWS = S.opt(BY_SHAPE(t('这个任务里每种形状的显示方式（换掉游戏默认的那几种）', 'the views each shape is drawn in in this task (in place of the game’s)'), { section: 'read' }))
 
 /** A task's `results`: its results area's rows, in order. */
 export const RESULTS = S.opt(S.list(S.obj({
@@ -60,10 +73,15 @@ export const RESULTS = S.opt(S.list(S.obj({
 /** The views a shape is drawn in by default: the game's, or the library's first. */
 export const viewsFor = (shape, defaults) => defaults?.[shape] ?? [Object.keys(VIEWS).find((v) => VIEWS[v].shapes.includes(shape))]
 
+export const usable = (views, value) => views.filter((v) => !VIEWS[v].fits || VIEWS[v].fits(value))
+
+/** An entry's value as its views see it: the value wanted, else given, else the board's. */
+const sampleOf = (entry) => entry.want ?? entry.given ?? entry.got
+
 export function rowsOf(results, entries, defaults) {
   const by = new Map(entries.map((e) => [e.of, e]))
   const rows = results ? results.map((r) => ({ ...r, entry: by.get(r.of) })).filter((r) => r.entry) : entries.filter((e) => e.shown !== false).map((entry) => ({ entry }))
-  return rows.map(({ entry, views, label }) => ({ entry: label ? { ...entry, label } : entry, views: views ?? viewsFor(entry.shape, defaults) }))
+  return rows.map(({ entry, views, label }) => ({ entry: label ? { ...entry, label } : entry, views: usable(views ?? viewsFor(entry.shape, defaults), sampleOf(entry)) }))
 }
 
 const undrawn = (views, shape, where) => views.filter((v) => !VIEWS[v].shapes.includes(shape)).map((v) => `${where} is ${shape}, which ${v} does not draw`)
@@ -72,7 +90,10 @@ export function rowProblems(results, entries, defaults) {
   const by = new Map(entries.map((e) => [e.of, e]))
   return (results ?? []).flatMap((r) => {
     const entry = by.get(r.of)
-    return entry ? undrawn(r.views ?? viewsFor(entry.shape, defaults), entry.shape, `results: "${r.of}"`) : [`results: no "${r.of}" to show (${entries.map((e) => e.of).join(', ')})`]
+    if (!entry) return [`results: no "${r.of}" to show (${entries.map((e) => e.of).join(', ')})`]
+    const views = r.views ?? viewsFor(entry.shape, defaults)
+    const unfit = (r.views ?? []).filter((v) => VIEWS[v].shapes.includes(entry.shape) && !usable([v], sampleOf(entry)).length).map((v) => `results: "${r.of}" lists ${v}, which cannot draw its value`)
+    return [...undrawn(views, entry.shape, `results: "${r.of}"`), ...unfit, ...(usable(views, sampleOf(entry)).length ? [] : [`results: "${r.of}" has no view that draws its value`])]
   })
 }
 

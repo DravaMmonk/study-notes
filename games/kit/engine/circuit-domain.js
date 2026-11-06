@@ -48,7 +48,7 @@ import { withHidden } from './tests.js'
 import { taskLevel, taskLevels } from './tasks.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
-import { GAME_VIEWS, RESULTS, SHOW, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
+import { GAME_VIEWS, RESULTS, SHOW, TASK_VIEWS, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
 import { T as t, keyOf } from '../shell/i18n.js'
 
 /* ---------- the board ---------- */
@@ -378,6 +378,7 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show:
     solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') }),
     naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
     results: RESULTS,
+    views: TASK_VIEWS,
     ...more,
   }
   const kind = (k, fields) => S.obj({ kind: S.oneOf([k]), ...fields })
@@ -522,7 +523,8 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
       ref.runs.forEach((r, j) => {
         if (r.error || r.fail) problems.push(`the answer fails ${where(j)}${failure(r) ? ` ${failure(r)}` : ''}`)
       })
-      problems.push(...rowProblems(task.results, entries({ task, test: all.tests[0], run: ref.runs[0], sample: null }), circuit.views))
+      const views = { ...circuit.views, ...task.views }
+      problems.push(...viewsProblems(task.views), ...rowProblems(task.results, entries({ task, test: all.tests[0], run: ref.runs[0], sample: null }), views))
       if (passes(board.startBoard(task))) problems.push(task.starter ? 'the board it opens on passes' : 'the empty board passes')
       if (task.carry && passes(circuit.opening(task))) problems.push(`the board it carries on from (${task.carry}) passes as it is`)
       if (task.carries && tasks[k - 1]?.solution && passes(board.carriedOnto(task, tasks[k - 1].solution))) problems.push('the task before’s board passes as it is')

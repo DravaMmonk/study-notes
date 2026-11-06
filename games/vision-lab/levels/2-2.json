@@ -118,6 +118,7 @@
         "v = reduceRows[mode=mean](w)",
         "out <- v"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "只平均基波没有使用观测；相同探针将对所有图像给出同一结果。",
         "en": "Averaging the basis alone ignores the observation, producing the same result for different signals."

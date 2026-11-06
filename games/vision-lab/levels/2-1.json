@@ -88,6 +88,7 @@
         "v = cosine(position)",
         "out <- v"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "相位改变同一周期的起点。完全忽略相位会让不同起点得到同一张表；增加整整一周则应回到原来的读数。",
         "en": "Phase changes where a cycle starts. Ignoring it makes different starting phases identical; adding one complete turn should restore the original readings."
@@ -219,6 +220,7 @@
         "v = cosine(angle)",
         "out <- v"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "starter": [
         "a = arithmetic[op=add](position,phase)",
         "v = cosine(a)",

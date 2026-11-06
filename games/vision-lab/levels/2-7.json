@@ -64,6 +64,7 @@
         "im <- i"
       ],
       "naive": ["a = spectrum(real)", "re <- a.re", "im <- a.im"],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "第二条输入也是信号。二维的第二轴不能丢弃第一轴产生的虚部。",
         "en": "The imaginary input also carries signal. A second-axis transform must retain first-axis imaginary data."

@@ -1,7 +1,7 @@
 // node --test (npm test) — how the kit shows values, as data (views.js): a task's rows, and a value content writes.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readShow, rowProblems, rowsOf, showProblems, valueText, viewsProblems } from './views.js'
+import { readShow, rowProblems, rowsOf, showProblems, usable, valueText, viewsProblems } from './views.js'
 
 const entries = [
   { of: 'a', label: 'a', shape: 'scalar', given: 1, shown: false },
@@ -17,6 +17,19 @@ test('a task without rows shows what its domain shows by default, each shape in 
 test('rows name what a task offers, in views that draw it; a game’s defaults draw their shapes', () => {
   assert.deepEqual(rowProblems([{ of: 'img', views: ['numbers', 'wave'] }, { of: 'nope' }], entries, null), ['results: "img" is grid, which wave does not draw', 'results: no "nope" to show (a, img, w)'])
   assert.deepEqual(viewsProblems({ grid: ['numbers'], bits: ['value'] }), ['views: value does not draw bits'])
+})
+
+test('a view draws only the values it fits: a plot a grey grid of one or two rows, a profile and a terrain one of several', () => {
+  const row = { w: 8, h: 1, c: 1, data: Array(8).fill(0) }
+  const square = { w: 4, h: 4, c: 1, data: Array(16).fill(0) }
+  const all = ['numbers', 'plot', 'profile', 'surface']
+  assert.deepEqual(usable(all, row), ['numbers', 'plot'])
+  assert.deepEqual(usable(all, square), ['numbers', 'profile', 'surface'])
+  assert.deepEqual(usable(all, { ...square, c: 3, data: Array(48).fill(0) }), ['numbers'])
+  const signal = [{ of: 'out', label: 'out', shape: 'grid', got: null, want: row }]
+  assert.deepEqual(rowsOf(undefined, signal, { grid: ['profile', 'plot', 'numbers'] })[0].views, ['plot', 'numbers'])
+  assert.deepEqual(rowProblems([{ of: 'out', views: ['surface', 'numbers'] }], signal, null), ['results: "out" lists surface, which cannot draw its value'])
+  assert.deepEqual(rowProblems([{ of: 'out', views: ['surface'] }], signal, null), ['results: "out" lists surface, which cannot draw its value', 'results: "out" has no view that draws its value'])
 })
 
 test('a value content writes is read for drawing, and checked', () => {

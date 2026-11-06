@@ -5,6 +5,9 @@ import Timeline from '../shell/Timeline.jsx'
 import { WORDS } from '../shell/words.js'
 import { useViewPicks } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
+import Plot from './plots/Plot.jsx'
+import Profile from './plots/Profile.jsx'
+import Surface from './plots/Surface.jsx'
 import ViewSwitch from './ViewSwitch.jsx'
 
 // A results area (games/DESIGN.md 6.10): the verdict first, then the rows content laid out (../../engine/views.js
@@ -73,14 +76,18 @@ function GridRow({ entry, view, text, tool }) {
   const size = grids.length && grids.every((g) => g.w === grids[0].w && g.h === grids[0].h && (g.c ?? 1) === (grids[0].c ?? 1)) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
   const differs = paired ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
   const read = paired ? (x, y) => <><span>{L(WORDS.result)} {cellText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {cellText(pixel(want, x, y))}</span></> : undefined
+  const plain = (word, v, k) => <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>
+  // A plot and a profile draw the result and the value wanted on one set of axes; the rest side by side.
+  const Over = { plot: Plot, profile: Profile }[view]
+  const body = Over
+    ? <Over value={!isOutput(entry) ? given : isGrid(got) && (paired || !isGrid(want)) ? got : undefined} want={isOutput(entry) && isGrid(want) ? want : undefined} tolerance={tolerance} />
+    : shown.map(([word, v], k) => (!isGrid(v) ? plain(word, v, k)
+      : view === 'surface' ? <figure key={k} className="rv-surface"><figcaption>{word && L(word)}</figcaption><Surface value={v} size={180} /></figure>
+      : <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read} />))
   return (
     <section className="rv-row" data-fail={wrong(entry) || undefined}>
       <h4>{L(label)}{size && <small>{size}</small>}{tool}</h4>
-      <div className="rv-pair">
-        {shown.map(([word, v], k) => (isGrid(v)
-          ? <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read} />
-          : <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>))}
-      </div>
+      <div className="rv-pair">{body}</div>
     </section>
   )
 }

@@ -40,6 +40,7 @@
       "hidden": [],
       "solution": ["k = abs(index)", "g = less(k,cutoff)", "gain <- g"],
       "naive": ["g = less(index,cutoff)", "gain <- g"],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "只比较有符号大小会让所有负频率通过。实信号的正负频率必须按相同规则处理。",
         "en": "Comparing signed values alone keeps all negative frequencies. Real-signal frequency pairs need matching rules."
@@ -147,6 +148,7 @@
         "v = synthesise(r,p.im)",
         "out <- v"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "只改实部会让同一频率的相位和幅度关系失衡，带相位的条纹尤其明显。",
         "en": "Changing only the real component distorts the coefficient; phased stripes expose it."

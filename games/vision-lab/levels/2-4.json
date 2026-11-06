@@ -72,6 +72,7 @@
         "p = frequencyProbe(t.values,t.position)",
         "mag <- p.mag"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "检查每行恒定的频率索引与行内变化的位置表。原行读数保持不变，改变的是探测频率。",
         "en": "Distinguish the row-constant frequency index from positions varying within a row. Source readings repeat unchanged; probe frequency varies."
@@ -229,6 +230,7 @@
         "im <- i",
         "mag <- m"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "starter": ["t = expandRows(image)", "p = frequencyProbe(t.values,t.frequency)"],
       "naive": [
         "t = expandRows(image)",

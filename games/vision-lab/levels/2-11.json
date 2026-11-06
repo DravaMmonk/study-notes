@@ -134,6 +134,7 @@
         "frequency <- v",
         "error <- e"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "周期频域计算不能直接声称等于零补边空间卷积。必须统一边界、核原点和归一化。",
         "en": "Periodic frequency processing is not directly equivalent to zero-padded spatial convolution. Match boundaries, kernel origin and normalisation."

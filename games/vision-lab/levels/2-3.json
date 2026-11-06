@@ -115,6 +115,7 @@
         "im <- r",
         "mag <- m"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "两次相同相位仍只测一个方向，移动后的条纹可能被漏掉。第二路应当是独立的正交投影。",
         "en": "Repeating one phase still measures one direction and can miss shifted stripes. The other projection must be orthogonal."

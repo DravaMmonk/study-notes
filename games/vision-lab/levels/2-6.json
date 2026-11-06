@@ -186,6 +186,7 @@
         "v = synthesise(a.mag,z)",
         "out <- v"
       ],
+      "views": { "grid": ["plot", "numbers", "pixels"] },
       "naiveWhy": {
         "zh": "把幅度当作全部实部并把虚部设零，会人为指定所有相位，而不是保留 B 的空间关系。",
         "en": "Using magnitudes as real components and zero imaginary components imposes phases instead of retaining B’s spatial relationships."

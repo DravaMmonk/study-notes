@@ -126,5 +126,5 @@
       ]
     }
   ],
-  "views": { "grid": ["numbers", "pixels"] }
+  "views": { "grid": ["numbers", "pixels", "plot", "profile", "surface"] }
 }

@@ -6,6 +6,7 @@ import { viewAt } from '../engine/trace.js'
 import { TEST_WORDS } from '../engine/circuit-domain.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
+import { SettingsContext } from './useSetting.js'
 import Results, { ResultsSwitch, sharedViews } from '../views/Results.jsx'
 import Show from '../views/Show.jsx'
 import { L, tr, T } from './i18n.js'
@@ -199,7 +200,9 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const ran = ended || !run.run
   const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
   const offered = entries({ task: level, test, run: runOf, sample: sampled?.want ?? null }).map((e) => (!('got' in e) ? e : kind.ticks ? { ...e, got: upTo(e.got) } : ran ? e : { ...e, got: undefined }))
-  const rows = rowsOf(level.results, offered, game.views)
+  // A task may draw a shape in views of its own (its `views`): on its cards, in its results and its details.
+  const views = useMemo(() => (level.views ? { ...game, views: { ...game.views, ...level.views } } : game), [game, level.views])
+  const rows = rowsOf(level.results, offered, views.views)
   const strip = (
     <>
       <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={kind.ticks && run.run ? at : -1} count={test?.ticks ?? 0} marks={kind.ticks && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
@@ -208,43 +211,45 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   )
 
   return (
-    <CircuitLevel
-      stages={stages}
-      screen={screen}
-      board={board}
-      run={run}
-      className={`cs-level ${className}`.trim()}
-      parts={parts}
-      defined={definedFaces}
-      items={palette.map(itemOf)}
-      folded={folded.map(itemOf)}
-      defaults={defaults}
-      view={view}
-      card={{
-        body,
-        outNote: (node, key, ctx) => {
-          const v = valueOf(node, key, ctx.view)
-          return v === undefined ? null : L(show(v))
-        },
-        thumb: (n, ctx) => (ctx.board.parts.outputs(n) ? null : value(n, ctx)),
-        ...faces,
-      }}
-      canvas={canvas}
-      brief={{ hint: level.hint }}
-      describe={(n) => (BUILT[n.type] ? builtBy(n.type).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
-      results={strip}
-      resultsAside={sharedViews(rows) && <ResultsSwitch rows={rows} />}
-      words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
-      sheet={sheet && ((node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)))}
-      details={details}
-      packed={{
-        open: (node) => {
-          const inside = BUILT[node.type]?.opens?.(node.params)
-          return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels, width: canvas.width }) }
-        },
-        edit: (node) => openRef('level', builtBy(node.type).id),
-        trace: () => (kind.ticks ? (tick?.trace ? { trace: tick.trace } : null) : judged ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
-      }}
-    />
+    <SettingsContext.Provider value={views}>
+      <CircuitLevel
+        stages={stages}
+        screen={screen}
+        board={board}
+        run={run}
+        className={`cs-level ${className}`.trim()}
+        parts={parts}
+        defined={definedFaces}
+        items={palette.map(itemOf)}
+        folded={folded.map(itemOf)}
+        defaults={defaults}
+        view={view}
+        card={{
+          body,
+          outNote: (node, key, ctx) => {
+            const v = valueOf(node, key, ctx.view)
+            return v === undefined ? null : L(show(v))
+          },
+          thumb: (n, ctx) => (ctx.board.parts.outputs(n) ? null : value(n, ctx)),
+          ...faces,
+        }}
+        canvas={canvas}
+        brief={{ hint: level.hint }}
+        describe={(n) => (BUILT[n.type] ? builtBy(n.type).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
+        results={strip}
+        resultsAside={sharedViews(rows) && <ResultsSwitch rows={rows} />}
+        words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
+        sheet={sheet && ((node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)))}
+        details={details}
+        packed={{
+          open: (node) => {
+            const inside = BUILT[node.type]?.opens?.(node.params)
+            return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels, width: canvas.width }) }
+          },
+          edit: (node) => openRef('level', builtBy(node.type).id),
+          trace: () => (kind.ticks ? (tick?.trace ? { trace: tick.trace } : null) : judged ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
+        }}
+      />
+    </SettingsContext.Provider>
   )
 }
