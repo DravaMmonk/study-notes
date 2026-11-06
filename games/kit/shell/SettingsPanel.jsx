@@ -2,11 +2,13 @@ import { useSyncExternalStore } from 'react'
 import { applyLang, currentLang } from '../lang.js'
 import { applyTheme, THEMES } from '../theme.js'
 import { L, tr } from './i18n.js'
+import { PHONE, useMedia } from './useMedia.js'
 import Popover from './Popover.jsx'
 import { optionsFor, settings, settingsFor } from './settings.js'
 
 export default function SettingsPanel({ game, theme, onTheme, anchor, onClose }) {
   useSyncExternalStore(settings.subscribe, settings.snapshot, settings.snapshot)
+  const phone = useMedia(PHONE)
   const entries = settingsFor(game)
   const chooseTheme = (id) => { applyTheme(id); onTheme(id); window.dispatchEvent(new CustomEvent('themechange', { detail: id })) }
   return <Popover className="player-settings-popover" anchor={anchor} title={tr('设置', 'Settings')} onClose={onClose}>
@@ -19,7 +21,7 @@ export default function SettingsPanel({ game, theme, onTheme, anchor, onClose })
         const rows = entries.filter((s) => s.group === group)
         return rows.length > 0 && <section key={group} aria-label={group === 'display' ? tr('显示', 'Display') : tr('编辑', 'Editing')}>
           {rows.map((setting) => {
-            const value = settings.get(game, setting.key)
+            const value = settings.get(game, setting.key, { phone })
             return <div className="player-setting" key={setting.key}>
               <span>{L(setting.label)}</span>
               {setting.kind === 'toggle' ? <button type="button" role="switch" aria-checked={value} aria-label={L(setting.label)} onClick={() => settings.set(game, setting.key, !value)}><i /></button> : <span className="setting-options">{optionsFor(setting, game).map((option) => <button type="button" key={option.value} aria-pressed={value === option.value} onClick={() => settings.set(game, setting.key, option.value)}>{L(option.label)}</button>)}</span>}

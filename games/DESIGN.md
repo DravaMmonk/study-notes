@@ -920,7 +920,9 @@ progress and stamps. Storage access is guarded; unavailable or invalid preferenc
 The panel separates display and editing with a rule, uses one short name and control per row, and ends with
 Restore defaults. Manual section editing starts off: handles, insertion, deletion and note editing are hidden;
 existing notes and dividers remain, and folding always works. Compact slots initially start off. Connection labels
-start on. Grid display offers the game's available choices only when there is more than one, sharing its stored
+default off on desktop, where the real ports and continuous wires preserve the data flow without duplicate name
+tags, and on on phones, where long wires cross many scrolling rows. An explicit device preference overrides both
+defaults. Grid display offers the game's available choices only when there is more than one, sharing its stored
 choice with every value and results row through `views/choice.js`. Results view switches use a single button that
 cycles the available views. Defaults give the simplest experience. New settings may alter presentation or editing,
 never the puzzle, judging or amount of hints. Content and domains cannot register settings.

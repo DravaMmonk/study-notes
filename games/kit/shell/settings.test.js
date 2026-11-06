@@ -7,7 +7,10 @@ const memory = () => { let text = null; return { getItem: () => text, setItem: (
 test('device settings use defaults, validate choices and separate games', () => {
   const storage = memory(), prefs = createSettings(() => storage)
   assert.equal(prefs.get(game, 'manualSections'), false)
-  assert.equal(prefs.get(game, 'connectionLabels'), true)
+  assert.equal(prefs.get(game, 'connectionLabels'), false)
+  assert.equal(prefs.get(game, 'connectionLabels', {phone:true}), true)
+  prefs.set(game, 'connectionLabels', false)
+  assert.equal(prefs.get(game, 'connectionLabels', {phone:true}), false)
   assert.equal(prefs.get(game, 'view.grid'), 'numbers')
   prefs.set(game, 'manualSections', true)
   prefs.set(game, 'view.grid', 'pixels')
