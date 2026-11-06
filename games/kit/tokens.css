@@ -18,6 +18,10 @@
   --mini-width: 132px;
   --mini-height: 46px;
   --stage-preview: 96px;
+  --section-gutter: 30px;
+  --section-line-height: 28px;
+  --slot-height: 152px;
+  --compact-slot-height: 64px;
   --fs-ui: 13px;
   --fs-small: 14.5px;
   --fs-body: 18px;

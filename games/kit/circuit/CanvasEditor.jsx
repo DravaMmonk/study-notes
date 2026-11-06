@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import ClearButton from './ClearButton.jsx'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
+import { arrangedBoard, pipelineLayout } from './layout.js'
 import StageDiagram, { diagramOf } from './StageDiagram.jsx'
 import SaveSlots from './SaveSlots.jsx'
-import { ChevronDown, ChevronRight, Maximize, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Maximize, LayoutGrid, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
 import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
@@ -63,15 +64,30 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  */
 export default function CanvasEditor({ stages = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   // A change never takes off what the level locked on the board (model.js keepLocked).
-  const onChange = readOnly ? () => {} : (next, opt) => given(keepLocked(graph, next), opt)
+  const onChange = readOnly ? () => {} : (next, opt) => {
+    const moved = next.nodes.filter((n) => { const before = graph.nodes.find((x) => x.id === n.id); return before && (n.x !== before.x || n.y !== before.y) })
+    if (moved.length) setPresentation((current) => {
+      if (!current) return current
+      const nodes = new Map(current.nodes)
+      for (const n of moved) nodes.set(n.id, { x: n.x, y: n.y })
+      const placed = new Map(current.groups)
+      if (moved.length > 1) for (const s of groups) {
+        const some = s.nodes.map((id) => nodes.get(id)).filter(Boolean)
+        if (some.length) placed.set(s.id, { x: Math.min(...some.map((p) => p.x)) - 16, y: Math.min(...some.map((p) => p.y)) - 36 })
+      }
+      return { nodes, groups: placed }
+    })
+    given(keepLocked(graph, next), opt)
+  }
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
   const removable = (node) => !node.locked && (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
+  const [presentation, setPresentation] = useState(null)
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [focus, setFocus] = useState(null)
-  const [expandedStages, setExpandedStages] = useState(new Set())
+  const expandedStages = new Set((stages?.stages ?? []).filter((s) => !s.folded).map((s) => s.id))
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
@@ -109,7 +125,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const layered = (nodes) => [...nodes.filter((n) => regionsOf(n).length), ...nodes.filter((n) => !regionsOf(n).length)]
   const groups = stages?.stages ?? []
   const hidden = new Set(groups.filter((s) => !expandedStages.has(s.id)).flatMap((s) => s.nodes))
-  const visible = layered(graph.nodes.filter((n) => !n.in && !hidden.has(n.id)))
+  let visible = layered(graph.nodes.filter((n) => !n.in && !hidden.has(n.id)))
   const stageNodes = (stage) => stage.nodes.map((id) => byId.get(id)).filter(Boolean)
   const collapsed = []
   const occupied = visible.map((n) => [n.x ?? 0, n.y ?? 0, ...(geo.sizes[n.id] ?? [widthOf(n), height])])
@@ -124,7 +140,18 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     occupied.push([...spot, ...size])
     collapsed.push({ id: `stage:${stage.id}`, stage, x: spot[0], y: spot[1], w: size[0], h: size[1] })
   }
+  const arrange = () => pipelineLayout(graph, groups, expandedStages, {
+    sizeOf: (n) => { const size = geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
+    roleOf: parts.role,
+    stageSize: (s) => { const unit = collapsed.find((u) => u.stage.id === s.id); return { w: unit.w, h: unit.h } },
+  })
+  const painting = groups.length ? presentation ?? arrange() : null
+  visible = visible.map((n) => painting?.nodes.has(n.id) ? { ...n, ...painting.nodes.get(n.id) } : n)
+  for (const unit of collapsed) if (painting?.groups.has(unit.stage.id)) Object.assign(unit, painting.groups.get(unit.stage.id))
   const top = [...visible, ...collapsed]
+  useLayoutEffect(() => {
+    if (groups.length && !presentation && top.every((n) => geo.sizes[n.id])) setPresentation(painting)
+  })
   // A card's size as drawn, or as it will be before it is.
   const sizeOf = (node) => geo.sizes[node.id] ?? [widthOf(node), height]
   const at = (p) => geo.ports[p] ?? null
@@ -205,7 +232,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       const el = ownIn(layer.current, `[data-node="${CSS.escape(n.id)}"]`)[0]
       return el ? [el.offsetWidth, el.offsetHeight] : sizeOf(n)
     }
-    const beside = graph.nodes.filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null)).map((n) => [n.x, n.y, ...drawn(n)])
+    const beside = (groups.length ? top : graph.nodes).filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null)).map((n) => [n.x, n.y, ...drawn(n)])
     const spot = clearSpot(beside, drawn(node), [node.x, node.y])
     if (!spot) return
     moving.current = true
@@ -594,12 +621,10 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     )
   }
 
-  const toggleStage = (id) => setExpandedStages((current) => {
-    const next = new Set(current)
-    if (next.has(id)) next.delete(id)
-    else next.add(id)
-    return next
-  })
+  const toggleStage = (id) => {
+    setPresentation(null)
+    stages.toggle(id)
+  }
   const stageCard = (unit) => {
     const stage = unit.stage
     const outputs = [...new Map(stage.outs.map((w) => [w.from, w])).values()]
@@ -607,11 +632,12 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       <header><button type="button" aria-expanded="false" onClick={() => toggleStage(stage.id)}><ChevronRight size={14} />{L(stage.label)}</button></header>
       <StageDiagram nodes={stageNodes(stage)} wires={graph.wires} mini={stages.mini} value={stages.value} label={parts.label} active={stages.active} onPick={(id) => { toggleStage(stage.id); choose(byId.get(id)) }} />
       <div className="stage-boundary is-inputs">{stage.ins.map((w) => <span key={`${w.to}.${w.port}`}><i className="port port-in is-wired" data-p={inPort(w.to, w.port)} onClick={() => clickPort(inPort(w.to, w.port))} /><small>{L(parts.portLabel?.(byId.get(w.to), w.port) || parts.label(byId.get(srcNode(w.from))))}</small></span>)}</div>
-      <div className="stage-boundary is-outputs">{outputs.map((w) => <span key={w.from}><small>{L(parts.label(byId.get(srcNode(w.from))))}</small><i className="port port-out is-wired" data-p={outPort(w.from)} onClick={() => clickPort(outPort(w.from))} /><span className="stage-output-preview">{stages.value?.(w.from, 'card')}</span></span>)}</div>
+      <div className="stage-boundary is-outputs">{outputs.map((w) => <span key={w.from}><small>{L(parts.label(byId.get(srcNode(w.from))))}</small><i className="port port-out is-wired" data-p={outPort(w.from)} onClick={() => clickPort(outPort(w.from))} /></span>)}</div>
+      <div className="stage-previews">{outputs.map((w) => <span key={w.from} className="stage-output-preview">{stages.value?.(w.from, 'card')}</span>)}</div>
     </section>
   }
   const stageFrame = (stage) => {
-    const nodes = stageNodes(stage)
+    const nodes = stageNodes(stage).map((n) => ({ ...n, ...painting?.nodes.get(n.id) }))
     const x = Math.min(...nodes.map((n) => n.x ?? 0)) - 16, y = Math.min(...nodes.map((n) => n.y ?? 0)) - 36
     const right = Math.max(...nodes.map((n) => (n.x ?? 0) + sizeOf(n)[0])) + 16
     const bottom = Math.max(...nodes.map((n) => (n.y ?? 0) + sizeOf(n)[1])) + 16
@@ -626,13 +652,13 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     if (toward === 'to') setLinkCursor({ from: wire.from, at: index })
     const id = toward === 'to' ? targets[index].to : srcNode(wire.from)
     const owner = stageOwners(groups).get(id)
-    if (owner) setExpandedStages((current) => new Set([...current, owner]))
+    if (owner && !expandedStages.has(owner)) { setPresentation(null); stages.open(owner) }
     setSelected({ node: id })
     setFocus(id)
   }
   useEffect(() => {
     if (!focus) return
-    const n = byId.get(focus), el = surface.current
+    const original = byId.get(focus), n = original && { ...original, ...painting?.nodes.get(focus) }, el = surface.current
     if (n && el) setView((v) => ({ ...v, x: el.clientWidth / 2 - ((n.x ?? 0) + sizeOf(n)[0] / 2) * v.zoom, y: el.clientHeight / 2 - ((n.y ?? 0) + sizeOf(n)[1] / 2) * v.zoom }))
     setFocus(null)
   }, [focus])
@@ -644,6 +670,12 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
         <path d={`M${p[0]},${p[1]}h${toward === 'to' ? 12 : -12}`} /><rect x={p[0] + dx} y={p[1] - 10} width={length} height={20} rx={4} /><text x={p[0] + dx + 6} y={p[1] + 4}>{name}</text><title>{name}</title>
       </g>)}
     </g>
+  }
+  const organize = () => {
+    const planned = arrange()
+    const next = arrangedBoard(graph, planned, parts.role)
+    onChange(next, { keep: true })
+    setPresentation(planned)
   }
   const centre = () => {
     const box = surface.current.getBoundingClientRect()
@@ -711,6 +743,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>
         {!readOnly && (
           <>
+            {placed > 0 && <button type="button" onClick={organize} aria-label={tr('整理', 'Arrange')} title={tr('按数据流整理，可撤销', 'Arrange by data flow; undoable')}><LayoutGrid size={14} /></button>}
             {onClear && <><ClearButton onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
             <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>
             <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={14} /></button>

@@ -25,6 +25,7 @@ export function withSections(board, parts, sections) {
 
 export function sectionPreset(board, stages, parts) {
   if (board.sections !== undefined) return board
+  if (!stages.length) return { ...board, sections: [] }
   const placed = placement(board, parts), roots = layout(board, parts).steps.filter((n) => !n.in)
   const used = new Set(), slots = new Map(), sections = []
   const ordered = order(board)

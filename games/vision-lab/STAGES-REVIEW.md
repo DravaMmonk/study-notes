@@ -1,7 +1,7 @@
 # Pipeline stage acceptance
 
 Stages are derived from passed boards by node identity. The full graph is always the runner's input. Stage
-ownership, folded state and connection navigation never enter the blueprint or player save.
+ownership and connection navigation never enter the blueprint. Divider notes and fold state are saved as layout metadata, without changing evaluation.
 
 ## Reference provenance
 
@@ -23,16 +23,17 @@ actions, ports, rows and widgets on miniatures. The other faces and circuit expr
 
 ## Desktop folding
 
-The scanner opens as five prior stages plus the current loose parts. Light and dark views were inspected.
-Expanding the kernel stage, changing its border setting and restoring it, then folding and checking still passes
-all scanner cases. The saved graph is identical before and after a fold toggle; the runner and blueprint APIs
-continue receiving that complete graph. SVG layout tests pass after extracting the shared column layout.
+The scanner opens with five course presets and its current parts. Desktop groups read the same slot-row
+dividers, notes and fold states as the phone. Folding changes only board layout metadata; the runner and
+blueprint APIs continue receiving the complete graph. SVG layout tests pass with the shared column layout.
+Automatic arrangement treats each section as a unit and reserves separate input and output columns.
 
-## Phone accordion
+## Phone slot dividers
 
-At 390 × 844, two successive stage-header taps leave exactly one stage expanded and the page has no horizontal
-overflow. The scanner passes all tests from this view. Existing nodes retain their global slot identifiers while
-stage grids compact their visual placement; opening a stage does not write grouping or fold state to progress.
+The accordion has been removed. At 390 × 844, compact parts remain on the original slot grid and folded sections
+occupy their divider line. Inserting a divider, naming it “取样与汇总”, folding it and reloading preserves the note
+and folded interval. There is no horizontal overflow. Compact and full views share one toggle button. Arrange
+orders parts within their existing section boundaries; it does not change wires or settings.
 
 ## Connection labels
 
