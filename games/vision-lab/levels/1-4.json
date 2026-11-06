@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "对称核掩盖了方向差别；非对称核能区分数学卷积与互相关。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
-    "en": "Symmetric kernels hide the orientation distinction; asymmetric kernels expose convolution versus correlation. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+    "zh": "<code>(I ∗ K)(x,y) = Σ K(u,v) I(x−u,y−v)</code>\n\n∗ 表示数学卷积，求和覆盖核的偏移。它与互相关的区别是邻域偏移的方向相反，等价于先翻转核。对称核翻转后不变，所以只有看非对称核，方向差别才会显现。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
+    "en": "<code>(I ∗ K)(x,y) = Σ K(u,v) I(x−u,y−v)</code>\n\n∗ denotes mathematical convolution, summed over kernel offsets. Reversing the offset direction distinguishes it from correlation, equivalently reversing the kernel first. Symmetric kernels survive reversal unchanged; asymmetric kernels reveal the distinction. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
   },
   "tasks": [
     {

@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "复用实数频谱仪处理两分量，再按复数关系组合；第二条轴不能静默丢弃虚部。 <wiki-ref to=\"complex-transform\"></wiki-ref>",
-    "en": "Reuse the real-valued analyser for both components and combine them correctly. The second axis must retain imaginary information. <wiki-ref to=\"complex-transform\"></wiki-ref>"
+    "zh": "<code>(a+ib)(cosθ−i sinθ) = (a cosθ+b sinθ) + i(b cosθ−a sinθ)</code>\n\na、b 是输入的实部、虚部，θ 是当前参考波角度。两个输入分量都会影响输出的两个分量，不能只把实部送进频谱仪。逐样本使用这个关系并取平均，仍沿用同一套前向归一化。 <wiki-ref to=\"complex-transform\"></wiki-ref>",
+    "en": "<code>(a+ib)(cosθ−i sinθ) = (a cosθ+b sinθ) + i(b cosθ−a sinθ)</code>\n\na and b are input real and imaginary parts; θ is the reference angle. Both input parts affect both output parts, so retaining only the real input loses information. Applying this relationship over samples and averaging keeps the same forward normalisation. <wiki-ref to=\"complex-transform\"></wiki-ref>"
   },
   "tasks": [
     {

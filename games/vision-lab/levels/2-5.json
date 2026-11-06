@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "完整系数可以还原数值。常量、相位和不同长度的测试分别检查增益、符号与归一化。 <wiki-ref to=\"fourier-synthesis\"></wiki-ref>",
-    "en": "Complete coefficients recover values. Constants, phases and varying lengths test gain, signs and normalisation. <wiki-ref to=\"fourier-synthesis\"></wiki-ref>"
+    "zh": "<code>x[n] = Σ (Re C[k] cos θkn − Im C[k] sin θkn)</code>\n\nθkn=2πkn/N，求和遍历全部 N 个频率。每个系数给出一对参考波的贡献，把所有贡献叠加就重建每个位置。前向系数已经除以 N，逆向不能再平均；只有系数长度而没有相位，一般不能还原原信号。 <wiki-ref to=\"fourier-synthesis\"></wiki-ref>",
+    "en": "<code>x[n] = Σ (Re C[k] cos θkn − Im C[k] sin θkn)</code>\n\nθkn=2πkn/N; the sum covers all N frequencies. Each coefficient contributes a pair of reference waves, and their sum reconstructs a position. Forward coefficients already include 1/N, so synthesis must not average again. Magnitudes without phase generally cannot recover the original signal. <wiki-ref to=\"fourier-synthesis\"></wiki-ref>"
   },
   "tasks": [
     {

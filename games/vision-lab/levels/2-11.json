@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "卷积定理的有限实现要匹配核原点、边界、输出域与归一化；等价不保证实现更快。 <wiki-ref to=\"convolution-theorem\"></wiki-ref>",
-    "en": "Finite convolution-theorem implementations must match kernel origin, borders, domains and normalisation. Equivalence does not guarantee speed. <wiki-ref to=\"convolution-theorem\"></wiki-ref>"
+    "zh": "<code>F(x ∗ h)[k] = N F(x)[k] F(h)[k]</code>\n\n这里 ∗ 是周期卷积，h 是同一卷积器的单位脉冲响应，行长为 N。因为 F 每次都除以 N，两个系数相乘会多出一次缩小，所以右侧需要乘 N。空间与频域等价还要求相同的核原点、边界和输出域；公式等价不保证当前实现更快。 <wiki-ref to=\"convolution-theorem\"></wiki-ref>",
+    "en": "<code>F(x ∗ h)[k] = N F(x)[k] F(h)[k]</code>\n\nHere ∗ is circular convolution and h the same convolver’s unit-impulse response on a row of length N. Each F divides by N, so multiplying two coefficients introduces an extra scale reduction, requiring the factor N. Equivalence also requires matched kernel origin, borders and output domain; it does not guarantee a faster implementation. <wiki-ref to=\"convolution-theorem\"></wiki-ref>"
   },
   "tasks": [
     {

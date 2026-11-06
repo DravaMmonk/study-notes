@@ -15,10 +15,10 @@ export function useEscape(onClose) {
   }, [onClose])
 }
 
-// Content text: a { zh, en } pair or a list of them (one paragraph each), with its markup.
+// Content text: bilingual pairs or a list of them; blank lines separate explanation and formula paragraphs.
 function Paragraphs({ text }) {
   const list = Array.isArray(text) ? text : [text]
-  return list.filter(Boolean).map((part, i) => <p key={i}><Markup text={part} /></p>)
+  return list.filter(Boolean).flatMap(part => String(L(part)).split(/\n\s*\n/)).map((part, i) => <p key={i}><Markup text={part} /></p>)
 }
 
 /** A plain dialog: a mono title, lines of text, buttons; the last button is the primary one. `top`: over every other

@@ -10,8 +10,8 @@
     }
   ],
   "after": {
-    "zh": "同一套位置权重可以沿行或列使用；读取方向决定哪些邻居参与，权重的位置与符号决定各自的贡献。每次处理仍然只覆盖一条线。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-    "en": "One positional weighting rule can act along rows or columns. Direction selects the neighbours; weight position and sign determine their contributions. Each pass still covers one line. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+    "zh": "<code>Y(p) = w₋ I(p−d) + w₀ I(p) + w₊ I(p+d)</code>\n\np 是当前位置，d 是读取方向，三个 w 是前、中、后的权重。换方向会换参与的邻居；换符号会让某些贡献相减。常量输入 c 的输出是 c(w₋+w₀+w₊)，所以权重和控制常量增益。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+    "en": "<code>Y(p) = w₋ I(p−d) + w₀ I(p) + w₊ I(p+d)</code>\n\np is the current position, d the read direction and the three w values the preceding, centre and following weights. Direction selects neighbours; signs determine addition or subtraction. Constant input c produces c(w₋+w₀+w₊), so the weight sum controls constant gain. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -27,8 +27,8 @@
         "en": "Combine left, centre and right readings with the supplied positional weights. The direction is d=(1,0): read the first at -d and the last at d. Preserve image size, read zero outside, and do not automatically normalise or discard negative weights."
       },
       "after": {
-        "zh": "权重的位置、符号与总和分别影响方向、响应与增益。负权重和非单位增益也有用途。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-        "en": "Weight positions, signs and sum affect direction, response and gain. Negative weights and non-unit gain can be useful. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+        "zh": "<code>Y(p) = Σj wj I(p+jd), j∈{−1,0,1}</code>\n\nd 给出方向，j 指定前、中、后。每项都是一个邻居的贡献，负权重使它相减，权重和决定常量信号的增益。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+        "en": "<code>Y(p) = Σj wj I(p+jd), j∈{−1,0,1}</code>\n\nd selects direction and j the preceding, centre or following sample. Each term contributes one neighbour; negative weights subtract, and the sum of weights sets constant-signal gain. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },

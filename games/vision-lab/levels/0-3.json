@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "对齐、测量与判定各司其职。质检结论仍依赖给定光照、位移与容差。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
-    "en": "Alignment, measurement and decision have separate roles. The inspection conclusion depends on supplied lighting, offsets and tolerance. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+    "zh": "<code>M(x,y) = 1 if D(x,y) > τ; otherwise 0</code>\n\nD 是对齐后的差异大小，τ 是给定容差。差异图回答“改变了多少”，标记 M 回答“是否超过标准”；相等时不标记。结论仍依赖正确对应、光照条件和容差规范。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+    "en": "<code>M(x,y) = 1 if D(x,y) > τ; otherwise 0</code>\n\nD is aligned difference magnitude and τ the supplied tolerance. D answers how much changed; M answers whether it exceeds the specification. Equality is unmarked. The decision still depends on correspondence, lighting and the tolerance specification. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
   },
   "tasks": [
     {

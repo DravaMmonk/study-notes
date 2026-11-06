@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "空间与通道是不同聚合维度。这里的颜色权重是仪器规范，不是任意编码下的物理亮度。 <wiki-ref to=\"channel-aggregation\"></wiki-ref>",
-    "en": "Space and channels are different aggregation dimensions. These colour weights specify an instrument, not universal physical luminance. <wiki-ref to=\"channel-aggregation\"></wiki-ref>"
+    "zh": "<code>L(x,y) = wr R(x,y) + wg G(x,y) + wb B(x,y)</code>\n\n三个 w 是给定通道权重，R、G、B 是同一位置的三个通道。这里汇合的是通道，不是在空间上模糊邻居。L 是仪器定义的单通道测量；没有额外的颜色编码假设，不能自动把它当作物理亮度。 <wiki-ref to=\"channel-aggregation\"></wiki-ref>",
+    "en": "<code>L(x,y) = wr R(x,y) + wg G(x,y) + wb B(x,y)</code>\n\nThe three w values are supplied channel weights; R, G and B are channels at the same position. This combines channels rather than blurring spatial neighbours. L is an instrument-defined measurement, not automatically physical luminance without further colour-encoding assumptions. <wiki-ref to=\"channel-aggregation\"></wiki-ref>"
   },
   "tasks": [
     {

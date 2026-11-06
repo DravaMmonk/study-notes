@@ -10,8 +10,8 @@
     }
   ],
   "after": {
-    "zh": "频率控制重复次数，相位控制排列关系。数值表保留灰度显示无法呈现的读数。 <wiki-ref to=\"wave-parameters\"></wiki-ref>",
-    "en": "Frequency controls repetitions; phase controls alignment. Numeric tables retain readings hidden by grayscale clipping. <wiki-ref to=\"wave-parameters\"></wiki-ref>"
+    "zh": "<code>s[n] = A cos(2π(kn/N + p))</code>\n\nn=0,…,N−1 是行内位置，k 是整行的周期数，p 是以周为单位的相位，A 是峰值幅度。改变 k 会改变重复次数；改变 p 会平移波形的排列。p 增加 1/4 周就是转过 π/2 弧度。 <wiki-ref to=\"wave-parameters\"></wiki-ref>",
+    "en": "<code>s[n] = A cos(2π(kn/N + p))</code>\n\nn=0,…,N−1 indexes a row, k counts cycles across it, p is phase in turns and A is peak amplitude. Changing k changes repetitions; changing p shifts the alignment. A quarter turn is π/2 radians. <wiki-ref to=\"wave-parameters\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -25,6 +25,10 @@
       "brief": {
         "zh": "整行长度表示 1 周，先只产生一个周期。按照给定相位改变起点，不改变周期数；保留波形的正负读数。余弦元件自动计算角度对应的读数。",
         "en": "The row length represents one turn. Produce one cycle while changing its starting phase, without changing cycle count. Retain signed values; cosine computes the readings automatically."
+      },
+      "after": {
+        "zh": "<code>θ = 2πp; s = cosθ</code>\n\np 用“周”表示一个周期中的位置，θ 是同一位置的弧度角。p=0 与 p=1 回到同一点；p 增加 1/4 周就转过直角，说明相位可以改变读数而不改变频率。 <wiki-ref to=\"wave-parameters\"></wiki-ref>",
+        "en": "<code>θ = 2πp; s = cosθ</code>\n\np measures position in turns and θ in radians. p=0 and p=1 return to the same point; adding a quarter turn rotates by a right angle. Phase can therefore alter a reading without changing frequency. <wiki-ref to=\"wave-parameters\"></wiki-ref>"
       },
       "inputs": [
         { "name": "position", "label": { "zh": "归一化位置", "en": "Normalised position" } },

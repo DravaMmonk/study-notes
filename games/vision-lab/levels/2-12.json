@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "实信号及对称增益应留下接近零的虚部残差，可用它检查丢分量或破坏共轭对称。 <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>",
-    "en": "Real signals with symmetric gains should leave near-zero imaginary residual, useful for detecting lost components or broken conjugate symmetry. <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>"
+    "zh": "<code>F⁻¹(C) = WH · conj(F(conj(C)))</code>\n\nW、H 是宽高，conj 保留实部并反转虚部的符号。两次共轭把前向指数的负号换成逆向的正号，乘 WH 抵消前向平均。实图及保持共轭对称的增益应重建出接近零的虚部；非零残差可提示丢分量或符号错误。 <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>",
+    "en": "<code>F⁻¹(C) = WH · conj(F(conj(C)))</code>\n\nW and H are image dimensions; conj retains the real part and negates the imaginary part. Conjugation reverses the exponent sign, while WH cancels the forward average. Real input with conjugate-symmetric gains should reconstruct with near-zero imaginary residual; a residual can reveal lost components or sign errors. <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>"
   },
   "tasks": [
     {

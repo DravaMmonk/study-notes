@@ -7,6 +7,20 @@ arithmetic and traversal execute automatically; selecting and composing the visu
 The long-term plan is [the machine-first outline](../../docs/Unimelb/26S2/CV/vision-game-specs/curriculum-construction-outline.md).
 This specification covers stages 0–2, not later camera, learning or geometry machines.
 
+## Completion explanations
+
+Every circuit task shows a short conceptual explanation and its general mathematical relationship after passing,
+including intermediate tasks within a level. Explain symbols, what the relationship measures and one relevant
+limit; do not retell the reference wiring. Blank lines separate formula and explanation paragraphs in pass text.
+Chinese and English carry the same meaning. Keep definitions in the linked encyclopedia entries.
+
+Frequency explanations follow the implemented negative-exponent forward transform with 1/N normalisation
+(and 1/(WH) in 2D), with unnormalised inverse sums. Two quadrature coefficients aggregate all N samples; they
+are not two raw sample points. For an isolated integer-bin sinusoid away from DC and Nyquist, re=(A/2)cos φ,
+im=(A/2)sin φ and A=2|C|. At zero amplitude phase is undefined; DC/Nyquist are degenerate real bins. Complete
+periods and matching sample frequencies are the orthogonality conditions; unknown frequency still needs a scan.
+Convolution-theorem explanations retain the factor N required by this forward normalisation.
+
 ## Encyclopedia presentation
 
 Chinese encyclopedia entry names include their existing English titles in parentheses, in the entry list,
@@ -177,3 +191,14 @@ when coefficient rescaling needs it. Row reduction starts with sum and adds mean
 The size component first appears at frequency/spatial normalisation. Simple scalar constants, channel selectors
 and row-position services reuse established arithmetic, RGB and normalised-position knowledge; they receive
 concise task guidance rather than unrelated tool exercises.
+
+### Completion explanation verification
+
+All 40 task completions (26 final and 14 intermediate) have Chinese and English formula explanations.
+The operation-set checks pass with no changes to puzzles, tests, starters, reference solutions or unlocks.
+The quadrature amplitude/sign identities were checked independently on 204 combinations of row length,
+frequency, amplitude and phase, excluding degenerate bins. Browser review covers the intermediate smoothing
+completion and full quadrature completion on phones, with formula paragraphs and no horizontal overflow;
+the longer quadrature explanation scrolls and retains reachable actions. Desktop layout is also reviewed.
+The transform sign convention was cross-checked against the [FFTW DFT definition](https://www.fftw.org/doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html);
+FFTW leaves both transforms unnormalised, whereas this game deliberately assigns 1/N to forward analysis.
