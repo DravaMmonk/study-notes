@@ -9,17 +9,19 @@ import { rangeOf, rowOf } from './range.js'
 // rings on the same axes and a result that misses one (beyond `tolerance`) is marked. Pointing at a column reads it.
 // `card` draws a small one with nothing to point at.
 
-const W = 320
-const ROW = 64
-const PAD = 8
+// Drawing units: the full plot is scaled to its frame; a card's is drawn at its size on the card (one unit a pixel),
+// a row as tall as reads at a glance.
+const FULL = { w: 320, row: () => 64, pad: 8, r: (n) => Math.min(3, 320 / n / 4) }
+const CARD = { w: 120, row: (rows) => (rows > 1 ? 28 : 44), pad: 5, r: () => 2.2 }
 
-function Row({ got, want, tolerance, lo, hi, at, card, height }) {
+function Row({ got, want, tolerance, lo, hi, at, size, height }) {
   const n = (got ?? want).length
+  const { w: W, pad: PAD } = size
   const x = (j) => PAD + ((j + 0.5) / n) * (W - 2 * PAD)
   const y = (v) => PAD + (1 - (Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo || 1)) * (height - 2 * PAD)
   const zero = y(Math.min(hi, Math.max(lo, 0)))
   const path = (list) => list.map((v, j) => `${j ? 'L' : 'M'}${x(j).toFixed(1)},${y(v).toFixed(1)}`).join('')
-  const r = card ? 1.8 : Math.min(3, (W / n) / 4)
+  const r = size.r(n)
   return (
     <g>
       <line className="pl-zero" x1={PAD} x2={W - PAD} y1={zero} y2={zero} />
@@ -37,21 +39,22 @@ export default function Plot({ value, want, tolerance = 0, card = false }) {
   const [at, setAt] = useState(null)
   const shown = value ?? want
   const rows = shown.h
-  const height = card ? 40 : ROW
+  const size = card ? CARD : FULL
+  const height = size.row(rows)
   const { lo, hi } = rangeOf(value, want)
   const pick = (event) => {
     const box = event.currentTarget.getBoundingClientRect()
-    const u = (((event.clientX - box.left) / box.width) * W - PAD) / (W - 2 * PAD)
+    const u = (((event.clientX - box.left) / box.width) * size.w - size.pad) / (size.w - 2 * size.pad)
     const yRow = Math.min(rows - 1, Math.max(0, Math.floor(((event.clientY - box.top) / box.height) * rows)))
     setAt({ x: Math.min(shown.w - 1, Math.max(0, Math.floor(u * shown.w))), y: yRow })
   }
   const read = at && !card ? { got: value && rowOf(value, at.y)[at.x], want: want && rowOf(want, at.y)[at.x] } : null
   return (
     <div className={`pl ${card ? 'is-card' : ''}`}>
-      <svg viewBox={`0 0 ${W} ${height * rows}`} role="img" onPointerMove={card ? undefined : pick} onPointerDown={card ? undefined : pick} onPointerLeave={() => setAt(null)}>
+      <svg viewBox={`0 0 ${size.w} ${height * rows}`} role="img" onPointerMove={card ? undefined : pick} onPointerDown={card ? undefined : pick} onPointerLeave={() => setAt(null)}>
         {Array.from({ length: rows }, (_, k) => (
           <g key={k} transform={`translate(0 ${k * height})`}>
-            <Row got={value && rowOf(value, k)} want={want && rowOf(want, k)} tolerance={tolerance} lo={lo} hi={hi} at={at && !card && at.y === k ? at.x : null} card={card} height={height} />
+            <Row got={value && rowOf(value, k)} want={want && rowOf(want, k)} tolerance={tolerance} lo={lo} hi={hi} at={at && !card && at.y === k ? at.x : null} size={size} height={height} />
           </g>
         ))}
       </svg>
