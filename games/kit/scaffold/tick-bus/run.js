@@ -8,9 +8,11 @@
 // runTest(task, circuit, test, parts) → { ticks: [{ tick, line, said, values, errors, outputs, trace, failed? }], want,
 //   error?, fail? }: a tick's `failed` is why its outputs are wrong, its `trace` what every card computed (inside packed
 //   parts too); `error` a board that says what it hears in the same tick
+// entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): the line and the
+//   inputs, what the board says and each output against what is wanted, tick by tick
 import { boardNode, runTicks } from '../../engine/ticks.js'
 import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
-import { lineOf, sayer } from './line.js'
+import { LINE, lineOf, sayer } from './line.js'
 import { T } from '../../shell/i18n.js'
 
 const SAY = { name: 'say', label: T('说', 'Say') }
@@ -30,3 +32,9 @@ export function runTest(task, circuit, test, parts) {
 
 /** Every test of a task on a board: { runs, pass }. */
 export const runLevel = runTests(runTest)
+
+export const entries = ({ task, test, run }) => [
+  ...(task.listens ? [{ of: 'line', label: LINE, shape: 'bits', given: test.line }] : []),
+  ...(task.inputs ?? []).map((i) => ({ of: i.name, label: i.label, shape: 'bits', given: test.inputs[i.name] })),
+  ...checked(task).map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => (task.talks && o.name === SAY.name ? t.said : t.outputs[o.name] ?? null)), want: run.want[o.name] })),
+]

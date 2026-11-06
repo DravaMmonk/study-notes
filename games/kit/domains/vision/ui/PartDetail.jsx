@@ -1,7 +1,7 @@
 import { L, tr } from '../../../shell/i18n.js'
 import { feeding, outputsOf, srcNode, srcOf } from '../../../circuit/model.js'
 import { fmt, isImage, pixel, show } from '../image.js'
-import ImageInspector from './ImageInspector.jsx'
+import GridInspector from '../../../shell/views/grid/GridInspector.jsx'
 
 const read = (ctx, source) => ({ value: source ? ctx.view.values.get(source) : undefined, error: source ? ctx.view.errors.get(srcNode(source)) : null })
 const sample = (value, x, y) => isImage(value) ? pixel(value, x, y) : value
@@ -9,7 +9,7 @@ const text = (value) => Array.isArray(value) ? `(${value.join(', ')})` : String(
 
 function DataValue({ value, error, label, explainPixel, fit }) {
   if (value === undefined) return <p className="vi-error">{error ? L(error) : tr('尚未连接或上游未产生结果', 'Not connected or no upstream result yet')}</p>
-  if (isImage(value)) return <ImageInspector {...{ value, label, explainPixel }} fit={fit} dense />
+  if (isImage(value)) return <GridInspector {...{ value, label, explainPixel }} fit={fit} dense />
   return <div className="vi-detail-scalar"><span>{label}</span><strong>{show(value)}</strong></div>
 }
 

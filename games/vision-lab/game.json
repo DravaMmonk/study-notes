@@ -119,5 +119,6 @@
         "2-13"
       ]
     }
-  ]
+  ],
+  "views": { "grid": ["numbers", "pixels"] }
 }

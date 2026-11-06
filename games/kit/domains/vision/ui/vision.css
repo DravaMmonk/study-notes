@@ -8,16 +8,6 @@
 [data-family='end'] { --fam: var(--accent); }
 
 /* ---- images ---- */
-.vi-image { display: block; max-width: 100%; height: auto; }
-.vi-num { font: 600 10px var(--mono); text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; pointer-events: none; }
-.vi-num.is-dark { fill: #1b1f24; }
-.vi-num.is-light { fill: #f4f6f8; }
-.vi-axis { font: 11px var(--mono); fill: var(--muted); text-anchor: middle; dominant-baseline: central; }
-.vi-lines line { stroke: var(--line); stroke-width: 1; }
-.vi-mark { fill: none; stroke: var(--accent); stroke-width: 3; }
-.vi-pick { cursor: pointer; }
-.vi-pick:hover rect { opacity: 0.85; }
-.vi-picture { display: block; image-rendering: pixelated; border-radius: var(--r-sm); }
 
 /* ---- cards ---- */
 .vi-value { font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
@@ -32,87 +22,18 @@
 .vi-field.is-inline { grid-template-columns: auto 72px; }
 
 /* ---- the test under the board ---- */
-.vi-strip { display: grid; gap: 10px; min-width: 0; }
-@media (min-width: 761px) { .vi-detail-values { --vi-frame-w: 220px; --vi-frame-h: 150px; } }
-.vi-test { --vi-frame-w: 220px; --vi-frame-h: 150px; display: flex; flex-wrap: wrap; align-items: start; gap: 10px 20px; min-width: 0; }
-.vi-sample { display: flex; flex-wrap: wrap; align-items: start; gap: 12px 20px; min-width: 0; }
-.vi-sample-output { display: grid; gap: 4px; min-width: 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
-.vi-sample-output > h4 { margin: 0; display: flex; align-items: baseline; gap: 8px; color: var(--ink); font: 600 13px var(--sans, inherit); }
-.vi-sample-output > h4 small { color: var(--muted); font: 11px var(--mono); }
-.vi-sample-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 176px)); gap: 8px; }
-.vi-sample-picture { margin: 0; display: grid; gap: 2px; min-width: 0; }
-.vi-sample-picture figcaption { color: var(--muted); font-size: 12px; }
-.vi-sample-frame { position: relative; line-height: 0; cursor: crosshair; }
-.vi-sample-frame canvas { width: 100%; height: auto; image-rendering: pixelated; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--line); }
-.vi-sample-mark { position: absolute; box-sizing: border-box; min-width: 4px; min-height: 4px; border: 2px solid var(--accent); pointer-events: none; }
-.vi-sample-read { margin: 0; color: var(--muted); font: 12px var(--mono); }
-.vi-sample-read b { color: var(--ink); font-weight: 600; }
-.vi-test-scalars { margin: 0; display: grid; align-content: start; gap: 2px; padding-top: 3px; }
-.vi-test-scalars > div { display: flex; align-items: baseline; gap: 8px; }
-.vi-test-scalars dt { color: var(--muted); font-size: 12px; }
-.vi-test-scalars dd { margin: 0; font: 600 13px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
-.vi-test-output { display: grid; gap: 2px; min-width: 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
-.vi-test-output[data-different] { border-inline-start-color: var(--fail); }
-.vi-test-output > h4 { margin: 0; color: var(--ink); font: 600 13px var(--sans, inherit); }
-.vi-test-pair { display: flex; align-items: start; gap: 8px; }
-.vi-test-pair > .vi-inspector { flex: none; }
-.vi-test-pair .vi-inspector figcaption strong { color: var(--muted); font-weight: 500; font-size: 12px; }
-.vi-test-missing { min-width: 88px; }
-.vi-mobile-results { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; }
-.vi-mobile-results > section { min-width: 0; }
-.vi-output-tabs { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: thin; border-bottom: 1px solid var(--line); }
-.vi-output-tabs button { flex: none; min-height: 44px; display: flex; align-items: center; gap: 6px; padding: 0 2px; border: 0; border-bottom: 2px solid transparent; color: var(--muted); background: none; font: 13px var(--sans); cursor: pointer; }
-.vi-output-tabs button[aria-selected='true'] { border-bottom-color: var(--accent); color: var(--ink); font-weight: 600; }
-.vi-output-tabs button svg { color: var(--muted); }
-.vi-output-tabs button[data-different] svg { color: var(--fail); }
-.vi-result-title { margin: 0; font-size: 13px; font-weight: 600; }
-.vi-result-head { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
-.vi-result-head > .vi-output-tabs { min-width: 0; flex: 1 1 auto; border-bottom: 0; }
-.vi-result-head > .vi-result-title { min-height: 36px; align-content: center; }
-.vi-mobile-results > .vi-view-switch { justify-self: end; }
-.vi-result-pair { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; align-items: start; padding-block: 2px; }
-.vi-result-value { min-width: 0; display: grid; align-content: start; gap: 3px; }
-.vi-result-label { min-height: 18px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 6px; }
-.vi-result-label strong { font-size: 12px; font-weight: 500; color: var(--muted); }
-.vi-result-label small { color: var(--muted); font: 10px var(--mono); }
-.vi-scalar-results { width: max-content; max-width: 100%; border-collapse: collapse; text-align: left; }
-.vi-scalar-results th, .vi-scalar-results td { padding: 4px 16px 4px 0; overflow-wrap: anywhere; }
-.vi-scalar-results th { color: var(--muted); font-size: 12px; font-weight: 500; }
-.vi-scalar-results td { font: 600 14px var(--mono); }
-.vi-scalar-results [data-different] td:first-of-type { color: var(--fail); }
-.vi-pick.is-different rect { stroke: var(--fail); stroke-width: 2; }
-.vi-results { display: grid; gap: 6px; }
-.vi-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
-.vi-verdict.is-fail { color: var(--fail); }
-.vi-verdict.is-pass { color: var(--status); }
 .vi-bench-feedback { margin: 0 16px 20px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; line-height: 1.65; color: var(--fail); }
 
 /* Part details expose data at readable scale while board thumbnails stay compact. */
 .vi-part-detail { min-width: 0; display: grid; gap: 8px; }
+@media (min-width: 761px) { .vi-detail-values { --gv-frame-w: 220px; --gv-frame-h: 150px; } }
 .vi-detail-values { min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr)); gap: 8px 12px; }
 .vi-detail-scalar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .vi-detail-scalar strong { font: 600 14px var(--mono); overflow-wrap: anywhere; }
 .vi-detail-settings .vi-field :is(input, select) { min-height: 44px; font-size: 16px; }
-/* Every inspected image sits in one fixed frame sized by the screen (ImageInspector). */
-:root { --vi-frame-w: 240px; --vi-frame-h: 180px; }
-.vi-inspector { width: min(100%, var(--vi-frame-w)); grid-template-columns: minmax(0, 1fr); position: relative; min-width: 0; margin: 0; display: grid; align-content: start; justify-items: start; gap: 4px; }
-.vi-inspector figcaption { width: 100%; min-height: 22px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
-.vi-inspect-meta { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: end; font-family: var(--mono); font-size: 11px; }
-.vi-inspector figcaption strong { color: var(--ink); font-size: 13px; }
-.vi-frame { box-sizing: border-box; width: 100%; height: var(--vi-frame-h); display: flex; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y; border: 1px solid var(--line); border-radius: 8px; background: var(--canvas); scrollbar-width: thin; }
-.vi-frame.is-overview { overflow: hidden; }
-.vi-frame.is-info:has(.vi-frame-canvas:hover) { cursor: grab; }
-.vi-frame-canvas { flex: none; margin: auto; line-height: 0; }
-.vi-frame-canvas .vi-image { max-width: none; height: auto; border-radius: 0; }
-.vi-view-switch { flex: none; height: 26px; display: inline-flex; align-items: center; gap: 5px; padding: 0 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: var(--paper); font: 12px var(--sans, inherit); cursor: pointer; }
-.vi-view-switch:hover { color: var(--ink); }
-.vi-pixel-popover { position: fixed; z-index: 100; box-sizing: border-box; display: grid; gap: 4px; padding: 8px 10px; margin-top: 8px; border: 1px solid var(--accent); border-radius: 10px; color: var(--ink); background: var(--paper); box-shadow: var(--lift); font: 12px/1.5 var(--mono); pointer-events: none; overflow-wrap: anywhere; }
-.vi-pixel-popover.is-above { margin-top: -8px; transform: translateY(-100%); }
-.vi-pixel-calculation { border-top: 1px solid var(--line); padding-top: 5px; white-space: pre-line; }
 
 /* Phone density belongs to the vision workspace; shared editors keep their own spacing contracts. */
 @media (max-width: 760px) {
-  :root { --vi-frame-w: 360px; --vi-frame-h: 168px; }
   .vi-level .pl-scroll { padding: 8px 10px 16px; gap: 8px; --pb-sticky-top: -8px; }
   .vi-level .task-card { position: relative; }
   .vi-level .task-card.is-open .task-toggle { position: absolute; top: 0; right: 0; z-index: 1; width: 44px; min-height: 44px; padding: 0; justify-content: center; font-size: 0; }
@@ -134,17 +55,13 @@
   .vi-level > .run-foot { padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
   .vi-level .run-go { min-height: 48px; }
   .vi-level .pl-results { padding-top: 8px; gap: 6px; }
-  .vi-sample, .vi-sample-output { display: grid; width: 100%; }
-  .vi-sample-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .vi-level .vi-strip { gap: 6px; }
-  .vi-level .vi-verdict { font-size: 12px; line-height: 1.45; }
 }
 
 /* Introduction figures establish representations before the player combines them. */
 .vi-intro-figure { margin: 0 0 18px; min-width: 0; display: grid; justify-items: center; gap: 10px; }
 .vi-intro-figure .vp-lab { margin: 0; }
 .vi-intro-figure figcaption { color: var(--muted); font-size: 13px; line-height: 1.6; text-align: center; }
-.vi-intro-figure .vi-image { width: min(100%, 270px); }
+.vi-intro-figure .gv-image { width: min(100%, 270px); }
 .vi-primer { display: block; width: min(100%, 440px); overflow: visible; }
 .vi-primer path { stroke: var(--muted); stroke-width: 1.5; fill: none; }
 .vi-primer rect { fill: var(--hover); stroke: var(--muted); }
@@ -172,7 +89,7 @@
 
 /* ---- grid tasks ---- */
 .vi-grid { box-sizing: border-box; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: start; padding: 12px; }
-.vi-grid > .vi-inspector { --vi-frame-w: 560px; --vi-frame-h: 320px; }
+.vi-grid > .gv-inspector { --gv-frame-w: 560px; --gv-frame-h: 320px; }
 .vi-calculation { box-sizing: border-box; width: 100%; max-width: 620px; display: grid; gap: 6px; padding: 8px 0; border-block: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
 .vi-calculation > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .vi-calculation h3, .vi-calculation p { margin: 0; font-size: 13px; }
@@ -226,7 +143,7 @@
 .vi-channel-fields label { display: grid; grid-template-columns: minmax(0, 1fr) minmax(76px, 120px); align-items: center; gap: 12px; }
 .vi-channel-fields label > span { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .vi-channel-fields i { width: 10px; height: 10px; border-radius: 50%; }
-.vi-channel-fields input:focus-visible, .vi-table-scroll:focus-visible, .vi-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.vi-channel-fields input:focus-visible, .vi-table-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---- choice tasks ---- */
 .vi-choice { display: grid; gap: 18px; padding: 20px; max-width: 880px; }
@@ -389,9 +306,9 @@
 .vi-window-products strong { color: var(--accent-ink); }
 
 .vi-numeric-thumb { display: block; min-width: 0; max-width: 100%; max-height: 96px; overflow: auto; overscroll-behavior: contain; }
-.vi-numeric-thumb .vi-image { max-width: none; height: auto; }
+.vi-numeric-thumb .gv-image { max-width: none; height: auto; }
 .vi-numeric-thumb.is-small { max-height: none; overflow: visible; }
-.vi-numeric-thumb.is-small .vi-image { max-width: 100%; height: auto; }
+.vi-numeric-thumb.is-small .gv-image { max-width: 100%; height: auto; }
 .vi-outside-figure { width: 100%; }
 .vi-outside-scroll { width: 100%; max-width: 100%; overflow-x: auto; }
 .vi-outside-scroll table { border-spacing: 4px; margin-inline: auto; font: 13px var(--mono); }

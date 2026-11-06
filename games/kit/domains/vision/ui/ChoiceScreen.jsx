@@ -4,7 +4,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import { fromRows } from '../image.js'
 import { isNaive, judgeOf } from '../judges.js'
 import { render } from '../scene.js'
-import ImageView, { Picture } from './ImageView.jsx'
+import GridView, { GridPicture } from '../../../shell/views/grid/GridView.jsx'
 
 // A choice task (../judges.js): rounds answered one after another, the first shown and each later one with changed
 // data once the one before is right. A round shows what it is about — an image, the picture its candidate scenes all
@@ -23,7 +23,7 @@ const KNOBS = {
 /** An image as content writes it (rows), drawn: cell by cell while small, else as a picture. */
 function Shown({ rows, value }) {
   const img = value ?? fromRows(rows)
-  return img.w * img.h <= 36 ? <ImageView value={img} numbers axes /> : <Picture value={img} scale={Math.max(2, Math.floor(240 / Math.max(img.w, img.h)))} />
+  return img.w * img.h <= 36 ? <GridView value={img} numbers axes /> : <GridPicture value={img} scale={Math.max(2, Math.floor(240 / Math.max(img.w, img.h)))} />
 }
 
 /** Why a claim is undetermined, seen: the two candidate scenes it splits, from a view that tells them apart. */
@@ -33,7 +33,7 @@ function Reveal({ round, reveal }) {
     <div className="vi-reveal">
       {images.map((img, j) => (
         <figure key={j}>
-          <Picture value={img} scale={4} />
+          <GridPicture value={img} scale={4} />
           <figcaption>{tr(`换个角度看场景 ${reveal.scenes[j] + 1}：${j ? '不成立' : '成立'}`, `Scene ${reveal.scenes[j] + 1} from another view: ${j ? 'fails' : 'holds'}`)}</figcaption>
         </figure>
       ))}
@@ -52,7 +52,7 @@ function Explorer({ scene, knobs }) {
   const image = useMemo(() => render(now).image, [now])
   return (
     <div className="vi-explore">
-      <Picture value={image} scale={6} />
+      <GridPicture value={image} scale={6} />
       <div className="vi-knobs">
         {knobs.map((k) => (
           <label key={k} className="vi-field">
@@ -114,12 +114,12 @@ export default function ChoiceScreen({ game, level: entry, saved, save, solve, l
         {round.options.map((o) => (
           <button key={o.id} type="button" className="vi-option" aria-pressed={(picks[k] ?? []).includes(o.id)} onClick={() => pick(k, o.id)}>
             {o.image && <Shown rows={o.image} />}
-            {sceneImages.has(o.id) && <Picture value={sceneImages.get(o.id)} scale={3} />}
+            {sceneImages.has(o.id) && <GridPicture value={sceneImages.get(o.id)} scale={3} />}
             <span>{L(o.label)}</span>
           </button>
         ))}
       </div>
-      {wrongOf(k) && <p className="vi-verdict is-fail">{L(wrongOf(k))}</p>}
+      {wrongOf(k) && <p className="rv-verdict is-fail">{L(wrongOf(k))}</p>}
       {wrongOf(k) && round.reveals?.[k] && <Reveal round={round} reveal={round.reveals[k]} />}
     </section>
   ))
@@ -134,8 +134,8 @@ export default function ChoiceScreen({ game, level: entry, saved, save, solve, l
   const naive = verdict && !verdict.pass && isNaive(task, state.round, picks)
   const results = verdict ? (
     <div className="vi-results">
-      <p className={`vi-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? (last ? tr('全部答对。', 'All right.') : tr('这一轮答对了，下一轮换了数据。', 'This round is right; the next one changes the data.')) : tr(`还有 ${verdict.wrong.length} 处不对，已标出。`, `${verdict.wrong.length} still wrong, marked.`)}</p>
-      {naive && <p className="vi-verdict is-fail">{L(task.naive.why)}</p>}
+      <p className={`rv-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? (last ? tr('全部答对。', 'All right.') : tr('这一轮答对了，下一轮换了数据。', 'This round is right; the next one changes the data.')) : tr(`还有 ${verdict.wrong.length} 处不对，已标出。`, `${verdict.wrong.length} still wrong, marked.`)}</p>
+      {naive && <p className="rv-verdict is-fail">{L(task.naive.why)}</p>}
     </div>
   ) : null
   const go = verdict?.pass ? (last ? tr('全部答对', 'All right') : tr('下一轮', 'Next round')) : tr('检查', 'Check')

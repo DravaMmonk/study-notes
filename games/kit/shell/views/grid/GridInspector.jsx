@@ -1,10 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { tr } from '../../../shell/i18n.js'
-import { fmt, pixel } from '../image.js'
-import ImageView from './ImageView.jsx'
-import { denseCell, fitFrame, inspectorCell, thumbCell } from './image-layout.js'
-import { useImageView } from './image-view.js'
+import { tr } from '../../i18n.js'
+import { cellNumber, pixel } from '../../../engine/grid.js'
+import { useViewChoice } from '../choice.js'
+import GridView from './GridView.jsx'
+import { denseCell, fitFrame, inspectorCell, thumbCell } from './layout.js'
 
 const raw = (value) => Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${v}`).join(' · ') : String(value)
 
@@ -24,14 +24,14 @@ function useFrameSize(frame) {
   return size
 }
 
-/** The largest frame the screen allows (--vi-frame-w, --vi-frame-h on the figure), kept current as it changes. */
+/** The largest frame the screen allows (--gv-frame-w, --gv-frame-h on the figure), kept current as it changes. */
 function useFrameMax(root, on) {
   const [max, setMax] = useState(null)
   useLayoutEffect(() => {
     if (!on) return
     const measure = () => {
       const css = getComputedStyle(root.current)
-      const w = parseFloat(css.getPropertyValue('--vi-frame-w')), h = parseFloat(css.getPropertyValue('--vi-frame-h'))
+      const w = parseFloat(css.getPropertyValue('--gv-frame-w')), h = parseFloat(css.getPropertyValue('--gv-frame-h'))
       setMax((m) => m?.w === w && m?.h === h ? m : { w, h })
     }
     measure()
@@ -68,12 +68,13 @@ function usePan(frame) {
 }
 
 /**
- * An image in a fixed frame sized by the screen, whatever its dimensions, in the view every image shares
- * (image-view.js): overview scales the whole image to fit, pixels only; information draws numbered cells at their
- * readable size, unscaled, every cell selectable. The frame pans by dragging. With `fit` the frame shrinks to what
- * the image needs (fitFrame), the screen's frame its largest; `dense` (with `fit`) draws narrower information cells.
+ * A grid in a frame sized by the screen, whatever its dimensions, as the view `numbers` or `pixels` (by default the
+ * one the player picked for grids, ../choice.js): pixels scales the whole grid to fit; numbers draws numbered cells at
+ * their readable size, unscaled, every cell selectable. Pointing at a cell reads it (`inspectPixel` says what, by
+ * default its value; `explainPixel` adds how it came about). The frame pans by dragging. With `fit` the frame shrinks
+ * to what the grid needs (fitFrame), the screen's frame its largest; `dense` (with `fit`) draws narrower numbered cells.
  */
-export default function ImageInspector({ value, label, note, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel, fit = false, dense = false }) {
+export default function GridInspector({ value, label, note, view, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel, fit = false, dense = false }) {
   const root = useRef(null)
   const frame = useRef(null)
   const size = useFrameSize(frame)
@@ -90,7 +91,8 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
   },[point])
   const cellOf = fit && dense ? denseCell : inspectorCell
   const cell = cellOf(value)
-  const info = useImageView() === 'info'
+  const [picked] = useViewChoice('grid')
+  const info = (view ?? picked) === 'numbers'
   const max = useFrameMax(root, fit)
   const frameSize = fit && max ? fitFrame(value, info, max, cellOf) : null
   // A frame not laid out yet (measured inside something still hidden or opening) draws the thumbnail size meanwhile.
@@ -105,24 +107,24 @@ export default function ImageInspector({ value, label, note, showSize = true, ex
   }
   const active = point && point.x < value.w && point.y < value.h ? point : null
   const meta = [showSize && `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`, note].filter(Boolean).join(' · ')
-  return <figure className="vi-inspector" ref={root} style={frameSize ? { width: frameSize.w } : undefined}>
+  return <figure className="gv-inspector" ref={root} style={frameSize ? { width: frameSize.w } : undefined}>
     <figcaption>
       <strong>{label}</strong>
-      <span className="vi-inspect-meta" title={tr(`数值范围 ${fmt(range[0])} … ${fmt(range[1])}`, `Value range ${fmt(range[0])} … ${fmt(range[1])}`)}>{meta}</span>
+      <span className="gv-inspect-meta" title={tr(`数值范围 ${cellNumber(range[0])} … ${cellNumber(range[1])}`, `Value range ${cellNumber(range[0])} … ${cellNumber(range[1])}`)}>{meta}</span>
     </figcaption>
-    <div ref={frame} className={`vi-frame ${info ? 'is-info' : 'is-overview'}`} style={frameSize ? { height: frameSize.h } : undefined} {...pan}>
-      <div className="vi-frame-canvas">
-        <ImageView value={value} numbers={info} axes={info} grid={info || frameSize !== null && scale >= 6} cell={info ? cell : scale} mark={mark ?? active} label={label}
+    <div ref={frame} className={`gv-frame ${info ? 'is-info' : 'is-overview'}`} style={frameSize ? { height: frameSize.h } : undefined} {...pan}>
+      <div className="gv-frame-canvas">
+        <GridView value={value} numbers={info} axes={info} grid={info || frameSize !== null && scale >= 6} cell={info ? cell : scale} mark={mark ?? active} label={label}
           cellLabel={(x, y, p) => `(${x}, ${y}): ${raw(p)}`} cellClass={cellClass}
           onPick={(x, y, e) => { select(x, y, e, true); onPick?.(x, y) }}
           onHover={(x, y, e) => select(x, y, e, false)}
           onLeave={() => setPoint((p) => p?.pinned ? p : null)} />
       </div>
     </div>
-    {active && createPortal(<div className={`vi-pixel-popover ${active.above ? 'is-above' : ''}`} role="status" style={{ left: active.left, top: active.top, width: active.width }}>
+    {active && createPortal(<div className={`gv-popover ${active.above ? 'is-above' : ''}`} role="status" style={{ left: active.left, top: active.top, width: active.width }}>
       <strong>({active.x}, {active.y})</strong>
       {inspectPixel?inspectPixel(active.x,active.y):<><span>{raw(pixel(value, active.x, active.y))}</span>
-      {explainPixel && <span className="vi-pixel-calculation">{explainPixel(active.x, active.y)}</span>}</>}
+      {explainPixel && <span className="gv-popover-calc">{explainPixel(active.x, active.y)}</span>}</>}
       {(range[0] < 0 || range[1] > 1) && <small>{tr('显示亮度限制为 0–1，数值保持原样。', 'Display brightness is limited to 0–1; values are unchanged.')}</small>}
     </div>,document.body)}
   </figure>

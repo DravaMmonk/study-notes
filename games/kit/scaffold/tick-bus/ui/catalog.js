@@ -3,10 +3,11 @@
 // (games/DESIGN.md 4).
 import { Activity, ArrowDownToLine, ArrowUpFromLine, Hash, Megaphone } from 'lucide-react'
 import { T } from '../../../shell/i18n.js'
+import { LINE } from '../line.js'
 
 
 export const CARDS = {
-  line: { name: T('线', 'Line'), icon: Activity, family: 'given', desc: T('这一拍线上的位。', 'The bit on the line this tick.') },
+  line: { name: LINE, icon: Activity, family: 'given', desc: T('这一拍线上的位。', 'The bit on the line this tick.') },
   say: { name: T('说', 'Say'), icon: Megaphone, family: 'end', desc: T('接到这里的位，这一拍说到线上。', 'The bit wired here goes on the line this tick.') },
   reg: {
     name: T('读寄存卡', 'Register'), icon: ArrowUpFromLine, family: 'memory',

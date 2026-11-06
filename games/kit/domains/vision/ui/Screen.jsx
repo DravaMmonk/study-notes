@@ -1,23 +1,20 @@
 import { useMemo } from 'react'
 import { ArrowRightFromLine } from 'lucide-react'
 import CircuitScreen from '../../../shell/CircuitScreen.jsx'
-import { L } from '../../../shell/i18n.js'
 import SettingField, { valueWords } from '../../../shell/parts/SettingField.jsx'
 import { OPS } from '../ops.js'
-import { runLevel, runTest } from '../run.js'
+import { entries, runLevel, runTest } from '../run.js'
 import { isImage, show } from '../image.js'
-import ImageView, { Picture } from './ImageView.jsx'
+import GridView, { GridPicture } from '../../../shell/views/grid/GridView.jsx'
 import { ProjectionCase } from './benches/CameraScene.jsx'
-import TestValues from './TestValues.jsx'
-import SampleValues from './SampleValues.jsx'
-import ImageViewSwitch from './ImageViewSwitch.jsx'
+import { useViewChoice } from '../../../shell/views/choice.js'
 import PartDetail, { PartValues } from './PartDetail.jsx'
 import { taskBoard, taskDefaults } from '../tooling.js'
 
 // A board task of a vision game on the circuit base's screen (../../../shell/CircuitScreen.jsx), every test checked
 // at once: an image circuit has nothing to step through. A value is a number, a vector or an image (../image.js): a
-// card shows an image as a small picture, its numbers while they are few enough to read; under the board, each
-// output's wanted value beside the board's, or on the sample the reference's beside it. The game's own parts
+// card shows an image in the view the player picked for grids, numbered while its cells are few enough to read; under
+// the board, the kit's results area (run.js entries). The game's own parts
 // (parts.json) are the kernel's to draw; the settings a built part takes are parts.json presets drawn by the same
 // kernel controls, and a task offers only the setting values its course has introduced (tooling.js).
 
@@ -26,13 +23,14 @@ const CARDS = {
   out: { name: { zh: '输出', en: 'Output' }, icon: ArrowRightFromLine, family: 'end', desc: { zh: '接到这里的值，就是电路的输出。', en: 'The value wired here is the circuit’s output.' } },
 }
 
-/** An image on a card: a small picture, its numbers while it is small (a sample's is too large to number). */
-function draw(value) {
-  if (!isImage(value)) return null
-  if (value.w * value.h > 64) return <span className="vi-thumb"><Picture value={value} scale={Math.max(1, Math.floor(96 / Math.max(value.w, value.h)))} /><small>{value.w} × {value.h}</small></span>
+/** An image on a card: numbered while it is small and numbers are picked, else a small picture. */
+function CardImage({ value }) {
+  const [view] = useViewChoice('grid')
+  if (view === 'pixels' || value.w * value.h > 64) return <span className="vi-thumb"><GridPicture value={value} scale={Math.max(1, Math.floor(96 / Math.max(value.w, value.h)))} /><small>{value.w} × {value.h}</small></span>
   const cell = value.c === 3 ? 58 : 32
-  return <span className="vi-thumb"><span className={`vi-numeric-thumb ${value.w <= 4 && value.h <= 3 ? 'is-small' : ''}`}><ImageView value={value} numbers cell={cell} /></span>{(value.w > 4 || value.h > 3) && <small>{value.w} × {value.h}</small>}</span>
+  return <span className="vi-thumb"><span className={`vi-numeric-thumb ${value.w <= 4 && value.h <= 3 ? 'is-small' : ''}`}><GridView value={value} numbers cell={cell} /></span>{(value.w > 4 || value.h > 3) && <small>{value.w} × {value.h}</small>}</span>
 }
+const draw = (value) => (isImage(value) ? <CardImage value={value} /> : null)
 const written = (v) => (isImage(v) ? `${v.w}×${v.h}` : show(v))
 
 // What a run on the sample shows of the board.
@@ -54,16 +52,6 @@ export default function Screen(screen) {
     const p = { ...defaults(node.type), ...node.params }
     return <div className="pf-settings">{shown.map((s) => <SettingField key={s.key} setting={s} value={p[s.key]} allowed={settingsIn(node.type, s.key)} readOnly={ctx.readOnly} roomy={roomy} phone={phone} onChange={set(s.key)} />)}</div>
   }
-  const results = ({ test, run, verdict, sample }) => {
-    const rows = task.outputs.map((o) => [o.label, sample ? sample.outputs[o.name] : test.expect[o.name], run.outputs[o.name]])
-    return (
-      <div className="vi-strip">
-        {sample ? <SampleValues rows={rows} /> : <TestValues rows={rows} phone={phone} tolerance={task.tolerance} />}
-        {test && task.illustration === 'pinhole' && <ProjectionCase test={test} tests={task.tests} phone={phone} />}
-        {phone && verdict && <span className="vi-verdict is-fail">{L(verdict)}</span>}
-      </div>
-    )
-  }
   return (
     <CircuitScreen
       screen={screen}
@@ -74,9 +62,8 @@ export default function Screen(screen) {
       says={(r) => r.fail?.why}
       show={written}
       draw={draw}
-      results={results}
-      title={({ verdict }) => !phone && verdict && <span className="vi-verdict is-fail">{L(verdict)}</span>}
-      aside={({ test }) => !phone && test && task.outputs.some((o) => isImage(test.expect[o.name])) && <ImageViewSwitch />}
+      entries={entries}
+      figure={({ test }) => test && task.illustration === 'pinhole' && <ProjectionCase test={test} tests={task.tests} phone={phone} />}
       sample={(level, board) => onSample(level, board, own.partOf)}
       ready={(board, held) => taskBoard(board, held, settingsIn, own.partOf)}
       settings={settings}

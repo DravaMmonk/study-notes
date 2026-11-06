@@ -5,10 +5,13 @@
 // too: 「—」 is a value a card gives, never what an unwired output or a card that stopped reads as.
 //
 // runTest(task, circuit, test, partOf) → { values, errors, outputs, trace, fail? }   fail: { name, want, got, why }
+// entries({ task, test, run, sample }) → what the results area can show of a test (../../engine/views.js): each input
+//   given (left out by default: the input cards show it), each output against what the test expects — on the sample,
+//   against what the reference board gives there; an image is a grid, any other value a scalar
 import { runBoard } from '../../engine/boards.js'
 import { MISSING } from '../../engine/circuit.js'
 import { runTests } from '../../engine/circuit-domain.js'
-import { differs, valueOf } from './image.js'
+import { differs, isImage, valueOf } from './image.js'
 import { T } from '../../shell/i18n.js'
 
 
@@ -71,3 +74,15 @@ export const runLevel = runTests((task, circuit, test, partOf) => {
   }
   return result
 })
+
+export function entries({ task, test, run, sample }) {
+  const shape = (v) => (isImage(v) ? 'grid' : 'scalar')
+  const given = sample ? task.sample.inputs : test.inputs
+  return [
+    ...task.inputs.map((i) => ({ of: i.name, label: i.label, shape: shape(given[i.name]), given: given[i.name], shown: false })),
+    ...task.outputs.map((o) => {
+      const want = sample ? sample.outputs[o.name] : test.expect[o.name]
+      return { of: o.name, label: o.label, shape: shape(want), got: run.outputs[o.name] ?? null, want, tolerance: task.tolerance ?? 1e-5 }
+    }),
+  ]
+}

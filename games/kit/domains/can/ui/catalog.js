@@ -2,10 +2,11 @@
 // inputs and outputs are the base's own cards). A part's description says only what it does (games/DESIGN.md 4).
 import { Activity, ArrowDownToLine, ArrowUpFromLine, Calculator, Equal, Hash, Split } from 'lucide-react'
 import { T } from '../../../shell/i18n.js'
+import { BUS } from '../bus.js'
 
 
 export const CARDS = {
-  line: { name: T('总线', 'Bus'), icon: Activity, family: 'given', desc: T('这一拍总线上的位：0 为显性，1 为隐性。', 'The bit on the bus this tick: 0 is dominant, 1 is recessive.') },
+  line: { name: BUS, icon: Activity, family: 'given', desc: T('这一拍总线上的位：0 为显性，1 为隐性。', 'The bit on the bus this tick: 0 is dominant, 1 is recessive.') },
   reg: {
     name: T('读寄存卡', 'Register'), icon: ArrowUpFromLine, family: 'memory',
     desc: T('给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。', 'Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set).'),

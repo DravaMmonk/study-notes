@@ -3,6 +3,7 @@ import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
 import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
+import { WORDS } from './words.js'
 import { L, tr, T } from './i18n.js'
 import { Brief, PhonePage, Text } from './Layout.jsx'
 import RunDock from './RunDock.jsx'
@@ -210,12 +211,12 @@ export default function CircuitLevel({ screen, board, run, parts: given, defined
   const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !n.locked) || board.clearable?.(circuit) ? board.clear : null
 
   const briefEl = <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
-  const dock = pad ?? <RunDock meta={meta} {...run.dock(words ?? { go: tr('运行', 'Run'), done: tr('全部通过', 'All passed') })} />
+  const dock = pad ?? <RunDock meta={meta} {...run.dock(words ?? { go: L(WORDS.run), done: L(WORDS.passed) })} />
   const testTabs = tabs && <TestTabs tests={run.tests} states={run.states} index={run.at} onSelect={run.select} phone={phone} />
 
   if (phone) {
     return (
-      <PhoneLevel {...{ screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, dense, below, follow, results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, dense, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)

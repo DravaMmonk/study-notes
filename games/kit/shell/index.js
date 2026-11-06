@@ -42,6 +42,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   core(level)   whether the map draws a level full size (a milestone: ../course.js isCore) or smaller
  *   note(level)   the level's key idea, shown when it is passed (default: level.note ?? level.after)
  *   glossary      the encyclopedia: { groups: [{ id, title }], entries: [{ id, group, title, body, at?, see? }] }
+ *   views         the views each shape is drawn in by default (game.json `views`, ../engine/views.js)
  *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best)
  *
  * Text that grows as the course goes on (a part's description, say) may carry `revisions: [{ at | by, …fields }]`:

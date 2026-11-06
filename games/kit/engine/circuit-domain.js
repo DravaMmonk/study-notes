@@ -31,8 +31,9 @@
 //   runTests(runTest) → run(task, board, parts), every test of a task run by the domain's runTest: { runs, pass }
 //   judgeTicks(ticks, { checked, want, got?, same?, show? }) → { ticks, fail? }   a tick board's run judged tick by
 //     tick against what the task wants of its outputs; showValue(v) a value in words
-//   checkCircuitTasks(circuit, { run, failure?, more?, kinds? }) → the domain's lines for npm run check
-//       run(task, board) → { runs: [{ fail?, error? }], pass }; failure(run) the words for a run that fails;
+//   checkCircuitTasks(circuit, { run, entries, failure?, more?, kinds? }) → the domain's lines for npm run check
+//       run(task, board) → { runs: [{ fail?, error? }], pass }; entries({ task, test, run, sample }) what the results
+//       area can show of a test (../shell/CircuitScreen.jsx); failure(run) the words for a run that fails;
 //       kinds { kind: check(task) → { problems, ok } } the domain's checks of a task that is no board
 //
 // A board is { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }; as text it is the kernel's
@@ -45,6 +46,7 @@ import { withHidden } from './tests.js'
 import { taskLevel, taskLevels } from './tasks.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
+import { GAME_VIEWS, RESULTS, rowProblems, viewsProblems } from './views.js'
 import { T as t, keyOf } from '../shell/i18n.js'
 
 /* ---------- the board ---------- */
@@ -268,6 +270,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const b = built[from?.taskId]?.nodes ? built[from.taskId] : from?.solution
       return b ? board.carriedOnto(task, b) : board.startBoard(task)
     },
+    views: content.views ?? null,
     // The shell keeps boards by task (../shell/progress.js): a level's part runs its last task's.
     syncOwn: (built = {}) => {
       own.clear()
@@ -316,6 +319,7 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text() }), po
     ...checks,
     solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') }),
     naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
+    results: RESULTS,
     ...more,
   }
   const kind = (k, fields) => S.obj({ kind: S.oneOf([k]), ...fields })
@@ -355,6 +359,7 @@ export const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
+  views: GAME_VIEWS,
 })
 
 /* ---------- the spec ---------- */
@@ -422,16 +427,17 @@ export const runTests = (runTest) => (task, board, parts) => {
 /**
  * Level by level, task by task: the reference board passes every test and hidden test and uses only the parts the
  * level holds; the empty board fails them; so does the board a task carries on from, and every board that only wires
- * one card on the left straight to everything on the right; the naive board, where there is one, fails; and a part a
- * level builds, placed alone and wired to the task's cards, passes them. `more(task, k, tasks, held)` adds a domain's
+ * one card on the left straight to everything on the right; the naive board, where there is one, fails; a part a level
+ * builds, placed alone and wired to the task's cards, passes them; and the rows the task lays out its results in
+ * (`results`, ./views.js) show what it offers, in views that draw it. `more(task, k, tasks, held)` adds a domain's
  * own problems (held: the parts the task holds); a task of another kind is the domain's to check (`kinds`). A tick
  * board's line says how many ticks the reference ran.
  */
-export function checkCircuitTasks(circuit, { run, failure = () => '', more = () => [], kinds = {} }) {
+export function checkCircuitTasks(circuit, { run, entries, failure = () => '', more = () => [], kinds = {} }) {
   const { LEVELS, course, partOf, board } = circuit
   const noted = (ref) => (board.ticks ? `, ${ref.runs.reduce((n, r) => n + r.ticks.length, 0)} ticks` : '')
   const built = new Set(LEVELS.filter((L) => L.builds).map((L) => L.builds.type))
-  const out = circuit.wrong.map((text) => ({ text, fail: true }))
+  const out = [...circuit.wrong, ...viewsProblems(circuit.views)].map((text) => ({ text, fail: true }))
   for (const level of LEVELS) {
     const tasks = circuit.played.get(level.id)
     const said = tasks.map((task, k) => {
@@ -452,6 +458,7 @@ export function checkCircuitTasks(circuit, { run, failure = () => '', more = () 
       ref.runs.forEach((r, j) => {
         if (r.error || r.fail) problems.push(`the answer fails ${where(j)}${failure(r) ? ` ${failure(r)}` : ''}`)
       })
+      problems.push(...rowProblems(task.results, entries({ task, test: all.tests[0], run: ref.runs[0], sample: null }), circuit.views))
       if (passes(board.startBoard(task))) problems.push(task.starter ? 'the board it opens on passes' : 'the empty board passes')
       if (task.carry && passes(circuit.opening(task))) problems.push(`the board it carries on from (${task.carry}) passes as it is`)
       if (task.carries && tasks[k - 1]?.solution && passes(board.carriedOnto(task, tasks[k - 1].solution))) problems.push('the task before’s board passes as it is')

@@ -16,6 +16,7 @@
 //                  { type: 'pick' | 'add', part, path } a field of a part picked, an item added to one
 import '../wires.css'
 import '../shell/shell.css'
+import '../shell/views/views.css'
 import '../circuit/circuit.css'
 import { useEffect, useMemo, useState } from 'react'
 import { GameShell } from '../shell/index.js'

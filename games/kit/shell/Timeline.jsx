@@ -5,7 +5,8 @@ import { L, tr } from './i18n.js'
 // the tick a run is on marked and kept in view, the ticks that went wrong marked. Shared by the games run on the tick
 // world (../engine/ticks.js).
 //
-// lanes: [{ key, label: { zh, en } | string, kind: 'wave' | 'value', ticks: [value per tick], text?(value) → string }]
+// lanes: [{ key, label: { zh, en } | string, kind: 'wave' | 'value', ticks: [value per tick], text?(value) → string,
+//          tool? (drawn beside the label) }]
 //   wave   a line that is 0 (low) or 1 (high) at each tick; anything else draws no line (nothing on it yet)
 //   value  a band per run of equal values, written along it when there is room (again every few ticks on a long one),
 //          or just after it when the ticks after are empty (`text`, default String); null is empty
@@ -81,7 +82,7 @@ export default function Timeline({ lanes, count, at = -1, marks = [] }) {
   return (
     <div className="timeline">
       <div className="tl-labels" style={{ paddingTop: top }}>
-        {lanes.map((lane) => <span key={lane.key} style={{ height: LANE }}>{L(lane.label)}</span>)}
+        {lanes.map((lane) => <span key={lane.key} style={{ height: LANE }}>{L(lane.label)}{lane.tool}</span>)}
       </div>
       <div className="tl-scroll" ref={box}>
         <svg width={width} height={height} role="img" aria-label={tr('逐拍波形', 'Waveform, tick by tick')}>

@@ -4,8 +4,10 @@ import { MISSING } from '../engine/circuit.js'
 import { viewAt } from '../engine/trace.js'
 import { TEST_WORDS } from '../engine/circuit-domain.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
-import Timeline from './Timeline.jsx'
+import { rowsOf } from '../engine/views.js'
+import Results, { ResultsSwitch, sharedViews } from './views/Results.jsx'
 import { L, tr, T } from './i18n.js'
+import { WORDS } from './words.js'
 import { openRef } from './refs.js'
 import { definedItem } from './parts/faces.jsx'
 
@@ -14,21 +16,22 @@ import { definedItem } from './parts/faces.jsx'
 // (named by the ports its task gives them), the parts it holds between, the parts the player built as packed parts
 // that open to show the board they run. A run plays every test in turn and stops on the first that fails; hidden tests
 // run with every run but say only how many fail, and join the list once the level is solved. A board run tick by tick
-// (the board's `ticks`) plays a tick a step, every card showing its value at the tick shown and the waveform under the
-// board (`lanes`) following along; a board run once plays every card the engine computes, a step each, or, `judged`,
-// checks every test at once and shows each test's whole run.
+// (the board's `ticks`) plays a tick a step, every card showing its value at the tick shown and the results' time axis
+// following along; a board run once plays every card the engine computes, a step each, or, `judged`, checks every test
+// at once and shows each test's whole run. Under the board, the kit's results area (views/Results.jsx): the rows the
+// task lays out (`results`) or the domain's default ones, of the entries the domain offers.
 //
 // A domain brings only what is its own:
 //   cards                 { type: { name, desc, icon, family } } its cards as the tray and boards show them (a fixed
 //                         card it leaves out is drawn as a source in the family 'given', or a sink in 'end')
 //   run(task, board, partOf) → { runs: [{ fail?, error?, ticks? | trace?, … }] }   its run.js
 //   says(run)             what a failed run says
-//   show(value)           a value as a card shows it; draw?(value) → the value drawn instead (a picture), or null
-//   lanes?({ level, test, run, upTo }) → the waveform's lanes (a tick board; a lane's text by default `show`'s),
-//                         notes? → lines under it
-//   results?({ level, test, run, ended, ran, verdict, sample }) → what a test shows under a board run once (verdict:
-//                         what a failed run says, for results that do not show it already; on the sample, test is null
-//                         and `sample` the reference board's run on it); title?, aside? (the same) → the results' header
+//   show(value)           a value in words, as a card and the results show it; draw?(value) → the value drawn on a card
+//                         instead (a picture), or null
+//   entries({ task, test, run, sample }) → what the results area can show of a test (../engine/views.js: an entry a
+//                         port, with its shape and the values given, got and wanted; on the sample, test is null and
+//                         `sample` the reference board's run on it)
+//   figure?({ task, test }) → a picture of the test under the results (a scene it stands for)
 //   judged                a board run once is checked in one go, with nothing to step through
 //   sample?(task, board) → the board's run on the task's `sample`, a tab after the tests, never judged (judged boards)
 //   ready?(board, held)   the board as the task holds it (held: the parts its tray holds), on opening and every change
@@ -44,9 +47,6 @@ import { definedItem } from './parts/faces.jsx'
 //   className             the domain's class on the level
 
 const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
-
-/** What a lane of wanted values is called. */
-export const WANTED = T('应当', 'Wanted')
 
 /** A setting picked from a list, on a card. */
 export function CardField({ label, value, options, onChange }) {
@@ -87,7 +87,7 @@ export function registerCards({ registers, top, forms = {} }) {
 
 /** What a card shows of a value, or why it has none. */
 function Value({ value, error, show, draw }) {
-  if (value === undefined) return <span className={`cs-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('待接线', 'Not wired') : L(error)}</span>
+  if (value === undefined) return <span className={`cs-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? L(WORDS.notWired) : L(error)}</span>
   const drawn = draw?.(value)
   if (drawn) return drawn
   return <span className={`cs-value ${value === null ? 'is-none' : typeof value === 'boolean' ? `is-${value}` : ''}`}>{L(show(value))}</span>
@@ -109,7 +109,7 @@ function partsFor(level, circuit, { cards, portLabels, width }) {
   }
 }
 
-export default function CircuitScreen({ screen, cards, run: runOn, says, show, draw, lanes, notes, results, title, aside, judged = false, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
+export default function CircuitScreen({ screen, cards, run: runOn, says, show, draw, entries, figure, judged = false, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = game.circuit
@@ -134,7 +134,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, d
   const failing = (r) => Boolean(r.fail || r.error)
   const stepsOf = (r) => (kind.ticks ? r.ticks : r.trace)
   const run = useLevelRun(screen, board, {
-    tests: [...tests.map((t, k) => ({ label: L(words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: tr('样张', 'Sample'), sample: true }] : [])],
+    tests: [...tests.map((t, k) => ({ label: L(words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: L(WORDS.sample), sample: true }] : [])],
     ...(judged
       ? { judge: () => ({ pass: !checked.runs.some(failing), results: checked.runs.map((r) => ({ pass: !failing(r), reason: failing(r) ? L(says(r)) : '' })) }) }
       : { steps: { of: (k) => stepsOf(checked.runs[k]), check: (k) => says(checked.runs[k]) ?? '' } }),
@@ -192,19 +192,16 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, d
   const test = sampled ? null : tests[run.at]
   const failed = shown.list.findIndex((t) => t.failed)
   const verdict = !sampled && ended && (says(runOf) || (failed >= 0 && shown.list[failed].failed))
+  // What a test shows: on a tick board, the ticks run so far; on a board run once, the result once it has run.
+  const ran = ended || !run.run
   const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
-  const said = { level, test, run: runOf, ended, ran: ended || !run.run, verdict, sample: sampled?.want ?? null }
+  const offered = entries({ task: level, test, run: runOf, sample: sampled?.want ?? null }).map((e) => (!('got' in e) ? e : kind.ticks ? { ...e, got: upTo(e.got) } : ran ? e : { ...e, got: undefined }))
+  const rows = rowsOf(level.results, offered, game.views)
   const strip = (
-    <div className="cs-strip">
-      {kind.ticks ? (
-        <>
-          <Timeline lanes={lanes({ level, test, run: runOf, upTo }).map((lane) => ({ text: (v) => L(show(v)), ...lane }))} count={test.ticks} at={run.run ? at : -1} marks={ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
-          {notes?.({ level, run: runOf })}
-          {verdict && <p className="cs-verdict is-fail">{L(verdict)}</p>}
-        </>
-      ) : results(said)}
-      {run.run?.over && run.run.final && <p className="cs-verdict is-fail">{run.run.final}</p>}
-    </div>
+    <>
+      <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={kind.ticks && run.run ? at : -1} count={test?.ticks ?? 0} marks={kind.ticks && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
+      {figure?.({ task: level, test })}
+    </>
   )
 
   return (
@@ -232,8 +229,8 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, d
       brief={{ hint: level.hint }}
       describe={(n) => (BUILT[n.type] ? builtBy(n.type).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
       results={strip}
-      resultsTitle={title?.(said)}
-      resultsAside={aside?.(said)}
+      resultsAside={sharedViews(rows) && <ResultsSwitch rows={rows} />}
+      words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
       sheet={sheet && ((node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)))}
       details={details}
       packed={{

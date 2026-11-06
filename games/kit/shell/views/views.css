@@ -1,0 +1,71 @@
+/* The kit's views and results area (shell/views/, games/DESIGN.md 6.10). Colours and sizes come from the tokens. */
+
+/* ---- a grid ---- */
+.gv-image { display: block; max-width: 100%; height: auto; }
+.gv-num { font: 600 10px var(--mono); text-anchor: middle; dominant-baseline: central; font-variant-numeric: tabular-nums; pointer-events: none; }
+.gv-num.is-dark { fill: var(--grid-ink-dark); }
+.gv-num.is-light { fill: var(--grid-ink-light); }
+.gv-axis { font: var(--fs-label) var(--mono); fill: var(--muted); text-anchor: middle; dominant-baseline: central; }
+.gv-lines line { stroke: var(--line); stroke-width: 1; }
+.gv-mark { fill: none; stroke: var(--accent); stroke-width: 3; }
+.gv-pick { cursor: pointer; }
+.gv-pick:hover rect { opacity: 0.85; }
+.gv-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.gv-pick.is-different rect { stroke: var(--fail); stroke-width: 2; }
+.gv-picture { display: block; image-rendering: pixelated; border-radius: var(--r-sm); }
+
+/* A grid in a frame sized by the screen (GridInspector). */
+:root { --gv-frame-w: 240px; --gv-frame-h: 180px; }
+.gv-inspector { width: min(100%, var(--gv-frame-w)); grid-template-columns: minmax(0, 1fr); position: relative; min-width: 0; margin: 0; display: grid; align-content: start; justify-items: start; gap: 4px; }
+.gv-inspector figcaption { width: 100%; min-height: 22px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: var(--fs-ui); }
+.gv-inspector figcaption strong { color: var(--muted); font-weight: 500; }
+.gv-inspect-meta { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: end; font: var(--fs-label) var(--mono); }
+.gv-frame { box-sizing: border-box; width: 100%; height: var(--gv-frame-h); display: flex; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas); scrollbar-width: thin; }
+.gv-frame.is-overview { overflow: hidden; }
+.gv-frame.is-info:has(.gv-frame-canvas:hover) { cursor: grab; }
+.gv-frame-canvas { flex: none; margin: auto; line-height: 0; }
+.gv-frame-canvas .gv-image { max-width: none; height: auto; border-radius: 0; }
+.gv-popover { position: fixed; z-index: 100; box-sizing: border-box; display: grid; gap: 4px; padding: 8px 10px; margin-top: 8px; border: 1px solid var(--accent); border-radius: var(--r-sm); color: var(--ink); background: var(--paper); box-shadow: var(--lift); font: var(--fs-ui)/1.5 var(--mono); pointer-events: none; overflow-wrap: anywhere; }
+.gv-popover.is-above { margin-top: -8px; transform: translateY(-100%); }
+.gv-popover-calc { border-top: 1px solid var(--line); padding-top: 5px; white-space: pre-line; }
+
+/* ---- the switch between views ---- */
+.view-pick { display: inline-flex; flex: none; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
+.view-pick button { height: 22px; display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; border: 0; border-radius: 999px; color: var(--muted); background: none; font: var(--fs-label) var(--sans); cursor: pointer; }
+.view-pick button:hover { color: var(--ink); }
+.view-pick button[aria-pressed='true'] { color: var(--ink); background: var(--hover); }
+
+/* In a waveform's label column, a lane is 26 px high. */
+.tl-labels span { gap: 6px; }
+.tl-labels .view-pick button { height: 18px; padding: 0 4px; }
+
+/* ---- the results area ---- */
+.rv { display: grid; gap: 10px; min-width: 0; --gv-frame-w: 220px; --gv-frame-h: 150px; }
+.rv-verdict { margin: 0; font-size: var(--fs-ui); line-height: var(--lh-ui); }
+.rv-verdict.is-fail { color: var(--fail); }
+.rv-verdict.is-pass { color: var(--status); }
+.rv-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; margin: 0; font: var(--fs-small) var(--mono); font-variant-numeric: tabular-nums; }
+.rv-chip { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.rv-chip > b, .rv-row > h4, .rv-seq > b, .rv-order > b { color: var(--muted); font: 500 var(--fs-ui) var(--sans); }
+.rv-chip .is-pass { color: var(--status); font-weight: 600; }
+.rv-chip .is-fail { color: var(--fail); font-weight: 600; }
+.rv-want { color: var(--muted); font-style: normal; font-size: var(--fs-ui); }
+.rv-rows { display: flex; flex-wrap: wrap; align-items: start; gap: 10px 20px; min-width: 0; }
+.rv-row { display: grid; gap: 4px; min-width: 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
+.rv-row[data-fail] { border-inline-start-color: var(--fail); }
+.rv-row > h4 { margin: 0; display: flex; align-items: center; gap: 8px; }
+.rv-pair { display: flex; align-items: start; gap: 8px; }
+.rv-pair > .gv-inspector { flex: none; }
+.rv-plain { margin: 0; min-width: 88px; display: grid; gap: 4px; }
+.rv-plain figcaption { color: var(--muted); font-size: var(--fs-ui); }
+.rv-plain b { font: 600 var(--fs-ui) var(--mono); }
+.rv-seq, .rv-order { margin: 0; font: var(--fs-ui) var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.rv-order { color: var(--muted); }
+
+@media (max-width: 760px) {
+  :root { --gv-frame-w: 360px; --gv-frame-h: 168px; }
+  .rv { --gv-frame-w: 100%; --gv-frame-h: 168px; gap: 6px; }
+  .rv-rows, .rv-row { width: 100%; }
+  .rv-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+  .rv-pair > .gv-inspector { width: 100%; }
+}
