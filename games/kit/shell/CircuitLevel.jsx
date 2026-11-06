@@ -1,5 +1,6 @@
+import { useSetting } from './useSetting.js'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, newPartSlot } from '../circuit/blocks.js'
+import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, newPartSlot, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
 import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
@@ -289,11 +290,15 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 // for an empty slot.
 function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { game } = screen
-  const { circuit, change } = board
+  const { circuit: sourceCircuit, change } = board
+  const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
+  const [manualBlocks] = useSetting('manualBlocks')
+  const canMove = (id) => manualBlocks || !blockOfPart(circuit,id)?.startsWith('course:')
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
   const scroller = useRef(null)
   const editing = useSlotEditing({
     graph: circuit,
+    canMove,
     onChange: change,
     parts,
     create: (graph, type, at, region) => make(graph, type, { slot: at, region }),
@@ -331,6 +336,7 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
         blocks={blocks}
+        canMove={canMove}
         dense={dense}
         graph={circuit}
         parts={parts}
@@ -358,7 +364,7 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
       {below}
       <Notice editing={editing} />
       {node && (desc || body || packedHere || removable) && (
-        <Sheet title={editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions onEdit={packedHere ? () => { close(); inside.edit(node, ctx.board) } : null} onMove={role === 'part' ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
+        <Sheet title={editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions onEdit={packedHere ? () => { close(); inside.edit(node, ctx.board) } : null} onMove={role === 'part' && canMove(node.id) ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
           <div className="cl-sheet">
             {desc}
             {body}

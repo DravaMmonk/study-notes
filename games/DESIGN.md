@@ -909,7 +909,13 @@ actual endpoint stubs use the upper/lower edges on phones and left/right edges o
 
 Compact placement has two layers in `circuit/layout.js`: dependency columns within a block, upstream barycentre
 ordering and actual-port alignment; then block/loose units wrap by viewport width, with independent branches
-stacked and private constants/sources beside their consumer. Phone members occupy contiguous two-column rows.
+stacked and private constants/sources beside their consumer. Phone blocks act as slot containers: every internal
+hole is an add/drop slot and one complete empty row follows the last occupied row. Layout metadata `slot` and
+`rows` records the container origin and reserved extent. Dropping or adding inside a container assigns membership;
+dropping outside detaches it rather than extending the old block. Swaps transfer both memberships with their
+positions. Preset-block members cannot be moved on phones while Manual partitioning is off, including moves
+from the detail sheet; their ports remain operable. Hidden phone headers have no backdrop or padding area.
+Phone members occupy contiguous two-column rows.
 Gaps, padding and header sizes use shared tokens. Initial layout and newly carried/added components may be
 placed; existing saved coordinates are retained. View changes make temporary room after the changed unit while
 holding its anchor, without saving those shifts. The headless SVG renderer retains its original column layout.

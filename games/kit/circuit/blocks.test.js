@@ -1,13 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot} from './blocks.js'
+import {blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot,phoneBlockBoard,blockAtSlot,blockOfPart,transferBlockMembers,movePhonePart} from './blocks.js'
 import {print} from './text.js'
+import {placement} from './model.js'
 const parts={role:n=>n.type==='in'?'source':n.type==='out'?'sink':'part',inputs:()=>['in'],outputs:()=>null}
 const graph={nodes:[{id:'input',type:'in',x:0,y:0},{id:'a',x:100,y:0},{id:'b',x:220,y:0},{id:'c',x:340,y:0},{id:'out',type:'out',x:500,y:0}],wires:[{from:'input',to:'a',port:'in'},{from:'a',to:'b',port:'in'},{from:'b',to:'c',port:'in'},{from:'c',to:'out',port:'in'}]}
 test('course presets use node identities, leave current work ungrouped and respect an explicit empty list',()=>{
  const preset=blockPreset(graph,[{id:'old',label:'Read',nodes:['input','a','b']}],parts)
  assert.deepEqual(blocksOf(preset,parts).map(b=>[b.id,b.view,b.nodes]),[['course:old','ports',['a','b']]])
- assert.deepEqual(blockRows(preset,parts).map(b=>[b.start,b.end]),[[0,1]])
+ assert.deepEqual(blockRows(preset,parts).map(b=>[b.start,b.end]),[[0,2]])
  const empty={...graph,blocks:[]};assert.equal(blockPreset(empty,[{id:'old',nodes:['a']}],parts),empty)
 })
 test('new blocks take membership, remove emptied blocks and leave every circuit node and wire intact',()=>{
@@ -59,4 +60,56 @@ test('frame-internal connections do not become hidden-block boundary stubs',()=>
  const block=blocksOf(b,parts)[0]
  assert.equal(block.ins.length,1);assert.equal(block.outs.length,1)
  assert.equal(block.ins[0].from,'i');assert.equal(block.outs[0].to,'o')
+})
+
+
+const containerBoard = () => ({...graph,nodes:graph.nodes.map(n=>({...n,slot:{a:0,b:3,c:4}[n.id]})),blocks:[{id:'course:container',note:'Container',view:'ports',nodes:['a','b'],slot:0}]})
+test('phone containers fill holes, reserve a whole insertion row and reach a stable layout',()=>{
+ const board=containerBoard(),phone=phoneBlockBoard(board,parts),placed=placement(phone,parts)
+ const block=blockRows(phone,parts,placed)[0]
+ assert.deepEqual([block.start,block.end],[0,3])
+ for(const slot of [1,2,4,5])assert(placed.free.includes(slot))
+ assert.equal(phone.nodes.find(n=>n.id==='c').slot,6)
+ assert.deepEqual(phoneBlockBoard(phone,parts),phone)
+ assert.equal(phone.wires,board.wires)
+ assert.deepEqual(phone.nodes.map(n=>[n.id,n.x,n.y]),board.nodes.map(n=>[n.id,n.x,n.y]))
+})
+test('adding into an insertion row joins the container and leaves another complete empty row',()=>{
+ const phone=phoneBlockBoard(containerBoard(),parts),slot=4
+ const next=transferBlockMembers({...phone,nodes:[...phone.nodes,{id:'new',slot}]},parts,[{id:'new',block:blockAtSlot(phone,parts,slot)}])
+ const grown=phoneBlockBoard(next,parts),block=blockRows(grown,parts)[0],placed=placement(grown,parts)
+ assert(block.nodes.includes('new'));assert.equal(block.end,4)
+ assert(placed.free.includes(6));assert(placed.free.includes(7))
+ assert.equal(grown.nodes.find(n=>n.id==='c').slot,8)
+ assert.equal(grown.wires,phone.wires)
+})
+test('dragging out removes membership without enlarging the old container',()=>{
+ const phone=phoneBlockBoard(containerBoard(),parts),end=blockRows(phone,parts)[0].end
+ const moved=phoneBlockBoard(movePhonePart(phone,parts,'a',7),parts)
+ assert.equal(blockOfPart(moved,'a'),null)
+ assert.deepEqual(moved.blocks[0].nodes,['b'])
+ assert.equal(blockRows(moved,parts)[0].end,end)
+ assert.equal(moved.nodes.find(n=>n.id==='a').slot,7)
+ assert.equal(moved.wires,phone.wires)
+})
+test('swapping between containers transfers both memberships with their positions',()=>{
+ const board={...graph,nodes:graph.nodes.map(n=>({...n,slot:{a:0,b:1,c:4}[n.id]})),blocks:[{id:'left',view:'ports',slot:0,nodes:['a','b']},{id:'right',view:'ports',slot:4,nodes:['c']}]}
+ const phone=phoneBlockBoard(board,parts),moved=movePhonePart(phone,parts,'a',4)
+ assert.equal(blockOfPart(moved,'a'),'right');assert.equal(blockOfPart(moved,'c'),'left')
+ assert.equal(moved.nodes.find(n=>n.id==='a').slot,4);assert.equal(moved.nodes.find(n=>n.id==='c').slot,0)
+ assert.equal(moved.wires,phone.wires)
+})
+test('protected preset members cannot move directly or indirectly through a swap',()=>{
+ const phone=phoneBlockBoard(containerBoard(),parts)
+ const canMove=id=>!blockOfPart(phone,id)?.startsWith('course:')
+ assert.equal(movePhonePart(phone,parts,'a',7,null,canMove),phone)
+ assert.equal(movePhonePart(phone,parts,'c',0,null,canMove),phone)
+ const detached=movePhonePart(phone,parts,'a',7,null,()=>true)
+ assert.equal(blockOfPart(detached,'a'),null)
+})
+test('moving the last member outside deletes only its empty container',()=>{
+ const board={...graph,nodes:graph.nodes.map(n=>({...n,slot:{a:0,b:4,c:5}[n.id]})),blocks:[{id:'only',view:'ports',slot:0,nodes:['a']}]}
+ const phone=phoneBlockBoard(board,parts),moved=movePhonePart(phone,parts,'a',7)
+ assert.deepEqual(moved.blocks,[]);assert.equal(moved.nodes.length,phone.nodes.length)
+ assert.equal(moved.wires,phone.wires)
 })

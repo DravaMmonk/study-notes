@@ -229,7 +229,8 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       take(node, at)
     }
     const last = used.size ? Math.floor(Math.max(...used) / cols) + 1 : 0
-    const rows = fixed ? Math.max(1, last) : last + 1
+    const reserved=r===null?Math.max(0,...(graph.blocks??[]).filter(b=>Number.isInteger(b.slot)&&Number.isInteger(b.rows)).map(b=>Math.floor(b.slot/cols)+b.rows)):0
+    const rows = fixed ? Math.max(1, last) : Math.max(last + 1,reserved + 1)
     const size = rows * cols
     return { cell, span, cols, rows, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
   }

@@ -132,7 +132,7 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ blocks = null, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
+export default function SlotBoard({ blocks = null, canMove = () => true, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
   const board = useRef(null)
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
@@ -307,7 +307,7 @@ export default function SlotBoard({ blocks = null, graph, parts, nameOf, thumb, 
       if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id))));continue}
       const extra=!isFolded&&tileExtra?.(node)
       out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>
-        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-drag={fixed||partitioning?undefined:true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
+        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
           <span className={`pb-ins ${parts.inputs(node).length>1?'is-many':''}`}>{inputs(node)}</span>
           <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
           {!isFolded&&<span className="pb-thumb">{thumb(node,84)}</span>}{extra&&<span className="pb-param">{extra}</span>}{outDots(node,isFolded)}
@@ -316,7 +316,7 @@ export default function SlotBoard({ blocks = null, graph, parts, nameOf, thumb, 
     }
     for(const slot of free){
       const row=Math.floor(slot/cols)
-      if(region===null&&(hidden.has(row)||ranges.some(b=>row>=b.start&&row<b.end)))continue
+      if(region===null&&hidden.has(row))continue
       out.push(<div key={`slot-${slot}`} className={`pb-cell ${tight?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>{fixed?<div className="pb-cell is-blank" />:<button type="button" className="pb-slot" onClick={()=>onSlot(slot,region)} aria-label={tr('在这一格放置元件','Place a part in this slot')}><Plus size={20} /></button>}</div>)
     }
     return <div className={`pb-grid ${region?'is-region':'is-blocks'} ${tight?'is-block-editor':''}`} data-cols={cols} data-size={size} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' ')}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
@@ -358,7 +358,7 @@ export default function SlotBoard({ blocks = null, graph, parts, nameOf, thumb, 
       <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={style}>
         <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
-          <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+          <div className="pb-frame-head" data-drag={fixed || !canMove(node.id) ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
             {!isFolded && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>

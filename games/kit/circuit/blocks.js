@@ -1,4 +1,4 @@
-import { placement, srcNode } from './model.js'
+import { moveToSlot, placement, srcNode } from './model.js'
 import { scopeOf } from './frames.js'
 import { dependencyOrder, pipelineLayout } from './layout.js'
 
@@ -15,6 +15,8 @@ export function blocksOf(board, parts) {
     const roots=new Set(nodes)
     const within = new Set([...nodes,...board.nodes.filter(n=>n.in&&scopeOf(board,n.id).some(scope=>roots.has(scope.split('/')[0]))).map(n=>n.id)])
     return [{id:block.id,note:block.note ?? '',view:BLOCK_VIEWS.includes(block.view)?block.view:'ports',nodes,...(['full','ports'].includes(block.lastView)?{lastView:block.lastView}:{}),
+      ...(Number.isInteger(block.slot)&&block.slot>=0?{slot:block.slot}:{}),
+      ...(Number.isInteger(block.rows)&&block.rows>0?{rows:block.rows}:{}),
       ins:board.wires.filter((w)=>within.has(w.to)&&!within.has(srcNode(w.from))),
       outs:board.wires.filter((w)=>within.has(srcNode(w.from))&&!within.has(w.to)),
     }]
@@ -28,11 +30,12 @@ export function blockSlots(board, parts) {
   const units = blocks.map((b)=>({id:`block:${b.id}`,nodes:b.nodes})).concat(roots.filter((n)=>!owner.has(n.id)).map((n)=>({id:n.id,nodes:[n.id]})))
   const unitOf = new Map(units.flatMap((u)=>u.nodes.map((id)=>[id,u.id])))
   const links = board.wires.flatMap((w)=>unitOf.has(srcNode(w.from))&&unitOf.has(w.to)&&unitOf.get(srcNode(w.from))!==unitOf.get(w.to)?[{from:unitOf.get(srcNode(w.from)),to:unitOf.get(w.to)}]:[])
-  const ordered = dependencyOrder(roots,board.wires).map((n)=>n.id), cells = new Map()
+  const ordered = dependencyOrder(roots,board.wires).map((n)=>n.id), cells = new Map(), bounds = new Map()
   let cursor=0
   for(const unit of dependencyOrder(units,links)) {
     const grouped=unit.id.startsWith('block:')
     if((grouped||unit.nodes.some(id=>placed.span.get(id).some(n=>n>1)))&&cursor%placed.cols)cursor+=placed.cols-cursor%placed.cols
+    const start=cursor
     const occupied=new Set()
     for(const id of [...unit.nodes].sort((a,b)=>ordered.indexOf(a)-ordered.indexOf(b))) {
       const [w,h]=placed.span.get(id), covering=(at)=>Array.from({length:w*h},(_,k)=>at+Math.floor(k/w)*placed.cols+k%w)
@@ -40,9 +43,11 @@ export function blockSlots(board, parts) {
       while(at%placed.cols+w>placed.cols||covering(at).some(i=>occupied.has(i)))at++
       covering(at).forEach(i=>occupied.add(i));cells.set(id,cursor+at)
     }
-    cursor+=grouped?Math.ceil((Math.max(...occupied)+1)/placed.cols)*placed.cols:Math.max(...occupied)+1
+    const height=Math.ceil((Math.max(...occupied)+1)/placed.cols)+1
+    if(grouped)bounds.set(unit.id.slice(6),{slot:start,rows:height})
+    cursor+=grouped?height*placed.cols:Math.max(...occupied)+1
   }
-  return {...board,nodes:board.nodes.map(n=>cells.has(n.id)?{...n,slot:cells.get(n.id)}:n)}
+  return {...board,blocks:blocks.map(({ins:_ins,outs:_outs,...b})=>({...b,...bounds.get(b.id)})),nodes:board.nodes.map(n=>cells.has(n.id)?{...n,slot:cells.get(n.id)}:n)}
 }
 
 export function blockPreset(board, stages, parts) {
@@ -82,7 +87,60 @@ export function rowMembers(board,parts,start,end,placed=placement(board,parts)) 
   return [...placed.cell].filter(([,slot])=>Math.floor(slot/placed.cols)>=low&&Math.floor(slot/placed.cols)<=high).map(([id])=>id)
 }
 export function blockRows(board,parts,placed=placement(board,parts)) {
-  return blocksOf(board,parts).map(b=>({...b,start:Math.min(...b.nodes.map(id=>Math.floor(placed.cell.get(id)/placed.cols))),end:Math.max(...b.nodes.map(id=>Math.floor(placed.cell.get(id)/placed.cols)+(placed.span.get(id)?.[1]??1)))}))
+  return blocksOf(board,parts).map(block=>{
+    const start=Number.isInteger(block.slot)?Math.floor(block.slot/placed.cols):Math.min(...block.nodes.map(id=>Math.floor(placed.cell.get(id)/placed.cols)))
+    const end=block.rows?start+block.rows:Math.max(...block.nodes.map(id=>Math.floor(placed.cell.get(id)/placed.cols)+(placed.span.get(id)?.[1]??1)))
+    return {...block,start,end}
+  })
+}
+
+/** Project containers with a trailing insertion row while retaining their member-relative holes. */
+export function phoneBlockBoard(board,parts) {
+  const blocks=blocksOf(board,parts)
+  if(!blocks.length)return board
+  const placed=placement(board,parts),owner=new Set(blocks.flatMap(b=>b.nodes)),slots=new Map(),bounds=new Map()
+  const units=blocks.map(block=>({block,at:block.slot??Math.floor(Math.min(...block.nodes.map(id=>placed.cell.get(id)))/placed.cols)*placed.cols}))
+    .concat(editable(board,parts).filter(n=>!owner.has(n.id)).map(node=>({node,at:placed.cell.get(node.id)})))
+    .sort((a,b)=>a.at-b.at)
+  let cursor=0
+  for(const unit of units){
+    let at=Math.max(cursor,unit.at)
+    if(unit.block){
+      at=Math.ceil(at/placed.cols)*placed.cols
+      let end=0
+      for(const id of unit.block.nodes){
+        const local=placed.cell.get(id)-unit.at
+        slots.set(id,at+local)
+        end=Math.max(end,Math.floor(local/placed.cols)+(placed.span.get(id)?.[1]??1))
+      }
+      const rows=end+1
+      bounds.set(unit.block.id,{slot:at,rows})
+      cursor=at+rows*placed.cols
+    }else{
+      const [w,h]=placed.span.get(unit.node.id)
+      if(at%placed.cols+w>placed.cols)at=Math.ceil(at/placed.cols)*placed.cols
+      slots.set(unit.node.id,at)
+      cursor=h>1?Math.ceil(at/placed.cols)*placed.cols+h*placed.cols:at+w
+    }
+  }
+  return {...board,blocks:blocks.map(({ins:_ins,outs:_outs,...b})=>({...b,...bounds.get(b.id)})),nodes:board.nodes.map(n=>slots.has(n.id)?{...n,slot:slots.get(n.id)}:n)}
+}
+
+export function blockAtSlot(board,parts,slot,region=null) {
+  if(region!==null)return null
+  const placed=placement(board,parts),row=Math.floor(slot/placed.cols)
+  return blockRows(board,parts,placed).find(b=>row>=b.start&&row<b.end)?.id??null
+}
+
+export function blockOfPart(board,id) {
+  const ancestors=new Set([id,...scopeOf(board,id).map(scope=>scope.split('/')[0])])
+  return (board.blocks??[]).find(b=>b.nodes.some(n=>ancestors.has(n)))?.id??null
+}
+
+/** Membership changes follow explicit drop containers, never enlarged component bounds. */
+export function transferBlockMembers(board,parts,assignments) {
+  const valid=new Set(editable(board,parts).map(n=>n.id)),moved=new Set(assignments.map(a=>a.id))
+  return {...board,blocks:(board.blocks??[]).map(block=>({...block,nodes:[...block.nodes.filter(id=>!moved.has(id)),...assignments.filter(a=>a.block===block.id&&valid.has(a.id)).map(a=>a.id)]})).filter(b=>b.nodes.length)}
 }
 
 /** Newly carried parts use free, ungrouped rows without rewriting any existing slot. */
@@ -102,4 +160,13 @@ export function withNewSlots(board,parts) {
 export function newPartSlot(board,parts) {
   const placed=placement(board,parts),ranges=blockRows(board,parts,placed)
   return placed.free.find(slot=>!ranges.some(b=>Math.floor(slot/placed.cols)>=b.start&&Math.floor(slot/placed.cols)<b.end))??placed.size
+}
+
+export function movePhonePart(board,parts,id,slot,region=null,canMove=()=>true) {
+  const other=[...placement(board,parts,region).cell].find(([,at])=>at===slot)?.[0]
+  if(!canMove(id)||(other&&other!==id&&!canMove(other)))return board
+  const origin=blockOfPart(board,id),destination=blockAtSlot(board,parts,slot,region)
+  const next=moveToSlot(board,parts,id,slot,region)
+  if(next===board||board.blocks===undefined)return next
+  return transferBlockMembers(next,parts,[{id,block:destination},...(other&&other!==id?[{id:other,block:origin}]:[])])
 }

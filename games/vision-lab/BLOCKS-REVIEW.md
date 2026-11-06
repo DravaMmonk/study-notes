@@ -58,3 +58,20 @@ view restores full view after reload. Hidden headers sit above wire hit areas so
 The block/header, editor and settings integration is one hard switch: it removes the row-divider data/rendering
 path together, so there is no compatibility layer retaining two grouping models. The temporary implementation
 plan is consolidated into the design handbook after acceptance.
+
+## Phone container follow-up
+
+Phone containers now fill internal holes with add/drop slots and reserve one complete insertion row after the
+last occupied row. A 390 × 844 review of level 1-5 added a constant through an internal slot: the component
+count increased within that block, and another complete insertion row remained available. Dragging that
+constant to an outside slot removed its membership without extending the former block. All 17 existing wires
+remained unchanged. Container projection preserves stored desktop coordinates and relative internal holes.
+
+With Manual partitioning off, preset members have no drag handle or Move action. Move validation also rejects
+swaps that would indirectly move a protected member. Manual partitioning restores these actions. Hidden phone
+headers have transparent backgrounds and zero vertical padding; the reviewed compact header measured 28 px.
+The existing ordinary port controls and cubic wire renderer are unchanged.
+
+426 tests pass, including six new container tests for holes, insertion, detachment, cross-container swaps,
+protected members and empty-container removal. Course checks, vocabulary checks, duplication, styles and
+all-game builds also pass.

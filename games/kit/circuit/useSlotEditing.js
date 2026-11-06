@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
-import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, moveToSlot, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
+import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
-import { newPartSlot } from './blocks.js'
+import { newPartSlot, blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { useHistory } from './useHistory.js'
 
 const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
@@ -29,7 +29,7 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  */
 const LOCKED_MOVE = { zh: '关卡放好的元件不能删，只能在原来的区域里挪动。', en: 'A part the level placed cannot be deleted; it moves only within its own region.' }
 
-export function useSlotEditing({ graph, onChange: given, parts, create, label, openNode, openSlot, root, scroller, scope }) {
+export function useSlotEditing({ graph, onChange: given, parts, create, label, openNode, openSlot, root, scroller, scope, canMove = () => true }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const [moving, setMoving] = useState(null) // a part's id, while choosing the slot it moves to
   // A change never takes off what the level locked on the board (model.js keepLocked).
@@ -139,7 +139,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     setMoving(null)
     // A locked part moves only within the region it sits in.
     if (node?.locked && region !== (node.in ?? null)) return setToast(LOCKED_MOVE)
-    const next = moveToSlot(graph, parts, node.id, at, region)
+    const next = movePhonePart(graph, parts, node.id, at, region, canMove)
     if (next === graph) return
     buzz()
     edit(next, other && other !== moving
@@ -147,7 +147,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
       : { zh: `把「${name}」移到了这一格`, en: `Moved "${name}" here` })
   }
   const startMove = (id) => {
-    if (parts.role(byId(graph, id) ?? {}) !== 'part') return
+    if (!canMove(id) || parts.role(byId(graph, id) ?? {}) !== 'part') return
     setPicking(null)
     setMoving(id)
   }
@@ -175,7 +175,9 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
 
   // Placing parts. Wiring is always the player's.
   const place = (type, at, region = null) => {
-    const { graph: next, id } = create(graph, type, at, region)
+    const made = create(graph, type, at, region)
+    const id = made.id
+    const next = graph.blocks === undefined ? made.graph : transferBlockMembers(made.graph,parts,[{id,block:blockAtSlot(graph,parts,at,region)}])
     // An input part goes up with the inputs, not into a slot.
     const name = nameIn(next, byId(next, id))
     const note = parts.role(byId(next, id) ?? {}) === 'source'
@@ -196,7 +198,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   // through a ref.
   const latest = useRef(null)
   useEffect(() => {
-    latest.current = { graph, parts, wire, place, edit, remove, say: setToast, unpick: () => setPicking(null), wireToCard }
+    latest.current = { graph, parts, wire, place, edit, remove, canMove, say: setToast, unpick: () => setPicking(null), wireToCard }
   })
   useEffect(() => {
     const el = root.current
@@ -225,8 +227,9 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
         }
         if (g.kind === 'piece' && over) {
           const piece = byId(now.graph, g.id)
+          if (!now.canMove(g.id)) return
           if (piece?.locked && (slot === null || region !== (piece.in ?? null))) now.say(LOCKED_MOVE)
-          else if (slot !== null) now.edit(moveToSlot(now.graph, now.parts, g.id, slot, region))
+          else if (slot !== null) now.edit(movePhonePart(now.graph, now.parts, g.id, slot, region, now.canMove))
           else now.remove(g.id)
         }
         if (board()) drawWires(board(), now.graph, now.parts)
