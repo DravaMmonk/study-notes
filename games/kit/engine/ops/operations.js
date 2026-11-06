@@ -2,13 +2,10 @@
 // (cli.js), the MCP server (mcp.js) and later the studio only ever run them, through a changeset (changeset.js).
 //
 // An operation is { about, params (schema.js: its arguments as data), apply(ws, args, ctx) }. apply edits the
-// workspace (workspace.js) and returns { says, inverse, saves?, own? }: what it did, in words; the operations
-// that undo it; the save migration ops (../../shell/saves.js) it alone knows it needs (a level renamed or removed, a
-// task removed or renamed); and the levels whose kept state its own save ops carry, which no other migration touches.
-// ctx: { vocabulary, domain }. In a domain whose levels have tasks (../tasks.js), tasks are added, removed, moved (in a level or to another: two
-// levels made one, or one split) and renamed by id; the saves keep a task by its id, so a move needs no step. What a change
-// means for the saves beyond that (a new prerequisite, a puzzle whose kept boards no longer apply) is read off the
-// content before and after the whole changeset (migrate.js).
+// workspace (workspace.js) and returns { says, inverse }: what it did, in words, and the operations that undo it.
+// ctx: { vocabulary, domain }. A level's tasks (../tasks.js) are added, removed, moved (in a level or to another: two
+// levels made one, or one split) and renamed by id. No operation looks after players' saves: while the games are in
+// development a save made on other puzzles is not read (../stamp.js).
 import { S, shapeAt } from '../schema.js'
 import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
@@ -42,8 +39,6 @@ const restore = (op, base, path, args) => {
   if (old !== undefined) return { op: `${op}.set`, ...args, path: keys, value: old }
   return { op: `${op}.unset`, ...args, path: keys }
 }
-// game.json's saves are history: written by the migration generator (migrate.js), never edited.
-const notSaves = (path) => (parsePath(path)[0] === 'saves' ? fail('game.json saves are written by the migration generator, not edited') : path)
 // Tasks by id (../tasks.js): the levels as a list, a task found, where a task goes in a level.
 const TASK = S.str({ pattern: TASK_ID, about: t('任务的 id', 'a task’s id') })
 const TASK_PLACE = S.obj({ level: S.level(), after: S.opt(TASK), first: S.opt(S.bool()) }, { about: t('一关里的一个位置：after 那个任务后面，first 时最前，都不给就在最后', 'a place in a level: after that task, first, or else last') })
@@ -63,15 +58,6 @@ const partsOf = (ws, vocabulary) => {
   if (!definesParts(vocabulary)) fail(`the ${vocabulary.domain} domain defines its parts in code`)
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
-}
-/**
- * The part types whose kept boards an edit of parts.json at `keys` invalidates: a part's ports or settings, or a
- * preset's, for every part whose settings use it.
- */
-const changedParts = (file, [top, name, field]) => {
-  if (top === 'parts' && ['inputs', 'outputs', 'settings'].includes(field)) return [name]
-  if (top === 'presets') return Object.entries(file?.parts ?? {}).filter(([, part]) => (part.settings ?? []).some((s) => s.use === name)).map(([type]) => type)
-  return []
 }
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')
@@ -175,7 +161,6 @@ export const OPERATIONS = {
       return {
         says: `${level}: removed from ${describe(eras, was)}${pruned.length ? ` (with the ${pruned.join(', ')} it emptied)` : ''}`,
         inverse: [{ op: 'level.add', level, data }, { op: 'game.set', path: ['eras'], value: eras }],
-        saves: [{ rename: { [level]: null } }],
       }
     },
   },
@@ -191,7 +176,7 @@ export const OPERATIONS = {
       ws.basis.set(`levels/${to}.json`, ws.original.get(`levels/${level}.json`) ?? ws.basis.get(`levels/${level}.json`))
       const n = renameRefs(ws, vocabulary, level, to)
       if (ws.blueprint !== undefined) ws.blueprint = renameSlot(ws.blueprint, level, to)
-      return { says: `${level} → ${to} (${n} reference(s))`, inverse: [{ op: 'level.rename', level: to, to: level }], saves: [{ rename: { [level]: to } }] }
+      return { says: `${level} → ${to} (${n} reference(s))`, inverse: [{ op: 'level.rename', level: to, to: level }] }
     },
   },
   'level.move': {
@@ -230,7 +215,7 @@ export const OPERATIONS = {
       const base = levelOf(ws, level)
       if (base.tasks.length === 1) fail(`${task} is ${level}’s only task: remove the level instead`)
       ws.levels.set(level, { ...base, tasks: base.tasks.filter((x) => x.id !== task) })
-      return { says: `${level}: task ${task} removed`, inverse: [{ op: 'task.add', level, data: base.tasks[at], ...placeOf(base.tasks, at) }], saves: [{ drop: [task] }], own: [level] }
+      return { says: `${level}: task ${task} removed`, inverse: [{ op: 'task.add', level, data: base.tasks[at], ...placeOf(base.tasks, at) }] }
     },
   },
   'task.move': {
@@ -247,7 +232,7 @@ export const OPERATIONS = {
       const k = indexIn(target.tasks, to.level, to)
       ws.levels.set(to.level, { ...target, tasks: [...target.tasks.slice(0, k), moving, ...target.tasks.slice(k)] })
       const back = { op: 'task.move', task, to: { level: from, ...placeOf(source.tasks, at) } }
-      return { says: `${task}: ${from === to.level ? `moved in ${from}` : `${from} → ${to.level}`} (${k + 1} of ${levelOf(ws, to.level).tasks.length})`, inverse: [back], own: [from, to.level] }
+      return { says: `${task}: ${from === to.level ? `moved in ${from}` : `${from} → ${to.level}`} (${k + 1} of ${levelOf(ws, to.level).tasks.length})`, inverse: [back] }
     },
   },
   'task.rename': {
@@ -259,14 +244,13 @@ export const OPERATIONS = {
       if (to !== level && ws.levels.has(to)) fail(`${to} is a level’s id`)
       const base = levelOf(ws, level)
       ws.levels.set(level, { ...base, tasks: base.tasks.map((x, k) => (k === at ? { ...x, id: to } : x)) })
-      return { says: `${level}: task ${task} → ${to}`, inverse: [{ op: 'task.rename', task: to, to: task }], saves: [{ retask: { [task]: to } }], own: [level] }
+      return { says: `${level}: task ${task} → ${to}`, inverse: [{ op: 'task.rename', task: to, to: task }] }
     },
   },
   'game.set': {
-    about: t('设 game.json 的一个字段（课程、元件、标题……；存档迁移除外）', 'set a field of game.json (the course, parts, titles…; not the save migrations)'),
+    about: t('设 game.json 的一个字段（课程、元件、标题……）', 'set a field of game.json (the course, parts, titles…)'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
-      notSaves(path)
       const inverse = [restore('game', ws.game, path, {})]
       ws.game = setAt(ws.game, path, value, orderOf(vocabulary.game, ws.game, vocabulary))
       return { says: `game.json: set ${showPath(path)}`, inverse }
@@ -276,7 +260,7 @@ export const OPERATIONS = {
     about: t('去掉 game.json 的一个字段，或列表里的一项', 'remove a field of game.json, or an item from a list'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }) {
-      const keys = parsePath(notSaves(path))
+      const keys = parsePath(path)
       const back = typeof keys.at(-1) === 'number' ? { op: 'game.set', path: keys.slice(0, -1), value: getAt(ws.game, keys.slice(0, -1)) } : { op: 'game.set', path: keys, value: getAt(ws.game, keys) }
       ws.game = unsetAt(ws.game, keys)
       return { says: `game.json: removed ${showPath(keys)}`, inverse: [back] }
@@ -301,7 +285,7 @@ export const OPERATIONS = {
       // The glossary has no field operations: its text goes back as a pair (a string reads the same as a pair of it).
       const inverse = [where === 'glossary' || where === 'parts' ? { op: 'text.set', in: where, path: keys, ...(typeof old === 'string' ? { zh: old, en: old } : old) } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, next, vocabulary)
-      else if (where === 'game') ws.game = setAt(ws.game, notSaves(keys), next)
+      else if (where === 'game') ws.game = setAt(ws.game, keys, next)
       else if (where === 'parts') ws.partDefs = setAt(ws.partDefs, keys, next, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
       else ws.glossary = setAt(ws.glossary, keys, next)
       return { says: `${file}: ${showPath(keys)} reads ${[zh !== undefined && 'zh', en !== undefined && 'en'].filter(Boolean).join(' and ')} anew`, inverse }
@@ -368,7 +352,7 @@ export const OPERATIONS = {
       const named = partRefs(ws, vocabulary, part)
       if (named.length) fail(`${part} is still named at ${named.slice(0, 8).map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}${named.length > 8 ? ` and ${named.length - 8} more` : ''}`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(entries.filter(([type]) => type !== part)) }
-      return { says: `parts: removed ${part}`, inverse: [{ op: 'part.add', part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }], saves: [{ dropWith: [part] }] }
+      return { says: `parts: removed ${part}`, inverse: [{ op: 'part.add', part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
     },
   },
   'part.rename': {
@@ -380,7 +364,7 @@ export const OPERATIONS = {
       if (ws.partDefs.parts[to]) fail(`there is a part ${to} already`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(Object.entries(ws.partDefs.parts).map(([type, def]) => [type === part ? to : type, def])) }
       const n = renamePartRefs(ws, vocabulary, part, to)
-      return { says: `parts: ${part} → ${to} (${n} reference(s))`, inverse: [{ op: 'part.rename', part: to, to: part }], saves: [{ retype: { [part]: { type: to, params: {} } } }] }
+      return { says: `parts: ${part} → ${to} (${n} reference(s))`, inverse: [{ op: 'part.rename', part: to, to: part }] }
     },
   },
   'parts.set': {
@@ -391,9 +375,8 @@ export const OPERATIONS = {
       const keys = parsePath(path)
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is added with part.add, renamed with part.rename')
       const inverse = [restore('parts', ws.partDefs, keys, {})]
-      const changed = changedParts(ws.partDefs, keys)
       ws.partDefs = setAt(ws.partDefs, keys, value, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-      return { says: `parts.json: set ${showPath(keys)}`, inverse, ...(changed.length && { saves: [{ dropWith: changed }] }) }
+      return { says: `parts.json: set ${showPath(keys)}`, inverse }
     },
   },
   'parts.unset': {
@@ -404,9 +387,8 @@ export const OPERATIONS = {
       const keys = parsePath(path)
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is removed with part.remove')
       const back = typeof keys.at(-1) === 'number' ? { op: 'parts.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'parts.set', path: keys, value: getAt(ws.partDefs, keys) }
-      const changed = changedParts(ws.partDefs, keys)
       ws.partDefs = unsetAt(ws.partDefs, keys)
-      return { says: `parts.json: removed ${showPath(keys)}`, inverse: [back], ...(changed.length && { saves: [{ dropWith: changed }] }) }
+      return { says: `parts.json: removed ${showPath(keys)}`, inverse: [back] }
     },
   },
   'blueprint.put': {

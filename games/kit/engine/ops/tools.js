@@ -88,11 +88,11 @@ export const TOOLS = {
     },
   },
   modify: {
-    about: 'Apply a changeset { why?, ops: [{ op, …args }] } to a game: every op checked and run, the save migration generated, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
+    about: 'Apply a changeset { why?, ops: [{ op, …args }] } to a game: every op checked and run, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
     params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?' },
     async run({ game, changeset, dryRun = false, base = null }) {
       const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: !dryRun, base })
-      return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, migration: r.step, files: r.files, diff: r.diff, undo: r.inverse, notes: r.notes }
+      return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, files: r.files, diff: r.diff, undo: r.inverse }
     },
   },
   run_reference: {
@@ -163,16 +163,8 @@ export const TOOLS = {
       return { text: await drawDeps(readContent(known(game), ROOT), { dot, levels }) }
     },
   },
-  migrate_diff: {
-    about: 'The save migration step a changeset would add to game.json (nothing is written, the game is not checked as a whole).',
-    params: { game: 'string', changeset: 'object' },
-    async run({ game, changeset }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check: false })
-      return { migration: r.step, says: r.says, problems: r.problems, notes: r.notes }
-    },
-  },
   preview: {
-    about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, the save step, each file changed (its text before and after), the operation that failed if one did, and the change log (check false: the content checked against its vocabulary only, which is quick; the whole check runs the domain’s). The studio shows a game through it.',
+    about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, each file changed (its text before and after), the operation that failed if one did, and the change log (check false: the content checked against its vocabulary only, which is quick; the whole check runs the domain’s). The studio shows a game through it.',
     params: { game: 'string', changeset: 'object?', check: 'boolean?' },
     async run({ game, changeset = { ops: [] }, check = true }) {
       const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check })
@@ -183,7 +175,7 @@ export const TOOLS = {
       return {
         ok: r.ok, says: r.says, problems: r.problems, failed: r.failed, content, order: ids,
         lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
-        migration: r.step, changes: r.changes, notes: r.notes, ...logOf(game),
+        changes: r.changes, ...logOf(game),
       }
     },
   },
@@ -308,7 +300,7 @@ export const TOOLS = {
     params: { game: 'string', dryRun: 'boolean?' },
     async run({ game, dryRun = false }) {
       const r = await undo(openGame(known(game), ROOT), { write: !dryRun })
-      return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, migration: r.step, files: r.files, diff: r.diff, notes: r.notes }
+      return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, files: r.files, diff: r.diff }
     },
   },
   vocabulary: {

@@ -37,7 +37,6 @@ const GAME = {
     foundation: ['given', 'apply', 'suppose'],
     chapter: { title: T('地基', 'The foundation'), question: T('只靠套用和假设框，能搭出什么？', 'What can be built from Apply and the assumption box alone?') },
   }],
-  saves: [],
 }
 
 const GLOSSARY = {

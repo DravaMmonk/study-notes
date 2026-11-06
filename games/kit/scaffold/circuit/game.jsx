@@ -18,8 +18,7 @@ import Screen from './ui/Screen.jsx'
 import { __name__Course } from './course.js'
 import { OPS } from './ops.js'
 
-/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
- *  (../../shell/saves.js), levels, glossary, partDefs }. */
+/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
 export default function __name__Game(content) {
   const __name__ = __name__Course(content)
   const cards = Object.fromEntries(Object.entries(__name__.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }]))

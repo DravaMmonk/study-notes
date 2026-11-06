@@ -6,7 +6,7 @@
 // as) in model/parts.js, a sentence and its answer in model/sentence.js.
 
 import { S } from '../../engine/schema.js'
-import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { PARTS, ROLES, TYPES } from './model/parts.js'
 import { T as t } from '../../shell/i18n.js'
@@ -80,7 +80,6 @@ const GAME = S.obj({
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up able to do, not how many levels') }),
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
-  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({

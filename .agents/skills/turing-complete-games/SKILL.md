@@ -16,10 +16,10 @@ adding or reordering levels, adding parts or machine abilities, or changing the 
 The design rules live in the repository, not in this skill. Before designing or reviewing, read:
 
 1. `games/DESIGN.md` — the shared handbook: principles (§1), course structure and practice clusters (§2,
-   especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), author workflow (§7), pitfalls (§8)
+   especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), interface (§6.10), author workflow (§7), pitfalls (§8)
    and case studies (§9–11).
 2. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
-3. The game's content (`games/DESIGN.md` §6.1): `games/<game>/game.json` (eras, parts, saves), `levels/<id>.json`
+3. The game's content (`games/DESIGN.md` §6.1): `games/<game>/game.json` (eras, parts), `levels/<id>.json`
    and `glossary.json`, written in its domain's vocabulary (`games/kit/domains/<domain>/vocabulary.js`).
 
 **Docs first, and only the current design.** Every change to a course (a new chapter, a reordering, parts split
@@ -289,12 +289,12 @@ The rules are in `games/DESIGN.md` §4. Read every intro, hint, pass text and pa
 
 ## Interface checklist
 
-Shared conventions are in `games/DESIGN.md` §2.5 (the map's level tree) and §6 (interface conventions): level tree
-with centred rows and one column per series; a left drawer of level trees inside a level; the pass dialog returns to
-the map and the map lands on that level; input cards hold what they read and are clicked to wire; the test board
-sits in the strip at a modest size; card values repaint on every step of a run; a board's last run stays on it while
-the level is open, across tasks and slots (`lastRun` / `keepRun`, in memory), and is gone once the level is left; no newer JS APIs that break older
-iOS Safari.
+Read `games/DESIGN.md` §6.10 before changing any interface, and §2.5 for the map's level tree. Above all: let the
+layout speak — no secondary labels or descriptions, nothing said twice, dense use of space; every game gets the same
+layout and interactions from the shared kit; on phone, operability comes before a complete picture. Also: a left
+drawer of level trees inside a level; the pass dialog returns to the map and the map lands on that level; input cards
+hold what they read and are clicked to wire; card values repaint on every step of a run; a board's last run stays on
+it while the level is open (`lastRun` / `keepRun`, in memory); no newer JS APIs that break older iOS Safari.
 
 ## Verification
 

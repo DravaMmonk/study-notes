@@ -1,8 +1,8 @@
 // node --test games/kit/app — the studio's HTTP bridge (studio.js) end to end: the tools of ../engine/ops/tools.js
 // over HTTP, on a small game written for the test into a temp games folder (GAMES_ROOT, ../engine/ops/fixture.js) so
 // its writes land there. A studio session in miniature:
-// preview a pending changeset (nothing written; the content, the check's lines by level, the migration and the files
-// it would change), seed a level’s board, apply, read the log, undo; and the second lane the slow reads take.
+// preview a pending changeset (nothing written; the content, the check's lines by level and the files it would
+// change), seed a level’s board, apply, read the log, undo; and the second lane the slow reads take.
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -49,7 +49,7 @@ test('the bridge lists the tools, and says what is wrong with a call', async () 
   assert.match(unknown.body.error, /no game nope/)
 })
 
-test('a pending changeset previewed: its content, lines by level, migration and files, nothing written', async () => {
+test('a pending changeset previewed: its content, lines by level and files, nothing written', async () => {
   const before = onDisk('levels/suppose.json')
   const ops = [
     { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', en: 'Prove it with a box.' },
@@ -63,7 +63,6 @@ test('a pending changeset previewed: its content, lines by level, migration and 
   assert.ok(body.lines.some((l) => l.levels.includes('suppose') && /^suppose /.test(l.text)), 'a domain line is about its level')
   assert.deepEqual(body.changes.map((c) => c.file).sort(), [`${GAME}/game.json`, `${GAME}/levels/suppose.json`])
   assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).tasks[0].brief.en, 'Prove it with a box.')
-  assert.ok(body.migration === null || body.migration.version >= 2)
   assert.equal(onDisk('levels/suppose.json'), before, 'a preview writes nothing')
 
   const bad = (await post('preview', { game: GAME, changeset: { ops: [ops[0], { op: 'level.set', level: 'nope', path: 'x', value: 1 }] } })).body

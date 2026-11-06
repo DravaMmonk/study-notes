@@ -18,7 +18,6 @@ import './ui/agent.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
-import { migrations } from '../../shell/saves.js'
 import BoardScreen from './ui/BoardScreen.jsx'
 import HandScreen from './ui/HandScreen.jsx'
 import Hero from './ui/Hero.jsx'
@@ -28,8 +27,8 @@ import { agentCourse } from './course.js'
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
-/** content (../../engine/content.js): { id, title, kicker, lede, primitives, machines, eras, repos, issues, saves:
- *  migration steps (../../shell/saves.js), levels, glossary }. */
+/** content (../../engine/content.js): { id, title, kicker, lede, primitives, machines, eras, repos, issues, levels,
+ *  glossary }. */
 export default function agentGame(content) {
   const agent = agentCourse(content)
   const { LEVELS, played, CHAPTERS, course } = agent
@@ -66,7 +65,6 @@ export default function agentGame(content) {
         }),
       }
     }),
-    progress: migrations(content.saves),
     intro: (level) => level.intro,
     kinds: {
       hand: { Screen: HandScreen, icon: Hand, label: { zh: '手动', en: 'By hand' } },

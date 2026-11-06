@@ -120,37 +120,3 @@ test('reading a course never writes into its content', async () => {
     spec.syncOwn({});
   }
 });
-
-test('a save of a level’s stages ({ stage, boards }) becomes its tasks’ boards, as the screen and the parts read them', async () => {
-  const { readContent } = await import('../../engine/content-node.js');
-  const { migrations } = await import('../../shell/saves.js');
-  const { taskKey } = await import('../../shell/progress.js');
-  const { tableCourse } = await import('./course.js');
-  const content = readContent('state-graph');
-  const table = tableCourse(content);
-  // A level of two tasks, a builder of one (whose part runs its board), and how the shell keys their boards.
-  const [two, builder] = [table.LEVELS.find(L => table.played.get(L.id).length > 1), table.LEVELS.find(L => L.builds)];
-  const shell = L => ({ id: L.id, tasks: table.played.get(L.id).map(s => ({ key: s.taskId })) });
-  const boardOf = (L, k) => table.played.get(L.id)[k].solution ?? table.played.get(L.id).at(-1).solution;
-  const moved = (b, x) => ({ ...b, nodes: b.nodes.map(n => ({ ...n, x })) });
-  const [first, second, part] = [moved(boardOf(two, 0), 11), moved(boardOf(two, 1), 22), moved(boardOf(builder, 0), 33)];
-  const old = {
-    version: 1, solved: [builder.id], passed: [], flags: [],
-    data: { [two.id]: { stage: 1, boards: [first, second] }, [builder.id]: { stage: 0, boards: [part] } },
-    built: { [builder.id]: { stage: 0, boards: [part] } },
-    slots: { [two.id]: { at: 0, list: [{ no: 1, data: { stage: 1, boards: [first, second] } }] } },
-  };
-  const { version, migrate } = migrations(content.saves);
-  const p = migrate(old);
-  assert.ok(version > 1);
-  assert.deepEqual(p.data[taskKey(shell(two), 0)], first);
-  assert.deepEqual(p.data[taskKey(shell(two), 1)], second);
-  assert.deepEqual(p.data[taskKey(shell(builder), 0)], part);
-  assert.deepEqual(p.slots[taskKey(shell(two), 1)].list[0].data, second);
-  // The stages before the one played are passed tasks, the one played is not.
-  assert.ok(p.passed.includes(taskKey(shell(two), 0)) && !p.passed.includes(taskKey(shell(two), 1)));
-  // The screen opens each task on its own board, and the part runs the board its level was passed with.
-  assert.ok(p.data[taskKey(shell(two), 1)].nodes.every(n => n.x === 22));
-  table.syncOwn(p.built);
-  assert.ok(table.model.built[builder.unlock].board().nodes.filter(n => n.type !== 'out').every(n => n.x === 33));
-});

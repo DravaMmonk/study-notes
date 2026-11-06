@@ -44,7 +44,6 @@ import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
 import { taskLevel, taskLevels } from './tasks.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
-import { SAVES } from './vocabulary.js'
 import { S } from './schema.js'
 import { T as t, keyOf } from '../shell/i18n.js'
 
@@ -334,7 +333,7 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text() }), po
 /* ---------- game.json ---------- */
 
 // The schema of a game.json on the base (a domain's vocabulary game): its eras laid out as ../course.js layout reads
-// them, the primitives it starts from, and its save migrations.
+// them and the primitives it starts from.
 const ids = S.list(S.str())
 const levels = S.list(S.level())
 const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels })) }))
@@ -356,7 +355,6 @@ export const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
-  saves: SAVES,
 })
 
 /* ---------- the spec ---------- */

@@ -452,13 +452,6 @@
       }
     }
   ],
-  "saves": [
-    {
-      "version": 2,
-      "why": "tasks are kept by their ids, no longer by their place in the level",
-      "ops": [{ "retask": { "1-11#0": "1-11_1", "1-11#1": "1-11_2", "11-1#0": "11-1_1", "11-1#1": "11-1_2" } }]
-    }
-  ],
   "box": {
     "sample": "1-1",
     "inLevel": { "dg-decoder": "8-4", "dg-reparam": "8-4" },

@@ -11,7 +11,6 @@
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'
 import { defineGame } from './index.js'
-import { migrations } from './saves.js'
 
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
@@ -58,7 +57,6 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
         }),
       }
     }),
-    progress: migrations(content.saves),
     intro: (level) => level.intro,
     IntroFigure,
     kinds: { [kind.id]: { Screen, icon: kind.icon, label: kind.label }, ...kinds },

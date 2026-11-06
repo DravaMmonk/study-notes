@@ -37,8 +37,7 @@ const KINDS = {
   bench: { Screen: BenchScreen, icon: SlidersHorizontal, label: { zh: '实验台', en: 'Bench' } },
 }
 
-/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
- *  (../../shell/saves.js), levels, glossary, partDefs }. */
+/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
 export default function visionGame(content) {
   const vision = visionCourse(content)
   // A part's description grows with the options its settings open, level by level.

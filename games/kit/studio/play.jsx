@@ -32,11 +32,12 @@ function look({ theme, lang }) {
   if (lang && lang !== (document.documentElement.lang === 'en' ? 'en' : 'zh')) applyLang(lang)
 }
 
-/** The game the shell plays, made of `content`, with saves of its own; `stamp` tells one content from the next. */
+/** The game the shell plays, made of `content`, with saves of its own, kept across the author's edits (a board an
+ *  edit no longer fits opens as the level's start); `stamp` tells one content from the next. */
 async function gameOf(content, stamp) {
   const defineGame = (await DOMAINS[content.domain]()).default
   const game = defineGame(content)
-  game.store = createProgress({ id: `studio.${content.id}`, ...(game.progress ?? {}) })
+  game.store = createProgress({ id: `studio.${content.id}`, stamp: 'studio' })
   game.stamp = stamp
   return game
 }
@@ -111,5 +112,5 @@ export default function Play() {
     return part.game.defined ? <PartPreview game={part.game} type={part.type} edit={parts} /> : null
   }
   if (!shown) return null
-  return <GameShell key={shown.no} game={shown.game} author={author} />
+  return <GameShell key={shown.no} game={shown.game} store={shown.game.store} author={author} />
 }

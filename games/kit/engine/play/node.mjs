@@ -6,6 +6,7 @@ import { resolve } from 'node:path'
 import { GAMES_DIR, readContent } from '../content-node.js'
 import { gameOf, loadModule } from '../games.mjs'
 import { createPlay } from './play.js'
+import { fresh } from '../../shell/progress.js'
 import { checkPlaytest, newSession } from './session.js'
 
 const KIT = resolve(import.meta.dirname, '../..')
@@ -39,7 +40,7 @@ export async function openSession(game, session, options = {}) {
   const record = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null
   const lang = record?.lang ?? options.lang ?? 'en'
   const { shell, hook, course } = await loadPlay(game, lang)
-  const rec = record ?? newSession({ game, session, lang, progress: shell.store.blank(), ...options })
+  const rec = record ?? newSession({ game, session, lang, progress: fresh(), ...options })
   const play = createPlay({ game: shell, course, hook, record: rec })
   const save = () => {
     const wrong = checkPlaytest(rec)

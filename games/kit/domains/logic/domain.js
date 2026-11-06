@@ -9,7 +9,6 @@ import { play } from './play.js'
 import { parse } from './formula.js'
 import { parseS, parseSide } from './schematic.js'
 import { parseTerm } from './pterm.js'
-import { taskLevels } from '../../engine/tasks.js'
 
 // The readers of the vocabulary's languages: why a text cannot be read, or null.
 const reads = (parser) => (text) => {
@@ -24,20 +23,6 @@ const languages = { formula: reads(parse), side: reads(parseSide), condition: re
 
 // What a part's name may be (vocabulary.js PART): the vocabulary's parts, and the game's lemmas, gates and equations.
 const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.lemmas ?? {}), ...Object.keys(content.gates ?? {}), ...Object.keys(content.facts ?? {})]) })
-
-// What players keep on a level answers its puzzle (../../engine/ops/migrate.js): a proof proves its goal from its
-// givens, a table fills its formulas, a world satisfies its sentences. A level whose puzzle changed keeps state that
-// answers the old one, so its boards start afresh. A machine is the exception: its board is a program run on the tests, and
-// stays whatever they become, as long as it is asked for the same thing. Copy, the reference and naive answers, the
-// tray, the concrete readings of the letters (cases) and what solving builds are no part of a puzzle.
-const NOT_PUZZLE = ['title', 'step', 'brief', 'briefNote', 'hint', 'intro', 'after', 'showcase', 'symbolicWords', 'propertyWords', 'words',
-  'solution', 'naive', 'script', 'answer', 'adds', 'fold', 'without', 'parts', 'cases', 'builds', 'fact', 'unlockToast']
-const MACHINE_PUZZLE = ['kind', 'want', 'inputs', 'single']
-// A level's puzzle is its tasks', each read as the level under the task (../../engine/tasks.js taskLevels).
-const puzzle = (level) => taskLevels(level).map(({ task: _k, ...one }) => Object.fromEntries(Object.entries(one).filter(one.kind === 'machine' ? ([k]) => MACHINE_PUZZLE.includes(k) : ([k]) => !NOT_PUZZLE.includes(k))))
-const changes = {
-  stale: (before, after) => JSON.stringify(puzzle(before)) !== JSON.stringify(puzzle(after)),
-}
 
 /** A logic game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
@@ -59,4 +44,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, languages, names, spec, validate, play, changes }
+export default { vocabulary, languages, names, spec, validate, play }

@@ -1,6 +1,6 @@
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the image domain's level screens (circuits, benches, the probe), its
-// parts box, its intro figures and its save migrations.
+// parts box and its intro figures.
 import { createElement } from 'react'
 import '../../../../trace-viewer/src/index.css'
 import './image.css'
@@ -8,7 +8,6 @@ import '../../shell/bench/bench.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
-import { migrations } from '../../shell/saves.js'
 import { imageCourse } from './course.js'
 import LevelScreen from './ui/LevelScreen.jsx'
 import PartDemo from './ui/PartDemo.jsx'
@@ -34,7 +33,7 @@ const OPTION_NAMES = {
 
 /**
  * content (../../engine/content.js): { id, title, kicker, lede, power, eras, primitives, concept, replaces, views,
- * saves: migration steps (../../shell/saves.js), box: { sample, inLevel,
+ * box: { sample, inLevel,
  * boards } how the parts box tries a part (ui/PartDemo.jsx), levels, glossary }.
  */
 export default function imageGame(content) {
@@ -72,7 +71,6 @@ export default function imageGame(content) {
     power: content.power,
     chapters: CHAPTERS.map((chapter) => ({ ...chapter, label: chapter.lecture })),
     levels: LEVELS,
-    progress: migrations(content.saves),
     intro: (level) => image.intros[level.id],
     IntroFigure,
     kinds: {

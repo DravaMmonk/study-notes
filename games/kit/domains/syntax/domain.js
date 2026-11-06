@@ -6,13 +6,6 @@ import { vocabulary } from './vocabulary.js'
 import { syntaxCourse } from './course.js'
 import { validate } from './validate.js'
 
-// What players keep on a level is their reading of its sentences: a sentence rewritten (or its fixed folds changed)
-// is another sentence, and the reading starts afresh (../../engine/ops/migrate.js).
-const words = (level) => level.tasks.map((s) => [s.sentence, s.given ?? []])
-const changes = {
-  stale: (before, after) => JSON.stringify(words(before)) !== JSON.stringify(words(after)),
-}
-
 /** A syntax game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
   const syntax = syntaxCourse(content)
@@ -27,4 +20,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate, changes }
+export default { vocabulary, spec, validate }

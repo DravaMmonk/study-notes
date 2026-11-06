@@ -56,7 +56,7 @@ export function searchable(content, vocabulary, kinds = KINDS) {
       for (const side of ['zh', 'en']) if (typeof pair[side] === 'string') out.push({ ...at, path, kind: 'text', side, text: pair[side] })
     }
   }
-  const { id: _g, levels, glossary, domain: _d, vocabulary: _v, open: _o, blueprint: _b, saves: _s, eras: _e, ...game } = content
+  const { id: _g, levels, glossary, domain: _d, vocabulary: _v, open: _o, blueprint: _b, eras: _e, ...game } = content
   for (const { id, ...level } of levels) {
     const at = { file: `levels/${id}.json`, level: id }
     if (kinds.includes('id')) out.push({ ...at, path: [], kind: 'id', text: id })

@@ -16,6 +16,5 @@
       "question": { "zh": "每块元件只算两个数，怎样算更多的数？", "en": "Each part works on two numbers: how do you work on more?" },
       "foundation": ["1-1", "1-2"]
     }
-  ],
-  "saves": []
+  ]
 }

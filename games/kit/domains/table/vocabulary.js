@@ -7,7 +7,7 @@
 // panels, explains) in items/.
 
 import { S } from '../../engine/schema.js';
-import { SAVES, defineVocabulary } from '../../engine/vocabulary.js';
+import { defineVocabulary } from '../../engine/vocabulary.js';
 import { taskLevel } from '../../engine/tasks.js';
 import { T as t } from '../../shell/i18n.js';
 
@@ -252,7 +252,6 @@ const GAME = S.obj({
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   parts: S.map(S.obj({ name: S.text(), desc: S.text() }), { about: t('关卡解锁的元件和想法：元件箱里的名字和说明', 'what levels unlock: their names and descriptions in the components box') }),
   eras: S.list(ERA, { min: 1 }),
-  saves: SAVES,
   borrow: S.opt(S.map(S.level(), { about: t('一个想法在元件箱里借用哪一关的电路板', 'the level whose board an idea borrows in the components box') })),
 });
 

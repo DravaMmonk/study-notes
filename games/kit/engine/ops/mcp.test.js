@@ -43,7 +43,7 @@ test('the server speaks MCP over stdio', async () => {
   assert.equal((await ask('nothing/here')).error.code, -32601)
 
   const { tools } = (await ask('tools/list')).result
-  assert.deepEqual(tools.map((t) => t.name).sort(), ['adopt', 'audit', 'blueprint', 'deps', 'history', 'log', 'migrate_diff', 'modify', 'names', 'preview', 'render', 'replace', 'run_reference', 'run_tests', 'search', 'seed', 'undo', 'vocabulary'])
+  assert.deepEqual(tools.map((t) => t.name).sort(), ['adopt', 'audit', 'blueprint', 'deps', 'history', 'log', 'modify', 'names', 'preview', 'render', 'replace', 'run_reference', 'run_tests', 'search', 'seed', 'undo', 'vocabulary'])
   assert.deepEqual(tools.find((t) => t.name === 'modify').inputSchema.required, ['game', 'changeset'])
   assert.equal((await call('modify', { game: GAME })).isError, true)
 })
@@ -73,11 +73,8 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
   assert.match((await call('audit', { game: 'nope' })).content[0].text, /no game nope/)
 })
 
-test('changing tools: migrate_diff previews, modify refuses a failing changeset and writes a passing one', async () => {
+test('changing tools: modify refuses a failing changeset and writes a passing one', async () => {
   const goal = { op: 'level.set', level: 'suppose', path: 'tasks[0].tests[0].goal', value: 'A → (B → C)' }
-  const diff = (await call('migrate_diff', { game: GAME, changeset: { ops: [goal] } })).data
-  assert.deepEqual(diff.migration, { version: 2, ops: [{ drop: ['suppose'] }] })
-
   // The reference no longer proves the new goal: refused, nothing written.
   const refused = (await call('modify', { game: GAME, changeset: { ops: [goal] } })).data
   assert.equal(refused.ok, false)
@@ -90,7 +87,6 @@ test('changing tools: migrate_diff previews, modify refuses a failing changeset 
   assert.match(preview.diff, new RegExp(`^--- a/${GAME}/levels/suppose.json`))
   const done = (await call('modify', { game: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.equal(done.migration, null)
   assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.en)
   assert.equal(JSON.parse(readFileSync(join(root, GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
 })

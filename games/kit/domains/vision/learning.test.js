@@ -3,7 +3,8 @@ import assert from 'node:assert/strict'
 import { pinhole, pinholeView } from './benches/pinhole.js'
 import { filterWindow } from './filter-window.js'
 import domain from './domain.js'
-import { T, circuit, level } from './fixture.js'
+import { T, circuit, game, level } from './fixture.js'
+import { contentStamp } from '../../engine/stamp.js'
 
 // A level of one circuit task with two outputs, a starter and words around it.
 const saved = () => level('L', circuit('l_pair', {
@@ -46,26 +47,20 @@ test('the neighbourhood aid reads positional weights and zero padding along the 
   assert.deepEqual(edge.map((f) => [f.value, f.outside]), [[0, true], [1, false], [3, false]])
 })
 
-test('save invalidation preserves copy changes but drops answers whose output contract changed', () => {
-  const level = saved()
-  const copy = saved()
-  copy.intro = [{ t: T('Different wording') }]
-  copy.tasks[0].brief = T('Different brief')
-  copy.tasks[0].outputs[0].label = T('Different label')
-  assert.equal(domain.changes.stale(level, copy), false)
-  copy.tasks[0].outputs.pop()
-  assert.equal(domain.changes.stale(level, copy), true)
-  const program = saved()
-  program.tasks[0].solution = ['out <- image', 'copy <- image']
-  assert.equal(domain.changes.stale(level, program), true, 'changed reference semantics invalidate built parts too')
-})
-
-test('changed starter circuits invalidate saved boards while copy edits preserve them', () => {
-  const level = saved()
-  const changed = saved()
-  changed.tasks[0].starter = ['one = const[value=1]()']
-  assert.equal(domain.changes.stale(level, changed), true)
-  const reworded = saved()
-  reworded.tasks[0].step = T('A step name')
-  assert.equal(domain.changes.stale(level, reworded), false)
+test('a save is kept across copy, answer and starter edits, and cleared when a task’s ports or tests change', () => {
+  const stamp = (edit = () => {}) => {
+    const one = saved()
+    edit(one)
+    return contentStamp(domain.vocabulary, game({ levels: [one] }))
+  }
+  const kept = stamp()
+  assert.equal(stamp((l) => {
+    l.intro = [{ t: T('Different wording') }]
+    l.tasks[0].brief = T('Different brief')
+    l.tasks[0].outputs[0].label = T('Different label')
+    l.tasks[0].solution = ['out <- image', 'copy <- image']
+    l.tasks[0].starter = ['one = const[value=1]()']
+  }), kept)
+  assert.notEqual(stamp((l) => l.tasks[0].outputs.pop()), kept)
+  assert.notEqual(stamp((l) => { l.tasks[0].tests[0].expect.out = [[2, 5]] }), kept)
 })

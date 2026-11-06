@@ -1,15 +1,15 @@
 // Saved progress for a game on the shared shell. It lives in this browser only, under saveKey(<game id>):
 //
-//   { version, solved: [level id], flags: [flag], passed: [task key], data: { [task key]: what its screen keeps },
+//   { stamp, solved: [level id], flags: [flag], passed: [task key], data: { [task key]: what its screen keeps },
 //     slots: { [task key]: its other saved boards (slots.js) }, built: { [task key]: the board a part runs },
 //     best: { [level id]: score }, introSeen: { [level id | task key]: true }, seenPower, all }
 //
 // What a level is (solved, its best score) is kept by its id; what a puzzle is — its board, its other boards, whether
 // it is passed, the board a part runs — by its task's key (taskKey: the task's id, ../engine/tasks.js keyOf), so a
 // task moved within its level or to another, or levels made one, keeps it all. A level once solved stays solved, even
-// when it gains a task. `version` is the game's save version: its steps (saves.js, game.json `saves`) bring a save
-// written before the content changed up to date. A save of any other shape (an older key) is not read: the player
-// starts afresh.
+// when it gains a task. `stamp` is the stamp of the puzzles it was made on (../engine/stamp.js): while the games are
+// in development no save is carried across a change, so a save made on other puzzles (or of any other shape) is not
+// read and the player starts afresh.
 
 /** The key a game's progress is saved under in this browser. */
 export const saveKey = (id) => `${id}.v2`
@@ -23,18 +23,19 @@ export function solvedCount(id) {
   }
 }
 
-const blank = (version) => ({ version, solved: [], flags: [], passed: [], data: {}, slots: {}, built: {}, best: {}, seenPower: false, introSeen: {}, all: false })
+const blank = (stamp = null) => ({ stamp, solved: [], flags: [], passed: [], data: {}, slots: {}, built: {}, best: {}, seenPower: false, introSeen: {}, all: false })
 
-export function createProgress({ id, version = 1, migrate = (saved) => saved }) {
+/** A game's progress in this browser, kept under `id` for the puzzles `stamp` names. */
+export function createProgress({ id, stamp }) {
   const key = saveKey(id)
   return {
     key,
     load() {
       try {
-        const stored = JSON.parse(window.localStorage.getItem(key)) ?? { version }
-        return { ...blank(version), ...migrate(stored), version }
+        const stored = JSON.parse(window.localStorage.getItem(key))
+        return stored?.stamp === stamp ? { ...blank(stamp), ...stored } : blank(stamp)
       } catch {
-        return blank(version)
+        return blank(stamp)
       }
     },
     save(progress) {
@@ -44,15 +45,15 @@ export function createProgress({ id, version = 1, migrate = (saved) => saved }) 
         // Storage may be full or blocked; the game still works for this session.
       }
     },
-    blank: () => ({ ...blank(version), seenPower: true }),
+    blank: () => ({ ...blank(stamp), seenPower: true }),
   }
 }
 
 // What playing a level does to progress, the same for the shell (GameShell.jsx) and a blind session
 // (../engine/play/): pure functions of a game (defineGame), a progress and the level played.
 
-/** A fresh progress, as a new save starts. */
-export const fresh = (version = 1) => blank(version)
+/** A fresh progress, as a blind session starts (the power-ups already shown). */
+export const fresh = () => ({ ...blank(), seenPower: true })
 
 /** Task k's key: the task's id (the shell level's task `key`). */
 export const taskKey = (level, k = 0) => level.tasks[k].key

@@ -1,6 +1,3 @@
-// Content conversion and saved-node migration are explicit; the curriculum uses one arithmetic component.
-export const arithmeticBlueprint = (lines) => lines?.map((line)=>line.replace(/(=\s*)(add|sub|mul|div)(?=\s*\()/g,(_match,start,op)=>`${start}arithmetic[op=${op}]`))
-
 /** New, restored and imported nodes use the same task-scoped defaults: the part's own, held to what the task offers. */
 export function taskDefaults(type, partOf, settingsIn) {
   const part=partOf(type)

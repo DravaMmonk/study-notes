@@ -16,6 +16,5 @@
       "question": { "zh": "插上总线，上面在说什么？", "en": "Plugged into the bus: what is being said on it?" },
       "foundation": ["1-1", "1-2", "1-3", "1-4", "1-5", "1-6", "1-7", "1-8", "1-9"]
     }
-  ],
-  "saves": []
+  ]
 }

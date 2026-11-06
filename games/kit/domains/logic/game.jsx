@@ -1,12 +1,11 @@
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
-// a machine board …), its parts box of proved lemmas and built parts, its map art and its save migrations (the operation set's).
+// a machine board …), its parts box of proved lemmas and built parts, and its map art.
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
-import { migrations } from '../../shell/saves.js'
 import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
 import IsoScreen, { DeclaredRules } from './ui/IsoScreen.jsx'
 import DefineScreen from './ui/DefineScreen.jsx'
@@ -33,8 +32,8 @@ const isoOf = (level) => level.tasks.find((t) => t.kind === 'iso') ?? null
 const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof')
 
 /**
- * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), saves:
- * migration steps (../../shell/saves.js), levels, glossary }.
+ * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
+ * glossary }.
  */
 export default function logicGame(content) {
   const logic = logicCourse(content)
@@ -88,7 +87,6 @@ export default function logicGame(content) {
     Hero,
     chapters: CHAPTERS.map((chapter, id) => ({ id, title: chapter.title, question: chapter.question, track: chapter.track })),
     levels,
-    progress: migrations(content.saves),
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
     kinds: {
