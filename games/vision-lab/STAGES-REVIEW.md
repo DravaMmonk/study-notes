@@ -15,32 +15,36 @@ ownership and connection navigation never enter the blueprint. Divider notes and
 Border changes retain existing node ids and therefore remain in their original stages. A valid-interior crop
 that is absent from a later board creates no empty stage. No unavailable reference board was encountered.
 
-## Miniature face
+## Component faces
 
-The studio's fourth pane was edited through its block controls, previewed live and applied through the operation
-set. Arithmetic now demonstrates a summary and bilingual text on that face. The schema rejects control settings,
-actions, ports, rows and widgets on miniatures. The other faces and circuit expressions are unchanged.
+Parts have three configurable faces: desktop card, phone tile and shared detail. The fourth miniature face and
+its schema, content and rendering were removed. Studio's live preview was inspected and contains exactly three
+panes. A folded component is the ordinary card with its body omitted; its head and real ports remain.
 
 ## Desktop folding
 
-The scanner opens with five course presets and its current parts. Desktop groups read the same slot-row
-dividers, notes and fold states as the phone. Folding changes only board layout metadata; the runner and
-blueprint APIs continue receiving the complete graph. SVG layout tests pass with the shared column layout.
-Automatic arrangement treats each section as a unit and reserves separate input and output columns.
+The scanner retains all 27 original cards when sections fold. Comparing the board before and after a section
+toggle found identical node identities and desktop x/y coordinates; only body height changed. Each group is a
+passive faint background derived from component bounds, with a note and fold control. It has no border, title
+bar, proxy ports or independent drag surface. Nested frames keep their cards and inherit folded bodies.
 
-## Phone slot dividers
+## Phone slot sections
 
-The accordion has been removed. At 390 × 844, compact parts remain on the original slot grid and folded sections
-occupy their divider line. Inserting a divider, naming it “取样与汇总”, folding it and reloading preserves the note
-and folded interval. There is no horizontal overflow. Compact and full views share one toggle button. Arrange
-orders parts within their existing section boundaries; it does not change wires or settings.
+At 390 × 844, section folding retains all 21 working-part tiles and their slot rows. All-fold mode marks every
+tile as folded and renders no tile values, settings or summaries. Section mode folds only its member bodies.
+Both views use the same card names and actual input/output dots, above the same faint section backgrounds.
+There is no horizontal overflow. Saved dividers and notes, insert/move/delete editing and undoable arrangement
+remain the same layout metadata. Deleting a divider never deletes a component.
 
 ## Connection labels
 
-Desktop and phone use the same crossing/fanout/length policy. Phone labels were followed from a folded kernel
+Desktop and phone share the same crossing/fanout/length policy when labels are enabled. Phone labels were followed from a folded kernel
 stage to its presmoothing source and back, opening the kernel stage and highlighting its paired labels. Desktop
 labels highlight the pair and pan to the destination. Multiple consumers are cycled from the single source tag.
-Tags are an interaction layer above cards; long cross-stage strokes are omitted, while intra-stage wires remain.
+Labels use actual component ports. There are no folded-boundary proxy ports or special crossing rules. Desktop
+defaults to continuous wires: with the original cards present, their actual endpoints make the data flow easier
+to follow without duplicate name tags. Phones default to labels because long wires cross many scrolling rows.
+An explicit per-game preference overrides either default. Both defaults and the override were tested.
 
 ## Open-part audit across all games
 
@@ -69,3 +73,12 @@ Q.E.D.'s map offers language and theme without the irrelevant manual-section opt
 per-game isolation, defaults, malformed/unavailable storage, validation, filtering, reset and subscriptions.
 
 Final verification: 416 tests passed; course checks, vocabulary snapshots, duplication, styles and all-game builds passed. The completed implementation plan was consolidated into DESIGN and PLAN.
+
+## Folding revision acceptance
+
+The scanner still passes every case after section toggles and note editing. Light and dark themes were inspected
+on desktop and phone. The Studio preview contains card/tile/detail only. The shared folding test covers nested
+frames and graph immutability; layout tests preserve section membership and circuit expressions. All 416 tests,
+content checks, vocabulary snapshots, duplication, styles and all-game builds passed. No vocabulary snapshot
+changed: the removed parts-file face is outside the domain vocabulary snapshots. Vision Lab's parts change was
+adopted through the operation log.
