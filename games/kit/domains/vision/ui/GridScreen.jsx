@@ -3,9 +3,9 @@ import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { fromRows } from '../image.js'
 import { askOf, gridCheck, gridStart } from '../grid.js'
-import ImageView from './ImageView.jsx'
+import GridView from '../../../shell/views/grid/GridView.jsx'
 import Strips from './Strips.jsx'
-import ImageInspector from './ImageInspector.jsx'
+import GridInspector from '../../../shell/views/grid/GridInspector.jsx'
 import CalculationAid from './CalculationAid.jsx'
 import RowsEditor, { NumberField } from './RowsEditor.jsx'
 
@@ -38,7 +38,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
   }
 
   const picture = (props) => (
-    <ImageInspector value={img} label={sourceLabel} {...props} />
+    <GridInspector value={img} label={sourceLabel} {...props} />
   )
   const coord = (key) => (
     <label className="vi-field is-inline">
@@ -54,7 +54,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
         {picture({ mark: { x: params.x, y: params.y } })}
         <p className="vi-label">{tr('改过之后的图', 'The image once changed')}</p>
         <RowsEditor rows={answer} onChange={update} />
-        {fromRows(answer) && <ImageView value={fromRows(answer)} cell={Math.max(8, Math.floor(200 / Math.max(img.w, img.h)))} />}
+        {fromRows(answer) && <GridView value={fromRows(answer)} cell={Math.max(8, Math.floor(200 / Math.max(img.w, img.h)))} />}
       </>
     ),
     pick: () => (
@@ -70,8 +70,8 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
   const naive = verdict && !verdict.pass && task.naive && JSON.stringify(answer) === JSON.stringify(task.naive.answer)
   const results = verdict ? (
     <div className="vi-results">
-      <p className={`vi-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('对了。', 'Right.') : L(verdict.why)}</p>
-      {naive && <p className="vi-verdict is-fail">{L(task.naive.why)}</p>}
+      <p className={`rv-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('对了。', 'Right.') : L(verdict.why)}</p>
+      {naive && <p className="rv-verdict is-fail">{L(task.naive.why)}</p>}
     </div>
   ) : null
   const dock = <RunDock go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />

@@ -1,5 +1,5 @@
-/* The net domain's screen (《从一根线开始》): its cards' families, and what the level wants in order, under the
-   waveform. The rest is the circuit base's (circuit/circuit.css .cs-). Colours come from the kit's tokens. */
+/* The net domain's screen (《从一根线开始》): its cards' families. The rest is the circuit base's (circuit/circuit.css
+   .cs-). Colours come from the kit's tokens. */
 [data-family='given'] { --fam: var(--w0); }
 [data-family='memory'] { --fam: var(--n2); }
 [data-family='value'] { --fam: var(--w3); }
@@ -7,5 +7,3 @@
 [data-family='built'] { --fam: var(--w5); }
 [data-family='end'] { --fam: var(--accent); }
 
-.net-order { margin: 0; font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
-.net-order b { color: var(--ink); font-weight: 500; font-family: var(--sans, inherit); }

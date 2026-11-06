@@ -30,6 +30,7 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
     kicker: content.kicker,
     lede: content.lede,
     glossary: content.glossary,
+    views: content.views,
     Hero,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),

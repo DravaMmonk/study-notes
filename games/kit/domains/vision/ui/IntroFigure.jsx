@@ -4,7 +4,7 @@ import { Rich } from '../../../shell/bench/Rich.jsx'
 import { fromRows } from '../image.js'
 import { pinholeView } from '../benches/pinhole.js'
 import CameraScene from './benches/CameraScene.jsx'
-import ImageView from './ImageView.jsx'
+import GridView from '../../../shell/views/grid/GridView.jsx'
 import FilterWindow from './FilterWindow.jsx'
 import SamplingRuler from './SamplingRuler.jsx'
 import TheoryFigure from './TheoryFigure.jsx'
@@ -22,7 +22,7 @@ export default function IntroFigure({ fig }) {
     return <div className="vi-intro-figure"><CameraScene setup={setup} q={q} bounds={{ height: 3, depth: 5 }} revealed /></div>
   }
   if (fig === 'samples') return <figure className="vi-intro-figure vi-intro-samples">
-    <ImageView value={fromRows([[0.1, 0.8, 0.3], [0.6, 0.2, 0.9]])} cell={56} numbers axes mark={{ x: 1, y: 0 }} />
+    <GridView value={fromRows([[0.1, 0.8, 0.3], [0.6, 0.2, 0.9]])} cell={56} numbers axes mark={{ x: 1, y: 0 }} />
     <figcaption><Rich text={tr('同一格有两种信息：位置 (1, 0)，读数 0.8。<wiki-ref to="pixel-coordinate-convention"></wiki-ref>', 'One cell has two kinds of information: position (1, 0), reading 0.8. <wiki-ref to="pixel-coordinate-convention"></wiki-ref>')} /></figcaption>
   </figure>
   if (fig === 'pixel-units') return <figure className="vi-intro-figure">

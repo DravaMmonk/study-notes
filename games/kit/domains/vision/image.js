@@ -1,7 +1,6 @@
 // Images and vectors, the values a vision board computes with besides numbers (games/DESIGN.md 6.8):
 //
-//   { w, h, c, data }   c: 1 (grey) or 3 (R, G, B); data row by row, a pixel's channels side by side:
-//                       the value of channel ch at (x, y) is data[(y * w + x) * c + ch]
+//   { w, h, c, data }   an image is the kernel's grid (../../engine/grid.js): c 1 (grey) or 3 (R, G, B)
 //
 //   { x, y }            a two-dimensional vector: an offset, per-axis radii, a coordinate pair
 //
@@ -9,9 +8,10 @@
 // [R, G, B] triples for colour. Values are real numbers and nothing here clips them: only drawing an image maps [0, 1]
 // onto black to white (display). Every function returns a new image and leaves its inputs as they were.
 import { T } from '../../shell/i18n.js'
+import { isGrid, pixel } from '../../engine/grid.js'
 
-
-export const isImage = (v) => v !== null && typeof v === 'object' && Number.isInteger(v.w) && Number.isInteger(v.h) && Array.isArray(v.data)
+export const isImage = isGrid
+export { pixel, display } from '../../engine/grid.js'
 export const isVector = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && Number.isFinite(v.x) && Number.isFinite(v.y)
 
 /** An image w × h of c channels, every value `value` (or each from fill(x, y, ch)). */
@@ -33,11 +33,6 @@ export function fromRows(rows) {
 /** An image's rows, as content writes it. */
 export const toRows = (img) => Array.from({ length: img.h }, (_, y) => Array.from({ length: img.w }, (_, x) => pixel(img, x, y)))
 
-/** The value at (x, y): a number for grey, [R, G, B] for colour. */
-export function pixel(img, x, y) {
-  const at = (y * img.w + x) * img.c
-  return img.c === 1 ? img.data[at] : img.data.slice(at, at + img.c)
-}
 
 /** A content value read: a number, 「—」 (null), or rows read into an image. */
 export const valueOf = (v) => (v === null || v === undefined || typeof v === 'number' ? v ?? null : isVector(v) ? { x: v.x, y: v.y } : fromRows(v))
@@ -82,5 +77,3 @@ export function fmt(v) {
 /** A value in a line of text: a number, or an image's rows. */
 export const show = (v) => (isVector(v) ? `(${fmt(v.x)}, ${fmt(v.y)})` : isImage(v) ? `[${toRows(v).map((r) => `[${r.map((p) => (Array.isArray(p) ? `(${p.map(fmt).join(',')})` : fmt(p))).join(', ')}]`).join(', ')}]` : fmt(v))
 
-/** What a stored value looks like on screen: clipped to [0, 1] for drawing only. */
-export const display = (v) => Math.min(1, Math.max(0, v))

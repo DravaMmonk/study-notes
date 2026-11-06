@@ -65,6 +65,9 @@ export function busOf({ idle = 12, frames = [], tail = 4 }) {
 }
 
 /** A node of the world saying a run of bits, one a tick (recessive once they run out: it says nothing). */
+/** The bus, as the card that hears it and the results name it. */
+export const BUS = T('总线', 'Bus')
+
 export const sayer = (id, bits) => ({ id, say: (tick) => (tick < bits.length ? bits[tick] : undefined), hear: () => null })
 
 /** What a bus game calls its tests: each is a bus, its frames on the line (../../engine/circuit-domain.js TEST_WORDS). */

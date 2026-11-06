@@ -1,0 +1,149 @@
+import { cellNumber, isGrid, pixel } from '../../engine/grid.js'
+import { L } from '../i18n.js'
+import Timeline from '../Timeline.jsx'
+import { WORDS } from '../words.js'
+import { useViewPicks } from './choice.js'
+import GridInspector from './grid/GridInspector.jsx'
+import ViewSwitch from './ViewSwitch.jsx'
+
+// A results area (games/DESIGN.md 6.10): the verdict first, then the rows content laid out (../../engine/views.js
+// rowsOf), each in the view the player picked among those its row offers. Rows of values a tick (bits, ticks) share one
+// time axis; one-value rows (scalar) run on one line; a grid or a list is a row of its own. An output shows the
+// board's result against the value wanted, what differs marked; before a run, only the value wanted.
+//
+//   <Results rows={rows} text={show} verdict={[line…]} at={tick} count={ticks} marks={[tick…]} />
+//   <ResultsSwitch rows={rows} />   the one switch in the results' head when every row with a choice offers the same
+//
+// text(value) is a value in words (the domain's); `at` the tick shown (−1 none), `count` how many ticks, `marks` the
+// ticks that went wrong.
+
+const TRACK = new Set(['bits', 'ticks'])
+
+/** Whether two values are the same, numbers within `tolerance`. */
+export function same(a, b, tolerance = 0) {
+  if (typeof a === 'number' && typeof b === 'number') return Math.abs(a - b) <= tolerance
+  if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, k) => same(v, b[k], tolerance))
+  if (a && b && typeof a === 'object' && typeof b === 'object') {
+    const keys = Object.keys(a)
+    return keys.length === Object.keys(b).length && keys.every((k) => same(a[k], b[k], tolerance))
+  }
+  return a === b
+}
+
+const isOutput = (entry) => !('given' in entry)
+const wrong = (entry) => isOutput(entry) && entry.got !== undefined && entry.want !== undefined && !TRACK.has(entry.shape) && !same(entry.got, entry.want, entry.tolerance)
+const listKey = (views) => views.join(' ')
+
+/** The views the rows share one switch for: those every row with a choice offers, when they all offer the same. */
+export function sharedViews(rows) {
+  const lists = [...new Set(rows.filter((r) => r.views.length > 1).map((r) => listKey(r.views)))]
+  return lists.length === 1 ? lists[0].split(' ') : null
+}
+
+export function ResultsSwitch({ rows }) {
+  const picks = useViewPicks()
+  const views = sharedViews(rows)
+  if (!views) return null
+  const shapes = [...new Set(rows.filter((r) => listKey(r.views) === listKey(views)).map((r) => r.entry.shape))]
+  return <ViewSwitch views={views} value={picks.of(shapes[0], views)} onChange={(v) => picks.pick(shapes, v)} />
+}
+
+/** One value on a line: its label, then the value given, or the result against the value wanted. */
+function Chip({ entry, text }) {
+  const { label, given, got, want } = entry
+  const t = (v) => L(text(v))
+  let shown
+  if (!isOutput(entry)) shown = t(given)
+  else if (got === undefined) shown = <i className="rv-want">{t(want)}</i>
+  else if (want === undefined) shown = t(got)
+  else shown = wrong(entry) ? <><span className="is-fail">{t(got)}</span><i className="rv-want">{L(WORDS.wanted)} {t(want)}</i></> : <span className="is-pass">{t(got)}</span>
+  return <span className="rv-chip"><b>{L(label)}</b>{shown}</span>
+}
+
+const cellText = (p) => (Array.isArray(p) ? p.map((v, k) => `${'RGB'[k]} ${cellNumber(v)}`).join(' · ') : cellNumber(p))
+
+/** A grid: the value given, or the result beside the value wanted, the cells that differ marked on the result. */
+function GridRow({ entry, view, text, tool }) {
+  const { label, given, got, want, tolerance = 0 } = entry
+  const shown = !isOutput(entry) ? [[null, given]] : got === undefined ? [[WORDS.wanted, want]] : [[WORDS.result, got], [WORDS.wanted, want]]
+  const paired = isGrid(got) && isGrid(want) && got.w === want.w && got.h === want.h && (got.c ?? 1) === (want.c ?? 1)
+  const differs = paired ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
+  const read = paired ? (x, y) => <><span>{L(WORDS.result)} {cellText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {cellText(pixel(want, x, y))}</span></> : undefined
+  return (
+    <section className="rv-row" data-fail={wrong(entry) || undefined}>
+      <h4>{L(label)}{tool}</h4>
+      <div className="rv-pair">
+        {shown.map(([word, v], k) => (isGrid(v)
+          ? <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!paired || k === shown.length - 1} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read} />
+          : <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>))}
+      </div>
+    </section>
+  )
+}
+
+/** A few values in order: the values given, or the result over the values wanted. */
+function ListRow({ entry, text, tool }) {
+  const line = (values) => (values?.length ? values.map((v) => L(text(v))).join(' ') : '—')
+  const { label, given, got, want } = entry
+  return (
+    <section className="rv-row" data-fail={wrong(entry) || undefined}>
+      <h4>{L(label)}{tool}</h4>
+      {!isOutput(entry) ? <p className="rv-seq">{line(given)}</p> : <>
+        {got !== undefined && <p className="rv-seq">{line(got)}</p>}
+        <p className="rv-seq rv-want">{L(WORDS.wanted)} {line(want)}</p>
+      </>}
+    </section>
+  )
+}
+
+/** Rows of values a tick, on one time axis: a lane a value given, or a result and the values wanted under it. */
+function Track({ rows, text, at, count, marks }) {
+  const lanes = rows.flatMap(({ entry, view, tool }) => {
+    const kind = view === 'wave' ? 'wave' : 'value'
+    if (!isOutput(entry)) return [{ key: entry.of, label: entry.label, kind, ticks: entry.given, tool }]
+    return [
+      { key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], tool },
+      ...(Array.isArray(entry.want) ? [{ key: `${entry.of}:want`, label: WORDS.wanted, kind, ticks: entry.want.map((v) => (v === undefined ? null : v)) }] : []),
+    ]
+  })
+  return (
+    <>
+      <Timeline lanes={lanes.map((lane) => ({ text: (v) => L(text(v)), ...lane }))} count={count} at={at} marks={marks} />
+      {rows.filter((r) => r.entry.order).map(({ entry }) => (
+        <p key={entry.of} className="rv-order"><b>{L(entry.label)}</b> · {L(entry.order.words)}: {entry.order.values.map((v) => L(text(v))).join(' ') || '—'}</p>
+      ))}
+    </>
+  )
+}
+
+/** Consecutive rows that go together: those a tick on one axis, one-value rows on one line. */
+function groups(rows) {
+  const kind = (r) => (TRACK.has(r.entry.shape) ? 'track' : r.entry.shape === 'scalar' ? 'line' : 'rows')
+  const out = []
+  for (const r of rows) {
+    const last = out.at(-1)
+    if (last?.kind === kind(r)) last.rows.push(r)
+    else out.push({ kind: kind(r), rows: [r] })
+  }
+  return out
+}
+
+export default function Results({ rows, text, verdict = [], at = -1, count = 0, marks = [] }) {
+  const picks = useViewPicks()
+  const shared = sharedViews(rows)
+  const drawn = rows.map((r) => {
+    const view = picks.of(r.entry.shape, r.views)
+    const tool = !shared && r.views.length > 1 ? <ViewSwitch views={r.views} value={view} onChange={(v) => picks.pick([r.entry.shape], v)} compact /> : null
+    return { ...r, view, tool }
+  })
+  return (
+    <div className="rv">
+      {verdict.filter(Boolean).map((line, k) => <p key={k} className="rv-verdict is-fail">{L(line)}</p>)}
+      {groups(drawn).map((g, k) => {
+        if (g.kind === 'track') return <Track key={k} rows={g.rows} text={text} at={at} count={count} marks={marks} />
+        if (g.kind === 'line') return <p key={k} className="rv-line">{g.rows.map((r) => <Chip key={r.entry.of} entry={r.entry} text={text} />)}</p>
+        return <div key={k} className="rv-rows">{g.rows.map((r) => (r.entry.shape === 'grid' ? <GridRow key={r.entry.of} entry={r.entry} view={r.view} text={text} tool={r.tool} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
+      })}
+    </div>
+  )
+}

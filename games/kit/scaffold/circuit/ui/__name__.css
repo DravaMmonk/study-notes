@@ -1,14 +1,7 @@
-/* The __name__ domain's screen: its cards' families, and the test under the board. The rest is the circuit base's
+/* The __name__ domain's screen: its cards' families. The rest is the circuit base's
    (circuit/circuit.css .cs-). Colours come from the kit's tokens. */
 [data-family='given'] { --fam: var(--w0); }
 [data-family='value'] { --fam: var(--w3); }
 [data-family='built'] { --fam: var(--w5); }
 [data-family='end'] { --fam: var(--accent); }
 
-.__name__-test { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; margin: 0; font: 15px var(--mono); font-variant-numeric: tabular-nums; }
-.__name__-pair { display: inline-flex; align-items: baseline; gap: 8px; }
-.__name__-pair b { color: var(--muted); font: 500 12px var(--sans, inherit); }
-.__name__-to { color: var(--faint); }
-.__name__-pair .is-pass { color: var(--status); font-weight: 600; }
-.__name__-pair .is-fail { color: var(--fail); font-weight: 600; }
-.__name__-want { color: var(--muted); font-style: normal; font-size: 13px; }

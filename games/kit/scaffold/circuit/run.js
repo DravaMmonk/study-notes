@@ -3,6 +3,8 @@
 // checked against what the test expects.
 //
 // runTest(level, circuit, test, partOf) → { values, errors, outputs, trace, fail? }   fail: { name, want, got, why }
+// entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): each input given
+//   (left out by default: the input cards show it), each output against what the test expects
 import { runBoard } from '../../engine/boards.js'
 import { T } from '../../shell/i18n.js'
 
@@ -28,3 +30,8 @@ export function runLevel(level, circuit, partOf) {
   const runs = level.tests.map((test) => runTest(level, circuit, test, partOf))
   return { runs, pass: runs.every((r) => !r.fail) }
 }
+
+export const entries = ({ task, test, run }) => [
+  ...task.inputs.map((i) => ({ of: i.name, label: i.label, shape: 'scalar', given: test.inputs[i.name], shown: false })),
+  ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'scalar', got: run.outputs[o.name] ?? null, want: test.expect[o.name] })),
+]

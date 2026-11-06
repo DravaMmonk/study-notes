@@ -148,6 +148,8 @@
   --t-ink: #1f1d18;
   --tag-ink: #ffffff;
   --bot-body: #ffffff; --bot-line: #2a2a26; --bot-ant: #3b3a35;
+  /* A grid's numbers on its cells, dark on light cells and light on dark: the cells are their values, not the theme. */
+  --grid-ink-dark: #1b1f24; --grid-ink-light: #f4f6f8;
 }
 
 :root[data-theme='night'], :root[data-theme='blueprint'] {

@@ -17,6 +17,7 @@ import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slot
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
 import { EditContext, same } from './edit.js'
+import { ViewsContext } from './views/choice.js'
 
 // Each game links back to its parent hub, on the standalone site and the local dev server.
 const SITE = { games: '../index.html' }
@@ -286,112 +287,115 @@ export default function GameShell({ game, store, author = null }) {
     setGone(wanted.n)
     if (wanted.task !== taskAt) goTask(wanted.task)
   }
+  const views = useMemo(() => ({ game: game.id, defaults: game.views ?? null }), [game])
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (
-    <div ref={viewportRoot} className={`game ${level ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
-      {/* The kit's top bar (games/kit/ui.css), the same on every page of the notes and games. */}
-      <header className="kit-bar game-bar">
-        {level ? (
-          <>
-            <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('返回关卡地图', 'Back to the level map')}><ArrowLeft size={16} /><span>{tr('地图', 'Map')}</span></button>
-            <button className={`kit-btn is-label bar-button drawer-toggle ${drawer ? 'is-on' : ''}`} onClick={() => setDrawer(!drawer)} aria-pressed={drawer} aria-label={tr('关卡', 'Levels')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
-          </>
-        ) : (
-          <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('返回游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
-        )}
-        <span className="kit-brand game-brand"><i className="kit-chip" aria-hidden="true" /><span>{L(game.title)}</span></span>
-        {level && (
-          <span className="game-level-title">
-            <b>{game.levelLabel(level)}</b>
-            <span {...titleMark}>{L(level.title)}</span>
-            {chapter && <small>{L(chapter.title)}</small>}
-          </span>
-        )}
-        {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(introKey)} aria-label={tr('引言', 'Intro')}><BookOpen size={16} /><span>{tr('引言', 'Intro')}</span></button>}
-        {edit && !intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => edit.add({ at: 'intro', scope: taskAt === 0 ? 'level' : 'task' })}><BookOpen size={16} /><span>{tr('+ 引言', '+ Intro')}</span></button>}
-        {level && game.glossary && (
-          <button className="kit-btn is-label bar-button notes-button wiki-button" onClick={() => setSheet('wiki')} aria-label={tr(`百科${wiki.unread.length ? `（${wiki.unread.length} 条未读）` : ''}`, `Encyclopedia${wiki.unread.length ? ` (${wiki.unread.length} unread)` : ''}`)}>
-            <BookMarked size={16} /><span>{tr('百科', 'Encyclopedia')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
-          </button>
-        )}
-        {/* Filled by menu.js: React leaves it empty. */}
-        <div className="kit-actions" ref={actions} />
-      </header>
-
-      {!level && (
-        <LevelMap
-          game={game}
-          progress={progress}
-          solved={solved}
-          onAll={(all) => setProgress((p) => ({ ...p, all }))}
-          onOpen={open}
-          focus={left}
-          onReset={() => setProgress(store.blank())}
-          onParts={game.parts && (() => setSheet('parts'))}
-          partsNew={box.unread.length}
-          onWiki={game.glossary && (() => setSheet('wiki'))}
-          unread={wiki.unread.length}
-          theme={theme}
-        />
-      )}
-      {level && (
-        <div className="level-shell">
-          {drawer && <div className="drawer-scrim" onClick={() => setDrawer(false)} />}
-          {drawer && (
-            <LevelDrawer
-              game={game}
-              current={level.id}
-              solved={solved}
-              all={progress.all}
-              onClose={() => setDrawer(false)}
-              onOpen={(id) => {
-                open(id)
-                setDrawer(false)
-              }}
-            />
+    <ViewsContext.Provider value={views}>
+      <div ref={viewportRoot} className={`game ${level ? 'is-playing' : 'is-mapping'}`} data-game={game.id}>
+        {/* The kit's top bar (games/kit/ui.css), the same on every page of the notes and games. */}
+        <header className="kit-bar game-bar">
+          {level ? (
+            <>
+              <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('返回关卡地图', 'Back to the level map')}><ArrowLeft size={16} /><span>{tr('地图', 'Map')}</span></button>
+              <button className={`kit-btn is-label bar-button drawer-toggle ${drawer ? 'is-on' : ''}`} onClick={() => setDrawer(!drawer)} aria-pressed={drawer} aria-label={tr('关卡', 'Levels')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
+            </>
+          ) : (
+            <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('返回游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
           )}
+          <span className="kit-brand game-brand"><i className="kit-chip" aria-hidden="true" /><span>{L(game.title)}</span></span>
+          {level && (
+            <span className="game-level-title">
+              <b>{game.levelLabel(level)}</b>
+              <span {...titleMark}>{L(level.title)}</span>
+              {chapter && <small>{L(chapter.title)}</small>}
+            </span>
+          )}
+          {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(introKey)} aria-label={tr('引言', 'Intro')}><BookOpen size={16} /><span>{tr('引言', 'Intro')}</span></button>}
+          {edit && !intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => edit.add({ at: 'intro', scope: taskAt === 0 ? 'level' : 'task' })}><BookOpen size={16} /><span>{tr('+ 引言', '+ Intro')}</span></button>}
+          {level && game.glossary && (
+            <button className="kit-btn is-label bar-button notes-button wiki-button" onClick={() => setSheet('wiki')} aria-label={tr(`百科${wiki.unread.length ? `（${wiki.unread.length} 条未读）` : ''}`, `Encyclopedia${wiki.unread.length ? ` (${wiki.unread.length} unread)` : ''}`)}>
+              <BookMarked size={16} /><span>{tr('百科', 'Encyclopedia')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
+            </button>
+          )}
+          {/* Filled by menu.js: React leaves it empty. */}
+          <div className="kit-actions" ref={actions} />
+        </header>
+
+        {!level && (
+          <LevelMap
+            game={game}
+            progress={progress}
+            solved={solved}
+            onAll={(all) => setProgress((p) => ({ ...p, all }))}
+            onOpen={open}
+            focus={left}
+            onReset={() => setProgress(store.blank())}
+            onParts={game.parts && (() => setSheet('parts'))}
+            partsNew={box.unread.length}
+            onWiki={game.glossary && (() => setSheet('wiki'))}
+            unread={wiki.unread.length}
+            theme={theme}
+          />
+        )}
+        {level && (
+          <div className="level-shell">
+            {drawer && <div className="drawer-scrim" onClick={() => setDrawer(false)} />}
+            {drawer && (
+              <LevelDrawer
+                game={game}
+                current={level.id}
+                solved={solved}
+                all={progress.all}
+                onClose={() => setDrawer(false)}
+                onOpen={(id) => {
+                  open(id)
+                  setDrawer(false)
+                }}
+              />
+            )}
+            <EditContext.Provider value={edit}>
+              {kind
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
+                : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
+            </EditContext.Provider>
+          </div>
+        )}
+        {intro && (introFor === introKey || (!edit && (progress.seenPower || !game.power) && !progress.introSeen?.[introKey])) && (
           <EditContext.Provider value={edit}>
-            {kind
-              ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
-              : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
+          <IntroSheet
+            key={introKey}
+            game={game}
+            level={level}
+            pages={pages}
+            marks={pageMarks}
+            step={taskAt > 0 ? tasks[taskAt].step : null}
+            theme={theme}
+            onClose={() => {
+              setIntroFor(null)
+              setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [introKey]: true } }))
+            }}
+          />
           </EditContext.Provider>
-        </div>
-      )}
-      {intro && (introFor === introKey || (!edit && (progress.seenPower || !game.power) && !progress.introSeen?.[introKey])) && (
-        <EditContext.Provider value={edit}>
-        <IntroSheet
-          key={introKey}
-          game={game}
-          level={level}
-          pages={pages}
-          marks={pageMarks}
-          step={taskAt > 0 ? tasks[taskAt].step : null}
-          theme={theme}
-          onClose={() => {
-            setIntroFor(null)
-            setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [introKey]: true } }))
-          }}
-        />
-        </EditContext.Provider>
-      )}
-      {taskWon !== null && (
-        <TaskDoneDialog game={game} level={level} task={tasks[taskWon]} index={taskWon} next={tasks[taskWon + 1]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon + 1)} />
-      )}
-      {won && level && won === level.id && (
-        <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
-      )}
-      {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
-      {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
-      {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
-      {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。', 'Unlocked by passing this level.') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。', 'Unlocks later in the game.')]} actions={[[tr('确定', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
-      {target && (game.isOpen(target, solved, progress.all)
-        ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你正在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，可以随时返回。', 'This level’s board and progress are kept; you can return at any time.')]} actions={target.id === level?.id ? [[tr('确定', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
-        : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」尚未解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('请先通过它的前置关卡。', 'Pass the levels that lead to it first.')]} actions={[[tr('确定', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
-      {game.power && !progress.seenPower && (
-        <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
-      )}
-    </div>
+        )}
+        {taskWon !== null && (
+          <TaskDoneDialog game={game} level={level} task={tasks[taskWon]} index={taskWon} next={tasks[taskWon + 1]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon + 1)} />
+        )}
+        {won && level && won === level.id && (
+          <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
+        )}
+        {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
+        {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
+        {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
+        {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。', 'Unlocked by passing this level.') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。', 'Unlocks later in the game.')]} actions={[[tr('确定', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
+        {target && (game.isOpen(target, solved, progress.all)
+          ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你正在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，可以随时返回。', 'This level’s board and progress are kept; you can return at any time.')]} actions={target.id === level?.id ? [[tr('确定', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
+          : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」尚未解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('请先通过它的前置关卡。', 'Pass the levels that lead to it first.')]} actions={[[tr('确定', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
+        {game.power && !progress.seenPower && (
+          <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
+        )}
+      </div>
+    </ViewsContext.Provider>
   )
 }
 

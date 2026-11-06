@@ -10,6 +10,9 @@
 // runTest(level, circuit, test, parts) → { ticks: [{ tick, values, errors, outputs, bind, trace, failed? }], want,
 //   fail?, final? }: a tick's `failed` is why something was wrong on it, `final` why the run as a whole was (an order
 //   or the far end); `fail` the first of them
+// entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): what arrives on
+//   each wire in, the inputs, the head of the queue, and each wire out and output against what is wanted, tick by
+//   tick or in order
 import { boardNode } from '../../engine/ticks.js'
 import { farEnd } from './wants.js'
 import { T } from '../../shell/i18n.js'
@@ -91,3 +94,19 @@ export function runLevel(level, circuit, parts) {
 }
 
 export { show }
+
+const labelOf = (list, name) => list.find((x) => x.name === name).label
+
+export function entries({ task, test, run }) {
+  const wire = (name) => (task.wires?.out ?? []).some((w) => w.name === name)
+  const pulled = [task.pulls?.input, task.pulls?.last]
+  return [
+    ...(task.wires?.in ?? []).map((w) => ({ of: w.name, label: w.label, shape: 'bits', given: test.wires[w.name] })),
+    ...(task.inputs ?? []).filter((i) => !pulled.includes(i.name)).map((i) => ({ of: i.name, label: i.label, shape: 'ticks', given: test.inputs[i.name] ?? [] })),
+    ...(task.pulls ? [{ of: task.pulls.input, label: labelOf(task.inputs, task.pulls.input), shape: 'ticks', got: run.ticks.map((t) => t.bind[task.pulls.input]) }] : []),
+    ...checked(task).map((o) => {
+      const want = run.want[o.name]
+      return { of: o.name, label: o.label, shape: wire(o.name) ? 'bits' : 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: want?.ticks, ...(want?.order ? { order: { values: want.order, words: want.words } } : {}) }
+    }),
+  ]
+}

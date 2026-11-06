@@ -9,7 +9,7 @@
 //   bench    the model's data fit it (its verify), and the lesson holds (benches/lesson.js): each step's start fails and
 //            some setting passes, every naive setting fails, every setting that passes meets `holds`
 import { checkCircuitTasks } from '../../engine/circuit-domain.js'
-import { runLevel, runTest } from './run.js'
+import { entries, runLevel, runTest } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { judgeOf, naiveRound } from './judges.js'
 import { lessonProblems } from './benches/lesson.js'
@@ -71,6 +71,7 @@ function benchSaid(task) {
 export function validate({ circuit }) {
   return checkCircuitTasks(circuit, {
     run: runLevel,
+    entries,
     failure: (r) => (r.fail ? `(${r.fail.why.en})` : ''),
     more: (task, _k, _tasks, held) => settingsSaid(task, held, circuit),
     kinds: { grid: gridSaid, choice: choiceSaid, bench: benchSaid },

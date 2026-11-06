@@ -5,6 +5,11 @@
 // Replace the rule (lineOf) and the world (the test's `line`) with the topic's own: a CAN bus is dominant when anyone
 // says dominant (../domains/can/bus.js); a wire carries one sender's bits to the far end after a delay.
 
+import { T } from '../../shell/i18n.js'
+
+/** The line, as the card that hears it and the results name it. */
+export const LINE = T('线', 'Line')
+
 /** The line made of what the nodes said this tick ([0 | 1 | undefined]). */
 export const lineOf = (said) => (said.some((v) => v === 1) ? 1 : 0)
 
