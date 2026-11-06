@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { stagesOf } from '../engine/stages.js'
 import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { viewAt } from '../engine/trace.js'
@@ -127,6 +128,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const state = useLevelBoard(screen, { open: (saved) => hold(fitted(saved)), fresh: () => hold(opening()) })
   const board = ready ? { ...state, change: (next, options) => state.change(hold(next), options) } : state
   const { circuit: drawn, change } = board
+  const stages = useMemo(() => stagesOf({ task: level, board: board.circuit, chain: circuit.stageChain(level, progress.built), isFixed: (n) => kind.isFixed(n.type) }), [level, board.circuit, circuit, progress.built, kind])
   const [revealed] = useState(solved)
   const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
   const checked = useMemo(() => runOn({ ...level, tests }, drawn, circuit.partOf), [level, tests, board.version, circuit])
@@ -207,6 +209,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
 
   return (
     <CircuitLevel
+      stages={stages}
       screen={screen}
       board={board}
       run={run}

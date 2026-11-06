@@ -167,7 +167,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, parts: given, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, dense = true, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts: given, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, dense = true, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const { circuit, change } = board
   const ownRoot = useRef(null)
@@ -230,6 +230,7 @@ export default function CircuitLevel({ screen, board, run, parts: given, defined
         <div className="cl-stage">
           <div className="cl-board">
             <CanvasEditor
+              stages={stages}
               key={level.id}
               scope={scope ?? level.id}
               graph={circuit}

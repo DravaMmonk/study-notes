@@ -302,6 +302,22 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const wires = task.starter?.wires.filter((w) => addedIds.has(w.to)) ?? []
       return { nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
     },
+    // The passed boards that led to this task, oldest first. Missing boards contribute no ownership.
+    stageChain: (task, built = {}) => {
+      const chain = []
+      const seen = new Set([task.taskId])
+      const visit = (current) => {
+        const previous = current.carry ? played.get(current.carry)?.at(-1) : current.carries ? played.get(current.id)?.[current.task - 1] : null
+        if (!previous || seen.has(previous.taskId)) return
+        seen.add(previous.taskId)
+        visit(previous)
+        const saved = built[previous.taskId]
+        const b = saved?.nodes ? saved : previous.solution
+        if (b?.nodes) chain.push({ id: previous.taskId, label: previous.stage ?? byId.get(previous.id).title, board: b })
+      }
+      visit(task)
+      return chain
+    },
     views: content.views ?? null,
     // The shell keeps boards by task (../shell/progress.js): a level's part runs its last task's.
     syncOwn: (built = {}) => {
@@ -341,6 +357,7 @@ const BUILDS = S.opt(S.obj(BUILT_PART, { section: 'course', about: t('通过后�
 export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show: S.opt(SHOW) }), ports, test, checks = {}, more = {}, shared = {}, kinds = null }) => {
   const own = {
     ...shared,
+    stage: S.opt(S.text({ section: 'read', about: t('这次升级留下的管线分段名称', 'the pipeline stage this upgrade contributes') })),
     brief: S.text(),
     hint: S.opt(S.list(S.text())),
     intro: S.opt(S.list(page, { section: 'read', about: t('这个任务自己的引言：第一次做到它时读（第一个任务的接在这一关的后面）', 'the task’s own intro: read the first time it is played (the first task’s after the level’s)') })),
