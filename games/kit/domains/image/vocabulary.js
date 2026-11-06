@@ -5,7 +5,7 @@
 // The items are implemented next to their schemas: parts in engine/nodes.js and engine/parts/, pictures, scenes,
 // targets, budgets, bench models and bench displays in items/.
 import { S } from '../../engine/schema.js'
-import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
@@ -137,7 +137,6 @@ const GAME = S.obj({
   replaces: S.map(S.list(S.ref('part')), { about: t('一个元件出现后取代的元件', 'the parts a part supersedes once met') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）', 'the level each way of drawing a picture comes with (pixels from the start)') }),
   eras: S.list(ERA, { min: 1 }),
-  saves: SAVES,
   box: S.obj({
     sample: S.level({ about: t('没有测试的关解锁的元件，在这一关的测试图上试', 'the level whose pictures a part from a level without tests is tried on') }),
     inLevel: S.map(S.level(), { about: t('在这一关的参考电路里试的元件', 'parts tried inside a level’s own reference circuit') }),

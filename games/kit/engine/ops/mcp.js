@@ -25,7 +25,7 @@ const METHODS = {
     protocolVersion: SUPPORTED.includes(protocolVersion) ? protocolVersion : PROTOCOL,
     capabilities: { tools: { listChanged: false } },
     serverInfo: { name: 'study-notes-games', version: '1.0.0' },
-    instructions: 'Tools over the Turing-Complete-style games in games/: read a game’s vocabulary first; every change is a changeset (modify), checked as a whole and written only when it passes, with its save migration generated.',
+    instructions: 'Tools over the Turing-Complete-style games in games/: read a game’s vocabulary first; every change is a changeset (modify), checked as a whole and written only when it passes.',
   }),
   ping: () => ({}),
   'tools/list': () => ({ tools: Object.entries(TOOLS).map(([name, tool]) => ({ name, description: tool.about, inputSchema: inputSchema(tool.params) })) }),

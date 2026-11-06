@@ -1,10 +1,9 @@
 // A table game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the table domain's screen (every level played through its mode), its
-// parts box by robot, its intro pictures and its save migrations.
+// parts box by robot, and its intro pictures.
 import { Cable, Grid3x3 } from 'lucide-react'
 import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
-import { migrations } from '../../shell/saves.js'
 import { eraLevels, introductions, isCore, pathLevels } from '../../course.js'
 import LevelScreen from './ui/LevelScreen.jsx'
 import Hero from './ui/hero.jsx'
@@ -24,9 +23,8 @@ function IntroFigure({ fig }) {
 }
 
 /**
- * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, parts, saves: migration steps
- * (../../shell/saves.js),
- * borrow?: { part: level id } the level whose board a part that is an idea is tried on, levels, glossary }.
+ * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, parts, borrow?: { part: level id }
+ * the level whose board a part that is an idea is tried on, levels, glossary }.
  */
 export default function tableGame(content) {
   const table = tableCourse(content)
@@ -86,7 +84,6 @@ export default function tableGame(content) {
     Hero,
     chapters: CHAPTERS.map((chapter, id) => ({ id, kicker: chapter.kicker, title: chapter.name, question: chapter.desc, track: TRACKS.get(chapter.era) })),
     levels,
-    progress: migrations(content.saves),
     // Numbered as in CURRICULUM.md: 1-4 on an era's main path, S2 in a topic, C1 for a challenge.
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.intro,

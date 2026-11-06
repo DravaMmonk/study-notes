@@ -20,6 +20,5 @@ import Screen from './ui/Screen.jsx'
 import { CARDS } from './ui/catalog.js'
 import { __name__Course } from './course.js'
 
-/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, saves: migration steps
- *  (../../shell/saves.js), levels, glossary }. */
+/** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
 export default (content) => circuitGame(content, __name__Course(content), { kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, Screen, cards: CARDS })

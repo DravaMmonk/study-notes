@@ -92,12 +92,5 @@
         "3-8"
       ]
     }
-  ],
-  "saves": [
-    {
-      "version": 2,
-      "why": "tasks are kept by their ids, no longer by their place in the level",
-      "ops": [{ "retask": { "2-4#0": "2-4_1", "2-4#1": "2-4_2" } }]
-    }
   ]
 }

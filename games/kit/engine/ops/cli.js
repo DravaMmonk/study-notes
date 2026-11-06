@@ -8,9 +8,9 @@
 //   npm run op -- <game> log                               the change log, and the files changed outside it
 //   npm run op -- <game> adopt --why <text>                take the files as they are into the log
 //
-// --dry-run prints the diff and the save migration and writes nothing; --why "…" says why (a save step keeps it where
-// the game's schema has room for it); --json prints the result as JSON. A changeset that fails any check is never
-// written, and the command exits 1. GAMES_ROOT points it at a copy of the games folder.
+// --dry-run prints the diff and writes nothing; --why "…" says why (the change log keeps it); --json prints the result
+// as JSON. A changeset that fails any check is never written, and the command exits 1. GAMES_ROOT points it at a copy
+// of the games folder.
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { OPERATIONS } from './operations.js'
@@ -43,7 +43,7 @@ const [game] = knownGames(words.slice(0, 1), USAGE)
 const ws = openGame(game, process.env.GAMES_ROOT ?? GAMES_DIR)
 const [what, ...rest] = words.slice(1)
 if (what === 'log') {
-  for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}${e.step ? `  ·  save version ${e.step.version}` : ''}`)
+  for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}`)
   const drift = driftOf(ws, ws.onDisk())
   if (drift.length) console.log(`changed outside the log: ${drift.join(', ')} (adopt --why "…" takes them as they are)`)
   process.exit(0)
@@ -70,9 +70,7 @@ await closeGames()
 if (flag('--json')) console.log(JSON.stringify(result, null, 2))
 else {
   for (const line of result.says) console.log(line)
-  for (const note of result.notes) console.log(`note: ${note}`)
   for (const p of result.problems) console.log(`FAIL ${p}`)
-  console.log(`save migration: ${result.step ? JSON.stringify(result.step) : 'none'}`)
   if (flag('--dry-run') || !result.ok) console.log(result.diff)
   console.log(result.ok ? (options.write ? `written: ${result.files.join(', ') || 'nothing changed'}` : 'dry run: nothing written') : 'refused: nothing written')
 }

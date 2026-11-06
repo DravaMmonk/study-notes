@@ -1,7 +1,6 @@
 // Where a game's content names a level: every field its domain's schema types as a level (schema.js S.level, the
 // eras' items included), every <level-ref> link inside a text, and the audit findings game.json leaves open
-// ('part@level'). The save migrations already written (game.json saves) name the ids of older versions and are never
-// rewritten.
+// ('part@level').
 import { find } from '../schema.js'
 import { GLOSSARY } from '../vocabulary.js'
 import { setAt } from './edit.js'

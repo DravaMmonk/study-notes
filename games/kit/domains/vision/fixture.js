@@ -41,6 +41,6 @@ export function game({ levels, primitives = addsOf(levels), eras, concept = {} }
     id: 'fixture', domain: 'vision', vocabulary: 1, title: T('Fixture'), kicker: T('Test'), lede: T('Test'),
     primitives, concept,
     eras: eras ?? [{ id: 0, title: T('Era'), question: T('Question'), foundation: levels.map((l) => l.id) }],
-    saves: [], levels, glossary: { groups: [], entries: [] }, partDefs: FIXTURE_PARTS,
+    levels, glossary: { groups: [], entries: [] }, partDefs: FIXTURE_PARTS,
   }
 }

@@ -7,7 +7,7 @@
 // run.js, plays in ui/, the moves of a hand session in hand.js, the repositories and issues in world.js.
 
 import { S } from '../../engine/schema.js'
-import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -126,7 +126,6 @@ const GAME = S.obj({
   eras: S.list(ERA, { min: 1 }),
   repos: S.map(REPO),
   issues: S.map(ISSUE),
-  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({

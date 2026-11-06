@@ -1,13 +1,12 @@
 // A syntax game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the syntax domain's level screen (a long sentence taken apart: modifiers
 // folded onto their words, the skeleton marked), its components box (the roles and constructions), its map art (the
-// composing stick, games/stick) and its save migrations.
+// composing stick, games/stick).
 //
 //   vocabulary.js       what a syntax game's content may name
 //   course.js           content read into levels, play order and the course the audit checks
 //   model/sentence.js   tokens, folds and roles; an analysis checked against the answer
 //   model/parts.js      the roles of the skeleton and the constructions a modifier is folded as
-//   items/              the vocabulary items content calls (save migrations)
 //   ui/                 the level screen (desktop and phone) and the map's picture
 //   domain.js           the vocabulary, spec and checks for npm run check (validate.js)
 //   syntax.test.js      folding, refusals, the check, the content contract (npm test)
@@ -16,7 +15,6 @@ import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
-import { migrations } from '../../shell/saves.js'
 import { tr } from '../../shell/i18n.js'
 import Analyze from './ui/Analyze.jsx'
 import Hero from './ui/Hero.jsx'
@@ -29,8 +27,7 @@ const ICON = { 'role:subj': Rows3, 'role:verb': Rows3, 'role:obj': Rows3, 'role:
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 const textOf = (key) => (key.startsWith('role:') ? ROLES[key.slice(5)] : TYPES[key])
 
-/** content (../../engine/content.js): { id, title, kicker, lede, eras, saves: migration steps
- *  (../../shell/saves.js), levels, glossary }. */
+/** content (../../engine/content.js): { id, title, kicker, lede, eras, levels, glossary }. */
 export default function syntaxGame(content) {
   const { LEVELS, CHAPTERS, course } = syntaxCourse(content)
   const parts = [...introductions(course)].map(([key, at]) => ({ key, name: textOf(key).name, desc: textOf(key).desc, icon: ICON[key] ?? SquareStack, at }))
@@ -60,7 +57,6 @@ export default function syntaxGame(content) {
       note: L.debrief.note,
       tasks: L.tasks.map((t) => ({ key: t.id, ...defined({ step: t.step, brief: t.brief, hint: t.hint, intro: t.intro, after: t.after }), source: t })),
     })),
-    progress: migrations(content.saves),
     intro: (level) => level.source.intro,
     // What a level brings in: the roles and constructions it adds, named once it is passed.
     unlocked: (level) => (level.source.adds ?? []).map((key) => named.get(key)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon })),

@@ -8,7 +8,7 @@
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
 import { S } from '../../engine/schema.js'
-import { SAVES, defineVocabulary } from '../../engine/vocabulary.js'
+import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { RULES } from './proof.js'
 import { PRIMITIVE_GATES } from './gates.js'
@@ -227,7 +227,6 @@ const GAME = S.obj({
   revisions: S.opt(S.map(S.list(REVISION), { about: t('元件的说明和形状随课程长', 'how a part’s description and shapes grow along the course') })),
   eras: S.list(ERA, { min: 1 }),
   quotes: S.opt(S.list(S.str(), { about: t('文案里可以直接引用、不用链接的名字', 'names copy may quote rather than link') })),
-  saves: SAVES,
 })
 
 export const vocabulary = defineVocabulary({

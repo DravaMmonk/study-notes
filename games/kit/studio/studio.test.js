@@ -160,10 +160,10 @@ test('a changed file reads field by field: texts and boards whole, objects and l
 })
 
 test('a list that grew or shrank shows only the items added or removed, and items changed in place looked into', () => {
-  // A save step appended: only it, at its own index.
-  const saves = [{ version: 1, ops: [{ rename: { a: 'b' } }] }, { version: 2, why: 'w', ops: [{ solve: ['x', ['y']] }] }]
-  const step = { version: 3, ops: [{ data: { drop: ['z'] } }] }
-  assert.deepEqual(fieldDiff({ saves }, { saves: [...saves, step] }), [{ path: ['saves', 2], before: undefined, after: step, as: 'value' }])
+  // An item appended: only it, at its own index.
+  const steps = [{ n: 1, ops: ['a'] }, { n: 2, ops: ['b'] }]
+  const step = { n: 3, ops: ['c'] }
+  assert.deepEqual(fieldDiff({ steps }, { steps: [...steps, step] }), [{ path: ['steps', 2], before: undefined, after: step, as: 'value' }])
   // An item removed from the middle; another inserted where one changed.
   assert.deepEqual(fieldDiff([{ n: 1 }, { n: 2 }, { n: 3 }], [{ n: 1 }, { n: 3 }]), [{ path: [1], before: { n: 2 }, after: undefined, as: 'value' }])
   assert.deepEqual(fieldDiff([{ n: 1 }, { n: 2 }, { n: 9 }], [{ n: 1 }, { n: 5 }, { n: 6 }, { n: 9 }]), [

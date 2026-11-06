@@ -34,6 +34,5 @@
         "question": { "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？", "en": "Can a circuit work out whether a sentence is true in every case?" }
       }
     }
-  ],
-  "saves": []
+  ]
 }

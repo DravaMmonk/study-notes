@@ -48,15 +48,16 @@ const SITE = { games: '../index.html' }
  * A task may keep several boards (slots.js): the board's editor switches between them (SaveSlots, through
  * SlotsContext), and the screen starts over on the one chosen, as it does when the level is entered.
  *
- * `author` is the studio playing the game it edits (../studio/play.jsx): { level, take: { label, use(text) } } puts a
+ * `store` is where the player's progress is kept (progress.js createProgress, made by the page for the content it
+ * read). `author` is the studio playing the game it edits (../studio/play.jsx): { level, take: { label, use(text) } } puts a
  * button beside the board switcher of that level that hands the board on screen to the studio as blueprint text;
  * `go` { task, n } goes to that task of the level played (again whenever n changes, or once the level has it); `edit` { picked, pick(mark), add(mark), onTask(level, task) } makes the page the
  * studio's editor (edit.js): the fields on screen are marked and picked by a click, introductions open only when asked
  * (a level without one offers to add one), and the studio hears which task is played.
  */
-export default function GameShell({ game, author = null }) {
+export default function GameShell({ game, store, author = null }) {
   const viewportRoot = useRef(null)
-  const [progress, setProgress] = useState(() => game.store.load())
+  const [progress, setProgress] = useState(() => store.load())
   const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
   // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
   const firstTask = (id) => openTask(game, progress, id)
@@ -112,7 +113,7 @@ export default function GameShell({ game, author = null }) {
   // The level drawer, pulled out from the left over a level.
   const [drawer, setDrawer] = useState(false)
 
-  useEffect(() => game.store.save(progress), [game, progress])
+  useEffect(() => store.save(progress), [store, progress])
   useEffect(() => applyTheme(theme), [theme])
   // The kit's language and theme menus (menu.js), the same as on every other page; a theme picked there comes back
   // here so the level screens redraw in it.
@@ -326,7 +327,7 @@ export default function GameShell({ game, author = null }) {
           onAll={(all) => setProgress((p) => ({ ...p, all }))}
           onOpen={open}
           focus={left}
-          onReset={() => setProgress(game.store.blank())}
+          onReset={() => setProgress(store.blank())}
           onParts={game.parts && (() => setSheet('parts'))}
           partsNew={box.unread.length}
           onWiki={game.glossary && (() => setSheet('wiki'))}

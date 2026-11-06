@@ -162,7 +162,7 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, places,
 function GameEditor({ content, base, vocabulary, order, names, levelOptions, field, onEdit, onPick }) {
   const { domain, vocabulary: version, open } = content
   const strip = (c) => Object.fromEntries(Object.entries(gameFields(c)).filter(([k]) => k !== 'eras'))
-  const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => k !== 'eras' && k !== 'saves')) }
+  const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => k !== 'eras')) }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions })
   return (
     <article className="editor">

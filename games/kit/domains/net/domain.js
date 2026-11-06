@@ -8,5 +8,5 @@ import { validate } from './validate.js'
 import { play } from './play.js'
 import { scene } from './scene.js'
 
-// The tools' other hooks on a domain (kit/engine/contract.js EXTENSIONS: changes, play, scene) go here too.
+// The tools' other hooks on a domain (kit/engine/contract.js EXTENSIONS: play, scene) go here too.
 export default { vocabulary, spec: circuitSpec('net', netCourse), validate, play, scene }

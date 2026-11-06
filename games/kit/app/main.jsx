@@ -10,6 +10,8 @@ import '../wires.css'
 import '../shell/shell.css'
 import '../circuit/circuit.css'
 import { GameShell } from '../shell/index.js'
+import { createProgress } from '../shell/progress.js'
+import { contentStamp } from '../engine/stamp.js'
 import { checkContent } from '../engine/vocabulary.js'
 import { deepFreeze } from '../engine/content.js'
 import { tr } from '../shell/i18n.js'
@@ -31,7 +33,8 @@ async function open() {
   // On the dev server the content is frozen, so a domain that writes into it fails at once (its checks read it so too).
   const content = import.meta.env.DEV ? deepFreeze(await response.json()) : await response.json()
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
-  return problems.length ? <Unreadable problems={problems} /> : <GameShell game={define(content)} />
+  if (problems.length) return <Unreadable problems={problems} />
+  return <GameShell game={define(content)} store={createProgress({ id: content.id, stamp: contentStamp(vocabulary, content) })} />
 }
 
 open().then((page) => createRoot(document.getElementById('root')).render(<StrictMode>{page}</StrictMode>))

@@ -13,6 +13,7 @@ import { closeGames } from '../games.mjs'
 import { readContent } from '../content-node.js'
 import { loadPlay } from './node.mjs'
 import { createPlay } from './play.js'
+import { fresh } from '../../shell/progress.js'
 import { checkPlaytest, newSession } from './session.js'
 
 after(() => closeGames())
@@ -54,7 +55,7 @@ for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, d, 'starte
   test(`${name}: the reference passes through the play interface, the naive answer fails, nothing hidden shows`, async () => {
     const content = readContent('starter', resolve(DOMAINS, name))
     const { shell, hook, course } = await loadPlay(content)
-    const record = newSession({ game: content.id, session: 'test', player: { kind: 'script' }, attempts: 50, progress: shell.store.blank() })
+    const record = newSession({ game: content.id, session: 'test', player: { kind: 'script' }, attempts: 50, progress: fresh() })
     const play = createPlay({ game: shell, course, hook, record })
     let solved = 0
     // Each attempt passes a task or a level, or gives one up: the course has fewer of them than this.

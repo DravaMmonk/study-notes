@@ -23,8 +23,6 @@ import { taskShapes, tasksSchema } from './tasks.js'
 export const ENTRIES = ['vocabulary', 'spec', 'validate']
 const isFn = (f) => typeof f === 'function'
 // Each extension point and the shape it must have. A tool that needs more of every domain adds its hook here.
-//   changes             { stale(before, after) }: when a changed level's kept boards no longer apply (the save step
-//                       then drops them, ops/migrate.js)
 //   play                { open(ctx), attempt(ctx, text) }: the blind-play harness's hook (games/DESIGN.md 6.6)
 //   scene               scene(spec, level) → an SVG string or null: a level drawn headlessly (the MCP's render, the
 //                       studio; games/DESIGN.md 6.7)
@@ -34,7 +32,6 @@ const isFn = (f) => typeof f === 'function'
 export const EXTENSIONS = {
   names: isFn,
   languages: (l) => Boolean(l) && typeof l === 'object' && Object.values(l).every(isFn),
-  changes: (c) => Boolean(c) && isFn(c.stale),
   play: (p) => Boolean(p) && isFn(p.open) && isFn(p.attempt),
   scene: isFn,
 }
@@ -324,6 +321,5 @@ export function gameProblems(content, spec, game) {
   const keys = (game.parts?.all ?? []).map((p) => p.key)
   if (new Set(keys).size !== keys.length) say('a part twice in the components box')
   if (!same(game.glossary, content.glossary)) say('its encyclopedia is not the content’s glossary')
-  if (!game.store) say('no progress store')
   return out
 }

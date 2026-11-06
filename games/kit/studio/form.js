@@ -516,8 +516,8 @@ export function fieldAt(form, path) {
 
 /* ---------- a file as a form ---------- */
 
-// What game.json's form leaves out: what is not its own schema, and the save migrations (written by the operation set).
-const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open', 'saves']
+// What game.json's form leaves out: what is not its own schema.
+const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open']
 export const gameFields = (content) => Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_FORM.includes(k)))
 
 /** The form of the file `at` holds, as the content has it now. */
@@ -532,8 +532,7 @@ export function fileForm(content, vocabulary, at, order) {
     const { id: _, ...value } = level
     return { value, form: formOf(vocabulary.level, value, { vocabulary, levels: order }) }
   }
-  const schema = { ...vocabulary.game, fields: Object.fromEntries(Object.entries(vocabulary.game.fields).filter(([k]) => k !== 'saves')) }
   const value = gameFields(content)
-  return { value, form: formOf(schema, value, { vocabulary, levels: order }) }
+  return { value, form: formOf(vocabulary.game, value, { vocabulary, levels: order }) }
 }
 

@@ -1,4 +1,4 @@
-// node --test games/kit/shell — a level's saved boards: switching, adding, renaming, dropping, and old saves moving.
+// node --test games/kit/shell — a level's saved boards: switching, adding, renaming and dropping.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
