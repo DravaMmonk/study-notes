@@ -240,7 +240,7 @@ export default function CircuitLevel({ screen, board, run, parts: given, defined
               overlay={canvas.overlay}
               corner={canvas.corner}
               body={card.body && ((node) => card.body(node, ctx))}
-              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情', 'Inspect details')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onEdit={() => packed.edit(node, top)} onDetail={() => setDetail(node.id)} />}</>}
+              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情', 'Inspect details')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
               caption={card.caption && ((node) => card.caption(node, ctx))}
               outNote={card.outNote && ((node, key) => card.outNote(node, key, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}

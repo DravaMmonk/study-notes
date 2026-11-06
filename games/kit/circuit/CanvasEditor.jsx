@@ -9,7 +9,7 @@ import Glyph from './Glyph.jsx'
 import { moveInto } from './frames.js'
 import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
-import { spaceNodes } from './spacing.js'
+import { alignTerminals, spaceNodes } from './spacing.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
 // right) to another card's input (a dot on its left). Drag a card by its header to move it; drag from an output dot
@@ -121,7 +121,9 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     // Resolve preset collisions on first measurement and when live previews change size, never on a drag alone.
     const resized = Object.entries(sizes).some(([id, size]) => size.some((value, k) => value !== geoRef.current.sizes[id]?.[k]))
     if (resized && !drag && !readOnly && given) {
-      const spaced = spaceNodes(graph, sizes)
+      const opening = !Object.keys(geoRef.current.sizes).length
+      const aligned = opening ? alignTerminals(graph, sizes, parts.role) : graph
+      const spaced = spaceNodes(aligned, sizes)
       if (spaced !== graph) {
         onChange(spaced, { keep: true })
         return

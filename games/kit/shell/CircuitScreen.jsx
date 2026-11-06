@@ -105,7 +105,7 @@ function partsFor(level, circuit, { cards, portLabels, width }) {
     portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type)), port) : portLabels[node.type]?.[port] ?? ''),
     family: (node) => (BUILT[node.type] ? 'built' : given(node) ? (wiring.role(node) === 'sink' ? 'end' : 'given') : cards[node.type]?.family),
     icon: (node) => (BUILT[node.type] ? CircuitBoard : given(node) ? ArrowRightFromLine : cards[node.type]?.icon),
-    cardWidth: (node) => (board.isFixed(node.type) ? 140 : BUILT[node.type] ? Math.max(176, width) : width),
+    cardWidth: (node) => (board.isFixed(node.type) ? 224 : BUILT[node.type] ? Math.max(176, width) : width),
   }
 }
 

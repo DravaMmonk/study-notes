@@ -21,7 +21,8 @@
 once; avoid generic reading labels and repeated metadata. Keep the working surface primary, use direct selection
 for sibling results, and disclose supporting inputs or explanations on demand. Preserve readable values and usable
 touch targets when reducing space. Component names and selected settings must remain readable in both languages:
-reserve a title row separate from card actions, wrap long names, and place long-choice controls below their labels.
+keep card actions on the first title line, wrap only long names, and place long-choice controls below their labels.
+Wide input and output cards occupy separate outer columns, with working parts between them.
 Use concise domain wording rather than truncating distinguishing terms. Preset circuit positions are only initial anchors:
 once cards are measured, separate overlapping siblings using their actual dimensions and a wiring gap. Recheck when
 previews or settings change card sizes; do not repack a board merely because the player dragged a card. Layout-only

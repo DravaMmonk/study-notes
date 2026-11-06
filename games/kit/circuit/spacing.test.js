@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { spaceNodes } from './spacing.js'
+import { alignTerminals, spaceNodes } from './spacing.js'
 
 const card = (id, x, y, extra = {}) => ({ id, x, y, type: 'out', params: { name: id }, ...extra })
 
@@ -38,4 +38,18 @@ test('staggered overlaps are resolved without crossing scope boundaries', () => 
 test('neighbouring preset columns keep their existing narrow wiring gap', () => {
   const graph = { nodes: [card('left', 240, 40), card('right', 440, 40)], wires: [] }
   assert.equal(spaceNodes(graph, { left: [184, 280], right: [184, 280] }), graph)
+})
+
+
+test('wide inputs and outputs each occupy one separate column without compressing working columns', () => {
+  const graph = { nodes: [card('image', 20, 40), card('weights', 20, 200), card('a', 240, 40), card('b', 440, 40), card('c', 640, 40), card('out', 900, 40), card('other', 920, 200)], wires: [{ from: 'image', to: 'a', port: 'in' }] }
+  const sizes = Object.fromEntries(graph.nodes.map(node => [node.id, [224, 120]]))
+  for (const id of ['a', 'b', 'c']) sizes[id] = [184, 120]
+  const role = node => ['image', 'weights'].includes(node.id) ? 'source' : ['out', 'other'].includes(node.id) ? 'sink' : 'part'
+  const aligned = alignTerminals(graph, sizes, role)
+  assert.deepEqual(aligned.nodes.map(n => n.x), [20, 20, 292, 492, 692, 924, 924])
+  assert.equal(aligned.wires, graph.wires)
+  assert.equal(alignTerminals(aligned, sizes, role), aligned)
+  assert.equal(aligned.nodes[3].x - aligned.nodes[2].x, 200)
+  assert.equal(graph.nodes[2].x, 240)
 })

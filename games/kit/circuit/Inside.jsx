@@ -67,14 +67,9 @@ export function PackedBoard(opts) {
 const stop = (event) => event.stopPropagation()
 const ctxOf = (at, path) => ({ view: at.view, board: at, path, readOnly: true })
 
-/** A packed part's tools in its card's header on a desktop: edit (go to the level that builds it) and its details. */
-export function PackedTools({ onEdit, onDetail }) {
-  return (
-    <>
-      <button type="button" className="node-tool" aria-label={tr('编辑', 'Edit')} title={tr('在搭出它的关卡中编辑', 'Edit in the level that builds it')} onPointerDown={stop} onClick={onEdit}><Pencil size={12} /></button>
-      <button type="button" className="node-tool" aria-label={tr('详情', 'Details')} title={tr('查看详情', 'Inspect details')} onPointerDown={stop} onClick={(e) => { e.stopPropagation(); onDetail() }}><Info size={13} /></button>
-    </>
-  )
+/** Inspect a packed part from its compact header; editing stays in the detail window. */
+export function PackedTools({ onDetail }) {
+  return <button type="button" className="node-tool" aria-label={tr('详情', 'Details')} title={tr('查看详情', 'Inspect details')} onPointerDown={stop} onClick={(e) => { e.stopPropagation(); onDetail() }}><Info size={13} /></button>
 }
 
 /** Edit (go to the level that builds the part) beside a read-only detail window's close button. */
