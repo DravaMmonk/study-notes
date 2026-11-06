@@ -1,12 +1,18 @@
-// The ways a value is shown (games/DESIGN.md 6.10), as data: what each view is called and the shapes it draws. The
-// drawing is the kit's (../shell/views/); which views a results area uses, and in what order, is content: a game's
-// `views` (a default per shape) and a task's `results` (its rows).
+// How the kit shows a value (games/DESIGN.md 6.10), as data: a value's shape, the views that draw each shape, and the
+// scenes a value is drawn in. The drawing is the kit's (../views/); which views are used where is content: a game's
+// `views` (a default per shape), a task's `results` (its rows), and the values an introduction page or a pass text
+// shows (`show`).
 //
 //   shapes   scalar  one value, written as words (a number, yes or no, a vector)
 //            grid    { w, h, c, data }: a matrix, an image, a row of numbers (c channels a cell, row by row)
 //            bits    one 0 or 1 a tick (a wire)
 //            ticks   one value a tick
 //            list    a few values in order
+//   scenes   card     on a part on the board: as small as it reads, nothing to point at
+//            detail   in a part's detail: whole, its cells numbered on their axes, every cell read by pointing at it
+//            results  in the results area: the result against the value wanted, differences marked (Results.jsx)
+//            figure   beside an introduction or a pass text: sized to the value, a cell picked where the figure asks
+//            inline   in a line of text: one line high
 //
 // A domain says what a task's results area can show, an entry a thing (`of`, unique in the task): its label, its shape,
 // and the values a test gives it — `given` (an input), or `got` and `want` (an output: the board's and the one wanted;
@@ -18,10 +24,16 @@
 //                                                              the first the one it starts in
 //   rowProblems(results, entries, defaults) → [text]           what a task's rows get wrong
 //   viewsProblems(defaults) → [text]                           what a game's default views get wrong
+//   shapeOf(value)          a value's shape where nothing says it: a grid, else a scalar (a card's value, one tick's)
+//   valueText(value)        a value in words: 「—」 for none, yes or no, a number (./number.js), else as it is
+//   SHOW, readShow(show), showProblems(show)   a value content writes for a figure, read, and what it gets wrong
 import { S } from './schema.js'
+import { isGrid } from './grid.js'
+import { numberText } from './number.js'
 import { T as t } from '../shell/i18n.js'
 
 export const SHAPES = ['scalar', 'grid', 'bits', 'ticks', 'list']
+export const SCENES = ['card', 'detail', 'results', 'figure', 'inline']
 
 export const VIEWS = {
   value: { shapes: ['scalar'], label: t('数值', 'Value') },
@@ -54,15 +66,59 @@ export function rowsOf(results, entries, defaults) {
   return rows.map(({ entry, views, label }) => ({ entry: label ? { ...entry, label } : entry, views: views ?? viewsFor(entry.shape, defaults) }))
 }
 
+const undrawn = (views, shape, where) => views.filter((v) => !VIEWS[v].shapes.includes(shape)).map((v) => `${where} is ${shape}, which ${v} does not draw`)
+
 export function rowProblems(results, entries, defaults) {
   const by = new Map(entries.map((e) => [e.of, e]))
-  const problems = []
-  for (const r of results ?? []) {
+  return (results ?? []).flatMap((r) => {
     const entry = by.get(r.of)
-    if (!entry) problems.push(`results: no "${r.of}" to show (${entries.map((e) => e.of).join(', ')})`)
-    else for (const v of r.views ?? viewsFor(entry.shape, defaults)) if (!VIEWS[v].shapes.includes(entry.shape)) problems.push(`results: "${r.of}" is ${entry.shape}, which ${v} does not draw`)
-  }
-  return problems
+    return entry ? undrawn(r.views ?? viewsFor(entry.shape, defaults), entry.shape, `results: "${r.of}"`) : [`results: no "${r.of}" to show (${entries.map((e) => e.of).join(', ')})`]
+  })
 }
 
 export const viewsProblems = (defaults) => Object.entries(defaults ?? {}).flatMap(([shape, views]) => views.filter((v) => !VIEWS[v].shapes.includes(shape)).map((v) => `views: ${v} does not draw ${shape}`))
+
+export const shapeOf = (value) => (isGrid(value) ? 'grid' : 'scalar')
+
+export const valueText = (v) => (v === null || v === undefined ? '—' : v === true ? t('是', 'yes') : v === false ? t('否', 'no') : typeof v === 'number' ? numberText(v) : String(v))
+
+/* ---------- a value content writes ---------- */
+
+const ROWS = S.list(S.list(S.either(S.num(), S.list(S.num(), { min: 3 })), { min: 1 }), { min: 1, view: 'grid' })
+const TICKS = S.either(S.str(), S.list(S.any()))
+
+/**
+ * A value content shows beside an introduction page or a pass text (scene figure): its shape and the value as content
+ * writes it — a scalar as itself, a grid as its rows (numbers, or [R, G, B] triples), bits as a string of 0s and 1s
+ * ('.' nothing on the wire), ticks and a list as a list — the views it may be drawn in, and what it is called.
+ */
+export const SHOW = S.by('shape', {
+  scalar: S.obj({ shape: S.oneOf(['scalar']), value: S.any(), label: S.opt(S.text()) }),
+  grid: S.obj({ shape: S.oneOf(['grid']), value: ROWS, views: S.opt(LIST), label: S.opt(S.text()) }),
+  bits: S.obj({ shape: S.oneOf(['bits']), value: TICKS, views: S.opt(LIST), label: S.opt(S.text()) }),
+  ticks: S.obj({ shape: S.oneOf(['ticks']), value: S.list(S.any()), views: S.opt(LIST), label: S.opt(S.text()) }),
+  list: S.obj({ shape: S.oneOf(['list']), value: S.list(S.any()), label: S.opt(S.text()) }),
+}, { about: t('引言或通关文案旁显示的一个值', 'a value shown beside an introduction page or a pass text') })
+
+/** A grid from content's rows: rows of numbers (one channel) or of [R, G, B] triples (three). */
+function gridOf(rows) {
+  const c = Array.isArray(rows[0][0]) ? 3 : 1
+  return { w: rows[0].length, h: rows.length, c, data: rows.flatMap((r) => r.flatMap((p) => (c === 3 ? p : [p]))) }
+}
+
+/** A value content shows, read: its shape, its value as the kit draws it, its views and label. */
+export function readShow(show) {
+  const value = show.shape === 'grid' ? gridOf(show.value) : show.shape === 'bits' && typeof show.value === 'string' ? [...show.value].map((c) => (c === '.' ? null : Number(c))) : show.value
+  return { ...show, value }
+}
+
+export function showProblems(show, where = 'show') {
+  const problems = undrawn(show.views ?? [], show.shape, where)
+  if (show.shape === 'grid') {
+    const rows = show.value
+    const c = Array.isArray(rows[0][0]) ? 3 : 1
+    if (!rows.every((r) => r.length === rows[0].length && r.every((p) => (c === 3 ? Array.isArray(p) && p.length === 3 : typeof p === 'number')))) problems.push(`${where}: a grid's rows are all as long, and its cells all numbers or all [R, G, B]`)
+  }
+  if (show.shape === 'bits' && typeof show.value === 'string' && !/^[01.]*$/.test(show.value)) problems.push(`${where}: bits are written in 0, 1 and .`)
+  return problems
+}

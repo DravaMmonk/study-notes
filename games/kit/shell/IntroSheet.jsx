@@ -2,6 +2,8 @@ import { createElement, useEffect, useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { Markup } from './Markup.jsx'
+import { readShow } from '../engine/views.js'
+import Show from '../views/Show.jsx'
 import { useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
 
@@ -38,6 +40,7 @@ export default function IntroSheet({ game, level, pages, marks = [], step, theme
         <h2 id="intro-title">{L(level.title)}{step && <small className="intro-step">{L(step)}</small>}</h2>
         <div className="intro-body" key={page}>
           {current.fig && game.IntroFigure && createElement(game.IntroFigure, { fig: current.fig, level, theme })}
+          {current.show && <Show {...readShow(current.show)} scene="figure" />}
           <p className="intro-text" {...(at ? mark(`${at.at}.t`, at.scope) : {})}><Markup text={current.t} /></p>
         </div>
         <footer className="intro-foot">

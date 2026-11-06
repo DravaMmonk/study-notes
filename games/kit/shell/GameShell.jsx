@@ -17,7 +17,7 @@ import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slot
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
 import { EditContext, same } from './edit.js'
-import { ViewsContext } from './views/choice.js'
+import { ViewsContext } from '../views/choice.js'
 
 // Each game links back to its parent hub, on the standalone site and the local dev server.
 const SITE = { games: '../index.html' }

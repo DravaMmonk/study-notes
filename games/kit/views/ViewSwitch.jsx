@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { Activity, Grid3x3, Hash, Image, ListOrdered, Rows3 } from 'lucide-react'
-import { VIEWS } from '../../engine/views.js'
-import { L } from '../i18n.js'
+import { VIEWS } from '../engine/views.js'
+import { L } from '../shell/i18n.js'
 
 // The switch between the views a row may be drawn in (games/DESIGN.md 6.10), the one in force pressed.
 

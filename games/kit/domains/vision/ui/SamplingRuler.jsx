@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { tr } from '../../../shell/i18n.js'
 import { Rich } from '../../../shell/bench/Rich.jsx'
 import { fmt, fromRows } from '../image.js'
-import GridView from '../../../shell/views/grid/GridView.jsx'
+import Show from '../../../views/Show.jsx'
 
 const ROW = [0.15, 0.7, 0.35, 0.9]
 const xAt = (x) => 24 + (x + 1) * 70
@@ -34,7 +34,7 @@ export default function SamplingRuler() {
   const nearest = Math.floor(position + 0.5)
   const column = Math.max(0, Math.min(ROW.length - 1, nearest))
   return <figure className="vi-intro-figure vi-sampling-ruler">
-    <GridView value={fromRows([ROW])} numbers axes cell={64} mark={{ x: column, y: 0 }} /><p className="vi-sample-boundary">{tr(`原图只有列号 0–3；读取列号 ${column}，值为 ${ROW[column]}。`, `The source has columns 0–3; read column ${column}, value ${ROW[column]}.`)}</p>
+    <Show value={fromRows([ROW])} scene="figure" views={['numbers']} mark={{ x: column, y: 0 }} /><p className="vi-sample-boundary">{tr(`原图只有列号 0–3；读取列号 ${column}，值为 ${ROW[column]}。`, `The source has columns 0–3; read column ${column}, value ${ROW[column]}.`)}</p>
     <label className="vi-sample-position"><span>{tr('取样位置 x', 'Sample position x')}</span><output>{fmt(position)}</output><input type="range" aria-label={tr('示例取样位置 x', 'Example sample position x')} min="-0.8" max="3.8" step="0.1" value={position} onChange={(e) => setPosition(Number(e.target.value))} /></label>
     <Bands {...{ position }} />
     <p className="vi-sample-boundary">{nearest !== column ? tr(`最近整数为 ${nearest}，已在图外；按约定读取边界列号 ${column}。`, `The nearest integer ${nearest} is outside; by convention read boundary column ${column}.`) : tr('先选最近的整数坐标；它若落在图外，再读取最近的边界。', 'Select the nearest integer coordinate first; if it lies outside, read the nearest boundary.')}</p>

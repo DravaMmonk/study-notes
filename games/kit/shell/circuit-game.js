@@ -51,6 +51,7 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
         keeps: Boolean(L.builds) || circuit.carried.has(L.id),
         intro: L.intro,
         after: L.after,
+        afterShow: L.afterShow,
         note: L.note,
         tasks: tasks.map((T, k) => {
           const { step, brief, hint, intro, after, carries } = L.tasks[k]

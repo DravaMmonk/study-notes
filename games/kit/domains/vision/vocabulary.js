@@ -18,15 +18,17 @@ import { COLOURS } from './scene.js'
 import { PICTURE } from './sample.js'
 import { BENCH_MODELS, DISPLAYS } from './benches/index.js'
 import { T as t } from '../../shell/i18n.js'
+import { SHOW } from '../../engine/views.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const items = (all) => Object.fromEntries(Object.entries(all).map(([k, v]) => [k, item(v.about, v.params)]))
 
 const num = S.num()
 const ids = S.list(S.str())
-/** A page of an introduction, with the figure the game draws beside it (ui/IntroFigure.jsx). */
+/** A page of an introduction, with the figure the game draws beside it (ui/IntroFigure.jsx), or a value the kit shows. */
 const PAGE = S.obj({
   t: S.text(),
+  show: S.opt(SHOW),
   fig: S.opt(S.oneOf(['lab', 'projection', 'samples', 'pixel-units', 'pixel-origin', 'filter-window', 'nearest-sampling', 'sampling-material', 'smoothing', 'separable', 'directional-change', 'inspection', 'inspection-samples', 'weighted-line', 'window-table', 'frequency-wave', 'frequency-probe', 'frequency-table', 'frequency-filter', 'outside-zero', 'outside-clamp', 'outside-wrap', 'outside-reflect', 'outside-valid'])),
 })
 

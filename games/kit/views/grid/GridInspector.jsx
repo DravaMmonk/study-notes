@@ -1,9 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { tr } from '../../i18n.js'
-import { cellNumber, pixel } from '../../../engine/grid.js'
-import { numberText } from '../../../engine/number.js'
-import { useViewChoice } from '../choice.js'
+import { tr } from '../../shell/i18n.js'
+import { cellNumber, pixel } from '../../engine/grid.js'
+import { numberText } from '../../engine/number.js'
 import GridView from './GridView.jsx'
 import { denseCell, fitFrame, inspectorCell, thumbCell } from './layout.js'
 
@@ -70,9 +69,9 @@ function usePan(frame) {
 }
 
 /**
- * A grid in a frame sized by the screen, whatever its dimensions, as the view `numbers` or `pixels` (by default the
- * one the player picked for grids, ../choice.js): pixels scales the whole grid to fit; numbers draws numbered cells at
- * their readable size, unscaled, every cell selectable. Pointing at a cell reads it (`inspectPixel` says what, by
+ * A grid in a frame sized by the screen, whatever its dimensions, as the view `numbers` or `pixels` (../Show.jsx and
+ * ../Results.jsx pick it): pixels scales the whole grid to fit; numbers draws numbered cells at their readable size,
+ * unscaled, every cell selectable. Pointing at a cell reads it (`inspectPixel` says what, by
  * default its value; `explainPixel` adds how it came about). The frame pans by dragging. With `fit` the frame shrinks
  * to what the grid needs (fitFrame), the screen's frame its largest; `dense` (with `fit`) draws narrower numbered cells.
  */
@@ -93,8 +92,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
   },[point])
   const cellOf = fit && dense ? denseCell : inspectorCell
   const cell = cellOf(value)
-  const [picked] = useViewChoice('grid')
-  const info = (view ?? picked) === 'numbers'
+  const info = view === 'numbers'
   const max = useFrameMax(root, fit)
   const frameSize = fit && max ? fitFrame(value, info, max, cellOf) : null
   // A frame not laid out yet (measured inside something still hidden or opening) draws the thumbnail size meanwhile.
@@ -109,7 +107,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
   }
   const active = point && point.x < value.w && point.y < value.h ? point : null
   const meta = [showSize && `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`, note].filter(Boolean).join(' · ')
-  return <figure className="gv-inspector" ref={root} style={frameSize ? { width: frameSize.w } : undefined}>
+  return <figure className="gv-inspector" ref={root} style={frameSize ? { width: `min(100%, ${frameSize.w}px)` } : undefined}>
     <figcaption>
       <strong>{label}</strong>
       <span className="gv-inspect-meta" title={tr(`数值范围 ${cellNumber(range[0])} … ${cellNumber(range[1])}`, `Value range ${cellNumber(range[0])} … ${cellNumber(range[1])}`)}>{meta}</span>

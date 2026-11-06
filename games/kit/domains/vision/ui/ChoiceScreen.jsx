@@ -5,7 +5,8 @@ import { WORDS } from '../../../shell/words.js'
 import { fromRows } from '../image.js'
 import { isNaive, judgeOf } from '../judges.js'
 import { render } from '../scene.js'
-import GridView, { GridPicture } from '../../../shell/views/grid/GridView.jsx'
+import { GridPicture } from '../../../views/grid/GridView.jsx'
+import Show from '../../../views/Show.jsx'
 
 // A choice task (../judges.js): rounds answered one after another, the first shown and each later one with changed
 // data once the one before is right. A round shows what it is about — an image, the picture its candidate scenes all
@@ -21,10 +22,9 @@ const KNOBS = {
   elevation: { label: { zh: '光的高度', en: 'Light elevation' }, of: 'light', min: 5, max: 90 },
 }
 
-/** An image as content writes it (rows), drawn: cell by cell while small, else as a picture. */
+/** An image as content writes it (rows): a value, drawn as a figure (a rendered scene is a photograph: GridPicture). */
 function Shown({ rows, value }) {
-  const img = value ?? fromRows(rows)
-  return img.w * img.h <= 36 ? <GridView value={img} numbers axes /> : <GridPicture value={img} scale={Math.max(2, Math.floor(240 / Math.max(img.w, img.h)))} />
+  return <Show value={value ?? fromRows(rows)} scene="figure" />
 }
 
 /** Why a claim is undetermined, seen: the two candidate scenes it splits, from a view that tells them apart. */
