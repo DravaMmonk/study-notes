@@ -6,11 +6,12 @@
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): each input given
 //   (left out by default: the input cards show it), each output against what the test expects
 import { runBoard } from '../../engine/boards.js'
+import { numberText } from '../../engine/number.js'
 import { T } from '../../shell/i18n.js'
 
 
 /** What a card shows of a value: a number, or 「—」. */
-export const show = (v) => (v === null || v === undefined ? '—' : String(v))
+export const show = (v) => (v === null || v === undefined ? '—' : typeof v === 'number' ? numberText(v) : String(v))
 
 export function runTest(level, circuit, test, partOf) {
   const trace = []

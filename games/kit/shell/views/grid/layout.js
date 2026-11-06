@@ -15,12 +15,13 @@ export const thumbCell = (grid) => Math.max(3, Math.min(14, Math.floor(96 / Math
 const MIN_FRAME_W = 88
 
 /**
- * The frame a grid needs, at most `max` ({ w, h } px, border included): numbered, its cells and axes; as a picture, a
- * thumbnail just large enough to tell its cells apart; a small grid's frame shrinks to it.
+ * The frame a grid needs, at most `max` ({ w, h } px, border included): numbered, its cells and axes; as a picture,
+ * cells at least as large as numbered ones, so switching views keeps the frame's place; a small grid's frame shrinks
+ * to it.
  */
 export function fitFrame(grid, numbers, max, cellOf = inspectorCell) {
   const inner = { w: max.w - 2, h: max.h - 2 }
-  const cell = numbers ? cellOf(grid) : Math.min(thumbCell(grid), inner.w / grid.w, inner.h / grid.h)
+  const cell = numbers ? cellOf(grid) : Math.min(Math.max(thumbCell(grid), cellOf(grid)), inner.w / grid.w, inner.h / grid.h)
   const off = numbers ? AXIS : 0
   return { w: Math.min(max.w, Math.max(MIN_FRAME_W, Math.ceil(off + grid.w * cell) + 2)), h: Math.min(max.h, Math.ceil(off + grid.h * cell) + 2) }
 }

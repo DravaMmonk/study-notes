@@ -2,11 +2,13 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { tr } from '../../i18n.js'
 import { cellNumber, pixel } from '../../../engine/grid.js'
+import { numberText } from '../../../engine/number.js'
 import { useViewChoice } from '../choice.js'
 import GridView from './GridView.jsx'
 import { denseCell, fitFrame, inspectorCell, thumbCell } from './layout.js'
 
-const raw = (value) => Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${v}`).join(' · ') : String(value)
+// A cell's value as its reading writes it: the number in full, up to four decimals.
+const raw = (value) => (Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${numberText(v)}`).join(' · ') : numberText(value))
 
 /** The frame's inner size, kept current as the screen changes it. */
 function useFrameSize(frame) {

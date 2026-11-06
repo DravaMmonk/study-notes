@@ -5,7 +5,7 @@ import GridInspector from '../../../shell/views/grid/GridInspector.jsx'
 
 const read = (ctx, source) => ({ value: source ? ctx.view.values.get(source) : undefined, error: source ? ctx.view.errors.get(srcNode(source)) : null })
 const sample = (value, x, y) => isImage(value) ? pixel(value, x, y) : value
-const text = (value) => Array.isArray(value) ? `(${value.join(', ')})` : String(value)
+const text = (value) => (Array.isArray(value) ? `(${value.map(fmt).join(', ')})` : fmt(value))
 
 function DataValue({ value, error, label, explainPixel, fit }) {
   if (value === undefined) return <p className="vi-error">{error ? L(error) : tr('尚未连接或上游未产生结果', 'Not connected or no upstream result yet')}</p>

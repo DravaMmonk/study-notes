@@ -53,11 +53,12 @@
 .rv-rows { display: flex; flex-wrap: wrap; align-items: start; gap: 10px 20px; min-width: 0; }
 .rv-row { display: grid; gap: 4px; min-width: 0; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
 .rv-row[data-fail] { border-inline-start-color: var(--fail); }
-.rv-row > h4 { margin: 0; display: flex; align-items: center; gap: 8px; }
+.rv-row > h4 { margin: 0; display: flex; align-items: baseline; gap: 8px; }
+.rv-row > h4 small { color: var(--faint); font: var(--fs-label) var(--mono); }
 .rv-pair { display: flex; align-items: start; gap: 8px; }
 .rv-pair > .gv-inspector { flex: none; }
 .rv-plain { margin: 0; min-width: 88px; display: grid; gap: 4px; }
-.rv-plain figcaption { color: var(--muted); font-size: var(--fs-ui); }
+.rv-plain figcaption { min-height: 22px; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-ui); }
 .rv-plain b { font: 600 var(--fs-ui) var(--mono); }
 .rv-seq, .rv-order { margin: 0; font: var(--fs-ui) var(--mono); color: var(--ink); overflow-wrap: anywhere; }
 .rv-order { color: var(--muted); }

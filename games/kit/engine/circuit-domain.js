@@ -45,6 +45,7 @@ import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
 import { taskLevel, taskLevels } from './tasks.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
+import { numberText } from './number.js'
 import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, rowProblems, viewsProblems } from './views.js'
 import { T as t, keyOf } from '../shell/i18n.js'
@@ -393,7 +394,7 @@ export const TEST_WORDS = {
   failed: (fails, n) => t(`可见的测试全部通过，但 ${n} 个隐藏测试中有 ${fails} 个没有通过：这块板可能只是恰好合上了这几个测试。`, `Every test shown passes, but ${fails} of ${n} hidden ${n === 1 ? 'test fails' : 'tests fail'}: the board may only happen to fit these.`),
 }
 
-export const showValue = (v) => (v === null || v === undefined ? '—' : v === true ? t('是', 'yes') : v === false ? t('否', 'no') : String(v))
+export const showValue = (v) => (v === null || v === undefined ? '—' : v === true ? t('是', 'yes') : v === false ? t('否', 'no') : typeof v === 'number' ? numberText(v) : String(v))
 
 /**
  * A run's ticks ([{ tick, outputs, … }]) judged against what a task wants: the first tick on which a port of `checked`
