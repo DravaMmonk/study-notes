@@ -50,12 +50,11 @@
 .kit-icon-btn { width: 34px; padding: 0; color: var(--muted); }
 .kit-icon-btn:hover, .kit-icon-btn[aria-expanded='true'] { color: var(--ink); background: var(--hover); }
 .kit-ico { display: block; flex: none; }
-.kit-pop { position: absolute; z-index: 80; top: calc(100% + 6px); right: 0; min-width: 188px; padding: 6px; display: grid; gap: 1px; border-radius: 12px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 16px 36px -14px rgba(0, 0, 0, .4); animation: kit-pop-in 140ms ease; transform-origin: top right; }
-.kit-pop[hidden] { display: none; }
+.kit-menu-pop { position: absolute; z-index: 80; top: calc(100% + 6px); right: 0; width: 188px; max-width: calc(100vw - 24px); padding: 6px; display: grid; gap: 1px; border-radius: 12px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 16px 36px -14px rgba(0, 0, 0, .4); animation: kit-pop-in 140ms ease; transform-origin: top right; }
+.kit-menu-pop[hidden] { display: none; }
 .kit-pop-label { padding: 6px 10px 6px; color: var(--muted); font: 10px/1 var(--mono); letter-spacing: .14em; }
 .kit-pop-item { min-height: 38px; padding: 0 10px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 8px; color: var(--ink); background: transparent; font: 500 14px/1.2 var(--sans); text-align: left; cursor: pointer; }
 .kit-pop-item span { flex: 1; }
-.kit-pop-item small { color: var(--muted); font-size: 11.5px; }
 .kit-pop-item .kit-ico { color: var(--accent-ink, var(--accent)); visibility: hidden; }
 .kit-pop-item[aria-checked='true'] { font-weight: 600; }
 .kit-pop-item[aria-checked='true'] .kit-ico { visibility: visible; }
@@ -64,7 +63,7 @@
 .kit-swatch::before { content: ''; position: absolute; left: 5px; right: 5px; top: 7px; height: 2px; border-radius: 1px; background: var(--sw-ink); box-shadow: 0 4px 0 var(--sw-ink); opacity: .8; }
 .kit-swatch::after { content: ''; position: absolute; right: 4px; bottom: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--sw-accent); }
 @keyframes kit-pop-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
-@media (prefers-reduced-motion: reduce) { .kit-pop { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .kit-menu-pop { animation: none; } }
 
 /* ---- page head ---- */
 .kit-hero { padding: 56px 0 34px; max-width: 40em; }
