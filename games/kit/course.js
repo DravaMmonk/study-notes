@@ -72,6 +72,7 @@
 // offer(course, level, flags) splits that into what the level shows and what it folds away; fresh(course, level) the
 // ideas new in a level; introductions(course) where each primitive comes in; isCore(course, level) whether a level is
 // a milestone the map draws full size; audit(course) lists every broken rule.
+import { OPEN_PART_LIMIT } from './engine/stages.js'
 import { rebuilt } from './engine/match.js'
 
 /** What each rule of the audit means, for reports (./engine/checks.js). */
@@ -93,6 +94,7 @@ export const RULE_TEXT = {
   'challenge-required': 'a level that requires a challenge',
   'challenge-naive': 'a challenge without a failing naive answer',
   'topic-finale': 'a topic level its finale’s board does not solve (the topic is not one problem growing)',
+  'open-crowded': 'more than eight newly exposed parts in a task with prior pipeline stages',
   'carry-unseen': 'starts from the board of a level that is not among its prerequisites',
   'bare-intro': 'a new primitive whose first level is just that part, wired to the goal',
   unused: 'a built part that no later reference answer (nor a later task of its own level) uses',
@@ -218,7 +220,7 @@ export function layout(eras) {
 // A showcase's reason, written plainly or in each language.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], folds = () => [], showcase = () => null, declares = () => [], carries = () => [], finale = null, abstraction = false }) {
+export function defineCourse({ levels, eras = null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], folds = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], finale = null, abstraction = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -240,7 +242,7 @@ export function defineCourse({ levels, eras = null, primitives, adds, needs, bui
   // lets through only the parts on it; one that keeps 'all' lets everything through.
   const eraOf = (id) => (plan ? eras.findIndex((e) => e.id === plan.place.get(id)?.era) : 0)
   const crosses = (part, from, to) => eras?.slice(eraOf(from) + 1, eraOf(to) + 1).every((e) => e.keeps === 'all' || e.keeps?.includes(part)) ?? true
-  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, folds, showcase, declares, carries, finale, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, folds, showcase, declares, carries, openParts, finale, abstraction, index, builder, crosses, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -355,6 +357,7 @@ export function audit(course) {
   const levels = course.levels
   const unbuilt = new Set()
   for (const level of levels) {
+    for (const task of course.openParts(level)) if (task.staged && task.count > OPEN_PART_LIMIT) say('open-crowded', level.id, task.task, `${task.task}: ${task.count} loose parts (limit ${OPEN_PART_LIMIT}); split the task or build an earlier stage`)
     const granted = new Set(course.granted(level))
     const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l).filter((p) => course.crosses(p, l.id, level.id)))
     // The ideas new here; a part built by the player is never new where it is first used.

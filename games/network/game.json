@@ -71,5 +71,6 @@
       ],
       "challenges": [{ "level": "1-20", "after": "1-35" }]
     }
-  ]
+  ],
+  "open": { "open-crowded": ["1-40@1-40"] }
 }

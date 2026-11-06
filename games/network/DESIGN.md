@@ -402,3 +402,8 @@
 - 练习还薄的地方：二进制和起止位各只有一关练习；除了 1-35，没有「辨真伪」收尾的一组。
 - 1-17 的接收方把每个字节退一拍再串回 CRC，真实的接收方不这样做（校验字节前补 0 的代价）；百科没有说。
 - 位序是最高位先，真实的串口是最低位先；百科说了。
+
+## Staged-board complexity work list
+
+`open-crowded`: task `1-40` has 10 current loose parts when its prior stages are folded (limit 8). Keep the
+puzzle and circuit unchanged until the curriculum owner decides where to split it or establish an earlier stage.

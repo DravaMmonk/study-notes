@@ -39,6 +39,7 @@
 // A board is { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }; as text it is the kernel's
 // blueprint (../circuit/text.js), read and checked there. The boards the player passed the building levels with live
 // in the course read (syncOwn), one per content: two games of a domain in one process never share them.
+import { stagesOf } from './stages.js'
 import { assemblySeries } from './assembly-series.js'
 import { print, read } from '../circuit/text.js'
 import { packed, sink, source, withSettings } from './boards.js'
@@ -248,6 +249,10 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     replaces,
     carries: (level) => played.get(level.id)?.map((T) => T.carry).filter(Boolean) ?? [],
+    openParts: (level) => (played.get(level.id) ?? []).filter(isBoard).map((task) => {
+      const shown = stagesOf({ task, board: task.solution, chain: result.stageChain(task), isFixed: (n) => board.isFixed(n.type) })
+      return { task: task.taskId, staged: shown.stages.length > 0, count: shown.loose.length }
+    }),
     abstraction: true,
   })
   const series = assemblySeries(revisions, { before: course.before, passed: (task) => own.has(task.id) })

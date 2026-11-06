@@ -154,3 +154,12 @@ test('carrying a published board into its next revision is reuse, not an abstrac
   const instrument = { ...end, showcase: () => 'A terminal instrument callable from the parts book.' }
   assert.ok(!audit(instrument).some((f) => f.rule === 'unused'))
 })
+
+
+test('only staged tasks exceeding the open-part limit are crowded', () => {
+  const course = sketch([{ foundation: ['base', 'upgrade'] }], {}, { openParts: (l) => l.id === 'upgrade' ? [{ task: 'within', staged: true, count: 8 }, { task: 'crowded', staged: true, count: 9 }, { task: 'plain', staged: false, count: 20 }] : [] })
+  const findings = audit(course).filter((f) => f.rule === 'open-crowded')
+  assert.equal(findings.length, 1)
+  assert.equal(findings[0].part, 'crowded')
+  assert.match(findings[0].text, /9 loose parts/)
+})

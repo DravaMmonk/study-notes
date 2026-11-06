@@ -466,6 +466,7 @@ inside prose or executable content.
 | 每关都在某一代里 | `npm run check`（`unplaced`） | 已实现 |
 | 关卡用本代或更早一代的机体；地基、练习、终极谜题、挑战只用本代机体 | 同上（`machine`、`machine-role`） | 已实现 |
 | 机体会做关卡参考解用到的每一种机制 | 同上（`mechanism`；课程给出 `uses(level)` 和 `can(machine)`） | 已实现（《状态之图》） |
+| 有既有分段的任务，参考解中当前新增且不折叠的元件不超过 8 个 | `open-crowded`，只统计 loose；超限提示拆关或提前形成中间段 | 已实现 |
 | 沿用电路（`carry`）的那一关是先修 | 同上（`carry-unseen`，表格领域） | 已实现 |
 | 专题内同一族世界 | 同上（`topic-world`） | 已实现 |
 | 专题代号一个字母一个系列：有依赖的专题同一个字母，不相干的不同字母 | 同上（`topic-code`） | 已实现 |

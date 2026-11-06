@@ -40,3 +40,10 @@ Desktop and phone use the same crossing/fanout/length policy. Phone labels were 
 stage to its presmoothing source and back, opening the kernel stage and highlighting its paired labels. Desktop
 labels highlight the pair and pan to the destination. Multiple consumers are cycled from the single source tag.
 Tags are an interaction layer above cards; long cross-stage strokes are omitted, while intra-stage wires remain.
+
+## Open-part audit across all games
+
+The complete game audit reports one staged task over the limit: From One Wire (`network`), task `1-40`, has
+10 loose parts against the limit of 8. It is recorded as `open-crowded: 1-40@1-40` in that game's work list;
+no puzzle, reference circuit or dependency was changed. Vision Lab has no over-limit staged tasks. Vision
+Complete, State Graph, Q.E.D., Syntax Graph, Software Factory and The Car Talks also have no findings.
