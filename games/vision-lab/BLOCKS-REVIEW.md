@@ -69,7 +69,7 @@ remained unchanged. Container projection preserves stored desktop coordinates an
 
 With Manual partitioning off, preset members have no drag handle or Move action. Move validation also rejects
 swaps that would indirectly move a protected member. Manual partitioning restores these actions. Hidden phone
-headers have transparent backgrounds and zero vertical padding; the reviewed compact header measured 28 px.
+headers retain the shared grey group background and padding around the title row.
 The existing ordinary port controls and cubic wire renderer are unchanged.
 
 426 tests pass, including six new container tests for holes, insertion, detachment, cross-container swaps,

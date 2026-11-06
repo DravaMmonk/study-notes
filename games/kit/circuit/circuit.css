@@ -596,4 +596,4 @@
 .pb-block-head.is-hidden .phone-wire-tags { flex-wrap: nowrap; max-height: var(--block-head-height); overflow-x: auto; }
 .pb-block-head .block-stubs .pb-dot { position: relative; inset: auto; flex: none; }
 
-.pb-block-head.is-hidden { padding-block: 0; background: none; }
+.pb-block-head.is-hidden { padding: var(--block-pad); background: var(--group); border-radius: var(--r-md); }
