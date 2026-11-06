@@ -62,8 +62,9 @@ export const BLOCKS = Object.keys(leaf).concat('row')
 const LEAF = S.by('show', leaf)
 export const BLOCK = S.by('show', { ...leaf, row: S.obj({ show: S.oneOf(['row']), blocks: S.list(LEAF, { min: 1 }) }, { about: t('几个块排成一行', 'blocks side by side') }) })
 const VIEW = S.list(BLOCK)
-/** The three faces of a part: the desktop card, the phone tile, the detail both share. */
-export const FACES = ['card', 'tile', 'detail']
+/** The four faces: desktop card, phone tile, shared detail and read-only stage miniature. */
+export const FACES = ['card', 'tile', 'detail', 'mini']
+const MINI = S.list(S.by('show', { summary: leaf.summary, text: leaf.text, value: leaf.value, setting: S.obj({ show: S.oneOf(['setting']), key: NAME, as: S.oneOf(['label']) }) }))
 
 /** A rule: when setting `on` changes (any setting, without it), and `when` holds, the settings in `set` take new values. */
 const RULE = S.obj({ on: S.opt(NAME), when: S.opt(EXPR), set: S.map(EXPR, { about: t('设置 → 新值的式子', 'setting → the expression of its new value') }) })
@@ -82,7 +83,7 @@ export const PART = S.obj({
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算', 'give: 「—」 at any input gives 「—」 (default); pass: the resources see it') })),
   rules: S.opt(S.list(RULE, { about: t('交互：一个设置改了，另几个跟着改', 'interaction: when a setting changes, others follow') })),
   checks: S.opt(S.list(CHECK, { about: t('设置必须满足的条件：不满足时卡片上说出原因，元件不计算', 'conditions the settings must meet: else the card says why and the part computes nothing') })),
-  views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认', 'the desktop card, the phone tile, the detail; the defaults where left out') })),
+  views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW), mini: S.opt(MINI) }, { about: t('桌面卡片、手机格位、详情；不写用默认', 'the desktop card, the phone tile, the detail; the defaults where left out') })),
   width: S.opt(S.int({ min: 96, max: 360, about: t('桌面卡片宽（像素）', 'the desktop card’s width (px)') })),
 })
 

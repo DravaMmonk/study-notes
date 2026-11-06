@@ -106,3 +106,14 @@ test('a description names only the options that are open', () => {
   assert.deepEqual(partDesc(def, () => ['sub']), def.desc)
   assert.equal(partDesc({ desc: 'plain', settings: [] }), 'plain')
 })
+
+test('the miniature face accepts only read-only one-line blocks, with setting labels explicit', () => {
+  const valid = structuredClone(file)
+  valid.parts.scaled.views.mini = [{ show: 'summary' }, { show: 'setting', key: 'how', as: 'label' }, { show: 'text', text: 'scaled' }, { show: 'value' }]
+  assert.deepEqual(partProblems(valid, vocabulary), [])
+  for (const block of [{ show: 'settings' }, { show: 'setting', key: 'k' }, { show: 'setting', key: 'k', as: 'control' }, { show: 'action', label: 'go', set: {} }, { show: 'ports' }, { show: 'widget', widget: 'x' }, { show: 'row', blocks: [] }]) {
+    const invalid = structuredClone(valid)
+    invalid.parts.scaled.views.mini = [block]
+    assert.ok(partProblems(invalid, vocabulary).length, JSON.stringify(block))
+  }
+})

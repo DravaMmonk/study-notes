@@ -543,7 +543,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `game.json` | `domain`（交给哪个领域）、`vocabulary`（写它时对的词汇表版本）、`open`（可选：课程还没做到的审计结果，第 5 节）、标题、简介、课程（`eras`、`primitives`、`concept`、搭出的元件的名字和说明）、领域要的其余全局设置 |
 | `levels/<id>.json` | 一关一个文件，文件名就是关卡 id；字段由领域按玩法给出 schema |
 | `glossary.json` | 百科：`{ groups, entries }` |
-| `parts.json` | 这款游戏的元件（第 6.9 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和三面视图，加上几个元件共用的设置预设；元件定义成数据的领域才有 |
+| `parts.json` | 这款游戏的元件（第 6.9 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和四面视图，加上几个元件共用的设置预设；元件定义成数据的领域才有 |
 | `changes.jsonl` | 修改日志（操作集写，只追加，`kit/engine/ops/log.js`）：每次修改一行，记下它跑了哪些操作、为什么、改了的每个文件改前改后的哈希、撤销它的变更集（第 7 节）；`adopt` 一行把游戏的全部文件照现状收进日志（手改、git 改过之后） |
 | `blueprint.json` | 课程蓝图（第 7.2 节，流水线做出的游戏才有）：机体阶梯、要教的知识点（术语、出处、撞上的墙）、原始元件和搭出的元件、每章的系列和每关的位置（slot：问题、思维链、带来的知识点），向领域提的需求；schema 是内核的 `BLUEPRINT`（`kit/pipeline/blueprint.js`），经操作集写（`blueprint.put`、`blueprint.set`）；`check` 按 schema 查它，页面不读它 |
 | `pipeline.json` | 流水线的记录（第 7.2 节）：每一步跑过的 agent（模型、用量、调用了几次命令、写下的变更集）、每次闸门的结果、评审队列里的那一项；只由 `npm run pipeline` 写 |
@@ -615,7 +615,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **框（`kit/circuit/frames.js`），所有游戏共用。** 《证明完毕》的假设框是它的第一个用法：一个元件里有几个区域，元件可以摆进区域里，区域在左边给出一个值（比如假设），或者几个值（区域写 `gives: [键…]`，每个值一个圆点：《证明完毕》的消去 ∧ 一个区域同时假设左右两边）；区域也可以不收结果（`closes: false`，没有结果口：《证明完毕》消去板上的一种情况，结论由用规则的人推出），区域里得出的东西接回框右边的口，框再给出自己的结果。领域只需要用 `framePart(自己的输入, [{ name, opens }])` 造出这种元件，在求值时按 `key` 区分「区域给出的值」和「框的结果」，并在元件描述里给区域起名（`parts.frames(node)` 返回带 `label` 的区域）；其余都由 kit 负责：两个编辑器画出区域、拖进拖出、折叠，`model.js` 保证线只往里走（框里得出的东西只能在框里用），`engine/circuit.js` 按 `reads` 让区域的值只读框自己的输入，`regionsFit` 检查存档里的元件还在存在的区域里。桌面画布上拖着元件悬到一个能放进去的区域上时，那个区域的底色和虚线框会亮起来。手机格位上，框占它所在格子网格的若干行：每个区域一行头（区域名和它给出的假设，框名在第一个区域的头上）、区域自己的几行、一行尾（结果接进来的点），用子网格和外面的格子按行对齐；框的边就是格子的边，和普通元件一样，框名和内边距在框里，所以框的第一行和最后一行稍高一些。框默认两列宽，右上角一个按钮点一下在两列和一列之间切换（像接线显示的按钮一样只有一个，图标显示现在的宽度；存在元件的 `narrow` 上），它的区域和里面的框也随之一列。以后需要"局部作用域"的游戏（比如程序里的函数体、循环体）都用它。
 
-**内容可以：** 在词汇表里选项、填参数；写测试数据、参考解和 naive 解（蓝图文本）、文案和百科；在 `parts.json` 里定义元件：口、设置、用领域的引擎资源（`op`）组合出的运算、三面视图（第 6.9 节）。**不可以：** 写任何函数；定义新的引擎资源、新世界、新的参数台模型或显示项、新界面。需要新东西时，加到领域的词汇表和实现里。
+**内容可以：** 在词汇表里选项、填参数；写测试数据、参考解和 naive 解（蓝图文本）、文案和百科；在 `parts.json` 里定义元件：口、设置、用领域的引擎资源（`op`）组合出的运算、四面视图（第 6.9 节）。**不可以：** 写任何函数；定义新的引擎资源、新世界、新的参数台模型或显示项、新界面。需要新东西时，加到领域的词汇表和实现里。
 
 **单元测试不认识关卡。** 测试跟着三层分开：`npm test` 只测内核和领域的机制，用的内容是测试里现写的小内容，或领域的 `starter/`（契约测试和 `new-game` 共用的最小样例），不读任何一款游戏的关卡，也不写死某一关、某个任务或一款游戏有几关。对每款游戏都成立的性质（契约、文件的写法）可以逐款机械地查，但不点名任何一关；要列例外时，例外由领域或内容自己声明，不写在测试里。一款游戏的关卡对不对（参考解、naive 解、审计、文案）只由 `npm run check` 查。所以改关卡不用改测试；改了关卡测试就失败，说明那条测试写错了层。
 
@@ -803,7 +803,7 @@ opens them to show the resulting feedback.
 
 ### 6.9 元件定义（`parts.json`）
 
-**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如 vision 的逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）和搭出的封装件不在 `parts.json` 里：前者是领域的，后者是关卡的。
+**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、四面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如 vision 的逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）和搭出的封装件不在 `parts.json` 里：前者是领域的，后者是关卡的。
 
 ```json
 {
@@ -853,7 +853,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 - `checks`：设置必须满足的条件。每条 `{ holds, say }`：`holds` 为假时元件不计算，报出 `say`（卡片上写出它，`failedCheck`）。
 - 块 `action` 的 `set`、`when` 和块 `readout` 的 `expr`、设置的 `when` 也是只读设置的式子。
 
-**三面视图**（`views`）：`card` 是桌面画布上卡片的主体，`tile` 是手机格位上的简略视图（`value` 块画在元件名上面，其余的块画在下面），`detail` 是两边共用的详情（桌面卡片头上的 ⓘ、手机点开元件的单子，控件加大）。每一面是一列块，不写就用默认：卡片是全部设置加值，格位是值加一行设置摘要，详情是说明、全部设置和值。只剩一个可选值的设置不画（课程只放出了一个）。块（`show`）：
+**四面视图**（`views`）：`mini` 是折叠分段中的只读缩略面：名字一行，下方最多一行，块用「·」连接，超长省略。只能用 `summary`、`setting`（必须 `as: label`）、`text`、`value`（views 的 `inline` 场景），schema 拒绝其他块。默认显示名字与设置值；代码定义元件用同一默认，组装元件只显示名字。`card` 是桌面画布上卡片的主体，`tile` 是手机格位上的简略视图（`value` 块画在元件名上面，其余的块画在下面），`detail` 是两边共用的详情（桌面卡片头上的 ⓘ、手机点开元件的单子，控件加大）。每一面是一列块，不写就用默认：卡片是全部设置加值，格位是值加一行设置摘要，详情是说明、全部设置和值。只剩一个可选值的设置不画（课程只放出了一个）。块（`show`）：
 
 | 块 | 画什么 | 字段 |
 |---|---|---|
@@ -871,7 +871,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 例：vision 的「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`plus(plus($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: over($a, plus(plus($a, $b), $c)), … }`，`when: ne(plus(plus($a, $b), $c), 0)`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
 
-**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（vision 关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.jsx` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，内容里的 `S.ref('part')` 指 `parts.json` 的元件（`kit/engine/parts/define.js` 的 `withParts` 把它们放进词汇表的 `part` 种类，检查和 studio 都用它）。
+**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的四面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（vision 关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.jsx` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，内容里的 `S.ref('part')` 指 `parts.json` 的元件（`kit/engine/parts/define.js` 的 `withParts` 把它们放进词汇表的 `part` 种类，检查和 studio 都用它）。
 
 **操作**：`part.add`（新元件，或复制一个）、`part.remove`（还有关卡、课程或板用到它时拒绝）、`part.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`parts.set` / `parts.unset`（`parts.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`），`text.set` 的 `in: 'parts'`。
 
