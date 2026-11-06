@@ -367,7 +367,7 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show:
     note: S.opt(S.text()),
     adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
     builds,
-    showcase: S.opt(S.text({ section: 'course', about: t('说明为何可单独展示新元件，或为何终端机体没有后续调用关卡', 'why a new part stands alone, or a terminal instrument has no later consumer') })),
+    showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
   }, kinds ? S.by('kind', { circuit: kind('circuit', board), ...Object.fromEntries(Object.entries(kinds).map(([k, fields]) => [k, kind(k, { ...own, ...fields })])) }) : board)
 }
 
