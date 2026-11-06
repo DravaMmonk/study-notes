@@ -9,7 +9,7 @@ import { optionsFor, settings, settingsFor } from './settings.js'
 export default function SettingsPanel({ game, theme, onTheme, anchor, onClose }) {
   useSyncExternalStore(settings.subscribe, settings.snapshot, settings.snapshot)
   const phone = useMedia(PHONE)
-  const entries = settingsFor(game)
+  const entries = settingsFor(game, {phone})
   const chooseTheme = (id) => { applyTheme(id); onTheme(id); window.dispatchEvent(new CustomEvent('themechange', { detail: id })) }
   return <Popover className="player-settings-popover" anchor={anchor} title={tr('设置', 'Settings')} onClose={onClose}>
     <div className="player-settings">

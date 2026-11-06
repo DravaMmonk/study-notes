@@ -6,20 +6,20 @@ const game = { id: 'a', views: { grid: ['numbers', 'pixels'] }, circuit: { playe
 const memory = () => { let text = null; return { getItem: () => text, setItem: (_, value) => { text = value } } }
 test('device settings use defaults, validate choices and separate games', () => {
   const storage = memory(), prefs = createSettings(() => storage)
-  assert.equal(prefs.get(game, 'manualSections'), false)
+  assert.equal(prefs.get(game, 'manualBlocks'), false)
   assert.equal(prefs.get(game, 'connectionLabels'), false)
   assert.equal(prefs.get(game, 'connectionLabels', {phone:true}), true)
   prefs.set(game, 'connectionLabels', false)
   assert.equal(prefs.get(game, 'connectionLabels', {phone:true}), false)
   assert.equal(prefs.get(game, 'view.grid'), 'numbers')
-  prefs.set(game, 'manualSections', true)
+  prefs.set(game, 'manualBlocks', true)
   prefs.set(game, 'view.grid', 'pixels')
   prefs.set(game, 'view.grid', 'wave')
   assert.equal(prefs.get(game, 'view.grid'), 'pixels')
-  assert.equal(prefs.get({ ...game, id: 'b' }, 'manualSections'), false)
-  assert.equal(createSettings(() => storage).get(game, 'manualSections'), true)
+  assert.equal(prefs.get({ ...game, id: 'b' }, 'manualBlocks'), false)
+  assert.equal(createSettings(() => storage).get(game, 'manualBlocks'), true)
   prefs.reset(game)
-  assert.equal(prefs.get(game, 'manualSections'), false)
+  assert.equal(prefs.get(game, 'manualBlocks'), false)
 })
 test('unavailable or malformed storage falls back to defaults', () => {
   for (const storage of [{ getItem() { throw Error('denied') }, setItem() { throw Error('denied') } }, { getItem: () => '{', setItem() {} }]) {
@@ -29,8 +29,8 @@ test('unavailable or malformed storage falls back to defaults', () => {
   }
 })
 test('only meaningful settings are listed and changes notify subscribers', () => {
-  assert(settingsFor(game).some((s) => s.key === 'manualSections'))
-  assert(!settingsFor({ id: 'table' }).some((s) => s.key === 'manualSections'))
+  assert(settingsFor(game,{phone:true}).some((s) => s.key === 'manualBlocks'))
+  assert(!settingsFor({ id: 'table' }).some((s) => s.key === 'manualBlocks'))
   assert(!settingsFor({ id: 'single', views: { grid: ['pixels'] } }).some((s) => s.key === 'view.grid'))
   const prefs = createSettings(memory), seen = []
   const stop = prefs.subscribe(() => seen.push(prefs.snapshot()))

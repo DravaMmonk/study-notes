@@ -1,11 +1,14 @@
+import { rectangleMembers } from './blocks.js'
+import { WORDS } from '../shell/words.js'
+import BlockHeader from './BlockHeader.jsx'
 import { useSetting } from '../shell/useSetting.js'
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { foldedPartsOf } from './folding.js'
 import ClearButton from './ClearButton.jsx'
-import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
-import { pipelineLayout, reflowLayout, routeWire, routePath } from './layout.js'
+import { labelledConnections, sourceLabel, blockOwners, wireKey } from './connections.js'
+import { pipelineLayout, reflowLayout } from './layout.js'
 import SaveSlots from './SaveSlots.jsx'
-import { ChevronDown, ChevronRight, Maximize, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Maximize, Group, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
 import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
@@ -63,7 +66,7 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (a part's demonstration)
  * only shows: it pans, zooms and fits, and nothing on it moves.
  */
-export default function CanvasEditor({ stages = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   const [connectionLabels] = useSetting('connectionLabels')
   // A change never takes off what the level locked on the board (model.js keepLocked).
   const onChange = readOnly ? () => {} : (next, opt) => {
@@ -72,7 +75,15 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       if (!current) return current
       const nodes = new Map(current.nodes)
       for (const n of moved) nodes.set(n.id, { x: n.x, y: n.y })
-      return { ...current, nodes }
+      const units=current.units.map(u=>{
+        if(u.view==='hidden'||!u.nodes.some(id=>moved.some(n=>n.id===id)))return u
+        const ids=u.block?groups.find(b=>b.id===u.block)?.nodes??u.nodes:u.nodes
+        const ps=ids.map(id=>({id,p:nodes.get(id)})).filter(({p})=>p)
+        if(!ps.length)return u
+        const x=Math.min(...ps.map(({p})=>p.x))-(u.block?spacing.pad:0),y=Math.min(...ps.map(({p})=>p.y))-(u.block?spacing.pad+spacing.title:0)
+        return {...u,x,y,w:Math.max(...ps.map(({id,p})=>p.x+(geo.sizes[id]?.[0]??width)))-x+spacing.pad,h:Math.max(...ps.map(({id,p})=>p.y+(geo.sizes[id]?.[1]??height)))-y+spacing.pad}
+      })
+      return { ...current, nodes, units }
     })
     given(keepLocked(graph, next), opt)
   }
@@ -84,7 +95,12 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [focus, setFocus] = useState(null)
-  const foldedNodes = foldedPartsOf(graph, stages?.stages ?? [])
+  const foldedNodes = foldedPartsOf(graph, blocks?.items ?? [])
+  const [partitioning,setPartitioning]=useState(false)
+  const [selectionRect,setSelectionRect]=useState(null)
+  const committed=useRef(false)
+  const selectionCancel=useRef(null)
+  const lastModes=useRef(new Map())
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
@@ -114,17 +130,18 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const layer = useRef(null)
   const pointers = useRef(new Map())
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const widthOf = (node) => parts.cardWidth?.(node) ?? width
+  const widthOf = (node) => node.hiddenBlock ? node.w : parts.cardWidth?.(node) ?? width
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
   const regionsOf = (node) => parts.frames?.(node) ?? []
   // Frames are drawn first, under the plain cards: a frame's backdrop sits below the wires (so those inside it show),
   // so a card drawn before a frame would have the frame's contents over it and its backdrop under it.
   const layered = (nodes) => [...nodes.filter((n) => regionsOf(n).length), ...nodes.filter((n) => !regionsOf(n).length)]
-  const groups = stages?.stages ?? []
-  let visible = layered(graph.nodes.filter((n) => !n.in))
+  const groups = blocks?.items ?? []
+  const hiddenNodes=foldedPartsOf(graph,groups,'hidden')
+  let visible = layered(graph.nodes.filter((n) => !n.in&&!hiddenNodes.has(n.id)))
   const stageNodes = (stage) => stage.nodes.map((id) => byId.get(id)).filter(Boolean)
-  const arrange = () => pipelineLayout(graph, groups, {
-    sizeOf: (n) => { const size = geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
+  const arrange = (fresh=false) => pipelineLayout(graph, groups, {
+    sizeOf: (n) => { const el=fresh?layer.current?.querySelector(`[data-piece="${CSS.escape(n.id)}"]`):null; const size = el ? [el.offsetWidth,el.offsetHeight] : geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
     roleOf: parts.role,
     width: surface.current?.clientWidth ?? 1100,
     gapX: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-x')),
@@ -132,14 +149,40 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     pad: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),
     portY: (id, key, side) => geo.offsets?.[side === 'out' ? outPort(key ? `${id}#${key}` : id) : inPort(id, key)] ?? 46,
   })
-  const painting = groups.length ? presentation ?? arrange() : null
-  visible = visible.map((n) => painting?.nodes.has(n.id) ? { ...n, ...painting.nodes.get(n.id) } : n)
-  const top = visible
-  useLayoutEffect(() => {
-    if (groups.length && !presentation && top.every((n) => geo.sizes[n.id])) setPresentation(painting)
+  const spacing={pad:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),title:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-head-height'))}
+  const freshPlan=blocks?arrange():null
+  const coordinatePlan=(plan,positions)=>({...plan,nodes:positions,units:plan.units.map(u=>{
+    const ids=u.block?groups.find(b=>b.id===u.block)?.nodes??u.nodes:u.nodes
+    const ns=ids.map(id=>({n:byId.get(id),p:positions.get(id)})).filter(({p})=>p)
+    if(!ns.length)return u
+    const x=Math.min(...ns.map(({p})=>p.x))-(u.block?spacing.pad:0),y=Math.min(...ns.map(({p})=>p.y))-(u.block?spacing.pad+spacing.title:0)
+    const w=Math.max(...ns.map(({n,p})=>p.x+(geo.sizes[n.id]?.[0]??widthOf(n))))-x+spacing.pad
+    const h=Math.max(...ns.map(({n,p})=>p.y+(geo.sizes[n.id]?.[1]??height)))-y+spacing.pad
+    return {...u,x,y,w:u.view==='hidden'?320:w,h:u.view==='hidden'?spacing.title:h}
+  })})
+  const needsLayout=blocks?.initial||graph.nodes.some(n=>!n.in&&(!Number.isFinite(n.x)||!Number.isFinite(n.y)))
+  const storedPositions=new Map(graph.nodes.filter(n=>!n.in).map(n=>[n.id,blocks?.unplaced?.includes(n.id)?freshPlan.nodes.get(n.id)??{x:n.x??0,y:n.y??0}:{x:n.x??0,y:n.y??0}]))
+  const painting=blocks?(presentation??(needsLayout?freshPlan:coordinatePlan(freshPlan,storedPositions))):null
+  visible=visible.map(n=>painting?.nodes.has(n.id)?{...n,...painting.nodes.get(n.id)}:n)
+  const hiddenUnits=groups.filter(b=>b.view==='hidden').map(b=>{const u=painting?.units.find(u=>u.block===b.id);return {id:`hidden:${b.id}`,hiddenBlock:b,x:u?.x??0,y:u?.y??0,w:320,h:spacing.title}})
+  const top=[...visible,...hiddenUnits]
+  useLayoutEffect(()=>{
+    if(!blocks)return
+    const changed=groups.find(b=>lastModes.current.has(b.id)&&lastModes.current.get(b.id)!==b.view)
+    lastModes.current=new Map(groups.map(b=>[b.id,b.view]))
+    if(changed){setPresentation(reflowLayout(painting,arrange(true),changed.id));return}
+    if(presentation&&(JSON.stringify(presentation.units.filter(u=>u.block).map(u=>u.block).sort())!==JSON.stringify(groups.map(g=>g.id).sort())||graph.nodes.some(n=>!n.in&&!presentation.nodes.has(n.id)))){
+      const positions=new Map(graph.nodes.filter(n=>!n.in).map(n=>[n.id,presentation.nodes.get(n.id)??{x:n.x??0,y:n.y??0}]))
+      setPresentation(coordinatePlan(freshPlan,positions));return
+    }
+    if(!presentation&&top.every(n=>geo.sizes[n.id]))setPresentation(painting)
+    if((blocks.initial||blocks.unplaced?.length||needsLayout)&&!committed.current&&top.every(n=>geo.sizes[n.id])){
+      committed.current=true
+      given({...graph,nodes:graph.nodes.map(n=>painting.nodes.has(n.id)?{...n,...painting.nodes.get(n.id)}:n)},{keep:true})
+    }
   })
   // A card's size as drawn, or as it will be before it is.
-  const sizeOf = (node) => geo.sizes[node.id] ?? [widthOf(node), height]
+  const sizeOf = (node) => node.hiddenBlock ? [node.w,node.h] : geo.sizes[node.id] ?? [widthOf(node), height]
   const at = (p) => geo.ports[p] ?? null
 
   // Measure every dot and card once the board is drawn; a change draws again (a card moved, a frame grown).
@@ -153,11 +196,11 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       if (card) offsets[el.dataset.p] = (box.top + box.height / 2 - card.getBoundingClientRect().top) / view.zoom
       ports[el.dataset.p] = pointIn(root, box.left + box.width / 2, box.top + box.height / 2).map(Math.round)
     }
-    const sizes = {}
+    const sizes = {...geoRef.current.sizes}
     for (const el of ownIn(root, '[data-node]')) sizes[el.dataset.node] = [el.offsetWidth, el.offsetHeight]
     // Resolve preset collisions on first measurement and when live previews change size, never on a drag alone.
     const resized = Object.entries(sizes).some(([id, size]) => size.some((value, k) => value !== geoRef.current.sizes[id]?.[k]))
-    if (resized && !groups.length && !drag && !readOnly && given) {
+    if (resized && !blocks && !drag && !readOnly && given) {
       const opening = !Object.keys(geoRef.current.sizes).length
       const aligned = opening ? alignTerminals(graph, sizes, parts.role) : graph
       const spaced = spaceNodes(aligned, sizes)
@@ -292,6 +335,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       const dialog = [...document.querySelectorAll('[role="dialog"]')].at(-1)
       if (dialog && !dialog.contains(surface.current)) return
       const key = event.key.toLowerCase()
+      if(key==='escape'&&partitioning){selectionCancel.current?.();setPartitioning(false);setSelectionRect(null);return}
       if ((event.metaKey || event.ctrlKey) && (key === 'z' || (key === 'y' && event.ctrlKey))) {
         event.preventDefault()
         return key === 'y' || event.shiftKey ? history.redo() : history.undo()
@@ -314,6 +358,23 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       return { zoom, x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k }
     })
 
+  const beginPartition=(event)=>{
+    if(event.button>0||event.target.closest('.block-header,.board-zoom,.board-corner'))return
+    event.preventDefault();event.stopPropagation()
+    const start=pointIn(layer.current,event.clientX,event.clientY)
+    let end=start
+    setSelectionRect([start,start])
+    const move=e=>{end=pointIn(layer.current,e.clientX,e.clientY);setSelectionRect([start,end])}
+    const finish=()=>{
+      window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',finish);window.removeEventListener('pointercancel',cancel)
+      const ids=rectangleMembers(graph,parts,[start,end],n=>painting?.nodes.get(n.id)??n,sizeOf)
+      if(ids.length)blocks.create(ids)
+      setSelectionRect(null);setPartitioning(false)
+    }
+    const cancel=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',finish);window.removeEventListener('pointercancel',cancel);setSelectionRect(null);setPartitioning(false)}
+    selectionCancel.current=cancel
+    window.addEventListener('pointermove',move);window.addEventListener('pointerup',finish);window.addEventListener('pointercancel',cancel)
+  }
   // Background: one pointer pans, two pointers pinch-zoom around their midpoint.
   // Any press on the background pans: not one on a card, a wire, a control or a window floating over the board.
   // A press on a region's empty floor pans too, and makes it where new cards go.
@@ -611,15 +672,20 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     )
   }
 
-  const toggleStage = (id) => stages.toggle(id)
-  const stageFrame = (stage) => {
-    const nodes = stageNodes(stage).map((n) => ({ ...n, ...painting?.nodes.get(n.id) }))
-    const x = Math.min(...nodes.map((n) => n.x ?? 0)), y = Math.min(...nodes.map((n) => n.y ?? 0))
-    const right = Math.max(...nodes.map((n) => (n.x ?? 0) + sizeOf(n)[0]))
-    const bottom = Math.max(...nodes.map((n) => (n.y ?? 0) + sizeOf(n)[1]))
-    return <section key={stage.id} data-stage={stage.id} className="circuit-section" style={{ left: x, top: y, width: right - x, height: bottom - y }}><button className="section-label" type="button" aria-expanded={!stage.folded} onClick={() => toggleStage(stage.id)}>{stage.folded ? <ChevronRight size={14} /> : <ChevronDown size={14} />}{L(stage.label)}</button></section>
+  const stageFrame = (block) => {
+    const nodes=stageNodes(block).map(n=>({...n,...painting?.nodes.get(n.id)}))
+    const unit=hiddenUnits.find(u=>u.hiddenBlock.id===block.id)
+    const x=unit?.x??Math.min(...nodes.map(n=>n.x??0))-spacing.pad,y=unit?.y??Math.min(...nodes.map(n=>n.y??0))-spacing.pad-spacing.title
+    const w=unit?.w??Math.max(...nodes.map(n=>(n.x??0)+sizeOf(n)[0]))-x+spacing.pad
+    const h=unit?.h??Math.max(...nodes.map(n=>(n.y??0)+sizeOf(n)[1]))-y+spacing.pad
+    const reveal=(id)=>{blocks.open(block.id);setFocus(id);choose(byId.get(id))}
+    return <section key={block.id} data-block={block.id} data-node={unit?.id} className={`circuit-block ${unit?'is-hidden':''}`} style={{left:x,top:y,width:w,...(!unit?{height:h}:{minHeight:h})}}>
+      <BlockHeader block={block} editable={!readOnly} onEdit={(patch)=>blocks.edit(block.id,patch)} />
+      {unit&&<><span className="block-stubs is-input" onPointerDown={e=>e.stopPropagation()}>{block.ins.map(w=><button type="button" key={`${w.to}.${w.port}`} className="port port-in is-wired" data-p={inPort(w.to,w.port)} title={L(parts.label(byId.get(w.to)))} aria-label={L(parts.label(byId.get(w.to)))} onClick={()=>reveal(w.to)}><i /></button>)}</span><span className="block-stubs is-output" onPointerDown={e=>e.stopPropagation()}>{[...new Set(block.outs.map(w=>w.from))].map(src=><button type="button" key={src} className="port port-out is-wired" data-p={outPort(src)} title={L(parts.label(byId.get(srcNode(src))))} aria-label={L(parts.label(byId.get(srcNode(src))))} onClick={()=>reveal(srcNode(src))}><i /></button>)}</span></>}
+    </section>
   }
 
+  useEffect(()=>{if(blocks?.active)setFocus(blocks.active)},[blocks?.active])
   const labels = new Set((connectionLabels ? labelledConnections(graph, groups, parts, (w) => [at(outPort(w.from)), at(inPort(w.to, w.port))]) : []).map(wireKey))
   const jump = (wire, toward) => {
     setLinkedSource(wire.from)
@@ -627,8 +693,8 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     const index = linkCursor.from === wire.from ? (linkCursor.at + 1) % targets.length : 0
     if (toward === 'to') setLinkCursor({ from: wire.from, at: index })
     const id = toward === 'to' ? targets[index].to : srcNode(wire.from)
-    const owner = stageOwners(groups).get(id)
-    if (owner) stages.open(owner)
+    const owner = blockOwners(groups).get(id)
+    if (owner) blocks.open(owner)
     setSelected({ node: id })
     setFocus(id)
   }
@@ -655,7 +721,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const canDelete = Boolean(selected?.wire && !isLocked(graph, selected.wire)) || Boolean(selectedNode && removable(selectedNode))
 
   return (
-    <div className={`board kit-board ${picking ? 'is-picking' : ''} ${readOnly ? 'is-readonly' : ''}`} ref={surface} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
+    <div className={`board kit-board ${picking ? 'is-picking' : ''} ${readOnly ? 'is-readonly' : ''}`} ref={surface} onPointerDownCapture={partitioning?beginPartition:undefined} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} onAnimationEnd={redraw} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
@@ -666,7 +732,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
             const from = byId.get(srcNode(wire.from))
             if (!a || !b || !from) return null
             if (labels.has(wireKey(wire))) return null
-            const d = routePath(routeWire(a, b))
+            const d = curve(a, b)
             const active = selected?.wire?.to === wire.to && selected?.wire?.port === wire.port
             const state = wireState?.(wire)
             return (
@@ -690,7 +756,8 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
           {drag && at(outPort(drag.from)) && <path className="kw-draft" d={curve(at(outPort(drag.from)), [drag.x, drag.y])} />}
           {picking && pointer && at(picking) && <path className="kw-draft" d={parsePort(picking).side === 'out' ? curve(at(picking), pointer) : curve(pointer, at(picking))} />}
         </svg>
-        {top.map(card)}
+        {visible.map(card)}
+        {selectionRect&&<div className="block-selection" style={{left:Math.min(selectionRect[0][0],selectionRect[1][0]),top:Math.min(selectionRect[0][1],selectionRect[1][1]),width:Math.abs(selectionRect[1][0]-selectionRect[0][0]),height:Math.abs(selectionRect[1][1]-selectionRect[0][1])}} />}
         {labels.size > 0 && <svg className="board-wires board-labels" width="4000" height="3000">{graph.wires.filter((w) => labels.has(wireKey(w))).map((w) => {
           const a = at(outPort(w.from)), b = at(inPort(w.to, w.port))
           return a && b ? wireTags(w, a, b) : null
@@ -719,6 +786,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
             <i className="board-zoom-rule" aria-hidden="true" />
           </>
         )}
+        {!readOnly&&blocks&&<button type="button" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{if(partitioning)selectionCancel.current?.();setPartitioning(!partitioning);setSelectionRect(null)}}><Group size={14} /></button>}
         <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小', 'Zoom out')}><Minus size={14} /></button>
         <output>{Math.round(view.zoom * 100)}%</output>
         <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大', 'Zoom in')}><Plus size={14} /></button>

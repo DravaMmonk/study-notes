@@ -1,6 +1,6 @@
-// Folding changes card bodies only. Nested components inherit their enclosing frame's section fold state.
-export function foldedPartsOf(graph, sections) {
-  const folded = new Set(sections.filter((s) => s.folded).flatMap((s) => s.nodes))
+// Folding changes card bodies only. Nested components inherit their enclosing frame's block view.
+export function foldedPartsOf(graph, blocks, view = 'ports') {
+  const folded = new Set(blocks.filter((s) => s.view === view).flatMap((s) => s.nodes))
   let added = true
   while (added) {
     added = false

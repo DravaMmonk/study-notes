@@ -1,24 +1,24 @@
-// One rule for desktop and phone: keep a stage's internal wires, replace distant or branching connections with
+// One rule for desktop and phone: keep a block's internal wires, replace distant or branching connections with
 // paired source labels. The synthetic input/output/current units describe view placement, never circuit nodes.
 import { L } from '../shell/i18n.js'
-export const CONNECTION_LIMITS = { length: 320, fanoutStages: 2 }
+export const CONNECTION_LIMITS = { length: 320, fanoutBlocks: 2 }
 export const wireKey = (w) => `${w.from}>${w.to}.${w.port}`
-export const stageOwners = (stages) => new Map(stages.flatMap((s) => s.nodes.map((id) => [id, s.id])))
-export function labelledConnections(graph, stages, parts, pointOf = null) {
-  if (!stages.length) return []
-  const owners = stageOwners(stages), nodes = new Map(graph.nodes.map((n) => [n.id, n]))
-  const rank = new Map(stages.map((s, k) => [s.id, k]))
+export const blockOwners = (blocks) => new Map(blocks.flatMap((s) => s.nodes.map((id) => [id, s.id])))
+export function labelledConnections(graph, blocks, parts, pointOf = null) {
+  if (!blocks.length) return []
+  const owners = blockOwners(blocks), nodes = new Map(graph.nodes.map((n) => [n.id, n]))
+  const rank = new Map(blocks.map((s, k) => [s.id, k]))
   const unit = (id) => owners.get(id) ?? (parts.role(nodes.get(id)) === 'source' ? 'input' : parts.role(nodes.get(id)) === 'sink' ? 'output' : 'loose')
   const destinations = new Map()
   for (const w of graph.wires) if (owners.has(w.to)) destinations.set(w.from, new Set([...(destinations.get(w.from) ?? []), owners.get(w.to)]))
   return graph.wires.filter((w) => {
     const src = w.from.split('#')[0], a = owners.get(src), b = owners.get(w.to)
     if (a && a === b) return false
-    if ((destinations.get(w.from)?.size ?? 0) >= CONNECTION_LIMITS.fanoutStages) return true
+    if ((destinations.get(w.from)?.size ?? 0) >= CONNECTION_LIMITS.fanoutBlocks) return true
     if (a && b && a !== b) return true
     if (a || b) {
       const other = unit(a ? w.to : src), at = rank.get(a ?? b)
-      if (other === 'loose' ? at < stages.length - 1 : other === 'input' ? at > 0 : at < stages.length - 1) return true
+      if (other === 'loose' ? at < blocks.length - 1 : other === 'input' ? at > 0 : at < blocks.length - 1) return true
     } else if (unit(src) !== unit(w.to)) return true
     const points = pointOf?.(w)
     return points?.every(Boolean) && Math.hypot(points[1][0] - points[0][0], points[1][1] - points[0][1]) > CONNECTION_LIMITS.length

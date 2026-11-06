@@ -147,6 +147,9 @@
   --board-gap-x: 24px;
   --board-gap-y: 16px;
   --block-pad: 12px;
+  --block-head-height: 40px;
+  --block-rule-width: 1px;
+  --block-rule: var(--rule);
   --group-pad: 16px;
   --group-title: 24px;
   --group: color-mix(in srgb, var(--ink) 4%, transparent);

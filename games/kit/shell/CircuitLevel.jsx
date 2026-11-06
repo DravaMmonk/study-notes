@@ -1,6 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { editSection, firstOpenSlot, sectionPreset, sectionsOf } from '../circuit/sections.js'
-import { placement } from '../circuit/model.js'
+import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, newPartSlot } from '../circuit/blocks.js'
 import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
@@ -178,20 +177,8 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const [target, setTarget] = useState(null) // the frame region a new card goes into (desktop)
   const [detail, setDetail] = useState(null)
   const parts = useMemo(() => (defined ? definedParts(given, defined.of) : given), [given, defined?.of])
-  const circuit = useMemo(() => sectionPreset(stored, stages?.stages ?? [], parts), [stored, stages, parts])
-  const change = (next, options = {}) => {
-    const added = new Set(next.nodes.filter((n) => !circuit.nodes.some((old) => old.id === n.id)).map((n) => n.id))
-    if (added.size && next.sections) {
-      const opened = new Set(sectionsOf(next, placement(next, parts)).filter((s) => s.nodes.some((id) => added.has(id))).map((s) => s.row))
-      next = { ...next, sections: next.sections.map((s) => opened.has(s.row) ? { ...s, folded: false } : s) }
-    }
-    const { sectionsEdited, ...mode } = options
-    const moved = next.nodes.some((n) => { const old = circuit.nodes.find((x) => x.id === n.id); return old && (n.slot !== old.slot || n.narrow !== old.narrow) })
-    if (stored.sections === undefined && !sectionsEdited && !moved) {
-      const { sections: _sections, ...plain } = next
-      board.change(plain, mode)
-    } else board.change(next, mode)
-  }
+  const circuit = useMemo(() => withNewSlots(blockPreset(stored, stages?.stages ?? [], parts), parts), [stored, stages, parts])
+  const change = (next, options = {}) => board.change(next, options)
   const displayedBoard = { ...board, circuit, change }
   // A defined part's settings change on the board it is on (the level's: packed boards are read only).
   const setNode = (node, params) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params } : n)) })
@@ -212,12 +199,14 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false }
   const step = packed?.trace?.()?.step
-  const divided = sectionsOf(circuit, placement(circuit, parts))
-  const sectionGroups = divided.filter((s) => !s.implicit && s.nodes.length)
-  const stageView = { stages: sectionGroups, loose: divided.filter((s) => s.implicit).flatMap((s) => s.nodes), active: step?.path?.[0] ?? step?.id,
-    edit: (row, patch) => change(editSection(circuit, parts, row, patch), { keep: true, sectionsEdited: true }),
-    open: (id) => { const section = sectionGroups.find((s) => s.id === id); if (section?.folded) change(editSection(circuit, parts, section.row, { folded: false }), { keep: true, sectionsEdited: true }) },
-    toggle: (id) => { const section = sectionGroups.find((s) => s.id === id); if (section) change(editSection(circuit, parts, section.row, { folded: !section.folded }), { keep: true, sectionsEdited: true }) },
+  const blockItems = blocksOf(circuit, parts)
+  const active = step?.path?.[0] ?? step?.id
+  const blockView = { items: blockItems.map((b) => b.view === 'hidden' && b.nodes.includes(active) ? { ...b, view: b.lastView ?? 'ports' } : b), active,
+    initial: stored.blocks === undefined,
+    unplaced: stored.nodes.filter(n=>!n.in&&parts.role(n)==='part'&&!Number.isInteger(n.slot)).map(n=>n.id),
+    edit: (id, patch) => change(editBlock(circuit, parts, id, patch), { keep: true }),
+    create: (nodes) => change(createBlock(circuit, parts, nodes), { keep: true }),
+    open: (id) => { const b = blockItems.find((b) => b.id === id); if (b?.view === 'hidden') change(editBlock(circuit, parts, id, { view: b.lastView ?? 'ports' }), { keep: true }) },
   }
 
   const all = [...items, ...folded]
@@ -232,7 +221,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   })
   // A new card goes into the region chosen last, while its frame is there and open.
   const into = target && circuit.nodes.some((n) => n.id === target.split('/')[0] && !n.fold) ? target : null
-  const add = (type) => change(make(circuit, type, { region: into, ...(!into ? { slot: firstOpenSlot(circuit, parts) } : {}) }).graph)
+  const add = (type) => change(make(circuit, type, { region: into, ...(!into ? { slot: newPartSlot(circuit, parts) } : {}) }).graph)
   const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !n.locked) || board.clearable?.(circuit) ? board.clear : null
 
   const briefEl = <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
@@ -241,7 +230,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 
   if (phone) {
     return (
-      <PhoneLevel {...{ stages: stageView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, dense, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, dense, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -255,7 +244,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
         <div className="cl-stage">
           <div className="cl-board">
             <CanvasEditor
-              stages={stageView}
+              blocks={blockView}
               key={level.id}
               scope={scope ?? level.id}
               graph={circuit}
@@ -298,7 +287,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ stages, screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { game } = screen
   const { circuit, change } = board
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }
@@ -341,7 +330,7 @@ function PhoneLevel({ stages, screen, board, parts, ctx, card, inside, all, item
   return (
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
-        stages={stages}
+        blocks={blocks}
         dense={dense}
         graph={circuit}
         parts={parts}

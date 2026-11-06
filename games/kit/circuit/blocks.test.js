@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows} from './blocks.js'
+import {blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot} from './blocks.js'
 import {print} from './text.js'
 const parts={role:n=>n.type==='in'?'source':n.type==='out'?'sink':'part',inputs:()=>['in'],outputs:()=>null}
 const graph={nodes:[{id:'input',type:'in',x:0,y:0},{id:'a',x:100,y:0},{id:'b',x:220,y:0},{id:'c',x:340,y:0},{id:'out',type:'out',x:500,y:0}],wires:[{from:'input',to:'a',port:'in'},{from:'a',to:'b',port:'in'},{from:'b',to:'c',port:'in'},{from:'c',to:'out',port:'in'}]}
@@ -28,4 +28,35 @@ test('rectangle selection tests card centres and row selection includes both end
 test('members are unique and missing or fixed cards never enter a block',()=>{
  const b={...graph,blocks:[{id:'x',nodes:['a','a','gone','input'],view:'hidden'},{id:'y',nodes:['a','b'],view:'full'}]}
  assert.deepEqual(blocksOf(b,parts).map(b=>b.nodes),[['a'],['b']])
+})
+
+test('new carried parts occupy ungrouped slots while existing placements stay unchanged',()=>{
+ const first=blockPreset(graph,[{id:'old',nodes:['a','b']}],parts)
+ const carried={...first,nodes:[...first.nodes,{id:'new',x:900,y:900}]}
+ const next=withNewSlots(carried,parts)
+ for(const old of first.nodes)assert.equal(next.nodes.find(n=>n.id===old.id).slot,old.slot)
+ const fresh=next.nodes.find(n=>n.id==='new')
+ assert(Number.isInteger(fresh.slot));assert(fresh.slot>=2)
+ assert.equal(fresh.x,900)
+})
+
+test('hiding remembers the prior visible mode across saved-board reloads',()=>{
+ let b=createBlock({...graph,blocks:[]},parts,['a','b'])
+ b=editBlock(b,parts,b.blocks[0].id,{view:'full'})
+ b=editBlock(b,parts,b.blocks[0].id,{view:'hidden'})
+ const reloaded=JSON.parse(JSON.stringify(b))
+ assert.equal(blocksOf(reloaded,parts)[0].lastView,'full')
+ assert.deepEqual(blocksOf(reloaded,parts).map(b=>b.id),b.blocks.map(b=>b.id))
+})
+
+test('new loose parts avoid vacant cells inside an existing block',()=>{
+ const b=blockPreset(graph,[{id:'old',nodes:['a']}],parts)
+ assert(newPartSlot(b,parts)>=2)
+})
+
+test('frame-internal connections do not become hidden-block boundary stubs',()=>{
+ const b={nodes:[{id:'i',type:'in'},{id:'frame'},{id:'child',in:'frame/body'},{id:'o',type:'out'}],wires:[{from:'i',to:'frame',port:'in'},{from:'frame#body',to:'child',port:'in'},{from:'child',to:'frame',port:'body'},{from:'frame',to:'o',port:'in'}],blocks:[{id:'b',view:'hidden',nodes:['frame']}]}
+ const block=blocksOf(b,parts)[0]
+ assert.equal(block.ins.length,1);assert.equal(block.outs.length,1)
+ assert.equal(block.ins[0].from,'i');assert.equal(block.outs[0].to,'o')
 })

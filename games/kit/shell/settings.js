@@ -1,3 +1,4 @@
+import { WORDS } from './words.js'
 import { SHAPES, VIEWS, viewsFor } from '../engine/views.js'
 
 // Device preferences belong to presentation and editing, never to puzzle progress.
@@ -7,7 +8,7 @@ export function defineSetting(setting) {
   registry.set(setting.key, setting)
   return setting
 }
-export const settingsFor = (game) => [...registry.values()].filter((s) => !s.when || s.when(game))
+export const settingsFor = (game, context) => [...registry.values()].filter((s) => !s.when || s.when(game, context))
 export const optionsFor = (setting, game) => typeof setting.options === 'function' ? setting.options(game) : setting.options ?? []
 const defaultFor = (setting, game, context) => typeof setting.default === 'function' ? setting.default(game, context) : setting.default
 const valid = (setting, value, game) => setting.kind === 'toggle' ? typeof value === 'boolean' : (setting.values ?? optionsFor(setting, game).map((o) => o.value)).includes(value)
@@ -46,7 +47,7 @@ export function createSettings(storage = () => globalThis.localStorage) {
 }
 export const settings = createSettings()
 const staged = (game) => [...(game.circuit?.played?.values() ?? [])].some((tasks) => tasks.some((t) => t.carry || t.carries))
-defineSetting({ key: 'manualSections', group: 'edit', label: { zh: '手动分段', en: 'Edit sections' }, kind: 'toggle', default: false, when: staged })
+defineSetting({ key: 'manualBlocks', group: 'edit', label: WORDS.manualBlocks, kind: 'toggle', default: false, when: (game,{phone=false}={})=>phone&&staged(game) })
 defineSetting({ key: 'compact', group: 'display', label: { zh: '打开关卡时紧凑格位', en: 'Start with compact slots' }, kind: 'toggle', default: false, when: (g) => Boolean(g.circuit) })
 defineSetting({ key: 'connectionLabels', group: 'display', label: { zh: '跨段连线画成标签', en: 'Label cross-section wires' }, kind: 'toggle', default: (_game, { phone = false } = {}) => phone, when: staged })
 for (const shape of SHAPES) defineSetting({

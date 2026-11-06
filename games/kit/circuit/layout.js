@@ -1,4 +1,5 @@
-// Data-flow columns shared by browser stage diagrams, the arrangement action and headless SVGs. Cycles keep a
+import { curve } from '../wires.js'
+// Data-flow columns shared by compact circuit placement and headless SVGs. Cycles keep a
 // finite depth; sources outside the supplied nodes do not add a column.
 export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) {
   const ids = new Set(nodes.map((n) => n.id))
@@ -95,8 +96,8 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY, width = 1
   const working = units.filter((u) => !attached.has(u.id))
   for (const u of working) {
     u.inner = alignedLayout(u.members, graph.wires, { sizeOf, portY, gapX, gapY })
-    u.w = u.view === 'hidden' ? Math.max(180, pad * 2 + 156) : u.inner.w + (u.block ? pad * 2 : 0)
-    u.h = u.view === 'hidden' ? title : u.inner.h + (u.block ? title + pad * 2 : 0)
+    u.w = u.view === 'hidden' ? 320 : u.inner.w + (u.block ? pad * 2 : 0)
+    u.h = u.view === 'hidden' ? 40 : u.inner.h + (u.block ? title + pad * 2 : 0)
   }
   const links = graph.wires.flatMap((w) => {
     const from = owner.get(sourceId(w)), to = owner.get(w.to)
@@ -147,12 +148,13 @@ export function reflowLayout(before, after, changed, { gapX = 24, gapY = 16 } = 
   return {...before,nodes,units}
 }
 
-export function routeWire(a, b, { gapX = 24 } = {}) {
-  if (Math.abs(a[1]-b[1])<1) return [a,b]
-  const x = b[0]>a[0] ? (a[0]+b[0])/2 : Math.max(a[0],b[0])+gapX
-  return [a,[x,a[1]],[x,b[1]],b]
+function sampleCurve(a,b) {
+  const [x0,y0,x1,y1,x2,y2,x3,y3]=curve(a,b,'x',48).match(/-?\d+(?:\.\d+)?/g).map(Number)
+  return Array.from({length:33},(_,k)=>{
+    const t=k/32,u=1-t
+    return [u*u*u*x0+3*u*u*t*x1+3*u*t*t*x2+t*t*t*x3,u*u*u*y0+3*u*u*t*y1+3*u*t*t*y2+t*t*t*y3]
+  })
 }
-export const routePath = (points) => points.map((p,k)=>`${k?'L':'M'}${p[0]},${p[1]}`).join(' ')
 
 /** Geometry measurements use every wire, including connections displayed as labels. */
 export function layoutMetrics(graph, plan, { sizeOf, portY = () => 48 }) {
@@ -161,7 +163,7 @@ export function layoutMetrics(graph, plan, { sizeOf, portY = () => 48 }) {
   const routes = graph.wires.flatMap((w)=>{
     const a=plan.nodes.get(sourceId(w)),b=plan.nodes.get(w.to)
     if(!a||!b)return []
-    return [routeWire([a.x+sizeOf(byId.get(sourceId(w))).w,a.y+portY(sourceId(w),w.from.split('#')[1]??null,'out')],[b.x,b.y+portY(w.to,w.port,'in')])]
+    return [sampleCurve([a.x+sizeOf(byId.get(sourceId(w))).w,a.y+portY(sourceId(w),w.from.split('#')[1]??null,'out')],[b.x,b.y+portY(w.to,w.port,'in')])]
   })
   const lengths=routes.map((r)=>r.slice(1).reduce((sum,p,k)=>sum+Math.hypot(p[0]-r[k][0],p[1]-r[k][1]),0))
   let crossings=0
