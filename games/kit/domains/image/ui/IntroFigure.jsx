@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { NODE_TYPES } from '../engine/nodes.js'
 import { figureTask, figureTest, partFigure } from '../intros.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import FigureStage from './FigureStage.jsx'
 import ValueView from './views/ValueView.jsx'
 import { kindOf } from './views/views.js'
@@ -34,7 +35,7 @@ export default function IntroFigure({ fig, level, theme }) {
         <div className="intro-flow">
           <Values items={Object.entries(test.inputs).map(([name, img]) => [L(task.inputLabels?.[name] ?? INPUT_NAMES[name]) ?? tr('输入', 'Input'), img])} view={fig.view} theme={theme} />
           <ArrowRight size={18} className="intro-arrow" />
-          <Values items={Object.entries(test.expected).map(([name, img]) => [L(task.outputLabels?.[name]) ?? tr('期望', 'Expected'), img])} view={fig.view} theme={theme} />
+          <Values items={Object.entries(test.expected).map(([name, img]) => [L(task.outputLabels?.[name]) ?? L(WORDS.wanted), img])} view={fig.view} theme={theme} />
         </div>
         {caption}
       </figure>

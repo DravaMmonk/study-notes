@@ -45,10 +45,6 @@
 .ag-verdict.is-pass { color: var(--status); }
 .ag-verdict.is-fail { color: var(--fail); }
 .ag-score { margin-top: 18px; }
-.ag-score .stat-row { display: flex; flex-wrap: wrap; gap: 14px 18px; }
-.ag-score .stat { display: grid; }
-.ag-score .stat b { font: 600 20px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
-.ag-score .stat span { color: var(--muted); font-size: 11px; }
 .ag-score .ag-total { margin: 8px 0 0; color: var(--muted); font-size: 12.5px; }
 
 /* The context bar: one block per entry, as wide as its tokens; the window's edge; dropped entries grey. */

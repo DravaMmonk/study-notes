@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { fromRows } from '../image.js'
 import { askOf, gridCheck, gridStart } from '../grid.js'
 import GridView from '../../../shell/views/grid/GridView.jsx'
@@ -74,7 +75,7 @@ export default function GridScreen({ game, level: entry, saved, save, solve, las
       {naive && <p className="rv-verdict is-fail">{L(task.naive.why)}</p>}
     </div>
   ) : null
-  const dock = <RunDock go={{ label: verdict?.pass ? tr('对了', 'Right') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
+  const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={task.hint} phone={phone} />
   return <Level phone={phone} className="vi-grid-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

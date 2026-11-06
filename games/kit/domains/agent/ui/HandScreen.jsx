@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { FlaskConical, FolderTree, Play, RotateCcw, X } from 'lucide-react'
 import { Brief, Level, Text } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
+import Readouts from '../../../shell/Readouts.jsx'
 import { playHand, stepHand } from '../hand.js'
 import { cut } from '../model.js'
 import { ContextBar, Report, RepoView } from './views.jsx'
@@ -38,10 +39,7 @@ export default function HandScreen({ game, level: entry, saved, save, solve, pho
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
       <section className="ag-score">
-        <div className="stat-row">
-          <div className="stat"><b>{session.tokens}</b><span>{tr('token', 'tokens')}</span></div>
-          <div className="stat"><b>{level.machine.window}</b><span>{tr('窗口', 'window')}</span></div>
-        </div>
+        <Readouts items={[{ value: session.tokens, label: T('token', 'tokens') }, { value: level.machine.window, label: T('窗口', 'window') }]} />
       </section>
     </Brief>
   )

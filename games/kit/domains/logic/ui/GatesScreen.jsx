@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 import { ArrowRightFromLine, CircleDot, CircuitBoard, ToggleLeft } from 'lucide-react'
 import { CircuitLevel, useLevelBoard, useLevelRun } from '../../../shell/index.js'
-import { L, tr, T } from '../../../shell/i18n.js'
+import { L, T, tr } from '../../../shell/i18n.js'
+import Readouts from '../../../shell/Readouts.jsx'
+import { WORDS } from '../../../shell/words.js'
 import { PackedBoard } from '../../../circuit/Inside.jsx'
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
@@ -102,10 +104,7 @@ export default function GatesScreen(screen) {
   const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), packed: Boolean(parts.rules[type].built), fresh: entry.fresh?.includes(type) })
   const score = (
     <section className="lg-score">
-      <div className="stat-row">
-        <div className="stat"><b>{countGates(level, circuit)}</b><span>{tr('门', 'Gates')}</span></div>
-        {level.budget !== undefined && <div className="stat"><b>{level.budget}</b><span>{tr('最多', 'At most')}</span></div>}
-      </div>
+      <Readouts items={[{ value: countGates(level, circuit), label: T('门', 'Gates') }, level.budget !== undefined && { value: level.budget, label: T('最多', 'At most') }]} />
     </section>
   )
   const table = (
@@ -113,7 +112,7 @@ export default function GatesScreen(screen) {
       {!level.blind && <p className="lg-sequent">{tr('这句话', 'The sentence')} <b>{sentence}</b></p>}
       <table className="lg-rows">
         <thead>
-          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{tr('目标真值', 'Target value')}</th>}<th>{tr('电路输出', 'Circuit output')}</th></tr>
+          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{L(WORDS.wanted)}</th>}<th>{L(WORDS.result)}</th></tr>
         </thead>
         <tbody>
           {rows.map((r, k) => (

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { atom, parse } from '../formula.js'
 import { say } from '../notation.js'
 import { lettersOf, rowsOf, tautology, valueOn } from '../truth.js'
@@ -103,7 +104,7 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
   // Trying rows needs no check: each row tried shows its value, and the one asked for passes the level.
   const tried = level.ask === 'counter' || level.ask === 'sat'
   const results = checked ? <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`} role="status">{checked.pass ? (level.ask === 'counter' ? tr('已找到反例：命题在这一行为假。', 'Counterexample found: the proposition is false on this row.') : level.ask === 'sat' ? tr('已找到满足赋值：命题在这一行为真。', 'Satisfying assignment found: the proposition is true on this row.') : tr('全部正确。', 'All answers are correct.')) : tr(`还有 ${checked.wrong.size} 处错误，已用红色标出。`, `${checked.wrong.size} still wrong, marked in red.`)}</p> : null
-  const dock = !tried && <RunDock go={{ label: checked?.pass ? tr('全部正确', 'All correct') : tr('检查', 'Check'), pass: Boolean(checked?.pass), onClick: check }} />
+  const dock = !tried && <RunDock go={{ label: checked?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(checked?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="lg-truth-level" brief={brief} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={dock} />
 }

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { freeVars, parse } from '../formula.js'
 import { difference, extent, structureOf } from '../fol.js'
 import { chipsOf, complete, straysOf } from '../formulaTree.js'
@@ -84,7 +85,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
     </div>
   )
   const results = verdict ? (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界中，真假都与原句一致。', 'In every small world it has the same truth value as the original.')}</p> : verdict.body) : null
-  const dock = <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
+  const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="fo-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

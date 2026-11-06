@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { say } from '../notation.js'
 import { checkIso, declaredRules, sentenceOf, startIso, typeOf, wayRule, wayText, waysIn } from '../iso.js'
 import { constructorsOf, datatypeRules } from '../datatype.js'
@@ -87,7 +88,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
     </div>
   )
   const results = verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('这份声明符合需求。', 'This declaration meets the requirement.') : verdict.text}</p>
-  const dock = <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
+  const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="fo-level lg-level" brief={brief} stage={stage} results={results || null} dock={dock} />
 }

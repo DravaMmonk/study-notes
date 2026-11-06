@@ -2,6 +2,7 @@ import { createElement, useEffect, useMemo, useState } from 'react'
 import { Check, RotateCcw } from 'lucide-react'
 import { CanvasEditor, sensorCaption } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import ParamControl from './ParamControl.jsx'
 import { partsFor } from './parts.js'
 import ValueView from './views/ValueView.jsx'
@@ -68,7 +69,7 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
           <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} style={index === 0 && param.buttons ? { marginTop: -PORT_ROW * Math.max(1, inputsOf(node.type).length) } : undefined} />
         ))}
         <div className="node-preview">
-          {error ? <span className="node-error">{L(error)}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={tr('未连接', 'Not connected')} grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
+          {error ? <span className="node-error">{L(error)}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={L(WORDS.notWired)} grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
           {!error && kindOf(value) === 'image' && offered.length > 1 && (
             <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('切换显示方式', 'Change display')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
               {createElement(IMAGE_VIEWS[shown].icon, { size: 12, strokeWidth: 1.8 })}

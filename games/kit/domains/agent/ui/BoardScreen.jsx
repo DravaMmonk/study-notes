@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { CircuitLevel, StepLog, Text, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, tr, T } from '../../../shell/i18n.js'
+import Readouts from '../../../shell/Readouts.jsx'
 import { MISSING } from '../../../engine/circuit.js'
 import { startBoard, wiring } from '../board.js'
 import { FIXED, PARTS } from '../parts.js'
@@ -107,12 +108,12 @@ export default function BoardScreen(screen) {
   const totalTokens = checked.runs.reduce((n, r) => n + r.tokens, 0)
   const score = (
     <section className="ag-score">
-      <div className="stat-row">
-        <div className="stat"><b>{run.run ? runOf.tokens : '–'}</b><span>{tr('token', 'tokens')}</span></div>
-        <div className="stat"><b>{run.run ? runOf.turns.length : '–'}</b><span>{level.machine.mode === 'once' ? tr('次调用', 'calls') : tr('轮', 'turns')}</span></div>
-        {level.budget?.tokens && <div className="stat"><b>{level.budget.tokens}</b><span>{tr('token 上限', 'token budget')}</span></div>}
-        {level.machine.mode === 'loop' && <div className="stat"><b>{level.budget?.turns ?? level.machine.turns}</b><span>{tr('轮数上限', 'turn limit')}</span></div>}
-      </div>
+      <Readouts items={[
+        { value: run.run ? runOf.tokens : '—', label: T('token', 'tokens') },
+        { value: run.run ? runOf.turns.length : '—', label: level.machine.mode === 'once' ? T('次调用', 'calls') : T('轮', 'turns') },
+        level.budget?.tokens && { value: level.budget.tokens, label: T('token 上限', 'token budget') },
+        level.machine.mode === 'loop' && { value: level.budget?.turns ?? level.machine.turns, label: T('轮数上限', 'turn limit') },
+      ]} />
       {run.passed && <p className="ag-total">{tr(`全部测试共 ${totalTokens} token`, `${totalTokens} tokens across all tests`)}</p>}
     </section>
   )

@@ -14,6 +14,7 @@ import { createElement, useEffect, useLayoutEffect, useMemo, useReducer, useRef,
 import { Pause, Play, StepForward } from 'lucide-react'
 import { Sheet, TestStatus, Workbench } from '../../../../shell/index.js'
 import { L as text } from '../../../../shell/i18n.js'
+import { WORDS } from '../../../../shell/words.js'
 import { paceOf } from '../../../../engine/trace.js'
 import { WORLDS, windowOf } from '../../model/worlds.js'
 import { ROBOTS } from '../../model/robots.js'
@@ -397,7 +398,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     <Dock
       pad={st.sel && { title: tr(`${V.name(st.sel)}：填一个数（不填 = 清空这一格）`, `${V.name(st.sel)}: type a number (leave blank to clear the cell)`), value: st.input, extra: padExtra, onKey: key }}
       controls={running ? [stepCtl, player.paused ? { key: 'resume', label: tr('继续', 'Continue'), icon: <Play size={16} />, onClick: player.resume } : { key: 'pause', label: tr('暂停', 'Pause'), icon: <Pause size={16} />, onClick: player.pause }] : [stepCtl]}
-      go={running ? { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } : { label: tr('运行测试', 'Run tests'), onClick: () => run() }}
+      go={running ? { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } : { label: text(WORDS.run), onClick: () => run() }}
     />
   )
   const close = () => setSheet(null)

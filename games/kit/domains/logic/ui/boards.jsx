@@ -5,7 +5,8 @@
 //            scene(level, test, text) → { sequent, want, choices }, settings(parts, node, level), extra?(node, setParam),
 //            nameOf, iconOf, familyOf (level, type), textOf (level, type, revisions): a part's text, words }
 import { ArrowRightFromLine, Box, CircuitBoard, Flag, GitFork, Repeat, Rows3, Search, Sigma } from 'lucide-react'
-import { L, tr, T } from '../../../shell/i18n.js'
+import { L, T, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import Entries from '../../../shell/Entries.jsx'
 import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
 import { startProof } from '../proof.js'
@@ -120,7 +121,7 @@ export const PROOF = {
   familyOf: (level, type) => familyOf(level.lemmas ?? {}, type),
   words: {
     steps: T('步数', 'Steps'),
-    go: T('检查证明', 'Check proof'),
+    go: WORDS.check,
     passed: T('证明完毕', 'Q.E.D.'),
     pass: T('目标已证出，没有未解除的假设。', 'The goal is proved and no assumption is left open.'),
     idle: T('每组测试都须通过：目标收到的句子要与待证的句子一致，且不留未解除的假设。', 'Every test must pass: the goal must receive the sentence to prove, with no assumption left open.'),

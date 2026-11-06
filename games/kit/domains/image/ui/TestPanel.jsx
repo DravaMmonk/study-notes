@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react'
 import { Check, EyeOff, X } from 'lucide-react'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import TestTabs from '../../../shell/TestTabs.jsx'
 import ImageView from './ImageView.jsx'
 import { rangeOf } from './display.js'
@@ -62,7 +63,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
       return (
         <figure className="test-curve">
           <CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={280} height={120} onHover={setProbe} />
-          <figcaption>{prefix}<i className="is-expected" />{tr('期望', 'expected')} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{tr('你的输出', 'your output')}</figcaption>
+          <figcaption>{prefix}<i className="is-expected" />{L(WORDS.wanted)} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{L(WORDS.result)}</figcaption>
         </figure>
       )
     }
@@ -119,7 +120,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
         ...Object.entries(test.expected).flatMap(([name, expected]) => {
           const actual = result?.outputs[name]
           const prefix = many ? `${L(level.outputLabels?.[name]) ?? name} ` : ''
-          return [[`${prefix}${tr('期望', 'expected')}`, valueAt(expected)], [`${prefix}${tr('你的', 'yours')}`, actual?.w === expected.w && actual?.h === expected.h ? valueAt(actual) : null]]
+          return [[`${prefix}${L(WORDS.wanted)}`, valueAt(expected)], [`${prefix}${L(WORDS.result)}`, actual?.w === expected.w && actual?.h === expected.h ? valueAt(actual) : null]]
         }),
       ]
     : null
@@ -157,18 +158,18 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
 
 function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover, scan, onScan, prefix = '' }) {
   const range = rangeOf(expected)
-  const missing = actual ? tr('尺寸不对', 'Wrong size') : tr('未连接', 'Not connected')
+  const missing = actual ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)
   const profile = view === 'profile'
   const row = Math.min(expected.h - 1, Math.max(0, Math.round(scan * (expected.h - 1))))
   return (
     <>
       <figure>
         {profile ? <ProfileView img={expected} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} compact /> : <ValueView img={expected} view={view} range={range} size={132} theme={theme} onHover={onHover} grid />}
-        <figcaption>{prefix}{tr('期望', 'Expected')}</figcaption>
+        <figcaption>{prefix}{L(WORDS.wanted)}</figcaption>
       </figure>
       <figure>
         {!fits ? <ImageView img={null} label={missing} /> : profile ? <ProfileView img={actual} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} compact /> : <ValueView img={actual} view={view} range={range} size={132} theme={theme} onHover={onHover} grid />}
-        <figcaption>{prefix}{tr('你的输出', 'Your output')}</figcaption>
+        <figcaption>{prefix}{L(WORDS.result)}</figcaption>
       </figure>
       <figure>
         <ImageView img={fits ? actual : null} against={expected} tolerance={tolerance} theme={theme} onHover={onHover} label="—" grid />
@@ -177,7 +178,7 @@ function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover,
       {profile && (
         <figure className="test-curve">
           <CurveView img={fits ? rowOf(actual, row) : null} expected={rowOf(expected, row)} tolerance={tolerance} width={280} height={110} onHover={(p) => onHover(p && { ...p, y: row, h: expected.h })} />
-          <figcaption>{tr(`第 ${row} 行：`, `Row ${row}: `)}<i className="is-expected" />{tr('期望', 'expected')} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{tr('你的输出', 'your output')} · {tr('在图上拖动可切换行', 'drag on a picture to pick another row')}</figcaption>
+          <figcaption>{tr(`第 ${row} 行：`, `Row ${row}: `)}<i className="is-expected" />{L(WORDS.wanted)} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{L(WORDS.result)} · {tr('在图上拖动可切换行', 'drag on a picture to pick another row')}</figcaption>
         </figure>
       )}
     </>

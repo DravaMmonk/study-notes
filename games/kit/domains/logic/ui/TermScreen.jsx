@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
-import { L, tr, T } from '../../../shell/i18n.js'
+import { L, T, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { parseTerm } from '../pterm.js'
@@ -52,7 +53,7 @@ export default function TermScreen({ game, level: entry, saved, save, solve, las
     </div>
   )
   const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型相符：这个证明项证明的正是这句话。', 'The type checks: this proof term proves exactly this sentence.') : L(verdict.reason)}</p> : null
-  const dock = <RunDock go={{ label: verdict?.pass ? tr('通过', 'Passed') : tr('检查', 'Check'), pass: Boolean(verdict?.pass), onClick: check }} />
+  const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="fo-level tm-level" brief={brief} stage={stage} results={results} dock={dock} />
 }
