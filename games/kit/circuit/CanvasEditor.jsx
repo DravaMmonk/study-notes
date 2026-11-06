@@ -3,9 +3,9 @@ import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { foldedPartsOf } from './folding.js'
 import ClearButton from './ClearButton.jsx'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
-import { arrangedBoard, pipelineLayout } from './layout.js'
+import { pipelineLayout, reflowLayout, routeWire, routePath } from './layout.js'
 import SaveSlots from './SaveSlots.jsx'
-import { ChevronDown, ChevronRight, Maximize, LayoutGrid, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
+import { ChevronDown, ChevronRight, Maximize, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
 import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
@@ -72,7 +72,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       if (!current) return current
       const nodes = new Map(current.nodes)
       for (const n of moved) nodes.set(n.id, { x: n.x, y: n.y })
-      return { nodes }
+      return { ...current, nodes }
     })
     given(keepLocked(graph, next), opt)
   }
@@ -126,6 +126,11 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const arrange = () => pipelineLayout(graph, groups, {
     sizeOf: (n) => { const size = geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
     roleOf: parts.role,
+    width: surface.current?.clientWidth ?? 1100,
+    gapX: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-x')),
+    gapY: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-y')),
+    pad: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),
+    portY: (id, key, side) => geo.offsets?.[side === 'out' ? outPort(key ? `${id}#${key}` : id) : inPort(id, key)] ?? 46,
   })
   const painting = groups.length ? presentation ?? arrange() : null
   visible = visible.map((n) => painting?.nodes.has(n.id) ? { ...n, ...painting.nodes.get(n.id) } : n)
@@ -141,9 +146,11 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   useLayoutEffect(() => {
     const root = layer.current
     if (!root) return
-    const ports = {}
+    const ports = {}, offsets = {}
     for (const el of ownIn(root, '[data-p]')) {
       const box = el.getBoundingClientRect()
+      const card = el.closest('[data-node]')
+      if (card) offsets[el.dataset.p] = (box.top + box.height / 2 - card.getBoundingClientRect().top) / view.zoom
       ports[el.dataset.p] = pointIn(root, box.left + box.width / 2, box.top + box.height / 2).map(Math.round)
     }
     const sizes = {}
@@ -159,7 +166,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
         return
       }
     }
-    const next = { ports, sizes }
+    const next = { ports, sizes, offsets }
     if (JSON.stringify(next) === JSON.stringify(geoRef.current)) return
     geoRef.current = next
     setGeo(next)
@@ -214,7 +221,8 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       return el ? [el.offsetWidth, el.offsetHeight] : sizeOf(n)
     }
     const beside = (groups.length ? top : graph.nodes).filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null)).map((n) => [n.x, n.y, ...drawn(n)])
-    const spot = clearSpot(beside, drawn(node), [node.x, node.y])
+    const candidate = arrange().nodes.get(node.id) ?? node
+    const spot = clearSpot(beside, drawn(node), [candidate.x, candidate.y])
     if (!spot) return
     moving.current = true
     onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, x: spot[0], y: spot[1] } : n)) }, { keep: true })
@@ -639,12 +647,6 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       </g>)}
     </g>
   }
-  const organize = () => {
-    const planned = arrange()
-    const next = arrangedBoard(graph, planned)
-    onChange(next, { keep: true })
-    setPresentation(planned)
-  }
   const centre = () => {
     const box = surface.current.getBoundingClientRect()
     return [box.width / 2, box.height / 2]
@@ -664,7 +666,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
             const from = byId.get(srcNode(wire.from))
             if (!a || !b || !from) return null
             if (labels.has(wireKey(wire))) return null
-            const d = curve(a, b)
+            const d = routePath(routeWire(a, b))
             const active = selected?.wire?.to === wire.to && selected?.wire?.port === wire.port
             const state = wireState?.(wire)
             return (
@@ -711,7 +713,6 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       <div className="board-zoom" onPointerDown={(e) => e.stopPropagation()}>
         {!readOnly && (
           <>
-            {placed > 0 && <button type="button" onClick={organize} aria-label={tr('整理', 'Arrange')} title={tr('按数据流整理，可撤销', 'Arrange by data flow; undoable')}><LayoutGrid size={14} /></button>}
             {onClear && <><ClearButton onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
             <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>
             <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={14} /></button>

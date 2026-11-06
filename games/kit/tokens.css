@@ -144,6 +144,9 @@
 
 /* ---- game layer ---- */
 :root {
+  --board-gap-x: 24px;
+  --board-gap-y: 16px;
+  --block-pad: 12px;
   --group-pad: 16px;
   --group-title: 24px;
   --group: color-mix(in srgb, var(--ink) 4%, transparent);

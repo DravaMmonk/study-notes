@@ -1,31 +1,35 @@
-import { test } from 'node:test'
+import test from 'node:test'
 import assert from 'node:assert/strict'
-import { arrangedBoard, pipelineLayout } from './layout.js'
-const graph = { nodes: [{id:'image',type:'in'}, {id:'a',type:'part',params:{k:2},x:400,y:70}, {id:'b',type:'part',x:20,y:10}, {id:'c',type:'part'}, {id:'out',type:'out'}], wires: [{from:'image',to:'a',port:'x'},{from:'a',to:'b',port:'x'},{from:'b',to:'c',port:'x'},{from:'c',to:'out',port:'in'}] }
-const roleOf = n => n.type==='in'?'source':n.type==='out'?'sink':'part'
-const options = { sizeOf: () => ({w:100,h:60}), roleOf }
-test('stages are layout units, terminals have outer columns and explicit arrangement preserves computation',()=>{
-  const stages=[{id:'read',nodes:['a','b']}]
-  const plan=pipelineLayout(graph,stages,options)
-  assert.ok(plan.nodes.get('image').x<plan.nodes.get('a').x)
-  assert.ok(plan.nodes.get('a').x<plan.nodes.get('c').x)
-  assert.ok(plan.nodes.get('out').x>plan.nodes.get('c').x)
-  const next=arrangedBoard(graph,plan)
-  assert.equal(next.wires,graph.wires)
-  assert.equal(next.nodes[1].params,graph.nodes[1].params)
-  assert.deepEqual(next.nodes.map(n=>[n.id,n.type]),graph.nodes.map(n=>[n.id,n.type]))
-  assert.equal(graph.nodes[1].x,400)
+import { alignedLayout, pipelineLayout, reflowLayout, layoutMetrics } from './layout.js'
+const roleOf = (n) => n.type === 'in' ? 'source' : n.type === 'out' ? 'sink' : 'part'
+const sizeOf = () => ({w:100,h:64})
+const options = {roleOf,sizeOf,width:700,portY:(_id,key,side)=>side==='in'&&key==='b'?66:46}
+const graph = {nodes:[{id:'in',type:'in'},{id:'a'},{id:'b'},{id:'c'},{id:'k'},{id:'out',type:'out'}],wires:[{from:'in',to:'a',port:'a'},{from:'a',to:'b',port:'a'},{from:'b',to:'c',port:'a'},{from:'k',to:'c',port:'b'},{from:'c',to:'out',port:'a'}]}
+const blocks=[{id:'first',view:'ports',nodes:['a','b']},{id:'last',view:'ports',nodes:['c']}]
+test('a chain aligns actual input and output offsets, including non-first inputs',()=>{
+ const p=alignedLayout(graph.nodes.filter(n=>['k','c'].includes(n.id)),graph.wires,options)
+ assert.equal(p.positions.get('k').y+46,p.positions.get('c').y+66)
 })
-test('a section reserves room for its dependency-ordered internal cards',()=>{
-  const plan=pipelineLayout(graph,[{id:'read',nodes:['a','b']}],options)
-  assert.ok(plan.nodes.get('a').x<plan.nodes.get('b').x)
-  assert.ok(plan.nodes.get('b').x+100<plan.nodes.get('c').x)
+test('blocks wrap, private constants follow consumers, and layout is deterministic',()=>{
+ const p=pipelineLayout(graph,blocks,options)
+ assert.deepEqual(p,pipelineLayout(graph,blocks,options))
+ assert(p.nodes.get('k').x<p.nodes.get('c').x)
+ assert(p.nodes.get('c').x-p.nodes.get('k').x<150)
+ assert(p.units.every(u=>u.x+u.w<=p.width))
+ assert(p.units[1].y>p.units[0].y)
+ const m=layoutMetrics(graph,p,options)
+ assert(m.area<500000,JSON.stringify(m));assert(m.longest<1200,JSON.stringify(m));assert(m.crossings<8,JSON.stringify(m));assert(m.total<3000,JSON.stringify(m))
 })
-
-test('desktop arrangement preserves saved section membership and nested coordinates', () => {
-  const board = { ...graph, sections: [{row:0,note:'first'}, {row:2,folded:true}], nodes: [...graph.nodes.map((n,k)=>({...n,slot:k+4})), {id:'nested',type:'part',in:'a/body',x:9,y:12}] }
-  const next = arrangedBoard(board, pipelineLayout(board, [{id:'first',nodes:['a','b']}], options))
-  assert.equal(next.sections, board.sections)
-  assert.deepEqual(next.nodes.map((n)=>[n.id,n.slot,n.in]),board.nodes.map((n)=>[n.id,n.slot,n.in]))
-  assert.equal(next.nodes.at(-1),board.nodes.at(-1))
+test('independent branches stack rather than consume separate columns',()=>{
+ const g={nodes:[{id:'a'},{id:'b'},{id:'c'}],wires:[{from:'a',to:'c',port:'a'},{from:'b',to:'c',port:'b'}]}
+ const p=pipelineLayout(g,[],options)
+ assert.equal(p.nodes.get('a').x,p.nodes.get('b').x)
+ assert.notEqual(p.nodes.get('a').y,p.nodes.get('b').y)
+})
+test('mode reflow retains the changed block anchor and never mutates stored coordinates',()=>{
+ const before=pipelineLayout(graph,blocks,options), saved=structuredClone(graph)
+ const hidden=pipelineLayout(graph,blocks.map(b=>b.id==='first'?{...b,view:'hidden'}:b),options)
+ const after=reflowLayout(before,hidden,'first')
+ assert.equal(after.units[0].x,before.units[0].x);assert.equal(after.units[0].y,before.units[0].y)
+ assert.deepEqual(graph,saved)
 })
