@@ -192,3 +192,5 @@
 - 2026-11-06: Completed pipeline miniatures, shared slot dividers and notes, undoable data-flow arrangement, and per-game device settings with advanced section editing hidden by default.
 
 - 2026-11-06: Replaced stage diagrams with original cards folded in place, passive section backdrops, three configurable faces and screen-specific wire-label defaults.
+
+- 2026-11-06: Replaced row dividers with identity-based blocks, shared three-mode headers, desktop rectangle and phone row partitioning, compact placement metrics and temporary view reflow; removed Arrange and preserved wiring.

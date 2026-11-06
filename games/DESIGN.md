@@ -884,31 +884,41 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 
-**Pipeline sections.** Course provenance (`engine/stages.js`) generates the initial layout and supports the
-`open-crowded` audit. Parts with the same provenance occupy consecutive phone rows, prior sections start folded,
-and current work stays unfolded below them. Task `stage` supplies a preset note, otherwise the level title does.
-The actual view uses board dividers: `board.sections: [{ row, note?, folded? }]`. Each divider starts a section at
-that slot-grid row; its members extend to the next divider. Adding, moving or deleting a divider, editing its note,
-or changing its fold state saves the dividers together with ordinary slot positions. An explicit empty list stays
-empty. Dividers affect layout only: blueprint text, circuit execution and judging ignore them.
+**Circuit blocks.** Course provenance (`engine/stages.js`) supplies block presets and the `open-crowded`
+audit. Board layout stores `blocks: [{ id, note?, view, nodes }]`, with node identities rather than row dividers.
+Each root component belongs to at most one block; fixed input/output cards and current ungrouped work stay
+outside. A newly selected block takes its members from previous blocks; empty blocks disappear. Explicit empty
+lists remain empty. Presets apply only before blocks have been written: prior course groups use `ports`, with
+the course stage name as their note. Blocks, slots and desktop coordinates never affect blueprint text, execution
+or judging. There is no divider model or Arrange command.
 
-Groups are passive, faint backdrops computed from their real components' bounds plus token-defined padding.
-They sit under cards and wires, with a name and fold control at the upper left. They have no card border, title
-bar, proxy ports or drag handle. Phone sections use the same faint backdrop across their original grid rows,
-with the divider note and fold control at the top.
+Every block uses the single `circuit/BlockHeader.jsx` component: note, component count and full/ports/hidden
+controls, with words from the shared registry. Full shows the original cards; ports omits their bodies while
+retaining heads and actual ports. Hidden shows only a narrow header with boundary port stubs. Clicking a stub or
+paired label restores the prior visible mode and reveals the component. Optional layout metadata `lastView`
+remembers that mode across reloads. A running step inside a hidden block temporarily reveals it without changing
+the stored mode. Notes, modes and deletion use the same header on both devices. Deleting a block keeps its nodes.
 
-Folding a section keeps every original component at its existing desktop coordinates or phone slot. The same
-card head and real ports remain; only configuration, readings, summaries and value previews are omitted. The kit
-owns this fixed presentation: parts define only card, tile and detail views. Folding does not replace or hide
-components, introduce proxy ports, or trigger arrangement. The phone's one tools-row button applies that folded
-presentation to all components; a section toggle applies it to that section. Row heights shrink, but rows remain.
-Divider editing and saved notes continue to use the same layout metadata.
+Desktop Partition is always available in the canvas tools. A dragged rectangle selects component centres; Escape
+or a second press cancels. Passive token-based backdrops follow member bounds, with no independent block drag
+surface. Phone Partition appears only with Manual partitioning enabled and compact view selected: pick a start
+row then an end row, both inclusive. In that state blocks use faint backdrops and compact tiles. In other states
+cards retain their default size and blocks use two edge-to-edge horizontal rules, with the header on the first.
+Ports renders as full in the default phone view. Hidden collapses either presentation to its header line; its
+actual endpoint stubs use the upper/lower edges on phones and left/right edges on desktop.
 
-Desktop reads the same sections, notes and fold state. Initial placement and the undoable Arrange action use
-`circuit/layout.js` dependency columns; folding never rearranges existing work. Phone Arrange sorts inside each
-section without changing divider rows or section order. Connections retain their actual endpoint identifiers.
-`circuit/connections.js` can replace cross-group, multi-group fanout or long connections with paired source labels;
-there is no folded-section boundary or special crossing rule. Following a tag reveals its real destination.
+Compact placement has two layers in `circuit/layout.js`: dependency columns within a block, upstream barycentre
+ordering and actual-port alignment; then block/loose units wrap by viewport width, with independent branches
+stacked and private constants/sources beside their consumer. Phone members occupy contiguous two-column rows.
+Gaps, padding and header sizes use shared tokens. Initial layout and newly carried/added components may be
+placed; existing saved coordinates are retained. View changes make temporary room after the changed unit while
+holding its anchor, without saving those shifts. The headless SVG renderer retains its original column layout.
+Synthetic layout tests bound area, longest wire, crossings and total wire length. Scanner measurements and the
+comparison protocol are recorded in `vision-lab/BLOCKS-REVIEW.md`.
+
+Wiring is unchanged: graph connections, port interaction, ordinary port placement and the original curve renderer
+are preserved. Block presentation may substitute boundary stubs only while hidden. The shared existing label
+policy and the player's label preference remain in force; this revision does not reroute or bundle the wires.
 
 **Player settings.** A gear in the shared game bar opens a desktop popover or phone bottom sheet on both maps
 and levels. Language and theme are choices inside this panel, retaining the site-wide `fieldnotes.lang` and
@@ -918,8 +928,9 @@ options. Device preferences share one `games.settings` localStorage key, partiti
 progress and stamps. Storage access is guarded; unavailable or invalid preferences use defaults.
 
 The panel separates display and editing with a rule, uses one short name and control per row, and ends with
-Restore defaults. Manual section editing starts off: handles, insertion, deletion and note editing are hidden;
-existing notes and dividers remain, and folding always works. Compact slots initially start off. Connection labels
+Restore defaults. Manual partitioning starts off and appears only on phones where circuit grouping is meaningful. The phone
+Partition button also requires compact view; desktop Partition is independent of this setting. Existing blocks
+and their view controls remain available. Compact slots initially start off. Connection labels
 default off on desktop, where the real ports and continuous wires preserve the data flow without duplicate name
 tags, and on on phones, where long wires cross many scrolling rows. An explicit device preference overrides both
 defaults. Grid display offers the game's available choices only when there is more than one, sharing its stored
