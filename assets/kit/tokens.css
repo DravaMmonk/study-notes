@@ -11,13 +11,9 @@
 
   /* Type scale. Labels are small spaced mono; interface text is sans; reading text and titles are serif. */
   --fs-label: 11px;
-  --fs-mini: 11px;
   --stage-gap: 12px;
   --port-radius: 6px;
   --stage-pad: 12px;
-  --mini-width: 132px;
-  --mini-height: 46px;
-  --stage-preview: 96px;
   --settings-width: 360px;
   --section-gutter: 30px;
   --section-line-height: 28px;
