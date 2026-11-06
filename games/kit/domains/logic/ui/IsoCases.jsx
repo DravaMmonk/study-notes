@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { ChoiceField, Field, InlineChoice, RowTable } from '../../../shell/index.js'
-import { L, tr, T } from '../../../shell/i18n.js'
+import { L, T, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { show } from '../formula.js'
 import { chipsFrom } from '../formulaTree.js'
 import { propositionsOf, sentenceOf } from '../iso.js'
@@ -52,7 +53,7 @@ export default function CaseTable({ cases, words, level, edit = null, rowClass =
     { key: 'given', label: T('前提', 'Premises'), align: 'start', edit: (c, set, k) => (locked(c, 'given') ? givenCell(c) : premises(c, set, k)), cell: givenCell },
     { key: 'goal', label: T('目标', 'Goal'), edit: level.caseGoal ? null : (c, set, k) => (locked(c, 'goal') ? goalCell(c) : goal(c, set, k)), cell: goalCell },
     // A declaration to write or correct keeps its expectations to itself: a run only says whether each result is right.
-    ...(edit ? [{ key: 'make', label: T('预期', 'Expected'), edit: level.caseMake !== undefined ? null : (c, set) => (locked(c, 'make') ? derivable(c.make) : <InlineChoice value={c.make} options={makes} unset={unsure} onChange={(make) => set({ ...c, make })} />), cell: makeCell }] : []),
+    ...(edit ? [{ key: 'make', label: WORDS.wanted, edit: level.caseMake !== undefined ? null : (c, set) => (locked(c, 'make') ? derivable(c.make) : <InlineChoice value={c.make} options={makes} unset={unsure} onChange={(make) => set({ ...c, make })} />), cell: makeCell }] : []),
     { key: 'result', label: T('结果', 'Result'), className: 'lg-result', cell: (_, k) => (result(k) ? <span className={result(k).wrong ? 'lg-wrong' : 'lg-right'}>{derivable(result(k).derived)}</span> : '') },
   ]
   const premises = (c, set, k) => <SentenceList value={c.given} kept={c.keep ?? []} onChange={setGiven(c, set)} build={build} title={T(`第 ${k + 1} 条条例的前提`, `A premise of test case ${k + 1}`)} addLabel={T('添加前提', 'Add a premise')} scope={`${level.id}:case${k}`} />
@@ -64,8 +65,8 @@ export default function CaseTable({ cases, words, level, edit = null, rowClass =
         ? <Field label={T('目标（固定）', 'Goal (fixed)')}><span className="ff-fixed">{name(level.caseGoal ?? goalOf(c))}</span></Field>
         : <Field label={T('目标', 'Goal')}>{goal(c, set, k)}</Field>}
       {level.caseMake !== undefined || locked(c, 'make')
-        ? <Field label={T('预期（固定）', 'Expected (fixed)')}><span className="ff-fixed">{derivable(level.caseMake ?? c.make)}</span></Field>
-        : <ChoiceField label={T('预期', 'Expected')} value={c.make} options={makes} onChange={(make) => set({ ...c, make })} />}
+        ? <Field label={T('应得（固定）', 'Wanted (fixed)')}><span className="ff-fixed">{derivable(level.caseMake ?? c.make)}</span></Field>
+        : <ChoiceField label={WORDS.wanted} value={c.make} options={makes} onChange={(make) => set({ ...c, make })} />}
     </>
   )
   return (

@@ -1,7 +1,9 @@
 import { Suspense, lazy, useMemo, useState } from 'react'
 import { Brief, Level, PinnedPlay, RunDock, TestStatus, Workbench } from '../../../shell/index.js'
 import { Palette, freeSpot } from '../../../circuit/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, tr, T } from '../../../shell/i18n.js'
+import Readouts from '../../../shell/Readouts.jsx'
+import { WORDS } from '../../../shell/words.js'
 import { checkingTests } from '../engine/graph.js'
 import { withHidden } from '../../../engine/tests.js'
 import { startBoard } from '../engine/board.js'
@@ -170,13 +172,12 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const graphLevel = level.kind === 'graph'
   const score = graphLevel && (
     <section className="score">
-      <h3 className="panel-label">{tr('评分', 'Score')}</h3>
-      <div className="stat-row">
-        <div className="stat"><b>{run?.score.nodes ?? 0}</b><span>{tr('元件', 'Parts')}</span></div>
-        <div className="stat"><b>{run?.score.cost ?? 0}</b><span>{tr('计算量', 'Cost')}</span></div>
-        {run?.score.learned > 0 && <div className="stat"><b>{run.score.learned}</b><span>{tr('参数', 'Parameters')}</span></div>}
-        <div className={`stat ${shown?.pass ? 'is-pass' : ''}`}><b>{shown?.untested ? '—' : passed}/{playLevel.tests.length}</b><span>{shown?.untested ? tr('尚未测试', 'Not tested') : tr('测试', 'Tests')}</span></div>
-      </div>
+      <Readouts items={[
+        { value: run?.score.nodes ?? 0, label: T('元件', 'Parts') },
+        { value: run?.score.cost ?? 0, label: T('计算量', 'Cost') },
+        run?.score.learned > 0 && { value: run.score.learned, label: T('参数', 'Parameters') },
+        { value: `${shown?.untested ? '—' : passed}/${playLevel.tests.length}`, label: T('测试', 'Tests'), pass: shown?.pass },
+      ]} />
       {run?.constraint && <p className="constraint">{L(run.constraint)}</p>}
       {progress.best[level.id] && <p className="panel-note">{tr(`最佳：${progress.best[level.id].nodes} 个元件 · 计算量 ${progress.best[level.id].cost}`, `Best: ${progress.best[level.id].nodes} parts · cost ${progress.best[level.id].cost}`)}</p>}
     </section>
@@ -228,7 +229,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
           <TestPanel {...half} part="views" />
         </div>
       }
-      dock={<RunDock go={{ label: shown?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(shown?.pass && !hiddenMiss), onClick: runTests }} />}
+      dock={<RunDock go={{ label: shown?.pass && !hiddenMiss ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(shown?.pass && !hiddenMiss), onClick: runTests }} />}
     />
   )
 }

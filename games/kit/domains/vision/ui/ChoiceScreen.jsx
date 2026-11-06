@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { fromRows } from '../image.js'
 import { isNaive, judgeOf } from '../judges.js'
 import { render } from '../scene.js'
@@ -138,7 +139,7 @@ export default function ChoiceScreen({ game, level: entry, saved, save, solve, l
       {naive && <p className="rv-verdict is-fail">{L(task.naive.why)}</p>}
     </div>
   ) : null
-  const go = verdict?.pass ? (last ? tr('全部答对', 'All right') : tr('下一轮', 'Next round')) : tr('检查', 'Check')
+  const go = verdict?.pass ? (last ? L(WORDS.passed) : tr('下一轮', 'Next round')) : L(WORDS.check)
   const dock = <RunDock go={{ label: go, pass: Boolean(verdict?.pass && last), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={task.hint} phone={phone} />
   return <Level phone={phone} className="vi-choice-level" brief={brief} stage={stage} results={results} dock={dock} />

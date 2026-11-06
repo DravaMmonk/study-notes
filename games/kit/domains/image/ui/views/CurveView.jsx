@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { tr } from '../../../../shell/i18n.js'
+import { L, tr } from '../../../../shell/i18n.js'
+import { WORDS } from '../../../../shell/words.js'
 import { formatNumber } from './views.js'
 
 const signalRange = (...signals) => {
@@ -64,7 +65,7 @@ export default function CurveView({ img, expected, tolerance, width = 112, heigh
         <span className={`curve-tip ${x(at) > width / 2 ? 'is-left' : ''}`} style={{ left: `${(x(at) / width) * 100}%`, top: `${(y(shown) / height) * 100}%` }}>
           <i>x = {at}</i>
           {value !== null && value !== undefined && <b>{formatNumber(value)}</b>}
-          {img && want !== null && want !== undefined && <small>{tr('期望', 'expected')} {formatNumber(want)}</small>}
+          {img && want !== null && want !== undefined && <small>{L(WORDS.wanted)} {formatNumber(want)}</small>}
         </span>
       )}
     </div>

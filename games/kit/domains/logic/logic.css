@@ -55,10 +55,6 @@
 .lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .lg-verdict.is-pass { color: var(--status); }
 .lg-verdict.is-fail { color: var(--fail); }
-.lg-score .stat-row { display: flex; gap: 16px; }
-.lg-score .stat { display: grid; }
-.lg-score .stat b { font: 600 20px var(--mono); color: var(--ink); }
-.lg-score .stat span { color: var(--muted); font-size: 11px; }
 
 /* ---- phone ---- */
 .lg-chips { display: grid; gap: 2px; }

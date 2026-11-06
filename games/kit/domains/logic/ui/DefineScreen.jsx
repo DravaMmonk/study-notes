@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Brief, Level, RunDock, usePlayback } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
+import { WORDS } from '../../../shell/words.js'
 import { parseS, parseSide } from '../schematic.js'
 import { say, sayTerm } from '../notation.js'
 import { checkDefine, whyNot } from '../define.js'
@@ -56,7 +57,7 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
     <div className="lg-strip is-tables">
       <div className="lg-scroll-x">
         <table className="lg-rows">
-          <thead><tr><th>{tr('表达式', 'Expression')}</th><th>{tr('期望值', 'Expected')}</th><th className="lg-result">{tr('结果', 'Result')}</th></tr></thead>
+          <thead><tr><th>{tr('表达式', 'Expression')}</th><th>{L(WORDS.wanted)}</th><th className="lg-result">{L(WORDS.result)}</th></tr></thead>
           <tbody>
             {level.tests.map((test, k) => {
               const r = checked?.rows[k]

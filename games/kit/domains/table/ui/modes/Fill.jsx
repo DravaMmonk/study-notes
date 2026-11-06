@@ -7,6 +7,8 @@ import { tr, lazy } from '../../lang.js'
 import HandLevel from '../HandLevel.jsx'
 import Scene from '../Scene.jsx'
 import { CheckIcon, buzz, typing, useKeys, useToast, useVerdict } from '../play.jsx'
+import { L as text } from '../../../../shell/i18n.js'
+import { WORDS } from '../../../../shell/words.js'
 
 export default function Fill({ game, level, phone, saved, save, solve, fail }) {
   const L = level.source
@@ -105,7 +107,7 @@ export default function Fill({ game, level, phone, saved, save, solve, fail }) {
       }
       dock={sel
         ? { pad: { title: tr(`到${name(sel)}的路线数`, `Routes to ${name(sel)}`), value: input, onKey: key } }
-        : { meta: tr(<>已填 <b>{filled}</b>{` / ${total}`}</>, <>Filled <b>{filled}</b>{` / ${total}`}</>), go: { label: tr('检查', 'Check'), icon: <CheckIcon />, onClick: check } }}
+        : { meta: tr(<>已填 <b>{filled}</b>{` / ${total}`}</>, <>Filled <b>{filled}</b>{` / ${total}`}</>), go: { label: text(WORDS.check), icon: <CheckIcon />, onClick: check } }}
     >
       {toastEl}
     </HandLevel>

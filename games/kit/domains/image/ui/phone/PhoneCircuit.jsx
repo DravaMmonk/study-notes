@@ -1,6 +1,7 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowDownToLine, Check, X } from 'lucide-react'
 import { L, tr } from '../../../../shell/i18n.js'
+import { WORDS } from '../../../../shell/words.js'
 import { Notice, PartActions, SlotBoard, Tray, feeding, useSlotEditing } from '../../../../circuit/index.js'
 import { PhonePage, RunDock, TestTabs } from '../../../../shell/index.js'
 import { familyOf, iconOf } from '../catalog.js'
@@ -78,11 +79,11 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
     return (
       <>
         <span className="pb-compare">
-          <figure>{want && <ValueView img={want} view={view} size={big} theme={theme} />}<figcaption>{tr('期望', 'Expected')}</figcaption></figure>
+          <figure>{want && <ValueView img={want} view={view} size={big} theme={theme} />}<figcaption>{L(WORDS.wanted)}</figcaption></figure>
           {kindOf(want) === 'image' ? (
             <figure>{got && fits(got, want) ? <ImageView img={got} against={want} tolerance={tolerance} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('误差', 'Error')}</figcaption></figure>
           ) : (
-            <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('你的', 'Yours')}</figcaption></figure>
+            <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{L(WORDS.result)}</figcaption></figure>
           )}
         </span>
         {check && check.pass !== null && <span className="pb-verdict">{check.pass ? <Check size={13} /> : <X size={13} />}</span>}
@@ -122,7 +123,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
       tests={<TestTabs phone tests={level.tests} states={level.tests.map((_, index) => { const ok = run?.results[index]?.pass; return ok === true ? 'pass' : ok === false ? 'fail' : null })} index={testIndex} onSelect={onTestIndex} />}
       tray={<Tray items={level.palette.filter((type) => !level.folded?.includes(type)).map(trayItem)} folded={(level.folded ?? []).map(trayItem)} onPick={editing.placeFirstFree} />}
       results={testDetails}
-      dock={<RunDock go={{ label: run?.pass && !hiddenMiss ? tr('全部通过', 'All passed') : tr('运行测试', 'Run tests'), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }} />}
+      dock={<RunDock go={{ label: run?.pass && !hiddenMiss ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(run?.pass && !hiddenMiss), onClick: test }} />}
     >
       <SlotBoard
         graph={graph}
@@ -229,11 +230,11 @@ function PartPanel({ kit, node, flags, ioKinds, value, error, check, expected, t
           <p className="ph-error">{L(error)}</p>
         ) : node.type === 'output' && expected ? (
           <div className="pc-compare">
-            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} /><figcaption>{tr('期望', 'Expected')}</figcaption></figure>
+            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
             {kindOf(expected) === 'image' ? (
-              <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={140} theme={theme} label={value ? tr('尺寸不对', 'Wrong size') : tr('未连接', 'Not connected')} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>
+              <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={140} theme={theme} label={value ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>
             ) : (
-              <figure><ValueView img={value} view={shown} size={150} theme={theme} label={tr('未连接', 'Not connected')} /><figcaption>{tr('你的', 'Yours')}</figcaption></figure>
+              <figure><ValueView img={value} view={shown} size={150} theme={theme} label={L(WORDS.notWired)} /><figcaption>{L(WORDS.result)}</figcaption></figure>
             )}
           </div>
         ) : (

@@ -33,11 +33,6 @@
 
 /* ---- the brief's parts, score and training (the shell lays out the workbench: games/kit/shell/shell.css) ---- */
 
-.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.stat { padding: 8px 10px; display: grid; gap: 2px; border-radius: 10px; background: var(--canvas); }
-.stat b { font-family: var(--mono); font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.stat span { color: var(--muted); font-size: 11px; }
-.stat.is-pass b { color: var(--status); }
 .constraint { margin: 8px 0 0; color: var(--fail); font-size: 12px; }
 .train-buttons { display: flex; gap: 6px; }
 .train-buttons button, .probe-answers button, .dialog-actions button { min-height: 36px; padding: 0 14px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font-size: 13px; cursor: pointer; transition: box-shadow 160ms ease, transform 160ms ease; }

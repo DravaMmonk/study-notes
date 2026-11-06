@@ -282,6 +282,12 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .pl-results > .wb-pane-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font: 500 var(--fs-ui)/1.4 var(--sans); }
 .pl-results > .wb-pane-head > span:empty { display: none; }
 .pl-results > .wb-pane-head > .view-pick { margin-inline-start: auto; }
+/* The numbers a level reads off a board (Readouts.jsx). */
+.readouts { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+.readouts > div { display: grid; }
+.readouts b { color: var(--ink); font: 600 var(--fs-h4) var(--mono); font-variant-numeric: tabular-nums; }
+.readouts span { color: var(--muted); font-size: var(--fs-label); }
+.readouts .is-pass b { color: var(--status); }
 /* The task card (Layout.jsx TaskCard), the same in every game on a phone: 任务, folding away to the level. */
 .task-card { border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .task-toggle { width: 100%; min-height: 40px; padding: 0 12px 0 14px; display: flex; align-items: center; justify-content: space-between; border: 0; color: var(--muted); background: transparent; font: 400 11px var(--mono); letter-spacing: .14em; cursor: pointer; }

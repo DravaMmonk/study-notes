@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { CircuitLevel, StepLog, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, tr, T } from '../../../shell/i18n.js'
+import Readouts from '../../../shell/Readouts.jsx'
 import { isFixed, outputsOf, srcOf, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runLevel } from '../../../engine/tests.js'
@@ -183,11 +184,11 @@ function BoardScreen({ board, screen }) {
           <>
             {level.script && <ScriptView rows={level.script} text={(t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] }))} />}
             <section className="lg-score">
-              <div className="stat-row">
-                <div className="stat"><b>{board.tests.score(level, circuit).steps}</b><span>{L(board.words.steps)}</span></div>
-                {level.budget !== undefined && <div className="stat"><b>{level.budget}</b><span>{tr('最多', 'At most')}</span></div>}
-                {best && <div className="stat"><b>{best.steps}</b><span>{tr('最少', 'Best')}</span></div>}
-              </div>
+              <Readouts items={[
+                { value: board.tests.score(level, circuit).steps, label: board.words.steps },
+                level.budget !== undefined && { value: level.budget, label: T('最多', 'At most') },
+                best && { value: best.steps, label: T('最少', 'Best') },
+              ]} />
             </section>
           </>
         ),

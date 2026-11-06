@@ -4,7 +4,8 @@ import ProfileView from './ProfileView.jsx'
 import SlopeView from './SlopeView.jsx'
 import SpectrumView from './SpectrumView.jsx'
 import TerrainView from './TerrainView.jsx'
-import { tr } from '../../../../shell/i18n.js'
+import { L, tr } from '../../../../shell/i18n.js'
+import { WORDS } from '../../../../shell/words.js'
 import { formatNumber, kindOf } from './views.js'
 import './views.css'
 
@@ -49,8 +50,8 @@ export function NumberCompare({ actual, expected, tolerance, pass }) {
   return (
     <div className={`number-compare ${pass === null ? '' : pass ? 'is-pass' : 'is-fail'}`}>
       <div className="number-pair">
-        <div><span>{tr('期望', 'Expected')}</span><b>{formatNumber(expected)}</b></div>
-        <div><span>{tr('你的输出', 'Your output')}</span><b>{Number.isFinite(actual) ? formatNumber(actual) : '—'}</b></div>
+        <div><span>{L(WORDS.wanted)}</span><b>{formatNumber(expected)}</b></div>
+        <div><span>{L(WORDS.result)}</span><b>{Number.isFinite(actual) ? formatNumber(actual) : '—'}</b></div>
         <div><span>{tr('相差', 'Difference')}</span><b>{Number.isFinite(actual) ? formatNumber(Math.abs(actual - expected)) : '—'}</b></div>
       </div>
       <div className="number-scale" aria-hidden="true">
