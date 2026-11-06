@@ -144,6 +144,9 @@
 
 /* ---- game layer ---- */
 :root {
+  --group-pad: 16px;
+  --group-title: 24px;
+  --group: color-mix(in srgb, var(--ink) 4%, transparent);
   --fail: #b8573f;
   --select: #3f7fb5;
   --select-ink: #ffffff;
@@ -161,6 +164,7 @@
 }
 
 :root[data-theme='night'], :root[data-theme='blueprint'] {
+  --group: color-mix(in srgb, var(--ink) 5%, transparent);
   --fail: #e0806a;
   --select: #5ec8ff;
   --select-ink: #06131c;
