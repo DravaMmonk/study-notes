@@ -1,7 +1,7 @@
 // What the plots share: a grid's row as a list, and one value range for every grid drawn on the same axes — from
 // zero up when nothing is negative, symmetric about zero when something is.
 
-export const rowOf = (grid, y) => grid.data.slice(y * grid.w, (y + 1) * grid.w)
+export const rowOf = (grid, y) => Array.from(grid.data.slice(y * grid.w, (y + 1) * grid.w))
 
 export function rangeOf(...grids) {
   let lo = 0

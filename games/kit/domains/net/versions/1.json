@@ -47,7 +47,7 @@
 {"id":{"type":"str"},"after":{"$":43},"requires":{"type":"list","of":{"type":"str"},"optional":true},"levels":{"type":"list","of":{"type":"level"}},"title":{"type":"text","optional":true}},
 {"type":"list","of":{"type":"obj","fields":{"level":{"type":"level"},"after":{"$":43}}},"optional":true},
 {"id":{"type":"int"},"keeps":{"$":39},"title":{"type":"text"},"question":{"type":"text"},"foundation":{"type":"list","of":{"type":"either","of":[{"type":"level"},{"$":41}]}},"practice":{"$":42},"topics":{"type":"list","of":{"type":"obj","fields":{"$":44}},"optional":true},"challenges":{"$":45}},
-["value","numbers","pixels","plot","profile","surface","wave","bands","sequence"],
+["value","numbers","pixels","plot","profile","surface","slope","spectrum","wave","bands","sequence"],
 {"zh":"能用的显示方式，第一种是起始；只有一种时玩家不能切换","en":"the views it may be drawn in, the first to start in; with one, the player cannot switch"},
 {"type":"list","of":{"type":"oneOf","values":{"$":47}},"min":1,"about":{"$":48},"optional":true},
 {"scalar":{"$":49},"grid":{"$":49},"bits":{"$":49},"ticks":{"$":49},"list":{"$":49}},

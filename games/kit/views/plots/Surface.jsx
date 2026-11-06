@@ -1,40 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
 import { tr } from '../../shell/i18n.js'
+import { mix, rgba, token, useCanvas } from './paint.js'
 import { rangeOf } from './range.js'
 
 // A grey grid as a landscape seen from above at an angle (the view `surface`, games/DESIGN.md 6.10): each cell's
 // value is a height. Smoothing rounds hills off, an edge is a cliff, a derivative a ridge (positive) or a trench
-// (negative, in the fail colour); signed values stand on a mid-level plane. Colours are the theme's tokens, drawn
-// again when the theme changes.
-
-/** A colour token as [r, g, b]. */
-function token(name) {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-  const hex = value.match(/^#([0-9a-f]{6})$/i)
-  if (hex) return [16, 8, 0].map((s) => (parseInt(hex[1], 16) >> s) & 255)
-  return (value.match(/rgba?\(([^)]+)\)/)?.[1].split(',').slice(0, 3) ?? [0, 0, 0]).map(Number)
-}
-const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t)
-const rgba = (c, alpha = 1) => `rgba(${c.map((v) => Math.round(Math.max(0, Math.min(255, v)))).join(',')},${alpha})`
+// (negative, in the fail colour); signed values stand on a mid-level plane.
 
 export default function Surface({ value, size = 220 }) {
-  const canvas = useRef(null)
-  const [theme, setTheme] = useState(0)
-  useEffect(() => {
-    const redraw = () => setTheme((n) => n + 1)
-    window.addEventListener('themechange', redraw)
-    return () => window.removeEventListener('themechange', redraw)
-  }, [])
   const height = Math.round(size * 0.72)
-  useEffect(() => {
-    const node = canvas.current
-    if (!node) return
-    const dpr = window.devicePixelRatio || 1
-    node.width = Math.round(size * dpr)
-    node.height = Math.round(height * dpr)
-    const ctx = node.getContext('2d')
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    ctx.clearRect(0, 0, size, height)
+  const canvas = useCanvas((ctx) => {
     const { w, h } = value
     const { lo, hi } = rangeOf(value)
     const base = lo < 0 ? 0.5 : 0
@@ -78,6 +52,6 @@ export default function Surface({ value, size = 220 }) {
         ctx.stroke()
       }
     }
-  }, [value, size, height, theme])
+  }, size, height, [value])
   return <canvas ref={canvas} className="sf" style={{ width: size, height }} aria-label={tr('地形：数值是高度', 'Terrain: a value is a height')} />
 }

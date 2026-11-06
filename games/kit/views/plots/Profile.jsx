@@ -4,8 +4,8 @@ import Plot from './Plot.jsx'
 import { rowOf } from './range.js'
 
 // A grey grid with one row picked out (the view `profile`, games/DESIGN.md 6.10): the picture with a scan line across
-// it, and under it that row as a function (Plot), the row wanted on the same axes where there is one. Dragging on the
-// picture moves the line. `card` draws the picture and its line only.
+// it, and under it that row as a function (Plot), each sample under its column, the row wanted on the same axes where
+// there is one. Dragging on the picture moves the line. `card` draws the picture and its line only.
 
 const pickRow = (grid, y) => ({ w: grid.w, h: 1, c: 1, data: rowOf(grid, y) })
 
@@ -38,7 +38,7 @@ export default function Profile({ value, want, tolerance = 0, card = false }) {
         <span className="pf-line" style={{ top: `${((y + 0.5) / shown.h) * 100}%` }} aria-hidden="true" />
         {!card && <span className="pf-tag" style={{ top: `${((y + 0.5) / shown.h) * 100}%` }}>y = {y}</span>}
       </div>
-      {!card && <Plot value={value && pickRow(value, y)} want={want && pickRow(want, y)} tolerance={tolerance} />}
+      {!card && <Plot value={value && pickRow(value, y)} want={want && pickRow(want, y)} tolerance={tolerance} fit={{ pitch: scale, pad: 0, min: 0, max: Infinity }} />}
     </div>
   )
 }

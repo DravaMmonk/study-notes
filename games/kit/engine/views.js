@@ -25,7 +25,7 @@
 //   rowProblems(results, entries, defaults) → [text]           what a task's rows get wrong
 //   viewsProblems(defaults) → [text]                           what a game's (or a task's) views get wrong
 //   usable(views, value)    the views among `views` that can draw `value` (a view may draw only some values of its
-//                           shape: `fits`, e.g. a plot only a grid of one or two rows)
+//                           shape: `fits`, e.g. a plot only a grey grid of one or two rows)
 //   shapeOf(value)          a value's shape where nothing says it: a grid, else a scalar (a card's value, one tick's)
 //   valueText(value)        a value in words: 「—」 for none, yes or no, a number (./number.js), else as it is
 //   SHOW, readShow(show), showProblems(show)   a value content writes for a figure, read, and what it gets wrong
@@ -37,7 +37,9 @@ import { T as t } from '../shell/i18n.js'
 export const SHAPES = ['scalar', 'grid', 'bits', 'ticks', 'list']
 export const SCENES = ['card', 'detail', 'results', 'figure', 'inline']
 
-// A grey grid of one or two rows reads as functions; one of several rows and columns as a surface.
+// A grey grid of one or two rows reads as functions; one of several rows and columns as a surface, a slope map (three
+// cells a side at least, for a gradient) or a picture of its spectrum (a row's spectrum is a plot; at most 128 × 128,
+// so it is quick to work out).
 const grey = (g) => isGrid(g) && (g.c ?? 1) === 1
 
 export const VIEWS = {
@@ -47,6 +49,8 @@ export const VIEWS = {
   plot: { shapes: ['grid'], label: t('函数图像', 'Plot'), fits: (g) => grey(g) && g.h <= 2 && g.w >= 2 },
   profile: { shapes: ['grid'], label: t('剖面', 'Profile'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
   surface: { shapes: ['grid'], label: t('地形', 'Terrain'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
+  slope: { shapes: ['grid'], label: t('坡度', 'Slope'), fits: (g) => grey(g) && g.h >= 3 && g.w >= 3 },
+  spectrum: { shapes: ['grid'], label: t('频谱', 'Spectrum'), fits: (g) => grey(g) && g.w >= 2 && g.w * g.h <= 128 * 128 },
   wave: { shapes: ['bits'], label: t('波形', 'Wave') },
   bands: { shapes: ['bits', 'ticks'], label: t('数值', 'Values') },
   sequence: { shapes: ['list'], label: t('序列', 'Sequence') },

@@ -6,9 +6,7 @@ import { useViewChoice } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
 import GridView, { GridPicture } from './grid/GridView.jsx'
 import ViewSwitch from './ViewSwitch.jsx'
-import Plot from './plots/Plot.jsx'
-import Profile from './plots/Profile.jsx'
-import Surface from './plots/Surface.jsx'
+import { DRAWN, SIZE } from './plots/drawn.js'
 
 // One value drawn in a scene (games/DESIGN.md 6.10, ../engine/views.js): every place a game shows a value — a part on
 // the board, its detail, a figure beside an introduction or a pass text, a line of text — draws it through here, in
@@ -22,13 +20,12 @@ import Surface from './plots/Surface.jsx'
 // shape: the value's (by default a grid or a scalar, ../engine/views.js shapeOf); text(value) a value in words (by
 // default valueText). In a figure, offering several views puts the switch beside its label.
 
-/** A grid on a card: in the view picked (a small plot, profile or terrain), else numbered while it is small and numbers
- * are picked, else a small picture; its size under it. */
+/** A grid on a card: in the view picked, drawn small (a plot, a profile, a terrain…), else numbered while it is small
+ * and numbers are picked, else a small picture; its size under it. */
 function CardGrid({ value, view }) {
   const size = <small>{value.w} × {value.h}</small>
-  if (view === 'plot') return <span className="vw-thumb"><Plot value={value} card />{size}</span>
-  if (view === 'profile') return <span className="vw-thumb"><Profile value={value} card />{size}</span>
-  if (view === 'surface') return <span className="vw-thumb"><Surface value={value} size={96} />{size}</span>
+  const Drawn = DRAWN[view]
+  if (Drawn) return <span className="vw-thumb"><Drawn value={value} card size={SIZE.card} />{size}</span>
   if (view === 'pixels' || value.w * value.h > 64) return <span className="vw-thumb"><GridPicture value={value} scale={Math.max(1, Math.floor(96 / Math.max(value.w, value.h)))} />{size}</span>
   const small = value.w <= 4 && value.h <= 3
   return <span className="vw-thumb"><span className={`vw-numbers ${small ? 'is-small' : ''}`}><GridView value={value} numbers cell={(value.c ?? 1) === 3 ? 58 : 32} /></span>{!small && size}</span>
@@ -47,12 +44,12 @@ export default function Show({ value, shape = shapeOf(value), scene, views, labe
   // A detail and a figure: the value whole, under its label.
   const head = (label || tool) && <header className="vw-head">{label && <span>{L(label)}</span>}{tool}</header>
   if (shape === 'grid') {
-    // A plot, a profile and a terrain carry no caption of their own: the label goes in the head.
-    const drawn = ['plot', 'profile', 'surface'].includes(view)
+    // A drawn view carries no caption of its own: the label goes in the head.
+    const Drawn = DRAWN[view]
     return (
       <div className={`vw-${scene}`}>
-        {(tool || (label && drawn)) && <header className="vw-head">{drawn && label && <span>{L(label)}</span>}{tool}</header>}
-        {view === 'plot' ? <Plot value={value} /> : view === 'profile' ? <Profile value={value} /> : view === 'surface' ? <Surface value={value} size={scene === 'detail' ? 200 : 260} />
+        {(tool || (label && Drawn)) && <header className="vw-head">{Drawn && label && <span>{L(label)}</span>}{tool}</header>}
+        {Drawn ? <Drawn value={value} size={SIZE[scene]} />
           : <GridInspector value={value} view={view} label={label && L(label)} fit dense={scene === 'detail'} mark={mark} onPick={onPick} explainPixel={explain} />}
       </div>
     )

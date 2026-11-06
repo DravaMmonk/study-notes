@@ -50,33 +50,32 @@
 .vw-scalar .vw-value { font-size: var(--fs-small); }
 .vw-seq { margin: 0; font: var(--fs-ui) var(--mono); color: var(--ink); overflow-wrap: anywhere; }
 
-/* ---- plots: a function, a profile, a terrain (plots/) ---- */
-.pl { position: relative; width: min(100%, var(--gv-frame-w)); }
-.pl svg { display: block; width: 100%; height: auto; border-radius: var(--r-sm); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); cursor: crosshair; touch-action: pan-y; }
-.pl.is-card { width: 120px; }
-.pl.is-card .pl-line { stroke-width: 1.5; opacity: 0.8; }
-.pl.is-card .pl-stem { opacity: 0.5; }
+/* ---- drawn views: a function, a profile, a terrain, a slope map, a spectrum (plots/) ---- */
+/* A plot is as wide as its samples need, drawn one unit a pixel; a narrower frame scales it down. */
+.pl { position: relative; width: fit-content; max-width: 100%; }
+.pl svg { display: block; max-width: 100%; height: auto; border-radius: var(--r-sm); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); cursor: crosshair; touch-action: pan-y; }
 .pl.is-card svg { cursor: inherit; }
 .pl-zero { stroke: var(--line); stroke-width: 1; }
-.pl-line { fill: none; stroke: var(--accent); stroke-width: 1; opacity: 0.45; }
-.pl-stem { stroke: var(--accent); stroke-width: 1.5; opacity: 0.7; }
+.pl-line { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; opacity: 0.55; }
+.pl-stem { stroke: var(--accent); stroke-width: 1.5; opacity: 0.6; }
 .pl-dot { fill: var(--accent); }
 .pl-dot.is-miss { fill: var(--fail); }
 .pl-want { fill: none; stroke: var(--ink); stroke-width: 1.2; opacity: 0.55; }
 .pl-want-line { fill: none; stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.3; }
 .pl-at { stroke: var(--ink); stroke-width: 1; opacity: 0.3; }
-.pl-read { position: absolute; top: 4px; right: 4px; display: grid; justify-items: end; padding: 3px 7px; border-radius: var(--r-sm); background: var(--paper); box-shadow: 0 0 0 1px var(--line); font: var(--fs-label) var(--mono); font-variant-numeric: tabular-nums; pointer-events: none; }
+/* The reading: one line just above the plot, from its left edge (the column pointed at is the line across the plot). */
+.pl-read { position: absolute; z-index: 3; left: 0; bottom: calc(100% + 4px); display: flex; align-items: baseline; gap: 8px; padding: 2px 7px; border-radius: var(--r-sm); background: var(--paper); box-shadow: 0 0 0 1px var(--line), var(--lift); font: var(--fs-label) var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
 .pl-read i { color: var(--muted); font-style: normal; }
 .pl-read span { color: var(--muted); }
-.pf { display: grid; gap: 6px; width: min(100%, var(--gv-frame-w)); }
-.pf.is-card { width: auto; }
+.pf { display: grid; gap: 6px; width: fit-content; max-width: 100%; }
 .pf-picture { position: relative; justify-self: start; line-height: 0; }
 .pf-picture.is-draggable { cursor: ns-resize; touch-action: none; }
 .pf-line { position: absolute; left: -3px; right: -3px; height: 2px; margin-top: -1px; border-radius: 1px; background: var(--accent); pointer-events: none; }
 .pf-tag { position: absolute; left: 100%; margin: -9px 0 0 6px; color: var(--muted); font: var(--fs-label) var(--mono); white-space: nowrap; pointer-events: none; }
-.sf { display: block; max-width: 100%; }
-.rv-surface { margin: 0; display: grid; gap: 4px; }
-.rv-surface figcaption { min-height: 22px; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-ui); }
+.sf, .sl, .sp { display: block; max-width: 100%; }
+.sl, .sp { border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--line); }
+.rv-drawn { margin: 0; display: grid; gap: 4px; }
+.rv-drawn figcaption { min-height: 22px; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-ui); }
 
 /* ---- the switch between views ---- */
 .view-pick { display: inline-flex; flex: none; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); }
@@ -89,8 +88,6 @@
 
 /* ---- the results area ---- */
 .rv { display: grid; gap: 10px; min-width: 0; --gv-frame-w: 220px; --gv-frame-h: 150px; }
-/* A plot overlays the result on the value wanted: one drawing as wide as the pair of grids it replaces. */
-.rv .pl, .rv .pf { width: min(100%, calc(var(--gv-frame-w) * 2 + 8px)); }
 .rv-verdict { margin: 0; font-size: var(--fs-ui); line-height: var(--lh-ui); }
 .rv-verdict.is-fail { color: var(--fail); }
 .rv-verdict.is-pass { color: var(--status); }
