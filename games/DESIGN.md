@@ -20,7 +20,12 @@
 **Interface density.** Let layout and controls establish context before adding labels or descriptions. Name data
 once; avoid generic reading labels and repeated metadata. Keep the working surface primary, use direct selection
 for sibling results, and disclose supporting inputs or explanations on demand. Preserve readable values and usable
-touch targets when reducing space.
+touch targets when reducing space. Component names and selected settings must remain readable in both languages:
+reserve a title row separate from card actions, wrap long names, and place long-choice controls below their labels.
+Use concise domain wording rather than truncating distinguishing terms. Preset circuit positions are only initial anchors:
+once cards are measured, separate overlapping siblings using their actual dimensions and a wiring gap. Recheck when
+previews or settings change card sizes; do not repack a board merely because the player dragged a card. Layout-only
+adjustments preserve connections, settings and the current run.
 
 **玩的过程就是学的过程。** 这一条压过下面所有的规矩。玩家拼一块板、转一个旋钮、判一句话，做的每一步都应当是在弄懂本领域的一样东西；通关时他学会的，是能用本领域的话讲出来的知识，不是这款游戏的操作。所以：
 

@@ -9,6 +9,7 @@ import Glyph from './Glyph.jsx'
 import { moveInto } from './frames.js'
 import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
+import { spaceNodes } from './spacing.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
 // right) to another card's input (a dot on its left). Drag a card by its header to move it; drag from an output dot
@@ -117,6 +118,15 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     }
     const sizes = {}
     for (const el of ownIn(root, '[data-node]')) sizes[el.dataset.node] = [el.offsetWidth, el.offsetHeight]
+    // Resolve preset collisions on first measurement and when live previews change size, never on a drag alone.
+    const resized = Object.entries(sizes).some(([id, size]) => size.some((value, k) => value !== geoRef.current.sizes[id]?.[k]))
+    if (resized && !drag && !readOnly && given) {
+      const spaced = spaceNodes(graph, sizes)
+      if (spaced !== graph) {
+        onChange(spaced, { keep: true })
+        return
+      }
+    }
     const next = { ports, sizes }
     if (JSON.stringify(next) === JSON.stringify(geoRef.current)) return
     geoRef.current = next
@@ -490,19 +500,23 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
       >
         {regions.length > 0 && <div className="frame-back" />}
         <div className="node-head" data-drag onPointerDown={() => choose(node)}>
-          {regions.length > 0 && (
-            <button className="frame-fold" aria-label={node.fold ? tr('展开', 'Expand') : tr('折叠', 'Collapse')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
-              {node.fold ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
-            </button>
-          )}
-          {icon && <i className="family-chip"><Glyph icon={icon} size={12} /></i>}
-          <span className="node-title">{L(parts.label(node))}</span>
-          {head?.(node)}
-          {removable(node) && (
-            <button className="node-delete" aria-label={tr('删除元件', 'Delete part')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
-              <X size={12} />
-            </button>
-          )}
+          <div className="node-heading">
+            {regions.length > 0 && (
+              <button className="frame-fold" aria-label={node.fold ? tr('展开', 'Expand') : tr('折叠', 'Collapse')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
+                {node.fold ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
+              </button>
+            )}
+            {icon && <i className="family-chip"><Glyph icon={icon} size={12} /></i>}
+            <span className="node-title">{L(parts.label(node))}</span>
+          </div>
+          <div className="node-actions">
+            {head?.(node)}
+            {removable(node) && (
+              <button className="node-delete" aria-label={tr('删除元件', 'Delete part')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
+                <X size={12} />
+              </button>
+            )}
+          </div>
         </div>
         {/* Several outputs run down the card's right edge; the body starts on the row below the lowest port on
             either side, so nothing it shows runs under an output's name. */}

@@ -92,7 +92,7 @@ export default function Screen(screen) {
           return shown.length ? <small>{shown.map((f) => valueWords(f, p[f.key])).join(' · ')}</small> : null
         },
       }}
-      canvas={{ width: 150, height: 110 }}
+      canvas={{ width: 184, height: 110, minFit: 0.65 }}
     />
   )
 }
