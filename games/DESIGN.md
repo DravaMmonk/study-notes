@@ -884,19 +884,33 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 
-**管线分段。** 桌面默认折叠既有段，当前新增元件保持展开。折叠段用 mini 面按数据流绘图，
-若缩到字号低于 9px（11px 基准下比例小于 9/11）则显示名字链；段的出口用 views 的 card 场景。
-指向缩略元件查看 detail 值，点击展开并选中；展开态是原元件加淡色框，允许同时展开多个段。
-手机的段是整行手风琴：段名、名字链、出口缩略图；同一时间只展开一段，展开后仍是原格位。
-段间只画向下箭头，原输入和输出留在两端。 跨段的连接使用源名称标签与短桩，点击标签高亮配对端并展开、跳转；
-一个源有多个目标时重复点击源标签依次跳转。`circuit/connections.js` 是两端共用的规则与阈值：段内保留连线；
-两个不同段之间、隔着其他段的当前元件连接、输入/输出跨过分段的连接，或源扇出到至少两段时用标签。
-其余连接实际长度超过 320 个画布单位也用标签。步进会展开当前步骤所在的段并滚到眼前。
-折叠状态仅在当前界面，不影响编辑、运行、蓝图或存档。分列排版由 `circuit/layout.js` 与无头 SVG 共用。
+**Pipeline sections.** Course provenance (`engine/stages.js`) generates the initial layout and supports the
+`open-crowded` audit. Parts with the same provenance occupy consecutive phone rows, prior sections start folded,
+and current work stays unfolded below them. Task `stage` supplies a preset note, otherwise the level title does.
+The actual view uses board dividers: `board.sections: [{ row, note?, folded? }]`. Each divider starts a section at
+that slot-grid row; its members extend to the next divider. Adding, moving or deleting a divider, editing its note,
+or changing its fold state saves the dividers together with ordinary slot positions. An explicit empty list stays
+empty. Dividers affect layout only: blueprint text, circuit execution and judging ignore them.
 
- 分段由当前任务的 carry/carries 来历自动推导，按节点 id 首次出现的任务归属。
-输入、输出始终留在段外；当前任务新增元件不归段。分段只影响显示，不写入蓝图、电路或玩家存档，
-运行和判定一直使用完整平板。任务可以用可选 `stage` 给贡献命名，不写则使用关卡标题。
+On phones, the existing slot board remains the only component surface. A per-game device preference in the tools
+row switches every part to its name and one `mini` line, hiding matrices and controls; sources and sinks show an
+inline value. Compact grids reserve a narrow left gutter. Divider notes are editable in place; a fold toggle reduces
+the rows to the divider, its note and a part count. Gap + controls insert dividers, handles move them between valid
+row gaps, and a menu deletes them without removing components. Connections into folded sections end at divider
+pins and use paired source labels; no stroke crosses a folded interval. Stepping or following a label unfolds the
+section containing its destination and scrolls it into view.
+
+Desktop uses the same sections, notes and fold state: folded dependency diagrams or expanded component outlines.
+Divider positions and notes are edited on phones; desktop supplies folding and ordinary circuit editing only.
+Initial desktop placement and fold transitions project units by data flow without saving view coordinates.
+The explicit Arrange action saves coordinates and is undoable. Phone Arrange sorts inside each section without
+changing divider rows or section order; adding a part never rearranges existing work.
+
+`circuit/layout.js` shares dependency columns with headless SVG rendering. Miniatures scale to fit; below 9px
+(9/11 of the 11px base) a name chain replaces the diagram. Output previews use the card scene, inspection the detail
+scene. `circuit/connections.js` shares the tag rules: internal stage wires remain; crossings, a source fanning into
+at least two sections, and remaining connections over 320 board units use tags. Clicking a source tag cycles its
+consumers, highlights matching ends and reveals the destination. All styling uses the kit tokens.
 
 **原则**
 

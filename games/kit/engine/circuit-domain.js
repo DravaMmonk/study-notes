@@ -93,7 +93,7 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
     const ids = new Set([...fixed, ...placed].map((n) => n.id))
     const from = (w) => w.from.split('#')[0]
     const keeps = (w) => ids.has(from(w)) && ids.has(w.to) && (!own.has(w.to) || w.port === 'in') && (!own.has(from(w)) || board.nodes.find((n) => n.id === from(w))?.type === own.get(from(w)).type)
-    return { nodes: [...fixed, ...placed], wires: board.wires.filter(keeps) }
+    return { ...board, nodes: [...fixed, ...placed], wires: board.wires.filter(keeps) }
   }
 
   /** How the editor and the blueprint reader wire a task's cards (../circuit/model.js parts): `circuit` is the course read. */
@@ -305,7 +305,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const added = task.starter?.nodes.filter((n) => !board.isFixed(n.type) && !ids.has(n.id)) ?? []
       const addedIds = new Set(added.map((n) => n.id))
       const wires = task.starter?.wires.filter((w) => addedIds.has(w.to)) ?? []
-      return { nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
+      return { ...carried, nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
     },
     // The passed boards that led to this task, oldest first. Missing boards contribute no ownership.
     stageChain: (task, built = {}) => {
