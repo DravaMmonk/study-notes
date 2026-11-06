@@ -77,11 +77,3 @@
 .pp.is-editing [data-pf] { cursor: pointer; }
 .pp.is-editing [data-pf]:hover { outline: 1px dashed var(--accent); outline-offset: 2px; }
 .pp [data-picked], .pp .is-picked { outline: 2px solid var(--accent); outline-offset: 2px; }
-.part-mini { box-sizing: border-box; width: var(--mini-width); height: var(--mini-height); min-width: 0; padding: calc(var(--stage-pad) * 2 / 3); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); font: var(--fs-mini)/1.3 var(--sans); text-align: left; }
-.part-mini > b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.part-mini-line { display: flex; align-items: center; gap: calc(var(--stage-gap) / 3); min-width: 0; height: 1.3em; overflow: hidden; color: var(--muted); white-space: nowrap; }
-.part-mini-line > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-.part-mini-line > i { font-style: normal; }
-.part-mini-line .vw-inline { font: inherit; }
-.part-mini-line img, .part-mini-line canvas { max-height: 1em; width: auto; }
-.pp-mini-stage { display: flex; justify-content: center; align-items: center; gap: var(--stage-gap); padding: var(--stage-pad); border: 1px dashed var(--rule); border-radius: var(--r-md); }

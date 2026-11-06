@@ -1,9 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Columns2, LayoutGrid, Maximize2, Minimize2, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
+import { Columns2, LayoutGrid, Maximize2, Minimize2, Info, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import { arrangeSections, sectionGaps, sectionsOf } from './sections.js'
 import SectionLine from './SectionLine.jsx'
 import { useSetting } from '../shell/useSetting.js'
-import MiniFace from '../shell/parts/MiniFace.jsx'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
 import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
@@ -304,8 +303,8 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
     const rowTrack = new Map(), gapTrack = new Map(), tracks = []
     for (let row = 0; row <= rows; row++) {
       const line = sections.find((s) => s.row === row && !s.implicit)
-      if (gaps.includes(row) && (line || (compact && manualSections)) && (!folded.has(row) || line)) { gapTrack.set(row, tracks.length + 1); tracks.push('minmax(var(--section-line-height), auto)') }
-      if (row < rows && !folded.has(row)) { rowTrack.set(row, tracks.length + 1); tracks.push(compact ? 'minmax(var(--compact-slot-height), auto)' : 'minmax(var(--slot-height), auto)') }
+      if (gaps.includes(row) && (line || (compact && manualSections))) { gapTrack.set(row, tracks.length + 1); tracks.push('minmax(var(--section-line-height), auto)') }
+      if (row < rows) { rowTrack.set(row, tracks.length + 1); tracks.push(compact || folded.has(row) ? 'minmax(var(--compact-slot-height), auto)' : 'minmax(var(--slot-height), auto)') }
     }
     const at = (slot, [w, h] = [1, 1]) => {
       const row = Math.floor(slot / cols)
@@ -314,14 +313,16 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
     const out = []
     for (const [id, slot] of cell) {
       const node = graph.nodes.find((n) => n.id === id)
-      if (region === null && folded.has(Math.floor(slot / cols))) continue
       if ((parts.frames?.(node) ?? []).length) { out.push(frameBlock(node, slot, region, at(slot, span.get(id)))); continue }
-      const extra = tileExtra?.(node)
+      const isFolded = compact || (region === null && folded.has(Math.floor(slot / cols)))
+      const extra = !isFolded && tileExtra?.(node)
       out.push(
         <div key={node.id} className="pb-cell" data-slot={slot} data-region={region ?? ''} style={at(slot)}>
-          <div className={`pb-tile ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
+          <div className={`pb-tile ${isFolded ? 'is-body-folded' : ''} ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-drag={fixed ? undefined : true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
-            {compact ? (stages?.mini(node) ?? <MiniFace node={node} parts={parts} />) : <><span className="pb-thumb">{thumb(node, 84)}</span><span className="pb-name">{icon(node)}{nameOf(node)}</span>{extra && <span className="pb-param">{extra}</span>}</>}
+            <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
+            {!isFolded && <span className="pb-thumb">{thumb(node, 84)}</span>}
+            {extra && <span className="pb-param">{extra}</span>}
             {outDots(node)}
           </div>
           {tags(new Set([node.id]))}
@@ -329,7 +330,6 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
       )
     }
     for (const slot of free) {
-      if (region === null && folded.has(Math.floor(slot / cols))) continue
       out.push(fixed
         ? <div key={`slot-${slot}`} className="pb-cell is-blank" style={at(slot)} />
         : (
@@ -342,7 +342,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
       const section = sections.find((s) => s.row === row && !s.implicit)
       out.push(<div key={`gap-${row}`} className={`section-gap ${dropRow === row ? 'is-drop' : ''}`} data-section-gap={row} style={{ gridRow: track, gridColumn: `1 / span ${cols}` }}>
         {section ? <SectionLine editable={compact && manualSections} section={section} count={section.nodes.length} onEdit={(patch) => stages.edit(row, patch)} onDrag={(event) => dragDivider(row, event)}>
-          {section.folded && <><span className="section-pins">{section.ins.map((w) => <i key={`${w.to}.${w.port}`} data-p={inPort(w.to, w.port)} className="section-port is-in" />)}{[...new Set(section.outs.map((w) => w.from))].map((src) => <i key={src} data-p={outPort(src)} className="section-port is-out" />)}</span>{tags(new Set(section.nodes))}</>}
+
         </SectionLine> : compact && manualSections && <button type="button" className="section-add" aria-label={tr(`在第 ${row + 1} 行前插入分割线`, `Insert divider before row ${row + 1}`)} onClick={() => stages.edit(row, { note: '' })}><Plus size={14} /></button>}
       </div>)
     }
@@ -386,7 +386,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           <div className="pb-frame-head" data-drag={fixed ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
-            {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
+            {!compact && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
           {width && (
             <button type="button" className="pb-frame-width" onClick={() => width.set(!width.narrow)} aria-label={width.narrow ? tr('单列，点击切换为双列', 'One column; tap for two') : tr('双列，点击切换为单列', 'Two columns; tap for one')} title={width.narrow ? tr('单列', 'One column') : tr('双列', 'Two columns')}>
@@ -424,9 +424,9 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
           <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             {/* A source may take an input too (a reader told which layer to read). */}
             {parts.inputs(node).length > 0 && <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>}
-            {compact ? <span className="pb-inline-value">{stages?.value(node.id, 'inline')}</span> : <span className="pb-thumb">{thumb(node, 64)}</span>}
+            {!compact && <span className="pb-thumb">{thumb(node, 64)}</span>}
             <span className="pb-name">{nameOf(node)}</span>
-            {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
+            {!compact && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
             {outDots(node)}
             {tags(new Set([node.id]))}
           </div>
@@ -439,7 +439,7 @@ export default function SlotBoard({ stages = null, graph, parts, nameOf, thumb, 
         {sinks.map((node) => (
           <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
-            {compact ? <span className="pb-inline-value">{stages?.value(node.id, 'inline')}</span> : sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>}
+            {!compact && (sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>)}
             {tags(new Set([node.id]))}
             <span className="pb-name">{nameOf(node)}</span>
           </div>

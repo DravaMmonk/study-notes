@@ -1,6 +1,4 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import MiniFace from './parts/MiniFace.jsx'
-import Show from '../views/Show.jsx'
 import { editSection, firstOpenSlot, sectionPreset, sectionsOf } from '../circuit/sections.js'
 import { placement } from '../circuit/model.js'
 import { Info } from 'lucide-react'
@@ -217,8 +215,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const divided = sectionsOf(circuit, placement(circuit, parts))
   const sectionGroups = divided.filter((s) => !s.implicit && s.nodes.length)
   const stageView = { stages: sectionGroups, loose: divided.filter((s) => s.implicit).flatMap((s) => s.nodes), active: step?.path?.[0] ?? step?.id,
-    mini: (node) => <MiniFace node={node} parts={parts} def={defined?.of(node.type)} ctx={ctx} defined={defined} />,
-    value: (src, scene) => <Show value={view?.values.get(src)} scene={scene} />,
     edit: (row, patch) => change(editSection(circuit, parts, row, patch), { keep: true, sectionsEdited: true }),
     open: (id) => { const section = sectionGroups.find((s) => s.id === id); if (section?.folded) change(editSection(circuit, parts, section.row, { folded: false }), { keep: true, sectionsEdited: true }) },
     toggle: (id) => { const section = sectionGroups.find((s) => s.id === id); if (section) change(editSection(circuit, parts, section.row, { folded: !section.folded }), { keep: true, sectionsEdited: true }) },

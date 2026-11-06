@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Monitor, PanelRight, Plus, Smartphone, Workflow } from 'lucide-react'
+import { Monitor, PanelRight, Plus, Smartphone } from 'lucide-react'
 import CanvasEditor from '../../circuit/CanvasEditor.jsx'
 import SlotBoard from '../../circuit/SlotBoard.jsx'
 import { L, tr } from '../i18n.js'
@@ -76,7 +76,6 @@ export default function PartPreview({ game, type, edit }) {
             <SlotBoard fixed graph={graph} parts={parts} nameOf={() => L(def.name)} thumb={() => face('tile', { blocks: tile((v) => v)(def) })} tileExtra={() => face('tile', { blocks: tile((v) => !v)(def) })} onPort={() => {}} onSlot={() => {}} onNode={() => {}} />
           </div>
         ))}
-        {pane('mini', Workflow, tr('缩略', 'Miniature'), <div className="pp-mini-stage"><span aria-hidden="true">⇢</span>{face('mini')}<span aria-hidden="true">⇢</span></div>)}
         {pane('detail', PanelRight, tr('详情（两端共用）', 'Detail (both)'), (
           <div className="pp-detail">
             <h3 {...mark(['name'])}>{L(def.name)}</h3>

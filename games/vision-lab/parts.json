@@ -64,8 +64,7 @@
       ],
       "compute": "match $op { add: add(a, b), sub: sub(a, b), mul: mul(a, b), div: div(a, b) }",
       "views": {
-        "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }],
-        "mini": [{ "show": "summary" }, { "show": "text", "text": { "zh": "逐值", "en": "Elementwise" } }]
+        "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }]
       }
     },
     "channel": {

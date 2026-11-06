@@ -7,7 +7,6 @@ export const stageOwners = (stages) => new Map(stages.flatMap((s) => s.nodes.map
 export function labelledConnections(graph, stages, parts, pointOf = null) {
   if (!stages.length) return []
   const owners = stageOwners(stages), nodes = new Map(graph.nodes.map((n) => [n.id, n]))
-  const folded = new Set(stages.filter((s) => s.folded).map((s) => s.id))
   const rank = new Map(stages.map((s, k) => [s.id, k]))
   const unit = (id) => owners.get(id) ?? (parts.role(nodes.get(id)) === 'source' ? 'input' : parts.role(nodes.get(id)) === 'sink' ? 'output' : 'loose')
   const destinations = new Map()
@@ -15,7 +14,6 @@ export function labelledConnections(graph, stages, parts, pointOf = null) {
   return graph.wires.filter((w) => {
     const src = w.from.split('#')[0], a = owners.get(src), b = owners.get(w.to)
     if (a && a === b) return false
-    if (folded.has(a) || folded.has(b)) return true
     if ((destinations.get(w.from)?.size ?? 0) >= CONNECTION_LIMITS.fanoutStages) return true
     if (a && b && a !== b) return true
     if (a || b) {

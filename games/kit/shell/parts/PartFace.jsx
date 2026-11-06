@@ -1,5 +1,4 @@
 import './parts.css'
-import MiniFace from './MiniFace.jsx'
 import { L } from '../i18n.js'
 import { numberText } from '../../engine/number.js'
 import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/define.js'
@@ -20,7 +19,6 @@ export const DEFAULT_VIEWS = {
   card: [{ show: 'settings' }, { show: 'value' }],
   tile: [{ show: 'value' }, { show: 'summary' }],
   detail: [{ show: 'desc' }, { show: 'settings' }, { show: 'value' }],
-  mini: [{ show: 'summary' }],
 }
 
 /** A face's blocks: parts.json's, or the default; the path each has in parts.json (null for a default one). */
@@ -36,7 +34,6 @@ export function visibleSettings(def, params, defined) {
 const fmt = (v, digits) => (typeof v === 'number' ? (digits === undefined ? numberText(v) : v.toFixed(digits)) : v === true ? '✓' : v === false ? '✗' : String(v ?? '—'))
 
 export default function PartFace({ def, face, node, ctx, set, defined, phone = false, roomy = false, blocks: given, mark = () => ({}) }) {
-  if (face === 'mini') return <MiniFace def={def} node={node} ctx={ctx} defined={defined} mark={mark} />
   const params = node.params ?? {}
   const readOnly = Boolean(ctx?.readOnly) || !set
   const shown = visibleSettings(def, params, defined)

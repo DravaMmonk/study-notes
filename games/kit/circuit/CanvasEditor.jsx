@@ -3,7 +3,6 @@ import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import ClearButton from './ClearButton.jsx'
 import { labelledConnections, sourceLabel, stageOwners, wireKey } from './connections.js'
 import { arrangedBoard, pipelineLayout } from './layout.js'
-import StageDiagram, { diagramOf } from './StageDiagram.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { ChevronDown, ChevronRight, Maximize, LayoutGrid, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
 import { enableDrag } from '../drag.js'
@@ -72,12 +71,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       if (!current) return current
       const nodes = new Map(current.nodes)
       for (const n of moved) nodes.set(n.id, { x: n.x, y: n.y })
-      const placed = new Map(current.groups)
-      if (moved.length > 1) for (const s of groups) {
-        const some = s.nodes.map((id) => nodes.get(id)).filter(Boolean)
-        if (some.length) placed.set(s.id, { x: Math.min(...some.map((p) => p.x)) - 16, y: Math.min(...some.map((p) => p.y)) - 36 })
-      }
-      return { nodes, groups: placed }
+      return { nodes }
     })
     given(keepLocked(graph, next), opt)
   }
@@ -89,7 +83,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [focus, setFocus] = useState(null)
-  const expandedStages = new Set((stages?.stages ?? []).filter((s) => !s.folded).map((s) => s.id))
+  const foldedNodes = new Set((stages?.stages ?? []).filter((s) => s.folded).flatMap((s) => s.nodes))
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
@@ -119,38 +113,22 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   const layer = useRef(null)
   const pointers = useRef(new Map())
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const widthOf = (node) => node.stage ? node.w : parts.cardWidth?.(node) ?? width
+  const widthOf = (node) => parts.cardWidth?.(node) ?? width
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
   const regionsOf = (node) => parts.frames?.(node) ?? []
   // Frames are drawn first, under the plain cards: a frame's backdrop sits below the wires (so those inside it show),
   // so a card drawn before a frame would have the frame's contents over it and its backdrop under it.
   const layered = (nodes) => [...nodes.filter((n) => regionsOf(n).length), ...nodes.filter((n) => !regionsOf(n).length)]
   const groups = stages?.stages ?? []
-  const hidden = new Set(groups.filter((s) => !expandedStages.has(s.id)).flatMap((s) => s.nodes))
-  let visible = layered(graph.nodes.filter((n) => !n.in && !hidden.has(n.id)))
+  let visible = layered(graph.nodes.filter((n) => !n.in))
   const stageNodes = (stage) => stage.nodes.map((id) => byId.get(id)).filter(Boolean)
-  const collapsed = []
-  const occupied = visible.map((n) => [n.x ?? 0, n.y ?? 0, ...(geo.sizes[n.id] ?? [widthOf(n), height])])
-  for (const stage of groups.filter((s) => !expandedStages.has(s.id))) {
-    const nodes = stageNodes(stage)
-    const diagram = diagramOf(nodes, graph.wires)
-    const scale = Math.min(1, 440 / Math.max(1, diagram.w))
-    const w = scale < 9 / 11 ? 340 : Math.min(440, diagram.w) + 32
-    const size = geo.sizes[`stage:${stage.id}`] ?? [w, Math.max(110, diagram.h * scale + 140, Math.max(stage.ins.length, stage.outs.length) * 28)]
-    const origin = [Math.min(...nodes.map((n) => n.x ?? 0)), Math.min(...nodes.map((n) => n.y ?? 0))]
-    const spot = clearSpot(occupied, size, origin) ?? origin
-    occupied.push([...spot, ...size])
-    collapsed.push({ id: `stage:${stage.id}`, stage, x: spot[0], y: spot[1], w: size[0], h: size[1] })
-  }
-  const arrange = () => pipelineLayout(graph, groups, expandedStages, {
+  const arrange = () => pipelineLayout(graph, groups, {
     sizeOf: (n) => { const size = geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
     roleOf: parts.role,
-    stageSize: (s) => { const unit = collapsed.find((u) => u.stage.id === s.id); return { w: unit.w, h: unit.h } },
   })
   const painting = groups.length ? presentation ?? arrange() : null
   visible = visible.map((n) => painting?.nodes.has(n.id) ? { ...n, ...painting.nodes.get(n.id) } : n)
-  for (const unit of collapsed) if (painting?.groups.has(unit.stage.id)) Object.assign(unit, painting.groups.get(unit.stage.id))
-  const top = [...visible, ...collapsed]
+  const top = visible
   useLayoutEffect(() => {
     if (groups.length && !presentation && top.every((n) => geo.sizes[n.id])) setPresentation(painting)
   })
@@ -527,6 +505,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
   // A card, and for a frame its regions with the cards inside them.
   function card(node) {
     const role = parts.role(node)
+    const folded = foldedNodes.has(node.id)
     const regions = regionsOf(node)
     const own = new Set(regions.map((r) => r.name))
     const ports = parts.inputs(node).filter((p) => !own.has(p))
@@ -547,7 +526,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
         data-piece={node.id}
         data-family={parts.family(node)}
         data-io={role === 'source' ? tr('输入', 'IN') : role === 'sink' ? tr('输出', 'OUT') : undefined}
-        className={`node is-${role} ${parts.packed?.(node) ? 'is-packed' : ''} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
+        className={`node is-${role} ${parts.packed?.(node) ? 'is-packed' : ''} ${regions.length ? 'is-frame' : ''} ${node.fold ? 'is-folded' : ''} ${folded ? 'is-body-folded' : ''} ${selected?.node === node.id ? 'is-selected' : ''} ${cardClass?.(node) ?? ''}`}
         onClick={picking ? (e) => !e.target.closest('[data-p], button, input, select, label, .frame-regions') && clickCard(node.id) : undefined}
         style={{ left: node.x, top: node.y, [regions.length ? 'minWidth' : 'width']: widthOf(node), ...parts.cardStyle?.(node) }}
       >
@@ -582,21 +561,21 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
             ))}
           </div>
           <div className="node-body">
-            {caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
-            {body?.(node)}
+            {!folded && caption && role !== 'part' && <span className={`node-carries ${role === 'source' ? 'is-input' : ''}`}>{L(caption(node))}</span>}
+            {!folded && body?.(node)}
           </div>
           <div className="node-outputs">
             {role !== 'sink' && outs?.map((o) => (
               <span key={o.key} className="node-port-out">
                 {o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
-                {outNote?.(node, o.key)}
+                {!folded && outNote?.(node, o.key)}
                 {outDot(srcOf(node, o.key), parts.portClass?.(node, null, o.key) ?? '')}
               </span>
             ))}
           </div>
           {role !== 'sink' && !outs && outDot(node.id, parts.portClass?.(node, null) ?? '')}
         </div>
-        {regions.length > 0 && !node.fold && (
+        {regions.length > 0 && !node.fold && !folded && (
           <div className="frame-regions">
             {regions.map((r) => {
               const key = `${node.id}/${r.name}`
@@ -623,27 +602,13 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     )
   }
 
-  const toggleStage = (id) => {
-    setPresentation(null)
-    stages.toggle(id)
-  }
-  const stageCard = (unit) => {
-    const stage = unit.stage
-    const outputs = [...new Map(stage.outs.map((w) => [w.from, w])).values()]
-    return <section key={unit.id} data-node={unit.id} data-stage={stage.id} className="pipeline-stage is-collapsed" style={{ left: unit.x, top: unit.y, width: unit.w }} onPointerDown={(e) => e.stopPropagation()}>
-      <header><button type="button" aria-expanded="false" onClick={() => toggleStage(stage.id)}><ChevronRight size={14} />{L(stage.label)}</button></header>
-      <StageDiagram nodes={stageNodes(stage)} wires={graph.wires} mini={stages.mini} value={stages.value} label={parts.label} active={stages.active} onPick={(id) => { toggleStage(stage.id); choose(byId.get(id)) }} />
-      <div className="stage-boundary is-inputs">{stage.ins.map((w) => <span key={`${w.to}.${w.port}`}><i className="port port-in is-wired" data-p={inPort(w.to, w.port)} onClick={() => clickPort(inPort(w.to, w.port))} /><small>{L(parts.portLabel?.(byId.get(w.to), w.port) || parts.label(byId.get(srcNode(w.from))))}</small></span>)}</div>
-      <div className="stage-boundary is-outputs">{outputs.map((w) => <span key={w.from}><small>{L(parts.label(byId.get(srcNode(w.from))))}</small><i className="port port-out is-wired" data-p={outPort(w.from)} onClick={() => clickPort(outPort(w.from))} /></span>)}</div>
-      <div className="stage-previews">{outputs.map((w) => <span key={w.from} className="stage-output-preview">{stages.value?.(w.from, 'card')}</span>)}</div>
-    </section>
-  }
+  const toggleStage = (id) => stages.toggle(id)
   const stageFrame = (stage) => {
     const nodes = stageNodes(stage).map((n) => ({ ...n, ...painting?.nodes.get(n.id) }))
     const x = Math.min(...nodes.map((n) => n.x ?? 0)) - 16, y = Math.min(...nodes.map((n) => n.y ?? 0)) - 36
     const right = Math.max(...nodes.map((n) => (n.x ?? 0) + sizeOf(n)[0])) + 16
     const bottom = Math.max(...nodes.map((n) => (n.y ?? 0) + sizeOf(n)[1])) + 16
-    return <section key={stage.id} data-stage={stage.id} className="pipeline-stage is-expanded" style={{ left: x, top: y, width: right - x, height: bottom - y }}><header><button type="button" aria-expanded="true" onClick={() => toggleStage(stage.id)}><ChevronDown size={14} />{L(stage.label)}</button></header></section>
+    return <section key={stage.id} data-stage={stage.id} className="pipeline-stage is-expanded" style={{ left: x, top: y, width: right - x, height: bottom - y }}><header><button type="button" aria-expanded={!stage.folded} onClick={() => toggleStage(stage.id)}>{stage.folded ? <ChevronRight size={14} /> : <ChevronDown size={14} />}{L(stage.label)}</button></header></section>
   }
 
   const labels = new Set((connectionLabels ? labelledConnections(graph, groups, parts, (w) => [at(outPort(w.from)), at(inPort(w.to, w.port))]) : []).map(wireKey))
@@ -654,7 +619,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
     if (toward === 'to') setLinkCursor({ from: wire.from, at: index })
     const id = toward === 'to' ? targets[index].to : srcNode(wire.from)
     const owner = stageOwners(groups).get(id)
-    if (owner && !expandedStages.has(owner)) { setPresentation(null); stages.open(owner) }
+    if (owner) stages.open(owner)
     setSelected({ node: id })
     setFocus(id)
   }
@@ -691,7 +656,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} onAnimationEnd={redraw} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
-        {groups.filter((s) => expandedStages.has(s.id)).map(stageFrame)}
+        {groups.map(stageFrame)}
         <svg className="board-wires" width="4000" height="3000">
           {graph.wires.map((wire) => {
             const [a, b] = [at(outPort(wire.from)), at(inPort(wire.to, wire.port))]
@@ -722,7 +687,7 @@ export default function CanvasEditor({ stages = null, graph, onChange: given, re
           {drag && at(outPort(drag.from)) && <path className="kw-draft" d={curve(at(outPort(drag.from)), [drag.x, drag.y])} />}
           {picking && pointer && at(picking) && <path className="kw-draft" d={parsePort(picking).side === 'out' ? curve(at(picking), pointer) : curve(pointer, at(picking))} />}
         </svg>
-        {top.map((n) => n.stage ? stageCard(n) : card(n))}
+        {top.map(card)}
         {labels.size > 0 && <svg className="board-wires board-labels" width="4000" height="3000">{graph.wires.filter((w) => labels.has(wireKey(w))).map((w) => {
           const a = at(outPort(w.from)), b = at(inPort(w.to, w.port))
           return a && b ? wireTags(w, a, b) : null
