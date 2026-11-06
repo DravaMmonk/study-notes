@@ -20,3 +20,10 @@ that is absent from a later board creates no empty stage. No unavailable referen
 The studio's fourth pane was edited through its block controls, previewed live and applied through the operation
 set. Arithmetic now demonstrates a summary and bilingual text on that face. The schema rejects control settings,
 actions, ports, rows and widgets on miniatures. The other faces and circuit expressions are unchanged.
+
+## Desktop folding
+
+The scanner opens as five prior stages plus the current loose parts. Light and dark views were inspected.
+Expanding the kernel stage, changing its border setting and restoring it, then folding and checking still passes
+all scanner cases. The saved graph is identical before and after a fold toggle; the runner and blueprint APIs
+continue receiving that complete graph. SVG layout tests pass after extracting the shared column layout.

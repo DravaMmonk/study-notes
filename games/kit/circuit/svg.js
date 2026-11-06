@@ -1,4 +1,5 @@
 import { parse } from './text.js'
+import { flowLayout } from './layout.js'
 
 // A board drawn without a browser or React: its blueprint text (text.js) as one SVG string, for whoever cannot run
 // the editors (the MCP's render, the studio's previews). It draws what the text says and nothing a game alone
@@ -29,7 +30,6 @@ const STYLE = `.bp-node{fill:var(--paper,#fbfaf6);stroke:var(--rule,#bfb9ac)}.bp
 export function boardSvg(lines, { title = null } = {}) {
   const { statements, wires } = parse(Array.isArray(lines) ? lines.join('\n') : lines)
   const declared = new Map(statements.map((s) => [s.id, s]))
-  const reads = (id) => wires.filter((w) => w.to === id)
   // The level's own nodes: those read from go on the left, the others (only wired into) on the right.
   const given = [...new Set(wires.flatMap((w) => [nodeOf(w.from), w.to]))].filter((id) => !declared.has(id))
   const sources = given.filter((id) => wires.some((w) => nodeOf(w.from) === id))
@@ -61,34 +61,11 @@ export function boardSvg(lines, { title = null } = {}) {
   // A scope's statements in columns, each after what it reads within the scope; returns its size.
   const layScope = (scope) => {
     const own = statements.filter((s) => s.in === scope)
-    const depth = new Map()
-    const depthOf = (id, seen = new Set()) => {
-      if (depth.has(id)) return depth.get(id)
-      if (seen.has(id)) return 0
-      seen.add(id)
-      const inScope = reads(id).map((w) => nodeOf(w.from)).filter((src) => declared.get(src)?.in === scope)
-      const d = inScope.length ? 1 + Math.max(...inScope.map((src) => depthOf(src, seen))) : 0
-      depth.set(id, d)
-      return d
-    }
-    const columns = []
-    for (const s of own) (columns[depthOf(s.id)] ??= []).push(s)
-    let x = 0
-    let height = 0
-    for (const column of columns.filter(Boolean)) {
-      let y = 0
-      let width = 0
-      for (const s of column) {
-        const size = sizeOf(s)
-        box.set(s.id, { ...size, x, y })
-        y += size.h + W.gapY
-        width = Math.max(width, size.w)
-      }
-      height = Math.max(height, y - W.gapY)
-      x += width + W.gapX
-    }
-    return { w: Math.max(0, x - W.gapX), h: height }
+    const placed = flowLayout(own, wires, { sizeOf, gapX: W.gapX, gapY: W.gapY })
+    for (const [id, value] of placed.positions) box.set(id, value)
+    return { w: placed.w, h: placed.h }
   }
+
   const sizeOf = (s) => {
     const { type, sub } = labelOf(s)
     const ports = pinCount(s.id)

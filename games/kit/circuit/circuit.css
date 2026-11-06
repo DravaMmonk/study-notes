@@ -526,3 +526,31 @@
 .cl-inside-scroll .pb-term { min-height: 0; padding: 6px 8px; background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
 .cl-inside-scroll .pb-term::after, .cl-inside-scroll .pb-term .pb-thumb { display: none; }
 .cl-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }
+/* Pipeline stages are presentation only. Boundary pins retain the real circuit port identifiers. */
+.pipeline-stage { position: absolute; box-sizing: border-box; border: 1px solid var(--rule); border-radius: var(--r-lg); background: var(--paper); color: var(--ink); padding: var(--stage-pad); pointer-events: auto; }
+.pipeline-stage > header button { display: flex; align-items: center; gap: calc(var(--stage-gap) / 2); padding: 0; border: 0; background: none; color: var(--ink); font: var(--fs-ui)/var(--lh-ui) var(--sans); text-align: left; cursor: pointer; }
+.pipeline-stage.is-expanded { background: var(--hover); pointer-events: none; }
+.pipeline-stage.is-expanded > header { pointer-events: auto; }
+.stage-diagram { position: relative; margin-block: var(--stage-gap); }
+.stage-diagram-window { position: relative; max-width: 100%; }
+.stage-diagram-layer { position: relative; transform-origin: top left; }
+.stage-diagram-layer > svg { position: absolute; inset: 0; overflow: visible; }
+.stage-diagram-layer path { fill: none; stroke: var(--muted); }
+.stage-mini { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; }
+.stage-mini.is-active .part-mini, .stage-name-chain .is-active { outline: 2px solid var(--accent); }
+.stage-name-chain { display: flex; align-items: center; flex-wrap: wrap; gap: calc(var(--stage-gap) / 2); }
+.stage-name-chain > span { display: contents; }
+.stage-name-chain button { padding: 0; border: 0; background: none; color: var(--ink); font: var(--fs-mini)/var(--lh-ui) var(--sans); cursor: pointer; }
+.stage-name-chain i { color: var(--muted); font-style: normal; }
+.stage-inspect { position: absolute; z-index: 8; left: 0; top: 100%; max-width: var(--measure); min-width: var(--stage-preview); padding: var(--stage-pad); border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); box-shadow: var(--lift); }
+.stage-inspect > b { font: var(--fs-ui)/var(--lh-ui) var(--sans); }
+.stage-boundary { display: grid; gap: var(--stage-gap); font: var(--fs-mini)/var(--lh-ui) var(--mono); }
+.stage-boundary > span { position: relative; width: 100%; display: flex; align-items: center; gap: calc(var(--stage-gap) / 2); min-height: var(--stage-gap); }
+.stage-boundary .port { position: absolute; display: inline-block; top: calc(var(--stage-gap) / 2); }
+.stage-boundary.is-inputs { border-top: 1px solid var(--hairline); padding-block: calc(var(--stage-gap) / 2); }
+.stage-boundary.is-inputs .port { left: calc(-1 * var(--stage-pad) - var(--port-radius)); }
+.stage-boundary.is-outputs { justify-content: flex-end; }
+.stage-boundary.is-outputs > span { flex-wrap: wrap; justify-content: flex-end; }
+.stage-boundary.is-outputs .port { right: calc(-1 * var(--stage-pad) - var(--port-radius)); left: auto; }
+.stage-output-preview { display: inline-flex; max-width: var(--stage-preview); max-height: var(--stage-preview); overflow: hidden; }
+.stage-output-preview .vw-thumb { max-width: var(--stage-preview); max-height: var(--stage-preview); }

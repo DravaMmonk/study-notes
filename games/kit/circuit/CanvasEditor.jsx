@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import ClearButton from './ClearButton.jsx'
+import StageDiagram, { diagramOf } from './StageDiagram.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { ChevronDown, ChevronRight, Maximize, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
 import { enableDrag } from '../drag.js'
@@ -59,13 +60,14 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (a part's demonstration)
  * only shows: it pans, zooms and fits, and nothing on it moves.
  */
-export default function CanvasEditor({ graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ stages = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   // A change never takes off what the level locked on the board (model.js keepLocked).
   const onChange = readOnly ? () => {} : (next, opt) => given(keepLocked(graph, next), opt)
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
   const removable = (node) => !node.locked && (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
+  const [expandedStages, setExpandedStages] = useState(new Set())
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
@@ -95,13 +97,30 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
   const layer = useRef(null)
   const pointers = useRef(new Map())
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const widthOf = (node) => parts.cardWidth?.(node) ?? width
+  const widthOf = (node) => node.stage ? node.w : parts.cardWidth?.(node) ?? width
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
   const regionsOf = (node) => parts.frames?.(node) ?? []
   // Frames are drawn first, under the plain cards: a frame's backdrop sits below the wires (so those inside it show),
   // so a card drawn before a frame would have the frame's contents over it and its backdrop under it.
   const layered = (nodes) => [...nodes.filter((n) => regionsOf(n).length), ...nodes.filter((n) => !regionsOf(n).length)]
-  const top = layered(graph.nodes.filter((n) => !n.in))
+  const groups = stages?.stages ?? []
+  const hidden = new Set(groups.filter((s) => !expandedStages.has(s.id)).flatMap((s) => s.nodes))
+  const visible = layered(graph.nodes.filter((n) => !n.in && !hidden.has(n.id)))
+  const stageNodes = (stage) => stage.nodes.map((id) => byId.get(id)).filter(Boolean)
+  const collapsed = []
+  const occupied = visible.map((n) => [n.x ?? 0, n.y ?? 0, ...(geo.sizes[n.id] ?? [widthOf(n), height])])
+  for (const stage of groups.filter((s) => !expandedStages.has(s.id))) {
+    const nodes = stageNodes(stage)
+    const diagram = diagramOf(nodes, graph.wires)
+    const scale = Math.min(1, 440 / Math.max(1, diagram.w))
+    const w = scale < 9 / 11 ? 340 : Math.min(440, diagram.w) + 32
+    const size = geo.sizes[`stage:${stage.id}`] ?? [w, Math.max(110, diagram.h * scale + 140, Math.max(stage.ins.length, stage.outs.length) * 28)]
+    const origin = [Math.min(...nodes.map((n) => n.x ?? 0)), Math.min(...nodes.map((n) => n.y ?? 0))]
+    const spot = clearSpot(occupied, size, origin) ?? origin
+    occupied.push([...spot, ...size])
+    collapsed.push({ id: `stage:${stage.id}`, stage, x: spot[0], y: spot[1], w: size[0], h: size[1] })
+  }
+  const top = [...visible, ...collapsed]
   // A card's size as drawn, or as it will be before it is.
   const sizeOf = (node) => geo.sizes[node.id] ?? [widthOf(node), height]
   const at = (p) => geo.ports[p] ?? null
@@ -119,7 +138,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     for (const el of ownIn(root, '[data-node]')) sizes[el.dataset.node] = [el.offsetWidth, el.offsetHeight]
     // Resolve preset collisions on first measurement and when live previews change size, never on a drag alone.
     const resized = Object.entries(sizes).some(([id, size]) => size.some((value, k) => value !== geoRef.current.sizes[id]?.[k]))
-    if (resized && !drag && !readOnly && given) {
+    if (resized && !groups.length && !drag && !readOnly && given) {
       const opening = !Object.keys(geoRef.current.sizes).length
       const aligned = opening ? alignTerminals(graph, sizes, parts.role) : graph
       const spaced = spaceNodes(aligned, sizes)
@@ -220,7 +239,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
   const known = useRef(null)
   useEffect(() => {
     if (moving.current) return
-    const ids = new Set(graph.nodes.map((n) => n.id))
+    const ids = new Set(top.map((n) => n.id))
     const before = known.current
     known.current = ids
     if (!before || !fitted.current) return
@@ -571,6 +590,30 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
     )
   }
 
+  const toggleStage = (id) => setExpandedStages((current) => {
+    const next = new Set(current)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    return next
+  })
+  const stageCard = (unit) => {
+    const stage = unit.stage
+    const outputs = [...new Map(stage.outs.map((w) => [w.from, w])).values()]
+    return <section key={unit.id} data-node={unit.id} data-stage={stage.id} className="pipeline-stage is-collapsed" style={{ left: unit.x, top: unit.y, width: unit.w }} onPointerDown={(e) => e.stopPropagation()}>
+      <header><button type="button" aria-expanded="false" onClick={() => toggleStage(stage.id)}><ChevronRight size={14} />{L(stage.label)}</button></header>
+      <StageDiagram nodes={stageNodes(stage)} wires={graph.wires} mini={stages.mini} value={stages.value} label={parts.label} active={stages.active} onPick={(id) => { toggleStage(stage.id); choose(byId.get(id)) }} />
+      <div className="stage-boundary is-inputs">{stage.ins.map((w) => <span key={`${w.to}.${w.port}`}><i className="port port-in is-wired" data-p={inPort(w.to, w.port)} onClick={() => clickPort(inPort(w.to, w.port))} /><small>{L(parts.portLabel?.(byId.get(w.to), w.port) || parts.label(byId.get(srcNode(w.from))))}</small></span>)}</div>
+      <div className="stage-boundary is-outputs">{outputs.map((w) => <span key={w.from}><small>{L(parts.label(byId.get(srcNode(w.from))))}</small><i className="port port-out is-wired" data-p={outPort(w.from)} onClick={() => clickPort(outPort(w.from))} /><span className="stage-output-preview">{stages.value?.(w.from, 'card')}</span></span>)}</div>
+    </section>
+  }
+  const stageFrame = (stage) => {
+    const nodes = stageNodes(stage)
+    const x = Math.min(...nodes.map((n) => n.x ?? 0)) - 16, y = Math.min(...nodes.map((n) => n.y ?? 0)) - 36
+    const right = Math.max(...nodes.map((n) => (n.x ?? 0) + sizeOf(n)[0])) + 16
+    const bottom = Math.max(...nodes.map((n) => (n.y ?? 0) + sizeOf(n)[1])) + 16
+    return <section key={stage.id} data-stage={stage.id} className="pipeline-stage is-expanded" style={{ left: x, top: y, width: right - x, height: bottom - y }}><header><button type="button" aria-expanded="true" onClick={() => toggleStage(stage.id)}><ChevronDown size={14} />{L(stage.label)}</button></header></section>
+  }
+
   const centre = () => {
     const box = surface.current.getBoundingClientRect()
     return [box.width / 2, box.height / 2]
@@ -583,6 +626,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} onAnimationEnd={redraw} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
+        {groups.filter((s) => expandedStages.has(s.id)).map(stageFrame)}
         <svg className="board-wires" width="4000" height="3000">
           {graph.wires.map((wire) => {
             const [a, b] = [at(outPort(wire.from)), at(inPort(wire.to, wire.port))]
@@ -612,7 +656,7 @@ export default function CanvasEditor({ graph, onChange: given, readOnly = false,
           {drag && at(outPort(drag.from)) && <path className="kw-draft" d={curve(at(outPort(drag.from)), [drag.x, drag.y])} />}
           {picking && pointer && at(picking) && <path className="kw-draft" d={parsePort(picking).side === 'out' ? curve(at(picking), pointer) : curve(pointer, at(picking))} />}
         </svg>
-        {top.map(card)}
+        {top.map((n) => n.stage ? stageCard(n) : card(n))}
       </div>
 
       {canDelete && (

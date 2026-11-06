@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import MiniFace from './parts/MiniFace.jsx'
+import Show from '../views/Show.jsx'
 import { Info } from 'lucide-react'
 import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
 import Glyph from '../circuit/Glyph.jsx'
@@ -194,6 +196,11 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const inside = packed ? insideOf({ top, ...opened, card, dense, describe: describeOf, sheet: detailOf }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false }
+  const step = packed?.trace?.()?.step
+  const stageView = stages && { ...stages, active: step?.path?.[0] ?? step?.id,
+    mini: (node) => <MiniFace node={node} parts={parts} def={defined?.of(node.type)} ctx={ctx} defined={defined} />,
+    value: (src, scene) => <Show value={view?.values.get(src)} scene={scene} />,
+  }
 
   const all = [...items, ...folded]
   const types = all.map((item) => item.type)
@@ -230,7 +237,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
         <div className="cl-stage">
           <div className="cl-board">
             <CanvasEditor
-              stages={stages}
+              stages={stageView}
               key={level.id}
               scope={scope ?? level.id}
               graph={circuit}
