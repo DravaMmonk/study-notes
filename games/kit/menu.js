@@ -6,8 +6,8 @@
 //   menus.update()                                                // repaint after a change made elsewhere
 //   menus.destroy()
 //
-// onLang(id) and onTheme(id) apply a choice; by default lang.js applyLang and theme.js applyTheme. A theme
-// change is also announced with a `themechange` event on window, so every part of the page can follow.
+// onLang(id) applies the language choice (applyLang by default). Themes apply immediately; onTheme(id)
+// and the window themechange event notify page state after the theme and its menu agree.
 
 import { currentLang, applyLang, tr } from './lang.js';
 import { THEMES, currentTheme, applyTheme } from './theme.js';
@@ -29,8 +29,8 @@ const MENUS = {
     title: () => tr('语言', 'Language'),
     now: () => currentLang(),
     options: () => [
-      { id: 'zh', label: '中文', note: 'Chinese', lang: 'zh-CN' },
-      { id: 'en', label: 'English', note: '英文', lang: 'en' },
+      { id: 'zh', label: '简体中文', lang: 'zh-CN' },
+      { id: 'en', label: 'English', lang: 'en' },
     ],
   },
   theme: {
@@ -64,7 +64,7 @@ function build(kind, pick) {
   button.setAttribute('aria-expanded', 'false');
   button.innerHTML = svg(kind, 17);
   const pop = document.createElement('div');
-  pop.className = 'kit-pop';
+  pop.className = 'kit-menu-pop';
   pop.setAttribute('role', 'menu');
   pop.hidden = true;
   root.append(button, pop);
@@ -75,7 +75,7 @@ function build(kind, pick) {
     button.title = spec.title();
     button.setAttribute('aria-label', `${spec.title()}${tr('：', ': ')}${current ? current.label : ''}`);
     pop.setAttribute('aria-label', spec.title());
-    pop.innerHTML = `<div class="kit-pop-label">${spec.title()}</div>` + spec.options().map(o => `<button type="button" role="menuitemradio" class="kit-pop-item" data-v="${o.id}" aria-checked="${o.id === now}"${o.lang ? ` lang="${o.lang}"` : ''}>${o.lead || ''}<span>${o.label}</span>${o.note ? `<small>${o.note}</small>` : ''}${svg('check', 15)}</button>`).join('');
+    pop.innerHTML = `<div class="kit-pop-label">${spec.title()}</div>` + spec.options().map(o => `<button type="button" role="menuitemradio" class="kit-pop-item" data-v="${o.id}" aria-checked="${o.id === now}"${o.lang ? ` lang="${o.lang}"` : ''}>${o.lead || ''}<span>${o.label}</span>${svg('check', 15)}</button>`).join('');
   };
   const open = keyboard => {
     close();
@@ -106,9 +106,9 @@ function build(kind, pick) {
 }
 
 /** Put the language and theme menus into `container`, replacing what is there. */
-export function mountBarMenus(container, { onLang = applyLang, onTheme = applyTheme } = {}) {
+export function mountBarMenus(container, { onLang = applyLang, onTheme } = {}) {
   const lang = build('lang', id => onLang(id));
-  const theme = build('theme', id => { onTheme(id); dispatchEvent(new CustomEvent('themechange', { detail: id })); });
+  const theme = build('theme', id => { applyTheme(id); onTheme?.(id); dispatchEvent(new CustomEvent('themechange', { detail: id })); });
   container.replaceChildren(lang.root, theme.root);
   const update = () => { lang.paint(); theme.paint(); };
   addEventListener('langchange', update);
