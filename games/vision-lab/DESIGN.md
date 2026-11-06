@@ -7,6 +7,12 @@ arithmetic and traversal execute automatically; selecting and composing the visu
 The long-term plan is [the machine-first outline](../../docs/Unimelb/26S2/CV/vision-game-specs/curriculum-construction-outline.md).
 This specification covers stages 0–2, not later camera, learning or geometry machines.
 
+## Encyclopedia presentation
+
+Chinese encyclopedia entry names include their existing English titles in parentheses, in the entry list,
+article headings and related-entry chips. English names and inline term references remain unchanged.
+This content pack enables the shared glossary presentation option; other games do not opt in.
+
 ## Primitive and reuse contracts
 
 Images are immutable floating-point scalar/RGB arrays. Inspection keeps original signed values; display clipping

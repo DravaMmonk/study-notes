@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { L, tr } from './i18n.js'
+import { L, tr, isPair } from './i18n.js'
 import Library, { store, useSeen } from './Library.jsx'
 import { Markup } from './Markup.jsx'
 
@@ -27,7 +27,9 @@ export function useWiki(game, progress, solved, level) {
 }
 
 export default function Encyclopedia({ game, wiki, level, phone, start, onClose }) {
-  const { groups = [] } = game.glossary ?? {}
+  const { groups = [], englishNamesInChinese = false } = game.glossary ?? {}
+  const titleOf = ({ title }) => englishNamesInChinese && isPair(title) && title.en && title.zh !== title.en
+    ? { ...title, zh: `${title.zh}（${title.en}）` } : title
   const { entries, isOpen, seen, markSeen } = wiki
   const lastKey = `${game.id}.wiki.last`
   // Opening inside a level shows what that level brings in; otherwise what was read last, or the first entry.
@@ -56,7 +58,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
   const list = groups.map((group) => ({
     id: group.id,
     title: group.title,
-    items: entries.filter((e) => e.group === group.id).map((e) => ({ id: e.id, title: e.title, open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
+    items: entries.filter((e) => e.group === group.id).map((e) => ({ id: e.id, title: titleOf(e), open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
   }))
 
   const article = (id, back) => {
@@ -66,7 +68,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
       <article className="wiki-article" key={entry.id}>
         {back}
         {group && <span className="panel-label">{L(group.title)}</span>}
-        <h2>{L(entry.title)}</h2>
+        <h2>{L(titleOf(entry))}</h2>
         {entry.body.map((paragraph, k) => <p key={k}><Markup text={paragraph} /></p>)}
         {entry.see?.length > 0 && (
           <footer className="wiki-see">
@@ -74,7 +76,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
             <div>
               {entry.see.map((other) => entries.find((e) => e.id === other)).filter(Boolean).map((e) =>
                 isOpen(e)
-                  ? <button key={e.id} type="button" className="wiki-chip" onClick={() => pick(e.id)}><span>{L(e.title)}</span></button>
+                  ? <button key={e.id} type="button" className="wiki-chip" onClick={() => pick(e.id)}><span>{L(titleOf(e))}</span></button>
                   : <span key={e.id} className="wiki-chip is-locked">{tr('？？？', '???')}</span>,
               )}
             </div>
