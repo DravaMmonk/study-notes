@@ -5,6 +5,9 @@
     "zh": "从一根线开始",
     "en": "From One Wire"
   },
+  "views": {
+    "bits": ["wave", "bands"]
+  },
   "kicker": {
     "zh": "计算机网络",
     "en": "Computer networks"

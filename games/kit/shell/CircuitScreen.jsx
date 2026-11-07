@@ -3,6 +3,7 @@ import { stagesOf } from '../engine/stages.js'
 import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { viewAt } from '../engine/trace.js'
+import { outputsOf, srcOf } from '../circuit/model.js'
 import { TEST_WORDS } from '../engine/circuit-domain.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
@@ -45,7 +46,8 @@ import { useEdit } from './edit.js'
 //   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
 //   inspect?(node, ctx)   what a defined part's detail shows of its values (by default, as its card)
 //   sheet?(node, ctx, set), details   a card's detail (CircuitLevel sheet; set as settings' is), offered from desktop
-//                         card headers too (details)
+//                         card headers too (details); on a board run tick by tick, by default its settings and each of
+//                         its values tick by tick so far, each switched between its views there (tickDetail)
 //   card?                 faces of a card over the base's (CircuitLevel card)
 //   canvas                { width, height } of a part's card on the desktop board
 //   words                 what the game calls its tests (../engine/circuit-domain.js TEST_WORDS)
@@ -182,6 +184,29 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
       {!ctx.board.parts.outputs(node) && value(node, ctx)}
     </div>
   )
+  // A card's detail on a board run tick by tick: each of its values (a sink: what reaches it) over the ticks so far, a
+  // lane each in the detail scene; the shape a port's results row gives it, else bits while every value is 0 or 1.
+  // Inside a packed part, what its card shows.
+  const lanesOf = (node, { board: b }) => {
+    if (b.parts.role(node) !== 'sink') return outputsOf(b.parts, node).map((o) => ({ key: srcOf(node, o.key), of: srcOf(node, o.key), label: o.key === null ? null : o.label }))
+    const into = b.circuit.wires.find((w) => w.to === node.id)
+    return into ? [{ key: into.from, of: node.id, label: null }] : []
+  }
+  const shapeOf = (of, values) => offered.find((e) => e.of === of)?.shape ?? (values.every((v) => v === 0 || v === 1 || v === null) ? 'bits' : 'ticks')
+  const tickDetail = (node, ctx) => {
+    const lanes = ctx.path.length ? [] : lanesOf(node, ctx)
+    if (!lanes.length) return body(node, ctx)
+    const seen = runOf.ticks.slice(0, at + 1)
+    return (
+      <div className="cs-card">
+        {settings?.(node, (key) => (v) => !ctx.readOnly && setParam(node, key, v), ctx)}
+        {lanes.map(({ key, of, label }) => {
+          const values = seen.map((t) => t.values.get(key) ?? null)
+          return <Show key={of} value={values} shape={shapeOf(of, values)} scene="detail" of={valueKey(ctx, of)} label={label} text={show} />
+        })}
+      </div>
+    )
+  }
   // A defined part shows each output's value; with several, none of its own (its detail, `inspect`'s).
   const definedFaces = useMemo(() => defined && {
     ...defined,
@@ -256,8 +281,8 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
           describe={(n) => (BUILT[n.type] ? builtBy(n.type).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={strip}
           words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
-          sheet={sheet && ((node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)))}
-          details={details}
+          sheet={sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)) : kind.ticks ? tickDetail : undefined}
+          details={details || (!sheet && Boolean(kind.ticks))}
           packed={{
             open: (node) => {
               const inside = BUILT[node.type]?.opens?.(node.params)
