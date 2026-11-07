@@ -4,6 +4,8 @@
 
 所有类图灵完备游戏共同遵守的结构、规则和自动检查，见 [`games/DESIGN.md`](../../../games/DESIGN.md)；本文档只记录视觉完备自己的内容。
 
+本文档描述的是 `image` 领域上的原型。重制版的分章与关卡编排（主线加可选原理系列，建在 `vision` 领域上）见 [`chapter-map.md`](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md)。
+
 ## 1. 研究：《图灵完备》的关卡设计在做什么
 
 资料来源：官方战役关卡数据的镜像仓库（[michalusio/tc_campaign](https://github.com/michalusio/tc_campaign)，每关含 `meta.txt` 说明、`test.si` 测试脚本），社区 wiki，以及 Ohio Northern University 的 ASEE 2024 论文（McKanna & Hassan）。从关卡数据里能直接读出以下设计手法：
