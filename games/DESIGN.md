@@ -907,7 +907,9 @@ the stored mode. Notes, modes and deletion use the same header on both devices. 
 
 Desktop Partition is always available in the canvas tools. A dragged rectangle selects component centres; Escape
 or a second press cancels. Passive token-based backdrops follow member bounds, with no independent block drag
-surface. Phone Partition appears with Manual partitioning enabled: pick a start row then an end row, both
+surface. A desktop header drag handle moves every member by the same canvas-space delta in all three views.
+The move is one undoable layout edit, preserves internal frame-local positions and wiring, and is unavailable
+in read-only boards. Escape cancels the preview. Phone Partition appears with Manual partitioning enabled: pick a start row then an end row, both
 inclusive. A bottom instruction banner names the current step and offers Cancel; choosing the start row changes
 the prompt to the end row. Phones always use two edge-to-edge horizontal rules with the header on the first,
 without block backdrops or container padding. There is no separate compact-view switch or device preference.

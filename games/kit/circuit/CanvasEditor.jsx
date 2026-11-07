@@ -1,3 +1,4 @@
+import useBlockDrag from './useBlockDrag.js'
 import { rectangleMembers } from './blocks.js'
 import { WORDS } from '../shell/words.js'
 import BlockHeader from './BlockHeader.jsx'
@@ -76,7 +77,11 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       const nodes = new Map(current.nodes)
       for (const n of moved) nodes.set(n.id, { x: n.x, y: n.y })
       const units=current.units.map(u=>{
-        if(u.view==='hidden'||!u.nodes.some(id=>moved.some(n=>n.id===id)))return u
+        if(!u.nodes.some(id=>moved.some(n=>n.id===id)))return u
+        if(u.view==='hidden'){
+          const after=moved.find(n=>u.nodes.includes(n.id)),before=graph.nodes.find(n=>n.id===after.id)
+          return {...u,x:u.x+after.x-before.x,y:u.y+after.y-before.y}
+        }
         const ids=u.block?groups.find(b=>b.id===u.block)?.nodes??u.nodes:u.nodes
         const ps=ids.map(id=>({id,p:nodes.get(id)})).filter(({p})=>p)
         if(!ps.length)return u
@@ -672,6 +677,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     )
   }
 
+  const dragBlock=useBlockDrag({graph,parts,layer,zoom:view.zoom,onChange,redraw,positions:painting?.nodes})
   const stageFrame = (block) => {
     const nodes=stageNodes(block).map(n=>({...n,...painting?.nodes.get(n.id)}))
     const unit=hiddenUnits.find(u=>u.hiddenBlock.id===block.id)
@@ -680,7 +686,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const h=unit?.h??Math.max(...nodes.map(n=>(n.y??0)+sizeOf(n)[1]))-y+spacing.pad
     const reveal=(id)=>{blocks.open(block.id);setFocus(id);choose(byId.get(id))}
     return <section key={block.id} data-block={block.id} data-node={unit?.id} className={`circuit-block ${unit?'is-hidden':''}`} style={{left:x,top:y,width:w,...(!unit?{height:h}:{minHeight:h})}}>
-      <BlockHeader block={block} editable={!readOnly} onEdit={(patch)=>blocks.edit(block.id,patch)} />
+      <BlockHeader block={block} editable={!readOnly} onEdit={(patch)=>blocks.edit(block.id,patch)} onDragStart={readOnly?undefined:e=>dragBlock(e,block)} />
       {unit&&<><span className="block-stubs is-input" onPointerDown={e=>e.stopPropagation()}>{block.ins.map(w=><button type="button" key={`${w.to}.${w.port}`} className="port port-in is-wired" data-p={inPort(w.to,w.port)} title={L(parts.label(byId.get(w.to)))} aria-label={L(parts.label(byId.get(w.to)))} onClick={()=>reveal(w.to)}><i /></button>)}</span><span className="block-stubs is-output" onPointerDown={e=>e.stopPropagation()}>{[...new Set(block.outs.map(w=>w.from))].map(src=><button type="button" key={src} className="port port-out is-wired" data-p={outPort(src)} title={L(parts.label(byId.get(srcNode(src))))} aria-label={L(parts.label(byId.get(srcNode(src))))} onClick={()=>reveal(srcNode(src))}><i /></button>)}</span></>}
     </section>
   }

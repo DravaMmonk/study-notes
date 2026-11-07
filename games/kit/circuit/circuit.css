@@ -587,3 +587,5 @@
 .block-rename { display: grid; gap: var(--stage-gap); }
 .block-rename input { min-width: 0; padding: var(--stage-pad); border: var(--block-rule-width) solid var(--line); border-radius: var(--r-md); background: var(--paper); color: var(--ink); font: var(--fs-touch-input) var(--sans); }
 .block-rename button { padding: var(--stage-pad); border: 0; border-radius: var(--r-md); background: var(--accent); color: var(--accent-ink); font: var(--fs-touch-input) var(--sans); cursor: pointer; }
+.block-header .block-move { flex: none; display: grid; place-items: center; cursor: grab; touch-action: none; }
+.block-header .block-move:active { cursor: grabbing; }

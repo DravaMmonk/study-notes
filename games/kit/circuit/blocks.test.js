@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot,phoneBlockBoard,blockAtSlot,blockOfPart,transferBlockMembers,movePhonePart} from './blocks.js'
+import {translateBlock,blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot,phoneBlockBoard,blockAtSlot,blockOfPart,transferBlockMembers,movePhonePart} from './blocks.js'
 import {print} from './text.js'
 import {placement} from './model.js'
 const parts={role:n=>n.type==='in'?'source':n.type==='out'?'sink':'part',inputs:()=>['in'],outputs:()=>null}
@@ -112,4 +112,22 @@ test('moving the last member outside deletes only its empty container',()=>{
  const phone=phoneBlockBoard(board,parts),moved=movePhonePart(phone,parts,'a',7)
  assert.deepEqual(moved.blocks,[]);assert.equal(moved.nodes.length,phone.nodes.length)
  assert.equal(moved.wires,phone.wires)
+})
+
+test('block translation preserves wires, membership, slots and nested local coordinates',()=>{
+ const b={...graph,nodes:[...graph.nodes.map(n=>({...n,slot:3})),{id:'inside',type:'part',in:'a/body',x:9,y:12}],blocks:[{id:'x',nodes:['a','b'],view:'hidden'}]}
+ const moved=translateBlock(b,parts,'x',50,-20)
+ assert.equal(moved.wires,b.wires);assert.equal(moved.blocks,b.blocks)
+ for(const n of b.nodes){const after=moved.nodes.find(v=>v.id===n.id)
+  if(['a','b'].includes(n.id)){assert.equal(after.x,n.x+50);assert.equal(after.y,n.y-20);assert.equal(after.slot,n.slot)}
+  else assert.equal(after,n)
+ }
+ assert.equal(translateBlock(b,parts,'missing',50,20),b)
+ assert.equal(translateBlock(b,parts,'x',0,0),b)
+})
+test('visible block translation commits displayed member positions without shifting unrelated nodes',()=>{
+ const b={...graph,blocks:[{id:'x',nodes:['a','b'],view:'ports'}]}
+ const moved=translateBlock(b,parts,'x',-15,30,new Map([['a',{x:600,y:50}],['b',{x:810,y:70}]]))
+ assert.deepEqual(moved.nodes.filter(n=>['a','b'].includes(n.id)).map(n=>[n.x,n.y]),[[585,80],[795,100]])
+ assert.equal(moved.nodes.find(n=>n.id==='c'),graph.nodes.find(n=>n.id==='c'))
 })

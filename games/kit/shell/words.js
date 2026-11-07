@@ -14,6 +14,7 @@ export const WORDS = {
   blockCount: (n) => T(`${n} 个元件`, `${n} parts`),
   blockNote: T('区块批注', 'Block note'),
   deleteBlock: T('删除区块', 'Delete block'),
+  moveBlock: T('拖动区块', 'Move block'),
   result: T('结果', 'Result'),
   wanted: T('应得', 'Wanted'),
   // The run key: a board run step by step is run, one checked at once is checked; once passed, it says so.

@@ -89,3 +89,10 @@ Phone title buttons open the shared sheet with Save and Cancel/close, rather tha
 input. The input uses a 16 px touch-input token. Browser review saved a new title and observed viewport scale 1;
 physical iOS keyboard behaviour still requires device confirmation. Desktop title editing remains inline.
 Targeted model/folding/settings tests, vocabulary/style checks and all-game builds pass.
+
+## Desktop block movement
+
+Desktop headers have a drag handle in full, ports and hidden views. A 1440 × 900 review moved all four members
+of the two-axis block together, preserved every wire and restored all stored node coordinates with one Undo.
+A hidden block's header moved with its members and Undo restored its position. Pure tests cover frame-local
+coordinates, phone slots, unchanged membership and unrelated nodes, and committing temporary displayed positions.

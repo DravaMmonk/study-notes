@@ -170,3 +170,14 @@ export function movePhonePart(board,parts,id,slot,region=null,canMove=()=>true) 
   if(next===board||board.blocks===undefined)return next
   return transferBlockMembers(next,parts,[{id,block:destination},...(other&&other!==id?[{id:other,block:origin}]:[])])
 }
+
+/** Translate root members only; frame children already move with their parent in local coordinates. */
+export function translateBlock(board,parts,id,dx,dy,positions=new Map()) {
+  const members=new Set(blocksOf(board,parts).find(b=>b.id===id)?.nodes??[])
+  if(!members.size||(!dx&&!dy))return board
+  return {...board,nodes:board.nodes.map(n=>{
+    if(!members.has(n.id))return n
+    const p=positions.get(n.id)??n
+    return {...n,x:(p.x??0)+dx,y:(p.y??0)+dy}
+  })}
+}
