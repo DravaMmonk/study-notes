@@ -9,10 +9,12 @@
 import { S } from '../../../engine/schema.js'
 import { pinhole } from './pinhole.js'
 import { lens } from './lens.js'
+import { waves } from './waves.js'
+import { lambert } from './lambert.js'
 import { T as t } from '../../../shell/i18n.js'
 
 
-export const BENCH_MODELS = { pinhole, lens }
+export const BENCH_MODELS = { pinhole, lens, waves, lambert }
 
 const terms = S.obj({ terms: S.opt(S.list(S.text())) })
 export const DISPLAYS = {

@@ -146,7 +146,15 @@ const LEVEL = levelSchema({
     sample: S.opt(S.obj({ inputs: S.map(S.either(VALUE, PICTURE), { about: t('按输入名给的值；没给的取第一个测试的', 'values by input name; the rest are the first test’s') }) }, { section: 'tests', about: t('样张：一张较大的图，玩家的板和参考解都在上面跑，只看效果、不判定', 'the sample: a larger picture the player’s board and the reference both run on, to see the effect, never judged') })),
   },
   kinds: {
-    probe: { experiment: S.opt(S.oneOf(['blur', 'spectrum', 'shift'])) },
+    probe: {
+      experiment: S.opt(S.oneOf(['blur', 'spectrum', 'shift', 'filter'])),
+      kernel: S.opt(S.list(S.list(num, { min: 1 }), { min: 1, view: 'grid', section: 'tests', about: t('filter：黑盒真正用的核（奇数宽高），按互相关排布', 'filter: the kernel the black box really uses (odd sides), laid out for correlation') })),
+      questions: S.opt(S.list(S.obj({
+        title: S.text(),
+        options: S.list(S.obj({ id: S.str(), label: S.text(), kernel: S.list(S.list(num, { min: 1 }), { min: 1, view: 'grid' }) }), { min: 2 }),
+        answer: S.str(),
+      }), { min: 1, section: 'tests', about: t('filter：每题几种互相竞争的解释（各是一个核），答案是黑盒的核', 'filter: each question’s competing explanations (a kernel each); the answer is the box’s kernel') })),
+    },
     grid: {
       image: IMAGE,
       calculation: S.opt(S.by('kind', {
@@ -175,7 +183,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 5,
+  version: 6,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,

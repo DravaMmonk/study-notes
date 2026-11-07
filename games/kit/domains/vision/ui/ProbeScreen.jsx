@@ -8,7 +8,7 @@ import { probeOf } from '../probe.js'
 
 export default function ProbeScreen({ game, level, saved, save, solve, phone }) {
   const model = probeOf(level.source)
-  const blur = model.field === 'rows' && level.source.experiment !== 'shift'
+  const blur = (level.source.experiment ?? 'blur') === 'blur'
   const spectrum = model.field === 'cycles'
   const { questions } = model
   const [baseline] = useState(() => spectrum ? model.output(model.initial()) : null)

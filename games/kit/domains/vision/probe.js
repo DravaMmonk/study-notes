@@ -109,5 +109,23 @@ const spectrumModel = {
   insufficient: () => ({ cycles: { x: 4, y: 4 }, answer: 'farther' }),
 }
 
-const models = { blur: blurModel, spectrum: spectrumModel, shift: shiftModel }
-export const probeOf = (task) => models[task.experiment ?? 'blur']
+/**
+ * A black-box filter the task describes: its kernel and, per question, the competing explanations (each a kernel).
+ * The player draws an input that tells the explanations apart and picks the one its output supports.
+ */
+const filterModel = (task) => {
+  const apply = (image, kernel) => filterImage(image, fromRows(kernel), { outside: 'clamp' })
+  const questions = task.questions.map((q) => ({ title: q.title, options: q.options.map((o) => [o.id, o.label, o.kernel]), answer: q.answer }))
+  return gridModel(questions, (rows) => (valid(rows) ? apply(fromRows(rows), task.kernel) : null),
+    (question, evidence) => checkProbe(question, evidence, (image, kernel) => apply(image, kernel)))
+}
+
+const models = { blur: () => blurModel, spectrum: () => spectrumModel, shift: () => shiftModel, filter: filterModel }
+export const probeOf = (task) => models[task.experiment ?? 'blur'](task)
+
+/** What a filter probe's data get wrong: its kernel must be the explanation each question calls right. */
+export const filterProbeProblems = (task) => (task.experiment !== 'filter' ? [] : task.questions.flatMap((q) => {
+  const right = q.options.find((o) => o.id === q.answer)
+  if (!right) return [`question answer ${q.answer} is not an option`]
+  return differs(fromRows(right.kernel), fromRows(task.kernel)) ? [`the right option (${q.answer}) is not the box’s kernel`] : []
+}))

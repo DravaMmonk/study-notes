@@ -2,8 +2,10 @@
 // while the small numeric tests judge it cell by cell. It is never judged: the screen shows the reference board's
 // outputs on it beside the player's.
 //
-// A picture is painted: a background, then layers in order (a disc, a rectangle, a ramp, stripes, a checkerboard; a
-// region bounds stripes and checkers), then seeded noise added. Coordinates are cells, x right and y down.
+// A picture is painted: a background, then layers in order (a disc, a rectangle, a ramp, stripes, a checkerboard, a
+// four-cornered patch such as a sheet of paper lying askew, lines of text; a region bounds stripes, checkers and text),
+// then seeded noise added: independent in every cell, or one offset a row or a column (a sensor's banding).
+// Coordinates are cells, x right and y down.
 //
 //   PICTURE                       the schema content writes a picture in
 //   paint(spec) → image           the picture as a grey image
@@ -27,8 +29,11 @@ export const PICTURE = S.obj({
     ramp: S.obj({ shape: S.oneOf(['ramp']), axis: S.opt(S.oneOf(['x', 'y'])), from: num, to: num }, { about: t('整张图沿一个轴从 from 渐变到 to', 'the whole picture graded from `from` to `to` along an axis') }),
     stripes: S.obj({ shape: S.oneOf(['stripes']), period: num, axis: S.opt(S.oneOf(['x', 'y'])), lo: num, hi: num, ...region }, { about: t('条纹：每 period 格一个周期，axis x 是竖条；可限在一块区域里', 'stripes, a cycle every period cells, upright for axis x; optionally within a region') }),
     checker: S.obj({ shape: S.oneOf(['checker']), cell: num, lo: num, hi: num, ...region }, { about: t('棋盘：每格 cell 宽；可限在一块区域里', 'a checkerboard, its squares cell wide; optionally within a region') }),
+    quad: S.obj({ shape: S.oneOf(['quad']), corners: S.list(S.list(num, { min: 2 }), { min: 4, about: t('四个角 [x, y]，按一圈的顺序', 'four corners [x, y], in order around') }), v: num }, { about: t('四边形：比如斜放的一张纸', 'a four-sided patch, such as a sheet of paper lying askew') }),
+    text: S.obj({ shape: S.oneOf(['text']), v: num, gap: S.opt(num), seed: S.opt(S.int()), ...region }, { about: t('一行行字：每行是一串长短不一的短划，gap 是行距（默认 3 格）', 'lines of text: each a run of words of varying length, gap rows apart (3 by default)') }),
   }))),
-  noise: S.opt(S.obj({ seed: S.int(), amp: num }, { about: t('加上的随机起伏：每格 ±amp 以内，种子定下是哪一张', 'random variation added, within ±amp a cell, the seed saying which') })),
+  relief: S.opt(S.list(S.obj({ cx: num, cy: num, r: S.num({ min: 0.5 }), height: num }), { about: t('有起伏时画的是表面朝向（三通道：右、下、朝相机的分量）：每项一个圆形的凸起（height > 0）或凹坑（< 0）', 'with a relief the picture is the surface normal (three channels: right, down, towards the camera): each item a round bump (height > 0) or dent (< 0)') })),
+  noise: S.opt(S.obj({ seed: S.int(), amp: num, kind: S.opt(S.oneOf(['cells', 'rows', 'columns'], { about: t('每格各自起伏（默认），或每行、每列一个起伏（传感器的条纹）', 'each cell its own (the default), or one per row or column (a sensor’s banding)') })) }, { about: t('加上的随机起伏：每格 ±amp 以内，种子定下是哪一张', 'random variation added, within ±amp a cell, the seed saying which') })),
 }, { about: t('画出的一张样张', 'a painted sample picture') })
 
 /** A seeded generator of numbers in [0, 1) (mulberry32): the same seed paints the same picture everywhere. */
@@ -53,14 +58,61 @@ const LAYERS = {
   },
   stripes: (l, x, y, v) => (inside(l, x, y) ? (Math.floor((((l.axis ?? 'x') === 'x' ? x : y) * 2) / l.period) % 2 ? l.hi : l.lo) : v),
   checker: (l, x, y, v) => (inside(l, x, y) ? ((Math.floor(x / l.cell) + Math.floor(y / l.cell)) % 2 ? l.hi : l.lo) : v),
+  quad: (l, x, y, v) => (insideQuad(l.corners, x + 0.5, y + 0.5) ? l.v : v),
+  text: (l, x, y, v) => (inside(l, x, y) && inked(l, x, y) ? l.v : v),
 }
 
-/** A picture spec painted as a grey image. */
-export function paint({ size: [w, h], base = 0.2, layers = [], noise }) {
+/** Whether a point lies inside a convex four-cornered patch, whichever way round its corners go. */
+function insideQuad(corners, px, py) {
+  const sides = corners.map(([ax, ay], i) => {
+    const [bx, by] = corners[(i + 1) % corners.length]
+    return Math.sign((bx - ax) * (py - ay) - (by - ay) * (px - ax))
+  })
+  return sides.every((s) => s >= 0) || sides.every((s) => s <= 0)
+}
+
+/** A text layer's ink: one row in every `gap`, words of 2 to 5 cells with one-cell spaces, the same for a seed. */
+function inked(l, x, y) {
+  const gap = l.gap ?? 3
+  const row = y - (l.y ?? 0)
+  if (row % gap !== 1) return false
+  const next = random((l.seed ?? 1) * 7919 + Math.floor(row / gap))
+  let at = (l.x ?? 0) + 1
+  while (at <= x) {
+    const word = 2 + Math.floor(next() * 4)
+    if (x < at + word) return true
+    at += word + 1
+  }
+  return false
+}
+
+/** A relief's surface normal at a cell: each bump a smooth cap, height × (1 − (d/r)²)², its slope tilting the normal. */
+function normalAt(relief, x, y) {
+  let gx = 0
+  let gy = 0
+  for (const { cx, cy, r, height } of relief) {
+    const dx = x + 0.5 - cx
+    const dy = y + 0.5 - cy
+    const q = (dx * dx + dy * dy) / (r * r)
+    if (q >= 1) continue
+    const k = (-4 * height * (1 - q)) / (r * r)
+    gx += k * dx
+    gy += k * dy
+  }
+  const n = Math.hypot(gx, gy, 1)
+  return [-gx / n || 0, -gy / n || 0, 1 / n]
+}
+
+/** A picture spec painted: a grey image, or with a relief the colour image of its surface normals. */
+export function paint({ size: [w, h], base = 0.2, layers = [], noise, relief }) {
+  if (relief) return make(w, h, 3, (x, y, c) => normalAt(relief, x, y)[c])
   const next = noise ? random(noise.seed) : null
+  const kind = noise?.kind ?? 'cells'
+  const bands = next && kind !== 'cells' ? Array.from({ length: kind === 'rows' ? h : w }, () => noise.amp * (2 * next() - 1)) : null
   return make(w, h, 1, (x, y) => {
     let v = base
     for (const l of layers) v = LAYERS[l.shape](l, x, y, v, w, h)
+    if (bands) return v + bands[kind === 'rows' ? y : x]
     return next ? v + noise.amp * (2 * next() - 1) : v
   })
 }

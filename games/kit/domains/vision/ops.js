@@ -11,6 +11,7 @@ import { S } from '../../engine/schema.js'
 import { isImage, isVector, make } from './image.js'
 import { colourMix, filterImage, sampleImage, stencilImage } from './operators.js'
 import { BORDERS, expandRows, positions, reduceRows, restoreShape, reverse, shiftRead, transpose, trim, windowSamples, windowWeights, weightedLine } from './construction.js'
+import { frequencyAxis, frequencyFilter, spectrum, subsample } from './frequency.js'
 import { T as t } from '../../shell/i18n.js'
 
 const fail = (zh, en) => { throw new PartError(t(zh, en)) }
@@ -128,6 +129,7 @@ export const OPS = {
   max: value2(t('两者中大的，逐个值', 'the larger, value by value'), Math.max),
   less: value2(t('a < b 为 1，否则为 0，逐个值', '1 where a < b, else 0, value by value'), (p, q) => (p < q ? 1 : 0)),
   hypot: value2(t('√(a² + b²)，逐个值', '√(a² + b²), value by value'), Math.hypot),
+  angleTurns: value2(t('从 x 轴转到 (x, y) 的方向，以周为单位（−1/2 到 1/2），逐个值；参数顺序 (y, x)', 'the direction of (x, y) from the x axis in turns (−1/2 to 1/2), value by value; arguments (y, x)'), (y, x) => Math.atan2(y, x) / (2 * Math.PI)),
   abs: value1(t('绝对值，逐个值', 'absolute value, value by value'), Math.abs),
   floor: value1(t('向下取整，逐个值', 'round down, value by value'), Math.floor),
   sqrt: value1(t('平方根，逐个值；负数报错', 'square root, value by value; a negative number stops'), (p) => (p < 0 ? fail('负数没有平方根', 'a negative number has no square root') : Math.sqrt(p))),
@@ -160,6 +162,11 @@ export const OPS = {
   kernelFilter: { about: t('用核计算互相关或数学卷积', 'a kernel applied as correlation or convolution'), args: args('image', 'kernel'), params: named({ convention: S.opt(S.oneOf(['correlation', 'convolution'])), outside: OUTSIDE }), run: ([image, kernel], options) => filterImage(image, kernel, options) },
   colourMix: { about: t('RGB 三个通道按 wr、wg、wb 加权相加', 'RGB weighted by wr, wg, wb and added'), args: args('image', 'wr', 'wg', 'wb'), run: ([image, ...weights]) => colourMix(image, weights) },
   shift: { about: t('输出 (x, y) 读输入 (x, y) + d', 'output (x, y) reads input (x, y) + d'), args: args('image', 'd'), params: named({ outside: BORDER }), run: ([image, d], options) => shiftRead(image, d, options) },
+  spectrum: { about: t('灰度图的幅度谱，零频在中心', 'a grey image’s amplitude spectrum, frequency 0 in the centre'), args: args('image'), run: ([image]) => spectrum(image) },
+  frequencyFilter: { about: t('每个频率乘以增益图在它那一格的值（零频在中心），再变回图', 'each frequency times the gain drawn at its cell (frequency 0 in the centre), back to an image'), args: args('image', 'gain'), run: ([image, gain]) => frequencyFilter(image, gain) },
+  frequencyX: { about: t('和频谱同样排布的每格横向频率（每张图几个周期）', 'each cell’s horizontal frequency, laid out like the spectrum (cycles per image)'), args: args('image'), run: ([image]) => frequencyAxis(image, 'x') },
+  frequencyY: { about: t('和频谱同样排布的每格纵向频率（每张图几个周期）', 'each cell’s vertical frequency, laid out like the spectrum (cycles per image)'), args: args('image'), run: ([image]) => frequencyAxis(image, 'y') },
+  subsample: { about: t('两个方向都每隔 step 格取一格，从 (0, 0) 起', 'every step-th cell along both axes, from (0, 0)'), args: args('image', 'step'), run: ([image, step]) => subsample(image, step) },
   transpose: { about: t('行列互换', 'rows and columns exchanged'), args: args('image'), run: ([image]) => transpose(image) },
   reverse: { about: t('旋转 180 度', 'rotated 180 degrees'), args: args('image'), run: ([image]) => reverse(image) },
   windowSamples: { about: t('每个输出位置的邻域读数，一行一个位置', 'each output position’s window samples, a row a position'), args: args('image', 'kernel'), params: named({ axis: AXIS, outside: BORDER }), run: ([image, kernel], options) => windowSamples(image, kernel, options) },

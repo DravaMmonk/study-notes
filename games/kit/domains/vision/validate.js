@@ -12,7 +12,7 @@ import { checkCircuitTasks } from '../../engine/circuit-domain.js'
 import { entries, runLevel, runTest } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { judgeOf, naiveRound } from './judges.js'
-import { blankProbe, probeOf } from './probe.js'
+import { blankProbe, filterProbeProblems, probeOf } from './probe.js'
 import { lessonProblems } from './benches/lesson.js'
 
 /** What a board task does wrong with the settings its course introduces, and with its sample. */
@@ -78,10 +78,10 @@ export function validate({ circuit }) {
     kinds: { probe: (task) => {
       const model = probeOf(task)
       const reference = model.reference()
-      const problems = model.questions.flatMap((question, index) => [
+      const problems = [...filterProbeProblems(task), ...model.questions.flatMap((question, index) => [
         ...(model.check(question, reference[index]) ? ['reference evidence fails'] : []),
         ...(!model.check(question, model.insufficient()) ? ['insufficient evidence passes'] : []),
-      ])
+      ])]
       if ((task.experiment ?? 'blur') === 'blur') {
         const [support, gain] = model.questions
         const flat = blankProbe().map(row => row.map(() => 0.25))
