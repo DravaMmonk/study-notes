@@ -12,6 +12,8 @@ import { fromRows, isImage, isVector, make } from './image.js'
 import { colourMix, filterImage, sampleImage, stencilImage } from './operators.js'
 import { BORDERS, expandRows, positions, reduceRows, restoreShape, reverse, shiftRead, transpose, trim, windowSamples, windowWeights, weightedLine } from './construction.js'
 import { frequencyAxis, frequencyFilter, spectrum, subsample } from './frequency.js'
+import { matmul, noise, patches, softmaxRows, unpatch } from './tables.js'
+import { histogram, homography, iou, mapX, mapY } from './geometry.js'
 import { T as t } from '../../shell/i18n.js'
 
 const fail = (zh, en) => { throw new PartError(t(zh, en)) }
@@ -85,6 +87,9 @@ const finiteValues = (values) => {
   if (!values.every(Number.isFinite)) fail('向量分量需要有限数值', 'Vector components must be finite numbers')
   return values
 }
+
+/** Whether a learnable call is a parameter training changes: not when frozen (transfer learning keeps it). */
+const FREE = (named) => !named?.frozen
 
 export const OPS = {
   vector2: { about: t('由两个数构造方向向量 (x, y)', 'A direction vector (x, y) from two numbers'), args: args('x', 'y'), run: (values) => { const [x, y] = finiteValues(values); return { x, y } } },
@@ -162,8 +167,18 @@ export const OPS = {
   kernelFilter: { about: t('用核计算互相关或数学卷积', 'a kernel applied as correlation or convolution'), args: args('image', 'kernel'), params: named({ convention: S.opt(S.oneOf(['correlation', 'convolution'])), outside: OUTSIDE }), run: ([image, kernel], options) => filterImage(image, kernel, options) },
   colourMix: { about: t('RGB 三个通道按 wr、wg、wb 加权相加', 'RGB weighted by wr, wg, wb and added'), args: args('image', 'wr', 'wg', 'wb'), run: ([image, ...weights]) => colourMix(image, weights) },
   shift: { about: t('输出 (x, y) 读输入 (x, y) + d', 'output (x, y) reads input (x, y) + d'), args: args('image', 'd'), params: named({ outside: BORDER }), run: ([image, d], options) => shiftRead(image, d, options) },
-  learnable: { leaf: true, about: t('训练时会被改动的参数：shape 是 scalar（一个数）、row3（三个权重）、kernel3 或 kernel5（方形的核），value 是学到的值（还没学时是 0）', 'a parameter training changes: shape scalar (one number), row3 (three weights), kernel3 or kernel5 (a square kernel); value is what it learned (0 before any training)'), args: args('shape', 'value'), run: ([shape, value]) => parameter(shape in SHAPES ? SHAPES[shape] : fail(`没有形状 ${shape}`, `no shape ${shape}`), value) },
-  learnableLike: { leaf: true, about: t('和输入的图一样大的一张参数图（每格一个权重），value 是学到的值', 'a parameter image the size of the input (a weight a cell); value is what it learned'), args: args('image', 'value'), run: ([image, value]) => parameter([imageOf(image, 'learnableLike').w, image.h], value) },
+  learnable: { leaf: FREE, params: named({ frozen: S.opt(S.bool({ about: t('冻结：训练不改它（迁移时保留学到的特征）', 'frozen: training leaves it (transfer keeps what it learned)') })) }), about: t('训练时会被改动的参数：shape 是 scalar（一个数）、row3（三个权重）、kernel3 或 kernel5（方形的核），value 是学到的值（还没学时是 0）', 'a parameter training changes: shape scalar (one number), row3 (three weights), kernel3 or kernel5 (a square kernel); value is what it learned (0 before any training)'), args: args('shape', 'value'), run: ([shape, value]) => parameter(shape in SHAPES ? SHAPES[shape] : fail(`没有形状 ${shape}`, `no shape ${shape}`), value) },
+  learnableLike: { leaf: FREE, params: named({ frozen: S.opt(S.bool({ about: t('冻结：训练不改它（迁移时保留学到的特征）', 'frozen: training leaves it (transfer keeps what it learned)') })) }), about: t('和输入的图一样大的一张参数图（每格一个权重），value 是学到的值', 'a parameter image the size of the input (a weight a cell); value is what it learned'), args: args('image', 'value'), run: ([image, value]) => parameter([imageOf(image, 'learnableLike').w, image.h], value) },
+  patches: { about: t('把图切成 size × size 的块，从左到右、从上到下，每块一行', 'the image cut into size × size patches, left to right then down, one row each'), args: args('image', 'size'), run: ([image, size]) => patches(image, size) },
+  unpatch: { about: t('把一行行的块按 shape 的大小拼回一张图', 'rows of patches laid back into an image the size of `shape`'), args: args('table', 'shape', 'size'), run: ([table, shape, size]) => unpatch(table, shape, size) },
+  matmul: { about: t('表的乘法：a 有 n 行、每行 k 个数，b 有 k 行', 'the table product: a has n rows of k numbers, b has k rows'), args: args('a', 'b'), run: ([a, b]) => matmul(a, b) },
+  softmaxRows: { about: t('表的每一行变成概率', 'each row of a table made probabilities'), args: args('table'), run: ([table]) => softmaxRows(table) },
+  noise: { about: t('和 like 一样大的标准正态随机数，种子定下是哪一张', 'standard normal random numbers the size of `like`, the seed saying which'), args: args('like', 'seed'), run: ([like, seed]) => noise(like, seed) },
+  iou: { about: t('两张框表（每行 [x0, y0, x1, y1]）里每对框的交并比：a 的一框一行', 'the intersection over union of every pair of boxes in two box tables (rows [x0, y0, x1, y1]): a row per box of a'), args: args('a', 'b'), run: ([a, b]) => iou(a, b) },
+  homography: { about: t('由点对表（每行 [x, y, x′, y′]，至少四行）求出 3 × 3 的单应 H', 'the 3 × 3 homography H from a table of point pairs (rows [x, y, x′, y′], at least four)'), args: args('pairs'), run: ([pairs]) => homography(pairs) },
+  mapX: { about: t('H 把 (x, y) 送到的横坐标；数或坐标图', 'the x that H sends (x, y) to; numbers or coordinate images'), args: args('H', 'x', 'y'), run: ([H, x, y]) => mapX(H, x, y) },
+  mapY: { about: t('H 把 (x, y) 送到的纵坐标；数或坐标图', 'the y that H sends (x, y) to; numbers or coordinate images'), args: args('H', 'x', 'y'), run: ([H, x, y]) => mapY(H, x, y) },
+  histogram: { about: t('角度（周）按 bins 个扇区计票，每票加上它的权重：一行 bins 个数', 'angles (in turns) voted into `bins` sectors, each vote its weight: a row of `bins`'), args: args('angle', 'weight', 'bins'), run: ([angle, weight, bins]) => histogram(angle, weight, bins) },
   total: { about: t('一张图所有格子的和', 'the sum of every cell of an image'), args: args('image'), run: ([image]) => imageOf(image, 'total').data.reduce((a, b) => a + b, 0) },
   softmax: { about: t('一张灰度图的每格变成概率：exp 后除以总和', 'each cell of a grey image made a probability: exp, divided by the total'), args: args('image'), run: ([image]) => softmax(imageOf(image, 'softmax')) },
   exp: value1(t('e 的 a 次方，逐个值', 'e to the power a, value by value'), Math.exp),

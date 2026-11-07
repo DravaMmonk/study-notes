@@ -145,7 +145,7 @@ export function defineParts(file, ops) {
         if (!ctx?.tape) return evaluate(tree, env)
         // A run that trains: number the values on the tape (../tape.js); a parameter resource makes this card a leaf.
         const tape = ctx.tape
-        const { v, id } = evaluateTaped(tree, { ...env, tape, ids: { ...tape.ins }, key: tape.node, leaf: (name) => Boolean(ops[name]?.leaf) })
+        const { v, id } = evaluateTaped(tree, { ...env, tape, ids: { ...tape.ins }, key: tape.node, leaf: (name, named) => (typeof ops[name]?.leaf === 'function' ? ops[name].leaf(named) : Boolean(ops[name]?.leaf)) })
         tape.last = id
         return v
       },

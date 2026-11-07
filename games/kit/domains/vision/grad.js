@@ -7,6 +7,7 @@
 //   gradOps   the resources a gradient passes through; any other one on the way stops it (train.js reports which)
 import { isImage, make } from './image.js'
 import { zip } from './ops.js'
+import { TABLE_GRADS } from './tables.js'
 
 const TAU = 2 * Math.PI
 
@@ -74,7 +75,49 @@ const elementwise = {
   select: (g, [c, yes, no]) => [null, like(zip([g, c], (p, k) => (k !== 0 ? p : 0)), yes), like(zip([g, c], (p, k) => (k !== 0 ? 0 : p)), no)],
 }
 
+/**
+ * Sampling at continuous coordinates (operators.js sampleImage): bilinear spreads each result's gradient over its four
+ * neighbours and passes the slope between them to the coordinates; nearest passes none to the coordinates.
+ */
+function sampleGrad(g, [image, x, y], { method = 'nearest', outside = 'clamp' }) {
+  const { w, h, c } = image
+  const gImage = new Array(image.data.length).fill(0)
+  const cells = isImage(x) ? x.w * x.h : 1
+  const gx = new Array(cells).fill(0)
+  const gy = new Array(cells).fill(0)
+  const coord = (v, k) => (isImage(v) ? v.data[k] : v)
+  const at = (px, py) => {
+    const ix = index(w, px, outside === 'zero' ? 'zero' : 'clamp')
+    const iy = index(h, py, outside === 'zero' ? 'zero' : 'clamp')
+    return ix === null || iy === null ? null : iy * w + ix
+  }
+  const read = (cell, ch) => (cell === null ? 0 : image.data[cell * c + ch])
+  for (let k = 0; k < cells; k++) {
+    const [sx, sy] = [coord(x, k), coord(y, k)]
+    for (let ch = 0; ch < c; ch++) {
+      const gv = isImage(g) ? g.data[k * c + ch] : g
+      if (method === 'nearest') {
+        const cell = at(Math.floor(sx + 0.5), Math.floor(sy + 0.5))
+        if (cell !== null) gImage[cell * c + ch] += gv
+        continue
+      }
+      const [x0, y0] = [Math.floor(sx), Math.floor(sy)]
+      const [tx, ty] = [sx - x0, sy - y0]
+      const n = [at(x0, y0), at(x0 + 1, y0), at(x0, y0 + 1), at(x0 + 1, y0 + 1)]
+      const wts = [(1 - tx) * (1 - ty), tx * (1 - ty), (1 - tx) * ty, tx * ty]
+      n.forEach((cell, j) => { if (cell !== null) gImage[cell * c + ch] += wts[j] * gv })
+      const [a, b, d, e] = n.map((cell) => read(cell, ch))
+      gx[k] += gv * ((b - a) * (1 - ty) + (e - d) * ty)
+      gy[k] += gv * ((d - a) * (1 - tx) + (e - b) * tx)
+    }
+  }
+  const asCoord = (v, data) => (isImage(v) ? { w: v.w, h: v.h, c: 1, data } : data[0])
+  return [{ w, h, c, data: gImage }, asCoord(x, gx), asCoord(y, gy)]
+}
+
 const RESHAPE = {
+  ...TABLE_GRADS,
+  sample: (g, args, _out, named) => sampleGrad(g, args, named),
   learnable: () => [],
   total: (g, [image]) => [make(image.w, image.h, image.c, () => g)],
   softmax: (g, [image], out) => {

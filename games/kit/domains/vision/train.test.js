@@ -7,7 +7,7 @@ import { runBoard } from '../../engine/boards.js'
 import { PARTS, PRIMITIVES } from './fixture.js'
 import { board } from './board.js'
 import { RULES } from './grad.js'
-import { lossOf, train } from './train.js'
+import { influence, lossOf, train } from './train.js'
 import { fromRows, make, toRows } from './image.js'
 import { filterImage } from './operators.js'
 
@@ -75,4 +75,38 @@ test('one weighted sum cannot learn exclusive-or; a hidden layer with max(·, 0)
   const two = read(['z = const[value=0]()', ...hidden, 'c = learn()', 'r1 = add(c,q1)', 'r2 = add(r1,q2)', 'r3 = add(r2,q3)', 'out <- r3'], ['a', 'b'])
   const deep = train({ circuit: two, parts, examples, output: 'out', rate: 0.05, epochs: 800, optimizer: 'adam', restarts: 3 })
   assert.ok(deep.curve.train[deep.curve.train.length - 1] < 0.01, String(deep.curve.train[deep.curve.train.length - 1]))
+})
+
+test('a frozen parameter is left as it is while the others learn', () => {
+  const examples = [1, 2].map((seed) => ({ inputs: { image: picture(seed) }, expect: { out: picture(seed + 10) } }))
+  const lines = ['k = learn[shape=kernel3,frozen=true]()', 'f = kernelFilter[outside=clamp](image,k)', 'b = learn()', 'g = add(f,b)', 'out <- g']
+  const frozen = read(lines)
+  const kept = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+  const start = { ...frozen, nodes: frozen.nodes.map((n) => (n.id === 'k' ? { ...n, params: { ...n.params, value: kept } } : n)) }
+  const result = train({ circuit: start, parts, examples, output: 'out', rate: 0.1, epochs: 20 })
+  assert.deepEqual(result.circuit.nodes.find((n) => n.id === 'k').params.value, kept)
+  assert.notEqual(result.circuit.nodes.find((n) => n.id === 'b').params.value, 0)
+})
+
+test('bilinear sampling passes gradients to the image and to the coordinates, as finite differences say', () => {
+  const lines = ['dx = learn()', 'g = grid(w,h)', 'xs = add(g.x,dx)', 's = sample[method=bilinear,outside=clamp](image,xs,g.y)', 't = total(s)', 'sq = mul(t,t)', 'out <- sq']
+  const circuit = board.fromText(lines, { inputs: [{ name: 'image' }, { name: 'w' }, { name: 'h' }], outputs: [{ name: 'out' }] }, PRIMITIVES)
+  const image = make(5, 4, 1, (x, y) => Math.sin(x * 1.3) + 0.4 * y * y)
+  const value = (dx) => runBoard({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === 'dx' ? { ...n, params: { ...n.params, value: dx } } : n)) }, { parts, bind: { image, w: 5, h: 4 } }).outputs.out
+  const tape = new Tape()
+  const set = { ...circuit, nodes: circuit.nodes.map((n) => (n.id === 'dx' ? { ...n, params: { ...n.params, value: 0.37 } } : n)) }
+  const run = runBoard(set, { parts, bind: { image, w: 5, h: 4 }, ctx: { tape } })
+  const g = backward(tape, run.ids.get(circuit.nodes.find((n) => n.type === 'out').id), 1, RULES).get(tape.leaves.get('dx').id)
+  const h = 1e-6
+  assert.ok(Math.abs(g - (value(0.37 + h) - value(0.37 - h)) / (2 * h)) < 1e-5, `${g}`)
+})
+
+test('one 3 × 3 layer sees 3 × 3 of the input, two layers see 5 × 5', () => {
+  const box = [[1, 1, 1], [1, 1, 1], [1, 1, 1]]
+  const one = read(['k = learn[shape=kernel3]()', 'f = kernelFilter[outside=zero](image,k)', 'out <- f'])
+  const two = read(['k = learn[shape=kernel3]()', 'f = kernelFilter[outside=zero](image,k)', 'g = kernelFilter[outside=zero](f,k)', 'out <- g'])
+  const withBox = (c) => ({ ...c, nodes: c.nodes.map((n) => (n.id === 'k' ? { ...n, params: { ...n.params, value: box } } : n)) })
+  const reach = (c) => influence({ circuit: withBox(c), parts, inputs: { image: make(9, 9, 1, 0.5) }, output: 'out', x: 4, y: 4 }).image.data.filter((v) => v !== 0).length
+  assert.equal(reach(one), 9)
+  assert.equal(reach(two), 25)
 })

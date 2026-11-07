@@ -155,3 +155,22 @@ function trainOnce({ circuit, parts, examples, validation = [], output, loss = '
   if (patience) setValues(best.values)
   return { circuit: board, curve, epochs: Math.min(epoch, epochs), best: best.epoch, blocked: [...blocked], seed }
 }
+
+/**
+ * How much one output cell (x, y) depends on each cell of each input image: the gradient of that cell with respect to
+ * the inputs, by input name (a cell that cannot reach it gets 0). What a stack of layers sees grows layer by layer:
+ * its receptive field.
+ */
+export function influence({ circuit, parts, inputs, output, x, y }) {
+  const tape = new Tape()
+  const names = Object.keys(inputs).filter((name) => isImage(inputs[name]))
+  // Each image input becomes a leaf, so the gradient stops on it.
+  const bindIds = Object.fromEntries(names.map((name) => [name, tape.leaf(`in:${name}`, inputs[name])]))
+  const run = runBoard(circuit, { parts, bind: inputs, ctx: { tape, bindIds } })
+  const got = run.outputs[output]
+  const sink = circuit.nodes.find((n) => n.type === 'out' && n.params?.name === output)
+  if (!isImage(got) || !sink) throw new PartError(T(`输出「${output}」不是一张图`, `output “${output}” is not an image`))
+  const seed = make(got.w, got.h, got.c, (px, py) => (px === x && py === y ? 1 : 0))
+  const grads = backward(tape, run.ids.get(sink.id), seed, RULES)
+  return Object.fromEntries(names.map((name) => [name, grads.get(bindIds[name]) ?? make(inputs[name].w, inputs[name].h, inputs[name].c, 0)]))
+}

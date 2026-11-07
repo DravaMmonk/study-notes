@@ -1544,9 +1544,18 @@
             "zh": "学到的值",
             "en": "Learned"
           }
+        },
+        {
+          "key": "frozen",
+          "control": "toggle",
+          "label": {
+            "zh": "冻结",
+            "en": "Frozen"
+          },
+          "default": false
         }
       ],
-      "compute": "learnable($shape, $value)"
+      "compute": "learnable($shape, $value, frozen=$frozen)"
     },
     "learnLike": {
       "name": {
@@ -1577,9 +1586,18 @@
             "zh": "学到的值",
             "en": "Learned"
           }
+        },
+        {
+          "key": "frozen",
+          "control": "toggle",
+          "label": {
+            "zh": "冻结",
+            "en": "Frozen"
+          },
+          "default": false
         }
       ],
-      "compute": "learnableLike(image, $value)"
+      "compute": "learnableLike(image, $value, frozen=$frozen)"
     },
     "total": {
       "name": {
@@ -1794,6 +1812,296 @@
         }
       ],
       "compute": "angleTurns(y, x)"
+    },
+    "patches": {
+      "name": {
+        "zh": "切块",
+        "en": "Patches"
+      },
+      "desc": {
+        "zh": "把图切成块，每块一行。",
+        "en": "An image cut into patches, a row each."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [
+        {
+          "name": "image",
+          "label": {
+            "zh": "图",
+            "en": "Image"
+          }
+        },
+        {
+          "name": "size",
+          "label": {
+            "zh": "边长",
+            "en": "Size"
+          }
+        }
+      ],
+      "compute": "patches(image, size)"
+    },
+    "unpatch": {
+      "name": {
+        "zh": "拼回",
+        "en": "Unpatch"
+      },
+      "desc": {
+        "zh": "把块拼回一张图。",
+        "en": "Patches laid back into an image."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [
+        {
+          "name": "table",
+          "label": {
+            "zh": "表",
+            "en": "Table"
+          }
+        },
+        {
+          "name": "shape",
+          "label": {
+            "zh": "大小",
+            "en": "Shape"
+          }
+        },
+        {
+          "name": "size",
+          "label": {
+            "zh": "边长",
+            "en": "Size"
+          }
+        }
+      ],
+      "compute": "unpatch(table, shape, size)"
+    },
+    "matmul": {
+      "name": {
+        "zh": "表乘法",
+        "en": "Table product"
+      },
+      "desc": {
+        "zh": "a 的每一行和 b 的每一列做乘加。",
+        "en": "Each row of a with each column of b."
+      },
+      "icon": "Grid3x3",
+      "family": "value",
+      "inputs": [
+        {
+          "name": "a",
+          "label": {
+            "zh": "a",
+            "en": "a"
+          }
+        },
+        {
+          "name": "b",
+          "label": {
+            "zh": "b",
+            "en": "b"
+          }
+        }
+      ],
+      "compute": "matmul(a, b)"
+    },
+    "softmaxRows": {
+      "name": {
+        "zh": "逐行 Softmax",
+        "en": "Row softmax"
+      },
+      "desc": {
+        "zh": "每一行变成概率。",
+        "en": "Each row made probabilities."
+      },
+      "icon": "Percent",
+      "family": "value",
+      "inputs": [
+        {
+          "name": "table",
+          "label": {
+            "zh": "表",
+            "en": "Table"
+          }
+        }
+      ],
+      "compute": "softmaxRows(table)"
+    },
+    "noise": {
+      "name": {
+        "zh": "噪声",
+        "en": "Noise"
+      },
+      "desc": {
+        "zh": "标准正态随机数。",
+        "en": "Standard normal noise."
+      },
+      "icon": "Zap",
+      "family": "image",
+      "inputs": [
+        {
+          "name": "like",
+          "label": {
+            "zh": "大小",
+            "en": "Like"
+          }
+        }
+      ],
+      "settings": [
+        {
+          "key": "seed",
+          "control": "number",
+          "label": {
+            "zh": "种子",
+            "en": "Seed"
+          },
+          "default": 1,
+          "integer": true
+        }
+      ],
+      "compute": "noise(like, $seed)"
+    },
+    "iou": {
+      "name": {
+        "zh": "交并比",
+        "en": "IoU"
+      },
+      "desc": {
+        "zh": "每对框的交并比。",
+        "en": "Each pair of boxes' IoU."
+      },
+      "icon": "Target",
+      "family": "value",
+      "inputs": [
+        {
+          "name": "a",
+          "label": {
+            "zh": "a",
+            "en": "a"
+          }
+        },
+        {
+          "name": "b",
+          "label": {
+            "zh": "b",
+            "en": "b"
+          }
+        }
+      ],
+      "compute": "iou(a, b)"
+    },
+    "homography": {
+      "name": {
+        "zh": "求单应",
+        "en": "Solve homography"
+      },
+      "desc": {
+        "zh": "由点对求出 H。",
+        "en": "H from point pairs."
+      },
+      "icon": "Target",
+      "family": "value",
+      "inputs": [
+        {
+          "name": "pairs",
+          "label": {
+            "zh": "点对",
+            "en": "Pairs"
+          }
+        }
+      ],
+      "compute": "homography(pairs)"
+    },
+    "warpPoints": {
+      "name": {
+        "zh": "单应映射",
+        "en": "Map by H"
+      },
+      "desc": {
+        "zh": "H 把每个点送到哪里。",
+        "en": "Where H sends each point."
+      },
+      "icon": "Target",
+      "family": "image",
+      "inputs": [
+        {
+          "name": "H",
+          "label": {
+            "zh": "H",
+            "en": "H"
+          }
+        },
+        {
+          "name": "x",
+          "label": {
+            "zh": "x",
+            "en": "x"
+          }
+        },
+        {
+          "name": "y",
+          "label": {
+            "zh": "y",
+            "en": "y"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "compute": {
+        "x": "mapX(H, x, y)",
+        "y": "mapY(H, x, y)"
+      }
+    },
+    "histogram": {
+      "name": {
+        "zh": "方向直方图",
+        "en": "Orientation histogram"
+      },
+      "desc": {
+        "zh": "角度按扇区计票。",
+        "en": "Angles voted into sectors."
+      },
+      "icon": "Grid3x3",
+      "family": "value",
+      "inputs": [
+        {
+          "name": "angle",
+          "label": {
+            "zh": "角度",
+            "en": "Angle"
+          }
+        },
+        {
+          "name": "weight",
+          "label": {
+            "zh": "权重",
+            "en": "Weight"
+          }
+        }
+      ],
+      "settings": [
+        {
+          "key": "bins",
+          "control": "number",
+          "label": {
+            "zh": "扇区",
+            "en": "Sectors"
+          },
+          "default": 8,
+          "integer": true,
+          "min": 2
+        }
+      ],
+      "compute": "histogram(angle, weight, $bins)"
     }
   }
 }
