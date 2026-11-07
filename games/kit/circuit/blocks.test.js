@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {translateBlock,blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot,phoneBlockBoard,blockAtSlot,blockOfPart,transferBlockMembers,movePhonePart} from './blocks.js'
+import {blockSlots,assignBlock,translateBlock,blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot,phoneBlockBoard,blockAtSlot,blockOfPart,transferBlockMembers,movePhonePart} from './blocks.js'
 import {print} from './text.js'
 import {placement} from './model.js'
 const parts={role:n=>n.type==='in'?'source':n.type==='out'?'sink':'part',inputs:()=>['in'],outputs:()=>null}
@@ -130,4 +130,26 @@ test('visible block translation commits displayed member positions without shift
  const moved=translateBlock(b,parts,'x',-15,30,new Map([['a',{x:600,y:50}],['b',{x:810,y:70}]]))
  assert.deepEqual(moved.nodes.filter(n=>['a','b'].includes(n.id)).map(n=>[n.x,n.y]),[[585,80],[795,100]])
  assert.equal(moved.nodes.find(n=>n.id==='c'),graph.nodes.find(n=>n.id==='c'))
+})
+
+test('desktop drops transfer membership and detach outside without changing wires or canvas coordinates',()=>{
+ const b=blockSlots({...graph,blocks:[{id:'left',nodes:['a','b'],view:'ports'},{id:'right',nodes:['c'],view:'full'}]},parts)
+ const entered=assignBlock(b,parts,'a','right')
+ assert.deepEqual(entered.blocks.map(b=>b.nodes),[['b'],['c','a']])
+ assert.equal(entered.wires,b.wires)
+ assert.deepEqual(entered.nodes.map(n=>[n.id,n.x,n.y]),b.nodes.map(n=>[n.id,n.x,n.y]))
+ const p=placement(entered,parts),range=blockRows(entered,parts,p).find(b=>b.id==='right')
+ assert(range.nodes.every(id=>Math.floor(p.cell.get(id)/p.cols)>=range.start&&Math.floor(p.cell.get(id)/p.cols)<range.end))
+ assert.equal(assignBlock(entered,parts,'a','right'),entered)
+ const left=assignBlock(entered,parts,'b',null)
+ assert.deepEqual(left.blocks.map(b=>b.id),['right'])
+ assert.equal(left.wires,b.wires)
+})
+test('fixed terminals do not join desktop blocks and a frame-local part leaves explicit block membership',()=>{
+ const b={...graph,blocks:[{id:'x',nodes:['a','b'],view:'full'}]}
+ assert.equal(assignBlock(b,parts,'input','x'),b)
+ const local={...b,nodes:b.nodes.map(n=>n.id==='a'?{...n,in:'frame/body'}:n)}
+ const next=assignBlock(local,parts,'a','x')
+ assert.deepEqual(next.blocks[0].nodes,['b'])
+ assert.equal(next.wires,b.wires)
 })

@@ -1,5 +1,6 @@
 import useBlockDrag from './useBlockDrag.js'
-import { rectangleMembers } from './blocks.js'
+import { containerUnderPointer } from './dropTarget.js'
+import { assignBlock, rectangleMembers } from './blocks.js'
 import { WORDS } from '../shell/words.js'
 import BlockHeader from './BlockHeader.jsx'
 import { useSetting } from '../shell/useSetting.js'
@@ -108,6 +109,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const lastModes=useRef(new Map())
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
+  const [dropBlock, setDropBlock] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
   const [picking, setPicking] = useState(null) // a dot clicked, waiting for the dot (or card) its wire goes to
   const [pointer, setPointer] = useState(null) // where the pointer is on the board while a dot is picked
@@ -522,7 +524,9 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   }
   // The region under a dragged card's pointer (not one of its own), or null for the board: anywhere inside its outline
   // counts, its head too, not just the field its cards sit on. Its field is returned, where the card's place counts from.
-  const fieldAt = (g) => document.elementsFromPoint(g.x, g.y).find((el) => el.classList?.contains('frame-region') && !g.el.contains(el))?.querySelector(':scope > .frame-field') ?? null
+  const fieldAt = g => containerUnderPointer(layer.current,g,'.frame-region')?.querySelector(':scope > .frame-field') ?? null
+  const blockAt = g => parts.role(byId.get(g.id)??{})==='part'&&!fieldAt(g)
+    ? containerUnderPointer(layer.current,g,'.circuit-block')?.dataset.block??null : null
   // A card dropped lands where it was let go: in the region under the pointer, or on the board. The board has no edge,
   // so a card goes as far up or left as it is taken; a region's cards stay inside its field, which starts at 0.
   const place = (g) => {
@@ -537,8 +541,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const region = field?.dataset.region ?? null
     // A locked part moves only within the region it sits in: let go elsewhere, it goes back.
     if (node.locked && region !== (node.in ?? null)) return setTarget(node.in ?? null)
-    if (region === (node.in ?? null)) return onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === g.id ? { ...n, x, y } : n)) }, { keep: true })
-    const next = moveInto(graph, parts, g.id, region, x, y)
+    const positioned = region === (node.in ?? null)
+      ? { ...graph, nodes: graph.nodes.map(n=>n.id===g.id?{...n,x,y}:n) }
+      : moveInto(graph,parts,g.id,region,x,y)
+    const next=assignBlock(positioned,parts,g.id,region===null?blockAt(g):null)
     onChange(next, { keep: next.wires.length === graph.wires.length })
     setTarget(region)
   }
@@ -556,6 +562,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
           redraw()
           // The region under the pointer lights up, the one the card is already in too: dropped now, it stays there.
           setDropInto(fieldAt(g)?.dataset.region ?? null)
+          setDropBlock(blockAt(g))
         }
         if (g.kind === 'port' && parsePort(g.id).side === 'out') {
           const [x, y] = pointIn(layer.current, g.x, g.y)
@@ -565,12 +572,14 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       drop(g) {
         setDrag(null)
         setDropInto(null)
+        setDropBlock(null)
         if (g.kind === 'piece') place(g)
         if (g.kind === 'port' && parsePort(g.id).side === 'out') connectTo(parsePort(g.id).id, g.over)
       },
       end() {
         setDrag(null)
         setDropInto(null)
+        setDropBlock(null)
         redraw()
       },
     }
@@ -685,7 +694,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const w=unit?.w??Math.max(...nodes.map(n=>(n.x??0)+sizeOf(n)[0]))-x+spacing.pad
     const h=unit?.h??Math.max(...nodes.map(n=>(n.y??0)+sizeOf(n)[1]))-y+spacing.pad
     const reveal=(id)=>{blocks.open(block.id);setFocus(id);choose(byId.get(id))}
-    return <section key={block.id} data-block={block.id} data-node={unit?.id} className={`circuit-block ${unit?'is-hidden':''}`} style={{left:x,top:y,width:w,...(!unit?{height:h}:{minHeight:h})}}>
+    return <section key={block.id} data-block={block.id} data-node={unit?.id} className={`circuit-block ${unit?'is-hidden':''} ${dropBlock===block.id?'is-drop':''}`} style={{left:x,top:y,width:w,...(!unit?{height:h}:{minHeight:h})}}>
       <BlockHeader block={block} editable={!readOnly} onEdit={(patch)=>blocks.edit(block.id,patch)} onDragStart={readOnly?undefined:e=>dragBlock(e,block)} />
       {unit&&<><span className="block-stubs is-input" onPointerDown={e=>e.stopPropagation()}>{block.ins.map(w=><button type="button" key={`${w.to}.${w.port}`} className="port port-in is-wired" data-p={inPort(w.to,w.port)} title={L(parts.label(byId.get(w.to)))} aria-label={L(parts.label(byId.get(w.to)))} onClick={()=>reveal(w.to)}><i /></button>)}</span><span className="block-stubs is-output" onPointerDown={e=>e.stopPropagation()}>{[...new Set(block.outs.map(w=>w.from))].map(src=><button type="button" key={src} className="port port-out is-wired" data-p={outPort(src)} title={L(parts.label(byId.get(srcNode(src))))} aria-label={L(parts.label(byId.get(srcNode(src))))} onClick={()=>reveal(srcNode(src))}><i /></button>)}</span></>}
     </section>

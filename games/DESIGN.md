@@ -909,7 +909,13 @@ Desktop Partition is always available in the canvas tools. A dragged rectangle s
 or a second press cancels. Passive token-based backdrops follow member bounds, with no independent block drag
 surface. A desktop header drag handle moves every member by the same canvas-space delta in all three views.
 The move is one undoable layout edit, preserves internal frame-local positions and wiring, and is unavailable
-in read-only boards. Escape cancels the preview. Phone Partition appears with Manual partitioning enabled: pick a start row then an end row, both
+in read-only boards. Escape cancels the preview. Individual desktop component drops use the same pointer-inside
+container hit testing and border highlight as assumption-frame regions. Dropping inside a block assigns that
+membership; dropping outside all blocks removes it, deleting an emptied block. A semantic frame region takes
+priority when both containers overlap. Only root editable components belong to blocks; fixed I/O stays outside.
+Position and membership commit as one undoable edit, with graph wires preserved for ordinary block transfers.
+Membership changes reuse the existing phone regrouping layout so both views retain the same members.
+Phone Partition appears with Manual partitioning enabled: pick a start row then an end row, both
 inclusive. A bottom instruction banner names the current step and offers Cancel; choosing the start row changes
 the prompt to the end row. Phones always use two edge-to-edge horizontal rules with the header on the first,
 without block backdrops or container padding. There is no separate compact-view switch or device preference.

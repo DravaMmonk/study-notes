@@ -181,3 +181,12 @@ export function translateBlock(board,parts,id,dx,dy,positions=new Map()) {
     return {...n,x:(p.x??0)+dx,y:(p.y??0)+dy}
   })}
 }
+
+/** A desktop drop changes group membership once and reuses the phone's explicit regrouping layout. */
+export function assignBlock(board,parts,id,block) {
+  const node=board.nodes.find(n=>n.id===id)
+  const destination=node&&!node.in&&parts.role(node)==='part'&&(board.blocks??[]).some(b=>b.id===block)?block:null
+  const origin=(board.blocks??[]).find(b=>b.nodes.includes(id))?.id??null
+  if(origin===destination)return board
+  return blockSlots(transferBlockMembers(board,parts,[{id,block:destination}]),parts)
+}

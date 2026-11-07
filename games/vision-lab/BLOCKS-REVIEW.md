@@ -96,3 +96,16 @@ Desktop headers have a drag handle in full, ports and hidden views. A 1440 × 90
 of the two-axis block together, preserved every wire and restored all stored node coordinates with one Undo.
 A hidden block's header moved with its members and Undo restored its position. Pure tests cover frame-local
 coordinates, phone slots, unchanged membership and unrelated nodes, and committing temporary displayed positions.
+
+## Desktop member drops
+
+Identity blocks and assumption-frame regions share pointer-based container hit testing and the same drop-border
+highlight. Root components dropped inside a block join it; a drop outside all blocks detaches membership.
+Semantic frame regions take priority. Empty groups disappear; ordinary group transfers preserve all wires and
+canvas coordinates, and regroup phone slots through the existing identity-block layout.
+
+Browser review moved an ungrouped component into a block, observed its border highlight, moved it outside all
+blocks and restored membership with Undo. The graph wires remained exactly equal throughout. A Q.E.D. review
+also dragged a loose rule into an assumption frame: its border highlighted and its saved scope became f/body.
+436 tests pass, including pointer boundaries, dragged-frame exclusion, nested-board exclusion, overlapping
+containers, membership transfer, empty-block removal and fixed/local component membership restrictions.
