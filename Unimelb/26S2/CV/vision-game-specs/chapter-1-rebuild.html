@@ -3979,8 +3979,7 @@
 
 
 <h1 id="vision-lab-chapter-1-rebuild-and-chapter-2-migration">Vision Lab chapter 1 rebuild and chapter 2 migration<a class="headerlink" href="#vision-lab-chapter-1-rebuild-and-chapter-2-migration" title="Permanent link">&para;</a></h1>
-<p>Status: implementation specification for the first rebuild milestone. The playable course still uses the
-existing <a href="../../../../../games/vision-lab/DESIGN.md">stage design</a>. The
+<p>Status: implemented in the <a href="../../../../../games/vision-lab/DESIGN.md">playable course</a>. The
 <a href="chapter-map.html">chapter map</a> sets the teaching sequence and the runtime policy. Lecture references below
 use the local PDF page order and must be confirmed against the PDFs, which are not committed. The machine
 scenarios, test values and acceptance rules are design fixtures.</p>
@@ -4103,8 +4102,8 @@ approach, with the general formula in the completion text and linked encyclopedi
 </tr>
 <tr>
 <td><strong>1-5 · Two passes when the kernel factors</strong>. When can the same operator use fewer products?</td>
-<td>Task 1: build the separable form from the same window, multiply, reduce and restore parts, applied with a 1×kx window and then a ky×1 window. The dense form is on the board for comparison on the same input. Task 2: an application board with three kernels, a multiply budget and the processor in both forms. The player decides per kernel which form to use and, for a factorable kernel, writes its two factors as constants.</td>
-<td>Task 1: outputs equal the dense form for 3×3, 5×5 and 5×3 outer products with unequal and signed factors, a zero factor, and each boundary rule. Summing two one-axis results, or applying ky along x, fails. Task 2: a 5×5 box, a 5×5 Gaussian and a 3×3 Laplacian (rank two), with the budget at the minimum 29·W·H products (10 + 10 + 9). Dense everywhere (59·W·H) exceeds it; a separable attempt on the Laplacian gives a wrong output, and writing it as a sum of two separable passes (12·W·H) is correct but over budget.</td>
+<td>Construction tasks: build the separable form from the same window, multiply, reduce and restore parts, applied with a 1×kx window and then a ky×1 window. Compare against the dense form on the same input in the final task. Final task: an application board with three kernels, a multiply budget and the processor in both forms. The player decides per kernel which form to use and, for a factorable kernel, writes its two factors as constants.</td>
+<td>Construction: outputs equal the dense form for 3×3, 5×5 and 5×3 outer products with unequal and signed factors, a zero factor, and each boundary rule. Summing two one-axis results, or applying ky along x, fails. Budget: a 5×5 box, a 5×5 Gaussian and a 3×3 Laplacian (rank two), with a budget of 29·W·H products (10 + 10 + 9). Dense everywhere (59·W·H) exceeds it; a separable attempt on the Laplacian gives a wrong output, and writing it as a sum of two separable passes (12·W·H) is correct but over budget.</td>
 <td>L3 pp. 38–40.</td>
 </tr>
 <tr>
