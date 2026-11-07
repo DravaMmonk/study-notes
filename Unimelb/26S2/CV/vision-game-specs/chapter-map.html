@@ -2244,7 +2244,7 @@
   <a href="#9" class="md-nav__link">
     <span class="md-ellipsis">
       
-        9. 做的顺序与引擎前提
+        9. 做的顺序与领域能力
       
     </span>
   </a>
@@ -5686,13 +5686,77 @@
 <li>视觉任务的几种输出（类别、框、掩码）：各章的作品自然出现。</li>
 <li>讲义讲到、但这里只进引言和词条的：视觉词袋、GrabCut、实例掩码、分割损失、条件 GAN、潜空间扩散、概率密度。它们要么是已有机器换个用法，要么在浏览器里做不出有意义的实验；以后有合适的玩法再补成关。</li>
 </ul>
-<h2 id="9">9. 做的顺序与引擎前提<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>先做第 1–3 章。</strong> <code>vision</code> 领域现有的电路、探测、选择、读图、参数台够用；要补的显示有频谱（能点掉亮点）、梯度朝向箭头、彩色通道切换，以及一章内接着上一关电路开局（<code>carry</code>）。</li>
-<li><strong>第 6、7 章大部分可以接着做</strong>，只有 7-10 要训练。</li>
-<li><strong>第 4、5、8–12 章先补领域的训练：</strong> 玩家电路要能带参数、求导、被训练控制器迭代，还要训练曲线和学到的核的显示。这一项在 <code>vision</code> 领域上还没有。</li>
-<li><strong>现有内容的去留：</strong> <code>games/vision-lab</code> 的第 0 章八关和 Q 专题不再需要；第 1、2 章的任务是 K、F 两条原理系列的素材。第 1 章落地时，<code>games/vision-complete</code> 换成新内容，<code>games/vision-lab</code> 删除。</li>
-</ul>
+<h2 id="9">9. 做的顺序与领域能力<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<p>领域能力的清单和测试在 <code>games/kit/domains/vision/DESIGN.md</code> 的「Capabilities for the redesigned course」一节。按章：</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>领域能力</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>冲激探测（内容给核和候选解释）、带条纹噪声和斜放纸张的样张、梯度方向</td>
+<td>已有</td>
+</tr>
+<tr>
+<td>2</td>
+<td>频谱、频域滤波、频率坐标、隔点取样；拆波、采样的实验台</td>
+<td>已有</td>
+</tr>
+<tr>
+<td>3</td>
+<td>表面朝向样张、朗伯实验台</td>
+<td>已有</td>
+</tr>
+<tr>
+<td>4、5</td>
+<td>可学习参数、梯度、训练任务（均方、交叉熵、验证、提前停止、重启）、冻结、感受野计算</td>
+<td>已有；感受野还没接到结果区，多于三个特征通道要多根线</td>
+</tr>
+<tr>
+<td>6</td>
+<td>双线性采样、单应求解与映射、方向直方图</td>
+<td>已有；RANSAC 要迭代</td>
+</tr>
+<tr>
+<td>7</td>
+<td>针孔、透镜实验台；采样对坐标的梯度（自监督深度）</td>
+<td>已有；Hough 投票要累加</td>
+</tr>
+<tr>
+<td>8</td>
+<td>切块、表乘法、逐行 Softmax</td>
+<td>已有；对比学习要整批的损失</td>
+</tr>
+<tr>
+<td>9</td>
+<td>k 均值、mean shift、SLIC、区域合并</td>
+<td>要迭代</td>
+</tr>
+<tr>
+<td>10</td>
+<td>IoU</td>
+<td>已有；NMS、AP 要迭代</td>
+</tr>
+<tr>
+<td>11</td>
+<td>随机噪声、重参数化（噪声加乘法）</td>
+<td>已有；GAN 要两个训练交替，反向采样要迭代</td>
+</tr>
+<tr>
+<td>12</td>
+<td>遮挡</td>
+<td>要迭代</td>
+</tr>
+</tbody>
+</table>
+<p><strong>迭代是剩下最大的一块。</strong> k 均值、RANSAC、NMS、扩散采样都是「重复一步、步与步之间留着值」。内核的逐拍板（寄存器，《车在说话》用的）能做到，但视觉领域建在一次算完的数据流模板上，先要定下：重复的那一步怎样接线、怎样让玩家看着它一轮一轮跑。这一项定下以前，第 9 章前半、第 10 章的评测路和第 11 章的扩散写不了。</p>
+<p><strong>顺序：</strong> 第 1–3 章现在就能写；第 4、5、8 章接着写（训练已经有了）；第 6、7 章除 RANSAC 和 Hough 外能写；第 9–12 章等迭代。</p>
+<p><strong>现有内容的去留：</strong> <code>games/vision-lab</code> 的第 0 章八关和 Q 专题按本设计不再需要；第 1、2 章的任务是 K、F 两条原理系列的素材。第 1 章落地时，<code>games/vision-complete</code> 换成新内容，<code>games/vision-lab</code> 删除。</p>
 <h2 id="10">10. 承认的边界<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
 <ul>
 <li>「第一次玩的人想要什么」是推断，没有访谈或试玩数据；每章落地后要找真正的新手试玩，盲玩 agent 本来就懂这些概念，替代不了。</li>
