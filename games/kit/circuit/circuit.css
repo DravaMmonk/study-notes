@@ -235,7 +235,8 @@
 /* A part with two or more inputs has no room for each source's name beside its dot: the name goes under it. */
 .pb-ins.is-many .pb-src { left: 50%; top: calc(100% - 4px); max-width: calc(100% + 18px); padding: 0 5px; font-size: 10.5px; transform: translateX(-50%); }
 .pb-ins.is-many .pb-in { flex: 1 1 0; min-width: 0; }
-.pb-tile:has(> .pb-ins.is-many .pb-src) { padding-top: 34px; }
+@media (min-width: 761px) { .pb-tile:has(> .pb-ins.is-many .pb-src) { padding-top: 34px; } }
+@media (max-width: 760px) { .pb-src { display: none; } }
 /* Likewise the names over several outputs take a row of their own above the bottom edge, clear of what the block shows. */
 /* (:has cannot nest, so the plain outputs are matched by their own class.) */
 .pb-tile:has(> .pb-out.is-many > .pb-o:not(.has-note)), .pb-term:has(> .pb-out.is-many > .pb-o:not(.has-note)) { padding-bottom: 34px; }
