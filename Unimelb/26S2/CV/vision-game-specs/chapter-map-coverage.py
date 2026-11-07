@@ -8,17 +8,17 @@ import sys
 
 # Chapter order of the map; lecture numbers are provenance only.
 CHAPTERS = {
-    1: "读单据", 2: "读网点印刷、传回画面", 3: "白天黑夜都看得准", 4: "分拣零件", 5: "分得更多、跑得更快",
-    6: "拼出仓库全景", 7: "测距避障", 8: "以图搜货", 9: "抠出每个零件", 10: "盘点货架",
-    11: "给稀有零件补训练图", 12: "自查看错了哪里",
+    1: "滤波与边缘", 2: "频率", 3: "光与颜色", 4: "学习与卷积网络", 5: "更深的网络",
+    6: "特征与匹配", 7: "相机与深度", 8: "注意力与表示", 9: "分割", 10: "检测",
+    11: "生成", 12: "解释",
 }
 
 # id -> (chapter, primary landing). Landings: 主 main line, 原 an optional
-# principle series, 补 extra lesson (parameter bench), 文 intro, display or glossary only, 专 technical or
+# principle series, 应 an application branch (challenge or topic), 文 intro, display or glossary only, 专 technical or
 # workshop content inside an optional series or topic.
 PLACE = {
     "vision-task": (1, "文"), "pixels": (1, "文"),
-    "weighted-sum": (1, "主"), "convolution": (1, "主"), "filters": (1, "主"), "padding": (1, "主"),
+    "weighted-sum": (1, "主"), "convolution": (1, "原"), "filters": (1, "主"), "padding": (1, "应"),
     "separable": (1, "原"), "gradient": (1, "主"),
     "sinusoid": (2, "主"), "fourier": (2, "主"), "frequency-filter": (2, "主"), "ringing": (2, "主"),
     "compression": (2, "文"),
@@ -61,11 +61,11 @@ PLACE = {
     "generation-practice": (11, "专"),
 }
 
-LAYER_ORDER = "主原补文专"
+LAYER_ORDER = "主原应文专"
 
 # Principle series: letter -> (title, knowledge points the series takes to implementation depth).
 SERIES = {
-    "K": ("卷积的实现", ["convolution", "padding", "separable"]),
+    "K": ("拆开滤波器", ["weighted-sum", "convolution", "separable"]),
     "F": ("频谱怎么算出来", ["fourier", "frequency-filter"]),
     "B": ("反向传播", ["optimisation", "classification-loss"]),
     "N": ("网络的账", ["stride", "receptive-field", "depthwise"]),
@@ -108,7 +108,7 @@ def main(path):
     def name(k):
         return f"{title[k]}{'' if lecture[k] is None else f'（L{lecture[k]}）'}"
 
-    print("| 章 | 主线 | 原理系列 | 补课 | 只在引言与词条 | 技术与实验 |")
+    print("| 章 | 主线 | 原理系列 | 应用 | 只在引言与词条 | 技术与实验 |")
     print("| --- | --- | --- | --- | --- | --- |")
     for ch, label in CHAPTERS.items():
         cells = []
