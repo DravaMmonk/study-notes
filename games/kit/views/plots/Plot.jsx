@@ -7,8 +7,7 @@ import { rangeOf, rowOf } from './range.js'
 // A grey grid of one or two rows as functions (the view `plot`, games/DESIGN.md 6.10): each row a function of its column, a
 // sample a dot on a stem from zero, the samples joined faintly to show the shape. With `want`, the values wanted are
 // rings on the same axes and a result that misses one (beyond `tolerance`) is marked. With `curve(x, row)`, the samples
-// are of a function known between them too (a wave, an example): it is drawn whole, x in columns, in place of the
-// line joining them. Pointing at a column reads it, `xOf(column)` the x written (the column itself by default). `card`
+// are of a function known between them too (a wave, an example): it is drawn whole in grey behind them, x in columns. Pointing at a column reads it, `xOf(column)` the x written (the column itself by default). `card`
 // draws a small one with nothing to point at.
 //
 // Drawn one unit a screen pixel, so lines and dots look the same at every size: samples `pitch` apart, a plot as wide
@@ -28,7 +27,7 @@ function Row({ got, want, curve, tolerance, lo, hi, at, x, along, width, height,
       <line className="pl-zero" x1={0} x2={width} y1={zero} y2={zero} />
       {want && <path className="pl-want-line" d={path(want)} />}
       {curve && <path className="pl-curve" d={along.map((t, i) => `${i ? 'L' : 'M'}${x(t).toFixed(1)},${y(curve(t)).toFixed(1)}`).join('')} />}
-      {got && !curve && <path className="pl-line" d={path(got)} />}
+      {got && <path className="pl-line" d={path(got)} />}
       {got && got.map((v, j) => <line key={`s${j}`} className="pl-stem" x1={x(j)} x2={x(j)} y1={zero} y2={y(v)} />)}
       {want && want.map((v, j) => <circle key={`w${j}`} className="pl-want" cx={x(j)} cy={y(v)} r={r + 1.2} />)}
       {got && got.map((v, j) => <circle key={`g${j}`} className={`pl-dot ${want && Math.abs(v - want[j]) > tolerance ? 'is-miss' : ''}`} cx={x(j)} cy={y(v)} r={r} />)}
