@@ -131,7 +131,7 @@ export function visionCourse(content) {
       defaults: Object.fromEntries(settings.map((s) => [s.key, defaultOf(s)])),
     }
   }
-  const circuit = circuitCourse(content, { board, parts: PARTS, read: readBoard, test: readBoardTest, kinds: { grid: readGrid, choice: readChoice, bench: readBench }, pack })
+  const circuit = circuitCourse(content, { board, parts: PARTS, read: readBoard, test: readBoardTest, kinds: { probe: task => task, grid: readGrid, choice: readChoice, bench: readBench }, pack })
   const decorate = (view) => ({
     ...view,
     defs,

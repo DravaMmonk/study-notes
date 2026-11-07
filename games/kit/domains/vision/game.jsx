@@ -23,6 +23,7 @@ import './ui/vision.css'
 import { circuitGame } from '../../shell/circuit-game.js'
 import { iconOf } from '../../shell/parts/icons.js'
 import Screen from './ui/Screen.jsx'
+import ProbeScreen from './ui/ProbeScreen.jsx'
 import GridScreen from './ui/GridScreen.jsx'
 import ChoiceScreen from './ui/ChoiceScreen.jsx'
 import BenchScreen from './ui/BenchScreen.jsx'
@@ -32,6 +33,7 @@ import { optionText } from './configurations.js'
 import { OPS } from './ops.js'
 
 const KINDS = {
+  probe: { Screen: ProbeScreen, icon: Grid3x3, label: { zh: '探测', en: 'Probe' } },
   grid: { Screen: GridScreen, icon: Grid3x3, label: { zh: '读图', en: 'Grid' } },
   choice: { Screen: ChoiceScreen, icon: ListChecks, label: { zh: '判断', en: 'Choice' } },
   bench: { Screen: BenchScreen, icon: SlidersHorizontal, label: { zh: '实验台', en: 'Bench' } },

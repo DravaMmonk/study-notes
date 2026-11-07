@@ -15,6 +15,22 @@
   },
   "tasks": [
     {
+      "id": "v1_probe",
+      "kind": "probe",
+      "step": {
+        "zh": "探测模糊器",
+        "en": "Probe a blur"
+      },
+      "brief": {
+        "zh": "编辑输入图，运行模糊器，再根据输出判断影响范围和权重总和。每次提交都需要能区分备选解释的输入。",
+        "en": "Edit the input, run the blur, and use the output to infer its support and weight sum. Submit an input that distinguishes the alternatives for each question."
+      },
+      "after": {
+        "zh": "单个亮点会把权重分布显现在输出里。整张图填同一个非零值时，输出与输入的比值就是权重和。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+        "en": "A single bright pixel reveals the weight pattern in the output. For a nonzero constant image, the ratio of output to input gives the weight sum. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+      }
+    },
+    {
       "id": "v1_line",
       "kind": "circuit",
       "step": {

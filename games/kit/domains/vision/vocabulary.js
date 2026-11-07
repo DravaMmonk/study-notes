@@ -140,6 +140,7 @@ const LEVEL = levelSchema({
     sample: S.opt(S.obj({ inputs: S.map(S.either(VALUE, PICTURE), { about: t('按输入名给的值；没给的取第一个测试的', 'values by input name; the rest are the first test’s') }) }, { section: 'tests', about: t('样张：一张较大的图，玩家的板和参考解都在上面跑，只看效果、不判定', 'the sample: a larger picture the player’s board and the reference both run on, to see the effect, never judged') })),
   },
   kinds: {
+    probe: {},
     grid: {
       image: IMAGE,
       calculation: S.opt(S.by('kind', {
@@ -168,7 +169,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 1,
+  version: 2,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,

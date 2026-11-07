@@ -135,7 +135,7 @@ export default function Results({ rows, text, verdict = [], at = -1, count = 0, 
       {groups(drawn).map((g, k) => {
         if (g.kind === 'track') return <Track key={k} rows={g.rows} text={text} at={at} count={count} marks={marks} />
         if (g.kind === 'line') return <p key={k} className="rv-line">{g.rows.map((r) => <Chip key={r.entry.of} entry={r.entry} text={text} />)}</p>
-        return <div key={k} className="rv-rows">{g.rows.map((r) => (r.entry.shape === 'grid' ? <GridRow key={r.entry.of} entry={r.entry} view={r.view} text={text} tool={r.tool} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
+        return <div key={k} className="rv-rows">{g.rows.map((r, index) => (r.entry.shape === 'grid' ? <GridRow key={`${r.entry.of}:${index}`} entry={r.entry} view={r.view} text={text} tool={r.tool} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
       })}
     </div>
   )

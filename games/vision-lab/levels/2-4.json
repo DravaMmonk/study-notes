@@ -274,6 +274,20 @@
         "im <- i",
         "mag <- m"
       ],
+      "results": [
+        { "of": "re" },
+        { "of": "im" },
+        {
+          "of": "mag",
+          "views": ["numbers"],
+          "label": { "zh": "频谱幅度 · 数组顺序", "en": "Magnitudes · array order" }
+        },
+        {
+          "of": "mag",
+          "views": ["centredBins"],
+          "label": { "zh": "频谱幅度 · 零频居中", "en": "Magnitudes · zero centred" }
+        }
+      ],
       "views": { "grid": ["plot", "numbers", "pixels"] },
       "starter": ["t = expandRows(image)", "p = frequencyProbe(t.values,t.frequency)"],
       "naive": [

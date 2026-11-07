@@ -1,7 +1,7 @@
 import { tr } from '../../shell/i18n.js'
 import { mix, rgba, token, useCanvas } from './paint.js'
 import Plot from './Plot.jsx'
-import { spectrumOf } from './spectrum.js'
+import { centreBins, spectrumOf } from './spectrum.js'
 
 // A grey grid's spectrum (the view `spectrum`, games/DESIGN.md 6.10): the strength of each frequency it holds, zero
 // frequency in the middle. A row (or two) is drawn as a plot of each frequency's amplitude, |F| / n, the value wanted
@@ -9,6 +9,11 @@ import { spectrumOf } from './spectrum.js'
 // cycles across and ky down — log-scaled, the mean (the centre) left out of the scale, so faint waves still show.
 
 const frequency = (n) => (j) => j - Math.floor(n / 2)
+
+export function CentredBins({ value, want, card, tolerance }) {
+  return <Plot value={value && centreBins(value)} want={want && centreBins(want)}
+    tolerance={tolerance} card={card} xOf={frequency((value ?? want).w)} />
+}
 
 export default function Spectrum({ value, want, size = 220, card = false }) {
   const shown = value ?? want

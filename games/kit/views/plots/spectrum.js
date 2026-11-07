@@ -37,6 +37,14 @@ function transform(g) {
   return { re, im }
 }
 
+/** Reorder frequency bins along each row, preserving every supplied coefficient. */
+export function centreBins(g) {
+  const { w, h } = g
+  const shift = Math.ceil(w / 2)
+  return { ...g, data: Float64Array.from({ length: w * h }, (_, i) =>
+    g.data[Math.floor(i / w) * w + (i % w + shift) % w]) }
+}
+
 /** The spectrum as a grid: each cell the strength of the frequency it stands for, frequency 0 at (⌊w/2⌋, ⌊h/2⌋). */
 export function spectrumOf(g) {
   if (CACHE.has(g)) return CACHE.get(g)

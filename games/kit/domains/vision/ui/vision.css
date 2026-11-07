@@ -83,6 +83,8 @@
 .vi-primer-switch { min-height: 44px; padding: 6px 16px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--paper); font: inherit; cursor: pointer; }
 
 /* ---- grid tasks ---- */
+.vi-probe-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.vi-probe-options { display: grid; gap: 8px; margin: 0; padding: 8px 0; border: 0; }
 .vi-grid { box-sizing: border-box; width: 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: start; padding: 12px; }
 .vi-calculation { box-sizing: border-box; width: 100%; max-width: 620px; display: grid; gap: 6px; padding: 8px 0; border-block: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
 .vi-calculation > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }

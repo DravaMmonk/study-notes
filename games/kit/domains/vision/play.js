@@ -14,7 +14,7 @@
 //            turn, each answered with what the screen reads out: the knobs and the goal's quantities. A bench with
 //            cases, buttons or picks on a picture is not covered: skipped, said so
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
-import { display, fmt, fromRows, pixel, show } from './image.js'
+import { display, fmt, fromRows, pixel, show, toRows } from './image.js'
 import { taskBoard } from './tooling.js'
 import { runLevel } from './run.js'
 import { askOf, gridCheck } from './grid.js'
@@ -23,6 +23,7 @@ import { COLOURS, describe } from './scene.js'
 import { DISPLAYS } from './benches/index.js'
 import { callOf } from '../../engine/schema.js'
 import { goalOf, judge, knobKind, knobStart, knobValues, needText, openKnobs, rowValue, startValues } from '../../engine/bench.js'
+import { checkProbe, probeOutput, probeQuestions } from './probe.js'
 import { T } from '../../shell/i18n.js'
 
 const pick = (text, lang) => (typeof text === 'string' ? text : text?.[lang] ?? '')
@@ -276,7 +277,29 @@ const bench = {
   },
 }
 
-const KINDS = { circuit, grid, choice, bench }
+const probe = {
+  open: () => ({
+    sections: probeQuestions.map(question => ({
+      title: question.title,
+      text: both(lang => question.options.map(([id, label]) => `${id}: ${pick(label, lang)}`).join('\n')),
+    })),
+    write: T('提交 JSON 数组，每题一项，包含 7×7 的 rows 和选项 answer。省略 answer 可以先查看输出。',
+      'Submit a JSON array with 7×7 rows and an answer option ID for each question. Omit answer to inspect the output first.'),
+  }),
+  attempt(_ctx, text) {
+    let evidence
+    try { evidence = JSON.parse(text) } catch { evidence = [] }
+    const tests = probeQuestions.map((question, k) => {
+      const entry = Array.isArray(evidence) ? evidence[k] : null
+      const why = checkProbe(question, entry)
+      const output = probeOutput(entry?.rows)
+      return { label: question.title, pass: !why, says: both(lang =>
+        [output && table(toRows(output)), pick(why, lang)].filter(Boolean).join('\n')) }
+    })
+    return { tests, pass: tests.every(test => test.pass), keep: { evidence } }
+  },
+}
+const KINDS = { circuit, grid, choice, bench, probe }
 
 export const play = {
   open: (ctx) => KINDS[ctx.level.source.kind].open(ctx),
