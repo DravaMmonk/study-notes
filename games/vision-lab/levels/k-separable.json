@@ -12,7 +12,7 @@
     "zh": "横着平均一次、竖着再平均一次，就是九格平均，乘法从 9 次降到 6 次：这样的核是<wiki-ref to=\"separable\"></wiki-ref>的。",
     "en": "Averaging across once and down once is the nine-cell average, with 6 multiplications instead of 9: such a kernel is <wiki-ref to=\"separable\"></wiki-ref>."
   },
-  "tray": "kernel",
+  "tray": "apart",
   "tasks": [
     {
       "id": "separable",

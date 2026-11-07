@@ -12,7 +12,7 @@
     "zh": "平移把整张图挪一格，每格上放的就是邻居：「读邻居」不过是挪过一格的整张图。",
     "en": "A shift moves the whole image one cell, leaving each cell holding its neighbour: reading a neighbour is just the image moved by one."
   },
-  "tray": "kernel",
+  "tray": "apart",
   "builds": {
     "type": "line3",
     "name": { "zh": "三点平均", "en": "Three-point average" },
@@ -42,8 +42,7 @@
         "shift.axis": ["x"],
         "shift.by": ["forward", "backward"],
         "*.outside": ["clamp"],
-        "arithmetic.op": ["add", "div"],
-        "const.kind": ["scalar"]
+        "arithmetic.op": ["add", "div"]
       },
       "inputs": [{ "name": "photo", "label": { "zh": "图", "en": "Image" } }],
       "outputs": [{ "name": "out", "label": { "zh": "平均", "en": "Average" } }],

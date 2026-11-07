@@ -12,7 +12,7 @@
     "zh": "核的每一行交给一个三点加权，先把图上下挪好对上那一行，三者相加：和预设的滤波器逐格一样。",
     "en": "Give each row of the kernel to a three-point weighting, with the image moved up or down to meet that row, and add the three: cell for cell the preset filter."
   },
-  "tray": "kernel",
+  "tray": "apart",
   "tasks": [
     {
       "id": "filter",
@@ -22,7 +22,7 @@
         "en": "Output the same as the preset filter (the kernel’s top left weighs the neighbour above left)."
       },
       "adds": ["rows3"],
-      "configurations": { "shift.axis": ["y"], "const.kind": ["kernel3"] },
+      "configurations": { "shift.axis": ["y"] },
       "inputs": [
         { "name": "photo", "label": { "zh": "图", "en": "Image" } },
         { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }

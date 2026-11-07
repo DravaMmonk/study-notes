@@ -16,7 +16,7 @@ const read = (lines, inputs = ['image'], outputs = ['out']) => board.fromText(li
 const picture = (seed, w = 6, h = 5) => make(w, h, 1, (x, y) => ((Math.sin(seed * 12.9898 + x * 78.233 + y * 37.719) * 43758.5453) % 1 + 1) % 1)
 
 test('gradients through shift, the weighted line, the kernel filter, max and total match finite differences', () => {
-  const lines = ['k = learn[shape=kernel3]()', 'f = kernelFilter[outside=zero](image,k)', 'd = const[kind=direction,x=1,y=0]()', 's = shift[outside=reflect](f,d)', 'z = const[value=0]()', 'r = max(s,z)', 'w = learn[shape=row3]()', 'l = weightedLine[outside=clamp](r,w,d)', 't = total(l)', 'out <- t']
+  const lines = ['k = learn[shape=kernel3]()', 'f = kernelFilter[outside=zero](image,k)', 'd = direction[way=right]()', 's = shift[outside=reflect](f,d)', 'z = const[value=0]()', 'r = max(s,z)', 'w = learn[shape=row3]()', 'l = weightedLine[outside=clamp](r,w,d)', 't = total(l)', 'out <- t']
   const circuit = read(lines)
   const kernel = [[0.1, -0.2, 0.3], [0.05, 0.4, -0.1], [0.2, 0, -0.3]]
   const weights = [[0.3, -0.5, 0.7]]

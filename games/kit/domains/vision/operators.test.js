@@ -66,7 +66,7 @@ test('vector length and colour mixture preserve raw numerical meaning', () => {
 
 // One circuit task with a starter and a characteristic wrong program with its explanation.
 const doubled = () => game({ levels: [level('D', circuit('d_double', {
-  inputs: ['image'], adds: ['const', 'arithmetic'], configurations: { 'arithmetic.op': ['add', 'mul'], 'const.kind': ['scalar'] },
+  inputs: ['image'], adds: ['const', 'arithmetic'], configurations: { 'arithmetic.op': ['add', 'mul'] },
   tests: [{ inputs: { image: [[1, 2]] }, expect: { out: [[2, 4]] } }],
   hidden: [{ inputs: { image: [[3]] }, expect: { out: [[6]] } }],
   solution: ['two = const[value=2]()', 'p = arithmetic[op=mul](image,two)', 'out <- p'],

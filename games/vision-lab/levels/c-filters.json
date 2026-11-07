@@ -21,7 +21,7 @@
       "brief": { "zh": "填出「柔化」的核。", "en": "Fill in the kernel of “soften”." },
       "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
       "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
-      "starter": ["k = const[kind=kernel3]()", "f = filter(photo,k)", "out <- f"],
+      "starter": ["k = kernel()", "f = filter(photo,k)", "out <- f"],
       "tests": [
         {
           "inputs": {
@@ -95,12 +95,12 @@
         }
       ],
       "solution": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "k = kernel[k1=1,k2=1,k3=1,k4=1,k5=1,k6=1,k7=1,k8=1,k9=1,divide=9]()",
         "f = filter(photo,k)",
         "out <- f"
       ],
       "naive": [
-        "k = const[kind=kernel3,k1=1,k2=1,k3=1,k4=1,k5=1,k6=1,k7=1,k8=1,k9=1]()",
+        "k = kernel[k1=1,k2=1,k3=1,k4=1,k5=1,k6=1,k7=1,k8=1,k9=1]()",
         "f = filter(photo,k)",
         "out <- f"
       ],
@@ -129,7 +129,7 @@
       "brief": { "zh": "填出「浮雕」的核。", "en": "Fill in the kernel of “emboss”." },
       "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
       "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
-      "starter": ["k = const[kind=kernel3]()", "f = filter(photo,k)", "out <- f"],
+      "starter": ["k = kernel()", "f = filter(photo,k)", "out <- f"],
       "tests": [
         {
           "inputs": {
@@ -179,12 +179,12 @@
         }
       ],
       "solution": [
-        "k = const[kind=kernel3,k1=-2,k2=-1,k3=0,k4=-1,k5=1,k6=1,k7=0,k8=1,k9=2]()",
+        "k = kernel[k1=-2,k2=-1,k3=0,k4=-1,k5=1,k6=1,k7=0,k8=1,k9=2]()",
         "f = filter(photo,k)",
         "out <- f"
       ],
       "naive": [
-        "k = const[kind=kernel3,k1=2,k2=1,k3=0,k4=1,k5=1,k6=-1,k7=0,k8=-1,k9=-2]()",
+        "k = kernel[k1=2,k2=1,k3=0,k4=1,k5=1,k6=-1,k7=0,k8=-1,k9=-2]()",
         "f = filter(photo,k)",
         "out <- f"
       ],
@@ -216,7 +216,7 @@
       "brief": { "zh": "填出「描边」的核。", "en": "Fill in the kernel of “outline”." },
       "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
       "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
-      "starter": ["k = const[kind=kernel3]()", "f = filter(photo,k)", "out <- f"],
+      "starter": ["k = kernel()", "f = filter(photo,k)", "out <- f"],
       "tests": [
         {
           "inputs": {
@@ -272,12 +272,12 @@
         }
       ],
       "solution": [
-        "k = const[kind=kernel3,k1=-1,k2=-1,k3=-1,k4=-1,k5=8,k6=-1,k7=-1,k8=-1,k9=-1]()",
+        "k = kernel[k1=-1,k2=-1,k3=-1,k4=-1,k5=8,k6=-1,k7=-1,k8=-1,k9=-1]()",
         "f = filter(photo,k)",
         "out <- f"
       ],
       "naive": [
-        "k = const[kind=kernel3,k1=0,k2=-1,k3=0,k4=-1,k5=4,k6=-1,k7=0,k8=-1,k9=0]()",
+        "k = kernel[k1=0,k2=-1,k3=0,k4=-1,k5=4,k6=-1,k7=0,k8=-1,k9=0]()",
         "f = filter(photo,k)",
         "out <- f"
       ],

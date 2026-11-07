@@ -28,7 +28,7 @@
         }
       ],
       "adds": ["arithmetic", "const"],
-      "configurations": { "arithmetic.op": ["add", "sub"], "const.kind": ["scalar"] },
+      "configurations": { "arithmetic.op": ["add", "sub"] },
       "inputs": [{ "name": "photo", "label": { "zh": "图", "en": "Image" } }],
       "outputs": [{ "name": "out", "label": { "zh": "底片", "en": "Negative" } }],
       "tests": [

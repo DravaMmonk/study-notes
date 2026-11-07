@@ -18,7 +18,7 @@ const optionsOf = (setting, allowed) => setting.options.filter((o) => !allowed |
 const numberOf = (raw) => (raw === '' || raw === '-' || Number.isNaN(Number(raw)) ? raw : Number(raw))
 
 function Control({ setting: s, value, onChange, allowed, readOnly, roomy, phone, widgets, id }) {
-  const label = s.label ? L(s.label) : s.key
+  const label = s.label ? L(s.label) : s.about ? L(s.about) : s.key
   switch (s.control) {
     case 'select':
       return (

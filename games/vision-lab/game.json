@@ -10,6 +10,7 @@
   "primitives": [
     "arithmetic",
     "const",
+    "kernel",
     "filter",
     "magnitude",
     "angle",
@@ -20,11 +21,18 @@
     "turn180"
   ],
   "trays": {
-    "main": ["arithmetic", "const", "filter", "gradient", "edges", "magnitude", "angle", "less"],
-    "kernel": ["shift", "arithmetic", "const", "line3", "split3", "rows3"],
+    "main": ["arithmetic", "const", "kernel", "filter", "gradient", "edges", "magnitude", "angle", "less"],
+    "apart": ["shift", "arithmetic", "const", "line3", "split3", "rows3"],
     "flip": ["const", "filter", "turn180"]
   },
-  "concept": { "arithmetic": "values", "const": "values", "magnitude": "gradient", "angle": "gradient" },
+  "concept": {
+    "arithmetic": "values",
+    "const": "values",
+    "filter": "filtering",
+    "kernel": "filtering",
+    "magnitude": "gradient",
+    "angle": "gradient"
+  },
   "views": { "grid": ["pixels", "numbers", "surface", "slope", "profile"] },
   "eras": [
     {

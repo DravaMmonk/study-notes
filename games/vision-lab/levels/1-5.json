@@ -125,16 +125,16 @@
         }
       ],
       "solution": [
-        "kx = const[kind=kernel3,k1=0,k2=0,k3=0,k4=-1,k5=0,k6=1,k7=0,k8=0,k9=0]()",
-        "ky = const[kind=kernel3,k1=0,k2=-1,k3=0,k4=0,k5=0,k6=0,k7=0,k8=1,k9=0]()",
+        "kx = kernel[k1=0,k2=0,k3=0,k4=-1,k5=0,k6=1,k7=0,k8=0,k9=0]()",
+        "ky = kernel[k1=0,k2=-1,k3=0,k4=0,k5=0,k6=0,k7=0,k8=1,k9=0]()",
         "x = filter(photo,kx)",
         "y = filter(photo,ky)",
         "dx <- x",
         "dy <- y"
       ],
       "naive": [
-        "kx = const[kind=kernel3,k1=0,k2=0,k3=0,k4=0,k5=-1,k6=1,k7=0,k8=0,k9=0]()",
-        "ky = const[kind=kernel3,k1=0,k2=0,k3=0,k4=0,k5=-1,k6=0,k7=0,k8=1,k9=0]()",
+        "kx = kernel[k1=0,k2=0,k3=0,k4=0,k5=-1,k6=1,k7=0,k8=0,k9=0]()",
+        "ky = kernel[k1=0,k2=0,k3=0,k4=0,k5=-1,k6=0,k7=0,k8=1,k9=0]()",
         "x = filter(photo,kx)",
         "y = filter(photo,ky)",
         "dx <- x",
