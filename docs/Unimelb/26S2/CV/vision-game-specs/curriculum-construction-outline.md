@@ -1,6 +1,6 @@
 # COMP90086: machines, parts and knowledge coverage
 
-Status: stages 0–2 implemented in Vision Lab, 2026-11-04; later stages remain proposals. See
+Status: stages 0–2 implemented in Vision Lab, 2026-11-04; later chapters are planned in [the chapter map](chapter-map.md). See
 [the executable stage design](../../../../../games/vision-lab/DESIGN.md) and
 [the stage review](stages-0-2-review.md) for actual tasks, contracts and verification limits.
 Capability labels in this outline are not executable level IDs.
@@ -54,33 +54,11 @@ A familiar mathematical helper gets a brief explanation where needed, not its ow
 can be cloned after its meaning has been acquired. The learner's actual passed graph is what an earned part runs.
 Parameter exposure, gradients, iteration and value shapes must be implemented before promising executable reuse.
 
-## 3. Course map: a growing workshop of machines
+## 3. Course map
 
-The chapter list is a readable construction route. Prerequisites follow actual parts and knowledge, not every
-preceding chapter. Independent machine branches may be available together. The opening chapter contains images
-ready to process; understanding camera optics is not required before touching a pixel pipeline.
-
-| Chapter / machine | Main construction ladder | Course knowledge carried by construction and use | Subsequent use |
-| --- | --- | --- | --- |
-| 0. Image comparison instrument | Image arithmetic -> signed difference -> change evidence -> known spatial alignment -> screening/comparison pipeline | L2 image values, channels and coordinates; necessary pointwise/spatial reasoning; first concrete cases of evidence versus a task output | Image residuals, reconstruction error, local comparisons and controlled tests |
-| 1. Neighbourhood processor and scanner | Small weighted line filter -> two-direction composition -> general local kernel -> smoothing -> differences/Sobel -> boundary-aware processing -> scanner responses | L3 locality, weights, convolution/correlation, common filters, support/scale, separability, borders, colour and composition; L5 gradient components/length when the scanner first needs them | Frequency filtering, feature detection, convolutional layers and visual measurements |
-| 2. Frequency analyser and interference remover | Basis waves -> frequency probe -> phase-aware response -> spectrum -> gain/filter -> inverse reconstruction | L4 amplitude/frequency/phase, frequency representation, spatial/frequency equivalence, low/high/band-pass effects and artefacts | Scale/frequency diagnosis, image compression experiments and representation of structured interference |
-| 3. Light-aware comparison instrument | Reflectance relation -> colour response -> normalised or derivative-based measurements -> same-observation counterexamples | L5 light/material/orientation factors, colour, inverse ambiguity and invariance/equivariance; reuse rather than reteach the gradient | Robust feature evidence, appearance changes and interpretation of model inputs |
-| 4. Trainable image classifier | Parameterised filtering -> activation -> pooling -> scores -> loss -> training/evaluation controller | L6–7 parameter sharing, channels, receptive fields, nonlinearities, downsampling, softmax/cross-entropy, optimisation, splits, augmentation and regularisation | Learned backbones, embeddings, reconstruction, segmentation and detection |
-| 5. Deeper and cheaper feature extractor | Small-kernel composition -> residual block -> spatial/channel factorisation -> transfer head | L8 receptive field, multi-scale composition, residuals, depthwise/pointwise operations, cost and transfer learning | Encoder blocks, efficient backbones and reuse under a changed data distribution |
-| 6. Attention encoder and retrieval system | Patches/embeddings -> Q/K/V -> attention -> positions/residual encoder; pair/similarity objective -> retrieval/zero-shot route | L9–10 inductive bias, attention, position, multi-head composition, contrastive objectives, image/text alignment and representation inspection | Image-token classification, retrieval, segmentation prompts and set prediction |
-| 7. Planar object matcher and aligner | Gradient products -> structure tensor/Harris -> aligned descriptor -> candidates/ratio test -> voting/RANSAC -> planar mapping -> resampling/warp | L11–12 local uniqueness, invariance, geometric consensus and outliers; L2 crop/nearest/one-axis/bilinear sampling as the aligner's real needs arise | Stereo candidates, camera geometry, robust fitting and image transformation |
-| 8. Stereo/depth measurement system | Projection/camera coordinates -> disparity and matching costs -> search/constraints; homogeneous points/lines -> epipolar restriction -> triangulation | L2 camera projection and view; L13–14 depth ambiguity, window trade-offs, calibration, intrinsics/extrinsics, geometry and degeneracies | Geometric measurements, reconstruction and checks of image evidence |
-| 9. Reconstruction and generation workshop | Encoder/decoder -> bottleneck; latent distribution/reparameterisation -> VAE; adversarial roles; noising -> prediction objective -> reverse sampler | L15–17 probability support, reconstruction versus generation, objectives, latent sampling, adversarial balance, realism/diversity and diffusion stages | Reusable generative toy models and conditional reconstruction experiments |
-| 10. Region and pixel-label system | Feature grouping -> cluster update -> superpixels/adjacency; dense classifier -> upsampling -> encoder/decoder -> skip paths | L19–20 similarity/bandwidth, clustering, region structure, semantic/instance meaning, FCN, transposed convolution/unpooling, spatial detail and losses | Region proposals, instance outputs and dense prediction |
-| 11. Detector and evaluator | Window/proposal -> shared feature extraction -> box adjustment; IoU -> suppression -> one-to-one matching -> precision/recall/AP; grid/set-prediction routes | L21–22 detection architectures, localisation, duplicates, matching, confidence ranking and evaluation protocols | An integrated detection-and-evaluation system; mixed revision diagnostics |
-
-L23 supplies revision checks over the existing machines rather than another algorithm ladder. Its questions can
-expose missing coverage, but they do not justify duplicating constructions already mastered.
-
-A large chapter is split when a new machine or abstraction needs its own ladder, not to match a lecture count.
-There is no promised total level count. Later chapters above are machine-level proposals; their exact contracts,
-source anchors, misconceptions and task boundaries still need specification.
+The chapter list, the per-chapter construction ladders, part run modes and the knowledge coverage audit are in
+[the chapter map](chapter-map.md). It supersedes the chapter table and part ledger that this section and section 6
+used to hold.
 
 ## 4. Opening: a small image machine with an immediate purpose
 
@@ -141,24 +119,7 @@ or an explicitly correct padded/cropped domain; ideal linear identities must not
 
 ## 6. Cross-chapter part ledger
 
-| Earned construction | Where it is substantively used |
-| --- | --- |
-| Image comparison/alignment | Local evidence, reconstruction residuals, objective inspection and controlled tests |
-| Weighted line/local-kernel and separable compositions | Smoother, derivative, sharpening, multi-channel kernels, spatial/frequency comparison and efficient filters |
-| Smoother and directional/gradient responses | Scanner, light-change comparisons, structure tensor/Harris, descriptors and local measurements |
-| Parameterised multi-channel aggregation | Trainable convolution; parameter and derivative exposure is an explicit extension, not an assumed interface |
-| Classifier, scores/loss and training controller | Transfer, attention/embedding training, reconstruction, dense prediction and detection |
-| Residual/spatial-channel factorisation | Deeper backbone, encoder block and efficient learned modules |
-| Attention/encoder and contrastive comparison | Retrieval, image/text scoring when taught, later segmentation/set-prediction routes |
-| Corner/descriptor/matcher/robust estimator | Planar alignment, stereo candidates and robust geometric estimation |
-| Crop, linear interpolation and bilinear sampler | Aligner warp, image transformations and resampling; introduce no later than the first genuine need and reuse after construction |
-| Projection, camera and point/line operations | Stereo, epipolar restriction, calibration and triangulation |
-| Region graph, classifier and IoU/matching/metrics | Region proposals and an end-to-end detection/evaluation machine |
-
-Parts are not assumed reusable merely because two algorithms have similar diagrams. Value shapes, parameters,
-iteration state and gradients must fit. General traversal, sorting, reduction, random sampling and solving a
-linear system can be supplied execution services while the learner constructs the policy or relationship being
-repeated. A complete RANSAC/matcher/AP box cannot stand in for that relationship before it has been built.
+See [the chapter map](chapter-map.md), sections 3 and 4.
 
 ## 7. Knowledge coverage audit and residual lessons
 

@@ -60,8 +60,11 @@ copying the last wording forward.
   and a gate, each product written through the operation set, every run and gate recorded in `pipeline.json`. When a
   later step stops on an earlier one's product, hand its report back (`run <step> --from <later step>`); do not work
   around it in the later step.
-- Choose a learner-built part only when substantively different passing implementations can differ in complexity
-  or execution cost. Fixed computations use code presets; wiring order and equivalent expansions do not qualify.
+- Decide a part's run mode once, by its final use in the whole course: it runs the learner's board only when it is
+  widely reused, its passing implementations differ substantively in complexity or execution cost, or its run
+  itself is the knowledge (iteration, sampling/voting, coarse-to-fine). Everything else is a code preset; wiring
+  order and equivalent expansions do not qualify. A learner-built part that a later chapter would restructure for
+  efficiency is introduced there instead; earlier needs use a display method or a `local` preset.
   A built part runs the board the player passed its level with; that board must read exactly the part's ports.
 - Never grant a part directly; a non-primitive part is unlocked only by the level that builds it.
 - Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …`, the MCP

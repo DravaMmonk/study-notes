@@ -60,8 +60,8 @@ integer direction vector d. It reads at -d, zero and +d, retains signed values a
 border rule without normalising weights. The weight vector is carried as one single-channel row, using the existing
 numeric-array representation and one wire. It executes domain code, never a saved learner circuit. The introductory
 horizontal and vertical tasks explain the weighted sum without building a reusable component; the preset is introduced
-in the vertical transfer task before the processing routes diverge. Only assembled components with substantively different passing implementations
-and resulting complexity or execution-cost tradeoffs should retain learner circuits. Wiring order alone is not such a choice.
+in the vertical transfer task before the processing routes diverge. Run modes follow the handbook's final-use rule (`../DESIGN.md`, chapter
+hard rules); the per-part decisions are in the [chapter map](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md).
 All spatial neighbour reads use the single shift primitive; horizontal reads use d=(1,0) and vertical reads use d=(0,1).
 A general correlation is built by multiplying a window table by its weights, summing and restoring shape;
 the table supplies traversal, not a weighted sum. Convolution reverses the written kernel before correlation.
