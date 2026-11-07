@@ -74,7 +74,7 @@ export function validate({ circuit }) {
     run: runLevel,
     entries,
     failure: (r) => (r.fail ? `(${r.fail.why.en})` : ''),
-    more: (task, _k, _tasks, held) => settingsSaid(task, held, circuit),
+    more: (task, _k, _tasks, held) => settingsSaid(task, held, circuit.forTask(task)),
     kinds: { probe: (task) => {
       const model = probeOf(task)
       const reference = model.reference()

@@ -1,76 +1,173 @@
 {
-  "title": { "zh": "拼出加权和", "en": "Build a weighted sum" },
-  "tray": "pipeline",
-  "after": {
-    "zh": "亮点被处理成什么样，就是这种处理的「印章」：每个输入像素都盖一个，挪到对应位置、乘上权重再相加。把权重排成 3×3 的小方阵，就是核。",
-    "en": "Whatever a bright dot is turned into is the \"stamp\" of the processing: every input pixel presses one, moved to its place, multiplied by its weight and added up. Arrange the weights in a small 3×3 grid and you have a kernel."
-  },
+  "title": { "zh": "台阶在哪", "en": "Where the step is" },
   "intro": [
     {
       "t": {
-        "zh": "三点平均、方块模糊、差分，都是把挪了位置的几份原图乘上系数再加起来。换一组挪法和系数，就是另一种效果。",
-        "en": "The three-point average, the box blur and the differences all add up a few shifted copies of the picture, each multiplied by a number. A different set of shifts and numbers gives a different effect."
-      }
-    },
-    {
-      "t": {
-        "zh": "有人用这样一组挪法和系数处理了几张图，你只看得到输入和输出。第一组测试只有一个亮点。",
-        "en": "Someone processed a few pictures with such a set of shifts and numbers, and you can only see the inputs and outputs. The first test is a single bright dot."
-      },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：一个亮点进去", "en": "Set 1: one bright dot goes in" } }
-    },
-    {
-      "t": {
-        "zh": "这一关你要做的：用平移、常数和四则运算，搭出同样的处理。要想的问题：一个亮点经过处理，变成了什么？",
-        "en": "Your task in this level: build the same processing out of shifts, constants, multiplications and additions. Something to think about: what does a single bright dot turn into?"
+        "zh": "纸边是亮度的一道台阶。降噪把台阶抹平，得换一种权重把它找出来。",
+        "en": "A paper edge is a step in brightness. Denoising smooths the step away; different weights are needed to find it."
       }
     }
   ],
-  "unlocks": ["kernel3"],
+  "after": {
+    "zh": "边缘处相邻两格差得多。右边减左边、下面减上面，正负说出了变亮还是变暗的方向，这叫<wiki-ref to=\"derivative\"></wiki-ref>。",
+    "en": "Neighbouring cells differ most at an edge. Right minus left, below minus above: the sign tells whether it brightens or darkens. This is a <wiki-ref to=\"derivative\"></wiki-ref>."
+  },
   "tasks": [
     {
-      "id": "1-8",
-      "kind": "graph",
+      "id": "steps",
+      "kind": "circuit",
       "brief": {
-        "zh": "有人用一种邻居加权和处理了这些图。用平移、常数和四则运算，搭出同样的处理。",
-        "en": "Someone processed these images with a weighted sum of neighbours. Build the same processing out of shifts, constants, multiplications and additions."
+        "zh": "输出两张图：横向的变化、竖向的变化。往右（往下）变亮为正。",
+        "en": "Output two pictures: the change across and the change down. Brightening rightwards (downwards) is positive."
       },
-      "hint": {
-        "zh": "先看亮点那一组：一个亮点变成了几个点？各在哪里，各有多亮？",
-        "en": "Look at the bright dot first: how many dots did one dot turn into? Where is each, and how bright?"
-      },
-      "scene": "filter",
-      "setup": { "target": { "convolve": { "kernel": [0, 0.5, 0, 0, 0, 0, 0, 0, 0.5] } } },
+      "hint": [
+        {
+          "zh": "整片同样亮的地方，两张图都应当是 0。三个权重加起来是多少？",
+          "en": "Where it is evenly bright, both should be 0. What do the three weights add up to?"
+        }
+      ],
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [
+        { "name": "gx", "label": { "zh": "横向变化", "en": "Change across" } },
+        { "name": "gy", "label": { "zh": "竖向变化", "en": "Change down" } }
+      ],
       "tests": [
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
+        {
+          "inputs": {
+            "photo": [
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8]
+            ]
+          },
+          "expect": {
+            "gx": [
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0]
+            ],
+            "gy": [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
+          }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.2, 0.2, 0.2, 0.2, 0.2],
+              [0.2, 0.2, 0.2, 0.2, 0.2],
+              [0.8, 0.8, 0.8, 0.8, 0.8],
+              [0.8, 0.8, 0.8, 0.8, 0.8],
+              [0.8, 0.8, 0.8, 0.8, 0.8]
+            ]
+          },
+          "expect": {
+            "gx": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
+            "gy": [
+              [0, 0, 0, 0, 0],
+              [
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001
+              ],
+              [
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001
+              ],
+              [0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.2, 0.2, 0.2, 0.2, 0.2, 0.8],
+              [0.2, 0.2, 0.2, 0.2, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8],
+              [0.2, 0.8, 0.8, 0.8, 0.8, 0.8]
+            ]
+          },
+          "expect": {
+            "gx": [
+              [0, 0, 0, 0, 0.6000000000000001, 0.6000000000000001],
+              [0, 0, 0, 0.6000000000000001, 0.6000000000000001, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0.6000000000000001, 0.6000000000000001, 0, 0, 0],
+              [0.6000000000000001, 0.6000000000000001, 0, 0, 0, 0]
+            ],
+            "gy": [
+              [0, 0, 0, 0, 0.6000000000000001, 0],
+              [0, 0, 0, 0.6000000000000001, 0.6000000000000001, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0.6000000000000001, 0.6000000000000001, 0, 0, 0],
+              [0, 0.6000000000000001, 0, 0, 0, 0]
+            ]
+          }
+        },
+        {
+          "inputs": { "photo": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] },
+          "expect": {
+            "gx": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+            "gy": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+          }
+        }
       ],
       "hidden": [
         {
-          "label": { "zh": "挪开的字母 T", "en": "Shifted letter T" },
-          "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 4 } }
-        },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 22 } } }
+          "inputs": {
+            "photo": [
+              [0.51, 0.45, 0.56, 0.38],
+              [0.83, 0.16, 0.45, 0.76],
+              [0.61, 0.91, 0.29, 0.36],
+              [0.3, 0.13, 0.08, 0.51]
+            ]
+          },
+          "expect": {
+            "gx": [
+              [-0.06, 0.050000000000000044, -0.07, -0.18000000000000005],
+              [-0.6699999999999999, -0.37999999999999995, 0.6, 0.31],
+              [0.30000000000000004, -0.32, -0.55, 0.07],
+              [-0.16999999999999998, -0.21999999999999997, 0.38, 0.43]
+            ],
+            "gy": [
+              [0.31999999999999995, -0.29000000000000004, -0.11000000000000004, 0.38],
+              [0.09999999999999998, 0.46, -0.2700000000000001, -0.020000000000000018],
+              [-0.53, -0.03, -0.37, -0.25],
+              [-0.31, -0.78, -0.20999999999999996, 0.15000000000000002]
+            ]
+          }
+        }
       ],
       "solution": [
-        "kN = const[c=0.5]()",
-        "u = shift[dir=up](in)",
-        "r = shift[dir=right](in)",
-        "rd = shift[dir=down](r)",
-        "a = arith[op=add](u, rd)",
-        "k = arith[op=mul](a, kN)",
-        "out <- k"
+        "w = const[kind=row3,first=-1,centre=0,last=1]()",
+        "x = line3[axis=x](photo,w)",
+        "y = line3[axis=y](photo,w)",
+        "gx <- x",
+        "gy <- y"
       ],
-      "naive": [
-        "kN = const[c=0.5]()",
-        "u = shift[dir=down](in)",
-        "r = shift[dir=left](in)",
-        "rd = shift[dir=up](r)",
-        "a = arith[op=add](u, rd)",
-        "k = arith[op=mul](a, kN)",
-        "out <- k"
-      ]
+      "sample": {
+        "inputs": {
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
+            "layers": [
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
+            ]
+          }
+        }
+      }
     }
   ]
 }

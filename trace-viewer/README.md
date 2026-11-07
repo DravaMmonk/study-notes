@@ -41,4 +41,4 @@ Preview one figure on its own at `/figures.html?fig=conv-press&theme=light` (the
 
 
 - The game is built here on the shared kit (`../games/kit/`): `game.html` is every game's page (`src/game.js` loads `../games/kit/app`), `GAME=vision-complete npm run build:game` builds it into `dist-games/vision-complete/`. Its spec — levels, intros, encyclopedia — is `../games/vision-complete/`; what runs it (images, parts, benches, screens) is `../games/kit/domains/image/`. `npm run check` checks every game's levels.
-- Design, research notes and the full level map: `../games/vision-complete/DESIGN.md`.
+- Design and research notes: `../games/vision-complete/DESIGN.md`; the level map: `../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md`.

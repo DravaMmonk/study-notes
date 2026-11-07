@@ -1,83 +1,188 @@
 {
-  "title": { "zh": "三点平均", "en": "Three-point average" },
-  "after": {
-    "zh": "输出不再只看自己，而是看邻居的加权和。这就是滤波。",
-    "en": "The output no longer looks only at its own pixel, but at a weighted sum of its neighbours. This is filtering."
-  },
+  "title": { "zh": "竖纹", "en": "Vertical streaks" },
   "intro": [
     {
       "t": {
-        "zh": "到目前为止，输出的每一格只看输入里同一位置的那一格。这一章换个思路：算一格时，也看看它周围的邻居。",
-        "en": "So far, each output cell has looked only at the cell in the same position in the input. This chapter changes that: when computing a cell, also look at the neighbours around it."
+        "zh": "机器人拍下的单据上满是一道道竖纹：相机传感器每一列的灵敏度略有不同。现在手上只有平移、四则运算和常数，先把竖纹压下去。<wiki-ref to=\"pixel\"></wiki-ref>",
+        "en": "The robot’s photos of documents are full of vertical streaks: each column of the camera’s sensor is a little more or less sensitive. All you have are shifting, arithmetic and constants; flatten the streaks first. <wiki-ref to=\"pixel\"></wiki-ref>"
       }
-    },
-    {
-      "t": {
-        "zh": "最简单的例子是取平均。把一格换成它和邻居的平均，孤零零的亮点会被摊开，忽亮忽暗的毛刺会被抹平。手机夜景模式压噪点，用的就是同类的办法。",
-        "en": "The simplest example is averaging. Replace a cell with the average of itself and its neighbours, and a lone bright dot gets spread out while flickering specks get smoothed away. A phone's night mode uses the same kind of trick to suppress noise."
-      }
-    },
-    {
-      "t": {
-        "zh": "从这一章起，相加、相减、相乘合成一个元件<part-ref to=\"part:arith\"></part-ref>：在元件上选 +、−、× 或 ÷。÷ 是新的：a ÷ b 把 a 的每一格除以 b 的同一格。还有一个新元件<part-ref to=\"part:merge\"></part-ref>：它有三个输入口，把接进来的图逐格加起来，空着的口不算。",
-        "en": "From this chapter on, add, subtract and multiply are one part, <part-ref to=\"part:arith\"></part-ref>: choose +, −, × or ÷ on the part. ÷ is new: a ÷ b divides each cell of a by the same cell of b. There is also a new part, the <part-ref to=\"part:merge\"></part-ref>: it has three inputs and adds the pictures wired into them cell by cell; an empty input is skipped."
-      }
-    },
-    {
-      "t": {
-        "zh": "新画法「剖面」：把图上一行的亮度画成一条曲线，在图上拖动就换一行。元件和测试区的画法按钮里都能切到它。",
-        "en": "A new way of drawing, \"Profile\": the brightness along one row of the picture as a curve; drag on the picture to change row. Switch to it with the drawing buttons on a part or in the test area."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关你要做的：每一格换成它自己和左右两个邻居的平均。看看下面的期望：方块左右两条边多出一圈灰，上下两条边却没变。",
-        "en": "Your task in this level: replace each cell with the average of itself and its left and right neighbours. Look at the expected output below: the square's left and right edges gain a band of grey, but its top and bottom edges do not change."
-      },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：方块", "en": "Set 1: square" } }
     }
   ],
-  "adds": ["arith", "merge"],
-  "tray": "pipeline",
-  "unlocks": ["blur3h"],
+  "after": {
+    "zh": "每格和它的左右邻居平均，三列各自的偏差就抵消掉一大半。这就是<wiki-ref to=\"neighbourhood-average\"></wiki-ref>。",
+    "en": "Averaging each cell with its left and right neighbours cancels most of the three columns’ own errors. This is a <wiki-ref to=\"neighbourhood-average\"></wiki-ref>."
+  },
+  "builds": {
+    "type": "line3",
+    "name": { "zh": "三点平均", "en": "Three-point average" },
+    "desc": {
+      "zh": "每格和它前后两格平均。方向可以选横或竖。",
+      "en": "Each cell averaged with the two beside it, across or down."
+    },
+    "settings": ["axis", "outside"],
+    "defaults": { "axis": "x", "outside": "clamp" }
+  },
   "tasks": [
     {
-      "id": "1-1",
-      "kind": "graph",
+      "id": "streaks",
+      "kind": "circuit",
       "brief": {
-        "zh": "每个像素换成它和左右两个邻居的平均。",
-        "en": "Replace each pixel with the average of itself and its left and right neighbours."
+        "zh": "让输出和目标一样：竖纹压平，纸和字还在。",
+        "en": "Match the target: streaks flattened, paper and text still there."
       },
-      "hint": {
-        "zh": "你需要「往左挪一格」的图、「往右挪一格」的图和原图。",
-        "en": "You need the image shifted one pixel left, the image shifted one pixel right, and the original."
+      "hint": [
+        {
+          "zh": "一格自己的读数里混着它那一列的偏差。左右两格的偏差和它不一样。",
+          "en": "A cell’s reading carries its column’s error. The cells beside it carry different errors."
+        },
+        {
+          "zh": "平移把整张图挪一格：挪完以后，每格上放的是它旁边那一格的读数。",
+          "en": "Shifting moves the whole picture one cell: afterwards each cell holds its neighbour’s reading."
+        }
+      ],
+      "adds": ["shift", "arithmetic", "const"],
+      "configurations": {
+        "shift.axis": ["x"],
+        "shift.by": ["forward", "backward"],
+        "*.outside": ["clamp"],
+        "arithmetic.op": ["add", "div"],
+        "const.kind": ["scalar"]
       },
-      "scene": "filter",
-      "setup": {
-        "target": { "correlate": { "kernel": [0, 0, 0, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0, 0, 0] } }
-      },
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "去掉竖纹", "en": "Streaks removed" } }],
       "tests": [
-        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+        {
+          "inputs": {
+            "photo": [
+              [0.23, 0.09, 0.25, 0.06, 0.19, 0.08, 0.21],
+              [0.23, 0.79, 0.95, 0.76, 0.89, 0.78, 0.21],
+              [0.23, 0.79, 0.4, 0.21, 0.89, 0.78, 0.21],
+              [0.23, 0.79, 0.95, 0.76, 0.89, 0.78, 0.21],
+              [0.23, 0.09, 0.25, 0.06, 0.19, 0.08, 0.21]
+            ]
+          },
+          "expect": {
+            "out": [
+              [
+                0.18333333333333332,
+                0.19,
+                0.13333333333333333,
+                0.16666666666666666,
+                0.10999999999999999,
+                0.15999999999999998,
+                0.16666666666666663
+              ],
+              [
+                0.41666666666666663,
+                0.6566666666666666,
+                0.8333333333333333,
+                0.8666666666666666,
+                0.8099999999999999,
+                0.6266666666666666,
+                0.4
+              ],
+              [
+                0.41666666666666663,
+                0.4733333333333333,
+                0.4666666666666666,
+                0.49999999999999994,
+                0.6266666666666667,
+                0.6266666666666666,
+                0.4
+              ],
+              [
+                0.41666666666666663,
+                0.6566666666666666,
+                0.8333333333333333,
+                0.8666666666666666,
+                0.8099999999999999,
+                0.6266666666666666,
+                0.4
+              ],
+              [
+                0.18333333333333332,
+                0.19,
+                0.13333333333333333,
+                0.16666666666666666,
+                0.10999999999999999,
+                0.15999999999999998,
+                0.16666666666666663
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": { "photo": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] },
+          "expect": { "out": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] }
+        }
       ],
       "hidden": [
         {
-          "label": { "zh": "挪开的字母 F", "en": "Shifted letter F" },
-          "in": { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
-        },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 11 } } }
+          "inputs": {
+            "photo": [
+              [0.45, 0.56, 0.92, 0.47, 0.51],
+              [0.59, 0.18, 0.51, 0.63, 0.79],
+              [0.09, 0.3, 0.09, 0.81, 0.69]
+            ]
+          },
+          "expect": {
+            "out": [
+              [
+                0.4866666666666667,
+                0.6433333333333333,
+                0.6499999999999999,
+                0.6333333333333333,
+                0.49666666666666665
+              ],
+              [
+                0.4533333333333333,
+                0.42666666666666664,
+                0.43999999999999995,
+                0.6433333333333333,
+                0.7366666666666666
+              ],
+              [0.15999999999999998, 0.16, 0.4, 0.53, 0.73]
+            ]
+          }
+        }
       ],
       "solution": [
-        "kN = const[c=0.33]()",
-        "l = shift[dir=left](in)",
-        "r = shift[dir=right](in)",
-        "m = merge(l, in, r)",
-        "k = arith[op=mul](m, kN)",
-        "out <- k"
-      ]
+        "r = shift[axis=x,by=forward](photo)",
+        "l = shift[axis=x,by=backward](photo)",
+        "s1 = arithmetic[op=add](photo,r)",
+        "s2 = arithmetic[op=add](s1,l)",
+        "three = const[value=3]()",
+        "m = arithmetic[op=div](s2,three)",
+        "out <- m"
+      ],
+      "naive": [
+        "r = shift[axis=x,by=forward](photo)",
+        "s = arithmetic[op=add](photo,r)",
+        "two = const[value=2]()",
+        "m = arithmetic[op=div](s,two)",
+        "out <- m"
+      ],
+      "naiveWhy": {
+        "zh": "只和一边的邻居平均，整张图往那一边偏了半格：台阶的两侧不对称。",
+        "en": "Averaging with one neighbour only shifts the picture half a cell that way: each step comes out lopsided."
+      },
+      "sample": {
+        "inputs": {
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
+            "layers": [
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
+            ],
+            "noise": { "seed": 4, "amp": 0.12, "kind": "columns" }
+          }
+        }
+      }
     }
   ]
 }

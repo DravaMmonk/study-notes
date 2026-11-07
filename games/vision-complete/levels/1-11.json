@@ -1,174 +1,147 @@
 {
-  "title": { "zh": "补边", "en": "Padding" },
-  "tray": "pipeline",
-  "after": {
-    "zh": "补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。复制边缘的平移拼出的平均就不会发黑。",
-    "en": "Padding with 0 draws a black frame round the image, and averaging mixes that black in. Built from shifts that replicate the edge, the average does not darken."
-  },
+  "title": { "zh": "单据扫描仪", "en": "Document scanner" },
   "intro": [
     {
       "t": {
-        "zh": "平移一格时，最边上那一列的数要从图外取。图外没有数据，平移元件一直补 0，也就是黑色。可拍到的东西不会在图边突然变黑，这一列是假的。",
-        "en": "When you shift by one pixel, the numbers for the outermost column have to come from outside the image. There is no data out there, so the Shift part has always padded with 0, which is black. But what a camera captures does not suddenly turn black at the image border: that column is fake."
-      },
-      "fig": {
-        "part": "shift",
-        "params": { "dir": "right" },
-        "caption": { "zh": "补 0 的平移：最左一列变成了黑的", "en": "Zero-padded shift: the leftmost column turns black" },
-        "input": { "stepX": { "edge": 4, "lo": 0.85, "hi": 0.2 } }
-      }
-    },
-    {
-      "t": {
-        "zh": "更自然的补法是照抄：图外缺的那一格，就当它和离它最近的边上像素一样。这叫<b>复制边缘</b>。修图软件放大、模糊照片时，图边就是这样处理的。",
-        "en": "A more natural way to pad is to copy: treat each missing cell outside the image as equal to the nearest pixel on the edge. This is called <b>replicate edge</b>. Photo editors handle the image border this way when they enlarge or blur a photo."
-      }
-    },
-    {
-      "t": {
-        "zh": "在暗背景上看不出问题，换成亮背景，毛病就露出来了。拍一张天空再模糊，照片四周多出一圈暗边，像加了一个本来不存在的相框。",
-        "en": "On a dark background you cannot see the problem; switch to a bright one and it shows. Blur a photo of the sky and a dark ring appears round the edges, like a frame that was never there."
-      },
-      "fig": {
-        "part": "box3",
-        "caption": { "zh": "亮底图直接做 3×3 平均", "en": "A plain 3×3 average of an image on a bright background" },
-        "input": "test"
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关分两个任务，都没有现成的设置可选，要你自己拼出来。先用平移和四则运算，拼出向右平移一格、最左一列照抄原图的平移；拼成之后，它会变成平移元件「边界」设置里的一个选项。",
-        "en": "This level has two tasks, and neither has a ready-made setting to pick: you build both yourself. First, from Shift and Arithmetic, build a shift right by one pixel whose leftmost column is copied from the original; once built, it becomes an option in the Shift part's \"Border\" setting."
-      },
-      "fig": {
-        "task": 0,
-        "test": 0,
-        "caption": { "zh": "第一个任务的第一组测试：亮条贴着左边", "en": "Task 1, set 1: a bright bar on the left edge" }
-      }
-    },
-    {
-      "t": {
-        "zh": "然后在亮底图上做 3×3 平均，输出和输入一样大，边上一圈不能发黑。",
-        "en": "Then take a 3×3 average of images on a bright background, with the output the same size as the input and no dark ring round the border."
-      },
-      "fig": {
-        "task": 1,
-        "test": 0,
-        "caption": { "zh": "第二个任务的第一组测试：亮底方块", "en": "Task 2, set 1: square on bright background" }
+        "zh": "把这一章的零件装起来：夜里拍的单据，画出它的边。",
+        "en": "Put the chapter’s parts together: from a night photo of a document, draw its edges."
       }
     }
   ],
+  "after": {
+    "zh": "降噪、求梯度、按强弱取舍，得到的是一张<wiki-ref to=\"edge-map\"></wiki-ref>：机器眼里，纸从这里开始。",
+    "en": "Denoise, take the gradient, keep what is strong enough: an <wiki-ref to=\"edge-map\"></wiki-ref>. To the machine, the paper starts here."
+  },
   "tasks": [
     {
-      "id": "1-11_1",
-      "kind": "graph",
+      "id": "scanner",
+      "kind": "circuit",
       "brief": {
-        "zh": "向右平移一格，但最左一列不补 0，而是照抄原图最左一列。",
-        "en": "Shift right by one pixel, but instead of padding the leftmost column with 0, copy the original image's leftmost column."
+        "zh": "先像相机那样降噪，再在边的强弱超过「门槛」的格子标 1，其余标 0。",
+        "en": "Denoise as the camera does, then mark 1 where the edge strength exceeds “threshold”, 0 elsewhere."
       },
-      "hint": {
-        "zh": "先做出补 0 的平移：它只错在最左一列。能不能单独拿到「原图的最左一列，其余全是 0」？",
-        "en": "First build the zero-padded shift: it is wrong only in the leftmost column. Can you get \"the original's leftmost column, with 0 everywhere else\" on its own?"
-      },
-      "after": {
-        "zh": "你拼出的就是「复制边缘」：图外缺的值，用离它最近的边上像素代替，不会凭空造出一道黑边。",
-        "en": "What you built is \"Replicate edge\": a missing value outside the image is replaced by the nearest pixel on the edge, so no black border appears out of nowhere."
-      },
-      "step": { "zh": "平移", "en": "Shift" },
-      "unlocks": ["edge-pad"],
-      "withhold": ["edge-pad"],
-      "scene": "filter",
-      "setup": { "target": { "shift": { "dx": 1, "dy": 0, "border": "edge" } } },
+      "adds": ["less"],
+      "inputs": [
+        { "name": "photo", "label": { "zh": "照片", "en": "Photo" } },
+        { "name": "threshold", "label": { "zh": "门槛", "en": "Threshold" } }
+      ],
+      "outputs": [{ "name": "edges", "label": { "zh": "边缘图", "en": "Edge map" } }],
       "tests": [
         {
-          "label": { "zh": "亮条贴左边", "en": "Bright bar on the left edge" },
-          "in": { "stepX": { "edge": 4, "lo": 0.85, "hi": 0.2 } }
+          "inputs": {
+            "photo": [
+              [0.14, 0.16, 0.25, 0.14, 0.15, 0.17, 0.07, 0.15],
+              [0.18, 0.92, 0.75, 0.8, 0.75, 0.92, 0.9, 0.04],
+              [0.27, 0.96, 0.89, 0.88, 0.77, 0.73, 0.86, 0.04],
+              [0.08, 0.79, 0.19, 0.29, 0.84, 0.38, 0.85, 0.18],
+              [0.15, 0.89, 0.84, 0.8, 0.97, 0.97, 0.93, 0.2],
+              [0.11, 0.79, 0.8, 0.75, 0.91, 0.83, 0.93, 0.12],
+              [0.26, 0.23, 0.03, 0.08, 0.25, 0.14, 0.27, 0.13]
+            ],
+            "threshold": 1
+          },
+          "expect": {
+            "edges": [
+              [0, 1, 1, 1, 1, 1, 1, 0],
+              [1, 1, 1, 1, 1, 1, 1, 1],
+              [1, 1, 0, 0, 0, 0, 1, 1],
+              [1, 1, 0, 0, 0, 0, 1, 1],
+              [1, 1, 0, 0, 0, 0, 1, 1],
+              [0, 1, 1, 1, 1, 1, 1, 1],
+              [0, 0, 1, 1, 1, 1, 1, 0]
+            ]
+          }
         },
         {
-          "label": { "zh": "字母 F 贴左边", "en": "Letter F on the left edge" },
-          "in": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.9, "ox": 0, "oy": 3 } }
-        },
-        {
-          "label": { "zh": "方块贴左边", "en": "Square on the left edge" },
-          "in": { "square": { "x0": 0, "y0": 4, "s": 6, "lo": 0.1, "hi": 0.9 } }
-        },
-        { "label": { "zh": "斜坡", "en": "Ramp" }, "in": { "ramp": { "c": 0.1, "dy": 0.05 } } }
-      ],
-      "hidden": [
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 31 } } },
-        {
-          "label": { "zh": "亮底暗块", "en": "Dark block on bright background" },
-          "in": { "square": { "x0": 0, "y0": 9, "s": 5, "lo": 0.85, "hi": 0.25 } }
-        }
-      ],
-      "solution": [
-        "r = shift[dir=right](in)",
-        "l = shift[dir=left](in)",
-        "b = shift[dir=right](l)",
-        "d = arith[op=sub](in, b)",
-        "a = arith[op=add](r, d)",
-        "out <- a"
-      ],
-      "naive": ["r = shift[dir=right](in)", "out <- r"],
-      "alsoFails": [["r = shift[dir=right](in)", "a = arith[op=add](r, in)", "out <- a"]]
-    },
-    {
-      "id": "1-11_2",
-      "kind": "graph",
-      "brief": {
-        "zh": "在亮背景上做 3×3 平均，边缘不能发黑。",
-        "en": "Take a 3×3 average on a bright background without the border going dark."
-      },
-      "hint": {
-        "zh": "3×3 平均元件只会在图外补 0。哪个元件已经会另一种补法？",
-        "en": "The 3×3 average part can only pad with 0 outside the image. Which part already knows another way to pad?"
-      },
-      "step": { "zh": "平均", "en": "Average" },
-      "unlocks": ["edge-filter"],
-      "withhold": ["edge-filter"],
-      "scene": "filter",
-      "setup": { "target": { "box": { "size": 3, "border": "edge" } } },
-      "tests": [
-        {
-          "label": { "zh": "亮底方块", "en": "Square on bright background" },
-          "in": { "square": { "x0": 5, "y0": 5, "s": 6, "lo": 0.85, "hi": 0.3 } }
-        },
-        {
-          "label": { "zh": "亮底圆", "en": "Circle on bright background" },
-          "in": { "disk": { "cx": 7.5, "cy": 7.5, "r": 4, "lo": 0.9, "hi": 0.2 } }
-        },
-        {
-          "label": { "zh": "亮底字母", "en": "Letter on bright background" },
-          "in": { "glyph": { "letter": "T", "lo": 0.9, "hi": 0.2 } }
+          "inputs": {
+            "photo": [
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7]
+            ],
+            "threshold": 1
+          },
+          "expect": { "edges": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]] }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "贴边的暗方块", "en": "Dark square on the edge" },
-          "in": { "square": { "x0": 0, "y0": 10, "s": 5, "lo": 0.8, "hi": 0.3 } }
-        },
-        {
-          "label": { "zh": "亮底字母 X", "en": "Letter X on bright background" },
-          "in": { "glyph": { "letter": "X", "lo": 0.75, "hi": 0.15, "ox": 6, "oy": 4 } }
-        },
-        {
-          "label": { "zh": "亮底竖条", "en": "Vertical bar on bright background" },
-          "in": { "stepX": { "edge": 13, "lo": 0.9, "hi": 0.35 } }
+          "inputs": {
+            "photo": [
+              [0.14, 0.18, 0.18, 0.08, 0.05, 0.12, 0.1],
+              [0.21, 0.89, 0.87, 0.86, 0.88, 0.78, 0.14],
+              [0.08, 0.93, 0.76, 0.91, 0.76, 0.89, 0.12],
+              [0.13, 0.92, 0.2, 0.21, 0.93, 0.85, 0.07],
+              [0.25, 0.94, 0.77, 0.83, 0.78, 0.81, 0.17],
+              [0.08, 0.19, 0.06, 0.08, 0.21, 0.13, 0.13]
+            ],
+            "threshold": 1.5
+          },
+          "expect": {
+            "edges": [
+              [0, 0, 0, 1, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1, 0],
+              [0, 0, 0, 0, 0, 1, 0],
+              [0, 0, 0, 0, 0, 1, 0],
+              [0, 0, 0, 0, 1, 1, 0],
+              [0, 0, 0, 0, 0, 0, 0]
+            ]
+          }
         }
       ],
       "solution": [
-        "three = const[c=3]()",
-        "l = shift[dir=left, border=edge](in)",
-        "r = shift[dir=right, border=edge](in)",
-        "h = merge(l, in, r)",
-        "hq = arith[op=div](h, three)",
-        "u = shift[dir=up, border=edge](hq)",
-        "d = shift[dir=down, border=edge](hq)",
-        "v = merge(u, hq, d)",
-        "vq = arith[op=div](v, three)",
-        "out <- vq"
+        "c = const[kind=row3,first=0.25,centre=0.5,last=0.25]()",
+        "d1 = line3[axis=x](photo,c)",
+        "d = line3[axis=y](d1,c)",
+        "w = const[kind=row3,first=-1,centre=0,last=1]()",
+        "s = const[kind=row3,first=1,centre=2,last=1]()",
+        "sy = line3[axis=y](d,s)",
+        "x = line3[axis=x](sy,w)",
+        "sx = line3[axis=x](d,s)",
+        "y = line3[axis=y](sx,w)",
+        "m = magnitude(x,y)",
+        "e = less(threshold,m)",
+        "edges <- e"
       ],
-      "naive": ["b = box3(in)", "out <- b"]
+      "naive": [
+        "w = const[kind=row3,first=-1,centre=0,last=1]()",
+        "s = const[kind=row3,first=1,centre=2,last=1]()",
+        "sy = line3[axis=y](photo,s)",
+        "x = line3[axis=x](sy,w)",
+        "sx = line3[axis=x](photo,s)",
+        "y = line3[axis=y](sx,w)",
+        "m = magnitude(x,y)",
+        "e = less(threshold,m)",
+        "edges <- e"
+      ],
+      "naiveWhy": {
+        "zh": "没有先降噪：字和噪点也越过了门槛。",
+        "en": "No denoising first: text and noise cross the threshold too."
+      },
+      "sample": {
+        "inputs": {
+          "photo": {
+            "size": [64, 48],
+            "base": 0.15,
+            "layers": [
+              {
+                "shape": "quad",
+                "corners": [
+                  [7.68, 4.800000000000001],
+                  [57.6, 7.68],
+                  [55.04, 44.160000000000004],
+                  [5.12, 41.28]
+                ],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 12, "y": 12, "w": 35, "h": 24 }
+            ],
+            "noise": { "seed": 13, "amp": 0.12 }
+          },
+          "threshold": 1
+        }
+      }
     }
   ]
 }

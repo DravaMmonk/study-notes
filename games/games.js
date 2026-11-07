@@ -9,10 +9,10 @@ export const GAMES = [
   {
     id: 'vision-complete', href: 'vision-complete/index.html', title: '视觉完备', en: 'Vision Complete', topic: { zh: '计算机视觉', en: 'Computer Vision' },
     desc: {
-      zh: '没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。',
-      en: 'No lectures, just components, tests and a set of inputs and outputs. Start from “shift the image by one pixel”, build blur, edges, corners and disparity yourself, and end up teaching the machine to see.',
+      zh: '给一台仓库机器人装上眼睛。从一格格的数开始，自己搭出去噪、找边、读单据的机器，再一路走到会学习、会测距、会画图的视觉系统。',
+      en: 'Give a warehouse robot its eyes. Start from a grid of numbers, build the machines that denoise, find edges and read documents, and go on to a vision system that learns, measures distance and draws.',
     },
-    levels: 148, art: 'pipeline',
+    levels: 11, art: 'pipeline', dev: true,
     page: { icon: 'M14 20h10v10H14zM40 34h10v10H40zM24 25h16v14', description: '视觉完备 Vision Complete：把计算机视觉课程做成一套解谜关卡。A computer vision course turned into a set of puzzle levels.' },
   },
   {

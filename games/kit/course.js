@@ -527,9 +527,8 @@ function idle(course, say) {
     const out = new Set(course.declares(l).map((p) => course.concept(p) ?? p))
     for (const p of course.needed(l) ?? []) {
       out.add(course.concept(p) ?? p)
-      const by = course.builder(p)
-      const at = by && placed.find((m) => m.id === by)
-      if (at && !seen.has(at.id)) for (const c of concepts(at, seen)) out.add(c)
+      // An upgraded part runs the revision of a later builder: every level before this one that builds it counts.
+      for (const at of placed.filter((m) => course.builds(m).includes(p) && course.before(m.id, l.id))) if (!seen.has(at.id)) for (const c of concepts(at, seen)) out.add(c)
     }
     inside.set(l.id, out)
     return out

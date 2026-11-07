@@ -105,6 +105,12 @@ export const OPS = {
       return make(weights.length, 1, 1, x => weights[x] / total)
     },
   },
+  kernel3: { about: t('九个数按行排成 3 × 3 的核', 'nine numbers laid out row by row as a 3 × 3 kernel'), args: args('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'), run: (values) => { const k = finiteValues(values); return make(3, 3, 1, (x, y) => k[y * 3 + x]) } },
+  rowOf: { about: t('表的第 y 行（从 0 数），一行的图', 'row y of a table (from 0), as a one-row image'), args: args('table', 'y'), run: ([table, y]) => {
+    if (!isImage(table)) fail('取一行要一张表', 'taking a row needs a table')
+    if (!Number.isInteger(y) || y < 0 || y >= table.h) fail(`没有第 ${y} 行`, `there is no row ${y}`)
+    return make(table.w, 1, table.c, (x, _y, ch) => table.data[(y * table.w + x) * table.c + ch])
+  } },
   weightRow5: {
     about: t('五项权重组成一行', 'Five weights arranged in a row'),
     args: args('a', 'b', 'c', 'd', 'e'),

@@ -1,100 +1,173 @@
 {
-  "title": { "zh": "核速判", "en": "Kernel sprint" },
-  "tray": "pipeline",
-  "after": {
-    "zh": "你已经能从结果反推核：全正且和为 1 是平滑，越集中越接近原图；和为 0 的核只对变化有反应，是求导；中心大、四周为负是锐化；只有一个 1 是平移，挪的方向和 1 的位置相反。",
-    "en": "You can now work back from a result to its kernel. All positive and summing to 1 is smoothing, and the more concentrated, the closer to the original. A kernel that sums to 0 responds only to change: a derivative. A large centre with negative neighbours is sharpening. A single 1 is a shift, moving the opposite way from where the 1 sits."
-  },
+  "title": { "zh": "边的强弱和朝向", "en": "Edge strength and direction" },
   "intro": [
     {
       "t": {
-        "zh": "这一章的平均、高斯、差分、锐化，连同把图挪一格的平移，都能写成一个 3×3 核。熟练以后，看一眼处理前后的图，就该猜得出用了什么核。",
-        "en": "This chapter's average, Gaussian, difference and sharpen, along with the shift that moves an image by one pixel, can all be written as a 3×3 kernel. With practice, one look at an image before and after should tell you which kernel was used."
-      },
-      "fig": { "figure": "conv-press", "caption": { "zh": "核压过整张图", "en": "A kernel passing over the whole image" } }
-    },
-    {
-      "t": {
-        "zh": "台上每轮给一张输入和一张输出，下面四个元件各是一个核，数字按<part-ref to=\"kernel3\"></part-ref>元件的读法排列。选出做出这张输出的那一个。",
-        "en": "Each round, the bench shows an input and an output. Each of the four parts below is a kernel, with its numbers laid out the way the <part-ref to=\"kernel3\"></part-ref> part reads them. Pick the one that made this output."
-      }
-    },
-    {
-      "t": {
-        "zh": "一共十轮，对八轮过关，越往后给的时间越短，也可以关掉计时先练。要想的问题：不逐格去算，只扫一眼核里的数，你靠什么认出它？",
-        "en": "There are ten rounds, and eight right answers pass. Later rounds give you less time, and you can switch the timer off to practise first. Something to think about: without working it out cell by cell, just glancing at the numbers in a kernel, how do you recognise it?"
+        "zh": "纸放斜了，它的边在横向、竖向两张图里各只出现一半。把两张合成一张。",
+        "en": "With the paper askew, its edge shows only half in each of the two change maps. Combine them into one."
       }
     }
   ],
+  "after": {
+    "zh": "横、竖两个变化合成一支箭头，叫<wiki-ref to=\"gradient\"></wiki-ref>：长短是边有多陡，方向是变亮最快的方向，和边垂直。",
+    "en": "The two changes together make one arrow, the <wiki-ref to=\"gradient\"></wiki-ref>: its length says how steep the edge is, its direction is where brightness grows fastest, across the edge."
+  },
   "tasks": [
     {
-      "id": "1-10",
-      "kind": "board",
+      "id": "gradient",
+      "kind": "circuit",
+      "carry": "1-9",
       "brief": {
-        "zh": "看输入和输出，选出是哪个 3×3 核做的（按<part-ref to=\"kernel3\"></part-ref>元件的读法）。10 轮对 8 轮过关，越往后越快。",
-        "en": "Look at the input and the output, and pick the 3×3 kernel that made it (read the way the <part-ref to=\"kernel3\"></part-ref> part reads it). Get 8 of 10 rounds right to pass; it gets faster as you go."
+        "zh": "输出边的强弱和朝向（朝向以周为单位，往右为 0，往下为 1/4）。",
+        "en": "Output each edge’s strength and direction (direction in turns: 0 rightwards, 1/4 downwards)."
       },
-      "hint": {
-        "zh": "权重全正、和为 1：变软。正负相抵、和为 0：平坦处变 0。只有一个 1：整张图挪了一格。",
-        "en": "All weights positive, summing to 1: softer. Positives and negatives cancelling, summing to 0: flat areas become 0. A single 1: the whole image shifts by one pixel."
-      },
-      "bench": {
-        "model": "racer",
-        "setup": {
-          "kernels": [
-            { "id": "identity", "cells": [0, 0, 0, 0, 1, 0, 0, 0, 0], "div": 1 },
-            { "id": "right", "cells": [0, 0, 0, 1, 0, 0, 0, 0, 0], "div": 1 },
-            { "id": "down", "cells": [0, 1, 0, 0, 0, 0, 0, 0, 0], "div": 1 },
-            { "id": "box", "cells": [1, 1, 1, 1, 1, 1, 1, 1, 1], "div": 9 },
-            { "id": "gauss", "cells": [1, 2, 1, 2, 4, 2, 1, 2, 1], "div": 16 },
-            { "id": "hmean", "cells": [0, 0, 0, 1, 1, 1, 0, 0, 0], "div": 3 },
-            { "id": "sobelx", "cells": [-1, 0, 1, -2, 0, 2, -1, 0, 1], "div": 8 },
-            { "id": "sobely", "cells": [-1, -2, -1, 0, 0, 0, 1, 2, 1], "div": 8 },
-            { "id": "sharpen", "cells": [0, -1, 0, -1, 5, -1, 0, -1, 0], "div": 1 },
-            { "id": "laplace", "cells": [0, 1, 0, 1, -4, 1, 0, 1, 0], "div": 1 }
-          ],
-          "inputs": [
-            { "impulse": { "x": 7, "y": 7 } },
-            "square",
-            { "glyph": { "letter": "F" } },
-            { "glyph": { "letter": "L" } },
-            "disk",
-            { "stepX": { "edge": 8 } },
-            { "checker": { "cell": 4 } },
-            "corner"
-          ],
-          "rounds": 10,
-          "minGap": 0.15,
-          "time": { "start": 8, "step": 0.6, "min": 2.5 }
+      "adds": ["magnitude", "angle"],
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [
+        { "name": "strength", "label": { "zh": "强弱", "en": "Strength" } },
+        { "name": "direction", "label": { "zh": "朝向", "en": "Direction" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "photo": [
+              [0.2, 0.2, 0.2, 0.2, 0.2, 0.8],
+              [0.2, 0.2, 0.2, 0.2, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8],
+              [0.2, 0.8, 0.8, 0.8, 0.8, 0.8]
+            ]
+          },
+          "expect": {
+            "strength": [
+              [0, 0, 0, 0.8485281374238571, 2.683281572999748, 1.8973665961010278],
+              [0, 0, 0.8485281374238571, 2.545584412271571, 2.545584412271571, 0.8485281374238571],
+              [0, 0.8485281374238571, 2.545584412271571, 2.545584412271571, 0.8485281374238571, 0],
+              [0.8485281374238571, 2.545584412271571, 2.545584412271571, 0.8485281374238571, 0, 0],
+              [1.8973665961010278, 2.683281572999748, 0.8485281374238571, 0, 0, 0]
+            ],
+            "direction": [
+              [0, 0, 0, 0.125, 0.07379180882521663, 0.051208191174783375],
+              [0, 0, 0.125, 0.125, 0.125, 0.125],
+              [0, 0.125, 0.125, 0.125, 0.125, 0],
+              [0.125, 0.125, 0.125, 0.125, 0, 0],
+              [0.051208191174783375, 0.07379180882521663, 0.125, 0, 0, 0]
+            ]
+          }
         },
-        "knobs": { "untimed": { "toggle": true, "label": { "zh": "不限时", "en": "No time limit" } } },
-        "actions": [{ "id": "start", "act": "start", "label": { "zh": "开始", "en": "Start" }, "primary": true }],
-        "goal": [{ "of": "final", "atLeast": 8 }],
-        "layout": {
-          "head": [{ "progress": { "of": "dots" } }, { "chips": { "of": "score" } }, "knobs"],
-          "main": [
-            { "kernelRound": { "when": "playing" } },
-            {
-              "stack": [
-                { "text": { "of": "result", "look": "title", "unless": "playing" } },
-                {
-                  "text": {
-                    "text": {
-                      "zh": "每轮给出一张输入图、一张输出图和四个 3×3 核，请选出产生这张输出图的核。",
-                      "en": "Each round shows an input, an output and four 3×3 kernels. Pick the kernel that produced the output."
-                    },
-                    "look": "lede",
-                    "unless": "playing"
-                  }
-                },
-                { "chips": { "of": "rules", "look": "plain", "unless": "playing" } },
-                { "actions": { "unless": "playing" } }
+        {
+          "inputs": {
+            "photo": [
+              [0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.8, 0.8, 0.8]
+            ]
+          },
+          "expect": {
+            "strength": [
+              [0, 2.4000000000000004, 2.4000000000000004, 0, 0],
+              [0, 2.4000000000000004, 2.4000000000000004, 0, 0],
+              [0, 2.4000000000000004, 2.4000000000000004, 0, 0],
+              [0, 2.4000000000000004, 2.4000000000000004, 0, 0]
+            ],
+            "direction": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+          }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.58, 0.19, 0.97, 0.92, 0.47],
+              [0.66, 0.21, 0.22, 0.29, 0.69],
+              [0.21, 0.97, 0.07, 0.19, 0.09],
+              [0.77, 0.37, 0.47, 0.33, 0.64]
+            ]
+          },
+          "expect": {
+            "strength": [
+              [
+                1.6407315441594947,
+                0.9642613753542141,
+                3.0991934434623474,
+                2.065187642806339,
+                0.9504735661763567
               ],
-              "center": true
-            }
-          ],
-          "side": [{ "kernelChoices": { "when": "playing" } }, { "verdict": { "center": true, "when": "playing" } }],
-          "split": "even"
+              [
+                0.6243396511515182,
+                0.6935416353759879,
+                1.7534537347760277,
+                2.7783448310100027,
+                1.8866372200293304
+              ],
+              [
+                0.8300602387778854,
+                1.2258874336577563,
+                1.673439571660716,
+                0.7353910524340094,
+                0.521727898429823
+              ],
+              [1.1661903789690602, 1.0673331251301066, 0.9620810776644555, 1.339328189802634, 1.973068675946177]
+            ],
+            "direction": [
+              [
+                0.47467260346167833,
+                -0.11331845277303165,
+                -0.11918870477922179,
+                -0.3331026116046392,
+                0.4949757241041887
+              ],
+              [
+                -0.4113663696231858,
+                0.43134044191365734,
+                -0.24000911922880983,
+                -0.2235274226872224,
+                -0.22884802238324717
+              ],
+              [
+                0.10049894568883044,
+                0.4064164790945006,
+                0.4313130155925274,
+                0.06216704181099888,
+                -0.03380960613496518
+              ],
+              [
+                0.31157318283911795,
+                -0.46390384224467646,
+                0.44251263684982417,
+                0.18524740267948833,
+                0.18089847521595268
+              ]
+            ]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "w = const[kind=row3,first=-1,centre=0,last=1]()",
+        "s = const[kind=row3,first=1,centre=2,last=1]()",
+        "sy = line3[axis=y](photo,s)",
+        "x = line3[axis=x](sy,w)",
+        "sx = line3[axis=x](photo,s)",
+        "y = line3[axis=y](sx,w)",
+        "m = magnitude(x,y)",
+        "a = angle(x,y)",
+        "strength <- m",
+        "direction <- a"
+      ],
+      "sample": {
+        "inputs": {
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
+            "layers": [
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
+            ]
+          }
         }
       }
     }

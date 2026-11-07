@@ -44,7 +44,7 @@ Puzzle games that turn a course into levels, under `games/`, published as **Cour
 
 - `games/index.html`: the games hub; the list is in `games/games.js`.
 - A game's folder holds only its spec: its course, levels, tests, reference answers, intros and encyclopedia (`spec.js`, and `game.js` handing it to its domain). Everything that runs is in `games/kit/`. `npm run check` checks every game and `npm run build:games` builds them all, from `trace-viewer/` (`GAME=<id> npm run build:game` builds one). How the games are designed is in [`games/DESIGN.md`](games/DESIGN.md).
-- [Vision Complete](https://dravammonk.github.io/games/vision-complete/index.html): computer vision, 58 levels; spec in `games/vision-complete/` on the image domain, built into `/games/vision-complete/`.
+- [Vision Complete](https://dravammonk.github.io/games/vision-complete/index.html): computer vision, being remade chapter by chapter (11 levels so far); spec in `games/vision-complete/` on the vision domain, built into `/games/vision-complete/`.
 - [State Graph](https://dravammonk.github.io/games/state-graph/index.html): dynamic programming from zero, 69 levels across seven robots; spec in `games/state-graph/` (the level tree in `CURRICULUM.md`) on the table domain, built into `/games/state-graph/`.
 
 Build and preview the complete standalone site:
