@@ -244,6 +244,79 @@
     "replay",
     "oracle"
   ],
+  "trays": {
+    "gates": ["gNot", "gAnd", "gOr", "gImp", "gIff"],
+    "proof": [
+      "mp",
+      "impI",
+      "chain",
+      "merge",
+      "swap",
+      "axK",
+      "axS",
+      "andI",
+      "andE",
+      "orI",
+      "orE",
+      "botE",
+      "allI",
+      "allE",
+      "exI",
+      "exE",
+      "rewrite",
+      "refl",
+      "raa",
+      "lem",
+      "liar",
+      "dneg",
+      "arrow",
+      "dist",
+      "dm",
+      "iff",
+      "natInd"
+    ],
+    "machine": [
+      "anyR",
+      "swapConcl",
+      "consFront",
+      "mkRule",
+      "eachOf",
+      "keepBound",
+      "uDecompose",
+      "repeat",
+      "uDelete",
+      "uConflict",
+      "uEliminate",
+      "uSwap",
+      "uCheck",
+      "rule",
+      "assumption",
+      "erule",
+      "uPattern",
+      "unifier",
+      "frule",
+      "append",
+      "defer",
+      "search",
+      "introRules",
+      "elimRules",
+      "auto",
+      "rw",
+      "simp",
+      "hyp",
+      "skolem",
+      "toClauses",
+      "resolve",
+      "saturate",
+      "clausify",
+      "replay",
+      "metis",
+      "each",
+      "elimGen"
+    ],
+    "resolution": ["res"],
+    "certificate": ["clausify", "replay"]
+  },
   "concept": {
     "anyR": "rulecraft",
     "swapConcl": "rulecraft",
@@ -760,7 +833,6 @@
     {
       "id": "circuits",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [{ "id": "gates", "title": { "zh": "门", "en": "Gates" }, "levels": ["g-not", "g-and", "g-tree"] }]
@@ -801,7 +873,6 @@
     {
       "id": "kernel",
       "machine": "prover",
-      "keeps": [],
       "foundation": [
         "copy",
         {
@@ -859,7 +930,6 @@
     {
       "id": "packing",
       "machine": "prover",
-      "keeps": "all",
       "foundation": ["decl-and", "decl-check", "decl-strength", "decl-or", "decl-bot"],
       "topics": [
         {
@@ -885,7 +955,6 @@
     {
       "id": "boxes",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [
@@ -916,7 +985,6 @@
     {
       "id": "quantifiers",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         "fo-atoms",
         {
@@ -964,7 +1032,6 @@
     {
       "id": "qrules",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         { "parallel": [{ "id": "any", "title": { "zh": "任取", "en": "For any" }, "levels": ["q-allI"] }] },
         {
@@ -1036,7 +1103,6 @@
     {
       "id": "metavars",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [
@@ -1085,7 +1151,6 @@
     {
       "id": "tactics",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [
@@ -1123,7 +1188,6 @@
     {
       "id": "classical",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         "c-wall",
         "raa",
@@ -1170,7 +1234,6 @@
     {
       "id": "simplifier",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         "sp-rw",
         {
@@ -1198,7 +1261,6 @@
     {
       "id": "automation",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [
@@ -1268,7 +1330,6 @@
     {
       "id": "inductive",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [
@@ -1360,7 +1421,6 @@
     {
       "id": "terms",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [
@@ -1401,7 +1461,6 @@
     {
       "id": "equality",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [
@@ -1447,7 +1506,6 @@
     {
       "id": "structured",
       "machine": "prover",
-      "keeps": "all",
       "foundation": [
         {
           "parallel": [

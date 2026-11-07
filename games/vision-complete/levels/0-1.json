@@ -1,5 +1,6 @@
 {
   "title": { "zh": "睁眼", "en": "Open your eyes" },
+  "tray": "pipeline",
   "after": {
     "zh": "你看到的每一张图，都只是一格一格的数字。把鼠标停在任意一格上，看看它是多少。",
     "en": "Every image you see is just a grid of numbers, cell by cell. Hover over any cell to see its value."

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "窗口多大", "en": "How big a window?" },
+  "tray": "geometry",
   "after": {
     "zh": "没有对所有图都最好的窗口：大窗口抗噪但抹掉细节，小窗口保细节但怕噪声。很多视觉问题都是这种权衡。",
     "en": "No window is best for every image: a large window resists noise but wipes out detail; a small one keeps detail but is vulnerable to noise. Many vision problems involve this kind of trade-off."

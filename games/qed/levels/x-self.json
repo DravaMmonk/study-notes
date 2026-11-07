@@ -1,5 +1,6 @@
 {
   "title": { "zh": "不用框恒等", "en": "Identity without a box" },
+  "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
     {

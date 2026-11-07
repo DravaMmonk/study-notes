@@ -4,9 +4,9 @@
     {
       "id": "kk-three_1",
       "kind": "gates",
+      "tray": "gates",
       "step": { "zh": "翻译", "en": "Translate" },
       "blind": true,
-      "parts": ["gNot", "gAnd", "gOr", "gImp", "gIff"],
       "target": "KA ↔ ¬KA ∨ KB",
       "brief": {
         "zh": "岛上有 a、b 两人，a 说：「我是无赖，或者 b 是骑士。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。",
@@ -18,6 +18,7 @@
     {
       "id": "kk-three_2",
       "kind": "proof",
+      "tray": "proof",
       "step": { "zh": "证明", "en": "Prove" },
       "tests": [{ "premises": { "p": "A ↔ ¬A ∨ B" }, "goal": "A ∧ B" }],
       "cases": [{ "A": "KA", "B": "KB" }, { "A": "KC", "B": "KD" }],

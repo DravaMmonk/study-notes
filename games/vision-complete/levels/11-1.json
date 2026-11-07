@@ -1,5 +1,6 @@
 {
   "title": { "zh": "遮住一块", "en": "Cover a block" },
+  "tray": "recognition",
   "after": {
     "zh": "这就是遮挡实验：拿一块挡板在图上逐格移动，看分数掉多少，掉得多的地方就是模型在看的地方。它不用知道模型里面是什么，对 CNN、ViT 都能做，只是每个位置都要把模型重跑一遍。",
     "en": "This is the occlusion experiment: slide a patch over the picture cell by cell and watch how far the score drops; where it drops most is where the model is looking. It needs nothing from inside the model and works on a CNN or a ViT alike, at the price of running the model again for every position."

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "相机的三个数", "en": "A camera's three numbers" },
+  "tray": "pipeline",
   "after": {
     "zh": "一整条光谱，被三种感光元件压成三个数，这就是相机（和人眼）看到的颜色。",
     "en": "A whole spectrum, squeezed by three kinds of sensor into three numbers: that is the colour a camera (and an eye) sees."

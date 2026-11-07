@@ -1,5 +1,6 @@
 {
   "title": { "zh": "同一个问题", "en": "The same question" },
+  "tray": "pipeline",
   "after": {
     "zh": "所有图块用同一个查询（全 1）去问，分数就只看每块的总和，大家都看向同一块。ViT 在图块前面多放一个可学习的 [CLS] 图块，它的查询经过训练，专门替整张图提问，分类时只读它的输出。",
     "en": "When every patch asks with the same query (all ones), the score depends only on each patch's total, and they all look at the same patch. ViT puts an extra learnable [CLS] patch in front of the others; its query is trained to ask on behalf of the whole picture, and only its output is read to classify."

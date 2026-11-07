@@ -1,5 +1,6 @@
 {
   "title": { "zh": "长度相加", "en": "Lengths add up" },
+  "tray": "machine",
   "tasks": [
     {
       "id": "in-len",

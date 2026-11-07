@@ -1,5 +1,6 @@
 {
   "title": { "zh": "先去噪", "en": "Clean up first" },
+  "tray": "pipeline",
   "after": {
     "zh": "一点模糊换来安静的图，后面的步骤才不会被颗粒骗。图边要复制边缘，不然纸贴着边时会多出一圈暗框。",
     "en": "A little blur buys a quiet image, so the later steps are not fooled by grain. The border must replicate the edge, or paper touching it gains a dark frame."

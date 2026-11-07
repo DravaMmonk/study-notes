@@ -2,6 +2,7 @@
   "title": { "zh": "生成器遇上任取", "en": "The generator meets “any”" },
   "builds": "elimGen",
   "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf", "keepBound"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

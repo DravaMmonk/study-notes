@@ -1,5 +1,6 @@
 {
   "title": { "zh": "倒两次", "en": "Reversed twice" },
+  "tray": "machine",
   "after": { "zh": "这是 Isabelle 教程里的第一个定理。", "en": "This is the first theorem of the Isabelle tutorial." },
   "tasks": [
     {

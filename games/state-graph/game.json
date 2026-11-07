@@ -8,6 +8,26 @@
     "en": "No programming or algorithms background needed. Starting from counting routes by hand, you learn to break a big problem into a table and fill it in cell by cell; in the end you wire up the circuit boards that count routes, compare words and pack a backpack, and see why they are so fast."
   },
   "primitives": ["msum", "mmin", "mmax", "many", "const", "pass", "block", "add", "not", "mul"],
+  "trays": {
+    "main": [
+      "msum",
+      "const",
+      "pass",
+      "block",
+      "counter",
+      "many",
+      "mmin",
+      "mmax",
+      "add",
+      "min",
+      "not",
+      "cost",
+      "mul",
+      "choose",
+      "interval",
+      "value"
+    ]
+  },
   "concept": { "const": "pass", "many": "msum" },
   "parts": {
     "counter": {
@@ -150,7 +170,6 @@
     {
       "id": "scout",
       "machine": "scout",
-      "keeps": "all",
       "foundation": [
         "copy",
         "confluence",
@@ -193,7 +212,6 @@
     {
       "id": "ranger",
       "machine": "ranger",
-      "keeps": "all",
       "foundation": [
         "stairs",
         {
@@ -240,7 +258,6 @@
     {
       "id": "reach",
       "machine": "reach",
-      "keeps": "all",
       "foundation": [
         "frog",
         {
@@ -269,7 +286,6 @@
     {
       "id": "broom",
       "machine": "broom",
-      "keeps": "all",
       "foundation": ["prefix", "rising"],
       "chapter": {
         "title": { "zh": "一格多来路", "en": "Many ways in" },
@@ -305,7 +321,6 @@
     {
       "id": "stack",
       "machine": "stack",
-      "keeps": "all",
       "foundation": ["robber", "breach", "keydoor"],
       "chapter": {
         "title": { "zh": "状态不够用", "en": "When the state falls short" },
@@ -327,7 +342,6 @@
     {
       "id": "settle",
       "machine": "loop",
-      "keeps": "all",
       "foundation": ["loop"],
       "chapter": {
         "title": { "zh": "扫到不再变", "en": "Scan until it settles" },

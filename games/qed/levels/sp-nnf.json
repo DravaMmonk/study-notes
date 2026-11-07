@@ -1,5 +1,6 @@
 {
   "title": { "zh": "否定范式", "en": "Negation normal form" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

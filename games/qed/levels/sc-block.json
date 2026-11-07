@@ -5,6 +5,7 @@
     "Wet": { "zh": "C", "en": "C" }
   },
   "title": { "zh": "块套着块", "en": "Blocks in blocks" },
+  "tray": "proof",
   "intro": [{ "t": { "zh": "块里还可以套块。", "en": "A block can hold another block." } }],
   "tasks": [
     {

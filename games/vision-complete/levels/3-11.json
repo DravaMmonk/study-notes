@@ -1,5 +1,6 @@
 {
   "title": { "zh": "三盏灯", "en": "Three lamps" },
+  "tray": "pipeline",
   "after": {
     "zh": "三张照片按固定的系数相减，得到反射率乘上法线的三个分量 ρ·(nx, ny, nz)。法线长度是 1，所以这个向量的长度就是反射率 ρ，方向就是法线。三盏灯，三个方程，三个未知数（加上 ρ 一共四个数，靠「长度为 1」补上最后一个）。",
     "en": "Subtracting the three photos with fixed weights gives the reflectance times each component of the normal: ρ·(nx, ny, nz). A normal has length 1, so the length of this vector is the reflectance ρ and its direction is the normal. Three lamps, three equations, three unknowns (with ρ there are four numbers, and \"length 1\" supplies the last one)."

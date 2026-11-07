@@ -2,6 +2,7 @@
   "words": ["everyday", "terms", "stars", "vectors"],
   "symbolicWords": { "Bright": { "zh": "P({0})", "en": "P({0})" }, "Seen": { "zh": "Q({0})", "en": "Q({0})" } },
   "title": { "zh": "等量代换的证明项", "en": "The term of rewriting" },
+  "tray": "proof",
   "consts": ["i", "j", "k"],
   "showcase": {
     "zh": "证明板上点的框，就是证明项里没写出来的那部分：要证的那句里，哪几处是从等式一边换过来的，叫动机；核从要证的那句和后一个框的类型里把它读出来",

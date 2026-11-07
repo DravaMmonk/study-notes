@@ -1,5 +1,6 @@
 {
   "title": { "zh": "角点", "en": "Corners" },
+  "tray": "geometry",
   "after": {
     "zh": "你搭出了 Harris 角点检测：两个方向的变化都大，才是角。直边只有一个方向大，所以 det 小、R 为负。",
     "en": "You have built the Harris corner detector: it is a corner only when the change is large in both directions. A straight edge is large in only one direction, so det is small and R is negative."

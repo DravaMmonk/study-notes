@@ -1,5 +1,6 @@
 {
   "title": { "zh": "前向推理", "en": "One step forward" },
+  "tray": "machine",
   "builds": "frule",
   "intro": [
     {

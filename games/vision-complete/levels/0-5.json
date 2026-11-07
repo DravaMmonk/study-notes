@@ -1,5 +1,6 @@
 {
   "title": { "zh": "拉开对比", "en": "Stretch the contrast" },
+  "tray": "pipeline",
   "after": {
     "zh": "先挪、再放大，就把 [0.25, 0.75] 拉满了 [0, 1]。修图软件的「色阶」「对比度」做的就是这件事。顺序要紧：先放大再挪，挪的量就得跟着变。",
     "en": "Shift first, then scale, and [0.25, 0.75] fills all of [0, 1]. The \"levels\" and \"contrast\" tools in photo editors do exactly this. The order matters: scale first, and the amount you shift by has to change with it."

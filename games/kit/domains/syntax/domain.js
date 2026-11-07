@@ -3,6 +3,7 @@
 // is game.jsx.
 
 import { vocabulary } from './vocabulary.js'
+import { partNames } from '../../engine/trays.js'
 import { syntaxCourse } from './course.js'
 import { validate } from './validate.js'
 
@@ -20,4 +21,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate }
+export default { vocabulary, names: () => partNames(), spec, validate }

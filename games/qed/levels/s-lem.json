@@ -1,5 +1,6 @@
 {
   "title": { "zh": "auto 加一步反证法", "en": "auto, after one step by contradiction" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

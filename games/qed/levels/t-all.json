@@ -1,6 +1,7 @@
 {
   "consts": ["i"],
   "title": { "zh": "量词的证明项", "en": "Quantifiers’ proof terms" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

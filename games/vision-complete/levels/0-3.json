@@ -1,5 +1,6 @@
 {
   "title": { "zh": "斜着挪两格", "en": "Two steps diagonally" },
+  "tray": "pipeline",
   "after": {
     "zh": "元件可以一个接一个地串起来：前一个的输出就是后一个的输入。几个简单的元件串在一起，能做到单个元件做不到的事，这就是电路。",
     "en": "Parts can be chained one after another: the output of one is the input of the next. A few simple parts in a row can do what no single part can. That is a circuit."

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "亮度变了也配得上", "en": "Matching through a change of light" },
+  "tray": "geometry",
   "after": {
     "zh": "先让每个窗口减去自己的平均亮度，整体变亮就不影响距离了；再除以自己的标准差，连对比度变了也不怕。这就是归一化互相关（NCC）的想法，SIFT 描述子也会做类似的归一化。",
     "en": "Subtract each window's own mean brightness first, and an overall brightening no longer affects the distance; divide by its own standard deviation as well, and even a contrast change does not matter. This is the idea behind normalised cross-correlation (NCC), and SIFT descriptors are normalised in a similar way."

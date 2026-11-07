@@ -1,5 +1,6 @@
 {
   "title": { "zh": "要么成立，要么不成立", "en": "It holds or it does not" },
+  "tray": "proof",
   "builds": "lem",
   "intro": [
     {

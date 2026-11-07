@@ -1,5 +1,6 @@
 {
   "title": { "zh": "手算 1 + 1", "en": "One plus one by hand" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

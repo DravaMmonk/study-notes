@@ -1,5 +1,6 @@
 {
   "title": { "zh": "训不动的深网", "en": "The deep net that will not train" },
+  "tray": "pipeline",
   "after": {
     "zh": "直接堆叠时，每层的梯度都要乘上其余各层的权重，层一多就乘得几乎为 0（梯度消失），损失纹丝不动。把每层的输入加到它的输出上，y = F(x) + x，每块一开始就是“原样通过”，只需学残差 F(x) = H(x) − x，梯度也沿捷径直达每一层。这就是 ResNet 的残差连接。",
     "en": "When layers are simply stacked, each layer's gradient is multiplied by the weights of all the other layers; with many layers the product is almost 0 (vanishing gradients) and the loss does not budge. Add each layer's input to its output, y = F(x) + x, and every block starts out \"passing its input straight through\": it only has to learn the residual F(x) = H(x) − x, and the gradient reaches every layer directly along the shortcut. This is ResNet's residual connection."

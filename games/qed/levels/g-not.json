@@ -2,6 +2,7 @@
   "symbols": ["¬"],
   "title": { "zh": "不是不下雨", "en": "Not not raining" },
   "adds": ["gNot"],
+  "tray": "gates",
   "intro": [
     {
       "t": {

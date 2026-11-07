@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一个角一个点", "en": "One point per corner" },
+  "tray": "geometry",
   "after": {
     "zh": "响应图一过门槛就是一片，片里只有峰顶是真正的角。先算响应、再找峰，是所有检测器的固定套路：角点、直线、物体框都这样。",
     "en": "Above a threshold the response is a patch, and only its top is the real corner. Response first, then peaks: every detector follows this routine, for corners, lines and object boxes alike."

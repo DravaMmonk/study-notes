@@ -1,5 +1,6 @@
 {
   "title": { "zh": "蓝天与黄沙", "en": "Blue sky, yellow sand" },
+  "tray": "pipeline",
   "after": {
     "zh": "黄是红加绿，所以蓝黄的对比是「蓝 − 红绿的平均」：三个通道一起变亮时，正负互相抵消。同一个多通道核，换一组权重就看另一种颜色对比。训练好的 CNN 第一层里，红绿和蓝黄两组对比滤波器都很常见，人眼视网膜里的颜色对立也正是这两组。",
     "en": "Yellow is red plus green, so the blue–yellow contrast is \"blue − the average of red and green\": when all three channels brighten together, the plus and minus cancel. The same multichannel kernel, with other weights, sees another colour contrast. Both red–green and blue–yellow contrast filters are common in the first layer of a trained CNN, and they are exactly the two colour oppositions of the human retina."

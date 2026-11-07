@@ -1,5 +1,6 @@
 {
   "title": { "zh": "不用框换顺序", "en": "Reordering without a box" },
+  "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
     {

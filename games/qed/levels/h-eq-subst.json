@@ -1,5 +1,6 @@
 {
   "title": { "zh": "定义相等：代换", "en": "Defining equality: substitution" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

@@ -33,6 +33,7 @@
     }
   ],
   "adds": ["lrnConv"],
+  "tray": "pipeline",
   "tasks": [
     {
       "id": "4-12",

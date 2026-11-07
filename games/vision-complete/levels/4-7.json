@@ -1,5 +1,6 @@
 {
   "title": { "zh": "两种边都要", "en": "Both kinds of edge" },
+  "tray": "pipeline",
   "after": {
     "zh": "任何只含加、减和乘常数的组合都是线性的，正负号必然对称。「负数变 0、正数不变」叫 ReLU。中间插一个非线性，网络才能表达「两种都要」。这就是神经网络需要激活函数的原因。",
     "en": "Any combination of adding, subtracting and multiplying by constants is linear, so the signs are bound to be symmetric. \"Negatives become 0, positives stay\" is called ReLU. Only with a nonlinearity in between can a network express \"I want both\". This is why neural networks need activation functions."

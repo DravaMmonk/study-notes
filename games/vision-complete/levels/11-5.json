@@ -1,5 +1,6 @@
 {
   "title": { "zh": "注意力落在哪", "en": "Where the attention falls" },
+  "tray": "recognition",
   "after": {
     "zh": "V 换成掩膜，注意力加权平均出来的就是落在车上的权重之和。真的 ViT 有十几层、每层好几个头，要把各层的注意力连乘起来（attention rollout）或者看对分类贡献大的头；只看一个头，很容易被骗。",
     "en": "With the mask as V, the weighted average attention gives is the total weight on the car. A real ViT has a dozen layers of several heads each, so the attention of every layer is multiplied through (attention rollout), or only the heads that matter for the class are read; one head alone is easy to be fooled by."

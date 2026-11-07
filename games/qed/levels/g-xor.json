@@ -1,5 +1,6 @@
 {
   "title": { "zh": "只有一样", "en": "Exactly one" },
+  "tray": "gates",
   "after": { "zh": "这个连接词叫<b>异或</b>（XOR）。", "en": "This connective is <b>exclusive or</b> (XOR)." },
   "tasks": [
     {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "换一台相机", "en": "A different camera" },
+  "tray": "geometry",
   "after": {
     "zh": "只有乘积 f·b 要紧：焦距翻倍、基线减半，测出来的距离一模一样。挑相机时比的是这个乘积。",
     "en": "Only the product f·b matters: double the focal length and halve the baseline and the distances come out exactly the same. When choosing a camera, this product is what to compare."

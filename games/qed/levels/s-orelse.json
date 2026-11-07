@@ -1,6 +1,7 @@
 {
   "title": { "zh": "不行就换", "en": "Or else" },
   "adds": ["append"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

@@ -36,6 +36,7 @@
     }
   ],
   "adds": ["exp"],
+  "tray": "pipeline",
   "unlocks": ["sigmoid"],
   "tasks": [
     {

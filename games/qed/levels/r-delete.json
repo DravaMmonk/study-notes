@@ -1,6 +1,7 @@
 {
   "title": { "zh": "两边一样就删掉", "en": "Same on both sides" },
   "adds": ["uDelete", "uDecompose"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

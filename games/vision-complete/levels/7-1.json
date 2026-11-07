@@ -32,6 +32,7 @@
     }
   ],
   "adds": ["argmin4"],
+  "tray": "geometry",
   "unlocks": ["disparity"],
   "tasks": [
     {

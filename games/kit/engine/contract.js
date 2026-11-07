@@ -134,7 +134,8 @@ function hookProblems(course) {
     list('builds', course.builds(level)).forEach((p) => parts.add(p))
     list('granted', course.granted(level))
     list('uses', course.uses(level))
-    list('folds', course.folds(level))
+    const tray = course.tray(level)
+    if (tray !== null && typeof tray !== 'string') say(`tray(${at}) is neither a tray nor null`)
     list('declares', course.declares(level))
     list('carries', course.carries(level))
     const needed = course.needed(level)
@@ -153,6 +154,7 @@ function hookProblems(course) {
     const showcase = course.showcase(level)
     if (showcase !== null && !isText(showcase)) say(`showcase(${at}) is neither a reason nor null`)
   }
+  for (const [name, list] of Object.entries(course.trays)) if (!strings(list)) say(`tray ${name} is not a list of parts`)
   for (const p of parts) {
     const c = course.concept(p)
     if (c !== null && typeof c !== 'string') say(`concept(${p}) is neither a name nor null`)

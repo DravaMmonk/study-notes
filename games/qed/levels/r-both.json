@@ -1,6 +1,7 @@
 {
   "title": { "zh": "两边都有 ?", "en": "? on both sides" },
   "adds": ["uSwap", "uDecompose", "uConflict", "uEliminate"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

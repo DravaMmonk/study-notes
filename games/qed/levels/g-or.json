@@ -1,6 +1,7 @@
 {
   "symbols": ["∨"],
   "title": { "zh": "下雨或者刮风", "en": "Rain or wind" },
+  "tray": "gates",
   "builds": "gOr",
   "intro": [
     {

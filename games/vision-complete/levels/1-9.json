@@ -1,5 +1,6 @@
 {
   "title": { "zh": "猜核", "en": "Guess the kernel" },
+  "tray": "pipeline",
   "after": {
     "zh": "亮点的输出就是核本身（冲激响应）。但它是“卷积”的结果，而你的元件做的是“互相关”：要把核旋转 180° 才对得上。",
     "en": "The output for a bright dot is the kernel itself (the impulse response). But that is the result of a \"convolution\", while your part does \"cross-correlation\": you have to rotate the kernel by 180° to make them match."

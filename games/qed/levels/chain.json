@@ -1,5 +1,6 @@
 {
   "title": { "zh": "接起来", "en": "Join them" },
+  "tray": "proof",
   "builds": "chain",
   "intro": [
     {

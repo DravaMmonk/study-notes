@@ -83,7 +83,7 @@ export function renamePartRefs(ws, vocabulary, from, to) {
   let n = 0
   for (const [, value, schema, set] of files(ws, vocabulary)) {
     let v = value
-    for (const hit of find(schema, value, 'ref', { vocabulary })) if (hit.schema.kind === 'part' && hit.value === from) { v = setAt(v, hit.path, to); n++ }
+    for (const hit of [...find(schema, value, 'ref', { vocabulary }), ...find(schema, value, 'name', { vocabulary })]) if (hit.schema.kind === 'part' && hit.value === from) { v = setAt(v, hit.path, to); n++ }
     for (const t of find(schema, v, 'text', { vocabulary })) for (const s of texts(t.value)) {
       const renamed = s.value.replace(partLink(from), `$1${to}$2`)
       if (renamed !== s.value) { v = setAt(v, [...t.path, ...s.path], renamed); n++ }

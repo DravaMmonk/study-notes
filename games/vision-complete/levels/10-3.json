@@ -1,5 +1,6 @@
 {
   "title": { "zh": "排名表", "en": "The ranking" },
+  "tray": "recognition",
   "after": {
     "zh": "累加只要 4 次「平移再相加」就覆盖了 16 格：每次挪的格数翻倍。AP 是精确率—召回率曲线下的面积：对的越靠前，分越高；漏掉的标注拉低分母。",
     "en": "The running total covers 16 cells with only 4 rounds of \"shift and add\", the shift doubling each time. AP is the area under the precision–recall curve: the earlier the right ones, the higher the score, and missed labels raise the denominator."

@@ -2,6 +2,7 @@
   "title": { "zh": "每一条", "en": "One for each" },
   "builds": "elimGen",
   "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

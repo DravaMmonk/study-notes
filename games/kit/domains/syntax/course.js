@@ -3,22 +3,24 @@
 // and answers read into indices (model/sentence.js resolve), its era and what it requires, what it can mark (the roles
 // and constructions it has reached), and the course the shared audit checks (npm run check).
 //
-// syntaxCourse({ eras, levels, concept })
-//   eras     game.json's eras: [{ id, machine, title, kicker, question, keeps?, foundation }]
+// syntaxCourse({ eras, trays, levels, concept })
+//   eras     game.json's eras: [{ id, machine, title, kicker, question, foundation }]
+//   trays    game.json's trays (../../course.js trays)
 //   levels   [{ id, title, adds?, showcase?, intro?, debrief, tasks }] in any order, its tasks
 //            [{ id, step?, brief, hint?, intro?, after?, …sentence }] done in turn (../../engine/tasks.js), where
 //            …sentence is one sentence and its answer (model/sentence.js says how they are written)
 //   adds     the parts the level brings in: roles ('role:subj') and constructions ('pp'); every part, once brought in,
-//            stays for every level after it
+//            stays for every level after it that plays with a tray listing it
 //   concept  { part: idea } parts that are one new idea together (the roles of the skeleton, met as they are needed)
 // Returns { LEVELS, CHAPTERS, course }: each of LEVELS a new object, the level's fields with its tasks read (each
 // with its answer in indices, `gold`); nothing of the content is written to.
 
 import { defineCourse, eraLevels, layout, reach } from '../../course.js'
+import { trayIn } from '../../engine/trays.js'
 import { resolve } from './model/sentence.js'
 import { PARTS, roleKey } from './model/parts.js'
 
-export function syntaxCourse({ eras, levels, concept = {} }) {
+export function syntaxCourse({ eras, trays, levels, concept = {} }) {
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
@@ -31,6 +33,8 @@ export function syntaxCourse({ eras, levels, concept = {} }) {
   const course = defineCourse({
     levels: ordered.map((l) => ({ id: l.id, unlocks: [] })),
     eras,
+    trays,
+    tray: (level) => trayIn(trays, given.get(level.id)?.tray),
     primitives: PARTS,
     adds: (level) => given.get(level.id)?.adds ?? [],
     needs: () => null,

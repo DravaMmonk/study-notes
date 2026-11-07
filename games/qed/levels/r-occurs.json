@@ -1,6 +1,7 @@
 {
   "title": { "zh": "代不完", "en": "It never ends" },
   "adds": ["uCheck", "uDecompose", "uEliminate"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

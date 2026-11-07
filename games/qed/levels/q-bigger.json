@@ -1,5 +1,6 @@
 {
   "title": { "zh": "总有更大的", "en": "Always a bigger one" },
+  "tray": "proof",
   "tasks": [
     {
       "id": "q-bigger",

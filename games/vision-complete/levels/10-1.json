@@ -1,5 +1,6 @@
 {
   "title": { "zh": "重叠多少", "en": "How much overlap" },
+  "tray": "recognition",
   "after": {
     "zh": "IoU 在 0 到 1 之间：1 是完全重合，0 是不沾边。检测器画的框和标注的框 IoU 够大，才算找对了。",
     "en": "IoU lies between 0 and 1: 1 is a perfect overlap, 0 is not touching at all. A detector's box only counts as right when its IoU with the labelled box is large enough."

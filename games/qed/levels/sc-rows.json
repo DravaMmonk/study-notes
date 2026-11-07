@@ -5,6 +5,7 @@
     "Slip": { "zh": "C", "en": "C" }
   },
   "title": { "zh": "一句一个元件", "en": "A row is a part" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

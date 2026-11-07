@@ -1,5 +1,6 @@
 {
   "title": { "zh": "反证", "en": "Proof by contradiction" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

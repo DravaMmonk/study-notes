@@ -96,10 +96,11 @@ export const BLUEPRINT = S.obj({
   }), { min: 1, about: t('课程要教的本领域知识；元件是工具，不是知识点', 'the field knowledge the course teaches; a primitive is a tool, not a knowledge point') }),
   primitives: S.list(S.obj({ part: ID, about: S.text(), why: S.text({ about: t('为什么使用代码预设或基础元件，而不是保存玩家的实现', 'why a code preset or primitive is appropriate instead of a learner implementation') }) })),
   built: S.list(S.obj({ part: ID, about: S.text(), from: S.list(ID) })),
+  trays: S.opt(S.map(S.list(ID), { about: t('几套托盘，每套是一串元件：一种板一套，或换了话题的一章自己的一套；只有一套时不写', 'the trays, each a list of parts: one per kind of board, or a chapter changing topic plays with its own; left out for a single tray') })),
   eras: S.list(S.obj({
     id: S.int(),
     machine: ID,
-    keeps: S.opt(S.either(S.oneOf(['all']), S.list(ID))),
+    tray: S.opt(ID),
     title: S.text(),
     question: S.text(),
     why: S.text({ about: t('上一台机器为什么不够；第一章：从哪里起步', 'why the machine before is not enough; the first era: where it starts') }),
@@ -141,7 +142,7 @@ export const BLUEPRINT_RULES = {
   'bp-abstraction': 'the last series of an era stands on no part built in it',
   'bp-machine': 'a slot uses an ability its era’s machine lacks',
   'bp-challenge': 'a challenge brings something new or has no naive answer',
-  'bp-keeps': 'an era after the first does not say what it keeps',
+  'bp-tray': 'a blueprint of several trays with an era that does not say which it plays with',
   'bp-bare': 'a slot only places what it brings (report: a showcase or a real problem?)',
   'bp-lonely': 'a knowledge point on the main path has no practice slot after it (report: are its tasks and tests practice enough?)',
   'bp-heavy': 'a point that is not hard takes more than four slots (report: is every one a new facet, or padding?)',
@@ -172,7 +173,6 @@ export function erasOf(bp) {
     }
     return {
       id: era.id,
-      ...(era.keeps !== undefined ? { keeps: era.keeps } : {}),
       title: era.title,
       question: era.question,
       foundation: foundation.map((item) => (typeof item === 'string' ? item : { parallel: item.parallel })),
@@ -262,7 +262,7 @@ export function auditBlueprint(bp) {
     if (!bp.sources.some((src) => k.source.startsWith(src))) say('bp-source', k.id, `cites ${k.source}, no file of the sources`)
     if ([k.id, k.term.zh, k.term.en].map(low).some((n) => toolNames.has(n))) say('bp-part-point', k.id, 'it is named as a primitive')
   }
-  for (const [i, era] of bp.eras.entries()) if (i > 0 && era.keeps === undefined) say('bp-keeps', `era ${era.id}`, 'it does not say what it keeps')
+  if (Object.keys(bp.trays ?? {}).length > 1) for (const era of bp.eras) if (!bp.trays[era.tray]) say('bp-tray', `era ${era.id}`, era.tray ? `it plays with ${era.tray}, which is no tray` : 'it does not say which tray it plays with')
   if (out.some((f) => f.rule === 'bp-refs' || f.rule === 'bp-unique')) return out
 
   // Where each thing comes in: the slot that brings a knowledge point or a primitive, the slot that first builds a part. A part

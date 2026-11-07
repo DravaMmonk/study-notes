@@ -1,5 +1,6 @@
 {
   "title": { "zh": "两次等于一次", "en": "Twice is once" },
+  "tray": "generative",
   "after": {
     "zh": "展开以后，x₀ 前面的系数是 √(a1·a2)，两份噪声合起来正好是方差 1 − a1·a2 的一份噪声：两次加噪，和按 ᾱ = a1·a2 一次加噪是同一回事。所以扩散的每一步都能一步跳到。",
     "en": "Expand it and the coefficient of x₀ is √(a1·a2), while the two noises together are exactly one noise of variance 1 − a1·a2: adding noise twice is the same thing as adding it once with ᾱ = a1·a2. That is why any step of diffusion can be reached in one jump."

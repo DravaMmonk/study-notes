@@ -29,6 +29,7 @@
     }
   ],
   "adds": ["learn3"],
+  "tray": "pipeline",
   "unlocks": ["learn3"],
   "tasks": [
     {

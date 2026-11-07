@@ -1,5 +1,6 @@
 {
   "title": { "zh": "蕴涵析取互化", "en": "Arrows away" },
+  "tray": "proof",
   "builds": "arrow",
   "intro": [
     {

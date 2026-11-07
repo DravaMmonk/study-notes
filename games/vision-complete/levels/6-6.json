@@ -1,5 +1,6 @@
 {
   "title": { "zh": "投票", "en": "Voting" },
+  "tray": "geometry",
   "after": {
     "zh": "Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。",
     "en": "Hough turns \"find a line\" into \"find a peak in the accumulator\". With bins too fine, noise splits one line's votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are."

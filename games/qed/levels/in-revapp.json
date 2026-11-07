@@ -1,5 +1,6 @@
 {
   "title": { "zh": "倒过来拼", "en": "Reversing an append" },
+  "tray": "machine",
   "fact": "revApp",
   "intro": [
     {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "缩小一半", "en": "Half the size" },
+  "tray": "pipeline",
   "after": {
     "zh": "直接隔点取样，频率高于 8 的细纹会折回来，冒充成原图里没有的粗纹（莫尔纹），这就是混叠。先用高斯模糊把这些频率压下去，再取样：抗混叠必须发生在采样之前。拍照、缩略图都会遇到同一个问题。",
     "en": "Downsample directly and fine stripes above frequency 8 fold back, posing as coarse stripes the original never had (moiré). That is aliasing. Suppress those frequencies with a Gaussian blur first, then sample: anti-aliasing must happen before sampling. Cameras and thumbnails both face the same problem."

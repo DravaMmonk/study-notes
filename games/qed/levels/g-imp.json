@@ -1,5 +1,6 @@
 {
   "title": { "zh": "若下雨，则地湿", "en": "If it rains, the ground is wet" },
+  "tray": "gates",
   "builds": "gImp",
   "intro": [
     {

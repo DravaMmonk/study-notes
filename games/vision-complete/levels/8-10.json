@@ -1,5 +1,6 @@
 {
   "title": { "zh": "还原 x₀", "en": "Getting x₀ back" },
+  "tray": "generative",
   "after": {
     "zh": "只要知道噪声，原图一步就能还原。扩散模型要学的正是这件事：看着 x_t 猜出 ε。猜得越准，还原得越好。",
     "en": "Know the noise and the original comes back in one step. This is exactly what a diffusion model learns: looking at x_t, guess ε. The better the guess, the better the restoration."

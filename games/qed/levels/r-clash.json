@@ -1,6 +1,7 @@
 {
   "title": { "zh": "对不上", "en": "They do not fit" },
   "adds": ["uConflict", "uDecompose"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

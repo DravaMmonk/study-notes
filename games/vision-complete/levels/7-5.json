@@ -1,5 +1,6 @@
 {
   "title": { "zh": "三个数的叉积", "en": "Cross product of three numbers" },
+  "tray": "geometry",
   "after": {
     "zh": "叉积和两个向量都垂直。在齐次坐标里，一个点 (x, y, 1) 和一条线 (a, b, c) 都是三个数：两点的叉积是过它们的线，两线的叉积是它们的交点。",
     "en": "The cross product is perpendicular to both vectors. In homogeneous coordinates a point (x, y, 1) and a line (a, b, c) are both three numbers: the cross product of two points is the line through them, and of two lines it is the point where they meet."

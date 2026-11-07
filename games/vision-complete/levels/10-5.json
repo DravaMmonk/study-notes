@@ -1,5 +1,6 @@
 {
   "title": { "zh": "挪框", "en": "Nudging the box" },
+  "tray": "recognition",
   "after": {
     "zh": "修正量按锚框的大小来算，大框小框用同一套数；宽高用 e 的指数，修正是正是负都不会把框变成负的宽度。Faster R-CNN、YOLO 都这样回归框。",
     "en": "The corrections are scaled by the anchor's size, so big and small boxes use the same numbers; width and height go through e to the power, so whatever the sign of a correction, the box never gets a negative width. Faster R-CNN and YOLO both regress boxes like this."

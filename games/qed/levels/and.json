@@ -1,6 +1,6 @@
 {
   "title": { "zh": "两个都要", "en": "Both of them" },
-  "fold": ["axK", "axS"],
+  "tray": "proof",
   "intro": [
     {
       "t": {

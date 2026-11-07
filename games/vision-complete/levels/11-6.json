@@ -1,5 +1,6 @@
 {
   "title": { "zh": "热图里的车", "en": "The car in the heat map" },
+  "tray": "recognition",
   "after": {
     "zh": "遮挡图比贡献图宽一圈：挡板压在车边上时也盖住了一部分车，所以车周围也热起来。负数是反面证据，混进来会让比例变得没有意义，所以先截掉。Grad-CAM 最后也有一个 ReLU，道理相同：热图只画支持这个类别的地方。",
     "en": "The occlusion map is a ring wider than the contribution map: a patch on the edge of the car covers some of the car too, so the cells round it warm up as well. Negative cells are evidence against, and mixed in they make the fraction meaningless, so they are cut off first. Grad-CAM ends in a ReLU for the same reason: the heat map only shows what supports the class."

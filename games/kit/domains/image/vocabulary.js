@@ -7,6 +7,7 @@
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
+import { TRAY, TRAYS } from '../../engine/trays.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { PICTURES } from './items/pictures.js'
@@ -66,7 +67,7 @@ const ONCE = {
   intro: INTRO,
   unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  fold: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  tray: TRAY,
   grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件', 'setting options the level gives for its own play (it builds a part with one); never a part') })),
   packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { section: 'course', about: t('通关的电路成为一个元件：它的名字和说明', 'the passing circuit becomes a part: its name and description') })),
   showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
@@ -121,7 +122,6 @@ const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), t
 const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int({ min: 0 }),
-  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   foundation: S.list(ITEM),
   topics: S.opt(S.list(S.obj({ id: S.str(), levels, after: S.opt(AFTER) }))),
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
@@ -133,6 +133,7 @@ const GAME = S.obj({
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   power: S.obj({ title: TEXT, lines: S.list(TEXT) }, { about: t('第一次打开时的上电台词', 'the power-on lines on first opening') }),
   primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件', 'the parts no circuit builds') }),
+  trays: TRAYS,
   concept: S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') }),
   replaces: S.map(S.list(S.ref('part')), { about: t('一个元件出现后取代的元件', 'the parts a part supersedes once met') }),
   views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）', 'the level each way of drawing a picture comes with (pixels from the start)') }),

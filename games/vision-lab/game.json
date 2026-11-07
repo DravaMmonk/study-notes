@@ -37,6 +37,44 @@
     "channelMeasure",
     "convolve"
   ],
+  "trays": {
+    "main": [
+      "arithmetic",
+      "abs",
+      "shift",
+      "difference",
+      "less",
+      "alignedDifference",
+      "const",
+      "weightedLine",
+      "windowTable",
+      "reduceRows",
+      "restore",
+      "reverse",
+      "spatialProcessor",
+      "trim",
+      "magnitude",
+      "channel",
+      "channelMeasure",
+      "separable3",
+      "cosine",
+      "positions",
+      "wave",
+      "projection",
+      "expandRows",
+      "frequencyProbe",
+      "spectrum",
+      "max",
+      "synthesise",
+      "frequencyFilter",
+      "size",
+      "convolve",
+      "transpose",
+      "complexSpectrum",
+      "spectrum2D",
+      "synthesise2D"
+    ]
+  },
   "concept": {
     "abs": "arithmetic",
     "const": "arithmetic",
@@ -77,7 +115,6 @@
     },
     {
       "id": 1,
-      "keeps": "all",
       "title": { "zh": "邻域处理器与扫描器", "en": "Neighbourhood processor and scanner" },
       "question": {
         "zh": "怎样把邻居、方向与通道装成扫描响应？",
@@ -101,7 +138,6 @@
     },
     {
       "id": 2,
-      "keeps": "all",
       "title": { "zh": "频率分析与去干扰仪", "en": "Frequency analyser and interference remover" },
       "question": {
         "zh": "怎样把局部处理扩展到频率表示并保留空间信息？",

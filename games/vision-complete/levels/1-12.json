@@ -1,5 +1,6 @@
 {
   "title": { "zh": "5×5 平均", "en": "A 5×5 average" },
+  "tray": "pipeline",
   "after": {
     "zh": "两格的和挪两格再加一次，就是四格的和；再补一格就是五格。已经算过的部分和，挪一挪就能再用，平移不花计算量。这个「倍增」的想法以后还会出现：要的范围越大，省得越多。",
     "en": "The sum of two cells, shifted two along and added again, is the sum of four; one more cell makes five. A partial sum already worked out can be shifted and reused, and shifting costs nothing. This doubling idea will come up again: the bigger the reach, the more it saves."

@@ -1,6 +1,7 @@
 {
   "title": { "zh": "任取", "en": "For any" },
   "adds": ["allI"],
+  "tray": "proof",
   "showcase": {
     "zh": "任取框不开出假设，它管的是一个变量：框里的变量必须是新的，不能出现在还开着的假设里；光看说明，容易把它当成又一个假设框",
     "en": "the for-any box opens no assumption but a variable, which must be new: it may not occur in any hypothesis still open; from its description alone it is easy to take it for another assumption box"

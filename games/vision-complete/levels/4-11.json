@@ -1,5 +1,6 @@
 {
   "title": { "zh": "挪一格也不变", "en": "Unchanged by a one-pixel shift" },
+  "tray": "pipeline",
   "after": {
     "zh": "先让每格和右边、下边的邻居比一比，留下最大的，再隔点取样：每个 2×2 块只留下块里最强的那个数，点在块内挪动，答案不变。这就是最大池化。代价是丢掉了块内的精确位置。",
     "en": "First let each pixel compare itself with its neighbours to the right and below and keep the largest, then downsample: each 2×2 block keeps only its strongest value, and a point moving within its block does not change the answer. This is max pooling. The price is losing the exact position inside the block."

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "梯度大小", "en": "Gradient magnitude" },
+  "tray": "pipeline",
   "after": {
     "zh": "两个方向的坡度合成一个长度，边缘强度就和边的方向无关了：横边、竖边、斜边一样亮。方向本身是 atan2(gy, gx)，箭头总指向变亮最快的方向，在边上和边垂直。切到「坡度」画法看输入：箭头就画在每个像素上。",
     "en": "Combining the slopes in two directions into one length makes edge strength independent of edge direction: horizontal, vertical and diagonal edges are equally bright. The direction itself is atan2(gy, gx); the arrow always points where the brightness rises fastest, and on an edge it is perpendicular to the edge. Draw the input in the \"Slope\" view: the arrows are drawn at every pixel."

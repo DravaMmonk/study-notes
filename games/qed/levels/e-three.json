@@ -1,5 +1,6 @@
 {
   "title": { "zh": "三个人说话", "en": "Three islanders speak" },
+  "tray": "gates",
   "intro": [{ "t": { "zh": "三个人，表有八行。", "en": "Three people, and the table has eight rows." } }],
   "after": {
     "zh": "找一行使几句话同时为真，这类问题叫<wiki-ref to=\"satisfiable\"></wiki-ref>问题（SAT）。",

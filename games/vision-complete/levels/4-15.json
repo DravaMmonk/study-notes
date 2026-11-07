@@ -1,5 +1,6 @@
 {
   "title": { "zh": "红灯在哪", "en": "Where is the red light?" },
+  "tray": "pipeline",
   "after": {
     "zh": "「亮」看 R 本身，「红」看 R 比 G、B 多出多少，两个条件都满足才是红灯。只看一个通道，路灯和红车总有一个会混进来。网络的第一层要同时看所有通道，就是这个原因。",
     "en": "\"Bright\" looks at R itself; \"red\" looks at how much R exceeds G and B; a red light needs both. Looking at a single channel, either the street lamps or the red cars always get in. That is why a network's first layer looks at every channel at once."

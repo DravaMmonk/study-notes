@@ -1,5 +1,6 @@
 {
   "title": { "zh": "去网纹", "en": "Remove the screen" },
+  "tray": "pipeline",
   "after": {
     "zh": "一组规则的条纹，在频谱里只占一对点；照片本身的内容散在各处。把那对点挖掉，条纹就没了，照片几乎不受影响。修图软件的「去网纹」、去掉扫描件上的摩尔纹，都是这个办法。",
     "en": "A regular stripe pattern takes up just one pair of dots in the spectrum, while the photo's own content is spread all over. Dig out that pair and the stripes are gone, with the photo hardly touched. \"Descreen\" in photo editors, and removing moiré from scans, work this way."

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一个都不少", "en": "None lost" },
+  "tray": "machine",
   "intro": [{ "t": { "zh": "排序前后，列表一样长。", "en": "A list is as long after sorting as before." } }],
   "after": {
     "zh": "程序和它的性质写在同一个系统里，一并证明：这叫<b>程序验证</b>。",

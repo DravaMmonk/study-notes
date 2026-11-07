@@ -1,5 +1,6 @@
 {
   "title": { "zh": "找近邻", "en": "Nearest neighbour" },
+  "tray": "pipeline",
   "after": {
     "zh": "编码器把同一张图的各种变形放到特征空间里相近的地方，再按余弦相似度找最近的一个：这就是以图搜图。对比学习练出来的编码器，正好适合这件事。",
     "en": "The encoder puts the different versions of one picture close together in feature space; then the nearest one by cosine similarity is found. This is image search, and an encoder trained by contrastive learning is just right for it."

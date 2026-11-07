@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一串结果", "en": "A run of results" },
+  "tray": "machine",
   "showcase": {
     "zh": "一个元件现在给出所有对得上的结果，按顺序排成一串；后面的元件对每一种都做一遍，走不通的那几种自己消失：这就是回溯，光看说明想不到后面的元件会替前面的元件收拾残局",
     "en": "a part now gives every result that fits, in order; each later part works on each of them, and those that lead nowhere drop out: this is backtracking, and from the description alone one does not guess that later parts clear up after earlier ones"

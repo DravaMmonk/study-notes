@@ -1,5 +1,6 @@
 {
   "title": { "zh": "乘了再平均", "en": "Multiply, then average" },
+  "tray": "pipeline",
   "after": {
     "zh": "探针波和曲线逐点相乘再平均，别的频率互相抵消，只留下同一频率那道波振幅的一半，乘 2 就是它的振幅。换一个探针频率，就量另一道波。",
     "en": "Multiply a probe wave with the curve point by point and average: the other frequencies cancel, leaving half the amplitude of the wave at the probe's frequency, and twice that is its amplitude. Change the probe's frequency to measure another wave."

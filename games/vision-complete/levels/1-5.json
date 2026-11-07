@@ -1,5 +1,6 @@
 {
   "title": { "zh": "锐化", "en": "Sharpen" },
+  "tray": "pipeline",
   "after": {
     "zh": "原图减去模糊图，剩下的正是细节（高频）。把细节加回去，图就变“锐”了。",
     "en": "The original minus the blurred image leaves exactly the detail (the high frequencies). Add the detail back and the image becomes \"sharper\"."

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "合格的框", "en": "A box that counts" },
+  "tray": "recognition",
   "after": {
     "zh": "0.5 是 PASCAL VOC 的标准；COCO 把 0.5 到 0.95 的十个门槛都算一遍再平均，框要画得更准才拿得到分。",
     "en": "0.5 is the PASCAL VOC standard; COCO computes ten thresholds from 0.5 to 0.95 and averages them, so boxes have to be drawn more precisely to score."

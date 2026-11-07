@@ -1,5 +1,6 @@
 {
   "title": { "zh": "不是 0，就是后一个", "en": "Zero, or one after" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

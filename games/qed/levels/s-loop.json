@@ -1,5 +1,6 @@
 {
   "title": { "zh": "停不下来的搜索", "en": "A search that never stops" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

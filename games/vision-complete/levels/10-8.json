@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一只狗三个框", "en": "One dog, three boxes" },
+  "tray": "recognition",
   "after": {
     "zh": "一个物体附近好几个位置都过了门槛，就会框出好几个重叠的框。非极大值抑制只留下周围最强的那一个：检测器的最后一步几乎都是它。",
     "en": "When several positions round one object pass the threshold, you get several overlapping boxes. Non-maximum suppression keeps only the strongest round about: it is almost always a detector's last step."

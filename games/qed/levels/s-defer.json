@@ -1,6 +1,7 @@
 {
   "title": { "zh": "先证哪一个", "en": "Which goal first" },
   "adds": ["defer"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

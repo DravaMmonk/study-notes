@@ -1,6 +1,6 @@
 {
-  "fold": ["axK", "axS"],
   "title": { "zh": "二选一", "en": "One of two" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

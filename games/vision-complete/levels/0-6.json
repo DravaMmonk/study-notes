@@ -1,5 +1,6 @@
 {
   "title": { "zh": "门槛", "en": "The gate" },
+  "tray": "pipeline",
   "after": {
     "zh": "正确。你得到了<part-ref to=\"threshold\"></part-ref>：大于门槛 t 的格子变 1，其余变 0，t 由你来定。只有 0 和 1 的图叫掩膜，用来标出图里的某块区域。",
     "en": "Correct. You now have <part-ref to=\"threshold\"></part-ref>: cells above the threshold t become 1 and the rest 0, and you choose t. An image of only 0s and 1s is called a mask; it marks out a region of the picture."

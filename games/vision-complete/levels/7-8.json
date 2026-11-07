@@ -1,5 +1,6 @@
 {
   "title": { "zh": "点在线上吗", "en": "Is the point on the line?" },
+  "tray": "geometry",
   "after": {
     "zh": "一个点在线上，当且仅当 q·l′ = qᵀF p = 0：这就是对极约束。它不告诉你配的是哪个点，只排除不可能的点，所以常用来筛掉错配。",
     "en": "A point lies on the line exactly when q·l′ = qᵀF p = 0: this is the epipolar constraint. It does not say which point is the match, only rules out impossible ones, so it is often used to throw out wrong matches."

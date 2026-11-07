@@ -1,5 +1,6 @@
 {
   "title": { "zh": "引理也是证明项", "en": "A lemma is a term too" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

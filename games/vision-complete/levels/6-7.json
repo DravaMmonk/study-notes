@@ -1,5 +1,6 @@
 {
   "title": { "zh": "车道线", "en": "Lane lines" },
+  "tray": "geometry",
   "after": {
     "zh": "亮点、投票、找峰：Hough 把「找一条线」变成「在累加器里找峰」，挡掉了零散的杂点，线断了几段也照样找得到。车道保持系统的第一代就是这么做的。",
     "en": "Points, votes, peaks: Hough turns \"find a line\" into \"find a peak in the accumulator\", which ignores scattered specks and still finds a line broken into pieces. The first lane-keeping systems worked exactly like this."

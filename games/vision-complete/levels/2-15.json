@@ -1,5 +1,6 @@
 {
   "title": { "zh": "分两次缩", "en": "Shrink in two steps" },
+  "tray": "pipeline",
   "after": {
     "zh": "小模糊、减半，再小模糊、减半：每一层都只做便宜的事，越往下越便宜。这样一层层缩小的图叫图像金字塔，缩略图、多尺度的特征检测都靠它。",
     "en": "A small blur and a halving, then a small blur and a halving again: each level does only cheap work, and each is cheaper than the last. A picture shrunk level by level like this is an image pyramid; thumbnails and multi-scale feature detection rely on it."

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "大的小的都要", "en": "Large and small alike" },
+  "tray": "recognition",
   "after": {
     "zh": "同一个检测器，在原图上找小的，在缩小的图上找大的，再把结果放大回来合在一起：这就是图像金字塔上的多尺度检测。FPN 在网络内部做同样的事。",
     "en": "The same detector finds small things on the original and large things on a shrunken copy, and the results are enlarged back and merged: this is multi-scale detection on an image pyramid. FPN does the same thing inside the network."

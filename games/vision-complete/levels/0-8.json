@@ -1,5 +1,6 @@
 {
   "title": { "zh": "暗箱", "en": "Camera obscura" },
+  "tray": "pipeline",
   "after": {
     "zh": "像高只看比例：x = −f·X/Z，屏幕离孔越远、物体离孔越近，像越大，而且总是倒的。孔越大，同一点的光在屏上铺成越大的斑 D·(Z+f)/Z，像越亮也越糊；屏幕拉近也更亮。",
     "en": "Image height depends only on a ratio: x = −f·X/Z. The farther the screen is from the hole and the nearer the object, the bigger the image, and it is always upside down. The bigger the hole, the bigger the spot D·(Z+f)/Z that light from one point spreads into on the screen, so the image gets brighter and blurrier; moving the screen closer also makes it brighter."

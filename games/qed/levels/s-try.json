@@ -1,5 +1,6 @@
 {
   "title": { "zh": "可做可不做", "en": "A step that may not apply" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

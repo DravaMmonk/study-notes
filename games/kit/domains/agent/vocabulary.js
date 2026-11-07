@@ -9,6 +9,7 @@
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
+import { TRAY, TRAYS } from '../../engine/trays.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -74,6 +75,7 @@ const ONCE = {
   after: S.text(),
   note: S.opt(S.text()),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+  tray: TRAY,
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
 }
 // A task: a hand session or a board, with its brief, its hints and the window of its machine.
@@ -109,7 +111,6 @@ const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int(),
   machine: S.ref('machine'),
-  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   title: S.text(),
   question: S.text(),
   foundation: S.list(ITEM),
@@ -122,6 +123,7 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   primitives: S.list(S.ref('part')),
+  trays: TRAYS,
   machines: S.obj(Object.fromEntries(Object.entries(MACHINES).map(([k, m]) => [k, S.opt(m.params)])), { about: t('每种机器的窗口和轮数', 'each machine’s window and turns') }),
   eras: S.list(ERA, { min: 1 }),
   repos: S.map(REPO),

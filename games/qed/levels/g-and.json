@@ -2,6 +2,7 @@
   "symbols": ["∧"],
   "title": { "zh": "下雨，但没刮风", "en": "Rain, but no wind" },
   "adds": ["gAnd"],
+  "tray": "gates",
   "intro": [
     {
       "t": {

@@ -46,6 +46,7 @@ import { packed, sink, source, withSettings } from './boards.js'
 import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
 import { taskLevel, taskLevels } from './tasks.js'
+import { TRAY, TRAYS, partNames, trayIn } from './trays.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, SHOW, TASK_VIEWS, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
@@ -144,7 +145,7 @@ export const primitivesOnly = (board, parts) => ({ BUILT: {}, partOf: (t) => boa
 /* ---------- the course ---------- */
 
 export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, pack = () => ({}), holds = false, replaces = () => [], unwanted = () => [] }) {
-  const { eras, primitives, levels, concept = {} } = content
+  const { eras, trays, primitives, levels, concept = {} } = content
   const wrong = []
   const say = (where, text) => wrong.push(`${where}: ${text}`)
   const plan = layout(eras)
@@ -238,6 +239,8 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const course = defineCourse({
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: L.builds ? [L.builds.type] : [] })),
     eras,
+    trays,
+    tray: (level) => trayIn(trays, given.get(level.id)?.tray),
     primitives,
     adds: (level) => (taskOf(level) ?? byId.get(level.id))?.adds ?? [],
     needs: (part) => (builderOf.has(part) ? part : null),
@@ -389,6 +392,7 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show:
     afterShow: S.opt({ ...SHOW, about: t('点题旁显示的一个值', 'a value shown beside the pass text') }),
     note: S.opt(S.text()),
     adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
+    tray: TRAY,
     builds,
     showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么', 'a new part may have a level that only places it: why') })),
   }, kinds ? S.by('kind', { circuit: kind('circuit', board), ...Object.fromEntries(Object.entries(kinds).map(([k, fields]) => [k, kind(k, { ...own, ...fields })])) }) : board)
@@ -404,7 +408,6 @@ const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), t
 const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int(),
-  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   title: S.text(),
   question: S.text(),
   foundation: S.list(ITEM),
@@ -417,12 +420,16 @@ export const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   primitives: S.list(S.ref('part')),
+  trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
   views: GAME_VIEWS,
 })
 
 /* ---------- the spec ---------- */
+
+/** A circuit game's part names (domain.js names): the parts its levels build. */
+export const circuitNames = (content) => partNames(content.levels.filter((l) => l.builds).map((l) => l.builds.type))
 
 export const circuitSpec = (domain, courseOf) => (content) => {
   const circuit = courseOf(content)

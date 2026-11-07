@@ -1,5 +1,6 @@
 {
   "title": { "zh": "补边", "en": "Padding" },
+  "tray": "pipeline",
   "after": {
     "zh": "补 0 等于在图外画了一圈黑框，平均时把黑色混了进来。复制边缘的平移拼出的平均就不会发黑。",
     "en": "Padding with 0 draws a black frame round the image, and averaging mixes that black in. Built from shifts that replicate the edge, the average does not darken."

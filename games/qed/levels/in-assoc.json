@@ -1,5 +1,6 @@
 {
   "title": { "zh": "结合", "en": "Associativity" },
+  "tray": "machine",
   "fact": "addAssoc",
   "tasks": [
     {

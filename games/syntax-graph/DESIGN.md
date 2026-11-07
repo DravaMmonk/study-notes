@@ -137,7 +137,7 @@ syntax.test.js       npm test：折、拒绝、对照，词汇表的 schema 和�
 | 3-7 藏起来的从句 | 辨真伪：省略关系词 + 介词留在句尾 | The data the model was trained on came from three hospitals. |
 | 3-8 一句数据集说明 | 组合 | The dataset that we release with this paper contains images that were collected from public sources in 2023. |
 
-三章都是同一台“读者”，后一章延续前一章（`game.json` 里 `"keeps": "all"`）：学过的结构一直能用。
+三章都是同一台“读者”，后一章延续前一章（`game.json` 里只有一套托盘）：学过的结构一直能用。
 
 ## 6. 以后的章节（未做）
 

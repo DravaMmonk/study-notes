@@ -1,5 +1,6 @@
 {
   "title": { "zh": "更圆的模糊", "en": "A rounder blur" },
+  "tray": "pipeline",
   "after": {
     "zh": "平均一次是方的，平均三次几乎就是高斯了。平滑叠平滑会越来越像高斯，所以高斯在视觉里无处不在。",
     "en": "Averaging once gives a square; averaging three times is almost a Gaussian. Smoothing on top of smoothing looks more and more like a Gaussian, which is why Gaussians are everywhere in vision."

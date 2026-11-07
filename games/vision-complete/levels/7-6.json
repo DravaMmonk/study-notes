@@ -1,5 +1,6 @@
 {
   "title": { "zh": "两线交点", "en": "Where two lines meet" },
+  "tray": "geometry",
   "after": {
     "zh": "两次叉积就找到了交点，不用解方程。三个数 (X, Y, W) 表示点 (X/W, Y/W)；两条线平行时 W = 0，交点在无穷远处，齐次坐标照样写得出来。",
     "en": "Two cross products find the meeting point with no equations to solve. Three numbers (X, Y, W) stand for the point (X/W, Y/W); when the lines are parallel W = 0 and they meet at infinity, which homogeneous coordinates can still write down."

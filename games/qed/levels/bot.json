@@ -1,6 +1,6 @@
 {
   "title": { "zh": "矛盾", "en": "Contradiction" },
-  "fold": ["axK", "axS"],
+  "tray": "proof",
   "symbols": ["⊥"],
   "intro": [
     {

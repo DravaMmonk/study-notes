@@ -1,5 +1,6 @@
 {
   "title": { "zh": "反过来证", "en": "Proving it backwards" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

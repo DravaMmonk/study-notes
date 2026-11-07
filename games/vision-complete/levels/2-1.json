@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一道波", "en": "One wave" },
+  "tray": "pipeline",
   "after": {
     "zh": "c 定中线，也就是平均亮度；A 定起伏的高度，也就是明暗差；k 定一行里有几个周期，也就是条纹的疏密；φ 定条纹往哪边挪。写成式子就是 c + A·cos(2π·k·x/32 + φ)。",
     "en": "c sets the middle line, the average brightness; A sets the height of the swing, the contrast; k sets how many cycles fit in the row, the density of the stripes; and φ sets which way the stripes are shifted. As a formula: c + A·cos(2π·k·x/32 + φ)."

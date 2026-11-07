@@ -1,5 +1,6 @@
 {
   "title": { "zh": "相机抖了", "en": "A shaky camera" },
+  "tray": "pipeline",
   "after": {
     "zh": "从几对例子里学到的核，换成没见过的照片照样对：这才是学会了，而不是背下了。训练面板里，训练误差是在用来学的样本上算的，新样本误差是在没给它看过的样本上算的。后面判断一个模型好不好，看的都是后者。",
     "en": "A kernel learned from a few example pairs works just as well on photos it has never seen: that is learning, not memorising. In the training panel, the training error is measured on the samples it learns from, and the new-sample error on samples it was never shown. From now on, a model is judged by the second."

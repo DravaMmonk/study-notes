@@ -1,5 +1,6 @@
 {
   "title": { "zh": "累加器求和", "en": "Summing with an accumulator" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

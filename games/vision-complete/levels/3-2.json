@@ -1,5 +1,6 @@
 {
   "title": { "zh": "补一盏灯", "en": "Add a fill light" },
+  "tray": "pipeline",
   "after": {
     "zh": "光是相加的：两盏灯照出的亮度，等于各自照出的亮度之和。背对补光的那一面得不到补光，亮度不会变成负数，所以要在 0 截住。摄影棚里的主光加补光、游戏里的多光源，都是这样一盏一盏加起来的。",
     "en": "Light adds up: the brightness under two lamps is the sum of what each gives on its own. The side facing away from the fill light gets none of it, and brightness cannot be negative, so it is cut off at 0. A key light plus a fill light in a studio, or many lights in a game, are added up lamp by lamp just like this."

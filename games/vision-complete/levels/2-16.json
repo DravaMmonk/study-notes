@@ -1,5 +1,6 @@
 {
   "title": { "zh": "缩略图服务", "en": "Thumbnail service" },
+  "tray": "pipeline",
   "after": {
     "zh": "缩略图服务每天要处理成千上万张照片：先低通再采样防止混叠，一层层缩小省下计算量。作业 1 比较直接卷积、可分离卷积和 FFT 的速度，比的也是同一笔账。",
     "en": "A thumbnail service handles thousands of photos a day: low-pass before sampling against aliasing, and shrinking level by level to save work. Assignment 1, comparing the speed of direct convolution, separable convolution and the FFT, does the same accounting."

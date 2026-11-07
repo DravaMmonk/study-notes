@@ -1,5 +1,6 @@
 {
   "title": { "zh": "凹坑检测", "en": "Dent detector" },
+  "tray": "pipeline",
   "after": {
     "zh": "凹坑检测台用的就是光度立体：几盏灯轮流打光，解出每一点的朝向，坑和划痕在朝向图里一目了然，漆色深浅完全不影响。手机拍证件、工厂查钢板表面，都有这样的做法。",
     "en": "This dent detector is photometric stereo at work: a few lamps light the part in turn, the facing at every point is solved, and dents and scratches stand out in the map of facings, whatever the paint does. Document scanning on phones and steel-sheet inspection in factories use the same approach."

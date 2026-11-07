@@ -1,5 +1,6 @@
 {
   "title": { "zh": "S 加在右边", "en": "S on the right" },
+  "tray": "machine",
   "fact": "addSucc",
   "tasks": [
     {

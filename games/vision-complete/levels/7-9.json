@@ -1,5 +1,6 @@
 {
   "title": { "zh": "极点在哪", "en": "Where is the epipole?" },
+  "tray": "geometry",
   "after": {
     "zh": "极点是另一台相机的光心在这张图里的位置：所有极线都从它发出。它垂直于 F 的每一列，所以是两列的叉积，也就是 Fᵀe′ = 0 的解。",
     "en": "The epipole is where the other camera's centre appears in this image: every epipolar line comes out of it. It is perpendicular to every column of F, so it is the cross product of two columns: the solution of Fᵀe′ = 0."

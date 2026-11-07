@@ -1,6 +1,7 @@
 {
   "title": { "zh": "逆用规则", "en": "A rule backwards" },
   "adds": ["rule"],
+  "tray": "machine",
   "showcase": {
     "zh": "逆用规则不是从已知往下推，而是对着目标往回推：目标和规则的结论合一，换成规则的前提",
     "en": "the rule part does not reason down from what is known but back from the goal: the goal is unified with the rule’s conclusion and replaced by its premises"

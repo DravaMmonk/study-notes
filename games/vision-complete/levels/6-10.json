@@ -1,5 +1,6 @@
 {
   "title": { "zh": "方向直方图", "en": "Orientation histogram" },
+  "tray": "geometry",
   "after": {
     "zh": "SIFT 描述子把关键点周围分成 4×4 个小格，每格做一个 8 个方向的直方图，一共 128 个数。方向按梯度分，幅值当票数：边往哪个方向变亮，这一格就往那个方向投票。",
     "en": "A SIFT descriptor divides the area round a keypoint into 4×4 small cells and makes an 8-direction histogram in each, 128 numbers in all. Directions follow the gradient and the magnitude is the vote: whichever way an edge brightens, the cell votes that way."

@@ -8,6 +8,7 @@
     "en": "What is inside a coding agent? Starting from one model call, you decide what it sees, what it may do and when it is done: first you fetch its files, then it reads and looks for itself, and goes on until the tests pass. What you end up with is an agent that takes an issue and fixes it on its own."
   },
   "primitives": ["model", "concat", "read", "list", "test"],
+  "trays": { "main": ["model", "concat", "read", "list", "test"] },
   "machines": { "hand": { "window": 3000 }, "once": { "window": 2500 }, "loop": { "window": 4000, "turns": 12 } },
   "eras": [
     {
@@ -20,7 +21,6 @@
     {
       "id": 1,
       "machine": "once",
-      "keeps": "all",
       "title": { "zh": "一问一答", "en": "One call" },
       "question": { "zh": "只能问一次，要给它看什么？", "en": "One call only: what do you show it?" },
       "foundation": ["1-1", "1-2", "1-3"],
@@ -29,7 +29,6 @@
     {
       "id": 2,
       "machine": "loop",
-      "keeps": "all",
       "title": { "zh": "循环", "en": "The loop" },
       "question": { "zh": "让它自己去拿，什么时候停？", "en": "Let it fetch for itself: when does it stop?" },
       "foundation": ["2-1", "2-2", "2-3"],

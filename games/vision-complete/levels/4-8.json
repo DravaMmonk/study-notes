@@ -1,5 +1,6 @@
 {
   "title": { "zh": "取较大", "en": "The larger one" },
+  "tray": "pipeline",
   "after": {
     "zh": "max(a, b) = b + ReLU(a − b)：a 大就补上多出的那一截，b 大就什么也不补。",
     "en": "max(a, b) = b + ReLU(a − b): if a is bigger, add the amount it is bigger by; if b is bigger, add nothing."

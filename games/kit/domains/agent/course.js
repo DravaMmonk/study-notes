@@ -15,6 +15,7 @@
 // into the content.
 import { defineCourse, eraLevels, layout, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
+import { trayIn } from '../../engine/trays.js'
 import { fixedOf, fromText, toText } from './board.js'
 import { opOf } from './hand.js'
 import { filesOf } from './world.js'
@@ -80,6 +81,8 @@ export function agentCourse(content) {
   const course = defineCourse({
     levels: LEVELS.map((L) => ({ id: L.id, unlocks: [] })),
     eras,
+    trays: content.trays,
+    tray: (level) => trayIn(content.trays, byId.get(level.id)?.tray),
     primitives,
     adds: (level) => byId.get(level.id)?.adds ?? [],
     needs: () => null,

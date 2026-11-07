@@ -1,5 +1,6 @@
 {
   "title": { "zh": "挡板多大", "en": "How big a patch" },
+  "tray": "recognition",
   "after": {
     "zh": "挡板越大，热图越平滑、越粗：一块挡板盖住的地方多，分到每格的就模糊了。挡板太小，又可能一块也盖不住模型认的那个部件。实际做遮挡实验，挡板大小要跟物体的部件差不多大。",
     "en": "The bigger the patch, the smoother and coarser the heat map: each patch covers more, so what it finds is smeared over more cells. Too small a patch, though, may never cover the whole part the model recognises. In practice the patch is chosen about the size of the object's parts."

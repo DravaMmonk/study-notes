@@ -1,5 +1,6 @@
 {
   "title": { "zh": "分成几类", "en": "Into classes" },
+  "tray": "recognition",
   "after": {
     "zh": "分两类、各求中心、再分：这是 k 均值的一步。重复几步，分界就停在两堆像素之间。",
     "en": "Split into two, find each centre, split again: that is one step of k-means. Repeat a few steps and the boundary settles between the two heaps of pixels."

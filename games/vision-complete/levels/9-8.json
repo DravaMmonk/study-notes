@@ -1,5 +1,6 @@
 {
   "title": { "zh": "细线不见了", "en": "The thin line is gone" },
+  "tray": "recognition",
   "after": {
     "zh": "把放大回来的粗结果和原尺寸的细结果合起来：粗的一路挡住噪点，细的一路留下细节。这条从编码器直接连到解码器的线叫跳连，U-Net 每一层都有。",
     "en": "Combine the coarse result enlarged back with the fine result at full size: the coarse path keeps out the grain, the fine path keeps the detail. This line straight from encoder to decoder is called a skip connection, and U-Net has one at every level."

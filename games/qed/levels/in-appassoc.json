@@ -1,5 +1,6 @@
 {
   "title": { "zh": "拼接也结合", "en": "Append associates too" },
+  "tray": "machine",
   "fact": "appAssoc",
   "tasks": [
     {

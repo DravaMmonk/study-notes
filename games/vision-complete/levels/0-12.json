@@ -1,5 +1,6 @@
 {
   "title": { "zh": "质检台", "en": "Inspection station" },
+  "tray": "pipeline",
   "after": {
     "zh": "质检台做的三件事：先把灯光补回来，再和标准件逐格相减，最后两边各取一次阈值、合在一起。工厂里的视觉检测，第一版常常就是这样：参照、对齐、比较。",
     "en": "The station does three things: restore the lighting, subtract the reference cell by cell, then threshold each side and combine. Machine-vision inspection in factories often starts out exactly like this: a reference, alignment, a comparison."

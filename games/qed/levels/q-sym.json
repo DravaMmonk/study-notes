@@ -1,5 +1,6 @@
 {
   "title": { "zh": "倒过来也相等", "en": "Equal both ways" },
+  "tray": "proof",
   "tasks": [
     {
       "id": "q-sym",

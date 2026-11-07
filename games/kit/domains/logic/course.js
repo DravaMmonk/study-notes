@@ -4,12 +4,13 @@
 // a proof level with `builds` makes the lemma game.json lemmas[type] a part, a truth circuit a gate (gates.js
 // builtGates), a machine level a machine part (machine.js builtParts); every one runs the player's board (a lemma, the
 // proof of each of its shapes: lemmaProofs).
-import { defineCourse, eraLevels, formsAt, layout, numbered, offer, reach, usable } from '../../course.js'
+import { defineCourse, eraLevels, formsAt, layout, met, numbered, offer, usable } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
+import { trayIn } from '../../engine/trays.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
-import { MACHINE_PARTS, axiomPartsOf, builtParts, rulePartsOf, startMachine } from './machine.js'
+import { MACHINE_PARTS, axiomPartsOf, builtParts, startMachine } from './machine.js'
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
@@ -46,14 +47,16 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  *   machines    [type] the machine-board parts the player builds (machine.js, named in ui/catalog.js MACHINE_TEXT): a
  *               level with `builds` one of them unlocks it, and the part runs that level's board
  *   local       [part] parts that stay in the levels that bring them, never unlocked or carried on (../../course.js)
+ *   trays       { tray: [part] } the trays (../../course.js): one per kind of circuit board (the truth circuit, the
+ *               proof board, the machine board), and one for a scene that plays with its own parts alone
  *   primitives  the rules the course starts from
  *   concept     { part: idea } parts that are one new idea together
  * }
  * A level is its tasks in order (`tasks: [{ id, kind, step?, brief, … }]`, ../../engine/tasks.js, one for most
  * levels): each is the level with what the task says over it, read like a level of its own (readTasks); the level
- * says once its title, introduction, pass text and place in the course, and what its tasks share. A task in another
- * kind than the level's parts names the parts it holds (`parts: [part]`, the ones the player has), as a truth circuit
- * that translates a puzzle before the proof does.
+ * says once its title, introduction, pass text and place in the course, and what its tasks share. A task on a circuit
+ * board plays with a tray (`tray`, the level's or its own: a truth circuit that translates a puzzle before the proof
+ * does).
  * A reference or naive answer on a circuit board (a proof, a machine, a truth circuit) is blueprint text; a
  * declaration's is its rules as the rule table writes them (ruleLines.js lines), and its someone-else's declarations
  * (`boards`) too.
@@ -62,9 +65,9 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  * (../../circuit/model.js): moved, never deleted or rewired. presetIds(level) lists the ids.
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
  * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
- * A level names only the parts it brings in (`adds`): every part met or built before it in its era carries into it,
- * and across eras what each era keeps (../../course.js); and what it
- * folds away (`fold`); see ../../course.js reach and offer.
+ * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, as far as
+ * its tray lists it; see ../../course.js reach and offer. On a machine board the rule parts come of its rule book
+ * instead (blueprint.js machineShape), from its rule book, which holds every rule met whatever the tray.
  * Returns { LEVELS, CHAPTERS, LABELS, course, usableIn(task, flags), offerIn(task, flags), machines, revisions, proofs,
  * gates: the gates built, wrong: what reading the content found wrong, … }: each of LEVELS { id, title, …, tasks }, its
  * tasks as read (`task` the index, `taskId` the id). Reading builds all of it anew: the content is never written to.
@@ -163,7 +166,7 @@ function readTasks(level, wordSets) {
 export function logicCourse(content) {
   // The boards the player passed the building levels with: this content's (built.js).
   const kept = keptBoards()
-  const { eras, wordSets = {}, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, local = [], revisions = {} } = content
+  const { eras, trays, wordSets = {}, lemmas = {}, facts = {}, gates = {}, machines = [], primitives, concept = {}, local = [], revisions = {} } = content
   const words = wordsOf(content.words, wordSets)
   const tasksOf = new Map(content.levels.map((l) => [l.id, readTasks(l, wordSets)]))
   // What reading the content finds wrong with it beyond its schema (validate.js reports it).
@@ -251,7 +254,7 @@ export function logicCourse(content) {
     // what it holds back, the connective it declares). A part the level or any task brings in is new to the level,
     // whichever task it is.
     return {
-      id, title: level.title, intro: level.intro, after: level.after, kind: last.kind, brief: last.brief, builds: level.builds, fact: last.fact, fold: level.fold, showcase: level.showcase,
+      id, title: level.title, intro: level.intro, after: level.after, kind: last.kind, brief: last.brief, builds: level.builds, fact: last.fact, showcase: level.showcase,
       without: last.without, declare: last.declare, adds: [...new Set(all.flatMap((t) => t.adds))], chapter, requires, unlocks, tasks: all,
     }
   })
@@ -277,11 +280,15 @@ export function logicCourse(content) {
   const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id) }))
   // Every axiom part stays in the levels that state it, and is no new idea: it is the level's own given.
   const axioms = [...new Set(TASKS.filter((t) => t.kind === 'machine').flatMap(axiomPartsOf))]
-  // A level's reference boards, every task's, without what each board starts with.
-  const answersOf = (l) => byId.get(l.id).tasks.filter((t) => t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !presetIds(t).includes(n.id)) }))
+  // A level's reference boards, every task's (or a task's own, `task` its index), without what each board starts with.
+  const answersOf = (l) => byId.get(l.id).tasks.filter((t) => (l.task === undefined || t.task === l.task) && t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !presetIds(t).includes(n.id)) }))
+  // A course level is a level, or one of its tasks (`task`, its index): a level plays with its last task's tray.
+  const taskOf = (l) => byId.get(l.id).tasks[l.task ?? byId.get(l.id).tasks.length - 1]
   const course = defineCourse({
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
+    trays,
+    tray: (l) => trayIn(trays, taskOf(l).tray),
     primitives: [...primitives, ...axioms],
     concept: (p) => concept[p] ?? (axioms.includes(p) ? null : p),
     adds: (l) => byId.get(l.id).adds,
@@ -299,7 +306,6 @@ export function logicCourse(content) {
     // a declared connective (checking a declaration, too strong or too weak), named by `declare` as where it is declared.
     declares: (l) => (byId.get(l.id).declare ? declaredRules.get(byId.get(l.id).declare.en) ?? [] : []),
     boards: answersOf,
-    folds: (l) => byId.get(l.id).fold ?? [],
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
@@ -310,11 +316,12 @@ export function logicCourse(content) {
     for (const t of one.named.types) if (!before(declared.types.get(t))) throw new Error(`level ${one.id} names the type ${t} before it is declared`)
     for (const n of one.named.defs) if (!before(declared.defs.get(n))) throw new Error(`level ${one.id} names the function ${n} before it is defined`)
   }
-  // A machine level's (and a script's) rule book has what the level can hold (machine.js ruleBookOf): the kernel's
-  // rules opened by chapter, the lemmas built before it, each in the shapes it has gained by then. A task after the first may use
-  // what its level proves already (a law proved on the proof board, then put to work), in every shape it proves.
+  // A machine level's (and a script's) rule book has every rule the level has met, whatever its tray (machine.js
+  // ruleBookOf): the kernel's rules opened by chapter, the lemmas built before it, each in the shapes it has gained by
+  // then. A task after the first may use what its level proves already (a law proved on the proof board, then put to
+  // work), in every shape it proves.
   for (const level of LEVELS.filter((l) => l.tasks.some((t) => t.kind === 'machine' || t.kind === 'script'))) {
-    const holds = reach(course, { id: level.id })
+    const holds = met(course, { id: level.id })
     // The equations proved before it (by the levels it comes after), and in a later task its own.
     const proven = Object.keys(facts).filter((type) => TASKS.some((t) => t.fact === type && course.before(t.id, level.id)))
     for (const one of level.tasks) {
@@ -364,20 +371,26 @@ export function logicCourse(content) {
     const before = one.kind === 'machine' && one.builds && upTo(one.id, true).find((c) => c[0].builds === one.builds)
     if (before) one.upgrades = running([before])[one.builds]
   }
-  // A level may hold parts back (`without`): what the course carries into it, less those (a proof without boxes).
-  // Nor does a level hold the part it builds (an upgrade works on the part's own board), past its first task.
-  const held = (level) => [...(byId.get(level.id).without ?? []), ...(byId.get(level.id).builds && level.task === 0 ? [byId.get(level.id).builds] : [])]
-  // A task that names its parts holds those the player has: a primitive, or a built part once its level is solved.
-  // The task after the one that proves a level's part may use it already (a law proved, then put to work).
-  // On a machine board its rule parts come with them.
-  const named = (level, flags) => [...level.parts.filter((p) => !built(p) || flags.has(`lemma:${p}`) || (level.task > 0 && byId.get(level.id).builds === p)), ...(level.kind === 'machine' ? [...rulePartsOf(level).keys()] : [])]
-  // What a task after the first holds of its own level's part (the law it has just proved), on top of the course's.
-  const proved = (level) => (level.task > 0 && byId.get(level.id).builds ? [byId.get(level.id).builds] : [])
-  const usableIn = (level, flags) => (level.parts ? named(level, flags) : [...usable(course, { id: level.id }, flags), ...proved(level)].filter((p) => !held(level).includes(p)))
-  const offerIn = (level, flags) => {
-    if (level.parts) return { shown: named(level, flags), folded: [] }
-    const { shown, folded, ...rest } = offer(course, { id: level.id }, flags, proved(level))
-    return { ...rest, shown: shown.filter((p) => !held(level).includes(p)), folded: folded.filter((p) => !held(level).includes(p)) }
+  // A level may hold parts back (`without`): what its tray carries into it, less those (a proof without boxes). Nor
+  // does a level hold the part it builds (an upgrade works on the part's own board), past its first task.
+  const held = (task) => [...(task.without ?? []), ...(byId.get(task.id).builds && task.task === 0 ? [byId.get(task.id).builds] : [])]
+  const at = (task) => ({ id: task.id, task: task.task })
+  // What a task holds beyond its tray's parts: its level's own part once a task before it has proved it (a law proved,
+  // then put to work), where its tray lists it; and on a machine board, the rule parts of its rule book that the player
+  // has (blueprint.js machineShape: a kernel rule, a lemma once proved).
+  const also = (task, flags) => {
+    const proved = task.task > 0 && byId.get(task.id).builds ? [byId.get(task.id).builds] : []
+    const tray = course.trays[course.tray(at(task))]
+    const own = tray ? proved.filter((p) => tray.includes(p)) : proved
+    if (task.kind !== 'machine') return own
+    const rules = machineShape(task).ruleParts
+    return [...new Set([...own, ...[...usable(course, at(task), flags, met(course, at(task))), ...proved].filter((p) => rules.has(p) && !MACHINE_PARTS[p])])]
+  }
+  const usableIn = (task, flags) => [...new Set([...usable(course, at(task), flags), ...also(task, flags)])].filter((p) => !held(task).includes(p))
+  const offerIn = (task, flags) => {
+    const { shown, folded } = offer(course, at(task), flags, also(task, flags))
+    const keep = (list) => [...new Set(list)].filter((p) => !held(task).includes(p))
+    return { shown: keep(shown), folded: keep(folded) }
   }
   return { LEVELS, CHAPTERS, LABELS, course, usableIn, offerIn, machines, revisions, proofs, gates: builtG, provers: provers.levels, blueprints, wrong, syncOwn: kept.sync }
 }

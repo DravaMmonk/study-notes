@@ -1,5 +1,6 @@
 {
   "title": { "zh": "只看前方 1 米", "en": "Only the metre in front" },
+  "tray": "geometry",
   "after": {
     "zh": "地板本来就在前面，算进来机器人就永远停着；所以只看可能有障碍的区域。真实的避障还会用相机的高度和角度，从深度算出每一点离地多高。",
     "en": "The floor is always in front, so counting it would keep the robot stopped for ever; only the region where obstacles can be is checked. Real obstacle avoidance also uses the camera's height and angle to work out how high above the floor each point is."

@@ -1,6 +1,7 @@
 {
   "title": { "zh": "模式合一", "en": "Pattern unification" },
   "adds": ["uPattern", "unifier"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

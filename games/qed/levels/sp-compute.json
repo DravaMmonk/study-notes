@@ -1,5 +1,6 @@
 {
   "title": { "zh": "算一算", "en": "Work it out" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

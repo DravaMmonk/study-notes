@@ -1,5 +1,6 @@
 {
   "title": { "zh": "不用框合并", "en": "Merging without a box" },
+  "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
     {

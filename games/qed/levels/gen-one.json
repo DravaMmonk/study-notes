@@ -2,6 +2,7 @@
   "builds": "elimGen",
   "title": { "zh": "拆开它", "en": "Taking it apart" },
   "adds": ["anyR", "swapConcl", "consFront", "mkRule"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

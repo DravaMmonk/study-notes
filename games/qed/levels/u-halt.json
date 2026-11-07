@@ -1,5 +1,6 @@
 {
   "title": { "zh": "停机问题", "en": "The halting problem" },
+  "tray": "proof",
   "after": {
     "zh": "从一个问题到另一个，这一步叫<wiki-ref to=\"reduction\"></wiki-ref>。一阶逻辑的可证性同样<wiki-ref to=\"undecidable\"></wiki-ref>：没有程序能对每个目标都答出推得出还是推不出。",
     "en": "Passing from one problem to another is a <wiki-ref to=\"reduction\"></wiki-ref>. Provability in first-order logic shows the same <wiki-ref to=\"undecidable\"></wiki-ref>: no program can say, for every goal, whether it follows."

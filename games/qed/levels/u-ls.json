@@ -1,5 +1,6 @@
 {
   "title": { "zh": "不接受自己的程序", "en": "Programs that reject themselves" },
+  "tray": "proof",
   "after": { "zh": "L_s 不是<b>可识别语言</b>。", "en": "L_s is not a <b>recognisable language</b>." },
   "tasks": [
     {

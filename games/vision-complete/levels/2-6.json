@@ -1,5 +1,6 @@
 {
   "title": { "zh": "对焦了吗", "en": "In focus?" },
+  "tray": "pipeline",
   "after": {
     "zh": "离焦就是模糊，模糊压低了高频。所以频谱外圈越亮，照片越清楚。手机相机对焦时，一边挪镜头一边算这样的分数，停在分数最高的位置。",
     "en": "Out of focus means blurred, and blurring turns the high frequencies down. So the brighter the outer part of the spectrum, the sharper the photo. A phone camera computes a score like this while it moves the lens, and stops where the score is highest."

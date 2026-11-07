@@ -9,6 +9,7 @@
 import { S } from '../../engine/schema.js';
 import { defineVocabulary } from '../../engine/vocabulary.js';
 import { taskLevel } from '../../engine/tasks.js';
+import { TRAY, TRAYS } from '../../engine/trays.js';
 import { T as t } from '../../shell/i18n.js';
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) });
@@ -166,7 +167,7 @@ const MODES = {
 
 const TEXTS = S.list(S.text());
 /** What a level says once: its title, introduction, brief and pass text, and its place in the course (the robot its
- *  circuit tasks are played by, the parts it brings in, folds and unlocks, the level it starts from, the part it builds). */
+ *  circuit tasks are played by, the parts it brings in, its tray and what it unlocks, the level it starts from, the part it builds). */
 const ONCE = {
   title: S.text(),
   short: S.text(),
@@ -175,7 +176,7 @@ const ONCE = {
   robot: S.opt(S.ref('robot', { about: t('玩这一关电路任务的机器人', 'the robot the level’s circuit tasks are played by') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
-  fold: S.opt(S.list(S.name('part'), { section: 'course' })),
+  tray: TRAY,
   unlock: S.opt(S.name('part', { section: 'course', about: t('通过它解锁的元件或想法（game.json 的 parts）', 'the part or idea solving it unlocks (game.json parts)') })),
   carry: S.opt(S.level({ about: t('第一个任务从这一关玩家留下的电路板开始（必须是先修）', 'the first task starts from the board left on this level (a prerequisite)') })),
   builds: S.opt(S.obj({ ports: S.list(S.call('port')), setting: S.opt(S.num()) }, { section: 'course', about: t('通过后最后一个任务的电路板成为元件 unlock：它的口，和它带的一个数', 'once solved the last task’s board is the part `unlock`: its ports, and a number it carries') })),
@@ -237,7 +238,6 @@ const AFTER = S.either(S.level(), levels);
 const ERA = S.obj({
   id: S.str(),
   machine: S.either(S.ref('robot'), NONE),
-  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   foundation: S.list(ITEM),
   practice: S.opt(S.list(ITEM)),
   topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.text(), desc: S.text() }))),
@@ -249,6 +249,7 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
   primitives: S.list(S.ref('part')),
+  trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   parts: S.map(S.obj({ name: S.text(), desc: S.text() }), { about: t('关卡解锁的元件和想法：元件箱里的名字和说明', 'what levels unlock: their names and descriptions in the components box') }),
   eras: S.list(ERA, { min: 1 }),

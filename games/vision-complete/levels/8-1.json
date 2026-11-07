@@ -32,6 +32,7 @@
     }
   ],
   "adds": ["dg_encode", "dg_decode"],
+  "tray": "generative",
   "unlocks": ["dg-decoder"],
   "tasks": [
     {

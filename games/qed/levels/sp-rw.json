@@ -1,6 +1,7 @@
 {
   "title": { "zh": "改写", "en": "Rewrite" },
   "adds": ["rw"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

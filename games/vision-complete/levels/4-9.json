@@ -1,5 +1,6 @@
 {
   "title": { "zh": "跳着走", "en": "Taking strides" },
+  "tray": "pipeline",
   "after": {
     "zh": "步幅为 2，输出就隔一个取一个。一般地，输出边长 = ⌊(N + 2p − k) / s⌋ + 1：N 是输入边长，k 是窗口大小，p 是补边宽度，s 是步幅。这一层只有 9 个要学的数，图变大变小都一样，因为同一组权重在每个位置都用：这叫权重共享。看评分里的「参数」。",
     "en": "With a stride of 2, the output keeps every other position. In general, output width = ⌊(N + 2p − k) / s⌋ + 1, with N the input width, k the window size, p the padding and s the stride. This layer has only 9 numbers to learn, however big or small the picture, because the same weights are used at every position: this is called weight sharing. See \"Parameters\" in the score."

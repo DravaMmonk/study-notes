@@ -1,5 +1,6 @@
 {
   "title": { "zh": "酒鬼悖论", "en": "The drinker paradox" },
+  "tray": "proof",
   "intro": [
     {
       "t": {

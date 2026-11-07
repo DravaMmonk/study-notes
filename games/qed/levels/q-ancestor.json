@@ -1,5 +1,6 @@
 {
   "title": { "zh": "祖先的祖先", "en": "An ancestor’s ancestor" },
+  "tray": "proof",
   "tasks": [
     {
       "id": "q-ancestor",

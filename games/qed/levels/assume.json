@@ -1,5 +1,6 @@
 {
   "title": { "zh": "加一个假设", "en": "An assumption" },
+  "tray": "proof",
   "showcase": "a box has a region and two dots, and what is made inside leaves only through its conclusion",
   "intro": [
     {

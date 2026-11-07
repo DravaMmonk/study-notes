@@ -32,6 +32,7 @@
     }
   ],
   "adds": ["sub"],
+  "tray": "pipeline",
   "tasks": [
     {
       "id": "0-7",

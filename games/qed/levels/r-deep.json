@@ -1,6 +1,7 @@
 {
   "title": { "zh": "拆到底", "en": "All the way down" },
   "adds": ["repeat", "uDecompose"],
+  "tray": "machine",
   "showcase": {
     "zh": "重复框把框里接出的东西再送回框里，一圈一圈地做，直到不再变化或者失败：框开出的是上一圈的结果，不是一开始的输入；光看说明，容易以为它只做一遍",
     "en": "the repeat frame feeds what is made inside back in, round after round, until nothing changes or it fails: what the frame opens with is the last round’s result, not the first input; from its description alone it is easy to think it runs once"

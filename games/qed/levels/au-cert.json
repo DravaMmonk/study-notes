@@ -14,6 +14,7 @@
     {
       "id": "au-cert_1",
       "kind": "machine",
+      "tray": "machine",
       "want": "refuted",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
       "backtrack": true,
@@ -34,8 +35,8 @@
     {
       "id": "au-cert_2",
       "kind": "proof",
+      "tray": "resolution",
       "step": { "zh": "照着重放", "en": "Replay it" },
-      "parts": ["res"],
       "tests": [{ "premises": { "p": "¬A ∨ B", "q": "¬B ∨ C", "r": "A", "s": "¬C" }, "goal": "⊥" }],
       "cases": [{ "A": "Alarm", "B": "Up", "C": "Coffee" }],
       "briefNote": { "zh": "按照证明助手的证书，在证明板上重放。", "en": "Replay the proof assistant’s certificate on the proof board." },

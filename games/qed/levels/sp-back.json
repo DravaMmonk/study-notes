@@ -1,5 +1,6 @@
 {
   "title": { "zh": "只从左往右", "en": "Left to right only" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

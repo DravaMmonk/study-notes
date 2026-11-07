@@ -50,10 +50,8 @@ function BoardScreen({ board, screen }) {
   })
   const { circuit, change } = lb
   const tests = level.tests
-  // What the player has here, of the parts this board runs (../../../course.js offer).
-  const offered = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
-  const palette = offered.shown.filter((t) => parts.rules[t])
-  const folded = offered.folded.filter((t) => parts.rules[t])
+  // What the player has here: the level's tray (../../../course.js offer).
+  const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
 
   // Step by step, on a board that can trace its run: each test traced once per board.
   const stepped = Boolean(board.tests.trace)

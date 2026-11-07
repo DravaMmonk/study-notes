@@ -1,5 +1,6 @@
 {
   "title": { "zh": "怎样都对，怎样都错", "en": "Always true, always false" },
+  "tray": "gates",
   "intro": [
     {
       "t": {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "描边", "en": "Outline" },
+  "tray": "pipeline",
   "after": {
     "zh": "把掩膜往四个方向各挪一格加起来，再加上自己，只有四面都被围住的格子能数到 5。用一个阈值留下这些「内部」，再从掩膜里减掉，剩下的就是外圈。数邻居再取阈值，后来有个名字叫腐蚀。",
     "en": "Shift the mask one pixel in each of the four directions, add them up and add the cell itself: only a cell surrounded on all four sides counts to 5. A threshold keeps this \"inside\", and taking it away from the mask leaves the outer ring. Counting neighbours and then thresholding has a name: erosion."

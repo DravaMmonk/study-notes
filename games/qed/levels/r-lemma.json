@@ -1,5 +1,6 @@
 {
   "title": { "zh": "证出的引理也是规则", "en": "Lemmas are rules too" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

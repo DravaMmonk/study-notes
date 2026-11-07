@@ -2,6 +2,7 @@
   "words": ["everyday", "terms", "stars", "vectors"],
   "symbolicWords": { "Bright": { "zh": "P({0})", "en": "P({0})" }, "Seen": { "zh": "Q({0})", "en": "Q({0})" } },
   "title": { "zh": "换哪几处", "en": "Which places" },
+  "tray": "proof",
   "consts": ["i", "j", "k"],
   "intro": [
     {

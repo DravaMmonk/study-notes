@@ -1,5 +1,6 @@
 {
   "title": { "zh": "排除一个，剩下那个", "en": "Rule one out, the other remains" },
+  "tray": "proof",
   "intro": [{ "t": { "zh": "要么坐公交，要么骑车；没坐公交，那就是骑车。", "en": "Bus or bike; not the bus, so the bike." } }],
   "after": {
     "zh": "这叫<wiki-ref to=\"dsyll\"></wiki-ref>，「排除法」靠的就是它。",

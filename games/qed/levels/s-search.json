@@ -1,6 +1,7 @@
 {
   "title": { "zh": "回溯搜索", "en": "Search until done" },
   "adds": ["search"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

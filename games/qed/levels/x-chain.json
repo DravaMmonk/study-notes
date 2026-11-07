@@ -1,5 +1,6 @@
 {
   "title": { "zh": "不用框接起来", "en": "Joining without a box" },
+  "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "after": {
     "zh": "任何一个框都能换成 K、S 和套用，这叫<wiki-ref to=\"deduction\"></wiki-ref>。",

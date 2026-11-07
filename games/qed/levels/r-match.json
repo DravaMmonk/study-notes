@@ -1,6 +1,7 @@
 {
   "title": { "zh": "对上一条规则", "en": "Fitting a rule" },
   "adds": ["uDecompose"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

@@ -32,6 +32,7 @@
     }
   ],
   "adds": ["lrnConst"],
+  "tray": "pipeline",
   "tasks": [
     {
       "id": "4-1",

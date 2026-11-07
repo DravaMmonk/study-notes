@@ -1,5 +1,6 @@
 {
   "adds": ["frule"],
+  "tray": "machine",
   "title": { "zh": "停不下来的定义", "en": "A definition that never stops" },
   "intro": [
     {

@@ -31,10 +31,8 @@ const gates = circuitPlay({
   board: ({ game, level, flags, progress }) => {
     game.logic.syncOwn(progress.built)
     const L = level.source
-    const shape = gateShape(L.gates)
-    const all = gatesOf(L.gates)
     const { shown, folded } = game.logic.offerIn(L, flags)
-    return { start: startGates(L), parts: shape, types: [...shown, ...folded].filter((t) => all[t]) }
+    return { start: startGates(L), parts: gateShape(L.gates), types: [...shown, ...folded] }
   },
   part: ({ level }, type) => gatesOf(level.source.gates)[type],
   given: ({ level: { source: L } }) => {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "在条件下套用", "en": "Apply under a condition" },
+  "tray": "proof",
   "builds": "axS",
   "intro": [
     {

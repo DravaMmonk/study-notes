@@ -1,5 +1,6 @@
 {
   "title": { "zh": "会绕圈的化简", "en": "Simp going round in circles" },
+  "tray": "machine",
   "intro": [{ "t": { "zh": "这几句都要用到交换律。", "en": "Each of these needs commutativity." } }],
   "after": {
     "zh": "Isabelle 给式子定一个固定的次序，只往「更小」的方向改写，这叫<wiki-ref to=\"ordered\"></wiki-ref>。",

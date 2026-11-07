@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一路相等", "en": "Equal all along" },
+  "tray": "proof",
   "tasks": [
     {
       "id": "q-trans",

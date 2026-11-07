@@ -1,5 +1,6 @@
 {
   "title": { "zh": "看车还是看路", "en": "The car or the road" },
+  "tray": "recognition",
   "after": {
     "zh": "比例接近 1，分类器认的是车；接近 0，它认的是路。训练集里每辆车都停在路上，只看路也能把训练集分对，这种捷径要这样查出来。比例是负数时，车上的格子在给分数扣分。",
     "en": "Near 1, the classifier recognises the car; near 0, the road. Every car in the training set stood on a road, so looking at the road alone sorts the training set correctly; a shortcut like that is found this way. A negative fraction means the car's cells are pulling the score down."

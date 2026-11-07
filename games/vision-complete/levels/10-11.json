@@ -1,5 +1,6 @@
 {
   "title": { "zh": "货架盘点", "en": "Stock-take" },
+  "tray": "recognition",
   "after": {
     "zh": "模板打分、多尺度、非极大值抑制，每个 X 恰好标一次：一台最简单的检测器。把模板换成学出来的卷积、加上框回归，就是真实的目标检测网络；它的成绩用你搭的 IoU 和 AP 来量。",
     "en": "Template scores, several scales, non-maximum suppression, each X marked exactly once: the simplest detector. Replace the template with learnt convolutions and add box regression, and you have a real object-detection network, its results measured with the IoU and AP you built."

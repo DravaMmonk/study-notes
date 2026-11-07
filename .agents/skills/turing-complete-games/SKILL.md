@@ -184,9 +184,10 @@ shows them at work in 《证明完毕》):
 - **Abstraction keeps rising.** Draw the part dependency graph (§7 step 5: `npm run deps -- <game>`). Every built part is used by later
   reference answers, in places where not having it would be long. Later levels lean on higher-level parts; a
   late reference answer built only from primitives means the chain is broken.
-- **Across eras.** Within an era every part met stays usable. Every era after the first declares `keeps`: `'all'`
-  when it continues the previous machine (extends or upgrades it), so earlier work is never dropped; a list (possibly
-  `[]`) when it changes topic, leaving the rest behind. Ask: is the new machine a continuation of the last one?
+- **Trays.** A part met stays usable in every later level whose tray lists it (`game.json` `trays`: ordered lists of
+  parts; a level, or a task on another board, names its `tray`). One tray per kind of board (a truth circuit, a proof
+  board, a machine board), one for a chapter that changes topic, one for a scene that must use its own parts alone.
+  Ask: is this level's board the same kind, the same machine, as the last one's? If not, switch trays.
 - **Discovery, not transcription.** A level must retain a substantive reasoning decision beyond formula transcription.
   Supply prerequisite formulas when implementation is not the learning objective. A quantity with several parameters
   is a bench that opens one knob per step (every bench is the kernel's parameter bench, written as data: a model

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "康托尔", "en": "Cantor" },
+  "tray": "proof",
   "after": {
     "zh": "这是<b>康托尔定理</b>：一个集合的子集，总比它的元素多。",
     "en": "This is <b>Cantor’s theorem</b>: a set always has more subsets than elements."

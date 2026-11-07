@@ -21,6 +21,7 @@
     {
       "id": "in-zero_1",
       "kind": "machine",
+      "tray": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
       "backtrack": true,
@@ -45,6 +46,7 @@
     {
       "id": "in-zero_2",
       "kind": "proof",
+      "tray": "proof",
       "step": { "zh": "在证明板上", "en": "On the proof board" },
       "adds": ["natInd"],
       "consts": ["zero"],
@@ -92,6 +94,7 @@
     {
       "id": "in-zero_3",
       "kind": "machine",
+      "tray": "machine",
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
       "backtrack": true,

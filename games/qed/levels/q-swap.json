@@ -1,5 +1,6 @@
 {
   "title": { "zh": "量词换序", "en": "Swapping quantifiers" },
+  "tray": "proof",
   "after": {
     "zh": "证不出来时，先试着造一个反模型，往往比硬证更快。",
     "en": "When a proof will not come, trying for a countermodel is often faster than pushing on."

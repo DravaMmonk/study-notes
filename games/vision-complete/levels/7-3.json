@@ -1,5 +1,6 @@
 {
   "title": { "zh": "视差变距离", "en": "Disparity to distance" },
+  "tray": "geometry",
   "after": {
     "zh": "距离和视差成反比：视差差一格，近处只差几厘米，远处可能差好几米，深度误差约是 z²/(f·b)。要让远处测得准，就要加宽基线或换长焦，可近处的视差又会大得超出搜索范围。",
     "en": "Distance is inversely proportional to disparity: a one-pixel slip in disparity is a few centimetres up close but can be metres far away, with a depth error of about z²/(f·b). To measure far things precisely you widen the baseline or use a longer lens, but then the disparity of near things grows past the search range."

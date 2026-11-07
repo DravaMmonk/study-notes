@@ -22,7 +22,7 @@ const reads = (parser) => (text) => {
 const languages = { formula: reads(parse), side: reads(parseSide), condition: reads(parseS), term: reads(parseTerm) }
 
 // What a part's name may be (vocabulary.js PART): the vocabulary's parts, and the game's lemmas, gates and equations.
-const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.lemmas ?? {}), ...Object.keys(content.gates ?? {}), ...Object.keys(content.facts ?? {})]) })
+const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.lemmas ?? {}), ...Object.keys(content.gates ?? {}), ...Object.keys(content.facts ?? {}), ...(content.machines ?? [])]) })
 
 /** A logic game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {

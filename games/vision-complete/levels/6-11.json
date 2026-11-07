@@ -1,5 +1,6 @@
 {
   "title": { "zh": "四个角", "en": "Four corners" },
+  "tray": "geometry",
   "after": {
     "zh": "单应矩阵 H 有 8 个自由度，每对点给 2 个方程，所以至少要 4 对点，游戏用 DLT 从你的点对解出了 H。3 对点只能定出仿射（6 个自由度），它保持平行，贴不上透视下的书。实际流水线里，这些点对来自距离比检验后的候选，再由 RANSAC 反复抽 4 对、数内点选出来。",
     "en": "The homography H has 8 degrees of freedom and each pair of points gives 2 equations, so it needs at least 4 pairs; the game solved H from your pairs with DLT. Three pairs only fix an affine map (6 degrees of freedom), which keeps lines parallel and cannot fit a book seen in perspective. In a real pipeline the pairs come from candidates that passed the ratio test, and RANSAC picks them by repeatedly drawing 4 pairs and counting inliers."

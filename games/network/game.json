@@ -22,6 +22,32 @@
     "equal",
     "bit"
   ],
+  "trays": {
+    "main": [
+      "select",
+      "const",
+      "reg",
+      "keep",
+      "add",
+      "counter",
+      "equal",
+      "bit",
+      "serializer",
+      "deserializer",
+      "flagspot",
+      "counterhold",
+      "serializerhold",
+      "framer",
+      "deserializerhold",
+      "xor",
+      "crc",
+      "deframer",
+      "crchold",
+      "sender",
+      "receiver",
+      "nic"
+    ]
+  },
   "concept": {
     "const": "select",
     "keep": "reg"

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "生成器遇上自然数", "en": "The generator meets the numbers" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

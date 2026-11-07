@@ -1,5 +1,6 @@
 {
   "title": { "zh": "合取范式", "en": "Conjunctive normal form" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "台阶在哪", "en": "Where is the step?" },
+  "tray": "pipeline",
   "after": {
     "zh": "边缘就是相邻像素的差。平坦处差为 0，台阶处差最大。「右边邻居 − 自己」只看得见竖着的边；横着的边，要看「下边邻居 − 自己」。真实的边朝哪个方向都有，两个方向都得量。",
     "en": "An edge is the difference between neighbouring pixels. On flat ground the difference is 0; at a step it is largest. \"Right neighbour − self\" only sees vertical edges; horizontal ones need \"neighbour below − self\". Real edges run every way, so both directions have to be measured."

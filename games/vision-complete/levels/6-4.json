@@ -1,5 +1,6 @@
 {
   "title": { "zh": "可信的匹配", "en": "A match you can trust" },
+  "tray": "geometry",
   "after": {
     "zh": "重复的花纹里，第一名和第二名几乎一样近：这种匹配再像也不可信。距离比检验 d₁ / d₂ < 0.8 只接受第一名明显领先的匹配，整体变亮也不影响比值。",
     "en": "In repeated texture the first and second places are almost equally close: however alike, such a match cannot be trusted. The ratio test d₁ / d₂ < 0.8 accepts only a match whose first place is clearly ahead, and an overall brightening does not change the ratio."

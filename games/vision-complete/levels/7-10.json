@@ -1,5 +1,6 @@
 {
   "title": { "zh": "前方多远", "en": "How far ahead" },
+  "tray": "geometry",
   "after": {
     "zh": "搜视差、换成距离、只留地面以上：每一步都是前面单独练过的，接起来就是一台测距仪。",
     "en": "Search the disparity, convert to distance, keep only what is above the floor: each step was practised on its own earlier, and joined up they make a rangefinder."

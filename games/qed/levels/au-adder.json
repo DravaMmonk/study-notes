@@ -1,5 +1,6 @@
 {
   "title": { "zh": "半加器", "en": "A half adder" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

@@ -8,6 +8,7 @@
     "en": "The dozens of controllers in a car talk over one shared line. Starting from “one bit on the line each tick”, build a probe that understands them, and grow it step by step into a tester that reads fault codes and reflashes software."
   },
   "primitives": ["reg", "keep", "compare", "arith", "select", "const"],
+  "trays": { "main": ["reg", "keep", "compare", "arith", "const", "select", "counter", "shift"] },
   "concept": { "keep": "reg" },
   "eras": [
     {

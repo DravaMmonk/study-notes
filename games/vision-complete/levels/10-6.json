@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一排锚框", "en": "A row of anchors" },
+  "tray": "recognition",
   "after": {
     "zh": "同一套修正，在小锚框上挪得少，在大锚框上挪得多：修正量是相对的。检测器在每个位置都放几种大小、几种宽高比的锚框，一起回归、一起打分。",
     "en": "The same corrections move a small anchor a little and a large one a lot: the corrections are relative. A detector places anchors of several sizes and aspect ratios at every position, regressing and scoring them all together."

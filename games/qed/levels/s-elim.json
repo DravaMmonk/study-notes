@@ -1,5 +1,6 @@
 {
   "title": { "zh": "按形状分解假设", "en": "The givens by their shape" },
+  "tray": "machine",
   "builds": "elimRules",
   "intro": [
     {

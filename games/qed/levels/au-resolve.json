@@ -1,5 +1,6 @@
 {
   "title": { "zh": "归结", "en": "Resolution" },
+  "tray": "proof",
   "builds": "res",
   "intro": [
     {

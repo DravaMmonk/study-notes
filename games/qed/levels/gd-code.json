@@ -1,5 +1,6 @@
 {
   "title": { "zh": "句子变成数", "en": "Sentences become numbers" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

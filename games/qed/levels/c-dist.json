@@ -1,5 +1,6 @@
 {
   "title": { "zh": "分配律", "en": "Distribution" },
+  "tray": "proof",
   "builds": "dist",
   "intro": [
     {

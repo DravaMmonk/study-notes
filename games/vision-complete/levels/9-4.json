@@ -1,5 +1,6 @@
 {
   "title": { "zh": "池化再还原", "en": "Pool and back again" },
+  "tray": "recognition",
   "after": {
     "zh": "池化把位置丢掉了一部分，反池化把它找回来：亮点在 2×2 块里的哪一格，信息还在池化前的图里。",
     "en": "Pooling throws part of the position away, and unpooling gets it back: which cell of the 2×2 block the dot was in is still in the picture before pooling."

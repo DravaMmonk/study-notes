@@ -1,5 +1,6 @@
 {
   "title": { "zh": "低通", "en": "Low-pass" },
+  "tray": "pipeline",
   "after": {
     "zh": "和<level-ref to=\"2-7\"></level-ref>里一样：硬圆盘一刀切，等于用一个带负瓣的核做卷积，边缘两侧冒出一圈圈亮暗波纹（振铃）；高斯掩膜平滑过渡，对应的核还是高斯，没有波纹。期望图其实是 σ = 1 的空间高斯模糊，对应的掩膜宽度 R = N/(2πσ) = 32/(2π) ≈ 5。空间里卷积，等于频域里相乘，这就是卷积定理。",
     "en": "Just as in <level-ref to=\"2-7\"></level-ref>: a hard disk cuts sharply, which is the same as a convolution with a kernel that has negative lobes, so rings of light and dark ripple out on both sides of an edge (ringing). A Gaussian mask falls off smoothly; its kernel is still a Gaussian, with no ripples. The expected image is in fact a spatial Gaussian blur with σ = 1, which matches a mask width of R = N/(2πσ) = 32/(2π) ≈ 5. Convolution in space equals multiplication in the frequency domain: this is the convolution theorem."

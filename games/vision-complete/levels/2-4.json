@@ -1,5 +1,6 @@
 {
   "title": { "zh": "错开的波", "en": "A shifted wave" },
+  "tray": "pipeline",
   "after": {
     "zh": "一个频率要用两个探针去量：cos 量对齐的部分，sin 量错开四分之一周期的部分，√(a² + b²) 合起来就是振幅，不管波错开多少。",
     "en": "One frequency takes two probes: cos measures the part lined up with it, sin the part a quarter of a cycle off, and √(a² + b²) puts them together into the amplitude, however far the wave is shifted."

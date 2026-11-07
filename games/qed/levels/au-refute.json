@@ -1,5 +1,6 @@
 {
   "adds": ["res"],
+  "tray": "resolution",
   "title": { "zh": "推出空子句", "en": "Down to the empty clause" },
   "intro": [
     {
@@ -14,7 +15,6 @@
       "id": "au-refute_1",
       "kind": "proof",
       "step": { "zh": "两步", "en": "Two steps" },
-      "parts": ["res"],
       "tests": [{ "premises": { "p": "¬A ∨ B", "q": "A", "r": "¬B" }, "goal": "⊥" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Alarm", "B": "Up" }],
       "briefNote": { "zh": "只用「归结」。", "en": "With “Resolve” alone." },
@@ -25,7 +25,6 @@
       "id": "au-refute_2",
       "kind": "proof",
       "step": { "zh": "三步", "en": "Three steps" },
-      "parts": ["res"],
       "tests": [{ "premises": { "p": "A ∨ B", "q": "¬A ∨ C", "r": "¬B ∨ C", "s": "¬C" }, "goal": "⊥" }],
       "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Coffee", "B": "Tea", "C": "Awake" }],
       "brief": {

@@ -1,5 +1,6 @@
 {
   "adds": ["uDecompose", "uDelete", "uConflict", "uEliminate", "uSwap", "uCheck"],
+  "tray": "machine",
   "title": { "zh": "六个元件一个框", "en": "Six parts, one frame" },
   "builds": "unifier",
   "intro": [

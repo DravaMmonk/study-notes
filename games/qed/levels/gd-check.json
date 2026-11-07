@@ -1,5 +1,6 @@
 {
   "title": { "zh": "检查证明是一次计算", "en": "Checking a proof is a computation" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

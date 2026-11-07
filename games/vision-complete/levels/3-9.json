@@ -1,5 +1,6 @@
 {
   "title": { "zh": "白平衡", "en": "White balance" },
+  "tray": "pipeline",
   "after": {
     "zh": "每个通道除以白纸在这个通道的读数，灯的颜色就抵消了。相机的「白平衡」做的就是这件事：找一个应该是白色的东西，按它把三个通道拉齐。照片里最亮的东西当白色，叫「白块假设」；照片里没有白东西时，它就会出错。",
     "en": "Divide each channel by the white paper's reading in that channel, and the colour of the lamp cancels out. A camera's \"white balance\" does exactly this: find something that ought to be white and even up the three channels by it. Taking the brightest thing as white is called the \"white patch\" assumption; it fails when nothing in the photo is white."

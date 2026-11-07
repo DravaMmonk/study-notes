@@ -1,5 +1,6 @@
 {
   "title": { "zh": "两类求平均", "en": "Averaging two classes" },
+  "tray": "recognition",
   "after": {
     "zh": "mAP 是每类 AP 的平均：少见的类和常见的类一样重要，检测器不能只把常见的类做好。论文里报的检测成绩几乎都是它。",
     "en": "mAP is the average of the per-class APs: a rare class counts as much as a common one, so a detector cannot just do well on the common classes. Almost every detection result reported in papers is this number."

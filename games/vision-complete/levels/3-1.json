@@ -1,5 +1,6 @@
 {
   "title": { "zh": "画一个球", "en": "Draw a ball" },
+  "tray": "pipeline",
   "after": {
     "zh": "这就是朗伯模型：哑光表面的亮度 = 灯 × 反射率 × cos θ。正对着灯最亮，越斜越暗，因为同一束光铺到了更大的面积上；背着灯的地方是 0。",
     "en": "This is the Lambertian model: the brightness of a matte surface = lamp × reflectance × cos θ. Facing the lamp is brightest, and the more it turns away the darker it gets, because the same beam spreads over a larger area; where the surface faces away it is 0."

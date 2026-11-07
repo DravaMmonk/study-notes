@@ -1,6 +1,7 @@
 {
   "title": { "zh": "同一个 ?A 出现两次", "en": "The same ?A twice" },
   "adds": ["uEliminate", "uDecompose", "uDelete", "uConflict"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

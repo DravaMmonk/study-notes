@@ -1,5 +1,6 @@
 {
   "title": { "zh": "异或", "en": "Exclusive or" },
+  "tray": "pipeline",
   "after": {
     "zh": "一条直线怎么摆都分不开异或。两个神经元先各画一条线，把每个点变成两个新的数，输出神经元在新的坐标里一条线就够了：这就是隐藏层。还有一件事：几个神经元一开始完全一样，训练时每一步的变化也一样，永远学不出不同的东西，所以网络的权重要从不同的随机数开始。",
     "en": "However you place one straight line, it cannot separate exclusive-or. Let two neurons each draw a line first, turning every point into two new numbers, and in these new coordinates the output neuron needs just one line: that is a hidden layer. One more thing: if several neurons start out identical, every training step changes them identically and they can never learn different things. That is why a network's weights start from different random numbers."

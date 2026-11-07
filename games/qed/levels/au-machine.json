@@ -1,5 +1,6 @@
 {
   "title": { "zh": "证明助手来证", "en": "Let the proof assistant prove it" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

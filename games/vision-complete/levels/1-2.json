@@ -1,5 +1,6 @@
 {
   "title": { "zh": "竖着也来", "en": "Up and down too" },
+  "tray": "pipeline",
   "after": {
     "zh": "同一个想法换一个方向。横着平均抹平左右的毛刺，竖着平均抹平上下的。",
     "en": "The same idea in another direction. Averaging across smooths out spikes from side to side; averaging down smooths them from top to bottom."

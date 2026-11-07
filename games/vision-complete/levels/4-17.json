@@ -1,5 +1,6 @@
 {
   "title": { "zh": "再深一倍", "en": "Twice as deep" },
+  "tray": "pipeline",
   "after": {
     "zh": "十二层和六层一样好训：每一块一开始都原样通过，训练只需让少数几块学出那一点改动，梯度沿着捷径直达每一层。ResNet 就这样把网络堆到了一百多层。",
     "en": "Twelve layers train as easily as six: every block starts out passing its input straight through, training only has to teach a few of them the small change, and the gradient reaches every layer along the shortcuts. This is how ResNet stacks networks to more than a hundred layers."

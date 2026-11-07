@@ -1,5 +1,6 @@
 {
   "title": { "zh": "去噪自编码器", "en": "Denoising autoencoder" },
+  "tray": "generative",
   "after": {
     "zh": "瓶颈里只有两个数，装得下「斑点在哪」，装不下每一格的噪声，所以解码出来是干净的。训练时输入加噪声、目标用原图，就是去噪自编码器；后面的扩散模型把这个想法推到底：从纯噪声一点点去噪，画出新图。",
     "en": "The bottleneck holds only two numbers: enough for \"where the blob is\", not for the noise in every cell, so what is decoded comes out clean. Training with noisy inputs and the original as the target gives a denoising autoencoder, and diffusion models push the idea all the way: denoise from pure noise, little by little, to draw new pictures."

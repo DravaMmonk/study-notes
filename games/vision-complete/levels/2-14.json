@@ -1,5 +1,6 @@
 {
   "title": { "zh": "缩小四倍", "en": "A quarter of the size" },
+  "tray": "pipeline",
   "after": {
     "zh": "缩得越狠，能留下的频率越低，采样前就要糊得越厉害：缩小 4 倍，σ 大约要翻一倍。",
     "en": "The more you shrink, the lower the frequencies that can survive, so the harder you must blur before sampling: shrinking 4 times needs about twice the σ."

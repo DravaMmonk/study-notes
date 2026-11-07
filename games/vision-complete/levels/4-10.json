@@ -1,5 +1,6 @@
 {
   "title": { "zh": "看得更大", "en": "Seeing further" },
+  "tray": "pipeline",
   "after": {
     "zh": "每层只看 3×3，可第二层看的是第一层的输出，等于看到了 5×5；第三层看到 7×7。这叫感受野：叠 L 层 3×3，感受野是 (2L+1)×(2L+1)。VGG 就靠堆小核看大范围，而且三层 3×3 只有 27 个权重，一个 7×7 核要 49 个。",
     "en": "Each layer looks at only 3×3, but the second layer looks at the first layer's output, so in effect it sees 5×5; the third sees 7×7. This is the receptive field: stack L layers of 3×3 and the receptive field is (2L+1)×(2L+1). VGG sees large areas by stacking small kernels, and three 3×3 layers have only 27 weights, while a single 7×7 kernel needs 49."

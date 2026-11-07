@@ -5,6 +5,10 @@ import { vocabulary } from './vocabulary.js'
 import { imageCourse } from './course.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
+import { partNames } from '../../engine/trays.js'
+
+/** An image game's part names, for its trays: each packing level's own part. */
+const names = (content) => partNames(content.levels.filter((l) => l.packs).map((l) => `own-${l.id}`))
 
 /** An image game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
@@ -28,4 +32,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate, play }
+export default { vocabulary, names, spec, validate, play }

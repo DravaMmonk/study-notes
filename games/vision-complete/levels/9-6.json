@@ -1,5 +1,6 @@
 {
   "title": { "zh": "颜色分割", "en": "Segmenting by brightness" },
+  "tray": "recognition",
   "after": {
     "zh": "不用告诉它什么是前景，k 均值自己把像素分成两堆。可它只看亮度：亮度一样的两样东西，它分不开。",
     "en": "Without being told what the foreground is, k-means splits the pixels into two heaps by itself. But it looks only at brightness: two things of the same brightness, it cannot tell apart."

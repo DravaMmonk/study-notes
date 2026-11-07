@@ -1,5 +1,6 @@
 {
   "title": { "zh": "带条件的规则", "en": "A rule with a condition" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

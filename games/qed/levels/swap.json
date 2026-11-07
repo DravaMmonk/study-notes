@@ -1,5 +1,6 @@
 {
   "title": { "zh": "换一换条件的顺序", "en": "Swap the conditions" },
+  "tray": "proof",
   "builds": "swap",
   "intro": [
     {

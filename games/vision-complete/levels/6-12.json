@@ -26,6 +26,7 @@
     }
   ],
   "adds": ["warp"],
+  "tray": "geometry",
   "tasks": [
     {
       "id": "6-12",

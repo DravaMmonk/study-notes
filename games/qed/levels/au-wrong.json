@@ -1,5 +1,6 @@
 {
   "adds": ["replay", "clausify"],
+  "tray": "certificate",
   "title": { "zh": "证明器错了", "en": "The prover is wrong" },
   "intro": [
     {
@@ -21,7 +22,6 @@
       "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
       "backtrack": true,
       "step": { "zh": "重放", "en": "Replay" },
-      "parts": ["clausify", "replay"],
       "preset": ["c1"],
       "tests": [
         { "goal": "Wet", "hyps": ["Rain ∨ Wind", "¬Rain ∨ ¬Wind"] },

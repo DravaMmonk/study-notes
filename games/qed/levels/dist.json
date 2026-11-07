@@ -1,5 +1,6 @@
 {
   "title": { "zh": "分配律", "en": "Distribute" },
+  "tray": "proof",
   "tasks": [
     {
       "id": "dist",

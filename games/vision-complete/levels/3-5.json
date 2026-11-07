@@ -1,5 +1,6 @@
 {
   "title": { "zh": "阴影还是颜色", "en": "Shadow or colour" },
+  "tray": "pipeline",
   "after": {
     "zh": "颜色 = 照片 ÷ 光照。注意第四张：一面纯色的墙，照片里却有一条很硬的边，那是阴影的边，不是物体的边。照片里的边缘只说明「这里亮度变了」，变的可能是颜色，也可能只是光。",
     "en": "Colour = photo ÷ lighting. Look at the fourth scene: a plain wall, yet the photo has a hard edge in it. That is the edge of a shadow, not of an object. An edge in a photo only says \"the brightness changes here\"; what changed may be the colour, or just the light."

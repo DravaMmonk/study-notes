@@ -10,6 +10,7 @@
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
+import { TRAY, TRAYS } from '../../engine/trays.js'
 import { RULES } from './proof.js'
 import { PRIMITIVE_GATES } from './gates.js'
 import { MACHINE_PARTS } from './machine.js'
@@ -100,7 +101,7 @@ const AFTER_TEXT = S.opt(S.text({ about: t('通关后的一句（只说这一关
 // A level's place in the course.
 const COURSE = {
   adds: S.opt(S.list(PART, { section: 'course', about: t('这一关新带来的元件', 'the parts this level brings in') })),
-  fold: S.opt(S.list(PART, { section: 'course' })),
+  tray: TRAY,
   without: S.opt(S.list(PART, { section: 'course', about: t('这一关不给的元件（一段证明不许用框）', 'parts the level holds back (a proof without boxes)') })),
   symbols: S.opt(S.list(S.oneOf(['¬', '∧', '∨', '→', '↔', '⊥', '∀', '∃']), { about: t('从这一关起在公式里出现的连接词', 'the connectives formulas write from this level on') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
@@ -116,7 +117,7 @@ const READING = {
   symbolicWords: S.opt(S.map(S.text(), { about: t('最后一个测试（字母）里，这些词怎么读', 'how these words read in the last test, the letters') })),
 }
 // What a task may say whatever its kind: how it reads, its hints, its own introduction and pass text (a task before
-// the last), the parts it brings in, holds back or names (a task on another kind of board than the level's), the
+// the last), the parts it brings in or holds back, its tray (a task on another kind of board than the level's), the
 // equation it proves.
 const ANY = {
   ...READING,
@@ -124,9 +125,9 @@ const ANY = {
   intro: S.opt(INTRO),
   after: AFTER_TEXT,
   adds: COURSE.adds,
+  tray: COURSE.tray,
   without: COURSE.without,
   fact: COURSE.fact,
-  parts: S.opt(S.list(PART, { about: t('换了一种板的任务手里有的元件', 'the parts a task on another kind of board holds') })),
 }
 const RULE_ROWS = S.list(S.obj({ binds: ids, needs: SENTENCES }), { about: t('一份声明：每条引入规则一行，取的东西和前提（规则表的写法）', 'a declaration: one introduction rule a row, the things it takes and its premises (as the rule table writes it)') })
 const CASE = S.obj({ given: SENTENCES, goal: S.opt(SENTENCE), make: S.bool(), uses: S.opt(SENTENCES) })
@@ -195,7 +196,6 @@ const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.str(),
   machine: S.either(S.oneOf(['prover'], { about: t('证明器：从这一代起，每一章给它加一个模块', 'the prover: from this era on, each chapter adds a module to it') }), NONE),
-  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   foundation: S.list(ITEM),
   practice: S.opt(S.list(ITEM)),
   topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.text(), desc: S.opt(S.text()) }))),
@@ -218,6 +218,7 @@ const GAME = S.obj({
   words: WORDS,
   wordSets: S.map(S.map(S.text()), { about: t('几套词：字母、谓词、名字怎么读（{0}、{1} 是参数）', 'word sets: how letters, predicates and names read ({0}, {1} their arguments)') }),
   primitives: S.list(S.ref('part')),
+  trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几块元件合起来是一个新想法', 'parts that are one new idea together') })),
   local: S.opt(S.list(PART, { about: t('留在带来它的那一关，不进元件箱', 'parts that stay in the levels that bring them, out of the components box') })),
   machines: S.opt(S.list(S.ref('part'), { about: t('玩家在机器板上搭出的元件', 'the machine parts the player builds') })),

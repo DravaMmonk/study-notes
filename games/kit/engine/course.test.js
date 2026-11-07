@@ -2,7 +2,7 @@
 // under `bypass` (match.js) and the part dependency graph (deps.js), on small made-up courses.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { againstOpen, audit, defineCourse } from '../course.js'
+import { againstOpen, audit, defineCourse, offer, reach } from '../course.js'
 import { dependencies, dot, mermaid } from './deps.js'
 import { rebuilt } from './match.js'
 
@@ -15,7 +15,7 @@ function sketch(eras, spec, extra = {}) {
   const of = (l) => spec[l.id] ?? {}
   return defineCourse({
     levels: levels.map((id) => ({ id, unlocks: spec[id]?.builds ? [spec[id].builds] : [] })),
-    eras: eras.map((e, k) => ({ id: k + 1, keeps: k ? 'all' : undefined, ...e })),
+    eras: eras.map((e, k) => ({ id: k + 1, ...e })),
     primitives: ['a', 'b', 'c', 'd'],
     adds: (l) => of(l).adds ?? [],
     needs: (p) => (levels.some((id) => spec[id]?.builds === p) ? p : null),
@@ -162,4 +162,21 @@ test('only staged tasks exceeding the open-part limit are crowded', () => {
   assert.equal(findings.length, 1)
   assert.equal(findings[0].part, 'crowded')
   assert.match(findings[0].text, /9 loose parts/)
+})
+
+test('a level holds, of the parts met before it, those its tray lists, in the tray’s order; another tray keeps its own', () => {
+  const trays = { gates: ['b', 'a'], proof: ['c', 'x', 'd'] }
+  const spec = { 1: { adds: ['a'], tray: 'gates' }, 2: { adds: ['b'], tray: 'gates' }, 3: { adds: ['c'], tray: 'proof' }, 4: { builds: 'x', uses: ['c'], tray: 'proof' }, 5: { adds: ['d'], tray: 'proof', uses: ['d'] }, 6: { tray: 'gates', uses: ['a'] } }
+  const course = sketch([{ foundation: ['1', '2', '3', '4'] }, { foundation: ['5', '6'] }], spec, { trays, tray: (l) => spec[l.id]?.tray ?? null })
+  assert.deepEqual(reach(course, { id: '5' }), ['c', 'x', 'd'])
+  // The gates come back on the next truth circuit, though proof levels came in between.
+  assert.deepEqual(reach(course, { id: '6' }), ['b', 'a'])
+  assert.deepEqual(offer(course, { id: '6' }, new Set(['x'])), { shown: ['a'], folded: ['b'] })
+  assert.deepEqual(audit(course).filter((f) => f.rule.includes('tray')), [])
+})
+
+test('a part on no tray, and a tray part nothing brings in, are reported', () => {
+  const spec = { 1: { adds: ['a', 'b'] } }
+  const course = sketch([{ foundation: ['1'] }], spec, { trays: { only: ['a', 'c'] }, tray: () => 'only' })
+  assert.deepEqual(audit(course).filter((f) => f.rule.includes('tray')).map((f) => `${f.rule} ${f.part}`), ['off-tray b', 'tray-unmet c'])
 })

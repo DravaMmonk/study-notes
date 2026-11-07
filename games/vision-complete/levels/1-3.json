@@ -1,5 +1,6 @@
 {
   "title": { "zh": "方块模糊", "en": "Box blur" },
+  "tray": "pipeline",
   "after": {
     "zh": "先横后竖，九次乘加变成六次。核能拆成一行乘一列时就能这样省，这叫可分离滤波；核越大省得越多。",
     "en": "Horizontal first, then vertical: nine multiply-adds become six. You can save like this whenever a kernel splits into a row times a column. This is separable filtering; the bigger the kernel, the more you save."

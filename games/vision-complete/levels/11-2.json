@@ -1,5 +1,6 @@
 {
   "title": { "zh": "灰色挡板", "en": "A grey patch" },
+  "tray": "recognition",
   "after": {
     "zh": "黑挡板本身就是一种很强的信号：在亮的路上，一块黑斑也会改变分数。灰挡板（常用整个数据集的平均色）离「什么也没有」更近，比暗的地方能看出负数：挡住它反而让分数变高，说明模型把那里当作反面证据。",
     "en": "A black patch is a strong signal in itself: on a bright road, a dark blotch changes the score too. A grey one (often the average colour of the whole dataset) is closer to \"nothing there\", and it shows negative values where things are darker: covering them raises the score, so the model takes them as evidence against."

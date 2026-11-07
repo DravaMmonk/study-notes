@@ -1,5 +1,6 @@
 {
   "title": { "zh": "不等于自己的后一个", "en": "Never the one after itself" },
+  "tray": "machine",
   "fact": "succNeq",
   "intro": [{ "t": { "zh": "没有哪个数等于它自己的后一个：x ≠ S x。", "en": "No number is the one after itself: x ≠ S x." } }],
   "tasks": [

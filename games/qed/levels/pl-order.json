@@ -1,5 +1,6 @@
 {
   "adds": ["defer"],
+  "tray": "machine",
   "title": { "zh": "先问谁", "en": "Ask which first" },
   "intro": [
     {

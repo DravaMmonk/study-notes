@@ -164,7 +164,7 @@
 ### 3.6 课程审计规则归位
 
 - `carry-unseen`、`topic-finale` 在内核 `audit()` 中实现，领域只给课程钩子 `carries(level)`、`finale(topic)`；删除 net / table 各自的实现。
-- 现状：`RULE_TEXT` 每条都在内核实现（`difficulty-spike` 在 `engine/play/stats.js`）；这两条有合成用例，其余 14 条既有规则（`not-built`、`many-new`、`era-keeps` 等）仍缺合成用例，另行补。
+- 现状：`RULE_TEXT` 每条都在内核实现（`difficulty-spike` 在 `engine/play/stats.js`）；这两条有合成用例，其余 14 条既有规则（`not-built`、`many-new`、`off-tray` 等）仍缺合成用例，另行补。
 
 ---
 

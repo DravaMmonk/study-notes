@@ -7,6 +7,7 @@
 import { packed } from '../../engine/boards.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
+import { trayIn } from '../../engine/trays.js';
 import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } from '../../course.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
@@ -91,7 +92,7 @@ const isCircuit = T => T.mode === 'circuit';
 export function tableCourse(content) {
   // The content with its texts made bilingual strings (lang.js hydrate), a copy frozen as the content is: what the
   // course works out is built beside it, never written into it.
-  const { eras, levels, parts: PARTS, primitives: PRIMITIVES } = deepFreeze(hydrate(content));
+  const { eras, trays, levels, parts: PARTS, primitives: PRIMITIVES } = deepFreeze(hydrate(content));
   // What building the course finds wrong with its content beyond its schema (validate.js reports it).
   const wrong = [];
   const say = (level, text) => wrong.push(`${level}: ${text}`);
@@ -226,6 +227,8 @@ export function tableCourse(content) {
   const course = defineCourse({
     levels: LEVELS.map(L => ({ id: L.id, unlocks: L.unlock ? [L.unlock] : [] })),
     eras,
+    trays,
+    tray: l => trayIn(trays, byId.get(l.id).tray),
     primitives: PRIMITIVES,
     adds: l => byId.get(l.id).adds ?? [],
     needs: p => (built[p] ? p : null),
@@ -239,10 +242,9 @@ export function tableCourse(content) {
     can: m => ROBOTS[m]?.can ?? null,
     world: l => { const s = circuitOf(l.id).at(-1); return s ? FAMILY[s.world] ?? s.world : null; },
     naive: l => byId.get(l.id).tasks.some(s => s.naive),
-    // What a level's reference boards use (the parts placed, not what the level gives), and what it folds anyway.
+    // What a level's reference boards use (the parts placed, not what the level gives).
     needed: l => { const sols = circuitOf(l.id).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(b => b.nodes.filter(n => !isGiven(n.type)).map(n => n.type)) : null; },
     boards: l => circuitOf(l.id).map(s => s.solution).filter(Boolean),
-    folds: l => byId.get(l.id).fold || [],
     showcase: l => byId.get(l.id).showcase ?? null,
     // A level that starts from an earlier level's board (`carry`) requires that level.
     carries: l => (byId.get(l.id).carry ? [byId.get(l.id).carry] : []),

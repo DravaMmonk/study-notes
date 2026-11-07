@@ -14,6 +14,7 @@
     "en": "The long sentences of computer science papers are hard going mostly because their skeleton is hard to find. Fold each modifier into one piece and hang it on the word it modifies, and the skeleton shows. Start from a three-word skeleton and work up to sentences native readers have to read twice."
   },
   "concept": { "role:subj": "skeleton", "role:verb": "skeleton", "role:obj": "skeleton", "role:comp": "skeleton" },
+  "trays": { "main": ["role:subj", "role:verb", "role:obj", "pp", "role:comp", "rel"] },
   "eras": [
     {
       "id": 1,
@@ -43,7 +44,6 @@
     {
       "id": 2,
       "machine": "reader",
-      "keeps": "all",
       "title": {
         "zh": "挂在哪",
         "en": "Where it hangs"
@@ -68,7 +68,6 @@
     {
       "id": 3,
       "machine": "reader",
-      "keeps": "all",
       "title": {
         "zh": "定语从句",
         "en": "Relative clauses"

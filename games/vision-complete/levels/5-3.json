@@ -1,5 +1,6 @@
 {
   "title": { "zh": "切多大", "en": "How big a patch" },
+  "tray": "pipeline",
   "after": {
     "zh": "图块数 = 像素数 ÷ P²，注意力的计算量跟着图块数涨；图块大了，每块又粗得只能认出大结构。ViT 把 224×224 的图切成 16×16 的图块，正好是 196 个：在计算量和细节之间取的一个折中。",
     "en": "The number of patches is the number of pixels ÷ P², and the cost of attention grows with it; but bigger patches are too coarse to see anything but large structure. ViT cuts a 224×224 image into 16×16 patches, exactly 196 of them: a compromise between cost and detail."

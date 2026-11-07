@@ -1,5 +1,6 @@
 {
   "title": { "zh": "书封面", "en": "Book cover" },
+  "tray": "geometry",
   "after": {
     "zh": "匹配、RANSAC 选内点、解单应、变形贴图：这条流水线就是 AR 书封面、全景拼接和文档扫描 App 的核心。每一步你都亲手做过一遍。",
     "en": "Match, choose inliers with RANSAC, solve the homography, warp and paste: this pipeline is the core of AR book covers, panorama stitching and document-scanning apps, and you have built every step of it yourself."

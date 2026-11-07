@@ -1,5 +1,6 @@
 {
   "title": { "zh": "相册去重", "en": "Album clean-up" },
+  "tray": "pipeline",
   "after": {
     "zh": "编码、算余弦、过门槛：相册去重、以图搜图、人脸验证都是这条流水线，差别在编码器学的是哪种「同一个」。门槛定高了会漏掉重复，定低了会把不同的照片并在一起。",
     "en": "Encode, take the cosine, apply a threshold: album clean-up, image search and face verification are all this pipeline, differing in what kind of \"same\" the encoder has learnt. Set the threshold too high and duplicates slip through; too low and different photos get merged."

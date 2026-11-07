@@ -1,5 +1,6 @@
 {
   "title": { "zh": "滑窗", "en": "Sliding window" },
+  "tray": "recognition",
   "after": {
     "zh": "把一个模板在图上逐位置滑过去打分，再过门槛：这就是滑窗检测。卷积网络做的是同一件事，只是模板是学出来的，而且一层层叠着用。",
     "en": "Slide a template over the picture scoring every position, then apply a threshold: this is sliding-window detection. A convolutional network does the same thing, except that the templates are learnt and stacked layer on layer."

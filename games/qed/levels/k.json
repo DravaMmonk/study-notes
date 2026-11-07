@@ -1,5 +1,6 @@
 {
   "title": { "zh": "多一个条件也无妨", "en": "One more condition does no harm" },
+  "tray": "proof",
   "builds": "axK",
   "intro": [{ "t": { "zh": "这一关没有已知。", "en": "This level has no givens." } }],
   "after": {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一个亮度不够", "en": "One brightness is not enough" },
+  "tray": "pipeline",
   "after": {
     "zh": "一张照片只给出一个亮度，它同时取决于漆色和朝向，分不开。换一盏灯再拍一张，漆色在两张里一样，比一比就消掉了，剩下的只和朝向有关。这就是光度立体：用几盏已知的灯，从明暗里解出表面的朝向。",
     "en": "One photo gives one brightness, which depends on both the paint and the facing, and the two cannot be told apart. Take another photo under another lamp: the paint is the same in both, so comparing them cancels it, and what is left depends only on the facing. This is photometric stereo: with a few known lamps, the facing of a surface is solved from its shading."

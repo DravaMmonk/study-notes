@@ -1,5 +1,6 @@
 {
   "title": { "zh": "骗过鉴定员", "en": "Fool the judge" },
+  "tray": "generative",
   "after": {
     "zh": "鉴定员不动、生成器猛练，生成器就把所有样本都放到鉴定员最相信的那一点：两支笔重合，只画一堆，这就是模式坍塌；鉴定员一反应，它们又一起跳到另一堆。让鉴定员跟上、生成器小步走，两支笔才会各占一堆，最后鉴定员的准确率回到 50%。",
     "en": "If the judge stands still while the generator trains hard, the generator puts every sample on the one spot the judge trusts most: the two pens merge and draw only one cluster. This is mode collapse; as soon as the judge reacts, they jump together to the other cluster. Let the judge keep up and the generator take small steps, and the pens settle on one cluster each, until the judge's accuracy is back to 50%."

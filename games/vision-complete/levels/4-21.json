@@ -1,5 +1,6 @@
 {
   "title": { "zh": "分拣机", "en": "Sorting machine" },
+  "tray": "pipeline",
   "after": {
     "zh": "这台分拣机就是一个完整的分类网络：几个卷积通道找不同的笔画，ReLU 和池化让答案不怕挪位置，平均把每个通道变成一个特征，全连接给每类打分，Softmax 把分变成概率。它在没见过的新零件上也对，说明学到的是笔画，而不是背下了那几张图。",
     "en": "This sorting machine is a complete classification network: a few convolution channels find different strokes, ReLU and pooling make the answer indifferent to position, averaging turns each channel into one feature, dense layers score each class, and the softmax turns scores into probabilities. It is right on new parts it has never seen, which shows it learned strokes rather than memorising a handful of pictures."

@@ -25,7 +25,7 @@
       "fig": { "test": 0, "caption": { "zh": "第一组：字母 T", "en": "Set 1: letter T" } }
     }
   ],
-  "adds": ["learn3"],
+  "tray": "generative",
   "tasks": [
     {
       "id": "8-11",

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "指定画哪边", "en": "Draw it on the side asked for" },
+  "tray": "generative",
   "after": {
     "zh": "多给生成器一个条件输入，它就按要求画：这叫条件生成。「画一只猫」「画成水彩风格」这些文字提示，就是更复杂的条件。",
     "en": "Give the generator one more input, a condition, and it draws what is asked for: this is called conditional generation. Text prompts like \"draw a cat\" or \"in watercolour\" are just more elaborate conditions."

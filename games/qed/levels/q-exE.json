@@ -1,5 +1,6 @@
 {
   "title": { "zh": "拿出那一个", "en": "Take the one there is" },
+  "tray": "proof",
   "showcase": {
     "zh": "实例框是一个框：它开出的那一样东西只在框里有名字，框里证出的结论不能再提到它；光看说明，容易把它当成<part-ref to=\"part:exI\"></part-ref>的反面、一步就完",
     "en": "take the one there is is a box: the thing it opens has a name only inside it, and what is proved there may not mention it; from its description alone it is easy to take it for the reverse of <part-ref to=\"part:exI\"></part-ref>, done in a step"

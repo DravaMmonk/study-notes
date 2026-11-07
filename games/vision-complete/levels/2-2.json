@@ -1,5 +1,6 @@
 {
   "title": { "zh": "叠加", "en": "Adding waves" },
+  "tray": "pipeline",
   "after": {
     "zh": "方波只用到奇数频率，振幅按 1、1/3、1/5、1/7 递减。边越陡，需要的高频越多；只到频率 7 的话，陡边旁边总留着一圈小波纹。任何一条曲线都能这样拆成一组波，这就是傅里叶级数。每道正弦波正负抵消，平均是 0，所以不管怎么叠，整行的平均都是中线。",
     "en": "A square wave uses only odd frequencies, with amplitudes falling as 1, 1/3, 1/5, 1/7. The steeper an edge, the more high frequencies it needs; stop at frequency 7 and a ripple always remains beside the steep edge. Any curve can be split into waves like this: that is the Fourier series. Each sine wave cancels itself out and averages 0, so however they are stacked, the row averages to the middle line."

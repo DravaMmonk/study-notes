@@ -1,5 +1,6 @@
 {
   "title": { "zh": "极线计算器", "en": "Epipolar line calculator" },
+  "tray": "geometry",
   "after": {
     "zh": "左图的一个点，在右图里只可能落在一条线上：这条线就是极线 l′ = F·p。匹配时只沿这条线搜，就从整张图缩成了一条线；两台相机平行时，极线正好是同一行，所以之前只在同一行里找。",
     "en": "A point in the left image can only land on one line in the right image: the epipolar line l′ = F·p. Searching only along it shrinks the search from a whole image to a line; when the two cameras are parallel the epipolar lines are exactly the rows, which is why the search so far stayed within one row."

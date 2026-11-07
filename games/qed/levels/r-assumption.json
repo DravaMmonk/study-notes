@@ -1,6 +1,7 @@
 {
   "title": { "zh": "由假设得证", "en": "Among the givens" },
   "adds": ["assumption"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

@@ -1,5 +1,6 @@
 {
   "adds": ["uPattern", "unifier"],
+  "tray": "machine",
   "title": { "zh": "几个变量", "en": "Several variables" },
   "intro": [
     {

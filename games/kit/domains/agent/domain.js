@@ -3,6 +3,7 @@
 // (play.js). Nothing here draws: the page's side is game.jsx.
 
 import { vocabulary } from './vocabulary.js'
+import { partNames } from '../../engine/trays.js'
 import { agentCourse } from './course.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
@@ -22,4 +23,4 @@ function spec(content) {
   }
 }
 
-export default { vocabulary, spec, validate, play }
+export default { vocabulary, names: () => partNames(), spec, validate, play }

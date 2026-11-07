@@ -2,6 +2,7 @@
   "title": { "zh": "让核重放", "en": "Let the kernel replay it" },
   "builds": "metis",
   "adds": ["replay", "saturate", "clausify"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

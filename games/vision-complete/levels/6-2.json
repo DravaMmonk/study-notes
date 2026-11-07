@@ -1,5 +1,6 @@
 {
   "title": { "zh": "只留最强的", "en": "Keep only the strongest" },
+  "tray": "geometry",
   "after": {
     "zh": "「等于周围最大值」的格子才是峰顶：这叫非极大值抑制（NMS）。一块 3×3 的最大值可以拆成先横后竖，和可分离的模糊一个道理。",
     "en": "Only a cell equal to the largest around it is a top: this is called non-maximum suppression (NMS). The maximum over a 3×3 block splits into across then down, just like a separable blur."

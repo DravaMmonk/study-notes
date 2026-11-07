@@ -1,5 +1,6 @@
 {
   "title": { "zh": "交换", "en": "Commutativity" },
+  "tray": "machine",
   "fact": "addComm",
   "tasks": [
     {

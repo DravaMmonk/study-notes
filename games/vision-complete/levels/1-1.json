@@ -38,6 +38,7 @@
     }
   ],
   "adds": ["arith", "merge"],
+  "tray": "pipeline",
   "unlocks": ["blur3h"],
   "tasks": [
     {

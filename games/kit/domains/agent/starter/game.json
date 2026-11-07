@@ -43,7 +43,6 @@
     {
       "id": 1,
       "machine": "once",
-      "keeps": "all",
       "title": {
         "zh": "一问一答",
         "en": "One call"

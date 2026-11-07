@@ -1,5 +1,6 @@
 {
   "title": { "zh": "规则作用于假设", "en": "A rule, then a given" },
+  "tray": "machine",
   "builds": "erule",
   "intro": [
     {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "多通道", "en": "Multiple channels" },
+  "tray": "pipeline",
   "after": {
     "zh": "一个卷积核要同时覆盖所有输入通道：这里是 3×3×3 = 27 个权重，三份乘积加成一张激活图。训练出的红通道核和绿通道核正好相反，蓝通道的是 0，于是同时变亮的部分互相抵消，只剩颜色对比。CNN 第一层学到的颜色对比滤波器就是这样来的。",
     "en": "A convolution kernel has to cover all the input channels at once: here that is 3×3×3 = 27 weights, and the three sets of products add up to one activation map. The trained red-channel and green-channel kernels come out exactly opposite and the blue one is 0, so whatever brightens in every channel cancels out and only the colour contrast is left. This is where the colour-contrast filters in a CNN's first layer come from."

@@ -9,6 +9,7 @@
     }
   ],
   "adds": ["resolve"],
+  "tray": "machine",
   "after": {
     "zh": "SAT 求解器里，这叫<wiki-ref to=\"unit\"></wiki-ref>。",
     "en": "In a SAT solver this is called <wiki-ref to=\"unit\"></wiki-ref>."

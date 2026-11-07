@@ -1,5 +1,6 @@
 {
   "title": { "zh": "避障警报", "en": "Obstacle alarm" },
+  "tray": "geometry",
   "after": {
     "zh": "窗口、距离换算、感兴趣区域，一个都不能少：这是一台最简单的双目避障系统。真实的扫地机器人还会结合激光或结构光，补上没有纹理的地方。",
     "en": "Window, distance conversion, region of interest: none can be left out. This is the simplest stereo obstacle-avoidance system; real robot vacuums also use a laser or structured light to fill in where there is no texture."

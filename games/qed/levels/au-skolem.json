@@ -1,6 +1,7 @@
 {
   "title": { "zh": "∃ 换成函数", "en": "∃ becomes a function" },
   "adds": ["skolem"],
+  "tray": "machine",
   "intro": [
     {
       "t": {

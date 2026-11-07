@@ -1,5 +1,6 @@
 {
   "title": { "zh": "按形状分解目标", "en": "The goal by its shape" },
+  "tray": "machine",
   "builds": "introRules",
   "intro": [
     {

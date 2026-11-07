@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一步加到第 t 步", "en": "Straight to step t" },
+  "tray": "generative",
   "after": {
     "zh": "ᾱ 从 1 慢慢减到 0，图一点点没进噪声里。两个系数的平方加起来是 1，所以不管加到哪一步，图的总「能量」大致不变。这个公式让训练时能直接跳到任意一步，不用一步步加。",
     "en": "As ᾱ falls slowly from 1 to 0, the picture sinks little by little into the noise. The squares of the two coefficients add up to 1, so whatever the step, the total \"energy\" of the picture stays about the same. This formula lets training jump straight to any step without adding noise step by step."

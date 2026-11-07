@@ -1,5 +1,6 @@
 {
   "title": { "zh": "潜空间走一走", "en": "A walk in latent space" },
+  "tray": "generative",
   "after": {
     "zh": "像素空间里的中间是两张图叠在一起；潜空间里的中间才是「一个斑点在中间」。训练好的编码器把图放进一个平滑的空间，在里面走直线，解码出来就是一串自然的过渡：人脸变老、换发型都是这么做的。",
     "en": "Halfway in pixel space is two pictures laid over each other; halfway in latent space is \"one blob in between\". A trained encoder puts pictures into a smooth space, and walking a straight line there decodes into a natural transition: making a face older or changing a hairstyle works like this."

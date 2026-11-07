@@ -1,5 +1,6 @@
 {
   "title": { "zh": "或者，换个顺序", "en": "Or, the other way round" },
+  "tray": "proof",
   "tasks": [
     {
       "id": "orSwap",

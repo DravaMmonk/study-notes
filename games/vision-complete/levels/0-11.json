@@ -1,5 +1,6 @@
 {
   "title": { "zh": "灯老了", "en": "An ageing lamp" },
+  "tray": "pipeline",
   "after": {
     "zh": "灯光是乘上去的：亮度 = 灯 × 表面。乘回 1 ÷ 0.8 = 1.25，就回到了拍标准件时的灯光，再比较才公平。只调门槛不行：亮处因为灯暗掉的，比暗处凹坑掉的还多。",
     "en": "Light multiplies: brightness = lamp × surface. Multiplying back by 1 ÷ 0.8 = 1.25 restores the lighting the reference was taken under, and only then is the comparison fair. Adjusting the threshold alone fails: bright areas lose more to the dim lamp than dark areas lose to a dent."

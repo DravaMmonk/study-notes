@@ -1,5 +1,6 @@
 {
   "title": { "zh": "换灯露馅", "en": "A new lamp gives it away" },
+  "tray": "pipeline",
   "after": {
     "zh": "两块布在日光下读数一样，换一盏灯就不一样了：它们的光谱不同，只是差别正好落在三种感光都看不见的地方。这叫同色异谱。买衣服时在店里灯下配好的颜色，到了太阳底下对不上，就是这个原因。感光是线性的，所以「先相减再读数」和「分别读数再相减」一样。",
     "en": "The two cloths read the same in daylight and differently under another lamp: their spectra differ, but only where none of the three sensors can see. This is metamerism. It is why colours that match under the shop's lights can clash in the sun. Sensing is linear, so \"subtract, then read\" is the same as \"read each, then subtract\"."

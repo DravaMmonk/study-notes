@@ -1,5 +1,6 @@
 {
   "title": { "zh": "核速判", "en": "Kernel sprint" },
+  "tray": "pipeline",
   "after": {
     "zh": "你已经能从结果反推核：全正且和为 1 是平滑，越集中越接近原图；和为 0 的核只对变化有反应，是求导；中心大、四周为负是锐化；只有一个 1 是平移，挪的方向和 1 的位置相反。",
     "en": "You can now work back from a result to its kernel. All positive and summing to 1 is smoothing, and the more concentrated, the closer to the original. A kernel that sums to 0 responds only to change: a derivative. A large centre with negative neighbours is sharpening. A single 1 is a shift, moving the opposite way from where the 1 sits."

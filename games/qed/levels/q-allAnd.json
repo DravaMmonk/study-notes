@@ -1,5 +1,6 @@
 {
   "title": { "zh": "∀ 拆到两边", "en": "∀ over both sides" },
+  "tray": "proof",
   "tasks": [
     {
       "id": "q-allAnd",

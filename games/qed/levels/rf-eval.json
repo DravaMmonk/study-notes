@@ -1,5 +1,6 @@
 {
   "title": { "zh": "判定程序", "en": "A decision procedure" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

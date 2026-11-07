@@ -1,5 +1,6 @@
 {
   "title": { "zh": "X 在哪", "en": "Where are the X" },
+  "tray": "recognition",
   "after": {
     "zh": "噪点让每个位置的分数都抖一点，门槛要留出余量：太低，噪点凑成假的 X；太高，暗一点的 X 就漏了。",
     "en": "Grain makes every position's score wobble a little, so the threshold needs a margin: too low and the grain makes false X; too high and a fainter X slips through."

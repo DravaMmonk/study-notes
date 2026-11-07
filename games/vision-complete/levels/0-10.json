@@ -1,5 +1,6 @@
 {
   "title": { "zh": "找不同", "en": "Spot the difference" },
+  "tray": "pipeline",
   "after": {
     "zh": "和标准件逐格比，零件本来的明暗就抵消了，只剩下缺陷。",
     "en": "Compared cell by cell with the reference, the part's own light and dark cancel out and only the defects are left."

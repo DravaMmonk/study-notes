@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一对一", "en": "One-to-one" },
+  "tray": "proof",
   "fact": "inject",
   "intro": [
     {

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "别把图边当纸边", "en": "The image edge is not the paper edge" },
+  "tray": "pipeline",
   "after": {
     "zh": "补 0 让图外变成黑桌面，纸在图边就「断」了，冒出一条假边。复制边缘让纸自然延伸出去，只有真的纸边才亮。",
     "en": "Padding with 0 turns the outside into a black desk, so the paper \"ends\" at the image border and a fake edge appears. Replicating the edge lets the paper carry on outward, so only real paper edges light up."

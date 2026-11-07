@@ -1,5 +1,6 @@
 {
   "title": { "zh": "拉近与推开", "en": "Pull close, push apart" },
+  "tray": "pipeline",
   "after": {
     "zh": "只拉近正对时，把所有图都放到同一点就能让损失最小，却什么也分不出：这叫坍缩。InfoNCE 的分母把同一批里的其他视图当作负对推开，点才在圆上散开。变形本身提供了答案，不需要人工标签：这就是自监督的对比学习（SimCLR）。",
     "en": "When only positive pairs are pulled together, putting every image at the same point minimises the loss but tells nothing apart: this is called collapse. InfoNCE's denominator treats the other views in the batch as negative pairs and pushes them away, so the dots spread out round the circle. The alterations themselves supply the answer, with no human labels: this is self-supervised contrastive learning (SimCLR)."

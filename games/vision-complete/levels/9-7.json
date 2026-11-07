@@ -1,5 +1,6 @@
 {
   "title": { "zh": "先缩小再放大", "en": "Shrink, then enlarge" },
+  "tray": "recognition",
   "after": {
     "zh": "缩小时几格平均，噪点互相抵消；判断完再放大回来：这就是编码器—解码器。代价是边界只能对齐到块：比块还细的东西，缩小时就丢了。",
     "en": "Shrinking averages several cells so the grain cancels out; decide, then enlarge back: this is an encoder–decoder. The price is that boundaries can only line up with the blocks: anything finer than a block is lost in the shrinking."

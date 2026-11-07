@@ -1,5 +1,6 @@
 {
   "title": { "zh": "十个人", "en": "Ten islanders" },
+  "tray": "machine",
   "after": {
     "zh": "十个人的真值表有 1024 行。判定这类问题的程序叫 <b>SAT 求解器</b>，能处理的变量数以百万计。",
     "en": "The truth table for ten people has 1024 rows. Programs that decide problems like this are called <b>SAT solvers</b>, and they handle millions of variables."

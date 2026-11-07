@@ -8,11 +8,11 @@
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
+import { TRAY, TRAYS } from '../../engine/trays.js'
 import { PARTS, ROLES, TYPES } from './model/parts.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
-const ids = S.list(S.str())
 const TEXTS = S.list(S.text())
 
 /* ---------- the parts, the machine ---------- */
@@ -54,6 +54,7 @@ const INTRO = S.list(S.obj({ t: S.text() }))
 const ONCE = {
   title: S.text(),
   adds: S.opt(S.list(S.ref('part'), { section: 'course', about: t('这一关带来的成分或结构', 'the roles and constructions the level brings in') })),
+  tray: TRAY,
   showcase: S.opt(S.text({ section: 'course', about: t('新东西第一次出现时只用它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only uses it: what is abstract about its use') })),
   intro: S.opt(INTRO),
   debrief: S.obj({ title: S.text(), body: TEXTS, note: S.opt(S.text()) }),
@@ -68,7 +69,6 @@ const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), t
 const ERA = S.obj({
   id: S.int(),
   machine: S.ref('machine'),
-  keeps: S.opt(S.either(S.oneOf(['all']), ids)),
   title: S.text(),
   kicker: S.text(),
   question: S.text(),
@@ -78,6 +78,7 @@ const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up able to do, not how many levels') }),
+  trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
   eras: S.list(ERA, { min: 1 }),
 })

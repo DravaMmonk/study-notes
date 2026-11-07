@@ -1,5 +1,6 @@
 {
   "title": { "zh": "德摩根律", "en": "De Morgan" },
+  "tray": "proof",
   "builds": "dm",
   "intro": [
     {

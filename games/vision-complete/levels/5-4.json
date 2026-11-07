@@ -1,5 +1,6 @@
 {
   "title": { "zh": "两个头", "en": "Two heads" },
+  "tray": "pipeline",
   "after": {
     "zh": "每个注意力只能按一种相似去找。多头注意力并排放几个注意力，各自用自己的 Q、K 找一种关系，再把结果拼在一起。Transformer 的每一层都有好几个头。",
     "en": "Each attention can only look for one kind of likeness. Multi-head attention puts several side by side, each finding one kind of relation with its own Q and K, and then puts their results together. Every layer of a Transformer has several heads."

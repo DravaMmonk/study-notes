@@ -1,5 +1,6 @@
 {
   "title": { "zh": "省一点算", "en": "A little cheaper" },
+  "tray": "pipeline",
   "after": {
     "zh": "先把每个通道单独卷一次，再按每张输出要的比例混起来（1×1 的混合，几乎不花计算量）。这叫深度可分离卷积：MobileNet 靠它在手机上跑得动。输出通道越多，省得越多。",
     "en": "Convolve each channel once on its own, then mix them in the proportions each output needs (a 1×1 mix, which costs almost nothing). This is a depthwise separable convolution: it is what lets MobileNet run on a phone. The more output channels, the more it saves."

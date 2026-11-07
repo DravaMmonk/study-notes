@@ -1,5 +1,6 @@
 {
   "title": { "zh": "几条一起", "en": "Several at once" },
+  "tray": "machine",
   "builds": "simp",
   "intro": [
     {

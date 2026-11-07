@@ -1,5 +1,6 @@
 {
   "title": { "zh": "未知算子", "en": "Unknown operator" },
+  "tray": "pipeline",
   "after": {
     "zh": "正确。你得到了<part-ref to=\"shift\"></part-ref>：整张图挪一格，挪出边界的地方补 0。它的方向可以设成上下左右。",
     "en": "Correct. You now have <part-ref to=\"shift\"></part-ref>: it moves the whole image by one pixel and fills the gap left at the border with 0. Its direction can be set to up, down, left or right."

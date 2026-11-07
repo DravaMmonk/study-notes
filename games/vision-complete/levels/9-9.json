@@ -1,5 +1,6 @@
 {
   "title": { "zh": "细胞分割", "en": "Segmenting cells" },
+  "tray": "recognition",
   "after": {
     "zh": "自适应的分界、去噪的粗路径、保细节的跳连：一个小小的 U-Net 式流水线。真实的细胞分割网络把每一步都换成学出来的卷积，结构还是这个样子。",
     "en": "An adaptive boundary, a coarse path that removes grain, a skip connection that keeps detail: a small U-Net-style pipeline. Real cell-segmentation networks replace every step with learnt convolutions, but the structure stays the same."

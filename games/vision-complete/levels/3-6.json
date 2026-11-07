@@ -1,5 +1,6 @@
 {
   "title": { "zh": "只认颜色", "en": "Colour, not brightness" },
+  "tray": "pipeline",
   "after": {
     "zh": "光照让 R、G、B 一起变大变小，三者的比例却不变。r = R ÷ (R + G + B) 只看颜色、不看明暗，是一种色度。HSV、Lab 这些颜色空间也是同一个想法：把「什么颜色」和「多亮」分开放。",
     "en": "Lighting scales R, G and B together, but their proportions stay the same. r = R ÷ (R + G + B) sees the colour and not the brightness: it is a chromaticity. Colour spaces such as HSV and Lab follow the same idea: they keep \"which colour\" apart from \"how bright\"."

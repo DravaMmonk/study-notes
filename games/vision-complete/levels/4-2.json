@@ -1,5 +1,6 @@
 {
   "title": { "zh": "两个旋钮", "en": "Two knobs" },
+  "tray": "pipeline",
   "after": {
     "zh": "两个旋钮时，误差是一片地形，梯度是一个箭头，指向上坡最陡的方向。这片山谷又窄又长，梯度总指着谷壁，路线就走成了之字形。w × 输入 + b 有一个名字：全连接层（这里只有一个输入）。",
     "en": "With two knobs the error is a landscape, and the gradient is an arrow pointing up the steepest slope. This valley is long and narrow, so the gradient keeps pointing at the valley walls and the path zig-zags. w × input + b has a name: a dense layer (here with a single input)."

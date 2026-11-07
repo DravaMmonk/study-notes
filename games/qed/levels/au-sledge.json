@@ -1,5 +1,6 @@
 {
   "adds": ["saturate", "clausify"],
+  "tray": "machine",
   "title": { "zh": "交给证明器", "en": "Hand it to the prover" },
   "after": {
     "zh": "证明助手推出的 ⊥ 只有它自己担保：子句不是核证出来的。",

@@ -1,5 +1,6 @@
 {
   "title": { "zh": "双重否定律", "en": "Double negation" },
+  "tray": "proof",
   "builds": "dneg",
   "intro": [
     {

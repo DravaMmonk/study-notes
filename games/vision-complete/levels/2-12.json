@@ -1,5 +1,6 @@
 {
   "title": { "zh": "一次就够", "en": "Once is enough" },
+  "tray": "pipeline",
   "after": {
     "zh": "滤波是线性的：低通(A) − 低通(B) = 低通(A − B)。先合起来再滤，和分别滤完再合，结果一样，变换只做一次就够了。很多看起来要算两遍的事，都能这样合成一遍。",
     "en": "Filtering is linear: low-pass(A) − low-pass(B) = low-pass(A − B). Combining first and then filtering gives the same as filtering each and then combining, so one transform is enough. Many things that look as if they need computing twice can be merged into once like this."

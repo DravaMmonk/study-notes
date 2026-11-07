@@ -1,5 +1,6 @@
 {
   "title": { "zh": "混合图像", "en": "Hybrid images" },
+  "tray": "pipeline",
   "after": {
     "zh": "高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。",
     "en": "High-pass = image − low-pass, that is, the mask 1 − H. A keeps only its broad outline and B only its edges and fine texture. Added together, the detail wins up close; from afar, or with squinted eyes, the detail disappears and only A is left. Filtering is linear, so low-pass(A − B) + B gives the same result with a single transform."

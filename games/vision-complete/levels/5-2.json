@@ -1,5 +1,6 @@
 {
   "title": { "zh": "补全对角", "en": "Mend across the diagonal" },
+  "tray": "pipeline",
   "after": {
     "zh": "被擦的那块和远处的孪生块最像，于是一步就从对角取回了缺的格子。这就是自注意力：每个图块（token）用 q·k/√d 和所有图块打分，softmax 把分数变成和为 1 的权重，再对 v 加权平均。3×3 卷积叠 L 层也只看到 (2L+1)×(2L+1)。",
     "en": "The erased patch looks most like its far-off twin, so in one step it fetched the missing pixels from the opposite corner. That is self-attention: each patch (token) scores every patch with q·k/√d, softmax turns the scores into weights that sum to 1, and the v are averaged with those weights. Stack L layers of 3×3 convolution and you still only see (2L+1)×(2L+1)."

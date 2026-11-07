@@ -1,6 +1,7 @@
 {
   "title": { "zh": "取一个", "en": "Take one" },
   "adds": ["allE"],
+  "tray": "proof",
   "intro": [
     {
       "t": {

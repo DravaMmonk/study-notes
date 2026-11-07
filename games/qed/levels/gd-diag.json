@@ -1,5 +1,6 @@
 {
   "title": { "zh": "对角线是一次计算", "en": "The diagonal is a computation" },
+  "tray": "machine",
   "intro": [
     {
       "t": {

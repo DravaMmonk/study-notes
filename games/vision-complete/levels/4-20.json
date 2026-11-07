@@ -1,5 +1,6 @@
 {
   "title": { "zh": "三选一", "en": "One of three" },
+  "tray": "pipeline",
   "after": {
     "zh": "这叫 Softmax：先用 e 的几次方把分变成正数，再除以总和。分差 1，概率就差 e 倍，最高分会被放大。分类网络的最后一步几乎都是它。",
     "en": "This is the softmax: first make the scores positive with e to the power of each, then divide by the total. A difference of 1 in score is a factor of e in probability, so the top score is magnified. Almost every classification network ends with it."
