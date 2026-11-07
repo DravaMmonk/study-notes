@@ -162,7 +162,8 @@
       ],
       "naive": [
         "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
-        "r = difference(image,v)",
+        "signed = arithmetic[op=sub](image,v)",
+        "r = abs(signed)",
         "smooth <- v",
         "detail <- r"
       ],
@@ -357,7 +358,7 @@
         "zh": "加到平滑图上只是把抹掉的部分补回来：强度为 1 时得到的正是原图，没有任何增强。",
         "en": "Adding to the smoothed image only restores what was removed: at strength 1 it gives back the original, with no enhancement."
       },
-      "adds": [],
+      "adds": ["difference"],
       "sample": {
         "inputs": {
           "image": {

@@ -6,8 +6,23 @@ The player builds an inspection instrument, a neighbourhood processor/scanner an
 arithmetic and traversal execute automatically; selecting and composing the visual relationships is the puzzle.
 The long-term plan is [the machine-first outline](../../docs/Unimelb/26S2/CV/vision-game-specs/curriculum-construction-outline.md).
 This specification covers stages 0–2, not later camera, learning or geometry machines.
-These stages are being folded into the remade Vision Complete: chapter 0 joins its main line and chapters 1–2
-become its K and F principle series ([chapter map](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md), §7).
+The [remake chapter map](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md) governs the
+replacement curriculum. This directory is the working entry point until the new chapters 0–2 are ready
+for the Vision Complete cutover.
+
+## Chapter 0: inspection station
+
+The main line progresses from reading cells, coordinates and RGB channels to a pointwise negative.
+After that, contrast, difference and displacement are independent routes. Contrast preserves values
+outside the display range. Difference distinguishes signed change from magnitude before applying a
+strict threshold. The unknown-shift task accepts evidence only when the player's input distinguishes
+the competing offsets. The three routes join before registration. The final station must report
+both the aligned difference and a thresholded mask, including cases with either displacement axis.
+
+The optional outline challenge uses a three-part budget to exploit a binary image's one-sided
+boundary. Topic Q first selects a tolerance from noisy calibration cases, then compares two
+candidate read offsets by summed absolute error. Its final task applies a threshold after selecting
+the offset. No result from this topic unlocks a main-line capability.
 
 ## Samples for every task
 

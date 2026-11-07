@@ -443,6 +443,28 @@
         }
       ],
       "compute": "match $scale { narrow: gaussianRow(0.45), medium: gaussianRow(0.8), wide: gaussianRow(1.4) }"
+    },
+    "totalDifference": {
+      "name": { "zh": "总差", "en": "Total difference" },
+      "desc": {
+        "zh": "把灰度差值图的所有读数加成一个分数。",
+        "en": "Sum the readings of a greyscale difference map into a single score."
+      },
+      "icon": "Sigma",
+      "family": "value",
+      "inputs": [{ "name": "image" }],
+      "compute": "lookup(reduceRows(transpose(reduceRows(image, mode='sum')), mode='sum'), 0, 0)"
+    },
+    "chooseDifference": {
+      "name": { "zh": "选择差值图", "en": "Select a difference map" },
+      "desc": {
+        "zh": "条件非零时输出第一张图，否则输出第二张图。",
+        "en": "Output the first map for a nonzero condition, otherwise the second."
+      },
+      "icon": "GitBranch",
+      "family": "logic",
+      "inputs": [{ "name": "condition" }, { "name": "first" }, { "name": "second" }],
+      "compute": "select(condition, first, second)"
     }
   }
 }

@@ -136,6 +136,7 @@ const LEVEL = levelSchema({
   },
   more: {
     spectrumAxes: S.opt(S.oneOf([2])),
+    partBudget: S.opt(S.int({ min: 1 })),
     multiplyBudget: S.opt(S.obj({ image: NAME, perPixel: S.int({ min: 1 }) })),
     tolerance: S.opt(S.num({ min: 0, about: t('比较值时的容差（默认 1e-5）', 'the tolerance values are compared with (1e-5 by default)') })),
     starter: S.opt(S.board({ about: t('任务开始时的板，蓝图文本，每行一个字符串', 'the board the task opens on, as blueprint text, one string a line') })),
@@ -145,7 +146,7 @@ const LEVEL = levelSchema({
     sample: S.opt(S.obj({ inputs: S.map(S.either(VALUE, PICTURE), { about: t('按输入名给的值；没给的取第一个测试的', 'values by input name; the rest are the first test’s') }) }, { section: 'tests', about: t('样张：一张较大的图，玩家的板和参考解都在上面跑，只看效果、不判定', 'the sample: a larger picture the player’s board and the reference both run on, to see the effect, never judged') })),
   },
   kinds: {
-    probe: { experiment: S.opt(S.oneOf(['blur', 'spectrum'])) },
+    probe: { experiment: S.opt(S.oneOf(['blur', 'spectrum', 'shift'])) },
     grid: {
       image: IMAGE,
       calculation: S.opt(S.by('kind', {
@@ -174,7 +175,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 4,
+  version: 5,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,

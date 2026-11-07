@@ -147,7 +147,6 @@
         "l = shift(image,negative)",
         "r = shift(image,d)"
       ],
-      "adds": ["const"],
       "intro": [
         {
           "t": {

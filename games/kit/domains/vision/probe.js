@@ -1,4 +1,5 @@
-// A local blur experiment. Both questions use the same hidden operator.
+// Evidence tasks compare an experiment with competing explanations.
+import { shiftRead } from './construction.js'
 import { filterImage } from './operators.js'
 import { fromRows, differs } from './image.js'
 import { T } from '../../shell/i18n.js'
@@ -33,17 +34,29 @@ const valid = rows => Array.isArray(rows) && rows.length === 7 && rows.every(row
 const blur = (image, kernel) => filterImage(image, kernel, { outside: 'clamp' })
 export const probeOutput = rows => valid(rows) ? blur(fromRows(rows), actual) : null
 
-export function checkProbe(question, evidence) {
-  const output = probeOutput(evidence?.rows)
-  if (!output) return T('先运行一张读数在 0 到 1 之间的图。', 'Run an image with readings between 0 and 1 first.')
+export function checkProbe(question, evidence, apply = blur) {
+  if (!valid(evidence?.rows)) return T('先运行一张读数在 0 到 1 之间的图。', 'Run an image with readings between 0 and 1 first.')
   const image = fromRows(evidence.rows)
-  if (question.options.some(([id, , kernel]) => id !== question.answer && !differs(output, blur(image, kernel)))) {
+  const actual = question.options.find(([id]) => id === question.answer)[2]
+  const output = apply(image, actual)
+  if (question.options.some(([id, , setting]) => id !== question.answer && !differs(output, apply(image, setting)))) {
     return T('这张图的输出仍与另一种解释相同。换一种输入试试。', 'Another explanation gives the same output on this image. Try a different input.')
   }
   if (evidence.answer !== question.answer) {
     return T('再比较输入和输出，选择这份证据支持的结论。', 'Compare the input with the output and choose the conclusion supported by the evidence.')
   }
   return null
+}
+
+const shiftOffset = { x: 1, y: 0 }
+const shiftQuestion = {
+  title: T('亮点去了哪里？', 'Where does a bright pixel go?'),
+  options: [
+    ['left', T('往左一格', 'One cell left'), shiftOffset],
+    ['right', T('往右一格', 'One cell right'), { x: -1, y: 0 }],
+    ['up', T('往上一格', 'One cell up'), { x: 0, y: 1 }],
+  ],
+  answer: 'left',
 }
 
 const spectrumStart = { x: 2, y: 2 }
@@ -74,15 +87,21 @@ function checkSpectrum({ axis }, evidence) {
     : T('比较同一轴上的一对亮点到中心的距离，再提交。', 'Compare the peak pair’s distance from the centre on the same axis, then submit.')
 }
 
-const blurModel = {
-  field: 'rows', initial: blankProbe, output: probeOutput, questions: probeQuestions, check: checkProbe,
+const gridModel = (questions, output, check) => ({
+  field: 'rows', initial: blankProbe, output, questions, check,
   reference: () => {
     const rows = blankProbe()
     rows[3][3] = 1
-    return probeQuestions.map(question => ({ rows, answer: question.answer }))
+    return questions.map(question => ({ rows, answer: question.answer }))
   },
-  insufficient: () => ({ rows: blankProbe(), answer: 'square' }),
-}
+  insufficient: () => ({ rows: blankProbe(), answer: questions[0].answer }),
+})
+
+const blurModel = gridModel(probeQuestions, probeOutput, checkProbe)
+const shiftModel = gridModel([shiftQuestion],
+  rows => valid(rows) ? shiftRead(fromRows(rows), shiftOffset) : null,
+  (question, evidence) => checkProbe(question, evidence, shiftRead))
+
 const spectrumModel = {
   field: 'cycles', initial: () => ({ ...spectrumStart }), output: spectrumImage,
   questions: spectrumQuestions, check: checkSpectrum,
@@ -90,4 +109,5 @@ const spectrumModel = {
   insufficient: () => ({ cycles: { x: 4, y: 4 }, answer: 'farther' }),
 }
 
-export const probeOf = (task) => task.experiment === 'spectrum' ? spectrumModel : blurModel
+const models = { blur: blurModel, spectrum: spectrumModel, shift: shiftModel }
+export const probeOf = (task) => models[task.experiment ?? 'blur']

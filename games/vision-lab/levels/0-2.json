@@ -1,108 +1,59 @@
 {
-  "title": { "zh": "先比较同一个位置", "en": "Compare corresponding locations" },
+  "title": { "zh": "底片", "en": "Negative" },
   "intro": [
     {
       "t": {
-        "zh": "带符号差可以指出工件哪里变了，但传送带把整个工件挪了一格，连完好的部位也亮了起来。夹具已经测出偏移。用这份已知信息把错位和真正缺口分开。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
-        "en": "Signed differences locate change, but the belt moved the whole part and intact areas now light up. The fixture has measured the offset. Use that measurement to separate misalignment from a real defect. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+        "zh": "质检台切到反相显示。原来亮的地方应当变暗，暗的地方应当变亮，位置不动。 <wiki-ref to=\"pointwise-transform\"></wiki-ref>",
+        "en": "The station switches to a negative display. Bright and dark readings trade places while locations stay fixed. <wiki-ref to=\"pointwise-transform\"></wiki-ref>"
       }
     }
   ],
-  "after": {
-    "zh": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]\n\nd=(dx,dy) 是给定的读取偏移。先对应同一场景位置，再比较数值，才能减少错位产生的假差异。这里使用已知位移，没有从图像估计未知位移。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
-    "en": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]\n\nd=(dx,dy) is the supplied read offset. Matching scene positions before comparing values reduces false differences from misalignment. The offset is given, not estimated from the images. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
-  },
   "tasks": [
     {
-      "id": "v0_alignment",
+      "id": "inspection_negative",
       "kind": "circuit",
-      "step": {
-        "zh": "修复位置对应",
-        "en": "Align locations"
-      },
-      "configurations": { "*.outside": ["zero"] },
       "brief": {
-        "zh": "夹具给出了取样偏移向量 d = (dx, dy)。先按它读取观测图，再与参照比较；图外取 0。",
-        "en": "The fixture supplies a sampling offset vector d = (dx, dy). Read the observation at that offset before comparing with the reference; outside reads are zero."
+        "zh": "让 0 变成 1，1 变成 0，中间读数等距反过来。",
+        "en": "Map 0 to 1 and 1 to 0, reversing the readings in between at equal spacing."
       },
       "inputs": [
-        { "name": "observed", "label": { "zh": "观测", "en": "Observation" } },
-        { "name": "reference", "label": { "zh": "参照", "en": "Reference" } },
-        { "name": "d", "type": "vector", "label": { "zh": "取样偏移 d", "en": "Read offset d" } }
+        { "name": "image", "label": { "zh": "输入图", "en": "Input image" } }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "对齐后的变化", "en": "Aligned change" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "输出", "en": "Output" } }],
       "tests": [
         {
           "inputs": {
-            "observed": [[0.1, 0.4, 0.8, 0.3]],
-            "reference": [[0.55, 0.8, 0.3, 0]],
-            "d": { "x": 1, "y": 0 }
+            "image": [[0, 0.25, 1], [0.4, 0.5, 0.8]]
           },
-          "expect": { "out": [[0.15000000000000002, 0, 0, 0]] }
-        },
-        {
-          "inputs": {
-            "observed": [[0.2, 0.6], [0.8, 0.1], [0.4, 0.5]],
-            "reference": [[0.15, 0], [0.2, 0.6], [0.8, 0.1]],
-            "d": { "x": 0, "y": -1 }
-          },
-          "expect": { "out": [[0.15, 0], [0, 0], [0, 0]] }
+          "expect": { "out": [[1, 0.75, 0], [0.6, 0.5, 0.2]] }
         }
       ],
       "hidden": [
         {
           "inputs": {
-            "observed": [[0.3, 0.7, 0.1], [0.2, 0.9, 0.5]],
-            "reference": [[0.15, 0.3, 0.7], [0, 0.2, 0.9]],
-            "d": { "x": -1, "y": 0 }
+            "image": [[[0.25, 0.1, 0.7]]]
           },
-          "expect": { "out": [[0.15, 0, 0], [0, 0, 0]] }
+          "expect": { "out": [[[0.75, 0.9, 0.3]]] }
         }
       ],
-      "solution": ["s = shift(observed,d)", "c = difference(s,reference)", "out <- c"],
-      "naive": ["c = difference(observed,reference)", "out <- c"],
+      "solution": ["white = const[value=1]()", "negative = arithmetic[op=sub](white,image)", "out <- negative"],
+      "naive": ["white = const[value=1]()", "negative = arithmetic[op=sub](image,white)", "out <- negative"],
       "naiveWhy": {
-        "zh": "错位让原本相同的结构落在不同位置。调整亮度不能修复位置对应。",
-        "en": "Misalignment compares different structures; changing intensity cannot repair correspondence."
+        "zh": "从读数里减去白点会产生负数，且保留亮暗的原有顺序。",
+        "en": "Subtracting white from the reading produces negative values and preserves the original brightness order."
       },
+      "adds": ["arithmetic", "const"],
+      "configurations": { "arithmetic.op": ["sub"], "const.kind": ["scalar"] },
       "hint": [
         {
-          "zh": "d 的分量为正，表示输出 (x,y) 读取观测的 (x+dx,y+dy)，不表示把亮度加上 dx。",
-          "en": "A positive component of d means output (x,y) reads observation (x+dx,y+dy); it does not add dx to brightness."
+          "zh": "先想 0.25 和 0.75 距离白点各有多远。",
+          "en": "Compare how far 0.25 and 0.75 lie from white."
         }
-      ],
-      "adds": ["shift", "difference"],
-      "intro": [
-        {
-          "t": {
-            "zh": "相机只观测了图内的格子，位移取样会碰到缺少的邻居。本任务假设图外读数为 0：这是最简单的约定，不猜测图外有什么。先查看独立示例，区分已有读数与补入的值。",
-            "en": "The camera observed only the cells inside the image, so an offset read meets missing neighbours. This task assumes 0 outside: the simplest convention, guessing nothing about what lies beyond. Inspect the independent example first to tell observed readings from filled-in values."
-          },
-          "fig": "outside-zero"
-        }
-      ],
-      "sample": {
-        "inputs": {
-          "observed": {
-            "size": [32, 24],
-            "base": 0,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 11, "r": 6, "v": 0.6 },
-              { "shape": "rect", "x": 22, "y": 5, "w": 8, "h": 14, "v": 0.8 },
-              { "shape": "rect", "x": 24, "y": 10, "w": 3, "h": 4, "v": 0.2 }
-            ]
-          },
-          "reference": {
-            "size": [32, 24],
-            "base": 0,
-            "layers": [
-              { "shape": "disc", "cx": 9, "cy": 11, "r": 6, "v": 0.6 },
-              { "shape": "rect", "x": 21, "y": 5, "w": 8, "h": 14, "v": 0.8 }
-            ]
-          },
-          "d": { "x": 1, "y": 0 }
-        }
-      }
+      ]
     }
-  ]
+  ],
+  "after": {
+    "zh": "逐格变换可以反转亮暗关系，同时保留所有格子的位置。 <wiki-ref to=\"pointwise-transform\"></wiki-ref>",
+    "en": "A pointwise transform can reverse brightness while preserving cell locations. <wiki-ref to=\"pointwise-transform\"></wiki-ref>"
+  }
 }

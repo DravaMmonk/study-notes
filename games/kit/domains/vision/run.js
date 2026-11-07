@@ -62,6 +62,12 @@ export function runTest(task, circuit, test, partOf) {
       }
     }
   }
+  if (task.partBudget !== undefined) {
+    const count = circuit.nodes.filter(node => node.type !== 'in' && node.type !== 'out').length
+    if (count > task.partBudget) return { ...result, fail: {
+      why: T(`使用了 ${count} 个元件，上限是 ${task.partBudget} 个。`, `Used ${count} parts; the limit is ${task.partBudget}.`),
+    } }
+  }
   const budget = task.multiplyBudget
   if (budget) {
     const image = test.inputs[budget.image]

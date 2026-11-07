@@ -1,0 +1,104 @@
+{
+  "title": { "zh": "位置不定", "en": "An uncertain position" },
+  "intro": [
+    {
+      "t": {
+        "zh": "夹具只能给出两个可能的偏移。质检员要看两次对齐各留下多少总差，再决定采用哪张差值图。 <wiki-ref to=\"alignment-score\"></wiki-ref>",
+        "en": "The fixture supplies two possible offsets. Compare their total residuals to decide which change map to use. <wiki-ref to=\"alignment-score\"></wiki-ref>"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "inspection_candidates",
+      "kind": "circuit",
+      "brief": {
+        "zh": "预接电路给出两张差值图。选择总差较小的一张输出，平手保留甲。",
+        "en": "The starter computes two difference maps. Output the one with less total change, keeping A on a tie."
+      },
+      "inputs": [
+        { "name": "observed", "label": { "zh": "观测", "en": "Observation" } },
+        { "name": "reference", "label": { "zh": "参照", "en": "Reference" } },
+        { "name": "first", "label": { "zh": "候选偏移甲", "en": "Candidate offset A" }, "type": "vector" },
+        { "name": "second", "label": { "zh": "候选偏移乙", "en": "Candidate offset B" }, "type": "vector" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "输出", "en": "Output" } }],
+      "tests": [
+        {
+          "inputs": {
+            "observed": [[0, 0.75, 0.375, 0]],
+            "reference": [[0.75, 0.5, 0, 0]],
+            "first": { "x": 1, "y": 0 },
+            "second": { "x": -1, "y": 0 }
+          },
+          "expect": { "out": [[0, 0.125, 0, 0]] }
+        },
+        {
+          "inputs": {
+            "observed": [[0, 0], [0.5, 0.375], [0, 0.75]],
+            "reference": [[0.5, 0.125], [0, 0.75], [0, 0]],
+            "first": { "x": 0, "y": -1 },
+            "second": { "x": 0, "y": 1 }
+          },
+          "expect": { "out": [[0, 0.25], [0, 0], [0, 0]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "observed": [[0.5, 0.125, 0, 0]],
+            "reference": [[0, 0.25, 0.125, 0]],
+            "first": { "x": 1, "y": 0 },
+            "second": { "x": -1, "y": 0 }
+          },
+          "expect": { "out": [[0, 0.25, 0, 0]] }
+        }
+      ],
+      "solution": [
+        "a = shift(observed,first)",
+        "b = shift(observed,second)",
+        "da = arithmetic[op=sub](a,reference)",
+        "db = arithmetic[op=sub](b,reference)",
+        "ma = abs(da)",
+        "mb = abs(db)",
+        "score_a = totalDifference(ma)",
+        "score_b = totalDifference(mb)",
+        "prefer_b = less(score_b,score_a)",
+        "best = chooseDifference(prefer_b,mb,ma)",
+        "out <- best"
+      ],
+      "naive": [
+        "a = shift(observed,first)",
+        "b = shift(observed,second)",
+        "da = arithmetic[op=sub](a,reference)",
+        "db = arithmetic[op=sub](b,reference)",
+        "ma = abs(da)",
+        "mb = abs(db)",
+        "out <- ma"
+      ],
+      "naiveWhy": {
+        "zh": "候选甲只在一部分工件上对得更齐。要用每次拍摄的证据决定。",
+        "en": "Candidate A aligns only some parts better. Decide from the evidence in each capture."
+      },
+      "starter": [
+        "a = shift(observed,first)",
+        "b = shift(observed,second)",
+        "da = arithmetic[op=sub](a,reference)",
+        "db = arithmetic[op=sub](b,reference)",
+        "ma = abs(da)",
+        "mb = abs(db)"
+      ],
+      "adds": ["totalDifference", "chooseDifference"],
+      "hint": [
+        {
+          "zh": "求和给每张图一个分数。用比较结果控制选择元件。",
+          "en": "Sum each image to obtain a score. Use their comparison to control the selector."
+        }
+      ]
+    }
+  ],
+  "after": {
+    "zh": "在这些候选中，总差较小的偏移更能解释整体位置变化。局部缺陷仍会留下残差。 <wiki-ref to=\"alignment-score\"></wiki-ref>",
+    "en": "Among these candidates, the offset with lower total error better explains the overall displacement. Local defects can still leave a residual. <wiki-ref to=\"alignment-score\"></wiki-ref>"
+  }
+}

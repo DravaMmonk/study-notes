@@ -17,7 +17,7 @@
         "zh": "图像差分",
         "en": "Image differencing"
       },
-      "at": "0-1",
+      "at": "0-4",
       "body": [
         {
           "zh": "图像差分在对应位置和通道比较读数。带符号的差保留变化方向，绝对差保留变化大小。数值和位置是不同信息，图像算术逐位置执行。",
@@ -45,7 +45,7 @@
       "id": "spatial-correspondence",
       "group": "image",
       "title": { "zh": "空间对应", "en": "Spatial correspondence" },
-      "at": "0-2",
+      "at": "0-7",
       "body": [
         {
           "zh": "逐位置比较需要同一场景位置对应。这里约定输出 (x,y) 读取输入 (x+dx,y+dy)，x 向右、y 向下为正；有限图像之外的值来自边界假设。",
@@ -76,7 +76,7 @@
         "zh": "测量与判定",
         "en": "Measurement and decision"
       },
-      "at": "0-3",
+      "at": "0-6",
       "body": [
         {
           "zh": "测量输出保留变化量，判定根据任务给定的准则将证据转为标记。阈值比较不是对物体语义或缺陷成因的推断。",
@@ -244,7 +244,7 @@
       "id": "finite-boundaries",
       "group": "image",
       "title": { "zh": "边界规则与有效输出", "en": "Boundary rules and valid outputs" },
-      "at": "0-2",
+      "at": "0-7",
       "body": [
         {
           "zh": "有限图像没有图外观测，补边只是对图外的一种猜测，各适合不同的材料：补 0 最简单，但可能造出黑边；复制最近边缘对普通照片通常较自然；周期延续把左右、上下相接，适合可以无缝平铺的纹理，不适合普通照片；镜像延续让边缘两侧对称，常能减少人工边界。没有一种规则永远最好。valid 只保留完整邻域，因此输出尺寸依核支持缩小。",
@@ -745,6 +745,54 @@
         {
           "zh": "v 是原始读数，b 是显示亮度。裁切只发生在显示时。",
           "en": "v is the stored reading and b the displayed brightness. Clipping applies to the display."
+        }
+      ]
+    },
+    {
+      "id": "pointwise-transform",
+      "at": "0-2",
+      "title": { "zh": "逐格变换", "en": "Pointwise transform" },
+      "group": "image",
+      "body": [
+        {
+          "zh": "输出只由同一位置的输入读数决定。负片反转亮暗，邻居的读数不参与。课程来源：COMP90086 L3 的像素算子。",
+          "en": "Each output depends only on the input at the corresponding location. A negative reverses brightness without involving neighbouring readings. Source: COMP90086 L3, pixel operators."
+        }
+      ]
+    },
+    {
+      "id": "gain-offset",
+      "at": "0-3",
+      "title": { "zh": "增益与偏移", "en": "Gain and offset" },
+      "group": "image",
+      "body": [
+        {
+          "zh": "对亮度做仿射变换时，增益乘在输入上，偏移加在结果上。显示可能裁去超范围的值。课程来源：COMP90086 L3 的像素算子。",
+          "en": "In an affine brightness transform, gain multiplies the input and offset adds to the result. Display may clip out-of-range values. Source: COMP90086 L3, pixel operators."
+        }
+      ]
+    },
+    {
+      "id": "read-offset",
+      "at": "0-5",
+      "title": { "zh": "取样偏移", "en": "Read offset" },
+      "group": "image",
+      "body": [
+        {
+          "zh": "从输出坐标出发，要加上这个向量才能找到读取的输入坐标。课程来源：COMP90086 L2 的图像坐标。",
+          "en": "Add this vector to the output coordinate to find the input coordinate to read. Source: COMP90086 L2, image coordinates."
+        }
+      ]
+    },
+    {
+      "id": "alignment-score",
+      "at": "q-position",
+      "title": { "zh": "对齐误差", "en": "Alignment error" },
+      "group": "image",
+      "body": [
+        {
+          "zh": "绝对差之和给候选对齐一个分数。只有在照明和观察区域可比较时，较小的分数才是对齐的证据。课程来源：COMP90086 L2 的图像比较。",
+          "en": "Summed absolute differences score a candidate alignment. A lower score is evidence of alignment when lighting and the compared regions are comparable. Source: COMP90086 L2, image comparison."
         }
       ]
     }

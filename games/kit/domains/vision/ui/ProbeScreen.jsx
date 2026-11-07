@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Brief, Level, RunDock } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import Show from '../../../views/Show.jsx'
@@ -8,17 +8,18 @@ import { probeOf } from '../probe.js'
 
 export default function ProbeScreen({ game, level, saved, save, solve, phone }) {
   const model = probeOf(level.source)
+  const blur = model.field === 'rows' && level.source.experiment !== 'shift'
   const spectrum = model.field === 'cycles'
   const { questions } = model
-  const baseline = useMemo(() => spectrum ? model.output(model.initial()) : null, [model, spectrum])
+  const [baseline] = useState(() => spectrum ? model.output(model.initial()) : null)
   const [evidence, setEvidence] = useState(() => saved?.evidence ?? [])
   const [at, setAt] = useState(() => Math.min(saved?.evidence?.length ?? 0, questions.length - 1))
-  const [input, setInput] = useState(() => evidence[evidence.length - 1]?.rows ?? model.initial())
+  const [input, setInput] = useState(() => evidence[evidence.length - 1]?.[model.field] ?? model.initial())
   const [run, setRun] = useState(null)
   const [answer, setAnswer] = useState('')
   const [why, setWhy] = useState(null)
   const question = questions[at]
-  const accepted = evidence.length === questions.length && evidence[0]?.rows
+  const accepted = blur && evidence.length === questions.length && evidence[0]?.rows
   const contributions = accepted && fromRows(accepted.slice(2, 5).map(row => row.slice(2, 5).map(value => value / 9)))
   const change = next => {
     setInput(next)
@@ -59,7 +60,7 @@ export default function ProbeScreen({ game, level, saved, save, solve, phone }) 
       </div>
     </> : <RowsEditor rows={input} onChange={change} />}
     <div className="vi-probe-actions">
-      <button type="button" className="kit-btn" onClick={observe}>{spectrum ? tr('运行实验', 'Run trial') : tr('运行模糊器', 'Run the blur')}</button>
+      <button type="button" className="kit-btn" onClick={observe}>{tr('运行实验', 'Run trial')}</button>
       <button type="button" className="kit-btn" onClick={() => change(model.initial())}>{spectrum ? tr('恢复基准', 'Reset to baseline') : tr('清零输入', 'Clear input')}</button>
     </div>
     {spectrum && <div className="vi-probe-comparison">
@@ -79,7 +80,7 @@ export default function ProbeScreen({ game, level, saved, save, solve, phone }) 
     </details>}
     {run && <>
       {!spectrum && <div className="vi-probe-actions">
-        <Show value={run.output} scene="figure" views={['pixels']} label={tr('模糊器输出', 'Blur output')} />
+        <Show value={run.output} scene="figure" views={['pixels']} label={tr('实验输出', 'Trial output')} />
         <Show value={run.output} scene="figure" views={['numbers']} label={tr('输出读数', 'Output readings')} />
       </div>}
       <fieldset className="vi-probe-options">

@@ -1,0 +1,52 @@
+{
+  "title": { "zh": "门槛", "en": "Threshold" },
+  "intro": [
+    {
+      "t": {
+        "zh": "相机拍同一个完好工件两次，读数也可能略有不同。检测规范给了容差，超出的格子才需要复查。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+        "en": "Even two photos of the same intact part can differ slightly. The inspection specification supplies a tolerance; only cells exceeding it need review. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "inspection_threshold",
+      "kind": "circuit",
+      "brief": {
+        "zh": "在差值严格大于门槛的位置标 1，其余标 0。",
+        "en": "Mark 1 where the magnitude strictly exceeds the threshold and 0 elsewhere."
+      },
+      "inputs": [
+        { "name": "delta", "label": { "zh": "差值大小", "en": "Change magnitude" } },
+        { "name": "tolerance", "label": { "zh": "门槛", "en": "Threshold" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "缺陷标记", "en": "Defect mask" } }],
+      "tests": [
+        {
+          "inputs": { "delta": [[0, 0.125, 0.25, 0.5]], "tolerance": 0.25 },
+          "expect": { "out": [[0, 0, 0, 1]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "delta": [[0.75, 0.25], [0.5, 0]], "tolerance": 0.5 },
+          "expect": { "out": [[1, 0], [0, 0]] }
+        }
+      ],
+      "solution": ["m = less(tolerance,delta)", "out <- m"],
+      "naive": ["m = less(delta,tolerance)", "out <- m"],
+      "naiveWhy": {
+        "zh": "报警的位置应在门槛之上。交换比较顺序会标出门槛之下的格子。",
+        "en": "Alarms belong above the threshold. Reversing the comparison marks cells below it."
+      },
+      "adds": ["less"],
+      "hint": [
+        { "zh": "对照一格刚好等于门槛的读数。", "en": "Check the reading exactly at the threshold." }
+      ]
+    }
+  ],
+  "after": {
+    "zh": "门槛把连续读数变成是否复查的决定；刚好达到门槛的格子仍在容差内。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+    "en": "A threshold turns continuous readings into a review decision. A reading exactly at this threshold stays within tolerance. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+  }
+}

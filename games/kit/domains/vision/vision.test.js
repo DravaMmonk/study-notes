@@ -56,6 +56,17 @@ test('vector sources carry one { x, y } value that arithmetic combines component
   assert.equal(cards.fits(saved, t, partOf), false, 'a scalar source cannot reopen as a vector')
 })
 
+test('the part budget excludes terminals and rejects a correct board above the limit', () => {
+  const puzzle = { ...task(['a'], [{ inputs: { a: 3 }, expect: { out: 6 } }]), partBudget: 1 }
+  const direct = cards.fromText(['double = add(a, a)', 'out <- double'], puzzle, PRIMITIVES)
+  assert.equal(runLevel(puzzle, direct, partOf).pass, true)
+
+  const extra = cards.fromText(['double = add(a, a)', 'zero = const[value=0]()', 'same = add(double, zero)', 'out <- same'], puzzle, PRIMITIVES)
+  const result = runLevel(puzzle, extra, partOf).runs[0]
+  assert.equal(result.outputs.out, 6)
+  assert.match(result.fail.why.en, /Used 3 parts; the limit is 1/)
+})
+
 test('values: rows read into images and back; a difference names the first cell', () => {
   const img = fromRows([[0, 0.5, 1], [1, 0.25, 0]])
   assert.deepEqual([img.w, img.h, img.c], [3, 2, 1])

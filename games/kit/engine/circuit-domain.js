@@ -278,7 +278,12 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     builds: (level) => (byId.get(level.id)?.builds ? [byId.get(level.id).builds.type] : []),
     concept: (part) => concept[part] ?? part,
     naive: (level) => played.get(level.id)?.some((T) => T.naive) ?? false,
-    needed: (level) => [...new Set(solutions(level).flatMap((b) => b.nodes).map((n) => n.type).filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))],
+    needed: (level) => {
+      const boards = solutions(level)
+      if (!boards.length) return null
+      return [...new Set(boards.flatMap((b) => b.nodes).map((n) => n.type)
+        .filter((t) => !board.isFixed(t) && (!parts[t] || primitives.includes(t))))]
+    },
     boards: (level) => solutions(level),
     showcase: (level) => byId.get(level.id)?.showcase ?? null,
     replaces,

@@ -1,0 +1,52 @@
+{
+  "title": { "zh": "描边", "en": "Trace the edge" },
+  "intro": [
+    {
+      "t": {
+        "zh": "把二值工件的左侧边沿标出来。质检台只允许用三个元件，输入与输出端不计。",
+        "en": "Mark the left edge of a binary part. Use up to three parts, excluding inputs and outputs."
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "inspection_outline",
+      "kind": "circuit",
+      "brief": {
+        "zh": "仅当某格为 1 且左邻为 0 时标 1，图外取 0。",
+        "en": "Mark 1 only where a cell is 1 and its left neighbour is 0. Outside reads are zero."
+      },
+      "inputs": [{ "name": "image", "label": { "zh": "输入图", "en": "Input image" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "缺陷标记", "en": "Defect mask" } }],
+      "tests": [
+        {
+          "inputs": { "image": [[0, 1, 1, 0, 1], [1, 1, 0, 0, 0]] },
+          "expect": { "out": [[0, 1, 0, 0, 1], [1, 0, 0, 0, 0]] }
+        }
+      ],
+      "hidden": [{ "inputs": { "image": [[1, 0, 1, 0]] }, "expect": { "out": [[1, 0, 1, 0]] } }],
+      "solution": [
+        "left = const[kind=direction,x=-1,y=0]()",
+        "neighbour = shift(image,left)",
+        "edge = less(neighbour,image)",
+        "out <- edge"
+      ],
+      "naive": [
+        "left = const[kind=direction,x=-1,y=0]()",
+        "neighbour = shift(image,left)",
+        "signed = arithmetic[op=sub](image,neighbour)",
+        "edge = abs(signed)",
+        "out <- edge"
+      ],
+      "naiveWhy": {
+        "zh": "变化大小会把进入工件和离开工件的边都标出来。",
+        "en": "Change magnitude marks both entering and leaving the part."
+      },
+      "partBudget": 3
+    }
+  ],
+  "after": {
+    "zh": "比较的顺序保留了边沿的方向，因此同一次比较就能排除另一侧的边。",
+    "en": "The ordered comparison preserves the edge direction, so one comparison excludes the opposite edge."
+  }
+}

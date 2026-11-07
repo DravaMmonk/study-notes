@@ -486,6 +486,74 @@
       "core": false,
       "basis": "lecture",
       "depends": ["fourier-synthesis", "quadrature-components"]
+    },
+    {
+      "id": "pixel-coordinate-convention",
+      "term": { "zh": "像素坐标", "en": "Pixel coordinates" },
+      "about": {
+        "zh": "坐标从 0 开始，x 向右、y 向下。数值表中每格保存读数或位置；点击可查看其原值。",
+        "en": "Coordinates start at zero, x right and y down. A cell stores a reading or a position; select it to inspect the original value."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md",
+      "wall": { "zh": "读数、坐标和颜色怎样对应？", "en": "How do readings, locations and colour correspond?" },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "depends": []
+    },
+    {
+      "id": "pointwise-transform",
+      "term": { "zh": "逐格变换", "en": "Pointwise transform" },
+      "about": {
+        "zh": "输出只由同一位置的输入读数决定。负片反转亮暗，邻居的读数不参与。课程来源：COMP90086 L3 的像素算子。",
+        "en": "Each output depends only on the input at the corresponding location. A negative reverses brightness without involving neighbouring readings. Source: COMP90086 L3, pixel operators."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md",
+      "wall": { "zh": "怎样反转亮暗而不移动结构？", "en": "How can brightness reverse while shapes stay in place?" },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "depends": ["pixel-coordinate-convention"]
+    },
+    {
+      "id": "gain-offset",
+      "term": { "zh": "增益与偏移", "en": "Gain and offset" },
+      "about": {
+        "zh": "对亮度做仿射变换时，增益乘在输入上，偏移加在结果上。显示可能裁去超范围的值。课程来源：COMP90086 L3 的像素算子。",
+        "en": "In an affine brightness transform, gain multiplies the input and offset adds to the result. Display may clip out-of-range values. Source: COMP90086 L3, pixel operators."
+      },
+      "source": "docs/Unimelb/26S2/CV/03-filters.md",
+      "wall": {
+        "zh": "怎样独立改变间距和亮度基准？",
+        "en": "How can spacing and the brightness baseline change independently?"
+      },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "depends": ["pointwise-transform"]
+    },
+    {
+      "id": "read-offset",
+      "term": { "zh": "取样偏移", "en": "Read offset" },
+      "about": {
+        "zh": "从输出坐标出发，要加上这个向量才能找到读取的输入坐标。课程来源：COMP90086 L2 的图像坐标。",
+        "en": "Add this vector to the output coordinate to find the input coordinate to read. Source: COMP90086 L2, image coordinates."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md",
+      "wall": { "zh": "怎样识别未知平移？", "en": "How can an unknown translation be identified?" },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "depends": ["pixel-coordinate-convention"]
+    },
+    {
+      "id": "alignment-score",
+      "term": { "zh": "对齐误差", "en": "Alignment error" },
+      "about": {
+        "zh": "绝对差之和给候选对齐一个分数。只有在照明和观察区域可比较时，较小的分数才是对齐的证据。课程来源：COMP90086 L2 的图像比较。",
+        "en": "Summed absolute differences score a candidate alignment. A lower score is evidence of alignment when lighting and the compared regions are comparable. Source: COMP90086 L2, image comparison."
+      },
+      "source": "docs/Unimelb/26S2/CV/02-basics.md",
+      "wall": { "zh": "夹具给出两个候选时怎样选择？", "en": "How can the station choose between two fixture offsets?" },
+      "difficulty": "learnable",
+      "basis": "lecture",
+      "depends": ["spatial-correspondence"]
     }
   ],
   "primitives": [
@@ -667,6 +735,22 @@
         "zh": "固定计算由代码提供；关卡考核原理和组合，不为等价接线增设组装元件。",
         "en": "Fixed computation supplied as code; tasks assess relationships and composition without publishing equivalent wiring as extra assemblies."
       }
+    },
+    {
+      "part": "totalDifference",
+      "about": {
+        "zh": "把灰度差值图的所有读数加成一个分数。",
+        "en": "Sum the readings of a greyscale difference map into a single score."
+      },
+      "why": { "zh": "专题中作为固定公式使用。", "en": "A fixed computation used inside the inspection topic." }
+    },
+    {
+      "part": "chooseDifference",
+      "about": {
+        "zh": "条件非零时输出第一张图，否则输出第二张图。",
+        "en": "Output the first map for a nonzero condition, otherwise the second."
+      },
+      "why": { "zh": "专题中作为固定公式使用。", "en": "A fixed computation used inside the inspection topic." }
     }
   ],
   "built": [
@@ -782,129 +866,454 @@
     {
       "id": 0,
       "machine": "inspection",
-      "title": { "zh": "图像比较仪", "en": "Image comparison instrument" },
+      "title": { "zh": "质检台", "en": "Inspection station" },
       "question": {
-        "zh": "怎样让图像读数变成可靠的变化证据？",
-        "en": "How can image readings become useful change evidence?"
+        "zh": "怎样把相机读数变成可靠的缺陷标记？",
+        "en": "How can camera readings become reliable defect marks?"
       },
       "why": {
-        "zh": "你接手一台图像质检台。它能展示待检图和合格参照，却还不能指出哪里发生了变化。先造一个比较部件：同一位置、同一通道的读数对应起来。这里光照固定，图像已经对齐；小数表示读数，不要求手算。 <wiki-ref to=\"image-difference\"></wiki-ref>",
-        "en": "You inherit an image inspection station. It shows an observation and a good reference, but cannot indicate changes. Build a comparator using matching locations and channels. Lighting is fixed and images are aligned; decimals are measurements, not a calculation exercise. <wiki-ref to=\"image-difference\"></wiki-ref>"
+        "zh": "相机已能记录工件，但还没有能排除错位的缺陷标记。",
+        "en": "The camera records the part, but the station cannot yet flag defects while excluding displacement."
       },
       "series": [
         {
-          "id": "e0-comparison",
-          "title": { "zh": "比较与判定", "en": "comparison" },
+          "id": "inspection-start",
+          "title": { "zh": "从相机读数开始", "en": "Start with camera readings" },
           "kind": "foundation",
           "slots": [
             {
               "id": "0-1",
-              "title": { "zh": "让质检台看见变化", "en": "Give the inspection station a comparison" },
+              "title": { "zh": "一格格数字", "en": "A grid of readings" },
+              "task": {
+                "zh": "工件上的色标用红、绿、蓝三个通道记录。按相同顺序填回每格的三个数。",
+                "en": "The part’s colour marks are recorded in red, green and blue channels. Copy each cell’s three readings in that order."
+              },
+              "question": {
+                "zh": "读数、坐标和颜色怎样对应？",
+                "en": "How do readings, locations and colour correspond?"
+              },
+              "role": "foundation",
+              "uses": [],
+              "chain": [
+                {
+                  "zh": "把相机给出的六个读数填到对应位置。",
+                  "en": "Enter the six camera readings at their corresponding positions."
+                },
+                {
+                  "zh": "灰度图在一个位置存一个读数，RGB 图在一个位置存三项读数。 <wiki-ref to=\"pixel\"></wiki-ref>",
+                  "en": "A greyscale image stores one reading per position. An RGB image stores three. <wiki-ref to=\"pixel\"></wiki-ref>"
+                }
+              ],
+              "teaches": "pixel-coordinate-convention",
+              "naive": {
+                "zh": "交换红蓝读数会改变颜色。",
+                "en": "Swapping red and blue readings changes the colour."
+              }
+            },
+            {
+              "id": "0-2",
+              "title": { "zh": "底片", "en": "Negative" },
+              "task": {
+                "zh": "让 0 变成 1，1 变成 0，中间读数等距反过来。",
+                "en": "Map 0 to 1 and 1 to 0, reversing the readings in between at equal spacing."
+              },
+              "question": {
+                "zh": "怎样反转亮暗而不移动结构？",
+                "en": "How can brightness reverse while shapes stay in place?"
+              },
+              "role": "foundation",
+              "uses": ["pixel-coordinate-convention", "imageCircuit"],
+              "chain": [
+                {
+                  "zh": "让 0 变成 1，1 变成 0，中间读数等距反过来。",
+                  "en": "Map 0 to 1 and 1 to 0, reversing the readings in between at equal spacing."
+                },
+                {
+                  "zh": "先想 0.25 和 0.75 距离白点各有多远。",
+                  "en": "Compare how far 0.25 and 0.75 lie from white."
+                },
+                {
+                  "zh": "逐格变换可以反转亮暗关系，同时保留所有格子的位置。 <wiki-ref to=\"pointwise-transform\"></wiki-ref>",
+                  "en": "A pointwise transform can reverse brightness while preserving cell locations. <wiki-ref to=\"pointwise-transform\"></wiki-ref>"
+                }
+              ],
+              "teaches": "pointwise-transform",
+              "adds": ["arithmetic", "const"],
+              "naive": {
+                "zh": "从读数里减去白点会产生负数，且保留亮暗的原有顺序。",
+                "en": "Subtracting white from the reading produces negative values and preserves the original brightness order."
+              }
+            }
+          ]
+        },
+        {
+          "id": "contrast",
+          "title": { "zh": "亮暗", "en": "Brightness" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0-3",
+              "title": { "zh": "拉开对比", "en": "Stretch the contrast" },
+              "task": {
+                "zh": "让 0.25 对应 0，0.75 对应 1，且等大的输入差仍对应等大的输出差。输出保留超出 0 至 1 的值。",
+                "en": "Map 0.25 to 0 and 0.75 to 1, keeping equal input steps equal in the output. Preserve values outside 0 to 1."
+              },
+              "question": {
+                "zh": "怎样独立改变间距和亮度基准？",
+                "en": "How can spacing and the brightness baseline change independently?"
+              },
+              "role": "foundation",
+              "uses": ["pointwise-transform", "arithmetic", "const"],
+              "chain": [
+                {
+                  "zh": "让 0.25 对应 0，0.75 对应 1，且等大的输入差仍对应等大的输出差。输出保留超出 0 至 1 的值。",
+                  "en": "Map 0.25 to 0 and 0.75 to 1, keeping equal input steps equal in the output. Preserve values outside 0 to 1."
+                },
+                {
+                  "zh": "先用两个标定点之间的距离确定倍率，再让其中一个点落到目标读数。",
+                  "en": "Use the distance between the calibration points to find the gain, then align one point to its target."
+                },
+                {
+                  "zh": "倍率改变亮度差的大小，偏移移动整组读数。查看原始读数可以区分屏幕上看起来一样的格子。 <wiki-ref to=\"gain-offset\"></wiki-ref>",
+                  "en": "Gain changes the size of brightness differences and offset moves all readings together. Raw readings distinguish cells that the display paints alike. <wiki-ref to=\"gain-offset\"></wiki-ref>"
+                }
+              ],
+              "teaches": "gain-offset",
+              "naive": {
+                "zh": "放大间距之后，原来的暗端仍没有落到 0。",
+                "en": "After widening the spacing, the original dark endpoint still does not land on zero."
+              }
+            }
+          ],
+          "parallel": "inspection-routes"
+        },
+        {
+          "id": "difference",
+          "title": { "zh": "差异", "en": "Difference" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0-4",
+              "title": { "zh": "找不同", "en": "Spot the difference" },
               "task": {
                 "zh": "质检同时关注变亮和变暗。输出每格变化的大小；相同位置输出 0。",
                 "en": "Inspection must retain both brightening and darkening. Output change size at each cell; unchanged cells give 0."
               },
               "question": {
-                "zh": "怎样同时发现比参照更亮和更暗的变化？",
+                "zh": "怎样保留变亮和变暗的证据？",
                 "en": "How can both brighter and darker changes be retained?"
               },
+              "role": "foundation",
+              "uses": ["pointwise-transform", "arithmetic"],
               "chain": [
                 {
-                  "zh": "你接手一台图像质检台。它能展示待检图和合格参照，却还不能指出哪里发生了变化。先造一个比较部件：同一位置、同一通道的读数对应起来。这里光照固定，图像已经对齐；小数表示读数，不要求手算。 <wiki-ref to=\"image-difference\"></wiki-ref>",
-                  "en": "You inherit an image inspection station. It shows an observation and a good reference, but cannot indicate changes. Build a comparator using matching locations and channels. Lighting is fixed and images are aligned; decimals are measurements, not a calculation exercise. <wiki-ref to=\"image-difference\"></wiki-ref>"
+                  "zh": "先保留变化方向：参照变为观测时，逐格输出观测减参照。",
+                  "en": "First retain direction: output observation minus reference at matching cells."
                 },
                 {
-                  "zh": "先观察一个变亮和一个变暗的位置。数值计算自动完成。",
-                  "en": "Inspect one brighter and one darker location. Arithmetic is automatic."
+                  "zh": "沿用刚才的差异电路，考虑怎样保留大小而忽略方向。",
+                  "en": "Reuse your signed comparison and consider retaining size without direction."
                 },
                 {
-                  "zh": "差异图保留变化发生的位置，绝对值同时保留变亮和变暗的证据。它还不能区分缺陷、错位与光照变化；这些需要额外假设。 <wiki-ref to=\"image-difference\"></wiki-ref>",
-                  "en": "A difference image localises change; absolute value retains both brighter and darker changes. It does not distinguish defects, misalignment and lighting without additional assumptions. <wiki-ref to=\"image-difference\"></wiki-ref>"
+                  "zh": "\\[d=O-R,\\qquad D=|d|\\]\n\nO 是观测图，R 是参照图，运算发生在对应位置。d 的正负区分变亮和变暗；D 只测变化大小，因此两种变化都能留下证据。差异本身还不能判断变化来自缺陷、位移还是光照。 <wiki-ref to=\"image-difference\"></wiki-ref>",
+                  "en": "\\[d=O-R,\\qquad D=|d|\\]\n\nO is the observed image and R the reference, compared at matching positions. The sign of d distinguishes brightening from darkening; D measures either change in size. Difference alone cannot identify a defect, displacement or lighting change. <wiki-ref to=\"image-difference\"></wiki-ref>"
                 }
               ],
-              "role": "foundation",
               "teaches": "image-difference",
-              "uses": ["abs", "image-difference", "imageCircuit", "arithmetic"],
-              "adds": ["arithmetic", "abs"],
-              "builds": "difference",
+              "adds": ["abs"],
               "naive": {
-                "zh": "只留下正变化，或把负数显示成黑色就认为没有变化。",
-                "en": "Keeping only positive changes, or treating clipped negative display values as no change."
+                "zh": "带符号的差会把变暗显示为负值，不能直接当作变化大小。",
+                "en": "Signed differences retain negative darkening; they are not change magnitudes."
               }
             },
             {
-              "id": "0-2",
-              "title": { "zh": "先比较同一个位置", "en": "Compare corresponding locations" },
+              "id": "0-6",
+              "title": { "zh": "门槛", "en": "Threshold" },
               "task": {
-                "zh": "夹具给出了取样偏移 dx、dy。先按它读取观测图，再与参照比较；图外取 0。",
-                "en": "The fixture supplies sampling offsets dx and dy. Read the observation at those offsets before comparing with the reference; outside reads are zero."
+                "zh": "在差值严格大于门槛的位置标 1，其余标 0。",
+                "en": "Mark 1 where the magnitude strictly exceeds the threshold and 0 elsewhere."
               },
-              "question": {
-                "zh": "怎样避免把已知错位当作缺陷？",
-                "en": "How can a known displacement be excluded from defect evidence?"
-              },
+              "question": { "zh": "怎样把差值变成缺陷标记？", "en": "How does a difference become a defect mark?" },
+              "role": "foundation",
+              "uses": ["image-difference"],
               "chain": [
                 {
-                  "zh": "传送带移动了工件，直接比较会把移动也标成变化。夹具已经测出取样偏移，不需要你估计位移。给比较器补上位置对应，再用真正的缺口检验它。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
-                  "en": "The conveyor moved the item, so direct comparison reports motion as change. A fixture already measured the sampling offset; you do not estimate it. Add correspondence before comparison and test a real defect. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+                  "zh": "在差值严格大于门槛的位置标 1，其余标 0。",
+                  "en": "Mark 1 where the magnitude strictly exceeds the threshold and 0 elsewhere."
                 },
+                { "zh": "对照一格刚好等于门槛的读数。", "en": "Check the reading exactly at the threshold." },
                 {
-                  "zh": "正 dx 表示输出 (x,y) 读取观测的 (x+dx,y+dy)，不表示把亮度加上 dx。",
-                  "en": "Positive dx means output (x,y) reads observation (x+dx,y+dy); it does not add dx to brightness."
-                },
-                {
-                  "zh": "已知对齐信息可以消除这部分错位证据，但没有凭空解决未知图像配准。位置变换与亮度运算承担不同职责。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
-                  "en": "Known alignment removes that source of mismatch; it does not solve unknown image registration. Position changes and intensity arithmetic play different roles. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+                  "zh": "门槛把连续读数变成是否复查的决定；刚好达到门槛的格子仍在容差内。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+                  "en": "A threshold turns continuous readings into a review decision. A reading exactly at this threshold stays within tolerance. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
                 }
               ],
+              "teaches": "decision-evidence",
+              "adds": ["less"],
+              "naive": {
+                "zh": "报警的位置应在门槛之上。交换比较顺序会标出门槛之下的格子。",
+                "en": "Alarms belong above the threshold. Reversing the comparison marks cells below it."
+              }
+            }
+          ],
+          "parallel": "inspection-routes"
+        },
+        {
+          "id": "alignment",
+          "title": { "zh": "位移", "en": "Displacement" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0-5",
+              "title": { "zh": "未知算子", "en": "Unknown operator" },
+              "task": {
+                "zh": "设计一张能区分三种移动方向的图。运行后，按输出提交判断。",
+                "en": "Design an image that distinguishes the three directions. Run it and submit the conclusion supported by the output."
+              },
+              "question": { "zh": "怎样识别未知平移？", "en": "How can an unknown translation be identified?" },
               "role": "foundation",
-              "teaches": "spatial-correspondence",
-              "uses": ["difference", "image-difference", "imageCircuit", "shift", "spatial-correspondence"],
+              "uses": ["pixel-coordinate-convention"],
+              "chain": [
+                {
+                  "zh": "设计一张能区分三种移动方向的图。运行后，按输出提交判断。",
+                  "en": "Design an image that distinguishes the three directions. Run it and submit the conclusion supported by the output."
+                },
+                {
+                  "zh": "用一个位置明确、远离图边的亮点作记号。",
+                  "en": "Use a single bright marker well away from the image boundary."
+                },
+                {
+                  "zh": "输出亮点往左移动时，每格是在向右读取输入。读偏移描述去哪里找数据，和亮点移动的方向相反。 <wiki-ref to=\"read-offset\"></wiki-ref>",
+                  "en": "When a bright spot moves left in the output, each cell is reading to its right. Read offset describes where to fetch the data, opposite the apparent motion. <wiki-ref to=\"read-offset\"></wiki-ref>"
+                }
+              ],
+              "teaches": "read-offset",
               "adds": ["shift"],
-              "builds": "alignedDifference",
-              "naive": { "zh": "给像素值加 dx 就是在移动图像。", "en": "Adding dx to pixel values moves the image." }
+              "naive": {
+                "zh": "整张图填零，三种移动看起来都一样。",
+                "en": "An all-zero input gives the same output for all three movements."
+              }
+            }
+          ],
+          "parallel": "inspection-routes"
+        },
+        {
+          "id": "inspection-join",
+          "title": { "zh": "组合质检", "en": "Combine the inspection stages" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "0-7",
+              "title": { "zh": "挪了一格", "en": "Shifted one cell" },
+              "task": {
+                "zh": "夹具给出了取样偏移向量 d = (dx, dy)。先按它读取观测图，再与参照比较；图外取 0。",
+                "en": "The fixture supplies a sampling offset vector d = (dx, dy). Read the observation at that offset before comparing with the reference; outside reads are zero."
+              },
+              "question": { "zh": "怎样排除已知错位？", "en": "How can known displacement be excluded?" },
+              "role": "foundation",
+              "uses": ["read-offset", "image-difference", "shift", "arithmetic", "abs"],
+              "chain": [
+                {
+                  "zh": "夹具给出了取样偏移向量 d = (dx, dy)。先按它读取观测图，再与参照比较；图外取 0。",
+                  "en": "The fixture supplies a sampling offset vector d = (dx, dy). Read the observation at that offset before comparing with the reference; outside reads are zero."
+                },
+                {
+                  "zh": "d 的分量为正，表示输出 (x,y) 读取观测的 (x+dx,y+dy)，不表示把亮度加上 dx。",
+                  "en": "A positive component of d means output (x,y) reads observation (x+dx,y+dy); it does not add dx to brightness."
+                },
+                {
+                  "zh": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]\n\nd=(dx,dy) 是给定的读取偏移。先对应同一场景位置，再比较数值，才能减少错位产生的假差异。这里使用已知位移，没有从图像估计未知位移。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
+                  "en": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]\n\nd=(dx,dy) is the supplied read offset. Matching scene positions before comparing values reduces false differences from misalignment. The offset is given, not estimated from the images. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+                }
+              ],
+              "teaches": "spatial-correspondence",
+              "naive": {
+                "zh": "错位让原本相同的结构落在不同位置。调整亮度不能修复位置对应。",
+                "en": "Misalignment compares different structures; changing intensity cannot repair correspondence."
+              }
             },
             {
-              "id": "0-3",
-              "title": { "zh": "让质检台给出证据", "en": "Complete the inspection instrument" },
+              "id": "0-8",
+              "title": { "zh": "谁闯进来了", "en": "What slipped through?" },
               "task": {
                 "zh": "容差由质检规范给定。输出对齐差异，以及严格超过容差的变化标记（1）；其余为 0。",
                 "en": "Tolerance is supplied by the inspection specification. Output aligned differences and a 1 only where a difference strictly exceeds tolerance."
               },
               "question": {
-                "zh": "怎样从变化量得到任务需要的标记？",
-                "en": "How is change magnitude turned into the required task output?"
+                "zh": "怎样同时报告变化和判定？",
+                "en": "How can the station report both change and decisions?"
               },
+              "role": "practice",
+              "uses": ["spatial-correspondence", "decision-evidence", "shift", "arithmetic", "abs", "less"],
               "chain": [
                 {
-                  "zh": "比较器已经能处理夹具给出的错位，现在把它接入质检规范。图像中的变化证据与最终的通过条件不是一回事：相机小幅读数波动在规范允许范围内。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
-                  "en": "The comparator handles the fixture offset. Connect it to the inspection specification: measured change and a decision condition are different. Small reading fluctuations are allowed. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+                  "zh": "容差由质检规范给定。输出对齐差异，以及严格超过容差的变化标记（1）；其余为 0。",
+                  "en": "Tolerance is supplied by the inspection specification. Output aligned differences and a 1 only where a difference strictly exceeds tolerance."
                 },
                 {
                   "zh": "先检查差异输出，再检查比较的两个输入谁在前。小于元件在 a<b 时输出 1。",
                   "en": "Check the difference first, then the order of the comparison inputs. Less returns 1 when a<b."
                 },
                 {
-                  "zh": "机器把对齐、比较和规范判断分开，便于检查哪一环出了问题。结论只适用于给定光照、对齐信息与容差的受控任务。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
-                  "en": "Alignment, comparison and decision are separate and inspectable. The conclusion applies only to this controlled lighting, alignment and tolerance specification. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+                  "zh": "\\[M(x,y)=\\begin{cases}1,&D(x,y)>\\tau\\\\0,&D(x,y)\\le\\tau\\end{cases}\\]\n\nD 是对齐后的差异大小，τ 是给定容差。差异图回答“改变了多少”，标记 M 回答“是否超过标准”；相等时不标记。结论仍依赖正确对应、光照条件和容差规范。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+                  "en": "\\[M(x,y)=\\begin{cases}1,&D(x,y)>\\tau\\\\0,&D(x,y)\\le\\tau\\end{cases}\\]\n\nD is aligned difference magnitude and τ the supplied tolerance. D answers how much changed; M answers whether it exceeds the specification. Equality is unmarked. The decision still depends on correspondence, lighting and the tolerance specification. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
                 }
               ],
-              "role": "foundation",
-              "uses": [
-                "alignedDifference",
-                "imageCircuit",
-                "less",
-                "spatial-correspondence",
-                "decision-evidence"
-              ],
-              "adds": ["less"],
-              "naive": {
-                "zh": "测量值本身就是缺陷类别，或者零与非零足以处理所有读数波动。",
-                "en": "Treating measurements as defect classes, or assuming every nonzero change must fail."
+              "facet": {
+                "zh": "相同的对齐差值会因容差不同而改变标记。",
+                "en": "The same aligned difference can produce different decisions under different tolerances."
               },
-              "teaches": "decision-evidence"
+              "dimension": "combine",
+              "naive": {
+                "zh": "标记应当随变化超过容差而出现，不是把合格位置标为缺陷。",
+                "en": "Mark changes exceeding tolerance, not positions that remain within it."
+              }
             }
           ]
+        },
+        {
+          "id": "outline",
+          "title": { "zh": "描边", "en": "Trace the edge" },
+          "kind": "challenge",
+          "slots": [
+            {
+              "id": "outline",
+              "title": { "zh": "描边", "en": "Trace the edge" },
+              "task": {
+                "zh": "仅当某格为 1 且左邻为 0 时标 1，图外取 0。",
+                "en": "Mark 1 only where a cell is 1 and its left neighbour is 0. Outside reads are zero."
+              },
+              "question": { "zh": "怎样只保留工件的一侧边缘？", "en": "How can just one side of a boundary be retained?" },
+              "role": "challenge",
+              "uses": ["read-offset", "shift", "const", "less"],
+              "chain": [
+                {
+                  "zh": "仅当某格为 1 且左邻为 0 时标 1，图外取 0。",
+                  "en": "Mark 1 only where a cell is 1 and its left neighbour is 0. Outside reads are zero."
+                },
+                {
+                  "zh": "比较的顺序保留了边沿的方向，因此同一次比较就能排除另一侧的边。",
+                  "en": "The ordered comparison preserves the edge direction, so one comparison excludes the opposite edge."
+                }
+              ],
+              "naive": {
+                "zh": "变化大小会把进入工件和离开工件的边都标出来。",
+                "en": "Change magnitude marks both entering and leaving the part."
+              }
+            }
+          ],
+          "after": "0-7"
+        },
+        {
+          "id": "quality",
+          "title": { "zh": "质检台", "en": "Inspection station" },
+          "kind": "topic",
+          "slots": [
+            {
+              "id": "q-noise",
+              "title": { "zh": "噪声里的划痕", "en": "A scratch among noisy readings" },
+              "task": {
+                "zh": "用一个固定门槛复现标定件上的目标标记。",
+                "en": "Use a single fixed threshold to match the calibration masks."
+              },
+              "question": { "zh": "一个门槛何时足够？", "en": "When is a single threshold sufficient?" },
+              "role": "intro",
+              "uses": ["decision-evidence", "const", "less"],
+              "chain": [
+                {
+                  "zh": "用一个固定门槛复现标定件上的目标标记。",
+                  "en": "Use a single fixed threshold to match the calibration masks."
+                },
+                {
+                  "zh": "找出所有已知完好格中最大的差，以及划痕上最小的差。",
+                  "en": "Find the largest difference on an intact cell and the smallest difference on a scratch."
+                },
+                {
+                  "zh": "只有噪声与划痕的差值范围分开时，一个门槛才能同时避开误报与漏报。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+                  "en": "A single threshold avoids false alarms and missed defects only when the noise and scratch magnitudes are separated. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+                }
+              ],
+              "naive": {
+                "zh": "第一张图看起来清楚时，另一张图的噪声仍可能超过同一个门槛。",
+                "en": "A threshold that looks clear in one image may still flag noise in another."
+              }
+            },
+            {
+              "id": "q-position",
+              "title": { "zh": "位置不定", "en": "An uncertain position" },
+              "task": {
+                "zh": "预接电路给出两张差值图。选择总差较小的一张输出，平手保留甲。",
+                "en": "The starter computes two difference maps. Output the one with less total change, keeping A on a tie."
+              },
+              "question": {
+                "zh": "夹具给出两个候选时怎样选择？",
+                "en": "How can the station choose between two fixture offsets?"
+              },
+              "role": "step",
+              "uses": ["spatial-correspondence", "shift", "arithmetic", "abs", "less"],
+              "chain": [
+                {
+                  "zh": "预接电路给出两张差值图。选择总差较小的一张输出，平手保留甲。",
+                  "en": "The starter computes two difference maps. Output the one with less total change, keeping A on a tie."
+                },
+                {
+                  "zh": "求和给每张图一个分数。用比较结果控制选择元件。",
+                  "en": "Sum each image to obtain a score. Use their comparison to control the selector."
+                },
+                {
+                  "zh": "在这些候选中，总差较小的偏移更能解释整体位置变化。局部缺陷仍会留下残差。 <wiki-ref to=\"alignment-score\"></wiki-ref>",
+                  "en": "Among these candidates, the offset with lower total error better explains the overall displacement. Local defects can still leave a residual. <wiki-ref to=\"alignment-score\"></wiki-ref>"
+                }
+              ],
+              "teaches": "alignment-score",
+              "adds": ["totalDifference", "chooseDifference"],
+              "naive": {
+                "zh": "候选甲只在一部分工件上对得更齐。要用每次拍摄的证据决定。",
+                "en": "Candidate A aligns only some parts better. Decide from the evidence in each capture."
+              }
+            },
+            {
+              "id": "q-station",
+              "title": { "zh": "质检台", "en": "Inspection station" },
+              "task": {
+                "zh": "对每个工件选总差较小的偏移，平手保留甲，再输出严格超过容差的格子。",
+                "en": "For each part, choose the lower-error offset, keeping A on ties, and flag cells strictly above tolerance."
+              },
+              "question": {
+                "zh": "怎样检测位置未定的工件？",
+                "en": "How can inspection work when the offset is uncertain?"
+              },
+              "role": "finale",
+              "uses": [
+                "alignment-score",
+                "decision-evidence",
+                "shift",
+                "arithmetic",
+                "abs",
+                "less",
+                "totalDifference",
+                "chooseDifference"
+              ],
+              "chain": [
+                {
+                  "zh": "对每个工件选总差较小的偏移，平手保留甲，再输出严格超过容差的格子。",
+                  "en": "For each part, choose the lower-error offset, keeping A on ties, and flag cells strictly above tolerance."
+                },
+                {
+                  "zh": "保留前一张电路里对齐后的差值，把它接给判定环节。",
+                  "en": "Feed the aligned difference from your carried circuit into the decision stage."
+                },
+                {
+                  "zh": "先解释整体位移，再判断局部残差，能把夹具位置变化和需要复查的读数分开。 <wiki-ref to=\"alignment-score\"></wiki-ref> <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+                  "en": "Explaining the global displacement before checking local residuals separates fixture motion from readings that need review. <wiki-ref to=\"alignment-score\"></wiki-ref> <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+                }
+              ],
+              "naive": {
+                "zh": "还没选出更可信的偏移时，门槛可能把整段错位当成缺陷。",
+                "en": "With alignment still unresolved, the threshold can mistake an entire displaced edge for a defect."
+              }
+            }
+          ],
+          "after": "0-8"
         }
       ]
     },
@@ -2000,6 +2409,13 @@
     }
   ],
   "parallel": [
+    {
+      "id": "inspection-routes",
+      "why": {
+        "zh": "对比度、差值和探测位移可以独立完成，按已知偏移对齐才需要汇合。",
+        "en": "Contrast, difference and shift probing are independent; known-offset alignment joins the routes."
+      }
+    },
     {
       "id": "spatial-routes",
       "why": {

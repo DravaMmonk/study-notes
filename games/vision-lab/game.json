@@ -1,6 +1,6 @@
 {
   "domain": "vision",
-  "vocabulary": 4,
+  "vocabulary": 5,
   "title": {
     "zh": "视觉实验室",
     "en": "Vision Lab"
@@ -33,7 +33,9 @@
     "weightedLine",
     "windowTable",
     "difference",
-    "gaussianWeights"
+    "gaussianWeights",
+    "totalDifference",
+    "chooseDifference"
   ],
   "trays": {
     "main": [
@@ -66,7 +68,9 @@
       "complexSpectrum",
       "spectrum2D",
       "synthesise2D",
-      "gaussianWeights"
+      "gaussianWeights",
+      "totalDifference",
+      "chooseDifference"
     ]
   },
   "concept": {
@@ -89,20 +93,39 @@
     "arithmetic": "arithmetic",
     "weightedLine": "localTraversal",
     "difference": "arithmetic",
-    "gaussianWeights": "localTraversal"
+    "gaussianWeights": "localTraversal",
+    "totalDifference": "candidate-alignment",
+    "chooseDifference": "candidate-alignment"
   },
   "eras": [
     {
       "id": 0,
-      "title": { "zh": "图像比较仪", "en": "Image comparison instrument" },
+      "title": { "zh": "质检台", "en": "Inspection station" },
       "question": {
-        "zh": "怎样让图像读数变成可靠的变化证据？",
-        "en": "How can image readings become useful change evidence?"
+        "zh": "怎样把相机读数变成可靠的缺陷标记？",
+        "en": "How can camera readings become reliable defect marks?"
       },
       "foundation": [
         "0-1",
         "0-2",
-        "0-3"
+        {
+          "parallel": [
+            { "id": "contrast", "title": { "zh": "亮暗", "en": "Brightness" }, "levels": ["0-3"] },
+            { "id": "difference", "title": { "zh": "差异", "en": "Difference" }, "levels": ["0-4", "0-6"] },
+            { "id": "alignment", "title": { "zh": "位移", "en": "Displacement" }, "levels": ["0-5"] }
+          ]
+        },
+        "0-7",
+        "0-8"
+      ],
+      "challenges": [{ "level": "outline", "after": "0-7" }],
+      "topics": [
+        {
+          "id": "quality",
+          "title": { "zh": "质检台", "en": "Inspection station" },
+          "after": "0-8",
+          "levels": ["q-noise", "q-position", "q-station"]
+        }
       ]
     },
     {

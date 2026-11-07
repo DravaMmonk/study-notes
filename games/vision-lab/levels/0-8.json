@@ -1,0 +1,128 @@
+{
+  "title": { "zh": "谁闯进来了", "en": "What slipped through?" },
+  "intro": [
+    {
+      "t": {
+        "zh": "图像对齐后，大的缺口和小的读数波动都还留在差值图里。质检台需要给出明确的超差标记，也要把变化大小保留下来供复核。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+        "en": "After alignment, both defects and small reading fluctuations remain in the difference image. The station must mark readings beyond tolerance and retain the measured changes for review. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "\\[M(x,y)=\\begin{cases}1,&D(x,y)>\\tau\\\\0,&D(x,y)\\le\\tau\\end{cases}\\]\n\nD 是对齐后的差异大小，τ 是给定容差。差异图回答“改变了多少”，标记 M 回答“是否超过标准”；相等时不标记。结论仍依赖正确对应、光照条件和容差规范。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+    "en": "\\[M(x,y)=\\begin{cases}1,&D(x,y)>\\tau\\\\0,&D(x,y)\\le\\tau\\end{cases}\\]\n\nD is aligned difference magnitude and τ the supplied tolerance. D answers how much changed; M answers whether it exceeds the specification. Equality is unmarked. The decision still depends on correspondence, lighting and the tolerance specification. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v0_inspection",
+      "kind": "circuit",
+      "step": {
+        "zh": "按规范标记",
+        "en": "Apply the criterion"
+      },
+      "brief": {
+        "zh": "容差由质检规范给定。输出对齐差异，以及严格超过容差的变化标记（1）；其余为 0。",
+        "en": "Tolerance is supplied by the inspection specification. Output aligned differences and a 1 only where a difference strictly exceeds tolerance."
+      },
+      "inputs": [
+        { "name": "observed", "label": { "zh": "观测", "en": "Observation" } },
+        { "name": "reference", "label": { "zh": "参照", "en": "Reference" } },
+        { "name": "d", "type": "vector", "label": { "zh": "取样偏移 d", "en": "Read offset d" } },
+        { "name": "tolerance", "label": { "zh": "允许变化", "en": "Tolerance" } }
+      ],
+      "outputs": [
+        { "name": "changes", "label": { "zh": "变化证据", "en": "Change evidence" } },
+        { "name": "mask", "label": { "zh": "超差标记", "en": "Over-tolerance mask" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "observed": [[0.1, 0.4, 0.8, 0.3]],
+            "reference": [[0.55, 0.8, 0.3, 0]],
+            "d": { "x": 1, "y": 0 },
+            "tolerance": 0.1
+          },
+          "expect": { "changes": [[0.15000000000000002, 0, 0, 0]], "mask": [[1, 0, 0, 0]] }
+        },
+        {
+          "inputs": {
+            "observed": [[0.2, 0.6], [0.8, 0.1], [0.4, 0.5]],
+            "reference": [[0.15, 0], [0.2, 0.6], [0.8, 0.1]],
+            "d": { "x": 0, "y": -1 },
+            "tolerance": 0.1
+          },
+          "expect": { "changes": [[0.15, 0], [0, 0], [0, 0]], "mask": [[1, 0], [0, 0], [0, 0]] }
+        },
+        {
+          "inputs": {
+            "observed": [[0.625, 0.25, 0.875]],
+            "reference": [[0.5, 0.5, 0.5]],
+            "d": { "x": 0, "y": 0 },
+            "tolerance": 0.25
+          },
+          "expect": { "changes": [[0.125, 0.25, 0.375]], "mask": [[0, 0, 1]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "observed": [[0.3, 0.7, 0.1], [0.2, 0.9, 0.5]],
+            "reference": [[0.15, 0.3, 0.7], [0, 0.2, 0.9]],
+            "d": { "x": -1, "y": 0 },
+            "tolerance": 0.1
+          },
+          "expect": { "changes": [[0.15, 0, 0], [0, 0, 0]], "mask": [[1, 0, 0], [0, 0, 0]] }
+        }
+      ],
+      "solution": [
+        "s = shift(observed,d)",
+        "change = arithmetic[op=sub](s,reference)",
+        "c = abs(change)",
+        "m = less(tolerance,c)",
+        "changes <- c",
+        "mask <- m"
+      ],
+      "naive": [
+        "s = shift(observed,d)",
+        "change = arithmetic[op=sub](s,reference)",
+        "c = abs(change)",
+        "m = less(c,tolerance)",
+        "changes <- c",
+        "mask <- m"
+      ],
+      "naiveWhy": {
+        "zh": "标记应当随变化超过容差而出现，不是把合格位置标为缺陷。",
+        "en": "Mark changes exceeding tolerance, not positions that remain within it."
+      },
+      "hint": [
+        {
+          "zh": "先检查差异输出，再检查比较的两个输入谁在前。小于元件在 a<b 时输出 1。",
+          "en": "Check the difference first, then the order of the comparison inputs. Less returns 1 when a<b."
+        }
+      ],
+      "sample": {
+        "inputs": {
+          "observed": {
+            "size": [32, 24],
+            "base": 0,
+            "layers": [
+              { "shape": "disc", "cx": 10, "cy": 11, "r": 6, "v": 0.6 },
+              { "shape": "rect", "x": 22, "y": 5, "w": 8, "h": 14, "v": 0.8 },
+              { "shape": "rect", "x": 24, "y": 10, "w": 3, "h": 4, "v": 0.2 }
+            ]
+          },
+          "reference": {
+            "size": [32, 24],
+            "base": 0,
+            "layers": [
+              { "shape": "disc", "cx": 9, "cy": 11, "r": 6, "v": 0.6 },
+              { "shape": "rect", "x": 21, "y": 5, "w": 8, "h": 14, "v": 0.8 }
+            ]
+          },
+          "d": { "x": 1, "y": 0 }
+        }
+      },
+      "carry": "0-2"
+    }
+  ]
+}

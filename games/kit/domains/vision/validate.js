@@ -82,7 +82,7 @@ export function validate({ circuit }) {
         ...(model.check(question, reference[index]) ? ['reference evidence fails'] : []),
         ...(!model.check(question, model.insufficient()) ? ['insufficient evidence passes'] : []),
       ])
-      if (model.field === 'rows') {
+      if ((task.experiment ?? 'blur') === 'blur') {
         const [support, gain] = model.questions
         const flat = blankProbe().map(row => row.map(() => 0.25))
         if (!model.check(support, { answer: support.answer, rows: flat })) problems.push('a flat image passes the support question')
