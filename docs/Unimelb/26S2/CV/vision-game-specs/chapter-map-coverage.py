@@ -8,11 +8,12 @@ import sys
 
 # Chapter order of the map; lecture numbers are provenance only.
 CHAPTERS = {
-    1: "邻居", 2: "图里的波", 3: "光与颜色", 4: "让机器自己学", 5: "更深的网络", 6: "认出同一个点",
-    7: "第三个维度", 8: "注意力", 9: "每个像素是什么", 10: "框出每一个", 11: "画出新图", 12: "它在看哪",
+    1: "读单据", 2: "读网点印刷、传回画面", 3: "白天黑夜都看得准", 4: "分拣零件", 5: "分得更多、跑得更快",
+    6: "拼出仓库全景", 7: "测距避障", 8: "以图搜货", 9: "抠出每个零件", 10: "盘点货架",
+    11: "给稀有零件补训练图", 12: "自查看错了哪里",
 }
 
-# id -> (chapter, primary landing). Landings: 现 the chapter's opening probe, 主 main line, 原 an optional
+# id -> (chapter, primary landing). Landings: 主 main line, 原 an optional
 # principle series, 补 extra lesson (parameter bench), 文 intro, display or glossary only, 专 technical or
 # workshop content inside an optional series or topic.
 PLACE = {
@@ -22,15 +23,15 @@ PLACE = {
     "sinusoid": (2, "主"), "fourier": (2, "主"), "frequency-filter": (2, "主"), "ringing": (2, "主"),
     "compression": (2, "文"),
     "reflectance": (3, "主"), "colour": (3, "主"), "material": (3, "文"), "equivariance": (3, "主"),
-    "recognition": (4, "现"), "channels": (4, "主"), "stride": (4, "原"), "pooling": (4, "主"),
+    "recognition": (4, "主"), "channels": (4, "主"), "stride": (4, "原"), "pooling": (4, "主"),
     "classification-loss": (4, "主"), "train-split": (4, "主"), "regularisation": (4, "主"),
     "optimisation": (4, "主"),
     "receptive-field": (5, "主"), "residual": (5, "主"), "depthwise": (5, "主"), "transfer": (5, "主"),
     "classification-metrics": (5, "主"),
-    "keypoint": (6, "现"), "harris": (6, "主"), "sift": (6, "主"), "outlier": (6, "主"),
-    "hough": (6, "主"), "ransac": (6, "主"), "ratio-test": (6, "主"), "homography": (6, "主"),
+    "keypoint": (6, "主"), "harris": (6, "主"), "sift": (6, "主"), "outlier": (6, "主"),
+    "hough": (7, "主"), "ransac": (6, "主"), "ratio-test": (6, "主"), "homography": (6, "主"),
     "sampling": (6, "主"),
-    "projection": (7, "主"), "lens": (7, "主"), "depth-cues": (7, "现"), "disparity": (7, "主"),
+    "projection": (7, "主"), "lens": (7, "主"), "depth-cues": (7, "文"), "disparity": (7, "主"),
     "stereo-matching": (7, "主"), "learned-depth": (7, "主"), "homogeneous": (7, "原"),
     "calibration": (7, "原"), "epipolar": (7, "主"), "fundamental": (7, "原"), "rectification": (7, "主"),
     "patches": (8, "主"), "attention": (8, "主"), "position": (8, "主"), "attention-cost": (8, "原"),
@@ -40,7 +41,7 @@ PLACE = {
     "rag": (9, "主"), "stuff-things": (9, "文"), "grabcut": (9, "文"),
     "fcn": (9, "主"), "encoder-decoder": (9, "主"), "unpooling": (9, "主"), "transpose-conv": (9, "主"),
     "unet": (9, "主"), "sam": (9, "主"), "mask-loss": (9, "文"),
-    "detection": (10, "现"), "iou": (10, "主"), "proposals": (10, "主"), "box-regression": (10, "主"),
+    "detection": (10, "主"), "iou": (10, "主"), "proposals": (10, "主"), "box-regression": (10, "主"),
     "rcnn": (10, "主"), "roi-pooling": (10, "主"), "rpn": (10, "主"), "instance-mask": (10, "文"),
     "yolo": (10, "主"), "detr": (10, "主"), "set-matching": (10, "主"), "nms": (10, "主"),
     "detection-matching": (10, "主"), "precision-recall": (10, "主"), "map": (10, "主"),
@@ -49,7 +50,7 @@ PLACE = {
     "conditional-gan": (11, "文"), "gaussian-noise": (11, "原"), "forward-diffusion": (11, "主"),
     "noise-prediction": (11, "主"), "reverse-diffusion": (11, "主"), "latent-diffusion": (11, "文"),
     "conditional-diffusion": (11, "主"), "generation-cost": (11, "文"),
-    "interpretability": (12, "主"), "robustness": (12, "现"),
+    "interpretability": (12, "主"), "robustness": (12, "主"),
     # Off the main line: workshop and library practice.
     "bgr": (6, "专"), "camera-example": (7, "专"), "attention-distance": (8, "专"),
     "gradcam-practice": (12, "专"), "diffusion-schedule-practice": (11, "专"),
@@ -60,7 +61,7 @@ PLACE = {
     "generation-practice": (11, "专"),
 }
 
-LAYER_ORDER = "现主原补文专"
+LAYER_ORDER = "主原补文专"
 
 # Principle series: letter -> (title, knowledge points the series takes to implementation depth).
 SERIES = {
@@ -107,8 +108,8 @@ def main(path):
     def name(k):
         return f"{title[k]}{'' if lecture[k] is None else f'（L{lecture[k]}）'}"
 
-    print("| 章 | 现象 | 主线 | 原理系列 | 补课 | 只在文案 | 技术与实验 |")
-    print("| --- | --- | --- | --- | --- | --- | --- |")
+    print("| 章 | 主线 | 原理系列 | 补课 | 只在引言与词条 | 技术与实验 |")
+    print("| --- | --- | --- | --- | --- | --- |")
     for ch, label in CHAPTERS.items():
         cells = []
         for layer in LAYER_ORDER:
