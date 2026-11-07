@@ -1873,6 +1873,8 @@
       
         
       
+        
+      
     
     
     
@@ -2220,6 +2222,34 @@
     
   
     《视觉实验室》第 0–2 章评审
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="theory-course-map.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vision Lab theory course map
   
 
     
@@ -4090,19 +4120,19 @@ approach, with the general formula in the completion text and linked encyclopedi
 </tr>
 <tr>
 <td><strong>1-3 · Convolution direction</strong>. What changes when the kernel is reversed?</td>
-<td>Carry 1-2. Provide an asymmetric kernel and an off-centre impulse. The player adds the reversal required for mathematical convolution.</td>
+<td>Carry 1-2. Provide an asymmetric kernel and an off-centre impulse. The player uses a displaced impulse to infer how to reproduce the mathematical convention.</td>
 <td>Exact orientation and origin, including a rectangular odd kernel. A symmetric Gaussian is an equivalence control. A direct correlation answer fails the asymmetric case.</td>
 <td>L3 pp. 17–18.</td>
 </tr>
 <tr>
 <td><strong>1-4 · Finite boundaries</strong>. Where can the circuit read at the edges?</td>
-<td>Carry 1-3. Reuse the current boundary tasks and expose the shared zero, clamp, wrap and reflect setting through the processor. Keep valid output as an explicit interior crop.</td>
+<td>Carry 1-3. Use observed edge traces to select the boundary rule. Expose the shared zero, clamp, wrap and reflect setting through the processor. Keep valid output as an explicit interior crop.</td>
 <td>A radius-two kernel distinguishes clamp from reflection including the edge; an asymmetric edge signal distinguishes wrap from zero. Exact valid crop and dimensions. A constant interior alone cannot distinguish the policies.</td>
 <td>L3 pp. 41–45.</td>
 </tr>
 <tr>
 <td><strong>1-5 · Two passes when the kernel factors</strong>. When can the same operator use fewer products?</td>
-<td>Construction tasks: build the separable form from the same window, multiply, reduce and restore parts, applied with a 1×kx window and then a ky×1 window. Compare against the dense form on the same input in the final task. Final task: an application board with three kernels, a multiply budget and the processor in both forms. The player decides per kernel which form to use and, for a factorable kernel, writes its two factors as constants.</td>
+<td>Construction task: build the separable form from the same window, multiply, reduce and restore parts, applied with a 1×kx window and then a ky×1 window. Compare against the dense form on the same input in the final task. Final task: an application board with three kernels, a multiply budget and the processor in both forms. The player decides per kernel which form to use and, for a factorable kernel, writes its two factors as constants.</td>
 <td>Construction: outputs equal the dense form for 3×3, 5×5 and 5×3 outer products with unequal and signed factors, a zero factor, and each boundary rule. Summing two one-axis results, or applying ky along x, fails. Budget: a 5×5 box, a 5×5 Gaussian and a 3×3 Laplacian (rank two), with a budget of 29·W·H products (10 + 10 + 9). Dense everywhere (59·W·H) exceeds it; a separable attempt on the Laplacian gives a wrong output, and writing it as a sum of two separable passes (12·W·H) is correct but over budget.</td>
 <td>L3 pp. 38–40.</td>
 </tr>
@@ -4120,13 +4150,13 @@ approach, with the general formula in the completion text and linked encyclopedi
 </tr>
 <tr>
 <td><strong>1-8 · Sobel and response strength</strong>. What does perpendicular smoothing add?</td>
-<td>Carry the 1-7 board. Provide smoothing weights. The player adds perpendicular smoothing to each response, which makes each Sobel response the separable form with a difference factor along one axis and a smoothing factor along the other, then combines the two into a magnitude.</td>
+<td>Carry the 1-7 board. Provide smoothing weights and an edge whose response fluctuates under interference. The learner tests which use of the weights stabilises the response while preserving the edge.</td>
 <td>Axis-specific edge fixtures, contrast reversal and a noisy step: numeric response, sign and joint magnitude. Summing signed responses or smoothing along the derivative axis fails.</td>
 <td>L3 pp. 29–30 and L5 pp. 39–42.</td>
 </tr>
 <tr>
 <td><strong>1-9 · Grayscale scan</strong>. How do preprocessing and a threshold interact?</td>
-<td>Start from the 1-8 board. Supply a grayscale scan with noise, fine text and a paper edge, Gaussian weights and a threshold. The player connects preprocessing, response magnitude and the threshold mask.</td>
+<td>Start from the 1-8 board. Supply grayscale scans, an editable Gaussian scale and a threshold. The learner selects a scale by comparing false marks on speckled paper and missed marks on fine strokes.</td>
 <td>Clean and noisy edges, an edge touching the boundary and a value equal to the threshold. Expect the response and a strict-exceedance mask. Keep a non-judged scan sample that reveals detail loss.</td>
 <td>L3 pp. 26–30, 41–45 and L5 pp. 39–42. The scan and threshold are application design.</td>
 </tr>
@@ -4210,7 +4240,7 @@ selected form.</p>
 <tbody>
 <tr>
 <td><strong>2-1 opening</strong></td>
-<td>Add a read-only spectrum view for a controlled image and a comparison image with a changed grid frequency. Preserve the wave construction tasks.</td>
+<td>Use an interactive probe that changes one repetition count at a time against a fixed baseline. Preserve the wave construction tasks.</td>
 <td>A learner can locate the bright pair for the grid and observe it move when the period changes. The view is not a component or an unlock.</td>
 </tr>
 <tr>
