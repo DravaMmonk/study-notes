@@ -36,23 +36,26 @@ function Apparatus() {
     <text x="227" y="218" textAnchor="middle">{tr('传送带上的待检工件', 'Item under inspection')}</text>
   </svg>
 }
+// A wave of N samples: the samples, and the function they were taken from.
+const N = 16
+const sampled = (f) => Array.from({ length: N }, (_, x) => f(x))
+const Wave = ({ label, f }) => <Show scene="figure" views={['plot']} label={label} value={fromRows([sampled(f)])} curve={f}/>
 function WaveDemo({ fig }) {
   const [frequency, setFrequency] = useState(1)
   const [phase, setPhase] = useState(0)
-  const n = 16
-  const basis = Array.from({length:n},(_,x)=>Math.cos(2*Math.PI*(frequency*x/n+phase)))
-  const signal = Array.from({length:n},(_,x)=>.6*Math.cos(2*Math.PI*x/n)+.25*Math.sin(6*Math.PI*x/n))
-  const product = signal.map((v,k)=>v*basis[k])
-  const response = product.reduce((s,v)=>s+v,0)/n
+  const basis = (x)=>Math.cos(2*Math.PI*(frequency*x/N+phase))
+  const signal = (x)=>.6*Math.cos(2*Math.PI*x/N)+.25*Math.sin(6*Math.PI*x/N)
+  const product = (x)=>signal(x)*basis(x)
+  const response = sampled(product).reduce((s,v)=>s+v,0)/N
   const isWave = fig === 'frequency-wave'
   return <figure className="vi-intro-figure vi-construction-figure">
     <div className="vi-instrument-label">{tr('频率分析仪 · 独立示例', 'Frequency analyser · independent example')}</div>
-    <Show scene="figure" label={isWave ? tr('波形样本','Wave samples') : tr('观测读数','Observed readings')} value={fromRows([isWave ? basis : signal])}/>
+    <Wave label={isWave ? tr('波形样本','Wave samples') : tr('观测读数','Observed readings')} f={isWave ? basis : signal}/>
     <div className="vi-figure-controls">
       <button type="button" aria-pressed={frequency===1} onClick={()=>setFrequency(frequency===1?3:1)}>{tr('周期数','Cycles')} {frequency}</button>
       <button type="button" aria-pressed={phase!==0} onClick={()=>setPhase(phase===0?.25:0)}>{tr('相位（周）','Phase (turns)')} {phase}</button>
     </div>
-    {!isWave && <><Show scene="figure" label={tr('逐格乘积','Sample products')} value={fromRows([product])}/><div className="vi-computed-reading"><span>{tr('逐格乘积的平均','Mean sample product')}</span><strong>{fmt(response)}</strong></div></>}
+    {!isWave && <><Wave label={tr('逐格乘积','Sample products')} f={product}/><div className="vi-computed-reading"><span>{tr('逐格乘积的平均','Mean sample product')}</span><strong>{fmt(response)}</strong></div></>}
     <figcaption><Rich text={isWave ? tr('改变周期数与改变相位会产生不同的变化。数值表保留负值，底色仅用于辅助观察。<wiki-ref to="wave-parameters"></wiki-ref>','Frequency and phase change different properties. The numeric table retains negative readings; cell colours are visual aids. <wiki-ref to="wave-parameters"></wiki-ref>') : tr('探针先与观测逐位置相乘，再汇总。改变相位可能让一个探针失去响应，因此需要两条正交测量。<wiki-ref to="frequency-projection"></wiki-ref>','Multiply the observation and probe at matching positions, then reduce. Phase can silence one probe, motivating two orthogonal measurements. <wiki-ref to="frequency-projection"></wiki-ref>')}/></figcaption>
     {fig==='frequency-table' && <p>{tr('展开遍历：同一行重复 N 次，每次使用不同索引 k。重复的是工作，不是新增信息。','Expansion repeats one source row N times with different indices k. It repeats work without creating information.')}</p>}
   </figure>
@@ -78,9 +81,9 @@ export default function ConstructionFigure({ fig }) {
   if (fig==='window-table') return <WindowDemo/>
   if (fig.startsWith('frequency-') && fig!=='frequency-filter') return <WaveDemo fig={fig}/>
   if (fig==='frequency-filter') {
-    const source = Array.from({length:16},(_,x)=>.5+.25*Math.cos(2*Math.PI*x/16)+.12*Math.sin(6*Math.PI*x/16))
-    const filtered = Array.from({length:16},(_,x)=>.5+.25*Math.cos(2*Math.PI*x/16))
-    return <figure className="vi-intro-figure vi-construction-figure"><div className="vi-instrument-label">{tr('同一信号，选择不同频率贡献','One signal, different frequency contributions')}</div><Show scene="figure" label={tr('数值读数','Numeric readings')} value={fromRows([source])}/><Show scene="figure" label={tr('数值读数','Numeric readings')} value={fromRows([changed?filtered:source])}/><button type="button" className="vi-primer-switch" onClick={()=>setChanged(!changed)}>{changed?tr('保留全部频率','Retain all frequencies'):tr('抑制三周期分量','Suppress the three-cycle component')}</button><figcaption><Rich text={tr('两条正交分量一起缩放才能保留相位关系。已知频率的抑制不等于自动判断哪些细节是噪声。<wiki-ref to="frequency-filtering"></wiki-ref>','Scale both quadrature components together to retain phase. Suppressing known frequencies does not automatically identify nuisance details. <wiki-ref to="frequency-filtering"></wiki-ref>')}/></figcaption></figure>
+    const filtered = (x)=>.5+.25*Math.cos(2*Math.PI*x/N)
+    const source = (x)=>filtered(x)+.12*Math.sin(6*Math.PI*x/N)
+    return <figure className="vi-intro-figure vi-construction-figure"><div className="vi-instrument-label">{tr('同一信号，选择不同频率贡献','One signal, different frequency contributions')}</div><Wave label={tr('原信号','Signal')} f={source}/><Wave label={changed?tr('抑制后','Suppressed'):tr('原信号','Signal')} f={changed?filtered:source}/><button type="button" className="vi-primer-switch" onClick={()=>setChanged(!changed)}>{changed?tr('保留全部频率','Retain all frequencies'):tr('抑制三周期分量','Suppress the three-cycle component')}</button><figcaption><Rich text={tr('两条正交分量一起缩放才能保留相位关系。已知频率的抑制不等于自动判断哪些细节是噪声。<wiki-ref to="frequency-filtering"></wiki-ref>','Scale both quadrature components together to retain phase. Suppressing known frequencies does not automatically identify nuisance details. <wiki-ref to="frequency-filtering"></wiki-ref>')}/></figcaption></figure>
   }
   if (fig==='inspection') return <figure className="vi-intro-figure vi-construction-figure"><Apparatus/><figcaption>{tr('把每次造出的部件装入下一台视觉机器。','Build parts, then reuse them in the next visual machine.')}</figcaption></figure>
   if (fig==='inspection-samples') {

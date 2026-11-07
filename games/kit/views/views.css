@@ -45,7 +45,7 @@
 .vw-detail { --gv-frame-w: 220px; --gv-frame-h: 150px; }
 .vw-figure { --gv-frame-w: 560px; --gv-frame-h: 320px; justify-items: center; }
 .vw-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: var(--fs-ui); }
-.vw-figure > .vw-head { justify-self: stretch; justify-content: flex-end; }
+.vw-figure > .vw-head { justify-content: center; }
 .vw-scalar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: var(--fs-ui); }
 .vw-scalar .vw-value { font-size: var(--fs-small); }
 .vw-seq { margin: 0; font: var(--fs-ui) var(--mono); color: var(--ink); overflow-wrap: anywhere; }
@@ -57,6 +57,7 @@
 .pl.is-card svg { cursor: inherit; }
 .pl-zero { stroke: var(--line); stroke-width: 1; }
 .pl-line { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; opacity: 0.55; }
+.pl-curve { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; opacity: 0.7; }
 .pl-stem { stroke: var(--accent); stroke-width: 1.5; opacity: 0.6; }
 .pl-dot { fill: var(--accent); }
 .pl-dot.is-miss { fill: var(--fail); }
