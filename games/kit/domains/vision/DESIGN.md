@@ -190,3 +190,42 @@ Use learner-built components only when distinct correct implementations can prod
 execution-cost tradeoffs. A fixed weighted sum is a code preset: weightedLine(image, weights, d) consumes one
 three-element single-channel row in first/centre/last order. It preserves source shape and channels, uses explicit
 border rules and never loads a learner board. Introductory decomposition tasks do not imply a `builds` contract.
+
+## Capabilities for the redesigned course
+
+The redesigned Vision Complete (`docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md`) uses spectra rather than
+building them, and trains networks. The domain supplies, each with tests against independent references:
+
+| Capability | Where | For |
+| --- | --- | --- |
+| Centred amplitude spectrum, frequency filtering by a centred gain map, each cell's frequency, subsampling | `frequency.js` | Chapter 2 presets; frequency 0 at (⌊W/2⌋, ⌊H/2⌋), forward scale 1/(W·H) |
+| Direction of (x, y) in turns | `ops.js` `angleTurns` | Edge orientation |
+| Pictures with sensor banding, a sheet askew, lines of text, surface-normal reliefs | `sample.js` | Scanner and shading samples |
+| A black-box filter probe whose kernel and competing explanations are content | `probe.js` `filter` | Impulse response |
+| Wave matching, building a step, sampling; Lambertian patches | `benches/waves.js`, `benches/lambert.js` | Chapters 2 and 3, judged by the kernel's bench |
+| Learnable parameters (a number, three weights, a 3×3 or 5×5 kernel, a weight a cell), frozen or not | `ops.js` `learnable`, `learnableLike` | Every training task |
+| Derivatives of the resources a model trains through | `grad.js`, `tables.js` | The kernel's tape (`engine/tape.js`) |
+| Training: mean square or cross-entropy, SGD with momentum or Adam, validation and early stopping, seeded starts, restarts, a report of resources a gradient cannot pass | `train.js` | A circuit task's `train`; `judge: argmax` for classifiers |
+| An output cell's influence on every input cell | `train.js` `influence` | Receptive fields |
+| Patches, table product, row softmax, seeded noise | `tables.js` | Attention, sampling a latent space |
+| Bilinear sampling with gradients to the coordinates | `grad.js` | Learned warps, self-supervised depth |
+| IoU of box tables, a homography from pairs and its map, orientation histograms | `geometry.js` | Detection, panoramas, descriptors |
+
+A training task is deterministic: the same board learns the same, and a board is trained once however often it is
+judged (`run.js` `trainedBoard`). Small networks can stall where they start; restarts keep the best of several
+seeds (a three-unit network learns exclusive-or from about eight starts in ten with Adam, so three restarts leave
+roughly one failure in a hundred). Nothing here has been measured on a phone; training runs on the main thread.
+
+Not yet supported, and needed by later chapters:
+
+- **Iteration.** k-means rounds, mean shift, RANSAC trials, NMS, AP accumulation, occlusion sweeps and diffusion
+  sampling repeat a step while keeping values between steps. The kernel's tick boards (registers, `engine/ticks.js`)
+  do this for the CAN-bus game; the vision domain is on the one-shot dataflow template and needs a decision on how a
+  repeated step is wired and shown before those levels are written.
+- **Feature maps of more than three channels.** An image has one or three channels, so a convolution layer with more
+  feature maps is several grey wires. A packed part can hide the wiring, but whether that reads well on a board has to
+  be tried.
+- **Two trainings in turn** (a GAN's generator and discriminator) and **a loss over a batch** (contrastive learning
+  over many negatives): the trainer takes one loss on one output, example by example.
+- **Showing influence on the board**: the computation exists; picking a cell and drawing its receptive field is not
+  wired into the results area.
