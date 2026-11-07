@@ -6,6 +6,7 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { Worker } from 'node:worker_threads'
 import { GAMES } from '../../games.js'
 import { isDataGame, readContent } from './content-node.js'
 import { audit } from '../course.js'
@@ -39,15 +40,20 @@ for (const name of names.filter((d) => existsSync(resolve(DOMAINS, d, 'starter')
   })
 }
 
+// Each game plays in a worker of its own (contract-game.js), all started at once: the games are heavy and independent.
+// A run settles to its problems or its error, so a worker that fails before its test is reached still fails that test.
+const runs = new Map(games.map((id) => [id, new Promise((done) => {
+  new Worker(new URL('./contract-game.js', import.meta.url), { workerData: id })
+    .once('message', done).once('error', (error) => done({ error }))
+})]))
 for (const id of games) {
   test(`${id}: its domain reads it, checks it and plays it as the contract says`, async () => {
-    const content = readContent(id)
-    assert.ok(names.includes(content.domain), `${id} is on ${content.domain}, which is no domain`)
-    const domain = await load(content.domain)
-    const spec = domain.spec(content)
-    assert.deepEqual(specProblems(domain, content, spec), [])
+    const { error, domain, spec, validate, game } = await runs.get(id)
+    if (error) throw error
+    assert.ok(names.includes(domain), `${id} is on ${domain}, which is no domain`)
+    assert.deepEqual(spec, [])
     // A builder level whose part does not run the board syncOwn hands it is one whose parts the spec lists as builtIn.
-    assert.deepEqual((await validateProblems(domain, content, spec)).problems, [])
-    assert.deepEqual(gameProblems(content, spec, await gameOf(content)), [])
+    assert.deepEqual(validate, [])
+    assert.deepEqual(game, [])
   })
 }

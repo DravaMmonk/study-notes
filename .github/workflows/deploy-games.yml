@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - 'games/**'
+      # Design notes and specs are not on the site; the kit's own Markdown is read by its code.
+      - '!games/**/*.md'
+      - 'games/kit/**/*.md'
       - 'trace-viewer/**'
       - '.github/workflows/deploy-games.yml'
   workflow_dispatch:
@@ -18,30 +21,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  # The checks and the build run side by side; nothing is published unless every one passes.
+  verify:
+    strategy:
+      matrix:
+        task: [test, conform, check, build:games]
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: trace-viewer
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Replay tests rebuild content from earlier commits.
-          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: trace-viewer/package-lock.json
       - run: npm ci
-      - run: npm test
-      - run: npm run conform
-      - run: npm run check
-      - run: npm run build:games
+        if: matrix.task != 'conform'
+      - run: npm run ${{ matrix.task }}
+      - uses: actions/upload-artifact@v4
+        if: matrix.task == 'build:games'
+        with:
+          name: dist-games
+          path: trace-viewer/dist-games
+          retention-days: 1
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-games
+          path: dist-games
       - uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.GAMES_DEPLOY_KEY }}
           external_repository: DravaMmonk/games
           publish_branch: gh-pages
-          publish_dir: trace-viewer/dist-games
+          publish_dir: dist-games
           commit_message: 'deploy: games'
