@@ -3,6 +3,7 @@ import Choice from '../../circuit/Choice.jsx'
 import NumberField from '../NumberField.jsx'
 import { L } from '../i18n.js'
 import { iconOf } from './icons.js'
+import { numberText } from '../../engine/number.js'
 
 // One setting of a part, the same in every game (games/DESIGN.md 6.9): a part definition names one of six controls
 // and the kernel draws it — compact on a desktop card, roomy in a sheet (`roomy`) and on a phone. The value a control
@@ -78,12 +79,13 @@ export default function SettingField({ setting, value, onChange, allowed = null,
   )
 }
 
-/** The words for a setting's value: its option's label, a number with its unit, the side of a toggle. */
+/** The words for a setting's value: its option's label, a number (rounded as the kit writes numbers) with its unit, the side of a toggle. */
 export function valueWords(setting, value) {
   if (setting.options) {
     const o = setting.options.find((x) => String(x.value) === String(value))
     return o ? L(o.label ?? o.value) : String(value ?? '')
   }
   if (setting.control === 'toggle') return L(value ? setting.on ?? '✓' : setting.off ?? '✗')
-  return `${value ?? ''}${setting.unit ? ` ${L(setting.unit)}` : ''}`
+  const n = setting.control === 'number' && value !== '' && value !== null ? Number(value) : NaN
+  return `${Number.isFinite(n) ? numberText(n) : value ?? ''}${setting.unit ? ` ${L(setting.unit)}` : ''}`
 }

@@ -25,7 +25,7 @@
       "inputs": [{ "name": "photo", "label": { "zh": "图", "en": "Image" } }],
       "outputs": [
         { "name": "strength", "label": { "zh": "强弱", "en": "Strength" } },
-        { "name": "direction", "label": { "zh": "朝向", "en": "Direction" } }
+        { "name": "direction", "label": { "zh": "朝向", "en": "Direction" }, "view": "numbers" }
       ],
       "tests": [
         {

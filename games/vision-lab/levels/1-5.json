@@ -33,8 +33,8 @@
       ],
       "inputs": [{ "name": "photo", "label": { "zh": "图", "en": "Image" } }],
       "outputs": [
-        { "name": "dx", "label": { "zh": "横向变化", "en": "Change across" } },
-        { "name": "dy", "label": { "zh": "竖向变化", "en": "Change down" } }
+        { "name": "dx", "label": { "zh": "横向变化", "en": "Change across" }, "view": "numbers" },
+        { "name": "dy", "label": { "zh": "竖向变化", "en": "Change down" }, "view": "numbers" }
       ],
       "tests": [
         {

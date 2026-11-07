@@ -144,68 +144,133 @@
         {
           "key": "k1",
           "control": "number",
-          "label": { "zh": "上左", "en": "top left" },
+          "about": { "zh": "上左", "en": "top left" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k2",
           "control": "number",
-          "label": { "zh": "上中", "en": "top centre" },
+          "about": { "zh": "上中", "en": "top centre" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k3",
           "control": "number",
-          "label": { "zh": "上右", "en": "top right" },
+          "about": { "zh": "上右", "en": "top right" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k4",
           "control": "number",
-          "label": { "zh": "中左", "en": "middle left" },
+          "about": { "zh": "中左", "en": "middle left" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k5",
           "control": "number",
-          "label": { "zh": "中中", "en": "middle centre" },
+          "about": { "zh": "中中", "en": "middle centre" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k6",
           "control": "number",
-          "label": { "zh": "中右", "en": "middle right" },
+          "about": { "zh": "中右", "en": "middle right" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k7",
           "control": "number",
-          "label": { "zh": "下左", "en": "bottom left" },
+          "about": { "zh": "下左", "en": "bottom left" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k8",
           "control": "number",
-          "label": { "zh": "下中", "en": "bottom centre" },
+          "about": { "zh": "下中", "en": "bottom centre" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         },
         {
           "key": "k9",
           "control": "number",
-          "label": { "zh": "下右", "en": "bottom right" },
+          "about": { "zh": "下右", "en": "bottom right" },
           "default": 0,
           "when": "eq($kind, 'kernel3')"
         }
       ],
-      "compute": "match $kind { scalar: $value, row3: weightVector($first, $centre, $last), kernel3: kernel3($k1, $k2, $k3, $k4, $k5, $k6, $k7, $k8, $k9) }"
+      "compute": "match $kind { scalar: $value, row3: weightVector($first, $centre, $last), kernel3: kernel3($k1, $k2, $k3, $k4, $k5, $k6, $k7, $k8, $k9) }",
+      "views": {
+        "card": [
+          { "show": "settings", "keys": ["kind", "value", "first", "centre", "last"] },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k1" },
+              { "show": "setting", "key": "k2" },
+              { "show": "setting", "key": "k3" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k4" },
+              { "show": "setting", "key": "k5" },
+              { "show": "setting", "key": "k6" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k7" },
+              { "show": "setting", "key": "k8" },
+              { "show": "setting", "key": "k9" }
+            ]
+          }
+        ],
+        "tile": [
+          { "show": "setting", "key": "kind", "as": "label" },
+          { "show": "setting", "key": "value", "as": "label" },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "first", "as": "label" },
+              { "show": "setting", "key": "centre", "as": "label" },
+              { "show": "setting", "key": "last", "as": "label" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k1", "as": "label" },
+              { "show": "setting", "key": "k2", "as": "label" },
+              { "show": "setting", "key": "k3", "as": "label" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k4", "as": "label" },
+              { "show": "setting", "key": "k5", "as": "label" },
+              { "show": "setting", "key": "k6", "as": "label" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k7", "as": "label" },
+              { "show": "setting", "key": "k8", "as": "label" },
+              { "show": "setting", "key": "k9", "as": "label" }
+            ]
+          }
+        ]
+      }
     },
     "split3": {
       "name": { "zh": "拆成三个数", "en": "Split in three" },
