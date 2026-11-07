@@ -9,12 +9,12 @@ import { DRAWN, SIZE, overlays } from './plots/drawn.js'
 import ViewSwitch from './ViewSwitch.jsx'
 
 // A results area (games/DESIGN.md 6.10): the verdict first, then the rows content laid out (../../engine/views.js
-// rowsOf), each in the view the player picked among those its row offers. Rows of values a tick (bits, ticks) share one
+// rowsOf), each in the view kept for its value (./picks.js: an input's or output's, the one its card and detail draw),
+// switched in the row's head. Rows of values a tick (bits, ticks) share one
 // time axis; one-value rows (scalar) run on one line; a grid or a list is a row of its own. An output shows the
 // board's result against the value wanted, what differs marked; before a run, only the value wanted.
 //
 //   <Results rows={rows} text={show} verdict={[line…]} at={tick} count={ticks} marks={[tick…]} />
-//   <ResultsSwitch rows={rows} />   the one switch in the results' head when every row with a choice offers the same
 //
 // text(value) is a value in words (the domain's); `at` the tick shown (−1 none), `count` how many ticks, `marks` the
 // ticks that went wrong.
@@ -34,21 +34,6 @@ export function same(a, b, tolerance = 0) {
 
 const isOutput = (entry) => !('given' in entry)
 const wrong = (entry) => isOutput(entry) && entry.got !== undefined && entry.want !== undefined && !TRACK.has(entry.shape) && !same(entry.got, entry.want, entry.tolerance)
-const listKey = (views) => views.join(' ')
-
-/** The views the rows share one switch for: those every row with a choice offers, when they all offer the same. */
-export function sharedViews(rows) {
-  const lists = [...new Set(rows.filter((r) => r.views.length > 1).map((r) => listKey(r.views)))]
-  return lists.length === 1 ? lists[0].split(' ') : null
-}
-
-export function ResultsSwitch({ rows }) {
-  const picks = useViewPicks()
-  const views = sharedViews(rows)
-  if (!views) return null
-  const shapes = [...new Set(rows.filter((r) => listKey(r.views) === listKey(views)).map((r) => r.entry.shape))]
-  return <ViewSwitch views={views} value={picks.of(shapes[0], views)} onChange={(v) => picks.pick(shapes, v)} />
-}
 
 /** One value on a line: its label, then the value given, or the result against the value wanted. */
 function Chip({ entry, text }) {
@@ -139,11 +124,10 @@ function groups(rows) {
 
 export default function Results({ rows, text, verdict = [], at = -1, count = 0, marks = [] }) {
   const picks = useViewPicks()
-  const shared = sharedViews(rows)
   const drawn = rows.map((r) => {
-    const view = picks.of(r.entry.shape, r.views)
-    const tool = !shared && r.views.length > 1 ? <ViewSwitch views={r.views} value={view} onChange={(v) => picks.pick([r.entry.shape], v)} compact /> : null
-    return { ...r, view, tool }
+    const view = picks.of(r.entry.of, r.views)
+    const pick = r.views.length > 1 && picks.pick(r.entry.of)
+    return { ...r, view, tool: pick && <ViewSwitch views={r.views} value={view} onChange={pick} compact /> }
   })
   return (
     <div className="rv">

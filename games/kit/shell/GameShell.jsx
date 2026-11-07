@@ -53,9 +53,10 @@ const SITE = { games: '../index.html' }
  * `store` is where the player's progress is kept (progress.js createProgress, made by the page for the content it
  * read). `author` is the studio playing the game it edits (../studio/play.jsx): { level, take: { label, use(text) } } puts a
  * button beside the board switcher of that level that hands the board on screen to the studio as blueprint text;
- * `go` { task, n } goes to that task of the level played (again whenever n changes, or once the level has it); `edit` { picked, pick(mark), add(mark), onTask(level, task) } makes the page the
- * studio's editor (edit.js): the fields on screen are marked and picked by a click, introductions open only when asked
- * (a level without one offers to add one), and the studio hears which task is played.
+ * `go` { task, n } goes to that task of the level played (again whenever n changes, or once the level has it); `edit` { picked, pick(mark), add(mark), start(mark), onTask(level, task) } makes the page
+ * the studio's editor (edit.js): the fields on screen are marked and picked by a click, introductions open only when
+ * asked (a level without one offers to add one), a port's view switched is the view it starts in, and the studio hears
+ * which task is played.
  */
 export default function GameShell({ game, store, author = null }) {
   const viewportRoot = useRef(null)
@@ -271,6 +272,7 @@ export default function GameShell({ game, store, author = null }) {
     picked: authoring.picked?.level === level.id ? authoring.picked : null,
     pick: (mark) => authoring.pick({ ...mark, level: level.id, task: taskAt }),
     add: (mark) => authoring.add({ ...mark, level: level.id, task: taskAt }),
+    start: (mark) => authoring.start({ ...mark, level: level.id, task: taskAt }),
   } : null), [authoring, level, taskAt])
   useEffect(() => {
     if (authoring && level) authoring.onTask?.(level.id, taskAt)

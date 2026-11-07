@@ -46,6 +46,7 @@
 .vw-figure { --gv-frame-w: 560px; --gv-frame-h: 320px; justify-items: center; }
 .vw-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: var(--fs-ui); }
 .vw-figure > .vw-head { justify-content: center; }
+.vw-head > .view-pick { margin-left: auto; }
 .vw-scalar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; padding: 4px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: var(--fs-ui); }
 .vw-scalar .vw-value { font-size: var(--fs-small); }
 .vw-seq { margin: 0; font: var(--fs-ui) var(--mono); color: var(--ink); overflow-wrap: anywhere; }

@@ -2,20 +2,21 @@ import { isGrid } from '../engine/grid.js'
 import { shapeOf, valueText } from '../engine/views.js'
 import { L } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
-import { useViewChoice } from './choice.js'
+import { useOffered, useViewPicks } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
 import GridView, { GridPicture } from './grid/GridView.jsx'
 import { DRAWN, SIZE } from './plots/drawn.js'
+import ViewSwitch from './ViewSwitch.jsx'
 
 // One value drawn in a scene (games/DESIGN.md 6.10, ../engine/views.js): every place a game shows a value — a part on
-// the board, its detail, a figure beside an introduction or a pass text, a line of text — draws it through here, in
-// the view the player picked for its shape among those offered (`views`, by default the game's); the results area is
-// Results.jsx. How large, whether it has axes, whether a cell can be read or picked: the scene's, not the caller's.
-// Views are switched only in the results area (Results.jsx), never in a figure: a figure takes the player's pick, or
-// the one view its author offers.
+// the board, its detail, a figure beside an introduction or a pass text, a line of text — draws it through here, among
+// the views offered (`views`, by default the game's for its shape); the results area is Results.jsx. How large, whether
+// it has axes, whether a cell can be read or picked: the scene's, not the caller's. A value the screen keeps a view for
+// (`of`, ./picks.js) is drawn in it, and switched in its detail (and its results row): a card draws the view its detail
+// shows. A figure is an example, drawn in the first view offered, never switched.
 //
-//   <Show value={v} scene="card" />
-//   <Show value={grid} scene="detail" label="Output" explain={(x, y) => text} />
+//   <Show value={v} scene="card" of="blur#out" />
+//   <Show value={grid} scene="detail" of="blur#out" label="Output" explain={(x, y) => text} />
 //   <Show value={grid} scene="figure" views={['numbers', 'pixels']} label="…" mark={{ x, y }} onPick={(x, y) => …} />
 //   <Show value={samples} scene="figure" views={['plot']} curve={(x) => Math.cos(x)} label="…" />
 //
@@ -36,28 +37,34 @@ function CardGrid({ value, view }) {
 /** A value in words, coloured by what it is: none, yes, no. */
 const Words = ({ value, text, className = 'vw-value' }) => <span className={`${className} ${value === null || value === undefined ? 'is-none' : typeof value === 'boolean' ? `is-${value}` : ''}`}>{L(text(value))}</span>
 
-export default function Show({ value, shape = shapeOf(value), scene, views, label, text = valueText, mark, onPick, explain, curve }) {
-  const [view] = useViewChoice(shape, views, value)
+export default function Show({ value, shape = shapeOf(value), scene, views, of, label, text = valueText, mark, onPick, explain, curve }) {
+  const list = useOffered(shape, views, value)
+  const picks = useViewPicks()
+  const view = picks.of(scene === 'figure' ? null : of, list)
+  const pick = scene === 'detail' && list.length > 1 && picks.pick(of)
+  const tool = pick && <ViewSwitch views={list} value={view} onChange={pick} compact />
   if (scene === 'card' || scene === 'inline') {
     if (shape === 'grid' && isGrid(value)) return scene === 'card' ? <CardGrid value={value} view={view} /> : <GridPicture value={value} scale={Math.max(2, Math.floor(16 / value.h))} />
     return <Words value={value} text={text} className={scene === 'card' ? 'vw-value' : 'vw-inline'} />
   }
   // A detail and a figure: the value whole, under its label.
-  const head = label && <header className="vw-head"><span>{L(label)}</span></header>
+  const head = (label || tool) && <header className="vw-head">{label && <span>{L(label)}</span>}{tool}</header>
   if (shape === 'grid') {
-    // A drawn view carries no caption of its own: the label goes in the head.
+    // The label goes in the head beside the switch, or over a drawn view (which has no caption of its own); else it is
+    // the cells' caption.
     const Drawn = DRAWN[view]
+    const headed = tool || Drawn
     return (
       <div className={`vw-${scene}`}>
-        {Drawn && head}
+        {headed && head}
         {Drawn ? <Drawn value={value} size={SIZE[scene]} curve={curve} />
-          : <GridInspector value={value} view={view} label={label && L(label)} fit dense={scene === 'detail'} mark={mark} onPick={onPick} explainPixel={explain} />}
+          : <GridInspector value={value} view={view} label={!headed && label ? L(label) : undefined} fit dense={scene === 'detail'} mark={mark} onPick={onPick} explainPixel={explain} />}
       </div>
     )
   }
   if (shape === 'bits' || shape === 'ticks') {
     const lane = { key: 'value', label: label ?? '', kind: view === 'wave' ? 'wave' : 'value', ticks: value, text: (v) => L(text(v)) }
-    return <div className={`vw-${scene}`}><Timeline lanes={[lane]} count={value.length} /></div>
+    return <div className={`vw-${scene}`}>{tool && <header className="vw-head">{tool}</header>}<Timeline lanes={[lane]} count={value.length} /></div>
   }
   if (shape === 'list') return <div className={`vw-${scene}`}>{head}<p className="vw-seq">{value.length ? value.map((v) => L(text(v))).join(' ') : '—'}</p></div>
   return <div className={`vw-${scene} vw-scalar`}>{label && <span>{L(label)}</span>}<Words value={value} text={text} /></div>

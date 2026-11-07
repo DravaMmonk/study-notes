@@ -18,7 +18,7 @@ import { COLOURS } from './scene.js'
 import { PICTURE } from './sample.js'
 import { BENCH_MODELS, DISPLAYS } from './benches/index.js'
 import { T as t } from '../../shell/i18n.js'
-import { SHOW } from '../../engine/views.js'
+import { SHOW, START_VIEW } from '../../engine/views.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const items = (all) => Object.fromEntries(Object.entries(all).map(([k, v]) => [k, item(v.about, v.params)]))
@@ -78,7 +78,7 @@ const SCENE = S.obj({
 
 /* ---------- a level ---------- */
 
-const INPUT = S.obj({ name: NAME, label: S.text(), type: S.opt(S.oneOf(['vector'], { about: t('二维向量 { x, y }：成对的坐标量是一个输入', 'a two-dimensional vector { x, y }: a paired coordinate quantity is one input') })) })
+const INPUT = S.obj({ name: NAME, label: S.text(), view: START_VIEW, type: S.opt(S.oneOf(['vector'], { about: t('二维向量 { x, y }：成对的坐标量是一个输入', 'a two-dimensional vector { x, y }: a paired coordinate quantity is one input') })) })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
 const ITEM = S.obj({
   prompt: S.text(),

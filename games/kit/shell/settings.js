@@ -1,5 +1,4 @@
 import { WORDS } from './words.js'
-import { SHAPES, VIEWS, viewsFor } from '../engine/views.js'
 
 // Device preferences belong to presentation and editing, never to puzzle progress.
 const registry = new Map()
@@ -49,10 +48,3 @@ export const settings = createSettings()
 const staged = (game) => [...(game.circuit?.played?.values() ?? [])].some((tasks) => tasks.some((t) => t.carry || t.carries))
 defineSetting({ key: 'manualBlocks', group: 'edit', label: WORDS.manualBlocks, kind: 'toggle', default: false, when: (game,{phone=false}={})=>phone&&staged(game) })
 defineSetting({ key: 'connectionLabels', group: 'display', label: { zh: '跨段连线画成标签', en: 'Label cross-section wires' }, kind: 'toggle', default: (_game, { phone = false } = {}) => phone, when: staged })
-for (const shape of SHAPES) defineSetting({
-  key: `view.${shape}`, group: 'display', label: { zh: '网格默认显示', en: 'Grid display' }, kind: 'choice',
-  values: Object.keys(VIEWS).filter((v) => VIEWS[v].shapes.includes(shape)),
-  options: (g) => viewsFor(shape, g.views).map((value) => ({ value, label: VIEWS[value].label })),
-  default: (g) => viewsFor(shape, g.views)[0],
-  when: (g) => shape === 'grid' && viewsFor(shape, g.views).length > 1,
-})

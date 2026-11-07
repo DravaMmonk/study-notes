@@ -7,12 +7,15 @@ import { TEST_WORDS } from '../engine/circuit-domain.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
 import { SettingsContext } from './useSetting.js'
-import Results, { ResultsSwitch, sharedViews } from '../views/Results.jsx'
+import Results from '../views/Results.jsx'
+import { ViewScope } from '../views/choice.js'
+import { valueKey } from '../views/picks.js'
 import Show from '../views/Show.jsx'
 import { L, tr, T } from './i18n.js'
 import { WORDS } from './words.js'
 import { openRef } from './refs.js'
 import { definedItem } from './parts/faces.jsx'
+import { useEdit } from './edit.js'
 
 // The level screen of a domain on the circuit base (engine/circuit-domain.js, the game's course read as
 // `game.circuit`), on the kit's circuit level (CircuitLevel.jsx): the level's fixed cards down the left and right
@@ -87,10 +90,11 @@ export function registerCards({ registers, top, forms = {} }) {
   }
 }
 
-/** What a card shows of a value (the kit's card scene, ../views/Show.jsx), or why it has none. */
-function Value({ value, error, show }) {
+/** What a card shows of a value (the kit's card scene, ../views/Show.jsx, in the view kept for it: `of`), or why it
+ * has none. */
+function Value({ value, error, show, of }) {
   if (value === undefined) return <span className={`cs-error ${!error || error === MISSING ? 'is-missing' : ''}`}>{!error || error === MISSING ? L(WORDS.notWired) : L(error)}</span>
-  return <Show value={value} scene="card" text={show} />
+  return <Show value={value} scene="card" text={show} of={of} />
 }
 
 /** The editor's description of a task's cards (../circuit/model.js): the board's wiring, drawn. */
@@ -165,11 +169,12 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const ended = judged ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
   const setParam = (node, key, value) => change({ ...drawn, nodes: drawn.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
-  // A card shows its value; a card on the right, what reaches it.
+  // A card shows its value; a card on the right, what reaches it (as its own value: the output's view).
   const valueOf = (node, key, v) => v.values.get(key ? `${node.id}#${key}` : node.id)
   const value = (node, ctx) => {
     const into = valueOf(node, null, ctx.view) === undefined && ctx.board.parts.role(node) === 'sink' && ctx.board.circuit.wires.find((w) => w.to === node.id)
-    return into ? <Value value={ctx.view.values.get(into.from)} error={ctx.view.errors.get(into.from.split('#')[0])} show={show} /> : <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} />
+    const of = valueKey(ctx, node.id)
+    return into ? <Value value={ctx.view.values.get(into.from)} error={ctx.view.errors.get(into.from.split('#')[0])} show={show} of={of} /> : <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={of} />
   }
   const body = (node, ctx) => (
     <div className="cs-card">
@@ -180,7 +185,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   // A defined part shows each output's value; with several, none of its own (its detail, `inspect`'s).
   const definedFaces = useMemo(() => defined && {
     ...defined,
-    value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
+    value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={valueKey(ctx, `${node.id}#${output}`)} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
   }, [defined, inspect])
 
   const itemOf = (type) => {
@@ -203,6 +208,18 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   // A task may draw a shape in views of its own (its `views`): on its cards, in its results and its details.
   const views = useMemo(() => (level.views ? { ...game, views: { ...game.views, ...level.views } } : game), [game, level.views])
   const rows = rowsOf(level.results, offered, views.views)
+  // Each value's view is kept by task; a port may say the one it starts in, and in the studio's editor switching a
+  // port's view writes it there.
+  const authoring = useEdit()
+  const scope = useMemo(() => {
+    const ports = [...(level.inputs ?? []), ...(level.outputs ?? [])]
+    const names = new Set(ports.map((p) => p.name))
+    return {
+      scope: entry.key,
+      starts: Object.fromEntries(ports.filter((p) => p.view).map((p) => [p.name, p.view])),
+      author: (of) => (authoring && names.has(of) ? (view) => authoring.start({ port: of, view }) : null),
+    }
+  }, [entry.key, level, authoring])
   const strip = (
     <>
       <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={kind.ticks && run.run ? at : -1} count={test?.ticks ?? 0} marks={kind.ticks && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
@@ -212,44 +229,45 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
 
   return (
     <SettingsContext.Provider value={views}>
-      <CircuitLevel
-        stages={stages}
-        screen={screen}
-        board={board}
-        run={run}
-        className={`cs-level ${className}`.trim()}
-        parts={parts}
-        defined={definedFaces}
-        items={palette.map(itemOf)}
-        folded={folded.map(itemOf)}
-        defaults={defaults}
-        view={view}
-        card={{
-          body,
-          outNote: (node, key, ctx) => {
-            const v = valueOf(node, key, ctx.view)
-            return v === undefined ? null : L(show(v))
-          },
-          thumb: (n, ctx) => (ctx.board.parts.outputs(n) ? null : value(n, ctx)),
-          ...faces,
-        }}
-        canvas={canvas}
-        brief={{ hint: level.hint }}
-        describe={(n) => (BUILT[n.type] ? builtBy(n.type).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
-        results={strip}
-        resultsAside={sharedViews(rows) && <ResultsSwitch rows={rows} />}
-        words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
-        sheet={sheet && ((node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)))}
-        details={details}
-        packed={{
-          open: (node) => {
-            const inside = BUILT[node.type]?.opens?.(node.params)
-            return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels, width: canvas.width }) }
-          },
-          edit: (node) => openRef('level', builtBy(node.type).id),
-          trace: () => (kind.ticks ? (tick?.trace ? { trace: tick.trace } : null) : judged ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
-        }}
-      />
+      <ViewScope.Provider value={scope}>
+        <CircuitLevel
+          stages={stages}
+          screen={screen}
+          board={board}
+          run={run}
+          className={`cs-level ${className}`.trim()}
+          parts={parts}
+          defined={definedFaces}
+          items={palette.map(itemOf)}
+          folded={folded.map(itemOf)}
+          defaults={defaults}
+          view={view}
+          card={{
+            body,
+            outNote: (node, key, ctx) => {
+              const v = valueOf(node, key, ctx.view)
+              return v === undefined ? null : L(show(v))
+            },
+            thumb: (n, ctx) => (ctx.board.parts.outputs(n) ? null : value(n, ctx)),
+            ...faces,
+          }}
+          canvas={canvas}
+          brief={{ hint: level.hint }}
+          describe={(n) => (BUILT[n.type] ? builtBy(n.type).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
+          results={strip}
+          words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
+          sheet={sheet && ((node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)))}
+          details={details}
+          packed={{
+            open: (node) => {
+              const inside = BUILT[node.type]?.opens?.(node.params)
+              return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels, width: canvas.width }) }
+            },
+            edit: (node) => openRef('level', builtBy(node.type).id),
+            trace: () => (kind.ticks ? (tick?.trace ? { trace: tick.trace } : null) : judged ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
+          }}
+        />
+      </ViewScope.Provider>
     </SettingsContext.Provider>
   )
 }

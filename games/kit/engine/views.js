@@ -67,6 +67,9 @@ export const GAME_VIEWS = S.opt(BY_SHAPE(t('每种形状默认的显示方式（
 /** A task's `views`: the game's, changed for the shapes it names, on its cards and in its results. */
 export const TASK_VIEWS = S.opt(BY_SHAPE(t('这个任务里每种形状的显示方式（换掉游戏默认的那几种）', 'the views each shape is drawn in in this task (in place of the game’s)'), { section: 'read' }))
 
+/** A task port's `view`: the view its value starts in, on its card, in its detail and its results row. */
+export const START_VIEW = S.opt(S.oneOf(Object.keys(VIEWS), { about: t('这个口的值起初画成哪种显示方式（玩家在详情和结果区里换）', 'the view its value starts in (the player switches it in its detail and results row)') }))
+
 /** A task's `results`: its results area's rows, in order. */
 export const RESULTS = S.opt(S.list(S.obj({
   of: S.str({ about: t('显示哪一项：任务的一个口', 'what the row shows: one of the task’s ports') }),

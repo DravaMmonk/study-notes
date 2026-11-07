@@ -49,7 +49,7 @@ import { taskLevel, taskLevels } from './tasks.js'
 import { TRAY, TRAYS, partNames, trayIn } from './trays.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
-import { GAME_VIEWS, RESULTS, SHOW, TASK_VIEWS, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
+import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
 import { T as t, keyOf } from '../shell/i18n.js'
 
 /* ---------- the board ---------- */
@@ -346,7 +346,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
 /** A card's name: a port's, a register's, a part's a level builds. */
 export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** A port of a task's board: one of its fixed cards, named and labelled. */
-export const PORT = S.obj({ name: NAME, label: S.text() })
+export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 
 /** The part a level builds: its last task's board, packed (circuitCourse), named and described. */
 export const BUILT_PART = { type: NAME, name: S.text(), desc: S.text() }

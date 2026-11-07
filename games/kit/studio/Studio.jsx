@@ -379,8 +379,18 @@ export default function Studio() {
     const { id: _, ...value } = l
     return value
   }
+  // A port's view switched on the page in edit mode: the view the port's value starts in.
+  const onStart = ({ level, task, port, view }) => {
+    const value = levelValue(level)
+    const own = value?.tasks ? value.tasks[task] : value
+    const side = ['inputs', 'outputs'].find((k) => own?.[k]?.some((p) => p.name === port))
+    if (!side) return
+    const at = [...(value.tasks ? ['tasks', task] : []), side, own[side].findIndex((p) => p.name === port), 'view']
+    edit({ op: 'level.set', level, path: at, value: view })
+  }
   const onPage = (m) => {
     if (m.type === 'take') return onTake(m)
+    if (m.type === 'start') return onStart(m)
     if (m.part !== undefined) return onPartPage(m)
     if (m.type === 'task') { if (m.level === play?.level) setPageTask(m.task); return undefined }
     const value = levelValue(m.level)

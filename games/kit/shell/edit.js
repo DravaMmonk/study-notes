@@ -11,7 +11,8 @@
 import { createContext, useContext } from 'react'
 import { tr } from './i18n.js'
 
-/** { level, task, picked: { at, scope, task } | null, pick(mark), add(mark) } while the studio edits, else null. */
+/** { level, task, picked: { at, scope, task } | null, pick(mark), add(mark), start({ port, view }) } while the studio
+ * edits, else null (start: the view a task port's value starts in, ../views/choice.js). */
 export const EditContext = createContext(null)
 
 export const useEdit = () => useContext(EditContext)

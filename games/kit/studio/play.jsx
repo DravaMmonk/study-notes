@@ -13,6 +13,7 @@
 //                  { type: 'part', content, part } a part of parts.json shown (../shell/parts/PartPreview.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
+//                  { type: 'start', level, task, port, view } the view a port's value starts in, switched on the page;
 //                  { type: 'pick' | 'add', part, path } a field of a part picked, an item added to one
 import '../wires.css'
 import '../shell/shell.css'
@@ -100,6 +101,7 @@ export default function Play() {
     picked: edit.picked,
     pick: (mark) => say({ type: 'pick', ...mark }),
     add: (mark) => say({ type: 'add', ...mark }),
+    start: (mark) => say({ type: 'start', ...mark }),
     onTask: (at, task) => say({ type: 'task', level: at, task }),
   } : null), [edit])
   const author = useMemo(() => ({
