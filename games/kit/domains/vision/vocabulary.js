@@ -183,7 +183,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 6,
+  version: 7,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,
@@ -195,6 +195,7 @@ export const vocabulary = defineVocabulary({
     colour: COLOUR_ITEMS,
     benchModel: Object.fromEntries(Object.entries(BENCH_MODELS).map(([name, m]) => [name, { about: m.about, ...(m.setup ? { params: m.setup } : {}) }])),
     display: displayItems(DISPLAYS),
+    widget: { learned: item(t('学到的参数：数或一小块数表，只读，训练改动它', 'a learned parameter: a number or a small table of numbers, read only, changed by training')) },
   },
   game: GAME,
   level: LEVEL,

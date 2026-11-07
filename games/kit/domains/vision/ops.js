@@ -8,7 +8,7 @@
 // lookup reads an image at every coordinate of a coordinate image at once.
 import { PartError } from '../../engine/circuit.js'
 import { S } from '../../engine/schema.js'
-import { isImage, isVector, make } from './image.js'
+import { fromRows, isImage, isVector, make } from './image.js'
 import { colourMix, filterImage, sampleImage, stencilImage } from './operators.js'
 import { BORDERS, expandRows, positions, reduceRows, restoreShape, reverse, shiftRead, transpose, trim, windowSamples, windowWeights, weightedLine } from './construction.js'
 import { frequencyAxis, frequencyFilter, spectrum, subsample } from './frequency.js'
@@ -162,6 +162,12 @@ export const OPS = {
   kernelFilter: { about: t('用核计算互相关或数学卷积', 'a kernel applied as correlation or convolution'), args: args('image', 'kernel'), params: named({ convention: S.opt(S.oneOf(['correlation', 'convolution'])), outside: OUTSIDE }), run: ([image, kernel], options) => filterImage(image, kernel, options) },
   colourMix: { about: t('RGB 三个通道按 wr、wg、wb 加权相加', 'RGB weighted by wr, wg, wb and added'), args: args('image', 'wr', 'wg', 'wb'), run: ([image, ...weights]) => colourMix(image, weights) },
   shift: { about: t('输出 (x, y) 读输入 (x, y) + d', 'output (x, y) reads input (x, y) + d'), args: args('image', 'd'), params: named({ outside: BORDER }), run: ([image, d], options) => shiftRead(image, d, options) },
+  learnable: { leaf: true, about: t('训练时会被改动的参数：shape 是 scalar（一个数）、row3（三个权重）、kernel3 或 kernel5（方形的核），value 是学到的值（还没学时是 0）', 'a parameter training changes: shape scalar (one number), row3 (three weights), kernel3 or kernel5 (a square kernel); value is what it learned (0 before any training)'), args: args('shape', 'value'), run: ([shape, value]) => parameter(shape in SHAPES ? SHAPES[shape] : fail(`没有形状 ${shape}`, `no shape ${shape}`), value) },
+  learnableLike: { leaf: true, about: t('和输入的图一样大的一张参数图（每格一个权重），value 是学到的值', 'a parameter image the size of the input (a weight a cell); value is what it learned'), args: args('image', 'value'), run: ([image, value]) => parameter([imageOf(image, 'learnableLike').w, image.h], value) },
+  total: { about: t('一张图所有格子的和', 'the sum of every cell of an image'), args: args('image'), run: ([image]) => imageOf(image, 'total').data.reduce((a, b) => a + b, 0) },
+  softmax: { about: t('一张灰度图的每格变成概率：exp 后除以总和', 'each cell of a grey image made a probability: exp, divided by the total'), args: args('image'), run: ([image]) => softmax(imageOf(image, 'softmax')) },
+  exp: value1(t('e 的 a 次方，逐个值', 'e to the power a, value by value'), Math.exp),
+  log: value1(t('自然对数，逐个值；不是正数报错', 'the natural logarithm, value by value; a number not above 0 stops'), (p) => (p <= 0 ? fail('对数要正数', 'a logarithm needs a positive number') : Math.log(p))),
   spectrum: { about: t('灰度图的幅度谱，零频在中心', 'a grey image’s amplitude spectrum, frequency 0 in the centre'), args: args('image'), run: ([image]) => spectrum(image) },
   frequencyFilter: { about: t('每个频率乘以增益图在它那一格的值（零频在中心），再变回图', 'each frequency times the gain drawn at its cell (frequency 0 in the centre), back to an image'), args: args('image', 'gain'), run: ([image, gain]) => frequencyFilter(image, gain) },
   frequencyX: { about: t('和频谱同样排布的每格横向频率（每张图几个周期）', 'each cell’s horizontal frequency, laid out like the spectrum (cycles per image)'), args: args('image'), run: ([image]) => frequencyAxis(image, 'x') },
@@ -180,5 +186,27 @@ export const OPS = {
   expandIndices: { about: t('重复后每行的索引 k', 'each repetition’s index k'), args: args('image'), run: ([image]) => expandRows(image, 'frequency') },
 }
 
+/** The shapes a learnable parameter takes: a number, or [w, h] cells. */
+const SHAPES = { scalar: null, row3: [3, 1], kernel3: [3, 3], kernel5: [5, 5] }
+
+/** A parameter's value: what it learned (a number, or rows of numbers), else 0 of its shape. */
+function parameter(size, value) {
+  if (!size) return Number.isFinite(value) ? value : 0
+  const [w, h] = size
+  if (Array.isArray(value)) {
+    const image = fromRows(value)
+    if (image.w === w && image.h === h && image.c === 1) return image
+  }
+  return make(w, h, 1, 0)
+}
+
+function softmax(image) {
+  if (image.c !== 1) fail('softmax 要一张灰度图', 'softmax needs a grey image')
+  const top = Math.max(...image.data)
+  const e = Float64Array.from(image.data, (v) => Math.exp(v - top))
+  const total = e.reduce((a, b) => a + b, 0)
+  return { ...image, data: Float64Array.from(e, (v) => v / total) }
+}
+
 /** The resources as the vocabulary lists them (data). */
-export const OP_ITEMS = Object.fromEntries(Object.entries(OPS).map(([k, resource]) => { const { run: _, ...item } = resource; return [k, item] }))
+export const OP_ITEMS = Object.fromEntries(Object.entries(OPS).map(([k, resource]) => { const { run: _, leaf: __, ...item } = resource; return [k, item] }))
