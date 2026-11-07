@@ -316,7 +316,11 @@
       "foundation": [
         {
           "parallel": [
-            { "id": "light", "title": { "zh": "光照", "en": "Lighting" }, "levels": ["3-1", "3-2"] },
+            {
+              "id": "light",
+              "title": { "zh": "光照", "en": "Lighting" },
+              "levels": ["3-13", "3-14", "3-1", "3-2"]
+            },
             { "id": "camera", "title": { "zh": "相机", "en": "The camera" }, "levels": ["3-3", "3-4"] }
           ]
         },

@@ -8,26 +8,14 @@
   "intro": [
     {
       "t": {
-        "zh": "照片里每个像素只是一个亮度数。可这个数从哪来？同一面白墙，正对窗户和侧对窗户，拍出来就不一样亮。这一章先回到拍照的那一刻，看光怎样变成明暗。",
-        "en": "Each pixel in a photo is just a brightness. But where does that number come from? The same white wall photographs brighter facing the window than turned away from it. This chapter goes back to the moment a photo is taken, to see how light becomes light and shade."
+        "zh": "正面光下，你已经把表面朝向和反射率结合成亮度。现在灯移到右上方：只看法线的 z 分量不再足够，需要考虑灯与表面的完整方向。",
+        "en": "With frontal light, you combined surface orientation and reflectance into brightness. Now the lamp moves to the upper right: the normal’s z component alone is no longer enough, and the full directions matter."
       }
     },
     {
       "t": {
-        "zh": "表面朝哪个方向，用一根从表面正中竖起的小杆来表示，叫<b>法线</b>：它的长度是 1，有 x、y、z 三个分量。表面会弹回多少光，叫<b>反射率</b>：白漆接近 1，黑漆接近 0。",
-        "en": "Which way a surface faces is shown by a little rod standing straight up from it, called the <b>normal</b>: it has length 1 and three components, x, y and z. How much light a surface bounces back is its <b>reflectance</b>: close to 1 for white paint, close to 0 for black."
-      }
-    },
-    {
-      "t": {
-        "zh": "哑光的表面正对着灯时最亮，越斜越暗。要想的问题：灯没变弱，也没被挡住，只是斜着照过来，表面为什么会变暗？",
-        "en": "A matte surface is brightest when it faces the lamp, and darker the more it turns away. Something to think about: the lamp is no weaker and nothing blocks it; it just shines at a slant. Why does the surface get darker?"
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关你要做的：输入是每一点的法线和反射率，灯的方向在说明里。画出相机拍到的样子。",
-        "en": "Your task in this level: the inputs are each point's normal and reflectance, and the lamp direction is in the brief. Draw what the camera sees."
+        "zh": "输入是每一点的单位法线和反射率。灯的方向为 (0.48, −0.36, 0.8)，x 向右、y 向下、z 朝向相机。画出相机拍到的样子。",
+        "en": "The inputs are each point’s unit normal and reflectance. The lamp direction is (0.48, −0.36, 0.8), with x right, y down and z toward the camera. Draw what the camera sees."
       },
       "fig": { "test": 0, "caption": { "zh": "第一组测试：一个白球", "en": "Set 1: a white ball" } }
     }

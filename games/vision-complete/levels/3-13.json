@@ -1,0 +1,67 @@
+{
+  "title": { "zh": "朝向光的表面", "en": "Facing the light" },
+  "tray": "pipeline",
+  "intro": [
+    {
+      "t": {
+        "zh": "照片的明暗从哪里来？先从一块白色哑光表面开始：灯从相机方向照来，表面不同位置的倾斜程度会影响收到的光。",
+        "en": "Where does light and shade in a photograph come from? Start with a white matte surface lit from the camera direction. Its orientation affects how much light reaches each point."
+      }
+    },
+    {
+      "t": {
+        "zh": "表面的朝向用单位法线表示：它垂直于表面，长度为 1；x 向右，y 向下，z 朝向相机。正面光的方向是 (0, 0, 1)，白色表面的反射率为 1。画出光照下的亮度。",
+        "en": "A unit normal points perpendicular to the surface and has length 1: x points right, y down, and z toward the camera. The frontal light direction is (0, 0, 1), and the white surface has reflectance 1. Draw its brightness under the light."
+      }
+    }
+  ],
+  "after": {
+    "zh": "正面光下，法线的 z 分量给出表面朝向光的程度：正对光的地方最亮，倾斜的地方较暗。",
+    "en": "Under frontal light, the normal’s z component measures how directly the surface faces the light: points facing it are brightest and tilted points are darker."
+  },
+  "tasks": [
+    {
+      "id": "3-13",
+      "kind": "graph",
+      "brief": {
+        "zh": "灯从正面照来，白色表面各点的亮度等于法线与灯方向夹角的余弦。用法线分量画出亮度图。",
+        "en": "Light comes from the front. Each point of the white surface has brightness equal to the cosine of the angle between its normal and the light direction. Draw the brightness image from the normal components."
+      },
+      "hint": {
+        "zh": "灯的方向只有 z 分量；两个单位方向夹角的余弦，是对应分量相乘后相加。",
+        "en": "The light direction has only a z component. The cosine between two unit directions is the sum of their pairwise component products."
+      },
+      "inputs": ["nx", "ny", "nz", "albedo"],
+      "inputLabels": {
+        "nx": { "zh": "法线 x", "en": "Normal x" },
+        "ny": { "zh": "法线 y", "en": "Normal y" },
+        "nz": { "zh": "法线 z", "en": "Normal z" },
+        "albedo": { "zh": "反射率", "en": "Reflectance" }
+      },
+      "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
+      "scene": "surface",
+      "setup": { "lamp": [0, 0, 1] },
+      "tests": [
+        {
+          "label": { "zh": "白色鼓包", "en": "White bump" },
+          "height": [{ "dome": [8, 8, 6, 3] }],
+          "paint": { "blank": { "v": 1 } }
+        },
+        {
+          "label": { "zh": "白色斜板", "en": "White tilted board" },
+          "height": [{ "tilt": [0.5, 0] }],
+          "paint": { "blank": { "v": 1 } }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "白色横梁", "en": "White ridge" },
+          "height": [{ "ridge": [8, 5, 2.5] }],
+          "paint": { "blank": { "v": 1 } }
+        }
+      ],
+      "solution": ["out <- nz"],
+      "naive": ["out <- albedo"]
+    }
+  ]
+}
