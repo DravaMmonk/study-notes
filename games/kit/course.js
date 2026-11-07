@@ -280,15 +280,14 @@ export function usable(course, level, flags) {
 const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
 /**
- * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: the parts
- * new here (not its givens, which show as its answer uses them), the parts the levels just before it have built, and
- * the ideas its reference answer uses (`needed`, by concept; with no reference to go by, every part). Everything else carried from earlier levels is folded away, still
- * usable, and so is every part the level's spec folds (`folds`). `also`: parts held here beyond those the course
- * carries (a task's own level's part, proved by the task before it). Returns { shown, folded }.
+ * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: only the
+ * ideas its reference answer uses (`needed`, by concept). Everything else is folded away, still usable, and so is every
+ * part the level's spec folds (`folds`). With no reference to go by, or one built from parts the player cannot hold
+ * yet, every part shows. `also`: parts held here beyond those the course carries (a task's own level's part, proved by
+ * the task before it). Returns { shown, folded }.
  */
 export function offer(course, level, flags, also = []) {
   const all = [...usable(course, level, flags), ...also]
-  const own = new Set(course.adds(level))
   // The answer goes by its parts (not a board's own fixed cards), and only when the player holds them all: a reference
   // built from parts the player cannot have yet says nothing about what to show.
   const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.adds(l).includes(p))
@@ -297,11 +296,8 @@ export function offer(course, level, flags, also = []) {
   const held = new Set(all.map(idea))
   const parts = course.needed(level)?.filter(isPart)
   const ideas = parts && parts.every((p) => held.has(idea(p))) ? new Set(parts.map(idea)) : null
-  const just = new Set((course.plan?.requires.get(level.id) ?? []).flatMap((id) => course.builds(course.levels[course.index.get(id)])))
   const fold = new Set(course.folds(level))
-  // What the level brings is shown, but for its givens: only those its answer uses.
-  const brought = (p) => own.has(p) && course.concept(p) !== null
-  const shows = (p) => !fold.has(p) && (brought(p) || just.has(p) || !ideas || ideas.has(idea(p)))
+  const shows = (p) => !fold.has(p) && (!ideas || ideas.has(idea(p)))
   return { shown: all.filter(shows), folded: all.filter((p) => !shows(p)) }
 }
 
