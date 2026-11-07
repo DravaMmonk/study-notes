@@ -1,6 +1,6 @@
 {
   "domain": "vision",
-  "vocabulary": 10,
+  "vocabulary": 11,
   "title": { "zh": "视觉完备", "en": "Vision Complete" },
   "kicker": { "zh": "开发中", "en": "In development" },
   "lede": {
@@ -49,9 +49,9 @@
             {
               "id": "filters",
               "title": { "zh": "滤镜和边界", "en": "Filters and borders" },
-              "levels": ["1-6", "1-7"]
+              "levels": ["1-6", "1-8"]
             },
-            { "id": "edges", "title": { "zh": "找边", "en": "Finding edges" }, "levels": ["1-8", "1-9", "1-10"] }
+            { "id": "edges", "title": { "zh": "找边", "en": "Finding edges" }, "levels": ["1-7", "1-9", "1-10"] }
           ]
         },
         "1-11"

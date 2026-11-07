@@ -15,22 +15,18 @@ export default function ProbeScreen({ game, level, saved, save, solve, phone }) 
   const [evidence, setEvidence] = useState(() => saved?.evidence ?? [])
   const [at, setAt] = useState(() => Math.min(saved?.evidence?.length ?? 0, questions.length - 1))
   const [input, setInput] = useState(() => evidence[evidence.length - 1]?.[model.field] ?? model.initial())
-  const [run, setRun] = useState(null)
   const [answer, setAnswer] = useState('')
   const [why, setWhy] = useState(null)
   const question = questions[at]
   const accepted = blur && evidence.length === questions.length && evidence[0]?.rows
   const contributions = accepted && fromRows(accepted.slice(2, 5).map(row => row.slice(2, 5).map(value => value / 9)))
+  // The experiment runs as the input changes: every edit is a trial.
+  const output = model.output(input)
+  const run = output ? { input, output } : null
   const change = next => {
     setInput(next)
-    setRun(null)
     setAnswer('')
     setWhy(null)
-  }
-  const observe = () => {
-    const output = model.output(input)
-    setRun(output ? { input, output } : null)
-    setWhy(output ? null : spectrum ? tr('重复次数应为 1 到 5。', 'Use repetition counts from 1 to 5.') : tr('读数必须在 0 到 1 之间。', 'Readings must be between 0 and 1.'))
   }
   const submit = () => {
     const entry = { [model.field]: run?.input, answer }
@@ -57,12 +53,15 @@ export default function ProbeScreen({ game, level, saved, save, solve, phone }) 
             {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>)}
+        <button type="button" className="kit-btn" onClick={() => change(model.initial())}>{tr('恢复基准', 'Reset to baseline')}</button>
       </div>
-    </> : <RowsEditor rows={input} onChange={change} />}
-    <div className="vi-probe-actions">
-      <button type="button" className="kit-btn" onClick={observe}>{tr('运行实验', 'Run trial')}</button>
-      <button type="button" className="kit-btn" onClick={() => change(model.initial())}>{spectrum ? tr('恢复基准', 'Reset to baseline') : tr('清零输入', 'Clear input')}</button>
-    </div>
+    </> : <div className="vi-probe-pair">
+      <section>
+        <RowsEditor rows={input} onChange={change} />
+        <div className="vi-probe-actions"><button type="button" className="kit-btn" onClick={() => change(model.initial())}>{tr('清零', 'Clear')}</button></div>
+      </section>
+      {run ? <Show value={run.output} scene="figure" views={['numbers']} label={tr('输出', 'Output')} /> : <p className="rv-verdict is-fail" role="status">{tr('读数必须在 0 到 1 之间。', 'Readings must be between 0 and 1.')}</p>}
+    </div>}
     {spectrum && <div className="vi-probe-comparison">
       <section>
         <Show value={baseline} scene="figure" views={['pixels']} label={tr('基准图（横、纵各重复 2 次）', 'Baseline image (2 across, 2 down)')} />
@@ -79,10 +78,6 @@ export default function ProbeScreen({ game, level, saved, save, solve, phone }) 
       <Show value={contributions} scene="figure" views={['numbers']} />
     </details>}
     {run && <>
-      {!spectrum && <div className="vi-probe-actions">
-        <Show value={run.output} scene="figure" views={['pixels']} label={tr('实验输出', 'Trial output')} />
-        <Show value={run.output} scene="figure" views={['numbers']} label={tr('输出读数', 'Output readings')} />
-      </div>}
       <fieldset className="vi-probe-options">
         <legend>{spectrum ? tr('发生移动的那对亮点，相对中心如何变化？', 'How does the affected pair move relative to the centre?') : tr('输出支持哪种解释？', 'Which explanation fits the output?')}</legend>
         {question.options.map(([id, label]) => <label key={id}>

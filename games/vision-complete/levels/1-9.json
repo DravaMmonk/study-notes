@@ -16,7 +16,7 @@
     {
       "id": "sobel",
       "kind": "circuit",
-      "carry": "1-8",
+      "carry": "1-7",
       "brief": {
         "zh": "让两张变化图只剩真边，和目标一样。",
         "en": "Leave only the real edges in both change maps, matching the target."

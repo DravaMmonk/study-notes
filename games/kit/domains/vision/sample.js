@@ -4,7 +4,8 @@
 //
 // A picture is painted: a background, then layers in order (a disc, a rectangle, a ramp, stripes, a checkerboard, a
 // four-cornered patch such as a sheet of paper lying askew, lines of text; a region bounds stripes, checkers and text),
-// then seeded noise added: independent in every cell, or one offset a row or a column (a sensor's banding).
+// then seeded noise added: independent in every cell, or one offset a row or a column (a sensor's banding), the
+// offsets optionally repeating every `period` rows or columns and summing to zero over one.
 // Coordinates are cells, x right and y down.
 //
 //   PICTURE                       the schema content writes a picture in
@@ -33,7 +34,7 @@ export const PICTURE = S.obj({
     text: S.obj({ shape: S.oneOf(['text']), v: num, gap: S.opt(num), seed: S.opt(S.int()), ...region }, { about: t('一行行字：每行是一串长短不一的短划，gap 是行距（默认 3 格）', 'lines of text: each a run of words of varying length, gap rows apart (3 by default)') }),
   }))),
   relief: S.opt(S.list(S.obj({ cx: num, cy: num, r: S.num({ min: 0.5 }), height: num }), { about: t('有起伏时画的是表面朝向（三通道：右、下、朝相机的分量）：每项一个圆形的凸起（height > 0）或凹坑（< 0）', 'with a relief the picture is the surface normal (three channels: right, down, towards the camera): each item a round bump (height > 0) or dent (< 0)') })),
-  noise: S.opt(S.obj({ seed: S.int(), amp: num, kind: S.opt(S.oneOf(['cells', 'rows', 'columns'], { about: t('每格各自起伏（默认），或每行、每列一个起伏（传感器的条纹）', 'each cell its own (the default), or one per row or column (a sensor’s banding)') })) }, { about: t('加上的随机起伏：每格 ±amp 以内，种子定下是哪一张', 'random variation added, within ±amp a cell, the seed saying which') })),
+  noise: S.opt(S.obj({ seed: S.int(), amp: num, kind: S.opt(S.oneOf(['cells', 'rows', 'columns'], { about: t('每格各自起伏（默认），或每行、每列一个起伏（传感器的条纹）', 'each cell its own (the default), or one per row or column (a sensor’s banding)') })), period: S.opt(S.int({ min: 2, about: t('条纹每 period 行或列重复一次，一个周期里的起伏加起来为 0', 'the banding repeats every period rows or columns, its offsets summing to zero over one') })) }, { about: t('加上的随机起伏：每格 ±amp 以内，种子定下是哪一张', 'random variation added, within ±amp a cell, the seed saying which') })),
 }, { about: t('画出的一张样张', 'a painted sample picture') })
 
 /** A seeded generator of numbers in [0, 1) (mulberry32): the same seed paints the same picture everywhere. */
@@ -103,16 +104,25 @@ function normalAt(relief, x, y) {
   return [-gx / n || 0, -gy / n || 0, 1 / n]
 }
 
+/** `n` seeded offsets within ±amp; when they repeat, centred to sum to zero (and kept within ±amp). */
+function banding(next, amp, n, repeats) {
+  const out = Array.from({ length: n }, () => amp * (2 * next() - 1))
+  if (!repeats) return out
+  const mean = out.reduce((a, b) => a + b, 0) / n
+  const top = Math.max(...out.map((v) => Math.abs(v - mean)))
+  return out.map((v) => ((v - mean) * Math.min(1, amp / top)) || 0)
+}
+
 /** A picture spec painted: a grey image, or with a relief the colour image of its surface normals. */
 export function paint({ size: [w, h], base = 0.2, layers = [], noise, relief }) {
   if (relief) return make(w, h, 3, (x, y, c) => normalAt(relief, x, y)[c])
   const next = noise ? random(noise.seed) : null
   const kind = noise?.kind ?? 'cells'
-  const bands = next && kind !== 'cells' ? Array.from({ length: kind === 'rows' ? h : w }, () => noise.amp * (2 * next() - 1)) : null
+  const bands = next && kind !== 'cells' ? banding(next, noise.amp, noise.period ?? (kind === 'rows' ? h : w), noise.period) : null
   return make(w, h, 1, (x, y) => {
     let v = base
     for (const l of layers) v = LAYERS[l.shape](l, x, y, v, w, h)
-    if (bands) return v + bands[kind === 'rows' ? y : x]
+    if (bands) return v + bands[(kind === 'rows' ? y : x) % bands.length]
     return next ? v + noise.amp * (2 * next() - 1) : v
   })
 }

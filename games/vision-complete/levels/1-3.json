@@ -18,8 +18,8 @@
       "kind": "probe",
       "experiment": "filter",
       "brief": {
-        "zh": "画一张能分清三种说法的图，运行，再选输出支持的那一种。",
-        "en": "Draw a picture that tells the three accounts apart, run it, then pick the one the output supports."
+        "zh": "画一张能分清三种说法的图，再选输出支持的那一种。",
+        "en": "Draw a picture that tells the three accounts apart, then pick the one the output supports."
       },
       "hint": [
         {

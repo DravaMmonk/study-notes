@@ -84,6 +84,8 @@
 
 /* ---- grid tasks ---- */
 .vi-probe-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.vi-probe-pair { width: 100%; display: flex; flex-wrap: wrap; gap: 24px; align-items: start; }
+.vi-probe-pair > section { flex: 0 1 460px; min-width: 0; display: grid; gap: 8px; justify-items: start; }
 .vi-probe-comparison { display: flex; flex-wrap: wrap; gap: 16px; }
 .vi-probe-comparison section { display: grid; gap: 8px; align-content: start; }
 .vi-probe-options { display: grid; gap: 8px; margin: 0; padding: 8px 0; border: 0; }
@@ -258,6 +260,8 @@
   .vi-grid { padding: 14px; }
   .vi-instrument-terms .ref-chip { min-height: 44px; }
   .vi-grid .vi-field input { min-height: 44px; font-size: 16px; }
+  .vi-rows { min-width: calc(var(--columns) * 42px + 28px); }
+  .vi-rows th:first-child { width: 16px; padding: 0; }
   .vi-bench-level .bk { padding: 0 0 20px; }
   .vp-photo-image { height: 100px; }
   .vp-photo-pair { gap: 8px; }
