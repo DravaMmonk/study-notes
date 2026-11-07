@@ -139,7 +139,21 @@
             "en": "The constant now supports 2D vectors: choose 2D vector and enter x/y to output one fixed direction. The starter supplies horizontal direction (1,0); scalar constants still serve arithmetic. Read test-dependent readings and weights from their supplied inputs."
           }
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [32, 24],
+            "base": 0.15,
+            "layers": [
+              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
+              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
+              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+            ],
+            "noise": { "seed": 17, "amp": 0.04 }
+          }
+        }
+      }
     },
     {
       "id": "v1_vertical",
@@ -226,7 +240,21 @@
             "en": "The horizontal three-sample relationship is established. Reuse the fixed computation with the weighted-line preset: connect the whole weight vector and use direction constant (0,1) for columns. The preset does not use the earlier circuit. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
           }
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [32, 24],
+            "base": 0.15,
+            "layers": [
+              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
+              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
+              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+            ],
+            "noise": { "seed": 17, "amp": 0.04 }
+          }
+        }
+      }
     }
   ]
 }

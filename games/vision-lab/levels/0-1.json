@@ -69,7 +69,28 @@
           "en": "Inspect one brighter and one darker location. Arithmetic is automatic."
         }
       ],
-      "adds": ["arithmetic"]
+      "adds": ["arithmetic"],
+      "sample": {
+        "inputs": {
+          "a": {
+            "size": [32, 24],
+            "base": 0,
+            "layers": [
+              { "shape": "disc", "cx": 9, "cy": 11, "r": 6, "v": 0.85 },
+              { "shape": "rect", "x": 21, "y": 5, "w": 8, "h": 14, "v": 0.5 },
+              { "shape": "rect", "x": 23, "y": 9, "w": 2, "h": 4, "v": 0.1 }
+            ]
+          },
+          "b": {
+            "size": [32, 24],
+            "base": 0,
+            "layers": [
+              { "shape": "disc", "cx": 9, "cy": 11, "r": 6, "v": 0.6 },
+              { "shape": "rect", "x": 21, "y": 5, "w": 8, "h": 14, "v": 0.8 }
+            ]
+          }
+        }
+      }
     },
     {
       "id": "v0_difference",
@@ -125,7 +146,28 @@
             "en": "Signed differences retain direction. Inspection now needs both brightening and darkening. The new absolute-value component retains size for both kinds of change."
           }
         }
-      ]
+      ],
+      "sample": {
+        "inputs": {
+          "a": {
+            "size": [32, 24],
+            "base": 0,
+            "layers": [
+              { "shape": "disc", "cx": 9, "cy": 11, "r": 6, "v": 0.85 },
+              { "shape": "rect", "x": 21, "y": 5, "w": 8, "h": 14, "v": 0.5 },
+              { "shape": "rect", "x": 23, "y": 9, "w": 2, "h": 4, "v": 0.1 }
+            ]
+          },
+          "b": {
+            "size": [32, 24],
+            "base": 0,
+            "layers": [
+              { "shape": "disc", "cx": 9, "cy": 11, "r": 6, "v": 0.6 },
+              { "shape": "rect", "x": 21, "y": 5, "w": 8, "h": 14, "v": 0.8 }
+            ]
+          }
+        }
+      }
     }
   ],
   "builds": {

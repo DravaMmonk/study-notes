@@ -7,6 +7,16 @@ arithmetic and traversal execute automatically; selecting and composing the visu
 The long-term plan is [the machine-first outline](../../docs/Unimelb/26S2/CV/vision-game-specs/curriculum-construction-outline.md).
 This specification covers stages 0–2, not later camera, learning or geometry machines.
 
+## Samples for every task
+
+Every circuit task has an optional, non-judged sample tab, using the same input/output and reference comparison
+flow as the smoothing tasks. Samples are distinct from the graded numeric cases. Spatial tasks use shapes,
+edge-touching structures, repeatable noise or RGB patches appropriate to their purpose. Frequency tasks use
+longer periodic rows, paired coefficient arrays or small non-square 2D signals. Paired images, coefficients,
+frequency-index tables, gains and impulse arrays share dimensions and the task's mathematical conventions.
+Keep sample sizes bounded for the learner circuits: spatial pictures up to 64 × 64, one-dimensional frequency
+signals up to 64 positions and two-dimensional transforms 16 × 12. Samples never alter tests, judging or unlocks.
+
 ## Completion explanations
 
 Every circuit task shows a short conceptual explanation and its general mathematical relationship after passing,
@@ -210,3 +220,14 @@ and linked frequency explanations compile with the installed KaTeX version under
 Phone review at 390 px confirms quadrature, 2D-transform and convolution-theorem formulas fit the dialog;
 desktop review confirms mathematical fonts, successful font loading and no runtime errors. The renderer and
 its fonts are loaded only when mathematical markup is shown, following the [KaTeX rendering API](https://katex.org/docs/api).
+
+### Sample verification
+
+All 40 circuit tasks now supply samples, including the three existing smoothing samples. The 37 additions
+leave graded tests, hidden cases, reference circuits and unlock rules unchanged. Operation-set validation checks
+every reference output; a separate audit verifies all sample outputs are finite. On this machine, the reference
+runs for all samples totalled about 90 ms, with the 2D final task the slowest at 27 ms (excluding rendering).
+Browser review covers RGB scanning, 1D gain filtering and the 16 × 12 final 2D sample on a phone; switching to
+that phone sample took about 128 ms in this session. These are local measurements, not device-wide guarantees.
+The reference 2D circuit shows all sample outputs without unconnected terminals. The shared regression suite
+passes 432 tests, and the Vision Lab production build passes.

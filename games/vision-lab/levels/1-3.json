@@ -87,7 +87,21 @@
       ],
       "adds": ["windowTable"],
       "configurations": { "windowTable.axis": ["x"] },
-      "starter": ["t = windowTable(image,kernel)"]
+      "starter": ["t = windowTable(image,kernel)"],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [32, 24],
+            "base": 0.15,
+            "layers": [
+              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
+              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
+              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+            ],
+            "noise": { "seed": 17, "amp": 0.04 }
+          }
+        }
+      }
     },
     {
       "id": "v1_kernel",
@@ -179,7 +193,22 @@
       ],
       "starter": ["table = windowTable(image,kernel)"],
       "adds": ["reduceRows", "restore"],
-      "carries": true
+      "carries": true,
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [32, 24],
+            "base": 0.15,
+            "layers": [
+              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
+              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
+              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+            ],
+            "noise": { "seed": 17, "amp": 0.04 }
+          },
+          "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]]
+        }
+      }
     }
   ],
   "builds": {
