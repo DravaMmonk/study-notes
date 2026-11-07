@@ -4144,7 +4144,13 @@
 <td>四则运算、常数</td>
 <td>预设，1-1</td>
 <td>主线、K</td>
-<td>常数可以是一个数、三个权重（一行，K 用）或 3×3 的核</td>
+<td>常数是一个数，可以写成分数（1/9）</td>
+</tr>
+<tr>
+<td>核</td>
+<td>预设，1-2</td>
+<td>主线</td>
+<td>九个权重排成 3×3，整张除以「÷」：方块平均是九个 1 ÷ 9，高斯是 1 2 1 / 2 4 2 / 1 2 1 ÷ 16</td>
 </tr>
 <tr>
 <td>滤波器</td>
@@ -4202,7 +4208,8 @@
 </tr>
 </tbody>
 </table>
-<p>三个托盘：主线（<code>main</code>）、K1–K4（<code>kernel</code>，没有滤波器，免得直接用预设绕过）、K5（<code>flip</code>）。</p>
+<p>三个托盘：主线（<code>main</code>）、K1–K4（<code>apart</code>，没有滤波器和核，免得直接用预设绕过）、K5（<code>flip</code>）。</p>
+<p>输入方式：桌面上数字框直接打字，分数照写（1/9），↑ ↓ 加减 1；手机上点一格弹出数字键盘，「下一项」接着填同一个元件的下一个数，一张核九个数连着填完。</p>
 <h2 id="_2">主线<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <h3 id="1-1">1-1 反相<a class="headerlink" href="#1-1" title="Permanent link">&para;</a></h3>
 <ul>
@@ -4215,7 +4222,7 @@
 <h3 id="1-2">1-2 模糊<a class="headerlink" href="#1-2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>动机：</strong> 只看自己的运算压不住噪点，得看看周围。</li>
-<li><strong>玩家做什么：</strong> 让输出和目标一样：噪点压平、亮度不变。新元件：滤波器。</li>
+<li><strong>玩家做什么：</strong> 让输出和目标一样：噪点压平、亮度不变。新元件：滤波器、核（一个概念，同一关带来）。</li>
 <li><strong>想到的：</strong> 每格换成周围九格的加权和，权重表是核；九格一样重（1/9）是邻域平均。</li>
 <li><strong>测试：</strong> 带噪点的小图；一个亮点（输出是 1/9 的方块，直接摆出了核）。</li>
 <li><strong>天真解：</strong> 九个 1。为什么错：亮了九倍。</li>
