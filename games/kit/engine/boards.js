@@ -25,8 +25,8 @@ export function outputsOf(circuit, parts, values) {
  */
 export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, targets = null }) {
   const engine = { parts, prepare }
-  const { values, errors } = evaluate(circuit, { parts, prepare, targets, ctx: { ...ctx, bind, engine } })
-  return { values, errors, outputs: outputsOf(circuit, parts, values) }
+  const { values, errors, ids } = evaluate(circuit, { parts, prepare, targets, ctx: { ...ctx, bind, engine } })
+  return { values, errors, outputs: outputsOf(circuit, parts, values), ...(ids ? { ids } : {}) }
 }
 
 /** The output key under which a packed part that holds registers runs the cards inside that keep them (circuit.js keys
@@ -84,7 +84,9 @@ export function packed({ circuit, inputs, outputs, holds = false, inside: around
       const inner = withSettings(circuitOf(), node.params, ctx.engine.parts)
       const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
       const scope = `${ctx.scope ?? ''}${node.id}/`
-      const run = (targets) => runBoard(inner, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx: { ...around(ctx), graph: inner, trace, scope }, bind: ins, targets })
+      // On a run that trains, the inputs' numbers on the tape go in with them (tape.js).
+      const bindIds = ctx.tape ? { ...ctx.tape.ins } : undefined
+      const run = (targets) => runBoard(inner, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx: { ...around(ctx), graph: inner, trace, scope, bindIds }, bind: ins, targets })
       if (key === STATE) {
         const { values } = run(keepers(inner, partOf))
         for (const n of inner.nodes) if (partOf(n.type)?.store && values.has(n.id)) ctx.stores?.set(`${scope}${n.params.reg}`, values.get(n.id))
@@ -93,9 +95,10 @@ export function packed({ circuit, inputs, outputs, holds = false, inside: around
       const name = key ?? outputs[0]
       // Only what reaches the output asked for runs, as on a board of its own (a frame that runs its regions itself runs them).
       const out = inner.nodes.find((n) => nameOf(n) === name && partOf(n.type)?.sink)
-      const { values, errors } = run(out ? [out.id] : [])
+      const { values, errors, ids } = run(out ? [out.id] : [])
       const value = out ? values.get(out.id) : undefined
       if (value === undefined) throw new PartError(errors.size ? [...errors.values()][0] : BROKEN)
+      if (ctx.tape) ctx.tape.last = ids.get(out.id) ?? null
       return value
     },
   }

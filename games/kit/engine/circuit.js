@@ -69,6 +69,9 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
   const values = new Map()
   const errors = new Map()
   const done = new Set()
+  // A run that trains numbers every value on its tape (tape.js): each source's number, here by where it came from.
+  const tape = ctx.tape
+  const ids = tape ? new Map() : null
   // A node's first error is the one it shows.
   const fault = (id, message, key = null) => {
     if (!errors.has(id)) errors.set(id, message)
@@ -98,11 +101,13 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     if (errors.has(id) && !part.reads) return
     const ports = part.reads?.(node, key) ?? portsOf(part, node)
     const ins = {}
+    const inIds = {}
     let missing = false
     let connected = 0
     for (const port of ports) {
       const from = into.get(`${id}\u0000${port}`)
       const value = from === undefined ? undefined : pull(from)
+      if (ids && from !== undefined) inIds[port] = ids.get(from) ?? null
       if (from !== undefined && value !== undefined) connected++
       if (value !== undefined) ins[port] = value
       else if (from === undefined && part.idle) ins[port] = part.idle(port, node)
@@ -112,6 +117,7 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     if (!missing && !part.bare && ports.length && part.optional && ports.every((p) => part.optional.includes(p)) && !connected) missing = true
     if (part.sink) {
       if (ins.in !== undefined) values.set(id, ins.in)
+      if (ids) ids.set(id, inIds.in ?? null)
       return
     }
     if (missing) {
@@ -120,7 +126,9 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     }
     try {
       const ready = prepare ? prepare(ins, node, part) : ins
+      if (tape) Object.assign(tape, { ins: inIds, last: null, node: `${ctx.scope ?? ''}${id}` })
       const value = part.eval(ready, node, ctx, key ?? undefined)
+      if (ids) ids.set(doneKey, part.source ? ctx.bindIds?.[node.params?.name] ?? null : tape.last)
       values.set(doneKey, value)
       note({ id, key, value })
     } catch (error) {
@@ -140,5 +148,5 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     if (keys) for (const key of keys) run(id, key)
     else run(id, null)
   }
-  return { values, errors }
+  return { values, errors, ...(ids ? { ids } : {}) }
 }

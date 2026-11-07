@@ -207,3 +207,29 @@ export function evaluate(t, env) {
   }
   return env.run(t.call, t.args.map((a) => evaluate(a, env)), Object.fromEntries(Object.entries(t.named).map(([k, a]) => [k, evaluate(a, env)])))
 }
+
+/**
+ * evaluate, numbering values on a tape (../tape.js): returns { v, id }. env as for evaluate, with `ids` (each input's
+ * number on the tape, or none), `tape` and `leaf(name)` (whether a resource is a parameter: its value becomes a leaf
+ * under `env.key`). A call whose arguments all lack numbers is worked out plainly and gets none; `if` and `match` pass
+ * on the number of the branch they take.
+ */
+export function evaluateTaped(t, env) {
+  if ('in' in t) return { v: env.ins[t.in], id: env.ids?.[t.in] ?? null }
+  if ('set' in t || 'num' in t || 'str' in t) return { v: evaluate(t, env), id: null }
+  if (t.call === 'if' && t.args.length === 3) return evaluateTaped(evaluate(t.args[0], env) ? t.args[1] : t.args[2], env)
+  if ('match' in t) {
+    const v = evaluate(t.match, env)
+    const then = t.cases[String(v)] ?? t.other
+    if (!then) throw env.noCase(v)
+    return evaluateTaped(then, env)
+  }
+  const args = t.args.map((a) => evaluateTaped(a, env))
+  const named = Object.fromEntries(Object.entries(t.named).map(([k, a]) => [k, evaluate(a, env)]))
+  const values = args.map((a) => a.v)
+  const v = env.run(t.call, values, named)
+  if (env.leaf?.(t.call)) return { v, id: env.tape.leaf(env.key, v) }
+  const ids = args.map((a) => a.id)
+  if (!ids.some((id) => id !== null)) return { v, id: null }
+  return { v, id: env.tape.record({ op: t.call, args: values, ids, named, out: v }) }
+}

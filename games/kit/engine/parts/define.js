@@ -12,7 +12,7 @@
 // Every expression may call the kernel's builtins (builtins.js) besides the domain's resources.
 import { PartError } from '../circuit.js'
 import { validate } from '../schema.js'
-import { ExprError, evaluate, parse, problemsOf } from './expr.js'
+import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
 import { BUILTINS, BUILTIN_ITEMS } from './builtins.js'
 import { FACES, PARTS_FILE } from './schema.js'
@@ -141,7 +141,13 @@ export function defineParts(file, ops) {
         if (def.nulls !== 'pass' && names.some((n) => ins[n] === null || ins[n] === undefined)) return null
         const tree = trees[def.outputNames ? key : '']
         if (!tree) throw new PartError({ zh: '这个元件的运算写错了', en: 'this part’s computation does not parse' })
-        return evaluate(tree, { ins, settings: settingsFor(def, node?.params), run: runner(ops, ctx), noCase })
+        const env = { ins, settings: settingsFor(def, node?.params), run: runner(ops, ctx), noCase }
+        if (!ctx?.tape) return evaluate(tree, env)
+        // A run that trains: number the values on the tape (../tape.js); a parameter resource makes this card a leaf.
+        const tape = ctx.tape
+        const { v, id } = evaluateTaped(tree, { ...env, tape, ids: { ...tape.ins }, key: tape.node, leaf: (name) => Boolean(ops[name]?.leaf) })
+        tape.last = id
+        return v
       },
     }
     if (def.outputNames) part.outputs = () => def.outputNames
