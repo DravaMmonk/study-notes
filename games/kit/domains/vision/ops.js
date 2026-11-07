@@ -203,9 +203,9 @@ function parameter(size, value) {
 function softmax(image) {
   if (image.c !== 1) fail('softmax 要一张灰度图', 'softmax needs a grey image')
   const top = Math.max(...image.data)
-  const e = Float64Array.from(image.data, (v) => Math.exp(v - top))
+  const e = image.data.map((v) => Math.exp(v - top))
   const total = e.reduce((a, b) => a + b, 0)
-  return { ...image, data: Float64Array.from(e, (v) => v / total) }
+  return { ...image, data: e.map((v) => v / total) }
 }
 
 /** The resources as the vocabulary lists them (data). */

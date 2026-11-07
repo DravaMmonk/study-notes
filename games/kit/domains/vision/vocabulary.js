@@ -139,6 +139,21 @@ const LEVEL = levelSchema({
     partBudget: S.opt(S.int({ min: 1 })),
     multiplyBudget: S.opt(S.obj({ image: NAME, perPixel: S.int({ min: 1 }) })),
     tolerance: S.opt(S.num({ min: 0, about: t('比较值时的容差（默认 1e-5）', 'the tolerance values are compared with (1e-5 by default)') })),
+    train: S.opt(S.obj({
+      examples: S.list(TEST, { min: 1, about: t('训练用的例子：输入和应当的输出', 'the examples it trains on: inputs and the outputs wanted') }),
+      validation: S.opt(S.list(TEST, { about: t('不参与训练、只看误差的例子（验证集）', 'examples it is never trained on, only measured on (the validation set)') })),
+      output: S.opt(NAME),
+      loss: S.opt(S.oneOf(['mse', 'crossEntropy'])),
+      rate: S.num({ min: 0, about: t('学习率', 'the learning rate') }),
+      epochs: S.int({ min: 1, max: 5000 }),
+      optimizer: S.opt(S.oneOf(['sgd', 'adam'])),
+      momentum: S.opt(S.num({ min: 0, max: 0.999 })),
+      patience: S.opt(S.int({ min: 1, about: t('验证误差这么多轮没有变好就停，留下最好的那一轮', 'stop once the validation loss has not improved for this many epochs, keeping the best') })),
+      restarts: S.opt(S.int({ min: 1, max: 10 })),
+      seed: S.opt(S.int()),
+      init: S.opt(S.num({ min: 0 })),
+    }, { section: 'tests', about: t('训练任务：判定之前先训练板上可学习的参数；测试判的是训练后的板', 'a training task: the board’s learnable parameters are trained before judging; the tests judge the trained board') })),
+    judge: S.opt(S.oneOf(['argmax'], { about: t('argmax：分类器只看最可能的那一类对不对', 'argmax: a classifier is judged only on whether its most likely class is right') })),
     starter: S.opt(S.board({ about: t('任务开始时的板，蓝图文本，每行一个字符串', 'the board the task opens on, as blueprint text, one string a line') })),
     naiveWhy: S.opt(S.text()),
     carry: S.opt(S.level({ about: t('沿用指定先修关卡最后通关的电路，直接扩展其内部元件', 'extend the last passed board of the named prerequisite directly') })),
@@ -183,7 +198,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 7,
+  version: 8,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,

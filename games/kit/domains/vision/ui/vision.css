@@ -311,3 +311,8 @@
 .vi-outside-scroll td { min-width: 44px; height: 44px; padding: 4px; box-sizing: border-box; text-align: center; border: 1px solid var(--line); border-radius: 5px; background: var(--canvas); }
 .vi-outside-scroll td[data-outside="true"] { border: 1px dashed var(--accent); color: var(--accent-ink); }
 .vi-outside-scroll td strong { display: block; }
+
+/* A training task's loss curve under the results, and a learnable card's learned value. */
+.vi-training { margin: 8px 0 0; }
+.vi-training figcaption { color: var(--muted); font-size: 13px; }
+.vi-learned { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 12px; }

@@ -12,6 +12,7 @@ import { runBoard, withSettings } from '../../engine/boards.js'
 import { MISSING } from '../../engine/circuit.js'
 import { runTests } from '../../engine/circuit-domain.js'
 import { differs, isImage, valueOf } from './image.js'
+import { train } from './train.js'
 import { T } from '../../shell/i18n.js'
 
 
@@ -54,7 +55,7 @@ export function runTest(task, circuit, test, partOf) {
   for (const out of task.outputs) {
     const got = outputs[out.name]
     const sink = circuit.nodes.find((n) => n.type === 'out' && n.params?.name === out.name)
-    const why = got === undefined ? sink ? noValue(circuit, errors, sink.id) : T('缺少输出元件', 'is missing its output terminal') : differs(test.expect[out.name], got, tol)
+    const why = got === undefined ? sink ? noValue(circuit, errors, sink.id) : T('缺少输出元件', 'is missing its output terminal') : task.judge === 'argmax' ? classDiffers(test.expect[out.name], got) : differs(test.expect[out.name], got, tol)
     if (why) {
       return {
         ...result,
@@ -80,7 +81,17 @@ export function runTest(task, circuit, test, partOf) {
 }
 
 /** Every test of a task on a board: { runs, pass }. A board that gives what the naive board gives fails for its reason. */
-export const runLevel = runTests((task, circuit, test, partOf) => {
+/** The cell holding an image's largest value (a class's index among probabilities), or null for no image. */
+const top = (v) => (isImage(v) ? v.data.indexOf(Math.max(...v.data)) : null)
+
+/** For a classifier: whether the class it rates most likely is the one wanted (its probabilities need not match). */
+function classDiffers(want, got) {
+  if (!isImage(got) || got.data.length !== want.data.length) return differs(want, got)
+  const [k, j] = [top(want), top(got)]
+  return k === j ? null : T(`应当认作第 ${k + 1} 类，最可能的却是第 ${j + 1} 类`, `should be class ${k + 1}, but class ${j + 1} is rated most likely`)
+}
+
+const judgeTests = runTests((task, circuit, test, partOf) => {
   const result = runTest(task, circuit, test, partOf)
   if (result.fail && task.naive && task.naiveWhy) {
     const mistaken = runTest(task, task.naive, test, partOf)
@@ -90,6 +101,35 @@ export const runLevel = runTests((task, circuit, test, partOf) => {
   }
   return result
 })
+
+// A training task (`train`) trains the board before judging it: deterministic, so a board always learns the same, and
+// kept per board and training, so a board is trained once however often it is judged (../../engine/tape.js, train.js).
+const TRAINED = new WeakMap()
+
+/** The board trained as the task says: { circuit, curve, epochs, best, blocked } or { error }. */
+export function trainedBoard(task, circuit, partOf) {
+  const byBoard = TRAINED.get(circuit) ?? new WeakMap()
+  TRAINED.set(circuit, byBoard)
+  if (byBoard.has(task.train)) return byBoard.get(task.train)
+  const { examples, validation = [], output = task.outputs[0].name, ...options } = task.train
+  let result
+  try {
+    result = train({ circuit, parts: partOf, examples: examples.map(readTest), validation: validation.map(readTest), output, ...options })
+  } catch (error) {
+    result = { error: error.label ?? T('训练没能进行', 'training could not run') }
+  }
+  byBoard.set(task.train, result)
+  return result
+}
+
+/** Every test of a task on a board: trained first where the task trains it; each run carries the training. */
+export function runLevel(task, circuit, partOf) {
+  if (!task.train) return judgeTests(task, circuit, partOf)
+  const training = trainedBoard(task, circuit, partOf)
+  if (training.error) return { runs: task.tests.map(() => ({ fail: { why: training.error }, training })), pass: false, training }
+  const judged = judgeTests({ ...task, naive: null }, training.circuit, partOf)
+  return { ...judged, runs: judged.runs.map((r) => ({ ...r, training })), training }
+}
 
 export function entries({ task, test, run, sample }) {
   const shape = (v) => (isImage(v) ? 'grid' : 'scalar')

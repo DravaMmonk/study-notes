@@ -31,6 +31,7 @@ import IntroFigure from './ui/IntroFigure.jsx'
 import { visionCourse } from './course.js'
 import { optionText } from './configurations.js'
 import { OPS } from './ops.js'
+import { WIDGETS } from './ui/Training.jsx'
 
 const KINDS = {
   probe: { Screen: ProbeScreen, icon: Grid3x3, label: { zh: '探测', en: 'Probe' } },
@@ -46,6 +47,6 @@ export default function visionGame(content) {
   const cards = Object.fromEntries(Object.entries(vision.defs).map(([type, d]) => [type, { name: d.name, ...optionText(vision.LEVELS, d), icon: iconOf(d.icon) }]))
   const game = circuitGame(content, vision, { kind: { id: 'circuit', icon: CircuitBoard, label: { zh: '电路', en: 'Circuit' } }, Screen, cards, kinds: KINDS, IntroFigure })
   // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
-  game.defined = { of: (type) => vision.defs[type] ?? null, defaults: vision.defaultsOf, ops: OPS }
+  game.defined = { of: (type) => vision.defs[type] ?? null, defaults: vision.defaultsOf, ops: OPS, widgets: WIDGETS }
   return game
 }

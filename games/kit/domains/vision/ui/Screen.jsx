@@ -10,6 +10,7 @@ import { isImage, show } from '../image.js'
 import { ProjectionCase } from './benches/CameraScene.jsx'
 import PartDetail, { PartValues } from './PartDetail.jsx'
 import { taskBoard, taskDefaults } from '../tooling.js'
+import { LossCurve, WIDGETS } from './Training.jsx'
 
 // A board task of a vision game on the circuit base's screen (../../../shell/CircuitScreen.jsx), every test checked
 // at once: an image circuit has nothing to step through. A value is a number, a vector or an image (../image.js), an
@@ -35,7 +36,7 @@ export default function Screen(screen) {
   const outsideLabel = (value) => L(own.presets.outside?.options?.find(option => option.value === value)?.label ?? value)
   const settingsIn = (type, key) => own.settingsIn(task, type, key)
   const defaults = (type) => taskDefaults(type, own.partOf, settingsIn)
-  const defined = useMemo(() => ({ of: (type) => own.defs[type] ?? null, defaults, ops: OPS, allowed: settingsIn }), [own, task]) // eslint-disable-line react-hooks/exhaustive-deps
+  const defined = useMemo(() => ({ of: (type) => own.defs[type] ?? null, defaults, ops: OPS, allowed: settingsIn, widgets: WIDGETS }), [own, task]) // eslint-disable-line react-hooks/exhaustive-deps
   const inspect = useMemo(() => (node, ctx) => <PartValues node={node} ctx={ctx} />, [])
   // A built part's settings: the presets its level names, those with more than one value offered here.
   const fields = (node) => (own.BUILT[node.type]?.fields ?? []).filter((s) => (settingsIn(node.type, s.key)?.length ?? 2) > 1)
@@ -60,6 +61,7 @@ export default function Screen(screen) {
           {tr(`本测试将所有取样的图外规则设为「${outsideLabel(test.outside)}」。`, `This test sets all reads to ${outsideLabel(test.outside)} outside the image.`)}
         </p>}
         {task.illustration === 'pinhole' && <ProjectionCase test={test} tests={task.tests} phone={phone} />}
+        {run?.training && <LossCurve training={run.training} phone={phone} />}
         {task.multiplyBudget && run && <p className="rv-verdict">{tr(`${run.work.multiplies} 次乘法`, `${run.work.multiplies} multiplications`)}</p>}
       </>}
       sample={(level, board) => onSample(level, board, own.partOf)}
