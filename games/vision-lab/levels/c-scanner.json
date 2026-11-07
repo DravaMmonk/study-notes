@@ -3,29 +3,29 @@
   "intro": [
     {
       "t": {
-        "zh": "把这一章的零件装起来：夜里拍的单据，画出它的边。",
-        "en": "Put the chapter’s parts together: from a night photo of a document, draw its edges."
+        "zh": "夜里拍的单据，纸放得也不正。画出纸的边。",
+        "en": "A document photographed at night, lying askew. Draw the paper’s edges."
       }
     }
   ],
   "after": {
-    "zh": "降噪、求梯度、按强弱取舍，得到的是一张<wiki-ref to=\"edge-map\"></wiki-ref>：机器眼里，纸从这里开始。",
-    "en": "Denoise, take the gradient, keep what is strong enough: an <wiki-ref to=\"edge-map\"></wiki-ref>. To the machine, the paper starts here."
+    "zh": "先降噪，再找边：边缘检测器只认强弱，分不出纸边和噪点；先压掉噪点，剩下的才是纸。",
+    "en": "Denoise, then find edges: the edge detector only knows strength and cannot tell the paper’s edge from noise; calm the noise first and what is left is the paper."
   },
+  "tray": "main",
   "tasks": [
     {
       "id": "scanner",
       "kind": "circuit",
       "brief": {
-        "zh": "先像相机那样降噪，再在边的强弱超过「门槛」的格子标 1，其余标 0。",
-        "en": "Denoise as the camera does, then mark 1 where the edge strength exceeds “threshold”, 0 elsewhere."
+        "zh": "让输出和目标一样：纸边标 1，字和噪点不算。",
+        "en": "Match the target: the paper’s edges marked 1, not the text or the noise."
       },
-      "adds": ["less"],
       "inputs": [
-        { "name": "photo", "label": { "zh": "照片", "en": "Photo" } },
+        { "name": "photo", "label": { "zh": "单据", "en": "Document" } },
         { "name": "threshold", "label": { "zh": "门槛", "en": "Threshold" } }
       ],
-      "outputs": [{ "name": "edges", "label": { "zh": "边缘图", "en": "Edge map" } }],
+      "outputs": [{ "name": "edges", "label": { "zh": "纸边", "en": "Paper edges" } }],
       "tests": [
         {
           "inputs": {
@@ -91,30 +91,12 @@
         }
       ],
       "solution": [
-        "c = const[kind=row3,first=0.25,centre=0.5,last=0.25]()",
-        "d1 = line3[axis=x](photo,c)",
-        "d = line3[axis=y](d1,c)",
-        "w = const[kind=row3,first=-1,centre=0,last=1]()",
-        "s = const[kind=row3,first=1,centre=2,last=1]()",
-        "sy = line3[axis=y](d,s)",
-        "x = line3[axis=x](sy,w)",
-        "sx = line3[axis=x](d,s)",
-        "y = line3[axis=y](sx,w)",
-        "m = magnitude(x,y)",
-        "e = less(threshold,m)",
+        "k = const[kind=kernel3,k1=0.0625,k2=0.125,k3=0.0625,k4=0.125,k5=0.25,k6=0.125,k7=0.0625,k8=0.125,k9=0.0625]()",
+        "d = filter(photo,k)",
+        "e = edges(d,threshold)",
         "edges <- e"
       ],
-      "naive": [
-        "w = const[kind=row3,first=-1,centre=0,last=1]()",
-        "s = const[kind=row3,first=1,centre=2,last=1]()",
-        "sy = line3[axis=y](photo,s)",
-        "x = line3[axis=x](sy,w)",
-        "sx = line3[axis=x](photo,s)",
-        "y = line3[axis=y](sx,w)",
-        "m = magnitude(x,y)",
-        "e = less(threshold,m)",
-        "edges <- e"
-      ],
+      "naive": ["e = edges(photo,threshold)", "edges <- e"],
       "naiveWhy": {
         "zh": "没有先降噪：字和噪点也越过了门槛。",
         "en": "No denoising first: text and noise cross the threshold too."

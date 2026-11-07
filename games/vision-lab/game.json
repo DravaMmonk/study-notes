@@ -1,60 +1,50 @@
 {
   "domain": "vision",
-  "vocabulary": 11,
+  "vocabulary": 12,
   "title": { "zh": "视觉实验室", "en": "Vision Lab" },
   "kicker": { "zh": "开发中", "en": "In development" },
   "lede": {
-    "zh": "给一台仓库机器人装上眼睛：从一格格的数开始，自己搭出去噪、找边、读单据的机器，再一路走到会学习、会测距、会画图的视觉系统。",
-    "en": "Give a warehouse robot its eyes: start from a grid of numbers, build the machines that denoise, find edges and read documents, and go on to a vision system that learns, measures distance and draws."
+    "zh": "从一格格的数开始，按课程的顺序把计算机视觉的概念一个个搭出来：滤波、边缘、频率、颜色，再到卷积网络、匹配、深度、注意力、分割、检测和生成。想深挖原理、想做真实场景，都在支线里。",
+    "en": "Starting from a grid of numbers, build computer vision’s ideas one by one in the course’s order: filtering, edges, frequency, colour, then convolutional networks, matching, depth, attention, segmentation, detection and generation. The principles underneath and the real-world scenes are side branches."
   },
-  "primitives": ["shift", "arithmetic", "const", "split3", "rows3", "magnitude", "angle", "less"],
+  "primitives": [
+    "arithmetic",
+    "const",
+    "filter",
+    "magnitude",
+    "angle",
+    "less",
+    "shift",
+    "split3",
+    "rows3",
+    "turn180"
+  ],
   "trays": {
-    "main": [
-      "shift",
-      "arithmetic",
-      "const",
-      "line3",
-      "split3",
-      "rows3",
-      "filter3",
-      "magnitude",
-      "angle",
-      "less"
-    ]
+    "main": ["arithmetic", "const", "filter", "gradient", "edges", "magnitude", "angle", "less"],
+    "kernel": ["shift", "arithmetic", "const", "line3", "split3", "rows3"],
+    "flip": ["const", "filter", "turn180"]
   },
-  "concept": {
-    "shift": "pixels",
-    "arithmetic": "pixels",
-    "const": "pixels",
-    "magnitude": "gradient",
-    "angle": "gradient"
-  },
+  "concept": { "arithmetic": "values", "const": "values", "magnitude": "gradient", "angle": "gradient" },
   "views": { "grid": ["pixels", "numbers", "surface", "slope", "profile"] },
   "eras": [
     {
       "id": 1,
-      "title": { "zh": "读单据", "en": "Reading documents" },
-      "question": {
-        "zh": "怎样用邻居把一张夜里拍的单据看清楚？",
-        "en": "How do neighbours make a night photo of a document readable?"
-      },
-      "foundation": [
-        "1-1",
-        "1-2",
-        "1-3",
-        "1-4",
-        "1-5",
+      "title": { "zh": "滤波与边缘", "en": "Filtering and edges" },
+      "question": { "zh": "一张图怎样靠邻居变干净、找出边？", "en": "How do neighbours clean an image and find its edges?" },
+      "foundation": ["1-1", "1-2", "1-3", "1-4", "1-5", "1-6", "1-7", "1-8"],
+      "topics": [
         {
-          "parallel": [
-            {
-              "id": "filters",
-              "title": { "zh": "滤镜和边界", "en": "Filters and borders" },
-              "levels": ["1-6", "1-8"]
-            },
-            { "id": "edges", "title": { "zh": "找边", "en": "Finding edges" }, "levels": ["1-7", "1-9", "1-10"] }
-          ]
-        },
-        "1-11"
+          "id": "kernel",
+          "title": { "zh": "拆开滤波器", "en": "The filter taken apart" },
+          "after": "1-2",
+          "levels": ["k-average", "k-separable", "k-weights", "k-filter", "k-convolve"]
+        }
+      ],
+      "challenges": [
+        { "level": "c-streaks", "after": "1-2" },
+        { "level": "c-frame", "after": "1-3" },
+        { "level": "c-filters", "after": "1-4" },
+        { "level": "c-scanner", "after": "1-8" }
       ]
     }
   ]

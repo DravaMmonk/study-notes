@@ -761,6 +761,76 @@
         ]
       }
     },
+    "filter": {
+      "name": {
+        "zh": "滤波器",
+        "en": "Filter"
+      },
+      "desc": {
+        "zh": "每格换成它周围按核加权的和。",
+        "en": "Each cell replaced by its neighbourhood weighted by the kernel."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [
+        {
+          "name": "image",
+          "label": {
+            "zh": "图",
+            "en": "Image"
+          }
+        },
+        {
+          "name": "kernel",
+          "label": {
+            "zh": "核",
+            "en": "Kernel"
+          }
+        }
+      ],
+      "settings": [
+        {
+          "key": "outside",
+          "control": "select",
+          "label": {
+            "zh": "图外",
+            "en": "Outside"
+          },
+          "options": [
+            {
+              "value": "zero",
+              "label": {
+                "zh": "取 0",
+                "en": "Zero"
+              }
+            },
+            {
+              "value": "clamp",
+              "label": {
+                "zh": "延续边缘",
+                "en": "Edge continued"
+              }
+            },
+            {
+              "value": "wrap",
+              "label": {
+                "zh": "循环",
+                "en": "Wrap around"
+              }
+            },
+            {
+              "value": "reflect",
+              "label": {
+                "zh": "镜像",
+                "en": "Mirror"
+              }
+            }
+          ],
+          "default": "clamp"
+        }
+      ],
+      "compute": "filter(image, kernel, outside=$outside)"
+    },
     "kernelFilter": {
       "name": {
         "zh": "核作用",

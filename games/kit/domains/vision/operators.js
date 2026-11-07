@@ -2,6 +2,7 @@
 // neighbourhood and a colour mixture, each one engine resource of the domain (ops.js).
 import { PartError } from '../../engine/circuit.js'
 import { isImage, make } from './image.js'
+import { readOutside } from './construction.js'
 
 const fail = (zh, en) => { throw new PartError({ zh, en }) }
 const imageOf = (image) => {
@@ -16,13 +17,8 @@ const numberOf = (value) => {
 
 /** Boundary assumptions apply to each contributing sample, including interpolation neighbours. */
 function read(image, x, y, ch, outside) {
-  if (x < 0 || x >= image.w || y < 0 || y >= image.h) {
-    if (outside === 'zero') return 0
-    if (outside === 'error') fail(`(${x}, ${y}) 在图像范围外`, `(${x}, ${y}) is outside the image`)
-    x = Math.max(0, Math.min(image.w - 1, x))
-    y = Math.max(0, Math.min(image.h - 1, y))
-  }
-  return image.data[(y * image.w + x) * image.c + ch]
+  if (outside === 'error' && (x < 0 || x >= image.w || y < 0 || y >= image.h)) fail(`(${x}, ${y}) 在图像范围外`, `(${x}, ${y}) is outside the image`)
+  return readOutside(image, x, y, ch, outside)
 }
 
 /** Scalar coordinates read a scalar/RGB pixel; coordinate images determine the output shape. */

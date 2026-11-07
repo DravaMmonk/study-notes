@@ -72,7 +72,7 @@ export const GAMES = [
       zh: '给一台仓库机器人装上眼睛。从一格格的数开始，自己搭出去噪、找边、读单据的机器，再一路走到会学习、会测距、会画图的视觉系统。',
       en: 'Give a warehouse robot its eyes. Start from a grid of numbers, build the machines that denoise, find edges and read documents, and go on to a vision system that learns, measures distance and draws.',
     },
-    levels: 11, art: 'pipeline', dev: true,
+    levels: 17, art: 'pipeline', dev: true,
     page: { icon: 'M16 32h32M32 16v32', description: '视觉实验室 Vision Lab：从基础元件搭建比较仪、扫描器与频率分析仪。Build visual machines from reusable image circuits.' },
   },
 ];

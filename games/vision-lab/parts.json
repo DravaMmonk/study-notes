@@ -239,6 +239,32 @@
       ],
       "compute": { "top": "rowOf(kernel, 0)", "middle": "rowOf(kernel, 1)", "bottom": "rowOf(kernel, 2)" }
     },
+    "filter": {
+      "name": { "zh": "滤波器", "en": "Filter" },
+      "desc": {
+        "zh": "每格换成它周围九格按核加权的和：核的中间乘这一格，左上角乘左上方的邻居。",
+        "en": "Each cell replaced by the nine around it weighted by the kernel: the kernel’s centre weighs the cell itself, its top left the neighbour above left."
+      },
+      "icon": "Grid3x3",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+      ],
+      "settings": [{ "key": "outside", "use": "outside" }],
+      "compute": "filter(image, kernel, outside=$outside)"
+    },
+    "turn180": {
+      "name": { "zh": "转 180°", "en": "Turn 180°" },
+      "desc": {
+        "zh": "把一张图（或一张核）转半圈：左上角到了右下角。",
+        "en": "Turn an image (or a kernel) half a circle: the top left goes to the bottom right."
+      },
+      "icon": "RotateCw",
+      "family": "image",
+      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "compute": "reverse(image)"
+    },
     "magnitude": {
       "name": { "zh": "向量长度", "en": "Vector length" },
       "desc": {

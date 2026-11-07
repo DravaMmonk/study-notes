@@ -1,19 +1,17 @@
 # 视觉实验室（Vision Lab）设计文档
 
-给一台仓库机器人装上眼睛：从一格格的数开始，自己搭出去噪、找边、读单据的机器，再一路走到会学习、会测距、会画图的视觉系统。建在 `vision` 领域上（`games/kit/domains/vision/`）。
+从一格格的数开始，按课程的顺序把计算机视觉的概念一个个搭出来。主线讲概念，元件给到和概念同一层（讲滤波就给滤波器）；把预设拆回原语的原理系列、用到真实场景的应用关都是可选支线。建在 `vision` 领域上（`games/kit/domains/vision/`）。
 
 - 全课程的分章与关卡编排：[`chapter-map.md`](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md)。
 - 已落地章节的规格：[第 1 章](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-1-spec.md)。
 - 领域能力和还缺的能力：`games/kit/domains/vision/DESIGN.md` 的「Capabilities for the redesigned course」。
 - 所有类图灵完备游戏共同的规则：[`games/DESIGN.md`](../DESIGN.md)。
 
-原型（`image` 领域上的 12 章、148 关）已整体换掉，留在 git 历史里；它的想法按章节地图每关的「来源」一栏借用。
-
 ## 内容
 
-- `game.json`：一章一个 era，托盘 `main`；第 1–6 关只开放「图外：延续边缘」，第 7 关起开放全部四种。
-- `parts.json`：原始元件（平移、四则运算、常数、拆成三个数、拆成三行、向量长度、方向、比较）。搭出的元件（三点平均 → 三点加权、滤波器）由关卡的 `builds` 给出。
-- `levels/`：每关的测试期望由独立的实现算出，不由参考解生成；`npm run check` 查参考解通过、天真解失败、搭出的元件单独通过搭它的那一关。
+- `game.json`：一章一个 era；主线在 `foundation`，原理系列是 `topics`（id 的首字母就是系列字母，`kernel` → K），应用是 `challenges`。三个托盘：主线 `main`，K1–K4 `kernel`（没有滤波器，免得直接用预设绕过），K5 `flip`。
+- `parts.json`：预设元件（四则运算、常数、滤波器、向量长度、方向、比较；K 用的平移、拆成三个数、拆成三行、转 180°）。搭出的元件（主线的求梯度、边缘检测器，K 的三点平均 → 三点加权）由关卡的 `builds` 给出。
+- `levels/`：主线 `1-1`…`1-8`，K 系列 `k-*`，挑战 `c-*`；每关的测试期望由独立的实现算出，不由参考解生成；`npm run check` 查参考解通过、天真解失败、搭出的元件单独通过搭它的那一关。
 - `glossary.json`：百科，分像素、滤波、边缘三组。
 
 ## 1. 研究：《图灵完备》的关卡设计在做什么

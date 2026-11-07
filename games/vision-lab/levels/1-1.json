@@ -1,185 +1,83 @@
 {
-  "title": { "zh": "竖纹", "en": "Vertical streaks" },
+  "title": { "zh": "反相", "en": "Negative" },
   "intro": [
     {
       "t": {
-        "zh": "机器人拍下的单据上满是一道道竖纹：相机传感器三列一组轮流读数，组里三列的灵敏度各不相同。现在手上只有平移、四则运算和常数，先把竖纹压下去。<wiki-ref to=\"pixel\"></wiki-ref>",
-        "en": "The robot’s photos of documents are full of vertical streaks: the camera’s sensor reads its columns in groups of three, and the three differ in sensitivity. All you have are shifting, arithmetic and constants; flatten the streaks first. <wiki-ref to=\"pixel\"></wiki-ref>"
+        "zh": "一张图是一格格的数：0 是黑，1 是白。<wiki-ref to=\"pixel\"></wiki-ref>",
+        "en": "An image is a grid of numbers: 0 is black, 1 is white. <wiki-ref to=\"pixel\"></wiki-ref>"
       }
     }
   ],
   "after": {
-    "zh": "每格和它的左右邻居平均，三列一组的偏差加起来正好抵消。这就是<wiki-ref to=\"neighbourhood-average\"></wiki-ref>。",
-    "en": "Averaging each cell with its left and right neighbours takes in one of each of the three columns, and their errors cancel. This is a <wiki-ref to=\"neighbourhood-average\"></wiki-ref>."
+    "zh": "每格只看自己、各算各的，这叫<wiki-ref to=\"point-op\"></wiki-ref>。",
+    "en": "Each cell looks only at itself, each worked out on its own: a <wiki-ref to=\"point-op\"></wiki-ref>."
   },
-  "builds": {
-    "type": "line3",
-    "name": { "zh": "三点平均", "en": "Three-point average" },
-    "desc": {
-      "zh": "每格和它前后两格平均。方向可以选横或竖。",
-      "en": "Each cell averaged with the two beside it, across or down."
-    },
-    "settings": ["axis", "outside"],
-    "defaults": { "axis": "x", "outside": "clamp" }
-  },
+  "tray": "main",
   "tasks": [
     {
-      "id": "streaks",
+      "id": "negative",
       "kind": "circuit",
       "brief": {
-        "zh": "让输出和目标一样：竖纹压平，纸和字还在。",
-        "en": "Match the target: streaks flattened, paper and text still there."
+        "zh": "把图变成底片：亮的变暗，暗的变亮。",
+        "en": "Make the image a negative: bright turns dark, dark turns bright."
       },
       "hint": [
         {
-          "zh": "一格自己的读数里混着它那一列的偏差。左右两格的偏差和它不一样。",
-          "en": "A cell’s reading carries its column’s error. The cells beside it carry different errors."
-        },
-        {
-          "zh": "平移把整张图挪一格：挪完以后，每格上放的是它旁边那一格的读数。",
-          "en": "Shifting moves the whole picture one cell: afterwards each cell holds its neighbour’s reading."
+          "zh": "看一格：0 要变成 1，1 要变成 0，0.2 要变成多少？",
+          "en": "Take one cell: 0 must become 1, 1 must become 0; what must 0.2 become?"
         }
       ],
-      "adds": ["shift", "arithmetic", "const"],
-      "configurations": {
-        "shift.axis": ["x"],
-        "shift.by": ["forward", "backward"],
-        "*.outside": ["clamp"],
-        "arithmetic.op": ["add", "div"],
-        "const.kind": ["scalar"]
-      },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [{ "name": "out", "label": { "zh": "去掉竖纹", "en": "Streaks removed" } }],
+      "adds": ["arithmetic", "const"],
+      "configurations": { "arithmetic.op": ["add", "sub"], "const.kind": ["scalar"] },
+      "inputs": [{ "name": "photo", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "底片", "en": "Negative" } }],
       "tests": [
         {
           "inputs": {
             "photo": [
-              [0.23, 0.05, 0.17, 0.23, 0.05, 0.17, 0.23],
-              [0.23, 0.75, 0.87, 0.93, 0.75, 0.87, 0.23],
-              [0.23, 0.75, 0.32, 0.38, 0.75, 0.87, 0.23],
-              [0.23, 0.75, 0.87, 0.93, 0.75, 0.87, 0.23],
-              [0.23, 0.05, 0.17, 0.23, 0.05, 0.17, 0.23]
+              [0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+              [0.2, 0.8, 0.8, 0.2, 0.2, 0.2],
+              [0.2, 0.8, 0.8, 0.2, 0.5, 0.2],
+              [0.2, 0.8, 0.8, 0.2, 0.2, 0.2],
+              [0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
             ]
           },
           "expect": {
             "out": [
-              [
-                0.17,
-                0.15000000000000002,
-                0.15000000000000002,
-                0.15,
-                0.15000000000000002,
-                0.15000000000000002,
-                0.21
-              ],
-              [
-                0.4033333333333333,
-                0.6166666666666667,
-                0.8500000000000001,
-                0.85,
-                0.8500000000000001,
-                0.6166666666666667,
-                0.44333333333333336
-              ],
-              [
-                0.4033333333333333,
-                0.43333333333333335,
-                0.4833333333333334,
-                0.48333333333333334,
-                0.6666666666666666,
-                0.6166666666666667,
-                0.44333333333333336
-              ],
-              [
-                0.4033333333333333,
-                0.6166666666666667,
-                0.8500000000000001,
-                0.85,
-                0.8500000000000001,
-                0.6166666666666667,
-                0.44333333333333336
-              ],
-              [
-                0.17,
-                0.15000000000000002,
-                0.15000000000000002,
-                0.15,
-                0.15000000000000002,
-                0.15000000000000002,
-                0.21
-              ]
+              [0.8, 0.8, 0.8, 0.8, 0.8, 0.8],
+              [0.8, 0.19999999999999996, 0.19999999999999996, 0.8, 0.8, 0.8],
+              [0.8, 0.19999999999999996, 0.19999999999999996, 0.8, 0.5, 0.8],
+              [0.8, 0.19999999999999996, 0.19999999999999996, 0.8, 0.8, 0.8],
+              [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
             ]
           }
         },
         {
-          "inputs": { "photo": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] },
-          "expect": { "out": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] }
-        }
-      ],
-      "hidden": [
-        {
-          "inputs": {
-            "photo": [
-              [0.45, 0.56, 0.92, 0.47, 0.51],
-              [0.59, 0.18, 0.51, 0.63, 0.79],
-              [0.09, 0.3, 0.09, 0.81, 0.69]
-            ]
-          },
+          "inputs": { "photo": [[0, 0.2, 0.5, 0.8, 1], [0.2, 0.9, 0.9, 0.2, 0], [0.6, 0.6, 0.1, 0.1, 0.4]] },
           "expect": {
             "out": [
-              [
-                0.4866666666666667,
-                0.6433333333333333,
-                0.6499999999999999,
-                0.6333333333333333,
-                0.49666666666666665
-              ],
-              [
-                0.4533333333333333,
-                0.42666666666666664,
-                0.43999999999999995,
-                0.6433333333333333,
-                0.7366666666666666
-              ],
-              [0.15999999999999998, 0.16, 0.4, 0.53, 0.73]
+              [1, 0.8, 0.5, 0.19999999999999996, 0],
+              [0.8, 0.09999999999999998, 0.09999999999999998, 0.8, 1],
+              [0.4, 0.4, 0.9, 0.9, 0.6]
             ]
           }
         }
       ],
-      "solution": [
-        "r = shift[axis=x,by=forward](photo)",
-        "l = shift[axis=x,by=backward](photo)",
-        "s1 = arithmetic[op=add](photo,r)",
-        "s2 = arithmetic[op=add](s1,l)",
-        "three = const[value=3]()",
-        "m = arithmetic[op=div](s2,three)",
-        "out <- m"
-      ],
-      "naive": [
-        "r = shift[axis=x,by=forward](photo)",
-        "s = arithmetic[op=add](photo,r)",
-        "two = const[value=2]()",
-        "m = arithmetic[op=div](s,two)",
-        "out <- m"
-      ],
+      "solution": ["one = const[value=1]()", "n = arithmetic[op=sub](one,photo)", "out <- n"],
+      "naive": ["one = const[value=1]()", "n = arithmetic[op=sub](photo,one)", "out <- n"],
       "naiveWhy": {
-        "zh": "只和一边的邻居平均，整张图往那一边偏了半格：台阶的两侧不对称。",
-        "en": "Averaging with one neighbour only shifts the picture half a cell that way: each step comes out lopsided."
+        "zh": "图减 1 处处是负数：底片是 1 减去图。",
+        "en": "The image minus 1 is negative everywhere: the negative is 1 minus the image."
       },
       "sample": {
         "inputs": {
           "photo": {
-            "size": [48, 36],
-            "base": 0.15,
+            "size": [40, 30],
+            "base": 0.2,
             "layers": [
-              {
-                "shape": "quad",
-                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
-                "v": 0.85
-              },
-              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
-            ],
-            "noise": { "seed": 4, "amp": 0.15, "kind": "columns", "period": 3 }
+              { "shape": "rect", "x": 4, "y": 4, "w": 16, "h": 18, "v": 0.8 },
+              { "shape": "disc", "cx": 28.799999999999997, "cy": 15, "r": 7.5, "v": 0.6 }
+            ]
           }
         }
       }

@@ -129,6 +129,7 @@ const RESHAPE = {
     const r = offsetReads(image, [[-d.x, -d.y], [0, 0], [d.x, d.y]], [...weights.data], g, outside)
     return [r.image, make(3, 1, 1, (x) => r.weights[x]), null]
   },
+  filter: (g, args, out, { outside = 'clamp' }) => RESHAPE.kernelFilter(g, args, out, { outside }),
   kernelFilter: (g, [image, kernel], _out, { outside = 'clamp', convention = 'correlation' }) => {
     const s = convention === 'convolution' ? -1 : 1
     const offsets = []

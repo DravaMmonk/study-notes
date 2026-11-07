@@ -198,7 +198,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 11,
+  version: 12,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,

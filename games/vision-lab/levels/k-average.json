@@ -1,0 +1,128 @@
+{
+  "title": { "zh": "三点平均", "en": "Three-point average" },
+  "intro": [
+    {
+      "t": {
+        "zh": "滤波器里面是怎么算的？先不用它，只用平移和四则运算，让每格和左右邻居平均。",
+        "en": "What goes on inside the filter? Without it, using only shifts and arithmetic, average each cell with its left and right neighbours."
+      }
+    }
+  ],
+  "after": {
+    "zh": "平移把整张图挪一格，每格上放的就是邻居：「读邻居」不过是挪过一格的整张图。",
+    "en": "A shift moves the whole image one cell, leaving each cell holding its neighbour: reading a neighbour is just the image moved by one."
+  },
+  "tray": "kernel",
+  "builds": {
+    "type": "line3",
+    "name": { "zh": "三点平均", "en": "Three-point average" },
+    "desc": {
+      "zh": "每格和它前后两格平均。方向可以选横或竖。",
+      "en": "Each cell averaged with the two beside it, across or down."
+    },
+    "settings": ["axis", "outside"],
+    "defaults": { "axis": "x", "outside": "clamp" }
+  },
+  "tasks": [
+    {
+      "id": "average",
+      "kind": "circuit",
+      "brief": {
+        "zh": "每格换成它和左右两格的平均（图外延续边缘）。",
+        "en": "Replace each cell with the average of itself and its left and right neighbours (the edge continued outside)."
+      },
+      "hint": [
+        {
+          "zh": "平移完以后，每格上放的是它旁边那一格的读数。",
+          "en": "After a shift each cell holds the reading of the one beside it."
+        }
+      ],
+      "adds": ["shift"],
+      "configurations": {
+        "shift.axis": ["x"],
+        "shift.by": ["forward", "backward"],
+        "*.outside": ["clamp"],
+        "arithmetic.op": ["add", "div"],
+        "const.kind": ["scalar"]
+      },
+      "inputs": [{ "name": "photo", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "平均", "en": "Average" } }],
+      "tests": [
+        {
+          "inputs": {
+            "photo": [
+              [0.01, 0.11, 0.39, 0.68, 0.14, 0.11, 0.23],
+              [0.76, 0.15, 0.74, 0.66, 0.14, 0.54, 0.45],
+              [0.41, 1, 0.09, 0.02, 0.94, 0.4, 0.2],
+              [0.33, 0.36, 0.96, 0.21, 0.22, 0.58, 0.55]
+            ]
+          },
+          "expect": {
+            "out": [
+              [
+                0.043333333333333335,
+                0.17,
+                0.39333333333333337,
+                0.4033333333333334,
+                0.31000000000000005,
+                0.16,
+                0.19
+              ],
+              [
+                0.5566666666666666,
+                0.5499999999999999,
+                0.5166666666666666,
+                0.5133333333333333,
+                0.44666666666666666,
+                0.37666666666666665,
+                0.48
+              ],
+              [
+                0.6066666666666667,
+                0.5,
+                0.36999999999999994,
+                0.35,
+                0.45333333333333325,
+                0.5133333333333333,
+                0.26666666666666666
+              ],
+              [
+                0.33999999999999997,
+                0.5499999999999999,
+                0.5099999999999999,
+                0.46333333333333326,
+                0.3366666666666666,
+                0.44999999999999996,
+                0.56
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": { "photo": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] },
+          "expect": { "out": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] }
+        }
+      ],
+      "solution": [
+        "r = shift[axis=x,by=forward](photo)",
+        "l = shift[axis=x,by=backward](photo)",
+        "s1 = arithmetic[op=add](photo,r)",
+        "s2 = arithmetic[op=add](s1,l)",
+        "three = const[value=3]()",
+        "m = arithmetic[op=div](s2,three)",
+        "out <- m"
+      ],
+      "naive": [
+        "r = shift[axis=x,by=forward](photo)",
+        "s = arithmetic[op=add](photo,r)",
+        "two = const[value=2]()",
+        "m = arithmetic[op=div](s,two)",
+        "out <- m"
+      ],
+      "naiveWhy": {
+        "zh": "只和一边的邻居平均，整张图往那一边偏了半格。",
+        "en": "Averaging with one neighbour only shifts the image half a cell that way."
+      }
+    }
+  ]
+}

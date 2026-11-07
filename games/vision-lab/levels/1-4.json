@@ -1,151 +1,64 @@
 {
-  "title": { "zh": "不一样重", "en": "Not all the same" },
+  "title": { "zh": "黑盒滤波器", "en": "Black-box filter" },
   "intro": [
     {
       "t": {
-        "zh": "相机的降噪中间重、四周轻；你的三点平均对三格一视同仁。",
-        "en": "The camera’s denoising weighs the centre more; your three-point average treats all three the same."
+        "zh": "一台滤波器装在盒子里，看不到它的核。只能喂图进去，看出来什么。",
+        "en": "A filter sits sealed in a box; its kernel cannot be seen. All you can do is feed it images and watch what comes out."
       }
     }
   ],
   "after": {
-    "zh": "平均只是三个分量都等于三分之一的特例；每格乘上各自的分量再相加，叫<wiki-ref to=\"weighted-sum\"></wiki-ref>。",
-    "en": "An average is the case where all three shares are a third; multiplying each cell by its own share and adding is a <wiki-ref to=\"weighted-sum\"></wiki-ref>."
-  },
-  "builds": {
-    "type": "line3",
-    "name": { "zh": "三点加权", "en": "Three-point weighting" },
-    "desc": {
-      "zh": "每格和它前后两格按三个权重相加。方向可以选横或竖。",
-      "en": "Each cell and the two beside it added by three weights, across or down."
-    },
-    "task": "weights",
-    "settings": ["axis", "outside"],
-    "defaults": { "axis": "x", "outside": "clamp" }
+    "zh": "一个亮点进去，出来的就是它的核，叫<wiki-ref to=\"impulse-response\"></wiki-ref>。这台中间最重，越往外越轻。",
+    "en": "One bright dot in, and out comes its kernel: the <wiki-ref to=\"impulse-response\"></wiki-ref>. This one weighs the centre most and less further out."
   },
   "tasks": [
     {
-      "id": "weights",
-      "kind": "circuit",
-      "carry": "1-1",
-      "step": { "zh": "给三格各自的分量", "en": "A share for each cell" },
+      "id": "probe",
+      "kind": "probe",
+      "experiment": "filter",
       "brief": {
-        "zh": "让三点平均按「权重」给左、中、右三格各自的分量。",
-        "en": "Let the three-point average give the left, centre and right cells the shares in “weights”."
+        "zh": "填一张能分清三种说法的图，再选输出支持的那一种。",
+        "en": "Fill in an image that tells the three accounts apart, then pick the one the output supports."
       },
       "hint": [
         {
-          "zh": "权重是一行三个数：前、中、后。先把它拆开。",
-          "en": "The weights are a row of three: first, centre, last. Take it apart first."
-        }
-      ],
-      "adds": ["split3"],
-      "configurations": { "arithmetic.op": ["mul"], "const.kind": ["row3"] },
-      "inputs": [
-        { "name": "photo", "label": { "zh": "照片", "en": "Photo" } },
-        { "name": "weights", "label": { "zh": "权重", "en": "Weights" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "加权以后", "en": "Weighted" } }],
-      "tests": [
-        {
-          "inputs": {
-            "photo": [
-              [0.1, 0.16, 0.12, 0.17, 0.18, 0.06],
-              [0.05, 0.92, 0.8, 0.8, 0.95, 0.14],
-              [0.22, 0.85, 0.33, 0.23, 0.88, 0.22],
-              [0.15, 0.2, 0.18, 0.06, 0.2, 0.17]
-            ],
-            "weights": [[0.25, 0.5, 0.25]]
-          },
-          "expect": {
-            "out": [
-              [0.11500000000000002, 0.135, 0.14250000000000002, 0.16, 0.14750000000000002, 0.09],
-              [0.2675, 0.6725000000000001, 0.8300000000000001, 0.8375000000000001, 0.7100000000000001, 0.3425],
-              [0.3775, 0.5625, 0.435, 0.4175, 0.5525, 0.385],
-              [0.16249999999999998, 0.1825, 0.15500000000000003, 0.125, 0.1575, 0.17750000000000002]
-            ]
-          }
+          "zh": "一整片同样亮的图，三种核都不会改变它。",
+          "en": "An image of one brightness all over is left unchanged by all three."
         },
         {
-          "inputs": {
-            "photo": [
-              [0.01, 0.11, 0.39, 0.68, 0.14],
-              [0.11, 0.23, 0.76, 0.15, 0.74],
-              [0.66, 0.14, 0.54, 0.45, 0.41]
-            ],
-            "weights": [[0.1, 0.8, 0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.020000000000000004, 0.128, 0.39100000000000007, 0.5970000000000001, 0.19400000000000003],
-              [0.12200000000000001, 0.271, 0.6460000000000001, 0.27, 0.6809999999999999],
-              [0.6080000000000001, 0.23200000000000004, 0.49100000000000005, 0.455, 0.414]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [
-              [0.01, 0.11, 0.39, 0.68, 0.14],
-              [0.11, 0.23, 0.76, 0.15, 0.74],
-              [0.66, 0.14, 0.54, 0.45, 0.41]
-            ],
-            "weights": [[0, 1, 0]]
-          },
-          "expect": {
-            "out": [
-              [0.01, 0.11, 0.39, 0.68, 0.14],
-              [0.11, 0.23, 0.76, 0.15, 0.74],
-              [0.66, 0.14, 0.54, 0.45, 0.41]
-            ]
-          }
+          "zh": "想看清它对每个邻居做了什么，就让只有一格是亮的。",
+          "en": "To see what it does with each neighbour, light just one cell."
         }
       ],
-      "hidden": [
+      "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]],
+      "questions": [
         {
-          "inputs": {
-            "photo": [
-              [0.38, 0.23, 0.17, 0.91],
-              [0.58, 0.69, 0.55, 0.38],
-              [0.73, 0.58, 0.78, 0.66],
-              [0.84, 0.44, 0.16, 0.15]
-            ],
-            "weights": [[0.6, 0.3, 0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.365, 0.314, 0.28, 0.466],
-              [0.591, 0.61, 0.617, 0.482],
-              [0.7150000000000001, 0.69, 0.6479999999999999, 0.732],
-              [0.8, 0.652, 0.327, 0.15600000000000003]
-            ]
-          }
+          "title": { "zh": "它的核是哪一种？", "en": "Which kernel is it?" },
+          "options": [
+            {
+              "id": "even",
+              "label": { "zh": "九格一样重", "en": "All nine the same" },
+              "kernel": [
+                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+              ]
+            },
+            {
+              "id": "centre",
+              "label": { "zh": "中间重，越往外越轻", "en": "Centre heaviest, lighter outwards" },
+              "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]]
+            },
+            {
+              "id": "row",
+              "label": { "zh": "只看左右", "en": "Left and right only" },
+              "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
+            }
+          ],
+          "answer": "centre"
         }
-      ],
-      "solution": [
-        "r = shift[axis=x,by=forward](photo)",
-        "l = shift[axis=x,by=backward](photo)",
-        "w = split3(weights)",
-        "a = arithmetic[op=mul](r,w.first)",
-        "b = arithmetic[op=mul](photo,w.centre)",
-        "c = arithmetic[op=mul](l,w.last)",
-        "s1 = arithmetic[op=add](a,b)",
-        "s2 = arithmetic[op=add](s1,c)",
-        "out <- s2"
-      ],
-      "naive": [
-        "r = shift[axis=x,by=forward](photo)",
-        "l = shift[axis=x,by=backward](photo)",
-        "s1 = arithmetic[op=add](photo,r)",
-        "s2 = arithmetic[op=add](s1,l)",
-        "three = const[value=3]()",
-        "m = arithmetic[op=div](s2,three)",
-        "out <- m"
-      ],
-      "naiveWhy": {
-        "zh": "三格还是一样重：权重没有用上。",
-        "en": "The three cells still weigh the same: the weights go unused."
-      }
+      ]
     }
   ]
 }

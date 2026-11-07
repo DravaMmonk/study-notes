@@ -1,153 +1,119 @@
 {
-  "title": { "zh": "黑框", "en": "Black frame" },
+  "title": { "zh": "边缘图", "en": "Edge map" },
   "intro": [
     {
       "t": {
-        "zh": "一块别人搭的去噪电路，输出四周一圈发黑。图的边上，滤波器要读的邻居有一些在图外。",
-        "en": "Someone else’s denoising circuit leaves a dark band round the edge of every output. At the edge, some of the neighbours the filter reads lie outside the picture."
+        "zh": "强弱是一张深浅不一的图；要的是一句话：这一格是不是边。",
+        "en": "Strength is an image of many shades; what is wanted is a yes or no: is this cell an edge?"
       }
     }
   ],
   "after": {
-    "zh": "图外没有观测，滤波器只能假设那里是什么：补 0、延续边缘、循环、镜像，各是一种<wiki-ref to=\"border\"></wiki-ref>。对不对，看图外实际是什么。",
-    "en": "Nothing was observed outside the picture, so the filter can only assume what is there: zero, the edge continued, wrapped around, or mirrored, each a <wiki-ref to=\"border\"></wiki-ref>. Which is right depends on what really lies outside."
+    "zh": "强弱过了门槛就算边：这张只有 0 和 1 的图叫<wiki-ref to=\"edge-map\"></wiki-ref>。门槛低了噪点也算边，高了弱的边会断。",
+    "en": "Strong enough counts as an edge: this image of only 0 and 1 is an <wiki-ref to=\"edge-map\"></wiki-ref>. Too low a threshold lets noise in; too high breaks the weak edges."
+  },
+  "tray": "main",
+  "builds": {
+    "type": "edges",
+    "name": { "zh": "边缘检测器", "en": "Edge detector" },
+    "desc": {
+      "zh": "强弱超过门槛的格子标 1，其余标 0。",
+      "en": "1 where the edge strength exceeds the threshold, 0 elsewhere."
+    }
   },
   "tasks": [
     {
-      "id": "paper",
+      "id": "edges",
       "kind": "circuit",
-      "step": { "zh": "单据", "en": "A document" },
       "brief": {
-        "zh": "单据四周是同样的纸。去掉黑框。",
-        "en": "The document is surrounded by more of the same paper. Remove the dark band."
+        "zh": "边的强弱超过「门槛」的格子标 1，其余标 0。",
+        "en": "Mark 1 where the edge strength exceeds “threshold”, 0 elsewhere."
       },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [
-        { "name": "out", "label": { "zh": "去噪", "en": "Denoised" } }
+      "adds": ["less"],
+      "inputs": [
+        { "name": "photo", "label": { "zh": "图", "en": "Image" } },
+        { "name": "threshold", "label": { "zh": "门槛", "en": "Threshold" } }
       ],
-      "starter": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
+      "outputs": [{ "name": "edges", "label": { "zh": "边缘图", "en": "Edge map" } }],
       "tests": [
         {
           "inputs": {
             "photo": [
-              [0.15, 0.15, 0.15, 0.15, 0.15, 0.15],
-              [0.15, 0.85, 0.85, 0.85, 0.85, 0.15],
-              [0.15, 0.85, 0.3, 0.3, 0.85, 0.15],
-              [0.15, 0.85, 0.85, 0.85, 0.85, 0.15],
-              [0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
-            ]
+              [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
+              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8, 0.2],
+              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8, 0.2],
+              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8, 0.2],
+              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8, 0.2],
+              [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+            ],
+            "threshold": 1
           },
           "expect": {
-            "out": [
-              [
-                0.22777777777777777,
-                0.3055555555555555,
-                0.3833333333333333,
-                0.3833333333333333,
-                0.3055555555555555,
-                0.22777777777777777
-              ],
-              [
-                0.3055555555555555,
-                0.39999999999999997,
-                0.4944444444444444,
-                0.4944444444444444,
-                0.39999999999999997,
-                0.3055555555555555
-              ],
-              [
-                0.3833333333333333,
-                0.5555555555555556,
-                0.7277777777777777,
-                0.7277777777777777,
-                0.5555555555555556,
-                0.3833333333333333
-              ],
-              [
-                0.3055555555555555,
-                0.39999999999999997,
-                0.4944444444444444,
-                0.4944444444444444,
-                0.39999999999999997,
-                0.3055555555555555
-              ],
-              [
-                0.22777777777777777,
-                0.3055555555555555,
-                0.3833333333333333,
-                0.3833333333333333,
-                0.3055555555555555,
-                0.22777777777777777
-              ]
+            "edges": [
+              [0, 0, 1, 1, 1, 1, 0],
+              [0, 1, 1, 1, 1, 1, 1],
+              [0, 1, 1, 0, 0, 1, 1],
+              [0, 1, 1, 0, 0, 1, 1],
+              [0, 1, 1, 1, 1, 1, 1],
+              [0, 0, 1, 1, 1, 1, 0]
             ]
           }
-        }
-      ],
-      "hidden": [],
-      "solution": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=clamp](photo,k)",
-        "out <- f"
-      ],
-      "naive": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
-      "naiveWhy": {
-        "zh": "图外取 0，等于假设纸外面是黑的。",
-        "en": "Reading zero outside assumes the paper is black beyond the edge."
-      },
-      "configurations": { "*.outside": ["zero", "clamp", "wrap", "reflect"] }
-    },
-    {
-      "id": "tiles",
-      "kind": "circuit",
-      "step": { "zh": "花砖", "en": "Tiles" },
-      "brief": {
-        "zh": "地砖的花纹一块块重复，照片正好拍下一整块。让边上和中间一样。",
-        "en": "The floor tiles repeat block after block, and the photo holds exactly one block. Make the edge match the middle."
-      },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [{ "name": "out", "label": { "zh": "去噪", "en": "Denoised" } }],
-      "starter": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
-      "tests": [
+        },
         {
           "inputs": {
-            "photo": [[0.2, 0.8, 0.5, 0.8], [0.8, 0.2, 0.8, 0.5], [0.5, 0.8, 0.2, 0.8], [0.8, 0.5, 0.8, 0.2]]
+            "photo": [
+              [0.2, 0.21, 0.24, 0.2, 0.2, 0.21, 0.17],
+              [0.2, 0.81, 0.83, 0.16, 0.18, 0.16, 0.23],
+              [0.22, 0.75, 0.85, 0.25, 0.22, 0.21, 0.17],
+              [0.15, 0.8, 0.76, 0.17, 0.47, 0.45, 0.2],
+              [0.19, 0.83, 0.8, 0.21, 0.2, 0.22, 0.2],
+              [0.18, 0.25, 0.25, 0.23, 0.22, 0.18, 0.17]
+            ],
+            "threshold": 1.5
           },
           "expect": {
-            "out": [
-              [0.5333333333333333, 0.6, 0.5666666666666667, 0.6],
-              [0.6, 0.5333333333333333, 0.6, 0.5666666666666667],
-              [0.5666666666666667, 0.6, 0.5333333333333333, 0.6],
-              [0.6, 0.5666666666666667, 0.6, 0.5333333333333333]
+            "edges": [
+              [0, 1, 1, 0, 0, 0, 0],
+              [1, 1, 1, 1, 0, 0, 0],
+              [1, 1, 1, 1, 0, 0, 0],
+              [1, 1, 1, 1, 0, 0, 0],
+              [1, 1, 1, 1, 0, 0, 0],
+              [0, 1, 1, 0, 0, 0, 0]
             ]
           }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7]
+            ],
+            "threshold": 1
+          },
+          "expect": { "edges": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]] }
         }
       ],
-      "hidden": [],
-      "solution": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=wrap](photo,k)",
-        "out <- f"
-      ],
-      "naive": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
+      "solution": ["g = gradient(photo)", "m = magnitude(g.dx,g.dy)", "e = less(threshold,m)", "edges <- e"],
+      "naive": ["g = gradient(photo)", "e = less(threshold,g.dx)", "edges <- e"],
       "naiveWhy": {
-        "zh": "花纹是重复的：图外接着的是另一边。",
-        "en": "The pattern repeats: beyond one edge comes the other side."
+        "zh": "只看了横向变化：上下方向的边和变暗的边都丢了。",
+        "en": "Only the change across: edges running sideways, and darkening edges, are lost."
+      },
+      "sample": {
+        "inputs": {
+          "photo": {
+            "size": [40, 30],
+            "base": 0.2,
+            "layers": [
+              { "shape": "rect", "x": 4, "y": 4, "w": 16, "h": 18, "v": 0.8 },
+              { "shape": "disc", "cx": 28.799999999999997, "cy": 15, "r": 7.5, "v": 0.6 }
+            ],
+            "noise": { "seed": 4, "amp": 0.05 }
+          },
+          "threshold": 1
+        }
       }
     }
   ]

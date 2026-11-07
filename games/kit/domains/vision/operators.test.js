@@ -30,6 +30,13 @@ test('asymmetric impulse responses expose kernel orientation while symmetric ker
   assert.throws(() => filterImage(source, img([[1, 1]])))
 })
 
+test('a filter reads outside the picture by each boundary assumption', () => {
+  const source = img([[1, 2, 4]]), left = img([[1, 0, 0]])
+  const at = (outside) => rows(PARTS.filter.eval({ image: source, kernel: left }, { params: { outside } }))[0][0]
+  assert.deepEqual(['zero', 'clamp', 'wrap', 'reflect'].map(at), [0, 1, 4, 1])
+  assert.throws(() => filterImage(source, left, { outside: 'error' }))
+})
+
 test('neighbourhood axes and boundaries change the intended spatial assumption', () => {
   const source = img([[0, 0, 0], [1, 1, 1], [0, 0, 0]])
   const stencil = (params) => PARTS.stencil.eval({ image: source }, { params })
