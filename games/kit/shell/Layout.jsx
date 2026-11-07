@@ -114,7 +114,7 @@ function TaskSteps({ steps }) {
     <ol className="task-steps">
       {steps.names.map((name, k) => {
         const done = steps.passed[k]
-        const open = edit || done || k === 0 || steps.passed[k - 1]
+        const open = edit || steps.open[k]
         return (
           <li key={k}>
             <button type="button" {...(k === steps.at ? mark('step') : {})} className={`${k === steps.at ? 'is-on' : ''} ${done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>

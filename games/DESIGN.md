@@ -883,6 +883,10 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 ### 6.10 界面
 
+**Unlock all.** The progress dialog offers a one-way action that opens all levels, tasks, parts and encyclopedia
+entries without marking any task passed. Clearing play progress retains this choice. A level is complete only
+when every task has passed, even if tasks are played out of order.
+
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 
 **Mathematical text.** Shared markup accepts `\( … \)` for inline LaTeX and `\[ … \]` for display

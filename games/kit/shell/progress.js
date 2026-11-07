@@ -61,6 +61,9 @@ export const taskKey = (level, k = 0) => level.tasks[k].key
 /** Whether task k of level `id` is passed (all of them once it is solved). */
 export const taskPassed = (game, p, id, k) => p.solved.includes(id) || p.passed.includes(taskKey(game.byId[id], k))
 
+/** Opening tasks is separate from completing them. */
+export const taskOpen = (game, p, id, k) => Boolean(p.all || k === 0 || taskPassed(game, p, id, k) || taskPassed(game, p, id, k - 1))
+
 /** The task a level opens at: the first not yet passed (the last, once all are). */
 export function firstTask(game, p, id) {
   const n = game.byId[id].tasks.length
@@ -87,21 +90,17 @@ function kept(p, level, taskAt) {
   return { ...p.built, [key]: board }
 }
 
-/**
- * Progress once task `taskAt` of `level` passes with what the screen saved for it: a task before the last counts as
- * passed; the last solves the level and unlocks what it unlocks. `score` is kept when the
- * game finds it better than the best so far.
- */
+/** Record the task and its board; solve the level once every task has actually passed. */
 export function passed(game, p, level, taskAt, score = null) {
   const built = kept(p, level, taskAt)
-  const now = { ...p, built, passed: [...new Set([...p.passed, taskKey(level, taskAt)])] }
-  if (taskAt < level.tasks.length - 1) return now
-  const best = p.best[level.id]
+  const best = taskAt === level.tasks.length - 1 && score && game.better(score, p.best[level.id])
+    ? { ...p.best, [level.id]: score } : p.best
+  const now = { ...p, built, best, passed: [...new Set([...p.passed, taskKey(level, taskAt)])] }
+  if (!level.tasks.every((_, k) => taskPassed(game, now, level.id, k))) return now
   return {
     ...now,
     solved: [...new Set([...p.solved, level.id])],
     flags: [...new Set([...p.flags, ...(level.unlocks ?? [])])],
-    best: score && game.better(score, best) ? { ...p.best, [level.id]: score } : p.best,
   }
 }
 

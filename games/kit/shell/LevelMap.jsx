@@ -5,7 +5,7 @@ import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } 
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 
-// The level map: a hero (the game's kicker, title, lede and illustration), progress, the unlock-all switch and a
+// The level map: a hero (the game's kicker, title, lede and illustration), progress, the unlock-all action and a
 // "continue" button, then each chapter's level tree, as in Turing Complete: levels are buttons joined by wires. A
 // chapter's `track` (games/kit/course.js layout) gives the tree: the main path runs down the middle, a set of required
 // branches stands side by side and joins again, and optional topics and challenges (dashed) branch off to either side
@@ -453,12 +453,14 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
     <div className="dialog-scrim" onClick={onClose}>
       <div className="dialog progress-dialog" role="dialog" aria-modal="true" aria-label={tr('进度', 'Progress')} onClick={(event) => event.stopPropagation()}>
         <h2>{tr('进度', 'Progress')}</h2>
-        <label className="map-all">
-          <input type="checkbox" checked={Boolean(progress.all)} onChange={(event) => onAll(event.target.checked)} />
-          <span className="map-all-switch" aria-hidden="true"><i /></span>
-          {progress.all ? <LockOpen size={14} /> : <Lock size={14} />}
-          <span>{tr('全部解锁', 'Unlock all')}<small>{progress.all ? tr('所有关卡均可直接进入，元件箱和百科全部开放；进度照常记录', 'Every level can be entered directly, and the components box and encyclopedia are fully open; progress is still recorded') : tr('开启后无须按顺序，所有关卡均可直接进入，元件箱和百科全部开放', 'When on, levels can be played in any order, and the components box and encyclopedia are fully open')}</small></span>
-        </label>
+        <div className="map-all">
+          {progress.all
+            ? <strong role="status"><LockOpen size={14} />{tr('已全部解锁', 'All unlocked')}</strong>
+            : <button type="button" className="kit-btn is-label" onClick={onAll}><Lock size={14} />{tr('全部解锁', 'Unlock all')}</button>}
+          <small>{progress.all
+            ? tr('所有关卡、任务、元件和百科均已开放，进度照常记录。', 'All levels, tasks, parts and encyclopedia entries are open. Progress is still recorded.')
+            : tr('开放所有关卡、任务、元件和百科。开启后不能关闭。', 'Open all levels, tasks, parts and encyclopedia entries. This cannot be turned off.')}</small>
+        </div>
         <div className="progress-clear">
           <p>{tr('清空后，这台设备上已通过的关卡、搭建的电路和获得的元件将全部删除，无法恢复。', 'Clearing permanently removes the levels passed, the circuits built and the components earned from this device.')}</p>
           <button

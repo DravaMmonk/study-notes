@@ -11,7 +11,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskPassed } from './progress.js'
+import { firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
@@ -163,18 +163,19 @@ export default function GameShell({ game, store, author = null }) {
     setFailure(null)
     setFails(0)
   }
-  const played = level && { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), go: goTask } }
+  const played = level && { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), open: tasks.map((_, k) => taskOpen(game, progress, level.id, k)), go: goTask } }
   // A task that goes on from the one before (`carries`) opens on that task's board until it has one of its own.
   const key = level ? taskKey(level, taskAt) : null
   const kept = () => progress.data[key] ?? (tasks[taskAt].carries && taskAt > 0 ? progress.data[taskKey(level, taskAt - 1)] : undefined)
 
   // What a level screen can do to the shell.
   const save = (data) => setProgress((p) => savedAt(p, level, taskAt, data))
-  // Passing keeps the board a part runs from now on (progress.js passed); a task before the last only counts as passed.
+  // Keep each passed board; out-of-order play can finish a level on any task.
   const solve = (score) => {
     setProgress((p) => passed(game, p, level, taskAt, score))
     setFailure(null)
-    if (taskAt < tasks.length - 1) setTaskWon(taskAt)
+    const next = tasks.findIndex((_, k) => k !== taskAt && !isPassed(k))
+    if (next >= 0) setTaskWon({ index: taskAt, next })
     else setWon(level.id)
   }
   const fail = (info) => {
@@ -321,10 +322,10 @@ export default function GameShell({ game, store, author = null }) {
             game={game}
             progress={progress}
             solved={solved}
-            onAll={(all) => setProgress((p) => ({ ...p, all }))}
+            onAll={() => setProgress((p) => ({ ...p, all: true }))}
             onOpen={open}
             focus={left}
-            onReset={() => setProgress(store.blank())}
+            onReset={() => setProgress((p) => ({ ...store.blank(), all: p.all }))}
             onParts={game.parts && (() => setSheet('parts'))}
             partsNew={box.unread.length}
             onWiki={game.glossary && (() => setSheet('wiki'))}
@@ -373,7 +374,7 @@ export default function GameShell({ game, store, author = null }) {
           </EditContext.Provider>
         )}
         {taskWon !== null && (
-          <TaskDoneDialog game={game} level={level} task={tasks[taskWon]} index={taskWon} next={tasks[taskWon + 1]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon + 1)} />
+          <TaskDoneDialog game={game} level={level} task={tasks[taskWon.index]} index={taskWon.index} next={tasks[taskWon.next]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon.next)} />
         )}
         {won && level && won === level.id && (
           <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
