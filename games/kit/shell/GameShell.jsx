@@ -134,11 +134,11 @@ export default function GameShell({ game, store, author = null }) {
   // How each board of the level played last ran ('<task>#<slot no>' → its screen's mark): kept while the level is
   // open, from task to task and slot to slot, and gone once it is left.
   const [runs, setRuns] = useState({})
-  const open = (id) => {
+  const open = (id, task) => {
     if (!id) setLeft(levelId)
     setRuns({})
     setLevelId(id)
-    setTaskAt(id && game.byId[id] ? firstTask(id) : 0)
+    setTaskAt(id && game.byId[id] ? task ?? firstTask(id) : 0)
     setTaskWon(null)
     setWon(null)
     setFailure(null)
@@ -199,8 +199,8 @@ export default function GameShell({ game, store, author = null }) {
     const it = kind === 'part' ? partOf(id) : entryOf(id)
     return it ? { title: L(kind === 'part' ? it.name : it.title) } : null
   }
-  const refOpen = (kind, id) => {
-    if (kind === 'level') return game.byId[id] && setGoTo(id)
+  const refOpen = (kind, id, task) => {
+    if (kind === 'level') return game.byId[id] && setGoTo({ id, task })
     const it = kind === 'part' ? partOf(id) : entryOf(id)
     if (!it) return
     const open = kind === 'part' ? box.earned.has(id) : wiki.isOpen(it)
@@ -212,13 +212,14 @@ export default function GameShell({ game, store, author = null }) {
     setSheet(kind === 'part' ? 'parts' : 'wiki')
   }
   useEffect(() => setRefs({ name: refName, open: refOpen }))
-  const target = goTo && game.byId[goTo]
+  const target = goTo && game.byId[goTo.id]
+  const atTarget = target?.id === level?.id && (goTo?.task === undefined || goTo.task === taskAt)
   const go = () => {
     setGoTo(null)
     setSheet(null)
     setIntroFor(null)
     setDrawer(false)
-    open(target.id)
+    open(target.id, goTo.task)
   }
 
   // The task's saved boards. Choosing another starts the screen over on it, with nothing left of the last run.
@@ -387,7 +388,7 @@ export default function GameShell({ game, store, author = null }) {
         {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
         {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。', 'Unlocked by passing this level.') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。', 'Unlocks later in the game.')]} actions={[[tr('确定', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
         {target && (game.isOpen(target, solved, progress.all)
-          ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[target.id === level?.id ? tr('你正在这一关。', 'You are on this level.') : tr('这一关的电路和进度都会保存，可以随时返回。', 'This level’s board and progress are kept; you can return at any time.')]} actions={target.id === level?.id ? [[tr('确定', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
+          ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[atTarget ? tr('你正在这里。', 'You are already here.') : tr('这一关的电路和进度都会保存，可以随时返回。', 'This level’s board and progress are kept; you can return at any time.')]} actions={atTarget ? [[tr('确定', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
           : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」尚未解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('请先通过它的前置关卡。', 'Pass the levels that lead to it first.')]} actions={[[tr('确定', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
         {game.power && !progress.seenPower && (
           <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />

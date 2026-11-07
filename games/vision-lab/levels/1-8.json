@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "继续 <level-ref to=\"1-7\"></level-ref> 的双轴响应电路，先接出长度，再在两个分量上增加垂直方向平滑。直接修改已有路径，通关后更新同一个邻域处理器。",
-        "en": "Continue the two signed-response paths from <level-ref to=\"1-7\"></level-ref>. Add their length, then perpendicular smoothing. Extend the existing paths; passing updates the same spatial processor."
-      }
-    },
-    {
-      "t": {
-        "zh": "单纯差分也会响应细碎干扰。三点加权器可以沿另一条轴汇合读数；将它接到已有的双轴差分路径，再把两种方向统一到强度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
-        "en": "Raw differences also respond to fine nuisance. Extend the existing derivative paths with weighted-line smoothing along the other axis, then combine both directional responses into a strength measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+        "zh": "为每条差分支路加入垂直于求导方向的平滑，再用两条响应的向量长度衡量边缘。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
+        "en": "Smooth perpendicular to each derivative direction, then measure the edge using the length of the two responses. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
       }
     }
   ],
@@ -28,8 +22,8 @@
       },
       "stage": { "zh": "梯度强度", "en": "Gradient strength" },
       "brief": {
-        "zh": "保留差分器给出的两个带符号分量，并输出它们作为垂直方向分量时的长度。长度只表示变化有多强，不能被正负抵消。 三点加权器的方向输入用 (dx,dy)=(1,0) 表示横向，(0,1) 表示纵向。",
-        "en": "Retain both signed derivative components and output their length as perpendicular components. Strength measures change size without cancellation. For the weighted line direction inputs use (dx,dy)=(1,0) horizontally and (0,1) vertically."
+        "zh": "合并两条有符号响应，输出它们的向量长度。",
+        "en": "Combine the two signed responses into their vector length."
       },
       "after": {
         "zh": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx、gy 是互相垂直的变化分量。它们构成一个二维向量，M 是长度；长度不受分量符号影响，而 gx+gy 可能把强变化相互抵消。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
@@ -37,7 +31,8 @@
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } }
+        { "name": "dx", "label": { "zh": "横向差分核", "en": "Horizontal derivative" } },
+        { "name": "dy", "label": { "zh": "纵向差分核", "en": "Vertical derivative" } }
       ],
       "outputs": [
         { "name": "gx", "label": { "zh": "横向响应", "en": "Horizontal response" } },
@@ -55,7 +50,8 @@
                 1
               ]
             ],
-            "kernel": [[-1, 0, 1]]
+            "dx": [[-1, 0, 1]],
+            "dy": [[-1], [0], [1]]
           },
           "expect": {
             "gx": [
@@ -83,7 +79,8 @@
               [0.2, 0.7],
               [0.9, 0.4]
             ],
-            "kernel": [[-1, 0, 1]]
+            "dx": [[-1, 0, 1]],
+            "dy": [[-1], [0], [1]]
           },
           "expect": {
             "gx": [
@@ -106,32 +103,16 @@
       ],
       "hidden": [],
       "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "kY = reverse(kernel)",
-        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
-        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
-        "summedY = reduceRows[mode=sum](weightedY)",
-        "vY = restore(summedY,image)",
+        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
+        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
         "m = magnitude(v,vY)",
         "gx <- v",
         "gy <- vY",
         "strength <- m"
       ],
       "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "kY = reverse(kernel)",
-        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
-        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
-        "summedY = reduceRows[mode=sum](weightedY)",
-        "vY = restore(summedY,image)",
+        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
+        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
         "m = arithmetic[op=add](v,vY)",
         "gx <- v",
         "gy <- vY",
@@ -141,20 +122,6 @@
         "zh": "同时看两个方向都有变化的位置，以及符号相反的位置。保留分量是为了区分方向，长度负责合并强度。",
         "en": "Inspect locations changing in both directions and with opposite signs. Components retain direction; length combines strength."
       },
-      "intro": [
-        {
-          "t": {
-            "zh": "差分器分别测出横向和纵向变化。两分量有正负号，直接相加会互相抵消；向量长度元件自动计算平方和与平方根。先建立强度测量，再处理干扰。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
-            "en": "The derivative measures horizontal and vertical change separately. Signed components can cancel in a sum; the length component supplies the squared sum and square root. Establish strength before suppressing nuisance. <wiki-ref to=\"gradient-components\"></wiki-ref>"
-          }
-        }
-      ],
-      "hint": [
-        {
-          "zh": "同时看两个方向都有变化的位置，以及符号相反的位置。保留分量是为了区分方向，长度负责合并强度。",
-          "en": "Inspect locations changing in both directions and with opposite signs. Components retain direction; length combines strength."
-        }
-      ],
       "adds": ["magnitude"],
       "carry": "1-7",
       "sample": {
@@ -181,20 +148,13 @@
       },
       "stage": { "zh": "垂直平滑", "en": "Perpendicular smoothing" },
       "brief": {
-        "zh": "将差分响应沿垂直于求导的方向用 [1,2,1] 平滑，得到 Sobel gx、gy，再输出两分量的长度。保留带符号分量。 预设电路中的常数元件提供两个方向和 [前,中,后]=[1,2,1] 平滑权重。",
-        "en": "Smooth each derivative in its perpendicular direction with [1,2,1] to obtain Sobel gx and gy, then output their length. Retain signed components. Starter constants supply the two directions and smoothing weights [first,centre,last]=[1,2,1]."
+        "zh": "把差分和垂直于它的平滑组合成 Sobel 核，选择可分离形态，再取两轴响应的长度。",
+        "en": "Use the separable form to combine each derivative with perpendicular smoothing, then take the response length."
       },
-      "intro": [
-        {
-          "t": {
-            "zh": "强度测量已经能合并两方向，但差分仍会响应细碎干扰。现在引入垂直于求导方向的平滑，让方向分量先更稳定，再送入已验证的长度测量。 <wiki-ref to=\"sobel-measurement\"></wiki-ref> 常数元件在这里解锁“三项权重”，按前、中、后填写 [1,2,1]；方向和这组固定权重已放在预设电路中。",
-            "en": "The strength measurement combines both directions, but raw derivatives still respond to fine nuisance. Stabilise each derivative by smoothing perpendicular to its direction before the verified length measurement. <wiki-ref to=\"sobel-measurement\"></wiki-ref> The constant now supports three weights in first/centre/last order. The starter includes [1,2,1] and the direction constants."
-          }
-        }
-      ],
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "数学差分核", "en": "Derivative kernel" } }
+        { "name": "dx", "label": { "zh": "横向差分核", "en": "Horizontal derivative" } },
+        { "name": "dy", "label": { "zh": "纵向差分核", "en": "Vertical derivative" } }
       ],
       "outputs": [
         { "name": "gx", "label": { "zh": "Sobel gx", "en": "Sobel gx" } },
@@ -222,7 +182,8 @@
                 0.8500000000000001
               ]
             ],
-            "kernel": [[1, 0, -1]]
+            "dx": [[1, 0, -1]],
+            "dy": [[1], [0], [-1]]
           },
           "expect": {
             "gx": [
@@ -271,7 +232,8 @@
               [0.2, 0.2, 0.2],
               [0.30000000000000004, 0.30000000000000004, 0.30000000000000004]
             ],
-            "kernel": [[1, 0, -1]]
+            "dx": [[1, 0, -1]],
+            "dy": [[1], [0], [-1]]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -292,7 +254,8 @@
         {
           "inputs": {
             "image": [[0.8, 0.4, 0.1], [0.7, 0.3, 0]],
-            "kernel": [[1, 0, -1]]
+            "dx": [[1, 0, -1]],
+            "dy": [[1], [0], [-1]]
           },
           "expect": {
             "gx": [[-1.6, -2.8, -1.2000000000000002], [-1.5999999999999999, -2.8, -1.2]],
@@ -311,7 +274,8 @@
         {
           "inputs": {
             "image": [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]],
-            "kernel": [[1, 0, -1]]
+            "dx": [[1, 0, -1]],
+            "dy": [[1], [0], [-1]]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -321,65 +285,29 @@
         }
       ],
       "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "kY = reverse(kernel)",
-        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
-        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
-        "summedY = reduceRows[mode=sum](weightedY)",
-        "vY = restore(summedY,image)",
-        "horizontal = const[kind=direction,x=1,y=0]()",
-        "vertical = const[kind=direction,x=0,y=1]()",
-        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
-        "x = weightedLine[outside=clamp](v,sobelWeights,vertical)",
-        "y = weightedLine[outside=clamp](vY,sobelWeights,horizontal)",
-        "m = magnitude(x,y)",
-        "gx <- x",
-        "gy <- y",
+        "sx = const[kind=weights,first=1,centre=2,last=1]()",
+        "sy = transpose(sx)",
+        "v = spatialProcessor[form=separable,outside=clamp](image,dx,sy)",
+        "vY = spatialProcessor[form=separable,outside=clamp](image,sx,dy)",
+        "m = magnitude(v,vY)",
+        "gx <- v",
+        "gy <- vY",
         "strength <- m"
       ],
       "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "kY = reverse(kernel)",
-        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
-        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
-        "summedY = reduceRows[mode=sum](weightedY)",
-        "vY = restore(summedY,image)",
-        "horizontal = const[kind=direction,x=1,y=0]()",
-        "vertical = const[kind=direction,x=0,y=1]()",
-        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()",
-        "x = weightedLine[outside=clamp](v,sobelWeights,horizontal)",
-        "y = weightedLine[outside=clamp](vY,sobelWeights,vertical)",
-        "m = magnitude(x,y)",
-        "gx <- x",
-        "gy <- y",
+        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
+        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
+        "m = magnitude(v,vY)",
+        "gx <- v",
+        "gy <- vY",
         "strength <- m"
-      ],
-      "starter": [
-        "horizontal = const[kind=direction,x=1,y=0]()",
-        "vertical = const[kind=direction,x=0,y=1]()",
-        "sobelWeights = const[kind=weights,first=1,centre=2,last=1]()"
       ],
       "naiveWhy": {
         "zh": "Sobel 在求导的垂直方向平滑。沿求导方向再次平滑会改变你要测量的响应。",
         "en": "Sobel smooths perpendicular to differentiation. Smoothing along the derivative axis changes the intended measurement."
       },
-      "hint": [
-        {
-          "zh": "把求导轴和去干扰轴分开考虑。长度元件已经提供平方、相加和开方，不要求你手算。",
-          "en": "Separate the derivative axis from the smoothing axis. Vector length supplies squaring, addition and square root."
-        }
-      ],
       "adds": [],
       "carries": true,
-      "configurations": { "const.kind": ["weights"] },
       "sample": {
         "inputs": {
           "image": {
@@ -393,15 +321,9 @@
             "noise": { "seed": 17, "amp": 0.04 }
           }
         }
-      }
+      },
+      "configurations": { "const.kind": ["weights"] },
+      "starter": ["sx = const[kind=weights,first=1,centre=2,last=1]()", "sy = transpose(sx)"]
     }
-  ],
-  "builds": {
-    "type": "spatialProcessor",
-    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
-    "desc": {
-      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
-      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
-    }
-  }
+  ]
 }

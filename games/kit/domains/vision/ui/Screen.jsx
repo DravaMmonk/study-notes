@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import { tr } from '../../../shell/i18n.js'
+
 import { ArrowRightFromLine } from 'lucide-react'
 import CircuitScreen from '../../../shell/CircuitScreen.jsx'
 import SettingField, { valueWords } from '../../../shell/parts/SettingField.jsx'
@@ -52,7 +54,10 @@ export default function Screen(screen) {
       says={(r) => r.fail?.why}
       show={written}
       entries={entries}
-      figure={({ test }) => test && task.illustration === 'pinhole' && <ProjectionCase test={test} tests={task.tests} phone={phone} />}
+      figure={({ test, run }) => test && <>
+        {task.illustration === 'pinhole' && <ProjectionCase test={test} tests={task.tests} phone={phone} />}
+        {task.multiplyBudget && run && <p className="rv-verdict">{tr(`${run.work.multiplies} 次乘法`, `${run.work.multiplies} multiplications`)}</p>}
+      </>}
       sample={(level, board) => onSample(level, board, own.partOf)}
       ready={(board, held) => taskBoard(board, held, settingsIn, own.partOf)}
       settings={settings}

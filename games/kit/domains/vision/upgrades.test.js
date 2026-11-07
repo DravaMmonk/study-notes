@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { visionCourse } from './course.js'
 import { game, level, circuit, builds } from './fixture.js'
-import { runLevel } from './run.js'
+import { readTest, runLevel } from './run.js'
 
 const content = () => game({ levels: [
   level('base', circuit('double', { inputs: ['a'], adds: ['arithmetic', 'const'], solution: ['p = arithmetic[op=add](a,a)', 'out <- p'] }), { builds: builds('processor') }),
@@ -11,7 +11,7 @@ const content = () => game({ levels: [
 ] })
 const task = (v, id) => v.played.get(id).at(-1)
 const call = (v, type, inputs, outputs) => {
-  const t = circuit('call', { inputs: Object.keys(inputs), outputs: Object.keys(outputs), tests: [{ inputs, expect: outputs }] })
+  const t = circuit('call', { inputs: Object.keys(inputs), outputs: Object.keys(outputs), tests: [readTest({ inputs, expect: outputs })] })
   const result = v.board.fromText([`p = ${type}(${Object.keys(inputs).join(',')})`, ...Object.keys(outputs).map((o) => `${o} <- ${Object.keys(outputs).length > 1 ? `p.${o}` : 'p'}`)], t, v)
   return runLevel(t, result, v.partOf)
 }
@@ -69,4 +69,42 @@ test('a consumer between revisions reads and round-trips the interface available
   const bp = v.blueprints.find((b) => b.key === 'oldCall')
   assert.deepEqual(bp.write(bp.read(bp.write(bp.board))), bp.write(bp.board))
   assert.deepEqual(v.forTask(task(v, 'earlierUse')).partOf('processor').inputs, ['a'])
+})
+
+test('formed assemblies execute and open the selected passed task, with its own work count', () => {
+  const c = game({ levels: [
+    level('dense', circuit('denseBoard', {
+      inputs: ['image', 'kernel'], adds: ['arithmetic'],
+      solution: ['p = arithmetic[op=mul](image,kernel)', 'out <- p'],
+    }), { builds: builds('processor', { form: 'dense' }) }),
+    level('separable', [
+      circuit('twoPassBoard', {
+        inputs: ['image', 'kx', 'ky'],
+        solution: ['x = arithmetic[op=mul](image,kx)', 'y = arithmetic[op=mul](x,ky)', 'out <- y'],
+      }),
+      circuit('useForms', {
+        inputs: ['image', 'kx', 'ky'],
+        solution: ['p = processor[form=separable](image,kx,ky)', 'out <- p'],
+      }),
+    ], { builds: builds('processor', { form: 'separable', task: 'twoPassBoard' }) }),
+  ] })
+  const v = visionCourse(c)
+  assert.deepEqual(v.wrong, [])
+  const dense = task(v, 'dense')
+  const [separable, consumer] = v.played.get('separable')
+  const here = v.forTask(consumer)
+  const custom = v.board.fromText(['sum = arithmetic[op=add](image,kx)', 'product = arithmetic[op=mul](sum,ky)', 'out <- product'], separable, v)
+  v.syncOwn({ denseBoard: dense.solution, twoPassBoard: custom })
+  assert.deepEqual(v.forTask(dense).partOf('processor').forms, ['dense'])
+  assert.equal(here.builtBy('processor', { form: 'separable' }), separable)
+  assert.deepEqual(here.partOf('processor').opens({ form: 'separable' }).circuit, custom)
+  assert.equal(here.partOf('processor').opens({ form: 'dense' }).level, dense)
+  assert.ok(here.offerIn(consumer, ['processor']).shown.includes('processor'))
+  assert.ok(!here.offerIn(separable, ['processor']).shown.includes('processor'))
+  const passed = call(here, 'processor[form=separable]', { image: [[2, 4]], kx: 3, ky: 2 }, { out: [[10, 14]] })
+  assert.equal(passed.pass, true)
+  assert.equal(passed.runs[0].work.multiplies, 2)
+  assert.equal(passed.runs[0].work.byPart.get('p'), 2)
+  assert.ok(!passed.runs[0].trace.some(step => step.path?.[0] === 'p' && step.id === 'x'))
+  assert.equal(call(here, 'processor[form=dense]', { image: [[2, 4]], kernel: 3 }, { out: [[6, 12]] }).pass, true)
 })

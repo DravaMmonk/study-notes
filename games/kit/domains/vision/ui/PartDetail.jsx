@@ -22,6 +22,7 @@ export function PartValues({ node, ctx }) {
   const a = inputs.find((p) => p.port === 'a')?.value
   const b = inputs.find((p) => p.port === 'b')?.value
   const symbol = {add:'+',sub:'−',mul:'×',div:'÷'}[node.type === 'arithmetic' ? node.params?.op ?? 'add' : node.type]
+  const work = ctx.view.work?.byPart.get(node.id)
   const arithmetic = Boolean(symbol) && a !== undefined && b !== undefined
   const operation = (node.type === 'add' || node.type === 'arithmetic' && (node.params?.op ?? 'add') === 'add') && a !== undefined && b !== undefined
   const real = outputs.find((o) => o.key === 're')?.value
@@ -30,7 +31,12 @@ export function PartValues({ node, ctx }) {
     const re = pixel(real,x,y), im = pixel(imaginary,x,y), magnitude = Math.hypot(re,im)
     return tr(`系数大小 ${fmt(magnitude)} · ${magnitude < 1e-12 ? '系数近零，暂不显示相位' : `相位 ${fmt(Math.atan2(im,re)/(2*Math.PI))} 周`}`, `Magnitude ${fmt(magnitude)} · ${magnitude < 1e-12 ? 'near-zero coefficient; phase omitted' : `phase ${fmt(Math.atan2(im,re)/(2*Math.PI))} turns`}`)
   } : undefined
-  return outputs.length > 0 && <section className="vi-detail-values" aria-label={tr('输出', 'Outputs')}>{outputs.map((out) => <DataValue key={out.key ?? 'value'} of={valueKey(ctx, parts.role(node) === 'sink' ? node.id : srcOf(node, out.key))} label={parts.role(node) === 'sink' ? tr('接收到的值','Received value') : node.type === 'grid' ? tr(`${out.key} 坐标图`, `${out.key} coordinate image`) : out.key === null ? tr('输出', 'Output') : L(out.label)} value={out.value} error={out.error}
+  const image = outputs[0]?.value
+  return outputs.length > 0 && <section className="vi-detail-values" aria-label={tr('输出', 'Outputs')}>
+    {node.type === 'spatialProcessor' && isImage(image) && <p className="vi-label">
+      {tr(`${image.w} × ${image.h} · ${work ?? 0} 次乘法`, `${image.w} × ${image.h} · ${work ?? 0} multiplications`)}
+    </p>}
+    {outputs.map((out) => <DataValue key={out.key ?? 'value'} of={valueKey(ctx, parts.role(node) === 'sink' ? node.id : srcOf(node, out.key))} label={parts.role(node) === 'sink' ? tr('接收到的值','Received value') : node.type === 'grid' ? tr(`${out.key} 坐标图`, `${out.key} coordinate image`) : out.key === null ? tr('输出', 'Output') : L(out.label)} value={out.value} error={out.error}
       explainPixel={operation ? (x, y) => `${text(sample(a, x, y))} + ${text(sample(b, x, y))} = ${text(pixel(out.value, x, y))}` : arithmetic ? (x,y)=>`${text(sample(a,x,y))} ${symbol} ${text(sample(b,x,y))} = ${text(pixel(out.value,x,y))}` : complexNote} />)}</section>
 }
 

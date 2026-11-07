@@ -189,7 +189,7 @@
         "r = arithmetic[op=mul](s.re,gain)",
         "i = arithmetic[op=mul](s.im,gain)",
         "v = synthesise2D(r,i)",
-        "base = convolve[outside=wrap](image,kernel)",
+        "base = spatialProcessor[form=dense,outside=wrap](image,kernel)",
         "out <- v.out",
         "imaginary <- v.imaginary",
         "local <- base",
@@ -198,7 +198,7 @@
       ],
       "naive": [
         "zero = const[value=0]()",
-        "base = convolve[outside=wrap](image,kernel)",
+        "base = spatialProcessor[form=dense,outside=wrap](image,kernel)",
         "z = arithmetic[op=mul](image,zero)",
         "out <- base",
         "imaginary <- z",

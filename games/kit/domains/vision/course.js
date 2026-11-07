@@ -17,7 +17,7 @@ import { OPS } from './ops.js'
 import { readTest } from './run.js'
 import { readSample } from './sample.js'
 import { configurationPolicy } from './configurations.js'
-import { fromRows, isVector } from './image.js'
+import { fromRows, isImage, isVector } from './image.js'
 import { askOf, gridCheck } from './grid.js'
 import { windowResult } from './filter-window.js'
 import { calculationResult } from './calculation.js'
@@ -27,6 +27,7 @@ import { benchOf } from './benches/index.js'
 
 /** A board task read: its groups of inputs, and its sample. */
 function readBoard(task, say) {
+  if (task.multiplyBudget && !task.inputs.some(input => input.name === task.multiplyBudget.image)) say('its multiply budget names an unknown image input')
   const grouped = new Set()
   const sourceNames = new Set([...task.inputs, ...task.outputs].map((p) => p.name))
   for (const group of task.inputGroups ?? []) {
@@ -47,7 +48,9 @@ function readBoardTest(t, task, say) {
   for (const i of task.inputs) if (!(i.name in t.inputs)) say(`a test gives nothing on the input ${i.name}`)
   for (const i of task.inputs) if ((i.type === 'vector') !== isVector(t.inputs[i.name])) say(`input ${i.name}: vector values { x, y } go with a vector input, and only there`)
   for (const [k, v] of [...Object.entries(t.inputs), ...Object.entries(t.expect)]) if (Array.isArray(v) && !fromRows(v)) say(`${k}: its rows do not make an image (uneven rows, or not grey or RGB)`)
-  return readTest(t)
+  const test = readTest(t)
+  if (task.multiplyBudget && !isImage(test.inputs[task.multiplyBudget.image])) say('its multiply budget needs an image in every test')
+  return test
 }
 
 /** A grid task read: its image. */

@@ -1,98 +1,100 @@
 {
-  "title": { "zh": "把一维部件用两次", "en": "Reuse the line along two axes" },
+  "title": { "zh": "造能换核的处理器", "en": "Build a processor with replaceable kernels" },
   "intro": [
     {
       "t": {
-        "zh": "从 <level-ref to=\"1-1\"></level-ref> 通关时的电路继续：保留一条轴的三点加权，增加另一条轴的加权路径。方向由常数元件提供，不需要把原电路包成元件。",
-        "en": "Continue the circuit passed in <level-ref to=\"1-1\"></level-ref>: retain one weighted axis pass and add the other. Constants provide the directions; extend the board directly."
-      }
-    },
-    {
-      "t": {
-        "zh": "横向与纵向的位置规则已经分别验证，但一次处理仍只覆盖一条线。现在让两次处理共同覆盖二维邻域。你决定两次处理怎样连接，对比亮点的十字和矩形响应。 <wiki-ref to=\"filter-separability\"></wiki-ref> 三点加权器是固定计算的预设元件：接入一根权重向量线，顺序为 [前, 中, 后]。你决定两次处理怎样连接。",
-        "en": "The horizontal and vertical positional rules have been tested separately, but each pass still covers one line. Make two passes cover a 2D neighbourhood. Decide how they connect by comparing cross and rectangular impulse responses. <wiki-ref to=\"filter-separability\"></wiki-ref> The weighted-line preset accepts one weight-vector wire in [first, centre, last] order. Decide how to connect the two passes."
+        "zh": "三点加权能处理一条线，但斜向和其他形状需要更一般的邻域。工具把重复取样展开为表，你把刚才学会的加权关系扩展到整张权重表。工具不会替你加权求和。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+        "en": "A line cannot express every diagonal or local pattern. A helper unfolds repeated sampling into tables. Extend the weighted relation to the entire table; the helper does not calculate a weighted sum. <wiki-ref to=\"local-kernel\"></wiki-ref>"
       },
-      "fig": "separable"
+      "fig": "window-table"
     }
   ],
   "after": {
-    "zh": "\\[K(u,v)=h(u)h(v)\\]\n\nh 是一维权重，u、v 是两个轴的邻域偏移。连续两轴处理时，一个像素先受一轴权重影响，再受另一轴权重影响，因此贡献相乘，形成二维核 K。只有核可写成这种外积、且边界规则一致时，两次一维处理才与二维处理等价。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
-    "en": "\\[K(u,v)=h(u)h(v)\\]\n\nh is the one-dimensional weight sequence; u and v are offsets on the two axes. Successive passes multiply the two contributions, producing the outer-product kernel K. Equivalence to a 2D operation requires such a separable kernel and matched border rules. <wiki-ref to=\"filter-separability\"></wiki-ref>"
+    "zh": "\\[\\begin{gathered}Y(x,y)=\\sum_{u,v}K(u,v)\\,I(x+u,y+v)\\end{gathered}\\]\n\n求和覆盖核 K 的所有邻域偏移。每个权重对应一个邻居，结果是所有贡献的总和；同一公式可使用不同尺寸、不同数值的核。按书写位置直接匹配邻居、没有翻转核时，这个关系是互相关。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+    "en": "\\[\\begin{gathered}Y(x,y)=\\sum_{u,v}K(u,v)\\,I(x+u,y+v)\\end{gathered}\\]\n\nThe sum covers all offsets in kernel K. Each weight contributes one neighbour, and all contributions are added. The relationship works for different kernel sizes and values. Matching written positions directly, without reversing the kernel, is correlation. <wiki-ref to=\"local-kernel\"></wiki-ref>"
   },
   "tasks": [
     {
-      "id": "v1_separable",
+      "id": "v1_contributions",
       "kind": "circuit",
       "step": {
-        "zh": "连续处理两轴",
-        "en": "Compose axis passes"
+        "zh": "先保留每路贡献",
+        "en": "Keep individual contributions"
       },
       "brief": {
-        "zh": "使用三点加权器，把给定的 [前, 中, 后] 权重向量先后用于两轴。输出应符合二维外积权重，而不是两张单轴结果相加。横向 (1,0) 和纵向 (0,1) 已由预设电路中的两个常数元件提供。",
-        "en": "Use the weighted-line preset to apply the supplied [first, centre, last] weight vector along both axes consecutively. Match the 2D outer-product rule rather than adding two single-axis outputs. The starter supplies horizontal (1,0) and vertical (0,1) direction constants."
+        "zh": "每个原位置展开为一行，输出各邻居的带权贡献，暂不合并。行内位置按权重表逐行对应，图外读数取 0。",
+        "en": "For each original location, output one row of weighted neighbour contributions without combining them. Within a row, match written kernel order; read zero outside."
+      },
+      "after": {
+        "zh": "\\[\\begin{gathered}c_j(p)=w_jI(p+\\delta_j)\\\\Y(p)=\\sum_j c_j(p)\\end{gathered}\\]\n\nδj 是第 j 个邻域偏移。逐项贡献表把“哪个邻居、乘哪个权重”显式列出；把一行贡献相加，才得到这个输出位置的加权结果。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+        "en": "\\[\\begin{gathered}c_j(p)=w_jI(p+\\delta_j)\\\\Y(p)=\\sum_j c_j(p)\\end{gathered}\\]\n\nδj is the j-th offset. A contribution table makes each neighbour and its weight explicit; summing the row yields the weighted result at that output position. <wiki-ref to=\"local-kernel\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "weights", "label": { "zh": "邻域权重", "en": "Weight vector" } }
+        { "name": "kernel", "label": { "zh": "位置权重表", "en": "Positional weights" } }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "二维处理", "en": "2D result" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "逐位置贡献表", "en": "Per-position contributions" } }],
       "tests": [
         {
           "inputs": {
-            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "weights": [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333]]
+            "image": [[0.2, 0.8], [0.7, 0.1]],
+            "kernel": [[0.5, 0, -0.5]]
           },
           "expect": {
             "out": [
-              [0.19999999999999998, 0.3, 0.19999999999999998],
-              [0.19999999999999998, 0.3, 0.19999999999999998]
+              [0, 0, -0.4],
+              [0.1, 0, 0],
+              [0, 0, -0.05],
+              [0.35, 0, 0]
             ]
           }
         },
         {
           "inputs": {
-            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-            "weights": [[0.25, 0.5, 0.25]]
+            "image": [[0, 1], [0.4, 0.2]],
+            "kernel": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
           },
-          "expect": { "out": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "weights": [[0.2, 0.6, 0.2]]
-          },
-          "expect": { "out": [[0.384, 0.48, 0.48, 0.384], [0.48, 0.6, 0.6, 0.48], [0.384, 0.48, 0.48, 0.384]] }
+          "expect": {
+            "out": [
+              [0, 0, 0, 0, 0, -1, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, -0.2, 0, 0, 0],
+              [0, 1, 0, 0.8, 0, 0, 0, 0, 0]
+            ]
+          }
         }
       ],
       "hidden": [],
       "solution": [
-        "horizontal = const[kind=direction,x=1,y=0]()",
-        "vertical = const[kind=direction,x=0,y=1]()",
-        "h = weightedLine(image,weights,horizontal)",
-        "v = weightedLine(h,weights,vertical)",
-        "out <- v"
+        "t = windowTable(image,kernel)",
+        "p = arithmetic[op=mul](t.samples,t.weights)",
+        "out <- p"
       ],
       "naive": [
-        "horizontal = const[kind=direction,x=1,y=0]()",
-        "vertical = const[kind=direction,x=0,y=1]()",
-        "h = weightedLine(image,weights,horizontal)",
-        "v = weightedLine(image,weights,vertical)",
-        "s = arithmetic[op=add](h,v)",
-        "out <- s"
+        "t = windowTable(image,kernel)",
+        "out <- t.samples"
       ],
-      "starter": ["horizontal = const[kind=direction,x=1,y=0]()", "vertical = const[kind=direction,x=0,y=1]()"],
       "naiveWhy": {
-        "zh": "独立处理两轴后相加只覆盖十字形贡献；前后组合才会让角上的邻居参与。",
-        "en": "Adding independent passes gives cross-shaped support; serial passes include corner contributions."
+        "zh": "展开只收集读数，不施加权重。中心为 0 的核仍可能让周围位置产生贡献。",
+        "en": "Unfolding collects samples without applying weights. A zero centre weight does not remove contributions from neighbours."
       },
-      "hint": [
+      "intro": [
         {
-          "zh": "用单个亮点观察角上的贡献从哪里来。两个方向常数只决定取样方向，不改变权重。",
-          "en": "Use an impulse to inspect corner contributions. The two direction constants select sample directions without changing the weights."
+          "t": {
+            "zh": "三点加权已经把位置与权重分开。现在邻域可以有多行：展开工具为每个输出位置保留一行读数，并给出一一对应的权重；先检查每一路的贡献，再汇合结果。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+            "en": "The line separated sample positions from weights. A neighbourhood can now have several rows: unfolding gives one sample row per output location and matching weights. Inspect contributions before combining them. <wiki-ref to=\"local-kernel\"></wiki-ref>"
+          }
         }
       ],
-      "adds": [],
-      "carry": "1-1",
+      "hint": [
+        {
+          "zh": "展开只收集读数，不施加权重。中心为 0 的核仍可能让周围位置产生贡献。",
+          "en": "Unfolding collects samples without applying weights. A zero centre weight does not remove contributions from neighbours."
+        }
+      ],
+      "adds": ["windowTable"],
+      "configurations": { "windowTable.axis": ["x"] },
+      "starter": ["t = windowTable(image,kernel)"],
       "sample": {
         "inputs": {
           "image": {
@@ -107,6 +109,127 @@
           }
         }
       }
+    },
+    {
+      "id": "v1_kernel",
+      "kind": "circuit",
+      "step": { "zh": "从表到局部规则", "en": "Build a local rule" },
+      "configurations": { "reduceRows.mode": ["sum"] },
+      "stage": { "zh": "邻域加权", "en": "Neighbourhood weighting" },
+      "brief": {
+        "zh": "造一个接受任意奇数尺寸权重表的局部处理器。展开邻域只给读数和权重；你负责组合它们，并为每个原位置得到一个结果。",
+        "en": "Build a local processor accepting any odd-sized weight table. Unfold windows supplies samples and weights only; combine them and produce one result per original location."
+      },
+      "intro": [
+        {
+          "t": {
+            "zh": "每一行现在是一处输出的全部贡献。逐行汇总先把它们相加，得到一列；还原形状再按原图的行序排回宽高。两个工具只处理重复计算与排布，你决定哪些量应被汇合。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+            "en": "Each row now contains all contributions to one output. Sum rows into one column, then restore original dimensions in row order. The services handle repeated arithmetic and arrangement; decide which quantities belong in the sum. <wiki-ref to=\"local-kernel\"></wiki-ref>"
+          }
+        }
+      ],
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "位置权重表", "en": "Positional weights" } }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "局部结果", "en": "Local result" } }],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
+            "kernel": [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
+          },
+          "expect": { "out": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]] }
+        },
+        {
+          "inputs": {
+            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
+            "kernel": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
+          },
+          "expect": { "out": [[0, 0, 0], [-1, 0, 2], [0, 1, 0]] }
+        },
+        {
+          "inputs": {
+            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
+            "kernel": [
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            ]
+          },
+          "expect": {
+            "out": [
+              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666],
+              [0.39999999999999997, 0.6, 0.6, 0.39999999999999997],
+              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "image": [[0.1, 0.4, 0.9, 0.3]], "kernel": [[0.5, 0, -0.5]] },
+          "expect": { "out": [[-0.2, -0.4, 0.05000000000000002, 0.45]] }
+        },
+        {
+          "inputs": {
+            "image": [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]],
+            "kernel": [[0, 0, 1, 0, 0], [2, -0.5, 0, 0, 3], [0, 0, 0, -1, 0]]
+          },
+          "expect": { "out": [[-1, 0, 0, 0], [0, 0, -0.5, 2], [0, 1, 0, 0]] }
+        }
+      ],
+      "solution": [
+        "table = windowTable[outside=zero,axis=x](image,kernel)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
+      ],
+      "naive": [
+        "table = windowTable(image,kernel)",
+        "s = reduceRows[mode=sum](table.samples)",
+        "r = restore(s,image)",
+        "out <- r"
+      ],
+      "naiveWhy": {
+        "zh": "邻域读数必须先按给定权重形成贡献；直接汇总会把核中应被忽略的位置也算进去。",
+        "en": "Samples must first receive their supplied weights; summing raw readings counts neighbours the kernel excludes."
+      },
+      "hint": [
+        {
+          "zh": "每行是一处输出的邻域。先检查读数与权重的对应，再决定如何把一行变成一个结果。",
+          "en": "Each row is one output neighbourhood. Inspect sample/weight correspondence, then decide how to reduce the row."
+        }
+      ],
+      "starter": ["table = windowTable(image,kernel)"],
+      "adds": ["reduceRows", "restore"],
+      "carries": true,
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [32, 24],
+            "base": 0.15,
+            "layers": [
+              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
+              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
+              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+            ],
+            "noise": { "seed": 17, "amp": 0.04 }
+          },
+          "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]]
+        }
+      }
     }
-  ]
+  ],
+  "builds": {
+    "type": "spatialProcessor",
+    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
+    "desc": {
+      "zh": "运行所选形态的已通关电路，对图像应用给定核。",
+      "en": "Apply the supplied kernel using the passed board of the selected form."
+    },
+    "form": "dense",
+    "formLabel": { "zh": "通用", "en": "Dense" }
+  }
 }

@@ -118,6 +118,9 @@ const LEVEL = levelSchema({
   page: PAGE,
   builds: S.opt(S.obj({
     ...BUILT_PART,
+    task: S.opt(NAME),
+    form: S.opt(NAME),
+    formLabel: S.opt(S.text()),
     settings: S.opt(S.list(NAME, { about: t('元件上的设置：parts.json 里同名的预设，传给板里有同一个设置的元件', 'settings on the part: the presets of these names in parts.json, passed to every card inside with the same setting') })),
     defaults: S.opt(S.map(S.any(), { about: t('这些设置的起始值（不写用预设的）', 'what those settings start as (the preset’s where left out)') })),
   }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type（最后一个任务必须是电路）', 'once passed the last task’s board is the part `type` (the last task must be a circuit)') })),
@@ -132,6 +135,7 @@ const LEVEL = levelSchema({
     inputGroups: S.opt(S.list(S.obj({ name: NAME, label: S.text(), inputs: S.list(NAME, { min: 2 }) }))),
   },
   more: {
+    multiplyBudget: S.opt(S.obj({ image: NAME, perPixel: S.int({ min: 1 }) })),
     tolerance: S.opt(S.num({ min: 0, about: t('比较值时的容差（默认 1e-5）', 'the tolerance values are compared with (1e-5 by default)') })),
     starter: S.opt(S.board({ about: t('任务开始时的板，蓝图文本，每行一个字符串', 'the board the task opens on, as blueprint text, one string a line') })),
     naiveWhy: S.opt(S.text()),
@@ -169,7 +173,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 2,
+  version: 3,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,

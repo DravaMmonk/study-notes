@@ -1,134 +1,42 @@
 {
-  "title": { "zh": "造能换核的处理器", "en": "Build a processor with replaceable kernels" },
+  "title": { "zh": "同一个核，方向为何不同", "en": "Why kernel orientation changes" },
   "intro": [
     {
       "t": {
-        "zh": "三点加权能处理一条线，但斜向和其他形状需要更一般的邻域。工具把重复取样展开为表，你把刚才学会的加权关系扩展到整张权重表。工具不会替你加权求和。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
-        "en": "A line cannot express every diagonal or local pattern. A helper unfolds repeated sampling into tables. Extend the weighted relation to the entire table; the helper does not calculate a weighted sum. <wiki-ref to=\"local-kernel\"></wiki-ref>"
-      },
-      "fig": "window-table"
-    }
-  ],
-  "after": {
-    "zh": "\\[\\begin{gathered}Y(x,y)=\\sum_{u,v}K(u,v)\\,I(x+u,y+v)\\end{gathered}\\]\n\n求和覆盖核 K 的所有邻域偏移。每个权重对应一个邻居，结果是所有贡献的总和；同一公式可使用不同尺寸、不同数值的核。按书写位置直接匹配邻居、没有翻转核时，这个关系是互相关。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
-    "en": "\\[\\begin{gathered}Y(x,y)=\\sum_{u,v}K(u,v)\\,I(x+u,y+v)\\end{gathered}\\]\n\nThe sum covers all offsets in kernel K. Each weight contributes one neighbour, and all contributions are added. The relationship works for different kernel sizes and values. Matching written positions directly, without reversing the kernel, is correlation. <wiki-ref to=\"local-kernel\"></wiki-ref>"
-  },
-  "tasks": [
-    {
-      "id": "v1_contributions",
-      "kind": "circuit",
-      "step": {
-        "zh": "先保留每路贡献",
-        "en": "Keep individual contributions"
-      },
-      "brief": {
-        "zh": "每个原位置展开为一行，输出各邻居的带权贡献，暂不合并。行内位置按权重表逐行对应，图外读数取 0。",
-        "en": "For each original location, output one row of weighted neighbour contributions without combining them. Within a row, match written kernel order; read zero outside."
-      },
-      "after": {
-        "zh": "\\[\\begin{gathered}c_j(p)=w_jI(p+\\delta_j)\\\\Y(p)=\\sum_j c_j(p)\\end{gathered}\\]\n\nδj 是第 j 个邻域偏移。逐项贡献表把“哪个邻居、乘哪个权重”显式列出；把一行贡献相加，才得到这个输出位置的加权结果。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
-        "en": "\\[\\begin{gathered}c_j(p)=w_jI(p+\\delta_j)\\\\Y(p)=\\sum_j c_j(p)\\end{gathered}\\]\n\nδj is the j-th offset. A contribution table makes each neighbour and its weight explicit; summing the row yields the weighted result at that output position. <wiki-ref to=\"local-kernel\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "位置权重表", "en": "Positional weights" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "逐位置贡献表", "en": "Per-position contributions" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.2, 0.8], [0.7, 0.1]],
-            "kernel": [[0.5, 0, -0.5]]
-          },
-          "expect": { "out": [[0, 0, -0.4], [0.1, 0, 0], [0, 0, -0.05], [0.35, 0, 0]] }
-        },
-        {
-          "inputs": {
-            "image": [[0, 1], [0.4, 0.2]],
-            "kernel": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
-          },
-          "expect": {
-            "out": [
-              [0, 0, 0, 0, 0, -1, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, -0.2, 0, 0, 0],
-              [0, 1, 0, 0.8, 0, 0, 0, 0, 0]
-            ]
-          }
-        }
-      ],
-      "hidden": [],
-      "solution": [
-        "t = windowTable(image,kernel)",
-        "p = arithmetic[op=mul](t.samples,t.weights)",
-        "out <- p"
-      ],
-      "naive": [
-        "t = windowTable(image,kernel)",
-        "out <- t.samples"
-      ],
-      "naiveWhy": {
-        "zh": "展开只收集读数，不施加权重。中心为 0 的核仍可能让周围位置产生贡献。",
-        "en": "Unfolding collects samples without applying weights. A zero centre weight does not remove contributions from neighbours."
-      },
-      "intro": [
-        {
-          "t": {
-            "zh": "三点加权已经把位置与权重分开。现在邻域可以有多行：展开工具为每个输出位置保留一行读数，并给出一一对应的权重；先检查每一路的贡献，再汇合结果。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
-            "en": "The line separated sample positions from weights. A neighbourhood can now have several rows: unfolding gives one sample row per output location and matching weights. Inspect contributions before combining them. <wiki-ref to=\"local-kernel\"></wiki-ref>"
-          }
-        }
-      ],
-      "hint": [
-        {
-          "zh": "展开只收集读数，不施加权重。中心为 0 的核仍可能让周围位置产生贡献。",
-          "en": "Unfolding collects samples without applying weights. A zero centre weight does not remove contributions from neighbours."
-        }
-      ],
-      "adds": ["windowTable"],
-      "configurations": { "windowTable.axis": ["x"] },
-      "starter": ["t = windowTable(image,kernel)"],
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          }
-        }
+        "zh": "打开的是 <level-ref to=\"1-2\"></level-ref> 通关时的邻域计算电路。保留展开、乘权重、求和与还原，在核进入邻域表之前增加翻转。通关后仍更新同一个邻域处理器。",
+        "en": "The board continues the neighbourhood circuit passed in <level-ref to=\"1-2\"></level-ref>. Keep unfolding, weighting, reduction and restoration; add kernel reversal before the window table. Passing updates the same spatial processor."
       }
     },
     {
-      "id": "v1_kernel",
+      "t": {
+        "zh": "处理器能处理任意核，但课程公式和一些工具使用不同的核约定。对称平滑核掩盖了差别，现在用非对称核把问题显露出来，再给自己的处理器加上明确的数学接口。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
+        "en": "The processor accepts any kernel, but conventions differ. Symmetric smoothing hides that difference. Expose it with an asymmetric kernel and build an explicit mathematical interface. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+      }
+    }
+  ],
+  "after": {
+    "zh": "\\[\\begin{gathered}(I*K)(x,y)\\\\=\\sum_{u,v}K(u,v)\\,I(x-u,y-v)\\end{gathered}\\]\n\n∗ 表示数学卷积，求和覆盖核的偏移。它与互相关的区别是邻域偏移的方向相反，等价于先翻转核。对称核翻转后不变，所以只有看非对称核，方向差别才会显现。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
+    "en": "\\[\\begin{gathered}(I*K)(x,y)\\\\=\\sum_{u,v}K(u,v)\\,I(x-u,y-v)\\end{gathered}\\]\n\n∗ denotes mathematical convolution, summed over kernel offsets. Reversing the offset direction distinguishes it from correlation, equivalently reversing the kernel first. Symmetric kernels survive reversal unchanged; asymmetric kernels reveal the distinction. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+  },
+  "tasks": [
+    {
+      "id": "v1_convolution",
       "kind": "circuit",
       "step": {
-        "zh": "从表到局部规则",
-        "en": "Build a local rule"
+        "zh": "核的方向",
+        "en": "Kernel orientation"
       },
-      "configurations": { "reduceRows.mode": ["sum"] },
-      "stage": { "zh": "邻域加权", "en": "Neighbourhood weighting" },
+      "configurations": {},
+      "stage": { "zh": "核方向", "en": "Kernel orientation" },
       "brief": {
-        "zh": "造一个接受任意奇数尺寸权重表的局部处理器。展开邻域只给读数和权重；你负责组合它们，并为每个原位置得到一个结果。",
-        "en": "Build a local processor accepting any odd-sized weight table. Unfold windows supplies samples and weights only; combine them and produce one result per original location."
+        "zh": "接口接收数学卷积核。让非对称核的方向与卷积定义一致，保持输出尺寸和零边界。",
+        "en": "The interface receives mathematical convolution kernels. Match their orientation, including asymmetric kernels, with same-size output and zero boundaries."
       },
-      "intro": [
-        {
-          "t": {
-            "zh": "每一行现在是一处输出的全部贡献。逐行汇总先把它们相加，得到一列；还原形状再按原图的行序排回宽高。两个工具只处理重复计算与排布，你决定哪些量应被汇合。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
-            "en": "Each row now contains all contributions to one output. Sum rows into one column, then restore original dimensions in row order. The services handle repeated arithmetic and arrangement; decide which quantities belong in the sum. <wiki-ref to=\"local-kernel\"></wiki-ref>"
-          }
-        }
-      ],
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "位置权重表", "en": "Positional weights" } }
+        { "name": "kernel", "label": { "zh": "数学卷积核", "en": "Convolution kernel" } }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "局部结果", "en": "Local result" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "卷积结果", "en": "Convolution result" } }],
       "tests": [
         {
           "inputs": {
@@ -142,7 +50,9 @@
             "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
             "kernel": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
           },
-          "expect": { "out": [[0, 0, 0], [-1, 0, 2], [0, 1, 0]] }
+          "expect": {
+            "out": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
+          }
         },
         {
           "inputs": {
@@ -165,35 +75,43 @@
       "hidden": [
         {
           "inputs": { "image": [[0.1, 0.4, 0.9, 0.3]], "kernel": [[0.5, 0, -0.5]] },
-          "expect": { "out": [[-0.2, -0.4, 0.05000000000000002, 0.45]] }
+          "expect": { "out": [[0.2, 0.4, -0.05000000000000002, -0.45]] }
+        },
+        {
+          "inputs": {
+            "image": [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]],
+            "kernel": [[0, 0, 1, 0, 0], [2, -0.5, 0, 0, 3], [0, 0, 0, -1, 0]]
+          },
+          "expect": { "out": [[0, 1, 0, 0], [-0.5, 0, 0, 3], [0, 0, -1, 0]] }
         }
       ],
       "solution": [
-        "table = windowTable[outside=zero,axis=x](image,kernel)",
+        "k = reverse(kernel)",
+        "table = windowTable[outside=zero,axis=x](image,k)",
         "weighted = arithmetic[op=mul](table.samples,table.weights)",
         "summed = reduceRows[mode=sum](weighted)",
         "v = restore(summed,image)",
         "out <- v"
       ],
       "naive": [
-        "table = windowTable(image,kernel)",
-        "s = reduceRows[mode=sum](table.samples)",
-        "r = restore(s,image)",
-        "out <- r"
+        "table = windowTable[outside=zero,axis=x](image,kernel)",
+        "weighted = arithmetic[op=mul](table.samples,table.weights)",
+        "summed = reduceRows[mode=sum](weighted)",
+        "v = restore(summed,image)",
+        "out <- v"
       ],
       "naiveWhy": {
-        "zh": "邻域读数必须先按给定权重形成贡献；直接汇总会把核中应被忽略的位置也算进去。",
-        "en": "Samples must first receive their supplied weights; summing raw readings counts neighbours the kernel excludes."
+        "zh": "对称核不能区分两种约定；非对称亮点响应会暴露核的方向是否反转。",
+        "en": "Symmetric kernels hide the distinction; asymmetric impulse responses expose orientation."
       },
       "hint": [
         {
-          "zh": "每行是一处输出的邻域。先检查读数与权重的对应，再决定如何把一行变成一个结果。",
-          "en": "Each row is one output neighbourhood. Inspect sample/weight correspondence, then decide how to reduce the row."
+          "zh": "用非对称权重表与单个亮点检查方向。翻转核只调整权重表，不是翻转待处理图。",
+          "en": "Inspect an asymmetric kernel on an impulse. Reverse the weight table, not the image."
         }
       ],
-      "starter": ["table = windowTable(image,kernel)"],
-      "adds": ["reduceRows", "restore"],
-      "carries": true,
+      "adds": ["reverse"],
+      "carry": "1-2",
       "sample": {
         "inputs": {
           "image": {
@@ -206,7 +124,7 @@
             ],
             "noise": { "seed": 17, "amp": 0.04 }
           },
-          "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]]
+          "kernel": [[0, 0.25, 0], [0, 0.5, 0], [0, 0, 0.25]]
         }
       }
     }
@@ -215,8 +133,10 @@
     "type": "spatialProcessor",
     "name": { "zh": "邻域处理器", "en": "Spatial processor" },
     "desc": {
-      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
-      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
-    }
+      "zh": "运行所选形态的已通关电路，对图像应用给定核。",
+      "en": "Apply the supplied kernel using the passed board of the selected form."
+    },
+    "form": "dense",
+    "formLabel": { "zh": "通用", "en": "Dense" }
   }
 }

@@ -169,13 +169,5 @@
         }
       }
     }
-  ],
-  "builds": {
-    "type": "difference",
-    "name": { "zh": "差异比较器", "en": "Difference comparator" },
-    "desc": {
-      "zh": "比较两张同尺寸图，输出逐位置、逐通道的绝对差。",
-      "en": "Compare equal-size images using per-location, per-channel absolute difference."
-    }
-  }
+  ]
 }

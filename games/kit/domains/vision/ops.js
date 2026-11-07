@@ -72,6 +72,14 @@ const AXIS = S.opt(S.oneOf(['x', 'y']))
 const value2 = (about, f) => ({ about, args: args('a', 'b'), run: ([a, b]) => zip([a, b], f) })
 const value1 = (about, f) => ({ about, args: args('a'), run: ([a]) => zip([a], f) })
 
+function countProducts(ctx, count) {
+  const work = ctx?.work
+  if (!work) return
+  work.multiplies += count
+  const root = ctx.scope?.split('/')[0]
+  if (root) work.byPart.set(root, (work.byPart.get(root) ?? 0) + count)
+}
+
 const finiteValues = (values) => {
   if (!values.every(Number.isFinite)) fail('向量分量需要有限数值', 'Vector components must be finite numbers')
   return values
@@ -80,10 +88,30 @@ const finiteValues = (values) => {
 export const OPS = {
   vector2: { about: t('由两个数构造方向向量 (x, y)', 'A direction vector (x, y) from two numbers'), args: args('x', 'y'), run: (values) => { const [x, y] = finiteValues(values); return { x, y } } },
   weightVector: { about: t('由前、中、后三个数构造权重向量', 'A first/centre/last weight vector from three numbers'), args: args('first', 'centre', 'last'), run: (values) => { const weights = finiteValues(values); return make(3, 1, 1, (x) => weights[x]) } },
-  weightedLine: { about: t('沿方向 d 按前、中、后权重向量汇合三格读数', 'Three samples along d combined with a first/centre/last weight vector'), args: args('image', 'weights', 'd'), params: named({ outside: BORDER }), run: ([image, weights, d], options) => weightedLine(image, weights, d, options) },
+  weightRow5: {
+    about: t('五项权重组成一行', 'Five weights arranged in a row'),
+    args: args('a', 'b', 'c', 'd', 'e'),
+    run: (values) => {
+      const weights = finiteValues(values)
+      return make(5, 1, 1, (x) => weights[x])
+    },
+  },
+  weightedLine: { about: t('沿方向 d 按前、中、后权重向量汇合三格读数', 'Three samples along d combined with a first/centre/last weight vector'), args: args('image', 'weights', 'd'), params: named({ outside: BORDER }), run: ([image, weights, d], options, ctx) => {
+    const result = weightedLine(image, weights, d, options)
+    countProducts(ctx, 3 * result.data.length)
+    return result
+  } },
   add: value2(t('a + b，逐个值', 'a + b, value by value'), (p, q) => p + q),
   sub: value2(t('a − b，逐个值', 'a − b, value by value'), (p, q) => p - q),
-  mul: value2(t('a × b，逐个值', 'a × b, value by value'), (p, q) => p * q),
+  mul: {
+    about: t('a × b，逐个值', 'a × b, value by value'),
+    args: args('a', 'b'),
+    run: (values, _options, ctx) => {
+      const result = zip(values, (a, b) => a * b)
+      countProducts(ctx, isImage(result) ? result.data.length : isVector(result) ? 2 : 1)
+      return result
+    },
+  },
   div: value2(t('a ÷ b，逐个值；除以 0 报错', 'a ÷ b, value by value; dividing by 0 stops'), (p, q) => (q === 0 ? fail('除以 0', 'divided by 0') : p / q)),
   min: value2(t('两者中小的，逐个值', 'the smaller, value by value'), Math.min),
   max: value2(t('两者中大的，逐个值', 'the larger, value by value'), Math.max),

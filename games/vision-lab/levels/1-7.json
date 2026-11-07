@@ -3,16 +3,9 @@
   "intro": [
     {
       "t": {
-        "zh": "继续 <level-ref to=\"1-6\"></level-ref> 的邻域电路，保留横向路径，再增加纵向路径。两条路径都保留响应的正负；有效内部的裁剪不适用于这里要求的同尺寸输出。",
-        "en": "Continue the neighbourhood circuit from <level-ref to=\"1-6\"></level-ref>, retaining the horizontal path and adding a vertical one. Preserve signs on both paths; the valid-interior crop does not apply to these same-size outputs."
+        "zh": "同一片边缘在两个方向的响应可能不同。分别应用横向与纵向差分核，对比有符号的输出。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
+        "en": "An edge can respond differently along each axis. Apply the horizontal and vertical derivative kernels and compare the signed outputs. <wiki-ref to=\"gradient-components\"></wiki-ref>"
       }
-    },
-    {
-      "t": {
-        "zh": "卷积器已经有明确的核与边界约定。扫描器还需要知道变化沿哪条轴发生，以及亮度在增大还是减小。用两种单轴斜坡区分这两件事。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
-        "en": "The convolver now has explicit kernel and boundary conventions. The scanner needs the axis and sign of change. Distinguish them using single-axis ramps. <wiki-ref to=\"gradient-components\"></wiki-ref>"
-      },
-      "fig": "directional-change"
     }
   ],
   "after": {
@@ -27,15 +20,15 @@
         "zh": "双轴差分",
         "en": "Two-axis differences"
       },
-      "configurations": { "windowTable.axis": ["y"] },
       "stage": { "zh": "纵向响应", "en": "Vertical response" },
       "brief": {
-        "zh": "给定横向数学差分核，造出横向和纵向的带符号响应。x 向右、y 向下为正，图外延续边缘。",
-        "en": "Use the supplied horizontal mathematical derivative kernel to produce signed x and y responses. Positive axes are right and down; extend edge readings."
+        "zh": "用同一个通用处理器分别应用两种差分核。保留两个响应的正负号。",
+        "en": "Apply both derivative kernels using the dense form. Preserve the signs of both responses."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "横向差分核", "en": "Horizontal derivative kernel" } }
+        { "name": "dx", "label": { "zh": "横向差分核", "en": "Horizontal derivative" } },
+        { "name": "dy", "label": { "zh": "纵向差分核", "en": "Vertical derivative" } }
       ],
       "outputs": [
         { "name": "gx", "label": { "zh": "横向响应 gx", "en": "Horizontal gx" } },
@@ -49,7 +42,8 @@
               [0, 0.1, 0.2, 0.30000000000000004, 0.4],
               [0, 0.1, 0.2, 0.30000000000000004, 0.4]
             ],
-            "kernel": [[0.5, 0, -0.5]]
+            "dx": [[0.5, 0, -0.5]],
+            "dy": [[0.5], [0], [-0.5]]
           },
           "expect": {
             "gx": [
@@ -68,7 +62,8 @@
               [0.3, 0.3, 0.3],
               [0.44999999999999996, 0.44999999999999996, 0.44999999999999996]
             ],
-            "kernel": [[0.5, 0, -0.5]]
+            "dx": [[0.5, 0, -0.5]],
+            "dy": [[0.5], [0], [-0.5]]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -81,7 +76,11 @@
           }
         },
         {
-          "inputs": { "image": [[0.9, 0.5, 0.1], [0.8, 0.4, 0]], "kernel": [[0.5, 0, -0.5]] },
+          "inputs": {
+            "image": [[0.9, 0.5, 0.1], [0.8, 0.4, 0]],
+            "dx": [[0.5, 0, -0.5]],
+            "dy": [[0.5], [0], [-0.5]]
+          },
           "expect": {
             "gx": [[-0.2, -0.4, -0.2], [-0.2, -0.4, -0.2]],
             "gy": [
@@ -95,7 +94,8 @@
         {
           "inputs": {
             "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
-            "kernel": [[0.5, 0, -0.5]]
+            "dx": [[0.5, 0, -0.5]],
+            "dy": [[0.5], [0], [-0.5]]
           },
           "expect": {
             "gx": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
@@ -104,25 +104,14 @@
         }
       ],
       "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "kY = reverse(kernel)",
-        "tableY = windowTable[outside=clamp,axis=y](image,kY)",
-        "weightedY = arithmetic[op=mul](tableY.samples,tableY.weights)",
-        "summedY = reduceRows[mode=sum](weightedY)",
-        "vY = restore(summedY,image)",
+        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
+        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
         "gx <- v",
         "gy <- vY"
       ],
       "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
+        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
+        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
         "gx <- v",
         "gy <- v"
       ],
@@ -130,14 +119,7 @@
         "zh": "另一条轴的响应需要另一方向的邻域，不能复制同一张响应图。",
         "en": "The other component needs a differently oriented neighbourhood, not a duplicate response."
       },
-      "hint": [
-        {
-          "zh": "先看只有一条轴发生变化的斜坡。核的方向与输出分量的方向应一致。",
-          "en": "Start with ramps changing along only one axis. Match kernel and component directions."
-        }
-      ],
       "adds": [],
-      "carry": "1-6",
       "sample": {
         "inputs": {
           "image": {
@@ -153,13 +135,5 @@
         }
       }
     }
-  ],
-  "builds": {
-    "type": "spatialProcessor",
-    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
-    "desc": {
-      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
-      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
-    }
-  }
+  ]
 }

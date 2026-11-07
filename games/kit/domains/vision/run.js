@@ -47,7 +47,9 @@ function noValue(circuit, errors, id) {
 
 export function runTest(task, circuit, test, partOf) {
   const trace = []
-  const { values, errors, outputs } = runBoard(circuit, { parts: partOf, bind: test.inputs, ctx: { trace } })
+  const work = { multiplies: 0, byPart: new Map() }
+  const { values, errors, outputs } = runBoard(circuit, { parts: partOf, bind: test.inputs, ctx: { trace, work } })
+  const result = { values, errors, outputs, trace, work }
   const tol = task.tolerance ?? 1e-5
   for (const out of task.outputs) {
     const got = outputs[out.name]
@@ -55,12 +57,20 @@ export function runTest(task, circuit, test, partOf) {
     const why = got === undefined ? sink ? noValue(circuit, errors, sink.id) : T('缺少输出元件', 'is missing its output terminal') : differs(test.expect[out.name], got, tol)
     if (why) {
       return {
-        values, errors, outputs, trace,
+        ...result,
         fail: { name: out.name, want: test.expect[out.name], got: got ?? null, why: T(`「${out.label.zh ?? out.label}」${why.zh}。`, `“${out.label.en ?? out.label}” ${why.en}.`) },
       }
     }
   }
-  return { values, errors, outputs, trace }
+  const budget = task.multiplyBudget
+  if (budget) {
+    const image = test.inputs[budget.image]
+    const limit = image.w * image.h * budget.perPixel
+    if (work.multiplies > limit) return { ...result, fail: {
+      why: T(`使用了 ${work.multiplies} 次乘法，上限是 ${limit} 次。`, `Used ${work.multiplies} multiplications; the limit is ${limit}.`),
+    } }
+  }
+  return result
 }
 
 /** Every test of a task on a board: { runs, pass }. A board that gives what the naive board gives fails for its reason. */

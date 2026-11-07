@@ -1,6 +1,7 @@
 // A circuit's own inputs and outputs are nodes named by `params.name`: a source gives what is bound to its name, a
 // sink is what the circuit gives under its name. The same circuit then serves as a level's board (bound to a test's
 // inputs) and as a packed part (a solved circuit used again as one part).
+import { paramsOf } from './forms.js'
 import { BROKEN, PartError, evaluate } from './circuit.js'
 
 export const nameOf = (node) => node.params?.name
@@ -106,7 +107,7 @@ export function withSettings(circuit, params = {}, parts) {
   if (!keys.length) return circuit
   const partOf = partFn(parts)
   return { ...circuit, nodes: circuit.nodes.map((n) => {
-    const own = keys.filter((k) => partOf(n.type)?.params?.includes(k))
+    const own = keys.filter((k) => paramsOf(partOf(n.type), n).includes(k))
     return own.length ? { ...n, params: { ...n.params, ...Object.fromEntries(own.map((k) => [k, params[k]])) } } : n
   }) }
 }

@@ -7,7 +7,7 @@ export function configurationPolicy(levels, course, partOf) {
   const cache = new Map()
   return (task, type, key) => {
     const supported = partOf(type)?.settings?.[key]
-    if (!supported || !guided) return supported
+    if (!supported || !guided || key === 'form') return supported
     const id = `${task.id}#${task.task ?? 0}`
     if (!cache.has(id)) {
       const preceding = levels.filter((level) => course.before(level.id, task.id)).flatMap((level) => level.tasks)

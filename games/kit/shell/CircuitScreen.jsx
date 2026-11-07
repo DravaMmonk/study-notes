@@ -107,8 +107,8 @@ function partsFor(level, circuit, { cards, portLabels, width }) {
   const given = (node) => board.isFixed(node.type) && !cards[node.type]
   return {
     ...wiring,
-    label: (node) => (board.isFixed(node.type) ? board.labelOf(level, node.id) : BUILT[node.type] ? builtBy(node.type).builds.name : cards[node.type]?.name ?? node.type),
-    portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type)), port) : portLabels[node.type]?.[port] ?? ''),
+    label: (node) => (board.isFixed(node.type) ? board.labelOf(level, node.id) : BUILT[node.type] ? builtBy(node.type, node.params).builds.name : cards[node.type]?.name ?? node.type),
+    portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type, node.params)), port) : portLabels[node.type]?.[port] ?? ''),
     family: (node) => (BUILT[node.type] ? 'built' : given(node) ? (wiring.role(node) === 'sink' ? 'end' : 'given') : cards[node.type]?.family),
     icon: (node) => (BUILT[node.type] ? CircuitBoard : given(node) ? ArrowRightFromLine : cards[node.type]?.icon),
     cardWidth: (node) => (board.isFixed(node.type) ? 224 : BUILT[node.type] ? Math.max(176, width) : width),
@@ -167,10 +167,22 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const shown = run.playback.shown(run.at)
   const at = !run.run ? (kind.ticks ? 0 : -1) : shown.list.length ? (shown.at >= 0 ? shown.at : shown.list.length - 1) : -1
   const tick = kind.ticks && at >= 0 ? runOf.ticks[at] : null
-  const view = kind.ticks ? tick ?? undefined : run.run ? viewAt(runOf.trace, at) : runOf
+  const view = kind.ticks ? tick ?? undefined : judged || !run.run ? runOf : viewAt(runOf.trace, at)
   const ended = judged ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
-  const setParam = (node, key, value) => change({ ...drawn, nodes: drawn.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, [key]: value } } : n)) })
+  const setParam = (node, key, value) => {
+    const next = { ...node, params: { ...node.params, [key]: value } }
+    const nodes = drawn.nodes.map(n => n.id === node.id ? next : n)
+    if (key !== 'form') return change({ ...drawn, nodes })
+    const inputs = new Set(parts.inputs(next))
+    const outputs = parts.outputs(next)
+    const wires = drawn.wires.filter(wire => {
+      if (wire.to === node.id && !inputs.has(wire.port)) return false
+      const [from, port] = wire.from.split('#')
+      return from !== node.id || (outputs ? outputs.some(output => output.key === port) : !port)
+    })
+    change({ ...drawn, nodes, wires })
+  }
   // A card shows its value; a card on the right, what reaches it (as its own value: the output's view).
   const valueOf = (node, key, v) => v.values.get(key ? `${node.id}#${key}` : node.id)
   const value = (node, ctx) => {
@@ -248,7 +260,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const strip = (
     <>
       <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={kind.ticks && run.run ? at : -1} count={test?.ticks ?? 0} marks={kind.ticks && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
-      {figure?.({ task: level, test })}
+      {figure?.({ task: level, test, run: ended || onSample ? runOf : null })}
     </>
   )
 
@@ -278,7 +290,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
           }}
           canvas={canvas}
           brief={{ hint: level.hint }}
-          describe={(n) => (BUILT[n.type] ? builtBy(n.type).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
+          describe={(n) => (BUILT[n.type] ? builtBy(n.type, n.params).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={strip}
           words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
           sheet={sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)) : kind.ticks ? tickDetail : undefined}
@@ -288,7 +300,10 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
               const inside = BUILT[node.type]?.opens?.(node.params)
               return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels, width: canvas.width }) }
             },
-            edit: (node) => openRef('level', builtBy(node.type).id),
+            edit: (node) => {
+              const builder = builtBy(node.type, node.params)
+              openRef('level', builder.id, builder.task)
+            },
             trace: () => (kind.ticks ? (tick?.trace ? { trace: tick.trace } : null) : judged ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
           }}
         />

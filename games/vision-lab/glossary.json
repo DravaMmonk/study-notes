@@ -132,7 +132,7 @@
       "id": "filter-separability",
       "group": "image",
       "title": { "zh": "可分离滤波", "en": "Separable filtering" },
-      "at": "1-2",
+      "at": "1-5",
       "body": [
         {
           "zh": "若二维核是两个一维权重向量的外积，可以先后沿两轴计算，减少每个像素的加权次数。非可分离核不能直接这样替代；有限图像要保持相同边界与输出域。 <wiki-ref to=\"pixel\"></wiki-ref>",
@@ -160,7 +160,7 @@
       "id": "local-kernel",
       "group": "image",
       "title": { "zh": "互相关与局部核", "en": "Correlation and local kernels" },
-      "at": "1-3",
+      "at": "1-2",
       "body": [
         {
           "zh": "互相关将书写核按中心对齐邻域，保持核的书写方向，计算对应元素乘积之和。核尺寸决定支持域，权重决定响应。",
@@ -188,7 +188,7 @@
       "id": "convolution-orientation",
       "group": "image",
       "title": { "zh": "卷积核方向", "en": "Convolution orientation" },
-      "at": "1-4",
+      "at": "1-3",
       "body": [
         {
           "zh": "数学离散卷积使用反转的核，相比互相关需将核旋转 180 度。非对称核揭示方向差别；对称核会隐藏它。",
@@ -216,7 +216,7 @@
       "id": "smoothing-detail",
       "group": "image",
       "title": { "zh": "高斯平滑与细节增强", "en": "Gaussian smoothing and detail enhancement" },
-      "at": "1-5",
+      "at": "1-6",
       "body": [
         {
           "zh": "离散高斯样本可归一化为平滑核，尺度和支持域影响响应。非锐化增强把带符号的高频细节加回原图；不能保证恢复真实场景。",
@@ -325,38 +325,10 @@
       ]
     },
     {
-      "id": "channel-aggregation",
-      "group": "image",
-      "title": { "zh": "通道加权组合", "en": "Channel aggregation" },
-      "at": "1-9",
-      "body": [
-        {
-          "zh": "多通道图像在每个位置有多个读数。跨通道加权和将它们组合为新的测量，空间索引保持不变；多个输出核可以形成多个输出通道。",
-          "en": "A multi-channel image contains several readings per position. A weighted channel sum combines them into a measurement without changing positions; multiple output kernels can form multiple channels."
-        },
-        {
-          "zh": "\\[\\begin{aligned}L(x,y)={}&w_rR(x,y)+w_gG(x,y)\\\\&+w_bB(x,y)\\end{aligned}\\]",
-          "en": "\\[\\begin{aligned}L(x,y)={}&w_rR(x,y)+w_gG(x,y)\\\\&+w_bB(x,y)\\end{aligned}\\]"
-        },
-        {
-          "zh": "三个权重分别作用于同一个像素的红、绿、蓝读数，L 是该位置的汇合结果。",
-          "en": "The three weights act on the red, green and blue readings of one pixel. L is the combined value at that position."
-        },
-        {
-          "zh": "常见误解：只取某一通道总能代替颜色组合，或通道混合会移动像素。 <wiki-ref to=\"pixel\"></wiki-ref>",
-          "en": "Common misconception: One channel always suffices, or mixing channels moves pixels. <wiki-ref to=\"pixel\"></wiki-ref>"
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp31–32",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp31–32"
-        }
-      ]
-    },
-    {
       "id": "scanner-composition",
       "group": "image",
       "title": { "zh": "视觉处理流水线", "en": "Visual processing pipeline" },
-      "at": "1-10",
+      "at": "1-9",
       "body": [
         {
           "zh": "视觉流水线将已有测量、预处理和判定模块组合。每个模块有输入输出含义；顺序和边界影响结果，最终响应仍受任务假设限制。",

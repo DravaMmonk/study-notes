@@ -9,7 +9,7 @@ import { blankProbe, checkProbe, probeOutput, probeQuestions } from '../probe.js
 export default function ProbeScreen({ game, level, saved, save, solve, phone }) {
   const [evidence, setEvidence] = useState(() => saved?.evidence ?? [])
   const [at, setAt] = useState(() => Math.min(saved?.evidence?.length ?? 0, probeQuestions.length - 1))
-  const [rows, setRows] = useState(() => saved?.evidence?.at(-1)?.rows ?? blankProbe())
+  const [rows, setRows] = useState(() => evidence[evidence.length - 1]?.rows ?? blankProbe())
   const [run, setRun] = useState(null)
   const [answer, setAnswer] = useState('')
   const [why, setWhy] = useState(null)

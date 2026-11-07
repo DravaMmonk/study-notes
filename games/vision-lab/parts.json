@@ -67,26 +67,6 @@
         "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }]
       }
     },
-    "channel": {
-      "name": { "zh": "取通道", "en": "Channel" },
-      "desc": {
-        "zh": "给出彩色像素里第 c 个位置（0、1、2，在元件上选）上的数组成的灰度图。哪个位置是哪种颜色，看图按什么顺序存：RGB 图的 0 是红，BGR 图的 0 是蓝。",
-        "en": "Gives the grey image of the numbers at position c (0, 1 or 2, set on the part) of each colour pixel. Which colour sits at a position depends on the image’s channel order: in an RGB image 0 is red, in a BGR one blue."
-      },
-      "icon": "Layers",
-      "family": "image",
-      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
-      "settings": [
-        {
-          "key": "c",
-          "control": "buttons",
-          "label": { "zh": "位置", "en": "Position" },
-          "options": [{ "value": "0" }, { "value": "1" }, { "value": "2" }],
-          "default": "0"
-        }
-      ],
-      "compute": "channel(image, c=$c)"
-    },
     "const": {
       "name": { "zh": "常数", "en": "Constant" },
       "desc": {
@@ -122,6 +102,11 @@
                 "zh": "三项权重：按前、中、后填写，整组输出 [前,中,后]。",
                 "en": "Three weights: enter first/centre/last and output the whole weight vector."
               }
+            },
+            {
+              "value": "weights5",
+              "label": { "zh": "五项权重", "en": "Five weights" },
+              "about": { "zh": "输入五项权重，输出一行。", "en": "Enter five weights to produce a row." }
             }
           ],
           "default": "scalar"
@@ -167,9 +152,44 @@
           "label": { "zh": "后", "en": "Last" },
           "default": 0.25,
           "when": "eq($kind, 'weights')"
+        },
+        {
+          "key": "w1",
+          "control": "number",
+          "label": { "zh": "权重 1", "en": "Weight 1" },
+          "default": 0.2,
+          "when": "eq($kind, 'weights5')"
+        },
+        {
+          "key": "w2",
+          "control": "number",
+          "label": { "zh": "权重 2", "en": "Weight 2" },
+          "default": 0.2,
+          "when": "eq($kind, 'weights5')"
+        },
+        {
+          "key": "w3",
+          "control": "number",
+          "label": { "zh": "权重 3", "en": "Weight 3" },
+          "default": 0.2,
+          "when": "eq($kind, 'weights5')"
+        },
+        {
+          "key": "w4",
+          "control": "number",
+          "label": { "zh": "权重 4", "en": "Weight 4" },
+          "default": 0.2,
+          "when": "eq($kind, 'weights5')"
+        },
+        {
+          "key": "w5",
+          "control": "number",
+          "label": { "zh": "权重 5", "en": "Weight 5" },
+          "default": 0.2,
+          "when": "eq($kind, 'weights5')"
         }
       ],
-      "compute": "match $kind { scalar: $value, direction: vector2($x, $y), weights: weightVector($first, $centre, $last) }"
+      "compute": "match $kind { scalar: $value, direction: vector2($x, $y), weights: weightVector($first, $centre, $last), weights5: weightRow5($w1, $w2, $w3, $w4, $w5) }"
     },
     "cosine": {
       "name": { "zh": "余弦", "en": "Cosine" },
@@ -389,51 +409,16 @@
       "settings": [{ "key": "outside", "use": "outside" }],
       "compute": "weightedLine(image, weights, d, outside=$outside)"
     },
-    "separable3": {
-      "name": { "zh": "双轴加权", "en": "Two-axis weighting" },
-      "desc": {
-        "zh": "代码预设：将同一三点权重向量依次用于横轴和纵轴，保留符号和通道。",
-        "en": "Code preset: apply one three-sample weight vector along x and then y, preserving signs and channels."
-      },
+    "difference": {
+      "name": { "zh": "差异比较器", "en": "Difference comparator" },
+      "desc": { "zh": "逐位置计算两张图的绝对差。", "en": "Compute the absolute difference at each image position." },
+      "family": "image",
       "icon": "Sigma",
-      "family": "image",
       "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "weights", "label": { "zh": "权重向量", "en": "Weights" } }
+        { "name": "a", "label": { "zh": "图 A", "en": "Image A" } },
+        { "name": "b", "label": { "zh": "图 B", "en": "Image B" } }
       ],
-      "settings": [{ "key": "outside", "use": "outside" }],
-      "compute": "weightedLine(weightedLine(image, weights, vector2(1, 0), outside=$outside), weights, vector2(0, 1), outside=$outside)"
-    },
-    "channelMeasure": {
-      "name": { "zh": "通道加权", "en": "Channel weighting" },
-      "desc": {
-        "zh": "代码预设：按 wr、wg、wb 将 RGB 三个通道加权相加。",
-        "en": "Code preset: combine RGB channels with weights wr, wg and wb."
-      },
-      "icon": "Layers",
-      "family": "image",
-      "inputs": [
-        { "name": "image", "label": { "zh": "image", "en": "image" } },
-        { "name": "wr", "label": { "zh": "wr", "en": "wr" } },
-        { "name": "wg", "label": { "zh": "wg", "en": "wg" } },
-        { "name": "wb", "label": { "zh": "wb", "en": "wb" } }
-      ],
-      "compute": "colourMix(image, wr, wg, wb)"
-    },
-    "convolve": {
-      "name": { "zh": "卷积预设", "en": "Convolution" },
-      "desc": {
-        "zh": "代码预设：翻转核后对邻域加权求和，保留符号和通道。用于空间与频率计算的对照。",
-        "en": "Code preset: reverse the kernel and sum weighted neighbourhoods, preserving signs and channels. Used for spatial/frequency comparisons."
-      },
-      "icon": "Grid3x3",
-      "family": "image",
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
-      ],
-      "settings": [{ "key": "outside", "use": "outside" }, { "key": "axis", "use": "axis" }],
-      "compute": "restoreShape(reduceRows(mul(windowSamples(image, reverse(kernel), axis=$axis, outside=$outside), windowWeights(image, reverse(kernel))), mode='sum'), image)"
+      "compute": "abs(sub(a,b))"
     }
   }
 }

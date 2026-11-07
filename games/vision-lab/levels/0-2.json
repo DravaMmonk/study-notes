@@ -71,7 +71,7 @@
           "en": "A positive component of d means output (x,y) reads observation (x+dx,y+dy); it does not add dx to brightness."
         }
       ],
-      "adds": ["shift"],
+      "adds": ["shift", "difference"],
       "intro": [
         {
           "t": {
@@ -104,13 +104,5 @@
         }
       }
     }
-  ],
-  "builds": {
-    "type": "alignedDifference",
-    "name": { "zh": "对齐比较器", "en": "Aligned comparator" },
-    "desc": {
-      "zh": "按给定偏移向量 d 读取观测，再与参照逐位置比较；图外取 0。",
-      "en": "Read an observation at an offset vector d and compare with the reference, using zero outside."
-    }
-  }
+  ]
 }

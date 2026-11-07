@@ -125,7 +125,7 @@
           "en": "The output must retain correspondence with original spatial columns. Swapping only at the input leaves dimensions reversed at the interface."
         }
       ],
-      "adds": ["transpose"],
+      "adds": [],
       "sample": {
         "inputs": {
           "real": [

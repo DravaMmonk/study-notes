@@ -46,14 +46,11 @@ An offset and the valid-interior radii are each one supplied integer vector, not
 Known offsets are supplied data, not estimated registration. Comparisons are controlled defect evidence, not
 claims of general recognition. Thresholds are given; no arithmetic-fill or slider assessment is used.
 
-The constant preset can produce a scalar, a two-dimensional direction vector (x,y), or a three-element
-weight vector [first,centre,last], always on one output. Its type selects the visible numeric fields; scalar is the
-default so existing constant nodes retain their values. Weight vectors use the same single-row representation as
-weightedLine. Numeric entry reuses the shared desktop fields and phone keypad. Scalar and two-dimensional modes
-open when the first horizontal neighbourhood task needs a fixed direction. Three-weight mode opens only when Sobel
-needs the fixed [1,2,1] smoothing vector. Fixed horizontal and vertical directions live in constant nodes in editable
-starters and reference circuits, not in task inputs or the signatures of assembled two-axis/Sobel components.
-Measured alignment offsets remain supplied variable inputs.
+The constant preset can produce a scalar, a two-dimensional direction, or a row of three or five weights.
+The card shows the numeric fields for its selected type and exposes one output. Fixed directions in the
+introductory neighbourhood tasks come from editable constant nodes. The multiply-budget task introduces
+five-weight rows, which players can transpose into columns. Sobel introduces three-weight constants for
+its perpendicular smoothing. Measured alignment offsets remain variable inputs.
 
 The weighted-line preset receives an image, one three-element weight vector [first, centre, last] and an
 integer direction vector d. It reads at -d, zero and +d, retains signed values and channels, and applies the chosen
@@ -80,41 +77,35 @@ remain visible. Presets execute their domain implementation; assembled component
 
 ## Course dependency graph
 
-Stage 0 has a shared inspection-station introduction before any branch: signed/absolute comparison -> known-offset
-comparison -> a controlled inspection pipeline. Simple facets are tasks, not padded levels. Its comparator is
-reused in smoothing residuals and reconstruction checks.
+Chapter 0 opens on the inspection station. Players derive signed and absolute comparison, use the
+preset absolute comparator after alignment, then extend the alignment board with a strict threshold.
+Later tasks reuse the absolute comparator for residual and reconstruction checks.
 
-Stage 1 grows circuits in place. The two-axis/detail route carries the player's weighted-line circuit into
-separable smoothing and then residual/enhancement outputs. The kernel route carries one neighbourhood processor
-through weighted contributions, correlation, convolution orientation, border assumptions, signed directional
-responses and perpendicular smoothing. Each step opens the preceding passed board, preserving its internal
-parts, settings, positions and wires; new task ports replace only the external terminals. The scanner continues
-the signed-response board and adds channel measurement, preprocessing and thresholding.
+Chapter 1 opens with an editable blur probe. The player submits an input and a conclusion about support
+and gain. Evidence must distinguish the selected explanation from every alternative under the same
+border rule. The weighted-line construction and vertical transfer follow. Levels 1-2 through 1-4
+build the dense processor from window expansion, elementwise multiplication, reduction and restoration,
+then add kernel reversal and explicit border policies. The reflected full-size board in 1-4 publishes
+the dense revision, with its border policy exposed on the card. Valid output remains a separate crop.
 
-Only the kernel/scanner route publishes a learner-built part, `spatialProcessor`. Its upgrade levels all publish
-the same part key. Passing an upgrade switches the part to that version's passed board and interface. A later
-consumer uses the deepest passed revision available on its prerequisite path; replaying an earlier builder uses
-that revision's interface, never a future one. Unsaved edits do not replace a passed implementation. Builders
-cannot place their own family inside itself. Detail/edit actions open the actual revision being called.
-The implementation is the evolving flat circuit, not a wrapper around the preceding revision. General local
-processing admits different implementations and costs; separable weighting and RGB weighted measurement are
-fixed code presets, not additional player-built parts. The preset is introduced after its relationship has been
-worked out on the board. Convolution is also available as a code preset for later frequency/spatial comparisons;
-the kernel upgrade route itself keeps the player's unfolding, multiply, reduce and restore implementation.
+Level 1-5 builds the separable form from two consecutive one-dimensional convolutions. The resulting
+part has two selectable forms. Dense takes an image and a written kernel, while Separable takes an
+image, a horizontal weight row and a vertical weight column. Each form executes and opens its own
+passed circuit. Both forward the chosen outside policy. The final task of 1-5 compares the measured
+multiply costs on a box, a Gaussian and a Laplacian under a 29-products-per-pixel budget.
 
-The routes remain parallel until the scanner joins them. Kernel/convolution and boundary materials include
-asymmetric impulses, constants, unequal dimensions, narrow images and meaningful failure cases. The scanner is a
-controlled response pipeline, not an implementation of document detection or perspective correction.
+Smoothing and detail enhancement in 1-6 form one branch. Signed responses and Sobel in 1-7 and 1-8
+form the other. These tasks call the processor. The grayscale scanner in 1-9 starts from the Sobel
+board, adds Gaussian preprocessing and outputs response strength and a strict threshold mask.
+The noisy paper sample lets the player inspect detail lost in preprocessing.
 
-Stage 2 opens by constructing a wave, then a single-frequency projection and a quadrature probe. From that basis,
-analysis/synthesis and phase/measurement facets are practiced before the final interference-removal machine:
-row spectrum -> inverse synthesis -> phase-preserving filtering; complex row transforms -> 2D transform using two
-axis passes. Frequency masks are given scientific specifications with selectable contributions, not green-target
-sliders. Low/high/band effects, conjugate pairs, phase loss and ringing are tested through actual reconstructed
-images. Circular spatial convolution is compared only with the corresponding periodic frequency computation. The final
-machine consumes the row-frequency branch as a one-axis comparison, the 2D branch for reconstruction, and the
-earlier convolver as a spatial baseline. Vertical variation appearing as per-row DC exposes the row-only limit.
-Sampling/Nyquist and image compression are not silently claimed as audited L4 requirements.
+Chapter 2 starts by comparing the spectra of two grids with different spatial periods. The wave,
+single-frequency projection and quadrature probe lead to a row spectrum and phase-preserving
+synthesis. The row spectrum displays the same magnitudes in array order and with zero frequency
+centred. Complex row transforms and transposition compose into 2D analysis and synthesis. Circular
+spatial convolution uses the dense processor in both the convolution theorem comparison and the
+interference remover. The final board compares spatial smoothing, row filtering and 2D filtering
+on the same sample.
 
 ## Guidance and interaction
 
@@ -190,18 +181,17 @@ introduces, including all-unlocked review. Defaults, restored boards, selectors 
 | Construction | Prerequisite task | Combined task | Newly available capability |
 | --- | --- | --- | --- |
 | Replaceable local kernel | Inspect per-position weighted contributions | Sum and restore a local result | Window unfolding first; row sum and shape restoration next |
-| Detail enhancement | Preserve constant edges under replication; separate the signed removed detail | Smooth/detail enhancement | Boundary assumption, then the signed residual, before enhancement |
+| Dense and separable forms | Build full-size convolution and its boundary rules | Compare three filters under a multiply budget | Two saved implementations of the spatial processor, and five-weight constants |
+| Detail enhancement | Preserve constant edges under replication; separate the signed removed detail | Smooth/detail enhancement | Signed residual before enhancement |
 | Frequency wave | Shift one cycle without changing its spacing | Add variable cycles per row | Cosine and phase before frequency control |
 | Stable gradient | Measure the length of raw signed directional responses | Perpendicular smoothing and strength | Magnitude before Sobel composition |
 | Row spectrum | Scan the earned probe into one coefficient column | Restore all three coefficient channels | Repeated rows and frequency indices before full spectrum assembly |
 | Magnitude/phase exchange | Rescale coefficient pairs without changing direction | Exchange sources and reconstruct | Safe division and length control before image-level synthesis |
-| Two-dimensional spectrum | Apply the row machine to columns and restore orientation | Compose both spatial directions | Transpose through a real column-transform task |
+| Two-dimensional spectrum | Apply the row machine to columns and restore orientation | Compose both spatial directions | Reuse the transpose introduced for separable weight columns |
 
 Arithmetic starts with subtraction, adds addition/multiplication for spatial weights, and introduces division
 when coefficient rescaling needs it. Row reduction starts with sum and adds mean for the normalised projection.
-The size component first appears at frequency/spatial normalisation. Simple scalar constants, channel selectors
-and row-position services reuse established arithmetic, RGB and normalised-position knowledge; they receive
-concise task guidance rather than unrelated tool exercises.
+The size component first appears at frequency/spatial normalisation. Scalar constants and row-position services reuse established arithmetic and normalised-position knowledge.
 
 ### Completion explanation verification
 
@@ -227,7 +217,7 @@ All 40 circuit tasks now supply samples, including the three existing smoothing 
 leave graded tests, hidden cases, reference circuits and unlock rules unchanged. Operation-set validation checks
 every reference output; a separate audit verifies all sample outputs are finite. On this machine, the reference
 runs for all samples totalled about 90 ms, with the 2D final task the slowest at 27 ms (excluding rendering).
-Browser review covers RGB scanning, 1D gain filtering and the 16 × 12 final 2D sample on a phone; switching to
+The earlier browser review covered RGB scanning before the grayscale rebuild, as well as 1D gain filtering and the 16 × 12 final 2D sample on a phone; switching to
 that phone sample took about 128 ms in this session. These are local measurements, not device-wide guarantees.
 The reference 2D circuit shows all sample outputs without unconnected terminals. The shared regression suite
 passes 432 tests, and the Vision Lab production build passes.

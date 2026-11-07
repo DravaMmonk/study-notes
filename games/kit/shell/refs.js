@@ -56,7 +56,7 @@ export function setRefs(next) {
 }
 
 /** Open what a reference points at, as clicking it does (a level asks before going there). */
-export const openRef = (kind, id) => hooks?.open(kind, id)
+export const openRef = (kind, id, task) => hooks?.open(kind, id, task)
 
 /** A plain text split into strings and { kind, ref } pieces, for games whose text is not HTML. */
 export function refParts(text) {

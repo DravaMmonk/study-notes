@@ -66,13 +66,15 @@
         }
       ],
       "solution": [
-        "c = alignedDifference(observed,reference,d)",
+        "s = shift(observed,d)",
+        "c = difference(s,reference)",
         "m = less(tolerance,c)",
         "changes <- c",
         "mask <- m"
       ],
       "naive": [
-        "c = alignedDifference(observed,reference,d)",
+        "s = shift(observed,d)",
+        "c = difference(s,reference)",
         "m = less(c,tolerance)",
         "changes <- c",
         "mask <- m"
@@ -109,7 +111,8 @@
           },
           "d": { "x": 1, "y": 0 }
         }
-      }
+      },
+      "carry": "0-2"
     }
   ]
 }

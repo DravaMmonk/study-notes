@@ -69,7 +69,7 @@ export const GAMES = [
   {
     id: 'vision-lab', href: 'vision-lab/index.html', title: '视觉实验室', en: 'Vision Lab', topic: { zh: '计算机视觉', en: 'Computer Vision' },
     desc: { zh: '从图像运算造出比较仪、扫描器与频率去干扰仪。自己搭出的电路成为下一台机器的部件，计算和重复工作交给工具。', en: 'Build comparators, scanners and frequency interference removers from image arithmetic. Your passed circuits become reusable parts; tools handle calculation and repetition.' },
-    levels: 26, art: 'pipeline', dev: true,
+    levels: 25, art: 'pipeline', dev: true,
     page: { icon: 'M16 32h32M32 16v32', description: '视觉实验室 Vision Lab：从基础元件搭建比较仪、扫描器与频率分析仪。Build visual machines from reusable image circuits.' },
   },
 ];

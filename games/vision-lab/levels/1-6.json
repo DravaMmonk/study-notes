@@ -1,453 +1,374 @@
 {
-  "title": { "zh": "边缘以外没有观测", "en": "No observations beyond the border" },
+  "title": { "zh": "同一部件，压低还是增强细节", "en": "Suppress or enhance detail" },
   "intro": [
     {
       "t": {
-        "zh": "在 <level-ref to=\"1-4\"></level-ref> 留下的电路上修改邻域表的图外设置，并增加有效内部输出。保留已有计算路径，不调用处理器自身。",
-        "en": "Modify the window table’s border setting on the circuit passed in <level-ref to=\"1-4\"></level-ref>, then add a valid-interior output. Keep the existing computation path without calling the processor inside itself."
-      }
-    },
-    {
-      "t": {
-        "zh": "卷积器在内部工作正常，常量图的边缘却可能变暗。图外没有观测，每种延续都是一种猜测，适合不同的材料。现在逐项明确图外模型，再比较同尺寸延续与只保留有效内部这两种接口。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "The convolver works inside the image, yet a constant image may darken at its edges. Nothing is observed outside, so every extension is a guess that suits different material. Now fix the outside model task by task, then compare same-size extension with keeping only the valid interior. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+        "zh": "观察平滑去掉了哪些细节，再决定如何把带符号的细节加回原图。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+        "en": "Inspect which detail smoothing removes, then add signed detail back into the original image. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
       }
     }
   ],
   "after": {
-    "zh": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]\n\nW、H 是原图宽高，rx、ry 是邻域的每轴半径，假定图像足够大。只保留邻域完整落在原图内的位置，就不必猜测图外值，但会缩小输出。补零、延续边缘、周期和镜像则是不同的图外假设，不能把差异都归咎于核。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-    "en": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]\n\nW and H are image dimensions, rx and ry the neighbourhood radii, assuming a sufficiently large image. Retaining only fully observed neighbourhoods avoids invented outside values but reduces output size. Zero, edge, periodic and reflected extensions are different assumptions, so output differences need not come from the kernel. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+    "zh": "\\[D=I-S,\\qquad E=I+\\alpha D\\]\n\nI 是原图，S 是平滑图，D 是被平滑压低的带符号细节，α 是增强强度。D 为正时增强会更亮，为负时会更暗；绝对差无法保留这种方向。增强也可能放大噪声，输出超出显示范围不等于计算错误。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+    "en": "\\[D=I-S,\\qquad E=I+\\alpha D\\]\n\nI is the original, S the smoothed image, D the signed detail removed by smoothing and α the enhancement amount. Positive detail becomes brighter and negative detail darker; absolute difference loses that direction. Enhancement can amplify noise, and values outside the display range remain valid results. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
   },
   "tasks": [
     {
-      "id": "v1_border_clamp",
+      "id": "v1_smooth_border",
       "kind": "circuit",
       "step": {
-        "zh": "延续边缘",
-        "en": "Replicate edges"
+        "zh": "先稳定边缘读数",
+        "en": "Stabilise boundary readings"
       },
       "configurations": { "*.outside": ["clamp"] },
-      "brief": {
-        "zh": "本任务假设图外延续最近边缘读数。保持卷积规则，修复边界输出。",
-        "en": "This task assumes replicated edge readings. Keep the convolution rule and adapt its boundary output."
-      },
-      "after": {
-        "zh": "\\[I_{\\mathrm{ext}}[n]=I[\\min(\\max(n,0),N-1)]\\]\n\n对一条长度 N 的轴，图外位置读取最近边缘值；另一条轴同理。它假设边缘之外保持不变，所以不会产生补零带来的黑边，但可能延长边缘结构。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "\\[I_{\\mathrm{ext}}[n]=I[\\min(\\max(n,0),N-1)]\\]\n\nOn an axis of length N, outside indices read the nearest edge value; the other axis follows the same rule. This assumes constant continuation, avoiding a zero-padding edge while potentially extending edge structure. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-            ]
-          },
-          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
-          },
-          "expect": {
-            "out": [
-              [0.17500000000000002, 0.45, 0.775],
-              [0.5999999999999999, 0.44999999999999996, 0.45],
-              [0.35000000000000003, 0.6, 0.65]
-            ]
-          }
-        }
-      ],
-      "hidden": [],
-      "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naiveWhy": {
-        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
-        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
-      },
-      "hint": [
-        {
-          "zh": "打开自己卷积器的图外假设。观察变化集中在哪些输出位置。",
-          "en": "Inspect your convolver’s outside setting and where its effects occur."
-        }
-      ],
       "adds": [],
-      "intro": [
-        {
-          "t": {
-            "zh": "这里把同一卷积器放到边界问题中检验。先用最常见的假设：普通照片的边缘之外通常是相近的景物，图外就延续最近边缘的读数。对照恒定图与变化边缘，检查这种假设影响哪些输出。",
-            "en": "This puts the same convolver to a boundary problem. Start with the most common assumption: beyond the edge of an ordinary photograph the scene is usually similar, so outside reads continue the nearest edge value. Contrast constant images with varied edges to see which outputs the assumption affects."
-          },
-          "fig": "outside-clamp"
-        }
-      ],
-      "carry": "1-4",
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ]
-        }
-      }
-    },
-    {
-      "id": "v1_border_wrap",
-      "kind": "circuit",
-      "step": {
-        "zh": "周期延续",
-        "en": "Periodic borders"
-      },
-      "configurations": { "*.outside": ["wrap"] },
       "brief": {
-        "zh": "本任务假设图外周期相接。保持卷积规则，修复边界输出。",
-        "en": "This task assumes periodic continuation. Keep the convolution rule and adapt its boundary output."
+        "zh": "用可分离形态沿两轴平滑。",
+        "en": "Smooth along both axes with the separable form."
       },
       "after": {
-        "zh": "\\[I_{\\mathrm{ext}}[n]=I[n\\bmod N]\\]\n\n取模使用 0,…,N−1 的余数。超出一端就从另一端继续，等价于把每条轴首尾相接；两端本来不连续时，也会引入人为接缝。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "\\[I_{\\mathrm{ext}}[n]=I[n\\bmod N]\\]\n\nModulo uses a remainder in 0,…,N−1. Reading past one end continues at the other, joining the axis into a periodic loop. Mismatched endpoints can create an artificial seam. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+        "zh": "\\[\\begin{gathered}S(p)=\\sum_\\delta h(\\delta)I(p+\\delta)\\\\\\sum_\\delta h(\\delta)=1\\end{gathered}\\]\n\nh 是给定的归一化高斯权重，S 是平滑结果。邻居共同参与会压低快速变化；归一化保持常量输入，但不能保证图中细节全部保留。图外读取仍由边界假设决定。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+        "en": "\\[\\begin{gathered}S(p)=\\sum_\\delta h(\\delta)I(p+\\delta)\\\\\\sum_\\delta h(\\delta)=1\\end{gathered}\\]\n\nh is the supplied normalised Gaussian weighting and S the smoothed result. Combining neighbours suppresses rapid variation. Normalisation preserves constants, not all detail, and outside samples still depend on the border assumption. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+        { "name": "kx", "label": { "zh": "横向高斯权重", "en": "Gaussian row" } },
+        { "name": "ky", "label": { "zh": "纵向高斯权重", "en": "Gaussian column" } }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "平滑读数", "en": "Smoothed readings" } }],
       "tests": [
         {
           "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-            ]
+            "image": [[0.6, 0.6, 0.6], [0.6, 0.6, 0.6]],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.25], [0.5], [0.25]]
           },
-          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
+          "expect": { "out": [[0.6, 0.6, 0.6], [0.6, 0.6, 0.6]] }
         },
         {
           "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
+            "image": [[1, 0, 0], [0, 0, 0]],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.25], [0.5], [0.25]]
           },
           "expect": {
             "out": [
-              [0.375, 0.45, 0.5750000000000001],
-              [0.5499999999999999, 0.44999999999999996, 0.5],
-              [0.45, 0.6, 0.55]
+              [0.5625, 0.1875, 0],
+              [0.1875, 0.0625, 0]
             ]
           }
+        },
+        {
+          "inputs": {
+            "image": [[0.2], [0.8], [0.4]],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.25], [0.5], [0.25]]
+          },
+          "expect": { "out": [[0.35000000000000003], [0.55], [0.5]] }
         }
       ],
       "hidden": [],
       "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=wrap,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
+        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
         "out <- v"
-      ],
-      "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naiveWhy": {
-        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
-        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
-      },
-      "hint": [
-        {
-          "zh": "把边缘两端想成相接的环：起点之前会读到哪一端？在非恒定图上对照复制边缘。",
-          "en": "Imagine the two ends connected in a loop: which end supplies reads before the start? Compare with replication on a varied image."
-        }
-      ],
-      "carries": true,
-      "intro": [
-        {
-          "t": {
-            "zh": "现在处理周期材料，例如可以无缝平铺的纹理：右边缘之外本来就接着左边缘，所以图像一端离开后，从另一端继续读取。普通照片的两端互不相关，这样补会把另一侧的内容带进边缘。检查示例中负列号和超过宽度的位置。",
-            "en": "Now the material is periodic, such as a seamlessly tileable texture: beyond its right edge the left edge truly continues, so reads leaving one end resume at the other. The two ends of an ordinary photograph are unrelated, and this would carry the far side's content into the edge. Inspect the negative and out-of-range columns in the example."
-          },
-          "fig": "outside-wrap"
-        }
       ],
       "sample": {
         "inputs": {
           "image": {
-            "size": [32, 24],
-            "base": 0.15,
+            "size": [64, 64],
+            "base": 0.25,
             "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ]
-        }
-      }
-    },
-    {
-      "id": "v1_border_reflect",
-      "kind": "circuit",
-      "step": {
-        "zh": "镜像延续",
-        "en": "Reflect borders"
-      },
-      "configurations": { "*.outside": ["reflect"] },
-      "brief": {
-        "zh": "本任务假设图外镜像延续（含边缘格）。保持卷积规则，修复边界输出。",
-        "en": "This task assumes reflection including the edge sample. Keep the convolution rule and adapt its boundary output."
-      },
-      "after": {
-        "zh": "\\[\\begin{gathered}I_{\\mathrm{ext}}[-1]=I[0]\\\\I_{\\mathrm{ext}}[N]=I[N-1]\\end{gathered}\\]\n\n这是包含边缘格的镜像延续，随后继续按镜像顺序读回图内。它与周期相接或重复同一个边缘值不同，仍然是一项图外假设，并非新增观测。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "\\[\\begin{gathered}I_{\\mathrm{ext}}[-1]=I[0]\\\\I_{\\mathrm{ext}}[N]=I[N-1]\\end{gathered}\\]\n\nThis reflection repeats the edge sample, then reads further samples in reflected order. It differs from wrapping or continually repeating a single edge value. It remains an outside-image assumption rather than new observation. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-            ]
-          },
-          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
-          },
-          "expect": {
-            "out": [
-              [0.17500000000000002, 0.45, 0.775],
-              [0.5999999999999999, 0.44999999999999996, 0.45],
-              [0.35000000000000003, 0.6, 0.65]
-            ]
-          }
-        }
-      ],
-      "hidden": [],
-      "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=reflect,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naiveWhy": {
-        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
-        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
-      },
-      "hint": [
-        {
-          "zh": "本任务的镜像包含边缘格：在一行 [a,b,c] 外读一次得到 c，再往外得到 b。与周期延续比较。",
-          "en": "Reflection here repeats the edge sample: after [a,b,c] the next reads are c, then b. Compare against periodic continuation."
-        }
-      ],
-      "carries": true,
-      "intro": [
-        {
-          "t": {
-            "zh": "这次图像以边缘为界镜像延续，并包含边缘格：两侧对称，边缘处不出现突变，常用来减少补边造出的人工边界。示例在列号 2、3、4 读到 0.9、0.9、0.5：边缘格重复一次，再反向延续。观察这与周期相接有什么不同。",
-            "en": "This time the image is mirrored at its edge, including the edge sample: both sides match, so no jump appears at the edge, and this often reduces the artificial borders padding creates. The example reads 0.9, 0.9, 0.5 at columns 2, 3, 4: the edge sample repeats once, then continues backwards. Note how this differs from periodic continuation."
-          },
-          "fig": "outside-reflect"
-        }
-      ],
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ]
-        }
-      }
-    },
-    {
-      "id": "v1_valid",
-      "kind": "circuit",
-      "step": {
-        "zh": "有效内部",
-        "en": "Valid interior"
-      },
-      "adds": ["trim"],
-      "brief": {
-        "zh": "另一个接口只接受邻域完全在原图内的结果。每轴半径 r = (rx, ry) 已给出，保留有效内部；不用猜测图外读数。",
-        "en": "Another interface accepts only results whose neighbourhood is fully inside. The supplied per-axis radii r = (rx, ry) identify the valid interior; no outside readings are assumed."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } },
-        { "name": "r", "type": "vector", "label": { "zh": "有效半径 r", "en": "Valid radii r" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "有效结果", "en": "Valid result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
             ],
-            "r": { "x": 1, "y": 1 }
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      }
+    },
+    {
+      "id": "v1_residual",
+      "kind": "circuit",
+      "step": {
+        "zh": "取出被抹掉的细节",
+        "en": "Separate the removed detail"
+      },
+      "adds": [],
+      "brief": {
+        "zh": "从原图减去平滑结果，保留有符号的细节。",
+        "en": "Subtract the smoothed image to keep signed detail."
+      },
+      "after": {
+        "zh": "\\[D=I-S\\]\n\nI 是原图，S 是平滑图，D 是带符号残差。它记录平滑减去了什么；符号决定恢复或增强时该变亮还是变暗。|D| 只能描述改动大小。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+        "en": "\\[D=I-S\\]\n\nI is the original, S the smoothed image and D the signed residual. It records what smoothing removed; the sign determines brightening versus darkening during restoration or enhancement. |D| retains only change size. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kx", "label": { "zh": "横向高斯权重", "en": "Gaussian row" } },
+        { "name": "ky", "label": { "zh": "纵向高斯权重", "en": "Gaussian column" } }
+      ],
+      "outputs": [
+        { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
+        { "name": "detail", "label": { "zh": "细节", "en": "Detail" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [[0.2, 0.2, 0.2], [0.8, 0.8, 0.8], [0.2, 0.2, 0.2]],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.25], [0.5], [0.25]]
           },
-          "expect": { "out": [[0.6, 0.6]] }
+          "expect": {
+            "smooth": [[0.35, 0.35, 0.35], [0.5, 0.5, 0.5], [0.35, 0.35, 0.35]],
+            "detail": [[-0.15, -0.15, -0.15], [0.3, 0.3, 0.3], [-0.15, -0.15, -0.15]]
+          }
         },
         {
           "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]],
-            "r": { "x": 1, "y": 1 }
+            "image": [[0.7, 0.7, 0.7], [0.7, 0.1, 0.7], [0.7, 0.7, 0.7]],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.25], [0.5], [0.25]]
           },
-          "expect": { "out": [[0.44999999999999996]] }
+          "expect": {
+            "smooth": [[0.6625, 0.625, 0.6625], [0.625, 0.55, 0.625], [0.6625, 0.625, 0.6625]],
+            "detail": [[0.0375, 0.075, 0.0375], [0.075, -0.45, 0.075], [0.0375, 0.075, 0.0375]]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.25], [0.5], [0.25]]
+          },
+          "expect": {
+            "smooth": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
+            "detail": [[0, 0, 0, 0], [0, 0, 0, 0]]
+          }
         }
       ],
       "hidden": [],
       "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "t = trim(v,r)",
-        "out <- t"
+        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
+        "r = arithmetic[op=sub](image,v)",
+        "smooth <- v",
+        "detail <- r"
       ],
       "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
+        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
+        "r = difference(image,v)",
+        "smooth <- v",
+        "detail <- r"
       ],
       "naiveWhy": {
-        "zh": "有效输出的尺寸会缩小。换一种补边规则并不能产生这个更小的输出域。",
-        "en": "Valid output is smaller. Changing padding alone does not produce that output domain."
+        "zh": "绝对差只记下改动有多大，丢掉了方向：暗点中心的细节变成正数，平滑图加上它也回不到原图。",
+        "en": "Absolute difference keeps only how much changed and drops the direction: the dark dot’s centre turns positive, and smooth plus it no longer restores the original."
       },
-      "hint": [
-        {
-          "zh": "系统按 r 的两个分量自动计算宽高，只保留不触及图外的位置。",
-          "en": "The helper computes the dimensions from the two components of r and retains only interior locations."
-        }
-      ],
-      "intro": [
-        {
-          "t": {
-            "zh": "还可以不猜图外读数：只保留邻域完整落在原图内的输出。代价是宽高缩小。示例自动标出保留位置，本任务的 rx、ry 已给定。",
-            "en": "Another choice avoids assuming outside readings: retain only full neighbourhoods. The output becomes smaller. The example marks valid centres; task rx and ry are supplied."
-          },
-          "fig": "outside-valid"
-        }
-      ],
-      "carries": true,
       "sample": {
         "inputs": {
           "image": {
-            "size": [32, 24],
-            "base": 0.15,
+            "size": [64, 64],
+            "base": 0.25,
             "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ],
-          "r": { "x": 2, "y": 2 }
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
         }
-      }
-    }
-  ],
-  "builds": {
-    "type": "spatialProcessor",
-    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
-    "desc": {
-      "zh": "运行这条升级系列中已通关的电路。每次升级直接扩展原电路，并更新这个元件的接口与实现。",
-      "en": "Run the passed circuit from this upgrade series. Each revision extends the existing board and updates this part’s interface and implementation."
+      },
+      "carries": true
     },
-    "settings": ["outside"],
-    "defaults": { "outside": "zero" }
-  }
+    {
+      "id": "v1_detail",
+      "kind": "circuit",
+      "step": {
+        "zh": "平滑与细节",
+        "en": "Smoothing and detail"
+      },
+      "brief": {
+        "zh": "将放大的有符号细节加回原图，并输出绝对变化。",
+        "en": "Add the amplified signed detail back and output the absolute change."
+      },
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "amount", "label": { "zh": "细节强度", "en": "Detail strength" } },
+        { "name": "kx", "label": { "zh": "横向高斯权重", "en": "Gaussian row" } },
+        { "name": "ky", "label": { "zh": "纵向高斯权重", "en": "Gaussian column" } }
+      ],
+      "outputs": [
+        { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
+        { "name": "enhanced", "label": { "zh": "细节增强图", "en": "Enhanced" } },
+        { "name": "change", "label": { "zh": "改动大小", "en": "Change magnitude" } }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "image": [
+              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2],
+              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2],
+              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2]
+            ],
+            "amount": 1,
+            "kx": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
+            "ky": [[0.274068619061197], [0.45186276187760605], [0.274068619061197]]
+          },
+          "expect": {
+            "smooth": [
+              [
+                0.3096274476244788,
+                0.3807451047510425,
+                0.41925489524895765,
+                0.3807451047510425,
+                0.30962744762447886
+              ],
+              [
+                0.3096274476244788,
+                0.3807451047510425,
+                0.41925489524895765,
+                0.3807451047510425,
+                0.30962744762447886
+              ],
+              [
+                0.3096274476244788,
+                0.3807451047510425,
+                0.41925489524895765,
+                0.3807451047510425,
+                0.30962744762447886
+              ]
+            ],
+            "enhanced": [
+              [
+                0.09037255237552122,
+                0.8192548952489577,
+                -0.019254895248957626,
+                0.8192548952489577,
+                0.09037255237552116
+              ],
+              [
+                0.09037255237552122,
+                0.8192548952489577,
+                -0.019254895248957626,
+                0.8192548952489577,
+                0.09037255237552116
+              ],
+              [
+                0.09037255237552122,
+                0.8192548952489577,
+                -0.019254895248957626,
+                0.8192548952489577,
+                0.09037255237552116
+              ]
+            ],
+            "change": [
+              [
+                0.10962744762447879,
+                0.21925489524895758,
+                0.21925489524895764,
+                0.21925489524895758,
+                0.10962744762447885
+              ],
+              [
+                0.10962744762447879,
+                0.21925489524895758,
+                0.21925489524895764,
+                0.21925489524895758,
+                0.10962744762447885
+              ],
+              [
+                0.10962744762447879,
+                0.21925489524895758,
+                0.21925489524895764,
+                0.21925489524895758,
+                0.10962744762447885
+              ]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.1, 0.1, 0.8, 0.8], [0.1, 0.9, 0.8, 0.8], [0.1, 0.1, 0.8, 0.8]],
+            "amount": 0.6,
+            "kx": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
+            "ky": [[0.274068619061197], [0.45186276187760605], [0.274068619061197]]
+          },
+          "expect": {
+            "smooth": [
+              [0.16009088636328922, 0.39092115586521714, 0.6682428530204514, 0.8],
+              [0.19907312252237921, 0.4551919978001644, 0.7072250891795414, 0.8],
+              [0.16009088636328925, 0.39092115586521714, 0.6682428530204515, 0.8]
+            ],
+            "enhanced": [
+              [0.06394546818202648, -0.0745526935191303, 0.8790542881877292, 0.8],
+              [0.04055612648657248, 1.1668848013199014, 0.8556649464922752, 0.8],
+              [0.06394546818202645, -0.0745526935191303, 0.8790542881877291, 0.8]
+            ],
+            "change": [
+              [0.060090886363289214, 0.29092115586521716, 0.13175714697954866, 0],
+              [0.09907312252237921, 0.44480800219983563, 0.09277491082045863, 0],
+              [0.06009088636328924, 0.29092115586521716, 0.13175714697954855, 0]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+            "amount": 1.4,
+            "kx": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
+            "ky": [[0.274068619061197], [0.45186276187760605], [0.274068619061197]]
+          },
+          "expect": {
+            "smooth": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+            "enhanced": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
+            "change": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+          }
+        }
+      ],
+      "hidden": [],
+      "solution": [
+        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
+        "detail = arithmetic[op=sub](image,v)",
+        "scaled = arithmetic[op=mul](detail,amount)",
+        "e = arithmetic[op=add](image,scaled)",
+        "d = difference(image,v)",
+        "smooth <- v",
+        "enhanced <- e",
+        "change <- d"
+      ],
+      "naive": [
+        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
+        "detail = arithmetic[op=sub](image,v)",
+        "scaled = arithmetic[op=mul](detail,amount)",
+        "e = arithmetic[op=add](v,scaled)",
+        "d = difference(image,v)",
+        "smooth <- v",
+        "enhanced <- e",
+        "change <- d"
+      ],
+      "naiveWhy": {
+        "zh": "加到平滑图上只是把抹掉的部分补回来：强度为 1 时得到的正是原图，没有任何增强。",
+        "en": "Adding to the smoothed image only restores what was removed: at strength 1 it gives back the original, with no enhancement."
+      },
+      "adds": [],
+      "sample": {
+        "inputs": {
+          "image": {
+            "size": [64, 64],
+            "base": 0.25,
+            "layers": [
+              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
+              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
+              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
+              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+            ],
+            "noise": { "seed": 7, "amp": 0.06 }
+          }
+        }
+      },
+      "carries": true
+    }
+  ]
 }
