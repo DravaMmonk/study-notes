@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "<code>Wvalid = W − 2rx; Hvalid = H − 2ry</code>\n\nW、H 是原图宽高，rx、ry 是邻域的每轴半径，假定图像足够大。只保留邻域完整落在原图内的位置，就不必猜测图外值，但会缩小输出。补零、延续边缘、周期和镜像则是不同的图外假设，不能把差异都归咎于核。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-    "en": "<code>Wvalid = W − 2rx; Hvalid = H − 2ry</code>\n\nW and H are image dimensions, rx and ry the neighbourhood radii, assuming a sufficiently large image. Retaining only fully observed neighbourhoods avoids invented outside values but reduces output size. Zero, edge, periodic and reflected extensions are different assumptions, so output differences need not come from the kernel. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+    "zh": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]\n\nW、H 是原图宽高，rx、ry 是邻域的每轴半径，假定图像足够大。只保留邻域完整落在原图内的位置，就不必猜测图外值，但会缩小输出。补零、延续边缘、周期和镜像则是不同的图外假设，不能把差异都归咎于核。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+    "en": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]\n\nW and H are image dimensions, rx and ry the neighbourhood radii, assuming a sufficiently large image. Retaining only fully observed neighbourhoods avoids invented outside values but reduces output size. Zero, edge, periodic and reflected extensions are different assumptions, so output differences need not come from the kernel. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -32,8 +32,8 @@
         "en": "This task assumes replicated edge readings. Keep the convolution rule and adapt its boundary output."
       },
       "after": {
-        "zh": "<code>Iext[n] = I[min(max(n,0),N−1)]</code>\n\n对一条长度 N 的轴，图外位置读取最近边缘值；另一条轴同理。它假设边缘之外保持不变，所以不会产生补零带来的黑边，但可能延长边缘结构。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "<code>Iext[n] = I[min(max(n,0),N−1)]</code>\n\nOn an axis of length N, outside indices read the nearest edge value; the other axis follows the same rule. This assumes constant continuation, avoiding a zero-padding edge while potentially extending edge structure. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+        "zh": "\\[I_{\\mathrm{ext}}[n]=I[\\min(\\max(n,0),N-1)]\\]\n\n对一条长度 N 的轴，图外位置读取最近边缘值；另一条轴同理。它假设边缘之外保持不变，所以不会产生补零带来的黑边，但可能延长边缘结构。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+        "en": "\\[I_{\\mathrm{ext}}[n]=I[\\min(\\max(n,0),N-1)]\\]\n\nOn an axis of length N, outside indices read the nearest edge value; the other axis follows the same rule. This assumes constant continuation, avoiding a zero-padding edge while potentially extending edge structure. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
@@ -118,8 +118,8 @@
         "en": "This task assumes periodic continuation. Keep the convolution rule and adapt its boundary output."
       },
       "after": {
-        "zh": "<code>Iext[n] = I[n mod N]</code>\n\n取模使用 0,…,N−1 的余数。超出一端就从另一端继续，等价于把每条轴首尾相接；两端本来不连续时，也会引入人为接缝。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "<code>Iext[n] = I[n mod N]</code>\n\nModulo uses a remainder in 0,…,N−1. Reading past one end continues at the other, joining the axis into a periodic loop. Mismatched endpoints can create an artificial seam. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+        "zh": "\\[I_{\\mathrm{ext}}[n]=I[n\\bmod N]\\]\n\n取模使用 0,…,N−1 的余数。超出一端就从另一端继续，等价于把每条轴首尾相接；两端本来不连续时，也会引入人为接缝。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+        "en": "\\[I_{\\mathrm{ext}}[n]=I[n\\bmod N]\\]\n\nModulo uses a remainder in 0,…,N−1. Reading past one end continues at the other, joining the axis into a periodic loop. Mismatched endpoints can create an artificial seam. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
@@ -203,8 +203,8 @@
         "en": "This task assumes reflection including the edge sample. Keep the convolution rule and adapt its boundary output."
       },
       "after": {
-        "zh": "<code>Iext[−1] = I[0]; Iext[N] = I[N−1]</code>\n\n这是包含边缘格的镜像延续，随后继续按镜像顺序读回图内。它与周期相接或重复同一个边缘值不同，仍然是一项图外假设，并非新增观测。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "<code>Iext[−1] = I[0]; Iext[N] = I[N−1]</code>\n\nThis reflection repeats the edge sample, then reads further samples in reflected order. It differs from wrapping or continually repeating a single edge value. It remains an outside-image assumption rather than new observation. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+        "zh": "\\[\\begin{gathered}I_{\\mathrm{ext}}[-1]=I[0]\\\\I_{\\mathrm{ext}}[N]=I[N-1]\\end{gathered}\\]\n\n这是包含边缘格的镜像延续，随后继续按镜像顺序读回图内。它与周期相接或重复同一个边缘值不同，仍然是一项图外假设，并非新增观测。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
+        "en": "\\[\\begin{gathered}I_{\\mathrm{ext}}[-1]=I[0]\\\\I_{\\mathrm{ext}}[N]=I[N-1]\\end{gathered}\\]\n\nThis reflection repeats the edge sample, then reads further samples in reflected order. It differs from wrapping or continually repeating a single edge value. It remains an outside-image assumption rather than new observation. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },

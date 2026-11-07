@@ -42,7 +42,7 @@ async function serve() {
     server = await createServer({
       root: ROOT, configFile: false, plugins: [react()], appType: 'custom', logLevel: 'error',
       server: { middlewareMode: true, hmr: false, ws: false, fs: { allow: ['..'] } },
-      resolve: { dedupe: ['react', 'react-dom', 'lucide-react'] }, ssr: { noExternal: ['lucide-react'] }, optimizeDeps: { noDiscovery: true, include: [] },
+      resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] }, ssr: { noExternal: ['lucide-react', 'katex'] }, optimizeDeps: { noDiscovery: true, include: [] },
     })
   }
 }

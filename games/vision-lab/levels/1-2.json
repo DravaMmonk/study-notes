@@ -16,8 +16,8 @@
     }
   ],
   "after": {
-    "zh": "<code>K(u,v) = h(u)h(v)</code>\n\nh 是一维权重，u、v 是两个轴的邻域偏移。连续两轴处理时，一个像素先受一轴权重影响，再受另一轴权重影响，因此贡献相乘，形成二维核 K。只有核可写成这种外积、且边界规则一致时，两次一维处理才与二维处理等价。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
-    "en": "<code>K(u,v) = h(u)h(v)</code>\n\nh is the one-dimensional weight sequence; u and v are offsets on the two axes. Successive passes multiply the two contributions, producing the outer-product kernel K. Equivalence to a 2D operation requires such a separable kernel and matched border rules. <wiki-ref to=\"filter-separability\"></wiki-ref>"
+    "zh": "\\[K(u,v)=h(u)h(v)\\]\n\nh 是一维权重，u、v 是两个轴的邻域偏移。连续两轴处理时，一个像素先受一轴权重影响，再受另一轴权重影响，因此贡献相乘，形成二维核 K。只有核可写成这种外积、且边界规则一致时，两次一维处理才与二维处理等价。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
+    "en": "\\[K(u,v)=h(u)h(v)\\]\n\nh is the one-dimensional weight sequence; u and v are offsets on the two axes. Successive passes multiply the two contributions, producing the outer-product kernel K. Equivalence to a 2D operation requires such a separable kernel and matched border rules. <wiki-ref to=\"filter-separability\"></wiki-ref>"
   },
   "tasks": [
     {

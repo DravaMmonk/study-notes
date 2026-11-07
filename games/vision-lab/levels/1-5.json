@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "<code>D = I − S; E = I + αD</code>\n\nI 是原图，S 是平滑图，D 是被平滑压低的带符号细节，α 是增强强度。D 为正时增强会更亮，为负时会更暗；绝对差无法保留这种方向。增强也可能放大噪声，输出超出显示范围不等于计算错误。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-    "en": "<code>D = I − S; E = I + αD</code>\n\nI is the original, S the smoothed image, D the signed detail removed by smoothing and α the enhancement amount. Positive detail becomes brighter and negative detail darker; absolute difference loses that direction. Enhancement can amplify noise, and values outside the display range remain valid results. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+    "zh": "\\[D=I-S,\\qquad E=I+\\alpha D\\]\n\nI 是原图，S 是平滑图，D 是被平滑压低的带符号细节，α 是增强强度。D 为正时增强会更亮，为负时会更暗；绝对差无法保留这种方向。增强也可能放大噪声，输出超出显示范围不等于计算错误。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+    "en": "\\[D=I-S,\\qquad E=I+\\alpha D\\]\n\nI is the original, S the smoothed image, D the signed detail removed by smoothing and α the enhancement amount. Positive detail becomes brighter and negative detail darker; absolute difference loses that direction. Enhancement can amplify noise, and values outside the display range remain valid results. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -33,8 +33,8 @@
         "en": "Smooth along both axes with the supplied normalised weights, extending nearest edge values outside. Constant-image edges must stay constant; varying images must still be smoothed."
       },
       "after": {
-        "zh": "<code>S(p) = Σδ h(δ) I(p+δ), Σδ h(δ) = 1</code>\n\nh 是给定的归一化高斯权重，S 是平滑结果。邻居共同参与会压低快速变化；归一化保持常量输入，但不能保证图中细节全部保留。图外读取仍由边界假设决定。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-        "en": "<code>S(p) = Σδ h(δ) I(p+δ), Σδ h(δ) = 1</code>\n\nh is the supplied normalised Gaussian weighting and S the smoothed result. Combining neighbours suppresses rapid variation. Normalisation preserves constants, not all detail, and outside samples still depend on the border assumption. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+        "zh": "\\[\\begin{gathered}S(p)=\\sum_\\delta h(\\delta)I(p+\\delta)\\\\\\sum_\\delta h(\\delta)=1\\end{gathered}\\]\n\nh 是给定的归一化高斯权重，S 是平滑结果。邻居共同参与会压低快速变化；归一化保持常量输入，但不能保证图中细节全部保留。图外读取仍由边界假设决定。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+        "en": "\\[\\begin{gathered}S(p)=\\sum_\\delta h(\\delta)I(p+\\delta)\\\\\\sum_\\delta h(\\delta)=1\\end{gathered}\\]\n\nh is the supplied normalised Gaussian weighting and S the smoothed result. Combining neighbours suppresses rapid variation. Normalisation preserves constants, not all detail, and outside samples still depend on the border assumption. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
@@ -139,8 +139,8 @@
         "en": "Smooth along both axes with the supplied normalised weights, extending nearest edge values outside; also output the signed detail of the original relative to the smoothed image, so that smooth plus detail restores the original exactly."
       },
       "after": {
-        "zh": "<code>D = I − S</code>\n\nI 是原图，S 是平滑图，D 是带符号残差。它记录平滑减去了什么；符号决定恢复或增强时该变亮还是变暗。|D| 只能描述改动大小。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-        "en": "<code>D = I − S</code>\n\nI is the original, S the smoothed image and D the signed residual. It records what smoothing removed; the sign determines brightening versus darkening during restoration or enhancement. |D| retains only change size. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+        "zh": "\\[D=I-S\\]\n\nI 是原图，S 是平滑图，D 是带符号残差。它记录平滑减去了什么；符号决定恢复或增强时该变亮还是变暗。|D| 只能描述改动大小。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
+        "en": "\\[D=I-S\\]\n\nI is the original, S the smoothed image and D the signed residual. It records what smoothing removed; the sign determines brightening versus darkening during restoration or enhancement. |D| retains only change size. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },

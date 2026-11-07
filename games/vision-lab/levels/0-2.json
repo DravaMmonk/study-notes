@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "<code>S(x,y) = O(x+dx,y+dy); D(x,y) = |S(x,y) − R(x,y)|</code>\n\nd=(dx,dy) 是给定的读取偏移。先对应同一场景位置，再比较数值，才能减少错位产生的假差异。这里使用已知位移，没有从图像估计未知位移。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
-    "en": "<code>S(x,y) = O(x+dx,y+dy); D(x,y) = |S(x,y) − R(x,y)|</code>\n\nd=(dx,dy) is the supplied read offset. Matching scene positions before comparing values reduces false differences from misalignment. The offset is given, not estimated from the images. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+    "zh": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]\n\nd=(dx,dy) 是给定的读取偏移。先对应同一场景位置，再比较数值，才能减少错位产生的假差异。这里使用已知位移，没有从图像估计未知位移。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
+    "en": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]\n\nd=(dx,dy) is the supplied read offset. Matching scene positions before comparing values reduces false differences from misalignment. The offset is given, not estimated from the images. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
   },
   "tasks": [
     {

@@ -1,12 +1,15 @@
-import { Fragment, createElement } from 'react'
+import { Fragment, Suspense, createElement, lazy } from 'react'
 import { L } from './i18n.js'
 import { markupOf } from '../engine/markup.js'
+
+const TypesetMath = lazy(() => import('./TypesetMath.jsx'))
 
 // A game's text as the shell draws it: its markup (../engine/markup.js) as elements, references as their link chips
 // (refs.js), anything else as the characters it is. Nothing is ever set as HTML.
 
 const draw = (nodes) => nodes.map((node, i) => {
   if (typeof node === 'string') return <Fragment key={i}>{node}</Fragment>
+  if (node.math !== undefined) return <Suspense key={i} fallback={null}><TypesetMath tex={node.math} display={node.display} /></Suspense>
   if (node.ref) return createElement(`${node.ref}-ref`, { key: i, to: node.to })
   return createElement(node.tag, { key: i }, draw(node.kids))
 })

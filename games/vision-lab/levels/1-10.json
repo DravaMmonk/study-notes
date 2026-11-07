@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "<code>M = √(gx² + gy²); B = 1 if M > τ, else 0</code>\n\ngx、gy 是经过通道汇合、平滑后测得的方向分量，τ 是给定响应阈值。M 保留强弱，B 只保留是否严格超标。处理顺序和边界影响测量结果；强响应标记也不等于完整物体轮廓。 <wiki-ref to=\"scanner-composition\"></wiki-ref>",
-    "en": "<code>M = √(gx² + gy²); B = 1 if M > τ, else 0</code>\n\ngx and gy are directional measurements after channel aggregation and smoothing; τ is the supplied threshold. M retains response size while B retains only strict exceedance. Order and border rules affect the measurement; strong-response marks are not complete object contours. <wiki-ref to=\"scanner-composition\"></wiki-ref>"
+    "zh": "\\[\\begin{gathered}M=\\sqrt{g_x^2+g_y^2}\\\\B=\\begin{cases}1,&M>\\tau\\\\0,&M\\le\\tau\\end{cases}\\end{gathered}\\]\n\ngx、gy 是经过通道汇合、平滑后测得的方向分量，τ 是给定响应阈值。M 保留强弱，B 只保留是否严格超标。处理顺序和边界影响测量结果；强响应标记也不等于完整物体轮廓。 <wiki-ref to=\"scanner-composition\"></wiki-ref>",
+    "en": "\\[\\begin{gathered}M=\\sqrt{g_x^2+g_y^2}\\\\B=\\begin{cases}1,&M>\\tau\\\\0,&M\\le\\tau\\end{cases}\\end{gathered}\\]\n\ngx and gy are directional measurements after channel aggregation and smoothing; τ is the supplied threshold. M retains response size while B retains only strict exceedance. Order and border rules affect the measurement; strong-response marks are not complete object contours. <wiki-ref to=\"scanner-composition\"></wiki-ref>"
   },
   "tasks": [
     {

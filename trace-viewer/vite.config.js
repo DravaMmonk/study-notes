@@ -41,7 +41,7 @@ const gamePaths = () => ({
 // https://vite.dev/config/
 export default defineConfig({
   // The shared game shell lives outside this project (games/kit/shell); resolve its React from here.
-  resolve: { dedupe: ['react', 'react-dom', 'lucide-react'] },
+  resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] },
   plugins: [react(), gamePaths(), gameApp(), studioApp()],
   server: {
     fs: {

@@ -669,3 +669,8 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .settings-reset { width: 100%; color: var(--muted); cursor: pointer; }
 
 .player-settings-popover { width: min(var(--settings-width), calc(100vw - 2 * var(--stage-pad))); }
+
+/* Mathematical fonts and overflow belong to the shared text renderer. */
+.typeset-math .katex { font-size: 1em; }
+.typeset-math.is-display { display: block; max-width: 100%; padding-block: calc(var(--stage-gap) / 2); overflow-x: auto; overflow-y: hidden; }
+.typeset-math .katex-display { margin: 0; }

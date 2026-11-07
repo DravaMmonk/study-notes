@@ -16,8 +16,8 @@
     }
   ],
   "after": {
-    "zh": "<code>∇I = (gx,gy)</code>\n\ngx、gy 分别描述沿 x、y 的带符号变化。正负记录亮度增加还是减少，两个分量记录变化朝向；这里用给定差分核近似，数值尺度由核的系数决定。负响应即使显示成黑色，也仍有测量意义。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
-    "en": "<code>∇I = (gx,gy)</code>\n\ngx and gy describe signed changes along x and y. Signs retain increasing versus decreasing intensity; the pair retains direction. Given difference kernels approximate these changes, with scale determined by their coefficients. A negative response remains meaningful even if grayscale display clips it to black. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+    "zh": "\\[\\nabla I=(g_x,g_y)\\]\n\ngx、gy 分别描述沿 x、y 的带符号变化。正负记录亮度增加还是减少，两个分量记录变化朝向；这里用给定差分核近似，数值尺度由核的系数决定。负响应即使显示成黑色，也仍有测量意义。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
+    "en": "\\[\\nabla I=(g_x,g_y)\\]\n\ngx and gy describe signed changes along x and y. Signs retain increasing versus decreasing intensity; the pair retains direction. Given difference kernels approximate these changes, with scale determined by their coefficients. A negative response remains meaningful even if grayscale display clips it to black. <wiki-ref to=\"gradient-components\"></wiki-ref>"
   },
   "tasks": [
     {

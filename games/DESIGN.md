@@ -884,6 +884,12 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 
+**Mathematical text.** Shared markup accepts `\( … \)` for inline LaTeX and `\[ … \]` for display
+LaTeX. The math renderer and fonts load on demand. KaTeX renders mathematical fonts and accessible MathML; prose is never treated
+as HTML. Math delimiters are parsed before markup tags, so inequalities inside formulas are not tags. Code
+spans remain literal. Long formulas use explicit aligned/gathered lines and contained horizontal scrolling
+when needed; they must not widen the phone page. Formula syntax is checked with the installed KaTeX version.
+
 **Circuit blocks.** Course provenance (`engine/stages.js`) supplies block presets and the `open-crowded`
 audit. Board layout stores `blocks: [{ id, note?, view, nodes }]`, with node identities rather than row dividers.
 Each root component belongs to at most one block; fixed input/output cards and current ungrouped work stay

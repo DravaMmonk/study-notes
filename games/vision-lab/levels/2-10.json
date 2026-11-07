@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "<code>y = F⁻¹(g · F(x))</code>\n\nF 表示本游戏的前向变换，F⁻¹ 表示逆向重建。硬截止让 g 在频率边界突然跳变，对应的空间响应会向两侧延伸并交替正负，突变附近就可能出现波纹。渐变减轻这种效应，也会改变细节；必须看原值才能发现过冲。 <wiki-ref to=\"frequency-ringing\"></wiki-ref>",
-    "en": "<code>y = F⁻¹(g · F(x))</code>\n\nF is this game’s forward transform and F⁻¹ its inverse. A hard jump in g corresponds to a spatial response with extended, alternating lobes, which can produce ripples near discontinuities. Tapering reduces this effect but alters detail; raw values are needed to detect overshoot. <wiki-ref to=\"frequency-ringing\"></wiki-ref>"
+    "zh": "\\[y=\\mathcal F^{-1}\\!\\left(g\\cdot\\mathcal F(x)\\right)\\]\n\nF 表示本游戏的前向变换，F⁻¹ 表示逆向重建。硬截止让 g 在频率边界突然跳变，对应的空间响应会向两侧延伸并交替正负，突变附近就可能出现波纹。渐变减轻这种效应，也会改变细节；必须看原值才能发现过冲。 <wiki-ref to=\"frequency-ringing\"></wiki-ref>",
+    "en": "\\[y=\\mathcal F^{-1}\\!\\left(g\\cdot\\mathcal F(x)\\right)\\]\n\nF is this game’s forward transform and F⁻¹ its inverse. A hard jump in g corresponds to a spatial response with extended, alternating lobes, which can produce ripples near discontinuities. Tapering reduces this effect but alters detail; raw values are needed to detect overshoot. <wiki-ref to=\"frequency-ringing\"></wiki-ref>"
   },
   "tasks": [
     {

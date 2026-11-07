@@ -10,8 +10,8 @@
     }
   ],
   "after": {
-    "zh": "<code>P(k,p) = (1/N) Σ x[n] cos(2π(kn/N + p))</code>\n\n求和遍历整行 N 个样本。乘积测量信号与参考波是否同向，平均值避免行长直接放大响应。对匹配的孤立正弦波 x[n]=A cos(2πkn/N+φ)，在 0<k<N/2 的匹配整数频率上 P=(A/2)cos(φ−2πp)。相位差四分之一周时响应可以为零，信号却仍在。 <wiki-ref to=\"frequency-projection\"></wiki-ref>",
-    "en": "<code>P(k,p) = (1/N) Σ x[n] cos(2π(kn/N + p))</code>\n\nThe sum uses all N samples. Products measure alignment with the reference, and the mean avoids scaling response with row length. For an isolated matching sinusoid x[n]=A cos(2πkn/N+φ), matching integer frequencies 0<k<N/2 give P=(A/2)cos(φ−2πp). A quarter-turn mismatch can give zero despite the signal being present. <wiki-ref to=\"frequency-projection\"></wiki-ref>"
+    "zh": "\\[\\begin{gathered}\\theta_n=2\\pi\\left(\\frac{kn}{N}+p\\right)\\\\P(k,p)=\\frac1N\\sum_{n=0}^{N-1}x[n]\\cos\\theta_n\\end{gathered}\\]\n\n求和遍历整行 N 个样本。乘积测量信号与参考波是否同向，平均值避免行长直接放大响应。对匹配的孤立正弦波 \\(x[n]=A\\cos(2\\pi kn/N+\\phi)\\)，在 0<k<N/2 的匹配整数频率上 \\(P=\\frac A2\\cos(\\phi-2\\pi p)\\)。相位差四分之一周时响应可以为零，信号却仍在。 <wiki-ref to=\"frequency-projection\"></wiki-ref>",
+    "en": "\\[\\begin{gathered}\\theta_n=2\\pi\\left(\\frac{kn}{N}+p\\right)\\\\P(k,p)=\\frac1N\\sum_{n=0}^{N-1}x[n]\\cos\\theta_n\\end{gathered}\\]\n\nThe sum uses all N samples. Products measure alignment with the reference, and the mean avoids scaling response with row length. For an isolated matching sinusoid \\(x[n]=A\\cos(2\\pi kn/N+\\phi)\\), matching integer frequencies 0<k<N/2 give \\(P=\\frac A2\\cos(\\phi-2\\pi p)\\). A quarter-turn mismatch can give zero despite the signal being present. <wiki-ref to=\"frequency-projection\"></wiki-ref>"
   },
   "tasks": [
     {

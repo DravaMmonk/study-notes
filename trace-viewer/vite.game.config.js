@@ -16,7 +16,7 @@ export default defineConfig({
   publicDir: false,
   mode: 'game',
   // The shared kit lives outside this project (games/kit); resolve its React from here.
-  resolve: { dedupe: ['react', 'react-dom', 'lucide-react'] },
+  resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] },
   plugins: [
     react(),
     gameApp({ game }),

@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "<code>Y[u,v] = g[u,v] C[u,v]</code>\n\nC 是二维系数，g 是已知干扰对应的成对增益，Y 用于逆向重建。两个频率坐标让机器区分沿不同方向的变化，这是逐行处理缺少的信息。但若有用图像与干扰落在相同频率位置，去掉干扰的同时也会损失那部分信息。 <wiki-ref to=\"interference-machine\"></wiki-ref>",
-    "en": "<code>Y[u,v] = g[u,v] C[u,v]</code>\n\nC contains 2D coefficients, g the paired gains for known interference and Y the coefficients for reconstruction. Two frequency coordinates distinguish variation along different axes, information unavailable to a row-only filter. Useful structure sharing the selected frequencies is removed along with the interference. <wiki-ref to=\"interference-machine\"></wiki-ref>"
+    "zh": "\\[Y[u,v]=g[u,v]C[u,v]\\]\n\nC 是二维系数，g 是已知干扰对应的成对增益，Y 用于逆向重建。两个频率坐标让机器区分沿不同方向的变化，这是逐行处理缺少的信息。但若有用图像与干扰落在相同频率位置，去掉干扰的同时也会损失那部分信息。 <wiki-ref to=\"interference-machine\"></wiki-ref>",
+    "en": "\\[Y[u,v]=g[u,v]C[u,v]\\]\n\nC contains 2D coefficients, g the paired gains for known interference and Y the coefficients for reconstruction. Two frequency coordinates distinguish variation along different axes, information unavailable to a row-only filter. Useful structure sharing the selected frequencies is removed along with the interference. <wiki-ref to=\"interference-machine\"></wiki-ref>"
   },
   "tasks": [
     {

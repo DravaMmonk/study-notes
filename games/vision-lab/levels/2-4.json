@@ -10,8 +10,8 @@
     }
   ],
   "after": {
-    "zh": "<code>C[k] = (1/N) Σ x[n] exp(−i2πkn/N)</code>\n\nn 遍历整行，k 遍历 0,…,N−1，i²=−1。每个 C[k] 同时保存实部和虚部；k=0 的常量参考波测到均值。对实信号，C[N−k]=conj(C[k])（索引按 N 循环），所以数组后半段包含负频率，不能简单理解为越来越高。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
-    "en": "<code>C[k] = (1/N) Σ x[n] exp(−i2πkn/N)</code>\n\nn spans the row, k spans 0,…,N−1 and i²=−1. Each C[k] retains real and imaginary parts. The constant reference at k=0 measures the mean. For real input, C[N−k]=conj(C[k]) with circular indices: the latter part of the array contains negative frequencies, not simply increasingly high frequencies. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+    "zh": "\\[C[k]=\\frac1N\\sum_{n=0}^{N-1}x[n]e^{-i2\\pi kn/N}\\]\n\nn 遍历整行，k 遍历 0,…,N−1，\\(i^2=-1\\)。每个 C[k] 同时保存实部和虚部；k=0 的常量参考波测到均值。对实信号，\\(C[N-k]=\\overline{C[k]}\\)（索引按 N 循环），所以数组后半段包含负频率，不能简单理解为越来越高。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+    "en": "\\[C[k]=\\frac1N\\sum_{n=0}^{N-1}x[n]e^{-i2\\pi kn/N}\\]\n\nn spans the row, k spans 0,…,N−1 and \\(i^2=-1\\). Each C[k] retains real and imaginary parts. The constant reference at k=0 measures the mean. For real input, \\(C[N-k]=\\overline{C[k]}\\) with circular indices: the latter part of the array contains negative frequencies, not simply increasingly high frequencies. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -26,8 +26,8 @@
         "en": "Run the earned probe at every frequency of each row. Output one magnitude column ordered by source row, then k from zero; do not yet restore a spectrum image."
       },
       "after": {
-        "zh": "<code>C[k] = Re[k] + i Im[k]</code>\n\nk 枚举一整行可分辨的离散频率，每个位置存一对投影系数。频谱是把同一组样本从“位置坐标”改用“频率坐标”描述，不是只保留最强的频率。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
-        "en": "<code>C[k] = Re[k] + i Im[k]</code>\n\nk enumerates the row’s discrete frequencies, each storing two projection coefficients. A spectrum describes the same samples in frequency rather than position coordinates; it is not just the strongest frequency. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+        "zh": "\\[C[k]=\\mathrm{Re}[k]+i\\,\\mathrm{Im}[k]\\]\n\nk 枚举一整行可分辨的离散频率，每个位置存一对投影系数。频谱是把同一组样本从“位置坐标”改用“频率坐标”描述，不是只保留最强的频率。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+        "en": "\\[C[k]=\\mathrm{Re}[k]+i\\,\\mathrm{Im}[k]\\]\n\nk enumerates the row’s discrete frequencies, each storing two projection coefficients. A spectrum describes the same samples in frequency rather than position coordinates; it is not just the strongest frequency. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
       },
       "inputs": [{ "name": "image", "label": { "zh": "图像行", "en": "Image rows" } }],
       "outputs": [

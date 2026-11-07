@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "<code>M = √(gx² + gy²)</code>\n\ngx、gy 是 Sobel 的两个带符号分量，M 是它们的长度。平方后相加再开方，让横向和纵向贡献不会因正负相反而抵消。Sobel 在求差分的垂直方向做平滑来减轻干扰，但 M 仍只是变化证据，不代表已识别物体。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
-    "en": "<code>M = √(gx² + gy²)</code>\n\ngx and gy are the signed Sobel components; M is their length. Squaring before addition prevents opposite signs from cancelling. Sobel smooths perpendicular to differentiation to reduce nuisance, but M is evidence of change, not object recognition. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+    "zh": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx、gy 是 Sobel 的两个带符号分量，M 是它们的长度。平方后相加再开方，让横向和纵向贡献不会因正负相反而抵消。Sobel 在求差分的垂直方向做平滑来减轻干扰，但 M 仍只是变化证据，不代表已识别物体。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
+    "en": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx and gy are the signed Sobel components; M is their length. Squaring before addition prevents opposite signs from cancelling. Sobel smooths perpendicular to differentiation to reduce nuisance, but M is evidence of change, not object recognition. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -32,8 +32,8 @@
         "en": "Retain both signed derivative components and output their length as perpendicular components. Strength measures change size without cancellation. For the weighted line direction inputs use (dx,dy)=(1,0) horizontally and (0,1) vertically."
       },
       "after": {
-        "zh": "<code>M = √(gx²+gy²)</code>\n\ngx、gy 是互相垂直的变化分量。它们构成一个二维向量，M 是长度；长度不受分量符号影响，而 gx+gy 可能把强变化相互抵消。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
-        "en": "<code>M = √(gx²+gy²)</code>\n\ngx and gy are perpendicular change components. Together they form a vector whose length is M. Length does not cancel opposite signs, whereas gx+gy can hide strong change. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+        "zh": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx、gy 是互相垂直的变化分量。它们构成一个二维向量，M 是长度；长度不受分量符号影响，而 gx+gy 可能把强变化相互抵消。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
+        "en": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx and gy are perpendicular change components. Together they form a vector whose length is M. Length does not cancel opposite signs, whereas gx+gy can hide strong change. <wiki-ref to=\"gradient-components\"></wiki-ref>"
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },

@@ -303,8 +303,8 @@
       "at": "2-2",
       "body": [
         {
-          "zh": "本游戏在离散行上计算 P(k,p)=mean(x[n] cos(2π(kn/N+p)))，n 遍历全部 N 个位置。k 表示整行周期数，p 以周为单位。平均投影不会因样本数量翻倍而自动翻倍。",
-          "en": "This game computes P(k,p)=mean(x[n] cos(2π(kn/N+p))) over all N row positions. k counts row cycles and p is in turns. Averaging prevents sample count alone from scaling the projection."
+          "zh": "本游戏在离散行上计算 \\(P(k,p)=\\frac1N\\sum_{n=0}^{N-1}x[n]\\cos\\!\\left(2\\pi\\left(\\frac{kn}{N}+p\\right)\\right)\\)，n 遍历全部 N 个位置。k 表示整行周期数，p 以周为单位。平均投影不会因样本数量翻倍而自动翻倍。",
+          "en": "This game computes \\(P(k,p)=\\frac1N\\sum_{n=0}^{N-1}x[n]\\cos\\!\\left(2\\pi\\left(\\frac{kn}{N}+p\\right)\\right)\\) over all N row positions. k counts row cycles and p is in turns. Averaging prevents sample count alone from scaling the projection."
         },
         {
           "zh": "异频抵消要求参考波与离散周期匹配、覆盖完整周期。非整数周期、噪声和频率偏差会影响测量，不能把单路零响应等同于没有该频率。",
@@ -330,12 +330,12 @@
       "at": "2-3",
       "body": [
         {
-          "zh": "对于已知频率的理想单频信号，x[n]=A cos(θn+φ)=A cosφ cosθn−A sinφ sinθn，θn=2πkn/N。未知幅度与相位可以改写成两个独立系数；正交参考方向使两个投影互不干扰。",
-          "en": "For an ideal sinusoid of known frequency, x[n]=A cos(θn+φ)=A cosφ cosθn−A sinφ sinθn, with θn=2πkn/N. Unknown amplitude and phase become two independent coefficients; orthogonal reference directions separate their measurements."
+          "zh": "对于已知频率的理想单频信号，\\(x[n]=A\\cos(\\theta_n+\\phi)=A\\cos\\phi\\cos\\theta_n-A\\sin\\phi\\sin\\theta_n\\)，\\(\\theta_n=2\\pi kn/N\\)。未知幅度与相位可以改写成两个独立系数；正交参考方向使两个投影互不干扰。",
+          "en": "For an ideal sinusoid of known frequency, \\(x[n]=A\\cos(\\theta_n+\\phi)=A\\cos\\phi\\cos\\theta_n-A\\sin\\phi\\sin\\theta_n\\), with \\(\\theta_n=2\\pi kn/N\\). Unknown amplitude and phase become two independent coefficients; orthogonal reference directions separate their measurements."
         },
         {
-          "zh": "本游戏取 Re=mean(x cosθn)、Im=mean(−x sinθn)。对孤立的匹配整数频率，且不是直流或偶数长度的奈奎斯特频率，有 Re=(A/2)cosφ、Im=(A/2)sinφ，因此峰值幅度 A=2√(Re²+Im²)，φ=atan2(Im,Re)（弧度）。系数长度不能直接当作 A；A=0 时相位无定义。",
-          "en": "This game uses Re=mean(x cosθn) and Im=mean(−x sinθn). For an isolated matching integer-bin sinusoid away from DC and even-length Nyquist, Re=(A/2)cosφ and Im=(A/2)sinφ, so peak amplitude A=2√(Re²+Im²) and φ=atan2(Im,Re), in radians. Coefficient length is not A; at A=0 phase is undefined."
+          "zh": "本游戏取 \\(\\mathrm{Re}=\\operatorname{mean}_n(x[n]\\cos\\theta_n)\\)、\\(\\mathrm{Im}=\\operatorname{mean}_n(-x[n]\\sin\\theta_n)\\)。对孤立的匹配整数频率，且不是直流或偶数长度的奈奎斯特频率，有 \\(\\mathrm{Re}=\\frac A2\\cos\\phi\\)、\\(\\mathrm{Im}=\\frac A2\\sin\\phi\\)，因此峰值幅度 \\(A=2\\sqrt{\\mathrm{Re}^2+\\mathrm{Im}^2}\\)，\\(\\phi=\\operatorname{atan2}(\\mathrm{Im},\\mathrm{Re})\\)（弧度）。系数长度不能直接当作 A；A=0 时相位无定义。",
+          "en": "This game uses \\(\\mathrm{Re}=\\operatorname{mean}_n(x[n]\\cos\\theta_n)\\) and \\(\\mathrm{Im}=\\operatorname{mean}_n(-x[n]\\sin\\theta_n)\\). For an isolated matching integer-bin sinusoid away from DC and even-length Nyquist, \\(\\mathrm{Re}=\\frac A2\\cos\\phi\\) and \\(\\mathrm{Im}=\\frac A2\\sin\\phi\\), so peak amplitude \\(A=2\\sqrt{\\mathrm{Re}^2+\\mathrm{Im}^2}\\) and \\(\\phi=\\operatorname{atan2}(\\mathrm{Im},\\mathrm{Re})\\), in radians. Coefficient length is not A; at A=0 phase is undefined."
         },
         {
           "zh": "两路分量各自汇总整行 N 个样本，不是只读两个原始点。直流和奈奎斯特的正弦参考在采样点上为零，只剩一条实数方向；未知频率仍需探测不同频率。",

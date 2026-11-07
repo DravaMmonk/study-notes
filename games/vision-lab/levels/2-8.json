@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "<code>C[u,v] = (1/(WH)) Σx Σy z[x,y] exp(−i2π(ux/W+vy/H))</code>\n\nW、H 是图像宽高，u、v 分别描述沿 x、y 的周期数，z 可以是复数输入。指数中的两项相加，等价于两轴参考波相乘，所以可以沿两轴依次变换。条纹延伸的方向与亮暗变化的方向不同，不能只看一条轴。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
-    "en": "<code>C[u,v] = (1/(WH)) Σx Σy z[x,y] exp(−i2π(ux/W+vy/H))</code>\n\nW and H are image dimensions, u and v count cycles along x and y and z may be complex. Adding the exponent terms multiplies the two axis waves, permitting successive axis transforms. Stripe orientation differs from the direction of intensity variation; one axis alone is insufficient. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
+    "zh": "\\[\\begin{gathered}\\theta_{uvxy}=2\\pi\\left(\\frac{ux}{W}+\\frac{vy}{H}\\right)\\\\C[u,v]=\\frac1{WH}\\sum_{x=0}^{W-1}\\sum_{y=0}^{H-1}z[x,y]e^{-i\\theta_{uvxy}}\\end{gathered}\\]\n\nW、H 是图像宽高，u、v 分别描述沿 x、y 的周期数，z 可以是复数输入。指数中的两项相加，等价于两轴参考波相乘，所以可以沿两轴依次变换。条纹延伸的方向与亮暗变化的方向不同，不能只看一条轴。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
+    "en": "\\[\\begin{gathered}\\theta_{uvxy}=2\\pi\\left(\\frac{ux}{W}+\\frac{vy}{H}\\right)\\\\C[u,v]=\\frac1{WH}\\sum_{x=0}^{W-1}\\sum_{y=0}^{H-1}z[x,y]e^{-i\\theta_{uvxy}}\\end{gathered}\\]\n\nW and H are image dimensions, u and v count cycles along x and y and z may be complex. Adding the exponent terms multiplies the two axis waves, permitting successive axis transforms. Stripe orientation differs from the direction of intensity variation; one axis alone is insufficient. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -25,8 +25,8 @@
         "en": "Analyse column frequencies only: use the row complex analyser on each original column, then restore the original dimensions. Retain both components and magnitude; columns still identify original spatial columns."
       },
       "after": {
-        "zh": "<code>T(I)[x,y] = I[y,x]; T(T(I)) = I</code>\n\nT 交换两个空间轴，宽高也随之交换。沿转置图的行处理，等价于沿原图的列处理；处理后换回轴，输出才与原图的位置对应。非方形输入能揭示把轴忘记换回的问题。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
-        "en": "<code>T(I)[x,y] = I[y,x]; T(T(I)) = I</code>\n\nT exchanges axes and swaps width with height. Processing rows of the transposed image processes columns of the original. Exchanging axes back restores original correspondence; non-square inputs expose a forgotten transpose. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
+        "zh": "\\[\\begin{gathered}T(I)[x,y]=I[y,x]\\\\T(T(I))=I\\end{gathered}\\]\n\nT 交换两个空间轴，宽高也随之交换。沿转置图的行处理，等价于沿原图的列处理；处理后换回轴，输出才与原图的位置对应。非方形输入能揭示把轴忘记换回的问题。 <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>",
+        "en": "\\[\\begin{gathered}T(I)[x,y]=I[y,x]\\\\T(T(I))=I\\end{gathered}\\]\n\nT exchanges axes and swaps width with height. Processing rows of the transposed image processes columns of the original. Exchanging axes back restores original correspondence; non-square inputs expose a forgotten transpose. <wiki-ref to=\"two-dimensional-spectrum\"></wiki-ref>"
       },
       "inputs": [
         { "name": "real", "label": { "zh": "图像实部", "en": "Image real" } },

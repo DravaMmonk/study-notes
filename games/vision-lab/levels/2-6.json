@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "<code>C[k] = |C[k]| exp(iφk)</code>\n\n|C[k]| 是该频率的系数长度，φk 是相位。长度决定贡献多大，相位决定它在各位置如何对齐；因此两张图即使频谱幅度相同，也可能有不同排列。零系数没有可保留的相位，保护除数也不能凭空创造它。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
-    "en": "<code>C[k] = |C[k]| exp(iφk)</code>\n\n|C[k]| is coefficient length and φk its phase. Length controls contribution size; phase controls spatial alignment. Images with identical spectral magnitudes can therefore have different arrangements. A zero coefficient has no phase to preserve, and protecting a denominator cannot invent one. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+    "zh": "\\[C[k]=|C[k]|e^{i\\phi_k}\\]\n\n|C[k]| 是该频率的系数长度，φk 是相位。长度决定贡献多大，相位决定它在各位置如何对齐；因此两张图即使频谱幅度相同，也可能有不同排列。零系数没有可保留的相位，保护除数也不能凭空创造它。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+    "en": "\\[C[k]=|C[k]|e^{i\\phi_k}\\]\n\n|C[k]| is coefficient length and φk its phase. Length controls contribution size; phase controls spatial alignment. Images with identical spectral magnitudes can therefore have different arrangements. A zero coefficient has no phase to preserve, and protecting a denominator cannot invent one. <wiki-ref to=\"phase-structure\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -25,8 +25,8 @@
         "en": "Rescale each coefficient pair to the supplied length while retaining its component ratio and signs. A zero pair stays zero; use the supplied floor to protect division."
       },
       "after": {
-        "zh": "<code>Cnew = C · m / max(|C|,ε)</code>\n\nm 是目标系数长度，ε 是给定的正下限。共同缩放两个分量可保持方向；当 |C|≥ε 时得到目标长度，保护下限生效时长度可能更小。C=0 仍为 0，因为零向量没有可保留的相位。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
-        "en": "<code>Cnew = C · m / max(|C|,ε)</code>\n\nm is the requested length and ε the supplied positive floor. Scaling both parts together preserves direction. The target length is reached when |C|≥ε; an active floor can reduce it. C=0 stays zero because a zero vector has no phase to preserve. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+        "zh": "\\[C_{\\mathrm{new}}=C\\,\\frac{m}{\\max(|C|,\\varepsilon)}\\]\n\nm 是目标系数长度，ε 是给定的正下限。共同缩放两个分量可保持方向；当 |C|≥ε 时得到目标长度，保护下限生效时长度可能更小。C=0 仍为 0，因为零向量没有可保留的相位。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+        "en": "\\[C_{\\mathrm{new}}=C\\,\\frac{m}{\\max(|C|,\\varepsilon)}\\]\n\nm is the requested length and ε the supplied positive floor. Scaling both parts together preserves direction. The target length is reached when |C|≥ε; an active floor can reduce it. C=0 stays zero because a zero vector has no phase to preserve. <wiki-ref to=\"phase-structure\"></wiki-ref>"
       },
       "inputs": [
         { "name": "real", "label": { "zh": "系数实部", "en": "Coefficient real" } },

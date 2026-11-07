@@ -6,14 +6,16 @@
 //   <b> <i> <strong> <code>                    emphasis and code, nested freely, no attributes
 //   <level-ref to="id"></level-ref>            a reference (also part-ref, wiki-ref), its one attribute `to`
 //
+//   \( … \) / \[ … \]                    inline / display LaTeX; code spans stay literal
+//
 // A `<` that does not start a tag (a < b, x <- y) is plain text.
 
 export const TAGS = ['b', 'i', 'strong', 'code']
 const REF_KINDS = ['level', 'part', 'wiki']
-const TOKEN = /<(level|part|wiki)-ref to="([^"<>]+)"><\/\1-ref>|<(\/?)([A-Za-z][A-Za-z0-9-]*)([^<>]*)>/g
+const TOKEN = /\\\(([\s\S]*?)\\\)|\\\[([\s\S]*?)\\\]|(\\\(|\\\[)|<(level|part|wiki)-ref to="([^"<>]+)"><\/\4-ref>|<(\/?)([A-Za-z][A-Za-z0-9-]*)([^<>]*)>/g
 
 /**
- * A text read as markup: { nodes, problems }. nodes: [string | { tag, kids } | { ref, to }]; problems: what in it is
+ * A text read as markup: { nodes, problems }. nodes: [string | { tag, kids } | { ref, to } | { math, display }]; problems: what in it is
  * not the markup above (a tag outside the set, an attribute, a tag left open or closed twice), each in words.
  */
 export function markupOf(text) {
@@ -30,7 +32,13 @@ export function markupOf(text) {
   for (const m of source.matchAll(TOKEN)) {
     if (m.index > at) put(source.slice(at, m.index))
     at = m.index + m[0].length
-    const [whole, refKind, refTo, closing, tag, rest] = m
+    const [whole, inlineMath, displayMath, unclosedMath, refKind, refTo, closing, tag, rest] = m
+    if (inlineMath !== undefined || displayMath !== undefined || unclosedMath) {
+      if (stack.some(n=>n.tag==='code')) put(whole)
+      else if (unclosedMath) { problems.push(`unclosed math delimiter ${whole}`); put(whole) }
+      else put({ math: inlineMath ?? displayMath, display: displayMath !== undefined })
+      continue
+    }
     if (refKind) {
       put({ ref: refKind, to: refTo })
       continue

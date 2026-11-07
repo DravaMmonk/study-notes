@@ -10,8 +10,8 @@
     }
   ],
   "after": {
-    "zh": "<code>Cout[k] = g[k] C[k]</code>\n\ng 是给定的频率增益：0 去掉该贡献，1 保留，介于两者之间则减弱。相同实数增益同时作用于实部和虚部；对实信号还须成对保留共轭关系。增益选择的是频率贡献，不是直接选择某几个像素。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
-    "en": "<code>Cout[k] = g[k] C[k]</code>\n\ng is the supplied frequency gain: zero removes a contribution, one retains it and intermediate values attenuate it. The same real gain acts on both components. Real signals also require paired treatment of conjugate frequencies. Gains select frequency contributions, not individual pixels. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
+    "zh": "\\[C_{\\mathrm{out}}[k]=g[k]C[k]\\]\n\ng 是给定的频率增益：0 去掉该贡献，1 保留，介于两者之间则减弱。相同实数增益同时作用于实部和虚部；对实信号还须成对保留共轭关系。增益选择的是频率贡献，不是直接选择某几个像素。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
+    "en": "\\[C_{\\mathrm{out}}[k]=g[k]C[k]\\]\n\ng is the supplied frequency gain: zero removes a contribution, one retains it and intermediate values attenuate it. The same real gain acts on both components. Real signals also require paired treatment of conjugate frequencies. Gains select frequency contributions, not individual pixels. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
   },
   "tasks": [
     {
@@ -26,8 +26,8 @@
         "en": "Signed frequency indices are supplied in unshifted order. Keep |k|<cutoff, excluding the boundary, to produce paired low-pass gains without index calculations."
       },
       "after": {
-        "zh": "<code>g[k] = 1 if |k| < c; otherwise 0</code>\n\nk 是给定的带符号频率索引，c 是截止值。离零越近，变化越慢；用 |k| 能对正负频率采用同一标准。严格小于意味着截止边界本身不保留。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
-        "en": "<code>g[k] = 1 if |k| < c; otherwise 0</code>\n\nk is the supplied signed frequency index and c the cutoff. Frequencies nearer zero vary more slowly. |k| treats both signs alike, and the strict inequality excludes the cutoff boundary. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
+        "zh": "\\[g[k]=\\begin{cases}1,&|k|<c\\\\0,&|k|\\ge c\\end{cases}\\]\n\nk 是给定的带符号频率索引，c 是截止值。离零越近，变化越慢；用 |k| 能对正负频率采用同一标准。严格小于意味着截止边界本身不保留。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
+        "en": "\\[g[k]=\\begin{cases}1,&|k|<c\\\\0,&|k|\\ge c\\end{cases}\\]\n\nk is the supplied signed frequency index and c the cutoff. Frequencies nearer zero vary more slowly. |k| treats both signs alike, and the strict inequality excludes the cutoff boundary. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
       },
       "inputs": [
         { "name": "index", "label": { "zh": "带符号频率", "en": "Signed frequency" } },

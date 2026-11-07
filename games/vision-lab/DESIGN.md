@@ -11,7 +11,8 @@ This specification covers stages 0–2, not later camera, learning or geometry m
 
 Every circuit task shows a short conceptual explanation and its general mathematical relationship after passing,
 including intermediate tasks within a level. Explain symbols, what the relationship measures and one relevant
-limit; do not retell the reference wiring. Blank lines separate formula and explanation paragraphs in pass text.
+limit; do not retell the reference wiring. Blank lines separate formula and explanation paragraphs in pass text. Formulas use LaTeX display delimiters
+and KaTeX mathematical fonts, with explicit multi-line layout for long relationships on phones.
 Chinese and English carry the same meaning. Keep definitions in the linked encyclopedia entries.
 
 Frequency explanations follow the implemented negative-exponent forward transform with 1/N normalisation
@@ -202,3 +203,10 @@ completion and full quadrature completion on phones, with formula paragraphs and
 the longer quadrature explanation scrolls and retains reachable actions. Desktop layout is also reviewed.
 The transform sign convention was cross-checked against the [FFTW DFT definition](https://www.fftw.org/doc/The-1d-Discrete-Fourier-Transform-_0028DFT_0029.html);
 FFTW leaves both transforms unnormalised, whereas this game deliberately assigns 1/N to forward analysis.
+
+Completion formulas use LaTeX rather than code spans. All 116 bilingual expressions in the completion texts
+and linked frequency explanations compile with the installed KaTeX version under strict error checking.
+429 tests pass, including inline/display delimiter parsing, literal code spans and malformed-fence rejection.
+Phone review at 390 px confirms quadrature, 2D-transform and convolution-theorem formulas fit the dialog;
+desktop review confirms mathematical fonts, successful font loading and no runtime errors. The renderer and
+its fonts are loaded only when mathematical markup is shown, following the [KaTeX rendering API](https://katex.org/docs/api).
