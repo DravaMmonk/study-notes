@@ -6,9 +6,9 @@ The player builds an inspection instrument, a neighbourhood processor/scanner an
 arithmetic and traversal execute automatically; selecting and composing the visual relationships is the puzzle.
 The long-term plan is [the machine-first outline](../../docs/Unimelb/26S2/CV/vision-game-specs/curriculum-construction-outline.md).
 This specification covers stages 0–2, not later camera, learning or geometry machines.
-The [remake chapter map](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md) governs the
-replacement curriculum. This directory is the working entry point until the new chapters 0–2 are ready
-for the Vision Complete cutover.
+The [redesigned chapter map](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md) governs the
+replacement curriculum. It drops chapter 0 below (pixels, negatives, differences and thresholds no longer
+form levels); chapters 1–2 here are material for its K and F principle series.
 
 ## Chapter 0: inspection station
 
