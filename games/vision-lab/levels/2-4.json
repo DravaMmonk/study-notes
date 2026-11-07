@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "单频探针已经可靠。现在由工具展开重复工作，让同一个部件扫描所有离散频率；你负责把读数、频率和输出形状对应起来。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
-        "en": "The single-frequency probe works. Expand repeated execution to every discrete frequency using the same part, while keeping observations, frequencies and output shape correctly associated. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
+        "zh": "正交探针解决了一个频率的测量。实际扫描图可能叠着几种周期，逐个手动试会遗漏。让同一个探针遍历每个离散频率，并核对结果表的索引究竟代表位置还是频率。 <wiki-ref to=\"discrete-spectrum\"></wiki-ref>",
+        "en": "The quadrature probe measures one frequency reliably. A real scan may mix several periods, and testing each by hand can miss one. Use the same probe across the available bins and check which table indices mean position and which mean frequency. <wiki-ref to=\"discrete-spectrum\"></wiki-ref>"
       },
       "fig": "frequency-table"
     }

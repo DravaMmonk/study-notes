@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "频率处理器已经能改变尺度，现在把它用于突变信号。硬截止与渐变处理都可能让图像变平滑，却产生不同的空间响应；用自己的比较器观察差别。 <wiki-ref to=\"frequency-ringing\"></wiki-ref>",
-        "en": "Apply the filter to abrupt signals. Hard and tapered gains can both smooth an image yet produce different spatial responses. Inspect them with your comparator. <wiki-ref to=\"frequency-ringing\"></wiki-ref>"
+        "zh": "频率滤波器可以压住某些周期，但用它处理一个本来很干净的台阶时，边缘附近可能多出一圈波纹。比较硬截止与渐变截止，看看抑制干扰时引入了什么。 <wiki-ref to=\"frequency-ringing\"></wiki-ref>",
+        "en": "The frequency filter can suppress selected periods, but applying it to a clean step can introduce ripples near the edge. Compare abrupt and gradual cutoffs to see what each introduces while suppressing interference. <wiki-ref to=\"frequency-ringing\"></wiki-ref>"
       }
     }
   ],

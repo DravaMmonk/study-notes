@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "有些二维核能写成一列与一行的外积。先横向处理，再把结果交给纵向处理。试用四种边界规则。 <wiki-ref to=\"filter-separability\"></wiki-ref>",
-        "en": "Some kernels are a column times a row. Process horizontally and feed that result into the vertical pass. Try the four outside rules. <wiki-ref to=\"filter-separability\"></wiki-ref>"
+        "zh": "<level-ref to=\"1-4\"></level-ref>的处理器已经能处理图边。现在产线要求在同一幅图上跑三种核，逐个检查 5×5 的每一项会超出乘法预算。先用两组权重复现一个例子，再判断哪几种核可以减少计算而保留原结果。",
+        "en": "The processor now handles borders. The station needs three filters on the same scan, and checking every entry of each 5×5 kernel exceeds its multiplication budget. First match one example from two weight arrays, then decide which production kernels can save work while keeping the same output. <level-ref to=\"1-4\"></level-ref>"
       }
     }
   ],
@@ -23,19 +23,19 @@
     "formLabel": { "zh": "可分离", "en": "Separable" },
     "settings": ["outside"],
     "defaults": { "outside": "zero" },
-    "task": "v1_separable_reflect"
+    "task": "v1_separable"
   },
   "tasks": [
     {
       "id": "v1_separable",
       "kind": "circuit",
       "step": {
-        "zh": "两次一维卷积",
-        "en": "Zero"
+        "zh": "压低重复计算",
+        "en": "Cut repeated work"
       },
       "brief": {
-        "zh": "先用横向权重行卷积，再用纵向权重列处理第一次输出。两次使用同一图外规则。",
-        "en": "Convolve horizontally with the weight row, then convolve that result with the weight column. Use the same outside rule in both passes."
+        "zh": "这个核来自一行和一列的外积。用两组给定权重复现通用处理器的读数，保留原图大小。检查会把同一电路放到不同边界条件下运行。",
+        "en": "This kernel comes from a row–column outer product. Use the two supplied weight arrays to reproduce the dense processor’s readings at the original size. Checks run the same board under different border policies."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
@@ -62,8 +62,64 @@
               [0.41, 0.38, 0.265, 0.20500000000000002],
               [0.435, 0.40499999999999997, 0.27, 0.14]
             ]
-          }
+          },
+          "outside": "zero"
         },
+        {
+          "inputs": {
+            "image": [
+              [0.2, 0.1, 0.5, 0.8],
+              [0.7, 0.4, 0, 0.2],
+              [1, 0.3, 0.6, 0.1]
+            ],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.2], [0.6], [0.2]]
+          },
+          "expect": {
+            "out": [
+              [0.265, 0.255, 0.41000000000000003, 0.61],
+              [0.575, 0.38, 0.265, 0.28],
+              [0.785, 0.515, 0.35, 0.21]
+            ]
+          },
+          "outside": "clamp"
+        },
+        {
+          "inputs": {
+            "image": [
+              [0.2, 0.1, 0.5, 0.8],
+              [0.7, 0.4, 0, 0.2],
+              [1, 0.3, 0.6, 0.1]
+            ],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.2], [0.6], [0.2]]
+          },
+          "expect": {
+            "out": [[0.415, 0.32, 0.395, 0.49], [0.485, 0.38, 0.265, 0.37], [0.525, 0.45, 0.365, 0.44]]
+          },
+          "outside": "wrap"
+        },
+        {
+          "inputs": {
+            "image": [
+              [0.2, 0.1, 0.5, 0.8],
+              [0.7, 0.4, 0, 0.2],
+              [1, 0.3, 0.6, 0.1]
+            ],
+            "kx": [[0.25, 0.5, 0.25]],
+            "ky": [[0.2], [0.6], [0.2]]
+          },
+          "expect": {
+            "out": [
+              [0.265, 0.255, 0.41000000000000003, 0.61],
+              [0.575, 0.38, 0.265, 0.28],
+              [0.785, 0.515, 0.35, 0.21]
+            ]
+          },
+          "outside": "reflect"
+        }
+      ],
+      "hidden": [
         {
           "inputs": {
             "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
@@ -76,7 +132,8 @@
               [0.278, 0.2700000000000001, 0.24000000000000005, 0.17200000000000004],
               [0.29500000000000004, 0.2700000000000001, 0.24600000000000005, 0.14300000000000002]
             ]
-          }
+          },
+          "outside": "zero"
         },
         {
           "inputs": {
@@ -90,17 +147,134 @@
               [0.78, 1.0899999999999999, -0.14500000000000005, -0.03000000000000002],
               [-0.44, 0.32499999999999996, -0.11, -0.055000000000000014]
             ]
-          }
-        }
-      ],
-      "hidden": [
+          },
+          "outside": "zero"
+        },
         {
           "inputs": {
             "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
             "kx": [[0, 0, 0]],
             "ky": [[1], [2], [1]]
           },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] }
+          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
+          "outside": "zero"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
+            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
+          },
+          "expect": {
+            "out": [
+              [0.3430000000000001, 0.32900000000000007, 0.4210000000000001, 0.5270000000000001],
+              [0.5370000000000001, 0.4050000000000001, 0.3570000000000001, 0.3390000000000001],
+              [0.7090000000000002, 0.4910000000000001, 0.39100000000000007, 0.25700000000000006]
+            ]
+          },
+          "outside": "clamp"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[-1, 2, 0.4, 0, 0.2]],
+            "ky": [[1], [0.25], [-0.5]]
+          },
+          "expect": {
+            "out": [
+              [1.265, 0.030000000000000013, 0.07999999999999999, 0.07500000000000001],
+              [0.995, 1.305, 0.10499999999999998, -0.28],
+              [0.14000000000000004, 1.7249999999999999, 0.505, 0.06999999999999999]
+            ]
+          },
+          "outside": "clamp"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[0, 0, 0]],
+            "ky": [[1], [2], [1]]
+          },
+          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
+          "outside": "clamp"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
+            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
+          },
+          "expect": {
+            "out": [
+              [0.44400000000000006, 0.37600000000000006, 0.4020000000000001, 0.4080000000000001],
+              [0.44800000000000006, 0.37600000000000006, 0.38600000000000007, 0.39000000000000007],
+              [0.4680000000000001, 0.38800000000000007, 0.4120000000000001, 0.4020000000000001]
+            ]
+          },
+          "outside": "wrap"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[-1, 2, 0.4, 0, 0.2]],
+            "ky": [[1], [0.25], [-0.5]]
+          },
+          "expect": {
+            "out": [
+              [0.79, -0.5199999999999999, 0.43000000000000005, 0.41999999999999993],
+              [0.85, 1.04, -1.22, 1.77],
+              [-0.53, 0.71, 1.6300000000000001, 0.5100000000000001]
+            ]
+          },
+          "outside": "wrap"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[0, 0, 0]],
+            "ky": [[1], [2], [1]]
+          },
+          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
+          "outside": "wrap"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
+            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
+          },
+          "expect": {
+            "out": [
+              [0.3570000000000001, 0.3400000000000001, 0.3940000000000001, 0.45900000000000013],
+              [0.5010000000000001, 0.4050000000000001, 0.3570000000000001, 0.3370000000000001],
+              [0.6320000000000001, 0.4750000000000001, 0.36900000000000005, 0.2740000000000001]
+            ]
+          },
+          "outside": "reflect"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[-1, 2, 0.4, 0, 0.2]],
+            "ky": [[1], [0.25], [-0.5]]
+          },
+          "expect": {
+            "out": [
+              [1.21, 0.030000000000000013, 0.07999999999999999, 0.2],
+              [0.85, 1.305, 0.10499999999999998, -0.88],
+              [-0.0049999999999999906, 1.7249999999999999, 0.505, -0.655]
+            ]
+          },
+          "outside": "reflect"
+        },
+        {
+          "inputs": {
+            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
+            "kx": [[0, 0, 0]],
+            "ky": [[1], [2], [1]]
+          },
+          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
+          "outside": "reflect"
         }
       ],
       "solution": [
@@ -141,356 +315,25 @@
             "noise": { "seed": 17, "amp": 0.04 }
           }
         }
+      },
+      "hint": [
+        {
+          "zh": "先在一张小图上比较只用一组权重时，结果少了哪些方向上的变化。",
+          "en": "On a small image, see which direction of variation is missing when you use only one set of weights."
+        }
+      ],
+      "after": {
+        "zh": "第一次的输出作为第二次的输入，同一像素最终累加了两组权重的所有乘积。边界规则由处理器传给两次取样。",
+        "en": "Feeding the first result into the second accumulates all products of the two sets of weights. The processor passes the selected border policy to both reads."
       }
-    },
-    {
-      "id": "v1_separable_clamp",
-      "kind": "circuit",
-      "step": {
-        "zh": "延续边缘",
-        "en": "Clamp"
-      },
-      "brief": {
-        "zh": "先用横向权重行卷积，再用纵向权重列处理第一次输出。两次使用同一图外规则。",
-        "en": "Convolve horizontally with the weight row, then convolve that result with the weight column. Use the same outside rule in both passes."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kx", "label": { "zh": "横向权重行", "en": "Horizontal weights" } },
-        { "name": "ky", "label": { "zh": "纵向权重列", "en": "Vertical weights" } }
-      ],
-      "outputs": [
-        { "name": "out", "label": { "zh": "可分离结果", "en": "Separable result" } }
-      ],
-      "tests": [
-        {
-          "inputs": {
-            "image": [
-              [0.2, 0.1, 0.5, 0.8],
-              [0.7, 0.4, 0, 0.2],
-              [1, 0.3, 0.6, 0.1]
-            ],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.2], [0.6], [0.2]]
-          },
-          "expect": {
-            "out": [
-              [0.265, 0.255, 0.41000000000000003, 0.61],
-              [0.575, 0.38, 0.265, 0.28],
-              [0.785, 0.515, 0.35, 0.21]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
-            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.3430000000000001, 0.32900000000000007, 0.4210000000000001, 0.5270000000000001],
-              [0.5370000000000001, 0.4050000000000001, 0.3570000000000001, 0.3390000000000001],
-              [0.7090000000000002, 0.4910000000000001, 0.39100000000000007, 0.25700000000000006]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[-1, 2, 0.4, 0, 0.2]],
-            "ky": [[1], [0.25], [-0.5]]
-          },
-          "expect": {
-            "out": [
-              [1.265, 0.030000000000000013, 0.07999999999999999, 0.07500000000000001],
-              [0.995, 1.305, 0.10499999999999998, -0.28],
-              [0.14000000000000004, 1.7249999999999999, 0.505, 0.06999999999999999]
-            ]
-          }
-        }
-      ],
-      "hidden": [
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0, 0, 0]],
-            "ky": [[1], [2], [1]]
-          },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] }
-        }
-      ],
-      "solution": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=clamp,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "kyFlip = reverse(ky)",
-        "ty = windowTable[outside=clamp,axis=x](x,kyFlip)",
-        "py = arithmetic[op=mul](ty.samples,ty.weights)",
-        "sy = reduceRows[mode=sum](py)",
-        "y = restore(sy,x)",
-        "out <- y"
-      ],
-      "naive": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=clamp,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "out <- x"
-      ],
-      "naiveWhy": {
-        "zh": "第二次必须读取第一次输出，才能得到外积核的全部贡献。",
-        "en": "Feed the first pass into the second to obtain every contribution of the outer-product kernel."
-      },
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          }
-        }
-      },
-      "carries": true
-    },
-    {
-      "id": "v1_separable_wrap",
-      "kind": "circuit",
-      "step": {
-        "zh": "周期延续",
-        "en": "Wrap"
-      },
-      "brief": {
-        "zh": "先用横向权重行卷积，再用纵向权重列处理第一次输出。两次使用同一图外规则。",
-        "en": "Convolve horizontally with the weight row, then convolve that result with the weight column. Use the same outside rule in both passes."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kx", "label": { "zh": "横向权重行", "en": "Horizontal weights" } },
-        { "name": "ky", "label": { "zh": "纵向权重列", "en": "Vertical weights" } }
-      ],
-      "outputs": [
-        { "name": "out", "label": { "zh": "可分离结果", "en": "Separable result" } }
-      ],
-      "tests": [
-        {
-          "inputs": {
-            "image": [
-              [0.2, 0.1, 0.5, 0.8],
-              [0.7, 0.4, 0, 0.2],
-              [1, 0.3, 0.6, 0.1]
-            ],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.2], [0.6], [0.2]]
-          },
-          "expect": {
-            "out": [[0.415, 0.32, 0.395, 0.49], [0.485, 0.38, 0.265, 0.37], [0.525, 0.45, 0.365, 0.44]]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
-            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.44400000000000006, 0.37600000000000006, 0.4020000000000001, 0.4080000000000001],
-              [0.44800000000000006, 0.37600000000000006, 0.38600000000000007, 0.39000000000000007],
-              [0.4680000000000001, 0.38800000000000007, 0.4120000000000001, 0.4020000000000001]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[-1, 2, 0.4, 0, 0.2]],
-            "ky": [[1], [0.25], [-0.5]]
-          },
-          "expect": {
-            "out": [
-              [0.79, -0.5199999999999999, 0.43000000000000005, 0.41999999999999993],
-              [0.85, 1.04, -1.22, 1.77],
-              [-0.53, 0.71, 1.6300000000000001, 0.5100000000000001]
-            ]
-          }
-        }
-      ],
-      "hidden": [
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0, 0, 0]],
-            "ky": [[1], [2], [1]]
-          },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] }
-        }
-      ],
-      "solution": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=wrap,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "kyFlip = reverse(ky)",
-        "ty = windowTable[outside=wrap,axis=x](x,kyFlip)",
-        "py = arithmetic[op=mul](ty.samples,ty.weights)",
-        "sy = reduceRows[mode=sum](py)",
-        "y = restore(sy,x)",
-        "out <- y"
-      ],
-      "naive": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=wrap,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "out <- x"
-      ],
-      "naiveWhy": {
-        "zh": "第二次必须读取第一次输出，才能得到外积核的全部贡献。",
-        "en": "Feed the first pass into the second to obtain every contribution of the outer-product kernel."
-      },
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          }
-        }
-      },
-      "carries": true
-    },
-    {
-      "id": "v1_separable_reflect",
-      "kind": "circuit",
-      "step": { "zh": "镜像延续", "en": "Reflect" },
-      "brief": {
-        "zh": "先用横向权重行卷积，再用纵向权重列处理第一次输出。两次使用同一图外规则。",
-        "en": "Convolve horizontally with the weight row, then convolve that result with the weight column. Use the same outside rule in both passes."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kx", "label": { "zh": "横向权重行", "en": "Horizontal weights" } },
-        { "name": "ky", "label": { "zh": "纵向权重列", "en": "Vertical weights" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "可分离结果", "en": "Separable result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.2], [0.6], [0.2]]
-          },
-          "expect": {
-            "out": [
-              [0.265, 0.255, 0.41000000000000003, 0.61],
-              [0.575, 0.38, 0.265, 0.28],
-              [0.785, 0.515, 0.35, 0.21]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
-            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.3570000000000001, 0.3400000000000001, 0.3940000000000001, 0.45900000000000013],
-              [0.5010000000000001, 0.4050000000000001, 0.3570000000000001, 0.3370000000000001],
-              [0.6320000000000001, 0.4750000000000001, 0.36900000000000005, 0.2740000000000001]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[-1, 2, 0.4, 0, 0.2]],
-            "ky": [[1], [0.25], [-0.5]]
-          },
-          "expect": {
-            "out": [
-              [1.21, 0.030000000000000013, 0.07999999999999999, 0.2],
-              [0.85, 1.305, 0.10499999999999998, -0.88],
-              [-0.0049999999999999906, 1.7249999999999999, 0.505, -0.655]
-            ]
-          }
-        }
-      ],
-      "hidden": [
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0, 0, 0]],
-            "ky": [[1], [2], [1]]
-          },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] }
-        }
-      ],
-      "solution": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=reflect,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "kyFlip = reverse(ky)",
-        "ty = windowTable[outside=reflect,axis=x](x,kyFlip)",
-        "py = arithmetic[op=mul](ty.samples,ty.weights)",
-        "sy = reduceRows[mode=sum](py)",
-        "y = restore(sy,x)",
-        "out <- y"
-      ],
-      "naive": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=reflect,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "out <- x"
-      ],
-      "naiveWhy": {
-        "zh": "第二次必须读取第一次输出，才能得到外积核的全部贡献。",
-        "en": "Feed the first pass into the second to obtain every contribution of the outer-product kernel."
-      },
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          }
-        }
-      },
-      "carries": true
     },
     {
       "id": "v1_multiply_budget",
       "kind": "circuit",
       "step": { "zh": "乘法预算", "en": "Multiply budget" },
       "brief": {
-        "zh": "同一幅图分别应用方框核、高斯核和拉普拉斯核。每像素最多 29 次乘法。能分解的核，请把权重写进常数元件，转置得到纵向列。",
-        "en": "Apply the box, Gaussian and Laplacian to the same image. Use at most 29 products per pixel. For kernels that factor, enter their weights in constants and transpose to make columns."
+        "zh": "先检查现成的三条支路：结果能对上，成本却超标。改进这块板，让三张输出保持正确，总成本每像素最多 29 次乘法。比较三张核的数值，自行决定每路的形态和权重。",
+        "en": "Check the starting board: it matches the outputs but exceeds the budget. Improve it while keeping all three outputs correct, with at most 29 products per pixel in total. Inspect the kernel values and choose each branch’s form and weights."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },
@@ -655,6 +498,14 @@
         "gaussianOut <- densegaussian",
         "laplacianOut <- denselaplacian"
       ],
+      "starter": [
+        "densebox = spatialProcessor[form=dense,outside=zero](image,box)",
+        "densegaussian = spatialProcessor[form=dense,outside=zero](image,gaussian)",
+        "denselaplacian = spatialProcessor[form=dense,outside=zero](image,laplacian)",
+        "boxOut <- densebox",
+        "gaussianOut <- densegaussian",
+        "laplacianOut <- denselaplacian"
+      ],
       "naiveWhy": {
         "zh": "方框核和高斯核可分成两次一维卷积，每个把 25 次乘法降到 10 次。",
         "en": "The box and Gaussian each factor into two 1D convolutions, reducing 25 products to 10."
@@ -682,8 +533,8 @@
       },
       "hint": [
         {
-          "zh": "方框核的五项权重都是 1/5。高斯权重与 1、4、6、4、1 成比例，总和为 1。",
-          "en": "The five box weights are all 1/5. Gaussian weights are proportional to 1, 4, 6, 4, 1 and sum to 1."
+          "zh": "选一条非零行做参照，试着用同一个倍数解释另一行的所有非零项，同时检查零的位置。这个判断不需要先算出两条权重。",
+          "en": "Choose a nonzero row and see whether one multiplier explains every nonzero entry of another row. Check the zero positions too. This test does not require choosing numerical factors first."
         }
       ]
     }

@@ -419,6 +419,30 @@
         { "name": "b", "label": { "zh": "图 B", "en": "Image B" } }
       ],
       "compute": "abs(sub(a,b))"
+    },
+    "gaussianWeights": {
+      "name": { "zh": "高斯权重", "en": "Gaussian weights" },
+      "desc": {
+        "zh": "选择尺度，输出归一化的一维高斯权重行。",
+        "en": "Choose a scale to produce a normalised Gaussian weight row."
+      },
+      "family": "image",
+      "icon": "Sigma",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "scale",
+          "control": "select",
+          "label": { "zh": "尺度", "en": "Scale" },
+          "options": [
+            { "value": "narrow", "label": { "zh": "窄（0.45）", "en": "Narrow (0.45)" } },
+            { "value": "medium", "label": { "zh": "中（0.8）", "en": "Medium (0.8)" } },
+            { "value": "wide", "label": { "zh": "宽（1.4）", "en": "Wide (1.4)" } }
+          ],
+          "default": "narrow"
+        }
+      ],
+      "compute": "match $scale { narrow: gaussianRow(0.45), medium: gaussianRow(0.8), wide: gaussianRow(1.4) }"
     }
   }
 }

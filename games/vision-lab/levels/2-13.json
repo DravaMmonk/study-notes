@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "扫描台的局部处理器已经有用，却无法专门区分整幅图上的规则条纹。现在把二维分析、频率选择和二维重建接成机器，再与自己的空间处理器做公平对照。测试明确给出干扰位置，不要求猜频率或手算。 <wiki-ref to=\"interference-machine\"></wiki-ref>",
-        "en": "Local processing helps the scanner but cannot selectively isolate global periodic stripes. Assemble 2D analysis, gain selection and reconstruction, then compare fairly with your spatial processor. Interference locations are supplied; there is no frequency guessing or hand calculation. <wiki-ref to=\"interference-machine\"></wiki-ref>"
+        "zh": "扫描台能平滑局部斑点，逐行滤波也能压下左右重复的条纹。但样张还有一组上下重复的条纹，逐行分析时它可能只表现为各行平均亮度不同。用同一张样张比较空间、逐行和二维三条路径，确认去掉了哪些干扰、保住了哪些结构。 <wiki-ref to=\"interference-machine\"></wiki-ref>",
+        "en": "The scanner smooths local specks, and row filtering can suppress patterns that repeat across. The sample also repeats down the image, where a row analyser may see only different mean values from row to row. Compare spatial, row and 2D processing on the same sample and check which interference disappears and which structure remains. <wiki-ref to=\"interference-machine\"></wiki-ref>"
       }
     }
   ],

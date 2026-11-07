@@ -12,7 +12,7 @@ import { checkCircuitTasks } from '../../engine/circuit-domain.js'
 import { entries, runLevel, runTest } from './run.js'
 import { gridCheck, gridReference, gridStart } from './grid.js'
 import { judgeOf, naiveRound } from './judges.js'
-import { blankProbe, checkProbe, probeQuestions } from './probe.js'
+import { blankProbe, probeOf } from './probe.js'
 import { lessonProblems } from './benches/lesson.js'
 
 /** What a board task does wrong with the settings its course introduces, and with its sample. */
@@ -75,20 +75,19 @@ export function validate({ circuit }) {
     entries,
     failure: (r) => (r.fail ? `(${r.fail.why.en})` : ''),
     more: (task, _k, _tasks, held) => settingsSaid(task, held, circuit),
-    kinds: { probe: () => {
-      const impulse = blankProbe()
-      impulse[3][3] = 1
-      const problems = probeQuestions.flatMap(question => {
-        const correct = { answer: question.answer, rows: impulse }
-        return [
-          ...(checkProbe(question, correct) ? ['the reference impulse does not pass'] : []),
-          ...(!checkProbe(question, { ...correct, rows: blankProbe() }) ? ['zero evidence passes'] : []),
-        ]
-      })
-      const [support, gain] = probeQuestions
-      const flat = blankProbe().map(row => row.map(() => 0.25))
-      if (!checkProbe(support, { answer: support.answer, rows: flat })) problems.push('a flat image passes the support question')
-      if (checkProbe(gain, { answer: gain.answer, rows: flat })) problems.push('a nonzero flat image fails the gain question')
+    kinds: { probe: (task) => {
+      const model = probeOf(task)
+      const reference = model.reference()
+      const problems = model.questions.flatMap((question, index) => [
+        ...(model.check(question, reference[index]) ? ['reference evidence fails'] : []),
+        ...(!model.check(question, model.insufficient()) ? ['insufficient evidence passes'] : []),
+      ])
+      if (model.field === 'rows') {
+        const [support, gain] = model.questions
+        const flat = blankProbe().map(row => row.map(() => 0.25))
+        if (!model.check(support, { answer: support.answer, rows: flat })) problems.push('a flat image passes the support question')
+        if (model.check(gain, { answer: gain.answer, rows: flat })) problems.push('a nonzero flat image fails the gain question')
+      }
       return { problems, ok: 'probe PASS' }
     }, grid: gridSaid, choice: choiceSaid, bench: benchSaid },
   })

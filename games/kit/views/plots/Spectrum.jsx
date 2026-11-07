@@ -10,7 +10,14 @@ import { centreBins, spectrumOf } from './spectrum.js'
 
 const frequency = (n) => (j) => j - Math.floor(n / 2)
 
-export function CentredBins({ value, want, card, tolerance }) {
+export function CentredBins({ value, want, card, tolerance, size = 220 }) {
+  const grid = value ?? want
+  if (grid.frequencyAxes === 2 || grid.h > 2) {
+    const shifted = centreBins(grid)
+    const centre = Math.floor(grid.h / 2) * grid.w + Math.floor(grid.w / 2)
+    const peak = shifted.data.reduce((max, amplitude, index) => index === centre ? max : Math.max(max, amplitude), 1e-9)
+    return <SpectrumMap value={{ ...shifted, data: shifted.data.map(amplitude => Math.max(0, Math.min(1, amplitude / peak))) }} size={size} />
+  }
   return <Plot value={value && centreBins(value)} want={want && centreBins(want)}
     tolerance={tolerance} card={card} xOf={frequency((value ?? want).w)} />
 }
@@ -18,18 +25,17 @@ export function CentredBins({ value, want, card, tolerance }) {
 export default function Spectrum({ value, want, size = 220, card = false }) {
   const shown = value ?? want
   if (shown.h <= 2) return <Plot value={value && spectrumOf(value)} want={want && spectrumOf(want)} tolerance={Infinity} card={card} xOf={frequency(shown.w)} />
-  return <SpectrumMap value={shown} size={size} />
+  return <SpectrumMap value={spectrumOf(shown)} size={size} />
 }
 
 function SpectrumMap({ value, size }) {
   const { w, h } = value
   const height = Math.round(size * (h / w))
   const canvas = useCanvas((ctx) => {
-    const spectrum = spectrumOf(value)
     const cell = size / w
     const [low, high, rule] = ['--canvas', '--accent-ink', '--rule'].map(token)
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      ctx.fillStyle = rgba(mix(low, high, spectrum.data[y * w + x] ** 1.4))
+      ctx.fillStyle = rgba(mix(low, high, value.data[y * w + x] ** 1.4))
       ctx.fillRect(x * cell, y * cell, cell + 0.5, cell + 0.5)
     }
     // Axes through zero frequency.
@@ -43,5 +49,5 @@ function SpectrumMap({ value, size }) {
     ctx.lineTo(size, zy)
     ctx.stroke()
   }, size, height, [value])
-  return <canvas ref={canvas} className="sp" style={{ width: size, height }} aria-label={tr('频谱：中心是平均值，越往外频率越高', 'Spectrum: the centre is the mean; frequency rises outwards')} />
+  return <canvas ref={canvas} className="sp" style={{ width: size, height }} aria-label={tr('频谱：中心是零频，越往外频率越高', 'Spectrum: the centre is zero frequency; frequency rises outwards')} />
 }

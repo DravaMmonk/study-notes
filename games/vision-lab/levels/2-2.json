@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "波形发生器提供了可比较的刻度，现在让它与观测发生联系。直接看一行平均亮度会漏掉正负抵消的条纹；用匹配波形检验某个频率是否有贡献。 <wiki-ref to=\"frequency-projection\"></wiki-ref>",
-        "en": "The wave generator provides a basis. Connect it to observations: averaging brightness misses zero-mean stripes. Test a frequency through comparison with its matching wave. <wiki-ref to=\"frequency-projection\"></wiki-ref>"
+        "zh": "现在你能产生任意指定重复次数的参考波。可是两张图可以有相同的平均亮度，一张有条纹，另一张没有。用参考波对比它们，设计一个只回答某个频率有多少贡献的读数。 <wiki-ref to=\"frequency-projection\"></wiki-ref>",
+        "en": "You can now generate a reference wave at a specified repetition count. Two images can still have the same mean brightness even when only one has stripes. Compare them against the reference wave and make a reading that measures the contribution at a single frequency. <wiki-ref to=\"frequency-projection\"></wiki-ref>"
       },
       "fig": "frequency-probe"
     }

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "三点加权能处理一条线，但斜向和其他形状需要更一般的邻域。工具把重复取样展开为表，你把刚才学会的加权关系扩展到整张权重表。工具不会替你加权求和。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
-        "en": "A line cannot express every diagonal or local pattern. A helper unfolds repeated sampling into tables. Extend the weighted relation to the entire table; the helper does not calculate a weighted sum. <wiki-ref to=\"local-kernel\"></wiki-ref>"
+        "zh": "三点加权只沿一条线取读数。把亮点放到对角位置时，横向和纵向的三点窗口都可能漏掉它。现在给出整块邻域的读数与权重，找出怎样把每个位置的多项贡献汇成一项。 <wiki-ref to=\"local-kernel\"></wiki-ref>",
+        "en": "Three-point weighting reads a line. A bright spot on a diagonal can fall outside both the horizontal and vertical windows. Inspect the readings and weights of a full neighbourhood and determine how to turn several contributions into one result at each position. <wiki-ref to=\"local-kernel\"></wiki-ref>"
       },
       "fig": "window-table"
     }

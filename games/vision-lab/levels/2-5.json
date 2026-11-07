@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "频谱仪保留了两路系数，还需要一台合成器才能检查它们是否完整。正向测量与逆向重建共用你造出的波形，但它们的求和方向和归一化职责不同。 <wiki-ref to=\"fourier-synthesis\"></wiki-ref>",
-        "en": "The analyser retains both components. Build a synthesiser to check whether information is complete. Analysis and reconstruction reuse the wave generator but differ in summation roles and normalisation. <wiki-ref to=\"fourier-synthesis\"></wiki-ref>"
+        "zh": "<level-ref to=\"2-4\"></level-ref>把一行图变成一排系数。只看幅度时，亮纹在左还是在右可能分不出来。现在检验这些系数是否真的保存了整行：先复原平面，再试一张条纹不从峰值开始的图。",
+        "en": "The analyser turned each row into a set of coefficients. Magnitudes alone may not tell whether a bright stripe is on the left or the right. Test whether the coefficients retain the whole row: recover a flat row first, then a stripe whose first sample is not at a peak. <level-ref to=\"2-4\"></level-ref>"
       }
     }
   ],
@@ -21,8 +21,8 @@
         "en": "Reconstruct"
       },
       "brief": {
-        "zh": "前向系数已经除以 N。按所有频率合成每个位置：实部乘 cos，虚部乘 sin 后相减；此处波形器可用 +1/4 周产生 −sin，因此相应调整组合符号。不要再平均。",
-        "en": "Forward coefficients already include 1/N. Synthesis sums real·cos − imaginary·sin across frequencies. The wave generator supplies −sin via +1/4 turn; account for that sign. Do not average again."
+        "zh": "从给定的两张系数表复原原图。恒定图的亮度与条纹的位置都要正确，输出宽高与输入一致。",
+        "en": "Reconstruct the image from the two coefficient tables. Match both the brightness of a flat image and the position of stripes. Preserve the input dimensions."
       },
       "inputs": [
         { "name": "real", "label": { "zh": "频谱实部", "en": "Spectrum real" } },
@@ -145,18 +145,13 @@
       },
       "hint": [
         {
-          "zh": "先用只有 DC 的常量图检查总增益，再用有相位的条纹检查虚部符号。所有乘积与累加自动计算。",
-          "en": "Check gain using DC-only constants, then imaginary signs using phased stripes. Arithmetic and accumulation are automatic."
+          "zh": "先测只有零频系数的图来检查整体亮度，再看只有一对带相位系数的图，比较条纹向哪一边偏。",
+          "en": "Use a zero-frequency-only image to check overall brightness. Then compare which way a stripe shifts in a case with phased coefficients."
         }
       ],
       "starter": [
-        "zero = const[value=0]()",
-        "quarter = const[value=0.25]()",
         "r = expandRows(real)",
-        "i = expandRows(imag)",
-        "c = wave(r.position,r.frequency,zero)",
-        "s = wave(r.position,r.frequency,quarter)",
-        "rc = arithmetic[op=mul](r.values,c)"
+        "i = expandRows(imag)"
       ],
       "adds": [],
       "sample": {

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "单频探针在某些平移下没有响应，尽管条纹还在。补上与第一路相差四分之一周的测量，把两路作为同一个系数的两个分量。 <wiki-ref to=\"quadrature-components\"></wiki-ref>",
-        "en": "A shifted stripe can make one probe silent while remaining visible. Add a quarter-turn projection and retain both components of the same coefficient. <wiki-ref to=\"quadrature-components\"></wiki-ref>"
+        "zh": "单频探针在条纹对准参考波时有效。把同一组条纹平移后，第一路可能读到零，虽然重复次数和幅度都没变。用这些测试找出还缺哪一种测量。 <wiki-ref to=\"quadrature-components\"></wiki-ref>",
+        "en": "The single-frequency probe works when stripes line up with its reference. Shift the same stripes and the probe may read zero, even though repetition count and amplitude are unchanged. Use those trials to determine what measurement is missing. <wiki-ref to=\"quadrature-components\"></wiki-ref>"
       }
     }
   ],

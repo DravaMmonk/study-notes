@@ -2,11 +2,11 @@
   "title": { "zh": "让质检台看见变化", "en": "Give the inspection station a comparison" },
   "intro": [
     {
-      "fig": "inspection",
       "t": {
-        "zh": "你接手一台图像质检台。它能拍摄工件，却还不会比较、去干扰或找出轮廓。你将从读数开始造比较仪，再装出扫描器与频率分析仪；每次通过的电路，都会成为后续机器能复用的部件。",
-        "en": "You inherit an image inspection station. It captures items but cannot yet compare them, suppress nuisance or measure contours. Build a comparator, then a scanner and frequency analyser. Each passed circuit becomes a reusable part."
-      }
+        "zh": "你接手一台质检台。相机拍到了工件和标准件，仪器却还不会区分正常读数与缺口。先挑一个位置读原始值，再做一张保留变化方向的图和一张只保留变化大小的图。 <wiki-ref to=\"image-difference\"></wiki-ref> <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>",
+        "en": "You inherit an inspection station. The camera captures the part and its reference, but the station cannot yet distinguish ordinary readings from a defect. Inspect one position, then produce a map that retains the direction of change and another that retains its size. <wiki-ref to=\"image-difference\"></wiki-ref> <wiki-ref to=\"pixel-coordinate-convention\"></wiki-ref>"
+      },
+      "fig": "inspection"
     },
     {
       "fig": "inspection-samples",

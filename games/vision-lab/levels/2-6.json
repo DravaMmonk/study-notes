@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "重建器可以检验“频率有多少”是否足够。现在交换两张图的幅度来源和相位来源，检查空间结构跟随哪一部分。只在非零系数上讨论相位，零系数的方向没有意义。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
-        "en": "Use the synthesiser to test whether frequency amounts alone suffice. Mix magnitude and phase sources and inspect spatial structure. Phase is meaningful for nonzero coefficients; zero coefficients have no direction. <wiki-ref to=\"phase-structure\"></wiki-ref>"
+        "zh": "重建器能把系数还原成图。现在两张图的纹样位置不同，幅度表却可能很相似。把一张图的幅度与另一张图的相位配起来，看重建后结构跟随哪一张。 <wiki-ref to=\"phase-structure\"></wiki-ref>",
+        "en": "The synthesiser turns coefficients back into an image. Two images can have similar magnitudes while their features sit in different places. Combine the magnitudes from one with the phases from the other and see which image supplies the reconstructed structure. <wiki-ref to=\"phase-structure\"></wiki-ref>"
       }
     }
   ],

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "质检台只能逐位置比较，无法利用周围读数区分细碎干扰和较大结构。这章要造邻域处理器，再把它装成扫描器。先从三个位置开始：取样位置与贡献权重分开，所有数值由电路计算。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-        "en": "The station compares individual locations but cannot use surrounding readings to separate fine nuisance from broader structure. Build a neighbourhood processor and then a scanner. Start with three positions: sample locations and contributions are separate; the circuit does the arithmetic. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+        "zh": "质检台会比较同一位置，但斑点与较大的边缘都可能触发它。实验室提供一台未知模糊器。先改变输入，查明一个亮点会影响多远、恒定亮度是否改变，再把观察转成自己的邻域计算。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
+        "en": "The station compares matching positions, but specks and large edges can both trigger it. The lab provides an unknown blur. Change its input to find how far a bright spot spreads and whether constant brightness survives, then turn your findings into a neighbourhood circuit. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
       },
       "fig": "weighted-line"
     }

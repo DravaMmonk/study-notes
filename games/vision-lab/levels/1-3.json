@@ -3,14 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "打开的是 <level-ref to=\"1-2\"></level-ref> 通关时的邻域计算电路。保留展开、乘权重、求和与还原，在核进入邻域表之前增加翻转。通关后仍更新同一个邻域处理器。",
-        "en": "The board continues the neighbourhood circuit passed in <level-ref to=\"1-2\"></level-ref>. Keep unfolding, weighting, reduction and restoration; add kernel reversal before the window table. Passing updates the same spatial processor."
-      }
-    },
-    {
-      "t": {
-        "zh": "处理器能处理任意核，但课程公式和一些工具使用不同的核约定。对称平滑核掩盖了差别，现在用非对称核把问题显露出来，再给自己的处理器加上明确的数学接口。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
-        "en": "The processor accepts any kernel, but conventions differ. Symmetric smoothing hides that difference. Expose it with an asymmetric kernel and build an explicit mathematical interface. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+        "zh": "你搭出的核能平滑图像，但两台工具在对称核上相同，换成偏向一侧的核就不一样。保留 <level-ref to=\"1-2\"></level-ref> 的电路，用偏离中心的亮点判断核的书写方向与输出方向之间的关系。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
+        "en": "Your kernel smooths images, but two tools that agree on a symmetric kernel disagree when its weights favour one side. Keep the board from <level-ref to=\"1-2\"></level-ref> and use an off-centre bright spot to infer how the written kernel relates to the output direction. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
       }
     }
   ],

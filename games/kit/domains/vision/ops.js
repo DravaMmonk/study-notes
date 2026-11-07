@@ -88,6 +88,17 @@ const finiteValues = (values) => {
 export const OPS = {
   vector2: { about: t('由两个数构造方向向量 (x, y)', 'A direction vector (x, y) from two numbers'), args: args('x', 'y'), run: (values) => { const [x, y] = finiteValues(values); return { x, y } } },
   weightVector: { about: t('由前、中、后三个数构造权重向量', 'A first/centre/last weight vector from three numbers'), args: args('first', 'centre', 'last'), run: (values) => { const weights = finiteValues(values); return make(3, 1, 1, (x) => weights[x]) } },
+  gaussianRow: {
+    about: t('按给定尺度生成归一化的一维高斯权重', 'A normalised Gaussian row at the selected scale'),
+    args: args('sigma'),
+    run: ([sigma]) => {
+      if (!Number.isFinite(sigma) || sigma < 0.25 || sigma > 4) fail('尺度必须在 0.25 至 4 之间', 'Scale must be between 0.25 and 4')
+      const radius = Math.ceil(2 * sigma)
+      const weights = Array.from({ length: 2 * radius + 1 }, (_, x) => Math.exp(-0.5 * ((x - radius) / sigma) ** 2))
+      const total = weights.reduce((sum, weight) => sum + weight, 0)
+      return make(weights.length, 1, 1, x => weights[x] / total)
+    },
+  },
   weightRow5: {
     about: t('五项权重组成一行', 'Five weights arranged in a row'),
     args: args('a', 'b', 'c', 'd', 'e'),

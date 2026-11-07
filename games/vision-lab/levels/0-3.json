@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "比较器已经能处理夹具给出的错位，现在把它接入质检规范。图像中的变化证据与最终的通过条件不是一回事：相机小幅读数波动在规范允许范围内。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
-        "en": "The comparator handles the fixture offset. Connect it to the inspection specification: measured change and a decision condition are different. Small reading fluctuations are allowed. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
+        "zh": "图像对齐后，大的缺口和小的读数波动都还留在差值图里。质检台需要给出明确的超差标记，也要把变化大小保留下来供复核。 <wiki-ref to=\"decision-evidence\"></wiki-ref>",
+        "en": "After alignment, both defects and small reading fluctuations remain in the difference image. The station must mark readings beyond tolerance and retain the measured changes for review. <wiki-ref to=\"decision-evidence\"></wiki-ref>"
       }
     }
   ],

@@ -1,6 +1,6 @@
 {
   "domain": "vision",
-  "vocabulary": 3,
+  "vocabulary": 4,
   "title": {
     "zh": "视觉实验室",
     "en": "Vision Lab"
@@ -32,7 +32,8 @@
     "trim",
     "weightedLine",
     "windowTable",
-    "difference"
+    "difference",
+    "gaussianWeights"
   ],
   "trays": {
     "main": [
@@ -64,7 +65,8 @@
       "transpose",
       "complexSpectrum",
       "spectrum2D",
-      "synthesise2D"
+      "synthesise2D",
+      "gaussianWeights"
     ]
   },
   "concept": {
@@ -86,7 +88,8 @@
     "size": "localTraversal",
     "arithmetic": "arithmetic",
     "weightedLine": "localTraversal",
-    "difference": "arithmetic"
+    "difference": "arithmetic",
+    "gaussianWeights": "localTraversal"
   },
   "eras": [
     {
@@ -147,9 +150,10 @@
               "title": { "zh": "合成与频率处理", "en": "synthesis" },
               "levels": ["2-5", "2-6", "2-9", "2-10", "2-11"]
             },
-            { "id": "e2-twoaxes", "title": { "zh": "二维扩展", "en": "twoaxes" }, "levels": ["2-7", "2-8", "2-12"] }
+            { "id": "e2-twoaxes", "title": { "zh": "二维扩展", "en": "twoaxes" }, "levels": ["2-7", "2-8"] }
           ]
         },
+        "2-12",
         "2-13"
       ]
     }

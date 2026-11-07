@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { tr } from '../../../shell/i18n.js'
+import { L, tr } from '../../../shell/i18n.js'
 
 import { ArrowRightFromLine } from 'lucide-react'
 import CircuitScreen from '../../../shell/CircuitScreen.jsx'
@@ -32,6 +32,7 @@ export default function Screen(screen) {
   const task = screen.level.source
   const own = screen.game.circuit.forTask(task)
   const { phone } = screen
+  const outsideLabel = (value) => L(own.presets.outside?.options?.find(option => option.value === value)?.label ?? value)
   const settingsIn = (type, key) => own.settingsIn(task, type, key)
   const defaults = (type) => taskDefaults(type, own.partOf, settingsIn)
   const defined = useMemo(() => ({ of: (type) => own.defs[type] ?? null, defaults, ops: OPS, allowed: settingsIn }), [own, task]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -55,6 +56,9 @@ export default function Screen(screen) {
       show={written}
       entries={entries}
       figure={({ test, run }) => test && <>
+        {test.outside && <p className="vi-label">
+          {tr(`本测试将所有取样的图外规则设为「${outsideLabel(test.outside)}」。`, `This test sets all reads to ${outsideLabel(test.outside)} outside the image.`)}
+        </p>}
         {task.illustration === 'pinhole' && <ProjectionCase test={test} tests={task.tests} phone={phone} />}
         {task.multiplyBudget && run && <p className="rv-verdict">{tr(`${run.work.multiplies} 次乘法`, `${run.work.multiplies} multiplications`)}</p>}
       </>}

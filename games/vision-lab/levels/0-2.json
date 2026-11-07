@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "传送带移动了工件，直接比较会把移动也标成变化。夹具已经测出取样偏移，不需要你估计位移。给比较器补上位置对应，再用真正的缺口检验它。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
-        "en": "The conveyor moved the item, so direct comparison reports motion as change. A fixture already measured the sampling offset; you do not estimate it. Add correspondence before comparison and test a real defect. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
+        "zh": "带符号差可以指出工件哪里变了，但传送带把整个工件挪了一格，连完好的部位也亮了起来。夹具已经测出偏移。用这份已知信息把错位和真正缺口分开。 <wiki-ref to=\"spatial-correspondence\"></wiki-ref>",
+        "en": "Signed differences locate change, but the belt moved the whole part and intact areas now light up. The fixture has measured the offset. Use that measurement to separate misalignment from a real defect. <wiki-ref to=\"spatial-correspondence\"></wiki-ref>"
       }
     }
   ],

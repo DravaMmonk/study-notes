@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "重建器让你能够改系数再回到图像。先从频率到零点的距离造增益，再把它接入完整的频率处理路径；不要把相位作为无关数据丢弃。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
-        "en": "The synthesiser lets you modify coefficients and return to images. Construct gains from frequency distance, then connect the full filtering path while retaining phase information. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
+        "zh": "相位实验显示，改错分量会挪动结构。现在有一张图混入了已知频带的干扰。试着只改变指定频带的贡献，同时保留通过的条纹位置，再用重建图核对。 <wiki-ref to=\"frequency-filtering\"></wiki-ref>",
+        "en": "The phase experiment showed that changing the wrong component can move features. A new image contains interference in a known band. Change the contributions in that band, preserve the positions of retained stripes, and check the reconstructed image. <wiki-ref to=\"frequency-filtering\"></wiki-ref>"
       },
       "fig": "frequency-filter"
     }

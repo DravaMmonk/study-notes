@@ -12,4 +12,4 @@ export const DRAWN = { plot: Plot, profile: Profile, surface: Surface, slope: Sl
 export const SIZE = { card: 96, results: 180, detail: 200, figure: 260 }
 
 /** Whether a view draws the result and the value wanted on one set of axes (else each is drawn on its own). */
-export const overlays = (view, grid) => view === 'plot' || view === 'profile' || view === 'centredBins' || (view === 'spectrum' && grid?.h <= 2)
+export const overlays = (view, grid) => view === 'plot' || view === 'profile' || (['centredBins', 'spectrum'].includes(view) && grid?.h <= 2 && grid.frequencyAxes !== 2)

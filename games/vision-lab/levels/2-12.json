@@ -3,14 +3,14 @@
   "intro": [
     {
       "t": {
-        "zh": "二维频谱仪必须能回到图像，才适合做可检查的处理。逆向的数学恒等式已经给出；复用已有机器并保持完整的实虚数据，观察重建与残差。 <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>",
-        "en": "A 2D analyser must return to images for inspectable processing. The inverse identity is supplied; reuse the machine while retaining both components and inspect reconstruction plus residual. <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>"
+        "zh": "二维频谱已经能分别指出横向与纵向的变化。去干扰仪还需要从改过的频谱回到图像，否则看不到删掉条纹后保留了什么。先试均匀图，再试两轴都有变化的长方形，检验重建是否保留亮度、方向与位置。",
+        "en": "The 2D spectrum now identifies horizontal and vertical variation separately. The interference remover needs an image back from its edited spectrum before we can see what survives. Use a flat image, then a rectangle with variation along both axes, to check brightness, direction and position."
       }
     }
   ],
   "after": {
-    "zh": "\\[\\mathcal F^{-1}(C)=WH\\,\\overline{\\mathcal F(\\overline C)}\\]\n\nW、H 是宽高，conj 保留实部并反转虚部的符号。两次共轭把前向指数的负号换成逆向的正号，乘 WH 抵消前向平均。实图及保持共轭对称的增益应重建出接近零的虚部；非零残差可提示丢分量或符号错误。 <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>",
-    "en": "\\[\\mathcal F^{-1}(C)=WH\\,\\overline{\\mathcal F(\\overline C)}\\]\n\nW and H are image dimensions; conj retains the real part and negates the imaginary part. Conjugation reverses the exponent sign, while WH cancels the forward average. Real input with conjugate-symmetric gains should reconstruct with near-zero imaginary residual; a residual can reveal lost components or sign errors. <wiki-ref to=\"two-dimensional-inverse\"></wiki-ref>"
+    "zh": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\n沿一轴重建后，结果仍可能有实部和虚部，另一轴要一起读。逐行重建采用直接求和，补回前向归一化。",
+    "en": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\nAfter reconstructing along one axis, retain both components for the other. Row synthesis sums directly to undo the forward normalisation."
   },
   "tasks": [
     {
@@ -21,8 +21,8 @@
         "en": "Close the 2D loop"
       },
       "brief": {
-        "zh": "复用二维前向机做逆向：共轭输入，做前向变换，再共轭并乘 W×H。共轭保留实部、反转虚部。输出重建实部及虚部残差。",
-        "en": "Reuse the 2D forward machine for inversion: conjugate input, transform, then conjugate and multiply by W×H. Conjugation retains real and negates imaginary parts. Output reconstructed real and imaginary residual."
+        "zh": "把二维系数重建为原图，并保留虚部读数以便检查。常量图要保住亮度，带相位的长方形要保住尺寸和纹样位置。",
+        "en": "Reconstruct the image from its 2D coefficients and retain the imaginary output for inspection. A flat image must retain brightness and a phased rectangle must retain dimensions and feature positions."
       },
       "inputs": [
         { "name": "real", "label": { "zh": "二维系数实部", "en": "2D coefficients real" } },
@@ -33,6 +33,16 @@
         { "name": "imaginary", "label": { "zh": "虚部残差", "en": "Imaginary residual" } }
       ],
       "tests": [
+        {
+          "inputs": {
+            "real": [
+              [0.35, 0, 0],
+              [0, 0, 0]
+            ],
+            "imag": [[0, 0, 0], [0, 0, 0]]
+          },
+          "expect": { "out": [[0.35, 0.35, 0.35], [0.35, 0.35, 0.35]], "imaginary": [[0, 0, 0], [0, 0, 0]] }
+        },
         {
           "inputs": {
             "real": [
@@ -96,40 +106,38 @@
       ],
       "solution": [
         "zero = const[value=0]()",
-        "negative = arithmetic[op=sub](zero,imag)",
-        "p = spectrum2D(real,negative)",
-        "s = size(real)",
-        "count = arithmetic[op=mul](s.w,s.h)",
-        "r = arithmetic[op=mul](p.re,count)",
-        "i = arithmetic[op=mul](p.im,count)",
-        "ni = arithmetic[op=sub](zero,i)",
-        "out <- r",
-        "imaginary <- ni"
+        "rn = arithmetic[op=sub](zero,real)",
+        "r = synthesise(real,imag)",
+        "i = synthesise(imag,rn)",
+        "rt = transpose(r)",
+        "it = transpose(i)",
+        "rtn = arithmetic[op=sub](zero,rt)",
+        "x = synthesise(rt,it)",
+        "y = synthesise(it,rtn)",
+        "outR = transpose(x)",
+        "outI = transpose(y)",
+        "out <- outR",
+        "imaginary <- outI"
       ],
       "naive": [
         "zero = const[value=0]()",
-        "negative = arithmetic[op=sub](zero,imag)",
-        "p = spectrum2D(real,negative)",
-        "s = size(real)",
-        "count = arithmetic[op=mul](s.w,s.h)",
-        "r = arithmetic[op=mul](p.re,zero)",
-        "i = arithmetic[op=mul](p.im,count)",
-        "ni = arithmetic[op=sub](zero,i)",
+        "rn = arithmetic[op=sub](zero,real)",
+        "r = synthesise(real,imag)",
+        "i = synthesise(imag,rn)",
         "out <- r",
-        "imaginary <- ni"
+        "imaginary <- i"
       ],
       "naiveWhy": {
-        "zh": "二维前向已经除以 W×H。把相同归一化再用一次而不补偿会压低重建幅度。",
-        "en": "The forward transform already divides by W×H. Repeating it without compensation reduces reconstruction gain."
+        "zh": "逐行重建只去掉了横向频率索引，另一条轴仍未回到空间坐标。",
+        "en": "A row reconstruction removes the horizontal frequency index. The other axis is still in frequency coordinates."
       },
       "hint": [
         {
-          "zh": "用常量图检查增益，用长方形图检查 W 与 H。共轭与缩放公式是给定的数学支持。",
-          "en": "Check gain on constants and W/H on rectangles. Conjugation and scaling identities are supplied mathematical support."
+          "zh": "先检查逐行重建留下了哪一条轴的频率索引。带着那一轴所需的两路读数继续，而不是丢弃中间的虚部。",
+          "en": "Check which axis still carries frequency indices after row synthesis. Keep both readings needed for that axis and follow them into the remaining reconstruction."
         }
       ],
-      "starter": ["zero = const[value=0]()", "s = size(real)", "count = arithmetic[op=mul](s.w,s.h)"],
-      "adds": ["size"],
+      "adds": [],
       "sample": {
         "inputs": {
           "real": [
@@ -161,6 +169,10 @@
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
           ]
         }
+      },
+      "after": {
+        "zh": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\n沿一轴重建后，结果仍可能有实部和虚部，另一轴要一起读。逐行重建采用直接求和，补回前向归一化。",
+        "en": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\nAfter reconstructing along one axis, retain both components for the other. Row synthesis sums directly to undo the forward normalisation."
       }
     }
   ],
@@ -168,8 +180,8 @@
     "type": "synthesise2D",
     "name": { "zh": "二维重建器", "en": "2D synthesiser" },
     "desc": {
-      "zh": "通过共轭与 W×H 缩放复用自己的二维频谱仪，输出实部和虚部残差。",
-      "en": "Reuse your 2D analyser through conjugation and WH scaling; retain real output and imaginary residual."
+      "zh": "沿两轴复用自己的逐行重建器，输出实部与虚部。",
+      "en": "Reuse your row synthesiser along both axes and return real and imaginary images."
     }
   }
 }

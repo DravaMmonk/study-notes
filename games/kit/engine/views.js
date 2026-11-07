@@ -51,7 +51,7 @@ export const VIEWS = {
   surface: { shapes: ['grid'], label: t('地形', 'Terrain'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
   slope: { shapes: ['grid'], label: t('坡度', 'Slope'), fits: (g) => grey(g) && g.h >= 3 && g.w >= 3 },
   spectrum: { shapes: ['grid'], label: t('频谱', 'Spectrum'), fits: (g) => grey(g) && g.w >= 2 && g.w * g.h <= 128 * 128 },
-  centredBins: { shapes: ['grid'], label: t('零频居中的幅度', 'Centred magnitudes'), fits: (g) => grey(g) && g.h <= 2 && g.w >= 2 },
+  centredBins: { shapes: ['grid'], label: t('零频居中的幅度', 'Centred magnitudes'), fits: (g) => grey(g) && g.w >= 2 },
   wave: { shapes: ['bits'], label: t('波形', 'Wave') },
   bands: { shapes: ['bits', 'ticks'], label: t('数值', 'Values') },
   sequence: { shapes: ['list'], label: t('序列', 'Sequence') },

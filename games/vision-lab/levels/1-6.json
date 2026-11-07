@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "观察平滑去掉了哪些细节，再决定如何把带符号的细节加回原图。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-        "en": "Inspect which detail smoothing removes, then add signed detail back into the original image. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+        "zh": "预算关说明了同样的结果可以更省地算。现在用平滑去掉扫描纸面的细碎干扰。对比样张里的细线和大色块，看看干扰消失时，有用的结构损失了什么。",
+        "en": "The budget task showed how to obtain the same output with less work. Now smooth a scanned sheet to suppress fine interference. Compare its thin marks with broad areas and see which useful structure changes along with the noise."
       }
     }
   ],
@@ -23,8 +23,8 @@
       "configurations": { "*.outside": ["clamp"] },
       "adds": [],
       "brief": {
-        "zh": "用可分离形态沿两轴平滑。",
-        "en": "Smooth along both axes with the separable form."
+        "zh": "复现目标中的平滑图。注意图边与内部的读数，保住均匀色块的亮度。",
+        "en": "Match the smoothed image, including the edges. Preserve the brightness of flat regions."
       },
       "after": {
         "zh": "\\[\\begin{gathered}S(p)=\\sum_\\delta h(\\delta)I(p+\\delta)\\\\\\sum_\\delta h(\\delta)=1\\end{gathered}\\]\n\nh 是给定的归一化高斯权重，S 是平滑结果。邻居共同参与会压低快速变化；归一化保持常量输入，但不能保证图中细节全部保留。图外读取仍由边界假设决定。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
@@ -72,6 +72,11 @@
         "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
         "out <- v"
       ],
+      "naive": ["v = spatialProcessor[form=separable,outside=zero](image,kx,ky)", "out <- v"],
+      "naiveWhy": {
+        "zh": "图外取零会让原本均匀的纸面在边缘变暗。",
+        "en": "Reading zero outside darkens the edges of an otherwise uniform sheet."
+      },
       "sample": {
         "inputs": {
           "image": {
@@ -97,8 +102,8 @@
       },
       "adds": [],
       "brief": {
-        "zh": "从原图减去平滑结果，保留有符号的细节。",
-        "en": "Subtract the smoothed image to keep signed detail."
+        "zh": "仪器要同时交出平滑图和被移除的变化。亮点和暗点的变化应保留不同符号。",
+        "en": "Return the smoothed image and the variation it removes. Bright and dark spots must keep different signs."
       },
       "after": {
         "zh": "\\[D=I-S\\]\n\nI 是原图，S 是平滑图，D 是带符号残差。它记录平滑减去了什么；符号决定恢复或增强时该变亮还是变暗。|D| 只能描述改动大小。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
@@ -190,8 +195,8 @@
         "en": "Smoothing and detail"
       },
       "brief": {
-        "zh": "将放大的有符号细节加回原图，并输出绝对变化。",
-        "en": "Add the amplified signed detail back and output the absolute change."
+        "zh": "同一仪器要能按给定强度恢复细节，并报告改动大小。核对暗细节以及强度为零时的结果。",
+        "en": "Use the supplied amount to control how much detail returns, and report the size of the change. Check dark features and the case where the amount is zero."
       },
       "inputs": [
         { "name": "image", "label": { "zh": "图", "en": "Image" } },

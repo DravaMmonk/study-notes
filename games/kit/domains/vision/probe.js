@@ -45,3 +45,49 @@ export function checkProbe(question, evidence) {
   }
   return null
 }
+
+const spectrumStart = { x: 2, y: 2 }
+const validCycles = (n) => Number.isInteger(n) && n >= 1 && n <= 5
+const spectrumImage = (input) => input && validCycles(input.x) && validCycles(input.y)
+  ? fromRows(Array.from({ length: 12 }, (_, y) => Array.from({ length: 12 }, (_, x) =>
+    0.5 + 0.22 * Math.cos(2 * Math.PI * input.x * x / 12) + 0.22 * Math.cos(2 * Math.PI * input.y * y / 12))))
+  : null
+const movement = [
+  ['closer', T('更靠近中心', 'Closer to the centre')],
+  ['farther', T('离中心更远', 'Farther from the centre')],
+  ['same', T('保持不动', 'Unchanged')],
+]
+const spectrumQuestions = [
+  { axis: 'x', title: T('只改变左右重复次数', 'Change only repetitions across'), options: movement },
+  { axis: 'y', title: T('只改变上下重复次数', 'Change only repetitions down'), options: movement },
+]
+
+function checkSpectrum({ axis }, evidence) {
+  const trial = evidence?.cycles
+  if (!spectrumImage(trial)) return T('先运行一次有效实验。', 'Run a valid trial first.')
+  const other = axis === 'x' ? 'y' : 'x'
+  if (trial[axis] === spectrumStart[axis] || trial[other] !== spectrumStart[other]) {
+    return T('与基准相比，只改题目指定的一项，才能辨认它的影响。', 'Change only the requested setting from the baseline to isolate its effect.')
+  }
+  const answer = trial[axis] > spectrumStart[axis] ? 'farther' : 'closer'
+  return evidence.answer === answer ? null
+    : T('比较同一轴上的一对亮点到中心的距离，再提交。', 'Compare the peak pair’s distance from the centre on the same axis, then submit.')
+}
+
+const blurModel = {
+  field: 'rows', initial: blankProbe, output: probeOutput, questions: probeQuestions, check: checkProbe,
+  reference: () => {
+    const rows = blankProbe()
+    rows[3][3] = 1
+    return probeQuestions.map(question => ({ rows, answer: question.answer }))
+  },
+  insufficient: () => ({ rows: blankProbe(), answer: 'square' }),
+}
+const spectrumModel = {
+  field: 'cycles', initial: () => ({ ...spectrumStart }), output: spectrumImage,
+  questions: spectrumQuestions, check: checkSpectrum,
+  reference: () => spectrumQuestions.map(({ axis }) => ({ cycles: { ...spectrumStart, [axis]: 4 }, answer: 'farther' })),
+  insufficient: () => ({ cycles: { x: 4, y: 4 }, answer: 'farther' }),
+}
+
+export const probeOf = (task) => task.experiment === 'spectrum' ? spectrumModel : blurModel

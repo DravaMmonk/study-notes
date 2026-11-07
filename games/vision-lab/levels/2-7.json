@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "二维处理要把第一条轴的结果送往第二条轴，它已不再只有实数读数。先扩展现有频谱仪的输入契约，避免第二次处理时丢掉一半信息。 <wiki-ref to=\"complex-transform\"></wiki-ref>",
-        "en": "A second image axis receives complex results from the first. Extend the analyser’s input contract before that pass so it does not drop half the information. <wiki-ref to=\"complex-transform\"></wiki-ref>"
+        "zh": "逐行频谱仪能把一行变成两张系数表。下一步要把第一次分析的结果沿另一条轴再分析一次。如果只读取实部，第一条轴上某些条纹的位置就丢了。试一张实部为零的输入，看看哪一路读数证明虚部仍在工作。",
+        "en": "The row analyser turns a row into two coefficient tables. To extend it to two dimensions, the second axis must analyse the result of the first. Reading just the real table can lose the positions of some stripes. Try an input with zero real part and see which output shows that the imaginary input still contributes."
       }
     }
   ],
@@ -21,8 +21,8 @@
         "en": "Retain complex data"
       },
       "brief": {
-        "zh": "中间数据可能已有实部和虚部。分别用自己的频谱仪处理两张实数表，再按 i²=−1 合并，保留完整复数输出。",
-        "en": "Intermediate data may already have real and imaginary parts. Analyse each real-valued table with your analyser, then combine using i²=−1, retaining a complex output."
+        "zh": "扩展你的分析仪，使它接受两张输入表。实数输入必须维持原先的结果，只有虚部的输入也要得到完整的两路读数。",
+        "en": "Extend your analyser to accept two input tables. Real-only inputs must keep their old results, and imaginary-only inputs must still produce both outputs."
       },
       "inputs": [
         { "name": "real", "label": { "zh": "输入实部", "en": "Input real" } },
@@ -33,6 +33,24 @@
         { "name": "im", "label": { "zh": "输出虚部", "en": "Output imaginary" } }
       ],
       "tests": [
+        {
+          "inputs": { "real": [[0.25, 1.25, 0.25, -0.75]], "imag": [[0, 0, 0, 0]] },
+          "expect": {
+            "re": [[0.25, 0, 0, 0]],
+            "im": [[0, -0.5, 0, 0.5]]
+          }
+        },
+        {
+          "inputs": { "real": [[0, 0, 0, 0]], "imag": [[0.25, 1.25, 0.25, -0.75]] },
+          "expect": {
+            "re": [
+              [0, 0.5, 0, -0.5]
+            ],
+            "im": [
+              [0.25, 0, 0, 0]
+            ]
+          }
+        },
         {
           "inputs": { "real": [[0.2, 0.8, 0.3, 0.5]], "imag": [[0.1, 0.2, -0.1, 0.4]] },
           "expect": {
@@ -65,14 +83,15 @@
       ],
       "naive": ["a = spectrum(real)", "re <- a.re", "im <- a.im"],
       "views": { "grid": ["plot", "numbers", "pixels"] },
+      "starter": ["a = spectrum(real)", "re <- a.re", "im <- a.im"],
       "naiveWhy": {
         "zh": "第二条输入也是信号。二维的第二轴不能丢弃第一轴产生的虚部。",
         "en": "The imaginary input also carries signal. A second-axis transform must retain first-axis imaginary data."
       },
       "hint": [
         {
-          "zh": "将 (a+ib)(c+id) 的四项贡献分为实部和虚部，i²=−1；算术由元件执行。",
-          "en": "Group the four contributions of (a+ib)(c+id), using i²=−1. Parts do the arithmetic."
+          "zh": "先分别查看只有实部和只有虚部的测试。比较它们对两个输出的影响和符号，再处理两者都存在的情况。",
+          "en": "Inspect the real-only and imaginary-only cases separately. Compare which outputs they affect and with which signs before handling both together."
         }
       ],
       "adds": [],

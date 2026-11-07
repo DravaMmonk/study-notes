@@ -112,6 +112,13 @@ on the same sample.
 
 ## Guidance and interaction
 
+Show the failure or the material evidence before asking for a circuit decision. Boundary tasks
+show distinct edge traces, and a single separable board is tested under every outside policy.
+The budget task supplies full kernels so the learner must find the factors. Directional tasks
+use ramps and noisy edges as evidence, and the scanner tests the chosen Gaussian scale against
+both false marks and missing edges. The frequency chapter opens with a controlled spectrum
+experiment before wave construction. Two-dimensional synthesis composes inverse row passes.
+
 Each chapter begins in a concrete apparatus with its purpose, input evidence, output meaning and available tools.
 Intro figures use independent material, never the target circuit. Every task states its conventions and necessary
 mathematical support before use, gives observation-first hints, and includes a characteristic wrong graph with a

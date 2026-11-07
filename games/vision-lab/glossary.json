@@ -669,24 +669,20 @@
       "at": "2-12",
       "body": [
         {
-          "zh": "本约定的二维前向除以 WH。逆变换可用共轭输入、前向变换、共轭结果再乘 WH 实现。实输出的虚部残差可检查频率操作的一致性。",
-          "en": "This 2D forward convention divides by WH. Inversion can conjugate input, transform, conjugate output and multiply by WH. Imaginary residuals help check frequency-operation consistency."
+          "zh": "二维重建把横向与纵向的频率索引依次变回空间坐标。中间结果可以是复数，两路都必须保留。",
+          "en": "Two-dimensional synthesis reconstructs spatial positions along each axis in turn. The intermediate result can be complex, so keep both components."
         },
         {
-          "zh": "\\[\\mathcal F^{-1}(C)=WH\\,\\overline{\\mathcal F(\\overline C)}\\]",
-          "en": "\\[\\mathcal F^{-1}(C)=WH\\,\\overline{\\mathcal F(\\overline C)}\\]"
+          "zh": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\n沿一轴重建后，结果仍可能有实部和虚部，另一轴要一起读。逐行重建采用直接求和，补回前向归一化。",
+          "en": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\nAfter reconstructing along one axis, retain both components for the other. Row synthesis sums directly to undo the forward normalisation."
         },
         {
-          "zh": "C 是二维频谱，横线表示共轭。乘上宽高之积 WH，抵消前向变换的归一化。",
-          "en": "C is the two-dimensional spectrum and the bar denotes conjugation. Multiplication by WH cancels the forward normalisation."
+          "zh": "常见误解：一次逐行重建就能恢复整幅图，或中间虚部可以直接丢掉。",
+          "en": "Common misconception: One row pass reconstructs the whole image, or the intermediate imaginary component can be discarded."
         },
         {
-          "zh": "常见误解：前向归一化重复使用不影响幅度，或可以静默丢弃非零虚部。",
-          "en": "Common misconception: Repeated forward normalisation preserves amplitude, or a nonzero imaginary result may be silently discarded."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier transform/inverse, complex magnitude/phase; conjugation identity is mathematical support",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier transform/inverse, complex magnitude/phase; conjugation identity is mathematical support"
+          "zh": "出处：04-fourier.md，二维傅里叶变换与反变换。",
+          "en": "Source: 04-fourier.md, 2D Fourier transform and inverse."
         }
       ]
     },

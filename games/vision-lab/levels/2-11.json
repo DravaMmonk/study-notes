@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "你有空间卷积器和频域处理器，现在让同一个规则走两条路径。先将边界设为周期，避免把不同问题当作算法误差；计算工具处理复数乘法，你核对信息路径。 <wiki-ref to=\"convolution-theorem\"></wiki-ref>",
-        "en": "You have spatial and frequency processors. Run one rule through both, using periodic boundaries so the comparison is fair. Arithmetic parts handle complex multiplication while you check the information path. <wiki-ref to=\"convolution-theorem\"></wiki-ref>"
+        "zh": "空间处理器和频率滤波器都能做平滑，但对同一个边缘脉冲，两条路径的输出可能不同。先核对它们是否在解决同一个边界问题，再找出系数尺度造成的差异。 <wiki-ref to=\"convolution-theorem\"></wiki-ref>",
+        "en": "The spatial processor and frequency filter can both smooth, yet their responses to the same border impulse can disagree. Check that both paths solve the same boundary problem, then look for differences caused by coefficient scaling. <wiki-ref to=\"convolution-theorem\"></wiki-ref>"
       }
     }
   ],

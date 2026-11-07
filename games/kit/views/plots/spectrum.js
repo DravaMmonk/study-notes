@@ -40,9 +40,10 @@ function transform(g) {
 /** Reorder frequency bins along each row, preserving every supplied coefficient. */
 export function centreBins(g) {
   const { w, h } = g
-  const shift = Math.ceil(w / 2)
+  const xShift = Math.ceil(w / 2)
+  const yShift = h <= 2 && g.frequencyAxes !== 2 ? 0 : Math.ceil(h / 2)
   return { ...g, data: Float64Array.from({ length: w * h }, (_, i) =>
-    g.data[Math.floor(i / w) * w + (i % w + shift) % w]) }
+    g.data[((Math.floor(i / w) + yShift) % h) * w + (i % w + xShift) % w]) }
 }
 
 /** The spectrum as a grid: each cell the strength of the frequency it stands for, frequency 0 at (⌊w/2⌋, ⌊h/2⌋). */

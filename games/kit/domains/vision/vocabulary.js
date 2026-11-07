@@ -79,7 +79,7 @@ const SCENE = S.obj({
 /* ---------- a level ---------- */
 
 const INPUT = S.obj({ name: NAME, label: S.text(), view: START_VIEW, type: S.opt(S.oneOf(['vector'], { about: t('二维向量 { x, y }：成对的坐标量是一个输入', 'a two-dimensional vector { x, y }: a paired coordinate quantity is one input') })) })
-const TEST = S.obj({ inputs: VALUES, expect: VALUES })
+const TEST = S.obj({ inputs: VALUES, expect: VALUES, outside: S.opt(S.oneOf(['zero', 'clamp', 'wrap', 'reflect'])) })
 const ITEM = S.obj({
   prompt: S.text(),
   answer: S.opt(ids),
@@ -135,6 +135,7 @@ const LEVEL = levelSchema({
     inputGroups: S.opt(S.list(S.obj({ name: NAME, label: S.text(), inputs: S.list(NAME, { min: 2 }) }))),
   },
   more: {
+    spectrumAxes: S.opt(S.oneOf([2])),
     multiplyBudget: S.opt(S.obj({ image: NAME, perPixel: S.int({ min: 1 }) })),
     tolerance: S.opt(S.num({ min: 0, about: t('比较值时的容差（默认 1e-5）', 'the tolerance values are compared with (1e-5 by default)') })),
     starter: S.opt(S.board({ about: t('任务开始时的板，蓝图文本，每行一个字符串', 'the board the task opens on, as blueprint text, one string a line') })),
@@ -144,7 +145,7 @@ const LEVEL = levelSchema({
     sample: S.opt(S.obj({ inputs: S.map(S.either(VALUE, PICTURE), { about: t('按输入名给的值；没给的取第一个测试的', 'values by input name; the rest are the first test’s') }) }, { section: 'tests', about: t('样张：一张较大的图，玩家的板和参考解都在上面跑，只看效果、不判定', 'the sample: a larger picture the player’s board and the reference both run on, to see the effect, never judged') })),
   },
   kinds: {
-    probe: {},
+    probe: { experiment: S.opt(S.oneOf(['blur', 'spectrum'])) },
     grid: {
       image: IMAGE,
       calculation: S.opt(S.by('kind', {
@@ -173,7 +174,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'vision',
-  version: 3,
+  version: 4,
   kinds: {
     op: OP_ITEMS,
     family: FAMILIES,

@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "同一片边缘在两个方向的响应可能不同。分别应用横向与纵向差分核，对比有符号的输出。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
-        "en": "An edge can respond differently along each axis. Apply the horizontal and vertical derivative kernels and compare the signed outputs. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+        "zh": "平滑能压下细碎变化，但扫描台还得知道纸边朝哪边、亮度向哪边增大。先试只有左右变化的斜坡，再试只有上下变化的斜坡。如果用一张响应图回答两个问题，总有一张测试会露出问题。",
+        "en": "Smoothing suppresses small variations, but the scanner still needs to tell which way a paper edge faces and which side is brighter. Compare ramps that change only across the image with ramps that change only down it. One response reused for both directions fails on one of these cases."
       }
     }
   ],
@@ -22,13 +22,11 @@
       },
       "stage": { "zh": "纵向响应", "en": "Vertical response" },
       "brief": {
-        "zh": "用同一个通用处理器分别应用两种差分核。保留两个响应的正负号。",
-        "en": "Apply both derivative kernels using the dense form. Preserve the signs of both responses."
+        "zh": "构造两路有符号读数。均匀区域应为零，单位斜坡内部的读数为 +1 或 −1。图外延续最近读数。用目标图确定两个方向的权重。",
+        "en": "Build two signed readings. Flat regions must read zero; a unit ramp reads +1 or −1 in its interior. Extend the nearest readings at the border. Use the targets to determine the weights for each direction."
       },
       "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "dx", "label": { "zh": "横向差分核", "en": "Horizontal derivative" } },
-        { "name": "dy", "label": { "zh": "纵向差分核", "en": "Vertical derivative" } }
+        { "name": "image", "label": { "zh": "图", "en": "Image" } }
       ],
       "outputs": [
         { "name": "gx", "label": { "zh": "横向响应 gx", "en": "Horizontal gx" } },
@@ -41,9 +39,7 @@
               [0, 0.1, 0.2, 0.30000000000000004, 0.4],
               [0, 0.1, 0.2, 0.30000000000000004, 0.4],
               [0, 0.1, 0.2, 0.30000000000000004, 0.4]
-            ],
-            "dx": [[0.5, 0, -0.5]],
-            "dy": [[0.5], [0], [-0.5]]
+            ]
           },
           "expect": {
             "gx": [
@@ -61,9 +57,7 @@
               [0.15, 0.15, 0.15],
               [0.3, 0.3, 0.3],
               [0.44999999999999996, 0.44999999999999996, 0.44999999999999996]
-            ],
-            "dx": [[0.5, 0, -0.5]],
-            "dy": [[0.5], [0], [-0.5]]
+            ]
           },
           "expect": {
             "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
@@ -77,9 +71,7 @@
         },
         {
           "inputs": {
-            "image": [[0.9, 0.5, 0.1], [0.8, 0.4, 0]],
-            "dx": [[0.5, 0, -0.5]],
-            "dy": [[0.5], [0], [-0.5]]
+            "image": [[0.9, 0.5, 0.1], [0.8, 0.4, 0]]
           },
           "expect": {
             "gx": [[-0.2, -0.4, -0.2], [-0.2, -0.4, -0.2]],
@@ -93,9 +85,7 @@
       "hidden": [
         {
           "inputs": {
-            "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
-            "dx": [[0.5, 0, -0.5]],
-            "dy": [[0.5], [0], [-0.5]]
+            "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]]
           },
           "expect": {
             "gx": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
@@ -104,12 +94,16 @@
         }
       ],
       "solution": [
+        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
+        "dy = transpose(dx)",
         "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
         "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
         "gx <- v",
         "gy <- vY"
       ],
       "naive": [
+        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
+        "dy = transpose(dx)",
         "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
         "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
         "gx <- v",
@@ -133,7 +127,14 @@
             "noise": { "seed": 17, "amp": 0.04 }
           }
         }
-      }
+      },
+      "configurations": { "const.kind": ["weights"] },
+      "hint": [
+        {
+          "zh": "把斜坡反过来再观察。中心格的亮度不一定变化，响应却要变号。",
+          "en": "Reverse a ramp and inspect it again. The centre reading can stay the same while the response changes sign."
+        }
+      ]
     }
   ]
 }

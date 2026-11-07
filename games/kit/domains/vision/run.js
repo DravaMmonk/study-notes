@@ -8,7 +8,7 @@
 // entries({ task, test, run, sample }) → what the results area can show of a test (../../engine/views.js): each input
 //   given (left out by default: the input cards show it), each output against what the test expects — on the sample,
 //   against what the reference board gives there; an image is a grid, any other value a scalar
-import { runBoard } from '../../engine/boards.js'
+import { runBoard, withSettings } from '../../engine/boards.js'
 import { MISSING } from '../../engine/circuit.js'
 import { runTests } from '../../engine/circuit-domain.js'
 import { differs, isImage, valueOf } from './image.js'
@@ -48,7 +48,7 @@ function noValue(circuit, errors, id) {
 export function runTest(task, circuit, test, partOf) {
   const trace = []
   const work = { multiplies: 0, byPart: new Map() }
-  const { values, errors, outputs } = runBoard(circuit, { parts: partOf, bind: test.inputs, ctx: { trace, work } })
+  const { values, errors, outputs } = runBoard(test.outside ? withSettings(circuit, { outside: test.outside }, partOf) : circuit, { parts: partOf, bind: test.inputs, ctx: { trace, work } })
   const result = { values, errors, outputs, trace, work }
   const tol = task.tolerance ?? 1e-5
   for (const out of task.outputs) {
@@ -87,12 +87,14 @@ export const runLevel = runTests((task, circuit, test, partOf) => {
 
 export function entries({ task, test, run, sample }) {
   const shape = (v) => (isImage(v) ? 'grid' : 'scalar')
+  const frequencyGrid = (name, value) => name === 'mag' && task.spectrumAxes && isImage(value)
+    ? { ...value, frequencyAxes: task.spectrumAxes } : value
   const given = sample ? task.sample.inputs : test.inputs
   return [
     ...task.inputs.map((i) => ({ of: i.name, label: i.label, shape: shape(given[i.name]), given: given[i.name], shown: false })),
     ...task.outputs.map((o) => {
       const want = sample ? sample.outputs[o.name] : test.expect[o.name]
-      return { of: o.name, label: o.label, shape: shape(want), got: run.outputs[o.name] ?? null, want, tolerance: task.tolerance ?? 1e-5 }
+      return { of: o.name, label: o.label, shape: shape(want), got: frequencyGrid(o.name, run.outputs[o.name] ?? null), want: frequencyGrid(o.name, want), tolerance: task.tolerance ?? 1e-5 }
     }),
   ]
 }

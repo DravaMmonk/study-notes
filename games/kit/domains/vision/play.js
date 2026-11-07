@@ -23,7 +23,8 @@ import { COLOURS, describe } from './scene.js'
 import { DISPLAYS } from './benches/index.js'
 import { callOf } from '../../engine/schema.js'
 import { goalOf, judge, knobKind, knobStart, knobValues, needText, openKnobs, rowValue, startValues } from '../../engine/bench.js'
-import { checkProbe, probeOutput, probeQuestions } from './probe.js'
+import { probeOf } from './probe.js'
+import { spectrumOf } from '../../views/plots/spectrum.js'
 import { T } from '../../shell/i18n.js'
 
 const pick = (text, lang) => (typeof text === 'string' ? text : text?.[lang] ?? '')
@@ -278,23 +279,31 @@ const bench = {
 }
 
 const probe = {
-  open: () => ({
-    sections: probeQuestions.map(question => ({
-      title: question.title,
-      text: both(lang => question.options.map(([id, label]) => `${id}: ${pick(label, lang)}`).join('\n')),
-    })),
-    write: T('提交 JSON 数组，每题一项，包含 7×7 的 rows 和选项 answer。省略 answer 可以先查看输出。',
-      'Submit a JSON array with 7×7 rows and an answer option ID for each question. Omit answer to inspect the output first.'),
-  }),
-  attempt(_ctx, text) {
+  open: (ctx) => {
+    const model = probeOf(ctx.level.source)
+    return {
+      sections: model.questions.map(question => ({
+        title: question.title,
+        text: both(lang => question.options.map(([id, label]) => `${id}: ${pick(label, lang)}`).join('\n')),
+      })),
+      write: model.field === 'cycles'
+        ? T('提交两项 JSON，每项含 cycles: {x,y} 和 answer。基准两轴均为 2，范围为 1 到 5。',
+          'Submit two JSON items with cycles: {x,y} and answer. The baseline is 2 along both axes; valid values are 1–5.')
+        : T('提交 JSON 数组，每题一项，包含 7×7 的 rows 和选项 answer。省略 answer 可以先查看输出。',
+          'Submit a JSON array with 7×7 rows and an answer option ID for each question. Omit answer to inspect the output first.'),
+    }
+  },
+  attempt(ctx, text) {
+    const model = probeOf(ctx.level.source)
     let evidence
     try { evidence = JSON.parse(text) } catch { evidence = [] }
-    const tests = probeQuestions.map((question, k) => {
+    const tests = model.questions.map((question, k) => {
       const entry = Array.isArray(evidence) ? evidence[k] : null
-      const why = checkProbe(question, entry)
-      const output = probeOutput(entry?.rows)
+      const why = model.check(question, entry)
+      const output = model.output(entry?.[model.field])
+      const observed = model.field === 'cycles' && output ? spectrumOf(output) : output
       return { label: question.title, pass: !why, says: both(lang =>
-        [output && table(toRows(output)), pick(why, lang)].filter(Boolean).join('\n')) }
+        [observed && table(toRows(observed)), pick(why, lang)].filter(Boolean).join('\n')) }
     })
     return { tests, pass: tests.every(test => test.pass), keep: { evidence } }
   },
