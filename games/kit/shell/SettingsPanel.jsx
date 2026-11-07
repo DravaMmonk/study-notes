@@ -9,7 +9,7 @@ import { optionsFor, settings, settingsFor } from './settings.js'
 export default function SettingsPanel({ game, theme, onTheme, anchor, onClose }) {
   useSyncExternalStore(settings.subscribe, settings.snapshot, settings.snapshot)
   const phone = useMedia(PHONE)
-  const entries = settingsFor(game, {phone})
+  const entries = game ? settingsFor(game, { phone }) : []
   const chooseTheme = (id) => { applyTheme(id); onTheme(id); window.dispatchEvent(new CustomEvent('themechange', { detail: id })) }
   return <Popover className="player-settings-popover" anchor={anchor} title={tr('设置', 'Settings')} onClose={onClose}>
     <div className="player-settings">
@@ -29,7 +29,7 @@ export default function SettingsPanel({ game, theme, onTheme, anchor, onClose })
           })}
         </section>
       })}
-      <button type="button" className="settings-reset" onClick={() => { settings.reset(game); applyLang(/^zh\b/i.test(navigator.language || '') ? 'zh' : 'en'); chooseTheme('paper') }}>{tr('恢复默认', 'Restore defaults')}</button>
+      <button type="button" className="settings-reset" onClick={() => { if (game) settings.reset(game); applyLang(/^zh\b/i.test(navigator.language || '') ? 'zh' : 'en'); chooseTheme('paper') }}>{tr('恢复默认', 'Restore defaults')}</button>
     </div>
   </Popover>
 }

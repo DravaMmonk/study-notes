@@ -48,3 +48,4 @@ main{max-width:1240px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)
 @media (prefers-reduced-motion:reduce){.game-art,.game-go span,.game-body::before{transition:none}.game:hover .game-art{transform:none}}
 /* English pages hide the Chinese markup until hub.js has swapped it. */
 html[lang="en"]:not(.i18n) [data-en]{visibility:hidden}
+#hub-bar { display: contents; }

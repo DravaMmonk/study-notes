@@ -3,7 +3,9 @@
 
 import { GAMES } from './games.js';
 import { currentLang, tr } from './kit/lang.js';
-import { wireBar } from './kit/bar.js';
+import { paintText } from './kit/bar.js';
+import { mountHubBar } from './hub-bar.jsx';
+import { applyTheme, currentTheme } from './kit/theme.js';
 import { solvedCount } from './kit/shell/progress.js';
 import { mountBoxy } from './boxy/boxy.js';
 import { mountPress } from './press/press.js';
@@ -45,7 +47,10 @@ function paintPage() {
   document.querySelector('meta[name="description"]').content = tr('把课程做成解谜关卡的学习游戏：视觉完备（计算机视觉）、状态之图（动态规划）、证明完毕（形式化证明）、句法之图（英语语法）。', 'Courses turned into puzzle games: Vision Complete (computer vision), State Graph (dynamic programming), Q.E.D. (formal proof) and Syntax Graph (English grammar).');
 }
 
-wireBar({ onLang: () => { paintPage(); render(); } });
+mountHubBar(document.querySelector('#hub-bar'));
+addEventListener('langchange', () => { paintText(); paintPage(); render(); });
+applyTheme(currentTheme());
+paintText();
 paintPage();
 render();
 // Progress may change in another tab.

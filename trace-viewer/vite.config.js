@@ -1,4 +1,4 @@
-import { existsSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, statSync } from 'node:fs'
 import { resolve, sep } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -15,7 +15,7 @@ const IDS = new Set(GAMES.map((game) => game.id))
 const gamePaths = () => ({
   name: 'game-paths',
   configureServer(server) {
-    server.middlewares.use((req, res, next) => {
+      server.middlewares.use(async (req, res, next) => {
       const url = new URL(req.url, 'http://localhost')
       const path = url.pathname
       const moved = path === '/game.html' ? GAMES[0].id : null
@@ -23,6 +23,12 @@ const gamePaths = () => ({
         res.statusCode = 302
         res.setHeader('Location', `${moved ? `/game/${moved}` : '/game'}/index.html${url.search}`)
         return res.end()
+      }
+      if (path === '/game/index.html') {
+        const html = readFileSync(resolve(GAMES_DIR, 'index.html'), 'utf8')
+        res.setHeader('Content-Type', 'text/html')
+        res.end(await server.transformIndexHtml(path, html))
+        return
       }
       const game = path.match(/^\/game\/([^/]+)\/(?:index\.html)?$/)
       if (game && IDS.has(game[1])) {

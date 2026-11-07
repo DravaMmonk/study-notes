@@ -892,6 +892,8 @@ when every task has passed, even if tasks are played out of order.
 
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 
+**顶部栏。** 游戏导航页、地图和关卡共用 `kit/shell/TopBar.jsx`：设置按钮始终靠右，打开同一个设置面板；导航页提供语言和主题，游戏中再提供该游戏适用的设备设置。
+
 **Mathematical text.** Shared markup accepts `\( … \)` for inline LaTeX and `\[ … \]` for display
 LaTeX. The math renderer and fonts load on demand. KaTeX renders mathematical fonts and accessible MathML; prose is never treated
 as HTML. Math delimiters are parsed before markup tags, so inequalities inside formulas are not tags. Code
