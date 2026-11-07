@@ -6,6 +6,8 @@ The player builds an inspection instrument, a neighbourhood processor/scanner an
 arithmetic and traversal execute automatically; selecting and composing the visual relationships is the puzzle.
 The long-term plan is [the machine-first outline](../../docs/Unimelb/26S2/CV/vision-game-specs/curriculum-construction-outline.md).
 This specification covers stages 0–2, not later camera, learning or geometry machines.
+These stages are being folded into the remade Vision Complete: chapter 0 joins its main line and chapters 1–2
+become its K and F principle series ([chapter map](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md), §7).
 
 ## Samples for every task
 

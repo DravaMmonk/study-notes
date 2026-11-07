@@ -1,94 +1,83 @@
-# Vision Lab stages 0–2: construction and coverage review
+# 《视觉实验室》第 0–2 章评审
 
-Date: 2026-11-04. Scope: 26 levels, 31 circuit tasks, 18 earned parts. The course replaces the executable camera-first
-trial. All task content and save migrations were written through the operation set. The long-term outline remains
-proposed beyond stage 2. This is a source, implementation and interaction review, not a measured learning study.
+日期：2026-11-07。范围：第 0–2 章 25 关、44 个任务，内容版本 `a502c66`（按[章节地图](chapter-map.md)和
+[第 1 章重建规格](chapter-1-rebuild.md)重建之后）。方法：按手册第 1、4 节和 skill 的 `learning-review.md`
+逐任务读中文的引言、目标、提示、错因和点题，对照参考解；另跑三项只读检查。没有在浏览器里看桌面和手机，
+也没有真人试玩：显示是否清楚、新手能否走通，都还未验证。
 
-## Construction and source map
+## 结论
 
-Level IDs here are source IDs, usable with `?level=<id>`. Display labels are derived from the branch topology.
-Original lecture PDFs take precedence over note summaries. Application models and mathematical execution helpers
-are declared separately from independent lecture knowledge.
+处理器的构建阶梯（1-1 到 1-4）和第 2 章由探针到频谱、相位、滤波的主干是好的：每关有撞墙、有不对称或
+平移的反例，点题讲原理。问题集中在两处：
 
-| Construction/tasks | Course anchor | Learner relationship and transfer evidence |
-| --- | --- | --- |
-| 0-1 signed then absolute comparison | L2 PDF pp22–26; L3 point operations pp6–7 | Corresponding values/channels, sign versus magnitude; brightening, darkening and RGB. Absolute value is mathematical support. |
-| 0-2 known-offset comparison | L2 image coordinates; declared fixture offset convention | Sample positions change before comparison; dx/dy are given, not estimated registration. Different axes and signs. |
-| 0-3 inspection composition | Point operations; controlled task criterion | Separate measured differences from tolerance decisions. Lighting, known alignment and tolerance are assumptions, not general recognition. |
-| 1-1 weighted line | L3 pp8–18,21–23 | Read neighbours, match positional weights, multiply and add. Impulse, constant, asymmetric signed weights and narrow images. |
-| 1-2 two-axis reuse; 1-5 smooth/detail application | L3 pp24–28,35,37–40 | Sequential passes versus adding independent responses; corners/outer products. Given normalised Gaussian weights, signed detail versus absolute change. |
-| 1-3 general local kernel | L3 pp9–18,31–35 | Samples and weights remain separate until the player composes multiplication, sum and shape restoration. Identity, asymmetric and averaging rules. |
-| 1-4 kernel orientation | L3 pp17–18 | Earn convolution by reversing a kernel before the player's correlation; asymmetric impulses expose a distinction hidden by symmetric kernels. |
-| 1-6 four border/valid tasks | L3 pp41–45 | Replicate, periodic and edge-inclusive reflection versus zero; valid interior changes size. Independent numeric continuations precede each configuration. |
-| 1-7 signed components; 1-8 Sobel/strength | L3 pp29–30; L5 pp39–42 | Axis/sign from ramps; perpendicular smoothing reuses the weighted line. Supplied length arithmetic prevents manual squaring/root calculation. |
-| 1-9 channel measurement | L3 pp31–32 | Reuse weighted aggregation on channels; independent R/G/B evidence and changed channel contributions. Weights are an instrument specification. |
-| 1-10 scanner | L3 common filters/composition | Actual join consumes the learner's channel measurement, two-axis filter and Sobel. Noise conditioning precedes measurement; no complete-document detection claim. |
-| 2-1 wave; 2-2 projection | L4 pp7–24 | Position × cycles plus phase, then observation × basis and mean. Changed cycle counts and quarter phases; a null projection need not mean no frequency. |
-| 2-3 quadrature; 2-4 complete row spectrum | L4 pp18–26 | Retain cos/−sin projections, magnitude and every discrete index. DC, shifted stripes, odd lengths and multiple rows. Repetition/indexing is a supplied service. |
-| 2-5 synthesis; 2-6 magnitude/phase mixture | L4 pp18–35 | Reuse the player's wave. Forward mean versus inverse sum; coefficient magnitude is not sinusoid peak amplitude. Zero-phase direction is explicitly undefined. |
-| 2-7 complex row reuse; 2-8 2D spectrum | L4 pp25–32; complex linear arithmetic support | Preserve both components between axes, restore rectangular orientation, expose magnitude. No FFT/DFT primitive. |
-| 2-9 paired gains | L4 pp38–44 | Construct a symmetric low-pass criterion, scale both coefficient components, reconstruct. Low-pass, DC removal and an explicit band-pass case. |
-| 2-10 ringing comparison | L4 pp45–47 | Compare hard/tapered responses on an impulse and a step using the player's frequency filter and comparator. Inspect unclipped overshoot. |
-| 2-11 convolution equivalence | L4 p37; L3 boundaries | The player's periodic convolver supplies the impulse response; complex products and inverse match spatial output. Match origin, boundaries and normalisation. |
-| 2-12 inverse 2D | Fourier/inverse representation; supplied conjugation identity | Reuse the 2D forward graph through conjugation and WH scaling; check imaginary residual and non-square dimensions. |
-| 2-13 interference machine | L4 2D spectra/frequency filtering; controlled known-interference model | Actual join consumes 2D analysis/inversion, the row-frequency filter and the convolver. Row-only filtering cannot isolate y variation from retained row DC. |
+1. **第 1 章后半段变成照方抓药。** 1-5 到 1-9 的引言和目标把接法直接说出来（「先平滑再测边缘」「加入
+   垂直于求导方向的平滑」「选择可分离形态」），提示又给出关键数字；墙没有先出现，玩家只是照做。这正是
+   重建要补的「先懂在做什么」，现在反而缺得最多。
+2. **第 2 章的「现象」只有两页静态图。** 2-1 的频谱是引言里的两张图，结论在玩家看之前就写出来了；2-5、
+   2-7、2-12 的目标是完整公式，玩家在誊写。
 
-All images retain floating-point original values. Display clipping does not change comparisons, convolution or
-reconstruction. The numerical fixtures were generated from direct spatial sums and complex exponential definitions,
-not by running the domain's row-expansion graph to manufacture its expected answers.
+## 自动检查
 
-## Dependencies and practice decisions
+- `npm run check -- vision-lab`：通过，每个任务的参考解通过、naive 解失败。
+- `npm run pipeline -- vision-lab pedagogy`：4 处失败，都是重复文字（见 V1、V10）；第 0 章全串行的提示经核对
+  成立（0-2 用 0-1 的比较，0-3 沿用 0-2 的板）。
+- `npm run pipeline -- vision-lab terminology`：词条和引用没有错误；6 处「像素」未链接（V15）。
 
-- Stage 0 is deliberately short and serial: absolute comparison needs the signed comparison task, alignment
-  wraps that comparator, and inspection consumes aligned evidence. No arbitrary branch or coordinate-copying gate.
-- Stage 1 branches only after the common weighted relationship. Separable/detail, local-kernel/direction and
-  channel routes do not consume sibling parts. The scanner consumes all three.
-- Stage 2 branches only after a complete row spectrum. The synthesis/filtering route and complex/2D route use
-  their own constructions; the finale requires the row-frequency comparison as well as 2D processing.
-- Blueprint `bp-lonely` reports identify first-use points without separate practice levels. Facets in those short
-  ladders are covered by tasks, asymmetric/constant/changed-phase tests and downstream compositions; no extra levels
-  were added solely to clear a density report. The stage-0 ladder report reflects its short application opening.
-- Boundary tasks use the same carried board for changing continuation models. Signed-to-absolute comparison also
-  carries the player's graph. Incomplete starters remove layout work without solving the decisive signal path.
-- Tools follow task introductions: absolute value enters the second comparison task, and valid-domain trimming
-  enters the final boundary task. Arithmetic is one configurable component. Outside settings remain unavailable
-  until their path introduces them; zero and replicated extension are explained at their first actual use.
-- No source point is considered mastered merely because a term appears or a reference graph passes. Camera optics,
-  interpolation, learning and later machines remain outside this executable scope. Stride variants, a full scale/
-  support design ladder and additional factorisation efficiency constraints remain coverage opportunities.
+## 发现
 
-## Verification and limits
+「阻塞」表示学习上的硬伤，改完才算这几章成立；其余是要改但不阻塞的文案问题。
 
-Mathematical checks independently cover zero/replicate/wrap/reflected reads, RGB local processing, axis settings,
-valid shapes, complex 2D coefficients, DC/phase, rectangular reconstruction and imaginary residuals. Packed reuse
-is checked with a different passed graph, including nested settings and inspector settings. New packed-node
-defaults are checked against their declared interfaces so hidden axis choices cannot be overwritten.
+| # | 位置 | 规则 | 问题 | 改法 | 归属 | 阻塞 |
+| --- | --- | --- | --- | --- | --- | --- |
+| V1 | 1-5 前四个任务 | pd-repeat-text、凑数 | 四个任务目标、错因一字不差，只差参考解里写死的图外规则；而处理器的 `outside` 本来就转发给内部读取，后三个任务是同一块板 | 合成一个任务，四种图外规则作为它的测试；发布的可分离形态取这个任务的板 | levels | 是 |
+| V2 | 1-5 引言 | 引言写组装、先撞墙 | 引言是一句操作说明（「试用四种边界规则」），代价的动机直到最后一个任务才出现 | 开头先让稠密形态在 5×5 高斯上显示实测乘法次数并超出预算，问题是「同一个结果能不能少乘几次」 | copy、levels | 是 |
+| V3 | 1-5 乘法预算 | 不剧透、点题不复述答案 | 提示直接给出方框核和高斯核的因子，目标说出做法，点题写出 (5+5)+(5+5)+9=29；判断「哪个核能分解、因子是什么」被拿走了 | 提示只指向「看核的行是否互成比例」；点题讲秩一与可分离的关系，不写这道题的数 | copy | 是 |
+| V4 | 1-4 三个边界任务 | 选一个现成答案不算一关 | 目标写出要用哪种规则，玩家的动作是在下拉框里选它；三个错因也一字不差 | 改成给材料（可平铺的纹理、普通照片、左右对称的物体），由测试里的接缝或伪边判定，玩家按证据选规则；每种规则写各自的错因 | levels、copy | 是 |
+| V5 | 1-3、1-4 第一页引言 | 引言不写做法 | 「在核进入邻域表之前增加翻转」「修改邻域表的图外设置，并增加有效内部输出」就是参考解 | 删掉这两页，保留讲情境的第二页 | copy | 是 |
+| V6 | 1-6 | 一步的任务 | 第一个任务的目标是「用可分离形态沿两轴平滑」，一步照做；标题「先稳定边缘读数」和内容对不上；关卡引言一句话，没说机器卡在哪 | 去掉第一个任务，从「平滑去掉了什么」的残差问起；引言说扫描件的噪点在哪里妨碍测边 | levels、copy | 是 |
+| V7 | 1-7 | 一步的任务 | 横纵两个差分核作为输入给定，玩家只是把处理器接两次；「方向和正负怎样描述边缘」没有决定可做 | 只给斜坡和反向斜坡，由玩家写出差分核（常数加转置），测试检查轴和正负 | levels | 是 |
+| V8 | 1-8 | 先撞墙；引言不写做法 | 引言和目标直接给出「垂直平滑」和「选可分离形态」；向量长度另占一个任务，只是放上新元件接到输出 | 先让 1-7 的板在带噪阶跃上失效，问「怎样压噪声又不抹掉要测的变化」；向量长度并进 1-7 作为第二个任务 | levels、copy | 是 |
+| V9 | 1-9 | 终极谜题要有决定 | 目标写出整条流水线，高斯权重作为输入给定，玩家只插入一块元件；「预处理与阈值怎样相互作用」没有可做的选择 | 平滑尺度和阈值由玩家定，测试里放细字和噪点：尺度太小噪点过阈值，太大纸边和字连成一片；保留样张 | levels、domain（尺度可选的高斯权重） | 是 |
+| V10 | 2-1 引言 | pd-repeat-text；先做成再命名 | 第 2、4 页相同，第 1、3 页是同一模板；章的开场白排在最后；「周期变短，亮点离中心更远」在玩家看图之前就写出 | 开场白放第一页；把频谱从引言图改成一个探测任务：玩家编辑条纹图，在频谱显示里把亮点放到指定位置 | domain（探测任务现在写死了模糊器，`probe: {}` 没有参数，需要能配模型和判定）、levels | 是 |
+| V11 | 2-5、2-7、2-12 目标 | 发现而非誊写 | 目标是完整公式（「实部乘 cos，虚部乘 sin 后相减……」「按 i²=−1 合并」「共轭、前向、再共轭乘 W×H」）。2-12 的共轭技巧不在讲义里 | 2-5、2-7 的目标只给输入输出和判定，用 DC 和带相位条纹的测试逼出符号与归一化；2-12 改为照 2-8 沿两轴复用逆合成器，与正向对称 | levels、copy；2-12 回到 blueprint | 是 |
+| V12 | 1-2 v1_contributions、2-4 v2_probe_scan、2-6 v2_rescale、2-8 v2_columns | 不重复 | 提示与错因一字不差 | 提示指向该看的现象，错因说错在哪 | copy | 否 |
+| V13 | 1-5 前四个任务、1-6 后两个、1-7、1-8、1-9 | 提示逐级 | 没有提示 | 改完 V1–V9 后按新任务补 | copy | 否 |
+| V14 | 0-1 第一页引言 | 不往后透露 | 预告了扫描器和频率分析仪 | 只说质检台缺什么 | copy | 否 |
+| V15 | 1-1 点题（英文）、1-5 点题、1-5 预算任务目标、2-9 点题 | terminology-before-use | 「像素」未链接词条 | 每段第一次出现处加 `<wiki-ref>` | copy | 否 |
 
-Opening tasks were checked through part placement, tapped ports and runs. A fresh task-scoped session starts
-with Arithmetic alone, passes the signed task, then sees the absolute-value introduction. Later-machine UI checks
-use an explicitly seeded review state containing reference boards; they
-are not evidence that a fresh player solved the course. Emulated touch dragging moved connected tiles while SVG
-wire paths updated during movement. Details, axis/border controls, pixel popovers, numeric image cells, task scrolling,
-closed initial result drawers and the final comparison outputs are checked at recorded desktop/phone viewports.
+## 第 2 章要补的「现象」
 
-The check log and screenshots are local QA artifacts under `output/playwright/`. Automated checks establish
-contracts and mathematical examples, not enjoyment, novelty, novice mastery or behaviour on a physical iPhone.
-The independent-agent review gate is not claimed: this revision was implemented and reviewed in the current session.
+逐个看第 2 章的难点，大多已经由撞墙引出（2-3 的探针在平移下归零、2-6 交换幅度与相位、2-10 的过冲），
+不必加关。缺的只有两处：
 
-### Recorded checks
+- **频谱表示什么**（2-1）：见 V10，从看两张图改成亲手把亮点挪到位。
+- **二维频谱的方向**（2-8）：条纹延伸方向和亮点所在方向互相垂直，这一点现在只在点题里说。给 2-8 两个任务
+  的结果区加上频谱显示（显示库已有，只是内容编排），让玩家在自己的输出上看到它。
 
-- Full kit suite: 342 tests passed; all-game reference/hidden/wrong-program checks passed.
-- All standalone game builds passed. Scoped ESLint and `git diff --check` passed.
-- Blueprint, level-conformance and copy gates passed. The remaining serial-opening report is justified above;
-  static gates do not replace an independent learner review.
-- Desktop: 1440 × 1000, English/light; phone: emulated touch at 390 × 664, 390 × 844 and 375 × 812, Chinese/light.
-- Opening tasks were manually solved through the UI. On the later seeded boards, the two-axis filter and final
-  interference machine ran successfully. Axis selection, original pixel values, coefficient magnitude/phase,
-  numeric-only image views and no document-level horizontal overflow were observed. Desktop hover and phone tap
-  reveal original pixel coordinates and values; the phone result drawer starts closed.
-- The phone keypad was exercised with a negative decimal, fraction, scientific notation, an invalid draft and
-  cancellation. It retains viewport height, returns focus to its trigger, and uses no native numeric input.
-- A version-26 browser fixture migrated 77 arithmetic nodes across 50 current, built and alternate-slot boards.
-  Node IDs, coordinates, wires and the alternate slot name were retained; old arithmetic types were absent.
-- During emulated touch movement, the connected tile moved and the wire path changed before release.
-  These are Chromium emulation checks; physical iOS Safari overscroll/keyboard behaviour is not revalidated here.
+## 出处
+
+第 1 章各关的页码见[重建规格](chapter-1-rebuild.md)。第 0、2 章（PDF 页序，未逐页复核）：
+
+| 关 | 出处 |
+| --- | --- |
+| 0-1、0-2、0-3 | L2 pp. 22–26（图像数组与坐标）；L3 pp. 6–7（点运算）；容差、已知位移是关卡给定的条件 |
+| 2-1、2-2 | L4 pp. 7–24 |
+| 2-3、2-4 | L4 pp. 18–26 |
+| 2-5、2-6 | L4 pp. 18–35 |
+| 2-7、2-8 | L4 pp. 25–32；复数乘法是给定的数学支持 |
+| 2-9 | L4 pp. 38–44 |
+| 2-10 | L4 pp. 45–47 |
+| 2-11 | L4 p. 37；L3 pp. 41–45（边界） |
+| 2-12 | L4 的逆变换；共轭恒等式不在讲义里（见 V11） |
+| 2-13 | L4 的二维频谱与频率滤波；已知干扰位置是关卡给定的条件 |
+
+## 已过时、随本次更新的文档
+
+- `games/DIRECTION.md` 阶段 6.5 里「第二轮评审还剩 12 处要改」指的是已被替换的相机版第一章，随本次删去。
+- `games/vision-lab/STAGES-REVIEW.md` 的来源表还是旧的处理器升级链（扫描器列着通道权重），要用生成它的
+  工具重新生成，不手改。
+
+## 下一步
+
+先做 V1–V9（第 1 章，只动内容和一处领域：尺度可选的高斯权重），再做 V10–V11（第 2 章，V10 要先把探测任务
+参数化）。每改完一组跑 `npm run check -- vision-lab` 和教学检查，最后在桌面和手机上走一遍改过的关。
