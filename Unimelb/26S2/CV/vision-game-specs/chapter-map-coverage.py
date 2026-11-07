@@ -1,4 +1,4 @@
-"""Place every COMP90086 knowledge point on the remade Vision Complete chapter map and check prerequisite order.
+"""Place every COMP90086 knowledge point on the Vision Lab chapter map and check prerequisite order.
 
 Usage: python3 -I coverage.py <knowledge-graph.json>
 Prints the coverage appendix as Markdown; exits non-zero on a missing point or a prerequisite placed later.

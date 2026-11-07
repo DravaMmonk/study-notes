@@ -25,7 +25,7 @@
     
     
       
-        <title>《视觉完备》第 1 章规格：读单据 - Drava's Study Notes</title>
+        <title>《视觉实验室》第 1 章规格：读单据 - Drava's Study Notes</title>
       
     
     
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              《视觉完备》第 1 章规格：读单据
+              《视觉实验室》第 1 章规格：读单据
             
           </span>
         </div>
@@ -1973,7 +1973,7 @@
   <span class="md-ellipsis">
     
   
-    《视觉完备》第 1 章规格：读单据
+    《视觉实验室》第 1 章规格：读单据
   
 
     
@@ -1991,7 +1991,7 @@
   <span class="md-ellipsis">
     
   
-    《视觉完备》第 1 章规格：读单据
+    《视觉实验室》第 1 章规格：读单据
   
 
     
@@ -2076,7 +2076,7 @@
   <a href="#1-4" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1-4 不一样重（两个任务）
+        1-4 不一样重
       
     </span>
   </a>
@@ -2087,7 +2087,7 @@
   <a href="#1-5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1-5 滤波器
+        1-5 滤波器（两个任务）
       
     </span>
   </a>
@@ -2109,7 +2109,7 @@
   <a href="#1-7" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1-7 黑框（修，两个任务）
+        1-7 台阶在哪
       
     </span>
   </a>
@@ -2120,7 +2120,7 @@
   <a href="#1-8" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1-8 台阶在哪
+        1-8 黑框（修，两个任务）
       
     </span>
   </a>
@@ -2210,7 +2210,7 @@
   <span class="md-ellipsis">
     
   
-    《视觉完备》重新设计
+    《视觉实验室》重新设计
   
 
     
@@ -4137,7 +4137,7 @@
 
 
 
-<h1 id="1">《视觉完备》第 1 章规格：读单据<a class="headerlink" href="#1" title="Permanent link">&para;</a></h1>
+<h1 id="1">《视觉实验室》第 1 章规格：读单据<a class="headerlink" href="#1" title="Permanent link">&para;</a></h1>
 <p>状态：2026-11-08，按<a href="chapter-map.html">章节地图</a>第 1 章落地的规格。出处：COMP90086 第 2 讲（像素与坐标）、第 3 讲（滤波、卷积、边界、可分离）、第 5 讲（梯度与边缘）。本章不含专题 S 和原理系列 K，它们在主线试玩之后再写。</p>
 <h2 id="_1">机器和元件<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>机器人要读夜里拍的单据。本章结束时，它有一台自己搭的滤波器，能去噪、找边，最后画出单据边缘的图。</p>
@@ -4155,7 +4155,7 @@
 <td>平移</td>
 <td>原语，1-1</td>
 <td>预设</td>
-<td>把整张图沿横或竖挪一格；图外的值按「图外」设置，第 1–6 关只有「延续边缘」</td>
+<td>把整张图沿横或竖挪一格；图外的值按「图外」设置，「黑框」之前只有「延续边缘」</td>
 </tr>
 <tr>
 <td>四则运算、常数</td>
@@ -4203,13 +4203,13 @@
 </table>
 <p>约定：图外的值默认按「延续边缘」取；坐标 x 向右、y 向下；滤波器按互相关算，核的左上角乘的是左上方的邻居。</p>
 <h2 id="_2">关卡<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<p>排法：1-1 → 1-2 → 1-3 → 1-4 → 1-5 → 并行〔1-6、1-7｜1-8、1-9、1-10〕 → 1-11。</p>
+<p>排法：1-1 → 1-2 → 1-3 → 1-4 → 1-5 → 并行〔1-6、1-8｜1-7、1-9、1-10〕 → 1-11。并行的两条线在地图上逐行编号，所以关号交错。</p>
 <h3 id="1-1">1-1 竖纹<a class="headerlink" href="#1-1" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>动机：</strong> 相机传感器每一列的灵敏度略有不同，单据照片上满是一道道竖纹。</li>
+<li><strong>动机：</strong> 相机传感器三列一组轮流读数，组里三列的灵敏度各不相同，单据照片上满是一道道竖纹。</li>
 <li><strong>玩家做什么：</strong> 只有平移、四则运算和常数，压下竖纹。</li>
-<li><strong>想到的：</strong> 每格和左右邻居平均，各列不同的偏差互相抵消。</li>
-<li><strong>测试：</strong> 竖纹图（每列一个偏差），期望是左、中、右三格的平均（图外延续边缘）；一组整张同值的图（平均不改变它）。样张：带列条纹的单据。</li>
+<li><strong>想到的：</strong> 每格和左右邻居平均，正好各取一组里的三列，偏差加起来抵消。</li>
+<li><strong>测试：</strong> 竖纹图（三列一周期、加起来为 0 的偏差），期望是左、中、右三格的平均（图外延续边缘）；一张整片同值的图（平均不改变它）。样张：带同样条纹的单据（<code>noise.period: 3</code>），压完以后纸面是平的。</li>
 <li><strong>天真解：</strong> 只和一边的邻居平均。为什么错：结果整体往一边偏了半格，左右不对称。</li>
 <li><strong>参考解：</strong> 往右挪一格、往左挪一格，三者相加，除以 3。</li>
 <li><strong>搭出：</strong> 三点平均（设置：方向）。</li>
@@ -4226,23 +4226,23 @@
 <h3 id="1-3">1-3 相机自带的降噪（探）<a class="headerlink" href="#1-3" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>动机：</strong> 相机自带的降噪比你的干净，厂家没说它怎么加权。</li>
-<li><strong>玩家做什么：</strong> 自己画输入喂给它，判断它是哪一种加权：九格一样重、中间重四周轻、只看左右。</li>
+<li><strong>玩家做什么：</strong> 自己填输入，输出随填随变，判断它是哪一种加权：九格一样重、中间重四周轻、只看左右。</li>
 <li><strong>想到的：</strong> 喂一个亮点，出来的就是它的权重（冲激响应）。</li>
 <li><strong>判定：</strong> 提交的输入要能把三种解释分开（一整片同样亮的图分不开），选的解释要和输出一致。黑盒的核是 [1 2 1; 2 4 2; 1 2 1] / 16。</li>
 </ul>
-<h3 id="1-4">1-4 不一样重（两个任务）<a class="headerlink" href="#1-4" title="Permanent link">&para;</a></h3>
+<h3 id="1-4">1-4 不一样重<a class="headerlink" href="#1-4" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>动机：</strong> 相机的降噪中间重、四周轻，你的三点平均一视同仁。</li>
-<li><strong>任务一（接着 1-1 的电路）：</strong> 让三点平均能给左、中、右不同的权重。输入：图、权重（一行三个数）。测试：权重 [0.25, 0.5, 0.25]、[0.1, 0.8, 0.1]、[0, 1, 0]。新元件：拆成三个数。</li>
+<li><strong>玩家做什么（接着 1-1 的电路）：</strong> 让三点平均能给左、中、右不同的权重。输入：图、权重（一行三个数）。测试：权重 [0.25, 0.5, 0.25]、[0.1, 0.8, 0.1]、[0, 1, 0]。新元件：拆成三个数。</li>
 <li><strong>想到的：</strong> 平均只是三个权重都是三分之一的加权和。</li>
-<li><strong>任务二：</strong> 用它复现相机的降噪。</li>
-<li><strong>想到的：</strong> 中间重的 3×3 权重正好是横向 [1 2 1]/4 和竖向 [1 2 1]/4 先后各做一次。</li>
-<li><strong>升级：</strong> 三点平均变成三点加权（任务一的电路）。</li>
+<li><strong>升级：</strong> 三点平均变成三点加权。</li>
 </ul>
-<h3 id="1-5">1-5 滤波器<a class="headerlink" href="#1-5" title="Permanent link">&para;</a></h3>
+<h3 id="1-5">1-5 滤波器（两个任务）<a class="headerlink" href="#1-5" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>动机：</strong> 相机还自带锐化，它的权重 [0 −1 0; −1 5 −1; 0 −1 0] 拆不成先横后竖。</li>
-<li><strong>玩家做什么：</strong> 造一台能装任意 3×3 权重的机器。新元件：拆成三行。</li>
+<li><strong>任务一：</strong> 用三点加权复现相机的降噪。（放在这里而不是 1-4：一关不能用它正在升级的元件。）</li>
+<li><strong>想到的：</strong> 中间重的 3×3 权重正好是横向 [1 2 1]/4 和竖向 [1 2 1]/4 先后各做一次。</li>
+<li><strong>动机（任务二）：</strong> 相机还自带锐化，它的权重 [0 −1 0; −1 5 −1; 0 −1 0] 拆不成先横后竖。</li>
+<li><strong>任务二：</strong> 造一台能装任意 3×3 权重的机器。新元件：拆成三行。</li>
 <li><strong>想到的：</strong> 核的每一行交给一个三点加权（横），各自读上、中、下一行（先把图上下挪一格），三者相加。</li>
 <li><strong>测试：</strong> 锐化核、相机降噪核、一个不对称的核（左上和右下不同），各一张图。</li>
 <li><strong>天真解：</strong> 用中间那行的权重先横后竖。为什么错：锐化核拆不开，四角和边上的权重对不上。</li>
@@ -4255,20 +4255,20 @@
 <li><strong>想到的：</strong> 权重的图案就是效果的样子；但亮点经过滤波器出来的是核转了 180°，要翻回去才是核（卷积和互相关）。</li>
 <li><strong>天真解（浮雕）：</strong> 照抄亮点的输出。为什么错：互相关的冲激响应是核转 180°，照抄会把效果左右上下都颠倒。</li>
 </ul>
-<h3 id="1-7">1-7 黑框（修，两个任务）<a class="headerlink" href="#1-7" title="Permanent link">&para;</a></h3>
+<h3 id="1-7">1-7 台阶在哪<a class="headerlink" href="#1-7" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>动机：</strong> 纸边是亮度的台阶；去噪会把台阶抹平，得换一种权重找出它。</li>
+<li><strong>玩家做什么：</strong> 输出两张图：横向的变化、竖向的变化。变亮为正，变暗为负。</li>
+<li><strong>想到的：</strong> 右边一格减左边一格；权重 [−1, 0, 1]，有正负。</li>
+<li><strong>测试：</strong> 竖直的台阶（只有横向变化）、水平的台阶、斜的台阶、整片同值（全为 0）。</li>
+</ul>
+<h3 id="1-8">1-8 黑框（修，两个任务）<a class="headerlink" href="#1-8" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>动机：</strong> 一块别人搭的去噪电路，输出四周一圈发黑。板上接好：照片 → 滤波器（图外取 0）← 九格平均的核。</li>
 <li><strong>任务一：单据。</strong> 纸的四周是同样的纸。改成「延续边缘」。</li>
 <li><strong>任务二：花砖。</strong> 地砖的花纹是一块块重复的，照片里正好是一整块。改成「循环」。</li>
 <li><strong>想到的：</strong> 图外没有观测，只能假设；什么假设对，看图外实际是什么。</li>
 <li><strong>开放：</strong> 这一关起，「图外」可以选取 0、延续边缘、循环、镜像。</li>
-</ul>
-<h3 id="1-8">1-8 台阶在哪<a class="headerlink" href="#1-8" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>动机：</strong> 纸边是亮度的台阶；去噪会把台阶抹平，得换一种权重找出它。</li>
-<li><strong>玩家做什么：</strong> 输出两张图：横向的变化、竖向的变化。变亮为正，变暗为负。</li>
-<li><strong>想到的：</strong> 右边一格减左边一格；权重 [−1, 0, 1]，有正负。</li>
-<li><strong>测试：</strong> 竖直的台阶（只有横向变化）、水平的台阶、斜的台阶、整片同值（全为 0）。</li>
 </ul>
 <h3 id="1-9">1-9 噪声里的边（修）<a class="headerlink" href="#1-9" title="Permanent link">&para;</a></h3>
 <ul>
@@ -4298,7 +4298,7 @@
 <h2 id="_4">验收<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>npm run check</code>：每关参考解通过，天真解失败，搭出的元件单独通过搭它的那一关。</li>
-<li>浏览器里手机和桌面各走一遍 1-1、1-3、1-5、1-6、1-7、1-11，记下卡住、看不懂、多余的地方。</li>
+<li>浏览器里手机和桌面各走一遍 1-1、1-3、1-5、1-6、1-8、1-11，记下卡住、看不懂、多余的地方。</li>
 </ul>
 
 
