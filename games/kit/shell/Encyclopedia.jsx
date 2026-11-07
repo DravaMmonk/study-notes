@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { L, tr, isPair } from './i18n.js'
+import { L, T, tr, isPair } from './i18n.js'
 import Library, { store, useSeen } from './Library.jsx'
 import { Markup } from './Markup.jsx'
 
@@ -9,6 +9,24 @@ import { Markup } from './Markup.jsx'
 // opens once the player reaches level `at` (none: from the start), or with every level unlocked. Entries not read
 // yet carry a dot, here and on the buttons that open it.
 
+function glossaryLayout(game) {
+  const { groups = [], entries = [], groupByChapter } = game.glossary ?? {}
+  if (!groupByChapter) return { groups, entries }
+  const order = new Map(game.levels.map((level, index) => [level.id, index]))
+  const chapters = (game.chapters ?? []).map(({ id, number, title }) => ({
+    chapter: id,
+    id: `chapter:${id}`,
+    title: T(`第 ${number ?? id} 章 · ${isPair(title) ? title.zh : title}`, `Chapter ${number ?? id} · ${isPair(title) ? title.en ?? title.zh : title}`),
+  }))
+  const groupOf = new Map(chapters.map(({ chapter, id }) => [chapter, id]))
+  const grouped = entries.map(entry => ({
+    ...entry,
+    group: groupOf.get(game.byId[entry.at]?.chapter) ?? entry.group,
+  })).sort((a, b) => (order.get(a.at) ?? Infinity) - (order.get(b.at) ?? Infinity))
+  const used = new Set(grouped.map(entry => entry.group))
+  return { groups: [...chapters, ...groups].filter(group => used.has(group.id)), entries: grouped }
+}
+
 /**
  * Which entries are open and which are unread, for the encyclopedia and its buttons.
  * @param game, progress, solved   the shell's game and progress
@@ -16,21 +34,21 @@ import { Markup } from './Markup.jsx'
  */
 export function useWiki(game, progress, solved, level) {
   const { seen, markSeen } = useSeen(`${game.id}.wiki.seen`)
-  const entries = useMemo(() => game.glossary?.entries ?? [], [game])
+  const { groups, entries } = useMemo(() => glossaryLayout(game), [game])
   const reached = (id) => {
     const at = game.byId[id]
     return !at || progress.all || solved.has(id) || id === level?.id || game.isOpen(at, solved, progress.all)
   }
   const isOpen = (entry) => !entry.at || reached(entry.at)
   const unread = entries.filter((entry) => isOpen(entry) && !seen.has(entry.id))
-  return { entries, isOpen, unread, seen, markSeen }
+  return { groups, entries, isOpen, unread, seen, markSeen }
 }
 
 export default function Encyclopedia({ game, wiki, level, phone, start, onClose }) {
-  const { groups = [], englishNamesInChinese = false } = game.glossary ?? {}
+  const { englishNamesInChinese = false } = game.glossary ?? {}
   const titleOf = ({ title }) => englishNamesInChinese && isPair(title) && title.en && title.zh !== title.en
     ? { ...title, zh: `${title.zh}（${title.en}）` } : title
-  const { entries, isOpen, seen, markSeen } = wiki
+  const { groups, entries, isOpen, seen, markSeen } = wiki
   const lastKey = `${game.id}.wiki.last`
   // Opening inside a level shows what that level brings in; otherwise what was read last, or the first entry.
   const [current, setCurrent] = useState(() => {

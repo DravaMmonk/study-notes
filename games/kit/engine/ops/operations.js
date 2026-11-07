@@ -291,6 +291,15 @@ export const OPERATIONS = {
       return { says: `${file}: ${showPath(keys)} reads ${[zh !== undefined && 'zh', en !== undefined && 'en'].filter(Boolean).join(' and ')} anew`, inverse }
     },
   },
+  'glossary.presentation': {
+    about: t('设置百科词条是否按解锁关卡的章节分组', 'choose whether to group encyclopedia entries by their unlock chapter'),
+    params: S.obj({ groupByChapter: S.either(S.bool(), S.oneOf([null])) }),
+    apply(ws, { groupByChapter }) {
+      const old = ws.glossary.groupByChapter ?? null
+      ws.glossary = mergePatch(ws.glossary, { groupByChapter })
+      return { says: 'glossary: set chapter grouping', inverse: [{ op: 'glossary.presentation', groupByChapter: old }] }
+    },
+  },
   'glossary.put': {
     about: t('写一条百科（没有就加上，at 是在列表里的位置）', 'write an encyclopedia entry (added when it is new, at its index in the list)'),
     params: S.obj({ entry: S.str(), data: S.map(S.any()), at: S.opt(S.int({ min: 0 })) }),

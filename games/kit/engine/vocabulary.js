@@ -27,6 +27,7 @@ import { definesParts, partProblems, withParts } from './parts/define.js'
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
   englishNamesInChinese: S.opt(S.bool()),
+  groupByChapter: S.opt(S.bool()),
   groups: S.list(S.obj({ id: S.str(), title: S.text() })),
   entries: S.list(S.obj({ id: S.str(), group: S.name('group'), title: S.text(), aliases: S.opt(S.list(S.text(), { min: 1 })), body: S.list(S.text()), at: S.opt(S.level()), see: S.opt(S.list(S.name('entry'))) })),
 })

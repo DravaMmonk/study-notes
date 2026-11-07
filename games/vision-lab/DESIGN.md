@@ -34,6 +34,9 @@ Convolution-theorem explanations retain the factor N required by this forward no
 
 ## Encyclopedia presentation
 
+The encyclopedia groups terms by the chapter of their unlock level, in course order. Chapter headings
+come from the level map.
+
 Chinese encyclopedia entry names include their existing English titles in parentheses, in the entry list,
 article headings and related-entry chips. English names and inline term references remain unchanged.
 This content pack enables the shared glossary presentation option; other games do not opt in.
