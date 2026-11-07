@@ -1,136 +1,64 @@
 {
-  "title": { "zh": "同一个核，方向为何不同", "en": "Why kernel orientation changes" },
+  "title": { "zh": "相机自带的降噪", "en": "The camera’s own denoising" },
   "intro": [
     {
       "t": {
-        "zh": "你搭出的核能平滑图像，但两台工具在对称核上相同，换成偏向一侧的核就不一样。保留 <level-ref to=\"1-2\"></level-ref> 的电路，用偏离中心的亮点判断核的书写方向与输出方向之间的关系。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
-        "en": "Your kernel smooths images, but two tools that agree on a symmetric kernel disagree when its weights favour one side. Keep the board from <level-ref to=\"1-2\"></level-ref> and use an off-centre bright spot to infer how the written kernel relates to the output direction. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+        "zh": "相机自带的降噪比你的干净，厂家却没说它怎么给邻居分配分量。给它喂几张自己画的图，看它吐出什么。",
+        "en": "The camera’s built-in denoising is cleaner than yours, and the maker never said how it weighs the neighbours. Feed it pictures you draw and watch what comes out."
       }
     }
   ],
   "after": {
-    "zh": "\\[\\begin{gathered}(I*K)(x,y)\\\\=\\sum_{u,v}K(u,v)\\,I(x-u,y-v)\\end{gathered}\\]\n\n∗ 表示数学卷积，求和覆盖核的偏移。它与互相关的区别是邻域偏移的方向相反，等价于先翻转核。对称核翻转后不变，所以只有看非对称核，方向差别才会显现。 <wiki-ref to=\"convolution-orientation\"></wiki-ref>",
-    "en": "\\[\\begin{gathered}(I*K)(x,y)\\\\=\\sum_{u,v}K(u,v)\\,I(x-u,y-v)\\end{gathered}\\]\n\n∗ denotes mathematical convolution, summed over kernel offsets. Reversing the offset direction distinguishes it from correlation, equivalently reversing the kernel first. Symmetric kernels survive reversal unchanged; asymmetric kernels reveal the distinction. <wiki-ref to=\"convolution-orientation\"></wiki-ref>"
+    "zh": "一个亮点进去，出来的就是它给每个邻居的分量，叫<wiki-ref to=\"impulse-response\"></wiki-ref>。这台降噪中间最重，越往外越轻。",
+    "en": "One bright dot in, and out comes the share it gives each neighbour: its <wiki-ref to=\"impulse-response\"></wiki-ref>. This denoiser weighs the centre most and less further out."
   },
   "tasks": [
     {
-      "id": "v1_convolution",
-      "kind": "circuit",
-      "step": {
-        "zh": "核的方向",
-        "en": "Kernel orientation"
-      },
-      "configurations": {},
-      "stage": { "zh": "核方向", "en": "Kernel orientation" },
+      "id": "camera",
+      "kind": "probe",
+      "experiment": "filter",
       "brief": {
-        "zh": "接口接收数学卷积核。让非对称核的方向与卷积定义一致，保持输出尺寸和零边界。",
-        "en": "The interface receives mathematical convolution kernels. Match their orientation, including asymmetric kernels, with same-size output and zero boundaries."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "数学卷积核", "en": "Convolution kernel" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "卷积结果", "en": "Convolution result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "kernel": [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-          },
-          "expect": { "out": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]] }
-        },
-        {
-          "inputs": {
-            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-            "kernel": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
-          },
-          "expect": {
-            "out": [[0, 1, 0], [2, 0, -1], [0, 0, 0]]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-            ]
-          },
-          "expect": {
-            "out": [
-              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666],
-              [0.39999999999999997, 0.6, 0.6, 0.39999999999999997],
-              [0.26666666666666666, 0.39999999999999997, 0.39999999999999997, 0.26666666666666666]
-            ]
-          }
-        }
-      ],
-      "hidden": [
-        {
-          "inputs": { "image": [[0.1, 0.4, 0.9, 0.3]], "kernel": [[0.5, 0, -0.5]] },
-          "expect": { "out": [[0.2, 0.4, -0.05000000000000002, -0.45]] }
-        },
-        {
-          "inputs": {
-            "image": [[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]],
-            "kernel": [[0, 0, 1, 0, 0], [2, -0.5, 0, 0, 3], [0, 0, 0, -1, 0]]
-          },
-          "expect": { "out": [[0, 1, 0, 0], [-0.5, 0, 0, 3], [0, 0, -1, 0]] }
-        }
-      ],
-      "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naive": [
-        "table = windowTable[outside=zero,axis=x](image,kernel)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naiveWhy": {
-        "zh": "对称核不能区分两种约定；非对称亮点响应会暴露核的方向是否反转。",
-        "en": "Symmetric kernels hide the distinction; asymmetric impulse responses expose orientation."
+        "zh": "画一张能分清三种说法的图，再选输出支持的那一种。",
+        "en": "Draw a picture that tells the three accounts apart, then pick the one the output supports."
       },
       "hint": [
         {
-          "zh": "用非对称权重表与单个亮点检查方向。翻转核只调整权重表，不是翻转待处理图。",
-          "en": "Inspect an asymmetric kernel on an impulse. Reverse the weight table, not the image."
+          "zh": "一整片同样亮的图，三种降噪都不会改变它。",
+          "en": "A picture of one brightness all over is left unchanged by all three."
+        },
+        {
+          "zh": "想看清它对每个邻居做了什么，就让只有一格是亮的。",
+          "en": "To see what it does with each neighbour, light just one cell."
         }
       ],
-      "adds": ["reverse"],
-      "carry": "1-2",
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          },
-          "kernel": [[0, 0.25, 0], [0, 0.5, 0], [0, 0, 0.25]]
+      "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]],
+      "questions": [
+        {
+          "title": { "zh": "它怎么给邻居分配分量？", "en": "How does it share among the neighbours?" },
+          "options": [
+            {
+              "id": "even",
+              "label": { "zh": "九格一样重", "en": "All nine the same" },
+              "kernel": [
+                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
+                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+              ]
+            },
+            {
+              "id": "centre",
+              "label": { "zh": "中间重，越往外越轻", "en": "Centre heaviest, lighter outwards" },
+              "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]]
+            },
+            {
+              "id": "row",
+              "label": { "zh": "只看左右", "en": "Left and right only" },
+              "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
+            }
+          ],
+          "answer": "centre"
         }
-      }
+      ]
     }
-  ],
-  "builds": {
-    "type": "spatialProcessor",
-    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
-    "desc": {
-      "zh": "运行所选形态的已通关电路，对图像应用给定核。",
-      "en": "Apply the supplied kernel using the passed board of the selected form."
-    },
-    "form": "dense",
-    "formLabel": { "zh": "通用", "en": "Dense" }
-  }
+  ]
 }

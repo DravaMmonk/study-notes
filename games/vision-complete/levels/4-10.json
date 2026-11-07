@@ -1,0 +1,90 @@
+{
+  "title": { "zh": "看得更大", "en": "Seeing further" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "每层只看 3×3，可第二层看的是第一层的输出，等于看到了 5×5；第三层看到 7×7。这叫感受野：叠 L 层 3×3，感受野是 (2L+1)×(2L+1)。VGG 就靠堆小核看大范围，而且三层 3×3 只有 27 个权重，一个 7×7 核要 49 个。",
+    "en": "Each layer looks at only 3×3, but the second layer looks at the first layer's output, so in effect it sees 5×5; the third sees 7×7. This is the receptive field: stack L layers of 3×3 and the receptive field is (2L+1)×(2L+1). VGG sees large areas by stacking small kernels, and three 3×3 layers have only 27 weights, while a single 7×7 kernel needs 49."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "3×3 的元件只看得见自己和身边一圈，一共 9 格。可一张脸、一个车轮，在图上远比 3×3 大。网络怎样认出大的东西？",
+        "en": "A 3×3 part only sees its own pixel and the ring around it, 9 cells in all. But a face or a wheel is far bigger than 3×3 in an image. How does a network recognise big things?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关要判断：一个格子周围 7×7 的范围是不是全亮。测试里特意放了小一些的方块、长条，还有缺了一个角的 7×7。",
+        "en": "This level asks: is the 7×7 area around a cell entirely bright? The tests deliberately include smaller squares, long bars, and a 7×7 square with one corner missing."
+      },
+      "fig": { "test": 1, "caption": { "zh": "另一组：一个 5×5、一个 3×3 的方块", "en": "Another set: a 5×5 square and a 3×3 square" } }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：手里只有看 3×3 的元件，做出看 7×7 的判断。要想的问题：「7×7」能从哪里来？",
+        "en": "Your task: using only parts that look at 3×3, make a judgement about 7×7. Something to think about: where can \"7×7\" come from?"
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：7×7 的亮方块", "en": "Set 1: a bright 7×7 square" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "4-10",
+      "kind": "graph",
+      "brief": {
+        "zh": "只在“周围 7×7 全是亮的”格子输出 1，其余输出 0。手里只有 3×3 的元件。",
+        "en": "Output 1 only at pixels where \"the whole 7×7 around it is bright\", and 0 everywhere else. You only have 3×3 parts."
+      },
+      "hint": {
+        "zh": "一个 3×3 只看得到身边一圈。如果第二层看的是第一层的结果，它其实看到了多大？",
+        "en": "A 3×3 sees only the ring of pixels right around it. If a second layer looks at the first layer's result, how much does it really see?"
+      },
+      "check": { "tolerance": 0.02 },
+      "scene": "blocks",
+      "tests": [
+        { "label": { "zh": "7×7 方块", "en": "7×7 block" }, "rects": [[4, 5, 7, 7]], "seed": 1 },
+        { "label": { "zh": "5×5 和 3×3", "en": "5×5 and 3×3" }, "rects": [[1, 1, 5, 5], [10, 9, 3, 3]], "seed": 2 },
+        {
+          "label": { "zh": "9×7 方块和长条", "en": "9×7 block and a long bar" },
+          "rects": [[1, 1, 9, 7], [2, 11, 12, 3]],
+          "seed": 3
+        },
+        {
+          "label": { "zh": "缺一角的 7×7", "en": "7×7 missing a corner" },
+          "rects": [[1, 1, 7, 7], [8, 8, 7, 7]],
+          "notches": [[7, 7]],
+          "seed": 4
+        }
+      ],
+      "hidden": [
+        { "label": { "zh": "L 形", "en": "L shape" }, "rects": [[1, 1, 7, 13], [1, 7, 14, 7]], "seed": 5 },
+        {
+          "label": { "zh": "边上缺一点的 9×9", "en": "9×9 missing a pixel on one edge" },
+          "rects": [[3, 3, 9, 9]],
+          "notches": [[7, 3]],
+          "seed": 6
+        },
+        {
+          "label": { "zh": "中间一道缝", "en": "Seam down the middle" },
+          "rects": [[1, 4, 14, 8]],
+          "notches": [[8, 4], [8, 5], [8, 6], [8, 7], [8, 8], [8, 9], [8, 10], [8, 11]],
+          "seed": 7
+        }
+      ],
+      "solution": [
+        "b0 = box3(in)",
+        "t0 = threshold[t=0.85](b0)",
+        "b1 = box3(t0)",
+        "t1 = threshold[t=0.95](b1)",
+        "b2 = box3(t1)",
+        "t2 = threshold[t=0.95](b2)",
+        "out <- t2"
+      ],
+      "naive": ["b0 = box3(in)", "t0 = threshold[t=0.85](b0)", "out <- t0"],
+      "alsoFails": [
+        ["b0 = box3(in)", "t0 = threshold[t=0.85](b0)", "b1 = box3(t0)", "t1 = threshold[t=0.95](b1)", "out <- t1"],
+        ["a = box3(in)", "b = box3(a)", "c = box3(b)", "t = threshold[t=0.9](c)", "out <- t"]
+      ]
+    }
+  ]
+}

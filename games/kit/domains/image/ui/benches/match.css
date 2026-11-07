@@ -1,0 +1,117 @@
+/* The pictures of chapter 6's benches: voting (Hough.jsx), consensus (Ransac.jsx) and the book cover (Cover.jsx).
+   Layout, cards, controls and goals come from the bench (games/kit/shell/bench/bench.css). */
+.mb svg text { font-family: var(--mono); }
+.mb-cover-stage { position: relative; }
+.mb-svg { display: block; width: 100%; height: auto; overflow: visible; user-select: none; -webkit-user-select: none; }
+.mb-drag { touch-action: none; }
+.mb-pixels { image-rendering: pixelated; }
+.mb-ok { color: var(--status); }
+.mb-bad { color: var(--fail); }
+
+.mb-readout { color: var(--muted); font-family: var(--mono); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.mb-readout b { color: var(--ink); font-weight: 500; }
+.mb-readout b.mb-ok { color: var(--status); }
+.mb-readout b.mb-bad { color: var(--fail); }
+
+/* Shared strokes. Stroke widths do not scale with the drawing. */
+.mb-frame { fill: none; stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.mb-target { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
+.mb-found { fill: none; stroke: var(--accent); stroke-width: 2.2; vector-effect: non-scaling-stroke; transition: stroke 240ms ease; }
+.mb-found.is-wrong { stroke: var(--fail); }
+.mb-dot { fill: var(--ink); transition: fill 240ms ease, opacity 240ms ease; }
+
+/* ---- voting ---- */
+.mb-hough-stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); gap: 16px; align-items: start; }
+.mb-hough-stage figure { margin: 0; min-width: 0; }
+.mb-hough-points .mb-dot { fill: var(--ink); }
+.mb-line-name { fill: var(--muted); font-size: 2px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; paint-order: stroke; stroke: var(--paper); stroke-width: .5px; }
+.mb-acc { position: relative; }
+.mb-acc canvas { width: 100%; height: auto; aspect-ratio: 3 / 2; display: block; border-radius: 4px; image-rendering: pixelated; box-shadow: 0 0 0 1px var(--rule); }
+.mb-acc svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.mb-acc-target path { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.mb-acc-target text { fill: var(--muted); font-size: 11px; font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
+.mb-acc-peak { transition: transform 320ms cubic-bezier(.2, .8, .2, 1); }
+.mb-acc-peak circle { fill: none; stroke: var(--accent); stroke-width: 2; }
+.mb-acc-peak text { fill: var(--accent-ink); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
+.mb-acc-peak.is-wrong circle { stroke: var(--fail); }
+.mb-acc-peak.is-wrong text { fill: var(--fail); }
+.mb-axis { position: absolute; padding: 1px 5px; border-radius: 4px; color: var(--muted); background: color-mix(in srgb, var(--paper) 82%, transparent); font-family: var(--mono); font-size: 10.5px; pointer-events: none; }
+.mb-axis.is-x { right: 6px; bottom: 6px; }
+.mb-axis.is-y { left: 6px; top: 6px; }
+.mb-fig-head { min-height: 36px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mb-fig-head .bk-label { margin: 0; }
+.mb-zoom > button { min-height: 30px; padding: 0 10px; font-size: 12px; }
+
+/* ---- consensus ---- */
+.mb-ransac-stage { margin: 0; }
+.mb-ransac-stage .mb-svg { max-width: 520px; margin: 0 auto; border-radius: 8px; background: var(--canvas); }
+.mb-band { fill: color-mix(in srgb, var(--accent) 16%, transparent); stroke: color-mix(in srgb, var(--accent) 45%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.mb-dot.is-in { fill: var(--accent); }
+.mb-dot.is-out { fill: var(--faint); }
+.mb-sample { fill: none; stroke: var(--ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.mb-trial-verdict { margin: 10px 0 0; min-height: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 13px; }
+.mb-trial-verdict .mb-readout { margin-left: auto; }
+.mb-cards { gap: 10px; }
+.mb-card { display: grid; gap: 4px; cursor: default; transition: box-shadow 200ms ease; }
+.mb-card.is-active { box-shadow: inset 0 0 0 1.5px var(--ink); }
+.mb-card.is-pass { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--status) 45%, transparent); }
+.mb-card.is-pass.is-active { box-shadow: inset 0 0 0 1.5px var(--status); }
+.mb-card-head { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 14px; }
+.mb-card-head small { color: var(--muted); font-size: 10.5px; }
+.mb-card-head .mb-readout { font-size: 13px; }
+.mb-card .bk-field output { min-width: 5.2em; }
+.mb-card-foot { margin: 2px 0 0; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+.mb-card-foot.mb-bad { color: var(--fail); }
+.mb-rate { position: relative; height: 6px; border-radius: 3px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.mb-rate span { position: absolute; inset: 0; border-radius: 3px; background: var(--fail); transform-origin: left; transition: transform 320ms cubic-bezier(.2, .8, .2, 1), background 240ms ease; }
+.mb-rate span.is-ok { background: var(--status); }
+.mb-rate i { position: absolute; top: -4px; bottom: -4px; left: 99%; width: 2px; border-radius: 1px; background: var(--ink); }
+.mb-strip { margin-top: 8px; display: grid; grid-template-columns: repeat(40, minmax(0, 1fr)); gap: 2px; }
+.mb-strip button { aspect-ratio: 1; min-width: 0; padding: 0; border: 0; border-radius: 2px; background: color-mix(in srgb, var(--status) 55%, var(--paper)); cursor: pointer; transition: background 200ms ease; }
+.mb-strip button.is-fail { background: var(--fail); }
+.mb-strip button.is-active { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+/* ---- the book cover ---- */
+.mb-hit { fill: transparent; cursor: pointer; }
+.mb-cover-fig .mb-hit { cursor: grab; }
+.mb-cover-key { fill: var(--paper); stroke: var(--accent); stroke-width: 2; vector-effect: non-scaling-stroke; transition: fill 160ms ease; }
+.mb-photo-key { fill: var(--paper); stroke: var(--ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; transition: fill 160ms ease; }
+.mb-cover-key.is-used, .mb-photo-key.is-used { fill: var(--accent); }
+.mb-cover-key.is-armed, .mb-photo-key.is-armed { fill: var(--ink); }
+.mb-armed { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.mb-pair-line { stroke: var(--accent); stroke-width: 1.6; vector-effect: non-scaling-stroke; pointer-events: none; }
+.mb-pair-line.is-draft { stroke-dasharray: 6 4; }
+.mb-pair-tag { fill: var(--ink); font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.mb-warp { opacity: .6; transition: opacity 260ms ease; pointer-events: none; }
+.mb-warp.is-hidden { opacity: 0; }
+.mb-quad { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; pointer-events: none; transition: stroke 240ms ease; }
+.mb-quad.is-bad { stroke: var(--fail); }
+.mb-cover-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); grid-template-areas: 'cover photo' 'aside photo'; gap: 14px 24px; align-items: start; }
+.mb-cover-fig { grid-area: cover; margin: 0; }
+.mb-photo-fig { grid-area: photo; margin: 0; }
+.mb-cover-aside { grid-area: aside; display: grid; gap: 10px; }
+.mb-prompt { min-height: 1.6em; margin: 0; }
+.mb-prompt.is-armed { color: var(--accent-ink); }
+.mb-links { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.mb-pairs { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.mb-pairs li { min-height: 40px; padding: 0 0 0 10px; display: grid; grid-template-columns: 16px minmax(0, 1fr) 40px; align-items: center; gap: 6px; border-radius: 10px; background: var(--canvas); font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; animation: mb-rise 220ms ease both; }
+.mb-pairs li i { color: var(--accent-ink); font-style: normal; font-weight: 600; }
+.mb-pairs button { width: 40px; height: 40px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 10px; color: var(--muted); background: none; cursor: pointer; }
+.mb-pairs button:hover { color: var(--fail); }
+@keyframes mb-rise { from { opacity: 0; transform: translateY(4px); } }
+
+@media (max-width: 760px) {
+  .mb-hough-stage { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .mb-zoom > button { min-height: 36px; padding: 0 14px; }
+  .mb-hough-points .mb-svg { max-width: 300px; margin: 0 auto; }
+  .mb-cover-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: 'cover aside' 'photo photo'; gap: 10px 12px; }
+  .mb-cover-aside { padding-top: 22px; }
+  .mb-cover-aside .bk-goal { padding: 6px 10px; font-size: 12.5px; }
+  .mb-cover-aside .mb-prompt { font-size: 12.5px; }
+  .mb-cover-aside .bk-goal small { display: block; margin: 0; }
+  .mb-pairs { grid-template-columns: minmax(0, 1fr); }
+  .mb-ransac-stage .mb-svg { max-width: none; }
+  .mb-trial-verdict .mb-readout { margin-left: 0; }
+  .mb-strip { grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 3px; }
+  .mb-card { padding: 10px 12px; }
+}

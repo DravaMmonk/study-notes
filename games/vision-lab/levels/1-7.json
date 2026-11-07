@@ -1,140 +1,173 @@
 {
-  "title": { "zh": "变化有方向，也有正负", "en": "Change has direction and sign" },
+  "title": { "zh": "台阶在哪", "en": "Where the step is" },
   "intro": [
     {
       "t": {
-        "zh": "平滑能压下细碎变化，但扫描台还得知道纸边朝哪边、亮度向哪边增大。先试只有左右变化的斜坡，再试只有上下变化的斜坡。如果用一张响应图回答两个问题，总有一张测试会露出问题。",
-        "en": "Smoothing suppresses small variations, but the scanner still needs to tell which way a paper edge faces and which side is brighter. Compare ramps that change only across the image with ramps that change only down it. One response reused for both directions fails on one of these cases."
+        "zh": "纸边是亮度的一道台阶。降噪把台阶抹平，得换一种权重把它找出来。",
+        "en": "A paper edge is a step in brightness. Denoising smooths the step away; different weights are needed to find it."
       }
     }
   ],
   "after": {
-    "zh": "\\[\\nabla I=(g_x,g_y)\\]\n\ngx、gy 分别描述沿 x、y 的带符号变化。正负记录亮度增加还是减少，两个分量记录变化朝向；这里用给定差分核近似，数值尺度由核的系数决定。负响应即使显示成黑色，也仍有测量意义。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
-    "en": "\\[\\nabla I=(g_x,g_y)\\]\n\ngx and gy describe signed changes along x and y. Signs retain increasing versus decreasing intensity; the pair retains direction. Given difference kernels approximate these changes, with scale determined by their coefficients. A negative response remains meaningful even if grayscale display clips it to black. <wiki-ref to=\"gradient-components\"></wiki-ref>"
+    "zh": "边缘处相邻两格差得多。右边减左边、下面减上面，正负说出了变亮还是变暗的方向，这叫<wiki-ref to=\"derivative\"></wiki-ref>。",
+    "en": "Neighbouring cells differ most at an edge. Right minus left, below minus above: the sign tells whether it brightens or darkens. This is a <wiki-ref to=\"derivative\"></wiki-ref>."
   },
   "tasks": [
     {
-      "id": "v1_derivatives",
+      "id": "steps",
       "kind": "circuit",
-      "step": {
-        "zh": "双轴差分",
-        "en": "Two-axis differences"
-      },
-      "stage": { "zh": "纵向响应", "en": "Vertical response" },
       "brief": {
-        "zh": "构造两路有符号读数。均匀区域应为零，单位斜坡内部的读数为 +1 或 −1。图外延续最近读数。用目标图确定两个方向的权重。",
-        "en": "Build two signed readings. Flat regions must read zero; a unit ramp reads +1 or −1 in its interior. Extend the nearest readings at the border. Use the targets to determine the weights for each direction."
+        "zh": "输出两张图：横向的变化、竖向的变化。往右（往下）变亮为正。",
+        "en": "Output two pictures: the change across and the change down. Brightening rightwards (downwards) is positive."
       },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } }
+      "hint": [
+        {
+          "zh": "整片同样亮的地方，两张图都应当是 0。三个权重加起来是多少？",
+          "en": "Where it is evenly bright, both should be 0. What do the three weights add up to?"
+        }
       ],
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
       "outputs": [
-        { "name": "gx", "label": { "zh": "横向响应 gx", "en": "Horizontal gx" } },
-        { "name": "gy", "label": { "zh": "纵向响应 gy", "en": "Vertical gy" } }
+        { "name": "gx", "label": { "zh": "横向变化", "en": "Change across" } },
+        { "name": "gy", "label": { "zh": "竖向变化", "en": "Change down" } }
       ],
       "tests": [
         {
           "inputs": {
-            "image": [
-              [0, 0.1, 0.2, 0.30000000000000004, 0.4],
-              [0, 0.1, 0.2, 0.30000000000000004, 0.4],
-              [0, 0.1, 0.2, 0.30000000000000004, 0.4]
+            "photo": [
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8]
             ]
           },
           "expect": {
             "gx": [
-              [0.05, 0.1, 0.10000000000000002, 0.1, 0.04999999999999999],
-              [0.05, 0.1, 0.10000000000000002, 0.1, 0.04999999999999999],
-              [0.05, 0.1, 0.10000000000000002, 0.1, 0.04999999999999999]
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0]
             ],
-            "gy": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+            "gy": [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
           }
         },
         {
           "inputs": {
-            "image": [
-              [0, 0, 0],
-              [0.15, 0.15, 0.15],
-              [0.3, 0.3, 0.3],
-              [0.44999999999999996, 0.44999999999999996, 0.44999999999999996]
+            "photo": [
+              [0.2, 0.2, 0.2, 0.2, 0.2],
+              [0.2, 0.2, 0.2, 0.2, 0.2],
+              [0.8, 0.8, 0.8, 0.8, 0.8],
+              [0.8, 0.8, 0.8, 0.8, 0.8],
+              [0.8, 0.8, 0.8, 0.8, 0.8]
             ]
           },
           "expect": {
-            "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            "gx": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
             "gy": [
-              [0.075, 0.075, 0.075],
-              [0.15, 0.15, 0.15],
-              [0.14999999999999997, 0.14999999999999997, 0.14999999999999997],
-              [0.07499999999999998, 0.07499999999999998, 0.07499999999999998]
+              [0, 0, 0, 0, 0],
+              [
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001
+              ],
+              [
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001,
+                0.6000000000000001
+              ],
+              [0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0]
             ]
           }
         },
         {
           "inputs": {
-            "image": [[0.9, 0.5, 0.1], [0.8, 0.4, 0]]
+            "photo": [
+              [0.2, 0.2, 0.2, 0.2, 0.2, 0.8],
+              [0.2, 0.2, 0.2, 0.2, 0.8, 0.8],
+              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
+              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8],
+              [0.2, 0.8, 0.8, 0.8, 0.8, 0.8]
+            ]
           },
           "expect": {
-            "gx": [[-0.2, -0.4, -0.2], [-0.2, -0.4, -0.2]],
+            "gx": [
+              [0, 0, 0, 0, 0.6000000000000001, 0.6000000000000001],
+              [0, 0, 0, 0.6000000000000001, 0.6000000000000001, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0.6000000000000001, 0.6000000000000001, 0, 0, 0],
+              [0.6000000000000001, 0.6000000000000001, 0, 0, 0, 0]
+            ],
             "gy": [
-              [-0.04999999999999999, -0.04999999999999999, -0.05],
-              [-0.04999999999999999, -0.04999999999999999, -0.05]
+              [0, 0, 0, 0, 0.6000000000000001, 0],
+              [0, 0, 0, 0.6000000000000001, 0.6000000000000001, 0],
+              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
+              [0, 0.6000000000000001, 0.6000000000000001, 0, 0, 0],
+              [0, 0.6000000000000001, 0, 0, 0, 0]
             ]
           }
-        }
-      ],
-      "hidden": [
+        },
         {
-          "inputs": {
-            "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]]
-          },
+          "inputs": { "photo": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] },
           "expect": {
             "gx": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
             "gy": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
           }
         }
       ],
-      "solution": [
-        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
-        "dy = transpose(dx)",
-        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
-        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
-        "gx <- v",
-        "gy <- vY"
-      ],
-      "naive": [
-        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
-        "dy = transpose(dx)",
-        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
-        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
-        "gx <- v",
-        "gy <- v"
-      ],
-      "naiveWhy": {
-        "zh": "另一条轴的响应需要另一方向的邻域，不能复制同一张响应图。",
-        "en": "The other component needs a differently oriented neighbourhood, not a duplicate response."
-      },
-      "adds": [],
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+      "hidden": [
+        {
+          "inputs": {
+            "photo": [
+              [0.51, 0.45, 0.56, 0.38],
+              [0.83, 0.16, 0.45, 0.76],
+              [0.61, 0.91, 0.29, 0.36],
+              [0.3, 0.13, 0.08, 0.51]
+            ]
+          },
+          "expect": {
+            "gx": [
+              [-0.06, 0.050000000000000044, -0.07, -0.18000000000000005],
+              [-0.6699999999999999, -0.37999999999999995, 0.6, 0.31],
+              [0.30000000000000004, -0.32, -0.55, 0.07],
+              [-0.16999999999999998, -0.21999999999999997, 0.38, 0.43]
             ],
-            "noise": { "seed": 17, "amp": 0.04 }
+            "gy": [
+              [0.31999999999999995, -0.29000000000000004, -0.11000000000000004, 0.38],
+              [0.09999999999999998, 0.46, -0.2700000000000001, -0.020000000000000018],
+              [-0.53, -0.03, -0.37, -0.25],
+              [-0.31, -0.78, -0.20999999999999996, 0.15000000000000002]
+            ]
           }
         }
-      },
-      "configurations": { "const.kind": ["weights"] },
-      "hint": [
-        {
-          "zh": "把斜坡反过来再观察。中心格的亮度不一定变化，响应却要变号。",
-          "en": "Reverse a ramp and inspect it again. The centre reading can stay the same while the response changes sign."
+      ],
+      "solution": [
+        "w = const[kind=row3,first=-1,centre=0,last=1]()",
+        "x = line3[axis=x](photo,w)",
+        "y = line3[axis=y](photo,w)",
+        "gx <- x",
+        "gy <- y"
+      ],
+      "sample": {
+        "inputs": {
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
+            "layers": [
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
+            ]
+          }
         }
-      ]
+      }
     }
   ]
 }

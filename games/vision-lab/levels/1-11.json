@@ -1,0 +1,147 @@
+{
+  "title": { "zh": "单据扫描仪", "en": "Document scanner" },
+  "intro": [
+    {
+      "t": {
+        "zh": "把这一章的零件装起来：夜里拍的单据，画出它的边。",
+        "en": "Put the chapter’s parts together: from a night photo of a document, draw its edges."
+      }
+    }
+  ],
+  "after": {
+    "zh": "降噪、求梯度、按强弱取舍，得到的是一张<wiki-ref to=\"edge-map\"></wiki-ref>：机器眼里，纸从这里开始。",
+    "en": "Denoise, take the gradient, keep what is strong enough: an <wiki-ref to=\"edge-map\"></wiki-ref>. To the machine, the paper starts here."
+  },
+  "tasks": [
+    {
+      "id": "scanner",
+      "kind": "circuit",
+      "brief": {
+        "zh": "先像相机那样降噪，再在边的强弱超过「门槛」的格子标 1，其余标 0。",
+        "en": "Denoise as the camera does, then mark 1 where the edge strength exceeds “threshold”, 0 elsewhere."
+      },
+      "adds": ["less"],
+      "inputs": [
+        { "name": "photo", "label": { "zh": "照片", "en": "Photo" } },
+        { "name": "threshold", "label": { "zh": "门槛", "en": "Threshold" } }
+      ],
+      "outputs": [{ "name": "edges", "label": { "zh": "边缘图", "en": "Edge map" } }],
+      "tests": [
+        {
+          "inputs": {
+            "photo": [
+              [0.14, 0.16, 0.25, 0.14, 0.15, 0.17, 0.07, 0.15],
+              [0.18, 0.92, 0.75, 0.8, 0.75, 0.92, 0.9, 0.04],
+              [0.27, 0.96, 0.89, 0.88, 0.77, 0.73, 0.86, 0.04],
+              [0.08, 0.79, 0.19, 0.29, 0.84, 0.38, 0.85, 0.18],
+              [0.15, 0.89, 0.84, 0.8, 0.97, 0.97, 0.93, 0.2],
+              [0.11, 0.79, 0.8, 0.75, 0.91, 0.83, 0.93, 0.12],
+              [0.26, 0.23, 0.03, 0.08, 0.25, 0.14, 0.27, 0.13]
+            ],
+            "threshold": 1
+          },
+          "expect": {
+            "edges": [
+              [0, 1, 1, 1, 1, 1, 1, 0],
+              [1, 1, 1, 1, 1, 1, 1, 1],
+              [1, 1, 0, 0, 0, 0, 1, 1],
+              [1, 1, 0, 0, 0, 0, 1, 1],
+              [1, 1, 0, 0, 0, 0, 1, 1],
+              [0, 1, 1, 1, 1, 1, 1, 1],
+              [0, 0, 1, 1, 1, 1, 1, 0]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7],
+              [0.7, 0.7, 0.7, 0.7, 0.7]
+            ],
+            "threshold": 1
+          },
+          "expect": { "edges": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "photo": [
+              [0.14, 0.18, 0.18, 0.08, 0.05, 0.12, 0.1],
+              [0.21, 0.89, 0.87, 0.86, 0.88, 0.78, 0.14],
+              [0.08, 0.93, 0.76, 0.91, 0.76, 0.89, 0.12],
+              [0.13, 0.92, 0.2, 0.21, 0.93, 0.85, 0.07],
+              [0.25, 0.94, 0.77, 0.83, 0.78, 0.81, 0.17],
+              [0.08, 0.19, 0.06, 0.08, 0.21, 0.13, 0.13]
+            ],
+            "threshold": 1.5
+          },
+          "expect": {
+            "edges": [
+              [0, 0, 0, 1, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1, 0],
+              [0, 0, 0, 0, 0, 1, 0],
+              [0, 0, 0, 0, 0, 1, 0],
+              [0, 0, 0, 0, 1, 1, 0],
+              [0, 0, 0, 0, 0, 0, 0]
+            ]
+          }
+        }
+      ],
+      "solution": [
+        "c = const[kind=row3,first=0.25,centre=0.5,last=0.25]()",
+        "d1 = line3[axis=x](photo,c)",
+        "d = line3[axis=y](d1,c)",
+        "w = const[kind=row3,first=-1,centre=0,last=1]()",
+        "s = const[kind=row3,first=1,centre=2,last=1]()",
+        "sy = line3[axis=y](d,s)",
+        "x = line3[axis=x](sy,w)",
+        "sx = line3[axis=x](d,s)",
+        "y = line3[axis=y](sx,w)",
+        "m = magnitude(x,y)",
+        "e = less(threshold,m)",
+        "edges <- e"
+      ],
+      "naive": [
+        "w = const[kind=row3,first=-1,centre=0,last=1]()",
+        "s = const[kind=row3,first=1,centre=2,last=1]()",
+        "sy = line3[axis=y](photo,s)",
+        "x = line3[axis=x](sy,w)",
+        "sx = line3[axis=x](photo,s)",
+        "y = line3[axis=y](sx,w)",
+        "m = magnitude(x,y)",
+        "e = less(threshold,m)",
+        "edges <- e"
+      ],
+      "naiveWhy": {
+        "zh": "没有先降噪：字和噪点也越过了门槛。",
+        "en": "No denoising first: text and noise cross the threshold too."
+      },
+      "sample": {
+        "inputs": {
+          "photo": {
+            "size": [64, 48],
+            "base": 0.15,
+            "layers": [
+              {
+                "shape": "quad",
+                "corners": [
+                  [7.68, 4.800000000000001],
+                  [57.6, 7.68],
+                  [55.04, 44.160000000000004],
+                  [5.12, 41.28]
+                ],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 12, "y": 12, "w": 35, "h": 24 }
+            ],
+            "noise": { "seed": 13, "amp": 0.12 }
+          },
+          "threshold": 1
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "title": { "zh": "两线交点", "en": "Where two lines meet" },
+  "tray": "geometry",
+  "after": {
+    "zh": "两次叉积就找到了交点，不用解方程。三个数 (X, Y, W) 表示点 (X/W, Y/W)；两条线平行时 W = 0，交点在无穷远处，齐次坐标照样写得出来。",
+    "en": "Two cross products find the meeting point with no equations to solve. Three numbers (X, Y, W) stand for the point (X/W, Y/W); when the lines are parallel W = 0 and they meet at infinity, which homogeneous coordinates can still write down."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"own-7-5\"></part-ref>输出两个三维向量的叉积 a × b。",
+        "en": "The <part-ref to=\"own-7-5\"></part-ref> in the tray outputs the cross product a × b of two 3-vectors."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：每条线给出它上面的两个点，输出两条线的交点。",
+        "en": "Your task in this level: each line is given by two points on it; output where the two lines meet."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：十字", "en": "Set 1: a cross" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "7-6",
+      "kind": "graph",
+      "brief": {
+        "zh": "每个点写成 (x, y, 1)。线一过 p、q，线二过 r、s。输出两条线的交点，也写成三个数（不必把第三个数化成 1）。",
+        "en": "Each point is written (x, y, 1). Line 1 passes through p and q, line 2 through r and s. Output where the two lines meet, also as three numbers (no need to make the third one 1)."
+      },
+      "hint": { "zh": "叉积能从两个点得到一条线。", "en": "The cross product turns two points into a line." },
+      "inputs": ["p", "q", "r", "s"],
+      "inputLabels": {
+        "p": { "zh": "线一上的点 p", "en": "Point p on line 1" },
+        "q": { "zh": "线一上的点 q", "en": "Point q on line 1" },
+        "r": { "zh": "线二上的点 r", "en": "Point r on line 2" },
+        "s": { "zh": "线二上的点 s", "en": "Point s on line 2" }
+      },
+      "scene": "filter",
+      "setup": { "target": "meet" },
+      "tests": [
+        {
+          "label": { "zh": "十字", "en": "A cross" },
+          "inputs": {
+            "p": { "row": { "values": [0, 2, 1] } },
+            "q": { "row": { "values": [4, 2, 1] } },
+            "r": { "row": { "values": [1, 0, 1] } },
+            "s": { "row": { "values": [1, 5, 1] } }
+          }
+        },
+        {
+          "label": { "zh": "两条斜线", "en": "Two slants" },
+          "inputs": {
+            "p": { "row": { "values": [0, 0, 1] } },
+            "q": { "row": { "values": [4, 4, 1] } },
+            "r": { "row": { "values": [0, 4, 1] } },
+            "s": { "row": { "values": [4, 0, 1] } }
+          }
+        },
+        {
+          "label": { "zh": "交在外面", "en": "Meeting outside" },
+          "inputs": {
+            "p": { "row": { "values": [0, 0, 1] } },
+            "q": { "row": { "values": [1, 2, 1] } },
+            "r": { "row": { "values": [3, 0, 1] } },
+            "s": { "row": { "values": [4, 1, 1] } }
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "一般的", "en": "General" },
+          "inputs": {
+            "p": { "row": { "values": [1, 1, 1] } },
+            "q": { "row": { "values": [3, 2, 1] } },
+            "r": { "row": { "values": [0, 5, 1] } },
+            "s": { "row": { "values": [2, 1, 1] } }
+          }
+        }
+      ],
+      "solution": ["l1 = own-7-5(p, q)", "l2 = own-7-5(r, s)", "x = own-7-5(l1, l2)", "out <- x"],
+      "naive": ["l1 = own-7-5(p, q)", "out <- l1"]
+    }
+  ]
+}

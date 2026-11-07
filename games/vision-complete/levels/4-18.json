@@ -1,0 +1,64 @@
+{
+  "title": { "zh": "省一点算", "en": "A little cheaper" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "先把每个通道单独卷一次，再按每张输出要的比例混起来（1×1 的混合，几乎不花计算量）。这叫深度可分离卷积：MobileNet 靠它在手机上跑得动。输出通道越多，省得越多。",
+    "en": "Convolve each channel once on its own, then mix them in the proportions each output needs (a 1×1 mix, which costs almost nothing). This is a depthwise separable convolution: it is what lets MobileNet run on a phone. The more output channels, the more it saves."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "这是一道挑战关，可以跳过。它不需要新元件。",
+        "en": "This is a challenge level, and you can skip it. It needs no new parts."
+      }
+    },
+    {
+      "t": {
+        "zh": "手机上的网络要省电。这一关要两张输出，都由三个通道各自做过 3×3 平均之后混出来。两个多通道核要花 58 的计算量，这一关只给 30。",
+        "en": "Networks on phones must save power. This level wants two outputs, both mixed from the three channels after each has had a 3×3 average. Two multichannel kernels cost 58, and this level allows only 30."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：红绿对半", "en": "Set 1: half red, half green" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "4-18",
+      "kind": "graph",
+      "brief": {
+        "zh": "两张输出：输出 1 = R − G，输出 2 = R + G − 2B，其中每个通道都先做 3×3 平均。计算量不能超过 30。",
+        "en": "Two outputs: output 1 = R − G and output 2 = R + G − 2B, where every channel is first given a 3×3 average. The cost must not exceed 30."
+      },
+      "hint": { "zh": "多通道核每张输出都要把三个通道各卷一遍。", "en": "A multichannel kernel convolves all three channels again for every output." },
+      "inputs": ["r", "g", "b"],
+      "inputLabels": { "r": { "zh": "红 R", "en": "Red R" }, "g": { "zh": "绿 G", "en": "Green G" }, "b": { "zh": "蓝 B", "en": "Blue B" } },
+      "outputs": ["o1", "o2"],
+      "outputLabels": { "o1": { "zh": "输出 1", "en": "Output 1" }, "o2": { "zh": "输出 2", "en": "Output 2" } },
+      "constraint": { "cost": { "max": 30 } },
+      "scene": "colourMix",
+      "tests": [
+        { "label": { "zh": "红绿对半", "en": "Half red, half green" }, "paint": "halves" },
+        { "label": { "zh": "蓝色方块", "en": "A blue square" }, "paint": "blueSquare" },
+        { "label": { "zh": "彩色纹理", "en": "Colour texture" }, "paint": "texture" }
+      ],
+      "hidden": [{ "label": { "zh": "黄色圆盘", "en": "A yellow disc" }, "paint": "yellowDisc" }],
+      "solution": [
+        "b2N = const[c=2]()",
+        "R = box3(r)",
+        "G = box3(g)",
+        "B = box3(b)",
+        "d1 = arith[op=sub](R, G)",
+        "s = arith[op=add](R, G)",
+        "b2 = arith[op=mul](B, b2N)",
+        "d2 = arith[op=sub](s, b2)",
+        "o1 <- d1",
+        "o2 <- d2"
+      ],
+      "naive": [
+        "k1 = lrnRgb[w=[0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, 0, 0, 0, 0, 0, 0, 0, 0, 0]](r, g, b)",
+        "k2 = lrnRgb[w=[0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222]](r, g, b)",
+        "o1 <- k1",
+        "o2 <- k2"
+      ]
+    }
+  ]
+}

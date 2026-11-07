@@ -1,0 +1,77 @@
+{
+  "title": { "zh": "X 在哪", "en": "Where are the X" },
+  "tray": "recognition",
+  "after": {
+    "zh": "噪点让每个位置的分数都抖一点，门槛要留出余量：太低，噪点凑成假的 X；太高，暗一点的 X 就漏了。",
+    "en": "Grain makes every position's score wobble a little, so the threshold needs a margin: too low and the grain makes false X; too high and a fainter X slips through."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "仓库的机器人要盘点货架：找出所有贴了 X 的箱子。照片有噪点。",
+        "en": "A warehouse robot has to take stock of a shelf: find every box marked X. The photo is grainy."
+      }
+    },
+    {
+      "t": { "zh": "这一关你要做的：只在每个 X 的正中间输出 1。", "en": "Your task in this level: output 1 only at the centre of each X." },
+      "fig": { "test": 0, "caption": { "zh": "一层货架", "en": "One shelf" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "10-9",
+      "kind": "graph",
+      "brief": {
+        "zh": "一张 24×24 的货架照片，有噪点。只在每个 X 记号的正中间输出 1。",
+        "en": "A 24×24 photo of a shelf, with grain. Output 1 only at the very centre of each X mark."
+      },
+      "hint": {
+        "zh": "滑窗加门槛。门槛要高过噪点能凑出来的分数。",
+        "en": "A sliding window and a threshold, high enough that grain cannot add up to it."
+      },
+      "scene": "shelf",
+      "setup": { "expect": "small", "grain": 0.15 },
+      "tests": [
+        {
+          "label": { "zh": "一层货架", "en": "One shelf" },
+          "marks": [
+            { "mark": "X", "at": [4, 4] },
+            { "mark": "O", "at": [10, 4] },
+            { "mark": "X", "at": [16, 5] },
+            { "mark": "O", "at": [20, 18] }
+          ],
+          "seed": 101
+        },
+        {
+          "label": { "zh": "两层货架", "en": "Two shelves" },
+          "marks": [
+            { "mark": "X", "at": [3, 6] },
+            { "mark": "X", "at": [9, 6] },
+            { "mark": "O", "at": [15, 17] },
+            { "mark": "X", "at": [20, 17] }
+          ],
+          "seed": 102
+        },
+        {
+          "label": { "zh": "都是 O", "en": "All O" },
+          "marks": [{ "mark": "O", "at": [5, 5] }, { "mark": "O", "at": [12, 12] }, { "mark": "O", "at": [19, 6] }],
+          "seed": 103
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "挤在一起", "en": "Crowded" },
+          "marks": [
+            { "mark": "X", "at": [4, 12] },
+            { "mark": "O", "at": [8, 12] },
+            { "mark": "X", "at": [12, 12] },
+            { "mark": "X", "at": [19, 19] }
+          ],
+          "seed": 104
+        }
+      ],
+      "solution": ["k = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](in)", "t = threshold[t=3](k)", "out <- t"],
+      "naive": ["k = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](in)", "t = threshold[t=1.5](k)", "out <- t"]
+    }
+  ]
+}

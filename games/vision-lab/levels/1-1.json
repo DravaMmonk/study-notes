@@ -1,272 +1,185 @@
 {
-  "title": { "zh": "让读数有邻居", "en": "Give readings a neighbourhood" },
+  "title": { "zh": "竖纹", "en": "Vertical streaks" },
   "intro": [
     {
       "t": {
-        "zh": "质检台会比较同一位置，但斑点与较大的边缘都可能触发它。实验室提供一台未知模糊器。先改变输入，查明一个亮点会影响多远、恒定亮度是否改变，再把观察转成自己的邻域计算。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-        "en": "The station compares matching positions, but specks and large edges can both trigger it. The lab provides an unknown blur. Change its input to find how far a bright spot spreads and whether constant brightness survives, then turn your findings into a neighbourhood circuit. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
-      },
-      "fig": "weighted-line"
+        "zh": "机器人拍下的单据上满是一道道竖纹：相机传感器三列一组轮流读数，组里三列的灵敏度各不相同。现在手上只有平移、四则运算和常数，先把竖纹压下去。<wiki-ref to=\"pixel\"></wiki-ref>",
+        "en": "The robot’s photos of documents are full of vertical streaks: the camera’s sensor reads its columns in groups of three, and the three differ in sensitivity. All you have are shifting, arithmetic and constants; flatten the streaks first. <wiki-ref to=\"pixel\"></wiki-ref>"
+      }
     }
   ],
   "after": {
-    "zh": "\\[\\begin{aligned}Y(p)={}&w_-I(p-d)+w_0I(p)\\\\&+w_+I(p+d)\\end{aligned}\\]\n\np 是当前位置，d 是读取方向，三个 w 是前、中、后的权重。换方向会换参与的邻居；换符号会让某些贡献相减。常量输入 c 的输出是 \\(c(w_-+w_0+w_+)\\)，所以权重和控制常量增益。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-    "en": "\\[\\begin{aligned}Y(p)={}&w_-I(p-d)+w_0I(p)\\\\&+w_+I(p+d)\\end{aligned}\\]\n\np is the current position, d the read direction and the three w values the preceding, centre and following weights. Direction selects neighbours; signs determine addition or subtraction. Constant input c produces \\(c(w_-+w_0+w_+)\\), so the weight sum controls constant gain. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
+    "zh": "每格和它的左右邻居平均，三列一组的偏差加起来正好抵消。这就是<wiki-ref to=\"neighbourhood-average\"></wiki-ref>。",
+    "en": "Averaging each cell with its left and right neighbours takes in one of each of the three columns, and their errors cancel. This is a <wiki-ref to=\"neighbourhood-average\"></wiki-ref>."
+  },
+  "builds": {
+    "type": "line3",
+    "name": { "zh": "三点平均", "en": "Three-point average" },
+    "desc": {
+      "zh": "每格和它前后两格平均。方向可以选横或竖。",
+      "en": "Each cell averaged with the two beside it, across or down."
+    },
+    "settings": ["axis", "outside"],
+    "defaults": { "axis": "x", "outside": "clamp" }
   },
   "tasks": [
     {
-      "id": "v1_probe",
-      "kind": "probe",
-      "step": {
-        "zh": "探测模糊器",
-        "en": "Probe a blur"
-      },
-      "brief": {
-        "zh": "编辑输入图，运行模糊器，再根据输出判断影响范围和权重总和。每次提交都需要能区分备选解释的输入。",
-        "en": "Edit the input, run the blur, and use the output to infer its support and weight sum. Submit an input that distinguishes the alternatives for each question."
-      },
-      "after": {
-        "zh": "单个亮点会把权重分布显现在输出里。整张图填同一个非零值时，输出与输入的比值就是权重和。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-        "en": "A single bright pixel reveals the weight pattern in the output. For a nonzero constant image, the ratio of output to input gives the weight sum. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
-      }
-    },
-    {
-      "id": "v1_line",
+      "id": "streaks",
       "kind": "circuit",
-      "step": {
-        "zh": "三路贡献",
-        "en": "Three contributions"
-      },
-      "configurations": { "arithmetic.op": ["add", "mul"], "const.kind": ["scalar", "direction"] },
       "brief": {
-        "zh": "用给定的位置权重组合左、中、右三个读数。取样方向 d=(1,0)，前侧读 -d，后侧读 d。输出与输入同尺寸，图外取 0；权重不必总为正，也不自动归一化。",
-        "en": "Combine left, centre and right readings with the supplied positional weights. The direction is d=(1,0): read the first at -d and the last at d. Preserve image size, read zero outside, and do not automatically normalise or discard negative weights."
+        "zh": "让输出和目标一样：竖纹压平，纸和字还在。",
+        "en": "Match the target: streaks flattened, paper and text still there."
       },
-      "after": {
-        "zh": "\\[Y(p)=\\sum_{j=-1}^{1}w_jI(p+jd)\\]\n\nd 给出方向，j 指定前、中、后。每项都是一个邻居的贡献，负权重使它相减，权重和决定常量信号的增益。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-        "en": "\\[Y(p)=\\sum_{j=-1}^{1}w_jI(p+jd)\\]\n\nd selects direction and j the preceding, centre or following sample. Each term contributes one neighbour; negative weights subtract, and the sum of weights sets constant-signal gain. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
-        { "name": "left", "label": { "zh": "前侧", "en": "First" } },
-        { "name": "centre", "label": { "zh": "中心", "en": "Centre" } },
-        { "name": "right", "label": { "zh": "后侧", "en": "Last" } }
-      ],
-      "inputGroups": [
+      "hint": [
         {
-          "name": "weights",
-          "label": { "zh": "邻域权重", "en": "Neighbourhood weights" },
-          "inputs": ["left", "centre", "right"]
+          "zh": "一格自己的读数里混着它那一列的偏差。左右两格的偏差和它不一样。",
+          "en": "A cell’s reading carries its column’s error. The cells beside it carry different errors."
+        },
+        {
+          "zh": "平移把整张图挪一格：挪完以后，每格上放的是它旁边那一格的读数。",
+          "en": "Shifting moves the whole picture one cell: afterwards each cell holds its neighbour’s reading."
         }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "加权结果", "en": "Weighted result" } }],
+      "adds": ["shift", "arithmetic", "const"],
+      "configurations": {
+        "shift.axis": ["x"],
+        "shift.by": ["forward", "backward"],
+        "*.outside": ["clamp"],
+        "arithmetic.op": ["add", "div"],
+        "const.kind": ["scalar"]
+      },
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "去掉竖纹", "en": "Streaks removed" } }],
       "tests": [
         {
           "inputs": {
-            "image": [[0, 0, 1, 0, 0]],
-            "left": 0.25,
-            "centre": 0.5,
-            "right": 0.25
+            "photo": [
+              [0.23, 0.05, 0.17, 0.23, 0.05, 0.17, 0.23],
+              [0.23, 0.75, 0.87, 0.93, 0.75, 0.87, 0.23],
+              [0.23, 0.75, 0.32, 0.38, 0.75, 0.87, 0.23],
+              [0.23, 0.75, 0.87, 0.93, 0.75, 0.87, 0.23],
+              [0.23, 0.05, 0.17, 0.23, 0.05, 0.17, 0.23]
+            ]
           },
-          "expect": { "out": [[0, 0.25, 0.5, 0.25, 0]] }
+          "expect": {
+            "out": [
+              [
+                0.17,
+                0.15000000000000002,
+                0.15000000000000002,
+                0.15,
+                0.15000000000000002,
+                0.15000000000000002,
+                0.21
+              ],
+              [
+                0.4033333333333333,
+                0.6166666666666667,
+                0.8500000000000001,
+                0.85,
+                0.8500000000000001,
+                0.6166666666666667,
+                0.44333333333333336
+              ],
+              [
+                0.4033333333333333,
+                0.43333333333333335,
+                0.4833333333333334,
+                0.48333333333333334,
+                0.6666666666666666,
+                0.6166666666666667,
+                0.44333333333333336
+              ],
+              [
+                0.4033333333333333,
+                0.6166666666666667,
+                0.8500000000000001,
+                0.85,
+                0.8500000000000001,
+                0.6166666666666667,
+                0.44333333333333336
+              ],
+              [
+                0.17,
+                0.15000000000000002,
+                0.15000000000000002,
+                0.15,
+                0.15000000000000002,
+                0.15000000000000002,
+                0.21
+              ]
+            ]
+          }
         },
         {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6, 0.6]],
-            "left": 0.3333333333333333,
-            "centre": 0.3333333333333333,
-            "right": 0.3333333333333333
-          },
-          "expect": { "out": [[0.39999999999999997, 0.6, 0.6, 0.6, 0.39999999999999997]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "left": -1,
-            "centre": 0,
-            "right": 1
-          },
-          "expect": { "out": [[0.8, 0.2, -0.8], [0.1, -0.19999999999999996, -0.1]] }
+          "inputs": { "photo": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] },
+          "expect": { "out": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]] }
         }
       ],
       "hidden": [
         {
           "inputs": {
-            "image": [[0.7], [0.2]],
-            "left": 0.2,
-            "centre": 0.6,
-            "right": 0.2
-          },
-          "expect": { "out": [[0.42], [0.12]] }
-        }
-      ],
-      "solution": [
-        "d = const[kind=direction,x=1,y=0]()",
-        "minus = const[value=-1]()",
-        "negative = arithmetic[op=mul](d,minus)",
-        "l = shift(image,negative)",
-        "r = shift(image,d)",
-        "a = arithmetic[op=mul](l,weights.left)",
-        "b = arithmetic[op=mul](image,weights.centre)",
-        "c = arithmetic[op=mul](r,weights.right)",
-        "ab = arithmetic[op=add](a,b)",
-        "total = arithmetic[op=add](ab,c)",
-        "out <- total"
-      ],
-      "naive": [
-        "d = const[kind=direction,x=1,y=0]()",
-        "minus = const[value=-1]()",
-        "negative = arithmetic[op=mul](d,minus)",
-        "l = shift(image,negative)",
-        "r = shift(image,d)",
-        "a = arithmetic[op=mul](l,weights.right)",
-        "b = arithmetic[op=mul](image,weights.centre)",
-        "c = arithmetic[op=mul](r,weights.left)",
-        "ab = arithmetic[op=add](a,b)",
-        "s = arithmetic[op=add](ab,c)",
-        "out <- s"
-      ],
-      "naiveWhy": {
-        "zh": "位置权重跟随读取的位置；交换两侧会反转非对称规则。恒定图还会显示权重和造成的增益。",
-        "en": "Weights belong to positions. Swapping sides reverses an asymmetric rule; constants also expose the gain from the weight sum."
-      },
-      "hint": [
-        {
-          "zh": "亮点能显示谁贡献到哪个位置；先把三路分别接到输出观察，再组合。",
-          "en": "An impulse reveals which sample contributes where. Inspect the branches before combining them."
-        },
-        {
-          "zh": "常量图检验总增益，非对称权重检验方向；系统计算所有乘积与和。",
-          "en": "Constants test gain and asymmetric weights test direction; products and sums are automatic."
-        }
-      ],
-      "starter": [
-        "d = const[kind=direction,x=1,y=0]()",
-        "minus = const[value=-1]()",
-        "negative = arithmetic[op=mul](d,minus)",
-        "l = shift(image,negative)",
-        "r = shift(image,d)"
-      ],
-      "intro": [
-        {
-          "t": {
-            "zh": "常数元件在这里解锁二维向量：选择“二维向量”，填写 x、y，就能从一个口输出固定方向。预设电路已放入横向方向 (1,0)；标量常数仍用于数值运算。题目给定且随测试变化的读数和权重仍从输入元件读取。",
-            "en": "The constant now supports 2D vectors: choose 2D vector and enter x/y to output one fixed direction. The starter supplies horizontal direction (1,0); scalar constants still serve arithmetic. Read test-dependent readings and weights from their supplied inputs."
-          }
-        }
-      ],
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          }
-        }
-      }
-    },
-    {
-      "id": "v1_vertical",
-      "kind": "circuit",
-      "step": { "zh": "把邻居换到上下", "en": "Move the neighbourhood to columns" },
-      "configurations": {},
-      "brief": {
-        "zh": "用三点加权器，将给定 [前, 中, 后] 权重向量用于每列。预设电路里的方向常数 d=(0,1) 对应上、中、下；保持尺寸，图外取 0。",
-        "en": "Apply the supplied [first, centre, last] weight vector down each column with the weighted-line preset. The starter direction constant d=(0,1) reads above/centre/below. Preserve size and use zero outside."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "读数图", "en": "Readings" } },
-        { "name": "weights", "label": { "zh": "权重向量 [前,中,后]", "en": "Weights [first,centre,last]" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "方向加权结果", "en": "Directional weighted result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0, 0, 0], [0, 1, 0], [0, 0, 0]],
-            "weights": [[0.25, 0.5, 0.25]]
-          },
-          "expect": { "out": [[0, 0.25, 0], [0, 0.5, 0], [0, 0.25, 0]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.8, 0.4], [0.7, 0.1, 0.5]],
-            "weights": [[-1, 0, 1]]
-          },
-          "expect": { "out": [[0.7, 0.1, 0.5], [-0.2, -0.8, -0.4]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.6, 0.6], [0.6, 0.6], [0.6, 0.6], [0.6, 0.6]],
-            "weights": [[0.25, 0.5, 0.25]]
+            "photo": [
+              [0.45, 0.56, 0.92, 0.47, 0.51],
+              [0.59, 0.18, 0.51, 0.63, 0.79],
+              [0.09, 0.3, 0.09, 0.81, 0.69]
+            ]
           },
           "expect": {
             "out": [
-              [0.44999999999999996, 0.44999999999999996],
-              [0.6, 0.6],
-              [0.6, 0.6],
-              [0.44999999999999996, 0.44999999999999996]
+              [
+                0.4866666666666667,
+                0.6433333333333333,
+                0.6499999999999999,
+                0.6333333333333333,
+                0.49666666666666665
+              ],
+              [
+                0.4533333333333333,
+                0.42666666666666664,
+                0.43999999999999995,
+                0.6433333333333333,
+                0.7366666666666666
+              ],
+              [0.15999999999999998, 0.16, 0.4, 0.53, 0.73]
             ]
           }
         }
       ],
-      "hidden": [
-        {
-          "inputs": {
-            "image": [[0.2, 0.8, 0.4]],
-            "weights": [[0.2, 0.6, 0.2]]
-          },
-          "expect": { "out": [[0.12, 0.48, 0.24]] }
-        }
-      ],
       "solution": [
-        "d = const[kind=direction,x=0,y=1]()",
-        "line = weightedLine(image,weights,d)",
-        "out <- line"
+        "r = shift[axis=x,by=forward](photo)",
+        "l = shift[axis=x,by=backward](photo)",
+        "s1 = arithmetic[op=add](photo,r)",
+        "s2 = arithmetic[op=add](s1,l)",
+        "three = const[value=3]()",
+        "m = arithmetic[op=div](s2,three)",
+        "out <- m"
       ],
       "naive": [
-        "d = const[kind=direction,x=0,y=1]()",
-        "minus = const[value=-1]()",
-        "negative = arithmetic[op=mul](d,minus)",
-        "line = weightedLine(image,weights,negative)",
-        "out <- line"
+        "r = shift[axis=x,by=forward](photo)",
+        "s = arithmetic[op=add](photo,r)",
+        "two = const[value=2]()",
+        "m = arithmetic[op=div](s,two)",
+        "out <- m"
       ],
       "naiveWhy": {
-        "zh": "交换前后读取方向会反转非对称权重的响应。用不对称权重检查上、下是否交换。",
-        "en": "Reversing the read direction reverses the response of asymmetric weights. Use unequal side weights to distinguish above and below."
+        "zh": "只和一边的邻居平均，整张图往那一边偏了半格：台阶的两侧不对称。",
+        "en": "Averaging with one neighbour only shifts the picture half a cell that way: each step comes out lopsided."
       },
-      "hint": [
-        {
-          "zh": "先用单个亮点观察响应是在同一行还是同一列展开；再用不对称权重检查上、下是否交换。无需手算数值。",
-          "en": "Use one impulse to see whether support spreads along its row or column, then asymmetric weights to check above/below order. Numerical calculation is automatic."
-        }
-      ],
-      "starter": ["d = const[kind=direction,x=0,y=1]()"],
-      "adds": ["weightedLine"],
-      "carries": true,
-      "intro": [
-        {
-          "t": {
-            "zh": "横向三格的加权关系已经验证。现在用三点加权器复用固定计算：权重整组接入，用电路里的方向常数 (0,1) 处理一列。预设元件不使用之前的电路。 <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>",
-            "en": "The horizontal three-sample relationship is established. Reuse the fixed computation with the weighted-line preset: connect the whole weight vector and use direction constant (0,1) for columns. The preset does not use the earlier circuit. <wiki-ref to=\"weighted-neighbourhood\"></wiki-ref>"
-          }
-        }
-      ],
       "sample": {
         "inputs": {
-          "image": {
-            "size": [32, 24],
+          "photo": {
+            "size": [48, 36],
             "base": 0.15,
             "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
             ],
-            "noise": { "seed": 17, "amp": 0.04 }
+            "noise": { "seed": 4, "amp": 0.15, "kind": "columns", "period": 3 }
           }
         }
       }

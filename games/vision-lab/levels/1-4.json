@@ -1,414 +1,151 @@
 {
-  "title": { "zh": "边缘以外没有观测", "en": "No observations beyond the border" },
+  "title": { "zh": "不一样重", "en": "Not all the same" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-3\"></level-ref>的卷积能解释亮点在图中央留下的形状。把亮点移到边缘，同一个核现在要读到图外，输出可能随假设而变。下面三批材料给出了不同的边缘校准读数。保留你的卷积，找出各批材料与哪种假设相符。",
-        "en": "The last convolution predicted the footprint of a bright spot in the middle. At the edge, the same kernel asks for readings beyond the frame, so different assumptions can produce different answers. Three materials come with measured edge traces. Keep your convolution and find an assumption that matches each trace. <level-ref to=\"1-3\"></level-ref>"
+        "zh": "相机的降噪中间重、四周轻；你的三点平均对三格一视同仁。",
+        "en": "The camera’s denoising weighs the centre more; your three-point average treats all three the same."
       }
     }
   ],
   "after": {
-    "zh": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]\n\nW、H 是原图宽高，rx、ry 是邻域的每轴半径，假定图像足够大。只保留邻域完整落在原图内的位置，就不必猜测图外值，但会缩小输出。补零、延续边缘、周期和镜像则是不同的图外假设，不能把差异都归咎于核。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-    "en": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]\n\nW and H are image dimensions, rx and ry the neighbourhood radii, assuming a sufficiently large image. Retaining only fully observed neighbourhoods avoids invented outside values but reduces output size. Zero, edge, periodic and reflected extensions are different assumptions, so output differences need not come from the kernel. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
+    "zh": "平均只是三个分量都等于三分之一的特例；每格乘上各自的分量再相加，叫<wiki-ref to=\"weighted-sum\"></wiki-ref>。",
+    "en": "An average is the case where all three shares are a third; multiplying each cell by its own share and adding is a <wiki-ref to=\"weighted-sum\"></wiki-ref>."
+  },
+  "builds": {
+    "type": "line3",
+    "name": { "zh": "三点加权", "en": "Three-point weighting" },
+    "desc": {
+      "zh": "每格和它前后两格按三个权重相加。方向可以选横或竖。",
+      "en": "Each cell and the two beside it added by three weights, across or down."
+    },
+    "task": "weights",
+    "settings": ["axis", "outside"],
+    "defaults": { "axis": "x", "outside": "clamp" }
   },
   "tasks": [
     {
-      "id": "v1_border_clamp",
+      "id": "weights",
       "kind": "circuit",
-      "step": {
-        "zh": "裁切的纸面",
-        "en": "Cropped paper"
-      },
-      "configurations": { "*.outside": ["clamp"] },
+      "carry": "1-1",
+      "step": { "zh": "给三格各自的分量", "en": "A share for each cell" },
       "brief": {
-        "zh": "同一片纸面被扫描窗口裁掉了一截。检查原图右端，以及它在目标结果里留下的读数。让内侧和边缘都通过。",
-        "en": "The scan window cut across a sheet of paper. Inspect the readings at the right edge and the trace they leave in the target. Match both the interior and the edge."
-      },
-      "after": {
-        "zh": "\\[I_{\\mathrm{ext}}[n]=I[\\min(\\max(n,0),N-1)]\\]\n\n对一条长度 N 的轴，图外位置读取最近边缘值；另一条轴同理。它假设边缘之外保持不变，所以不会产生补零带来的黑边，但可能延长边缘结构。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "\\[I_{\\mathrm{ext}}[n]=I[\\min(\\max(n,0),N-1)]\\]\n\nOn an axis of length N, outside indices read the nearest edge value; the other axis follows the same rule. This assumes constant continuation, avoiding a zero-padding edge while potentially extending edge structure. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-            ]
-          },
-          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
-          },
-          "expect": {
-            "out": [
-              [0.17500000000000002, 0.45, 0.775],
-              [0.5999999999999999, 0.44999999999999996, 0.45],
-              [0.35000000000000003, 0.6, 0.65]
-            ]
-          }
-        },
-        {
-          "inputs": { "image": [[0.2, 0.4, 0.7, 1], [0.1, 0.8, 0.5, 0.3]], "kernel": [[0, 0, 0, 0, 1]] },
-          "expect": { "out": [[0.2, 0.2, 0.2, 0.4], [0.1, 0.1, 0.1, 0.8]] }
-        }
-      ],
-      "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=clamp,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naiveWhy": {
-        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
-        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
+        "zh": "让三点平均按「权重」给左、中、右三格各自的分量。",
+        "en": "Let the three-point average give the left, centre and right cells the shares in “weights”."
       },
       "hint": [
         {
-          "zh": "先在目标图中找和上一块板不一致的边缘格，再对照输入最靠边的两格和另一端。",
-          "en": "Find an edge cell that disagrees with the previous board, then compare it with the nearest two input cells and the far end."
+          "zh": "权重是一行三个数：前、中、后。先把它拆开。",
+          "en": "The weights are a row of three: first, centre, last. Take it apart first."
         }
       ],
-      "adds": [],
-      "carry": "1-3",
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ]
-        }
-      }
-    },
-    {
-      "id": "v1_border_wrap",
-      "kind": "circuit",
-      "step": { "zh": "连续纹样", "en": "Continuous pattern" },
-      "configurations": { "*.outside": ["wrap"] },
-      "brief": {
-        "zh": "换成另一种纹样后，上一块板的中间读数仍然对，靠边却出现偏差。用两端不同的测试图找出边缘读数的来历。",
-        "en": "On the next pattern, the previous board still works in the middle but misses the edges. Use the test with different readings at the two ends to find where the edge values came from."
-      },
-      "after": {
-        "zh": "\\[I_{\\mathrm{ext}}[n]=I[n\\bmod N]\\]\n\n取模使用 0,…,N−1 的余数。超出一端就从另一端继续，等价于把每条轴首尾相接；两端本来不连续时，也会引入人为接缝。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "\\[I_{\\mathrm{ext}}[n]=I[n\\bmod N]\\]\n\nModulo uses a remainder in 0,…,N−1. Reading past one end continues at the other, joining the axis into a periodic loop. Mismatched endpoints can create an artificial seam. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
-      },
+      "adds": ["split3"],
+      "configurations": { "arithmetic.op": ["mul"], "const.kind": ["row3"] },
       "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+        { "name": "photo", "label": { "zh": "照片", "en": "Photo" } },
+        { "name": "weights", "label": { "zh": "权重", "en": "Weights" } }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "加权以后", "en": "Weighted" } }],
       "tests": [
         {
           "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-            ]
-          },
-          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
-          },
-          "expect": {
-            "out": [
-              [0.375, 0.45, 0.5750000000000001],
-              [0.5499999999999999, 0.44999999999999996, 0.5],
-              [0.45, 0.6, 0.55]
-            ]
-          }
-        },
-        {
-          "inputs": { "image": [[0.2, 0.4, 0.7, 1], [0.1, 0.8, 0.5, 0.3]], "kernel": [[0, 0, 0, 0, 1]] },
-          "expect": { "out": [[0.7, 1, 0.2, 0.4], [0.5, 0.3, 0.1, 0.8]] }
-        }
-      ],
-      "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=wrap,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naiveWhy": {
-        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
-        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
-      },
-      "hint": [
-        {
-          "zh": "先在目标图中找和上一块板不一致的边缘格，再对照输入最靠边的两格和另一端。",
-          "en": "Find an edge cell that disagrees with the previous board, then compare it with the nearest two input cells and the far end."
-        }
-      ],
-      "carries": true,
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ]
-        }
-      }
-    },
-    {
-      "id": "v1_border_reflect",
-      "kind": "circuit",
-      "step": { "zh": "条带的对称边", "en": "Symmetric strip edge" },
-      "configurations": { "*.outside": ["reflect"] },
-      "brief": {
-        "zh": "第三种材料在边缘附近有对称结构。只看离边缘一步的位置，可能与别的规则一样。找一个读到第二个图外位置的例子来区分。",
-        "en": "A third material has a symmetric structure near the edge. One step outside can agree with another rule. Use a case that reads a second step outside to distinguish them."
-      },
-      "after": {
-        "zh": "\\[\\begin{gathered}I_{\\mathrm{ext}}[-1]=I[0]\\\\I_{\\mathrm{ext}}[N]=I[N-1]\\end{gathered}\\]\n\n这是包含边缘格的镜像延续，随后继续按镜像顺序读回图内。它与周期相接或重复同一个边缘值不同，仍然是一项图外假设，并非新增观测。 <wiki-ref to=\"finite-boundaries\"></wiki-ref>",
-        "en": "\\[\\begin{gathered}I_{\\mathrm{ext}}[-1]=I[0]\\\\I_{\\mathrm{ext}}[N]=I[N-1]\\end{gathered}\\]\n\nThis reflection repeats the edge sample, then reads further samples in reflected order. It differs from wrapping or continually repeating a single edge value. It remains an outside-image assumption rather than new observation. <wiki-ref to=\"finite-boundaries\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "边界处理后", "en": "Boundary-aware result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-            ]
-          },
-          "expect": { "out": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] }
-        },
-        {
-          "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
-          },
-          "expect": {
-            "out": [
-              [0.17500000000000002, 0.45, 0.775],
-              [0.5999999999999999, 0.44999999999999996, 0.45],
-              [0.35000000000000003, 0.6, 0.65]
-            ]
-          }
-        },
-        {
-          "inputs": { "image": [[0.2, 0.4, 0.7, 1], [0.1, 0.8, 0.5, 0.3]], "kernel": [[0, 0, 0, 0, 1]] },
-          "expect": { "out": [[0.4, 0.2, 0.2, 0.4], [0.8, 0.1, 0.1, 0.8]] }
-        }
-      ],
-      "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=reflect,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
-      ],
-      "naiveWhy": {
-        "zh": "边界缺少真实读数，补 0 并不等于其他延续假设。常量图和非恒定边缘会区分它们。",
-        "en": "Missing neighbours are not observations. Zero extension differs from the specified assumption; constants and varied edges reveal it."
-      },
-      "hint": [
-        {
-          "zh": "先在目标图中找和上一块板不一致的边缘格，再对照输入最靠边的两格和另一端。",
-          "en": "Find an edge cell that disagrees with the previous board, then compare it with the nearest two input cells and the far end."
-        }
-      ],
-      "carries": true,
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ]
-        }
-      }
-    },
-    {
-      "id": "v1_valid",
-      "kind": "circuit",
-      "step": { "zh": "有效内部", "en": "Valid interior" },
-      "adds": ["trim"],
-      "brief": {
-        "zh": "另一台仪器只接收有完整邻域的结果。按给定半径确定哪些位置可以交付，并匹配输出宽高。",
-        "en": "Another instrument accepts results only where the whole neighbourhood is present. Use the supplied radii to identify the usable positions and match the output dimensions."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } },
-        { "name": "r", "type": "vector", "label": { "zh": "有效半径 r", "en": "Valid radii r" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "有效结果", "en": "Valid result" } }],
-      "tests": [
-        {
-          "inputs": {
-            "image": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]],
-            "kernel": [
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-              [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
+            "photo": [
+              [0.1, 0.16, 0.12, 0.17, 0.18, 0.06],
+              [0.05, 0.92, 0.8, 0.8, 0.95, 0.14],
+              [0.22, 0.85, 0.33, 0.23, 0.88, 0.22],
+              [0.15, 0.2, 0.18, 0.06, 0.2, 0.17]
             ],
-            "r": { "x": 1, "y": 1 }
+            "weights": [[0.25, 0.5, 0.25]]
           },
-          "expect": { "out": [[0.6, 0.6]] }
+          "expect": {
+            "out": [
+              [0.11500000000000002, 0.135, 0.14250000000000002, 0.16, 0.14750000000000002, 0.09],
+              [0.2675, 0.6725000000000001, 0.8300000000000001, 0.8375000000000001, 0.7100000000000001, 0.3425],
+              [0.3775, 0.5625, 0.435, 0.4175, 0.5525, 0.385],
+              [0.16249999999999998, 0.1825, 0.15500000000000003, 0.125, 0.1575, 0.17750000000000002]
+            ]
+          }
         },
         {
           "inputs": {
-            "image": [[0.1, 0.4, 0.9], [0.7, 0.3, 0.5], [0.2, 0.8, 0.6]],
-            "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]],
-            "r": { "x": 1, "y": 1 }
+            "photo": [
+              [0.01, 0.11, 0.39, 0.68, 0.14],
+              [0.11, 0.23, 0.76, 0.15, 0.74],
+              [0.66, 0.14, 0.54, 0.45, 0.41]
+            ],
+            "weights": [[0.1, 0.8, 0.1]]
           },
-          "expect": { "out": [[0.44999999999999996]] }
+          "expect": {
+            "out": [
+              [0.020000000000000004, 0.128, 0.39100000000000007, 0.5970000000000001, 0.19400000000000003],
+              [0.12200000000000001, 0.271, 0.6460000000000001, 0.27, 0.6809999999999999],
+              [0.6080000000000001, 0.23200000000000004, 0.49100000000000005, 0.455, 0.414]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.01, 0.11, 0.39, 0.68, 0.14],
+              [0.11, 0.23, 0.76, 0.15, 0.74],
+              [0.66, 0.14, 0.54, 0.45, 0.41]
+            ],
+            "weights": [[0, 1, 0]]
+          },
+          "expect": {
+            "out": [
+              [0.01, 0.11, 0.39, 0.68, 0.14],
+              [0.11, 0.23, 0.76, 0.15, 0.74],
+              [0.66, 0.14, 0.54, 0.45, 0.41]
+            ]
+          }
         }
       ],
-      "hidden": [],
+      "hidden": [
+        {
+          "inputs": {
+            "photo": [
+              [0.38, 0.23, 0.17, 0.91],
+              [0.58, 0.69, 0.55, 0.38],
+              [0.73, 0.58, 0.78, 0.66],
+              [0.84, 0.44, 0.16, 0.15]
+            ],
+            "weights": [[0.6, 0.3, 0.1]]
+          },
+          "expect": {
+            "out": [
+              [0.365, 0.314, 0.28, 0.466],
+              [0.591, 0.61, 0.617, 0.482],
+              [0.7150000000000001, 0.69, 0.6479999999999999, 0.732],
+              [0.8, 0.652, 0.327, 0.15600000000000003]
+            ]
+          }
+        }
+      ],
       "solution": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "t = trim(v,r)",
-        "out <- t"
+        "r = shift[axis=x,by=forward](photo)",
+        "l = shift[axis=x,by=backward](photo)",
+        "w = split3(weights)",
+        "a = arithmetic[op=mul](r,w.first)",
+        "b = arithmetic[op=mul](photo,w.centre)",
+        "c = arithmetic[op=mul](l,w.last)",
+        "s1 = arithmetic[op=add](a,b)",
+        "s2 = arithmetic[op=add](s1,c)",
+        "out <- s2"
       ],
       "naive": [
-        "k = reverse(kernel)",
-        "table = windowTable[outside=zero,axis=x](image,k)",
-        "weighted = arithmetic[op=mul](table.samples,table.weights)",
-        "summed = reduceRows[mode=sum](weighted)",
-        "v = restore(summed,image)",
-        "out <- v"
+        "r = shift[axis=x,by=forward](photo)",
+        "l = shift[axis=x,by=backward](photo)",
+        "s1 = arithmetic[op=add](photo,r)",
+        "s2 = arithmetic[op=add](s1,l)",
+        "three = const[value=3]()",
+        "m = arithmetic[op=div](s2,three)",
+        "out <- m"
       ],
       "naiveWhy": {
-        "zh": "有效输出的尺寸会缩小。换一种补边规则并不能产生这个更小的输出域。",
-        "en": "Valid output is smaller. Changing padding alone does not produce that output domain."
-      },
-      "hint": [
-        {
-          "zh": "比较输入和目标的左上角。它们是否仍然代表同一个位置？",
-          "en": "Compare the upper-left cell of the input and target. Do they still represent the same position?"
-        }
-      ],
-      "carries": true,
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "rect", "x": 0, "y": 0, "w": 9, "h": 14, "v": 0.85 },
-              { "shape": "ramp", "axis": "x", "from": 0.8, "to": 0.1 },
-              { "shape": "rect", "x": 0, "y": 6, "w": 3, "h": 9, "v": 0.2 },
-              { "shape": "rect", "x": 27, "y": 17, "w": 5, "h": 7, "v": 0.9 }
-            ]
-          },
-          "kernel": [
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04],
-            [0.04, 0.04, 0.04, 0.04, 0.04]
-          ],
-          "r": { "x": 2, "y": 2 }
-        }
+        "zh": "三格还是一样重：权重没有用上。",
+        "en": "The three cells still weigh the same: the weights go unused."
       }
     }
-  ],
-  "builds": {
-    "type": "spatialProcessor",
-    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
-    "desc": {
-      "zh": "运行所选形态的已通关电路，对图像应用给定核。",
-      "en": "Apply the supplied kernel using the passed board of the selected form."
-    },
-    "form": "dense",
-    "formLabel": { "zh": "通用", "en": "Dense" },
-    "task": "v1_border_reflect",
-    "settings": ["outside"],
-    "defaults": { "outside": "zero" }
-  }
+  ]
 }

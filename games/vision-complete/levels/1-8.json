@@ -1,154 +1,76 @@
 {
-  "title": { "zh": "黑框", "en": "Black frame" },
+  "title": { "zh": "拼出加权和", "en": "Build a weighted sum" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "亮点被处理成什么样，就是这种处理的「印章」：每个输入像素都盖一个，挪到对应位置、乘上权重再相加。把权重排成 3×3 的小方阵，就是核。",
+    "en": "Whatever a bright dot is turned into is the \"stamp\" of the processing: every input pixel presses one, moved to its place, multiplied by its weight and added up. Arrange the weights in a small 3×3 grid and you have a kernel."
+  },
   "intro": [
     {
       "t": {
-        "zh": "一块别人搭的去噪电路，输出四周一圈发黑。图的边上，滤波器要读的邻居有一些在图外。",
-        "en": "Someone else’s denoising circuit leaves a dark band round the edge of every output. At the edge, some of the neighbours the filter reads lie outside the picture."
+        "zh": "三点平均、方块模糊、差分，都是把挪了位置的几份原图乘上系数再加起来。换一组挪法和系数，就是另一种效果。",
+        "en": "The three-point average, the box blur and the differences all add up a few shifted copies of the picture, each multiplied by a number. A different set of shifts and numbers gives a different effect."
+      }
+    },
+    {
+      "t": {
+        "zh": "有人用这样一组挪法和系数处理了几张图，你只看得到输入和输出。第一组测试只有一个亮点。",
+        "en": "Someone processed a few pictures with such a set of shifts and numbers, and you can only see the inputs and outputs. The first test is a single bright dot."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：一个亮点进去", "en": "Set 1: one bright dot goes in" } }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：用平移、常数和四则运算，搭出同样的处理。要想的问题：一个亮点经过处理，变成了什么？",
+        "en": "Your task in this level: build the same processing out of shifts, constants, multiplications and additions. Something to think about: what does a single bright dot turn into?"
       }
     }
   ],
-  "after": {
-    "zh": "图外没有观测，滤波器只能假设那里是什么：补 0、延续边缘、循环、镜像，各是一种<wiki-ref to=\"border\"></wiki-ref>。对不对，看图外实际是什么。",
-    "en": "Nothing was observed outside the picture, so the filter can only assume what is there: zero, the edge continued, wrapped around, or mirrored, each a <wiki-ref to=\"border\"></wiki-ref>. Which is right depends on what really lies outside."
-  },
+  "unlocks": ["kernel3"],
   "tasks": [
     {
-      "id": "paper",
-      "kind": "circuit",
-      "step": { "zh": "单据", "en": "A document" },
+      "id": "1-8",
+      "kind": "graph",
       "brief": {
-        "zh": "单据四周是同样的纸。去掉黑框。",
-        "en": "The document is surrounded by more of the same paper. Remove the dark band."
+        "zh": "有人用一种邻居加权和处理了这些图。用平移、常数和四则运算，搭出同样的处理。",
+        "en": "Someone processed these images with a weighted sum of neighbours. Build the same processing out of shifts, constants, multiplications and additions."
       },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [
-        { "name": "out", "label": { "zh": "去噪", "en": "Denoised" } }
-      ],
-      "starter": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
+      "hint": {
+        "zh": "先看亮点那一组：一个亮点变成了几个点？各在哪里，各有多亮？",
+        "en": "Look at the bright dot first: how many dots did one dot turn into? Where is each, and how bright?"
+      },
+      "scene": "filter",
+      "setup": { "target": { "convolve": { "kernel": [0, 0.5, 0, 0, 0, 0, 0, 0, 0.5] } } },
       "tests": [
-        {
-          "inputs": {
-            "photo": [
-              [0.15, 0.15, 0.15, 0.15, 0.15, 0.15],
-              [0.15, 0.85, 0.85, 0.85, 0.85, 0.15],
-              [0.15, 0.85, 0.3, 0.3, 0.85, 0.15],
-              [0.15, 0.85, 0.85, 0.85, 0.85, 0.15],
-              [0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
-            ]
-          },
-          "expect": {
-            "out": [
-              [
-                0.22777777777777777,
-                0.3055555555555555,
-                0.3833333333333333,
-                0.3833333333333333,
-                0.3055555555555555,
-                0.22777777777777777
-              ],
-              [
-                0.3055555555555555,
-                0.39999999999999997,
-                0.4944444444444444,
-                0.4944444444444444,
-                0.39999999999999997,
-                0.3055555555555555
-              ],
-              [
-                0.3833333333333333,
-                0.5555555555555556,
-                0.7277777777777777,
-                0.7277777777777777,
-                0.5555555555555556,
-                0.3833333333333333
-              ],
-              [
-                0.3055555555555555,
-                0.39999999999999997,
-                0.4944444444444444,
-                0.4944444444444444,
-                0.39999999999999997,
-                0.3055555555555555
-              ],
-              [
-                0.22777777777777777,
-                0.3055555555555555,
-                0.3833333333333333,
-                0.3833333333333333,
-                0.3055555555555555,
-                0.22777777777777777
-              ]
-            ]
-          }
-        }
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
       ],
-      "hidden": [],
+      "hidden": [
+        {
+          "label": { "zh": "挪开的字母 T", "en": "Shifted letter T" },
+          "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 4 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 22 } } }
+      ],
       "solution": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=clamp](photo,k)",
-        "out <- f"
+        "kN = const[c=0.5]()",
+        "u = shift[dir=up](in)",
+        "r = shift[dir=right](in)",
+        "rd = shift[dir=down](r)",
+        "a = arith[op=add](u, rd)",
+        "k = arith[op=mul](a, kN)",
+        "out <- k"
       ],
       "naive": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
-      "naiveWhy": {
-        "zh": "图外取 0，等于假设纸外面是黑的。",
-        "en": "Reading zero outside assumes the paper is black beyond the edge."
-      },
-      "configurations": { "*.outside": ["zero", "clamp", "wrap", "reflect"] }
-    },
-    {
-      "id": "tiles",
-      "kind": "circuit",
-      "step": { "zh": "花砖", "en": "Tiles" },
-      "brief": {
-        "zh": "地砖的花纹一块块重复，照片正好拍下一整块。让边上和中间一样。",
-        "en": "The floor tiles repeat block after block, and the photo holds exactly one block. Make the edge match the middle."
-      },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [{ "name": "out", "label": { "zh": "去噪", "en": "Denoised" } }],
-      "starter": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
-      "tests": [
-        {
-          "inputs": {
-            "photo": [[0.2, 0.8, 0.5, 0.8], [0.8, 0.2, 0.8, 0.5], [0.5, 0.8, 0.2, 0.8], [0.8, 0.5, 0.8, 0.2]]
-          },
-          "expect": {
-            "out": [
-              [0.5333333333333333, 0.6, 0.5666666666666667, 0.6],
-              [0.6, 0.5333333333333333, 0.6, 0.5666666666666667],
-              [0.5666666666666667, 0.6, 0.5333333333333333, 0.6],
-              [0.6, 0.5666666666666667, 0.6, 0.5333333333333333]
-            ]
-          }
-        }
-      ],
-      "hidden": [],
-      "solution": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=wrap](photo,k)",
-        "out <- f"
-      ],
-      "naive": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3[outside=zero](photo,k)",
-        "out <- f"
-      ],
-      "naiveWhy": {
-        "zh": "花纹是重复的：图外接着的是另一边。",
-        "en": "The pattern repeats: beyond one edge comes the other side."
-      }
+        "kN = const[c=0.5]()",
+        "u = shift[dir=down](in)",
+        "r = shift[dir=left](in)",
+        "rd = shift[dir=up](r)",
+        "a = arith[op=add](u, rd)",
+        "k = arith[op=mul](a, kN)",
+        "out <- k"
+      ]
     }
   ]
 }

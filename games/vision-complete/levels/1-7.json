@@ -1,173 +1,66 @@
 {
-  "title": { "zh": "台阶在哪", "en": "Where the step is" },
+  "title": { "zh": "有噪声的边", "en": "A noisy edge" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "先平滑、再求导，噪声被压下去，真正的边留下来。这正是 Sobel 算子：一个方向求导，另一个方向平滑。",
+    "en": "Smooth first, then differentiate: the noise is pushed down and the real edge stays. This is exactly the Sobel operator: differentiate in one direction, smooth in the other."
+  },
   "intro": [
     {
       "t": {
-        "zh": "纸边是亮度的一道台阶。降噪把台阶抹平，得换一种权重把它找出来。",
-        "en": "A paper edge is a step in brightness. Denoising smooths the step away; different weights are needed to find it."
+        "zh": "真实的照片都带着<b>噪声</b>：光线暗时，传感器收到的光少，每格的数会随机地偏高或偏低一点。把夜里拍的照片放大，看到的颗粒就是它。",
+        "en": "Real photos always carry <b>noise</b>: in dim light the sensor receives little light, and each cell's number comes out randomly a little too high or too low. Zoom into a photo taken at night and the grain you see is noise."
       }
+    },
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-6\"></level-ref>的边缘检测在干净的图上很准。这一关的图里，每一格都在微微抖动，台阶两边本该平坦的地方也到处是小起伏。",
+        "en": "The edge detection from <level-ref to=\"1-6\"></level-ref> was accurate on clean images. In this level every cell jitters slightly, and the areas on either side of the step that should be flat are full of small bumps."
+      }
+    },
+    {
+      "t": {
+        "zh": "要想的问题：一个真正的台阶，和噪声造成的抖动，区别在哪里？",
+        "en": "Something to think about: how does a real step differ from the jitter caused by noise?"
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：只在真正的台阶处输出 1，其余输出 0。每组测试的台阶位置不同，都是左暗右亮。",
+        "en": "Your task in this level: output 1 only at the real step and 0 everywhere else. Each test has its step in a different place, always dark on the left and bright on the right."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：带噪声的台阶", "en": "Set 1: a noisy step" } }
     }
   ],
-  "after": {
-    "zh": "边缘处相邻两格差得多。右边减左边、下面减上面，正负说出了变亮还是变暗的方向，这叫<wiki-ref to=\"derivative\"></wiki-ref>。",
-    "en": "Neighbouring cells differ most at an edge. Right minus left, below minus above: the sign tells whether it brightens or darkens. This is a <wiki-ref to=\"derivative\"></wiki-ref>."
-  },
+  "unlocks": ["sobel"],
   "tasks": [
     {
-      "id": "steps",
-      "kind": "circuit",
+      "id": "1-7",
+      "kind": "graph",
       "brief": {
-        "zh": "输出两张图：横向的变化、竖向的变化。往右（往下）变亮为正。",
-        "en": "Output two pictures: the change across and the change down. Brightening rightwards (downwards) is positive."
+        "zh": "照片里有噪声。只在真正的台阶处输出 1（台阶都是左暗右亮）。",
+        "en": "The photo is noisy. Output 1 only at the real step (every step is dark on the left, bright on the right)."
       },
-      "hint": [
-        {
-          "zh": "整片同样亮的地方，两张图都应当是 0。三个权重加起来是多少？",
-          "en": "Where it is evenly bright, both should be 0. What do the three weights add up to?"
-        }
-      ],
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [
-        { "name": "gx", "label": { "zh": "横向变化", "en": "Change across" } },
-        { "name": "gy", "label": { "zh": "竖向变化", "en": "Change down" } }
-      ],
+      "hint": {
+        "zh": "差分会把噪声一起放大。在求差之前，能不能先让噪声安静下来？",
+        "en": "Taking a difference amplifies the noise too. Before you take the difference, can you quieten the noise first?"
+      },
+      "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
+      "check": { "tolerance": 0.5, "mismatches": 4 },
+      "scene": "noisyStep",
       "tests": [
-        {
-          "inputs": {
-            "photo": [
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
-              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
-              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
-              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0]
-            ],
-            "gy": [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [
-              [0.2, 0.2, 0.2, 0.2, 0.2],
-              [0.2, 0.2, 0.2, 0.2, 0.2],
-              [0.8, 0.8, 0.8, 0.8, 0.8],
-              [0.8, 0.8, 0.8, 0.8, 0.8],
-              [0.8, 0.8, 0.8, 0.8, 0.8]
-            ]
-          },
-          "expect": {
-            "gx": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]],
-            "gy": [
-              [0, 0, 0, 0, 0],
-              [
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001
-              ],
-              [
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001
-              ],
-              [0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [
-              [0.2, 0.2, 0.2, 0.2, 0.2, 0.8],
-              [0.2, 0.2, 0.2, 0.2, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.8, 0.8, 0.8, 0.8],
-              [0.2, 0.8, 0.8, 0.8, 0.8, 0.8]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [0, 0, 0, 0, 0.6000000000000001, 0.6000000000000001],
-              [0, 0, 0, 0.6000000000000001, 0.6000000000000001, 0],
-              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
-              [0, 0.6000000000000001, 0.6000000000000001, 0, 0, 0],
-              [0.6000000000000001, 0.6000000000000001, 0, 0, 0, 0]
-            ],
-            "gy": [
-              [0, 0, 0, 0, 0.6000000000000001, 0],
-              [0, 0, 0, 0.6000000000000001, 0.6000000000000001, 0],
-              [0, 0, 0.6000000000000001, 0.6000000000000001, 0, 0],
-              [0, 0.6000000000000001, 0.6000000000000001, 0, 0, 0],
-              [0, 0.6000000000000001, 0, 0, 0, 0]
-            ]
-          }
-        },
-        {
-          "inputs": { "photo": [[0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6], [0.6, 0.6, 0.6, 0.6]] },
-          "expect": {
-            "gx": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
-            "gy": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-          }
-        }
+        { "label": { "zh": "台阶 x=5", "en": "Step x=5" }, "edge": 5, "seed": 1 },
+        { "label": { "zh": "台阶 x=8", "en": "Step x=8" }, "edge": 8, "seed": 2 },
+        { "label": { "zh": "台阶 x=11", "en": "Step x=11" }, "edge": 11, "seed": 3 },
+        { "label": { "zh": "台阶 x=7", "en": "Step x=7" }, "edge": 7, "seed": 4 }
       ],
       "hidden": [
-        {
-          "inputs": {
-            "photo": [
-              [0.51, 0.45, 0.56, 0.38],
-              [0.83, 0.16, 0.45, 0.76],
-              [0.61, 0.91, 0.29, 0.36],
-              [0.3, 0.13, 0.08, 0.51]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [-0.06, 0.050000000000000044, -0.07, -0.18000000000000005],
-              [-0.6699999999999999, -0.37999999999999995, 0.6, 0.31],
-              [0.30000000000000004, -0.32, -0.55, 0.07],
-              [-0.16999999999999998, -0.21999999999999997, 0.38, 0.43]
-            ],
-            "gy": [
-              [0.31999999999999995, -0.29000000000000004, -0.11000000000000004, 0.38],
-              [0.09999999999999998, 0.46, -0.2700000000000001, -0.020000000000000018],
-              [-0.53, -0.03, -0.37, -0.25],
-              [-0.31, -0.78, -0.20999999999999996, 0.15000000000000002]
-            ]
-          }
-        }
+        { "label": { "zh": "新台阶 x=6", "en": "New step x=6" }, "edge": 6, "seed": 5 },
+        { "label": { "zh": "新台阶 x=9", "en": "New step x=9" }, "edge": 9, "seed": 7 },
+        { "label": { "zh": "新台阶 x=10", "en": "New step x=10" }, "edge": 10, "seed": 19 }
       ],
-      "solution": [
-        "w = const[kind=row3,first=-1,centre=0,last=1]()",
-        "x = line3[axis=x](photo,w)",
-        "y = line3[axis=y](photo,w)",
-        "gx <- x",
-        "gy <- y"
-      ],
-      "sample": {
-        "inputs": {
-          "photo": {
-            "size": [48, 36],
-            "base": 0.15,
-            "layers": [
-              {
-                "shape": "quad",
-                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
-                "v": 0.85
-              },
-              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
-            ]
-          }
-        }
-      }
+      "solution": ["b = box3(in)", "d = diffx(b)", "t = threshold[t=0.15](d)", "out <- t"],
+      "naive": ["d = diffx(in)", "t = threshold[t=0.15](d)", "out <- t"]
     }
   ]
 }

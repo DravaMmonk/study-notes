@@ -1,0 +1,199 @@
+{
+  "title": { "zh": "分拣机", "en": "Sorting machine" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "这台分拣机就是一个完整的分类网络：几个卷积通道找不同的笔画，ReLU 和池化让答案不怕挪位置，平均把每个通道变成一个特征，全连接给每类打分，Softmax 把分变成概率。它在没见过的新零件上也对，说明学到的是笔画，而不是背下了那几张图。",
+    "en": "This sorting machine is a complete classification network: a few convolution channels find different strokes, ReLU and pooling make the answer indifferent to position, averaging turns each channel into one feature, dense layers score each class, and the softmax turns scores into probabilities. It is right on new parts it has never seen, which shows it learned strokes rather than memorising a handful of pictures."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "分拣机正式上线：零件的位置、深浅都不一样，有的带噪点。最后几组是「新零件」，不参加训练，只用来检查。",
+        "en": "The sorter goes live: parts sit in different places, at different strengths, some with noise. The last few sets are \"new parts\" that take no part in training and are only checked."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：一个 X", "en": "Set 1: an X" } }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：输出三个概率，正确那一类大于 0.55，另两类小于 0.45。要想的问题：三类零件靠哪些笔画区分？网络要看出几种笔画？",
+        "en": "Your task in this level: output three probabilities, above 0.55 for the right class and below 0.45 for the other two. Something to think about: which strokes tell the three kinds apart? How many kinds of stroke must the network see?"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "4-21",
+      "kind": "graph",
+      "brief": {
+        "zh": "传送带上的零件有三种：X、O 和 +，位置、深浅都不一样，有的带噪点。输出三个概率，正确那一类要大于 0.55，另两类小于 0.45。列表最后的「新零件」不参加训练，只用来检查。",
+        "en": "The parts on the belt come in three kinds, X, O and +, at different places and strengths, some with noise. Output three probabilities: above 0.55 for the right class, below 0.45 for the other two. The \"new parts\" at the end of the list take no part in training and are only checked."
+      },
+      "hint": {
+        "zh": "一个卷积通道只能看出一种笔画，三类至少要几种？每一类的分，可以由每个通道的特征各给一点。搭好后多按几次训练，看两条误差线。",
+        "en": "One convolution channel can pick out only one kind of stroke; how many do three classes need at least? Each class's score can take a share from every channel's feature. Once built, train for a while and watch the two error lines."
+      },
+      "outputs": ["px", "po", "pp"],
+      "outputLabels": { "px": { "zh": "是 X", "en": "Is X" }, "po": { "zh": "是 O", "en": "Is O" }, "pp": { "zh": "是 +", "en": "Is +" } },
+      "check": { "tolerance": 0.45 },
+      "trainRate": 80,
+      "scene": "sorter",
+      "tests": [
+        { "label": { "zh": "X 1", "en": "X 1" }, "part": "X", "ox": 1, "oy": 2, "ink": 0.75, "seed": 0 },
+        { "label": { "zh": "X 2", "en": "X 2" }, "part": "X", "ox": 4, "oy": 3, "ink": 0.8, "seed": 0 },
+        { "label": { "zh": "X 3", "en": "X 3" }, "part": "X", "ox": 2, "oy": 5, "ink": 0.85, "seed": 0 },
+        { "label": { "zh": "X 4", "en": "X 4" }, "part": "X", "ox": 3, "oy": 1, "ink": 0.9, "seed": 10 },
+        { "label": { "zh": "O 1", "en": "O 1" }, "part": "O", "ox": 2, "oy": 4, "ink": 0.75, "seed": 0 },
+        { "label": { "zh": "O 2", "en": "O 2" }, "part": "O", "ox": 5, "oy": 5, "ink": 0.8, "seed": 0 },
+        { "label": { "zh": "O 3", "en": "O 3" }, "part": "O", "ox": 3, "oy": 1, "ink": 0.85, "seed": 0 },
+        { "label": { "zh": "O 4", "en": "O 4" }, "part": "O", "ox": 4, "oy": 3, "ink": 0.9, "seed": 11 },
+        { "label": { "zh": "+ 1", "en": "+ 1" }, "part": "P", "ox": 3, "oy": 0, "ink": 0.75, "seed": 0 },
+        { "label": { "zh": "+ 2", "en": "+ 2" }, "part": "P", "ox": 0, "oy": 1, "ink": 0.8, "seed": 0 },
+        { "label": { "zh": "+ 3", "en": "+ 3" }, "part": "P", "ox": 4, "oy": 3, "ink": 0.85, "seed": 0 },
+        { "label": { "zh": "+ 4", "en": "+ 4" }, "part": "P", "ox": 5, "oy": 5, "ink": 0.9, "seed": 12 },
+        {
+          "label": { "zh": "新零件 X 1", "en": "New part X 1" },
+          "part": "X",
+          "ox": 5,
+          "oy": 4,
+          "ink": 0.8,
+          "seed": 0,
+          "train": false
+        },
+        {
+          "label": { "zh": "新零件 X 2", "en": "New part X 2" },
+          "part": "X",
+          "ox": 2,
+          "oy": 2,
+          "ink": 0.8,
+          "seed": 20,
+          "train": false
+        },
+        {
+          "label": { "zh": "新零件 O 1", "en": "New part O 1" },
+          "part": "O",
+          "ox": 0,
+          "oy": 5,
+          "ink": 0.8,
+          "seed": 0,
+          "train": false
+        },
+        {
+          "label": { "zh": "新零件 O 2", "en": "New part O 2" },
+          "part": "O",
+          "ox": 3,
+          "oy": 3,
+          "ink": 0.8,
+          "seed": 21,
+          "train": false
+        },
+        {
+          "label": { "zh": "新零件 + 1", "en": "New part + 1" },
+          "part": "P",
+          "ox": 1,
+          "oy": 0,
+          "ink": 0.8,
+          "seed": 0,
+          "train": false
+        },
+        {
+          "label": { "zh": "新零件 + 2", "en": "New part + 2" },
+          "part": "P",
+          "ox": 4,
+          "oy": 4,
+          "ink": 0.8,
+          "seed": 22,
+          "train": false
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "另一批 X 1", "en": "Another batch X 1" },
+          "part": "X",
+          "ox": 3,
+          "oy": 4,
+          "ink": 0.85,
+          "seed": 0,
+          "train": false
+        },
+        {
+          "label": { "zh": "另一批 O 2", "en": "Another batch O 2" },
+          "part": "O",
+          "ox": 4,
+          "oy": 2,
+          "ink": 0.9,
+          "seed": 31,
+          "train": false
+        },
+        {
+          "label": { "zh": "另一批 + 3", "en": "Another batch + 3" },
+          "part": "P",
+          "ox": 1,
+          "oy": 1,
+          "ink": 0.8,
+          "seed": 0,
+          "train": false
+        }
+      ],
+      "solution": [
+        "c0 = lrnConv[w=[-0.0236, -0.0048, -0.0633, -0.018, -0.0454, -0.003, -0.0706, -0.0325, 0.0007]](in)",
+        "c1 = lrnConv[w=[5.1546, -4.7263, -5.2868, -4.453, 1.752, 1.256, -5.5956, 2.773, 1.3697]](in)",
+        "r0 = relu(c0)",
+        "r1 = relu(c1)",
+        "m0 = maxpool(r0)",
+        "m1 = maxpool(r1)",
+        "g0 = fqMean(m0)",
+        "g1 = fqMean(m1)",
+        "dx0 = lrnDense[p=[1.0007, -2.7474]](g0)",
+        "dx1 = lrnDense[p=[7.9509, -2.7457]](g1)",
+        "do0 = lrnDense[p=[-0.9993, 0.292]](g0)",
+        "do1 = lrnDense[p=[1.3535, 0.2911]](g1)",
+        "dp0 = lrnDense[p=[0.4991, 2.4436]](g0)",
+        "dp1 = lrnDense[p=[-8.7984, 2.444]](g1)",
+        "sx = arith[op=add](dx0, dx1)",
+        "so = arith[op=add](do0, do1)",
+        "sp = arith[op=add](dp0, dp1)",
+        "ex = exp(sx)",
+        "eo = exp(so)",
+        "ep = exp(sp)",
+        "s1 = arith[op=add](ex, eo)",
+        "s2 = arith[op=add](s1, ep)",
+        "qx = arith[op=div](ex, s2)",
+        "qo = arith[op=div](eo, s2)",
+        "qp = arith[op=div](ep, s2)",
+        "px <- qx",
+        "po <- qo",
+        "pp <- qp"
+      ],
+      "naive": [
+        "c0 = lrnConv(in)",
+        "c1 = lrnConv[w=[0.015, -0.01, 0.02, -0.02, 0.01, 0.005, -0.015, 0.02, -0.005]](in)",
+        "r0 = relu(c0)",
+        "r1 = relu(c1)",
+        "m0 = maxpool(r0)",
+        "m1 = maxpool(r1)",
+        "g0 = fqMean(m0)",
+        "g1 = fqMean(m1)",
+        "dx0 = lrnDense(g0)",
+        "dx1 = lrnDense(g1)",
+        "do0 = lrnDense[p=[-1, 0]](g0)",
+        "do1 = lrnDense[p=[-1, 0]](g1)",
+        "dp0 = lrnDense[p=[0.5, 0]](g0)",
+        "dp1 = lrnDense[p=[0.5, 0]](g1)",
+        "sx = arith[op=add](dx0, dx1)",
+        "so = arith[op=add](do0, do1)",
+        "sp = arith[op=add](dp0, dp1)",
+        "ex = exp(sx)",
+        "eo = exp(so)",
+        "ep = exp(sp)",
+        "s1 = arith[op=add](ex, eo)",
+        "s2 = arith[op=add](s1, ep)",
+        "qx = arith[op=div](ex, s2)",
+        "qo = arith[op=div](eo, s2)",
+        "qp = arith[op=div](ep, s2)",
+        "px <- qx",
+        "po <- qo",
+        "pp <- qp"
+      ]
+    }
+  ]
+}

@@ -2,42 +2,72 @@
   "presets": {
     "outside": {
       "control": "select",
-      "label": { "zh": "图外假设", "en": "Outside" },
+      "label": { "zh": "图外", "en": "Outside" },
       "options": [
-        { "value": "zero", "label": { "zh": "图外取 0", "en": "Zero" } },
-        { "value": "clamp", "label": { "zh": "延续边缘", "en": "Replicate edge" } },
-        { "value": "wrap", "label": { "zh": "周期延续", "en": "Periodic" } },
-        { "value": "reflect", "label": { "zh": "镜像延续", "en": "Reflect" } }
+        {
+          "value": "zero",
+          "label": { "zh": "取 0", "en": "Zero" },
+          "about": { "zh": "图外读作 0。", "en": "Outside reads as 0." }
+        },
+        {
+          "value": "clamp",
+          "label": { "zh": "延续边缘", "en": "Edge continued" },
+          "about": { "zh": "图外读最近的边上那一格。", "en": "Outside reads the nearest edge cell." }
+        },
+        {
+          "value": "wrap",
+          "label": { "zh": "循环", "en": "Wrap around" },
+          "about": { "zh": "图外接着另一边。", "en": "Outside continues from the opposite side." }
+        },
+        {
+          "value": "reflect",
+          "label": { "zh": "镜像", "en": "Mirror" },
+          "about": { "zh": "图外照着边缘镜像，边上那一格也算一次。", "en": "Outside mirrors the edge, the edge cell included." }
+        }
       ],
-      "default": "zero"
+      "default": "clamp"
     },
     "axis": {
       "control": "buttons",
-      "label": { "zh": "空间轴", "en": "Axis" },
+      "label": { "zh": "方向", "en": "Direction" },
       "options": [
-        { "value": "x", "label": { "zh": "横向", "en": "Horizontal" } },
-        { "value": "y", "label": { "zh": "纵向", "en": "Vertical" } }
+        { "value": "x", "label": { "zh": "横", "en": "Across" } },
+        { "value": "y", "label": { "zh": "竖", "en": "Down" } }
       ],
       "default": "x"
     }
   },
   "parts": {
-    "abs": {
-      "name": { "zh": "绝对值", "en": "Absolute value" },
+    "shift": {
+      "name": { "zh": "平移", "en": "Shift" },
       "desc": {
-        "zh": "逐值去掉正负号，保留大小。图像数值不截断。",
-        "en": "Remove the sign of each value, retaining its magnitude without clipping."
+        "zh": "把整张图沿横向或竖向挪一格：挪完以后，每格上放的是它旁边那一格的读数。",
+        "en": "Move the whole picture one cell across or down: afterwards each cell holds its neighbour’s reading."
       },
-      "icon": "Radical",
+      "icon": "Move",
       "family": "image",
-      "inputs": [{ "name": "a", "label": { "zh": "值", "en": "Value" } }],
-      "compute": "abs(a)"
+      "inputs": [{ "name": "image", "label": { "zh": "照片", "en": "Photo" } }],
+      "settings": [
+        { "key": "axis", "use": "axis" },
+        {
+          "key": "by",
+          "control": "buttons",
+          "label": { "zh": "往哪挪", "en": "Which way" },
+          "options": [
+            { "value": "forward", "label": { "zh": "往右（往下）", "en": "Right (down)" } },
+            { "value": "backward", "label": { "zh": "往左（往上）", "en": "Left (up)" } }
+          ],
+          "default": "forward"
+        },
+        { "key": "outside", "use": "outside" }
+      ],
+      "compute": "match $axis { x: match $by { forward: shift(image, vector2(-1, 0), outside=$outside), backward: shift(image, vector2(1, 0), outside=$outside) }, y: match $by { forward: shift(image, vector2(0, -1), outside=$outside), backward: shift(image, vector2(0, 1), outside=$outside) } }"
     },
     "arithmetic": {
       "name": { "zh": "四则运算", "en": "Arithmetic" },
       "desc": {
-        "zh": "按 a 运算 b，运算在元件上选定。图像按对应格逐值计算；图和数配对时，数用于每格。",
-        "en": "Compute a op b with the operation chosen on the part, cell by cell for images; a number paired with an image applies to every cell."
+        "zh": "a 和 b 逐格运算；一个数和一张图运算时，这个数用在每一格上。",
+        "en": "a and b cell by cell; a number with an image applies to every cell."
       },
       "icon": "Plus",
       "family": "value",
@@ -47,31 +77,26 @@
           "key": "op",
           "control": "buttons",
           "options": [
-            { "value": "add", "label": "+", "about": { "zh": "加：a + b。", "en": "Add: a + b." } },
-            { "value": "sub", "label": "−", "about": { "zh": "减：a − b。", "en": "Subtract: a − b." } },
-            { "value": "mul", "label": "×", "about": { "zh": "乘：a × b。", "en": "Multiply: a × b." } },
+            { "value": "add", "label": "+", "about": { "zh": "加。", "en": "Add." } },
+            { "value": "sub", "label": "−", "about": { "zh": "减。", "en": "Subtract." } },
+            { "value": "mul", "label": "×", "about": { "zh": "乘。", "en": "Multiply." } },
             {
               "value": "div",
               "label": "÷",
-              "about": {
-                "zh": "除：a ÷ b，除数为 0 时报告错误。",
-                "en": "Divide: a ÷ b; division by zero reports an error."
-              }
+              "about": { "zh": "除；除以 0 报错。", "en": "Divide; dividing by 0 stops." }
             }
           ],
           "default": "add"
         }
       ],
       "compute": "match $op { add: add(a, b), sub: sub(a, b), mul: mul(a, b), div: div(a, b) }",
-      "views": {
-        "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }]
-      }
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }] }
     },
     "const": {
       "name": { "zh": "常数", "en": "Constant" },
       "desc": {
-        "zh": "从一个口输出固定值。选择当前可用的类型，再填写对应的数值分量。",
-        "en": "Output one fixed value. Choose an available type and enter its numeric components."
+        "zh": "一个固定的值：一个数、一行三个权重，或一张 3×3 的核。",
+        "en": "A fixed value: a number, a row of three weights, or a 3×3 kernel."
       },
       "icon": "Hash",
       "family": "value",
@@ -80,391 +105,169 @@
         {
           "key": "kind",
           "control": "select",
-          "label": { "zh": "类型", "en": "Type" },
+          "label": { "zh": "种类", "en": "Kind" },
           "options": [
-            {
-              "value": "scalar",
-              "label": { "zh": "数值", "en": "Scalar" },
-              "about": { "zh": "数值：输出一个固定数。", "en": "Scalar: output one fixed number." }
-            },
-            {
-              "value": "direction",
-              "label": { "zh": "二维向量", "en": "2D vector" },
-              "about": {
-                "zh": "二维向量：填写 x、y，输出 (x,y)，可用作取样方向。",
-                "en": "2D vector: enter x/y to output (x,y), for example as a sampling direction."
-              }
-            },
-            {
-              "value": "weights",
-              "label": { "zh": "三项权重", "en": "Three weights" },
-              "about": {
-                "zh": "三项权重：按前、中、后填写，整组输出 [前,中,后]。",
-                "en": "Three weights: enter first/centre/last and output the whole weight vector."
-              }
-            },
-            {
-              "value": "weights5",
-              "label": { "zh": "五项权重", "en": "Five weights" },
-              "about": { "zh": "输入五项权重，输出一行。", "en": "Enter five weights to produce a row." }
-            }
+            { "value": "scalar", "label": { "zh": "一个数", "en": "A number" } },
+            { "value": "row3", "label": { "zh": "三个权重", "en": "Three weights" } },
+            { "value": "kernel3", "label": { "zh": "3×3 的核", "en": "A 3×3 kernel" } }
           ],
           "default": "scalar"
         },
         {
           "key": "value",
           "control": "number",
-          "label": { "zh": "数值", "en": "Value" },
+          "label": { "zh": "数", "en": "Value" },
           "default": 0,
           "when": "eq($kind, 'scalar')"
-        },
-        {
-          "key": "x",
-          "control": "number",
-          "label": { "zh": "x", "en": "x" },
-          "default": 1,
-          "when": "eq($kind, 'direction')"
-        },
-        {
-          "key": "y",
-          "control": "number",
-          "label": { "zh": "y", "en": "y" },
-          "default": 0,
-          "when": "eq($kind, 'direction')"
         },
         {
           "key": "first",
           "control": "number",
           "label": { "zh": "前", "en": "First" },
-          "default": 0.25,
-          "when": "eq($kind, 'weights')"
+          "default": 0,
+          "when": "eq($kind, 'row3')"
         },
         {
           "key": "centre",
           "control": "number",
           "label": { "zh": "中", "en": "Centre" },
-          "default": 0.5,
-          "when": "eq($kind, 'weights')"
+          "default": 0,
+          "when": "eq($kind, 'row3')"
         },
         {
           "key": "last",
           "control": "number",
           "label": { "zh": "后", "en": "Last" },
-          "default": 0.25,
-          "when": "eq($kind, 'weights')"
+          "default": 0,
+          "when": "eq($kind, 'row3')"
         },
         {
-          "key": "w1",
+          "key": "k1",
           "control": "number",
-          "label": { "zh": "权重 1", "en": "Weight 1" },
-          "default": 0.2,
-          "when": "eq($kind, 'weights5')"
+          "label": { "zh": "上左", "en": "top left" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
         },
         {
-          "key": "w2",
+          "key": "k2",
           "control": "number",
-          "label": { "zh": "权重 2", "en": "Weight 2" },
-          "default": 0.2,
-          "when": "eq($kind, 'weights5')"
+          "label": { "zh": "上中", "en": "top centre" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
         },
         {
-          "key": "w3",
+          "key": "k3",
           "control": "number",
-          "label": { "zh": "权重 3", "en": "Weight 3" },
-          "default": 0.2,
-          "when": "eq($kind, 'weights5')"
+          "label": { "zh": "上右", "en": "top right" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
         },
         {
-          "key": "w4",
+          "key": "k4",
           "control": "number",
-          "label": { "zh": "权重 4", "en": "Weight 4" },
-          "default": 0.2,
-          "when": "eq($kind, 'weights5')"
+          "label": { "zh": "中左", "en": "middle left" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
         },
         {
-          "key": "w5",
+          "key": "k5",
           "control": "number",
-          "label": { "zh": "权重 5", "en": "Weight 5" },
-          "default": 0.2,
-          "when": "eq($kind, 'weights5')"
+          "label": { "zh": "中中", "en": "middle centre" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
+        },
+        {
+          "key": "k6",
+          "control": "number",
+          "label": { "zh": "中右", "en": "middle right" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
+        },
+        {
+          "key": "k7",
+          "control": "number",
+          "label": { "zh": "下左", "en": "bottom left" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
+        },
+        {
+          "key": "k8",
+          "control": "number",
+          "label": { "zh": "下中", "en": "bottom centre" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
+        },
+        {
+          "key": "k9",
+          "control": "number",
+          "label": { "zh": "下右", "en": "bottom right" },
+          "default": 0,
+          "when": "eq($kind, 'kernel3')"
         }
       ],
-      "compute": "match $kind { scalar: $value, direction: vector2($x, $y), weights: weightVector($first, $centre, $last), weights5: weightRow5($w1, $w2, $w3, $w4, $w5) }"
+      "compute": "match $kind { scalar: $value, row3: weightVector($first, $centre, $last), kernel3: kernel3($k1, $k2, $k3, $k4, $k5, $k6, $k7, $k8, $k9) }"
     },
-    "cosine": {
-      "name": { "zh": "余弦", "en": "Cosine" },
+    "split3": {
+      "name": { "zh": "拆成三个数", "en": "Split in three" },
       "desc": {
-        "zh": "输入以周为单位的角度。输出 cos(2πa)：0 周为 1，1/4 周为 0，1/2 周为 −1。数或图逐值计算。",
-        "en": "Compute cos(2πa) for an angle in turns: 0 gives 1, 1/4 gives 0, 1/2 gives −1. Applies elementwise."
+        "zh": "一行三个权重拆成前、中、后三个数。",
+        "en": "A row of three weights taken apart into first, centre and last."
       },
-      "icon": "Waves",
-      "family": "image",
-      "inputs": [{ "name": "a", "label": { "zh": "角度（周）", "en": "Angle (turns)" } }],
-      "compute": "cosTurns(a)"
-    },
-    "expandRows": {
-      "name": { "zh": "展开遍历", "en": "Expand rows" },
-      "desc": {
-        "zh": "宽为 N 时，把原图每行重复 N 次。另给出每格的位置 x/N、当前重复的索引 k。每行计算一个结果后，用还原形状恢复原宽高。不生成波形或频谱。",
-        "en": "Repeat every source row N times, where N is its width. Also expose sample positions x/N and repetition indices k. Compute one result per row and restore shape. No waves or spectra are generated."
-      },
-      "icon": "Repeat",
-      "family": "image",
-      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
+      "icon": "Split",
+      "family": "value",
+      "inputs": [{ "name": "row", "label": { "zh": "一行三个", "en": "Row of three" } }],
       "outputs": [
-        { "name": "values", "label": { "zh": "重复读数", "en": "Repeated values" } },
-        { "name": "position", "label": { "zh": "位置 x/N", "en": "Position x/N" } },
-        { "name": "frequency", "label": { "zh": "索引 k", "en": "Index k" } }
+        { "name": "first", "label": { "zh": "前", "en": "First" } },
+        { "name": "centre", "label": { "zh": "中", "en": "Centre" } },
+        { "name": "last", "label": { "zh": "后", "en": "Last" } }
       ],
-      "compute": {
-        "values": "expandValues(image)",
-        "position": "expandPositions(image)",
-        "frequency": "expandIndices(image)"
-      }
+      "compute": { "first": "lookup(row, 0, 0)", "centre": "lookup(row, 1, 0)", "last": "lookup(row, 2, 0)" }
     },
-    "less": {
-      "name": { "zh": "小于", "en": "Less" },
+    "rows3": {
+      "name": { "zh": "拆成三行", "en": "Split into rows" },
       "desc": {
-        "zh": "a 小于 b 时给出 1，否则给出 0。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
-        "en": "Gives 1 where a is less than b, else 0. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+        "zh": "3×3 的核拆成上、中、下三行，每行三个权重。",
+        "en": "A 3×3 kernel taken apart into its top, middle and bottom rows of three weights."
       },
-      "icon": "ChevronsDown",
-      "family": "logic",
-      "inputs": [{ "name": "a" }, { "name": "b" }],
-      "compute": "less(a, b)"
+      "icon": "Layers",
+      "family": "value",
+      "inputs": [{ "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }],
+      "outputs": [
+        { "name": "top", "label": { "zh": "上", "en": "Top" } },
+        { "name": "middle", "label": { "zh": "中", "en": "Middle" } },
+        { "name": "bottom", "label": { "zh": "下", "en": "Bottom" } }
+      ],
+      "compute": { "top": "rowOf(kernel, 0)", "middle": "rowOf(kernel, 1)", "bottom": "rowOf(kernel, 2)" }
     },
     "magnitude": {
       "name": { "zh": "向量长度", "en": "Vector length" },
       "desc": {
-        "zh": "将 x、y 作为两个互相垂直的分量，计算 sqrt(x² + y²)。数值和同尺寸图都可使用。自动计算，不改变方向分量本身。",
-        "en": "Treat x and y as perpendicular components and compute sqrt(x² + y²). Works on numbers and matching images. The arithmetic is automatic; the components themselves remain unchanged."
+        "zh": "把 x、y 当成箭头的横竖两个分量，给出箭头的长度 √(x² + y²)。",
+        "en": "Taking x and y as an arrow’s two parts, the arrow’s length √(x² + y²)."
       },
       "icon": "Radical",
       "family": "value",
       "inputs": [{ "name": "x" }, { "name": "y" }],
       "compute": "hypot(x, y)"
     },
-    "max": {
-      "name": { "zh": "取大", "en": "Max" },
+    "angle": {
+      "name": { "zh": "方向", "en": "Direction" },
       "desc": {
-        "zh": "给出两者中大的那个。数和数、图和数、同样大小的两张图都行，逐个值算；灰度图和彩色图一起时，灰度的一格配彩色的三个通道。",
-        "en": "Gives the larger of the two. Numbers, an image and a number, or two images of one size, value by value; a grey image with a colour one gives each grey cell to all three channels."
+        "zh": "把 x、y 当成箭头的横竖两个分量，给出箭头指的方向，以周为单位：往右 0，往下 1/4，往上 −1/4。",
+        "en": "Taking x and y as an arrow’s two parts, the way it points, in turns: right 0, down 1/4, up −1/4."
       },
-      "icon": "MoveUp",
+      "icon": "ArrowRight",
       "family": "value",
-      "inputs": [{ "name": "a" }, { "name": "b" }],
-      "compute": "max(a, b)"
+      "inputs": [{ "name": "x" }, { "name": "y" }],
+      "compute": "angleTurns(y, x)"
     },
-    "positions": {
-      "name": { "zh": "行内位置", "en": "Row positions" },
-      "desc": {
-        "zh": "生成与图同尺寸的位置表：每行依次保存 0/N、1/N…(N−1)/N。保存的是位置，不是亮度。",
-        "en": "Generate a same-size position table containing 0/N, 1/N, …, (N−1)/N in each row. These are positions, not intensities."
-      },
-      "icon": "Ruler",
-      "family": "image",
-      "inputs": [{ "name": "image", "label": { "zh": "尺寸参照", "en": "Shape reference" } }],
-      "compute": "positions(image)"
-    },
-    "reduceRows": {
-      "name": { "zh": "逐行汇总", "en": "Reduce rows" },
-      "desc": {
-        "zh": "每行独立汇总，得到一列结果。数值计算自动完成，RGB 各通道分别处理。",
-        "en": "Reduce each row independently into a column. RGB channels are handled separately."
-      },
-      "icon": "Sigma",
-      "family": "image",
-      "inputs": [{ "name": "image", "label": { "zh": "表", "en": "Table" } }],
-      "settings": [
-        {
-          "key": "mode",
-          "control": "buttons",
-          "label": { "zh": "汇总", "en": "Reduction" },
-          "options": [
-            {
-              "value": "mean",
-              "label": { "zh": "平均", "en": "Mean" },
-              "about": { "zh": "平均：一行的和再除以该行宽度。", "en": "Mean: the row's sum divided by its width." }
-            },
-            {
-              "value": "sum",
-              "label": { "zh": "求和", "en": "Sum" },
-              "about": { "zh": "求和：把一行的读数加起来。", "en": "Sum: add up the row's readings." }
-            }
-          ],
-          "default": "mean"
-        }
-      ],
-      "compute": "reduceRows(image, mode=$mode)"
-    },
-    "restore": {
-      "name": { "zh": "还原形状", "en": "Restore shape" },
-      "desc": {
-        "zh": "输入是一列逐位置结果，按原来的行序还原为“尺寸参照”的宽高。只排布数据，不做计算。",
-        "en": "Arrange a column of per-position results into the reference width and height in row order. No arithmetic is performed."
-      },
-      "icon": "Braces",
-      "family": "image",
-      "inputs": [
-        { "name": "values", "label": { "zh": "逐位置结果", "en": "Per-position results" } },
-        { "name": "shape", "label": { "zh": "尺寸参照", "en": "Shape reference" } }
-      ],
-      "compute": "restoreShape(values, shape)"
-    },
-    "reverse": {
-      "name": { "zh": "翻转核", "en": "Reverse table" },
-      "desc": {
-        "zh": "把表旋转 180 度：行序和每行的次序一起反转。不会对图像做滤波。",
-        "en": "Rotate a table 180 degrees, reversing both axes. No filtering is performed."
-      },
-      "icon": "ArrowRightLeft",
-      "family": "image",
-      "inputs": [{ "name": "image", "label": { "zh": "表", "en": "Table" } }],
-      "compute": "reverse(image)"
-    },
-    "shift": {
-      "name": { "zh": "偏移取样", "en": "Offset read" },
-      "desc": {
-        "zh": "输出位置 (x,y) 读取输入的 (x+dx,y+dy)。dx 向右、dy 向下为正，须为整数。只改变读取的位置，不改变亮度；图外遵循所选规则。",
-        "en": "Output (x,y) reads input (x+dx,y+dy). Integer dx is positive right, dy down. Values are unchanged; outside reads use the selected rule."
-      },
-      "icon": "Move",
-      "family": "image",
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "d", "label": { "zh": "位移 d", "en": "Offset d" } }
-      ],
-      "settings": [{ "key": "outside", "use": "outside" }],
-      "compute": "shift(image, d, outside=$outside)"
-    },
-    "size": {
-      "name": { "zh": "尺寸", "en": "Size" },
-      "desc": { "zh": "给出图的宽 w 和高 h。", "en": "Gives an image’s width w and height h." },
-      "icon": "Maximize2",
-      "family": "image",
-      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
-      "outputs": [{ "name": "w" }, { "name": "h" }],
-      "compute": { "w": "width(image)", "h": "height(image)" }
-    },
-    "transpose": {
-      "name": { "zh": "行列互换", "en": "Transpose" },
-      "desc": {
-        "zh": "交换图像的行和列。原来的 (x,y) 成为 (y,x)，宽高互换，数值和通道不变。",
-        "en": "Exchange rows and columns: (x,y) becomes (y,x). Width and height swap; values and channels remain unchanged."
-      },
-      "icon": "ArrowLeftRight",
-      "family": "image",
-      "inputs": [{ "name": "image", "label": { "zh": "图", "en": "Image" } }],
-      "compute": "transpose(image)"
-    },
-    "trim": {
-      "name": { "zh": "有效内部", "en": "Valid interior" },
-      "desc": {
-        "zh": "横向两端各去掉 rx 列，纵向两端各去掉 ry 行。用于显示邻域完全位于原图内的输出。宽高由系统计算。",
-        "en": "Remove rx columns at each horizontal edge and ry rows at each vertical edge, exposing outputs whose neighbourhood stays inside. Dimensions are computed automatically."
-      },
-      "icon": "Crop",
-      "family": "image",
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "r", "label": { "zh": "半径 r", "en": "Radii r" } }
-      ],
-      "compute": "trim(image, r)"
-    },
-    "windowTable": {
-      "name": { "zh": "展开邻域", "en": "Unfold windows" },
-      "desc": {
-        "zh": "核的中心依次对齐每个输出位置。每个位置展开为一行：读数表与权重表按核的书写顺序一一对应。保留 RGB 通道；不翻核、不相乘、不求和。",
-        "en": "Centre the kernel at each output location. Each location becomes a row of samples and matching written-order weights. RGB is retained. No kernel reversal, multiplication or summation is performed."
-      },
-      "icon": "Grid3x3",
-      "family": "image",
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kernel", "label": { "zh": "权重表", "en": "Weights" } }
-      ],
-      "outputs": [
-        { "name": "samples", "label": { "zh": "读数", "en": "Samples" } },
-        { "name": "weights", "label": { "zh": "权重", "en": "Weights" } }
-      ],
-      "settings": [{ "key": "axis", "use": "axis" }, { "key": "outside", "use": "outside" }],
-      "compute": {
-        "samples": "windowSamples(image, kernel, axis=$axis, outside=$outside)",
-        "weights": "windowWeights(image, kernel)"
-      }
-    },
-    "weightedLine": {
-      "name": { "zh": "三点加权器", "en": "Weighted line" },
-      "desc": {
-        "zh": "权重向量按 [前, 中, 后] 排列，读取 -d、当前位置、+d。d=(1,0) 横向，(0,1) 纵向。权重不自动归一化，保留符号和通道；图外遵循所选规则。",
-        "en": "Read at -d, the current position and +d with weights [first, centre, last]. d=(1,0) is horizontal and (0,1) vertical. Preserve signs and channels without normalising weights; use the selected border rule."
-      },
-      "icon": "Sigma",
-      "family": "image",
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "weights", "label": { "zh": "权重向量", "en": "Weight vector" } },
-        { "name": "d", "label": { "zh": "方向 d", "en": "Direction d" } }
-      ],
-      "settings": [{ "key": "outside", "use": "outside" }],
-      "compute": "weightedLine(image, weights, d, outside=$outside)"
-    },
-    "difference": {
-      "name": { "zh": "差异比较器", "en": "Difference comparator" },
-      "desc": { "zh": "逐位置计算两张图的绝对差。", "en": "Compute the absolute difference at each image position." },
-      "family": "image",
-      "icon": "Sigma",
-      "inputs": [
-        { "name": "a", "label": { "zh": "图 A", "en": "Image A" } },
-        { "name": "b", "label": { "zh": "图 B", "en": "Image B" } }
-      ],
-      "compute": "abs(sub(a,b))"
-    },
-    "gaussianWeights": {
-      "name": { "zh": "高斯权重", "en": "Gaussian weights" },
-      "desc": {
-        "zh": "选择尺度，输出归一化的一维高斯权重行。",
-        "en": "Choose a scale to produce a normalised Gaussian weight row."
-      },
-      "family": "image",
-      "icon": "Sigma",
-      "inputs": [],
-      "settings": [
-        {
-          "key": "scale",
-          "control": "select",
-          "label": { "zh": "尺度", "en": "Scale" },
-          "options": [
-            { "value": "narrow", "label": { "zh": "窄（0.45）", "en": "Narrow (0.45)" } },
-            { "value": "medium", "label": { "zh": "中（0.8）", "en": "Medium (0.8)" } },
-            { "value": "wide", "label": { "zh": "宽（1.4）", "en": "Wide (1.4)" } }
-          ],
-          "default": "narrow"
-        }
-      ],
-      "compute": "match $scale { narrow: gaussianRow(0.45), medium: gaussianRow(0.8), wide: gaussianRow(1.4) }"
-    },
-    "totalDifference": {
-      "name": { "zh": "总差", "en": "Total difference" },
-      "desc": {
-        "zh": "把灰度差值图的所有读数加成一个分数。",
-        "en": "Sum the readings of a greyscale difference map into a single score."
-      },
-      "icon": "Sigma",
-      "family": "value",
-      "inputs": [{ "name": "image" }],
-      "compute": "lookup(reduceRows(transpose(reduceRows(image, mode='sum')), mode='sum'), 0, 0)"
-    },
-    "chooseDifference": {
-      "name": { "zh": "选择差值图", "en": "Select a difference map" },
-      "desc": {
-        "zh": "条件非零时输出第一张图，否则输出第二张图。",
-        "en": "Output the first map for a nonzero condition, otherwise the second."
-      },
-      "icon": "GitBranch",
+    "less": {
+      "name": { "zh": "比较", "en": "Compare" },
+      "desc": { "zh": "a 小于 b 的格子给 1，其余给 0。", "en": "1 where a is less than b, else 0." },
+      "icon": "Scale",
       "family": "logic",
-      "inputs": [{ "name": "condition" }, { "name": "first" }, { "name": "second" }],
-      "compute": "select(condition, first, second)"
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "less(a, b)"
     }
   }
 }

@@ -1,402 +1,154 @@
 {
-  "title": { "zh": "给方向响应装上抗干扰结构", "en": "Stabilise directional responses" },
+  "title": { "zh": "黑框", "en": "Black frame" },
   "intro": [
     {
       "t": {
-        "zh": "两条有符号的读数解释了变化方向，但有些边缘同时在两个方向上有响应。把方向分量变成一项强度后，再看带细纹的台阶：干净图上可用的读数，在噪声里会晃动。",
-        "en": "The two signed readings describe direction, and some edges respond along both axes. After combining those readings into a single strength, inspect a step with a fine pattern: a measurement that works on a clean image can fluctuate in noise."
+        "zh": "一块别人搭的去噪电路，输出四周一圈发黑。图的边上，滤波器要读的邻居有一些在图外。",
+        "en": "Someone else’s denoising circuit leaves a dark band round the edge of every output. At the edge, some of the neighbours the filter reads lie outside the picture."
       }
     }
   ],
   "after": {
-    "zh": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx、gy 是 Sobel 的两个带符号分量，M 是它们的长度。平方后相加再开方，让横向和纵向贡献不会因正负相反而抵消。Sobel 在求差分的垂直方向做平滑来减轻干扰，但 M 仍只是变化证据，不代表已识别物体。 <wiki-ref to=\"sobel-measurement\"></wiki-ref>",
-    "en": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx and gy are the signed Sobel components; M is their length. Squaring before addition prevents opposite signs from cancelling. Sobel smooths perpendicular to differentiation to reduce nuisance, but M is evidence of change, not object recognition. <wiki-ref to=\"sobel-measurement\"></wiki-ref>"
+    "zh": "图外没有观测，滤波器只能假设那里是什么：补 0、延续边缘、循环、镜像，各是一种<wiki-ref to=\"border\"></wiki-ref>。对不对，看图外实际是什么。",
+    "en": "Nothing was observed outside the picture, so the filter can only assume what is there: zero, the edge continued, wrapped around, or mirrored, each a <wiki-ref to=\"border\"></wiki-ref>. Which is right depends on what really lies outside."
   },
   "tasks": [
     {
-      "id": "v1_strength",
+      "id": "paper",
       "kind": "circuit",
-      "step": {
-        "zh": "先合并方向强度",
-        "en": "Measure directional strength"
-      },
-      "stage": { "zh": "梯度强度", "en": "Gradient strength" },
+      "step": { "zh": "单据", "en": "A document" },
       "brief": {
-        "zh": "保留两个带符号的读数，再交付一张强度图。对比反向台阶，强度应相同；两方向都有变化时，不能彼此抵消。",
-        "en": "Keep both signed readings and produce a strength image. Opposite steps should have the same strength, and simultaneous changes along the two axes must not cancel."
+        "zh": "单据四周是同样的纸。去掉黑框。",
+        "en": "The document is surrounded by more of the same paper. Remove the dark band."
       },
-      "after": {
-        "zh": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx、gy 是互相垂直的变化分量。它们构成一个二维向量，M 是长度；长度不受分量符号影响，而 gx+gy 可能把强变化相互抵消。 <wiki-ref to=\"gradient-components\"></wiki-ref>",
-        "en": "\\[M=\\sqrt{g_x^2+g_y^2}\\]\n\ngx and gy are perpendicular change components. Together they form a vector whose length is M. Length does not cancel opposite signs, whereas gx+gy can hide strong change. <wiki-ref to=\"gradient-components\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } }
-      ],
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
       "outputs": [
-        { "name": "gx", "label": { "zh": "横向响应", "en": "Horizontal response" } },
-        { "name": "gy", "label": { "zh": "纵向响应", "en": "Vertical response" } },
-        { "name": "strength", "label": { "zh": "变化强度", "en": "Gradient strength" } }
+        { "name": "out", "label": { "zh": "去噪", "en": "Denoised" } }
+      ],
+      "starter": [
+        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "f = filter3[outside=zero](photo,k)",
+        "out <- f"
       ],
       "tests": [
         {
           "inputs": {
-            "image": [
-              [0, 0, 1],
-              [
-                0,
-                1,
-                1
-              ]
+            "photo": [
+              [0.15, 0.15, 0.15, 0.15, 0.15, 0.15],
+              [0.15, 0.85, 0.85, 0.85, 0.85, 0.15],
+              [0.15, 0.85, 0.3, 0.3, 0.85, 0.15],
+              [0.15, 0.85, 0.85, 0.85, 0.85, 0.15],
+              [0.15, 0.15, 0.15, 0.15, 0.15, 0.15]
             ]
           },
           "expect": {
-            "gx": [
-              [0, 0.5, 0.5],
-              [0.5, 0.5, 0]
-            ],
-            "gy": [
+            "out": [
               [
-                0,
-                0.5,
-                0
+                0.22777777777777777,
+                0.3055555555555555,
+                0.3833333333333333,
+                0.3833333333333333,
+                0.3055555555555555,
+                0.22777777777777777
               ],
-              [0, 0.5, 0]
-            ],
-            "strength": [
-              [0, 0.7071067811865476, 0.5],
-              [0.5, 0.7071067811865476, 0]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [
-              [0.8, 0.1],
-              [0.2, 0.7],
-              [0.9, 0.4]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [-0.35000000000000003, -0.35000000000000003],
-              [0.24999999999999997, 0.24999999999999997],
-              [-0.25, -0.25]
-            ],
-            "gy": [
-              [-0.30000000000000004, 0.3],
-              [0.04999999999999999, 0.15000000000000002],
-              [0.35, -0.14999999999999997]
-            ],
-            "strength": [
-              [0.46097722286464443, 0.4609772228646444],
-              [0.2549509756796392, 0.291547594742265],
-              [0.4301162633521313, 0.291547594742265]
+              [
+                0.3055555555555555,
+                0.39999999999999997,
+                0.4944444444444444,
+                0.4944444444444444,
+                0.39999999999999997,
+                0.3055555555555555
+              ],
+              [
+                0.3833333333333333,
+                0.5555555555555556,
+                0.7277777777777777,
+                0.7277777777777777,
+                0.5555555555555556,
+                0.3833333333333333
+              ],
+              [
+                0.3055555555555555,
+                0.39999999999999997,
+                0.4944444444444444,
+                0.4944444444444444,
+                0.39999999999999997,
+                0.3055555555555555
+              ],
+              [
+                0.22777777777777777,
+                0.3055555555555555,
+                0.3833333333333333,
+                0.3833333333333333,
+                0.3055555555555555,
+                0.22777777777777777
+              ]
             ]
           }
         }
       ],
       "hidden": [],
       "solution": [
-        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
-        "dy = transpose(dx)",
-        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
-        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
-        "m = magnitude(v,vY)",
-        "gx <- v",
-        "gy <- vY",
-        "strength <- m"
+        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "f = filter3[outside=clamp](photo,k)",
+        "out <- f"
       ],
       "naive": [
-        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
-        "dy = transpose(dx)",
-        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
-        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
-        "m = arithmetic[op=add](v,vY)",
-        "gx <- v",
-        "gy <- vY",
-        "strength <- m"
+        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "f = filter3[outside=zero](photo,k)",
+        "out <- f"
       ],
       "naiveWhy": {
-        "zh": "同时看两个方向都有变化的位置，以及符号相反的位置。保留分量是为了区分方向，长度负责合并强度。",
-        "en": "Inspect locations changing in both directions and with opposite signs. Components retain direction; length combines strength."
+        "zh": "图外取 0，等于假设纸外面是黑的。",
+        "en": "Reading zero outside assumes the paper is black beyond the edge."
       },
-      "adds": ["magnitude"],
-      "carry": "1-7",
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          }
-        }
-      }
+      "configurations": { "*.outside": ["zero", "clamp", "wrap", "reflect"] }
     },
     {
-      "id": "v1_sobel",
+      "id": "tiles",
       "kind": "circuit",
-      "step": {
-        "zh": "组合方向与强度",
-        "en": "Compose responses"
-      },
-      "stage": { "zh": "垂直平滑", "en": "Perpendicular smoothing" },
+      "step": { "zh": "花砖", "en": "Tiles" },
       "brief": {
-        "zh": "让两路读数在细纹干扰下保持稳定，同时保留干净台阶的响应。给定平滑权重，决定怎样使用它们，再匹配方向分量与强度。",
-        "en": "Stabilise both responses in the presence of fine texture while retaining the clean step response. Decide how to use the supplied smoothing weights, then match both components and the strength."
+        "zh": "地砖的花纹一块块重复，照片正好拍下一整块。让边上和中间一样。",
+        "en": "The floor tiles repeat block after block, and the photo holds exactly one block. Make the edge match the middle."
       },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } }
-      ],
-      "outputs": [
-        { "name": "gx", "label": { "zh": "Sobel gx", "en": "Sobel gx" } },
-        { "name": "gy", "label": { "zh": "Sobel gy", "en": "Sobel gy" } },
-        { "name": "strength", "label": { "zh": "变化强度", "en": "Gradient strength" } }
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "去噪", "en": "Denoised" } }],
+      "starter": [
+        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "f = filter3[outside=zero](photo,k)",
+        "out <- f"
       ],
       "tests": [
         {
           "inputs": {
-            "image": [
-              [0.05, 0.05, 0.05, 0.75, 0.75],
-              [
-                0.15000000000000002,
-                0.15000000000000002,
-                0.15000000000000002,
-                0.8500000000000001,
-                0.8500000000000001
-              ],
-              [0.05, 0.05, 0.05, 0.75, 0.75],
-              [
-                0.15000000000000002,
-                0.15000000000000002,
-                0.15000000000000002,
-                0.8500000000000001,
-                0.8500000000000001
-              ]
-            ]
+            "photo": [[0.2, 0.8, 0.5, 0.8], [0.8, 0.2, 0.8, 0.5], [0.5, 0.8, 0.2, 0.8], [0.8, 0.5, 0.8, 0.2]]
           },
           "expect": {
-            "gx": [
-              [0, 0, 1.4, 1.4, 0],
-              [0, 0, 1.4, 1.4, 0],
-              [0, 0, 1.4000000000000001, 1.4000000000000001, 0],
-              [0, 0, 1.4000000000000001, 1.4000000000000001, 0]
-            ],
-            "gy": [
-              [
-                0.20000000000000004,
-                0.20000000000000004,
-                0.20000000000000007,
-                0.20000000000000015,
-                0.20000000000000018
-              ],
-              [0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0],
-              [
-                0.20000000000000004,
-                0.20000000000000004,
-                0.20000000000000007,
-                0.20000000000000015,
-                0.20000000000000018
-              ]
-            ],
-            "strength": [
-              [
-                0.20000000000000004,
-                0.20000000000000004,
-                1.414213562373095,
-                1.414213562373095,
-                0.20000000000000018
-              ],
-              [0, 0, 1.4, 1.4, 0],
-              [0, 0, 1.4000000000000001, 1.4000000000000001, 0],
-              [
-                0.20000000000000004,
-                0.20000000000000004,
-                1.4142135623730951,
-                1.4142135623730951,
-                0.20000000000000018
-              ]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [
-              [0, 0, 0],
-              [0.1, 0.1, 0.1],
-              [0.2, 0.2, 0.2],
-              [0.30000000000000004, 0.30000000000000004, 0.30000000000000004]
-            ]
-          },
-          "expect": {
-            "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            "gy": [
-              [0.2, 0.2, 0.2],
-              [0.4, 0.4, 0.4],
-              [0.4000000000000001, 0.4000000000000001, 0.4000000000000001],
-              [0.20000000000000007, 0.20000000000000007, 0.20000000000000007]
-            ],
-            "strength": [
-              [0.2, 0.2, 0.2],
-              [0.4, 0.4, 0.4],
-              [0.4000000000000001, 0.4000000000000001, 0.4000000000000001],
-              [0.20000000000000007, 0.20000000000000007, 0.20000000000000007]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.8, 0.4, 0.1], [0.7, 0.3, 0]]
-          },
-          "expect": {
-            "gx": [[-0.8, -1.4, -0.6000000000000001], [-0.7999999999999999, -1.4, -0.6]],
-            "gy": [
-              [-0.20000000000000015, -0.20000000000000007, -0.2],
-              [-0.20000000000000015, -0.20000000000000007, -0.2]
-            ],
-            "strength": [
-              [0.8246211251235321, 1.414213562373095, 0.632455532033676],
-              [0.824621125123532, 1.414213562373095, 0.6324555320336759]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.5, 0.5, 0.5, 0.5],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.5, 0.5, 0.5, 0.5],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.5, 0.5, 0.5, 0.5]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [0, 0, 1.05, 1.05, 0, 0, 0],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [0, 0, 0.75, 0.75, 0, 0, 0]
-            ],
-            "gy": [
-              [
-                0,
-                0,
-                -0.15000000000000002,
-                -0.45000000000000007,
-                -0.6000000000000001,
-                -0.6000000000000001,
-                -0.6000000000000001
-              ],
-              [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0, 0],
-              [
-                0,
-                0,
-                -0.15000000000000002,
-                -0.45000000000000007,
-                -0.6000000000000001,
-                -0.6000000000000001,
-                -0.6000000000000001
-              ]
-            ],
-            "strength": [
-              [
-                0,
-                0,
-                1.0606601717798214,
-                1.1423659658795864,
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001
-              ],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [0, 0, 0.9, 0.9, 0, 0, 0],
-              [
-                0,
-                0,
-                0.7648529270389177,
-                0.8746427842267951,
-                0.6000000000000001,
-                0.6000000000000001,
-                0.6000000000000001
-              ]
+            "out": [
+              [0.5333333333333333, 0.6, 0.5666666666666667, 0.6],
+              [0.6, 0.5333333333333333, 0.6, 0.5666666666666667],
+              [0.5666666666666667, 0.6, 0.5333333333333333, 0.6],
+              [0.6, 0.5666666666666667, 0.6, 0.5333333333333333]
             ]
           }
         }
       ],
-      "hidden": [
-        {
-          "inputs": {
-            "image": [[0.5, 0.5, 0.5], [0.5, 0.5, 0.5], [0.5, 0.5, 0.5]]
-          },
-          "expect": {
-            "gx": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            "gy": [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
-            "strength": [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-          }
-        }
-      ],
+      "hidden": [],
       "solution": [
-        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
-        "dy = transpose(dx)",
-        "sx = const[kind=weights,first=1,centre=2,last=1]()",
-        "sy = transpose(sx)",
-        "v = spatialProcessor[form=separable,outside=clamp](image,dx,sy)",
-        "vY = spatialProcessor[form=separable,outside=clamp](image,sx,dy)",
-        "m = magnitude(v,vY)",
-        "gx <- v",
-        "gy <- vY",
-        "strength <- m"
+        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "f = filter3[outside=wrap](photo,k)",
+        "out <- f"
       ],
       "naive": [
-        "dx = const[kind=weights,first=0.5,centre=0,last=-0.5]()",
-        "dy = transpose(dx)",
-        "v = spatialProcessor[form=dense,outside=clamp](image,dx)",
-        "vY = spatialProcessor[form=dense,outside=clamp](image,dy)",
-        "m = magnitude(v,vY)",
-        "gx <- v",
-        "gy <- vY",
-        "strength <- m"
+        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "f = filter3[outside=zero](photo,k)",
+        "out <- f"
       ],
       "naiveWhy": {
-        "zh": "Sobel 在求导的垂直方向平滑。沿求导方向再次平滑会改变你要测量的响应。",
-        "en": "Sobel smooths perpendicular to differentiation. Smoothing along the derivative axis changes the intended measurement."
-      },
-      "adds": [],
-      "carries": true,
-      "sample": {
-        "inputs": {
-          "image": {
-            "size": [32, 24],
-            "base": 0.15,
-            "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
-            ],
-            "noise": { "seed": 17, "amp": 0.04 }
-          }
-        }
-      },
-      "starter": ["sx = const[kind=weights,first=1,centre=2,last=1]()", "sy = transpose(sx)"],
-      "hint": [
-        {
-          "zh": "分开检查两个方向。对比台阶延伸的方向与亮度突变的方向，哪一种平滑会跨过台阶？",
-          "en": "Inspect the directions separately. Compare the direction the edge extends with the direction brightness changes. Which smoothing would cross the step?"
-        }
-      ]
+        "zh": "花纹是重复的：图外接着的是另一边。",
+        "en": "The pattern repeats: beyond one edge comes the other side."
+      }
     }
   ]
 }

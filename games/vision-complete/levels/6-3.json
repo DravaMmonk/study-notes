@@ -1,0 +1,48 @@
+{
+  "title": { "zh": "一个角一个点", "en": "One point per corner" },
+  "tray": "geometry",
+  "after": {
+    "zh": "响应图一过门槛就是一片，片里只有峰顶是真正的角。先算响应、再找峰，是所有检测器的固定套路：角点、直线、物体框都这样。",
+    "en": "Above a threshold the response is a patch, and only its top is the real corner. Response first, then peaks: every detector follows this routine, for corners, lines and object boxes alike."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"own-6-2\"></part-ref>在比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。",
+        "en": "The <part-ref to=\"own-6-2\"></part-ref> in the tray outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere."
+      }
+    },
+    {
+      "t": { "zh": "这一关你要做的：每个角只输出一个点。", "en": "Your task in this level: output a single point per corner." },
+      "fig": { "test": 1, "caption": { "zh": "字母 L", "en": "Letter L" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "6-3",
+      "kind": "graph",
+      "brief": {
+        "zh": "每个角只输出一个点：Harris 响应乘 2 以后，峰顶输出 1。",
+        "en": "Output a single point per corner: after multiplying the Harris response by 2, output 1 at its tops."
+      },
+      "hint": { "zh": "门槛只能留下一块一块，每个角留下好几格。", "en": "A threshold leaves blobs: several cells per corner." },
+      "views": { "in": "pixels", "out": "pixels", "mid": "terrain" },
+      "scene": "filter",
+      "setup": { "target": { "cornerPeaks": { "gain": 2, "above": 0.3 } } },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
+        { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } },
+        { "label": { "zh": "两个方块", "en": "Two squares" }, "in": { "rects": { "rects": [[2, 2, 5, 5], [9, 8, 5, 6]] } } }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "字母 T", "en": "Letter T" },
+          "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 3 } }
+        },
+        { "label": { "zh": "一个角", "en": "One corner" }, "in": { "corner": { "x0": 5, "y0": 7 } } }
+      ],
+      "solution": ["gk = const[c=2]()", "h = harris(in)", "g = arith[op=mul](h, gk)", "p = own-6-2(g)", "out <- p"],
+      "naive": ["h = harris(in)", "t = threshold[t=0.22](h)", "out <- t"]
+    }
+  ]
+}

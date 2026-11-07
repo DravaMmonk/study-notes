@@ -1,801 +1,177 @@
 {
-  "englishNamesInChinese": true,
   "groups": [
-    {
-      "id": "image",
-      "title": {
-        "zh": "视觉术语",
-        "en": "Vision terms"
-      }
-    }
+    { "id": "pixels", "title": { "zh": "像素", "en": "Pixels" } },
+    { "id": "filtering", "title": { "zh": "滤波", "en": "Filtering" } },
+    { "id": "edges", "title": { "zh": "边缘", "en": "Edges" } }
   ],
   "entries": [
     {
-      "id": "image-difference",
-      "group": "image",
-      "title": {
-        "zh": "图像差分",
-        "en": "Image differencing"
-      },
-      "at": "0-4",
-      "body": [
-        {
-          "zh": "图像差分在对应位置和通道比较读数。带符号的差保留变化方向，绝对差保留变化大小。数值和位置是不同信息，图像算术逐位置执行。",
-          "en": "Image differencing compares corresponding locations and channels. Signed difference retains direction; absolute difference retains size. Values and positions are distinct; image arithmetic acts at matching locations."
-        },
-        {
-          "zh": "\\[d=O-R,\\qquad D=|d|\\]",
-          "en": "\\[d=O-R,\\qquad D=|d|\\]"
-        },
-        {
-          "zh": "O 为观测图，R 为参照图。d 和 D 分别表示对应位置、对应通道的带符号差和绝对差。",
-          "en": "O is the observed image and R the reference. At matching positions and channels, d is the signed difference and D its magnitude."
-        },
-        {
-          "zh": "常见误解：只留下正变化，或把负数显示成黑色就认为没有变化。",
-          "en": "Common misconception: Keeping only positive changes, or treating clipped negative display values as no change."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; L3 PDF pp6–7 (point operations); absolute value is mathematical support",
-          "en": "Source: docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; L3 PDF pp6–7 (point operations); absolute value is mathematical support"
-        }
-      ]
-    },
-    {
-      "id": "spatial-correspondence",
-      "group": "image",
-      "title": { "zh": "空间对应", "en": "Spatial correspondence" },
-      "at": "0-7",
-      "body": [
-        {
-          "zh": "逐位置比较需要同一场景位置对应。这里约定输出 (x,y) 读取输入 (x+dx,y+dy)，x 向右、y 向下为正；有限图像之外的值来自边界假设。",
-          "en": "Pointwise comparison requires corresponding scene locations. Here output (x,y) reads input (x+dx,y+dy), with x right and y down. Outside values follow an explicit boundary assumption."
-        },
-        {
-          "zh": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}S(x,y)=O(x+d_x,y+d_y)\\\\D(x,y)=|S(x,y)-R(x,y)|\\end{gathered}\\]"
-        },
-        {
-          "zh": "S 是按偏移 (dx, dy) 读取的观测图，R 是参照图，D 是对齐后的绝对差。",
-          "en": "S is the observed image read at offset (dx, dy), R is the reference, and D is the aligned absolute difference."
-        },
-        {
-          "zh": "常见误解：给像素值加 dx 就是在移动图像。 <wiki-ref to=\"pixel\"></wiki-ref>",
-          "en": "Common misconception: Adding dx to pixel values moves the image. <wiki-ref to=\"pixel\"></wiki-ref>"
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; spatial-read convention is a declared task assumption",
-          "en": "Source: docs/Unimelb/26S2/CV/02-basics.md PDF pp22–26; spatial-read convention is a declared task assumption"
-        }
-      ]
-    },
-    {
-      "id": "decision-evidence",
-      "group": "image",
-      "title": {
-        "zh": "测量与判定",
-        "en": "Measurement and decision"
-      },
-      "at": "0-6",
-      "body": [
-        {
-          "zh": "测量输出保留变化量，判定根据任务给定的准则将证据转为标记。阈值比较不是对物体语义或缺陷成因的推断。",
-          "en": "Measurements retain change values; a task criterion turns evidence into a decision mask. Thresholding does not infer object meaning or defect cause."
-        },
-        {
-          "zh": "\\[M(x,y)=\\begin{cases}1,&D(x,y)>\\tau\\\\0,&D(x,y)\\le\\tau\\end{cases}\\]",
-          "en": "\\[M(x,y)=\\begin{cases}1,&D(x,y)>\\tau\\\\0,&D(x,y)\\le\\tau\\end{cases}\\]"
-        },
-        {
-          "zh": "D 是对齐后的差异大小，τ 是容差，M 是超差标记。恰好等于容差时取 0。",
-          "en": "D is the aligned difference magnitude, τ the tolerance, and M the flag. Equality produces 0."
-        },
-        {
-          "zh": "常见误解：测量值本身就是缺陷类别，或者零与非零足以处理所有读数波动。",
-          "en": "Common misconception: Treating measurements as defect classes, or assuming every nonzero change must fail."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/02-basics.md image arrays; L3 point operations; inspection/tolerance is a controlled application",
-          "en": "Source: docs/Unimelb/26S2/CV/02-basics.md image arrays; L3 point operations; inspection/tolerance is a controlled application"
-        }
-      ]
-    },
-    {
-      "id": "weighted-neighbourhood",
-      "group": "image",
-      "title": { "zh": "线性邻域运算", "en": "Linear neighbourhood operation" },
+      "id": "pixel",
+      "group": "pixels",
+      "title": { "zh": "像素", "en": "pixel" },
       "at": "1-1",
       "body": [
         {
-          "zh": "线性局部运算把邻域的对应读数与权重相乘后相加。位置和符号有意义；对恒定输入，权重和决定输出增益。",
-          "en": "A linear local operation sums position-matched weighted readings. Positions and signs matter; the weight sum determines constant-input gain."
-        },
-        {
-          "zh": "\\[\\begin{aligned}Y(p)={}&w_-I(p-d)+w_0I(p)\\\\&+w_+I(p+d)\\end{aligned}\\]",
-          "en": "\\[\\begin{aligned}Y(p)={}&w_-I(p-d)+w_0I(p)\\\\&+w_+I(p+d)\\end{aligned}\\]"
-        },
-        {
-          "zh": "p 是当前位置，d 是读取方向，三个权重依次对应前方、中心和后方的读数。",
-          "en": "p is the current position and d the read direction. The weights multiply the preceding, centre and following samples."
-        },
-        {
-          "zh": "常见误解：交换左右权重不会改变结果，或者所有权重都必须为正并且总和为 1。",
-          "en": "Common misconception: Swapping side weights has no effect, or all filters must have positive unit-sum weights."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp8–18,21–23",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp8–18,21–23"
+          "zh": "一张数字照片是一格格的数，每一格叫一个像素：灰度图一格一个数，越大越亮；彩色图一格三个数（红、绿、蓝）。坐标从左上角 (0, 0) 起，x 向右、y 向下。COMP90086 第 2 讲。",
+          "en": "A digital photo is a grid of numbers; each cell is a pixel. A grey image has one number a cell, larger being brighter; a colour image three (red, green, blue). Coordinates start at (0, 0) in the top left, x to the right and y downwards. COMP90086 lecture 2."
         }
       ]
     },
     {
-      "id": "filter-separability",
-      "group": "image",
-      "title": { "zh": "可分离滤波", "en": "Separable filtering" },
-      "at": "1-5",
+      "id": "neighbourhood-average",
+      "group": "filtering",
+      "title": { "zh": "邻域平均", "en": "neighbourhood average" },
+      "at": "1-1",
       "body": [
         {
-          "zh": "若二维核是两个一维权重向量的外积，可以先后沿两轴计算，减少每个像素的加权次数。非可分离核不能直接这样替代；有限图像要保持相同边界与输出域。 <wiki-ref to=\"pixel\"></wiki-ref>",
-          "en": "An outer-product kernel can be applied as consecutive 1D passes, reducing weighted samples per pixel. Nonseparable kernels cannot be replaced this way, and boundaries/domains must agree. <wiki-ref to=\"pixel\"></wiki-ref>"
-        },
-        {
-          "zh": "\\[K(u,v)=h(u)h(v)\\]",
-          "en": "\\[K(u,v)=h(u)h(v)\\]"
-        },
-        {
-          "zh": "u 和 v 是两轴偏移。此式是两轴都使用同一组一维权重 h 时的外积。",
-          "en": "u and v are offsets along the two axes. This is the outer product when both axes use the same one-dimensional weights h."
-        },
-        {
-          "zh": "常见误解：两条轴各处理一次再相加就等于二维平均。",
-          "en": "Common misconception: Adding independent axis outputs is a 2D average."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp37–40",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp37–40"
+          "zh": "每格换成它和周围几格的平均。各格独立的噪声互相抵消一部分，成片的东西留下；代价是细节也被抹平一些。第 3 讲。",
+          "en": "Each cell replaced by the average of itself and the cells around it. Noise that differs from cell to cell partly cancels while larger shapes stay; the price is that fine detail is smoothed too. Lecture 3."
         }
       ]
     },
     {
-      "id": "local-kernel",
-      "group": "image",
-      "title": { "zh": "互相关与局部核", "en": "Correlation and local kernels" },
+      "id": "separable",
+      "group": "filtering",
+      "title": { "zh": "可分离", "en": "separable" },
       "at": "1-2",
       "body": [
         {
-          "zh": "互相关将书写核按中心对齐邻域，保持核的书写方向，计算对应元素乘积之和。核尺寸决定支持域，权重决定响应。",
-          "en": "Correlation centres a written kernel without reversing it and sums matching products. Kernel size determines support; weights determine response."
-        },
-        {
-          "zh": "\\[\\begin{gathered}Y(x,y)=\\sum_{u,v}K(u,v)\\,I(x+u,y+v)\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}Y(x,y)=\\sum_{u,v}K(u,v)\\,I(x+u,y+v)\\end{gathered}\\]"
-        },
-        {
-          "zh": "K 是核，I 是输入图像。求和遍历核覆盖的所有偏移 (u, v)。",
-          "en": "K is the kernel and I the input image. The sum runs over all offsets (u, v) covered by the kernel."
-        },
-        {
-          "zh": "常见误解：权重乘完之后还要再平均一次，或表中每行是一整张新图。",
-          "en": "Common misconception: Averaging after weighting, or treating each table row as a separate full image."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp9–18,31–35",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp9–18,31–35"
+          "zh": "一个二维的权重表能写成「一列权重 × 一行权重」时，它就是可分离的：先横着用一行权重做一次，再竖着用一列权重做一次，结果相同、乘法更少。方块平均和高斯都可分离；锐化、拉普拉斯不行。第 3 讲。",
+          "en": "A two-dimensional table of weights is separable when it is a column of weights times a row of weights: one pass across with the row and one down with the column give the same result with fewer multiplications. The box average and the Gaussian are separable; sharpening and the Laplacian are not. Lecture 3."
         }
       ]
     },
     {
-      "id": "convolution-orientation",
-      "group": "image",
-      "title": { "zh": "卷积核方向", "en": "Convolution orientation" },
+      "id": "impulse-response",
+      "group": "filtering",
+      "title": { "zh": "冲激响应", "en": "impulse response" },
       "at": "1-3",
       "body": [
         {
-          "zh": "数学离散卷积使用反转的核，相比互相关需将核旋转 180 度。非对称核揭示方向差别；对称核会隐藏它。",
-          "en": "Discrete mathematical convolution reverses the kernel: rotate it 180 degrees relative to correlation. Asymmetric kernels reveal the difference; symmetric ones hide it."
-        },
-        {
-          "zh": "\\[\\begin{gathered}(I*K)(x,y)\\\\=\\sum_{u,v}K(u,v)\\,I(x-u,y-v)\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}(I*K)(x,y)\\\\=\\sum_{u,v}K(u,v)\\,I(x-u,y-v)\\end{gathered}\\]"
-        },
-        {
-          "zh": "I 是输入图像，K 是核。式中的负偏移对应核的翻转。",
-          "en": "I is the input and K the kernel. Negative offsets correspond to reversing the kernel."
-        },
-        {
-          "zh": "常见误解：对称模糊结果一致，就认为卷积和互相关没有区别。",
-          "en": "Common misconception: Assuming convolution and correlation are identical because symmetric blurs agree."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp17–18",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp17–18"
+          "zh": "只有一格是 1、其余都是 0 的输入叫冲激；一台加权求和的滤波器对它的输出叫冲激响应，它摆出了滤波器给每个邻居的分量（按互相关计算时上下左右颠倒）。第 3 讲。",
+          "en": "An input that is 1 in one cell and 0 elsewhere is an impulse; a weighted-sum filter’s output for it is its impulse response, which lays out the share it gives each neighbour (turned 180° when the filter computes correlation). Lecture 3."
         }
       ]
     },
     {
-      "id": "smoothing-detail",
-      "group": "image",
-      "title": { "zh": "高斯平滑与细节增强", "en": "Gaussian smoothing and detail enhancement" },
+      "id": "weighted-sum",
+      "group": "filtering",
+      "title": { "zh": "加权和", "en": "weighted sum" },
+      "at": "1-4",
+      "body": [
+        {
+          "zh": "每个量乘上自己的权重再相加。平均是所有权重相等、加起来为 1 的加权和；权重可以是负数，这时那一项是减去的。第 3 讲。",
+          "en": "Each quantity times its own weight, all added. An average is a weighted sum whose weights are equal and add up to 1; a weight can be negative, which subtracts its term. Lecture 3."
+        }
+      ]
+    },
+    {
+      "id": "kernel",
+      "group": "filtering",
+      "title": { "zh": "核", "en": "kernel" },
+      "at": "1-5",
+      "body": [
+        {
+          "zh": "滤波器用的权重表，常见的是 3×3 或 5×5。中心那格对应当前像素，其余对应它的邻居。第 3 讲。",
+          "en": "The table of weights a filter uses, commonly 3×3 or 5×5. The centre cell stands for the current pixel and the rest for its neighbours. Lecture 3."
+        }
+      ]
+    },
+    {
+      "id": "filter",
+      "group": "filtering",
+      "title": { "zh": "滤波器", "en": "filter" },
+      "at": "1-5",
+      "body": [
+        {
+          "zh": "把核的中心对准每一个像素，用核给它周围的像素加权求和，得到这一格的新值。同一张核用在整张图上，所以叫线性、平移不变的滤波。第 3 讲。",
+          "en": "Centre the kernel on every pixel and take the sum of the pixels around it weighted by the kernel: that is the cell’s new value. One kernel is used over the whole image, which makes the filtering linear and shift-invariant. Lecture 3."
+        }
+      ]
+    },
+    {
+      "id": "correlation",
+      "group": "filtering",
+      "title": { "zh": "互相关", "en": "correlation" },
       "at": "1-6",
       "body": [
         {
-          "zh": "离散高斯样本可归一化为平滑核，尺度和支持域影响响应。非锐化增强把带符号的高频细节加回原图；不能保证恢复真实场景。",
-          "en": "Normalised sampled Gaussian weights form a smoother whose scale and support affect response. Unsharp enhancement adds signed high-frequency detail back to the original; it does not guarantee scene recovery."
-        },
-        {
-          "zh": "\\[D=I-S,\\qquad E=I+\\alpha D\\]",
-          "en": "\\[D=I-S,\\qquad E=I+\\alpha D\\]"
-        },
-        {
-          "zh": "I 是原图，S 是平滑图。D 保留细节的正负，α 控制加回多少细节，E 是增强结果。",
-          "en": "I is the original image and S the smoothed image. D retains signed detail, α controls how much is added back, and E is the enhanced image."
-        },
-        {
-          "zh": "常见误解：平滑只删除噪声，或增强可以用绝对差代替带符号差。",
-          "en": "Common misconception: Smoothing removes only noise, or absolute difference can replace signed detail for enhancement."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp24–28,35",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp24–28,35"
+          "zh": "核的左上角乘左上方的邻居：按核写下的样子直接对上去求加权和。冲激经过互相关，出来的是核转了 180°。第 3 讲。",
+          "en": "The kernel’s top left weighs the neighbour up and to the left: the weighted sum with the kernel laid on as written. An impulse through correlation comes out as the kernel turned 180°. Lecture 3."
         }
       ]
     },
     {
-      "id": "finite-boundaries",
-      "group": "image",
-      "title": { "zh": "边界规则与有效输出", "en": "Boundary rules and valid outputs" },
-      "at": "0-7",
+      "id": "convolution",
+      "group": "filtering",
+      "title": { "zh": "卷积", "en": "convolution" },
+      "at": "1-6",
       "body": [
         {
-          "zh": "有限图像没有图外观测，补边只是对图外的一种猜测，各适合不同的材料：补 0 最简单，但可能造出黑边；复制最近边缘对普通照片通常较自然；周期延续把左右、上下相接，适合可以无缝平铺的纹理，不适合普通照片；镜像延续让边缘两侧对称，常能减少人工边界。没有一种规则永远最好。valid 只保留完整邻域，因此输出尺寸依核支持缩小。",
-          "en": "Finite images have no outside observations, so padding is a guess about the outside, each suiting different material: zero is simplest but can create dark borders; replicating the nearest edge is usually natural for ordinary photographs; periodic continuation joins left to right and top to bottom, suiting seamlessly tileable textures but not ordinary photographs; reflection mirrors the edge and often reduces artificial borders. No rule is always best. Valid output keeps full neighbourhoods and shrinks with support."
-        },
-        {
-          "zh": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}W_{\\mathrm{valid}}=W-2r_x\\\\H_{\\mathrm{valid}}=H-2r_y\\end{gathered}\\]"
-        },
-        {
-          "zh": "W、H 是原图宽高，rx、ry 是邻域在两轴上的半径。图像足够大时，两端各裁掉一个半径。",
-          "en": "W and H are the input dimensions, and rx and ry are the neighbourhood radii. For a sufficiently large image, one radius is cropped at each end."
-        },
-        {
-          "zh": "常见误解：所有补边只影响外观，或保持原宽高的补边等于 valid。",
-          "en": "Common misconception: Padding only affects appearance, or same-size padding is equivalent to valid output."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp41–45",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp41–45"
+          "zh": "先把核转 180°，再做互相关。冲激经过卷积，出来的就是核本身。对称的核两者一样；不对称的核（浮雕）效果颠倒。第 3 讲。",
+          "en": "Turn the kernel 180°, then correlate. An impulse through convolution comes out as the kernel itself. A symmetric kernel gives the same either way; an asymmetric one (emboss) comes out reversed. Lecture 3."
         }
       ]
     },
     {
-      "id": "gradient-components",
-      "group": "image",
-      "title": { "zh": "图像梯度分量", "en": "Image gradient components" },
-      "at": "1-7",
-      "body": [
-        {
-          "zh": "图像梯度由两条空间轴的偏导数组成，离散差分近似它们。分量的正负保留变化方向，核约定与坐标方向必须明确。",
-          "en": "An image gradient contains derivatives along both spatial axes, approximated by differences. Signs retain direction; kernel and coordinate conventions must be explicit."
-        },
-        {
-          "zh": "\\[\\nabla I=(g_x,g_y)\\]",
-          "en": "\\[\\nabla I=(g_x,g_y)\\]"
-        },
-        {
-          "zh": "gx、gy 分别是沿 x 和 y 方向的带符号变化率。在离散图像中用差分核近似。",
-          "en": "gx and gy are the signed rates of change along x and y. Difference kernels approximate them on sampled images."
-        },
-        {
-          "zh": "常见误解：把同一张变化图当作两个方向，或者忽略负响应。",
-          "en": "Common misconception: Using one response for both axes, or discarding negative responses."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42"
-        }
-      ]
-    },
-    {
-      "id": "sobel-measurement",
-      "group": "image",
-      "title": { "zh": "Sobel 与梯度强度", "en": "Sobel and gradient strength" },
+      "id": "border",
+      "group": "filtering",
+      "title": { "zh": "边界假设", "en": "border assumption" },
       "at": "1-8",
       "body": [
         {
-          "zh": "Sobel 沿一轴差分、沿垂直轴平滑，组成二维方向核。梯度长度为 sqrt(gx²+gy²)，区别于有符号相加。尺度、噪声和边界都会影响响应。",
-          "en": "Sobel combines a derivative along one axis with smoothing along the other. Gradient length is sqrt(gx²+gy²), not signed addition. Scale, noise and boundaries affect responses."
-        },
-        {
-          "zh": "\\[M=\\sqrt{g_x^2+g_y^2}\\]",
-          "en": "\\[M=\\sqrt{g_x^2+g_y^2}\\]"
-        },
-        {
-          "zh": "gx 和 gy 是两个带符号的 Sobel 响应，M 是梯度强度。",
-          "en": "gx and gy are the signed Sobel responses, and M is the gradient magnitude."
-        },
-        {
-          "zh": "常见误解：应沿求导轴再次平均，或用 gx+gy 代替长度。",
-          "en": "Common misconception: Smoothing along the derivative axis, or replacing length with gx+gy."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md PDF pp29–30; L5 PDF pp39–42"
+          "zh": "图的边上，核要读的邻居有一些在图外。图外没有观测，只能假设：补 0、延续边缘、循环、镜像。不同假设只改变边上一圈的结果；哪个对，取决于图外实际是什么。第 3 讲。",
+          "en": "At the image’s edge some neighbours the kernel reads lie outside it. Nothing was observed there, so it must be assumed: zero, the edge continued, wrapped around, or mirrored. The assumption changes only the band along the edge; which is right depends on what really lies outside. Lecture 3."
         }
       ]
     },
     {
-      "id": "scanner-composition",
-      "group": "image",
-      "title": { "zh": "视觉处理流水线", "en": "Visual processing pipeline" },
+      "id": "derivative",
+      "group": "edges",
+      "title": { "zh": "差分", "en": "derivative" },
+      "at": "1-7",
+      "body": [
+        {
+          "zh": "相邻两格的差，图像版的导数：权重 [−1 0 1] 给出右边减左边。平坦处为 0，变亮为正、变暗为负。第 5 讲。",
+          "en": "The difference between neighbouring cells, the image’s derivative: weights [−1 0 1] give right minus left. It is 0 where flat, positive where brightening, negative where darkening. Lecture 5."
+        }
+      ]
+    },
+    {
+      "id": "sobel",
+      "group": "edges",
+      "title": { "zh": "Sobel 算子", "en": "Sobel operator" },
       "at": "1-9",
       "body": [
         {
-          "zh": "视觉流水线将已有测量、预处理和判定模块组合。每个模块有输入输出含义；顺序和边界影响结果，最终响应仍受任务假设限制。",
-          "en": "A visual pipeline composes measurements, preprocessing and decisions with explicit input/output meaning. Order and boundaries matter, and task assumptions limit the final response."
-        },
-        {
-          "zh": "\\[\\begin{gathered}M=\\sqrt{g_x^2+g_y^2}\\\\B=\\begin{cases}1,&M>\\tau\\\\0,&M\\le\\tau\\end{cases}\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}M=\\sqrt{g_x^2+g_y^2}\\\\B=\\begin{cases}1,&M>\\tau\\\\0,&M\\le\\tau\\end{cases}\\end{gathered}\\]"
-        },
-        {
-          "zh": "gx 和 gy 是预处理后的方向响应，M 是强度，τ 是阈值，B 标记严格超标的位置。",
-          "en": "gx and gy are directional responses after preprocessing, M is their magnitude, τ is the threshold, and B marks strict exceedance."
-        },
-        {
-          "zh": "常见误解：把原图直接接入边缘检测，再靠阈值弥补所有干扰。",
-          "en": "Common misconception: Feeding raw input to edge measurement and relying on thresholding to remove all nuisance."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/03-filters.md common filters and composition; controlled scanner application",
-          "en": "Source: docs/Unimelb/26S2/CV/03-filters.md common filters and composition; controlled scanner application"
+          "zh": "沿边的方向用 [1 2 1] 平滑、垂直于边用 [−1 0 1] 求差，合成一张 3×3 的核。平滑压住噪声，差分找出变化。第 5 讲。",
+          "en": "Smoothing along the edge with [1 2 1] and differencing across it with [−1 0 1], combined in one 3×3 kernel. The smoothing keeps noise down; the difference finds the change. Lecture 5."
         }
       ]
     },
     {
-      "id": "wave-parameters",
-      "group": "image",
-      "title": { "zh": "频率、幅度与相位", "en": "Frequency, amplitude and phase" },
-      "at": "2-1",
+      "id": "gradient",
+      "group": "edges",
+      "title": { "zh": "梯度", "en": "gradient" },
+      "at": "1-10",
       "body": [
         {
-          "zh": "余弦波可写成 A cos(2π(kx/N+p))。k 控制整行周期数，A 控制幅度，p 控制相位；这里相位以周为单位。波形的负值仍是有效计算数据。",
-          "en": "A cosine wave is A cos(2π(kx/N+p)): k controls cycles per row, A amplitude and p phase. This interface measures phase in turns. Negative wave values remain valid data."
-        },
-        {
-          "zh": "\\[s[n]=A\\cos\\!\\left(2\\pi\\left(\\frac{kn}{N}+p\\right)\\right)\\]",
-          "en": "\\[s[n]=A\\cos\\!\\left(2\\pi\\left(\\frac{kn}{N}+p\\right)\\right)\\]"
-        },
-        {
-          "zh": "n 是采样位置，N 是行长，k 是整行的周期数，A 是振幅，p 是以周为单位的相位。",
-          "en": "n is the sample position, N the row length, k the number of cycles across the row, A the amplitude, and p the phase in turns."
-        },
-        {
-          "zh": "常见误解：频率是统一加到每个位置的偏移。",
-          "en": "Common misconception: Frequency is an offset added to every position."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp7–21; turns are the declared mathematical unit",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp7–21; turns are the declared mathematical unit"
+          "zh": "横、竖两个方向的变化合成的箭头。长度是亮度变化有多陡，方向是变亮最快的方向，和边垂直。第 5 讲。",
+          "en": "The arrow made of the change across and the change down. Its length is how steeply brightness changes; its direction is where it brightens fastest, across the edge. Lecture 5."
         }
       ]
     },
     {
-      "id": "frequency-projection",
-      "group": "image",
-      "title": { "zh": "频率投影", "en": "Frequency projection" },
-      "at": "2-2",
+      "id": "edge-map",
+      "group": "edges",
+      "title": { "zh": "边缘图", "en": "edge map" },
+      "at": "1-11",
       "body": [
         {
-          "zh": "本游戏在离散行上计算 \\(P(k,p)=\\frac1N\\sum_{n=0}^{N-1}x[n]\\cos\\!\\left(2\\pi\\left(\\frac{kn}{N}+p\\right)\\right)\\)，n 遍历全部 N 个位置。k 表示整行周期数，p 以周为单位。平均投影不会因样本数量翻倍而自动翻倍。",
-          "en": "This game computes \\(P(k,p)=\\frac1N\\sum_{n=0}^{N-1}x[n]\\cos\\!\\left(2\\pi\\left(\\frac{kn}{N}+p\\right)\\right)\\) over all N row positions. k counts row cycles and p is in turns. Averaging prevents sample count alone from scaling the projection."
-        },
-        {
-          "zh": "异频抵消要求参考波与离散周期匹配、覆盖完整周期。非整数周期、噪声和频率偏差会影响测量，不能把单路零响应等同于没有该频率。",
-          "en": "Cross-frequency cancellation requires matched discrete periodic references over complete periods. Non-integer cycles, noise and frequency mismatch affect the measurement; a single zero projection does not establish absence."
-        },
-        {
-          "zh": "常见误解：探针自己有波形就能测量，或一次零响应等于频率不存在。",
-          "en": "Common misconception: The basis alone measures the signal, or one zero response proves absence."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier transform PDF pp18–24",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier transform PDF pp18–24"
-        }
-      ]
-    },
-    {
-      "id": "quadrature-components",
-      "group": "image",
-      "title": {
-        "zh": "复数系数与正交投影",
-        "en": "Complex coefficients and quadrature"
-      },
-      "at": "2-3",
-      "body": [
-        {
-          "zh": "对于已知频率的理想单频信号，\\(x[n]=A\\cos(\\theta_n+\\phi)=A\\cos\\phi\\cos\\theta_n-A\\sin\\phi\\sin\\theta_n\\)，\\(\\theta_n=2\\pi kn/N\\)。未知幅度与相位可以改写成两个独立系数；正交参考方向使两个投影互不干扰。",
-          "en": "For an ideal sinusoid of known frequency, \\(x[n]=A\\cos(\\theta_n+\\phi)=A\\cos\\phi\\cos\\theta_n-A\\sin\\phi\\sin\\theta_n\\), with \\(\\theta_n=2\\pi kn/N\\). Unknown amplitude and phase become two independent coefficients; orthogonal reference directions separate their measurements."
-        },
-        {
-          "zh": "本游戏取 \\(\\mathrm{Re}=\\operatorname{mean}_n(x[n]\\cos\\theta_n)\\)、\\(\\mathrm{Im}=\\operatorname{mean}_n(-x[n]\\sin\\theta_n)\\)。对孤立的匹配整数频率，且不是直流或偶数长度的奈奎斯特频率，有 \\(\\mathrm{Re}=\\frac A2\\cos\\phi\\)、\\(\\mathrm{Im}=\\frac A2\\sin\\phi\\)，因此峰值幅度 \\(A=2\\sqrt{\\mathrm{Re}^2+\\mathrm{Im}^2}\\)，\\(\\phi=\\operatorname{atan2}(\\mathrm{Im},\\mathrm{Re})\\)（弧度）。系数长度不能直接当作 A；A=0 时相位无定义。",
-          "en": "This game uses \\(\\mathrm{Re}=\\operatorname{mean}_n(x[n]\\cos\\theta_n)\\) and \\(\\mathrm{Im}=\\operatorname{mean}_n(-x[n]\\sin\\theta_n)\\). For an isolated matching integer-bin sinusoid away from DC and even-length Nyquist, \\(\\mathrm{Re}=\\frac A2\\cos\\phi\\) and \\(\\mathrm{Im}=\\frac A2\\sin\\phi\\), so peak amplitude \\(A=2\\sqrt{\\mathrm{Re}^2+\\mathrm{Im}^2}\\) and \\(\\phi=\\operatorname{atan2}(\\mathrm{Im},\\mathrm{Re})\\), in radians. Coefficient length is not A; at A=0 phase is undefined."
-        },
-        {
-          "zh": "两路分量各自汇总整行 N 个样本，不是只读两个原始点。直流和奈奎斯特的正弦参考在采样点上为零，只剩一条实数方向；未知频率仍需探测不同频率。",
-          "en": "Each component aggregates all N samples, not two raw points. At DC and Nyquist the sine reference vanishes on the sample grid, leaving one real direction. Unknown frequency still requires probing different frequencies."
-        },
-        {
-          "zh": "常见误解：重复同一投影可以补齐相位，或系数幅度足够重建原图。",
-          "en": "Common misconception: Duplicating one projection recovers phase, or magnitude alone reconstructs the image."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–24,33–34",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–24,33–34"
-        }
-      ]
-    },
-    {
-      "id": "discrete-spectrum",
-      "group": "image",
-      "title": { "zh": "离散傅里叶频谱", "en": "Discrete Fourier spectrum" },
-      "at": "2-4",
-      "body": [
-        {
-          "zh": "离散频谱保留全部基函数投影。这里前向按 N 归一化，DC 位于索引 0；实信号的 k 与 N−k 系数互为共轭，索引应按周期解释。",
-          "en": "The discrete spectrum retains all basis projections. This convention normalises forward coefficients by N and stores DC at index 0. For real signals, k and N−k are conjugate and indices are periodic."
-        },
-        {
-          "zh": "\\[C[k]=\\frac1N\\sum_{n=0}^{N-1}x[n]e^{-i2\\pi kn/N}\\]",
-          "en": "\\[C[k]=\\frac1N\\sum_{n=0}^{N-1}x[n]e^{-i2\\pi kn/N}\\]"
-        },
-        {
-          "zh": "N 是行长，n 是采样位置，k 是频率索引，i 是虚数单位。取 k=0 时得到整行平均值。",
-          "en": "N is the row length, n the sample position, k the frequency index, and i the imaginary unit. At k=0 the coefficient equals the row mean."
-        },
-        {
-          "zh": "常见误解：把取样位置当作频率索引，或只保留一半而不说明如何恢复。",
-          "en": "Common misconception: Confusing sample positions with frequency indices, or discarding half the data without a recovery rule."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–26",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp18–26"
-        }
-      ]
-    },
-    {
-      "id": "fourier-synthesis",
-      "group": "image",
-      "title": { "zh": "傅里叶重建", "en": "Fourier synthesis" },
-      "at": "2-5",
-      "body": [
-        {
-          "zh": "逆变换把各频率按复数系数组合。这里前向除以 N、逆向直接求和；实输出为 Σ(Re·cos−Im·sin)。只保留幅度通常不能还原原有空间关系。",
-          "en": "Inverse transformation combines frequencies using complex coefficients. This convention divides forward by N and sums inverse terms: Σ(Re·cos−Im·sin) for real output. Magnitude alone usually loses spatial relationships."
-        },
-        {
-          "zh": "\\[\\begin{gathered}\\theta_{kn}=\\frac{2\\pi kn}{N}\\\\x[n]=\\sum_{k=0}^{N-1}\\bigl(\\operatorname{Re}C[k]\\cos\\theta_{kn}\\\\-\\operatorname{Im}C[k]\\sin\\theta_{kn}\\bigr)\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}\\theta_{kn}=\\frac{2\\pi kn}{N}\\\\x[n]=\\sum_{k=0}^{N-1}\\bigl(\\operatorname{Re}C[k]\\cos\\theta_{kn}\\\\-\\operatorname{Im}C[k]\\sin\\theta_{kn}\\bigr)\\end{gathered}\\]"
-        },
-        {
-          "zh": "n 是重建位置，N 是行长，C[k] 是前向已归一化的系数。对全部频率求和得到实信号。",
-          "en": "n is the reconstruction position, N the row length, and C[k] the normalised forward coefficient. Summing all frequency contributions recovers the real signal."
-        },
-        {
-          "zh": "常见误解：逆向也要平均，或者把虚部符号照搬为同相余弦。",
-          "en": "Common misconception: Averaging in both directions, or using the wrong imaginary contribution."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier transform and magnitude/phase PDF pp18–34",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier transform and magnitude/phase PDF pp18–34"
-        }
-      ]
-    },
-    {
-      "id": "phase-structure",
-      "group": "image",
-      "title": { "zh": "相位与空间结构", "en": "Phase and spatial structure" },
-      "at": "2-6",
-      "body": [
-        {
-          "zh": "平移可在保留频谱幅度时改变相位。幅度和相位共同决定重建，交换相位会改变结构；频谱为零的位置没有可定义的相位方向。",
-          "en": "Translation can change phase while retaining magnitudes. Both determine reconstruction; phase exchange changes structure. Zero coefficients have no defined phase direction."
-        },
-        {
-          "zh": "\\[C[k]=|C[k]|e^{i\\phi_k}\\]",
-          "en": "\\[C[k]=|C[k]|e^{i\\phi_k}\\]"
-        },
-        {
-          "zh": "在频率 k 上，系数的模是幅度，φk 是相位。模为零时相位无定义。",
-          "en": "At frequency k, the coefficient magnitude gives its size and φk gives its phase. Phase is undefined at zero magnitude."
-        },
-        {
-          "zh": "常见误解：幅度就是可重建的完整频谱，虚部是无用噪声。",
-          "en": "Common misconception: Magnitude is the complete reconstructible spectrum and imaginary components are noise."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp33–34",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp33–34"
-        }
-      ]
-    },
-    {
-      "id": "complex-transform",
-      "group": "image",
-      "title": { "zh": "复数输入的线性变换", "en": "Linear transformation of complex input" },
-      "at": "2-7",
-      "body": [
-        {
-          "zh": "傅里叶变换是线性的。对 a+ib，可分别计算 F(a)、F(b)，再组成 F(a)+iF(b)；乘 i 会交换实虚贡献并改变其中一项符号。",
-          "en": "The Fourier transform is linear: F(a+ib)=F(a)+iF(b). Multiplying by i exchanges real/imaginary contributions and negates one component."
-        },
-        {
-          "zh": "\\[\\begin{gathered}(a+ib)(\\cos\\theta-i\\sin\\theta)\\\\=(a\\cos\\theta+b\\sin\\theta)\\\\+i(b\\cos\\theta-a\\sin\\theta)\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}(a+ib)(\\cos\\theta-i\\sin\\theta)\\\\=(a\\cos\\theta+b\\sin\\theta)\\\\+i(b\\cos\\theta-a\\sin\\theta)\\end{gathered}\\]"
-        },
-        {
-          "zh": "a、b 分别是一个复数样本的实部和虚部，θ 是参考波角度。逐样本计算并取平均，得到该频率的系数。",
-          "en": "a and b are the real and imaginary parts of a sample, and θ is the reference angle. Averaging these products over the samples gives the coefficient."
-        },
-        {
-          "zh": "常见误解：第二条轴只需处理第一条轴的实部。",
-          "en": "Common misconception: The second axis needs only the first pass’s real part."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md Fourier representation and linearity; complex arithmetic is supplied support",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md Fourier representation and linearity; complex arithmetic is supplied support"
-        }
-      ]
-    },
-    {
-      "id": "two-dimensional-spectrum",
-      "group": "image",
-      "title": { "zh": "二维傅里叶变换", "en": "Two-dimensional Fourier transform" },
-      "at": "2-8",
-      "body": [
-        {
-          "zh": "二维 DFT 可分解为两条轴的完整复数一维变换。每条频率轴描述相应空间方向的变化；本约定总前向归一化为 1/(WH)。",
-          "en": "The 2D DFT separates into complete complex 1D transforms along both axes. Frequency axes correspond to spatial variation; this convention normalises forward by 1/(WH)."
-        },
-        {
-          "zh": "\\[\\begin{gathered}\\theta_{uvxy}=2\\pi\\left(\\frac{ux}{W}+\\frac{vy}{H}\\right)\\\\C[u,v]=\\frac1{WH}\\sum_{x=0}^{W-1}\\sum_{y=0}^{H-1}z[x,y]e^{-i\\theta_{uvxy}}\\end{gathered}\\]",
-          "en": "\\[\\begin{gathered}\\theta_{uvxy}=2\\pi\\left(\\frac{ux}{W}+\\frac{vy}{H}\\right)\\\\C[u,v]=\\frac1{WH}\\sum_{x=0}^{W-1}\\sum_{y=0}^{H-1}z[x,y]e^{-i\\theta_{uvxy}}\\end{gathered}\\]"
-        },
-        {
-          "zh": "W、H 是宽高，x、y 是空间索引，u、v 是相应的频率索引，z 是复数输入。",
-          "en": "W and H are the dimensions, x and y are spatial indices, u and v are their frequency indices, and z is the complex input."
-        },
-        {
-          "zh": "常见误解：第二次仍沿原来的行处理，或不恢复原图轴顺序。",
-          "en": "Common misconception: Transforming original rows twice, or failing to restore axis order."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32"
-        }
-      ]
-    },
-    {
-      "id": "frequency-filtering",
-      "group": "image",
-      "title": { "zh": "频域滤波", "en": "Frequency filtering" },
-      "at": "2-9",
-      "body": [
-        {
-          "zh": "频域滤波以逐频率增益乘复数系数再逆变换。低通保留接近零的频率，高通去掉低频，带通保留一个范围；实输出要求增益与共轭对称一致。",
-          "en": "Frequency filtering multiplies complex coefficients by gains before inversion. Low-pass keeps frequencies near zero, high-pass removes low frequencies, and band-pass keeps a range. Real output requires conjugate-consistent gains."
-        },
-        {
-          "zh": "\\[C_{\\mathrm{out}}[k]=g[k]C[k]\\]",
-          "en": "\\[C_{\\mathrm{out}}[k]=g[k]C[k]\\]"
-        },
-        {
-          "zh": "g[k] 是频率 k 的增益，同一个实数增益同时乘到系数的实部和虚部。",
-          "en": "g[k] is the gain at frequency k. The same real gain scales the real and imaginary components."
-        },
-        {
-          "zh": "常见误解：只调整实部，或者负索引天然属于低频。",
-          "en": "Common misconception: Adjusting only real components, or treating every negative index as low frequency."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp38–43",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp38–43"
-        }
-      ]
-    },
-    {
-      "id": "frequency-ringing",
-      "group": "image",
-      "title": { "zh": "振铃与滤波形状", "en": "Ringing and filter shape" },
-      "at": "2-10",
-      "body": [
-        {
-          "zh": "硬频率截止对应振荡的空间核，可能在突变附近产生振铃。渐变过渡改变空间响应，以额外平滑换取不同的振荡表现；应检查未截断数值。",
-          "en": "Hard frequency cutoffs correspond to oscillatory spatial kernels and can ring near discontinuities. Tapering changes that response, trading additional smoothing for different oscillation behaviour. Inspect unclipped values."
-        },
-        {
-          "zh": "\\[y=\\mathcal F^{-1}\\!\\left(g\\cdot\\mathcal F(x)\\right)\\]",
-          "en": "\\[y=\\mathcal F^{-1}\\!\\left(g\\cdot\\mathcal F(x)\\right)\\]"
-        },
-        {
-          "zh": "x 是输入，g 是频率增益，y 是重建结果。g 的突然跳变可在空间突变附近产生波纹。",
-          "en": "x is the input, g the frequency gain, and y the reconstruction. An abrupt jump in g can cause ripples near spatial discontinuities."
-        },
-        {
-          "zh": "常见误解：频域低通总是没有副作用，显示中没看到过冲就不存在。",
-          "en": "Common misconception: Low-pass has no side effects, or invisible clipped overshoot does not exist."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp44–47",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp44–47"
-        }
-      ]
-    },
-    {
-      "id": "convolution-theorem",
-      "group": "image",
-      "title": {
-        "zh": "卷积定理",
-        "en": "Convolution theorem"
-      },
-      "at": "2-11",
-      "body": [
-        {
-          "zh": "空间卷积对应频域复数逐点乘积。离散有限实现需匹配周期/补边约定、核原点、输出域和归一化；本例对每行使用周期卷积。",
-          "en": "Spatial convolution corresponds to pointwise complex frequency multiplication. Finite implementations must match periodic/padding conventions, kernel origin, output domain and normalisation. This task uses circular row convolution."
-        },
-        {
-          "zh": "\\[\\mathcal F(x*h)[k]=N\\,\\mathcal F(x)[k]\\,\\mathcal F(h)[k]\\]",
-          "en": "\\[\\mathcal F(x*h)[k]=N\\,\\mathcal F(x)[k]\\,\\mathcal F(h)[k]\\]"
-        },
-        {
-          "zh": "x 是输入，h 是单位脉冲响应，星号表示周期卷积。前向变换除以行长 N，因此频谱乘积需要乘 N。",
-          "en": "x is the input, h the unit impulse response, and the star denotes circular convolution. The forward transform divides by row length N, so the spectral product is multiplied by N."
-        },
-        {
-          "zh": "常见误解：把周期频域结果与零边界卷积比较，认为差异就是算法错误。",
-          "en": "Common misconception: Comparing periodic frequency processing with zero-boundary convolution as if they were the same problem."
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp35–37",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp35–37"
-        }
-      ]
-    },
-    {
-      "id": "two-dimensional-inverse",
-      "group": "image",
-      "title": { "zh": "二维逆变换与一致性", "en": "2D inversion and consistency" },
-      "at": "2-12",
-      "body": [
-        {
-          "zh": "二维重建把横向与纵向的频率索引依次变回空间坐标。中间结果可以是复数，两路都必须保留。",
-          "en": "Two-dimensional synthesis reconstructs spatial positions along each axis in turn. The intermediate result can be complex, so keep both components."
-        },
-        {
-          "zh": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\n沿一轴重建后，结果仍可能有实部和虚部，另一轴要一起读。逐行重建采用直接求和，补回前向归一化。",
-          "en": "\\[I=\\mathcal F_y^{-1}(\\mathcal F_x^{-1}(X))\\]\n\nAfter reconstructing along one axis, retain both components for the other. Row synthesis sums directly to undo the forward normalisation."
-        },
-        {
-          "zh": "常见误解：一次逐行重建就能恢复整幅图，或中间虚部可以直接丢掉。",
-          "en": "Common misconception: One row pass reconstructs the whole image, or the intermediate imaginary component can be discarded."
-        },
-        {
-          "zh": "出处：04-fourier.md，二维傅里叶变换与反变换。",
-          "en": "Source: 04-fourier.md, 2D Fourier transform and inverse."
-        }
-      ]
-    },
-    {
-      "id": "interference-machine",
-      "group": "image",
-      "title": { "zh": "频率选择与信息损失", "en": "Frequency selection and information loss" },
-      "at": "2-13",
-      "body": [
-        {
-          "zh": "周期干扰常集中于特定频率。选择性增益可以抑制它，但与这些频率重叠的有用信号也会被抑制；噪声识别、边界与频率模型是任务假设。",
-          "en": "Periodic interference can concentrate at selected frequencies. Selective gains suppress it but also remove useful signal at those frequencies. Interference identity, boundaries and frequency models are assumptions."
-        },
-        {
-          "zh": "\\[Y[u,v]=g[u,v]C[u,v]\\]",
-          "en": "\\[Y[u,v]=g[u,v]C[u,v]\\]"
-        },
-        {
-          "zh": "C 是输入频谱，g 是二维频率增益，Y 是处理后的频谱。对实图，成对频率使用相同的实数增益。",
-          "en": "C is the input spectrum, g the two-dimensional gain, and Y the filtered spectrum. For real images, paired frequencies receive the same real gain."
-        },
-        {
-          "zh": "常见误解：任何平滑都只删噪声，或指定频率的抑制等于自动理解哪些像素是噪声。 <wiki-ref to=\"pixel\"></wiki-ref>",
-          "en": "Common misconception: Every smoother removes only noise, or suppressing specified frequencies automatically identifies nuisance pixels. <wiki-ref to=\"pixel\"></wiki-ref>"
-        },
-        {
-          "zh": "出处：docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32,38–47; controlled known-frequency application",
-          "en": "Source: docs/Unimelb/26S2/CV/04-fourier.md PDF pp25–32,38–47; controlled known-frequency application"
-        }
-      ]
-    },
-    {
-      "id": "pixel-coordinate-convention",
-      "group": "image",
-      "title": { "zh": "像素坐标", "en": "Pixel coordinates" },
-      "at": "0-1",
-      "body": [
-        {
-          "zh": "坐标从 0 开始，x 向右、y 向下。数值表中每格保存读数或位置；点击可查看其原值。",
-          "en": "Coordinates start at zero, x right and y down. A cell stores a reading or a position; select it to inspect the original value."
-        },
-        { "zh": "\\[0\\le x<W,\\qquad 0\\le y<H\\]", "en": "\\[0\\le x<W,\\qquad 0\\le y<H\\]" },
-        {
-          "zh": "W、H 为图像宽高，像素坐标取整数。左上角是 (0, 0)。",
-          "en": "W and H are the image dimensions, and pixel coordinates are integers. The top-left corner is (0, 0)."
-        }
-      ]
-    },
-    {
-      "id": "pixel",
-      "group": "image",
-      "title": { "zh": "像素", "en": "Pixel" },
-      "at": "0-1",
-      "body": [
-        {
-          "zh": "图像采样格，包含一个或多个通道读数。显示亮度限于 0–1，计算值可超出该区间。",
-          "en": "An image sample location with one or more channel readings. Display is clipped to 0–1, but stored values may lie outside it."
-        },
-        { "zh": "\\[b=\\min(1,\\max(0,v))\\]", "en": "\\[b=\\min(1,\\max(0,v))\\]" },
-        {
-          "zh": "v 是原始读数，b 是显示亮度。裁切只发生在显示时。",
-          "en": "v is the stored reading and b the displayed brightness. Clipping applies to the display."
-        }
-      ]
-    },
-    {
-      "id": "pointwise-transform",
-      "at": "0-2",
-      "title": { "zh": "逐格变换", "en": "Pointwise transform" },
-      "group": "image",
-      "body": [
-        {
-          "zh": "输出只由同一位置的输入读数决定。负片反转亮暗，邻居的读数不参与。课程来源：COMP90086 L3 的像素算子。",
-          "en": "Each output depends only on the input at the corresponding location. A negative reverses brightness without involving neighbouring readings. Source: COMP90086 L3, pixel operators."
-        }
-      ]
-    },
-    {
-      "id": "gain-offset",
-      "at": "0-3",
-      "title": { "zh": "增益与偏移", "en": "Gain and offset" },
-      "group": "image",
-      "body": [
-        {
-          "zh": "对亮度做仿射变换时，增益乘在输入上，偏移加在结果上。显示可能裁去超范围的值。课程来源：COMP90086 L3 的像素算子。",
-          "en": "In an affine brightness transform, gain multiplies the input and offset adds to the result. Display may clip out-of-range values. Source: COMP90086 L3, pixel operators."
-        }
-      ]
-    },
-    {
-      "id": "read-offset",
-      "at": "0-5",
-      "title": { "zh": "取样偏移", "en": "Read offset" },
-      "group": "image",
-      "body": [
-        {
-          "zh": "从输出坐标出发，要加上这个向量才能找到读取的输入坐标。课程来源：COMP90086 L2 的图像坐标。",
-          "en": "Add this vector to the output coordinate to find the input coordinate to read. Source: COMP90086 L2, image coordinates."
-        }
-      ]
-    },
-    {
-      "id": "alignment-score",
-      "at": "q-position",
-      "title": { "zh": "对齐误差", "en": "Alignment error" },
-      "group": "image",
-      "body": [
-        {
-          "zh": "绝对差之和给候选对齐一个分数。只有在照明和观察区域可比较时，较小的分数才是对齐的证据。课程来源：COMP90086 L2 的图像比较。",
-          "en": "Summed absolute differences score a candidate alignment. A lower score is evidence of alignment when lighting and the compared regions are comparable. Source: COMP90086 L2, image comparison."
+          "zh": "梯度大小超过门槛的像素标 1、其余标 0 的图。门槛低了噪声和纹理也算边，高了弱的边会断。第 5 讲。",
+          "en": "An image marking 1 where the gradient’s length exceeds a threshold and 0 elsewhere. Too low a threshold lets noise and texture count as edges; too high breaks weak ones. Lecture 5."
         }
       ]
     }
-  ],
-  "groupByChapter": true
+  ]
 }

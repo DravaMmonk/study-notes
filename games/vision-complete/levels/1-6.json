@@ -1,290 +1,62 @@
 {
-  "title": { "zh": "修图滤镜", "en": "Photo filters" },
+  "title": { "zh": "台阶在哪", "en": "Where is the step?" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "边缘就是相邻像素的差。平坦处差为 0，台阶处差最大。「右边邻居 − 自己」只看得见竖着的边；横着的边，要看「下边邻居 − 自己」。真实的边朝哪个方向都有，两个方向都得量。",
+    "en": "An edge is the difference between neighbouring pixels. On flat ground the difference is 0; at a step it is largest. \"Right neighbour − self\" only sees vertical edges; horizontal ones need \"neighbour below − self\". Real edges run every way, so both directions have to be measured."
+  },
   "intro": [
     {
       "t": {
-        "zh": "修图软件有几款滤镜，只给了处理前后的照片。滤波器已经接好，填出每款滤镜的核。",
-        "en": "A photo app has a few filters, and all it shows is before and after. The filter is wired; fill in each one’s kernel."
+        "zh": "看一幅画，最先注意到的是轮廓：物体和背景的分界、衣服的褶、文字的笔画。在数字图里，这些地方的共同点是：亮度在很短的距离内突然变了。这就是<b>边缘</b>。",
+        "en": "When you look at a picture, the first thing you notice is outlines: where an object meets the background, the folds in clothing, the strokes of letters. In a digital image, what these places have in common is that the brightness changes suddenly over a very short distance. That is an <b>edge</b>."
       }
+    },
+    {
+      "t": {
+        "zh": "找边缘是视觉里最基础的一步。扫描软件靠它找纸张的四边，车道保持系统靠它找车道线。",
+        "en": "Finding edges is the most basic step in vision. Scanning apps use it to find the four sides of a sheet of paper, and lane-keeping systems use it to find lane markings."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：每一格输出「右边邻居 − 自己」。结果可以是负数，看灰度不直观，用地形画法看起伏更清楚。",
+        "en": "Your task in this level: for every cell, output \"right neighbour − self\". The result can be negative, which is hard to read in greyscale; terrain view shows the rises and falls more clearly."
+      },
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组测试：台阶，用地形画法看", "en": "Set 1: a step, in terrain view" } }
     }
   ],
-  "after": {
-    "zh": "亮点经过滤波器，出来的是核转了 180°：滤波器按<wiki-ref to=\"correlation\"></wiki-ref>算，照抄冲激响应就成了<wiki-ref to=\"convolution\"></wiki-ref>的核。",
-    "en": "A bright dot through the filter comes out as the kernel turned 180°: the filter computes <wiki-ref to=\"correlation\"></wiki-ref>, and copying its impulse response gives the <wiki-ref to=\"convolution\"></wiki-ref> kernel instead."
-  },
+  "unlocks": ["diffx"],
   "tasks": [
     {
-      "id": "soften",
-      "kind": "circuit",
-      "step": { "zh": "柔化", "en": "Soften" },
-      "brief": { "zh": "填出「柔化」的核。", "en": "Fill in the kernel of “soften”." },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
-      "starter": ["k = const[kind=kernel3]()", "f = filter3(photo,k)", "out <- f"],
-      "tests": [
-        {
-          "inputs": {
-            "photo": [
-              [0.49, 0.56, 0.81, 0.32, 0.32],
-              [0.69, 0.49, 0.36, 0.41, 0.33],
-              [0.17, 0.63, 0.89, 0.69, 0.63],
-              [0.34, 0.43, 0.14, 0.73, 0.3]
-            ]
-          },
-          "expect": {
-            "out": [
-              [
-                0.5499999999999999,
-                0.5844444444444444,
-                0.5155555555555555,
-                0.4444444444444444,
-                0.3322222222222222
-              ],
-              [
-                0.48666666666666664,
-                0.5655555555555555,
-                0.5733333333333333,
-                0.5288888888888889,
-                0.4422222222222222
-              ],
-              [
-                0.4388888888888889,
-                0.45999999999999996,
-                0.5299999999999999,
-                0.49777777777777776,
-                0.4833333333333333
-              ],
-              [0.35444444444444445, 0.39, 0.5344444444444444, 0.5055555555555555, 0.5122222222222221]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
-          },
-          "expect": {
-            "out": [
-              [0, 0, 0, 0, 0],
-              [0, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0],
-              [0, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0],
-              [0, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0],
-              [0, 0, 0, 0, 0]
-            ]
-          }
-        }
-      ],
-      "hidden": [
-        {
-          "inputs": {
-            "photo": [
-              [0.93, 0.17, 0.97, 0.24],
-              [0.46, 0.9, 0.36, 0.51],
-              [0.16, 0.96, 0.99, 0.17],
-              [0.12, 0.47, 0.52, 0.78]
-            ]
-          },
-          "expect": {
-            "out": [
-              [0.6533333333333333, 0.6511111111111111, 0.5033333333333333, 0.4755555555555555],
-              [0.57, 0.6555555555555554, 0.5855555555555555, 0.4622222222222222],
-              [0.4233333333333333, 0.5488888888888889, 0.6288888888888888, 0.5322222222222222],
-              [0.3, 0.4811111111111111, 0.6288888888888888, 0.61]
-            ]
-          }
-        }
-      ],
-      "solution": [
-        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
-        "f = filter3(photo,k)",
-        "out <- f"
-      ],
-      "sample": {
-        "inputs": {
-          "photo": {
-            "size": [48, 36],
-            "base": 0.15,
-            "layers": [
-              {
-                "shape": "quad",
-                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
-                "v": 0.85
-              },
-              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": "emboss",
-      "kind": "circuit",
-      "step": { "zh": "浮雕", "en": "Emboss" },
-      "brief": { "zh": "填出「浮雕」的核。", "en": "Fill in the kernel of “emboss”." },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
-      "starter": ["k = const[kind=kernel3]()", "f = filter3(photo,k)", "out <- f"],
-      "tests": [
-        {
-          "inputs": {
-            "photo": [
-              [0.45, 0.29, 0.91, 0.48, 0.09],
-              [0.75, 0.08, 0.2, 0.07, 0.63],
-              [0.84, 0.61, 0.22, 0.85, 0.87],
-              [0.33, 0.27, 0.67, 0.97, 0.91]
-            ]
-          },
-          "expect": {
-            "out": [
-              [-0.15000000000000005, 0.04000000000000002, -0.04999999999999993, -1.31, 0.54],
-              [0.7899999999999999, -0.61, 0.62, 0.7899999999999999, 2.75],
-              [-0.77, 0.020000000000000115, 2.71, 3.82, 2.85],
-              [-1.38, -0.06999999999999978, 2.54, 2.71, 1.0100000000000002]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
-          },
-          "expect": {
-            "out": [[0, 0, 0, 0, 0], [0, 2, 1, 0, 0], [0, 1, 1, -1, 0], [0, 0, -1, -2, 0], [0, 0, 0, 0, 0]]
-          }
-        }
-      ],
-      "hidden": [
-        {
-          "inputs": {
-            "photo": [
-              [0.48, 0.63, 0.4, 0.92],
-              [0.02, 0.99, 0.7, 0.8],
-              [0.8, 0.2, 0.82, 0.65],
-              [0.15, 0.86, 0.44, 0.72]
-            ]
-          },
-          "expect": {
-            "out": [
-              [1.19, 1.35, 1.33, 2.12],
-              [0.7500000000000001, 1.92, 0.97, 1.1300000000000001],
-              [2.01, 0.9299999999999999, 0.47, 0.44000000000000006],
-              [0.32999999999999985, 1.0899999999999999, 0.96, 0.8699999999999999]
-            ]
-          }
-        }
-      ],
-      "solution": [
-        "k = const[kind=kernel3,k1=-2,k2=-1,k3=0,k4=-1,k5=1,k6=1,k7=0,k8=1,k9=2]()",
-        "f = filter3(photo,k)",
-        "out <- f"
-      ],
-      "sample": {
-        "inputs": {
-          "photo": {
-            "size": [48, 36],
-            "base": 0.15,
-            "layers": [
-              {
-                "shape": "quad",
-                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
-                "v": 0.85
-              },
-              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
-            ]
-          }
-        }
+      "id": "1-6",
+      "kind": "graph",
+      "brief": {
+        "zh": "在亮度突然变化的地方输出变化量：输出 = 右边邻居 − 自己。",
+        "en": "Where the brightness suddenly changes, output the amount of change: output = right neighbour − self."
       },
-      "naive": [
-        "k = const[kind=kernel3,k1=2,k2=1,k3=0,k4=1,k5=1,k6=-1,k7=0,k8=-1,k9=-2]()",
-        "f = filter3(photo,k)",
-        "out <- f"
-      ],
-      "naiveWhy": {
-        "zh": "照抄了亮点的输出：滤波器输出的冲激响应是核转了 180°，效果因此上下左右都颠倒了。",
-        "en": "This copies the bright dot’s output: the filter’s impulse response is the kernel turned 180°, so the effect comes out upside down and mirrored."
-      }
-    },
-    {
-      "id": "outline",
-      "kind": "circuit",
-      "step": { "zh": "描边", "en": "Outline" },
-      "brief": { "zh": "填出「描边」的核。", "en": "Fill in the kernel of “outline”." },
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
-      "starter": ["k = const[kind=kernel3]()", "f = filter3(photo,k)", "out <- f"],
+      "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
+      "scene": "filter",
+      "setup": { "target": "diffx" },
       "tests": [
-        {
-          "inputs": {
-            "photo": [
-              [0.41, 0.29, 0.84, 0.44, 0.53],
-              [0.55, 0.34, 0.64, 0.9, 0.07],
-              [0.56, 0.26, 0.66, 0.62, 0.05],
-              [0.11, 0.53, 0.86, 0.8, 0.82]
-            ]
-          },
-          "expect": {
-            "out": [
-              [0.029999999999999805, -2, 2.5399999999999996, -1.27, 0.7300000000000001],
-              [1.0200000000000002, -1.4899999999999998, 0.77, 3.35, -2.63],
-              [1.4700000000000002, -2.17, 0.3300000000000001, 0.15999999999999992, -3.75],
-              [
-                -1.8900000000000001,
-                0.29000000000000015,
-                1.8199999999999998,
-                0.9100000000000004,
-                1.7799999999999996
-              ]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
-          },
-          "expect": {
-            "out": [[0, 0, 0, 0, 0], [0, -1, -1, -1, 0], [0, -1, 8, -1, 0], [0, -1, -1, -1, 0], [0, 0, 0, 0, 0]]
-          }
-        }
+        { "label": { "zh": "台阶", "en": "Step" }, "in": { "stepX": { "edge": 8 } } },
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "斜坡", "en": "Ramp" }, "in": "rampX" },
+        { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
       ],
       "hidden": [
         {
-          "inputs": {
-            "photo": [
-              [0.07, 0.43, 0.25, 0.45],
-              [0.26, 0.86, 0.56, 0.74],
-              [0.93, 0.49, 0.47, 0.13],
-              [0.78, 0.07, 0.36, 0.17]
-            ]
-          },
-          "expect": {
-            "out": [
-              [-1.89, 0.69, -2.17, -0.29],
-              [-1.96, 3.42, 0.6600000000000005, 2.7399999999999998],
-              [3.0100000000000002, -0.37000000000000016, 0.3799999999999998, -2.3],
-              [1.4100000000000001, -3.68, 0.95, -0.5999999999999999]
-            ]
-          }
-        }
+          "label": { "zh": "亮到暗的台阶", "en": "Bright-to-dark step" },
+          "in": { "stepX": { "edge": 5, "lo": 0.85, "hi": 0.15 } }
+        },
+        {
+          "label": { "zh": "挪开的字母 F", "en": "Shifted letter F" },
+          "in": { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 4 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 17 } } }
       ],
-      "solution": [
-        "k = const[kind=kernel3,k1=-1,k2=-1,k3=-1,k4=-1,k5=8,k6=-1,k7=-1,k8=-1,k9=-1]()",
-        "f = filter3(photo,k)",
-        "out <- f"
-      ],
-      "sample": {
-        "inputs": {
-          "photo": {
-            "size": [48, 36],
-            "base": 0.15,
-            "layers": [
-              {
-                "shape": "quad",
-                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
-                "v": 0.85
-              },
-              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
-            ]
-          }
-        }
-      }
+      "solution": ["l = shift[dir=left](in)", "d = arith[op=sub](l, in)", "out <- d"],
+      "naive": ["l = shift[dir=right](in)", "d = arith[op=sub](l, in)", "out <- d"]
     }
   ]
 }

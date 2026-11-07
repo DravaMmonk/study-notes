@@ -1,0 +1,57 @@
+{
+  "title": { "zh": "画一个新斑点", "en": "Draw a new blob" },
+  "tray": "generative",
+  "after": {
+    "zh": "训练好以后，生成就是：抽一个随机的 z，交给解码器。每抽一次就是一张没见过的新图；μ、σ 决定新图大概长在哪一带。",
+    "en": "Once trained, generating is just: draw a random z and hand it to the decoder. Each draw is a new picture never seen before; μ and σ decide roughly where the new pictures fall."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的「重参数化」：μ、σ、ε 进去，出来 μ + σ·ε。",
+        "en": "The Reparameterization in the tray: μ, σ and ε go in, μ + σ·ε comes out."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：用输入的 μ、σ 和噪声 ε 抽一个 z，画出它的斑点。",
+        "en": "Your task in this level: draw a z from the μ, σ and noise ε in the input, and draw its blob."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一次抽", "en": "The first draw" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "8-5",
+      "kind": "graph",
+      "brief": {
+        "zh": "从 N(μ, σ²) 里抽一个 z，交给解码器画出来。抽样用输入里的噪声 ε。",
+        "en": "Draw a z from N(μ, σ²) and hand it to the decoder. Use the noise ε from the input to draw it."
+      },
+      "hint": {
+        "zh": "<level-ref to=\"8-4\"></level-ref>最后得到的元件，正好是「用 ε 抽样」。",
+        "en": "The part you got at the end of <level-ref to=\"8-4\"></level-ref> is exactly \"draw a sample using ε\"."
+      },
+      "inputs": ["eps", "mu", "sigma"],
+      "inputLabels": {
+        "eps": { "zh": "噪声 ε", "en": "Noise ε" },
+        "mu": { "zh": "中心 μ", "en": "Centre μ" },
+        "sigma": { "zh": "散开 σ", "en": "Spread σ" }
+      },
+      "check": { "tolerance": 0.05, "mismatches": 2 },
+      "scene": "latent",
+      "setup": { "mu": [-0.5, 0.5], "sigma": [0.3, 0.2], "given": true },
+      "tests": [
+        { "label": { "zh": "第 1 次抽", "en": "Draw 1" }, "eps": [0.28973564283829173, 0.820593686981651] },
+        { "label": { "zh": "第 2 次抽", "en": "Draw 2" }, "eps": [0.26643152109291685, -0.8063291663537127] },
+        { "label": { "zh": "第 3 次抽", "en": "Draw 3" }, "eps": [0.344640573865604, -1.1584939815703774] }
+      ],
+      "hidden": [
+        { "label": { "zh": "又抽一次 1", "en": "Another draw 1" }, "eps": [-0.8284021851297076, 0.1198486162980997] },
+        { "label": { "zh": "又抽一次 2", "en": "Another draw 2" }, "eps": [-0.7811526515231816, 0.318111758472477] }
+      ],
+      "solution": ["r = dg_reparam(mu, sigma, eps)", "d = dg_decoder(r)", "out <- d"],
+      "naive": ["d = dg_decoder(mu)", "out <- d"]
+    }
+  ]
+}

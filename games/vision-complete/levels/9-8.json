@@ -1,0 +1,87 @@
+{
+  "title": { "zh": "细线不见了", "en": "The thin line is gone" },
+  "tray": "recognition",
+  "after": {
+    "zh": "把放大回来的粗结果和原尺寸的细结果合起来：粗的一路挡住噪点，细的一路留下细节。这条从编码器直接连到解码器的线叫跳连，U-Net 每一层都有。",
+    "en": "Combine the coarse result enlarged back with the fine result at full size: the coarse path keeps out the grain, the fine path keeps the detail. This line straight from encoder to decoder is called a skip connection, and U-Net has one at every level."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "细胞常常挤在一起，中间只隔一条极细的缝。数细胞时，缝丢了，两个就算成一个。",
+        "en": "Cells often crowd together with only a very thin gap between them. When counting, lose the gap and two count as one."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：标出细胞，细胞之间的缝要留着。",
+        "en": "Your task in this level: mark the cells, keeping the gaps between them."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：两个挨着", "en": "Set 1: two touching" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "9-8",
+      "kind": "graph",
+      "brief": {
+        "zh": "挨在一起的细胞之间只隔一条一像素的暗缝。标出细胞，缝要留着（0）。",
+        "en": "Touching cells are separated only by a dark gap one pixel wide. Mark the cells, and keep the gaps (0)."
+      },
+      "hint": {
+        "zh": "缩小再放大的那条路看不见一像素的缝。原图里还看得见。",
+        "en": "The shrink-then-enlarge path cannot see a one-pixel gap. The original picture still can."
+      },
+      "check": { "tolerance": 0.1, "mismatches": 3 },
+      "scene": "cells",
+      "tests": [
+        {
+          "label": { "zh": "两个挨着", "en": "Two touching" },
+          "rects": [[2, 3, 14, 11]],
+          "gapX": [7],
+          "seed": 71,
+          "grain": 0.2
+        },
+        {
+          "label": { "zh": "上下挨着", "en": "One above the other" },
+          "rects": [[3, 1, 11, 15]],
+          "gapY": [7],
+          "seed": 72,
+          "grain": 0.2
+        },
+        {
+          "label": { "zh": "一排三个", "en": "Three in a row" },
+          "rects": [[1, 4, 15, 10]],
+          "gapX": [5, 11],
+          "seed": 73,
+          "grain": 0.2
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "一排两个，缝在别处", "en": "Two in a row, gap elsewhere" },
+          "rects": [[0, 2, 14, 8]],
+          "gapX": [9],
+          "seed": 74,
+          "grain": 0.2
+        }
+      ],
+      "solution": [
+        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
+        "f = threshold(in)",
+        "s = downsample(a)",
+        "c = threshold[t=0.3](s)",
+        "u = tconv(c)",
+        "m = arith[op=mul](u, f)",
+        "out <- m"
+      ],
+      "naive": [
+        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
+        "s = downsample(a)",
+        "c = threshold[t=0.3](s)",
+        "u = tconv(c)",
+        "out <- u"
+      ]
+    }
+  ]
+}

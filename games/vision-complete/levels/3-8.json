@@ -1,0 +1,104 @@
+{
+  "title": { "zh": "关灯也认得", "en": "Seen even in dim light" },
+  "after": {
+    "zh": "求坡度去掉了整体加亮（偏置），除以最陡的坡度去掉了整体倍数（增益）。设计特征时先问：哪些变化不应该改变答案？这叫不变性。注意图外补的数：补 0 会在图边造出一条随灯光变化的假边，所以要复制边缘。",
+    "en": "Taking slopes removes an overall brightening (the offset); dividing by the steepest slope removes an overall scaling (the gain). When you design a feature, first ask: which changes should not change the answer? This is called invariance. Mind the padding outside the image: padding with 0 creates a fake edge at the border that changes with the lighting, so replicate the edge instead."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "找边还差一步：定一个门槛，梯度超过它的像素才算边。门槛太低，表面的细纹也算进来；太高，真正的边又会漏掉。",
+        "en": "Finding edges needs one more step: a threshold, so that only pixels whose gradient exceeds it count as edges. Too low, and fine texture counts too; too high, and real edges are missed."
+      }
+    },
+    {
+      "t": {
+        "zh": "麻烦在灯光。车上的摄像头中午和傍晚都要认出同一条路沿，不可能每换一次光就重调一次门槛。同一张脸在室内和室外，像素数值差得很远，该给的答案却一样。",
+        "en": "The trouble is lighting. A car's camera must recognise the same kerb at noon and at dusk; it cannot retune the threshold every time the light changes. The same face indoors and outdoors gives very different pixel values, yet the answer should be the same."
+      },
+      "fig": {
+        "test": 1,
+        "caption": { "zh": "同一个 F，灯暗了，期望的边不变", "en": "The same F with a dimmer lamp: the expected edges stay the same" }
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关新出现的元件是<part-ref to=\"part:globalMax\"></part-ref>：找出输入里最大的那个数，输出一张处处都是这个数的图。",
+        "en": "New in this level is the part <part-ref to=\"part:globalMax\"></part-ref>: it finds the largest number in its input and outputs a picture filled with that number everywhere."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：输入是同一个物体在不同灯光下的照片，有的整体变亮，有的变暗。输出它的边，四组测试的期望完全一样。",
+        "en": "Your task in this level: the inputs are photos of the same object under different lighting, some brighter overall, some dimmer. Output its edges; all four tests expect exactly the same answer."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：原来的灯光 → 期望", "en": "Set 1: the original lighting → expected" } }
+    }
+  ],
+  "adds": ["globalMax"],
+  "tray": "pipeline",
+  "tasks": [
+    {
+      "id": "3-8",
+      "kind": "graph",
+      "brief": {
+        "zh": "同一个物体在不同灯光下拍了几次：有的整体变亮，有的灯暗了一半。每次都要标出同一组边：梯度大小超过这张图里最陡处一半的像素输出 1。",
+        "en": "The same object was photographed several times under different lighting: in some shots it is brighter overall, in others the light is half as strong. Each time, mark the same set of edges: output 1 at pixels whose gradient magnitude is more than half that of the steepest spot in the picture."
+      },
+      "hint": {
+        "zh": "不知道灯暗了多少，能不能在图里找一把跟着灯光一起变长变短的尺子？",
+        "en": "You don't know how much the light dimmed. Can you find a ruler inside the image that grows and shrinks with the light?"
+      },
+      "views": { "in": "slope", "out": "pixels", "mid": "terrain" },
+      "scene": "relit",
+      "tests": [
+        {
+          "label": { "zh": "灯光 ×1", "en": "Light ×1" },
+          "subject": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.55 } },
+          "gain": 1,
+          "offset": 0
+        },
+        {
+          "label": { "zh": "灯光 ×0.45 +0.05", "en": "Light ×0.45 +0.05" },
+          "subject": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.55 } },
+          "gain": 0.45,
+          "offset": 0.05
+        },
+        {
+          "label": { "zh": "灯光 ×1.6 -0.1", "en": "Light ×1.6 -0.1" },
+          "subject": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.55 } },
+          "gain": 1.6,
+          "offset": -0.1
+        },
+        {
+          "label": { "zh": "灯光 ×0.7 +0.3", "en": "Light ×0.7 +0.3" },
+          "subject": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.55 } },
+          "gain": 0.7,
+          "offset": 0.3
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "换个物体 · 弱光", "en": "Another object · dim light" },
+          "subject": { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.6, "ox": 4, "oy": 3 } },
+          "gain": 0.35,
+          "offset": 0.02
+        },
+        {
+          "label": { "zh": "换个物体 · 强光", "en": "Another object · bright light" },
+          "subject": { "square": { "x0": 3, "y0": 5, "s": 7, "lo": 0.1, "hi": 0.5 } },
+          "gain": 1.8,
+          "offset": 0.1
+        },
+        {
+          "label": { "zh": "换个物体 · 灰蒙蒙", "en": "Another object · hazy" },
+          "subject": { "glyph": { "letter": "L", "lo": 0.15, "hi": 0.55, "ox": 6, "oy": 4 } },
+          "gain": 0.5,
+          "offset": 0.45
+        }
+      ],
+      "solution": ["g = gradmag[border=edge](in)", "m = globalMax(g)", "d = arith[op=div](g, m)", "t = threshold(d)", "out <- t"],
+      "naive": ["g = gradmag(in)", "t = threshold[t=0.1](g)", "out <- t"]
+    }
+  ]
+}

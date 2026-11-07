@@ -1,139 +1,42 @@
 {
   "domain": "vision",
-  "vocabulary": 5,
-  "title": {
-    "zh": "视觉实验室",
-    "en": "Vision Lab"
-  },
-  "kicker": {
-    "zh": "开发中",
-    "en": "In development"
-  },
+  "vocabulary": 11,
+  "title": { "zh": "视觉实验室", "en": "Vision Lab" },
+  "kicker": { "zh": "开发中", "en": "In development" },
   "lede": {
-    "zh": "从基础图像元件造出比较仪、扫描器和二维频率去干扰仪",
-    "en": "Build a comparator, scanner and 2D frequency interference remover from basic image parts"
+    "zh": "给一台仓库机器人装上眼睛：从一格格的数开始，自己搭出去噪、找边、读单据的机器，再一路走到会学习、会测距、会画图的视觉系统。",
+    "en": "Give a warehouse robot its eyes: start from a grid of numbers, build the machines that denoise, find edges and read documents, and go on to a vision system that learns, measures distance and draws."
   },
-  "primitives": [
-    "abs",
-    "arithmetic",
-    "const",
-    "cosine",
-    "expandRows",
-    "less",
-    "magnitude",
-    "max",
-    "positions",
-    "reduceRows",
-    "restore",
-    "reverse",
-    "shift",
-    "size",
-    "transpose",
-    "trim",
-    "weightedLine",
-    "windowTable",
-    "difference",
-    "gaussianWeights",
-    "totalDifference",
-    "chooseDifference"
-  ],
+  "primitives": ["shift", "arithmetic", "const", "split3", "rows3", "magnitude", "angle", "less"],
   "trays": {
     "main": [
-      "arithmetic",
-      "abs",
       "shift",
-      "difference",
-      "less",
+      "arithmetic",
       "const",
-      "weightedLine",
-      "windowTable",
-      "reduceRows",
-      "restore",
-      "reverse",
-      "spatialProcessor",
-      "trim",
+      "line3",
+      "split3",
+      "rows3",
+      "filter3",
       "magnitude",
-      "cosine",
-      "positions",
-      "wave",
-      "projection",
-      "expandRows",
-      "frequencyProbe",
-      "spectrum",
-      "max",
-      "synthesise",
-      "frequencyFilter",
-      "size",
-      "transpose",
-      "complexSpectrum",
-      "spectrum2D",
-      "synthesise2D",
-      "gaussianWeights",
-      "totalDifference",
-      "chooseDifference"
+      "angle",
+      "less"
     ]
   },
   "concept": {
-    "abs": "arithmetic",
-    "const": "arithmetic",
-    "less": "arithmetic",
-    "shift": "sampling",
-    "max": "arithmetic",
-    "transpose": "localTraversal",
-    "reverse": "kernelOrientation",
-    "windowTable": "localTraversal",
-    "reduceRows": "localTraversal",
-    "restore": "localTraversal",
-    "trim": "localTraversal",
-    "magnitude": "length",
-    "cosine": "trigonometry",
-    "positions": "coordinates",
-    "expandRows": "traversal",
-    "size": "localTraversal",
-    "arithmetic": "arithmetic",
-    "weightedLine": "localTraversal",
-    "difference": "arithmetic",
-    "gaussianWeights": "localTraversal",
-    "totalDifference": "candidate-alignment",
-    "chooseDifference": "candidate-alignment"
+    "shift": "pixels",
+    "arithmetic": "pixels",
+    "const": "pixels",
+    "magnitude": "gradient",
+    "angle": "gradient"
   },
+  "views": { "grid": ["pixels", "numbers", "surface", "slope", "profile"] },
   "eras": [
     {
-      "id": 0,
-      "title": { "zh": "质检台", "en": "Inspection station" },
-      "question": {
-        "zh": "怎样把相机读数变成可靠的缺陷标记？",
-        "en": "How can camera readings become reliable defect marks?"
-      },
-      "foundation": [
-        "0-1",
-        "0-2",
-        {
-          "parallel": [
-            { "id": "contrast", "title": { "zh": "亮暗", "en": "Brightness" }, "levels": ["0-3"] },
-            { "id": "difference", "title": { "zh": "差异", "en": "Difference" }, "levels": ["0-4", "0-6"] },
-            { "id": "alignment", "title": { "zh": "位移", "en": "Displacement" }, "levels": ["0-5"] }
-          ]
-        },
-        "0-7",
-        "0-8"
-      ],
-      "challenges": [{ "level": "outline", "after": "0-7" }],
-      "topics": [
-        {
-          "id": "quality",
-          "title": { "zh": "质检台", "en": "Inspection station" },
-          "after": "0-8",
-          "levels": ["q-noise", "q-position", "q-station"]
-        }
-      ]
-    },
-    {
       "id": 1,
-      "title": { "zh": "邻域处理器与扫描器", "en": "Neighbourhood processor and scanner" },
+      "title": { "zh": "读单据", "en": "Reading documents" },
       "question": {
-        "zh": "怎样利用邻域处理图像，再把它装成扫描器？",
-        "en": "How can neighbourhood processing turn into a scanner?"
+        "zh": "怎样用邻居把一张夜里拍的单据看清楚？",
+        "en": "How do neighbours make a night photo of a document readable?"
       },
       "foundation": [
         "1-1",
@@ -143,43 +46,16 @@
         "1-5",
         {
           "parallel": [
-            { "id": "e1-detail", "title": { "zh": "平滑与细节", "en": "Smoothing and detail" }, "levels": ["1-6"] },
             {
-              "id": "e1-edge",
-              "title": { "zh": "方向与边缘", "en": "Direction and edges" },
-              "levels": ["1-7", "1-8"]
-            }
-          ]
-        },
-        "1-9"
-      ]
-    },
-    {
-      "id": 2,
-      "title": { "zh": "频率分析与去干扰仪", "en": "Frequency analyser and interference remover" },
-      "question": {
-        "zh": "怎样把局部处理扩展到频率表示并保留空间信息？",
-        "en": "How can frequency representations extend local processing while retaining spatial information?"
-      },
-      "foundation": [
-        "2-1",
-        "2-2",
-        "2-3",
-        "2-4",
-        {
-          "parallel": [
-            {
-              "id": "e2-synthesis",
-              "title": { "zh": "合成与频率处理", "en": "synthesis" },
-              "levels": ["2-5", "2-6", "2-9", "2-10", "2-11"]
+              "id": "filters",
+              "title": { "zh": "滤镜和边界", "en": "Filters and borders" },
+              "levels": ["1-6", "1-8"]
             },
-            { "id": "e2-twoaxes", "title": { "zh": "二维扩展", "en": "twoaxes" }, "levels": ["2-7", "2-8"] }
+            { "id": "edges", "title": { "zh": "找边", "en": "Finding edges" }, "levels": ["1-7", "1-9", "1-10"] }
           ]
         },
-        "2-12",
-        "2-13"
+        "1-11"
       ]
     }
-  ],
-  "views": { "grid": ["numbers", "pixels", "plot", "profile", "surface"] }
+  ]
 }

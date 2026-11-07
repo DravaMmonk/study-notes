@@ -1,0 +1,95 @@
+{
+  "title": { "zh": "货架盘点", "en": "Stock-take" },
+  "tray": "recognition",
+  "after": {
+    "zh": "模板打分、多尺度、非极大值抑制，每个 X 恰好标一次：一台最简单的检测器。把模板换成学出来的卷积、加上框回归，就是真实的目标检测网络；它的成绩用你搭的 IoU 和 AP 来量。",
+    "en": "Template scores, several scales, non-maximum suppression, each X marked exactly once: the simplest detector. Replace the template with learnt convolutions and add box regression, and you have a real object-detection network, its results measured with the IoU and AP you built."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "真实的照片有噪点，也有点糊，大小箱子混在一起。",
+        "en": "A real photo is grainy and a little blurred, with large and small boxes mixed."
+      }
+    },
+    {
+      "t": { "zh": "这一关你要做的：每个 X 恰好标一处。", "en": "Your task in this level: mark each X exactly once." },
+      "fig": { "test": 0, "caption": { "zh": "一大一小", "en": "One large, one small" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "10-11",
+      "kind": "graph",
+      "brief": {
+        "zh": "一张有噪点、有点糊的货架照片，大小箱子都有。每个 X 只标一处：小 X 一个点，大 X 一个 2×2 的小块。",
+        "en": "A grainy, slightly blurred photo of a shelf, with large and small boxes. Mark each X once: a point for a small X, a 2×2 block for a large one."
+      },
+      "hint": { "zh": "前面每一关都解决了这里的一个麻烦。", "en": "Each of the last few levels dealt with one of the troubles here." },
+      "scene": "shelf",
+      "setup": { "expect": "both", "grain": 0.1, "blur": 0.5 },
+      "tests": [
+        {
+          "label": { "zh": "一大一小", "en": "One large, one small" },
+          "marks": [{ "mark": "X", "at": [5, 5] }, { "mark": "X", "at": [15, 15], "scale": 2 }, { "mark": "O", "at": [20, 4] }],
+          "seed": 111
+        },
+        {
+          "label": { "zh": "大的 O", "en": "A large O" },
+          "marks": [
+            { "mark": "O", "at": [7, 17], "scale": 2 },
+            { "mark": "X", "at": [18, 6] },
+            { "mark": "X", "at": [13, 5], "scale": 2 }
+          ],
+          "seed": 112
+        },
+        {
+          "label": { "zh": "一排小的", "en": "A row of small ones" },
+          "marks": [
+            { "mark": "X", "at": [4, 12] },
+            { "mark": "O", "at": [10, 12] },
+            { "mark": "X", "at": [16, 12] },
+            { "mark": "X", "at": [20, 4] }
+          ],
+          "seed": 113
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "两个大的", "en": "Two large" },
+          "marks": [
+            { "mark": "X", "at": [5, 19], "scale": 2 },
+            { "mark": "X", "at": [19, 19], "scale": 2 },
+            { "mark": "X", "at": [11, 4] }
+          ],
+          "seed": 114
+        }
+      ],
+      "solution": [
+        "sk = const[c=0.2]()",
+        "k = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](in)",
+        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
+        "s = arith[op=mul](k, sk)",
+        "d = downsample(a)",
+        "p = own-6-2(s)",
+        "k2 = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](d)",
+        "s2 = arith[op=mul](k2, sk)",
+        "p2 = own-6-2(s2)",
+        "u = tconv(p2)",
+        "m = max(p, u)",
+        "out <- m"
+      ],
+      "naive": [
+        "k = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](in)",
+        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
+        "t = threshold[t=3](k)",
+        "d = downsample(a)",
+        "k2 = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](d)",
+        "t2 = threshold[t=3](k2)",
+        "u = tconv(t2)",
+        "m = max(t, u)",
+        "out <- m"
+      ]
+    }
+  ]
+}

@@ -1,63 +1,97 @@
 {
-  "title": { "zh": "相机自带的降噪", "en": "The camera’s own denoising" },
+  "title": { "zh": "方块模糊", "en": "Box blur" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "先横后竖，九次乘加变成六次。核能拆成一行乘一列时就能这样省，这叫可分离滤波；核越大省得越多。",
+    "en": "Horizontal first, then vertical: nine multiply-adds become six. You can save like this whenever a kernel splits into a row times a column. This is separable filtering; the bigger the kernel, the more you save."
+  },
   "intro": [
     {
       "t": {
-        "zh": "相机自带的降噪比你的干净，厂家却没说它怎么给邻居分配分量。给它喂几张自己画的图，看它吐出什么。",
-        "en": "The camera’s built-in denoising is cleaner than yours, and the maker never said how it weighs the neighbours. Feed it pictures you draw and watch what comes out."
+        "zh": "<level-ref to=\"1-1\"></level-ref>和<level-ref to=\"1-2\"></level-ref>只看左右或上下，这一关看一整圈：每格换成它周围 3×3 九个格子的平均。横竖一视同仁，叫方块模糊。",
+        "en": "<level-ref to=\"1-1\"></level-ref> and <level-ref to=\"1-2\"></level-ref> looked only left and right, or up and down; this one looks all the way round: each cell becomes the average of the nine cells in the 3×3 block around it. Horizontal and vertical are treated alike, and this is called a box blur."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关多了一项限制：<b>计算量</b>，数的是每算出一个输出格子要做几次乘法和加法。一张手机照片有上千万个像素，视频每秒几十张，每格省一次，总数就省下很多。",
+        "en": "This level adds a limit: the <b>cost</b>, which counts how many multiplications and additions it takes to compute one output cell. A phone photo has over ten million pixels and video runs at dozens of frames a second, so saving one operation per cell adds up to a lot."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：做出 3×3 平均，计算量不超过 6。最直接的搭法会超标，你得找一种更省的算法。",
+        "en": "Your task in this level: make a 3×3 average with a cost of no more than 6. The most direct circuit goes over the limit, so you need to find a cheaper method."
+      },
+      "fig": {
+        "test": 4,
+        "caption": { "zh": "一个亮点，期望是被摊成 3×3 的一小块", "en": "A bright dot: the expected output spreads it into a small 3×3 block" }
       }
     }
   ],
-  "after": {
-    "zh": "一个亮点进去，出来的就是它给每个邻居的分量，叫<wiki-ref to=\"impulse-response\"></wiki-ref>。这台降噪中间最重，越往外越轻。",
-    "en": "One bright dot in, and out comes the share it gives each neighbour: its <wiki-ref to=\"impulse-response\"></wiki-ref>. This denoiser weighs the centre most and less further out."
-  },
+  "unlocks": ["box3"],
   "tasks": [
     {
-      "id": "camera",
-      "kind": "probe",
-      "experiment": "filter",
+      "id": "1-3",
+      "kind": "graph",
       "brief": {
-        "zh": "画一张能分清三种说法的图，再选输出支持的那一种。",
-        "en": "Draw a picture that tells the three accounts apart, then pick the one the output supports."
+        "zh": "每个像素换成它周围 3×3 九个格子的平均。计算量不能超过 6。",
+        "en": "Replace each pixel with the average of the nine cells in the 3×3 block around it. The cost must not exceed 6."
       },
-      "hint": [
-        {
-          "zh": "一整片同样亮的图，三种降噪都不会改变它。",
-          "en": "A picture of one brightness all over is left unchanged by all three."
-        },
-        {
-          "zh": "想看清它对每个邻居做了什么，就让只有一格是亮的。",
-          "en": "To see what it does with each neighbour, light just one cell."
-        }
+      "hint": {
+        "zh": "九个格子挨个加要 8 次加法。3×3 的方块，能不能拆成几步更小的平均？",
+        "en": "Adding up nine cells one by one takes 8 additions. Can the 3×3 block be split into a few smaller averages?"
+      },
+      "constraint": { "cost": { "max": 6 } },
+      "scene": "filter",
+      "setup": { "target": { "box": { "size": 3 } } },
+      "tests": [
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
       ],
-      "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]],
-      "questions": [
+      "hidden": [
         {
-          "title": { "zh": "它怎么给邻居分配分量？", "en": "How does it share among the neighbours?" },
-          "options": [
-            {
-              "id": "even",
-              "label": { "zh": "九格一样重", "en": "All nine the same" },
-              "kernel": [
-                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111],
-                [0.1111111111111111, 0.1111111111111111, 0.1111111111111111]
-              ]
-            },
-            {
-              "id": "centre",
-              "label": { "zh": "中间重，越往外越轻", "en": "Centre heaviest, lighter outwards" },
-              "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]]
-            },
-            {
-              "id": "row",
-              "label": { "zh": "只看左右", "en": "Left and right only" },
-              "kernel": [[0, 0, 0], [0.25, 0.5, 0.25], [0, 0, 0]]
-            }
-          ],
-          "answer": "centre"
-        }
+          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 2, "oy": 5 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 13 } } }
+      ],
+      "solution": [
+        "kN = const[c=0.33]()",
+        "h = blur3h(in)",
+        "u = shift[dir=up](h)",
+        "d = shift[dir=down](h)",
+        "m = merge(u, h, d)",
+        "k = arith[op=mul](m, kN)",
+        "out <- k"
+      ],
+      "naive": [
+        "kN = const[c=0.11]()",
+        "s0 = shift[dir=left](in)",
+        "s1 = shift[dir=right](in)",
+        "s2 = shift[dir=up](in)",
+        "s3 = shift[dir=down](in)",
+        "s4 = shift[dir=left](in)",
+        "s5 = shift[dir=left](in)",
+        "s6 = shift[dir=right](in)",
+        "s7 = shift[dir=right](in)",
+        "t4 = shift[dir=up](s4)",
+        "t5 = shift[dir=down](s5)",
+        "t6 = shift[dir=up](s6)",
+        "t7 = shift[dir=down](s7)",
+        "a0 = arith[op=add](in, s0)",
+        "a1 = arith[op=add](a0, s1)",
+        "a2 = arith[op=add](a1, s2)",
+        "a3 = arith[op=add](a2, s3)",
+        "a4 = arith[op=add](a3, t4)",
+        "a5 = arith[op=add](a4, t5)",
+        "a6 = arith[op=add](a5, t6)",
+        "a7 = arith[op=add](a6, t7)",
+        "k = arith[op=mul](a7, kN)",
+        "out <- k"
       ]
     }
   ]

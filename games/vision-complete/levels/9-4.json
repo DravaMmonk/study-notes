@@ -1,0 +1,58 @@
+{
+  "title": { "zh": "池化再还原", "en": "Pool and back again" },
+  "tray": "recognition",
+  "after": {
+    "zh": "池化把位置丢掉了一部分，反池化把它找回来：亮点在 2×2 块里的哪一格，信息还在池化前的图里。",
+    "en": "Pooling throws part of the position away, and unpooling gets it back: which cell of the 2×2 block the dot was in is still in the picture before pooling."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"own-9-3\"></part-ref>把池化后的每个值放回池化前它所在的那一格，其余格子为 0。",
+        "en": "The <part-ref to=\"own-9-3\"></part-ref> in the tray puts each pooled value back in the cell it came from before pooling; every other cell is 0."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：池化一张亮点图再放大回来，每个亮点要回到原处。",
+        "en": "Your task in this level: pool a picture of bright dots and enlarge it back, with every dot returning to its place."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：三个点", "en": "Set 1: three dots" } }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "9-4",
+      "kind": "graph",
+      "brief": {
+        "zh": "一张稀疏的亮点图先做 2×2 最大池化，再放大回 16×16，每个亮点要回到原来的位置。",
+        "en": "A picture of sparse bright dots goes through 2×2 max pooling, then back up to 16×16, and every dot must return to where it was."
+      },
+      "hint": { "zh": "一放大，每个点就糊成一整块。", "en": "Enlarge it and every dot smears into a whole block." },
+      "scene": "filter",
+      "setup": { "target": "same" },
+      "tests": [
+        {
+          "label": { "zh": "三个点", "en": "Three dots" },
+          "in": { "dots": { "dots": [[3, 2, 0.9], [10, 7, 0.6], [6, 13, 0.8]] } }
+        },
+        {
+          "label": { "zh": "挨着的点", "en": "Dots side by side" },
+          "in": { "dots": { "dots": [[4, 4, 0.9], [7, 5, 0.7], [12, 12, 0.5]] } }
+        },
+        {
+          "label": { "zh": "贴边的点", "en": "Dots at the edge" },
+          "in": { "dots": { "dots": [[0, 9, 0.8], [15, 0, 0.9], [9, 15, 0.6]] } }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "四个点", "en": "Four dots" },
+          "in": { "dots": { "dots": [[1, 1, 0.7], [5, 8, 0.9], [13, 3, 0.6], [11, 14, 0.8]] } }
+        }
+      ],
+      "solution": ["p = maxpool(in)", "u = own-9-3(p, in)", "out <- u"],
+      "naive": ["p = maxpool(in)", "u = tconv(p)", "out <- u"]
+    }
+  ]
+}

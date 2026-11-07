@@ -1,0 +1,103 @@
+{
+  "title": { "zh": "挡板多大", "en": "How big a patch" },
+  "tray": "recognition",
+  "after": {
+    "zh": "挡板越大，热图越平滑、越粗：一块挡板盖住的地方多，分到每格的就模糊了。挡板太小，又可能一块也盖不住模型认的那个部件。实际做遮挡实验，挡板大小要跟物体的部件差不多大。",
+    "en": "The bigger the patch, the smoother and coarser the heat map: each patch covers more, so what it finds is smeared over more cells. Too small a patch, though, may never cover the whole part the model recognises. In practice the patch is chosen about the size of the object's parts."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "<part-ref to=\"own-11-2\"></part-ref>用的挡板是 3×3。挡板该多大，没有一定之规：太小，盖不住模型认的那个部件；太大，热图糊成一片。",
+        "en": "The <part-ref to=\"own-11-2\"></part-ref> uses a 3×3 patch. There is no fixed rule for the patch size: too small and it never covers the part the model recognises; too large and the heat map blurs into one blob."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：换成 5×5 的灰色挡板，输出每个位置分数掉多少。",
+        "en": "Your task in this level: use a 5×5 grey patch, and output how far the score drops at each place."
+      },
+      "fig": {
+        "test": 0,
+        "view": "terrain",
+        "caption": { "zh": "第一组：老实的分类器，5×5 挡板", "en": "Set 1: an honest classifier, a 5×5 patch" }
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "11-3",
+      "kind": "graph",
+      "brief": {
+        "zh": "换一块 5×5 的灰色挡板。在每一格输出：挡住以它为中心的 5×5，分数掉多少。",
+        "en": "Use a 5×5 grey patch instead. At every cell, output how much the score drops when it covers the 5×5 centred there."
+      },
+      "hint": {
+        "zh": "3×3 的块和是邻居一格以内的格子加起来；5×5 是两格以内。平移可以一次挪好几格。",
+        "en": "A 3×3 block sum adds the cells up to one away; a 5×5 one, up to two away. Shift can move several cells at once."
+      },
+      "inputs": ["in", "w"],
+      "inputLabels": {
+        "in": { "zh": "照片", "en": "Photo" },
+        "w": { "zh": "权重", "en": "Weights" },
+        "m": { "zh": "车的掩膜", "en": "Car mask" }
+      },
+      "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
+      "scene": "classifier",
+      "setup": { "check": "occlusion", "cover": { "v": 0.5, "r": 5 } },
+      "tests": [
+        { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        {
+          "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
+          "street": { "cx": 5 },
+          "weights": "road"
+        },
+        {
+          "label": { "zh": "车停在路边的房子旁", "en": "A car by a house" },
+          "street": { "cx": 3, "house": 11 },
+          "weights": "both"
+        },
+        {
+          "label": { "zh": "看车轮的分类器", "en": "A classifier that looks at the wheels" },
+          "street": { "cx": 6 },
+          "weights": "wheels"
+        }
+      ],
+      "hidden": [
+        { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
+        {
+          "label": { "zh": "黑天也扣分的分类器", "en": "A classifier that marks down a dark sky" },
+          "street": { "cx": 5, "house": 0 },
+          "weights": "sky"
+        }
+      ],
+      "solution": [
+        "g = const[c=0.5]()",
+        "d = arith[op=sub](in, g)",
+        "c = arith[op=mul](d, w)",
+        "h1 = shift[dir=left](c)",
+        "h2 = shift[dir=right](c)",
+        "h3 = shift[dir=left, n=2](c)",
+        "h4 = shift[dir=right, n=2](c)",
+        "hm = merge(c, h1, h2)",
+        "hn = merge(hm, h3, h4)",
+        "v1 = shift[dir=up](hn)",
+        "v2 = shift[dir=down](hn)",
+        "v3 = shift[dir=up, n=2](hn)",
+        "v4 = shift[dir=down, n=2](hn)",
+        "vm = merge(hn, v1, v2)",
+        "vn = merge(vm, v3, v4)",
+        "out <- vn"
+      ],
+      "naive": [
+        "g = const[c=0.5]()",
+        "n = const[c=9]()",
+        "d = arith[op=sub](in, g)",
+        "c = arith[op=mul](d, w)",
+        "b = box3(c)",
+        "k = arith[op=mul](b, n)",
+        "out <- k"
+      ]
+    }
+  ]
+}

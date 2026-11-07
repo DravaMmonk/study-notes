@@ -1,0 +1,82 @@
+{
+  "title": { "zh": "只留最强的", "en": "Keep only the strongest" },
+  "tray": "geometry",
+  "after": {
+    "zh": "「等于周围最大值」的格子才是峰顶：这叫非极大值抑制（NMS）。一块 3×3 的最大值可以拆成先横后竖，和可分离的模糊一个道理。",
+    "en": "Only a cell equal to the largest around it is a top: this is called non-maximum suppression (NMS). The maximum over a 3×3 block splits into across then down, just like a separable blur."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "响应图一过门槛，留下的是一片一片：一个角附近有好几格都很强。可一个角只该是一个点。",
+        "en": "Above a threshold a response map leaves patches: several cells near one corner are all strong. But a corner should be a single point."
+      }
+    },
+    {
+      "t": {
+        "zh": "一片里真正的位置是它的峰顶：比四周都高的那一格。",
+        "en": "The true position in a patch is its top: the cell higher than everything around it."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：一张响应图上有几个鼓包，只在峰顶输出 1。",
+        "en": "Your task in this level: a response map has a few bumps; output 1 only at their tops."
+      },
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：三个鼓包", "en": "Set 1: three bumps" } }
+    }
+  ],
+  "packs": {
+    "name": { "zh": "找峰", "en": "Peak finder" },
+    "desc": {
+      "zh": "比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。",
+      "en": "Outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere."
+    }
+  },
+  "tasks": [
+    {
+      "id": "6-2",
+      "kind": "graph",
+      "brief": {
+        "zh": "一张响应图上有几个鼓包。只在峰顶输出 1：这一格比 3×3 邻居都不小，而且大于 0.3。",
+        "en": "A response map has a few bumps. Output 1 only at the tops: a cell no smaller than any of its 3×3 neighbours, and above 0.3."
+      },
+      "hint": {
+        "zh": "先算出每一格周围 3×3 里最大的是多少。<part-ref to=\"max\"></part-ref>一次只比两张图，可以先横着比、再竖着比。",
+        "en": "First work out the largest value in the 3×3 around each cell. <part-ref to=\"max\"></part-ref> compares only two pictures at a time, so compare across first, then down."
+      },
+      "inputs": ["in"],
+      "outputs": ["out"],
+      "scene": "bumps",
+      "setup": { "above": 0.3 },
+      "tests": [
+        { "label": { "zh": "三个峰", "en": "Three peaks" }, "bumps": [[3, 4, 0.9], [11, 5, 0.6], [7, 12, 0.8]] },
+        { "label": { "zh": "挨得近的峰", "en": "Close peaks" }, "bumps": [[5, 5, 0.9], [8, 6, 0.7], [12, 12, 0.5]] },
+        { "label": { "zh": "有一个太弱", "en": "One too weak" }, "bumps": [[4, 11, 0.8], [11, 3, 0.25], [12, 10, 0.6]] }
+      ],
+      "hidden": [
+        { "label": { "zh": "贴边的峰", "en": "A peak at the edge" }, "bumps": [[0, 7, 0.7], [9, 9, 0.9]] },
+        {
+          "label": { "zh": "一排峰", "en": "A row of peaks" },
+          "bumps": [[2, 8, 0.6], [6, 8, 0.8], [10, 8, 0.7], [14, 8, 0.5]]
+        }
+      ],
+      "solution": [
+        "l = shift[dir=left](in)",
+        "r = shift[dir=right](in)",
+        "big = threshold[t=0.3](in)",
+        "h1 = max(in, l)",
+        "h = max(h1, r)",
+        "u = shift[dir=up](h)",
+        "d = shift[dir=down](h)",
+        "v1 = max(h, u)",
+        "v = max(v1, d)",
+        "df = arith[op=sub](in, v)",
+        "eq = threshold[t=-0.02](df)",
+        "m = arith[op=mul](eq, big)",
+        "out <- m"
+      ],
+      "naive": ["big = threshold[t=0.3](in)", "out <- big"]
+    }
+  ]
+}

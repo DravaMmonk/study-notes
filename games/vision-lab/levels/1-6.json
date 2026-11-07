@@ -1,380 +1,290 @@
 {
-  "title": { "zh": "同一部件，压低还是增强细节", "en": "Suppress or enhance detail" },
+  "title": { "zh": "修图滤镜", "en": "Photo filters" },
   "intro": [
     {
       "t": {
-        "zh": "预算关说明了同样的结果可以更省地算。现在用平滑去掉扫描纸面的细碎干扰。对比样张里的细线和大色块，看看干扰消失时，有用的结构损失了什么。",
-        "en": "The budget task showed how to obtain the same output with less work. Now smooth a scanned sheet to suppress fine interference. Compare its thin marks with broad areas and see which useful structure changes along with the noise."
+        "zh": "修图软件有几款滤镜，只给了处理前后的照片。滤波器已经接好，填出每款滤镜的核。",
+        "en": "A photo app has a few filters, and all it shows is before and after. The filter is wired; fill in each one’s kernel."
       }
     }
   ],
   "after": {
-    "zh": "\\[D=I-S,\\qquad E=I+\\alpha D\\]\n\nI 是原图，S 是平滑图，D 是被平滑压低的带符号细节，α 是增强强度。D 为正时增强会更亮，为负时会更暗；绝对差无法保留这种方向。增强也可能放大噪声，输出超出显示范围不等于计算错误。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-    "en": "\\[D=I-S,\\qquad E=I+\\alpha D\\]\n\nI is the original, S the smoothed image, D the signed detail removed by smoothing and α the enhancement amount. Positive detail becomes brighter and negative detail darker; absolute difference loses that direction. Enhancement can amplify noise, and values outside the display range remain valid results. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
+    "zh": "亮点经过滤波器，出来的是核转了 180°：滤波器按<wiki-ref to=\"correlation\"></wiki-ref>算，照抄冲激响应就成了<wiki-ref to=\"convolution\"></wiki-ref>的核。",
+    "en": "A bright dot through the filter comes out as the kernel turned 180°: the filter computes <wiki-ref to=\"correlation\"></wiki-ref>, and copying its impulse response gives the <wiki-ref to=\"convolution\"></wiki-ref> kernel instead."
   },
   "tasks": [
     {
-      "id": "v1_smooth_border",
+      "id": "soften",
       "kind": "circuit",
-      "step": {
-        "zh": "先稳定边缘读数",
-        "en": "Stabilise boundary readings"
-      },
-      "configurations": { "*.outside": ["clamp"] },
-      "adds": [],
-      "brief": {
-        "zh": "复现目标中的平滑图。注意图边与内部的读数，保住均匀色块的亮度。",
-        "en": "Match the smoothed image, including the edges. Preserve the brightness of flat regions."
-      },
-      "after": {
-        "zh": "\\[\\begin{gathered}S(p)=\\sum_\\delta h(\\delta)I(p+\\delta)\\\\\\sum_\\delta h(\\delta)=1\\end{gathered}\\]\n\nh 是给定的归一化高斯权重，S 是平滑结果。邻居共同参与会压低快速变化；归一化保持常量输入，但不能保证图中细节全部保留。图外读取仍由边界假设决定。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-        "en": "\\[\\begin{gathered}S(p)=\\sum_\\delta h(\\delta)I(p+\\delta)\\\\\\sum_\\delta h(\\delta)=1\\end{gathered}\\]\n\nh is the supplied normalised Gaussian weighting and S the smoothed result. Combining neighbours suppresses rapid variation. Normalisation preserves constants, not all detail, and outside samples still depend on the border assumption. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kx", "label": { "zh": "横向高斯权重", "en": "Gaussian row" } },
-        { "name": "ky", "label": { "zh": "纵向高斯权重", "en": "Gaussian column" } }
-      ],
-      "outputs": [{ "name": "out", "label": { "zh": "平滑读数", "en": "Smoothed readings" } }],
+      "step": { "zh": "柔化", "en": "Soften" },
+      "brief": { "zh": "填出「柔化」的核。", "en": "Fill in the kernel of “soften”." },
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
+      "starter": ["k = const[kind=kernel3]()", "f = filter3(photo,k)", "out <- f"],
       "tests": [
         {
           "inputs": {
-            "image": [[0.6, 0.6, 0.6], [0.6, 0.6, 0.6]],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.25], [0.5], [0.25]]
-          },
-          "expect": { "out": [[0.6, 0.6, 0.6], [0.6, 0.6, 0.6]] }
-        },
-        {
-          "inputs": {
-            "image": [[1, 0, 0], [0, 0, 0]],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.25], [0.5], [0.25]]
+            "photo": [
+              [0.49, 0.56, 0.81, 0.32, 0.32],
+              [0.69, 0.49, 0.36, 0.41, 0.33],
+              [0.17, 0.63, 0.89, 0.69, 0.63],
+              [0.34, 0.43, 0.14, 0.73, 0.3]
+            ]
           },
           "expect": {
             "out": [
-              [0.5625, 0.1875, 0],
-              [0.1875, 0.0625, 0]
+              [
+                0.5499999999999999,
+                0.5844444444444444,
+                0.5155555555555555,
+                0.4444444444444444,
+                0.3322222222222222
+              ],
+              [
+                0.48666666666666664,
+                0.5655555555555555,
+                0.5733333333333333,
+                0.5288888888888889,
+                0.4422222222222222
+              ],
+              [
+                0.4388888888888889,
+                0.45999999999999996,
+                0.5299999999999999,
+                0.49777777777777776,
+                0.4833333333333333
+              ],
+              [0.35444444444444445, 0.39, 0.5344444444444444, 0.5055555555555555, 0.5122222222222221]
             ]
           }
         },
         {
           "inputs": {
-            "image": [[0.2], [0.8], [0.4]],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.25], [0.5], [0.25]]
+            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
           },
-          "expect": { "out": [[0.35000000000000003], [0.55], [0.5]] }
+          "expect": {
+            "out": [
+              [0, 0, 0, 0, 0],
+              [0, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0],
+              [0, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0],
+              [0, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0],
+              [0, 0, 0, 0, 0]
+            ]
+          }
         }
       ],
-      "hidden": [],
-      "solution": [
-        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
-        "out <- v"
+      "hidden": [
+        {
+          "inputs": {
+            "photo": [
+              [0.93, 0.17, 0.97, 0.24],
+              [0.46, 0.9, 0.36, 0.51],
+              [0.16, 0.96, 0.99, 0.17],
+              [0.12, 0.47, 0.52, 0.78]
+            ]
+          },
+          "expect": {
+            "out": [
+              [0.6533333333333333, 0.6511111111111111, 0.5033333333333333, 0.4755555555555555],
+              [0.57, 0.6555555555555554, 0.5855555555555555, 0.4622222222222222],
+              [0.4233333333333333, 0.5488888888888889, 0.6288888888888888, 0.5322222222222222],
+              [0.3, 0.4811111111111111, 0.6288888888888888, 0.61]
+            ]
+          }
+        }
       ],
-      "naive": ["v = spatialProcessor[form=separable,outside=zero](image,kx,ky)", "out <- v"],
-      "naiveWhy": {
-        "zh": "图外取零会让原本均匀的纸面在边缘变暗。",
-        "en": "Reading zero outside darkens the edges of an otherwise uniform sheet."
-      },
+      "solution": [
+        "k = const[kind=kernel3,k1=0.1111111111111111,k2=0.1111111111111111,k3=0.1111111111111111,k4=0.1111111111111111,k5=0.1111111111111111,k6=0.1111111111111111,k7=0.1111111111111111,k8=0.1111111111111111,k9=0.1111111111111111]()",
+        "f = filter3(photo,k)",
+        "out <- f"
+      ],
       "sample": {
         "inputs": {
-          "image": {
-            "size": [64, 64],
-            "base": 0.25,
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
             "layers": [
-              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
-              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
-              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
-              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
-            ],
-            "noise": { "seed": 7, "amp": 0.06 }
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
+            ]
           }
         }
       }
     },
     {
-      "id": "v1_residual",
+      "id": "emboss",
       "kind": "circuit",
-      "step": {
-        "zh": "取出被抹掉的细节",
-        "en": "Separate the removed detail"
-      },
-      "adds": [],
-      "brief": {
-        "zh": "仪器要同时交出平滑图和被移除的变化。亮点和暗点的变化应保留不同符号。",
-        "en": "Return the smoothed image and the variation it removes. Bright and dark spots must keep different signs."
-      },
-      "after": {
-        "zh": "\\[D=I-S\\]\n\nI 是原图，S 是平滑图，D 是带符号残差。它记录平滑减去了什么；符号决定恢复或增强时该变亮还是变暗。|D| 只能描述改动大小。 <wiki-ref to=\"smoothing-detail\"></wiki-ref>",
-        "en": "\\[D=I-S\\]\n\nI is the original, S the smoothed image and D the signed residual. It records what smoothing removed; the sign determines brightening versus darkening during restoration or enhancement. |D| retains only change size. <wiki-ref to=\"smoothing-detail\"></wiki-ref>"
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kx", "label": { "zh": "横向高斯权重", "en": "Gaussian row" } },
-        { "name": "ky", "label": { "zh": "纵向高斯权重", "en": "Gaussian column" } }
-      ],
-      "outputs": [
-        { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
-        { "name": "detail", "label": { "zh": "细节", "en": "Detail" } }
-      ],
+      "step": { "zh": "浮雕", "en": "Emboss" },
+      "brief": { "zh": "填出「浮雕」的核。", "en": "Fill in the kernel of “emboss”." },
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
+      "starter": ["k = const[kind=kernel3]()", "f = filter3(photo,k)", "out <- f"],
       "tests": [
         {
           "inputs": {
-            "image": [[0.2, 0.2, 0.2], [0.8, 0.8, 0.8], [0.2, 0.2, 0.2]],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.25], [0.5], [0.25]]
+            "photo": [
+              [0.45, 0.29, 0.91, 0.48, 0.09],
+              [0.75, 0.08, 0.2, 0.07, 0.63],
+              [0.84, 0.61, 0.22, 0.85, 0.87],
+              [0.33, 0.27, 0.67, 0.97, 0.91]
+            ]
           },
           "expect": {
-            "smooth": [[0.35, 0.35, 0.35], [0.5, 0.5, 0.5], [0.35, 0.35, 0.35]],
-            "detail": [[-0.15, -0.15, -0.15], [0.3, 0.3, 0.3], [-0.15, -0.15, -0.15]]
+            "out": [
+              [-0.15000000000000005, 0.04000000000000002, -0.04999999999999993, -1.31, 0.54],
+              [0.7899999999999999, -0.61, 0.62, 0.7899999999999999, 2.75],
+              [-0.77, 0.020000000000000115, 2.71, 3.82, 2.85],
+              [-1.38, -0.06999999999999978, 2.54, 2.71, 1.0100000000000002]
+            ]
           }
         },
         {
           "inputs": {
-            "image": [[0.7, 0.7, 0.7], [0.7, 0.1, 0.7], [0.7, 0.7, 0.7]],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.25], [0.5], [0.25]]
+            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
           },
           "expect": {
-            "smooth": [[0.6625, 0.625, 0.6625], [0.625, 0.55, 0.625], [0.6625, 0.625, 0.6625]],
-            "detail": [[0.0375, 0.075, 0.0375], [0.075, -0.45, 0.075], [0.0375, 0.075, 0.0375]]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.25], [0.5], [0.25]]
-          },
-          "expect": {
-            "smooth": [[0.4, 0.4, 0.4, 0.4], [0.4, 0.4, 0.4, 0.4]],
-            "detail": [[0, 0, 0, 0], [0, 0, 0, 0]]
+            "out": [[0, 0, 0, 0, 0], [0, 2, 1, 0, 0], [0, 1, 1, -1, 0], [0, 0, -1, -2, 0], [0, 0, 0, 0, 0]]
           }
         }
       ],
-      "hidden": [],
+      "hidden": [
+        {
+          "inputs": {
+            "photo": [
+              [0.48, 0.63, 0.4, 0.92],
+              [0.02, 0.99, 0.7, 0.8],
+              [0.8, 0.2, 0.82, 0.65],
+              [0.15, 0.86, 0.44, 0.72]
+            ]
+          },
+          "expect": {
+            "out": [
+              [1.19, 1.35, 1.33, 2.12],
+              [0.7500000000000001, 1.92, 0.97, 1.1300000000000001],
+              [2.01, 0.9299999999999999, 0.47, 0.44000000000000006],
+              [0.32999999999999985, 1.0899999999999999, 0.96, 0.8699999999999999]
+            ]
+          }
+        }
+      ],
       "solution": [
-        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
-        "r = arithmetic[op=sub](image,v)",
-        "smooth <- v",
-        "detail <- r"
+        "k = const[kind=kernel3,k1=-2,k2=-1,k3=0,k4=-1,k5=1,k6=1,k7=0,k8=1,k9=2]()",
+        "f = filter3(photo,k)",
+        "out <- f"
       ],
-      "naive": [
-        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
-        "signed = arithmetic[op=sub](image,v)",
-        "r = abs(signed)",
-        "smooth <- v",
-        "detail <- r"
-      ],
-      "naiveWhy": {
-        "zh": "绝对差只记下改动有多大，丢掉了方向：暗点中心的细节变成正数，平滑图加上它也回不到原图。",
-        "en": "Absolute difference keeps only how much changed and drops the direction: the dark dot’s centre turns positive, and smooth plus it no longer restores the original."
-      },
       "sample": {
         "inputs": {
-          "image": {
-            "size": [64, 64],
-            "base": 0.25,
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
             "layers": [
-              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
-              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
-              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
-              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
-            ],
-            "noise": { "seed": 7, "amp": 0.06 }
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
+            ]
           }
         }
       },
-      "carries": true
+      "naive": [
+        "k = const[kind=kernel3,k1=2,k2=1,k3=0,k4=1,k5=1,k6=-1,k7=0,k8=-1,k9=-2]()",
+        "f = filter3(photo,k)",
+        "out <- f"
+      ],
+      "naiveWhy": {
+        "zh": "照抄了亮点的输出：滤波器输出的冲激响应是核转了 180°，效果因此上下左右都颠倒了。",
+        "en": "This copies the bright dot’s output: the filter’s impulse response is the kernel turned 180°, so the effect comes out upside down and mirrored."
+      }
     },
     {
-      "id": "v1_detail",
+      "id": "outline",
       "kind": "circuit",
-      "step": {
-        "zh": "平滑与细节",
-        "en": "Smoothing and detail"
-      },
-      "brief": {
-        "zh": "同一仪器要能按给定强度恢复细节，并报告改动大小。核对暗细节以及强度为零时的结果。",
-        "en": "Use the supplied amount to control how much detail returns, and report the size of the change. Check dark features and the case where the amount is zero."
-      },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "amount", "label": { "zh": "细节强度", "en": "Detail strength" } },
-        { "name": "kx", "label": { "zh": "横向高斯权重", "en": "Gaussian row" } },
-        { "name": "ky", "label": { "zh": "纵向高斯权重", "en": "Gaussian column" } }
-      ],
-      "outputs": [
-        { "name": "smooth", "label": { "zh": "平滑图", "en": "Smoothed" } },
-        { "name": "enhanced", "label": { "zh": "细节增强图", "en": "Enhanced" } },
-        { "name": "change", "label": { "zh": "改动大小", "en": "Change magnitude" } }
-      ],
+      "step": { "zh": "描边", "en": "Outline" },
+      "brief": { "zh": "填出「描边」的核。", "en": "Fill in the kernel of “outline”." },
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "滤镜效果", "en": "Filtered" } }],
+      "starter": ["k = const[kind=kernel3]()", "f = filter3(photo,k)", "out <- f"],
       "tests": [
         {
           "inputs": {
-            "image": [
-              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2],
-              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2],
-              [0.2, 0.6000000000000001, 0.2, 0.6000000000000001, 0.2]
-            ],
-            "amount": 1,
-            "kx": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
-            "ky": [[0.274068619061197], [0.45186276187760605], [0.274068619061197]]
+            "photo": [
+              [0.41, 0.29, 0.84, 0.44, 0.53],
+              [0.55, 0.34, 0.64, 0.9, 0.07],
+              [0.56, 0.26, 0.66, 0.62, 0.05],
+              [0.11, 0.53, 0.86, 0.8, 0.82]
+            ]
           },
           "expect": {
-            "smooth": [
+            "out": [
+              [0.029999999999999805, -2, 2.5399999999999996, -1.27, 0.7300000000000001],
+              [1.0200000000000002, -1.4899999999999998, 0.77, 3.35, -2.63],
+              [1.4700000000000002, -2.17, 0.3300000000000001, 0.15999999999999992, -3.75],
               [
-                0.3096274476244788,
-                0.3807451047510425,
-                0.41925489524895765,
-                0.3807451047510425,
-                0.30962744762447886
-              ],
-              [
-                0.3096274476244788,
-                0.3807451047510425,
-                0.41925489524895765,
-                0.3807451047510425,
-                0.30962744762447886
-              ],
-              [
-                0.3096274476244788,
-                0.3807451047510425,
-                0.41925489524895765,
-                0.3807451047510425,
-                0.30962744762447886
-              ]
-            ],
-            "enhanced": [
-              [
-                0.09037255237552122,
-                0.8192548952489577,
-                -0.019254895248957626,
-                0.8192548952489577,
-                0.09037255237552116
-              ],
-              [
-                0.09037255237552122,
-                0.8192548952489577,
-                -0.019254895248957626,
-                0.8192548952489577,
-                0.09037255237552116
-              ],
-              [
-                0.09037255237552122,
-                0.8192548952489577,
-                -0.019254895248957626,
-                0.8192548952489577,
-                0.09037255237552116
-              ]
-            ],
-            "change": [
-              [
-                0.10962744762447879,
-                0.21925489524895758,
-                0.21925489524895764,
-                0.21925489524895758,
-                0.10962744762447885
-              ],
-              [
-                0.10962744762447879,
-                0.21925489524895758,
-                0.21925489524895764,
-                0.21925489524895758,
-                0.10962744762447885
-              ],
-              [
-                0.10962744762447879,
-                0.21925489524895758,
-                0.21925489524895764,
-                0.21925489524895758,
-                0.10962744762447885
+                -1.8900000000000001,
+                0.29000000000000015,
+                1.8199999999999998,
+                0.9100000000000004,
+                1.7799999999999996
               ]
             ]
           }
         },
         {
           "inputs": {
-            "image": [[0.1, 0.1, 0.8, 0.8], [0.1, 0.9, 0.8, 0.8], [0.1, 0.1, 0.8, 0.8]],
-            "amount": 0.6,
-            "kx": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
-            "ky": [[0.274068619061197], [0.45186276187760605], [0.274068619061197]]
+            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
           },
           "expect": {
-            "smooth": [
-              [0.16009088636328922, 0.39092115586521714, 0.6682428530204514, 0.8],
-              [0.19907312252237921, 0.4551919978001644, 0.7072250891795414, 0.8],
-              [0.16009088636328925, 0.39092115586521714, 0.6682428530204515, 0.8]
-            ],
-            "enhanced": [
-              [0.06394546818202648, -0.0745526935191303, 0.8790542881877292, 0.8],
-              [0.04055612648657248, 1.1668848013199014, 0.8556649464922752, 0.8],
-              [0.06394546818202645, -0.0745526935191303, 0.8790542881877291, 0.8]
-            ],
-            "change": [
-              [0.060090886363289214, 0.29092115586521716, 0.13175714697954866, 0],
-              [0.09907312252237921, 0.44480800219983563, 0.09277491082045863, 0],
-              [0.06009088636328924, 0.29092115586521716, 0.13175714697954855, 0]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "image": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
-            "amount": 1.4,
-            "kx": [[0.274068619061197, 0.45186276187760605, 0.274068619061197]],
-            "ky": [[0.274068619061197], [0.45186276187760605], [0.274068619061197]]
-          },
-          "expect": {
-            "smooth": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
-            "enhanced": [[0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5], [0.5, 0.5, 0.5, 0.5]],
-            "change": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+            "out": [[0, 0, 0, 0, 0], [0, -1, -1, -1, 0], [0, -1, 8, -1, 0], [0, -1, -1, -1, 0], [0, 0, 0, 0, 0]]
           }
         }
       ],
-      "hidden": [],
+      "hidden": [
+        {
+          "inputs": {
+            "photo": [
+              [0.07, 0.43, 0.25, 0.45],
+              [0.26, 0.86, 0.56, 0.74],
+              [0.93, 0.49, 0.47, 0.13],
+              [0.78, 0.07, 0.36, 0.17]
+            ]
+          },
+          "expect": {
+            "out": [
+              [-1.89, 0.69, -2.17, -0.29],
+              [-1.96, 3.42, 0.6600000000000005, 2.7399999999999998],
+              [3.0100000000000002, -0.37000000000000016, 0.3799999999999998, -2.3],
+              [1.4100000000000001, -3.68, 0.95, -0.5999999999999999]
+            ]
+          }
+        }
+      ],
       "solution": [
-        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
-        "detail = arithmetic[op=sub](image,v)",
-        "scaled = arithmetic[op=mul](detail,amount)",
-        "e = arithmetic[op=add](image,scaled)",
-        "d = difference(image,v)",
-        "smooth <- v",
-        "enhanced <- e",
-        "change <- d"
+        "k = const[kind=kernel3,k1=-1,k2=-1,k3=-1,k4=-1,k5=8,k6=-1,k7=-1,k8=-1,k9=-1]()",
+        "f = filter3(photo,k)",
+        "out <- f"
       ],
-      "naive": [
-        "v = spatialProcessor[form=separable,outside=clamp](image,kx,ky)",
-        "detail = arithmetic[op=sub](image,v)",
-        "scaled = arithmetic[op=mul](detail,amount)",
-        "e = arithmetic[op=add](v,scaled)",
-        "d = difference(image,v)",
-        "smooth <- v",
-        "enhanced <- e",
-        "change <- d"
-      ],
-      "naiveWhy": {
-        "zh": "加到平滑图上只是把抹掉的部分补回来：强度为 1 时得到的正是原图，没有任何增强。",
-        "en": "Adding to the smoothed image only restores what was removed: at strength 1 it gives back the original, with no enhancement."
-      },
-      "adds": ["difference"],
       "sample": {
         "inputs": {
-          "image": {
-            "size": [64, 64],
-            "base": 0.25,
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
             "layers": [
-              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
-              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
-              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
-              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
-            ],
-            "noise": { "seed": 7, "amp": 0.06 }
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
+            ]
           }
         }
-      },
-      "carries": true
+      }
     }
   ]
 }

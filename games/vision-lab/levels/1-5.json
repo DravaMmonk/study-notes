@@ -1,542 +1,310 @@
 {
-  "title": { "zh": "把能分解的核分两次算", "en": "Apply a factorable kernel in two passes" },
+  "title": { "zh": "滤波器", "en": "Filter" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-4\"></level-ref>的处理器已经能处理图边。现在产线要求在同一幅图上跑三种核，逐个检查 5×5 的每一项会超出乘法预算。先用两组权重复现一个例子，再判断哪几种核可以减少计算而保留原结果。",
-        "en": "The processor now handles borders. The station needs three filters on the same scan, and checking every entry of each 5×5 kernel exceeds its multiplication budget. First match one example from two weight arrays, then decide which production kernels can save work while keeping the same output. <level-ref to=\"1-4\"></level-ref>"
+        "zh": "有了三点加权，先复现相机的降噪。相机还自带锐化，那一款就没这么好对付了。",
+        "en": "With the three-point weighting, reproduce the camera’s denoising first. The camera also sharpens, and that one is harder."
       }
     }
   ],
   "after": {
-    "zh": "\\[K=k_y k_x,\\qquad Y=k_y*(k_x*I)\\] 两次读取采用同一边界规则。5×5 的外积核只需要每像素 5+5 次乘法。",
-    "en": "\\[K=k_y k_x,\\qquad Y=k_y*(k_x*I)\\] Use the same boundary rule for both passes. A 5×5 outer-product kernel takes 5+5 products per pixel."
+    "zh": "一张 3×3 的权重表叫<wiki-ref to=\"kernel\"></wiki-ref>；按它给每格周围九格加权求和的机器，就是<wiki-ref to=\"filter\"></wiki-ref>。模糊、锐化、找边，只是换一张核。",
+    "en": "A 3×3 table of weights is a <wiki-ref to=\"kernel\"></wiki-ref>; the machine that gives every cell the weighted sum of its nine by it is a <wiki-ref to=\"filter\"></wiki-ref>. Blurring, sharpening and finding edges are just different kernels."
   },
   "builds": {
-    "type": "spatialProcessor",
-    "name": { "zh": "邻域处理器", "en": "Spatial processor" },
+    "type": "filter3",
+    "name": { "zh": "滤波器", "en": "Filter" },
     "desc": {
-      "zh": "运行所选形态的已通关电路，对图像应用给定核。",
-      "en": "Apply the supplied kernel using the passed board of the selected form."
+      "zh": "按 3×3 的核给每格周围九格加权求和。核的左上角乘左上方的邻居。",
+      "en": "Each cell the sum of its nine neighbours weighted by a 3×3 kernel; the kernel’s top left weighs the neighbour up and to the left."
     },
-    "form": "separable",
-    "formLabel": { "zh": "可分离", "en": "Separable" },
+    "task": "filter",
     "settings": ["outside"],
-    "defaults": { "outside": "zero" },
-    "task": "v1_separable"
+    "defaults": { "outside": "clamp" }
   },
   "tasks": [
     {
-      "id": "v1_separable",
+      "id": "denoise",
       "kind": "circuit",
-      "step": {
-        "zh": "压低重复计算",
-        "en": "Cut repeated work"
+      "step": { "zh": "复现相机的降噪", "en": "The camera’s denoising" },
+      "after": {
+        "zh": "中间重的 3×3 降噪，正好是横着、竖着各做一次 [1 2 1]/4：它是<wiki-ref to=\"separable\"></wiki-ref>的。",
+        "en": "The centre-heavy 3×3 denoising is [1 2 1]/4 across, then down: it is <wiki-ref to=\"separable\"></wiki-ref>."
       },
       "brief": {
-        "zh": "这个核来自一行和一列的外积。用两组给定权重复现通用处理器的读数，保留原图大小。检查会把同一电路放到不同边界条件下运行。",
-        "en": "This kernel comes from a row–column outer product. Use the two supplied weight arrays to reproduce the dense processor’s readings at the original size. Checks run the same board under different border policies."
+        "zh": "用三点加权复现相机的降噪：中间重，越往外越轻。",
+        "en": "Reproduce the camera’s denoising with the three-point weighting: centre heaviest, lighter outwards."
       },
-      "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "kx", "label": { "zh": "横向权重行", "en": "Horizontal weights" } },
-        { "name": "ky", "label": { "zh": "纵向权重列", "en": "Vertical weights" } }
+      "hint": [
+        {
+          "zh": "回想相机对一个亮点的输出：它的每一行、每一列各是什么比例？",
+          "en": "Recall the camera’s output for one bright dot: in what proportions is each row, each column?"
+        }
       ],
-      "outputs": [
-        { "name": "out", "label": { "zh": "可分离结果", "en": "Separable result" } }
-      ],
+      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "降噪", "en": "Denoised" } }],
       "tests": [
         {
           "inputs": {
-            "image": [
-              [0.2, 0.1, 0.5, 0.8],
-              [0.7, 0.4, 0, 0.2],
-              [1, 0.3, 0.6, 0.1]
-            ],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.2], [0.6], [0.2]]
+            "photo": [
+              [0.07, 0.03, 0.12, 0.05, 0.02, 0.12, 0.28],
+              [0.24, 0.93, 0.77, 0.86, 0.78, 0.75, 0.03],
+              [0.06, 0.98, 0.95, 0.94, 0.94, 0.76, 0.09],
+              [0.19, 0.92, 0.41, 0.41, 0.73, 0.88, 0.2],
+              [0.15, 0.75, 0.84, 0.73, 0.98, 0.96, 0.16],
+              [0.09, 0.27, 0.17, 0.26, 0.25, 0.15, 0.12]
+            ]
           },
           "expect": {
             "out": [
-              [0.16499999999999998, 0.21, 0.315, 0.33499999999999996],
-              [0.41, 0.38, 0.265, 0.20500000000000002],
-              [0.435, 0.40499999999999997, 0.27, 0.14]
+              [0.148125, 0.22625, 0.268125, 0.249375, 0.2375, 0.245625, 0.2325],
+              [0.29375, 0.56, 0.675, 0.659375, 0.633125, 0.481875, 0.229375],
+              [0.34125, 0.703125, 0.82, 0.798125, 0.8175, 0.63125, 0.27375],
+              [0.33375, 0.64625, 0.705, 0.6856249999999999, 0.795625, 0.686875, 0.339375],
+              [0.276875, 0.51375, 0.58375, 0.5912499999999999, 0.6849999999999999, 0.5925, 0.304375],
+              [0.17625, 0.305625, 0.36062500000000003, 0.38125, 0.39875, 0.316875, 0.18562499999999998]
             ]
-          },
-          "outside": "zero"
+          }
         },
         {
           "inputs": {
-            "image": [
-              [0.2, 0.1, 0.5, 0.8],
-              [0.7, 0.4, 0, 0.2],
-              [1, 0.3, 0.6, 0.1]
-            ],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.2], [0.6], [0.2]]
+            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
           },
           "expect": {
             "out": [
-              [0.265, 0.255, 0.41000000000000003, 0.61],
-              [0.575, 0.38, 0.265, 0.28],
-              [0.785, 0.515, 0.35, 0.21]
+              [0, 0, 0, 0, 0],
+              [0, 0.0625, 0.125, 0.0625, 0],
+              [0, 0.125, 0.25, 0.125, 0],
+              [0, 0.0625, 0.125, 0.0625, 0],
+              [0, 0, 0, 0, 0]
             ]
-          },
-          "outside": "clamp"
-        },
-        {
-          "inputs": {
-            "image": [
-              [0.2, 0.1, 0.5, 0.8],
-              [0.7, 0.4, 0, 0.2],
-              [1, 0.3, 0.6, 0.1]
-            ],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.2], [0.6], [0.2]]
-          },
-          "expect": {
-            "out": [[0.415, 0.32, 0.395, 0.49], [0.485, 0.38, 0.265, 0.37], [0.525, 0.45, 0.365, 0.44]]
-          },
-          "outside": "wrap"
-        },
-        {
-          "inputs": {
-            "image": [
-              [0.2, 0.1, 0.5, 0.8],
-              [0.7, 0.4, 0, 0.2],
-              [1, 0.3, 0.6, 0.1]
-            ],
-            "kx": [[0.25, 0.5, 0.25]],
-            "ky": [[0.2], [0.6], [0.2]]
-          },
-          "expect": {
-            "out": [
-              [0.265, 0.255, 0.41000000000000003, 0.61],
-              [0.575, 0.38, 0.265, 0.28],
-              [0.785, 0.515, 0.35, 0.21]
-            ]
-          },
-          "outside": "reflect"
+          }
         }
       ],
       "hidden": [
         {
           "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
-            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
+            "photo": [
+              [0.64, 0.03, 0.28, 0.22, 0.74],
+              [0.68, 0.89, 0.09, 0.42, 0.03],
+              [0.22, 0.51, 0.03, 0.2, 0.65],
+              [0.54, 0.22, 0.59, 0.81, 0.01]
+            ]
           },
           "expect": {
             "out": [
-              [0.18400000000000002, 0.21300000000000005, 0.24000000000000005, 0.21500000000000005],
-              [0.278, 0.2700000000000001, 0.24000000000000005, 0.17200000000000004],
-              [0.29500000000000004, 0.2700000000000001, 0.24600000000000005, 0.14300000000000002]
+              [0.5487500000000001, 0.343125, 0.245, 0.33375, 0.489375],
+              [0.56125, 0.45937500000000003, 0.28500000000000003, 0.27875, 0.350625],
+              [0.444375, 0.41625, 0.3275, 0.33375, 0.353125],
+              [0.418125, 0.37375, 0.4625, 0.48375, 0.291875]
             ]
-          },
-          "outside": "zero"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[-1, 2, 0.4, 0, 0.2]],
-            "ky": [[1], [0.25], [-0.5]]
-          },
-          "expect": {
-            "out": [
-              [1.025, 0.02000000000000001, 1, 0.24500000000000005],
-              [0.78, 1.0899999999999999, -0.14500000000000005, -0.03000000000000002],
-              [-0.44, 0.32499999999999996, -0.11, -0.055000000000000014]
-            ]
-          },
-          "outside": "zero"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0, 0, 0]],
-            "ky": [[1], [2], [1]]
-          },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
-          "outside": "zero"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
-            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.3430000000000001, 0.32900000000000007, 0.4210000000000001, 0.5270000000000001],
-              [0.5370000000000001, 0.4050000000000001, 0.3570000000000001, 0.3390000000000001],
-              [0.7090000000000002, 0.4910000000000001, 0.39100000000000007, 0.25700000000000006]
-            ]
-          },
-          "outside": "clamp"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[-1, 2, 0.4, 0, 0.2]],
-            "ky": [[1], [0.25], [-0.5]]
-          },
-          "expect": {
-            "out": [
-              [1.265, 0.030000000000000013, 0.07999999999999999, 0.07500000000000001],
-              [0.995, 1.305, 0.10499999999999998, -0.28],
-              [0.14000000000000004, 1.7249999999999999, 0.505, 0.06999999999999999]
-            ]
-          },
-          "outside": "clamp"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0, 0, 0]],
-            "ky": [[1], [2], [1]]
-          },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
-          "outside": "clamp"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
-            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.44400000000000006, 0.37600000000000006, 0.4020000000000001, 0.4080000000000001],
-              [0.44800000000000006, 0.37600000000000006, 0.38600000000000007, 0.39000000000000007],
-              [0.4680000000000001, 0.38800000000000007, 0.4120000000000001, 0.4020000000000001]
-            ]
-          },
-          "outside": "wrap"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[-1, 2, 0.4, 0, 0.2]],
-            "ky": [[1], [0.25], [-0.5]]
-          },
-          "expect": {
-            "out": [
-              [0.79, -0.5199999999999999, 0.43000000000000005, 0.41999999999999993],
-              [0.85, 1.04, -1.22, 1.77],
-              [-0.53, 0.71, 1.6300000000000001, 0.5100000000000001]
-            ]
-          },
-          "outside": "wrap"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0, 0, 0]],
-            "ky": [[1], [2], [1]]
-          },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
-          "outside": "wrap"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0.1, 0.2, 0.4, 0.2, 0.1]],
-            "ky": [[0.1], [0.2], [0.4], [0.2], [0.1]]
-          },
-          "expect": {
-            "out": [
-              [0.3570000000000001, 0.3400000000000001, 0.3940000000000001, 0.45900000000000013],
-              [0.5010000000000001, 0.4050000000000001, 0.3570000000000001, 0.3370000000000001],
-              [0.6320000000000001, 0.4750000000000001, 0.36900000000000005, 0.2740000000000001]
-            ]
-          },
-          "outside": "reflect"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[-1, 2, 0.4, 0, 0.2]],
-            "ky": [[1], [0.25], [-0.5]]
-          },
-          "expect": {
-            "out": [
-              [1.21, 0.030000000000000013, 0.07999999999999999, 0.2],
-              [0.85, 1.305, 0.10499999999999998, -0.88],
-              [-0.0049999999999999906, 1.7249999999999999, 0.505, -0.655]
-            ]
-          },
-          "outside": "reflect"
-        },
-        {
-          "inputs": {
-            "image": [[0.2, 0.1, 0.5, 0.8], [0.7, 0.4, 0, 0.2], [1, 0.3, 0.6, 0.1]],
-            "kx": [[0, 0, 0]],
-            "ky": [[1], [2], [1]]
-          },
-          "expect": { "out": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]] },
-          "outside": "reflect"
+          }
         }
       ],
       "solution": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=zero,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "kyFlip = reverse(ky)",
-        "ty = windowTable[outside=zero,axis=x](x,kyFlip)",
-        "py = arithmetic[op=mul](ty.samples,ty.weights)",
-        "sy = reduceRows[mode=sum](py)",
-        "y = restore(sy,x)",
-        "out <- y"
+        "w = const[kind=row3,first=0.25,centre=0.5,last=0.25]()",
+        "a = line3[axis=x](photo,w)",
+        "b = line3[axis=y](a,w)",
+        "out <- b"
       ],
       "naive": [
-        "kxFlip = reverse(kx)",
-        "tx = windowTable[outside=zero,axis=x](image,kxFlip)",
-        "px = arithmetic[op=mul](tx.samples,tx.weights)",
-        "sx = reduceRows[mode=sum](px)",
-        "x = restore(sx,image)",
-        "out <- x"
+        "w = const[kind=row3,first=0.25,centre=0.5,last=0.25]()",
+        "a = line3[axis=x](photo,w)",
+        "out <- a"
       ],
       "naiveWhy": {
-        "zh": "第二次必须读取第一次输出，才能得到外积核的全部贡献。",
-        "en": "Feed the first pass into the second to obtain every contribution of the outer-product kernel."
+        "zh": "只横着做了一次：上下的邻居没有分到分量。",
+        "en": "Only across: the neighbours above and below get no share."
       },
       "sample": {
         "inputs": {
-          "image": {
-            "size": [32, 24],
+          "photo": {
+            "size": [48, 36],
             "base": 0.15,
             "layers": [
-              { "shape": "disc", "cx": 10, "cy": 12, "r": 6, "v": 0.8 },
-              { "shape": "rect", "x": 21, "y": 4, "w": 8, "h": 15, "v": 0.55 },
-              { "shape": "checker", "cell": 2, "lo": 0.25, "hi": 0.65, "x": 3, "y": 19, "w": 13, "h": 5 }
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
             ],
-            "noise": { "seed": 17, "amp": 0.04 }
+            "noise": { "seed": 6, "amp": 0.15 }
           }
         }
-      },
-      "hint": [
-        {
-          "zh": "先在一张小图上比较只用一组权重时，结果少了哪些方向上的变化。",
-          "en": "On a small image, see which direction of variation is missing when you use only one set of weights."
-        }
-      ],
-      "after": {
-        "zh": "第一次的输出作为第二次的输入，同一像素最终累加了两组权重的所有乘积。边界规则由处理器传给两次取样。",
-        "en": "Feeding the first result into the second accumulates all products of the two sets of weights. The processor passes the selected border policy to both reads."
       }
     },
     {
-      "id": "v1_multiply_budget",
+      "id": "filter",
       "kind": "circuit",
-      "step": { "zh": "乘法预算", "en": "Multiply budget" },
+      "step": { "zh": "相机的锐化", "en": "The camera’s sharpening" },
+      "intro": [
+        {
+          "t": {
+            "zh": "锐化的权重 [0 −1 0; −1 5 −1; 0 −1 0] 拆不成先横后竖两次。得有一台能装下任意 3×3 权重的机器。",
+            "en": "Sharpening’s weights [0 −1 0; −1 5 −1; 0 −1 0] cannot be split into an across pass and a down pass. You need a machine that takes any 3×3 weights."
+          }
+        }
+      ],
       "brief": {
-        "zh": "先检查现成的三条支路：结果能对上，成本却超标。改进这块板，让三张输出保持正确，总成本每像素最多 29 次乘法。比较三张核的数值，自行决定每路的形态和权重。",
-        "en": "Check the starting board: it matches the outputs but exceeds the budget. Improve it while keeping all three outputs correct, with at most 29 products per pixel in total. Inspect the kernel values and choose each branch’s form and weights."
+        "zh": "造一台按输入的 3×3 权重给每格周围九格加权求和的机器：上面一行权重管上面一行邻居。",
+        "en": "Build a machine that gives each cell the sum of its nine neighbours weighted by the 3×3 weights it is given: the top row of weights weighs the row above."
       },
+      "hint": [
+        {
+          "zh": "核的每一行，正好是一组三点加权的权重。",
+          "en": "Each row of the kernel is exactly one set of three-point weights."
+        },
+        {
+          "zh": "要让一行三点加权读到上面一行的邻居，先把整张图往下挪一格。",
+          "en": "To make a three-point weighting read the row above, first move the whole picture down a cell."
+        }
+      ],
+      "adds": ["rows3"],
+      "configurations": { "shift.axis": ["y"], "const.kind": ["kernel3"] },
       "inputs": [
-        { "name": "image", "label": { "zh": "图", "en": "Image" } },
-        { "name": "box", "label": { "zh": "方框核", "en": "Box kernel" } },
-        { "name": "gaussian", "label": { "zh": "高斯核", "en": "Gaussian kernel" } },
-        { "name": "laplacian", "label": { "zh": "拉普拉斯核", "en": "Laplacian kernel" } }
+        { "name": "photo", "label": { "zh": "照片", "en": "Photo" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
       ],
-      "outputs": [
-        { "name": "boxOut", "label": { "zh": "方框结果", "en": "Box result" } },
-        { "name": "gaussianOut", "label": { "zh": "高斯结果", "en": "Gaussian result" } },
-        { "name": "laplacianOut", "label": { "zh": "拉普拉斯结果", "en": "Laplacian result" } }
-      ],
+      "outputs": [{ "name": "out", "label": { "zh": "滤波以后", "en": "Filtered" } }],
       "tests": [
         {
           "inputs": {
-            "image": [
-              [0.2, 0.1, 0.5, 0.8],
-              [0.7, 0.4, 0, 0.2],
-              [1, 0.3, 0.6, 0.1]
+            "photo": [
+              [0.16, 0.17, 0.18, 0.19, 0.17, 0.19],
+              [0.1, 0.85, 0.89, 0.86, 0.89, 0.11],
+              [0.15, 0.82, 0.3, 0.31, 0.8, 0.12],
+              [0.13, 0.89, 0.88, 0.82, 0.88, 0.11],
+              [0.16, 0.11, 0.1, 0.19, 0.12, 0.12]
             ],
-            "box": [
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ]
-            ],
-            "gaussian": [
-              [0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625],
-              [0.015625, 0.0625, 0.09375, 0.0625, 0.015625],
-              [0.0234375, 0.09375, 0.140625, 0.09375, 0.0234375],
-              [0.015625, 0.0625, 0.09375, 0.0625, 0.015625],
-              [0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625]
-            ],
-            "laplacian": [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
+            "kernel": [[0, -1, 0], [-1, 5, -1], [0, -1, 0]]
           },
           "expect": {
-            "boxOut": [
-              [0.15200000000000002, 0.19600000000000004, 0.19600000000000004, 0.12000000000000002],
-              [0.15200000000000002, 0.19600000000000004, 0.19600000000000004, 0.12000000000000002],
-              [0.15200000000000002, 0.19600000000000004, 0.19600000000000004, 0.12000000000000002]
-            ],
-            "gaussianOut": [
-              [0.1703125, 0.215234375, 0.23203125000000002, 0.199609375],
-              [0.290625, 0.32187499999999997, 0.27578125, 0.19687500000000002],
-              [0.281640625, 0.2953125, 0.2203125, 0.129296875]
-            ],
-            "laplacianOut": [
-              [-8.326672684688674e-17, 0.7, -1.0999999999999999, -2.5],
-              [-1.1999999999999997, -0.5000000000000001, 1.7, 0.1],
-              [-3, 0.8, -2, 0.39999999999999997]
+            "out": [
+              [
+                0.21000000000000002,
+                -0.5099999999999999,
+                -0.5300000000000001,
+                -0.45000000000000007,
+                -0.59,
+                0.2899999999999999
+              ],
+              [-0.76, 2.27, 2.2600000000000002, 2.0199999999999996, 2.5100000000000002, -0.76],
+              [-0.44999999999999996, 1.9099999999999997, -1.4, -1.23, 1.8, -0.54],
+              [
+                -0.6799999999999999,
+                2.5100000000000002,
+                2.2900000000000005,
+                1.8399999999999996,
+                2.5500000000000003,
+                -0.6799999999999999
+              ],
+              [0.24000000000000005, -0.71, -0.78, -0.28, -0.71, 0.13]
             ]
           }
         },
         {
           "inputs": {
-            "image": [[0, 0, 0, 1, 0], [0, 0, 0, 0, 0]],
-            "box": [
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ],
-              [
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001,
-                0.04000000000000001
-              ]
+            "photo": [
+              [0.24, 0.5, 0.16, 0.82, 0.23],
+              [0.55, 0.93, 0.4, 0.97, 0.73],
+              [0.55, 0.63, 0.59, 0.36, 1],
+              [0.4, 0.98, 0.85, 0.03, 0.26]
             ],
-            "gaussian": [
-              [0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625],
-              [0.015625, 0.0625, 0.09375, 0.0625, 0.015625],
-              [0.0234375, 0.09375, 0.140625, 0.09375, 0.0234375],
-              [0.015625, 0.0625, 0.09375, 0.0625, 0.015625],
-              [0.00390625, 0.015625, 0.0234375, 0.015625, 0.00390625]
-            ],
-            "laplacian": [[0, 1, 0], [1, -4, 1], [0, 1, 0]]
+            "kernel": [[0.0625, 0.125, 0.0625], [0.125, 0.25, 0.125], [0.0625, 0.125, 0.0625]]
           },
           "expect": {
-            "boxOut": [
-              [0, 0.04000000000000001, 0.04000000000000001, 0.04000000000000001, 0.04000000000000001],
-              [0, 0.04000000000000001, 0.04000000000000001, 0.04000000000000001, 0.04000000000000001]
+            "out": [
+              [0.39, 0.438125, 0.47625, 0.5725, 0.48062499999999997],
+              [0.54125, 0.58875, 0.575625, 0.655, 0.699375],
+              [0.5825, 0.67625, 0.609375, 0.55375, 0.668125],
+              [0.55125, 0.751875, 0.6437499999999999, 0.36375, 0.361875]
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.98, 0.05, 0.73, 0.48],
+              [0.94, 0.41, 0.92, 0.16],
+              [0.99, 0.41, 0.18, 0.35],
+              [0.63, 0.03, 0.39, 0.01]
             ],
-            "gaussianOut": [[0, 0.0234375, 0.09375, 0.140625, 0.09375], [0, 0.015625, 0.0625, 0.09375, 0.0625]],
-            "laplacianOut": [[0, 0, 1, -4, 1], [0, 0, 0, 1, 0]]
+            "kernel": [[0.3, 0, 0], [0, 0.5, 0], [0, 0, 0.2]]
+          },
+          "expect": {
+            "out": [
+              [0.866, 0.503, 0.412, 0.491],
+              [0.846, 0.5349999999999999, 0.545, 0.369],
+              [0.7829999999999999, 0.565, 0.21499999999999997, 0.453],
+              [0.618, 0.39, 0.32, 0.061]
+            ]
           }
         }
       ],
-      "multiplyBudget": { "image": "image", "perPixel": 29 },
+      "hidden": [
+        {
+          "inputs": {
+            "photo": [
+              [0.62, 0.89, 0.46, 0.71, 0.94],
+              [0.52, 0.73, 0.73, 0.86, 0.04],
+              [0.17, 1, 0.75, 0.26, 0.74],
+              [0.17, 0.36, 0.44, 0.23, 0.14],
+              [0.51, 0.65, 0.32, 0.66, 0.98]
+            ],
+            "kernel": [[-2, -1, 0], [-1, 1, 1], [0, 1, 2]]
+          },
+          "expect": {
+            "out": [
+              [1.01, 0.79, 0.4899999999999999, 0.4999999999999999, -1.0699999999999998],
+              [1.04, 1.31, -0.11000000000000004, 0.27999999999999997, -0.9199999999999999],
+              [0.32999999999999996, 1.05, -1.2799999999999998, -1.5599999999999998, -0.11999999999999997],
+              [1.66, 0.58, -0.7999999999999999, 0.79, 1.73],
+              [1.95, 1.05, 0.81, 2.83, 3.6399999999999997]
+            ]
+          }
+        }
+      ],
       "solution": [
-        "boxX = const[kind=weights5,w1=0.2,w2=0.2,w3=0.2,w4=0.2,w5=0.2]()",
-        "boxY = transpose(boxX)",
-        "gaussX = const[kind=weights5,w1=0.0625,w2=0.25,w3=0.375,w4=0.25,w5=0.0625]()",
-        "gaussY = transpose(gaussX)",
-        "a = spatialProcessor[form=separable,outside=zero](image,boxX,boxY)",
-        "b = spatialProcessor[form=separable,outside=zero](image,gaussX,gaussY)",
-        "c = spatialProcessor[form=dense,outside=zero](image,laplacian)",
-        "boxOut <- a",
-        "gaussianOut <- b",
-        "laplacianOut <- c"
+        "k = rows3(kernel)",
+        "down = shift[axis=y,by=forward](photo)",
+        "up = shift[axis=y,by=backward](photo)",
+        "t = line3[axis=x](down,k.top)",
+        "m = line3[axis=x](photo,k.middle)",
+        "b = line3[axis=x](up,k.bottom)",
+        "s1 = arithmetic[op=add](t,m)",
+        "s2 = arithmetic[op=add](s1,b)",
+        "out <- s2"
       ],
       "naive": [
-        "densebox = spatialProcessor[form=dense,outside=zero](image,box)",
-        "densegaussian = spatialProcessor[form=dense,outside=zero](image,gaussian)",
-        "denselaplacian = spatialProcessor[form=dense,outside=zero](image,laplacian)",
-        "boxOut <- densebox",
-        "gaussianOut <- densegaussian",
-        "laplacianOut <- denselaplacian"
-      ],
-      "starter": [
-        "densebox = spatialProcessor[form=dense,outside=zero](image,box)",
-        "densegaussian = spatialProcessor[form=dense,outside=zero](image,gaussian)",
-        "denselaplacian = spatialProcessor[form=dense,outside=zero](image,laplacian)",
-        "boxOut <- densebox",
-        "gaussianOut <- densegaussian",
-        "laplacianOut <- denselaplacian"
+        "k = rows3(kernel)",
+        "a = line3[axis=x](photo,k.middle)",
+        "b = line3[axis=y](a,k.middle)",
+        "out <- b"
       ],
       "naiveWhy": {
-        "zh": "方框核和高斯核可分成两次一维卷积，每个把 25 次乘法降到 10 次。",
-        "en": "The box and Gaussian each factor into two 1D convolutions, reducing 25 products to 10."
+        "zh": "先横后竖只能做出能拆成两次的核：锐化的四角是 0、边上是 −1，拆不开。",
+        "en": "Across then down only makes kernels that split in two: sharpening has 0 in its corners and −1 on its sides, which does not split."
       },
-      "after": {
-        "zh": "\\[(5+5)+(5+5)+3\\cdot3=29\\] 方框核和高斯核可分解，拉普拉斯核仍走通用卷积。",
-        "en": "\\[(5+5)+(5+5)+3\\cdot3=29\\] The box and Gaussian factor. The Laplacian uses dense convolution."
-      },
-      "adds": ["transpose"],
-      "configurations": { "const.kind": ["weights5"] },
       "sample": {
         "inputs": {
-          "image": {
-            "size": [64, 64],
-            "base": 0.25,
+          "photo": {
+            "size": [48, 36],
+            "base": 0.15,
             "layers": [
-              { "shape": "disc", "cx": 20, "cy": 22, "r": 13, "v": 0.8 },
-              { "shape": "rect", "x": 38, "y": 8, "w": 18, "h": 34, "v": 0.55 },
-              { "shape": "stripes", "period": 4, "lo": 0.2, "hi": 0.7, "x": 6, "y": 44, "w": 26, "h": 14 },
-              { "shape": "checker", "cell": 2, "lo": 0.35, "hi": 0.6, "x": 40, "y": 46, "w": 16, "h": 12 }
+              {
+                "shape": "quad",
+                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
+                "v": 0.85
+              },
+              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
             ],
-            "noise": { "seed": 7, "amp": 0.06 }
-          }
+            "noise": { "seed": 7, "amp": 0.03 }
+          },
+          "kernel": [[0, -1, 0], [-1, 5, -1], [0, -1, 0]]
         }
-      },
-      "hint": [
-        {
-          "zh": "选一条非零行做参照，试着用同一个倍数解释另一行的所有非零项，同时检查零的位置。这个判断不需要先算出两条权重。",
-          "en": "Choose a nonzero row and see whether one multiplier explains every nonzero entry of another row. Check the zero positions too. This test does not require choosing numerical factors first."
-        }
-      ]
+      }
     }
   ]
 }

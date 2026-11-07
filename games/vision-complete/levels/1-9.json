@@ -1,227 +1,64 @@
 {
-  "title": { "zh": "噪声里的边", "en": "Edges in noise" },
+  "title": { "zh": "猜核", "en": "Guess the kernel" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "亮点的输出就是核本身（冲激响应）。但它是“卷积”的结果，而你的元件做的是“互相关”：要把核旋转 180° 才对得上。",
+    "en": "The output for a bright dot is the kernel itself (the impulse response). But that is the result of a \"convolution\", while your part does \"cross-correlation\": you have to rotate the kernel by 180° to make them match."
+  },
   "intro": [
     {
       "t": {
-        "zh": "把找边的电路放到夜里拍的单据上：真边还在，满屏都是一对对正负的假边。",
-        "en": "Run the edge finder on a night photo: the real edges are there, but so are pairs of false ones everywhere."
+        "zh": "<level-ref to=\"1-8\"></level-ref>得到的<part-ref to=\"kernel3\"></part-ref>：九个权重由你来填。默认只有正中间是 1，输出和输入一模一样。",
+        "en": "The <part-ref to=\"kernel3\"></part-ref> you earned in <level-ref to=\"1-8\"></level-ref>: you fill in the nine weights. By default only the centre is 1, so the output is identical to the input."
+      },
+      "fig": {
+        "part": "kernel3",
+        "caption": { "zh": "默认的核：原样输出", "en": "The default kernel: output unchanged" },
+        "input": { "glyph": { "letter": "F" } }
       }
+    },
+    {
+      "t": {
+        "zh": "修图软件的滤镜、相机里的锐化，背后常常就是一个核。这一关反过来：别人用一个核处理了几张图，你只看得到输入和输出，要把那个核找出来。",
+        "en": "Behind photo-editor filters and in-camera sharpening there is often just a kernel. This level turns that around: someone has processed a few images with a kernel, and from only the inputs and outputs you must find that kernel."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：把你的核拧成和它一样，让三组测试全部通过。",
+        "en": "Your task in this level: dial your kernel in until it matches, so that all three tests pass."
+      },
+      "fig": { "test": 2, "caption": { "zh": "第三组测试：字母 F", "en": "Set 3: letter F" } }
     }
   ],
-  "after": {
-    "zh": "相减把每个噪点都放大成一对假边。先沿着边的方向用 [1 2 1] 平滑，再垂直于边相减，噪声就压下去了，这就是 <wiki-ref to=\"sobel\"></wiki-ref>。",
-    "en": "Subtracting turns every speck of noise into a pair of false edges. Smoothing along the edge with [1 2 1] before subtracting across it keeps the noise down: the <wiki-ref to=\"sobel\"></wiki-ref>."
-  },
   "tasks": [
     {
-      "id": "sobel",
-      "kind": "circuit",
-      "carry": "1-7",
+      "id": "1-9",
+      "kind": "graph",
       "brief": {
-        "zh": "让两张变化图只剩真边，和目标一样。",
-        "en": "Leave only the real edges in both change maps, matching the target."
+        "zh": "有人用一个 3×3 核处理了这些图。把你的核拧成和它一样。",
+        "en": "Someone processed these images with a 3×3 kernel. Dial your kernel in until it matches."
       },
-      "hint": [
-        {
-          "zh": "找横向变化时，上下两行的邻居说的是同一道竖边。",
-          "en": "When finding the change across, the rows above and below see the same upright edge."
-        },
-        {
-          "zh": "目标里，正中那一行比上下两行重一倍。",
-          "en": "In the target, the middle row counts twice as much as the rows above and below."
-        }
-      ],
-      "inputs": [{ "name": "photo", "label": { "zh": "照片", "en": "Photo" } }],
-      "outputs": [
-        { "name": "gx", "label": { "zh": "横向变化", "en": "Change across" } },
-        { "name": "gy", "label": { "zh": "竖向变化", "en": "Change down" } }
-      ],
+      "hint": {
+        "zh": "亮点会变成核的样子。可你的元件是怎样读核的？把你填的核喂一个亮点，看看出来的是什么。",
+        "en": "A bright dot turns into the shape of the kernel. But how does your part read its kernel? Feed a bright dot to the kernel you entered and see what comes out."
+      },
+      "scene": "filter",
+      "setup": { "target": { "convolve": { "kernel": [0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25] } } },
       "tests": [
-        {
-          "inputs": {
-            "photo": [
-              [0.14, 0.12, 0.06, 0.24, 0.03, 0.15],
-              [0.25, 0.75, 0.86, 0.88, 0.74, 0.12],
-              [0.2, 0.84, 0.35, 0.22, 0.79, 0.06],
-              [0.15, 0.95, 0.87, 0.92, 0.82, 0.21],
-              [0.05, 0.1, 0.19, 0.2, 0.13, 0.05]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [0.43999999999999984, 0.37, 0.4900000000000002, -0.21000000000000008, -1.0300000000000002, -0.26],
-              [
-                1.6199999999999999,
-                1.2899999999999998,
-                -0.23999999999999977,
-                0.16999999999999993,
-                -1.7700000000000002,
-                -1.8499999999999999
-              ],
-              [2.58, 1.6300000000000001, -1.1399999999999997, 0.71, -1.7900000000000003, -2.6900000000000004],
-              [
-                2.29,
-                1.7299999999999998,
-                -0.5799999999999996,
-                0.2799999999999998,
-                -1.7300000000000002,
-                -2.0299999999999994
-              ],
-              [0.95, 1.14, 0.27, -0.22999999999999998, -1.1600000000000001, -0.85]
-            ],
-            "gy": [
-              [0.96, 2.17, 2.8699999999999997, 2.79, 2.0300000000000002, 0.6200000000000001],
-              [0.8999999999999999, 1.79, 1.28, 1.01, 1.4100000000000001, 0.49],
-              [
-                -0.10000000000000009,
-                0.31000000000000005,
-                0.26000000000000023,
-                0.16999999999999948,
-                0.29000000000000004,
-                0.34999999999999987
-              ],
-              [-1.19, -1.79, -1.08, -0.86, -1.35, -0.69],
-              [-1.15, -2.48, -2.9299999999999997, -2.8099999999999996, -2.26, -1.17]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8],
-              [0.2, 0.2, 0.2, 0.8, 0.8, 0.8]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [0, 0, 2.4000000000000004, 2.4000000000000004, 0, 0],
-              [0, 0, 2.4000000000000004, 2.4000000000000004, 0, 0],
-              [0, 0, 2.4000000000000004, 2.4000000000000004, 0, 0],
-              [0, 0, 2.4000000000000004, 2.4000000000000004, 0, 0],
-              [0, 0, 2.4000000000000004, 2.4000000000000004, 0, 0]
-            ],
-            "gy": [
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0],
-              [0, 0, 0, 0, 0, 0]
-            ]
-          }
-        },
-        {
-          "inputs": {
-            "photo": [
-              [0.08, 0.17, 0.68, 0.16, 0.95],
-              [0.84, 0.74, 0.47, 0.83, 0.24],
-              [0.6, 0.37, 0.49, 0.96, 0.22],
-              [0.75, 0.77, 0.09, 0.99, 0.45]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [
-                0.16999999999999993,
-                1.4299999999999997,
-                0.06000000000000005,
-                0.5800000000000001,
-                1.7799999999999998
-              ],
-              [-0.33999999999999986, -0.24999999999999956, 0.7599999999999998, -0.4600000000000004, -1.13],
-              [-0.54, -1.25, 1.4900000000000002, -0.41000000000000014, -2.6100000000000003],
-              [
-                -0.16999999999999993,
-                -2.0900000000000003,
-                1.2499999999999996,
-                0.8100000000000002,
-                -2.3599999999999994
-              ]
-            ],
-            "gy": [
-              [2.8499999999999996, 1.69, 0.8199999999999998, 0.42000000000000015, -1.4599999999999997],
-              [1.7599999999999998, 0.7299999999999998, 0.6200000000000001, 0.6800000000000004, -1.39],
-              [
-                -0.23999999999999977,
-                -0.41000000000000014,
-                -0.5699999999999998,
-                0.1499999999999999,
-                0.7900000000000003
-              ],
-              [0.8500000000000001, 0.55, -0.3700000000000001, -0.11000000000000032, 0.7200000000000004]
-            ]
-          }
-        }
+        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
       ],
       "hidden": [
         {
-          "inputs": {
-            "photo": [
-              [0.42, 0.56, 0.56, 0.59],
-              [0.8, 0.97, 0.67, 0.81],
-              [0.57, 0.47, 0.84, 1],
-              [0.57, 0.63, 0.06, 0.86],
-              [0.64, 0.63, 0.16, 0.58]
-            ]
-          },
-          "expect": {
-            "gx": [
-              [0.5900000000000003, 0.29000000000000004, -0.07000000000000028, 0.22999999999999998],
-              [0.3799999999999999, 0.15000000000000036, 0.2400000000000002, 0.46999999999999975],
-              [0.03000000000000025, -0.09999999999999964, 1.13, 1.2599999999999998],
-              [0.009999999999999787, -1.2300000000000002, 0.94, 2.1799999999999997],
-              [0.029999999999999805, -1.9500000000000002, 0.08000000000000007, 2.06]
-            ],
-            "gy": [
-              [1.55, 1.31, 0.8500000000000001, 0.77],
-              [0.35999999999999965, 0.24999999999999956, 0.8799999999999999, 1.5099999999999998],
-              [-1.0300000000000002, -1.52, -1.5100000000000002, -0.45999999999999996],
-              [0.3700000000000001, -0.2899999999999996, -1.62, -1.94],
-              [0.20999999999999996, 0.16999999999999993, -0.08000000000000007, -0.7400000000000002]
-            ]
-          }
-        }
+          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 2 } }
+        },
+        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 23 } } }
       ],
-      "solution": [
-        "w = const[kind=row3,first=-1,centre=0,last=1]()",
-        "s = const[kind=row3,first=1,centre=2,last=1]()",
-        "sy = line3[axis=y](photo,s)",
-        "x = line3[axis=x](sy,w)",
-        "sx = line3[axis=x](photo,s)",
-        "y = line3[axis=y](sx,w)",
-        "gx <- x",
-        "gy <- y"
-      ],
-      "naive": [
-        "w = const[kind=row3,first=-1,centre=0,last=1]()",
-        "x = line3[axis=x](photo,w)",
-        "y = line3[axis=y](photo,w)",
-        "gx <- x",
-        "gy <- y"
-      ],
-      "naiveWhy": {
-        "zh": "没有先平滑：每个噪点都成了一对假边。",
-        "en": "No smoothing first: each speck of noise became a pair of false edges."
-      },
-      "sample": {
-        "inputs": {
-          "photo": {
-            "size": [48, 36],
-            "base": 0.15,
-            "layers": [
-              {
-                "shape": "quad",
-                "corners": [[5.76, 3.6], [43.2, 5.76], [41.28, 33.120000000000005], [3.84, 30.96]],
-                "v": 0.85
-              },
-              { "shape": "text", "v": 0.3, "gap": 4, "seed": 3, "x": 9, "y": 9, "w": 26, "h": 18 }
-            ],
-            "noise": { "seed": 9, "amp": 0.12 }
-          }
-        }
-      }
+      "solution": ["k = kernel3[w=[0.25, 0, 0.25, 0, 0, 0, 0.5, 0, 0]](in)", "out <- k"],
+      "naive": ["k = kernel3[w=[0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25]](in)", "out <- k"]
     }
   ]
 }

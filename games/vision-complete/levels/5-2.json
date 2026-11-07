@@ -1,0 +1,117 @@
+{
+  "title": { "zh": "补全对角", "en": "Mend across the diagonal" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "被擦的那块和远处的孪生块最像，于是一步就从对角取回了缺的格子。这就是自注意力：每个图块（token）用 q·k/√d 和所有图块打分，softmax 把分数变成和为 1 的权重，再对 v 加权平均。3×3 卷积叠 L 层也只看到 (2L+1)×(2L+1)。",
+    "en": "The erased patch looks most like its far-off twin, so in one step it fetched the missing pixels from the opposite corner. That is self-attention: each patch (token) scores every patch with q·k/√d, softmax turns the scores into weights that sum to 1, and the v are averaged with those weights. Stack L layers of 3×3 convolution and you still only see (2L+1)×(2L+1)."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "托盘里的<part-ref to=\"attention\"></part-ref>把 16×16 的图切成 16 个 4×4 的图块，每块都向所有图块提问。参数「q 放大」把分数一起放大：放得越大，越只看最像的几块。",
+        "en": "The <part-ref to=\"attention\"></part-ref> in the tray cuts the 16×16 image into 16 patches of 4×4, and every patch asks every patch. The \"q scale\" parameter scales up all the scores: the larger it is, the more each patch looks only at the few most alike."
+      }
+    },
+    {
+      "t": {
+        "zh": "测试图的一对对角上本是同一个小图案，其中一个被擦掉几格；也有一组什么都没擦。这一关最多 3 个节点。要想的是：被擦掉的格子，图里哪里还留着它的样子？",
+        "en": "In each test image, two opposite corners hold the same small pattern, but one has had a few pixels erased; one set has nothing erased. This level allows at most 3 nodes. The question is: where else in the image does an erased pixel still show what it looked like?"
+      },
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "第一组：左上角的图案缺了几格", "en": "Set 1: the top-left pattern is missing a few pixels" }
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "5-2",
+      "kind": "graph",
+      "brief": {
+        "zh": "一对对角上本是同一个图案，其中一个被擦掉了几格。把它补回来，其余不变；最多 3 个节点。",
+        "en": "Two opposite corners hold the same pattern, but a few pixels of one copy have been erased. Restore them and leave everything else unchanged; at most 3 nodes."
+      },
+      "hint": {
+        "zh": "3×3 的元件一次只看一格远。注意力让每个图块和所有图块比；q 放大越大，越只看最像的几块。",
+        "en": "A 3×3 part only sees one pixel away at a time. Attention lets each patch compare itself with every patch; the larger the q scale, the more it looks only at the few most similar ones."
+      },
+      "constraint": { "nodes": { "max": 3 } },
+      "scene": "mend",
+      "tests": [
+        {
+          "label": { "zh": "左上缺", "en": "Top left erased" },
+          "items": [
+            { "tile": "X", "at": [0, 0], "erased": [[0, 0], [1, 1], [3, 3]] },
+            { "tile": "X", "at": [3, 3] },
+            { "tile": "C", "at": [0, 3] },
+            { "tile": "P", "at": [2, 1] }
+          ]
+        },
+        {
+          "label": { "zh": "右下缺", "en": "Bottom right erased" },
+          "items": [
+            { "tile": "R", "at": [0, 0] },
+            { "tile": "R", "at": [3, 3], "erased": [[1, 0], [0, 1], [3, 2]] },
+            { "tile": "K", "at": [1, 2] },
+            { "tile": "S", "at": [3, 0] }
+          ]
+        },
+        {
+          "label": { "zh": "右上缺", "en": "Top right erased" },
+          "items": [
+            { "tile": "S", "at": [0, 3], "erased": [[0, 3], [1, 3], [2, 2]] },
+            { "tile": "S", "at": [3, 0] },
+            { "tile": "X", "at": [1, 1] },
+            { "tile": "R", "at": [2, 3] }
+          ]
+        },
+        {
+          "label": { "zh": "两对都缺", "en": "Both pairs erased" },
+          "items": [
+            { "tile": "C", "at": [0, 0], "erased": [[0, 0], [3, 0]] },
+            { "tile": "C", "at": [3, 3] },
+            { "tile": "K", "at": [0, 3] },
+            { "tile": "K", "at": [3, 0], "erased": [[0, 1], [3, 3], [2, 2]] }
+          ]
+        },
+        {
+          "label": { "zh": "没缺", "en": "Nothing erased" },
+          "items": [
+            { "tile": "P", "at": [0, 0] },
+            { "tile": "P", "at": [3, 3] },
+            { "tile": "R", "at": [1, 2] },
+            { "tile": "C", "at": [2, 0] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "左下缺", "en": "Bottom left erased" },
+          "items": [
+            { "tile": "K", "at": [3, 0], "erased": [[0, 0], [1, 1], [2, 2]] },
+            { "tile": "K", "at": [0, 3] },
+            { "tile": "R", "at": [1, 1] },
+            { "tile": "C", "at": [2, 2] }
+          ]
+        },
+        {
+          "label": { "zh": "四角都有", "en": "All four corners filled" },
+          "items": [
+            { "tile": "P", "at": [0, 3], "erased": [[1, 1], [1, 3]] },
+            { "tile": "P", "at": [3, 0] },
+            { "tile": "X", "at": [0, 0] },
+            { "tile": "S", "at": [3, 3] },
+            { "tile": "C", "at": [1, 2] }
+          ]
+        }
+      ],
+      "solution": ["a = attention[s=8](in)", "t = threshold[t=0.3](a)", "out <- t"],
+      "naive": ["b = box3(in)", "c = box3(b)", "t = threshold[t=0.2](c)", "out <- t"],
+      "alsoFails": [
+        ["a = attention(in)", "t = threshold[t=0.3](a)", "out <- t"],
+        ["a = attention[s=8](in)", "t = threshold(a)", "out <- t"],
+        ["t = threshold(in)", "out <- t"]
+      ]
+    }
+  ]
+}

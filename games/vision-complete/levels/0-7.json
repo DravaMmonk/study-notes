@@ -1,0 +1,65 @@
+{
+  "title": { "zh": "谁闯进来了", "en": "Who came in?" },
+  "after": {
+    "zh": "和参照比差异，比看绝对亮度可靠得多。这就是背景减除。",
+    "en": "Comparing against a reference is far more reliable than looking at absolute brightness. This is background subtraction."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "商店监控、路口车流统计、停车场的空位提示，常要回答同一个问题：画面里多了什么？摄像头不动，背景几乎不变，变的只是闯进来的东西。",
+        "en": "Shop security cameras, traffic counters at junctions and free-space signs in car parks often have to answer the same question: what is new in the picture? The camera does not move and the background barely changes; the only thing that changes is whatever comes in."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关有两个输入：「现场」是现在拍的，「空场」是没人时拍的参照。输出是一张只有 0 和 1 的图，叫<b>掩膜</b>：1 标出闯入者占的格子，其余是 0。",
+        "en": "This level has two inputs: \"Scene\" is taken now, and \"Empty scene\" is a reference taken when nobody was there. The output is an image of only 0s and 1s, called a <b>mask</b>: 1 marks the cells the intruder covers, and everything else is 0."
+      }
+    },
+    {
+      "t": {
+        "zh": "这是第一关有两张输入图。新元件<part-ref to=\"part:sub\"></part-ref>和<part-ref to=\"part:add\"></part-ref>把两张图逐格相减、相加：a − b 的每一格，就是 a 的这一格减去 b 的这一格。",
+        "en": "This is the first level with two input pictures. The new parts <part-ref to=\"part:sub\"></part-ref> and <part-ref to=\"part:add\"></part-ref> subtract and add two pictures cell by cell: each cell of a − b is that cell of a minus that cell of b."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：四组测试里，闯入者的位置各不相同。输出要把它圈出来，一格不多，一格不少。",
+        "en": "Your task in this level: the intruder is in a different place in each of the four tests. Your output must mark it out exactly, not one cell more or less."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：现场、空场和期望的掩膜", "en": "Set 1: scene, empty scene and the expected mask" } }
+    }
+  ],
+  "adds": ["sub"],
+  "tray": "pipeline",
+  "tasks": [
+    {
+      "id": "0-7",
+      "kind": "graph",
+      "brief": {
+        "zh": "「现场」比「空场」多了一个东西。只在它所在的格子输出 1，其余输出 0。",
+        "en": "The \"Scene\" has one thing more than the \"Empty scene\". Output 1 only in the cells it covers, and 0 everywhere else."
+      },
+      "hint": {
+        "zh": "光照不均时，单看亮不亮会误判。先比一比两张图哪里不一样。",
+        "en": "With uneven lighting, judging by brightness alone goes wrong. First compare where the two images differ."
+      },
+      "inputs": ["scene", "empty"],
+      "scene": "intruder",
+      "tests": [
+        { "label": { "zh": "第 1 组", "en": "Set 1" }, "x": 2, "y": 3, "seed": 1 },
+        { "label": { "zh": "第 2 组", "en": "Set 2" }, "x": 9, "y": 9, "seed": 2 },
+        { "label": { "zh": "第 3 组", "en": "Set 3" }, "x": 10, "y": 2, "seed": 3 },
+        { "label": { "zh": "第 4 组", "en": "Set 4" }, "x": 3, "y": 10, "seed": 4 }
+      ],
+      "hidden": [
+        { "label": { "zh": "左下角", "en": "Bottom-left corner" }, "x": 0, "y": 12, "seed": 5 },
+        { "label": { "zh": "右边亮处", "en": "Bright right side" }, "x": 12, "y": 6, "seed": 6 },
+        { "label": { "zh": "正中", "en": "Dead centre" }, "x": 6, "y": 6, "seed": 7 }
+      ],
+      "solution": ["d = sub(scene, empty)", "t = threshold[t=0.15](d)", "out <- t"],
+      "naive": ["t = threshold[t=0.6](scene)", "out <- t"]
+    }
+  ]
+}

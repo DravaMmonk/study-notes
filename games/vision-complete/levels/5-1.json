@@ -1,0 +1,117 @@
+{
+  "title": { "zh": "两块谁更像", "en": "Which patch is more alike" },
+  "tray": "pipeline",
+  "after": {
+    "zh": "分数是点积 q·k 除以 √d（这里 d = 16）；取 e 的指数再归一化叫 softmax，权重都是正的，加起来是 1，最像的那块分得最多。让图里的每个图块都向所有图块这样提问，就是注意力。",
+    "en": "The score is the dot product q·k divided by √d (here d = 16); taking e to the power and normalising is called softmax, so the weights are positive, add up to 1, and the most alike patch gets the most. Let every patch of a picture ask every patch like this and you have attention."
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "到目前为止的元件都只看自己周围一小圈：3×3 平均、Sobel 都是这样。如果要补的东西，线索在图的另一头，它们要走多少步才够得着？",
+        "en": "Every part so far only looks at a small ring around itself: 3×3 average and Sobel both work that way. If the clue for what needs filling in sits at the other end of the image, how many steps would they need to reach it?"
+      }
+    },
+    {
+      "t": {
+        "zh": "人看图时常拿远处作参照：一排窗户少了一扇，你会照着别的窗户把它想出来。2020 年的 ViT 把图切成小块，让每块直接和所有块比较，按「像不像」决定从谁那里取多少。这叫<part-ref to=\"attention\"></part-ref>。",
+        "en": "When people look at a picture they often use distant parts as a reference: if a row of windows is missing one, you imagine it from the others. ViT (2020) cuts the image into small patches and lets each patch compare itself directly with every other, taking more from the ones it looks more like. This is called <part-ref to=\"attention\"></part-ref>."
+      }
+    },
+    {
+      "t": {
+        "zh": "先只做两块的版本。图块 a 是提问的一方，它给 a、b 各打一个分，分数换成权重，再按权重把两块混在一起。说明里写清了打分和换算的规则。",
+        "en": "Start with just two patches. Patch a does the asking: it gives a score to a and to b, the scores become weights, and the two patches are mixed by those weights. The brief spells out the rules for the scores and the weights."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：照着规则，用乘、平均、exp 和除，算出 a 问完两块之后得到的那一块。",
+        "en": "Your task in this level: following the rules, use multiply, average, exp and divide to work out the patch a gets back after asking both."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：X 问 C", "en": "Set 1: X asks C" } }
+    }
+  ],
+  "unlocks": ["attention"],
+  "tasks": [
+    {
+      "id": "5-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "图块 a 向 a、b 两块提问。每块的分数 = 4 × 平均(a × 这一块)；权重 = e^分数 ÷ 两个 e^分数之和；输出 = 两块按权重的加权平均。",
+        "en": "Patch a asks patches a and b. Each patch scores 4 × average(a × that patch); its weight is e^score ÷ the sum of both e^score; the output is the two patches averaged with those weights."
+      },
+      "hint": {
+        "zh": "一个数和一整块相乘时，这个数用在每一格上。先把两个分数算出来。",
+        "en": "When a single number multiplies a whole patch, it applies to every cell. Work out the two scores first."
+      },
+      "inputs": ["a", "b"],
+      "inputLabels": { "a": { "zh": "图块 a（提问）", "en": "Patch a (asking)" }, "b": { "zh": "图块 b", "en": "Patch b" } },
+      "scene": "filter",
+      "setup": { "target": "ask" },
+      "tests": [
+        {
+          "label": { "zh": "X 问 C", "en": "X asks C" },
+          "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "C" } } }
+        },
+        {
+          "label": { "zh": "P 问 K", "en": "P asks K" },
+          "inputs": { "a": { "tile": { "name": "P" } }, "b": { "tile": { "name": "K" } } }
+        },
+        {
+          "label": { "zh": "R 问 S", "en": "R asks S" },
+          "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "S" } } }
+        },
+        {
+          "label": { "zh": "淡的 S 问 X", "en": "A faint S asks X" },
+          "inputs": { "a": { "tile": { "name": "S", "hi": 0.5 } }, "b": { "tile": { "name": "X" } } }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "K 问 R", "en": "K asks R" },
+          "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "R" } } }
+        },
+        {
+          "label": { "zh": "C 问淡的 P", "en": "C asks a faint P" },
+          "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P", "hi": 0.6 } } }
+        }
+      ],
+      "solution": [
+        "k = const[c=4]()",
+        "aa = arith[op=mul](a, a)",
+        "ab = arith[op=mul](a, b)",
+        "ma = fqMean(aa)",
+        "mb = fqMean(ab)",
+        "sa = arith[op=mul](ma, k)",
+        "sb = arith[op=mul](mb, k)",
+        "ea = exp(sa)",
+        "eb = exp(sb)",
+        "wa = arith[op=mul](ea, a)",
+        "wb = arith[op=mul](eb, b)",
+        "den = merge(ea, eb)",
+        "num = merge(wa, wb)",
+        "q = arith[op=div](num, den)",
+        "out <- q"
+      ],
+      "naive": ["out <- a"],
+      "alsoFails": [
+        [
+          "k = const[c=4]()",
+          "aa = arith[op=mul](a, a)",
+          "ab = arith[op=mul](a, b)",
+          "ma = fqMean(aa)",
+          "mb = fqMean(ab)",
+          "sa = arith[op=mul](ma, k)",
+          "sb = arith[op=mul](mb, k)",
+          "wa = arith[op=mul](sa, a)",
+          "wb = arith[op=mul](sb, b)",
+          "den = merge(sa, sb)",
+          "num = merge(wa, wb)",
+          "q = arith[op=div](num, den)",
+          "out <- q"
+        ]
+      ]
+    }
+  ]
+}
