@@ -1,0 +1,37 @@
+# The kit's unit tests, when kit code changes. They read no real game (games/DESIGN.md), so content changes never
+# run them, and they never hold up a deploy.
+name: Test kit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'games/kit/**'
+      - 'trace-viewer/**'
+      - '.github/workflows/test-kit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-kit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trace-viewer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: trace-viewer/package-lock.json
+      - run: npm ci
+      - run: npm test
+      # The Unix model's conformance cases against the real kernel.
+      - run: npm run conform

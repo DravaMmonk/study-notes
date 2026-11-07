@@ -12,7 +12,7 @@ import { GAMES_ROOT, mechanisms, newDomain, newGame } from './scaffold.js'
 
 // A domain name and game ids the kit has none of yet.
 let k = 1
-while (existsSync(join(GAMES_ROOT, 'kit/domains', `scaffold${k}`)) || existsSync(join(GAMES_ROOT, `scaffold${k}`))) k += 1
+while (existsSync(join(GAMES_ROOT, 'kit/domains', `scaffold${k}`))) k += 1
 const name = `scaffold${k}`
 
 for (const mechanism of mechanisms()) {
@@ -20,7 +20,7 @@ for (const mechanism of mechanisms()) {
     const root = mkdtempSync(join(tmpdir(), 'scaffold-'))
     try {
       cpSync(join(GAMES_ROOT, 'kit'), join(root, 'kit'), { recursive: true })
-      cpSync(join(GAMES_ROOT, 'games.js'), join(root, 'games.js'))
+      writeFileSync(join(root, 'games.js'), 'export const GAMES = [\n];\n')
       newDomain({ root, name, mechanism })
       newGame({ root, id: `${name}-two`, domain: name, title: 'Two' })
       assert.throws(() => newDomain({ root, name, mechanism }), /there already/)

@@ -99,24 +99,12 @@ test('a built part runs the board its level’s last task was passed with, when 
 });
 
 /** Every game on the table domain, and the starter a new one is copied from: [id, dir]. */
-async function tableGames() {
-  const { readdirSync, existsSync, readFileSync } = await import('node:fs');
-  const { resolve } = await import('node:path');
-  const games = resolve(import.meta.dirname, '../../..');
-  const ids = readdirSync(games).filter(id => existsSync(resolve(games, id, 'game.json')) && JSON.parse(readFileSync(resolve(games, id, 'game.json'), 'utf8')).domain === 'table');
-  return [...ids.map(id => [id, games]), ['starter', import.meta.dirname]];
-}
-
 test('reading a course never writes into its content', async () => {
   const { readContent } = await import('../../engine/content-node.js');
   const { deepFreeze } = await import('../../engine/content.js');
   const { default: domain } = await import('./domain.js');
-  const games = await tableGames();
-  assert.ok(games.length > 1);
-  for (const [id, dir] of games) {
-    const spec = domain.spec(deepFreeze(readContent(id, dir)));
-    assert.deepEqual(spec.table.wrong, [], id);
-    assert.ok(domain.validate(spec).every(l => !l.fail), id);
-    spec.syncOwn({});
-  }
+  const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)));
+  assert.deepEqual(spec.table.wrong, []);
+  assert.ok(domain.validate(spec).every(l => !l.fail));
+  spec.syncOwn({});
 });

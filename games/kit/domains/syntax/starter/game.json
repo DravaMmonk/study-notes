@@ -1,0 +1,22 @@
+{
+  "domain": "syntax",
+  "vocabulary": 1,
+  "title": { "zh": "__title__", "en": "__title__" },
+  "kicker": { "zh": "开发中", "en": "In development" },
+  "lede": {
+    "zh": "把修饰成分折起来，挂到它修饰的词上，主干就露出来了。",
+    "en": "Fold each modifier onto the word it modifies, and the skeleton shows."
+  },
+  "concept": { "role:subj": "skeleton", "role:verb": "skeleton", "role:obj": "skeleton" },
+  "trays": { "main": ["role:subj", "role:verb", "role:obj", "pp"] },
+  "eras": [
+    {
+      "id": 1,
+      "machine": "reader",
+      "title": { "zh": "主干", "en": "The skeleton" },
+      "kicker": { "zh": "第一章", "en": "Era 1" },
+      "question": { "zh": "一句话的主干在哪？", "en": "Where is a sentence's skeleton?" },
+      "foundation": ["1-1", "1-2"]
+    }
+  ]
+}

@@ -1,4 +1,5 @@
-# Publish the standalone games site to /games/; keep source in study-notes.
+# Publish the standalone games site to /games/; keep source in study-notes. Game content is checked where it is
+# changed (the studio and the operation set), and kit code by test-kit.yml: this workflow only builds and publishes.
 name: Deploy games
 
 on:
@@ -21,11 +22,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # The checks and the build run side by side; nothing is published unless every one passes.
-  verify:
-    strategy:
-      matrix:
-        task: [test, conform, check, build:games]
+  deploy:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,27 +35,11 @@ jobs:
           cache: npm
           cache-dependency-path: trace-viewer/package-lock.json
       - run: npm ci
-        if: matrix.task != 'conform'
-      - run: npm run ${{ matrix.task }}
-      - uses: actions/upload-artifact@v4
-        if: matrix.task == 'build:games'
-        with:
-          name: dist-games
-          path: trace-viewer/dist-games
-          retention-days: 1
-
-  deploy:
-    needs: verify
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist-games
-          path: dist-games
+      - run: npm run build:games
       - uses: peaceiris/actions-gh-pages@v4
         with:
           deploy_key: ${{ secrets.GAMES_DEPLOY_KEY }}
           external_repository: DravaMmonk/games
           publish_branch: gh-pages
-          publish_dir: dist-games
+          publish_dir: trace-viewer/dist-games
           commit_message: 'deploy: games'

@@ -11,7 +11,6 @@ import { canCourse } from './course.js'
 import { runLevel } from './run.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { assemble, deepFreeze } from '../../engine/content.js'
-import { GAMES_DIR, isDataGame, readContent } from '../../engine/content-node.js'
 import domain from './domain.js'
 import { readFileSync, readdirSync } from 'node:fs'
 
@@ -166,12 +165,8 @@ test('a level drawn headlessly: each test’s bus as a waveform, every frame mar
   assert.equal(domain.scene(spec, 'nope'), null)
 })
 
-test('a course read never writes into content: every game on the domain, and its starter, read frozen', () => {
-  const games = readdirSync(GAMES_DIR).filter((id) => isDataGame(id) && readContent(id).domain === 'can')
-  assert.ok(games.length > 0)
-  for (const content of [starter(), ...games.map((id) => readContent(id))]) {
-    const spec = domain.spec(deepFreeze(content))
-    assert.deepEqual(spec.circuit.wrong, [], content.id)
-    assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [], content.id)
-  }
+test('a course read never writes into content: the starter, read frozen', () => {
+  const spec = domain.spec(deepFreeze(starter()))
+  assert.deepEqual(spec.circuit.wrong, [])
+  assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [])
 })

@@ -3,9 +3,8 @@
 // course read, of that course and of every image game, writing nothing into its content.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { GAMES } from '../../../games.js'
 import { deepFreeze } from '../../engine/content.js'
-import { isDataGame, readContent } from '../../engine/content-node.js'
+import { readContent } from '../../engine/content-node.js'
 import { outputImages } from './engine/graph.js'
 import { picture } from './items/pictures.js'
 import { imageCourse } from './course.js'
@@ -77,14 +76,9 @@ test('a packed part runs the circuit the player passed its level with, in its ow
   assert.deepEqual(run(), reference)
 })
 
-// Every image game, and the domain's starter, read frozen: a write into its content anywhere in the read throws.
-const games = GAMES.map((g) => g.id).filter((id) => isDataGame(id) && readContent(id).domain === 'image')
-test('a course read writes nothing into its content, on every image game', () => {
-  assert.ok(games.length)
-  for (const read of [...games.map((id) => () => readContent(id)), () => readContent('starter', import.meta.dirname)]) {
-    const frozen = deepFreeze(read())
-    const spec = domain.spec(frozen)
-    spec.syncOwn({})
-    for (const level of spec.levels) assert.ok(level.tasks.length && level.tasks.every((t) => t.key && t.palette), level.id)
-  }
+// The domain's starter read frozen: a write into its content anywhere in the read throws.
+test('a course read writes nothing into its content', () => {
+  const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)))
+  spec.syncOwn({})
+  for (const level of spec.levels) assert.ok(level.tasks.length && level.tasks.every((t) => t.key && t.palette), level.id)
 })

@@ -4,17 +4,17 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { GAMES_DIR } from '../content-node.js'
 import { WIDTH, writeJson } from './json.js'
 import { lineDiff, unified } from './diff.js'
 
-const files = readdirSync(GAMES_DIR).filter((g) => existsSync(resolve(GAMES_DIR, g, 'game.json'))).flatMap((g) => [
-  resolve(GAMES_DIR, g, 'game.json'), resolve(GAMES_DIR, g, 'glossary.json'),
-  ...readdirSync(resolve(GAMES_DIR, g, 'levels')).map((f) => resolve(GAMES_DIR, g, 'levels', f)),
+// The domains' starter games: content files the kit keeps, in the house style every content file is written in.
+const DOMAINS = resolve(import.meta.dirname, '../../domains')
+const files = readdirSync(DOMAINS).map((d) => resolve(DOMAINS, d, 'starter')).filter((g) => existsSync(resolve(g, 'game.json'))).flatMap((g) => [
+  resolve(g, 'game.json'), resolve(g, 'glossary.json'), ...readdirSync(resolve(g, 'levels')).map((f) => resolve(g, 'levels', f)),
 ])
 
 test('every content file is written back as it is', () => {
-  assert.ok(files.length > 100)
+  assert.ok(files.length > 10)
   for (const file of files) {
     const text = readFileSync(file, 'utf8')
     assert.equal(writeJson(JSON.parse(text), text), text, file)

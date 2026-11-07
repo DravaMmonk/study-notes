@@ -9,9 +9,8 @@ import { validate as fits } from '../../engine/schema.js'
 import { vocabulary } from './vocabulary.js'
 import { T } from '../../shell/i18n.js'
 import { deepFreeze } from '../../engine/content.js'
-import { GAMES_DIR, isDataGame, readContent } from '../../engine/content-node.js'
+import { readContent } from '../../engine/content-node.js'
 import domain from './domain.js'
-import { readdirSync } from 'node:fs'
 
 const spec = {
   sentence: 'A small change in the weights of the first layer causes a large change in the output.',
@@ -130,12 +129,8 @@ test('a level as content: the vocabulary’s schema takes a list of tasks, and n
 })
 
 test('reading a game’s course writes nothing into its content', () => {
-  const games = readdirSync(GAMES_DIR).filter((id) => isDataGame(id) && readContent(id).domain === 'syntax')
-  assert.ok(games.length > 0)
-  for (const id of games) {
-    const content = deepFreeze(readContent(id))
-    const read = domain.spec(content)
-    assert.equal(read.levels.length, content.levels.length)
-    assert.ok(domain.validate(read).every((line) => !line.fail))
-  }
+  const content = deepFreeze(readContent('starter', import.meta.dirname))
+  const read = domain.spec(content)
+  assert.equal(read.levels.length, content.levels.length)
+  assert.ok(domain.validate(read).every((line) => !line.fail))
 })

@@ -40,7 +40,7 @@ The site maps Material for MkDocs onto these tokens in `docs/stylesheets/extra.c
 
 ## Games
 
-Puzzle games that turn a course into levels, under `games/`, published as **Course Puzzles** at `/games/`. `.github/workflows/deploy-games.yml` checks and builds the games, then publishes only the static output to the `DravaMmonk/games` repository's `gh-pages` branch. Game source stays in this repository; the destination contains build artifacts only.
+Puzzle games that turn a course into levels, under `games/`, published as **Course Puzzles** at `/games/`. `.github/workflows/deploy-games.yml` builds the games and publishes only the static output to the `DravaMmonk/games` repository's `gh-pages` branch. Game source stays in this repository; the destination contains build artifacts only.
 
 - `games/index.html`: the games hub; the list is in `games/games.js`.
 - A game's folder holds only its spec: its course, levels, tests, reference answers, intros and encyclopedia (`spec.js`, and `game.js` handing it to its domain). Everything that runs is in `games/kit/`. `npm run check` checks every game and `npm run build:games` builds them all, from `trace-viewer/` (`GAME=<id> npm run build:game` builds one). How the games are designed is in [`games/DESIGN.md`](games/DESIGN.md).

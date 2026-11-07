@@ -7,7 +7,7 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 import { deepFreeze } from '../../engine/content.js'
-import { GAMES_DIR, isDataGame, readContent } from '../../engine/content-node.js'
+import { readContent } from '../../engine/content-node.js'
 import { zip } from './ops.js'
 import { PARTS, PRIMITIVES } from './fixture.js'
 import { board as cards } from './board.js'
@@ -410,14 +410,10 @@ test('the starter game fits the vocabulary and passes its checks, every kind of 
   assert.deepEqual([...kinds].sort(), ['bench', 'choice', 'circuit', 'grid'])
 })
 
-test('a course read never writes into content: every game on the domain, and its starter, read frozen', () => {
-  const games = readdirSync(GAMES_DIR).filter((id) => isDataGame(id) && readContent(id).domain === 'vision')
-  assert.ok(games.length > 0)
-  for (const content of [readContent('starter', import.meta.dirname), ...games.map((id) => readContent(id))]) {
-    const spec = domain.spec(deepFreeze(content))
-    assert.deepEqual(spec.circuit.wrong, [], content.id)
-    assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [], content.id)
-  }
+test('a course read never writes into content: the starter, read frozen', () => {
+  const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)))
+  assert.deepEqual(spec.circuit.wrong, [])
+  assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [])
 })
 
 test('the domain’s page code calls no method older iOS Safari lacks', () => {

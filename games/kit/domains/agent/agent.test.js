@@ -2,10 +2,9 @@
 // boards as blueprint text (board.js); every game on the domain read frozen.
 import assert from 'node:assert/strict'
 import test, { after } from 'node:test'
-import { GAMES } from '../../../games.js'
 import { print } from '../../circuit/text.js'
 import { deepFreeze } from '../../engine/content.js'
-import { isDataGame, readContent } from '../../engine/content-node.js'
+import { readContent } from '../../engine/content-node.js'
 import { closeGames, gameOf } from '../../engine/games.mjs'
 import domain from './domain.js'
 import { fixedOf, fromText } from './board.js'
@@ -140,18 +139,13 @@ test('blueprint text names the line of a part the domain lacks or a card the mac
   assert.throws(() => fromText(['m = model(issue)', 'stop <- m'], { fixed: fixedOf('once', []) }), (e) => e.line === 2)
 })
 
-// Every game on this domain, and its starter, read frozen: the course read, the checks and the game description build
-// new objects and never write into the content they read (a write to a frozen object throws in a module).
-const ours = [...GAMES.map((g) => g.id).filter((id) => isDataGame(id) && readContent(id).domain === 'agent').map((id) => [id]), ['starter', import.meta.dirname]]
-
+// The starter read frozen: the course read, the checks and the game description build new objects and never write
+// into the content they read (a write to a frozen object throws in a module).
 after(() => closeGames())
 
 test('a course read never writes into the content it reads', async () => {
-  assert.ok(ours.length >= 2)
-  for (const [id, dir] of ours) {
-    const content = deepFreeze(readContent(id, dir))
-    const spec = domain.spec(content)
-    assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [], id)
-    assert.equal((await gameOf(content)).levels.length, content.levels.length, id)
-  }
+  const content = deepFreeze(readContent('starter', import.meta.dirname))
+  const spec = domain.spec(content)
+  assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [])
+  assert.equal((await gameOf(content)).levels.length, content.levels.length)
 })

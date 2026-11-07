@@ -1,0 +1,11 @@
+{
+  "groups": [{ "id": "parts", "title": { "zh": "句子成分", "en": "Parts of a sentence" } }],
+  "entries": [
+    {
+      "id": "skeleton",
+      "group": "parts",
+      "title": { "zh": "主干", "en": "Skeleton" },
+      "body": [{ "zh": "主语、谓语和宾语。", "en": "The subject, the verb and the object." }]
+    }
+  ]
+}

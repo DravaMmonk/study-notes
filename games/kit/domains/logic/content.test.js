@@ -11,8 +11,7 @@ import { LOGIC_TESTS, startProof } from './proof.js'
 import { runLevel } from '../../engine/tests.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
-import { isDataGame, readContent } from '../../engine/content-node.js'
-import { GAMES } from '../../../games.js'
+import { readContent } from '../../engine/content-node.js'
 import domain from './domain.js'
 
 const L = (zh, en = zh) => ({ zh, en })
@@ -223,14 +222,10 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
 })
 
 test('reading a game on the domain never writes into its content', () => {
-  const games = GAMES.map((g) => g.id).filter((id) => isDataGame(id)).map((id) => readContent(id)).filter((c) => c.domain === 'logic')
-  assert.ok(games.length)
-  for (const content of games) {
-    const spec = domain.spec(deepFreeze(content))
-    assert.deepEqual(spec.logic.wrong, [], content.id)
-    // The parts the player builds run the boards kept for them, or their levels' reference boards.
-    spec.syncOwn({})
-    for (const shapes of Object.values(spec.logic.proofs)) for (const { board } of Object.values(shapes)) assert.ok(board().nodes)
-    for (const gate of Object.values(spec.logic.gates)) assert.ok(gate.opens().circuit.nodes)
-  }
+  const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)))
+  assert.deepEqual(spec.logic.wrong, [])
+  // The parts the player builds run the boards kept for them, or their levels' reference boards.
+  spec.syncOwn({})
+  for (const shapes of Object.values(spec.logic.proofs)) for (const { board } of Object.values(shapes)) assert.ok(board().nodes)
+  for (const gate of Object.values(spec.logic.gates)) assert.ok(gate.opens().circuit.nodes)
 })
