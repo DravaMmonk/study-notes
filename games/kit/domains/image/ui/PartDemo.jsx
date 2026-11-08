@@ -59,7 +59,8 @@ function benchFor(kit, levels, box, flag, type, home, sample = false) {
   const broken = !first || first.errors.size > 0 || Object.values(first.outputs).some((img) => !img || Array.from(img.data).some(Number.isNaN))
   if (broken && !sample && source.id !== box.sample && !box.inLevel[flag]) return benchFor(kit, levels, box, flag, type, home, true)
   const ioKinds = Object.fromEntries([...Object.entries(tests[0]?.inputs ?? {}), ...outputs.map((name) => [name, first?.outputs[name]])].map(([name, value]) => [name, kindOf(value)]))
-  return { bench, graph, nodeType, ioKinds, sensors: levelSensors(bench), views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
+  const colourOutputs = Object.entries(first?.outputs ?? {}).filter(([, value]) => value?.c === 3).map(([name]) => name)
+  return { bench, graph, nodeType, ioKinds, colourOutputs, sensors: levelSensors(bench), views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
 }
 
 export default function PartDemo({ kit, flag, type, home, flags, phone, levels, box }) {
@@ -70,7 +71,7 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
   const [stale, setStale] = useState(false)
   const [scan, setScan] = useState(0.5)
   const [sel, setSel] = useState(null) // the block tapped on a phone
-  const parts = useMemo(() => made && partsFor(kit, { sensors: made.sensors, outputLabels: made.bench.outputLabels }), [kit, made])
+  const parts = useMemo(() => made && partsFor(kit, { sensors: made.sensors, outputLabels: made.bench.outputLabels, colourOutputs: made.colourOutputs }), [kit, made])
   if (!made) return null
   const { types, runLevel, settingsOf } = kit
 
@@ -102,7 +103,7 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
   if (!phone) {
     return (
       <DemoBench {...common} note={{ zh: '更换测试图或修改元件设置，然后点击运行，查看每个元件的输出。', en: "Pick another test picture or change a part's settings, then run to see what each part outputs." }}>
-        <Editor kit={kit} graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
+        <Editor kit={kit} graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} colourOutputs={made.colourOutputs} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
       </DemoBench>
     )
   }

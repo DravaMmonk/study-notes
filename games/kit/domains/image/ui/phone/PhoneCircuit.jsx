@@ -25,7 +25,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // An output and its expected value can only be compared cell by cell when they are the same size.
 const fits = (img, expected) => img.w === expected.w && img.h === expected.h && (img.c ?? 1) === (expected.c ?? 1)
 
-export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
+export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, colourOutputs, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
@@ -33,8 +33,8 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
   const tolerance = (level.tests[testIndex]?.check ?? level.check)?.tolerance ?? 0.02
   const all = level.tests.length
   const byId = (id) => graph.nodes.find((n) => n.id === id)
-  const { types, inputsOf } = kit
-  const parts = useMemo(() => partsFor(kit, { sensors, outputLabels }), [kit, sensors, outputLabels])
+  const { types } = kit
+  const parts = useMemo(() => partsFor(kit, { sensors, outputLabels, colourOutputs }), [kit, sensors, outputLabels, colourOutputs])
   const root = useRef(null)
   const scroller = useRef(null)
   const editing = useSlotEditing({
@@ -63,7 +63,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
   // A block on the board: "unwired" while an input is open, ! on an error, else its picture.
   const boardThumb = (node, size) => {
     const value = values?.get(node.id)
-    const open = node.type !== 'input' && inputsOf(node.type).some((port) => !feeding(graph, node.id, port))
+    const open = node.type !== 'input' && parts.inputs(node).some((port) => !feeding(graph, node.id, port))
     if (open) return <i className="pb-empty" style={{ width: size, height: size }}>{tr('待接线', 'unwired')}</i>
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
     if (!value) return <i className="pb-empty" style={{ width: size, height: size }} />

@@ -71,6 +71,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   const ioKinds = level.kind === 'graph' ? Object.fromEntries([...Object.entries(level.tests[0].inputs), ...Object.entries(level.tests[0].expected)].map(([name, value]) => [name, kindOf(value)])) : {}
   const sensors = useMemo(() => (level.kind === 'graph' ? levelSensors(level) : {}), [level])
   const outputLabels = level.outputLabels ?? {}
+  const colourOutputs = useMemo(() => Object.entries(level.tests?.[0]?.expected ?? {}).filter(([, value]) => value?.c === 3).map(([name]) => name), [level])
   const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid'), shows: level.shows, fresh: level.freshViews }
   // The row every profile view traces, as a fraction of the height, shared by cards and tests.
   const [scan, setScan] = useState(0.5)
@@ -195,7 +196,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   // A circuit level on a phone: the phone board, the tests pinned over it (PhoneCircuit.jsx).
   if (phone && graphLevel) {
     return (
-      <PhoneCircuit kit={kit} level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onClear={clearCircuit} brief={brief} training={training} footer={score} testDetails={testPanel} />
+      <PhoneCircuit kit={kit} level={playLevel} hiddenCount={hiddenCount} hiddenMiss={hiddenMiss} graph={board} onChange={change} run={shown} onTest={runTests} testIndex={testIndex} onTestIndex={setTestIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} colourOutputs={colourOutputs} ioKinds={ioKinds} views={views} theme={theme} scan={scan} onScan={setScan} onClear={clearCircuit} brief={brief} training={training} footer={score} testDetails={testPanel} />
     )
   }
   // A bench or probe level runs itself: its stage is all it has, on a phone with its main visual pinned.
@@ -218,7 +219,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
         </>
       }
       parts={palette.length > 0 && compactParts}
-      stage={<Editor kit={kit} graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} types={palette} onClear={clearCircuit} />}
+      stage={<Editor kit={kit} graph={board} onChange={change} run={shown} testIndex={testIndex} flags={flags} sensors={sensors} outputLabels={outputLabels} colourOutputs={colourOutputs} views={views} ioKinds={ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={palette.length > 0} types={palette} onClear={clearCircuit} />}
       tests={<TestPanel {...half} part="tests" />}
       status={<TestStatus states={states} hidden={hidden} />}
       results={<TestPanel {...half} part="row" />}

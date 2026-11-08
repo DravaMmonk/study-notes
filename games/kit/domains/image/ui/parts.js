@@ -9,16 +9,17 @@ export const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'lef
 
 /** The parts of one level, by the course's engine (kit, ../engine/kit.js): its input cards are its sensors
  *  (ui/sensors.js), its output cards named by the level (or Output). */
-export function partsFor(kit, { sensors, outputLabels } = {}) {
+export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}) {
   return {
     ...kit.BOARD_PARTS,
+    inputs: (node) => node.type === 'output' && !colourOutputs.includes(node.params.name) ? ['in'] : kit.BOARD_PARTS.inputs(node),
     outputs: (node) => node.type === 'input' && sensors?.[node.params.name]?.colour ? [{ key: null, label: tr('图', 'Image') }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : null,
     label: (node) => {
       if (node.type === 'input') return sensors?.[node.params.name]?.label ?? tr('输入', 'Input')
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')
       return kit.types[node.type].label
     },
-    portLabel: (node, port) => node.type === 'output' ? (port === 'in' ? { zh: '图', en: 'Image' } : port.toUpperCase()) : PORT_LABELS[port] ?? port,
+    portLabel: (node, port) => node.type === 'output' && colourOutputs.includes(node.params.name) ? (port === 'in' ? { zh: '图', en: 'Image' } : port.toUpperCase()) : PORT_LABELS[port] ?? port,
     family: (node) => familyOf(node.type ?? 'input'),
     icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type)),
   }

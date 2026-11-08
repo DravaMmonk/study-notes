@@ -15,13 +15,13 @@ import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView, viewsIn } from './views/view
 const NODE_W = 140
 const PORT_ROW = 20 // the height of a port's row on a card (games/kit/circuit CanvasEditor.jsx)
 
-export default function Editor({ kit, graph, onChange, run, testIndex, flags, sensors, outputLabels, views, ioKinds, scan, onScan, theme, hasPalette, types, focus, refit, onClear }) {
+export default function Editor({ kit, graph, onChange, run, testIndex, flags, sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan, theme, hasPalette, types, focus, refit, onClear }) {
   const [peek, setPeek] = useState(null)
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
   const { inputsOf, settingsOf, snapSetting } = kit
-  const parts = useMemo(() => partsFor(kit, { sensors, outputLabels }), [kit, sensors, outputLabels])
+  const parts = useMemo(() => partsFor(kit, { sensors, outputLabels, colourOutputs }), [kit, sensors, outputLabels, colourOutputs])
 
   // Choosing a view changes nothing in the circuit: it is saved, but tests do not re-run.
   const viewOf = (node) => nodeView(node, views)
