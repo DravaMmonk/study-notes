@@ -2,8 +2,8 @@
   "title": { "zh": "图块的注意力", "en": "Attention between patches" },
   "tray": "pipeline",
   "after": {
-    "zh": "Q、K、V 可以从同一组图块通过不同的可学习变换得到。这里每个变换只有一个标量，训练用输出误差更新三个参数；实际模型通常使用更丰富的矩阵投影。不同参数组合也可能产生相同的注意力结果。",
-    "en": "Q, K and V can be produced from the same patches by different learnable transformations. Here each transformation has one scalar, and training updates all three parameters from the output error; real models usually use richer matrix projections. Different parameter combinations can also produce the same attention result."
+    "zh": "同一组图块可以经过不同的可学习变换生成 Q、K、V；每个变换在图块之间共享。本关用三个标量简化线性投影，训练根据输出误差调整它们。实际模型通常使用矩阵投影，不同参数组合也可能得到相同的注意力结果。",
+    "en": "The same patches can pass through different learnable transformations to produce Q, K and V, with each transformation shared across patches. This level simplifies the projections to three scalars, adjusted by training against the output error. Real models usually use matrix projections; different parameter combinations can produce the same attention result."
   },
   "intro": [
     {
@@ -98,8 +98,8 @@
         "en": "Multiply pixel by pixel and average over each patch to obtain two scores. Leave Softmax’s third input empty; multiply its output weights by the corresponding patches and add."
       },
       "after": {
-        "zh": "注意力先比较查询和键，再用得到的权重汇总值。接下来保持这个计算过程，训练生成 Q、K、V 的变换。",
-        "en": "Attention first compares a query with keys, then combines values using the resulting weights. Next, keep this calculation and train the transformations that produce Q, K and V."
+        "zh": "注意力先比较查询和键，再用权重汇总值。接下来沿用这块电路，加入可学习参数生成 Q、K、V。",
+        "en": "Attention first compares a query with keys, then combines values using the resulting weights. Next, continue from this circuit and add learnable parameters to produce Q, K and V."
       },
       "inputs": ["a", "b"],
       "inputLabels": {
@@ -172,37 +172,68 @@
     {
       "id": "5-1-training",
       "step": { "zh": "训练 Q、K、V", "en": "Train Q, K and V" },
-      "kind": "board",
+      "kind": "graph",
+      "carries": true,
       "brief": {
-        "zh": "两块输入图像分别经过三个共享的线性变换，得到 Q、K、V。训练参数，让三组输入的平均输出平方误差降到 0.001 以下；切换输入组观察图块和输出。",
-        "en": "The two input patches pass through three shared linear transformations to produce Q, K and V. Train the parameters until the mean squared output error across all three input pairs is below 0.001; switch pairs to inspect the patches and output."
+        "zh": "沿用上一段电路，让图块先经过可学习的标量变换，再计算注意力。用三个可学习常数分别生成 Q、K、V：Q 由 a 变换，a 和 b 共用同一个 K 变换，也共用同一个 V 变换。训练参数，使输出匹配各组目标。",
+        "en": "Continue from the previous circuit and transform the patches with learnable scalars before attention. Use three learnable constants to produce Q, K and V: transform a into Q, use the same K transformation for a and b, and likewise share the V transformation. Train the parameters to match the targets."
       },
       "hint": {
-        "zh": "每按一次训练，模型根据三组输入的输出误差更新 Q、K、V 的参数。目标图块来自一组固定的变换；参数不一定只有一种组合。",
-        "en": "Each press updates the Q, K and V parameters using output errors from all three input pairs. The target patches come from fixed transformations; the parameters need not have a unique solution."
+        "zh": "将可学习常数分别与图块相乘；同一个 K 常数和 V 常数都要接到两个图块。用 Q、K 计算权重，再加权汇总 V。训练会根据测试目标更新三个常数。",
+        "en": "Multiply patches by learnable constants; connect the same K constant and the same V constant to both patches. Compute weights from Q and K, then combine V with those weights. Training updates the three constants against the test targets."
       },
-      "bench": {
-        "model": "attentionTraining",
-        "knobs": {
-          "sample": {
-            "label": { "zh": "查看输入组", "en": "Input pair" },
-            "choices": [
-              { "value": 0, "label": { "zh": "X、O", "en": "X, O" } },
-              { "value": 1, "label": { "zh": "O、竖条", "en": "O, vertical bars" } },
-              { "value": 2, "label": { "zh": "竖条、X", "en": "Vertical bars, X" } }
-            ],
-            "start": 0
-          }
+      "inputs": ["a", "b"],
+      "inputLabels": { "a": { "zh": "图块 a", "en": "Patch a" }, "b": { "zh": "图块 b", "en": "Patch b" } },
+      "check": { "tolerance": 0.02 },
+      "trainRate": 1.5,
+      "scene": "filter",
+      "setup": { "target": "projectedAsk" },
+      "tests": [
+        {
+          "label": { "zh": "X、R", "en": "X, R" },
+          "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "R" } } }
         },
-        "actions": [
-          { "act": "train", "label": { "zh": "训练 20 步", "en": "Train 20 steps" }, "primary": true },
-          { "act": "reset", "label": { "zh": "重置参数", "en": "Reset parameters" } }
-        ],
-        "goal": [{ "of": "loss", "atMost": 0.001 }],
-        "win": { "zh": "训练误差已达标。", "en": "Training error meets the target." },
-        "status": { "zh": "训练参数并观察输出。", "en": "Train the parameters and observe the output." },
-        "layout": { "main": ["attentionRoles", { "panel": ["knobs", "actions", "verdict"] }] }
-      }
+        {
+          "label": { "zh": "R、K", "en": "R, K" },
+          "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "K" } } }
+        },
+        {
+          "label": { "zh": "K、X", "en": "K, X" },
+          "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "X" } } }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "C、P", "en": "C, P" },
+          "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P" } } }
+        },
+        {
+          "label": { "zh": "S、R", "en": "S, R" },
+          "inputs": { "a": { "tile": { "name": "S" } }, "b": { "tile": { "name": "R" } } }
+        }
+      ],
+      "solution": [
+        "wq = lrnConst[p=[1.8]]()",
+        "wk = lrnConst[p=[1.2]]()",
+        "wv = lrnConst[p=[0.9]]()",
+        "q = arith[op=mul](a, wq)",
+        "ka = arith[op=mul](a, wk)",
+        "kb = arith[op=mul](b, wk)",
+        "va = arith[op=mul](a, wv)",
+        "vb = arith[op=mul](b, wv)",
+        "qa = arith[op=mul](q, ka)",
+        "qb = arith[op=mul](q, kb)",
+        "ma = fqMean(qa)",
+        "mb = fqMean(qb)",
+        "sa = arith[op=mul,constantSide=b,constant=4](ma)",
+        "sb = arith[op=mul,constantSide=b,constant=4](mb)",
+        "p = softmax(sa, sb)",
+        "aout = arith[op=mul](p.p1, va)",
+        "bout = arith[op=mul](p.p2, vb)",
+        "mix = merge(aout, bout)",
+        "out <- mix"
+      ],
+      "naive": ["out <- a"]
     }
   ]
 }

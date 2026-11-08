@@ -13,6 +13,7 @@ import Sheet from '../../../../shell/Sheet.jsx'
 export function ParamChip({ param, value }) {
   if (param.kind === 'select') return <>{L(param.options.find(([v]) => v === value)?.[1]) ?? value}</>
   if (param.kind === 'kernel') {
+    if (value.length === 1) return <><i>{L(param.label)}</i>{formatNumber(value[0])}</>
     return (
       <span className="ph-mini-kernel" aria-label={param.learnable ? tr('训练出的 3×3 核', 'Trained 3×3 kernel') : tr('3×3 核', '3×3 kernel')}>
         {value.map((w, i) => <i key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }} />)}

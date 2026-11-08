@@ -67,7 +67,8 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
   // A block on the board: "unwired" while an input is open, ! on an error, else its picture.
   const boardThumb = (node, size) => {
     const value = values?.get(node.id)
-    const open = node.type !== 'input' && parts.inputs(node).some((port) => !feeding(graph, node.id, port))
+    const optional = types[node.type]?.optional ?? []
+    const open = node.type !== 'input' && parts.inputs(node).some((port) => !optional.includes(port) && !feeding(graph, node.id, port))
     if (open) return <i className="pb-empty" style={{ width: size, height: size }}>{tr('待接线', 'unwired')}</i>
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
     const outputs = node.type !== 'input' ? parts.outputs(node) : null

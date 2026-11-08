@@ -87,6 +87,15 @@ export const TARGETS = {
       return zip(a, b, (x, y) => wa * x + wb * y)
     },
   },
+  projectedAsk: {
+    about: t('用共享的标量投影生成 Q、K、V，再计算两个图块的注意力', 'produce Q, K and V with shared scalar projections, then compute two-patch attention'),
+    make: () => (a, b) => {
+      const q = a.data.map(x => x * 1.8)
+      const keys = [a, b].map(img => img.data.map(x => x * 1.2))
+      const [wa, wb] = attentionWeights(q, keys)
+      return zip(a, b, (x, y) => 0.9 * (wa * x + wb * y))
+    },
+  },
   corners: {
     about: t('角点：Harris 响应大于 threshold 的地方', 'corners: where the Harris response is over threshold'),
     params: S.obj({ threshold: S.num() }),

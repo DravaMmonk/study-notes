@@ -181,5 +181,17 @@ export function runnerOf(types) {
 
   const hasLearnable = (graph) => graph.nodes.some((node) => (types[node.type].params ?? []).some((param) => param.learnable))
 
-  return { partOf, evaluate, placedNodes, score, runLevel, lossOn, trainStep, hasLearnable }
+  // Restore only trainable settings to the values used when each part is placed.
+  const resetTraining = (graph) => ({
+    ...graph,
+    nodes: graph.nodes.map((node) => {
+      const learnable = (types[node.type].params ?? []).filter((param) => param.learnable && node.fixed !== true && !node.fixed?.includes?.(param.key))
+      if (!learnable.length) return node
+      const params = { ...node.params }
+      for (const param of learnable) params[param.key] = Array.isArray(param.default) ? [...param.default] : param.default
+      return { ...node, params }
+    }),
+  })
+
+  return { partOf, evaluate, placedNodes, score, runLevel, lossOn, trainStep, hasLearnable, resetTraining }
 }

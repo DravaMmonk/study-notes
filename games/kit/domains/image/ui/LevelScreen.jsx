@@ -37,7 +37,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
   game.image.syncOwn(progress)
   // The engine over the course's part table (engine/kit.js): its own packed parts among the rest.
   const { kit } = game.image
-  const { types, defaultParams, runLevel, trainStep, lossOn, hasLearnable } = kit
+  const { types, defaultParams, runLevel, trainStep, lossOn, hasLearnable, resetTraining } = kit
   // The board and its test results change together: tests re-run whenever the wiring or a parameter
   // changes, but not while a card is only being dragged around.
   const [{ board, run }, setState] = useState(() => {
@@ -167,6 +167,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
         )}
         <button onClick={() => train(1)}>{tr('训练 1 步', 'Train 1 step')}</button>
         <button onClick={() => train(10)}>{tr('训练 10 步', 'Train 10 steps')}</button>
+        <button onClick={() => { change(resetTraining(board)); setLosses([]) }}>{tr('重置参数', 'Reset parameters')}</button>
       </div>
       <LossCurve losses={losses} />
     </section>
