@@ -2,8 +2,8 @@
   "title": { "zh": "只认颜色", "en": "Colour, not brightness" },
   "tray": "pipeline",
   "after": {
-    "zh": "在本关的白光模型里，光照强弱让 R、G、B 按相同比例变化。r = R ÷ (R + G + B) 不受这种明暗变化影响，是一种色度；光源颜色变化或接近全黑时，需要另作处理。HSV、Lab 等颜色空间也提供描述颜色和明暗的不同方式。",
-    "en": "In this level's neutral-light model, changing light intensity scales R, G and B by the same factor. r = R ÷ (R + G + B) is a chromaticity unaffected by this brightness change; changes in light colour or near-black values require further treatment. Colour spaces such as HSV and Lab offer other ways to describe colour and lightness."
+    "zh": "在本关的白光模型里，光照强弱会让 R、G、B 按相同比例变化。辨认颜色时，要看各通道的相对关系，而不是只看某个通道的亮度；这种描述颜色的相对关系称为色度。光源颜色变化或接近全黑时，仅靠这种关系可能无法可靠判断。",
+    "en": "In this level's neutral-light model, changing illumination scales R, G and B together. Identifying colour calls for comparing the channels relative to one another, rather than relying on the brightness of one channel alone. Such a description of colour is called chromaticity. When the light's colour changes or the signal is near black, this relationship alone may not be reliable."
   },
   "intro": [
     {
