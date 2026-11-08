@@ -4,6 +4,7 @@
 import { T as t } from '../../../shell/i18n.js'
 
 export const DISPLAYS = {
+  attentionRoles: { about: t('查询、键、值与注意力输出的图块', 'query, key, value and attention output patches') },
   separableKernels: { about: t('并排比较两组目标和结果的空间核', 'compare two target and output spatial kernels') },
   appleDecision: { about: t('检查苹果选择并解释错误', 'check the apple selection and explain a wrong choice') },
   appleChannels: { about: t('两只苹果在白光下的 R、G、B 灰度图和数值', 'grayscale R, G and B images and values for two apples under neutral light') },

@@ -15,8 +15,9 @@ import { cover } from '../benches/cover.js'
 import { gan } from '../benches/gan.js'
 import { appleLight } from '../benches/apple-light.js'
 import { separable } from '../benches/separable.js'
+import { attentionRoles } from '../benches/attention-roles.js'
 
-export const BENCH_MODELS = { obscura, racer, wave, sum, probe, alias, stop, contrast, hough, ransac, cover, gan, appleLight, separable }
+export const BENCH_MODELS = { obscura, racer, wave, sum, probe, alias, stop, contrast, hough, ransac, cover, gan, appleLight, separable, attentionRoles }
 
 /** A bench level's bench with its model made, and its check (verify: '' when the lesson holds). */
 export function benchOf(bench) {

@@ -1,0 +1,6 @@
+.attention-roles { display: grid; gap: 12px; }
+.attention-role-row { display: flex; justify-content: center; gap: 18px; }
+.attention-role-row figure { margin: 0; display: grid; justify-items: center; gap: 4px; min-width: 74px; }
+.attention-role-row figcaption, .attention-role-row small { color: var(--muted); font-size: 12px; }
+.attention-pixels { width: 64px; aspect-ratio: 1; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--rule); }
+.attention-pixels span { border: 1px solid rgba(128, 128, 128, .25); }

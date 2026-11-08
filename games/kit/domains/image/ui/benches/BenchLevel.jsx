@@ -8,10 +8,12 @@ import { CoverPairList, CoverPairs } from './Cover.jsx'
 import { GanChart } from './Gan.jsx'
 import { ChoiceMatrix, Embedding } from './Contrast.jsx'
 import { KernelChoices, KernelRound } from './Kernels.jsx'
+import { AttentionRoles } from './AttentionRoles.jsx'
 
 // A bench level (kind: 'board') on the kernel's parameter bench, with the image domain's own display items (their
 // schemas and what each is for: ../../items/displays.js). Loaded lazily, with every bench's pictures.
 const DISPLAYS = {
+  attentionRoles: AttentionRoles,
   separableKernels: SeparableKernels,
   appleChannels: AppleChannels,
   appleDecision: AppleDecision,
