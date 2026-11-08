@@ -152,7 +152,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 12,
+  version: 13,
   kinds: {
     part: PARTS,
     unlock: UNLOCKS,

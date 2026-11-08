@@ -85,15 +85,18 @@ export const NODE_TYPES = {
   softmax: {
     label: 'Softmax',
     inputs: ['s1', 's2', 's3'],
+    optional: ['s3'],
     inputLabels: { s1: 'S1', s2: 'S2', s3: 'S3' },
     outputLabels: { p1: 'P1', p2: 'P2', p3: 'P3' },
     outputs: () => ['p1', 'p2', 'p3'],
     eval: ({ s1, s2, s3 }, _params, _variant, key) => {
-      const peak = zip(zip(s1, s2, Math.max), s3, Math.max)
-      const exps = [s1, s2, s3].map((score) => zip(score, peak, (v, max) => Math.exp(v - max)))
-      const sum = zip(zip(exps[0], exps[1], (a, b) => a + b), exps[2], (a, b) => a + b)
+      const peak2 = zip(s1, s2, Math.max)
+      const peak = s3 ? zip(peak2, s3, Math.max) : peak2
+      const exps = [s1, s2, ...(s3 ? [s3] : [])].map((score) => zip(score, peak, (v, max) => Math.exp(v - max)))
+      const sum2 = zip(exps[0], exps[1], (a, b) => a + b)
+      const sum = s3 ? zip(sum2, exps[2], (a, b) => a + b) : sum2
       const numerator = exps[{ p1: 0, p2: 1, p3: 2 }[key]]
-      return zip(numerator, sum, (a, b) => a / b)
+      return numerator ? zip(numerator, sum, (a, b) => a / b) : map(sum, () => 0)
     },
     cost: 8,
     unlock: 'softmax',

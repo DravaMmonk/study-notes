@@ -28,8 +28,8 @@
     },
     {
       "t": {
-        "zh": "如果通过了<level-ref to=\"4-20\"></level-ref>，可以使用解锁的 Softmax 元件，把三类分数变成概率。也可以自己搭出这一步。",
-        "en": "If you passed <level-ref to=\"4-20\"></level-ref>, you can use the unlocked Softmax part to turn the three scores into probabilities. You can also build this step yourself."
+        "zh": "可以使用<level-ref to=\"4-18\"></level-ref>解锁的 Softmax 元件，把三类分数变成概率；也可以自己搭出这一步。",
+        "en": "Use the Softmax part unlocked in <level-ref to=\"4-18\"></level-ref> to turn three scores into probabilities, or build the conversion yourself."
       }
     },
     {

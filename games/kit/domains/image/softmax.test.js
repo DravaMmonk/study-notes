@@ -25,10 +25,15 @@ test('three Softmax outputs correspond to their input scores, including large va
   assert.deepEqual(kit.toText(kit.fromText(kit.toText(graph), io)), kit.toText(graph))
 })
 
-test('Softmax requires all three input scores', () => {
-  const { errors, values } = kit.evaluate(graph, { a: image(1, 1, 1), b: image(1, 1, 2) })
-  assert.equal(values.has('p#p1'), false)
-  assert.ok(errors.size > 0)
+test('Softmax accepts two scores and gives zero at the unused third output', () => {
+  const two = kit.fromText(['p = softmax(a, b)', 'x <- p.p1', 'y <- p.p2', 'z <- p.p3'], io)
+  const { errors, values } = kit.evaluate(two, { a: image(1, 1, 1000), b: image(1, 1, 999) })
+  assert.equal(errors.size, 0)
+  assert.ok(Math.abs(values.get('x').data[0] - 1 / (1 + Math.exp(-1))) < 1e-6)
+  assert.ok(Math.abs(values.get('y').data[0] - 1 / (1 + Math.exp(1))) < 1e-6)
+  assert.equal(values.get('z').data[0], 0)
+  const missing = kit.fromText(['p = softmax(a)', 'x <- p.p1'], io)
+  assert.ok(kit.evaluate(missing, { a: image(1, 1, 1) }).errors.size > 0)
 })
 
 test('Softmax normalises corresponding pixels and broadcasts scalar inputs', () => {

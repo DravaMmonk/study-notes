@@ -94,8 +94,8 @@
         "en": "Use patch a as the query, with a and b each acting as a key and a value. Compute scores for a with a and a with b: score = 4 × average(a × corresponding patch). Apply Softmax to the two scores: weight = e^score ÷ the sum of both e^score. Output the weighted sum of patches a and b."
       },
       "hint": {
-        "zh": "先逐格相乘，再对整块图取平均，分别得到两个分数。一个数与图块相乘时，该数会作用于图块的每个像素。",
-        "en": "Multiply pixel by pixel and average over each patch to obtain the two scores. When a number multiplies a patch, it applies to every pixel."
+        "zh": "先逐格相乘，再对整块图取平均，分别得到两个分数。Softmax 的第三输入可留空；输出权重乘以对应图块后相加。",
+        "en": "Multiply pixel by pixel and average over each patch to obtain two scores. Leave Softmax’s third input empty; multiply its output weights by the corresponding patches and add."
       },
       "after": {
         "zh": "注意力先比较查询和键，再用得到的权重汇总值。接下来保持这个计算过程，训练生成 Q、K、V 的变换。",
@@ -143,14 +143,11 @@
         "mb = fqMean(ab)",
         "sa = arith[op=mul,constantSide=b,constant=4](ma)",
         "sb = arith[op=mul,constantSide=b,constant=4](mb)",
-        "ea = exp(sa)",
-        "eb = exp(sb)",
-        "wa = arith[op=mul](ea, a)",
-        "wb = arith[op=mul](eb, b)",
-        "den = merge(ea, eb)",
-        "num = merge(wa, wb)",
-        "q = arith[op=div](num, den)",
-        "out <- q"
+        "weights = softmax(sa, sb)",
+        "wa = arith[op=mul](weights.p1, a)",
+        "wb = arith[op=mul](weights.p2, b)",
+        "mix = merge(wa, wb)",
+        "out <- mix"
       ],
       "naive": ["out <- a"],
       "alsoFails": [

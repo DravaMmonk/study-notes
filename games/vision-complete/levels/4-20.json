@@ -1,11 +1,10 @@
 {
   "title": { "zh": "三选一", "en": "One of three" },
   "optional": true,
-  "unlocks": ["softmax"],
   "tray": "pipeline",
   "after": {
-    "zh": "这叫 Softmax：先用 e 的几次方把分变成正数，再除以总和。分差 1，概率就差 e 倍，最高分会被放大。分类网络的最后一步几乎都是它。",
-    "en": "This is the softmax: first make the scores positive with e to the power of each, then divide by the total. A difference of 1 in score is a factor of e in probability, so the top score is magnified. Almost every classification network ends with it."
+    "zh": "Softmax 将各分数转换成非负、总和为 1 的权重。它适用于不同数量的类别；权重可以作为模型的类别概率，但是否可靠还需要校准和评估。",
+    "en": "Softmax turns scores into nonnegative weights that sum to 1 for any number of classes. The weights can be used as class probabilities, but their reliability still needs calibration and evaluation."
   },
   "intro": [
     {
@@ -34,8 +33,8 @@
     },
     {
       "t": {
-        "zh": "这一关你要做的：把三个分变成三个概率，规则在说明里。要想的问题：负的分该怎么办？",
-        "en": "Your task in this level: turn the three scores into three probabilities, by the rule in the brief. Something to think about: what should happen to a negative score?"
+        "zh": "<level-ref to=\"4-18\"></level-ref>中你处理了两个分数。这次暂时收起 Softmax 元件，亲手把三个分数变成三个概率。",
+        "en": "In <level-ref to=\"4-18\"></level-ref> you handled two scores. This time the Softmax part is temporarily put aside: build the conversion of three scores to probabilities yourself."
       },
       "fig": { "test": 0, "caption": { "zh": "第一组：分数 (2, 0, −1)", "en": "Set 1: scores (2, 0, −1)" } }
     }
@@ -52,6 +51,7 @@
         "zh": "分可能是负数，直接除以总和会出错。exp 把任何数变成正数。",
         "en": "Scores can be negative, so dividing by their sum goes wrong. exp turns any number positive."
       },
+      "withhold": ["softmax"],
       "inputs": ["sx", "so", "sp"],
       "inputLabels": {
         "sx": { "zh": "S1", "en": "S1" },

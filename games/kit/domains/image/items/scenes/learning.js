@@ -147,6 +147,14 @@ export const LEARNING = {
       return { inputs: { r, g, b }, expected: { o1: zip(R, G, (p, q) => p - q), o2: fromFn(r.w, r.h, (x, y) => { const i = y * r.w + x; return R.data[i] + G.data[i] - 2 * B.data[i] }) } }
     },
   },
+  binaryScores: {
+    about: t('两个分数；期望是 Softmax 给出的两个权重', 'two scores; the two weights produced by Softmax expected'),
+    test: S.obj({ s: S.list(S.num(), { min: 2, max: 2 }) }),
+    make: ({ s }) => {
+      const p = 1 / (1 + Math.exp(s[1] - s[0]))
+      return { inputs: { a: num(s[0]), b: num(s[1]) }, expected: { pa: num(p), pb: num(1 - p) } }
+    },
+  },
   scores: {
     about: t('三类的分数；期望是 softmax 给的三个概率', 'the scores of three classes; the three probabilities softmax gives expected'),
     test: S.obj({ s: S.list(S.num(), { min: 3 }) }),
